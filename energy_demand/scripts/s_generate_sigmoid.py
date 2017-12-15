@@ -10,7 +10,7 @@ import numpy as np
 from scipy.optimize import curve_fit
 from energy_demand.technologies import diffusion_technologies
 
-def calc_sigmoid_parameters(l_value, xdata, ydata, fit_crit_a=200, fit_crit_b=0.001):
+def calc_sigmoid_parameters(l_value, xdata, ydata, fit_crit_max=400, fit_crit_min=0.00001):
     """Calculate sigmoid parameters
 
     Arguments
@@ -21,20 +21,26 @@ def calc_sigmoid_parameters(l_value, xdata, ydata, fit_crit_a=200, fit_crit_b=0.
         X data
     ydata : array
         Y data
-    fit_crit_a : float
+    fit_crit_max : float
         Criteria to control and abort fit
-    fit_crit_b : float
-        Criteria to control and abort fit
+    fit_crit_min : float
+        Criteria to control and abort fit (slope must be posititive)
 
+    #TODO: Implement that if fitting files, straight line?
     Returns
     ------
     fit_parameter : array
         Parameters (first position: midpoint, second position: slope)
     """
     # Generate possible starting parameters for fit
-    start_param_list = [1.0, 0.001, 0.01, 0.1, 60.0, 100.0, 200.0, 400.0, 500.0, 1000.0]
+    start_param_list = []
+
     for start in [x * 0.05 for x in range(0, 100)]:
         start_param_list.append(float(start))
+
+    for start in [1.0, 0.001, 0.01, 0.1, 60.0, 100.0, 200.0, 400.0, 500.0, 1000.0]:
+        start_param_list.append(float(start))
+
     for start in range(1, 59):
         start_param_list.append(float(start))
 
@@ -53,7 +59,7 @@ def calc_sigmoid_parameters(l_value, xdata, ydata, fit_crit_a=200, fit_crit_b=0.
                 ydata,
                 start_parameters)
 
-            #print("Fit parameters: %s", fit_parameter)
+            print("Fit parameters: %s %s %s", fit_parameter, xdata, ydata)
             '''logging.debug("Fit parameters: %s", fit_parameter)
             from energy_demand.plotting import plotting_program
             #plot sigmoid curve
@@ -64,21 +70,21 @@ def calc_sigmoid_parameters(l_value, xdata, ydata, fit_crit_a=200, fit_crit_b=0.
                 xdata,
                 ydata,
                 fit_parameter,
-                False
-                )'''
+                False)'''
 
             # Criteria when fit did not work
-            if (fit_parameter[0] > fit_crit_a) or (
-                fit_parameter[0] < fit_crit_b) or (
-                    fit_parameter[1] > fit_crit_a) or (
+            '''if (fit_parameter[0] > fit_crit_max) or (
+                fit_parameter[0] < fit_crit_min) or (
+                    fit_parameter[1] > fit_crit_max) or (
                         fit_parameter[1] < 0) or (
                             fit_parameter[0] == start_parameters[0]) or (
                                 fit_parameter[1] == start_parameters[1]) or (
-                                    fit_parameter[0] == fit_parameter[1]): #NEW CRITERIA ADDED
-
+                                    fit_parameter[0] == fit_parameter[1]):'''
+            # Fit must be positive and paramaters not input parameters
+            if (fit_parameter[1] < 0) or (fit_parameter[0] == start_parameters[0]) or (fit_parameter[1] == start_parameters[1]):
                 cnt += 1
                 if cnt >= len(start_param_list):
-                    logging.critical("Error2: CURVE FITTING DID NOT WORK")
+                    logging.critical("Error: Sigmoid curve fitting failed")
             else:
                 successfull = True
 
@@ -89,19 +95,20 @@ def calc_sigmoid_parameters(l_value, xdata, ydata, fit_crit_a=200, fit_crit_b=0.
                     xdata[1], l_value, *fit_parameter)
 
                 fit_measure_in_percent = (100.0 / ydata[1]) * y_calculated
-                logging.debug("... Fitting measure in percent: %s", fit_measure_in_percent)
-                logging.debug("... Fitting measure in percent: %s", fit_measure_in_percent)
+                print("... Fitting measure in percent: %s", fit_measure_in_percent)
 
                 if fit_measure_in_percent < 99.0:
                     logging.critical("The sigmoid fitting is not good enough")
 
-        except RuntimeError:
-            logging.debug("Unsuccessful fit %s", start_parameters[1])
-            logging.debug("Check whether start year is <= the year 2000")
+        except (RuntimeError, IndexError):
+            print("Unsuccessful fit %s", start_parameters[0], start_parameters[1])
             cnt += 1
 
             if cnt >= len(start_param_list):
-                logging.critical("Sigmoid fit error: Try changing fit_crit_a and fit_crit_b")
+                print("Check whether start year is <= the year 2000")
+                logging.critical("Sigmoid fit error: Try changing fit_crit_max and fit_crit_min")
+                import sys
+                sys.exit()
 
     return fit_parameter
 
@@ -153,7 +160,7 @@ def tech_sigmoid_parameters(
     Notes
     -----
     Manually the fitting parameters can be defined which are not considered as
-    a good fit: fit_crit_a, fit_crit_b
+    a good fit: fit_crit_max, fit_crit_min
     If service definition, the year until switched is the end model year
     """
     # As fit does not work with a starting point of 0,
@@ -215,9 +222,6 @@ def tech_sigmoid_parameters(
             # ----------------
             # Parameter fitting
             # ----------------
-            print("F")
-            print(l_values)
-            print(ydata)
             fit_parameter = calc_sigmoid_parameters(
                 l_values[enduse][tech],
                 xdata,
@@ -532,39 +536,6 @@ def calc_service_fuel_switched(
 
     return dict(service_tech_switched_p)
 
-def get_tech_installed(enduses, fuel_switches):
-    """Read out all technologies which are
-    specifically switched to for all enduses
-
-    Parameter
-    ---------
-    enduses : list
-        List with enduses
-    fuel_switches : dict
-        All fuel switches where a share of a fuel
-        of an enduse is switched to a specific technology
-
-    Return
-    ------
-    installed_tech : list
-        List with all technologies where a fuel share is switched to
-    """
-    installed_tech = {}
-
-    # Add technology list for every enduse with affected switches
-    for enduse in enduses:
-        installed_tech[enduse] = set([])
-
-    for switch in fuel_switches:
-        enduse_fuelswitch = switch.enduse
-        installed_tech[enduse_fuelswitch].add(switch.technology_install)
-
-    # Convert set to lists
-    for enduse in installed_tech:
-        installed_tech[enduse] = list(installed_tech[enduse])
-
-    return installed_tech
-
 def get_tech_installed_single_enduse(enduse, fuel_switches):
     """Read out all technologies which are
     specifically switched to for all enduses
@@ -593,7 +564,7 @@ def get_tech_installed_single_enduse(enduse, fuel_switches):
     # Convert set to lists
     for enduse, set_values in installed_tech.items():
         installed_tech[enduse] = list(set_values)
-    
+
     return installed_tech
 
 '''def get_sig_diffusion(
@@ -1048,7 +1019,7 @@ def tech_sigmoid_parameteNEW(
     Notes
     -----
     Manually the fitting parameters can be defined which are not considered as
-    a good fit: fit_crit_a, fit_crit_b
+    a good fit: fit_crit_max, fit_crit_min
     If service definition, the year until switched is the end model year
     """
     # As fit does not work with a starting point of 0,

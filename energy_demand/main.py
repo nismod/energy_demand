@@ -24,7 +24,6 @@ import logging
 import numpy as np
 from energy_demand import energy_model
 from energy_demand.basic import testing_functions as testing
-from energy_demand.technologies import fuel_service_switch
 
 def energy_demand_model(data, fuel_in=0, fuel_in_elec=0):
     """Main function of energy demand model to calculate yearly demand
@@ -119,7 +118,7 @@ if __name__ == "__main__":
     data['criterias']['mode_constrained'] = False
     data['criterias']['plot_HDD_chart'] = False
     data['criterias']['virtual_building_stock_criteria'] = virtual_building_stock_criteria
-    data['criterias']['spatial_exliclit_diffusion'] = True
+    data['criterias']['spatial_exliclit_diffusion'] = False
 
     data['paths'] = data_loader.load_paths(path_main)
     data['local_paths'] = data_loader.load_local_paths(local_data_path)
@@ -187,7 +186,7 @@ if __name__ == "__main__":
     # ---------------------
     # Calculate all capacity switches
     # ---------------------
-    data['assumptions']['rs_service_switches'] = fuel_service_switch.capacity_installations(
+    '''data['assumptions']['rs_service_switches'] = fuel_service_switch.capacity_installations(
         data['assumptions']['rs_service_switches'],
         data['assumptions']['capacity_switches']['rs_capacity_switches'],
         data['assumptions']['technologies'],
@@ -212,7 +211,7 @@ if __name__ == "__main__":
         data['assumptions']['enduse_overall_change']['other_enduse_mode_info'],
         data['fuels']['is_fuel_raw_data_enduses'],
         data['assumptions']['is_fuel_tech_p_by'],
-        data['sim_param']['base_yr'])
+        data['sim_param']['base_yr'])'''
 
     #Scenario data
     data['scenario_data'] = {

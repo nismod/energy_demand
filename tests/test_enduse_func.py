@@ -66,8 +66,8 @@ def test_service_switch():
         l_value,
         xdata,
         ydata,
-        fit_crit_a=200,
-        fit_crit_b=0.001)
+        fit_crit_max=200,
+        fit_crit_min=0.001)
 
     tot_service_yh_cy = np.full((365, 24), 1.0) #constant share of 1 in every hour
     service_tech_by_p = {"boilerA": share_boilerA_by, "boilerB": share_boilerB_by}
@@ -127,8 +127,8 @@ def test_service_switch():
         l_value,
         xdata,
         ydata,
-        fit_crit_a=200,
-        fit_crit_b=0.001)
+        fit_crit_max=200,
+        fit_crit_min=0.001)
 
     tot_service_yh_cy = np.full((365, 24), 1.0) #constant share of 1 in every hour
     service_tech_by_p = {"boilerA": share_boilerA_by, "boilerB": share_boilerB_by}
@@ -187,8 +187,8 @@ def test_service_switch():
         l_value,
         xdata,
         ydata,
-        fit_crit_a=200,
-        fit_crit_b=0.001)
+        fit_crit_max=200,
+        fit_crit_min=0.001)
 
     #plot sigmoid curve
     #plotting_program.plotout_sigmoid_tech_diff(l_value, "GG", "DD", xdata, ydata, fit_parameter, False)
@@ -284,8 +284,8 @@ def test_fuel_switch():
         l_value,
         xdata,
         ydata,
-        fit_crit_a=200,
-        fit_crit_b=0.001)
+        fit_crit_max=200,
+        fit_crit_min=0.001)
 
     sig_param_tech = {
         'heating' :{
@@ -372,8 +372,8 @@ def test_fuel_switch():
         l_value,
         xdata,
         ydata,
-        fit_crit_a=200,
-        fit_crit_b=0.001)
+        fit_crit_max=200,
+        fit_crit_min=0.001)
 
     sig_param_tech = {
         'heating' :{

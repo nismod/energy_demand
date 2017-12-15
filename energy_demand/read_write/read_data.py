@@ -6,7 +6,6 @@ import csv
 import json
 import logging
 from collections import defaultdict
-import yaml
 import numpy as np
 from energy_demand.technologies import tech_related
 from energy_demand.profiles import load_profile
@@ -1090,10 +1089,10 @@ def read_capacity_installation(path_to_csv):
             try:
                 service_switches.append(
                     CapacitySwitch(
-                        enduse=str(row[0]),
-                        technology_install=str(row[1]),
-                        switch_yr=float(row[2]),
-                        installed_capacity=float(row[3])))
+                        enduse=str(row[0].strip()),
+                        technology_install=str(row[1].strip()),
+                        switch_yr=float(row[2].strip()),
+                        installed_capacity=float(row[3].strip())))
             except (KeyError, ValueError):
                 sys.exit("Error in loading service switch: Check if provided data is complete (no emptly csv entries)")
 

@@ -12,7 +12,8 @@ import numpy as np
 from energy_demand.initalisations import helpers
 from energy_demand.profiles import load_profile as lp
 from energy_demand.profiles import load_factors as lf
-from energy_demand.technologies import diffusion_technologies, fuel_service_switch
+from energy_demand.technologies import diffusion_technologies
+from energy_demand.technologies import fuel_service_switch
 
 class Enduse(object):
     """Enduse Class (Residential, Service and Industry)

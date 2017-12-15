@@ -86,8 +86,8 @@ def test_calc_sigmoid_parameters():
         l_value,
         xdata,
         ydata,
-        fit_crit_a=200,
-        fit_crit_b=0.001)
+        fit_crit_max=200,
+        fit_crit_min=0.001)
 
     #print("Plot graph: " + str(fit_parameter))
     '''
@@ -118,8 +118,8 @@ def test_calc_sigmoid_parameters2():
         l_value,
         xdata,
         ydata,
-        fit_crit_a=200,
-        fit_crit_b=0.001)
+        fit_crit_max=200,
+        fit_crit_min=0.001)
 
     y_calculated = diffusion_technologies.sigmoid_function(xdata[1], l_value, *fit_parameter)
 
@@ -127,7 +127,7 @@ def test_calc_sigmoid_parameters2():
 
 def test_get_tech_installed():
     """"""
-    enduses = ['heating', 'cooking']
+    enduses = ['heating']
     fuel_switches = [
         read_data.FuelSwitch(
             enduse='heating',
@@ -142,9 +142,9 @@ def test_get_tech_installed():
         )
         ]
 
-    result = s_generate_sigmoid.get_tech_installed(enduses, fuel_switches)
+    result = s_generate_sigmoid.get_tech_installed_single_enduse(enduse, fuel_switches)
 
-    expected = {'heating': ['boilerB', 'boilerA'], 'cooking': ['techC']}
+    expected = {'heating': ['boilerB', 'boilerA']}
 
     assert 'boilerA' in expected['heating']
     assert 'boilerB' in expected['heating']
