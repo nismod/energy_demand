@@ -13,7 +13,7 @@ from energy_demand.main import energy_demand_model
 from energy_demand.read_write import data_loader
 from energy_demand.assumptions import non_param_assumptions
 from energy_demand.assumptions import param_assumptions
-from energy_demand.scripts.init_scripts import post_install_setup
+from energy_demand.scripts.s_post_installation import post_install_setup
 from energy_demand.scripts.init_scripts import scenario_initalisation
 from energy_demand.read_write import read_data
 from energy_demand.dwelling_stock import dw_stock
@@ -39,6 +39,7 @@ def run_model(args):
 
     #NOTE: TO RUN FROM COMMAND LINE
     """
+
     #Subfolder where module is installed
     path_main_data = resource_filename(Requirement.parse("energy_demand"), "data")
     path_main = os.path.join(path_main_data, '../')

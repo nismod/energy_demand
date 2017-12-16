@@ -12,12 +12,10 @@ https://nismod.github.io/docs/smif-prerequisites.html#sector-modeller
 # Cooling?
 # convert documentation in rst?
 # Check whether fuel switches can be written as servie switch
-# CORRECT OUTPUTS
+# CORRECT OUTPUTS (per tech)
 # AVERAGE HDDs over two days (floating average)
 # Potentiall load other annual profiles?
-# Sepearate initialisation scripts
-# 
-# """
+55# """
 import os
 import sys
 import logging

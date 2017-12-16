@@ -5,96 +5,16 @@ import os
 import logging
 from collections import defaultdict
 import numpy as np
-from pkg_resources import Requirement
-from pkg_resources import resource_filename
+
 from energy_demand.read_write import data_loader
-from energy_demand.assumptions import non_param_assumptions
-from energy_demand.assumptions import param_assumptions
-from energy_demand.scripts import s_raw_weather_data
-from energy_demand.scripts import s_rs_raw_shapes
-from energy_demand.scripts import s_ss_raw_shapes
 from energy_demand.scripts import s_fuel_to_service
 from energy_demand.scripts import s_generate_sigmoid
 from energy_demand.scripts import s_disaggregation
 from energy_demand.basic import basic_functions
 from energy_demand.basic import logger_setup
-from energy_demand.basic import date_prop
 from energy_demand.technologies import fuel_service_switch
 from energy_demand.geography import spatial_diffusion
 from energy_demand.read_write import read_data
-
-def post_install_setup(args):
-    """Run this function after installing the energy_demand
-    model with smif and putting the data folder with all necessary
-    data into a local drive. This scripts only needs to be
-    executed once after the energy_demand model has been installed
-
-    Arguments
-    ----------
-    args : object
-        Arguments defined in ``./cli/__init__.py``
-    """
-    print("... start running initialisation scripts")
-
-    # Paths
-    path_main = resource_filename(Requirement.parse("energy_demand"), "")
-    local_data_path = args.data_energy_demand
-
-    # Initialise logger
-    logger_setup.set_up_logger(os.path.join(local_data_path, "logging_post_install_setup.log"))
-    logging.info("... start local energy demand calculations")
-
-    # Load data
-    data = {}
-    data['paths'] = data_loader.load_paths(path_main)
-    data['local_paths'] = data_loader.load_local_paths(local_data_path)
-    data['lookups'] = data_loader.load_basic_lookups()
-    data['enduses'], data['sectors'], data['fuels'] = data_loader.load_fuels(
-        data['paths'], data['lookups'])
-
-    data['sim_param'] = {}
-    data['sim_param']['base_yr'] = 2015
-    data['sim_param']['simulated_yrs'] = [2015, 2020, 2025]
-
-    # Assumptions
-    data['assumptions'] = non_param_assumptions.load_non_param_assump(
-        data['sim_param']['base_yr'], data['paths'], data['enduses'], data['lookups'])
-
-    param_assumptions.load_param_assump(data['paths'], data['assumptions'])
-
-    data['assumptions']['seasons'] = date_prop.read_season(year_to_model=2015)
-    data['assumptions']['model_yeardays_daytype'], data['assumptions']['yeardays_month'], data['assumptions']['yeardays_month_days'] = date_prop.get_model_yeardays_datype(year_to_model=2015)
-    data['assumptions']['technologies'] = non_param_assumptions.update_assumptions(
-        data['assumptions']['technologies'],
-        data['assumptions']['strategy_variables']['eff_achiev_f'],
-        data['assumptions']['strategy_variables']['split_hp_gshp_to_ashp_ey'])
-
-    # Delete all previous data from previous model runs
-    basic_functions.del_previous_setup(data['local_paths']['data_processed'])
-    basic_functions.del_previous_setup(data['local_paths']['data_results'])
-
-    # Create folders and subfolder for data_processed
-    basic_functions.create_folder(data['local_paths']['data_processed'])
-    basic_functions.create_folder(data['local_paths']['path_post_installation_data'])
-    basic_functions.create_folder(data['local_paths']['dir_raw_weather_data'])
-    basic_functions.create_folder(data['local_paths']['dir_changed_weather_station_data'])
-    basic_functions.create_folder(data['local_paths']['load_profiles'])
-    basic_functions.create_folder(data['local_paths']['rs_load_profiles'])
-    basic_functions.create_folder(data['local_paths']['ss_load_profiles'])
-    basic_functions.create_folder(data['local_paths']['dir_disattregated'])
-
-    # Read in temperature data from raw files
-    s_raw_weather_data.run(data)
-
-    # Read in residential submodel shapes
-    s_rs_raw_shapes.run(data)
-
-    # Read in service submodel shapes
-    s_ss_raw_shapes.run(data)
-
-    logging.info("... finished post_install_setup")
-    print("... finished post_install_setup")
-    return
 
 def scenario_initalisation(path_data_ed, data=False):
     """Scripts which need to be run for every different scenario.
@@ -242,7 +162,6 @@ def scenario_initalisation(path_data_ed, data=False):
         is_fuels_aggregated_across_sectors,
         data['assumptions']['is_fuel_tech_p_by'],
         data['sim_param']['base_yr'])
-    #'''
 
     # -------------------------------------
     # Get service shares of technologies for future year by considering
@@ -356,7 +275,7 @@ def scenario_initalisation(path_data_ed, data=False):
                 service_switches=switches_cont['rs_service_switches'],
                 service_tech_by_p=fts_cont['rs_service_tech_by_p'][enduse],
                 service_fueltype_by_p=fts_cont['rs_service_fueltype_by_p'],
-                share_service_tech_ey_p=rs_reg_enduse_tech_p_ey[enduse], #IMPLEMENT ENDUSE test
+                share_service_tech_ey_p=rs_reg_enduse_tech_p_ey[enduse],
                 fuel_tech_p_by=data['assumptions']['rs_fuel_tech_p_by'],
                 regions=data['lu_reg'],
                 regional_specific=True)
@@ -456,8 +375,28 @@ def sum_across_sectors_all_regs(fuel_disagg_reg):
 
     return fuel_aggregated
 
-def convert_fuel_switches_to_service_switches(enduse, all_techs, fuel_switches, regions=False, regional_specific=False):
-    """TODO
+def convert_fuel_switches_to_service_switches(
+        enduse,
+        all_techs,
+        fuel_switches,
+        regions=False,
+        regional_specific=False
+    ):
+    """Convert fuel switches to service switches.
+
+    Arguments
+    ---------
+    enduse : 
+    all_techs
+    fuel_switches
+    regions : dict, default=False
+        All regions
+    regional_specific : bool, default=False
+        Criteria wheter region specific calculations
+    
+    Returns
+    -------
+    
     """
     if regional_specific:
         service_switches_after_fuel_switch = {}

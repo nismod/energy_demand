@@ -54,14 +54,6 @@ def testing_tech_defined(technologies, all_tech_enduse):
             if tech not in technologies:
                 sys.exit("Error: The technology '{}' for which fuel was attributed is not defined in technology stock".format(tech))
 
-def testing_switch_criteria(crit_switch_fuel, crit_switch_service, enduse):
-    """Test if fuel switch and service switch is implemented at the same time
-    """
-    if crit_switch_fuel and crit_switch_service:
-        sys.exit(
-            "Error: Can't define service switch and fuel switch for enduse '{}' {} {}".format(
-                enduse, crit_switch_fuel, crit_switch_service))
-
 def test_function_fuel_sum(data):
     """ Sum raw disaggregated fuel data
     """
