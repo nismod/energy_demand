@@ -468,7 +468,7 @@ def sig_param_calculation_including_fuel_switch(
     tech_switch_affected = s_generate_sigmoid.get_tech_installed_single_enduse(enduse, fuel_switches)
 
     # Test if any switch is implemented for enduse
-    if len(tech_switch_affected[enduse]) > 0:
+    if len(tech_switch_affected) > 0:
         crit_fuel_switch = True
     else:
         crit_fuel_switch = False
@@ -498,16 +498,15 @@ def sig_param_calculation_including_fuel_switch(
     tech_increased_service = {}
     tech_decrased_share = {}
     tech_constant_share = {}
-    service_switches_out = {}
     sig_param_tech = {}
 
     if regional_specific:
+        service_switches_out = {}
         for region in regions:
             sig_param_tech[region] = []
             tech_increased_service[region] = []
             tech_decrased_share[region] = []
             tech_constant_share[region] = []
-            service_switches_out[region] = []
             service_switches_out[region] = service_switches_enduse
     else:
         service_switches_out = service_switches_enduse

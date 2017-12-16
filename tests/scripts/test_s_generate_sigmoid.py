@@ -350,7 +350,6 @@ def test_tech_l_sigmoid():
     installed_tech = {'heating':['boilerB']}
 
     result = s_generate_sigmoid.tech_l_sigmoid(
-        enduse,
         fuel_switches,
         technologies,
         installed_tech,
@@ -402,7 +401,6 @@ def test_tech_l_sigmoid():
     installed_tech = {'heating':['boilerB']}
 
     result = s_generate_sigmoid.tech_l_sigmoid(
-        enduse,
         fuel_switches,
         technologies,
         installed_tech,
