@@ -645,11 +645,7 @@ def calc_sigm_parameters(
     sig_param_tech = {}
 
     if regional_specific:
-        #installed_tech = {}
-        #for reg in regions:
-        #    installed_tech[reg] = tech_increased_service[reg].keys()
-
-        for reg in regions:#l_values_sig:
+        for reg in regions:
 
             installed_tech = tech_increased_service[reg].keys()
 
@@ -657,7 +653,7 @@ def calc_sigm_parameters(
             sig_param_tech[reg] = tech_sigmoid_parameters(
                 base_yr,
                 technologies,
-                installed_tech, #[reg],
+                installed_tech,
                 l_values_sig[reg],
                 service_tech_by_p,
                 service_tech_switched_p[reg],
