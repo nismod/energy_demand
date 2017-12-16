@@ -88,6 +88,7 @@ def autocomplete_switches(service_switches, specified_tech_enduse_by, service_te
 
         # Calculate relative by proportion of not assigned tchnologies
         tech_not_assigned_by_p = {}
+
         for tech in specified_tech_enduse_by[enduse]:
             if tech not in assigned_technologies:
                 tech_not_assigned_by_p[tech] = service_tech_by_p[enduse][tech]

@@ -642,33 +642,27 @@ def calc_sigm_parameters(
     sig_param_tech : dict
         Sigmoid parameters for increasing technologies
     """
+    sig_param_tech = {}
+
     if regional_specific:
-        installed_tech = {} #defaultdict(dict)
-        sig_param_tech = {}
+        #installed_tech = {}
+        #for reg in regions:
+        #    installed_tech[reg] = tech_increased_service[reg].keys()
 
-        for reg in regions:
-            #if tech_increased_service[reg] == {}: #[]:
-            #    installed_tech[reg] = []
-            #else:
-            installed_tech[reg] = tech_increased_service[reg].keys()
+        for reg in regions:#l_values_sig:
 
-        for reg in l_values_sig:
+            installed_tech = tech_increased_service[reg].keys()
 
             # Calclulate sigmoid parameters for every installed technology
             sig_param_tech[reg] = tech_sigmoid_parameters(
                 base_yr,
                 technologies,
-                installed_tech[reg],
+                installed_tech, #[reg],
                 l_values_sig[reg],
                 service_tech_by_p,
                 service_tech_switched_p[reg],
                 service_switches[reg])
     else:
-        sig_param_tech = {}
-
-        #if tech_increased_service == {}: #[]:
-        #    installed_tech = []
-        #else:
         installed_tech = list(tech_increased_service.keys())
 
         # Calclulate sigmoid parameters for every installed technology
