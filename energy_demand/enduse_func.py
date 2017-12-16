@@ -127,7 +127,7 @@ class Enduse(object):
         ):
         """Enduse class constructor
         """
-        print("--- Enduse: " + str(enduse))
+        #print("--- Enduse: " + str(enduse))
         self.region_name = region_name
         self.enduse = enduse
         self.fuel_new_y = fuel
@@ -287,10 +287,8 @@ class Enduse(object):
                     tech_stock,
                     lookups,
                     mode_constrained)
-                
+
                 self.fuel_y = self.fuel_new_y
-                print("..")
-                print(fuel_tech_y)
 
                 # ------------------------------------------
                 # Assign load profiles
