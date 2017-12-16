@@ -825,11 +825,11 @@ def read_sig_param_tech(path_to_csv):
                 sig_param_tech[enduse]
             except KeyError:
                 sig_param_tech[enduse] = {}
-            
+
             sig_param_tech[enduse][technology] = {}
-            sig_param_tech[enduse][technology] ['midpoint'] = midpoint
-            sig_param_tech[enduse][technology] ['steepness'] = steepness
-            sig_param_tech[enduse][technology] ['l_parameter'] = l_parameter
+            sig_param_tech[enduse][technology]['midpoint'] = midpoint
+            sig_param_tech[enduse][technology]['steepness'] = steepness
+            sig_param_tech[enduse][technology]['l_parameter'] = l_parameter
 
     return sig_param_tech
 

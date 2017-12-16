@@ -143,15 +143,15 @@ def get_tech_future_service(service_tech_by_p, service_tech_ey_p, regions=False,
 
     The assumptions are always relative to the simulation end year
     """
-    tech_increased_service = defaultdict(dict)
-    tech_decreased_share = defaultdict(dict)
-    tech_constant_share = defaultdict(dict)
+    tech_increased_service = {}
+    tech_decreased_share = {}
+    tech_constant_share = {}
 
     if regional_specific:
         for reg in regions:
             tech_increased_service[reg] = {}
-            tech_decreased_share[reg] ={}
-            tech_constant_share[reg] = {} 
+            tech_decreased_share[reg] = {}
+            tech_constant_share[reg] = {}
 
             # If no service switch defined
             if service_tech_ey_p[reg] == {}:
@@ -172,10 +172,6 @@ def get_tech_future_service(service_tech_by_p, service_tech_ey_p, regions=False,
                         else: #same
                             tech_constant_share[reg][tech] = service_tech_ey_p[reg][tech]
     else:
-        tech_increased_service = {}
-        tech_decreased_share = {}
-        tech_constant_share = {}
-
         # If no service switch defined
         if service_tech_ey_p == {}:
             pass
@@ -298,7 +294,7 @@ def tech_l_sigmoid(
     return dict(l_values_sig)
 
 def calc_service_fuel_switched(
-        fuel_switches,
+        enduse_fuel_switches,
         technologies,
         service_fueltype_by_p,
         service_tech_by_p,
@@ -311,7 +307,7 @@ def calc_service_fuel_switched(
     ----------
     enduse : str
         enduse where with fuel switches
-    fuel_switches : dict
+    enduse_fuel_switches : dict
         Fuel switches of specific enduse
     technologies : dict
         Technologies
@@ -338,7 +334,7 @@ def calc_service_fuel_switched(
     """
     service_tech_switched_p = {}
 
-    for fuel_switch in fuel_switches:
+    for fuel_switch in enduse_fuel_switches:
 
         tech_install = fuel_switch.technology_install
         fueltype_tech_replace = fuel_switch.enduse_fueltype_replace
@@ -484,7 +480,7 @@ def get_sig_diffusion_service(
 
 def calc_diff_fuel_switch(
         technologies,
-        fuel_switches,
+        enduse_fuel_switches,
         enduse,
         service_fueltype_by_p,
         service_tech_by_p,
@@ -501,7 +497,7 @@ def calc_diff_fuel_switch(
         Data
     service_switches : dict
         Service switches
-    fuel_switches : dict
+    enduse_fuel_switches : dict
         Fuel switches
     enduse : str
         Enduse
@@ -531,21 +527,18 @@ def calc_diff_fuel_switch(
     It is assumed that the technology diffusion is the same over
     all the uk (no regional different diffusion)
     """
-
-    enduse_fuel_switches = get_fuel_switches_of_enduse(fuel_switches, enduse)
+    # Tech with lager service shares in end year (installed in fuel switch)
+    installed_tech = get_tech_installed_single_enduse(enduse, enduse_fuel_switches)
 
     if regional_specific:
-        l_values_sig = defaultdict(dict)
+        l_values_sig = {}
         service_tech_switched_p = {}
 
-        # Tech with lager service shares in end year (installed in fuel switch)
-        installed_tech = get_tech_installed_single_enduse(enduse, enduse_fuel_switches)
-
         for reg in regions:
-    
+
             # Calculate service demand after fuel switches for each technology
             service_tech_switched_p[reg] = calc_service_fuel_switched(
-                enduse_fuel_switches, #fuel_switches,
+                enduse_fuel_switches,
                 technologies,
                 service_fueltype_by_p,
                 service_tech_by_p,
@@ -561,11 +554,6 @@ def calc_diff_fuel_switch(
                 service_tech_by_p,
                 fuel_tech_p_by)
     else:
-        installed_tech = {}
-        l_values_sig = defaultdict(dict)
-
-        # Tech with lager service shares in end year (installed in fuel switch)
-        installed_tech = get_tech_installed_single_enduse(enduse, enduse_fuel_switches) #fuel_switches)
 
         # Calculate future service demand after fuel switches for each technology
         service_tech_switched_p = calc_service_fuel_switched(
@@ -623,7 +611,7 @@ def calc_sigm_parameters(
         Criteria if regional specific calcuations
 
     Returns
-    ------- 
+    -------
     sig_param_tech : dict
         Sigmoid parameters for increasing technologies
     """

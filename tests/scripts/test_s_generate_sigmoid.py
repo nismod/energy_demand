@@ -496,4 +496,3 @@ def test_get_sig_diffusion():
     #TODO: Possibly add more test
 
     assert result['boilerC'] == 1.0
-test_calc_service_fuel_switched()

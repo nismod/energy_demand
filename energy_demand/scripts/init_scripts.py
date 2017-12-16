@@ -361,12 +361,10 @@ def sum_across_sectors_all_regs(fuel_disagg_reg):
     """
     fuel_aggregated = {}
     for reg, entries in fuel_disagg_reg.items():
-        enduses = []
         fuel_aggregated[reg] = {}
         for sector in entries:
             for enduse in entries[sector]:
                 fuel_aggregated[reg][enduse] = 0
-                enduses.append(enduse)
             break
 
         for sector in entries:
@@ -378,12 +376,12 @@ def sum_across_sectors_all_regs(fuel_disagg_reg):
 def convert_fuel_switches_to_service_switches(
         enduse,
         all_techs,
-        fuel_switches,
+        enduse_fuel_switches,
         regions=False,
         regional_specific=False
     ):
     """Convert fuel switches to service switches.
-
+    TODO IMPROVe
     Arguments
     ---------
     enduse : 
@@ -409,10 +407,9 @@ def convert_fuel_switches_to_service_switches(
                     pass
                 else:
                     # GET YEAR OF AN SWITCH (all the same) TODO
-                    for fuelswitch in fuel_switches:
-                        if fuelswitch.enduse == enduse:
-                            switch_yr = fuelswitch.switch_yr
-                            break
+                    for fuelswitch in enduse_fuel_switches:
+                        switch_yr = fuelswitch.switch_yr
+                        break
 
                     switch_new = read_data.ServiceSwitch(
                         enduse=enduse,
@@ -429,10 +426,9 @@ def convert_fuel_switches_to_service_switches(
                 pass
             else:
                 # GET YEAR OF AN SWITCH (all the same) TODO
-                for fuelswitch in fuel_switches:
-                    if fuelswitch.enduse == enduse:
-                        switch_yr = fuelswitch.switch_yr
-                        break
+                for fuelswitch in enduse_fuel_switches:
+                    switch_yr = fuelswitch.switch_yr
+                    break
 
                 switch_new = read_data.ServiceSwitch(
                     enduse=enduse,
@@ -539,9 +535,12 @@ def sig_param_calculation_including_fuel_switch(
     # -------------
     if crit_fuel_switch:
         print("... calculate sigmoid based on FUEL switches")
+
+        enduse_fuel_switches = s_generate_sigmoid.get_fuel_switches_of_enduse(fuel_switches, enduse)
+
         service_tech_switched_p, l_values_sig = s_generate_sigmoid.calc_diff_fuel_switch(
             technologies,
-            fuel_switches,
+            enduse_fuel_switches,
             enduse,
             service_fueltype_by_p[enduse],
             service_tech_by_p,
@@ -553,7 +552,7 @@ def sig_param_calculation_including_fuel_switch(
         service_switches_out = convert_fuel_switches_to_service_switches(
             enduse=enduse,
             all_techs=service_tech_switched_p,
-            fuel_switches=fuel_switches,
+            enduse_fuel_switches=enduse_fuel_switches,
             regions=regions,
             regional_specific=regional_specific)
 
