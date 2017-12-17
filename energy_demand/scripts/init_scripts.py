@@ -275,9 +275,9 @@ def scenario_initalisation(path_data_ed, data=False):
                 fuel_switches=data['assumptions']['rs_fuel_switches'],
                 service_switches=switches_cont['rs_service_switches'],
                 service_tech_by_p=fts_cont['rs_service_tech_by_p'][enduse],
-                service_fueltype_by_p=fts_cont['rs_service_fueltype_by_p'],
+                service_fueltype_by_p=fts_cont['rs_service_fueltype_by_p'][enduse],
                 share_service_tech_ey_p=rs_reg_enduse_tech_p_ey[enduse],
-                fuel_tech_p_by=data['assumptions']['rs_fuel_tech_p_by'],
+                fuel_tech_p_by=data['assumptions']['rs_fuel_tech_p_by'][enduse],
                 regions=data['lu_reg'],
                 regional_specific=True)
 
@@ -289,9 +289,9 @@ def scenario_initalisation(path_data_ed, data=False):
                 fuel_switches=data['assumptions']['ss_fuel_switches'],
                 service_switches=switches_cont['ss_service_switches'],
                 service_tech_by_p=fts_cont['ss_service_tech_by_p'][enduse],
-                service_fueltype_by_p=fts_cont['ss_service_fueltype_by_p'],
+                service_fueltype_by_p=fts_cont['ss_service_fueltype_by_p'][enduse],
                 share_service_tech_ey_p=ss_reg_enduse_tech_p_ey[enduse],
-                fuel_tech_p_by=data['assumptions']['ss_fuel_tech_p_by'],
+                fuel_tech_p_by=data['assumptions']['ss_fuel_tech_p_by'][enduse],
                 regions=data['lu_reg'],
                 regional_specific=True)
 
@@ -303,9 +303,9 @@ def scenario_initalisation(path_data_ed, data=False):
                 fuel_switches=data['assumptions']['is_fuel_switches'],
                 service_switches=switches_cont['is_service_switches'],
                 service_tech_by_p=fts_cont['is_service_tech_by_p'][enduse],
-                service_fueltype_by_p=fts_cont['is_service_fueltype_by_p'],
+                service_fueltype_by_p=fts_cont['is_service_fueltype_by_p'][enduse],
                 share_service_tech_ey_p=is_reg_enduse_tech_p_ey[enduse],
-                fuel_tech_p_by=data['assumptions']['is_fuel_tech_p_by'],
+                fuel_tech_p_by=data['assumptions']['is_fuel_tech_p_by'][enduse],
                 regions=data['lu_reg'],
                 regional_specific=True)
     else:
@@ -317,9 +317,9 @@ def scenario_initalisation(path_data_ed, data=False):
                 fuel_switches=data['assumptions']['rs_fuel_switches'],
                 service_switches=switches_cont['rs_service_switches'],
                 service_tech_by_p=fts_cont['rs_service_tech_by_p'][enduse],
-                service_fueltype_by_p=fts_cont['rs_service_fueltype_by_p'],
+                service_fueltype_by_p=fts_cont['rs_service_fueltype_by_p'][enduse],
                 share_service_tech_ey_p=rs_share_service_tech_ey_p[enduse],
-                fuel_tech_p_by=data['assumptions']['rs_fuel_tech_p_by'])
+                fuel_tech_p_by=data['assumptions']['rs_fuel_tech_p_by'][enduse])
 
         for enduse in data['enduses']['ss_all_enduses']:
             sgs_cont['ss_sig_param_tech'][enduse], sgs_cont['ss_tech_increased_service'][enduse], sgs_cont['ss_tech_decreased_share'][enduse], sgs_cont['ss_tech_constant_share'][enduse], sgs_cont['ss_service_switch'][enduse] = sig_param_calculation_including_fuel_switch(
@@ -329,9 +329,9 @@ def scenario_initalisation(path_data_ed, data=False):
                 fuel_switches=data['assumptions']['ss_fuel_switches'],
                 service_switches=switches_cont['ss_service_switches'],
                 service_tech_by_p=fts_cont['ss_service_tech_by_p'][enduse],
-                service_fueltype_by_p=fts_cont['ss_service_fueltype_by_p'],
+                service_fueltype_by_p=fts_cont['ss_service_fueltype_by_p'][enduse],
                 share_service_tech_ey_p=ss_share_service_tech_ey_p[enduse],
-                fuel_tech_p_by=data['assumptions']['ss_fuel_tech_p_by'])
+                fuel_tech_p_by=data['assumptions']['ss_fuel_tech_p_by'][enduse])
 
         for enduse in data['enduses']['is_all_enduses']:
             sgs_cont['is_sig_param_tech'][enduse], sgs_cont['is_tech_increased_service'][enduse], sgs_cont['is_tech_decreased_share'][enduse], sgs_cont['is_tech_constant_share'][enduse], sgs_cont['is_service_switch'][enduse] = sig_param_calculation_including_fuel_switch(
@@ -341,9 +341,9 @@ def scenario_initalisation(path_data_ed, data=False):
                 fuel_switches=data['assumptions']['is_fuel_switches'],
                 service_switches=switches_cont['is_service_switches'],
                 service_tech_by_p=fts_cont['is_service_tech_by_p'][enduse],
-                service_fueltype_by_p=fts_cont['is_service_fueltype_by_p'],
+                service_fueltype_by_p=fts_cont['is_service_fueltype_by_p'][enduse],
                 share_service_tech_ey_p=is_share_service_tech_ey_p[enduse],
-                fuel_tech_p_by=data['assumptions']['is_fuel_tech_p_by'])
+                fuel_tech_p_by=data['assumptions']['is_fuel_tech_p_by'][enduse])
 
     return fts_cont, sgs_cont, sd_cont, switches_cont
 
@@ -457,7 +457,32 @@ def sig_param_calculation_including_fuel_switch(
     ):
     """Calculate sigmoid paramaters and consider fuel switches
 
-    #TODO: MAKE ENDUSE SPECIFIC
+    Arguments
+    ---------
+    base_yr : int
+        Base year
+    technologies : dict
+        technologies
+    enduse : str
+        enduse
+    fuel_switches : dict
+        fuel switches
+    service_switches : dict
+        service switches
+    service_tech_by_p : 
+
+    service_fueltype_by_p : dict
+
+    share_service_tech_ey_p : dict
+
+    fuel_tech_p_by : dict
+
+    regions : dict
+        Regions
+    regional_specific : bool, default=False
+        criteria
+
+
     """
     # ----------------------------------------
     # Test if fuel switch is defined for enduse
@@ -548,9 +573,9 @@ def sig_param_calculation_including_fuel_switch(
             technologies,
             enduse_fuel_switches,
             installed_tech,
-            service_fueltype_by_p[enduse],
+            service_fueltype_by_p,
             service_tech_by_p,
-            fuel_tech_p_by[enduse],
+            fuel_tech_p_by,
             regions=regions,
             regional_specific=regional_specific)
 
