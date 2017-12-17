@@ -527,7 +527,6 @@ def residential_submodel(region, data, enduse_names, sector_names=False):
             if data['criterias']['spatial_exliclit_diffusion']:
                 service_switches = data['assumptions']['rs_service_switch'][enduse_name][region.region_name]
                 sig_param_tech = data['assumptions']['rs_sig_param_tech'][enduse_name][region.region_name]
-
                 tech_increased_service = data['assumptions']['rs_tech_increased_service'][enduse_name][region.region_name]
                 tech_decreased_share = data['assumptions']['rs_tech_decreased_share'][enduse_name][region.region_name]
                 tech_constant_share = data['assumptions']['rs_tech_constant_share'][enduse_name][region.region_name]
@@ -535,7 +534,6 @@ def residential_submodel(region, data, enduse_names, sector_names=False):
             else:
                 service_switches = data['assumptions']['rs_service_switch'][enduse_name]
                 sig_param_tech = data['assumptions']['rs_sig_param_tech'][enduse_name]
-
                 tech_increased_service = data['assumptions']['rs_tech_increased_service'][enduse_name]
                 tech_decreased_share = data['assumptions']['rs_tech_decreased_share'][enduse_name]
                 tech_constant_share = data['assumptions']['rs_tech_constant_share'][enduse_name]

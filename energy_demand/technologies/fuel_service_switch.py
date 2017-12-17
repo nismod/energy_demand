@@ -124,7 +124,7 @@ def autocomplete_switches(service_switches, specified_tech_enduse_by, service_te
                         switch_yr=switch_yr)
                     service_switches_out.append(switch_new)
             else:
-                # If assigne,d copy to final switches
+                # If assigned copy to final switches
                 for switch in switches_enduse:
                     if switch.technology_install == tech:
                         service_switches_out.append(switch)
@@ -252,7 +252,6 @@ def create_service_switch(
     base_yr : dict
         base year
     """
-    # List to store service switches
     service_switches = []
 
     for enduse in enduses:

@@ -387,7 +387,7 @@ def calc_service_fuel_switched(
 
     return dict(service_tech_switched_p)
 
-def get_tech_installed_single_enduse(enduse, fuel_switches):
+def get_tech_installed(enduse, fuel_switches):
     """Read out all technologies which are specifically switched
     to for an enduse
 
@@ -481,7 +481,7 @@ def get_sig_diffusion_service(
 def calc_diff_fuel_switch(
         technologies,
         enduse_fuel_switches,
-        enduse,
+        installed_tech,
         service_fueltype_by_p,
         service_tech_by_p,
         fuel_tech_p_by,
@@ -528,7 +528,7 @@ def calc_diff_fuel_switch(
     all the uk (no regional different diffusion)
     """
     # Tech with lager service shares in end year (installed in fuel switch)
-    installed_tech = get_tech_installed_single_enduse(enduse, enduse_fuel_switches)
+    ###installed_tech = get_tech_installed(enduse, enduse_fuel_switches)
 
     if regional_specific:
         l_values_sig = {}

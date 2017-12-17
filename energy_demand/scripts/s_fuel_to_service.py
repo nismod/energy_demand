@@ -72,7 +72,7 @@ def sum_2_level_dict(two_level_dict):
 
     return tot_sum
 
-def ss_sum_fuel_enduse_sectors(ss_fuel_raw_data_enduses, ss_enduses, nr_fueltypes):
+def sum_fuel_enduse_sectors(ss_fuel_raw_data_enduses, ss_enduses, nr_fueltypes):
     """Aggregated fuel for all sectors according to enduse
     """
     aggregated_fuel_enduse = {}

@@ -138,7 +138,7 @@ def test_get_tech_installed():
         )
         ]
 
-    result = s_generate_sigmoid.get_tech_installed_single_enduse(enduse, fuel_switches)
+    result = s_generate_sigmoid.get_tech_installed(enduse, fuel_switches)
 
     expected = {'heating': ['boilerB', 'boilerA']}
 
