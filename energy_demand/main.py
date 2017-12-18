@@ -15,6 +15,9 @@ https://nismod.github.io/docs/smif-prerequisites.html#sector-modeller
 # CORRECT OUTPUTS (per tech)
 # AVERAGE HDDs over two days (floating average)
 # Potentiall load other annual profiles?
+
+# - Outputs for supply model
+# - read floor areas
 55# """
 import os
 import sys
@@ -116,7 +119,7 @@ if __name__ == "__main__":
     data['criterias']['mode_constrained'] = False
     data['criterias']['plot_HDD_chart'] = False
     data['criterias']['virtual_building_stock_criteria'] = virtual_building_stock_criteria
-    data['criterias']['spatial_exliclit_diffusion'] = True
+    data['criterias']['spatial_exliclit_diffusion'] = False
 
     data['paths'] = data_loader.load_paths(path_main)
     data['local_paths'] = data_loader.load_local_paths(local_data_path)

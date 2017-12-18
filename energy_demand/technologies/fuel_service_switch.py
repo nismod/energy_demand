@@ -2,6 +2,7 @@
 """
 from energy_demand.technologies import tech_related
 from energy_demand.read_write import read_data
+from collections import defaultdict
 
 def get_share_service_tech_ey(service_switches, specified_tech_enduse_by):
     """Get fraction of service for each technology
@@ -388,3 +389,57 @@ def capacity_assumption_to_service(
         service_switches_enduse.append(service_switch)
 
     return service_switches_enduse
+
+def get_fuel_switches_enduse(switches, enduse):
+    """Get all fuel switches of a specific enduse
+
+    Arguments
+    ----------
+    switches : list
+        Switches
+    enduse : str
+        Enduse
+
+    Returns
+    -------
+    enduse_switches : list
+        All switches of a specific enduse
+    """
+    enduse_switches = []
+
+    for fuel_switch in switches:
+        if fuel_switch.enduse == enduse:
+            enduse_switches.append(fuel_switch)
+
+    return enduse_switches
+
+def switches_to_dict(service_switches, regional_specific):
+    """Write switch to dict, i.e. providing service fraction
+    of technology as dict: {tech: service_ey_p}
+
+    Arguments
+    ---------
+    service_switches : dict
+        Service switches
+    regional_specific : crit
+        Regional speciffic diffusion modelling criteria
+
+    Returns
+    -------
+    service_tech_by_p : dict
+        Service tech after service switch
+
+    service_switches : dict
+        Reg, fuel_swtiches
+    """
+    service_tech_by_p = defaultdict(dict)
+
+    if regional_specific:
+        for reg, reg_switches in service_switches.items():
+            for switch in reg_switches:
+                service_tech_by_p[reg][switch.technology_install] = switch.service_share_ey
+    else:
+        for switch in service_switches:
+            service_tech_by_p[switch.technology_install] = switch.service_share_ey
+
+    return dict(service_tech_by_p)
