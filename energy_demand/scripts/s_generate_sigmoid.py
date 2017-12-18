@@ -279,6 +279,9 @@ def calc_service_fuel_switched(
     ):
     """Calculate energy service demand percentages after fuel switches
 
+
+    TODO CLEAN AN IMPROVE
+
     Arguments
     ----------
     enduse_fuel_switches : dict
@@ -330,8 +333,7 @@ def calc_service_fuel_switched(
 
         # Substract service demand for replaced technologies
         for tech in replaced_tech_fueltype:
-            fueltype_of_tech_replacing = technologies[tech].fuel_type_int
-            service_tech_switched_p[tech] = service_tech_by_p[tech] - (change_service_fueltype_by_p * fuel_tech_p_by[fueltype_of_tech_replacing][tech])
+            service_tech_switched_p[tech] = service_tech_by_p[tech] - (change_service_fueltype_by_p * fuel_tech_p_by[fueltype_tech_replace][tech])
 
     # -----------------------
     # Calculate service fraction of all technologies in enduse not affected
@@ -342,19 +344,19 @@ def calc_service_fuel_switched(
     remaining_service_to_distr_p = 1 - affected_service_p_ey
 
     # Calculate service fraction of remaining technologies
-    all_fractions_not_affected_by_switch = {}
+    all_fractions_unaffected_switch = {}
     for tech in service_tech_by_p:
         if tech not in service_tech_switched_p.keys():
-            all_fractions_not_affected_by_switch[tech] = service_tech_by_p[tech]
+            all_fractions_unaffected_switch[tech] = service_tech_by_p[tech]
 
     # Iterate all technologies of enduse_by
-    service_tot_remaining = sum(all_fractions_not_affected_by_switch.values())
+    service_tot_remaining = sum(all_fractions_unaffected_switch.values())
 
     # Get relative distribution of all not affected techs
-    for tech in all_fractions_not_affected_by_switch:
+    for tech in all_fractions_unaffected_switch:
 
         # Relative share
-        rel_service_fraction_p = all_fractions_not_affected_by_switch[tech] / service_tot_remaining
+        rel_service_fraction_p = all_fractions_unaffected_switch[tech] / service_tot_remaining
         service_tech_switched_p[tech] = rel_service_fraction_p * remaining_service_to_distr_p
 
     return dict(service_tech_switched_p)

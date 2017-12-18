@@ -8,7 +8,6 @@ depending on scenaric assumptions.
 """
 import logging
 import numpy as np
-
 from energy_demand.initalisations import helpers
 from energy_demand.profiles import load_profile as lp
 from energy_demand.profiles import load_factors as lf
@@ -56,12 +55,8 @@ class Enduse(object):
         Distribution of fuel within year to days (yd) (directly correlates with HDD)
     cooling_factor_y : array
         Distribution of fuel within year to days (yd) (directly correlates with CDD)
-    fuel_switches : list
-        Fuel switches
     service_switches : list
         Service switches
-    capacity_switches : list
-        Capacity switches
     fuel_tech_p_by : dict
         Fuel tech assumtions in base year
     tech_increased_service : dict
@@ -70,8 +65,6 @@ class Enduse(object):
         Technologies per enduse with decreased service due to scenarios
     tech_constant_share : dict
         Technologies per enduse with constat service
-    installed_tech : dict
-        Installed technologes for this enduse
     sig_param_tech : dict
         Sigmoid parameters
     enduse_overall_change : dict
@@ -417,6 +410,9 @@ def assign_lp_no_techs(enduse, sector, load_profiles, fuel_new_y):
 
     Returns
     -------
+    fuel_yh
+    fuel_peak_dh
+    fuel_peak_h
     """
     _fuel = fuel_new_y[:, np.newaxis, np.newaxis]
 

@@ -1,8 +1,8 @@
 """Function related to service or fuel switch
 """
+from collections import defaultdict
 from energy_demand.technologies import tech_related
 from energy_demand.read_write import read_data
-from collections import defaultdict
 
 def get_share_service_tech_ey(service_switches, specified_tech_enduse_by):
     """Get fraction of service for each technology
@@ -372,7 +372,6 @@ def capacity_assumption_to_service(
     # Add to switch of technology_install
     # -------------------------------------------
     service_switches_enduse = []
-
     for tech, service_tech_p in service_enduse_tech.items():
 
         # WARNING: MUST BE THE SAME YEAR FOR ALL CAPACITY SWITCHES

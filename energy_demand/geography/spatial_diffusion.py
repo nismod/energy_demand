@@ -1,7 +1,7 @@
 """This file calculates spatial diffusion index
 """
-import numpy as np
 from collections import defaultdict
+import numpy as np
 
 def load_spatial_diff_values(regions, enduses):
     """Load or calculate spatial diffusion values

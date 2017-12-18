@@ -3,7 +3,6 @@ model installation and after each scenario definition
 """
 import os
 import logging
-from collections import defaultdict
 import numpy as np
 from energy_demand.read_write import data_loader
 from energy_demand.scripts import s_fuel_to_service
@@ -32,6 +31,7 @@ def scenario_initalisation(path_data_ed, data=False):
     sgs_cont = {}
     fts_cont = {}
     sd_cont = {}
+    switches_cont = {}
 
     logger_setup.set_up_logger(os.path.join(path_data_ed, "scenario_init.log"))
 
@@ -43,7 +43,6 @@ def scenario_initalisation(path_data_ed, data=False):
         data['local_paths']['data_processed'],
         data['local_paths']['path_post_installation_data'])
     basic_functions.del_previous_setup(data['local_paths']['data_results'])
-
     basic_functions.create_folder(data['local_paths']['data_results'])
     basic_functions.create_folder(data['local_paths']['dir_services'])
     basic_functions.create_folder(data['local_paths']['path_sigmoid_data'])
@@ -88,7 +87,7 @@ def scenario_initalisation(path_data_ed, data=False):
         data['assumptions']['technologies'])
 
     # Service
-    ss_fuels_aggregated_across_sectors = s_fuel_to_service.sum_fuel_enduse_sectors(
+    ss_aggr_sector_fuels = s_fuel_to_service.sum_fuel_enduse_sectors(
         data['fuels']['ss_fuel_raw_data_enduses'],
         data['enduses']['ss_all_enduses'],
         data['lookups']['fueltypes_nr'])
@@ -96,11 +95,11 @@ def scenario_initalisation(path_data_ed, data=False):
         data['assumptions']['tech_list'],
         data['lookups']['fueltype'],
         data['assumptions']['ss_fuel_tech_p_by'],
-        ss_fuels_aggregated_across_sectors,
+        ss_aggr_sector_fuels,
         data['assumptions']['technologies'])
 
     # Industry
-    is_fuels_aggregated_across_sectors = s_fuel_to_service.sum_fuel_enduse_sectors(
+    is_aggr_sector_fuels = s_fuel_to_service.sum_fuel_enduse_sectors(
         data['fuels']['is_fuel_raw_data_enduses'],
         data['enduses']['is_all_enduses'],
         data['lookups']['fueltypes_nr'])
@@ -108,7 +107,7 @@ def scenario_initalisation(path_data_ed, data=False):
         data['assumptions']['tech_list'],
         data['lookups']['fueltype'],
         data['assumptions']['is_fuel_tech_p_by'],
-        is_fuels_aggregated_across_sectors,
+        is_aggr_sector_fuels,
         data['assumptions']['technologies'])
 
     # ------------------------------------
@@ -116,7 +115,6 @@ def scenario_initalisation(path_data_ed, data=False):
     # with technologies not explicityl specified in switch
     # on a national scale
     # ------------------------------------
-    switches_cont = {}
     switches_cont['rs_service_switches'] = fuel_service_switch.autocomplete_switches(
         data['assumptions']['rs_service_switches'],
         data['assumptions']['rs_specified_tech_enduse_by'],
@@ -149,7 +147,7 @@ def scenario_initalisation(path_data_ed, data=False):
         data['assumptions']['capacity_switches']['ss_capacity_switches'],
         data['assumptions']['technologies'],
         data['assumptions']['enduse_overall_change']['other_enduse_mode_info'],
-        ss_fuels_aggregated_across_sectors,
+        ss_aggr_sector_fuels,
         data['assumptions']['ss_fuel_tech_p_by'],
         data['sim_param']['base_yr'])
 
@@ -158,7 +156,7 @@ def scenario_initalisation(path_data_ed, data=False):
         data['assumptions']['capacity_switches']['is_capacity_switches'],
         data['assumptions']['technologies'],
         data['assumptions']['enduse_overall_change']['other_enduse_mode_info'],
-        is_fuels_aggregated_across_sectors,
+        is_aggr_sector_fuels,
         data['assumptions']['is_fuel_tech_p_by'],
         data['sim_param']['base_yr'])
 
@@ -180,23 +178,14 @@ def scenario_initalisation(path_data_ed, data=False):
     # Calculate sigmoid diffusion parameters
     # (either for every region or aggregated for all regions)
     # -------------------------------
-    sgs_cont['rs_sig_param_tech'] = {}
-    sgs_cont['rs_tech_increased_service'] = {}
-    sgs_cont['rs_tech_decreased_share'] = {}
-    sgs_cont['rs_tech_constant_share'] = {}
-    sgs_cont['rs_service_switch'] = {}
+    key_to_init = [
+        'rs_sig_param_tech', 'rs_tech_increased_service', 'rs_tech_decreased_share', 'rs_tech_constant_share',
+        'rs_service_switch', 'ss_sig_param_tech', 'ss_tech_increased_service', 'ss_tech_decreased_share',
+        'ss_tech_constant_share', 'ss_service_switch', 'is_sig_param_tech', 'is_tech_increased_service',
+        'is_tech_decreased_share', 'is_tech_constant_share', 'is_service_switch']
 
-    sgs_cont['ss_sig_param_tech'] = {}
-    sgs_cont['ss_tech_increased_service'] = {}
-    sgs_cont['ss_tech_decreased_share'] = {}
-    sgs_cont['ss_tech_constant_share'] = {}
-    sgs_cont['ss_service_switch'] = {}
-
-    sgs_cont['is_sig_param_tech'] = {}
-    sgs_cont['is_tech_increased_service'] = {}
-    sgs_cont['is_tech_decreased_share'] = {}
-    sgs_cont['is_tech_constant_share'] = {}
-    sgs_cont['is_service_switch'] = {}
+    for key_name in key_to_init:
+        sgs_cont[key_name] = {}
 
     if data['criterias']['spatial_exliclit_diffusion']:
 
