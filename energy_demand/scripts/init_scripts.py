@@ -351,14 +351,13 @@ def sum_across_sectors_all_regs(fuel_disagg_reg):
     fuel_aggregated = {}
     for reg, entries in fuel_disagg_reg.items():
         fuel_aggregated[reg] = {}
-        for sector in entries:
-            for enduse in entries[sector]:
+        for enduse in entries:
+            for sector in entries[enduse]:
                 fuel_aggregated[reg][enduse] = 0
-            break
 
-        for sector in entries:
-            for enduse in entries[sector]:
-                fuel_aggregated[reg][enduse] += np.sum(entries[sector][enduse])
+        for enduse in entries:
+            for sector in entries[enduse]:
+                fuel_aggregated[reg][enduse] += np.sum(entries[enduse][sector])
 
     return fuel_aggregated
 

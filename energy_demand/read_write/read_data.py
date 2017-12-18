@@ -1097,3 +1097,35 @@ def read_capacity_installation(path_to_csv):
                 sys.exit("Error in loading service switch: Check if provided data is complete (no emptly csv entries)")
 
     return service_switches
+
+def read_floor_area_virtual_stock(path_to_csv):
+    """Read in floor area for virtual building stock
+
+    TODO: CSV File from newcastle
+    Arguments
+    ---------
+    path_floor_area : str
+        Path to csv file
+    """
+    res_floorarea, non_res_floorarea = {}, {}
+
+    with open(path_to_csv, 'r') as csvfile:
+        read_lines = csv.reader(csvfile, delimiter=',')
+        _headings = next(read_lines) # Skip first row
+
+        for row in read_lines:
+            geo_name = str.strip(row[get_position(_headings, 'lad')])
+            res_floorarea[geo_name] = float(row[get_position(_headings, 'res_footprint_area')])
+            non_res_floorarea[geo_name] = float(row[get_position(_headings, 'nonres_footprint_area')])
+
+    return res_floorarea, non_res_floorarea
+
+def get_position(headings, name):
+    """Read position in list
+
+    Arguments
+    ---------
+    """
+    for position, value in enumerate(headings):
+        if str(value) == str(name):
+            return position
