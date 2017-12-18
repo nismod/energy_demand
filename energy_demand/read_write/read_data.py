@@ -6,7 +6,6 @@ import csv
 import json
 import logging
 from collections import defaultdict
-import yaml
 import numpy as np
 from energy_demand.technologies import tech_related
 from energy_demand.profiles import load_profile
@@ -305,7 +304,7 @@ def read_max_results(path_enduse_specific_results):
     return results
 
 def read_enduse_specific_results_txt(fueltypes_nr, path_to_folder):
-    """Read restuls
+    """Read enduse specific results
 
     Arguments
     ---------
@@ -318,7 +317,6 @@ def read_enduse_specific_results_txt(fueltypes_nr, path_to_folder):
     path_enduse_specific_results = os.path.join(path_to_folder, "enduse_specific_results")
     all_txt_files_in_folder = os.listdir(path_enduse_specific_results)
 
-    # Iterate files
     for file_path in all_txt_files_in_folder:
         path_file_to_read = os.path.join(path_enduse_specific_results, file_path)
         file_path_split = file_path.split("__")
@@ -327,6 +325,8 @@ def read_enduse_specific_results_txt(fueltypes_nr, path_to_folder):
         fueltype_array_position = int(file_path_split[3])
 
         txt_data = np.loadtxt(path_file_to_read, delimiter=',')
+
+        print("... reading file: {}  {} {} {} ".format(year, enduse, fueltype_array_position, np.sum(txt_data)))
 
         # Create year if not existing
         try:
@@ -375,20 +375,19 @@ def load_script_data(data):
     data['assumptions']['rs_sig_param_tech'] = sgs_cont['rs_sig_param_tech']
     data['assumptions']['ss_sig_param_tech'] = sgs_cont['ss_sig_param_tech']
     data['assumptions']['is_sig_param_tech'] = sgs_cont['is_sig_param_tech']
-    data['assumptions']['rs_installed_tech'] = sgs_cont['rs_installed_tech']
-    data['assumptions']['ss_installed_tech'] = sgs_cont['ss_installed_tech']
-    data['assumptions']['is_installed_tech'] = sgs_cont['is_installed_tech']
+
     data['rs_fuel_disagg'] = sd_cont['rs_fuel_disagg']
     data['ss_fuel_disagg'] = sd_cont['ss_fuel_disagg']
     data['is_fuel_disagg'] = sd_cont['is_fuel_disagg']
+
+    data['assumptions']['rs_service_switch'] = sgs_cont['rs_service_switch']
+    data['assumptions']['ss_service_switch'] = sgs_cont['ss_service_switch']
+    data['assumptions']['is_service_switch'] = sgs_cont['is_service_switch']
 
     data['assumptions']['rs_service_switches'] = switches_cont['rs_service_switches']
     data['assumptions']['ss_service_switches'] = switches_cont['ss_service_switches']
     data['assumptions']['is_service_switches'] = switches_cont['is_service_switches']
 
-    data['assumptions']['rs_share_service_tech_ey_p'] = switches_cont['rs_share_service_tech_ey_p']
-    data['assumptions']['ss_share_service_tech_ey_p'] = switches_cont['ss_share_service_tech_ey_p']
-    data['assumptions']['is_share_service_tech_ey_p'] = switches_cont['is_share_service_tech_ey_p']
     return data
 
 def read_csv_data_service(path_to_csv, fueltypes_nr):
@@ -806,7 +805,7 @@ def read_installed_tech(path_to_csv):
     return tech_installed
 
 def read_sig_param_tech(path_to_csv):
-    """Read 
+    """Read
     """
     logging.debug("... read in sig parameters: %s", path_to_csv)
     sig_param_tech = {}
@@ -826,11 +825,11 @@ def read_sig_param_tech(path_to_csv):
                 sig_param_tech[enduse]
             except KeyError:
                 sig_param_tech[enduse] = {}
-            
+
             sig_param_tech[enduse][technology] = {}
-            sig_param_tech[enduse][technology] ['midpoint'] = midpoint
-            sig_param_tech[enduse][technology] ['steepness'] = steepness
-            sig_param_tech[enduse][technology] ['l_parameter'] = l_parameter
+            sig_param_tech[enduse][technology]['midpoint'] = midpoint
+            sig_param_tech[enduse][technology]['steepness'] = steepness
+            sig_param_tech[enduse][technology]['l_parameter'] = l_parameter
 
     return sig_param_tech
 
@@ -1090,10 +1089,10 @@ def read_capacity_installation(path_to_csv):
             try:
                 service_switches.append(
                     CapacitySwitch(
-                        enduse=str(row[0]),
-                        technology_install=str(row[1]),
-                        switch_yr=float(row[2]),
-                        installed_capacity=float(row[3])))
+                        enduse=str(row[0].strip()),
+                        technology_install=str(row[1].strip()),
+                        switch_yr=float(row[2].strip()),
+                        installed_capacity=float(row[3].strip())))
             except (KeyError, ValueError):
                 sys.exit("Error in loading service switch: Check if provided data is complete (no emptly csv entries)")
 

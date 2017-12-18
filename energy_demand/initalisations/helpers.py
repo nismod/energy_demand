@@ -1,6 +1,5 @@
 """Short diverse helper functions
 """
-import numpy as np
 
 def init_fuel_tech_p_by(all_enduses_with_fuels, fueltypes_nr):
     """Helper function to define stocks for all enduse and fueltype

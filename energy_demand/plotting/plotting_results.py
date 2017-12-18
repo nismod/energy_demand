@@ -41,6 +41,30 @@ def run_all_plot_functions(
     logging.info("... plotting results")
     print("... plotting results")
 
+    # ------------
+    # Stacked enduses
+    # ------------
+    # Residential
+    plt_stacked_enduse(
+        sim_param['simulated_yrs'],
+        results_container['results_enduse_every_year'],
+        enduses['rs_all_enduses'],
+        os.path.join(local_paths['data_results_PDF'], "stacked_rs_country.pdf"))
+
+    # Service
+    plt_stacked_enduse(
+        sim_param['simulated_yrs'],
+        results_container['results_enduse_every_year'],
+        enduses['ss_all_enduses'],
+        os.path.join(local_paths['data_results_PDF'], "stacked_ss_country.pdf"))
+
+    # Industry
+    plt_stacked_enduse(
+        sim_param['simulated_yrs'],
+        results_container['results_enduse_every_year'],
+        enduses['is_all_enduses'],
+        os.path.join(local_paths['data_results_PDF'], "stacked_is_country_.pdf"))
+    
     # ------------------------------
     # Plot annual demand for enduses
     # ------------------------------
@@ -54,6 +78,18 @@ def run_all_plot_functions(
         os.path.join(local_paths['data_results_PDF'],
         "stacked_all_enduses_country.pdf"))
 
+    # --------------
+    # Fuel per fueltype for whole country over annual timesteps
+    # ----------------
+    logging.debug("... Plot total fuel (y) per fueltype")
+    plt_fuels_enduses_y(
+        results_container['results_every_year'],
+        lookups,
+        os.path.join(
+            local_paths['data_results_PDF'],
+            'y_fueltypes_all_enduses.pdf'))
+
+    prnt(":eeedelete")
     # ----------
     # Plot seasonal typical load profiles
     # ----------
@@ -90,16 +126,7 @@ def run_all_plot_functions(
                 local_paths['data_results_PDF'],
                 'lf_y_{}.pdf'.format(fueltype_str)))
 
-    # --------------
-    # Fuel per fueltype for whole country over annual timesteps
-    # ----------------
-    logging.debug("... Plot total fuel (y) per fueltype")
-    plt_fuels_enduses_y(
-        results_container['results_every_year'],
-        lookups,
-        os.path.join(
-            local_paths['data_results_PDF'],
-            'y_fueltypes_all_enduses.pdf'))
+
 
     # --------------
     # Fuel week of base year
@@ -122,29 +149,6 @@ def run_all_plot_functions(
         2015,
         os.path.join(local_paths['data_results_PDF'], "tot_all_enduse04.pdf"))
 
-    # ------------
-    # Stacked enduses
-    # ------------
-    # Residential
-    plt_stacked_enduse(
-        sim_param['simulated_yrs'],
-        results_container['results_enduse_every_year'],
-        enduses['rs_all_enduses'],
-        os.path.join(local_paths['data_results_PDF'], "stacked_rs_country.pdf"))
-
-    # Service
-    plt_stacked_enduse(
-        sim_param['simulated_yrs'],
-        results_container['results_enduse_every_year'],
-        enduses['ss_all_enduses'],
-        os.path.join(local_paths['data_results_PDF'], "stacked_ss_country.pdf"))
-
-    # Industry
-    plt_stacked_enduse(
-        sim_param['simulated_yrs'],
-        results_container['results_enduse_every_year'],
-        enduses['is_all_enduses'],
-        os.path.join(local_paths['data_results_PDF'], "stacked_is_country_.pdf"))
 
     # ------------------------------------
     # Plot averaged per season an fueltype
@@ -459,9 +463,12 @@ def plt_stacked_enduse(years_simulated, results_enduse_every_year, enduses_data,
     ----------
     data : dict
         Data container
-    results_objects :
+    results_enduse_every_year : dict
+        Results [year][enduse][fueltype_array_position]
 
     enduses_data :
+    fig_name : str
+        Figure name
 
     Note
     ----
@@ -469,25 +476,29 @@ def plt_stacked_enduse(years_simulated, results_enduse_every_year, enduses_data,
 
     # INFO Cannot plot a single year?
     """
-    x_data = years_simulated
-    y_data = np.zeros((len(enduses_data), len(years_simulated)))
+    x_data = np.array(years_simulated) #len(results_enduse_every_year)
+    y_data = np.zeros((len(enduses_data), len(years_simulated), ))
 
     legend_entries = []
-    for fueltype_int, enduse in enumerate(enduses_data):
+    for enduse_array_nr, enduse in enumerate(enduses_data):
         legend_entries.append(enduse)
-        for model_year, data_model_run in enumerate(results_enduse_every_year.values()):
+
+        for year_array_nr, model_year in enumerate(results_enduse_every_year.keys()):
+
+            # Sum across all fueltypes
+            sum_across_fueltypes = np.sum(results_enduse_every_year[model_year][enduse])
 
             # Conversion: Convert GWh per years to GW
-            yearly_sum_gw = np.sum(data_model_run[enduse])
-            yearly_sum_twh = conversions.gwh_to_twh(np.sum(data_model_run[enduse]))
+            yearly_sum_twh = conversions.gwh_to_twh(sum_across_fueltypes)
 
-            y_data[fueltype_int][model_year] = yearly_sum_twh #yearly_sum_gw
+            y_data[enduse_array_nr][year_array_nr] += yearly_sum_twh #yearly_sum_gw
+
+            print("summing:  ...  model_year {} enduse {}  twh {}".format(model_year, enduse, np.sum(yearly_sum_twh)))
 
     # Set figure size
     fig = plt.figure(figsize=plotting_program.cm2inch(8, 8))
     ax = fig.add_subplot(1, 1, 1)
 
-    ##import matplotlib.colors as colors #for color_name in colors.cnmaes:
     color_list = [
         'darkturquoise', 'orange', 'firebrick',
         'darkviolet', 'khaki', 'olive', 'darkseagreen',
@@ -515,7 +526,11 @@ def plt_stacked_enduse(years_simulated, results_enduse_every_year, enduses_data,
     # Stack plot
     # ----------
     colors = tuple(color_list[:len(enduses_data)])
-    stack_plot = ax.stackplot(x_data, y_data, colors=colors)
+
+    stack_plot = ax.stackplot(
+        x_data,
+        y_data,
+        colors=colors)
 
     # -------
     # Legend
@@ -536,10 +551,10 @@ def plt_stacked_enduse(years_simulated, results_enduse_every_year, enduses_data,
         legend_entries,
         loc='upper center',
         bbox_to_anchor=(0.5, -0.05),
-        prop={'family': 'arial','size': 8},
+        prop={'family': 'arial','size': 3},
         frameon=False,
         shadow=True,
-        ncol=4)
+        ncol=2)
 
     # -------
     # Axis
@@ -655,15 +670,16 @@ def plt_stacked_enduse_sectors(
     # -------
     # Axis
     # -------
-    base_yr, year_interval = 2015, 5
+    '''base_yr, year_interval = 2015, 5
     end_yr = list(years_simulated)
 
     major_ticks = np.arange(
         base_yr, end_yr[-1] + year_interval, year_interval)
 
-    plt.xticks(major_ticks, major_ticks)
-    plt.axis('tight')
+    plt.xticks(major_ticks, major_ticks)'''
 
+    plt.xticks(years_simulated, years_simulated)
+    plt.axis('tight')
 
     # -------
     # Labels

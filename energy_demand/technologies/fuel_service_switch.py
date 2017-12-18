@@ -1,5 +1,6 @@
 """Function related to service or fuel switch
 """
+from collections import defaultdict
 from energy_demand.technologies import tech_related
 from energy_demand.read_write import read_data
 
@@ -34,9 +35,7 @@ def get_share_service_tech_ey(service_switches, specified_tech_enduse_by):
             if switch.enduse == enduse:
                 enduse_tech_ey_p[enduse][switch.technology_install] = switch.service_share_ey
 
-    # ------------------------------------------------------
     # Add all other enduses for which no switch is defined
-    # ------------------------------------------------------
     for enduse in specified_tech_enduse_by:
         if enduse not in enduse_tech_ey_p:
             enduse_tech_ey_p[enduse] = {}
@@ -90,6 +89,7 @@ def autocomplete_switches(service_switches, specified_tech_enduse_by, service_te
 
         # Calculate relative by proportion of not assigned tchnologies
         tech_not_assigned_by_p = {}
+
         for tech in specified_tech_enduse_by[enduse]:
             if tech not in assigned_technologies:
                 tech_not_assigned_by_p[tech] = service_tech_by_p[enduse][tech]
@@ -125,7 +125,7 @@ def autocomplete_switches(service_switches, specified_tech_enduse_by, service_te
                         switch_yr=switch_yr)
                     service_switches_out.append(switch_new)
             else:
-                # If assigne,d copy to final switches
+                # If assigned copy to final switches
                 for switch in switches_enduse:
                     if switch.technology_install == tech:
                         service_switches_out.append(switch)
@@ -253,7 +253,6 @@ def create_service_switch(
     base_yr : dict
         base year
     """
-    # List to store service switches
     service_switches = []
 
     for enduse in enduses:
@@ -373,7 +372,6 @@ def capacity_assumption_to_service(
     # Add to switch of technology_install
     # -------------------------------------------
     service_switches_enduse = []
-
     for tech, service_tech_p in service_enduse_tech.items():
 
         # WARNING: MUST BE THE SAME YEAR FOR ALL CAPACITY SWITCHES
@@ -390,3 +388,57 @@ def capacity_assumption_to_service(
         service_switches_enduse.append(service_switch)
 
     return service_switches_enduse
+
+def get_fuel_switches_enduse(switches, enduse):
+    """Get all fuel switches of a specific enduse
+
+    Arguments
+    ----------
+    switches : list
+        Switches
+    enduse : str
+        Enduse
+
+    Returns
+    -------
+    enduse_switches : list
+        All switches of a specific enduse
+    """
+    enduse_switches = []
+
+    for fuel_switch in switches:
+        if fuel_switch.enduse == enduse:
+            enduse_switches.append(fuel_switch)
+
+    return enduse_switches
+
+def switches_to_dict(service_switches, regional_specific):
+    """Write switch to dict, i.e. providing service fraction
+    of technology as dict: {tech: service_ey_p}
+
+    Arguments
+    ---------
+    service_switches : dict
+        Service switches
+    regional_specific : crit
+        Regional speciffic diffusion modelling criteria
+
+    Returns
+    -------
+    service_tech_by_p : dict
+        Service tech after service switch
+
+    service_switches : dict
+        Reg, fuel_swtiches
+    """
+    service_tech_by_p = defaultdict(dict)
+
+    if regional_specific:
+        for reg, reg_switches in service_switches.items():
+            for switch in reg_switches:
+                service_tech_by_p[reg][switch.technology_install] = switch.service_share_ey
+    else:
+        for switch in service_switches:
+            service_tech_by_p[switch.technology_install] = switch.service_share_ey
+
+    return dict(service_tech_by_p)

@@ -160,7 +160,7 @@ def virtual_building_datasets(lu_reg, all_sectors, data):
     rs_floorarea = defaultdict(dict)
     for year in range(2015, 2101):
         for region_geocode in lu_reg:
-            rs_floorarea[year][region_geocode] = data['population'][2015][region_geocode]
+            rs_floorarea[year][region_geocode] = 10000
 
     # --------------------------------------------------
     # Floor area for service sector buildings
@@ -206,6 +206,8 @@ def load_local_paths(path):
             path, '_raw_data', 'D-validation', '02_subnational_gas_demand', 'data_2015_gas.csv'),
         'path_employment_statistics': os.path.join(
             path, '_raw_data', 'b-census_data', 'employment_statistics_2011_LAD', 'LAD_prior_2015.csv'),
+        'path_floor_area_virtual_stock_by': os.path.join( #TODO
+            path, '_raw_data', 'K-floor_area', 'floor_area_by.csv'),
         'path_dummy_regions': os.path.join(
             path, '_raw_data', 'B-census_data', 'regions_local_area_districts', '_quick_and_dirty_spatial_disaggregation', 'infuse_dist_lyr_2011_saved.csv'),
         'path_assumptions_db': os.path.join(

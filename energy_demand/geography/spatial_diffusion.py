@@ -1,22 +1,5 @@
 """This file calculates spatial diffusion index
-
-Method to incorporate regional diffusion
-# -----------------------------------------
-
-1.  As an input provide national fuel share which is to be switched (or capacity installed or fuel switch). As defined already
-
-2.  Provide for every region a diffusion value (see excel)
-
-3.  Calculate for every region a diffusion index (see excel)
-
-4.  Normalised diffusion index with service fraction and multiply with total switched service of UK --> Regional service to switch (see excel)
-
-5.  Calculate diffusion parameters for region
-
-6.  Use regional diffusion parameters
-
 """
-
 from collections import defaultdict
 import numpy as np
 
@@ -41,12 +24,12 @@ def load_spatial_diff_values(regions, enduses):
     spatial_index = defaultdict(dict)
 
     for enduse in enduses:
-        dummy_indeces = [1.6, 2.5] #[2.8, 5.5] #[1.4, 2]
+        #dummy_indeces = [1.6, 2.5] #[2.8, 5.5] #[1.4, 2]
         cnt = 0
         for region in regions:
 
-            #dummy_index = 1 #TODO
-            dummy_index = dummy_indeces[cnt]
+            dummy_index = 1 #TODO
+            #dummy_index = dummy_indeces[cnt]
 
             spatial_index[enduse][region] = dummy_index
             cnt += 1
@@ -175,7 +158,7 @@ def calc_regional_services(
         Fuels per region
     techs_affected_spatial_f : list
         List with technologies where spatial diffusion is affected
-    
+
     Returns
     -------
     rs_reg_enduse_tech_p_ey : dict
@@ -201,7 +184,7 @@ def calc_regional_services(
         # ------------------------------------
         uk_enduse_fuel = 0
         for region in regions:
-            rs_reg_enduse_tech_p_ey[region][enduse] = {}
+            rs_reg_enduse_tech_p_ey[enduse][region] = {}
             uk_enduse_fuel += np.sum(fuel_disaggregated[region][enduse])
 
         # ----
@@ -230,16 +213,16 @@ def calc_regional_services(
                     reg_service_tech = uk_service_tech * fuel_disagg_factor
 
                 if reg_service_tech == 0:
-                    rs_reg_enduse_tech_p_ey[region][enduse][tech] = 0
+                    rs_reg_enduse_tech_p_ey[enduse][region][tech] = 0
                 else:
-                    rs_reg_enduse_tech_p_ey[region][enduse][tech] = reg_service_tech
+                    rs_reg_enduse_tech_p_ey[enduse][region][tech] = reg_service_tech
 
             # ---------------------------------------------
             # C.) Calculate regional fraction
             # ---------------------------------------------
             tot_service_reg_enduse = fuel_disagg_factor * uk_service_enduse
 
-            for tech, service_tech in rs_reg_enduse_tech_p_ey[region][enduse].items():
-                rs_reg_enduse_tech_p_ey[region][enduse][tech] = service_tech / tot_service_reg_enduse
+            for tech, service_tech in rs_reg_enduse_tech_p_ey[enduse][region].items():
+                rs_reg_enduse_tech_p_ey[enduse][region][tech] = service_tech / tot_service_reg_enduse
 
-    return rs_reg_enduse_tech_p_ey
+    return dict(rs_reg_enduse_tech_p_ey)

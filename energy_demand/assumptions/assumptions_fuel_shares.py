@@ -121,7 +121,7 @@ def assign_by_fuel_tech_p(assumptions, enduses, lookups):
 
     # ---------------
     # Water heating
-    # Calculated based on TODO
+    # Calculated based on TODOTODO
     # ---------------
     assumptions['rs_fuel_tech_p_by']['rs_water_heating'][lookups['fueltype']['solid_fuel']] = {
         'boiler_solid_fuel': 1.0}
@@ -155,7 +155,8 @@ def assign_by_fuel_tech_p(assumptions, enduses, lookups):
         'boiler_gas': 1.0}
 
     assumptions['ss_fuel_tech_p_by']['ss_space_heating'][lookups['fueltype']['electricity']] = {
-        'boiler_electricity': 1.0}
+        'boiler_electricity': 0.96,
+        'heat_pumps_electricity': 0.04}
 
     assumptions['ss_fuel_tech_p_by']['ss_space_heating'][lookups['fueltype']['oil']] = {
         'boiler_oil': 1.0}
@@ -164,7 +165,8 @@ def assign_by_fuel_tech_p(assumptions, enduses, lookups):
         'boiler_biomass': 1.0}
 
     assumptions['ss_fuel_tech_p_by']['ss_space_heating'][lookups['fueltype']['hydrogen']] = {
-        'boiler_hydrogen': 1.0}
+        'boiler_hydrogen': 1.0,
+        'heat_pumps_hydrogen': 0.0}
 
     assumptions['ss_specified_tech_enduse_by'] = helpers.get_def_techs(
         assumptions['ss_fuel_tech_p_by'])
@@ -193,7 +195,8 @@ def assign_by_fuel_tech_p(assumptions, enduses, lookups):
         'boiler_biomass': 1.0}
 
     assumptions['is_fuel_tech_p_by']['is_space_heating'][lookups['fueltype']['hydrogen']] = {
-        'boiler_hydrogen': 1.0}
+        'boiler_hydrogen': 1.0,
+        'heat_pumps_hydrogen': 0.0}
 
     # ------------------
     # Get technologies of an enduse

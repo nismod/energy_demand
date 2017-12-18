@@ -197,7 +197,7 @@ def get_fueltype_int(fueltypes, fueltype_string):
     fueltype_in_string : str
         Fueltype string
     """
-    if fueltypes == None:
+    if fueltypes is None:
         return None
     else:
         return fueltypes[fueltype_string]
@@ -234,7 +234,7 @@ def get_tech_type(tech_name, tech_list):
     return tech_type
 
 def calc_av_heat_pump_eff_ey(technologies, heat_pump_assump):
-    """Calculate end year average efficiency of 
+    """Calculate end year average efficiency of
     heat pumps depending on split of heat pumps
 
     Arguments
@@ -262,7 +262,7 @@ def calc_av_heat_pump_eff_ey(technologies, heat_pump_assump):
 
         # Add new averaged technology
         technologies[name_av_hp].eff_ey = av_eff_hps_ey
-    
+
     return technologies
 
 def generate_heat_pump_from_split(temp_dependent_tech_list, technologies, heat_pump_assump, fueltypes):

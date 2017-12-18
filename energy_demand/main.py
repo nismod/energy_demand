@@ -12,14 +12,19 @@ https://nismod.github.io/docs/smif-prerequisites.html#sector-modeller
 # Cooling?
 # convert documentation in rst?
 # Check whether fuel switches can be written as servie switch
-"""
+# CORRECT OUTPUTS (per tech)
+# AVERAGE HDDs over two days (floating average)
+# Potentiall load other annual profiles?
+
+# - Outputs for supply model
+# - read floor areas
+55# """
 import os
 import sys
 import logging
 import numpy as np
 from energy_demand import energy_model
 from energy_demand.basic import testing_functions as testing
-from energy_demand.technologies import fuel_service_switch
 
 def energy_demand_model(data, fuel_in=0, fuel_in_elec=0):
     """Main function of energy demand model to calculate yearly demand
@@ -83,6 +88,7 @@ if __name__ == "__main__":
         print("    python main.py ../energy_demand_data\n")
         print("... Defaulting to C:/DATA_NISMODII/data_energy_demand")
         local_data_path = os.path.abspath('C:/DATA_NISMODII/data_energy_demand')
+        ##local_data_path = os.path.abspath('C:/Users/cenv0553/nismod/data_energy_demand')
     else:
         local_data_path = sys.argv[1]
 
@@ -104,7 +110,7 @@ if __name__ == "__main__":
 
     # Run settings
     instrument_profiler = True
-    validation_criteria = False
+    validation_criteria = True
     virtual_building_stock_criteria = True
 
     # Load data
@@ -171,39 +177,12 @@ if __name__ == "__main__":
 
     # ------------------------------
     if data['criterias']['virtual_building_stock_criteria']:
-        rs_floorarea, ss_floorarea = data_loader.virtual_building_datasets(data['lu_reg'], data['sectors']['all_sectors'], data)
+        rs_floorarea, ss_floorarea = data_loader.virtual_building_datasets(
+            data['lu_reg'],
+            data['sectors']['all_sectors'],
+            data)
     else:
         pass
-
-    # ---------------------
-    # Calculate all capacity switches
-    # ---------------------
-    data['assumptions']['rs_service_switches'] = fuel_service_switch.capacity_installations(
-        data['assumptions']['rs_service_switches'],
-        data['assumptions']['capacity_switches']['rs_capacity_switches'],
-        data['assumptions']['technologies'],
-        data['assumptions']['enduse_overall_change']['other_enduse_mode_info'],
-        data['fuels']['rs_fuel_raw_data_enduses'],
-        data['assumptions']['rs_fuel_tech_p_by'],
-        data['sim_param']['base_yr'])
-
-    data['assumptions']['ss_service_switches'] = fuel_service_switch.capacity_installations(
-        data['assumptions']['ss_service_switches'],
-        data['assumptions']['capacity_switches']['ss_capacity_switches'],
-        data['assumptions']['technologies'],
-        data['assumptions']['enduse_overall_change']['other_enduse_mode_info'],
-        data['fuels']['ss_fuel_raw_data_enduses'],
-        data['assumptions']['ss_fuel_tech_p_by'],
-        data['sim_param']['base_yr'])
-
-    data['assumptions']['is_service_switches'] = fuel_service_switch.capacity_installations(
-        data['assumptions']['is_service_switches'],
-        data['assumptions']['capacity_switches']['is_capacity_switches'],
-        data['assumptions']['technologies'],
-        data['assumptions']['enduse_overall_change']['other_enduse_mode_info'],
-        data['fuels']['is_fuel_raw_data_enduses'],
-        data['assumptions']['is_fuel_tech_p_by'],
-        data['sim_param']['base_yr'])
 
     #Scenario data
     data['scenario_data'] = {
@@ -228,6 +207,7 @@ if __name__ == "__main__":
     basic_functions.del_previous_setup(data['local_paths']['data_results'])
     basic_functions.create_folder(data['local_paths']['data_results'])
     basic_functions.create_folder(data['local_paths']['data_results_PDF'])
+    basic_functions.create_folder(data['local_paths']['data_results'], "model_run_pop")
 
     # Create .ini file with simulation information
     write_data.write_simulation_inifile(
@@ -297,6 +277,18 @@ if __name__ == "__main__":
         write_data.write_lf(path_runs, "result_reg_load_factor_summer", [sim_yr], reg_load_factor_summer, 'reg_load_factor_summer')
         write_data.write_lf(path_runs, "result_reg_load_factor_autumn", [sim_yr], reg_load_factor_autumn, 'reg_load_factor_autumn')
 
+        # -------------------------------------------
+        # Write population files of simulation year
+        # -------------------------------------------
+        pop_array_reg = np.zeros((len(data['lu_reg'])))
+        for reg_array_nr, reg in enumerate(data['lu_reg']):
+            pop_array_reg[reg_array_nr] = data['scenario_data']['population'][sim_yr][reg]
+
+        write_data.write_pop(
+            sim_yr,
+            data['local_paths']['data_results'],
+            pop_array_reg)
         logging.info("... Finished writing results to file")
 
     logging.info("... Finished running Energy Demand Model")
+    print("... Finished running Energy Demand Model")
