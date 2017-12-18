@@ -537,7 +537,7 @@ def sig_param_calculation_including_fuel_switch(
         service_tech_switched_p = share_service_tech_ey_p
 
         # Calculate sigmoid diffusion parameters (if no switches, no calculations)
-        l_values_sig = s_generate_sigmoid.get_sig_diffusion_service(
+        l_values_sig = s_generate_sigmoid.get_l_values(
             technologies,
             tech_increased_service,
             regions=regions,

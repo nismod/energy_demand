@@ -26,13 +26,10 @@ def test_tech_sigmoid_paramters():
     result = s_generate_sigmoid.tech_sigmoid_parameters(
         base_yr=2010,
         technologies=technologies,
-        enduse='heating',
-        crit_switch_service=True,
         installed_tech=['boilerA'],
-        l_values={'heating': {'boilerA': 1.0}},
+        l_values={'boilerA': 1.0},
         service_tech_by_p={'boilerA': 0.5, 'boilerB': 0.5},
         service_tech_switched_p={'boilerA': assump_fy, 'boilerB': 0},
-        fuel_switches=fuel_switches,
         service_switches=service_switches)
 
     y_calculated = diffusion_technologies.sigmoid_function(
@@ -48,13 +45,10 @@ def test_tech_sigmoid_paramters():
     result = s_generate_sigmoid.tech_sigmoid_parameters(
         base_yr=2010,
         technologies=technologies,
-        enduse='heating',
-        crit_switch_service=False,
         installed_tech=['boilerA'],
-        l_values={'heating': {'boilerA': 1.0}},
+        l_values={'boilerA': 1.0},
         service_tech_by_p={'boilerA': 0.5, 'boilerB': 0.5},
         service_tech_switched_p={'boilerA': assump_fy, 'boilerB': 0},
-        fuel_switches=fuel_switches,
         service_switches=service_switches)
 
     y_calculated = diffusion_technologies.sigmoid_function(
@@ -203,7 +197,6 @@ def test_calc_service_fuel_switched():
     fuel_tech_p_by = {1: {'boilerA': 1.0}, 2: {'boilerB': 1.0}}
 
     result = s_generate_sigmoid.calc_service_fuel_switched(
-        enduse,
         fuel_switches,
         technologies,
         service_fueltype_p,
@@ -230,7 +223,6 @@ def test_calc_service_fuel_switched():
     fuel_tech_p_by  = {1: {'boilerA': 1.0}, 2: {'boilerB': 1.0}}
 
     result = s_generate_sigmoid.calc_service_fuel_switched(
-        enduse,
         fuel_switches,
         technologies,
         service_fueltype_p,
@@ -257,7 +249,6 @@ def test_calc_service_fuel_switched():
     fuel_tech_p_by  = {1: {'boilerA': 1.0}, 2: {'boilerB': 1.0}}
 
     result = s_generate_sigmoid.calc_service_fuel_switched(
-        enduse,
         fuel_switches,
         technologies,
         service_fueltype_p,
@@ -284,7 +275,6 @@ def test_calc_service_fuel_switched():
     fuel_tech_p_by  = {1: {'boilerA': 0.5, 'boilerC': 0.5,}, 2: {'boilerB': 1.0}}
 
     result = s_generate_sigmoid.calc_service_fuel_switched(
-        enduse,
         fuel_switches,
         technologies,
         service_fueltype_p,
@@ -333,8 +323,6 @@ def test_tech_l_sigmoid():
             fueltypes=fueltype_lookup)
         }
 
-    enduse = 'heating'
-
     fuel_switches = [
         read_data.FuelSwitch(
             enduse='heating',
@@ -347,7 +335,7 @@ def test_tech_l_sigmoid():
     service_fueltype_p =  {1: 1.0, 2: 0.0}
     service_tech_by_p = {'boilerA': 1.0, 'boilerB': 0.0}
     fuel_tech_p_by  = {1: {'boilerA': 1.0}, 2: {'boilerB': 1.0}}
-    installed_tech = {'heating':['boilerB']}
+    installed_tech = ['boilerB']
 
     result = s_generate_sigmoid.tech_l_sigmoid(
         fuel_switches,
@@ -384,8 +372,6 @@ def test_tech_l_sigmoid():
             fueltypes=fueltype_lookup)
         }
 
-    enduse = 'heating'
-
     fuel_switches = [
         read_data.FuelSwitch(
             enduse='heating',
@@ -398,7 +384,7 @@ def test_tech_l_sigmoid():
     service_fueltype_p = {1: 1.0, 2: 0.0}
     service_tech_by_p = {'boilerA': 1.0, 'boilerB': 0.0}
     fuel_tech_p_by = {1: {'boilerA': 1.0}, 2: {'boilerB': 1.0}}
-    installed_tech = {'heating':['boilerB']}
+    installed_tech = ['boilerB']
 
     result = s_generate_sigmoid.tech_l_sigmoid(
         fuel_switches,
@@ -422,7 +408,7 @@ def test_get_sig_diffusion():
         'biomass': 5,
         'hydrogen': 6,
         'heat': 7}
-    base_yr = 2015
+
     technologies = {
         'boilerA': read_data.TechnologyData(
             fuel_type='gas',
@@ -442,7 +428,7 @@ def test_get_sig_diffusion():
             eff_achieved=1.0,
             diff_method='linear',
             market_entry=1990,
-            tech_max_share=0.9990,
+            tech_max_share=0.999,
             fueltypes=fueltype_lookup),
         'boilerB': read_data.TechnologyData(
             fuel_type='electricity',
@@ -454,45 +440,26 @@ def test_get_sig_diffusion():
             market_entry=1990,
             tech_max_share=1.0,
             fueltypes=fueltype_lookup)}
-    enduses = ['heating']
-    fuel_switches = [
-        read_data.FuelSwitch(
-            enduse='heating',
-            technology_install='boilerB',
-            switch_yr=2020,
-            enduse_fueltype_replace=tech_related.get_fueltype_int(fueltype_lookup, 'gas'),
-            fuel_share_switched_ey=1.0
-        )]
 
-    service_switches = []
     tech_increased_service = ['boilerA']
     service_tech_ey_p =  {'boilerA': 0.6, 'boilerB': 0.4}
-    service_fueltype_p = {1:  1.0}
 
-    result, sig_param = s_generate_sigmoid.get_sig_diffusion_service(
+    sig_param = s_generate_sigmoid.get_l_values(
         technologies,
         tech_increased_service,
         service_tech_ey_p)
 
-    assert result['boilerA'] == 0.6
-    assert result['boilerB'] == 0.4
+    assert sig_param['boilerA'] == 1.0
 
     # -----
 
-    service_switches = [read_data.ServiceSwitch(
-        enduse='heating',
-        technology_install='boilerC',
-        service_share_ey=1.0,
-        switch_yr=2050)]
-
     tech_increased_service = ['boilerC']
-    service_tech_ey_p = {'boilerC': 1.0, 'boilerA': 0.0, 'boilerB': 0.0}
+    service_tech_ey_p = {'boilerC': 0.5, 'boilerA': 0.0, 'boilerB': 0.0}
 
-    result, sig_param = s_generate_sigmoid.get_sig_diffusion_service(
+    sig_param = s_generate_sigmoid.get_l_values(
         technologies,
         tech_increased_service,
         service_tech_ey_p)
 
-    #TODO: Possibly add more test
 
-    assert result['boilerC'] == 1.0
+    assert sig_param['boilerC'] == 0.999

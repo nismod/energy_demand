@@ -388,17 +388,14 @@ def get_tech_installed(enduse, fuel_switches):
     # Convert set to lists
     return list(installed_tech)
 
-def get_sig_diffusion_service(
+def get_l_values(
         technologies,
         tech_increased_service,
         regions=False,
         regional_specific=False
     ):
-    """Calculates parameters for sigmoid diffusion of
-    technologies which are switched to/installed. With
-    `regional_specific` the assumption can be changed that
-    the technology diffusion is the same over all the uk
-    (if `regional_specific`== False, no regionally different diffusion)
+    """Get l values (Maximum shares of each technology)
+    for all installed technologies
 
     Arguments
     ----------
@@ -423,15 +420,13 @@ def get_sig_diffusion_service(
     l_values_sig = defaultdict(dict)
 
     if regional_specific:
-        # Maximum shares of each technology
         for reg in regions:
-            for tech in tech_increased_service[reg]: # same techs for every region
+            for tech in tech_increased_service[reg]:
                 l_values_sig[reg][tech] = technologies[tech].tech_max_share
     else:
         if tech_increased_service == []:
             pass
         else:
-            # Maximum shares of each technology
             for tech in tech_increased_service:
                 l_values_sig[tech] = technologies[tech].tech_max_share
 
@@ -543,8 +538,11 @@ def calc_sigm_parameters(
         regional_specific=False
     ):
     """
-    Calculate sigmoid parameters for all technologies
-    with increased service in the future
+    Calculates parameters for sigmoid diffusion of
+    technologies which are switched to/installed. With
+    `regional_specific` the assumption can be changed that
+    the technology diffusion is the same over all the uk
+    (if `regional_specific`== False, no regionally different diffusion)
 
     Arguments
     ---------
