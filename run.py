@@ -91,8 +91,8 @@ class EDWrapper(SectorModel):
 
         # Criteria
         data['criterias']['virtual_building_stock_criteria'] = True     # True: Run virtual building stock model
-        data['criterias']['plot_HDD_chart'] = True                     # True: Plotting of HDD vs gas chart
-        data['criterias']['validation_criteria'] = True                # True: Plot validation plots
+        data['criterias']['plot_HDD_chart'] = False                     # True: Plotting of HDD vs gas chart
+        data['criterias']['validation_criteria'] = False                # True: Plot validation plots
         data['criterias']['mode_constrained'] = False                   # True: Technologies are defined in ED model and fuel is provided, False: Heat is delievered not per technologies
         data['criterias']['spatial_exliclit_diffusion'] = False          # True: Spatial explicit calculations
 

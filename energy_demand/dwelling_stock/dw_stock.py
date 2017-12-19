@@ -448,8 +448,6 @@ def ss_dw_stock(region, data, curr_yr, base_yr):
 
         # If virtual building stock, change floor area proportionally to population
         if data['criterias']['virtual_building_stock_criteria']:
-            base_yr = data['sim_param']['base_yr']
-            curr_yr = data['sim_param']['curr_yr']
             pop_factor = data['scenario_data']['population'][curr_yr][region] / data['scenario_data']['population'][base_yr][region]
             lin_diff_factor = pop_factor
             '''

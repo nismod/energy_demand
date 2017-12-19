@@ -10,10 +10,8 @@ https://nismod.github.io/docs/smif-prerequisites.html#sector-modeller
 # Industry INFO about efficiencies & technologies: Define strategy variables
 # Cooling?
 # convert documentation in rst?
-# Check whether fuel switches can be written as servie switch
 # CORRECT OUTPUTS (per tech)
 # Potentiall load other annual profiles?
-# - Outputs for supply model
 """
 import os
 import sys
@@ -44,8 +42,6 @@ def energy_demand_model(data, fuel_in=0, fuel_in_elec=0):
     This function is executed in the wrapper
     """
     fuel_in, fuel_in_elec, fuel_in_gas = testing.test_function_fuel_sum(data)
-    print("VORHER Fuel input:          " + str(fuel_in))
-    print("VORHER elec fuel in:        " + str(fuel_in_elec))
 
     model_run_object = energy_model.EnergyModel(
         region_names=data['lu_reg'],
