@@ -19,8 +19,6 @@ def write_pop(sim_yr, path_result, pop_y):
 
     np.savetxt(path_file, pop_y, delimiter=',')
 
-    pass
-
 def create_shp_results(data, results_container, paths, lookups, lu_reg):
     """Create csv file and merge with shape
 

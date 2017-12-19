@@ -932,6 +932,19 @@ def read_service_tech_by_p(path_to_csv):
 
 def read_disaggregated_fuel(path_to_csv, fueltypes_nr):
     """Read disaggregated fuel
+    
+    Arguments
+    ----------
+    path_to_csv : str
+        Path to csv file
+    fueltypes_nr : int
+        Nr of fueltypes
+
+    Returns
+    -------
+    fuel_sector_enduse : dict
+        Disaggregated fuel
+
     """
     fuel_sector_enduse = {}
 

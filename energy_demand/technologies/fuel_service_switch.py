@@ -215,9 +215,8 @@ def capacity_installations(
     if enduses_switch == []:
         pass
     else:
-        # -------------------------
+
         # Calculate service switches
-        # -------------------------
         service_switches = create_service_switch(
             enduses_switch,
             capacity_switches,
@@ -246,12 +245,21 @@ def create_service_switch(
         Enduses
     capacity_switches : list
         List containing all capacity_switches
-    assumptions : dict
-        Assumptions
-    fuels : dict
-        Fuels
+    technologies : dict
+        Technologies
+    other_enduse_mode_info : dict
+        OTher diffusion information
+    fuel_shares_enduse_by : dict
+        Fuel shares per enduse for base year
     base_yr : dict
         base year
+    fuels : dict
+        Fuels
+
+    Returns
+    ------
+    service_switches : dict
+        Service switches
     """
     service_switches = []
 
@@ -285,8 +293,7 @@ def capacity_assumption_to_service(
         base_yr,
         other_enduse_mode_info
     ):
-    """Convert capacity assumption to service
-    switches
+    """Convert capacity assumption to service switches
 
     Arguments
     ---------

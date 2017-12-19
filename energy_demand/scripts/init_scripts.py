@@ -386,10 +386,10 @@ def convert_fuel_switches_to_service_switches(
         Changed services witches including fuel switches
     """
     if regional_specific:
-        service_switches_incl_fuel_switch = {}
+        new_service_switches = {}
 
         for reg in regions:
-            service_switches_incl_fuel_switch[reg] = []
+            new_service_switches[reg] = []
 
             for tech in service_tech_switched_p[reg]:
                 if tech == 'dummy_tech':
@@ -406,9 +406,9 @@ def convert_fuel_switches_to_service_switches(
                         service_share_ey=service_tech_switched_p[reg][tech],
                         switch_yr=switch_yr)
 
-                    service_switches_incl_fuel_switch[reg].append(switch_new)
+                    new_service_switches[reg].append(switch_new)
     else:
-        service_switches_incl_fuel_switch = []
+        new_service_switches = []
 
         for tech in service_tech_switched_p:
             if tech == 'dummy_tech':
@@ -425,9 +425,9 @@ def convert_fuel_switches_to_service_switches(
                     service_share_ey=service_tech_switched_p[tech],
                     switch_yr=switch_yr)
 
-                service_switches_incl_fuel_switch.append(switch_new)
+                new_service_switches.append(switch_new)
 
-    return service_switches_incl_fuel_switch
+    return new_service_switches
 
 def sig_param_calculation_including_fuel_switch(
         base_yr,
@@ -456,7 +456,7 @@ def sig_param_calculation_including_fuel_switch(
         fuel switches
     service_switches : dict
         service switches
-    service_tech_by_p : 
+    service_tech_by_p : dict
 
     service_fueltype_by_p : dict
 
@@ -597,4 +597,3 @@ def sig_param_calculation_including_fuel_switch(
         pass #no switches are defined
 
     return sig_param_tech, tech_increased_service, tech_decrased_share, tech_constant_share, service_switches_out
-
