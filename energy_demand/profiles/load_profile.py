@@ -35,17 +35,19 @@ class LoadProfileStock(object):
         """Add load profile to stock
 
         Arguments
-        ----------
+        ---------
+        unique_identifier : str
+            Name (unique identifier)
         technologies : list
             Technologies for which the profile applies
         enduses : list
             Enduses for which the profile applies
-        sectors : list
-            Sectors for which the profile applies
         shape_yd : array
             Shape yd (from year to day)
         shape_yh : array
             Shape yh (from year to hour)
+        sectors : list, default=False
+            Sectors for which the profile applies
         enduse_peak_yd_factor : float
             Factor to calculate daily demand from yearly demand
             Standard value is average daily amount
@@ -97,7 +99,7 @@ class LoadProfileStock(object):
 
         Return
         ------
-        Load profile
+        Load profile attribute
         """
         # Get key from lookup dict
         position_in_dict = self.dict_tuple_keys[(enduse, sector, technology)]
@@ -155,6 +157,11 @@ def generate_key_lu_dict(dict_tuple_keys, unique_identifier, enduses, sectors, t
         List with sectors
     technologies : list
         List with technologies
+
+    Returns
+    -------
+    dict_tuple_keys : str
+        Lookup position in dict
     """
     for enduse in enduses:
         for sector in sectors:
@@ -171,6 +178,11 @@ def get_stock_enduses(load_profile_dict):
     ---------
     load_profile_dict : dict
         All load profiles of load profile stock
+
+    Returns
+    ------
+    all_enduses : list
+        All enduses in stock
     """
     all_enduses = set([])
     for profile_obj in load_profile_dict.values():

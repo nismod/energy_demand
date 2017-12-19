@@ -959,6 +959,18 @@ def read_disaggregated_fuel(path_to_csv, fueltypes_nr):
 
 def read_disaggregated_fuel_sector(path_to_csv, fueltypes_nr):
     """Read disaggregated fuel
+
+    Arguments
+    ----------
+    path_to_csv : str
+        Path to csv file
+    fueltypes_nr : int
+        Nr of fueltypes
+
+    Returns
+    -------
+    fuel_sector_enduse : dict
+        Disaggregated fuel
     """
     fuel_sector_enduse = {}
 
@@ -1045,8 +1057,19 @@ def read_lf_y(path_enduse_specific_results):
 
     return dict(results)
 
-def read_pop(path_enduse_specific_results):
-    """Read load factors from txt file
+def read_scenaric_population_data(path_enduse_specific_results):
+    """Read population data
+
+    Arguments
+    ---------
+    path_enduse_specific_results : str
+        Path
+
+    Returns
+    -------
+    results : dict
+        Population, {year: np.array(fueltype, regions)}
+
     """
     results = defaultdict(dict)
 

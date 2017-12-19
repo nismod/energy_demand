@@ -148,7 +148,7 @@ class EDWrapper(SectorModel):
         # Get building related data
         if data['criterias']['virtual_building_stock_criteria']:
             rs_floorarea, ss_floorarea = data_loader.virtual_building_datasets(
-                data['lu_reg'], data['sectors']['all_sectors'], data)
+                data['lu_reg'], data['sectors']['all_sectors'], data['local_paths'])
         else:
             pass
             # Load floor area from newcastle

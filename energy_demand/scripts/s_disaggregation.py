@@ -661,13 +661,13 @@ def run(data):
 
     #Write to csv file disaggregated demand
     write_disagg_fuel(
-        os.path.join(data['local_paths']['dir_disattregated'], 'rs_fuel_disagg.csv'),
+        os.path.join(data['local_paths']['dir_disaggregated'], 'rs_fuel_disagg.csv'),
         rs_fuel_disagg)
     write_disagg_fuel_sector(
-        os.path.join(data['local_paths']['dir_disattregated'], 'ss_fuel_disagg.csv'),
+        os.path.join(data['local_paths']['dir_disaggregated'], 'ss_fuel_disagg.csv'),
         ss_fuel_disagg)
     write_disagg_fuel_sector(
-        os.path.join(data['local_paths']['dir_disattregated'], 'is_fuel_disagg.csv'),
+        os.path.join(data['local_paths']['dir_disaggregated'], 'is_fuel_disagg.csv'),
         is_fuel_disagg)
 
     logging.debug("... finished script %s", os.path.basename(__file__))

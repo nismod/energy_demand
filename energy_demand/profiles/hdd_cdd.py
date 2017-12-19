@@ -339,6 +339,8 @@ def calc_reg_hdd(temperatures, t_base_heating, model_yeardays):
         Temperatures
     t_base_heating : float
         Base temperature for heating
+    model_yeardays : dict
+        Modelled yeardays
 
     Return
     ------

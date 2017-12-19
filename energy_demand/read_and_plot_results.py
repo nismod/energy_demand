@@ -48,7 +48,7 @@ def main(path_data_energy_demand):
 
     # Read scenario data
     data['scenario_data'] = {}
-    data['scenario_data']['population'] = read_data.read_pop(
+    data['scenario_data']['population'] = read_data.read_scenaric_population_data(
         os.path.join(data['local_paths']['data_results'], 'model_run_pop'))
 
     # --------------------------------------------
