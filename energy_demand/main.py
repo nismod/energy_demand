@@ -110,15 +110,13 @@ if __name__ == "__main__":
 
     # Run settings
     instrument_profiler = True
-    validation_criteria = True
-    virtual_building_stock_criteria = True
 
     # Load data
     data = {}
     data['criterias'] = {}
     data['criterias']['mode_constrained'] = False
     data['criterias']['plot_HDD_chart'] = False
-    data['criterias']['virtual_building_stock_criteria'] = virtual_building_stock_criteria
+    data['criterias']['virtual_building_stock_criteria'] = True
     data['criterias']['spatial_exliclit_diffusion'] = True
 
     data['paths'] = data_loader.load_paths(path_main)

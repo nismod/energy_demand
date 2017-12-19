@@ -265,7 +265,7 @@ def simulate_region(region_name, data, weather_regions):
         data['weather_stations'])
 
     closest_weather_region = weather_regions[closest_weather_region_name]
-    logging.debug("===============================Closest weather station: %s", closest_weather_region_name)
+    logging.debug("Closest weather station: %s", closest_weather_region_name)
 
     region = Region(
         region_name=region_name,
@@ -473,7 +473,7 @@ def industry_submodel(region, data, enduse_names, sector_names):
                 sim_param=data['sim_param'],
                 enduse=enduse_name,
                 sector=sector_name,
-                fuel=region.is_enduses_sectors_fuels[sector_name][enduse_name],
+                fuel=region.is_enduses_sectors_fuels[enduse_name][sector_name],
                 tech_stock=region.is_tech_stock,
                 heating_factor_y=region.is_heating_factor_y,
                 cooling_factor_y=region.is_cooling_factor_y,
@@ -618,7 +618,7 @@ def service_submodel(region, data, enduse_names, sector_names):
                 sim_param=data['sim_param'],
                 enduse=enduse_name,
                 sector=sector_name,
-                fuel=region.ss_enduses_sectors_fuels[sector_name][enduse_name],
+                fuel=region.ss_enduses_sectors_fuels[enduse_name][sector_name],
                 tech_stock=region.ss_tech_stock,
                 heating_factor_y=region.ss_heating_factor_y,
                 cooling_factor_y=region.ss_cooling_factor_y,

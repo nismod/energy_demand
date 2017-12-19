@@ -379,7 +379,7 @@ def spatial_validation(
         markerfacecolor='grey',
         markeredgewidth=0.2,
         color='black',
-        label='real')
+        label='actual')
 
     plt.plot(
         x_values,
@@ -392,7 +392,7 @@ def spatial_validation(
         markeredgewidth=0.5,
         markeredgecolor='blue',
         color='black',
-        label='modelled')
+        label='model')
 
     # Limit
     plt.ylim(ymin=0)

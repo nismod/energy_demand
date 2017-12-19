@@ -151,27 +151,50 @@ def virtual_building_datasets(lu_reg, all_sectors, data):
     ---------
 
     """
-    # Read in floor area as m2 from somewhere
-    # Read in floor area as m2 per sector from somewhere
-
     # --------------------------------------------------
     # Floor area for residential buildings for base year
     # --------------------------------------------------
+    resid_footprint, non_res_flootprint = read_data.read_floor_area_virtual_stock(
+        data['local_paths']['path_floor_area_virtual_stock_by'])
+
+    rs_floorarea = defaultdict(dict)
+    for year in range(2015, 2101):
+        for reg_geocode in lu_reg:
+            try:
+                rs_floorarea[year][reg_geocode] = resid_footprint[reg_geocode]
+            except:
+                logging.warning("No virtual residential floor area for region %s %s", reg_geocode, year)
+                rs_floorarea[year][reg_geocode] = 1
+
+    '''
     rs_floorarea = defaultdict(dict)
     for year in range(2015, 2101):
         for region_geocode in lu_reg:
             rs_floorarea[year][region_geocode] = 10000
-
+    '''
     # --------------------------------------------------
     # Floor area for service sector buildings
     # --------------------------------------------------
+    # No sector specific floorarea
+    ss_floorarea_sector_by = {}
+    for year in range(2015, 2101):
+        ss_floorarea_sector_by[year] = defaultdict(dict)
+        for reg_geocode in lu_reg:
+            for sector in all_sectors:
+                try:
+                    ss_floorarea_sector_by[year][reg_geocode][sector] = non_res_flootprint[reg_geocode]
+                except:
+                    logging.warning("No virtual service floor area for region %s %s", reg_geocode, year)
+                    ss_floorarea_sector_by[year][reg_geocode][sector] = 1
+
+    '''
     ss_floorarea_sector_by = {}
     for year in range(2015, 2101):
         ss_floorarea_sector_by[year] = defaultdict(dict)
         for reg_geocode in lu_reg:
             for sector in all_sectors:
                 ss_floorarea_sector_by[year][reg_geocode][sector] = 10000
-
+    '''
     ss_floorarea = dict(ss_floorarea_sector_by)
 
     return dict(rs_floorarea), dict(ss_floorarea)

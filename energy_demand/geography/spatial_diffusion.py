@@ -74,18 +74,15 @@ def calc_diff_factor(regions, spatial_diff_values, fuels):
         # -----------------------------------
         fuel_submodel_new = defaultdict(dict)
         for reg, entries in fuel_submodel.items():
-
+            enduses = entries.keys()
             try:
-                enduses = []
-                for sector in entries:
-                    for enduse in entries[sector]:
+                for enduse in entries:
+                    for sector in entries[enduse]:
                         fuel_submodel_new[reg][enduse] = 0
-                        enduses.append(enduse)
-                    break
 
-                for sector in entries:
-                    for enduse in entries[sector]:
-                        fuel_submodel_new[reg][enduse] += np.sum(entries[sector][enduse])
+                for enduse in entries:
+                    for sector in entries[enduse]:
+                        fuel_submodel_new[reg][enduse] += np.sum(entries[enduse][sector])
 
                 fuel_submodel = fuel_submodel_new
 
@@ -97,7 +94,7 @@ def calc_diff_factor(regions, spatial_diff_values, fuels):
         # Calculate % of enduse ed of a region of total enduse ed
         # --------------------
         for enduse in enduses:
-
+            print("enduse " + str(enduse) + str("   ") + str(reg))
             # Total uk fuel of enduse
             tot_enduse_uk = 0
             for reg in regions:
