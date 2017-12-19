@@ -148,7 +148,7 @@ def compare_results(
     plt.plot(
         x_data,
         y_calculated,
-        label='modelled',
+        label='model',
         linestyle='--',
         linewidth=0.5,
         fillstyle='full',
@@ -215,7 +215,7 @@ def compare_peak(
         color='black',
         linestyle='-',
         linewidth=0.5,
-        label='modelled')
+        label='model')
     #plt.plot(range(24), validation_elec_data_2015[max_day], color='green', label='real')
     plt.plot(
         range(24),
@@ -223,7 +223,7 @@ def compare_peak(
         color='blue',
         linestyle='--',
         linewidth=0.5,
-        label='real')
+        label='actual')
 
     # Y-axis ticks
     plt.xlim(0, 25)

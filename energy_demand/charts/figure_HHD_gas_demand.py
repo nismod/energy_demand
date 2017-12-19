@@ -57,7 +57,7 @@ def main(region_names, weather_regions, data):
             # Weighted HDD with population
             # ----------------------------
             # WEIGHT WITH POP / TWO OPTIONS
-            weighted_daily_hdd[day] += reg_hdd_day * reg_pop
+            weighted_daily_hdd[day] += reg_hdd_day #* reg_pop
             #weighted_daily_hdd_pop[day] += reg_hdd_day * reg_pop
 
     # -------------------------------
