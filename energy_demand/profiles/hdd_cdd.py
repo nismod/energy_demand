@@ -18,7 +18,8 @@ def calc_hdd(t_base, temp_yh):
     Returns
     -------
     hdd_d : array
-        An array containing the Heating Degree Days for every day (shape nr_of_days, 1)
+        An array containing the Heating Degree Days
+        for every day (shape nr_of_days, 1)
 
     Note
     -----
@@ -48,7 +49,7 @@ def averaged_temp(temp_yh, nr_day_to_av):
 
     The effective temperature is half of yesterday’s temperature added to half of
     today’s actual temperature. Effective temperature takes into account the previous
-    day’s temperature due to consumer behaviour and perception of the weather
+    day’s temperature due to consumer behaviour and perception of the weather.
 
     Arguments
     ---------
@@ -68,9 +69,7 @@ def averaged_temp(temp_yh, nr_day_to_av):
         nr_day_to_av = 0: 0.807
         nr_day_to_av = 1: 0.840 ()
         nr_day_to_av = 2: 0.865 ()
-        nr_day_to_av = 3: 
-        nr_day_to_av = 4: 
-        nr_day_to_av = 5: 
+        nr_day_to_av = 3: 0.878
     """
     modelled_days = range(365)
     effective_temp_yh = np.zeros((365, 24))
@@ -79,7 +78,7 @@ def averaged_temp(temp_yh, nr_day_to_av):
         effective_temp_yh[day] = temp_yh[day]
 
     for day in modelled_days[nr_day_to_av:]: #Skip first dates in January
-        
+
         # Add todays temperature and previous effective temps
         tot_temp = 0
         tot_temp += temp_yh[day]
@@ -229,7 +228,8 @@ def get_cdd_country(
         t_base_cy,
         reg_coord,
         weather_stations):
-    """Calculate total number of cooling degree days in a region for the base year
+    """Calculate total number of cooling degree days in a
+    region for the base year
 
     Arguments
     ----------

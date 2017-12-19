@@ -351,8 +351,7 @@ def load_script_data(data):
     data : dict
         Data container
     """
-    fts_cont, sgs_cont, sd_cont, switches_cont = init_scripts.scenario_initalisation(
-            data['paths']['path_main'], data)
+    fts_cont, sgs_cont, sd_cont, switches_cont = init_scripts.scenario_initalisation(data['paths']['path_main'], data)
 
     data['assumptions']['rs_service_tech_by_p'] = fts_cont['rs_service_tech_by_p']
     data['assumptions']['ss_service_tech_by_p'] = fts_cont['ss_service_tech_by_p']

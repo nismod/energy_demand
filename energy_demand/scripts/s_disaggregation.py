@@ -3,7 +3,6 @@
 import os
 import logging
 from collections import defaultdict
-import numpy as np
 from energy_demand.profiles import hdd_cdd
 from energy_demand.basic import testing_functions
 '''
@@ -310,7 +309,7 @@ def is_disaggregate(
 
     elif crit_employment:
         logging.debug(" ... Disaggregation is: Employment statistics")
- 
+
         # Calculate total population
         tot_pop = 0
         for reg in lu_reg:
@@ -356,7 +355,7 @@ def is_disaggregate(
             'leather': 'C13-15',            # Gas improve, electrectiy same
             'wearing_appeal': 'C13-15',     # Improvements
 
-            'electrical_equipment': None,   # 'C26-30', #Streuung besser 
+            'electrical_equipment': None,   # 'C26-30', #Streuung besser
             'wood': None,                   #Worse
             'textiles': None,               #Worse
             'chemicals': None,              #Worse better streuung

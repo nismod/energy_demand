@@ -31,7 +31,7 @@ def main(region_names, weather_regions, data):
     weighted_daily_hdd = np.zeros((365))
     #weighted_daily_hdd_pop = np.zeros((365))
 
-    for region_name in region_names:    
+    for region_name in region_names:
         #logging.warning("==============reg_array " + str(region_name))
 
         # Get closest weather station to `Region`
@@ -43,7 +43,7 @@ def main(region_names, weather_regions, data):
         #closest_weather_station = '593' # Birmingham station
         closest_weather_region = weather_regions[closest_weather_station]
 
-        reg_pop = data['scenario_data']['population'][base_yr][region_name] 
+        reg_pop = data['scenario_data']['population'][base_yr][region_name]
 
         ##logging.warning("REGPOP: " + str(reg_pop))
         #logging.warning(closest_weather_region.weather_region_name)
@@ -57,7 +57,7 @@ def main(region_names, weather_regions, data):
             # Weighted HDD with population
             # ----------------------------
             # WEIGHT WITH POP / TWO OPTIONS
-            weighted_daily_hdd[day] += reg_hdd_day #* reg_pop
+            weighted_daily_hdd[day] += reg_hdd_day * reg_pop
             #weighted_daily_hdd_pop[day] += reg_hdd_day * reg_pop
 
     # -------------------------------
@@ -67,7 +67,7 @@ def main(region_names, weather_regions, data):
     # Convert to list
     weighted_daily_hdd = list(weighted_daily_hdd)
     #weighted_daily_hdd_pop = list(weighted_daily_hdd_pop)
-    # -- Non daily metered gas demand in mcm == Residential heating gas 
+    # -- Non daily metered gas demand in mcm == Residential heating gas
     # demand for year 2015 (Jan - Dez --> Across two excel in orig file)
     # gas demand for 365 days
 
