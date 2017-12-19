@@ -82,3 +82,50 @@ def test_function_fuel_sum(data):
                 fuel_in_gas += np.sum(data['is_fuel_disagg'][region][sector][enduse][data['lookups']['fueltype']['gas']])
 
     return fuel_in, fuel_in_elec, fuel_in_gas
+
+def control_disaggregation(fuel_disagg, national_fuel, enduses, sectors=False):
+    """Check if disaggregation is correct
+
+    Arguments
+    ---------
+    fuel_disagg : dict
+        Disaggregated fuel to regions
+    national_fuel : dict
+        National fuel
+    enduses : list
+        Enduses
+    sectors : list, bool=False
+        Sectors
+    """
+    control_sum_disagg, control_sum_national = 0, 0
+
+    if sectors == False:
+        for reg in fuel_disagg:
+            for enduse in fuel_disagg[reg]:
+                control_sum_disagg += np.sum(fuel_disagg[reg][enduse])
+
+        for enduse in enduses:
+            control_sum_national += np.sum(national_fuel[enduse])
+
+        #The loaded floor area must correspond to provided fuel sectors numers
+        np.testing.assert_almost_equal(
+            control_sum_disagg,
+            control_sum_national,
+            decimal=2, err_msg="disagregation error ss {} {}".format(
+                control_sum_disagg, control_sum_national))
+    else:
+        for reg in fuel_disagg:
+            for enduse in fuel_disagg[reg]:
+                for sector in fuel_disagg[reg][enduse]:
+                    control_sum_disagg += np.sum(fuel_disagg[reg][enduse][sector])
+
+        for sector in sectors:
+            for enduse in enduses:
+                control_sum_national += np.sum(national_fuel[sector][enduse])
+
+        #The loaded floor area must correspond to provided fuel sectors numers
+        np.testing.assert_almost_equal(
+            control_sum_disagg,
+            control_sum_national,
+            decimal=2, err_msg="disagregation error ss {} {}".format(
+                control_sum_disagg, control_sum_national))

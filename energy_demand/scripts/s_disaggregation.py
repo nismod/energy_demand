@@ -5,6 +5,7 @@ import logging
 from collections import defaultdict
 import numpy as np
 from energy_demand.profiles import hdd_cdd
+from energy_demand.basic import testing_functions
 '''
 ============================================
 MEthod to derive GVA/POP SERVICE FLOOR AREAS
@@ -55,30 +56,9 @@ def disaggregate_base_demand(
     -------
     data : dict
     """
-    def sum_fuels_before(fuel):
-        """Inner function for testing purposes - sum fuel"""
-        tot = 0
-        for i in fuel:
-            tot += np.sum(fuel[i])
-        return tot
-
-    def sum_fuels_after(reg_fuel):
-        """Inner function for testing purposes - sum fuel"""
-        tot = 0
-        for reg in reg_fuel:
-            for enduse in reg_fuel[reg].values():
-                tot += np.sum(enduse)
-        return tot
-
     # -------------------------------------
     # Factors to choose for disaggregation
     # -------------------------------------
-    #If all false --> Full disaggregation
-    crit_limited_disagg_pop = False         # if True: Only disaggregate with population
-    crit_employment = True                 # If False, crit_limited_disagg_pop_hdd must be True
-    crit_limited_disagg_pop_hdd = False     # If True: Disaggregate with pop and hdd
-    crit_full_disagg = True                #
-
     # Disaggregate residential submodel data
     rs_fuel_disagg = rs_disaggregate(
         lu_reg,
@@ -90,9 +70,10 @@ def disaggregate_base_demand(
         reg_coord,
         weather_stations,
         temp_data,
-        crit_limited_disagg_pop_hdd,
-        crit_limited_disagg_pop,
-        crit_full_disagg)
+        enduses['rs_all_enduses'],
+        crit_limited_disagg_pop_hdd=True,
+        crit_limited_disagg_pop=False, # Only pop
+        crit_full_disagg=False)
 
     # Disaggregate service submodel data
     ss_fuel_disagg = ss_disaggregate(
@@ -105,29 +86,29 @@ def disaggregate_base_demand(
         reg_coord,
         temp_data,
         weather_stations,
-        enduses,
-        sectors,
+        enduses['ss_all_enduses'],
+        sectors['ss_sectors'],
         all_sectors,
-        crit_limited_disagg_pop_hdd,
-        crit_limited_disagg_pop,
-        crit_full_disagg)
+        crit_limited_disagg_pop_hdd=False,
+        crit_limited_disagg_pop=True,
+        crit_full_disagg=False)
 
     # Disaggregate industry submodel data with employment statistics
     is_fuel_disagg = is_disaggregate(
         base_yr,
         fuels['is_fuel_raw_data_enduses'],
         lu_reg,
-        enduses,
-        sectors,
+        enduses['is_all_enduses'],
+        sectors['is_sectors'],
         scenario_data['employment_statistics'],
         scenario_data,
-        crit_limited_disagg_pop,
-        crit_employment)
+        crit_limited_disagg_pop=False,
+        crit_employment=True)
 
     return dict(rs_fuel_disagg), dict(ss_fuel_disagg), dict(is_fuel_disagg)
 
 def ss_disaggregate(
-        raw_fuel_sectors_enduses,
+        ss_national_fuel,
         assumptions,
         scenario_data,
         base_yr,
@@ -183,7 +164,7 @@ def ss_disaggregate(
     # ---------------------------------------
     # Total floor area for every enduse per sector
     national_floorarea_by_sector = {}
-    for sector in sectors['ss_sectors']:
+    for sector in sectors:
         national_floorarea_by_sector[sector] = 0
         for region in lu_reg:
             national_floorarea_by_sector[sector] += scenario_data['floor_area']['ss_floorarea'][base_yr][region][sector]
@@ -231,24 +212,22 @@ def ss_disaggregate(
 
         reg_pop = scenario_data['population'][base_yr][region_name]
 
-        reg_diasg_factor = (reg_pop / tot_pop )
+        reg_diasg_factor = reg_pop / tot_pop
 
-        _scrap = 0
-        print("--------------------REGPOP  {}  {}".format(reg_pop, reg_diasg_factor))
-        for enduse in enduses['ss_all_enduses']:
+        for enduse in enduses:
             ss_fuel_disagg[region_name][enduse] = {}
 
-            for sector in sectors['ss_sectors']:
+            for sector in sectors:
                 #print("reg_diasg_factor: {} {} {}".format(sector, enduse, reg_diasg_factor))
-
                 reg_floor_area = scenario_data['floor_area']['ss_floorarea'][base_yr][region_name][sector]
 
-                '''if crit_limited_disagg_pop and not crit_limited_disagg_pop_hdd:
+                #'''
+                if crit_limited_disagg_pop and not crit_limited_disagg_pop_hdd:
                     logging.debug(" ... Disaggregation ss: populaton")
                     # ----
                     # Only disaggregated with population
                     # ----
-                    reg_diasg_factor = reg_pop / tot_pop[sector]
+                    reg_diasg_factor = reg_pop / tot_pop
 
                 elif crit_limited_disagg_pop_hdd and not crit_full_disagg:
                     logging.debug(" ... Disaggregation ss: populaton, HDD")
@@ -260,7 +239,7 @@ def ss_disaggregate(
                     elif enduse == 'ss_space_heating':
                         reg_diasg_factor = (reg_pop * reg_hdd) / tot_pop_hdd[sector]
                     else:
-                        reg_diasg_factor = reg_pop / tot_pop[sector]
+                        reg_diasg_factor = reg_pop / tot_pop
                 elif crit_full_disagg:
                     logging.debug(" ... Disaggregation ss: populaton, HDD, floor_area")
                     # ----
@@ -269,38 +248,26 @@ def ss_disaggregate(
                     if enduse == 'ss_cooling_ventilation':
                         reg_diasg_factor = (reg_pop * reg_cdd) / tot_pop_cdd[sector]
                     elif enduse == 'ss_space_heating':
-                        reg_diasg_factor = (reg_floor_area * reg_pop) / tot_floor_area_pop[sector] #TODO CHECK
+                        reg_diasg_factor = (reg_floor_area * reg_pop) / tot_floor_area_pop[sector]
                     elif enduse == 'ss_lighting':
                         reg_diasg_factor = reg_floor_area / tot_floor_area[sector]
                     else:
                         reg_diasg_factor = reg_pop / tot_pop
-                '''
-                _scrap = np.sum(raw_fuel_sectors_enduses[sector][enduse] * reg_diasg_factor)
 
-                ss_fuel_disagg[region_name][enduse][sector] = raw_fuel_sectors_enduses[sector][enduse] * reg_diasg_factor
+                ss_fuel_disagg[region_name][enduse][sector] = ss_national_fuel[sector][enduse] * reg_diasg_factor
 
-    # TESTING Check if total fuel is the same before and after aggregation
-    control_sum1, control_sum2 = 0, 0
-    for reg in ss_fuel_disagg:
-        for enduse in ss_fuel_disagg[reg]:
-            for sector in ss_fuel_disagg[reg][enduse]:
-                control_sum1 += np.sum(ss_fuel_disagg[reg][enduse][sector])
-
-    for sector in sectors['ss_sectors']:
-        for enduse in enduses['ss_all_enduses']:
-            control_sum2 += np.sum(raw_fuel_sectors_enduses[sector][enduse])
-
-    #The loaded floor area must correspond to provided fuel sectors numers
-    np.testing.assert_almost_equal(
-        control_sum1,
-        control_sum2,
-        decimal=2, err_msg="disagregation error ss {} {}".format(control_sum1, control_sum2))
+    # -----------------
+    # Check if total fuel is the
+    # same before and after aggregation
+    #------------------
+    testing_functions.control_disaggregation(
+        ss_fuel_disagg, ss_national_fuel, enduses, sectors)
 
     return dict(ss_fuel_disagg)
 
 def is_disaggregate(
         base_yr,
-        raw_fuel_sectors_enduses,
+        is_national_fuel,
         lu_reg,
         enduses,
         sectors,
@@ -314,7 +281,7 @@ def is_disaggregate(
 
     Arguments
     ---------
-    raw_fuel_sectors_enduses ; dict
+    is_national_fuel ; dict
         reg, enduse, sector
 
     """
@@ -334,10 +301,10 @@ def is_disaggregate(
 
             reg_disagg_f = reg_pop / tot_pop
 
-            for enduse in enduses['is_all_enduses']:
+            for enduse in enduses:
                 is_fuel_disagg[region_name][enduse] = {}
-                for sector in sectors['is_sectors']:
-                    is_fuel_disagg[region_name][enduse][sector] = raw_fuel_sectors_enduses[sector][enduse] * reg_disagg_f
+                for sector in sectors:
+                    is_fuel_disagg[region_name][enduse][sector] = is_national_fuel[sector][enduse] * reg_disagg_f
 
         return is_fuel_disagg
 
@@ -429,10 +396,10 @@ def is_disaggregate(
             is_fuel_disagg[region_name] = {}
 
             # Iterate sector
-            for enduse in enduses['is_all_enduses']:
+            for enduse in enduses:
                 is_fuel_disagg[region_name][enduse] = {}
 
-                for sector in sectors['is_sectors']:
+                for sector in sectors:
 
                     # ---------------------------------
                     # Try to match  with sector, otherwise disaggregate with population
@@ -446,7 +413,7 @@ def is_disaggregate(
                         
                         reg_disag_factor = reg_pop / tot_pop
 
-                        is_fuel_disagg[region_name][enduse][sector] = raw_fuel_sectors_enduses[sector][enduse] * reg_disag_factor
+                        is_fuel_disagg[region_name][enduse][sector] = is_national_fuel[sector][enduse] * reg_disag_factor
                     else:
                         #for enduse in enduses['is_all_enduses']:
                         national_sector_employment = tot_national_sector_employment[matched_sector]
@@ -458,7 +425,12 @@ def is_disaggregate(
                             reg_disag_factor = 0 #No employment for this sector for this region
 
                         # Disaggregated national fuel
-                        is_fuel_disagg[region_name][enduse][sector] = raw_fuel_sectors_enduses[sector][enduse] * reg_disag_factor
+                        is_fuel_disagg[region_name][enduse][sector] = is_national_fuel[sector][enduse] * reg_disag_factor
+
+    # -----------------
+    # TESTING Check if total fuel is the same before and after aggregation
+    #------------------
+    testing_functions.control_disaggregation(is_fuel_disagg, is_national_fuel, enduses, sectors)
 
     return is_fuel_disagg
 
@@ -472,6 +444,7 @@ def rs_disaggregate(
         reg_coord,
         weather_stations,
         temp_data,
+        enduses,
         crit_limited_disagg_pop_hdd,
         crit_limited_disagg_pop,
         crit_full_disagg
@@ -519,7 +492,7 @@ def rs_disaggregate(
     # Overall disaggregation factors per enduse
     # ---------------------------------------
     total_pop = 0
-    total_pop_hdd = 0
+    total_hdd_floorarea = 0
     total_floor_area = 0
 
     for region_name in lu_reg:
@@ -535,7 +508,7 @@ def rs_disaggregate(
 
         # National dissagregation factors
         total_pop += reg_pop
-        total_pop_hdd += reg_pop * reg_floor_area
+        total_hdd_floorarea += reg_hdd * reg_floor_area
         total_floor_area += reg_floor_area
         #TODO: GVA?
 
@@ -549,7 +522,7 @@ def rs_disaggregate(
 
         # Disaggregate fuel depending on end_use
         for enduse in rs_national_fuel:
-            if crit_limited_disagg_pop and not crit_limited_disagg_pop_hdd:
+            if crit_limited_disagg_pop and not crit_limited_disagg_pop_hdd and not crit_full_disagg:
                 logging.debug(" ... Disaggregation rss: populaton")
                 # ----------------------------------
                 # Only disaggregate with population
@@ -562,16 +535,16 @@ def rs_disaggregate(
                 # Disaggregation with pop and hdd
                 # -------------------
                 if enduse == 're_space_heating':
-                    reg_diasg_factor = (reg_hdd * reg_pop) / total_pop_hdd
+                    reg_diasg_factor = (reg_hdd * reg_pop) / total_hdd_floorarea
                 else:
                     reg_diasg_factor = reg_pop / total_pop
             elif crit_full_disagg:
-                logging.debug(" ... Disaggregation rss: populaton, hdd, floor_area")
+                print(" ... Disaggregation rss: populaton, hdd, floor_area")
                 # -------------------
                 # Full disaggregation
                 # -------------------
                 if enduse == 'rs_space_heating':
-                    reg_diasg_factor = (reg_hdd * reg_floor_area) / total_pop_hdd
+                    reg_diasg_factor = (reg_hdd * reg_floor_area) / total_hdd_floorarea
                 elif enduse == 'rs_lighting':
                     reg_diasg_factor = reg_floor_area / total_floor_area
                 else:
@@ -579,6 +552,11 @@ def rs_disaggregate(
 
             # Disaggregate
             rs_fuel_disagg[region_name][enduse] = rs_national_fuel[enduse] * reg_diasg_factor
+
+    # -----------------
+    # Check if total fuel is the same before and after aggregation
+    #------------------
+    testing_functions.control_disaggregation(rs_fuel_disagg, rs_national_fuel, enduses)
 
     return rs_fuel_disagg
 
