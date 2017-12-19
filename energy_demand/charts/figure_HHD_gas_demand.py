@@ -16,7 +16,7 @@ from energy_demand.plotting import plotting_program
 from energy_demand.geography.weather_station_location import get_closest_station
 from energy_demand.basic import conversions
 
-def main(region_names, weather_regions, data):
+def main(regions, weather_regions, data):
     """Plot weighted HDD (HDD per Region & region pop)
     with national gas demand
     Note
@@ -31,19 +31,18 @@ def main(region_names, weather_regions, data):
     weighted_daily_hdd = np.zeros((365))
     #weighted_daily_hdd_pop = np.zeros((365))
 
-    for region_name in region_names:
-        #logging.warning("==============reg_array " + str(region_name))
+    for region in regions:
 
         # Get closest weather station to `Region`
         closest_weather_station = get_closest_station(
-            data['reg_coord'][region_name]['longitude'],
-            data['reg_coord'][region_name]['latitude'],
+            data['reg_coord'][region]['longitude'],
+            data['reg_coord'][region]['latitude'],
             data['weather_stations'])
 
         #closest_weather_station = '593' # Birmingham station
         closest_weather_region = weather_regions[closest_weather_station]
 
-        reg_pop = data['scenario_data']['population'][base_yr][region_name]
+        reg_pop = data['scenario_data']['population'][base_yr][region]
 
         ##logging.warning("REGPOP: " + str(reg_pop))
         #logging.warning(closest_weather_region.weather_region_name)
@@ -832,7 +831,7 @@ def main(region_names, weather_regions, data):
     logging.warning("std_err:       %s", str(std_err))
     logging.warning("sum:           %s", str(sum(weighted_daily_hdd)))
     logging.warning("av:            %s", str(sum(weighted_daily_hdd) / len(weighted_daily_hdd)))
-    logging.warning("Nr of reg:     %s", str(len(region_names)))
+    logging.warning("Nr of reg:     %s", str(len(regions)))
     logging.warning("nr of days (gray points): " + str(len(gas_demand_NDM_2015_2016_gw)))
     logging.warning("Nr of days:    " + str(len(weighted_daily_hdd)))
 

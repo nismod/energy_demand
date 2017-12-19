@@ -44,7 +44,7 @@ def energy_demand_model(data, fuel_in=0, fuel_in_elec=0):
     fuel_in, fuel_in_elec, fuel_in_gas = testing.test_function_fuel_sum(data)
 
     model_run_object = energy_model.EnergyModel(
-        region_names=data['lu_reg'],
+        regions=data['lu_reg'],
         data=data)
 
     print("Fuel input:          " + str(fuel_in))

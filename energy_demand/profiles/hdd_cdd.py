@@ -192,12 +192,12 @@ def get_hdd_country(
     """
     hdd_regions = {}
 
-    for region_name in regions:
+    for region in regions:
 
         # Get closest weather station and temperatures
         closest_station_id = weather_station.get_closest_station(
-            reg_coord[region_name]['longitude'],
-            reg_coord[region_name]['latitude'],
+            reg_coord[region]['longitude'],
+            reg_coord[region]['latitude'],
             weather_stations)
 
         temperatures = temp_data[closest_station_id]
@@ -214,7 +214,7 @@ def get_hdd_country(
 
         hdd_reg = calc_hdd(t_base_heating_cy, temperatures, nr_day_to_av=2)
 
-        hdd_regions[region_name] = np.sum(hdd_reg)
+        hdd_regions[region] = np.sum(hdd_reg)
 
     return hdd_regions
 
@@ -250,9 +250,9 @@ def get_cdd_country(
     """
     cdd_regions = {}
 
-    for region_name in regions:
-        longitude = reg_coord[region_name]['longitude']
-        latitude = reg_coord[region_name]['latitude']
+    for region in regions:
+        longitude = reg_coord[region]['longitude']
+        latitude = reg_coord[region]['latitude']
 
         # Get closest weather station and temperatures
         closest_station_id = weather_station.get_closest_station(
@@ -274,7 +274,7 @@ def get_cdd_country(
             diff_params['yr_until_changed'])
 
         cdd_reg = calc_cdd(t_base_heating_cy, temperatures)
-        cdd_regions[region_name] = np.sum(cdd_reg)
+        cdd_regions[region] = np.sum(cdd_reg)
 
     return cdd_regions
 

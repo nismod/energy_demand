@@ -275,9 +275,9 @@ def spatial_validation(
     # -------------------------------------------
     # Match ECUK sub-regional demand with geocode
     # -------------------------------------------
-    for region_array_nr, region_name in enumerate(lu_reg):
+    for region_array_nr, region in enumerate(lu_reg):
         for reg_geocode in reg_coord:
-            if reg_geocode == region_name:
+            if reg_geocode == region:
 
                 try:
                     # Test wheter data is provided for LAD

@@ -23,12 +23,12 @@ class EnergyModel(object):
 
     Arguments
     ----------
-    region_names : list
+    regions : list
         Region names
     data : dict
         Main data dictionary
     """
-    def __init__(self, region_names, data):
+    def __init__(self, regions, data):
         """Constructor
         """
         logging.info("... start main energy demand function")
@@ -61,16 +61,16 @@ class EnergyModel(object):
 
             data['rs_dw_stock'] = defaultdict(dict)
             data['ss_dw_stock'] = defaultdict(dict)
-            for region_name in region_names:
-                data['rs_dw_stock'][region_name][data['sim_param']['base_yr']] = dw_stock.rs_dw_stock(
-                    region_name, data, data['sim_param']['base_yr'], data['sim_param']['base_yr'])
-                data['ss_dw_stock'][region_name][data['sim_param']['base_yr']] = dw_stock.ss_dw_stock(
-                    region_name, data, data['sim_param']['base_yr'], data['sim_param']['base_yr'])
+            for region in regions:
+                data['rs_dw_stock'][region][data['sim_param']['base_yr']] = dw_stock.rs_dw_stock(
+                    region, data, data['sim_param']['base_yr'], data['sim_param']['base_yr'])
+                data['ss_dw_stock'][region][data['sim_param']['base_yr']] = dw_stock.ss_dw_stock(
+                    region, data, data['sim_param']['base_yr'], data['sim_param']['base_yr'])
 
-                data['rs_dw_stock'][region_name][self.curr_yr] = dw_stock.rs_dw_stock(
-                    region_name, data, self.curr_yr, data['sim_param']['base_yr'])
-                data['ss_dw_stock'][region_name][self.curr_yr] = dw_stock.ss_dw_stock(
-                    region_name, data, self.curr_yr, data['sim_param']['base_yr'])
+                data['rs_dw_stock'][region][self.curr_yr] = dw_stock.rs_dw_stock(
+                    region, data, self.curr_yr, data['sim_param']['base_yr'])
+                data['ss_dw_stock'][region][self.curr_yr] = dw_stock.ss_dw_stock(
+                    region, data, self.curr_yr, data['sim_param']['base_yr'])
             logging.info("... finished virtual dwelling stock for base year")
         else:
             # -------------------------------------
@@ -78,11 +78,11 @@ class EnergyModel(object):
             # -------------------------------------
             # Create dwelling stock from imported data from newcastle
 
-            #data['rs_dw_stock'][region_name][self.curr_yr] = dw_stock.createNEWCASTLE_dwelling_stock(
+            #data['rs_dw_stock'][region][self.curr_yr] = dw_stock.createNEWCASTLE_dwelling_stock(
             # self.curr_yr,
-            # region_name,
+            # region,
             # )
-            #data['ss_dw_stock'][region_name][self.curr_yr] = dw_stock.createNEWCASTLE_dwelling_stock(self.curr_yr)
+            #data['ss_dw_stock'][region][self.curr_yr] = dw_stock.createNEWCASTLE_dwelling_stock(self.curr_yr)
             pass
 
         # ---------------------------------------------
@@ -113,14 +113,14 @@ class EnergyModel(object):
             'winter': np.zeros((data['lookups']['fueltypes_nr'], data['reg_nrs'], 24), dtype=float),
             'autumn': np.zeros((data['lookups']['fueltypes_nr'], data['reg_nrs'], 24), dtype=float)}
 
-        for array_nr_region, region_name in enumerate(region_names):
-            logging.info("... Generate region %s for year %s", region_name, self.curr_yr)
+        for array_nr_region, region in enumerate(regions):
+            logging.info("... Generate region %s for year %s", region, self.curr_yr)
 
             # ----------------------
             # Simulate region
             # ----------------------
             region_submodels = simulate_region(
-                region_name,
+                region,
                 data,
                 weather_regions)
 
@@ -134,7 +134,7 @@ class EnergyModel(object):
             ed_fueltype_regs_yh, fuel_region_yh = fuel_regions_fueltype(
                 ed_fueltype_regs_yh,
                 data['lookups'],
-                region_name,
+                region,
                 array_nr_region,
                 data['assumptions']['model_yearhours_nrs'],
                 data['assumptions']['model_yeardays_nrs'],
@@ -230,8 +230,6 @@ class EnergyModel(object):
 
         _scrap = 0
         for reg_nr, reg in enumerate(ed_fueltype_regs_yh[2]):
-            print("Region =========================" + str(reg_nr))
-            print(np.sum(reg))
             _scrap += np.sum(reg)
         print("TOTAL: " + str(_scrap))
 
@@ -240,14 +238,14 @@ class EnergyModel(object):
         # ------------------------------
         if data['criterias']['plot_HDD_chart']:
             logging.info("plot figure HDD comparison")
-            figure_HHD_gas_demand.main(region_names, weather_regions, data)
+            figure_HHD_gas_demand.main(regions, weather_regions, data)
 
-def simulate_region(region_name, data, weather_regions):
+def simulate_region(region, data, weather_regions):
     """Run submodels for a single region, return aggregate results
 
     Arguments
     ---------
-    region_name : str
+    region : str
         Region name
     data : dict
         Data container
@@ -259,41 +257,41 @@ def simulate_region(region_name, data, weather_regions):
     region_submodels : list
         All submodel objects
     """
-    logging.debug("Running for region %s", region_name)
+    logging.debug("Running for region %s", region)
 
     # Get closest weather station to `Region`
-    closest_weather_region_name = get_closest_station(
-        data['reg_coord'][region_name]['longitude'],
-        data['reg_coord'][region_name]['latitude'],
+    closest_weather_reg = get_closest_station(
+        data['reg_coord'][region]['longitude'],
+        data['reg_coord'][region]['latitude'],
         data['weather_stations'])
 
-    closest_weather_region = weather_regions[closest_weather_region_name]
-    logging.debug("Closest weather station: %s", closest_weather_region_name)
+    closest_weather_region = weather_regions[closest_weather_reg]
+    logging.debug("Closest weather station: %s", closest_weather_reg)
 
-    region = Region(
-        region_name=region_name,
-        rs_fuel_disagg=data['rs_fuel_disagg'][region_name],
-        ss_fuel_disagg=data['ss_fuel_disagg'][region_name],
-        is_fuel_disagg=data['is_fuel_disagg'][region_name],
+    region_obj = Region(
+        name=region,
+        rs_fuel_disagg=data['rs_fuel_disagg'][region],
+        ss_fuel_disagg=data['ss_fuel_disagg'][region],
+        is_fuel_disagg=data['is_fuel_disagg'][region],
         weather_region=closest_weather_region)
 
     # --------------------
     # Residential SubModel
     # --------------------
     rs_submodel = residential_submodel(
-        region, data, data['enduses']['rs_all_enduses'])
+        region_obj, data, data['enduses']['rs_all_enduses'])
 
     # --------------------
     # Service SubModel
     # --------------------
     ss_submodel = service_submodel(
-        region, data, data['enduses']['ss_all_enduses'], data['sectors']['ss_sectors'])
+        region_obj, data, data['enduses']['ss_all_enduses'], data['sectors']['ss_sectors'])
 
     # --------------------
     # Industry SubModel
     # --------------------
     is_submodel = industry_submodel(
-        region, data, data['enduses']['is_all_enduses'], data['sectors']['is_sectors'])
+        region_obj, data, data['enduses']['is_all_enduses'], data['sectors']['is_sectors'])
 
     # --------
     # Submodels
@@ -459,11 +457,11 @@ def industry_submodel(region, data, enduses, sectors):
                 crit_flat_profile = True
 
             if data['criterias']['spatial_exliclit_diffusion']:
-                service_switches = data['assumptions']['is_service_switch'][enduse][region.region_name]
-                sig_param_tech = data['assumptions']['is_sig_param_tech'][enduse][region.region_name]
-                tech_increased_service = data['assumptions']['is_tech_increased_service'][enduse][region.region_name]
-                tech_decreased_share = data['assumptions']['is_tech_decreased_share'][enduse][region.region_name]
-                tech_constant_share = data['assumptions']['is_tech_constant_share'][enduse][region.region_name]
+                service_switches = data['assumptions']['is_service_switch'][enduse][region.name]
+                sig_param_tech = data['assumptions']['is_sig_param_tech'][enduse][region.name]
+                tech_increased_service = data['assumptions']['is_tech_increased_service'][enduse][region.name]
+                tech_decreased_share = data['assumptions']['is_tech_decreased_share'][enduse][region.name]
+                tech_constant_share = data['assumptions']['is_tech_constant_share'][enduse][region.name]
             else:
                 service_switches = data['assumptions']['is_service_switch'][enduse]
                 sig_param_tech = data['assumptions']['is_sig_param_tech'][enduse]
@@ -474,7 +472,7 @@ def industry_submodel(region, data, enduses, sectors):
 
             # Create submodule
             submodel = endusefunctions.Enduse(
-                region_name=region.region_name,
+                region_name=region.name,
                 scenario_data=data['scenario_data'],
                 lookups=data['lookups'],
                 assumptions=data['assumptions'],
@@ -534,11 +532,11 @@ def residential_submodel(region, data, enduses, sectors=False):
 
             # Change if for multiple or single regions
             if data['criterias']['spatial_exliclit_diffusion']:
-                service_switches = data['assumptions']['rs_service_switch'][enduse][region.region_name]
-                sig_param_tech = data['assumptions']['rs_sig_param_tech'][enduse][region.region_name]
-                tech_increased_service = data['assumptions']['rs_tech_increased_service'][enduse][region.region_name]
-                tech_decreased_share = data['assumptions']['rs_tech_decreased_share'][enduse][region.region_name]
-                tech_constant_share = data['assumptions']['rs_tech_constant_share'][enduse][region.region_name]
+                service_switches = data['assumptions']['rs_service_switch'][enduse][region.name]
+                sig_param_tech = data['assumptions']['rs_sig_param_tech'][enduse][region.name]
+                tech_increased_service = data['assumptions']['rs_tech_increased_service'][enduse][region.name]
+                tech_decreased_share = data['assumptions']['rs_tech_decreased_share'][enduse][region.name]
+                tech_constant_share = data['assumptions']['rs_tech_constant_share'][enduse][region.name]
 
             else:
                 service_switches = data['assumptions']['rs_service_switch'][enduse]
@@ -549,7 +547,7 @@ def residential_submodel(region, data, enduses, sectors=False):
 
             # Create submodule
             submodel = endusefunctions.Enduse(
-                region_name=region.region_name,
+                region_name=region.name,
                 scenario_data=data['scenario_data'],
                 lookups=data['lookups'],
                 assumptions=data['assumptions'],
@@ -602,12 +600,12 @@ def service_submodel(region, data, enduses, sectors):
 
             # Change if single or muplite region
             if data['criterias']['spatial_exliclit_diffusion']:
-                service_switches = data['assumptions']['ss_service_switch'][enduse][region.region_name]
-                sig_param_tech = data['assumptions']['ss_sig_param_tech'][enduse][region.region_name]
+                service_switches = data['assumptions']['ss_service_switch'][enduse][region.name]
+                sig_param_tech = data['assumptions']['ss_sig_param_tech'][enduse][region.name]
 
-                tech_increased_service = data['assumptions']['ss_tech_increased_service'][enduse][region.region_name]
-                tech_decreased_share = data['assumptions']['ss_tech_decreased_share'][enduse][region.region_name]
-                tech_constant_share = data['assumptions']['ss_tech_constant_share'][enduse][region.region_name]
+                tech_increased_service = data['assumptions']['ss_tech_increased_service'][enduse][region.name]
+                tech_decreased_share = data['assumptions']['ss_tech_decreased_share'][enduse][region.name]
+                tech_constant_share = data['assumptions']['ss_tech_constant_share'][enduse][region.name]
 
             else:
                 service_switches = data['assumptions']['ss_service_switch'][enduse]
@@ -619,7 +617,7 @@ def service_submodel(region, data, enduses, sectors):
 
             # Create submodule
             submodel = endusefunctions.Enduse(
-                region_name=region.region_name,
+                region_name=region.name,
                 scenario_data=data['scenario_data'],
                 lookups=data['lookups'],
                 assumptions=data['assumptions'],

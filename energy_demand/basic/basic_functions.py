@@ -34,8 +34,8 @@ def array_to_dict(result_array, lu_reg):
         reg, value
     """
     result_dict = {}
-    for reg_array_nr, region_name in enumerate(lu_reg):
-        result_dict[region_name] = result_array[reg_array_nr]
+    for reg_array_nr, region in enumerate(lu_reg):
+        result_dict[region] = result_array[reg_array_nr]
 
     return result_dict
 
