@@ -6,19 +6,15 @@ Development checklist: https://nismod.github.io/docs/development-checklist.html
 https://nismod.github.io/docs/
 https://nismod.github.io/docs/smif-prerequisites.html#sector-modeller
 # Implement that e.g. 2015 - 2030 one technology and 2030 - 2050 another technology
-# Calculate sigmoid for different regions
 # backcasting
 # Industry INFO about efficiencies & technologies: Define strategy variables
 # Cooling?
 # convert documentation in rst?
 # Check whether fuel switches can be written as servie switch
 # CORRECT OUTPUTS (per tech)
-# AVERAGE HDDs over two days (floating average)
 # Potentiall load other annual profiles?
-
 # - Outputs for supply model
-# - read floor areas
-55# """
+"""
 import os
 import sys
 import logging

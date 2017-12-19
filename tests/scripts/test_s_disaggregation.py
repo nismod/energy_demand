@@ -34,6 +34,7 @@ def test_rs_disaggregate():
         'stationID_1': {'station_longitude': 1,'station_latitude': 1}}
 
     temp_data = {'stationID_1': np.ones((365, 24)) + 10}
+    enduses = ['rs_space_heating']
 
     result = s_disaggregation.rs_disaggregate(
         lu_reg,
@@ -45,6 +46,7 @@ def test_rs_disaggregate():
         reg_coord,
         weather_stations,
         temp_data,
+        enduses=enduses,
         crit_limited_disagg_pop_hdd=True,
         crit_limited_disagg_pop=False,
         crit_full_disagg=False)
@@ -62,6 +64,7 @@ def test_rs_disaggregate():
         reg_coord,
         weather_stations,
         temp_data,
+        enduses=enduses,
         crit_limited_disagg_pop_hdd=False,
         crit_limited_disagg_pop=True,
         crit_full_disagg=False)
@@ -106,11 +109,9 @@ def test_ss_disaggregate():
 
     temp_data = {'stationID_1': np.ones((365, 24)) + 10}
 
-    enduses = {'ss_all_enduses': ['ss_space_heating']}
-    sectors = {'ss_sectors': ['sectorA']}
+    enduses = ['ss_space_heating']
+    sectors = ['sectorA']
     all_sectors = ['sectorA']
-
-
 
     result = s_disaggregation.ss_disaggregate(
         raw_fuel_sectors_enduses,
@@ -129,7 +130,7 @@ def test_ss_disaggregate():
         crit_limited_disagg_pop=True,
         crit_full_disagg=False)
 
-    assert result['regA']['sectorA']['ss_space_heating'] == national_fuel / 2
+    assert result['regA']['ss_space_heating']['sectorA'] == national_fuel / 2
 
 def test_is_ss_disaggregate():
     """TESTING"""
@@ -139,8 +140,8 @@ def test_is_ss_disaggregate():
     raw_fuel_sectors_enduses = {'mining': {'is_space_heating': national_fuel},
                                 'pharmaceuticals': {'is_space_heating': national_fuel}}
     lu_reg = ['regA', 'regB']
-    enduses = {'is_all_enduses': ['is_space_heating']}
-    sectors = {'is_sectors': ['mining', 'pharmaceuticals']}
+    enduses = ['is_space_heating']
+    sectors = ['mining', 'pharmaceuticals']
 
     employment_statistics = {
         'regA': {'B': 0, 'M': 10}, #mining, pharmaceuticals
@@ -162,7 +163,7 @@ def test_is_ss_disaggregate():
         crit_limited_disagg_pop=True,
         crit_employment=False)
 
-    assert result['regA']['mining']['is_space_heating'] == 50
+    assert result['regA']['is_space_heating']['mining'] == 50
     # ----
     result = s_disaggregation.is_disaggregate(
         base_yr,
@@ -175,7 +176,9 @@ def test_is_ss_disaggregate():
         crit_limited_disagg_pop=False,
         crit_employment=True)
     
-    assert result['regA']['mining']['is_space_heating'] == 0
-    assert round(result['regA']['pharmaceuticals']['is_space_heating'], 3) == round(10.0/15.0 * 100,3) 
-    assert result['regB']['mining']['is_space_heating'] == 100
-    assert round(result['regB']['pharmaceuticals']['is_space_heating'], 3)  == round(5.0/15.0 * 100, 3)
+    assert result['regA']['is_space_heating']['mining'] == 0
+    assert round(result['regA']['is_space_heating']['pharmaceuticals'], 3) == round(10.0/15.0 * 100,3) 
+    assert result['regB']['is_space_heating']['mining'] == 100
+    assert round(result['regB']['is_space_heating']['pharmaceuticals'], 3)  == round(5.0/15.0 * 100, 3)
+
+test_is_ss_disaggregate()

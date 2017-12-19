@@ -5,7 +5,7 @@ from energy_demand.geography import weather_station_location as weather_station
 from energy_demand.technologies import diffusion_technologies
 from energy_demand.profiles import load_profile
 
-def calc_hdd(t_base, temp_yh):
+def calc_hdd(t_base, temp_yh, nr_day_to_av):
     """Heating Degree Days for every day in a year
 
     Arguments
@@ -28,7 +28,7 @@ def calc_hdd(t_base, temp_yh):
     # ---------------------------------------------
     # Average temperature with previous day(s) information
     # ---------------------------------------------
-    temp_yh = averaged_temp(temp_yh, nr_day_to_av=2)
+    temp_yh = averaged_temp(temp_yh, nr_day_to_av=nr_day_to_av)
 
     temp_diff = (t_base - temp_yh) / 24
     temp_diff[temp_diff < 0] = 0
@@ -212,7 +212,7 @@ def get_hdd_country(
             diff_params['sig_steeppness'],
             diff_params['yr_until_changed'])
 
-        hdd_reg = calc_hdd(t_base_heating_cy, temperatures)
+        hdd_reg = calc_hdd(t_base_heating_cy, temperatures, nr_day_to_av=2)
 
         hdd_regions[region_name] = np.sum(hdd_reg)
 
@@ -361,7 +361,7 @@ def calc_reg_hdd(temperatures, t_base_heating, model_yeardays):
     - The diffusion is assumed to be sigmoid
     """
     # Temperatures of full year
-    hdd_d = calc_hdd(t_base_heating, temperatures)
+    hdd_d = calc_hdd(t_base_heating, temperatures, nr_day_to_av=2)
 
     shape_hdd_d = load_profile.abs_to_rel(hdd_d)
 
