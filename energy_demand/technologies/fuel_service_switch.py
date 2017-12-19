@@ -312,9 +312,7 @@ def capacity_assumption_to_service(
     3.  Calculate percentage of service for ey
     4.  Write out as service switch
     """
-    sim_param_new = {}
-    sim_param_new['base_yr'] = base_yr
-    sim_param_new['curr_yr'] = capacity_switch.switch_yr
+    curr_yr = capacity_switch.switch_yr
 
     # ---------------------------------------------
     # Calculate service per technolgies for end year
@@ -326,7 +324,8 @@ def capacity_assumption_to_service(
 
             # Efficiency of year when capacity is fully installed
             tech_eff_ey = tech_related.calc_eff_cy(
-                sim_param_new,
+                base_yr,
+                curr_yr,
                 technologies[tech].eff_by,
                 technologies[tech].eff_ey,
                 technologies[tech].year_eff_ey,
@@ -347,7 +346,8 @@ def capacity_assumption_to_service(
             installed_capacity = switch.installed_capacity
 
             tech_eff_ey = tech_related.calc_eff_cy(
-                sim_param_new,
+                base_yr,
+                curr_yr,
                 technologies[technology_install].eff_by,
                 technologies[technology_install].eff_ey,
                 technologies[technology_install].year_eff_ey,

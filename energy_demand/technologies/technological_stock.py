@@ -1,4 +1,5 @@
-"""Functions related to the technological stock
+"""
+Functions related to the technological stock
 """
 import sys
 from energy_demand.technologies import tech_related
@@ -11,10 +12,11 @@ class TechStock(object):
     def __init__(
             self,
             stock_name,
-            all_technologies,
+            technologies,
             tech_list,
             other_enduse_mode_info,
-            sim_param,
+            base_yr,
+            curr_yr,
             lu_fueltypes,
             temp_by,
             temp_cy,
@@ -29,8 +31,8 @@ class TechStock(object):
         ----------
         stock_name : str
             Name of technology stock
-        data : dict
-            All data
+        technologies : dict
+            All technologies
         temp_by : array
             Base year temperatures
         temp_cy : int
@@ -54,10 +56,11 @@ class TechStock(object):
 
         # Select only modelled yeardays
         self.stock_technologies = create_tech_stock(
-            all_technologies,
+            technologies,
             tech_list,
             other_enduse_mode_info,
-            sim_param,
+            base_yr,
+            curr_yr,
             lu_fueltypes,
             temp_by,
             temp_cy,
@@ -107,10 +110,11 @@ class TechStock(object):
         return attribute_value
 
 def create_tech_stock(
-        all_technologies,
+        technologies,
         tech_list,
         other_enduse_mode_info,
-        sim_param,
+        base_yr,
+        curr_yr,
         lu_fueltypes,
         temp_by,
         temp_cy,
@@ -123,7 +127,7 @@ def create_tech_stock(
 
     Arguments
     ----------
-    all_technologies : dict
+    technologies : dict
         All technology assumptions
     tech_list : list
         Technology list
@@ -160,14 +164,15 @@ def create_tech_stock(
                 tech_obj = Technology(
                     technology_name,
                     tech_type,
-                    all_technologies[technology_name].fuel_type_str,
-                    all_technologies[technology_name].eff_achieved,
-                    all_technologies[technology_name].diff_method,
-                    all_technologies[technology_name].eff_by,
-                    all_technologies[technology_name].eff_ey,
-                    all_technologies[technology_name].year_eff_ey,
+                    technologies[technology_name].fuel_type_str,
+                    technologies[technology_name].eff_achieved,
+                    technologies[technology_name].diff_method,
+                    technologies[technology_name].eff_by,
+                    technologies[technology_name].eff_ey,
+                    technologies[technology_name].year_eff_ey,
                     other_enduse_mode_info,
-                    sim_param,
+                    base_yr,
+                    curr_yr,
                     lu_fueltypes,
                     temp_by,
                     temp_cy,
@@ -214,7 +219,8 @@ class Technology(object):
             tech_eff_ey=None,
             year_eff_ey=None,
             other_enduse_mode_info=None,
-            sim_param=None,
+            base_yr=None,
+            curr_yr=None,
             lu_fueltypes=None,
             temp_by=None,
             temp_cy=None,
@@ -247,7 +253,8 @@ class Technology(object):
                 self.eff_cy = tech_related.calc_hp_eff(
                     temp_cy,
                     tech_related.calc_eff_cy(
-                        sim_param,
+                        base_yr,
+                        curr_yr,
                         tech_eff_by,
                         tech_eff_ey,
                         year_eff_ey,
@@ -258,7 +265,8 @@ class Technology(object):
             else:
                 self.eff_by = tech_eff_by
                 self.eff_cy = tech_related.calc_eff_cy(
-                    sim_param,
+                    base_yr,
+                    curr_yr,
                     tech_eff_by,
                     tech_eff_ey,
                     year_eff_ey,

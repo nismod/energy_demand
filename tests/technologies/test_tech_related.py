@@ -19,15 +19,12 @@ def test_get_tech_type():
 def test_calc_eff_cy():
     """
     """
-    sim_param = {
-        'base_yr': 2015,
-        'curr_yr': 2020}
-
     other_enduse_mode_info = {
         'diff_method': 'linear'},
 
     out_value = tech_related.calc_eff_cy(
-        sim_param=sim_param,
+        base_yr=2015,
+        curr_yr=2020,
         eff_by= 1.0,
         eff_ey= 2.0,
         yr_until_changed=2020,
@@ -41,7 +38,8 @@ def test_calc_eff_cy():
         'sigmoid': {'sig_midpoint': 0,'sig_steeppness': 1}}
 
     out_value = tech_related.calc_eff_cy(
-        sim_param=sim_param,
+        base_yr=2015,
+        curr_yr=2020,
         eff_by= 1.0,
         eff_ey= 2.0,
         yr_until_changed=2020,

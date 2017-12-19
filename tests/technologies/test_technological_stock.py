@@ -4,10 +4,8 @@ from energy_demand.technologies import technological_stock
 import numpy as np
 
 def test_Technology():
-    sim_param = {
-        'base_yr': 2015,
-        'curr_yr': 2020}
-
+    """
+    """
     tech = technological_stock.Technology(
         tech_name="boilerA",
         tech_type="heating_tech",
@@ -18,7 +16,8 @@ def test_Technology():
         tech_eff_ey=1.0,
         year_eff_ey=2020,
         other_enduse_mode_info={'linear'},
-        sim_param=sim_param,
+        base_yr=2015,
+        curr_yr=2020,
         lu_fueltypes={'electricity': 2},
         temp_by=np.zeros((365, 24)) + 10,
         temp_cy=np.zeros((365, 24)) + 10,
@@ -38,7 +37,8 @@ def test_Technology():
         tech_eff_ey=1.0,
         year_eff_ey=2020,
         other_enduse_mode_info={'linear'},
-        sim_param=sim_param,
+        base_yr=2015,
+        curr_yr=2020,
         lu_fueltypes={'electricity': 2},
         temp_by=np.zeros((365, 24)) + 10,
         temp_cy=np.zeros((365, 24)) + 10,
@@ -56,9 +56,9 @@ def test_Technology():
 def test_TechStock():
 
     from energy_demand.read_write import read_data
-    sim_param = {
-        'base_yr': 2015,
-        'curr_yr': 2020}
+
+    base_yr = 2015
+    curr_yr = 2020
 
     all_technologies = {'boilerA': read_data.TechnologyData()}
     all_technologies['boilerA'].fuel_type_str = 'electricity'
@@ -70,10 +70,11 @@ def test_TechStock():
 
     stock_obj = technological_stock.TechStock(
         stock_name="stock_name",
-        all_technologies=all_technologies,
+        technologies=all_technologies,
         tech_list={'tech_heating_temp_dep': [], 'tech_heating_const': ['boilerA']},
         other_enduse_mode_info={'linear'},
-        sim_param=sim_param,
+        base_yr=base_yr,
+        curr_yr=curr_yr,
         lu_fueltypes={'electricity': 2},
         temp_by=np.ones((365, 24)) + 10,
         temp_cy=np.ones((365, 24)) + 10,

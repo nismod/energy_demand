@@ -257,7 +257,7 @@ class Enduse(object):
                 # Switches (service or fuel)
                 # --------------------------------
                 if crit_switch_service:
-                    service_tech_y_cy = service_switch(
+                    service_tech_y_cy = calc_service_switch(
                         tot_service_y_cy,
                         service_tech_cy_p,
                         tech_increased_service,
@@ -1299,7 +1299,7 @@ def apply_smart_metering(enduse, fuel_y, sm_assump, sm_assump_strategy, base_yr,
         # not defined for this enduse
         return fuel_y
 
-def service_switch(
+def calc_service_switch(
         tot_service_yh_cy,
         service_tech_by_p,
         tech_increase_service,

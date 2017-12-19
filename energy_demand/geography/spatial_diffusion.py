@@ -1,4 +1,6 @@
-"""This file calculates spatial diffusion index
+"""This file contains all calculations related
+to spatial explicit calculations of technology/innovation
+penetration
 """
 from collections import defaultdict
 import numpy as np
@@ -94,7 +96,7 @@ def calc_diff_factor(regions, spatial_diff_values, fuels):
         # Calculate % of enduse ed of a region of total enduse ed
         # --------------------
         for enduse in enduses:
-            print("enduse " + str(enduse) + str("   ") + str(reg))
+
             # Total uk fuel of enduse
             tot_enduse_uk = 0
             for reg in regions:
@@ -166,7 +168,7 @@ def calc_regional_services(
     A.) Calculation national end use service to reduce
         (e.g. 50% heat pumps for all regions) (uk_tech_service_ey_p)
 
-    B.) Distribute this service according to spatial index for 
+    B.) Distribute this service according to spatial index for
         techs where the spatial explicit diffusion applies (techs_affected_spatial_f).
         Otherwise disaggregated according to fuel
 

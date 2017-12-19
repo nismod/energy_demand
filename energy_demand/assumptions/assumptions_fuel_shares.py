@@ -76,7 +76,7 @@ def assign_by_fuel_tech_p(assumptions, enduses, lookups):
     assumptions['rs_fuel_tech_p_by']['rs_cooking'][lookups['fueltype']['electricity']] = {
         'hob_electricity': 0.95,
         'hob_induction_electricity': 0.05} # https://productspy.co.uk/are-induction-hobs-safe/ (5-10%)
-        
+
     assumptions['rs_fuel_tech_p_by']['rs_cooking'][lookups['fueltype']['gas']] = {
         'hob_gas': 1.0}
 

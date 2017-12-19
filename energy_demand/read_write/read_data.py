@@ -495,7 +495,7 @@ def read_load_shapes_tech(path_to_csv):
 
     return load_shapes_dh
 
-def read_service_switch(path_to_csv, technologies):
+def service_switch(path_to_csv, technologies):
     """This function reads in service assumptions from csv file,
     tests whether the maximum defined switch is larger than
     possible for a technology,
@@ -1064,7 +1064,7 @@ def read_pop(path_enduse_specific_results):
 
     return dict(results)
 
-def read_capacity_installation(path_to_csv):
+def capacity_installations(path_to_csv):
     """This function reads in service assumptions
     from csv file
 

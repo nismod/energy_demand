@@ -42,14 +42,14 @@ class EnergyModel(object):
         # Weather Regions
         # --------------
         weather_regions = {}
-        for weather_region_name in data['weather_stations']:
-            weather_regions[weather_region_name] = WeatherRegion(
-                weather_region_name=weather_region_name,
+        for weather_region in data['weather_stations']:
+            weather_regions[weather_region] = WeatherRegion(
+                name=weather_region,
                 sim_param=data['sim_param'],
                 assumptions=data['assumptions'],
                 lookups=data['lookups'],
                 all_enduses=data['enduses'],
-                temp_by=data['temp_data'][weather_region_name],
+                temp_by=data['temp_data'][weather_region],
                 tech_lp=data['tech_lp'],
                 sectors=data['sectors'])
 
@@ -229,7 +229,7 @@ class EnergyModel(object):
         testing.test_region_selection(self.ed_fueltype_regs_yh)
 
         _scrap = 0
-        for reg_nr, reg in enumerate(ed_fueltype_regs_yh[2]):
+        for _, reg in enumerate(ed_fueltype_regs_yh[2]):
             _scrap += np.sum(reg)
         print("TOTAL: " + str(_scrap))
 

@@ -112,7 +112,7 @@ def load_non_param_assump(base_yr, paths, enduses, lookups):
 
     # --Residential SubModel
     assumptions['scenario_drivers']['rs_submodule'] = {
-        'rs_space_heating': ['floorarea', 'hlc'], #Do not use also pop because otherwise problems that e.g. existing stock + new has smaller scen value than... floorarea already contains pop, Do not use HDD because otherweise double count
+        'rs_space_heating': ['floorarea', 'hlc'], # Do not use HDD or pop because otherweise double count
         'rs_water_heating': ['population'],
         'rs_lighting': ['population', 'floorarea'],
         'rs_cooking': ['population'],
@@ -174,11 +174,11 @@ def load_non_param_assump(base_yr, paths, enduses, lookups):
 
     # --Heat pumps. Share of installed heat pumps in base year (ASHP to GSHP)
     assumptions['split_hp_gshp_to_ashp_by'] = 0.1
-    assumptions['installed_heat_pump_by'] = tech_related.generate_ashp_gshp_split(assumptions['split_hp_gshp_to_ashp_by'])
+    assumptions['installed_heat_pump_by'] = tech_related.generate_ashp_gshp_split(
+        assumptions['split_hp_gshp_to_ashp_by'])
 
     # Add heat pumps to technologies
     assumptions['technologies'], assumptions['tech_list']['tech_heating_temp_dep'], assumptions['heat_pumps'] = tech_related.generate_heat_pump_from_split(
-        [],
         assumptions['technologies'],
         assumptions['installed_heat_pump_by'],
         lookups['fueltype'])
@@ -232,11 +232,11 @@ def load_non_param_assump(base_yr, paths, enduses, lookups):
     # ============================================================
     # Read in scenaric service switches
     # ============================================================
-    assumptions['rs_service_switches'] = read_data.read_service_switch(
+    assumptions['rs_service_switches'] = read_data.service_switch(
         paths['rs_path_service_switch'], assumptions['technologies'])
-    assumptions['ss_service_switches'] = read_data.read_service_switch(
+    assumptions['ss_service_switches'] = read_data.service_switch(
         paths['ss_path_service_switch'], assumptions['technologies'])
-    assumptions['is_service_switches'] = read_data.read_service_switch(
+    assumptions['is_service_switches'] = read_data.service_switch(
         paths['is_path_industry_switch'], assumptions['technologies'])
 
     # ============================================================
@@ -245,9 +245,12 @@ def load_non_param_assump(base_yr, paths, enduses, lookups):
     # ============================================================
     # Reading in assumptions on capacity installations from csv file
     assumptions['capacity_switches'] = {}
-    assumptions['capacity_switches']['rs_capacity_switches'] = read_data.read_capacity_installation(paths['rs_path_capacity_installation'])
-    assumptions['capacity_switches']['ss_capacity_switches'] = read_data.read_capacity_installation(paths['ss_path_capacity_installation'])
-    assumptions['capacity_switches']['is_capacity_switches'] = read_data.read_capacity_installation(paths['is_path_capacity_installation'])
+    assumptions['capacity_switches']['rs_capacity_switches'] = read_data.capacity_installations(
+        paths['rs_path_capacity_installation'])
+    assumptions['capacity_switches']['ss_capacity_switches'] = read_data.capacity_installations(
+        paths['ss_path_capacity_installation'])
+    assumptions['capacity_switches']['is_capacity_switches'] = read_data.capacity_installations(
+        paths['is_path_capacity_installation'])
 
     # ========================================
     # Helper functions
@@ -298,6 +301,7 @@ def update_assumptions(technologies, factor_achieved, split_hp_gshp_to_ashp_ey):
         Factor achieved
     split_hp_gshp_to_ashp_ey : float
         Mix of GSHP and GSHP
+
     Note
     ----
     This needs to be run everytime an assumption is changed
