@@ -215,9 +215,8 @@ def capacity_installations(
     if enduses_switch == []:
         pass
     else:
-        # -------------------------
+
         # Calculate service switches
-        # -------------------------
         service_switches = create_service_switch(
             enduses_switch,
             capacity_switches,
@@ -246,12 +245,21 @@ def create_service_switch(
         Enduses
     capacity_switches : list
         List containing all capacity_switches
-    assumptions : dict
-        Assumptions
-    fuels : dict
-        Fuels
+    technologies : dict
+        Technologies
+    other_enduse_mode_info : dict
+        OTher diffusion information
+    fuel_shares_enduse_by : dict
+        Fuel shares per enduse for base year
     base_yr : dict
         base year
+    fuels : dict
+        Fuels
+
+    Returns
+    ------
+    service_switches : dict
+        Service switches
     """
     service_switches = []
 
@@ -285,8 +293,7 @@ def capacity_assumption_to_service(
         base_yr,
         other_enduse_mode_info
     ):
-    """Convert capacity assumption to service
-    switches
+    """Convert capacity assumption to service switches
 
     Arguments
     ---------
@@ -312,9 +319,7 @@ def capacity_assumption_to_service(
     3.  Calculate percentage of service for ey
     4.  Write out as service switch
     """
-    sim_param_new = {}
-    sim_param_new['base_yr'] = base_yr
-    sim_param_new['curr_yr'] = capacity_switch.switch_yr
+    curr_yr = capacity_switch.switch_yr
 
     # ---------------------------------------------
     # Calculate service per technolgies for end year
@@ -326,7 +331,8 @@ def capacity_assumption_to_service(
 
             # Efficiency of year when capacity is fully installed
             tech_eff_ey = tech_related.calc_eff_cy(
-                sim_param_new,
+                base_yr,
+                curr_yr,
                 technologies[tech].eff_by,
                 technologies[tech].eff_ey,
                 technologies[tech].year_eff_ey,
@@ -347,7 +353,8 @@ def capacity_assumption_to_service(
             installed_capacity = switch.installed_capacity
 
             tech_eff_ey = tech_related.calc_eff_cy(
-                sim_param_new,
+                base_yr,
+                curr_yr,
                 technologies[technology_install].eff_by,
                 technologies[technology_install].eff_ey,
                 technologies[technology_install].year_eff_ey,

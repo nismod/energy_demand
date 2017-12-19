@@ -26,7 +26,7 @@ def createNEWCASTLE_dwelling_stock(curr_yr, region, data, parameter_list):
     # Iterate all buildings
     # see which dwelling type -->
     # see which age_class -->
-    # see which building attribute (e.g. resid, industry) 
+    # see which building attribute (e.g. resid, industry)
     # --> summen the following attributes according these categories
     #       - population stock_pop[]
     #       - floor area
@@ -37,7 +37,7 @@ def createNEWCASTLE_dwelling_stock(curr_yr, region, data, parameter_list):
     # Create dwellings Residential
     # Inputs Residential
     #   - building_type/dwelling_type/dwellingtype_ageclass
-    #   - 
+    #   -
     dw_stock = []
     dwelling_types = ["detached", "semi_detached"]
     age_classs = [1920, 1930, 1940] #Age categories
@@ -48,7 +48,7 @@ def createNEWCASTLE_dwelling_stock(curr_yr, region, data, parameter_list):
 
             # Get pop of age class
             pop_dwtype_age_class = stock_pop[building_type][dwelling_type][age_class]
-            
+
             # Get floor area of building type, dwelling_ype, age_class
             floor_area_dwtype_age_class = floor_area[building_type][dwelling_type][age_class]
 
@@ -172,8 +172,7 @@ class Dwelling(object):
                     for scenario_driver in scenario_drivers:
                         scenario_driver_value *= getattr(self, scenario_driver) #: sum drivers
                 except TypeError:
-                    logging.info(
-                        "Scenario driver `{}` calculation not possible".format(scenario_driver))
+                    logging.info("Scenario driver `%s` calculation not possible", scenario_driver)
 
                 Dwelling.__setattr__(
                     self,
@@ -448,8 +447,6 @@ def ss_dw_stock(region, data, curr_yr, base_yr):
 
         # If virtual building stock, change floor area proportionally to population
         if data['criterias']['virtual_building_stock_criteria']:
-            base_yr = data['sim_param']['base_yr']
-            curr_yr = data['sim_param']['curr_yr']
             pop_factor = data['scenario_data']['population'][curr_yr][region] / data['scenario_data']['population'][base_yr][region]
             lin_diff_factor = pop_factor
             '''
@@ -478,7 +475,7 @@ def ss_dw_stock(region, data, curr_yr, base_yr):
             else:
                 sys.exit(
                     "Error: The ss building stock sector floor area assumption is not defined")
-            
+
             # Floor area of sector in current year considering linear diffusion
             lin_diff_factor = diffusion_technologies.linear_diff(
                 base_yr,
@@ -595,7 +592,7 @@ def rs_dw_stock(region, data, curr_yr, base_yr):
     else:
         """
         #If floor_area is read in from model, this would be here
-        
+
         # NEWCASTLE
         """
         floorarea_by = data['scenario_data']['floor_area']['rs_floorarea'][curr_yr][region]

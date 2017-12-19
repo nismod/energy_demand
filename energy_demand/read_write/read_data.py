@@ -495,7 +495,7 @@ def read_load_shapes_tech(path_to_csv):
 
     return load_shapes_dh
 
-def read_service_switch(path_to_csv, technologies):
+def service_switch(path_to_csv, technologies):
     """This function reads in service assumptions from csv file,
     tests whether the maximum defined switch is larger than
     possible for a technology,
@@ -932,6 +932,19 @@ def read_service_tech_by_p(path_to_csv):
 
 def read_disaggregated_fuel(path_to_csv, fueltypes_nr):
     """Read disaggregated fuel
+    
+    Arguments
+    ----------
+    path_to_csv : str
+        Path to csv file
+    fueltypes_nr : int
+        Nr of fueltypes
+
+    Returns
+    -------
+    fuel_sector_enduse : dict
+        Disaggregated fuel
+
     """
     fuel_sector_enduse = {}
 
@@ -959,6 +972,18 @@ def read_disaggregated_fuel(path_to_csv, fueltypes_nr):
 
 def read_disaggregated_fuel_sector(path_to_csv, fueltypes_nr):
     """Read disaggregated fuel
+
+    Arguments
+    ----------
+    path_to_csv : str
+        Path to csv file
+    fueltypes_nr : int
+        Nr of fueltypes
+
+    Returns
+    -------
+    fuel_sector_enduse : dict
+        Disaggregated fuel
     """
     fuel_sector_enduse = {}
 
@@ -1045,8 +1070,19 @@ def read_lf_y(path_enduse_specific_results):
 
     return dict(results)
 
-def read_pop(path_enduse_specific_results):
-    """Read load factors from txt file
+def read_scenaric_population_data(path_enduse_specific_results):
+    """Read population data
+
+    Arguments
+    ---------
+    path_enduse_specific_results : str
+        Path
+
+    Returns
+    -------
+    results : dict
+        Population, {year: np.array(fueltype, regions)}
+
     """
     results = defaultdict(dict)
 
@@ -1064,7 +1100,7 @@ def read_pop(path_enduse_specific_results):
 
     return dict(results)
 
-def read_capacity_installation(path_to_csv):
+def capacity_installations(path_to_csv):
     """This function reads in service assumptions
     from csv file
 

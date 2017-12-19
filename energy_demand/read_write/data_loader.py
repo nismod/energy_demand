@@ -12,8 +12,56 @@ from energy_demand.read_write import read_data, read_weather_data
 from energy_demand.basic import conversions
 from energy_demand.basic import date_prop
 
+def load_basic_lookups():
+    """Definition of basic lookups or other related information
+
+    Return
+    ------
+    lookups : dict
+        Lookup information and other very basic properties
+    """
+    lookups = {}
+
+    lookups['dwtype'] = {
+        0: 'detached',
+        1: 'semi_detached',
+        2: 'terraced',
+        3: 'flat',
+        4: 'bungalow'}
+
+    lookups['fueltype'] = {
+        'solid_fuel': 0,
+        'gas': 1,
+        'electricity': 2,
+        'oil': 3,
+        'biomass': 4,
+        'hydrogen': 5,
+        'heat': 6}
+
+    lookups['fueltypes_nr'] = int(len(lookups['fueltype']))
+
+    return lookups
+
 def load_sim_param_ini(path):
     """Load simulation parameter run information
+
+    Arguments
+    ---------
+    path : str
+        Path to `ini` file
+
+    Returns
+    -------
+    sim_param : dict
+        Simulation parameters
+    enduses : dict
+        Enduses
+    assumptions : dict
+        Assumptions
+    reg_nrs : dict
+        Number of regions
+    lu_reg : dict
+        Regions
     """
     config = configparser.ConfigParser()
 
@@ -66,9 +114,7 @@ def read_national_real_elec_data(path_to_csv):
         for row in read_lines:
             geocode = str.strip(row[2])
             tot_consumption_unclean = row[7].strip()
-            total_consumption = float(tot_consumption_unclean.replace(",", ""))
-
-            national_fuel_data[geocode] = total_consumption
+            national_fuel_data[geocode] = float(tot_consumption_unclean.replace(",", ""))
 
     return national_fuel_data
 
@@ -111,51 +157,30 @@ def read_national_real_gas_data(path_to_csv):
 
     return national_fuel_data
 
-def load_basic_lookups():
-    """Definition of basic lookups or other related information
-
-    Return
-    ------
-    lookups : dict
-        Lookup information and other very basic properties
-    """
-    lookups = {}
-
-    lookups['dwtype'] = {
-        0: 'detached',
-        1: 'semi_detached',
-        2: 'terraced',
-        3: 'flat',
-        4: 'bungalow'}
-
-    lookups['fueltype'] = {
-        'solid_fuel': 0,
-        'gas': 1,
-        'electricity': 2,
-        'oil': 3,
-        'biomass': 4,
-        'hydrogen': 5,
-        'heat': 6
-        }
-
-    lookups['fueltypes_nr'] = int(len(lookups['fueltype']))
-
-    return lookups
-
-def virtual_building_datasets(lu_reg, all_sectors, data):
+def virtual_building_datasets(lu_reg, all_sectors, local_paths):
     """Load necessary data for virtual building stock
     in case the link to the building stock model in
     Newcastle is not used
 
     Arguments
     ---------
+    lu_reg : dict
+        Regions
+    all_sectors : dict
+        All sectors
 
+    Returns
+    -------
+    rs_floorarea : dict
+        Residential floor area
+    ss_floorarea : dict
+        Service sector floor area
     """
     # --------------------------------------------------
     # Floor area for residential buildings for base year
     # --------------------------------------------------
     resid_footprint, non_res_flootprint = read_data.read_floor_area_virtual_stock(
-        data['local_paths']['path_floor_area_virtual_stock_by'])
+        local_paths['path_floor_area_virtual_stock_by'])
 
     rs_floorarea = defaultdict(dict)
     for year in range(2015, 2101):
@@ -166,12 +191,6 @@ def virtual_building_datasets(lu_reg, all_sectors, data):
                 logging.warning("No virtual residential floor area for region %s %s", reg_geocode, year)
                 rs_floorarea[year][reg_geocode] = 1
 
-    '''
-    rs_floorarea = defaultdict(dict)
-    for year in range(2015, 2101):
-        for region_geocode in lu_reg:
-            rs_floorarea[year][region_geocode] = 10000
-    '''
     # --------------------------------------------------
     # Floor area for service sector buildings
     # --------------------------------------------------
@@ -229,10 +248,8 @@ def load_local_paths(path):
             path, '_raw_data', 'D-validation', '02_subnational_gas_demand', 'data_2015_gas.csv'),
         'path_employment_statistics': os.path.join(
             path, '_raw_data', 'b-census_data', 'employment_statistics_2011_LAD', 'LAD_prior_2015.csv'),
-        'path_floor_area_virtual_stock_by': os.path.join( #TODO
+        'path_floor_area_virtual_stock_by': os.path.join(
             path, '_raw_data', 'K-floor_area', 'floor_area_by.csv'),
-        'path_dummy_regions': os.path.join(
-            path, '_raw_data', 'B-census_data', 'regions_local_area_districts', '_quick_and_dirty_spatial_disaggregation', 'infuse_dist_lyr_2011_saved.csv'),
         'path_assumptions_db': os.path.join(
             path, '_processed_data', 'assumptions_from_db'),
         'data_processed': os.path.join(
@@ -261,7 +278,7 @@ def load_local_paths(path):
             path, '_processed_data', '_post_installation_data', 'load_profiles', 'rs_submodel'),
         'ss_load_profiles': os.path.join(
             path, '_processed_data', '_post_installation_data', 'load_profiles', 'ss_submodel'),
-        'dir_disattregated': os.path.join(
+        'dir_disaggregated': os.path.join(
             path, '_processed_data', '_post_installation_data', 'disaggregated'),
         'rs_load_profile_txt': os.path.join(
             path, '_processed_data', '_post_installation_data', 'load_profiles', 'rs_submodel'),
@@ -292,7 +309,6 @@ def load_paths(path):
         Data container containing dics
     """
     paths = {
-
         'path_main': path,
 
         # Path for dwelling stock assumptions
@@ -326,6 +342,7 @@ def load_paths(path):
             path, 'config_data', 'submodel_service', 'capacity_installations.csv'),
         'is_path_capacity_installation': os.path.join(
             path, 'config_data', 'submodel_industry', 'capacity_installations.csv'),
+
         # Paths to fuel raw data
         'rs_fuel_raw_data_enduses': os.path.join(
             path, 'config_data', 'submodel_residential', 'rs_fuel_data.csv'),
@@ -360,8 +377,9 @@ def load_data_tech_profiles(tech_lp, paths):
 
     Arguments
     ----------
-    data : dict
-        Data container
+    tech_lp : dict
+        Load profiles
+    paths : dict
 
     Returns
     ------

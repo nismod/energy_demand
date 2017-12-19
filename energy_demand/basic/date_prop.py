@@ -4,7 +4,7 @@ time related functionality
 """
 from datetime import date
 from datetime import timedelta
-from isoweek import Week
+
 import numpy as np
 
 # Weeks in middle of meteorological seasons
@@ -20,8 +20,10 @@ summer_week = list(range(
 autumn_week = list(range(
     date_prop.date_to_yearday(year_to_model, 10, 12),
     date_prop.date_to_yearday(year_to_model, 10, 26))) #Oct'''
-    
+
 def get_model_yeardays_datype(year_to_model):
+    """
+    """
     # --------------------------------------
     # Calculate for all yeardays the daytype of base year
     # --------------------------------------
@@ -95,6 +97,7 @@ def read_season(year_to_model):
     -----
     if year is a leap year, funciton may not work properly
     """
+    from isoweek import Week
     list_days = []
     monday_in_week = Week(year, week_nr).monday()
 

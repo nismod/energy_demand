@@ -6,19 +6,13 @@ Development checklist: https://nismod.github.io/docs/development-checklist.html
 https://nismod.github.io/docs/
 https://nismod.github.io/docs/smif-prerequisites.html#sector-modeller
 # Implement that e.g. 2015 - 2030 one technology and 2030 - 2050 another technology
-# Calculate sigmoid for different regions
 # backcasting
 # Industry INFO about efficiencies & technologies: Define strategy variables
 # Cooling?
 # convert documentation in rst?
-# Check whether fuel switches can be written as servie switch
 # CORRECT OUTPUTS (per tech)
-# AVERAGE HDDs over two days (floating average)
 # Potentiall load other annual profiles?
-
-# - Outputs for supply model
-# - read floor areas
-55# """
+"""
 import os
 import sys
 import logging
@@ -48,11 +42,9 @@ def energy_demand_model(data, fuel_in=0, fuel_in_elec=0):
     This function is executed in the wrapper
     """
     fuel_in, fuel_in_elec, fuel_in_gas = testing.test_function_fuel_sum(data)
-    print("VORHER Fuel input:          " + str(fuel_in))
-    print("VORHER elec fuel in:        " + str(fuel_in_elec))
 
     model_run_object = energy_model.EnergyModel(
-        region_names=data['lu_reg'],
+        regions=data['lu_reg'],
         data=data)
 
     print("Fuel input:          " + str(fuel_in))
@@ -127,7 +119,8 @@ if __name__ == "__main__":
     data['sim_param']['base_yr'] = 2015
     data['sim_param']['curr_yr'] = data['sim_param']['base_yr']
     data['sim_param']['simulated_yrs'] = [2015, 2050]
-    data['lu_reg'] = data_loader.load_LAC_geocodes_info(data['local_paths']['path_dummy_regions'])
+
+    data['lu_reg'] = data_loader.load_LAC_geocodes_info(os.path.join(local_data_path, '_raw_data', 'B-census_data', 'regions_local_area_districts', '_quick_and_dirty_spatial_disaggregation', 'infuse_dist_lyr_2011_saved.csv'))
 
     # GVA
     gva_data = {}
@@ -178,7 +171,7 @@ if __name__ == "__main__":
         rs_floorarea, ss_floorarea = data_loader.virtual_building_datasets(
             data['lu_reg'],
             data['sectors']['all_sectors'],
-            data)
+            data['local_paths'])
     else:
         pass
 

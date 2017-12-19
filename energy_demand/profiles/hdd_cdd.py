@@ -5,7 +5,7 @@ from energy_demand.geography import weather_station_location as weather_station
 from energy_demand.technologies import diffusion_technologies
 from energy_demand.profiles import load_profile
 
-def calc_hdd(t_base, temp_yh):
+def calc_hdd(t_base, temp_yh, nr_day_to_av):
     """Heating Degree Days for every day in a year
 
     Arguments
@@ -28,7 +28,7 @@ def calc_hdd(t_base, temp_yh):
     # ---------------------------------------------
     # Average temperature with previous day(s) information
     # ---------------------------------------------
-    temp_yh = averaged_temp(temp_yh, nr_day_to_av=2)
+    temp_yh = averaged_temp(temp_yh, nr_day_to_av=nr_day_to_av)
 
     temp_diff = (t_base - temp_yh) / 24
     temp_diff[temp_diff < 0] = 0
@@ -192,12 +192,12 @@ def get_hdd_country(
     """
     hdd_regions = {}
 
-    for region_name in regions:
+    for region in regions:
 
         # Get closest weather station and temperatures
         closest_station_id = weather_station.get_closest_station(
-            reg_coord[region_name]['longitude'],
-            reg_coord[region_name]['latitude'],
+            reg_coord[region]['longitude'],
+            reg_coord[region]['latitude'],
             weather_stations)
 
         temperatures = temp_data[closest_station_id]
@@ -212,9 +212,9 @@ def get_hdd_country(
             diff_params['sig_steeppness'],
             diff_params['yr_until_changed'])
 
-        hdd_reg = calc_hdd(t_base_heating_cy, temperatures)
+        hdd_reg = calc_hdd(t_base_heating_cy, temperatures, nr_day_to_av=2)
 
-        hdd_regions[region_name] = np.sum(hdd_reg)
+        hdd_regions[region] = np.sum(hdd_reg)
 
     return hdd_regions
 
@@ -250,9 +250,9 @@ def get_cdd_country(
     """
     cdd_regions = {}
 
-    for region_name in regions:
-        longitude = reg_coord[region_name]['longitude']
-        latitude = reg_coord[region_name]['latitude']
+    for region in regions:
+        longitude = reg_coord[region]['longitude']
+        latitude = reg_coord[region]['latitude']
 
         # Get closest weather station and temperatures
         closest_station_id = weather_station.get_closest_station(
@@ -274,7 +274,7 @@ def get_cdd_country(
             diff_params['yr_until_changed'])
 
         cdd_reg = calc_cdd(t_base_heating_cy, temperatures)
-        cdd_regions[region_name] = np.sum(cdd_reg)
+        cdd_regions[region] = np.sum(cdd_reg)
 
     return cdd_regions
 
@@ -339,6 +339,8 @@ def calc_reg_hdd(temperatures, t_base_heating, model_yeardays):
         Temperatures
     t_base_heating : float
         Base temperature for heating
+    model_yeardays : dict
+        Modelled yeardays
 
     Return
     ------
@@ -361,7 +363,7 @@ def calc_reg_hdd(temperatures, t_base_heating, model_yeardays):
     - The diffusion is assumed to be sigmoid
     """
     # Temperatures of full year
-    hdd_d = calc_hdd(t_base_heating, temperatures)
+    hdd_d = calc_hdd(t_base_heating, temperatures, nr_day_to_av=2)
 
     shape_hdd_d = load_profile.abs_to_rel(hdd_d)
 

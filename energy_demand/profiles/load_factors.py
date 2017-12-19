@@ -152,9 +152,7 @@ def calc_lf_season(seasons, fuel_region_yh, average_fuel_yd):
     """
     seasons_lfs = {}
     for season, yeardays_modelled in seasons.items():
-        #max_load_yd_season = np.max(fuel_region_yh[:, yeardays_modelled])
 
-        #average_fuel_yd_season = np.average(average_fuel_yd[:, yeardays_modelled], axis=1)
         average_fuel_yd_full_year = np.average(average_fuel_yd[:, ], axis=1)
 
         # Calculate maximum hour in year
@@ -163,7 +161,6 @@ def calc_lf_season(seasons, fuel_region_yh, average_fuel_yd):
 
         # Unable local RuntimeWarning: divide by zero encountered
         with np.errstate(divide='ignore', invalid='ignore'):
-            #season_lf = (average_fuel_yd_season / max_load_h_season) * 100 #convert to percentage
             season_lf = (average_fuel_yd_full_year / max_load_h_season) * 100 #convert to percentage
 
         # Replace

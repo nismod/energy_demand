@@ -179,19 +179,19 @@ def ss_disaggregate(
         tot_pop_hdd[sector] = 0
         tot_pop_cdd[sector] = 0
 
-    for region_name in lu_reg:
-        reg_hdd = ss_hdd_individ_region[region_name]
-        reg_cdd = ss_cdd_individ_region[region_name]
+    for region in lu_reg:
+        reg_hdd = ss_hdd_individ_region[region]
+        reg_cdd = ss_cdd_individ_region[region]
 
         # Population
-        reg_pop = scenario_data['population'][base_yr][region_name]
+        reg_pop = scenario_data['population'][base_yr][region]
 
         tot_pop += reg_pop
 
         for sector in all_sectors:
 
             # Floor Area of sector
-            reg_floor_area = scenario_data['floor_area']['ss_floorarea'][base_yr][region_name][sector]
+            reg_floor_area = scenario_data['floor_area']['ss_floorarea'][base_yr][region][sector]
 
             # National disaggregation factors
             tot_floor_area[sector] += reg_floor_area
@@ -202,23 +202,23 @@ def ss_disaggregate(
     # ---------------------------------------
     # Disaggregate according to enduse
     # ---------------------------------------
-    for region_name in lu_reg:
-        ss_fuel_disagg[region_name] = {}
+    for region in lu_reg:
+        ss_fuel_disagg[region] = {}
 
         # Regional factors
-        reg_hdd = ss_hdd_individ_region[region_name]
-        reg_cdd = ss_cdd_individ_region[region_name]
+        reg_hdd = ss_hdd_individ_region[region]
+        reg_cdd = ss_cdd_individ_region[region]
 
-        reg_pop = scenario_data['population'][base_yr][region_name]
+        reg_pop = scenario_data['population'][base_yr][region]
 
         reg_diasg_factor = reg_pop / tot_pop
 
         for enduse in enduses:
-            ss_fuel_disagg[region_name][enduse] = {}
+            ss_fuel_disagg[region][enduse] = {}
 
             for sector in sectors:
                 #print("reg_diasg_factor: {} {} {}".format(sector, enduse, reg_diasg_factor))
-                reg_floor_area = scenario_data['floor_area']['ss_floorarea'][base_yr][region_name][sector]
+                reg_floor_area = scenario_data['floor_area']['ss_floorarea'][base_yr][region][sector]
 
                 #'''
                 if crit_limited_disagg_pop and not crit_limited_disagg_pop_hdd:
@@ -253,7 +253,7 @@ def ss_disaggregate(
                     else:
                         reg_diasg_factor = reg_pop / tot_pop
 
-                ss_fuel_disagg[region_name][enduse][sector] = ss_national_fuel[sector][enduse] * reg_diasg_factor
+                ss_fuel_disagg[region][enduse][sector] = ss_national_fuel[sector][enduse] * reg_diasg_factor
 
     # -----------------
     # Check if total fuel is the
@@ -294,16 +294,16 @@ def is_disaggregate(
         for reg in lu_reg:
             tot_pop += scenario_data['population'][base_yr][reg]
 
-        for region_name in lu_reg:
-            is_fuel_disagg[region_name] = {}
-            reg_pop = scenario_data['population'][base_yr][region_name]
+        for region in lu_reg:
+            is_fuel_disagg[region] = {}
+            reg_pop = scenario_data['population'][base_yr][region]
 
             reg_disagg_f = reg_pop / tot_pop
 
             for enduse in enduses:
-                is_fuel_disagg[region_name][enduse] = {}
+                is_fuel_disagg[region][enduse] = {}
                 for sector in sectors:
-                    is_fuel_disagg[region_name][enduse][sector] = is_national_fuel[sector][enduse] * reg_disagg_f
+                    is_fuel_disagg[region][enduse][sector] = is_national_fuel[sector][enduse] * reg_disagg_f
 
         return is_fuel_disagg
 
@@ -391,12 +391,12 @@ def is_disaggregate(
         # --------------------------------------------------
         # Disaggregate per region with employment statistics
         # --------------------------------------------------
-        for region_name in lu_reg:
-            is_fuel_disagg[region_name] = {}
+        for region in lu_reg:
+            is_fuel_disagg[region] = {}
 
             # Iterate sector
             for enduse in enduses:
-                is_fuel_disagg[region_name][enduse] = {}
+                is_fuel_disagg[region][enduse] = {}
 
                 for sector in sectors:
 
@@ -408,15 +408,15 @@ def is_disaggregate(
                     # Disaggregate with population
                     if matched_sector == None:
                         
-                        reg_pop = scenario_data['population'][base_yr][region_name]
+                        reg_pop = scenario_data['population'][base_yr][region]
                         
                         reg_disag_factor = reg_pop / tot_pop
 
-                        is_fuel_disagg[region_name][enduse][sector] = is_national_fuel[sector][enduse] * reg_disag_factor
+                        is_fuel_disagg[region][enduse][sector] = is_national_fuel[sector][enduse] * reg_disag_factor
                     else:
                         #for enduse in enduses['is_all_enduses']:
                         national_sector_employment = tot_national_sector_employment[matched_sector]
-                        reg_sector_employment = employment_statistics[region_name][matched_sector]
+                        reg_sector_employment = employment_statistics[region][matched_sector]
 
                         try:
                             reg_disag_factor = reg_sector_employment / national_sector_employment
@@ -424,7 +424,7 @@ def is_disaggregate(
                             reg_disag_factor = 0 #No employment for this sector for this region
 
                         # Disaggregated national fuel
-                        is_fuel_disagg[region_name][enduse][sector] = is_national_fuel[sector][enduse] * reg_disag_factor
+                        is_fuel_disagg[region][enduse][sector] = is_national_fuel[sector][enduse] * reg_disag_factor
 
     # -----------------
     # TESTING Check if total fuel is the same before and after aggregation
@@ -494,16 +494,16 @@ def rs_disaggregate(
     total_hdd_floorarea = 0
     total_floor_area = 0
 
-    for region_name in lu_reg:
+    for region in lu_reg:
 
         # HDD
-        reg_hdd = rs_hdd_individ_region[region_name]
+        reg_hdd = rs_hdd_individ_region[region]
 
         # Floor Area across all sectors
-        reg_floor_area = scenario_data['floor_area']['rs_floorarea'][base_yr][region_name]
+        reg_floor_area = scenario_data['floor_area']['rs_floorarea'][base_yr][region]
 
         # Population
-        reg_pop = scenario_data['population'][base_yr][region_name]
+        reg_pop = scenario_data['population'][base_yr][region]
 
         # National dissagregation factors
         total_pop += reg_pop
@@ -514,10 +514,10 @@ def rs_disaggregate(
     # ---------------------------------------
     # Disaggregate according to enduse
     # ---------------------------------------
-    for region_name in lu_reg:
-        reg_pop = scenario_data['population'][base_yr][region_name]
-        reg_hdd = rs_hdd_individ_region[region_name]
-        reg_floor_area = scenario_data['floor_area']['rs_floorarea'][base_yr][region_name]
+    for region in lu_reg:
+        reg_pop = scenario_data['population'][base_yr][region]
+        reg_hdd = rs_hdd_individ_region[region]
+        reg_floor_area = scenario_data['floor_area']['rs_floorarea'][base_yr][region]
 
         # Disaggregate fuel depending on end_use
         for enduse in rs_national_fuel:
@@ -550,7 +550,7 @@ def rs_disaggregate(
                     reg_diasg_factor = reg_pop / total_pop
 
             # Disaggregate
-            rs_fuel_disagg[region_name][enduse] = rs_national_fuel[enduse] * reg_diasg_factor
+            rs_fuel_disagg[region][enduse] = rs_national_fuel[enduse] * reg_diasg_factor
 
     # -----------------
     # Check if total fuel is the same before and after aggregation
@@ -661,13 +661,13 @@ def run(data):
 
     #Write to csv file disaggregated demand
     write_disagg_fuel(
-        os.path.join(data['local_paths']['dir_disattregated'], 'rs_fuel_disagg.csv'),
+        os.path.join(data['local_paths']['dir_disaggregated'], 'rs_fuel_disagg.csv'),
         rs_fuel_disagg)
     write_disagg_fuel_sector(
-        os.path.join(data['local_paths']['dir_disattregated'], 'ss_fuel_disagg.csv'),
+        os.path.join(data['local_paths']['dir_disaggregated'], 'ss_fuel_disagg.csv'),
         ss_fuel_disagg)
     write_disagg_fuel_sector(
-        os.path.join(data['local_paths']['dir_disattregated'], 'is_fuel_disagg.csv'),
+        os.path.join(data['local_paths']['dir_disaggregated'], 'is_fuel_disagg.csv'),
         is_fuel_disagg)
 
     logging.debug("... finished script %s", os.path.basename(__file__))

@@ -16,7 +16,7 @@ from energy_demand.plotting import plotting_program
 from energy_demand.geography.weather_station_location import get_closest_station
 from energy_demand.basic import conversions
 
-def main(region_names, weather_regions, data):
+def main(regions, weather_regions, data):
     """Plot weighted HDD (HDD per Region & region pop)
     with national gas demand
     Note
@@ -31,22 +31,21 @@ def main(region_names, weather_regions, data):
     weighted_daily_hdd = np.zeros((365))
     #weighted_daily_hdd_pop = np.zeros((365))
 
-    for region_name in region_names:
-        #logging.warning("==============reg_array " + str(region_name))
+    for region in regions:
 
         # Get closest weather station to `Region`
         closest_weather_station = get_closest_station(
-            data['reg_coord'][region_name]['longitude'],
-            data['reg_coord'][region_name]['latitude'],
+            data['reg_coord'][region]['longitude'],
+            data['reg_coord'][region]['latitude'],
             data['weather_stations'])
 
         #closest_weather_station = '593' # Birmingham station
         closest_weather_region = weather_regions[closest_weather_station]
 
-        reg_pop = data['scenario_data']['population'][base_yr][region_name]
+        reg_pop = data['scenario_data']['population'][base_yr][region]
 
         ##logging.warning("REGPOP: " + str(reg_pop))
-        #logging.warning(closest_weather_region.weather_region_name)
+        #logging.warning(closest_weather_region.name)
         #logging.warning(closest_weather_region.rs_hdd_by)
         #logging.warning(np.sum(closest_weather_region.rs_hdd_by))
 
@@ -808,11 +807,6 @@ def main(region_names, weather_regions, data):
         2930,
         2932]
 
-    # -------------------------
-    # Convert GWh per day to GW
-    # -------------------------
-    # Conversions
-    gas_demand_NDM_2015_2016_gw = list(conversions.gewhperday_to_gw(np.array(gas_demand_NDM_2015_2016_gwh)))
 
     # ----------------
     # Linear regression
@@ -822,7 +816,7 @@ def main(region_names, weather_regions, data):
         return y
 
     slope, intercept, r_value, p_value, std_err = stats.linregress(
-        gas_demand_NDM_2015_2016_gw,
+        gas_demand_NDM_2015_2016_gwh,
         weighted_daily_hdd)
 
     logging.warning("Slope:         %s", str(slope))
@@ -832,42 +826,46 @@ def main(region_names, weather_regions, data):
     logging.warning("std_err:       %s", str(std_err))
     logging.warning("sum:           %s", str(sum(weighted_daily_hdd)))
     logging.warning("av:            %s", str(sum(weighted_daily_hdd) / len(weighted_daily_hdd)))
-    logging.warning("Nr of reg:     %s", str(len(region_names)))
-    logging.warning("nr of days (gray points): " + str(len(gas_demand_NDM_2015_2016_gw)))
+    logging.warning("Nr of reg:     %s", str(len(regions)))
+    logging.warning("nr of days (gray points): " + str(len(gas_demand_NDM_2015_2016_gwh)))
     logging.warning("Nr of days:    " + str(len(weighted_daily_hdd)))
 
     # Set figure size in cm
     plt.figure(figsize=plotting_program.cm2inch(8, 8))
-
-    # Points are days
-    plt.scatter(
-        gas_demand_NDM_2015_2016_gw,
+    
+    # ----------------
+    # PLoty daily GWh (Points are days)
+    # ----------------
+    plt.plot(
+        gas_demand_NDM_2015_2016_gwh,
         weighted_daily_hdd,
+        linestyle='None',
         marker='o',
-        s=2.5, #MARKERSIZE
-        color='black')
+        markersize=2.7,
+        fillstyle='full',
+        markerfacecolor='grey',
+        markeredgewidth=0.2,
+        color='grey')
 
     # ---------------------
     # Plot regression line
     # ---------------------
-    x_plot = np.linspace(10, 90, 500)
+    x_plot = np.linspace(270, 2200, 500)
     y_plot = []
     for x in x_plot:
         y_plot.append(lin_func(x, slope, intercept))
-    plt.plot(x_plot, y_plot, color='black')
+    plt.plot(x_plot, y_plot, color='black', linestyle='--')
 
-    plt.xlim(0, 100)
+    plt.xlim(0, 2300)
 
     # ---------------------
     # Labelling
     # ---------------------
     font_additional_info = {'family': 'arial', 'color': 'black', 'weight': 'normal', 'size': 8}
-    #plt.xlabel("UK non daily metered gas demand [GW]")
+    #plt.xlabel("UK non daily metered gas demand [GWh per day]")
     #plt.ylabel("HDD * POP [mio]")
     plt.title("slope: {}, intercept: {}, r2: {})".format(round(slope, 3), round(intercept, 3), round(r_value, 3)), fontdict=font_additional_info)
-    #plt.text(10, 10, "y = {} x + {}".format(round(slope, 2), round(intercept, 2)), fontdict=font_additional_info)
 
-    # Tight layout
     plt.tight_layout()
     plt.margins(x=0)
     plt.show()

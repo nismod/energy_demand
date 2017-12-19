@@ -10,7 +10,7 @@ def gwh_to_twh(gwh):
     ---------
     gwh : float
         GWh
-    
+
     Returns
     -------
     twh : str
@@ -18,10 +18,6 @@ def gwh_to_twh(gwh):
     """
     twh = gwh / 1000.0
     return twh
-
-def gewhperday_to_gw(gw_per_day):
-    gw = gw_per_day / 24
-    return gw
 
 def ktoe_to_gwh(ktoe):
     """Conversion of ktoe to gwh. As ECUK input

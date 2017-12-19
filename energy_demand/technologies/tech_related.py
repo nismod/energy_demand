@@ -265,18 +265,18 @@ def calc_av_heat_pump_eff_ey(technologies, heat_pump_assump):
 
     return technologies
 
-def generate_heat_pump_from_split(temp_dependent_tech_list, technologies, heat_pump_assump, fueltypes):
-    """Delete all heat_pump from tech dict, define average new heat pump
-    technologies 'av_heat_pump_fueltype' with efficiency depending on installed ratio
+def generate_heat_pump_from_split(technologies, heat_pump_assump, fueltypes):
+    """Define average new heat pumptechnologies 'av_heat_pump_fueltype' with
+    efficiency depending on installed ratio of heat pumps
 
     Arguments
     ----------
-    temp_dependent_tech_list : list
-        List to store temperature dependent technologies (e.g. heat-pumps)
     technologies : dict
         Technologies
     heat_pump_assump : dict
         The split of the ASHP and GSHP
+    fueltypes : dict
+        Fueltypes lookup
 
     Returns
     -------
@@ -291,6 +291,7 @@ def generate_heat_pump_from_split(temp_dependent_tech_list, technologies, heat_p
       (the lowest is selected if different years)
     - Diff method is linear
     """
+    temp_dependent_tech_list = []
     heat_pumps = []
 
     # Calculate average efficiency of heat pump depending on installed ratio
@@ -343,15 +344,11 @@ def generate_heat_pump_from_split(temp_dependent_tech_list, technologies, heat_p
 
         heat_pumps.append(name_av_hp)
 
-    # Remove all heat pumps from tech dict
-    '''for fueltype in heat_pump_assump:
-        for heat_pump_type in heat_pump_assump[fueltype]:
-            del technologies[heat_pump_type]'''
-
     return technologies, temp_dependent_tech_list, heat_pumps
 
 def calc_eff_cy(
-        sim_param,
+        base_yr,
+        curr_yr,
         eff_by,
         eff_ey,
         yr_until_changed,
@@ -364,8 +361,10 @@ def calc_eff_cy(
 
     Arguments
     ----------
-    sim_param : dict
-        Base simulation parameters
+    base_yr : int
+        Base year
+    curr_yr : int
+        Current year
     eff_by : dict
         Base year efficiency
     eff_ey : dict
@@ -394,8 +393,8 @@ def calc_eff_cy(
     # Theoretical maximum efficiency potential if theoretical maximum is linearly calculated
     if diff_method == 'linear':
         theor_max_eff = diffusion.linear_diff(
-            sim_param['base_yr'],
-            sim_param['curr_yr'],
+            base_yr,
+            curr_yr,
             eff_by,
             eff_ey,
             yr_until_changed)
@@ -407,8 +406,8 @@ def calc_eff_cy(
 
     elif diff_method == 'sigmoid':
         theor_max_eff = diffusion.sigmoid_diffusion(
-            sim_param['base_yr'],
-            sim_param['curr_yr'],
+            base_yr,
+            curr_yr,
             yr_until_changed,
             other_enduse_mode_info['sigmoid']['sig_midpoint'],
             other_enduse_mode_info['sigmoid']['sig_steeppness'])
@@ -429,8 +428,6 @@ def generate_ashp_gshp_split(split_hp_gshp_ashp):
     ----------
     split_factor : float
         Fraction of ASHP to GSHP
-    data : dict
-        Data
 
     Returns
     --------

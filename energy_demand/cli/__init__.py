@@ -74,7 +74,9 @@ def run_model(args):
 
     data['weather_stations'], data['temp_data'] = data_loader.load_temp_data(data['local_paths'])
     
-    data['rs_floorarea'], data['ss_floorarea'] = data_loader.virtual_building_datasets(data['lu_reg'], data['sectors']['all_sectors'], data)
+    data['rs_floorarea'], data['ss_floorarea'] = data_loader.virtual_building_datasets(
+        data['lu_reg'], data['sectors']['all_sectors'], 
+        data['local_paths'])
 
     rs_floorarea = defaultdict(dict)
     for year in range(2015, 2101):

@@ -91,8 +91,8 @@ class EDWrapper(SectorModel):
 
         # Criteria
         data['criterias']['virtual_building_stock_criteria'] = True     # True: Run virtual building stock model
-        data['criterias']['plot_HDD_chart'] = True                     # True: Plotting of HDD vs gas chart
-        data['criterias']['validation_criteria'] = True                # True: Plot validation plots
+        data['criterias']['plot_HDD_chart'] = False                     # True: Plotting of HDD vs gas chart
+        data['criterias']['validation_criteria'] = False                # True: Plot validation plots
         data['criterias']['mode_constrained'] = False                   # True: Technologies are defined in ED model and fuel is provided, False: Heat is delievered not per technologies
         data['criterias']['spatial_exliclit_diffusion'] = False          # True: Spatial explicit calculations
 
@@ -148,7 +148,7 @@ class EDWrapper(SectorModel):
         # Get building related data
         if data['criterias']['virtual_building_stock_criteria']:
             rs_floorarea, ss_floorarea = data_loader.virtual_building_datasets(
-                data['lu_reg'], data['sectors']['all_sectors'], data)
+                data['lu_reg'], data['sectors']['all_sectors'], data['local_paths'])
         else:
             pass
             # Load floor area from newcastle

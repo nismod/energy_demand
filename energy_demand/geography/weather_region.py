@@ -18,8 +18,8 @@ class WeatherRegion(object):
 
     Arguments
     ----------
-    weather_region_name : str
-        Unique identifyer of region_name
+    name : str
+        Unique identifyer of weather region
     sim_param : dict
         Simulation parameter
     assumptions : dict
@@ -42,7 +42,7 @@ class WeatherRegion(object):
     """
     def __init__(
             self,
-            weather_region_name,
+            name,
             sim_param,
             assumptions,
             lookups,
@@ -53,7 +53,7 @@ class WeatherRegion(object):
         ):
         """Constructor of weather region
         """
-        self.weather_region_name = weather_region_name
+        self.name = name
 
         # -------
         # Calculate current year temperatures
@@ -62,9 +62,9 @@ class WeatherRegion(object):
             temp_by,
             assumptions['yeardays_month_days'],
             assumptions['strategy_variables'],
-            sim_param,
+            sim_param['base_yr'],
+            sim_param['curr_yr'],
             assumptions['strategy_variables']['climate_change_temp_diff_yr_until_changed'])
-
 
         #Change temp_cy depending on climate assumptions
         rs_t_base_heating_cy = hdd_cdd.sigm_temp(
@@ -140,7 +140,8 @@ class WeatherRegion(object):
             assumptions['technologies'],
             assumptions['tech_list'],
             assumptions['enduse_overall_change']['other_enduse_mode_info'],
-            sim_param,
+            sim_param['base_yr'],
+            sim_param['curr_yr'],
             lookups['fueltype'],
             temp_by,
             temp_cy,
@@ -154,7 +155,8 @@ class WeatherRegion(object):
             assumptions['technologies'],
             assumptions['tech_list'],
             assumptions['enduse_overall_change']['other_enduse_mode_info'],
-            sim_param,
+            sim_param['base_yr'],
+            sim_param['curr_yr'],
             lookups['fueltype'],
             temp_by,
             temp_cy,
@@ -168,7 +170,8 @@ class WeatherRegion(object):
             assumptions['technologies'],
             assumptions['tech_list'],
             assumptions['enduse_overall_change']['other_enduse_mode_info'],
-            sim_param,
+            sim_param['base_yr'],
+            sim_param['curr_yr'],
             lookups['fueltype'],
             temp_by,
             temp_cy,
@@ -575,7 +578,14 @@ def ss_get_sector_enduse_shape(tech_lp, heating_shape, enduse, model_yeardays_nr
 
     return shape_yh_generic_tech, shape_y_dh_generic_tech
 
-def change_temp_climate(temp_data, yeardays_month_days, assumptions_temp_change, sim_param, yr_until_changed):
+def change_temp_climate(
+        temp_data,
+        yeardays_month_days,
+        assumptions_temp_change,
+        base_yr,
+        curr_yr,
+        yr_until_changed
+    ):
     """Change temperature data for every year depending
     on simple climate change assumptions
 
@@ -587,8 +597,10 @@ def change_temp_climate(temp_data, yeardays_month_days, assumptions_temp_change,
         Month containing all yeardays
     assumptions_temp_change : dict
         Assumption on temperature change
-    sim_param : dict
-        Parameters for diffusion
+    base_yr : dict
+        Base year
+    curr_yr : int
+        Current year
     yr_until_changed : int
         Year until change is fully implemented
 
@@ -606,8 +618,8 @@ def change_temp_climate(temp_data, yeardays_month_days, assumptions_temp_change,
 
         # Calculate monthly change in temperature
         lin_diff_factor = diffusion_technologies.linear_diff(
-            base_yr=sim_param['base_yr'],
-            curr_yr=sim_param['curr_yr'],
+            base_yr=base_yr,
+            curr_yr=curr_yr,
             value_start=0,
             value_end=assumptions_temp_change[param_name_month],
             yr_until_changed=yr_until_changed)

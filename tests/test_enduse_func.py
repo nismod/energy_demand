@@ -81,7 +81,7 @@ def test_service_switch():
                 'l_parameter': l_value}
         }
 
-    result = enduse_func.service_switch(
+    result = enduse_func.calc_service_switch(
         tot_service_yh_cy,
         service_tech_by_p,
         tech_increase_service,
@@ -137,7 +137,7 @@ def test_service_switch():
                 'l_parameter': l_value}
         }
 
-    result = enduse_func.service_switch(
+    result = enduse_func.calc_service_switch(
         tot_service_yh_cy,
         service_tech_by_p,
         tech_increase_service,
@@ -195,7 +195,7 @@ def test_service_switch():
                 'l_parameter': l_value}
         }
 
-    result = enduse_func.service_switch(
+    result = enduse_func.calc_service_switch(
         tot_service_yh_cy,
         service_tech_by_p,
         tech_increase_service,
@@ -356,14 +356,13 @@ def test_fuel_to_service():
     technologies['techA'].year_eff_ey = 2020
     lu_fueltypes = {'gas': 0}
 
-    sim_param = {'base_yr': 2015, 'curr_yr': 2020}
-
     tech_stock = technological_stock.TechStock(
         stock_name="stock_name",
-        all_technologies=technologies,
+        technologies=technologies,
         tech_list={'tech_heating_temp_dep': [], 'tech_heating_const': ['techA']},
         other_enduse_mode_info={'linear'},
-        sim_param=sim_param,
+        base_yr=2015,
+        curr_yr=2020,
         lu_fueltypes=lu_fueltypes,
         temp_by=np.ones((365, 24)) + 10,
         temp_cy=np.ones((365, 24)) + 10,
@@ -391,10 +390,11 @@ def test_fuel_to_service():
 
     tech_stock = technological_stock.TechStock(
         stock_name="stock_name",
-        all_technologies=technologies,
+        technologies=technologies,
         tech_list={'tech_heating_temp_dep': [], 'tech_heating_const': ['techA']},
         other_enduse_mode_info={'linear'},
-        sim_param=sim_param,
+        base_yr=2015,
+        curr_yr=2020,
         lu_fueltypes=lu_fueltypes,
         temp_by=np.ones((365, 24)) + 10,
         temp_cy=np.ones((365, 24)) + 10,
@@ -428,16 +428,13 @@ def test_service_to_fuel():
 
     lu_fueltypes = {'gas': 0}
 
-    sim_param = {
-        'base_yr': 2015,
-        'curr_yr': 2020}
-
     tech_stock = technological_stock.TechStock(
         stock_name="stock_name",
-        all_technologies=technologies,
+        technologies=technologies,
         tech_list={'tech_heating_temp_dep': [], 'tech_heating_const': ['techA']},
         other_enduse_mode_info={'linear'},
-        sim_param=sim_param,
+        base_yr=2015,
+        curr_yr=2020,
         lu_fueltypes=lu_fueltypes,
         temp_by=np.ones((365, 24)) + 10,
         temp_cy=np.ones((365, 24)) + 10,
@@ -537,16 +534,14 @@ def test_calc_fuel_tech_y():
     technologies['techA'].year_eff_ey = 2020
     lu_fueltypes = {'gas': 0}
 
-    sim_param = {
-        'base_yr': 2015,
-        'curr_yr': 2020}
     
     tech_stock = technological_stock.TechStock(
         stock_name="stock_name",
-        all_technologies=technologies,
+        technologies=technologies,
         tech_list={'tech_heating_temp_dep': [], 'tech_heating_const': ['techA']},
         other_enduse_mode_info={'linear'},
-        sim_param=sim_param,
+        base_yr=2015,
+        curr_yr=2020,
         lu_fueltypes=lu_fueltypes,
         temp_by=np.ones((365, 24)) + 10,
         temp_cy=np.ones((365, 24)) + 10,
@@ -592,10 +587,11 @@ def test_calc_fuel_tech_yh():
 
     tech_stock = technological_stock.TechStock(
         stock_name="stock_name",
-        all_technologies=technologies,
+        technologies=technologies,
         tech_list={'tech_heating_temp_dep': [], 'tech_heating_const': ['techA']},
         other_enduse_mode_info={'linear'},
-        sim_param={'base_yr': 2015, 'curr_yr': 2020},
+        base_yr=2015,
+        curr_yr=2020,
         lu_fueltypes=lu_fueltypes,
         temp_by=np.ones((365, 24)) + 10,
         temp_cy=np.ones((365, 24)) + 10,
