@@ -511,9 +511,15 @@ def rs_dw_stock(
         region,
         assumptions,
         scenario_data,
-        data,
+        simulated_yrs,
+        dwelling_types,
+        enduses,
+        reg_coord,
+        driver_assumptions,
+        regions,
         curr_yr,
-        base_yr
+        base_yr,
+        virtual_building_stock_criteria
     ):
     """Creates a virtual building stock for every year and region
 
@@ -521,8 +527,6 @@ def rs_dw_stock(
     ----------
     region : dict
         Region name
-    data : dict
-        Data container
     curr_yr : int
         Current year
 
@@ -549,35 +553,35 @@ def rs_dw_stock(
       2.) Replacing 'dwtype_floor_area', 'dwtype_distr' and 'data_floorarea_pp'
           with more specific information from real building stock model
     """
-    if data['criterias']['virtual_building_stock_criteria']:
+    if virtual_building_stock_criteria:
 
         # Get changes in absolute floor area per dwelling type over time
         dwtype_floor_area = get_dwtype_floor_area(
             assumptions['assump_dwtype_floorarea_by'],
             assumptions['assump_dwtype_floorarea_future'],
             base_yr,
-            data['sim_param']['simulated_yrs'])
+            simulated_yrs)
 
         # Get distribution of dwelling types of all simulation years
         dwtype_distr = get_dwtype_distr(
             assumptions['assump_dwtype_distr_by'],
             assumptions['assump_dwtype_distr_future'],
             base_yr,
-            data['sim_param']['simulated_yrs'])
+            simulated_yrs)
 
         # Get floor area per person for every simulation year
         data_floorarea_pp = get_floorare_pp(
-            data['lu_reg'],
+            regions,
             scenario_data['floor_area']['rs_floorarea'],
             scenario_data['population'][base_yr],
             base_yr,
-            data['sim_param']['simulated_yrs'],
+            simulated_yrs,
             assumptions['assump_diff_floorarea_pp'],
             assumptions['assump_diff_floorarea_pp_yr_until_changed'])
 
         # Get fraction of total floorarea for every dwelling type
         floorarea_p = get_floorarea_dwtype_p(
-            data['lookups']['dwtype'],
+            dwelling_types,
             dwtype_floor_area,
             dwtype_distr)
 
@@ -610,13 +614,13 @@ def rs_dw_stock(
     # Only calculate changing
     if curr_yr == base_yr:
         dw_stock_base = generate_dw_existing(
-            driver_assumptions=data['assumptions']['scenario_drivers']['rs_submodule'],
-            scenario_data=data['scenario_data'],
-            enduses=data['enduses']['rs_all_enduses'],
-            reg_coord=data['reg_coord'],
+            driver_assumptions=driver_assumptions,
+            scenario_data=scenario_data,
+            enduses=enduses,
+            reg_coord=reg_coord,
             region=region,
             curr_yr=curr_yr,
-            dw_lu=data['lookups']['dwtype'],
+            dw_lu=dwelling_types,
             floorarea_p=floorarea_p[base_yr],
             floorarea_by=floorarea_by,
             dwtype_age_distr_by=assumptions['dwtype_age_distr'][base_yr],
@@ -628,7 +632,7 @@ def rs_dw_stock(
         dwelling_stock = DwellingStock(
             region,
             dw_stock_base,
-            data['enduses']['rs_all_enduses'])
+            enduses)
     else:
         """The number of people in the base year dwelling stock may change.
         If the floor area pp decreased with constant pop, the same number of
@@ -649,13 +653,13 @@ def rs_dw_stock(
 
         # Generate stock for existing area
         dw_stock_cy = generate_dw_existing(
-            driver_assumptions=data['assumptions']['scenario_drivers']['rs_submodule'],
-            scenario_data=data['scenario_data'],
-            enduses=data['enduses']['rs_all_enduses'],
-            reg_coord=data['reg_coord'],
+            driver_assumptions=driver_assumptions,
+            scenario_data=scenario_data,
+            enduses=enduses,
+            reg_coord=reg_coord,
             region=region,
             curr_yr=curr_yr,
-            dw_lu=data['lookups']['dwtype'],
+            dw_lu=dwelling_types,
             floorarea_p=floorarea_p[curr_yr],
             floorarea_by=remaining_area,
             dwtype_age_distr_by=assumptions['dwtype_age_distr'][base_yr],
@@ -666,11 +670,11 @@ def rs_dw_stock(
         # Append buildings of new floor area to
         if new_floorarea_cy > 0:
             dw_stock_cy = generate_dw_new(
-                assumptions=data['assumptions'],
-                scenario_data=data['scenario_data'],
-                reg_coord=data['reg_coord'],
-                enduses=data['enduses'],
-                dwtypes=data['lookups']['dwtype'],
+                driver_assumptions=driver_assumptions,
+                scenario_data=scenario_data,
+                reg_coord=reg_coord,
+                enduses=enduses,
+                dwtypes=dwelling_types,
                 region=region,
                 curr_yr=curr_yr,
                 floorarea_p_by=floorarea_p[curr_yr],
@@ -684,7 +688,7 @@ def rs_dw_stock(
         dwelling_stock = DwellingStock(
             region,
             dw_stock_cy,
-            data['enduses']['rs_all_enduses'])
+            enduses)
 
     return dwelling_stock
 
@@ -831,7 +835,7 @@ def generate_dw_existing(
     return dw_stock_by
 
 def generate_dw_new(
-        assumptions,
+        driver_assumptions,
         scenario_data,
         reg_coord,
         enduses,
@@ -894,8 +898,8 @@ def generate_dw_new(
                 region=region,
                 coordinates=reg_coord[region],
                 floorarea=dw_type_new_floorarea,
-                enduses=enduses['rs_all_enduses'],
-                driver_assumptions=assumptions['scenario_drivers']['rs_submodule'],
+                enduses=enduses,
+                driver_assumptions=driver_assumptions,
                 population=pop_dwtype_new_build_cy,
                 age=curr_yr,
                 dwtype=dw_type_name,

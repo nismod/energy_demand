@@ -72,15 +72,32 @@ class EnergyDemandModel(object):
                     region,
                     data['assumptions'],
                     data['scenario_data'],
-                    data,
+                    data['sim_param']['simulated_yrs'],
+                    data['lookups']['dwtype'],
+                    data['enduses']['rs_all_enduses'],
+                    data['reg_coord'],
+                    data['assumptions']['scenario_drivers']['rs_submodule'],
+                    data['lu_reg'],
                     data['sim_param']['base_yr'],
-                    data['sim_param']['base_yr'])
+                    data['sim_param']['base_yr'],
+                    data['criterias']['virtual_building_stock_criteria'])
 
                 data['ss_dw_stock'][region][data['sim_param']['base_yr']] = dw_stock.ss_dw_stock(
                     region, data, data['sim_param']['base_yr'], data['sim_param']['base_yr'])
 
                 data['rs_dw_stock'][region][self.curr_yr] = dw_stock.rs_dw_stock(
-                    region, data['assumptions'],data['scenario_data'], data, self.curr_yr, data['sim_param']['base_yr'])
+                    region,
+                    data['assumptions'],
+                    data['scenario_data'],
+                    data['sim_param']['simulated_yrs'],
+                    data['lookups']['dwtype'],
+                    data['enduses']['rs_all_enduses'],
+                    data['reg_coord'],
+                    data['assumptions']['scenario_drivers']['rs_submodule'],
+                    data['lu_reg'],
+                    self.curr_yr, 
+                    data['sim_param']['base_yr'],
+                    data['criterias']['virtual_building_stock_criteria'])
 
                 data['ss_dw_stock'][region][self.curr_yr] = dw_stock.ss_dw_stock(
                     region, data, self.curr_yr, data['sim_param']['base_yr'])
