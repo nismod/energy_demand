@@ -116,7 +116,7 @@ def tempo_spatial_validation(
     # -------------------------------------------
     # Add electricity and gas for transportation sector
     # -------------------------------------------
-    fueltype_elec = lookups['fueltype']['electricity']
+    fueltype_elec = lookups['fueltypes']['electricity']
     fuel_ktoe_transport_2015 = 385
     fuel_national_tranport = np.zeros((lookups['fueltypes_nr']), dtype=float)
 
@@ -146,7 +146,7 @@ def tempo_spatial_validation(
     spatial_validation(
         reg_coord,
         ed_fueltype_regs_yh,
-        lookups['fueltype']['electricity'],
+        lookups['fueltypes']['electricity'],
         'electricity',
         lu_reg,
         subnational_elec,
@@ -157,7 +157,7 @@ def tempo_spatial_validation(
     spatial_validation(
         reg_coord,
         ed_fueltype_regs_yh,
-        lookups['fueltype']['gas'],
+        lookups['fueltypes']['gas'],
         'gas',
         lu_reg,
         subnational_gas,
@@ -171,14 +171,14 @@ def tempo_spatial_validation(
     # Read validation data
     elec_2015_indo, elec_2015_itsdo = elec_national_data.read_raw_elec_2015(local_paths['path_val_nat_elec_data'])
 
-    diff_factor_elec = np.sum(ed_fueltype_national_yh[lookups['fueltype']['electricity']]) / np.sum(elec_2015_indo)
+    diff_factor_elec = np.sum(ed_fueltype_national_yh[lookups['fueltypes']['electricity']]) / np.sum(elec_2015_indo)
     logging.info("... ed difference between modellend and real [percent] %s: ", (1 - diff_factor_elec) * 100)
 
     elec_factored_yh = diff_factor_elec * elec_2015_indo
 
     temporal_validation(
         local_paths,
-        ed_fueltype_national_yh[lookups['fueltype']['electricity']],
+        ed_fueltype_national_yh[lookups['fueltypes']['electricity']],
         elec_factored_yh,
         elec_2015_indo,
         elec_2015_itsdo)
@@ -189,7 +189,7 @@ def tempo_spatial_validation(
     logging.info("...calculate average data and plot per season and fueltype")
 
     calc_av_lp_modelled, calc_lp_modelled = load_profile.calc_av_lp(
-        ed_fueltype_national_yh[lookups['fueltype']['electricity']],
+        ed_fueltype_national_yh[lookups['fueltypes']['electricity']],
         seasons,
         model_yeardays_daytype)
 
@@ -222,14 +222,14 @@ def tempo_spatial_validation(
         "validation_elec_peak_comparison_peakday_yh.pdf",
         local_paths['data_results_validation'],
         elec_2015_indo[peak_day],
-        ed_fueltype_national_yh[lookups['fueltype']['electricity']][peak_day])
+        ed_fueltype_national_yh[lookups['fueltypes']['electricity']][peak_day])
 
     logging.info("...compare peak from max peak factors")
     elec_national_data.compare_peak(
         "validation_elec_peak_comparison_peak_shapes.pdf",
         local_paths['data_results_validation'],
         elec_2015_indo[peak_day],
-        tot_peak_enduses_fueltype[lookups['fueltype']['electricity']])
+        tot_peak_enduses_fueltype[lookups['fueltypes']['electricity']])
 
     # ---------------------------------------------------
     # Validate boxplots for every hour (temporal validation)
@@ -238,7 +238,7 @@ def tempo_spatial_validation(
         "validation_hourly_boxplots_electricity_01.pdf",
         local_paths['data_results_validation'],
         elec_2015_indo,
-        ed_fueltype_national_yh[lookups['fueltype']['electricity']])
+        ed_fueltype_national_yh[lookups['fueltypes']['electricity']])
 
     return
 

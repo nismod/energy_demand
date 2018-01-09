@@ -81,7 +81,7 @@ def scenario_initalisation(path_data_ed, data=False):
     # Residential
     fts_cont['rs_service_tech_by_p'], fts_cont['rs_service_fueltype_tech_by_p'], fts_cont['rs_service_fueltype_by_p'] = s_fuel_to_service.get_service_fueltype_tech(
         data['assumptions']['tech_list'],
-        data['lookups']['fueltype'],
+        data['lookups']['fueltypes'],
         data['assumptions']['rs_fuel_tech_p_by'],
         data['fuels']['rs_fuel_raw_data_enduses'],
         data['assumptions']['technologies'])
@@ -93,7 +93,7 @@ def scenario_initalisation(path_data_ed, data=False):
         data['lookups']['fueltypes_nr'])
     fts_cont['ss_service_tech_by_p'], fts_cont['ss_service_fueltype_tech_by_p'], fts_cont['ss_service_fueltype_by_p'] = s_fuel_to_service.get_service_fueltype_tech(
         data['assumptions']['tech_list'],
-        data['lookups']['fueltype'],
+        data['lookups']['fueltypes'],
         data['assumptions']['ss_fuel_tech_p_by'],
         ss_aggr_sector_fuels,
         data['assumptions']['technologies'])
@@ -105,7 +105,7 @@ def scenario_initalisation(path_data_ed, data=False):
         data['lookups']['fueltypes_nr'])
     fts_cont['is_service_tech_by_p'], fts_cont['is_service_fueltype_tech_by_p'], fts_cont['is_service_fueltype_by_p'] = s_fuel_to_service.get_service_fueltype_tech(
         data['assumptions']['tech_list'],
-        data['lookups']['fueltype'],
+        data['lookups']['fueltypes'],
         data['assumptions']['is_fuel_tech_p_by'],
         is_aggr_sector_fuels,
         data['assumptions']['technologies'])

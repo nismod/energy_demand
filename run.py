@@ -94,7 +94,7 @@ class EDWrapper(SectorModel):
         data['criterias']['plot_HDD_chart'] = False                     # True: Plotting of HDD vs gas chart
         data['criterias']['validation_criteria'] = False                # True: Plot validation plots
         data['criterias']['mode_constrained'] = False                   # True: Technologies are defined in ED model and fuel is provided, False: Heat is delievered not per technologies
-        data['criterias']['spatial_exliclit_diffusion'] = False          # True: Spatial explicit calculations
+        data['criterias']['spatial_exliclit_diffusion'] = False         # True: Spatial explicit calculations
 
         data['sim_param']['base_yr'] = 2015                             # Base year
         data['sim_param']['curr_yr'] = data['sim_param']['base_yr']
@@ -173,7 +173,8 @@ class EDWrapper(SectorModel):
         data['assumptions'] = non_param_assumptions.load_non_param_assump(
             data['sim_param']['base_yr'], data['paths'], data['enduses'], data['lookups'])
         data['assumptions']['seasons'] = date_prop.read_season(year_to_model=2015)
-        data['assumptions']['model_yeardays_daytype'], data['assumptions']['yeardays_month'], data['assumptions']['yeardays_month_days'] = date_prop.get_model_yeardays_datype(year_to_model=2015)
+        data['assumptions']['model_yeardays_daytype'], data['assumptions']['yeardays_month'], data['assumptions']['yeardays_month_days'] = date_prop.get_model_yeardays_datype(
+            year_to_model=2015)
 
         data['tech_lp'] = data_loader.load_data_profiles(
             data['paths'],
@@ -322,6 +323,7 @@ class EDWrapper(SectorModel):
         # Region related information
         data['lu_reg'] = self.get_region_names(REGION_SET_NAME)
         data['lu_reg'] = data['lu_reg'][:NR_OF_MODELLEd_REGIONS]
+    
         reg_centroids = self.get_region_centroids(REGION_SET_NAME)
         data['reg_coord'] = self.get_long_lat_decimal_degrees(reg_centroids)
         data['reg_nrs'] = len(data['lu_reg'])
@@ -479,7 +481,7 @@ class EDWrapper(SectorModel):
         # the values are arrays with region and intervals
         # --------------------------------
         supply_results = {}
-        for fueltype_str, fueltype_int in data['lookups']['fueltype'].items():
+        for fueltype_str, fueltype_int in data['lookups']['fueltypes'].items():
             supply_results[fueltype_str] = supply_results_unprocessed[fueltype_int]
 
         return supply_results
@@ -510,8 +512,7 @@ class EDWrapper(SectorModel):
         Arguments
         =========
         path_all_strategy_params : dict
-            Path to yaml file where all strategy variables
-            are defined
+            Path to yaml file where all strategy variables are defined
         data : dict
             Dict with all data
         assumptions : dict
@@ -529,11 +530,12 @@ class EDWrapper(SectorModel):
 
         # Get variable from dict and reassign and delete from data
         for var_name in all_strategy_variables:
-            strategy_variables[var_name] = data[var_name]
             logging.info("Load strategy parameter: {}  {}".format(var_name, data[var_name]))
+
+            strategy_variables[var_name] = data[var_name]
             del data[var_name]
 
-        # Add to assumptoins
+        # Add to assumptions
         assumptions['strategy_variables'] = strategy_variables
 
         return assumptions

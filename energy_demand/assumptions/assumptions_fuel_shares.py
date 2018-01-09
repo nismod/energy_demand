@@ -51,7 +51,7 @@ def assign_by_fuel_tech_p(assumptions, enduses, lookups):
     # rs_lighting
     # calculated on the basis of ECUK Table 3.08
     # ---------------
-    assumptions['rs_fuel_tech_p_by']['rs_lighting'][lookups['fueltype']['electricity']] = {
+    assumptions['rs_fuel_tech_p_by']['rs_lighting'][lookups['fueltypes']['electricity']] = {
         'standard_lighting_bulb': 0.04,
         'halogen': 0.56,
         'fluorescent_strip_lightinging' : 0.07,
@@ -62,7 +62,7 @@ def assign_by_fuel_tech_p(assumptions, enduses, lookups):
     # rs_cold
     # calculated on the basis of ECUK Table 3.08
     # ---------------
-    assumptions['rs_fuel_tech_p_by']['rs_cold'][lookups['fueltype']['electricity']] = {
+    assumptions['rs_fuel_tech_p_by']['rs_cold'][lookups['fueltypes']['electricity']] = {
         'chest_freezer': 0.087,
         'fridge_freezer': 0.588,
         'refrigerator': 0.143,
@@ -73,18 +73,18 @@ def assign_by_fuel_tech_p(assumptions, enduses, lookups):
     # calculated on the basis of ECUK Table 3.08 and assumption that 5-10% house households
     # ---------------
     # use induction hobs)
-    assumptions['rs_fuel_tech_p_by']['rs_cooking'][lookups['fueltype']['electricity']] = {
+    assumptions['rs_fuel_tech_p_by']['rs_cooking'][lookups['fueltypes']['electricity']] = {
         'hob_electricity': 0.95,
         'hob_induction_electricity': 0.05} # https://productspy.co.uk/are-induction-hobs-safe/ (5-10%)
 
-    assumptions['rs_fuel_tech_p_by']['rs_cooking'][lookups['fueltype']['gas']] = {
+    assumptions['rs_fuel_tech_p_by']['rs_cooking'][lookups['fueltypes']['gas']] = {
         'hob_gas': 1.0}
 
     # ---------------
     # rs_wet
     # calculated on the basis of EUCK Table 3.08
     # ---------------
-    assumptions['rs_fuel_tech_p_by']['rs_wet'][lookups['fueltype']['electricity']] = {
+    assumptions['rs_fuel_tech_p_by']['rs_wet'][lookups['fueltypes']['electricity']] = {
         'washing_machine': 0.305,
         'washer_dryer': 0.157,
         'dishwasher': 0.220,
@@ -93,13 +93,13 @@ def assign_by_fuel_tech_p(assumptions, enduses, lookups):
     # ---------------
     # rs_space_heating
     # ---------------
-    assumptions['rs_fuel_tech_p_by']['rs_space_heating'][lookups['fueltype']['solid_fuel']] = {
+    assumptions['rs_fuel_tech_p_by']['rs_space_heating'][lookups['fueltypes']['solid_fuel']] = {
         'boiler_solid_fuel': 1.0}
 
-    assumptions['rs_fuel_tech_p_by']['rs_space_heating'][lookups['fueltype']['oil']] = {
+    assumptions['rs_fuel_tech_p_by']['rs_space_heating'][lookups['fueltypes']['oil']] = {
         'boiler_oil': 1.0}
 
-    assumptions['rs_fuel_tech_p_by']['rs_space_heating'][lookups['fueltype']['gas']] = {
+    assumptions['rs_fuel_tech_p_by']['rs_space_heating'][lookups['fueltypes']['gas']] = {
         'boiler_gas': 0.98,
         'stirling_micro_CHP': 0.02}
 
@@ -107,15 +107,15 @@ def assign_by_fuel_tech_p(assumptions, enduses, lookups):
     # mio households use storage heating == 42.5%..Hoever,
     # often more flats and more fuel poverty and some heatpumps,
     # i.e. lower demands (e.g. redue certain percentage)
-    assumptions['rs_fuel_tech_p_by']['rs_space_heating'][lookups['fueltype']['electricity']] = {
+    assumptions['rs_fuel_tech_p_by']['rs_space_heating'][lookups['fueltypes']['electricity']] = {
         'heat_pumps_electricity': 0.04, # 0.02 Hannon (2015) 04
         'storage_heater_electricity': 0.40,
         'secondary_heater_electricity': 0.56} #0.56
 
-    assumptions['rs_fuel_tech_p_by']['rs_space_heating'][lookups['fueltype']['biomass']] = {
+    assumptions['rs_fuel_tech_p_by']['rs_space_heating'][lookups['fueltypes']['biomass']] = {
         'boiler_biomass': 1.0}
 
-    assumptions['rs_fuel_tech_p_by']['rs_space_heating'][lookups['fueltype']['hydrogen']] = {
+    assumptions['rs_fuel_tech_p_by']['rs_space_heating'][lookups['fueltypes']['hydrogen']] = {
         'boiler_hydrogen': 1.0,
         'heat_pumps_hydrogen': 0.0}
 
@@ -123,22 +123,22 @@ def assign_by_fuel_tech_p(assumptions, enduses, lookups):
     # Water heating
     # Calculated based on TODOTODO
     # ---------------
-    assumptions['rs_fuel_tech_p_by']['rs_water_heating'][lookups['fueltype']['solid_fuel']] = {
+    assumptions['rs_fuel_tech_p_by']['rs_water_heating'][lookups['fueltypes']['solid_fuel']] = {
         'boiler_solid_fuel': 1.0}
 
-    assumptions['rs_fuel_tech_p_by']['rs_water_heating'][lookups['fueltype']['oil']] = {
+    assumptions['rs_fuel_tech_p_by']['rs_water_heating'][lookups['fueltypes']['oil']] = {
         'boiler_oil': 1.0}
 
-    assumptions['rs_fuel_tech_p_by']['rs_water_heating'][lookups['fueltype']['gas']] = {
+    assumptions['rs_fuel_tech_p_by']['rs_water_heating'][lookups['fueltypes']['gas']] = {
         'boiler_gas': 1.0}
 
-    assumptions['rs_fuel_tech_p_by']['rs_water_heating'][lookups['fueltype']['electricity']] = {
+    assumptions['rs_fuel_tech_p_by']['rs_water_heating'][lookups['fueltypes']['electricity']] = {
         'boiler_electricity': 1.0}
 
-    assumptions['rs_fuel_tech_p_by']['rs_water_heating'][lookups['fueltype']['biomass']] = {
+    assumptions['rs_fuel_tech_p_by']['rs_water_heating'][lookups['fueltypes']['biomass']] = {
         'boiler_biomass': 1.0}
 
-    assumptions['rs_fuel_tech_p_by']['rs_water_heating'][lookups['fueltype']['hydrogen']] = {
+    assumptions['rs_fuel_tech_p_by']['rs_water_heating'][lookups['fueltypes']['hydrogen']] = {
         'boiler_hydrogen': 1.0}
 
     # ===================
@@ -148,23 +148,23 @@ def assign_by_fuel_tech_p(assumptions, enduses, lookups):
     # ----------------
     # ss_space_heating
     # ----------------
-    assumptions['ss_fuel_tech_p_by']['ss_space_heating'][lookups['fueltype']['solid_fuel']] = {
+    assumptions['ss_fuel_tech_p_by']['ss_space_heating'][lookups['fueltypes']['solid_fuel']] = {
         'boiler_solid_fuel': 1.0}
 
-    assumptions['ss_fuel_tech_p_by']['ss_space_heating'][lookups['fueltype']['gas']] = {
+    assumptions['ss_fuel_tech_p_by']['ss_space_heating'][lookups['fueltypes']['gas']] = {
         'boiler_gas': 1.0}
 
-    assumptions['ss_fuel_tech_p_by']['ss_space_heating'][lookups['fueltype']['electricity']] = {
+    assumptions['ss_fuel_tech_p_by']['ss_space_heating'][lookups['fueltypes']['electricity']] = {
         'boiler_electricity': 0.96,
         'heat_pumps_electricity': 0.04}
 
-    assumptions['ss_fuel_tech_p_by']['ss_space_heating'][lookups['fueltype']['oil']] = {
+    assumptions['ss_fuel_tech_p_by']['ss_space_heating'][lookups['fueltypes']['oil']] = {
         'boiler_oil': 1.0}
 
-    assumptions['ss_fuel_tech_p_by']['ss_space_heating'][lookups['fueltype']['biomass']] = {
+    assumptions['ss_fuel_tech_p_by']['ss_space_heating'][lookups['fueltypes']['biomass']] = {
         'boiler_biomass': 1.0}
 
-    assumptions['ss_fuel_tech_p_by']['ss_space_heating'][lookups['fueltype']['hydrogen']] = {
+    assumptions['ss_fuel_tech_p_by']['ss_space_heating'][lookups['fueltypes']['hydrogen']] = {
         'boiler_hydrogen': 1.0,
         'heat_pumps_hydrogen': 0.0}
 
@@ -178,23 +178,23 @@ def assign_by_fuel_tech_p(assumptions, enduses, lookups):
     # ----------------
     # is_space_heating
     # ----------------
-    assumptions['is_fuel_tech_p_by']['is_space_heating'][lookups['fueltype']['solid_fuel']] = {
+    assumptions['is_fuel_tech_p_by']['is_space_heating'][lookups['fueltypes']['solid_fuel']] = {
         'boiler_solid_fuel': 1.0}
 
-    assumptions['is_fuel_tech_p_by']['is_space_heating'][lookups['fueltype']['gas']] = {
+    assumptions['is_fuel_tech_p_by']['is_space_heating'][lookups['fueltypes']['gas']] = {
         'boiler_gas': 1.0}
 
-    assumptions['is_fuel_tech_p_by']['is_space_heating'][lookups['fueltype']['electricity']] = {
+    assumptions['is_fuel_tech_p_by']['is_space_heating'][lookups['fueltypes']['electricity']] = {
         'boiler_electricity': 0.5,
         'heat_pumps_electricity': 0.5} #  'av_heat_pump_electricity': 0.02Hannon 2015, heat-pump share in uk
 
-    assumptions['is_fuel_tech_p_by']['is_space_heating'][lookups['fueltype']['oil']] = {
+    assumptions['is_fuel_tech_p_by']['is_space_heating'][lookups['fueltypes']['oil']] = {
         'boiler_oil': 1.0}
 
-    assumptions['is_fuel_tech_p_by']['is_space_heating'][lookups['fueltype']['biomass']] = {
+    assumptions['is_fuel_tech_p_by']['is_space_heating'][lookups['fueltypes']['biomass']] = {
         'boiler_biomass': 1.0}
 
-    assumptions['is_fuel_tech_p_by']['is_space_heating'][lookups['fueltype']['hydrogen']] = {
+    assumptions['is_fuel_tech_p_by']['is_space_heating'][lookups['fueltypes']['hydrogen']] = {
         'boiler_hydrogen': 1.0,
         'heat_pumps_hydrogen': 0.0}
 

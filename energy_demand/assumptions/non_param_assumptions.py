@@ -170,7 +170,7 @@ def load_non_param_assump(base_yr, paths, enduses, lookups):
     # ============================================================
     assumptions['technologies'], assumptions['tech_list'] = read_data.read_technologies(
         paths['path_technologies'],
-        lookups['fueltype'])
+        lookups['fueltypes'])
 
     # --Heat pumps. Share of installed heat pumps in base year (ASHP to GSHP)
     assumptions['split_hp_gshp_to_ashp_by'] = 0.1
@@ -181,7 +181,7 @@ def load_non_param_assump(base_yr, paths, enduses, lookups):
     assumptions['technologies'], assumptions['tech_list']['tech_heating_temp_dep'], assumptions['heat_pumps'] = tech_related.generate_heat_pump_from_split(
         assumptions['technologies'],
         assumptions['installed_heat_pump_by'],
-        lookups['fueltype'])
+        lookups['fueltypes'])
 
     # ============================================================
     # Enduse technology definition list
@@ -223,11 +223,11 @@ def load_non_param_assump(base_yr, paths, enduses, lookups):
     # Scenaric fuel switches
     # ============================================================
     assumptions['rs_fuel_switches'] = read_data.read_fuel_switches(
-        paths['rs_path_fuel_switches'], enduses, lookups['fueltype'])
+        paths['rs_path_fuel_switches'], enduses, lookups['fueltypes'])
     assumptions['ss_fuel_switches'] = read_data.read_fuel_switches(
-        paths['ss_path_fuel_switches'], enduses, lookups['fueltype'])
+        paths['ss_path_fuel_switches'], enduses, lookups['fueltypes'])
     assumptions['is_fuel_switches'] = read_data.read_fuel_switches(
-        paths['is_path_fuel_switches'], enduses, lookups['fueltype'])
+        paths['is_path_fuel_switches'], enduses, lookups['fueltypes'])
 
     # ============================================================
     # Read in scenaric service switches

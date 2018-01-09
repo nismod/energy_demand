@@ -29,7 +29,7 @@ def load_basic_lookups():
         3: 'flat',
         4: 'bungalow'}
 
-    lookups['fueltype'] = {
+    lookups['fueltypes'] = {
         'solid_fuel': 0,
         'gas': 1,
         'electricity': 2,
@@ -38,7 +38,7 @@ def load_basic_lookups():
         'hydrogen': 5,
         'heat': 6}
 
-    lookups['fueltypes_nr'] = int(len(lookups['fueltype']))
+    lookups['fueltypes_nr'] = int(len(lookups['fueltypes']))
 
     return lookups
 
@@ -405,7 +405,7 @@ def load_data_tech_profiles(tech_lp, paths):
     #from energy_demand.plotting import plotting_results
     #plotting_results.plot_load_profile_dh(data['rs_lp_heating_boilers_dh'][0] * 45.8)
     #plotting_results.plot_load_profile_dh(data['rs_lp_heating_boilers_dh'][1] * 45.8)
-    #plotting_results.plot_load_profile_dh(data['rs_lp_heating_boilers_dh'][data['lookups']['fueltype']['electricity']] * 45.8)
+    #plotting_results.plot_load_profile_dh(data['rs_lp_heating_boilers_dh'][data['lookups']['fueltypes']['electricity']] * 45.8)
 
     # Add fuel data of other model enduses to the fuel data table (E.g. ICT or wastewater)
     tech_lp['rs_lp_storage_heating_dh'] = read_data.read_load_shapes_tech(
@@ -567,7 +567,7 @@ def load_fuels(paths, lookups):
 
     # Industry fuel (ECUK Table 4.04)
     is_fuel_raw_data_enduses, sectors['is_sectors'], enduses['is_all_enduses'] = read_data.read_csv_base_data_industry(
-        paths['is_fuel_raw_data_enduses'], lookups['fueltypes_nr'], lookups['fueltype'])
+        paths['is_fuel_raw_data_enduses'], lookups['fueltypes_nr'], lookups['fueltypes'])
 
     all_enduses = []
     for enduse in enduses.values():

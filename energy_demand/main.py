@@ -1,6 +1,10 @@
 """
 Energy Demand Model
 ===================
+Contains the function `energy_demand_model` which is used
+to run the energy demand model
+
+
 - run in constrained mode
 Development checklist: https://nismod.github.io/docs/development-checklist.html
 https://nismod.github.io/docs/
@@ -17,7 +21,7 @@ import os
 import sys
 import logging
 import numpy as np
-from energy_demand import energy_model
+from energy_demand import model
 from energy_demand.basic import testing_functions as testing
 
 def energy_demand_model(data, fuel_in=0, fuel_in_elec=0):
@@ -43,7 +47,7 @@ def energy_demand_model(data, fuel_in=0, fuel_in_elec=0):
     """
     fuel_in, fuel_in_elec, fuel_in_gas = testing.test_function_fuel_sum(data)
 
-    model_run_object = energy_model.EnergyModel(
+    model_run_object = model.EnergyDemandModel(
         regions=data['lu_reg'],
         data=data)
 
@@ -56,15 +60,15 @@ def energy_demand_model(data, fuel_in=0, fuel_in_elec=0):
     print("FUEL DIFFERENCE:     " + str(round((np.sum(model_run_object.ed_fueltype_national_yh) - fuel_in), 4)))
     print("--")
     print("elec fuel in:        " + str(fuel_in_elec))
-    print("elec fuel out:       " + str(np.sum(model_run_object.ed_fueltype_national_yh[data['lookups']['fueltype']['electricity']])))
-    print("ele fuel diff:       " + str(round(np.sum(model_run_object.ed_fueltype_national_yh[data['lookups']['fueltype']['electricity']]), 4) - fuel_in_elec))
+    print("elec fuel out:       " + str(np.sum(model_run_object.ed_fueltype_national_yh[data['lookups']['fueltypes']['electricity']])))
+    print("ele fuel diff:       " + str(round(np.sum(model_run_object.ed_fueltype_national_yh[data['lookups']['fueltypes']['electricity']]), 4) - fuel_in_elec))
     print("--")
     print("gas fuel in:         " + str(fuel_in_gas))
-    print("gas fuel out:        " + str(np.sum(model_run_object.ed_fueltype_national_yh[data['lookups']['fueltype']['gas']])))
-    print("gas diff:            " + str(round(np.sum(model_run_object.ed_fueltype_national_yh[data['lookups']['fueltype']['gas']]), 4) - fuel_in_gas))
+    print("gas fuel out:        " + str(np.sum(model_run_object.ed_fueltype_national_yh[data['lookups']['fueltypes']['gas']])))
+    print("gas diff:            " + str(round(np.sum(model_run_object.ed_fueltype_national_yh[data['lookups']['fueltypes']['gas']]), 4) - fuel_in_gas))
     print("--")
-    print("Diff elec %:         " + str((1/(round(np.sum(model_run_object.ed_fueltype_national_yh[data['lookups']['fueltype']['electricity']]), 4))) * fuel_in_elec))
-    print("Diff gas %:          " + str((1/(round(np.sum(model_run_object.ed_fueltype_national_yh[data['lookups']['fueltype']['gas']]), 4))) * fuel_in_gas))
+    print("Diff elec %:         " + str((1/(round(np.sum(model_run_object.ed_fueltype_national_yh[data['lookups']['fueltypes']['electricity']]), 4))) * fuel_in_elec))
+    print("Diff gas %:          " + str((1/(round(np.sum(model_run_object.ed_fueltype_national_yh[data['lookups']['fueltypes']['gas']]), 4))) * fuel_in_gas))
     print("================================================")
 
     logging.info("...finished running energy demand model simulation")

@@ -69,22 +69,22 @@ def test_function_fuel_sum(data):
     for region in data['rs_fuel_disagg']:
         for enduse in data['rs_fuel_disagg'][region]:
             fuel_in += np.sum(data['rs_fuel_disagg'][region][enduse])
-            fuel_in_elec += np.sum(data['rs_fuel_disagg'][region][enduse][data['lookups']['fueltype']['electricity']])
-            fuel_in_gas += np.sum(data['rs_fuel_disagg'][region][enduse][data['lookups']['fueltype']['gas']])
+            fuel_in_elec += np.sum(data['rs_fuel_disagg'][region][enduse][data['lookups']['fueltypes']['electricity']])
+            fuel_in_gas += np.sum(data['rs_fuel_disagg'][region][enduse][data['lookups']['fueltypes']['gas']])
 
     for region in data['ss_fuel_disagg']:
         for sector in data['ss_fuel_disagg'][region]:
             for enduse in data['ss_fuel_disagg'][region][sector]:
                 fuel_in += np.sum(data['ss_fuel_disagg'][region][sector][enduse])
-                fuel_in_elec += np.sum(data['ss_fuel_disagg'][region][sector][enduse][data['lookups']['fueltype']['electricity']])
-                fuel_in_gas += np.sum(data['ss_fuel_disagg'][region][sector][enduse][data['lookups']['fueltype']['gas']])
+                fuel_in_elec += np.sum(data['ss_fuel_disagg'][region][sector][enduse][data['lookups']['fueltypes']['electricity']])
+                fuel_in_gas += np.sum(data['ss_fuel_disagg'][region][sector][enduse][data['lookups']['fueltypes']['gas']])
 
     for region in data['is_fuel_disagg']:
         for sector in data['is_fuel_disagg'][region]:
             for enduse in data['is_fuel_disagg'][region][sector]:
                 fuel_in += np.sum(data['is_fuel_disagg'][region][sector][enduse])
-                fuel_in_elec += np.sum(data['is_fuel_disagg'][region][sector][enduse][data['lookups']['fueltype']['electricity']])
-                fuel_in_gas += np.sum(data['is_fuel_disagg'][region][sector][enduse][data['lookups']['fueltype']['gas']])
+                fuel_in_elec += np.sum(data['is_fuel_disagg'][region][sector][enduse][data['lookups']['fueltypes']['electricity']])
+                fuel_in_gas += np.sum(data['is_fuel_disagg'][region][sector][enduse][data['lookups']['fueltypes']['gas']])
 
     return fuel_in, fuel_in_elec, fuel_in_gas
 

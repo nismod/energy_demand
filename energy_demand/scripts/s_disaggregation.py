@@ -571,7 +571,7 @@ def write_disagg_fuel(path_to_txt, data):
     """
     file = open(path_to_txt, "w")
     file.write("{}, {}, {}, {}".format(
-        'region', 'enduse', 'fueltype', 'fuel') + '\n'
+        'region', 'enduse', 'fueltypes', 'fuel') + '\n'
               )
 
     for region, enduses in data.items():
@@ -598,7 +598,7 @@ def write_disagg_fuel_ts(path_to_txt, data):
     """
     file = open(path_to_txt, "w")
     file.write("{}, {}, {}".format(
-        'region', 'fueltype', 'fuel') + '\n'
+        'region', 'fueltypes', 'fuel') + '\n'
               )
 
     for region, fuels in data.items():
@@ -622,7 +622,7 @@ def write_disagg_fuel_sector(path_to_txt, data):
     """
     file = open(path_to_txt, "w")
     file.write("{}, {}, {}, {}, {}".format(
-        'region', 'enduse', 'sector', 'fueltype', 'fuel') + '\n')
+        'region', 'enduse', 'sector', 'fueltypes', 'fuel') + '\n')
 
     for region, sectors in data.items():
         for sector, enduses in sectors.items():
