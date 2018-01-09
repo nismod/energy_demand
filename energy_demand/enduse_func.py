@@ -15,19 +15,19 @@ from energy_demand.technologies import diffusion_technologies
 from energy_demand.technologies import fuel_service_switch
 
 class Enduse(object):
-    """Enduse Class (Residential, Service and Industry)
+    """Enduse Class for all endueses in each SubModel
 
     For every region and sector, a different instance
     is generated. In this class, first the change in
-    energy demand is calculated on a yearls temporal scale.
+    energy demand is calculated on a annual temporal scale.
     Calculations are performed in a cascade (e.g. first
     reducing climate change induced savings, then substracting
-    further behavioural savings etc.). After yearly calculations,
+    further behavioral savings etc.). After annual calculations,
     the demand is converted to hourly demand.
 
     Also within this function, the fuel inputs are converted
-    to energy service (short: service) and later on
-    converted back to fuel demand.
+    to energy service (short: service) and converted back to
+    fuels (e.g. electricit).
 
     Arguments
     ----------
@@ -35,8 +35,6 @@ class Enduse(object):
         Region name
     scenario_data : dict
         Scenario data
-    lookups : dict
-        Lookups
     assumptions : dict
         Assumptions
     non_regional_lp_stock : dict
@@ -61,9 +59,9 @@ class Enduse(object):
         Fuel tech assumtions in base year
     tech_increased_service : dict
         Technologies per enduse with increased service due to scenarios
-    tech_decreased_share : dict
+    tech_decreased_service : dict
         Technologies per enduse with decreased service due to scenarios
-    tech_constant_share : dict
+    tech_constant_service : dict
         Technologies per enduse with constat service
     sig_param_tech : dict
         Sigmoid parameters
@@ -75,7 +73,7 @@ class Enduse(object):
         Dwelling stock
     reg_scen_drivers : bool,default=None
         Scenario drivers per enduse
-    crit_flat_profile : bool,default=False
+    flat_profile_crit : bool,default=False
         Criteria of enduse has a flat shape or not
 
     Note
@@ -83,7 +81,8 @@ class Enduse(object):
     - Load profiles are assigned independently of the fueltype, i.e.
       the same profiles are assumed to hold true across different fueltypes
 
-    - ``self.fuel_new_y`` is always overwritten in the cascade of calculations
+    - ``self.fuel_new_y`` is always overwritten
+      in the cascade of calculations
 
     Warning
     -------
@@ -95,7 +94,6 @@ class Enduse(object):
             self,
             region_name,
             scenario_data,
-            lookups,
             assumptions,
             non_regional_lp_stock,
             sim_param,
@@ -108,15 +106,17 @@ class Enduse(object):
             service_switches,
             fuel_tech_p_by,
             tech_increased_service,
-            tech_decreased_share,
-            tech_constant_share,
+            tech_decreased_service,
+            tech_constant_service,
             sig_param_tech,
             enduse_overall_change,
             regional_lp_stock,
             criterias,
+            fueltypes_nr,
+            fueltypes,
             dw_stock=False,
             reg_scen_drivers=None,
-            crit_flat_profile=False,
+            flat_profile_crit=False,
         ):
         """Enduse class constructor
         """
@@ -124,13 +124,13 @@ class Enduse(object):
         self.region_name = region_name
         self.enduse = enduse
         self.fuel_new_y = fuel
-        self.crit_flat_profile = crit_flat_profile
+        self.flat_profile_crit = flat_profile_crit
 
         if np.sum(fuel) == 0: #If enduse has no fuel return empty shapes
-            self.crit_flat_profile = True
-            self.fuel_y = np.zeros((lookups['fueltypes_nr']), dtype=float)
+            self.flat_profile_crit = True
+            self.fuel_y = np.zeros((fueltypes_nr), dtype=float)
             self.fuel_yh = 0
-            self.fuel_peak_dh = np.zeros((lookups['fueltypes_nr'], 24), dtype=float)
+            self.fuel_peak_dh = np.zeros((fueltypes_nr, 24), dtype=float)
             self.fuel_peak_h = 0
         else:
             # Get correct parameters depending on model configuration
@@ -197,7 +197,7 @@ class Enduse(object):
                 Note: for heating, technologies need to be assigned. Otherwise,
                 here there will be problems
                 """
-                if crit_flat_profile:
+                if flat_profile_crit:
                     self.fuel_y = self.fuel_new_y * assumptions['model_yeardays_nrs'] / 365.0
                 else:
                     self.fuel_yh, self.fuel_peak_dh, self.fuel_peak_h = assign_lp_no_techs(
@@ -228,7 +228,7 @@ class Enduse(object):
                     self.enduse_techs,
                     fuel_tech_p_by,
                     tech_stock,
-                    lookups['fueltype'],
+                    fueltypes,
                     mode_constrained)
 
                 # ------------------------------------
@@ -261,8 +261,8 @@ class Enduse(object):
                         tot_service_y_cy,
                         service_tech_cy_p,
                         tech_increased_service,
-                        tech_decreased_share,
-                        tech_constant_share,
+                        tech_decreased_service,
+                        tech_constant_service,
                         sig_param_tech,
                         sim_param['curr_yr'])
 
@@ -278,7 +278,8 @@ class Enduse(object):
                     enduse,
                     service_tech_y_cy,
                     tech_stock,
-                    lookups,
+                    fueltypes_nr,
+                    fueltypes,
                     mode_constrained)
 
                 self.fuel_y = self.fuel_new_y
@@ -286,8 +287,14 @@ class Enduse(object):
                 # ------------------------------------------
                 # Assign load profiles
                 # ------------------------------------------
-                if self.crit_flat_profile: # NEW INSERTED AGAIN
-                    self.fuel_y = calc_fuel_tech_y(enduse, tech_stock, fuel_tech_y, lookups, mode_constrained)
+                if self.flat_profile_crit: # NEW INSERTED AGAIN
+                    self.fuel_y = calc_fuel_tech_y(
+                        enduse,
+                        tech_stock,
+                        fuel_tech_y,
+                        fueltypes_nr,
+                        fueltypes,
+                        mode_constrained)
                 else:
                     #---NON-PEAK
                     fuel_yh = calc_fuel_tech_yh(
@@ -297,8 +304,8 @@ class Enduse(object):
                         fuel_tech_y,
                         tech_stock,
                         load_profiles,
-                        lookups['fueltypes_nr'],
-                        lookups['fueltype'],
+                        fueltypes_nr,
+                        fueltypes,
                         mode_constrained,
                         assumptions['model_yeardays_nrs'])
 
@@ -312,7 +319,7 @@ class Enduse(object):
                         fuel_yh,
                         tech_stock,
                         load_profiles,
-                        lookups)
+                        fueltypes_nr)
 
                     # ---------------------------------------
                     # Demand Management (peak shaving)
@@ -352,7 +359,7 @@ class Enduse(object):
                             self.fuel_yh,
                             tech_stock,
                             load_profiles,
-                            lookups)
+                            fueltypes_nr)
 
                         self.fuel_peak_h = lp.calk_peak_h_dh(self.fuel_peak_dh)
 
@@ -576,7 +583,7 @@ def calc_peak_tech_dh(
         fuel_yh,
         tech_stock,
         load_profile,
-        lookups
+        fueltypes_nr
     ):
     """Calculate peak demand for every fueltype
 
@@ -590,6 +597,8 @@ def calc_peak_tech_dh(
         Technology stock
     load_profile : object
         Load profile
+    fueltypes_nr : int
+        Number of fueltypes
 
     Returns
     -------
@@ -605,7 +614,7 @@ def calc_peak_tech_dh(
         the dh peak day profile is not read in from technology
         stock but from shape_yh of peak day.
     """
-    fuels_peak_dh = np.zeros((lookups['fueltypes_nr'], 24), dtype=float)
+    fuels_peak_dh = np.zeros((fueltypes_nr, 24), dtype=float)
 
     for tech in enduse_techs:
         tech_type = tech_stock.get_tech_attr(enduse, tech, 'tech_type')
@@ -722,7 +731,7 @@ def calc_fuel_tech_yh(
     mode_constrained : bool
         Mode criteria
     model_yeardays_nrs : int
-        Number of modelled days
+        Number of modelled yeardays
 
     Return
     ------
@@ -775,17 +784,28 @@ def calc_fuel_tech_yh(
 
     return fuels_yh
 
-def calc_fuel_tech_y(enduse, tech_stock, fuel_tech_y, lookups, mode_constrained):
+def calc_fuel_tech_y(
+        enduse,
+        tech_stock,
+        fuel_tech_y,
+        fueltypes_nr,
+        fueltypes,
+        mode_constrained
+    ):
     """Calculate yearly fuel per technology (no load profile assigned).
 
     Arguments
     -----------
+    enduse : str
+        Enduse
     tech_stock : object
         Technology stock
     fuel_tech_y : dict
         Fuel per technology per year
     lookups : dict
         look-up
+    fueltype : dict
+        Integer of fueltypes
     mode_constrained : bool
         Running mode
 
@@ -798,7 +818,7 @@ def calc_fuel_tech_y(enduse, tech_stock, fuel_tech_y, lookups, mode_constrained)
     ----
     This function can be run in two different modes
     """
-    fuel_y = np.zeros((lookups['fueltypes_nr']), dtype=float)
+    fuel_y = np.zeros((fueltypes_nr), dtype=float)
 
     if mode_constrained:
         for tech, fuel_tech_y in fuel_tech_y.items():
@@ -807,7 +827,7 @@ def calc_fuel_tech_y(enduse, tech_stock, fuel_tech_y, lookups, mode_constrained)
                 tech,
                 'tech_fueltype_int')
             # Assign all to heat fueltype
-            fuel_y[lookups['fueltype']['heat']] += np.sum(fuel_tech_y)
+            fuel_y[fueltypes['heat']] += np.sum(fuel_tech_y)
     else:
         for tech, fuel_tech_y in fuel_tech_y.items():
             tech_fuel_type_int = tech_stock.get_tech_attr(
@@ -819,13 +839,22 @@ def calc_fuel_tech_y(enduse, tech_stock, fuel_tech_y, lookups, mode_constrained)
 
     return fuel_y
 
-def service_to_fuel(enduse, service_tech, tech_stock, lookups, mode_constrained):
+def service_to_fuel(
+        enduse,
+        service_tech,
+        tech_stock,
+        fueltypes_nr,
+        fueltypes,
+        mode_constrained
+    ):
     """Convert yearly energy service to yearly fuel demand.
     For every technology the service is taken and converted
     to fuel based on efficiency of current year
 
     Inputs
     ------
+    enduse : str
+        Enduse
     service_tech : dict
         Service per fueltype and technology
     tech_stock : object
@@ -846,12 +875,12 @@ def service_to_fuel(enduse, service_tech, tech_stock, lookups, mode_constrained)
     - Fuel = Energy service / efficiency
     """
     fuel_per_tech = {}
-    fuel_new_y = np.zeros((lookups['fueltypes_nr']), dtype=float)
+    fuel_new_y = np.zeros((fueltypes_nr), dtype=float)
 
     if mode_constrained:
         for tech, fuel_tech in service_tech.items():
             fuel = fuel_tech
-            fuel_new_y[lookups['fueltype']['heat']] += fuel
+            fuel_new_y[fueltypes['heat']] += fuel
             fuel_per_tech[tech] = fuel
     else:
         for tech, service in service_tech.items():
@@ -887,6 +916,10 @@ def fuel_to_service(
     ----------
     enduse : str
         Enduse
+    fuel_new_y : array
+        Fuel per fueltype
+    enduse_techs : dict
+        Technologies of enduse
     fuel_tech_p_by : dict
         Fuel composition of base year for every fueltype for each
         enduse (assumtions for national scale)
@@ -894,8 +927,6 @@ def fuel_to_service(
         Technology stock of region
     lu_fueltypes : dict
         Fueltype look-up
-    load_profiles : object
-        Load profiles
     mode_constrained : bool
         Criteria about mode
 
@@ -979,11 +1010,6 @@ def fuel_to_service(
 
     # Convert service of every technology to fraction of total service
     service_tech_p = convert_service_to_p(tot_service_y, service_fueltype_tech)
-
-
-    # Calculate service fraction per fueltype
-    #service_fueltype_p = {
-    #    fueltype: sum(service.values()) for fueltype, service in service_fueltype_tech_p.items()}
 
     return tot_service_y, service_tech, service_tech_p
 
@@ -1209,7 +1235,13 @@ def apply_specific_change(
     else:
         return fuel_y
 
-def apply_climate_change(enduse, fuel_new_y, cooling_factor_y, heating_factor_y, assumptions):
+def apply_climate_change(
+        enduse,
+        fuel_new_y,
+        cooling_factor_y,
+        heating_factor_y,
+        assumptions
+    ):
     """Change fuel demand for heat and cooling service
     depending on changes in HDD and CDD within a region
     (e.g. climate change induced)
@@ -1245,7 +1277,14 @@ def apply_climate_change(enduse, fuel_new_y, cooling_factor_y, heating_factor_y,
 
     return fuel_new_y
 
-def apply_smart_metering(enduse, fuel_y, sm_assump, sm_assump_strategy, base_yr, curr_yr):
+def apply_smart_metering(
+        enduse,
+        fuel_y,
+        sm_assump,
+        sm_assump_strategy,
+        base_yr,
+        curr_yr
+    ):
     """Calculate fuel savings depending on smart meter penetration
 
     Arguments
@@ -1425,7 +1464,7 @@ def convert_service_to_p(tot_service_y, service_fueltype_tech):
 
     return service_tech_p
 
-def get_service_diffusion(tech_increased_service, sig_param_tech, curr_yr):
+def get_service_diffusion(tech_increase_service, sig_param_tech, curr_yr):
     """Calculate energy service fraction of technologies with increased service
     for current year based on sigmoid diffusion
 
@@ -1433,10 +1472,10 @@ def get_service_diffusion(tech_increased_service, sig_param_tech, curr_yr):
     ----------
     enduse : str
         Enduse
-    tech_increased_service : dict
+    tech_increase_service : dict
         All technologies per enduse with increased future service share
     sig_param_tech : dict
-        Sigmoid diffusion parameters
+        Sigmoid diffusion parameters per technology
     curr_yr : dict
         Current year
     spatial_exliclit_diffusion : crit
@@ -1448,7 +1487,7 @@ def get_service_diffusion(tech_increased_service, sig_param_tech, curr_yr):
     """
     service_tech = {}
 
-    for tech in tech_increased_service:
+    for tech in tech_increase_service:
         service_tech[tech] = diffusion_technologies.sigmoid_function(
             curr_yr,
             sig_param_tech[tech]['l_parameter'],

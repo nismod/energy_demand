@@ -559,7 +559,7 @@ def ss_get_sector_enduse_shape(tech_lp, heating_shape, enduse, model_yeardays_nr
     enduse : str
         Enduse where technology is used
     model_yeardays_nrs : int
-        Number of modelled hours in a year
+        Number of modelled yeardays
 
     Returns
     -------

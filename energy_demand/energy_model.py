@@ -90,17 +90,24 @@ class EnergyModel(object):
         # ---------------------------------------------
         ed_fueltype_regs_yh = np.zeros(
             (data['lookups']['fueltypes_nr'], data['reg_nrs'], data['assumptions']['model_yearhours_nrs']), dtype=float)
+
         ed_fueltype_national_yh = np.zeros(
             (data['lookups']['fueltypes_nr'], data['assumptions']['model_yeardays_nrs'], 24), dtype=float)
+
         tot_peak_enduses_fueltype = np.zeros(
             (data['lookups']['fueltypes_nr'], 24), dtype=float)
+
         tot_fuel_y_max_enduses = np.zeros(
             (data['lookups']['fueltypes_nr']), dtype=float)
+
         tot_fuel_y_enduse_specific_h = {}
+
         reg_load_factor_y = np.zeros(
             (data['lookups']['fueltypes_nr'], data['reg_nrs']), dtype=float)
+
         reg_load_factor_yd = np.zeros(
             (data['lookups']['fueltypes_nr'], data['reg_nrs'], data['assumptions']['model_yeardays_nrs']), dtype=float)
+
         reg_load_factor_seasons = {
             'summer' : np.zeros((data['lookups']['fueltypes_nr'], data['reg_nrs']), dtype=float),
             'spring': np.zeros((data['lookups']['fueltypes_nr'], data['reg_nrs']), dtype=float),
@@ -113,7 +120,7 @@ class EnergyModel(object):
             'winter': np.zeros((data['lookups']['fueltypes_nr'], data['reg_nrs'], 24), dtype=float),
             'autumn': np.zeros((data['lookups']['fueltypes_nr'], data['reg_nrs'], 24), dtype=float)}
 
-        for array_nr_region, region in enumerate(regions):
+        for reg_array_nr, region in enumerate(regions):
             logging.info("... Generate region %s for year %s", region, self.curr_yr)
 
             # ----------------------
@@ -135,7 +142,7 @@ class EnergyModel(object):
                 ed_fueltype_regs_yh,
                 data['lookups'],
                 region,
-                array_nr_region,
+                reg_array_nr,
                 data['assumptions']['model_yearhours_nrs'],
                 data['assumptions']['model_yeardays_nrs'],
                 region_submodels)
@@ -180,7 +187,7 @@ class EnergyModel(object):
             averaged_h = averaged_season_hourly(
                 averaged_h,
                 fuel_region_yh,
-                array_nr_region,
+                reg_array_nr,
                 data['lookups']['fueltype'].values(),
                 data['assumptions']['seasons'])
 
@@ -201,11 +208,11 @@ class EnergyModel(object):
 
             # Copy regional load factors
             for fueltype_nr in range(data['lookups']['fueltypes_nr']):
-                reg_load_factor_y[fueltype_nr][array_nr_region] = load_factor_y[fueltype_nr]
-                reg_load_factor_yd[fueltype_nr][array_nr_region] = load_factor_yd[fueltype_nr]
+                reg_load_factor_y[fueltype_nr][reg_array_nr] = load_factor_y[fueltype_nr]
+                reg_load_factor_yd[fueltype_nr][reg_array_nr] = load_factor_yd[fueltype_nr]
 
                 for season, lf_season in load_factor_seasons.items():
-                    reg_load_factor_seasons[season][fueltype_nr][array_nr_region] = lf_season[fueltype_nr]
+                    reg_load_factor_seasons[season][fueltype_nr][reg_array_nr] = lf_season[fueltype_nr]
 
         # -------------------------------------------------
         # Assign values for all region in EnergyModel object
@@ -227,11 +234,6 @@ class EnergyModel(object):
         # TESTING
         # ------------------------------
         testing.test_region_selection(self.ed_fueltype_regs_yh)
-
-        _scrap = 0
-        for _, reg in enumerate(ed_fueltype_regs_yh[2]):
-            _scrap += np.sum(reg)
-        print("TOTAL: " + str(_scrap))
 
         # ------------------------------
         # Chart HDD * Pop vs actual gas demand
@@ -320,8 +322,10 @@ def fuel_aggr(
         Attribue to sumarise
     sum_crit : str
         Criteria
-    sector_models : list of list of Enduse
-        Enduse objects to summarise
+    model_yearhours_nrs : int
+        Number of modelled hours in a year
+    model_yeardays_nrs : int
+        Number of modelled yeardays
     region_name : str, default=False
         Name of region
 
@@ -369,7 +373,7 @@ def get_fuels_yh(
     attribute_to_get : str
         Attribute to read out
     model_yearhours_nrs : int
-        Number of modelled hours
+        Number of modelled hours in a year
     model_yeardays_nrs : int
         Number of modelled yeardays
 
@@ -380,12 +384,12 @@ def get_fuels_yh(
 
     Note
     -----
-    -   For enduses where 'crit_flat_profile' in Enduse Class is True
+    -   For enduses where 'flat_profile_crit' in Enduse Class is True
         a flat load profile is generated. Otherwise, the yh as calculated
         for each enduse is used
     -   Flat shape
     """
-    if enduse_object.crit_flat_profile:
+    if enduse_object.flat_profile_crit:
 
         # Yearly fuel
         fuels_reg_y = enduse_object.fuel_y
@@ -452,29 +456,28 @@ def industry_submodel(region, data, enduses, sectors):
         for enduse in enduses:
 
             if enduse == "is_space_heating":
-                crit_flat_profile = False
+                flat_profile_crit = False
             else:
-                crit_flat_profile = True
+                flat_profile_crit = True
 
             if data['criterias']['spatial_exliclit_diffusion']:
                 service_switches = data['assumptions']['is_service_switch'][enduse][region.name]
                 sig_param_tech = data['assumptions']['is_sig_param_tech'][enduse][region.name]
                 tech_increased_service = data['assumptions']['is_tech_increased_service'][enduse][region.name]
-                tech_decreased_share = data['assumptions']['is_tech_decreased_share'][enduse][region.name]
-                tech_constant_share = data['assumptions']['is_tech_constant_share'][enduse][region.name]
+                tech_decreased_service = data['assumptions']['is_tech_decreased_service'][enduse][region.name]
+                tech_constant_service = data['assumptions']['is_tech_constant_service'][enduse][region.name]
             else:
                 service_switches = data['assumptions']['is_service_switch'][enduse]
                 sig_param_tech = data['assumptions']['is_sig_param_tech'][enduse]
 
                 tech_increased_service = data['assumptions']['is_tech_increased_service'][enduse]
-                tech_decreased_share = data['assumptions']['is_tech_decreased_share'][enduse]
-                tech_constant_share = data['assumptions']['is_tech_constant_share'][enduse]
+                tech_decreased_service = data['assumptions']['is_tech_decreased_service'][enduse]
+                tech_constant_service = data['assumptions']['is_tech_constant_service'][enduse]
 
             # Create submodule
             submodel = endusefunctions.Enduse(
                 region_name=region.name,
                 scenario_data=data['scenario_data'],
-                lookups=data['lookups'],
                 assumptions=data['assumptions'],
                 non_regional_lp_stock=data['non_regional_lp_stock'],
                 sim_param=data['sim_param'],
@@ -487,14 +490,16 @@ def industry_submodel(region, data, enduses, sectors):
                 service_switches=service_switches,
                 fuel_tech_p_by=data['assumptions']['is_fuel_tech_p_by'][enduse],
                 tech_increased_service=tech_increased_service,
-                tech_decreased_share=tech_decreased_share,
-                tech_constant_share=tech_constant_share,
+                tech_decreased_service=tech_decreased_service,
+                tech_constant_service=tech_constant_service,
                 sig_param_tech=sig_param_tech,
                 enduse_overall_change=data['assumptions']['enduse_overall_change'],
                 criterias=data['criterias'],
+                fueltypes_nr=data['lookups']['fueltypes_nr'],
+                fueltypes=data['lookups']['fueltype'],
                 regional_lp_stock=region.is_load_profiles,
                 reg_scen_drivers=data['assumptions']['scenario_drivers']['is_submodule'],
-                crit_flat_profile=crit_flat_profile)
+                flat_profile_crit=flat_profile_crit)
 
             # Add to list
             submodels.append(submodel)
@@ -535,21 +540,20 @@ def residential_submodel(region, data, enduses, sectors=False):
                 service_switches = data['assumptions']['rs_service_switch'][enduse][region.name]
                 sig_param_tech = data['assumptions']['rs_sig_param_tech'][enduse][region.name]
                 tech_increased_service = data['assumptions']['rs_tech_increased_service'][enduse][region.name]
-                tech_decreased_share = data['assumptions']['rs_tech_decreased_share'][enduse][region.name]
-                tech_constant_share = data['assumptions']['rs_tech_constant_share'][enduse][region.name]
+                tech_decreased_service = data['assumptions']['rs_tech_decreased_service'][enduse][region.name]
+                tech_constant_service = data['assumptions']['rs_tech_constant_service'][enduse][region.name]
 
             else:
                 service_switches = data['assumptions']['rs_service_switch'][enduse]
                 sig_param_tech = data['assumptions']['rs_sig_param_tech'][enduse]
                 tech_increased_service = data['assumptions']['rs_tech_increased_service'][enduse]
-                tech_decreased_share = data['assumptions']['rs_tech_decreased_share'][enduse]
-                tech_constant_share = data['assumptions']['rs_tech_constant_share'][enduse]
+                tech_decreased_service = data['assumptions']['rs_tech_decreased_service'][enduse]
+                tech_constant_service = data['assumptions']['rs_tech_constant_service'][enduse]
 
             # Create submodule
             submodel = endusefunctions.Enduse(
                 region_name=region.name,
                 scenario_data=data['scenario_data'],
-                lookups=data['lookups'],
                 assumptions=data['assumptions'],
                 non_regional_lp_stock=data['non_regional_lp_stock'],
                 sim_param=data['sim_param'],
@@ -562,10 +566,12 @@ def residential_submodel(region, data, enduses, sectors=False):
                 service_switches=service_switches,
                 fuel_tech_p_by=data['assumptions']['rs_fuel_tech_p_by'][enduse],
                 tech_increased_service=tech_increased_service,
-                tech_decreased_share=tech_decreased_share,
-                tech_constant_share=tech_constant_share,
+                tech_decreased_service=tech_decreased_service,
+                tech_constant_service=tech_constant_service,
                 sig_param_tech=sig_param_tech,
                 criterias=data['criterias'],
+                fueltypes_nr=data['lookups']['fueltypes_nr'],
+                fueltypes=data['lookups']['fueltype'],
                 enduse_overall_change=data['assumptions']['enduse_overall_change'],
                 regional_lp_stock=region.rs_load_profiles,
                 dw_stock=data['rs_dw_stock']
@@ -604,22 +610,21 @@ def service_submodel(region, data, enduses, sectors):
                 sig_param_tech = data['assumptions']['ss_sig_param_tech'][enduse][region.name]
 
                 tech_increased_service = data['assumptions']['ss_tech_increased_service'][enduse][region.name]
-                tech_decreased_share = data['assumptions']['ss_tech_decreased_share'][enduse][region.name]
-                tech_constant_share = data['assumptions']['ss_tech_constant_share'][enduse][region.name]
+                tech_decreased_service = data['assumptions']['ss_tech_decreased_service'][enduse][region.name]
+                tech_constant_service = data['assumptions']['ss_tech_constant_service'][enduse][region.name]
 
             else:
                 service_switches = data['assumptions']['ss_service_switch'][enduse]
                 sig_param_tech = data['assumptions']['ss_sig_param_tech'][enduse]
 
                 tech_increased_service = data['assumptions']['ss_tech_increased_service'][enduse]
-                tech_decreased_share = data['assumptions']['ss_tech_decreased_share'][enduse]
-                tech_constant_share = data['assumptions']['ss_tech_constant_share'][enduse]
+                tech_decreased_service = data['assumptions']['ss_tech_decreased_service'][enduse]
+                tech_constant_service = data['assumptions']['ss_tech_constant_service'][enduse]
 
             # Create submodule
             submodel = endusefunctions.Enduse(
                 region_name=region.name,
                 scenario_data=data['scenario_data'],
-                lookups=data['lookups'],
                 assumptions=data['assumptions'],
                 non_regional_lp_stock=data['non_regional_lp_stock'],
                 sim_param=data['sim_param'],
@@ -632,10 +637,12 @@ def service_submodel(region, data, enduses, sectors):
                 service_switches=service_switches,
                 fuel_tech_p_by=data['assumptions']['ss_fuel_tech_p_by'][enduse],
                 tech_increased_service=tech_increased_service,
-                tech_decreased_share=tech_decreased_share,
-                tech_constant_share=tech_constant_share,
+                tech_decreased_service=tech_decreased_service,
+                tech_constant_service=tech_constant_service,
                 sig_param_tech=sig_param_tech,
                 criterias=data['criterias'],
+                fueltypes_nr=data['lookups']['lookups']['fueltypes_nr'],
+                fueltypes=data['lookups']['lookups']['fueltype'],
                 enduse_overall_change=data['assumptions']['enduse_overall_change'],
                 regional_lp_stock=region.ss_load_profiles,
                 dw_stock=data['ss_dw_stock'])
@@ -754,7 +761,7 @@ def sum_enduse_all_regions(
 
     return enduse_dict
 
-def averaged_season_hourly(averaged_h, fuel_region_yh, array_nr_region, fueltypes, seasons):
+def averaged_season_hourly(averaged_h, fuel_region_yh, reg_array_nr, fueltypes, seasons):
     """Calculate averaged hourly values for each season
 
     Arguments
@@ -763,7 +770,7 @@ def averaged_season_hourly(averaged_h, fuel_region_yh, array_nr_region, fueltype
         Averaged hours per season (season, fueltype, array_nr_reg, 24)
     fuel_region_yh : array
         Fuel of region (fueltype, yearday)
-    array_nr_region : int
+    reg_array_nr : int
         Integer of region
     fueltypes : dict
         Fueltype lookup
@@ -778,16 +785,16 @@ def averaged_season_hourly(averaged_h, fuel_region_yh, array_nr_region, fueltype
     for fueltype in fueltypes:
         for season, yeardays_modelled in seasons.items():
             for yearday in yeardays_modelled:
-                averaged_h[season][fueltype][array_nr_region] += fuel_region_yh[fueltype][yearday]
+                averaged_h[season][fueltype][reg_array_nr] += fuel_region_yh[fueltype][yearday]
 
     # Calculate average hourly values for every season
     for season, yeardays_modelled in seasons.items():
         for fueltype in fueltypes:
-            averaged_h[season][fueltype][array_nr_region] = averaged_h[season][fueltype][array_nr_region] / len(yeardays_modelled)
+            averaged_h[season][fueltype][reg_array_nr] = averaged_h[season][fueltype][reg_array_nr] / len(yeardays_modelled)
 
     '''tot_h_sum = 0
     for yearday in seasons['summer']:
         tot_h_sum += fuel_region_yh[1][yearday][0]
-    assert averaged_h['summer'][1][array_nr_region][0] * len(seasons['summer']) == tot_h_sum'''
+    assert averaged_h['summer'][1][reg_array_nr][0] * len(seasons['summer']) == tot_h_sum'''
 
     return averaged_h

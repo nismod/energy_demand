@@ -288,8 +288,8 @@ def test_Enduse():
         service_switches,
         fuel_tech_p_by,
         tech_increased_service,
-        tech_decreased_share,
-        tech_constant_share,
+        tech_decreased_service,
+        tech_constant_service,
         installed_tech,
         sig_param_tech,
         enduse_overall_change,
@@ -443,13 +443,12 @@ def test_service_to_fuel():
         t_base_heating_cy=15.5,
         enduse_technologies={'heating': ['techA']})
 
-    lookups = {'fueltype': lu_fueltypes, 'fueltypes_nr': len(lu_fueltypes)}
-
     fuel_new_y, fuel_per_tech = enduse_func.service_to_fuel(
         "heating",
         {'techA': 100},
         tech_stock,
-        lookups,
+        len(lu_fueltypes),
+        lu_fueltypes,
         False)
 
     assert fuel_per_tech['techA'] == 200
@@ -458,13 +457,13 @@ def test_service_to_fuel():
     # ----
 
     lu_fueltypes = {'gas': 0, 'heat': 1}
-    lookups = {'fueltype': lu_fueltypes, 'fueltypes_nr': len(lu_fueltypes)}
 
     fuel_new_y, fuel_per_tech = enduse_func.service_to_fuel(
         "heating",
         {'techA': 100},
         tech_stock,
-        lookups,
+        len(lu_fueltypes),
+        lu_fueltypes,
         True)
 
     assert fuel_per_tech['techA'] == 100
@@ -550,15 +549,12 @@ def test_calc_fuel_tech_y():
         t_base_heating_cy=15.5,
         enduse_technologies={'heating': ['techA']})
     
-    lookups = {}
-    lookups['fueltype'] = {'heat': 1, 'gas': 0}
-    lookups['fueltypes_nr'] = 2
-
     result = enduse_func.calc_fuel_tech_y(
         enduse='heating',
         tech_stock=tech_stock,
         fuel_tech_y={'techA': 100},
-        lookups=lookups,
+        fueltypes_nr=2,
+        fueltypes={'heat': 1, 'gas': 0},
         mode_constrained=True)
 
     assert result[1] == 100
@@ -567,7 +563,8 @@ def test_calc_fuel_tech_y():
         enduse='heating',
         tech_stock=tech_stock,
         fuel_tech_y={'techA': 100},
-        lookups=lookups,
+        fueltypes_nr=2,
+        fueltypes={'heat': 1, 'gas': 0},
         mode_constrained=False)
 
     assert result[0] == 100

@@ -49,7 +49,7 @@ class GenericFlatEnduse(object):
     enduse_fuel : float
         Yearly total fuel
     model_yeardays_nrs : int
-        Number of modelled days
+        Number of modelled yeardays
     """
     def __init__(self, enduse_fuel, model_yeardays_nrs):
         self.fuel_new_y = enduse_fuel
@@ -70,4 +70,4 @@ class GenericFlatEnduse(object):
         # h fuel shape per fueltype (peak)
         self.fuel_peak_h = load_profile.calk_peak_h_dh(self.fuel_peak_dh)
 
-        self.crit_flat_profile = True
+        self.flat_profile_crit = True

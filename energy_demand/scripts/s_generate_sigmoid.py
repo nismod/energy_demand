@@ -123,14 +123,14 @@ def get_tech_future_service(
     -------
     tech_increased_service : dict
         Technologies with increased future service
-    tech_decreased_share : dict
+    tech_decreased_service : dict
         Technologies with decreased future service
-    tech_decreased_share : dict
+    tech_decreased_service : dict
         Technologies with unchanged future service
     """
     tech_increased_service = defaultdict(dict)
-    tech_decreased_share = defaultdict(dict)
-    tech_constant_share = defaultdict(dict)
+    tech_decreased_service = defaultdict(dict)
+    tech_constant_service = defaultdict(dict)
 
     if regional_specific:
         for reg in regions:
@@ -147,9 +147,9 @@ def get_tech_future_service(
                         if round(service_tech_by_p[tech], 4) < round(service_tech_ey_p[reg][tech], 4):
                             tech_increased_service[reg][tech] = service_tech_ey_p[reg][tech]
                         elif round(service_tech_by_p[tech], 4) > round(service_tech_ey_p[reg][tech], 4):
-                            tech_decreased_share[reg][tech] = service_tech_ey_p[reg][tech]
+                            tech_decreased_service[reg][tech] = service_tech_ey_p[reg][tech]
                         else:
-                            tech_constant_share[reg][tech] = service_tech_ey_p[reg][tech]
+                            tech_constant_service[reg][tech] = service_tech_ey_p[reg][tech]
     else:
         if service_tech_ey_p == {}: # If no service switch defined
             pass
@@ -162,11 +162,11 @@ def get_tech_future_service(
                     if round(service_tech_by_p[tech], 4) < round(service_tech_ey_p[tech], 4):
                         tech_increased_service[tech] = service_tech_ey_p[tech]
                     elif round(service_tech_by_p[tech], 4) > round(service_tech_ey_p[tech], 4):
-                        tech_decreased_share[tech] = service_tech_ey_p[tech]
+                        tech_decreased_service[tech] = service_tech_ey_p[tech]
                     else:
-                        tech_constant_share[tech] = service_tech_ey_p[tech]
+                        tech_constant_service[tech] = service_tech_ey_p[tech]
 
-    return dict(tech_increased_service), dict(tech_decreased_share), dict(tech_constant_share)
+    return dict(tech_increased_service), dict(tech_decreased_service), dict(tech_constant_service)
 
 def fit_sigmoid_diffusion(l_value, x_data, y_data, start_parameters):
     """Fit sigmoid curve based on two points on the diffusion curve
