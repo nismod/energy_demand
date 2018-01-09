@@ -196,11 +196,14 @@ class EnergyDemandModel(object):
             # -------------
             # UNCONSTRAINED
             # -------------
+            #if data['criterias']['mode_constrained'] == False:
+                
             # Sum across all fueltypes, sectors, regs and hours
             for submodel_nr, submodel in enumerate([reg_rs_submodel, reg_ss_submodel, reg_is_submodel]):
-
+                
+                submodel_ed_fueltype_regs_yh = np.zeros((data['lookups']['fueltypes_nr'], data['reg_nrs'], data['assumptions']['model_yearhours_nrs']), dtype=float)
                 submodel_ed_fueltype_regs_yh, _ = fuel_regions_fueltype(
-                    np.zeros((data['lookups']['fueltypes_nr'], data['reg_nrs'], data['assumptions']['model_yearhours_nrs']), dtype=float),
+                    submodel_ed_fueltype_regs_yh,
                     data['lookups']['fueltypes_nr'],
                     data['lookups']['fueltypes'],
                     region,
@@ -212,11 +215,6 @@ class EnergyDemandModel(object):
                 # Add SubModel specific ed
                 for fueltype_nr in data['lookups']['fueltypes'].values():
                     ed_fueltype_submodel_regs_yh[fueltype_nr][submodel_nr] += submodel_ed_fueltype_regs_yh[fueltype_nr]
-
-            # -------------
-            # CONSTRAINED
-            # -------------
-
 
             # Sum across all regions, all enduse and sectors sum_reg
             # [fueltype, region, fuel_yh], [fueltype, fuel_yh]
@@ -419,6 +417,9 @@ def fuel_aggr(
         Summarised array
     """
     # Select specific region if defined
+    print("......")
+    print(sector_models)
+    print(model_yeardays_nrs)
     if region_name:
         for sector_model in sector_models:
             for enduse in sector_model:
@@ -429,6 +430,8 @@ def fuel_aggr(
                         model_yearhours_nrs,
                         model_yeardays_nrs)
     else:
+        print("nnnn")
+        print(sector_models)
         for sector_model in sector_models:
             for enduse in sector_model:
                 input_array += get_fuels_yh(
@@ -510,6 +513,7 @@ def get_fuels_yh(
         elif attribute_to_get == 'fuel_yh':
             fuels = enduse_object.fuel_yh
 
+    #print("FORMAT FUEL: " + str(fuels.shape))
     return fuels
 
 def industry_submodel(region, data, enduses, sectors):
@@ -763,6 +767,7 @@ def fuel_regions_fueltype(
     -------
     {'final_electricity_demand': np.array((regions, model_yearhours_nrs)), dtype=float}
     """
+    print("aggr")
     fuels = fuel_aggr(
         np.zeros((fueltypes_nr, model_yeardays_nrs, 24), dtype=float),
         'fuel_yh',

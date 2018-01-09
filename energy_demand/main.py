@@ -110,7 +110,7 @@ if __name__ == "__main__":
     # Load data
     data = {}
     data['criterias'] = {}
-    data['criterias']['mode_constrained'] = False
+    data['criterias']['mode_constrained'] = True
     data['criterias']['plot_HDD_chart'] = False
     data['criterias']['virtual_building_stock_criteria'] = True
     data['criterias']['spatial_exliclit_diffusion'] = True
@@ -234,8 +234,6 @@ if __name__ == "__main__":
             profiler.stop()
             logging.debug("Profiler Results")
             print(profiler.output_text(unicode=True, color=True))
-
-        # Take attributes from model object run
 
         # --------------------
         # Result unconstrained

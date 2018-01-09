@@ -493,7 +493,7 @@ class EDWrapper(SectorModel):
         # Constrained
         # ------------
         # Technology specific demand for fueltype
-        # {technology: np.array((fueltype_int, sector, region, intervals))}
+        # {technology: np.array((fueltypes_int, sector, region, intervals))}
         # 
         # Unconstrained
         # ------------
