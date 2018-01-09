@@ -115,7 +115,7 @@ class EDWrapper(SectorModel):
         data['local_paths'] = data_loader.load_local_paths(self.user_data['data_path'])
 
         # -----------------------------
-        # Region related informatiom
+        # Region related info
         # -----------------------------
         data['lu_reg'] = self.get_region_names(REGION_SET_NAME)
 
@@ -168,14 +168,19 @@ class EDWrapper(SectorModel):
         }
 
         # ------------
-        # Assumptions
+        # Load assumptions
         # ------------
         data['assumptions'] = non_param_assumptions.load_non_param_assump(
             data['sim_param']['base_yr'], data['paths'], data['enduses'], data['lookups'])
+
         data['assumptions']['seasons'] = date_prop.read_season(year_to_model=2015)
+
         data['assumptions']['model_yeardays_daytype'], data['assumptions']['yeardays_month'], data['assumptions']['yeardays_month_days'] = date_prop.get_model_yeardays_datype(
             year_to_model=2015)
 
+        # ------------
+        # Load load profiles of technologies
+        # ------------
         data['tech_lp'] = data_loader.load_data_profiles(
             data['paths'],
             data['local_paths'],
@@ -183,7 +188,7 @@ class EDWrapper(SectorModel):
             data['assumptions']['model_yeardays_daytype'])
 
         # ---------------------
-        # Convert capacity switches to service switches
+        # Convert capacity switches to service switches for every SubModel
         # ---------------------
         data['assumptions']['rs_service_switches'] = fuel_service_switch.capacity_installations(
             data['assumptions']['rs_service_switches'],
@@ -229,13 +234,22 @@ class EDWrapper(SectorModel):
         # ------------------------
         # Pass along to simulate()
         # ------------------------
-        self.user_data['criterias'] = data['criterias']
-        self.user_data['temp_data'] = data['temp_data']
-        self.user_data['weather_stations'] = data['weather_stations']
         self.user_data['gva'] = self.array_to_dict(gva_array)
         self.user_data['population'] = self.array_to_dict(pop_array)
         self.user_data['rs_floorarea'] = rs_floorarea
         self.user_data['ss_floorarea'] = ss_floorarea
+        self.user_data['criterias'] = data['criterias']
+        self.user_data['temp_data'] = data['temp_data']
+        self.user_data['weather_stations'] = data['weather_stations']
+        self.user_data['tech_lp'] = data['tech_lp']
+        self.user_data['lookups'] = data['lookups']
+        self.user_data['assumptions'] = data['assumptions']
+        self.user_data['enduses'] = data['enduses']
+        self.user_data['sectors'] = data['sectors']
+        self.user_data['fuels'] = data['fuels']
+        self.user_data['reg_coord'] = data['reg_coord']
+        self.user_data['lu_reg'] = data['lu_reg']
+        self.user_data['reg_nrs'] = data['reg_nrs']
 
         # --------------------
         # Initialise scenario
@@ -300,6 +314,9 @@ class EDWrapper(SectorModel):
         config = configparser.ConfigParser()
         config.read(os.path.join(path_main, 'wrapperconfig.ini'))
 
+        # -----------
+        # Paths
+        # -----------
         # Go two levels down
         path, folder = os.path.split(path_main)
         path_nismod, folder = os.path.split(path)
@@ -308,40 +325,36 @@ class EDWrapper(SectorModel):
         data['paths'] = data_loader.load_paths(path_main)
         data['local_paths'] = data_loader.load_local_paths(self.user_data['data_path'])
 
+        # -------
         # Logger
+        # -------
         logger_setup.set_up_logger(os.path.join(data['local_paths']['data_results'], "logger_smif_run.log"))
-
-        # --------------------
-        # Get simulation parameters from before_model_run()
-        # --------------------
-        data['criterias'] = self.user_data['criterias']
 
         data['sim_param']['base_yr'] = self.user_data['base_yr'] # Base year definition
         data['sim_param']['curr_yr'] = timestep                  # Read in current year from smif
         data['sim_param']['simulated_yrs'] = self.timesteps      # Read in all simulated years from smif
 
-        # Region related information
-        data['lu_reg'] = self.get_region_names(REGION_SET_NAME)
-        data['lu_reg'] = data['lu_reg'][:NR_OF_MODELLEd_REGIONS]
-    
-        reg_centroids = self.get_region_centroids(REGION_SET_NAME)
-        data['reg_coord'] = self.get_long_lat_decimal_degrees(reg_centroids)
-        data['reg_nrs'] = len(data['lu_reg'])
+        # ---------------
+        # Get simulation parameters from before_model_run()
+        # ---------------
+        #print(self.user_data.keys())
+        data['criterias'] = self.user_data['criterias']
+        data['lu_reg'] = self.user_data['lu_reg']
+        data['reg_nrs'] = self.user_data['reg_nrs']
+        data['reg_coord'] = self.user_data['reg_coord']
+        data['lookups'] = self.user_data['lookups']
+        data['enduses'] = self.user_data['enduses']
+        data['sectors'] = self.user_data['sectors']
+        data['fuels'] = self.user_data['fuels']
+        data['assumptions'] = self.user_data['assumptions']
+        data['tech_lp'] = self.user_data['tech_lp']
+        data['temp_data'] = self.user_data['temp_data']
+        data['weather_stations'] = self.user_data['weather_stations']
+        data['rs_fuel_disagg'] = self.user_data['sd_cont']['rs_fuel_disagg']
+        data['ss_fuel_disagg'] = self.user_data['sd_cont']['ss_fuel_disagg']
+        data['is_fuel_disagg'] = self.user_data['sd_cont']['is_fuel_disagg']
 
-        # ---------------
-        # Energy demand model related parameters
-        # ---------------
-        data['lookups'] = data_loader.load_basic_lookups()
-        data['enduses'], data['sectors'], data['fuels'] = data_loader.load_fuels(data['paths'], data['lookups'])
-        data['assumptions'] = non_param_assumptions.load_non_param_assump(
-            data['sim_param']['base_yr'], data['paths'], data['enduses'], data['lookups'])
-        data['assumptions']['seasons'] = date_prop.read_season(year_to_model=2015)
-        data['assumptions']['model_yeardays_daytype'], data['assumptions']['yeardays_month'], data['assumptions']['yeardays_month_days'] = date_prop.get_model_yeardays_datype(year_to_model=2015)
-        data['tech_lp'] = data_loader.load_data_profiles(
-            data['paths'],
-            data['local_paths'],
-            data['assumptions']['model_yeardays'],
-            data['assumptions']['model_yeardays_daytype'])
+        data['is_fuel_disagg'] = self.user_data['sd_cont']['is_fuel_disagg']
 
         # ------------------------
         # Load all SMIF parameters and replace data dict
@@ -358,17 +371,16 @@ class EDWrapper(SectorModel):
         # ---------
         # Scenario data
         # ---------
-        pop_by_cy = {}
-
-        #TODO: REPLACE DIRECTLY WITH BASE YEAR POP
         pop_array = self.get_scenario_data('population')
         pop_dict = self.array_to_dict(pop_array)
+
+        pop_by_cy = {}
         pop_by_cy[data['sim_param']['base_yr']] = pop_dict[2015] # Get only population of base year
         pop_by_cy[data['sim_param']['curr_yr']] = pop_dict[data['sim_param']['curr_yr']] # Get only population of base year
 
         data['scenario_data'] = {
             'gva': self.user_data['gva'],
-            'population': pop_by_cy, # self.user_data['population'],
+            'population': pop_by_cy,
 
             # Only add newcastle floorarea here
             'floor_area': {
@@ -378,14 +390,7 @@ class EDWrapper(SectorModel):
 
         # -----------------------
         # Load data from scripts
-        # Insert from script calculations which are stored in memory
         # -----------------------
-        data['temp_data'] = self.user_data['temp_data']
-        data['weather_stations'] = self.user_data['weather_stations']
-        data['rs_fuel_disagg'] = self.user_data['sd_cont']['rs_fuel_disagg']
-        data['ss_fuel_disagg'] = self.user_data['sd_cont']['ss_fuel_disagg']
-        data['is_fuel_disagg'] = self.user_data['sd_cont']['is_fuel_disagg']
-
         data['assumptions'] = self.transfer_container_to_simulate(data['assumptions'], self.user_data['fts_cont'])
         data['assumptions'] = self.transfer_container_to_simulate(data['assumptions'], self.user_data['sgs_cont'])
         data['assumptions'] = self.transfer_container_to_simulate(data['assumptions'], self.user_data['switches_cont'])
@@ -485,7 +490,6 @@ class EDWrapper(SectorModel):
             supply_results[fueltype_str] = supply_results_unprocessed[fueltype_int]
 
         return supply_results
-
 
     def extract_obj(self, results):
         """Implement this method to return a scalar value objective function
