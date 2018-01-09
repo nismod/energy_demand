@@ -68,6 +68,8 @@ class EnergyDemandModel(object):
             data['rs_dw_stock'] = defaultdict(dict)
             data['ss_dw_stock'] = defaultdict(dict)
             for region in regions:
+
+                # Dwelling stock of residential SubModel for base year
                 data['rs_dw_stock'][region][data['sim_param']['base_yr']] = dw_stock.rs_dw_stock(
                     region,
                     data['assumptions'],
@@ -77,14 +79,23 @@ class EnergyDemandModel(object):
                     data['enduses']['rs_all_enduses'],
                     data['reg_coord'],
                     data['assumptions']['scenario_drivers']['rs_submodule'],
-                    data['lu_reg'],
                     data['sim_param']['base_yr'],
                     data['sim_param']['base_yr'],
                     data['criterias']['virtual_building_stock_criteria'])
 
+                # Dwelling stock of service SubModel for base year
                 data['ss_dw_stock'][region][data['sim_param']['base_yr']] = dw_stock.ss_dw_stock(
-                    region, data, data['sim_param']['base_yr'], data['sim_param']['base_yr'])
+                    region,
+                    data['enduses']['ss_all_enduses'],
+                    data['sectors']['ss_sectors'],
+                    data['scenario_data'],
+                    data['reg_coord'],
+                    data['assumptions'],
+                    data['sim_param']['base_yr'],
+                    data['sim_param']['base_yr'],
+                    data['criterias']['virtual_building_stock_criteria'])
 
+                # Dwelling stock of residential SubModel for current year
                 data['rs_dw_stock'][region][self.curr_yr] = dw_stock.rs_dw_stock(
                     region,
                     data['assumptions'],
@@ -94,13 +105,22 @@ class EnergyDemandModel(object):
                     data['enduses']['rs_all_enduses'],
                     data['reg_coord'],
                     data['assumptions']['scenario_drivers']['rs_submodule'],
-                    data['lu_reg'],
-                    self.curr_yr, 
+                    self.curr_yr,
                     data['sim_param']['base_yr'],
                     data['criterias']['virtual_building_stock_criteria'])
 
+                # Dwelling stock of service SubModel for current year
                 data['ss_dw_stock'][region][self.curr_yr] = dw_stock.ss_dw_stock(
-                    region, data, self.curr_yr, data['sim_param']['base_yr'])
+                    region,
+                    data['enduses']['ss_all_enduses'],
+                    data['sectors']['ss_sectors'],
+                    data['scenario_data'],
+                    data['reg_coord'],
+                    data['assumptions'],
+                    self.curr_yr,
+                    data['sim_param']['base_yr'],
+                    data['criterias']['virtual_building_stock_criteria'])
+
             logging.info("... finished virtual dwelling stock for base year")
         else:
             # -------------------------------------
