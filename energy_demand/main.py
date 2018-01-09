@@ -236,7 +236,14 @@ if __name__ == "__main__":
             print(profiler.output_text(unicode=True, color=True))
 
         # Take attributes from model object run
-        supply_results = model_run_object.ed_fueltype_regs_yh
+
+        # --------------------
+        # Result unconstrained
+        # --------------------
+
+        #supply_results = model_run_object.ed_fueltype_regs_yh #TODO: NEEDED?
+        supply_results_unconstrained = model_run_object.ed_fueltype_submodel_regs_yh #TODO: NEEDED?
+
         ed_fueltype_regs_yh = model_run_object.ed_fueltype_regs_yh
         out_enduse_specific = model_run_object.tot_fuel_y_enduse_specific_h
         tot_peak_enduses_fueltype = model_run_object.tot_peak_enduses_fueltype
@@ -256,8 +263,9 @@ if __name__ == "__main__":
         logging.info("... Start writing results to file")
         path_runs = data['local_paths']['data_results_model_runs']
 
-        write_data.write_supply_results(
-            sim_yr, path_runs, supply_results, "supply_results")
+        # Write unconstrained results
+        write_data.write_supply_results(['rs_submodel', 'ss_submodel', 'is_submodel'], sim_yr, path_runs, supply_results_unconstrained, "supply_results")
+        
         write_data.write_enduse_specific(
             sim_yr, path_runs, out_enduse_specific, "out_enduse_specific")
         write_data.write_max_results(

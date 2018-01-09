@@ -27,7 +27,7 @@ from energy_demand.technologies import fuel_service_switch
 
 # must match smif project name for Local Authority Districts
 REGION_SET_NAME = 'lad_uk_2016'
-NR_OF_MODELLEd_REGIONS = 391 # uk: 391, england.: 380
+NR_OF_MODELLEd_REGIONS = 2 # uk: 391, england.: 380
 PROFILER = False
 
 class EDWrapper(SectorModel):
@@ -314,9 +314,9 @@ class EDWrapper(SectorModel):
         config = configparser.ConfigParser()
         config.read(os.path.join(path_main, 'wrapperconfig.ini'))
 
-        # -----------
+        # ---------------------------------------------
         # Paths
-        # -----------
+        # ---------------------------------------------
         # Go two levels down
         path, folder = os.path.split(path_main)
         path_nismod, folder = os.path.split(path)
@@ -325,18 +325,18 @@ class EDWrapper(SectorModel):
         data['paths'] = data_loader.load_paths(path_main)
         data['local_paths'] = data_loader.load_local_paths(self.user_data['data_path'])
 
-        # -------
+        # ---------------------------------------------
         # Logger
-        # -------
+        # ---------------------------------------------
         logger_setup.set_up_logger(os.path.join(data['local_paths']['data_results'], "logger_smif_run.log"))
 
         data['sim_param']['base_yr'] = self.user_data['base_yr'] # Base year definition
         data['sim_param']['curr_yr'] = timestep                  # Read in current year from smif
         data['sim_param']['simulated_yrs'] = self.timesteps      # Read in all simulated years from smif
 
-        # ---------------
+        # ---------------------------------------------
         # Get simulation parameters from before_model_run()
-        # ---------------
+        # ---------------------------------------------
         #print(self.user_data.keys())
         data['criterias'] = self.user_data['criterias']
         data['lu_reg'] = self.user_data['lu_reg']
@@ -354,11 +354,9 @@ class EDWrapper(SectorModel):
         data['ss_fuel_disagg'] = self.user_data['sd_cont']['ss_fuel_disagg']
         data['is_fuel_disagg'] = self.user_data['sd_cont']['is_fuel_disagg']
 
-        data['is_fuel_disagg'] = self.user_data['sd_cont']['is_fuel_disagg']
-
-        # ------------------------
+        # ---------------------------------------------
         # Load all SMIF parameters and replace data dict
-        # ------------------------
+        # ---------------------------------------------
         data['assumptions'] = self.load_smif_parameters(
             data['paths']['yaml_parameters_default'], data, data['assumptions'])
 
@@ -368,15 +366,15 @@ class EDWrapper(SectorModel):
             data['assumptions']['strategy_variables']['eff_achiev_f'],
             data['assumptions']['strategy_variables']['split_hp_gshp_to_ashp_ey'])
 
-        # ---------
+        # ---------------------------------------------
         # Scenario data
-        # ---------
+        # ---------------------------------------------
         pop_array = self.get_scenario_data('population')
         pop_dict = self.array_to_dict(pop_array)
 
         pop_by_cy = {}
-        pop_by_cy[data['sim_param']['base_yr']] = pop_dict[2015] # Get only population of base year
-        pop_by_cy[data['sim_param']['curr_yr']] = pop_dict[data['sim_param']['curr_yr']] # Get only population of base year
+        pop_by_cy[data['sim_param']['base_yr']] = pop_dict[2015]                         # Get population of by
+        pop_by_cy[data['sim_param']['curr_yr']] = pop_dict[data['sim_param']['curr_yr']] # Get population of cy
 
         data['scenario_data'] = {
             'gva': self.user_data['gva'],
@@ -388,15 +386,15 @@ class EDWrapper(SectorModel):
                 'ss_floorarea': self.user_data['ss_floorarea']}
             }
 
-        # -----------------------
+        # ---------------------------------------------
         # Load data from scripts
-        # -----------------------
+        # ---------------------------------------------
         data['assumptions'] = self.transfer_container_to_simulate(data['assumptions'], self.user_data['fts_cont'])
         data['assumptions'] = self.transfer_container_to_simulate(data['assumptions'], self.user_data['sgs_cont'])
         data['assumptions'] = self.transfer_container_to_simulate(data['assumptions'], self.user_data['switches_cont'])
 
         # ---------------------------------------------
-        # Create .ini file with simulation information
+        # Create .ini file with simulation info
         # ---------------------------------------------
         write_data.write_simulation_inifile(
             data['local_paths']['data_results'],
@@ -406,9 +404,9 @@ class EDWrapper(SectorModel):
             data['reg_nrs'],
             data['lu_reg'])
 
-        # ---------
-        # Run main model run function
-        # ---------
+        # ---------------------------------------------
+        # Run energy demand model
+        # ---------------------------------------------
 
         # Profiler
         if PROFILER:
@@ -425,7 +423,9 @@ class EDWrapper(SectorModel):
         # ------------------------------------
         # Write results output for supply
         # ------------------------------------
-        supply_results_unprocessed = model_run_object.ed_fueltype_regs_yh
+        supply_results_unconstrained = model_run_object.ed_fueltype_submodel_regs_yh
+        
+        #supply_results_constrained = model_run_object.ed_fueltype_regs_yh
 
         # -----------------
         # Write to txt files
@@ -468,7 +468,9 @@ class EDWrapper(SectorModel):
         logging.info("... Start writing results to file")
         path_runs = data['local_paths']['data_results_model_runs']
 
-        write_data.write_supply_results(timestep, path_runs, supply_results_unprocessed, "supply_results_unprocessed")
+        write_data.write_supply_results(['rs_submodel', 'ss_submodel', 'is_submodel'],
+            timestep, path_runs, supply_results_unconstrained, "supply_results_unconstrained")
+        
         write_data.write_enduse_specific(timestep, path_runs, out_enduse_specific, "out_enduse_specific")
         write_data.write_max_results(timestep, path_runs, "result_tot_peak_enduses_fueltype", tot_peak_enduses_fueltype, "tot_peak_enduses_fueltype")
         write_data.write_lf(path_runs, "result_reg_load_factor_y", [timestep], reg_load_factor_y, 'reg_load_factor_y')
@@ -480,16 +482,37 @@ class EDWrapper(SectorModel):
 
         logging.info("... finished wrapper calculations")
 
-        # --------------------------------
+        # -------------------------------------------
         # Rewrite model results for supply model
+        # Depending on model running mode (contrained vs unconstrained), the
+        # outputs look different
+        # -------------------------------------------
         # The keys are fueltype_str defined in the model configuration file,
         # the values are arrays with region and intervals
-        # --------------------------------
-        supply_results = {}
-        for fueltype_str, fueltype_int in data['lookups']['fueltypes'].items():
-            supply_results[fueltype_str] = supply_results_unprocessed[fueltype_int]
 
-        return supply_results
+        # Constrained
+        # ------------
+        # Technology specific demand for fueltype
+        # {technology: np.array((fueltype_int, sector, region, intervals))}
+        # 
+        # Unconstrained
+        # ------------
+        # No technology specific delivery (heat is provided in form of a fueltype)
+        # {fueltype_int: np.array((sector, region, intervals))}
+        # --------------------------------
+        if data['criterias']['mode_constrained']: #constrained
+            print("ERROR STILL NEDS TO BE DONE")
+            # Write results per technology
+            pass
+        else: #unconstrained
+            supply_results = defaultdict(dict)
+            for fueltype_str, fueltype_int in data['lookups']['fueltypes'].items():
+                supply_results[fueltype_str] = supply_results_unconstrained[fueltype_int]
+
+            print("======SHAPE=========")
+            print(supply_results['solid_fuel'].shape)
+            prnt(".")
+        return dict(supply_results)
 
     def extract_obj(self, results):
         """Implement this method to return a scalar value objective function

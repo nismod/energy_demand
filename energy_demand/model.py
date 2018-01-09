@@ -138,6 +138,13 @@ class EnergyDemandModel(object):
         # ---------------------------------------------
         # Initialise and iterate over years
         # ---------------------------------------------
+        ed_fueltype_submodel_regs_yh = np.zeros(
+            (data['lookups']['fueltypes_nr'], len(data['sectors'].keys()), data['reg_nrs'], data['assumptions']['model_yearhours_nrs']), dtype=float)
+
+        #ed_techs_fueltype_submodel_regs_yh = np.zeros(
+        #    (techs, data['lookups']['fueltypes_nr'], len(data['sectors'].keys()), data['reg_nrs'], data['assumptions']['model_yearhours_nrs']), dtype=float)
+
+
         ed_fueltype_regs_yh = np.zeros(
             (data['lookups']['fueltypes_nr'], data['reg_nrs'], data['assumptions']['model_yearhours_nrs']), dtype=float)
 
@@ -176,7 +183,7 @@ class EnergyDemandModel(object):
             # ----------------------
             # Simulate region
             # ----------------------
-            region_submodels = simulate_region(
+            reg_rs_submodel, reg_ss_submodel, reg_is_submodel = simulate_region(
                 region,
                 data,
                 weather_regions)
@@ -185,6 +192,31 @@ class EnergyDemandModel(object):
             # Summarise functions
             # ----------------------
             logging.debug("... start summing")
+
+            # -------------
+            # UNCONSTRAINED
+            # -------------
+            # Sum across all fueltypes, sectors, regs and hours
+            for submodel_nr, submodel in enumerate([reg_rs_submodel, reg_ss_submodel, reg_is_submodel]):
+
+                submodel_ed_fueltype_regs_yh, _ = fuel_regions_fueltype(
+                    np.zeros((data['lookups']['fueltypes_nr'], data['reg_nrs'], data['assumptions']['model_yearhours_nrs']), dtype=float),
+                    data['lookups']['fueltypes_nr'],
+                    data['lookups']['fueltypes'],
+                    region,
+                    reg_array_nr,
+                    data['assumptions']['model_yearhours_nrs'],
+                    data['assumptions']['model_yeardays_nrs'],
+                    [submodel])
+
+                # Add SubModel specific ed
+                for fueltype_nr in data['lookups']['fueltypes'].values():
+                    ed_fueltype_submodel_regs_yh[fueltype_nr][submodel_nr] += submodel_ed_fueltype_regs_yh[fueltype_nr]
+
+            # -------------
+            # CONSTRAINED
+            # -------------
+
 
             # Sum across all regions, all enduse and sectors sum_reg
             # [fueltype, region, fuel_yh], [fueltype, fuel_yh]
@@ -196,13 +228,13 @@ class EnergyDemandModel(object):
                 reg_array_nr,
                 data['assumptions']['model_yearhours_nrs'],
                 data['assumptions']['model_yeardays_nrs'],
-                region_submodels)
+                [reg_rs_submodel, reg_ss_submodel, reg_is_submodel])
 
             # Sum across all regions, all enduse and sectors
             ed_fueltype_national_yh = fuel_aggr(
                 ed_fueltype_national_yh,
                 'fuel_yh',
-                region_submodels,
+                [reg_rs_submodel, reg_ss_submodel, reg_is_submodel],
                 'no_sum',
                 data['assumptions']['model_yearhours_nrs'],
                 data['assumptions']['model_yeardays_nrs'])
@@ -211,7 +243,7 @@ class EnergyDemandModel(object):
             tot_peak_enduses_fueltype = fuel_aggr(
                 tot_peak_enduses_fueltype,
                 'fuel_peak_dh',
-                region_submodels,
+                [reg_rs_submodel, reg_ss_submodel, reg_is_submodel],
                 'no_sum',
                 data['assumptions']['model_yearhours_nrs'],
                 data['assumptions']['model_yeardays_nrs'])
@@ -219,7 +251,7 @@ class EnergyDemandModel(object):
             tot_fuel_y_max_enduses = fuel_aggr(
                 tot_fuel_y_max_enduses,
                 'fuel_peak_h',
-                region_submodels,
+                [reg_rs_submodel, reg_ss_submodel, reg_is_submodel],
                 'no_sum',
                 data['assumptions']['model_yearhours_nrs'],
                 data['assumptions']['model_yeardays_nrs'])
@@ -228,7 +260,7 @@ class EnergyDemandModel(object):
             tot_fuel_y_enduse_specific_h = sum_enduse_all_regions(
                 tot_fuel_y_enduse_specific_h,
                 'fuel_yh',
-                region_submodels,
+                [reg_rs_submodel, reg_ss_submodel, reg_is_submodel],
                 data['assumptions']['model_yearhours_nrs'],
                 data['assumptions']['model_yeardays_nrs'])
 
@@ -268,6 +300,7 @@ class EnergyDemandModel(object):
         # -------------------------------------------------
         # Assign values for all region in EnergyDemandModel object
         # -------------------------------------------------
+        self.ed_fueltype_submodel_regs_yh = ed_fueltype_submodel_regs_yh
         self.ed_fueltype_regs_yh = ed_fueltype_regs_yh
         self.ed_fueltype_national_yh = ed_fueltype_national_yh
         self.tot_peak_enduses_fueltype = tot_peak_enduses_fueltype
@@ -349,9 +382,9 @@ def simulate_region(region, data, weather_regions):
     # --------
     # Submodels
     # --------
-    region_submodels = [rs_submodel, ss_submodel, is_submodel]
+    #region_submodels = [rs_submodel, ss_submodel, is_submodel]
 
-    return region_submodels
+    return rs_submodel, ss_submodel, is_submodel #region_submodels
 
 def fuel_aggr(
         input_array,

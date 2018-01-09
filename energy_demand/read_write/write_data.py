@@ -207,8 +207,8 @@ def write_lf(path_result_folder, path_new_folder, parameters, model_results, fil
 
     pass
 
-def write_supply_results(sim_yr, path_result, model_results, file_name):
-    """Store yearly model resul to txt
+def write_supply_results(submodels, sim_yr, path_result, model_results, file_name):
+    """Store yearly model result to txt
 
     Store numpy array to txt
 
@@ -218,11 +218,12 @@ def write_supply_results(sim_yr, path_result, model_results, file_name):
     basic_functions.create_folder(path_result)
 
     # Write to txt
-    for fueltype_nr, fuel in enumerate(model_results):
-        path_file = os.path.join(
-            path_result,
-            "{}__{}__{}__{}".format(file_name, sim_yr, fueltype_nr, ".txt"))
-        np.savetxt(path_file, fuel, delimiter=',')
+    for submodel_nr, submodel in enumerate(submodels):
+        for fueltype_nr, fuel in enumerate(model_results):
+            path_file = os.path.join(
+                path_result,
+                "{}__{}__{}__{}__{}".format(file_name, sim_yr, fueltype_nr, submodel, ".txt"))
+            np.savetxt(path_file, fuel[submodel_nr], delimiter=',')
 
     pass
 
