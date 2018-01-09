@@ -293,7 +293,7 @@ class Enduse(object):
                 else:
                     print("mode_constrained: " + str(mode_constrained))
                     #---NON-PEAK
-                    fuel_yh = calc_fuel_tech_yh(
+                    constrained_fuel_yh = calc_fuel_tech_yh(
                         enduse,
                         sector,
                         self.enduse_techs,
@@ -302,8 +302,20 @@ class Enduse(object):
                         load_profiles,
                         fueltypes_nr,
                         fueltypes,
-                        mode_constrained,
-                        assumptions['model_yeardays_nrs'])
+                        mode_constrained=True,
+                        model_yeardays_nrs=assumptions['model_yeardays_nrs'])
+
+                    unconstrained_fuel_yh = calc_fuel_tech_yh(
+                        enduse,
+                        sector,
+                        self.enduse_techs,
+                        fuel_tech_y,
+                        tech_stock,
+                        load_profiles,
+                        fueltypes_nr,
+                        fueltypes,
+                        mode_constrained=False,
+                        model_yeardays_nrs=assumptions['model_yeardays_nrs'])
 
                     # --PEAK
                     print("..")
@@ -323,10 +335,10 @@ class Enduse(object):
                     # Demand Management (peak shaving)
                     # ---------------------------------------
                     if mode_constrained:
-                        print("CONSTRAINED")
-                        self.fuel_yh = {}
-                        self.fuel_peak_h = {}
-                        self.fuel_peak_dh = {}
+                        print("CONSTRAINED - only calculat if constrained")
+                        self.techs_fuel_yh = {}
+                        self.techs_fuel_peak_h = {}
+                        self.techs_fuel_peak_dh = {}
 
                         # --PEAK
                         # Iterate technologies in enduse and assign technology specific profiles
@@ -335,18 +347,18 @@ class Enduse(object):
                             sector,
                             self.enduse_techs,
                             fuel_tech_y,
-                            fuel_yh,
+                            constrained_fuel_yh, #fuel_yh,
                             tech_stock,
                             load_profiles,
                             fueltypes_nr,
                             mode_constrained)
 
-                        for tech in fuel_yh:
+                        for tech in constrained_fuel_yh:
                             tech_fuel_yh, tech_fuel_peak_h, tech_fuel_peak_dh = demand_management(
                                 enduse,
                                 sim_param,
                                 assumptions,
-                                fuel_yh[tech],
+                                constrained_fuel_yh[tech], #fuel_yh[tech],
                                 fuel_peak_dh[tech],
                                 self.enduse_techs,
                                 sector,
@@ -356,11 +368,12 @@ class Enduse(object):
                                 fueltypes_nr,
                                 mode_constrained)
 
-                            self.fuel_yh[tech] = tech_fuel_yh
-                            self.fuel_peak_h[tech] = tech_fuel_peak_h
-                            self.fuel_peak_dh[tech] = tech_fuel_peak_dh
-                    else:
-
+                            self.techs_fuel_yh[tech] = tech_fuel_yh
+                            self.techs_fuel_peak_h[tech] = tech_fuel_peak_h
+                            self.techs_fuel_peak_dh[tech] = tech_fuel_peak_dh
+                    #else:
+                    if 1 == 1: #CALCULATE IN ANY CASE
+                        print("ddd: " + str(mode_constrained))
                         # --PEAK
                         # Iterate technologies in enduse and assign technology specific profiles
                         fuel_peak_dh = calc_peak_tech_dh(
@@ -368,17 +381,17 @@ class Enduse(object):
                             sector,
                             self.enduse_techs,
                             fuel_tech_y,
-                            fuel_yh,
+                            unconstrained_fuel_yh, #fuel_yh,
                             tech_stock,
                             load_profiles,
                             fueltypes_nr,
-                            mode_constrained)
+                            mode_constrained=False)
 
                         fuel_yh, fuel_peak_h, fuel_peak_dh = demand_management(
                             enduse,
                             sim_param,
                             assumptions,
-                            fuel_yh,
+                            unconstrained_fuel_yh, #fuel_yh,
                             fuel_peak_dh,
                             self.enduse_techs,
                             sector,
@@ -386,7 +399,7 @@ class Enduse(object):
                             tech_stock,
                             load_profiles,
                             fueltypes_nr,
-                            mode_constrained)
+                            mode_constrained=False)
 
                         self.fuel_yh = fuel_yh
                         self.fuel_peak_h = fuel_peak_h
@@ -412,11 +425,11 @@ def demand_management(
     ----------
     enduse : str
         Enduse
-    sim_param : 
+    sim_param : dict
 
-    assumptions : 
+    assumptions : dict
 
-    fuel_yh : 
+    fuel_yh : array
 
     fuel_peak_dh : 
 
