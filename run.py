@@ -514,7 +514,7 @@ class EDWrapper(SectorModel):
                 # Substract
                 tech_fueltype_int = data['assumptions']['technologies'][constrained_tech].fuel_type_int
                 print("A: " + str(supply_results_non_heating_constrained[tech_fueltype_int].shape))
-                print(supply_results_constrained[constrained_tech].shape)
+                print("B: " + str(supply_results_constrained[constrained_tech].shape))
                 supply_results_non_heating_constrained[tech_fueltype_int] = supply_results_non_heating_constrained[tech_fueltype_int] - supply_results_constrained[constrained_tech][tech_fueltype_int]
 
             # Add all remaining non technology constrained (non_heating) demand

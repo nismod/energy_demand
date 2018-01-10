@@ -340,7 +340,6 @@ class Enduse(object):
 
                         for tech in constrained_fuel_yh:
                             print("TECH  {}  {}".format(tech, np.sum(constrained_fuel_yh[tech])))
-
                             tech_fuel_yh, tech_fuel_peak_h, tech_fuel_peak_dh = demand_management(
                                 enduse,
                                 sim_param,
@@ -405,9 +404,6 @@ class Enduse(object):
                         load_profiles,
                         fueltypes_nr,
                         mode_constrained=False)
-                    #self.fuel_yh = fuel_yh
-                    #self.fuel_peak_h = fuel_peak_h
-                    #self.fuel_peak_dh = fuel_peak_dh
 
 def demand_management(
         enduse,
@@ -820,7 +816,6 @@ def calc_peak_tech_dh(
             if mode_constrained:
                 tech_fuels_peak_dh = np.zeros((fueltypes_nr, 24), dtype=float)
                 tech_fuels_peak_dh[tech_fuel_type_int] = fuel_tech_peak_dh
-
                 fuels_peak_dh[tech] = tech_fuels_peak_dh
             else:
                 # Peak day fuel shape * fueltype distribution for peak day
@@ -903,8 +898,7 @@ def calc_fuel_tech_yh(
 
     TODO: CLEAN
     """
-    if mode_constrained:
-
+    if mode_constrained: #TODO new not mode_constrained and austauschen
         fuels_yh = {}
 
         for tech in enduse_techs:
@@ -1054,7 +1048,7 @@ def service_to_fuel(
         for tech, fuel_tech in service_tech.items():
             fuel = fuel_tech
             fuel_new_y[fueltypes['heat']] += fuel
-            fuel_per_tech[tech] = fuel
+            fuel_per_tech[tech] = fuel #which is heat
     else:
         for tech, service in service_tech.items():
             tech_eff = tech_stock.get_tech_attr(
