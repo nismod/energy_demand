@@ -154,6 +154,7 @@ class Enduse(object):
             load_profiles = get_lp_stock(
                 enduse, non_regional_lp_stock, regional_lp_stock)
 
+            # Get technologies of enduse
             self.enduse_techs = get_enduse_tech(fuel_tech_p_by)
 
             # -------------------------------
@@ -368,15 +369,19 @@ class Enduse(object):
 
                         # ------------
                         # New: Calculate heat related factors for all technologies
+                        # Summarise all energy demand of not heating related (constrained) technologies
                         # -----------
                         self.fuel_yh = np.zeros((tech_fuel_yh.shape), dtype=float)
                         self.fuel_peak_h = np.zeros((tech_fuel_peak_h.shape), dtype=float)
                         self.fuel_peak_dh = np.zeros((tech_fuel_peak_dh.shape), dtype=float)
 
+                        #if self.enduse in assumptions['enduse_space_heating']:
+                        #    pass #skip
+                        #else:
                         for tech in self.techs_fuel_yh:
-                            self.fuel_yh += self.techs_fuel_yh[tech]
-                            self.fuel_peak_h += self.techs_fuel_peak_h[tech]
-                            self.fuel_peak_dh += self.techs_fuel_peak_dh[tech]
+                                self.fuel_yh += self.techs_fuel_yh[tech]
+                                self.fuel_peak_h += self.techs_fuel_peak_h[tech]
+                                self.fuel_peak_dh += self.techs_fuel_peak_dh[tech]
                     else:
                         # ONLY FOR HEATING ENDUSES
                         #---NON-PEAK
@@ -724,7 +729,6 @@ def get_peak_day(fuel_yh):
     """
     # Sum all fuel across all fueltypes for every hour in a year
     all_fueltypes_tot_h = np.sum(fuel_yh, axis=0)
-    #all_fueltypes_tot_h = np.sum(fuel_yh, axis=1)
 
     if np.sum(all_fueltypes_tot_h) == 0:
         print("TODO: FIX ERROR: NP PEAK FOUND")
