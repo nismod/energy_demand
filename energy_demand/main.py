@@ -16,6 +16,7 @@ https://nismod.github.io/docs/smif-prerequisites.html#sector-modeller
 # convert documentation in rst?
 # CORRECT OUTPUTS (per tech)
 # Potentiall load other annual profiles?
+averaged_temp
 """
 import os
 import sys

@@ -132,6 +132,17 @@ class Enduse(object):
             self.fuel_yh = 0
             self.fuel_peak_dh = np.zeros((fueltypes_nr, 24), dtype=float)
             self.fuel_peak_h = 0
+
+            
+            #  ------NEW
+            self.techs_fuel_yh = {}
+            self.techs_fuel_peak_h = {}
+            self.techs_fuel_peak_dh = {}
+            for tech in assumptions['heating_technologies']:
+                model_yeardays_nrs = 365 #TODO GLOBAL
+                self.techs_fuel_yh[tech] = np.zeros((fueltypes_nr, model_yeardays_nrs, 24), dtype=float)
+                self.techs_fuel_peak_h[tech] = np.zeros((fueltypes_nr, model_yeardays_nrs, 24), dtype=float)
+                self.techs_fuel_peak_dh[tech] = np.zeros((fueltypes_nr, model_yeardays_nrs, 24), dtype=float)
         else:
             # Get correct parameters depending on model configuration
             load_profiles = get_lp_stock(
@@ -283,6 +294,8 @@ class Enduse(object):
                 # Assign load profiles
                 # ------------------------------------------
                 if self.flat_profile_crit: # NEW INSERTED AGAIN
+                    print("EEEEEEEEEEEEEEEEEEEEEEEEEEE")
+
                     self.fuel_y = calc_fuel_tech_y(
                         enduse,
                         tech_stock,
@@ -317,25 +330,14 @@ class Enduse(object):
                         mode_constrained=False,
                         model_yeardays_nrs=assumptions['model_yeardays_nrs'])
 
-                    # --PEAK
-                    print("..")
-                    # Iterate technologies in enduse and assign technology specific profiles
-                    '''fuel_peak_dh = calc_peak_tech_dh(
-                        enduse,
-                        sector,
-                        self.enduse_techs,
-                        fuel_tech_y,
-                        fuel_yh,
-                        tech_stock,
-                        load_profiles,
-                        fueltypes_nr,
-                        mode_constrained)'''
-
                     # ---------------------------------------
                     # Demand Management (peak shaving)
                     # ---------------------------------------
                     if mode_constrained:
-                        print("CONSTRAINED - only calculat if constrained")
+                        # ---
+                        # Contrainsed (i.e. with technologies) fuel calculation
+                        # ---
+                        print("CONSTRAINED - only calculat if constrained " + str(self.enduse))
                         self.techs_fuel_yh = {}
                         self.techs_fuel_peak_h = {}
                         self.techs_fuel_peak_dh = {}
@@ -371,39 +373,37 @@ class Enduse(object):
                             self.techs_fuel_yh[tech] = tech_fuel_yh
                             self.techs_fuel_peak_h[tech] = tech_fuel_peak_h
                             self.techs_fuel_peak_dh[tech] = tech_fuel_peak_dh
-                    #else:
-                    if 1 == 1: #CALCULATE IN ANY CASE
-                        print("ddd: " + str(mode_constrained))
-                        # --PEAK
-                        # Iterate technologies in enduse and assign technology specific profiles
-                        fuel_peak_dh = calc_peak_tech_dh(
-                            enduse,
-                            sector,
-                            self.enduse_techs,
-                            fuel_tech_y,
-                            unconstrained_fuel_yh, #fuel_yh,
-                            tech_stock,
-                            load_profiles,
-                            fueltypes_nr,
-                            mode_constrained=False)
 
-                        fuel_yh, fuel_peak_h, fuel_peak_dh = demand_management(
-                            enduse,
-                            sim_param,
-                            assumptions,
-                            unconstrained_fuel_yh, #fuel_yh,
-                            fuel_peak_dh,
-                            self.enduse_techs,
-                            sector,
-                            fuel_tech_y,
-                            tech_stock,
-                            load_profiles,
-                            fueltypes_nr,
-                            mode_constrained=False)
+                    # --PEAK
+                    # Iterate technologies in enduse and assign technology specific profiles
+                    fuel_peak_dh = calc_peak_tech_dh(
+                        enduse,
+                        sector,
+                        self.enduse_techs,
+                        fuel_tech_y,
+                        unconstrained_fuel_yh, #fuel_yh,
+                        tech_stock,
+                        load_profiles,
+                        fueltypes_nr,
+                        mode_constrained=False)
 
-                        self.fuel_yh = fuel_yh
-                        self.fuel_peak_h = fuel_peak_h
-                        self.fuel_peak_dh = fuel_peak_dh
+                    fuel_yh, fuel_peak_h, fuel_peak_dh = demand_management(
+                        enduse,
+                        sim_param,
+                        assumptions,
+                        unconstrained_fuel_yh, #fuel_yh,
+                        fuel_peak_dh,
+                        self.enduse_techs,
+                        sector,
+                        fuel_tech_y,
+                        tech_stock,
+                        load_profiles,
+                        fueltypes_nr,
+                        mode_constrained=False)
+
+                    self.fuel_yh = fuel_yh
+                    self.fuel_peak_h = fuel_peak_h
+                    self.fuel_peak_dh = fuel_peak_dh
 
 def demand_management(
         enduse,
@@ -711,13 +711,12 @@ def get_peak_day(fuel_yh):
     #all_fueltypes_tot_h = np.sum(fuel_yh, axis=1)
 
     if np.sum(all_fueltypes_tot_h) == 0:
-        print("ERROR: NP PEAK FOUND")
+        print("TODO: FIX ERROR: NP PEAK FOUND")
         return 0
     else:
 
         # Sum fuel within every hour for every day and get day with maximum fuel
         peak_day_nr = np.argmax(np.sum(all_fueltypes_tot_h, axis=1))
-        print("peak_day_nr " + str(peak_day_nr))
         return peak_day_nr
 
 def calc_peak_tech_dh(
@@ -779,7 +778,6 @@ def calc_peak_tech_dh(
             if tech_type == 'heat_pump':
                 """Read fuel from peak day
                 """
-                print("MODE: " + str(mode_constrained))
                 # Get day with most fuel across all fueltypes
                 if mode_constrained:
                     peak_day_nr = get_peak_day(fuel_yh[tech])

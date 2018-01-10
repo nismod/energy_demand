@@ -183,10 +183,27 @@ def load_non_param_assump(base_yr, paths, enduses, lookups):
         assumptions['installed_heat_pump_by'],
         lookups['fueltypes'])
 
+    # Define specifically all heating technologies
+    assumptions['heating_technologies'] = [
+        'boiler_solid_fuel',
+        'boiler_gas',
+        'boiler_electricity',
+        'boiler_oil',
+        'boiler_biomass',
+        'boiler_hydrogen',
+        'boiler_condensing_gas',
+        'boiler_condensing_oil',
+        'stirling_micro_CHP',
+        'fuel_cell_CHP',
+        'storage_heater_electricity',
+        'secondary_heater_electricity',
+        'heat_pumps_hydrogen',
+        'heat_pumps_electricity']
+
     # ============================================================
     # Enduse technology definition list
     # ============================================================
-    assumptions['enduse_space_heating'] = ['rs_space_heating', 'rs_space_heating', 'is_space_heating']
+    assumptions['enduse_space_heating'] = ['rs_space_heating', 'ss_space_heating', 'is_space_heating']
     assumptions['enduse_space_cooling'] = ['rs_space_cooling', 'ss_space_cooling', 'is_space_cooling']
     assumptions['tech_list']['enduse_water_heating'] = ['rs_water_heating', 'ss_water_heating']
 

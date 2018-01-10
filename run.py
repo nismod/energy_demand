@@ -93,7 +93,7 @@ class EDWrapper(SectorModel):
         data['criterias']['virtual_building_stock_criteria'] = True     # True: Run virtual building stock model
         data['criterias']['plot_HDD_chart'] = False                     # True: Plotting of HDD vs gas chart
         data['criterias']['validation_criteria'] = False                # True: Plot validation plots
-        data['criterias']['mode_constrained'] = False                   # True: Technologies are defined in ED model and fuel is provided, False: Heat is delievered not per technologies
+        data['criterias']['mode_constrained'] = True                   # True: Technologies are defined in ED model and fuel is provided, False: Heat is delievered not per technologies
         data['criterias']['spatial_exliclit_diffusion'] = False         # True: Spatial explicit calculations
 
         data['sim_param']['base_yr'] = 2015                             # Base year
@@ -425,7 +425,7 @@ class EDWrapper(SectorModel):
         # ------------------------------------
         supply_results_unconstrained = model_run_object.ed_fueltype_submodel_regs_yh
         
-        #supply_results_constrained = model_run_object.ed_fueltype_regs_yh
+        supply_results_constrained = model_run_object.ed_techs_fueltype_submodel_regs_yh
 
         # -----------------
         # Write to txt files
@@ -503,6 +503,8 @@ class EDWrapper(SectorModel):
         if data['criterias']['mode_constrained']: #constrained
             print("ERROR STILL NEDS TO BE DONE")
             # Write results per technology
+            print(supply_results_constrained.keys())
+            print(supply_results_constrained)
             pass
         else: #unconstrained
             supply_results = defaultdict(dict)
