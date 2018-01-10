@@ -46,12 +46,15 @@ def energy_demand_model(data, fuel_in=0, fuel_in_elec=0):
     ----
     This function is executed in the wrapper
     """
-    fuel_in, fuel_in_elec, fuel_in_gas, fuel_in_heat = testing.test_function_fuel_sum(
+    fuel_in, fuel_in_elec, fuel_in_gas, fuel_in_heat, fuel_in_hydro, fuel_heating_gas, fuel_heating_all_fueltypes = testing.test_function_fuel_sum(
         data, data['criterias']['mode_constrained'], data['assumptions']['enduse_space_heating'])
 
     model_run_object = model.EnergyDemandModel(
         regions=data['lu_reg'],
         data=data)
+
+    for fueltype in data['lookups']['fueltypes']:
+        print("Fueltype: {}   {}".format(fueltype, np.sum(model_run_object.ed_fueltype_national_yh[data['lookups']['fueltypes'][fueltype]])))
 
     print("Fuel input:          " + str(fuel_in))
     print("================================================")
@@ -70,6 +73,13 @@ def energy_demand_model(data, fuel_in=0, fuel_in_elec=0):
     print("gas diff:            " + str(round(np.sum(model_run_object.ed_fueltype_national_yh[data['lookups']['fueltypes']['gas']]), 4) - fuel_in_gas))
     print("--")
     print("--")
+    print("hydro fuel in:         " + str(fuel_in_hydro))
+    print("hydro fuel out:        " + str(np.sum(model_run_object.ed_fueltype_national_yh[data['lookups']['fueltypes']['hydrogen']])))
+    print("hydro diff:            " + str(round(np.sum(model_run_object.ed_fueltype_national_yh[data['lookups']['fueltypes']['hydrogen']]), 4) - fuel_in_hydro))
+    print("--")
+    print("--")
+    print("FUEL HEATING GAS     " + str(fuel_heating_gas))
+    print("FUEL HEATING all     " + str(fuel_heating_all_fueltypes))
     print("heat fuel in:         " + str(fuel_in_heat))
     print("heat fuel out:        " + str(
         np.sum(model_run_object.ed_fueltype_national_yh[data['lookups']['fueltypes']['heat']])))
@@ -225,7 +235,7 @@ if __name__ == "__main__":
         data['sim_param']['curr_yr'] = sim_yr
 
         logging.info("Simulation for year --------------:  " + str(sim_yr))
-        fuel_in, fuel_in_elec, fuel_in_gas = testing.test_function_fuel_sum(
+        fuel_in, fuel_in_elec, fuel_in_gas, fuel_in_hydro, fuel_in_heat, fuel_heating_gas = testing.test_function_fuel_sum(
             data, data['criterias']['mode_constrained'], data['assumptions']['enduse_space_heating'])
 
         #-------------PROFILER

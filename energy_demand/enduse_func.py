@@ -132,10 +132,7 @@ class Enduse(object):
             print("ss_space_heatingEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEE : " + str(np.sum(fuel)))
         if self.enduse == 'is_space_heating':
             print("is_space_heatingEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEE : " + str(np.sum(fuel)))
-        if np.sum(self.fuel_new_y[6]) > 0: #TEST IF HEAT IS INPUT
-            print(self.enduse)
-            prnt(",,,")
-        
+
         if np.sum(fuel) == 0: #If enduse has no fuel return empty shapes
             self.flat_profile_crit = True
             self.fuel_y = np.zeros((fueltypes_nr), dtype=float)
@@ -209,7 +206,7 @@ class Enduse(object):
             # ----------------------------------
             # Hourly Disaggregation
             # ----------------------------------
-            print("ENDUSE:  {}  TECHS {}".format(enduse, self.enduse_techs))
+            #print("ENDUSE:  {}  TECHS {}".format(enduse, self.enduse_techs))
             if self.enduse_techs == []:
                 """If no technologies are defined for an enduse, the load profiles
                 are read from dummy shape, which show the load profiles of the whole enduse.
@@ -334,7 +331,7 @@ class Enduse(object):
                             fueltypes,
                             assumptions['model_yeardays_nrs'],
                             mode_constrained=True)
-                        print(".")
+
                         # --PEAK
                         # Iterate technologies in enduse and assign technology specific profiles
                         fuel_peak_dh = calc_peak_tech_dh(
@@ -725,7 +722,6 @@ def get_peak_day(fuel_yh):
     considered to be the peak day
     - The Peak day may change date in a year
     """
-    
     # Sum all fuel across all fueltypes for every hour in a year
     all_fueltypes_tot_h = np.sum(fuel_yh, axis=0)
     #all_fueltypes_tot_h = np.sum(fuel_yh, axis=1)
@@ -734,7 +730,6 @@ def get_peak_day(fuel_yh):
         print("TODO: FIX ERROR: NP PEAK FOUND")
         return 0
     else:
-
         # Sum fuel within every hour for every day and get day with maximum fuel
         peak_day_nr = np.argmax(np.sum(all_fueltypes_tot_h, axis=1))
         return peak_day_nr
@@ -841,7 +836,6 @@ def calc_peak_tech_dh(
             else:
                 # Peak day fuel shape * fueltype distribution for peak day
                 # select from (7, nr_of_days, 24) only peak day for all fueltypes
-                #fuels_peak_dh[tech_fuel_type_int] += fuel_tech_peak_dh
                 fuels_peak_dh[fueltypes['heat']] += fuel_tech_peak_dh
                 
     return fuels_peak_dh
@@ -923,11 +917,8 @@ def calc_fuel_tech_yh(
     if mode_constrained:
         fuels_yh = {}
         for tech in enduse_techs:
-            load_profile = load_profiles.get_lp(
-                enduse, sector, tech, 'shape_yh')
-
-            tech_fueltype_int = tech_stock.get_tech_attr(
-                enduse, tech, 'tech_fueltype_int')
+            load_profile = load_profiles.get_lp(enduse, sector, tech, 'shape_yh')
+            tech_fueltype_int = tech_stock.get_tech_attr(enduse, tech, 'tech_fueltype_int')
 
             if model_yeardays_nrs != 365:
                 load_profile = lp.abs_to_rel(load_profile)
@@ -941,16 +932,13 @@ def calc_fuel_tech_yh(
             else:
                 fuel_tech_yh = enduse_fuel_tech[tech] * load_profile
 
-                #tech_fuels_yh[fueltypes['heat']] += fuel_tech_yh
                 tech_fuels_yh[tech_fueltype_int] += fuel_tech_yh
                 fuels_yh[tech] = tech_fuels_yh
     else:
         fuels_yh = np.zeros((fueltypes_nr, model_yeardays_nrs, 24), dtype=float)
         for tech in enduse_techs:
-            #tech_fueltype_int = tech_stock.get_tech_attr(
-            #    enduse, tech, 'tech_fueltype_int')
-            load_profile = load_profiles.get_lp(
-                enduse, sector, tech, 'shape_yh')
+
+            load_profile = load_profiles.get_lp(enduse, sector, tech, 'shape_yh')
 
             # Fuel distribution
             # Only needed if modelled days is not 365 because the
@@ -965,9 +953,8 @@ def calc_fuel_tech_yh(
                 pass
             else:
                 fuel_tech_yh = enduse_fuel_tech[tech] * load_profile
-                #INTERACTION QUESTION MARK INFO: HERE INFO ABOUT TECHNOLOY SPECIFIC FUEL GETS LOST
+
                 # Get distribution per fueltype
-                #fuels_yh[tech_fueltype_int] += fuel_tech_yh
                 fuels_yh[fueltypes['heat']] += fuel_tech_yh
 
     return fuels_yh
@@ -1009,7 +996,6 @@ def calc_fuel_tech_y(
     fuel_y = np.zeros((fueltypes_nr), dtype=float)
 
     for tech, fuel_tech_y in fuel_tech_y.items():
-
         if mode_constrained:
             tech_fuel_type_int = tech_stock.get_tech_attr(
                 enduse,
