@@ -126,12 +126,12 @@ class Enduse(object):
         self.fuel_new_y = fuel
         self.flat_profile_crit = flat_profile_crit
 
-        if self.enduse == 'rs_space_heating':
+        '''if self.enduse == 'rs_space_heating':
             print("rs_space_heatingEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEE : " + str(np.sum(fuel)))
         if self.enduse == 'ss_space_heating':
             print("ss_space_heatingEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEE : " + str(np.sum(fuel)))
         if self.enduse == 'is_space_heating':
-            print("is_space_heatingEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEE : " + str(np.sum(fuel)))
+            print("is_space_heatingEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEE : " + str(np.sum(fuel)))'''
 
         if np.sum(fuel) == 0: #If enduse has no fuel return empty shapes
             self.flat_profile_crit = True

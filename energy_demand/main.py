@@ -17,6 +17,7 @@ https://nismod.github.io/docs/smif-prerequisites.html#sector-modeller
 # CORRECT OUTPUTS (per tech)
 # Potentiall load other annual profiles?
 averaged_temp
+[enduse][sector] or [sector][enduse]
 """
 import os
 import sys
@@ -46,8 +47,9 @@ def energy_demand_model(data, fuel_in=0, fuel_in_elec=0):
     ----
     This function is executed in the wrapper
     """
-    fuel_in, fuel_in_elec, fuel_in_gas, fuel_in_heat, fuel_in_hydro, fuel_heating_gas, fuel_heating_all_fueltypes = testing.test_function_fuel_sum(
-        data, data['criterias']['mode_constrained'], data['assumptions']['enduse_space_heating'])
+    fuel_in, fuel_in_biomass, fuel_in_elec, fuel_in_gas, fuel_in_heat, fuel_in_hydrogen, fuel_in_solid_fuel, fuel_in_oil, tot_heating = testing.test_function_fuel_sum(
+        data, data['criterias']['mode_constrained'],
+        data['assumptions']['enduse_space_heating'])
 
     model_run_object = model.EnergyDemandModel(
         regions=data['lu_reg'],
@@ -60,33 +62,51 @@ def energy_demand_model(data, fuel_in=0, fuel_in_elec=0):
     print("================================================")
     print("Simulation year:     " + str(model_run_object.curr_yr))
     print("Number of regions    " + str(data['reg_nrs']))
-    print("Fuel input:          " + str(fuel_in))
-    print("Fuel output:         " + str(np.sum(model_run_object.ed_fueltype_national_yh)))
-    print("FUEL DIFFERENCE:     " + str(round((np.sum(model_run_object.ed_fueltype_national_yh) - fuel_in), 4)))
-    print("--")
+    print("Total fuel input:    " + str(fuel_in))
+    print("Total output:        " + str(np.sum(model_run_object.ed_fueltype_national_yh)))
+    print("Total difference:    " + str(round((np.sum(model_run_object.ed_fueltype_national_yh) - fuel_in), 4)))
+    print("-----")
+    print(fuel_in_biomass + fuel_in_elec + fuel_in_gas + fuel_in_heat + fuel_in_hydrogen + fuel_in_solid_fuel + fuel_in_oil)
+    _scrap = 0
+    for fueltype_str, fueltype_int in data['lookups']['fueltypes'].items():
+        _scrap += np.sum(model_run_object.ed_fueltype_national_yh[fueltype_int])
+    print(_scrap)
+    print("-----------")
+    print("oil fuel in:         " + str(fuel_in_oil))
+    print("oil fuel out:        " + str(np.sum(model_run_object.ed_fueltype_national_yh[data['lookups']['fueltypes']['oil']])))
+    print("oil diff:            " + str(round(np.sum(model_run_object.ed_fueltype_national_yh[data['lookups']['fueltypes']['oil']]), 4) - fuel_in_oil))
+    print("-----------")
+    print("biomass fuel in:     " + str(fuel_in_biomass))
+    print("biomass fuel out:    " + str(np.sum(model_run_object.ed_fueltype_national_yh[data['lookups']['fueltypes']['biomass']])))
+    print("biomass diff:        " + str(round(np.sum(model_run_object.ed_fueltype_national_yh[data['lookups']['fueltypes']['biomass']]), 4) - fuel_in_biomass))
+    print("-----------")
+    print("solid_fuel fuel in:  " + str(fuel_in_solid_fuel))
+    print("solid_fuel fuel out: " + str(np.sum(model_run_object.ed_fueltype_national_yh[data['lookups']['fueltypes']['solid_fuel']])))
+    print("solid_fuel diff:     " + str(round(np.sum(model_run_object.ed_fueltype_national_yh[data['lookups']['fueltypes']['solid_fuel']]), 4) - fuel_in_solid_fuel))
+    print("-----------")
     print("elec fuel in:        " + str(fuel_in_elec))
     print("elec fuel out:       " + str(np.sum(model_run_object.ed_fueltype_national_yh[data['lookups']['fueltypes']['electricity']])))
     print("ele fuel diff:       " + str(round(np.sum(model_run_object.ed_fueltype_national_yh[data['lookups']['fueltypes']['electricity']]), 4) - fuel_in_elec))
-    print("--")
+    print("-----------")
     print("gas fuel in:         " + str(fuel_in_gas))
     print("gas fuel out:        " + str(np.sum(model_run_object.ed_fueltype_national_yh[data['lookups']['fueltypes']['gas']])))
     print("gas diff:            " + str(round(np.sum(model_run_object.ed_fueltype_national_yh[data['lookups']['fueltypes']['gas']]), 4) - fuel_in_gas))
-    print("--")
-    print("--")
-    print("hydro fuel in:         " + str(fuel_in_hydro))
-    print("hydro fuel out:        " + str(np.sum(model_run_object.ed_fueltype_national_yh[data['lookups']['fueltypes']['hydrogen']])))
-    print("hydro diff:            " + str(round(np.sum(model_run_object.ed_fueltype_national_yh[data['lookups']['fueltypes']['hydrogen']]), 4) - fuel_in_hydro))
-    print("--")
-    print("--")
-    print("FUEL HEATING GAS     " + str(fuel_heating_gas))
-    print("FUEL HEATING all     " + str(fuel_heating_all_fueltypes))
-    print("heat fuel in:         " + str(fuel_in_heat))
-    print("heat fuel out:        " + str(
-        np.sum(model_run_object.ed_fueltype_national_yh[data['lookups']['fueltypes']['heat']])))
-    print("heat diff:            " + str(round(np.sum(model_run_object.ed_fueltype_national_yh[data['lookups']['fueltypes']['heat']]), 4) - fuel_in_heat))
-    print("--")
+    print("-----------")
+    print("hydro fuel in:       " + str(fuel_in_hydrogen))
+    print("hydro fuel out:      " + str(np.sum(model_run_object.ed_fueltype_national_yh[data['lookups']['fueltypes']['hydrogen']])))
+    print("hydro diff:          " + str(round(np.sum(model_run_object.ed_fueltype_national_yh[data['lookups']['fueltypes']['hydrogen']]), 4) - fuel_in_hydrogen))
+    print("-----------")
+    print("TOTAL HEATING        " + str(tot_heating))
+    print("heat fuel in:        " + str(fuel_in_heat))
+    print("heat fuel out:       " + str(np.sum(model_run_object.ed_fueltype_national_yh[data['lookups']['fueltypes']['heat']])))
+    print("heat diff:           " + str(round(np.sum(model_run_object.ed_fueltype_national_yh[data['lookups']['fueltypes']['heat']]), 4) - fuel_in_heat))
+    print("-----------")
     print("Diff elec %:         " + str((1/(round(np.sum(model_run_object.ed_fueltype_national_yh[data['lookups']['fueltypes']['electricity']]), 4))) * fuel_in_elec))
     print("Diff gas %:          " + str((1/(round(np.sum(model_run_object.ed_fueltype_national_yh[data['lookups']['fueltypes']['gas']]), 4))) * fuel_in_gas))
+    print("Diff oil %:          " + str((1/(round(np.sum(model_run_object.ed_fueltype_national_yh[data['lookups']['fueltypes']['oil']]), 4))) * fuel_in_oil))
+    print("Diff solid_fuel %:   " + str((1/(round(np.sum(model_run_object.ed_fueltype_national_yh[data['lookups']['fueltypes']['solid_fuel']]), 4))) * fuel_in_solid_fuel))
+    print("Diff hydrogen %:     " + str((1/(round(np.sum(model_run_object.ed_fueltype_national_yh[data['lookups']['fueltypes']['hydrogen']]), 4))) * fuel_in_hydrogen))
+    print("Diff biomass %:      " + str((1/(round(np.sum(model_run_object.ed_fueltype_national_yh[data['lookups']['fueltypes']['biomass']]), 4))) * fuel_in_biomass))
     print("================================================")
 
     logging.info("...finished running energy demand model simulation")
@@ -235,8 +255,10 @@ if __name__ == "__main__":
         data['sim_param']['curr_yr'] = sim_yr
 
         logging.info("Simulation for year --------------:  " + str(sim_yr))
-        fuel_in, fuel_in_elec, fuel_in_gas, fuel_in_hydro, fuel_in_heat, fuel_heating_gas = testing.test_function_fuel_sum(
-            data, data['criterias']['mode_constrained'], data['assumptions']['enduse_space_heating'])
+        fuel_in, fuel_in_biomass, fuel_in_elec, fuel_in_gas, fuel_in_heat, fuel_in_hydro, fuel_in_solid_fuel, fuel_in_oil, tot_heating = testing.test_function_fuel_sum(
+            data,
+            data['criterias']['mode_constrained'],
+            data['assumptions']['enduse_space_heating'])
 
         #-------------PROFILER
         if instrument_profiler:
