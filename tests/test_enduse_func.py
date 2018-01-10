@@ -348,7 +348,7 @@ def test_fuel_to_service():
     fuel_tech_p_by = {0 : {'techA': 1.0}}
 
     technologies = {'techA': read_data.TechnologyData()}
-    technologies['techA'].fuel_type_str = 'gas'
+    technologies['techA'].fueltype_str = 'gas'
     technologies['techA'].eff_achieved = 1.0
     technologies['techA'].diff_method = 'linear'
     technologies['techA'].eff_by = 0.5
@@ -419,7 +419,7 @@ def test_fuel_to_service():
 def test_service_to_fuel():
 
     technologies = {'techA': read_data.TechnologyData()}
-    technologies['techA'].fuel_type_str = 'gas'
+    technologies['techA'].fueltype_str = 'gas'
     technologies['techA'].eff_achieved = 1.0
     technologies['techA'].diff_method = 'linear'
     technologies['techA'].eff_by = 0.5
@@ -525,7 +525,7 @@ def test_apply_climate_chante():
 def test_calc_fuel_tech_y():
 
     technologies = {'techA': read_data.TechnologyData()}
-    technologies['techA'].fuel_type_str = 'gas'
+    technologies['techA'].fueltype_str = 'gas'
     technologies['techA'].eff_achieved = 1.0
     technologies['techA'].diff_method = 'linear'
     technologies['techA'].eff_by = 0.5
@@ -575,7 +575,7 @@ def test_calc_fuel_tech_yh():
     lu_fueltypes = {'gas': 0, 'heat': 1}
 
     technologies = {'techA': read_data.TechnologyData()}
-    technologies['techA'].fuel_type_str = 'gas'
+    technologies['techA'].fueltype_str = 'gas'
     technologies['techA'].eff_achieved = 1.0
     technologies['techA'].diff_method = 'linear'
     technologies['techA'].eff_by = 0.5

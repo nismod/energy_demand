@@ -93,7 +93,7 @@ class EDWrapper(SectorModel):
         data['criterias']['virtual_building_stock_criteria'] = True     # True: Run virtual building stock model
         data['criterias']['plot_HDD_chart'] = False                     # True: Plotting of HDD vs gas chart
         data['criterias']['validation_criteria'] = False                # True: Plot validation plots
-        data['criterias']['mode_constrained'] = False                    # True: Technologies are defined in ED model and fuel is provided, False: Heat is delievered not per technologies
+        data['criterias']['mode_constrained'] = True                    # True: Technologies are defined in ED model and fuel is provided, False: Heat is delievered not per technologies
         data['criterias']['spatial_exliclit_diffusion'] = False         # True: Spatial explicit calculations
 
         data['sim_param']['base_yr'] = 2015                             # Base year
@@ -530,7 +530,7 @@ class EDWrapper(SectorModel):
                 # Calculate fuel of all constrained technologies with this fueltype
                 constrained_ed = np.zeros((supply_results_unconstrained.shape))
                 for tech in supply_results_constrained:
-                    tech_fueltype_str = data['assumptions']['technologies'][tech].fuel_type_str
+                    tech_fueltype_str = data['assumptions']['technologies'][tech].fueltype_str
                     if tech_fueltype_str == fueltype_str:
                         constrained_ed += supply_results_constrained[tech]
 

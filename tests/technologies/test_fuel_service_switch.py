@@ -23,7 +23,7 @@ def test_create_service_switch():
     assumptions = {
         'technologies':
             {'boiler_oil': read_data.TechnologyData(
-                fuel_type='oil',
+                fueltype='oil',
                 eff_by= 1.0,
                 eff_ey= 1.0,
                 year_eff_ey=2020,
@@ -33,7 +33,7 @@ def test_create_service_switch():
                 tech_list='tech_heating',
                 tech_max_share=1.0),
             'boiler_gas': read_data.TechnologyData(
-                fuel_type='gas',
+                fueltype='gas',
                 eff_by=1.0,
                 eff_ey= 1.0,
                 year_eff_ey=2020,
@@ -78,7 +78,7 @@ def test_capacity_installations():
             'sig_steeppness': 1}}
 
     technologies = {'techA': read_data.TechnologyData(
-        fuel_type='oil',
+        fueltype='oil',
         eff_by= 1.0,
         eff_ey= 1.0,
         year_eff_ey=2020,
@@ -114,7 +114,7 @@ def test_capacity_installations():
     
     technologies = {
         'techA': read_data.TechnologyData(
-            fuel_type='oil',
+            fueltype='oil',
             eff_by= 1.0,
             eff_ey= 1.0,
             year_eff_ey=2020,
@@ -124,7 +124,7 @@ def test_capacity_installations():
             tech_list='tech_heating',
             tech_max_share=1.0),
         'techB': read_data.TechnologyData(
-            fuel_type='oil',
+            fueltype='oil',
             eff_by= 1.0,
             eff_ey= 1.0,
             year_eff_ey=2020,

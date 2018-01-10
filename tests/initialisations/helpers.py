@@ -36,7 +36,7 @@ def set_same_eff_all_tech():
 
     technologies = {
         'boilerA': read_data.TechnologyData(
-            fuel_type='gas',
+            fueltype='gas',
             eff_by=0.5,
             eff_ey=0.5,
             year_eff_ey=2015,

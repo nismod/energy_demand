@@ -39,7 +39,7 @@ def energy_demand_model(data, fuel_in=0, fuel_in_elec=0):
     result_dict : dict
         A nested dictionary containing all data for energy supply model with
         timesteps for every hour in a year.
-        [fuel_type : region : timestep]
+        [fueltype : region : timestep]
     model_run_object : dict
         Object of a yearly model run
 

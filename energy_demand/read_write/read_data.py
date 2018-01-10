@@ -16,7 +16,7 @@ class TechnologyData(object):
 
     Arguments
     ---------
-    fuel_type : str
+    fueltype : str
         Fueltype of technology
     eff_by : str
         Efficiency of technology in base year
@@ -40,7 +40,7 @@ class TechnologyData(object):
     """
     def __init__(
             self,
-            fuel_type=None,
+            fueltype=None,
             eff_by=None,
             eff_ey=None,
             year_eff_ey=None,
@@ -51,8 +51,8 @@ class TechnologyData(object):
             tech_max_share=None,
             fueltypes=None
         ):
-        self.fuel_type_str = fuel_type
-        self.fuel_type_int = tech_related.get_fueltype_int(fueltypes, fuel_type)
+        self.fueltype_str = fueltype
+        self.fueltype_int = tech_related.get_fueltype_int(fueltypes, fueltype)
         self.eff_by = eff_by
         self.eff_ey = eff_ey
         self.year_eff_ey = year_eff_ey
@@ -593,15 +593,15 @@ def read_fuel_switches(path_to_csv, enduses, lu_fueltypes):
     # Test if more than 100% per fueltype is switched
     for obj in fuel_switches:
         enduse = obj.enduse
-        fuel_type = obj.enduse_fueltype_replace
+        fueltype = obj.enduse_fueltype_replace
         tot_share_fueltype_switched = 0
         for obj_iter in fuel_switches:
-            if enduse == obj_iter.enduse and fuel_type == obj_iter.enduse_fueltype_replace:
+            if enduse == obj_iter.enduse and fueltype == obj_iter.enduse_fueltype_replace:
                 tot_share_fueltype_switched += obj_iter.fuel_share_switched_ey
         if tot_share_fueltype_switched > 1.0:
             sys.exit(
                 "Input error: The fuel switches are > 1.0 for enduse {} and fueltype {}".format(
-                    enduse, fuel_type))
+                    enduse, fueltype))
 
     # Test whether defined enduse exist
     for obj in fuel_switches:
@@ -641,7 +641,7 @@ def read_technologies(path_to_csv, fueltypes):
             technology = row[0]
             try:
                 dict_technologies[technology] = TechnologyData(
-                    fuel_type=str(row[1]),
+                    fueltype=str(row[1]),
                     eff_by=float(row[2]),
                     eff_ey=float(row[3]),
                     year_eff_ey=float(row[4]), #MAYBE: ADD DICT WITH INTERMEDIARY POINTS
