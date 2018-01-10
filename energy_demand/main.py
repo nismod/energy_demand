@@ -46,7 +46,8 @@ def energy_demand_model(data, fuel_in=0, fuel_in_elec=0):
     ----
     This function is executed in the wrapper
     """
-    fuel_in, fuel_in_elec, fuel_in_gas, fuel_in_heat = testing.test_function_fuel_sum(data, data['criterias']['mode_constrained'])
+    fuel_in, fuel_in_elec, fuel_in_gas, fuel_in_heat = testing.test_function_fuel_sum(
+        data, data['criterias']['mode_constrained'], data['assumptions']['enduse_space_heating'])
 
     model_run_object = model.EnergyDemandModel(
         regions=data['lu_reg'],
@@ -70,7 +71,8 @@ def energy_demand_model(data, fuel_in=0, fuel_in_elec=0):
     print("--")
     print("--")
     print("heat fuel in:         " + str(fuel_in_heat))
-    print("heat fuel out:        " + str(np.sum(model_run_object.ed_fueltype_national_yh[data['lookups']['fueltypes']['heat']])))
+    print("heat fuel out:        " + str(
+        np.sum(model_run_object.ed_fueltype_national_yh[data['lookups']['fueltypes']['heat']])))
     print("heat diff:            " + str(round(np.sum(model_run_object.ed_fueltype_national_yh[data['lookups']['fueltypes']['heat']]), 4) - fuel_in_heat))
     print("--")
     print("Diff elec %:         " + str((1/(round(np.sum(model_run_object.ed_fueltype_national_yh[data['lookups']['fueltypes']['electricity']]), 4))) * fuel_in_elec))
@@ -223,7 +225,8 @@ if __name__ == "__main__":
         data['sim_param']['curr_yr'] = sim_yr
 
         logging.info("Simulation for year --------------:  " + str(sim_yr))
-        fuel_in, fuel_in_elec, fuel_in_gas = testing.test_function_fuel_sum(data)
+        fuel_in, fuel_in_elec, fuel_in_gas = testing.test_function_fuel_sum(
+            data, data['criterias']['mode_constrained'], data['assumptions']['enduse_space_heating'])
 
         #-------------PROFILER
         if instrument_profiler:

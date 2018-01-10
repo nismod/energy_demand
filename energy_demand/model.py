@@ -471,9 +471,9 @@ def constrained_fuel_aggr(
 
             # If correct region and heating enduse
             if enduse_object.region_name == region_name and enduse_object.enduse in enduses_with_heating:
-                print("----")
-                print(enduse_object.enduse)
-                print(enduse_object.flat_profile_crit)
+                #print("----")
+                #print(enduse_object.enduse)
+                #print(enduse_object.flat_profile_crit)
                 ed_techs_dict = get_fuels_yh(
                     enduse_object,
                     attribute_to_get,
