@@ -501,12 +501,32 @@ class EDWrapper(SectorModel):
         # {fueltype_int: np.array((sector, region, intervals))}
         # --------------------------------
         if data['criterias']['mode_constrained']: #constrained
-            print("ERROR STILL NEDS TO BE DONE")
-            # Write results per technology
+            print("Info: Output constrained mode to supply model")
+            supply_results = defaultdict(dict)
+            supply_results_non_heating_constrained = np.copy(supply_results_unconstrained)
+
+            # Add all technologies and only respective fueltype
             print(supply_results_constrained.keys())
-            print(supply_results_constrained)
-            pass
-        else: #unconstrained
+            print(supply_results_constrained['boiler_gas'].shape)
+            for constrained_tech in supply_results_constrained:
+                supply_results[constrained_tech] = supply_results_constrained[constrained_tech]
+
+                # Substract
+                tech_fueltype_int = data['assumptions']['technologies'][constrained_tech].fuel_type_int
+                print("A: " + str(supply_results_non_heating_constrained[tech_fueltype_int].shape))
+                print(supply_results_constrained[constrained_tech].shape)
+                supply_results_non_heating_constrained[tech_fueltype_int] = supply_results_non_heating_constrained[tech_fueltype_int] - supply_results_constrained[constrained_tech][tech_fueltype_int]
+
+            # Add all remaining non technology constrained (non_heating) demand
+            # by removing constrained heating demand from total
+            for fueltype_str, fueltype_int in data['lookups']['fueltypes'].items():
+                name_fueltype = "non_heating_".format(fueltype_str)
+                supply_results[name_fueltype] = supply_results_non_heating_constrained[fueltype_int]
+
+        else:
+            # -------------
+            # Unconstrained
+            # -------------
             supply_results = defaultdict(dict)
             for fueltype_str, fueltype_int in data['lookups']['fueltypes'].items():
                 supply_results[fueltype_str] = supply_results_unconstrained[fueltype_int]

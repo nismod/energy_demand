@@ -197,7 +197,7 @@ class EnergyDemandModel(object):
             # CONSTRAINED
             # -------------
             if data['criterias']['mode_constrained']:
-                
+
                 for heating_tech in ['boiler_gas']: #data['assumptions']['heating_technologies']:
 
                     # Sum across all fueltypes, sectors, regs and hours
@@ -218,7 +218,7 @@ class EnergyDemandModel(object):
                     ed_techs_fueltype_submodel_regs_yh[heating_tech] += submodel_ed_fueltype_regs_yh
 
             # -------------
-            # UNCONSTRAINED NASHORN
+            # UNCONSTRAINED
             # -------------
             # Sum across all fueltypes, sectors, regs and hours
             for submodel_nr, submodel in enumerate([reg_rs_submodel, reg_ss_submodel, reg_is_submodel]):
@@ -297,7 +297,6 @@ class EnergyDemandModel(object):
             # --------------------------------------
             # Regional load factor calculations
             # --------------------------------------
-
             # Calculate average load for every day
             average_fuel_yd = np.mean(fuel_region_yh, axis=2)
 
@@ -320,6 +319,7 @@ class EnergyDemandModel(object):
         # -------------------------------------------------
         # Assign values for all region in EnergyDemandModel object
         # -------------------------------------------------
+        self.ed_techs_fueltype_submodel_regs_yh = ed_techs_fueltype_submodel_regs_yh
         self.ed_fueltype_submodel_regs_yh = ed_fueltype_submodel_regs_yh
         self.ed_fueltype_regs_yh = ed_fueltype_regs_yh
         self.ed_fueltype_national_yh = ed_fueltype_national_yh

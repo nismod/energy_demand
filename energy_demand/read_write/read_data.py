@@ -12,8 +12,7 @@ from energy_demand.profiles import load_profile
 from energy_demand.scripts import init_scripts
 
 class TechnologyData(object):
-    """Class to store technology related
-    data
+    """Class to store technology related data
 
     Arguments
     ---------
