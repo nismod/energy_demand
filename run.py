@@ -544,7 +544,7 @@ class EDWrapper(SectorModel):
                 print("====== {} {}".format(np.sum(constrained_ed), fueltype_str))
                 print(constrained_ed.shape)
                 # Substract this fuel from  
-                supply_results[name_fueltype] = supply_results_unconstrained[fueltype_int] - constrained_ed
+                supply_results[name_fueltype] = supply_results_unconstrained[fueltype_int] - constrained_ed[fueltype_int]
 
             _scrap_sum = 0
             for i in supply_results.values():
