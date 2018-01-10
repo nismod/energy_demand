@@ -198,123 +198,148 @@ class EnergyDemandModel(object):
             # -------------
             if data['criterias']['mode_constrained']:
 
-                for heating_tech in ['boiler_gas']: #data['assumptions']['heating_technologies']:
+                for heating_tech in data['assumptions']['heating_technologies']:
+                    try:
 
-                    # Sum across all fueltypes, sectors, regs and hours
-                    for submodel_nr, submodel in enumerate([reg_rs_submodel, reg_ss_submodel, reg_is_submodel]):
+                        # Sum across all fueltypes, sectors, regs and hours
+                        for submodel_nr, submodel in enumerate([reg_rs_submodel, reg_ss_submodel, reg_is_submodel]):
 
-                        submodel_ed_fueltype_regs_yh, _ = constrained_fuel_regions_fueltype(
-                            np.zeros((data['lookups']['fueltypes_nr'], len(data['sectors'].keys()), data['reg_nrs'], data['assumptions']['model_yearhours_nrs']), dtype=float),
-                            data['lookups']['fueltypes_nr'],
-                            data['lookups']['fueltypes'],
-                            region,
-                            reg_array_nr,
-                            data['assumptions']['model_yearhours_nrs'],
-                            data['assumptions']['model_yeardays_nrs'],
-                            heating_tech,
-                            ['rs_space_heating', 'ss_space_heating', 'is_space_heating'],
-                            [submodel])
+                            submodel_ed_fueltype_regs_yh, _ = constrained_fuel_regions_fueltype(
+                                np.zeros((data['lookups']['fueltypes_nr'], len(data['sectors'].keys()), data['reg_nrs'], data['assumptions']['model_yearhours_nrs']), dtype=float),
+                                data['lookups']['fueltypes_nr'],
+                                data['lookups']['fueltypes'],
+                                region,
+                                reg_array_nr,
+                                data['assumptions']['model_yearhours_nrs'],
+                                data['assumptions']['model_yeardays_nrs'],
+                                heating_tech,
+                                ['rs_space_heating', 'ss_space_heating', 'is_space_heating'],
+                                [submodel])
 
-                    ed_techs_fueltype_submodel_regs_yh[heating_tech] += submodel_ed_fueltype_regs_yh
+                        ed_techs_fueltype_submodel_regs_yh[heating_tech] += submodel_ed_fueltype_regs_yh
+                    except KeyError:
+                        print("Technology was not used {}".format(heating_tech))
+                        pass
 
-            # -------------
-            # UNCONSTRAINED
-            # -------------
-            # Sum across all fueltypes, sectors, regs and hours
-            for submodel_nr, submodel in enumerate([reg_rs_submodel, reg_ss_submodel, reg_is_submodel]):
-                
-                submodel_ed_fueltype_regs_yh = np.zeros((data['lookups']['fueltypes_nr'], data['reg_nrs'], data['assumptions']['model_yearhours_nrs']), dtype=float)
-                submodel_ed_fueltype_regs_yh, _ = fuel_regions_fueltype(
-                    submodel_ed_fueltype_regs_yh,
+                # -------------
+                # UNCONSTRAINED DOUBLE?
+                # -------------
+                # Sum across all fueltypes, sectors, regs and hours
+                for submodel_nr, submodel in enumerate([reg_rs_submodel, reg_ss_submodel, reg_is_submodel]):
+                    submodel_ed_fueltype_regs_yh = np.zeros((data['lookups']['fueltypes_nr'], data['reg_nrs'], data['assumptions']['model_yearhours_nrs']), dtype=float)
+                    submodel_ed_fueltype_regs_yh, _ = fuel_regions_fueltype(
+                        submodel_ed_fueltype_regs_yh,
+                        data['lookups']['fueltypes_nr'],
+                        data['lookups']['fueltypes'],
+                        region,
+                        reg_array_nr,
+                        data['assumptions']['model_yearhours_nrs'],
+                        data['assumptions']['model_yeardays_nrs'],
+                        [submodel])
+
+                    # Add SubModel specific ed
+                    for fueltype_nr in data['lookups']['fueltypes'].values():
+                        ed_fueltype_submodel_regs_yh[fueltype_nr][submodel_nr] += submodel_ed_fueltype_regs_yh[fueltype_nr]
+            else:
+                # -------------
+                # UNCONSTRAINED
+                # -------------
+                # Sum across all fueltypes, sectors, regs and hours
+                for submodel_nr, submodel in enumerate([reg_rs_submodel, reg_ss_submodel, reg_is_submodel]):
+                    
+                    submodel_ed_fueltype_regs_yh = np.zeros((data['lookups']['fueltypes_nr'], data['reg_nrs'], data['assumptions']['model_yearhours_nrs']), dtype=float)
+                    submodel_ed_fueltype_regs_yh, _ = fuel_regions_fueltype(
+                        submodel_ed_fueltype_regs_yh,
+                        data['lookups']['fueltypes_nr'],
+                        data['lookups']['fueltypes'],
+                        region,
+                        reg_array_nr,
+                        data['assumptions']['model_yearhours_nrs'],
+                        data['assumptions']['model_yeardays_nrs'],
+                        [submodel])
+
+                    # Add SubModel specific ed
+                    for fueltype_nr in data['lookups']['fueltypes'].values():
+                        ed_fueltype_submodel_regs_yh[fueltype_nr][submodel_nr] += submodel_ed_fueltype_regs_yh[fueltype_nr]
+
+            if 1 == 1:
+                # Sum across all regions, all enduse and sectors sum_reg
+                # [fueltype, region, fuel_yh], [fueltype, fuel_yh]
+                ed_fueltype_regs_yh, fuel_region_yh = fuel_regions_fueltype(
+                    ed_fueltype_regs_yh,
                     data['lookups']['fueltypes_nr'],
                     data['lookups']['fueltypes'],
                     region,
                     reg_array_nr,
                     data['assumptions']['model_yearhours_nrs'],
                     data['assumptions']['model_yeardays_nrs'],
-                    [submodel])
+                    [reg_rs_submodel, reg_ss_submodel, reg_is_submodel])
 
-                # Add SubModel specific ed
-                for fueltype_nr in data['lookups']['fueltypes'].values():
-                    ed_fueltype_submodel_regs_yh[fueltype_nr][submodel_nr] += submodel_ed_fueltype_regs_yh[fueltype_nr]
+                # Sum across all regions, all enduse and sectors
+                ed_fueltype_national_yh = fuel_aggr(
+                    ed_fueltype_national_yh,
+                    'fuel_yh',
+                    [reg_rs_submodel, reg_ss_submodel, reg_is_submodel],
+                    'no_sum',
+                    data['assumptions']['model_yearhours_nrs'],
+                    data['assumptions']['model_yeardays_nrs'])
 
-            # Sum across all regions, all enduse and sectors sum_reg
-            # [fueltype, region, fuel_yh], [fueltype, fuel_yh]
-            ed_fueltype_regs_yh, fuel_region_yh = fuel_regions_fueltype(
-                ed_fueltype_regs_yh,
-                data['lookups']['fueltypes_nr'],
-                data['lookups']['fueltypes'],
-                region,
-                reg_array_nr,
-                data['assumptions']['model_yearhours_nrs'],
-                data['assumptions']['model_yeardays_nrs'],
-                [reg_rs_submodel, reg_ss_submodel, reg_is_submodel])
+                # Sum across all regions and calculate peak dh shape per fueltype
+                tot_peak_enduses_fueltype = fuel_aggr(
+                    tot_peak_enduses_fueltype,
+                    'fuel_peak_dh',
+                    [reg_rs_submodel, reg_ss_submodel, reg_is_submodel],
+                    'no_sum',
+                    data['assumptions']['model_yearhours_nrs'],
+                    data['assumptions']['model_yeardays_nrs'])
 
-            # Sum across all regions, all enduse and sectors
-            ed_fueltype_national_yh = fuel_aggr(
-                ed_fueltype_national_yh,
-                'fuel_yh',
-                [reg_rs_submodel, reg_ss_submodel, reg_is_submodel],
-                'no_sum',
-                data['assumptions']['model_yearhours_nrs'],
-                data['assumptions']['model_yeardays_nrs'])
+                tot_fuel_y_max_enduses = fuel_aggr(
+                    tot_fuel_y_max_enduses,
+                    'fuel_peak_h',
+                    [reg_rs_submodel, reg_ss_submodel, reg_is_submodel],
+                    'no_sum',
+                    data['assumptions']['model_yearhours_nrs'],
+                    data['assumptions']['model_yeardays_nrs'])
 
-            # Sum across all regions and calculate peak dh shape per fueltype
-            tot_peak_enduses_fueltype = fuel_aggr(
-                tot_peak_enduses_fueltype,
-                'fuel_peak_dh',
-                [reg_rs_submodel, reg_ss_submodel, reg_is_submodel],
-                'no_sum',
-                data['assumptions']['model_yearhours_nrs'],
-                data['assumptions']['model_yeardays_nrs'])
+                # Sum across all regions and provide specific enduse
+                tot_fuel_y_enduse_specific_h = sum_enduse_all_regions(
+                    tot_fuel_y_enduse_specific_h,
+                    'fuel_yh',
+                    [reg_rs_submodel, reg_ss_submodel, reg_is_submodel],
+                    data['assumptions']['model_yearhours_nrs'],
+                    data['assumptions']['model_yeardays_nrs'])
 
-            tot_fuel_y_max_enduses = fuel_aggr(
-                tot_fuel_y_max_enduses,
-                'fuel_peak_h',
-                [reg_rs_submodel, reg_ss_submodel, reg_is_submodel],
-                'no_sum',
-                data['assumptions']['model_yearhours_nrs'],
-                data['assumptions']['model_yeardays_nrs'])
+                # --------------------------------------
+                # Calculate averaged hour profile per season
+                # --------------------------------------
+                averaged_h = averaged_season_hourly(
+                    averaged_h,
+                    fuel_region_yh,
+                    reg_array_nr,
+                    data['lookups']['fueltypes'].values(),
+                    data['assumptions']['seasons'])
 
-            # Sum across all regions and provide specific enduse
-            tot_fuel_y_enduse_specific_h = sum_enduse_all_regions(
-                tot_fuel_y_enduse_specific_h,
-                'fuel_yh',
-                [reg_rs_submodel, reg_ss_submodel, reg_is_submodel],
-                data['assumptions']['model_yearhours_nrs'],
-                data['assumptions']['model_yeardays_nrs'])
+                # --------------------------------------
+                # Regional load factor calculations
+                # --------------------------------------
+                # Calculate average load for every day
+                average_fuel_yd = np.mean(fuel_region_yh, axis=2)
 
-            # --------------------------------------
-            # Calculate averaged hour profile per season
-            # --------------------------------------
-            averaged_h = averaged_season_hourly(
-                averaged_h,
-                fuel_region_yh,
-                reg_array_nr,
-                data['lookups']['fueltypes'].values(),
-                data['assumptions']['seasons'])
+                # Calculate load factors across all enduses (Yearly lf)
+                load_factor_y = load_factors.calc_lf_y(fuel_region_yh, average_fuel_yd)
 
-            # --------------------------------------
-            # Regional load factor calculations
-            # --------------------------------------
-            # Calculate average load for every day
-            average_fuel_yd = np.mean(fuel_region_yh, axis=2)
+                # Calculate load factors across all enduses (Daily lf)
+                load_factor_yd = load_factors.calc_lf_d(fuel_region_yh, average_fuel_yd)
+                load_factor_seasons = load_factors.calc_lf_season(
+                    data['assumptions']['seasons'], fuel_region_yh, average_fuel_yd)
 
-            # Calculate load factors across all enduses (Yearly lf)
-            load_factor_y = load_factors.calc_lf_y(fuel_region_yh, average_fuel_yd)
+                # Copy regional load factors
+                for fueltype_nr in range(data['lookups']['fueltypes_nr']):
+                    reg_load_factor_y[fueltype_nr][reg_array_nr] = load_factor_y[fueltype_nr]
+                    reg_load_factor_yd[fueltype_nr][reg_array_nr] = load_factor_yd[fueltype_nr]
 
-            # Calculate load factors across all enduses (Daily lf)
-            load_factor_yd = load_factors.calc_lf_d(fuel_region_yh, average_fuel_yd)
-            load_factor_seasons = load_factors.calc_lf_season(
-                data['assumptions']['seasons'], fuel_region_yh, average_fuel_yd)
-
-            # Copy regional load factors
-            for fueltype_nr in range(data['lookups']['fueltypes_nr']):
-                reg_load_factor_y[fueltype_nr][reg_array_nr] = load_factor_y[fueltype_nr]
-                reg_load_factor_yd[fueltype_nr][reg_array_nr] = load_factor_yd[fueltype_nr]
-
-                for season, lf_season in load_factor_seasons.items():
-                    reg_load_factor_seasons[season][fueltype_nr][reg_array_nr] = lf_season[fueltype_nr]
+                    for season, lf_season in load_factor_seasons.items():
+                        reg_load_factor_seasons[season][fueltype_nr][reg_array_nr] = lf_season[fueltype_nr]
 
         # -------------------------------------------------
         # Assign values for all region in EnergyDemandModel object
@@ -454,15 +479,14 @@ def constrained_fuel_aggr(
                     attribute_to_get,
                     model_yearhours_nrs,
                     model_yeardays_nrs)
-                print("tech: " + str(tech))
-                #print(ed_techs_dict.keys())
-                
-                # If no technologies are defined TODO: TEST if keys
-                try:
-                    input_array += ed_techs_dict[tech]
-                except:
-                    input_array += ed_techs_dict
 
+                # If no technologies are defined TODO: TEST if keys
+                #try:
+                if isinstance(ed_techs_dict, dict):
+                    print(ed_techs_dict.keys())
+                    input_array += ed_techs_dict[tech]
+                else: #except KeyError:
+                    input_array += ed_techs_dict
 
     if sum_crit == 'no_sum':
         return input_array

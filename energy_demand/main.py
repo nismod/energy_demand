@@ -46,7 +46,7 @@ def energy_demand_model(data, fuel_in=0, fuel_in_elec=0):
     ----
     This function is executed in the wrapper
     """
-    fuel_in, fuel_in_elec, fuel_in_gas = testing.test_function_fuel_sum(data)
+    fuel_in, fuel_in_elec, fuel_in_gas, fuel_in_heat = testing.test_function_fuel_sum(data, data['criterias']['mode_constrained'])
 
     model_run_object = model.EnergyDemandModel(
         regions=data['lu_reg'],
@@ -67,6 +67,11 @@ def energy_demand_model(data, fuel_in=0, fuel_in_elec=0):
     print("gas fuel in:         " + str(fuel_in_gas))
     print("gas fuel out:        " + str(np.sum(model_run_object.ed_fueltype_national_yh[data['lookups']['fueltypes']['gas']])))
     print("gas diff:            " + str(round(np.sum(model_run_object.ed_fueltype_national_yh[data['lookups']['fueltypes']['gas']]), 4) - fuel_in_gas))
+    print("--")
+    print("--")
+    print("heat fuel in:         " + str(fuel_in_heat))
+    print("heat fuel out:        " + str(np.sum(model_run_object.ed_fueltype_national_yh[data['lookups']['fueltypes']['heat']])))
+    print("heat diff:            " + str(round(np.sum(model_run_object.ed_fueltype_national_yh[data['lookups']['fueltypes']['heat']]), 4) - fuel_in_heat))
     print("--")
     print("Diff elec %:         " + str((1/(round(np.sum(model_run_object.ed_fueltype_national_yh[data['lookups']['fueltypes']['electricity']]), 4))) * fuel_in_elec))
     print("Diff gas %:          " + str((1/(round(np.sum(model_run_object.ed_fueltype_national_yh[data['lookups']['fueltypes']['gas']]), 4))) * fuel_in_gas))
@@ -111,7 +116,7 @@ if __name__ == "__main__":
     # Load data
     data = {}
     data['criterias'] = {}
-    data['criterias']['mode_constrained'] = True
+    data['criterias']['mode_constrained'] = False #constrained_by_technologies
     data['criterias']['plot_HDD_chart'] = False
     data['criterias']['virtual_building_stock_criteria'] = True
     data['criterias']['spatial_exliclit_diffusion'] = True

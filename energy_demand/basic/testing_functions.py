@@ -58,19 +58,24 @@ def testing_tech_defined(technologies, all_tech_enduse):
                     "The technology '{}' for which fuel was attributed isn't defined in tech stock".format(
                         tech))
 
-def test_function_fuel_sum(data):
+def test_function_fuel_sum(data, mode_constrained):
     """ Sum raw disaggregated fuel data
     #TODO REMOVE
     """
+    ##if mode_constrained
+
+    #else:
     fuel_in = 0
     fuel_in_elec = 0
     fuel_in_gas = 0
+    fuel_in_heat = 0
 
     for region in data['rs_fuel_disagg']:
         for enduse in data['rs_fuel_disagg'][region]:
             fuel_in += np.sum(data['rs_fuel_disagg'][region][enduse])
             fuel_in_elec += np.sum(data['rs_fuel_disagg'][region][enduse][data['lookups']['fueltypes']['electricity']])
             fuel_in_gas += np.sum(data['rs_fuel_disagg'][region][enduse][data['lookups']['fueltypes']['gas']])
+            fuel_in_heat += np.sum(data['rs_fuel_disagg'][region][enduse][data['lookups']['fueltypes']['heat']])
 
     for region in data['ss_fuel_disagg']:
         for sector in data['ss_fuel_disagg'][region]:
@@ -78,6 +83,7 @@ def test_function_fuel_sum(data):
                 fuel_in += np.sum(data['ss_fuel_disagg'][region][sector][enduse])
                 fuel_in_elec += np.sum(data['ss_fuel_disagg'][region][sector][enduse][data['lookups']['fueltypes']['electricity']])
                 fuel_in_gas += np.sum(data['ss_fuel_disagg'][region][sector][enduse][data['lookups']['fueltypes']['gas']])
+                fuel_in_heat += np.sum(data['ss_fuel_disagg'][region][sector][enduse][data['lookups']['fueltypes']['heat']])
 
     for region in data['is_fuel_disagg']:
         for sector in data['is_fuel_disagg'][region]:
@@ -85,8 +91,9 @@ def test_function_fuel_sum(data):
                 fuel_in += np.sum(data['is_fuel_disagg'][region][sector][enduse])
                 fuel_in_elec += np.sum(data['is_fuel_disagg'][region][sector][enduse][data['lookups']['fueltypes']['electricity']])
                 fuel_in_gas += np.sum(data['is_fuel_disagg'][region][sector][enduse][data['lookups']['fueltypes']['gas']])
+                fuel_in_heat += np.sum(data['is_fuel_disagg'][region][sector][enduse][data['lookups']['fueltypes']['heat']])
 
-    return fuel_in, fuel_in_elec, fuel_in_gas
+    return fuel_in, fuel_in_elec, fuel_in_gas, fuel_in_heat
 
 def control_disaggregation(fuel_disagg, national_fuel, enduses, sectors=False):
     """Check if disaggregation is correct

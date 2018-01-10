@@ -202,7 +202,7 @@ def load_non_param_assump(base_yr, paths, enduses, lookups):
 
     # ============================================================
     # Enduse technology definition list
-    # ============================================================
+    # ============================================================ ['rs_space_heating'] #TODO
     assumptions['enduse_space_heating'] = ['rs_space_heating', 'ss_space_heating', 'is_space_heating']
     assumptions['enduse_space_cooling'] = ['rs_space_cooling', 'ss_space_cooling', 'is_space_cooling']
     assumptions['tech_list']['enduse_water_heating'] = ['rs_water_heating', 'ss_water_heating']

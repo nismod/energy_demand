@@ -126,6 +126,13 @@ class Enduse(object):
         self.fuel_new_y = fuel
         self.flat_profile_crit = flat_profile_crit
 
+        if self.enduse == 'rs_space_heating':
+            print("rs_space_heatingEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEE : " + str(np.sum(fuel)))
+        if self.enduse == 'ss_space_heating':
+            print("ss_space_heatingEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEE : " + str(np.sum(fuel)))
+        if self.enduse == 'is_space_heating':
+            print("is_space_heatingEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEE : " + str(np.sum(fuel)))
+        
         if np.sum(fuel) == 0: #If enduse has no fuel return empty shapes
             self.flat_profile_crit = True
             self.fuel_y = np.zeros((fueltypes_nr), dtype=float)
@@ -133,7 +140,6 @@ class Enduse(object):
             self.fuel_peak_dh = np.zeros((fueltypes_nr, 24), dtype=float)
             self.fuel_peak_h = 0
 
-            
             #  ------NEW
             self.techs_fuel_yh = {}
             self.techs_fuel_peak_h = {}
@@ -229,7 +235,7 @@ class Enduse(object):
                     sim_param['base_yr'],
                     sim_param['curr_yr'],
                     service_switches)
-
+                print("MODE  {}   {} ".format(enduse, mode_constrained))
                 # ------------------------------------
                 # Calculate regional energy service
                 # ------------------------------------
@@ -358,52 +364,58 @@ class Enduse(object):
                             self.techs_fuel_peak_h[tech] = tech_fuel_peak_h
                             self.techs_fuel_peak_dh[tech] = tech_fuel_peak_dh
 
-                        # Add empty unconstrained fuel_yh for this enduse
-                        #self.fuel_yh = np.zeros((tech_fuel_yh.shape), dtype=float)
-                        #self.fuel_peak_h
-                        #self.fuel_peak_dh
-                    #else:
-                    #    pass
+                        # ------------
+                        # New: Calculate heat related factors for all technologies
+                        # -----------
+                        self.fuel_yh = np.zeros((tech_fuel_yh.shape), dtype=float)
+                        self.fuel_peak_h = np.zeros((tech_fuel_peak_h.shape), dtype=float)
+                        self.fuel_peak_dh = np.zeros((tech_fuel_peak_dh.shape), dtype=float)
 
-                    #---NON-PEAK
-                    unconstrained_fuel_yh = calc_fuel_tech_yh(
-                        enduse,
-                        sector,
-                        self.enduse_techs,
-                        fuel_tech_y,
-                        tech_stock,
-                        load_profiles,
-                        fueltypes_nr,
-                        fueltypes,
-                        assumptions['model_yeardays_nrs'],
-                        mode_constrained=False)
+                        for tech in self.techs_fuel_yh:
+                            self.fuel_yh += self.techs_fuel_yh[tech]
+                            self.fuel_peak_h += self.techs_fuel_peak_h[tech]
+                            self.fuel_peak_dh += self.techs_fuel_peak_dh[tech]
+                    else:
 
-                    # --PEAK
-                    # Iterate technologies in enduse and assign technology specific profiles
-                    fuel_peak_dh = calc_peak_tech_dh(
-                        enduse,
-                        sector,
-                        self.enduse_techs,
-                        fuel_tech_y,
-                        unconstrained_fuel_yh,
-                        tech_stock,
-                        load_profiles,
-                        fueltypes_nr,
-                        mode_constrained=False)
+                        #---NON-PEAK
+                        unconstrained_fuel_yh = calc_fuel_tech_yh(
+                            enduse,
+                            sector,
+                            self.enduse_techs,
+                            fuel_tech_y,
+                            tech_stock,
+                            load_profiles,
+                            fueltypes_nr,
+                            fueltypes,
+                            assumptions['model_yeardays_nrs'],
+                            mode_constrained=False)
 
-                    self.fuel_yh, self.fuel_peak_h, self.fuel_peak_dh = demand_management(
-                        enduse,
-                        sim_param,
-                        assumptions,
-                        unconstrained_fuel_yh,
-                        fuel_peak_dh,
-                        self.enduse_techs,
-                        sector,
-                        fuel_tech_y,
-                        tech_stock,
-                        load_profiles,
-                        fueltypes_nr,
-                        mode_constrained=False)
+                        # --PEAK
+                        # Iterate technologies in enduse and assign technology specific profiles
+                        fuel_peak_dh = calc_peak_tech_dh(
+                            enduse,
+                            sector,
+                            self.enduse_techs,
+                            fuel_tech_y,
+                            unconstrained_fuel_yh,
+                            tech_stock,
+                            load_profiles,
+                            fueltypes_nr,
+                            mode_constrained=False)
+
+                        self.fuel_yh, self.fuel_peak_h, self.fuel_peak_dh = demand_management(
+                            enduse,
+                            sim_param,
+                            assumptions,
+                            unconstrained_fuel_yh,
+                            fuel_peak_dh,
+                            self.enduse_techs,
+                            sector,
+                            fuel_tech_y,
+                            tech_stock,
+                            load_profiles,
+                            fueltypes_nr,
+                            mode_constrained=False)
 
 def demand_management(
         enduse,
@@ -898,12 +910,14 @@ def calc_fuel_tech_yh(
 
     TODO: CLEAN
     """
-    if mode_constrained: #TODO new not mode_constrained and austauschen
+    if mode_constrained:
         fuels_yh = {}
-
         for tech in enduse_techs:
             load_profile = load_profiles.get_lp(
                 enduse, sector, tech, 'shape_yh')
+
+            tech_fueltype_int = tech_stock.get_tech_attr(
+                enduse, tech, 'tech_fueltype_int')
 
             if model_yeardays_nrs != 365:
                 load_profile = lp.abs_to_rel(load_profile)
@@ -914,19 +928,17 @@ def calc_fuel_tech_yh(
                 # Technology has not fuel assigned
                 #fuels_yh[lu_fueltypes['heat']] += 0
                 fuels_yh[tech] = tech_fuels_yh
-                #pass
             else:
                 fuel_tech_yh = enduse_fuel_tech[tech] * load_profile
 
-                tech_fuels_yh[lu_fueltypes['heat']] += fuel_tech_yh
+                #tech_fuels_yh[lu_fueltypes['heat']] += fuel_tech_yh
+                tech_fuels_yh[tech_fueltype_int] += fuel_tech_yh
                 fuels_yh[tech] = tech_fuels_yh
     else:
         fuels_yh = np.zeros((fueltypes_nr, model_yeardays_nrs, 24), dtype=float)
         for tech in enduse_techs:
-
-            tech_fueltype_int = tech_stock.get_tech_attr(
-                enduse, tech, 'tech_fueltype_int')
-
+            #tech_fueltype_int = tech_stock.get_tech_attr(
+            #    enduse, tech, 'tech_fueltype_int')
             load_profile = load_profiles.get_lp(
                 enduse, sector, tech, 'shape_yh')
 
@@ -945,7 +957,8 @@ def calc_fuel_tech_yh(
                 fuel_tech_yh = enduse_fuel_tech[tech] * load_profile
                 #INTERACTION QUESTION MARK INFO: HERE INFO ABOUT TECHNOLOY SPECIFIC FUEL GETS LOST
                 # Get distribution per fueltype
-                fuels_yh[tech_fueltype_int] += fuel_tech_yh
+                #fuels_yh[tech_fueltype_int] += fuel_tech_yh
+                fuels_yh[lu_fueltypes['heat']] += fuel_tech_yh
 
     return fuels_yh
 

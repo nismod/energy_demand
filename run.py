@@ -27,7 +27,7 @@ from energy_demand.technologies import fuel_service_switch
 
 # must match smif project name for Local Authority Districts
 REGION_SET_NAME = 'lad_uk_2016'
-NR_OF_MODELLEd_REGIONS = 2 # uk: 391, england.: 380
+NR_OF_MODELLEd_REGIONS = 1 # uk: 391, england.: 380
 PROFILER = False
 
 class EDWrapper(SectorModel):
@@ -427,6 +427,13 @@ class EDWrapper(SectorModel):
         
         supply_results_constrained = model_run_object.ed_techs_fueltype_submodel_regs_yh
 
+        print(" Summing Constrained and Unconsrained")
+        sum_constrained = 0
+        for tech_ed in supply_results_constrained.values():
+            sum_constrained += tech_ed
+        print(np.sum(sum_constrained)) 
+        print(np.sum(supply_results_unconstrained))
+
         # -----------------
         # Write to txt files
         # -----------------
@@ -500,10 +507,10 @@ class EDWrapper(SectorModel):
         # No technology specific delivery (heat is provided in form of a fueltype)
         # {fueltype_int: np.array((sector, region, intervals))}
         # --------------------------------
-        if data['criterias']['mode_constrained']: #constrained
+        if data['criterias']['mode_constrained']: #constrained by technologies
             print("Info: Output constrained mode to supply model")
             supply_results = defaultdict(dict)
-            supply_results_non_heating_constrained = np.copy(supply_results_unconstrained)
+            #supply_results_non_heating_constrained = np.copy(supply_results_unconstrained)
 
             # Add all technologies and only respective fueltype
             print(supply_results_constrained.keys())
@@ -512,17 +519,28 @@ class EDWrapper(SectorModel):
                 supply_results[constrained_tech] = supply_results_constrained[constrained_tech]
 
                 # Substract
-                tech_fueltype_int = data['assumptions']['technologies'][constrained_tech].fuel_type_int
-                print("A: " + str(supply_results_non_heating_constrained[tech_fueltype_int].shape))
-                print("B: " + str(supply_results_constrained[constrained_tech].shape))
-                supply_results_non_heating_constrained[tech_fueltype_int] = supply_results_non_heating_constrained[tech_fueltype_int] - supply_results_constrained[constrained_tech][tech_fueltype_int]
+                ##tech_fueltype_int = data['assumptions']['technologies'][constrained_tech].fuel_type_int
+                ##print("A: " + str(supply_results_non_heating_constrained[tech_fueltype_int].shape))
+                ##print("B: " + str(supply_results_constrained[constrained_tech].shape))
+                ##supply_results_non_heating_constrained[tech_fueltype_int] = supply_results_non_heating_constrained[tech_fueltype_int] - supply_results_constrained[constrained_tech][tech_fueltype_int]
 
             # Add all remaining non technology constrained (non_heating) demand
             # by removing constrained heating demand from total
             for fueltype_str, fueltype_int in data['lookups']['fueltypes'].items():
-                name_fueltype = "non_heating_".format(fueltype_str)
-                supply_results[name_fueltype] = supply_results_non_heating_constrained[fueltype_int]
+                
+                name_fueltype = "non_heating_{}".format(fueltype_str)
+                if name_fueltype == "non_heating_heat":
+                    #Do not copy heat 
+                    pass
+                else:
+                    #supply_results[name_fueltype] = supply_results_non_heating_constrained[fueltype_int]
+                    supply_results[name_fueltype] = supply_results_unconstrained[fueltype_int]
+                    print("add non heating fueltypes {}  {}".format(name_fueltype, np.sum(supply_results_unconstrained[fueltype_int])))
 
+            print("FINISHED CONSTRAINED")
+            print(supply_results.keys())
+            print(supply_results['boiler_gas'].shape)
+            prnt(".")
         else:
             # -------------
             # Unconstrained
@@ -531,8 +549,9 @@ class EDWrapper(SectorModel):
             for fueltype_str, fueltype_int in data['lookups']['fueltypes'].items():
                 supply_results[fueltype_str] = supply_results_unconstrained[fueltype_int]
 
-            print("======SHAPE=========")
+            print("FINISHED UNCONSTRAINED")
             print(supply_results['solid_fuel'].shape)
+            print(np.sum(supply_results['heat']))
             prnt(".")
         return dict(supply_results)
 
