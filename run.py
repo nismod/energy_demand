@@ -514,14 +514,13 @@ class EDWrapper(SectorModel):
             # --
             # Constrained
             # --
-            
             print("...Info: Output constrained mode to supply model")
             supply_results = defaultdict(dict)
 
             # Add all technologies of restricted enduse (heating)
             print(supply_results_constrained.keys())
             print(supply_results_constrained['boiler_gas'].shape)
-            supply_results.update(supply_results_constrained)
+           
 
             _scrap_sum_constrained = 0
             for i in supply_results.values():
@@ -535,25 +534,51 @@ class EDWrapper(SectorModel):
             for fueltype_str, fueltype_int in data['lookups']['fueltypes'].items():
                 name_fueltype = "non_heating_{}".format(fueltype_str)
 
-                # Calculate fuel of all constrained technologies
-                constrained_ed = np.zeros((supply_results_unconstrained.shape)) #data['lookups']['fueltypes_nr']
+                # Calculate fuel of all constrained technologies with this fueltype
+                constrained_ed = np.zeros((supply_results_unconstrained.shape))
                 for tech in supply_results_constrained:
                     tech_fueltype_str = data['assumptions']['technologies'][tech].fuel_type_str
                     if tech_fueltype_str == fueltype_str:
                         constrained_ed += supply_results_constrained[tech]
-                print("====== {} {}".format(np.sum(constrained_ed), fueltype_str))
-                print(constrained_ed.shape)
-                # Substract this fuel from  
+
+                # Substract constrained fuel from non-constrained fuel
                 supply_results[name_fueltype] = supply_results_unconstrained[fueltype_int] - constrained_ed[fueltype_int]
+
+            # Add all constrained technologies
+            supply_results.update(supply_results_constrained)
 
             _scrap_sum = 0
             for i in supply_results.values():
                 _scrap_sum += np.sum(i)
             print("TOTAL _scrap_sum: " + str(_scrap_sum))
-            print(" ")
-            print("FINISHED CONSTRAINED")
+            print("reg_rs_submodel, reg_ss_submodel, reg_is_submodel ")
+            
             #print(supply_results.keys())
             print(supply_results['boiler_gas'].shape)
+
+            # FUELTYPES, SECTORS, REGIONS, TIMESTEPS
+            # ----------------------------------------
+            supply_results_final = {}
+
+            # Iterate submodels
+            for submodel_nr, submodel in enumerate(['residential', 'service', 'industry']):
+
+                # Iterate fueltypes
+                for fueltype_str, fueltype_int in data['lookups']['fueltypes'].items():
+
+                    # Iterate technologies
+                    for tech_key in supply_results:
+                        key_name = "{}_{}_{}".format(submodel, fueltype_str, tech_key)
+                        print("Keyname: " + str(key_name))
+                        print(" items {}  {}  {}".format(submodel, fueltype_str, tech_key))
+                        print(supply_results[tech_key].shape)
+                        # Copy Regions, Timesteps
+                        supply_results_final[key_name] = supply_results[tech_key][fueltype_int][submodel_nr]
+            
+            supply_results = supply_results_final
+            print("...................")
+            print(supply_results[key_name].shape)
+            print("FINISHED CONSTRAINED")
             prnt(".")
         else:
             # -------------

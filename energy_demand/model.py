@@ -182,7 +182,7 @@ class EnergyDemandModel(object):
 
             # ----------------------
             # Simulate region
-            # ----------------------
+            # ---------------------- #TODO MODEL LIST
             reg_rs_submodel, reg_ss_submodel, reg_is_submodel = simulate_region(
                 region,
                 data,
