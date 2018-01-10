@@ -427,10 +427,11 @@ def read_csv_data_service(path_to_csv, fueltypes_nr):
             all_enduses.add(enduse)
 
         # Initialise dict
-        for sector in all_sectors:
-            end_uses_dict[sector] = {}
-            for enduse in all_enduses:
-                end_uses_dict[sector][enduse] = np.zeros((fueltypes_nr), dtype=float)
+        for enduse in all_enduses:
+        
+            end_uses_dict[enduse] = {}
+            for sector in all_sectors:
+                end_uses_dict[enduse][sector] = np.zeros((fueltypes_nr), dtype=float)
 
         for row in read_lines:
             lines.append(row)
@@ -439,7 +440,7 @@ def read_csv_data_service(path_to_csv, fueltypes_nr):
             for cnt, entry in enumerate(row[1:], 1):
                 enduse = _headings[cnt]
                 sector = _secondline[cnt]
-                end_uses_dict[sector][enduse][cnt_fueltype] += float(entry)
+                end_uses_dict[enduse][sector][cnt_fueltype] += float(entry)
 
     return end_uses_dict, list(all_sectors), list(all_enduses)
 
@@ -754,10 +755,10 @@ def read_csv_base_data_industry(path_to_csv, fueltypes_nr, lu_fueltypes):
             all_sectors.add(line[0])
 
         # Initialise dict
-        for sector in all_sectors:
-            end_uses_dict[sector] = {}
-            for enduse in all_enduses:
-                end_uses_dict[str(sector)][str(enduse)] = np.zeros((fueltypes_nr), dtype=float)
+        for enduse in all_enduses:
+            end_uses_dict[enduse] = {}
+            for sector in all_sectors:
+                end_uses_dict[str(enduse)][str(sector)] = np.zeros((fueltypes_nr), dtype=float)
 
         for row in lines:
             sector = row[0]
@@ -767,7 +768,7 @@ def read_csv_base_data_industry(path_to_csv, fueltypes_nr, lu_fueltypes):
                     enduse = str(_headings[position])
                     fueltype = _secondline[position]
                     fueltype_int = tech_related.get_fueltype_int(lu_fueltypes, fueltype)
-                    end_uses_dict[sector][enduse][fueltype_int] += float(row[position])
+                    end_uses_dict[enduse][sector][fueltype_int] += float(row[position])
 
     return end_uses_dict, list(all_sectors), list(all_enduses)
 
@@ -1005,11 +1006,11 @@ def read_disaggregated_fuel_sector(path_to_csv, fueltypes_nr):
             except KeyError:
                 fuel_sector_enduse[region][sector] = {}
             try:
-                fuel_sector_enduse[region][sector][enduse]
+                fuel_sector_enduse[region][enduse][sector]
             except KeyError:
-                fuel_sector_enduse[region][sector][enduse] = np.zeros((fueltypes_nr), dtype=float)
+                fuel_sector_enduse[region][enduse][sector] = np.zeros((fueltypes_nr), dtype=float)
 
-            fuel_sector_enduse[region][sector][enduse][fueltype] = fuel
+            fuel_sector_enduse[region][enduse][sector][fueltype] = fuel
 
     return fuel_sector_enduse
 

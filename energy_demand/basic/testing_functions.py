@@ -164,7 +164,7 @@ def control_disaggregation(fuel_disagg, national_fuel, enduses, sectors=False):
 
         for sector in sectors:
             for enduse in enduses:
-                control_sum_national += np.sum(national_fuel[sector][enduse])
+                control_sum_national += np.sum(national_fuel[enduse][sector])
 
         #The loaded floor area must correspond to provided fuel sectors numers
         np.testing.assert_almost_equal(

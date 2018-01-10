@@ -253,7 +253,7 @@ def ss_disaggregate(
                     else:
                         reg_diasg_factor = reg_pop / tot_pop
 
-                ss_fuel_disagg[region][enduse][sector] = ss_national_fuel[sector][enduse] * reg_diasg_factor
+                ss_fuel_disagg[region][enduse][sector] = ss_national_fuel[enduse][sector] * reg_diasg_factor
 
     # -----------------
     # Check if total fuel is the
@@ -303,7 +303,7 @@ def is_disaggregate(
             for enduse in enduses:
                 is_fuel_disagg[region][enduse] = {}
                 for sector in sectors:
-                    is_fuel_disagg[region][enduse][sector] = is_national_fuel[sector][enduse] * reg_disagg_f
+                    is_fuel_disagg[region][enduse][sector] = is_national_fuel[enduse][sector] * reg_disagg_f
 
         return is_fuel_disagg
 
@@ -412,7 +412,7 @@ def is_disaggregate(
                         
                         reg_disag_factor = reg_pop / tot_pop
 
-                        is_fuel_disagg[region][enduse][sector] = is_national_fuel[sector][enduse] * reg_disag_factor
+                        is_fuel_disagg[region][enduse][sector] = is_national_fuel[enduse][sector] * reg_disag_factor
                     else:
                         #for enduse in enduses['is_all_enduses']:
                         national_sector_employment = tot_national_sector_employment[matched_sector]
@@ -424,7 +424,7 @@ def is_disaggregate(
                             reg_disag_factor = 0 #No employment for this sector for this region
 
                         # Disaggregated national fuel
-                        is_fuel_disagg[region][enduse][sector] = is_national_fuel[sector][enduse] * reg_disag_factor
+                        is_fuel_disagg[region][enduse][sector] = is_national_fuel[enduse][sector] * reg_disag_factor
 
     # -----------------
     # TESTING Check if total fuel is the same before and after aggregation
