@@ -679,11 +679,12 @@ def ss_collect_shapes_from_txts(txt_path, model_yeardays):
     ss_shapes_yd = {}
 
     # Read load shapes from txt files for enduses
-    for sector in sectors:
-        ss_shapes_dh[sector] = {}
-        ss_shapes_yd[sector] = {}
-
-        for enduse in enduses:
+    for enduse in enduses:
+    
+        ss_shapes_dh[enduse] = {}
+        ss_shapes_yd[enduse] = {}
+        for sector in sectors:
+        
             joint_string_name = str(sector) + "__" + str(enduse)
             shape_peak_dh = read_data.read_txt_shape_peak_dh(
                 os.path.join(
@@ -708,11 +709,11 @@ def ss_collect_shapes_from_txts(txt_path, model_yeardays):
             shape_non_peak_y_dh_selection = shape_non_peak_y_dh[[model_yeardays]]
             shape_non_peak_yd_selection = shape_non_peak_yd[[model_yeardays]]
 
-            ss_shapes_dh[sector][enduse] = {
+            ss_shapes_dh[enduse][sector] = {
                 'shape_peak_dh': shape_peak_dh,
                 'shape_non_peak_y_dh': shape_non_peak_y_dh_selection}
 
-            ss_shapes_yd[sector][enduse] = {
+            ss_shapes_yd[enduse][sector] = {
                 'shape_peak_yd_factor': shape_peak_yd_factor,
                 'shape_non_peak_yd': shape_non_peak_yd_selection}
 
@@ -769,12 +770,11 @@ def ss_read_shapes_enduse_techs(ss_shapes_dh, ss_shapes_yd):
     ss_all_tech_shapes_dh = {}
     ss_all_tech_shapes_yd = {}
 
-    for sector in ss_shapes_yd:
-        for enduse in ss_shapes_yd[sector]:
-            ss_all_tech_shapes_dh[enduse] = ss_shapes_dh[sector][enduse]
-            ss_all_tech_shapes_yd[enduse] = ss_shapes_yd[sector][enduse]
-
-        break #only iterate first sector as all enduses are the same in all sectors
+    for enduse in ss_shapes_yd:
+        for sector in ss_shapes_yd[enduse]:
+            ss_all_tech_shapes_dh[enduse] = ss_shapes_dh[enduse][sector]
+            ss_all_tech_shapes_yd[enduse] = ss_shapes_yd[enduse][sector]
+            break #only iterate first sector as all enduses are the same in all sectors
 
     return ss_all_tech_shapes_dh, ss_all_tech_shapes_yd
 

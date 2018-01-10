@@ -569,6 +569,8 @@ def ss_get_sector_enduse_shape(tech_lp, heating_shape, enduse, model_yeardays_nr
         Shape of distribution of fuel within every day of a year (total sum == nr_of_days)
     """
     shape_yh_generic_tech = np.zeros((model_yeardays_nrs, 24), dtype=float)
+    print(tech_lp['ss_all_tech_shapes_dh'].keys())
+    print(enduse)
     if enduse not in tech_lp['ss_all_tech_shapes_dh']:
         pass
     else:

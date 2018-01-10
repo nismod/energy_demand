@@ -140,7 +140,7 @@ class LoadProfileStock(object):
         if sector == 'dummy_sector':
             return load_profile_obj.shape_peak_dh
         else:
-            return load_profile_obj.shape_peak_dh[sector][enduse]['shape_peak_dh']
+            return load_profile_obj.shape_peak_dh[enduse][sector]['shape_peak_dh']
 
 def generate_key_lu_dict(dict_tuple_keys, unique_identifier, enduses, sectors, technologies):
     """Generate look_up keys to position in 'load_profile_dict'
@@ -387,11 +387,11 @@ def create_load_profile_stock(tech_lp, assumptions, sectors):
                 unique_identifier=uuid.uuid4(),
                 technologies=tech_list,
                 enduses=[enduse],
-                shape_yd=tech_lp['ss_shapes_yd'][sector][enduse]['shape_non_peak_yd'],
-                shape_yh=tech_lp['ss_shapes_dh'][sector][enduse]['shape_non_peak_y_dh'] * tech_lp['ss_shapes_yd'][sector][enduse]['shape_non_peak_yd'][:, np.newaxis],
+                shape_yd=tech_lp['ss_shapes_yd'][enduse][sector]['shape_non_peak_yd'],
+                shape_yh=tech_lp['ss_shapes_dh'][enduse][sector]['shape_non_peak_y_dh'] * tech_lp['ss_shapes_yd'][enduse][sector]['shape_non_peak_yd'][:, np.newaxis],
                 sectors=[sector],
-                enduse_peak_yd_factor=tech_lp['ss_shapes_yd'][sector][enduse]['shape_peak_yd_factor'],
-                shape_peak_dh=tech_lp['ss_shapes_dh'][sector][enduse]['shape_peak_dh'])
+                enduse_peak_yd_factor=tech_lp['ss_shapes_yd'][enduse][sector]['shape_peak_yd_factor'],
+                shape_peak_dh=tech_lp['ss_shapes_dh'][enduse][sector]['shape_peak_dh'])
 
     # dummy is - Flat load profile
     shape_peak_dh, _, shape_peak_yd_factor, shape_non_peak_yd, shape_non_peak_yh = generic_shapes.flat_shape(
@@ -404,11 +404,11 @@ def create_load_profile_stock(tech_lp, assumptions, sectors):
     for sector in sectors['is_sectors']:
         for enduse in all_enduses_including_heating:
             if enduse == "is_space_heating":
-                shape_peak_dh_sectors_enduses[sector][enduse] = {
+                shape_peak_dh_sectors_enduses[enduse][sector] = {
                     'shape_peak_dh':
-                    tech_lp['ss_shapes_dh'][sectors['ss_sectors'][0]]["ss_space_heating"]['shape_peak_dh']}
+                    tech_lp['ss_shapes_dh']["ss_space_heating"][sectors['ss_sectors'][0]]['shape_peak_dh']}
             else:
-                shape_peak_dh_sectors_enduses[sector][enduse] = {
+                shape_peak_dh_sectors_enduses[enduse][sector] = {
                     'shape_peak_dh': shape_peak_dh}
 
     for enduse in assumptions['is_dummy_enduses']:
@@ -421,10 +421,10 @@ def create_load_profile_stock(tech_lp, assumptions, sectors):
                     unique_identifier=uuid.uuid4(),
                     technologies=tech_list,
                     enduses=[enduse],
-                    shape_yd=tech_lp['ss_shapes_yd'][sectors['ss_sectors'][0]]["ss_space_heating"]['shape_non_peak_yd'],
-                    shape_yh=tech_lp['ss_shapes_dh'][sectors['ss_sectors'][0]]["ss_space_heating"]['shape_non_peak_y_dh'] * tech_lp['ss_shapes_yd'][sectors['ss_sectors'][0]]["ss_space_heating"]['shape_non_peak_yd'][:, np.newaxis],
+                    shape_yd=tech_lp['ss_shapes_yd']["ss_space_heating"][sectors['ss_sectors'][0]]['shape_non_peak_yd'],
+                    shape_yh=tech_lp['ss_shapes_dh']["ss_space_heating"][sectors['ss_sectors'][0]]['shape_non_peak_y_dh'] * tech_lp['ss_shapes_yd']["ss_space_heating"][sectors['ss_sectors'][0]]['shape_non_peak_yd'][:, np.newaxis],
                     sectors=[sector],
-                    enduse_peak_yd_factor=tech_lp['ss_shapes_yd'][sectors['ss_sectors'][0]]["ss_space_heating"]['shape_peak_yd_factor'],
+                    enduse_peak_yd_factor=tech_lp['ss_shapes_yd']["ss_space_heating"][sectors['ss_sectors'][0]]['shape_peak_yd_factor'],
                     shape_peak_dh=dict(shape_peak_dh_sectors_enduses))
         else:
             tech_list = helpers.get_nested_dict_key(assumptions['is_fuel_tech_p_by'][enduse])
