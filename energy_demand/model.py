@@ -127,41 +127,42 @@ class EnergyDemandModel(object):
             all_submodels = [reg_rs_submodel, reg_ss_submodel, reg_is_submodel]
 
             # ----------------------
-            # Summarise functions
+            # Summarise functions for result for supply model
+            # Sum across all fueltypes, sectors, regs and hours
             # ----------------------
-            logging.debug("... start summing")
+            logging.debug("... start summing for supply model")
 
-            # -------------
-            # Constrained mode
-            # -------------
             if data['criterias']['mode_constrained']:
 
+                # -------------
+                # Summarise ed of constrained technologies
+                # -------------
                 # Iterate over constraining heating technologies
                 for heating_tech in data['assumptions']['heating_technologies']:
                     try:
                         # Sum according to np.array((fueltypes, sectors, regions, timesteps))
-                        submodel_ed_fueltype_regs_yh = constrained_fuel_regions_fueltype(
-                            np.zeros((data['lookups']['fueltypes_nr'], len(data['sectors'].keys()), data['reg_nrs'], data['assumptions']['model_yearhours_nrs']), dtype=float),
-                            data['lookups']['fueltypes_nr'],
-                            data['lookups']['fueltypes'],
-                            region,
-                            reg_array_nr,
-                            data['assumptions']['model_yearhours_nrs'],
-                            data['assumptions']['model_yeardays_nrs'],
-                            heating_tech,
-                            data['assumptions']['enduse_space_heating'], #all space heatings
-                            all_submodels)
+                        for submodel_nr, submodel in enumerate(all_submodels):
+                            submodel_ed_fueltype_regs_yh = constrained_fuel_regions_fueltype(
+                                np.zeros((data['lookups']['fueltypes_nr'], len(data['sectors'].keys()), data['reg_nrs'], data['assumptions']['model_yearhours_nrs']), dtype=float),
+                                data['lookups']['fueltypes_nr'],
+                                data['lookups']['fueltypes'],
+                                submodel_nr,
+                                region,
+                                reg_array_nr,
+                                data['assumptions']['model_yearhours_nrs'],
+                                data['assumptions']['model_yeardays_nrs'],
+                                heating_tech,
+                                data['assumptions']['enduse_space_heating'], #all space heatings
+                                [submodel])
 
-                        ed_techs_fueltype_submodel_regs_yh[heating_tech] += submodel_ed_fueltype_regs_yh
+                            ed_techs_fueltype_submodel_regs_yh[heating_tech] += submodel_ed_fueltype_regs_yh
                     except KeyError:
                         logging.debug("Info: Technology was not used {}".format(heating_tech))
 
                 # -------------
-                # UNCONSTRAINED DOUBLE?
+                # Summarise fuel of ed not related to heating (constrained technologies)
                 # -------------
-                # Sum across all fueltypes, sectors, regs and hours
                 for submodel_nr, submodel in enumerate(all_submodels):
-
                     submodel_ed_fueltype_regs_yh, _ = fuel_regions_fueltype(
                         np.zeros((data['lookups']['fueltypes_nr'], data['reg_nrs'], data['assumptions']['model_yearhours_nrs']), dtype=float),
                         data['lookups']['fueltypes_nr'],
@@ -180,7 +181,7 @@ class EnergyDemandModel(object):
                             ed_fueltype_submodel_regs_yh[fueltype_nr][submodel_nr] += submodel_ed_fueltype_regs_yh[fueltype_nr]
             else:
                 # -------------
-                # UNCONSTRAINED
+                # Unconstrained
                 # -------------
                 # Sum across all fueltypes, sectors, regs and hours
                 for submodel_nr, submodel in enumerate(all_submodels):
@@ -198,6 +199,9 @@ class EnergyDemandModel(object):
                     for fueltype_nr in data['lookups']['fueltypes'].values():
                         ed_fueltype_submodel_regs_yh[fueltype_nr][submodel_nr] += submodel_ed_fueltype_regs_yh[fueltype_nr]
 
+            # -----------
+            # Other summing
+            # -----------
             # Sum across all regions, all enduse and sectors sum_reg
             # [fueltype, region, fuel_yh], [fueltype, fuel_yh]
             ed_fueltype_regs_yh, fuel_region_yh = fuel_regions_fueltype(
@@ -833,6 +837,7 @@ def constrained_fuel_regions_fueltype(
         fuel_fueltype_regions,
         fueltypes_nr,
         fueltypes,
+        submodel_nr,
         region_name,
         array_region_nr,
         model_yearhours_nrs,
@@ -871,7 +876,7 @@ def constrained_fuel_regions_fueltype(
 
     # Reshape
     for fueltype_nr in fueltypes.values():
-        fuel_fueltype_regions[fueltype_nr][array_region_nr] += fuels[fueltype_nr].reshape(model_yearhours_nrs)
+        fuel_fueltype_regions[fueltype_nr][submodel_nr][array_region_nr] += fuels[fueltype_nr].reshape(model_yearhours_nrs)
 
     return fuel_fueltype_regions
 
