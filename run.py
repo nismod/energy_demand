@@ -530,8 +530,8 @@ class EDWrapper(SectorModel):
                 # Calculate fuel of all constrained technologies with this fueltype
                 constrained_ed = np.zeros((supply_results_unconstrained.shape))
                 for tech in supply_results_constrained:
-                    tech_fueltype_str = data['assumptions']['technologies'][tech].fueltype_str
-                    if tech_fueltype_str == fueltype_str:
+                    fueltype_str = data['assumptions']['technologies'][tech].fueltype_str
+                    if fueltype_str == fueltype_str:
                         constrained_ed += supply_results_constrained[tech]
 
                 # Substract constrained fuel from non-constrained fuel
