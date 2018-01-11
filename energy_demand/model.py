@@ -59,81 +59,16 @@ class EnergyDemandModel(object):
         # ------------------------
         # Create Dwelling Stock
         # ------------------------
+        logging.info("... Generate dwelling stocks")
         if data['criterias']['virtual_building_stock_criteria']:
-            # -------------------------------------
-            # virtual dwelling stock
-            # -------------------------------------
-            logging.info("... Generate virtual dwelling stock for base year")
 
-            data['rs_dw_stock'] = defaultdict(dict)
-            data['ss_dw_stock'] = defaultdict(dict)
-            for region in regions:
-
-                # Dwelling stock of residential SubModel for base year
-                data['rs_dw_stock'][region][data['sim_param']['base_yr']] = dw_stock.rs_dw_stock(
-                    region,
-                    data['assumptions'],
-                    data['scenario_data'],
-                    data['sim_param']['simulated_yrs'],
-                    data['lookups']['dwtype'],
-                    data['enduses']['rs_all_enduses'],
-                    data['reg_coord'],
-                    data['assumptions']['scenario_drivers']['rs_submodule'],
-                    data['sim_param']['base_yr'],
-                    data['sim_param']['base_yr'],
-                    data['criterias']['virtual_building_stock_criteria'])
-
-                # Dwelling stock of service SubModel for base year
-                data['ss_dw_stock'][region][data['sim_param']['base_yr']] = dw_stock.ss_dw_stock(
-                    region,
-                    data['enduses']['ss_all_enduses'],
-                    data['sectors']['ss_sectors'],
-                    data['scenario_data'],
-                    data['reg_coord'],
-                    data['assumptions'],
-                    data['sim_param']['base_yr'],
-                    data['sim_param']['base_yr'],
-                    data['criterias']['virtual_building_stock_criteria'])
-
-                # Dwelling stock of residential SubModel for current year
-                data['rs_dw_stock'][region][self.curr_yr] = dw_stock.rs_dw_stock(
-                    region,
-                    data['assumptions'],
-                    data['scenario_data'],
-                    data['sim_param']['simulated_yrs'],
-                    data['lookups']['dwtype'],
-                    data['enduses']['rs_all_enduses'],
-                    data['reg_coord'],
-                    data['assumptions']['scenario_drivers']['rs_submodule'],
-                    self.curr_yr,
-                    data['sim_param']['base_yr'],
-                    data['criterias']['virtual_building_stock_criteria'])
-
-                # Dwelling stock of service SubModel for current year
-                data['ss_dw_stock'][region][self.curr_yr] = dw_stock.ss_dw_stock(
-                    region,
-                    data['enduses']['ss_all_enduses'],
-                    data['sectors']['ss_sectors'],
-                    data['scenario_data'],
-                    data['reg_coord'],
-                    data['assumptions'],
-                    self.curr_yr,
-                    data['sim_param']['base_yr'],
-                    data['criterias']['virtual_building_stock_criteria'])
-
-            logging.info("... finished virtual dwelling stock for base year")
+            # Virtual dwelling stocks
+            data = create_virtual_dwelling_stocks(regions, self.curr_yr, data)
         else:
-            # -------------------------------------
-            # dwelling stock from NEWCASTLE
-            # -------------------------------------
             # Create dwelling stock from imported data from newcastle
+            data = create_dwelling_stock(regions, self.curr_yr, data) #TODO
 
-            #data['rs_dw_stock'][region][self.curr_yr] = dw_stock.createNEWCASTLE_dwelling_stock(
-            # self.curr_yr,
-            # region,
-            # )
-            #data['ss_dw_stock'][region][self.curr_yr] = dw_stock.createNEWCASTLE_dwelling_stock(self.curr_yr)
-            pass
+        logging.info("... finished generating dwelling stock")
 
         # ---------------------------------------------
         # Initialise and iterate over years
@@ -182,11 +117,14 @@ class EnergyDemandModel(object):
 
             # ----------------------
             # Simulate region
-            # ---------------------- #TODO MODEL LIST
+            # ----------------------
             reg_rs_submodel, reg_ss_submodel, reg_is_submodel = simulate_region(
                 region,
                 data,
                 weather_regions)
+
+            # Store all submoel objects in list
+            all_submodels = [reg_rs_submodel, reg_ss_submodel, reg_is_submodel]
 
             # ----------------------
             # Summarise functions
@@ -194,41 +132,38 @@ class EnergyDemandModel(object):
             logging.debug("... start summing")
 
             # -------------
-            # CONSTRAINED
+            # Constrained mode
             # -------------
             if data['criterias']['mode_constrained']:
 
+                # Iterate over constraining heating technologies
                 for heating_tech in data['assumptions']['heating_technologies']:
                     try:
-
-                        # Sum across all fueltypes, sectors, regs and hours
-                        for submodel_nr, submodel in enumerate([reg_rs_submodel, reg_ss_submodel, reg_is_submodel]):
-
-                            submodel_ed_fueltype_regs_yh, _ = constrained_fuel_regions_fueltype(
-                                np.zeros((data['lookups']['fueltypes_nr'], len(data['sectors'].keys()), data['reg_nrs'], data['assumptions']['model_yearhours_nrs']), dtype=float),
-                                data['lookups']['fueltypes_nr'],
-                                data['lookups']['fueltypes'],
-                                region,
-                                reg_array_nr,
-                                data['assumptions']['model_yearhours_nrs'],
-                                data['assumptions']['model_yeardays_nrs'],
-                                heating_tech,
-                                ['rs_space_heating', 'ss_space_heating', 'is_space_heating'],
-                                [submodel])
+                        # Sum according to np.array((fueltypes, sectors, regions, timesteps))
+                        submodel_ed_fueltype_regs_yh = constrained_fuel_regions_fueltype(
+                            np.zeros((data['lookups']['fueltypes_nr'], len(data['sectors'].keys()), data['reg_nrs'], data['assumptions']['model_yearhours_nrs']), dtype=float),
+                            data['lookups']['fueltypes_nr'],
+                            data['lookups']['fueltypes'],
+                            region,
+                            reg_array_nr,
+                            data['assumptions']['model_yearhours_nrs'],
+                            data['assumptions']['model_yeardays_nrs'],
+                            heating_tech,
+                            data['assumptions']['enduse_space_heating'], #all space heatings
+                            all_submodels)
 
                         ed_techs_fueltype_submodel_regs_yh[heating_tech] += submodel_ed_fueltype_regs_yh
                     except KeyError:
-                        print("Technology was not used {}".format(heating_tech))
-                        pass
+                        logging.debug("Info: Technology was not used {}".format(heating_tech))
 
                 # -------------
                 # UNCONSTRAINED DOUBLE?
                 # -------------
                 # Sum across all fueltypes, sectors, regs and hours
-                for submodel_nr, submodel in enumerate([reg_rs_submodel, reg_ss_submodel, reg_is_submodel]):
-                    submodel_ed_fueltype_regs_yh = np.zeros((data['lookups']['fueltypes_nr'], data['reg_nrs'], data['assumptions']['model_yearhours_nrs']), dtype=float)
+                for submodel_nr, submodel in enumerate(all_submodels):
+
                     submodel_ed_fueltype_regs_yh, _ = fuel_regions_fueltype(
-                        submodel_ed_fueltype_regs_yh,
+                        np.zeros((data['lookups']['fueltypes_nr'], data['reg_nrs'], data['assumptions']['model_yearhours_nrs']), dtype=float),
                         data['lookups']['fueltypes_nr'],
                         data['lookups']['fueltypes'],
                         region,
@@ -248,11 +183,9 @@ class EnergyDemandModel(object):
                 # UNCONSTRAINED
                 # -------------
                 # Sum across all fueltypes, sectors, regs and hours
-                for submodel_nr, submodel in enumerate([reg_rs_submodel, reg_ss_submodel, reg_is_submodel]):
-                    
-                    submodel_ed_fueltype_regs_yh = np.zeros((data['lookups']['fueltypes_nr'], data['reg_nrs'], data['assumptions']['model_yearhours_nrs']), dtype=float)
+                for submodel_nr, submodel in enumerate(all_submodels):
                     submodel_ed_fueltype_regs_yh, _ = fuel_regions_fueltype(
-                        submodel_ed_fueltype_regs_yh,
+                        np.zeros((data['lookups']['fueltypes_nr'], data['reg_nrs'], data['assumptions']['model_yearhours_nrs']), dtype=float),
                         data['lookups']['fueltypes_nr'],
                         data['lookups']['fueltypes'],
                         region,
@@ -265,7 +198,6 @@ class EnergyDemandModel(object):
                     for fueltype_nr in data['lookups']['fueltypes'].values():
                         ed_fueltype_submodel_regs_yh[fueltype_nr][submodel_nr] += submodel_ed_fueltype_regs_yh[fueltype_nr]
 
-            #if 1 == 1:
             # Sum across all regions, all enduse and sectors sum_reg
             # [fueltype, region, fuel_yh], [fueltype, fuel_yh]
             ed_fueltype_regs_yh, fuel_region_yh = fuel_regions_fueltype(
@@ -276,13 +208,13 @@ class EnergyDemandModel(object):
                 reg_array_nr,
                 data['assumptions']['model_yearhours_nrs'],
                 data['assumptions']['model_yeardays_nrs'],
-                [reg_rs_submodel, reg_ss_submodel, reg_is_submodel])
+                all_submodels)
 
             # Sum across all regions, all enduse and sectors
             ed_fueltype_national_yh = fuel_aggr(
                 ed_fueltype_national_yh,
                 'fuel_yh',
-                [reg_rs_submodel, reg_ss_submodel, reg_is_submodel],
+                all_submodels,
                 'no_sum',
                 data['assumptions']['model_yearhours_nrs'],
                 data['assumptions']['model_yeardays_nrs'])
@@ -291,7 +223,7 @@ class EnergyDemandModel(object):
             tot_peak_enduses_fueltype = fuel_aggr(
                 tot_peak_enduses_fueltype,
                 'fuel_peak_dh',
-                [reg_rs_submodel, reg_ss_submodel, reg_is_submodel],
+                all_submodels,
                 'no_sum',
                 data['assumptions']['model_yearhours_nrs'],
                 data['assumptions']['model_yeardays_nrs'])
@@ -299,7 +231,7 @@ class EnergyDemandModel(object):
             tot_fuel_y_max_enduses = fuel_aggr(
                 tot_fuel_y_max_enduses,
                 'fuel_peak_h',
-                [reg_rs_submodel, reg_ss_submodel, reg_is_submodel],
+                all_submodels,
                 'no_sum',
                 data['assumptions']['model_yearhours_nrs'],
                 data['assumptions']['model_yeardays_nrs'])
@@ -308,7 +240,7 @@ class EnergyDemandModel(object):
             tot_fuel_y_enduse_specific_h = sum_enduse_all_regions(
                 tot_fuel_y_enduse_specific_h,
                 'fuel_yh',
-                [reg_rs_submodel, reg_ss_submodel, reg_is_submodel],
+                all_submodels,
                 data['assumptions']['model_yearhours_nrs'],
                 data['assumptions']['model_yeardays_nrs'])
 
@@ -941,10 +873,7 @@ def constrained_fuel_regions_fueltype(
     for fueltype_nr in fueltypes.values():
         fuel_fueltype_regions[fueltype_nr][array_region_nr] += fuels[fueltype_nr].reshape(model_yearhours_nrs)
 
-    fuel_region = np.zeros((fueltypes_nr, model_yeardays_nrs, 24), dtype=float)
-    for fueltype_nr in fueltypes.values():
-        fuel_region[fueltype_nr] = fuels[fueltype_nr]
-    return fuel_fueltype_regions, fuel_region
+    return fuel_fueltype_regions
 
 '''def get_regional_yh(fueltypes_nr, region_name, region_enduses, model_yeardays_nrs):
     """Get yh fuel for all fueltype for a specific region of all submodels
@@ -1050,3 +979,75 @@ def averaged_season_hourly(averaged_h, fuel_region_yh, reg_array_nr, fueltypes, 
     assert averaged_h['summer'][1][reg_array_nr][0] * len(seasons['summer']) == tot_h_sum'''
 
     return averaged_h
+
+def create_virtual_dwelling_stocks(regions, curr_yr, data):
+    """Create virtual dwelling stocks for residential
+    and service sector
+    """
+    data['rs_dw_stock'] = defaultdict(dict)
+    data['ss_dw_stock'] = defaultdict(dict)
+    for region in regions:
+
+        # Dwelling stock of residential SubModel for base year
+        data['rs_dw_stock'][region][data['sim_param']['base_yr']] = dw_stock.rs_dw_stock(
+            region,
+            data['assumptions'],
+            data['scenario_data'],
+            data['sim_param']['simulated_yrs'],
+            data['lookups']['dwtype'],
+            data['enduses']['rs_all_enduses'],
+            data['reg_coord'],
+            data['assumptions']['scenario_drivers']['rs_submodule'],
+            data['sim_param']['base_yr'],
+            data['sim_param']['base_yr'],
+            data['criterias']['virtual_building_stock_criteria'])
+
+        # Dwelling stock of service SubModel for base year
+        data['ss_dw_stock'][region][data['sim_param']['base_yr']] = dw_stock.ss_dw_stock(
+            region,
+            data['enduses']['ss_all_enduses'],
+            data['sectors']['ss_sectors'],
+            data['scenario_data'],
+            data['reg_coord'],
+            data['assumptions'],
+            data['sim_param']['base_yr'],
+            data['sim_param']['base_yr'],
+            data['criterias']['virtual_building_stock_criteria'])
+
+        # Dwelling stock of residential SubModel for current year
+        data['rs_dw_stock'][region][curr_yr] = dw_stock.rs_dw_stock(
+            region,
+            data['assumptions'],
+            data['scenario_data'],
+            data['sim_param']['simulated_yrs'],
+            data['lookups']['dwtype'],
+            data['enduses']['rs_all_enduses'],
+            data['reg_coord'],
+            data['assumptions']['scenario_drivers']['rs_submodule'],
+            curr_yr,
+            data['sim_param']['base_yr'],
+            data['criterias']['virtual_building_stock_criteria'])
+
+        # Dwelling stock of service SubModel for current year
+        data['ss_dw_stock'][region][curr_yr] = dw_stock.ss_dw_stock(
+            region,
+            data['enduses']['ss_all_enduses'],
+            data['sectors']['ss_sectors'],
+            data['scenario_data'],
+            data['reg_coord'],
+            data['assumptions'],
+            curr_yr,
+            data['sim_param']['base_yr'],
+            data['criterias']['virtual_building_stock_criteria'])
+
+    return data
+
+def create_dwelling_stock(regions, curr_yr, data):
+    """Create dwelling stock based on NEWCASTLE data
+    """
+    #data['rs_dw_stock'][region][curr_yr] = dw_stock.createNEWCASTLE_dwelling_stock(
+    # self.curr_yr,
+    # region,
+    # )
+    #data['ss_dw_stock'][region][curr_yr] = dw_stock.createNEWCASTLE_dwelling_stock(self.curr_yr)
+    return data

@@ -485,7 +485,7 @@ class EDWrapper(SectorModel):
         # No technology specific delivery (heat is provided in form of a fueltype)
         # {fueltype_int: np.array((sector, region, intervals))}
 
-        # FINLA: {key_fueltype_tech_sector:  np.array(region_intervals)} 
+        # FINAL: {key_fueltype_tech_sector:  np.array(region_intervals)} 
         # --------------------------------
         if data['criterias']['mode_constrained']: #constrained by technologies
             # --
@@ -500,8 +500,6 @@ class EDWrapper(SectorModel):
             _scrap_sum_constrained = 0
             for i in supply_results.values():
                 _scrap_sum_constrained += np.sum(i)
-
-            print("  ")
             print("SUM: constrained ed all techs" + str(_scrap_sum_constrained))
             print("SUM UNCONSTRAINED            " + str(np.sum(supply_results_unconstrained)))
 
@@ -540,6 +538,7 @@ class EDWrapper(SectorModel):
 
                         # Create Key Name
                         key_name = "{}_{}_{}".format(submodel, fueltype_str, tech_key)
+
                         # Copy Regions, Timesteps
                         supply_results_final[key_name] = supply_results[tech_key][fueltype_int][submodel_nr]
             
@@ -549,15 +548,14 @@ class EDWrapper(SectorModel):
             print("FINISHED CONSTRAINED")
             _total_scrap = 0
             for key in supply_results:
-                #print("FINAL KEY: " + str(key))
                 _total_scrap += np.sum(supply_results[key])
             print("FINALSUM: " + str(_total_scrap))
-            #prnt(".")
+            prnt(".")
         else:
             # -------------
             # Unconstrained
             # -------------
-            supply_results = {} #defaultdict(dict)
+            supply_results = {}
 
             # Iterate submodels
             for submodel_nr, submodel in enumerate(['residential', 'service', 'industry']):
@@ -566,19 +564,11 @@ class EDWrapper(SectorModel):
                 for fueltype_str, fueltype_int in data['lookups']['fueltypes'].items():
 
                     key_name = "{}_{}".format(submodel, fueltype_str)
-
                     supply_results[key_name] = supply_results_unconstrained[fueltype_int][submodel_nr]
             
-            '''supply_results = defaultdict(dict)
-            for fueltype_str, fueltype_int in data['lookups']['fueltypes'].items():
-                supply_results[fueltype_str] = supply_results_unconstrained[fueltype_int]
-            print(supply_results['solid_fuel'].shape)
-            print(np.sum(supply_results['heat']))
-            prnt(".")'''
             print("FINISHED UNCONSTRAINED")
             _total_scrap = 0
             for key in supply_results:
-                #print("FINAL KEY: " + str(key))
                 _total_scrap += np.sum(supply_results[key])
             print("FINALSUM: " + str(_total_scrap))
             prnt(".")

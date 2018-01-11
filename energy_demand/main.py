@@ -4,8 +4,6 @@ Energy Demand Model
 Contains the function `energy_demand_model` which is used
 to run the energy demand model
 
-
-- run in constrained mode
 Development checklist: https://nismod.github.io/docs/development-checklist.html
 https://nismod.github.io/docs/
 https://nismod.github.io/docs/smif-prerequisites.html#sector-modeller
@@ -17,7 +15,6 @@ https://nismod.github.io/docs/smif-prerequisites.html#sector-modeller
 # CORRECT OUTPUTS (per tech)
 # Potentiall load other annual profiles?
 averaged_temp
-[enduse][sector] or [sector][enduse]
 """
 import os
 import sys
@@ -65,12 +62,6 @@ def energy_demand_model(data, fuel_in=0, fuel_in_elec=0):
     print("Total fuel input:    " + str(fuel_in))
     print("Total output:        " + str(np.sum(model_run_object.ed_fueltype_national_yh)))
     print("Total difference:    " + str(round((np.sum(model_run_object.ed_fueltype_national_yh) - fuel_in), 4)))
-    print("-----")
-    print(fuel_in_biomass + fuel_in_elec + fuel_in_gas + fuel_in_heat + fuel_in_hydrogen + fuel_in_solid_fuel + fuel_in_oil)
-    _scrap = 0
-    for fueltype_str, fueltype_int in data['lookups']['fueltypes'].items():
-        _scrap += np.sum(model_run_object.ed_fueltype_national_yh[fueltype_int])
-    print(_scrap)
     print("-----------")
     print("oil fuel in:         " + str(fuel_in_oil))
     print("oil fuel out:        " + str(np.sum(model_run_object.ed_fueltype_national_yh[data['lookups']['fueltypes']['oil']])))
@@ -148,7 +139,7 @@ if __name__ == "__main__":
     # Load data
     data = {}
     data['criterias'] = {}
-    data['criterias']['mode_constrained'] = False #constrained_by_technologies
+    data['criterias']['mode_constrained'] = True #constrained_by_technologies
     data['criterias']['plot_HDD_chart'] = False
     data['criterias']['virtual_building_stock_criteria'] = True
     data['criterias']['spatial_exliclit_diffusion'] = True
@@ -214,8 +205,6 @@ if __name__ == "__main__":
             data['lu_reg'],
             data['sectors']['all_sectors'],
             data['local_paths'])
-    else:
-        pass
 
     #Scenario data
     data['scenario_data'] = {

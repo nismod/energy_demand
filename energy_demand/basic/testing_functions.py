@@ -20,9 +20,7 @@ def test_region_selection(ed_fueltype_regs_yh):
     for fuels in ed_fueltype_regs_yh:
         for region_fuel in fuels:
             _sum_all += np.sum(region_fuel)
-    #print("_sum_day_selection")
-    ##print(_sum_day_selection)
-    #print("_sum_all: " + str(_sum_all))
+
     return
 
 def testing_fuel_tech_shares(fuel_tech_fueltype_p):
