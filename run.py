@@ -35,9 +35,8 @@ class EDWrapper(SectorModel):
     """
 
     def transfer_container_to_simulate(self, dict_to_copy_into, dict_to_pass_along):
-        """Copy dict defined in before_model_run()
-        to simlate() function by copying key and
-        values
+        """Copy dict defined in before_model_run() to simlate() function
+        by copying key and values
 
         Arguments
         ---------
@@ -172,9 +171,7 @@ class EDWrapper(SectorModel):
         # ------------
         data['assumptions'] = non_param_assumptions.load_non_param_assump(
             data['sim_param']['base_yr'], data['paths'], data['enduses'], data['lookups'])
-
         data['assumptions']['seasons'] = date_prop.read_season(year_to_model=2015)
-
         data['assumptions']['model_yeardays_daytype'], data['assumptions']['yeardays_month'], data['assumptions']['yeardays_month_days'] = date_prop.get_model_yeardays_datype(
             year_to_model=2015)
 
@@ -188,7 +185,7 @@ class EDWrapper(SectorModel):
             data['assumptions']['model_yeardays_daytype'])
 
         # ---------------------
-        # Convert capacity switches to service switches for every SubModel
+        # Convert capacity switches to service switches for every submodel
         # ---------------------
         data['assumptions']['rs_service_switches'] = fuel_service_switch.capacity_installations(
             data['assumptions']['rs_service_switches'],
@@ -234,22 +231,25 @@ class EDWrapper(SectorModel):
         # ------------------------
         # Pass along to simulate()
         # ------------------------
+        
         self.user_data['gva'] = self.array_to_dict(gva_array)
         self.user_data['population'] = self.array_to_dict(pop_array)
         self.user_data['rs_floorarea'] = rs_floorarea
         self.user_data['ss_floorarea'] = ss_floorarea
-        self.user_data['criterias'] = data['criterias']
-        self.user_data['temp_data'] = data['temp_data']
-        self.user_data['weather_stations'] = data['weather_stations']
-        self.user_data['tech_lp'] = data['tech_lp']
-        self.user_data['lookups'] = data['lookups']
-        self.user_data['assumptions'] = data['assumptions']
-        self.user_data['enduses'] = data['enduses']
-        self.user_data['sectors'] = data['sectors']
-        self.user_data['fuels'] = data['fuels']
-        self.user_data['reg_coord'] = data['reg_coord']
-        self.user_data['lu_reg'] = data['lu_reg']
-        self.user_data['reg_nrs'] = data['reg_nrs']
+
+        self.user_data['data_pass_along'] = {}
+        self.user_data['data_pass_along']['criterias'] = data['criterias']
+        self.user_data['data_pass_along']['temp_data'] = data['temp_data']
+        self.user_data['data_pass_along']['weather_stations'] = data['weather_stations']
+        self.user_data['data_pass_along']['tech_lp'] = data['tech_lp']
+        self.user_data['data_pass_along']['lookups'] = data['lookups']
+        self.user_data['data_pass_along']['assumptions'] = data['assumptions']
+        self.user_data['data_pass_along']['enduses'] = data['enduses']
+        self.user_data['data_pass_along']['sectors'] = data['sectors']
+        self.user_data['data_pass_along']['fuels'] = data['fuels']
+        self.user_data['data_pass_along']['reg_coord'] = data['reg_coord']
+        self.user_data['data_pass_along']['lu_reg'] = data['lu_reg']
+        self.user_data['data_pass_along']['reg_nrs'] = data['reg_nrs']
 
         # --------------------
         # Initialise scenario
@@ -335,24 +335,13 @@ class EDWrapper(SectorModel):
         data['sim_param']['simulated_yrs'] = self.timesteps      # Read in all simulated years from smif
 
         # ---------------------------------------------
-        # Get simulation parameters from before_model_run()
+        # Load data from scripts (Get simulation parameters from before_model_run()
         # ---------------------------------------------
-        #print(self.user_data.keys())
-        data['criterias'] = self.user_data['criterias']
-        data['lu_reg'] = self.user_data['lu_reg']
-        data['reg_nrs'] = self.user_data['reg_nrs']
-        data['reg_coord'] = self.user_data['reg_coord']
-        data['lookups'] = self.user_data['lookups']
-        data['enduses'] = self.user_data['enduses']
-        data['sectors'] = self.user_data['sectors']
-        data['fuels'] = self.user_data['fuels']
-        data['assumptions'] = self.user_data['assumptions']
-        data['tech_lp'] = self.user_data['tech_lp']
-        data['temp_data'] = self.user_data['temp_data']
-        data['weather_stations'] = self.user_data['weather_stations']
-        data['rs_fuel_disagg'] = self.user_data['sd_cont']['rs_fuel_disagg']
-        data['ss_fuel_disagg'] = self.user_data['sd_cont']['ss_fuel_disagg']
-        data['is_fuel_disagg'] = self.user_data['sd_cont']['is_fuel_disagg']
+        data = self.transfer_container_to_simulate(data, self.user_data['data_pass_along'])
+        data = self.transfer_container_to_simulate(data, self.user_data['sd_cont'])
+        data['assumptions'] = self.transfer_container_to_simulate(data['assumptions'], self.user_data['fts_cont'])
+        data['assumptions'] = self.transfer_container_to_simulate(data['assumptions'], self.user_data['sgs_cont'])
+        data['assumptions'] = self.transfer_container_to_simulate(data['assumptions'], self.user_data['switches_cont'])
 
         # ---------------------------------------------
         # Load all SMIF parameters and replace data dict
@@ -385,13 +374,6 @@ class EDWrapper(SectorModel):
                 'rs_floorarea': self.user_data['rs_floorarea'],
                 'ss_floorarea': self.user_data['ss_floorarea']}
             }
-
-        # ---------------------------------------------
-        # Load data from scripts
-        # ---------------------------------------------
-        data['assumptions'] = self.transfer_container_to_simulate(data['assumptions'], self.user_data['fts_cont'])
-        data['assumptions'] = self.transfer_container_to_simulate(data['assumptions'], self.user_data['sgs_cont'])
-        data['assumptions'] = self.transfer_container_to_simulate(data['assumptions'], self.user_data['switches_cont'])
 
         # ---------------------------------------------
         # Create .ini file with simulation info

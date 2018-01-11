@@ -411,13 +411,13 @@ def demand_management(
     curr_yr : int
         Current year
     assumptions : dict
-
+        Assumptions
     fuel_yh : array
-
-    fuel_peak_dh : 
-
-    enduse_techs : 
-
+        Fuel per hours
+    fuel_peak_dh : array
+        Fuel per peak dh
+    enduse_techs : list
+        Enduse specfic technologies
     sector : 
 
     fuel_tech_y : 
@@ -711,14 +711,20 @@ def calc_peak_tech_dh(
         fueltypes,
         mode_constrained
     ):
-    """Calculate peak demand for every fueltype
+    """Calculate peak demand for every fueltype and technology
 
     Arguments
     ----------
-    assumptions : array
-        Assumptions
+    enduse : str
+        Enduse
+    sector : str
+        Sector
+    enduse_techs : list
+        Enduse technologies
     enduse_fuel_tech : array
         Fuel per enduse and technology
+    fuel_yh : array
+        Fuel per hours
     tech_stock : data
         Technology stock
     load_profile : object
@@ -795,14 +801,18 @@ def calc_peak_tech_dh(
             fuel_tech_peak_dh = tech_peak_dh * fuel_tech_peak_d
 
             if mode_constrained:
-                tech_fuels_peak_dh = np.zeros((fueltypes_nr, 24), dtype=float)
-                tech_fuels_peak_dh[fueltype_int] = fuel_tech_peak_dh
-                fuels_peak_dh[tech] = tech_fuels_peak_dh
+
+                # Fully empty fuel array
+                fuels_peak_dh[tech] = np.zeros((fueltypes_nr, 24), dtype=float)
+
+                # Fill fuel array with fuel of tech fueltype
+                fuels_peak_dh[tech][fueltype_int] = fuel_tech_peak_dh
+
             else:
                 # Peak day fuel shape * fueltype distribution for peak day
                 # select from (7, nr_of_days, 24) only peak day for all fueltypes
                 fuels_peak_dh[fueltypes['heat']] += fuel_tech_peak_dh
-     
+
     return fuels_peak_dh
 
 def get_enduse_tech(fuel_tech_p_by):
