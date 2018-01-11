@@ -133,9 +133,9 @@ class Enduse(object):
         self.techs_fuel_yh = {}
         self.techs_fuel_peak_h = {}
         self.techs_fuel_peak_dh = {}
-        self.fuel_yh = np.zeros((fueltypes_nr, model_yeardays_nrs, 24), dtype=float)
-        self.fuel_peak_h = np.zeros((fueltypes_nr), dtype=float)
-        self.fuel_peak_dh = np.zeros((fueltypes_nr, 24), dtype=float)
+        #self.fuel_yh = np.zeros((fueltypes_nr, model_yeardays_nrs, 24), dtype=float)
+        #self.fuel_peak_h = np.zeros((fueltypes_nr), dtype=float)
+        #self.fuel_peak_dh = np.zeros((fueltypes_nr, 24), dtype=float)
 
         if np.sum(fuel) == 0: #If enduse has no fuel return empty shapes
             self.flat_profile_crit = True
@@ -296,6 +296,7 @@ class Enduse(object):
                     fueltypes,
                     mode_constrained)
 
+                # Copy
                 self.fuel_y = self.fuel_new_y
 
                 # ------------------------------------------
@@ -322,7 +323,7 @@ class Enduse(object):
                         fueltypes,
                         assumptions['model_yeardays_nrs'],
                         mode_constrained)
-    
+
                     # --PEAK
                     # Iterate technologies in enduse and assign technology specific profiles
                     fuel_peak_dh = calc_peak_tech_dh(
@@ -340,8 +341,8 @@ class Enduse(object):
                     # ---------------------------------------
                     # Demand Management (peak shaving)
                     # ---------------------------------------
-                    if mode_constrained:
-                        
+                    if mode_constrained: # (specific for technologies)
+
                         for tech in fuel_yh:
                             self.techs_fuel_yh[tech], self.techs_fuel_peak_h[tech], self.techs_fuel_peak_dh[tech] = demand_management(
                                 enduse,
@@ -356,17 +357,18 @@ class Enduse(object):
                                 tech_stock,
                                 load_profiles,
                                 fueltypes_nr,
-                                mode_constrained=True)
+                                mode_constrained)
 
-                            # ------------
-                            # New: Calculate heat related factors for all technologies
-                            # Summarise all energy demand of not heating related (constrained) technologies
-                            # -----------
-                            self.fuel_yh += self.techs_fuel_yh[tech]
-                            self.fuel_peak_h += self.techs_fuel_peak_h[tech]
-                            self.fuel_peak_dh += self.techs_fuel_peak_dh[tech]
-                    else: # ONLY FOR HEATING ENDUSES
+                        # ------------
+                        # New: Calculate heat related factors for all technologies
+                        # Summarise all energy demand of not heating related (constrained) technologies
+                        # -----------
+                        self.fuel_yh = sum(self.techs_fuel_yh.values())
+                        self.fuel_peak_h = sum(self.techs_fuel_peak_h.values())
+                        self.fuel_peak_dh = sum(self.techs_fuel_peak_dh.values())
+                    else: # (not specific for technologies)
 
+                        # Demand management for heating related technologies
                         self.fuel_yh, self.fuel_peak_h, self.fuel_peak_dh = demand_management(
                             enduse,
                             base_yr,
@@ -1507,23 +1509,12 @@ def calc_service_switch(
     substracted of the replaced technologies proportionally
     to the base year distribution of these technologies
     """
-    # Result dict with cy service for every technology
-    tech_service_cy_p = {}
+    tech_service_cy_p = {} # Result dict with cy service for every technology
 
     # ------------
     # Update all technologies with constant service
     # ------------
     tech_service_cy_p.update(tech_constant_service)
-
-    # ------------
-    # Calculate service for technology with increased service
-    # ------------
-    service_tech_incr_cy_p = get_service_diffusion(
-        tech_increase_service,
-        sig_param_tech,
-        curr_yr)
-
-    tech_service_cy_p.update(service_tech_incr_cy_p)
 
     # ------------
     # Calculate service for technologies with decreasing service
@@ -1537,14 +1528,24 @@ def calc_service_switch(
         tech_decrease_service,
         service_tech_by_p)
 
+    # ------------
+    # Calculate service for technology with increased service
+    # ------------
+    
     # Calculated gained service and substract this proportionally along all decreasing technologies
-    for tech_incr, service_tech_incr_cy in service_tech_incr_cy_p.items():
+    for tech_incr in tech_increase_service:
+
+        # CAlculated increased service share per tech
+        service_tech_incr_cy_p = get_service_diffusion(
+            sig_param_tech[tech_incr], curr_yr)
+
+        # Update
+        tech_service_cy_p[tech_incr] = service_tech_incr_cy_p
 
         # Difference in service up to current year per technology
-        diff_service_incr = service_tech_incr_cy - service_tech_by_p[tech_incr]
+        diff_service_incr = service_tech_incr_cy_p - service_tech_by_p[tech_incr]
 
-        # Substract service gain proportionaly to all technologies which are
-        # lowered and substract from other technologies
+        # Substract service gain proportionaly to all technologies which are lowered and substract from other technologies
         for tech_decr, service_tech_decr_by in service_tech_decrease_by_rel.items():
             service_to_substract_p_cy = service_tech_decr_by * diff_service_incr
 
@@ -1592,7 +1593,7 @@ def convert_service_to_p(tot_service_y, service_fueltype_tech):
 
     return service_tech_p
 
-def get_service_diffusion(tech_increase_service, sig_param_tech, curr_yr):
+def get_service_diffusion(sig_param_tech, curr_yr):
     """Calculate energy service fraction of technologies with increased service
     for current year based on sigmoid diffusion
 
@@ -1613,13 +1614,18 @@ def get_service_diffusion(tech_increase_service, sig_param_tech, curr_yr):
     service_tech : dict
         Share of service per technology of current year
     """
-    service_tech = {}
+    '''service_tech = {}
 
     for tech in tech_increase_service:
         service_tech[tech] = diffusion_technologies.sigmoid_function(
             curr_yr,
             sig_param_tech[tech]['l_parameter'],
             sig_param_tech[tech]['midpoint'],
-            sig_param_tech[tech]['steepness'])
+            sig_param_tech[tech]['steepness'])'''
 
+    service_tech = diffusion_technologies.sigmoid_function(
+            curr_yr,
+            sig_param_tech['l_parameter'],
+            sig_param_tech['midpoint'],
+            sig_param_tech['steepness'])
     return service_tech

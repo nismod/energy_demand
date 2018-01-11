@@ -570,7 +570,7 @@ class EDWrapper(SectorModel):
                 #print("FINAL KEY: " + str(key))
                 _total_scrap += np.sum(supply_results[key])
             print("FINALSUM: " + str(_total_scrap))
-            prnt(".")
+            #prnt(".")
         else:
             # -------------
             # Unconstrained
