@@ -927,69 +927,21 @@ def calc_fuel_tech_yh(
     ------
     fuels_yh : array
         Fueltype storing hourly fuel for every fueltype (fueltype, model_yeardays_nrs, 24)
-
-    TODO: CLEAN
     """
     if mode_constrained:
         fuels_yh = {}
         for tech in enduse_techs:
             load_profile = load_profiles.get_lp(enduse, sector, tech, 'shape_yh')
-            fueltype_int = tech_stock.get_tech_attr(enduse, tech, 'fueltype_int')
-
-            if model_yeardays_nrs != 365:
-                load_profile = lp.abs_to_rel(load_profile)
-
-            tech_fuels_yh = np.zeros((fueltypes_nr, model_yeardays_nrs, 24), dtype=float)
-
-            #if tech not in enduse_fuel_tech.keys():
-
-            # If no fuel for this tech and not defined in enduse
-            if tech not in enduse_fuel_tech.keys():
-                pass # Technology has not fuel assigned
-            else:
-                fuel_tech_yh = enduse_fuel_tech[tech] * load_profile
-
-                tech_fuels_yh[fueltype_int] += fuel_tech_yh
-                fuels_yh[tech] = tech_fuels_yh
-    else:
-        fuels_yh = np.zeros((fueltypes_nr, model_yeardays_nrs, 24), dtype=float)
-        for tech in enduse_techs:
-
-            load_profile = load_profiles.get_lp(enduse, sector, tech, 'shape_yh')
-
-            # Fuel distribution
-            # Only needed if modelled days is not 365 because the
-            # service in fuel_to_service() was already reduced
-            # to selected modelled days
-            if model_yeardays_nrs != 365:
-                load_profile = lp.abs_to_rel(load_profile)
-
-            # If no fuel for this tech and not defined in enduse
-            if tech not in enduse_fuel_tech.keys():
-                pass # Technology has not fuel assigned
-            else:
-                fuel_tech_yh = enduse_fuel_tech[tech] * load_profile
-
-                # Get distribution per fueltype
-                fuels_yh[fueltypes['heat']] += fuel_tech_yh
-    '''
-    if mode_constrained:
-        fuels_yh = {}
-        tech_fuels_yh = np.zeros((fueltypes_nr, model_yeardays_nrs, 24), dtype=float)
-
-        for tech in enduse_techs:
-            load_profile = load_profiles.get_lp(enduse, sector, tech, 'shape_yh')
 
             if model_yeardays_nrs != 365:
                 load_profile = lp.abs_to_rel(load_profile)
 
             # If no fuel for this tech and not defined in enduse
             if tech in enduse_fuel_tech.keys():
+                tech_fueltype = tech_stock.get_tech_attr(enduse, tech, 'fueltype_int')
                 fuel_tech_yh = enduse_fuel_tech[tech] * load_profile
-                fuels_yh[tech] =  fuel_tech_yh #tech_fuels_yh #TODO TODO TODO
-
-                fueltype_int = tech_stock.get_tech_attr(enduse, tech, 'fueltype_int')
-                tech_fuels_yh[fueltype_int] += fuel_tech_yh
+                fuels_yh[tech] = np.zeros((fueltypes_nr, model_yeardays_nrs, 24), dtype=float)
+                fuels_yh[tech][tech_fueltype] = fuel_tech_yh
             else:
                 pass # Technology has not fuel assigned
     else:
@@ -1006,7 +958,7 @@ def calc_fuel_tech_yh(
                 fuels_yh[fueltypes['heat']] += fuel_tech_yh
             else:
                 pass # Technology has not fuel assigned
-    '''
+
     return fuels_yh
 
 def calc_fuel_tech_y(
