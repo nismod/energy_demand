@@ -112,6 +112,13 @@ def dump(data, file_path):
 def write_yaml_output_keynames(path_yaml, key_names):
     """Generate YAML file where the outputs
     for the sector model can be easily copied
+
+    Arguments
+    ----------
+    path_yaml : str
+        Path where yaml file is saved
+    key_names : dict
+        Names of keys of supply_out dict
     """
     list_to_dump = []
 

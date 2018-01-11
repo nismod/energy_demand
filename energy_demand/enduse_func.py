@@ -165,7 +165,8 @@ class Enduse(object):
                 self.fuel_new_y,
                 cooling_factor_y,
                 heating_factor_y,
-                assumptions)
+                assumptions['enduse_space_heating'],
+                assumptions['enduse_space_cooling'])
             #logging.info("... Fuel train B: " + str(np.sum(self.fuel_new_y)))
             #print("... Fuel train B: " + str(np.sum(self.fuel_new_y)))
 
@@ -217,7 +218,7 @@ class Enduse(object):
                 here there will be problems
                 """
                 if flat_profile_crit:
-                    self.fuel_y = self.fuel_new_y * assumptions['model_yeardays_nrs'] / 365.0
+                    self.fuel_y = self.fuel_new_y * model_yeardays_nrs / 365.0
                 else:
                     self.fuel_yh, self.fuel_peak_dh, self.fuel_peak_h = assign_lp_no_techs(
                         enduse,
@@ -326,7 +327,7 @@ class Enduse(object):
                         load_profiles,
                         fueltypes_nr,
                         fueltypes,
-                        assumptions['model_yeardays_nrs'],
+                        model_yeardays_nrs,
                         mode_constrained)
 
                     # --PEAK
@@ -353,7 +354,7 @@ class Enduse(object):
                                 enduse,
                                 base_yr,
                                 curr_yr,
-                                assumptions,
+                                assumptions['strategy_variables'],
                                 fuel_yh[tech],
                                 fuel_peak_dh[tech],
                                 self.enduse_techs,
@@ -361,6 +362,7 @@ class Enduse(object):
                                 fuel_tech_y,
                                 tech_stock,
                                 load_profiles,
+                                fueltypes,
                                 fueltypes_nr,
                                 mode_constrained)
 
@@ -375,7 +377,7 @@ class Enduse(object):
                             enduse,
                             base_yr,
                             curr_yr,
-                            assumptions,
+                            assumptions['strategy_variables'],
                             fuel_yh,
                             fuel_peak_dh,
                             self.enduse_techs,
@@ -383,6 +385,7 @@ class Enduse(object):
                             fuel_tech_y,
                             tech_stock,
                             load_profiles,
+                            fueltypes,
                             fueltypes_nr,
                             mode_constrained)
 
@@ -390,7 +393,7 @@ def demand_management(
         enduse,
         base_yr,
         curr_yr,
-        assumptions,
+        strategy_variables,
         fuel_yh,
         fuel_peak_dh,
         enduse_techs,
@@ -398,6 +401,7 @@ def demand_management(
         fuel_tech_y,
         tech_stock,
         load_profiles,
+        fueltypes,
         fueltypes_nr,
         mode_constrained
     ):
@@ -412,8 +416,8 @@ def demand_management(
         Base year
     curr_yr : int
         Current year
-    assumptions : dict
-        Assumptions
+    strategy_variables : dict
+        Assumptions of strategy variables
     fuel_yh : array
         Fuel per hours
     fuel_peak_dh : array
@@ -422,7 +426,7 @@ def demand_management(
         Enduse specfic technologies
     sector : str
         Sector
-    fuel_tech_y : 
+    fuel_tech_y : dict
         Annual fuel per technology
     tech_stock : obj
         Technology stock
@@ -454,8 +458,8 @@ def demand_management(
         base_yr,
         curr_yr,
         loadfactor_yd_cy,
-        assumptions['strategy_variables'],
-        assumptions['strategy_variables']['demand_management_yr_until_changed'])
+        strategy_variables,
+        strategy_variables['demand_management_yr_until_changed'])
 
     if peak_shift_crit:
 
@@ -471,6 +475,7 @@ def demand_management(
             tech_stock,
             load_profiles,
             fueltypes_nr,
+            fueltypes,
             mode_constrained)
     else: # not peak shifting
         pass
@@ -480,8 +485,38 @@ def demand_management(
 
     return fuel_yh, fuel_peak_h, fuel_peak_dh
 
-def calc_lf_improvement(enduse, base_yr, curr_yr, loadfactor_yd_cy, lf_improvement_ey, yr_until_changed):
-    """Calculate lf improvement depending on linear diffusion
+def calc_lf_improvement(
+        enduse,
+        base_yr,
+        curr_yr,
+        loadfactor_yd_cy,
+        lf_improvement_ey,
+        yr_until_changed
+    ):
+    """Calculate load factor improvement depending on linear diffusion
+    over time.
+
+    Arguments
+    ---------
+    enduse : str
+        Enduse
+    base_yr : int
+        Base year
+    curr_yr : int
+        Current year
+    loadfactor_yd_cy : 
+
+    lf_improvement_ey : 
+
+    yr_until_changed : int
+        Year until fully changed
+
+    Returns
+    -------
+    lf_cy_improved_d : 
+
+    peak_shift_crit : bool
+        True: Peak is shifted, False: Peak isn't shifed
 
     Test if lager than zero --> replace by one
     TODO
@@ -495,11 +530,7 @@ def calc_lf_improvement(enduse, base_yr, curr_yr, loadfactor_yd_cy, lf_improveme
         else:
             # Calculate linear diffusion of improvement of load management
             lin_diff_factor = diffusion_technologies.linear_diff(
-                base_yr,
-                curr_yr,
-                0,
-                1,
-                yr_until_changed)
+                base_yr, curr_yr, 0, 1, yr_until_changed)
 
             # Current year load factor improvement
             lf_improvement_cy = lf_improvement_ey[param_name] * lin_diff_factor
@@ -515,7 +546,9 @@ def calc_lf_improvement(enduse, base_yr, curr_yr, loadfactor_yd_cy, lf_improveme
             return lf_cy_improved_d, peak_shift_crit
     except KeyError:
         logging.debug("... no load management was defined for enduse")
-        return False, False
+        lf_cy_improved_d = False
+        peak_shift_crit = False
+        return lf_cy_improved_d, peak_shift_crit
 
 def assign_lp_no_techs(enduse, sector, load_profiles, fuel_new_y):
     """Assign load profiles for an enduse which has not
@@ -1395,7 +1428,8 @@ def apply_climate_change(
         fuel_new_y,
         cooling_factor_y,
         heating_factor_y,
-        assumptions
+        enduse_space_heating,
+        enduse_space_cooling
     ):
     """Change fuel demand for heat and cooling service
     depending on changes in HDD and CDD within a region
@@ -1411,8 +1445,10 @@ def apply_climate_change(
         Distribution of fuel within year to days (yd)
     heating_factor_y : array
         Distribution of fuel within year to days (yd)
-    assumptions : dict
-        Assumptions
+    enduse_space_heating : list
+        Enduses defined as space heating
+    enduse_space_cooling : list
+        Enduses defined as space cooling
 
     Return
     ------
@@ -1425,9 +1461,9 @@ def apply_climate_change(
         over the year. Therefore it is assumed that fuel correlates
         directly with HDD or CDD.
     """
-    if enduse in assumptions['enduse_space_heating']:
+    if enduse in enduse_space_heating:
         fuel_new_y = fuel_new_y * heating_factor_y
-    elif enduse in assumptions['enduse_space_cooling']:
+    elif enduse in enduse_space_cooling:
         fuel_new_y = fuel_new_y * cooling_factor_y
 
     return fuel_new_y
