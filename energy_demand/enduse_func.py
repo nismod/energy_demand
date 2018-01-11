@@ -241,7 +241,7 @@ class Enduse(object):
                 # ------------------------------------
                 # Calculate regional energy service
                 # ------------------------------------
-                tot_service_y_cy, service_tech_y_cy, service_tech_cy_p = fuel_to_service(
+                tot_service_y_cy, service_tech_y_cy, tech_service_cy_p = fuel_to_service(
                     enduse,
                     self.fuel_new_y,
                     self.enduse_techs,
@@ -278,7 +278,7 @@ class Enduse(object):
                 if crit_switch_service:
                     service_tech_y_cy = calc_service_switch(
                         tot_service_y_cy,
-                        service_tech_cy_p,
+                        tech_service_cy_p,
                         tech_increased_service,
                         tech_decreased_service,
                         tech_constant_service,
@@ -310,50 +310,45 @@ class Enduse(object):
                         fueltypes,
                         mode_constrained)
                 else:
+                    #---NON-PEAK ??
+                    fuel_yh = calc_fuel_tech_yh(
+                        enduse,
+                        sector,
+                        self.enduse_techs,
+                        fuel_tech_y,
+                        tech_stock,
+                        load_profiles,
+                        fueltypes_nr,
+                        fueltypes,
+                        assumptions['model_yeardays_nrs'],
+                        mode_constrained)
+    
+                    # --PEAK
+                    # Iterate technologies in enduse and assign technology specific profiles
+                    fuel_peak_dh = calc_peak_tech_dh(
+                        enduse,
+                        sector,
+                        self.enduse_techs,
+                        fuel_tech_y,
+                        fuel_yh,
+                        tech_stock,
+                        load_profiles,
+                        fueltypes_nr,
+                        fueltypes,
+                        mode_constrained)
+
                     # ---------------------------------------
                     # Demand Management (peak shaving)
                     # ---------------------------------------
                     if mode_constrained:
-                        print("mode_constrained: {}  {}".format(mode_constrained, enduse))
-
-                        # ---
-                        # Contrainsed (i.e. with technologies) fuel calculation
-                        # ---
-                        constrained_fuel_yh = calc_fuel_tech_yh(
-                            enduse,
-                            sector,
-                            self.enduse_techs,
-                            fuel_tech_y,
-                            tech_stock,
-                            load_profiles,
-                            fueltypes_nr,
-                            fueltypes,
-                            assumptions['model_yeardays_nrs'],
-                            mode_constrained=True)
-
-                        # --PEAK
-                        # Iterate technologies in enduse and assign technology specific profiles
-                        fuel_peak_dh = calc_peak_tech_dh(
-                            enduse,
-                            sector,
-                            self.enduse_techs,
-                            fuel_tech_y,
-                            constrained_fuel_yh,
-                            tech_stock,
-                            load_profiles,
-                            fueltypes_nr,
-                            fueltypes,
-                            mode_constrained=True)
-
-                        for tech in constrained_fuel_yh:
-                            #print("TECH  {}  {}".format(tech, np.sum(constrained_fuel_yh[tech])))
-                            #tech_fuel_yh, tech_fuel_peak_h, tech_fuel_peak_dh = demand_management(
+                        
+                        for tech in fuel_yh:
                             self.techs_fuel_yh[tech], self.techs_fuel_peak_h[tech], self.techs_fuel_peak_dh[tech] = demand_management(
                                 enduse,
                                 base_yr,
                                 curr_yr,
                                 assumptions,
-                                constrained_fuel_yh[tech],
+                                fuel_yh[tech],
                                 fuel_peak_dh[tech],
                                 self.enduse_techs,
                                 sector,
@@ -370,41 +365,14 @@ class Enduse(object):
                             self.fuel_yh += self.techs_fuel_yh[tech]
                             self.fuel_peak_h += self.techs_fuel_peak_h[tech]
                             self.fuel_peak_dh += self.techs_fuel_peak_dh[tech]
-                    else:
-                        # ONLY FOR HEATING ENDUSES
-                        #---NON-PEAK
-                        unconstrained_fuel_yh = calc_fuel_tech_yh(
-                            enduse,
-                            sector,
-                            self.enduse_techs,
-                            fuel_tech_y,
-                            tech_stock,
-                            load_profiles,
-                            fueltypes_nr,
-                            fueltypes,
-                            assumptions['model_yeardays_nrs'],
-                            mode_constrained=False)
-
-                        # --PEAK
-                        # Iterate technologies in enduse and assign technology specific profiles
-                        fuel_peak_dh = calc_peak_tech_dh(
-                            enduse,
-                            sector,
-                            self.enduse_techs,
-                            fuel_tech_y,
-                            unconstrained_fuel_yh,
-                            tech_stock,
-                            load_profiles,
-                            fueltypes_nr,
-                            fueltypes,
-                            mode_constrained=False)
+                    else: # ONLY FOR HEATING ENDUSES
 
                         self.fuel_yh, self.fuel_peak_h, self.fuel_peak_dh = demand_management(
                             enduse,
                             base_yr,
                             curr_yr,
                             assumptions,
-                            unconstrained_fuel_yh,
+                            fuel_yh,
                             fuel_peak_dh,
                             self.enduse_techs,
                             sector,
@@ -412,7 +380,7 @@ class Enduse(object):
                             tech_stock,
                             load_profiles,
                             fueltypes_nr,
-                            mode_constrained=False)
+                            mode_constrained)
 
 def demand_management(
         enduse,
@@ -483,9 +451,7 @@ def demand_management(
     if peak_shift_crit:
 
         fuel_yh = lf.peak_shaving_max_min(
-            lf_cy_improved_d,
-            average_fuel_yd,
-            fuel_yh)
+            lf_cy_improved_d, average_fuel_yd, fuel_yh)
 
         fuel_peak_dh = calc_peak_tech_dh(
             enduse,
@@ -1542,12 +1508,12 @@ def calc_service_switch(
     to the base year distribution of these technologies
     """
     # Result dict with cy service for every technology
-    service_tech_cy_p = {}
+    tech_service_cy_p = {}
 
     # ------------
     # Update all technologies with constant service
     # ------------
-    service_tech_cy_p.update(tech_constant_service)
+    tech_service_cy_p.update(tech_constant_service)
 
     # ------------
     # Calculate service for technology with increased service
@@ -1557,14 +1523,14 @@ def calc_service_switch(
         sig_param_tech,
         curr_yr)
 
-    service_tech_cy_p.update(service_tech_incr_cy_p)
+    tech_service_cy_p.update(service_tech_incr_cy_p)
 
     # ------------
     # Calculate service for technologies with decreasing service
     # ------------
     # Add base year of decreasing technologies to substract from that later on
     for tech in tech_decrease_service:
-        service_tech_cy_p[tech] = service_tech_by_p[tech]
+        tech_service_cy_p[tech] = service_tech_by_p[tech]
 
     # Calculate service share to assing for substracted fuel
     service_tech_decrease_by_rel = fuel_service_switch.get_service_rel_tech_decr_by(
@@ -1582,12 +1548,12 @@ def calc_service_switch(
         for tech_decr, service_tech_decr_by in service_tech_decrease_by_rel.items():
             service_to_substract_p_cy = service_tech_decr_by * diff_service_incr
 
-            ##assert (service_tech_cy_p[tech_decr] - service_to_substract_p_cy) >= 0 #Leave away for speed uproses
-            service_tech_cy_p[tech_decr] -= service_to_substract_p_cy
+            ##assert (tech_service_cy_p[tech_decr] - service_to_substract_p_cy) >= 0 #Leave away for speed uproses
+            tech_service_cy_p[tech_decr] -= service_to_substract_p_cy
 
     # Assign total service share to service share of technologies
     service_tech_yh_cy = {}
-    for tech, enduse_share in service_tech_cy_p.items():
+    for tech, enduse_share in tech_service_cy_p.items():
         service_tech_yh_cy[tech] = tot_service_yh_cy * enduse_share
 
     return service_tech_yh_cy

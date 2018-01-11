@@ -90,15 +90,15 @@ def test_service_switch():
         sig_param_tech,
         curr_yr)
 
-    expected_service_tech_cy_p = {
+    expected_tech_service_cy_p = {
         "boilerA": 365*24 * share_boilerA_cy, # * 0.5
         "boilerB": 365*24 * share_boilerB_cy} # * 0.5
-    #print(round(expected_service_tech_cy_p["boilerA"], 3))
+    #print(round(expected_tech_service_cy_p["boilerA"], 3))
     #print(round(np.sum(result["boilerA"]), 3))
-    #print(round(expected_service_tech_cy_p["boilerB"], 3) )
+    #print(round(expected_tech_service_cy_p["boilerB"], 3) )
     #print(round(np.sum(result["boilerB"]), 3))
-    assert round(expected_service_tech_cy_p["boilerA"], 3) == round(np.sum(result["boilerA"]), 3)
-    assert round(expected_service_tech_cy_p["boilerB"], 3) == round(np.sum(result["boilerB"]), 3)
+    assert round(expected_tech_service_cy_p["boilerA"], 3) == round(np.sum(result["boilerA"]), 3)
+    assert round(expected_tech_service_cy_p["boilerB"], 3) == round(np.sum(result["boilerB"]), 3)
 
     # --------------------------------------------
     l_value = 1.0
@@ -147,12 +147,12 @@ def test_service_switch():
         curr_yr)
 
     half_time_factor = 1
-    expected_service_tech_cy_p = {
+    expected_tech_service_cy_p = {
         "boilerA": 365*24,
         "boilerB": 0}
 
-    assert round(expected_service_tech_cy_p["boilerA"], 3) == round(np.sum(result["boilerA"]), 3)
-    assert round(expected_service_tech_cy_p["boilerB"], 3) == round(np.sum(result["boilerB"]), 3)
+    assert round(expected_tech_service_cy_p["boilerA"], 3) == round(np.sum(result["boilerA"]), 3)
+    assert round(expected_tech_service_cy_p["boilerB"], 3) == round(np.sum(result["boilerB"]), 3)
 
     # --------------------------------------------
 
@@ -204,12 +204,12 @@ def test_service_switch():
         sig_param_tech,
         curr_yr)
 
-    expected_service_tech_cy_p = {
+    expected_tech_service_cy_p = {
         "boilerA": 365*24*0.5,
         "boilerB": 365*24*0.5}
 
-    assert round(expected_service_tech_cy_p["boilerA"], 1) == round(np.sum(result["boilerA"]), 1)
-    assert round(expected_service_tech_cy_p["boilerB"], 1) == round(np.sum(result["boilerB"]), 1)
+    assert round(expected_tech_service_cy_p["boilerA"], 1) == round(np.sum(result["boilerA"]), 1)
+    assert round(expected_tech_service_cy_p["boilerB"], 1) == round(np.sum(result["boilerB"]), 1)
 
 def test_convert_service_to_p():
     """Testing
