@@ -54,9 +54,9 @@ class EDWrapper(SectorModel):
         data['criterias']['virtual_building_stock_criteria'] = True     # True: Run virtual building stock model
         data['criterias']['plot_HDD_chart'] = False                     # True: Plotting of HDD vs gas chart
         data['criterias']['validation_criteria'] = False                # True: Plot validation plots
-        data['criterias']['mode_constrained'] = False                    # True: Technologies are defined in ED model and fuel is provided, False: Heat is delievered not per technologies
+        data['criterias']['mode_constrained'] = True                    # True: Technologies are defined in ED model and fuel is provided, False: Heat is delievered not per technologies
         data['criterias']['spatial_exliclit_diffusion'] = False         # True: Spatial explicit calculations
-        data['criterias']['writeYAML'] = False
+        data['criterias']['writeYAML'] = True
 
         data['sim_param']['base_yr'] = 2015                             # Base year
         data['sim_param']['curr_yr'] = data['sim_param']['base_yr']
@@ -598,14 +598,31 @@ def constrained_results(
         {submodel_fueltype: np.array((region, intervals))}
     """
     supply_results = {}
-    tech_and_non_heating_results = {}
 
-    # Create empty with shape (fueltypes, sector, region, timestep)
-    non_heating_ed = np.zeros((results_unconstrained.shape))
+    # ----------------------------------------
+    # Add all constrained technologies
+    # Aggregate according to submodel, fueltype, technology, region, timestep
+    # ----------------------------------------
+    for submodel_nr, submodel in enumerate(supply_sectors):
+
+        # Iterate technologies
+        for tech in results_constrained:
+
+            # Technology specific fueltype
+            fueltype_str = technologies[tech].fueltype_str
+            fueltype_int = technologies[tech].fueltype_int
+
+            # Generate key name (must be defined in `sector_models`)
+            key_name = "{}_{}_{}".format(submodel, fueltype_str, tech) # Create Key Name
+
+            supply_results[key_name] = results_constrained[tech][fueltype_int][submodel_nr]
 
     # --------------------------------
     # Add all technologies of restricted enduse (heating)
     # --------------------------------
+    # Create empty with shape (fueltypes, sector, region, timestep)
+    non_heating_ed = np.zeros((results_unconstrained.shape))
+
     for fueltype_str, fueltype_int in fueltypes.items():
 
         # Calculate total fuel of all constrained technologies of a fueltype
@@ -618,31 +635,21 @@ def constrained_results(
         # because results_unconstrained contains total fuel
         non_heating_ed[fueltype_int] = results_unconstrained[fueltype_int] - constrained_ed[fueltype_int]
 
-    # Create non_heating key containing all fueltypes
-    tech_and_non_heating_results["non_heating"] = non_heating_ed
-
-    # --------------------------------
-    # Add all constrained technologies
-    # --------------------------------
-    tech_and_non_heating_results.update(results_constrained)
-
-    # ----------------------------------------
-    # Aggregate according to submodel, fueltype, technology, region, timestep
-    # ----------------------------------------
-
-    # Iterate submodels
+    # Add non_heating for all fueltypes
     for submodel_nr, submodel in enumerate(supply_sectors):
-
-        # Iterate fueltypes
         for fueltype_str, fueltype_int in fueltypes.items():
 
-            # Iterate technologies
-            for tech_key in tech_and_non_heating_results:
+            # Generate key name (must be defined in `sector_models`)
+            key_name = "{}_{}_{}".format(submodel, fueltype_str, "non_heating")
+            supply_results[key_name] = non_heating_ed[fueltype_int][submodel_nr]
 
-                # Generate key name (must be defined in `sector_models`)
-                key_name = "{}_{}_{}".format(submodel, fueltype_str, tech_key) # Create Key Name
 
-                supply_results[key_name] = tech_and_non_heating_results[tech_key][fueltype_int][submodel_nr]
+
+    _total_scrap = 0
+    for key in supply_results:
+        _total_scrap += np.sum(supply_results[key])
+    print("dddddfsdfsdf: " + str(_total_scrap))
+    prit(":")
 
     logging.info("Prepared results for energy supply model in constrained mode")
     return dict(supply_results)

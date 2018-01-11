@@ -6,6 +6,7 @@ Contains the `Enduse` Class. This is the most important class
 where the change in enduse specific energy demand is simulated
 depending on scenaric assumptions.
 """
+import sys
 import logging
 import numpy as np
 from energy_demand.initalisations import helpers
@@ -133,9 +134,6 @@ class Enduse(object):
         self.techs_fuel_yh = {}
         self.techs_fuel_peak_h = {}
         self.techs_fuel_peak_dh = {}
-        #self.fuel_yh = np.zeros((fueltypes_nr, model_yeardays_nrs, 24), dtype=float)
-        #self.fuel_peak_h = np.zeros((fueltypes_nr), dtype=float)
-        #self.fuel_peak_dh = np.zeros((fueltypes_nr, 24), dtype=float)
 
         if np.sum(fuel) == 0: #If enduse has no fuel return empty shapes
             self.flat_profile_crit = True
@@ -719,7 +717,7 @@ def get_peak_day(fuel_yh):
     The day with most fuel across all fueltypes is considered to
     be the peak day. Over the simulation period,
     the peak day may change date in a year. If no fuel is
-    provided, an error is thrown.
+    provided, the program is crashed
 
     Arguments
     ---------
@@ -736,9 +734,7 @@ def get_peak_day(fuel_yh):
 
     if np.sum(all_fueltypes_tot_h) == 0:
         logging.critical("No peak can be found because no fuel assigned")
-        print("TODO: FIX ERROR: NP PEAK FOUND")
         sys.exit("ERROR")
-
     else:
         # Sum fuel within every hour for every day and get day with maximum fuel
         peak_day_nr = np.argmax(np.sum(all_fueltypes_tot_h, axis=1))
@@ -976,7 +972,41 @@ def calc_fuel_tech_yh(
 
                 # Get distribution per fueltype
                 fuels_yh[fueltypes['heat']] += fuel_tech_yh
+    '''
+    if mode_constrained:
+        fuels_yh = {}
+        tech_fuels_yh = np.zeros((fueltypes_nr, model_yeardays_nrs, 24), dtype=float)
 
+        for tech in enduse_techs:
+            load_profile = load_profiles.get_lp(enduse, sector, tech, 'shape_yh')
+
+            if model_yeardays_nrs != 365:
+                load_profile = lp.abs_to_rel(load_profile)
+
+            # If no fuel for this tech and not defined in enduse
+            if tech in enduse_fuel_tech.keys():
+                fuel_tech_yh = enduse_fuel_tech[tech] * load_profile
+                fuels_yh[tech] =  fuel_tech_yh #tech_fuels_yh #TODO TODO TODO
+
+                fueltype_int = tech_stock.get_tech_attr(enduse, tech, 'fueltype_int')
+                tech_fuels_yh[fueltype_int] += fuel_tech_yh
+            else:
+                pass # Technology has not fuel assigned
+    else:
+        fuels_yh = np.zeros((fueltypes_nr, model_yeardays_nrs, 24), dtype=float)
+        for tech in enduse_techs:
+            load_profile = load_profiles.get_lp(enduse, sector, tech, 'shape_yh')
+
+            if model_yeardays_nrs != 365:
+                load_profile = lp.abs_to_rel(load_profile)
+
+            # If no fuel for this tech and not defined in enduse
+            if tech in enduse_fuel_tech.keys():
+                fuel_tech_yh = enduse_fuel_tech[tech] * load_profile
+                fuels_yh[fueltypes['heat']] += fuel_tech_yh
+            else:
+                pass # Technology has not fuel assigned
+    '''
     return fuels_yh
 
 def calc_fuel_tech_y(
@@ -1096,7 +1126,7 @@ def fuel_to_service(
         fuel_tech_p_by,
         tech_stock,
         fueltypes,
-        mode_constrained,
+        mode_constrained
     ):
     """Converts fuel to energy service (1),
     calcualates contribution service fraction (2)
@@ -1202,19 +1232,33 @@ def fuel_to_service(
 
     return tot_service_y, service_tech, service_tech_p
 
-def apply_heat_recovery(enduse, strategy_variables, enduse_overall_change, service, crit_dict, base_yr, curr_yr):
+def apply_heat_recovery(
+        enduse,
+        strategy_variables,
+        enduse_overall_change,
+        service,
+        crit_dict,
+        base_yr,
+        curr_yr
+    ):
     """Reduce heating demand according to assumption on heat reuse
 
     Arguments
     ----------
-    assumptions : dict
-        Assumptions
+    enduse : str
+        Enduse
+    strategy_variables : dict
+        Strategy variables
+    enduse_overall_change : dict
+        Sigmoid diffusion info
     service : dict or array
         Service of current year
     crit_dict : str
         Criteria to run function differently
-    base_sim_param : dict
-        Base simulation parameters
+    base_yr : int
+        Base year
+    curr_yr : int
+        Current year
 
     Returns
     -------
@@ -1283,12 +1327,16 @@ def apply_scenario_drivers(
         Dwelling stock
     region_name : str
         Region name
-    data : dict
-        Data container
+    gva : dict
+        GVA
+    population : dict
+        Population
     reg_scen_drivers : dict
         Scenario drivers per enduse
-    base_sim_param : dict
-        Base simulation parameters
+    base_yr : int
+        Base year
+    curr_yr : int
+        Current year
 
     Returns
     -------
@@ -1356,8 +1404,16 @@ def apply_specific_change(
         base_yr,
         curr_yr
     ):
-    """Calculates fuel based on assumed overall enduse
-    specific fuel consumption changes
+    """Calculates fuel based on assumed overall enduse specific
+    fuel consumption changes.
+
+    The changes are assumed across all fueltypes.
+    Because for enduses where no technologies are defined, a linear
+    diffusion is suggested to best represent multiple sigmoid efficiency
+    improvements of individual technologies.
+
+    Either a sigmoid standard diffusion or linear diffusion can be
+    implemented. Linear is suggested.
 
     Arguments
     ----------
@@ -1369,25 +1425,15 @@ def apply_specific_change(
         Info about how the enduse is overall changed (e.g. diff method)
     enduse_overall_change_strategy : dict
         Change in overall enduse for every enduse (percent ey)
-    sim_param : dict
-        Simulation parameters
+    base_yr : int
+        Base year
+    curr_yr : int
+        Current year
 
     Returns
     -------
     fuel_y : array
         Yearly new fuels
-
-    Note
-    -----
-    -   Because for enduses where no technology stock is defined (and may
-        consist of many different) technologies, a linear diffusion is
-        suggested to best represent multiple sigmoid efficiency improvements
-        of individual technologies.
-
-    -   The changes are assumed across all fueltypes.
-
-    -   Either a sigmoid standard diffusion or linear diffusion can be implemented.
-        inear is suggested.
     """
     # Fuel consumption shares in base and end year
     percent_by = 1.0
@@ -1659,33 +1705,20 @@ def get_service_diffusion(sig_param_tech, curr_yr):
 
     Arguments
     ----------
-    enduse : str
-        Enduse
-    tech_increase_service : dict
-        All technologies per enduse with increased future service share
     sig_param_tech : dict
         Sigmoid diffusion parameters per technology
     curr_yr : dict
         Current year
-    spatial_exliclit_diffusion : crit
 
     Returns
     -------
     service_tech : dict
         Share of service per technology of current year
     """
-    '''service_tech = {}
-
-    for tech in tech_increase_service:
-        service_tech[tech] = diffusion_technologies.sigmoid_function(
-            curr_yr,
-            sig_param_tech[tech]['l_parameter'],
-            sig_param_tech[tech]['midpoint'],
-            sig_param_tech[tech]['steepness'])'''
-
     service_tech = diffusion_technologies.sigmoid_function(
-            curr_yr,
-            sig_param_tech['l_parameter'],
-            sig_param_tech['midpoint'],
-            sig_param_tech['steepness'])
+        curr_yr,
+        sig_param_tech['l_parameter'],
+        sig_param_tech['midpoint'],
+        sig_param_tech['steepness'])
+
     return service_tech
