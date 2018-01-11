@@ -63,49 +63,45 @@ class EnergyDemandModel(object):
         if data['criterias']['virtual_building_stock_criteria']:
 
             # Virtual dwelling stocks
-            data = create_virtual_dwelling_stocks(regions, self.curr_yr, data)
+            data = create_virtual_dwelling_stocks(
+                regions, self.curr_yr, data)
         else:
             # Create dwelling stock from imported data from newcastle
-            data = create_dwelling_stock(regions, self.curr_yr, data) #TODO
+            data = create_dwelling_stock(
+                regions, self.curr_yr, data)
 
         logging.info("... finished generating dwelling stock")
-
         # ---------------------------------------------
         # Simulation over all regions
         # ---------------------------------------------
         all_submodels_regions = {}
         for region in regions:
-            logging.info("... Generate region %s for year %s", region, self.curr_yr)
+            logging.info(
+                "... Simulate region %s for year %s", region, self.curr_yr)
 
             # Simulate region
             reg_rs_submodel, reg_ss_submodel, reg_is_submodel = simulate_region(
                 region, data, weather_regions)
 
             # Store all submodel objects in list and save to dict
-            all_submodels_regions[region] = [reg_rs_submodel, reg_ss_submodel, reg_is_submodel]
+            all_submodels_regions[region] = [
+                reg_rs_submodel,
+                reg_ss_submodel,
+                reg_is_submodel]
 
         # ---------------------------------------------
         # Aggregate results for supply model and all
-        # other necessary calculations
+        # other necessary calculations and store as self.attributes
         # ---------------------------------------------
         aggregated_results = aggregate_final_results(
             data,
             regions,
             all_submodels_regions)
 
-        # Assign values to EnergyDemandModel object
-        self.ed_techs_fueltype_submodel_regs_yh = aggregated_results['ed_techs_fueltype_submodel_regs_yh']
-        self.ed_fueltype_submodel_regs_yh = aggregated_results['ed_fueltype_submodel_regs_yh']
-        self.ed_fueltype_regs_yh = aggregated_results['ed_fueltype_regs_yh']
-        self.ed_fueltype_national_yh = aggregated_results['ed_fueltype_national_yh']
-        self.tot_peak_enduses_fueltype = aggregated_results['tot_peak_enduses_fueltype']
-        self.tot_fuel_y_max_enduses = aggregated_results['tot_fuel_y_max_enduses']
-        self.tot_fuel_y_enduse_specific_h = aggregated_results['tot_fuel_y_enduse_specific_h']
-        self.reg_load_factor_y = aggregated_results['reg_load_factor_y']
-        self.reg_load_factor_yd = aggregated_results['reg_load_factor_yd']
-        self.reg_load_factor_seasons = aggregated_results['reg_load_factor_seasons']
-        self.averaged_h = aggregated_results['averaged_h'] # Calculate averaged across regions
- 
+    	# Set all keys of aggregated_results as self.attributes (EnergyDemandModel)
+        for key_attribute_name, value in aggregated_results.items():
+            setattr(self, key_attribute_name, value)
+
         # ------------------------------
         # TESTING
         # ------------------------------
@@ -853,6 +849,7 @@ def create_virtual_dwelling_stocks(regions, curr_yr, data):
 def create_dwelling_stock(regions, curr_yr, data):
     """Create dwelling stock based on NEWCASTLE data
     """
+     #TODO
     #data['rs_dw_stock'][region][curr_yr] = dw_stock.createNEWCASTLE_dwelling_stock(
     # self.curr_yr,
     # region,
@@ -861,11 +858,27 @@ def create_dwelling_stock(regions, curr_yr, data):
     return data
 
 def aggregate_final_results(data, regions, all_submodels_regions):
-    """AGgregate
+    """Aggregate results
+
+    Parameters
+    ----------
+    data : dict
+        Data container
+    regions : list
+        All modelled regions
+    all_submodels_regions : dict (key: region)
+        Result objects of submodels for all regions
+
+    Returns
+    --------
+    result_container : dict
+        Contains all aggregated results
     """
     result_container = {}
 
-    # Initialise
+    # --------------------
+    # Initialise empty arrays or dicts
+    # --------------------
     ed_fueltype_submodel_regs_yh = np.zeros(
         (data['lookups']['fueltypes_nr'], len(data['sectors'].keys()), data['reg_nrs'], data['assumptions']['model_yearhours_nrs']), dtype=float)
 
@@ -905,14 +918,18 @@ def aggregate_final_results(data, regions, all_submodels_regions):
         'winter': np.zeros((data['lookups']['fueltypes_nr'], data['reg_nrs'], 24), dtype=float),
         'autumn': np.zeros((data['lookups']['fueltypes_nr'], data['reg_nrs'], 24), dtype=float)}
 
+    # --------------------
+    # Iterate over regions
+    # --------------------
     for reg_array_nr, region in enumerate(regions):
-        
-        # Calculation results of region
+
+        # Get submodel object results of region
         all_submodels = all_submodels_regions[region]
-    
+
         # ----------------------
         # Summarise functions for result for supply model
-        # Sum as follows np.array(fueltypes, sectors, regions, timesteps)
+        #
+        # np.array(fueltypes, sectors, regions, timesteps)
         # ----------------------
         logging.debug("... start summing for supply model")
 
@@ -920,12 +937,12 @@ def aggregate_final_results(data, regions, all_submodels_regions):
             # -------------
             # Summarise ed of constrained technologies
             # -------------
-
             # Iterate over constraining heating technologies
             for heating_tech in data['assumptions']['heating_technologies']:
                 try:
                     # Sum according to np.array((fueltypes, sectors, regions, timesteps))
                     for submodel_nr, submodel in enumerate(all_submodels):
+
                         # Summarise for every fueltype, region, timestpes
                         submodel_ed_fueltype_regs_yh = constrained_fuel_regions_fueltype(
                             np.zeros((data['lookups']['fueltypes_nr'], data['reg_nrs'], data['assumptions']['model_yearhours_nrs']), dtype=float),
@@ -966,6 +983,8 @@ def aggregate_final_results(data, regions, all_submodels_regions):
         else:
             # -------------
             # Summarise ed of Unconstrained mode (heat is provided)
+            #
+            # np.array(fueltypes, sectors, regions, timesteps)
             # -------------
 
             # Sum across all fueltypes, sectors, regs and hours
@@ -985,8 +1004,10 @@ def aggregate_final_results(data, regions, all_submodels_regions):
                     ed_fueltype_submodel_regs_yh[fueltype_nr][submodel_nr] += submodel_ed_fueltype_regs_yh[fueltype_nr]
 
         # -----------
-        # Other summing
+        # Other summing for other purposes
+        #
         # -----------
+
         # Sum across all regions, all enduse and sectors sum_reg
         # [fueltype, region, fuel_yh], [fueltype, fuel_yh]
         ed_fueltype_regs_yh, fuel_region_yh = fuel_regions_fueltype(
@@ -1058,7 +1079,7 @@ def aggregate_final_results(data, regions, all_submodels_regions):
             data['assumptions']['seasons'], fuel_region_yh, average_fuel_yd)
 
         # Copy regional load factors
-        for fueltype_nr in range(data['lookups']['fueltypes_nr']):
+        for fueltype_nr in data['lookups']['fueltypes'].values():
             reg_load_factor_y[fueltype_nr][reg_array_nr] = load_factor_y[fueltype_nr]
             reg_load_factor_yd[fueltype_nr][reg_array_nr] = load_factor_yd[fueltype_nr]
 
