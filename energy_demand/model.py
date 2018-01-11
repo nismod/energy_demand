@@ -137,8 +137,8 @@ def simulate_region(region, data, weather_regions):
 
     Returns
     -------
-    region_submodels : list
-        All submodel objects
+    XX_submodels : obj
+        SubModel result object
     """
     logging.debug("Running for region %s", region)
 
@@ -176,12 +176,7 @@ def simulate_region(region, data, weather_regions):
     is_submodel = industry_submodel(
         region_obj, data, data['enduses']['is_all_enduses'], data['sectors']['is_sectors'])
 
-    # --------
-    # Submodels
-    # --------
-    #region_submodels = [rs_submodel, ss_submodel, is_submodel]
-
-    return rs_submodel, ss_submodel, is_submodel #region_submodels
+    return rs_submodel, ss_submodel, is_submodel
 
 def constrained_fuel_aggr(
         input_array,
@@ -223,8 +218,7 @@ def constrained_fuel_aggr(
 
             # If correct region and heating enduse
             if enduse_object.region_name == region_name and enduse_object.enduse in enduses_with_heating:
-                #print("----")
-                #print(enduse_object.enduse)
+
                 #print(enduse_object.flat_profile_crit)
                 ed_techs_dict = get_fuels_yh(
                     enduse_object,
@@ -232,10 +226,10 @@ def constrained_fuel_aggr(
                     model_yearhours_nrs,
                     model_yeardays_nrs)
 
-                # If no technologies are defined TODO: TEST if keys
+                # If technologies are defined
                 if isinstance(ed_techs_dict, dict):
                     input_array += ed_techs_dict[tech]
-                else: #except KeyError:
+                else:
                     input_array += ed_techs_dict
 
     if sum_crit == 'no_sum':
@@ -412,7 +406,6 @@ def industry_submodel(region, data, enduses, sectors):
             else:
                 service_switches = data['assumptions']['is_service_switch'][enduse]
                 sig_param_tech = data['assumptions']['is_sig_param_tech'][enduse]
-
                 tech_increased_service = data['assumptions']['is_tech_increased_service'][enduse]
                 tech_decreased_service = data['assumptions']['is_tech_decreased_service'][enduse]
                 tech_constant_service = data['assumptions']['is_tech_constant_service'][enduse]

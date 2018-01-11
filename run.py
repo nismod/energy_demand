@@ -33,44 +33,6 @@ PROFILER = False
 class EDWrapper(SectorModel):
     """Energy Demand Wrapper
     """
-
-    def transfer_container_to_simulate(self, dict_to_copy_into, dict_to_pass_along):
-        """Copy dict defined in before_model_run() to simlate() function
-        by copying key and values
-
-        Arguments
-        ---------
-        dict_to_copy_into : dict
-            Dict to copy values into
-        dict_to_pass_along : dict
-            Dictionary which needs to be copied and passed along
-        """
-        for key, value in dict_to_pass_along.items():
-            dict_to_copy_into[key] = value
-
-        return dict(dict_to_copy_into)
-
-    def array_to_dict(self, input_array):
-        """Convert array to dict
-
-        Arguments
-        ---------
-        input_array : numpy.ndarray
-            timesteps, regions, interval
-
-        Returns
-        -------
-        output_dict : dict
-            timesteps, region, interval
-
-        """
-        output_dict = defaultdict(dict)
-        for t_idx, timestep in enumerate(self.timesteps):
-            for r_idx, region in enumerate(self.get_region_names(REGION_SET_NAME)):
-                output_dict[timestep][region] = input_array[t_idx, r_idx, 0]
-
-        return dict(output_dict)
-
     def before_model_run(self, data=None):
         """Runs prior to any ``simulate()`` step
 
@@ -218,7 +180,6 @@ class EDWrapper(SectorModel):
         # Load all SMIF parameters and replace data dict
         # ------------------------
         data['assumptions'] = self.load_smif_parameters(
-            data['paths']['yaml_parameters_default'],
             data,
             data['assumptions'])
 
@@ -231,12 +192,10 @@ class EDWrapper(SectorModel):
         # ------------------------
         # Pass along to simulate()
         # ------------------------
-        
         self.user_data['gva'] = self.array_to_dict(gva_array)
         self.user_data['population'] = self.array_to_dict(pop_array)
         self.user_data['rs_floorarea'] = rs_floorarea
         self.user_data['ss_floorarea'] = ss_floorarea
-
         self.user_data['data_pass_along'] = {}
         self.user_data['data_pass_along']['criterias'] = data['criterias']
         self.user_data['data_pass_along']['temp_data'] = data['temp_data']
@@ -337,17 +296,11 @@ class EDWrapper(SectorModel):
         # ---------------------------------------------
         # Load data from scripts (Get simulation parameters from before_model_run()
         # ---------------------------------------------
-        data = self.transfer_container_to_simulate(data, self.user_data['data_pass_along'])
-        data = self.transfer_container_to_simulate(data, self.user_data['sd_cont'])
-        data['assumptions'] = self.transfer_container_to_simulate(data['assumptions'], self.user_data['fts_cont'])
-        data['assumptions'] = self.transfer_container_to_simulate(data['assumptions'], self.user_data['sgs_cont'])
-        data['assumptions'] = self.transfer_container_to_simulate(data['assumptions'], self.user_data['switches_cont'])
-
-        # ---------------------------------------------
-        # Load all SMIF parameters and replace data dict
-        # ---------------------------------------------
-        data['assumptions'] = self.load_smif_parameters(
-            data['paths']['yaml_parameters_default'], data, data['assumptions'])
+        data = self.pass_to_simulate(data, self.user_data['data_pass_along'])
+        data = self.pass_to_simulate(data, self.user_data['sd_cont'])
+        data['assumptions'] = self.pass_to_simulate(data['assumptions'], self.user_data['fts_cont'])
+        data['assumptions'] = self.pass_to_simulate(data['assumptions'], self.user_data['sgs_cont'])
+        data['assumptions'] = self.pass_to_simulate(data['assumptions'], self.user_data['switches_cont'])
 
         # Update: Necessary updates after external data definition
         data['assumptions']['technologies'] = non_param_assumptions.update_assumptions(
@@ -358,7 +311,7 @@ class EDWrapper(SectorModel):
         # ---------------------------------------------
         # Scenario data
         # ---------------------------------------------
-        pop_array = self.get_scenario_data('population')
+        pop_array = self.get_scenario_data('population') #for simulation year
         pop_dict = self.array_to_dict(pop_array)
 
         pop_by_cy = {}
@@ -389,43 +342,16 @@ class EDWrapper(SectorModel):
         # ---------------------------------------------
         # Run energy demand model
         # ---------------------------------------------
-
-        # Profiler
         if PROFILER:
             profiler = Profiler(use_signal=False)
             profiler.start()
 
-        model_run_object = energy_demand_model(data)
+        sim_obj = energy_demand_model(data)
 
         if PROFILER:
             profiler.stop()
             logging.debug("Profiler Results")
             print(profiler.output_text(unicode=True, color=True))
-
-        # ------------------------------------
-        # Write results output for supply
-        # ------------------------------------
-        # Form of np.array(fueltype, sectors, region, periods)
-        supply_results_unconstrained = model_run_object.ed_fueltype_submodel_regs_yh
-
-        # Form of {constrained_techs: np.array(fueltype, sectors, region, periods)}
-        supply_results_constrained = model_run_object.ed_techs_fueltype_submodel_regs_yh
-
-        # -----------------
-        # Write to txt files
-        # -----------------
-        ed_fueltype_regs_yh = model_run_object.ed_fueltype_regs_yh
-        out_enduse_specific = model_run_object.tot_fuel_y_enduse_specific_h
-        tot_peak_enduses_fueltype = model_run_object.tot_peak_enduses_fueltype
-        tot_fuel_y_max_enduses = model_run_object.tot_fuel_y_max_enduses
-        ed_fueltype_national_yh = model_run_object.ed_fueltype_national_yh
-
-        reg_load_factor_y = model_run_object.reg_load_factor_y
-        reg_load_factor_yd = model_run_object.reg_load_factor_yd
-        reg_load_factor_winter = model_run_object.reg_load_factor_seasons['winter']
-        reg_load_factor_spring = model_run_object.reg_load_factor_seasons['spring']
-        reg_load_factor_summer = model_run_object.reg_load_factor_seasons['summer']
-        reg_load_factor_autumn = model_run_object.reg_load_factor_seasons['autumn']
 
         # ------------------------------------------------
         # Validation base year: Hourly temporal validation
@@ -436,9 +362,9 @@ class EDWrapper(SectorModel):
                 data['assumptions']['model_yearhours_nrs'],
                 data['assumptions']['model_yeardays_nrs'],
                 data['scenario_data'],
-                model_run_object.ed_fueltype_national_yh,
-                ed_fueltype_regs_yh,
-                model_run_object.tot_peak_enduses_fueltype,
+                sim_obj.ed_fueltype_national_yh,
+                sim_obj.ed_fueltype_regs_yh,
+                sim_obj.tot_peak_enduses_fueltype,
                 data['lookups'],
                 data['local_paths'],
                 data['lu_reg'],
@@ -449,129 +375,50 @@ class EDWrapper(SectorModel):
         # -------------------------------------------
         # Write annual results to txt files
         # -------------------------------------------
+        #tot_fuel_y_max_enduses = sim_obj.tot_fuel_y_max_enduses
         logging.info("... Start writing results to file")
-        path_runs = data['local_paths']['data_results_model_runs']
+        path_run = data['local_paths']['data_results_model_runs']
 
-        write_data.write_supply_results(['rs_submodel', 'ss_submodel', 'is_submodel'],
-            timestep, path_runs, supply_results_unconstrained, "supply_results_unconstrained")
-        
-        write_data.write_enduse_specific(timestep, path_runs, out_enduse_specific, "out_enduse_specific")
-        write_data.write_max_results(timestep, path_runs, "result_tot_peak_enduses_fueltype", tot_peak_enduses_fueltype, "tot_peak_enduses_fueltype")
-        write_data.write_lf(path_runs, "result_reg_load_factor_y", [timestep], reg_load_factor_y, 'reg_load_factor_y')
-        write_data.write_lf(path_runs, "result_reg_load_factor_yd", [timestep], reg_load_factor_yd, 'reg_load_factor_yd')
-        write_data.write_lf(path_runs, "result_reg_load_factor_winter", [timestep], reg_load_factor_winter, 'reg_load_factor_winter')
-        write_data.write_lf(path_runs, "result_reg_load_factor_spring", [timestep], reg_load_factor_spring, 'reg_load_factor_spring')
-        write_data.write_lf(path_runs, "result_reg_load_factor_summer", [timestep], reg_load_factor_summer, 'reg_load_factor_summer')
-        write_data.write_lf(path_runs, "result_reg_load_factor_autumn", [timestep], reg_load_factor_autumn, 'reg_load_factor_autumn')
+        write_data.write_enduse_specific(timestep, path_run, sim_obj.tot_fuel_y_enduse_specific_h, "out_enduse_specific")
+        write_data.write_max_results(timestep, path_run, "result_tot_peak_enduses_fueltype", sim_obj.tot_peak_enduses_fueltype, "tot_peak_enduses_fueltype")
+        write_data.write_lf(path_run, "result_reg_load_factor_y", [timestep], sim_obj.reg_load_factor_y, 'reg_load_factor_y')
+        write_data.write_lf(path_run, "result_reg_load_factor_yd", [timestep], sim_obj.reg_load_factor_yd, 'reg_load_factor_yd')
+        write_data.write_lf(path_run, "result_reg_load_factor_winter", [timestep], sim_obj.reg_load_factor_seasons['winter'], 'reg_load_factor_winter')
+        write_data.write_lf(path_run, "result_reg_load_factor_spring", [timestep], sim_obj.reg_load_factor_seasons['spring'], 'reg_load_factor_spring')
+        write_data.write_lf(path_run, "result_reg_load_factor_summer", [timestep], sim_obj.reg_load_factor_seasons['summer'], 'reg_load_factor_summer')
+        write_data.write_lf(path_run, "result_reg_load_factor_autumn", [timestep], sim_obj.reg_load_factor_seasons['autumn'], 'reg_load_factor_autumn')
 
         logging.info("... finished wrapper calculations")
 
-        # -------------------------------------------
-        # Rewrite model results for supply model
-        # Depending on model running mode (contrained vs unconstrained), the
-        # outputs look different
-        # -------------------------------------------
-        # The keys are fueltype_str defined in the model configuration file,
-        # the values are arrays with region and intervals
+        # ------------------------------------
+        # Write results output for supply
+        # ------------------------------------
+        # Form of np.array(fueltype, sectors, region, periods)
+        results_unconstrained = sim_obj.ed_fueltype_submodel_regs_yh
 
-        # Constrained
-        # ------------
-        # Technology specific demand for fueltype
-        # {technology: np.array((fueltypes_int, sector, region, intervals))}
-        # FINLA: {key_fueltype_tech_sector:  np.array(region_intervals)}
+        # Form of {constrained_techs: np.array(fueltype, sectors, region, periods)}
+        results_constrained = sim_obj.ed_techs_fueltype_submodel_regs_yh
 
-        # Unconstrained
-        # ------------
-        # No technology specific delivery (heat is provided in form of a fueltype)
-        # {fueltype_int: np.array((sector, region, intervals))}
+        #write_data.write_supply_results(['rs_submodel', 'ss_submodel', 'is_submodel'],
+        #    timestep, path_run, results_unconstrained, "results_unconstrained")
+        #write_data.write_supply_results(['rs_submodel', 'ss_submodel', 'is_submodel'],
+        #    timestep, path_run, results_unconstrained, "results_constrained")
 
-        # FINAL: {key_fueltype_tech_sector:  np.array(region_intervals)} 
-        # --------------------------------
-        if data['criterias']['mode_constrained']: #constrained by technologies
-            # --
-            # Constrained
-            # --
-            print("...Info: Output constrained mode to supply model")
-            supply_results = defaultdict(dict)
+        supply_sectors = ['residential', 'service', 'industry']
 
-            # Add all technologies of restricted enduse (heating)
-            print(supply_results_constrained.keys())
-            print(supply_results_constrained['boiler_gas'].shape)
-            _scrap_sum_constrained = 0
-            for i in supply_results.values():
-                _scrap_sum_constrained += np.sum(i)
-            print("SUM: constrained ed all techs" + str(_scrap_sum_constrained))
-            print("SUM UNCONSTRAINED            " + str(np.sum(supply_results_unconstrained)))
-
-            non_heating_ed = np.zeros((supply_results_unconstrained.shape))
-
-            for fueltype_str, fueltype_int in data['lookups']['fueltypes'].items():
-
-                # Calculate fuel of all constrained technologies with this fueltype
-                constrained_ed = np.zeros((supply_results_unconstrained.shape))
-                for tech in supply_results_constrained:
-                    fueltype_str = data['assumptions']['technologies'][tech].fueltype_str
-                    if fueltype_str == fueltype_str:
-                        constrained_ed += supply_results_constrained[tech]
-
-                # Substract constrained fuel from non-constrained fuel
-                non_heating_ed[fueltype_int] = supply_results_unconstrained[fueltype_int] - constrained_ed[fueltype_int]
-
-            supply_results["non_heating"] = non_heating_ed
-
-            # Add all constrained technologies
-            supply_results.update(supply_results_constrained)
-
-            # ----------------------------------------
-            # FUELTYPES, SECTORS, REGIONS, TIMESTEPS
-            # ----------------------------------------
-            supply_results_final = {}
-
-            # Iterate submodels
-            for submodel_nr, submodel in enumerate(['residential', 'service', 'industry']):
-
-                # Iterate fueltypes
-                for fueltype_str, fueltype_int in data['lookups']['fueltypes'].items():
-
-                    # Iterate technologies
-                    for tech_key in supply_results:
-
-                        # Create Key Name
-                        key_name = "{}_{}_{}".format(submodel, fueltype_str, tech_key)
-
-                        # Copy Regions, Timesteps
-                        supply_results_final[key_name] = supply_results[tech_key][fueltype_int][submodel_nr]
-            
-            supply_results = supply_results_final
-            print("...................")
-            print(supply_results[key_name].shape)
-            print("FINISHED CONSTRAINED")
-            _total_scrap = 0
-            for key in supply_results:
-                _total_scrap += np.sum(supply_results[key])
-            print("FINALSUM: " + str(_total_scrap))
-            prnt(".")
+        if data['criterias']['mode_constrained']:
+            supply_results = constrained_results(
+                results_constrained,
+                supply_sectors,
+                data['lookups']['fueltypes'],
+                data['assumptions']['technologies'],
+                results_unconstrained)
         else:
-            # -------------
-            # Unconstrained
-            # -------------
-            supply_results = {}
+            supply_results = unconstrained_results(
+                results_unconstrained,
+                supply_sectors,
+                data['lookups']['fueltypes'])
 
-            # Iterate submodels
-            for submodel_nr, submodel in enumerate(['residential', 'service', 'industry']):
-                
-                # Iterate fueltypes
-                for fueltype_str, fueltype_int in data['lookups']['fueltypes'].items():
-
-                    key_name = "{}_{}".format(submodel, fueltype_str)
-                    supply_results[key_name] = supply_results_unconstrained[fueltype_int][submodel_nr]
-            
-            print("FINISHED UNCONSTRAINED")
-            _total_scrap = 0
-            for key in supply_results:
-                _total_scrap += np.sum(supply_results[key])
-            print("FINALSUM: " + str(_total_scrap))
-            prnt(".")
         return supply_results
 
     def extract_obj(self, results):
@@ -593,20 +440,55 @@ class EDWrapper(SectorModel):
         """
         pass
 
-    def load_smif_parameters(self, path_all_strategy_params, data, assumptions):
+    def pass_to_simulate(self, dict_to_copy_into, dict_to_pass_along):
+        """Pass dict defined in before_model_run() to simlate() function
+        by copying key and values
+
+        Arguments
+        ---------
+        dict_to_copy_into : dict
+            Dict to copy values into
+        dict_to_pass_along : dict
+            Dictionary which needs to be copied and passed along
+        """
+        for key, value in dict_to_pass_along.items():
+            dict_to_copy_into[key] = value
+
+        return dict(dict_to_copy_into)
+
+    def array_to_dict(self, input_array):
+        """Convert array to dict
+
+        Arguments
+        ---------
+        input_array : numpy.ndarray
+            timesteps, regions, interval
+
+        Returns
+        -------
+        output_dict : dict
+            timesteps, region, interval
+
+        """
+        output_dict = defaultdict(dict)
+        for t_idx, timestep in enumerate(self.timesteps):
+            for r_idx, region in enumerate(self.get_region_names(REGION_SET_NAME)):
+                output_dict[timestep][region] = input_array[t_idx, r_idx, 0]
+
+        return dict(output_dict)
+
+    def load_smif_parameters(self, data, assumptions):
         """Get all model parameters from smif and replace in data dict
 
         Arguments
-        =========
-        path_all_strategy_params : dict
-            Path to yaml file where all strategy variables are defined
+        ---------
         data : dict
             Dict with all data
         assumptions : dict
             Assumptions
 
         Returns
-        =========
+        -------
         assumptions : dict
             Assumptions with added strategy variables
         """
@@ -663,3 +545,149 @@ class EDWrapper(SectorModel):
             reg_coord[centroid['properties']['name']]['latitude'] = lat_dd
 
         return reg_coord
+
+def constrained_results(
+        results_constrained,
+        supply_sectors,
+        fueltypes,
+        technologies,
+        results_unconstrained
+    ):
+    """Prepare results for energy supply model for
+    constrained model running mode (no heat is provided but
+    technology specific fuel use).
+    The results for the supply model are provided aggregated
+    for every submodel, fueltype, technology, region, timestep
+
+    Note
+    -----
+    Because SMIF only takes results in the
+    form of {key: np.aray(regions, timesteps)}, the key
+    needs to contain information about submodel, fueltype,
+    and technology
+
+    Also these key must be defined in the `submodel_model`
+    configuration file
+
+    Arguments
+    ----------
+    results_constrained : dict
+        Aggregated results in form
+        {technology: np.array((fueltype, sector, region, timestep))}
+    supply_sectors : list
+        Names of sectors fur supply model
+    fueltypes : dict
+        Fueltype lookup
+
+    Returns
+    -------
+    supply_results : dict
+        No technology specific delivery (heat is provided in form of a fueltype)
+        {submodel_fueltype: np.array((region, intervals))}
+    """
+    supply_results_non_heating = {} #defaultdict(dict)
+
+    # ----
+    # Add all technologies of restricted enduse (heating)
+    # ----
+    # Create empty with shape (fueltypes, sector, region, timestep)
+    non_heating_ed = np.zeros((results_unconstrained.shape))
+
+    for fueltype_str, fueltype_int in fueltypes.items():
+
+        # Calculate fuel of all constrained technologies with this fueltype
+        constrained_ed = np.zeros((results_unconstrained.shape))
+        for tech in results_constrained:
+            if technologies[tech].fueltype_str == fueltype_str:
+                constrained_ed += results_constrained[tech]
+
+        # Substract constrained fuel from non-constrained fuel
+        # because results_unconstrained contains total fuel
+        non_heating_ed[fueltype_int] = results_unconstrained[fueltype_int] - constrained_ed[fueltype_int]
+
+    supply_results["non_heating"] = non_heating_ed
+
+    # --------------------------------
+    # Add all constrained technologies
+    # --------------------------------
+    supply_results.update(results_constrained)
+
+    # ----------------------------------------
+    # FUELTYPES, SECTORS, REGIONS, TIMESTEPS
+    # ----------------------------------------
+    supply_results_final = {}
+
+    # Iterate submodels
+    for submodel_nr, submodel in enumerate(supply_sectors):
+
+        # Iterate fueltypes
+        for fueltype_str, fueltype_int in fueltypes.items():
+
+            # Iterate technologies
+            for tech_key in supply_results:
+
+                # Create Key Name
+                key_name = "{}_{}_{}".format(submodel, fueltype_str, tech_key)
+
+                # Copy Regions, Timesteps
+                supply_results_final[key_name] = supply_results[tech_key][fueltype_int][submodel_nr]
+
+    supply_results = supply_results_final
+
+    # TESTING
+    _total_scrap = 0
+    for key in supply_results:
+        _total_scrap += np.sum(supply_results[key])
+    print("FINALSUM: " + str(_total_scrap))
+    print("FINISHED CONSTRAINED")
+    return dict(supply_results)
+
+def unconstrained_results(results_unconstrained, supply_sectors, fueltypes):
+    """Prepare results for energy supply model for
+    unconstrained model running mode (heat is provided).
+    The results for the supply model are provided aggregated
+    for every submodel, fueltype, region, timestep
+
+    Note
+    -----
+    Because SMIF only takes results in the
+    form of {key: np.aray(regions, timesteps)}, the key
+    needs to contain information about submodel and fueltype
+
+    Also these key must be defined in the `submodel_model`
+    configuration file
+
+    Arguments
+    ----------
+    results_unconstrained : array
+        Aggregated results in form of np.array((fueltype, sector, region, timestep))
+    supply_sectors : list
+        Names of sectors fur supply model
+    fueltypes : dict
+        Fueltype lookup
+
+    Returns
+    -------
+    supply_results : dict
+        No technology specific delivery (heat is provided in form of a fueltype)
+        {submodel_fueltype: np.array((region, intervals))}
+    """
+    supply_results = {}
+
+    # Iterate submodel names
+    for submodel_nr, submodel in enumerate(supply_sectors):
+
+        # Iterate fueltypes
+        for fueltype_str, fueltype_int in fueltypes.items():
+
+            # Generate key name (must be defined in `sector_models`)
+            key_name = "{}_{}".format(submodel, fueltype_str)
+
+            supply_results[key_name] = results_unconstrained[fueltype_int][submodel_nr]
+
+    _total_scrap = 0
+    for key in supply_results:
+        _total_scrap += np.sum(supply_results[key])
+    print("FINALSUM: " + str(_total_scrap))
+    print("FINISHED UNCONSTRAINED")
+    return supply_results
