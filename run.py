@@ -388,31 +388,28 @@ class EDWrapper(SectorModel):
         write_data.write_lf(path_run, "result_reg_load_factor_spring", [timestep], sim_obj.reg_load_factor_seasons['spring'], 'reg_load_factor_spring')
         write_data.write_lf(path_run, "result_reg_load_factor_summer", [timestep], sim_obj.reg_load_factor_seasons['summer'], 'reg_load_factor_summer')
         write_data.write_lf(path_run, "result_reg_load_factor_autumn", [timestep], sim_obj.reg_load_factor_seasons['autumn'], 'reg_load_factor_autumn')
-
-        logging.info("... finished wrapper calculations")
+        logging.info("... finished writing results to file")
 
         # ------------------------------------
         # Write results output for supply
         # ------------------------------------
         # Form of np.array(fueltype, sectors, region, periods)
         results_unconstrained = sim_obj.ed_fueltype_submodel_regs_yh
-        #write_data.write_supply_results(['rs_submodel', 'ss_submodel', 'is_submodel'],
-        #    timestep, path_run, results_unconstrained, "results_unconstrained")
+        #write_data.write_supply_results(['rs_submodel', 'ss_submodel', 'is_submodel'],timestep, path_run, results_unconstrained, "results_unconstrained")
 
         # Form of {constrained_techs: np.array(fueltype, sectors, region, periods)}
         results_constrained = sim_obj.ed_techs_fueltype_submodel_regs_yh
-        #write_data.write_supply_results(['rs_submodel', 'ss_submodel', 'is_submodel'],
-        #    timestep, path_run, results_unconstrained, "results_constrained")
+        #write_data.write_supply_results(['rs_submodel', 'ss_submodel', 'is_submodel'], timestep, path_run, results_unconstrained, "results_constrained")
 
         supply_sectors = ['residential', 'service', 'industry']
 
         if data['criterias']['mode_constrained']:
             supply_results = constrained_results(
                 results_constrained,
+                results_unconstrained,
                 supply_sectors,
                 data['lookups']['fueltypes'],
-                data['assumptions']['technologies'],
-                results_unconstrained)
+                data['assumptions']['technologies'])
 
             # Generate YAML file with keynames for `sector_model`
             if data['criterias']['writeYAML']:
@@ -434,6 +431,7 @@ class EDWrapper(SectorModel):
             _total_scrap += np.sum(supply_results[key])
         print("FINALSUM: " + str(_total_scrap))
         #prit(":")
+        logging.info("... finished wrapper calculations")
         return supply_results
 
     def extract_obj(self, results):
@@ -560,10 +558,10 @@ class EDWrapper(SectorModel):
 
 def constrained_results(
         results_constrained,
+        results_unconstrained,
         supply_sectors,
         fueltypes,
-        technologies,
-        results_unconstrained
+        technologies
     ):
     """Prepare results for energy supply model for
     constrained model running mode (no heat is provided but
@@ -586,10 +584,15 @@ def constrained_results(
     results_constrained : dict
         Aggregated results in form
         {technology: np.array((fueltype, sector, region, timestep))}
+    results_unconstrained : array
+        Restuls of unconstrained mode
+        np.array((fueltype, sector, region, timestep))
     supply_sectors : list
         Names of sectors fur supply model
     fueltypes : dict
         Fueltype lookup
+    technologies : dict
+        Technologies
 
     Returns
     -------
@@ -604,16 +607,16 @@ def constrained_results(
     # Aggregate according to submodel, fueltype, technology, region, timestep
     # ----------------------------------------
     for submodel_nr, submodel in enumerate(supply_sectors):
-
-        # Iterate technologies
         for tech in results_constrained:
-
-            # Technology specific fueltype
             fueltype_str = technologies[tech].fueltype_str
             fueltype_int = technologies[tech].fueltype_int
 
+            # ----
+            # Simplifications because of different technology definition
+            # ----
+
             # Generate key name (must be defined in `sector_models`)
-            key_name = "{}_{}_{}".format(submodel, fueltype_str, tech) # Create Key Name
+            key_name = "{}_{}_{}".format(submodel, fueltype_str, tech)
 
             supply_results[key_name] = results_constrained[tech][fueltype_int][submodel_nr]
 
@@ -625,14 +628,13 @@ def constrained_results(
 
     for fueltype_str, fueltype_int in fueltypes.items():
 
-        # Calculate total fuel of all constrained technologies of a fueltype
+        # Calculate tech fueltype specific to fuel of constrained technologies
         constrained_ed = np.zeros((results_unconstrained.shape))
-        for tech in results_constrained:
+        for tech, fuel_tech in results_constrained.items():
             if technologies[tech].fueltype_str == fueltype_str:
-                constrained_ed += results_constrained[tech]
+                constrained_ed += fuel_tech
 
-        # Substract constrained fuel from non-constrained fuel
-        # because results_unconstrained contains total fuel
+        # Substract constrained fuel from nonconstrained (total) fuel
         non_heating_ed[fueltype_int] = results_unconstrained[fueltype_int] - constrained_ed[fueltype_int]
 
     # Add non_heating for all fueltypes
@@ -641,15 +643,8 @@ def constrained_results(
 
             # Generate key name (must be defined in `sector_models`)
             key_name = "{}_{}_{}".format(submodel, fueltype_str, "non_heating")
+
             supply_results[key_name] = non_heating_ed[fueltype_int][submodel_nr]
-
-
-
-    _total_scrap = 0
-    for key in supply_results:
-        _total_scrap += np.sum(supply_results[key])
-    print("dddddfsdfsdf: " + str(_total_scrap))
-    prit(":")
 
     logging.info("Prepared results for energy supply model in constrained mode")
     return dict(supply_results)

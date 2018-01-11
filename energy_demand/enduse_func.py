@@ -447,11 +447,11 @@ def demand_management(
     # Calculate average for every day
     average_fuel_yd = np.mean(fuel_yh, axis=2)
 
-    # Calculate laod factors (only inter_day load shifting as for now)
+    # Calculate load factors (only inter_day load shifting as for now)
     loadfactor_yd_cy = lf.calc_lf_d(fuel_yh, average_fuel_yd)
 
     # Calculate current year load factors
-    lf_cy_improved_d, peak_shift_crit = calc_lf_improvement(
+    lf_improved_cy, peak_shift_crit = calc_lf_improvement(
         enduse,
         base_yr,
         curr_yr,
@@ -462,7 +462,7 @@ def demand_management(
     if peak_shift_crit:
 
         fuel_yh = lf.peak_shaving_max_min(
-            lf_cy_improved_d, average_fuel_yd, fuel_yh)
+            lf_improved_cy, average_fuel_yd, fuel_yh)
 
         fuel_peak_dh = calc_peak_tech_dh(
             enduse,
@@ -502,28 +502,26 @@ def calc_lf_improvement(
         Base year
     curr_yr : int
         Current year
-    loadfactor_yd_cy : 
-
-    lf_improvement_ey : 
-
+    loadfactor_yd_cy : float
+        Yd Load factor of current year
+    lf_improvement_ey : dict
+        Load factor improvement until end year
     yr_until_changed : int
         Year until fully changed
 
     Returns
     -------
-    lf_cy_improved_d : 
-
+    lf_improved_cy : str
+        Improved load factor of current year
     peak_shift_crit : bool
         True: Peak is shifted, False: Peak isn't shifed
-
-    Test if lager than zero --> replace by one
-    TODO
     """
     try:
         # Get assumed load shift
         param_name = 'demand_management_improvement__{}'.format(enduse)
 
         if lf_improvement_ey[param_name] == 0:
+            logging.debug("... load peak shifting improvement of 0")
             return False, False
         else:
             # Calculate linear diffusion of improvement of load management
@@ -533,20 +531,18 @@ def calc_lf_improvement(
             # Current year load factor improvement
             lf_improvement_cy = lf_improvement_ey[param_name] * lin_diff_factor
 
-            # Improve load factor
-            lf_cy_improved_d = loadfactor_yd_cy + lf_improvement_cy
+            # Add load factor improvement to current year load factor
+            lf_improved_cy = loadfactor_yd_cy + lf_improvement_cy
 
-            # If lager than zero, set to 1
-            lf_cy_improved_d[lf_cy_improved_d > 1] = 1
+            # Where load factor larger than zero, set to 1
+            lf_improved_cy[lf_improved_cy > 1] = 1
 
             peak_shift_crit = True
 
-            return lf_cy_improved_d, peak_shift_crit
+            return lf_improved_cy, peak_shift_crit
     except KeyError:
         logging.debug("... no load management was defined for enduse")
-        lf_cy_improved_d = False
-        peak_shift_crit = False
-        return lf_cy_improved_d, peak_shift_crit
+        return False, False
 
 def assign_lp_no_techs(enduse, sector, load_profiles, fuel_new_y):
     """Assign load profiles for an enduse which has not
@@ -623,7 +619,7 @@ def get_lp_stock(enduse, non_regional_lp_stock, regional_lp_stock):
         return regional_lp_stock
 
 def get_running_mode(enduse, mode_constrained, enduse_space_heating):
-    """Check which mode needs to be run for an enduse
+    """Checks which mode needs to be run for an enduse.
 
     Arguments
     -----------
@@ -648,7 +644,9 @@ def get_running_mode(enduse, mode_constrained, enduse_space_heating):
     elif not mode_constrained and enduse in enduse_space_heating:
         return False
     elif not mode_constrained and enduse not in enduse_space_heating:
-        return True # All other enduses wher technologies (non_heat)
+        # All other not constrained enduses where technologies are defined
+        # are run in 'constrained' mode (e.g. lighting)
+        return True
 
 def get_enduse_configuration(
         mode_constrained,
@@ -940,7 +938,11 @@ def calc_fuel_tech_yh(
             if tech in enduse_fuel_tech.keys():
                 tech_fueltype = tech_stock.get_tech_attr(enduse, tech, 'fueltype_int')
                 fuel_tech_yh = enduse_fuel_tech[tech] * load_profile
+        
+                # Fully empty fuel array
                 fuels_yh[tech] = np.zeros((fueltypes_nr, model_yeardays_nrs, 24), dtype=float)
+
+                # Fill fuel array with fuel of tech fueltype
                 fuels_yh[tech][tech_fueltype] = fuel_tech_yh
             else:
                 pass # Technology has not fuel assigned
