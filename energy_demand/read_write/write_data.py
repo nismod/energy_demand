@@ -109,6 +109,24 @@ def dump(data, file_path):
     with open(file_path, 'w') as file_handle:
         return yaml.dump(data, file_handle, Dumper=Dumper, default_flow_style=False)
 
+def write_yaml_output_keynames(path_yaml, key_names):
+    """Generate YAML file where the outputs
+    for the sector model can be easily copied
+    """
+    list_to_dump = []
+
+    for key_name in key_names:
+        dict_to_dump = {
+            'name': key_name,
+            'spatial_resolution': 'lad_uk_2016',
+            'temporal_resolution': 'hourly',
+            'units': 'GWh'
+        }
+
+        list_to_dump.append(dict_to_dump)
+
+    dump(list_to_dump, path_yaml)
+
 def write_yaml_param_scenario(path_yaml, dict_to_dump):
     """Write all strategy variables to YAML file
 

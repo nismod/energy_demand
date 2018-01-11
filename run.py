@@ -395,12 +395,11 @@ class EDWrapper(SectorModel):
         # ------------------------------------
         # Form of np.array(fueltype, sectors, region, periods)
         results_unconstrained = sim_obj.ed_fueltype_submodel_regs_yh
-
-        # Form of {constrained_techs: np.array(fueltype, sectors, region, periods)}
-        results_constrained = sim_obj.ed_techs_fueltype_submodel_regs_yh
-
         #write_data.write_supply_results(['rs_submodel', 'ss_submodel', 'is_submodel'],
         #    timestep, path_run, results_unconstrained, "results_unconstrained")
+    
+        # Form of {constrained_techs: np.array(fueltype, sectors, region, periods)}
+        results_constrained = sim_obj.ed_techs_fueltype_submodel_regs_yh
         #write_data.write_supply_results(['rs_submodel', 'ss_submodel', 'is_submodel'],
         #    timestep, path_run, results_unconstrained, "results_constrained")
 
@@ -413,12 +412,24 @@ class EDWrapper(SectorModel):
                 data['lookups']['fueltypes'],
                 data['assumptions']['technologies'],
                 results_unconstrained)
+            print("FINISHED CONSTRAINED")
+            # Generate YAML file with keynames for `sector_model`
+            write_data.write_yaml_output_keynames(
+                data['paths']['yaml_parameters_keynames_constrained'], supply_results.keys())
         else:
             supply_results = unconstrained_results(
                 results_unconstrained,
                 supply_sectors,
                 data['lookups']['fueltypes'])
-
+            print("FINISHED UNCONSTRAINED")
+            write_data.write_yaml_output_keynames(
+                data['paths']['yaml_parameters_keynames_unconstrained'], supply_results.keys())
+        
+        _total_scrap = 0
+        for key in supply_results:
+            _total_scrap += np.sum(supply_results[key])
+        print("FINALSUM: " + str(_total_scrap))
+        prit(":")
         return supply_results
 
     def extract_obj(self, results):
@@ -527,11 +538,8 @@ class EDWrapper(SectorModel):
         reg_coord = {}
         for centroid in reg_centroids:
 
-            # OSGB_1936_British_National_Grid
-            inProj = Proj(init='epsg:27700')
-
-            #WGS 84 projection
-            outProj = Proj(init='epsg:4326')
+            inProj = Proj(init='epsg:27700') # OSGB_1936_British_National_Grid
+            outProj = Proj(init='epsg:4326') #WGS 84 projection
 
             # Convert to decimal degrees
             long_dd, lat_dd = transform(
@@ -585,17 +593,18 @@ def constrained_results(
         No technology specific delivery (heat is provided in form of a fueltype)
         {submodel_fueltype: np.array((region, intervals))}
     """
-    supply_results_non_heating = {} #defaultdict(dict)
+    supply_results = {}
+    tech_and_non_heating_results = {}
 
-    # ----
-    # Add all technologies of restricted enduse (heating)
-    # ----
     # Create empty with shape (fueltypes, sector, region, timestep)
     non_heating_ed = np.zeros((results_unconstrained.shape))
 
+    # --------------------------------
+    # Add all technologies of restricted enduse (heating)
+    # --------------------------------
     for fueltype_str, fueltype_int in fueltypes.items():
 
-        # Calculate fuel of all constrained technologies with this fueltype
+        # Calculate total fuel of all constrained technologies of a fueltype
         constrained_ed = np.zeros((results_unconstrained.shape))
         for tech in results_constrained:
             if technologies[tech].fueltype_str == fueltype_str:
@@ -605,17 +614,17 @@ def constrained_results(
         # because results_unconstrained contains total fuel
         non_heating_ed[fueltype_int] = results_unconstrained[fueltype_int] - constrained_ed[fueltype_int]
 
-    supply_results["non_heating"] = non_heating_ed
+    # Create non_heating key containing all fueltypes
+    tech_and_non_heating_results["non_heating"] = non_heating_ed
 
     # --------------------------------
     # Add all constrained technologies
     # --------------------------------
-    supply_results.update(results_constrained)
+    tech_and_non_heating_results.update(results_constrained)
 
     # ----------------------------------------
-    # FUELTYPES, SECTORS, REGIONS, TIMESTEPS
+    # Aggregate according to submodel, fueltype, technology, region, timestep
     # ----------------------------------------
-    supply_results_final = {}
 
     # Iterate submodels
     for submodel_nr, submodel in enumerate(supply_sectors):
@@ -624,22 +633,13 @@ def constrained_results(
         for fueltype_str, fueltype_int in fueltypes.items():
 
             # Iterate technologies
-            for tech_key in supply_results:
+            for tech_key in tech_and_non_heating_results:
 
-                # Create Key Name
-                key_name = "{}_{}_{}".format(submodel, fueltype_str, tech_key)
+                # Generate key name (must be defined in `sector_models`)
+                key_name = "{}_{}_{}".format(submodel, fueltype_str, tech_key) # Create Key Name
 
-                # Copy Regions, Timesteps
-                supply_results_final[key_name] = supply_results[tech_key][fueltype_int][submodel_nr]
+                supply_results[key_name] = tech_and_non_heating_results[tech_key][fueltype_int][submodel_nr]
 
-    supply_results = supply_results_final
-
-    # TESTING
-    _total_scrap = 0
-    for key in supply_results:
-        _total_scrap += np.sum(supply_results[key])
-    print("FINALSUM: " + str(_total_scrap))
-    print("FINISHED CONSTRAINED")
     return dict(supply_results)
 
 def unconstrained_results(results_unconstrained, supply_sectors, fueltypes):
@@ -685,9 +685,4 @@ def unconstrained_results(results_unconstrained, supply_sectors, fueltypes):
 
             supply_results[key_name] = results_unconstrained[fueltype_int][submodel_nr]
 
-    _total_scrap = 0
-    for key in supply_results:
-        _total_scrap += np.sum(supply_results[key])
-    print("FINALSUM: " + str(_total_scrap))
-    print("FINISHED UNCONSTRAINED")
     return supply_results
