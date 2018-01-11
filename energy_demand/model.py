@@ -542,13 +542,11 @@ def service_submodel(region, data, enduses, sectors):
 
     for sector in sectors:
         for enduse in enduses:
-            print("Enduse Name  {}  {}".format(enduse, sector))
 
             # Change if single or muplite region
             if data['criterias']['spatial_exliclit_diffusion']:
                 service_switches = data['assumptions']['ss_service_switch'][enduse][region.name]
                 sig_param_tech = data['assumptions']['ss_sig_param_tech'][enduse][region.name]
-
                 tech_increased_service = data['assumptions']['ss_tech_increased_service'][enduse][region.name]
                 tech_decreased_service = data['assumptions']['ss_tech_decreased_service'][enduse][region.name]
                 tech_constant_service = data['assumptions']['ss_tech_constant_service'][enduse][region.name]
@@ -556,7 +554,6 @@ def service_submodel(region, data, enduses, sectors):
             else:
                 service_switches = data['assumptions']['ss_service_switch'][enduse]
                 sig_param_tech = data['assumptions']['ss_sig_param_tech'][enduse]
-
                 tech_increased_service = data['assumptions']['ss_tech_increased_service'][enduse]
                 tech_decreased_service = data['assumptions']['ss_tech_decreased_service'][enduse]
                 tech_constant_service = data['assumptions']['ss_tech_constant_service'][enduse]
@@ -976,7 +973,7 @@ def aggregate_final_results(
                             ed_techs_fueltype_submodel_regs_yh[heating_tech][fueltype_nr][submodel_nr] += submodel_ed_fueltype_regs_yh[fueltype_nr]
 
                 except KeyError:
-                    logging.debug("Info: Technology was not used {}".format(heating_tech))
+                    logging.debug("Info: Technology was not used %", heating_tech)
 
             # -------------
             # Summarise remaining fuel of other enduses

@@ -54,8 +54,9 @@ class EDWrapper(SectorModel):
         data['criterias']['virtual_building_stock_criteria'] = True     # True: Run virtual building stock model
         data['criterias']['plot_HDD_chart'] = False                     # True: Plotting of HDD vs gas chart
         data['criterias']['validation_criteria'] = False                # True: Plot validation plots
-        data['criterias']['mode_constrained'] = True                    # True: Technologies are defined in ED model and fuel is provided, False: Heat is delievered not per technologies
+        data['criterias']['mode_constrained'] = False                    # True: Technologies are defined in ED model and fuel is provided, False: Heat is delievered not per technologies
         data['criterias']['spatial_exliclit_diffusion'] = False         # True: Spatial explicit calculations
+        data['criterias']['writeYAML'] = False
 
         data['sim_param']['base_yr'] = 2015                             # Base year
         data['sim_param']['curr_yr'] = data['sim_param']['base_yr']
@@ -397,7 +398,7 @@ class EDWrapper(SectorModel):
         results_unconstrained = sim_obj.ed_fueltype_submodel_regs_yh
         #write_data.write_supply_results(['rs_submodel', 'ss_submodel', 'is_submodel'],
         #    timestep, path_run, results_unconstrained, "results_unconstrained")
-    
+
         # Form of {constrained_techs: np.array(fueltype, sectors, region, periods)}
         results_constrained = sim_obj.ed_techs_fueltype_submodel_regs_yh
         #write_data.write_supply_results(['rs_submodel', 'ss_submodel', 'is_submodel'],
@@ -412,24 +413,27 @@ class EDWrapper(SectorModel):
                 data['lookups']['fueltypes'],
                 data['assumptions']['technologies'],
                 results_unconstrained)
-            print("FINISHED CONSTRAINED")
+
             # Generate YAML file with keynames for `sector_model`
-            write_data.write_yaml_output_keynames(
-                data['paths']['yaml_parameters_keynames_constrained'], supply_results.keys())
+            if data['criterias']['writeYAML']:
+                write_data.write_yaml_output_keynames(
+                    data['paths']['yaml_parameters_keynames_constrained'], supply_results.keys())
         else:
             supply_results = unconstrained_results(
                 results_unconstrained,
                 supply_sectors,
                 data['lookups']['fueltypes'])
-            print("FINISHED UNCONSTRAINED")
-            write_data.write_yaml_output_keynames(
-                data['paths']['yaml_parameters_keynames_unconstrained'], supply_results.keys())
-        
+
+            # Generate YAML file with keynames for `sector_model`
+            if data['criterias']['writeYAML']:
+                write_data.write_yaml_output_keynames(
+                    data['paths']['yaml_parameters_keynames_unconstrained'], supply_results.keys())
+
         _total_scrap = 0
         for key in supply_results:
             _total_scrap += np.sum(supply_results[key])
         print("FINALSUM: " + str(_total_scrap))
-        prit(":")
+        #prit(":")
         return supply_results
 
     def extract_obj(self, results):
@@ -640,6 +644,7 @@ def constrained_results(
 
                 supply_results[key_name] = tech_and_non_heating_results[tech_key][fueltype_int][submodel_nr]
 
+    logging.info("Prepared results for energy supply model in constrained mode")
     return dict(supply_results)
 
 def unconstrained_results(results_unconstrained, supply_sectors, fueltypes):
@@ -685,4 +690,5 @@ def unconstrained_results(results_unconstrained, supply_sectors, fueltypes):
 
             supply_results[key_name] = results_unconstrained[fueltype_int][submodel_nr]
 
+    logging.info("Prepared results for energy supply model in unconstrained mode")
     return supply_results

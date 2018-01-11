@@ -293,7 +293,7 @@ if __name__ == "__main__":
 
         # Write unconstrained results
         write_data.write_supply_results(['rs_submodel', 'ss_submodel', 'is_submodel'], sim_yr, path_runs, supply_results_unconstrained, "supply_results")
-        
+
         write_data.write_enduse_specific(
             sim_yr, path_runs, out_enduse_specific, "out_enduse_specific")
         write_data.write_max_results(
