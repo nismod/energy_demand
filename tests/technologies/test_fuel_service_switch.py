@@ -19,6 +19,12 @@ def test_create_service_switch():
         switch_yr=2020,
         installed_capacity=installed_capacity
         )]
+    
+    capacity_switch = read_data.CapacitySwitch(
+        enduse='heating',
+        technology_install='boiler_gas',
+        switch_yr=2020,
+        installed_capacity=installed_capacity)
 
     assumptions = {
         'technologies':
@@ -44,16 +50,16 @@ def test_create_service_switch():
                 tech_max_share=1.0)
             },
         'other_enduse_mode_info': {'diff_method': 'linear', 'sigmoid': {'sig_midpoint': 0,'sig_steeppness': 1}},
-        'rs_fuel_tech_p_by': {'heating': {0: {'boiler_gas': 0.0}, 1 :{'boiler_oil': 1.0}}}
+        'rs_fuel_tech_p_by': {0: {'boiler_gas': 0.0}, 1: {'boiler_oil': 1.0}}
     }
 
     base_yr = 2015
 
-    fuel_by = {0: 0, 1: 10}
-    fuels = {'heating': fuel_by}
+    fuels =  {0: 0, 1: 10} #array originally
 
     results = fuel_service_switch.create_service_switch(
         enduses,
+        capacity_switch,
         capacity_switches,
         assumptions['technologies'],
         assumptions['other_enduse_mode_info'],
@@ -62,12 +68,12 @@ def test_create_service_switch():
         fuels)
 
     # Fuel share boiler_gas
-    expected = 1 / (sum(fuels['heating'].values()) + installed_capacity) * installed_capacity
+    expected = 1 / (10 + installed_capacity) * installed_capacity
 
     for entry in results:
         if entry.technology_install == 'boiler_gas':
             assert expected == entry.service_share_ey
-
+test_create_service_switch()
 def test_capacity_installations():
     """
     """
