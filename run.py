@@ -611,14 +611,16 @@ def constrained_results(
             fueltype_str = technologies[tech].fueltype_str
             fueltype_int = technologies[tech].fueltype_int
 
-            # ----
             # Simplifications because of different technology definition
-            # ----
+            tech = model_tech_simplification(tech)
 
             # Generate key name (must be defined in `sector_models`)
             key_name = "{}_{}_{}".format(submodel, fueltype_str, tech)
 
-            supply_results[key_name] = results_constrained[tech][fueltype_int][submodel_nr]
+            if key_name in supply_results.keys():
+                supply_results[key_name] += results_constrained[tech][fueltype_int][submodel_nr]
+            else:
+                supply_results[key_name] = results_constrained[tech][fueltype_int][submodel_nr]
 
     # --------------------------------
     # Add all technologies of restricted enduse (heating)
@@ -694,3 +696,31 @@ def unconstrained_results(results_unconstrained, supply_sectors, fueltypes):
 
     logging.info("Prepared results for energy supply model in unconstrained mode")
     return supply_results
+
+def model_tech_simplification(tech):
+    """This function aggregated different technologies
+    which are not defined in supply model
+
+    Arguments
+    ---------
+    tech : str
+        Technology
+    
+    Returns
+    -------
+    tech_newly_assigned : str
+        Technology newly assigned
+    """
+    # Assign condensing boiler to regular boilers
+    if tech == 'boiler_condensing_gas':
+        tech_newly_assigned = 'boiler_gas'
+    elif tech == 'boiler_condensing_oil':
+        tech_newly_assigned = 'boiler_oil'
+    elif tech == 'storage_heater_electricity':
+        tech_newly_assigned = 'boiler_electricity'
+    elif tech == 'secondary_heater_electricity':
+        tech_newly_assigned = 'boiler_electricity'
+    else:
+        return tech
+
+    return tech_newly_assigned

@@ -15,6 +15,7 @@ https://nismod.github.io/docs/smif-prerequisites.html#sector-modeller
 # CORRECT OUTPUTS (per tech)
 # Potentiall load other annual profiles?
 averaged_temp
+DISTRICT HEATING TECHS
 """
 import os
 import sys

@@ -17,7 +17,7 @@ class TechStock(object):
             other_enduse_mode_info,
             base_yr,
             curr_yr,
-            lu_fueltypes,
+            fueltypes,
             temp_by,
             temp_cy,
             t_base_heating_by,
@@ -28,7 +28,7 @@ class TechStock(object):
         """Constructor of technologies for residential sector
 
         Arguments
-        ----------
+        ---------- TODO
         stock_name : str
             Name of technology stock
         technologies : dict
@@ -61,7 +61,7 @@ class TechStock(object):
             other_enduse_mode_info,
             base_yr,
             curr_yr,
-            lu_fueltypes,
+            fueltypes,
             temp_by,
             temp_cy,
             t_base_heating_by,

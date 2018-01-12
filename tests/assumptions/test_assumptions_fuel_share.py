@@ -30,7 +30,10 @@ def test_assign_by_fuel_tech_p():
     #data['assumptions'] = read_data.read_param_yaml(data['paths']['yaml_parameters'])
 
     result = assumptions_fuel_shares.assign_by_fuel_tech_p(
-        data['assumptions'], data['enduses'], data['lookups'])
+        data['assumptions'],
+        data['enduses'],
+        data['lookups']['fueltypes'],
+        data['lookups']['fueltypes_nr'])
 
     # Dummy test
     assert result['test'] == 'test'

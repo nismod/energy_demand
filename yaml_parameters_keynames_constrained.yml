@@ -22,14 +22,6 @@
   spatial_resolution: lad_uk_2016
   temporal_resolution: hourly
   units: GWh
-- name: residential_gas_boiler_condensing_gas
-  spatial_resolution: lad_uk_2016
-  temporal_resolution: hourly
-  units: GWh
-- name: residential_oil_boiler_condensing_oil
-  spatial_resolution: lad_uk_2016
-  temporal_resolution: hourly
-  units: GWh
 - name: residential_gas_stirling_micro_CHP
   spatial_resolution: lad_uk_2016
   temporal_resolution: hourly
@@ -38,19 +30,23 @@
   spatial_resolution: lad_uk_2016
   temporal_resolution: hourly
   units: GWh
-- name: residential_electricity_storage_heater_electricity
-  spatial_resolution: lad_uk_2016
-  temporal_resolution: hourly
-  units: GWh
-- name: residential_electricity_secondary_heater_electricity
-  spatial_resolution: lad_uk_2016
-  temporal_resolution: hourly
-  units: GWh
 - name: residential_hydrogen_heat_pumps_hydrogen
   spatial_resolution: lad_uk_2016
   temporal_resolution: hourly
   units: GWh
 - name: residential_electricity_heat_pumps_electricity
+  spatial_resolution: lad_uk_2016
+  temporal_resolution: hourly
+  units: GWh
+- name: residential_electricity_district_heating_electricity
+  spatial_resolution: lad_uk_2016
+  temporal_resolution: hourly
+  units: GWh
+- name: residential_gas_district_heating_gas
+  spatial_resolution: lad_uk_2016
+  temporal_resolution: hourly
+  units: GWh
+- name: residential_biomass_district_heating_biomass
   spatial_resolution: lad_uk_2016
   temporal_resolution: hourly
   units: GWh
@@ -78,14 +74,6 @@
   spatial_resolution: lad_uk_2016
   temporal_resolution: hourly
   units: GWh
-- name: service_gas_boiler_condensing_gas
-  spatial_resolution: lad_uk_2016
-  temporal_resolution: hourly
-  units: GWh
-- name: service_oil_boiler_condensing_oil
-  spatial_resolution: lad_uk_2016
-  temporal_resolution: hourly
-  units: GWh
 - name: service_gas_stirling_micro_CHP
   spatial_resolution: lad_uk_2016
   temporal_resolution: hourly
@@ -94,19 +82,23 @@
   spatial_resolution: lad_uk_2016
   temporal_resolution: hourly
   units: GWh
-- name: service_electricity_storage_heater_electricity
-  spatial_resolution: lad_uk_2016
-  temporal_resolution: hourly
-  units: GWh
-- name: service_electricity_secondary_heater_electricity
-  spatial_resolution: lad_uk_2016
-  temporal_resolution: hourly
-  units: GWh
 - name: service_hydrogen_heat_pumps_hydrogen
   spatial_resolution: lad_uk_2016
   temporal_resolution: hourly
   units: GWh
 - name: service_electricity_heat_pumps_electricity
+  spatial_resolution: lad_uk_2016
+  temporal_resolution: hourly
+  units: GWh
+- name: service_electricity_district_heating_electricity
+  spatial_resolution: lad_uk_2016
+  temporal_resolution: hourly
+  units: GWh
+- name: service_gas_district_heating_gas
+  spatial_resolution: lad_uk_2016
+  temporal_resolution: hourly
+  units: GWh
+- name: service_biomass_district_heating_biomass
   spatial_resolution: lad_uk_2016
   temporal_resolution: hourly
   units: GWh
@@ -134,14 +126,6 @@
   spatial_resolution: lad_uk_2016
   temporal_resolution: hourly
   units: GWh
-- name: industry_gas_boiler_condensing_gas
-  spatial_resolution: lad_uk_2016
-  temporal_resolution: hourly
-  units: GWh
-- name: industry_oil_boiler_condensing_oil
-  spatial_resolution: lad_uk_2016
-  temporal_resolution: hourly
-  units: GWh
 - name: industry_gas_stirling_micro_CHP
   spatial_resolution: lad_uk_2016
   temporal_resolution: hourly
@@ -150,19 +134,23 @@
   spatial_resolution: lad_uk_2016
   temporal_resolution: hourly
   units: GWh
-- name: industry_electricity_storage_heater_electricity
-  spatial_resolution: lad_uk_2016
-  temporal_resolution: hourly
-  units: GWh
-- name: industry_electricity_secondary_heater_electricity
-  spatial_resolution: lad_uk_2016
-  temporal_resolution: hourly
-  units: GWh
 - name: industry_hydrogen_heat_pumps_hydrogen
   spatial_resolution: lad_uk_2016
   temporal_resolution: hourly
   units: GWh
 - name: industry_electricity_heat_pumps_electricity
+  spatial_resolution: lad_uk_2016
+  temporal_resolution: hourly
+  units: GWh
+- name: industry_electricity_district_heating_electricity
+  spatial_resolution: lad_uk_2016
+  temporal_resolution: hourly
+  units: GWh
+- name: industry_gas_district_heating_gas
+  spatial_resolution: lad_uk_2016
+  temporal_resolution: hourly
+  units: GWh
+- name: industry_biomass_district_heating_biomass
   spatial_resolution: lad_uk_2016
   temporal_resolution: hourly
   units: GWh

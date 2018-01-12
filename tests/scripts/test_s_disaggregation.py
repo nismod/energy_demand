@@ -79,7 +79,7 @@ def test_ss_disaggregate():
     curr_yr= 2020
 
     national_fuel = 100
-    raw_fuel_sectors_enduses = {'sectorA': {'ss_space_heating': national_fuel}}
+    raw_fuel_sectors_enduses = {'ss_space_heating': {'sectorA': national_fuel}}
 
     scenario_data = {
         'population': {2015: {'regA': 10, 'regB': 10}},
@@ -137,8 +137,8 @@ def test_is_ss_disaggregate():
 
     base_yr = 2015
     national_fuel = 100
-    raw_fuel_sectors_enduses = {'mining': {'is_space_heating': national_fuel},
-                                'pharmaceuticals': {'is_space_heating': national_fuel}}
+    raw_fuel_sectors_enduses = {'is_space_heating': { 'mining': national_fuel,
+                                'pharmaceuticals': national_fuel}}
     lu_reg = ['regA', 'regB']
     enduses = ['is_space_heating']
     sectors = ['mining', 'pharmaceuticals']
@@ -180,5 +180,3 @@ def test_is_ss_disaggregate():
     assert round(result['regA']['is_space_heating']['pharmaceuticals'], 3) == round(10.0/15.0 * 100,3) 
     assert result['regB']['is_space_heating']['mining'] == 100
     assert round(result['regB']['is_space_heating']['pharmaceuticals'], 3)  == round(5.0/15.0 * 100, 3)
-
-test_is_ss_disaggregate()

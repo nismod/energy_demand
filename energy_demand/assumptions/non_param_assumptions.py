@@ -198,7 +198,11 @@ def load_non_param_assump(base_yr, paths, enduses, lookups):
         'storage_heater_electricity',
         'secondary_heater_electricity',
         'heat_pumps_hydrogen',
-        'heat_pumps_electricity']
+        'heat_pumps_electricity',
+        'district_heating_electricity',
+        'district_heating_gas',
+        'district_heating_biomass'
+        ]
 
     # ============================================================
     # Enduse technology definition list
@@ -234,7 +238,8 @@ def load_non_param_assump(base_yr, paths, enduses, lookups):
     assumptions = assumptions_fuel_shares.assign_by_fuel_tech_p(
         assumptions,
         enduses,
-        lookups)
+        lookups['fueltypes'],
+        lookups['fueltypes_nr'])
 
     # ============================================================
     # Scenaric fuel switches
