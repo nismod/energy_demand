@@ -89,7 +89,6 @@ def run_all_plot_functions(
             local_paths['data_results_PDF'],
             'y_fueltypes_all_enduses.pdf'))
 
-    prnt(":eeedelete")
     # ----------
     # Plot seasonal typical load profiles
     # ----------

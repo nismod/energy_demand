@@ -156,7 +156,8 @@ if __name__ == "__main__":
     data['sim_param']['curr_yr'] = data['sim_param']['base_yr']
     data['sim_param']['simulated_yrs'] = [2015, 2050]
 
-    data['lu_reg'] = data_loader.load_LAC_geocodes_info(os.path.join(local_data_path, '_raw_data', 'B-census_data', 'regions_local_area_districts', '_quick_and_dirty_spatial_disaggregation', 'infuse_dist_lyr_2011_saved.csv'))
+    data['lu_reg'] = data_loader.load_LAC_geocodes_info(
+        os.path.join(local_data_path, '_raw_data', 'B-census_data', 'regions_local_area_districts', '_quick_and_dirty_spatial_disaggregation', 'infuse_dist_lyr_2011_saved.csv'))
 
     # GVA
     gva_data = {}

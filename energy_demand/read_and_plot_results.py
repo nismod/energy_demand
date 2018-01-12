@@ -88,5 +88,5 @@ def main(path_data_energy_demand):
 
     logging.info("... finished reading and plotting results")
 
-#main("C://Users//cenv0553//nismod//data_energy_demand")
-main("C://DATA_NISMODII//data_energy_demand")
+main("C://Users//cenv0553//nismod//data_energy_demand")
+#main("C://DATA_NISMODII//data_energy_demand")
