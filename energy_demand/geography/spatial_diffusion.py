@@ -82,10 +82,15 @@ def calc_diff_factor(regions, spatial_diff_values, fuels):
                     for sector in entries[enduse]:
                         fuel_submodel_new[reg][enduse] = 0
 
+                #_y = 0
                 for enduse in entries:
                     for sector in entries[enduse]:
                         fuel_submodel_new[reg][enduse] += np.sum(entries[enduse][sector])
-
+                        #_y = _y + np.sum(entries[enduse][sector])
+                
+                #print(np.sum(fuel_submodel_new[reg][enduse]))
+                #print(np.sum(_y))
+                #prit("d")
                 fuel_submodel = fuel_submodel_new
 
             except IndexError:

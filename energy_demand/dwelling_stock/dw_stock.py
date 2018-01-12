@@ -233,6 +233,7 @@ def get_tot_pop(dwellings):
         otherwise summed population of all dwellings
     """
     tot_pop = 0
+
     for dwelling in dwellings:
         if dwelling.population is None:
             return None

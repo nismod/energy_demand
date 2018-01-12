@@ -4,7 +4,8 @@ Energy Demand Model
 Contains the function `energy_demand_model` which is used
 to run the energy demand model
 
-Development checklist: https://nismod.github.io/docs/development-checklist.html
+Development checklist:
+https://nismod.github.io/docs/development-checklist.html
 https://nismod.github.io/docs/
 https://nismod.github.io/docs/smif-prerequisites.html#sector-modeller
 # Implement that e.g. 2015 - 2030 one technology and 2030 - 2050 another technology
@@ -12,7 +13,7 @@ https://nismod.github.io/docs/smif-prerequisites.html#sector-modeller
 # Industry INFO about efficiencies & technologies: Define strategy variables
 # Cooling?
 # convert documentation in rst?
-# CORRECT OUTPUTS (per tech)
+
 # Potentiall load other annual profiles?
 averaged_temp
 DISTRICT HEATING TECHS
@@ -183,7 +184,11 @@ if __name__ == "__main__":
     # ------------------------------
     # Parameters not defined within smif
     data['assumptions'] = non_param_assumptions.load_non_param_assump(
-        data['sim_param']['base_yr'], data['paths'], data['enduses'], data['lookups'])
+        data['sim_param']['base_yr'],
+        data['paths'],
+        data['enduses'],
+        data['lookups']['fueltypes'],
+        data['lookups']['fueltypes_nr'])
 
     # Parameters defined within smif
     param_assumptions.load_param_assump(data['paths'], data['assumptions'])

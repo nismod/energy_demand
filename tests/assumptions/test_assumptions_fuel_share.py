@@ -25,7 +25,7 @@ def test_assign_by_fuel_tech_p():
     data['sim_param']['curr_yr'] = 2015
 
     data['assumptions'] = non_param_assumptions.load_non_param_assump(
-        data['sim_param']['base_yr'], data['paths'], data['enduses'], data['lookups'])
+        data['sim_param']['base_yr'], data['paths'], data['enduses'], data['lookups']['fueltypes'], data['lookups']['fueltypes_nr'])
     param_assumptions.load_param_assump(data['paths'], data['assumptions'])
     #data['assumptions'] = read_data.read_param_yaml(data['paths']['yaml_parameters'])
 
@@ -37,4 +37,3 @@ def test_assign_by_fuel_tech_p():
 
     # Dummy test
     assert result['test'] == 'test'
-test_assign_by_fuel_tech_p()

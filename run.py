@@ -133,7 +133,11 @@ class EDWrapper(SectorModel):
         # Load assumptions
         # ------------
         data['assumptions'] = non_param_assumptions.load_non_param_assump(
-            data['sim_param']['base_yr'], data['paths'], data['enduses'], data['lookups'])
+            data['sim_param']['base_yr'],
+            data['paths'],
+            data['enduses'],
+            data['lookups']['fueltypes'],
+            data['lookups']['fueltypes_nr'])
         data['assumptions']['seasons'] = date_prop.read_season(year_to_model=2015)
         data['assumptions']['model_yeardays_daytype'], data['assumptions']['yeardays_month'], data['assumptions']['yeardays_month_days'] = date_prop.get_model_yeardays_datype(
             year_to_model=2015)
@@ -430,7 +434,7 @@ class EDWrapper(SectorModel):
         for key in supply_results:
             _total_scrap += np.sum(supply_results[key])
         print("FINALSUM: " + str(_total_scrap))
-        #prit(":")
+        prit(":")
         logging.info("... finished wrapper calculations")
         return supply_results
 
@@ -607,20 +611,25 @@ def constrained_results(
     # Aggregate according to submodel, fueltype, technology, region, timestep
     # ----------------------------------------
     for submodel_nr, submodel in enumerate(supply_sectors):
-        for tech in results_constrained:
+        for tech, fuel_tech in results_constrained.items():
             fueltype_str = technologies[tech].fueltype_str
             fueltype_int = technologies[tech].fueltype_int
 
+            # ----
             # Simplifications because of different technology definition
-            tech = model_tech_simplification(tech)
+            # ----
+            #tech_simplified = tech
+            tech_simplified = model_tech_simplification(tech)
 
             # Generate key name (must be defined in `sector_models`)
-            key_name = "{}_{}_{}".format(submodel, fueltype_str, tech)
+            key_name = "{}_{}_{}".format(submodel, fueltype_str, tech_simplified)
 
             if key_name in supply_results.keys():
-                supply_results[key_name] += results_constrained[tech][fueltype_int][submodel_nr]
+                print("ADD:  {}  {}".format(tech_simplified, tech))
+                # Do not replace by +=
+                supply_results[key_name] = supply_results[key_name] + fuel_tech[fueltype_int][submodel_nr]
             else:
-                supply_results[key_name] = results_constrained[tech][fueltype_int][submodel_nr]
+                supply_results[key_name] = fuel_tech[fueltype_int][submodel_nr]
 
     # --------------------------------
     # Add all technologies of restricted enduse (heating)
@@ -632,6 +641,7 @@ def constrained_results(
 
         # Calculate tech fueltype specific to fuel of constrained technologies
         constrained_ed = np.zeros((results_unconstrained.shape))
+
         for tech, fuel_tech in results_constrained.items():
             if technologies[tech].fueltype_str == fueltype_str:
                 constrained_ed += fuel_tech
@@ -705,7 +715,7 @@ def model_tech_simplification(tech):
     ---------
     tech : str
         Technology
-    
+
     Returns
     -------
     tech_newly_assigned : str
@@ -721,6 +731,7 @@ def model_tech_simplification(tech):
     elif tech == 'secondary_heater_electricity':
         tech_newly_assigned = 'boiler_electricity'
     else:
-        return tech
+        # return idential tech
+        tech_newly_assigned = tech
 
     return tech_newly_assigned

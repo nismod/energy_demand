@@ -53,7 +53,11 @@ def post_install_setup(args):
 
     # Assumptions
     data['assumptions'] = non_param_assumptions.load_non_param_assump(
-        data['sim_param']['base_yr'], data['paths'], data['enduses'], data['lookups'])
+        data['sim_param']['base_yr'],
+        data['paths'],
+        data['enduses'],
+        data['lookups']['fueltypes'],
+        data['lookups']['fueltypes_nr'])
 
     param_assumptions.load_param_assump(data['paths'], data['assumptions'])
 

@@ -57,7 +57,8 @@ def run_model(args):
     data['sim_param']['simulated_yrs'] = [2015, 2018, 2025, 2050]
 
     # Assumptions
-    data['assumptions'] = non_param_assumptions.load_non_param_assump(data['sim_param']['base_yr'], data['paths'], data['enduses'], data['lookups'])
+    data['assumptions'] = non_param_assumptions.load_non_param_assump(
+        data['sim_param']['base_yr'], data['paths'], data['enduses'], data['lookups']['fueltypes'], data['lookups']['fueltypes_nr'])
     param_assumptions.load_param_assump(data['paths'], data['assumptions'])
     data['assumptions']['seasons'] = date_prop.read_season(year_to_model=2015)
     data['assumptions']['model_yeardays_daytype'], data['assumptions']['yeardays_month'], data['assumptions']['yeardays_month_days'] = date_prop.get_model_yeardays_datype(year_to_model=2015)

@@ -115,7 +115,7 @@ def create_tech_stock(
         other_enduse_mode_info,
         base_yr,
         curr_yr,
-        lu_fueltypes,
+        fueltypes,
         temp_by,
         temp_cy,
         t_base_heating_by,
@@ -173,7 +173,7 @@ def create_tech_stock(
                     other_enduse_mode_info,
                     base_yr,
                     curr_yr,
-                    lu_fueltypes,
+                    fueltypes,
                     temp_by,
                     temp_cy,
                     t_base_heating_by,
@@ -221,7 +221,7 @@ class Technology(object):
             other_enduse_mode_info=None,
             base_yr=None,
             curr_yr=None,
-            lu_fueltypes=None,
+            fueltypes=None,
             temp_by=None,
             temp_cy=None,
             t_base_heating_by=None,
@@ -236,7 +236,7 @@ class Technology(object):
             self.tech_name = tech_name
             self.tech_type = tech_type
             self.fueltype_str = tech_fueltype
-            self.fueltype_int = tech_related.get_fueltype_int(lu_fueltypes, tech_fueltype)
+            self.fueltype_int = tech_related.get_fueltype_int(fueltypes, tech_fueltype)
             #self.market_entry = assumptions['technologies'][tech_name]['market_entry']
             self.tech_eff_achieved_f = tech_eff_achieved
             self.diff_method = tech_diff_method

@@ -23,12 +23,12 @@ def init_fuel_tech_p_by(all_enduses_with_fuels, fueltypes_nr):
 
     return fuel_tech_p_by
 
-def service_type_tech_by_p(lu_fueltypes, fuel_tech_p_by):
+def service_type_tech_by_p(fueltypes, fuel_tech_p_by):
     """Initialise dict and fill with zeros
 
     Arguments
     ----------
-    lu_fueltypes : dict
+    fueltypes : dict
         Look-up dictionary
     fuel_tech_p_by : dict
         Fuel fraction per technology for base year
@@ -39,7 +39,7 @@ def service_type_tech_by_p(lu_fueltypes, fuel_tech_p_by):
         Fraction of service per fueltype and technology for base year
     """
     service_fueltype_tech_by_p = {}
-    for fueltype_int in lu_fueltypes.values():
+    for fueltype_int in fueltypes.values():
         service_fueltype_tech_by_p[fueltype_int] = dict.fromkeys(fuel_tech_p_by[fueltype_int].keys(), 0)
 
     return service_fueltype_tech_by_p

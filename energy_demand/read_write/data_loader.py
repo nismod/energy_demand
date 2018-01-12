@@ -571,10 +571,10 @@ def load_fuels(paths, lookups):
     is_fuel_raw_data_enduses, sectors['is_sectors'], enduses['is_all_enduses'] = read_data.read_csv_base_data_industry(
         paths['is_fuel_raw_data_enduses'], lookups['fueltypes_nr'], lookups['fueltypes'])
 
+    # Iterate enduses per sudModel and flatten list
     all_enduses = []
     for enduse in enduses.values():
         all_enduses += enduse
-    enduses['all_enduses'] = all_enduses
 
     # Convert units
     fuels['rs_fuel_raw_data_enduses'] = conversions.convert_fueltypes_ktoe_GWh(rs_fuel_raw_data_enduses)
@@ -808,7 +808,7 @@ def load_LAC_geocodes_info(path_to_csv):
 
     return data
 
-def read_employment_statistics(path_to_csv):
+def read_employment_stats(path_to_csv):
     """Read in employment statistics per LAD.
 
     This dataset provides 2011 estimates that classify usual

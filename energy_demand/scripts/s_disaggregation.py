@@ -99,7 +99,7 @@ def disaggregate_base_demand(
         lu_reg,
         enduses['is_all_enduses'],
         sectors['is_sectors'],
-        scenario_data['employment_statistics'],
+        scenario_data['employment_stats'],
         scenario_data,
         crit_limited_disagg_pop=False,
         crit_employment=True)

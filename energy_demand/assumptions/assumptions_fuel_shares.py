@@ -7,15 +7,19 @@ different technologies are defined
 from energy_demand.initalisations import helpers
 
 def assign_by_fuel_tech_p(assumptions, enduses, fueltypes, fueltypes_nr):
-    """Assigning fuel share per enduse for different
-    technologies for the base year
+    """Assigning fuel share per enduse for different technologies
+    for the base year.
 
     Arguments
     ----------
     assumptions : dict
         Assumptions
-    data : dict
-        Data container
+    enduses : dict
+        Enduses
+    fueltypes : dict
+        Fueltypes lookup
+    fueltypes_nr : int
+        Number of fueltypes
 
     Returns
     -------
@@ -203,15 +207,27 @@ def assign_by_fuel_tech_p(assumptions, enduses, fueltypes, fueltypes_nr):
     # ------------------
     # Get technologies of an enduse
     # ------------------
-    assumptions['rs_specified_tech_enduse_by'] = helpers.get_def_techs(assumptions['rs_fuel_tech_p_by'])
-    assumptions['is_specified_tech_enduse_by'] = helpers.get_def_techs(assumptions['is_fuel_tech_p_by'])
+    assumptions['rs_specified_tech_enduse_by'] = helpers.get_def_techs(
+        assumptions['rs_fuel_tech_p_by'])
+
+    assumptions['is_specified_tech_enduse_by'] = helpers.get_def_techs(
+        assumptions['is_fuel_tech_p_by'])
 
     assumptions['rs_specified_tech_enduse_by'] = helpers.add_undef_techs(
-        assumptions['heat_pumps'], assumptions['rs_specified_tech_enduse_by'], 'rs_space_heating')
+        assumptions['heat_pumps'],
+        assumptions['rs_specified_tech_enduse_by'],
+        'rs_space_heating')
+
     assumptions['ss_specified_tech_enduse_by'] = helpers.add_undef_techs(
-        assumptions['heat_pumps'], assumptions['ss_specified_tech_enduse_by'], 'ss_space_heating')
+        assumptions['heat_pumps'],
+        assumptions['ss_specified_tech_enduse_by'],
+        'ss_space_heating')
+
     assumptions['is_specified_tech_enduse_by'] = helpers.add_undef_techs(
-        assumptions['heat_pumps'], assumptions['is_specified_tech_enduse_by'], 'is_space_heating')
+        assumptions['heat_pumps'],
+        assumptions['is_specified_tech_enduse_by'],
+        'is_space_heating')
+
     assumptions['test'] = 'test'
 
     return assumptions

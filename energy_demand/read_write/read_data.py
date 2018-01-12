@@ -546,7 +546,7 @@ def service_switch(path_to_csv, technologies):
 
     return service_switches
 
-def read_fuel_switches(path_to_csv, enduses, lu_fueltypes):
+def read_fuel_switches(path_to_csv, enduses, fueltypes):
     """This function reads in from CSV file defined fuel
     switch assumptions
 
@@ -556,7 +556,7 @@ def read_fuel_switches(path_to_csv, enduses, lu_fueltypes):
         Path to csv file
     enduses : dict
         Endues per submodel
-    lu_fueltypes : dict
+    fueltypes : dict
         Look-ups
 
     Returns
@@ -575,7 +575,7 @@ def read_fuel_switches(path_to_csv, enduses, lu_fueltypes):
                 fuel_switches.append(
                     FuelSwitch(
                         enduse=str(row[0]),
-                        enduse_fueltype_replace=lu_fueltypes[str(row[1])],
+                        enduse_fueltype_replace=fueltypes[str(row[1])],
                         technology_install=str(row[2]),
                         switch_yr=float(row[3]),
                         fuel_share_switched_ey=float(row[4])))
@@ -714,7 +714,7 @@ def read_base_data_resid(path_to_csv):
 
     return end_uses_dict, all_enduses
 
-def read_csv_base_data_industry(path_to_csv, fueltypes_nr, lu_fueltypes):
+def read_csv_base_data_industry(path_to_csv, fueltypes_nr, fueltypes):
     """This function reads in base_data_CSV all fuel types
 
     Arguments
@@ -767,7 +767,7 @@ def read_csv_base_data_industry(path_to_csv, fueltypes_nr, lu_fueltypes):
                 if entry != '':
                     enduse = str(_headings[position])
                     fueltype = _secondline[position]
-                    fueltype_int = tech_related.get_fueltype_int(lu_fueltypes, fueltype)
+                    fueltype_int = tech_related.get_fueltype_int(fueltypes, fueltype)
                     end_uses_dict[enduse][sector][fueltype_int] += float(row[position])
 
     return end_uses_dict, list(all_sectors), list(all_enduses)

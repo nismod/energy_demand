@@ -28,10 +28,7 @@ def scenario_initalisation(path_data_ed, data=False):
     """
     logging.info("... start running sceario_initialisation scripts")
 
-    sgs_cont = {}
-    fts_cont = {}
-    sd_cont = {}
-    switches_cont = {}
+    sgs_cont, fts_cont, sd_cont, switches_cont = {}, {}, {}, {}
 
     logger_setup.set_up_logger(os.path.join(path_data_ed, "scenario_init.log"))
 
@@ -53,7 +50,7 @@ def scenario_initalisation(path_data_ed, data=False):
     # ---------------------------------------
     # Load local datasets for disaggregateion
     # ---------------------------------------
-    data['scenario_data']['employment_statistics'] = data_loader.read_employment_statistics(
+    data['scenario_data']['employment_stats'] = data_loader.read_employment_stats(
         data['local_paths']['path_employment_statistics'])
 
     # -------------------
@@ -112,7 +109,7 @@ def scenario_initalisation(path_data_ed, data=False):
 
     # ------------------------------------
     # Autocomplement defined service switches
-    # with technologies not explicityl specified in switch
+    # with technologies not explicitly specified in switch
     # on a national scale
     # ------------------------------------
     switches_cont['rs_service_switches'] = fuel_service_switch.autocomplete_switches(
@@ -179,10 +176,23 @@ def scenario_initalisation(path_data_ed, data=False):
     # (either for every region or aggregated for all regions)
     # -------------------------------
     key_to_init = [
-        'rs_sig_param_tech', 'rs_tech_increased_service', 'rs_tech_decreased_service', 'rs_tech_constant_service',
-        'rs_service_switch', 'ss_sig_param_tech', 'ss_tech_increased_service', 'ss_tech_decreased_service',
-        'ss_tech_constant_service', 'ss_service_switch', 'is_sig_param_tech', 'is_tech_increased_service',
-        'is_tech_decreased_service', 'is_tech_constant_service', 'is_service_switch']
+        'rs_sig_param_tech',
+        'rs_tech_increased_service',
+        'rs_tech_decreased_service',
+        'rs_tech_constant_service',
+        'rs_service_switch',
+
+        'ss_sig_param_tech',
+        'ss_tech_increased_service',
+        'ss_tech_decreased_service',
+        'ss_tech_constant_service',
+        'ss_service_switch',
+
+        'is_sig_param_tech',
+        'is_tech_increased_service',
+        'is_tech_decreased_service',
+        'is_tech_constant_service',
+        'is_service_switch']
 
     for key_name in key_to_init:
         sgs_cont[key_name] = {}
@@ -297,6 +307,11 @@ def scenario_initalisation(path_data_ed, data=False):
                 regions=data['lu_reg'],
                 regional_specific=True)
     else:
+        # -------------------------------
+        # Non spatiall differentiated modelling of
+        # technology diffusion (same diffusion pattern for
+        # the whole UK)
+        # -------------------------------
         for enduse in data['enduses']['rs_all_enduses']:
             sgs_cont['rs_sig_param_tech'][enduse], sgs_cont['rs_tech_increased_service'][enduse], sgs_cont['rs_tech_decreased_service'][enduse], sgs_cont['rs_tech_constant_service'][enduse], sgs_cont['rs_service_switch'][enduse] = sig_param_calculation_including_fuel_switch(
                 data['sim_param']['base_yr'],
@@ -372,9 +387,12 @@ def convert_fuel_switches_to_service_switches(
     TODO IMPROVe
     Arguments
     ---------
-    enduse : 
-    service_tech_switched_p
-    fuel_switches
+    enduse : str
+        Enduse
+    service_tech_switched_p : dict
+        Fraction of total service of technologies after switch
+    enduse_fuel_switches : list
+        Fuel switches of an enduse
     regions : dict, default=False
         All regions
     regional_specific : bool, default=False
@@ -554,6 +572,7 @@ def sig_param_calculation_including_fuel_switch(
         # Tech with lager service shares in end year (installed in fuel switch)
         installed_tech = s_generate_sigmoid.get_tech_installed(enduse, enduse_fuel_switches)
 
+        # ??
         service_tech_switched_p, l_values_sig = s_generate_sigmoid.calc_diff_fuel_switch(
             technologies,
             enduse_fuel_switches,
