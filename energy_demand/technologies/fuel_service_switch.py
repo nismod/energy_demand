@@ -210,30 +210,43 @@ def capacity_installations(
     # -------------------------------------
     # Assign correct fuel shares and fuels
     # -------------------------------------
-    enduses_switch = set([])
+    service_switches = [] # List to store service switches
 
+    # Get all affected enduses of capacity switches
+    switch_enduses = set([])
     for switch in capacity_switches:
-        enduses_switch.add(switch.enduse)
-    enduses_switch = list(enduses_switch)
+        switch_enduses.add(switch.enduse)
+    switch_enduses = list(switch_enduses)
 
-    if enduses_switch == []:
-        pass
+    if switch_enduses == []:
+        pass # not capacity switch defined
     else:
-        # Calculate service switches
-        service_switches = create_service_switch(
-            enduses_switch,
-            capacity_switches,
-            technologies,
-            other_enduse_mode_info,
-            fuel_shares_enduse_by,
-            base_yr,
-            fuels)
+        for enduse in switch_enduses:
+
+            # Get all capacity switches related to this enduse
+            enduse_capacity_switches = []
+            for capacity_switch in capacity_switches:
+                if capacity_switch.enduse == enduse:
+                    enduse_capacity_switches.append(capacity_switch)
+
+            # Calculate service switches
+            enduse_service_switches = create_service_switch(
+                enduse,
+                enduse_capacity_switches,
+                technologies,
+                other_enduse_mode_info,
+                fuel_shares_enduse_by,
+                base_yr,
+                fuels)
+
+            # Add service switches
+            service_switches += enduse_service_switches
 
     return service_switches
 
 def create_service_switch(
-        enduses,
-        capacity_switches,
+        enduse,
+        enduse_capacity_switches,
         technologies,
         other_enduse_mode_info,
         fuel_shares_enduse_by,
@@ -244,10 +257,10 @@ def create_service_switch(
 
     Arguments
     ---------
-    enduses : dict
-        Enduses
-    capacity_switches : list
-        List containing all capacity_switches
+    enduse : dict
+        Enduse
+    enduse_capacity_switches : list
+        All capacity switches of an enduse
     technologies : dict
         Technologies
     other_enduse_mode_info : dict
@@ -264,31 +277,24 @@ def create_service_switch(
     service_switches : dict
         Service switches
     """
-    service_switches = []
+    for capacity_switch in enduse_capacity_switches:
 
-    for enduse in enduses:
-        for capacity_switch in capacity_switches:
-            if capacity_switch.enduse == enduse:
+        # Convert
+        service_switches_enduse = capacity_assumption_to_service(
+            enduse=enduse,
+            enduse_capacity_switches=enduse_capacity_switches,
+            capacity_switch=capacity_switch,
+            technologies=technologies,
+            fuel_shares_enduse_by=fuel_shares_enduse_by[enduse],
+            fuel_enduse_y=fuels[enduse],
+            base_yr=base_yr,
+            other_enduse_mode_info=other_enduse_mode_info)
 
-                # Convert
-                service_switches_enduse = capacity_assumption_to_service(
-                    enduse=enduse,
-                    capacity_switches=capacity_switches,
-                    capacity_switch=capacity_switch,
-                    technologies=technologies,
-                    fuel_shares_enduse_by=fuel_shares_enduse_by[enduse],
-                    fuel_enduse_y=fuels[enduse],
-                    base_yr=base_yr,
-                    other_enduse_mode_info=other_enduse_mode_info)
-
-                # Add service switch
-                service_switches += service_switches_enduse
-
-    return service_switches
+    return service_switches_enduse
 
 def capacity_assumption_to_service(
         enduse,
-        capacity_switches,
+        enduse_capacity_switches,
         capacity_switch,
         technologies,
         fuel_shares_enduse_by,
@@ -302,8 +308,8 @@ def capacity_assumption_to_service(
     ---------
     enduse : str
         Enduse
-    capacity_switch : dict
-        All capacity switches
+    enduse_capacity_switches : dict
+        All capacity switches of an enduse
     technologies : dict
         Technologies
     fuel_shares_enduse_by : dict
@@ -350,26 +356,25 @@ def capacity_assumption_to_service(
     # -------------------------------------------
     # Calculate service of installed capacity of increased technologies
     # -------------------------------------------
-    for switch in capacity_switches: #If technology exists, add service
-        if enduse == switch.enduse:
-            technology_install = switch.technology_install
-            installed_capacity = switch.installed_capacity
+    for switch in enduse_capacity_switches:
+        technology_install = switch.technology_install
+        installed_capacity = switch.installed_capacity
 
-            tech_eff_ey = tech_related.calc_eff_cy(
-                base_yr,
-                curr_yr,
-                technologies[technology_install].eff_by,
-                technologies[technology_install].eff_ey,
-                technologies[technology_install].year_eff_ey,
-                other_enduse_mode_info,
-                technologies[technology_install].eff_achieved,
-                technologies[technology_install].diff_method)
+        tech_eff_ey = tech_related.calc_eff_cy(
+            base_yr,
+            curr_yr,
+            technologies[technology_install].eff_by,
+            technologies[technology_install].eff_ey,
+            technologies[technology_install].year_eff_ey,
+            other_enduse_mode_info,
+            technologies[technology_install].eff_achieved,
+            technologies[technology_install].diff_method)
 
-            # Convert installed capacity to service
-            installed_capacity_ey = installed_capacity * tech_eff_ey
+        # Convert installed capacity to service
+        installed_capacity_ey = installed_capacity * tech_eff_ey
 
-            # Add cpacity
-            service_enduse_tech[technology_install] += installed_capacity_ey
+        # Add cpacity
+        service_enduse_tech[technology_install] += installed_capacity_ey
 
     # -------------------------------------------
     # Calculate service in % per enduse
@@ -385,7 +390,7 @@ def capacity_assumption_to_service(
     for tech, service_tech_p in service_enduse_tech.items():
 
         # WARNING: MUST BE THE SAME YEAR FOR ALL CAPACITY SWITCHES
-        for switch in capacity_switches:
+        for switch in enduse_capacity_switches: #TODO
             switch_yr = switch.switch_yr
             continue
 
@@ -455,7 +460,7 @@ def switches_to_dict(service_switches, regional_specific):
 
 def capacity_to_service_switches(assumptions, fuels, base_yr):
     """Convert capacity switches to service switches for
-    every submodel
+    every submodel.
 
     Arguments
     ---------
