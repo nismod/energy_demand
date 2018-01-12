@@ -938,7 +938,7 @@ def calc_fuel_tech_yh(
             if tech in enduse_fuel_tech.keys():
                 tech_fueltype = tech_stock.get_tech_attr(enduse, tech, 'fueltype_int')
                 fuel_tech_yh = enduse_fuel_tech[tech] * load_profile
-        
+
                 # Fully empty fuel array
                 fuels_yh[tech] = np.zeros((fueltypes_nr, model_yeardays_nrs, 24), dtype=float)
 
@@ -1569,7 +1569,7 @@ def calc_service_switch(
     to the base year distribution of these technologies
     """
     # Result dict with cy service for every technology
-    tech_service_cy_p = {} 
+    tech_service_cy_p = {}
 
     # ------------
     # Update all technologies with CONSTANT service

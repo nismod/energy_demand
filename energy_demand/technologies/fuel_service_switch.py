@@ -173,16 +173,19 @@ def capacity_installations(
         fuel_shares_enduse_by,
         base_yr
     ):
-    """Create service switch based on assumption on
-    changes in installed fuel capacity. Service switch are calculated
-    based on the assumed capacity installation (in absolute GW)
-    of technologies. Assumptions on capacities
-    are defined in the CSV file `assumptions_capacity_installations.csv`
+    """Create service switches based on assumption on
+    changes in installed fuel capacity ("capacty switches").
+    Service switch are calculated based on the assumed
+    capacity installation (in absolute GW) of technologies.
+    Assumptions on capacities are defined in the
+    CSV file `assumptions_capacity_installations.csv`
 
     Arguments
     ---------
-    path : dict
-        Path
+    service_switches : list
+        Service switches
+    capacity_switches : list
+        Capacity switches
     technologies : dict
         Technologies
     other_enduse_mode_info : dict
@@ -196,8 +199,9 @@ def capacity_installations(
 
     Returns
     -------
-    assumptions : dict
-        Dict with updated service switches
+    service_switches : dict
+        Updated service switches containing converted
+        capacity switches to service switches
 
     Warning
     -------
@@ -215,7 +219,6 @@ def capacity_installations(
     if enduses_switch == []:
         pass
     else:
-
         # Calculate service switches
         service_switches = create_service_switch(
             enduses_switch,
@@ -449,3 +452,45 @@ def switches_to_dict(service_switches, regional_specific):
             service_tech_by_p[switch.technology_install] = switch.service_share_ey
 
     return dict(service_tech_by_p)
+
+def capacity_to_service_switches(assumptions, fuels, base_yr):
+    """Convert capacity switches to service switches for
+    every submodel
+
+    Arguments
+    ---------
+    assumptions : dict
+        Container
+    fuels : dict
+        Fuels
+    base_yr : dict
+        Base year
+    """
+    assumptions['rs_service_switches'] = capacity_installations(
+        assumptions['rs_service_switches'],
+        assumptions['capacity_switches']['rs_capacity_switches'],
+        assumptions['technologies'],
+        assumptions['enduse_overall_change']['other_enduse_mode_info'],
+        fuels['rs_fuel_raw_data_enduses'],
+        assumptions['rs_fuel_tech_p_by'],
+        base_yr)
+
+    assumptions['ss_service_switches'] = capacity_installations(
+        assumptions['ss_service_switches'],
+        assumptions['capacity_switches']['ss_capacity_switches'],
+        assumptions['technologies'],
+        assumptions['enduse_overall_change']['other_enduse_mode_info'],
+        fuels['ss_fuel_raw_data_enduses'],
+        assumptions['ss_fuel_tech_p_by'],
+        base_yr)
+
+    assumptions['is_service_switches'] = capacity_installations(
+        assumptions['is_service_switches'],
+        assumptions['capacity_switches']['is_capacity_switches'],
+        assumptions['technologies'],
+        assumptions['enduse_overall_change']['other_enduse_mode_info'],
+        fuels['is_fuel_raw_data_enduses'],
+        assumptions['is_fuel_tech_p_by'],
+        base_yr)
+
+    return assumptions

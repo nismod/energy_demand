@@ -73,9 +73,9 @@ class EnergyDemandModel(object):
         logging.info("... finished generating dwelling stock")
 
         # --------------------
-        # Initialise result container
+        # Initialise result container to aggregate results
         # --------------------
-        aggregated_results = initialise_result_container(
+        aggr_results = initialise_result_container(
             data['lookups']['fueltypes_nr'],
             data['sectors'],
             data['reg_nrs'],
@@ -84,24 +84,24 @@ class EnergyDemandModel(object):
             data['assumptions']['heating_technologies'])
 
         # ---------------------------------------------
-        # Simulation over all regions
+        # Iterate over regions and Simulate
         # ---------------------------------------------
         for reg_array_nr, region in enumerate(regions):
             logging.info(
                 "... Simulate region %s for year %s", region, self.curr_yr)
 
-            # Simulate region
+            # Simulate
             reg_rs_submodel, reg_ss_submodel, reg_is_submodel = simulate_region(
                 region, data, weather_regions)
 
-            # Store all submodel objects in list
+            # Store submodel results
             all_submodels = [reg_rs_submodel, reg_ss_submodel, reg_is_submodel]
 
             # ---------------------------------------------
-            # Aggregate results for supply model
+            # Aggregate results
             # ---------------------------------------------
-            aggregated_results = aggregate_final_results(
-                aggregated_results,
+            aggr_results = aggregate_final_results(
+                aggr_results,
                 region,
                 reg_array_nr,
                 all_submodels,
@@ -116,9 +116,9 @@ class EnergyDemandModel(object):
                 data['assumptions']['enduse_space_heating'])
 
         # -------
-    	# Set all keys of aggregated_results as self.attributes (EnergyDemandModel)
+    	# Set all keys of aggr_results as self.attributes (EnergyDemandModel)
         # -------
-        for key_attribute_name, value in aggregated_results.items():
+        for key_attribute_name, value in aggr_results.items():
             setattr(self, key_attribute_name, value)
 
         # ------------------------------
@@ -524,8 +524,8 @@ def residential_submodel(region, data, enduses, sectors=False):
                 model_yeardays_nrs=data['assumptions']['model_yeardays_nrs'],
                 enduse_overall_change=data['assumptions']['enduse_overall_change'],
                 regional_lp_stock=region.rs_load_profiles,
-                dw_stock=data['rs_dw_stock']
-            )
+                dw_stock=data['rs_dw_stock'])
+
             submodels.append(submodel)
 
     return submodels
@@ -1066,60 +1066,70 @@ def initialise_result_container(
         model_yeardays_nrs,
         heating_technologies
     ):
-    """Create container with all restuls
+    """Create container with empty dict or arrays
+    as values in a dict. This is used to aggregate the
+    region calculation results
 
+    Arguments
+    ---------
+    fueltypes_nr : int
+        Number of fueltypes
+    sectors : list
+        Sectors
+    reg_nrs : int
+        Number of regions
+    model_yearhours_nrs : int
+        Number of yearhours
+    model_yeardays_nrs : int
+        Number of yeardays
+    heating_technologies : list
+        Heating technologies
+    
+    Returns
+    -------
+    result_container : dict
+        Contained with all empty correctly formated values for aggregation
     """
     result_container = {}
 
-    ed_fueltype_submodel_regs_yh = np.zeros(
+    result_container['ed_fueltype_submodel_regs_yh'] = np.zeros(
         (fueltypes_nr, len(sectors.keys()), reg_nrs, model_yearhours_nrs), dtype=float)
 
-    ed_techs_fueltype_submodel_regs_yh = {}
+    result_container['ed_techs_fueltype_submodel_regs_yh'] = {}
     for heating_tech in heating_technologies:
-        ed_techs_fueltype_submodel_regs_yh[heating_tech] = np.zeros((fueltypes_nr, len(sectors.keys()), reg_nrs, model_yearhours_nrs), dtype=float)
+        result_container['ed_techs_fueltype_submodel_regs_yh'][heating_tech] = np.zeros(
+            (fueltypes_nr, len(sectors.keys()), reg_nrs, model_yearhours_nrs), dtype=float)
 
-    ed_fueltype_regs_yh = np.zeros(
+    result_container['ed_fueltype_regs_yh'] = np.zeros(
         (fueltypes_nr, reg_nrs, model_yearhours_nrs), dtype=float)
 
-    ed_fueltype_national_yh = np.zeros(
+    result_container['ed_fueltype_national_yh'] = np.zeros(
         (fueltypes_nr, model_yeardays_nrs, 24), dtype=float)
 
-    tot_peak_enduses_fueltype = np.zeros(
+    result_container['tot_peak_enduses_fueltype'] = np.zeros(
         (fueltypes_nr, 24), dtype=float)
 
-    tot_fuel_y_max_enduses = np.zeros(
+    result_container['tot_fuel_y_max_enduses'] = np.zeros(
         (fueltypes_nr), dtype=float)
 
-    tot_fuel_y_enduse_specific_h = {}
+    result_container['tot_fuel_y_enduse_specific_h'] = {}
 
-    reg_load_factor_y = np.zeros(
+    result_container['reg_load_factor_y'] = np.zeros(
         (fueltypes_nr, reg_nrs), dtype=float)
 
-    reg_load_factor_yd = np.zeros(
+    result_container['reg_load_factor_yd'] = np.zeros(
         (fueltypes_nr, reg_nrs, model_yeardays_nrs), dtype=float)
 
-    reg_load_factor_seasons = {
+    result_container['reg_load_factor_seasons'] = {
         'summer' : np.zeros((fueltypes_nr, reg_nrs), dtype=float),
         'spring': np.zeros((fueltypes_nr, reg_nrs), dtype=float),
         'winter': np.zeros((fueltypes_nr, reg_nrs), dtype=float),
         'autumn': np.zeros((fueltypes_nr, reg_nrs), dtype=float)}
 
-    averaged_h = {
+    result_container['averaged_h'] = {
         'summer' : np.zeros((fueltypes_nr, reg_nrs, 24), dtype=float),
         'spring': np.zeros((fueltypes_nr, reg_nrs, 24), dtype=float),
         'winter': np.zeros((fueltypes_nr, reg_nrs, 24), dtype=float),
         'autumn': np.zeros((fueltypes_nr, reg_nrs, 24), dtype=float)}
-
-    result_container['ed_techs_fueltype_submodel_regs_yh'] = ed_techs_fueltype_submodel_regs_yh
-    result_container['ed_fueltype_submodel_regs_yh'] = ed_fueltype_submodel_regs_yh
-    result_container['ed_fueltype_regs_yh'] = ed_fueltype_regs_yh
-    result_container['ed_fueltype_national_yh'] = ed_fueltype_national_yh
-    result_container['tot_peak_enduses_fueltype'] = tot_peak_enduses_fueltype
-    result_container['tot_fuel_y_max_enduses'] = tot_fuel_y_max_enduses
-    result_container['tot_fuel_y_enduse_specific_h'] = tot_fuel_y_enduse_specific_h
-    result_container['reg_load_factor_y'] = reg_load_factor_y
-    result_container['reg_load_factor_yd'] = reg_load_factor_yd
-    result_container['reg_load_factor_seasons'] = reg_load_factor_seasons
-    result_container['averaged_h'] = averaged_h
 
     return result_container
