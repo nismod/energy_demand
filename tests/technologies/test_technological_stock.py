@@ -18,7 +18,7 @@ def test_Technology():
         other_enduse_mode_info={'linear'},
         base_yr=2015,
         curr_yr=2020,
-        lu_fueltypes={'electricity': 2},
+        fueltypes={'electricity': 2},
         temp_by=np.zeros((365, 24)) + 10,
         temp_cy=np.zeros((365, 24)) + 10,
         t_base_heating_by=15.5,
@@ -39,7 +39,7 @@ def test_Technology():
         other_enduse_mode_info={'linear'},
         base_yr=2015,
         curr_yr=2020,
-        lu_fueltypes={'electricity': 2},
+        fueltypes={'electricity': 2},
         temp_by=np.zeros((365, 24)) + 10,
         temp_cy=np.zeros((365, 24)) + 10,
         t_base_heating_by=20,
@@ -61,7 +61,7 @@ def test_TechStock():
     curr_yr = 2020
 
     all_technologies = {'boilerA': read_data.TechnologyData()}
-    all_technologies['boilerA'].fuel_type_str = 'electricity'
+    all_technologies['boilerA'].fueltype_str = 'electricity'
     all_technologies['boilerA'].eff_achieved = 1.0
     all_technologies['boilerA'].diff_method = 'linear'
     all_technologies['boilerA'].eff_by = 1.0
@@ -75,7 +75,7 @@ def test_TechStock():
         other_enduse_mode_info={'linear'},
         base_yr=base_yr,
         curr_yr=curr_yr,
-        lu_fueltypes={'electricity': 2},
+        fueltypes={'electricity': 2},
         temp_by=np.ones((365, 24)) + 10,
         temp_cy=np.ones((365, 24)) + 10,
         t_base_heating_by=15.5,

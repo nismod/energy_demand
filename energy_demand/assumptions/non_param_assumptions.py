@@ -7,7 +7,7 @@ from energy_demand.basic import testing_functions, date_prop
 from energy_demand.assumptions import assumptions_fuel_shares
 from energy_demand.initalisations import helpers
 
-def load_non_param_assump(base_yr, paths, enduses, lookups):
+def load_non_param_assump(base_yr, paths, enduses, fueltypes, fueltypes_nr):
     """Initialise assumptions and load all assumptions
     which are not defined as parameters for smif (e.g. base
     year values for assumptions)
@@ -20,8 +20,8 @@ def load_non_param_assump(base_yr, paths, enduses, lookups):
         Paths
     enduses : dict
         Enduses
-    lookups : dict
-        Lookups
+    fueltypes : dict
+        Fueltypes lookup
     """
     logging.debug("... load non parameter assumptions")
     assumptions = {}
@@ -170,7 +170,7 @@ def load_non_param_assump(base_yr, paths, enduses, lookups):
     # ============================================================
     assumptions['technologies'], assumptions['tech_list'] = read_data.read_technologies(
         paths['path_technologies'],
-        lookups['fueltype'])
+        fueltypes)
 
     # --Heat pumps. Share of installed heat pumps in base year (ASHP to GSHP)
     assumptions['split_hp_gshp_to_ashp_by'] = 0.1
@@ -181,12 +181,32 @@ def load_non_param_assump(base_yr, paths, enduses, lookups):
     assumptions['technologies'], assumptions['tech_list']['tech_heating_temp_dep'], assumptions['heat_pumps'] = tech_related.generate_heat_pump_from_split(
         assumptions['technologies'],
         assumptions['installed_heat_pump_by'],
-        lookups['fueltype'])
+        fueltypes)
+
+    # Define specifically all heating technologies
+    assumptions['heating_technologies'] = [
+        'boiler_solid_fuel',
+        'boiler_gas',
+        'boiler_electricity',
+        'boiler_oil',
+        'boiler_biomass',
+        'boiler_hydrogen',
+        'boiler_condensing_gas',
+        'boiler_condensing_oil',
+        'stirling_micro_CHP',
+        'fuel_cell_CHP',
+        'storage_heater_electricity',
+        'secondary_heater_electricity',
+        'heat_pumps_hydrogen',
+        'heat_pumps_electricity',
+        'district_heating_electricity',
+        'district_heating_gas',
+        'district_heating_biomass']
 
     # ============================================================
     # Enduse technology definition list
-    # ============================================================
-    assumptions['enduse_space_heating'] = ['rs_space_heating', 'rs_space_heating', 'is_space_heating']
+    # ============================================================ ['rs_space_heating'] #TODO
+    assumptions['enduse_space_heating'] = ['rs_space_heating', 'ss_space_heating', 'is_space_heating']
     assumptions['enduse_space_cooling'] = ['rs_space_cooling', 'ss_space_cooling', 'is_space_cooling']
     assumptions['tech_list']['enduse_water_heating'] = ['rs_water_heating', 'ss_water_heating']
 
@@ -217,17 +237,18 @@ def load_non_param_assump(base_yr, paths, enduses, lookups):
     assumptions = assumptions_fuel_shares.assign_by_fuel_tech_p(
         assumptions,
         enduses,
-        lookups)
+        fueltypes,
+        fueltypes_nr)
 
     # ============================================================
     # Scenaric fuel switches
     # ============================================================
     assumptions['rs_fuel_switches'] = read_data.read_fuel_switches(
-        paths['rs_path_fuel_switches'], enduses, lookups['fueltype'])
+        paths['rs_path_fuel_switches'], enduses, fueltypes)
     assumptions['ss_fuel_switches'] = read_data.read_fuel_switches(
-        paths['ss_path_fuel_switches'], enduses, lookups['fueltype'])
+        paths['ss_path_fuel_switches'], enduses, fueltypes)
     assumptions['is_fuel_switches'] = read_data.read_fuel_switches(
-        paths['is_path_fuel_switches'], enduses, lookups['fueltype'])
+        paths['is_path_fuel_switches'], enduses, fueltypes)
 
     # ============================================================
     # Read in scenaric service switches

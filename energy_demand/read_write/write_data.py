@@ -109,6 +109,31 @@ def dump(data, file_path):
     with open(file_path, 'w') as file_handle:
         return yaml.dump(data, file_handle, Dumper=Dumper, default_flow_style=False)
 
+def write_yaml_output_keynames(path_yaml, key_names):
+    """Generate YAML file where the outputs
+    for the sector model can be easily copied
+
+    Arguments
+    ----------
+    path_yaml : str
+        Path where yaml file is saved
+    key_names : dict
+        Names of keys of supply_out dict
+    """
+    list_to_dump = []
+
+    for key_name in key_names:
+        dict_to_dump = {
+            'name': key_name,
+            'spatial_resolution': 'lad_uk_2016',
+            'temporal_resolution': 'hourly',
+            'units': 'GWh'
+        }
+
+        list_to_dump.append(dict_to_dump)
+
+    dump(list_to_dump, path_yaml)
+
 def write_yaml_param_scenario(path_yaml, dict_to_dump):
     """Write all strategy variables to YAML file
 
@@ -207,8 +232,8 @@ def write_lf(path_result_folder, path_new_folder, parameters, model_results, fil
 
     pass
 
-def write_supply_results(sim_yr, path_result, model_results, file_name):
-    """Store yearly model resul to txt
+def write_supply_results(submodels, sim_yr, path_result, model_results, file_name):
+    """Store yearly model result to txt
 
     Store numpy array to txt
 
@@ -218,11 +243,12 @@ def write_supply_results(sim_yr, path_result, model_results, file_name):
     basic_functions.create_folder(path_result)
 
     # Write to txt
-    for fueltype_nr, fuel in enumerate(model_results):
-        path_file = os.path.join(
-            path_result,
-            "{}__{}__{}__{}".format(file_name, sim_yr, fueltype_nr, ".txt"))
-        np.savetxt(path_file, fuel, delimiter=',')
+    for submodel_nr, submodel in enumerate(submodels):
+        for fueltype_nr, fuel in enumerate(model_results):
+            path_file = os.path.join(
+                path_result,
+                "{}__{}__{}__{}__{}".format(file_name, sim_yr, fueltype_nr, submodel, ".txt"))
+            np.savetxt(path_file, fuel[submodel_nr], delimiter=',')
 
     pass
 

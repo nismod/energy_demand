@@ -98,7 +98,7 @@ def run_all_plot_functions(
     # ------------------------------------
     # Load factors per fueltype and region
     # ------------------------------------
-    for fueltype_str, fueltype_int in lookups['fueltype'].items():
+    for fueltype_str, fueltype_int in lookups['fueltypes'].items():
         plot_seasonal_lf(
             fueltype_int,
             fueltype_str,
@@ -156,7 +156,7 @@ def run_all_plot_functions(
     base_year = 2015
     for year in results_container['av_season_daytype_cy'].keys():
         for fueltype_int in results_container['av_season_daytype_cy'][year].keys():
-            fueltype_str = tech_related.get_fueltype_str(lookups['fueltype'], fueltype_int)
+            fueltype_str = tech_related.get_fueltype_str(lookups['fueltypes'], fueltype_int)
             plot_load_profile_dh_multiple(
                 os.path.join(local_paths['data_results_PDF'], 'season_daytypes_by_cy_comparison__{}__{}.pdf'.format(year, fueltype_str)),
                 results_container['av_season_daytype_cy'][year][fueltype_int], #current year
@@ -709,7 +709,7 @@ def plot_load_curves_fueltype(results_objects, data, fig_name):
     # Initialise (number of enduses, number of hours to plot)
     y_init = np.zeros((data['lookups']['fueltypes_nr'], nr_y_to_plot))
 
-    for fueltype_str, fueltype_int in data['lookups']['fueltype'].items():
+    for fueltype_str, fueltype_int in data['lookups']['fueltypes'].items():
 
         # Legend
         legend_entries.append(fueltype_str)
@@ -768,7 +768,7 @@ def plt_fuels_enduses_week(
     # Initialise (number of enduses, number of hours to plot)
     y_init = np.zeros((lookups['fueltypes_nr'], nr_of_h_to_plot))
 
-    for fueltype_str, fueltype_int in lookups['fueltype'].items():
+    for fueltype_str, fueltype_int in lookups['fueltypes'].items():
         legend_entries.append(fueltype_str)
 
         # Select year to plot
@@ -827,7 +827,7 @@ def plt_fuels_enduses_y(results_resid, lookups, fig_name):
     # Initialise (number of enduses, number of hours to plot)
     y_values_fueltype = {}
 
-    for fueltype_str, fueltype_int in lookups['fueltype'].items():
+    for fueltype_str, fueltype_int in lookups['fueltypes'].items():
 
         # Read out fueltype specific max h load
         data_years = {}
@@ -925,7 +925,7 @@ def plt_fuels_peak_h(tot_fuel_dh_peak, lookups, path_plot_fig):
     # Initialise (number of enduses, number of hours to plot)
     y_init = np.zeros((lookups['fueltypes_nr'], nr_y_to_plot))
 
-    for fueltype_str, fueltype in lookups['fueltype'].items():
+    for fueltype_str, fueltype in lookups['fueltypes'].items():
 
         # Legend
         legend_entries.append(fueltype_str)

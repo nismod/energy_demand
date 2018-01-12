@@ -12,12 +12,11 @@ from energy_demand.profiles import load_profile
 from energy_demand.scripts import init_scripts
 
 class TechnologyData(object):
-    """Class to store technology related
-    data
+    """Class to store technology related data
 
     Arguments
     ---------
-    fuel_type : str
+    fueltype : str
         Fueltype of technology
     eff_by : str
         Efficiency of technology in base year
@@ -41,7 +40,7 @@ class TechnologyData(object):
     """
     def __init__(
             self,
-            fuel_type=None,
+            fueltype=None,
             eff_by=None,
             eff_ey=None,
             year_eff_ey=None,
@@ -52,8 +51,8 @@ class TechnologyData(object):
             tech_max_share=None,
             fueltypes=None
         ):
-        self.fuel_type_str = fuel_type
-        self.fuel_type_int = tech_related.get_fueltype_int(fueltypes, fuel_type)
+        self.fueltype_str = fueltype
+        self.fueltype_int = tech_related.get_fueltype_int(fueltypes, fueltype)
         self.eff_by = eff_by
         self.eff_ey = eff_ey
         self.year_eff_ey = year_eff_ey
@@ -365,12 +364,12 @@ def load_script_data(data):
     data['assumptions']['rs_tech_increased_service'] = sgs_cont['rs_tech_increased_service']
     data['assumptions']['ss_tech_increased_service'] = sgs_cont['ss_tech_increased_service']
     data['assumptions']['is_tech_increased_service'] = sgs_cont['is_tech_increased_service']
-    data['assumptions']['rs_tech_decreased_share'] = sgs_cont['rs_tech_decreased_share']
-    data['assumptions']['ss_tech_decreased_share'] = sgs_cont['ss_tech_decreased_share']
-    data['assumptions']['is_tech_decreased_share'] = sgs_cont['is_tech_decreased_share']
-    data['assumptions']['rs_tech_constant_share'] = sgs_cont['rs_tech_constant_share']
-    data['assumptions']['ss_tech_constant_share'] = sgs_cont['ss_tech_constant_share']
-    data['assumptions']['is_tech_constant_share'] = sgs_cont['is_tech_constant_share']
+    data['assumptions']['rs_tech_decreased_service'] = sgs_cont['rs_tech_decreased_service']
+    data['assumptions']['ss_tech_decreased_service'] = sgs_cont['ss_tech_decreased_service']
+    data['assumptions']['is_tech_decreased_service'] = sgs_cont['is_tech_decreased_service']
+    data['assumptions']['rs_tech_constant_service'] = sgs_cont['rs_tech_constant_service']
+    data['assumptions']['ss_tech_constant_service'] = sgs_cont['ss_tech_constant_service']
+    data['assumptions']['is_tech_constant_service'] = sgs_cont['is_tech_constant_service']
     data['assumptions']['rs_sig_param_tech'] = sgs_cont['rs_sig_param_tech']
     data['assumptions']['ss_sig_param_tech'] = sgs_cont['ss_sig_param_tech']
     data['assumptions']['is_sig_param_tech'] = sgs_cont['is_sig_param_tech']
@@ -428,10 +427,11 @@ def read_csv_data_service(path_to_csv, fueltypes_nr):
             all_enduses.add(enduse)
 
         # Initialise dict
-        for sector in all_sectors:
-            end_uses_dict[sector] = {}
-            for enduse in all_enduses:
-                end_uses_dict[sector][enduse] = np.zeros((fueltypes_nr), dtype=float)
+        for enduse in all_enduses:
+        
+            end_uses_dict[enduse] = {}
+            for sector in all_sectors:
+                end_uses_dict[enduse][sector] = np.zeros((fueltypes_nr), dtype=float)
 
         for row in read_lines:
             lines.append(row)
@@ -440,7 +440,7 @@ def read_csv_data_service(path_to_csv, fueltypes_nr):
             for cnt, entry in enumerate(row[1:], 1):
                 enduse = _headings[cnt]
                 sector = _secondline[cnt]
-                end_uses_dict[sector][enduse][cnt_fueltype] += float(entry)
+                end_uses_dict[enduse][sector][cnt_fueltype] += float(entry)
 
     return end_uses_dict, list(all_sectors), list(all_enduses)
 
@@ -546,7 +546,7 @@ def service_switch(path_to_csv, technologies):
 
     return service_switches
 
-def read_fuel_switches(path_to_csv, enduses, lu_fueltypes):
+def read_fuel_switches(path_to_csv, enduses, fueltypes):
     """This function reads in from CSV file defined fuel
     switch assumptions
 
@@ -556,7 +556,7 @@ def read_fuel_switches(path_to_csv, enduses, lu_fueltypes):
         Path to csv file
     enduses : dict
         Endues per submodel
-    lu_fueltypes : dict
+    fueltypes : dict
         Look-ups
 
     Returns
@@ -575,7 +575,7 @@ def read_fuel_switches(path_to_csv, enduses, lu_fueltypes):
                 fuel_switches.append(
                     FuelSwitch(
                         enduse=str(row[0]),
-                        enduse_fueltype_replace=lu_fueltypes[str(row[1])],
+                        enduse_fueltype_replace=fueltypes[str(row[1])],
                         technology_install=str(row[2]),
                         switch_yr=float(row[3]),
                         fuel_share_switched_ey=float(row[4])))
@@ -593,15 +593,15 @@ def read_fuel_switches(path_to_csv, enduses, lu_fueltypes):
     # Test if more than 100% per fueltype is switched
     for obj in fuel_switches:
         enduse = obj.enduse
-        fuel_type = obj.enduse_fueltype_replace
+        fueltype = obj.enduse_fueltype_replace
         tot_share_fueltype_switched = 0
         for obj_iter in fuel_switches:
-            if enduse == obj_iter.enduse and fuel_type == obj_iter.enduse_fueltype_replace:
+            if enduse == obj_iter.enduse and fueltype == obj_iter.enduse_fueltype_replace:
                 tot_share_fueltype_switched += obj_iter.fuel_share_switched_ey
         if tot_share_fueltype_switched > 1.0:
             sys.exit(
                 "Input error: The fuel switches are > 1.0 for enduse {} and fueltype {}".format(
-                    enduse, fuel_type))
+                    enduse, fueltype))
 
     # Test whether defined enduse exist
     for obj in fuel_switches:
@@ -641,7 +641,7 @@ def read_technologies(path_to_csv, fueltypes):
             technology = row[0]
             try:
                 dict_technologies[technology] = TechnologyData(
-                    fuel_type=str(row[1]),
+                    fueltype=str(row[1]),
                     eff_by=float(row[2]),
                     eff_ey=float(row[3]),
                     year_eff_ey=float(row[4]), #MAYBE: ADD DICT WITH INTERMEDIARY POINTS
@@ -714,7 +714,7 @@ def read_base_data_resid(path_to_csv):
 
     return end_uses_dict, all_enduses
 
-def read_csv_base_data_industry(path_to_csv, fueltypes_nr, lu_fueltypes):
+def read_csv_base_data_industry(path_to_csv, fueltypes_nr, fueltypes):
     """This function reads in base_data_CSV all fuel types
 
     Arguments
@@ -755,10 +755,10 @@ def read_csv_base_data_industry(path_to_csv, fueltypes_nr, lu_fueltypes):
             all_sectors.add(line[0])
 
         # Initialise dict
-        for sector in all_sectors:
-            end_uses_dict[sector] = {}
-            for enduse in all_enduses:
-                end_uses_dict[str(sector)][str(enduse)] = np.zeros((fueltypes_nr), dtype=float)
+        for enduse in all_enduses:
+            end_uses_dict[enduse] = {}
+            for sector in all_sectors:
+                end_uses_dict[str(enduse)][str(sector)] = np.zeros((fueltypes_nr), dtype=float)
 
         for row in lines:
             sector = row[0]
@@ -767,8 +767,8 @@ def read_csv_base_data_industry(path_to_csv, fueltypes_nr, lu_fueltypes):
                 if entry != '':
                     enduse = str(_headings[position])
                     fueltype = _secondline[position]
-                    fueltype_int = tech_related.get_fueltype_int(lu_fueltypes, fueltype)
-                    end_uses_dict[sector][enduse][fueltype_int] += float(row[position])
+                    fueltype_int = tech_related.get_fueltype_int(fueltypes, fueltype)
+                    end_uses_dict[enduse][sector][fueltype_int] += float(row[position])
 
     return end_uses_dict, list(all_sectors), list(all_enduses)
 
@@ -1006,11 +1006,11 @@ def read_disaggregated_fuel_sector(path_to_csv, fueltypes_nr):
             except KeyError:
                 fuel_sector_enduse[region][sector] = {}
             try:
-                fuel_sector_enduse[region][sector][enduse]
+                fuel_sector_enduse[region][enduse][sector]
             except KeyError:
-                fuel_sector_enduse[region][sector][enduse] = np.zeros((fueltypes_nr), dtype=float)
+                fuel_sector_enduse[region][enduse][sector] = np.zeros((fueltypes_nr), dtype=float)
 
-            fuel_sector_enduse[region][sector][enduse][fueltype] = fuel
+            fuel_sector_enduse[region][enduse][sector][fueltype] = fuel
 
     return fuel_sector_enduse
 

@@ -30,7 +30,7 @@ def insert_dummy_tech(technologies, tech_p_by, all_specified_tech_enduse_by):
         Technologies
     """
     for end_use in tech_p_by:
-        for fuel_type in tech_p_by[end_use]:
+        for fueltype in tech_p_by[end_use]:
             all_defined_tech_in_fueltype = tech_p_by[end_use].values()
             for definition in all_defined_tech_in_fueltype:
 
@@ -46,11 +46,11 @@ def insert_dummy_tech(technologies, tech_p_by, all_specified_tech_enduse_by):
 
             # If an enduse has no defined technologies across all fueltypes
             if crit_tech_defined_in_enduse is False:
-                if tech_p_by[end_use][fuel_type] == {}:
+                if tech_p_by[end_use][fueltype] == {}:
                     all_specified_tech_enduse_by[end_use].append("dummy_tech")
 
                     # Assign total fuel demand to dummy technology
-                    tech_p_by[end_use][fuel_type] = {"dummy_tech": 1.0}
+                    tech_p_by[end_use][fueltype] = {"dummy_tech": 1.0}
 
                     # Insert dummy tech
                     technologies['dummy_tech'] = read_data.TechnologyData()
@@ -331,7 +331,7 @@ def generate_heat_pump_from_split(technologies, heat_pump_assump, fueltypes):
 
         # Add new averaged technology
         technologies[name_av_hp] = read_data.TechnologyData(
-            fuel_type=fueltype,
+            fueltype=fueltype,
             eff_by=av_eff_hps_by,
             eff_ey=av_eff_hps_ey,
             year_eff_ey=av_year_eff_ey,
@@ -443,8 +443,8 @@ def generate_ashp_gshp_split(split_hp_gshp_ashp):
 
     installed_heat_pump_by = {
         'hydrogen': {
-            'heat_pump_ASHP_hydro': ashp_fraction,
-            'heat_pump_GSHP_hydro': gshp_fraction
+            'heat_pump_ASHP_hydrogen': ashp_fraction,
+            'heat_pump_GSHP_hydrogen': gshp_fraction
             },
         'electricity': {
             'heat_pump_ASHP_electricity': ashp_fraction,

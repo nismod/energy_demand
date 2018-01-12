@@ -29,7 +29,7 @@ def load_basic_lookups():
         3: 'flat',
         4: 'bungalow'}
 
-    lookups['fueltype'] = {
+    lookups['fueltypes'] = {
         'solid_fuel': 0,
         'gas': 1,
         'electricity': 2,
@@ -38,7 +38,7 @@ def load_basic_lookups():
         'hydrogen': 5,
         'heat': 6}
 
-    lookups['fueltypes_nr'] = int(len(lookups['fueltype']))
+    lookups['fueltypes_nr'] = int(len(lookups['fueltypes']))
 
     return lookups
 
@@ -367,6 +367,8 @@ def load_paths(path):
 
         'yaml_parameters': os.path.join(path, 'yaml_parameters.yml'),
         'yaml_parameters_default': os.path.join(path, 'yaml_parameters_default.yml'),
+        'yaml_parameters_keynames_constrained': os.path.join(path, 'yaml_parameters_keynames_constrained.yml'),
+        'yaml_parameters_keynames_unconstrained': os.path.join(path, 'yaml_parameters_keynames_unconstrained.yml'),
         'yaml_parameters_scenario': os.path.join(path, 'yaml_parameters_scenario.yml')
         }
 
@@ -405,7 +407,7 @@ def load_data_tech_profiles(tech_lp, paths):
     #from energy_demand.plotting import plotting_results
     #plotting_results.plot_load_profile_dh(data['rs_lp_heating_boilers_dh'][0] * 45.8)
     #plotting_results.plot_load_profile_dh(data['rs_lp_heating_boilers_dh'][1] * 45.8)
-    #plotting_results.plot_load_profile_dh(data['rs_lp_heating_boilers_dh'][data['lookups']['fueltype']['electricity']] * 45.8)
+    #plotting_results.plot_load_profile_dh(data['rs_lp_heating_boilers_dh'][data['lookups']['fueltypes']['electricity']] * 45.8)
 
     # Add fuel data of other model enduses to the fuel data table (E.g. ICT or wastewater)
     tech_lp['rs_lp_storage_heating_dh'] = read_data.read_load_shapes_tech(
@@ -567,12 +569,12 @@ def load_fuels(paths, lookups):
 
     # Industry fuel (ECUK Table 4.04)
     is_fuel_raw_data_enduses, sectors['is_sectors'], enduses['is_all_enduses'] = read_data.read_csv_base_data_industry(
-        paths['is_fuel_raw_data_enduses'], lookups['fueltypes_nr'], lookups['fueltype'])
+        paths['is_fuel_raw_data_enduses'], lookups['fueltypes_nr'], lookups['fueltypes'])
 
-    all_enduses = []
+    # Iterate enduses per sudModel and flatten list
+    enduses['all_enduses'] = []
     for enduse in enduses.values():
-        all_enduses += enduse
-    enduses['all_enduses'] = all_enduses
+        enduses['all_enduses'] += enduse
 
     # Convert units
     fuels['rs_fuel_raw_data_enduses'] = conversions.convert_fueltypes_ktoe_GWh(rs_fuel_raw_data_enduses)
@@ -679,11 +681,12 @@ def ss_collect_shapes_from_txts(txt_path, model_yeardays):
     ss_shapes_yd = {}
 
     # Read load shapes from txt files for enduses
-    for sector in sectors:
-        ss_shapes_dh[sector] = {}
-        ss_shapes_yd[sector] = {}
-
-        for enduse in enduses:
+    for enduse in enduses:
+    
+        ss_shapes_dh[enduse] = {}
+        ss_shapes_yd[enduse] = {}
+        for sector in sectors:
+        
             joint_string_name = str(sector) + "__" + str(enduse)
             shape_peak_dh = read_data.read_txt_shape_peak_dh(
                 os.path.join(
@@ -708,11 +711,11 @@ def ss_collect_shapes_from_txts(txt_path, model_yeardays):
             shape_non_peak_y_dh_selection = shape_non_peak_y_dh[[model_yeardays]]
             shape_non_peak_yd_selection = shape_non_peak_yd[[model_yeardays]]
 
-            ss_shapes_dh[sector][enduse] = {
+            ss_shapes_dh[enduse][sector] = {
                 'shape_peak_dh': shape_peak_dh,
                 'shape_non_peak_y_dh': shape_non_peak_y_dh_selection}
 
-            ss_shapes_yd[sector][enduse] = {
+            ss_shapes_yd[enduse][sector] = {
                 'shape_peak_yd_factor': shape_peak_yd_factor,
                 'shape_non_peak_yd': shape_non_peak_yd_selection}
 
@@ -769,12 +772,11 @@ def ss_read_shapes_enduse_techs(ss_shapes_dh, ss_shapes_yd):
     ss_all_tech_shapes_dh = {}
     ss_all_tech_shapes_yd = {}
 
-    for sector in ss_shapes_yd:
-        for enduse in ss_shapes_yd[sector]:
-            ss_all_tech_shapes_dh[enduse] = ss_shapes_dh[sector][enduse]
-            ss_all_tech_shapes_yd[enduse] = ss_shapes_yd[sector][enduse]
-
-        break #only iterate first sector as all enduses are the same in all sectors
+    for enduse in ss_shapes_yd:
+        for sector in ss_shapes_yd[enduse]:
+            ss_all_tech_shapes_dh[enduse] = ss_shapes_dh[enduse][sector]
+            ss_all_tech_shapes_yd[enduse] = ss_shapes_yd[enduse][sector]
+            break #only iterate first sector as all enduses are the same in all sectors
 
     return ss_all_tech_shapes_dh, ss_all_tech_shapes_yd
 
@@ -806,7 +808,7 @@ def load_LAC_geocodes_info(path_to_csv):
 
     return data
 
-def read_employment_statistics(path_to_csv):
+def read_employment_stats(path_to_csv):
     """Read in employment statistics per LAD.
 
     This dataset provides 2011 estimates that classify usual

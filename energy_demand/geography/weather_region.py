@@ -24,8 +24,8 @@ class WeatherRegion(object):
         Simulation parameter
     assumptions : dict
         Assumptions
-    lookups : dict
-        Lookups
+    fueltypes : dict
+        fueltypes
     all_enduse : list
         All enduses
     temp_by, temp_ey : array
@@ -45,7 +45,7 @@ class WeatherRegion(object):
             name,
             sim_param,
             assumptions,
-            lookups,
+            fueltypes,
             all_enduses,
             temp_by,
             tech_lp,
@@ -142,7 +142,7 @@ class WeatherRegion(object):
             assumptions['enduse_overall_change']['other_enduse_mode_info'],
             sim_param['base_yr'],
             sim_param['curr_yr'],
-            lookups['fueltype'],
+            fueltypes,
             temp_by,
             temp_cy,
             assumptions['ss_t_base_heating']['ss_t_base_heating_base_yr'],
@@ -157,7 +157,7 @@ class WeatherRegion(object):
             assumptions['enduse_overall_change']['other_enduse_mode_info'],
             sim_param['base_yr'],
             sim_param['curr_yr'],
-            lookups['fueltype'],
+            fueltypes,
             temp_by,
             temp_cy,
             assumptions['rs_t_base_heating']['rs_t_base_heating_base_yr'],
@@ -172,7 +172,7 @@ class WeatherRegion(object):
             assumptions['enduse_overall_change']['other_enduse_mode_info'],
             sim_param['base_yr'],
             sim_param['curr_yr'],
-            lookups['fueltype'],
+            fueltypes,
             temp_by,
             temp_cy,
             assumptions['ss_t_base_heating']['ss_t_base_heating_base_yr'],
@@ -559,7 +559,7 @@ def ss_get_sector_enduse_shape(tech_lp, heating_shape, enduse, model_yeardays_nr
     enduse : str
         Enduse where technology is used
     model_yeardays_nrs : int
-        Number of modelled hours in a year
+        Number of modelled yeardays
 
     Returns
     -------
@@ -569,6 +569,7 @@ def ss_get_sector_enduse_shape(tech_lp, heating_shape, enduse, model_yeardays_nr
         Shape of distribution of fuel within every day of a year (total sum == nr_of_days)
     """
     shape_yh_generic_tech = np.zeros((model_yeardays_nrs, 24), dtype=float)
+
     if enduse not in tech_lp['ss_all_tech_shapes_dh']:
         pass
     else:

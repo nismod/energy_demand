@@ -35,7 +35,7 @@ def calc_sigmoid_parameters(l_value, xdata, ydata):
     # ---------------------------------------------
     # Generate possible starting parameters for fit
     # ---------------------------------------------
-    start_param_list = []
+    '''start_param_list = []
 
     for start in [x * 0.05 for x in range(0, 100)]:
         start_param_list.append(float(start))
@@ -44,7 +44,21 @@ def calc_sigmoid_parameters(l_value, xdata, ydata):
         start_param_list.append(float(start))
 
     for start in range(1, 59):
-        start_param_list.append(float(start))
+        start_param_list.append(float(start))'''
+    start_param_list = [
+        0.0, 0.05, 0.1, 0.15, 0.2, 0.25, 0.3, 0.35, 0.4, 0.45, 0.5, 0.55, 0.6, 0.65,
+        0.7, 0.75, 0.8, 0.85, 0.9, 0.95, 1.0, 1.05, 1.1, 1.15, 1.2, 1.25, 1.3, 1.35,
+        1.4, 1.45, 1.5, 1.55, 1.6, 1.650, 1.7, 1.75, 1.8, 1.85, 1.9, 1.95, 2.0, 2.05,
+        2.1, 2.15, 2.2, 2.25, 2.3, 2.35, 2.4, 2.45, 2.5, 2.55, 2.6, 2.65, 2.7, 2.75,
+        2.8, 2.85, 2.9, 2.95, 3.0, 3.05, 3.1, 3.15, 3.2, 3.25, 3.3, 3.35, 3.40, 3.45,
+        3.5, 3.55, 3.6, 3.65, 3.7, 3.75, 3.8, 3.85, 3.9, 3.95, 4.0, 4.05, 4.1, 4.15,
+        4.2, 4.25, 4.3, 4.35, 4.4, 4.45, 4.5, 4.55, 4.6, 4.65, 4.7, 4.75, 4.8, 4.85,
+        4.9, 4.95, 1.0, 0.001, 0.01, 0.1, 60.0, 100.0, 200.0, 400.0, 500.0, 1000.0,
+        1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0, 10.0, 11.0, 12.0, 13.0, 14.0,
+        15.0, 16.0, 17.0, 18.0, 19.0, 20.0, 21.0, 22.0, 23.0, 24.0, 25.0, 26.0, 27.0,
+        28.0, 29.0, 30.0, 31.0, 32.0, 33.0, 34.0, 35.0, 36.0, 37.0, 38.0, 39.0, 40.0,
+        41.0, 42.0, 43.0, 44.0, 45.0, 46.0, 47.0, 48.0, 49.0, 50.0, 51.0, 52.0, 53.0,
+        54.0, 55.0, 56.0, 57.0, 58.0]
 
     # ---------------------------------------------
     # Fit
@@ -59,12 +73,9 @@ def calc_sigmoid_parameters(l_value, xdata, ydata):
 
             # Fit function
             fit_parameter = fit_sigmoid_diffusion(
-                l_value,
-                xdata,
-                ydata,
-                start_parameters)
+                l_value, xdata, ydata, start_parameters)
 
-            logging.debug("Fit parameters: %s %s %s", fit_parameter, xdata, ydata)
+            #logging.debug("Fit parameters: %s %s %s", fit_parameter, xdata, ydata)
 
             # Fit must be positive and paramaters not input parameters
             if (fit_parameter[1] < 0) or (
@@ -83,13 +94,11 @@ def calc_sigmoid_parameters(l_value, xdata, ydata):
                     xdata[1], l_value, *fit_parameter)
 
                 fit_measure_in_percent = (100.0 / ydata[1]) * y_calculated
-                logging.debug("... Fitting measure in percent: %s", fit_measure_in_percent)
-
                 if fit_measure_in_percent < 99.0:
-                    logging.critical("The sigmoid fitting is not good enough")
+                    logging.debug("... Fitting measure %s (percent) is not good enough", fit_measure_in_percent)
 
         except (RuntimeError, IndexError):
-            logging.debug("Unsuccessful fit %s %s", start_parameters[0], start_parameters[1])
+            #logging.debug("Unsuccessful fit %s %s", start_parameters[0], start_parameters[1])
             cnt += 1
 
             if cnt >= len(start_param_list):
@@ -123,14 +132,14 @@ def get_tech_future_service(
     -------
     tech_increased_service : dict
         Technologies with increased future service
-    tech_decreased_share : dict
+    tech_decreased_service : dict
         Technologies with decreased future service
-    tech_decreased_share : dict
+    tech_decreased_service : dict
         Technologies with unchanged future service
     """
     tech_increased_service = defaultdict(dict)
-    tech_decreased_share = defaultdict(dict)
-    tech_constant_share = defaultdict(dict)
+    tech_decreased_service = defaultdict(dict)
+    tech_constant_service = defaultdict(dict)
 
     if regional_specific:
         for reg in regions:
@@ -147,9 +156,9 @@ def get_tech_future_service(
                         if round(service_tech_by_p[tech], 4) < round(service_tech_ey_p[reg][tech], 4):
                             tech_increased_service[reg][tech] = service_tech_ey_p[reg][tech]
                         elif round(service_tech_by_p[tech], 4) > round(service_tech_ey_p[reg][tech], 4):
-                            tech_decreased_share[reg][tech] = service_tech_ey_p[reg][tech]
+                            tech_decreased_service[reg][tech] = service_tech_ey_p[reg][tech]
                         else:
-                            tech_constant_share[reg][tech] = service_tech_ey_p[reg][tech]
+                            tech_constant_service[reg][tech] = service_tech_ey_p[reg][tech]
     else:
         if service_tech_ey_p == {}: # If no service switch defined
             pass
@@ -162,11 +171,11 @@ def get_tech_future_service(
                     if round(service_tech_by_p[tech], 4) < round(service_tech_ey_p[tech], 4):
                         tech_increased_service[tech] = service_tech_ey_p[tech]
                     elif round(service_tech_by_p[tech], 4) > round(service_tech_ey_p[tech], 4):
-                        tech_decreased_share[tech] = service_tech_ey_p[tech]
+                        tech_decreased_service[tech] = service_tech_ey_p[tech]
                     else:
-                        tech_constant_share[tech] = service_tech_ey_p[tech]
+                        tech_constant_service[tech] = service_tech_ey_p[tech]
 
-    return dict(tech_increased_service), dict(tech_decreased_share), dict(tech_constant_share)
+    return dict(tech_increased_service), dict(tech_decreased_service), dict(tech_constant_service)
 
 def fit_sigmoid_diffusion(l_value, x_data, y_data, start_parameters):
     """Fit sigmoid curve based on two points on the diffusion curve
@@ -647,12 +656,13 @@ def tech_sigmoid_parameters(
         logging.debug("NO TECHNOLOGY.. %s", installed_tech)
     else:
         for tech in installed_tech:
-            print("... create sigmoid diffusion parameters %s", tech)
+            logging.debug("... create sigmoid diffusion parameters %s", tech)
 
             # Get year until switched
             for switch in service_switches:
                 if switch.technology_install == tech:
                     yr_until_switched = switch.switch_yr
+                    break
 
             market_entry = technologies[tech].market_entry
 

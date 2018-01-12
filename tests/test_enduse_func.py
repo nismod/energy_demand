@@ -16,16 +16,25 @@ def test_get_crit_switch():
         enduse='heating')]
 
     result = enduse_func.get_crit_switch(
-        'heating', fuelswitches, 2015, 2020, mode_constrained)
+        'heating',
+        fuelswitches,
+        2015,
+        2020,
+        mode_constrained)
 
-    assert result == False
+    assert result == True
 
+    # -----
     mode_constrained = False
 
-
     result2 = enduse_func.get_crit_switch(
-        'heating', fuelswitches, 2015, 2020, mode_constrained)
-    assert result2 == True
+        'heating',
+        fuelswitches,
+        2015,
+        2020,
+        mode_constrained)
+
+    assert result2 == False
 
 def test_get_peak_day():
     """
@@ -90,15 +99,15 @@ def test_service_switch():
         sig_param_tech,
         curr_yr)
 
-    expected_service_tech_cy_p = {
+    expected_tech_service_cy_p = {
         "boilerA": 365*24 * share_boilerA_cy, # * 0.5
         "boilerB": 365*24 * share_boilerB_cy} # * 0.5
-    #print(round(expected_service_tech_cy_p["boilerA"], 3))
+    #print(round(expected_tech_service_cy_p["boilerA"], 3))
     #print(round(np.sum(result["boilerA"]), 3))
-    #print(round(expected_service_tech_cy_p["boilerB"], 3) )
+    #print(round(expected_tech_service_cy_p["boilerB"], 3) )
     #print(round(np.sum(result["boilerB"]), 3))
-    assert round(expected_service_tech_cy_p["boilerA"], 3) == round(np.sum(result["boilerA"]), 3)
-    assert round(expected_service_tech_cy_p["boilerB"], 3) == round(np.sum(result["boilerB"]), 3)
+    assert round(expected_tech_service_cy_p["boilerA"], 3) == round(np.sum(result["boilerA"]), 3)
+    assert round(expected_tech_service_cy_p["boilerB"], 3) == round(np.sum(result["boilerB"]), 3)
 
     # --------------------------------------------
     l_value = 1.0
@@ -147,12 +156,12 @@ def test_service_switch():
         curr_yr)
 
     half_time_factor = 1
-    expected_service_tech_cy_p = {
+    expected_tech_service_cy_p = {
         "boilerA": 365*24,
         "boilerB": 0}
 
-    assert round(expected_service_tech_cy_p["boilerA"], 3) == round(np.sum(result["boilerA"]), 3)
-    assert round(expected_service_tech_cy_p["boilerB"], 3) == round(np.sum(result["boilerB"]), 3)
+    assert round(expected_tech_service_cy_p["boilerA"], 3) == round(np.sum(result["boilerA"]), 3)
+    assert round(expected_tech_service_cy_p["boilerB"], 3) == round(np.sum(result["boilerB"]), 3)
 
     # --------------------------------------------
 
@@ -204,12 +213,12 @@ def test_service_switch():
         sig_param_tech,
         curr_yr)
 
-    expected_service_tech_cy_p = {
+    expected_tech_service_cy_p = {
         "boilerA": 365*24*0.5,
         "boilerB": 365*24*0.5}
 
-    assert round(expected_service_tech_cy_p["boilerA"], 1) == round(np.sum(result["boilerA"]), 1)
-    assert round(expected_service_tech_cy_p["boilerB"], 1) == round(np.sum(result["boilerB"]), 1)
+    assert round(expected_tech_service_cy_p["boilerA"], 1) == round(np.sum(result["boilerA"]), 1)
+    assert round(expected_tech_service_cy_p["boilerB"], 1) == round(np.sum(result["boilerB"]), 1)
 
 def test_convert_service_to_p():
     """Testing
@@ -288,8 +297,8 @@ def test_Enduse():
         service_switches,
         fuel_tech_p_by,
         tech_increased_service,
-        tech_decreased_share,
-        tech_constant_share,
+        tech_decreased_service,
+        tech_constant_service,
         installed_tech,
         sig_param_tech,
         enduse_overall_change,
@@ -348,13 +357,14 @@ def test_fuel_to_service():
     fuel_tech_p_by = {0 : {'techA': 1.0}}
 
     technologies = {'techA': read_data.TechnologyData()}
-    technologies['techA'].fuel_type_str = 'gas'
+    technologies['techA'].fueltype_str = 'gas'
     technologies['techA'].eff_achieved = 1.0
     technologies['techA'].diff_method = 'linear'
     technologies['techA'].eff_by = 0.5
     technologies['techA'].eff_ey = 0.5
     technologies['techA'].year_eff_ey = 2020
-    lu_fueltypes = {'gas': 0}
+    
+    fueltypes = {'gas': 0} #, 'heat': 1}
 
     tech_stock = technological_stock.TechStock(
         stock_name="stock_name",
@@ -363,7 +373,7 @@ def test_fuel_to_service():
         other_enduse_mode_info={'linear'},
         base_yr=2015,
         curr_yr=2020,
-        lu_fueltypes=lu_fueltypes,
+        fueltypes=fueltypes,
         temp_by=np.ones((365, 24)) + 10,
         temp_cy=np.ones((365, 24)) + 10,
         t_base_heating_by=15.5,
@@ -371,22 +381,21 @@ def test_fuel_to_service():
         t_base_heating_cy=15.5,
         enduse_technologies={'heating': ['techA']})
 
-    mode_constrained = False
     tot_service_y, service_tech, service_tech_p = enduse_func.fuel_to_service(
         enduse=enduse,
         fuel_new_y=fuel_new_y,
         enduse_techs=enduse_techs,
         fuel_tech_p_by=fuel_tech_p_by,
         tech_stock=tech_stock,
-        lu_fueltypes=lu_fueltypes,
-        mode_constrained=mode_constrained)
+        fueltypes=fueltypes,
+        mode_constrained=True)
 
     assert service_tech['techA'] == 1000
 
     # ---
-    fuel_new_y = {0: 0, 1:2000}
+    fuel_new_y = {0: 0, 1: 2000}
     fuel_tech_p_by = {0 : {}, 1: {'techA': 1.0}}
-    lu_fueltypes = {'gas': 0, 'heat': 1}
+    fueltypes = {'gas': 0, 'heat': 1}
 
     tech_stock = technological_stock.TechStock(
         stock_name="stock_name",
@@ -395,7 +404,7 @@ def test_fuel_to_service():
         other_enduse_mode_info={'linear'},
         base_yr=2015,
         curr_yr=2020,
-        lu_fueltypes=lu_fueltypes,
+        fueltypes=fueltypes,
         temp_by=np.ones((365, 24)) + 10,
         temp_cy=np.ones((365, 24)) + 10,
         t_base_heating_by=15.5,
@@ -403,30 +412,29 @@ def test_fuel_to_service():
         t_base_heating_cy=15.5,
         enduse_technologies={'heating': ['techA']})
 
-    mode_constrained = True
     tot_service_y, service_tech, service_tech_p = enduse_func.fuel_to_service(
         enduse=enduse,
         fuel_new_y=fuel_new_y,
         enduse_techs=enduse_techs,
         fuel_tech_p_by=fuel_tech_p_by,
         tech_stock=tech_stock,
-        lu_fueltypes=lu_fueltypes,
-        mode_constrained=mode_constrained)
-    
+        fueltypes=fueltypes,
+        mode_constrained=False) #Difference
+
     assert service_tech['techA'] == 2000
     #TODO ADD MORE TESTS
 
 def test_service_to_fuel():
 
     technologies = {'techA': read_data.TechnologyData()}
-    technologies['techA'].fuel_type_str = 'gas'
+    technologies['techA'].fueltype_str = 'gas'
     technologies['techA'].eff_achieved = 1.0
     technologies['techA'].diff_method = 'linear'
     technologies['techA'].eff_by = 0.5
     technologies['techA'].eff_ey = 0.5
     technologies['techA'].year_eff_ey = 2020
 
-    lu_fueltypes = {'gas': 0}
+    fueltypes = {'gas': 0}
 
     tech_stock = technological_stock.TechStock(
         stock_name="stock_name",
@@ -435,7 +443,7 @@ def test_service_to_fuel():
         other_enduse_mode_info={'linear'},
         base_yr=2015,
         curr_yr=2020,
-        lu_fueltypes=lu_fueltypes,
+        fueltypes=fueltypes,
         temp_by=np.ones((365, 24)) + 10,
         temp_cy=np.ones((365, 24)) + 10,
         t_base_heating_by=15.5,
@@ -443,29 +451,28 @@ def test_service_to_fuel():
         t_base_heating_cy=15.5,
         enduse_technologies={'heating': ['techA']})
 
-    lookups = {'fueltype': lu_fueltypes, 'fueltypes_nr': len(lu_fueltypes)}
-
     fuel_new_y, fuel_per_tech = enduse_func.service_to_fuel(
         "heating",
         {'techA': 100},
         tech_stock,
-        lookups,
-        False)
+        len(fueltypes),
+        fueltypes,
+        True)
 
     assert fuel_per_tech['techA'] == 200
     assert fuel_new_y == np.array([200])
 
     # ----
 
-    lu_fueltypes = {'gas': 0, 'heat': 1}
-    lookups = {'fueltype': lu_fueltypes, 'fueltypes_nr': len(lu_fueltypes)}
+    fueltypes = {'gas': 0, 'heat': 1}
 
     fuel_new_y, fuel_per_tech = enduse_func.service_to_fuel(
         "heating",
         {'techA': 100},
         tech_stock,
-        lookups,
-        True)
+        len(fueltypes),
+        fueltypes,
+        False)
 
     assert fuel_per_tech['techA'] == 100
     assert fuel_new_y[1] == 100
@@ -502,16 +509,14 @@ def test_apply_heat_recovery():
 
 def test_apply_climate_chante():
 
-    assumptions = {}
-    assumptions['enduse_space_heating'] = ['heating']
-    assumptions['enduse_space_cooling'] = ['cooling']
 
     result = enduse_func.apply_climate_change(
         enduse='heating',
         fuel_new_y=200,
         cooling_factor_y=1.5,
         heating_factor_y=1.5,
-        assumptions=assumptions)
+        enduse_space_heating=['heating'],
+        enduse_space_cooling=['cooling'])
 
     assert result == 300
     result = enduse_func.apply_climate_change(
@@ -519,22 +524,23 @@ def test_apply_climate_chante():
         fuel_new_y=200,
         cooling_factor_y=1.5,
         heating_factor_y=1.5,
-        assumptions=assumptions)
+        enduse_space_heating=['heating'],
+        enduse_space_cooling=['cooling'])
 
     assert result == 300
 
 def test_calc_fuel_tech_y():
-
+    """Testing
+    """
     technologies = {'techA': read_data.TechnologyData()}
-    technologies['techA'].fuel_type_str = 'gas'
+    technologies['techA'].fueltype_str = 'gas'
     technologies['techA'].eff_achieved = 1.0
     technologies['techA'].diff_method = 'linear'
     technologies['techA'].eff_by = 0.5
     technologies['techA'].eff_ey = 0.5
     technologies['techA'].year_eff_ey = 2020
-    lu_fueltypes = {'gas': 0}
+    fueltypes = {'gas': 0}
 
-    
     tech_stock = technological_stock.TechStock(
         stock_name="stock_name",
         technologies=technologies,
@@ -542,7 +548,7 @@ def test_calc_fuel_tech_y():
         other_enduse_mode_info={'linear'},
         base_yr=2015,
         curr_yr=2020,
-        lu_fueltypes=lu_fueltypes,
+        fueltypes=fueltypes,
         temp_by=np.ones((365, 24)) + 10,
         temp_cy=np.ones((365, 24)) + 10,
         t_base_heating_by=15.5,
@@ -550,16 +556,13 @@ def test_calc_fuel_tech_y():
         t_base_heating_cy=15.5,
         enduse_technologies={'heating': ['techA']})
     
-    lookups = {}
-    lookups['fueltype'] = {'heat': 1, 'gas': 0}
-    lookups['fueltypes_nr'] = 2
-
     result = enduse_func.calc_fuel_tech_y(
         enduse='heating',
         tech_stock=tech_stock,
         fuel_tech_y={'techA': 100},
-        lookups=lookups,
-        mode_constrained=True)
+        fueltypes_nr=2,
+        fueltypes={'heat': 1, 'gas': 0},
+        mode_constrained=False)
 
     assert result[1] == 100
 
@@ -567,18 +570,19 @@ def test_calc_fuel_tech_y():
         enduse='heating',
         tech_stock=tech_stock,
         fuel_tech_y={'techA': 100},
-        lookups=lookups,
-        mode_constrained=False)
+        fueltypes_nr=2,
+        fueltypes={'heat': 1, 'gas': 0},
+        mode_constrained=True)
 
     assert result[0] == 100
 
 def test_calc_fuel_tech_yh():
     """Testing
     """
-    lu_fueltypes = {'gas': 0, 'heat': 1}
+    fueltypes = {'gas': 0, 'heat': 1}
 
     technologies = {'techA': read_data.TechnologyData()}
-    technologies['techA'].fuel_type_str = 'gas'
+    technologies['techA'].fueltype_str = 'gas'
     technologies['techA'].eff_achieved = 1.0
     technologies['techA'].diff_method = 'linear'
     technologies['techA'].eff_by = 0.5
@@ -592,7 +596,7 @@ def test_calc_fuel_tech_yh():
         other_enduse_mode_info={'linear'},
         base_yr=2015,
         curr_yr=2020,
-        lu_fueltypes=lu_fueltypes,
+        fueltypes=fueltypes,
         temp_by=np.ones((365, 24)) + 10,
         temp_cy=np.ones((365, 24)) + 10,
         t_base_heating_by=15.5,
@@ -626,8 +630,8 @@ def test_calc_fuel_tech_yh():
         tech_stock=tech_stock,
         load_profiles=lp_stock_obj,
         fueltypes_nr=2,
-        lu_fueltypes=lu_fueltypes,
-        mode_constrained=True,
+        fueltypes=fueltypes,
+        mode_constrained=False,
         model_yeardays_nrs=365)
 
     assert results[1][3][0] == 3.0 / float(np.sum(range(365)) * 24) * 200
@@ -641,19 +645,15 @@ def test_calc_fuel_tech_yh():
         tech_stock=tech_stock,
         load_profiles=lp_stock_obj,
         fueltypes_nr=2,
-        lu_fueltypes=lu_fueltypes,
-        mode_constrained=False,
+        fueltypes=fueltypes,
+        mode_constrained=True,
         model_yeardays_nrs=365)
 
-    assert results[0][3][0] == 3.0 / float(np.sum(range(365)) * 24) * 200
-
+    assert results['techA'][0][3][0] == 3.0 / float(np.sum(range(365)) * 24) * 200
 
 def test_apply_specific_change():
-
-    sim_param = {
-        'base_yr': 2015,
-        'curr_yr': 2020}
-
+    """testing
+    """
     enduse_overall_change_strategy = {}
     enduse_overall_change_strategy['enduse_change__{}'.format('heating')] = 2.0
     enduse_overall_change_strategy['enduse_specific_change_yr_until_changed'] = 2020
@@ -667,11 +667,14 @@ def test_apply_specific_change():
         fuel_y=fuel_y,
         enduse_overall_change=enduse_overall_change,
         enduse_overall_change_strategy=enduse_overall_change_strategy,
-        sim_param=sim_param)
+        base_yr=2015,
+        curr_yr=2020)
 
     assert result == fuel_y * enduse_overall_change_strategy['enduse_change__heating']
 
 def test_get_enduse_configuration():
+    """Testing
+    """
 
     fuel_switches = [read_data.FuelSwitch(
         enduse='heating',
@@ -686,26 +689,6 @@ def test_get_enduse_configuration():
         switch_yr=2050)]
 
     mode_constrained, crit_switch_service = enduse_func.get_enduse_configuration(
-        mode_constrained=True,
-        enduse='heating',
-        enduse_space_heating=['heating'],
-        base_yr=2015,
-        curr_yr=2020,
-        service_switches=service_switches)
-
-    assert mode_constrained == True
-
-    # If constrained mode, no switches
-    assert crit_switch_service == False
-   
-    # ---
-
-    service_switches = [read_data.ServiceSwitch(
-        enduse='heating',
-        technology_install='boilerA',
-        switch_yr=2050)]
-
-    mode_constrained, crit_switch_service = enduse_func.get_enduse_configuration(
         mode_constrained=False,
         enduse='heating',
         enduse_space_heating=['heating'],
@@ -714,6 +697,25 @@ def test_get_enduse_configuration():
         service_switches=service_switches)
 
     assert mode_constrained == False
+
+    # If constrained mode, no switches
+    assert crit_switch_service == False #Ignore switches if not constrained
+   
+    # ---
+    service_switches = [read_data.ServiceSwitch(
+        enduse='heating',
+        technology_install='boilerA',
+        switch_yr=2050)]
+
+    mode_constrained, crit_switch_service = enduse_func.get_enduse_configuration(
+        mode_constrained=True,
+        enduse='heating',
+        enduse_space_heating=['heating'],
+        base_yr=2015,
+        curr_yr=2020,
+        service_switches=service_switches)
+
+    assert mode_constrained == True
 
     # If constrained mode, no switches
     assert crit_switch_service == True

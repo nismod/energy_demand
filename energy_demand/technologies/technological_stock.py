@@ -17,7 +17,7 @@ class TechStock(object):
             other_enduse_mode_info,
             base_yr,
             curr_yr,
-            lu_fueltypes,
+            fueltypes,
             temp_by,
             temp_cy,
             t_base_heating_by,
@@ -28,7 +28,7 @@ class TechStock(object):
         """Constructor of technologies for residential sector
 
         Arguments
-        ----------
+        ---------- TODO
         stock_name : str
             Name of technology stock
         technologies : dict
@@ -61,7 +61,7 @@ class TechStock(object):
             other_enduse_mode_info,
             base_yr,
             curr_yr,
-            lu_fueltypes,
+            fueltypes,
             temp_by,
             temp_cy,
             t_base_heating_by,
@@ -88,12 +88,12 @@ class TechStock(object):
         """
         tech_object = self.stock_technologies[(tech_name, enduse)]
 
-        if attribute_to_get == 'tech_fueltype':
-            attribute_value = tech_object.tech_fueltype
+        if attribute_to_get == 'fueltype_str':
+            attribute_value = tech_object.fueltype_str
         elif attribute_to_get == 'tech_type':
             attribute_value = tech_object.tech_type
-        elif attribute_to_get == 'tech_fueltype_int':
-            attribute_value = tech_object.tech_fueltype_int
+        elif attribute_to_get == 'fueltype_int':
+            attribute_value = tech_object.fueltype_int
         elif attribute_to_get == 'eff_cy':
             attribute_value = tech_object.eff_cy
         elif attribute_to_get == 'eff_by':
@@ -115,7 +115,7 @@ def create_tech_stock(
         other_enduse_mode_info,
         base_yr,
         curr_yr,
-        lu_fueltypes,
+        fueltypes,
         temp_by,
         temp_cy,
         t_base_heating_by,
@@ -164,7 +164,7 @@ def create_tech_stock(
                 tech_obj = Technology(
                     technology_name,
                     tech_type,
-                    technologies[technology_name].fuel_type_str,
+                    technologies[technology_name].fueltype_str, #¨TODO: CLENA TO fueltype_str
                     technologies[technology_name].eff_achieved,
                     technologies[technology_name].diff_method,
                     technologies[technology_name].eff_by,
@@ -173,7 +173,7 @@ def create_tech_stock(
                     other_enduse_mode_info,
                     base_yr,
                     curr_yr,
-                    lu_fueltypes,
+                    fueltypes,
                     temp_by,
                     temp_cy,
                     t_base_heating_by,
@@ -221,7 +221,7 @@ class Technology(object):
             other_enduse_mode_info=None,
             base_yr=None,
             curr_yr=None,
-            lu_fueltypes=None,
+            fueltypes=None,
             temp_by=None,
             temp_cy=None,
             t_base_heating_by=None,
@@ -235,8 +235,8 @@ class Technology(object):
         else:
             self.tech_name = tech_name
             self.tech_type = tech_type
-            self.tech_fueltype = tech_fueltype
-            self.tech_fueltype_int = tech_related.get_fueltype_int(lu_fueltypes, self.tech_fueltype)
+            self.fueltype_str = tech_fueltype
+            self.fueltype_int = tech_related.get_fueltype_int(fueltypes, tech_fueltype)
             #self.market_entry = assumptions['technologies'][tech_name]['market_entry']
             self.tech_eff_achieved_f = tech_eff_achieved
             self.diff_method = tech_diff_method
