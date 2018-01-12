@@ -89,6 +89,9 @@ class EnergyDemandModel(object):
                 reg_ss_submodel,
                 reg_is_submodel]
 
+            import time
+            time.sleep(1)
+
         # ---------------------------------------------
         # Aggregate results for supply model and all
         # other necessary calculations and store as self.attributes

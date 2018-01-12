@@ -521,7 +521,7 @@ def calc_lf_improvement(
         param_name = 'demand_management_improvement__{}'.format(enduse)
 
         if lf_improvement_ey[param_name] == 0:
-            logging.debug("... load peak shifting improvement of 0")
+            #logging.debug("... no load peak shifting improvement.")
             return False, False
         else:
             # Calculate linear diffusion of improvement of load management
@@ -1537,8 +1537,7 @@ def calc_service_switch(
         sig_param_tech,
         curr_yr
     ):
-    """Apply change in service depending on
-    defined service switches.
+    """Apply change in service depending on defined service switches.
 
     Paramters
     ---------
@@ -1569,30 +1568,32 @@ def calc_service_switch(
     substracted of the replaced technologies proportionally
     to the base year distribution of these technologies
     """
-    tech_service_cy_p = {} # Result dict with cy service for every technology
+    # Result dict with cy service for every technology
+    tech_service_cy_p = {} 
 
     # ------------
-    # Update all technologies with constant service
+    # Update all technologies with CONSTANT service
     # ------------
     tech_service_cy_p.update(tech_constant_service)
 
     # ------------
-    # Calculate service for technologies with decreasing service
+    # Calculate service for technologies with DECREASED service
     # ------------
-    # Add base year of decreasing technologies to substract from that later on
+    # Add base year of decreasing technologies to allow later substraction
     for tech in tech_decrease_service:
         tech_service_cy_p[tech] = service_tech_by_p[tech]
 
-    # Calculate service share to assing for substracted fuel
+    # Calculate service share to asign for substracted fuel
     service_tech_decrease_by_rel = fuel_service_switch.get_service_rel_tech_decr_by(
         tech_decrease_service,
         service_tech_by_p)
 
     # ------------
-    # Calculate service for technology with increased service
+    # Calculate service for technology with INCREASED service
     # ------------
-    
-    # Calculated gained service and substract this proportionally along all decreasing technologies
+
+    # Calculated gained service and substract this
+    # proportionally along all decreasing technologies
     for tech_incr in tech_increase_service:
 
         # CAlculated increased service share per tech
@@ -1605,7 +1606,8 @@ def calc_service_switch(
         # Difference in service up to current year per technology
         diff_service_incr = service_tech_incr_cy_p - service_tech_by_p[tech_incr]
 
-        # Substract service gain proportionaly to all technologies which are lowered and substract from other technologies
+        # Substract service gain proportionaly to all technologies
+        # which are lowered and substract from other technologies
         for tech_decr, service_tech_decr_by in service_tech_decrease_by_rel.items():
             service_to_substract_p_cy = service_tech_decr_by * diff_service_incr
 

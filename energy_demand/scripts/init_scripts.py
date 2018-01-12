@@ -3,7 +3,9 @@ model installation and after each scenario definition
 """
 import os
 import logging
+from collections import defaultdict
 import numpy as np
+
 from energy_demand.read_write import data_loader
 from energy_demand.scripts import s_fuel_to_service
 from energy_demand.scripts import s_generate_sigmoid
@@ -28,7 +30,7 @@ def scenario_initalisation(path_data_ed, data=False):
     """
     logging.info("... start running sceario_initialisation scripts")
 
-    sgs_cont, fts_cont, sd_cont, switches_cont = {}, {}, {}, {}
+    sgs_cont, fts_cont, sd_cont, switches_cont = defaultdict(dict), {}, {}, {}
 
     logger_setup.set_up_logger(os.path.join(path_data_ed, "scenario_init.log"))
 
@@ -175,27 +177,6 @@ def scenario_initalisation(path_data_ed, data=False):
     # Calculate sigmoid diffusion parameters
     # (either for every region or aggregated for all regions)
     # -------------------------------
-    key_to_init = [
-        'rs_sig_param_tech',
-        'rs_tech_increased_service',
-        'rs_tech_decreased_service',
-        'rs_tech_constant_service',
-        'rs_service_switch',
-
-        'ss_sig_param_tech',
-        'ss_tech_increased_service',
-        'ss_tech_decreased_service',
-        'ss_tech_constant_service',
-        'ss_service_switch',
-
-        'is_sig_param_tech',
-        'is_tech_increased_service',
-        'is_tech_decreased_service',
-        'is_tech_constant_service',
-        'is_service_switch']
-
-    for key_name in key_to_init:
-        sgs_cont[key_name] = {}
 
     # -------------------------------
     # Spatially differentiated modelling
@@ -271,7 +252,7 @@ def scenario_initalisation(path_data_ed, data=False):
             regions=regions,
             regional_specific=regional_specific)
 
-    return fts_cont, sgs_cont, sd_cont, switches_cont
+    return dict(fts_cont), dict(sgs_cont), dict(sd_cont), switches_cont
 
 def sum_across_sectors_all_regs(fuel_disagg_reg):
     """Sum fuel across all sectors for every region
