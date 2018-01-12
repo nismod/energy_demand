@@ -128,7 +128,7 @@ def scenario_initalisation(path_data_ed, data=False):
         fts_cont['is_service_tech_by_p'])
 
     # ------------
-    # Capacity installations (assumed only national so far)
+    # Capacity installations (on a national scale)
     # ------------
     switches_cont['rs_service_switches'] = fuel_service_switch.capacity_installations(
         switches_cont['rs_service_switches'],
@@ -197,156 +197,79 @@ def scenario_initalisation(path_data_ed, data=False):
     for key_name in key_to_init:
         sgs_cont[key_name] = {}
 
+    # -------------------------------
+    # Spatially differentiated modelling
+    # -------------------------------
     if data['criterias']['spatial_exliclit_diffusion']:
 
-        # -------------------------------
-        # Spatially differentiated modelling
-        # -------------------------------
-        # Define technologies affected by regional diffusion TODO
-        techs_affected_spatial_f = ['heat_pumps_electricity'] #'boiler_hydrogen',
-
-        # Load diffusion values
-        spatial_diff_values = spatial_diffusion.load_spatial_diff_values(
+        rs_reg_share_service_tech_ey_p, ss_reg_share_service_tech_ey_p, is_reg_share_service_tech_ey_p, sgs_cont = spatial_diffusion.spatially_differentiated_modelling(
             data['lu_reg'],
-            data['enduses']['all_enduses'])
-
-        # Load diffusion factors
-        spatial_diffusion_factor = spatial_diffusion.calc_diff_factor(
-            data['lu_reg'],
-            spatial_diff_values,
-            [sd_cont['rs_fuel_disagg'], sd_cont['ss_fuel_disagg'], sd_cont['is_fuel_disagg']])
-
-        # Residential spatial explicit modelling
-        rs_reg_enduse_tech_p_ey = spatial_diffusion.calc_regional_services(
+            data['enduses']['all_enduses'],
+            sd_cont,
+            sgs_cont,
+            fts_cont,
+            sum_across_sectors_all_regs,
             rs_share_service_tech_ey_p,
-            data['lu_reg'],
-            spatial_diffusion_factor,
-            sd_cont['rs_fuel_disagg'],
-            techs_affected_spatial_f)
-
-        # Generate sigmoid curves (s_generate_sigmoid) for every region
-        ss_reg_enduse_tech_p_ey = spatial_diffusion.calc_regional_services(
             ss_share_service_tech_ey_p,
-            data['lu_reg'],
-            spatial_diffusion_factor,
-            sum_across_sectors_all_regs(sd_cont['ss_fuel_disagg']),
-            techs_affected_spatial_f)
+            is_share_service_tech_ey_p)
 
-        is_reg_enduse_tech_p_ey = spatial_diffusion.calc_regional_services(
-            is_share_service_tech_ey_p,
-            data['lu_reg'],
-            spatial_diffusion_factor,
-            sum_across_sectors_all_regs(sd_cont['is_fuel_disagg']),
-            techs_affected_spatial_f)
-
-        # -------------------------------
-        # Calculate regional service shares of technologies for every technology
-        # -------------------------------
-        for enduse in fts_cont['rs_service_tech_by_p']:
-            sgs_cont['rs_tech_increased_service'][enduse], sgs_cont['rs_tech_decreased_service'][enduse], sgs_cont['rs_tech_constant_service'][enduse], = s_generate_sigmoid.get_tech_future_service(
-                fts_cont['rs_service_tech_by_p'][enduse],
-                rs_reg_enduse_tech_p_ey[enduse],
-                data['lu_reg'], True)
-
-        for enduse in fts_cont['ss_service_tech_by_p']:
-            sgs_cont['ss_tech_increased_service'][enduse], sgs_cont['ss_tech_decreased_service'][enduse], sgs_cont['ss_tech_constant_service'][enduse], = s_generate_sigmoid.get_tech_future_service(
-                fts_cont['ss_service_tech_by_p'][enduse],
-                ss_reg_enduse_tech_p_ey[enduse],
-                data['lu_reg'],
-                True)
-
-        for enduse in fts_cont['is_service_tech_by_p']:
-            sgs_cont['is_tech_increased_service'][enduse], sgs_cont['is_tech_decreased_service'][enduse], sgs_cont['is_tech_constant_service'][enduse], = s_generate_sigmoid.get_tech_future_service(
-                fts_cont['is_service_tech_by_p'][enduse],
-                is_reg_enduse_tech_p_ey[enduse],
-                data['lu_reg'], True)
-
-        #----------------------------
-        # Calculate sigmoid diffusion
-        #----------------------------
-        for enduse in data['enduses']['rs_all_enduses']:
-
-            sgs_cont['rs_sig_param_tech'][enduse], sgs_cont['rs_tech_increased_service'][enduse], sgs_cont['rs_tech_decreased_service'][enduse], sgs_cont['rs_tech_constant_service'][enduse], sgs_cont['rs_service_switch'][enduse] = sig_param_calculation_including_fuel_switch(
-                data['sim_param']['base_yr'],
-                data['assumptions']['technologies'],
-                enduse=enduse,
-                fuel_switches=data['assumptions']['rs_fuel_switches'],
-                service_switches=switches_cont['rs_service_switches'],
-                service_tech_by_p=fts_cont['rs_service_tech_by_p'][enduse],
-                service_fueltype_by_p=fts_cont['rs_service_fueltype_by_p'][enduse],
-                share_service_tech_ey_p=rs_reg_enduse_tech_p_ey[enduse],
-                fuel_tech_p_by=data['assumptions']['rs_fuel_tech_p_by'][enduse],
-                regions=data['lu_reg'],
-                regional_specific=True)
-
-        for enduse in data['enduses']['ss_all_enduses']:
-            sgs_cont['ss_sig_param_tech'][enduse], sgs_cont['ss_tech_increased_service'][enduse], sgs_cont['ss_tech_decreased_service'][enduse], sgs_cont['ss_tech_constant_service'][enduse], sgs_cont['ss_service_switch'][enduse] = sig_param_calculation_including_fuel_switch(
-                data['sim_param']['base_yr'],
-                data['assumptions']['technologies'],
-                enduse=enduse,
-                fuel_switches=data['assumptions']['ss_fuel_switches'],
-                service_switches=switches_cont['ss_service_switches'],
-                service_tech_by_p=fts_cont['ss_service_tech_by_p'][enduse],
-                service_fueltype_by_p=fts_cont['ss_service_fueltype_by_p'][enduse],
-                share_service_tech_ey_p=ss_reg_enduse_tech_p_ey[enduse],
-                fuel_tech_p_by=data['assumptions']['ss_fuel_tech_p_by'][enduse],
-                regions=data['lu_reg'],
-                regional_specific=True)
-
-        for enduse in data['enduses']['is_all_enduses']:
-            sgs_cont['is_sig_param_tech'][enduse], sgs_cont['is_tech_increased_service'][enduse], sgs_cont['is_tech_decreased_service'][enduse], sgs_cont['is_tech_constant_service'][enduse], sgs_cont['is_service_switch'][enduse] = sig_param_calculation_including_fuel_switch(
-                data['sim_param']['base_yr'],
-                data['assumptions']['technologies'],
-                enduse=enduse,
-                fuel_switches=data['assumptions']['is_fuel_switches'],
-                service_switches=switches_cont['is_service_switches'],
-                service_tech_by_p=fts_cont['is_service_tech_by_p'][enduse],
-                service_fueltype_by_p=fts_cont['is_service_fueltype_by_p'][enduse],
-                share_service_tech_ey_p=is_reg_enduse_tech_p_ey[enduse],
-                fuel_tech_p_by=data['assumptions']['is_fuel_tech_p_by'][enduse],
-                regions=data['lu_reg'],
-                regional_specific=True)
+        regions = data['lu_reg']
+        regional_specific = True
+        rs_share_service_tech_ey_p = rs_reg_share_service_tech_ey_p
+        ss_share_service_tech_ey_p = ss_reg_share_service_tech_ey_p
+        is_share_service_tech_ey_p = is_reg_share_service_tech_ey_p
     else:
-        # -------------------------------
-        # Non spatiall differentiated modelling of
-        # technology diffusion (same diffusion pattern for
-        # the whole UK)
-        # -------------------------------
-        for enduse in data['enduses']['rs_all_enduses']:
-            sgs_cont['rs_sig_param_tech'][enduse], sgs_cont['rs_tech_increased_service'][enduse], sgs_cont['rs_tech_decreased_service'][enduse], sgs_cont['rs_tech_constant_service'][enduse], sgs_cont['rs_service_switch'][enduse] = sig_param_calculation_including_fuel_switch(
-                data['sim_param']['base_yr'],
-                data['assumptions']['technologies'],
-                enduse=enduse,
-                fuel_switches=data['assumptions']['rs_fuel_switches'],
-                service_switches=switches_cont['rs_service_switches'],
-                service_tech_by_p=fts_cont['rs_service_tech_by_p'][enduse],
-                service_fueltype_by_p=fts_cont['rs_service_fueltype_by_p'][enduse],
-                share_service_tech_ey_p=rs_share_service_tech_ey_p[enduse],
-                fuel_tech_p_by=data['assumptions']['rs_fuel_tech_p_by'][enduse])
+        regions = False
+        regional_specific = False
 
-        for enduse in data['enduses']['ss_all_enduses']:
-            sgs_cont['ss_sig_param_tech'][enduse], sgs_cont['ss_tech_increased_service'][enduse], sgs_cont['ss_tech_decreased_service'][enduse], sgs_cont['ss_tech_constant_service'][enduse], sgs_cont['ss_service_switch'][enduse] = sig_param_calculation_including_fuel_switch(
-                data['sim_param']['base_yr'],
-                data['assumptions']['technologies'],
-                enduse=enduse,
-                fuel_switches=data['assumptions']['ss_fuel_switches'],
-                service_switches=switches_cont['ss_service_switches'],
-                service_tech_by_p=fts_cont['ss_service_tech_by_p'][enduse],
-                service_fueltype_by_p=fts_cont['ss_service_fueltype_by_p'][enduse],
-                share_service_tech_ey_p=ss_share_service_tech_ey_p[enduse],
-                fuel_tech_p_by=data['assumptions']['ss_fuel_tech_p_by'][enduse])
+    # ---------------------------------------
+    # Calculate sigmoid diffusion
+    #
+    # Non spatiall differentiated modelling of
+    # technology diffusion (same diffusion pattern for
+    # the whole UK) or spatiall differentiated (every region)
+    # ---------------------------------------
+    for enduse in data['enduses']['rs_all_enduses']:
+        sgs_cont['rs_sig_param_tech'][enduse], sgs_cont['rs_tech_increased_service'][enduse], sgs_cont['rs_tech_decreased_service'][enduse], sgs_cont['rs_tech_constant_service'][enduse], sgs_cont['rs_service_switch'][enduse] = sig_param_calculation_including_fuel_switch(
+            data['sim_param']['base_yr'],
+            data['assumptions']['technologies'],
+            enduse=enduse,
+            fuel_switches=data['assumptions']['rs_fuel_switches'],
+            service_switches=switches_cont['rs_service_switches'],
+            service_tech_by_p=fts_cont['rs_service_tech_by_p'][enduse],
+            service_fueltype_by_p=fts_cont['rs_service_fueltype_by_p'][enduse],
+            share_service_tech_ey_p=rs_share_service_tech_ey_p[enduse],
+            fuel_tech_p_by=data['assumptions']['rs_fuel_tech_p_by'][enduse],
+            regions=regions,
+            regional_specific=regional_specific)
 
-        for enduse in data['enduses']['is_all_enduses']:
-            sgs_cont['is_sig_param_tech'][enduse], sgs_cont['is_tech_increased_service'][enduse], sgs_cont['is_tech_decreased_service'][enduse], sgs_cont['is_tech_constant_service'][enduse], sgs_cont['is_service_switch'][enduse] = sig_param_calculation_including_fuel_switch(
-                data['sim_param']['base_yr'],
-                data['assumptions']['technologies'],
-                enduse=enduse,
-                fuel_switches=data['assumptions']['is_fuel_switches'],
-                service_switches=switches_cont['is_service_switches'],
-                service_tech_by_p=fts_cont['is_service_tech_by_p'][enduse],
-                service_fueltype_by_p=fts_cont['is_service_fueltype_by_p'][enduse],
-                share_service_tech_ey_p=is_share_service_tech_ey_p[enduse],
-                fuel_tech_p_by=data['assumptions']['is_fuel_tech_p_by'][enduse])
+    for enduse in data['enduses']['ss_all_enduses']:
+        sgs_cont['ss_sig_param_tech'][enduse], sgs_cont['ss_tech_increased_service'][enduse], sgs_cont['ss_tech_decreased_service'][enduse], sgs_cont['ss_tech_constant_service'][enduse], sgs_cont['ss_service_switch'][enduse] = sig_param_calculation_including_fuel_switch(
+            data['sim_param']['base_yr'],
+            data['assumptions']['technologies'],
+            enduse=enduse,
+            fuel_switches=data['assumptions']['ss_fuel_switches'],
+            service_switches=switches_cont['ss_service_switches'],
+            service_tech_by_p=fts_cont['ss_service_tech_by_p'][enduse],
+            service_fueltype_by_p=fts_cont['ss_service_fueltype_by_p'][enduse],
+            share_service_tech_ey_p=ss_share_service_tech_ey_p[enduse],
+            fuel_tech_p_by=data['assumptions']['ss_fuel_tech_p_by'][enduse],
+            regions=regions,
+            regional_specific=regional_specific)
+
+    for enduse in data['enduses']['is_all_enduses']:
+        sgs_cont['is_sig_param_tech'][enduse], sgs_cont['is_tech_increased_service'][enduse], sgs_cont['is_tech_decreased_service'][enduse], sgs_cont['is_tech_constant_service'][enduse], sgs_cont['is_service_switch'][enduse] = sig_param_calculation_including_fuel_switch(
+            data['sim_param']['base_yr'],
+            data['assumptions']['technologies'],
+            enduse=enduse,
+            fuel_switches=data['assumptions']['is_fuel_switches'],
+            service_switches=switches_cont['is_service_switches'],
+            service_tech_by_p=fts_cont['is_service_tech_by_p'][enduse],
+            service_fueltype_by_p=fts_cont['is_service_fueltype_by_p'][enduse],
+            share_service_tech_ey_p=is_share_service_tech_ey_p[enduse],
+            fuel_tech_p_by=data['assumptions']['is_fuel_tech_p_by'][enduse],
+            regions=regions,
+            regional_specific=regional_specific)
 
     return fts_cont, sgs_cont, sd_cont, switches_cont
 

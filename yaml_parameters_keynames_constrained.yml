@@ -178,10 +178,6 @@
   spatial_resolution: lad_uk_2016
   temporal_resolution: hourly
   units: GWh
-- name: residential_heat_non_heating
-  spatial_resolution: lad_uk_2016
-  temporal_resolution: hourly
-  units: GWh
 - name: service_solid_fuel_non_heating
   spatial_resolution: lad_uk_2016
   temporal_resolution: hourly
@@ -206,10 +202,6 @@
   spatial_resolution: lad_uk_2016
   temporal_resolution: hourly
   units: GWh
-- name: service_heat_non_heating
-  spatial_resolution: lad_uk_2016
-  temporal_resolution: hourly
-  units: GWh
 - name: industry_solid_fuel_non_heating
   spatial_resolution: lad_uk_2016
   temporal_resolution: hourly
@@ -231,10 +223,6 @@
   temporal_resolution: hourly
   units: GWh
 - name: industry_hydrogen_non_heating
-  spatial_resolution: lad_uk_2016
-  temporal_resolution: hourly
-  units: GWh
-- name: industry_heat_non_heating
   spatial_resolution: lad_uk_2016
   temporal_resolution: hourly
   units: GWh

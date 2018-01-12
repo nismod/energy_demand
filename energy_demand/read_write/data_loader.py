@@ -572,9 +572,9 @@ def load_fuels(paths, lookups):
         paths['is_fuel_raw_data_enduses'], lookups['fueltypes_nr'], lookups['fueltypes'])
 
     # Iterate enduses per sudModel and flatten list
-    all_enduses = []
+    enduses['all_enduses'] = []
     for enduse in enduses.values():
-        all_enduses += enduse
+        enduses['all_enduses'] += enduse
 
     # Convert units
     fuels['rs_fuel_raw_data_enduses'] = conversions.convert_fueltypes_ktoe_GWh(rs_fuel_raw_data_enduses)
