@@ -802,14 +802,14 @@ def plt_fuels_enduses_week(
     plt.savefig(fig_name)
     plt.close()
 
-def plt_fuels_enduses_y(results_resid, lookups, fig_name):
+def plt_fuels_enduses_y(results, lookups, fig_name):
     """Plot lines with total energy demand for all enduses
     per fueltype over the simluation period. Annual GWh
     are converted into GW.
 
     Arguments
     ---------
-    results_resid : dict
+    results : dict
         Results for every year and fueltype (yh)
     lookups : dict
         Lookup fueltypes
@@ -830,7 +830,7 @@ def plt_fuels_enduses_y(results_resid, lookups, fig_name):
 
         # Read out fueltype specific max h load
         data_years = {}
-        for year, data_year in results_resid.items():
+        for year, data_year in results.items():
             tot_gwh_fueltype_y = np.sum(data_year[fueltype_int])
 
             #Conversion: Convert gwh per years to gw
@@ -846,8 +846,9 @@ def plt_fuels_enduses_y(results_resid, lookups, fig_name):
     # Axis
     # -----------------
     base_yr, year_interval = 2015, 5
-    end_yr = list(results_resid.keys())
-
+    end_yr = list(results.keys())
+    print("...flush=False")
+    print(results)
     major_ticks = np.arange(
         base_yr, end_yr[-1] + year_interval, year_interval)
 

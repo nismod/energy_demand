@@ -137,7 +137,7 @@ if __name__ == "__main__":
     logger_setup.set_up_logger(os.path.join(local_data_path, "logging_local_run.log"))
 
     # Run settings
-    instrument_profiler = True
+    instrument_profiler = False
 
     # Load data
     data = {}
@@ -145,7 +145,8 @@ if __name__ == "__main__":
     data['criterias']['mode_constrained'] = True #constrained_by_technologies
     data['criterias']['plot_HDD_chart'] = False
     data['criterias']['virtual_building_stock_criteria'] = True
-    data['criterias']['spatial_exliclit_diffusion'] = True
+    data['criterias']['spatial_exliclit_diffusion'] = False
+    data['criterias']['write_to_txt'] = True
 
     data['paths'] = data_loader.load_paths(path_main)
     data['local_paths'] = data_loader.load_local_paths(local_data_path)

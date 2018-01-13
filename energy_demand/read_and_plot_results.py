@@ -55,12 +55,13 @@ def main(path_data_energy_demand):
     # Reading in results from different model runs
     # --------------------------------------------
     print("... start reading in model txt results")
-    #O read in and plot in same step if memory is a problem
+    #Read in and plot in same step if memory is a problem
     results_container = read_data.read_in_results(
         data['local_paths']['data_results_model_runs'],
         data['lookups'],
         data['assumptions']['seasons'],
-        data['assumptions']['model_yeardays_daytype'])
+        data['assumptions']['model_yeardays_daytype'],
+        data['lu_reg'])
 
     # ----------------
     # Write results to CSV files and merge with shapefile
@@ -87,6 +88,7 @@ def main(path_data_energy_demand):
         data['enduses'])
 
     logging.info("... finished reading and plotting results")
+    print("... finished reading and plotting results")
 
 main("C://Users//cenv0553//nismod//data_energy_demand")
 #main("C://DATA_NISMODII//data_energy_demand")

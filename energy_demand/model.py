@@ -91,8 +91,12 @@ class EnergyDemandModel(object):
                 "... Simulate region %s for year %s", region, self.curr_yr)
 
             # Simulate
+            from pyinstrument import Profiler
+            profiler = Profiler(use_signal=False)
+            profiler.start()
             reg_rs_submodel, reg_ss_submodel, reg_is_submodel = simulate_region(
                 region, data, weather_regions)
+
 
             # Store submodel results
             all_submodels = [reg_rs_submodel, reg_ss_submodel, reg_is_submodel]
@@ -114,6 +118,10 @@ class EnergyDemandModel(object):
                 data['assumptions']['seasons'],
                 data['assumptions']['heating_technologies'],
                 data['assumptions']['enduse_space_heating'])
+
+            #profiler.stop()
+            #print(profiler.output_text(unicode=True, color=True))
+            #prnt(".")
 
         # -------
     	# Set all keys of aggr_results as self.attributes (EnergyDemandModel)
@@ -974,6 +982,7 @@ def aggregate_final_results(
             for fueltype_nr in fueltypes.values():
                 aggr_results['ed_fueltype_submodel_regs_yh'][fueltype_nr][submodel_nr] += submodel_ed_fueltype_regs_yh[fueltype_nr]
 
+    #'''
     # -----------
     # Other summing for other purposes
     #
@@ -1055,7 +1064,7 @@ def aggregate_final_results(
 
         for season, lf_season in load_factor_seasons.items():
             aggr_results['reg_load_factor_seasons'][season][fueltype_nr][reg_array_nr] = lf_season[fueltype_nr]
-
+    #'''
     return aggr_results
 
 def initialise_result_container(

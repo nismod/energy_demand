@@ -149,9 +149,8 @@ class ServiceSwitch(object):
         self.service_share_ey = service_share_ey
         self.switch_yr = switch_yr
 
-def read_in_results(path_runs, lookups, seasons, model_yeardays_daytype):
-    """Read and post calculate
-    results from txt files
+def read_in_results(path_runs, lookups, seasons, model_yeardays_daytype, lu_reg):
+    """Read and post calculate results from txt files
     and store into container
     """
     logging.info("... Reading in results")
@@ -163,11 +162,11 @@ def read_in_results(path_runs, lookups, seasons, model_yeardays_daytype):
     # -------------
     logging.info("... Reading in fuels")
 
-    results_container['results_every_year'] = read_results_yh(
-        lookups['fueltypes_nr'], path_runs)
-
     results_container['results_enduse_every_year'] = read_enduse_specific_results_txt(
         lookups['fueltypes_nr'], path_runs)
+
+    results_container['results_every_year'] = read_results_yh(
+        lookups['fueltypes_nr'], len(lu_reg), path_runs)
 
     results_container['tot_peak_enduses_fueltype'] = read_max_results(
         os.path.join(path_runs, "result_tot_peak_enduses_fueltype"))
@@ -202,7 +201,9 @@ def read_in_results(path_runs, lookups, seasons, model_yeardays_daytype):
         av_season_daytype_cy[year] = {}
         season_daytype_cy[year] = {}
 
-        for fueltype, reg_fuels in fueltypes_data.items():
+        #for fueltype in lookups['fueltypes'].values():
+        #for fueltype, reg_fuels in fueltypes_data.items():
+        for fueltype, reg_fuels in enumerate(fueltypes_data):#.items():
 
             # Summarise across regions
             tot_all_reg_fueltype = np.sum(reg_fuels, axis=0)
@@ -223,7 +224,7 @@ def read_in_results(path_runs, lookups, seasons, model_yeardays_daytype):
     logging.info("... Reading in results finished")
     return results_container
 
-def read_results_yh(fueltypes_nr, path_to_folder):
+def read_results_yh(fueltypes_nr, nr_of_reg, path_to_folder):
     """Read results
 
     Arguments
@@ -238,14 +239,17 @@ def read_results_yh(fueltypes_nr, path_to_folder):
     results = dict
         Results
     """
-    results = defaultdict(dict)
+    results = {} #defaultdict(dict)
+
+    path_to_folder = os.path.join(path_to_folder, 'result_tot_yh')
+    #results = defaultdict(dict)
 
     all_txt_files_in_folder = os.listdir(path_to_folder)
 
     # ------------------
     # Get number of regions (search largest fueltype_array_position)
     # ------------------
-    reg_nrs = 0
+    '''reg_nrs = 0
     for file_path in all_txt_files_in_folder:
         path_file_to_read = os.path.join(path_to_folder, file_path)
         file_path_split = file_path.split("__")
@@ -255,8 +259,10 @@ def read_results_yh(fueltypes_nr, path_to_folder):
             if fueltype_array_position > reg_nrs:
                 reg_nrs = fueltype_array_position
         except IndexError:
-            pass #path is a folder and not a file
-
+            pass #path is a folder and not a file'''
+    reg_nrs = nr_of_reg
+    #print(reg_nrs)
+    #prnt(":")
     # Iterate files in folder
     for file_path in all_txt_files_in_folder:
         logging.info("... file_path: " + str(file_path))

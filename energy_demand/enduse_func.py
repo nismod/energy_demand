@@ -460,7 +460,7 @@ def demand_management(
         strategy_variables['demand_management_yr_until_changed'])
 
     if peak_shift_crit:
-
+        print("YEAS PEAK SHIFT CRIT:")
         fuel_yh = lf.peak_shaving_max_min(
             lf_improved_cy, average_fuel_yd, fuel_yh)
 
@@ -475,7 +475,7 @@ def demand_management(
             fueltypes_nr,
             fueltypes,
             mode_constrained)
-    else: # not peak shifting
+    else: # no peak shifting
         pass
 
     # Get maximum hour demand of peak day

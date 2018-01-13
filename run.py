@@ -27,7 +27,7 @@ from energy_demand.technologies import fuel_service_switch
 
 # must match smif project name for Local Authority Districts
 REGION_SET_NAME = 'lad_uk_2016'
-NR_OF_MODELLEd_REGIONS = 391 # uk: 391, england.: 380
+NR_OF_MODELLEd_REGIONS = 2 #391 # uk: 391, england.: 380
 PROFILER = False
 
 class EDWrapper(SectorModel):
@@ -360,6 +360,9 @@ class EDWrapper(SectorModel):
             #tot_fuel_y_max_enduses = sim_obj.tot_fuel_y_max_enduses
             logging.info("... Start writing results to file")
             path_run = data['local_paths']['data_results_model_runs']
+            #supply_results_unprocessed = model_run_object.ed_fueltype_regs_yh
+            #write_data.write_supply_results(timestep, path_runs, supply_results_unprocessed, "supply_results_unprocessed")
+            write_data.write_supply_results(timestep, "result_tot_yh", path_run, sim_obj.ed_fueltype_regs_yh, "result_tot_submodels_fueltypes")
 
             write_data.write_enduse_specific(timestep, path_run, sim_obj.tot_fuel_y_enduse_specific_h, "out_enduse_specific")
             write_data.write_max_results(timestep, path_run, "result_tot_peak_enduses_fueltype", sim_obj.tot_peak_enduses_fueltype, "tot_peak_enduses_fueltype")
