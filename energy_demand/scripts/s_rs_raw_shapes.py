@@ -213,7 +213,7 @@ def read_hes_data(paths_hes, nr_app_type_lu):
 
     return hes_data, hes_y_coldest, hes_y_warmest
 
-def run(data):
+def run(paths, local_paths, base_yr):
     """Function to run script
     """
     print("... start script %s", os.path.basename(__file__))
@@ -234,17 +234,17 @@ def run(data):
     # HES data -- Generate generic load profiles
     # for all electricity appliances from HES data
     hes_data, hes_y_peak, _ = read_hes_data(
-        data['local_paths']['path_bd_e_load_profiles'],
+        local_paths['path_bd_e_load_profiles'],
         len(hes_appliances_matching))
 
     # Assign read in raw data to the base year
     year_raw_hes_values = assign_hes_data_to_year(
         len(hes_appliances_matching),
         hes_data,
-        int(data['sim_param']['base_yr']))
+        int(base_yr))
 
     _, rs_enduses = read_data.read_base_data_resid(
-        data['paths']['rs_fuel_raw_data_enduses'])
+        paths['rs_fuel_raw_data_enduses'])
 
     # Load shape for all enduses
     for enduse in rs_enduses:
@@ -261,7 +261,7 @@ def run(data):
             # Write txt files
             s_shared_functions.create_txt_shapes(
                 enduse,
-                data['local_paths']['rs_load_profiles'],
+                local_paths['rs_load_profiles'],
                 shape_peak_dh,
                 shape_non_peak_y_dh,
                 shape_peak_yd_factor,

@@ -269,13 +269,13 @@ def assign_data_to_year(carbon_trust_data, base_yr):
 
     return shape_non_peak_y_dh
 
-def run(data):
+def run(paths, local_paths, lookups):
     """Function to run script
     """
     print("... start script %s", os.path.basename(__file__))
     _, ss_sectors, ss_enduses = read_data.read_csv_data_service(
-        data['paths']['ss_fuel_raw_data_enduses'],
-        data['lookups']['fueltypes_nr'])
+        paths['ss_fuel_raw_data_enduses'],
+        lookups['fueltypes_nr'])
 
     # Iterate sectors and read in shape
     for sector in ss_sectors:
@@ -283,31 +283,31 @@ def run(data):
         # Match electricity shapes for every sector
         if sector == 'community_arts_leisure':
             sector_folder_path_elec = os.path.join(
-                data['local_paths']['folder_raw_carbon_trust'], "Community")
+                local_paths['folder_raw_carbon_trust'], "Community")
         elif sector == 'education':
             sector_folder_path_elec = os.path.join(
-                data['local_paths']['folder_raw_carbon_trust'], "Education")
+                local_paths['folder_raw_carbon_trust'], "Education")
         elif sector == 'emergency_services':
             sector_folder_path_elec = os.path.join(
-                data['local_paths']['folder_raw_carbon_trust'], "_all_elec")
+                local_paths['folder_raw_carbon_trust'], "_all_elec")
         elif sector == 'health':
             sector_folder_path_elec = os.path.join(
-                data['local_paths']['folder_raw_carbon_trust'], "Health")
+                local_paths['folder_raw_carbon_trust'], "Health")
         elif sector == 'hospitality':
             sector_folder_path_elec = os.path.join(
-                data['local_paths']['folder_raw_carbon_trust'], "_all_elec")
+                local_paths['folder_raw_carbon_trust'], "_all_elec")
         elif sector == 'military':
             sector_folder_path_elec = os.path.join(
-                data['local_paths']['folder_raw_carbon_trust'], "_all_elec")
+                local_paths['folder_raw_carbon_trust'], "_all_elec")
         elif sector == 'offices':
             sector_folder_path_elec = os.path.join(
-                data['local_paths']['folder_raw_carbon_trust'], "Offices")
+                local_paths['folder_raw_carbon_trust'], "Offices")
         elif sector == 'retail':
             sector_folder_path_elec = os.path.join(
-                data['local_paths']['folder_raw_carbon_trust'], "Retail")
+                local_paths['folder_raw_carbon_trust'], "Retail")
         elif sector == 'storage':
             sector_folder_path_elec = os.path.join(
-                data['local_paths']['folder_raw_carbon_trust'], "_all_elec")
+                local_paths['folder_raw_carbon_trust'], "_all_elec")
         else:
             sys.exit("Error: The sector {} could not be assigned".format(sector))
 
@@ -320,12 +320,12 @@ def run(data):
             # Select shape depending on enduse
             if enduse in ['ss_water_heating', 'ss_space_heating', 'ss_other_gas']:
                 folder_path = os.path.join(
-                    data['local_paths']['folder_raw_carbon_trust'],
+                    local_paths['folder_raw_carbon_trust'],
                     "_all_gas")
             else:
                 if enduse == 'ss_other_electricity' or enduse == 'ss_cooling_and_ventilation':
                     folder_path = os.path.join(
-                        data['local_paths']['folder_raw_carbon_trust'],
+                        local_paths['folder_raw_carbon_trust'],
                         "_all_elec")
                 else:
                     folder_path = sector_folder_path_elec
@@ -339,7 +339,7 @@ def run(data):
 
             s_shared_functions.create_txt_shapes(
                 joint_string_name,
-                data['local_paths']['ss_load_profiles'],
+                local_paths['ss_load_profiles'],
                 load_peak_shape_dh,
                 shape_non_peak_y_dh,
                 shape_peak_yd_factor,

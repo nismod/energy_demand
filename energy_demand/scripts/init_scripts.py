@@ -32,7 +32,7 @@ def scenario_initalisation(path_data_ed, data=False):
 
     init_cont = defaultdict(dict)
     fuel_disagg = {}
-    print(path_data_ed)
+
     logger_setup.set_up_logger(os.path.join(path_data_ed, "scenario_init.log"))
 
     # --------------------------------------------
