@@ -732,7 +732,7 @@ def get_peak_day(fuel_yh):
 
     if np.sum(all_fueltypes_tot_h) == 0:
         logging.critical("No peak can be found because no fuel assigned")
-        sys.exit("ERROR")
+        sys.exit("ERROR bla")
     else:
         # Sum fuel within every hour for every day and get day with maximum fuel
         peak_day_nr = np.argmax(np.sum(all_fueltypes_tot_h, axis=1))

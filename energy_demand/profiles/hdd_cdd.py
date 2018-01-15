@@ -30,24 +30,23 @@ def calc_hdd(t_base, temp_yh, nr_day_to_av):
     # ---------------------------------------------
     temp_yh = averaged_temp(temp_yh, nr_day_to_av=nr_day_to_av)
 
+    # ------------------------------
+    # Calculate heating degree days
+    # ------------------------------
     temp_diff = (t_base - temp_yh) / 24
     temp_diff[temp_diff < 0] = 0
     hdd_d = np.sum(temp_diff, axis=1)
 
-    # -----------------------------------------
-    # Average hdd with previous day(s) information
-    # -----------------------------------------
-    #hdd_d = averaged_hdd(hdd_d, nr_day_to_av=2)
-
     return hdd_d
 
 def averaged_temp(temp_yh, nr_day_to_av):
-    """Average temperatures with previous day. Todays temperatures (starting
-    from 2. of January) are averaged with yesterdays temperatures. This is done
-    to follow the methodology of National Grid (2012): Gas demand forecasting
-    methdolology.
+    """Calculate effective temperatures.
 
-    The effective temperature is half of yesterday’s temperature added to half of
+    Todays temperatures (starting from 2. of January) are averaged with
+    yesterdays temperatures. This is done to follow the methodology of
+    National Grid (2012): Gas demand forecasting methdolology.
+
+    The effective temperature is half of yesterday’s effective temperature added to half of
     today’s actual temperature. Effective temperature takes into account the previous
     day’s temperature due to consumer behaviour and perception of the weather.
 
@@ -71,78 +70,25 @@ def averaged_temp(temp_yh, nr_day_to_av):
         nr_day_to_av = 2: 0.865 ()
         nr_day_to_av = 3: 0.878
     """
-    modelled_days = range(365)
     effective_temp_yh = np.zeros((365, 24))
 
+    # Add temp of first days (border for calculation)
     for day in range(nr_day_to_av):
         effective_temp_yh[day] = temp_yh[day]
 
-    for day in modelled_days[nr_day_to_av:]: #Skip first dates in January
+    # Iterate days in a year
+    for day in range(365)[nr_day_to_av:]: #Skip first dates in January
 
         # Add todays temperature and previous effective temps
-        tot_temp = 0
-        tot_temp += temp_yh[day]
+        tot_temp = temp_yh[day]
+
+        # Add effective temperature of previous day(s)
         for i in range(nr_day_to_av):
-            #tot_temp += temp_yh[day - (i+1)]
-            tot_temp += effective_temp_yh[day - (i+1)]
+            tot_temp = tot_temp + effective_temp_yh[day - (i+1)] #not +=
 
         effective_temp_yh[day] = tot_temp / (nr_day_to_av + 1)
 
     return effective_temp_yh
-
-def averaged_hdd(hdd_d, nr_day_to_av):
-    """Average calculated HDD per day with previous HDD per day
-
-    Arguments
-    ---------
-    hdd_d : array
-        heating degree days for every day
-    nr_day_to_av : int
-        Number of previous days to average
-
-    Returns
-    -------
-    effective_hdd_d : array
-        Averaged hdd with hdd of previous day(s)
-
-    Notes
-    ------
-    Correlation results (r_value) for base year with different nr_day_to_av.
-
-        nr_day_to_av = 0: 0.807
-        nr_day_to_av = 1: 0.836  (not affective 0.819)
-        nr_day_to_av = 2: 0.860 (not affective 0.830)
-        nr_day_to_av = 3: (not affective 0.839)
-        nr_day_to_av = 4: (not affective 0.845)
-        nr_day_to_av = 5: (not affective 0.849)
-        nr_day_to_av = 6: (not affective 0.854)
-
-        10: 0.859
-        20: 0.86 --> splitting of lines?
-    """
-    if nr_day_to_av == 0:
-        effective_hdd_d = hdd_d
-        return effective_hdd_d
-    else:
-        to_iterate = range(nr_day_to_av)
-
-        effective_hdd_d = np.zeros((hdd_d.shape[0]))
-
-        # Copy initial days
-        for day in to_iterate:
-            effective_hdd_d[day] = hdd_d[day]
-
-        for day, hdd_today in enumerate(hdd_d[nr_day_to_av:], nr_day_to_av): #Skip first dates in year for average
-
-            # Todays HDD plus effective HDD from past
-            tot_hdd = 0
-            tot_hdd += hdd_today
-
-            for i in to_iterate:
-                tot_hdd += effective_hdd_d[day - (i + 1)]
-            effective_hdd_d[day] = tot_hdd / (nr_day_to_av + 1)
-
-        return effective_hdd_d
 
 def calc_cdd(rs_t_base_cooling, temperatures):
     """Calculate cooling degree days

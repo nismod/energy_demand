@@ -3,6 +3,26 @@
 from energy_demand.profiles import hdd_cdd
 import numpy as np
 
+def test_averaged_temp():
+    """Testing
+    """
+    temp_yh = np.zeros((365, 24))
+
+    for day in range(365):
+        for hour in range(24):
+            temp_yh[day][hour] = np.random.randint(-4, 30)
+
+    result = hdd_cdd.averaged_temp(temp_yh, nr_day_to_av=1)
+
+    expected = (temp_yh[0] + temp_yh[1]) / 2
+
+    expected2 = (expected + temp_yh[2]) / 2
+
+    # positive values
+    np.testing.assert_array_equal(result[1], expected)
+
+    np.testing.assert_array_equal(result[2], expected2)
+test_averaged_temp()
 def test_calc_hdd():
     """testing
     """

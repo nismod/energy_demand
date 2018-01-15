@@ -138,7 +138,7 @@ if __name__ == "__main__":
     logger_setup.set_up_logger(os.path.join(local_data_path, "logging_local_run.log"))
 
     # Run settings
-    instrument_profiler = False
+    instrument_profiler = True
 
     # Load data
     data = {}
@@ -302,7 +302,8 @@ if __name__ == "__main__":
         path_runs = data['local_paths']['data_results_model_runs']
 
         # Write unconstrained results
-        write_data.write_supply_results(['rs_submodel', 'ss_submodel', 'is_submodel'], sim_yr, path_runs, supply_results_unconstrained, "supply_results")
+        write_data.write_supply_results(
+            ['rs_submodel', 'ss_submodel', 'is_submodel'], sim_yr, path_runs, supply_results_unconstrained, "supply_results")
 
         write_data.write_enduse_specific(
             sim_yr, path_runs, out_enduse_specific, "out_enduse_specific")

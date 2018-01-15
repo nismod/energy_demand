@@ -27,7 +27,7 @@ from energy_demand.technologies import fuel_service_switch
 
 # must match smif project name for Local Authority Districts
 REGION_SET_NAME = 'lad_uk_2016'
-NR_OF_MODELLEd_REGIONS = 2 #391 # uk: 391, england.: 380
+NR_OF_MODELLEd_REGIONS = 391 # uk: 391, england.: 380
 PROFILER = False
 
 class EDWrapper(SectorModel):
@@ -54,7 +54,7 @@ class EDWrapper(SectorModel):
         data['criterias']['mode_constrained'] = True                    # True: Technologies are defined in ED model and fuel is provided, False: Heat is delievered not per technologies
         data['criterias']['virtual_building_stock_criteria'] = True     # True: Run virtual building stock model
         data['criterias']['plot_HDD_chart'] = False                     # True: Plotting of HDD vs gas chart
-        data['criterias']['validation_criteria'] = False                # True: Plot validation plots
+        data['criterias']['validation_criteria'] = True                 # True: Plot validation plots
         data['criterias']['spatial_exliclit_diffusion'] = False         # True: Spatial explicit calculations
         data['criterias']['writeYAML'] = False
         data['criterias']['write_to_txt'] = True
@@ -479,7 +479,8 @@ class EDWrapper(SectorModel):
         return dict(output_dict)
 
     def load_smif_parameters(self, data, assumptions):
-        """Get all model parameters from smif and replace in data dict
+        """Get all model parameters from smif (`data`) depending
+        on narrative and replace in assumption dict
 
         Arguments
         ---------
@@ -502,6 +503,7 @@ class EDWrapper(SectorModel):
         for var_name in all_strategy_variables:
             logging.info("Load strategy parameter: {}  {}".format(var_name, data[var_name]))
 
+            # Get narrative variable from input data dict
             strategy_variables[var_name] = data[var_name]
             del data[var_name]
 
