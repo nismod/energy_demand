@@ -9,6 +9,7 @@ from collections import defaultdict
 from smif.model.sector_model import SectorModel
 from pkg_resources import Requirement, resource_filename
 from pyproj import Proj, transform
+from pyinstrument import Profiler
 
 from energy_demand.scripts.init_scripts import scenario_initalisation
 from energy_demand.technologies import tech_related
@@ -58,6 +59,7 @@ class EDWrapper(SectorModel):
         data['criterias']['spatial_exliclit_diffusion'] = False         # True: Spatial explicit calculations
         data['criterias']['writeYAML'] = False
         data['criterias']['write_to_txt'] = True
+        data['criterias']['beyond_supply_outputs'] = True
 
         data['sim_param']['base_yr'] = 2015                             # Base year
         data['sim_param']['curr_yr'] = data['sim_param']['base_yr']
@@ -330,8 +332,8 @@ class EDWrapper(SectorModel):
 
         if PROFILER:
             profiler.stop()
-            logging.debug("Profiler Results")
-            print(profiler.output_text(unicode=True, color=True))
+            logging.info("Profiler Results")
+            logging.info(profiler.output_text(unicode=True, color=True))
 
         # ------------------------------------------------
         # Validation base year: Hourly temporal validation

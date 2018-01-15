@@ -16,6 +16,7 @@ from energy_demand.geography.weather_station_location import get_closest_station
 from energy_demand.basic import testing_functions as testing
 from energy_demand.profiles import load_profile, load_factors
 from energy_demand.charts import figure_HHD_gas_demand
+from pyinstrument import Profiler
 
 class EnergyDemandModel(object):
     """Energy Model of a simulation yearly run.
@@ -91,9 +92,9 @@ class EnergyDemandModel(object):
                 "... Simulate region %s for year %s", region, self.curr_yr)
 
             # Simulate
-            from pyinstrument import Profiler
             profiler = Profiler(use_signal=False)
             profiler.start()
+
             reg_rs_submodel, reg_ss_submodel, reg_is_submodel = simulate_region(
                 region, data, weather_regions)
 
@@ -117,7 +118,8 @@ class EnergyDemandModel(object):
                 data['assumptions']['model_yeardays_nrs'],
                 data['assumptions']['seasons'],
                 data['assumptions']['heating_technologies'],
-                data['assumptions']['enduse_space_heating'])
+                data['assumptions']['enduse_space_heating'],
+                data['criterias']['beyond_supply_outputs']) #TRUE IF ALSO OTHER AGGREGATION
 
             #profiler.stop()
             #print(profiler.output_text(unicode=True, color=True))
@@ -158,7 +160,7 @@ def simulate_region(region, data, weather_regions):
     XX_submodels : obj
         SubModel result object
     """
-    logging.debug("Running for region %s", region)
+    logging.debug("... Running for region %s", region)
 
     # Get closest weather station to `Region`
     closest_weather_reg = get_closest_station(
@@ -887,7 +889,8 @@ def aggregate_final_results(
         model_yeardays_nrs,
         seasons,
         heating_technologies,
-        enduse_space_heating
+        enduse_space_heating,
+        beyond_supply_outputs=True
     ):
     """Aggregate results
 
@@ -899,6 +902,10 @@ def aggregate_final_results(
         All modelled regions
     all_submodels_regions : dict (key: region)
         Result objects of submodels for all regions
+        $
+
+    beyond_supply_outputs : bool    
+        If only necessary conversion for running with supply model == True
 
     Returns
     --------
@@ -987,84 +994,86 @@ def aggregate_final_results(
     # Other summing for other purposes
     #
     # -----------
-    # Sum across all regions, all enduse and sectors sum_reg
-    # [fueltype, region, fuel_yh], [fueltype, fuel_yh]
-    aggr_results['ed_fueltype_regs_yh'], fuel_region_yh = fuel_regions_fueltype(
-        aggr_results['ed_fueltype_regs_yh'],
-        fueltypes_nr,
-        fueltypes,
-        region,
-        reg_array_nr,
-        model_yearhours_nrs,
-        model_yeardays_nrs,
-        all_submodels)
+    if beyond_supply_outputs:
 
-    # Sum across all regions, all enduse and sectors
-    aggr_results['ed_fueltype_national_yh'] = fuel_aggr(
-        aggr_results['ed_fueltype_national_yh'],
-        'fuel_yh',
-        all_submodels,
-        'no_sum',
-        model_yearhours_nrs,
-        model_yeardays_nrs)
+        # Sum across all regions, all enduse and sectors sum_reg
+        # [fueltype, region, fuel_yh], [fueltype, fuel_yh]
+        aggr_results['ed_fueltype_regs_yh'], fuel_region_yh = fuel_regions_fueltype(
+            aggr_results['ed_fueltype_regs_yh'],
+            fueltypes_nr,
+            fueltypes,
+            region,
+            reg_array_nr,
+            model_yearhours_nrs,
+            model_yeardays_nrs,
+            all_submodels)
 
-    # Sum across all regions and calculate peak dh shape per fueltype
-    aggr_results['tot_peak_enduses_fueltype'] = fuel_aggr(
-        aggr_results['tot_peak_enduses_fueltype'],
-        'fuel_peak_dh',
-        all_submodels,
-        'no_sum',
-        model_yearhours_nrs,
-        model_yeardays_nrs)
+        # Sum across all regions, all enduse and sectors
+        aggr_results['ed_fueltype_national_yh'] = fuel_aggr(
+            aggr_results['ed_fueltype_national_yh'],
+            'fuel_yh',
+            all_submodels,
+            'no_sum',
+            model_yearhours_nrs,
+            model_yeardays_nrs)
 
-    aggr_results['tot_fuel_y_max_enduses'] = fuel_aggr(
-        aggr_results['tot_fuel_y_max_enduses'],
-        'fuel_peak_h',
-        all_submodels,
-        'no_sum',
-        model_yearhours_nrs,
-        model_yeardays_nrs)
+        # Sum across all regions and calculate peak dh shape per fueltype
+        aggr_results['tot_peak_enduses_fueltype'] = fuel_aggr(
+            aggr_results['tot_peak_enduses_fueltype'],
+            'fuel_peak_dh',
+            all_submodels,
+            'no_sum',
+            model_yearhours_nrs,
+            model_yeardays_nrs)
 
-    # Sum across all regions and provide specific enduse
-    aggr_results['tot_fuel_y_enduse_specific_h'] = sum_enduse_all_regions(
-        aggr_results['tot_fuel_y_enduse_specific_h'],
-        'fuel_yh',
-        all_submodels,
-        model_yearhours_nrs,
-        model_yeardays_nrs)
+        aggr_results['tot_fuel_y_max_enduses'] = fuel_aggr(
+            aggr_results['tot_fuel_y_max_enduses'],
+            'fuel_peak_h',
+            all_submodels,
+            'no_sum',
+            model_yearhours_nrs,
+            model_yeardays_nrs)
 
-    # --------------------------------------
-    # Calculate averaged hour profile per season
-    # --------------------------------------
-    aggr_results['averaged_h'] = averaged_season_hourly(
-        aggr_results['averaged_h'],
-        fuel_region_yh,
-        reg_array_nr,
-        fueltypes.values(),
-        seasons)
+        # Sum across all regions and provide specific enduse
+        aggr_results['tot_fuel_y_enduse_specific_h'] = sum_enduse_all_regions(
+            aggr_results['tot_fuel_y_enduse_specific_h'],
+            'fuel_yh',
+            all_submodels,
+            model_yearhours_nrs,
+            model_yeardays_nrs)
 
-    # --------------------------------------
-    # Regional load factor calculations
-    # --------------------------------------
-    # Calculate average load for every day
-    average_fuel_yd = np.mean(fuel_region_yh, axis=2)
+        # --------------------------------------
+        # Calculate averaged hour profile per season
+        # --------------------------------------
+        aggr_results['averaged_h'] = averaged_season_hourly(
+            aggr_results['averaged_h'],
+            fuel_region_yh,
+            reg_array_nr,
+            fueltypes.values(),
+            seasons)
 
-    # Calculate load factors across all enduses (Yearly lf)
-    load_factor_y = load_factors.calc_lf_y(fuel_region_yh, average_fuel_yd)
+        # --------------------------------------
+        # Regional load factor calculations
+        # --------------------------------------
+        # Calculate average load for every day
+        average_fuel_yd = np.mean(fuel_region_yh, axis=2)
 
-    # Calculate load factors across all enduses (Daily lf)
-    load_factor_yd = load_factors.calc_lf_d(fuel_region_yh, average_fuel_yd)
-    load_factor_seasons = load_factors.calc_lf_season(
-        seasons, fuel_region_yh, average_fuel_yd)
+        # Calculate load factors across all enduses (Yearly lf)
+        load_factor_y = load_factors.calc_lf_y(fuel_region_yh, average_fuel_yd)
 
-    # Copy regional load factors
-    for fueltype_nr in fueltypes.values():
-        aggr_results['reg_load_factor_y'][fueltype_nr][reg_array_nr] = load_factor_y[fueltype_nr]
-        aggr_results['reg_load_factor_yd'][fueltype_nr][reg_array_nr] = load_factor_yd[fueltype_nr]
+        # Calculate load factors across all enduses (Daily lf)
+        load_factor_yd = load_factors.calc_lf_d(fuel_region_yh, average_fuel_yd)
+        load_factor_seasons = load_factors.calc_lf_season(
+            seasons, fuel_region_yh, average_fuel_yd)
 
-        for season, lf_season in load_factor_seasons.items():
-            aggr_results['reg_seasons_lf'][season][fueltype_nr][reg_array_nr] = lf_season[fueltype_nr]
-    #'''
+        # Copy regional load factors
+        for fueltype_nr in fueltypes.values():
+            aggr_results['reg_load_factor_y'][fueltype_nr][reg_array_nr] = load_factor_y[fueltype_nr]
+            aggr_results['reg_load_factor_yd'][fueltype_nr][reg_array_nr] = load_factor_yd[fueltype_nr]
+
+            for season, lf_season in load_factor_seasons.items():
+                aggr_results['reg_seasons_lf'][season][fueltype_nr][reg_array_nr] = lf_season[fueltype_nr]
+        #'''
     return aggr_results
 
 def initialise_result_container(
