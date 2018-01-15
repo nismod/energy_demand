@@ -39,16 +39,12 @@ def scenario_initalisation(path_data_ed, data=False):
     # Delete processed data from former model runs and create folders
     # --------------------------------------------
     logging.info("... delete previous model run results")
-    try:
-        basic_functions.del_previous_results(
-            data['local_paths']['data_processed'],
-            data['local_paths']['path_post_installation_data'])
-    except:
-        pass
-    try:
-        basic_functions.del_previous_setup(data['local_paths']['data_results'])
-    except:
-        pass
+
+    basic_functions.del_previous_results(
+        data['local_paths']['data_processed'],
+        data['local_paths']['path_post_installation_data'])
+
+    basic_functions.del_previous_setup(data['local_paths']['data_results'])
 
     basic_functions.create_folder(data['local_paths']['data_results'])
     basic_functions.create_folder(data['local_paths']['dir_services'])

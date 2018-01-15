@@ -25,7 +25,6 @@ def init_scenario(args):
     """
     """
     data_energy_demand = args.data_energy_demand
-    #path_data_ed = args.path_data_ed
     scenario_initalisation(data_energy_demand)
 
 def run_model(args):

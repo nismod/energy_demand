@@ -243,6 +243,12 @@ def spatially_differentiated_modelling(
     ):
     """
     TODO
+
+    (1) Define all technologies which are spatiall differentiated
+
+    (2) Load all diffusion values
+
+    (3) Calculate diffusion factors
     """
     # --------------------------------------------------
     # Define technologies affected by regional diffusion TODO
@@ -307,4 +313,4 @@ def spatially_differentiated_modelling(
             regions,
             True)
     
-    return rs_reg_share_service_tech_ey_p, ss_reg_share_service_tech_ey_p, is_reg_share_service_tech_ey_p, sgs_cont
+    return rs_reg_share_service_tech_ey_p, ss_reg_share_service_tech_ey_p, is_reg_share_service_tech_ey_p, init_cont

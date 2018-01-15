@@ -58,7 +58,7 @@ run every time the model is run with different assumptions (Section 1.2).
 2. Navigate to the folder where the python code is saved. Open a command and type into
    a command line (in a virtual environment):
 
-   ``setup.py develop``
+   ``python setup.py develop``
 
 3. Install HIRE from within the console with the command
 
@@ -87,7 +87,7 @@ Other help
 ==========
 To change the logger level of an individual sector model with smif, type:
 
-`smif -v run modelrun_id` or `smif -vv run modelrun_id`
+``smif -v run modelrun_id`` or ``smif -vv run modelrun_id``
 
 Literature
 ========================
