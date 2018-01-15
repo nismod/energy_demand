@@ -13,7 +13,8 @@ https://nismod.github.io/docs/smif-prerequisites.html#sector-modeller
 # Industry INFO about efficiencies & technologies: Define strategy variables
 # Cooling?
 # convert documentation in rst?
-
+# Test why lower future
+# See how to implement strategies
 # Potentiall load other annual profiles?
 averaged_temp
 DISTRICT HEATING TECHS
@@ -289,10 +290,10 @@ if __name__ == "__main__":
 
         reg_load_factor_y = modelrun_obj.reg_load_factor_y
         reg_load_factor_yd = modelrun_obj.reg_load_factor_yd
-        reg_load_factor_winter = modelrun_obj.reg_load_factor_seasons['winter']
-        reg_load_factor_spring = modelrun_obj.reg_load_factor_seasons['spring']
-        reg_load_factor_summer = modelrun_obj.reg_load_factor_seasons['summer']
-        reg_load_factor_autumn = modelrun_obj.reg_load_factor_seasons['autumn']
+        reg_load_factor_winter = modelrun_obj.reg_seasons_lf['winter']
+        reg_load_factor_spring = modelrun_obj.reg_seasons_lf['spring']
+        reg_load_factor_summer = modelrun_obj.reg_seasons_lf['summer']
+        reg_load_factor_autumn = modelrun_obj.reg_seasons_lf['autumn']
 
         # -------------------------------------------
         # Write annual results to txt files

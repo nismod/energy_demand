@@ -1063,7 +1063,7 @@ def aggregate_final_results(
         aggr_results['reg_load_factor_yd'][fueltype_nr][reg_array_nr] = load_factor_yd[fueltype_nr]
 
         for season, lf_season in load_factor_seasons.items():
-            aggr_results['reg_load_factor_seasons'][season][fueltype_nr][reg_array_nr] = lf_season[fueltype_nr]
+            aggr_results['reg_seasons_lf'][season][fueltype_nr][reg_array_nr] = lf_season[fueltype_nr]
     #'''
     return aggr_results
 
@@ -1129,7 +1129,7 @@ def initialise_result_container(
     result_container['reg_load_factor_yd'] = np.zeros(
         (fueltypes_nr, reg_nrs, model_yeardays_nrs), dtype=float)
 
-    result_container['reg_load_factor_seasons'] = {
+    result_container['reg_seasons_lf'] = {
         'summer' : np.zeros((fueltypes_nr, reg_nrs), dtype=float),
         'spring': np.zeros((fueltypes_nr, reg_nrs), dtype=float),
         'winter': np.zeros((fueltypes_nr, reg_nrs), dtype=float),

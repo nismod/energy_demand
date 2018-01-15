@@ -217,7 +217,7 @@ def load_param_assump(paths, assumptions):
         "suggested_range": (10, 100),
         "default_value": '{}'.format(assumptions['smart_meter_assump']['smart_meter_p_by']),
         "units": '%'})
-    
+
     strategy_variables.append({
         "name": "smart_meter_yr_until_changed",
         "absolute_range": (0, 1),
@@ -281,7 +281,7 @@ def load_param_assump(paths, assumptions):
         "suggested_range": (0, 1),
         "default_value": 0,
         "units": '%'})
-    
+
     strategy_variables.append({
         "name": "heat_recoved__is_space_heating",
         "absolute_range": (0, 1),
@@ -378,14 +378,14 @@ def load_param_assump(paths, assumptions):
 
     # --Assumption how much of technological efficiency is reached
     strategy_variables.append({
-            "name": "eff_achiev_f",
-            "absolute_range": (0, 1),
-            "description": "Fraction achieved of efficiency improvements",
-            "suggested_range": (0, 1),
-            "default_value": 1.0,
-            "units": '%'})
+        "name": "eff_achiev_f",
+        "absolute_range": (0, 1),
+        "description": "Fraction achieved of efficiency improvements",
+        "suggested_range": (0, 1),
+        "default_value": 1.0,
+        "units": '%'})
 
-    strategy_vars["eff_achiev_f"] =  1.0
+    strategy_vars["eff_achiev_f"] = 1.0
 
     # -----------------------
     # Create parameter file only with fully descried parameters

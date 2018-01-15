@@ -195,7 +195,7 @@ class EDWrapper(SectorModel):
         # --------------------
         # Initialise scenario
         # --------------------
-        self.user_data['fts_cont'], self.user_data['sgs_cont'], self.user_data['sd_cont'], self.user_data['switches_cont'] = scenario_initalisation(
+        self.user_data['init_cont'], self.user_data['fuel_disagg'] = scenario_initalisation(
             self.user_data['data_path'], data)
 
         # ------
@@ -279,10 +279,9 @@ class EDWrapper(SectorModel):
         # Load data from scripts (Get simulation parameters from before_model_run()
         # ---------------------------------------------
         data = self.pass_to_simulate(data, self.user_data['data_pass_along'])
-        data = self.pass_to_simulate(data, self.user_data['sd_cont'])
-        data['assumptions'] = self.pass_to_simulate(data['assumptions'], self.user_data['fts_cont'])
-        data['assumptions'] = self.pass_to_simulate(data['assumptions'], self.user_data['sgs_cont'])
-        data['assumptions'] = self.pass_to_simulate(data['assumptions'], self.user_data['switches_cont'])
+        data = self.pass_to_simulate(data, self.user_data['fuel_disagg'])
+        data['assumptions'] = self.pass_to_simulate(data['assumptions'], self.user_data['init_cont'])
+
 
         # Update: Necessary updates after external data definition
         data['assumptions']['technologies'] = non_param_assumptions.update_assumptions(
@@ -360,18 +359,24 @@ class EDWrapper(SectorModel):
             #tot_fuel_y_max_enduses = sim_obj.tot_fuel_y_max_enduses
             logging.info("... Start writing results to file")
             path_run = data['local_paths']['data_results_model_runs']
-            #supply_results_unprocessed = model_run_object.ed_fueltype_regs_yh
-            #write_data.write_supply_results(timestep, path_runs, supply_results_unprocessed, "supply_results_unprocessed")
             write_data.write_supply_results(timestep, "result_tot_yh", path_run, sim_obj.ed_fueltype_regs_yh, "result_tot_submodels_fueltypes")
 
-            write_data.write_enduse_specific(timestep, path_run, sim_obj.tot_fuel_y_enduse_specific_h, "out_enduse_specific")
-            write_data.write_max_results(timestep, path_run, "result_tot_peak_enduses_fueltype", sim_obj.tot_peak_enduses_fueltype, "tot_peak_enduses_fueltype")
-            write_data.write_lf(path_run, "result_reg_load_factor_y", [timestep], sim_obj.reg_load_factor_y, 'reg_load_factor_y')
-            write_data.write_lf(path_run, "result_reg_load_factor_yd", [timestep], sim_obj.reg_load_factor_yd, 'reg_load_factor_yd')
-            write_data.write_lf(path_run, "result_reg_load_factor_winter", [timestep], sim_obj.reg_load_factor_seasons['winter'], 'reg_load_factor_winter')
-            write_data.write_lf(path_run, "result_reg_load_factor_spring", [timestep], sim_obj.reg_load_factor_seasons['spring'], 'reg_load_factor_spring')
-            write_data.write_lf(path_run, "result_reg_load_factor_summer", [timestep], sim_obj.reg_load_factor_seasons['summer'], 'reg_load_factor_summer')
-            write_data.write_lf(path_run, "result_reg_load_factor_autumn", [timestep], sim_obj.reg_load_factor_seasons['autumn'], 'reg_load_factor_autumn')
+            write_data.write_enduse_specific(
+                timestep, path_run, sim_obj.tot_fuel_y_enduse_specific_h, "out_enduse_specific")
+            write_data.write_max_results(
+                timestep, path_run, "result_tot_peak_enduses_fueltype", sim_obj.tot_peak_enduses_fueltype, "tot_peak_enduses_fueltype")
+            write_data.write_lf(
+                path_run, "result_reg_load_factor_y", [timestep], sim_obj.reg_load_factor_y, 'reg_load_factor_y')
+            write_data.write_lf(
+                path_run, "result_reg_load_factor_yd", [timestep], sim_obj.reg_load_factor_yd, 'reg_load_factor_yd')
+            write_data.write_lf(
+                path_run, "result_reg_load_factor_winter", [timestep], sim_obj.reg_seasons_lf['winter'], 'reg_load_factor_winter')
+            write_data.write_lf(
+                path_run, "result_reg_load_factor_spring", [timestep], sim_obj.reg_seasons_lf['spring'], 'reg_load_factor_spring')
+            write_data.write_lf(
+                path_run, "result_reg_load_factor_summer", [timestep], sim_obj.reg_seasons_lf['summer'], 'reg_load_factor_summer')
+            write_data.write_lf(
+                path_run, "result_reg_load_factor_autumn", [timestep], sim_obj.reg_seasons_lf['autumn'], 'reg_load_factor_autumn')
             logging.info("... finished writing results to file")
 
         # ------------------------------------
@@ -414,7 +419,6 @@ class EDWrapper(SectorModel):
         for key in supply_results:
             _total_scrap += np.sum(supply_results[key])
         print("FINALSUM: " + str(_total_scrap))
-        #prit(":")
         logging.info("... finished wrapper calculations")
         return supply_results
 

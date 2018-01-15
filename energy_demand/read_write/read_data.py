@@ -201,9 +201,7 @@ def read_in_results(path_runs, lookups, seasons, model_yeardays_daytype, lu_reg)
         av_season_daytype_cy[year] = {}
         season_daytype_cy[year] = {}
 
-        #for fueltype in lookups['fueltypes'].values():
-        #for fueltype, reg_fuels in fueltypes_data.items():
-        for fueltype, reg_fuels in enumerate(fueltypes_data):#.items():
+        for fueltype, reg_fuels in enumerate(fueltypes_data):
 
             # Summarise across regions
             tot_all_reg_fueltype = np.sum(reg_fuels, axis=0)
@@ -224,13 +222,15 @@ def read_in_results(path_runs, lookups, seasons, model_yeardays_daytype, lu_reg)
     logging.info("... Reading in results finished")
     return results_container
 
-def read_results_yh(fueltypes_nr, nr_of_reg, path_to_folder):
+def read_results_yh(fueltypes_nr, reg_nrs, path_to_folder):
     """Read results
 
     Arguments
     ---------
     fueltypes_nr : int
         Number of fueltypes
+    reg_nrs : int
+        Number of regions
     path_to_folder : str
         Path to folder
 
@@ -239,30 +239,12 @@ def read_results_yh(fueltypes_nr, nr_of_reg, path_to_folder):
     results = dict
         Results
     """
-    results = {} #defaultdict(dict)
+    results = {}
 
     path_to_folder = os.path.join(path_to_folder, 'result_tot_yh')
-    #results = defaultdict(dict)
 
     all_txt_files_in_folder = os.listdir(path_to_folder)
 
-    # ------------------
-    # Get number of regions (search largest fueltype_array_position)
-    # ------------------
-    '''reg_nrs = 0
-    for file_path in all_txt_files_in_folder:
-        path_file_to_read = os.path.join(path_to_folder, file_path)
-        file_path_split = file_path.split("__")
-        try:
-            fueltype_array_position = int(file_path_split[2])
-
-            if fueltype_array_position > reg_nrs:
-                reg_nrs = fueltype_array_position
-        except IndexError:
-            pass #path is a folder and not a file'''
-    reg_nrs = nr_of_reg
-    #print(reg_nrs)
-    #prnt(":")
     # Iterate files in folder
     for file_path in all_txt_files_in_folder:
         logging.info("... file_path: " + str(file_path))
@@ -356,41 +338,13 @@ def load_script_data(data):
     data : dict
         Data container
     """
-    fts_cont, sgs_cont, sd_cont, switches_cont = init_scripts.scenario_initalisation(data['paths']['path_main'], data)
+    init_cont, fuel_disagg = init_scripts.scenario_initalisation(data['paths']['path_main'], data)
 
-    data['assumptions']['rs_service_tech_by_p'] = fts_cont['rs_service_tech_by_p']
-    data['assumptions']['ss_service_tech_by_p'] = fts_cont['ss_service_tech_by_p']
-    data['assumptions']['is_service_tech_by_p'] = fts_cont['is_service_tech_by_p']
-    data['assumptions']['rs_service_fueltype_by_p'] = fts_cont['rs_service_fueltype_by_p']
-    data['assumptions']['ss_service_fueltype_by_p'] = fts_cont['ss_service_fueltype_by_p']
-    data['assumptions']['is_service_fueltype_by_p'] = fts_cont['is_service_fueltype_by_p']
-    data['assumptions']['rs_service_fueltype_tech_by_p'] = fts_cont['rs_service_fueltype_tech_by_p']
-    data['assumptions']['ss_service_fueltype_tech_by_p'] = fts_cont['ss_service_fueltype_tech_by_p']
-    data['assumptions']['is_service_fueltype_tech_by_p'] = fts_cont['is_service_fueltype_tech_by_p']
-    data['assumptions']['rs_tech_increased_service'] = sgs_cont['rs_tech_increased_service']
-    data['assumptions']['ss_tech_increased_service'] = sgs_cont['ss_tech_increased_service']
-    data['assumptions']['is_tech_increased_service'] = sgs_cont['is_tech_increased_service']
-    data['assumptions']['rs_tech_decreased_service'] = sgs_cont['rs_tech_decreased_service']
-    data['assumptions']['ss_tech_decreased_service'] = sgs_cont['ss_tech_decreased_service']
-    data['assumptions']['is_tech_decreased_service'] = sgs_cont['is_tech_decreased_service']
-    data['assumptions']['rs_tech_constant_service'] = sgs_cont['rs_tech_constant_service']
-    data['assumptions']['ss_tech_constant_service'] = sgs_cont['ss_tech_constant_service']
-    data['assumptions']['is_tech_constant_service'] = sgs_cont['is_tech_constant_service']
-    data['assumptions']['rs_sig_param_tech'] = sgs_cont['rs_sig_param_tech']
-    data['assumptions']['ss_sig_param_tech'] = sgs_cont['ss_sig_param_tech']
-    data['assumptions']['is_sig_param_tech'] = sgs_cont['is_sig_param_tech']
+    for key, value in init_cont.items():
+        data['assumptions'][key] = value
 
-    data['rs_fuel_disagg'] = sd_cont['rs_fuel_disagg']
-    data['ss_fuel_disagg'] = sd_cont['ss_fuel_disagg']
-    data['is_fuel_disagg'] = sd_cont['is_fuel_disagg']
-
-    data['assumptions']['rs_service_switch'] = sgs_cont['rs_service_switch']
-    data['assumptions']['ss_service_switch'] = sgs_cont['ss_service_switch']
-    data['assumptions']['is_service_switch'] = sgs_cont['is_service_switch']
-
-    data['assumptions']['rs_service_switches'] = switches_cont['rs_service_switches']
-    data['assumptions']['ss_service_switches'] = switches_cont['ss_service_switches']
-    data['assumptions']['is_service_switches'] = switches_cont['is_service_switches']
+    for key, value in fuel_disagg.items():
+        data[key] = value
 
     return data
 
