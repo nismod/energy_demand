@@ -5,6 +5,7 @@ Energy Demand Model
 The function `EnergyDemandModel` executes all the submodels
 of the energy demand model
 """
+import sys
 import logging
 from collections import defaultdict
 import numpy as np
@@ -98,6 +99,10 @@ class EnergyDemandModel(object):
             #profiler = Profiler(use_signal=False)
             #profiler.start()
             a = datetime.now()
+
+            # Report on object sizes that are used in the next step
+            #print(sys.getsizeof(data))
+            #print(sys.getsizeof(weather_regions))
 
             reg_rs_submodel, reg_ss_submodel, reg_is_submodel = simulate_region(
                 region, data, weather_regions)

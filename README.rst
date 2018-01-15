@@ -70,25 +70,6 @@ run every time the model is run with different assumptions (Section 1.2).
    Note: The `post_install_setup` generates new folders in the 
    ``energy_data_folder``.
 
-
-1.2 Scenario Set-up 
-----------------
-
-
-1. For every scenario run, the energy demand module needs to be
-   initialised from the command line as follows:
-
-   ``energy_demand scenario_initialisation -d path/to/energy_data_folder``
-
-   Note: Upon scenario initialisation, data gets saved in the ``_process_data`` 
-   folder which contain assumption specific data.
-
-2. Run the model from the console with the command
-
-   ``energy_demand run -d path/to/energy_data_folder``
-
-
-
 2. Running the model with smif
 ========================
 

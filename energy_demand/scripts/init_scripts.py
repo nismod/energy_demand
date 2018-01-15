@@ -32,17 +32,24 @@ def scenario_initalisation(path_data_ed, data=False):
 
     init_cont = defaultdict(dict)
     fuel_disagg = {}
-
+    print(path_data_ed)
     logger_setup.set_up_logger(os.path.join(path_data_ed, "scenario_init.log"))
 
     # --------------------------------------------
     # Delete processed data from former model runs and create folders
     # --------------------------------------------
     logging.info("... delete previous model run results")
-    basic_functions.del_previous_results(
-        data['local_paths']['data_processed'],
-        data['local_paths']['path_post_installation_data'])
-    basic_functions.del_previous_setup(data['local_paths']['data_results'])
+    try:
+        basic_functions.del_previous_results(
+            data['local_paths']['data_processed'],
+            data['local_paths']['path_post_installation_data'])
+    except:
+        pass
+    try:
+        basic_functions.del_previous_setup(data['local_paths']['data_results'])
+    except:
+        pass
+
     basic_functions.create_folder(data['local_paths']['data_results'])
     basic_functions.create_folder(data['local_paths']['dir_services'])
     basic_functions.create_folder(data['local_paths']['path_sigmoid_data'])
