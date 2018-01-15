@@ -106,6 +106,7 @@ def run_model(args):
     basic_functions.create_folder(data['local_paths']['data_results_PDF'])
     basic_functions.create_folder(data['local_paths']['data_results'], "model_run_pop")
 
+    print("... start energy demand model")
     results = energy_demand_model(data)
 
     logging.debug("... Result section")

@@ -6,7 +6,8 @@ from energy_demand.technologies import diffusion_technologies
 from energy_demand.profiles import load_profile
 
 def calc_hdd(t_base, temp_yh, nr_day_to_av):
-    """Heating Degree Days for every day in a year
+    """Calculate effective temperatures and
+    heating Degree Days for every day in a year
 
     Arguments
     ----------
@@ -71,10 +72,6 @@ def averaged_temp(temp_yh, nr_day_to_av):
         nr_day_to_av = 3: 0.878
     """
     effective_temp_yh = np.zeros((365, 24))
-
-    # Add temp of first days (border for calculation)
-    for day in range(nr_day_to_av):
-        effective_temp_yh[day] = temp_yh[day]
 
     # Iterate days in a year
     for day in range(365)[nr_day_to_av:]: #Skip first dates in January

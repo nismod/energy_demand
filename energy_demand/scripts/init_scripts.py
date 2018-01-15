@@ -249,7 +249,8 @@ def scenario_initalisation(path_data_ed, data=False):
             fuel_tech_p_by=data['assumptions']['is_fuel_tech_p_by'][enduse],
             regions=regions,
             regional_specific=regional_specific)
-
+    
+    print("... finished scenario initialisation")
     return dict(init_cont), fuel_disagg
 
 def sum_across_sectors_all_regs(fuel_disagg_reg):
@@ -388,8 +389,6 @@ def sig_param_calculation_including_fuel_switch(
         Regions
     regional_specific : bool, default=False
         criteria
-
-
     """
     # ----------------------------------------
     # Test if fuel switch is defined for enduse
@@ -503,6 +502,7 @@ def sig_param_calculation_including_fuel_switch(
             regional_specific=regional_specific)
 
     if crit_switch_service or crit_fuel_switch:
+        print("... calculate sigmoid for techs defined in switch")
         #Calculate sigmoid for technologies defined in switch
         sig_param_tech = s_generate_sigmoid.calc_sigm_parameters(
             base_yr,

@@ -12,11 +12,8 @@ https://nismod.github.io/docs/smif-prerequisites.html#sector-modeller
 # backcasting
 # Industry INFO about efficiencies & technologies: Define strategy variables
 # Cooling?
-# convert documentation in rst?
 # Test why lower future
-# See how to implement strategies
 # Potentiall load other annual profiles?
-averaged_temp
 DISTRICT HEATING TECHS
 """
 import os
@@ -283,7 +280,7 @@ if __name__ == "__main__":
         supply_results_unconstrained = modelrun_obj.ed_fueltype_submodel_regs_yh #TODO: NEEDED?
 
         if data['criterias']['beyond_supply_outputs']:
-                
+
             ed_fueltype_regs_yh = modelrun_obj.ed_fueltype_regs_yh
             out_enduse_specific = modelrun_obj.tot_fuel_y_enduse_specific_h
             tot_peak_enduses_fueltype = modelrun_obj.tot_peak_enduses_fueltype
