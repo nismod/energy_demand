@@ -3,7 +3,9 @@ import os
 import csv
 import logging
 import numpy as np
+from scipy import stats
 import matplotlib.pyplot as plt
+import matplotlib.mlab as mlab
 from energy_demand.basic import date_prop
 from energy_demand.basic import conversions
 from energy_demand.plotting import plotting_program
@@ -112,27 +114,59 @@ def compare_results(
 
     x_data = range(nr_of_h_to_plot)
 
-    y_real_indo = []
-    y_real_itsdo = []
+    #y_real_indo = []
+    #y_real_itsdo = []
     y_real_indo_factored = []
     y_calculated = []
+    y_diff = []
 
     for day in days_to_plot:
         for hour in range(24):
-            y_real_indo.append(y_real_array_indo[day][hour])
-            y_real_itsdo.append(y_real_array_itsdo[day][hour])
+            #y_real_indo.append(y_real_array_indo[day][hour])
+            #y_real_itsdo.append(y_real_array_itsdo[day][hour])
             y_calculated.append(y_calculated_array[day][hour])
             y_real_indo_factored.append(y_factored_indo[day][hour])
 
+            # Calculate difference in percent
+            y_diff.append((100 / y_factored_indo[day][hour]) * y_calculated_array[day][hour] -100)
+
+    # -------------
     # RMSE
-    rmse_val_indo = basic_functions.rmse(np.array(y_real_indo), np.array(y_calculated))
-    rmse_val_itsdo = basic_functions.rmse(np.array(y_real_itsdo), np.array(y_calculated))
+    # -------------
+    #rmse_val_indo = basic_functions.rmse(np.array(y_real_indo), np.array(y_calculated))
+    #rmse_val_itsdo = basic_functions.rmse(np.array(y_real_itsdo), np.array(y_calculated))
     rmse_val_corrected = basic_functions.rmse(np.array(y_real_indo_factored), np.array(y_calculated))
     #rmse_val_own_factor_correction = basic_functions.rmse(np.array(y_real_indo), np.array(y_calculated))
 
-    # R squared
-    #slope, intercept, r_value, p_value, std_err = stats.linregress(np.array(y_real_indo), np.array(y_calculated))
+    # ----------
+    # Standard deviation
+    # ----------
+    print(y_diff)
+    standard_dev_real_modelled = np.std(y_diff)
 
+    # ---------
+    # R squared
+    # ---------
+    slope, intercept, r_value, p_value, std_err = stats.linregress(
+        y_real_indo_factored,
+        y_calculated)
+
+    # -----------
+    # Test for normal distribution
+    # https://stackoverflow.com/questions/12838993/scipy-normaltest-how-is-it-used
+    # -----------
+    #stats.mstats.normaltest
+    chi_squared, p_value = stats.normaltest(y_diff)
+    print("  chi_squared {}   p_value  {}".format(chi_squared, round(p_value, 4)))
+
+    # ----------
+    # Plot residuals
+    # ----------
+    plot_residual_histogram(y_diff, path_result, "residuals_{}".format(name_fig))
+
+    # ----------
+    # Plot figure
+    # ----------
     fig = plt.figure(figsize=plotting_program.cm2inch(16, 8))
 
     # plot points
@@ -154,8 +188,10 @@ def compare_results(
         fillstyle='full',
         color='blue')
 
-    #plt.plot(x_data, y_real_indo_factored, color='gray', fillstyle='full', markeredgewidth=0.5, marker='o', markersize=10, label='TD_factored')
-    #plt.plot(x_data, y_calculated, color='white', fillstyle='none', markeredgewidth=0.5, marker='o', markersize=10, label='modelled')
+    #plt.plot(
+    # x_data, y_real_indo_factored, color='gray', fillstyle='full', markeredgewidth=0.5, marker='o', markersize=10, label='TD_factored')
+    #plt.plot(
+    # x_data, y_calculated, color='white', fillstyle='none', markeredgewidth=0.5, marker='o', markersize=10, label='modelled')
 
     plt.xlim([0, 8760])
     plt.margins(x=0)
@@ -164,10 +200,15 @@ def compare_results(
     # ----------
     # Labelling
     # ----------
-    font_additional_info = {'family': 'arial', 'color':  'black', 'weight': 'normal','size': 8}
+    font_additional_info = {
+        'family': 'arial',
+        'color': 'black',
+        'weight': 'normal',
+        'size': 8}
+
     plt.title(
-        'RMSE (TD): {} RMSE (TSD): {} RMSE (factored TSD): {}'.format(
-            round(rmse_val_indo, 3), round(rmse_val_itsdo, 3), round(rmse_val_corrected)),
+        'RMSE: {} Std_dev: {} R_squared: {}'.format(
+            round(rmse_val_corrected, 3), round(standard_dev_real_modelled, 3), round(r_value)),
             fontsize=10,
             fontdict=font_additional_info,
             loc='right')
@@ -289,3 +330,42 @@ def compare_results_hour_boxplots(
     
     plt.savefig(os.path.join(path_result, name_fig))
     plt.close()
+
+def plot_residual_histogram(values, path_result, name_fig):
+    """Plot residuals as histogram
+    https://matplotlib.org/1.2.1/examples/pylab_examples/histogram_demo.html
+    https://stackoverflow.com/questions/22179119/normality-test-of-a-distribution-in-python
+    """
+    plt.figure(facecolor="white")
+
+    # Sort according to size
+    values.sort()
+
+    # the histogram of the data
+    n, bins, patches = plt.hist(
+        values,
+        50,
+        normed=1,
+        facecolor='grey')
+
+    # ------------------
+    # Plot normal distribution
+    # ------------------
+
+    
+    mu = np.mean(values)
+    sigma = np.std(values)
+    plt.plot(
+        bins,
+        mlab.normpdf(bins, mu, sigma),
+        color='r')
+
+    # plot histogram
+    plt.xlabel('Smarts')
+    plt.ylabel('Probability')
+    plt.title("Distribution of residuals")
+    plt.grid(True)
+    
+    #Save fig
+    plt.savefig(os.path.join(path_result, name_fig))
+    #plt.show()

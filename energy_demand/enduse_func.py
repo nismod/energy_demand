@@ -457,7 +457,7 @@ def demand_management(
     except KeyError:
         logging.debug("... no load management was defined for enduse")
         peak_shift_crit = False
-    
+
     # ------------------------------
     # If peak shifting implemented, calculate new lp
     # ------------------------------
@@ -549,7 +549,7 @@ def calc_lf_improvement(
     return lf_improved_cy
 
 def assign_lp_no_techs(enduse, sector, load_profiles, fuel_new_y):
-    """Assign load profiles for an enduse which has not
+    """Assign load profiles for an enduse which has no
     technologies defined.
 
     Arguments

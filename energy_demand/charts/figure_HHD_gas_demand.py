@@ -807,7 +807,6 @@ def main(regions, weather_regions, data):
         2930,
         2932]
 
-
     # ----------------
     # Linear regression
     # ----------------

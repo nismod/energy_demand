@@ -95,7 +95,8 @@ def calc_sigmoid_parameters(l_value, xdata, ydata):
 
                 fit_measure_in_percent = (100.0 / ydata[1]) * y_calculated
                 if fit_measure_in_percent < 99.0:
-                    logging.debug("... Fitting measure %s (percent) is not good enough", fit_measure_in_percent)
+                    logging.debug(
+                        "... Fitting measure %s (percent) is not good enough", fit_measure_in_percent)
 
         except (RuntimeError, IndexError):
             #logging.debug("Unsuccessful fit %s %s", start_parameters[0], start_parameters[1])
@@ -192,7 +193,7 @@ def fit_sigmoid_diffusion(l_value, x_data, y_data, start_parameters):
     Returns
     -------
     popt : dict
-        Fitting parameters
+        Fitting parameters (l_value, midpoint, steepness)
 
     Note
     ----
