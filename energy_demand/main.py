@@ -15,6 +15,7 @@ https://nismod.github.io/docs/smif-prerequisites.html#sector-modeller
 # Test why lower future
 # Potentiall load other annual profiles?
 DISTRICT HEATING TECHS
+TODO: Improve industry related demand --> define strategies
 """
 import os
 import sys

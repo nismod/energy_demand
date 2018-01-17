@@ -11,6 +11,7 @@ from energy_demand.basic import basic_functions, conversions
 from matplotlib.patches import Rectangle
 from energy_demand.plotting import plotting_styles
 from energy_demand.technologies import tech_related
+from scipy import stats
 
 # INFO
 # https://stackoverflow.com/questions/35099130/change-spacing-of-dashes-in-dashed-line-in-matplotlib
@@ -18,8 +19,9 @@ from energy_demand.technologies import tech_related
 # Setting x labels: https://matplotlib.org/examples/pylab_examples/major_minor_demo1.html
 
 def order_polygon(upper_boundary, lower_bdoundary):
-    """create correct sorting to draw filled polygon"""
-    min_max_polygon=[]
+    """create correct sorting to draw filled polygon
+    """
+    min_max_polygon = []
     for pnt in upper_boundary:
         min_max_polygon.append(pnt)
     for pnt in reversed(lower_bdoundary):
@@ -36,13 +38,12 @@ def run_all_plot_functions(
         enduses
     ):
     """Summary function to plot all results
-
     """
     logging.info("... plotting results")
     print("... plotting results")
 
     # ------------
-    # Stacked enduses
+    # Plot stacked annual enduses
     # ------------
     # Residential
     plt_stacked_enduse(
@@ -64,9 +65,9 @@ def run_all_plot_functions(
         results_container['results_enduse_every_year'],
         enduses['is_all_enduses'],
         os.path.join(local_paths['data_results_PDF'], "stacked_is_country_.pdf"))
-    
+
     # ------------------------------
-    # Plot annual demand for enduses
+    # Plot annual demand for enduses for all submodels
     # ------------------------------
     plt_stacked_enduse_sectors(
         lookups,
@@ -91,8 +92,8 @@ def run_all_plot_functions(
 
     # ----------
     # Plot seasonal typical load profiles
-    # ----------
     # Averaged load profile per daytpe for a region
+    # ----------
 
     # ------------------------------------
     # Load factors per fueltype and region
@@ -125,8 +126,6 @@ def run_all_plot_functions(
                 local_paths['data_results_PDF'],
                 'lf_y_{}.pdf'.format(fueltype_str)))
 
-
-
     # --------------
     # Fuel week of base year
     # ----------------
@@ -148,16 +147,17 @@ def run_all_plot_functions(
         2015,
         os.path.join(local_paths['data_results_PDF'], "tot_all_enduse04.pdf"))
 
-
     # ------------------------------------
-    # Plot averaged per season an fueltype
+    # Plot averaged per season and fueltype
     # ------------------------------------
     base_year = 2015
     for year in results_container['av_season_daytype_cy'].keys():
         for fueltype_int in results_container['av_season_daytype_cy'][year].keys():
             fueltype_str = tech_related.get_fueltype_str(lookups['fueltypes'], fueltype_int)
             plot_load_profile_dh_multiple(
-                os.path.join(local_paths['data_results_PDF'], 'season_daytypes_by_cy_comparison__{}__{}.pdf'.format(year, fueltype_str)),
+                os.path.join(
+                    local_paths['data_results_PDF'],
+                    'season_daytypes_by_cy_comparison__{}__{}.pdf'.format(year, fueltype_str)),
                 results_container['av_season_daytype_cy'][year][fueltype_int], #current year
                 results_container['av_season_daytype_cy'][base_year][fueltype_int], # base year
                 results_container['season_daytype_cy'][year][fueltype_int], #current year
@@ -240,8 +240,10 @@ def plot_seasonal_lf(
                     color=color_list[season],
                     linewidth=0.2,
                     alpha=0.2)
-  
-    # Plot min_max_area FRITZ
+
+    # -----------------
+    # Plot min_max_area
+    # -----------------
     if plot_max_min_polygon:
 
         for season, lf_fueltypes_season in load_factors_seasonal.items():
@@ -847,8 +849,7 @@ def plt_fuels_enduses_y(results, lookups, fig_name):
     # -----------------
     base_yr, year_interval = 2015, 5
     end_yr = list(results.keys())
-    print("...flush=False")
-    print(results)
+
     major_ticks = np.arange(
         base_yr, end_yr[-1] + year_interval, year_interval)
 
@@ -1167,13 +1168,25 @@ def plot_load_profile_dh_multiple(
                 calc_av_lp_modelled[season][daytype],
                 calc_av_lp_real[season][daytype])
 
+            # Calculate R_squared
+            slope, intercept, r_value, p_value, std_err = stats.linregress(
+                calc_av_lp_modelled[season][daytype],
+                calc_av_lp_real[season][daytype])
+
+            # Calculate standard deviation
+            std_dev = np.std(calc_av_lp_real[season][daytype] - calc_av_lp_modelled[season][daytype])
+
             # -----------
             # Labelling
             # -----------
             font_additional_info = {
-                'family': 'arial', 'color': 'black', 'weight': 'normal', 'size': 8}
+                'family': 'arial',
+                'color': 'black',
+                'weight': 'normal',
+                'size': 8}
+
             title_info = ('{}, {}'.format(season, daytype))
-            plt.text(1, 0.55, "RMSE: {}".format(round(rmse, 2)), fontdict=font_additional_info)
+            plt.text(1, 0.55, "RMSE: {}, R_squared: {}, std: {}".format(round(rmse, 2), round(r_value, 2), round(std_dev, 2)), fontdict=font_additional_info)
             plt.title(title_info, loc='left', fontdict=font_additional_info)
             #plt.ylabel("hours")
             #plt.ylabel("average electricity [GW]")
@@ -1184,7 +1197,7 @@ def plot_load_profile_dh_multiple(
     plt.legend(
         ncol=1,
         loc=2,
-        prop={'family': 'arial','size': 8},
+        prop={'family': 'arial', 'size': 8},
         frameon=False)
 
     # Tight layout
@@ -1193,7 +1206,7 @@ def plot_load_profile_dh_multiple(
 
     if plot_figure:
         plt.show()
-    
+
     # Save fig
     fig.savefig(path_plot_fig)
     plt.close()

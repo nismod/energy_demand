@@ -1,7 +1,9 @@
 """
 Assumptions provided as parameters to smif
+
 This script can be run to write out all paramters as YAML
-file
+file. This file is not executed when running the ed model
+from within smif
 """
 import logging
 from energy_demand.read_write import write_data
@@ -232,8 +234,8 @@ def load_param_assump(paths, assumptions):
     # Year until change is implemented
     strategy_vars['smart_meter_yr_until_changed'] = yr_until_changed_all_things
 
-    # Long term smart meter induced general savings, purley as a result of having a smart meter 
-    # e.g. 0.03 --> 3% savings
+    # Long term smart meter induced general savings, purley as
+    # a result of having a smart meter (e.g. 0.03 --> 3% savings)
     savings_smart_meter = {
 
         # Residential

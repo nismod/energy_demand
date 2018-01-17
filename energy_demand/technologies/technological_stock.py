@@ -28,11 +28,21 @@ class TechStock(object):
         """Constructor of technologies for residential sector
 
         Arguments
-        ---------- TODO
+        ----------
         stock_name : str
             Name of technology stock
         technologies : dict
-            All technologies
+            All technologies and their properties
+        tech_list : dict
+            Classified technologies (e.g. all heating techs)
+        other_enduse_mode_info : dict
+            Other diffusion information
+        base_yr : int
+            Base year
+        curr_yr : int
+            Base year
+        fueltypes : dict
+            Fueltypes
         temp_by : array
             Base year temperatures
         temp_cy : int
@@ -164,7 +174,7 @@ def create_tech_stock(
                 tech_obj = Technology(
                     technology_name,
                     tech_type,
-                    technologies[technology_name].fueltype_str, #¨TODO: CLENA TO fueltype_str
+                    technologies[technology_name].fueltype_str,
                     technologies[technology_name].eff_achieved,
                     technologies[technology_name].diff_method,
                     technologies[technology_name].eff_by,

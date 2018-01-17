@@ -169,7 +169,8 @@ def tempo_spatial_validation(
     # Temporal validation (hourly for national)
     # -------------------------------------------
     # Read validation data
-    elec_2015_indo, elec_2015_itsdo = elec_national_data.read_raw_elec_2015(local_paths['path_val_nat_elec_data'])
+    elec_2015_indo, elec_2015_itsdo = elec_national_data.read_raw_elec_2015(
+        local_paths['path_val_nat_elec_data'])
 
     diff_factor_elec = np.sum(ed_fueltype_national_yh[lookups['fueltypes']['electricity']]) / np.sum(elec_2015_indo)
     logging.info("... ed difference between modellend and real [percent] %s: ", (1 - diff_factor_elec) * 100)
@@ -200,7 +201,9 @@ def tempo_spatial_validation(
 
     # Plot average daily loads
     plotting_results.plot_load_profile_dh_multiple(
-        os.path.join(local_paths['data_results_validation'], 'validation_all_season_daytypes.pdf'),
+        os.path.join(
+            local_paths['data_results_validation'],
+            'validation_all_season_daytypes.pdf'),
         calc_av_lp_modelled,
         calc_av_lp_real,
         calc_lp_modelled,

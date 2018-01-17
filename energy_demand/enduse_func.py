@@ -1294,8 +1294,6 @@ def apply_scenario_drivers(
     -------
     fuel_y : array
         Changed yearly fuel per fueltype
-
-        #TODO TAKE OUT DWELLING STOCK
     """
     if reg_scen_drivers is None:
         reg_scen_drivers = {}
@@ -1332,16 +1330,13 @@ def apply_scenario_drivers(
         """Scenario driver calculation based on dwelling stock
         """
         # Test if enduse has a dwelling related scenario driver
-        #if hasattr(dw_stock[region_name][base_yr], enduse) and curr_yr != base_yr:
         if hasattr(dw_stock[base_yr], enduse) and curr_yr != base_yr:
 
             # Scenariodriver of dwelling stock base year and new stock
-            #by_driver = getattr(dw_stock[region_name][base_yr], enduse)
-            #cy_driver = getattr(dw_stock[region_name][curr_yr], enduse)
             by_driver = getattr(dw_stock[base_yr], enduse)
             cy_driver = getattr(dw_stock[curr_yr], enduse)
 
-            # base year / current (checked) (as in chapter 3.1.2 EQ E-2)
+            # base year / current (checked) (as in chapter 3.1.2 EQ E-2) TODO
             try:
                 factor_driver = cy_driver / by_driver # FROZEN
             except ZeroDivisionError:

@@ -141,7 +141,6 @@ def compare_results(
     # ----------
     # Standard deviation
     # ----------
-    print(y_diff)
     standard_dev_real_modelled = np.std(y_diff)
 
     # ---------
@@ -151,18 +150,11 @@ def compare_results(
         y_real_indo_factored,
         y_calculated)
 
-    # -----------
-    # Test for normal distribution
-    # https://stackoverflow.com/questions/12838993/scipy-normaltest-how-is-it-used
-    # -----------
-    #stats.mstats.normaltest
-    chi_squared, p_value = stats.normaltest(y_diff)
-    print("  chi_squared {}   p_value  {}".format(chi_squared, round(p_value, 4)))
-
     # ----------
     # Plot residuals
     # ----------
-    plot_residual_histogram(y_diff, path_result, "residuals_{}".format(name_fig))
+    plot_residual_histogram(
+        y_diff, path_result, "residuals_{}".format(name_fig))
 
     # ----------
     # Plot figure
@@ -208,7 +200,7 @@ def compare_results(
 
     plt.title(
         'RMSE: {} Std_dev: {} R_squared: {}'.format(
-            round(rmse_val_corrected, 3), round(standard_dev_real_modelled, 3), round(r_value)),
+            round(rmse_val_corrected, 3), round(standard_dev_real_modelled, 3), round(r_value, 4)),
             fontsize=10,
             fontdict=font_additional_info,
             loc='right')
@@ -327,12 +319,13 @@ def compare_results_hour_boxplots(
 
     plt.xlabel("hour")
     plt.ylabel("Modelled electricity difference (real-modelled) [%]")
-    
+
     plt.savefig(os.path.join(path_result, name_fig))
     plt.close()
 
 def plot_residual_histogram(values, path_result, name_fig):
-    """Plot residuals as histogram
+    """Plot residuals as histogram and test for normal distribution
+
     https://matplotlib.org/1.2.1/examples/pylab_examples/histogram_demo.html
     https://stackoverflow.com/questions/22179119/normality-test-of-a-distribution-in-python
     """
@@ -351,8 +344,6 @@ def plot_residual_histogram(values, path_result, name_fig):
     # ------------------
     # Plot normal distribution
     # ------------------
-
-    
     mu = np.mean(values)
     sigma = np.std(values)
     plt.plot(
@@ -360,12 +351,30 @@ def plot_residual_histogram(values, path_result, name_fig):
         mlab.normpdf(bins, mu, sigma),
         color='r')
 
+    # -----------
+    # Test for normal distribution
+    # https://stackoverflow.com/questions/12838993/scipy-normaltest-how-is-it-used
+    # -----------
+    chi_squared, p_value = stats.normaltest(values)
+
+    # ---------------
     # plot histogram
+    # ---------------
+    font_additional_info = {
+        'family': 'arial',
+        'color': 'black',
+        'weight': 'normal',
+        'size': 8}
+
     plt.xlabel('Smarts')
     plt.ylabel('Probability')
-    plt.title("Distribution of residuals")
-    plt.grid(True)
-    
+    plt.title("Residual distribution (chi_squared: {}  p_value:  {}".format(
+        chi_squared, round(p_value, 4)),
+        fontsize=10,
+        fontdict=font_additional_info,
+        loc='right')
+
+    #plt.grid(True)
+
     #Save fig
     plt.savefig(os.path.join(path_result, name_fig))
-    #plt.show()

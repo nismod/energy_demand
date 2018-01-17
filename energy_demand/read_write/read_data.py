@@ -195,11 +195,24 @@ def read_in_results(path_runs, lookups, seasons, model_yeardays_daytype, lu_reg)
     # -------------
     logging.info("... generating post calculations with read results")
     # Calculate average per season and fueltype for every fueltype
-    av_season_daytype_cy = {}
-    season_daytype_cy = {}
-    for year, fueltypes_data in results_container['results_every_year'].items():
-        av_season_daytype_cy[year] = {}
-        season_daytype_cy[year] = {}
+    results_container['av_season_daytype_cy'], results_container['season_daytype_cy'] = calc_av_per_season_fueltype(
+        results_container['results_every_year'],
+        seasons,
+        model_yeardays_daytype)
+
+    logging.info("... Reading in results finished")
+    return results_container
+
+def calc_av_per_season_fueltype(results_every_year, seasons, model_yeardays_daytype):
+    """TODO# Calculate average per season and fueltype for every fueltype
+
+    """
+    av_season_daytype_cy = defaultdict(dict) #{}
+    season_daytype_cy = defaultdict(dict) #{}
+
+    for year, fueltypes_data in results_every_year.items():
+        #av_season_daytype_cy[year] = {}
+        #season_daytype_cy[year] = {}
 
         for fueltype, reg_fuels in enumerate(fueltypes_data):
 
@@ -216,11 +229,7 @@ def read_in_results(path_runs, lookups, seasons, model_yeardays_daytype, lu_reg)
             av_season_daytype_cy[year][fueltype] = calc_av
             season_daytype_cy[year][fueltype] = calc_lp
 
-    results_container['av_season_daytype_cy'] = av_season_daytype_cy
-    results_container['season_daytype_cy'] = season_daytype_cy
-
-    logging.info("... Reading in results finished")
-    return results_container
+    return dict(av_season_daytype_cy), dict(season_daytype_cy)
 
 def read_results_yh(fueltypes_nr, reg_nrs, path_to_folder):
     """Read results

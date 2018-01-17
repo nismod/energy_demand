@@ -1,6 +1,6 @@
 """
-Fuel share assumptions
-======================
+Base year fuel share assumptions
+=========================================
 All fuel shares of the base year for the
 different technologies are defined
 """
@@ -76,10 +76,11 @@ def assign_by_fuel_tech_p(assumptions, enduses, fueltypes, fueltypes_nr):
     # rs_cooking
     # calculated on the basis of ECUK Table 3.08 and assumption that 5-10% house households
     # ---------------
+    # https://productspy.co.uk/are-induction-hobs-safe/ (5-10%)
     # use induction hobs)
     assumptions['rs_fuel_tech_p_by']['rs_cooking'][fueltypes['electricity']] = {
         'hob_electricity': 0.95,
-        'hob_induction_electricity': 0.05} # https://productspy.co.uk/are-induction-hobs-safe/ (5-10%)
+        'hob_induction_electricity': 0.05} 
 
     assumptions['rs_fuel_tech_p_by']['rs_cooking'][fueltypes['gas']] = {
         'hob_gas': 1.0}
@@ -108,18 +109,20 @@ def assign_by_fuel_tech_p(assumptions, enduses, fueltypes, fueltypes_nr):
         'stirling_micro_CHP': 0.02,
         'district_heating_gas': 0}
 
-    # heat-pump share in uk #According to OFGEM 1.7 out of 4
-    # mio households use storage heating == 42.5%..Hoever,
-    # often more flats and more fuel poverty and some heatpumps,
-    # i.e. lower demands (e.g. redue certain percentage)
+
+    # According to OFGEM 2.2 mio households use electric heating (8.5% of all households). Out of 
+    # 2.2 mio, 1.7 mio use some form of storage heating --> 1.7 of 25.9 mio households is 6.56%
+    # Howeer, often more flats and more fuel poverty and some heatpumps,
+    # i.e. lower demands (e.g. redue certain percentage) --> 5% Storage heaters
     assumptions['rs_fuel_tech_p_by']['rs_space_heating'][fueltypes['electricity']] = {
         'heat_pumps_electricity': 0.04, # 0.02 Hannon (2015) 04
-        'storage_heater_electricity': 0.40,
-        'secondary_heater_electricity': 0.56, #0.56
+        'storage_heater_electricity': 0.05,
+        'secondary_heater_electricity': 0.91,
         'district_heating_electricity': 0}
 
     assumptions['rs_fuel_tech_p_by']['rs_space_heating'][fueltypes['biomass']] = {
-        'boiler_biomass': 1.0, 'district_heating_biomass': 0.0}
+        'boiler_biomass': 1.0,
+        'district_heating_biomass': 0.0}
 
     assumptions['rs_fuel_tech_p_by']['rs_space_heating'][fueltypes['hydrogen']] = {
         'boiler_hydrogen': 1.0,
@@ -127,7 +130,7 @@ def assign_by_fuel_tech_p(assumptions, enduses, fueltypes, fueltypes_nr):
 
     # ---------------
     # Water heating
-    # Calculated based on TODOTODO
+    # Calculated based on TODO TODO
     # ---------------
     assumptions['rs_fuel_tech_p_by']['rs_water_heating'][fueltypes['solid_fuel']] = {
         'boiler_solid_fuel': 1.0}
@@ -162,7 +165,8 @@ def assign_by_fuel_tech_p(assumptions, enduses, fueltypes, fueltypes_nr):
 
     assumptions['ss_fuel_tech_p_by']['ss_space_heating'][fueltypes['electricity']] = {
         'boiler_electricity': 0.96,
-        'heat_pumps_electricity': 0.04}
+        'heat_pumps_electricity': 0.04,
+        'district_heating_electricity': 0}
 
     assumptions['ss_fuel_tech_p_by']['ss_space_heating'][fueltypes['oil']] = {
         'boiler_oil': 1.0}
@@ -191,8 +195,8 @@ def assign_by_fuel_tech_p(assumptions, enduses, fueltypes, fueltypes_nr):
         'boiler_gas': 1.0}
 
     assumptions['is_fuel_tech_p_by']['is_space_heating'][fueltypes['electricity']] = {
-        'boiler_electricity': 0.5,
-        'heat_pumps_electricity': 0.5} #  'av_heat_pump_electricity': 0.02Hannon 2015, heat-pump share in uk
+        'boiler_electricity': 0.96,
+        'heat_pumps_electricity': 0.04}
 
     assumptions['is_fuel_tech_p_by']['is_space_heating'][fueltypes['oil']] = {
         'boiler_oil': 1.0}
