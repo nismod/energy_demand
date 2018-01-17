@@ -210,18 +210,13 @@ class WeatherRegion(object):
         rs_peak_yd_heating_factor = get_shape_peak_yd_factor(self.rs_hdd_cy)
         #rs_peak_yd_cooling_factor = get_shape_peak_yd_factor(rs_cdd_cy)
 
-        # Heat pumps, non-peak
-        rs_fuel_shape_hp_yh, _ = get_fuel_shape_heating_hp_yh(
-            tech_lp['rs_profile_hp_y_dh'],
-            self.rs_tech_stock,
-            self.rs_hdd_cy,
-            assumptions['model_yeardays'])
+
 
         # Cooling residential
         #rs_fuel_shape_cooling_yh = self.get_shape_cooling_yh(
         # data, rs_fuel_shape_cooling_yd, 'rs_shapes_cooling_dh')
 
-        # Heating boiler
+        # ------Heating boiler
         rs_profile_boilers_y_dh = rs_fuel_shape_heating_yd[:, np.newaxis] * tech_lp['rs_profile_boilers_y_dh'][[assumptions['model_yeardays']]]
         self.rs_load_profiles.add_lp(
             unique_identifier=uuid.uuid4(),
@@ -232,7 +227,7 @@ class WeatherRegion(object):
             enduse_peak_yd_factor=rs_peak_yd_heating_factor,
             shape_peak_dh=tech_lp['rs_lp_heating_boilers_dh']['peakday'])
 
-        # Heating CHP
+        # ------Heating CHP
         rs_profile_chp_y_dh = rs_fuel_shape_heating_yd[:, np.newaxis] * tech_lp['rs_profile_chp_y_dh'][[assumptions['model_yeardays']]]
 
         self.rs_load_profiles.add_lp(
@@ -244,7 +239,7 @@ class WeatherRegion(object):
             enduse_peak_yd_factor=rs_peak_yd_heating_factor,
             shape_peak_dh=tech_lp['rs_lp_heating_CHP_dh']['peakday'])
 
-        # Electric heating, primary...(storage)
+        # ------Electric heating, primary...(storage)
         rs_profile_storage_heater_y_dh = rs_fuel_shape_heating_yd[:, np.newaxis] * tech_lp['rs_profile_storage_heater_y_dh'][[assumptions['model_yeardays']]]
 
         self.rs_load_profiles.add_lp(
@@ -256,7 +251,7 @@ class WeatherRegion(object):
             enduse_peak_yd_factor=rs_peak_yd_heating_factor,
             shape_peak_dh=tech_lp['rs_lp_storage_heating_dh']['peakday'])
 
-        # Electric heating, secondary...
+        # ------Electric heating, secondary...
         rs_profile_elec_heater_y_dh = rs_fuel_shape_heating_yd[:, np.newaxis] * tech_lp['rs_profile_elec_heater_y_dh'][[assumptions['model_yeardays']]]
 
         self.rs_load_profiles.add_lp(
@@ -268,7 +263,13 @@ class WeatherRegion(object):
             enduse_peak_yd_factor=rs_peak_yd_heating_factor,
             shape_peak_dh=tech_lp['rs_lp_second_heating_dh']['peakday'])
 
-        # Heat pump heating
+        # ------Heat pump heating
+        rs_fuel_shape_hp_yh, _ = get_fuel_shape_heating_hp_yh(
+            tech_lp['rs_profile_hp_y_dh'],
+            self.rs_tech_stock,
+            self.rs_hdd_cy,
+            assumptions['model_yeardays'])
+
         self.rs_load_profiles.add_lp(
             unique_identifier=uuid.uuid4(),
             technologies=assumptions['tech_list']['tech_heating_temp_dep'],
@@ -308,8 +309,23 @@ class WeatherRegion(object):
 
         # --Heating technologies for service sector
         # (the heating shape follows the gas shape of aggregated sectors)
+        # meaning that for all technologies, the load profile is the same
         ss_fuel_shape_any_tech, ss_fuel_shape = ss_get_sector_enduse_shape(
             tech_lp, ss_fuel_shape_heating_yd, 'ss_space_heating', assumptions['model_yeardays_nrs'])
+
+        # Flatten list of all potential heating technologies
+        ss_space_heating_tech_lists = list(assumptions['tech_list'].values())
+        all_techs_ss_space_heating = [item for sublist in ss_space_heating_tech_lists for item in sublist]
+
+        self.ss_load_profiles.add_lp(
+            unique_identifier=uuid.uuid4(),
+            technologies=all_techs_ss_space_heating,
+            enduses=['ss_space_heating', 'ss_water_heating'],
+            sectors=sectors['ss_sectors'],
+            shape_yd=ss_fuel_shape_heating_yd,
+            shape_yh=ss_fuel_shape_any_tech,
+            enduse_peak_yd_factor=ss_peak_yd_heating_factor,
+            shape_peak_dh=tech_lp['ss_shapes_dh'])
 
         # Cooling service
         #ss_fuel_shape_cooling_yh = self.get_shape_cooling_yh(
@@ -318,8 +334,7 @@ class WeatherRegion(object):
         # data, ss_fuel_shape_heating_yd, 'ss_shapes_cooling_dh') # Service cooling #USE HEAT YD BUT COOLING SHAPE
         #ss_fuel_shape_cooling_yh = self.get_shape_cooling_yh(
         # data, load_profile.abs_to_rel(ss_hdd_cy + ss_cdd_cy), 'ss_shapes_cooling_dh') # hdd & cdd
-
-        self.ss_load_profiles.add_lp(
+        '''self.ss_load_profiles.add_lp(
             unique_identifier=uuid.uuid4(),
             technologies=assumptions['tech_list']['tech_heating_const'],
             enduses=['ss_space_heating', 'ss_water_heating'],
@@ -335,7 +350,7 @@ class WeatherRegion(object):
             enduses=['ss_space_heating'],
             sectors=sectors['ss_sectors'],
             shape_yd=ss_fuel_shape_heating_yd,
-            shape_yh=ss_fuel_shape_any_tech, # ?? TODO
+            shape_yh=ss_fuel_shape_any_tech,
             enduse_peak_yd_factor=ss_peak_yd_heating_factor,
             shape_peak_dh=tech_lp['rs_lp_storage_heating_dh']['peakday'])
 
@@ -345,21 +360,8 @@ class WeatherRegion(object):
             enduses=['ss_space_heating', 'ss_water_heating'],
             sectors=sectors['ss_sectors'],
             shape_yd=ss_fuel_shape_heating_yd,
-            shape_yh=ss_fuel_shape_any_tech, # ?? TODO
+            shape_yh=ss_fuel_shape_any_tech,
             enduse_peak_yd_factor=ss_peak_yd_heating_factor)
-        
-        import pprint
-        print("--------------")
-        pprint.pprint(self.ss_load_profiles.dict_tuple_keys)
-
-        '''self.rs_load_profiles.add_lp(
-            unique_identifier=uuid.uuid4(),
-            technologies=assumptions['tech_list']['secondary_heating_electricity'],
-            enduses=['rs_space_heating', 'rs_water_heating'],
-            shape_yd=rs_fuel_shape_heating_yd,
-            shape_yh=rs_profile_elec_heater_y_dh,
-            enduse_peak_yd_factor=rs_peak_yd_heating_factor,
-            shape_peak_dh=tech_lp['rs_lp_second_heating_dh']['peakday'])'''
 
         self.ss_load_profiles.add_lp(
             unique_identifier=uuid.uuid4(),
@@ -368,7 +370,7 @@ class WeatherRegion(object):
             sectors=sectors['ss_sectors'],
             shape_yd=ss_fuel_shape_heating_yd,
             shape_yh=ss_fuel_shape_any_tech,
-            enduse_peak_yd_factor=ss_peak_yd_heating_factor)
+            enduse_peak_yd_factor=ss_peak_yd_heating_factor)'''
 
         # --------------------------------
         # Industry submodel
@@ -399,11 +401,25 @@ class WeatherRegion(object):
 
         # --Heating technologies for service sector (the heating shape follows
         # the gas shape of aggregated sectors)
+
+        # Flatten list of all potential heating technologies
+        is_space_heating_tech_lists = list(assumptions['tech_list'].values())
+        all_techs_is_space_heating = [item for sublist in is_space_heating_tech_lists for item in sublist]
+
         #Take from service sector
         is_fuel_shape_any_tech, _ = ss_get_sector_enduse_shape(
             tech_lp, is_fuel_shape_heating_yd, 'ss_space_heating', assumptions['model_yeardays_nrs'])
 
         self.is_load_profiles.add_lp(
+            unique_identifier=uuid.uuid4(),
+            technologies=all_techs_is_space_heating,
+            enduses=['is_space_heating'],
+            sectors=sectors['is_sectors'],
+            shape_yd=is_fuel_shape_heating_yd,
+            shape_yh=is_fuel_shape_any_tech,
+            enduse_peak_yd_factor=is_peak_yd_heating_factor)
+        
+        '''self.is_load_profiles.add_lp(
             unique_identifier=uuid.uuid4(),
             technologies=assumptions['tech_list']['tech_heating_const'],
             enduses=['is_space_heating'],
@@ -437,7 +453,7 @@ class WeatherRegion(object):
             sectors=sectors['is_sectors'],
             shape_yd=is_fuel_shape_heating_yd,
             shape_yh=is_fuel_shape_any_tech,
-            enduse_peak_yd_factor=is_peak_yd_heating_factor)
+            enduse_peak_yd_factor=is_peak_yd_heating_factor)'''
 
 def get_shape_peak_yd_factor(demand_yd):
     """From yd shape calculate maximum relative yearly service demand

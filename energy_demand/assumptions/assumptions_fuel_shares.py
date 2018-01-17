@@ -181,6 +181,7 @@ def assign_by_fuel_tech_p(assumptions, enduses, fueltypes, fueltypes_nr):
     # ===================
     # Service subModel
     # ===================
+    # For ss_space heating the load profile is the same for all technologies
 
     # ----------------
     # ss_space_heating
