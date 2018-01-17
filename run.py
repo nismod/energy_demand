@@ -60,6 +60,7 @@ class EDWrapper(SectorModel):
         data['criterias']['writeYAML'] = False
         data['criterias']['write_to_txt'] = True
         data['criterias']['beyond_supply_outputs'] = True
+        data['criterias']['plot_crit'] = False
 
         data['sim_param']['base_yr'] = 2015                             # Base year
         data['sim_param']['curr_yr'] = data['sim_param']['base_yr']
@@ -351,12 +352,14 @@ class EDWrapper(SectorModel):
                 sim_obj.ed_fueltype_national_yh,
                 sim_obj.ed_fueltype_regs_yh,
                 sim_obj.tot_peak_enduses_fueltype,
-                data['lookups'],
+                data['lookups']['fueltypes'],
+                data['lookups']['fueltypes_nr'],
                 data['local_paths'],
                 data['lu_reg'],
                 data['reg_coord'],
                 data['assumptions']['seasons'],
-                data['assumptions']['model_yeardays_daytype'])
+                data['assumptions']['model_yeardays_daytype'],
+                data['criterias']['plot_crit'])
 
         # -------------------------------------------
         # Write annual results to txt files
