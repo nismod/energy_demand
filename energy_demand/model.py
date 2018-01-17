@@ -710,8 +710,63 @@ def fuel_regions_fueltype(
         submodels,
         'no_sum',
         model_yearhours_nrs,
-        model_yeardays_nrs)#,
-        #region_name)
+        model_yeardays_nrs)
+
+    # Reshape
+    for fueltype_nr in fueltypes.values():
+        aggregation_array[fueltype_nr][array_region_nr] += fuels[fueltype_nr].reshape(model_yearhours_nrs)
+
+    fuel_region = np.zeros((fueltypes_nr, model_yeardays_nrs, 24), dtype=float)
+    for fueltype_nr in fueltypes.values():
+        fuel_region[fueltype_nr] = fuels[fueltype_nr]
+
+    return aggregation_array, fuel_region
+
+def fuel_regions_fueltype(
+        aggregation_array,
+        fueltypes_nr,
+        fueltypes,
+        #region_name,
+        array_region_nr,
+        model_yearhours_nrs,
+        model_yeardays_nrs,
+        submodels
+    ):
+    """Aggregate fuels for every fueltype, region and timestep (unconstrained mode).
+
+    Arguments
+    ---------
+    aggregation_array : array
+        Array to aggregate ed
+    fueltypes_nr : dict
+        Number of fueltypes
+    fueltypes : dict
+        Fueltypes
+    region_name : list
+        Region name
+    array_region_nr : int
+        Array nr position of region
+    model_yearhours_nrs : int
+        Modelled houry in a year (max 8760)
+    model_yeardays_nrs : int
+    submodels : list
+        List with submodels
+
+    Returns
+    -------
+    aggregation_array : array
+        Aggregated fuels per fueltype, region, yearhours
+
+    fuel_region : dict
+        Aggregated fuel per fueltype, yeardays, hours
+    """
+    fuels = fuel_aggr(
+        np.zeros((fueltypes_nr, model_yeardays_nrs, 24), dtype=float),
+        'fuel_yh',
+        submodels,
+        'no_sum',
+        model_yearhours_nrs,
+        model_yeardays_nrs)
 
     # Reshape
     for fueltype_nr in fueltypes.values():
@@ -727,7 +782,6 @@ def constrained_fuel_regions_fueltype(
         aggregation_array,
         fueltypes_nr,
         fueltypes,
-        #region_name,
         array_region_nr,
         model_yearhours_nrs,
         model_yeardays_nrs,
@@ -989,7 +1043,6 @@ def aggregate_final_results(
                         np.zeros((fueltypes_nr, reg_nrs, model_yearhours_nrs), dtype=float),
                         fueltypes_nr,
                         fueltypes,
-                        #region,
                         reg_array_nr,
                         model_yearhours_nrs,
                         model_yeardays_nrs,

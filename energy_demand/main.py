@@ -141,7 +141,7 @@ if __name__ == "__main__":
     logger_setup.set_up_logger(os.path.join(local_data_path, "logging_local_run.log"))
 
     # Run settings
-    instrument_profiler = True
+    instrument_profiler = False
 
     # Load data
     data = {}
@@ -150,7 +150,7 @@ if __name__ == "__main__":
     data['criterias']['plot_HDD_chart'] = False
     data['criterias']['virtual_building_stock_criteria'] = True
     data['criterias']['spatial_exliclit_diffusion'] = False
-    data['criterias']['write_to_txt'] = True
+    data['criterias']['write_to_txt'] = False
     data['criterias']['beyond_supply_outputs'] = True
 
     data['paths'] = data_loader.load_paths(path_main)
@@ -213,7 +213,8 @@ if __name__ == "__main__":
     data['weather_stations'], data['temp_data'] = data_loader.load_temp_data(data['local_paths'])
 
     data['reg_nrs'] = len(data['lu_reg'])
-
+    #print(data['reg_nrs'])
+    #prnt(":")
     # ------------------------------
     if data['criterias']['virtual_building_stock_criteria']:
         rs_floorarea, ss_floorarea = data_loader.virtual_building_datasets(
@@ -308,35 +309,40 @@ if __name__ == "__main__":
             path_runs = data['local_paths']['data_results_model_runs']
 
             # Write unconstrained results
-            write_data.write_supply_results(
-                ['rs_submodel', 'ss_submodel', 'is_submodel'], sim_yr, path_runs, supply_results_unconstrained, "supply_results")
+            if data['criterias']['write_to_txt']:
+                write_data.write_supply_results(
+                    ['rs_submodel', 'ss_submodel', 'is_submodel'],
+                    sim_yr,
+                    path_runs,
+                    supply_results_unconstrained,
+                    "supply_results")
 
-            write_data.write_enduse_specific(
-                sim_yr, path_runs, out_enduse_specific, "out_enduse_specific")
-            write_data.write_max_results(
-                sim_yr, path_runs, "result_tot_peak_enduses_fueltype", tot_peak_enduses_fueltype, "tot_peak_enduses_fueltype")
-            write_data.write_lf(
-                path_runs, "result_reg_load_factor_y", [sim_yr], reg_load_factor_y, 'reg_load_factor_y')
-            write_data.write_lf(
-                path_runs, "result_reg_load_factor_yd", [sim_yr], reg_load_factor_yd, 'reg_load_factor_yd')
+                write_data.write_enduse_specific(
+                    sim_yr, path_runs, out_enduse_specific, "out_enduse_specific")
+                write_data.write_max_results(
+                    sim_yr, path_runs, "result_tot_peak_enduses_fueltype", tot_peak_enduses_fueltype, "tot_peak_enduses_fueltype")
+                write_data.write_lf(
+                    path_runs, "result_reg_load_factor_y", [sim_yr], reg_load_factor_y, 'reg_load_factor_y')
+                write_data.write_lf(
+                    path_runs, "result_reg_load_factor_yd", [sim_yr], reg_load_factor_yd, 'reg_load_factor_yd')
 
-            write_data.write_lf(path_runs, "result_reg_load_factor_winter", [sim_yr], reg_load_factor_winter, 'reg_load_factor_winter')
-            write_data.write_lf(path_runs, "result_reg_load_factor_spring", [sim_yr], reg_load_factor_spring, 'reg_load_factor_spring')
-            write_data.write_lf(path_runs, "result_reg_load_factor_summer", [sim_yr], reg_load_factor_summer, 'reg_load_factor_summer')
-            write_data.write_lf(path_runs, "result_reg_load_factor_autumn", [sim_yr], reg_load_factor_autumn, 'reg_load_factor_autumn')
+                write_data.write_lf(path_runs, "result_reg_load_factor_winter", [sim_yr], reg_load_factor_winter, 'reg_load_factor_winter')
+                write_data.write_lf(path_runs, "result_reg_load_factor_spring", [sim_yr], reg_load_factor_spring, 'reg_load_factor_spring')
+                write_data.write_lf(path_runs, "result_reg_load_factor_summer", [sim_yr], reg_load_factor_summer, 'reg_load_factor_summer')
+                write_data.write_lf(path_runs, "result_reg_load_factor_autumn", [sim_yr], reg_load_factor_autumn, 'reg_load_factor_autumn')
 
-            # -------------------------------------------
-            # Write population files of simulation year
-            # -------------------------------------------
-            pop_array_reg = np.zeros((len(data['lu_reg'])))
-            for reg_array_nr, reg in enumerate(data['lu_reg']):
-                pop_array_reg[reg_array_nr] = data['scenario_data']['population'][sim_yr][reg]
+                # -------------------------------------------
+                # Write population files of simulation year
+                # -------------------------------------------
+                pop_array_reg = np.zeros((len(data['lu_reg'])))
+                for reg_array_nr, reg in enumerate(data['lu_reg']):
+                    pop_array_reg[reg_array_nr] = data['scenario_data']['population'][sim_yr][reg]
 
-            write_data.write_pop(
-                sim_yr,
-                data['local_paths']['data_results'],
-                pop_array_reg)
-            logging.info("... Finished writing results to file")
+                write_data.write_pop(
+                    sim_yr,
+                    data['local_paths']['data_results'],
+                    pop_array_reg)
+                logging.info("... Finished writing results to file")
 
     logging.info("... Finished running Energy Demand Model")
     print("... Finished running Energy Demand Model")
