@@ -1211,7 +1211,6 @@ def plot_load_profile_dh_multiple(
     fig.savefig(path_plot_fig)
     plt.close()
 
-
 def plot_load_profile_dh(data_dh_real, data_dh_modelled, path_plot_fig):
     """plot daily profile
     """
@@ -1260,3 +1259,31 @@ def testplot():
     plt.scatter(x_values, y_values)
 
 '''
+def plot_lp_dh(data_dh_modelled, path_plot_fig, fig_name):
+    """plot daily profile
+    """
+    x_values = range(24)
+
+    plt.plot(x_values, list(data_dh_modelled), color='red', label='modelled') #'ro', markersize=1,
+
+    path_fig_name = os.path.join(
+        path_plot_fig,
+        fig_name)
+        
+    # -----------------
+    # Axis
+    # -----------------
+    plt.ylim(0, 30)
+
+    # ------------
+    # Plot legend
+    # ------------
+    plt.legend(ncol=2, loc=2, frameon=False)
+
+    # Tight layout
+    plt.tight_layout()
+    plt.margins(x=0)
+
+    # Save fig
+    plt.savefig(path_fig_name)
+    plt.close()

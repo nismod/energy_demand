@@ -2,7 +2,7 @@
 Base year fuel share assumptions
 =========================================
 All fuel shares of the base year for the
-different technologies are defined
+different technologies are defined in this file.
 """
 from energy_demand.initalisations import helpers
 
@@ -40,6 +40,8 @@ def assign_by_fuel_tech_p(assumptions, enduses, fueltypes, fueltypes_nr):
         'hydrogen': 5,
         'heat': 6
     """
+
+    # Initialisations
     assumptions['rs_fuel_tech_p_by'] = helpers.init_fuel_tech_p_by(
         enduses['rs_all_enduses'], fueltypes_nr)
     assumptions['ss_fuel_tech_p_by'] = helpers.init_fuel_tech_p_by(
@@ -53,7 +55,7 @@ def assign_by_fuel_tech_p(assumptions, enduses, fueltypes, fueltypes_nr):
 
     # ---------------
     # rs_lighting
-    # calculated on the basis of ECUK Table 3.08
+    # Calculated on the basis of ECUK Table 3.08
     # ---------------
     assumptions['rs_fuel_tech_p_by']['rs_lighting'][fueltypes['electricity']] = {
         'standard_lighting_bulb': 0.04,
@@ -64,7 +66,7 @@ def assign_by_fuel_tech_p(assumptions, enduses, fueltypes, fueltypes_nr):
 
     # ---------------
     # rs_cold
-    # calculated on the basis of ECUK Table 3.08
+    # Calculated on the basis of ECUK Table 3.08
     # ---------------
     assumptions['rs_fuel_tech_p_by']['rs_cold'][fueltypes['electricity']] = {
         'chest_freezer': 0.087,
@@ -74,13 +76,13 @@ def assign_by_fuel_tech_p(assumptions, enduses, fueltypes, fueltypes_nr):
 
     # ---------------
     # rs_cooking
-    # calculated on the basis of ECUK Table 3.08 and assumption that 5-10% house households
+    # Calculated on the basis of ECUK Table 3.08
+    # Calculated on the assumption that 5 to 10%
+    # of all households have induction hobs (https://productspy.co.uk/are-induction-hobs-safe/ (5-10%))
     # ---------------
-    # https://productspy.co.uk/are-induction-hobs-safe/ (5-10%)
-    # use induction hobs)
     assumptions['rs_fuel_tech_p_by']['rs_cooking'][fueltypes['electricity']] = {
         'hob_electricity': 0.95,
-        'hob_induction_electricity': 0.05} 
+        'hob_induction_electricity': 0.05}
 
     assumptions['rs_fuel_tech_p_by']['rs_cooking'][fueltypes['gas']] = {
         'hob_gas': 1.0}
@@ -97,6 +99,34 @@ def assign_by_fuel_tech_p(assumptions, enduses, fueltypes, fueltypes_nr):
 
     # ---------------
     # rs_space_heating
+    # Calculated on different assumptions:
+    #
+    #
+    # According to OFEM, for GB there are about 2.3 mio electrically heated households
+    # More specifically, they are made out of:
+    #
+    #       storage heaters:
+    #           1.7m households --> 73.9%  ((100/2.3) * 1.7
+    #           
+    #           However, these are often flats and this number contains some heatpumps,
+    #           which results in lower fuel demand. Therefore in overall 70% of electriticy
+    #           is assumed for storage heaters.
+    #
+    #       secondary heating (direct-acting heating systems):
+    #           0.5m households --> 21.7% ((100/2.3) * 0.5
+    #
+    #       heat pumps
+    #           ~ 0.1m households with heat pumps --> 4.3% ((100/2.3) * 0.1
+    #       
+    # According to Hannon (2015), heat pumps account only for a tiny fraction of the UK.
+    # heat supply for buildings (approximately 0.2%).
+    #       
+    #  Ofgem (2015); Insights paper on households with electric and other non-gas heating, 
+    #  (December), 1–84.
+    #
+    #  Hannon, M. J. (2015). Raising the temperature of the UK heat pump market:
+    #  Learning lessons from Finland. Energy Policy, 85, 369–375.
+    #  https://doi.org/10.1016/j.enpol.2015.06.016
     # ---------------
     assumptions['rs_fuel_tech_p_by']['rs_space_heating'][fueltypes['solid_fuel']] = {
         'boiler_solid_fuel': 1.0}
@@ -109,15 +139,10 @@ def assign_by_fuel_tech_p(assumptions, enduses, fueltypes, fueltypes_nr):
         'stirling_micro_CHP': 0.02,
         'district_heating_gas': 0}
 
-
-    # According to OFGEM 2.2 mio households use electric heating (8.5% of all households). Out of 
-    # 2.2 mio, 1.7 mio use some form of storage heating --> 1.7 of 25.9 mio households is 6.56%
-    # Howeer, often more flats and more fuel poverty and some heatpumps,
-    # i.e. lower demands (e.g. redue certain percentage) --> 5% Storage heaters
     assumptions['rs_fuel_tech_p_by']['rs_space_heating'][fueltypes['electricity']] = {
-        'heat_pumps_electricity': 0.04, # 0.02 Hannon (2015) 04
-        'storage_heater_electricity': 0.05,
-        'secondary_heater_electricity': 0.91,
+        'heat_pumps_electricity': 0.04,
+        'storage_heater_electricity': 0.74,
+        'secondary_heater_electricity': 0.22,
         'district_heating_electricity': 0}
 
     assumptions['rs_fuel_tech_p_by']['rs_space_heating'][fueltypes['biomass']] = {

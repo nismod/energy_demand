@@ -11,6 +11,8 @@ from datetime import date
 from energy_demand.read_write import read_data, read_weather_data
 from energy_demand.basic import conversions
 from energy_demand.basic import date_prop
+from energy_demand.plotting import plotting_results
+from energy_demand.basic import basic_functions
 
 def load_basic_lookups():
     """Definition of basic lookups or other related information
@@ -232,6 +234,8 @@ def load_local_paths(path):
         All local paths used in model
     """
     paths = {
+        'local_path_datafolder':
+            path,
         'path_bd_e_load_profiles': os.path.join(
             path, '_raw_data', 'A-HES_data', 'HES_base_appliances_eletricity_load_profiles.csv'),
         'folder_raw_carbon_trust': os.path.join(
@@ -374,7 +378,7 @@ def load_paths(path):
 
     return paths
 
-def load_data_tech_profiles(tech_lp, paths):
+def load_data_tech_profiles(tech_lp, paths, local_paths, plot_tech_lp=False):
     """Load technology specific load profiles
 
     Arguments
@@ -382,6 +386,12 @@ def load_data_tech_profiles(tech_lp, paths):
     tech_lp : dict
         Load profiles
     paths : dict
+        Paths
+    local_paths : dict
+        Local paths
+    plot_tech_lp : bool
+        Criteria wheter individual tech lp are 
+        saved as figure to separte folder
 
     Returns
     ------
@@ -404,10 +414,6 @@ def load_data_tech_profiles(tech_lp, paths):
 
     tech_lp['rs_shapes_cooling_dh'] = read_data.read_csv_float(paths['path_shape_rs_cooling']) # ??
     tech_lp['ss_shapes_cooling_dh'] = read_data.read_csv_float(paths['path_shape_ss_cooling']) # ??
-    #from energy_demand.plotting import plotting_results
-    #plotting_results.plot_load_profile_dh(data['rs_lp_heating_boilers_dh'][0] * 45.8)
-    #plotting_results.plot_load_profile_dh(data['rs_lp_heating_boilers_dh'][1] * 45.8)
-    #plotting_results.plot_load_profile_dh(data['rs_lp_heating_boilers_dh'][data['lookups']['fueltypes']['electricity']] * 45.8)
 
     # Add fuel data of other model enduses to the fuel data table (E.g. ICT or wastewater)
     tech_lp['rs_lp_storage_heating_dh'] = read_data.read_load_shapes_tech(
@@ -415,13 +421,84 @@ def load_data_tech_profiles(tech_lp, paths):
     tech_lp['rs_lp_second_heating_dh'] = read_data.read_load_shapes_tech(
         paths['lp_elec_secondary_heating'])
 
-    '''plotting_results.plot_load_profile_dh(data['tech_lp']['rs_lp_storage_heating_dh'][0] * 45.8)
-    plotting_results.plot_load_profile_dh(data['tech_lp']['rs_lp_storage_heating_dh'][1] * 45.8)
-    plotting_results.plot_load_profile_dh(data['tech_lp']['rs_lp_storage_heating_dh'][2] * 45.8)
-    plotting_results.plot_load_profile_dh(data['tech_lp']['rs_lp_second_heating_dh'][0] * 45.8)
-    plotting_results.plot_load_profile_dh(data['tech_lp']['rs_lp_second_heating_dh'][1] * 45.8)
-    plotting_results.plot_load_profile_dh(data['tech_lp']['rs_lp_second_heating_dh'][2] * 45.8)
-    '''
+    # --------------------------------------------
+    # Print individualtechnology load profiles of technologies
+    # --------------------------------------------
+    plot_tech_lp = True
+    if plot_tech_lp:
+        path_folder_lp = os.path.join(local_paths['local_path_datafolder'], 'individual_lp')
+        basic_functions.create_folder(path_folder_lp)
+
+        # Boiler
+        plotting_results.plot_lp_dh(
+            tech_lp['rs_lp_heating_boilers_dh']['workday'] * 100,
+            path_folder_lp,
+            "lp_individ_tech_{}".format("heating_boilers_workday"))
+        plotting_results.plot_lp_dh(
+            tech_lp['rs_lp_heating_boilers_dh']['holiday'] * 100,
+            path_folder_lp,
+            "lp_individ_tech_{}".format("heating_boilers_holiday"))
+        plotting_results.plot_lp_dh(
+            tech_lp['rs_lp_heating_boilers_dh']['peakday'] * 100,
+            path_folder_lp,
+            "lp_individ_tech_{}".format("heating_boilers_peakday"))
+
+        # CHP
+        plotting_results.plot_lp_dh(
+            tech_lp['rs_lp_heating_hp_dh']['workday'] * 100,
+            path_folder_lp,
+            "lp_individ_tech_{}".format("heatpump_workday"))
+        plotting_results.plot_lp_dh(
+            tech_lp['rs_lp_heating_hp_dh']['holiday'] * 100,
+            path_folder_lp,
+            "lp_individ_tech_{}".format("heatpump_holiday"))
+        plotting_results.plot_lp_dh(
+            tech_lp['rs_lp_heating_hp_dh']['peakday'] * 100,
+            path_folder_lp,
+            "lp_individ_tech_{}".format("heatpump_peakday"))
+
+        # HP
+        plotting_results.plot_lp_dh(
+            tech_lp['rs_lp_heating_CHP_dh']['workday'] * 100,
+            path_folder_lp,
+            "lp_individ_tech_{}".format("heating_CHP_workday"))
+        plotting_results.plot_lp_dh(
+            tech_lp['rs_lp_heating_CHP_dh']['holiday'] * 100,
+            path_folder_lp,
+            "lp_individ_tech_{}".format("heating_CHP_holiday"))
+        plotting_results.plot_lp_dh(
+            tech_lp['rs_lp_heating_CHP_dh']['peakday'] * 100,
+            path_folder_lp,
+            "lp_individ_tech_{}".format("heating_CHP_peakday"))
+
+        # Stroage heating
+        plotting_results.plot_lp_dh(
+            tech_lp['rs_lp_storage_heating_dh']['workday'] * 100,
+            path_folder_lp,
+            "lp_individ_tech_{}".format("storage_heating_workday"))
+        plotting_results.plot_lp_dh(
+            tech_lp['rs_lp_storage_heating_dh']['holiday'] * 100,
+            path_folder_lp,
+            "lp_individ_tech_{}".format("storage_heating_holiday"))
+        plotting_results.plot_lp_dh(
+            tech_lp['rs_lp_storage_heating_dh']['peakday'] * 100,
+            path_folder_lp,
+            "lp_individ_tech_{}".format("storage_heating_peakday"))
+
+        # Direct electric heating
+        plotting_results.plot_lp_dh(
+            tech_lp['rs_lp_second_heating_dh']['workday'] * 100,
+            path_folder_lp,
+            "lp_individ_tech_{}".format("secondary_heating_workday"))
+        plotting_results.plot_lp_dh(
+            tech_lp['rs_lp_second_heating_dh']['holiday'] * 100,
+            path_folder_lp,
+            "lp_individ_tech_{}".format("secondary_heating_holiday"))
+        plotting_results.plot_lp_dh(
+            tech_lp['rs_lp_second_heating_dh']['peakday'] * 100,
+            path_folder_lp,
+            "lp_individ_tech_{}".format("secondary_heating_peakday"))
+
     return tech_lp
 
 def load_data_profiles(paths, local_paths, model_yeardays, model_yeardays_daytype):
@@ -439,7 +516,9 @@ def load_data_profiles(paths, local_paths, model_yeardays, model_yeardays_daytyp
     # Load technology specific load profiles
     tech_lp = load_data_tech_profiles(
         tech_lp,
-        paths)
+        paths,
+        local_paths,
+        plot_tech_lp=True)
 
     # Load enduse load profiles
     tech_lp['rs_shapes_dh'], tech_lp['rs_shapes_yd'] = rs_collect_shapes_from_txts(

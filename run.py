@@ -60,7 +60,7 @@ class EDWrapper(SectorModel):
         data['criterias']['writeYAML'] = False
         data['criterias']['write_to_txt'] = True
         data['criterias']['beyond_supply_outputs'] = True
-        data['criterias']['plot_crit'] = False
+        data['criterias']['plot_crit'] = True
 
         data['sim_param']['base_yr'] = 2015                             # Base year
         data['sim_param']['curr_yr'] = data['sim_param']['base_yr']

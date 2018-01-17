@@ -16,6 +16,11 @@ https://nismod.github.io/docs/smif-prerequisites.html#sector-modeller
 # Potentiall load other annual profiles?
 DISTRICT HEATING TECHS
 TODO: Improve industry related demand --> define strategies
+TODO: Related ed to houses & householdsize
+TODO: Define efficencies of all techs
+TODO: Base year fuel assignements
+TODO: ET_module
+
 """
 import os
 import sys
@@ -157,6 +162,7 @@ if __name__ == "__main__":
     data['sim_param']['curr_yr'] = data['sim_param']['base_yr']
     data['sim_param']['simulated_yrs'] = [2015, 2050]
 
+    # local scrap
     data['lu_reg'] = data_loader.load_LAC_geocodes_info(
         os.path.join(local_data_path, '_raw_data', 'B-census_data', 'regions_local_area_districts', '_quick_and_dirty_spatial_disaggregation', 'infuse_dist_lyr_2011_saved.csv'))
 

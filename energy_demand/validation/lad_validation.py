@@ -145,8 +145,10 @@ def tempo_spatial_validation(
     # -------------------------------------------
     # Spatial validation
     # -------------------------------------------
-    subnational_elec = data_loader.read_national_real_elec_data(local_paths['path_val_subnational_elec'])
-    subnational_gas = data_loader.read_national_real_gas_data(local_paths['path_val_subnational_gas'])
+    subnational_elec = data_loader.read_national_real_elec_data(
+        local_paths['path_val_subnational_elec'])
+    subnational_gas = data_loader.read_national_real_gas_data(
+        local_paths['path_val_subnational_gas'])
 
     spatial_validation(
         reg_coord,
