@@ -181,7 +181,7 @@ class WeatherRegion(object):
             assumptions['ss_specified_tech_enduse_by'])
 
         # -------------------
-        # Load profiles
+        # Residential Load profiles
         # ------------------
         self.rs_load_profiles = load_profile.LoadProfileStock("rs_load_profiles")
 
@@ -276,10 +276,11 @@ class WeatherRegion(object):
             shape_yd=rs_fuel_shape_heating_yd,
             shape_yh=rs_fuel_shape_hp_yh,
             enduse_peak_yd_factor=rs_peak_yd_heating_factor,
-            shape_peak_dh=tech_lp['rs_lp_heating_hp_dh']['peakday']
-            )
-
-        #Service submodel
+            shape_peak_dh=tech_lp['rs_lp_heating_hp_dh']['peakday'])
+        
+        # -------------------
+        # Service Load profiles
+        # ------------------
         self.ss_load_profiles = load_profile.LoadProfileStock("ss_load_profiles")
 
         # --------HDD/CDD
@@ -334,18 +335,31 @@ class WeatherRegion(object):
             enduses=['ss_space_heating'],
             sectors=sectors['ss_sectors'],
             shape_yd=ss_fuel_shape_heating_yd,
-            shape_yh=ss_fuel_shape_any_tech,
+            shape_yh=ss_fuel_shape_any_tech, # ?? TODO
             enduse_peak_yd_factor=ss_peak_yd_heating_factor,
             shape_peak_dh=tech_lp['rs_lp_storage_heating_dh']['peakday'])
 
         self.ss_load_profiles.add_lp(
             unique_identifier=uuid.uuid4(),
             technologies=assumptions['tech_list']['secondary_heating_electricity'],
-            enduses=['rs_space_heating', 'rs_water_heating'],
+            enduses=['ss_space_heating', 'ss_water_heating'],
             sectors=sectors['ss_sectors'],
             shape_yd=ss_fuel_shape_heating_yd,
-            shape_yh=ss_fuel_shape_any_tech,
+            shape_yh=ss_fuel_shape_any_tech, # ?? TODO
             enduse_peak_yd_factor=ss_peak_yd_heating_factor)
+        
+        import pprint
+        print("--------------")
+        pprint.pprint(self.ss_load_profiles.dict_tuple_keys)
+
+        '''self.rs_load_profiles.add_lp(
+            unique_identifier=uuid.uuid4(),
+            technologies=assumptions['tech_list']['secondary_heating_electricity'],
+            enduses=['rs_space_heating', 'rs_water_heating'],
+            shape_yd=rs_fuel_shape_heating_yd,
+            shape_yh=rs_profile_elec_heater_y_dh,
+            enduse_peak_yd_factor=rs_peak_yd_heating_factor,
+            shape_peak_dh=tech_lp['rs_lp_second_heating_dh']['peakday'])'''
 
         self.ss_load_profiles.add_lp(
             unique_identifier=uuid.uuid4(),
@@ -356,7 +370,9 @@ class WeatherRegion(object):
             shape_yh=ss_fuel_shape_any_tech,
             enduse_peak_yd_factor=ss_peak_yd_heating_factor)
 
+        # --------------------------------
         # Industry submodel
+        # --------------------------------
         self.is_load_profiles = load_profile.LoadProfileStock("is_load_profiles")
 
         # --------HDD/CDD

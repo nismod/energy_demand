@@ -365,8 +365,10 @@ def load_paths(path):
         'path_shape_ss_cooling': os.path.join(
             path, 'config_data', 'submodel_service', 'shape_service_cooling.csv'),
         'lp_elec_primary_heating': os.path.join(
-            #path, 'config_data', 'submodel_residential', 'lp_elec_primary_heating_HES.csv'),
-            path, 'config_data', 'submodel_residential', 'lp_elec_primary_heating_Bossmann.csv'),
+            #path, 'config_data', 'submodel_residential', 'lp_elec_primary_heating_HES.csv'), #Worst 
+            #path, 'config_data', 'submodel_residential', 'lp_elec_primary_heating_Bossmann.csv'), #Better 
+            path, 'config_data', 'submodel_residential', 'lp_elec_primary_heating_HESReport.csv'), #BEST
+            
         'lp_elec_secondary_heating': os.path.join(
             path, 'config_data', 'submodel_residential', 'lp_elec_secondary_heating_HES.csv'),
 
@@ -391,7 +393,7 @@ def load_data_tech_profiles(tech_lp, paths, local_paths, plot_tech_lp=False):
     local_paths : dict
         Local paths
     plot_tech_lp : bool
-        Criteria wheter individual tech lp are 
+        Criteria wheter individual tech lp are
         saved as figure to separte folder
 
     Returns
@@ -514,7 +516,9 @@ def load_data_profiles(paths, local_paths, model_yeardays, model_yeardays_daytyp
 
     tech_lp = {}
 
-    # Load technology specific load profiles
+    # ------------------------------------
+    # Technology specific load profiles
+    # ------------------------------------
     tech_lp = load_data_tech_profiles(
         tech_lp,
         paths,

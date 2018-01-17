@@ -169,7 +169,7 @@ class EDWrapper(SectorModel):
             data['assumptions'])
 
         # TODO TEST THAT NARRATIVE IS IMPORTED
-        #print(data['assumptions']['strategy_variables']['climate_change_temp_d__Jan'])
+        print(data['assumptions']['strategy_variables']['climate_change_temp_d__Jan'])
         #prnt(":")
 
         # Update technologies after strategy definition

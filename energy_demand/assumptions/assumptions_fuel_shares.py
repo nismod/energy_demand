@@ -140,10 +140,13 @@ def assign_by_fuel_tech_p(assumptions, enduses, fueltypes, fueltypes_nr):
         'district_heating_gas': 0}
 
     assumptions['rs_fuel_tech_p_by']['rs_space_heating'][fueltypes['electricity']] = {
-        'heat_pumps_electricity': 0.04,
+        'heat_pumps_electricity': 0.04, #0.04,
+        #'secondary_heater_electricity': 0.96
         'storage_heater_electricity': 0.74,
-        'secondary_heater_electricity': 0.22,
-        'district_heating_electricity': 0}
+        'secondary_heater_electricity':0.22, #0.96,
+        #'district_heating_electricity': 0,
+        #'boiler_electricity': 1.0
+        }
 
     assumptions['rs_fuel_tech_p_by']['rs_space_heating'][fueltypes['biomass']] = {
         'boiler_biomass': 1.0,
@@ -189,7 +192,8 @@ def assign_by_fuel_tech_p(assumptions, enduses, fueltypes, fueltypes_nr):
         'boiler_gas': 1.0}
 
     assumptions['ss_fuel_tech_p_by']['ss_space_heating'][fueltypes['electricity']] = {
-        'boiler_electricity': 0.96,
+        #'boiler_electricity': 0.96,
+        'secondary_heater_electricity': 0.96,
         'heat_pumps_electricity': 0.04,
         'district_heating_electricity': 0}
 
