@@ -300,7 +300,6 @@ def fuel_aggr(
         sum_crit,
         model_yearhours_nrs,
         model_yeardays_nrs,
-        #region_name=False
     ):
     """Collect hourly data from all regions and sum across
     all fuel types and enduses
@@ -325,24 +324,13 @@ def fuel_aggr(
     input_array : array
         Summarised array
     """
-    # Select specific region if defined
-    '''if region_name:
-        for sector_model in sector_models:
-            for enduse_object in sector_model:
-                if enduse_object.region_name == region_name:
-                    input_array += get_fuels_yh(
-                        enduse_object,
-                        attribute_to_get,
-                        model_yearhours_nrs,
-                        model_yeardays_nrs)
-    else:'''
     for sector_model in sector_models:
-            for enduse_object in sector_model:
-                input_array += get_fuels_yh(
-                    enduse_object,
-                    attribute_to_get,
-                    model_yearhours_nrs,
-                    model_yeardays_nrs)
+        for enduse_object in sector_model:
+            input_array += get_fuels_yh(
+                enduse_object,
+                attribute_to_get,
+                model_yearhours_nrs,
+                model_yeardays_nrs)
 
     if sum_crit == 'no_sum':
         return input_array
