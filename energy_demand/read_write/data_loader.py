@@ -365,7 +365,8 @@ def load_paths(path):
         'path_shape_ss_cooling': os.path.join(
             path, 'config_data', 'submodel_service', 'shape_service_cooling.csv'),
         'lp_elec_primary_heating': os.path.join(
-            path, 'config_data', 'submodel_residential', 'lp_elec_primary_heating_HES.csv'),
+            #path, 'config_data', 'submodel_residential', 'lp_elec_primary_heating_HES.csv'),
+            path, 'config_data', 'submodel_residential', 'lp_elec_primary_heating_Bossmann.csv'),
         'lp_elec_secondary_heating': os.path.join(
             path, 'config_data', 'submodel_residential', 'lp_elec_secondary_heating_HES.csv'),
 
@@ -433,71 +434,71 @@ def load_data_tech_profiles(tech_lp, paths, local_paths, plot_tech_lp=False):
         plotting_results.plot_lp_dh(
             tech_lp['rs_lp_heating_boilers_dh']['workday'] * 100,
             path_folder_lp,
-            "lp_individ_tech_{}".format("heating_boilers_workday"))
+            "{}".format("heating_boilers_workday"))
         plotting_results.plot_lp_dh(
             tech_lp['rs_lp_heating_boilers_dh']['holiday'] * 100,
             path_folder_lp,
-            "lp_individ_tech_{}".format("heating_boilers_holiday"))
+            "{}".format("heating_boilers_holiday"))
         plotting_results.plot_lp_dh(
             tech_lp['rs_lp_heating_boilers_dh']['peakday'] * 100,
             path_folder_lp,
-            "lp_individ_tech_{}".format("heating_boilers_peakday"))
+            "{}".format("heating_boilers_peakday"))
 
         # CHP
         plotting_results.plot_lp_dh(
             tech_lp['rs_lp_heating_hp_dh']['workday'] * 100,
             path_folder_lp,
-            "lp_individ_tech_{}".format("heatpump_workday"))
+            "{}".format("heatpump_workday"))
         plotting_results.plot_lp_dh(
             tech_lp['rs_lp_heating_hp_dh']['holiday'] * 100,
             path_folder_lp,
-            "lp_individ_tech_{}".format("heatpump_holiday"))
+            "{}".format("heatpump_holiday"))
         plotting_results.plot_lp_dh(
             tech_lp['rs_lp_heating_hp_dh']['peakday'] * 100,
             path_folder_lp,
-            "lp_individ_tech_{}".format("heatpump_peakday"))
+            "{}".format("heatpump_peakday"))
 
         # HP
         plotting_results.plot_lp_dh(
             tech_lp['rs_lp_heating_CHP_dh']['workday'] * 100,
             path_folder_lp,
-            "lp_individ_tech_{}".format("heating_CHP_workday"))
+            "{}".format("heating_CHP_workday"))
         plotting_results.plot_lp_dh(
             tech_lp['rs_lp_heating_CHP_dh']['holiday'] * 100,
             path_folder_lp,
-            "lp_individ_tech_{}".format("heating_CHP_holiday"))
+            "{}".format("heating_CHP_holiday"))
         plotting_results.plot_lp_dh(
             tech_lp['rs_lp_heating_CHP_dh']['peakday'] * 100,
             path_folder_lp,
-            "lp_individ_tech_{}".format("heating_CHP_peakday"))
+            "{}".format("heating_CHP_peakday"))
 
         # Stroage heating
         plotting_results.plot_lp_dh(
             tech_lp['rs_lp_storage_heating_dh']['workday'] * 100,
             path_folder_lp,
-            "lp_individ_tech_{}".format("storage_heating_workday"))
+            "{}".format("storage_heating_workday"))
         plotting_results.plot_lp_dh(
             tech_lp['rs_lp_storage_heating_dh']['holiday'] * 100,
             path_folder_lp,
-            "lp_individ_tech_{}".format("storage_heating_holiday"))
+            "{}".format("storage_heating_holiday"))
         plotting_results.plot_lp_dh(
             tech_lp['rs_lp_storage_heating_dh']['peakday'] * 100,
             path_folder_lp,
-            "lp_individ_tech_{}".format("storage_heating_peakday"))
+            "{}".format("storage_heating_peakday"))
 
         # Direct electric heating
         plotting_results.plot_lp_dh(
             tech_lp['rs_lp_second_heating_dh']['workday'] * 100,
             path_folder_lp,
-            "lp_individ_tech_{}".format("secondary_heating_workday"))
+            "{}".format("secondary_heating_workday"))
         plotting_results.plot_lp_dh(
             tech_lp['rs_lp_second_heating_dh']['holiday'] * 100,
             path_folder_lp,
-            "lp_individ_tech_{}".format("secondary_heating_holiday"))
+            "{}".format("secondary_heating_holiday"))
         plotting_results.plot_lp_dh(
             tech_lp['rs_lp_second_heating_dh']['peakday'] * 100,
             path_folder_lp,
-            "lp_individ_tech_{}".format("secondary_heating_peakday"))
+            "{}".format("secondary_heating_peakday"))
 
     return tech_lp
 
