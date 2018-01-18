@@ -692,8 +692,6 @@ def service_submodel(
 def fuel_regions_fueltype(
         fueltypes_nr,
         fueltypes,
-        reg_nrs,
-        #array_region_nr,
         model_yearhours_nrs,
         model_yeardays_nrs,
         submodels
@@ -1079,8 +1077,6 @@ def aggregate_final_results(
                     # Aggregate Submodel (sector) specific enduse SLOW
                     #print(submodel_ed_fueltype_regs_yh.shape)
                     #rint("..") # TOP: 10.8, BOTTOM: 7 BOTH :12, None: 5.5
-                    # (len(sectors.keys()), fueltypes_nr, reg_nrs, model_yearhours_nrs),
-                    #aggr_results['ed_techs_submodel_fueltype_regs_yh'][heating_tech][submodel_nr] += submodel_ed_fueltype_regs_yh
                     aggr_results['ed_techs_submodel_fueltype_regs_yh'][heating_tech][submodel_nr][reg_array_nr] += submodel_ed_fueltype_regs_yh
 
             except KeyError:
@@ -1093,8 +1089,6 @@ def aggregate_final_results(
             submodel_ed_fueltype_regs_yh, _ = fuel_regions_fueltype(
                 fueltypes_nr,
                 fueltypes,
-                reg_nrs,
-                #reg_array_nr,
                 model_yearhours_nrs,
                 model_yeardays_nrs,
                 [submodel])
@@ -1113,8 +1107,6 @@ def aggregate_final_results(
             submodel_ed_fueltype_regs_yh, _ = fuel_regions_fueltype(
                 fueltypes_nr,
                 fueltypes,
-                reg_nrs,
-                #reg_array_nr,
                 model_yearhours_nrs,
                 model_yeardays_nrs,
                 [submodel])

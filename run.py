@@ -28,7 +28,7 @@ from energy_demand.technologies import fuel_service_switch
 
 # must match smif project name for Local Authority Districts
 REGION_SET_NAME = 'lad_uk_2016'
-NR_OF_MODELLEd_REGIONS = 200 #391 #391 # uk: 391, england.: 380
+NR_OF_MODELLEd_REGIONS = 2 #391 #391 # uk: 391, england.: 380
 PROFILER = False
 
 class EDWrapper(SectorModel):
@@ -52,7 +52,7 @@ class EDWrapper(SectorModel):
         data = defaultdict(dict, data)
 
         # Criteria
-        data['criterias']['mode_constrained'] = True                    # True: Technologies are defined in ED model and fuel is provided, False: Heat is delievered not per technologies
+        data['criterias']['mode_constrained'] = False                    # True: Technologies are defined in ED model and fuel is provided, False: Heat is delievered not per technologies
         data['criterias']['virtual_building_stock_criteria'] = True     # True: Run virtual building stock model
         data['criterias']['plot_HDD_chart'] = False                     # True: Plotting of HDD vs gas chart
         data['criterias']['validation_criteria'] = True                 # True: Plot validation plots
@@ -439,7 +439,7 @@ class EDWrapper(SectorModel):
         # Generate dict for supply model
         # -------------------------------------
         if data['criterias']['mode_constrained']:
-            supply_results = constrained_results(
+            supply_results = constrained_results( #TODO: IMPROVE DESCRIPTION
                 data['lu_reg'],
                 results_constrained,
                 results_unconstrained,
@@ -454,7 +454,7 @@ class EDWrapper(SectorModel):
                     data['paths']['yaml_parameters_keynames_constrained'], supply_results.keys())
         else:
             supply_results = unconstrained_results(
-                regions,
+                data['lu_reg'],
                 results_unconstrained,
                 supply_sectors,
                 data['lookups']['fueltypes'],
@@ -662,17 +662,16 @@ def constrained_results(
             key_name = "{}_{}_{}".format(submodel, fueltype_str, tech_simplified)
 
             if key_name in supply_results.keys():
-
+                 # Do not replace by +=
                 for region_nr, _ in enumerate(regions):
                     supply_results[key_name][region_nr] = supply_results[key_name][region_nr] + fuel_tech[submodel_nr][region_nr][fueltype_int]
-                # Do not replace by +=
+
                 #supply_results[key_name] = supply_results[key_name] + fuel_tech[fueltype_int][submodel_nr]
             else:
                 #supply_results[key_name] = fuel_tech[fueltype_int][submodel_nr]
                 supply_results[key_name] = np.zeros((len(regions), model_yearhours_nrs))
                 for region_nr, _ in enumerate(regions):
                     supply_results[key_name][region_nr] = fuel_tech[submodel_nr][region_nr][fueltype_int]
-                #supply_results[key_name] = fuel_tech[submodel_nr][fueltype_int]
 
     # --------------------------------
     # Add all technologies of restricted enduse (heating)
@@ -691,18 +690,9 @@ def constrained_results(
 
         # NEW TODO MAYBE FASTER
         for sector_nr, _ in enumerate(supply_sectors):
-            #print("---")
-            ##print(constrained_ed.shape)
-            #print(results_unconstrained.shape)
-            #print(sector_nr)
-            #print(fueltype_int)
             # Substract constrained fuel from nonconstrained (total) fuel
             for region_nr, _ in enumerate(regions):
                 non_heating_ed[sector_nr][region_nr][fueltype_int] = results_unconstrained[sector_nr][region_nr][fueltype_int] - constrained_ed[sector_nr][region_nr][fueltype_int]
-            #non_heating_ed[sector_nr][fueltype_int] = results_unconstrained[sector_nr][fueltype_int] - constrained_ed[sector_nr][fueltype_int]
-
-        # Substract constrained fuel from nonconstrained (total) fuel
-        ##non_heating_ed[fueltype_int] = results_unconstrained[fueltype_int] - constrained_ed[fueltype_int]
 
     # Add non_heating for all fueltypes
     for submodel_nr, submodel in enumerate(supply_sectors):
@@ -715,15 +705,19 @@ def constrained_results(
                 key_name = "{}_{}_{}".format(submodel, fueltype_str, "non_heating")
 
                 supply_results[key_name] = np.zeros((len(regions), model_yearhours_nrs))
-
                 for region_nr, _ in enumerate(regions):
                     supply_results[key_name][region_nr] = non_heating_ed[submodel_nr][region_nr][fueltype_int]
-                #supply_results[key_name] = non_heating_ed[submodel_nr][fueltype_int]
 
     logging.info("Prepared results for energy supply model in constrained mode")
     return dict(supply_results)
 
-def unconstrained_results(regions, results_unconstrained, supply_sectors, fueltypes, model_yearhours_nrs):
+def unconstrained_results(
+        regions,
+        results_unconstrained,
+        supply_sectors,
+        fueltypes,
+        model_yearhours_nrs
+    ):
     """Prepare results for energy supply model for
     unconstrained model running mode (heat is provided).
     The results for the supply model are provided aggregated
@@ -741,7 +735,7 @@ def unconstrained_results(regions, results_unconstrained, supply_sectors, fuelty
     Arguments
     ----------
     results_unconstrained : array
-        Aggregated results in form of np.array((fueltype, sector, region, timestep))
+        Aggregated results in form of np.array((fueltype, sector, region, timestep)) TODO: UPDATE
     supply_sectors : list
         Names of sectors fur supply model
     fueltypes : dict
@@ -762,13 +756,10 @@ def unconstrained_results(regions, results_unconstrained, supply_sectors, fuelty
             # Generate key name (must be defined in `sector_models`)
             key_name = "{}_{}".format(submodel, fueltype_str)
 
-            print(results_unconstrained.shape)
-            prnt("..")
-            regions = np.zeros((len(regions), model_yearhours_nrs))
+            supply_results[key_name] = np.zeros((len(regions), model_yearhours_nrs))
+
             for region_nr, _ in enumerate(regions):
-                supply_results[key_name] = results_unconstrained[fueltype_int][submodel_nr]
-            
-            #supply_results[key_name] = results_unconstrained[fueltype_int][submodel_nr]
+                supply_results[key_name][region_nr] = results_unconstrained[submodel_nr][region_nr][fueltype_int]
 
     logging.info("Prepared results for energy supply model in unconstrained mode")
     return supply_results
