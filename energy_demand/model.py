@@ -120,22 +120,6 @@ class EnergyDemandModel(object):
                 data['assumptions']['enduse_space_heating'],
                 data['criterias']['beyond_supply_outputs'])
 
-        # -----------------
-        # Postum reshaping
-        # -----------------
-        '''# Reshape ed_techs_submodel_fueltype_regs_yh
-        for heating_tech, submodel_techs in aggr_results['ed_techs_submodel_fueltype_regs_yh'].items():
-            for submodel_nr, _ in enumerate(submodel_techs):
-                for fueltype_nr in data['lookups']['fueltypes'].values():
-                    for region, _ in enumerate(data['lu_reg']):
-                        aggr_results['ed_techs_submodel_fueltype_regs_yh'][heating_tech][submodel_nr][fueltype_nr][region].reshape(data['assumptions']['model_yearhours_nrs'])
-
-        # Reshape 'ed_submodel_fueltype_regs_yh'
-        for submodel_nr, _ in enumerate(aggr_results['ed_submodel_fueltype_regs_yh']):
-            for fueltype_nr in data['lookups']['fueltypes'].values():
-                for region, _ in enumerate(data['lu_reg']):
-                    aggr_results['ed_submodel_fueltype_regs_yh'][submodel_nr][fueltype_nr][region].reshape(data['assumptions']['model_yearhours_nrs'])
-        '''
         # -------
     	# Set all keys of aggr_results as self.attributes (EnergyDemandModel)
         # -------
@@ -853,8 +837,6 @@ def constrained_fuel_regions_fueltype(
     aggregation_array : array
         Aggregated ful per (fueltype, region, yearhours)
     """
-    #aggregation_array_NEW = np.zeros((
-    #     reg_nrs, fueltypes_nr, model_yeardays_nrs, 24), dtype=float)
     aggregation_array = np.zeros((
         fueltypes_nr, reg_nrs, model_yeardays_nrs, 24), dtype=float)
 
