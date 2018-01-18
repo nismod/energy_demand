@@ -260,6 +260,8 @@ def load_local_paths(path):
             path, '_processed_data'),
         'data_results': os.path.join(
             path, '_result_data'),
+        'data_results_model_run_pop': os.path.join(
+            path, '_result_data', 'model_run_pop'),
         'lad_shapefile': os.path.join(
             path, '_raw_data', 'C_LAD_geography', 'lad_2016.shp'),
         'path_post_installation_data': os.path.join(

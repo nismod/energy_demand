@@ -244,7 +244,7 @@ if __name__ == "__main__":
     basic_functions.del_previous_setup(data['local_paths']['data_results'])
     basic_functions.create_folder(data['local_paths']['data_results'])
     basic_functions.create_folder(data['local_paths']['data_results_PDF'])
-    basic_functions.create_folder(data['local_paths']['data_results'], "model_run_pop")
+    basic_functions.create_folder(data['local_paths']['data_results_model_run_pop'])
 
     # Create .ini file with simulation information
     write_data.write_simulation_inifile(

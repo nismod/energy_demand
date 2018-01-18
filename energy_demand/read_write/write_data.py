@@ -14,8 +14,7 @@ def write_pop(sim_yr, path_result, pop_y):
     """Write scenario population for a year
     """
     path_file = os.path.join(
-        path_result,
-        "model_run_pop", "pop__{}__{}".format(sim_yr, ".txt"))
+        path_result, "pop__{}__{}".format(sim_yr, ".txt"))
 
     np.savetxt(path_file, pop_y, delimiter=',')
 

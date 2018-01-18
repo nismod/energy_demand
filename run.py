@@ -212,7 +212,7 @@ class EDWrapper(SectorModel):
         for t_idx, timestep in enumerate(self.timesteps):
             write_data.write_pop(
                 timestep,
-                data['local_paths']['data_results'],
+                data['local_paths']['data_results_model_run_pop'],
                 pop_array[t_idx])
 
     def initialise(self, initial_conditions):

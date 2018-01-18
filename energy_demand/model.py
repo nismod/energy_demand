@@ -705,15 +705,9 @@ def fuel_regions_fueltype(
 
     Returns
     -------
-    aggregation_array : array
-        Aggregated fuels per fueltype, region, yearhours
-
     fuel_region : dict
         Aggregated fuel per fueltype, yeardays, hours
     """
-    aggregation_array = np.zeros((
-        fueltypes_nr, model_yeardays_nrs, 24), dtype=float)
-
     fuel_region = fuel_aggr(
         'fuel_yh',
         submodels,
@@ -722,9 +716,7 @@ def fuel_regions_fueltype(
         fueltypes_nr,
         model_yeardays_nrs)
 
-    aggregation_array = fuel_region
-
-    return aggregation_array, fuel_region
+    return fuel_region
 
 def aggr_fuel_regions_fueltype(
         aggregation_array,
@@ -745,13 +737,12 @@ def aggr_fuel_regions_fueltype(
         Number of fueltypes
     fueltypes : dict
         Fueltypes
-    region_name : list
-        Region name
     array_region_nr : int
         Array nr position of region
     model_yearhours_nrs : int
         Modelled houry in a year (max 8760)
     model_yeardays_nrs : int
+        Number of modelled yeardays (max 365)
     submodels : list
         List with submodels
 
@@ -1059,7 +1050,7 @@ def aggregate_final_results(
         # Summarise remaining fuel of other enduses
         # -------------
         for submodel_nr, submodel in enumerate(all_submodels):
-            submodel_ed_fueltype_regs_yh, _ = fuel_regions_fueltype(
+            submodel_ed_fueltype_regs_yh = fuel_regions_fueltype(
                 fueltypes_nr,
                 model_yearhours_nrs,
                 model_yeardays_nrs,
@@ -1075,7 +1066,7 @@ def aggregate_final_results(
         # -------------
         # Sum across all fueltypes, sectors, regs and hours
         for submodel_nr, submodel in enumerate(all_submodels):
-            submodel_ed_fueltype_regs_yh, _ = fuel_regions_fueltype(
+            submodel_ed_fueltype_regs_yh = fuel_regions_fueltype(
                 fueltypes_nr,
                 model_yearhours_nrs,
                 model_yeardays_nrs,
