@@ -128,6 +128,11 @@ class EnergyDemandModel(object):
                 data['assumptions']['enduse_space_heating'],
                 data['criterias']['beyond_supply_outputs'])
 
+            # Postum aggregation
+            '''for tech in submodel_techs aggr_results['ed_techs_submodel_fueltype_regs_yh'].items():
+                for submodel_nr in submodel_techs:
+                    aggr_results['ed_techs_submodel_fueltype_regs_yh'][heating_tech][submodel_nr] = np.abs'''
+
             '''b = datetime.now()
             print("TIME NEEDED " + str(b-a))
             profiler.stop()
@@ -234,13 +239,13 @@ def simulate_region(region, data, weather_regions):
 
 def constrained_fuel_aggr(
         attribute_to_get,
-        sector_models,
+        enduse_object, #sector_model,
         sum_crit,
         fueltypes_nr,
         model_yearhours_nrs,
         model_yeardays_nrs,
-        tech,
-        enduses_with_heating
+        tech#,
+        #enduses_with_heating
     ):
     """Collect hourly data from all regions and sum across
     all fuel types and enduses
@@ -266,22 +271,23 @@ def constrained_fuel_aggr(
     input_array = np.zeros((fueltypes_nr, model_yeardays_nrs, 24), dtype=float)
 
     # Select specific region if defined
-    for sector_model in sector_models:
-        for enduse_object in sector_model:
+    #for sector_model in sector_models:
+    #for enduse_object in sector_model:
 
-            # If correct region and heating enduse
-            if enduse_object.enduse in enduses_with_heating:
-                ed_techs_dict = get_fuels_yh(
-                    enduse_object,
-                    attribute_to_get,
-                    model_yearhours_nrs,
-                    model_yeardays_nrs)
+    # If correct region and heating enduse
+    #if enduse_object.enduse in enduses_with_heating:
+    ed_techs_dict = get_fuels_yh(
+        enduse_object,
+        attribute_to_get,
+        model_yearhours_nrs,
+        model_yeardays_nrs)
 
-                # If technologies are defined
-                if isinstance(ed_techs_dict, dict):
-                    input_array += ed_techs_dict[tech]
-                else:
-                    input_array += ed_techs_dict
+    
+    # If technologies are defined
+    if isinstance(ed_techs_dict, dict):
+        input_array += ed_techs_dict[tech]
+    else:
+        input_array += ed_techs_dict
 
     if sum_crit == 'no_sum':
         return input_array
@@ -858,19 +864,29 @@ def constrained_fuel_regions_fueltype(
     aggregation_array = np.zeros((
         fueltypes_nr, reg_nrs, model_yearhours_nrs), dtype=float)
 
-    fuels = constrained_fuel_aggr(
-        'techs_fuel_yh',
-        submodels,
-        'no_sum',
-        fueltypes_nr,
-        model_yearhours_nrs,
-        model_yeardays_nrs,
-        tech,
-        enduses_with_heating)
+    # NEW
+    for submodel in submodels:
+        for enduse_object in submodel:
 
-    # Reshape
-    for fueltype_nr in fueltypes.values():
-        aggregation_array[fueltype_nr][array_region_nr] += fuels[fueltype_nr].reshape(model_yearhours_nrs)
+        #for submodel in sub_mods:
+            #print("submodel.enduse")
+            #print(submodel)
+            #prnt("")
+            if enduse_object.enduse in enduses_with_heating:
+
+                fuels = constrained_fuel_aggr(
+                    'techs_fuel_yh',
+                    enduse_object, #submodels,
+                    'no_sum',
+                    fueltypes_nr,
+                    model_yearhours_nrs,
+                    model_yeardays_nrs,
+                    tech)#,
+                    #enduses_with_heating)
+
+                # Reshape
+                for fueltype_nr in fueltypes.values():
+                    aggregation_array[fueltype_nr][array_region_nr] += fuels[fueltype_nr].reshape(model_yearhours_nrs)
 
     return aggregation_array
 
@@ -1090,6 +1106,8 @@ def aggregate_final_results(
 
             except KeyError:
                 logging.debug("Info: Technology was not used %s", heating_tech)
+
+    
 
         # -------------
         # Summarise remaining fuel of other enduses
