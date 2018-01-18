@@ -758,7 +758,8 @@ def fuel_regions_fueltype(
         model_yeardays_nrs)
 
     for fueltype_nr in fueltypes.values():
-        aggregation_array[fueltype_nr][array_region_nr] += fuel_region[fueltype_nr]
+        #aggregation_array[fueltype_nr][array_region_nr] += fuel_region[fueltype_nr]
+        aggregation_array[fueltype_nr][array_region_nr] = fuel_region[fueltype_nr]
 
     return aggregation_array, fuel_region
 
@@ -857,10 +858,10 @@ def constrained_fuel_regions_fueltype(
     aggregation_array : array
         Aggregated ful per (fueltype, region, yearhours)
     """
-    aggregation_array_NEW = np.zeros((
-         reg_nrs, fueltypes_nr, model_yeardays_nrs, 24), dtype=float)
-    #aggregation_array = np.zeros((
-    #    fueltypes_nr, reg_nrs, model_yeardays_nrs, 24), dtype=float)
+    #aggregation_array_NEW = np.zeros((
+    #     reg_nrs, fueltypes_nr, model_yeardays_nrs, 24), dtype=float)
+    aggregation_array = np.zeros((
+        fueltypes_nr, reg_nrs, model_yeardays_nrs, 24), dtype=float)
 
     for submodel in submodels:
         for enduse_object in submodel:
@@ -875,15 +876,13 @@ def constrained_fuel_regions_fueltype(
                     model_yeardays_nrs,
                     tech)
 
-                aggregation_array_NEW += fuels
-
                 # TODO IMPROVE
-                ##for fueltype_nr in fueltypes.values():
-                ##    aggregation_array[fueltype_nr][array_region_nr] += fuels[fueltype_nr]
-
+                for fueltype_nr in fueltypes.values():
+                    aggregation_array[fueltype_nr][array_region_nr] += fuels[fueltype_nr]
+                
+                 #aggregation_array_NEW += fuels
     # Roll axis (switch position of fueltypes_nr, reg_nrs)
-    aggregation_array = np.rollaxis(aggregation_array_NEW, axis=1, start=0)    
-
+    #aggregation_array = np.rollaxis(aggregation_array_NEW, axis=1, start=0)    
     return aggregation_array
 
 def sum_enduse_all_regions(
