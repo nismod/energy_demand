@@ -283,10 +283,8 @@ if __name__ == "__main__":
             logging.debug("Profiler Results")
             print(profiler.output_text(unicode=True, color=True))
 
-        b = datetime.datetime.now()
-        print("TOTAL TIME: " + str(b-a))
-        print("ABORT SYSTEM")
-        sys.exit()
+
+
         # --------------------
         # Result unconstrained
         # --------------------
@@ -349,6 +347,9 @@ if __name__ == "__main__":
                     data['local_paths']['data_results'],
                     pop_array_reg)
                 logging.info("... Finished writing results to file")
+
+    b = datetime.datetime.now()
+    print("TOTAL TIME: " + str(b-a))
 
     logging.info("... Finished running Energy Demand Model")
     print("... Finished running Energy Demand Model")
