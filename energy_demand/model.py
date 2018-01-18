@@ -233,10 +233,10 @@ def simulate_region(region, data, weather_regions):
     return rs_submodel, ss_submodel, is_submodel
 
 def constrained_fuel_aggr(
-        input_array,
         attribute_to_get,
         sector_models,
         sum_crit,
+        fueltypes_nr,
         model_yearhours_nrs,
         model_yeardays_nrs,
         tech,
@@ -247,8 +247,6 @@ def constrained_fuel_aggr(
 
     Arguments
     ----------
-    input_array : array
-        Array to sum results
     attribute_to_get : str
         Attribue to sumarise
     sum_crit : str
@@ -265,6 +263,8 @@ def constrained_fuel_aggr(
     input_array : array
         Summarised array
     """
+    input_array = np.zeros((fueltypes_nr, model_yeardays_nrs, 24), dtype=float)
+
     # Select specific region if defined
     for sector_model in sector_models:
         for enduse_object in sector_model:
@@ -814,7 +814,7 @@ def aggr_fuel_regions_fueltype(
     return aggregation_array, fuel_region
 
 def constrained_fuel_regions_fueltype(
-        aggregation_array,
+        reg_nrs,
         fueltypes_nr,
         fueltypes,
         array_region_nr,
@@ -857,15 +857,17 @@ def constrained_fuel_regions_fueltype(
     aggregation_array : array
         Aggregated ful per (fueltype, region, yearhours)
     """
+    aggregation_array = np.zeros((
+        fueltypes_nr, reg_nrs, model_yearhours_nrs), dtype=float)
+
     fuels = constrained_fuel_aggr(
-        np.zeros((fueltypes_nr, model_yeardays_nrs, 24), dtype=float),
         'techs_fuel_yh',
         submodels,
         'no_sum',
+        fueltypes_nr,
         model_yearhours_nrs,
         model_yeardays_nrs,
         tech,
-        #region_name,
         enduses_with_heating)
 
     # Reshape
@@ -1073,7 +1075,7 @@ def aggregate_final_results(
 
                     # Summarise for every fueltype, region, timestpes
                     submodel_ed_fueltype_regs_yh = constrained_fuel_regions_fueltype(
-                        np.zeros((fueltypes_nr, reg_nrs, model_yearhours_nrs), dtype=float),
+                        reg_nrs, 
                         fueltypes_nr,
                         fueltypes,
                         reg_array_nr,
@@ -1086,6 +1088,9 @@ def aggregate_final_results(
                     # Aggregate Submodel (sector) specific enduse
                     for fueltype_nr in fueltypes.values():
                         aggr_results['ed_techs_fueltype_submodel_regs_yh'][heating_tech][fueltype_nr][submodel_nr] += submodel_ed_fueltype_regs_yh[fueltype_nr]
+
+                    #for fueltype_nr in fueltypes.values():
+                    #aggr_results['ed_techs_fueltype_submodel_regs_yh'][heating_tech][fueltype_nr][submodel_nr] += submodel_ed_fueltype_regs_yh[fueltype_nr]
 
             except KeyError:
                 logging.debug("Info: Technology was not used %s", heating_tech)
