@@ -693,7 +693,7 @@ def fuel_regions_fueltype(
         fueltypes_nr,
         fueltypes,
         reg_nrs,
-        array_region_nr,
+        #array_region_nr,
         model_yearhours_nrs,
         model_yeardays_nrs,
         submodels
@@ -726,7 +726,9 @@ def fuel_regions_fueltype(
     fuel_region : dict
         Aggregated fuel per fueltype, yeardays, hours
     """
-    aggregation_array = np.zeros((fueltypes_nr, reg_nrs, model_yeardays_nrs, 24), dtype=float)
+    #aggregation_array = np.zeros((fueltypes_nr, reg_nrs, model_yeardays_nrs, 24), dtype=float)
+
+    aggregation_array = np.zeros((fueltypes_nr, model_yeardays_nrs, 24), dtype=float)
 
     fuel_region = fuel_aggr(
         'fuel_yh',
@@ -738,7 +740,7 @@ def fuel_regions_fueltype(
 
     for fueltype_nr in fueltypes.values():
         #aggregation_array[fueltype_nr][array_region_nr] += fuel_region[fueltype_nr]
-        aggregation_array[fueltype_nr][array_region_nr] = fuel_region[fueltype_nr]
+        aggregation_array[fueltype_nr] = fuel_region[fueltype_nr]
 
     return aggregation_array, fuel_region
 
@@ -797,7 +799,7 @@ def constrained_fuel_regions_fueltype(
         reg_nrs,
         fueltypes_nr,
         fueltypes,
-        array_region_nr,
+        #array_region_nr,
         model_yearhours_nrs,
         model_yeardays_nrs,
         tech,
@@ -837,8 +839,10 @@ def constrained_fuel_regions_fueltype(
     aggregation_array : array
         Aggregated ful per (fueltype, region, yearhours)
     """
+    #aggregation_array = np.zeros((
+    #    fueltypes_nr, reg_nrs, model_yeardays_nrs, 24), dtype=float)
     aggregation_array = np.zeros((
-        fueltypes_nr, reg_nrs, model_yeardays_nrs, 24), dtype=float)
+        fueltypes_nr, model_yeardays_nrs, 24), dtype=float)
 
     for submodel in submodels:
         for enduse_object in submodel:
@@ -855,7 +859,8 @@ def constrained_fuel_regions_fueltype(
 
                 # TODO IMPROVE
                 for fueltype_nr in fueltypes.values():
-                    aggregation_array[fueltype_nr][array_region_nr] += fuels[fueltype_nr]
+                    #aggregation_array[fueltype_nr][array_region_nr] += fuels[fueltype_nr]
+                    aggregation_array[fueltype_nr] += fuels[fueltype_nr]
                 
                  #aggregation_array_NEW += fuels
     # Roll axis (switch position of fueltypes_nr, reg_nrs)
@@ -1064,7 +1069,7 @@ def aggregate_final_results(
                         reg_nrs, 
                         fueltypes_nr,
                         fueltypes,
-                        reg_array_nr,
+                        #reg_array_nr,
                         model_yearhours_nrs,
                         model_yeardays_nrs,
                         heating_tech,
@@ -1075,7 +1080,8 @@ def aggregate_final_results(
                     #print(submodel_ed_fueltype_regs_yh.shape)
                     #rint("..") # TOP: 10.8, BOTTOM: 7 BOTH :12, None: 5.5
                     # (len(sectors.keys()), fueltypes_nr, reg_nrs, model_yearhours_nrs),
-                    aggr_results['ed_techs_submodel_fueltype_regs_yh'][heating_tech][submodel_nr] += submodel_ed_fueltype_regs_yh
+                    #aggr_results['ed_techs_submodel_fueltype_regs_yh'][heating_tech][submodel_nr] += submodel_ed_fueltype_regs_yh
+                    aggr_results['ed_techs_submodel_fueltype_regs_yh'][heating_tech][submodel_nr][reg_array_nr] += submodel_ed_fueltype_regs_yh
 
             except KeyError:
                 logging.debug("Info: Technology was not used %s", heating_tech)
@@ -1088,13 +1094,13 @@ def aggregate_final_results(
                 fueltypes_nr,
                 fueltypes,
                 reg_nrs,
-                reg_array_nr,
+                #reg_array_nr,
                 model_yearhours_nrs,
                 model_yeardays_nrs,
                 [submodel])
 
             # Add SubModel specific ed SLOW
-            aggr_results['ed_submodel_fueltype_regs_yh'][submodel_nr] += submodel_ed_fueltype_regs_yh
+            aggr_results['ed_submodel_fueltype_regs_yh'][submodel_nr][reg_array_nr] += submodel_ed_fueltype_regs_yh
     else:
         # -------------
         # Summarise ed of Unconstrained mode (heat is provided)
@@ -1108,13 +1114,13 @@ def aggregate_final_results(
                 fueltypes_nr,
                 fueltypes,
                 reg_nrs,
-                reg_array_nr,
+                #reg_array_nr,
                 model_yearhours_nrs,
                 model_yeardays_nrs,
                 [submodel])
 
             # Add SubModel specific ed
-            aggr_results['ed_submodel_fueltype_regs_yh'][submodel_nr] += submodel_ed_fueltype_regs_yh
+            aggr_results['ed_submodel_fueltype_regs_yh'][submodel_nr][reg_array_nr] += submodel_ed_fueltype_regs_yh
 
     # -----------
     # Other summing for other purposes
@@ -1235,12 +1241,12 @@ def initialise_result_container(
     result_container = {}
 
     result_container['ed_submodel_fueltype_regs_yh'] = np.zeros(
-        (len(sectors.keys()), fueltypes_nr, reg_nrs, model_yeardays_nrs, 24), dtype=float)
+        (len(sectors.keys()),  reg_nrs, fueltypes_nr, model_yeardays_nrs, 24), dtype=float)
 
     result_container['ed_techs_submodel_fueltype_regs_yh'] = {}
     for heating_tech in heating_technologies:
         result_container['ed_techs_submodel_fueltype_regs_yh'][heating_tech] = np.zeros(
-            (len(sectors.keys()), fueltypes_nr, reg_nrs, model_yeardays_nrs, 24), dtype=float)
+            (len(sectors.keys()), reg_nrs, fueltypes_nr, model_yeardays_nrs, 24), dtype=float)
 
     result_container['ed_fueltype_regs_yh'] = np.zeros(
         (fueltypes_nr, reg_nrs, model_yearhours_nrs), dtype=float)
