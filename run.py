@@ -4,6 +4,7 @@ import os
 import logging
 import configparser
 import numpy as np
+import datetime
 from datetime import date
 from collections import defaultdict
 from smif.model.sector_model import SectorModel
@@ -28,7 +29,7 @@ from energy_demand.technologies import fuel_service_switch
 
 # must match smif project name for Local Authority Districts
 REGION_SET_NAME = 'lad_uk_2016'
-NR_OF_MODELLEd_REGIONS = 2 #391 #391 # uk: 391, england.: 380
+NR_OF_MODELLEd_REGIONS = 20 #391 # uk: 391, england.: 380
 PROFILER = False
 
 class EDWrapper(SectorModel):
@@ -52,20 +53,29 @@ class EDWrapper(SectorModel):
         data = defaultdict(dict, data)
 
         # Criteria
-        data['criterias']['mode_constrained'] = False                    # True: Technologies are defined in ED model and fuel is provided, False: Heat is delievered not per technologies
+        data['criterias']['mode_constrained'] = True                    # True: Technologies are defined in ED model and fuel is provided, False: Heat is delievered not per technologies
         data['criterias']['virtual_building_stock_criteria'] = True     # True: Run virtual building stock model
         data['criterias']['plot_HDD_chart'] = False                     # True: Plotting of HDD vs gas chart
-        data['criterias']['validation_criteria'] = True                 # True: Plot validation plots
+        data['criterias']['validation_criteria'] = False                 # True: Plot validation plots
         data['criterias']['spatial_exliclit_diffusion'] = False         # True: Spatial explicit calculations
         data['criterias']['writeYAML'] = False
-        data['criterias']['write_to_txt'] = True
-        data['criterias']['beyond_supply_outputs'] = True
+        data['criterias']['write_to_txt'] = True # True
+        data['criterias']['beyond_supply_outputs'] = False  # True             # If only for smif: FAlse, for other plots: True
         data['criterias']['plot_crit'] = False
 
         data['sim_param']['base_yr'] = 2015                             # Base year
         data['sim_param']['curr_yr'] = data['sim_param']['base_yr']
         self.user_data['base_yr'] = data['sim_param']['base_yr']
 
+        fast = False #YEAY
+        if fast == True:
+            data['criterias']['write_to_txt'] = False
+            data['criterias']['beyond_supply_outputs'] = False
+            data['criterias']['validation_criteria'] = False  
+        else:
+            data['criterias']['write_to_txt'] = True
+            data['criterias']['beyond_supply_outputs'] = True
+            data['criterias']['validation_criteria'] = True  
         # -----------------------------
         # Paths
         # -----------------------------
@@ -211,7 +221,7 @@ class EDWrapper(SectorModel):
         for t_idx, timestep in enumerate(self.timesteps):
             write_data.write_pop(
                 timestep,
-                data['local_paths']['data_results'],
+                data['local_paths']['data_results_model_run_pop'],
                 pop_array[t_idx])
 
     def initialise(self, initial_conditions):
@@ -252,6 +262,8 @@ class EDWrapper(SectorModel):
             key: name defined in sector models
                 value: np.zeros((len(reg), len(intervals)) )
         """
+        time_start = datetime.datetime.now() 
+
         # Convert data to default dict
         data = defaultdict(dict, data)
 
@@ -470,6 +482,10 @@ class EDWrapper(SectorModel):
             _total_scrap += np.sum(supply_results[key])
         print("FINALSUM: " + str(_total_scrap))
         logging.info("... finished wrapper calculations")
+
+        time_end = datetime.datetime.now()
+        print("... Total Time: " + str(time_end- time_start))
+
         return supply_results
 
     def extract_obj(self, results):

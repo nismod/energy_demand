@@ -11,11 +11,19 @@ from yaml import Loader, Dumper
 import collections
 
 def write_pop(sim_yr, path_result, pop_y):
-    """Write scenario population for a year
+    """Write scenario population for a year to txt file
+
+    Parameters
+    ----------
+    sim_yr : int
+        Simulation year
+    path_result : str
+        Path to resulting folder
+    pop_y : array
+        Population of simulation year
     """
     path_file = os.path.join(
-        path_result,
-        "model_run_pop", "pop__{}__{}".format(sim_yr, ".txt"))
+        path_result, "pop__{}__{}".format(sim_yr, ".txt"))
 
     np.savetxt(path_file, pop_y, delimiter=',')
 
