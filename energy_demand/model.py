@@ -95,10 +95,6 @@ class EnergyDemandModel(object):
                 "... Simulate region %s for year %s", region, self.curr_yr)
             print(
                 "... Simulate region %s for year %s", region, self.curr_yr)
-            # Simulate
-            #profiler = Profiler(use_signal=False)
-            #profiler.start()
-            #a = datetime.now()
 
             reg_rs_submodel, reg_ss_submodel, reg_is_submodel = simulate_region(
                 region, data, weather_regions)
@@ -127,20 +123,19 @@ class EnergyDemandModel(object):
         # -----------------
         # Postum reshaping
         # -----------------
-
-        # Reshape ed_techs_submodel_fueltype_regs_yh
+        '''# Reshape ed_techs_submodel_fueltype_regs_yh
         for heating_tech, submodel_techs in aggr_results['ed_techs_submodel_fueltype_regs_yh'].items():
             for submodel_nr, _ in enumerate(submodel_techs):
                 for fueltype_nr in data['lookups']['fueltypes'].values():
                     for region, _ in enumerate(data['lu_reg']):
                         aggr_results['ed_techs_submodel_fueltype_regs_yh'][heating_tech][submodel_nr][fueltype_nr][region].reshape(data['assumptions']['model_yearhours_nrs'])
-        
+
         # Reshape 'ed_submodel_fueltype_regs_yh'
         for submodel_nr, _ in enumerate(aggr_results['ed_submodel_fueltype_regs_yh']):
             for fueltype_nr in data['lookups']['fueltypes'].values():
                 for region, _ in enumerate(data['lu_reg']):
                     aggr_results['ed_submodel_fueltype_regs_yh'][submodel_nr][fueltype_nr][region].reshape(data['assumptions']['model_yearhours_nrs'])
-
+        '''
         # -------
     	# Set all keys of aggr_results as self.attributes (EnergyDemandModel)
         # -------
@@ -1264,14 +1259,6 @@ def initialise_result_container(
     for heating_tech in heating_technologies:
         result_container['ed_techs_submodel_fueltype_regs_yh'][heating_tech] = np.zeros(
             (len(sectors.keys()), fueltypes_nr, reg_nrs, model_yeardays_nrs, 24), dtype=float)
-
-    '''result_container['ed_submodel_fueltype_regs_yh'] = np.zeros(
-        (len(sectors.keys()), fueltypes_nr, reg_nrs, model_yearhours_nrs), dtype=float)
-
-    result_container['ed_techs_submodel_fueltype_regs_yh'] = {}
-    for heating_tech in heating_technologies:
-        result_container['ed_techs_submodel_fueltype_regs_yh'][heating_tech] = np.zeros(
-            (len(sectors.keys()), fueltypes_nr, reg_nrs, model_yearhours_nrs), dtype=float)'''
 
     result_container['ed_fueltype_regs_yh'] = np.zeros(
         (fueltypes_nr, reg_nrs, model_yearhours_nrs), dtype=float)

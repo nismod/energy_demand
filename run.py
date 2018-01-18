@@ -399,6 +399,23 @@ class EDWrapper(SectorModel):
         results_constrained = sim_obj.ed_techs_submodel_fueltype_regs_yh
         #write_data.write_supply_results(['rs_submodel', 'ss_submodel', 'is_submodel'], timestep, path_run, results_unconstrained, "results_constrained")
 
+        # --------
+        # Reshape from 365, 24 to 8760
+        # --------
+        # Reshape ed_techs_submodel_fueltype_regs_yh
+        for heating_tech, submodel_techs in results_constrained.items():
+            for submodel_nr, _ in enumerate(submodel_techs):
+                for fueltype_nr in data['lookups']['fueltypes'].values():
+                    for region, _ in enumerate(data['lu_reg']):
+                        results_constrained[heating_tech][submodel_nr][fueltype_nr][region].reshape(data['assumptions']['model_yearhours_nrs'])
+
+        # Reshape 'ed_submodel_fueltype_regs_yh'
+        for submodel_nr, _ in enumerate(results_unconstrained):
+            for fueltype_nr in data['lookups']['fueltypes'].values():
+                for region, _ in enumerate(data['lu_reg']):
+                    results_unconstrained[submodel_nr][fueltype_nr][region].reshape(data['assumptions']['model_yearhours_nrs'])
+        
+
         supply_sectors = ['residential', 'service', 'industry']
 
         if data['criterias']['mode_constrained']:
