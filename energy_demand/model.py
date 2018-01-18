@@ -95,14 +95,6 @@ class EnergyDemandModel(object):
                 "... Simulate region %s for year %s", region, self.curr_yr)
             print(
                 "... Simulate region %s for year %s", region, self.curr_yr)
-            # Simulate
-            #profiler = Profiler(use_signal=False)
-            #profiler.start()
-            a = datetime.now()
-
-            # Report on object sizes that are used in the next step
-            #print(sys.getsizeof(data))
-            #print(sys.getsizeof(weather_regions))
 
             reg_rs_submodel, reg_ss_submodel, reg_is_submodel = simulate_region(
                 region, data, weather_regions)
@@ -115,7 +107,6 @@ class EnergyDemandModel(object):
             # ---------------------------------------------
             aggr_results = aggregate_final_results(
                 aggr_results,
-                region,
                 reg_array_nr,
                 all_submodels,
                 data['criterias']['mode_constrained'],
@@ -128,12 +119,6 @@ class EnergyDemandModel(object):
                 data['assumptions']['heating_technologies'],
                 data['assumptions']['enduse_space_heating'],
                 data['criterias']['beyond_supply_outputs'])
-
-            '''b = datetime.now()
-            print("TIME NEEDED " + str(b-a))
-            profiler.stop()
-            print(profiler.output_text(unicode=True, color=True))
-            #prnt(".")'''
 
         # -------
     	# Set all keys of aggr_results as self.attributes (EnergyDemandModel)
@@ -234,15 +219,64 @@ def simulate_region(region, data, weather_regions):
     return rs_submodel, ss_submodel, is_submodel
 
 def constrained_fuel_aggr(
-        input_array,
+        attribute_to_get,
+        enduse_object,
+        sum_crit,
+        fueltypes_nr,
+        model_yearhours_nrs,
+        model_yeardays_nrs,
+        tech
+    ):
+    """Collect hourly data from all regions and sum across
+    all fuel types and enduses
+
+    Arguments
+    ----------
+    attribute_to_get : str
+        Attribue to sumarise
+    sum_crit : str
+        Criteria
+    model_yearhours_nrs : int
+        Number of modelled hours in a year
+    model_yeardays_nrs : int
+        Number of modelled yeardays
+    region_name : str, default=False
+        Name of region
+
+    Returns
+    -------
+    input_array : array
+        Summarised array
+    """
+    input_array = np.zeros((fueltypes_nr, model_yeardays_nrs, 24), dtype=float)
+
+    # Select specific region if defined
+
+    # If correct region and heating enduse
+    ed_techs_dict = get_fuels_yh(
+        enduse_object,
+        attribute_to_get,
+        model_yearhours_nrs,
+        model_yeardays_nrs)
+
+    # If technologies are defined
+    if isinstance(ed_techs_dict, dict):
+        input_array += ed_techs_dict[tech]
+    else:
+        input_array += ed_techs_dict
+
+    if sum_crit == 'no_sum':
+        return input_array
+    elif sum_crit == 'sum':
+        return np.sum(input_array)
+
+def fuel_aggr(
         attribute_to_get,
         sector_models,
         sum_crit,
         model_yearhours_nrs,
-        model_yeardays_nrs,
-        tech,
-        #region_name,
-        enduses_with_heating
+        fueltypes_nr,
+        model_yeardays_nrs
     ):
     """Collect hourly data from all regions and sum across
     all fuel types and enduses
@@ -267,33 +301,22 @@ def constrained_fuel_aggr(
     input_array : array
         Summarised array
     """
-    # Select specific region if defined
+    input_array = np.zeros((fueltypes_nr, model_yeardays_nrs, 24), dtype=float)
+
     for sector_model in sector_models:
         for enduse_object in sector_model:
-
-            # If correct region and heating enduse
-            #if enduse_object.region_name == region_name and enduse_object.enduse in enduses_with_heating:
-            if enduse_object.enduse in enduses_with_heating:
-
-                #print(enduse_object.flat_profile_crit)
-                ed_techs_dict = get_fuels_yh(
-                    enduse_object,
-                    attribute_to_get,
-                    model_yearhours_nrs,
-                    model_yeardays_nrs)
-
-                # If technologies are defined
-                if isinstance(ed_techs_dict, dict):
-                    input_array += ed_techs_dict[tech]
-                else:
-                    input_array += ed_techs_dict
+            input_array += get_fuels_yh(
+                enduse_object,
+                attribute_to_get,
+                model_yearhours_nrs,
+                model_yeardays_nrs)
 
     if sum_crit == 'no_sum':
         return input_array
     elif sum_crit == 'sum':
         return np.sum(input_array)
 
-def fuel_aggr(
+def aggr_fuel_aggr(
         input_array,
         attribute_to_get,
         sector_models,
@@ -667,11 +690,8 @@ def service_submodel(
     return submodels
 
 def fuel_regions_fueltype(
-        aggregation_array,
         fueltypes_nr,
         fueltypes,
-        #region_name,
-        array_region_nr,
         model_yearhours_nrs,
         model_yeardays_nrs,
         submodels
@@ -704,29 +724,28 @@ def fuel_regions_fueltype(
     fuel_region : dict
         Aggregated fuel per fueltype, yeardays, hours
     """
-    fuels = fuel_aggr(
-        np.zeros((fueltypes_nr, model_yeardays_nrs, 24), dtype=float),
+    #aggregation_array = np.zeros((fueltypes_nr, reg_nrs, model_yeardays_nrs, 24), dtype=float)
+
+    aggregation_array = np.zeros((fueltypes_nr, model_yeardays_nrs, 24), dtype=float)
+
+    fuel_region = fuel_aggr(
         'fuel_yh',
         submodels,
         'no_sum',
         model_yearhours_nrs,
+        fueltypes_nr,
         model_yeardays_nrs)
 
-    # Reshape
     for fueltype_nr in fueltypes.values():
-        aggregation_array[fueltype_nr][array_region_nr] += fuels[fueltype_nr].reshape(model_yearhours_nrs)
-
-    fuel_region = np.zeros((fueltypes_nr, model_yeardays_nrs, 24), dtype=float)
-    for fueltype_nr in fueltypes.values():
-        fuel_region[fueltype_nr] = fuels[fueltype_nr]
+        #aggregation_array[fueltype_nr][array_region_nr] += fuel_region[fueltype_nr]
+        aggregation_array[fueltype_nr] = fuel_region[fueltype_nr]
 
     return aggregation_array, fuel_region
 
-def fuel_regions_fueltype(
+def aggr_fuel_regions_fueltype(
         aggregation_array,
         fueltypes_nr,
         fueltypes,
-        #region_name,
         array_region_nr,
         model_yearhours_nrs,
         model_yeardays_nrs,
@@ -760,29 +779,25 @@ def fuel_regions_fueltype(
     fuel_region : dict
         Aggregated fuel per fueltype, yeardays, hours
     """
-    fuels = fuel_aggr(
-        np.zeros((fueltypes_nr, model_yeardays_nrs, 24), dtype=float),
+    fuel_region = fuel_aggr(
         'fuel_yh',
         submodels,
         'no_sum',
         model_yearhours_nrs,
+        fueltypes_nr,
         model_yeardays_nrs)
 
     # Reshape
     for fueltype_nr in fueltypes.values():
-        aggregation_array[fueltype_nr][array_region_nr] += fuels[fueltype_nr].reshape(model_yearhours_nrs)
-
-    fuel_region = np.zeros((fueltypes_nr, model_yeardays_nrs, 24), dtype=float)
-    for fueltype_nr in fueltypes.values():
-        fuel_region[fueltype_nr] = fuels[fueltype_nr]
+        aggregation_array[fueltype_nr][array_region_nr] += fuel_region[fueltype_nr].reshape(model_yearhours_nrs)
 
     return aggregation_array, fuel_region
 
 def constrained_fuel_regions_fueltype(
-        aggregation_array,
+        reg_nrs,
         fueltypes_nr,
         fueltypes,
-        array_region_nr,
+        #array_region_nr,
         model_yearhours_nrs,
         model_yeardays_nrs,
         tech,
@@ -822,21 +837,32 @@ def constrained_fuel_regions_fueltype(
     aggregation_array : array
         Aggregated ful per (fueltype, region, yearhours)
     """
-    fuels = constrained_fuel_aggr(
-        np.zeros((fueltypes_nr, model_yeardays_nrs, 24), dtype=float),
-        'techs_fuel_yh',
-        submodels,
-        'no_sum',
-        model_yearhours_nrs,
-        model_yeardays_nrs,
-        tech,
-        #region_name,
-        enduses_with_heating)
+    #aggregation_array = np.zeros((
+    #    fueltypes_nr, reg_nrs, model_yeardays_nrs, 24), dtype=float)
+    aggregation_array = np.zeros((
+        fueltypes_nr, model_yeardays_nrs, 24), dtype=float)
 
-    # Reshape
-    for fueltype_nr in fueltypes.values():
-        aggregation_array[fueltype_nr][array_region_nr] += fuels[fueltype_nr].reshape(model_yearhours_nrs)
+    for submodel in submodels:
+        for enduse_object in submodel:
+            if enduse_object.enduse in enduses_with_heating:
 
+                fuels = constrained_fuel_aggr(
+                    'techs_fuel_yh',
+                    enduse_object,
+                    'no_sum',
+                    fueltypes_nr,
+                    model_yearhours_nrs,
+                    model_yeardays_nrs,
+                    tech)
+
+                # TODO IMPROVE
+                for fueltype_nr in fueltypes.values():
+                    #aggregation_array[fueltype_nr][array_region_nr] += fuels[fueltype_nr]
+                    aggregation_array[fueltype_nr] += fuels[fueltype_nr]
+                
+                 #aggregation_array_NEW += fuels
+    # Roll axis (switch position of fueltypes_nr, reg_nrs)
+    #aggregation_array = np.rollaxis(aggregation_array_NEW, axis=1, start=0)    
     return aggregation_array
 
 def sum_enduse_all_regions(
@@ -987,7 +1013,6 @@ def create_dwelling_stock(regions, curr_yr, data):
 
 def aggregate_final_results(
         aggr_results,
-        region,
         reg_array_nr,
         all_submodels,
         mode_constrained,
@@ -1011,7 +1036,6 @@ def aggregate_final_results(
         All modelled regions
     all_submodels_regions : dict (key: region)
         Result objects of submodels for all regions
-        $
 
     beyond_supply_outputs : bool
         If only necessary conversion for running with supply model == True
@@ -1040,19 +1064,20 @@ def aggregate_final_results(
 
                     # Summarise for every fueltype, region, timestpes
                     submodel_ed_fueltype_regs_yh = constrained_fuel_regions_fueltype(
-                        np.zeros((fueltypes_nr, reg_nrs, model_yearhours_nrs), dtype=float),
+                        reg_nrs, 
                         fueltypes_nr,
                         fueltypes,
-                        reg_array_nr,
+                        #reg_array_nr,
                         model_yearhours_nrs,
                         model_yeardays_nrs,
                         heating_tech,
                         enduse_space_heating,
                         [submodel])
 
-                    # Aggregate Submodel (sector) specific enduse
-                    for fueltype_nr in fueltypes.values():
-                        aggr_results['ed_techs_fueltype_submodel_regs_yh'][heating_tech][fueltype_nr][submodel_nr] += submodel_ed_fueltype_regs_yh[fueltype_nr]
+                    # Aggregate Submodel (sector) specific enduse SLOW
+                    #print(submodel_ed_fueltype_regs_yh.shape)
+                    #rint("..") # TOP: 10.8, BOTTOM: 7 BOTH :12, None: 5.5
+                    aggr_results['ed_techs_submodel_fueltype_regs_yh'][heating_tech][submodel_nr][reg_array_nr] += submodel_ed_fueltype_regs_yh
 
             except KeyError:
                 logging.debug("Info: Technology was not used %s", heating_tech)
@@ -1062,18 +1087,14 @@ def aggregate_final_results(
         # -------------
         for submodel_nr, submodel in enumerate(all_submodels):
             submodel_ed_fueltype_regs_yh, _ = fuel_regions_fueltype(
-                np.zeros((fueltypes_nr, reg_nrs, model_yearhours_nrs), dtype=float),
                 fueltypes_nr,
                 fueltypes,
-                #region,
-                reg_array_nr,
                 model_yearhours_nrs,
                 model_yeardays_nrs,
                 [submodel])
 
-            # Add SubModel specific ed
-            for fueltype_nr in fueltypes.values():
-                aggr_results['ed_fueltype_submodel_regs_yh'][fueltype_nr][submodel_nr] += submodel_ed_fueltype_regs_yh[fueltype_nr]
+            # Add SubModel specific ed SLOW
+            aggr_results['ed_submodel_fueltype_regs_yh'][submodel_nr][reg_array_nr] += submodel_ed_fueltype_regs_yh
     else:
         # -------------
         # Summarise ed of Unconstrained mode (heat is provided)
@@ -1084,18 +1105,14 @@ def aggregate_final_results(
         # Sum across all fueltypes, sectors, regs and hours
         for submodel_nr, submodel in enumerate(all_submodels):
             submodel_ed_fueltype_regs_yh, _ = fuel_regions_fueltype(
-                np.zeros((fueltypes_nr, reg_nrs, model_yearhours_nrs), dtype=float),
                 fueltypes_nr,
                 fueltypes,
-                #region,
-                reg_array_nr,
                 model_yearhours_nrs,
                 model_yeardays_nrs,
                 [submodel])
 
             # Add SubModel specific ed
-            for fueltype_nr in fueltypes.values():
-                aggr_results['ed_fueltype_submodel_regs_yh'][fueltype_nr][submodel_nr] += submodel_ed_fueltype_regs_yh[fueltype_nr]
+            aggr_results['ed_submodel_fueltype_regs_yh'][submodel_nr][reg_array_nr] += submodel_ed_fueltype_regs_yh
 
     # -----------
     # Other summing for other purposes
@@ -1104,18 +1121,17 @@ def aggregate_final_results(
 
         # Sum across all regions, all enduse and sectors sum_reg
         # [fueltype, region, fuel_yh], [fueltype, fuel_yh]
-        aggr_results['ed_fueltype_regs_yh'], fuel_region_yh = fuel_regions_fueltype(
+        aggr_results['ed_fueltype_regs_yh'], fuel_region_yh = aggr_fuel_regions_fueltype(
             aggr_results['ed_fueltype_regs_yh'],
             fueltypes_nr,
             fueltypes,
-            #region,
             reg_array_nr,
             model_yearhours_nrs,
             model_yeardays_nrs,
             all_submodels)
 
         # Sum across all regions, all enduse and sectors
-        aggr_results['ed_fueltype_national_yh'] = fuel_aggr(
+        aggr_results['ed_fueltype_national_yh'] = aggr_fuel_aggr(
             aggr_results['ed_fueltype_national_yh'],
             'fuel_yh',
             all_submodels,
@@ -1124,7 +1140,7 @@ def aggregate_final_results(
             model_yeardays_nrs)
 
         # Sum across all regions and calculate peak dh shape per fueltype
-        aggr_results['tot_peak_enduses_fueltype'] = fuel_aggr(
+        aggr_results['tot_peak_enduses_fueltype'] = aggr_fuel_aggr(
             aggr_results['tot_peak_enduses_fueltype'],
             'fuel_peak_dh',
             all_submodels,
@@ -1132,7 +1148,7 @@ def aggregate_final_results(
             model_yearhours_nrs,
             model_yeardays_nrs)
 
-        aggr_results['tot_fuel_y_max_enduses'] = fuel_aggr(
+        aggr_results['tot_fuel_y_max_enduses'] = aggr_fuel_aggr(
             aggr_results['tot_fuel_y_max_enduses'],
             'fuel_peak_h',
             all_submodels,
@@ -1216,13 +1232,13 @@ def initialise_result_container(
     """
     result_container = {}
 
-    result_container['ed_fueltype_submodel_regs_yh'] = np.zeros(
-        (fueltypes_nr, len(sectors.keys()), reg_nrs, model_yearhours_nrs), dtype=float)
+    result_container['ed_submodel_fueltype_regs_yh'] = np.zeros(
+        (len(sectors.keys()),  reg_nrs, fueltypes_nr, model_yeardays_nrs, 24), dtype=float)
 
-    result_container['ed_techs_fueltype_submodel_regs_yh'] = {}
+    result_container['ed_techs_submodel_fueltype_regs_yh'] = {}
     for heating_tech in heating_technologies:
-        result_container['ed_techs_fueltype_submodel_regs_yh'][heating_tech] = np.zeros(
-            (fueltypes_nr, len(sectors.keys()), reg_nrs, model_yearhours_nrs), dtype=float)
+        result_container['ed_techs_submodel_fueltype_regs_yh'][heating_tech] = np.zeros(
+            (len(sectors.keys()), reg_nrs, fueltypes_nr, model_yeardays_nrs, 24), dtype=float)
 
     result_container['ed_fueltype_regs_yh'] = np.zeros(
         (fueltypes_nr, reg_nrs, model_yearhours_nrs), dtype=float)

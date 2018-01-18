@@ -136,12 +136,12 @@ class Enduse(object):
         self.techs_fuel_peak_dh = {}
 
         if np.sum(fuel) == 0: #If enduse has no fuel return empty shapes
+            #print("_______________ " + str(self.enduse))
             self.flat_profile_crit = True
-            self.fuel_y = fuel #np.zeros((fueltypes_nr), dtype=float)
+            self.fuel_y = fuel
             self.fuel_yh = 0
-            #self.fuel_peak_dh = np.zeros((fueltypes_nr, 24), dtype=float)
             self.fuel_peak_h = 0
-
+            self.enduse_techs = [] #NEW NEW NEW
             '''for tech in assumptions['heating_technologies']:
                 self.techs_fuel_yh[tech] = np.zeros((fueltypes_nr, model_yeardays_nrs, 24), dtype=float)
                 self.techs_fuel_peak_h[tech] = np.zeros((fueltypes_nr, model_yeardays_nrs, 24), dtype=float)
