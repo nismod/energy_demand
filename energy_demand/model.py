@@ -241,13 +241,12 @@ def simulate_region(region, data, weather_regions):
 
 def constrained_fuel_aggr(
         attribute_to_get,
-        enduse_object, #sector_model,
+        enduse_object,
         sum_crit,
         fueltypes_nr,
         model_yearhours_nrs,
         model_yeardays_nrs,
-        tech#,
-        #enduses_with_heating
+        tech
     ):
     """Collect hourly data from all regions and sum across
     all fuel types and enduses
@@ -273,18 +272,14 @@ def constrained_fuel_aggr(
     input_array = np.zeros((fueltypes_nr, model_yeardays_nrs, 24), dtype=float)
 
     # Select specific region if defined
-    #for sector_model in sector_models:
-    #for enduse_object in sector_model:
 
     # If correct region and heating enduse
-    #if enduse_object.enduse in enduses_with_heating:
     ed_techs_dict = get_fuels_yh(
         enduse_object,
         attribute_to_get,
         model_yearhours_nrs,
         model_yeardays_nrs)
 
-    
     # If technologies are defined
     if isinstance(ed_techs_dict, dict):
         input_array += ed_techs_dict[tech]
@@ -862,8 +857,10 @@ def constrained_fuel_regions_fueltype(
     aggregation_array : array
         Aggregated ful per (fueltype, region, yearhours)
     """
-    aggregation_array = np.zeros((
-        fueltypes_nr, reg_nrs, model_yeardays_nrs, 24), dtype=float)
+    aggregation_array_NEW = np.zeros((
+         reg_nrs, fueltypes_nr, model_yeardays_nrs, 24), dtype=float)
+    #aggregation_array = np.zeros((
+    #    fueltypes_nr, reg_nrs, model_yeardays_nrs, 24), dtype=float)
 
     for submodel in submodels:
         for enduse_object in submodel:
@@ -878,9 +875,14 @@ def constrained_fuel_regions_fueltype(
                     model_yeardays_nrs,
                     tech)
 
+                aggregation_array_NEW += fuels
+
                 # TODO IMPROVE
-                for fueltype_nr in fueltypes.values():
-                    aggregation_array[fueltype_nr][array_region_nr] += fuels[fueltype_nr]
+                ##for fueltype_nr in fueltypes.values():
+                ##    aggregation_array[fueltype_nr][array_region_nr] += fuels[fueltype_nr]
+
+    # Roll axis (switch position of fueltypes_nr, reg_nrs)
+    aggregation_array = np.rollaxis(aggregation_array_NEW, axis=1, start=0)    
 
     return aggregation_array
 
@@ -1096,6 +1098,7 @@ def aggregate_final_results(
                     # Aggregate Submodel (sector) specific enduse SLOW
                     #print(submodel_ed_fueltype_regs_yh.shape)
                     #rint("..") # TOP: 10.8, BOTTOM: 7 BOTH :12, None: 5.5
+                    # (len(sectors.keys()), fueltypes_nr, reg_nrs, model_yearhours_nrs),
                     aggr_results['ed_techs_submodel_fueltype_regs_yh'][heating_tech][submodel_nr] += submodel_ed_fueltype_regs_yh
 
             except KeyError:
