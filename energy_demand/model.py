@@ -271,8 +271,6 @@ def constrained_fuel_aggr(
 
             # If correct region and heating enduse
             if enduse_object.enduse in enduses_with_heating:
-
-                #print(enduse_object.flat_profile_crit)
                 ed_techs_dict = get_fuels_yh(
                     enduse_object,
                     attribute_to_get,
@@ -1085,9 +1083,9 @@ def aggregate_final_results(
                         enduse_space_heating,
                         [submodel])
 
-                    # Aggregate Submodel (sector) specific enduse
-                    ##for fueltype_nr in fueltypes.values():
-                    ##    aggr_results['ed_techs_submodel_fueltype_regs_yh'][heating_tech][fueltype_nr][submodel_nr] += submodel_ed_fueltype_regs_yh[fueltype_nr]
+                    # Aggregate Submodel (sector) specific enduse SLOW
+                    #print(submodel_ed_fueltype_regs_yh.shape)
+                    #rint("..") # TOP: 10.8, BOTTOM: 7 BOTH :12, None: 5.5
                     aggr_results['ed_techs_submodel_fueltype_regs_yh'][heating_tech][submodel_nr] += submodel_ed_fueltype_regs_yh
 
             except KeyError:
@@ -1106,12 +1104,8 @@ def aggregate_final_results(
                 model_yeardays_nrs,
                 [submodel])
 
-            # Add SubModel specific ed SHARK TODO TODO
-            #for fueltype_nr in fueltypes.values():
-            #    aggr_results['ed_submodel_fueltype_regs_yh'][fueltype_nr][submodel_nr] += submodel_ed_fueltype_regs_yh[fueltype_nr]
-            #for fueltype_nr in fueltypes.values():
+            # Add SubModel specific ed SLOW
             aggr_results['ed_submodel_fueltype_regs_yh'][submodel_nr] += submodel_ed_fueltype_regs_yh
-
     else:
         # -------------
         # Summarise ed of Unconstrained mode (heat is provided)
@@ -1131,10 +1125,6 @@ def aggregate_final_results(
                 [submodel])
 
             # Add SubModel specific ed
-            #for fueltype_nr in fueltypes.values():
-            #    aggr_results['ed_submodel_fueltype_regs_yh'][fueltype_nr][submodel_nr] += submodel_ed_fueltype_regs_yh[fueltype_nr]
-            
-            #for fueltype_nr in fueltypes.values():
             aggr_results['ed_submodel_fueltype_regs_yh'][submodel_nr] += submodel_ed_fueltype_regs_yh
 
     # -----------
@@ -1255,15 +1245,10 @@ def initialise_result_container(
     """
     result_container = {}
 
-    #result_container['ed_submodel_fueltype_regs_yh'] = np.zeros(
-    #    (fueltypes_nr, len(sectors.keys()), reg_nrs, model_yearhours_nrs), dtype=float)
     result_container['ed_submodel_fueltype_regs_yh'] = np.zeros(
         ( len(sectors.keys()), fueltypes_nr, reg_nrs, model_yearhours_nrs), dtype=float)
 
     result_container['ed_techs_submodel_fueltype_regs_yh'] = {}
-    #for heating_tech in heating_technologies:
-    #    result_container['ed_techs_submodel_fueltype_regs_yh'][heating_tech] = np.zeros(
-    #        (fueltypes_nr, len(sectors.keys()), reg_nrs, model_yearhours_nrs), dtype=float)
     for heating_tech in heating_technologies:
         result_container['ed_techs_submodel_fueltype_regs_yh'][heating_tech] = np.zeros(
             (len(sectors.keys()), fueltypes_nr, reg_nrs, model_yearhours_nrs), dtype=float)

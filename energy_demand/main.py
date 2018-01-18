@@ -151,7 +151,7 @@ if __name__ == "__main__":
     data['criterias']['virtual_building_stock_criteria'] = True
     data['criterias']['spatial_exliclit_diffusion'] = False
     data['criterias']['write_to_txt'] = False
-    data['criterias']['beyond_supply_outputs'] = True
+    data['criterias']['beyond_supply_outputs'] = False
 
     data['paths'] = data_loader.load_paths(path_main)
     data['local_paths'] = data_loader.load_local_paths(local_data_path)
@@ -213,8 +213,7 @@ if __name__ == "__main__":
     data['weather_stations'], data['temp_data'] = data_loader.load_temp_data(data['local_paths'])
 
     data['reg_nrs'] = len(data['lu_reg'])
-    #print(data['reg_nrs'])
-    #prnt(":")
+
     # ------------------------------
     if data['criterias']['virtual_building_stock_criteria']:
         rs_floorarea, ss_floorarea = data_loader.virtual_building_datasets(
@@ -269,6 +268,9 @@ if __name__ == "__main__":
         if instrument_profiler:
             profiler = Profiler(use_signal=False)
             profiler.start()
+        
+        import datetime
+        a = datetime.datetime.now()
 
         # Main model run function
         modelrun_obj = energy_demand_model(
@@ -281,6 +283,10 @@ if __name__ == "__main__":
             logging.debug("Profiler Results")
             print(profiler.output_text(unicode=True, color=True))
 
+        b = datetime.datetime.now()
+        print("TOTAL TIME: " + str(b-a))
+        print("ABORT SYSTEM")
+        sys.exit()
         # --------------------
         # Result unconstrained
         # --------------------
