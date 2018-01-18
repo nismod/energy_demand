@@ -59,8 +59,8 @@ class EDWrapper(SectorModel):
         data['criterias']['spatial_exliclit_diffusion'] = False         # True: Spatial explicit calculations
         data['criterias']['writeYAML'] = False
         data['criterias']['write_to_txt'] = True
-        data['criterias']['beyond_supply_outputs'] = True
-        data['criterias']['plot_crit'] = True
+        data['criterias']['beyond_supply_outputs'] = False
+        data['criterias']['plot_crit'] = False
 
         data['sim_param']['base_yr'] = 2015                             # Base year
         data['sim_param']['curr_yr'] = data['sim_param']['base_yr']
