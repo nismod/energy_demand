@@ -59,7 +59,7 @@ class EDWrapper(SectorModel):
         data['criterias']['spatial_exliclit_diffusion'] = False         # True: Spatial explicit calculations
         data['criterias']['writeYAML'] = False
         data['criterias']['write_to_txt'] = True
-        data['criterias']['beyond_supply_outputs'] = False
+        data['criterias']['beyond_supply_outputs'] = True
         data['criterias']['plot_crit'] = False
 
         data['sim_param']['base_yr'] = 2015                             # Base year
@@ -392,11 +392,11 @@ class EDWrapper(SectorModel):
         # Write results output for supply
         # ------------------------------------
         # Form of np.array(fueltype, sectors, region, periods)
-        results_unconstrained = sim_obj.ed_fueltype_submodel_regs_yh
+        results_unconstrained = sim_obj.ed_submodel_fueltype_regs_yh
         #write_data.write_supply_results(['rs_submodel', 'ss_submodel', 'is_submodel'],timestep, path_run, results_unconstrained, "results_unconstrained")
 
         # Form of {constrained_techs: np.array(fueltype, sectors, region, periods)}
-        results_constrained = sim_obj.ed_techs_fueltype_submodel_regs_yh
+        results_constrained = sim_obj.ed_techs_submodel_fueltype_regs_yh
         #write_data.write_supply_results(['rs_submodel', 'ss_submodel', 'is_submodel'], timestep, path_run, results_unconstrained, "results_constrained")
 
         supply_sectors = ['residential', 'service', 'industry']
@@ -582,7 +582,7 @@ def constrained_results(
     ----------
     results_constrained : dict
         Aggregated results in form
-        {technology: np.array((fueltype, sector, region, timestep))}
+        {technology: np.array((sector, fueltype, region, timestep))}
     results_unconstrained : array
         Restuls of unconstrained mode
         np.array((fueltype, sector, region, timestep))
@@ -620,9 +620,11 @@ def constrained_results(
 
             if key_name in supply_results.keys():
                 # Do not replace by +=
-                supply_results[key_name] = supply_results[key_name] + fuel_tech[fueltype_int][submodel_nr]
+                #supply_results[key_name] = supply_results[key_name] + fuel_tech[fueltype_int][submodel_nr]
+                supply_results[key_name] = supply_results[key_name] + fuel_tech[submodel_nr][fueltype_int]
             else:
-                supply_results[key_name] = fuel_tech[fueltype_int][submodel_nr]
+                #supply_results[key_name] = fuel_tech[fueltype_int][submodel_nr]
+                supply_results[key_name] = fuel_tech[submodel_nr][fueltype_int]
 
     # --------------------------------
     # Add all technologies of restricted enduse (heating)
@@ -639,8 +641,18 @@ def constrained_results(
             if technologies[tech].fueltype_str == fueltype_str:
                 constrained_ed += fuel_tech
 
+        # NEW TODO MAYBE FASTER
+        for sector_nr, _ in enumerate(supply_sectors):
+            #print("---")
+            #print(constrained_ed.shape)
+            #print(results_unconstrained.shape)
+            #print(sector_nr)
+            #print(fueltype_int)
+            # Substract constrained fuel from nonconstrained (total) fuel
+            non_heating_ed[sector_nr][fueltype_int] = results_unconstrained[sector_nr][fueltype_int] - constrained_ed[sector_nr][fueltype_int]
+
         # Substract constrained fuel from nonconstrained (total) fuel
-        non_heating_ed[fueltype_int] = results_unconstrained[fueltype_int] - constrained_ed[fueltype_int]
+        ##non_heating_ed[fueltype_int] = results_unconstrained[fueltype_int] - constrained_ed[fueltype_int]
 
     # Add non_heating for all fueltypes
     for submodel_nr, submodel in enumerate(supply_sectors):
@@ -652,7 +664,8 @@ def constrained_results(
                 # Generate key name (must be defined in `sector_models`)
                 key_name = "{}_{}_{}".format(submodel, fueltype_str, "non_heating")
 
-                supply_results[key_name] = non_heating_ed[fueltype_int][submodel_nr]
+                #supply_results[key_name] = non_heating_ed[fueltype_int][submodel_nr]
+                supply_results[key_name] = non_heating_ed[submodel_nr][fueltype_int]
 
     logging.info("Prepared results for energy supply model in constrained mode")
     return dict(supply_results)

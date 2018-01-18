@@ -1086,11 +1086,9 @@ def aggregate_final_results(
                         [submodel])
 
                     # Aggregate Submodel (sector) specific enduse
-                    for fueltype_nr in fueltypes.values():
-                        aggr_results['ed_techs_fueltype_submodel_regs_yh'][heating_tech][fueltype_nr][submodel_nr] += submodel_ed_fueltype_regs_yh[fueltype_nr]
-
-                    #for fueltype_nr in fueltypes.values():
-                    #aggr_results['ed_techs_fueltype_submodel_regs_yh'][heating_tech][fueltype_nr][submodel_nr] += submodel_ed_fueltype_regs_yh[fueltype_nr]
+                    ##for fueltype_nr in fueltypes.values():
+                    ##    aggr_results['ed_techs_submodel_fueltype_regs_yh'][heating_tech][fueltype_nr][submodel_nr] += submodel_ed_fueltype_regs_yh[fueltype_nr]
+                    aggr_results['ed_techs_submodel_fueltype_regs_yh'][heating_tech][submodel_nr] += submodel_ed_fueltype_regs_yh
 
             except KeyError:
                 logging.debug("Info: Technology was not used %s", heating_tech)
@@ -1108,9 +1106,12 @@ def aggregate_final_results(
                 model_yeardays_nrs,
                 [submodel])
 
-            # Add SubModel specific ed
-            for fueltype_nr in fueltypes.values():
-                aggr_results['ed_fueltype_submodel_regs_yh'][fueltype_nr][submodel_nr] += submodel_ed_fueltype_regs_yh[fueltype_nr]
+            # Add SubModel specific ed SHARK TODO TODO
+            #for fueltype_nr in fueltypes.values():
+            #    aggr_results['ed_submodel_fueltype_regs_yh'][fueltype_nr][submodel_nr] += submodel_ed_fueltype_regs_yh[fueltype_nr]
+            #for fueltype_nr in fueltypes.values():
+            aggr_results['ed_submodel_fueltype_regs_yh'][submodel_nr] += submodel_ed_fueltype_regs_yh
+
     else:
         # -------------
         # Summarise ed of Unconstrained mode (heat is provided)
@@ -1130,8 +1131,11 @@ def aggregate_final_results(
                 [submodel])
 
             # Add SubModel specific ed
-            for fueltype_nr in fueltypes.values():
-                aggr_results['ed_fueltype_submodel_regs_yh'][fueltype_nr][submodel_nr] += submodel_ed_fueltype_regs_yh[fueltype_nr]
+            #for fueltype_nr in fueltypes.values():
+            #    aggr_results['ed_submodel_fueltype_regs_yh'][fueltype_nr][submodel_nr] += submodel_ed_fueltype_regs_yh[fueltype_nr]
+            
+            #for fueltype_nr in fueltypes.values():
+            aggr_results['ed_submodel_fueltype_regs_yh'][submodel_nr] += submodel_ed_fueltype_regs_yh
 
     # -----------
     # Other summing for other purposes
@@ -1251,13 +1255,18 @@ def initialise_result_container(
     """
     result_container = {}
 
-    result_container['ed_fueltype_submodel_regs_yh'] = np.zeros(
-        (fueltypes_nr, len(sectors.keys()), reg_nrs, model_yearhours_nrs), dtype=float)
+    #result_container['ed_submodel_fueltype_regs_yh'] = np.zeros(
+    #    (fueltypes_nr, len(sectors.keys()), reg_nrs, model_yearhours_nrs), dtype=float)
+    result_container['ed_submodel_fueltype_regs_yh'] = np.zeros(
+        ( len(sectors.keys()), fueltypes_nr, reg_nrs, model_yearhours_nrs), dtype=float)
 
-    result_container['ed_techs_fueltype_submodel_regs_yh'] = {}
+    result_container['ed_techs_submodel_fueltype_regs_yh'] = {}
+    #for heating_tech in heating_technologies:
+    #    result_container['ed_techs_submodel_fueltype_regs_yh'][heating_tech] = np.zeros(
+    #        (fueltypes_nr, len(sectors.keys()), reg_nrs, model_yearhours_nrs), dtype=float)
     for heating_tech in heating_technologies:
-        result_container['ed_techs_fueltype_submodel_regs_yh'][heating_tech] = np.zeros(
-            (fueltypes_nr, len(sectors.keys()), reg_nrs, model_yearhours_nrs), dtype=float)
+        result_container['ed_techs_submodel_fueltype_regs_yh'][heating_tech] = np.zeros(
+            (len(sectors.keys()), fueltypes_nr, reg_nrs, model_yearhours_nrs), dtype=float)
 
     result_container['ed_fueltype_regs_yh'] = np.zeros(
         (fueltypes_nr, reg_nrs, model_yearhours_nrs), dtype=float)
