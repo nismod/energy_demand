@@ -29,7 +29,7 @@ from energy_demand.technologies import fuel_service_switch
 
 # must match smif project name for Local Authority Districts
 REGION_SET_NAME = 'lad_uk_2016'
-NR_OF_MODELLEd_REGIONS = 391 #391 # uk: 391, england.: 380
+NR_OF_MODELLEd_REGIONS = 20 #391 # uk: 391, england.: 380
 PROFILER = False
 
 class EDWrapper(SectorModel):
@@ -67,6 +67,15 @@ class EDWrapper(SectorModel):
         data['sim_param']['curr_yr'] = data['sim_param']['base_yr']
         self.user_data['base_yr'] = data['sim_param']['base_yr']
 
+        fast = False
+        if fast == True:
+            data['criterias']['write_to_txt'] = False
+            data['criterias']['beyond_supply_outputs'] = False
+            data['criterias']['validation_criteria'] = False  
+        else:
+            data['criterias']['write_to_txt'] = True
+            data['criterias']['beyond_supply_outputs'] = True
+            data['criterias']['validation_criteria'] = True  
         # -----------------------------
         # Paths
         # -----------------------------

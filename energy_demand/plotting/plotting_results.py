@@ -477,7 +477,7 @@ def plt_stacked_enduse(years_simulated, results_enduse_every_year, enduses_data,
 
     # INFO Cannot plot a single year?
     """
-    x_data = np.array(years_simulated) #len(results_enduse_every_year)
+    x_data = np.array(years_simulated)
     y_data = np.zeros((len(enduses_data), len(years_simulated), ))
 
     legend_entries = []
@@ -552,7 +552,7 @@ def plt_stacked_enduse(years_simulated, results_enduse_every_year, enduses_data,
         legend_entries,
         loc='upper center',
         bbox_to_anchor=(0.5, -0.05),
-        prop={'family': 'arial','size': 3},
+        prop={'family': 'arial', 'size': 3},
         frameon=False,
         shadow=True,
         ncol=2)

@@ -865,7 +865,10 @@ def sum_enduse_all_regions(
 
             # Add fuel with flat load shape
             enduse_dict[model_object.enduse] += get_fuels_yh(
-                model_object, attribute_to_get, model_yearhours_nrs, model_yeardays_nrs)
+                model_object,
+                attribute_to_get,
+                model_yearhours_nrs,
+                model_yeardays_nrs)
 
     return enduse_dict
 

@@ -151,7 +151,7 @@ if __name__ == "__main__":
     data['criterias']['virtual_building_stock_criteria'] = True
     data['criterias']['spatial_exliclit_diffusion'] = False
     data['criterias']['write_to_txt'] = False
-    data['criterias']['beyond_supply_outputs'] = False
+    data['criterias']['beyond_supply_outputs'] = True
 
     data['paths'] = data_loader.load_paths(path_main)
     data['local_paths'] = data_loader.load_local_paths(local_data_path)
@@ -329,11 +329,14 @@ if __name__ == "__main__":
                     path_runs, "result_reg_load_factor_y", [sim_yr], reg_load_factor_y, 'reg_load_factor_y')
                 write_data.write_lf(
                     path_runs, "result_reg_load_factor_yd", [sim_yr], reg_load_factor_yd, 'reg_load_factor_yd')
-
-                write_data.write_lf(path_runs, "result_reg_load_factor_winter", [sim_yr], reg_load_factor_winter, 'reg_load_factor_winter')
-                write_data.write_lf(path_runs, "result_reg_load_factor_spring", [sim_yr], reg_load_factor_spring, 'reg_load_factor_spring')
-                write_data.write_lf(path_runs, "result_reg_load_factor_summer", [sim_yr], reg_load_factor_summer, 'reg_load_factor_summer')
-                write_data.write_lf(path_runs, "result_reg_load_factor_autumn", [sim_yr], reg_load_factor_autumn, 'reg_load_factor_autumn')
+                write_data.write_lf(
+                    path_runs, "result_reg_load_factor_winter", [sim_yr], reg_load_factor_winter, 'reg_load_factor_winter')
+                write_data.write_lf(
+                    path_runs, "result_reg_load_factor_spring", [sim_yr], reg_load_factor_spring, 'reg_load_factor_spring')
+                write_data.write_lf(
+                    path_runs, "result_reg_load_factor_summer", [sim_yr], reg_load_factor_summer, 'reg_load_factor_summer')
+                write_data.write_lf(
+                    path_runs, "result_reg_load_factor_autumn", [sim_yr], reg_load_factor_autumn, 'reg_load_factor_autumn')
 
                 # -------------------------------------------
                 # Write population files of simulation year
