@@ -67,7 +67,7 @@ class EDWrapper(SectorModel):
         data['sim_param']['curr_yr'] = data['sim_param']['base_yr']
         self.user_data['base_yr'] = data['sim_param']['base_yr']
 
-        fast = False
+        fast = False #YEAY
         if fast == True:
             data['criterias']['write_to_txt'] = False
             data['criterias']['beyond_supply_outputs'] = False
