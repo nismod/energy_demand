@@ -429,8 +429,9 @@ def load_data_tech_profiles(tech_lp, paths, local_paths, plot_tech_lp=False):
     # --------------------------------------------
     # Print individualtechnology load profiles of technologies
     # --------------------------------------------
-    plot_tech_lp = True
     if plot_tech_lp:
+
+        # Maybe move to result folder in a later step
         path_folder_lp = os.path.join(local_paths['local_path_datafolder'], 'individual_lp')
         basic_functions.create_folder(path_folder_lp)
 
@@ -506,13 +507,22 @@ def load_data_tech_profiles(tech_lp, paths, local_paths, plot_tech_lp=False):
 
     return tech_lp
 
-def load_data_profiles(paths, local_paths, model_yeardays, model_yeardays_daytype):
+def load_data_profiles(paths, local_paths, model_yeardays, model_yeardays_daytype, plot_tech_lp):
     """Collect load profiles from txt files
 
     Arguments
     ----------
-    data : dict
-        Data container
+    paths : dict
+        Paths
+    local_paths : dict
+        Loal Paths
+    model_yeardays : int
+        Number of modelled yeardays
+    model_yeardays_daytype : int
+
+    
+    plot_tech_lp : bool
+        Criteria wheter to plot out individual load profiles of techs
     """
     logging.debug("... read in load shapes from txt files")
 
@@ -525,7 +535,7 @@ def load_data_profiles(paths, local_paths, model_yeardays, model_yeardays_daytyp
         tech_lp,
         paths,
         local_paths,
-        plot_tech_lp=True)
+        plot_tech_lp)
 
     # Load enduse load profiles
     tech_lp['rs_shapes_dh'], tech_lp['rs_shapes_yd'] = rs_collect_shapes_from_txts(

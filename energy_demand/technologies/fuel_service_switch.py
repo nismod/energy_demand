@@ -60,7 +60,7 @@ def autocomplete_switches(service_switches, specified_tech_enduse_by, service_te
 
     Returns
     -------
-    rs_service_switches_new : dict
+    service_switches_out : dict
         Added services switches which now in total sum up to 100%
     """
     service_switches_out = []

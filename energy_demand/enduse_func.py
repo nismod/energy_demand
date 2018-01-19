@@ -207,6 +207,9 @@ class Enduse(object):
             # ----------------------------------
             # Hourly Disaggregation
             # ----------------------------------
+            #if self.enduse == 'is_space_heating':
+            #    print(self.enduse_techs)
+            #    prnt(":")
             if self.enduse_techs == []:
                 """If no technologies are defined for an enduse, the load profiles
                 are read from dummy shape, which show the load profiles of the whole enduse.

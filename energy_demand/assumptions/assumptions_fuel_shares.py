@@ -99,9 +99,8 @@ def assign_by_fuel_tech_p(assumptions, enduses, fueltypes, fueltypes_nr):
 
     # ---------------
     # rs_space_heating
-    # Calculated on different assumptions:
-    #
-    #
+    # 
+    # Electricity:
     # According to OFEM, for GB there are about 2.3 mio electrically heated households
     # More specifically, they are made out of:
     #
@@ -140,12 +139,17 @@ def assign_by_fuel_tech_p(assumptions, enduses, fueltypes, fueltypes_nr):
         'district_heating_gas': 0}
 
     assumptions['rs_fuel_tech_p_by']['rs_space_heating'][fueltypes['electricity']] = {
-        'heat_pumps_electricity': 0.04, #0.04,
+        #'heat_pumps_electricity': 0.04,
+        #'storage_heater_electricity': 0.74,
+        'secondary_heater_electricity':0.22,
+        #'district_heating_electricity': 0, #TODO ADD PROFILE FOR DISTRICT HEATING
+        
         #'secondary_heater_electricity': 0.96
-        'storage_heater_electricity': 0.74,
-        'secondary_heater_electricity':0.22, #0.96,
-        #'district_heating_electricity': 0,
-        #'boiler_electricity': 1.0
+        #'boiler_electricity': 0.22
+
+        'heat_pumps_electricity': 0.04,
+        #'secondary_heater_electricity': 0.96
+
         }
 
     assumptions['rs_fuel_tech_p_by']['rs_space_heating'][fueltypes['biomass']] = {
@@ -186,6 +190,7 @@ def assign_by_fuel_tech_p(assumptions, enduses, fueltypes, fueltypes_nr):
     # ----------------
     # ss_space_heating
     # ----------------
+    #'''
     assumptions['ss_fuel_tech_p_by']['ss_space_heating'][fueltypes['solid_fuel']] = {
         'boiler_solid_fuel': 1.0}
 
@@ -207,9 +212,7 @@ def assign_by_fuel_tech_p(assumptions, enduses, fueltypes, fueltypes_nr):
     assumptions['ss_fuel_tech_p_by']['ss_space_heating'][fueltypes['hydrogen']] = {
         'boiler_hydrogen': 1.0,
         'heat_pumps_hydrogen': 0.0}
-
-    assumptions['ss_specified_tech_enduse_by'] = helpers.get_def_techs(
-        assumptions['ss_fuel_tech_p_by'])
+    #'''
 
     # ===================
     # Industry subModel  - Fuel shares of technologies in enduse
@@ -243,6 +246,9 @@ def assign_by_fuel_tech_p(assumptions, enduses, fueltypes, fueltypes_nr):
     # ------------------
     assumptions['rs_specified_tech_enduse_by'] = helpers.get_def_techs(
         assumptions['rs_fuel_tech_p_by'])
+
+    assumptions['ss_specified_tech_enduse_by'] = helpers.get_def_techs(
+        assumptions['ss_fuel_tech_p_by'])
 
     assumptions['is_specified_tech_enduse_by'] = helpers.get_def_techs(
         assumptions['is_fuel_tech_p_by'])

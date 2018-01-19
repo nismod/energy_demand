@@ -29,7 +29,7 @@ from energy_demand.technologies import fuel_service_switch
 
 # must match smif project name for Local Authority Districts
 REGION_SET_NAME = 'lad_uk_2016'
-NR_OF_MODELLEd_REGIONS = 391 # uk: 391, england.: 380
+NR_OF_MODELLEd_REGIONS = 20 # uk: 391, england.: 380
 PROFILER = False
 
 class EDWrapper(SectorModel):
@@ -62,20 +62,26 @@ class EDWrapper(SectorModel):
         data['criterias']['write_to_txt'] = True # True
         data['criterias']['beyond_supply_outputs'] = False  # True             # If only for smif: FAlse, for other plots: True
         data['criterias']['plot_crit'] = False
+        data['criterias']['plot_tech_lp'] = True
 
         data['sim_param']['base_yr'] = 2015                             # Base year
         data['sim_param']['curr_yr'] = data['sim_param']['base_yr']
         self.user_data['base_yr'] = data['sim_param']['base_yr']
 
-        fast = False #YEAY
-        if fast == True:
+        fast_smif_run = False #YEAY
+
+        if fast_smif_run == True:
             data['criterias']['write_to_txt'] = False
             data['criterias']['beyond_supply_outputs'] = False
-            data['criterias']['validation_criteria'] = False  
-        else:
+            data['criterias']['validation_criteria'] = False
+            data['criterias']['plot_tech_lp'] = False
+            data['criterias']['plot_crit'] = False
+        elif fast_smif_run == False:
             data['criterias']['write_to_txt'] = True
             data['criterias']['beyond_supply_outputs'] = True
-            data['criterias']['validation_criteria'] = True  
+            data['criterias']['validation_criteria'] = True
+            data['criterias']['plot_tech_lp'] = True
+            data['criterias']['plot_crit'] = True
         # -----------------------------
         # Paths
         # -----------------------------
@@ -163,7 +169,8 @@ class EDWrapper(SectorModel):
             data['paths'],
             data['local_paths'],
             data['assumptions']['model_yeardays'],
-            data['assumptions']['model_yeardays_daytype'])
+            data['assumptions']['model_yeardays_daytype'],
+            data['criterias']['plot_tech_lp'])
 
         # ---------------------
         # Convert capacity switches to service switches for every submodel
@@ -212,6 +219,7 @@ class EDWrapper(SectorModel):
         # --------------------
         # Initialise scenario
         # --------------------
+        logging.info("... Initialise function execution")
         self.user_data['init_cont'], self.user_data['fuel_disagg'] = scenario_initalisation(
             self.user_data['data_path'], data)
 

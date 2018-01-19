@@ -20,6 +20,9 @@ TODO: Related ed to houses & householdsize
 TODO: Define efficencies of all techs
 TODO: Base year fuel assignements
 TODO: ET_module
+TODO :TEST IF IN SUMMER COOLING CAN BE ADDED FOR ELECTRICITY
+TODO: COOLING?
+
 """
 import os
 import sys
@@ -151,6 +154,7 @@ if __name__ == "__main__":
     data['criterias']['spatial_exliclit_diffusion'] = False
     data['criterias']['write_to_txt'] = False
     data['criterias']['beyond_supply_outputs'] = False
+    data['criterias']['plot_tech_lp'] = True
 
     data['paths'] = data_loader.load_paths(path_main)
     data['local_paths'] = data_loader.load_local_paths(local_data_path)
@@ -203,7 +207,11 @@ if __name__ == "__main__":
     data['assumptions']['seasons'] = date_prop.read_season(year_to_model=2015)
     data['assumptions']['model_yeardays_daytype'], data['assumptions']['yeardays_month'], data['assumptions']['yeardays_month_days'] = date_prop.get_model_yeardays_datype(year_to_model=2015)
 
-    data['tech_lp'] = data_loader.load_data_profiles(data['paths'], data['local_paths'], data['assumptions']['model_yeardays'], data['assumptions']['model_yeardays_daytype'])
+    data['tech_lp'] = data_loader.load_data_profiles(
+        data['paths'], data['local_paths'],
+        data['assumptions']['model_yeardays'],
+        data['assumptions']['model_yeardays_daytype'],
+        data['criterias']['plot_tech_lp'])
     data['assumptions']['technologies'] = non_param_assumptions.update_assumptions(
         data['assumptions']['technologies'],
         data['assumptions']['strategy_variables']['eff_achiev_f'],
