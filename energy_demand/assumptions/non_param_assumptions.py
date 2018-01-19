@@ -163,7 +163,7 @@ def load_non_param_assump(base_yr, paths, enduses, fueltypes, fueltypes_nr):
     assumptions['rs_t_base_heating']['rs_t_base_heating_base_yr'] = 15.5
     assumptions['ss_t_base_heating']['ss_t_base_heating_base_yr'] = 15.5
     assumptions['rs_t_base_cooling']['rs_t_base_cooling_base_yr'] = 21
-    assumptions['ss_t_base_cooling']['ss_t_base_cooling_base_yr'] = 7 #-20 #WEATER CORRECTION
+    assumptions['ss_t_base_cooling']['ss_t_base_cooling_base_yr'] = 0 #-20 #WEATER CORRECTION
 
     # ============================================================
     # Assumption related to technologies

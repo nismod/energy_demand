@@ -143,13 +143,14 @@ def assign_by_fuel_tech_p(assumptions, enduses, fueltypes, fueltypes_nr):
         'heat_pumps_electricity': 0.04,
         'storage_heater_electricity': 0.74,
         'secondary_heater_electricity':0.22,
+
         #'district_heating_electricity': 0, #TODO ADD PROFILE FOR DISTRICT HEATING
         #'secondary_heater_electricity': 0.96
         #'boiler_electricity': 0.22 #getter
 
         #'heat_pumps_electricity': 0.04,
         #'secondary_heater_electricity': 0.96
-
+        #'secondary_heater_electricity':0.96
         }
 
     assumptions['rs_fuel_tech_p_by']['rs_space_heating'][fueltypes['biomass']] = {
@@ -214,8 +215,8 @@ def assign_by_fuel_tech_p(assumptions, enduses, fueltypes, fueltypes_nr):
         'heat_pumps_hydrogen': 0.0}
 
     # Cooling
-    '''
-    #assumptions['ss_fuel_tech_p_by']['ss_cooling_ventilation'][fueltypes['electricity']] = {
+    #''' TODO TODO
+    assumptions['ss_fuel_tech_p_by']['ss_cooling_ventilation'][fueltypes['electricity']] = {
         'ss_cooling_tech': 1.0}
 
     #'''

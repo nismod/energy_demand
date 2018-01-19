@@ -43,7 +43,7 @@ class EnergyDemandModel(object):
         # Create non regional dependent load profiles
         # --------------
         data['non_regional_lp_stock'] = load_profile.create_load_profile_stock(
-            data['tech_lp'], data['assumptions'], data['sectors'])
+            data['tech_lp'], data['assumptions'], data['sectors'], data['enduses'])
 
         # --------------
         # Create Weather Regions

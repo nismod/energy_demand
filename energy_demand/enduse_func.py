@@ -125,7 +125,7 @@ class Enduse(object):
         ):
         """Enduse class constructor
         """
-        #print("--- Enduse: " + str(enduse))
+        print("--- Enduse: " + str(enduse))
         self.region_name = region_name
         self.enduse = enduse
         self.fuel_new_y = fuel
@@ -837,6 +837,8 @@ def calc_peak_tech_dh(
                 # Calculate fuel for peak day
                 fuel_tech_peak_d = enduse_fuel_tech[tech] * enduse_peak_yd_factor
 
+                if enduse == "ss_space_heating":
+                    print(".")
                 # Assign Peak shape of a peak day of a technology
                 tech_peak_dh = load_profile.get_shape_peak_dh(
                     enduse, sector, tech)

@@ -323,6 +323,8 @@ class WeatherRegion(object):
         ss_space_heating_tech_lists = list(assumptions['tech_list'].values())
         all_techs_ss_space_heating = [item for sublist in ss_space_heating_tech_lists for item in sublist]
 
+        # Technology specific profiles
+        # (All heating shape from carbon trust for all heating technologies ??)
         self.ss_load_profiles.add_lp(
             unique_identifier=uuid.uuid4(),
             technologies=all_techs_ss_space_heating,
@@ -332,6 +334,7 @@ class WeatherRegion(object):
             shape_yh=ss_fuel_shape_any_tech,
             enduse_peak_yd_factor=ss_peak_yd_heating_factor,
             shape_peak_dh=tech_lp['ss_shapes_dh'])
+
 
         # Cooling service tech_lp
         #'''

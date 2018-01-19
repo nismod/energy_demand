@@ -140,7 +140,11 @@ class LoadProfileStock(object):
         if sector == 'dummy_sector':
             return load_profile_obj.shape_peak_dh
         else:
-            return load_profile_obj.shape_peak_dh[enduse][sector]['shape_peak_dh']
+            #return load_profile_obj.shape_peak_dh[enduse][sector]['shape_peak_dh'] #Do NOT REMOVE SHARK SHARK TODO TODO
+            if isinstance(load_profile_obj.shape_peak_dh, dict):
+                return load_profile_obj.shape_peak_dh[enduse][sector]['shape_peak_dh'] #Do NOT REMOVE SHARK SHARK
+            else:
+                return load_profile_obj.shape_peak_dh
 
 def generate_key_lu_dict(dict_tuple_keys, unique_identifier, enduses, sectors, technologies):
     """Generate look_up keys to position in 'load_profile_dict'
@@ -307,7 +311,7 @@ def calk_peak_h_dh(fuel_peak_dh):
 
     return peak_fueltype_h
 
-def create_load_profile_stock(tech_lp, assumptions, sectors):
+def create_load_profile_stock(tech_lp, assumptions, sectors, all_enduses):
     """Assign load profiles which are the same for all regions
     ``non_regional_load_profiles``
 
@@ -379,12 +383,12 @@ def create_load_profile_stock(tech_lp, assumptions, sectors):
             enduse_peak_yd_factor=tech_lp['rs_shapes_yd'][enduse]['shape_peak_yd_factor'],
             shape_peak_dh=tech_lp['rs_shapes_dh'][enduse]['shape_peak_dh'])
 
-    # - dummy ss technologies
-    for enduse in assumptions['ss_dummy_enduses']:
+    # - Assign to each enduse the carbon fuel trust dataset
+    for enduse in all_enduses['ss_all_enduses']:
+        ##for enduse in assumptions['ss_dummy_enduses']: OLD 
 
-        print(assumptions['ss_dummy_enduses']) TODO
-        prnt(".")
-
+        #print(assumptions['ss_dummy_enduses'])
+        # Get technologies with assigned fuel shares
         tech_list = helpers.get_nested_dict_key(assumptions['ss_fuel_tech_p_by'][enduse])
         for sector in sectors['ss_sectors']:
             non_regional_lp_stock.add_lp(

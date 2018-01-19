@@ -21,7 +21,8 @@ TODO: Define efficencies of all techs
 TODO: Base year fuel assignements
 TODO: ET_module
 TODO :TEST IF IN SUMMER COOLING CAN BE ADDED FOR ELECTRICITY
-TODO: COOLING?
+TODO: COOLING? --> Test if adding with adapted cooling function
+TODO: SENSITIVITY
 
 """
 import os
