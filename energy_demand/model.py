@@ -113,7 +113,8 @@ class EnergyDemandModel(object):
                 data['assumptions']['model_yearhours_nrs'],
                 data['assumptions']['model_yeardays_nrs'],
                 data['assumptions']['seasons'],
-                data['assumptions']['heating_technologies'],
+                data['assumptions']['enduse_space_heating'],
+                data['assumptions']['technologies'],
                 data['criterias']['beyond_supply_outputs'])
 
         # -------
@@ -875,6 +876,7 @@ def aggregate_final_results(
         model_yeardays_nrs,
         seasons,
         enduse_space_heating,
+        technologies,
         beyond_supply_outputs=True
     ):
     """Aggregate results for every region
@@ -921,26 +923,33 @@ def aggregate_final_results(
             for enduse_object in submodel:
                 if enduse_object.enduse in enduse_space_heating:
 
-                    # All used heating technologies
-                    heating_techs = enduse_object.enduse_techs
-
-                    submodel_ed_techs_fueltype_reg_yh = get_fuels_yh(
+                    submodel_techs_fueltypes_reg_yh = get_fuels_yh(
                         enduse_object,
                         'techs_fuel_yh',
                         model_yearhours_nrs,
                         model_yeardays_nrs)
 
+                    # All used heating technologies
+                    heating_techs = enduse_object.enduse_techs
+
                     # Iterate technologies and get fuel per technology
                     for heating_tech in heating_techs:
 
-                        # If technologies are defined
-                        if isinstance(submodel_ed_techs_fueltype_reg_yh, dict):
-                            tech_fuel = submodel_ed_techs_fueltype_reg_yh[heating_tech]
+                        tech_fuel = submodel_techs_fueltypes_reg_yh[heating_tech]
+                        '''# If technologies are defined
+                        if isinstance(submodel_techs_fueltypes_reg_yh, dict):
+                            tech_fuel = submodel_techs_fueltypes_reg_yh[heating_tech]
                         else:
-                            tech_fuel = submodel_ed_techs_fueltype_reg_yh
+                            tech_fuel = submodel_techs_fueltypes_reg_yh'''
+
+                        # Fueltype of technology
+                        fueltype_tech_int = technologies[heating_tech].fueltype_int
 
                         # Aggregate Submodel (sector) specific enduse
-                        aggr_results['ed_techs_submodel_fueltype_regs_yh'][heating_tech][submodel_nr][reg_array_nr] += tech_fuel
+                        aggr_results['ed_techs_submodel_fueltype_regs_yh'][heating_tech][submodel_nr][reg_array_nr][fueltype_tech_int] += tech_fuel[fueltype_tech_int]
+
+                        # Aggregate Submodel (sector) specific enduse
+                        ##aggr_results['ed_techs_submodel_fueltype_regs_yh'][heating_tech][submodel_nr][reg_array_nr] += tech_fuel
 
         # -------------
         # Summarise remaining fuel of other enduses
