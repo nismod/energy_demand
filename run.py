@@ -29,7 +29,7 @@ from energy_demand.technologies import fuel_service_switch
 
 # must match smif project name for Local Authority Districts
 REGION_SET_NAME = 'lad_uk_2016'
-NR_OF_MODELLEd_REGIONS = 20 # uk: 391, england.: 380
+NR_OF_MODELLEd_REGIONS = 391 # uk: 391, england.: 380
 PROFILER = False
 
 class EDWrapper(SectorModel):
@@ -460,10 +460,10 @@ class EDWrapper(SectorModel):
                 data['lookups']['fueltypes'],
                 model_yearhours_nrs=8760)
 
-        # Generate YAML file with keynames for `sector_model`
-        if data['criterias']['writeYAML']:
-            write_data.write_yaml_output_keynames(
-                data['paths']['yaml_parameters_keynames_unconstrained'], supply_results.keys())
+            # Generate YAML file with keynames for `sector_model`
+            if data['criterias']['writeYAML']:
+                write_data.write_yaml_output_keynames(
+                    data['paths']['yaml_parameters_keynames_unconstrained'], supply_results.keys())
 
         _total_scrap = 0
         for key in supply_results:
@@ -793,7 +793,6 @@ def model_tech_simplification(tech):
     elif tech == 'secondary_heater_electricity':
         tech_newly_assigned = 'boiler_electricity'
     else:
-        # return idential tech
         tech_newly_assigned = tech
 
     return tech_newly_assigned
