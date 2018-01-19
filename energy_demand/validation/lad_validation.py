@@ -41,7 +41,25 @@ def temporal_validation(
     plot_criteria : bool
         Criteria to show plots or not
     """
-    # Select years to plot
+    # ----------------
+    # Plot a full year
+    # ----------------
+    days_to_plot = list(range(0, 365))
+    elec_national_data.compare_results(
+        'validation_temporal_electricity_weeks_selection.pdf',
+        local_paths['data_results_validation'],
+        elec_2015_indo,
+        elec_2015_itsdo,
+        elec_factored_yh,
+        elec_ed_fueltype_national_yh,
+        'all_submodels',
+        days_to_plot,
+        plot_crit=plot_criteria)
+
+    # ----------------
+    # Plot four weeks
+    # ----------------
+
     # ONE WEEK
     winter_week = list(range(
         date_prop.date_to_yearday(2015, 1, 12), date_prop.date_to_yearday(2015, 1, 19))) #Jan
@@ -64,26 +82,8 @@ def temporal_validation(
 
     days_to_plot = winter_week + spring_week + summer_week + autumn_week
 
-    # ----------------
-    # Plot four weeks
-    # ----------------
     elec_national_data.compare_results(
         'validation_temporal_electricity_8760h.pdf',
-        local_paths['data_results_validation'],
-        elec_2015_indo,
-        elec_2015_itsdo,
-        elec_factored_yh,
-        elec_ed_fueltype_national_yh,
-        'all_submodels',
-        days_to_plot,
-        plot_crit=plot_criteria)
-
-    # ----------------
-    # Plot a full year
-    # ----------------
-    days_to_plot = list(range(0, 365))
-    elec_national_data.compare_results(
-        'validation_temporal_electricity_weeks_selection.pdf',
         local_paths['data_results_validation'],
         elec_2015_indo,
         elec_2015_itsdo,
@@ -183,8 +183,7 @@ def tempo_spatial_validation(
     logging.info("... ed difference between modellend and real [percent] %s: ", (1 - diff_factor_elec) * 100)
 
     elec_factored_yh = diff_factor_elec * elec_2015_indo
-    print(plot_crit)
-    print(":.......")
+
     temporal_validation(
         local_paths,
         ed_fueltype_national_yh[fueltypes['electricity']],

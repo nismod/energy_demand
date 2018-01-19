@@ -66,7 +66,7 @@ class WeatherRegion(object):
             sim_param['curr_yr'],
             assumptions['strategy_variables']['climate_change_temp_diff_yr_until_changed'])
 
-        #Change temp_cy depending on climate assumptions
+        # Change temp_cy depending on climate assumptions
         rs_t_base_heating_cy = hdd_cdd.sigm_temp(
             assumptions['strategy_variables']['rs_t_base_heating_future_yr'],
             assumptions['rs_t_base_heating']['rs_t_base_heating_base_yr'],
@@ -195,6 +195,10 @@ class WeatherRegion(object):
         self.rs_cdd_cy, _ = hdd_cdd.calc_reg_cdd(
             temp_cy, rs_t_base_cooling_cy, assumptions['model_yeardays'])
 
+        #------
+        # NEW
+        #------
+        
         # Climate change correction factors
         try:
             self.rs_heating_factor_y = np.nan_to_num(
@@ -291,10 +295,12 @@ class WeatherRegion(object):
             temp_by, ss_t_base_cooling_by, assumptions['model_yeardays'])
 
         ss_hdd_cy, ss_fuel_shape_heating_yd = hdd_cdd.calc_reg_hdd(
-            temp_cy, rs_t_base_heating_cy, assumptions['model_yeardays'])
-        ss_cdd_cy, _ = hdd_cdd.calc_reg_cdd(
+            temp_cy, ss_t_base_heating_cy, assumptions['model_yeardays']) #FIXED BUG
+
+        ss_cdd_cy, SS_FUEL_SHAPE_COOLING_YS = hdd_cdd.calc_reg_cdd(
             temp_cy, ss_t_base_cooling_cy, assumptions['model_yeardays'])
 
+        # Create load profile
         try:
             self.ss_heating_factor_y = np.nan_to_num(
                 1.0 / float(np.sum(ss_hdd_by))) * np.sum(ss_hdd_cy)
@@ -327,13 +333,31 @@ class WeatherRegion(object):
             enduse_peak_yd_factor=ss_peak_yd_heating_factor,
             shape_peak_dh=tech_lp['ss_shapes_dh'])
 
-        # Cooling service
-        #ss_fuel_shape_cooling_yh = self.get_shape_cooling_yh(
-        # data, ss_fuel_shape_cooling_yd, 'ss_shapes_cooling_dh') # Service cooling
-        #ss_fuel_shape_cooling_yh = self.get_shape_cooling_yh(
-        # data, ss_fuel_shape_heating_yd, 'ss_shapes_cooling_dh') # Service cooling #USE HEAT YD BUT COOLING SHAPE
-        #ss_fuel_shape_cooling_yh = self.get_shape_cooling_yh(
-        # data, load_profile.abs_to_rel(ss_hdd_cy + ss_cdd_cy), 'ss_shapes_cooling_dh') # hdd & cdd
+        # Cooling service tech_lp
+        #'''
+        ss_fuel_shape_cooling_yh = get_shape_cooling_yh(
+         tech_lp, SS_FUEL_SHAPE_COOLING_YS, 'ss_shapes_cooling_dh') # Service cooling #ss_fuel_shape_cooling_yd
+        #ss_fuel_shape_cooling_yh = get_shape_cooling_yh(
+        # tech_lp, ss_fuel_shape_heating_yd, 'ss_shapes_cooling_dh') # Service cooling #USE HEAT YD BUT COOLING SHAPE
+        #ss_fuel_shape_cooling_yh = get_shape_cooling_yh(
+        # tech_lp, load_profile.abs_to_rel(ss_hdd_cy + ss_cdd_cy), 'ss_shapes_cooling_dh') # hdd & cdd
+        
+        # --------------------NEW - ADD COOLING LOAD PROFILE
+        #from energy_demand.plotting import plotting_results
+        #print(assumptions['tech_list']['tech_heating_const'])
+        #plotting_results.plot_lp_yh(ss_fuel_shape_cooling_yh)
+
+        # COOOOOOOOOOOOOOOOOOOOOOLING NEW
+        self.ss_load_profiles.add_lp(
+            unique_identifier=uuid.uuid4(),
+            technologies=assumptions['tech_list']['tech_cooling_const'],
+            enduses=['ss_cooling_ventilation'],
+            sectors=sectors['ss_sectors'],
+            shape_yd=SS_FUEL_SHAPE_COOLING_YS,
+            shape_yh=ss_fuel_shape_cooling_yh,
+            enduse_peak_yd_factor=ss_peak_yd_heating_factor,
+            shape_peak_dh=tech_lp['ss_shapes_dh']) #TODO
+        #'''
 
         # --------------------------------
         # Industry submodel
@@ -472,7 +496,7 @@ def get_fuel_shape_heating_hp_yh(tech_lp, tech_stock, rs_hdd_cy, model_yeardays)
     return shape_yh[[model_yeardays]], shape_y_dh[[model_yeardays]]
 
 def get_shape_cooling_yh(data, cooling_shape, tech):
-    """Convert daily shape to hourly based on robert sansom daily load for boilers
+    """Convert daily shape to hourly 
 
     Arguments
     ---------

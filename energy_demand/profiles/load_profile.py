@@ -381,6 +381,10 @@ def create_load_profile_stock(tech_lp, assumptions, sectors):
 
     # - dummy ss technologies
     for enduse in assumptions['ss_dummy_enduses']:
+
+        print(assumptions['ss_dummy_enduses']) TODO
+        prnt(".")
+
         tech_list = helpers.get_nested_dict_key(assumptions['ss_fuel_tech_p_by'][enduse])
         for sector in sectors['ss_sectors']:
             non_regional_lp_stock.add_lp(

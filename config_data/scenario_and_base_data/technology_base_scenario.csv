@@ -36,3 +36,4 @@ heat_pump_GSHP_hydrogen,electricity,4.9,4.9,2050,1,linear,2010,tech_heating_temp
 district_heating_gas,gas,1,1,2050,1,linear,2010,tech_heating_const,1,,,,,,,,,,,,
 district_heating_electricity,electricity,1,1,2050,1,linear,2010,tech_heating_const,1,,,,,,,,,,,,
 district_heating_biomass,biomass,1,1,2050,1,linear,2010,tech_heating_const,1,,,,,,,,,,,,
+ss_cooling_tech,electricity,1,1,2050,1,linear,2010,tech_cooling_const,1,,,,,,,,,,,,

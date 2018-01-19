@@ -137,7 +137,7 @@ def run_all_plot_functions(
         assumptions['model_yeardays_nrs'],
         2015,
         os.path.join(local_paths['data_results_PDF'], "tot_all_enduse03.pdf"))
-
+    #TODO: WHY DOUBLED?
     logging.debug("... plot a full week")
     plt_fuels_enduses_week(
         results_container['results_every_year'],
@@ -1287,3 +1287,30 @@ def plot_lp_dh(data_dh_modelled, path_plot_fig, fig_name):
     # Save fig
     plt.savefig(path_fig_name)
     plt.close()
+
+def plot_lp_yh(data_dh_modelled):
+    """plot yearly profile
+    """
+    x_values = range(8760)
+
+    yh_data_dh_modelled = np.reshape(data_dh_modelled, 8760)
+    plt.plot(x_values, list(yh_data_dh_modelled), color='red', label='modelled') #'ro', markersize=1,
+
+    # -----------------
+    # Axis
+    # -----------------
+    #plt.ylim(0, 30)
+
+    # ------------
+    # Plot legend
+    # ------------
+    plt.legend(ncol=2, loc=2, frameon=False)
+
+    # Tight layout
+    plt.tight_layout()
+    plt.margins(x=0)
+
+    # Save fig
+    plt.show()
+    #plt.savefig(path_fig_name)
+    #plt.close()

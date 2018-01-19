@@ -693,7 +693,7 @@ def load_fuels(paths, lookups):
 
 def rs_collect_shapes_from_txts(txt_path, model_yeardays):
     """All pre-processed load shapes are read in from .txt files
-    without accesing raw files
+    without accessing raw files
 
     This loads HES files for residential sector
 
@@ -778,11 +778,11 @@ def ss_collect_shapes_from_txts(txt_path, model_yeardays):
 
     # Read load shapes from txt files for enduses
     for enduse in enduses:
-    
+
         ss_shapes_dh[enduse] = {}
         ss_shapes_yd[enduse] = {}
         for sector in sectors:
-        
+
             joint_string_name = str(sector) + "__" + str(enduse)
             shape_peak_dh = read_data.read_txt_shape_peak_dh(
                 os.path.join(
