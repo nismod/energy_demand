@@ -337,7 +337,7 @@ def get_fuels_yh(
     """
     if enduse_object.flat_profile_crit:
 
-        # Yearly fuel
+        # Annual fuel
         fuels_reg_y = enduse_object.fuel_y
 
         if attribute_to_get == 'fuel_peak_dh':
@@ -879,7 +879,7 @@ def aggregate_final_results(
         technologies,
         beyond_supply_outputs=True
     ):
-    """Aggregate results for every region
+    """Aggregate results for a single region
 
     Parameters
     ----------
@@ -904,6 +904,8 @@ def aggregate_final_results(
         Seasons
     enduse_space_heating : list
         All heating enduses
+    technologies : dict
+        Technologies
     beyond_supply_outputs : bool
         Criteria whether additional results are aggregated
         for plotting purposes going beyond the SMIF framework
@@ -918,12 +920,14 @@ def aggregate_final_results(
     if mode_constrained:
         # -------------
         # Summarise ed of constrained technologies
+        # Aggregate fuel for constrained enduses (heating techs)
         # -------------
         for submodel_nr, submodel in enumerate(all_submodels):
             for enduse_object in submodel:
                 if enduse_object.enduse in enduse_space_heating:
 
-                    submodel_techs_fueltypes_reg_yh = get_fuels_yh(
+                    # Get fuels for all techs
+                    submodel_techs_fueltypes_yh = get_fuels_yh(
                         enduse_object,
                         'techs_fuel_yh',
                         model_yearhours_nrs,
@@ -935,21 +939,14 @@ def aggregate_final_results(
                     # Iterate technologies and get fuel per technology
                     for heating_tech in heating_techs:
 
-                        tech_fuel = submodel_techs_fueltypes_reg_yh[heating_tech]
-                        '''# If technologies are defined
-                        if isinstance(submodel_techs_fueltypes_reg_yh, dict):
-                            tech_fuel = submodel_techs_fueltypes_reg_yh[heating_tech]
-                        else:
-                            tech_fuel = submodel_techs_fueltypes_reg_yh'''
+                        # Fuel of technology
+                        tech_fuel = submodel_techs_fueltypes_yh[heating_tech]
 
                         # Fueltype of technology
                         fueltype_tech_int = technologies[heating_tech].fueltype_int
 
-                        # Aggregate Submodel (sector) specific enduse
+                        # Aggregate Submodel (sector) specific enduse for fueltype
                         aggr_results['ed_techs_submodel_fueltype_regs_yh'][heating_tech][submodel_nr][reg_array_nr][fueltype_tech_int] += tech_fuel[fueltype_tech_int]
-
-                        # Aggregate Submodel (sector) specific enduse
-                        ##aggr_results['ed_techs_submodel_fueltype_regs_yh'][heating_tech][submodel_nr][reg_array_nr] += tech_fuel
 
         # -------------
         # Summarise remaining fuel of other enduses
@@ -961,7 +958,7 @@ def aggregate_final_results(
                 model_yeardays_nrs,
                 [submodel])
 
-            # Add SubModel specific ed SLOW
+            # Add SubModel specific ed
             aggr_results['ed_submodel_fueltype_regs_yh'][submodel_nr][reg_array_nr] += submodel_ed_fueltype_regs_yh
     else:
         # -------------
