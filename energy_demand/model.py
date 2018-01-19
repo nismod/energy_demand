@@ -997,30 +997,42 @@ def aggregate_final_results(
         enduse_space_heating,
         beyond_supply_outputs=True
     ):
-    """Aggregate results
+    """Aggregate results for every region
 
     Parameters
     ----------
-    data : dict
-        Data container
-    regions : list
-        All modelled regions
-    all_submodels_regions : dict (key: region)
-        Result objects of submodels for all regions
-
+    aggr_results : dict
+        Contains alls results to aggregate
+        (key of this will be made self.attributes)
+    reg_array_nr : int
+        Region array number
+    all_submodels : list
+        Submodel objects
+    mode_constrained : bool
+        Mode of how to run the model
+    fueltypes : dict
+        Fueltypes lookup
+    fueltypes_nr : int
+        Number of fueltypes
+    model_yearhours_nrs : int
+        Number of modelled hours in a year
+    model_yeardays_nrs : int
+        Number of modelled days in a year
+    seasons : dict
+        Seasons
+    heating_technologies : list
+        All heating related technologies
+    enduse_space_heating : list
+        All heating enduses
     beyond_supply_outputs : bool
-        If only necessary conversion for running with supply model == True
+        Criteria whether additional results are aggregated
+        for plotting purposes going beyond the SMIF framework
 
     Returns
     --------
     aggr_results : dict
         Contains all aggregated results
     """
-    # ----------------------
-    # Summarise functions for result for supply model
-    #
-    # np.array(fueltypes, sectors, regions, timesteps)
-    # ----------------------
     logging.debug("... start summing for supply model")
 
     if mode_constrained:

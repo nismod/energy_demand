@@ -12,7 +12,7 @@ https://nismod.github.io/docs/smif-prerequisites.html#sector-modeller
 # backcasting
 # Industry INFO about efficiencies & technologies: Define strategy variables
 # Cooling?
-# Test why lower future
+
 # Potentiall load other annual profiles?
 DISTRICT HEATING TECHS
 TODO: Improve industry related demand --> define strategies
@@ -20,7 +20,6 @@ TODO: Related ed to houses & householdsize
 TODO: Define efficencies of all techs
 TODO: Base year fuel assignements
 TODO: ET_module
-
 """
 import os
 import sys
