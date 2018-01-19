@@ -214,55 +214,6 @@ def simulate_region(region, data, weather_regions):
 
     return rs_submodel, ss_submodel, is_submodel
 
-def constrained_fuel_aggr(
-        attribute_to_get,
-        enduse_object,
-        sum_crit,
-        model_yearhours_nrs,
-        model_yeardays_nrs,
-        tech
-    ):
-    """Collect hourly data from all regions and sum across
-    all fuel types and enduses
-
-    Arguments
-    ----------
-    attribute_to_get : str
-        Attribue to sumarise
-    enduse_object : obj
-        Enduse model object
-    sum_crit : str
-        Criteria
-    model_yearhours_nrs : int
-        Number of modelled hours in a year
-    model_yeardays_nrs : int
-        Number of modelled yeardays
-    region_name : str, default=False
-        Name of region
-
-    Returns
-    -------
-    out_array : array
-        Summarised array
-    """
-    # If correct region and heating enduse
-    ed_techs_dict = get_fuels_yh(
-        enduse_object,
-        attribute_to_get,
-        model_yearhours_nrs,
-        model_yeardays_nrs)
-
-    # If technologies are defined
-    if isinstance(ed_techs_dict, dict):
-        out_array = ed_techs_dict[tech]
-    else:
-        out_array = ed_techs_dict
-
-    if sum_crit == 'no_sum':
-        return out_array
-    elif sum_crit == 'sum':
-        return np.sum(out_array)
-
 def fuel_aggr(
         attribute_to_get,
         sector_models,
@@ -973,19 +924,23 @@ def aggregate_final_results(
                     # All used heating technologies
                     heating_techs = enduse_object.enduse_techs
 
+                    submodel_ed_techs_fueltype_reg_yh = get_fuels_yh(
+                        enduse_object,
+                        'techs_fuel_yh',
+                        model_yearhours_nrs,
+                        model_yeardays_nrs)
+
                     # Iterate technologies and get fuel per technology
                     for heating_tech in heating_techs:
 
-                        submodel_ed_fueltype_reg_yh = constrained_fuel_aggr(
-                            'techs_fuel_yh',
-                            enduse_object,
-                            'no_sum',
-                            model_yearhours_nrs,
-                            model_yeardays_nrs,
-                            heating_tech)
+                        # If technologies are defined
+                        if isinstance(submodel_ed_techs_fueltype_reg_yh, dict):
+                            tech_fuel = submodel_ed_techs_fueltype_reg_yh[heating_tech]
+                        else:
+                            tech_fuel = submodel_ed_techs_fueltype_reg_yh
 
                         # Aggregate Submodel (sector) specific enduse
-                        aggr_results['ed_techs_submodel_fueltype_regs_yh'][heating_tech][submodel_nr][reg_array_nr] += submodel_ed_fueltype_reg_yh
+                        aggr_results['ed_techs_submodel_fueltype_regs_yh'][heating_tech][submodel_nr][reg_array_nr] += tech_fuel
 
         # -------------
         # Summarise remaining fuel of other enduses
