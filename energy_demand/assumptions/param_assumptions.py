@@ -70,15 +70,18 @@ def load_param_assump(paths, assumptions):
         'demand_management_improvement__rs_consumer_electronics': 0,
         'demand_management_improvement__rs_home_computing': 0,
 
-        # Service submodule
-        'demand_management_improvement__ss_space_heating': 0,
-        'demand_management_improvement__ss_water_heating': 0,
-        'demand_management_improvement__ss_lighting': 0,
-        'demand_management_improvement__ss_catering': 0,
-        'demand_management_improvement__ss_computing': 0,
-        'demand_management_improvement__ss_space_cooling': 0,
-        'demand_management_improvement__ss_other_gas': 0,
-        'demand_management_improvement__ss_other_electricity': 0,
+        # Submodel Service (Table 5.5a)
+        'demand_management_improvement__ss_space_heating': 1,
+        'demand_management_improvement__ss_water_heating': 1,
+        'demand_management_improvement__ss_cooling_humidification': 1,
+        'demand_management_improvement__ss_fans': 1,
+        'demand_management_improvement__ss_lighting': 1,
+        'demand_management_improvement__ss_catering': 1,
+        'demand_management_improvement__ss_small_power': 1,
+        'demand_management_improvement__ss_ICT_equipment': 1,
+        'demand_management_improvement__ss_cooled_storage': 1,
+        'demand_management_improvement__ss_other_gas': 1,
+        'demand_management_improvement__ss_other_electricity': 1,
 
         # Industry submodule
         'demand_management_improvement__is_high_temp_process': 0,

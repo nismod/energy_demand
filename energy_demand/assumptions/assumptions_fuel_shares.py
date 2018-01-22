@@ -215,14 +215,14 @@ def assign_by_fuel_tech_p(assumptions, enduses, fueltypes, fueltypes_nr):
         'heat_pumps_hydrogen': 0.0}
 
     # Cooling
-    ''' TODO TODO ss_cooling_ventilation
+    #''' TODO TODO ss_cooling_ventilation
     assumptions['ss_fuel_tech_p_by']['ss_cooling_humidification'][fueltypes['electricity']] = {
         'ss_cooling_tech': 1.0}
     assumptions['ss_fuel_tech_p_by']['ss_cooled_storage'][fueltypes['electricity']] = {
         'ss_cooling_tech': 1.0}
     assumptions['ss_fuel_tech_p_by']['ss_fans'][fueltypes['electricity']] = {
         'ss_cooling_tech': 1.0}
-    '''
+    #'''
 
     # ===================
     # Industry subModel  - Fuel shares of technologies in enduse

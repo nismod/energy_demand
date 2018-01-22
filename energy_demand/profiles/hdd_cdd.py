@@ -29,7 +29,9 @@ def calc_hdd(t_base, temp_yh, nr_day_to_av):
     # ---------------------------------------------
     # Average temperature with previous day(s) information
     # ---------------------------------------------
-    temp_yh = averaged_temp(temp_yh, nr_day_to_av=nr_day_to_av)
+    temp_yh = averaged_temp(
+        temp_yh,
+        nr_day_to_av=nr_day_to_av)
 
     # ------------------------------
     # Calculate heating degree days
@@ -87,15 +89,17 @@ def averaged_temp(temp_yh, nr_day_to_av):
 
     return effective_temp_yh
 
-def calc_cdd(rs_t_base_cooling, temperatures):
+def calc_cdd(t_base_cooling, temp_yh, nr_day_to_av):
     """Calculate cooling degree days
 
     Arguments
     ----------
-    rs_t_base_cooling : float
+    t_base_cooling : float
         Base temperature for cooling
-    temperatures : array
+    temp_yh : array
         Temperatures for every hour in a year
+    nr_day_to_av : array
+        Number of days to average temperature
 
     Return
     ------
@@ -107,7 +111,14 @@ def calc_cdd(rs_t_base_cooling, temperatures):
     - For more info see Formual 2.1: Degree-days: theory and application
       https://www.designingbuildings.co.uk/wiki/Cooling_degree_days
     """
-    temp_diff = (temperatures - rs_t_base_cooling) / 24
+    # ---------------------------------------------
+    # Average temperature with previous day(s) information TODO TEST
+    # ---------------------------------------------
+    temp_yh = averaged_temp(
+        temp_yh,
+        nr_day_to_av)
+
+    temp_diff = (temp_yh - t_base_cooling) / 24
     temp_diff[temp_diff < 0] = 0
     cdd_d = np.sum(temp_diff, axis=1)
 
@@ -216,7 +227,7 @@ def get_cdd_country(
             diff_params['sig_steeppness'],
             diff_params['yr_until_changed'])
 
-        cdd_reg = calc_cdd(t_base_heating_cy, temperatures)
+        cdd_reg = calc_cdd(t_base_heating_cy, temperatures, nr_day_to_av=2)
         cdd_regions[region] = np.sum(cdd_reg)
 
     return cdd_regions
@@ -339,7 +350,7 @@ def calc_reg_cdd(temperatures, t_base_cooling, model_yeardays):
     - The Cooling Degree Days are calculated based on assumptions of
       the base temperature of the current year.
     """
-    cdd_d = calc_cdd(t_base_cooling, temperatures)
+    cdd_d = calc_cdd(t_base_cooling, temperatures, nr_day_to_av=2)
     shape_cdd_d = load_profile.abs_to_rel(cdd_d)
 
     # Select only modelled yeardays

@@ -846,7 +846,7 @@ def create_enduse_dict(data, rs_fuel_raw_data_enduses):
     return enduses
 
 def ss_read_shapes_enduse_techs(ss_shapes_dh, ss_shapes_yd):
-    """Iterate carbon trust dataset and read out shapes for enduses
+    """Iterate carbon trust dataset and read out shapes for enduses.
 
     Arguments
     ----------

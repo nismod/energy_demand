@@ -142,8 +142,6 @@ class LoadProfileStock(object):
         else:
             #return load_profile_obj.shape_peak_dh[enduse][sector]['shape_peak_dh'] #Do NOT REMOVE SHARK SHARK TODO TODO
             if isinstance(load_profile_obj.shape_peak_dh, dict):
-                print("TTT")
-                #print(load_profile_obj.shape_peak_dh)
                 return load_profile_obj.shape_peak_dh[enduse][sector]['shape_peak_dh'] #Do NOT REMOVE SHARK SHARK
             else:
                 return load_profile_obj.shape_peak_dh
@@ -391,13 +389,12 @@ def create_load_profile_stock(tech_lp, assumptions, sectors, all_enduses):
 
     # ---------
     # Service Submodel
-    # ---------
-    non_regional_enduses = ['ss_space_heating', 'ss_cooling_humidification']#, 'ss_fan', ]
+    # ----------
     # - Assign to each enduse the carbon fuel trust dataset
     for enduse in all_enduses['ss_all_enduses']:
 
         # Skip temperature dependent end uses (regional)
-        if enduse in non_regional_enduses: 
+        if enduse in assumptions['enduse_space_heating'] or enduse in assumptions['enduse_space_cooling']:
             pass
         else:
             # Get technologies with assigned fuel shares

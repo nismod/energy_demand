@@ -615,18 +615,6 @@ def service_submodel(
                 tech_increased_service = assumptions['ss_tech_increased_service'][enduse]
                 tech_decreased_service = assumptions['ss_tech_decreased_service'][enduse]
                 tech_constant_service = assumptions['ss_tech_constant_service'][enduse]
-            '''
-            logging.warning("---------------------- Enduse" + str(enduse))
-
-            if enduse == 'ss_cooling_humidification':
-                from energy_demand.plotting import plotting_results
-                testyh = region.ss_load_profiles.get_lp(
-                    'ss_cooling_humidification', 'military', 'ss_cooling_tech', 'shape_yh')
-                plotting_results.plot_lp_yh(testyh)
-                testyd = region.ss_load_profiles.get_lp(
-                    'ss_cooling_humidification', 'military', 'ss_cooling_tech', 'shape_yd')
-                plotting_results.plot_lp_yd(testyd)
-                #logging.warning("over2")'''
 
             # Create submodule
             submodel = endusefunctions.Enduse(
