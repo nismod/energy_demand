@@ -342,13 +342,26 @@ def load_param_assump(paths, assumptions):
         'enduse_change__rs_consumer_electronics': 1,
         'enduse_change__rs_home_computing': 1,
 
-        # Submodel Service
-        'enduse_change__ss_catering': 1,
-        'enduse_change__ss_computing': 1,
-        'enduse_change__ss_cooling_ventilation': 1,
+        # Submodel Service (Table 5.5)
+        #'enduse_change__ss_catering': 1,
+        #'enduse_change__ss_computing': 1,
+        #'enduse_change__ss_cooling_ventilation': 1,
+        #'enduse_change__ss_space_heating': 1,
+        #'enduse_change__ss_water_heating': 1,
+        #'enduse_change__ss_lighting': 1,
+        #'enduse_change__ss_other_gas': 1,
+        #'enduse_change__ss_other_electricity': 1,
+
+        # Submodel Service (Table 5.5a)
         'enduse_change__ss_space_heating': 1,
         'enduse_change__ss_water_heating': 1,
+        'enduse_change__ss_cooling_humidification': 1,
+        'enduse_change__ss_fans': 1,
         'enduse_change__ss_lighting': 1,
+        'enduse_change__ss_catering': 1,
+        'enduse_change__ss_small_power': 1,
+        'enduse_change__ss_ICT_equipment': 1,
+        'enduse_change__ss_cooled_storage': 1,
         'enduse_change__ss_other_gas': 1,
         'enduse_change__ss_other_electricity': 1,
 
@@ -393,9 +406,13 @@ def load_param_assump(paths, assumptions):
     # Create parameter file only with fully descried parameters
     # and write to yaml file
     # -----------------------
-    write_data.write_yaml_param_complete(paths['yaml_parameters_default'], strategy_variables)
+    basic_functions.del_file(paths['yaml_parameters_default'])
+    write_data.write_yaml_param_complete(
+        paths['yaml_parameters_default'], strategy_variables)
 
-    write_data.write_yaml_param_scenario(paths['yaml_parameters_scenario'], strategy_vars)
+    basic_functions.del_file(paths['yaml_parameters_scenario'])
+    write_data.write_yaml_param_scenario(
+        paths['yaml_parameters_scenario'], strategy_vars)
 
     # Replace strategy variables
     assumptions['strategy_variables'] = strategy_vars

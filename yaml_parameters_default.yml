@@ -291,7 +291,7 @@
 - absolute_range: !!python/tuple
   - 0
   - 25
-  default_value: 7
+  default_value: 0
   description: Base temperature assumption service sector cooling
   name: ss_t_base_cooling_future_yr
   suggested_range: !!python/tuple
@@ -482,24 +482,6 @@
   units: '%'
 - absolute_range: *id007
   default_value: 1
-  description: Enduse specific change enduse_change__ss_catering
-  name: enduse_change__ss_catering
-  suggested_range: *id008
-  units: '%'
-- absolute_range: *id007
-  default_value: 1
-  description: Enduse specific change enduse_change__ss_computing
-  name: enduse_change__ss_computing
-  suggested_range: *id008
-  units: '%'
-- absolute_range: *id007
-  default_value: 1
-  description: Enduse specific change enduse_change__ss_cooling_ventilation
-  name: enduse_change__ss_cooling_ventilation
-  suggested_range: *id008
-  units: '%'
-- absolute_range: *id007
-  default_value: 1
   description: Enduse specific change enduse_change__ss_space_heating
   name: enduse_change__ss_space_heating
   suggested_range: *id008
@@ -512,8 +494,44 @@
   units: '%'
 - absolute_range: *id007
   default_value: 1
+  description: Enduse specific change enduse_change__ss_cooling_humidification
+  name: enduse_change__ss_cooling_humidification
+  suggested_range: *id008
+  units: '%'
+- absolute_range: *id007
+  default_value: 1
+  description: Enduse specific change enduse_change__ss_fans
+  name: enduse_change__ss_fans
+  suggested_range: *id008
+  units: '%'
+- absolute_range: *id007
+  default_value: 1
   description: Enduse specific change enduse_change__ss_lighting
   name: enduse_change__ss_lighting
+  suggested_range: *id008
+  units: '%'
+- absolute_range: *id007
+  default_value: 1
+  description: Enduse specific change enduse_change__ss_catering
+  name: enduse_change__ss_catering
+  suggested_range: *id008
+  units: '%'
+- absolute_range: *id007
+  default_value: 1
+  description: Enduse specific change enduse_change__ss_small_power
+  name: enduse_change__ss_small_power
+  suggested_range: *id008
+  units: '%'
+- absolute_range: *id007
+  default_value: 1
+  description: Enduse specific change enduse_change__ss_ICT_equipment
+  name: enduse_change__ss_ICT_equipment
+  suggested_range: *id008
+  units: '%'
+- absolute_range: *id007
+  default_value: 1
+  description: Enduse specific change enduse_change__ss_cooled_storage
+  name: enduse_change__ss_cooled_storage
   suggested_range: *id008
   units: '%'
 - absolute_range: *id007

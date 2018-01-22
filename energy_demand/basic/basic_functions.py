@@ -96,6 +96,20 @@ def del_previous_setup(path_folder):
     else:
         pass
 
+def del_file(path_file):
+    """Delete all model results from previous model run
+
+    Arguments
+    ---------
+    path_folder : str
+        Path to results of model run
+    """
+    if os.path.isfile(path_file):
+        os.remove(path_file)
+        logging.info("... deleted previous scenario results")
+    else:
+        pass
+
 def get_month_from_string(month_string):
     """Convert string month to int month with Jan == 1
 

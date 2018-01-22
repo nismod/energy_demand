@@ -55,12 +55,15 @@
   enduse_change__rs_space_heating: 1
   enduse_change__rs_water_heating: 1
   enduse_change__rs_wet: 1
+  enduse_change__ss_ICT_equipment: 1
   enduse_change__ss_catering: 1
-  enduse_change__ss_computing: 1
-  enduse_change__ss_cooling_ventilation: 1
+  enduse_change__ss_cooled_storage: 1
+  enduse_change__ss_cooling_humidification: 1
+  enduse_change__ss_fans: 1
   enduse_change__ss_lighting: 1
   enduse_change__ss_other_electricity: 1
   enduse_change__ss_other_gas: 1
+  enduse_change__ss_small_power: 1
   enduse_change__ss_space_heating: 1
   enduse_change__ss_water_heating: 1
   enduse_specific_change_yr_until_changed: 2050

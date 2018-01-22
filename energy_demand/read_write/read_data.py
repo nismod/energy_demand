@@ -397,7 +397,6 @@ def read_csv_data_service(path_to_csv, fueltypes_nr):
 
         # Initialise dict
         for enduse in all_enduses:
-        
             end_uses_dict[enduse] = {}
             for sector in all_sectors:
                 end_uses_dict[enduse][sector] = np.zeros((fueltypes_nr), dtype=float)
