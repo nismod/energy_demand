@@ -346,4 +346,8 @@ def calc_reg_cdd(temperatures, t_base_cooling, model_yeardays):
     shape_cdd_d_selection = shape_cdd_d[[model_yeardays]]
     cdd_d_selection = cdd_d[[model_yeardays]]
 
+    # If no calc_provide flat curve
+    if np.sum(cdd_d_selection) == 0:
+        shape_cdd_d_selection = np.full((len(model_yeardays)), 1 / len(model_yeardays))
+
     return cdd_d_selection, shape_cdd_d_selection

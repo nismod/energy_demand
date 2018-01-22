@@ -190,7 +190,7 @@ def virtual_building_datasets(lu_reg, all_sectors, local_paths):
             try:
                 rs_floorarea[year][reg_geocode] = resid_footprint[reg_geocode]
             except:
-                logging.warning("No virtual residential floor area for region %s %s", reg_geocode, year)
+                #logging.warning("No virtual residential floor area for region %s %s", reg_geocode, year)
                 rs_floorarea[year][reg_geocode] = 1
 
     # --------------------------------------------------
@@ -205,7 +205,7 @@ def virtual_building_datasets(lu_reg, all_sectors, local_paths):
                 try:
                     ss_floorarea_sector_by[year][reg_geocode][sector] = non_res_flootprint[reg_geocode]
                 except:
-                    logging.warning("No virtual service floor area for region %s %s", reg_geocode, year)
+                    #logging.warning("No virtual service floor area for region %s %s", reg_geocode, year)
                     ss_floorarea_sector_by[year][reg_geocode][sector] = 1
 
     '''
@@ -626,6 +626,7 @@ def load_temp_data(paths):
     """
     weather_stations = read_weather_data.read_weather_station_script_data(
         paths['changed_weather_station_data'])
+
     temp_data = read_weather_data.read_weather_data_script_data(
         paths['dir_raw_weather_data'])
 

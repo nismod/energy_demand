@@ -291,7 +291,7 @@
 - absolute_range: !!python/tuple
   - 0
   - 25
-  default_value: 0
+  default_value: 23
   description: Base temperature assumption service sector cooling
   name: ss_t_base_cooling_future_yr
   suggested_range: !!python/tuple

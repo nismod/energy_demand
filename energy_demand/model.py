@@ -52,9 +52,11 @@ class EnergyDemandModel(object):
         for weather_region in data['weather_stations']:
             weather_regions[weather_region] = WeatherRegion(
                 name=weather_region,
-                sim_param=data['sim_param'],
+                base_yr=data['sim_param']['base_yr'],
+                curr_yr=data['sim_param']['curr_yr'],
                 assumptions=data['assumptions'],
                 fueltypes=data['lookups']['fueltypes'],
+                model_yeardays=data['assumptions']['model_yeardays'],
                 all_enduses=data['enduses'],
                 temp_by=data['temp_data'][weather_region],
                 tech_lp=data['tech_lp'],
@@ -91,7 +93,7 @@ class EnergyDemandModel(object):
         # Iterate over regions and Simulate
         # ---------------------------------------------
         for reg_array_nr, region in enumerate(regions):
-            logging.warning(
+            logging.info(
                 "... Simulate region %s for year %s", region, self.curr_yr)
 
             reg_rs_submodel, reg_ss_submodel, reg_is_submodel = simulate_region(
@@ -170,6 +172,12 @@ def simulate_region(region, data, weather_regions):
         is_fuel_disagg=data['is_fuel_disagg'][region],
         weather_region=closest_weather_region)
 
+
+    #logging.warning("closest_weather_region : " + str(closest_weather_region.name))
+    #logging.warning("=====REGION " + str(region_obj.name))
+    #logging.warning("===== " + str(closest_weather_region.name))
+
+
     # --------------------
     # Residential SubModel
     # --------------------
@@ -183,6 +191,14 @@ def simulate_region(region, data, weather_regions):
         data['lookups'],
         data['criterias'],
         data['enduses']['rs_all_enduses'])
+
+    '''from energy_demand.plotting import plotting_results
+    testyh = region_obj.ss_load_profiles.get_lp(
+        'ss_cooling_humidification', 'military', 'ss_cooling_tech', 'shape_yh')
+    plotting_results.plot_lp_yh(testyh)
+    testyh = region_obj.ss_load_profiles.get_lp(
+        'ss_cooling_humidification', 'military', 'ss_cooling_tech', 'shape_yd')
+    #plotting_results.plot_lp_yd(testyh)'''
 
     # --------------------
     # Service SubModel
@@ -436,6 +452,7 @@ def industry_submodel(
                 region_name=region.name,
                 scenario_data=scenario_data,
                 assumptions=assumptions,
+                regional_lp_stock=region.is_load_profiles,
                 non_regional_lp_stock=non_regional_lp_stock,
                 base_yr=sim_param['base_yr'],
                 curr_yr=sim_param['curr_yr'],
@@ -456,7 +473,7 @@ def industry_submodel(
                 fueltypes_nr=lookups['fueltypes_nr'],
                 fueltypes=lookups['fueltypes'],
                 model_yeardays_nrs=assumptions['model_yeardays_nrs'],
-                regional_lp_stock=region.is_load_profiles,
+        
                 reg_scen_drivers=assumptions['scenario_drivers']['is_submodule'],
                 flat_profile_crit=flat_profile_crit)
 
@@ -524,6 +541,7 @@ def residential_submodel(
                 region_name=region.name,
                 scenario_data=scenario_data,
                 assumptions=assumptions,
+                regional_lp_stock=region.rs_load_profiles,
                 non_regional_lp_stock=non_regional_lp_stock,
                 base_yr=sim_param['base_yr'],
                 curr_yr=sim_param['curr_yr'],
@@ -544,7 +562,6 @@ def residential_submodel(
                 fueltypes=lookups['fueltypes'],
                 model_yeardays_nrs=assumptions['model_yeardays_nrs'],
                 enduse_overall_change=assumptions['enduse_overall_change'],
-                regional_lp_stock=region.rs_load_profiles,
                 dw_stock=rs_dw_stock)
 
             submodels.append(submodel)
@@ -598,12 +615,25 @@ def service_submodel(
                 tech_increased_service = assumptions['ss_tech_increased_service'][enduse]
                 tech_decreased_service = assumptions['ss_tech_decreased_service'][enduse]
                 tech_constant_service = assumptions['ss_tech_constant_service'][enduse]
+            '''
+            logging.warning("---------------------- Enduse" + str(enduse))
+
+            if enduse == 'ss_cooling_humidification':
+                from energy_demand.plotting import plotting_results
+                testyh = region.ss_load_profiles.get_lp(
+                    'ss_cooling_humidification', 'military', 'ss_cooling_tech', 'shape_yh')
+                plotting_results.plot_lp_yh(testyh)
+                testyd = region.ss_load_profiles.get_lp(
+                    'ss_cooling_humidification', 'military', 'ss_cooling_tech', 'shape_yd')
+                plotting_results.plot_lp_yd(testyd)
+                #logging.warning("over2")'''
 
             # Create submodule
             submodel = endusefunctions.Enduse(
                 region_name=region.name,
                 scenario_data=scenario_data,
                 assumptions=assumptions,
+                regional_lp_stock=region.ss_load_profiles,
                 non_regional_lp_stock=non_regional_lp_stock,
                 base_yr=sim_param['base_yr'],
                 curr_yr=sim_param['curr_yr'],
@@ -624,7 +654,6 @@ def service_submodel(
                 fueltypes=lookups['fueltypes'],
                 model_yeardays_nrs=assumptions['model_yeardays_nrs'],
                 enduse_overall_change=assumptions['enduse_overall_change'],
-                regional_lp_stock=region.ss_load_profiles,
                 dw_stock=ss_dw_stock)
 
             # Add to list

@@ -127,17 +127,6 @@ def load_non_param_assump(
         'rs_consumer_electronics': ['population'],
         'rs_home_computing': ['population']}
 
-    # --Service Submodel (Table 5.5)
-    '''assumptions['scenario_drivers']['ss_submodule'] = {
-        'ss_space_heating': ['floorarea'],
-        'ss_water_heating': ['population'],
-        'ss_lighting': ['floorarea'],
-        'ss_catering': ['population'],
-        'ss_computing': ['population'],
-        'ss_space_cooling': ['floorarea'],
-        'ss_other_gas': ['floorarea'],
-        'ss_other_electricity': ['floorarea']}'''
-
     # --Service Submodel (Table 5.5a)
     assumptions['scenario_drivers']['ss_submodule'] = {
         'ss_space_heating': ['floorarea'],
@@ -183,7 +172,7 @@ def load_non_param_assump(
     assumptions['rs_t_base_heating']['rs_t_base_heating_base_yr'] = 15.5
     assumptions['ss_t_base_heating']['ss_t_base_heating_base_yr'] = 15.5
     assumptions['rs_t_base_cooling']['rs_t_base_cooling_base_yr'] = 21
-    assumptions['ss_t_base_cooling']['ss_t_base_cooling_base_yr'] = 0 #-20 #WEATER CORRECTION
+    assumptions['ss_t_base_cooling']['ss_t_base_cooling_base_yr'] = 23 #-20 #WEATER CORRECTION
 
     # ============================================================
     # Assumption related to technologies

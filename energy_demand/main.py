@@ -24,6 +24,9 @@ TODO :TEST IF IN SUMMER COOLING CAN BE ADDED FOR ELECTRICITY
 TODO: COOLING? --> Test if adding with adapted cooling function
 TODO: SENSITIVITY
 TODO: Maybe use End-use classification of Table 5.5a which includes ICT
+TODO: Accounting module for energy and emissions
+
+TODO: data loading, load multiple years for real elec data
 """
 import os
 import sys
