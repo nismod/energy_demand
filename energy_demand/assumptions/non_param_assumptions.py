@@ -7,7 +7,13 @@ from energy_demand.basic import testing_functions, date_prop
 from energy_demand.assumptions import assumptions_fuel_shares
 from energy_demand.initalisations import helpers
 
-def load_non_param_assump(base_yr, paths, enduses, fueltypes, fueltypes_nr):
+def load_non_param_assump(
+        base_yr,
+        paths,
+        enduses,
+        fueltypes,
+        fueltypes_nr
+    ):
     """Initialise assumptions and load all assumptions
     which are not defined as parameters for smif (e.g. base
     year values for assumptions)
@@ -121,14 +127,17 @@ def load_non_param_assump(base_yr, paths, enduses, fueltypes, fueltypes_nr):
         'rs_consumer_electronics': ['population'],
         'rs_home_computing': ['population']}
 
-    # --Service Submodel
+    # --Service Submodel (Table 5.5a)
     assumptions['scenario_drivers']['ss_submodule'] = {
         'ss_space_heating': ['floorarea'],
         'ss_water_heating': ['population'],
         'ss_lighting': ['floorarea'],
         'ss_catering': ['population'],
-        'ss_computing': ['population'],
-        'ss_space_cooling': ['floorarea'],
+        'ss_ICT_equipment': ['population'],
+        'ss_cooling_humidification': ['floorarea'],
+        'ss_fans': ['floorarea'],
+        'ss_small_power': ['population'],
+        'ss_cooled_storage': ['floorarea'], #TODO TODO
         'ss_other_gas': ['floorarea'],
         'ss_other_electricity': ['floorarea']}
 
@@ -160,10 +169,21 @@ def load_non_param_assump(base_yr, paths, enduses, fueltypes, fueltypes_nr):
     assumptions['ss_t_base_heating'] = {}
     assumptions['rs_t_base_cooling'] = {}
     assumptions['ss_t_base_cooling'] = {}
-    assumptions['rs_t_base_heating']['rs_t_base_heating_base_yr'] = 15.5
-    assumptions['ss_t_base_heating']['ss_t_base_heating_base_yr'] = 15.5
+    assumptions['rs_t_base_heating']['rs_t_base_heating_base_yr'] = 16.5
+    assumptions['ss_t_base_heating']['ss_t_base_heating_base_yr'] = 16.5
     assumptions['rs_t_base_cooling']['rs_t_base_cooling_base_yr'] = 21
-    assumptions['ss_t_base_cooling']['ss_t_base_cooling_base_yr'] = 21
+    assumptions['ss_t_base_cooling']['ss_t_base_cooling_base_yr'] = 10 #-20 #WEATER CORRECTION
+
+    # ============================================================
+    # Enduse technology definition lists
+    # Define which end uses are affected by temperatures
+    # ============================================================
+    assumptions['enduse_space_heating'] = [
+        'rs_space_heating', 'ss_space_heating', 'is_space_heating']
+    assumptions['enduse_water_heating'] = [
+        'rs_water_heating', 'ss_water_heating']
+    assumptions['enduse_space_cooling'] = [] #['ss_cooling_humidification'] #['ss_fans', 'ss_cooling_humidification', 'ss_cooled_storage']
+
 
     # ============================================================
     # Assumption related to technologies
@@ -203,12 +223,6 @@ def load_non_param_assump(base_yr, paths, enduses, fueltypes, fueltypes_nr):
         'district_heating_gas',
         'district_heating_biomass']
 
-    # ============================================================
-    # Enduse technology definition list
-    # ============================================================ ['rs_space_heating'] #TODO
-    assumptions['enduse_space_heating'] = ['rs_space_heating', 'ss_space_heating', 'is_space_heating']
-    assumptions['enduse_space_cooling'] = ['rs_space_cooling', 'ss_space_cooling', 'is_space_cooling']
-    assumptions['tech_list']['enduse_water_heating'] = ['rs_water_heating', 'ss_water_heating']
 
     # ============================================================
     # Enduse diffusion parameters

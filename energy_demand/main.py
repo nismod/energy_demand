@@ -21,8 +21,12 @@ TODO: Define efficencies of all techs
 TODO: Base year fuel assignements
 TODO: ET_module
 TODO :TEST IF IN SUMMER COOLING CAN BE ADDED FOR ELECTRICITY
-TODO: COOLING?
+TODO: COOLING? --> Test if adding with adapted cooling function
+TODO: SENSITIVITY
+TODO: Maybe use End-use classification of Table 5.5a which includes ICT
+TODO: Accounting module for energy and emissions
 
+TODO: data loading, load multiple years for real elec data
 """
 import os
 import sys
@@ -275,7 +279,7 @@ if __name__ == "__main__":
         if instrument_profiler:
             profiler = Profiler(use_signal=False)
             profiler.start()
-        
+
         import datetime
         a = datetime.datetime.now()
 
@@ -301,7 +305,7 @@ if __name__ == "__main__":
         if data['criterias']['beyond_supply_outputs']:
 
             ed_fueltype_regs_yh = modelrun_obj.ed_fueltype_regs_yh
-            out_enduse_specific = modelrun_obj.tot_fuel_y_enduse_specific_h
+            out_enduse_specific = modelrun_obj.tot_fuel_y_enduse_specific_yh
             tot_peak_enduses_fueltype = modelrun_obj.tot_peak_enduses_fueltype
             tot_fuel_y_max_enduses = modelrun_obj.tot_fuel_y_max_enduses
             ed_fueltype_national_yh = modelrun_obj.ed_fueltype_national_yh

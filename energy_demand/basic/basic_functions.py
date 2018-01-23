@@ -57,6 +57,19 @@ def create_folder(path_folder, name_subfolder=None):
         if not os.path.exists(path_result_subolder):
             os.makedirs(path_result_subolder)
 
+def delete_folder(path_folder):
+    """Delete folder or subfolder
+
+    Arguments
+    ----------
+    path : str
+        Path to folder
+    folder_name : str, default=None
+        Name of subfolder to create
+    """
+    if os.path.exists(path_folder):
+        shutil.rmtree(path_folder)
+
 def del_previous_results(path_folder, path_subfolder_keep):
     """Delete all model results from previous model run. Do not
     delete post installation setup files
@@ -92,6 +105,20 @@ def del_previous_setup(path_folder):
     """
     if os.path.exists(path_folder):
         shutil.rmtree(path_folder, ignore_errors=True)
+        logging.info("... deleted previous scenario results")
+    else:
+        pass
+
+def del_file(path_file):
+    """Delete all model results from previous model run
+
+    Arguments
+    ---------
+    path_folder : str
+        Path to results of model run
+    """
+    if os.path.isfile(path_file):
+        os.remove(path_file)
         logging.info("... deleted previous scenario results")
     else:
         pass

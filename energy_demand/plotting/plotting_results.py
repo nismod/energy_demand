@@ -137,7 +137,7 @@ def run_all_plot_functions(
         assumptions['model_yeardays_nrs'],
         2015,
         os.path.join(local_paths['data_results_PDF'], "tot_all_enduse03.pdf"))
-
+    #TODO: WHY DOUBLED?
     logging.debug("... plot a full week")
     plt_fuels_enduses_week(
         results_container['results_every_year'],
@@ -1287,3 +1287,115 @@ def plot_lp_dh(data_dh_modelled, path_plot_fig, fig_name):
     # Save fig
     plt.savefig(path_fig_name)
     plt.close()
+
+def plot_lp_yh(data_dh_modelled):
+    """plot yearly profile
+    """
+    x_values = range(8760)
+
+    yh_data_dh_modelled = np.reshape(data_dh_modelled, 8760)
+    plt.plot(x_values, list(yh_data_dh_modelled), color='red', label='modelled') #'ro', markersize=1,
+
+    # -----------------
+    # Axis
+    # -----------------
+    #plt.ylim(0, 30)
+
+    # ------------
+    # Plot legend
+    # ------------
+    plt.legend(ncol=2, loc=2, frameon=False)
+
+    # Tight layout
+    plt.tight_layout()
+    plt.margins(x=0)
+
+    # Save fig
+    plt.show()
+    #plt.savefig(path_fig_name)
+    #plt.close()
+
+def plot_lp_yd(data_dh_modelled):
+    """plot yearly profile
+    """
+    x_values = range(365)
+
+    plt.plot(x_values, data_dh_modelled, color='blue', label='modelled') #'ro', markersize=1,
+
+    # -----------------
+    # Axis
+    # -----------------
+    #plt.ylim(0, 30)
+
+    # ------------
+    # Plot legend
+    # ------------
+    plt.legend(ncol=2, loc=2, frameon=False)
+
+    # Tight layout
+    plt.tight_layout()
+    plt.margins(x=0)
+
+    # Save fig
+    plt.show()
+    #plt.savefig(path_fig_name)
+    #plt.close()
+
+def plot_enduse_yh(
+        name_fig,
+        path_result,
+        ed_yh,
+        days_to_plot=365,
+        plot_crit=False
+    ):
+    """Plot individual enduse
+    """
+    nr_of_h_to_plot = len(days_to_plot) * 24
+
+    x_data = range(nr_of_h_to_plot)
+
+    y_calculated = []
+
+    for day in days_to_plot:
+        for hour in range(24):
+            y_calculated.append(ed_yh[day][hour])
+
+    # ----------
+    # Plot figure
+    # ----------
+    fig = plt.figure(figsize=plotting_program.cm2inch(16, 8))
+
+    plt.plot(
+        x_data,
+        y_calculated,
+        label='model',
+        linestyle='--',
+        linewidth=0.5,
+        fillstyle='full',
+        color='blue')
+
+    plt.xlim([0, 8760])
+    plt.margins(x=0)
+    plt.axis('tight')
+
+    # ----------
+    # Labelling
+    # ----------
+    font_additional_info = {
+        'family': 'arial',
+        'color': 'black',
+        'weight': 'normal',
+        'size': 8}
+
+    plt.xlabel("hour", fontsize=10)
+    plt.ylabel("uk electrictiy use [GW]", fontsize=10)
+
+    plt.legend(frameon=False)
+
+    plt.savefig(os.path.join(path_result, name_fig))
+
+    if plot_crit:
+        plt.show()
+        plt.close()
+    else:
+        plt.close()

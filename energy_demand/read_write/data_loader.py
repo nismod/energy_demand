@@ -190,7 +190,7 @@ def virtual_building_datasets(lu_reg, all_sectors, local_paths):
             try:
                 rs_floorarea[year][reg_geocode] = resid_footprint[reg_geocode]
             except:
-                logging.warning("No virtual residential floor area for region %s %s", reg_geocode, year)
+                #logging.warning("No virtual residential floor area for region %s %s", reg_geocode, year)
                 rs_floorarea[year][reg_geocode] = 1
 
     # --------------------------------------------------
@@ -205,7 +205,7 @@ def virtual_building_datasets(lu_reg, all_sectors, local_paths):
                 try:
                     ss_floorarea_sector_by[year][reg_geocode][sector] = non_res_flootprint[reg_geocode]
                 except:
-                    logging.warning("No virtual service floor area for region %s %s", reg_geocode, year)
+                    #logging.warning("No virtual service floor area for region %s %s", reg_geocode, year)
                     ss_floorarea_sector_by[year][reg_geocode][sector] = 1
 
     '''
@@ -626,6 +626,7 @@ def load_temp_data(paths):
     """
     weather_stations = read_weather_data.read_weather_station_script_data(
         paths['changed_weather_station_data'])
+
     temp_data = read_weather_data.read_weather_data_script_data(
         paths['dir_raw_weather_data'])
 
@@ -693,7 +694,7 @@ def load_fuels(paths, lookups):
 
 def rs_collect_shapes_from_txts(txt_path, model_yeardays):
     """All pre-processed load shapes are read in from .txt files
-    without accesing raw files
+    without accessing raw files
 
     This loads HES files for residential sector
 
@@ -778,11 +779,11 @@ def ss_collect_shapes_from_txts(txt_path, model_yeardays):
 
     # Read load shapes from txt files for enduses
     for enduse in enduses:
-    
+
         ss_shapes_dh[enduse] = {}
         ss_shapes_yd[enduse] = {}
         for sector in sectors:
-        
+
             joint_string_name = str(sector) + "__" + str(enduse)
             shape_peak_dh = read_data.read_txt_shape_peak_dh(
                 os.path.join(
@@ -845,7 +846,7 @@ def create_enduse_dict(data, rs_fuel_raw_data_enduses):
     return enduses
 
 def ss_read_shapes_enduse_techs(ss_shapes_dh, ss_shapes_yd):
-    """Iterate carbon trust dataset and read out shapes for enduses
+    """Iterate carbon trust dataset and read out shapes for enduses.
 
     Arguments
     ----------

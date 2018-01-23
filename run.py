@@ -12,6 +12,8 @@ from pkg_resources import Requirement, resource_filename
 from pyproj import Proj, transform
 from pyinstrument import Profiler
 
+from energy_demand.plotting import plotting_results
+from energy_demand.basic import basic_functions
 from energy_demand.scripts.init_scripts import scenario_initalisation
 from energy_demand.technologies import tech_related
 from energy_demand.cli import run_model
@@ -56,11 +58,11 @@ class EDWrapper(SectorModel):
         data['criterias']['mode_constrained'] = True                    # True: Technologies are defined in ED model and fuel is provided, False: Heat is delievered not per technologies
         data['criterias']['virtual_building_stock_criteria'] = True     # True: Run virtual building stock model
         data['criterias']['plot_HDD_chart'] = False                     # True: Plotting of HDD vs gas chart
-        data['criterias']['validation_criteria'] = False                 # True: Plot validation plots
+        data['criterias']['validation_criteria'] = True                 # True: Plot validation plots
         data['criterias']['spatial_exliclit_diffusion'] = False         # True: Spatial explicit calculations
         data['criterias']['writeYAML'] = False
         data['criterias']['write_to_txt'] = True # True
-        data['criterias']['beyond_supply_outputs'] = False  # True             # If only for smif: FAlse, for other plots: True
+        data['criterias']['beyond_supply_outputs'] = True  # True             # If only for smif: FAlse, for other plots: True
         data['criterias']['plot_crit'] = False
         data['criterias']['plot_tech_lp'] = True
 
@@ -68,7 +70,7 @@ class EDWrapper(SectorModel):
         data['sim_param']['curr_yr'] = data['sim_param']['base_yr']
         self.user_data['base_yr'] = data['sim_param']['base_yr']
 
-        fast_smif_run = False #YEAY
+        '''fast_smif_run = False #YEAY
 
         if fast_smif_run == True:
             data['criterias']['write_to_txt'] = False
@@ -81,7 +83,7 @@ class EDWrapper(SectorModel):
             data['criterias']['beyond_supply_outputs'] = True
             data['criterias']['validation_criteria'] = True
             data['criterias']['plot_tech_lp'] = True
-            data['criterias']['plot_crit'] = True
+            data['criterias']['plot_crit'] = True'''
         # -----------------------------
         # Paths
         # -----------------------------
@@ -386,12 +388,44 @@ class EDWrapper(SectorModel):
         # -------------------------------------------
         if data['criterias']['write_to_txt']:
             #tot_fuel_y_max_enduses = sim_obj.tot_fuel_y_max_enduses
+
+
+            # ----
+            # Plot individual enduse
+            # ----
+            crit_plot_enduse_lp = True
+            if crit_plot_enduse_lp:
+
+                # Maybe move to result folder in a later step
+                path_folder_lp = os.path.join(data['local_paths']['data_results'], 'individual_enduse_lp')
+                basic_functions.delete_folder(path_folder_lp)
+                basic_functions.create_folder(path_folder_lp)
+
+                winter_week = list(range(
+                    date_prop.date_to_yearday(2015, 1, 12), date_prop.date_to_yearday(2015, 1, 19))) #Jan
+                spring_week = list(range(
+                    date_prop.date_to_yearday(2015, 5, 11), date_prop.date_to_yearday(2015, 5, 18))) #May
+                summer_week = list(range(
+                    date_prop.date_to_yearday(2015, 7, 13), date_prop.date_to_yearday(2015, 7, 20))) #Jul
+                autumn_week = list(range(
+                    date_prop.date_to_yearday(2015, 10, 12), date_prop.date_to_yearday(2015, 10, 19))) #Oct
+
+                # plot electricity
+                for enduse, ed_yh in sim_obj.tot_fuel_y_enduse_specific_yh.items():
+                    plotting_results.plot_enduse_yh(
+                        name_fig="individ__{}".format(enduse),
+                        path_result=path_folder_lp,
+                        ed_yh=ed_yh[data['lookups']['fueltypes']['electricity']],
+                        days_to_plot=winter_week)
+
+
+
             logging.info("... Start writing results to file")
             path_run = data['local_paths']['data_results_model_runs']
             write_data.write_supply_results(
                 timestep, "result_tot_yh", path_run, sim_obj.ed_fueltype_regs_yh, "result_tot_submodels_fueltypes")
             write_data.write_enduse_specific(
-                timestep, path_run, sim_obj.tot_fuel_y_enduse_specific_h, "out_enduse_specific")
+                timestep, path_run, sim_obj.tot_fuel_y_enduse_specific_yh, "out_enduse_specific")
             write_data.write_max_results(
                 timestep, path_run, "result_tot_peak_enduses_fueltype", sim_obj.tot_peak_enduses_fueltype, "tot_peak_enduses_fueltype")
             write_data.write_lf(

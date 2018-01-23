@@ -43,7 +43,7 @@ class EnergyDemandModel(object):
         # Create non regional dependent load profiles
         # --------------
         data['non_regional_lp_stock'] = load_profile.create_load_profile_stock(
-            data['tech_lp'], data['assumptions'], data['sectors'])
+            data['tech_lp'], data['assumptions'], data['sectors'], data['enduses'])
 
         # --------------
         # Create Weather Regions
@@ -52,9 +52,11 @@ class EnergyDemandModel(object):
         for weather_region in data['weather_stations']:
             weather_regions[weather_region] = WeatherRegion(
                 name=weather_region,
-                sim_param=data['sim_param'],
+                base_yr=data['sim_param']['base_yr'],
+                curr_yr=data['sim_param']['curr_yr'],
                 assumptions=data['assumptions'],
                 fueltypes=data['lookups']['fueltypes'],
+                model_yeardays=data['assumptions']['model_yeardays'],
                 all_enduses=data['enduses'],
                 temp_by=data['temp_data'][weather_region],
                 tech_lp=data['tech_lp'],
@@ -91,7 +93,7 @@ class EnergyDemandModel(object):
         # Iterate over regions and Simulate
         # ---------------------------------------------
         for reg_array_nr, region in enumerate(regions):
-            logging.warning(
+            logging.info(
                 "... Simulate region %s for year %s", region, self.curr_yr)
 
             reg_rs_submodel, reg_ss_submodel, reg_is_submodel = simulate_region(
@@ -436,6 +438,7 @@ def industry_submodel(
                 region_name=region.name,
                 scenario_data=scenario_data,
                 assumptions=assumptions,
+                regional_lp_stock=region.is_load_profiles,
                 non_regional_lp_stock=non_regional_lp_stock,
                 base_yr=sim_param['base_yr'],
                 curr_yr=sim_param['curr_yr'],
@@ -456,7 +459,7 @@ def industry_submodel(
                 fueltypes_nr=lookups['fueltypes_nr'],
                 fueltypes=lookups['fueltypes'],
                 model_yeardays_nrs=assumptions['model_yeardays_nrs'],
-                regional_lp_stock=region.is_load_profiles,
+        
                 reg_scen_drivers=assumptions['scenario_drivers']['is_submodule'],
                 flat_profile_crit=flat_profile_crit)
 
@@ -524,6 +527,7 @@ def residential_submodel(
                 region_name=region.name,
                 scenario_data=scenario_data,
                 assumptions=assumptions,
+                regional_lp_stock=region.rs_load_profiles,
                 non_regional_lp_stock=non_regional_lp_stock,
                 base_yr=sim_param['base_yr'],
                 curr_yr=sim_param['curr_yr'],
@@ -544,7 +548,6 @@ def residential_submodel(
                 fueltypes=lookups['fueltypes'],
                 model_yeardays_nrs=assumptions['model_yeardays_nrs'],
                 enduse_overall_change=assumptions['enduse_overall_change'],
-                regional_lp_stock=region.rs_load_profiles,
                 dw_stock=rs_dw_stock)
 
             submodels.append(submodel)
@@ -604,6 +607,7 @@ def service_submodel(
                 region_name=region.name,
                 scenario_data=scenario_data,
                 assumptions=assumptions,
+                regional_lp_stock=region.ss_load_profiles,
                 non_regional_lp_stock=non_regional_lp_stock,
                 base_yr=sim_param['base_yr'],
                 curr_yr=sim_param['curr_yr'],
@@ -624,7 +628,6 @@ def service_submodel(
                 fueltypes=lookups['fueltypes'],
                 model_yeardays_nrs=assumptions['model_yeardays_nrs'],
                 enduse_overall_change=assumptions['enduse_overall_change'],
-                regional_lp_stock=region.ss_load_profiles,
                 dw_stock=ss_dw_stock)
 
             # Add to list
@@ -1020,8 +1023,8 @@ def aggregate_final_results(
             model_yeardays_nrs)
 
         # Sum across all regions and provide specific enduse
-        aggr_results['tot_fuel_y_enduse_specific_h'] = sum_enduse_all_regions(
-            aggr_results['tot_fuel_y_enduse_specific_h'],
+        aggr_results['tot_fuel_y_enduse_specific_yh'] = sum_enduse_all_regions(
+            aggr_results['tot_fuel_y_enduse_specific_yh'],
             'fuel_yh',
             all_submodels,
             model_yearhours_nrs,
@@ -1096,7 +1099,7 @@ def initialise_result_container(
     result_container = {}
 
     result_container['ed_submodel_fueltype_regs_yh'] = np.zeros(
-        (len(sectors.keys()),  reg_nrs, fueltypes_nr, model_yeardays_nrs, 24), dtype=float)
+        (len(sectors.keys()), reg_nrs, fueltypes_nr, model_yeardays_nrs, 24), dtype=float)
 
     result_container['ed_techs_submodel_fueltype_regs_yh'] = {}
     for heating_tech in heating_technologies:
@@ -1115,7 +1118,7 @@ def initialise_result_container(
     result_container['tot_fuel_y_max_enduses'] = np.zeros(
         (fueltypes_nr), dtype=float)
 
-    result_container['tot_fuel_y_enduse_specific_h'] = {}
+    result_container['tot_fuel_y_enduse_specific_yh'] = {}
 
     result_container['reg_load_factor_y'] = np.zeros(
         (fueltypes_nr, reg_nrs), dtype=float)
