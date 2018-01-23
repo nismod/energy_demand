@@ -233,7 +233,7 @@ def ss_disaggregate(
                     # ----
                     # Only disaggregat with population and hdd and cdd
                     # ----
-                    if enduse == 'ss_cooling_ventilation':
+                    if enduse == 'ss_cooling_humidification':
                         reg_diasg_factor = (reg_pop * reg_cdd) / tot_pop_cdd[sector]
                     elif enduse == 'ss_space_heating':
                         reg_diasg_factor = (reg_pop * reg_hdd) / tot_pop_hdd[sector]
@@ -244,7 +244,7 @@ def ss_disaggregate(
                     # ----
                     # disaggregat with pop, hdd/cdd, floor area
                     # ----
-                    if enduse == 'ss_cooling_ventilation':
+                    if enduse == 'ss_cooling_humidification':
                         reg_diasg_factor = (reg_pop * reg_cdd) / tot_pop_cdd[sector]
                     elif enduse == 'ss_space_heating':
                         reg_diasg_factor = (reg_floor_area * reg_pop) / tot_floor_area_pop[sector]

@@ -415,8 +415,8 @@ def create_load_profile_stock(tech_lp, assumptions, sectors, all_enduses):
                     tech_lp_yd = tech_lp['ss_shapes_yd'][enduse][sector]['shape_non_peak_yd']
                     tech_lp_yh = tech_lp['ss_shapes_dh'][enduse][sector]['shape_non_peak_y_dh'] * tech_lp_yd[:, np.newaxis]
                 '''
+                #'''
                 for sector in sectors['ss_sectors']:
-                    
                     tech_lp_yd = tech_lp['ss_shapes_yd'][enduse][sector]['shape_non_peak_yd']
                     tech_lp_yh = tech_lp['ss_shapes_dh'][enduse][sector]['shape_non_peak_y_dh'] * tech_lp_yd[:, np.newaxis]
                     non_regional_lp_stock.add_lp(
@@ -428,6 +428,7 @@ def create_load_profile_stock(tech_lp, assumptions, sectors, all_enduses):
                         sectors=[sector],
                         enduse_peak_yd_factor=tech_lp['ss_shapes_yd'][enduse][sector]['shape_peak_yd_factor'],
                         shape_peak_dh=tech_lp['ss_shapes_dh'][enduse][sector]['shape_peak_dh'])
+                #'''
 
     # ---------
     # Industry Submodel
@@ -576,7 +577,7 @@ def get_other_ss_enduse(enduse):
     #elif enduse == 'ss_small_power':
     #    enduse_shape = 'ss_other_electricity' # General electricity curve
     #elif enduse == 'ss_cooled_storage':
-    #    enduse_shape = 'ss_cooling_ventilation' # General electricity curve
+    #    enduse_shape = 'ss_cooling_humidification' # General electricity curve
     #else:
     #    enduse_shape = enduse
     enduse_shape = enduse

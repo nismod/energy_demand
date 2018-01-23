@@ -75,6 +75,10 @@ def averaged_temp(temp_yh, nr_day_to_av):
     """
     effective_temp_yh = np.zeros((365, 24))
 
+    # Copy all border days
+    for day in range(nr_day_to_av):
+        effective_temp_yh[day] = temp_yh[day]
+
     # Iterate days in a year
     for day in range(365)[nr_day_to_av:]: #Skip first dates in January
 
@@ -86,6 +90,7 @@ def averaged_temp(temp_yh, nr_day_to_av):
             tot_temp = tot_temp + effective_temp_yh[day - (i+1)] #not +=
 
         effective_temp_yh[day] = tot_temp / (nr_day_to_av + 1)
+
 
     return effective_temp_yh
 

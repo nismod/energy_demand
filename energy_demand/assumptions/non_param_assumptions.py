@@ -184,7 +184,6 @@ def load_non_param_assump(
         'rs_water_heating', 'ss_water_heating']
     assumptions['enduse_space_cooling'] = ['ss_cooling_humidification'] #['ss_cooling_humidification'] #['ss_fans', 'ss_cooling_humidification', 'ss_cooled_storage']
 
-
     # ============================================================
     # Assumption related to technologies
     # ============================================================

@@ -544,6 +544,7 @@ def load_data_profiles(paths, local_paths, model_yeardays, model_yeardays_daytyp
     tech_lp['ss_shapes_dh'], tech_lp['ss_shapes_yd'] = ss_collect_shapes_from_txts(
         local_paths['ss_load_profile_txt'], model_yeardays)
 
+    print(tech_lp['ss_shapes_dh'].keys)
     # -- From Carbon Trust (service sector data) read out enduse specific shapes
     tech_lp['ss_all_tech_shapes_dh'], tech_lp['ss_all_tech_shapes_yd'] = ss_read_shapes_enduse_techs(
         tech_lp['ss_shapes_dh'], tech_lp['ss_shapes_yd'])
@@ -774,16 +775,12 @@ def ss_collect_shapes_from_txts(txt_path, model_yeardays):
         enduses.add(enduse)
         sectors.add(sector)
 
-    ss_shapes_dh = {}
-    ss_shapes_yd = {}
+    ss_shapes_dh = defaultdict(dict)
+    ss_shapes_yd = defaultdict(dict)
 
     # Read load shapes from txt files for enduses
     for enduse in enduses:
-
-        ss_shapes_dh[enduse] = {}
-        ss_shapes_yd[enduse] = {}
         for sector in sectors:
-
             joint_string_name = str(sector) + "__" + str(enduse)
             shape_peak_dh = read_data.read_txt_shape_peak_dh(
                 os.path.join(
@@ -816,7 +813,7 @@ def ss_collect_shapes_from_txts(txt_path, model_yeardays):
                 'shape_peak_yd_factor': shape_peak_yd_factor,
                 'shape_non_peak_yd': shape_non_peak_yd_selection}
 
-    return ss_shapes_dh, ss_shapes_yd
+    return dict(ss_shapes_dh), dict(ss_shapes_yd)
 
 def create_enduse_dict(data, rs_fuel_raw_data_enduses):
     """Create dictionary with all residential enduses and store in data dict
@@ -948,11 +945,11 @@ def read_employment_stats(path_to_csv):
     Industry: T Activities of households as employers; undifferentiated goods - and services - producing activities of households for own use
     Industry: U Activities of extraterritorial organisations and bodies
     """
+    data = defaultdict(dict)
+
     with open(path_to_csv, 'r') as csvfile:
         lines = csv.reader(csvfile, delimiter=',')
         _headings = next(lines) # Skip first row
-
-        data = defaultdict(dict)
 
         for line in lines:
             geocode = str.strip(line[2])

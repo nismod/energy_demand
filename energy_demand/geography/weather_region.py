@@ -349,7 +349,7 @@ class WeatherRegion(object):
         #------
         # Add cooling technologies for service sector
         #------
-        # Cooling service tech_lp 
+        '''# Cooling service tech_lp 
         ss_fuel_shape_cooling_yh = get_shape_cooling_yh(
             tech_lp['ss_shapes_cooling_dh'], SS_FUEL_SHAPE_COOLING_YD)
 
@@ -365,17 +365,22 @@ class WeatherRegion(object):
             shape_peak_dh=tech_lp['ss_shapes_cooling_dh'])
             #tech_lp_yh = tech_lp['ss_shapes_dh'][shape_enduse][sector]['shape_non_peak_y_dh'] * tech_lp_yd[:, np.newaxis]
         '''
+        coolings_techs = assumptions['tech_list']['tech_cooling_const']
+        coolings_techs.append('dummy_tech')
+
         for cooling_enduse in assumptions['enduse_space_cooling']:
+            print("COOLING ENDSE: " + str(cooling_enduse))
             for sector in sectors['ss_sectors']:
                 self.ss_load_profiles.add_lp(
                     unique_identifier=uuid.uuid4(),
-                    technologies=assumptions['tech_list']['tech_cooling_const'],
-                    enduses=cooling_enduse,
-                    sectors=sector,
+                    technologies=coolings_techs,
+                    enduses=[cooling_enduse],
+                    sectors=[sector],
                     shape_yd=SS_FUEL_SHAPE_COOLING_YD,
                     shape_yh=tech_lp['ss_shapes_dh'][cooling_enduse][sector]['shape_non_peak_y_dh'] * SS_FUEL_SHAPE_COOLING_YD[:, np.newaxis],
                     enduse_peak_yd_factor=ss_peak_yd_heating_factor,
-                    shape_peak_dh=tech_lp['ss_shapes_cooling_dh']) #TODO'''
+                    shape_peak_dh=tech_lp['ss_shapes_cooling_dh']) #TODO
+        #'''
 
         # --------------------------------
         # Industry submodel

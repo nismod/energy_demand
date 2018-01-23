@@ -279,7 +279,7 @@
 - absolute_range: !!python/tuple
   - 0
   - 20
-  default_value: 16.5
+  default_value: 15.5
   description: Base temperature assumption residential heating
   name: rs_t_base_heating_future_yr
   suggested_range: !!python/tuple
@@ -289,7 +289,7 @@
 - absolute_range: !!python/tuple
   - 0
   - 20
-  default_value: 16.5
+  default_value: 15.5
   description: Base temperature assumption service sector heating
   name: ss_t_base_heating_future_yr
   suggested_range: !!python/tuple
@@ -309,7 +309,7 @@
 - absolute_range: !!python/tuple
   - 0
   - 25
-  default_value: 10
+  default_value: 12
   description: Base temperature assumption service sector cooling
   name: ss_t_base_cooling_future_yr
   suggested_range: !!python/tuple
