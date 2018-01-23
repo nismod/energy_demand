@@ -482,7 +482,7 @@ def demand_management(
         loadfactor_yd_cy = lf.calc_lf_d(fuel_yh, average_fuel_yd)
 
         # Calculate current year load factors
-        lf_improved_cy, peak_shift_crit = calc_lf_improvement(
+        lf_improved_cy = calc_lf_improvement(
             param_name,
             base_yr,
             curr_yr,

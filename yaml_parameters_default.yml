@@ -84,6 +84,18 @@
   units: '%'
 - absolute_range: *id001
   default_value: 0
+  description: reduction in load factor for enduse demand_management_improvement__ss_cooling_humidification
+  name: demand_management_improvement__ss_cooling_humidification
+  suggested_range: *id002
+  units: '%'
+- absolute_range: *id001
+  default_value: 0
+  description: reduction in load factor for enduse demand_management_improvement__ss_fans
+  name: demand_management_improvement__ss_fans
+  suggested_range: *id002
+  units: '%'
+- absolute_range: *id001
+  default_value: 0
   description: reduction in load factor for enduse demand_management_improvement__ss_lighting
   name: demand_management_improvement__ss_lighting
   suggested_range: *id002
@@ -96,14 +108,20 @@
   units: '%'
 - absolute_range: *id001
   default_value: 0
-  description: reduction in load factor for enduse demand_management_improvement__ss_computing
-  name: demand_management_improvement__ss_computing
+  description: reduction in load factor for enduse demand_management_improvement__ss_small_power
+  name: demand_management_improvement__ss_small_power
   suggested_range: *id002
   units: '%'
 - absolute_range: *id001
   default_value: 0
-  description: reduction in load factor for enduse demand_management_improvement__ss_space_cooling
-  name: demand_management_improvement__ss_space_cooling
+  description: reduction in load factor for enduse demand_management_improvement__ss_ICT_equipment
+  name: demand_management_improvement__ss_ICT_equipment
+  suggested_range: *id002
+  units: '%'
+- absolute_range: *id001
+  default_value: 0
+  description: reduction in load factor for enduse demand_management_improvement__ss_cooled_storage
+  name: demand_management_improvement__ss_cooled_storage
   suggested_range: *id002
   units: '%'
 - absolute_range: *id001
@@ -291,7 +309,7 @@
 - absolute_range: !!python/tuple
   - 0
   - 25
-  default_value: 23
+  default_value: 1
   description: Base temperature assumption service sector cooling
   name: ss_t_base_cooling_future_yr
   suggested_range: !!python/tuple
