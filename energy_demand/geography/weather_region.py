@@ -16,6 +16,7 @@ from energy_demand.technologies import diffusion_technologies
 from energy_demand.basic import basic_functions
 from energy_demand.enduse_func import get_peak_day_single_fueltype
 from energy_demand.profiles import load_profile as lp
+from energy_demand.profiles import generic_shapes
 
 class WeatherRegion(object):
     """WeaterRegion
@@ -404,14 +405,21 @@ class WeatherRegion(object):
             is_fuel_shape_heating_yd,
             'ss_space_heating', 
             assumptions['model_yeardays_nrs'])
-
+        
+        #Flat profile
+        #shape_peak_dh, _, shape_peak_yd_factor, shape_non_peak_yd, shape_non_peak_yh = generic_shapes.flat_shape(
+        #    assumptions['model_yeardays_nrs']) #TODO WRITE FUNCITON TO GET FLAT PROFILE
+        flat_is_fuel_shape_any_tech = np.full((assumptions['model_yeardays_nrs'], 24), (1.0/24.0), dtype=float)
+        flat_is_fuel_shape_any_tech = flat_is_fuel_shape_any_tech * is_fuel_shape_heating_yd[:, np.newaxis]
+        #plotting_results.plot_lp_yh(flat_is_fuel_shape_any_tech)
+        
         self.is_load_profiles.add_lp(
             unique_identifier=uuid.uuid4(),
             technologies=all_techs_is_space_heating,
             enduses=['is_space_heating'],
             sectors=sectors['is_sectors'],
             shape_yd=is_fuel_shape_heating_yd,
-            shape_yh=is_fuel_shape_any_tech,
+            shape_yh=flat_is_fuel_shape_any_tech, #is_fuel_shape_any_tech,
             enduse_peak_yd_factor=is_peak_yd_heating_factor)
 
 def get_shape_peak_yd_factor(demand_yd):

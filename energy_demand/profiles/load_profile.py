@@ -425,6 +425,9 @@ def create_load_profile_stock(tech_lp, assumptions, sectors, all_enduses):
     # If space heating, add load shapes for service sector
     shape_peak_dh_sectors_enduses = defaultdict(dict)
     all_enduses_including_heating = assumptions['is_dummy_enduses']
+    
+    # Industrial space heating same as service space heating
+    '''
     all_enduses_including_heating.append("is_space_heating") #TODO
 
     for sector in sectors['is_sectors']:
@@ -436,11 +439,14 @@ def create_load_profile_stock(tech_lp, assumptions, sectors, all_enduses):
             else:
                 shape_peak_dh_sectors_enduses[enduse][sector] = {
                     'shape_peak_dh': shape_peak_dh}
+    '''
 
     for enduse in assumptions['is_dummy_enduses']:
 
         # Add load profile for space heating of ss sector
         if enduse == "is_space_heating":
+            #pass
+            '''
             tech_list = helpers.get_nested_dict_key(assumptions['is_fuel_tech_p_by'][enduse])
             for sector in sectors['is_sectors']:
                 non_regional_lp_stock.add_lp(
@@ -452,6 +458,7 @@ def create_load_profile_stock(tech_lp, assumptions, sectors, all_enduses):
                     sectors=[sector],
                     enduse_peak_yd_factor=tech_lp['ss_shapes_yd']["ss_space_heating"][sectors['ss_sectors'][0]]['shape_peak_yd_factor'],
                     shape_peak_dh=dict(shape_peak_dh_sectors_enduses))
+            '''
         else:
             tech_list = helpers.get_nested_dict_key(assumptions['is_fuel_tech_p_by'][enduse])
             for sector in sectors['is_sectors']:

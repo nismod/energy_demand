@@ -63,7 +63,7 @@ class EDWrapper(SectorModel):
         data['criterias']['writeYAML'] = False
         data['criterias']['write_to_txt'] = True # True
         data['criterias']['beyond_supply_outputs'] = True  # True             # If only for smif: FAlse, for other plots: True
-        data['criterias']['plot_crit'] = False
+        data['criterias']['plot_crit'] = True
         data['criterias']['plot_tech_lp'] = True
 
         data['sim_param']['base_yr'] = 2015                             # Base year
@@ -388,13 +388,13 @@ class EDWrapper(SectorModel):
         # -------------------------------------------
         if data['criterias']['write_to_txt']:
             #tot_fuel_y_max_enduses = sim_obj.tot_fuel_y_max_enduses
-
+            logging.info("... Start writing results to file")
 
             # ----
             # Plot individual enduse
             # ----
             crit_plot_enduse_lp = True
-            if crit_plot_enduse_lp:
+            if crit_plot_enduse_lp and timestep == 2015:
 
                 # Maybe move to result folder in a later step
                 path_folder_lp = os.path.join(data['local_paths']['data_results'], 'individual_enduse_lp')
@@ -418,9 +418,6 @@ class EDWrapper(SectorModel):
                         ed_yh=ed_yh[data['lookups']['fueltypes']['electricity']],
                         days_to_plot=winter_week)
 
-
-
-            logging.info("... Start writing results to file")
             path_run = data['local_paths']['data_results_model_runs']
             write_data.write_supply_results(
                 timestep, "result_tot_yh", path_run, sim_obj.ed_fueltype_regs_yh, "result_tot_submodels_fueltypes")

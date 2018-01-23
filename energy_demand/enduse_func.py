@@ -149,12 +149,13 @@ class Enduse(object):
                 non_regional_lp_stock,
                 regional_lp_stock)
 
-            '''if enduse == 'ss_space_heating':
+            '''if enduse == 'is_space_heating':
                 logging.warning("INFO:  " + str(enduse))
-                testyh = load_profiles.get_lp('ss_space_heating', 'military', 'ss_cooling_tech', 'shape_yh')
-                testyd = load_profiles.get_lp('ss_space_heating', 'military', 'ss_cooling_tech', 'shape_yd')
+                testyh = load_profiles.get_lp('is_space_heating', sector, 'boiler_electricity', 'shape_yh')
+                testyd = load_profiles.get_lp('is_space_heating', sector, 'boiler_electricity', 'shape_yd')
                 plotting_results.plot_lp_yd(testyd)
                 plotting_results.plot_lp_yh(testyh)'''
+
             '''if enduse == 'ss_cooling_humidification':
                 logging.warning("INFO: " + str(assumptions['ss_t_base_cooling']['ss_t_base_cooling_base_yr']))
                 testyh = load_profiles.get_lp('ss_cooling_humidification', 'military', 'ss_cooling_tech', 'shape_yh')
@@ -641,10 +642,10 @@ def get_lp_stock(enduse, non_regional_lp_stock, regional_lp_stock):
     be applied for all regions is used (`non_regional_lp_stock`)
     """
     if enduse in non_regional_lp_stock.enduses_in_stock:
-        #print("Stock (non_regional):   " + str(enduse))
+        print("Stock (non_regional):   " + str(enduse))
         return non_regional_lp_stock
     else:
-        #print("Stock (regional)        " + str(enduse))
+        print("Stock (regional)        " + str(enduse))
         return regional_lp_stock
 
 def get_running_mode(enduse, mode_constrained, enduse_space_heating):
