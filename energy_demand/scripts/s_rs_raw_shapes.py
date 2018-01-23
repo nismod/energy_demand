@@ -134,15 +134,10 @@ def assign_hes_data_to_year(nr_of_appliances, hes_data, base_yr):
     for yearday in list_dates:
         month_python = yearday.timetuple().tm_mon - 1 # - 1 because in _info: Month 1 = Jan
         yearday_python = yearday.timetuple().tm_yday - 1 # - 1 because in _info: 1.Jan = 1
-        daytype = date_prop.get_weekday_type(yearday)
-
-        if daytype == 'holiday':
-            daytype = 1
-        else:
-            daytype = 0
+        daytype_str = date_prop.get_weekday_type(yearday)
 
         # Get day from HES raw data array
-        year_raw_values[yearday_python] = hes_data[daytype][month_python]
+        year_raw_values[yearday_python] = hes_data[daytype_str][month_python]
 
     return year_raw_values
 
@@ -163,8 +158,8 @@ def read_hes_data(paths_hes, nr_app_type_lu):
 
     Returns
     -------
-    hes_data : array
-        HES non peak raw data
+    hes_data : dict
+        HES non peak raw data TODO CORRECT
     hes_y_coldest : array
         HES for coldest day
     hes_y_warmest : array
@@ -175,41 +170,37 @@ def read_hes_data(paths_hes, nr_app_type_lu):
         -   As only shapes are generated, the absolute
             values are irrelevant, i.e. the unit of energy
     """
-    # Daytypes
     day_type_lu = {
-        0: 'weekend_day',
+        0: 'holiday',
         1: 'working_day',
-        2: 'coldest_day',
-        3: 'warmest_day'}
+        2: 'coldest'}
 
-    hes_data = np.zeros((len(day_type_lu), 12, 24, nr_app_type_lu), dtype=float)
+    hes_data = {}
+    for day_type_int, day_type_str in day_type_lu.items():
+        hes_data[day_type_str] = np.zeros((12, 24, nr_app_type_lu), dtype=float)
 
     hes_y_coldest = np.zeros((24, nr_app_type_lu), dtype=float)
-    hes_y_warmest = np.zeros((24, nr_app_type_lu), dtype=float)
 
     # Read in raw HES data from CSV
     raw_elec_data = read_csv(paths_hes)
 
     # Iterate raw data of hourly eletrictiy demand
     for row in raw_elec_data:
-        month, daytype, appliance_typ = int(row[0]), int(row[1]), int(row[2])
+        month_int, day_type, appliance_typ = int(row[0]), str(row[1]), int(row[2])
         k_header = 3 #Row in Excel where energy data start
 
         for hour in range(24):
             hourly_value = float(row[k_header])
 
             # if coldest (see HES file)
-            if daytype == 2:
+            if day_type == 'coldest':
                 hes_y_coldest[hour][appliance_typ] = hourly_value
                 k_header += 1
-            elif daytype == 3:
-                hes_y_warmest[hour][appliance_typ] = hourly_value
-                k_header += 1
             else:
-                hes_data[daytype][month][hour][appliance_typ] = hourly_value
+                hes_data[day_type][month_int][hour][appliance_typ] = hourly_value
                 k_header += 1
 
-    return hes_data, hes_y_coldest, hes_y_warmest
+    return hes_data, hes_y_coldest
 
 def run(paths, local_paths, base_yr):
     """Function to run script
@@ -231,7 +222,7 @@ def run(paths, local_paths, base_yr):
 
     # HES data -- Generate generic load profiles
     # for all electricity appliances from HES data
-    hes_data, hes_y_peak, _ = read_hes_data(
+    hes_data, hes_y_peak = read_hes_data(
         local_paths['path_bd_e_load_profiles'],
         len(hes_appliances_matching))
 
