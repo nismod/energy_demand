@@ -300,7 +300,7 @@ class WeatherRegion(object):
         ss_hdd_cy, ss_fuel_shape_heating_yd = hdd_cdd.calc_reg_hdd(
             temp_cy, ss_t_base_heating_cy, model_yeardays)
 
-        ss_cdd_cy, SS_FUEL_SHAPE_COOLING_YS = hdd_cdd.calc_reg_cdd(
+        ss_cdd_cy, SS_FUEL_SHAPE_COOLING_YD = hdd_cdd.calc_reg_cdd(
             temp_cy, ss_t_base_cooling_cy, model_yeardays)
 
         # Create load profile
@@ -351,7 +351,7 @@ class WeatherRegion(object):
         #------
         # Cooling service tech_lp 
         ss_fuel_shape_cooling_yh = get_shape_cooling_yh(
-            tech_lp['ss_shapes_cooling_dh'], SS_FUEL_SHAPE_COOLING_YS)
+            tech_lp['ss_shapes_cooling_dh'], SS_FUEL_SHAPE_COOLING_YD)
 
         # Technolgoy specific load profile
         self.ss_load_profiles.add_lp(
@@ -359,10 +359,23 @@ class WeatherRegion(object):
             technologies=assumptions['tech_list']['tech_cooling_const'],
             enduses=assumptions['enduse_space_cooling'],
             sectors=sectors['ss_sectors'],
-            shape_yd=SS_FUEL_SHAPE_COOLING_YS,
+            shape_yd=SS_FUEL_SHAPE_COOLING_YD,
             shape_yh=ss_fuel_shape_cooling_yh,
             enduse_peak_yd_factor=ss_peak_yd_heating_factor,
             shape_peak_dh=tech_lp['ss_shapes_cooling_dh'])
+            #tech_lp_yh = tech_lp['ss_shapes_dh'][shape_enduse][sector]['shape_non_peak_y_dh'] * tech_lp_yd[:, np.newaxis]
+        '''
+        for cooling_enduse in assumptions['enduse_space_cooling']:
+            for sector in sectors['ss_sectors']:
+                self.ss_load_profiles.add_lp(
+                    unique_identifier=uuid.uuid4(),
+                    technologies=assumptions['tech_list']['tech_cooling_const'],
+                    enduses=cooling_enduse,
+                    sectors=sector,
+                    shape_yd=SS_FUEL_SHAPE_COOLING_YD,
+                    shape_yh=tech_lp['ss_shapes_dh'][cooling_enduse][sector]['shape_non_peak_y_dh'] * SS_FUEL_SHAPE_COOLING_YD[:, np.newaxis],
+                    enduse_peak_yd_factor=ss_peak_yd_heating_factor,
+                    shape_peak_dh=tech_lp['ss_shapes_cooling_dh']) #TODO'''
 
         # --------------------------------
         # Industry submodel

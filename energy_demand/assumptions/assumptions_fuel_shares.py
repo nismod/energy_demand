@@ -138,7 +138,6 @@ def assign_by_fuel_tech_p(assumptions, enduses, fueltypes, fueltypes_nr):
         'stirling_micro_CHP': 0.02,
         'district_heating_gas': 0}
     #TO NODE: boiler_electricity --> Peaky profile from samson (which is only for gas) --> Use
-    #
     assumptions['rs_fuel_tech_p_by']['rs_space_heating'][fueltypes['electricity']] = {
         'heat_pumps_electricity': 0.04,
         'storage_heater_electricity': 0.74,
@@ -192,7 +191,6 @@ def assign_by_fuel_tech_p(assumptions, enduses, fueltypes, fueltypes_nr):
     # ----------------
     # ss_space_heating
     # ----------------
-    #'''
     assumptions['ss_fuel_tech_p_by']['ss_space_heating'][fueltypes['solid_fuel']] = {
         'boiler_solid_fuel': 1.0}
 
@@ -200,8 +198,7 @@ def assign_by_fuel_tech_p(assumptions, enduses, fueltypes, fueltypes_nr):
         'boiler_gas': 1.0}
 
     assumptions['ss_fuel_tech_p_by']['ss_space_heating'][fueltypes['electricity']] = {
-        #'boiler_electricity': 0.96,
-        'secondary_heater_electricity': 0.96,
+        'boiler_electricity': 0.96,
         'heat_pumps_electricity': 0.04,
         'district_heating_electricity': 0}
 
@@ -216,12 +213,14 @@ def assign_by_fuel_tech_p(assumptions, enduses, fueltypes, fueltypes_nr):
         'heat_pumps_hydrogen': 0.0}
 
     # Cooling TODO Assign technologies
+    #'''
     assumptions['ss_fuel_tech_p_by']['ss_cooling_humidification'][fueltypes['electricity']] = {
         'ss_cooling_tech': 1.0}
     assumptions['ss_fuel_tech_p_by']['ss_cooled_storage'][fueltypes['electricity']] = {
         'ss_cooling_tech': 1.0}
     assumptions['ss_fuel_tech_p_by']['ss_fans'][fueltypes['electricity']] = {
         'ss_cooling_tech': 1.0}
+    #'''
 
     # ===================
     # Industry subModel  - Fuel shares of technologies in enduse

@@ -402,19 +402,32 @@ def create_load_profile_stock(tech_lp, assumptions, sectors, all_enduses):
                 assumptions['ss_fuel_tech_p_by'][enduse])
 
             # OTHER ENDUSE NEW NEW TODO TODO
-            #shape_enduse = get_other_ss_enduse(enduse)
-            shape_enduse = enduse
-
-            for sector in sectors['ss_sectors']:
-                non_regional_lp_stock.add_lp(
-                    unique_identifier=uuid.uuid4(),
-                    technologies=tech_list,
-                    enduses=[enduse],
-                    shape_yd=tech_lp['ss_shapes_yd'][shape_enduse][sector]['shape_non_peak_yd'],
-                    shape_yh=tech_lp['ss_shapes_dh'][shape_enduse][sector]['shape_non_peak_y_dh'] * tech_lp['ss_shapes_yd'][shape_enduse][sector]['shape_non_peak_yd'][:, np.newaxis],
-                    sectors=[sector],
-                    enduse_peak_yd_factor=tech_lp['ss_shapes_yd'][shape_enduse][sector]['shape_peak_yd_factor'],
-                    shape_peak_dh=tech_lp['ss_shapes_dh'][shape_enduse][sector]['shape_peak_dh'])
+            if enduse in assumptions['enduse_space_cooling']:
+                pass
+            else:
+                '''#enduse = get_other_ss_enduse(enduse)
+                # NEW ADD cooling technology yd
+                if enduse in assumptions['enduse_space_cooling']:
+                    tech_lp_yd = 
+                    tech_lp_yh = tech_lp['ss_shapes_dh'][enduse][sector]['shape_non_peak_y_dh'] * tech_lp_yd[:, np.newaxis]
+                else:
+                    # not heat related
+                    tech_lp_yd = tech_lp['ss_shapes_yd'][enduse][sector]['shape_non_peak_yd']
+                    tech_lp_yh = tech_lp['ss_shapes_dh'][enduse][sector]['shape_non_peak_y_dh'] * tech_lp_yd[:, np.newaxis]
+                '''
+                for sector in sectors['ss_sectors']:
+                    
+                    tech_lp_yd = tech_lp['ss_shapes_yd'][enduse][sector]['shape_non_peak_yd']
+                    tech_lp_yh = tech_lp['ss_shapes_dh'][enduse][sector]['shape_non_peak_y_dh'] * tech_lp_yd[:, np.newaxis]
+                    non_regional_lp_stock.add_lp(
+                        unique_identifier=uuid.uuid4(),
+                        technologies=tech_list,
+                        enduses=[enduse],
+                        shape_yd=tech_lp_yd,
+                        shape_yh=tech_lp_yh,
+                        sectors=[sector],
+                        enduse_peak_yd_factor=tech_lp['ss_shapes_yd'][enduse][sector]['shape_peak_yd_factor'],
+                        shape_peak_dh=tech_lp['ss_shapes_dh'][enduse][sector]['shape_peak_dh'])
 
     # ---------
     # Industry Submodel

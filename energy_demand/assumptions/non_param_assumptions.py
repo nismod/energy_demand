@@ -169,10 +169,10 @@ def load_non_param_assump(
     assumptions['ss_t_base_heating'] = {}
     assumptions['rs_t_base_cooling'] = {}
     assumptions['ss_t_base_cooling'] = {}
-    assumptions['rs_t_base_heating']['rs_t_base_heating_base_yr'] = 16.5
-    assumptions['ss_t_base_heating']['ss_t_base_heating_base_yr'] = 16.5
+    assumptions['rs_t_base_heating']['rs_t_base_heating_base_yr'] = 15.5
+    assumptions['ss_t_base_heating']['ss_t_base_heating_base_yr'] = 15.5
     assumptions['rs_t_base_cooling']['rs_t_base_cooling_base_yr'] = 21
-    assumptions['ss_t_base_cooling']['ss_t_base_cooling_base_yr'] = 10 #-20 #WEATER CORRECTION
+    assumptions['ss_t_base_cooling']['ss_t_base_cooling_base_yr'] = 12 #-20 #WEATER CORRECTION
 
     # ============================================================
     # Enduse technology definition lists
@@ -182,7 +182,7 @@ def load_non_param_assump(
         'rs_space_heating', 'ss_space_heating', 'is_space_heating']
     assumptions['enduse_water_heating'] = [
         'rs_water_heating', 'ss_water_heating']
-    assumptions['enduse_space_cooling'] = [] #['ss_cooling_humidification'] #['ss_fans', 'ss_cooling_humidification', 'ss_cooled_storage']
+    assumptions['enduse_space_cooling'] = ['ss_cooling_humidification'] #['ss_cooling_humidification'] #['ss_fans', 'ss_cooling_humidification', 'ss_cooled_storage']
 
 
     # ============================================================
