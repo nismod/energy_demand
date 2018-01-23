@@ -156,14 +156,6 @@ class Enduse(object):
                 plotting_results.plot_lp_yd(testyd)
                 plotting_results.plot_lp_yh(testyh)'''
 
-            '''if enduse == 'ss_cooling_humidification':
-                logging.warning("INFO: " + str(assumptions['ss_t_base_cooling']['ss_t_base_cooling_base_yr']))
-                testyh = load_profiles.get_lp('ss_cooling_humidification', 'military', 'ss_cooling_tech', 'shape_yh')
-                testyd = load_profiles.get_lp('ss_cooling_humidification', 'military', 'ss_cooling_tech', 'shape_yd')
-                logging.warning(np.sum(testyh))
-                plotting_results.plot_lp_yd(testyd)
-                plotting_results.plot_lp_yh(testyh)'''
-
             # Get technologies of enduse
             self.enduse_techs = get_enduse_tech(fuel_tech_p_by)
 

@@ -281,6 +281,7 @@ def run(paths, local_paths, lookups):
     for sector in ss_sectors:
 
         # Match electricity shapes for every sector
+        # to correct folder with load profiles
         if sector == 'community_arts_leisure':
             sector_folder_path_elec = os.path.join(
                 local_paths['folder_raw_carbon_trust'], "Community")
@@ -315,20 +316,18 @@ def run(paths, local_paths, lookups):
         # Assign shape across enduse for service sector
         # ------------------------------------------------------
         for enduse in ss_enduses:
-            #print("Enduse service: %s in sector %s", enduse, sector)
+            print("Enduse service: %s in sector %s", enduse, sector)
+
+            # Enduses
+            enduses_mainly_gas = ['ss_water_heating', 'ss_space_heating', 'ss_other_gas']
 
             # Select shape depending on enduse
-            if enduse in ['ss_water_heating', 'ss_space_heating', 'ss_other_gas']:
+            if enduse in enduses_mainly_gas:
                 folder_path = os.path.join(
                     local_paths['folder_raw_carbon_trust'],
                     "_all_gas")
             else:
-                if enduse == 'ss_other_electricity' or enduse == 'ss_cooling_and_ventilation':
-                    folder_path = os.path.join(
-                        local_paths['folder_raw_carbon_trust'],
-                        "_all_elec")
-                else:
-                    folder_path = sector_folder_path_elec
+                folder_path = sector_folder_path_elec
 
             # Read in shape from carbon trust metering trial dataset
             shape_non_peak_y_dh, load_peak_shape_dh, shape_peak_yd_factor, shape_non_peak_yd = read_raw_carbon_trust_data(

@@ -245,7 +245,7 @@ def compare_peak(
     plt.plot(
         range(24),
         tot_peak_enduses_fueltype,
-        color='black',
+        color='blue',
         linestyle='-',
         linewidth=0.5,
         label='model')
@@ -253,7 +253,7 @@ def compare_peak(
     plt.plot(
         range(24),
         validation_elec_2015_peak,
-        color='blue',
+        color='black',
         linestyle='--',
         linewidth=0.5,
         label='actual')

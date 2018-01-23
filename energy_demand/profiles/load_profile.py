@@ -402,7 +402,8 @@ def create_load_profile_stock(tech_lp, assumptions, sectors, all_enduses):
                 assumptions['ss_fuel_tech_p_by'][enduse])
 
             # OTHER ENDUSE NEW NEW TODO TODO
-            shape_enduse = get_other_ss_enduse(enduse)
+            #shape_enduse = get_other_ss_enduse(enduse)
+            shape_enduse = enduse
 
             for sector in sectors['ss_sectors']:
                 non_regional_lp_stock.add_lp(
@@ -549,19 +550,22 @@ def calc_av_lp(demand_yh, seasons, model_yeardays_daytype):
 
     return av_season_daytypes, season_daytypes
 
-
 def get_other_ss_enduse(enduse):
     # Convert enduses to differetn enduse category
-    if enduse == 'ss_cooling_humidification':
-        enduse_shape = 'ss_cooling_ventilation'
-    elif enduse == 'ss_ICT_equipment':
-        enduse_shape = 'ss_computing'  
-    elif enduse == 'ss_fans':
-        enduse_shape = 'ss_other_electricity' # General electricity curve
-    elif enduse == 'ss_small_power':
-        enduse_shape = 'ss_other_electricity' # General electricity curve
-    elif enduse == 'ss_cooled_storage':
-        enduse_shape = 'ss_cooling_ventilation' # General electricity curve
-    else:
-        enduse_shape = enduse
+    
+    #if enduse == 'ss_cooling_humidification':
+    #    enduse_shape = 'ss_cooling_humidification'
+    #if enduse == 'ss_ICT_equipment':
+    #    enduse_shape = 'ss_ICT_equipment'  
+    print("TOGET: " + str(enduse))
+    ##if enduse == 'ss_fans':
+    #    enduse_shape = 'ss_other_electricity' # General electricity curve
+    #elif enduse == 'ss_small_power':
+    #    enduse_shape = 'ss_other_electricity' # General electricity curve
+    #elif enduse == 'ss_cooled_storage':
+    #    enduse_shape = 'ss_cooling_ventilation' # General electricity curve
+    #else:
+    #    enduse_shape = enduse
+    enduse_shape = enduse
+    print("GOT: " + str(enduse_shape))
     return enduse_shape

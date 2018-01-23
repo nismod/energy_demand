@@ -102,7 +102,7 @@ def tempo_spatial_validation(
         scenario_data,
         ed_fueltype_national_yh,
         ed_fueltype_regs_yh,
-        tot_peak_enduses_fueltype,
+        tot_fuel_peak_dh,
         fueltypes,
         fueltypes_nr,
         local_paths,
@@ -133,7 +133,7 @@ def tempo_spatial_validation(
         fuel_national_tranport, model_yeardays_nrs)
 
     ed_fueltype_national_yh = np.add(ed_fueltype_national_yh, model_object_transport.fuel_yh)
-    tot_peak_enduses_fueltype = np.add(tot_peak_enduses_fueltype, model_object_transport.fuel_peak_dh)
+    tot_fuel_peak_dh = np.add(tot_fuel_peak_dh, model_object_transport.fuel_peak_dh)
 
     # Add electricity of transportion to regional yh fuel proportionally to population
     for region_array_nr, region in enumerate(lu_reg):
@@ -240,7 +240,7 @@ def tempo_spatial_validation(
         "validation_elec_peak_comparison_peak_shapes.pdf",
         local_paths['data_results_validation'],
         elec_2015_indo[peak_day],
-        tot_peak_enduses_fueltype[fueltypes['electricity']])
+        tot_fuel_peak_dh[fueltypes['electricity']])
 
     # ---------------------------------------------------
     # Validate boxplots for every hour (temporal validation)

@@ -128,8 +128,7 @@ def assign_hes_data_to_year(nr_of_appliances, hes_data, base_yr):
     # Create list with all dates of a whole year
     list_dates = date_prop.fullyear_dates(
         start=date(base_yr, 1, 1),
-        end=date(base_yr, 12, 31)
-        )
+        end=date(base_yr, 12, 31))
 
     # Assign every date to the place in the array of the year
     for yearday in list_dates:
@@ -181,8 +180,7 @@ def read_hes_data(paths_hes, nr_app_type_lu):
         0: 'weekend_day',
         1: 'working_day',
         2: 'coldest_day',
-        3: 'warmest_day'
-        }
+        3: 'warmest_day'}
 
     hes_data = np.zeros((len(day_type_lu), 12, 24, nr_app_type_lu), dtype=float)
 
