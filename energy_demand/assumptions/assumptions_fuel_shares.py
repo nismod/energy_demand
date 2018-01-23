@@ -146,7 +146,7 @@ def assign_by_fuel_tech_p(assumptions, enduses, fueltypes, fueltypes_nr):
 
         #'district_heating_electricity': 0, #TODO ADD PROFILE FOR DISTRICT HEATING
         #'secondary_heater_electricity': 0.96
-        #'boiler_electricity': 0.22 #getter
+        #'boiler_electricity': 0.96 #getter
 
         #'heat_pumps_electricity': 0.04,
         #'secondary_heater_electricity': 0.96
@@ -175,7 +175,8 @@ def assign_by_fuel_tech_p(assumptions, enduses, fueltypes, fueltypes_nr):
         'boiler_gas': 1.0}
 
     assumptions['rs_fuel_tech_p_by']['rs_water_heating'][fueltypes['electricity']] = {
-        'boiler_electricity': 1.0}
+        #'boiler_electricity': 1.0}
+        'secondary_heater_electricity': 1.0} #TODO?
 
     assumptions['rs_fuel_tech_p_by']['rs_water_heating'][fueltypes['biomass']] = {
         'boiler_biomass': 1.0}
@@ -215,14 +216,13 @@ def assign_by_fuel_tech_p(assumptions, enduses, fueltypes, fueltypes_nr):
         'heat_pumps_hydrogen': 0.0}
 
     # Cooling
-    #''' TODO TODO ss_cooling_ventilation
+    # TODO Assign technologies
     assumptions['ss_fuel_tech_p_by']['ss_cooling_humidification'][fueltypes['electricity']] = {
         'ss_cooling_tech': 1.0}
     assumptions['ss_fuel_tech_p_by']['ss_cooled_storage'][fueltypes['electricity']] = {
         'ss_cooling_tech': 1.0}
     assumptions['ss_fuel_tech_p_by']['ss_fans'][fueltypes['electricity']] = {
         'ss_cooling_tech': 1.0}
-    #'''
 
     # ===================
     # Industry subModel  - Fuel shares of technologies in enduse

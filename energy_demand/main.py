@@ -279,7 +279,7 @@ if __name__ == "__main__":
         if instrument_profiler:
             profiler = Profiler(use_signal=False)
             profiler.start()
-        
+
         import datetime
         a = datetime.datetime.now()
 
@@ -305,7 +305,7 @@ if __name__ == "__main__":
         if data['criterias']['beyond_supply_outputs']:
 
             ed_fueltype_regs_yh = modelrun_obj.ed_fueltype_regs_yh
-            out_enduse_specific = modelrun_obj.tot_fuel_y_enduse_specific_h
+            out_enduse_specific = modelrun_obj.tot_fuel_y_enduse_specific_yh
             tot_peak_enduses_fueltype = modelrun_obj.tot_peak_enduses_fueltype
             tot_fuel_y_max_enduses = modelrun_obj.tot_fuel_y_max_enduses
             ed_fueltype_national_yh = modelrun_obj.ed_fueltype_national_yh

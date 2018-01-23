@@ -172,12 +172,6 @@ def simulate_region(region, data, weather_regions):
         is_fuel_disagg=data['is_fuel_disagg'][region],
         weather_region=closest_weather_region)
 
-
-    #logging.warning("closest_weather_region : " + str(closest_weather_region.name))
-    #logging.warning("=====REGION " + str(region_obj.name))
-    #logging.warning("===== " + str(closest_weather_region.name))
-
-
     # --------------------
     # Residential SubModel
     # --------------------
@@ -191,14 +185,6 @@ def simulate_region(region, data, weather_regions):
         data['lookups'],
         data['criterias'],
         data['enduses']['rs_all_enduses'])
-
-    '''from energy_demand.plotting import plotting_results
-    testyh = region_obj.ss_load_profiles.get_lp(
-        'ss_cooling_humidification', 'military', 'ss_cooling_tech', 'shape_yh')
-    plotting_results.plot_lp_yh(testyh)
-    testyh = region_obj.ss_load_profiles.get_lp(
-        'ss_cooling_humidification', 'military', 'ss_cooling_tech', 'shape_yd')
-    #plotting_results.plot_lp_yd(testyh)'''
 
     # --------------------
     # Service SubModel
@@ -1037,8 +1023,8 @@ def aggregate_final_results(
             model_yeardays_nrs)
 
         # Sum across all regions and provide specific enduse
-        aggr_results['tot_fuel_y_enduse_specific_h'] = sum_enduse_all_regions(
-            aggr_results['tot_fuel_y_enduse_specific_h'],
+        aggr_results['tot_fuel_y_enduse_specific_yh'] = sum_enduse_all_regions(
+            aggr_results['tot_fuel_y_enduse_specific_yh'],
             'fuel_yh',
             all_submodels,
             model_yearhours_nrs,
@@ -1113,7 +1099,7 @@ def initialise_result_container(
     result_container = {}
 
     result_container['ed_submodel_fueltype_regs_yh'] = np.zeros(
-        (len(sectors.keys()),  reg_nrs, fueltypes_nr, model_yeardays_nrs, 24), dtype=float)
+        (len(sectors.keys()), reg_nrs, fueltypes_nr, model_yeardays_nrs, 24), dtype=float)
 
     result_container['ed_techs_submodel_fueltype_regs_yh'] = {}
     for heating_tech in heating_technologies:
@@ -1132,7 +1118,7 @@ def initialise_result_container(
     result_container['tot_fuel_y_max_enduses'] = np.zeros(
         (fueltypes_nr), dtype=float)
 
-    result_container['tot_fuel_y_enduse_specific_h'] = {}
+    result_container['tot_fuel_y_enduse_specific_yh'] = {}
 
     result_container['reg_load_factor_y'] = np.zeros(
         (fueltypes_nr, reg_nrs), dtype=float)

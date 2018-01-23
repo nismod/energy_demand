@@ -359,7 +359,6 @@ class Enduse(object):
                     # Demand Management (peak shaving)
                     # ---------------------------------------
                     if mode_constrained:
-
                         for tech in fuel_yh:
                             self.techs_fuel_yh[tech], self.techs_fuel_peak_h[tech], self.techs_fuel_peak_dh[tech] = demand_management(
                                 enduse,
