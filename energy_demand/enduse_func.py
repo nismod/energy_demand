@@ -361,6 +361,7 @@ class Enduse(object):
                     if mode_constrained: # (specific for technologies)
 
                         for tech in fuel_yh:
+                            print("TECH: " + str(tech))
                             self.techs_fuel_yh[tech], self.techs_fuel_peak_h[tech], self.techs_fuel_peak_dh[tech] = demand_management(
                                 enduse,
                                 base_yr,
@@ -368,7 +369,7 @@ class Enduse(object):
                                 assumptions['strategy_variables'],
                                 fuel_yh[tech],
                                 fuel_peak_dh[tech],
-                                self.enduse_techs,
+                                [tech], #self.enduse_techs,
                                 sector,
                                 fuel_tech_y,
                                 tech_stock,
@@ -382,7 +383,7 @@ class Enduse(object):
                         self.fuel_peak_h = sum(self.techs_fuel_peak_h.values())
                         self.fuel_peak_dh = sum(self.techs_fuel_peak_dh.values())
                     else: # (not specific for technologies)
-
+                        print("not constrined")
                         # Demand management for heating related technologies
                         self.fuel_yh, self.fuel_peak_h, self.fuel_peak_dh = demand_management(
                             enduse,
@@ -475,6 +476,13 @@ def demand_management(
     # If peak shifting implemented, calculate new lp
     # ------------------------------
     if peak_shift_crit:
+        print("--PPPPP " + str(enduse))
+        if enduse == "ss_space_heating":
+            print(".")
+        try:
+            print(fuel_yh.keys)
+        except:
+            print("no keys")
         # Calculate average for every day
         average_fuel_yd = np.mean(fuel_yh, axis=2)
 
@@ -507,8 +515,24 @@ def demand_management(
     else: # no peak shifting
         pass
 
-    # Get maximum hour demand of peak day
-    fuel_peak_h = lp.calk_peak_h_dh(fuel_peak_dh)
+    if mode_constrained:
+        print(enduse_techs)
+        #print(fuel_peak_dh)
+        if isinstance(fuel_peak_dh, dict):
+            print("A")
+            # only for a single tech
+            for tech in enduse_techs:
+                fuel_peak_h = lp.calk_peak_h_dh(fuel_peak_dh[tech])
+            
+                #if peak_shift_crit:
+                fuel_peak_dh = fuel_peak_dh[tech]
+                break
+        else:
+            print("b")
+            fuel_peak_h = lp.calk_peak_h_dh(fuel_peak_dh)
+    else:
+        # Get maximum hour demand of peak day
+        fuel_peak_h = lp.calk_peak_h_dh(fuel_peak_dh)
 
     return fuel_yh, fuel_peak_h, fuel_peak_dh
 
@@ -843,62 +867,68 @@ def calc_peak_tech_dh(
             enduse, tech, 'fueltype_int')
 
         #If enduse not defined by this technology
-        if tech not in enduse_fuel_tech.keys():
+        '''if tech not in enduse_fuel_tech.keys():
             pass #"no fuel assigned"
         else:
-            if tech_type == 'heat_pump':
-                """Read fuel from peak day
-                """
-                # Get day with most fuel across all fueltypes
-                if mode_constrained:
-                    peak_day_nr = get_peak_day(fuel_yh[tech])
-                else:
-                    peak_day_nr = get_peak_day(fuel_yh)
-
-                # Calculate absolute fuel values for yd (multiply fuel with yd_shape)
-                fuel_tech_yd = enduse_fuel_tech[tech] * load_profile.get_lp(
-                    enduse, sector, tech, 'shape_yd')
-
-                # Calculate fuel for peak day
-                fuel_tech_peak_d = fuel_tech_yd[peak_day_nr]
-
-                # The 'shape_peak_dh'is not defined in technology stock because
-                # in the 'Region' the peak day is not yet known
-                # Therefore, the shape_yh is read in and with help of information on peak da
-                tech_peak_dh = load_profile.get_lp(
-                    enduse, sector, tech, 'shape_y_dh')[peak_day_nr]
+        if 1 == 1:'''
+        if tech_type == 'heat_pump':
+            """Read fuel from peak day
+            """
+            # Get day with most fuel across all fueltypes
+            if isinstance(fuel_yh, dict):
+                peak_day_nr = get_peak_day(fuel_yh[tech])
             else:
-                """Calculate fuel with peak factor
-                """
-                enduse_peak_yd_factor = load_profile.get_lp(
-                    enduse, sector, tech, 'enduse_peak_yd_factor')
-
-                # Calculate fuel for peak day
-                fuel_tech_peak_d = enduse_fuel_tech[tech] * enduse_peak_yd_factor
-
-                if enduse == "ss_cooling_humidification":
-                    print("ef")
-                    print("  {}  {}  {} ".format(enduse, sector, tech))
-                #    print(".")
-                # Assign Peak shape of a peak day of a technology
-                tech_peak_dh = load_profile.get_shape_peak_dh(
-                    enduse, sector, tech)
-
-            # Multiply absolute d fuels with dh peak fuel shape
-            fuel_tech_peak_dh = tech_peak_dh * fuel_tech_peak_d
-
-            if mode_constrained:
-
-                # Fully empty fuel array
-                fuels_peak_dh[tech] = np.zeros((fueltypes_nr, 24), dtype=float)
-
-                # Fill fuel array with fuel of tech fueltype
-                fuels_peak_dh[tech][fueltype_int] = fuel_tech_peak_dh
-
+                peak_day_nr = get_peak_day(fuel_yh)
+            '''if mode_constrained:
+                peak_day_nr = get_peak_day(fuel_yh[tech])
             else:
-                # Peak day fuel shape * fueltype distribution for peak day
-                # select from (7, nr_of_days, 24) only peak day for all fueltypes
-                fuels_peak_dh[fueltypes['heat']] += fuel_tech_peak_dh
+                peak_day_nr = get_peak_day(fuel_yh)'''
+            #peak_day_nr = get_peak_day(fuel_yh)
+
+            # Calculate absolute fuel values for yd (multiply fuel with yd_shape)
+            fuel_tech_yd = enduse_fuel_tech[tech] * load_profile.get_lp(
+                enduse, sector, tech, 'shape_yd')
+
+            # Calculate fuel for peak day
+            fuel_tech_peak_d = fuel_tech_yd[peak_day_nr]
+
+            # The 'shape_peak_dh'is not defined in technology stock because
+            # in the 'Region' the peak day is not yet known
+            # Therefore, the shape_yh is read in and with help of information on peak da
+            tech_peak_dh = load_profile.get_lp(
+                enduse, sector, tech, 'shape_y_dh')[peak_day_nr]
+        else:
+            """Calculate fuel with peak factor
+            """
+            enduse_peak_yd_factor = load_profile.get_lp(
+                enduse, sector, tech, 'enduse_peak_yd_factor')
+
+            # Calculate fuel for peak day
+            fuel_tech_peak_d = enduse_fuel_tech[tech] * enduse_peak_yd_factor
+
+            if enduse == "ss_cooling_humidification":
+                print("ef")
+                print("  {}  {}  {} ".format(enduse, sector, tech))
+            #    print(".")
+            # Assign Peak shape of a peak day of a technology
+            tech_peak_dh = load_profile.get_shape_peak_dh(
+                enduse, sector, tech)
+
+        # Multiply absolute d fuels with dh peak fuel shape
+        fuel_tech_peak_dh = tech_peak_dh * fuel_tech_peak_d
+
+        if mode_constrained:
+
+            # Fully empty fuel array
+            fuels_peak_dh[tech] = np.zeros((fueltypes_nr, 24), dtype=float)
+
+            # Fill fuel array with fuel of tech fueltype
+            fuels_peak_dh[tech][fueltype_int] = fuel_tech_peak_dh
+
+        else:
+            # Peak day fuel shape * fueltype distribution for peak day
+            # select from (7, nr_of_days, 24) only peak day for all fueltypes
+            fuels_peak_dh[fueltypes['heat']] += fuel_tech_peak_dh
 
     return fuels_peak_dh
 
