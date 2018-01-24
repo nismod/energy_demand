@@ -141,7 +141,7 @@ def assign_by_fuel_tech_p(assumptions, enduses, fueltypes, fueltypes_nr):
     assumptions['rs_fuel_tech_p_by']['rs_space_heating'][fueltypes['electricity']] = {
         'heat_pumps_electricity': 0.04,
         'storage_heater_electricity': 0.74,
-        'secondary_heater_electricity':0.22,
+        'secondary_heater_electricity': 0.22,
 
         #'district_heating_electricity': 0, #TODO ADD PROFILE FOR DISTRICT HEATING
         #'secondary_heater_electricity': 0.96

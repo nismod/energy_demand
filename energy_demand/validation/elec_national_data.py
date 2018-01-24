@@ -184,10 +184,30 @@ def compare_results(
     # x_data, y_real_indo_factored, color='gray', fillstyle='full', markeredgewidth=0.5, marker='o', markersize=10, label='TD_factored')
     #plt.plot(
     # x_data, y_calculated, color='white', fillstyle='none', markeredgewidth=0.5, marker='o', markersize=10, label='modelled')
-
+ 
     plt.xlim([0, 8760])
     plt.margins(x=0)
     plt.axis('tight')
+
+    # -------------------
+    # Label x axis in dates
+    # -------------------
+    major_ticks_days, major_ticks_labels = get_date_strings(x_data, daystep=7)
+    '''cnt = 0
+    for yearhour in x_data:
+        if cnt == 23:
+            yearday_int = ((yearhour + 1) / 24) -1
+            str_date = str(date_prop.yearday_to_date(2015, yearday_int))
+            str_date_short = str_date[5:]
+
+            major_ticks_labels.append(str_date_short)
+            major_ticks_days.append(yearhour - 24)
+            #print("A::  {}   {}  {}".format(yearhour - 24, yearday_int, str_date))
+            cnt = 0
+        else:
+            cnt += 1'''
+
+    plt.xticks(major_ticks_days, major_ticks_labels)
 
     # ----------
     # Labelling
@@ -378,3 +398,32 @@ def plot_residual_histogram(values, path_result, name_fig):
 
     #Save fig
     plt.savefig(os.path.join(path_result, name_fig))
+
+def get_date_strings(x_data, daystep):
+    """Calculate date and position for range
+    input of yeardays
+    """
+    major_ticks_days = []
+    major_ticks_labels = []
+    cnt = 0
+    cnt_daystep = 0
+
+    for yearhour in x_data:
+        if cnt == 23:
+            yearday_int = ((yearhour + 1) / 24) -1
+            str_date = str(date_prop.yearday_to_date(2015, yearday_int))
+            str_date_short = str_date[5:]
+
+            if daystep == cnt_daystep:
+                major_ticks_labels.append(str_date_short)
+                major_ticks_days.append(yearhour - 24)
+                print("A::  {}   {}  {}".format(yearhour - 24, yearday_int, str_date))
+                cnt = 0
+                cnt_daystep = 0
+            else:
+                cnt = 0
+                cnt_daystep += 1
+        else:
+            cnt += 1
+
+    return major_ticks_days, major_ticks_labels

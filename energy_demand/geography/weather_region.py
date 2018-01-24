@@ -369,7 +369,6 @@ class WeatherRegion(object):
         coolings_techs.append('dummy_tech')
 
         for cooling_enduse in assumptions['enduse_space_cooling']:
-            print("COOLING ENDSE: " + str(cooling_enduse))
             for sector in sectors['ss_sectors']:
                 self.ss_load_profiles.add_lp(
                     unique_identifier=uuid.uuid4(),
