@@ -74,6 +74,7 @@
   heat_recoved__rs_space_heating: 0.0
   heat_recoved__ss_space_heating: 0.0
   heat_recovered_yr_until_changed: 2050
+  is_t_base_heating_future_yr: 15.5
   rs_t_base_cooling_future_yr: 21
   rs_t_base_heating_future_yr: 15.5
   smart_meter_improvement_is_space_heating: 0.03

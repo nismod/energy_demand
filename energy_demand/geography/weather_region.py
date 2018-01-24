@@ -140,7 +140,22 @@ class WeatherRegion(object):
             assumptions['base_temp_diff_params']['sig_midpoint'],
             assumptions['base_temp_diff_params']['sig_steeppness'],
             assumptions['base_temp_diff_params']['yr_until_changed'])
-
+        '''is_t_base_cooling_by = hdd_cdd.sigm_temp(
+            assumptions['strategy_variables']['rs_t_base_cooling_future_yr'],
+            assumptions['rs_t_base_cooling']['rs_t_base_cooling_base_yr'],
+            base_yr,
+            curr_yr,
+            assumptions['base_temp_diff_params']['sig_midpoint'],
+            assumptions['base_temp_diff_params']['sig_steeppness'],
+            assumptions['base_temp_diff_params']['yr_until_changed'])'''
+        is_t_base_heating_cy = hdd_cdd.sigm_temp(
+            assumptions['strategy_variables']['is_t_base_heating_future_yr'],
+            assumptions['is_t_base_heating']['is_t_base_heating_base_yr'],
+            base_yr,
+            curr_yr,
+            assumptions['base_temp_diff_params']['sig_midpoint'],
+            assumptions['base_temp_diff_params']['sig_steeppness'],
+            assumptions['base_temp_diff_params']['yr_until_changed'])
         # -------------------
         # Technology stock
         # -------------------
@@ -410,7 +425,7 @@ class WeatherRegion(object):
 
         # Take same base temperature as for service sector
         is_hdd_cy, is_fuel_shape_heating_yd = hdd_cdd.calc_reg_hdd(
-            temp_cy, ss_t_base_heating_cy, model_yeardays)
+            temp_cy, is_t_base_heating_cy, model_yeardays) #todois_t_base_heating_cy
         is_cdd_cy, _ = hdd_cdd.calc_reg_cdd(
             temp_cy, ss_t_base_cooling_cy, model_yeardays)
 

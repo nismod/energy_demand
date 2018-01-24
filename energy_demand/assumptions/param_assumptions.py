@@ -203,6 +203,18 @@ def load_param_assump(paths, assumptions):
     # Future base year temperature
     strategy_vars['ss_t_base_cooling_future_yr'] = 21
 
+    # Parameters info
+    strategy_variables.append({
+        "name": "is_t_base_heating_future_yr",
+        "absolute_range": (0, 20),
+        "description": "Base temperature assumption service sector heating",
+        "suggested_range": (13, 17),
+        "default_value": assumptions['is_t_base_heating']['is_t_base_heating_base_yr'],
+        "units": '°C'})
+
+        # Future base year temperature
+    strategy_vars['is_t_base_heating_future_yr'] = 15.5
+
     # Penetration of cooling devices
     # COLING_OENETRATION ()
     # Or Assumkp Peneetration curve in relation to HDD from PAPER #Residential

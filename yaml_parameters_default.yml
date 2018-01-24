@@ -318,6 +318,16 @@
   units: "\xB0C"
 - absolute_range: !!python/tuple
   - 0
+  - 20
+  default_value: 15.5
+  description: Base temperature assumption service sector heating
+  name: is_t_base_heating_future_yr
+  suggested_range: !!python/tuple
+  - 13
+  - 17
+  units: "\xB0C"
+- absolute_range: !!python/tuple
+  - 0
   - 1
   default_value: '0.1'
   description: Population diffusion of smart meters
