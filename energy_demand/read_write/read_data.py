@@ -3,7 +3,6 @@
 import sys
 import os
 import csv
-import json
 import logging
 from collections import defaultdict
 import numpy as np
@@ -979,41 +978,6 @@ def read_disaggregated_fuel_sector(path_to_csv, fueltypes_nr):
             fuel_sector_enduse[region][enduse][sector][fueltype] = fuel
 
     return fuel_sector_enduse
-
-def read_txt_shape_peak_dh(file_path):
-    """Read to txt. Array with shape: (24,)
-    """
-    read_dict = json.load(open(file_path))
-    read_dict_list = list(read_dict.values())
-    out_dict = np.array(read_dict_list, dtype=float)
-
-    return out_dict
-
-def read_txt_shape_non_peak_yh(file_path):
-    """Read to txt. Array with shape: (model_yeardays_nrs, 24)
-    """
-    out_dict = np.zeros((365, 24), dtype=float)
-    read_dict = json.load(open(file_path))
-    read_dict_list = list(read_dict.values())
-    for day, row in enumerate(read_dict_list):
-        out_dict[day] = np.array(list(row.values()), dtype=float)
-    return out_dict
-
-def read_txt_shape_peak_yd_factor(file_path):
-    """Read to txt. Array with shape: (model_yeardays_nrs, 24)
-    """
-    out_dict = json.load(open(file_path))
-    return out_dict
-
-def read_txt_shape_non_peak_yd(file_path):
-    """Read to txt. Array with shape
-    """
-    out_dict = np.zeros((365), dtype=float)
-    read_dict = json.load(open(file_path))
-    read_dict_list = list(read_dict.values())
-    for day, row in enumerate(read_dict_list):
-        out_dict[day] = np.array(row, dtype=float)
-    return out_dict
 
 def read_lf_y(path_enduse_specific_results):
     """Read load factors from txt file

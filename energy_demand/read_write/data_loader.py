@@ -726,9 +726,6 @@ def rs_collect_shapes_from_txts(txt_path, model_yeardays):
 
     # Read load shapes from txt files for enduses
     for enduse in enduses:
-
-        # With np array reading
-        # ----------------------
         shape_peak_dh = read_data.read_np_array_from_txt(
             os.path.join(txt_path, str(enduse) + str("__") + str('shape_peak_dh') + str('.txt')))
         shape_non_peak_y_dh = read_data.read_np_array_from_txt(
@@ -737,16 +734,6 @@ def rs_collect_shapes_from_txts(txt_path, model_yeardays):
             os.path.join(txt_path, str(enduse) + str("__") + str('shape_peak_yd_factor') + str('.txt'))))
         shape_non_peak_yd = read_data.read_np_array_from_txt(
             os.path.join(txt_path, str(enduse) + str("__") + str('shape_non_peak_yd') + str('.txt')))
-
-        # ----
-        '''shape_peak_dh = read_data.read_txt_shape_peak_dh(
-            os.path.join(txt_path, str(enduse) + str("__") + str('shape_peak_dh') + str('.txt')))
-        shape_non_peak_y_dh = read_data.read_txt_shape_non_peak_yh(
-            os.path.join(txt_path, str(enduse) + str("__") + str('shape_non_peak_y_dh') + str('.txt')))
-        shape_peak_yd_factor = read_data.read_txt_shape_peak_yd_factor(
-            os.path.join(txt_path, str(enduse) + str("__") + str('shape_peak_yd_factor') + str('.txt')))
-        shape_non_peak_yd = read_data.read_txt_shape_non_peak_yd(
-            os.path.join(txt_path, str(enduse) + str("__") + str('shape_non_peak_yd') + str('.txt')))'''
 
         # Select only modelled days (nr_of_days, 24)
         shape_non_peak_y_dh_selection = shape_non_peak_y_dh[[model_yeardays]]
@@ -795,19 +782,20 @@ def ss_collect_shapes_from_txts(txt_path, model_yeardays):
     for enduse in enduses:
         for sector in sectors:
             joint_string_name = str(sector) + "__" + str(enduse)
-            shape_peak_dh = read_data.read_txt_shape_peak_dh(
+
+            shape_peak_dh = read_data.read_np_array_from_txt(
                 os.path.join(
                     txt_path,
                     str(joint_string_name) + str("__") + str('shape_peak_dh') + str('.txt')))
-            shape_non_peak_y_dh = read_data.read_txt_shape_non_peak_yh(
+            shape_non_peak_y_dh = read_data.read_np_array_from_txt(
                 os.path.join(
                     txt_path,
                     str(joint_string_name) + str("__") + str('shape_non_peak_y_dh') + str('.txt')))
-            shape_peak_yd_factor = read_data.read_txt_shape_peak_yd_factor(
+            shape_peak_yd_factor = float(read_data.read_np_array_from_txt(
                 os.path.join(
                     txt_path,
-                    str(joint_string_name) + str("__") + str('shape_peak_yd_factor') + str('.txt')))
-            shape_non_peak_yd = read_data.read_txt_shape_non_peak_yd(
+                    str(joint_string_name) + str("__") + str('shape_peak_yd_factor') + str('.txt'))))
+            shape_non_peak_yd = read_data.read_np_array_from_txt(
                 os.path.join(
                     txt_path,
                     str(joint_string_name) + str("__") + str('shape_non_peak_yd') + str('.txt')))

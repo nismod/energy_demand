@@ -6,8 +6,8 @@ from datetime import date
 import numpy as np
 import logging
 from energy_demand.basic import date_prop
-from energy_demand.scripts import s_shared_functions
 from energy_demand.read_write import read_data
+from energy_demand.read_write import write_data
 from energy_demand.read_write import data_loader
 from energy_demand.assumptions import non_param_assumptions
 from energy_demand.assumptions import param_assumptions
@@ -258,7 +258,7 @@ def run(paths, local_paths, base_yr):
                 enduse)
 
             # Write txt files
-            s_shared_functions.create_txt_shapes(
+            write_data.create_txt_shapes(
                 enduse,
                 local_paths['rs_load_profiles'],
                 shape_peak_dh,
