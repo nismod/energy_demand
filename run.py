@@ -272,7 +272,7 @@ class EDWrapper(SectorModel):
             key: name defined in sector models
                 value: np.zeros((len(reg), len(intervals)) )
         """
-        time_start = datetime.datetime.now() 
+        time_start = datetime.datetime.now()
 
         # Convert data to default dict
         data = defaultdict(dict, data)

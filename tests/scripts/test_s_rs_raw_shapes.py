@@ -6,7 +6,7 @@ import numpy as np
 def test_assign_hes_data_to_year():
 
     hes_data = {
-        'holiday': {
+        'working_day': {
             0: np.zeros((24, 2)) + 10,
             1: np.zeros((24, 2)) + 20,
             2: np.zeros((24, 2)) + 30,
@@ -18,10 +18,9 @@ def test_assign_hes_data_to_year():
             8: np.zeros((24, 2)) + 90, 
             9: np.zeros((24, 2)) + 100, 
             10: np.zeros((24, 2)) + 110,
-            11: np.zeros((24, 2)) + 120
-            },
+            11: np.zeros((24, 2)) + 120},
 
-        'workday' : {
+        'holiday' : {
             0: np.zeros((24, 2)) + 1,
             1: np.zeros((24, 2)) + 2,
             2: np.zeros((24, 2)) + 3,
@@ -39,7 +38,8 @@ def test_assign_hes_data_to_year():
     result = s_rs_raw_shapes.assign_hes_data_to_year(
         nr_of_appliances=2,
         hes_data=hes_data,
-        base_yr=2017)
+        base_yr=2015)
 
-    assert result['holiday'][0][0] == 10 #daytype, month_python, appliances
-    assert result['workday'][0][0] == 1
+    #daytype, month_python, appliances
+    assert result[10][0][1] == 1 # yearday, hour, appliance_nr--> sun
+    assert result[11][0][1] == 10 # yearday, hour, appliance_nr--> mon

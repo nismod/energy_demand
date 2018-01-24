@@ -78,11 +78,10 @@ def test_service_switch():
 
     tot_service_yh_cy = np.full((365, 24), 1.0) #constant share of 1 in every hour
     service_tech_by_p = {"boilerA": share_boilerA_by, "boilerB": share_boilerB_by}
-    tech_increase_service = {"boilerA": 0.001}
-    tech_decrease_service = {"boilerB": 0.001}
+    tech_increase_service = {"boilerA": share_boilerA_by}
+    tech_decrease_service = {"boilerB": share_boilerB_by}
     tech_constant_service = []
 
-    enduse = "heating"
     sig_param_tech = {
             "boilerA": {
                 'midpoint': fit_parameter[0],
@@ -134,11 +133,11 @@ def test_service_switch():
 
     tot_service_yh_cy = np.full((365, 24), 1.0) #constant share of 1 in every hour
     service_tech_by_p = {"boilerA": share_boilerA_by, "boilerB": share_boilerB_by}
-    tech_increase_service = {"boilerA": 0.001}
-    tech_decrease_service = {"boilerB": 0.001}
+
+    tech_increase_service = {"boilerA": share_boilerA_by}
+    tech_decrease_service = {"boilerB": share_boilerB_by}
     tech_constant_service = []
 
-    enduse = "heating"
     sig_param_tech = {
             "boilerA": {
                 'midpoint': fit_parameter[0],
@@ -192,8 +191,9 @@ def test_service_switch():
 
     tot_service_yh_cy = np.full((365, 24), 1.0) #constant share of 1 in every hour
     service_tech_by_p = {"boilerA": share_boilerA_by, "boilerB": share_boilerB_by}
-    tech_increase_service = {"boilerA": 0.001}
-    tech_decrease_service = {"boilerB": 0.001}
+
+    tech_increase_service = {"boilerA": share_boilerA_by}
+    tech_decrease_service = {"boilerB": share_boilerB_by}
     tech_constant_service = []
 
     enduse = "heating"
@@ -265,8 +265,8 @@ def test_calc_lf_improvement():
     loadfactor_yd_cy[1][1] = 0.3
     yr_until_change = 2020
 
-    result, crit = enduse_func.calc_lf_improvement(
-        'heating',
+    result = enduse_func.calc_lf_improvement(
+        'demand_management_improvement__heating',
         base_yr,
         curr_yr,
         loadfactor_yd_cy,
@@ -275,7 +275,6 @@ def test_calc_lf_improvement():
 
     expected = loadfactor_yd_cy + 0.25
 
-    assert crit == True
     assert result[0][0] == expected[0][0]
     assert result[0][1] == expected[0][1]
     assert result[1][0] == expected[1][0]

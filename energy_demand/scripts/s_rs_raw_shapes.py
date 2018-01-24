@@ -120,7 +120,7 @@ def assign_hes_data_to_year(nr_of_appliances, hes_data, base_yr):
     year_raw_values : array
         Energy data for every day in the base year for every appliances
     """
-    year_raw_values = np.zeros((365, 24, nr_of_appliances), dtype=float)
+    year_raw_values = np.zeros((365, 24, nr_of_appliances), dtype=float) #yeardays, houry, appliances
 
     # Create list with all dates of a whole year
     list_dates = date_prop.fullyear_dates(
