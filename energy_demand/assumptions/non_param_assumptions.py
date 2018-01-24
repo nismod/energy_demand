@@ -171,8 +171,8 @@ def load_non_param_assump(
     assumptions['ss_t_base_cooling'] = {}
     assumptions['rs_t_base_heating']['rs_t_base_heating_base_yr'] = 15.5
     assumptions['ss_t_base_heating']['ss_t_base_heating_base_yr'] = 15.5
-    assumptions['rs_t_base_cooling']['rs_t_base_cooling_base_yr'] = 21
-    assumptions['ss_t_base_cooling']['ss_t_base_cooling_base_yr'] = 14 #-20 #WEATER CORRECTION 12
+    assumptions['rs_t_base_cooling']['rs_t_base_cooling_base_yr'] = 0
+    assumptions['ss_t_base_cooling']['ss_t_base_cooling_base_yr'] = 12 #-20 #WEATER CORRECTION 12
 
     # ============================================================
     # Enduse technology definition lists
@@ -183,6 +183,7 @@ def load_non_param_assump(
     assumptions['enduse_water_heating'] = [
         'rs_water_heating', 'ss_water_heating']
     assumptions['enduse_space_cooling'] = ['ss_cooling_humidification'] #['ss_fans', 'ss_cooling_humidification', 'ss_cooled_storage']
+    assumptions['enduse_rs_space_cooling'] = [] #['rs_cold']
 
     # ============================================================
     # Assumption related to technologies
@@ -222,7 +223,6 @@ def load_non_param_assump(
         'district_heating_gas',
         'district_heating_biomass']
 
-
     # ============================================================
     # Enduse diffusion parameters
     # ============================================================
@@ -235,8 +235,8 @@ def load_non_param_assump(
 
     # ============================================================
     # Temperature diffusion parameters
-    # ============================================================
     # Sigmoid parameters for temperature
+    # ============================================================
     assumptions['base_temp_diff_params'] = {
         'sig_midpoint': 0,
         'sig_steeppness': 1,

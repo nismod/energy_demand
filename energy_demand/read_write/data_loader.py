@@ -366,10 +366,10 @@ def load_paths(path):
             path, 'config_data', 'submodel_residential', 'shape_residential_cooling.csv'),
         'path_shape_ss_cooling': os.path.join(
             path, 'config_data', 'submodel_service', 'shape_service_cooling.csv'),
-        'lp_elec_primary_heating': os.path.join(
-            #path, 'config_data', 'submodel_residential', 'lp_elec_primary_heating_HES.csv'), #Worst 
-            #path, 'config_data', 'submodel_residential', 'lp_elec_primary_heating_Bossmann.csv'), #Better 
-            path, 'config_data', 'submodel_residential', 'lp_elec_primary_heating_HESReport.csv'), #BEST
+        'lp_elec_storage_heating': os.path.join(
+            #path, 'config_data', 'submodel_residential', 'lp_elec_storage_heating_HES.csv'), #Worst 
+            #path, 'config_data', 'submodel_residential', 'lp_elec_storage_heating_Bossmann.csv'), #Better 
+            path, 'config_data', 'submodel_residential', 'lp_elec_storage_heating_HESReport.csv'), #BEST
             
         'lp_elec_secondary_heating': os.path.join(
             path, 'config_data', 'submodel_residential', 'lp_elec_secondary_heating_HES.csv'),
@@ -422,7 +422,7 @@ def load_data_tech_profiles(tech_lp, paths, local_paths, plot_tech_lp=False):
 
     # Add fuel data of other model enduses to the fuel data table (E.g. ICT or wastewater)
     tech_lp['rs_lp_storage_heating_dh'] = read_data.read_load_shapes_tech(
-        paths['lp_elec_primary_heating'])
+        paths['lp_elec_storage_heating'])
     tech_lp['rs_lp_second_heating_dh'] = read_data.read_load_shapes_tech(
         paths['lp_elec_secondary_heating'])
 
@@ -630,6 +630,11 @@ def load_temp_data(paths):
 
     temp_data = read_weather_data.read_weather_data_script_data(
         paths['dir_raw_weather_data'])
+
+    #for i in weather_stations
+    neu = {}
+    neu['971'] = weather_stations['971']
+    weather_stations = neu #TODO TODO SCRAP REMOVE TODO TODO TODO
 
     return weather_stations, temp_data
 

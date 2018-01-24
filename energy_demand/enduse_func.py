@@ -126,7 +126,7 @@ class Enduse(object):
         ):
         """Enduse class constructor
         """
-        print("--- Enduse: " + str(enduse))
+        #print("--- Enduse: " + str(enduse))
         self.region_name = region_name
         self.enduse = enduse
         self.fuel_new_y = fuel
@@ -148,13 +148,6 @@ class Enduse(object):
                 enduse,
                 non_regional_lp_stock,
                 regional_lp_stock)
-
-            '''if enduse == 'is_space_heating':
-                logging.warning("INFO:  " + str(enduse))
-                testyh = load_profiles.get_lp('is_space_heating', sector, 'boiler_electricity', 'shape_yh')
-                testyd = load_profiles.get_lp('is_space_heating', sector, 'boiler_electricity', 'shape_yd')
-                plotting_results.plot_lp_yd(testyd)
-                plotting_results.plot_lp_yh(testyh)'''
 
             # Get technologies of enduse
             self.enduse_techs = get_enduse_tech(fuel_tech_p_by)
@@ -372,7 +365,7 @@ class Enduse(object):
                         # Summarise all energy demand of heating related (constrained) technologies
                         self.fuel_yh = sum(self.techs_fuel_yh.values())
                         self.fuel_peak_h = sum(self.techs_fuel_peak_h.values())
-                        self.fuel_peak_dh = sum(self.techs_fuel_peak_dh.values())
+                        self.fuel_peak_dh = sum(self.techs_fuel_peak_dh.values()) 
                     else: # (not specific for technologies)
 
                         # Demand management for heating related technologies
@@ -458,10 +451,12 @@ def demand_management(
         param_name = 'demand_management_improvement__{}'.format(enduse)
         if strategy_variables[param_name] == 0:
             peak_shift_crit = False
+            #print("... no load management")
         else:
             peak_shift_crit = True
+            print("Peak is shifted for enduse " + str(enduse))
     except KeyError:
-        logging.debug("... no load management was defined for enduse")
+        #print("... no load management was defined for enduse")
         peak_shift_crit = False
 
     # ------------------------------
@@ -634,10 +629,10 @@ def get_lp_stock(enduse, non_regional_lp_stock, regional_lp_stock):
     be applied for all regions is used (`non_regional_lp_stock`)
     """
     if enduse in non_regional_lp_stock.enduses_in_stock:
-        print("Stock (non_regional):   " + str(enduse))
+        #print("Stock (non_regional):   " + str(enduse))
         return non_regional_lp_stock
     else:
-        print("Stock (regional)        " + str(enduse))
+        #print("Stock (regional)        " + str(enduse))
         return regional_lp_stock
 
 def get_running_mode(enduse, mode_constrained, enduse_space_heating):
@@ -972,13 +967,6 @@ def calc_fuel_tech_yh(
 
             if model_yeardays_nrs != 365:
                 load_profile = lp.abs_to_rel(load_profile)
-
-            '''if enduse == 'ss_cooling_humidification':
-                logging.warning("..{}".format(enduse))
-                logging.warning(np.sum(load_profile))
-                print(np.sum(np.sum(load_profile)))
-                from energy_demand.plotting import plotting_results
-                plotting_results.plot_lp_yh(load_profile)'''
 
             # If no fuel for this tech and not defined in enduse
             tech_fueltype = tech_stock.get_tech_attr(enduse, tech, 'fueltype_int')

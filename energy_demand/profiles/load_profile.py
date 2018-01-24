@@ -345,15 +345,19 @@ def create_load_profile_stock(tech_lp, assumptions, sectors, all_enduses):
         enduse_peak_yd_factor=tech_lp['rs_shapes_yd']['rs_lighting']['shape_peak_yd_factor'],
         shape_peak_dh=tech_lp['rs_shapes_dh']['rs_lighting']['shape_peak_dh'])
 
-    # rs_cold (residential refrigeration)
-    non_regional_lp_stock.add_lp(
-        unique_identifier=uuid.uuid4(),
-        technologies=assumptions['tech_list']['rs_cold'],
-        enduses=['rs_cold'],
-        shape_yd=tech_lp['rs_shapes_yd']['rs_cold']['shape_non_peak_yd'],
-        shape_yh=tech_lp['rs_shapes_dh']['rs_cold']['shape_non_peak_y_dh'] * tech_lp['rs_shapes_yd']['rs_cold']['shape_non_peak_yd'][:, np.newaxis],
-        enduse_peak_yd_factor=tech_lp['rs_shapes_yd']['rs_cold']['shape_peak_yd_factor'],
-        shape_peak_dh=tech_lp['rs_shapes_dh']['rs_cold']['shape_peak_dh'])
+    # Skip temperature dependent end uses (regional)
+    if 'rs_cold' in assumptions['enduse_rs_space_cooling']:
+        pass
+    else:
+        # rs_cold (residential refrigeration)
+        non_regional_lp_stock.add_lp(
+            unique_identifier=uuid.uuid4(),
+            technologies=assumptions['tech_list']['rs_cold'],
+            enduses=['rs_cold'],
+            shape_yd=tech_lp['rs_shapes_yd']['rs_cold']['shape_non_peak_yd'],
+            shape_yh=tech_lp['rs_shapes_dh']['rs_cold']['shape_non_peak_y_dh'] * tech_lp['rs_shapes_yd']['rs_cold']['shape_non_peak_yd'][:, np.newaxis],
+            enduse_peak_yd_factor=tech_lp['rs_shapes_yd']['rs_cold']['shape_peak_yd_factor'],
+            shape_peak_dh=tech_lp['rs_shapes_dh']['rs_cold']['shape_peak_dh'])
 
     # rs_cooking
     non_regional_lp_stock.add_lp(

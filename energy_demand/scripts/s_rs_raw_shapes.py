@@ -141,10 +141,6 @@ def assign_hes_data_to_year(nr_of_appliances, hes_data, base_yr):
 
         daytype_str = date_prop.get_weekday_type(yearday_date)
 
-        #month_python = yearday.timetuple().tm_mon - 1 # - 1 because in _info: Month 1 = Jan
-        #yearday_python = yearday.timetuple().tm_yday - 1 # - 1 because in _info: 1.Jan = 1
-        #daytype_str = date_prop.get_weekday_type(yearday)
-
         # Get day from HES raw data array
         year_raw_values[yearday_python] = hes_data[daytype_str][month_python]
 

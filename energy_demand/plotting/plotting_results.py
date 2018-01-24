@@ -1318,16 +1318,17 @@ def plot_lp_yh(data_dh_modelled):
 def plot_lp_yd(data_dh_modelled):
     """plot yearly profile
     """
+    def close_event():
+        """Timer to close window automatically
+        """
+        plt.close()
+
+    fig = plt.figure()
     x_values = range(365)
 
     plt.plot(x_values, data_dh_modelled, color='blue', label='modelled') #'ro', markersize=1,
 
-    # -----------------
-    # Axis
-    # -----------------
-    #plt.ylim(0, 30)
-
-    # ------------
+    # -----------
     # Plot legend
     # ------------
     plt.legend(ncol=2, loc=2, frameon=False)
@@ -1336,10 +1337,13 @@ def plot_lp_yd(data_dh_modelled):
     plt.tight_layout()
     plt.margins(x=0)
 
-    # Save fig
     plt.show()
     #plt.savefig(path_fig_name)
     #plt.close()
+
+    #creating a timer object and setting an interval
+    timer = fig.canvas.new_timer(interval = 1500)
+    timer.add_callback(close_event)
 
 def plot_enduse_yh(
         name_fig,

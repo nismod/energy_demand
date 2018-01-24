@@ -69,6 +69,10 @@ def post_install_setup(args):
     basic_functions.create_folder(data['local_paths']['ss_load_profiles'])
     basic_functions.create_folder(data['local_paths']['dir_disaggregated'])
 
+    # Read in temperature data from raw files
+    s_raw_weather_data.run(
+        data['local_paths'])
+
     # Read in residential submodel shapes
     s_rs_raw_shapes.run(
         data['paths'],

@@ -59,7 +59,6 @@ def temporal_validation(
     # ----------------
     # Plot four weeks
     # ----------------
-
     # ONE WEEK
     winter_week = list(range(
         date_prop.date_to_yearday(2015, 1, 12), date_prop.date_to_yearday(2015, 1, 19))) #Jan
@@ -132,6 +131,7 @@ def tempo_spatial_validation(
     model_object_transport = generic_shapes.GenericFlatEnduse(
         fuel_national_tranport, model_yeardays_nrs)
 
+    # Add national fuel
     ed_fueltype_national_yh = np.add(ed_fueltype_national_yh, model_object_transport.fuel_yh)
     tot_fuel_peak_dh = np.add(tot_fuel_peak_dh, model_object_transport.fuel_peak_dh)
 

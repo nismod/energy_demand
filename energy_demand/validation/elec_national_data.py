@@ -117,26 +117,40 @@ def compare_results(
     #y_real_indo = []
     #y_real_itsdo = []
     y_real_indo_factored = []
-    y_calculated = []
+    y_calculated_list = []
     y_diff = []
 
     for day in days_to_plot:
         for hour in range(24):
             #y_real_indo.append(y_real_array_indo[day][hour])
             #y_real_itsdo.append(y_real_array_itsdo[day][hour])
-            y_calculated.append(y_calculated_array[day][hour])
+            y_calculated_list.append(y_calculated_array[day][hour])
             y_real_indo_factored.append(y_factored_indo[day][hour])
 
             # Calculate difference in percent
-            y_diff.append((100 / y_factored_indo[day][hour]) * y_calculated_array[day][hour] -100)
+            y_diff.append((100 / y_factored_indo[day][hour]) * y_calculated_array[day][hour] - 100)
+
+    logging.warning("=============ee")
+    logging.warning(y_calculated_array.shape)
+    logging.warning(np.sum(y_calculated_array))
+    logging.warning(np.sum(y_calculated_list))
+    logging.warning(np.sum(y_calculated_array[20]))
+    logging.warning(np.sum(y_calculated_array[20]) / np.sum(y_calculated_array))
+    logging.warning(np.sum(y_calculated_list[20]))
+    first_h_day20 = 20 * 24
+    last_h_day20 =  21 * 24
+    _scrapsum = 0
+    for i in range(first_h_day20, last_h_day20):
+        _scrapsum += np.sum(y_calculated_list[i])
+    logging.warning("DEMAND IN DAY 20: {}  {}".format(_scrapsum, _scrapsum / np.sum(y_calculated_list)))
 
     # -------------
     # RMSE
     # -------------
-    #rmse_val_indo = basic_functions.rmse(np.array(y_real_indo), np.array(y_calculated))
-    #rmse_val_itsdo = basic_functions.rmse(np.array(y_real_itsdo), np.array(y_calculated))
-    rmse_val_corrected = basic_functions.rmse(np.array(y_real_indo_factored), np.array(y_calculated))
-    #rmse_val_own_factor_correction = basic_functions.rmse(np.array(y_real_indo), np.array(y_calculated))
+    #rmse_val_indo = basic_functions.rmse(np.array(y_real_indo), np.array(y_calculated_list))
+    #rmse_val_itsdo = basic_functions.rmse(np.array(y_real_itsdo), np.array(y_calculated_list))
+    rmse_val_corrected = basic_functions.rmse(np.array(y_real_indo_factored), np.array(y_calculated_list))
+    #rmse_val_own_factor_correction = basic_functions.rmse(np.array(y_real_indo), np.array(y_calculated_list))
 
     # ----------
     # Standard deviation
@@ -148,7 +162,7 @@ def compare_results(
     # ---------
     slope, intercept, r_value, p_value, std_err = stats.linregress(
         y_real_indo_factored,
-        y_calculated)
+        y_calculated_list)
 
     # ----------
     # Plot residuals
@@ -173,7 +187,7 @@ def compare_results(
 
     plt.plot(
         x_data,
-        y_calculated,
+        y_calculated_list,
         label='model',
         linestyle='--',
         linewidth=0.5,
@@ -183,7 +197,7 @@ def compare_results(
     #plt.plot(
     # x_data, y_real_indo_factored, color='gray', fillstyle='full', markeredgewidth=0.5, marker='o', markersize=10, label='TD_factored')
     #plt.plot(
-    # x_data, y_calculated, color='white', fillstyle='none', markeredgewidth=0.5, marker='o', markersize=10, label='modelled')
+    # x_data, y_calculated_list, color='white', fillstyle='none', markeredgewidth=0.5, marker='o', markersize=10, label='modelled')
 
     plt.xlim([0, 8760])
     plt.margins(x=0)
@@ -207,10 +221,12 @@ def compare_results(
 
     plt.title(
         'RMSE: {} Std_dev: {} R_squared: {}'.format(
-            round(rmse_val_corrected, 3), round(standard_dev_real_modelled, 3), round(r_value, 4)),
-            fontsize=10,
-            fontdict=font_additional_info,
-            loc='right')
+            round(rmse_val_corrected, 3),
+            round(standard_dev_real_modelled, 3),
+            round(r_value, 4)),
+        fontsize=10,
+        fontdict=font_additional_info,
+        loc='right')
 
     plt.title(title_left, loc='left')
 
@@ -380,7 +396,6 @@ def plot_residual_histogram(values, path_result, name_fig):
         fontsize=10,
         fontdict=font_additional_info,
         loc='right')
-
     #plt.grid(True)
 
     #Save fig
@@ -404,7 +419,6 @@ def get_date_strings(x_data, daystep):
             if daystep == cnt_daystep:
                 major_ticks_labels.append(str_date_short)
                 major_ticks_days.append(yearhour - 24)
-                print("A::  {}   {}  {}".format(yearhour - 24, yearday_int, str_date))
                 cnt = 0
                 cnt_daystep = 0
             else:
