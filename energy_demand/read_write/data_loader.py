@@ -632,10 +632,9 @@ def load_temp_data(paths):
         paths['dir_raw_weather_data'])
 
     #for i in weather_stations
-    neu = {}
-    neu['971'] = weather_stations['971']
-    weather_stations = neu #TODO TODO SCRAP REMOVE TODO TODO TODO
-
+    #neu = {}
+    #neu['971'] = weather_stations['971']
+    #weather_stations = neu
     return weather_stations, temp_data
 
 def load_fuels(paths, lookups):
