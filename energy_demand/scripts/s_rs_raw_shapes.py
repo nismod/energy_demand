@@ -52,7 +52,7 @@ def get_hes_load_shapes(appliances_hes_matching, year_raw_values, hes_y_peak, en
     ----------
     appliances_hes_matching : dict
         HES appliances are matched witch enduses
-    year_raw_values : data
+    year_raw_values : array
         Yearly values from raw
     hes_y_peak : data
         Peak raw values
@@ -72,10 +72,7 @@ def get_hes_load_shapes(appliances_hes_matching, year_raw_values, hes_y_peak, en
     The HES appliances are matched with enduses
     """
     # Match enduse with HES appliance ID (see look_up table in original files for more information)
-    if enduse in appliances_hes_matching:
-        hes_app_id = appliances_hes_matching[enduse]
-    else:
-        logging.debug("...The enduse has not HES ID and thus shape")
+    hes_app_id = appliances_hes_matching[enduse]
 
     # Total yearly demand of hes_app_id
     tot_enduse_y = np.sum(year_raw_values[:, :, hes_app_id])
@@ -92,7 +89,7 @@ def get_hes_load_shapes(appliances_hes_matching, year_raw_values, hes_y_peak, en
     tot_peak_demand_d = np.sum(peak_h_values)
 
     # Factor to calculate daily peak demand from yearly demand
-    shape_peak_yd_factor = (1.0 / tot_enduse_y) * tot_peak_demand_d
+    shape_peak_yd_factor = tot_peak_demand_d / tot_enduse_y
 
     # ---Calculate non-peak shapes
     shape_non_peak_yd = np.zeros((365), dtype=float)
@@ -131,10 +128,22 @@ def assign_hes_data_to_year(nr_of_appliances, hes_data, base_yr):
         end=date(base_yr, 12, 31))
 
     # Assign every date to the place in the array of the year
-    for yearday in list_dates:
-        month_python = yearday.timetuple().tm_mon - 1 # - 1 because in _info: Month 1 = Jan
-        yearday_python = yearday.timetuple().tm_yday - 1 # - 1 because in _info: 1.Jan = 1
-        daytype_str = date_prop.get_weekday_type(yearday)
+    for yearday_date in list_dates:
+
+        month_python = date_prop.get_month_from_yeraday(
+            yearday_date.timetuple().tm_year,
+            yearday_date.timetuple().tm_yday)
+
+        yearday_python = date_prop.date_to_yearday(
+            yearday_date.timetuple().tm_year,
+            yearday_date.timetuple().tm_mon,
+            yearday_date.timetuple().tm_mday)
+
+        daytype_str = date_prop.get_weekday_type(yearday_date)
+
+        #month_python = yearday.timetuple().tm_mon - 1 # - 1 because in _info: Month 1 = Jan
+        #yearday_python = yearday.timetuple().tm_yday - 1 # - 1 because in _info: 1.Jan = 1
+        #daytype_str = date_prop.get_weekday_type(yearday)
 
         # Get day from HES raw data array
         year_raw_values[yearday_python] = hes_data[daytype_str][month_python]
@@ -142,10 +151,11 @@ def assign_hes_data_to_year(nr_of_appliances, hes_data, base_yr):
     return year_raw_values
 
 def read_hes_data(paths_hes, nr_app_type_lu):
-    """Read in HES raw csv files and provide for every day in a year (yearday) all fuels
+    """Read in HES raw csv files and provide for every
+    day in a year (yearday) all fuels
 
-    The fuel is provided for every daytype (weekend or working day) for every month
-    and every appliance_typ
+    The fuel is provided for every daytype (weekend or working day)
+    for every month and every appliance_typ
 
     Arguments
     ----------
@@ -176,7 +186,7 @@ def read_hes_data(paths_hes, nr_app_type_lu):
         2: 'coldest'}
 
     hes_data = {}
-    for day_type_int, day_type_str in day_type_lu.items():
+    for day_type_str in day_type_lu.values():
         hes_data[day_type_str] = np.zeros((12, 24, nr_app_type_lu), dtype=float)
 
     hes_y_coldest = np.zeros((24, nr_app_type_lu), dtype=float)

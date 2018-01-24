@@ -2,6 +2,8 @@
 """
 import os
 import json
+import numpy as np
+from energy_demand.read_write import write_data
 
 def create_txt_shapes(
         end_use,
@@ -13,8 +15,7 @@ def create_txt_shapes(
     ):
     """Function collecting functions to write out txt files
     """
-
-    def jason_shape_peak_dh(input_array, outfile_path):
+    '''def jason_shape_peak_dh(input_array, outfile_path):
         """Wrte to txt. Array with shape: (24,)
         """
         np_dict = dict(enumerate(input_array))
@@ -43,12 +44,9 @@ def create_txt_shapes(
             out_dict[k] = row
         with open(outfile_path, 'w') as outfile:
             json.dump(out_dict, outfile)
-
-    # Main function
     jason_shape_peak_dh(
         shape_peak_dh,
-        os.path.join(path_txt_shapes, str(end_use) + str("__") + str('shape_peak_dh') + str('.txt'))
-        )
+        os.path.join(path_txt_shapes, str(end_use) + str("__") + str('shape_peak_dh') + str('.txt')))
     jason_shape_non_peak_y_dh(
         shape_non_peak_y_dh, os.path.join(
             path_txt_shapes,
@@ -60,6 +58,23 @@ def create_txt_shapes(
     jason_shape_non_peak_yd(
         shape_non_peak_yd, os.path.join(
             path_txt_shapes,
-            str(end_use) + str("__") + str('shape_non_peak_yd') + str('.txt')))
+            str(end_use) + str("__") + str('shape_non_peak_yd') + str('.txt')))'''
+
+    # Main function
+    write_data.write_array_to_txt(
+        os.path.join(path_txt_shapes, str(end_use) + str("__") + str('shape_peak_dh') + str('.txt')),
+        shape_peak_dh)
+
+    write_data.write_array_to_txt(
+        os.path.join(path_txt_shapes, str(end_use) + str("__") + str('shape_non_peak_y_dh') + str('.txt')),
+        shape_non_peak_y_dh)
+
+    write_data.write_array_to_txt(
+        os.path.join(path_txt_shapes, str(end_use) + str("__") + str('shape_peak_yd_factor') + str('.txt')),
+        np.array([shape_peak_yd_factor]))
+
+    write_data.write_array_to_txt(
+        os.path.join(path_txt_shapes, str(end_use) + str("__") + str('shape_non_peak_yd') + str('.txt')),
+        shape_non_peak_yd)
 
     return

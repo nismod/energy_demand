@@ -90,8 +90,11 @@ def post_install_setup(args):
     return
 
 # ------run locally
-'''class ClassTest():
+#'''
+class ClassTest():
     def __init__(self, data_energy_demand):
 	    self.data_energy_demand = data_energy_demand
-in_obj = ClassTest("C://Users//cenv0553//nismod//data_energy_demand")
-post_install_setup(in_obj)'''
+#in_obj = ClassTest("C://Users//cenv0553//nismod//data_energy_demand")
+in_obj = ClassTest("C://DATA_NISMODII//data_energy_demand")
+post_install_setup(in_obj)
+#'''

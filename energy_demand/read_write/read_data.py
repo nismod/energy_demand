@@ -668,17 +668,15 @@ def read_base_data_resid(path_to_csv):
 
             for cnt_fueltype, row in enumerate(lines):
                 cnt = 1 #skip first
-                for i in row[1:]:
+                for fuel in row[1:]:
                     end_use = _headings[cnt]
-                    end_uses_dict[end_use][cnt_fueltype] = i
+                    end_uses_dict[end_use][cnt_fueltype] = float(fuel)
                     cnt += 1
     except (KeyError, ValueError):
         sys.exit("Check whether tehre any empty cells in the csv files for enduse '{}".format(end_use))
 
     # Create list with all rs enduses
-    all_enduses = []
-    for enduse in end_uses_dict:
-        all_enduses.append(enduse)
+    all_enduses = end_uses_dict.keys()
 
     return end_uses_dict, all_enduses
 
@@ -1132,3 +1130,6 @@ def get_position(headings, name):
     for position, value in enumerate(headings):
         if str(value) == str(name):
             return position
+
+def read_np_array_from_txt(path_file_to_read):
+    return np.loadtxt(path_file_to_read, delimiter=',')
