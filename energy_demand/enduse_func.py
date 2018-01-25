@@ -1666,9 +1666,7 @@ def calc_service_switch(
     # Calculate service for technologies with DECREASED service
     # ------------
     # Add base year of decreasing technologies to allow later substraction
-    #for tech in tech_decrease_service:
-    #    tech_service_cy_p[tech] = service_tech_by_p[tech]
-    tech_service_cy_p.update(tech_decrease_service) # NEW QUICKER
+    tech_service_cy_p.update(tech_decrease_service)
 
     # Calculate service share to asign for substracted fuel
     service_tech_decrease_by_rel = fuel_service_switch.get_service_rel_tech_decr_by(
@@ -1678,12 +1676,11 @@ def calc_service_switch(
     # ------------
     # Calculate service for technology with INCREASED service
     # ------------
-
     # Calculated gained service and substract this
     # proportionally along all decreasing technologies
     for tech_incr in tech_increase_service:
 
-        # CAlculated increased service share per tech
+        # Calculated increased service share per tech
         service_tech_incr_cy_p = get_service_diffusion(
             sig_param_tech[tech_incr], curr_yr)
 
@@ -1698,7 +1695,8 @@ def calc_service_switch(
         for tech_decr, service_tech_decr_by in service_tech_decrease_by_rel.items():
             service_to_substract_p_cy = service_tech_decr_by * diff_service_incr
 
-            ##assert (tech_service_cy_p[tech_decr] - service_to_substract_p_cy) >= 0 #Leave away for speed uproses
+            #Leave away for speed uproses
+            ##assert (tech_service_cy_p[tech_decr] - service_to_substract_p_cy) >= 0
             tech_service_cy_p[tech_decr] -= service_to_substract_p_cy
 
     # Assign total service share to service share of technologies

@@ -117,7 +117,7 @@ def calc_cdd(t_base_cooling, temp_yh, nr_day_to_av):
       https://www.designingbuildings.co.uk/wiki/Cooling_degree_days
     """
     # ---------------------------------------------
-    # Average temperature with previous day(s) information TODO TEST
+    # Average temperature with previous day(s) information
     # ---------------------------------------------
     temp_yh = averaged_temp(
         temp_yh,

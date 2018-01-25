@@ -251,7 +251,7 @@ def spatially_differentiated_modelling(
     (3) Calculate diffusion factors
     """
     # --------------------------------------------------
-    # Define technologies affected by regional diffusion TODO
+    # Define technologies affected by regional diffusion
     # --------------------------------------------------
     techs_affected_spatial_f = ['heat_pumps_electricity'] #'boiler_hydrogen',
 

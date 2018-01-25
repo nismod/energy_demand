@@ -670,7 +670,7 @@ def fuel_regions_fueltype(
     Returns
     -------
     fuel_region : dict
-        Aggregated fuel per (fueltype, yeardays, hours) TODO
+        Aggregated fuel per (fueltype, yeardays, hours)
     """
     fuel_region = fuel_aggr(
         'fuel_yh',

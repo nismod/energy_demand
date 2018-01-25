@@ -58,7 +58,6 @@ def testing_tech_defined(technologies, all_tech_enduse):
 
 def test_function_fuel_sum(data, mode_constrained, space_heating_enduses):
     """ Sum raw disaggregated fuel data
-    #TODO REMOVE
     """
     fuel_in = 0
     fuel_in_solid_fuel = 0

@@ -417,8 +417,10 @@ def load_data_tech_profiles(tech_lp, paths, local_paths, plot_tech_lp=False):
     tech_lp['rs_lp_heating_hp_dh'] = read_data.read_load_shapes_tech(
         paths['lp_elec_hp_dh'])
 
-    tech_lp['rs_shapes_cooling_dh'] = read_data.read_csv_float(paths['path_shape_rs_cooling']) # ??
-    tech_lp['ss_shapes_cooling_dh'] = read_data.read_csv_float(paths['path_shape_ss_cooling']) # ??
+    #tech_lp['rs_shapes_cooling_dh'] = read_data.read_csv_float(paths['path_shape_rs_cooling']) # TODO
+    #tech_lp['ss_shapes_cooling_dh'] = read_data.read_csv_float(paths['path_shape_ss_cooling']) # ??
+    tech_lp['rs_shapes_cooling_dh'] = read_data.read_load_shapes_tech(paths['path_shape_rs_cooling']) # TODO
+    tech_lp['ss_shapes_cooling_dh'] = read_data.read_load_shapes_tech(paths['path_shape_ss_cooling']) # ??
 
     # Add fuel data of other model enduses to the fuel data table (E.g. ICT or wastewater)
     tech_lp['rs_lp_storage_heating_dh'] = read_data.read_load_shapes_tech(
@@ -572,6 +574,10 @@ def load_data_profiles(paths, local_paths, model_yeardays, model_yeardays_daytyp
     # Micro CHP
     tech_lp['rs_profile_chp_y_dh'] = get_shape_every_day(
         'rs_lp_heating_CHP_dh', tech_lp, model_yeardays_daytype)
+
+    # Service Cooling tech
+    tech_lp['ss_profile_cooling_y_dh'] = get_shape_every_day(
+        'ss_shapes_cooling_dh', tech_lp, model_yeardays_daytype)
 
     return tech_lp
 

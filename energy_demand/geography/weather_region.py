@@ -181,10 +181,10 @@ class WeatherRegion(object):
         # --------Calculate HDD/CDD
         self.rs_hdd_by, _ = hdd_cdd.calc_reg_hdd(
             temp_by, t_bases['rs_t_heating_by'], model_yeardays)
-        self.rs_cdd_by, _ = hdd_cdd.calc_reg_cdd(
-            temp_by, t_bases['rs_t_cooling_by'], model_yeardays)
         self.rs_hdd_cy, rs_fuel_shape_heating_yd = hdd_cdd.calc_reg_hdd(
             temp_cy, rs_t_base_heating_cy, model_yeardays)
+        self.rs_cdd_by, _ = hdd_cdd.calc_reg_cdd(
+            temp_by, t_bases['rs_t_cooling_by'], model_yeardays)
         self.rs_cdd_cy, rs_fuel_shape_cooling_yd = hdd_cdd.calc_reg_cdd(
             temp_cy, rs_t_base_cooling_cy, model_yeardays)
 
@@ -213,7 +213,7 @@ class WeatherRegion(object):
         #or also (if only yd)
         #shape_yh=tech_lp['rs_shapes_dh'][cooling_enduse]['shape_non_peak_y_dh'] * ss_fuel_shape_coolin_yd[:, np.newaxis],
         rs_fuel_shape_cooling_yh = self.get_shape_cooling_yh(data, rs_fuel_shape_cooling_yd, 'rs_shapes_cooling_dh') #TODO NOT NECESSARY
-        
+
         for cooling_enduse in assumptions['enduse_rs_space_cooling']:
             self.rs_load_profiles.add_lp(
                 unique_identifier=uuid.uuid4(),
@@ -242,7 +242,7 @@ class WeatherRegion(object):
 
         self.rs_load_profiles.add_lp(
             unique_identifier=uuid.uuid4(),
-            technologies= tech_lists['tech_CHP'],
+            technologies=tech_lists['tech_CHP'],
             enduses=['rs_space_heating', 'rs_water_heating'],
             shape_yd=rs_fuel_shape_heating_yd,
             shape_yh=rs_profile_chp_y_dh,
@@ -371,7 +371,8 @@ class WeatherRegion(object):
                 # Ev auch tech_lp['ss_shapes_cooling_dh']
                 ss_shape_yh = load_profile.calc_yh(
                     ss_fuel_shape_coolin_yd,
-                    tech_lp['ss_shapes_dh'][cooling_enduse][sector]['shape_non_peak_y_dh'], model_yeardays)
+                    tech_lp['ss_profile_cooling_y_dh'], model_yeardays)
+                    #tech_lp['ss_shapes_dh'][cooling_enduse][sector]['shape_non_peak_y_dh'], model_yeardays) #worse
 
                 self.ss_load_profiles.add_lp(
                     unique_identifier=uuid.uuid4(),
@@ -381,7 +382,7 @@ class WeatherRegion(object):
                     shape_yd=ss_fuel_shape_coolin_yd,
                     shape_yh=ss_shape_yh,
                     enduse_peak_yd_factor=ss_peak_yd_cooling_factor,
-                    shape_peak_dh=tech_lp['ss_shapes_cooling_dh'])
+                    shape_peak_dh=tech_lp['ss_shapes_cooling_dh']['peakday'])
 
         # --------------------------------
         # Industry submodel

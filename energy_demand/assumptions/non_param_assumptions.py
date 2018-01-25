@@ -112,7 +112,8 @@ def load_non_param_assump(
             '2002': 0.05}}
 
     # ============================================================
-    #  Scenario drivers
+    # Scenario drivers
+    # TODO: CHECK all scenario drivers
     # ============================================================
     assumptions['scenario_drivers'] = {}
 
@@ -137,7 +138,7 @@ def load_non_param_assump(
         'ss_cooling_humidification': ['floorarea'],
         'ss_fans': ['floorarea'],
         'ss_small_power': ['population'],
-        'ss_cooled_storage': ['floorarea'], #TODO TODO
+        'ss_cooled_storage': ['floorarea'],
         'ss_other_gas': ['floorarea'],
         'ss_other_electricity': ['floorarea']}
 
@@ -170,8 +171,8 @@ def load_non_param_assump(
     assumptions['t_bases']['rs_t_cooling_by'] = 0
 
     assumptions['t_bases']['ss_t_heating_by'] = 15.5 #.5
-    assumptions['t_bases']['ss_t_cooling_by'] = 12 #-20 #WEATER CORRECTION 12
-
+    assumptions['t_bases']['ss_t_cooling_by'] = 6 #-20 #WEATER CORRECTION 12
+    assumptions['t_bases']['ss_t_cooling_weekend_factor'] = 0.3
     assumptions['t_bases']['is_t_heating_by'] = 15.5 #.5
     #assumptions['t_bases']['is_t_cooling_by'] = Not implemented
 
@@ -183,7 +184,7 @@ def load_non_param_assump(
         'rs_space_heating', 'ss_space_heating', 'is_space_heating']
     assumptions['enduse_water_heating'] = [
         'rs_water_heating', 'ss_water_heating']
-    assumptions['enduse_space_cooling'] = ['ss_cooling_humidification'] #['ss_fans', 'ss_cooling_humidification', 'ss_cooled_storage']
+    assumptions['enduse_space_cooling'] = ['ss_cooling_humidification', 'ss_fans'] #['ss_fans', 'ss_cooling_humidification', 'ss_cooled_storage']
     assumptions['enduse_rs_space_cooling'] = [] #['rs_cold']
 
     # ============================================================
