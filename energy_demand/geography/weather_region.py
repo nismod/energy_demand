@@ -254,7 +254,7 @@ class WeatherRegion(object):
 
         self.rs_load_profiles.add_lp(
             unique_identifier=uuid.uuid4(),
-            technologies=assumptions['tech_list']['tech_heating_const'],
+            technologies= assumptions['tech_list']['tech_CHP'],
             enduses=['rs_space_heating', 'rs_water_heating'],
             shape_yd=rs_fuel_shape_heating_yd,
             shape_yh=rs_profile_chp_y_dh,
@@ -301,7 +301,16 @@ class WeatherRegion(object):
             enduse_peak_yd_factor=rs_peak_yd_heating_factor,
             shape_peak_dh=tech_lp['rs_lp_heating_hp_dh']['peakday'])
 
-
+        # ------district_heating_electricity --> Assumption made that same curve as boilers
+        rs_profile_boilers_y_dh = rs_fuel_shape_heating_yd[:, np.newaxis] * tech_lp['rs_profile_boilers_y_dh'][[model_yeardays]]
+        self.rs_load_profiles.add_lp(
+            unique_identifier=uuid.uuid4(),
+            technologies=assumptions['tech_list']['tech_district_heating'],
+            enduses=['rs_space_heating', 'rs_water_heating'],
+            shape_yd=rs_fuel_shape_heating_yd,
+            shape_yh=rs_profile_boilers_y_dh,
+            enduse_peak_yd_factor=rs_peak_yd_heating_factor,
+            shape_peak_dh=tech_lp['rs_lp_heating_boilers_dh']['peakday'])
 
         # -------------------
         # Service Load profiles

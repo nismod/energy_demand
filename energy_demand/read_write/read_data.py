@@ -624,7 +624,9 @@ def read_technologies(path_to_csv, fueltypes):
                     dict_tech_lists[str.strip(row[8])] = [technology]
             except Exception as e:
                 logging.error(e)
-                logging.error("Error in technology loading table. Check if e.g. empty field")
+                logging.error(row)
+                logging.error(
+                    "Error in technology loading table. Check if e.g. empty field")
                 sys.exit()
 
     return dict_technologies, dict_tech_lists
