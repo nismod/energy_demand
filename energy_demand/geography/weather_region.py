@@ -327,8 +327,26 @@ class WeatherRegion(object):
             self.ss_heating_factor_y = 1
             self.ss_cooling_factor_y = 1
 
+        # ----------------------------------------------
+        # Apply weekend correction factor fo ss heating
+        # ----------------------------------------------
+        #print(np.sum(ss_cdd_by))
+        #print("..")
+        #for i in range(10):
+        #    print(ss_cdd_by[i])
+        #    print(temp_by[i])
+        #    print("--")
+        ss_cdd_by = ss_cdd_by * assumptions['cdd_weekend_cfactors']
+        
+        ##print(np.sum(ss_cdd_by))
+        #print("..")
+        #for i in range(10):
+        #    print(ss_cdd_by[i])
+        #prnt(".")
+
         ss_peak_yd_heating_factor = get_shape_peak_yd_factor(ss_hdd_cy)
         ss_peak_yd_cooling_factor = get_shape_peak_yd_factor(ss_cdd_cy)
+
 
         # --Heating technologies for service sector
         #
@@ -368,6 +386,10 @@ class WeatherRegion(object):
 
         for cooling_enduse in assumptions['enduse_space_cooling']:
             for sector in sectors['ss_sectors']:
+
+                ss_fuel_shape_coolin_yd = ss_fuel_shape_coolin_yd * assumptions['ss_weekend_f'] #TODO FACTOR NEW
+                ss_fuel_shape_coolin_yd = load_profile.abs_to_rel(ss_fuel_shape_coolin_yd)
+
                 # Ev auch tech_lp['ss_shapes_cooling_dh']
                 ss_shape_yh = load_profile.calc_yh(
                     ss_fuel_shape_coolin_yd,
@@ -419,6 +441,10 @@ class WeatherRegion(object):
         # Flatten list of all potential heating technologies
         is_space_heating_tech_lists = list(tech_lists.values())
         all_techs_is_space_heating = [item for sublist in is_space_heating_tech_lists for item in sublist]
+
+        # Include weekend factor
+        is_fuel_shape_heating_yd = is_fuel_shape_heating_yd * assumptions['is_weekend_f'] #TODO FACTOR NEW
+        is_fuel_shape_heating_yd = load_profile.abs_to_rel(is_fuel_shape_heating_yd)
 
         # Y_dh Heating profile is taken from service sector
         is_fuel_shape_any_tech, _ = ss_get_sector_enduse_shape(

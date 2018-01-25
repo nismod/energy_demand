@@ -145,6 +145,7 @@ if __name__ == "__main__":
     from energy_demand.read_write import read_data
     from energy_demand.basic import basic_functions
     from energy_demand.basic import date_prop
+    from energy_demand.profiles import hdd_cdd
 
     path_main = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..")
 
@@ -214,7 +215,7 @@ if __name__ == "__main__":
     param_assumptions.load_param_assump(data['paths'], data['assumptions'])
 
     data['assumptions']['seasons'] = date_prop.read_season(year_to_model=2015)
-    data['assumptions']['model_yeardays_daytype'], data['assumptions']['yeardays_month'], data['assumptions']['yeardays_month_days'] = date_prop.get_model_yeardays_datype(year_to_model=2015)
+    data['assumptions']['model_yeardays_daytype'], data['assumptions']['yeardays_month'], data['assumptions']['yeardays_month_days'] = date_prop.get_model_yeardays_daytype(year_to_model=2015)
 
     data['tech_lp'] = data_loader.load_data_profiles(
         data['paths'], data['local_paths'],
@@ -229,6 +230,22 @@ if __name__ == "__main__":
     data['weather_stations'], data['temp_data'] = data_loader.load_temp_data(data['local_paths'])
 
     data['reg_nrs'] = len(data['lu_reg'])
+
+    # ----------------------------------
+    # Calculating COOLING CDD PARAMETER
+    # ----------------------------------
+    data['assumptions']['cdd_weekend_cfactors'] = hdd_cdd.get_cdd_weekend_correctionfactors(
+        data['assumptions']['model_yeardays_daytype'], 
+        data['assumptions']['ss_t_cooling_weekend_factor'])
+
+    data['assumptions']['ss_weekend_f'] = hdd_cdd.get_cdd_weekend_correctionfactors(
+        data['assumptions']['model_yeardays_daytype'], 
+        data['assumptions']['ss_weekend_factor'])
+
+    data['assumptions']['is_weekend_f'] = hdd_cdd.get_cdd_weekend_correctionfactors(
+        data['assumptions']['model_yeardays_daytype'], 
+        data['assumptions']['is_weekend_factor'])
+
 
     # ------------------------------
     if data['criterias']['virtual_building_stock_criteria']:

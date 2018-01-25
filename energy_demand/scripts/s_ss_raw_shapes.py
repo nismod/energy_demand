@@ -185,7 +185,6 @@ def read_raw_carbon_trust_data(folder_path):
     # -----------------------------------------------
     # Calculate average load shapes for every month
     # -----------------------------------------------
-    # -- Average (initialise dict)
     out_dict_av = initialise_out_dict_av()
 
     for daytype in main_dict:
@@ -256,12 +255,14 @@ def assign_data_to_year(carbon_trust_data, base_yr):
         month_python = yearday.timetuple().tm_mon - 1 # - 1 because in _info: Month 1 = Jan
         yearday_python = yearday.timetuple().tm_yday - 1 # - 1 because in _info: 1.Jan = 1
         daytype = date_prop.get_weekday_type(yearday)
-        if daytype == 'holiday':
+
+        if daytype == 'holiday': #TODO IMPROVE
             daytype = 1
         else:
             daytype = 0
 
-        _data = carbon_trust_data[daytype][month_python] # Get day from HES raw data array
+        # Get day from HES raw data array
+        _data = carbon_trust_data[daytype][month_python]
 
         # Add values to yearly
         _data = np.array(list(_data.items()))

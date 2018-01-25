@@ -21,7 +21,7 @@ autumn_week = list(range(
     date_prop.date_to_yearday(year_to_model, 10, 12),
     date_prop.date_to_yearday(year_to_model, 10, 26))) #Oct'''
 
-def get_model_yeardays_datype(year_to_model):
+def get_model_yeardays_daytype(year_to_model):
     """
     """
     # --------------------------------------
@@ -207,6 +207,7 @@ def get_weekday_type(date_to_test):
         if year == 2015:
             bank_holidays = [
                 date(2015, 1, 1),
+                date(2015, 1, 2),
                 date(2015, 4, 3),
                 date(2015, 4, 6),
                 date(2015, 5, 4),
@@ -220,6 +221,7 @@ def get_weekday_type(date_to_test):
         elif year == 2014:
             bank_holidays = [
                 date(2014, 1, 1),
+                date(2014, 1, 2),
                 date(2014, 4, 18),
                 date(2014, 4, 21),
                 date(2014, 5, 5),
@@ -235,6 +237,7 @@ def get_weekday_type(date_to_test):
         elif year == 2013:
             bank_holidays = [
                 date(2013, 1, 1),
+                date(2013, 1, 2),
                 date(2013, 4, 29),
                 date(2013, 4, 1),
                 date(2013, 5, 6),

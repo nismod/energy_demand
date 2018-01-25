@@ -94,6 +94,17 @@ def averaged_temp(temp_yh, nr_day_to_av):
 
     return effective_temp_yh
 
+def get_cdd_weekend_correctionfactors(model_yeardays_daytype, wkend_factor):
+    """
+    """
+    cdd_weekend_cfactors = np.ones((365))
+
+    for day_nr, day in enumerate(model_yeardays_daytype):
+        if day == 'holiday':
+            cdd_weekend_cfactors[day_nr] = wkend_factor
+
+    return cdd_weekend_cfactors
+
 def calc_cdd(t_base_cooling, temp_yh, nr_day_to_av):
     """Calculate cooling degree days
 
@@ -233,6 +244,7 @@ def get_cdd_country(
             diff_params['yr_until_changed'])
 
         cdd_reg = calc_cdd(t_base_heating_cy, temperatures, nr_day_to_av=2)
+
         cdd_regions[region] = np.sum(cdd_reg)
 
     return cdd_regions

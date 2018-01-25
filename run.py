@@ -28,10 +28,11 @@ from energy_demand.basic import date_prop
 from energy_demand.basic import logger_setup
 from energy_demand.validation import lad_validation
 from energy_demand.technologies import fuel_service_switch
+from energy_demand.profiles import hdd_cdd
 
 # must match smif project name for Local Authority Districts
 REGION_SET_NAME = 'lad_uk_2016'
-NR_OF_MODELLEd_REGIONS = 391 #391 # uk: 391, england.: 380
+NR_OF_MODELLEd_REGIONS = 20 #391 # uk: 391, england.: 380
 PROFILER = False
 
 class EDWrapper(SectorModel):
@@ -161,8 +162,25 @@ class EDWrapper(SectorModel):
             data['lookups']['fueltypes'],
             data['lookups']['fueltypes_nr'])
         data['assumptions']['seasons'] = date_prop.read_season(year_to_model=2015)
-        data['assumptions']['model_yeardays_daytype'], data['assumptions']['yeardays_month'], data['assumptions']['yeardays_month_days'] = date_prop.get_model_yeardays_datype(
+        data['assumptions']['model_yeardays_daytype'], data['assumptions']['yeardays_month'], data['assumptions']['yeardays_month_days'] = date_prop.get_model_yeardays_daytype(
             year_to_model=2015)
+
+        # ----------------------------------
+        # Calculating COOLING CDD PARAMETER
+        # ----------------------------------
+        data['assumptions']['cdd_weekend_cfactors'] = hdd_cdd.get_cdd_weekend_correctionfactors(
+            data['assumptions']['model_yeardays_daytype'], 
+            data['assumptions']['ss_t_cooling_weekend_factor'])
+        
+        data['assumptions']['ss_weekend_f'] = hdd_cdd.get_cdd_weekend_correctionfactors(
+            data['assumptions']['model_yeardays_daytype'], 
+            data['assumptions']['ss_weekend_factor'])
+
+        data['assumptions']['is_weekend_f'] = hdd_cdd.get_cdd_weekend_correctionfactors(
+            data['assumptions']['model_yeardays_daytype'], 
+            data['assumptions']['is_weekend_factor'])
+
+        
 
         # ------------
         # Load load profiles of technologies

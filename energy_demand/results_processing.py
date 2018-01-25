@@ -44,7 +44,7 @@ def main(path_data_energy_demand):
 
     # Other information is read in
     data['assumptions']['seasons'] = date_prop.read_season(year_to_model=2015)
-    data['assumptions']['model_yeardays_daytype'], data['assumptions']['yeardays_month'], data['assumptions']['yeardays_month_days'] = date_prop.get_model_yeardays_datype(year_to_model=2015)
+    data['assumptions']['model_yeardays_daytype'], data['assumptions']['yeardays_month'], data['assumptions']['yeardays_month_days'] = date_prop.get_model_yeardays_daytype(year_to_model=2015)
 
     # Read scenario data
     data['scenario_data'] = {}

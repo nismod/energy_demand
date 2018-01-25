@@ -5,6 +5,7 @@ import logging
 import numpy as np
 from energy_demand.profiles import generic_shapes
 from energy_demand.initalisations import helpers
+from energy_demand.profiles import load_profile
 
 class LoadProfileStock(object):
     """Collection of load shapes in a list
@@ -439,8 +440,12 @@ def create_load_profile_stock(
 
             for sector in sectors['ss_sectors']:
 
+                # NEW['ss_weekend_f']
+                shape_non_peak_yd = tech_lp['ss_shapes_yd'][enduse][sector]['shape_non_peak_yd'] * assumptions['ss_weekend_f'] #TODO FACTOR NEW
+                shape_non_peak_yd = load_profile.abs_to_rel(shape_non_peak_yd)
+
                 shape_yh = calc_yh(
-                    tech_lp['ss_shapes_yd'][enduse][sector]['shape_non_peak_yd'],
+                    shape_non_peak_yd, #tech_lp['ss_shapes_yd'][enduse][sector]['shape_non_peak_yd'],
                     tech_lp['ss_shapes_dh'][enduse][sector]['shape_non_peak_y_dh'],
                     model_yeardays)
 
@@ -460,6 +465,10 @@ def create_load_profile_stock(
     # Generate flat load profiles
     shape_peak_dh, _, shape_peak_yd_factor, shape_non_peak_yd, shape_non_peak_yh = generic_shapes.flat_shape(
         assumptions['model_yeardays_nrs'])
+
+    # Include weekend factor
+    shape_non_peak_yd = shape_non_peak_yd * assumptions['is_weekend_f'] #TODO FACTOR NEW
+    shape_non_peak_yd = load_profile.abs_to_rel(shape_non_peak_yd)
 
     for enduse in assumptions['is_dummy_enduses']:
         if enduse == "is_space_heating":
