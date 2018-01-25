@@ -284,7 +284,7 @@ def sigm_temp(
     t_diff_cy = t_base_diff * t_base_frac
 
     # Add temp change to base year temp
-    t_base_cy = t_diff_cy + t_base_yr
+    t_base_cy = t_base_yr + t_diff_cy
 
     return t_base_cy
 

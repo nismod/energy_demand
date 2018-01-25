@@ -8,15 +8,12 @@ regional load profiles are calculated.
 import uuid
 import numpy as np
 import logging
-from energy_demand.plotting import plotting_results
 from energy_demand.technologies import technological_stock
 from energy_demand.profiles import load_profile
 from energy_demand.profiles import hdd_cdd
 from energy_demand.technologies import diffusion_technologies
 from energy_demand.basic import basic_functions
 from energy_demand.enduse_func import get_peak_day_single_fueltype
-from energy_demand.profiles import load_profile as lp
-from energy_demand.profiles import generic_shapes
 
 class WeatherRegion(object):
     """WeaterRegion
@@ -78,7 +75,7 @@ class WeatherRegion(object):
             temp_by, yeardays_month_days, strategy_variables, base_yr, curr_yr,
             strategy_variables['climate_change_temp_diff_yr_until_changed'])
 
-        # Change base temperatures depending on climate changes
+        # Change base temperatures depending on change in t_base
         rs_t_base_heating_cy = hdd_cdd.sigm_temp(
             strategy_variables['rs_t_base_heating_future_yr'],
             t_bases['rs_t_heating_by'],
@@ -93,22 +90,7 @@ class WeatherRegion(object):
             t_diff_param['sig_midpoint'],
             t_diff_param['sig_steeppness'],
             t_diff_param['yr_until_changed'])
-        rs_t_base_heating_by = hdd_cdd.sigm_temp(
-            strategy_variables['rs_t_base_heating_future_yr'],
-            t_bases['rs_t_heating_by'],
-            base_yr,
-            curr_yr,
-            t_diff_param['sig_midpoint'],
-            t_diff_param['sig_steeppness'],
-            t_diff_param['yr_until_changed'])
-        rs_t_base_cooling_by = hdd_cdd.sigm_temp(
-            strategy_variables['rs_t_base_cooling_future_yr'],
-            t_bases['rs_t_cooling_by'],
-            base_yr,
-            curr_yr,
-            t_diff_param['sig_midpoint'],
-            t_diff_param['sig_steeppness'],
-            t_diff_param['yr_until_changed'])
+
         ss_t_base_heating_cy = hdd_cdd.sigm_temp(
             strategy_variables['ss_t_base_heating_future_yr'],
             t_bases['ss_t_heating_by'],
@@ -125,30 +107,7 @@ class WeatherRegion(object):
             t_diff_param['sig_midpoint'],
             t_diff_param['sig_steeppness'],
             t_diff_param['yr_until_changed'])
-        ss_t_base_heating_by = hdd_cdd.sigm_temp(
-            strategy_variables['ss_t_base_heating_future_yr'],
-            t_bases['ss_t_heating_by'],
-            base_yr,
-            curr_yr,
-            t_diff_param['sig_midpoint'],
-            t_diff_param['sig_steeppness'],
-            t_diff_param['yr_until_changed'])
-        ss_t_base_cooling_by = hdd_cdd.sigm_temp(
-            strategy_variables['ss_t_base_cooling_future_yr'],
-            t_bases['ss_t_cooling_by'],
-            base_yr,
-            curr_yr,
-            t_diff_param['sig_midpoint'],
-            t_diff_param['sig_steeppness'],
-            t_diff_param['yr_until_changed'])
-        '''is_t_base_cooling_by = hdd_cdd.sigm_temp(
-            strategy_variables['rs_t_base_cooling_future_yr'],
-            t_bases['rs_t_cooling_by'],
-            base_yr,
-            curr_yr,
-            t_diff_param['sig_midpoint'],
-            t_diff_param['sig_steeppness'],
-            t_diff_param['yr_until_changed'])'''
+
         is_t_base_heating_cy = hdd_cdd.sigm_temp(
             strategy_variables['is_t_base_heating_future_yr'],
             t_bases['is_t_heating_by'],
@@ -157,8 +116,16 @@ class WeatherRegion(object):
             t_diff_param['sig_midpoint'],
             t_diff_param['sig_steeppness'],
             t_diff_param['yr_until_changed'])
+        
+        '''is_t_base_cooling_cy = hdd_cdd.sigm_temp(
+            strategy_variables['is_t_base_cooling_future_yr'],
+            t_bases['is_t_cooling_by'],
+            base_yr,
+            curr_yr,
+            t_diff_param['sig_midpoint'],
+            t_diff_param['sig_steeppness'],
+            t_diff_param['yr_until_changed'])'''
 
-        # -------------------
         # Create technology stocks
         # -------------------
         self.rs_tech_stock = technological_stock.TechStock(
@@ -213,9 +180,9 @@ class WeatherRegion(object):
 
         # --------Calculate HDD/CDD
         self.rs_hdd_by, _ = hdd_cdd.calc_reg_hdd(
-            temp_by, rs_t_base_heating_by, model_yeardays)
+            temp_by, t_bases['rs_t_heating_by'], model_yeardays)
         self.rs_cdd_by, _ = hdd_cdd.calc_reg_cdd(
-            temp_by, rs_t_base_cooling_by, model_yeardays)
+            temp_by, t_bases['rs_t_cooling_by'], model_yeardays)
         self.rs_hdd_cy, rs_fuel_shape_heating_yd = hdd_cdd.calc_reg_hdd(
             temp_cy, rs_t_base_heating_cy, model_yeardays)
         self.rs_cdd_cy, rs_fuel_shape_cooling_yd = hdd_cdd.calc_reg_cdd(
@@ -237,21 +204,26 @@ class WeatherRegion(object):
         '''
         # RESIDENITAL COOLING
         #rs_peak_yd_cooling_factor = get_shape_peak_yd_factor(self.rs_cdd_cy)
+        rs_cold_techs = tech_lists['rs_cold']
+        rs_cold_techs.append('dummy_tech')
 
         # ----Cooling residential
         #rs_fuel_shape_cooling_yh = calc_yh(
         #    rs_fuel_shape_cooling_yd, tech_lp['rs_shapes_cooling_dh'], model_yeardays)
+        #or also (if only yd)
+        #shape_yh=tech_lp['rs_shapes_dh'][cooling_enduse]['shape_non_peak_y_dh'] * ss_fuel_shape_coolin_yd[:, np.newaxis],
         rs_fuel_shape_cooling_yh = self.get_shape_cooling_yh(data, rs_fuel_shape_cooling_yd, 'rs_shapes_cooling_dh') #TODO NOT NECESSARY
-        self.rs_load_profiles.add_lp(
-            unique_identifier=uuid.uuid4(),
-            technologies=tech_lists['COOLING TECH'],
-            enduses=['rs_cooling'],
-            shape_yd=rs_fuel_shape_cooling_yd,
-            shape_yh=rs_fuel_shape_cooling_yh,
-            enduse_peak_yd_factor=rs_peak_yd_cooling_factor,
-            shape_peak_dh=tech_lp['rs_shapes_cooling_dh']['peakday'])
+        
+        for cooling_enduse in assumptions['enduse_rs_space_cooling']:
+            self.rs_load_profiles.add_lp(
+                unique_identifier=uuid.uuid4(),
+                technologies=rs_cold_techs,
+                enduses=enduse, #['rs_cooling'],
+                shape_yd=rs_fuel_shape_cooling_yd,
+                shape_yh=rs_fuel_shape_cooling_yh,
+                enduse_peak_yd_factor=rs_peak_yd_cooling_factor,
+                shape_peak_dh=tech_lp['rs_shapes_cooling_dh']['peakday'])
         '''
-
         # ------Heating boiler
         rs_profile_boilers_y_dh = calc_yh(
             rs_fuel_shape_heating_yd, tech_lp['rs_profile_boilers_y_dh'], model_yeardays)
@@ -337,12 +309,12 @@ class WeatherRegion(object):
 
         # --------HDD/CDD
         ss_hdd_by, _ = hdd_cdd.calc_reg_hdd(
-            temp_by, ss_t_base_heating_by, model_yeardays)
+            temp_by, t_bases['ss_t_heating_by'], model_yeardays)
         ss_hdd_cy, ss_fuel_shape_heating_yd = hdd_cdd.calc_reg_hdd(
             temp_cy, ss_t_base_heating_cy, model_yeardays)
 
         ss_cdd_by, _ = hdd_cdd.calc_reg_cdd(
-            temp_by, ss_t_base_cooling_by, model_yeardays)
+            temp_by, t_bases['ss_t_cooling_by'], model_yeardays)
         ss_cdd_cy, ss_fuel_shape_coolin_yd = hdd_cdd.calc_reg_cdd(
             temp_cy, ss_t_base_cooling_cy, model_yeardays)
 
@@ -374,9 +346,9 @@ class WeatherRegion(object):
 
         # ----------------
         # Get peak day and calculate peak load profile for peak day
-        # ---------------- 
+        # ----------------
         peak_day = get_peak_day_single_fueltype(ss_fuel_shape)
-        ss_space_heating_shape_peak_dh = lp.abs_to_rel(ss_fuel_shape[peak_day])
+        ss_space_heating_shape_peak_dh = load_profile.abs_to_rel(ss_fuel_shape[peak_day])
 
         self.ss_load_profiles.add_lp(
             unique_identifier=uuid.uuid4(),
@@ -396,10 +368,10 @@ class WeatherRegion(object):
 
         for cooling_enduse in assumptions['enduse_space_cooling']:
             for sector in sectors['ss_sectors']:
-                # Ev auch tech_lp['ss_shapes_cooling_dh'],
+                # Ev auch tech_lp['ss_shapes_cooling_dh']
                 ss_shape_yh = calc_yh(
-                    ss_fuel_shape_coolin_yd, tech_lp['ss_shapes_dh'][cooling_enduse][sector]['shape_non_peak_y_dh'], model_yeardays)
-                #tech_lp['ss_shapes_dh'][cooling_enduse][sector]['shape_non_peak_y_dh'] * ss_fuel_shape_coolin_yd[:, np.newaxis],
+                    ss_fuel_shape_coolin_yd,
+                    tech_lp['ss_shapes_dh'][cooling_enduse][sector]['shape_non_peak_y_dh'], model_yeardays)
 
                 self.ss_load_profiles.add_lp(
                     unique_identifier=uuid.uuid4(),
@@ -409,22 +381,7 @@ class WeatherRegion(object):
                     shape_yd=ss_fuel_shape_coolin_yd,
                     shape_yh=ss_shape_yh,
                     enduse_peak_yd_factor=ss_peak_yd_cooling_factor,
-                    shape_peak_dh=tech_lp['ss_shapes_cooling_dh']) #TODO
-
-        #---- rs_cold () NEW ADD COOLING FOR RESIDENTIAL SECTOR
-        rs_cold_techs = tech_lists['rs_cold']
-        rs_cold_techs.append('dummy_tech')
-
-        for cooling_enduse in assumptions['enduse_rs_space_cooling']:
-            self.rs_load_profiles.add_lp(
-                unique_identifier=uuid.uuid4(),
-                technologies=rs_cold_techs,
-                enduses=[cooling_enduse],
-                sectors=['dummy_sector'],
-                shape_yd=rs_fuel_shape_cooling_yd,
-                shape_yh=tech_lp['rs_shapes_dh'][cooling_enduse]['shape_non_peak_y_dh'] * ss_fuel_shape_coolin_yd[:, np.newaxis],
-                enduse_peak_yd_factor=ss_peak_yd_heating_factor,
-                shape_peak_dh=tech_lp['ss_shapes_cooling_dh']) #TODO
+                    shape_peak_dh=tech_lp['ss_shapes_cooling_dh'])
 
         # --------------------------------
         # Industry submodel
@@ -433,19 +390,20 @@ class WeatherRegion(object):
 
         # --------HDD/CDD
         is_hdd_by, _ = hdd_cdd.calc_reg_hdd(
-            temp_by, ss_t_base_heating_by, model_yeardays)
-        is_cdd_by, _ = hdd_cdd.calc_reg_cdd(
-            temp_by, ss_t_base_cooling_by, model_yeardays)
+            temp_by, t_bases['is_t_heating_by'], model_yeardays)
+        #is_cdd_by, _ = hdd_cdd.calc_reg_cdd(
+        #    temp_by, t_bases['is_t_cooling_by'], model_yeardays)
 
         # Take same base temperature as for service sector
         is_hdd_cy, is_fuel_shape_heating_yd = hdd_cdd.calc_reg_hdd(
-            temp_cy, is_t_base_heating_cy, model_yeardays) #todois_t_base_heating_cy
-        is_cdd_cy, _ = hdd_cdd.calc_reg_cdd(
-            temp_cy, ss_t_base_cooling_cy, model_yeardays)
+            temp_cy, is_t_base_heating_cy, model_yeardays)
+        #is_cdd_cy, _ = hdd_cdd.calc_reg_cdd(
+        #    temp_cy, ss_t_base_cooling_cy, model_yeardays)
 
         try:
             self.is_heating_factor_y = np.nan_to_num(1.0 / float(np.sum(is_hdd_by))) * np.sum(is_hdd_cy)
-            self.is_cooling_factor_y = np.nan_to_num(1.0 / float(np.sum(is_cdd_by))) * np.sum(is_cdd_cy)
+            #self.is_cooling_factor_y = np.nan_to_num(1.0 / float(np.sum(is_cdd_by))) * np.sum(is_cdd_cy)
+            self.is_cooling_factor_y = 1
         except ZeroDivisionError:
             self.is_heating_factor_y = 1
             self.is_cooling_factor_y = 1
@@ -453,7 +411,7 @@ class WeatherRegion(object):
         is_peak_yd_heating_factor = get_shape_peak_yd_factor(is_hdd_cy)
         #is_peak_yd_cooling_factor = self.get_shape_peak_yd_factor(is_cdd_cy)
 
-        # TODO: Add cooing for IS (refrigeration)
+        # Cooling for industrial enduse
         # --Heating technologies for service sector (the heating shape follows
         # the gas shape of aggregated sectors)
 
@@ -461,17 +419,20 @@ class WeatherRegion(object):
         is_space_heating_tech_lists = list(tech_lists.values())
         all_techs_is_space_heating = [item for sublist in is_space_heating_tech_lists for item in sublist]
 
-        #Take from service sector
+        # Y_dh Heating profile is taken from service sector
         is_fuel_shape_any_tech, _ = ss_get_sector_enduse_shape(
             tech_lp['ss_all_tech_shapes_dh'],
             is_fuel_shape_heating_yd,
             'ss_space_heating',
             assumptions['model_yeardays_nrs'])
-        #Flat profile
+
+        # Alternatively generate y_dh flat profile
+        #from energy_demand.profiles import generic_shapes
         #shape_peak_dh, _, shape_peak_yd_factor, shape_non_peak_yd, shape_non_peak_yh = generic_shapes.flat_shape(
-        #    assumptions['model_yeardays_nrs']) #TODO WRITE FUNCITON TO GET FLAT PROFILE
-        flat_is_fuel_shape_any_tech = np.full((assumptions['model_yeardays_nrs'], 24), (1.0/24.0), dtype=float)
-        flat_is_fuel_shape_any_tech = flat_is_fuel_shape_any_tech * is_fuel_shape_heating_yd[:, np.newaxis]
+        #    assumptions['model_yeardays_nrs'])
+        #flat_is_fuel_shape_any_tech = np.full((assumptions['model_yeardays_nrs'], 24), (1.0/24.0), dtype=float)
+        #flat_is_fuel_shape_any_tech = flat_is_fuel_shape_any_tech * is_fuel_shape_heating_yd[:, np.newaxis]
+
         self.is_load_profiles.add_lp(
             unique_identifier=uuid.uuid4(),
             technologies=all_techs_is_space_heating,
@@ -480,8 +441,6 @@ class WeatherRegion(object):
             shape_yd=is_fuel_shape_heating_yd,
             shape_yh=is_fuel_shape_any_tech, #flat_is_fuel_shape_any_tech,
             enduse_peak_yd_factor=is_peak_yd_heating_factor)
-        
-        ##plotting_results.plot_lp_yh(flat_is_fuel_shape_any_tech)
 
 def get_shape_peak_yd_factor(demand_yd):
     """From yd shape calculate maximum relative yearly service demand
@@ -704,5 +663,5 @@ def calc_yh(shape_yd, shape_y_dh, model_yeardays):
         Shape for every hour in a year (total sum == 1)
     """
     shape_yh = shape_yd[:, np.newaxis] * shape_y_dh[[model_yeardays]]
-    
+
     return shape_yh
