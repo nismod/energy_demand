@@ -383,7 +383,7 @@ def load_paths(path):
 
     return paths
 
-def load_data_tech_profiles(tech_lp, paths, local_paths, plot_tech_lp=False):
+def load_tech_profiles(tech_lp, paths, local_paths, plot_tech_lp=False):
     """Load technology specific load profiles
 
     Arguments
@@ -533,7 +533,7 @@ def load_data_profiles(paths, local_paths, model_yeardays, model_yeardays_daytyp
     # ------------------------------------
     # Technology specific load profiles
     # ------------------------------------
-    tech_lp = load_data_tech_profiles(
+    tech_lp = load_tech_profiles(
         tech_lp,
         paths,
         local_paths,

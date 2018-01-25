@@ -392,7 +392,7 @@ def plot_residual_histogram(values, path_result, name_fig):
     plt.xlabel('Smarts')
     plt.ylabel('Probability')
     plt.title("Residual distribution (chi_squared: {}  p_value:  {}".format(
-        chi_squared, round(p_value, 4)),
+        round(chi_squared, 4), round(p_value, 4)),
         fontsize=10,
         fontdict=font_additional_info,
         loc='right')

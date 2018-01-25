@@ -167,20 +167,21 @@ def load_non_param_assump(
     # Base temperature related base year assumptions
     # ============================================================
     assumptions['t_bases'] = {}
-    assumptions['t_bases']['rs_t_heating_by'] = 15.5 #15.5 #.5
+    assumptions['t_bases']['rs_t_heating_by'] = 15.5    #
     assumptions['t_bases']['rs_t_cooling_by'] = 0
 
-    assumptions['t_bases']['ss_t_heating_by'] = 15.5 #.5
-    assumptions['t_bases']['ss_t_cooling_by'] = 5 #-20 #WEATER CORRECTION 12
-    
-    assumptions['t_bases']['is_t_heating_by'] = 15.5 #.5
+    assumptions['t_bases']['ss_t_heating_by'] = 15.5    #.5
+    assumptions['t_bases']['ss_t_cooling_by'] = 5       # 12
+
+    assumptions['t_bases']['is_t_heating_by'] = 15.5    #.5
     #assumptions['t_bases']['is_t_cooling_by'] = Not implemented
 
-    # FACTORS
     # -------
-    assumptions['ss_t_cooling_weekend_factor'] = 0.5
-    assumptions['ss_weekend_factor'] = 0.7 #0.6
-    assumptions['is_weekend_factor'] = 0.4
+    # Model calibration factors to incorporate weekend effects
+    # -------
+    assumptions['ss_t_cooling_weekend_factor'] = 1    # 0.6
+    assumptions['ss_weekend_factor'] = 1              # 0.8
+    assumptions['is_weekend_factor'] = 1              # 0.4
 
     # ============================================================
     # Enduse technology definition lists
@@ -190,8 +191,10 @@ def load_non_param_assump(
         'rs_space_heating', 'ss_space_heating', 'is_space_heating']
     assumptions['enduse_water_heating'] = [
         'rs_water_heating', 'ss_water_heating']
-    assumptions['enduse_space_cooling'] = ['ss_cooling_humidification'] #, 'ss_fans' 'ss_fans'] #['ss_fans', 'ss_cooling_humidification', 'ss_cooled_storage']
+
     assumptions['enduse_rs_space_cooling'] = [] #['rs_cold']
+    assumptions['ss_enduse_space_cooling'] = ['ss_cooling_humidification'] #['ss_fans', 'ss_cooling_humidification', 'ss_cooled_storage']
+   
 
     # ============================================================
     # Assumption related to technologies
@@ -221,7 +224,7 @@ def load_non_param_assump(
         'boiler_hydrogen',
         'boiler_condensing_gas',
         'boiler_condensing_oil',
-        'stirling_micro_CHP',
+        'stirling_micro_CHP_gas',
         'fuel_cell_CHP',
         'storage_heater_electricity',
         'secondary_heater_electricity',

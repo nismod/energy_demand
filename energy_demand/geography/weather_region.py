@@ -330,19 +330,7 @@ class WeatherRegion(object):
         # ----------------------------------------------
         # Apply weekend correction factor fo ss heating
         # ----------------------------------------------
-        #print(np.sum(ss_cdd_by))
-        #print("..")
-        #for i in range(10):
-        #    print(ss_cdd_by[i])
-        #    print(temp_by[i])
-        #    print("--")
         ss_cdd_by = ss_cdd_by * assumptions['cdd_weekend_cfactors']
-        
-        ##print(np.sum(ss_cdd_by))
-        #print("..")
-        #for i in range(10):
-        #    print(ss_cdd_by[i])
-        #prnt(".")
 
         ss_peak_yd_heating_factor = get_shape_peak_yd_factor(ss_hdd_cy)
         ss_peak_yd_cooling_factor = get_shape_peak_yd_factor(ss_cdd_cy)
@@ -384,7 +372,7 @@ class WeatherRegion(object):
         coolings_techs = tech_lists['tech_cooling_const']
         coolings_techs.append('dummy_tech')
 
-        for cooling_enduse in assumptions['enduse_space_cooling']:
+        for cooling_enduse in assumptions['ss_enduse_space_cooling']:
             for sector in sectors['ss_sectors']:
 
                 ss_fuel_shape_coolin_yd = ss_fuel_shape_coolin_yd * assumptions['ss_weekend_f'] #TODO FACTOR NEW
@@ -498,7 +486,7 @@ def get_shape_peak_yd_factor(demand_yd):
 
     return max_factor_yd
 
-def get_fuel_shape_heating_hp_yh(tech_lp, tech_stock, rs_hdd_cy, model_yeardays):
+def get_fuel_shape_heating_hp_yh(tech_lp_y_dh, tech_stock, rs_hdd_cy, model_yeardays):
     """Convert daily shapes to houly based on
     robert sansom daily load for heatpump
 
@@ -506,7 +494,7 @@ def get_fuel_shape_heating_hp_yh(tech_lp, tech_stock, rs_hdd_cy, model_yeardays)
 
     Arguments
     ---------
-    tech_lp : dict
+    tech_lp_y_dh : dict
         Technology load profiles
     tech_stock : object
         Technology stock
@@ -543,7 +531,7 @@ def get_fuel_shape_heating_hp_yh(tech_lp, tech_stock, rs_hdd_cy, model_yeardays)
     hp_daily_fuel = rs_hdd_cy[:, np.newaxis] / tech_eff
 
     # Distribute daily according to fuel load curves of heat pumps
-    shape_yh_hp = hp_daily_fuel * tech_lp
+    shape_yh_hp = hp_daily_fuel * tech_lp_y_dh
 
     # Convert absolute hourly fuel demand to relative fuel demand within a year
     shape_yh = load_profile.abs_to_rel(shape_yh_hp)

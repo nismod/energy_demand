@@ -32,6 +32,7 @@ TODO: Accounting module for energy and emissions
 TODO: data loading, load multiple years for real elec data
 TODO: Load different temp --> for different years
 TODO: Assign cooling techs for ss_cooling
+TODO: SUMMING ERROR NOW FROM SOMWHERE? (FOR GAS AND OILö)
 """
 import os
 import sys

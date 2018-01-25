@@ -162,7 +162,7 @@ class Enduse(object):
                 cooling_factor_y,
                 heating_factor_y,
                 assumptions['enduse_space_heating'],
-                assumptions['enduse_space_cooling'])
+                assumptions['ss_enduse_space_cooling'])
             #logging.info("... Fuel train B: " + str(np.sum(self.fuel_new_y)))
             #print("... Fuel train B: " + str(np.sum(self.fuel_new_y)))
 
@@ -304,7 +304,7 @@ class Enduse(object):
                 # ------------------------------------------
                 # Assign load profiles
                 # ------------------------------------------
-                if self.flat_profile_crit: # NEW INSERTED AGAIN
+                if self.flat_profile_crit:
                     self.fuel_y = calc_fuel_tech_y(
                         enduse,
                         tech_stock,
@@ -314,7 +314,7 @@ class Enduse(object):
                         mode_constrained)
                 else:
 
-                    #---NON-PEAK ??
+                    #---NON-PEAK
                     fuel_yh = calc_fuel_tech_yh(
                         enduse,
                         sector,
@@ -963,6 +963,7 @@ def calc_fuel_tech_yh(
     if mode_constrained:
         fuels_yh = {}
         for tech in enduse_techs:
+
             load_profile = load_profiles.get_lp(enduse, sector, tech, 'shape_yh')
 
             if model_yeardays_nrs != 365:

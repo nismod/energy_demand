@@ -18,6 +18,13 @@ from scipy import stats
 # https://www.packtpub.com/mapt/book/big_data_and_business_intelligence/9781849513265/4/ch04lvl1sec56/using-a-logarithmic-scale
 # Setting x labels: https://matplotlib.org/examples/pylab_examples/major_minor_demo1.html
 
+def plot_lp_dh_SCRAP(data_dh_modelled):
+    x_values = range(24)
+    plt.plot(x_values, list(data_dh_modelled), color='red', label='modelled')
+    plt.tight_layout()
+    plt.margins(x=0)
+    plt.show()
+
 def order_polygon(upper_boundary, lower_bdoundary):
     """create correct sorting to draw filled polygon
     """

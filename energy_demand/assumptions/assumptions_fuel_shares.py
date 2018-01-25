@@ -133,14 +133,14 @@ def assign_by_fuel_tech_p(assumptions, enduses, fueltypes, fueltypes_nr):
 
     assumptions['rs_fuel_tech_p_by']['rs_space_heating'][fueltypes['gas']] = {
         'boiler_gas': 0.98,
-        'stirling_micro_CHP': 0.02,
+        'stirling_micro_CHP_gas': 0.02,
         'district_heating_gas': 0}
 
     assumptions['rs_fuel_tech_p_by']['rs_space_heating'][fueltypes['electricity']] = {
         'storage_heater_electricity': 0.62,
         'secondary_heater_electricity': 0.25,
         'district_heating_electricity': 0.08, # same shape as CHP
-        'heat_pumps_electricity': 0.05}
+        'heat_pumps_electricity': 0.05} #0.05
 
     assumptions['rs_fuel_tech_p_by']['rs_space_heating'][fueltypes['biomass']] = {
         'boiler_biomass': 1.0,

@@ -431,7 +431,7 @@ def create_load_profile_stock(
     for enduse in all_enduses['ss_all_enduses']:
 
         # Skip temperature dependent end uses (regional) because load profile in regional load profile stock
-        if enduse in assumptions['enduse_space_heating'] or enduse in assumptions['enduse_space_cooling']:
+        if enduse in assumptions['enduse_space_heating'] or enduse in assumptions['ss_enduse_space_cooling']:
             pass
         else:
             # Get technologies with assigned fuel shares
