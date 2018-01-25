@@ -4,6 +4,10 @@ Energy Demand Model
 Contains the function `energy_demand_model` which is used
 to run the energy demand model
 
+Tools 
+------
+Profiling: https://jiffyclub.github.io/snakeviz/
+
 Development checklist:
 https://nismod.github.io/docs/development-checklist.html
 https://nismod.github.io/docs/

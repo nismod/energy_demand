@@ -245,10 +245,30 @@ def write_lf(path_result_folder, path_new_folder, parameters, model_results, fil
 
     pass
 
-def write_supply_results(sim_yr, path_new_folder, path_result, model_results, file_name):
-    """Store yearly model resul to txt TODO
-    Store numpy array to txt
-    Fueltype : Regions : Fuel
+def write_supply_results(
+        sim_yr,
+        path_new_folder,
+        path_result,
+        model_results,
+        file_name
+    ):
+    """Write model results to text as follows:
+
+        name of file: name_year_fueltype  
+        array in file:  np.array(region, timesteps)
+
+    Arguments
+    ---------
+    sim_yr : int
+        Simulation year
+    path_new_folder : str
+        Path
+    path_result : str
+        Paths
+    model_results : array
+        Results to store to txt
+    file_name : str
+        File name
     """
     # Create folder and subolder
     path_result_sub_folder = os.path.join(path_result, path_new_folder)
@@ -258,10 +278,13 @@ def write_supply_results(sim_yr, path_new_folder, path_result, model_results, fi
     for fueltype_nr, fuel in enumerate(model_results):
         path_file = os.path.join(
             path_result_sub_folder, #path_result,
-            "{}__{}__{}__{}".format(file_name, sim_yr, fueltype_nr, ".txt"))
-        np.savetxt(path_file, fuel, delimiter=',')
+            "{}__{}__{}__{}".format(
+                file_name,
+                sim_yr,
+                fueltype_nr,
+                ".txt"))
 
-    pass
+        np.savetxt(path_file, fuel, delimiter=',')
 
 def write_enduse_specific(sim_yr, path_result, model_results, filename):
     """Write out enduse specific results for every hour

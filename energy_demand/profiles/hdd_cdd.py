@@ -251,10 +251,16 @@ def sigm_temp(
 
     Arguments
     ----------
-    sim_param : dict
-        Base simulation assumptions
-    assumptions : dict
-        Dictionary with assumptions
+    t_future_yr : int
+        Future year
+    t_base_yr : float
+        Base year base temperature
+    base_yr : int
+        Base year
+    curr_yr : int
+        Current year
+    sig_midpoint, sig_steeppness, yr_until_changed : float
+        Sigmoid diffusion parameters
 
     Return
     ------
@@ -340,6 +346,8 @@ def calc_reg_cdd(temperatures, t_base_cooling, model_yeardays):
         Temperatures
     t_base_cooling : array
         Base temperature cooling
+    model_yeardays : list
+        Modelled yeardays
 
     Return
     ------

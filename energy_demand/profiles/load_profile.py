@@ -140,9 +140,9 @@ class LoadProfileStock(object):
         if sector == 'dummy_sector':
             return load_profile_obj.shape_peak_dh
         else:
-            #return load_profile_obj.shape_peak_dh[enduse][sector]['shape_peak_dh'] #Do NOT REMOVE SHARK SHARK TODO TODO
+            #return load_profile_obj.shape_peak_dh[enduse][sector]['shape_peak_dh']
             if isinstance(load_profile_obj.shape_peak_dh, dict):
-                return load_profile_obj.shape_peak_dh[enduse][sector]['shape_peak_dh'] #Do NOT REMOVE SHARK SHARK
+                return load_profile_obj.shape_peak_dh[enduse][sector]['shape_peak_dh']
             else:
                 return load_profile_obj.shape_peak_dh
 
