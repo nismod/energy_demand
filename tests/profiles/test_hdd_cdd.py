@@ -72,12 +72,12 @@ def test_sigm_temp():
     yr_until_changed = 2020
 
     end_yr_t_base = 13
-    rs_t_base_heating_base_yr = 15
+    rs_t_heating_by = 15
     rs_t_base_heating_future_yr = end_yr_t_base
 
     result = hdd_cdd.sigm_temp(
         rs_t_base_heating_future_yr,
-        rs_t_base_heating_base_yr,
+        rs_t_heating_by,
         2015,
         2020,
         sig_midpoint,

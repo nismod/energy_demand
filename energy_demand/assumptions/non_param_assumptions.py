@@ -166,11 +166,14 @@ def load_non_param_assump(
     # Base temperature related base year assumptions
     # ============================================================
     assumptions['t_bases'] = {}
-    assumptions['t_bases']['rs_t_base_heating_base_yr'] = 15.5 #15.5 #.5
-    assumptions['t_bases']['ss_t_base_heating_base_yr'] = 15.5 #.5
-    assumptions['t_bases']['is_t_base_heating_base_yr'] = 15.5 #.5
-    assumptions['t_bases']['rs_t_base_cooling_base_yr'] = 0
-    assumptions['t_bases']['ss_t_base_cooling_base_yr'] = 12 #-20 #WEATER CORRECTION 12
+    assumptions['t_bases']['rs_t_heating_by'] = 15.5 #15.5 #.5
+    assumptions['t_bases']['rs_t_cooling_by'] = 0
+
+    assumptions['t_bases']['ss_t_heating_by'] = 15.5 #.5
+    assumptions['t_bases']['ss_t_cooling_by'] = 12 #-20 #WEATER CORRECTION 12
+
+    assumptions['t_bases']['is_t_heating_by'] = 15.5 #.5
+    #assumptions['t_bases']['is_t_cooling_by'] = Not implemented
 
     # ============================================================
     # Enduse technology definition lists

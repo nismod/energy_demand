@@ -52,174 +52,176 @@ class WeatherRegion(object):
             name,
             base_yr,
             curr_yr,
+            strategy_variables,
+            t_bases,
+            t_diff_param,
+            tech_lists,
+            technologies,
             assumptions,
             fueltypes,
+            model_yeardays_nrs,
             model_yeardays,
+            yeardays_month_days,
             all_enduses,
             temp_by,
             tech_lp,
-            sectors
+            sectors,
         ):
         """Constructor of weather region
         """
         self.name = name
 
-        # -------
+        # -----------------------------------
         # Calculate current year temperatures
-        # -------
+        # -----------------------------------
         temp_cy = change_temp_climate(
-            temp_by,
-            assumptions['yeardays_month_days'],
-            assumptions['strategy_variables'],
-            base_yr,
-            curr_yr,
-            assumptions['strategy_variables']['climate_change_temp_diff_yr_until_changed'])
+            temp_by, yeardays_month_days, strategy_variables, base_yr, curr_yr,
+            strategy_variables['climate_change_temp_diff_yr_until_changed'])
 
-        # Change temp_cy depending on climate assumptions
+        # Change base temperatures depending on climate changes
         rs_t_base_heating_cy = hdd_cdd.sigm_temp(
-            assumptions['strategy_variables']['rs_t_base_heating_future_yr'],
-            assumptions['t_bases']['rs_t_base_heating_base_yr'],
+            strategy_variables['rs_t_base_heating_future_yr'],
+            t_bases['rs_t_heating_by'],
             base_yr,
             curr_yr,
-            assumptions['base_temp_diff_params']['sig_midpoint'],
-            assumptions['base_temp_diff_params']['sig_steeppness'],
-            assumptions['base_temp_diff_params']['yr_until_changed'])
+            t_diff_param['sig_midpoint'],
+            t_diff_param['sig_steeppness'],
+            t_diff_param['yr_until_changed'])
         rs_t_base_cooling_cy = hdd_cdd.sigm_temp(
-            assumptions['strategy_variables']['rs_t_base_cooling_future_yr'],
-            assumptions['t_bases']['rs_t_base_cooling_base_yr'],
-            base_yr,
-            curr_yr,
-            assumptions['base_temp_diff_params']['sig_midpoint'],
-            assumptions['base_temp_diff_params']['sig_steeppness'],
-            assumptions['base_temp_diff_params']['yr_until_changed'])
+            strategy_variables['rs_t_base_cooling_future_yr'],
+            t_bases['rs_t_cooling_by'], base_yr, curr_yr,
+            t_diff_param['sig_midpoint'],
+            t_diff_param['sig_steeppness'],
+            t_diff_param['yr_until_changed'])
         rs_t_base_heating_by = hdd_cdd.sigm_temp(
-            assumptions['strategy_variables']['rs_t_base_heating_future_yr'],
-            assumptions['t_bases']['rs_t_base_heating_base_yr'],
+            strategy_variables['rs_t_base_heating_future_yr'],
+            t_bases['rs_t_heating_by'],
             base_yr,
             curr_yr,
-            assumptions['base_temp_diff_params']['sig_midpoint'],
-            assumptions['base_temp_diff_params']['sig_steeppness'],
-            assumptions['base_temp_diff_params']['yr_until_changed'])
+            t_diff_param['sig_midpoint'],
+            t_diff_param['sig_steeppness'],
+            t_diff_param['yr_until_changed'])
         rs_t_base_cooling_by = hdd_cdd.sigm_temp(
-            assumptions['strategy_variables']['rs_t_base_cooling_future_yr'],
-            assumptions['t_bases']['rs_t_base_cooling_base_yr'],
+            strategy_variables['rs_t_base_cooling_future_yr'],
+            t_bases['rs_t_cooling_by'],
             base_yr,
             curr_yr,
-            assumptions['base_temp_diff_params']['sig_midpoint'],
-            assumptions['base_temp_diff_params']['sig_steeppness'],
-            assumptions['base_temp_diff_params']['yr_until_changed'])
+            t_diff_param['sig_midpoint'],
+            t_diff_param['sig_steeppness'],
+            t_diff_param['yr_until_changed'])
         ss_t_base_heating_cy = hdd_cdd.sigm_temp(
-            assumptions['strategy_variables']['ss_t_base_heating_future_yr'],
-            assumptions['t_bases']['ss_t_base_heating_base_yr'],
+            strategy_variables['ss_t_base_heating_future_yr'],
+            t_bases['ss_t_heating_by'],
             base_yr,
             curr_yr,
-            assumptions['base_temp_diff_params']['sig_midpoint'],
-            assumptions['base_temp_diff_params']['sig_steeppness'],
-            assumptions['base_temp_diff_params']['yr_until_changed'])
+            t_diff_param['sig_midpoint'],
+            t_diff_param['sig_steeppness'],
+            t_diff_param['yr_until_changed'])
         ss_t_base_cooling_cy = hdd_cdd.sigm_temp(
-            assumptions['strategy_variables']['ss_t_base_cooling_future_yr'],
-            assumptions['t_bases']['ss_t_base_cooling_base_yr'],
+            strategy_variables['ss_t_base_cooling_future_yr'],
+            t_bases['ss_t_cooling_by'],
             base_yr,
             curr_yr,
-            assumptions['base_temp_diff_params']['sig_midpoint'],
-            assumptions['base_temp_diff_params']['sig_steeppness'],
-            assumptions['base_temp_diff_params']['yr_until_changed'])
+            t_diff_param['sig_midpoint'],
+            t_diff_param['sig_steeppness'],
+            t_diff_param['yr_until_changed'])
         ss_t_base_heating_by = hdd_cdd.sigm_temp(
-            assumptions['strategy_variables']['ss_t_base_heating_future_yr'],
-            assumptions['t_bases']['ss_t_base_heating_base_yr'],
+            strategy_variables['ss_t_base_heating_future_yr'],
+            t_bases['ss_t_heating_by'],
             base_yr,
             curr_yr,
-            assumptions['base_temp_diff_params']['sig_midpoint'],
-            assumptions['base_temp_diff_params']['sig_steeppness'],
-            assumptions['base_temp_diff_params']['yr_until_changed'])
+            t_diff_param['sig_midpoint'],
+            t_diff_param['sig_steeppness'],
+            t_diff_param['yr_until_changed'])
         ss_t_base_cooling_by = hdd_cdd.sigm_temp(
-            assumptions['strategy_variables']['ss_t_base_cooling_future_yr'],
-            assumptions['t_bases']['ss_t_base_cooling_base_yr'],
+            strategy_variables['ss_t_base_cooling_future_yr'],
+            t_bases['ss_t_cooling_by'],
             base_yr,
             curr_yr,
-            assumptions['base_temp_diff_params']['sig_midpoint'],
-            assumptions['base_temp_diff_params']['sig_steeppness'],
-            assumptions['base_temp_diff_params']['yr_until_changed'])
+            t_diff_param['sig_midpoint'],
+            t_diff_param['sig_steeppness'],
+            t_diff_param['yr_until_changed'])
         '''is_t_base_cooling_by = hdd_cdd.sigm_temp(
-            assumptions['strategy_variables']['rs_t_base_cooling_future_yr'],
-            assumptions['t_bases']['rs_t_base_cooling_base_yr'],
+            strategy_variables['rs_t_base_cooling_future_yr'],
+            t_bases['rs_t_cooling_by'],
             base_yr,
             curr_yr,
-            assumptions['base_temp_diff_params']['sig_midpoint'],
-            assumptions['base_temp_diff_params']['sig_steeppness'],
-            assumptions['base_temp_diff_params']['yr_until_changed'])'''
+            t_diff_param['sig_midpoint'],
+            t_diff_param['sig_steeppness'],
+            t_diff_param['yr_until_changed'])'''
         is_t_base_heating_cy = hdd_cdd.sigm_temp(
-            assumptions['strategy_variables']['is_t_base_heating_future_yr'],
-            assumptions['t_bases']['is_t_base_heating_base_yr'],
+            strategy_variables['is_t_base_heating_future_yr'],
+            t_bases['is_t_heating_by'],
             base_yr,
             curr_yr,
-            assumptions['base_temp_diff_params']['sig_midpoint'],
-            assumptions['base_temp_diff_params']['sig_steeppness'],
-            assumptions['base_temp_diff_params']['yr_until_changed'])
-        # -------------------
-        # Technology stock
-        # -------------------
-        self.is_tech_stock = technological_stock.TechStock(
-            'is_tech_stock',
-            assumptions['technologies'],
-            assumptions['tech_list'],
-            assumptions['enduse_overall_change']['other_enduse_mode_info'],
-            base_yr,
-            curr_yr,
-            fueltypes,
-            temp_by,
-            temp_cy,
-            assumptions['t_bases']['ss_t_base_heating_base_yr'],
-            all_enduses['is_all_enduses'],
-            ss_t_base_heating_cy,
-            assumptions['is_specified_tech_enduse_by'])
+            t_diff_param['sig_midpoint'],
+            t_diff_param['sig_steeppness'],
+            t_diff_param['yr_until_changed'])
 
+        # -------------------
+        # Create technology stocks
+        # -------------------
         self.rs_tech_stock = technological_stock.TechStock(
             'rs_tech_stock',
-            assumptions['technologies'],
-            assumptions['tech_list'],
+            technologies,
+            tech_lists,
             assumptions['enduse_overall_change']['other_enduse_mode_info'],
             base_yr,
             curr_yr,
             fueltypes,
             temp_by,
             temp_cy,
-            assumptions['t_bases']['rs_t_base_heating_base_yr'],
+            t_bases['rs_t_heating_by'],
             all_enduses['rs_all_enduses'],
             rs_t_base_heating_cy,
             assumptions['rs_specified_tech_enduse_by'])
 
         self.ss_tech_stock = technological_stock.TechStock(
             'ss_tech_stock',
-            assumptions['technologies'],
-            assumptions['tech_list'],
+            technologies,
+            tech_lists,
             assumptions['enduse_overall_change']['other_enduse_mode_info'],
             base_yr,
             curr_yr,
             fueltypes,
             temp_by,
             temp_cy,
-            assumptions['t_bases']['ss_t_base_heating_base_yr'],
+            t_bases['ss_t_heating_by'],
             all_enduses['ss_all_enduses'],
             ss_t_base_heating_cy,
             assumptions['ss_specified_tech_enduse_by'])
+
+        self.is_tech_stock = technological_stock.TechStock(
+            'is_tech_stock',
+            technologies,
+            tech_lists,
+            assumptions['enduse_overall_change']['other_enduse_mode_info'],
+            base_yr,
+            curr_yr,
+            fueltypes,
+            temp_by,
+            temp_cy,
+            t_bases['is_t_heating_by'],
+            all_enduses['is_all_enduses'],
+            ss_t_base_heating_cy,
+            assumptions['is_specified_tech_enduse_by'])
 
         # -------------------
         # Residential Load profiles
         # ------------------
         self.rs_load_profiles = load_profile.LoadProfileStock("rs_load_profiles")
 
-        # --------HDD/CDD
+        # --------Calculate HDD/CDD
         self.rs_hdd_by, _ = hdd_cdd.calc_reg_hdd(
             temp_by, rs_t_base_heating_by, model_yeardays)
         self.rs_cdd_by, _ = hdd_cdd.calc_reg_cdd(
             temp_by, rs_t_base_cooling_by, model_yeardays)
         self.rs_hdd_cy, rs_fuel_shape_heating_yd = hdd_cdd.calc_reg_hdd(
             temp_cy, rs_t_base_heating_cy, model_yeardays)
-        self.rs_cdd_cy, RS_FUEL_SHAPE_COOLING_YD = hdd_cdd.calc_reg_cdd(
+        self.rs_cdd_cy, rs_fuel_shape_cooling_yd = hdd_cdd.calc_reg_cdd(
             temp_cy, rs_t_base_cooling_cy, model_yeardays)
 
-        # Climate change correction factors
+        # -------Calculate climate change correction factors
         try:
             self.rs_heating_factor_y = np.nan_to_num(
                 1.0 / float(np.sum(self.rs_hdd_by))) * np.sum(self.rs_hdd_cy)
@@ -230,19 +232,32 @@ class WeatherRegion(object):
             self.rs_cooling_factor_y = 1
 
         # yd peak factors for heating and cooling
-        # (Needss full year necessary of temp data to calc peak days)
         rs_peak_yd_heating_factor = get_shape_peak_yd_factor(self.rs_hdd_cy)
-        #rs_peak_yd_cooling_factor = get_shape_peak_yd_factor(rs_cdd_cy)
 
-        # Cooling residential data['rs_shapes_cooling_dh']
-        #rs_fuel_shape_cooling_yh = self.get_shape_cooling_yh(
-        # data, rs_fuel_shape_cooling_yd, 'rs_shapes_cooling_dh')
+        '''
+        # RESIDENITAL COOLING
+        #rs_peak_yd_cooling_factor = get_shape_peak_yd_factor(self.rs_cdd_cy)
 
-        # ------Heating boiler
-        rs_profile_boilers_y_dh = rs_fuel_shape_heating_yd[:, np.newaxis] * tech_lp['rs_profile_boilers_y_dh'][[model_yeardays]]
+        # ----Cooling residential
+        #rs_fuel_shape_cooling_yh = calc_yh(
+        #    rs_fuel_shape_cooling_yd, tech_lp['rs_shapes_cooling_dh'], model_yeardays)
+        rs_fuel_shape_cooling_yh = self.get_shape_cooling_yh(data, rs_fuel_shape_cooling_yd, 'rs_shapes_cooling_dh') #TODO NOT NECESSARY
         self.rs_load_profiles.add_lp(
             unique_identifier=uuid.uuid4(),
-            technologies=assumptions['tech_list']['tech_heating_const'],
+            technologies=tech_lists['COOLING TECH'],
+            enduses=['rs_cooling'],
+            shape_yd=rs_fuel_shape_cooling_yd,
+            shape_yh=rs_fuel_shape_cooling_yh,
+            enduse_peak_yd_factor=rs_peak_yd_cooling_factor,
+            shape_peak_dh=tech_lp['rs_shapes_cooling_dh']['peakday'])
+        '''
+
+        # ------Heating boiler
+        rs_profile_boilers_y_dh = calc_yh(
+            rs_fuel_shape_heating_yd, tech_lp['rs_profile_boilers_y_dh'], model_yeardays)
+        self.rs_load_profiles.add_lp(
+            unique_identifier=uuid.uuid4(),
+            technologies=tech_lists['tech_heating_const'],
             enduses=['rs_space_heating', 'rs_water_heating'],
             shape_yd=rs_fuel_shape_heating_yd,
             shape_yh=rs_profile_boilers_y_dh,
@@ -250,11 +265,12 @@ class WeatherRegion(object):
             shape_peak_dh=tech_lp['rs_lp_heating_boilers_dh']['peakday'])
 
         # ------Heating CHP
-        rs_profile_chp_y_dh = rs_fuel_shape_heating_yd[:, np.newaxis] * tech_lp['rs_profile_chp_y_dh'][[model_yeardays]]
+        rs_profile_chp_y_dh = calc_yh(
+            rs_fuel_shape_heating_yd, tech_lp['rs_profile_chp_y_dh'], model_yeardays)
 
         self.rs_load_profiles.add_lp(
             unique_identifier=uuid.uuid4(),
-            technologies= assumptions['tech_list']['tech_CHP'],
+            technologies= tech_lists['tech_CHP'],
             enduses=['rs_space_heating', 'rs_water_heating'],
             shape_yd=rs_fuel_shape_heating_yd,
             shape_yh=rs_profile_chp_y_dh,
@@ -262,24 +278,24 @@ class WeatherRegion(object):
             shape_peak_dh=tech_lp['rs_lp_heating_CHP_dh']['peakday'])
 
         # ------Electric heating, storage heating (primary)
-        rs_profile_storage_heater_y_dh = rs_fuel_shape_heating_yd[:, np.newaxis] * tech_lp['rs_profile_storage_heater_y_dh'][[model_yeardays]]
-
+        rs_profile_storage_heater_y_dh = calc_yh(
+            rs_fuel_shape_heating_yd, tech_lp['rs_profile_storage_heater_y_dh'], model_yeardays)
         self.rs_load_profiles.add_lp(
             unique_identifier=uuid.uuid4(),
-            technologies=assumptions['tech_list']['storage_heating_electricity'],
-            enduses=['rs_space_heating'],
+            technologies=tech_lists['storage_heating_electricity'],
+            enduses=['rs_space_heating', 'rs_water_heating'],
             shape_yd=rs_fuel_shape_heating_yd,
             shape_yh=rs_profile_storage_heater_y_dh,
             enduse_peak_yd_factor=rs_peak_yd_heating_factor,
             shape_peak_dh=tech_lp['rs_lp_storage_heating_dh']['peakday'])
 
         # ------Electric heating secondary (direct elec heating)
-        rs_profile_elec_heater_y_dh = rs_fuel_shape_heating_yd[:, np.newaxis] * tech_lp['rs_profile_elec_heater_y_dh'][[model_yeardays]]
-
+        rs_profile_elec_heater_y_dh = calc_yh(
+            rs_fuel_shape_heating_yd, tech_lp['rs_profile_elec_heater_y_dh'], model_yeardays)
         self.rs_load_profiles.add_lp(
             unique_identifier=uuid.uuid4(),
-            technologies=assumptions['tech_list']['secondary_heating_electricity'],
-            enduses=['rs_space_heating'], #, 'rs_water_heating'], #TODO
+            technologies=tech_lists['secondary_heating_electricity'],
+            enduses=['rs_space_heating', 'rs_water_heating'],
             shape_yd=rs_fuel_shape_heating_yd,
             shape_yh=rs_profile_elec_heater_y_dh,
             enduse_peak_yd_factor=rs_peak_yd_heating_factor,
@@ -294,21 +310,23 @@ class WeatherRegion(object):
 
         self.rs_load_profiles.add_lp(
             unique_identifier=uuid.uuid4(),
-            technologies=assumptions['tech_list']['tech_heating_temp_dep'],
+            technologies=tech_lists['tech_heating_temp_dep'],
             enduses=['rs_space_heating', 'rs_water_heating'],
             shape_yd=rs_fuel_shape_heating_yd,
             shape_yh=rs_fuel_shape_hp_yh,
             enduse_peak_yd_factor=rs_peak_yd_heating_factor,
-            shape_peak_dh=tech_lp['rs_lp_heating_hp_dh']['peakday'])
+            shape_peak_dh=tech_lp['rs_lp_heating_CHP_dh']['peakday'])
 
-        # ------district_heating_electricity --> Assumption made that same curve as boilers
-        rs_profile_boilers_y_dh = rs_fuel_shape_heating_yd[:, np.newaxis] * tech_lp['rs_profile_boilers_y_dh'][[model_yeardays]]
+        # ------District_heating_electricity --> Assumption made that same curve as CHP
+        rs_profile_chp_y_dh = calc_yh(
+            rs_fuel_shape_heating_yd, tech_lp['rs_profile_chp_y_dh'], model_yeardays)
+
         self.rs_load_profiles.add_lp(
             unique_identifier=uuid.uuid4(),
-            technologies=assumptions['tech_list']['tech_district_heating'],
+            technologies=tech_lists['tech_district_heating'],
             enduses=['rs_space_heating', 'rs_water_heating'],
             shape_yd=rs_fuel_shape_heating_yd,
-            shape_yh=rs_profile_boilers_y_dh,
+            shape_yh=rs_profile_chp_y_dh,
             enduse_peak_yd_factor=rs_peak_yd_heating_factor,
             shape_peak_dh=tech_lp['rs_lp_heating_boilers_dh']['peakday'])
 
@@ -320,16 +338,14 @@ class WeatherRegion(object):
         # --------HDD/CDD
         ss_hdd_by, _ = hdd_cdd.calc_reg_hdd(
             temp_by, ss_t_base_heating_by, model_yeardays)
-        ss_cdd_by, _ = hdd_cdd.calc_reg_cdd(
-            temp_by, ss_t_base_cooling_by, model_yeardays)
-
         ss_hdd_cy, ss_fuel_shape_heating_yd = hdd_cdd.calc_reg_hdd(
             temp_cy, ss_t_base_heating_cy, model_yeardays)
 
-        ss_cdd_cy, SS_FUEL_SHAPE_COOLING_YD = hdd_cdd.calc_reg_cdd(
+        ss_cdd_by, _ = hdd_cdd.calc_reg_cdd(
+            temp_by, ss_t_base_cooling_by, model_yeardays)
+        ss_cdd_cy, ss_fuel_shape_coolin_yd = hdd_cdd.calc_reg_cdd(
             temp_cy, ss_t_base_cooling_cy, model_yeardays)
 
-        # Create load profile
         try:
             self.ss_heating_factor_y = np.nan_to_num(
                 1.0 / float(np.sum(ss_hdd_by))) * np.sum(ss_hdd_cy)
@@ -340,31 +356,31 @@ class WeatherRegion(object):
             self.ss_cooling_factor_y = 1
 
         ss_peak_yd_heating_factor = get_shape_peak_yd_factor(ss_hdd_cy)
-        #ss_peak_yd_cooling_factor = get_shape_peak_yd_factor(ss_cdd_cy)
+        ss_peak_yd_cooling_factor = get_shape_peak_yd_factor(ss_cdd_cy)
 
         # --Heating technologies for service sector
-        # 
+        #
         # (the heating shape follows the gas shape of aggregated sectors)
         # meaning that for all technologies, the load profile is the same
         ss_fuel_shape_any_tech, ss_fuel_shape = ss_get_sector_enduse_shape(
             tech_lp['ss_all_tech_shapes_dh'],
             ss_fuel_shape_heating_yd,
             'ss_space_heating',
-            assumptions['model_yeardays_nrs'])
+            model_yeardays_nrs)
 
         # Flatten list of all potential technologies
-        ss_space_heating_tech_lists = list(assumptions['tech_list'].values())
+        ss_space_heating_tech_lists = list(tech_lists.values())
         all_techs_ss_space_heating = [item for sublist in ss_space_heating_tech_lists for item in sublist]
 
         # ----------------
-        # #TODO: TEST TEST NEW Get peak day and calculage peak load profile for peak day
+        # Get peak day and calculate peak load profile for peak day
         # ---------------- 
         peak_day = get_peak_day_single_fueltype(ss_fuel_shape)
         ss_space_heating_shape_peak_dh = lp.abs_to_rel(ss_fuel_shape[peak_day])
 
         self.ss_load_profiles.add_lp(
             unique_identifier=uuid.uuid4(),
-            technologies=all_techs_ss_space_heating, #all techs
+            technologies=all_techs_ss_space_heating,
             enduses=['ss_space_heating'],
             sectors=sectors['ss_sectors'],
             shape_yd=ss_fuel_shape_heating_yd,
@@ -375,39 +391,28 @@ class WeatherRegion(object):
         #------
         # Add cooling technologies for service sector
         #------
-        '''# Cooling service tech_lp 
-        ss_fuel_shape_cooling_yh = get_shape_cooling_yh(
-            tech_lp['ss_shapes_cooling_dh'], SS_FUEL_SHAPE_COOLING_YD)
-
-        # Technolgoy specific load profile
-        self.ss_load_profiles.add_lp(
-            unique_identifier=uuid.uuid4(),
-            technologies=assumptions['tech_list']['tech_cooling_const'],
-            enduses=assumptions['enduse_space_cooling'],
-            sectors=sectors['ss_sectors'],
-            shape_yd=SS_FUEL_SHAPE_COOLING_YD,
-            shape_yh=ss_fuel_shape_cooling_yh,
-            enduse_peak_yd_factor=ss_peak_yd_heating_factor,
-            shape_peak_dh=tech_lp['ss_shapes_cooling_dh'])
-            #tech_lp_yh = tech_lp['ss_shapes_dh'][shape_enduse][sector]['shape_non_peak_y_dh'] * tech_lp_yd[:, np.newaxis]
-        '''
-        coolings_techs = assumptions['tech_list']['tech_cooling_const']
+        coolings_techs = tech_lists['tech_cooling_const']
         coolings_techs.append('dummy_tech')
 
         for cooling_enduse in assumptions['enduse_space_cooling']:
             for sector in sectors['ss_sectors']:
+                # Ev auch tech_lp['ss_shapes_cooling_dh'],
+                ss_shape_yh = calc_yh(
+                    ss_fuel_shape_coolin_yd, tech_lp['ss_shapes_dh'][cooling_enduse][sector]['shape_non_peak_y_dh'], model_yeardays)
+                #tech_lp['ss_shapes_dh'][cooling_enduse][sector]['shape_non_peak_y_dh'] * ss_fuel_shape_coolin_yd[:, np.newaxis],
+
                 self.ss_load_profiles.add_lp(
                     unique_identifier=uuid.uuid4(),
                     technologies=coolings_techs,
                     enduses=[cooling_enduse],
                     sectors=[sector],
-                    shape_yd=SS_FUEL_SHAPE_COOLING_YD,
-                    shape_yh=tech_lp['ss_shapes_dh'][cooling_enduse][sector]['shape_non_peak_y_dh'] * SS_FUEL_SHAPE_COOLING_YD[:, np.newaxis],
-                    enduse_peak_yd_factor=ss_peak_yd_heating_factor,
+                    shape_yd=ss_fuel_shape_coolin_yd,
+                    shape_yh=ss_shape_yh,
+                    enduse_peak_yd_factor=ss_peak_yd_cooling_factor,
                     shape_peak_dh=tech_lp['ss_shapes_cooling_dh']) #TODO
 
         #---- rs_cold () NEW ADD COOLING FOR RESIDENTIAL SECTOR
-        rs_cold_techs = assumptions['tech_list']['rs_cold']
+        rs_cold_techs = tech_lists['rs_cold']
         rs_cold_techs.append('dummy_tech')
 
         for cooling_enduse in assumptions['enduse_rs_space_cooling']:
@@ -416,8 +421,8 @@ class WeatherRegion(object):
                 technologies=rs_cold_techs,
                 enduses=[cooling_enduse],
                 sectors=['dummy_sector'],
-                shape_yd=RS_FUEL_SHAPE_COOLING_YD,
-                shape_yh=tech_lp['rs_shapes_dh'][cooling_enduse]['shape_non_peak_y_dh'] * SS_FUEL_SHAPE_COOLING_YD[:, np.newaxis],
+                shape_yd=rs_fuel_shape_cooling_yd,
+                shape_yh=tech_lp['rs_shapes_dh'][cooling_enduse]['shape_non_peak_y_dh'] * ss_fuel_shape_coolin_yd[:, np.newaxis],
                 enduse_peak_yd_factor=ss_peak_yd_heating_factor,
                 shape_peak_dh=tech_lp['ss_shapes_cooling_dh']) #TODO
 
@@ -453,31 +458,30 @@ class WeatherRegion(object):
         # the gas shape of aggregated sectors)
 
         # Flatten list of all potential heating technologies
-        is_space_heating_tech_lists = list(assumptions['tech_list'].values())
+        is_space_heating_tech_lists = list(tech_lists.values())
         all_techs_is_space_heating = [item for sublist in is_space_heating_tech_lists for item in sublist]
 
         #Take from service sector
         is_fuel_shape_any_tech, _ = ss_get_sector_enduse_shape(
             tech_lp['ss_all_tech_shapes_dh'],
             is_fuel_shape_heating_yd,
-            'ss_space_heating', 
+            'ss_space_heating',
             assumptions['model_yeardays_nrs'])
-        
         #Flat profile
         #shape_peak_dh, _, shape_peak_yd_factor, shape_non_peak_yd, shape_non_peak_yh = generic_shapes.flat_shape(
         #    assumptions['model_yeardays_nrs']) #TODO WRITE FUNCITON TO GET FLAT PROFILE
         flat_is_fuel_shape_any_tech = np.full((assumptions['model_yeardays_nrs'], 24), (1.0/24.0), dtype=float)
         flat_is_fuel_shape_any_tech = flat_is_fuel_shape_any_tech * is_fuel_shape_heating_yd[:, np.newaxis]
-        #plotting_results.plot_lp_yh(flat_is_fuel_shape_any_tech)
-        
         self.is_load_profiles.add_lp(
             unique_identifier=uuid.uuid4(),
             technologies=all_techs_is_space_heating,
             enduses=['is_space_heating'],
             sectors=sectors['is_sectors'],
             shape_yd=is_fuel_shape_heating_yd,
-            shape_yh=flat_is_fuel_shape_any_tech, #is_fuel_shape_any_tech,
+            shape_yh=is_fuel_shape_any_tech, #flat_is_fuel_shape_any_tech,
             enduse_peak_yd_factor=is_peak_yd_heating_factor)
+        
+        ##plotting_results.plot_lp_yh(flat_is_fuel_shape_any_tech)
 
 def get_shape_peak_yd_factor(demand_yd):
     """From yd shape calculate maximum relative yearly service demand
@@ -681,3 +685,24 @@ def change_temp_climate(
         temp_climate_change[month_yeardays] = temp_data[month_yeardays] + lin_diff_factor
 
     return temp_climate_change
+
+def calc_yh(shape_yd, shape_y_dh, model_yeardays):
+    """Calculate the shape based on yh and y_dh shape
+
+    Inputs
+    -------
+    shape_yd : array
+        Shape with fuel amount for every day (365)
+    shape_y_dh : array
+        Shape for every day (365, 24), total sum = 365
+    model_yeardays : array
+        Modelled yeardays
+
+    Returns
+    -------
+    shape_yh : array
+        Shape for every hour in a year (total sum == 1)
+    """
+    shape_yh = shape_yd[:, np.newaxis] * shape_y_dh[[model_yeardays]]
+    
+    return shape_yh

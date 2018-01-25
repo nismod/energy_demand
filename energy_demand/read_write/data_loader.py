@@ -351,11 +351,11 @@ def load_paths(path):
 
         # Paths to fuel raw data
         'rs_fuel_raw_data_enduses': os.path.join(
-            path, 'config_data', 'submodel_residential', 'rs_fuel_data.csv'),
+            path, 'config_data', 'submodel_residential', 'rs_fuel.csv'),
         'ss_fuel_raw_data_enduses': os.path.join(
-            path, 'config_data', 'submodel_service', 'data_service_by_fuel_end_uses.csv'),
+            path, 'config_data', 'submodel_service', 'ss_fuel.csv'),
         'is_fuel_raw_data_enduses': os.path.join(
-            path, 'config_data', 'submodel_industry', 'data_industry_by_fuel_end_uses.csv'),
+            path, 'config_data', 'submodel_industry', 'is_fuel.csv'),
 
         # Technologies load shapes
         'lp_elec_hp_dh': os.path.join(

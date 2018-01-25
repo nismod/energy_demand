@@ -40,8 +40,6 @@ def assign_by_fuel_tech_p(assumptions, enduses, fueltypes, fueltypes_nr):
         'hydrogen': 5,
         'heat': 6
     """
-
-    # Initialisations
     assumptions['rs_fuel_tech_p_by'] = helpers.init_fuel_tech_p_by(
         enduses['rs_all_enduses'], fueltypes_nr)
     assumptions['ss_fuel_tech_p_by'] = helpers.init_fuel_tech_p_by(
@@ -100,52 +98,32 @@ def assign_by_fuel_tech_p(assumptions, enduses, fueltypes, fueltypes_nr):
     # ---------------
     # rs_space_heating
     #
-    # Electricity:
-    # According to OFEM, for GB there are about 2.3 mio electrically heated households
-    # More specifically, they are made out of:
+    # According to the DCLG (2014) English Housing Survey. Energy Report. doi: 10.1017/CBO9781107415324.004.
+    # Annex Table 3.1, the following number of electric heating technologies
+    # can be found in the UK:
     #
-    #       storage heaters:
-    #           1.7m households --> 73.9%  ((100/2.3) * 1.7
+    # storage heaters             5.5   % of all houses
+    # electric room heaters	      2.0   % of all houses
+    # electric central heating	 0.65   % of all houses
     #
-    #           However, these are often flats and this number contains some heatpumps,
-    #           which results in lower fuel demand. Therefore in overall 70% of electriticy
-    #           is assumed for storage heaters.
-    #
-    #       secondary heating (direct-acting heating systems):
-    #           0.5m households --> 21.7% ((100/2.3) * 0.5
-    #
-    #       heat pumps
-    #           ~ 0.1m households with heat pumps --> 4.3% ((100/2.3) * 0.1
-    #
+    # As heat pumps were not accounted for, they are taken from OFGEM (2015),
+    # which states that there are about 0.1m heat pumps of about in total 27m
+    # households in the UK. This corresponds to about 0.4 %. (see also Hannon 2015).
     # According to Hannon (2015), heat pumps account only for a tiny fraction of the UK.
-    # heat supply for buildings (approximately 0.2%).
+    # heat supply for buildings (approximately 0.2%). This percentage is substract from
+    # the storage heaters.
     #
-    #  Ofgem (2015); Insights paper on households with electric and other non-gas heating,
-    #  (December), 1–84.
+    # storage heaters             5.1   % of all houses --> ~ 62%     (100.0 / 8.15) * 5.1
+    # electric room heaters	      2.0   % of all houses --> ~ 25%     (100.0 / 8.15) * 2.0
+    # electric central heating	  0.65  % of all houses --> ~ 8%     (100.0 / 8.15) * 0.65
+    # heat pumps                  0.4   % of all houses --> ~ 5%     (100.0 / 8.15) * 0.4
     #
-    #  Hannon, M. J. (2015). Raising the temperature of the UK heat pump market:
-    #  Learning lessons from Finland. Energy Policy, 85, 369–375.
-    #  https://doi.org/10.1016/j.enpol.2015.06.016
-
-    #ALTERNATIVE
-    '''According to the DCLG (2014) English Housing Survey. Energy Report. doi: 10.1017/CBO9781107415324.004.
-    Annex Table 3.1, the following number of electric heating can be described:
-
-    storage heaters             5.5   % of all houses -->
-    electric room heaters	    2.0   % of all houses -->
-    electric central heating	0.65  % of all houses -->
-
-    As heat pumps were not accounted for, they are taken from OFGEM,
-    whcih states that about 0.1 mio have heat pumps. of about in total 27mio
-    households in the uk, this is about 0.4 %. (cf Hannon). We substract ghis from the
-    storage heaters.
-
-    storage heaters             5.5   % of all houses --> ~ 64%     (100.0 / 8.55) * 5.5
-    electric room heaters	    2.0   % of all houses --> ~ 23%     (100.0 / 8.55) * 2.0
-    electric central heating	0.65  % of all houses --> ~ 8%     (100.0 / 8.55) * 0.65
-    heat pumps                  0.4   % of all houses --> ~ 5%     (100.0 / 8.55) * 0.4
-    '''
-    # 
+    # OFGEM (2015); Insights paper on households with electric and other non-gas heating,
+    # (December), 1–84.
+    #
+    # Hannon, M. J. (2015). Raising the temperature of the UK heat pump market:
+    # Learning lessons from Finland. Energy Policy, 85, 369–375.
+    # https://doi.org/10.1016/j.enpol.2015.06.016
     # ---------------
     assumptions['rs_fuel_tech_p_by']['rs_space_heating'][fueltypes['solid_fuel']] = {
         'boiler_solid_fuel': 1.0}
@@ -157,25 +135,12 @@ def assign_by_fuel_tech_p(assumptions, enduses, fueltypes, fueltypes_nr):
         'boiler_gas': 0.98,
         'stirling_micro_CHP': 0.02,
         'district_heating_gas': 0}
-    #TO NODE: boiler_electricity --> Peaky profile from samson (which is only for gas) --> Use
+
     assumptions['rs_fuel_tech_p_by']['rs_space_heating'][fueltypes['electricity']] = {
-        'storage_heater_electricity': 0.64,
-        'secondary_heater_electricity': 0.23,
-        'district_heating_electricity': 0.08,
-        'heat_pumps_electricity': 0.05,
-
-        #'storage_heater_electricity': 0.24,
-        #'secondary_heater_electricity': 0.72,
-
-        #'district_heating_electricity': 0, #TODO ADD PROFILE FOR DISTRICT HEATING
-        #'secondary_heater_electricity': 0.96
-        #'boiler_electricity': 0.96 #getter
-
-        #'heat_pumps_electricity': 0.04,
-        #'boiler_electricity':0.96
-        #'heat_pumps_electricity': 0,
-        #'boiler_electricity': 1.0
-        }
+        'storage_heater_electricity': 0.62,
+        'secondary_heater_electricity': 0.25,
+        'district_heating_electricity': 0.08, # same shape as CHP
+        'heat_pumps_electricity': 0.05}
 
     assumptions['rs_fuel_tech_p_by']['rs_space_heating'][fueltypes['biomass']] = {
         'boiler_biomass': 1.0,
@@ -200,7 +165,6 @@ def assign_by_fuel_tech_p(assumptions, enduses, fueltypes, fueltypes_nr):
 
     assumptions['rs_fuel_tech_p_by']['rs_water_heating'][fueltypes['electricity']] = {
         'boiler_electricity': 1.0}
-        #'secondary_heater_electricity': 1.0} #TODO?
 
     assumptions['rs_fuel_tech_p_by']['rs_water_heating'][fueltypes['biomass']] = {
         'boiler_biomass': 1.0}
@@ -238,16 +202,15 @@ def assign_by_fuel_tech_p(assumptions, enduses, fueltypes, fueltypes_nr):
         'heat_pumps_hydrogen': 0.0}
 
     # ------------------------------
-    # Cooling TODO Assign technologies
+    # Cooling 
+    # TODO Assign technologies
     # ------------------------------
-    #'''
     assumptions['ss_fuel_tech_p_by']['ss_cooling_humidification'][fueltypes['electricity']] = {
         'ss_cooling_tech': 1.0}
     assumptions['ss_fuel_tech_p_by']['ss_cooled_storage'][fueltypes['electricity']] = {
         'ss_cooling_tech': 1.0}
     assumptions['ss_fuel_tech_p_by']['ss_fans'][fueltypes['electricity']] = {
         'ss_cooling_tech': 1.0}
-    #'''
 
     # ===================
     # Industry subModel  - Fuel shares of technologies in enduse

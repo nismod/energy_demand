@@ -24,7 +24,7 @@ def test_rs_disaggregate():
             'sig_steeppness': 1,
             'yr_until_changed': 2020},
         'strategy_variables': {'rs_t_base_heating_future_yr': 0},
-        'rs_t_base_heating': {'rs_t_base_heating_base_yr': 0}}
+        'rs_t_base_heating': {'rs_t_heating_by': 0}}
 
     reg_coord = {
         'regA': {'longitude': 0,'latitude': 0},
@@ -97,8 +97,8 @@ def test_ss_disaggregate():
             'sig_steeppness': 1,
             'yr_until_changed': 2020},
         'strategy_variables': {'ss_t_base_heating_future_yr': 0, 'ss_t_base_cooling_future_yr': 0},
-        'ss_t_base_heating': {'ss_t_base_heating_base_yr': 0},
-        'ss_t_base_cooling': {'ss_t_base_cooling_base_yr': 0}}
+        'ss_t_base_heating': {'ss_t_heating_by': 0},
+        'ss_t_base_cooling': {'ss_t_cooling_by': 0}}
 
     reg_coord = {
         'regA': {'longitude': 0,'latitude': 0},

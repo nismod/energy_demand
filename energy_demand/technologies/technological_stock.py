@@ -164,7 +164,10 @@ def create_tech_stock(
 
     for enduse in enduses:
         for technology_name in enduse_technologies[enduse]:
-            tech_type = tech_related.get_tech_type(technology_name, tech_list)
+
+            tech_type = tech_related.get_tech_type(
+                technology_name,
+                tech_list)
 
             if tech_type == 'dummy_tech':
                 tech_obj = Technology(

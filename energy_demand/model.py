@@ -55,9 +55,16 @@ class EnergyDemandModel(object):
                 name=weather_region,
                 base_yr=data['sim_param']['base_yr'],
                 curr_yr=data['sim_param']['curr_yr'],
+                strategy_variables=data['assumptions']['strategy_variables'],
+                t_bases=data['assumptions']['t_bases'],
+                t_diff_param=data['assumptions']['base_temp_diff_params'],
+                tech_lists=data['assumptions']['tech_list'],
+                technologies=data['assumptions']['technologies'],
                 assumptions=data['assumptions'],
                 fueltypes=data['lookups']['fueltypes'],
+                model_yeardays_nrs=data['assumptions']['model_yeardays_nrs'],
                 model_yeardays=data['assumptions']['model_yeardays'],
+                yeardays_month_days=data['assumptions']['yeardays_month_days'],
                 all_enduses=data['enduses'],
                 temp_by=data['temp_data'][weather_region],
                 tech_lp=data['tech_lp'],
@@ -162,9 +169,6 @@ def simulate_region(region, data, weather_regions):
         data['reg_coord'][region]['longitude'],
         data['reg_coord'][region]['latitude'],
         data['weather_stations'])
-
-    if closest_weather_reg in [1609, 1605, 1585]:
-        prnt("eee error bad weater station")
 
     logging.warning("Closeste Weather Station of Region: " + str(closest_weather_reg))
 
