@@ -100,15 +100,6 @@ class EnergyDemandModel(object):
             reg_rs_submodel, reg_ss_submodel, reg_is_submodel = simulate_region(
                 region, data, weather_regions)
 
-            for submodel in reg_rs_submodel:
-                if submodel.enduse == 'rs_space_heating':
-                    print("----AFTER simulate")
-                    print(submodel.fuel_yh.shape)
-                    print(np.sum(submodel.fuel_yh[data['lookups']['fueltypes']['electricity']]))
-                    print(np.sum(submodel.fuel_yh[data['lookups']['fueltypes']['electricity']][20]))
-                    print(np.sum(submodel.fuel_yh[data['lookups']['fueltypes']['electricity']][20])/np.sum(submodel.fuel_yh[data['lookups']['fueltypes']['electricity']]))
-                    #prnt(".")
-
             # Store submodel results
             all_submodels = [reg_rs_submodel, reg_ss_submodel, reg_is_submodel]
 

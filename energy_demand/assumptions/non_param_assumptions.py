@@ -170,7 +170,7 @@ def load_non_param_assump(
     assumptions['is_t_base_heating'] = {}
     assumptions['rs_t_base_cooling'] = {}
     assumptions['ss_t_base_cooling'] = {}
-    assumptions['rs_t_base_heating']['rs_t_base_heating_base_yr'] = 15.5 #.5
+    assumptions['rs_t_base_heating']['rs_t_base_heating_base_yr'] = 15.5 #15.5 #.5
     assumptions['ss_t_base_heating']['ss_t_base_heating_base_yr'] = 15.5 #.5
     assumptions['is_t_base_heating']['is_t_base_heating_base_yr'] = 15.5 #.5
 

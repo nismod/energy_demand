@@ -425,7 +425,7 @@ class WeatherRegion(object):
 
         # Take same base temperature as for service sector
         is_hdd_cy, is_fuel_shape_heating_yd = hdd_cdd.calc_reg_hdd(
-            temp_cy, is_t_base_heating_cy, model_yeardays) #todois_t_base_heating_cy
+            temp_cy, is_t_base_heating_cy, model_yeardays)
         is_cdd_cy, _ = hdd_cdd.calc_reg_cdd(
             temp_cy, ss_t_base_cooling_cy, model_yeardays)
 
