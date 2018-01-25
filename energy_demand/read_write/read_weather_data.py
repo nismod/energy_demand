@@ -7,6 +7,16 @@ import numpy as np
 
 def read_weather_station_script_data(path_to_csv):
     """Read in weather stations from script data
+
+    Arguments
+    ---------
+    path_to_csv : str
+        Path
+
+    Returns
+    -------
+    temp_stations : dict
+        Weather stations with coordinates
     """
     temp_stations = defaultdict(dict)
 
@@ -31,16 +41,19 @@ def read_weather_data_script_data(path_to_csv):
     ----------
     path_to_csv : str
         Path
+
+    Returns
+    -------
+    temp_data : dict
+        Temperature yh per weater station
     """
     temp_data = {}
     all_txt_files_in_folder = os.listdir(path_to_csv)
 
-    # Iterate files
     for file_path in all_txt_files_in_folder:
         path_file_to_read = os.path.join(path_to_csv, file_path)
         file_path_split = file_path.split("__")
-        station_id = str(file_path_split[1]) #str_id
-
+        station_id = str(file_path_split[1])
         temp_data[station_id] = np.loadtxt(path_file_to_read, delimiter=',')
 
     return temp_data

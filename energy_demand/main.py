@@ -25,8 +25,9 @@ TODO: COOLING? --> Test if adding with adapted cooling function
 TODO: SENSITIVITY
 TODO: Maybe use End-use classification of Table 5.5a which includes ICT
 TODO: Accounting module for energy and emissions
-
 TODO: data loading, load multiple years for real elec data
+TODO: Load different temp --> for different years
+TODO: Assign cooling techs for ss_cooling
 """
 import os
 import sys
@@ -157,7 +158,7 @@ if __name__ == "__main__":
     data['criterias']['virtual_building_stock_criteria'] = True
     data['criterias']['spatial_exliclit_diffusion'] = False
     data['criterias']['write_to_txt'] = False
-    data['criterias']['beyond_supply_outputs'] = False
+    data['criterias']['beyond_supply_outputs'] = True
     data['criterias']['plot_tech_lp'] = True
 
     data['paths'] = data_loader.load_paths(path_main)

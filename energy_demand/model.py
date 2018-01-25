@@ -42,6 +42,7 @@ class EnergyDemandModel(object):
         # --------------
         # Create non regional dependent load profiles
         # --------------
+        #print(data['enduses'])
         data['non_regional_lp_stock'] = load_profile.create_load_profile_stock(
             data['tech_lp'], data['assumptions'], data['sectors'], data['enduses'])
 
@@ -161,6 +162,11 @@ def simulate_region(region, data, weather_regions):
         data['reg_coord'][region]['longitude'],
         data['reg_coord'][region]['latitude'],
         data['weather_stations'])
+
+    if closest_weather_reg in [1609, 1605, 1585]:
+        prnt("eee error bad weater station")
+
+    logging.warning("Closeste Weather Station of Region: " + str(closest_weather_reg))
 
     closest_weather_region = weather_regions[closest_weather_reg]
     logging.debug("Closest weather station: %s", closest_weather_reg)

@@ -3,7 +3,6 @@
 import sys
 import os
 import csv
-import json
 import logging
 from collections import defaultdict
 import numpy as np
@@ -668,17 +667,15 @@ def read_base_data_resid(path_to_csv):
 
             for cnt_fueltype, row in enumerate(lines):
                 cnt = 1 #skip first
-                for i in row[1:]:
+                for fuel in row[1:]:
                     end_use = _headings[cnt]
-                    end_uses_dict[end_use][cnt_fueltype] = i
+                    end_uses_dict[end_use][cnt_fueltype] = float(fuel)
                     cnt += 1
     except (KeyError, ValueError):
         sys.exit("Check whether tehre any empty cells in the csv files for enduse '{}".format(end_use))
 
     # Create list with all rs enduses
-    all_enduses = []
-    for enduse in end_uses_dict:
-        all_enduses.append(enduse)
+    all_enduses = end_uses_dict.keys()
 
     return end_uses_dict, all_enduses
 
@@ -982,41 +979,6 @@ def read_disaggregated_fuel_sector(path_to_csv, fueltypes_nr):
 
     return fuel_sector_enduse
 
-def read_txt_shape_peak_dh(file_path):
-    """Read to txt. Array with shape: (24,)
-    """
-    read_dict = json.load(open(file_path))
-    read_dict_list = list(read_dict.values())
-    out_dict = np.array(read_dict_list, dtype=float)
-
-    return out_dict
-
-def read_txt_shape_non_peak_yh(file_path):
-    """Read to txt. Array with shape: (model_yeardays_nrs, 24)
-    """
-    out_dict = np.zeros((365, 24), dtype=float)
-    read_dict = json.load(open(file_path))
-    read_dict_list = list(read_dict.values())
-    for day, row in enumerate(read_dict_list):
-        out_dict[day] = np.array(list(row.values()), dtype=float)
-    return out_dict
-
-def read_txt_shape_peak_yd_factor(file_path):
-    """Read to txt. Array with shape: (model_yeardays_nrs, 24)
-    """
-    out_dict = json.load(open(file_path))
-    return out_dict
-
-def read_txt_shape_non_peak_yd(file_path):
-    """Read to txt. Array with shape
-    """
-    out_dict = np.zeros((365), dtype=float)
-    read_dict = json.load(open(file_path))
-    read_dict_list = list(read_dict.values())
-    for day, row in enumerate(read_dict_list):
-        out_dict[day] = np.array(row, dtype=float)
-    return out_dict
-
 def read_lf_y(path_enduse_specific_results):
     """Read load factors from txt file
     """
@@ -1132,3 +1094,6 @@ def get_position(headings, name):
     for position, value in enumerate(headings):
         if str(value) == str(name):
             return position
+
+def read_np_array_from_txt(path_file_to_read):
+    return np.loadtxt(path_file_to_read, delimiter=',')

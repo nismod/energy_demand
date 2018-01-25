@@ -10,6 +10,11 @@ import yaml
 from yaml import Loader, Dumper
 import collections
 
+def write_array_to_txt(path_result, array):
+    """Write scenario population for a year to txt file
+    """
+    np.savetxt(path_result, array, delimiter=',')
+
 def write_pop(sim_yr, path_result, pop_y):
     """Write scenario population for a year to txt file
 
@@ -292,5 +297,42 @@ def write_max_results(sim_yr, path_result, result_foldername, model_results, fil
         os.path.join(path_result, result_foldername),
         "{}__{}__{}".format(filename, sim_yr, ".txt"))
     np.savetxt(path_file, model_results, delimiter=',')
+
+    return
+
+def create_txt_shapes(
+        end_use,
+        path_txt_shapes,
+        shape_peak_dh,
+        shape_non_peak_y_dh,
+        shape_peak_yd_factor,
+        shape_non_peak_yd
+    ):
+    """Function collecting functions to write out arrays
+    to txt files
+    """
+    write_array_to_txt(
+        os.path.join(
+            path_txt_shapes,
+            str(end_use) + str("__") + str('shape_peak_dh') + str('.txt')),
+        shape_peak_dh)
+
+    write_array_to_txt(
+        os.path.join(
+            path_txt_shapes,
+            str(end_use) + str("__") + str('shape_non_peak_y_dh') + str('.txt')),
+        shape_non_peak_y_dh)
+
+    write_array_to_txt(
+        os.path.join(
+            path_txt_shapes,
+            str(end_use) + str("__") + str('shape_peak_yd_factor') + str('.txt')),
+        np.array([shape_peak_yd_factor]))
+
+    write_array_to_txt(
+        os.path.join(
+            path_txt_shapes,
+            str(end_use) + str("__") + str('shape_non_peak_yd') + str('.txt')),
+        shape_non_peak_yd)
 
     return

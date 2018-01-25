@@ -222,7 +222,7 @@ def get_tech_type(tech_name, tech_list):
         tech_type = 'heat_pump'
     elif tech_name in tech_list['tech_heating_const']:
         tech_type = 'boiler_heating_tech'
-    elif tech_name in tech_list['primary_heating_electricity']:
+    elif tech_name in tech_list['storage_heating_electricity']:
         tech_type = 'storage_heating_electricity'
     elif tech_name in tech_list['secondary_heating_electricity']:
         tech_type = 'secondary_heating_electricity'

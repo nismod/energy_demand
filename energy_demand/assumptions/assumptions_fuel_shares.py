@@ -126,6 +126,26 @@ def assign_by_fuel_tech_p(assumptions, enduses, fueltypes, fueltypes_nr):
     #  Hannon, M. J. (2015). Raising the temperature of the UK heat pump market:
     #  Learning lessons from Finland. Energy Policy, 85, 369–375.
     #  https://doi.org/10.1016/j.enpol.2015.06.016
+
+    #ALTERNATIVE
+    '''According to the DCLG (2014) English Housing Survey. Energy Report. doi: 10.1017/CBO9781107415324.004.
+    Annex Table 3.1, the following number of electric heating can be described:
+
+    storage heaters             5.5   % of all houses -->
+    electric room heaters	    2.0   % of all houses -->
+    electric central heating	0.65  % of all houses -->
+
+    As heat pumps were not accounted for, they are taken from OFGEM,
+    whcih states that about 0.1 mio have heat pumps. of about in total 27mio
+    households in the uk, this is about 0.4 %. (cf Hannon). We substract ghis from the
+    storage heaters.
+
+    storage heaters             5.5   % of all houses --> ~ 64%     (100.0 / 8.55) * 5.5
+    electric room heaters	    2.0   % of all houses --> ~ 23%     (100.0 / 8.55) * 2.0
+    electric central heating	0.65  % of all houses --> ~ 8%     (100.0 / 8.55) * 0.65
+    heat pumps                  0.4   % of all houses --> ~ 5%     (100.0 / 8.55) * 0.4
+    '''
+    # 
     # ---------------
     assumptions['rs_fuel_tech_p_by']['rs_space_heating'][fueltypes['solid_fuel']] = {
         'boiler_solid_fuel': 1.0}
@@ -138,19 +158,23 @@ def assign_by_fuel_tech_p(assumptions, enduses, fueltypes, fueltypes_nr):
         'stirling_micro_CHP': 0.02,
         'district_heating_gas': 0}
     #TO NODE: boiler_electricity --> Peaky profile from samson (which is only for gas) --> Use
-    #
     assumptions['rs_fuel_tech_p_by']['rs_space_heating'][fueltypes['electricity']] = {
-        'heat_pumps_electricity': 0.04,
-        'storage_heater_electricity': 0.74,
-        'secondary_heater_electricity':0.22,
+        'storage_heater_electricity': 0.64,
+        'secondary_heater_electricity': 0.23,
+        'boiler_electricity': 0.08, #district_heating_electricity
+        'heat_pumps_electricity': 0.05,
+
+        #'storage_heater_electricity': 0.24,
+        #'secondary_heater_electricity': 0.72,
 
         #'district_heating_electricity': 0, #TODO ADD PROFILE FOR DISTRICT HEATING
         #'secondary_heater_electricity': 0.96
         #'boiler_electricity': 0.96 #getter
 
         #'heat_pumps_electricity': 0.04,
-        #'secondary_heater_electricity': 0.96
-        #'secondary_heater_electricity':0.96
+        #'boiler_electricity':0.96
+        #'heat_pumps_electricity': 0,
+        #'boiler_electricity': 1.0
         }
 
     assumptions['rs_fuel_tech_p_by']['rs_space_heating'][fueltypes['biomass']] = {
@@ -175,8 +199,8 @@ def assign_by_fuel_tech_p(assumptions, enduses, fueltypes, fueltypes_nr):
         'boiler_gas': 1.0}
 
     assumptions['rs_fuel_tech_p_by']['rs_water_heating'][fueltypes['electricity']] = {
-        #'boiler_electricity': 1.0}
-        'secondary_heater_electricity': 1.0} #TODO?
+        'boiler_electricity': 1.0}
+        #'secondary_heater_electricity': 1.0} #TODO?
 
     assumptions['rs_fuel_tech_p_by']['rs_water_heating'][fueltypes['biomass']] = {
         'boiler_biomass': 1.0}
@@ -192,7 +216,6 @@ def assign_by_fuel_tech_p(assumptions, enduses, fueltypes, fueltypes_nr):
     # ----------------
     # ss_space_heating
     # ----------------
-    #'''
     assumptions['ss_fuel_tech_p_by']['ss_space_heating'][fueltypes['solid_fuel']] = {
         'boiler_solid_fuel': 1.0}
 
@@ -200,8 +223,7 @@ def assign_by_fuel_tech_p(assumptions, enduses, fueltypes, fueltypes_nr):
         'boiler_gas': 1.0}
 
     assumptions['ss_fuel_tech_p_by']['ss_space_heating'][fueltypes['electricity']] = {
-        #'boiler_electricity': 0.96,
-        'secondary_heater_electricity': 0.96,
+        'boiler_electricity': 0.96,
         'heat_pumps_electricity': 0.04,
         'district_heating_electricity': 0}
 
@@ -215,13 +237,17 @@ def assign_by_fuel_tech_p(assumptions, enduses, fueltypes, fueltypes_nr):
         'boiler_hydrogen': 1.0,
         'heat_pumps_hydrogen': 0.0}
 
+    # ------------------------------
     # Cooling TODO Assign technologies
+    # ------------------------------
+    #'''
     assumptions['ss_fuel_tech_p_by']['ss_cooling_humidification'][fueltypes['electricity']] = {
         'ss_cooling_tech': 1.0}
     assumptions['ss_fuel_tech_p_by']['ss_cooled_storage'][fueltypes['electricity']] = {
         'ss_cooling_tech': 1.0}
     assumptions['ss_fuel_tech_p_by']['ss_fans'][fueltypes['electricity']] = {
         'ss_cooling_tech': 1.0}
+    #'''
 
     # ===================
     # Industry subModel  - Fuel shares of technologies in enduse

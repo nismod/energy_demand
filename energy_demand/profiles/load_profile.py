@@ -345,15 +345,19 @@ def create_load_profile_stock(tech_lp, assumptions, sectors, all_enduses):
         enduse_peak_yd_factor=tech_lp['rs_shapes_yd']['rs_lighting']['shape_peak_yd_factor'],
         shape_peak_dh=tech_lp['rs_shapes_dh']['rs_lighting']['shape_peak_dh'])
 
-    # rs_cold (residential refrigeration)
-    non_regional_lp_stock.add_lp(
-        unique_identifier=uuid.uuid4(),
-        technologies=assumptions['tech_list']['rs_cold'],
-        enduses=['rs_cold'],
-        shape_yd=tech_lp['rs_shapes_yd']['rs_cold']['shape_non_peak_yd'],
-        shape_yh=tech_lp['rs_shapes_dh']['rs_cold']['shape_non_peak_y_dh'] * tech_lp['rs_shapes_yd']['rs_cold']['shape_non_peak_yd'][:, np.newaxis],
-        enduse_peak_yd_factor=tech_lp['rs_shapes_yd']['rs_cold']['shape_peak_yd_factor'],
-        shape_peak_dh=tech_lp['rs_shapes_dh']['rs_cold']['shape_peak_dh'])
+    # Skip temperature dependent end uses (regional)
+    if 'rs_cold' in assumptions['enduse_rs_space_cooling']:
+        pass
+    else:
+        # rs_cold (residential refrigeration)
+        non_regional_lp_stock.add_lp(
+            unique_identifier=uuid.uuid4(),
+            technologies=assumptions['tech_list']['rs_cold'],
+            enduses=['rs_cold'],
+            shape_yd=tech_lp['rs_shapes_yd']['rs_cold']['shape_non_peak_yd'],
+            shape_yh=tech_lp['rs_shapes_dh']['rs_cold']['shape_non_peak_y_dh'] * tech_lp['rs_shapes_yd']['rs_cold']['shape_non_peak_yd'][:, np.newaxis],
+            enduse_peak_yd_factor=tech_lp['rs_shapes_yd']['rs_cold']['shape_peak_yd_factor'],
+            shape_peak_dh=tech_lp['rs_shapes_dh']['rs_cold']['shape_peak_dh'])
 
     # rs_cooking
     non_regional_lp_stock.add_lp(
@@ -402,18 +406,33 @@ def create_load_profile_stock(tech_lp, assumptions, sectors, all_enduses):
                 assumptions['ss_fuel_tech_p_by'][enduse])
 
             # OTHER ENDUSE NEW NEW TODO TODO
-            shape_enduse = get_other_ss_enduse(enduse)
-
-            for sector in sectors['ss_sectors']:
-                non_regional_lp_stock.add_lp(
-                    unique_identifier=uuid.uuid4(),
-                    technologies=tech_list,
-                    enduses=[enduse],
-                    shape_yd=tech_lp['ss_shapes_yd'][shape_enduse][sector]['shape_non_peak_yd'],
-                    shape_yh=tech_lp['ss_shapes_dh'][shape_enduse][sector]['shape_non_peak_y_dh'] * tech_lp['ss_shapes_yd'][shape_enduse][sector]['shape_non_peak_yd'][:, np.newaxis],
-                    sectors=[sector],
-                    enduse_peak_yd_factor=tech_lp['ss_shapes_yd'][shape_enduse][sector]['shape_peak_yd_factor'],
-                    shape_peak_dh=tech_lp['ss_shapes_dh'][shape_enduse][sector]['shape_peak_dh'])
+            if enduse in assumptions['enduse_space_cooling']:
+                pass
+            else:
+                '''#enduse = get_other_ss_enduse(enduse)
+                # NEW ADD cooling technology yd
+                if enduse in assumptions['enduse_space_cooling']:
+                    tech_lp_yd = 
+                    tech_lp_yh = tech_lp['ss_shapes_dh'][enduse][sector]['shape_non_peak_y_dh'] * tech_lp_yd[:, np.newaxis]
+                else:
+                    # not heat related
+                    tech_lp_yd = tech_lp['ss_shapes_yd'][enduse][sector]['shape_non_peak_yd']
+                    tech_lp_yh = tech_lp['ss_shapes_dh'][enduse][sector]['shape_non_peak_y_dh'] * tech_lp_yd[:, np.newaxis]
+                '''
+                #'''
+                for sector in sectors['ss_sectors']:
+                    tech_lp_yd = tech_lp['ss_shapes_yd'][enduse][sector]['shape_non_peak_yd']
+                    tech_lp_yh = tech_lp['ss_shapes_dh'][enduse][sector]['shape_non_peak_y_dh'] * tech_lp_yd[:, np.newaxis]
+                    non_regional_lp_stock.add_lp(
+                        unique_identifier=uuid.uuid4(),
+                        technologies=tech_list,
+                        enduses=[enduse],
+                        shape_yd=tech_lp_yd,
+                        shape_yh=tech_lp_yh,
+                        sectors=[sector],
+                        enduse_peak_yd_factor=tech_lp['ss_shapes_yd'][enduse][sector]['shape_peak_yd_factor'],
+                        shape_peak_dh=tech_lp['ss_shapes_dh'][enduse][sector]['shape_peak_dh'])
+                #'''
 
     # ---------
     # Industry Submodel
@@ -425,6 +444,9 @@ def create_load_profile_stock(tech_lp, assumptions, sectors, all_enduses):
     # If space heating, add load shapes for service sector
     shape_peak_dh_sectors_enduses = defaultdict(dict)
     all_enduses_including_heating = assumptions['is_dummy_enduses']
+    
+    # Industrial space heating same as service space heating
+    '''
     all_enduses_including_heating.append("is_space_heating") #TODO
 
     for sector in sectors['is_sectors']:
@@ -436,11 +458,14 @@ def create_load_profile_stock(tech_lp, assumptions, sectors, all_enduses):
             else:
                 shape_peak_dh_sectors_enduses[enduse][sector] = {
                     'shape_peak_dh': shape_peak_dh}
+    '''
 
     for enduse in assumptions['is_dummy_enduses']:
 
         # Add load profile for space heating of ss sector
         if enduse == "is_space_heating":
+            #pass
+            '''
             tech_list = helpers.get_nested_dict_key(assumptions['is_fuel_tech_p_by'][enduse])
             for sector in sectors['is_sectors']:
                 non_regional_lp_stock.add_lp(
@@ -452,6 +477,7 @@ def create_load_profile_stock(tech_lp, assumptions, sectors, all_enduses):
                     sectors=[sector],
                     enduse_peak_yd_factor=tech_lp['ss_shapes_yd']["ss_space_heating"][sectors['ss_sectors'][0]]['shape_peak_yd_factor'],
                     shape_peak_dh=dict(shape_peak_dh_sectors_enduses))
+            '''
         else:
             tech_list = helpers.get_nested_dict_key(assumptions['is_fuel_tech_p_by'][enduse])
             for sector in sectors['is_sectors']:
@@ -542,19 +568,22 @@ def calc_av_lp(demand_yh, seasons, model_yeardays_daytype):
 
     return av_season_daytypes, season_daytypes
 
-
 def get_other_ss_enduse(enduse):
     # Convert enduses to differetn enduse category
-    if enduse == 'ss_cooling_humidification':
-        enduse_shape = 'ss_cooling_ventilation'
-    elif enduse == 'ss_ICT_equipment':
-        enduse_shape = 'ss_computing'  
-    elif enduse == 'ss_fans':
-        enduse_shape = 'ss_other_electricity' # General electricity curve
-    elif enduse == 'ss_small_power':
-        enduse_shape = 'ss_other_electricity' # General electricity curve
-    elif enduse == 'ss_cooled_storage':
-        enduse_shape = 'ss_cooling_ventilation' # General electricity curve
-    else:
-        enduse_shape = enduse
+    
+    #if enduse == 'ss_cooling_humidification':
+    #    enduse_shape = 'ss_cooling_humidification'
+    #if enduse == 'ss_ICT_equipment':
+    #    enduse_shape = 'ss_ICT_equipment'  
+    print("TOGET: " + str(enduse))
+    ##if enduse == 'ss_fans':
+    #    enduse_shape = 'ss_other_electricity' # General electricity curve
+    #elif enduse == 'ss_small_power':
+    #    enduse_shape = 'ss_other_electricity' # General electricity curve
+    #elif enduse == 'ss_cooled_storage':
+    #    enduse_shape = 'ss_cooling_humidification' # General electricity curve
+    #else:
+    #    enduse_shape = enduse
+    enduse_shape = enduse
+    print("GOT: " + str(enduse_shape))
     return enduse_shape

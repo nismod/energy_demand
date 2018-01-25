@@ -7,7 +7,7 @@ def test_get_tech_type():
     tech_list = { 
         'tech_heating_temp_dep': ['heat_p'],
         'tech_heating_const': ['boilerA'],
-        'primary_heating_electricity': ['boilerC'],
+        'storage_heating_electricity': ['boilerC'],
         'secondary_heating_electricity': []
     }
     assert tech_related.get_tech_type('dummy_tech', tech_list) == 'dummy_tech'

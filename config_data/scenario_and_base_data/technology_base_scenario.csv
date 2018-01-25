@@ -25,7 +25,7 @@ boiler_condensing_gas,gas,0.85,0.85,2050,1,linear,2010,tech_heating_const,1,OK_,
 boiler_condensing_oil,oil,0.85,0.85,2050,1,linear,2010,tech_heating_const,1,OK_,,,0.85,,,,,,,,
 stirling_micro_CHP,gas,0.7,0.7,2050,1,linear,2010,tech_heating_const,1,CHP,,typically,0.7,total,system,efficiencies,of,60,to,80,percent.
 fuel_cell_CHP,hydrogen,0.8,0.8,2050,1,linear,2010,tech_heating_const,1,https://www.viessmann.co.uk/en/residential-buildings/combined-heat-and-power-generation/micro-chp-unit-based-on-a-fuel-cell/vitovalor-300p.html,,,0.8,,,,,,,,
-storage_heater_electricity,electricity,0.8,0.8,2050,1,linear,2010,primary_heating_electricity,1,efficiency,,,0.8,,,,,,,,
+storage_heater_electricity,electricity,0.8,0.8,2050,1,linear,2010,storage_heating_electricity,1,efficiency,,,0.8,,,,,,,,
 secondary_heater_electricity,electricity,0.8,0.8,2050,1,linear,2010,secondary_heating_electricity,1,efficiency,,,0.8,,,,,,,,
 heat_pump_ASHP_gas,gas,3.6,3.6,2050,1,linear,2010,tech_heating_temp_dep,1,OK_,,,3.6,,,,,,,,
 heat_pump_GSHP_gas,gas,4.9,4.9,2050,1,linear,2010,tech_heating_temp_dep,1,OK_,,,4.9,,,,,,,,

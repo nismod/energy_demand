@@ -40,7 +40,7 @@ def test_get_service_fueltype_tech():
     tech_list = { 
         'tech_heating_temp_dep': ['heat_p'],
         'tech_heating_const': ['boilerA'],
-        'primary_heating_electricity': ['boilerC'],
+        'storage_heating_electricity': ['boilerC'],
         'secondary_heating_electricity': []}
 
     fueltypes = {
@@ -126,7 +126,7 @@ def test_get_service_fueltype_tech():
     tech_list = { 
         'tech_heating_temp_dep': ['heat_p'],
         'tech_heating_const': ['boilerA', 'boilerB'],
-        'primary_heating_electricity': [],
+        'storage_heating_electricity': [],
         'secondary_heating_electricity': []}
     
     fueltypes = {

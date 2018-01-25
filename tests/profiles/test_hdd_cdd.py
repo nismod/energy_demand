@@ -22,7 +22,7 @@ def test_averaged_temp():
     np.testing.assert_array_equal(result[1], expected)
 
     np.testing.assert_array_equal(result[2], expected2)
-test_averaged_temp()
+
 def test_calc_hdd():
     """testing
     """

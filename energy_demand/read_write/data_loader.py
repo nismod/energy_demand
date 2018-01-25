@@ -366,10 +366,10 @@ def load_paths(path):
             path, 'config_data', 'submodel_residential', 'shape_residential_cooling.csv'),
         'path_shape_ss_cooling': os.path.join(
             path, 'config_data', 'submodel_service', 'shape_service_cooling.csv'),
-        'lp_elec_primary_heating': os.path.join(
-            #path, 'config_data', 'submodel_residential', 'lp_elec_primary_heating_HES.csv'), #Worst 
-            #path, 'config_data', 'submodel_residential', 'lp_elec_primary_heating_Bossmann.csv'), #Better 
-            path, 'config_data', 'submodel_residential', 'lp_elec_primary_heating_HESReport.csv'), #BEST
+        'lp_elec_storage_heating': os.path.join(
+            #path, 'config_data', 'submodel_residential', 'lp_elec_storage_heating_HES.csv'), #Worst 
+            #path, 'config_data', 'submodel_residential', 'lp_elec_storage_heating_Bossmann.csv'), #Better 
+            path, 'config_data', 'submodel_residential', 'lp_elec_storage_heating_HESReport.csv'), #BEST
             
         'lp_elec_secondary_heating': os.path.join(
             path, 'config_data', 'submodel_residential', 'lp_elec_secondary_heating_HES.csv'),
@@ -422,7 +422,7 @@ def load_data_tech_profiles(tech_lp, paths, local_paths, plot_tech_lp=False):
 
     # Add fuel data of other model enduses to the fuel data table (E.g. ICT or wastewater)
     tech_lp['rs_lp_storage_heating_dh'] = read_data.read_load_shapes_tech(
-        paths['lp_elec_primary_heating'])
+        paths['lp_elec_storage_heating'])
     tech_lp['rs_lp_second_heating_dh'] = read_data.read_load_shapes_tech(
         paths['lp_elec_secondary_heating'])
 
@@ -544,6 +544,7 @@ def load_data_profiles(paths, local_paths, model_yeardays, model_yeardays_daytyp
     tech_lp['ss_shapes_dh'], tech_lp['ss_shapes_yd'] = ss_collect_shapes_from_txts(
         local_paths['ss_load_profile_txt'], model_yeardays)
 
+    print(tech_lp['ss_shapes_dh'].keys)
     # -- From Carbon Trust (service sector data) read out enduse specific shapes
     tech_lp['ss_all_tech_shapes_dh'], tech_lp['ss_all_tech_shapes_yd'] = ss_read_shapes_enduse_techs(
         tech_lp['ss_shapes_dh'], tech_lp['ss_shapes_yd'])
@@ -630,6 +631,10 @@ def load_temp_data(paths):
     temp_data = read_weather_data.read_weather_data_script_data(
         paths['dir_raw_weather_data'])
 
+    #for i in weather_stations
+    #neu = {}
+    #neu['971'] = weather_stations['971']
+    #weather_stations = neu
     return weather_stations, temp_data
 
 def load_fuels(paths, lookups):
@@ -725,13 +730,13 @@ def rs_collect_shapes_from_txts(txt_path, model_yeardays):
 
     # Read load shapes from txt files for enduses
     for enduse in enduses:
-        shape_peak_dh = read_data.read_txt_shape_peak_dh(
+        shape_peak_dh = read_data.read_np_array_from_txt(
             os.path.join(txt_path, str(enduse) + str("__") + str('shape_peak_dh') + str('.txt')))
-        shape_non_peak_y_dh = read_data.read_txt_shape_non_peak_yh(
+        shape_non_peak_y_dh = read_data.read_np_array_from_txt(
             os.path.join(txt_path, str(enduse) + str("__") + str('shape_non_peak_y_dh') + str('.txt')))
-        shape_peak_yd_factor = read_data.read_txt_shape_peak_yd_factor(
-            os.path.join(txt_path, str(enduse) + str("__") + str('shape_peak_yd_factor') + str('.txt')))
-        shape_non_peak_yd = read_data.read_txt_shape_non_peak_yd(
+        shape_peak_yd_factor = float(read_data.read_np_array_from_txt(
+            os.path.join(txt_path, str(enduse) + str("__") + str('shape_peak_yd_factor') + str('.txt'))))
+        shape_non_peak_yd = read_data.read_np_array_from_txt(
             os.path.join(txt_path, str(enduse) + str("__") + str('shape_non_peak_yd') + str('.txt')))
 
         # Select only modelled days (nr_of_days, 24)
@@ -774,30 +779,27 @@ def ss_collect_shapes_from_txts(txt_path, model_yeardays):
         enduses.add(enduse)
         sectors.add(sector)
 
-    ss_shapes_dh = {}
-    ss_shapes_yd = {}
+    ss_shapes_dh = defaultdict(dict)
+    ss_shapes_yd = defaultdict(dict)
 
     # Read load shapes from txt files for enduses
     for enduse in enduses:
-
-        ss_shapes_dh[enduse] = {}
-        ss_shapes_yd[enduse] = {}
         for sector in sectors:
-
             joint_string_name = str(sector) + "__" + str(enduse)
-            shape_peak_dh = read_data.read_txt_shape_peak_dh(
+
+            shape_peak_dh = read_data.read_np_array_from_txt(
                 os.path.join(
                     txt_path,
                     str(joint_string_name) + str("__") + str('shape_peak_dh') + str('.txt')))
-            shape_non_peak_y_dh = read_data.read_txt_shape_non_peak_yh(
+            shape_non_peak_y_dh = read_data.read_np_array_from_txt(
                 os.path.join(
                     txt_path,
                     str(joint_string_name) + str("__") + str('shape_non_peak_y_dh') + str('.txt')))
-            shape_peak_yd_factor = read_data.read_txt_shape_peak_yd_factor(
+            shape_peak_yd_factor = float(read_data.read_np_array_from_txt(
                 os.path.join(
                     txt_path,
-                    str(joint_string_name) + str("__") + str('shape_peak_yd_factor') + str('.txt')))
-            shape_non_peak_yd = read_data.read_txt_shape_non_peak_yd(
+                    str(joint_string_name) + str("__") + str('shape_peak_yd_factor') + str('.txt'))))
+            shape_non_peak_yd = read_data.read_np_array_from_txt(
                 os.path.join(
                     txt_path,
                     str(joint_string_name) + str("__") + str('shape_non_peak_yd') + str('.txt')))
@@ -816,7 +818,7 @@ def ss_collect_shapes_from_txts(txt_path, model_yeardays):
                 'shape_peak_yd_factor': shape_peak_yd_factor,
                 'shape_non_peak_yd': shape_non_peak_yd_selection}
 
-    return ss_shapes_dh, ss_shapes_yd
+    return dict(ss_shapes_dh), dict(ss_shapes_yd)
 
 def create_enduse_dict(data, rs_fuel_raw_data_enduses):
     """Create dictionary with all residential enduses and store in data dict
@@ -948,11 +950,11 @@ def read_employment_stats(path_to_csv):
     Industry: T Activities of households as employers; undifferentiated goods - and services - producing activities of households for own use
     Industry: U Activities of extraterritorial organisations and bodies
     """
+    data = defaultdict(dict)
+
     with open(path_to_csv, 'r') as csvfile:
         lines = csv.reader(csvfile, delimiter=',')
         _headings = next(lines) # Skip first row
-
-        data = defaultdict(dict)
 
         for line in lines:
             geocode = str.strip(line[2])
