@@ -179,9 +179,9 @@ def load_non_param_assump(
     # -------
     # Model calibration factors to incorporate weekend effects
     # -------
-    assumptions['ss_t_cooling_weekend_factor'] = 1    # 0.6
-    assumptions['ss_weekend_factor'] = 1              # 0.8
-    assumptions['is_weekend_factor'] = 1              # 0.4
+    assumptions['ss_t_cooling_weekend_factor'] = 0.6    # 0.6
+    assumptions['ss_weekend_factor'] = 0.8              # 0.8
+    assumptions['is_weekend_factor'] = 0.4              # 0.4
 
     # ============================================================
     # Enduse technology definition lists

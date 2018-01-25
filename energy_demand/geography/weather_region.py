@@ -369,21 +369,29 @@ class WeatherRegion(object):
         #------
         # Add cooling technologies for service sector
         #------
-        coolings_techs = tech_lists['tech_cooling_const']
+        coolings_techs = []
+        for tech in tech_lists['tech_cooling_const']:
+            coolings_techs.append(tech)
         coolings_techs.append('dummy_tech')
+        #coolings_techs = tech_lists['tech_cooling_const'] # This does not work if appending TODO?
+        #coolings_techs.append('dummy_tech')
 
         for cooling_enduse in assumptions['ss_enduse_space_cooling']:
             for sector in sectors['ss_sectors']:
-
+                
+                #print("AAA: ")
+                #print(np.sum(ss_fuel_shape_coolin_yd))
+                #print(np.sum(assumptions['ss_weekend_f']))
                 ss_fuel_shape_coolin_yd = ss_fuel_shape_coolin_yd * assumptions['ss_weekend_f'] #TODO FACTOR NEW
                 ss_fuel_shape_coolin_yd = load_profile.abs_to_rel(ss_fuel_shape_coolin_yd)
-
+                #print(np.sum(ss_fuel_shape_coolin_yd))
                 # Ev auch tech_lp['ss_shapes_cooling_dh']
                 ss_shape_yh = load_profile.calc_yh(
                     ss_fuel_shape_coolin_yd,
                     tech_lp['ss_profile_cooling_y_dh'], model_yeardays)
                     #tech_lp['ss_shapes_dh'][cooling_enduse][sector]['shape_non_peak_y_dh'], model_yeardays) #worse
-
+                #print(np.sum(ss_shape_yh))
+                #prnt(".")
                 self.ss_load_profiles.add_lp(
                     unique_identifier=uuid.uuid4(),
                     technologies=coolings_techs,

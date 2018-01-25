@@ -204,8 +204,8 @@ def assign_by_fuel_tech_p(assumptions, enduses, fueltypes, fueltypes_nr):
     # Cooling 
     # TODO Assign technologies
     # ------------------------------
-    assumptions['ss_fuel_tech_p_by']['ss_cooling_humidification'][fueltypes['electricity']] = {
-        'ss_cooling_tech': 1.0}
+    '''assumptions['ss_fuel_tech_p_by']['ss_cooling_humidification'][fueltypes['electricity']] = {
+        'ss_cooling_tech': 1.0}'''
     assumptions['ss_fuel_tech_p_by']['ss_cooled_storage'][fueltypes['electricity']] = {
         'ss_cooling_tech': 1.0}
     assumptions['ss_fuel_tech_p_by']['ss_fans'][fueltypes['electricity']] = {
