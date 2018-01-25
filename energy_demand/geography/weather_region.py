@@ -78,7 +78,7 @@ class WeatherRegion(object):
         # Change temp_cy depending on climate assumptions
         rs_t_base_heating_cy = hdd_cdd.sigm_temp(
             assumptions['strategy_variables']['rs_t_base_heating_future_yr'],
-            assumptions['rs_t_base_heating']['rs_t_base_heating_base_yr'],
+            assumptions['t_bases']['rs_t_base_heating_base_yr'],
             base_yr,
             curr_yr,
             assumptions['base_temp_diff_params']['sig_midpoint'],
@@ -86,7 +86,7 @@ class WeatherRegion(object):
             assumptions['base_temp_diff_params']['yr_until_changed'])
         rs_t_base_cooling_cy = hdd_cdd.sigm_temp(
             assumptions['strategy_variables']['rs_t_base_cooling_future_yr'],
-            assumptions['rs_t_base_cooling']['rs_t_base_cooling_base_yr'],
+            assumptions['t_bases']['rs_t_base_cooling_base_yr'],
             base_yr,
             curr_yr,
             assumptions['base_temp_diff_params']['sig_midpoint'],
@@ -94,7 +94,7 @@ class WeatherRegion(object):
             assumptions['base_temp_diff_params']['yr_until_changed'])
         rs_t_base_heating_by = hdd_cdd.sigm_temp(
             assumptions['strategy_variables']['rs_t_base_heating_future_yr'],
-            assumptions['rs_t_base_heating']['rs_t_base_heating_base_yr'],
+            assumptions['t_bases']['rs_t_base_heating_base_yr'],
             base_yr,
             curr_yr,
             assumptions['base_temp_diff_params']['sig_midpoint'],
@@ -102,7 +102,7 @@ class WeatherRegion(object):
             assumptions['base_temp_diff_params']['yr_until_changed'])
         rs_t_base_cooling_by = hdd_cdd.sigm_temp(
             assumptions['strategy_variables']['rs_t_base_cooling_future_yr'],
-            assumptions['rs_t_base_cooling']['rs_t_base_cooling_base_yr'],
+            assumptions['t_bases']['rs_t_base_cooling_base_yr'],
             base_yr,
             curr_yr,
             assumptions['base_temp_diff_params']['sig_midpoint'],
@@ -110,7 +110,7 @@ class WeatherRegion(object):
             assumptions['base_temp_diff_params']['yr_until_changed'])
         ss_t_base_heating_cy = hdd_cdd.sigm_temp(
             assumptions['strategy_variables']['ss_t_base_heating_future_yr'],
-            assumptions['ss_t_base_heating']['ss_t_base_heating_base_yr'],
+            assumptions['t_bases']['ss_t_base_heating_base_yr'],
             base_yr,
             curr_yr,
             assumptions['base_temp_diff_params']['sig_midpoint'],
@@ -118,7 +118,7 @@ class WeatherRegion(object):
             assumptions['base_temp_diff_params']['yr_until_changed'])
         ss_t_base_cooling_cy = hdd_cdd.sigm_temp(
             assumptions['strategy_variables']['ss_t_base_cooling_future_yr'],
-            assumptions['ss_t_base_cooling']['ss_t_base_cooling_base_yr'],
+            assumptions['t_bases']['ss_t_base_cooling_base_yr'],
             base_yr,
             curr_yr,
             assumptions['base_temp_diff_params']['sig_midpoint'],
@@ -126,7 +126,7 @@ class WeatherRegion(object):
             assumptions['base_temp_diff_params']['yr_until_changed'])
         ss_t_base_heating_by = hdd_cdd.sigm_temp(
             assumptions['strategy_variables']['ss_t_base_heating_future_yr'],
-            assumptions['ss_t_base_heating']['ss_t_base_heating_base_yr'],
+            assumptions['t_bases']['ss_t_base_heating_base_yr'],
             base_yr,
             curr_yr,
             assumptions['base_temp_diff_params']['sig_midpoint'],
@@ -134,7 +134,7 @@ class WeatherRegion(object):
             assumptions['base_temp_diff_params']['yr_until_changed'])
         ss_t_base_cooling_by = hdd_cdd.sigm_temp(
             assumptions['strategy_variables']['ss_t_base_cooling_future_yr'],
-            assumptions['ss_t_base_cooling']['ss_t_base_cooling_base_yr'],
+            assumptions['t_bases']['ss_t_base_cooling_base_yr'],
             base_yr,
             curr_yr,
             assumptions['base_temp_diff_params']['sig_midpoint'],
@@ -142,7 +142,7 @@ class WeatherRegion(object):
             assumptions['base_temp_diff_params']['yr_until_changed'])
         '''is_t_base_cooling_by = hdd_cdd.sigm_temp(
             assumptions['strategy_variables']['rs_t_base_cooling_future_yr'],
-            assumptions['rs_t_base_cooling']['rs_t_base_cooling_base_yr'],
+            assumptions['t_bases']['rs_t_base_cooling_base_yr'],
             base_yr,
             curr_yr,
             assumptions['base_temp_diff_params']['sig_midpoint'],
@@ -150,7 +150,7 @@ class WeatherRegion(object):
             assumptions['base_temp_diff_params']['yr_until_changed'])'''
         is_t_base_heating_cy = hdd_cdd.sigm_temp(
             assumptions['strategy_variables']['is_t_base_heating_future_yr'],
-            assumptions['is_t_base_heating']['is_t_base_heating_base_yr'],
+            assumptions['t_bases']['is_t_base_heating_base_yr'],
             base_yr,
             curr_yr,
             assumptions['base_temp_diff_params']['sig_midpoint'],
@@ -169,7 +169,7 @@ class WeatherRegion(object):
             fueltypes,
             temp_by,
             temp_cy,
-            assumptions['ss_t_base_heating']['ss_t_base_heating_base_yr'],
+            assumptions['t_bases']['ss_t_base_heating_base_yr'],
             all_enduses['is_all_enduses'],
             ss_t_base_heating_cy,
             assumptions['is_specified_tech_enduse_by'])
@@ -184,7 +184,7 @@ class WeatherRegion(object):
             fueltypes,
             temp_by,
             temp_cy,
-            assumptions['rs_t_base_heating']['rs_t_base_heating_base_yr'],
+            assumptions['t_bases']['rs_t_base_heating_base_yr'],
             all_enduses['rs_all_enduses'],
             rs_t_base_heating_cy,
             assumptions['rs_specified_tech_enduse_by'])
@@ -199,7 +199,7 @@ class WeatherRegion(object):
             fueltypes,
             temp_by,
             temp_cy,
-            assumptions['ss_t_base_heating']['ss_t_base_heating_base_yr'],
+            assumptions['t_bases']['ss_t_base_heating_base_yr'],
             all_enduses['ss_all_enduses'],
             ss_t_base_heating_cy,
             assumptions['ss_specified_tech_enduse_by'])
@@ -425,7 +425,7 @@ class WeatherRegion(object):
 
         # Take same base temperature as for service sector
         is_hdd_cy, is_fuel_shape_heating_yd = hdd_cdd.calc_reg_hdd(
-            temp_cy, is_t_base_heating_cy, model_yeardays)
+            temp_cy, is_t_base_heating_cy, model_yeardays) #todois_t_base_heating_cy
         is_cdd_cy, _ = hdd_cdd.calc_reg_cdd(
             temp_cy, ss_t_base_cooling_cy, model_yeardays)
 

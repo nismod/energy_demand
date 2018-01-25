@@ -17,7 +17,7 @@ https://nismod.github.io/docs/smif-prerequisites.html#sector-modeller
 DISTRICT HEATING TECHS
 TODO: Improve industry related demand --> define strategies
 TODO: Related ed to houses & householdsize
-TODO: Define efficencies of all techs
+TODO: Define efficencies of all techsg
 TODO: Base year fuel assignements
 TODO: ET_module
 TODO :TEST IF IN SUMMER COOLING CAN BE ADDED FOR ELECTRICITY

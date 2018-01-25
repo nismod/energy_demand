@@ -143,7 +143,7 @@ def ss_disaggregate(
         temp_data,
         assumptions['base_temp_diff_params'],
         assumptions['strategy_variables']['ss_t_base_heating_future_yr'],
-        assumptions['ss_t_base_heating']['ss_t_base_heating_base_yr'],
+        assumptions['t_bases']['ss_t_base_heating_base_yr'],
         reg_coord,
         weather_stations)
 
@@ -154,7 +154,7 @@ def ss_disaggregate(
         temp_data,
         assumptions['base_temp_diff_params'],
         assumptions['strategy_variables']['ss_t_base_cooling_future_yr'],
-        assumptions['ss_t_base_cooling']['ss_t_base_cooling_base_yr'],
+        assumptions['t_bases']['ss_t_base_cooling_base_yr'],
         reg_coord,
         weather_stations)
 
@@ -483,7 +483,7 @@ def rs_disaggregate(
         temp_data,
         assumptions['base_temp_diff_params'],
         assumptions['strategy_variables']['rs_t_base_heating_future_yr'],
-        assumptions['rs_t_base_heating']['rs_t_base_heating_base_yr'],
+        assumptions['t_bases']['rs_t_base_heating_base_yr'],
         reg_coord,
         weather_stations)
 

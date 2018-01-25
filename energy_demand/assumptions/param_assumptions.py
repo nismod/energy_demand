@@ -162,7 +162,7 @@ def load_param_assump(paths, assumptions):
         "absolute_range": (0, 20),
         "description": "Base temperature assumption residential heating",
         "suggested_range": (13, 17),
-        "default_value": assumptions['rs_t_base_heating']['rs_t_base_heating_base_yr'],
+        "default_value": assumptions['t_bases']['rs_t_base_heating_base_yr'],
         "units": '°C'})
 
     # Future base year temperature
@@ -174,7 +174,7 @@ def load_param_assump(paths, assumptions):
         "absolute_range": (0, 20),
         "description": "Base temperature assumption service sector heating",
         "suggested_range": (13, 17),
-        "default_value": assumptions['ss_t_base_heating']['ss_t_base_heating_base_yr'],
+        "default_value": assumptions['t_bases']['ss_t_base_heating_base_yr'],
         "units": '°C'})
 
         # Future base year temperature
@@ -186,7 +186,7 @@ def load_param_assump(paths, assumptions):
         "absolute_range": (0, 25),
         "description": "Base temperature assumption residential sector cooling",
         "suggested_range": (13, 17),
-        "default_value": assumptions['rs_t_base_cooling']['rs_t_base_cooling_base_yr'],
+        "default_value": assumptions['t_bases']['rs_t_base_cooling_base_yr'],
         "units": '°C'})
 
     # Future base year temperature
@@ -197,7 +197,7 @@ def load_param_assump(paths, assumptions):
         "absolute_range": (0, 25),
         "description": "Base temperature assumption service sector cooling",
         "suggested_range": (13, 17),
-        "default_value": assumptions['ss_t_base_cooling']['ss_t_base_cooling_base_yr'],
+        "default_value": assumptions['t_bases']['ss_t_base_cooling_base_yr'],
         "units": '°C'})
 
     # Future base year temperature
@@ -209,7 +209,7 @@ def load_param_assump(paths, assumptions):
         "absolute_range": (0, 20),
         "description": "Base temperature assumption service sector heating",
         "suggested_range": (13, 17),
-        "default_value": assumptions['is_t_base_heating']['is_t_base_heating_base_yr'],
+        "default_value": assumptions['t_bases']['is_t_base_heating_base_yr'],
         "units": '°C'})
 
         # Future base year temperature
