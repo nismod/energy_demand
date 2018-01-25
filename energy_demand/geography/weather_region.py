@@ -208,7 +208,7 @@ class WeatherRegion(object):
         rs_cold_techs.append('dummy_tech')
 
         # ----Cooling residential
-        #rs_fuel_shape_cooling_yh = calc_yh(
+        #rs_fuel_shape_cooling_yh = load_profile.calc_yh(
         #    rs_fuel_shape_cooling_yd, tech_lp['rs_shapes_cooling_dh'], model_yeardays)
         #or also (if only yd)
         #shape_yh=tech_lp['rs_shapes_dh'][cooling_enduse]['shape_non_peak_y_dh'] * ss_fuel_shape_coolin_yd[:, np.newaxis],
@@ -225,7 +225,7 @@ class WeatherRegion(object):
                 shape_peak_dh=tech_lp['rs_shapes_cooling_dh']['peakday'])
         '''
         # ------Heating boiler
-        rs_profile_boilers_y_dh = calc_yh(
+        rs_profile_boilers_y_dh = load_profile.calc_yh(
             rs_fuel_shape_heating_yd, tech_lp['rs_profile_boilers_y_dh'], model_yeardays)
         self.rs_load_profiles.add_lp(
             unique_identifier=uuid.uuid4(),
@@ -237,7 +237,7 @@ class WeatherRegion(object):
             shape_peak_dh=tech_lp['rs_lp_heating_boilers_dh']['peakday'])
 
         # ------Heating CHP
-        rs_profile_chp_y_dh = calc_yh(
+        rs_profile_chp_y_dh = load_profile.calc_yh(
             rs_fuel_shape_heating_yd, tech_lp['rs_profile_chp_y_dh'], model_yeardays)
 
         self.rs_load_profiles.add_lp(
@@ -250,7 +250,7 @@ class WeatherRegion(object):
             shape_peak_dh=tech_lp['rs_lp_heating_CHP_dh']['peakday'])
 
         # ------Electric heating, storage heating (primary)
-        rs_profile_storage_heater_y_dh = calc_yh(
+        rs_profile_storage_heater_y_dh = load_profile.calc_yh(
             rs_fuel_shape_heating_yd, tech_lp['rs_profile_storage_heater_y_dh'], model_yeardays)
         self.rs_load_profiles.add_lp(
             unique_identifier=uuid.uuid4(),
@@ -262,7 +262,7 @@ class WeatherRegion(object):
             shape_peak_dh=tech_lp['rs_lp_storage_heating_dh']['peakday'])
 
         # ------Electric heating secondary (direct elec heating)
-        rs_profile_elec_heater_y_dh = calc_yh(
+        rs_profile_elec_heater_y_dh = load_profile.calc_yh(
             rs_fuel_shape_heating_yd, tech_lp['rs_profile_elec_heater_y_dh'], model_yeardays)
         self.rs_load_profiles.add_lp(
             unique_identifier=uuid.uuid4(),
@@ -290,7 +290,7 @@ class WeatherRegion(object):
             shape_peak_dh=tech_lp['rs_lp_heating_CHP_dh']['peakday'])
 
         # ------District_heating_electricity --> Assumption made that same curve as CHP
-        rs_profile_chp_y_dh = calc_yh(
+        rs_profile_chp_y_dh = load_profile.calc_yh(
             rs_fuel_shape_heating_yd, tech_lp['rs_profile_chp_y_dh'], model_yeardays)
 
         self.rs_load_profiles.add_lp(
@@ -369,7 +369,7 @@ class WeatherRegion(object):
         for cooling_enduse in assumptions['enduse_space_cooling']:
             for sector in sectors['ss_sectors']:
                 # Ev auch tech_lp['ss_shapes_cooling_dh']
-                ss_shape_yh = calc_yh(
+                ss_shape_yh = load_profile.calc_yh(
                     ss_fuel_shape_coolin_yd,
                     tech_lp['ss_shapes_dh'][cooling_enduse][sector]['shape_non_peak_y_dh'], model_yeardays)
 
@@ -644,24 +644,3 @@ def change_temp_climate(
         temp_climate_change[month_yeardays] = temp_data[month_yeardays] + lin_diff_factor
 
     return temp_climate_change
-
-def calc_yh(shape_yd, shape_y_dh, model_yeardays):
-    """Calculate the shape based on yh and y_dh shape
-
-    Inputs
-    -------
-    shape_yd : array
-        Shape with fuel amount for every day (365)
-    shape_y_dh : array
-        Shape for every day (365, 24), total sum = 365
-    model_yeardays : array
-        Modelled yeardays
-
-    Returns
-    -------
-    shape_yh : array
-        Shape for every hour in a year (total sum == 1)
-    """
-    shape_yh = shape_yd[:, np.newaxis] * shape_y_dh[[model_yeardays]]
-
-    return shape_yh
