@@ -439,7 +439,6 @@ def create_load_profile_stock(
                 assumptions['ss_fuel_tech_p_by'][enduse])
 
             for sector in sectors['ss_sectors']:
-
                 shape_non_peak_yd = tech_lp['ss_shapes_yd'][enduse][sector]['shape_non_peak_yd'] * assumptions['ss_weekend_f'] #TODO FACTOR NEW
                 shape_non_peak_yd = load_profile.abs_to_rel(shape_non_peak_yd)
 

@@ -201,15 +201,20 @@ def assign_by_fuel_tech_p(assumptions, enduses, fueltypes, fueltypes_nr):
         'heat_pumps_hydrogen': 0.0}
 
     # ------------------------------
-    # Cooling 
+    # Cooling AHVAC, AHU,
     # TODO Assign technologies
     # ------------------------------
-    '''assumptions['ss_fuel_tech_p_by']['ss_cooling_humidification'][fueltypes['electricity']] = {
-        'ss_cooling_tech': 1.0}'''
+    assumptions['ss_fuel_tech_p_by']['ss_cooling_humidification'][fueltypes['electricity']] = {
+        'ss_cooling_tech_electricity': 1.0}
+    assumptions['ss_fuel_tech_p_by']['ss_cooling_humidification'][fueltypes['gas']] = {
+        'ss_cooling_tech_gas': 1.0}
+    assumptions['ss_fuel_tech_p_by']['ss_cooling_humidification'][fueltypes['oil']] = {
+        'ss_cooling_tech_oil': 1.0}
+
     assumptions['ss_fuel_tech_p_by']['ss_cooled_storage'][fueltypes['electricity']] = {
-        'ss_cooling_tech': 1.0}
+        'ss_cooling_tech_electricity': 1.0}
     assumptions['ss_fuel_tech_p_by']['ss_fans'][fueltypes['electricity']] = {
-        'ss_cooling_tech': 1.0}
+        'ss_cooling_tech_electricity': 1.0}
 
     # ===================
     # Industry subModel  - Fuel shares of technologies in enduse

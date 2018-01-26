@@ -127,6 +127,10 @@ class Enduse(object):
         """Enduse class constructor
         """
         #print("--- Enduse: " + str(enduse))
+        if enduse == 'ss_cooling_humidification':
+            print(". {}".format(sector))
+            if sector == 'offices':
+                print(fuel)
         self.region_name = region_name
         self.enduse = enduse
         self.fuel_new_y = fuel
@@ -365,7 +369,8 @@ class Enduse(object):
                         # Summarise all energy demand of heating related (constrained) technologies
                         self.fuel_yh = sum(self.techs_fuel_yh.values())
                         self.fuel_peak_h = sum(self.techs_fuel_peak_h.values())
-                        self.fuel_peak_dh = sum(self.techs_fuel_peak_dh.values()) 
+                        self.fuel_peak_dh = sum(self.techs_fuel_peak_dh.values())
+
                     else: # (not specific for technologies)
 
                         # Demand management for heating related technologies

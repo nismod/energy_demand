@@ -17,7 +17,12 @@ https://nismod.github.io/docs/smif-prerequisites.html#sector-modeller
 # Industry INFO about efficiencies & technologies: Define strategy variables
 # Cooling?
 
-# Potentiall load other annual profiles?
+NICETOHAVE
+- Convert paths dict to objects
+- 
+
+
+
 DISTRICT HEATING TECHS
 TODO: Improve industry related demand --> define strategies
 TODO: Related ed to houses & householdsize

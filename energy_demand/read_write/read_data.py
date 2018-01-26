@@ -629,6 +629,10 @@ def read_technologies(path_to_csv, fueltypes):
                     "Error in technology loading table. Check if e.g. empty field")
                 sys.exit()
 
+    # Add dummy_technology to all tech_lists TODO WHY NOT?
+    #for tech_list_name, tech_list in dict_tech_lists.items():
+    #    tech_list.append('dummy_tech')
+
     return dict_technologies, dict_tech_lists
 
 def read_base_data_resid(path_to_csv):
