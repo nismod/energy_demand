@@ -312,6 +312,24 @@ def calk_peak_h_dh(fuel_peak_dh):
 
     return peak_fueltype_h
 
+def calk_peak_h_dh_single_fueltype(fuel_peak_dh):
+    """Ger peak hour in peak day
+
+    Arguments
+    ----------
+    fuel_peak_dh : array
+        Fuel of peak day for every fueltype
+
+    Return
+    ------
+    peak_fueltype_h : array
+        Fuel for maximum hour in peak day per fueltype
+    """
+    # Get maximum value per row (maximum fuel hour per fueltype)
+    peak_fueltype_h = np.max(fuel_peak_dh, axis=0)
+
+    return peak_fueltype_h
+
 def create_load_profile_stock(
         tech_lp,
         assumptions,
