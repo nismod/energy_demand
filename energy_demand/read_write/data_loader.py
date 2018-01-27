@@ -323,7 +323,7 @@ def load_paths(path):
 
         # Path to all technologies
         'path_technologies': os.path.join(
-            path, 'config_data', 'scenario_and_base_data', 'technology_base_scenario.csv'),
+            path, 'config_data', 'technology_definition.csv'),
 
         # Fuel switches
         'rs_path_fuel_switches': os.path.join(
@@ -367,8 +367,8 @@ def load_paths(path):
         'path_shape_ss_cooling': os.path.join(
             path, 'config_data', 'submodel_service', 'shape_service_cooling.csv'),
         'lp_elec_storage_heating': os.path.join(
-            #path, 'config_data', 'submodel_residential', 'lp_elec_storage_heating_HES.csv'), #Worst 
-            #path, 'config_data', 'submodel_residential', 'lp_elec_storage_heating_Bossmann.csv'), #Better 
+            #path, 'config_data', 'submodel_residential', 'lp_elec_storage_heating_HES.csv'), #Worst
+            #path, 'config_data', 'submodel_residential', 'lp_elec_storage_heating_Bossmann.csv'), #Better
             path, 'config_data', 'submodel_residential', 'lp_elec_storage_heating_HESReport.csv'), #BEST
             
         'lp_elec_secondary_heating': os.path.join(
@@ -417,10 +417,8 @@ def load_tech_profiles(tech_lp, paths, local_paths, plot_tech_lp=False):
     tech_lp['rs_lp_heating_hp_dh'] = read_data.read_load_shapes_tech(
         paths['lp_elec_hp_dh'])
 
-    #tech_lp['rs_shapes_cooling_dh'] = read_data.read_csv_float(paths['path_shape_rs_cooling']) # TODO
-    #tech_lp['ss_shapes_cooling_dh'] = read_data.read_csv_float(paths['path_shape_ss_cooling']) # ??
     tech_lp['rs_shapes_cooling_dh'] = read_data.read_load_shapes_tech(paths['path_shape_rs_cooling']) # TODO
-    tech_lp['ss_shapes_cooling_dh'] = read_data.read_load_shapes_tech(paths['path_shape_ss_cooling']) # ??
+    tech_lp['ss_shapes_cooling_dh'] = read_data.read_load_shapes_tech(paths['path_shape_ss_cooling'])
 
     # Add fuel data of other model enduses to the fuel data table (E.g. ICT or wastewater)
     tech_lp['rs_lp_storage_heating_dh'] = read_data.read_load_shapes_tech(
@@ -521,8 +519,7 @@ def load_data_profiles(paths, local_paths, model_yeardays, model_yeardays_daytyp
     model_yeardays : int
         Number of modelled yeardays
     model_yeardays_daytype : int
-
-    
+        Daytype of every modelled day
     plot_tech_lp : bool
         Criteria wheter to plot out individual load profiles of techs
     """

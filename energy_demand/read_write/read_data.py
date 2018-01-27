@@ -206,12 +206,10 @@ def calc_av_per_season_fueltype(results_every_year, seasons, model_yeardays_dayt
     """TODO# Calculate average per season and fueltype for every fueltype
 
     """
-    av_season_daytype_cy = defaultdict(dict) #{}
-    season_daytype_cy = defaultdict(dict) #{}
+    av_season_daytype_cy = defaultdict(dict)
+    season_daytype_cy = defaultdict(dict)
 
     for year, fueltypes_data in results_every_year.items():
-        #av_season_daytype_cy[year] = {}
-        #season_daytype_cy[year] = {}
 
         for fueltype, reg_fuels in enumerate(fueltypes_data):
 
@@ -411,34 +409,6 @@ def read_csv_data_service(path_to_csv, fueltypes_nr):
 
     return end_uses_dict, list(all_sectors), list(all_enduses)
 
-def read_csv_float(path_to_csv):
-    """This function reads in CSV files and skips header row.
-
-    Arguments
-    ----------
-    path_to_csv : str
-        Path to csv file
-
-    Returns
-    -------
-    elements_array : array_like
-        Returns an array `elements_array` with the read in csv files.
-
-    Notes
-    -----
-    The header row is always skipped.
-    """
-    service_switches = []
-
-    with open(path_to_csv, 'r') as csvfile:
-        read_lines = csv.reader(csvfile, delimiter=',')
-        _headings = next(read_lines) # Skip first row
-
-        for row in read_lines:
-            service_switches.append(row)
-
-    return np.array(service_switches, float)
-
 def read_load_shapes_tech(path_to_csv):
     """This function reads in csv technology shapes
 
@@ -582,7 +552,8 @@ def read_fuel_switches(path_to_csv, enduses, fueltypes):
     return fuel_switches
 
 def read_technologies(path_to_csv, fueltypes):
-    """Read in technology definition csv file
+    """Read in technology definition csv file. Append
+    for every technology type a 'dummy_tech'.
 
     Arguments
     ----------
@@ -595,7 +566,30 @@ def read_technologies(path_to_csv, fueltypes):
         All technologies and their assumptions provided as input
     dict_tech_lists : dict
         List with technologies. The technology type
-        is defined in the technology input file
+        is defined in the technology input file. A dummy_tech
+        is added for every list in order to allow that a generic
+        technology type can be added for every enduse
+
+    Info
+    -----
+    The following attributes need to be defined for implementing
+    a technology.
+
+        Attribute                   Description
+        ==========                  =========================
+        technology                  [str]   Name of technology
+        fueltype                    [str]   Fueltype of technology
+        eff_by                      [float] Efficiency in base year
+        eff_ey                      [float] Efficiency in future end year
+        year_eff_ey	                [int]   Future year where efficiency is fully reached
+        eff_achieved                [float] Factor of how much of the efficiency
+                                            is achieved (overwritten by scenario input)
+        diff_method	market_entry    [int]   Year of market entry of technology
+        tech_list                   [str]   Definition of to which group
+                                            of technologies a technology belongs
+            TODO: MROE INFO
+        tech_max_share              [float] Maximum share of technology related
+                                            energy service which can be reached in theory
     """
     dict_technologies = {}
     dict_tech_lists = {}
@@ -611,7 +605,7 @@ def read_technologies(path_to_csv, fueltypes):
                     fueltype=str(row[1]),
                     eff_by=float(row[2]),
                     eff_ey=float(row[3]),
-                    year_eff_ey=float(row[4]), #MAYBE: ADD DICT WITH INTERMEDIARY POINTS
+                    year_eff_ey=float(row[4]),
                     eff_achieved=float(row[5]),
                     diff_method=str(row[6]),
                     market_entry=float(row[7]),
@@ -629,9 +623,9 @@ def read_technologies(path_to_csv, fueltypes):
                     "Error in technology loading table. Check if e.g. empty field")
                 sys.exit()
 
-    # Add dummy_technology to all tech_lists TODO WHY NOT?
-    #for tech_list_name, tech_list in dict_tech_lists.items():
-    #    tech_list.append('dummy_tech')
+    # Add dummy_technology to all tech_lists
+    for tech_list in dict_tech_lists.values():
+        tech_list.append('dummy_tech')
 
     return dict_technologies, dict_tech_lists
 
@@ -903,7 +897,7 @@ def read_service_tech_by_p(path_to_csv):
 
 def read_disaggregated_fuel(path_to_csv, fueltypes_nr):
     """Read disaggregated fuel
-    
+s
     Arguments
     ----------
     path_to_csv : str

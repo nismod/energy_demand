@@ -204,6 +204,11 @@ def assign_by_fuel_tech_p(assumptions, enduses, fueltypes, fueltypes_nr):
     # Cooling AHVAC, AHU,
     # TODO Assign technologies
     # ------------------------------
+    #TODO FACTOR OF PERCENTAGE OF FLOOR AREA WHICH IS COOLED
+    # Table 5.09
+    #HVAC_pack
+    #HVAC_central
+
     assumptions['ss_fuel_tech_p_by']['ss_cooling_humidification'][fueltypes['electricity']] = {
         'ss_cooling_tech_electricity': 1.0}
     assumptions['ss_fuel_tech_p_by']['ss_cooling_humidification'][fueltypes['gas']] = {

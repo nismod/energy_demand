@@ -4,7 +4,7 @@ Energy Demand Model
 Contains the function `energy_demand_model` which is used
 to run the energy demand model
 
-Tools 
+Tools
 ------
 Profiling: https://jiffyclub.github.io/snakeviz/
 
@@ -19,9 +19,7 @@ https://nismod.github.io/docs/smif-prerequisites.html#sector-modeller
 
 NICETOHAVE
 - Convert paths dict to objects
-- 
-
-
+-
 
 DISTRICT HEATING TECHS
 TODO: Improve industry related demand --> define strategies
@@ -29,15 +27,13 @@ TODO: Related ed to houses & householdsize
 TODO: Define efficencies of all techsg
 TODO: Base year fuel assignements
 TODO: ET_module
-TODO :TEST IF IN SUMMER COOLING CAN BE ADDED FOR ELECTRICITY
 TODO: COOLING? --> Test if adding with adapted cooling function
 TODO: SENSITIVITY
-TODO: Maybe use End-use classification of Table 5.5a which includes ICT
 TODO: Accounting module for energy and emissions
 TODO: data loading, load multiple years for real elec data
 TODO: Load different temp --> for different years
-TODO: Assign cooling techs for ss_cooling
-TODO: SUMMING ERROR NOW FROM SOMWHERE? (FOR GAS AND OILö)
+TODO: Assign cooling techs for ss_coolingt
+TODO: THECK VARIALBES IN HOUSEHOLD MODEL
 """
 import os
 import sys

@@ -72,11 +72,6 @@ def createNEWCASTLE_dwelling_stock(curr_yr, region, data, parameter_list):
 
     return dwelling_stock
 
-
-# ---------------------
-
-
-
 class Dwelling(object):
     """Dwelling or aggregated group of dwellings
 
@@ -159,7 +154,9 @@ class Dwelling(object):
             Scenario drivers for every enduse
         """
         for enduse in self.enduses:
-            scenario_driver_value = 1 #used to sum (not zero!)
+
+            #used to sum (not zero!)
+            scenario_driver_value = 1
 
             # If there is no scenario drivers for enduse, set to standard value 1
             if enduse not in driver_assumptions:

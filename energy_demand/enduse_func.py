@@ -127,10 +127,6 @@ class Enduse(object):
         """Enduse class constructor
         """
         #print("--- Enduse: " + str(enduse))
-        if enduse == 'ss_cooling_humidification':
-            print(". {}".format(sector))
-            if sector == 'offices':
-                print(fuel)
         self.region_name = region_name
         self.enduse = enduse
         self.fuel_new_y = fuel

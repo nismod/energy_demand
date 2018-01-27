@@ -7,7 +7,6 @@ regional load profiles are calculated.
 """
 import uuid
 import numpy as np
-import logging
 from energy_demand.technologies import technological_stock
 from energy_demand.profiles import load_profile
 from energy_demand.profiles import hdd_cdd
@@ -116,7 +115,6 @@ class WeatherRegion(object):
             t_diff_param['sig_midpoint'],
             t_diff_param['sig_steeppness'],
             t_diff_param['yr_until_changed'])
-        
         '''is_t_base_cooling_cy = hdd_cdd.sigm_temp(
             strategy_variables['is_t_base_cooling_future_yr'],
             t_bases['is_t_cooling_by'],
@@ -212,7 +210,7 @@ class WeatherRegion(object):
         #    rs_fuel_shape_cooling_yd, tech_lp['rs_shapes_cooling_dh'], model_yeardays)
         #or also (if only yd)
         #shape_yh=tech_lp['rs_shapes_dh'][cooling_enduse]['shape_non_peak_y_dh'] * ss_fuel_shape_coolin_yd[:, np.newaxis],
-        rs_fuel_shape_cooling_yh = self.get_shape_cooling_yh(data, rs_fuel_shape_cooling_yd, 'rs_shapes_cooling_dh') #TODO NOT NECESSARY
+        rs_fuel_shape_cooling_yh = self.get_shape_cooling_yh(data, rs_fuel_shape_cooling_yd, 'rs_shapes_cooling_dh')
 
         for cooling_enduse in assumptions['enduse_rs_space_cooling']:
             self.rs_load_profiles.add_lp(
@@ -369,17 +367,13 @@ class WeatherRegion(object):
         #------
         # Add cooling technologies for service sector
         #------
-        '''coolings_techs = []
-        for tech in tech_lists['tech_cooling_const']:
-            coolings_techs.append(tech)'''
         coolings_techs = tech_lists['tech_cooling_const']
-        #coolings_techs.append('dummy_tech')
-        #coolings_techs = tech_lists['tech_cooling_const'] # This does not work if appending TODO?
-        #coolings_techs.append('dummy_tech')
 
         for cooling_enduse in assumptions['ss_enduse_space_cooling']:
             for sector in sectors['ss_sectors']:
-                ss_fuel_shape_coolin_yd = ss_fuel_shape_coolin_yd * assumptions['ss_weekend_f'] #TODO FACTOR NEW
+
+                # Apply correction factor for weekend_effect
+                ss_fuel_shape_coolin_yd = ss_fuel_shape_coolin_yd * assumptions['ss_weekend_f']
                 ss_fuel_shape_coolin_yd = load_profile.abs_to_rel(ss_fuel_shape_coolin_yd)
 
                 # Ev auch tech_lp['ss_shapes_cooling_dh']
@@ -434,8 +428,8 @@ class WeatherRegion(object):
         is_space_heating_tech_lists = list(tech_lists.values())
         all_techs_is_space_heating = [item for sublist in is_space_heating_tech_lists for item in sublist]
 
-        # Include weekend factor
-        is_fuel_shape_heating_yd = is_fuel_shape_heating_yd * assumptions['is_weekend_f'] #TODO FACTOR NEW
+        # Apply correction factor for weekend_effect
+        is_fuel_shape_heating_yd = is_fuel_shape_heating_yd * assumptions['is_weekend_f']
         is_fuel_shape_heating_yd = load_profile.abs_to_rel(is_fuel_shape_heating_yd)
 
         # Y_dh Heating profile is taken from service sector
