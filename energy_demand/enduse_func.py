@@ -202,6 +202,16 @@ class Enduse(object):
             #logging.info("... Fuel train E: " + str(np.sum(self.fuel_new_y)))
             #print("... Fuel train E: " + str(np.sum(self.fuel_new_y)))
 
+            # Apply cooling scenario variable
+            self.fuel_new_y = apply_cooling(
+                enduse,
+                self.fuel_new_y,
+                assumptions['strategy_variables'],
+                assumptions['assump_cooling_floorarea'],
+                enduse_overall_change,
+                base_yr,
+                curr_yr)
+
             # ----------------------------------
             # Hourly Disaggregation
             # ----------------------------------
@@ -1254,11 +1264,10 @@ def apply_heat_recovery(
     A standard sigmoid diffusion is assumed from base year to end year
     """
     try:
+        # Fraction of heat recovered until end year
+        heat_recovered_p = strategy_variables["heat_recoved__{}".format(enduse)]
 
-        # Fraction of heat recovered until end_year
-        heat_recovered_p_by = strategy_variables["heat_recoved__{}".format(enduse)]
-
-        if heat_recovered_p_by == 0:
+        if heat_recovered_p == 0:
             return service
         else:
             # Fraction of heat recovered in current year
@@ -1269,7 +1278,7 @@ def apply_heat_recovery(
                 enduse_overall_change['other_enduse_mode_info']['sigmoid']['sig_midpoint'],
                 enduse_overall_change['other_enduse_mode_info']['sigmoid']['sig_steeppness'])
 
-            heat_recovered_p_cy = sig_diff_factor * heat_recovered_p_by
+            heat_recovered_p_cy = sig_diff_factor * heat_recovered_p
 
             # Apply to technologies each stored in dictionary
             if crit_dict == 'service_tech':
@@ -1534,6 +1543,9 @@ def apply_smart_metering(
         generally fuel savings for each enduse can be defined.
     """
     try:
+
+        savings = sm_assump_strategy['smart_meter_improvement_{}'.format(enduse)]
+
         # Sigmoid diffusion up to current year
         sigm_factor = diffusion_technologies.sigmoid_diffusion(
             base_yr,
@@ -1547,14 +1559,12 @@ def apply_smart_metering(
         penetration_cy = sm_assump['smart_meter_p_by'] + (
             sigm_factor * (sm_assump_strategy['smart_meter_p_future'] - sm_assump['smart_meter_p_by']))
 
-        savings = sm_assump_strategy['smart_meter_improvement_{}'.format(enduse)]
-
         saved_fuel = fuel_y * (penetration_cy -penetration_by) * savings
         fuel_y = fuel_y - saved_fuel
 
         return fuel_y
 
-    except:
+    except KeyError:
         # not defined for this enduse
         return fuel_y
 
@@ -1707,3 +1717,68 @@ def calc_service_switch(
         service_tech_yh_cy[tech] = tot_service_yh_cy * enduse_share
 
     return service_tech_yh_cy
+
+def apply_cooling(
+        enduse,
+        fuel_y,
+        strategy_variables,
+        assump_cooling_floorarea,
+        enduse_overall_change,
+        base_yr,
+        curr_yr):
+    """Apply changes for cooling enduses depending
+    on assumption of how much of the floor area in percent
+    is cooled
+
+    It is aassumption a linear correlation between the
+    percentage of cooled floor space (area) and energy demand.
+
+    Arguments
+    ---------
+    enduse : str
+        Enduse
+    fuel_y : array
+        Fuel demand
+    strategy_variable : dict
+        Strategy variables
+    assump_cooling_floorarea : dict
+        Assumption about cooling floor area in base year
+    enduse_overall_change : dict
+        diffusion parameters
+    base_yr : int
+        Base year
+    curr_yr : int
+        Current year
+
+    Returns
+    -------
+    fuel_y : array
+        Fuel array (either changed fuel depending on cooling percentage)
+        of identical array
+    """
+    try:
+        # Floor area cooled in end year
+        cooled_floorearea_p = strategy_variables["cooled_floorarea__{}".format(enduse)]
+
+        # Fraction of heat recovered in current year
+        sig_diff_factor = diffusion_technologies.sigmoid_diffusion(
+            base_yr,
+            curr_yr,
+            strategy_variables['cooled_floorarea_yr_until_changed'],
+            enduse_overall_change['other_enduse_mode_info']['sigmoid']['sig_midpoint'],
+            enduse_overall_change['other_enduse_mode_info']['sigmoid']['sig_steeppness'])
+
+        cooled_floorarea_p_cy = sig_diff_factor * cooled_floorearea_p
+
+        cooled_floorarea_p_by = assump_cooling_floorarea['cooled_ss_floorarea_by']
+
+        # Calculate factor
+        floorare_cooling_factor = cooled_floorarea_p_cy / cooled_floorarea_p_by
+
+        # Apply factor
+        fuel_y = fuel_y * floorare_cooling_factor
+        return fuel_y
+
+    except KeyError:
+        #for this enduse, no cooling is defined
+        return fuel_y

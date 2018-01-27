@@ -201,10 +201,15 @@ class DwellingStock(object):
 
         # Calculate enduse specific scenario driver
         for enduse in enduses:
+
+            enduse_scenario_driver = get_scenario_driver_enduse(
+                dwellings,
+                enduse)
+
             DwellingStock.__setattr__(
                 self,
                 enduse,
-                get_scenario_driver_enduse(dwellings, enduse))
+                enduse_scenario_driver)
 
 def get_scenario_driver_enduse(dwellings, enduse):
     """Sum all scenario driver for space heating

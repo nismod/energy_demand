@@ -154,6 +154,13 @@ def load_non_param_assump(
         'is_other': ['gva'],
         'is_refrigeration': ['gva']}
 
+
+    # ============================================================
+    # Cooling related assumptions
+    # ============================================================
+    assumptions['assump_cooling_floorarea'] = {}
+    assumptions['assump_cooling_floorarea']['cooled_ss_floorarea_by'] = 0.35
+
     # ============================================================
     # Smart meter related base year assumptions
     # ============================================================
