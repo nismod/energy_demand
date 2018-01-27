@@ -627,7 +627,7 @@ def change_temp_climate(
         Month containing all yeardays
     assumptions_temp_change : dict
         Assumption on temperature change
-    base_yr : dict
+    base_yr : int
         Base year
     curr_yr : int
         Current year

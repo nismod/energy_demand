@@ -626,7 +626,7 @@ def tech_sigmoid_parameters(
 
     Arguments
     ----------
-    base_yr : dict
+    base_yr : int
         base year
     technologies : dict
         technologies

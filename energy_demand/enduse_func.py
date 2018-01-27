@@ -972,10 +972,15 @@ def calc_fuel_tech_yh(
         Fueltype storing hourly fuel for every fueltype (fueltype, model_yeardays_nrs, 24)
     """
     if mode_constrained:
+
+        # Initialse empty
+        #empty_fuel_container = np.zeros((fueltypes_nr, model_yeardays_nrs, 24), dtype=float)
+
         fuels_yh = {}
         for tech in enduse_techs:
 
-            load_profile = load_profiles.get_lp(enduse, sector, tech, 'shape_yh')
+            load_profile = load_profiles.get_lp(
+                enduse, sector, tech, 'shape_yh')
 
             if model_yeardays_nrs != 365:
                 load_profile = lp.abs_to_rel(load_profile)
@@ -984,15 +989,20 @@ def calc_fuel_tech_yh(
             tech_fueltype = tech_stock.get_tech_attr(enduse, tech, 'fueltype_int')
             fuel_tech_yh = enduse_fuel_tech[tech] * load_profile
 
+            #'''
             # Fully empty fuel array
             fuels_yh[tech] = np.zeros((fueltypes_nr, model_yeardays_nrs, 24), dtype=float)
-
+            #'''
+            #fuels_yh[tech] = np.copy(empty_fuel_container)  #Slower
+            #fuels_yh[tech] = np.zeros_like(empty_fuel_container) #Slower
             # Fill fuel array with fuel of tech fueltype
             fuels_yh[tech][tech_fueltype] = fuel_tech_yh
     else:
         fuels_yh = np.zeros((fueltypes_nr, model_yeardays_nrs, 24), dtype=float)
         for tech in enduse_techs:
-            load_profile = load_profiles.get_lp(enduse, sector, tech, 'shape_yh')
+
+            load_profile = load_profiles.get_lp(
+                enduse, sector, tech, 'shape_yh')
 
             if model_yeardays_nrs != 365:
                 load_profile = lp.abs_to_rel(load_profile)

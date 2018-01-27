@@ -370,7 +370,6 @@ def load_paths(path):
             #path, 'config_data', 'submodel_residential', 'lp_elec_storage_heating_HES.csv'), #Worst
             #path, 'config_data', 'submodel_residential', 'lp_elec_storage_heating_Bossmann.csv'), #Better
             path, 'config_data', 'submodel_residential', 'lp_elec_storage_heating_HESReport.csv'), #BEST
-            
         'lp_elec_secondary_heating': os.path.join(
             path, 'config_data', 'submodel_residential', 'lp_elec_secondary_heating_HES.csv'),
 
@@ -543,7 +542,6 @@ def load_data_profiles(paths, local_paths, model_yeardays, model_yeardays_daytyp
     tech_lp['ss_shapes_dh'], tech_lp['ss_shapes_yd'] = ss_collect_shapes_from_txts(
         local_paths['ss_load_profile_txt'], model_yeardays)
 
-    print(tech_lp['ss_shapes_dh'].keys)
     # -- From Carbon Trust (service sector data) read out enduse specific shapes
     tech_lp['ss_all_tech_shapes_dh'], tech_lp['ss_all_tech_shapes_yd'] = ss_read_shapes_enduse_techs(
         tech_lp['ss_shapes_dh'], tech_lp['ss_shapes_yd'])

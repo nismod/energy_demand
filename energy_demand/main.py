@@ -34,6 +34,7 @@ TODO: data loading, load multiple years for real elec data
 TODO: Load different temp --> for different years
 TODO: Assign cooling techs for ss_coolingt
 TODO: THECK VARIALBES IN HOUSEHOLD MODEL
+TODO: WRITE COOLING PARAMETER
 """
 import os
 import sys
@@ -165,7 +166,7 @@ if __name__ == "__main__":
     data['criterias']['virtual_building_stock_criteria'] = True
     data['criterias']['spatial_exliclit_diffusion'] = False
     data['criterias']['write_to_txt'] = False
-    data['criterias']['beyond_supply_outputs'] = True
+    data['criterias']['beyond_supply_outputs'] = False
     data['criterias']['plot_tech_lp'] = True
 
     data['paths'] = data_loader.load_paths(path_main)

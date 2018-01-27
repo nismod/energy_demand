@@ -1,9 +1,10 @@
 """
+-------------------------------------------
 Assumptions provided as parameters to smif
-
+-------------------------------------------
 This script can be run to write out all paramters as YAML
 file. This file is not executed when running the ed model
-from within smif
+from within smif.
 """
 import logging
 from energy_demand.read_write import write_data
@@ -12,6 +13,13 @@ from energy_demand.basic import basic_functions
 def load_param_assump(paths, assumptions):
     """All assumptions of the energy demand model
     are loaded and added to the data dictionary
+
+    Arguments
+    ---------
+    paths : dict
+        Paths
+    assumptions : dict
+        Assumptions
 
     Returns
     -------
@@ -429,12 +437,15 @@ def load_param_assump(paths, assumptions):
     # and write to yaml file
     # -----------------------
     basic_functions.del_file(paths['yaml_parameters_default'])
+
     write_data.write_yaml_param_complete(
-        paths['yaml_parameters_default'], strategy_variables)
+        paths['yaml_parameters_default'],
+        strategy_variables)
 
     basic_functions.del_file(paths['yaml_parameters_scenario'])
     write_data.write_yaml_param_scenario(
-        paths['yaml_parameters_scenario'], strategy_vars)
+        paths['yaml_parameters_scenario'],
+        strategy_vars)
 
     # Replace strategy variables
     assumptions['strategy_variables'] = strategy_vars

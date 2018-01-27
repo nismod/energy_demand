@@ -194,7 +194,7 @@ def capacity_installations(
         Fuels
     fuel_shares_enduse_by : dict
         Fuel technology shares in base year
-    base_yr : dict
+    base_yr : int
         Base year
 
     Returns
@@ -272,7 +272,7 @@ def create_service_switch(
         OTher diffusion information
     fuel_shares_enduse_by : dict
         Fuel shares per enduse for base year
-    base_yr : dict
+    base_yr : int
         base year
     fuel_enduse_y : dict
         Fuels
@@ -288,10 +288,7 @@ def create_service_switch(
     2.  Convert installed capacity to service of ey and add this
     3.  Calculate percentage of service for ey
     4.  Write out as service switch
-
     """
-    curr_yr = capacity_switch.switch_yr
-
     # ---------------------------------------------
     # Calculate service per technology for end year
     # ---------------------------------------------
@@ -303,7 +300,7 @@ def create_service_switch(
             # Efficiency of year when capacity is fully installed
             tech_eff_ey = tech_related.calc_eff_cy(
                 base_yr,
-                curr_yr,
+                capacity_switch.switch_yr,
                 technologies[tech].eff_by,
                 technologies[tech].eff_ey,
                 technologies[tech].year_eff_ey,
@@ -320,24 +317,22 @@ def create_service_switch(
     # (installed) technologies
     # -------------------------------------------
     for capacity_switch in enduse_capacity_switches:
-        technology_install = capacity_switch.technology_install
-        installed_capacity = capacity_switch.installed_capacity
 
         tech_eff_ey = tech_related.calc_eff_cy(
             base_yr,
-            curr_yr,
-            technologies[technology_install].eff_by,
-            technologies[technology_install].eff_ey,
-            technologies[technology_install].year_eff_ey,
+            capacity_switch.switch_yr,
+            technologies[capacity_switch.technology_install].eff_by,
+            technologies[capacity_switch.technology_install].eff_ey,
+            technologies[capacity_switch.technology_install].year_eff_ey,
             other_enduse_mode_info,
-            technologies[technology_install].eff_achieved,
-            technologies[technology_install].diff_method)
+            technologies[capacity_switch.technology_install].eff_achieved,
+            technologies[capacity_switch.technology_install].diff_method)
 
         # Convert installed capacity to service
-        installed_capacity_ey = installed_capacity * tech_eff_ey
+        installed_capacity_ey = capacity_switch.installed_capacity * tech_eff_ey
 
         # Add capacity
-        service_enduse_tech[technology_install] += installed_capacity_ey
+        service_enduse_tech[capacity_switch.technology_install] += installed_capacity_ey
 
     # -------------------------------------------
     # Calculate service in % per enduse
@@ -431,7 +426,7 @@ def capacity_to_service_switches(assumptions, fuels, base_yr):
         Container
     fuels : dict
         Fuels
-    base_yr : dict
+    base_yr : int
         Base year
     """
     assumptions['rs_service_switches'] = capacity_installations(

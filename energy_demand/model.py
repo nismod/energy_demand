@@ -648,13 +648,14 @@ def service_submodel(
 
     return submodels
 
-def fuel_regions_fueltype(
+'''def fuel_regions_fueltype(
         fueltypes_nr,
         model_yearhours_nrs,
         model_yeardays_nrs,
         submodels
     ):
-    """Aggregate fuels for every fueltype, region and timestep (unconstrained mode).
+    """Aggregate fuels for every fueltype, region
+    and timestep (unconstrained mode).
 
     Arguments
     ---------
@@ -681,7 +682,7 @@ def fuel_regions_fueltype(
         model_yeardays_nrs)
 
     return fuel_region
-
+'''
 def aggr_fuel_regions_fueltype(
         aggregation_array,
         fueltypes_nr,
@@ -968,11 +969,19 @@ def aggregate_final_results(
         # Summarise remaining fuel of other enduses
         # -------------
         for submodel_nr, submodel in enumerate(all_submodels):
-            submodel_ed_fueltype_regs_yh = fuel_regions_fueltype(
+            '''submodel_ed_fueltype_regs_yh = fuel_regions_fueltype(
                 fueltypes_nr,
                 model_yearhours_nrs,
                 model_yeardays_nrs,
-                [submodel])
+                [submodel])'''
+
+            submodel_ed_fueltype_regs_yh = fuel_aggr(
+                'fuel_yh',
+                [submodel],
+                'no_sum',
+                model_yearhours_nrs,
+                fueltypes_nr,
+                model_yeardays_nrs)
 
             # Add SubModel specific ed
             aggr_results['ed_submodel_fueltype_regs_yh'][submodel_nr][reg_array_nr] += submodel_ed_fueltype_regs_yh
@@ -984,11 +993,18 @@ def aggregate_final_results(
         # -------------
         # Sum across all fueltypes, sectors, regs and hours
         for submodel_nr, submodel in enumerate(all_submodels):
-            submodel_ed_fueltype_regs_yh = fuel_regions_fueltype(
+            '''submodel_ed_fueltype_regs_yh = fuel_regions_fueltype(
                 fueltypes_nr,
                 model_yearhours_nrs,
                 model_yeardays_nrs,
-                [submodel])
+                [submodel])'''
+            submodel_ed_fueltype_regs_yh = fuel_aggr(
+                'fuel_yh',
+                [submodel],
+                'no_sum',
+                model_yearhours_nrs,
+                fueltypes_nr,
+                model_yeardays_nrs)
 
             # Add SubModel specific ed
             aggr_results['ed_submodel_fueltype_regs_yh'][submodel_nr][reg_array_nr] += submodel_ed_fueltype_regs_yh

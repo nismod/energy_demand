@@ -20,7 +20,7 @@ def load_non_param_assump(
 
     Parameters
     ----------
-    base_yr : dict
+    base_yr : int
         Simulation parameters
     paths : dict
         Paths
