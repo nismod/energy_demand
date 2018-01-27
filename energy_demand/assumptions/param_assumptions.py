@@ -1,9 +1,10 @@
 """
+-------------------------------------------
 Assumptions provided as parameters to smif
-
+-------------------------------------------
 This script can be run to write out all paramters as YAML
 file. This file is not executed when running the ed model
-from within smif
+from within smif.
 """
 import logging
 from energy_demand.read_write import write_data
@@ -12,6 +13,13 @@ from energy_demand.basic import basic_functions
 def load_param_assump(paths, assumptions):
     """All assumptions of the energy demand model
     are loaded and added to the data dictionary
+
+    Arguments
+    ---------
+    paths : dict
+        Paths
+    assumptions : dict
+        Assumptions
 
     Returns
     -------
@@ -281,6 +289,23 @@ def load_param_assump(paths, assumptions):
         strategy_vars[enduse_name] = param_value
 
     # ============================================================
+    # Cooling
+    # ============================================================
+    strategy_variables.append({
+        "name": "cooled_floorarea__ss_cooling_humidification",
+        "absolute_range": (0, 1),
+        "description": "Percentage of floorarea which is cooled (service sector)",
+        "suggested_range": (0, 1),
+        "default_value": assumptions['assump_cooling_floorarea']['cooled_ss_floorarea_by'],
+        "units": '%'})
+
+    # How much of the floorarea is cooled in end year (example: 0.5 --> 50% of floorarea is cooled)
+    strategy_vars['cooled_floorarea__ss_cooling_humidification'] = 0.3 #TODO FIND NUMBER
+
+    # Year until floor area change is fully realised
+    strategy_vars['cooled_floorarea_yr_until_changed'] = yr_until_changed_all_things
+
+    # ============================================================
     # Heat recycling & Reuse
     # ============================================================
     strategy_variables.append({
@@ -357,16 +382,6 @@ def load_param_assump(paths, assumptions):
         'enduse_change__rs_consumer_electronics': 1,
         'enduse_change__rs_home_computing': 1,
 
-        # Submodel Service (Table 5.5)
-        #'enduse_change__ss_catering': 1,
-        #'enduse_change__ss_computing': 1,
-        #'enduse_change__ss_cooling_ventilation': 1,
-        #'enduse_change__ss_space_heating': 1,
-        #'enduse_change__ss_water_heating': 1,
-        #'enduse_change__ss_lighting': 1,
-        #'enduse_change__ss_other_gas': 1,
-        #'enduse_change__ss_other_electricity': 1,
-
         # Submodel Service (Table 5.5a)
         'enduse_change__ss_space_heating': 1,
         'enduse_change__ss_water_heating': 1,
@@ -422,12 +437,15 @@ def load_param_assump(paths, assumptions):
     # and write to yaml file
     # -----------------------
     basic_functions.del_file(paths['yaml_parameters_default'])
+
     write_data.write_yaml_param_complete(
-        paths['yaml_parameters_default'], strategy_variables)
+        paths['yaml_parameters_default'],
+        strategy_variables)
 
     basic_functions.del_file(paths['yaml_parameters_scenario'])
     write_data.write_yaml_param_scenario(
-        paths['yaml_parameters_scenario'], strategy_vars)
+        paths['yaml_parameters_scenario'],
+        strategy_vars)
 
     # Replace strategy variables
     assumptions['strategy_variables'] = strategy_vars

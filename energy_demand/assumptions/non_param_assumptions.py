@@ -20,7 +20,7 @@ def load_non_param_assump(
 
     Parameters
     ----------
-    base_yr : dict
+    base_yr : int
         Simulation parameters
     paths : dict
         Paths
@@ -154,6 +154,13 @@ def load_non_param_assump(
         'is_other': ['gva'],
         'is_refrigeration': ['gva']}
 
+
+    # ============================================================
+    # Cooling related assumptions
+    # ============================================================
+    assumptions['assump_cooling_floorarea'] = {}
+    assumptions['assump_cooling_floorarea']['cooled_ss_floorarea_by'] = 0.35
+
     # ============================================================
     # Smart meter related base year assumptions
     # ============================================================
@@ -192,10 +199,10 @@ def load_non_param_assump(
     assumptions['enduse_water_heating'] = [
         'rs_water_heating', 'ss_water_heating']
 
-    assumptions['enduse_rs_space_cooling'] = [] #['rs_cold']
-    assumptions['ss_enduse_space_cooling'] = ['ss_cooling_humidification'] #['ss_fans', 'ss_cooling_humidification', 'ss_cooled_storage']
-   
+    assumptions['enduse_rs_space_cooling'] = []
+    assumptions['ss_enduse_space_cooling'] = ['ss_fans', 'ss_cooling_humidification', 'ss_cooled_storage']#['ss_cooling_humidification']#, 'ss_fans'] #['ss_fans', 'ss_cooling_humidification', 'ss_cooled_storage']
 
+    #TODO: REPLAE NON DEFINED TECH IN FLUETPYES NOT WITH DUMMY TECH BUT ONLY IF NONE TECHNOLOGY AT ALL IS DEFINED
     # ============================================================
     # Assumption related to technologies
     # ============================================================

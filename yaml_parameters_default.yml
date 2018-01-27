@@ -407,6 +407,16 @@
 - absolute_range: !!python/tuple
   - 0
   - 1
+  default_value: 0.35
+  description: Percentage of floorarea which is cooled (service sector)
+  name: cooled_floorarea__ss_cooling_humidification
+  suggested_range: !!python/tuple
+  - 0
+  - 1
+  units: '%'
+- absolute_range: !!python/tuple
+  - 0
+  - 1
   default_value: 0
   description: Reduction in heat because of heat recovery and recycling (residential
     sector)

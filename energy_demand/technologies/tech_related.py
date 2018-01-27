@@ -218,18 +218,13 @@ def get_tech_type(tech_name, tech_list):
     tech_type : string
         Technology type
     """
-    if tech_name in tech_list['tech_heating_temp_dep']:
-        tech_type = 'heat_pump'
-    elif tech_name in tech_list['tech_heating_const']:
-        tech_type = 'boiler_heating_tech'
-    elif tech_name in tech_list['storage_heating_electricity']:
-        tech_type = 'storage_heating_electricity'
-    elif tech_name in tech_list['secondary_heating_electricity']:
-        tech_type = 'secondary_heating_electricity'
-    elif tech_name == 'dummy_tech':
+    if tech_name == 'dummy_tech':
         tech_type = 'dummy_tech'
     else:
-        tech_type = 'regular_tech'
+        if tech_name in tech_list['tech_heating_temp_dep']:
+            tech_type = 'heat_pump'
+        else:
+            tech_type = 'other_tech'
 
     return tech_type
 

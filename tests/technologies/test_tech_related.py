@@ -4,17 +4,15 @@ from energy_demand.technologies import tech_related
 def test_get_tech_type():
     """
     """
-    tech_list = { 
+    tech_list = {
         'tech_heating_temp_dep': ['heat_p'],
         'tech_heating_const': ['boilerA'],
         'storage_heating_electricity': ['boilerC'],
         'secondary_heating_electricity': []
     }
     assert tech_related.get_tech_type('dummy_tech', tech_list) == 'dummy_tech'
-    assert tech_related.get_tech_type('boilerA', tech_list) == 'boiler_heating_tech'
     assert tech_related.get_tech_type('heat_p', tech_list) == 'heat_pump'
-    assert tech_related.get_tech_type('boilerC', tech_list) == 'storage_heating_electricity'
-    assert tech_related.get_tech_type('test_tech', tech_list) == 'regular_tech'
+    assert tech_related.get_tech_type('test_tech', tech_list) == 'other_tech'
 
 def test_calc_eff_cy():
     """
