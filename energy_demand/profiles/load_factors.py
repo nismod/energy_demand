@@ -6,7 +6,7 @@ demand management
 """
 import numpy as np
 
-def peak_shaving_max_min(loadfactor_yd_cy_improved, average_yd, fuel_yh):
+def peak_shaving_max_min(loadfactor_yd_cy_improved, average_yd, fuel_yh, mode_constrained):
     """Shift demand with help of load factor. All demand above
     the maximum load is shifted proportionally to all hours
     having below average demand (see Section XY)
@@ -45,7 +45,11 @@ def peak_shaving_max_min(loadfactor_yd_cy_improved, average_yd, fuel_yh):
     # Calculate difference to daily mean for every hour
     # for every fueltype (hourly value - daily mean)
     # ------------------------------------------
-    diff_to_mean = fuel_yh - average_yd[:, :, np.newaxis]
+    if mode_constrained:
+        diff_to_mean = fuel_yh - average_yd[:, np.newaxis]
+    else:
+        diff_to_mean = fuel_yh - average_yd[:, :, np.newaxis]
+    
 
     # ------------------------
     # Calculate areas of lp below average for every day
@@ -55,17 +59,28 @@ def peak_shaving_max_min(loadfactor_yd_cy_improved, average_yd, fuel_yh):
     diff_to_mean = np.abs(diff_to_mean)
 
     # Sum along all fueltpes the total fuels which are lp below average
-    tot_area_below_mean = np.sum(diff_to_mean, axis=2)
+    if mode_constrained:
+        tot_area_below_mean = np.sum(diff_to_mean, axis=1)
+    else:
+        tot_area_below_mean = np.sum(diff_to_mean, axis=2)
 
     # Calculate percentage of total shiftable from above average to
     # below average for all hours which can take on fuel
-    area_below_mean_p = diff_to_mean / tot_area_below_mean[:, :, np.newaxis]
+    if mode_constrained:
+         area_below_mean_p = diff_to_mean / tot_area_below_mean[ :, np.newaxis]
+    else:
+        area_below_mean_p = diff_to_mean / tot_area_below_mean[:, :, np.newaxis]
+   
     area_below_mean_p[np.isnan(area_below_mean_p)] = 0
 
     # ------------------------------------------
     # Calculate diff to newmax for every hour
     # ------------------------------------------
-    diff_to_max_demand_d = fuel_yh - allowed_demand_max_d[:, :, np.newaxis]
+    if mode_constrained:
+        diff_to_max_demand_d = fuel_yh - allowed_demand_max_d[:, np.newaxis]
+    else:
+        diff_to_max_demand_d = fuel_yh - allowed_demand_max_d[:, :, np.newaxis]
+    
     diff_to_max_demand_d[diff_to_max_demand_d < 0] = 0
 
     # -----------------------------------------
@@ -73,13 +88,18 @@ def peak_shaving_max_min(loadfactor_yd_cy_improved, average_yd, fuel_yh):
     # and shift to all hours below average
     # -----------------------------------------
     # Calculate total demand which is to be shifted for every fueltype
-    tot_demand_to_shift = np.sum(diff_to_max_demand_d, axis=2)
-
+    if mode_constrained:
+        tot_demand_to_shift = np.sum(diff_to_max_demand_d, axis=1)
+    else:
+        tot_demand_to_shift = np.sum(diff_to_max_demand_d, axis=2)
     # Add fuel below average:
     # Distribute shiftable demand to all hours which are below average
     # according to percentage contributing to lf which is below average
-    shifted_fuel_yh = fuel_yh + (area_below_mean_p * tot_demand_to_shift[:, :, np.newaxis])
-
+    #
+    if mode_constrained:
+        shifted_fuel_yh = fuel_yh + (area_below_mean_p * tot_demand_to_shift[:, np.newaxis])
+    else:
+        shifted_fuel_yh = fuel_yh + (area_below_mean_p * tot_demand_to_shift[:, :, np.newaxis])
     # Set all fuel hours whih are above max to max (substract diff)
     shifted_fuel_yh = shifted_fuel_yh - diff_to_max_demand_d
 
@@ -171,7 +191,7 @@ def calc_lf_season(seasons, fuel_region_yh, average_fuel_yd):
 
     return seasons_lfs
 
-def calc_lf_d(fuel_yh, average_fuel_yd):
+def calc_lf_d(fuel_yh, average_fuel_yd, mode_constrained):
     """Calculate the daily load factor for every day in a year
     by dividing for each day the daily average by the daily peak
     hour load. The load factor is given in %
@@ -191,10 +211,17 @@ def calc_lf_d(fuel_yh, average_fuel_yd):
         Average fuel for every day
     """
     # Get maximum hours in every day
-    max_load_yd = np.max(fuel_yh, axis=2)
-
+    if mode_constrained:
+        #print("se")
+        max_load_yd = np.max(fuel_yh, axis=1)
+    else:
+        max_load_yd = np.max(fuel_yh, axis=2)
+    
     # Unable local RuntimeWarning: divide by zero encountered
     with np.errstate(divide='ignore', invalid='ignore'):
+        #print("average_fuel_yd: " + str(average_fuel_yd.shape))
+        #print("max_load_yd: " + str(max_load_yd.shape))
+        #print(fuel_yh.shape)
         daily_lf = (average_fuel_yd / max_load_yd) * 100 #convert to percentage
 
     # Replace

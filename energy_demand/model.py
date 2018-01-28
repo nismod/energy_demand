@@ -231,7 +231,6 @@ def simulate_region(region, data, weather_regions):
     return rs_submodel, ss_submodel, is_submodel
 
 def fuel_aggr(
-        attribute_to_get,
         sector_models,
         sum_crit,
         model_yearhours_nrs,
@@ -258,21 +257,21 @@ def fuel_aggr(
         Number of modelled yeardays
     region_name : str, default=False
         Name of region
-
+    TODO
     Returns
     -------
     input_array : array
         Summarised array
     """
-    input_array = np.zeros((fueltypes_nr, model_yeardays_nrs, 24), dtype=float)
+    input_array = np.zeros((
+        fueltypes_nr, model_yeardays_nrs, 24), dtype=float)
 
     for sector_model in sector_models:
         for enduse_object in sector_model:
 
-            #'''#NEW
             fuels = get_fuels_yh(
                 enduse_object,
-                attribute_technologies, #'techs_fuel_yh',
+                attribute_technologies, #'techs_fuel_yh'
                 model_yearhours_nrs,
                 model_yeardays_nrs)
 
@@ -281,23 +280,13 @@ def fuel_aggr(
                     tech_fueltype = technologies[tech].fueltype_int
                     input_array[tech_fueltype] += fuel_tech
             else:
-
                 # Fuel per technology
                 fuels = get_fuels_yh(
                     enduse_object,
-                    attribute_non_technology, #'fuel_yh',
+                    attribute_non_technology, #'fuel_yh'
                     model_yearhours_nrs,
                     model_yeardays_nrs)
                 input_array += fuels
-            #'''
-            # ---
-            '''
-            input_array += get_fuels_yh(
-                enduse_object,
-                attribute_to_get,
-                model_yearhours_nrs,
-                model_yeardays_nrs)
-            '''
 
     if sum_crit == 'no_sum':
         return input_array
@@ -742,7 +731,6 @@ def aggr_fuel_regions_fueltype(
         Aggregated fuel per fueltype, yeardays, hours
     """
     fuel_region = fuel_aggr(
-        'fuel_yh',
         submodels,
         'no_sum',
         model_yearhours_nrs,
@@ -1008,7 +996,6 @@ def aggregate_final_results(
         # -------------
         for submodel_nr, submodel in enumerate(all_submodels):
             submodel_ed_fueltype_regs_yh = fuel_aggr(
-                'fuel_yh',
                 [submodel],
                 'no_sum',
                 model_yearhours_nrs,
@@ -1028,15 +1015,13 @@ def aggregate_final_results(
         # -------------
         # Sum across all fueltypes, sectors, regs and hours
         for submodel_nr, submodel in enumerate(all_submodels):
-
             submodel_ed_fueltype_regs_yh = fuel_aggr(
-                'fuel_yh',
                 [submodel],
                 'no_sum',
                 model_yearhours_nrs,
                 fueltypes_nr,
                 model_yeardays_nrs,
-                'fuel_yh', 
+                'fuel_yh',
                 'techs_fuel_yh',
                 technologies)
 
@@ -1063,8 +1048,8 @@ def aggregate_final_results(
         # Sum across all regions, all enduse and sectors
         aggr_results['ed_fueltype_national_yh'] = aggr_fuel_aggr(
             aggr_results['ed_fueltype_national_yh'],
-            'fuel_yh', #non technology
-            'techs_fuel_yh', #technologies, #'fuel_yh', #TODO: USE 'techs_fuel_yh' simliar as in sum_enduse_all_regions
+            'fuel_yh', # unconstrained
+            'techs_fuel_yh', # constrained
             all_submodels,
             'no_sum',
             model_yearhours_nrs,
@@ -1095,7 +1080,6 @@ def aggregate_final_results(
         # Sum across all regions and provide specific enduse
         aggr_results['tot_fuel_y_enduse_specific_yh'] = sum_enduse_all_regions(
             aggr_results['tot_fuel_y_enduse_specific_yh'],
-            #'techs_fuel_yh', #TODO USE 'techs_fuel_yh'
             all_submodels,
             technologies,
             model_yearhours_nrs,
@@ -1122,7 +1106,7 @@ def aggregate_final_results(
         load_factor_y = load_factors.calc_lf_y(fuel_region_yh, average_fuel_yd)
 
         # Calculate load factors across all enduses (Daily lf)
-        load_factor_yd = load_factors.calc_lf_d(fuel_region_yh, average_fuel_yd)
+        load_factor_yd = load_factors.calc_lf_d(fuel_region_yh, average_fuel_yd, mode_constrained=False)
         load_factor_seasons = load_factors.calc_lf_season(
             seasons, fuel_region_yh, average_fuel_yd)
 
