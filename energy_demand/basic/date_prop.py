@@ -70,6 +70,11 @@ def get_model_yeardays_daytype(year_to_model):
 
 def read_season(year_to_model):
     """
+
+    Arguments
+    ---------
+    year_to_model : int
+        Year which is modelled
     """
     # Full meteorological seasons
     seasons = {}
