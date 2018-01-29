@@ -264,6 +264,8 @@ def create_service_switch(
     ---------
     enduse : dict
         Enduse
+    capacity_switch : obj
+        Capacity switch
     enduse_capacity_switches : list
         All capacity switches of an enduse
     technologies : dict
@@ -308,7 +310,7 @@ def create_service_switch(
                 technologies[tech].eff_achieved,
                 technologies[tech].diff_method)
 
-            # Convert to service (fuel * fuelshare * eff) TODO TEST
+            # Convert to service (fuel * fuelshare * eff)
             service_tech_ey_y = fuel_enduse_y[fueltype] * fuel_share_by * tech_eff_ey
             service_enduse_tech[tech] = service_tech_ey_y
 

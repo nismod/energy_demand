@@ -32,7 +32,6 @@ TODO: SENSITIVITY
 TODO: Accounting module for energy and emissions
 TODO: data loading, load multiple years for real elec data
 TODO: Load different temp --> for different years
-TODO: Assign cooling techs for ss_coolingt
 TODO: THECK VARIALBES IN HOUSEHOLD MODEL
 TODO: WRITE COOLING PARAMETER
 TODO: FUEL; SERVICE SWITHC AS INPUT
