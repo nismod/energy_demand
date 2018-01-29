@@ -10,7 +10,6 @@ from collections import defaultdict
 from smif.model.sector_model import SectorModel
 from pkg_resources import Requirement, resource_filename
 from pyproj import Proj, transform
-from pyinstrument import Profiler
 
 from energy_demand.plotting import plotting_results
 from energy_demand.basic import basic_functions
@@ -33,7 +32,6 @@ from energy_demand.profiles import hdd_cdd
 # must match smif project name for Local Authority Districts
 REGION_SET_NAME = 'lad_uk_2016'
 NR_OF_MODELLEd_REGIONS = 391 # uk: 391, england.: 380
-PROFILER = False
 
 class EDWrapper(SectorModel):
     """Energy Demand Wrapper
@@ -56,18 +54,18 @@ class EDWrapper(SectorModel):
         data = defaultdict(dict, data)
 
         # Criteria
-        data['criterias']['mode_constrained'] = True                    # True: Technologies are defined in ED model and fuel is provided, False: Heat is delievered not per technologies
+        data['criterias']['mode_constrained'] = False                    # True: Technologies are defined in ED model and fuel is provided, False: Heat is delievered not per technologies
         data['criterias']['virtual_building_stock_criteria'] = True     # True: Run virtual building stock model
         data['criterias']['plot_HDD_chart'] = False                     # True: Plotting of HDD vs gas chart
         data['criterias']['validation_criteria'] = False                 # True: Plot validation plots
         data['criterias']['spatial_exliclit_diffusion'] = False         # True: Spatial explicit calculations
         data['criterias']['writeYAML'] = False
-        data['criterias']['write_to_txt'] = True # True
-        data['criterias']['beyond_supply_outputs'] = True  # True             # If only for smif: FAlse, for other plots: True
+        data['criterias']['write_to_txt'] = True
+        data['criterias']['beyond_supply_outputs'] = False              # If only for smif: FAlse, for other plots: True
         data['criterias']['plot_crit'] = True
         data['criterias']['plot_tech_lp'] = True
 
-        data['sim_param']['base_yr'] = 2015                             # Base year
+        data['sim_param']['base_yr'] = 2015 # Base year
         data['sim_param']['curr_yr'] = data['sim_param']['base_yr']
         self.user_data['base_yr'] = data['sim_param']['base_yr']
 
@@ -168,19 +166,17 @@ class EDWrapper(SectorModel):
         # ----------------------------------
         # Calculating COOLING CDD PARAMETER
         # ----------------------------------
-        data['assumptions']['cdd_weekend_cfactors'] = hdd_cdd.get_cdd_weekend_correctionfactors(
+        data['assumptions']['cdd_weekend_cfactors'] = hdd_cdd.calc_weekend_corr_f(
             data['assumptions']['model_yeardays_daytype'], 
             data['assumptions']['ss_t_cooling_weekend_factor'])
         
-        data['assumptions']['ss_weekend_f'] = hdd_cdd.get_cdd_weekend_correctionfactors(
+        data['assumptions']['ss_weekend_f'] = hdd_cdd.calc_weekend_corr_f(
             data['assumptions']['model_yeardays_daytype'], 
             data['assumptions']['ss_weekend_factor'])
 
-        data['assumptions']['is_weekend_f'] = hdd_cdd.get_cdd_weekend_correctionfactors(
+        data['assumptions']['is_weekend_f'] = hdd_cdd.calc_weekend_corr_f(
             data['assumptions']['model_yeardays_daytype'], 
             data['assumptions']['is_weekend_factor'])
-
-        
 
         # ------------
         # Load load profiles of technologies
@@ -365,16 +361,7 @@ class EDWrapper(SectorModel):
         # ---------------------------------------------
         # Run energy demand model
         # ---------------------------------------------
-        if PROFILER:
-            profiler = Profiler(use_signal=False)
-            profiler.start()
-
         sim_obj = energy_demand_model(data)
-
-        if PROFILER:
-            profiler.stop()
-            logging.info("Profiler Results")
-            logging.info(profiler.output_text(unicode=True, color=True))
 
         # ------------------------------------------------
         # Validation base year: Hourly temporal validation

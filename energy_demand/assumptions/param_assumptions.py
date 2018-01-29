@@ -313,15 +313,17 @@ def load_param_assump(paths, assumptions):
         "units": '%'})
 
     # How much of the floorarea is cooled in end year (example: 0.5 --> 50% of floorarea is cooled)
-    strategy_vars['cooled_floorarea__ss_cooling_humidification'] = 0.3 #TODO FIND NUMBER
+    # Carbon Trust. (2012). Air conditioning. Maximising comfort, minimising energy consumption.
+    strategy_vars['cooled_floorarea__ss_cooling_humidification'] = 0.4
 
     # Year until floor area change is fully realised
     strategy_vars['cooled_floorarea_yr_until_changed'] = yr_until_changed_all_things
+    
     # Penetration of cooling devices
     # COLING_OENETRATION ()
     # Or Assumkp Peneetration curve in relation to HDD from PAPER #Residential
     # Assumption on recovered heat (lower heat demand based on heat recovery)
-    
+
     # ============================================================
     # Heat recycling & Reuse
     # ============================================================

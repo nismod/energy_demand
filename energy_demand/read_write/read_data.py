@@ -210,7 +210,7 @@ def calc_av_per_season_fueltype(results_every_year, seasons, model_yeardays_dayt
     results_every_year : 
 
     seasons : 
-        
+
     model_yeardays_daytype : 
 
     Returns
@@ -1106,10 +1106,32 @@ def get_position(headings, name):
 
     Arguments
     ---------
+    headings : list
+        List with names
+    name : str
+        Name of entry to find
+    
+    Returns
+    -------
+    position : int
+        Position in list
     """
     for position, value in enumerate(headings):
         if str(value) == str(name):
             return position
 
 def read_np_array_from_txt(path_file_to_read):
-    return np.loadtxt(path_file_to_read, delimiter=',')
+    """Read np array from textfile
+
+    Arguments
+    ---------
+    path_file_to_read : str
+        File to path with stored array
+
+    Return
+    ------
+    txt_array : array
+        Array containing read text
+    """
+    txt_array = np.loadtxt(path_file_to_read, delimiter=',')
+    return txt_array

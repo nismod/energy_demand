@@ -466,16 +466,16 @@ def demand_management(
     # ------------------------------
     # If peak shifting implemented, calculate new lp
     # ------------------------------
-    peak_shift_crit = True
     if peak_shift_crit:
 
         # Calculate average for every day
         if mode_constrained:
-            # Calculate average for every day for a single fueltype
-            average_fuel_yd = np.mean(fuel_yh, axis=1)
+            axis = 1
         else:
-            # Calculate average for every day for multiple fueltypes
-            average_fuel_yd = np.mean(fuel_yh, axis=2)
+            axis = 2
+
+        # Calculate average for every day
+        average_fuel_yd = np.mean(fuel_yh, axis=axis)
 
         # Calculate load factors (only inter_day load shifting as for now)
         loadfactor_yd_cy = lf.calc_lf_d(
@@ -586,19 +586,25 @@ def assign_lp_no_techs(enduse, sector, load_profiles, fuel_new_y):
 
     Returns
     -------
-    fuel_yh
-    fuel_peak_dh
-    fuel_peak_h
+    fuel_yh : array
+        Fuel yh
+    fuel_peak_dh : array
+        Fuel for peak dh
+    fuel_peak_h : array
+        Fuel of peak hour
     """
-    _fuel = fuel_new_y[:, np.newaxis, np.newaxis]
+    fuel = fuel_new_y[:, np.newaxis, np.newaxis]
 
     fuel_yh = load_profiles.get_lp(
-        enduse, sector, 'dummy_tech', 'shape_yh') * _fuel
+        enduse, sector, 'dummy_tech', 'shape_yh') * fuel
 
-    # Read dh profile from peak day
+    # Read dh profile from peak day. Get this day
+    # where the fuel demand across all fueltypes i
+    # highest
     peak_day = get_peak_day_all_fueltypes(fuel_yh)
 
-    shape_peak_dh = lp.abs_to_rel(fuel_yh[:, peak_day, :])
+    shape_peak_dh = lp.abs_to_rel(
+        fuel_yh[:, peak_day, :])
 
     enduse_peak_yd_factor = load_profiles.get_lp(
         enduse, sector, 'dummy_tech', 'enduse_peak_yd_factor')
