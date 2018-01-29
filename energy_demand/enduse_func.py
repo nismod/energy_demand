@@ -14,7 +14,6 @@ from energy_demand.profiles import load_profile as lp
 from energy_demand.profiles import load_factors as lf
 from energy_demand.technologies import diffusion_technologies
 from energy_demand.technologies import fuel_service_switch
-from energy_demand.plotting import plotting_results
 
 class Enduse(object):
     """Enduse Class for all endueses in each SubModel
@@ -295,6 +294,7 @@ class Enduse(object):
                 # -------------------------------------------
                 # Convert annual service to fuel per fueltype
                 # -------------------------------------------
+                #TODO MAYBE REMOVE FUEL SPECIFIC AND REPLACE FUEL_Y by sum(fuel_YH)
                 self.fuel_new_y, fuel_tech_y = service_to_fuel(
                     enduse,
                     service_tech_y_cy,
@@ -315,6 +315,7 @@ class Enduse(object):
                 # Assign load profiles
                 # ------------------------------------------
                 if self.flat_profile_crit:
+                    #TODO MAYBE REMOVE FUEL SPECIFIC AND REPLACE FUEL_Y by sum(fuel_YH)
                     self.fuel_y = calc_fuel_tech_y(
                         enduse,
                         tech_stock,
@@ -591,7 +592,7 @@ def assign_lp_no_techs(enduse, sector, load_profiles, fuel_new_y):
         enduse, sector, 'dummy_tech', 'shape_yh') * _fuel
 
     # Read dh profile from peak day
-    peak_day = get_peak_day(fuel_yh)
+    peak_day = get_peak_day_all_fueltypes(fuel_yh)
 
     shape_peak_dh = lp.abs_to_rel(fuel_yh[:, peak_day, :])
 
@@ -732,7 +733,7 @@ def get_crit_switch(enduse, switches, base_yr, curr_yr, mode_constrained):
 
         return False
 
-def get_peak_day(fuel_yh):
+def get_peak_day_all_fueltypes(fuel_yh):
     """Iterate yh and get day with highes fuel (across all fueltypes).
     The day with most fuel across all fueltypes is considered to
     be the peak day. Over the simulation period,
@@ -845,10 +846,10 @@ def calc_peak_tech_dh(
             """
             # Get day with most fuel across all fueltypes
             if isinstance(fuel_yh, dict):
-                #peak_day_nr = get_peak_day(fuel_yh[tech])
+                #peak_day_nr = get_peak_day_all_fueltypes(fuel_yh[tech])
                 peak_day_nr = get_peak_day_single_fueltype(fuel_yh[tech])
             else:
-                #peak_day_nr = get_peak_day(fuel_yh)
+                #peak_day_nr = get_peak_day_all_fueltypes(fuel_yh)
                 peak_day_nr = get_peak_day_single_fueltype(fuel_yh)
 
             # Calculate absolute fuel values for yd (multiply fuel with yd_shape)
@@ -971,12 +972,14 @@ def calc_fuel_tech_yh(
             if model_yeardays_nrs != 365:
                 load_profile = lp.abs_to_rel(load_profile)
 
-            # If no fuel for this tech and not defined in enduse
             fuel_tech_yh = enduse_fuel_tech[tech] * load_profile
 
             fuels_yh[tech] = fuel_tech_yh
     else:
-        # Initialise empty
+        # --
+        # Unconstrained mode, i.e. not technolog specific.
+        # Store according to fueltype and heat
+        # --
         fuels_yh = np.zeros((fueltypes_nr, model_yeardays_nrs, 24), dtype=float)
 
         for tech in enduse_techs:
@@ -989,6 +992,7 @@ def calc_fuel_tech_yh(
 
             # If no fuel for this tech and not defined in enduse
             fuel_tech_yh = enduse_fuel_tech[tech] * load_profile
+
             fuels_yh[fueltypes['heat']] += fuel_tech_yh
 
     return fuels_yh
@@ -1061,8 +1065,10 @@ def service_to_fuel(
         Service per fueltype and technology
     tech_stock : object
         Technological stock
-    lookups : dict
-        look-up
+    fueltypes_nr : int
+        Number of fueltypes
+    fueltypes : dict
+        Fueltypes
     mode_constrained : bool
         Mode running criteria
 
@@ -1728,8 +1734,8 @@ def apply_cooling(
     enduse : str
         Enduse
     fuel_y : array
-        Fuel demand
-    strategy_variable : dict
+        Annual fuel demand
+    strategy_variables : dict
         Strategy variables
     assump_cooling_floorarea : dict
         Assumption about cooling floor area in base year
@@ -1747,10 +1753,10 @@ def apply_cooling(
         of identical array
     """
     try:
-        # Floor area cooled in end year
+        # Floor area share cooled in end year
         cooled_floorearea_p = strategy_variables["cooled_floorarea__{}".format(enduse)]
 
-        # Fraction of heat recovered in current year
+        # Fraction of heat recovered up to current year
         sig_diff_factor = diffusion_technologies.sigmoid_diffusion(
             base_yr,
             curr_yr,
@@ -1758,8 +1764,8 @@ def apply_cooling(
             enduse_overall_change['other_enduse_mode_info']['sigmoid']['sig_midpoint'],
             enduse_overall_change['other_enduse_mode_info']['sigmoid']['sig_steeppness'])
 
+        # Floor area percentage cooled in by and cy
         cooled_floorarea_p_cy = sig_diff_factor * cooled_floorearea_p
-
         cooled_floorarea_p_by = assump_cooling_floorarea['cooled_ss_floorarea_by']
 
         # Calculate factor
@@ -1768,7 +1774,6 @@ def apply_cooling(
         # Apply factor
         fuel_y = fuel_y * floorare_cooling_factor
         return fuel_y
-
     except KeyError:
         #for this enduse, no cooling is defined
         return fuel_y

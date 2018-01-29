@@ -32,7 +32,7 @@ from energy_demand.profiles import hdd_cdd
 
 # must match smif project name for Local Authority Districts
 REGION_SET_NAME = 'lad_uk_2016'
-NR_OF_MODELLEd_REGIONS = 2 # uk: 391, england.: 380
+NR_OF_MODELLEd_REGIONS = 391 # uk: 391, england.: 380
 PROFILER = False
 
 class EDWrapper(SectorModel):
@@ -63,7 +63,7 @@ class EDWrapper(SectorModel):
         data['criterias']['spatial_exliclit_diffusion'] = False         # True: Spatial explicit calculations
         data['criterias']['writeYAML'] = False
         data['criterias']['write_to_txt'] = True # True
-        data['criterias']['beyond_supply_outputs'] = True  # True             # If only for smif: FAlse, for other plots: True
+        data['criterias']['beyond_supply_outputs'] = False  # True             # If only for smif: FAlse, for other plots: True
         data['criterias']['plot_crit'] = True
         data['criterias']['plot_tech_lp'] = True
 

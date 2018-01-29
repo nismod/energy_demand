@@ -43,7 +43,7 @@ def test_get_peak_day():
     fuel_yh = np.zeros((8, 365, 24))
     fuel_yh[2][33] = 3
 
-    result = enduse_func.get_peak_day(fuel_yh)
+    result = enduse_func.get_peak_day_all_fueltypes(fuel_yh)
 
     expected = 33
 
