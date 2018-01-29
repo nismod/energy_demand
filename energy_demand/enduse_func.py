@@ -338,7 +338,6 @@ class Enduse(object):
                         mode_constrained)
 
                     # --PEAK
-                    # Iterate technologies in enduse and assign technology specific profiles
                     fuel_peak_dh = calc_peak_tech_dh(
                         enduse,
                         sector,
@@ -456,7 +455,7 @@ def demand_management(
             #print("... no load management")
         else:
             peak_shift_crit = True
-            print("Peak is shifted for enduse " + str(enduse))
+            #print("Peak is shifted for enduse " + str(enduse))
     except KeyError:
         #print("... no load management was defined for enduse")
         peak_shift_crit = False
@@ -464,17 +463,20 @@ def demand_management(
     # ------------------------------
     # If peak shifting implemented, calculate new lp
     # ------------------------------
-    #peak_shift_crit = True
+    peak_shift_crit = True
     if peak_shift_crit:
 
         # Calculate average for every day
         if mode_constrained:
+            # Calculate average for every day for a single fueltype
             average_fuel_yd = np.mean(fuel_yh, axis=1) #TEST TODO
         else:
-            average_fuel_yd = np.mean(fuel_yh, axis=2) #TEST TODO
+            # Calculate average for every day for multiple fueltypes
+            average_fuel_yd = np.mean(fuel_yh, axis=2)
 
         # Calculate load factors (only inter_day load shifting as for now)
-        loadfactor_yd_cy = lf.calc_lf_d(fuel_yh, average_fuel_yd, mode_constrained)
+        loadfactor_yd_cy = lf.calc_lf_d(
+            fuel_yh, average_fuel_yd, mode_constrained)
 
         # Calculate current year load factors
         lf_improved_cy = calc_lf_improvement(
@@ -814,8 +816,6 @@ def calc_peak_tech_dh(
         Technology stock
     load_profile : object
         Load profile
-    fueltypes_nr : int
-        Number of fueltypes
     mode_constrained : bool
         Constrained mode criteria
 
@@ -832,6 +832,8 @@ def calc_peak_tech_dh(
     - For some technology types (heat_pump a)
         the dh peak day profile is not read in from technology
         stock but from shape_yh of peak day.
+    # Iterate technologies in enduse and assign technology specific profiles
+    TODO: CLEAN
     """
     if mode_constrained:
         fuels_peak_dh = {}
@@ -845,12 +847,16 @@ def calc_peak_tech_dh(
             """Read fuel from peak day
             """
             # Get day with most fuel across all fueltypes
-            if isinstance(fuel_yh, dict):
-                #peak_day_nr = get_peak_day_all_fueltypes(fuel_yh[tech])
+            '''if mode_constrained:
                 peak_day_nr = get_peak_day_single_fueltype(fuel_yh[tech])
             else:
-                #peak_day_nr = get_peak_day_all_fueltypes(fuel_yh)
+                peak_day_nr = get_peak_day_single_fueltype(fuel_yh)'''
+            #'''
+            if isinstance(fuel_yh, dict):
+                peak_day_nr = get_peak_day_single_fueltype(fuel_yh[tech])
+            else:
                 peak_day_nr = get_peak_day_single_fueltype(fuel_yh)
+            #'''
 
             # Calculate absolute fuel values for yd (multiply fuel with yd_shape)
             fuel_tech_yd = enduse_fuel_tech[tech] * load_profile.get_lp(
@@ -861,7 +867,7 @@ def calc_peak_tech_dh(
 
             # The 'shape_peak_dh'is not defined in technology stock because
             # in the 'Region' the peak day is not yet known
-            # Therefore, the shape_yh is read in and with help of information on peak da
+            # Therefore, the shape_yh is read in and with help of information on peak day
             tech_peak_dh = load_profile.get_lp(
                 enduse, sector, tech, 'shape_y_dh')[peak_day_nr]
         else:

@@ -19,6 +19,8 @@ def peak_shaving_max_min(loadfactor_yd_cy_improved, average_yd, fuel_yh, mode_co
         Average load for every day in year
     fuel_yh : array
         Fuel for every hour
+    mode_constrained : bool
+        Running mode information
 
     Returns
     -------
@@ -181,7 +183,9 @@ def calc_lf_season(seasons, fuel_region_yh, average_fuel_yd):
 
         # Unable local RuntimeWarning: divide by zero encountered
         with np.errstate(divide='ignore', invalid='ignore'):
-            season_lf = (average_fuel_yd_full_year / max_load_h_season) * 100 #convert to percentage
+
+            #convert to percentage
+            season_lf = (average_fuel_yd_full_year / max_load_h_season) * 100
 
         # Replace
         season_lf[np.isinf(season_lf)] = 0
@@ -202,6 +206,8 @@ def calc_lf_d(fuel_yh, average_fuel_yd, mode_constrained):
         Fuel for every hour in a year
     average_fuel_yd : array
         Average load per day
+    mode_constrained : bool
+        Mode information
 
     Returns
     -------
@@ -212,39 +218,18 @@ def calc_lf_d(fuel_yh, average_fuel_yd, mode_constrained):
     """
     # Get maximum hours in every day
     if mode_constrained:
-        #print("se")
-        max_load_yd = np.max(fuel_yh, axis=1)
+        max_load_yd = np.max(fuel_yh, axis=1) #single fueltype
     else:
-        max_load_yd = np.max(fuel_yh, axis=2)
-    
+        max_load_yd = np.max(fuel_yh, axis=2) #multiple fueltypes
+
     # Unable local RuntimeWarning: divide by zero encountered
     with np.errstate(divide='ignore', invalid='ignore'):
-        #print("average_fuel_yd: " + str(average_fuel_yd.shape))
-        #print("max_load_yd: " + str(max_load_yd.shape))
-        #print(fuel_yh.shape)
-        daily_lf = (average_fuel_yd / max_load_yd) * 100 #convert to percentage
 
-    # Replace
+        #convert to percentage
+        daily_lf = (average_fuel_yd / max_load_yd) * 100 
+
+    # Replace by zero
     daily_lf[np.isinf(daily_lf)] = 0
     daily_lf[np.isnan(daily_lf)] = 0
 
     return daily_lf
-
-'''def load_factor_d(self, data):
-    """Calculate load factor of a day in a year from peak values
-    """
-    lf_d = np.zeros((data['lookups']['fueltypes_nr']), dtype=float)
-
-    # Get day with maximum demand (in percentage of year)
-    peak_d_demand = self.fuels_peak_d
-
-    # Iterate fueltypes to calculate load factors for each fueltype
-    for k, fueldata in enumerate(self.rs_fuels_tot_enduses_d):
-        average_demand = np.sum(fueldata) / 365 # Averae_demand = yearly demand / nr of days
-
-        if average_demand != 0:
-            lf_d[k] = average_demand / peak_d_demand[k] # Calculate load factor
-
-    lf_d = lf_d * 100 # Convert load factor to %
-    return lf_d
-'''
