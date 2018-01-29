@@ -407,6 +407,8 @@ def demand_management(
     """Demand management. This function shifts peak per of this enduse
     depending on peak shifting factors
 
+    So far only inter day load shifting
+
     Arguments
     ----------
     enduse : str
@@ -450,14 +452,15 @@ def demand_management(
     try:
         # Get assumed load shift
         param_name = 'demand_management_improvement__{}'.format(enduse)
+
         if strategy_variables[param_name] == 0:
             peak_shift_crit = False
-            #print("... no load management")
+            logging.debug("... no load management")
         else:
             peak_shift_crit = True
-            #print("Peak is shifted for enduse " + str(enduse))
+            logging.debug("... load management for " + str(enduse))
     except KeyError:
-        #print("... no load management was defined for enduse")
+        logging.debug("... no load management")
         peak_shift_crit = False
 
     # ------------------------------
@@ -469,7 +472,7 @@ def demand_management(
         # Calculate average for every day
         if mode_constrained:
             # Calculate average for every day for a single fueltype
-            average_fuel_yd = np.mean(fuel_yh, axis=1) #TEST TODO
+            average_fuel_yd = np.mean(fuel_yh, axis=1)
         else:
             # Calculate average for every day for multiple fueltypes
             average_fuel_yd = np.mean(fuel_yh, axis=2)
@@ -480,11 +483,10 @@ def demand_management(
 
         # Calculate current year load factors
         lf_improved_cy = calc_lf_improvement(
-            param_name,
+            strategy_variables[param_name],
             base_yr,
             curr_yr,
             loadfactor_yd_cy,
-            strategy_variables,
             strategy_variables['demand_management_yr_until_changed'])
 
         fuel_yh = lf.peak_shaving_max_min(
@@ -504,26 +506,28 @@ def demand_management(
 
     if mode_constrained:
         if isinstance(fuel_peak_dh, dict):
+
             # If mode_constrained, always only one technology is imported
             technology = enduse_techs[0]
-            fuel_peak_h = lp.calk_peak_h_dh_single_fueltype(fuel_peak_dh[technology])
+
+            fuel_peak_h = lp.calk_peak_h_dh_single_fueltype(
+                fuel_peak_dh[technology])
             fuel_peak_dh = fuel_peak_dh[technology]
         else:
-            #fuel_peak_h = lp.calk_peak_h_dh(fuel_peak_dh)
-            fuel_peak_h = lp.calk_peak_h_dh_single_fueltype(fuel_peak_dh)
+            fuel_peak_h = lp.calk_peak_h_dh_single_fueltype(
+                fuel_peak_dh)
     else:
         # Get maximum hour demand of peak day
-        #fuel_peak_h = lp.calk_peak_h_dh(fuel_peak_dh)
-        fuel_peak_h = lp.calk_peak_h_dh_single_fueltype(fuel_peak_dh)
+        fuel_peak_h = lp.calk_peak_h_dh_single_fueltype(
+            fuel_peak_dh)
 
     return fuel_yh, fuel_peak_h, fuel_peak_dh
 
 def calc_lf_improvement(
-        param_name,
+        lf_improvement_ey,
         base_yr,
         curr_yr,
         loadfactor_yd_cy,
-        lf_improvement_ey,
         yr_until_changed
     ):
     """Calculate load factor improvement depending on linear diffusion
@@ -531,16 +535,14 @@ def calc_lf_improvement(
 
     Arguments
     ---------
-    param_name : str
-        Parameter name
+    lf_improvement_ey : dict
+        Load factor improvement until end year
     base_yr : int
         Base year
     curr_yr : int
         Current year
     loadfactor_yd_cy : float
         Yd Load factor of current year
-    lf_improvement_ey : dict
-        Load factor improvement until end year
     yr_until_changed : int
         Year until fully changed
 
@@ -557,7 +559,7 @@ def calc_lf_improvement(
         base_yr, curr_yr, 0, 1, yr_until_changed)
 
     # Current year load factor improvement
-    lf_improvement_cy = lf_improvement_ey[param_name] * lin_diff_factor
+    lf_improvement_cy = lf_improvement_ey * lin_diff_factor
 
     # Add load factor improvement to current year load factor
     lf_improved_cy = loadfactor_yd_cy + lf_improvement_cy
@@ -847,16 +849,10 @@ def calc_peak_tech_dh(
             """Read fuel from peak day
             """
             # Get day with most fuel across all fueltypes
-            '''if mode_constrained:
-                peak_day_nr = get_peak_day_single_fueltype(fuel_yh[tech])
-            else:
-                peak_day_nr = get_peak_day_single_fueltype(fuel_yh)'''
-            #'''
             if isinstance(fuel_yh, dict):
                 peak_day_nr = get_peak_day_single_fueltype(fuel_yh[tech])
             else:
                 peak_day_nr = get_peak_day_single_fueltype(fuel_yh)
-            #'''
 
             # Calculate absolute fuel values for yd (multiply fuel with yd_shape)
             fuel_tech_yd = enduse_fuel_tech[tech] * load_profile.get_lp(

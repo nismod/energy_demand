@@ -274,7 +274,7 @@ def run(paths, local_paths, lookups):
     """Function to run script
     """
     print("... start script %s", os.path.basename(__file__))
-    _, ss_sectors, ss_enduses = read_data.read_csv_data_service(
+    _, ss_sectors, ss_enduses = read_data.read_fuel_ss(
         paths['ss_fuel_raw_data_enduses'],
         lookups['fueltypes_nr'])
 

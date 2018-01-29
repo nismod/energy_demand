@@ -26,7 +26,7 @@ def peak_shaving_max_min(loadfactor_yd_cy_improved, average_yd, fuel_yh, mode_co
     -------
     shifted_fuel_yh : array
         Shifted fuel
-
+    TODO :CLEAN 
     Info
     ----
     Steps:
@@ -43,6 +43,71 @@ def peak_shaving_max_min(loadfactor_yd_cy_improved, average_yd, fuel_yh, mode_co
     allowed_demand_max_d = average_yd / loadfactor_yd_cy_improved
     allowed_demand_max_d[np.isnan(allowed_demand_max_d)] = 0
 
+    if mode_constrained:
+        average_yd = average_yd[:, np.newaxis]
+        allowed_demand_max_d = allowed_demand_max_d[:, np.newaxis]
+    else:
+        average_yd = average_yd[:, :, np.newaxis]
+        allowed_demand_max_d = allowed_demand_max_d[:, :, np.newaxis]
+
+    # ------------------------------------------
+    # Calculate difference to daily mean for every hour
+    # for every fueltype (hourly value - daily mean)
+    # ------------------------------------------
+    diff_to_mean = fuel_yh - average_yd
+
+    # ------------------------
+    # Calculate areas of lp below average for every day
+    # all lp higher than average are set to zero
+    # ------------------------
+    diff_to_mean[diff_to_mean > 0] = 0
+    diff_to_mean = np.abs(diff_to_mean)
+
+    # Sum along all fueltpes the total fuels which are lp below average
+    # Calculate percentage of total shiftable from above average to
+    # below average for all hours which can take on fuel
+    if mode_constrained:
+        tot_area_below_mean = np.sum(diff_to_mean, axis=1)
+        tot_area_below_mean = tot_area_below_mean[:, np.newaxis]
+    else:
+        tot_area_below_mean = np.sum(diff_to_mean, axis=2)
+        tot_area_below_mean = tot_area_below_mean[:, :, np.newaxis]
+
+    area_below_mean_p = diff_to_mean / tot_area_below_mean
+    area_below_mean_p[np.isnan(area_below_mean_p)] = 0
+
+    # Calculate diff to newmax for every hour
+    diff_to_max_demand_d = fuel_yh - allowed_demand_max_d 
+    diff_to_max_demand_d[diff_to_max_demand_d < 0] = 0
+
+    # -----------------------------------------
+    # Start with largest deviation to mean
+    # and shift to all hours below average
+    # -----------------------------------------
+    if mode_constrained:
+        # Calculate total demand which is to be shifted for every fueltype
+        tot_demand_to_shift = np.sum(diff_to_max_demand_d, axis=1)
+        tot_demand_to_shift = tot_demand_to_shift[:, np.newaxis]
+    else:
+        # Calculate total demand which is to be shifted for every fueltype
+        tot_demand_to_shift = np.sum(diff_to_max_demand_d, axis=2)
+        tot_demand_to_shift = tot_demand_to_shift[:, :, np.newaxis]
+
+    # Add fuel below average:
+    # Distribute shiftable demand to all hours which are below average
+    # according to percentage contributing to lf which is below average
+    shifted_fuel_yh = fuel_yh + (area_below_mean_p * tot_demand_to_shift)
+
+    # Set all fuel hours whih are above max to max (substract diff)
+    shifted_fuel_yh = shifted_fuel_yh - diff_to_max_demand_d
+
+    '''# ------------------------------------------
+    # Calculate new maximum demand for every day
+    # and fueltype with help of newly adaped load factor
+    # ------------------------------------------
+    allowed_demand_max_d = average_yd / loadfactor_yd_cy_improved
+    allowed_demand_max_d[np.isnan(allowed_demand_max_d)] = 0
+
     # ------------------------------------------
     # Calculate difference to daily mean for every hour
     # for every fueltype (hourly value - daily mean)
@@ -51,7 +116,6 @@ def peak_shaving_max_min(loadfactor_yd_cy_improved, average_yd, fuel_yh, mode_co
         diff_to_mean = fuel_yh - average_yd[:, np.newaxis]
     else:
         diff_to_mean = fuel_yh - average_yd[:, :, np.newaxis]
-    
 
     # ------------------------
     # Calculate areas of lp below average for every day
@@ -110,7 +174,8 @@ def peak_shaving_max_min(loadfactor_yd_cy_improved, average_yd, fuel_yh, mode_co
     # -----------------------
     #from energy_demand.plotting import plotting_results
     #plotting_results.plot_load_profile_dh(fuel_yh[data['lookups']['fueltypes']['electricity']2][0])
-    #plotting_results.plot_load_profile_dh(shifted_fuel_yh[data['lookups']['fueltypes']['electricity']][0])
+    #plotting_results.plot_load_profile_dh(shifted_fuel_yh[data['lookups']['fueltypes']'''
+
     return shifted_fuel_yh
 
 def calc_lf_y(fuel_yh, average_fuel_yd):

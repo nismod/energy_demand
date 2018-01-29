@@ -18,7 +18,7 @@ def test_peak_shaving_max_min():
     loadfactor_yd_cy_improved = (0.75 / 1) + loac_factor_improvement
 
     result = load_factors.peak_shaving_max_min(
-        loadfactor_yd_cy_improved, average_yd, fuel_yh)
+        loadfactor_yd_cy_improved, average_yd, fuel_yh, mode_constrained=False)
 
     # ---------
     # expected
@@ -49,7 +49,7 @@ def test_calc_lf_d():
         fuel_yh[1][1][i] = 10
     average_per_day = np.average(fuel_yh, axis=2)
 
-    result = load_factors.calc_lf_d(fuel_yh, average_per_day)
+    result = load_factors.calc_lf_d(fuel_yh, average_per_day, mode_constrained=False)
 
     expected = np.zeros((2, 2))
     expected[1][0] = np.average(fuel_yh[1][0]) / np.max(fuel_yh[1][0]) * 100

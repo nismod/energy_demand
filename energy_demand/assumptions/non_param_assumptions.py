@@ -112,8 +112,7 @@ def load_non_param_assump(
             '2002': 0.05}}
 
     # ============================================================
-    # Scenario drivers
-    # TODO: CHECK all scenario drivers
+    # Scenario drivers TODO: CHECK all scenario drivers
     # ============================================================
     assumptions['scenario_drivers'] = {}
 
@@ -154,11 +153,17 @@ def load_non_param_assump(
         'is_other': ['gva'],
         'is_refrigeration': ['gva']}
 
-
     # ============================================================
     # Cooling related assumptions
     # ============================================================
     assumptions['assump_cooling_floorarea'] = {}
+
+    # In 2009, about 30% of retail floor are and around 65% of office floor area
+    # Abela, A. et al. (2016).
+    # Study on Energy Use by Air- Conditioning. Bre, (June), 31.
+    # Retrieved from https://www.bre.co.uk/filelibrary/pdf/projects/aircon-energy-use
+    # /StudyOnEnergyUseByAirConditioningFinalReport.pdf
+    
     assumptions['assump_cooling_floorarea']['cooled_ss_floorarea_by'] = 0.35
 
     # ============================================================
@@ -175,12 +180,12 @@ def load_non_param_assump(
     # ============================================================
     assumptions['t_bases'] = {}
     assumptions['t_bases']['rs_t_heating_by'] = 15.5    #
-    assumptions['t_bases']['rs_t_cooling_by'] = 0
+    assumptions['t_bases']['rs_t_cooling_by'] = 21
 
-    assumptions['t_bases']['ss_t_heating_by'] = 15.5    #.5
-    assumptions['t_bases']['ss_t_cooling_by'] = 5       # 12
+    assumptions['t_bases']['ss_t_heating_by'] = 15.5    #
+    assumptions['t_bases']['ss_t_cooling_by'] = 5       #
 
-    assumptions['t_bases']['is_t_heating_by'] = 15.5    #.5
+    assumptions['t_bases']['is_t_heating_by'] = 15.5    #
     #assumptions['t_bases']['is_t_cooling_by'] = Not implemented
 
     # -------
@@ -200,7 +205,8 @@ def load_non_param_assump(
         'rs_water_heating', 'ss_water_heating']
 
     assumptions['enduse_rs_space_cooling'] = []
-    assumptions['ss_enduse_space_cooling'] = ['ss_fans', 'ss_cooling_humidification', 'ss_cooled_storage']#['ss_cooling_humidification']#, 'ss_fans'] #['ss_fans', 'ss_cooling_humidification', 'ss_cooled_storage']
+    #['ss_fans', 'ss_cooling_humidification', 'ss_cooled_storage']
+    assumptions['ss_enduse_space_cooling'] = ['ss_cooling_humidification']
 
     #TODO: REPLAE NON DEFINED TECH IN FLUETPYES NOT WITH DUMMY TECH BUT ONLY IF NONE TECHNOLOGY AT ALL IS DEFINED
     # ============================================================

@@ -5,7 +5,6 @@ Energy Demand Model
 The function `EnergyDemandModel` executes all the submodels
 of the energy demand model
 """
-import sys
 import logging
 from collections import defaultdict
 import numpy as np
@@ -17,8 +16,6 @@ from energy_demand.geography.weather_station_location import get_closest_station
 from energy_demand.basic import testing_functions as testing
 from energy_demand.profiles import load_profile, load_factors
 from energy_demand.charts import figure_HHD_gas_demand
-from pyinstrument import Profiler
-from datetime import datetime
 
 class EnergyDemandModel(object):
     """Energy Model of a simulation yearly run.
@@ -172,8 +169,6 @@ def simulate_region(region, data, weather_regions):
         data['reg_coord'][region]['longitude'],
         data['reg_coord'][region]['latitude'],
         data['weather_stations'])
-
-    logging.warning("Closeste Weather Station of Region: " + str(closest_weather_reg))
 
     closest_weather_region = weather_regions[closest_weather_reg]
     logging.debug("Closest weather station: %s", closest_weather_reg)
@@ -345,12 +340,6 @@ def aggr_fuel_aggr(
                     model_yearhours_nrs,
                     model_yeardays_nrs)
                 input_array += fuels
-            '''
-            input_array += get_fuels_yh(
-                enduse_object,
-                attribute_to_get,
-                model_yearhours_nrs,
-                model_yeardays_nrs)'''
 
     if sum_crit == 'no_sum':
         return input_array
@@ -736,7 +725,7 @@ def aggr_fuel_regions_fueltype(
         model_yearhours_nrs,
         fueltypes_nr,
         model_yeardays_nrs,
-        'fuel_yh', 
+        'fuel_yh',
         'techs_fuel_yh',
         technologies)
 
