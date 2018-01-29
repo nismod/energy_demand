@@ -210,7 +210,9 @@ def write_simulation_inifile(path, sim_param, enduses, assumptions, reg_nrs, lu_
     # Other information to pass to plotting and summing function
     # ----------------------------
     config.add_section('ENDUSES')
-    config['ENDUSES']['rs_all_enduses'] = str(enduses['rs_all_enduses']) #convert list to string
+
+    #convert list to strings
+    config['ENDUSES']['rs_all_enduses'] = str(enduses['rs_all_enduses']) 
     config['ENDUSES']['ss_all_enduses'] = str(enduses['ss_all_enduses'])
     config['ENDUSES']['is_all_enduses'] = str(enduses['is_all_enduses'])
 

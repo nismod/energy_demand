@@ -94,16 +94,32 @@ def averaged_temp(temp_yh, nr_day_to_av):
 
     return effective_temp_yh
 
-def get_cdd_weekend_correctionfactors(model_yeardays_daytype, wkend_factor):
+def calc_weekend_corr_f(model_yeardays_daytype, wkend_factor):
+    """Based on the factor 'wkend_factor' daily correction
+    factors get calculated for every modelled day in a year.abs
+
+    Arguments
+    ---------
+    model_yeardays_daytype : list
+        Daytype for every modelled days in the base year
+    wkend_factor : float
+        This factors states how much energy deamnd differs
+        depending on whether a day is a weekend or working day
+        (e.g. 0.8 means that on a weekend, 80% less demand occurs)
+
+    Returns
+    --------
+    cdd_weekend_f : array
+        Factor to multiply cdd calculations for every
+        day in a year
     """
-    """
-    cdd_weekend_cfactors = np.ones((365))
+    cdd_weekend_f = np.ones((365))
 
     for day_nr, day in enumerate(model_yeardays_daytype):
         if day == 'holiday':
-            cdd_weekend_cfactors[day_nr] = wkend_factor
+            cdd_weekend_f[day_nr] = wkend_factor
 
-    return cdd_weekend_cfactors
+    return cdd_weekend_f
 
 def calc_cdd(t_base_cooling, temp_yh, nr_day_to_av):
     """Calculate cooling degree days

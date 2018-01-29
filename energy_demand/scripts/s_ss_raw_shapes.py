@@ -52,7 +52,7 @@ def read_raw_carbon_trust_data(folder_path):
     def initialise_main_dict():
         """Helper function to initialise dict
         """
-        out_dict_av = {0: {}, 1: {}}
+        out_dict_av = {'working_day': {}, 'holiday': {}}
         for dtype in out_dict_av:
             month_dict = {}
             for month in range(12):
@@ -62,7 +62,7 @@ def read_raw_carbon_trust_data(folder_path):
 
     def initialise_out_dict_av():
         """Helper function to initialise dict"""
-        out_dict_av = {0: {}, 1: {}}
+        out_dict_av = {'working_day': {}, 'holiday': {}}
         for dtype in out_dict_av:
             month_dict = {}
             for month in range(12):
@@ -124,11 +124,6 @@ def read_raw_carbon_trust_data(folder_path):
 
                     date_row = date(year, month, day)
                     daytype = date_prop.get_weekday_type(date_row)
-
-                    if daytype == 'holiday':
-                        daytype = 1
-                    else:
-                        daytype = 0
 
                     yearday_python = date_row.timetuple().tm_yday - 1 # - 1 because in _info: 1.Jan = 1
                     month_python = month - 1 # Month Python
@@ -256,11 +251,6 @@ def assign_data_to_year(carbon_trust_data, base_yr):
         yearday_python = yearday.timetuple().tm_yday - 1 # - 1 because in _info: 1.Jan = 1
         daytype = date_prop.get_weekday_type(yearday)
 
-        if daytype == 'holiday': #TODO IMPROVE
-            daytype = 1
-        else:
-            daytype = 0
-
         # Get day from HES raw data array
         _data = carbon_trust_data[daytype][month_python]
 
@@ -274,7 +264,7 @@ def run(paths, local_paths, lookups):
     """Function to run script
     """
     print("... start script %s", os.path.basename(__file__))
-    _, ss_sectors, ss_enduses = read_data.read_csv_data_service(
+    _, ss_sectors, ss_enduses = read_data.read_fuel_ss(
         paths['ss_fuel_raw_data_enduses'],
         lookups['fueltypes_nr'])
 

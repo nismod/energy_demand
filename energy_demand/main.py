@@ -32,9 +32,9 @@ TODO: SENSITIVITY
 TODO: Accounting module for energy and emissions
 TODO: data loading, load multiple years for real elec data
 TODO: Load different temp --> for different years
-TODO: Assign cooling techs for ss_coolingt
 TODO: THECK VARIALBES IN HOUSEHOLD MODEL
 TODO: WRITE COOLING PARAMETER
+TODO: FUEL; SERVICE SWITHC AS INPUT
 """
 import os
 import sys
@@ -161,7 +161,7 @@ if __name__ == "__main__":
     # Load data
     data = {}
     data['criterias'] = {}
-    data['criterias']['mode_constrained'] = True #constrained_by_technologies
+    data['criterias']['mode_constrained'] = False #constrained_by_technologies
     data['criterias']['plot_HDD_chart'] = False
     data['criterias']['virtual_building_stock_criteria'] = True
     data['criterias']['spatial_exliclit_diffusion'] = False
@@ -237,15 +237,15 @@ if __name__ == "__main__":
     # ----------------------------------
     # Calculating COOLING CDD PARAMETER
     # ----------------------------------
-    data['assumptions']['cdd_weekend_cfactors'] = hdd_cdd.get_cdd_weekend_correctionfactors(
+    data['assumptions']['cdd_weekend_cfactors'] = hdd_cdd.calc_weekend_corr_f(
         data['assumptions']['model_yeardays_daytype'], 
         data['assumptions']['ss_t_cooling_weekend_factor'])
 
-    data['assumptions']['ss_weekend_f'] = hdd_cdd.get_cdd_weekend_correctionfactors(
+    data['assumptions']['ss_weekend_f'] = hdd_cdd.calc_weekend_corr_f(
         data['assumptions']['model_yeardays_daytype'], 
         data['assumptions']['ss_weekend_factor'])
 
-    data['assumptions']['is_weekend_f'] = hdd_cdd.get_cdd_weekend_correctionfactors(
+    data['assumptions']['is_weekend_f'] = hdd_cdd.calc_weekend_corr_f(
         data['assumptions']['model_yeardays_daytype'], 
         data['assumptions']['is_weekend_factor'])
 

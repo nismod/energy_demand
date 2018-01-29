@@ -11,7 +11,7 @@
   climate_change_temp_d__Oct: 0
   climate_change_temp_d__Sep: 0
   climate_change_temp_diff_yr_until_changed: 2050
-  cooled_floorarea__ss_cooling_humidification: 0.3
+  cooled_floorarea__ss_cooling_humidification: 0.4
   cooled_floorarea_yr_until_changed: 2050
   demand_management_improvement__is_compressed_air: 0
   demand_management_improvement__is_drying_separation: 0
@@ -79,6 +79,14 @@
   is_t_base_heating_future_yr: 15.5
   rs_t_base_cooling_future_yr: 21
   rs_t_base_heating_future_yr: 15.5
+  smart_meter_improvement_is_compressed_air: 0
+  smart_meter_improvement_is_drying_separation: 0
+  smart_meter_improvement_is_high_temp_process: 0
+  smart_meter_improvement_is_lighting: 0
+  smart_meter_improvement_is_low_temp_process: 0
+  smart_meter_improvement_is_motors: 0
+  smart_meter_improvement_is_other: 0
+  smart_meter_improvement_is_refrigeration: 0
   smart_meter_improvement_is_space_heating: 0.03
   smart_meter_improvement_rs_cold: 0.03
   smart_meter_improvement_rs_consumer_electronics: 0.03
@@ -87,9 +95,19 @@
   smart_meter_improvement_rs_lighting: 0.03
   smart_meter_improvement_rs_space_heating: 0.03
   smart_meter_improvement_rs_wet: 0.03
+  smart_meter_improvement_ss_ICT_equipment: 0
+  smart_meter_improvement_ss_catering: 0
+  smart_meter_improvement_ss_cooled_storage: 0
+  smart_meter_improvement_ss_cooling_humidification: 0
+  smart_meter_improvement_ss_fans: 0
+  smart_meter_improvement_ss_lighting: 0
+  smart_meter_improvement_ss_other_electricity: 0
+  smart_meter_improvement_ss_other_gas: 0
+  smart_meter_improvement_ss_small_power: 0
   smart_meter_improvement_ss_space_heating: 0.03
+  smart_meter_improvement_ss_water_heating: 0
   smart_meter_p_future: 0.1
   smart_meter_yr_until_changed: 2050
   split_hp_gshp_to_ashp_ey: 0.5
-  ss_t_base_cooling_future_yr: 21
+  ss_t_base_cooling_future_yr: 5
   ss_t_base_heating_future_yr: 15.5

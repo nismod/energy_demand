@@ -43,7 +43,7 @@ def test_get_peak_day():
     fuel_yh = np.zeros((8, 365, 24))
     fuel_yh[2][33] = 3
 
-    result = enduse_func.get_peak_day(fuel_yh)
+    result = enduse_func.get_peak_day_all_fueltypes(fuel_yh)
 
     expected = 33
 
@@ -255,7 +255,7 @@ def test_calc_lf_improvement():
     base_yr = 2010
     curr_yr = 2015
 
-    lf_improvement_ey = {'demand_management_improvement__heating': 0.5} #50% improvement
+    lf_improvement_ey = 0.5 #{'demand_management_improvement__heating': } #50% improvement
 
     #all factors must be smaller than one
     loadfactor_yd_cy = np.zeros((2, 2)) #to fueltypes, two days
@@ -266,11 +266,10 @@ def test_calc_lf_improvement():
     yr_until_change = 2020
 
     result = enduse_func.calc_lf_improvement(
-        'demand_management_improvement__heating',
+        lf_improvement_ey,
         base_yr,
         curr_yr,
         loadfactor_yd_cy,
-        lf_improvement_ey,
         yr_until_change)
 
     expected = loadfactor_yd_cy + 0.25
@@ -588,7 +587,7 @@ def test_calc_fuel_tech_yh():
     technologies['techA'].eff_ey = 0.5
     technologies['techA'].year_eff_ey = 2020
 
-    tech_stock = technological_stock.TechStock(
+    '''tech_stock = technological_stock.TechStock(
         stock_name="stock_name",
         technologies=technologies,
         tech_list={'tech_heating_temp_dep': [], 'tech_heating_const': ['techA']},
@@ -601,7 +600,7 @@ def test_calc_fuel_tech_yh():
         t_base_heating_by=15.5,
         potential_enduses=['heating'],
         t_base_heating_cy=15.5,
-        enduse_technologies={'heating': ['techA']})
+        enduse_technologies={'heating': ['techA']})'''
 
     lp_stock_obj = load_profile.LoadProfileStock("test_stock")
 
@@ -626,7 +625,6 @@ def test_calc_fuel_tech_yh():
         sector='sectorA',
         enduse_techs=['techA'],
         enduse_fuel_tech={'techA': fuel},
-        tech_stock=tech_stock,
         load_profiles=lp_stock_obj,
         fueltypes_nr=2,
         fueltypes=fueltypes,
@@ -641,14 +639,13 @@ def test_calc_fuel_tech_yh():
         sector='sectorA',
         enduse_techs=['techA'],
         enduse_fuel_tech={'techA': fuel},
-        tech_stock=tech_stock,
         load_profiles=lp_stock_obj,
         fueltypes_nr=2,
         fueltypes=fueltypes,
-        mode_constrained=True,
-        model_yeardays_nrs=365)
+        model_yeardays_nrs=365,
+        mode_constrained=True)
 
-    assert results['techA'][0][3][0] == 3.0 / float(np.sum(range(365)) * 24) * 200
+    assert results['techA'][3][0] == 3.0 / float(np.sum(range(365)) * 24) * 200
 
 def test_apply_specific_change():
     """testing

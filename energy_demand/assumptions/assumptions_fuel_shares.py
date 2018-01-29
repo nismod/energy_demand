@@ -201,25 +201,22 @@ def assign_by_fuel_tech_p(assumptions, enduses, fueltypes, fueltypes_nr):
         'heat_pumps_hydrogen': 0.0}
 
     # ------------------------------
-    # Cooling AHVAC, AHU,
-    # TODO Assign technologies
+    # Cooling
     # ------------------------------
-    #TODO FACTOR OF PERCENTAGE OF FLOOR AREA WHICH IS COOLED
-    # Table 5.09
-    #HVAC_pack
-    #HVAC_central
-
+    # ECUK Table 5.09
     assumptions['ss_fuel_tech_p_by']['ss_cooling_humidification'][fueltypes['electricity']] = {
-        'ss_cooling_tech_electricity': 1.0}
+        'central_air_conditioner_electricity': 0.64,
+        'decentral_air_conditioner_electricity': 0.36}
     assumptions['ss_fuel_tech_p_by']['ss_cooling_humidification'][fueltypes['gas']] = {
-        'ss_cooling_tech_gas': 1.0}
+        'central_air_conditioner_gas': 0.64,
+        'decentral_air_conditioner_gas': 0.36}
     assumptions['ss_fuel_tech_p_by']['ss_cooling_humidification'][fueltypes['oil']] = {
-        'ss_cooling_tech_oil': 1.0}
-
-    assumptions['ss_fuel_tech_p_by']['ss_cooled_storage'][fueltypes['electricity']] = {
+        'central_air_conditioner_oil': 0.64,
+        'decentral_air_conditioner_oil': 0.36}
+    '''assumptions['ss_fuel_tech_p_by']['ss_cooled_storage'][fueltypes['electricity']] = {
         'ss_cooling_tech_electricity': 1.0}
     assumptions['ss_fuel_tech_p_by']['ss_fans'][fueltypes['electricity']] = {
-        'ss_cooling_tech_electricity': 1.0}
+        'ss_cooling_tech_electricity': 1.0}'''
 
     # ===================
     # Industry subModel  - Fuel shares of technologies in enduse

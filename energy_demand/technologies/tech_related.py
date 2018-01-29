@@ -383,7 +383,7 @@ def calc_eff_cy(
     The development of efficiency improvements over time is assumed to be linear
     This can however be changed with the `diff_method` attribute
 
-    TODO: Generate two types of sigmoid (convex & concav)
+    NICETOHAVE: Generate two types of sigmoid (convex & concav)
     """
     # Theoretical maximum efficiency potential if theoretical maximum is linearly calculated
     if diff_method == 'linear':

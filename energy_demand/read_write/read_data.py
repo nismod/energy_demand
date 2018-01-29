@@ -205,6 +205,20 @@ def read_in_results(path_runs, lookups, seasons, model_yeardays_daytype, lu_reg)
 def calc_av_per_season_fueltype(results_every_year, seasons, model_yeardays_daytype):
     """TODO# Calculate average per season and fueltype for every fueltype
 
+    Arguments
+    ---------
+    results_every_year : 
+
+    seasons : 
+
+    model_yeardays_daytype : 
+
+    Returns
+    -------
+    av_season_daytype_cy : 
+
+    season_daytype_cy : 
+
     """
     av_season_daytype_cy = defaultdict(dict)
     season_daytype_cy = defaultdict(dict)
@@ -354,7 +368,7 @@ def load_script_data(data):
 
     return data
 
-def read_csv_data_service(path_to_csv, fueltypes_nr):
+def read_fuel_ss(path_to_csv, fueltypes_nr):
     """This function reads in base_data_CSV all fuel types
 
     Arguments
@@ -629,7 +643,7 @@ def read_technologies(path_to_csv, fueltypes):
 
     return dict_technologies, dict_tech_lists
 
-def read_base_data_resid(path_to_csv):
+def read_fuel_rs(path_to_csv):
     """This function reads in base_data_CSV all fuel types
 
     (first row is fueltype, subkey), header is appliances
@@ -677,17 +691,19 @@ def read_base_data_resid(path_to_csv):
     # Create list with all rs enduses
     all_enduses = end_uses_dict.keys()
 
-    return end_uses_dict, all_enduses
+    return end_uses_dict, list(all_enduses)
 
-def read_csv_base_data_industry(path_to_csv, fueltypes_nr, fueltypes):
+def read_fuel_is(path_to_csv, fueltypes_nr, fueltypes):
     """This function reads in base_data_CSV all fuel types
 
     Arguments
     ----------
     path_to_csv : str
         Path to csv file
-    _dt : str
-        Defines dtype of array to be read in (takes float)
+    fueltypes_nr : int
+        Number of fueltypes
+    fueltypes : dict
+        Fueltypes
 
     Returns
     -------
@@ -1090,10 +1106,32 @@ def get_position(headings, name):
 
     Arguments
     ---------
+    headings : list
+        List with names
+    name : str
+        Name of entry to find
+    
+    Returns
+    -------
+    position : int
+        Position in list
     """
     for position, value in enumerate(headings):
         if str(value) == str(name):
             return position
 
 def read_np_array_from_txt(path_file_to_read):
-    return np.loadtxt(path_file_to_read, delimiter=',')
+    """Read np array from textfile
+
+    Arguments
+    ---------
+    path_file_to_read : str
+        File to path with stored array
+
+    Return
+    ------
+    txt_array : array
+        Array containing read text
+    """
+    txt_array = np.loadtxt(path_file_to_read, delimiter=',')
+    return txt_array

@@ -3,6 +3,18 @@
 from energy_demand.profiles import hdd_cdd
 import numpy as np
 
+def calc_weekend_corr_f():
+    """Testing
+    """
+    wkend_factor = 0.5
+    model_yeardays_daytype = ['working_day', 'holiday']
+    result = hdd_cdd.calc_weekend_corr_f(
+        model_yeardays_daytype=model_yeardays_daytype,
+        wkend_factor=wkend_factor)
+
+    assert result[0] == 1.0
+    assert result[1] == wkend_factor
+
 def test_averaged_temp():
     """Testing
     """

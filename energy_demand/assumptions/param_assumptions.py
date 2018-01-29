@@ -209,7 +209,7 @@ def load_param_assump(paths, assumptions):
         "units": '°C'})
 
     # Future base year temperature
-    strategy_vars['ss_t_base_cooling_future_yr'] = 21
+    strategy_vars['ss_t_base_cooling_future_yr'] = 5
 
     # Parameters info
     strategy_variables.append({
@@ -222,11 +222,6 @@ def load_param_assump(paths, assumptions):
 
         # Future base year temperature
     strategy_vars['is_t_base_heating_future_yr'] = 15.5
-
-    # Penetration of cooling devices
-    # COLING_OENETRATION ()
-    # Or Assumkp Peneetration curve in relation to HDD from PAPER #Residential
-    # Assumption on recovered heat (lower heat demand based on heat recovery)
 
     # ============================================================
     # Smart meter assumptions (Residential)
@@ -272,9 +267,27 @@ def load_param_assump(paths, assumptions):
 
         # Service
         'smart_meter_improvement_ss_space_heating': 0.03,
+        'smart_meter_improvement_ss_water_heating': 0,
+        'smart_meter_improvement_ss_cooling_humidification': 0,
+        'smart_meter_improvement_ss_fans': 0,
+        'smart_meter_improvement_ss_lighting': 0,
+        'smart_meter_improvement_ss_catering': 0,
+        'smart_meter_improvement_ss_small_power': 0,
+        'smart_meter_improvement_ss_ICT_equipment': 0,
+        'smart_meter_improvement_ss_cooled_storage': 0,
+        'smart_meter_improvement_ss_other_gas': 0,
+        'smart_meter_improvement_ss_other_electricity': 0,
 
-        # Industry
-        'smart_meter_improvement_is_space_heating': 0.03}
+        # Industry submodule
+        'smart_meter_improvement_is_high_temp_process': 0,
+        'smart_meter_improvement_is_low_temp_process': 0,
+        'smart_meter_improvement_is_drying_separation': 0,
+        'smart_meter_improvement_is_motors': 0,
+        'smart_meter_improvement_is_compressed_air': 0,
+        'smart_meter_improvement_is_lighting': 0,
+        'smart_meter_improvement_is_space_heating': 0.03,
+        'smart_meter_improvement_is_other': 0,
+        'smart_meter_improvement_is_refrigeration': 0}
 
     # Helper function to create description of parameters for all enduses
     for enduse_name, param_value in savings_smart_meter.items():
@@ -300,10 +313,16 @@ def load_param_assump(paths, assumptions):
         "units": '%'})
 
     # How much of the floorarea is cooled in end year (example: 0.5 --> 50% of floorarea is cooled)
-    strategy_vars['cooled_floorarea__ss_cooling_humidification'] = 0.3 #TODO FIND NUMBER
+    # Carbon Trust. (2012). Air conditioning. Maximising comfort, minimising energy consumption.
+    strategy_vars['cooled_floorarea__ss_cooling_humidification'] = 0.4
 
     # Year until floor area change is fully realised
     strategy_vars['cooled_floorarea_yr_until_changed'] = yr_until_changed_all_things
+    
+    # Penetration of cooling devices
+    # COLING_OENETRATION ()
+    # Or Assumkp Peneetration curve in relation to HDD from PAPER #Residential
+    # Assumption on recovered heat (lower heat demand based on heat recovery)
 
     # ============================================================
     # Heat recycling & Reuse

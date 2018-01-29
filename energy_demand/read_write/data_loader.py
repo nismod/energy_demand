@@ -327,19 +327,19 @@ def load_paths(path):
 
         # Fuel switches
         'rs_path_fuel_switches': os.path.join(
-            path, 'config_data', 'submodel_residential', 'switches_fuel_scenaric.csv'),
+            path, 'config_data', 'submodel_residential', 'switches_fuel.csv'),
         'ss_path_fuel_switches': os.path.join(
-            path, 'config_data', 'submodel_service', 'switches_fuel_scenaric.csv'),
+            path, 'config_data', 'submodel_service', 'switches_fuel.csv'),
         'is_path_fuel_switches': os.path.join(
-            path, 'config_data', 'submodel_industry', 'switches_fuel_scenaric.csv'),
+            path, 'config_data', 'submodel_industry', 'switches_fuel.csv'),
 
         # Path to service switches
         'rs_path_service_switch': os.path.join(
-            path, 'config_data', 'submodel_residential', 'switches_service_scenaric.csv'),
+            path, 'config_data', 'submodel_residential', 'switches_service.csv'),
         'ss_path_service_switch': os.path.join(
-            path, 'config_data', 'submodel_service', 'switches_service_scenaric.csv'),
+            path, 'config_data', 'submodel_service', 'switches_service.csv'),
         'is_path_industry_switch': os.path.join(
-            path, 'config_data', 'submodel_industry', 'switches_industry_scenaric.csv'),
+            path, 'config_data', 'submodel_industry', 'switches_industry.csv'),
 
         # Path to capacity installations
         'rs_path_capacity_installation': os.path.join(
@@ -641,6 +641,11 @@ def load_temp_data(paths):
 def load_fuels(paths, lookups):
     """Load in ECUK fuel data, enduses and sectors
 
+    Sources:
+        Residential:    Table 3.02, Table 3.08
+        Service:        Table 5.5a
+        Industry:       Table 4.04
+
     Arguments
     ---------
     paths : dict
@@ -661,17 +666,17 @@ def load_fuels(paths, lookups):
     sectors = {}
     fuels = {}
 
-    # Residential Sector (ECUK Table XY and Table XY)
-    rs_fuel_raw_data_enduses, enduses['rs_all_enduses'] = read_data.read_base_data_resid(
+    # Residential Sector
+    rs_fuel_raw_data_enduses, enduses['rs_all_enduses'] = read_data.read_fuel_rs(
         paths['rs_fuel_raw_data_enduses'])
 
-    # Service Sector (ECUK Table XY)
-    ss_fuel_raw_data_enduses, sectors['ss_sectors'], enduses['ss_all_enduses'] = read_data.read_csv_data_service(
+    # Service Sector
+    ss_fuel_raw_data_enduses, sectors['ss_sectors'], enduses['ss_all_enduses'] = read_data.read_fuel_ss(
         paths['ss_fuel_raw_data_enduses'],
         lookups['fueltypes_nr'])
 
-    # Industry fuel (ECUK Table 4.04)
-    is_fuel_raw_data_enduses, sectors['is_sectors'], enduses['is_all_enduses'] = read_data.read_csv_base_data_industry(
+    # Industry fuel
+    is_fuel_raw_data_enduses, sectors['is_sectors'], enduses['is_all_enduses'] = read_data.read_fuel_is(
         paths['is_fuel_raw_data_enduses'], lookups['fueltypes_nr'], lookups['fueltypes'])
 
     # Iterate enduses per sudModel and flatten list
@@ -680,9 +685,12 @@ def load_fuels(paths, lookups):
         enduses['all_enduses'] += enduse
 
     # Convert units
-    fuels['rs_fuel_raw_data_enduses'] = conversions.convert_fueltypes_ktoe_GWh(rs_fuel_raw_data_enduses)
-    fuels['ss_fuel_raw_data_enduses'] = conversions.convert_fueltypes_sectors_ktoe_gwh(ss_fuel_raw_data_enduses)
-    fuels['is_fuel_raw_data_enduses'] = conversions.convert_fueltypes_sectors_ktoe_gwh(is_fuel_raw_data_enduses)
+    fuels['rs_fuel_raw_data_enduses'] = conversions.convert_fueltypes_ktoe_GWh(
+        rs_fuel_raw_data_enduses)
+    fuels['ss_fuel_raw_data_enduses'] = conversions.convert_fueltypes_sectors_ktoe_gwh(
+        ss_fuel_raw_data_enduses)
+    fuels['is_fuel_raw_data_enduses'] = conversions.convert_fueltypes_sectors_ktoe_gwh(
+        is_fuel_raw_data_enduses)
 
     sectors['all_sectors'] = [
         'community_arts_leisure',
