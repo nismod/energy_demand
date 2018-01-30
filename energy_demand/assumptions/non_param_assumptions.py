@@ -343,13 +343,7 @@ def load_non_param_assump(
 
     # Collect all heating technologies
     # TODO: MAYBE ADD IN TECH DOC ANOTHER LIST SPECIFYING ALL HEATING TECHs
-    assumptions['heating_technologies'] = assumptions[
-        'tech_list']['tech_CHP'] + assumptions[
-            'tech_list']['tech_heating_const'] + assumptions[
-                'tech_list']['tech_heating_temp_dep'] + assumptions[
-                    'tech_list']['tech_district_heating'] + assumptions[
-                        'tech_list']['storage_heating_electricity'] + assumptions[
-                            'tech_list']['secondary_heating_electricity']
+    assumptions['heating_technologies'] = get_all_heating_techs(assumptions['tech_list'])
 
     # ============================================================
     # Enduse diffusion paramters
@@ -478,3 +472,29 @@ def update_assumptions(
         technologies, installed_heat_pump_ey)
 
     return technologies
+
+def get_all_heating_techs(tech_lists):
+    """Get all heating technologies from tech lists
+    """
+    heating_technologies = []
+
+    for tech in tech_lists['tech_heating_const']:
+        if tech != 'dummy_tech':
+            heating_technologies.append(tech)
+    for tech in tech_lists['tech_heating_temp_dep']:
+        if tech != 'dummy_tech':
+            heating_technologies.append(tech)
+    for tech in tech_lists['tech_district_heating']:
+        if tech != 'dummy_tech':
+            heating_technologies.append(tech)
+    for tech in tech_lists['secondary_heating_electricity']:
+        if tech != 'dummy_tech':
+            heating_technologies.append(tech)
+    for tech in tech_lists['storage_heating_electricity']:
+        if tech != 'dummy_tech':
+            heating_technologies.append(tech)
+    for tech in tech_lists['tech_CHP']:
+        if tech != 'dummy_tech':
+            heating_technologies.append(tech)
+
+    return heating_technologies

@@ -70,7 +70,7 @@ def read_raw_elec_2015(path_to_csv, year=2015):
 
                 # Sum value of first and second half hour
                 hour_elec_demand_INDO = half_hour_demand_indo + float(line[2])
-                hour_elec_demand_ITSDO = half_hour_demand_itsdo + float(line[4]) 
+                hour_elec_demand_ITSDO = half_hour_demand_itsdo + float(line[4])
 
                 # Convert MW to GWH (input is MW aggregated for two half
                 # hourly measurements, therfore divide by 0.5)
@@ -183,6 +183,9 @@ def compare_results(
         linewidth=0.5,
         fillstyle='full',
         color='blue')
+
+    #Grid
+    #plt.grid(True)
 
     plt.xlim([0, 8760])
     plt.margins(x=0)
@@ -365,7 +368,7 @@ def plot_residual_histogram(values, path_result, name_fig):
     # Test for normal distribution
     # https://stackoverflow.com/questions/12838993/scipy-normaltest-how-is-it-used
     # http://www.socscistatistics.com/pvalues/chidistribution.aspx
-    # http://stattrek.com/chi-square-test/goodness-of-fit.aspx?Tutorial=AP 
+    # http://stattrek.com/chi-square-test/goodness-of-fit.aspx?Tutorial=AP
     # -----------
     chi_squared, p_value = stats.normaltest(values)
 
@@ -381,7 +384,8 @@ def plot_residual_histogram(values, path_result, name_fig):
     plt.xlabel('Smarts')
     plt.ylabel('Probability')
     plt.title("Residual distribution (chi_squared: {}  p_value:  {}".format(
-        round(chi_squared, 4), round(p_value, 4)),
+        round(chi_squared, 4),
+        round(p_value, 4)),
         fontsize=10,
         fontdict=font_additional_info,
         loc='right')

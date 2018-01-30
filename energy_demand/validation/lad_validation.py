@@ -308,9 +308,9 @@ def spatial_validation(
                     logging.warning(
                         "Sub-national spatial validation: No fuel is availalbe for region %s", reg_geocode)
 
-    #print("Comparison: modelled: {}  real: {}".format(
-    #    sum(result_dict['modelled_demand'].values()),
-    #    sum(result_dict['real_demand'].values())))
+    logging.info("Comparison: modelled: {}  real: {}".format(
+        sum(result_dict['modelled_demand'].values()),
+        sum(result_dict['real_demand'].values())))
 
     # --------------------
     # Calculate statistics
@@ -351,7 +351,8 @@ def spatial_validation(
     # -------------------------------------
     # Plot
     # -------------------------------------
-    fig = plt.figure(figsize=plotting_program.cm2inch(9, 8)) #width, height (9, 8)
+    fig = plt.figure(
+        figsize=plotting_program.cm2inch(9, 8)) #width, height (9, 8)
 
     ax = fig.add_subplot(1, 1, 1)
 
@@ -445,17 +446,10 @@ def spatial_validation(
         'weight': 'normal',
         'size': 8}
 
-    '''title_info = ('r_value: {}, RMSE: {}, average_dev: {}, reg_nr: {}, std_dev: {}'.format(
-        round(r_value, 3),
-        round(rmse_value, 3),
-        round(av_deviation_real_modelled, 3),
-        len(y_real_elec_demand),
-        round(standard_dev_real_modelled, 3)))'''
     title_info = ('r_value: {},std_dev: {} ({})'.format(
         round(r_value, 3),
         round(std_dev_p, 3),
-        round(std_dev_abs, 3)
-        ))
+        round(std_dev_abs, 3)))
 
     plt.title(
         title_info,
@@ -477,12 +471,12 @@ def spatial_validation(
     # Tight layout
     plt.margins(x=0)
     plt.tight_layout()
+    plt.savefig(fig_name)
 
     if plotshow:
         plt.show()
-    # Save fig
-    plt.savefig(fig_name)
-    plt.close()
+    else:
+        plt.close()
 
 '''def correction_uk_northern_ireland_2015():
     """Not used yet

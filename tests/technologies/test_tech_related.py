@@ -105,3 +105,50 @@ def test_get_fueltype_int():
     out_value = tech_related.get_fueltype_int(fueltypes, in_value)
 
     assert out_value == expected
+
+def test_calc_av_heat_pump_eff_ey():
+    """testing
+    """
+
+
+    from energy_demand.read_write import read_data
+
+
+    technologies = {
+        'heat_pump_ASHP_electricity': read_data.TechnologyData(),
+        'heat_pump_GSHP_electricity': read_data.TechnologyData(),
+        'heat_pumps_electricity': read_data.TechnologyData()
+        }
+    technologies['heat_pump_ASHP_electricity'].fueltype_str = 'electricity'
+    technologies['heat_pump_ASHP_electricity'].eff_achieved = 1.0
+    technologies['heat_pump_ASHP_electricity'].diff_method = 'linear'
+    technologies['heat_pump_ASHP_electricity'].eff_by = 0.5
+    technologies['heat_pump_ASHP_electricity'].eff_ey = 0.5
+    technologies['heat_pump_ASHP_electricity'].year_eff_ey = 2020
+
+    technologies['heat_pump_GSHP_electricity'].fueltype_str = 'electricity'
+    technologies['heat_pump_GSHP_electricity'].eff_achieved = 1.0
+    technologies['heat_pump_GSHP_electricity'].diff_method = 'linear'
+    technologies['heat_pump_GSHP_electricity'].eff_by = 1.0
+    technologies['heat_pump_GSHP_electricity'].eff_ey = 1.0
+    technologies['heat_pump_GSHP_electricity'].year_eff_ey = 2020
+
+    technologies['heat_pumps_electricity'].fueltype_str = 'electricity'
+    technologies['heat_pumps_electricity'].eff_achieved = 1.0
+    technologies['heat_pumps_electricity'].diff_method = 'linear'
+    technologies['heat_pumps_electricity'].eff_by = 1.0
+    technologies['heat_pumps_electricity'].eff_ey = 99999
+    technologies['heat_pumps_electricity'].year_eff_ey = 2020
+
+    heat_pump_assump = {
+        'electricity': {
+            'heat_pump_ASHP_electricity': 0.7,
+            'heat_pump_GSHP_electricity': 0.3
+            }
+    }
+
+    result = tech_related.calc_av_heat_pump_eff_ey(
+        technologies,
+        heat_pump_assump)
+
+    assert result['heat_pumps_electricity'].eff_ey == 0.7 * 0.5 + 0.3 * 1.0

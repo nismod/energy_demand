@@ -1190,7 +1190,7 @@ def plot_load_profile_dh_multiple(
                 round(r_value, 2),
                 round(std_dev_p, 2),
                 round(std_dev_abs, 2),
-                fontdict=font_additional_info)
+                fontdict=font_additional_info))
             plt.title(title_info, loc='left', fontdict=font_additional_info)
             #plt.ylabel("hours")
             #plt.ylabel("average electricity [GW]")

@@ -706,11 +706,10 @@ def constrained_results(
 
             # Generate key name (must be defined in `sector_models`)
             key_name = "{}_{}_{}".format(submodel, fueltype_str, tech_simplified)
-
+            print("key_name: " + str(key_name))
             if key_name in supply_results.keys():
 
-                # Iterate over reigons and add fuel
-                # Do not replace by +=
+                # Iterate over reigons and add fuel (Do not replace by +=)
                 for region_nr, _ in enumerate(regions):
                     supply_results[key_name][region_nr] = supply_results[key_name][region_nr] + fuel_tech[submodel_nr][region_nr][fueltype_int]
             else:
