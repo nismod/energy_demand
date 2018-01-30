@@ -279,14 +279,14 @@ def load_non_param_assump(
     # ------------------------------------------------------------
     assumptions['t_bases'] = {}
     assumptions['t_bases']['rs_t_heating_by'] = 15.5    #
-    assumptions['t_bases']['rs_t_cooling_by'] = 21
+    #assumptions['t_bases']['rs_t_cooling_by'] = Not implemented
 
     assumptions['t_bases']['ss_t_heating_by'] = 15.5    #
     assumptions['t_bases']['ss_t_cooling_by'] = 5       #
 
     assumptions['t_bases']['is_t_heating_by'] = 15.5    #
     #assumptions['t_bases']['is_t_cooling_by'] = Not implemented
-    
+
     assumptions['base_temp_diff_params'] = {
         'sig_midpoint': 0,
         'sig_steeppness': 1,

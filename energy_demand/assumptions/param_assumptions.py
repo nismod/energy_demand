@@ -198,7 +198,7 @@ def load_param_assump(paths, assumptions):
         "units": '°C'})
 
     # Future base year temperature
-    strategy_vars['rs_t_base_cooling_future_yr'] = 21
+    strategy_vars['rs_t_base_cooling_future_yr'] = 5
 
     strategy_variables.append({
         "name": "ss_t_base_cooling_future_yr",
