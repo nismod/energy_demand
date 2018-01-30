@@ -377,6 +377,8 @@ def plot_residual_histogram(values, path_result, name_fig):
     # -----------
     # Test for normal distribution
     # https://stackoverflow.com/questions/12838993/scipy-normaltest-how-is-it-used
+    # http://www.socscistatistics.com/pvalues/chidistribution.aspx
+    # http://stattrek.com/chi-square-test/goodness-of-fit.aspx?Tutorial=AP 
     # -----------
     chi_squared, p_value = stats.normaltest(values)
 

@@ -57,11 +57,11 @@ class EDWrapper(SectorModel):
         data['criterias']['mode_constrained'] = False                    # True: Technologies are defined in ED model and fuel is provided, False: Heat is delievered not per technologies
         data['criterias']['virtual_building_stock_criteria'] = True     # True: Run virtual building stock model
         data['criterias']['plot_HDD_chart'] = False                     # True: Plotting of HDD vs gas chart
-        data['criterias']['validation_criteria'] = False                 # True: Plot validation plots
+        data['criterias']['validation_criteria'] = True                 # True: Plot validation plots
         data['criterias']['spatial_exliclit_diffusion'] = False         # True: Spatial explicit calculations
-        data['criterias']['writeYAML'] = False
+        data['criterias']['writeYAML'] = False                          # Parameter to create SMIF files
         data['criterias']['write_to_txt'] = True
-        data['criterias']['beyond_supply_outputs'] = False              # If only for smif: FAlse, for other plots: True
+        data['criterias']['beyond_supply_outputs'] = True              # If only for smif: FAlse, for other plots: True
         data['criterias']['plot_crit'] = True
         data['criterias']['plot_tech_lp'] = True
 

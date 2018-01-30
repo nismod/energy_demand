@@ -738,3 +738,29 @@ def test_get_enduse_configuration():
 
     assert mode_constrained == False
     assert crit_switch_service == False
+
+def test_apply_cooling():
+    """testing
+    """
+    other_enduse_mode_info = {}
+    other_enduse_mode_info['sigmoid'] = {}
+    other_enduse_mode_info['sigmoid']['sig_midpoint'] = 0
+    other_enduse_mode_info['sigmoid']['sig_steeppness'] = 1
+
+    strategy_variables = {}
+    strategy_variables['cooled_floorarea_yr_until_changed'] = 2020
+    strategy_variables['cooled_floorarea__{}'.format('cooling_enduse')] = 0.5
+    
+    assump_cooling_floorarea = 0.25
+    fuel_y = np.array([100])
+
+    result = enduse_func.apply_cooling(
+        enduse='cooling_enduse',
+        fuel_y=fuel_y,
+        strategy_variables=strategy_variables,
+        assump_cooling_floorarea=assump_cooling_floorarea,
+        other_enduse_mode_info=other_enduse_mode_info,
+        base_yr=2015,
+        curr_yr=2020)
+
+    assert np.sum(result) == np.sum(fuel_y) *  strategy_variables['cooled_floorarea__{}'.format('cooling_enduse')] / assump_cooling_floorarea

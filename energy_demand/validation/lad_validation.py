@@ -5,6 +5,7 @@ import operator
 import logging
 import numpy as np
 import matplotlib.pyplot as plt
+from scipy import stats
 from energy_demand.basic import conversions
 from energy_demand.profiles import generic_shapes
 from energy_demand.plotting import plotting_program
@@ -293,8 +294,7 @@ def spatial_validation(
                 try:
                     # Test wheter data is provided for LAD
                     if subnational_elec[reg_geocode] == 0:
-                        # Ignore region
-                        pass
+                        pass # Ignore region
                     else:
                         # --Sub Regional Electricity demand
                         gw_per_region_real = subnational_elec[reg_geocode]
@@ -335,6 +335,7 @@ def spatial_validation(
         np.array(list(result_dict['modelled_demand'].values())),
         np.array(list(result_dict['real_demand'].values())))
 
+
     # -----------------
     # Sort results according to size
     # -----------------
@@ -345,7 +346,8 @@ def spatial_validation(
     # -------------------------------------
     # Plot
     # -------------------------------------
-    fig = plt.figure(figsize=plotting_program.cm2inch(17, 10))
+    fig = plt.figure(figsize=plotting_program.cm2inch(9, 8)) #width, height (9, 8)
+
     ax = fig.add_subplot(1, 1, 1)
 
     x_values = np.arange(0, len(sorted_dict_real_elec_demand), 1)
@@ -367,6 +369,11 @@ def spatial_validation(
         geocode_lad = sorted_region[0]
         labels.append(geocode_lad)
 
+    # Calculate r_squared
+    _slope, _intercept, r_value, _p_value, _std_err = stats.linregress(
+        y_real_elec_demand,
+        y_modelled_elec_demand)
+
     # --------
     # Axis
     # --------
@@ -385,7 +392,7 @@ def spatial_validation(
         y_real_elec_demand,
         linestyle='None',
         marker='o',
-        markersize=1.3,
+        markersize=1.6,
         fillstyle='full',
         markerfacecolor='grey',
         markeredgewidth=0.2,
@@ -397,7 +404,7 @@ def spatial_validation(
         y_modelled_elec_demand,
         marker='o',
         linestyle='None',
-        markersize=1.3,
+        markersize=1.6,
         markerfacecolor='white',
         fillstyle='none',
         markeredgewidth=0.5,
@@ -412,8 +419,6 @@ def spatial_validation(
     # Labelling
     # -----------
     if label_points:
-
-        # Add plots to electricity
         for pos, txt in enumerate(labels):
             #ax.annotate(txt, x_values[pos], y_modelled_elec_demand[pos])¨#if arrow wants to be added
             ax.text(
@@ -425,11 +430,19 @@ def spatial_validation(
                 fontsize=3)
 
     font_additional_info = {
-        'family': 'arial', 'color': 'black', 'weight': 'normal', 'size': 8}
-    title_info = ('RMSE: {}, d_real_model: {}, reg_nr: {}, std_dev: {}'.format(
+        'family': 'arial',
+        'color': 'black',
+        'weight': 'normal',
+        'size': 8}
+
+    '''title_info = ('r_value: {}, RMSE: {}, average_dev: {}, reg_nr: {}, std_dev: {}'.format(
+        round(r_value, 3),
         round(rmse_value, 3),
         round(av_deviation_real_modelled, 3),
         len(y_real_elec_demand),
+        round(standard_dev_real_modelled, 3)))'''
+    title_info = ('r_value: {},std_dev: {}'.format(
+        round(r_value, 3),
         round(standard_dev_real_modelled, 3)))
 
     plt.title(
@@ -444,7 +457,9 @@ def spatial_validation(
     # Legend
     # --------
     plt.legend(
-        prop={'family': 'arial', 'size': 8},
+        prop={
+            'family': 'arial',
+            'size': 8},
         frameon=False)
 
     # Tight layout

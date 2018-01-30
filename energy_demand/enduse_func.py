@@ -206,8 +206,8 @@ class Enduse(object):
                 enduse,
                 self.fuel_new_y,
                 assumptions['strategy_variables'],
-                assumptions['assump_cooling_floorarea'],
-                enduse_overall_change,
+                assumptions['assump_cooling_floorarea']['cooled_ss_floorarea_by'],
+                enduse_overall_change['other_enduse_mode_info'],
                 base_yr,
                 curr_yr)
 
@@ -1727,7 +1727,7 @@ def apply_cooling(
         fuel_y,
         strategy_variables,
         assump_cooling_floorarea,
-        enduse_overall_change,
+        other_enduse_mode_info,
         base_yr,
         curr_yr):
     """Apply changes for cooling enduses depending
@@ -1747,7 +1747,7 @@ def apply_cooling(
         Strategy variables
     assump_cooling_floorarea : dict
         Assumption about cooling floor area in base year
-    enduse_overall_change : dict
+    other_enduse_mode_info : dict
         diffusion parameters
     base_yr : int
         Base year
@@ -1769,12 +1769,12 @@ def apply_cooling(
             base_yr,
             curr_yr,
             strategy_variables['cooled_floorarea_yr_until_changed'],
-            enduse_overall_change['other_enduse_mode_info']['sigmoid']['sig_midpoint'],
-            enduse_overall_change['other_enduse_mode_info']['sigmoid']['sig_steeppness'])
+            other_enduse_mode_info['sigmoid']['sig_midpoint'],
+            other_enduse_mode_info['sigmoid']['sig_steeppness'])
 
         # Floor area percentage cooled in by and cy
         cooled_floorarea_p_cy = sig_diff_factor * cooled_floorearea_p
-        cooled_floorarea_p_by = assump_cooling_floorarea['cooled_ss_floorarea_by']
+        cooled_floorarea_p_by = assump_cooling_floorarea
 
         # Calculate factor
         floorare_cooling_factor = cooled_floorarea_p_cy / cooled_floorarea_p_by

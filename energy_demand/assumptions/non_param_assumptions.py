@@ -56,8 +56,8 @@ def load_non_param_assump(
     #       is_weekend_factor : float
     #           Weekend effect for industry submodel enduses
     # ------------------------------------------------------------
-    assumptions['ss_t_cooling_weekend_factor'] = 0.6    # 0.6
-    assumptions['ss_weekend_factor'] = 0.8              # 0.8
+    assumptions['ss_t_cooling_weekend_factor'] = 0.5    # 0.6  0.5
+    assumptions['ss_weekend_factor'] = 0.7              # 0.8  
     assumptions['is_weekend_factor'] = 0.4              # 0.4
 
     # ============================================================
