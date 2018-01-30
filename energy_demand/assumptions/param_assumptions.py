@@ -314,7 +314,7 @@ def load_param_assump(paths, assumptions):
 
     # How much of the floorarea is cooled in end year (example: 0.5 --> 50% of floorarea is cooled)
     # Carbon Trust. (2012). Air conditioning. Maximising comfort, minimising energy consumption.
-    strategy_vars['cooled_floorarea__ss_cooling_humidification'] = 0.4
+    strategy_vars['cooled_floorarea__ss_cooling_humidification'] = 0.35
 
     # Year until floor area change is fully realised
     strategy_vars['cooled_floorarea_yr_until_changed'] = yr_until_changed_all_things

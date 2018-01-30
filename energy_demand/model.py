@@ -990,7 +990,7 @@ def aggregate_final_results(
                 model_yearhours_nrs,
                 fueltypes_nr,
                 model_yeardays_nrs,
-                'fuel_yh', 
+                'fuel_yh',
                 'techs_fuel_yh',
                 technologies)
 

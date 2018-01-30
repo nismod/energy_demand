@@ -56,8 +56,8 @@ def load_non_param_assump(
     #       is_weekend_factor : float
     #           Weekend effect for industry submodel enduses
     # ------------------------------------------------------------
-    assumptions['ss_t_cooling_weekend_factor'] = 0.5    # 0.6  0.5
-    assumptions['ss_weekend_factor'] = 0.7              # 0.8  
+    assumptions['ss_t_cooling_weekend_factor'] = 0.6    # 0.6  0.5
+    assumptions['ss_weekend_factor'] = 0.8              # 0.8  0.7
     assumptions['is_weekend_factor'] = 0.4              # 0.4
 
     # ============================================================
@@ -342,11 +342,14 @@ def load_non_param_assump(
         fueltypes)
 
     # Collect all heating technologies
+    # TODO: MAYBE ADD IN TECH DOC ANOTHER LIST SPECIFYING ALL HEATING TECHs
     assumptions['heating_technologies'] = assumptions[
         'tech_list']['tech_CHP'] + assumptions[
             'tech_list']['tech_heating_const'] + assumptions[
                 'tech_list']['tech_heating_temp_dep'] + assumptions[
-                    'tech_list']['tech_district_heating']
+                    'tech_list']['tech_district_heating'] + assumptions[
+                        'tech_list']['storage_heating_electricity'] + assumptions[
+                            'tech_list']['secondary_heating_electricity']
 
     # ============================================================
     # Enduse diffusion paramters
