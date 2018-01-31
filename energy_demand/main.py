@@ -162,7 +162,7 @@ if __name__ == "__main__":
     # Load data
     data = {}
     data['criterias'] = {}
-    data['criterias']['mode_constrained'] = False #constrained_by_technologies
+    data['criterias']['mode_constrained'] = True #constrained_by_technologies
     data['criterias']['plot_HDD_chart'] = False
     data['criterias']['virtual_building_stock_criteria'] = True
     data['criterias']['spatial_exliclit_diffusion'] = False
@@ -177,7 +177,7 @@ if __name__ == "__main__":
     data['sim_param'] = {}
     data['sim_param']['base_yr'] = 2015
     data['sim_param']['curr_yr'] = data['sim_param']['base_yr']
-    data['sim_param']['simulated_yrs'] = [2015, 2050]
+    data['sim_param']['simulated_yrs'] = [2015, 2030, 2050]
 
     # local scrap
     data['lu_reg'] = data_loader.load_LAC_geocodes_info(

@@ -150,7 +150,7 @@ def get_service_fueltype_tech(tech_list, fueltypes, fuel_p_tech_by, fuels, techn
         range(len(fueltypes)))
 
     for enduse, fuel in fuels.items():
-        for fueltype, fuel_fueltype in enumerate(fuel): #Iterate array
+        for fueltype, fuel_fueltype in enumerate(fuel):
             tot_service_fueltype = 0
 
             for tech in fuel_p_tech_by[enduse][fueltype]:

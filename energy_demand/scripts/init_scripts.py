@@ -112,7 +112,10 @@ def scenario_initalisation(path_data_ed, data=False):
         data['assumptions']['is_fuel_tech_p_by'],
         is_aggr_sector_fuels,
         data['assumptions']['technologies'])
-
+    
+    import pprint
+    print("aaaaaaaaaaaaaaaaaaaaad")
+    pprint.pprint(init_cont['is_service_tech_by_p']['is_space_heating'])
     # ------------------------------------
     # Autocomplement defined service switches
     # with technologies not explicitly specified in switch
@@ -462,7 +465,7 @@ def sig_param_calculation_including_fuel_switch(
     if regional_specific:
         service_switches_out = {}
         for region in regions:
-            sig_param_tech[region] = []
+            sig_param_tech[region] = [] #TODO noT NEEDED SO FAR
             tech_increased_service[region] = []
             tech_decrased_share[region] = []
             tech_constant_service[region] = []
@@ -476,7 +479,12 @@ def sig_param_calculation_including_fuel_switch(
     # Calculate l_values
     # -------------------------------
     if crit_switch_service:
-
+        import pprint
+        print("initialise base year A: ")
+        pprint.pprint(service_tech_by_p)
+        print("--")
+        pprint.pprint(share_service_tech_ey_p)
+        #prnt(".")
         # Calculate only from service switch
         tech_increased_service, tech_decrased_share, tech_constant_service = s_generate_sigmoid.get_tech_future_service(
             service_tech_by_p,
@@ -494,7 +502,7 @@ def sig_param_calculation_including_fuel_switch(
             regional_specific=regional_specific)
 
     # -------------
-    # FUEL SWITCH
+    # FUEL switch
     # -------------
     if crit_fuel_switch:
         print("... calculate sigmoid based on FUEL switches {}".format(enduse))
