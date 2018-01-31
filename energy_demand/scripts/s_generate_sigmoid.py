@@ -537,6 +537,7 @@ def calc_diff_fuel_switch(
     return dict(service_tech_switched_p), dict(l_values_sig)
 
 def calc_sigm_parameters(
+        yr_until_switched,
         base_yr,
         technologies,
         l_values_sig,
@@ -588,6 +589,7 @@ def calc_sigm_parameters(
 
             # Calclulate sigmoid parameters for every installed technology
             sig_param_tech[reg] = tech_sigmoid_parameters(
+                yr_until_switched,
                 base_yr,
                 technologies,
                 installed_techs,
@@ -600,6 +602,7 @@ def calc_sigm_parameters(
 
         # Calclulate sigmoid parameters for every installed technology
         sig_param_tech = tech_sigmoid_parameters(
+            yr_until_switched,
             base_yr,
             technologies,
             installed_techs,
@@ -611,6 +614,7 @@ def calc_sigm_parameters(
     return sig_param_tech
 
 def tech_sigmoid_parameters(
+        yr_until_switched,
         base_yr,
         technologies,
         installed_tech,
@@ -660,10 +664,10 @@ def tech_sigmoid_parameters(
             logging.debug("... create sigmoid diffusion parameters %s", tech)
 
             # Get year until switched
-            for switch in service_switches:
+            '''for switch in service_switches:
                 if switch.technology_install == tech:
                     yr_until_switched = switch.switch_yr
-                    break
+                    break'''
 
             market_entry = technologies[tech].market_entry
 

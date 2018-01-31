@@ -206,7 +206,7 @@ class EDWrapper(SectorModel):
             data['assumptions']['technologies'],
             data['assumptions']['strategy_variables']['eff_achiev_f'],
             data['assumptions']['strategy_variables']['split_hp_gshp_to_ashp_ey'])
-
+        
         # ------------------------
         # Pass along to simulate()
         # ------------------------
@@ -320,7 +320,6 @@ class EDWrapper(SectorModel):
         data = self.pass_to_simulate(data, self.user_data['data_pass_along'])
         data = self.pass_to_simulate(data, self.user_data['fuel_disagg'])
         data['assumptions'] = self.pass_to_simulate(data['assumptions'], self.user_data['init_cont'])
-
 
         # Update: Necessary updates after external data definition
         data['assumptions']['technologies'] = non_param_assumptions.update_assumptions(

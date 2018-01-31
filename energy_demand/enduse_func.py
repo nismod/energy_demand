@@ -125,7 +125,7 @@ class Enduse(object):
         ):
         """Enduse class constructor
         """
-        print("... =====Enduse: " + str(enduse))
+        #print("... =====Enduse: " + str(enduse))
         self.region_name = region_name
         self.enduse = enduse
         self.fuel_new_y = fuel
@@ -163,7 +163,7 @@ class Enduse(object):
                 assumptions['enduse_space_heating'],
                 assumptions['ss_enduse_space_cooling'])
             #logging.info("... Fuel train B: " + str(np.sum(self.fuel_new_y)))
-            print("... Fuel train B: " + str(np.sum(self.fuel_new_y)))
+            #print("... Fuel train B: " + str(np.sum(self.fuel_new_y)))
 
             # --Change fuel consumption based on smart meter induced general savings
             self.fuel_new_y = apply_smart_metering(
@@ -174,7 +174,7 @@ class Enduse(object):
                 base_yr,
                 curr_yr)
             #logging.info("... Fuel train C: " + str(np.sum(self.fuel_new_y)))
-            print("... Fuel train C: " + str(np.sum(self.fuel_new_y)))
+            #print("... Fuel train C: " + str(np.sum(self.fuel_new_y)))
 
             # --Enduse specific fuel consumption change in %
             self.fuel_new_y = apply_specific_change(
@@ -185,7 +185,7 @@ class Enduse(object):
                 base_yr,
                 curr_yr)
             #logging.info("... Fuel train D: " + str(np.sum(self.fuel_new_y)))
-            print("... Fuel train D: " + str(np.sum(self.fuel_new_y)))
+            #print("... Fuel train D: " + str(np.sum(self.fuel_new_y)))
 
             # Calculate new fuel demands after scenario drivers
             self.fuel_new_y = apply_scenario_drivers(
@@ -199,7 +199,7 @@ class Enduse(object):
                 base_yr,
                 curr_yr)
             #logging.info("... Fuel train E: " + str(np.sum(self.fuel_new_y)))
-            print("... Fuel train E: " + str(np.sum(self.fuel_new_y)))
+            #print("... Fuel train E: " + str(np.sum(self.fuel_new_y)))
 
             # Apply cooling scenario variable
             self.fuel_new_y = apply_cooling(
@@ -278,7 +278,6 @@ class Enduse(object):
                     base_yr,
                     curr_yr)
 
-                print("... Fuel train EE1 - actually service: " + str(service_tech_y_cy))
                 # --------------------------------
                 # Switches (service or fuel)
                 # --------------------------------
@@ -292,7 +291,6 @@ class Enduse(object):
                         sig_param_tech,
                         curr_yr)
 
-                print("... Fuel train E2 2 - actually service: " + str(service_tech_y_cy.values()))
                 # -------------------------------------------
                 # Convert annual service to fuel per fueltype
                 # -------------------------------------------
@@ -311,12 +309,7 @@ class Enduse(object):
 
                 # Copy
                 self.fuel_y = self.fuel_new_y
-                print("... Fuel train F: " + str(np.sum(self.fuel_new_y)))
-
-                #TESGING NEW TODO
-                if np.sum(self.fuel_y) < 0:
-                    print("ERROR: {}   {}".format(enduse, np.sum(self.fuel_y)))
-                    sys.exit()
+                #print("... Fuel train F: " + str(np.sum(self.fuel_new_y)))
 
                 # ------------------------------------------
                 # Assign load profiles

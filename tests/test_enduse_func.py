@@ -7,6 +7,20 @@ from energy_demand.read_write import read_data
 from energy_demand.technologies import technological_stock
 from energy_demand.profiles import load_profile
 
+'''def test_assign_lp_no_techs():
+    
+    enduse,
+    sector,
+    load_profiles,
+    fuel_new_y
+
+    result = enduse_func.assign_lp_no_techs(
+        enduse,
+        sector,
+        load_profiles,
+        fuel_new_y
+    )'''
+
 def test_get_crit_switch():
     """
     """
@@ -806,4 +820,3 @@ def test_test():
         curr_yr=curr_yr)
     summe = 0.70627648300491375 * 3724.1471455
     assert result['heat_pumps_electricity'] == summe
-test_test()

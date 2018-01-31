@@ -597,7 +597,6 @@ def plt_stacked_enduse(
 
     # Save fig
     plt.savefig(fig_name)
-    plt.show()
     plt.close()
 
 def plt_stacked_enduse_sectors(
@@ -1338,8 +1337,6 @@ def plot_lp_yh(data_dh_modelled):
 
     # Save fig
     plt.show()
-    #plt.savefig(path_fig_name)
-    #plt.close()
 
 def plot_lp_yd(data_dh_modelled):
     """plot yearly profile
@@ -1364,8 +1361,6 @@ def plot_lp_yd(data_dh_modelled):
     plt.margins(x=0)
 
     plt.show()
-    #plt.savefig(path_fig_name)
-    #plt.close()
 
     #creating a timer object and setting an interval
     timer = fig.canvas.new_timer(interval = 1500)

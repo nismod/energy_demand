@@ -21,7 +21,8 @@ NICETOHAVE
 - Convert paths dict to objects
 -
 
-DISTRICT HEATING TECHS
+DISTRICT HEATING TECH
+TODO: Write function to test wheter swichtes are possible (e.g. that not more from one technology to another is replaced than possible)
 TODO: Improve industry related demand --> define strategies
 TODO: Related ed to houses & householdsize
 TODO: Define efficencies of all techsg
