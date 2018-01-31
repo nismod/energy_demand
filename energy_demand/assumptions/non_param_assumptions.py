@@ -56,8 +56,8 @@ def load_non_param_assump(
     #       is_weekend_factor : float
     #           Weekend effect for industry submodel enduses
     # ------------------------------------------------------------
-    assumptions['ss_t_cooling_weekend_factor'] = 0.5    # 0.6  0.5
-    assumptions['ss_weekend_factor'] = 0.7              # 0.8  0.7
+    assumptions['ss_t_cooling_weekend_factor'] = 0.5    # 0.6
+    assumptions['ss_weekend_factor'] = 0.7              # 0.8
     assumptions['is_weekend_factor'] = 0.4              # 0.4
 
     # ============================================================
@@ -235,7 +235,7 @@ def load_non_param_assump(
     # ------------------------------------------------------------
     assumptions['assump_cooling_floorarea'] = {}
 
-    # (see Abela et al. 2016)
+    # (See Abela et al. 2016)
     assumptions['assump_cooling_floorarea']['cooled_ss_floorarea_by'] = 0.35
 
     # ============================================================
@@ -247,7 +247,7 @@ def load_non_param_assump(
     #   smart_meter_p_by : int
     #       The percentage of households with smart meters in by
     #   smart_meter_diff_params : dict
-    #       Sigmoid diffusion parameter of smater meters        
+    #       Sigmoid diffusion parameter of smater meters
     # ------------------------------------------------------------
     assumptions['smart_meter_assump'] = {}
     assumptions['smart_meter_assump']['smart_meter_p_by'] = 0.1

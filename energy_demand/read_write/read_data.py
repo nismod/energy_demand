@@ -333,13 +333,15 @@ def read_enduse_specific_results_txt(fueltypes_nr, path_to_folder):
 
         txt_data = np.loadtxt(path_file_to_read, delimiter=',')
 
-        print("... reading file: {}  {} {} {} ".format(year, enduse, fueltype_array_position, np.sum(txt_data)))
+        print("... reading file: {} {} {} {}".format(
+            year, enduse, fueltype_array_position, np.sum(txt_data)))
 
         # Create year if not existing
         try:
             results[year]
         except KeyError:
             results[year] = {}
+
         try:
             results[year][enduse]
         except KeyError:

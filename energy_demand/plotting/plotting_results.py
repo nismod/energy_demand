@@ -57,25 +57,29 @@ def run_all_plot_functions(
         sim_param['simulated_yrs'],
         results_container['results_enduse_every_year'],
         enduses['rs_all_enduses'],
-        os.path.join(local_paths['data_results_PDF'], "stacked_rs_country.pdf"))
+        os.path.join(
+            local_paths['data_results_PDF'],"stacked_rs_country.pdf"))
 
     # Service
     plt_stacked_enduse(
         sim_param['simulated_yrs'],
         results_container['results_enduse_every_year'],
         enduses['ss_all_enduses'],
-        os.path.join(local_paths['data_results_PDF'], "stacked_ss_country.pdf"))
+        os.path.join(
+            local_paths['data_results_PDF'], "stacked_ss_country.pdf"))
 
     # Industry
     plt_stacked_enduse(
         sim_param['simulated_yrs'],
         results_container['results_enduse_every_year'],
         enduses['is_all_enduses'],
-        os.path.join(local_paths['data_results_PDF'], "stacked_is_country_.pdf"))
+        os.path.join(
+            local_paths['data_results_PDF'], "stacked_is_country_.pdf"))
 
     # ------------------------------
     # Plot annual demand for enduses for all submodels
     # ------------------------------
+    #TODO IMPROVE WITH OTHER STACK
     plt_stacked_enduse_sectors(
         lookups,
         sim_param['simulated_yrs'],
@@ -455,13 +459,18 @@ def plot_lf_y(
     plt.savefig(path_plot_fig)
     plt.close()
 
-def plt_stacked_enduse(years_simulated, results_enduse_every_year, enduses_data, fig_name):
+def plt_stacked_enduse(
+        years_simulated,
+        results_enduse_every_year,
+        enduses_data,
+        fig_name
+    ):
     """Plots stacked energy demand
 
     Arguments
     ----------
-    data : dict
-        Data container
+    years_simulated : list
+        Simulated years
     results_enduse_every_year : dict
         Results [year][enduse][fueltype_array_position]
 
@@ -472,36 +481,58 @@ def plt_stacked_enduse(years_simulated, results_enduse_every_year, enduses_data,
     Note
     ----
         -   Sum across all fueltypes
+        -   Not possible to plot single year
 
-    # INFO Cannot plot a single year?
+    https://matplotlib.org/examples/pylab_examples/stackplot_demo.html
     """
-    x_data = np.array(years_simulated)
-    y_data = np.zeros((len(enduses_data), len(years_simulated), ))
+    nr_of_modelled_years = len(years_simulated)
 
+    x_data = np.array(years_simulated)
+
+    y_value_arrays = []
     legend_entries = []
+
     for enduse_array_nr, enduse in enumerate(enduses_data):
         legend_entries.append(enduse)
+
+        y_values_enduse_yrs = np.zeros((nr_of_modelled_years))
 
         for year_array_nr, model_year in enumerate(results_enduse_every_year.keys()):
 
             # Sum across all fueltypes
-            sum_across_fueltypes = np.sum(results_enduse_every_year[model_year][enduse])
+            tot_across_fueltypes = np.sum(results_enduse_every_year[model_year][enduse])
 
             # Conversion: Convert GWh per years to GW
-            yearly_sum_twh = conversions.gwh_to_twh(sum_across_fueltypes)
+            yearly_sum_twh = conversions.gwh_to_twh(tot_across_fueltypes)
 
-            y_data[enduse_array_nr][year_array_nr] += yearly_sum_twh #yearly_sum_gw
+            logging.debug("... model_year {} enduse {}  twh {}".format(
+                model_year, enduse, np.sum(yearly_sum_twh)))
 
-            print("summing:  ...  model_year {} enduse {}  twh {}".format(model_year, enduse, np.sum(yearly_sum_twh)))
+            y_values_enduse_yrs[year_array_nr] = yearly_sum_twh
+
+        # Add array with values for every year to list
+        y_value_arrays.append(y_values_enduse_yrs)
+
+    # Not necessary --> could als direclty use y_value_arrays
+    y_stacked = np.row_stack((y_value_arrays))
 
     # Set figure size
-    fig = plt.figure(figsize=plotting_program.cm2inch(8, 8))
+    fig = plt.figure(
+        figsize=plotting_program.cm2inch(8, 8))
+
     ax = fig.add_subplot(1, 1, 1)
 
     color_list = [
-        'darkturquoise', 'orange', 'firebrick',
-        'darkviolet', 'khaki', 'olive', 'darkseagreen',
-        'darkcyan', 'indianred', 'darkblue',
+        'darkturquoise',
+        'orange',
+        'firebrick',
+        'darkviolet',
+        'khaki',
+        'olive',
+        'darkseagreen',
+        'darkcyan',
+        'indianred',
+        'darkblue',
         'orchid',
         'gainsboro',
         'mediumseagreen',
@@ -524,36 +555,23 @@ def plt_stacked_enduse(years_simulated, results_enduse_every_year, enduses_data,
     # ----------
     # Stack plot
     # ----------
-    colors = tuple(color_list[:len(enduses_data)])
+    color_stackplots = color_list[:len(enduses_data)]
 
-    stack_plot = ax.stackplot(
+    ax.stackplot(
         x_data,
-        y_data,
-        colors=colors)
+        y_stacked,
+        colors=color_stackplots)  #y_value_arrays
 
-    # -------
-    # Legend
-    # -------
-    # Get color of stacks in stackplot
-    color_stackplots = [mpl.patches.Rectangle((0, 0), 0, 0, facecolor=pol.get_facecolor()[0]) for pol in stack_plot]
-
-    '''plt.legend(
-        color_stackplots,
+    plt.legend(
         legend_entries,
+        prop={
+            'family':'arial',
+            'size': 8},
         ncol=2,
-        loc='best',
-        frameon=False)'''
-
-    # Put a legend below current axis
-    ax.legend(
-        color_stackplots,
-        legend_entries,
         loc='upper center',
         bbox_to_anchor=(0.5, -0.05),
-        prop={'family': 'arial', 'size': 3},
         frameon=False,
-        shadow=True,
-        ncol=2)
+        shadow=True)
 
     # -------
     # Axis
@@ -563,9 +581,9 @@ def plt_stacked_enduse(years_simulated, results_enduse_every_year, enduses_data,
     # -------
     # Labels
     # -------
-    plt.ylabel("GW")
-    plt.xlabel("year")
-    plt.title("ED whole UK")
+    plt.ylabel("TWh", fontsize=10)
+    plt.xlabel("Year", fontsize=10)
+    plt.title("ED whole UK", fontsize=10)
 
     # Tight layout
     plt.tight_layout()
@@ -573,6 +591,7 @@ def plt_stacked_enduse(years_simulated, results_enduse_every_year, enduses_data,
 
     # Save fig
     plt.savefig(fig_name)
+    plt.show()
     plt.close()
 
 def plt_stacked_enduse_sectors(
@@ -609,7 +628,6 @@ def plt_stacked_enduse_sectors(
     fig = plt.figure(figsize=plotting_program.cm2inch(8, 8))
     ax = fig.add_subplot(1, 1, 1)
 
-    #for submodel in (rs_enduses, ss_enduses, is_enduses):
     for model_year, data_model_run in enumerate(results_enduse_every_year.values()):
 
         submodel = 0
@@ -626,7 +644,6 @@ def plt_stacked_enduse_sectors(
             for enduse in ss_enduses:
 
                 # Conversion: Convert gwh per years to gw
-
                 yearly_sum_gw = np.sum(data_model_run[enduse][fueltype_int])
                 yearly_sum_twh = conversions.gwh_to_twh(yearly_sum_gw)
                 y_data[submodel][model_year] += yearly_sum_twh #yearly_sum_gw
@@ -647,7 +664,10 @@ def plt_stacked_enduse_sectors(
     # Stack plot
     # ----------
     colors = tuple(color_list)
-    stack_plot = ax.stackplot(x_data, y_data, colors=colors)
+    stack_plot = ax.stackplot(
+        x_data,
+        y_data, 
+        colors=colors)
 
     # ------------
     # Plot color legend with colors for every SUBMODEL

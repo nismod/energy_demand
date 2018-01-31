@@ -31,7 +31,7 @@ from energy_demand.profiles import hdd_cdd
 
 # must match smif project name for Local Authority Districts
 REGION_SET_NAME = 'lad_uk_2016'
-NR_OF_MODELLEd_REGIONS = 391 # uk: 391, england.: 380
+NR_OF_MODELLEd_REGIONS = 2 # uk: 391, england.: 380
 
 class EDWrapper(SectorModel):
     """Energy Demand Wrapper
@@ -57,7 +57,7 @@ class EDWrapper(SectorModel):
         data['criterias']['mode_constrained'] = True                    # True: Technologies are defined in ED model and fuel is provided, False: Heat is delievered not per technologies
         data['criterias']['virtual_building_stock_criteria'] = True     # True: Run virtual building stock model
         data['criterias']['plot_HDD_chart'] = False                     # True: Plotting of HDD vs gas chart
-        data['criterias']['validation_criteria'] = True                 # True: Plot validation plots
+        data['criterias']['validation_criteria'] = False                 # True: Plot validation plots
         data['criterias']['spatial_exliclit_diffusion'] = False         # True: Spatial explicit calculations
         data['criterias']['writeYAML'] = False                          # Parameter to create SMIF files
         data['criterias']['write_to_txt'] = True
@@ -706,7 +706,7 @@ def constrained_results(
 
             # Generate key name (must be defined in `sector_models`)
             key_name = "{}_{}_{}".format(submodel, fueltype_str, tech_simplified)
-            print("key_name: " + str(key_name))
+
             if key_name in supply_results.keys():
 
                 # Iterate over reigons and add fuel (Do not replace by +=)
@@ -736,16 +736,18 @@ def constrained_results(
         for fueltype_str, fueltype_int in fueltypes.items():
 
             if fueltype_str == 'heat':
-                #Do not add non_heating demand for fueltype heat
-                pass
+                pass #Do not add non_heating demand for fueltype heat
             else:
                 # Generate key name (must be defined in `sector_models`)
-                key_name = "{}_{}_{}".format(submodel, fueltype_str, "non_heating")
+                key_name = "{}_{}_{}".format(
+                    submodel, fueltype_str, "non_heating")
 
                 # Iterate regions and add fuel
                 supply_results[key_name] = np.zeros((len(regions), model_yearhours_nrs))
                 for region_nr, _ in enumerate(regions):
                     supply_results[key_name][region_nr] = non_heating_ed[submodel_nr][region_nr][fueltype_int]
+                # Test without iterating
+                #supply_results[key_name][region_nr] = non_heating_ed[submodel_nr][:, 0]
 
     logging.info("Prepared results for energy supply model in constrained mode")
     return dict(supply_results)
