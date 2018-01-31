@@ -764,3 +764,46 @@ def test_apply_cooling():
         curr_yr=2020)
 
     assert np.sum(result) == np.sum(fuel_y) *  strategy_variables['cooled_floorarea__{}'.format('cooling_enduse')] / assump_cooling_floorarea
+
+def test_test():
+    """Test
+    """
+    # Install technology B and replace 50% of fueltype 0
+    tot_service_yh_cy = 3724.1471455
+    service_tech_by_p = {
+        'boiler_solid_fuel': 0.0,
+        'boiler_gas': 0.97611092943131095,
+        'boiler_electricity': 0.017996039327478529,
+        'heat_pumps_electricity': 0.0030527472564444167,
+        'district_heating_electricity': 0.0,
+        'boiler_oil': 0.0028402839847661808,
+        'boiler_biomass': 0.0, 'boiler_hydrogen': 0.0, 'heat_pumps_hydrogen': 0.0}
+    tech_decrease_service = {
+        'boiler_gas': 0.076246771740129615}
+
+    tech_constant_service = {
+        'boiler_solid_fuel': 0.0,
+        'boiler_electricity': 0.12775323519770218,
+        'district_heating_electricity': 0.0,
+        'boiler_oil': 0.089723510057254471,
+        'boiler_biomass': 0.0,
+        'boiler_hydrogen': 0.0,
+        'heat_pumps_hydrogen': 0.0}
+
+    tech_increase_service = {'heat_pumps_electricity': 0.70627648300491375}
+    sig_param_tech = {
+        'heat_pumps_electricity': {
+            'midpoint': 36.713854146192347, 'steepness': 0.16754533086981224, 'l_parameter': 0.78252325474504336}}
+    curr_yr = 2050
+
+    result = enduse_func.calc_service_switch(
+        tot_service_yh_cy=tot_service_yh_cy,
+        service_tech_by_p=service_tech_by_p,
+        tech_increase_service=tech_increase_service,
+        tech_decrease_service=tech_decrease_service,
+        tech_constant_service=tech_constant_service,
+        sig_param_tech=sig_param_tech,
+        curr_yr=curr_yr)
+    summe = 0.70627648300491375 * 3724.1471455
+    assert result['heat_pumps_electricity'] == summe
+test_test()

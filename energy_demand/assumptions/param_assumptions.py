@@ -189,13 +189,13 @@ def load_param_assump(paths, assumptions):
     strategy_vars['ss_t_base_heating_future_yr'] = 15.5
 
     # Cooling base temperature
-    strategy_variables.append({
+    '''strategy_variables.append({
         "name": "rs_t_base_cooling_future_yr",
         "absolute_range": (0, 25),
         "description": "Base temperature assumption residential sector cooling",
         "suggested_range": (13, 17),
         "default_value": assumptions['t_bases']['rs_t_cooling_by'],
-        "units": '°C'})
+        "units": '°C'})'''
 
     # Future base year temperature
     strategy_vars['rs_t_base_cooling_future_yr'] = 5

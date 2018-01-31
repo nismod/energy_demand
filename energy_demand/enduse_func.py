@@ -125,7 +125,7 @@ class Enduse(object):
         ):
         """Enduse class constructor
         """
-        #print("--- Enduse: " + str(enduse))
+        print("... =====Enduse: " + str(enduse))
         self.region_name = region_name
         self.enduse = enduse
         self.fuel_new_y = fuel
@@ -163,7 +163,7 @@ class Enduse(object):
                 assumptions['enduse_space_heating'],
                 assumptions['ss_enduse_space_cooling'])
             #logging.info("... Fuel train B: " + str(np.sum(self.fuel_new_y)))
-            #print("... Fuel train B: " + str(np.sum(self.fuel_new_y)))
+            print("... Fuel train B: " + str(np.sum(self.fuel_new_y)))
 
             # --Change fuel consumption based on smart meter induced general savings
             self.fuel_new_y = apply_smart_metering(
@@ -174,7 +174,7 @@ class Enduse(object):
                 base_yr,
                 curr_yr)
             #logging.info("... Fuel train C: " + str(np.sum(self.fuel_new_y)))
-            #print("... Fuel train C: " + str(np.sum(self.fuel_new_y)))
+            print("... Fuel train C: " + str(np.sum(self.fuel_new_y)))
 
             # --Enduse specific fuel consumption change in %
             self.fuel_new_y = apply_specific_change(
@@ -185,7 +185,7 @@ class Enduse(object):
                 base_yr,
                 curr_yr)
             #logging.info("... Fuel train D: " + str(np.sum(self.fuel_new_y)))
-            #print("... Fuel train D: " + str(np.sum(self.fuel_new_y)))
+            print("... Fuel train D: " + str(np.sum(self.fuel_new_y)))
 
             # Calculate new fuel demands after scenario drivers
             self.fuel_new_y = apply_scenario_drivers(
@@ -199,7 +199,7 @@ class Enduse(object):
                 base_yr,
                 curr_yr)
             #logging.info("... Fuel train E: " + str(np.sum(self.fuel_new_y)))
-            #print("... Fuel train E: " + str(np.sum(self.fuel_new_y)))
+            print("... Fuel train E: " + str(np.sum(self.fuel_new_y)))
 
             # Apply cooling scenario variable
             self.fuel_new_y = apply_cooling(
@@ -278,6 +278,7 @@ class Enduse(object):
                     base_yr,
                     curr_yr)
 
+                print("... Fuel train EE1 - actually service: " + str(service_tech_y_cy))
                 # --------------------------------
                 # Switches (service or fuel)
                 # --------------------------------
@@ -291,6 +292,7 @@ class Enduse(object):
                         sig_param_tech,
                         curr_yr)
 
+                print("... Fuel train E2 2 - actually service: " + str(service_tech_y_cy.values()))
                 # -------------------------------------------
                 # Convert annual service to fuel per fueltype
                 # -------------------------------------------
@@ -302,7 +304,6 @@ class Enduse(object):
                     fueltypes_nr,
                     fueltypes,
                     mode_constrained)
-
                 # Delete all technologies with no fuel assigned
                 for tech, fuel_tech in fuel_tech_y.items():
                     if fuel_tech == 0:
@@ -310,6 +311,12 @@ class Enduse(object):
 
                 # Copy
                 self.fuel_y = self.fuel_new_y
+                print("... Fuel train F: " + str(np.sum(self.fuel_new_y)))
+
+                #TESGING NEW TODO
+                if np.sum(self.fuel_y) < 0:
+                    print("ERROR: {}   {}".format(enduse, np.sum(self.fuel_y)))
+                    sys.exit()
 
                 # ------------------------------------------
                 # Assign load profiles
@@ -1113,7 +1120,7 @@ def service_to_fuel(
     else:
         for tech, fuel_tech in service_tech.items():
             fuel_new_y[fueltypes['heat']] += fuel_tech
-            fuel_per_tech[tech] = fuel_tech #which is heat
+            fuel_per_tech[tech] = fuel_tech
 
     return fuel_new_y, fuel_per_tech
 
@@ -1295,7 +1302,7 @@ def apply_heat_recovery(
                 service_reduced = service * (1.0 - heat_recovered_p_cy)
 
             return service_reduced
-    except:
+    except KeyError:
         # no recycling defined
         return service
 
@@ -1672,17 +1679,21 @@ def calc_service_switch(
     """
     # Result dict with cy service for every technology
     tech_service_cy_p = {}
-
+    tech_service_cy_p = service_tech_by_p
     # ------------
     # Update all technologies with CONSTANT service
     # ------------
-    tech_service_cy_p.update(tech_constant_service)
+    ## ORIG tech_service_cy_p.update(tech_constant_service)
+    #for tech in tech_constant_service:
+    #    tech_service_cy_p[tech] = service_tech_by_p[tech]
 
     # ------------
     # Calculate service for technologies with DECREASED service
     # ------------
     # Add base year of decreasing technologies to allow later substraction
-    tech_service_cy_p.update(tech_decrease_service)
+    ## ORIGtech_service_cy_p.update(tech_decrease_service)
+    #for tech in tech_decrease_service:
+    #    tech_service_cy_p[tech] = service_tech_by_p[tech]
 
     # Calculate service share to asign for substracted fuel
     service_tech_decrease_by_rel = fuel_service_switch.get_service_rel_tech_decr_by(
@@ -1711,8 +1722,10 @@ def calc_service_switch(
         for tech_decr, service_tech_decr_by in service_tech_decrease_by_rel.items():
             service_to_substract_p_cy = service_tech_decr_by * diff_service_incr
 
+            # Test if negative vale (TODO: REMOVE FOR SPEED Purposes)
+            assert (tech_service_cy_p[tech_decr] - service_to_substract_p_cy) >= 0
+
             #Leave away for speed uproses
-            ##assert (tech_service_cy_p[tech_decr] - service_to_substract_p_cy) >= 0
             tech_service_cy_p[tech_decr] -= service_to_substract_p_cy
 
     # Assign total service share to service share of technologies

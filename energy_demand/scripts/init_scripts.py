@@ -397,7 +397,8 @@ def sig_param_calculation_including_fuel_switch(
     # Test if fuel switch is defined for enduse
     # Get affected technologies in fuel switch
     # ----------------------------------------
-    tech_switch_affected = s_generate_sigmoid.get_tech_installed(enduse, fuel_switches)
+    tech_switch_affected = s_generate_sigmoid.get_tech_installed(
+        enduse, fuel_switches)
 
     # Test if any switch is implemented for enduse
     if len(tech_switch_affected) > 0:
@@ -408,7 +409,8 @@ def sig_param_calculation_including_fuel_switch(
     # ------------------------------------------
     # Test if service swich is defined for enduse
     # ------------------------------------------
-    service_switches_enduse = fuel_service_switch.get_fuel_switches_enduse(service_switches, enduse)
+    service_switches_enduse = fuel_service_switch.get_fuel_switches_enduse(
+        service_switches, enduse)
 
     if len(service_switches_enduse) > 0:
         crit_switch_service = True
@@ -419,7 +421,7 @@ def sig_param_calculation_including_fuel_switch(
     # Test if a service and fuel switch are defined simultaneously
     # ---------
     if crit_switch_service and crit_fuel_switch:
-        print("Fuel and service switch are defined for same enduse {}".format(enduse))
+        print("Error: Can't define fuel and service switch for {}".format(enduse))
 
     # -------------------------------
     # Initialisations
@@ -446,8 +448,12 @@ def sig_param_calculation_including_fuel_switch(
     # Calculate l_values
     # -------------------------------
     if crit_switch_service:
-        print("... calculate sigmoid based on SERVICE switches")
-
+        print("... calculate sigmoid based on SERVICE switches " )
+        print(share_service_tech_ey_p)
+        print(sum(share_service_tech_ey_p.values()))
+        print("... calculate sigmoid based on SERVICE switches ")
+        print(service_tech_by_p)
+        print(sum(service_tech_by_p.values()))
         # Calculate only from service switch
         tech_increased_service, tech_decrased_share, tech_constant_service = s_generate_sigmoid.get_tech_future_service(
             service_tech_by_p,

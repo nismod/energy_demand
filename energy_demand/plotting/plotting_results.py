@@ -1,6 +1,7 @@
 """Plotting model results and storing as PDF to result folder
 """
 import os
+import sys
 import logging
 import numpy as np
 import matplotlib.pyplot as plt
@@ -508,12 +509,16 @@ def plt_stacked_enduse(
             logging.debug("... model_year {} enduse {}  twh {}".format(
                 model_year, enduse, np.sum(yearly_sum_twh)))
 
+            if yearly_sum_twh < 0:
+                print("no minus values allowed {}  {}  {}".format(enduse, yearly_sum_twh, model_year))
+                sys.exit("ERROR")
+
             y_values_enduse_yrs[year_array_nr] = yearly_sum_twh
 
         # Add array with values for every year to list
         y_value_arrays.append(y_values_enduse_yrs)
 
-    # Not necessary --> could als direclty use y_value_arrays
+    # Convert to stacked
     y_stacked = np.row_stack((y_value_arrays))
 
     # Set figure size
@@ -561,6 +566,7 @@ def plt_stacked_enduse(
         x_data,
         y_stacked,
         colors=color_stackplots)  #y_value_arrays
+    #ax.stackplot(x, y1, y2, y3, labels=labels)
 
     plt.legend(
         legend_entries,
@@ -626,6 +632,7 @@ def plt_stacked_enduse_sectors(
 
     # Set figure size
     fig = plt.figure(figsize=plotting_program.cm2inch(8, 8))
+
     ax = fig.add_subplot(1, 1, 1)
 
     for model_year, data_model_run in enumerate(results_enduse_every_year.values()):
@@ -657,46 +664,41 @@ def plt_stacked_enduse_sectors(
                 yearly_sum_twh = conversions.gwh_to_twh(yearly_sum_gw)
                 y_data[submodel][model_year] += yearly_sum_twh #yearly_sum_gw
 
+    # Convert to stack
+    y_stacked = np.row_stack((y_data))
+
     ##import matplotlib.colors as colors #for color_name in colors.cnmaes:
-    color_list = ['darkturquoise', 'orange', 'firebrick']
+    color_stackplots = ['darkturquoise', 'orange', 'firebrick']
 
     # ----------
     # Stack plot
     # ----------
-    colors = tuple(color_list)
-    stack_plot = ax.stackplot(
+    ax.stackplot(
         x_data,
-        y_data, 
-        colors=colors)
+        y_stacked,
+        colors=color_stackplots)
 
     # ------------
     # Plot color legend with colors for every SUBMODEL
     # ------------
-    recs = []
-    for color_nr in range(0, len(colors)):
-        recs.append(mpatches.Rectangle((0, 0), 1, 1, fc=colors[color_nr], alpha=1.0))
-
+    '''recs = []
+    for color_nr in range(0, len(color_stackplots)):
+        recs.append(mpatches.Rectangle((0, 0), 1, 1, fc=color_stackplots[color_nr], alpha=1.0))'''
     leg_labels = ['residential', 'service', 'industry']
 
     plt.legend(
-        recs,
+        #recs,
         leg_labels,
         ncol=1,
-        prop={'family': 'arial','size': 8},
+        prop={
+            'family': 'arial',
+            'size': 8},
         loc='best',
         frameon=False)
 
     # -------
     # Axis
     # -------
-    '''base_yr, year_interval = 2015, 5
-    end_yr = list(years_simulated)
-
-    major_ticks = np.arange(
-        base_yr, end_yr[-1] + year_interval, year_interval)
-
-    plt.xticks(major_ticks, major_ticks)'''
-
     plt.xticks(years_simulated, years_simulated)
     plt.axis('tight')
 
