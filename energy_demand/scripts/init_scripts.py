@@ -568,18 +568,10 @@ def sig_param_calculation_including_fuel_switch(
         for switch in service_switches_out:
             yr_until_switched = switch.switch_yr
             break
-        
-        if enduse == "is_space_heating":
-            print("AFFE")
-            print(service_tech_switched_p)
-            print("tech_switch_affected"  + str(tech_switch_affected))
-            print(service_tech_switched_p)
-            print("--")
-            #print(tech_increased_service)
-        print("===============================================================================")
-        print(l_values_sig)
-        #if enduse == "ss_space_heating":
-        #    pint(".")
+    
+        '''if enduse == "rs_space_heating":
+            print(l_values_sig)
+            pint(".")'''
 
         # Calculate sigmoid for technologies defined in switch
         sig_param_tech = s_generate_sigmoid.calc_sigm_parameters(

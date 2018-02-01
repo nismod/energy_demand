@@ -10,8 +10,9 @@ from collections import defaultdict
 import numpy as np
 from scipy.optimize import curve_fit
 from energy_demand.technologies import diffusion_technologies
+from energy_demand.plotting import plotting_program
 
-def calc_sigmoid_parameters(l_value, xdata, ydata):
+def calc_sigmoid_parameters(l_value, xdata, ydata,error_range=0.002):
     """Calculate sigmoid parameters. Check if fitting is good enough.
 
     Arguments
@@ -26,6 +27,13 @@ def calc_sigmoid_parameters(l_value, xdata, ydata):
         Criteria to control and abort fit
     fit_crit_min : float
         Criteria to control and abort fit (slope must be posititive)
+    error_range : float,default=0.005
+        Allowed fitting offset in percent
+
+    Note
+    -------
+    error_range can be changed if the plotting is weird. If you increase
+    chances are however hiigher that the fitting does not work anymore.
 
     Returns
     ------
@@ -69,7 +77,7 @@ def calc_sigmoid_parameters(l_value, xdata, ydata):
                 start_param_list[cnt],
                 start_param_list[cnt]]
 
-            print("Fit vorher: %s  %s", xdata, ydata, l_value)
+            print("Fit vorher: %s %s  %s", xdata, ydata, l_value)
             # Fit function
             fit_parameter = fit_sigmoid_diffusion(
                 l_value,
@@ -84,10 +92,25 @@ def calc_sigmoid_parameters(l_value, xdata, ydata):
                 fit_parameter[0] == start_parameters[0]) or (
                     fit_parameter[1] == start_parameters[1]):
                 cnt += 1'''
+
+            # Test if minus or plus sign of fitting parameter[1]
+            if ydata[0] < ydata[1]: # end point has higher value
+                crit_plus_minus = 'plus'
+            else:
+                crit_plus_minus = 'minus'
+            
+            if (crit_plus_minus == 'plus' and fit_parameter[1] < 0) or (
+                    crit_plus_minus == 'minus' and fit_parameter[1] > 0):
+                cnt += 1
+                if cnt >= len(start_param_list):
+                    logging.critical("Error: Sigmoid curve fitting failed")
+            else:
+                # corret sign
+                pass
+
             if (fit_parameter[0] == start_parameters[0]) or (
                     fit_parameter[1] == start_parameters[1]):
                 cnt += 1
-                print("AAA " + str(fit_parameter))
                 if cnt >= len(start_param_list):
                     logging.critical("Error: Sigmoid curve fitting failed")
             else:
@@ -100,14 +123,13 @@ def calc_sigmoid_parameters(l_value, xdata, ydata):
                     xdata[1], l_value, *fit_parameter)
 
                 fit_measure_in_percent = float((100.0 / ydata[1]) * y_calculated)
-                if fit_measure_in_percent < 99.0 or fit_measure_in_percent > 101.0:
+                if fit_measure_in_percent < (100.0 - error_range) or fit_measure_in_percent > (100.0 + error_range):
                     print(
                         "... Fitting measure %s (percent) is not good enough", fit_measure_in_percent)
                     successfull = False
                     cnt += 1
                 else:
-                    print(".... successfull " + str(fit_measure_in_percent))
-                    pass
+                    logging.warning(".... fitting successfull {}  {} ".format(fit_measure_in_percent, fit_parameter))
 
         except (RuntimeError, IndexError):
             #logging.debug("Unsuccessful fit %s %s", start_parameters[0], start_parameters[1])
@@ -116,8 +138,7 @@ def calc_sigmoid_parameters(l_value, xdata, ydata):
             if cnt >= len(start_param_list):
                 logging.critical("Check whether start year is <= the year 2000")
                 logging.critical("Sigmoid fit error: Try changing fit_crit_max and fit_crit_min")
-                prnt(".erorr did not work,")
-                sys.exit()
+                prnt("Error: Fitting erorr did not work,")
 
     return fit_parameter
 
@@ -275,7 +296,6 @@ def tech_l_sigmoid(
 
         # Iterite list with enduses where fuel switches are defined
         for technology in installed_tech:
-            print("Technology: %s", technology)
 
             # Calculate maximum service demand for specific tech
             tech_install_p = calc_service_fuel_switched(
@@ -285,7 +305,7 @@ def tech_l_sigmoid(
                 service_tech_by_p,
                 fuel_tech_p_by,
                 'max_switch')
-            print("POTENTIAL MAX: " + str(tech_install_p[technology]))
+
             # Read L-values with calculating maximum sigmoid theoretical diffusion
             l_values_sig[technology] = tech_install_p[technology]
 
@@ -638,7 +658,8 @@ def tech_sigmoid_parameters(
         l_values,
         service_tech_by_p,
         service_tech_switched_p,
-        service_switches):
+        service_switches,
+        plot_sigmoid_diffusion=False):
     """Calculate diffusion parameters based on energy service
     demand in base year and projected future energy service demand
 
@@ -704,7 +725,9 @@ def tech_sigmoid_parameters(
             # Data of the two points
             xdata = np.array([point_x_by, point_x_projected])
             ydata = np.array([point_y_by, point_y_projected])
-            print("... create sigmoid diffusion {} {} {} {} {} {}".format(tech, l_values[tech], xdata, ydata, point_y_by, point_y_projected))
+
+            logging.warning("... create sigmoid diffusion {} {} {} {} {} {}".format(
+                tech, l_values[tech], xdata, ydata, point_y_by, point_y_projected))
 
             # Test if ftting is possible ()
             if point_y_by == fit_assump_init and point_y_projected == 0 or l_values[tech] == 0:
@@ -729,15 +752,17 @@ def tech_sigmoid_parameters(
                 sigmoid_parameters[tech]['l_parameter'] = l_values[tech] # maximum p
 
                 #plot sigmoid curve
-                '''
-                from energy_demand.plotting import plotting_program
-                plotting_program.plotout_sigmoid_tech_diff(
-                    l_values[tech],
-                    tech,
-                    xdata,
-                    ydata,
-                    fit_parameter,
-                    False)
-                '''
-    print("----FINISHED: " + str(l_values))
+                if plot_sigmoid_diffusion:
+
+                    logging.warning("... create sigmoid diffusion {} {} {} {} {} {}".format(
+                        tech, l_values[tech], xdata, ydata, point_y_by, point_y_projected))
+
+                    plotting_program.plotout_sigmoid_tech_diff(
+                        l_values[tech],
+                        tech,
+                        xdata,
+                        ydata,
+                        fit_parameter,
+                        False)
+
     return dict(sigmoid_parameters)
