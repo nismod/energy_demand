@@ -572,7 +572,7 @@ def plt_stacked_enduse(
         legend_entries,
         prop={
             'family':'arial',
-            'size': 8},
+            'size': 5},
         ncol=2,
         loc='upper center',
         bbox_to_anchor=(0.5, -0.05),

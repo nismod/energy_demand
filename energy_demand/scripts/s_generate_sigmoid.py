@@ -75,7 +75,7 @@ def calc_sigmoid_parameters(l_value, xdata, ydata):
             fit_parameter = fit_sigmoid_diffusion(
                 l_value, xdata, ydata, start_parameters)
 
-            #logging.debug("Fit parameters: %s %s %s", fit_parameter, xdata, ydata)
+            logging.debug("Fit parameters: %s %s %s", fit_parameter, xdata, ydata)
 
             # Fit must be positive and paramaters not input parameters
             if (fit_parameter[1] < 0) or (
@@ -93,10 +93,15 @@ def calc_sigmoid_parameters(l_value, xdata, ydata):
                 y_calculated = diffusion_technologies.sigmoid_function(
                     xdata[1], l_value, *fit_parameter)
 
-                fit_measure_in_percent = (100.0 / ydata[1]) * y_calculated
-                if fit_measure_in_percent < 99.0:
-                    logging.debug(
+                fit_measure_in_percent = float((100.0 / ydata[1]) * y_calculated)
+                if fit_measure_in_percent < 99.0 or fit_measure_in_percent > 101.0:
+                    print(
                         "... Fitting measure %s (percent) is not good enough", fit_measure_in_percent)
+                    successfull = False
+                    cnt += 1
+                else:
+                    print(".... successful l " + str(fit_measure_in_percent))
+                    pass
 
         except (RuntimeError, IndexError):
             #logging.debug("Unsuccessful fit %s %s", start_parameters[0], start_parameters[1])
@@ -663,12 +668,6 @@ def tech_sigmoid_parameters(
         for tech in installed_tech:
             logging.debug("... create sigmoid diffusion parameters %s", tech)
 
-            # Get year until switched
-            '''for switch in service_switches:
-                if switch.technology_install == tech:
-                    yr_until_switched = switch.switch_yr
-                    break'''
-
             market_entry = technologies[tech].market_entry
 
             # --------
@@ -693,15 +692,16 @@ def tech_sigmoid_parameters(
             # Data of the two points
             xdata = np.array([point_x_by, point_x_projected])
             ydata = np.array([point_y_by, point_y_projected])
-
+            print("... create sigmoid diffusion {} {} {}".format(tech, xdata, ydata))
             # ----------------
             # Parameter fitting
             # ----------------
+            print("--------Technology " + str(tech))
             fit_parameter = calc_sigmoid_parameters(
                 l_values[tech], xdata, ydata)
 
-            logging.debug(
-                " ... Fitting: Midpoint: %s steepness: %s", fit_parameter[0], fit_parameter[1])
+            print(
+                " ... Fitting  %s: Midpoint: %s steepness: %s", tech, fit_parameter[0], fit_parameter[1])
 
             # Insert parameters
             sigmoid_parameters[tech]['midpoint'] = fit_parameter[0] # midpoint (x0)
@@ -709,14 +709,15 @@ def tech_sigmoid_parameters(
             sigmoid_parameters[tech]['l_parameter'] = l_values[tech] # maximum p
 
             #plot sigmoid curve
-            '''from energy_demand.plotting import plotting_program
+            '''
+            from energy_demand.plotting import plotting_program
             plotting_program.plotout_sigmoid_tech_diff(
-                 l_values[enduse][tech],
+                 l_values[tech],
                  tech,
-                 enduse,
                  xdata,
                  ydata,
                  fit_parameter,
-                 False)'''
+                 False)
+            '''
 
     return dict(sigmoid_parameters)
