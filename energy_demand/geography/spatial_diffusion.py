@@ -291,6 +291,7 @@ def spatially_differentiated_modelling(
 
     # -------------------------------
     # Calculate regional service shares of technologies for every technology
+    # Across all sectors
     # -------------------------------
     for enduse in init_cont['rs_service_tech_by_p']:
         init_cont['rs_tech_increased_service'][enduse], init_cont['rs_tech_decreased_service'][enduse], init_cont['rs_tech_constant_service'][enduse], = s_generate_sigmoid.get_tech_future_service(

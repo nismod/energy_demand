@@ -102,7 +102,13 @@ def sum_fuel_enduse_sectors(data_enduses, enduses, nr_fueltypes):
 
     return aggregated_fuel_enduse
 
-def get_service_fueltype_tech(tech_list, fueltypes, fuel_p_tech_by, fuels, technologies):
+def get_service_fueltype_tech(
+        tech_list,
+        fueltypes,
+        fuel_p_tech_by,
+        fuels,
+        technologies
+    ):
     """Calculate total energy service fractions per technology.
     Tis calculation converts fuels into energy services (e.g. heating
     for fuel into heat demand) and then calculated how much an invidual
@@ -136,7 +142,8 @@ def get_service_fueltype_tech(tech_list, fueltypes, fuel_p_tech_by, fuels, techn
         Percentage of energy service per fueltype
     """
     # Energy service per technology for base year
-    service = init_nested_dict_brackets(fuels, fueltypes.values())
+    service = init_nested_dict_brackets(
+        fuels, fueltypes.values())
 
      # Percentage of total energy service per technology for base year
     service_tech_by_p = helpers.init_dict_brackets(fuels)

@@ -78,7 +78,7 @@ def scenario_initalisation(path_data_ed, data=False):
 
     # -------------------
     # Convert base year fuel input assumptions to energy service
-    # on a national scale
+    # on a national scale (across all sectors)
     # -------------------
 
     # Residential
@@ -112,10 +112,7 @@ def scenario_initalisation(path_data_ed, data=False):
         data['assumptions']['is_fuel_tech_p_by'],
         is_aggr_sector_fuels,
         data['assumptions']['technologies'])
-    
-    import pprint
-    print("aaaaaaaaaaaaaaaaaaaaad")
-    pprint.pprint(init_cont['is_service_tech_by_p']['is_space_heating'])
+
     # ------------------------------------
     # Autocomplement defined service switches
     # with technologies not explicitly specified in switch
@@ -233,6 +230,19 @@ def scenario_initalisation(path_data_ed, data=False):
     else:
         regions = False
         regional_specific = False
+
+    # -------------
+    # # Calculate service difference between by and ey for every tech as a factor #TODO MAKE REGION SPECIFIC
+    # NEW NEW TODO TODO
+    '''init_cont['is_servic_by_ey_factor'] = calc_service_factor_ey_by(
+        init_cont['is_service_tech_by_p'], is_share_service_tech_ey_p)
+    init_cont['ss_servic_by_ey_factor'] = calc_service_factor_ey_by(
+        init_cont['ss_service_tech_by_p'], ss_share_service_tech_ey_p)
+    init_cont['rs_servic_by_ey_factor'] = calc_service_factor_ey_by(
+        init_cont['rs_service_tech_by_p'], rs_share_service_tech_ey_p)'''
+
+    # EY Factors not interesting, but need to be calculated for every year with cy factor
+    # ------------
 
     # ---------------------------------------
     # Calculate sigmoid diffusion
@@ -479,12 +489,7 @@ def sig_param_calculation_including_fuel_switch(
     # Calculate l_values
     # -------------------------------
     if crit_switch_service:
-        import pprint
-        print("initialise base year A: ")
-        pprint.pprint(service_tech_by_p)
-        print("--")
-        pprint.pprint(share_service_tech_ey_p)
-        #prnt(".")
+
         # Calculate only from service switch
         tech_increased_service, tech_decrased_share, tech_constant_service = s_generate_sigmoid.get_tech_future_service(
             service_tech_by_p,
@@ -494,10 +499,13 @@ def sig_param_calculation_including_fuel_switch(
 
         service_tech_switched_p = share_service_tech_ey_p
 
+        #NEW
+        all_techs = list(tech_increased_service.keys()) + list(tech_decrased_share.keys()) + list(tech_constant_service.keys())
+
         # Calculate sigmoid diffusion parameters (if no switches, no calculations)
         l_values_sig = s_generate_sigmoid.get_l_values(
             technologies,
-            tech_increased_service,
+            all_techs, # TODO tech_increased_service,
             regions=regions,
             regional_specific=regional_specific)
 
@@ -513,10 +521,14 @@ def sig_param_calculation_including_fuel_switch(
         # Tech with lager service shares in end year (installed in fuel switch)
         installed_tech = s_generate_sigmoid.get_tech_installed(enduse, enduse_fuel_switches)
 
+        all_techs = service_tech_by_p[enduse].keys()
+        print("A: " + str(all_techs))
+        prnt(":")
+
         service_tech_switched_p, l_values_sig = s_generate_sigmoid.calc_diff_fuel_switch(
             technologies,
             enduse_fuel_switches,
-            installed_tech,
+            all_techs, #installed_tech,
             service_fueltype_by_p,
             service_tech_by_p,
             fuel_tech_p_by,
@@ -558,6 +570,12 @@ def sig_param_calculation_including_fuel_switch(
         if enduse == "is_space_heating":
             print("AFFE")
             print(service_tech_switched_p)
+            print("tech_switch_affected"  + str(tech_switch_affected))
+            print(service_tech_switched_p)
+            print("--")
+            #print(tech_increased_service)
+
+            #prnt(":")
 
         # Calculate sigmoid for technologies defined in switch
         sig_param_tech = s_generate_sigmoid.calc_sigm_parameters(
@@ -568,10 +586,24 @@ def sig_param_calculation_including_fuel_switch(
             service_tech_by_p,
             service_tech_switched_p,
             service_switches_out,
-            tech_increased_service,
+            service_tech_switched_p, # TODO NEW LY ADDED tech_increased_service,
             regions=regions,
             regional_specific=regional_specific)
     else:
         pass #no switches are defined
 
     return sig_param_tech, tech_increased_service, tech_decrased_share, tech_constant_service, service_switches_out
+
+
+'''def calc_service_factor_ey_by(service_tech_by_p, service_tech_ey_p):
+    """Calculate difference between technology service share of by and ey
+    and calculate factors
+    """
+    servic_by_ey_factor = {}
+
+    for tech in service_tech_by_p:
+        servic_by_ey_factor[tech] = service_tech_by_p[tech] / service_tech_ey_p[tech]
+
+    return servic_by_ey_factor'''
+
+

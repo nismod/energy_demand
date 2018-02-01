@@ -105,14 +105,15 @@ class Enduse(object):
             enduse,
             sector,
             fuel,
-            service_tech_by_p, #TODO=init_cont['is_service_tech_by_p'],
+            service_tech_by_p, # --> For all aggregated sectors for base year
+            #service_by_ey_f, #Factor between by and ey service as fraction ,
             tech_stock,
             heating_factor_y,
             cooling_factor_y,
             service_switches,
-            fuel_tech_p_by,
+            fuel_tech_p_by, #TODO: Eigentlich fuel_fueltyp_tech_p_by
             tech_increased_service,
-            tech_decreased_service,
+            tech_decreased_service, #all sectors
             tech_constant_service,
             sig_param_tech,
             enduse_overall_change,
@@ -252,7 +253,7 @@ class Enduse(object):
                     enduse,
                     self.fuel_new_y,
                     self.enduse_techs,
-                    fuel_tech_p_by,
+                    fuel_tech_p_by, #fuel shares within fueltypes
                     tech_stock,
                     fueltypes,
                     mode_constrained)
@@ -292,15 +293,38 @@ class Enduse(object):
                 # Switches (service or fuel)
                 # --------------------------------
                 if crit_switch_service:
-                    service_tech_y_cy = calc_service_switch(
+
+                    # NEW
+                    # -----
+                    # Convert aggregated sector service percentages to sector service percentages
+                    #TODO: set all technologies a very low fuel amount (e.g. 0.00000001)
+                    # Calculate service difference between by and ey for every tech as a factor
+                    
+                    # If ey fully reached --> service_by_ey_f = 100%
+                    #service_by_ey_f
+
+                    #calc_service_factor_ey_by(service_tech_by_p, service_tech_ey_p)
+
+                    # ---
+
+                    '''service_tech_y_cy = calc_service_switch(
                         tot_service_y_cy,
-                        service_tech_by_p, #tech_service_cy_p, #tech_service_by_p
+                        service_tech_by_p, #Service shares across sectors per technology, __tech_service_cy_p --> service share for specific sector
+                        tech_increased_service,
+                        tech_decreased_service,
+                        tech_constant_service,
+                        sig_param_tech,
+                        curr_yr)'''
+
+                    service_tech_y_cy = calc_service_switchNEU2(
+                        service_tech_y_cy,
+                        tot_service_y_cy,
+                        service_tech_by_p, #Service shares across sectors per technology, __tech_service_cy_p --> service share for specific sector
                         tech_increased_service,
                         tech_decreased_service,
                         tech_constant_service,
                         sig_param_tech,
                         curr_yr)
-
                 # -------------------------------------------
                 # Convert annual service to fuel per fueltype
                 # -------------------------------------------
@@ -1641,6 +1665,224 @@ def get_service_diffusion(sig_param_tech, curr_yr):
 
     return service_tech
 
+def calc_service_switchNEU2(
+        service_tech_y_cy,
+        tot_service_yh_cy,
+        service_tech_by_p_INPUT,
+        tech_increase_service,
+        tech_decrease_service,
+        tech_constant_service,
+        sig_param_tech,
+        curr_yr
+    ):
+    """Apply change in service depending on defined service switches.
+
+    Paramters
+    ---------
+    tot_service_yh_cy : array
+        Hourly service of all technologies
+    service_tech_by_p : dict
+        Fraction of service per technology
+    tech_increase_service : dict
+        Technologies with increased service
+    tech_decrease_service : dict
+        Technologies with decreased service
+    tech_constant_service : dict
+        Technologies with constant service
+    sig_param_tech : dict
+        Sigmoid diffusion parameters
+    curr_yr : int
+        Current year
+
+    Returns
+    -------
+    service_tech_yh_cy : dict
+        Service per technology in current year after switch
+        for every hour in a year
+    TODO
+    Note
+    ----
+    The service which is fulfilled by new technologies is
+    substracted of the replaced technologies proportionally
+    to the base year distribution of these technologies
+    """
+    all_techs = list(tech_increase_service.keys()) + list(tech_decrease_service.keys()) + list(tech_constant_service.keys())
+    
+    service_tech_y_cyOUT = {} #rename
+
+    service_cy_all_sectors = {}
+    #------- 
+    # Calculate cy for all enduses on aggre_sector_ assumption
+    #-------
+    service_service_all_techs = sum(service_tech_y_cy.values())
+    for tech in all_techs:
+
+        # 1. Calculated increased service share per tech for cy
+        service_tech_incr_cy_p = get_service_diffusion(
+            sig_param_tech[tech], curr_yr)
+
+        service_tech_y_cyOUT[tech] = service_service_all_techs * service_tech_incr_cy_p
+
+    '''service_tech_y_cyOUT = {} #rename
+
+    service_cy_all_sectors = {}
+    #------- 
+    # Calculate cy for all enduses on aggre_sector_ assumption
+    #------- 
+    for tech in all_techs:
+
+        # 1. Calculated increased service share per tech for cy
+        service_tech_incr_cy_p = get_service_diffusion(
+            sig_param_tech[tech], curr_yr)
+
+        service_cy_all_sectors[tech] = service_tech_y_cy[tech] * service_tech_incr_cy_p
+
+        #service_tech_y_cyOUT[tech] = service_tech_y_cy[tech] * service_tech_incr_cy_p
+    
+    # --------------------
+    # Calculate difference
+    # --------------------
+    service_cy_all_sectors_diff = {}
+    for tech in all_techs:
+        service_cy_all_sectors_diff[tech] = service_cy_all_sectors[tech] - service_tech_y_cy[tech]
+    
+    # --------------------
+    # Calculate difference factor
+    # --------------------
+    service_cy_all_sectors_diff_rel = {}
+
+    for tech in all_techs:
+        service_cy_all_sectors_diff_rel[tech] = service_cy_all_sectors_diff[tech] / sum(service_cy_all_sectors.values())
+
+    # --------------------
+    # Calculate cy service for sector specific
+    # --------------------
+    service_sector_cy = {}
+
+    for tech in all_techs:
+        service_sector_cy[tech] = service_tech_y_cy[tech] + '''
+    '''
+    all_techs_not_incr = list(tech_decrease_service.keys()) + list(tech_constant_service.keys())
+
+    service_tech_yh_cy = {} #rename
+    service_tech_y_cyOUT = {} # FINAL SERVICE OUT
+    #copy
+    for tech in service_tech_y_cy:
+        service_tech_yh_cy[tech] = service_tech_y_cy[tech]
+
+    # Calculate service difference between by and cy of increased technologies
+    service_diff_abs_cy = {}
+    tot_service_by = sum(service_tech_y_cy.values())
+
+    for tech in all_techs:
+
+        # 1. Calculated increased service share per tech for cy
+        service_tech_incr_cy_p = get_service_diffusion(
+            sig_param_tech[tech], curr_yr)
+
+        if tech in tech_increase_service:
+            service_tech_y_cyOUT[tech] = service_tech_incr_cy_p
+            pass
+        else:
+            # 2. Calculate abs service difference between by and cy
+            service_tech_by = service_tech_y_cy[tech]
+
+            service_diff_abs_cy[tech] = service_tech_by - (service_tech_incr_cy_p * tot_service_by)
+
+    # Calculate relative difference until cy
+    tot_sum_diff_abs = sum(service_diff_abs_cy.values())
+    for tech, diff_tech_cy_abs in service_diff_abs_cy:
+        service_diff_abs_cy[tech] = diff_tech_cy_abs / tot_sum_diff_abs
+
+    # Apply calcualtions
+    for tech in all_techs_not_incr:
+
+        service_tech_y_cyOUT[tech] = service_tech_y_cy[tech] - (( * tot_service_by) * service_diff_abs_cy[tech])
+    '''
+    return service_tech_y_cyOUT
+
+def calc_service_switchNEU(
+        service_tech_y_cy,
+        tot_service_yh_cy,
+        service_tech_by_p_INPUT,
+        tech_increase_service,
+        tech_decrease_service,
+        tech_constant_service,
+        sig_param_tech,
+        curr_yr
+    ):
+    """Apply change in service depending on defined service switches.
+
+    Paramters
+    ---------
+    tot_service_yh_cy : array
+        Hourly service of all technologies
+    service_tech_by_p : dict
+        Fraction of service per technology
+    tech_increase_service : dict
+        Technologies with increased service
+    tech_decrease_service : dict
+        Technologies with decreased service
+    tech_constant_service : dict
+        Technologies with constant service
+    sig_param_tech : dict
+        Sigmoid diffusion parameters
+    curr_yr : int
+        Current year
+
+    Returns
+    -------
+    service_tech_yh_cy : dict
+        Service per technology in current year after switch
+        for every hour in a year
+    TODO
+    Note
+    ----
+    The service which is fulfilled by new technologies is
+    substracted of the replaced technologies proportionally
+    to the base year distribution of these technologies
+    """
+    service_tech_yh_cy = {} #rename
+    #copy
+    for tech in service_tech_y_cy:
+        service_tech_yh_cy[tech] = service_tech_y_cy[tech]
+
+    for tech_incr in tech_increase_service:
+        
+        # Calculated increased service share per tech
+        service_tech_incr_cy_p = get_service_diffusion(
+            sig_param_tech[tech_incr], curr_yr)
+
+        tech_by_cy_f = calc_service_factor_ey_by(
+            service_tech_by_p=service_tech_by_p_INPUT[tech_incr],
+            service_tech_ey_p=service_tech_incr_cy_p)
+
+        # Service tech incr cy
+        service_tech_incr_cy = service_tech_yh_cy[tech_incr] * tech_by_cy_f
+
+        # New service to add
+        gained_service_tech_incr_cy = service_tech_incr_cy - service_tech_yh_cy[tech_incr]
+
+        # Add Service
+        service_tech_yh_cy[tech_incr] = service_tech_incr_cy
+        #or service_tech_yh_cy[tech_incr] += gained_service_tech_incr_cy
+        # Calculate service share to asign for substracted fuel
+        service_tech_decrease_by_rel = fuel_service_switch.get_service_rel_tech_decr_by(
+            tech_decrease_service,
+            service_tech_by_p_INPUT)
+
+        # Substract service gain proportionaly to all technologies
+        # which are lowered and substract from other technologies
+        for tech_decr, service_tech_decr_by in service_tech_decrease_by_rel.items():
+            service_to_substract_cy = service_tech_decr_by * gained_service_tech_incr_cy #service_tech_incr_cy
+            print(" {}  {} ".format(tech_decr, tech_incr))
+            print((service_tech_yh_cy[tech_decr] - service_to_substract_cy))
+            assert service_tech_yh_cy[tech_decr] - service_to_substract_cy >= 0
+
+            service_tech_yh_cy[tech_decr] -= service_to_substract_cy
+
+    return service_tech_yh_cy
+
 def calc_service_switch(
         tot_service_yh_cy,
         service_tech_by_p_INPUT,
@@ -1719,12 +1961,8 @@ def calc_service_switch(
             sig_param_tech[tech_incr], curr_yr)
 
         # Update
-        print("{} {}".format(tech_incr, service_tech_incr_cy_p))
-        print("AA: " + str(round(service_tech_incr_cy_p, 7)))
         tech_service_cy_p[tech_incr] = service_tech_incr_cy_p
 
-        print("nacher: " + str(round(service_tech_incr_cy_p, 5)))
-        print("vorher: " + str(round(service_tech_by_p_INPUT[tech_incr], 5)))
         # Difference in service up to current year per technology
         diff_service_incr = service_tech_incr_cy_p - service_tech_by_p_INPUT[tech_incr]
 
@@ -1742,11 +1980,11 @@ def calc_service_switch(
             tech_service_cy_p[tech_decr] -= service_to_substract_p_cy
 
     # Assign total service share to service share of technologies
-    service_tech_yh_cy = {}
+    service_tech_y_cy = {}
     for tech, enduse_share in tech_service_cy_p.items():
-        service_tech_yh_cy[tech] = tot_service_yh_cy * enduse_share
+        service_tech_y_cy[tech] = tot_service_yh_cy * enduse_share
 
-    return service_tech_yh_cy
+    return service_tech_y_cy
 
 def apply_cooling(
         enduse,
@@ -1811,3 +2049,11 @@ def apply_cooling(
     except KeyError:
         #for this enduse, no cooling is defined
         return fuel_y
+
+def calc_service_factor_ey_by(service_tech_by_p, service_tech_ey_p):
+    """Calculate difference between technology service share of by and ey
+    and calculate factors
+    """
+    servic_by_ey_factor = service_tech_ey_p / service_tech_by_p
+
+    return servic_by_ey_factor
