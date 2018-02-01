@@ -1657,11 +1657,15 @@ def get_service_diffusion(sig_param_tech, curr_yr):
     service_tech : dict
         Share of service per technology of current year
     """
-    service_tech = diffusion_technologies.sigmoid_function(
-        curr_yr,
-        sig_param_tech['l_parameter'],
-        sig_param_tech['midpoint'],
-        sig_param_tech['steepness'])
+    if sig_param_tech['l_parameter'] == None:
+        # TODO: NOT DEFINED, resp. same as inital
+        service_tech = 0
+    else:
+        service_tech = diffusion_technologies.sigmoid_function(
+            curr_yr,
+            sig_param_tech['l_parameter'],
+            sig_param_tech['midpoint'],
+            sig_param_tech['steepness'])
 
     return service_tech
 
@@ -1707,7 +1711,7 @@ def calc_service_switchNEU2(
     to the base year distribution of these technologies
     """
     all_techs = list(tech_increase_service.keys()) + list(tech_decrease_service.keys()) + list(tech_constant_service.keys())
-    
+
     service_tech_y_cyOUT = {} #rename
 
     service_cy_all_sectors = {}
@@ -1722,6 +1726,9 @@ def calc_service_switchNEU2(
             sig_param_tech[tech], curr_yr)
 
         service_tech_y_cyOUT[tech] = service_service_all_techs * service_tech_incr_cy_p
+        
+        # Test that no minus
+        assert service_tech_y_cyOUT[tech] >= 0
 
     '''service_tech_y_cyOUT = {} #rename
 
@@ -2047,7 +2054,7 @@ def apply_cooling(
         fuel_y = fuel_y * floorare_cooling_factor
         return fuel_y
     except KeyError:
-        #for this enduse, no cooling is defined
+        # no cooling defined for enduse
         return fuel_y
 
 def calc_service_factor_ey_by(service_tech_by_p, service_tech_ey_p):

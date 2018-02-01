@@ -489,7 +489,7 @@ def sig_param_calculation_including_fuel_switch(
     # Calculate l_values
     # -------------------------------
     if crit_switch_service:
-
+        print("...... service switch")
         # Calculate only from service switch
         tech_increased_service, tech_decrased_share, tech_constant_service = s_generate_sigmoid.get_tech_future_service(
             service_tech_by_p,
@@ -501,6 +501,7 @@ def sig_param_calculation_including_fuel_switch(
 
         #NEW
         all_techs = list(tech_increased_service.keys()) + list(tech_decrased_share.keys()) + list(tech_constant_service.keys())
+        print("all_techs: " + str(all_techs))
 
         # Calculate sigmoid diffusion parameters (if no switches, no calculations)
         l_values_sig = s_generate_sigmoid.get_l_values(
@@ -516,14 +517,14 @@ def sig_param_calculation_including_fuel_switch(
         print("... calculate sigmoid based on FUEL switches {}".format(enduse))
 
         # Get fuel switches of enduse
-        enduse_fuel_switches = fuel_service_switch.get_fuel_switches_enduse(fuel_switches, enduse)
-
+        enduse_fuel_switches = fuel_service_switch.get_fuel_switches_enduse(
+            fuel_switches, enduse)
+        print("venduse_fuel_switches")
+        print(enduse_fuel_switches)
         # Tech with lager service shares in end year (installed in fuel switch)
         installed_tech = s_generate_sigmoid.get_tech_installed(enduse, enduse_fuel_switches)
 
-        all_techs = service_tech_by_p[enduse].keys()
-        print("A: " + str(all_techs))
-        prnt(":")
+        all_techs = service_tech_by_p.keys()
 
         service_tech_switched_p, l_values_sig = s_generate_sigmoid.calc_diff_fuel_switch(
             technologies,
@@ -534,7 +535,8 @@ def sig_param_calculation_including_fuel_switch(
             fuel_tech_p_by,
             regions=regions,
             regional_specific=regional_specific)
-        
+        print("l_values_sig")
+        print(l_values_sig)
         # GET YEAR OF AN SWITCH (all the same) TODO
         for fuelswitch in enduse_fuel_switches:
             yr_until_switched = fuelswitch.switch_yr
@@ -574,8 +576,10 @@ def sig_param_calculation_including_fuel_switch(
             print(service_tech_switched_p)
             print("--")
             #print(tech_increased_service)
-
-            #prnt(":")
+        print("===============================================================================")
+        print(l_values_sig)
+        #if enduse == "ss_space_heating":
+        #    pint(".")
 
         # Calculate sigmoid for technologies defined in switch
         sig_param_tech = s_generate_sigmoid.calc_sigm_parameters(

@@ -343,7 +343,9 @@ def plot_seasonal_lf(
     # ------------
     plt.legend(
         ncol=2,
-        prop={'family': 'arial','size': 8},
+        prop={
+            'family': 'arial',
+            'size': 5},
         loc='best',
         frameon=False)
     '''recs = []
@@ -691,7 +693,7 @@ def plt_stacked_enduse_sectors(
         ncol=1,
         prop={
             'family': 'arial',
-            'size': 8},
+            'size': 5},
         loc='best',
         frameon=False)
 
@@ -905,7 +907,9 @@ def plt_fuels_enduses_y(results, lookups, fig_name):
     plt.legend(
         ncol=2,
         loc=2,
-        prop={'family': 'arial','size': 8},
+        prop={
+            'family': 'arial',
+            'size': 5},
         frameon=False)
 
     # ---------
@@ -1222,7 +1226,9 @@ def plot_load_profile_dh_multiple(
     plt.legend(
         ncol=1,
         loc=2,
-        prop={'family': 'arial', 'size': 8},
+        prop={
+            'family': 'arial',
+            'size': 5},
         frameon=False)
 
     # Tight layout

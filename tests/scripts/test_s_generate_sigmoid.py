@@ -115,6 +115,25 @@ def test_calc_sigmoid_parameters2():
 
     assert round(y_calculated, 3) == round(ydata[1], 3)
 
+def test_calc_sigmoid_parameters3():
+    """Testing
+    """
+    l_value = 1.0
+    xdata = np.array([2015.0, 2050.0])
+    ydata = np.array([0.76246772, 0.07624677])
+
+    # fit parameters
+    fit_parameter = s_generate_sigmoid.calc_sigmoid_parameters(
+        l_value,
+        xdata,
+        ydata)
+
+    y_calculated = diffusion_technologies.sigmoid_function(xdata[1], l_value, *fit_parameter)
+
+    assert round(y_calculated, 3) == round(ydata[1], 3)
+
+test_calc_sigmoid_parameters3()
+
 def test_get_tech_installed():
     """"""
     enduse = 'heating'
