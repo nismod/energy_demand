@@ -892,7 +892,7 @@ def plt_fuels_enduses_y(results, lookups, fig_name):
         plt.plot(
             list(fuel_fueltype_yrs.keys()), #years
             list(fuel_fueltype_yrs.values()), #yearly data per fueltype
-            linestyle=linestyles[counter],
+            #linestyle=linestyles[counter], #TODO
             color=color_line,
             label=fueltype_str)
 

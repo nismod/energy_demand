@@ -1,3 +1,4 @@
 enduse,tech,service_share_ey,switch_yr
 is_space_heating,boiler_gas,0.2,2050
 is_space_heating,boiler_gas,0.1,2050
+is_space_heating,heat_pumps_electricity,0.9,2050

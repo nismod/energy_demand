@@ -113,6 +113,17 @@ def scenario_initalisation(path_data_ed, data=False):
             data['fuels']['ss_fuel_raw_data_enduses'],
             data['assumptions']['technologies'],
             sector)
+    # SCrap
+    for enduse in init_cont['ss_service_tech_by_p']:
+        for tech in init_cont['ss_service_tech_by_p'][enduse]:
+            if tech != 'dummy_tech':
+                if init_cont['ss_service_tech_by_p'][enduse][tech] == 'nan':
+                    print("  error {}  {}".format(tech, enduse))
+                    prnt(":")
+    
+    #import pprint
+    #pprint.pprint(init_cont['ss_service_tech_by_p'])
+    #prnt(":")
 
     # Industry
     is_aggr_sector_fuels = s_fuel_to_service.sum_fuel_enduse_sectors(
@@ -568,8 +579,8 @@ def sig_param_calculation_including_fuel_switch(
         # Get fuel switches of enduse
         enduse_fuel_switches = fuel_service_switch.get_fuel_switches_enduse(
             fuel_switches, enduse)
-        print("venduse_fuel_switches")
-        print(enduse_fuel_switches)
+        print("---------service_tech_by_p")
+        print(service_tech_by_p)
         # Tech with lager service shares in end year (installed in fuel switch)
         installed_tech = s_generate_sigmoid.get_tech_installed(enduse, enduse_fuel_switches)
 
@@ -600,10 +611,23 @@ def sig_param_calculation_including_fuel_switch(
             regions=regions,
             regional_specific=regional_specific)
 
+        
+        # TODO ASSERT IF ALL SWITCHES OO
+        _controlsum = 0
+        for s in service_switches_out:
+            _controlsum += s.service_share_ey
+        print("_controlsum: " + str(_controlsum))
+        assert round(_controlsum, 3) == 1
+
         # Calculate only from fuel switch
         share_service_tech_ey_p = fuel_service_switch.switches_to_dict(
             service_switches_out, regional_specific)
 
+        assert round(sum(share_service_tech_ey_p.values()), 3) == 1
+        print("vorher")
+        print(service_tech_by_p)
+        print("nacher")
+        print(share_service_tech_ey_p)
         tech_increased_service, tech_decrased_share, tech_constant_service = s_generate_sigmoid.get_tech_future_service(
             service_tech_by_p=service_tech_by_p,
             service_tech_ey_p=share_service_tech_ey_p,
@@ -626,6 +650,7 @@ def sig_param_calculation_including_fuel_switch(
             print(service_tech_by_p)
             print("XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX")
         print("==================================  {}   ========================================".format(enduse))
+
         # -------------------------------
         # TODO CALCULATE FOR EVERY SECTOR
         # -------------------------------

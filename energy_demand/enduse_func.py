@@ -9,6 +9,7 @@ depending on scenaric assumptions.
 import sys
 import logging
 import numpy as np
+import math
 from energy_demand.initalisations import helpers
 from energy_demand.profiles import load_profile as lp
 from energy_demand.profiles import load_factors as lf
@@ -127,7 +128,7 @@ class Enduse(object):
         ):
         """Enduse class constructor
         """
-        #print("... =====Enduse: " + str(enduse))
+        print("... =====Enduse: {}  Sector:  {}".format(enduse, sector))
         self.region_name = region_name
         self.enduse = enduse
         self.fuel_new_y = fuel
@@ -299,15 +300,7 @@ class Enduse(object):
                     # Convert aggregated sector service percentages to sector service percentages
                     #TODO: set all technologies a very low fuel amount (e.g. 0.00000001)
                     # Calculate service difference between by and ey for every tech as a factor
-                    
-                    # If ey fully reached --> service_by_ey_f = 100%
-                    #service_by_ey_f
-
-                    #calc_service_factor_ey_by(service_tech_by_p, service_tech_ey_p)
-
                     # ---
-                    if self.enduse == "ss_space_heating":
-                        print("")
                     '''service_tech_y_cy = calc_service_switch(
                         tot_service_y_cy,
                         service_tech_by_p, #Service shares across sectors per technology, __tech_service_cy_p --> service share for specific sector
@@ -339,6 +332,12 @@ class Enduse(object):
                     fueltypes_nr,
                     fueltypes,
                     mode_constrained)
+
+                if self.enduse == "rs_space_heating":
+                    print("======================************************************")
+                    print("rs_fuel: {} - {}".format(curr_yr, np.sum(self.fuel_new_y)))
+                    print("======================************************************")
+
                 # Delete all technologies with no fuel assigned
                 for tech, fuel_tech in fuel_tech_y.items():
                     if fuel_tech == 0:
@@ -1236,6 +1235,9 @@ def fuel_to_service(
                 # Calculate fuel share and convert fuel to service
                 service_tech_y = fuel_new_y[fueltype] * fuel_share * tech_eff
 
+                logging.debug("eg: ---{} - {} - {} - {}".format(
+                    service_tech_y, fuel_new_y[fueltype], fuel_share, tech_eff))
+
                 service_tech[tech] += service_tech_y
 
                 # Add fuel for each technology (float() is necessary to avoid inf error)
@@ -1266,6 +1268,7 @@ def fuel_to_service(
     # Convert service of every technology to fraction of total service
     service_tech_p = convert_service_to_p(tot_service_y, service_fueltype_tech)
     #TODO: NOT NECESSARY BECAUSE FOR SECTORS DIFFERENT DEPENDING ON INPUT FUELTYPE
+
     return tot_service_y, service_tech, service_tech_p #TODO LAST: service_tech_p_by
 
 def apply_heat_recovery(
@@ -1400,13 +1403,25 @@ def apply_scenario_drivers(
                 cy_driver_data = population[curr_yr][region_name]
             #TODO :ADD OTHER ENDSES
 
+            # TODO TESTING
+            if math.isnan(by_driver_data):
+                logging.warning("INF ERROR")
+                by_driver_data = 1
+            if math.isnan(cy_driver_data):
+                logging.warning("INF ERROR")
+                cy_driver_data = 1
+
             # Multiply drivers
             by_driver *= by_driver_data
             cy_driver *= cy_driver_data
+
         try:
             factor_driver = cy_driver / by_driver # FROZEN (as in chapter 3.1.2 EQ E-2)
         except ZeroDivisionError:
             factor_driver = 1
+
+        if math.isnan(factor_driver):
+            prnt("ssERROR")
 
         fuel_y = fuel_y * factor_driver
     else:
@@ -1418,16 +1433,24 @@ def apply_scenario_drivers(
             # Scenariodriver of dwelling stock base year and new stock
             by_driver = getattr(dw_stock[base_yr], enduse)
             cy_driver = getattr(dw_stock[curr_yr], enduse)
+            
+            #assert by_driver != 'nan' and assert cy_driver != 'nan'
 
             # base year / current (checked) (as in chapter 3.1.2 EQ E-2) TODO
             try:
                 factor_driver = cy_driver / by_driver # FROZEN
             except ZeroDivisionError:
                 factor_driver = 1
-
+            print("--by_driver cy_driver {}  {}  {}".format(by_driver, cy_driver, factor_driver))
+            # Check if float('nan')  #TODO: WRITE SOME MORE TEST AROUND THIS FACTOR
+            if math.isnan(factor_driver):
+                factor_driver = 1
+            print("Scenario driver plot: {}  ".format(factor_driver))
             fuel_y = fuel_y * factor_driver
         else:
             pass #enduse not define with scenario drivers
+    
+    assert math.isnan(np.sum(fuel_y)) != 'nan' #SPEED     #TESTING
 
     return fuel_y
 
@@ -1657,20 +1680,22 @@ def get_service_diffusion(sig_param_tech, curr_yr):
 
     Returns
     -------
-    service_tech : dict
+    service_tech_p : dict
         Share of service per technology of current year
     """
     if sig_param_tech['l_parameter'] == None:
         # TODO: NOT DEFINED, resp. same as inital
-        service_tech = 0
+        service_tech_p = 0
+    elif sig_param_tech['l_parameter'] == 'linear':
+        service_tech_p = 'identical' #TODO
     else:
-        service_tech = diffusion_technologies.sigmoid_function(
+        service_tech_p = diffusion_technologies.sigmoid_function(
             curr_yr,
             sig_param_tech['l_parameter'],
             sig_param_tech['midpoint'],
             sig_param_tech['steepness'])
 
-    return service_tech
+    return service_tech_p
 
 def calc_service_switchNEU2(
         sector,
@@ -1724,9 +1749,12 @@ def calc_service_switchNEU2(
     # Calculate cy for all enduses on aggre_sector_ assumption
     #-------
     service_service_all_techs = sum(service_tech_y_cy.values())
+    print("ALEF: " + str(service_tech_y_cy))
+
     for tech in all_techs:
         print(" ")
         print("=========================  {}  ========================= {}".format(enduse, tech))
+        
         # 1. Calculated increased service share per tech for cy
         service_tech_incr_cy_p = get_service_diffusion(
             sig_param_tech[tech], curr_yr)
@@ -1734,10 +1762,15 @@ def calc_service_switchNEU2(
         print("  ")
         print("INTER: {} {} {}".format(tech, enduse, sector))
         print("--------------------------------------")
-        print("  base year share " + str(service_tech_by_p_INPUT[tech] ))
-        print("  base year: " + str(service_tech_by_p_INPUT[tech] * service_service_all_techs))
-        print("  curr year: " + str(service_tech_incr_cy_p * service_service_all_techs))
-        print("  differenc: " + str((service_tech_incr_cy_p * service_service_all_techs)/(service_tech_by_p_INPUT[tech] * service_service_all_techs)))
+        print("   " + str(service_service_all_techs))
+        print("  curr year share " + str(service_tech_incr_cy_p))
+        print("  base year share " + str(service_tech_by_p_INPUT[tech]))
+        try:
+            print("  base year: " + str(service_tech_by_p_INPUT[tech] * service_service_all_techs))
+            print("  curr year: " + str(service_tech_incr_cy_p * service_service_all_techs))
+        except:
+            pass
+
         print("     " + str(sig_param_tech[tech]))
         print("  ")
         _a = service_tech_by_p_INPUT[tech] * service_service_all_techs
@@ -1749,22 +1782,18 @@ def calc_service_switchNEU2(
             print("_B " + str(_b))
             prnt(":")
 
-        '''if _a == 0 and _b == None:
-            print("ERR not one OR")
-            prnt(":")'''
-
         if  _a > 0 and _b == 'nan':
             print("ERROR")
             prnt(":")
+        if service_tech_incr_cy_p == 'identical':
+            service_tech_y_cyOUT[tech] = service_service_all_techs * service_tech_by_p_INPUT[tech]
+        else:
+            service_tech_y_cyOUT[tech] = service_service_all_techs * service_tech_incr_cy_p
 
-        '''if _a == 0 and _b == 'nan':
-            print("ERR not one OR")
-            prnt(":")'''
-
-        service_tech_y_cyOUT[tech] = service_service_all_techs * service_tech_incr_cy_p
-        print(" {} {} {} {} {}".format(curr_yr, service_tech_incr_cy_p, sig_param_tech[tech], service_service_all_techs, service_tech_y_cyOUT[tech]))
-        # Test that no minus
-        assert service_tech_y_cyOUT[tech] >= 0
+        print("eee")
+        print("{} - {} - {} - {} - {}".format(curr_yr, service_tech_incr_cy_p, sig_param_tech[tech], service_service_all_techs, service_tech_y_cyOUT[tech]))
+        
+        assert service_tech_y_cyOUT[tech] >= 0 # Test that no minus
 
     '''service_tech_y_cyOUT = {} #rename
 

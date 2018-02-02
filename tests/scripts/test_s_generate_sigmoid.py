@@ -127,10 +127,10 @@ def test_calc_sigmoid_parameters3():
     xdata = np.array([2015.0, 2050.0])
     ydata = np.array([0.015219077406592408, 0.04503955540635414]) '''#[0.015219077406592408, 0.04503955540635414]) #np.array([0.01521908, 0.04503956]) 
 
-    l_value = 0.77 #0.7624677174012964
+    l_value = 1 #0.77 #0.7624677174012964
     xdata = np.array([2015.0, 2050.0])
-    ydata = np.array([0.76246772, 0.07624677])
-
+    #ydata = np.array([0.76246772, 0.07624677])
+    ydata = np.array([0.09, 0.09])
     # fit parameters
     fit_parameter = s_generate_sigmoid.calc_sigmoid_parameters(
         l_value,

@@ -1,0 +1,5 @@
+enduse,enduse_fueltype_replace,technology_install,switch_yr,fuel_share_switched_ey
+rs_space_heating,gas,heat_pumps_electricity,2050,0.9
+
+try
+rs_space_heating,gas,boiler_hydrogen,2050,0.99
