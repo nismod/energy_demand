@@ -318,6 +318,7 @@ class Enduse(object):
                         curr_yr)'''
 
                     service_tech_y_cy = calc_service_switchNEU2(
+                        sector,
                         enduse,
                         service_tech_y_cy,
                         tot_service_y_cy,
@@ -1672,6 +1673,7 @@ def get_service_diffusion(sig_param_tech, curr_yr):
     return service_tech
 
 def calc_service_switchNEU2(
+        sector,
         enduse,
         service_tech_y_cy,
         tot_service_yh_cy,
@@ -1728,7 +1730,37 @@ def calc_service_switchNEU2(
         # 1. Calculated increased service share per tech for cy
         service_tech_incr_cy_p = get_service_diffusion(
             sig_param_tech[tech], curr_yr)
-        print("INTER: " + str(service_tech_incr_cy_p))
+        
+        print("  ")
+        print("INTER: {} {} {}".format(tech, enduse, sector))
+        print("--------------------------------------")
+        print("  base year share " + str(service_tech_by_p_INPUT[tech] ))
+        print("  base year: " + str(service_tech_by_p_INPUT[tech] * service_service_all_techs))
+        print("  curr year: " + str(service_tech_incr_cy_p * service_service_all_techs))
+        print("  differenc: " + str((service_tech_incr_cy_p * service_service_all_techs)/(service_tech_by_p_INPUT[tech] * service_service_all_techs)))
+        print("     " + str(sig_param_tech[tech]))
+        print("  ")
+        _a = service_tech_by_p_INPUT[tech] * service_service_all_techs
+        _b = sig_param_tech[tech]['steepness']
+
+        if  _a > 0 and _b == None:
+            print("ERROR")
+            print("_A " + str(_a))
+            print("_B " + str(_b))
+            prnt(":")
+
+        '''if _a == 0 and _b == None:
+            print("ERR not one OR")
+            prnt(":")'''
+
+        if  _a > 0 and _b == 'nan':
+            print("ERROR")
+            prnt(":")
+
+        '''if _a == 0 and _b == 'nan':
+            print("ERR not one OR")
+            prnt(":")'''
+
         service_tech_y_cyOUT[tech] = service_service_all_techs * service_tech_incr_cy_p
         print(" {} {} {} {} {}".format(curr_yr, service_tech_incr_cy_p, sig_param_tech[tech], service_service_all_techs, service_tech_y_cyOUT[tech]))
         # Test that no minus

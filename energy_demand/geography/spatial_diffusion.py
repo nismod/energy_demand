@@ -299,7 +299,7 @@ def spatially_differentiated_modelling(
             rs_reg_share_service_tech_ey_p[enduse],
             regions,
             True)
-
+    # TODO MAKE SECTOR SPECIFIC
     for enduse in init_cont['ss_service_tech_by_p']:
         init_cont['ss_tech_increased_service'][enduse], init_cont['ss_tech_decreased_service'][enduse], init_cont['ss_tech_constant_service'][enduse], = s_generate_sigmoid.get_tech_future_service(
             init_cont['ss_service_tech_by_p'][enduse],
@@ -313,5 +313,5 @@ def spatially_differentiated_modelling(
             is_reg_share_service_tech_ey_p[enduse],
             regions,
             True)
-    
+
     return rs_reg_share_service_tech_ey_p, ss_reg_share_service_tech_ey_p, is_reg_share_service_tech_ey_p, init_cont

@@ -319,10 +319,9 @@ def tech_l_sigmoid(
                     service_tech_by_p,
                     fuel_tech_p_by,
                     'max_switch')
-                print(" === {}  {}".format(technology, tech_install_p[technology]))
+                print(" =fd== {}  {}".format(technology, tech_install_p[technology]))
                 print(" ")
 
-                
                 # Read L-values with calculating maximum sigmoid theoretical diffusion
                 l_values_sig[technology] = tech_install_p[technology]
 
@@ -668,11 +667,6 @@ def calc_sigm_parameters(
     else:
         installed_techs = list(tech_increased_service.keys())
         print("INSTALLddddddddddED TECH: " + str(installed_techs))
-        print("service_tech_switched_p")
-        print(service_tech_switched_p)
-        print("  ")
-        print(l_values_sig)
-        print("ffffff")
         # Calclulate sigmoid parameters for every installed technology
         sig_param_tech = tech_sigmoid_parameters(
             yr_until_switched,
@@ -738,7 +732,6 @@ def tech_sigmoid_parameters(
     else:
         for tech in installed_tech:
             print("... create sigmoid diffusion parameters %s", tech)
-            print(l_values[tech])
             market_entry = technologies[tech].market_entry
 
             # --------
@@ -760,18 +753,35 @@ def tech_sigmoid_parameters(
             point_x_projected = yr_until_switched
             point_y_projected = service_tech_switched_p[tech]
 
+            # What if point projected is zero? # TODO NEWLY ADDED
+            if point_y_projected == 0:
+                point_y_projected = fit_assump_init
+
             # Data of the two points
             xdata = np.array([point_x_by, point_x_projected])
             ydata = np.array([point_y_by, point_y_projected])
 
             print("... create sigmoid diffusion {} - {} - {} - {} - l_val: {} - {} - {}".format(
                 tech, xdata, ydata, fit_assump_init, l_values[tech], point_y_by, point_y_projected))
+            
+            # If no change in by to ey but not zero (lineare change)
+            '''if (point_y_by == point_y_projected) and (point_y_projected != fit_assump_init) and (point_y_by != fit_assump_init):
+                # No sigmoid change but linear
+                print("TTT")
+                print(l_values)
+                prnt(":")
+                # Approximate lineare by setting steepness to small value = 0.0001
+                sigmoid_parameters[tech]['midpoint'] = None
+                sigmoid_parameters[tech]['steepness'] = 0.0001
+                sigmoid_parameters[tech]['l_parameter'] = l_values[tech]'''
+
 
             # Test if ftting is possible ()
-            if (point_y_by == fit_assump_init and point_y_projected == 0) or (
+            if (point_y_by == fit_assump_init and point_y_projected == fit_assump_init) or (
                     l_values[tech] == 0 or (
-                        round(point_y_by, 6)) == round(point_y_projected, 6)):
-        
+                        round(point_y_by, 6)) == round(point_y_projected, 6)): # or (
+                            #point_y_by == 'nan' and point_y_projected == 'nan'): #NEW
+
                 # If no increase or decrease, if no future potential share
                 sigmoid_parameters[tech]['midpoint'] = None
                 sigmoid_parameters[tech]['steepness'] = None
@@ -779,7 +789,6 @@ def tech_sigmoid_parameters(
                 print("  {} {} {} {}".format(point_y_by, fit_assump_init, point_y_projected, l_values[tech] ))
                 print("... tech is constand and does not need fitting %s", tech)
             else:
-
                 # ----------------
                 # Parameter fitting
                 # ----------------
@@ -797,7 +806,7 @@ def tech_sigmoid_parameters(
                 sigmoid_parameters[tech]['l_parameter'] = l_values[tech] # maximum p
 
                 if plot_sigmoid_diffusion:
-
+                    print(" ")
                     print("... plot sigmoid diffusion {} {} {} {} {} {}".format(
                         tech, l_values[tech], xdata, ydata, point_y_by, point_y_projected))
 

@@ -103,11 +103,13 @@ def sum_fuel_enduse_sectors(data_enduses, enduses, nr_fueltypes):
     return aggregated_fuel_enduse
 
 def get_service_fueltype_tech(
+        enduses,
         tech_list,
         fueltypes,
         fuel_p_tech_by,
         fuels,
-        technologies
+        technologies,
+        sector=False
     ):
     """Calculate total energy service fractions per technology.
     Tis calculation converts fuels into energy services (e.g. heating
@@ -156,7 +158,13 @@ def get_service_fueltype_tech(
         service_tech_by_p.keys(),
         range(len(fueltypes)))
 
-    for enduse, fuel in fuels.items():
+    #for enduse, fuel in fuels.items(): #TODO: REPLACE WITH ENDUSES and improve reading in with all sectors directly
+    for enduse in enduses:
+        if not sector:
+            fuel = fuels[enduse]
+        else:
+            fuel = fuels[enduse][sector]
+
         for fueltype, fuel_fueltype in enumerate(fuel):
             tot_service_fueltype = 0
 

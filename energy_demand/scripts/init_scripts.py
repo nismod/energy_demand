@@ -83,6 +83,7 @@ def scenario_initalisation(path_data_ed, data=False):
 
     # Residential
     init_cont['rs_service_tech_by_p'], init_cont['rs_service_fueltype_tech_by_p'], init_cont['rs_service_fueltype_by_p'] = s_fuel_to_service.get_service_fueltype_tech(
+        data['enduses']['rs_all_enduses'],
         data['assumptions']['tech_list'],
         data['lookups']['fueltypes'],
         data['assumptions']['rs_fuel_tech_p_by'],
@@ -94,25 +95,47 @@ def scenario_initalisation(path_data_ed, data=False):
         data['fuels']['ss_fuel_raw_data_enduses'],
         data['enduses']['ss_all_enduses'],
         data['lookups']['fueltypes_nr'])
+    '''
     init_cont['ss_service_tech_by_p'], init_cont['ss_service_fueltype_tech_by_p'], init_cont['ss_service_fueltype_by_p'] = s_fuel_to_service.get_service_fueltype_tech(
         data['assumptions']['tech_list'],
         data['lookups']['fueltypes'],
         data['assumptions']['ss_fuel_tech_p_by'],
         ss_aggr_sector_fuels,
-        data['assumptions']['technologies'])
+        data['assumptions']['technologies'])'''
+    #Enduse, sector
+    init_cont['ss_service_tech_by_p'] = {}
+    for sector in data['sectors']['ss_sectors']:
+        init_cont['ss_service_tech_by_p'][sector], init_cont['ss_service_fueltype_tech_by_p'][sector], init_cont['ss_service_fueltype_by_p'][sector] = s_fuel_to_service.get_service_fueltype_tech(
+            data['enduses']['ss_all_enduses'],
+            data['assumptions']['tech_list'],
+            data['lookups']['fueltypes'],
+            data['assumptions']['ss_fuel_tech_p_by'],
+            data['fuels']['ss_fuel_raw_data_enduses'],
+            data['assumptions']['technologies'],
+            sector)
 
     # Industry
     is_aggr_sector_fuels = s_fuel_to_service.sum_fuel_enduse_sectors(
         data['fuels']['is_fuel_raw_data_enduses'],
         data['enduses']['is_all_enduses'],
         data['lookups']['fueltypes_nr'])
+    '''
     init_cont['is_service_tech_by_p'], init_cont['is_service_fueltype_tech_by_p'], init_cont['is_service_fueltype_by_p'] = s_fuel_to_service.get_service_fueltype_tech(
         data['assumptions']['tech_list'],
         data['lookups']['fueltypes'],
         data['assumptions']['is_fuel_tech_p_by'],
         is_aggr_sector_fuels,
-        data['assumptions']['technologies'])
-
+        data['assumptions']['technologies'])'''
+    init_cont['is_service_tech_by_p'] = {}
+    for sector in data['sectors']['is_sectors']:
+        init_cont['is_service_tech_by_p'], init_cont['is_service_fueltype_tech_by_p'], init_cont['is_service_fueltype_by_p'] = s_fuel_to_service.get_service_fueltype_tech(
+            data['enduses']['is_all_enduses'],
+            data['assumptions']['tech_list'],
+            data['lookups']['fueltypes'],
+            data['assumptions']['is_fuel_tech_p_by'],
+            data['fuels']['is_fuel_raw_data_enduses'],
+            data['assumptions']['technologies'],
+            sector)
     # ------------------------------------
     # Autocomplement defined service switches
     # with technologies not explicitly specified in switch
@@ -125,28 +148,26 @@ def scenario_initalisation(path_data_ed, data=False):
         init_cont['rs_service_tech_by_p'])
 
     #init_cont['ss_service_switches'] = fuel_service_switch.autocomplete_switches(
+    ss_service_switches_autocompleted = {}
+    for sector in data['sectors']['ss_sectors']:
+        ss_service_switches_autocompleted[sector] = fuel_service_switch.autocomplete_switches(
+            data['assumptions']['ss_service_switches'],
+            data['assumptions']['ss_specified_tech_enduse_by'],
+            init_cont['ss_service_tech_by_p'][sector])
+
+    #'''
     ss_service_switches_autocompleted = fuel_service_switch.autocomplete_switches(
         data['assumptions']['ss_service_switches'],
         data['assumptions']['ss_specified_tech_enduse_by'],
-        init_cont['ss_service_tech_by_p'])
-
-    print("bbb")
-    print(init_cont['is_service_switches'])
-    print("..")
-    print(data['assumptions']['is_service_switches'])
+        init_cont['ss_service_tech_by_p']) #SECTOR TODO? ev. nicht funktionierend
+    #'''
 
     #init_cont['is_service_switches'] = fuel_service_switch.autocomplete_switches(
     is_service_switches_autocompleted = fuel_service_switch.autocomplete_switches(
         data['assumptions']['is_service_switches'],
         data['assumptions']['is_specified_tech_enduse_by'],
         init_cont['is_service_tech_by_p'])
-    #print("bbA")
-    #print(init_cont['is_service_switches'])
-    #print("..")
-    #for i in init_cont['is_service_switches']:
-    #    print("i: " + str(i.__dict__))
-    #print( data['assumptions']['is_service_switches'])
-    #prnt(".")
+
     init_cont['rs_service_switches'] = data['assumptions']['rs_service_switches']
     init_cont['ss_service_switches'] = data['assumptions']['ss_service_switches']
     init_cont['is_service_switches'] = data['assumptions']['is_service_switches']
@@ -266,11 +287,34 @@ def scenario_initalisation(path_data_ed, data=False):
             regional_specific=regional_specific)
 
     for enduse in data['enduses']['ss_all_enduses']:
-        
+        print("********************************************************************** " + str(enduse))
         # -------------------------------------------
         # TODO MAYBE CALCULATE SIGMOID PER SECTORS
         # -------------------------------------------
-        init_cont['ss_sig_param_tech'][enduse], init_cont['ss_tech_increased_service'][enduse], init_cont['ss_tech_decreased_service'][enduse], init_cont['ss_tech_constant_service'][enduse], init_cont['ss_service_switch'][enduse] = sig_param_calculation_including_fuel_switch(
+        init_cont['ss_sig_param_tech'][enduse] = {}
+        init_cont['ss_tech_increased_service'][enduse] = {}
+        init_cont['ss_sig_param_tech'][enduse] = {}
+        init_cont['ss_tech_increased_service'][enduse] = {}
+        init_cont['ss_tech_decreased_service'][enduse] = {}
+        init_cont['ss_tech_constant_service'][enduse] = {}
+        init_cont['ss_service_switch'][enduse] = {}
+
+        for sector in data['sectors']['ss_sectors']:
+            print("###################################################################################################################" + str(sector))
+            #
+            init_cont['ss_sig_param_tech'][enduse][sector], init_cont['ss_tech_increased_service'][enduse][sector], init_cont['ss_tech_decreased_service'][enduse][sector], init_cont['ss_tech_constant_service'][enduse][sector], init_cont['ss_service_switch'][enduse][sector] = sig_param_calculation_including_fuel_switch(
+                data['sim_param']['base_yr'],
+                data['assumptions']['technologies'],
+                enduse=enduse,
+                fuel_switches=data['assumptions']['ss_fuel_switches'],
+                service_switches=init_cont['ss_service_switches'],
+                service_tech_by_p=init_cont['ss_service_tech_by_p'][sector][enduse], #sector specific
+                service_fueltype_by_p=init_cont['ss_service_fueltype_by_p'][sector][enduse], #TODO: INVERT NEW Sector sepcific by fuel shares
+                share_service_tech_ey_p=ss_share_service_tech_ey_p[enduse],
+                fuel_tech_p_by=data['assumptions']['ss_fuel_tech_p_by'][enduse],
+                regions=regions,
+                regional_specific=regional_specific)
+        '''init_cont['ss_sig_param_tech'][enduse], init_cont['ss_tech_increased_service'][enduse], init_cont['ss_tech_decreased_service'][enduse], init_cont['ss_tech_constant_service'][enduse], init_cont['ss_service_switch'][enduse] = sig_param_calculation_including_fuel_switch(
             data['sim_param']['base_yr'],
             data['assumptions']['technologies'],
             enduse=enduse,
@@ -281,9 +325,10 @@ def scenario_initalisation(path_data_ed, data=False):
             share_service_tech_ey_p=ss_share_service_tech_ey_p[enduse],
             fuel_tech_p_by=data['assumptions']['ss_fuel_tech_p_by'][enduse],
             regions=regions,
-            regional_specific=regional_specific)
-
-    for enduse in data['enduses']['is_all_enduses']:
+            regional_specific=regional_specific)'''
+        
+    #prnt(".")
+    for enduse in data['enduses']['is_all_enduses']: #TODO MAKE SECTOR SPECIFIC
         init_cont['is_sig_param_tech'][enduse], init_cont['is_tech_increased_service'][enduse], init_cont['is_tech_decreased_service'][enduse], init_cont['is_tech_constant_service'][enduse], init_cont['is_service_switch'][enduse] = sig_param_calculation_including_fuel_switch(
             data['sim_param']['base_yr'],
             data['assumptions']['technologies'],
@@ -577,10 +622,14 @@ def sig_param_calculation_including_fuel_switch(
             print("ddf")
             print(l_values_sig)
             print(service_tech_switched_p)
-            print("==========================================================================")
+            print("base year shares")
+            print(service_tech_by_p)
+            print("XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX")
+        print("==================================  {}   ========================================".format(enduse))
         # -------------------------------
         # TODO CALCULATE FOR EVERY SECTOR
         # -------------------------------
+        # EY for every sector the same, independent of inital values. However initial are different because of idfferent fuel inptus
         # Calculate sigmoid for technologies defined in switch
         sig_param_tech = s_generate_sigmoid.calc_sigm_parameters(
             yr_until_switched,
@@ -593,7 +642,7 @@ def sig_param_calculation_including_fuel_switch(
             service_tech_switched_p, # TODO NEW LY ADDED tech_increased_service,
             regions=regions,
             regional_specific=regional_specific)
-        
+        print("================================== FIHISHED {}   ========================================".format(enduse))
         if enduse == "ss_space_heating":
             print(sig_param_tech)
             print("==========================================================================")
