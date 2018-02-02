@@ -166,12 +166,12 @@ def scenario_initalisation(path_data_ed, data=False):
             data['assumptions']['ss_specified_tech_enduse_by'],
             init_cont['ss_service_tech_by_p'][sector])
 
-    #'''
+    '''
     ss_service_switches_autocompleted = fuel_service_switch.autocomplete_switches(
         data['assumptions']['ss_service_switches'],
         data['assumptions']['ss_specified_tech_enduse_by'],
         init_cont['ss_service_tech_by_p']) #SECTOR TODO? ev. nicht funktionierend
-    #'''
+    '''
 
     #init_cont['is_service_switches'] = fuel_service_switch.autocomplete_switches(
     is_service_switches_autocompleted = fuel_service_switch.autocomplete_switches(
@@ -231,7 +231,7 @@ def scenario_initalisation(path_data_ed, data=False):
         data['assumptions']['rs_specified_tech_enduse_by'])
     ss_share_service_tech_ey_p = fuel_service_switch.get_share_service_tech_ey(
         ss_service_switches_autocompleted,
-        data['assumptions']['ss_specified_tech_enduse_by'])
+        data['assumptions']['ss_specified_tech_enduse_by']) #CTOR data['assumptions']['ss_specified_tech_enduse_by'].keys()[0]
     is_share_service_tech_ey_p = fuel_service_switch.get_share_service_tech_ey(
         is_service_switches_autocompleted,
         data['assumptions']['is_specified_tech_enduse_by'])

@@ -922,7 +922,7 @@ def plt_fuels_enduses_y(results, lookups, fig_name):
     # Tight layout
     plt.tight_layout()
     plt.margins(x=0)
-
+    plt.show()
     # Save fig
     plt.savefig(fig_name)
     plt.close()
