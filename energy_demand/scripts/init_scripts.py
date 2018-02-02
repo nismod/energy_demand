@@ -266,6 +266,10 @@ def scenario_initalisation(path_data_ed, data=False):
             regional_specific=regional_specific)
 
     for enduse in data['enduses']['ss_all_enduses']:
+        
+        # -------------------------------------------
+        # TODO MAYBE CALCULATE SIGMOID PER SECTORS
+        # -------------------------------------------
         init_cont['ss_sig_param_tech'][enduse], init_cont['ss_tech_increased_service'][enduse], init_cont['ss_tech_decreased_service'][enduse], init_cont['ss_tech_constant_service'][enduse], init_cont['ss_service_switch'][enduse] = sig_param_calculation_including_fuel_switch(
             data['sim_param']['base_yr'],
             data['assumptions']['technologies'],
@@ -499,9 +503,8 @@ def sig_param_calculation_including_fuel_switch(
 
         service_tech_switched_p = share_service_tech_ey_p
 
-        #NEW
+        #NEW TODO
         all_techs = list(tech_increased_service.keys()) + list(tech_decrased_share.keys()) + list(tech_constant_service.keys())
-        print("all_techs: " + str(all_techs))
 
         # Calculate sigmoid diffusion parameters (if no switches, no calculations)
         l_values_sig = s_generate_sigmoid.get_l_values(
@@ -575,7 +578,9 @@ def sig_param_calculation_including_fuel_switch(
             print(l_values_sig)
             print(service_tech_switched_p)
             print("==========================================================================")
-
+        # -------------------------------
+        # TODO CALCULATE FOR EVERY SECTOR
+        # -------------------------------
         # Calculate sigmoid for technologies defined in switch
         sig_param_tech = s_generate_sigmoid.calc_sigm_parameters(
             yr_until_switched,

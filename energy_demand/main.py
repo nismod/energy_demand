@@ -177,7 +177,7 @@ if __name__ == "__main__":
     data['sim_param'] = {}
     data['sim_param']['base_yr'] = 2015
     data['sim_param']['curr_yr'] = data['sim_param']['base_yr']
-    data['sim_param']['simulated_yrs'] = [2015, 2030, 2050]
+    data['sim_param']['simulated_yrs'] = [2015, 2016, 2030, 2050]
 
     # local scrap
     data['lu_reg'] = data_loader.load_LAC_geocodes_info(
