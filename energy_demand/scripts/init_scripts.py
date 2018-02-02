@@ -514,8 +514,9 @@ def sig_param_calculation_including_fuel_switch(
     # FUEL switch
     # -------------
     if crit_fuel_switch:
+        print(" ")
         print("... calculate sigmoid based on FUEL switches {}".format(enduse))
-
+        print(" ")
         # Get fuel switches of enduse
         enduse_fuel_switches = fuel_service_switch.get_fuel_switches_enduse(
             fuel_switches, enduse)
@@ -535,7 +536,7 @@ def sig_param_calculation_including_fuel_switch(
             fuel_tech_p_by,
             regions=regions,
             regional_specific=regional_specific)
-        print("l_values_sig")
+        print("**************l_values_sig")
         print(l_values_sig)
         # GET YEAR OF AN SWITCH (all the same) TODO
         for fuelswitch in enduse_fuel_switches:
@@ -568,10 +569,12 @@ def sig_param_calculation_including_fuel_switch(
         for switch in service_switches_out:
             yr_until_switched = switch.switch_yr
             break
-    
-        '''if enduse == "rs_space_heating":
+
+        if enduse == "ss_space_heating":
+            print("ddf")
             print(l_values_sig)
-            pint(".")'''
+            print(service_tech_switched_p)
+            print("==========================================================================")
 
         # Calculate sigmoid for technologies defined in switch
         sig_param_tech = s_generate_sigmoid.calc_sigm_parameters(
@@ -585,21 +588,21 @@ def sig_param_calculation_including_fuel_switch(
             service_tech_switched_p, # TODO NEW LY ADDED tech_increased_service,
             regions=regions,
             regional_specific=regional_specific)
+        
+        if enduse == "ss_space_heating":
+            print(sig_param_tech)
+            print("==========================================================================")
+            #pint(".")
     else:
         pass #no switches are defined
 
     return sig_param_tech, tech_increased_service, tech_decrased_share, tech_constant_service, service_switches_out
-
 
 '''def calc_service_factor_ey_by(service_tech_by_p, service_tech_ey_p):
     """Calculate difference between technology service share of by and ey
     and calculate factors
     """
     servic_by_ey_factor = {}
-
     for tech in service_tech_by_p:
         servic_by_ey_factor[tech] = service_tech_by_p[tech] / service_tech_ey_p[tech]
-
     return servic_by_ey_factor'''
-
-

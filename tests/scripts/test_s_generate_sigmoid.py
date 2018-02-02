@@ -123,15 +123,20 @@ def test_calc_sigmoid_parameters3():
     xdata = np.array([2015.0, 2050.0])
     ydata = np.array([0.76246772, 0.07624677])'''
     
-    l_value = 1.0  #0.01521908  0.04503956
+    '''l_value = 1.0  #0.01521908  0.04503956
     xdata = np.array([2015.0, 2050.0])
-    ydata = np.array([0.015219077406592408, 0.04503955540635414]) #[0.015219077406592408, 0.04503955540635414]) #np.array([0.01521908, 0.04503956]) 
+    ydata = np.array([0.015219077406592408, 0.04503955540635414]) '''#[0.015219077406592408, 0.04503955540635414]) #np.array([0.01521908, 0.04503956]) 
+
+    l_value = 0.77 #0.7624677174012964
+    xdata = np.array([2015.0, 2050.0])
+    ydata = np.array([0.76246772, 0.07624677])
 
     # fit parameters
     fit_parameter = s_generate_sigmoid.calc_sigmoid_parameters(
         l_value,
         xdata,
-        ydata)
+        ydata,
+        error_range=0.01) #0.005
 
     y_calculated = diffusion_technologies.sigmoid_function(xdata[1], l_value, *fit_parameter)
 
@@ -253,8 +258,8 @@ def test_calc_service_fuel_switched():
         )]
 
     service_fueltype_p = {1: 1.0, 2: 0.0}
-    service_tech_by_p =  {'boilerA': 1.0, 'boilerB': 0.0}
-    fuel_tech_p_by  = {1: {'boilerA': 1.0}, 2: {'boilerB': 1.0}}
+    service_tech_by_p = {'boilerA': 1.0, 'boilerB': 0.0}
+    fuel_tech_p_by = {1: {'boilerA': 1.0}, 2: {'boilerB': 1.0}}
 
     result = s_generate_sigmoid.calc_service_fuel_switched(
         fuel_switches,
@@ -278,9 +283,9 @@ def test_calc_service_fuel_switched():
             fuel_share_switched_ey=0.5
         )]
 
-    service_fueltype_p =  {1: 0.5, 2: 0.5}
+    service_fueltype_p = {1: 0.5, 2: 0.5}
     service_tech_by_p = {'boilerA': 0.5, 'boilerB': 0.5}
-    fuel_tech_p_by  = {1: {'boilerA': 1.0}, 2: {'boilerB': 1.0}}
+    fuel_tech_p_by = {1: {'boilerA': 1.0}, 2: {'boilerB': 1.0}}
 
     result = s_generate_sigmoid.calc_service_fuel_switched(
         fuel_switches,

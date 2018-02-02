@@ -306,7 +306,8 @@ class Enduse(object):
                     #calc_service_factor_ey_by(service_tech_by_p, service_tech_ey_p)
 
                     # ---
-
+                    if self.enduse == "ss_space_heating":
+                        print("")
                     '''service_tech_y_cy = calc_service_switch(
                         tot_service_y_cy,
                         service_tech_by_p, #Service shares across sectors per technology, __tech_service_cy_p --> service share for specific sector
@@ -317,6 +318,7 @@ class Enduse(object):
                         curr_yr)'''
 
                     service_tech_y_cy = calc_service_switchNEU2(
+                        enduse,
                         service_tech_y_cy,
                         tot_service_y_cy,
                         service_tech_by_p, #Service shares across sectors per technology, __tech_service_cy_p --> service share for specific sector
@@ -1670,6 +1672,7 @@ def get_service_diffusion(sig_param_tech, curr_yr):
     return service_tech
 
 def calc_service_switchNEU2(
+        enduse,
         service_tech_y_cy,
         tot_service_yh_cy,
         service_tech_by_p_INPUT,
@@ -1720,13 +1723,14 @@ def calc_service_switchNEU2(
     #-------
     service_service_all_techs = sum(service_tech_y_cy.values())
     for tech in all_techs:
-
+        print(" ")
+        print("=========================  {}  ========================= {}".format(enduse, tech))
         # 1. Calculated increased service share per tech for cy
         service_tech_incr_cy_p = get_service_diffusion(
             sig_param_tech[tech], curr_yr)
-
+        print("INTER: " + str(service_tech_incr_cy_p))
         service_tech_y_cyOUT[tech] = service_service_all_techs * service_tech_incr_cy_p
-        
+        print(" {} {} {} {} {}".format(curr_yr, service_tech_incr_cy_p, sig_param_tech[tech], service_service_all_techs, service_tech_y_cyOUT[tech]))
         # Test that no minus
         assert service_tech_y_cyOUT[tech] >= 0
 
