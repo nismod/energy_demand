@@ -251,7 +251,7 @@ def load_local_paths(path):
         'path_val_subnational_gas': os.path.join(
             path, '_raw_data', 'D-validation', '02_subnational_gas_demand', 'data_2015_gas.csv'),
         'path_employment_statistics': os.path.join(
-            path, '_raw_data', 'b-census_data', 'employment_statistics_2011_LAD', 'LAD_prior_2015.csv'),
+            path, '_raw_data', 'B-census_data', 'employment_statistics_2011_LAD', 'LAD_prior_2015.csv'),
         'path_floor_area_virtual_stock_by': os.path.join(
             path, '_raw_data', 'K-floor_area', 'floor_area_by.csv'),
         'path_assumptions_db': os.path.join(
