@@ -217,21 +217,20 @@ def scenario_initalisation(path_data_ed, data=False):
     # Get service shares of technologies for future year by considering
     # SERVICE switch on a national scale
     # -------------------------------------
-    '''rs_share_service_tech_ey_p = fuel_service_switch.get_share_service_tech_ey(
-        init_cont['rs_service_switches'],
-        data['assumptions']['rs_specified_tech_enduse_by'])
-    ss_share_service_tech_ey_p = fuel_service_switch.get_share_service_tech_ey(
-        init_cont['ss_service_switches'],
-        data['assumptions']['ss_specified_tech_enduse_by'])'''
-    '''is_share_service_tech_ey_p = fuel_service_switch.get_share_service_tech_ey(
-        init_cont['is_service_switches'],
-        data['assumptions']['is_specified_tech_enduse_by'])'''
     rs_share_service_tech_ey_p = fuel_service_switch.get_share_service_tech_ey(
         rs_service_switches_autocompleted,
         data['assumptions']['rs_specified_tech_enduse_by'])
-    ss_share_service_tech_ey_p = fuel_service_switch.get_share_service_tech_ey(
+    '''ss_share_service_tech_ey_p = fuel_service_switch.get_share_service_tech_ey(
         ss_service_switches_autocompleted,
-        data['assumptions']['ss_specified_tech_enduse_by']) #CTOR data['assumptions']['ss_specified_tech_enduse_by'].keys()[0]
+        data['assumptions']['ss_specified_tech_enduse_by']) #CTOR data['assumptions']['ss_specified_tech_enduse_by'].keys()[0]'''
+    
+    ss_share_service_tech_ey_p = {}
+    for sector in data['sectors']['ss_sectors']:
+        ss_share_service_tech_ey_p[sector] = fuel_service_switch.get_share_service_tech_ey(
+            ss_service_switches_autocompleted[sector],
+            data['assumptions']['ss_specified_tech_enduse_by']) #CTOR data['assumptions']['ss_specified_tech_enduse_by'].keys()[0]
+
+    #TODO MAKE SECTOR SPECIFIC
     is_share_service_tech_ey_p = fuel_service_switch.get_share_service_tech_ey(
         is_service_switches_autocompleted,
         data['assumptions']['is_specified_tech_enduse_by'])
@@ -321,7 +320,7 @@ def scenario_initalisation(path_data_ed, data=False):
                 service_switches=init_cont['ss_service_switches'],
                 service_tech_by_p=init_cont['ss_service_tech_by_p'][sector][enduse], #sector specific
                 service_fueltype_by_p=init_cont['ss_service_fueltype_by_p'][sector][enduse], #TODO: INVERT NEW Sector sepcific by fuel shares
-                share_service_tech_ey_p=ss_share_service_tech_ey_p[enduse],
+                share_service_tech_ey_p=ss_share_service_tech_ey_p[sector][enduse], #NEW
                 fuel_tech_p_by=data['assumptions']['ss_fuel_tech_p_by'][enduse],
                 regions=regions,
                 regional_specific=regional_specific)

@@ -169,7 +169,7 @@ if __name__ == "__main__":
     data['criterias']['virtual_building_stock_criteria'] = True
     data['criterias']['spatial_exliclit_diffusion'] = False
     data['criterias']['write_to_txt'] = False
-    data['criterias']['beyond_supply_outputs'] = False
+    data['criterias']['beyond_supply_outputs'] = True
     data['criterias']['plot_tech_lp'] = True
 
     data['paths'] = data_loader.load_paths(path_main)
@@ -326,9 +326,13 @@ if __name__ == "__main__":
 
         # --------------------
         # Result unconstrained
-        # --------------------
+        # -------------------- TODO: CHECK THAT SECTORS ARE CORRECLTED USED (3, FUETLYPESE7)
         #supply_results = modelrun_obj.ed_fueltype_regs_yh #TODO: NEEDED?
         supply_results_unconstrained = modelrun_obj.ed_submodel_fueltype_regs_yh #TODO: NEEDED?
+
+        # TODO REFORMULATE BECAUSE OF SECTORS
+        supply_results_unconstrained = sum(supply_results_unconstrained[:,])
+        print("SHAPE: " + str(supply_results_unconstrained))
 
         if data['criterias']['beyond_supply_outputs']:
 

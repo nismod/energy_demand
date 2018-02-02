@@ -324,6 +324,8 @@ class Enduse(object):
                 # -------------------------------------------
                 # Convert annual service to fuel per fueltype
                 # -------------------------------------------
+                if enduse == "rs_space_heating":
+                    print("")
                 #TODO MAYBE REMOVE FUEL SPECIFIC AND REPLACE FUEL_Y by sum(fuel_YH)
                 self.fuel_new_y, fuel_tech_y = service_to_fuel(
                     enduse,
@@ -345,7 +347,7 @@ class Enduse(object):
 
                 # Copy
                 self.fuel_y = self.fuel_new_y
-                #print("... Fuel train F: " + str(np.sum(self.fuel_new_y)))
+                #print("... Fuel train F: " + str(self.fuel_new_y))
 
                 # ------------------------------------------
                 # Assign load profiles
@@ -1782,9 +1784,6 @@ def calc_service_switchNEU2(
             print("_B " + str(_b))
             prnt(":")
 
-        if  _a > 0 and _b == 'nan':
-            print("ERROR")
-            prnt(":")
         if service_tech_incr_cy_p == 'identical':
             service_tech_y_cyOUT[tech] = service_service_all_techs * service_tech_by_p_INPUT[tech]
         else:
