@@ -1,3 +1,8 @@
 enduse,tech,service_share_ey,switch_yr
 rs_space_heating,boiler_hydrogen,0.2,2050
 rs_space_heating,heat_pumps_electricity,0.7,2050
+
+THROWS ERROR
+
+rs_space_heating,boiler_gas,0.7,2050
+rs_space_heating,heat_pumps_electricity,0.1,2050

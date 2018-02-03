@@ -492,7 +492,7 @@ def industry_submodel(
                 enduse=enduse,
                 sector=sector,
                 fuel=region.is_enduses_sectors_fuels[enduse][sector],
-                service_tech_by_p=assumptions['is_service_tech_by_p'][enduse],
+                service_tech_by_p=assumptions['is_service_tech_by_p'][sector][enduse],
                 tech_stock=region.is_tech_stock,
                 heating_factor_y=region.is_heating_factor_y,
                 cooling_factor_y=region.is_cooling_factor_y,

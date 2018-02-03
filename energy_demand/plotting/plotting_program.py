@@ -1,4 +1,5 @@
 import numpy as np
+import logging
 import matplotlib.pyplot as plt
 import pylab
 from energy_demand.technologies import diffusion_technologies
@@ -19,6 +20,9 @@ def plotout_sigmoid_tech_diff(L_value, technology, xdata, ydata, fit_parameter, 
         """Timer to close window automatically
         """
         plt.close()
+
+    logging.warning("... plot sigmoid diffusion {} {} {} {}".format(
+        technology, L_value, xdata, ydata))
 
     x = np.linspace(1990, 2110, 300)
     y = diffusion_technologies.sigmoid_function(x, L_value, *fit_parameter)

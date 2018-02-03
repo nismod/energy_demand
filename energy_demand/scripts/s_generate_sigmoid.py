@@ -12,7 +12,7 @@ from scipy.optimize import curve_fit
 from energy_demand.technologies import diffusion_technologies
 from energy_demand.plotting import plotting_program
 
-def calc_sigmoid_parameters(l_value, xdata, ydata, error_range=0.002):
+def calc_sigmoid_parameters(l_value, xdata, ydata, error_range=0.00002):
     """Calculate sigmoid parameters. Check if fitting is good enough.
 
     Arguments
@@ -87,9 +87,6 @@ def calc_sigmoid_parameters(l_value, xdata, ydata, error_range=0.002):
             else:
                 crit_plus_minus = 'minus'
 
-                # If minus, then the L-value is near zero (because every tech is possible to go down to zero)
-                #l_value = 0.00099 #TODO NEW
-
             # Fit function
             fit_parameter = fit_sigmoid_diffusion(
                 l_value,
@@ -106,8 +103,7 @@ def calc_sigmoid_parameters(l_value, xdata, ydata, error_range=0.002):
                 if cnt >= len(start_param_list):
                     logging.critical("Error: Sigmoid curve fitting failed")
             else:
-                # corret sign
-                pass
+                pass # corret sign
 
             if (fit_parameter[0] == start_parameters[0]) or (
                     fit_parameter[1] == start_parameters[1]):
@@ -589,9 +585,6 @@ def calc_diff_fuel_switch(
             'actual_switch')
 
         # Calculate L for every technology for sigmod diffusion
-        print("SHARK HERE")
-        for i in enduse_fuel_switches:
-            print(i.__dict__)
         l_values_sig = tech_l_sigmoid(
             service_tech_switched_p,
             enduse_fuel_switches,
@@ -714,7 +707,7 @@ def tech_sigmoid_parameters(
         Service demand after fuelswitch
     plot_sigmoid_diffusion : bool,default=False
         Criteria whether sigmoid are plotted
-
+    TODO CLEAN
     Returns
     -------
     sigmoid_parameters : dict
@@ -768,18 +761,14 @@ def tech_sigmoid_parameters(
             if (round(point_y_by, 10) == round(point_y_projected, 10)) and (
                 point_y_projected != fit_assump_init) and (
                     point_y_by != fit_assump_init):
-                # No sigmoid change but linear
-                print("NO CHANGE LINEAR  {} - {} -".format(point_y_by, point_y_projected))
-                # Approximate lineare by setting steepness to small value = 0.0001
-                sigmoid_parameters[tech]['midpoint'] = 'linear' #0 #TODO IMPROVE THAT LINEAR IS 
-                sigmoid_parameters[tech]['steepness'] = 'linear' #0.0001
-                sigmoid_parameters[tech]['l_parameter'] = 'linear' #1 #l_values[tech]
+
+                # Linear diffusion (because by and ey share are identical)
+                sigmoid_parameters[tech]['midpoint'] = 'linear'
+                sigmoid_parameters[tech]['steepness'] = 'linear'
+                sigmoid_parameters[tech]['l_parameter'] = 'linear'
 
                 # plot linear changes
                 '''if plot_sigmoid_diffusion:
-                        print(" ")
-                        print("... plot sigmoid diffusion {} {} {} {} {} {}".format(
-                            tech, l_values[tech], xdata, ydata, point_y_by, point_y_projected))
                         fit_parameter = np.zeros((2))
                         fit_parameter[0] = sigmoid_parameters[tech]['midpoint']
                         fit_parameter[1] = sigmoid_parameters[tech]['steepness']
@@ -802,8 +791,6 @@ def tech_sigmoid_parameters(
                     sigmoid_parameters[tech]['midpoint'] = None
                     sigmoid_parameters[tech]['steepness'] = None
                     sigmoid_parameters[tech]['l_parameter'] = None
-                    print("  {} {} {} {}".format(point_y_by, fit_assump_init, point_y_projected, l_values[tech] ))
-                    print("... tech is constand and does not need fitting %s", tech)
                 else:
                     # ----------------
                     # Parameter fitting
@@ -812,7 +799,7 @@ def tech_sigmoid_parameters(
                         l_values[tech],
                         xdata,
                         ydata,
-                        error_range=0.002)
+                        error_range=0.0002)
 
                     print(" ... Fitting  %s: Midpoint: %s steepness: %s", tech, fit_parameter[0], fit_parameter[1])
 
@@ -822,16 +809,12 @@ def tech_sigmoid_parameters(
                     sigmoid_parameters[tech]['l_parameter'] = l_values[tech] # maximum p
 
                     if plot_sigmoid_diffusion:
-                        print(" ")
-                        print("... plot sigmoid diffusion {} {} {} {} {} {}".format(
-                            tech, l_values[tech], xdata, ydata, point_y_by, point_y_projected))
-
                         plotting_program.plotout_sigmoid_tech_diff(
                             l_values[tech],
                             tech,
                             xdata,
                             ydata,
                             fit_parameter,
-                            True)
+                            True) #TRUE OR FALSE
 
     return dict(sigmoid_parameters)

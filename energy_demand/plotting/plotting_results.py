@@ -80,7 +80,6 @@ def run_all_plot_functions(
     # ------------------------------
     # Plot annual demand for enduses for all submodels
     # ------------------------------
-    #TODO IMPROVE WITH OTHER STACK
     plt_stacked_enduse_sectors(
         lookups,
         sim_param['simulated_yrs'],
@@ -815,7 +814,12 @@ def plt_fuels_enduses_week(
     
     plt.axis('tight')
 
-    plt.legend(ncol=2, frameon=False)
+    plt.legend(
+        ncol=2,
+        frameon=False,
+        prop={
+            'family': 'arial',
+            'size': 10},)
 
     plt.ylabel("GW")
     plt.xlabel("day")
@@ -892,7 +896,7 @@ def plt_fuels_enduses_y(results, lookups, fig_name):
         plt.plot(
             list(fuel_fueltype_yrs.keys()), #years
             list(fuel_fueltype_yrs.values()), #yearly data per fueltype
-            #linestyle=linestyles[counter], #TODO
+            #linestyle=linestyles[counter],
             color=color_line,
             label=fueltype_str)
 
@@ -909,7 +913,7 @@ def plt_fuels_enduses_y(results, lookups, fig_name):
         loc=2,
         prop={
             'family': 'arial',
-            'size': 5},
+            'size': 10},
         frameon=False)
 
     # ---------
