@@ -324,7 +324,7 @@ def aggr_fuel_aggr(
 
             fuels = get_fuels_yh(
                 enduse_object,
-                attribute_technologies, #'techs_fuel_yh',
+                attribute_technologies, #'techs_fuel_yh'
                 model_yearhours_nrs,
                 model_yeardays_nrs)
 
@@ -336,7 +336,7 @@ def aggr_fuel_aggr(
                 # Fuel per technology
                 fuels = get_fuels_yh(
                     enduse_object,
-                    attribute_non_technology, #'fuel_yh',
+                    attribute_non_technology, #'fuel_yh'
                     model_yearhours_nrs,
                     model_yeardays_nrs)
                 input_array += fuels
@@ -493,7 +493,6 @@ def industry_submodel(
                 sector=sector,
                 fuel=region.is_enduses_sectors_fuels[enduse][sector],
                 service_tech_by_p=assumptions['is_service_tech_by_p'][enduse],
-                #service_by_ey_f=assumptions['is_servic_by_ey_factor'],
                 tech_stock=region.is_tech_stock,
                 heating_factor_y=region.is_heating_factor_y,
                 cooling_factor_y=region.is_cooling_factor_y,
@@ -508,7 +507,6 @@ def industry_submodel(
                 fueltypes_nr=lookups['fueltypes_nr'],
                 fueltypes=lookups['fueltypes'],
                 model_yeardays_nrs=assumptions['model_yeardays_nrs'],
-        
                 reg_scen_drivers=assumptions['scenario_drivers']['is_submodule'],
                 flat_profile_crit=flat_profile_crit)
 
@@ -584,7 +582,6 @@ def residential_submodel(
                 sector=sector,
                 fuel=region.rs_enduses_fuel[enduse],
                 service_tech_by_p=assumptions['rs_service_tech_by_p'][enduse],
-                #service_by_ey_f=assumptions['rs_servic_by_ey_factor'],
                 tech_stock=region.rs_tech_stock,
                 heating_factor_y=region.rs_heating_factor_y,
                 cooling_factor_y=region.rs_cooling_factor_y,

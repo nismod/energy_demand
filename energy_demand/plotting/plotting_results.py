@@ -976,7 +976,7 @@ def plt_fuels_peak_h(tot_fuel_dh_peak, lookups, path_plot_fig):
         plt.plot(
             years,
             y_init[fueltype],
-            linestyle=linestyles[fueltype],
+            #linestyle=linestyles[fueltype],
             linewidth=0.7)
 
     # Legend

@@ -152,7 +152,7 @@ def test_calc_sigmoid_parameters3():
 
     assert round(y_calculated, 3) == round(ydata[1], 3)
 
-test_calc_sigmoid_parameters3()
+#test_calc_sigmoid_parameters3()
 
 def test_get_tech_installed():
     """"""
