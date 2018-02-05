@@ -36,22 +36,21 @@ NR_OF_MODELLEd_REGIONS = 2 # uk: 391, england.: 380
 class EDWrapper(SectorModel):
     """Energy Demand Wrapper
     """
-    def before_model_run(self, data=None):
-        """Runs prior to any ``simulate()`` step
+    def __init__(self, name):
+        super().__init__(name)
 
-        Writes scenario data out into the scenario files
+        self.user_data = {}
 
-        Saves useful data into the ``self.user_data`` dictionary for access
-        in the ``simulate()`` method
+    def before_model_run(self, data_handle):
+        """Implement this method to conduct pre-model run tasks
 
-        Data is accessed using the `get_scenario_data()` method is provided
-        as a numpy array with the dimensions timesteps-by-regions-by-intervals.
-
-        Info
-        -----
-        `self.user_data` allows to pass data from before_model_run to main model
+        Arguments
+        ---------
+        data_handle: smif.data_layer.DataHandle
+            Access parameter values (before any model is run, no dependency
+            input data or state is guaranteed to be available)
         """
-        data = defaultdict(dict, data)
+        data = defaultdict(dict)
 
         # Criteria
         data['criterias']['mode_constrained'] = True                    # True: Technologies are defined in ED model and fuel is provided, False: Heat is delievered not per technologies
@@ -65,7 +64,7 @@ class EDWrapper(SectorModel):
         data['criterias']['plot_crit'] = True
         data['criterias']['plot_tech_lp'] = True
 
-        data['sim_param']['base_yr'] = 2015 # Base year
+        data['sim_param']['base_yr'] = data_handle.timesteps[0] # Base year
         data['sim_param']['curr_yr'] = data['sim_param']['base_yr']
         self.user_data['base_yr'] = data['sim_param']['base_yr']
 
@@ -121,12 +120,17 @@ class EDWrapper(SectorModel):
         # -----------------------------
         # Obtain external scenario data
         # -----------------------------
-        pop_array = self.get_scenario_data('population')
-        pop_dict = self.array_to_dict(pop_array)
-        data['population'][data['sim_param']['base_yr']] = pop_dict[2015] # Get only population of base year
+        pop_array = data_handle.get_base_timestep_data('population')
+        pop_dict = {}
+        for r_idx, region in enumerate(self.get_region_names(REGION_SET_NAME)):
+            pop_dict[region] = pop_array[r_idx, 0]
+        data['population'][data['sim_param']['base_yr']] = pop_dict 
 
-        gva_array = self.get_scenario_data('gva')
-        data['gva'] = self.array_to_dict(gva_array)
+        gva_array = data_handle.get_base_timestep_data('gva') 
+        gva_dict = {}
+        for r_idx, region in enumerate(self.get_region_names(REGION_SET_NAME)):
+            gva_dict[region] = gva_array[r_idx, 0]
+        data['gva'][data['sim_param']['base_yr']] = gva_dict
 
         # Get building related data
         if data['criterias']['virtual_building_stock_criteria']:
@@ -197,8 +201,10 @@ class EDWrapper(SectorModel):
         # ------------------------
         # Load all SMIF parameters and replace data dict
         # ------------------------
+
+        parameters = data_handle.get_parameters()
         data['assumptions'] = self.load_smif_parameters(
-            data,
+            parameters,
             data['assumptions'])
 
         # Update technologies after strategy definition
@@ -210,8 +216,8 @@ class EDWrapper(SectorModel):
         # ------------------------
         # Pass along to simulate()
         # ------------------------
-        self.user_data['gva'] = self.array_to_dict(gva_array)
-        self.user_data['population'] = self.array_to_dict(pop_array)
+        self.user_data['gva'] = data['gva']
+        self.user_data['population'] = data['population']
         self.user_data['rs_floorarea'] = rs_floorarea
         self.user_data['ss_floorarea'] = ss_floorarea
         self.user_data['data_pass_along'] = {}
@@ -245,11 +251,9 @@ class EDWrapper(SectorModel):
                 pop_array[t_idx])
 
     def initialise(self, initial_conditions):
-        """
-        """
         pass
 
-    def simulate(self, timestep, data=None):
+    def simulate(self, data_handle):
         """Runs the Energy Demand model for one `timestep`
 
         Arguments
@@ -284,8 +288,8 @@ class EDWrapper(SectorModel):
         """
         time_start = datetime.datetime.now()
 
-        # Convert data to default dict
-        data = defaultdict(dict, data)
+        # Init default dict
+        data = defaultdict(dict)
 
         # Paths
         path_main = resource_filename(Requirement.parse("energy_demand"), "")
@@ -311,7 +315,7 @@ class EDWrapper(SectorModel):
         logger_setup.set_up_logger(os.path.join(data['local_paths']['data_results'], "logger_smif_run.log"))
 
         data['sim_param']['base_yr'] = self.user_data['base_yr'] # Base year definition
-        data['sim_param']['curr_yr'] = timestep                  # Read in current year from smif
+        data['sim_param']['curr_yr'] = data_handle.current_timestep # Read in current year from smif
         data['sim_param']['simulated_yrs'] = self.timesteps      # Read in all simulated years from smif
 
         # ---------------------------------------------
@@ -330,15 +334,26 @@ class EDWrapper(SectorModel):
         # ---------------------------------------------
         # Scenario data
         # ---------------------------------------------
-        pop_array = self.get_scenario_data('population') #for simulation year
-        pop_dict = self.array_to_dict(pop_array)
+        pop_array_current = data_handle.get_data('population') #for simulation year
+        gva_array_current = data_handle.get_data('gva') #for simulation year
+
+        gva_dict_current = {}
+        pop_dict_current = {}
+
+        for r_idx, region in enumerate(self.get_region_names(REGION_SET_NAME)):
+            pop_dict_current[region] = pop_array_current[r_idx, 0]
+            gva_dict_current[region] = gva_array_current[r_idx, 0]
 
         pop_by_cy = {}
-        pop_by_cy[data['sim_param']['base_yr']] = pop_dict[2015]                         # Get population of by
-        pop_by_cy[data['sim_param']['curr_yr']] = pop_dict[data['sim_param']['curr_yr']] # Get population of cy
+        pop_by_cy[data['sim_param']['base_yr']] = self.user_data['population'][data_handle.base_timestep]  # Get population of by
+        pop_by_cy[data['sim_param']['curr_yr']] = pop_dict_current       # Get population of cy
+
+        gva_by_cy = {}
+        gva_by_cy[data['sim_param']['base_yr']] = self.user_data['gva'][data_handle.base_timestep]          # Get gva of by
+        gva_by_cy[data['sim_param']['curr_yr']] = gva_dict_current       # Get gva of cy
 
         data['scenario_data'] = {
-            'gva': self.user_data['gva'],
+            'gva': gva_by_cy,
             'population': pop_by_cy,
 
             # Only add newcastle floorarea here
@@ -365,7 +380,7 @@ class EDWrapper(SectorModel):
         # ------------------------------------------------
         # Validation base year: Hourly temporal validation
         # ------------------------------------------------
-        if data['criterias']['validation_criteria'] == True and timestep == data['sim_param']['base_yr']:
+        if data['criterias']['validation_criteria'] == True and data_handle.current_timestep == data['sim_param']['base_yr']:
             lad_validation.tempo_spatial_validation(
                 data['sim_param']['base_yr'],
                 data['assumptions']['model_yearhours_nrs'],
@@ -394,7 +409,7 @@ class EDWrapper(SectorModel):
             # Plot individual enduse
             # ----
             crit_plot_enduse_lp = True
-            if crit_plot_enduse_lp and timestep == 2015:
+            if crit_plot_enduse_lp and data_handle.current_timestep == 2015:
 
                 # Maybe move to result folder in a later step
                 path_folder_lp = os.path.join(data['local_paths']['data_results'], 'individual_enduse_lp')
@@ -536,23 +551,7 @@ class EDWrapper(SectorModel):
         return supply_results
 
     def extract_obj(self, results):
-        """Implement this method to return a scalar value objective function
-
-        This method should take the results from the output of the `simulate`
-        method, process the results, and return a scalar value which can be
-        used as the objective function
-
-        Arguments
-        =========
-        results : :class:`dict`
-            The results from the `simulate` method
-
-        Returns
-        =======
-        float
-            A scalar component generated from the simulation model results
-        """
-        pass
+        return 0
 
     def pass_to_simulate(self, dict_to_copy_into, dict_to_pass_along):
         """Pass dict defined in before_model_run() to simlate() function
@@ -618,7 +617,6 @@ class EDWrapper(SectorModel):
 
             # Get narrative variable from input data dict
             strategy_variables[var_name] = data[var_name]
-            del data[var_name]
 
         # Add to assumptions
         assumptions['strategy_variables'] = strategy_variables
