@@ -9,12 +9,12 @@ depending on scenaric assumptions.
 import sys
 import logging
 import numpy as np
-import math
+#import math
 from energy_demand.initalisations import helpers
 from energy_demand.profiles import load_profile as lp
 from energy_demand.profiles import load_factors as lf
 from energy_demand.technologies import diffusion_technologies
-from energy_demand.technologies import fuel_service_switch
+#from energy_demand.technologies import fuel_service_switch
 
 class Enduse(object):
     """Enduse Class for all endueses in each SubModel
@@ -259,15 +259,6 @@ class Enduse(object):
                     fueltypes,
                     mode_constrained)
 
-                '''if self.enduse == "is_space_heating":
-                    print("")
-                    print("bbbbbbbbbbbbbbbbb {}  {}".format(sector, enduse))
-                    import pprint
-                    pprint.pprint(__tech_service_cy_p)
-                    print("--")
-                    pprint.pprint(service_tech_by_p)
-                    prnt(":")'''
-
                 # ------------------------------------
                 # Reduction of service because of heat recovery
                 # (standard sigmoid diffusion)
@@ -297,14 +288,14 @@ class Enduse(object):
 
                     # Convert aggregated sector service percentages to sector service percentages
                     # Calculate service difference between by and ey for every tech as a factor
-                    all_techs = list(tech_increase_service.keys()) + list(tech_decrease_service.keys()) + list(tech_constant_service.keys())
+                    all_techs = list(tech_increased_service.keys()) + list(tech_decreased_service.keys()) + list(tech_constant_service.keys())
 
                     service_tech_y_cy = calc_service_switch(
                         sector,
                         enduse,
                         service_tech_y_cy,
                         service_tech_by_p, #Service shares across sectors per technology, __tech_service_cy_p --> service share for specific sector
-                        all_techs
+                        all_techs,
                         sig_param_tech,
                         curr_yr)
 
@@ -319,15 +310,6 @@ class Enduse(object):
                     fueltypes_nr,
                     fueltypes,
                     mode_constrained)
-
-                if self.enduse == "rs_space_heating" and curr_yr > 2015:
-                    print("======================************************************")
-                    print("rs_fuel nacher: {}".format(self.fuel_new_y))
-                    print(_SCRAP)
-                    print("-----")
-                    print(fuel)
-                    print("nacher: {}".format(np.sum(service_tech_y_cy['heat_pumps_electricity'])))
-                    print("======================************************************")
 
                 # Delete all technologies with no fuel assigned
                 for tech, fuel_tech in fuel_tech_y.items():
@@ -399,7 +381,6 @@ class Enduse(object):
                         self.fuel_yh = None
                         self.fuel_peak_h = None
                         self.fuel_peak_dh = None
-
                     else: # (not specific for technologies)
 
                         # Demand management for heating related technologies
@@ -1735,7 +1716,6 @@ def calc_service_switch(
         # 1. Calculated increased service share per tech for cy
         service_tech_incr_cy_p = get_service_diffusion(
             sig_param_tech[tech], curr_yr)
-        
         '''print("  ")
         print("INTER: {} {} {}".format(tech, enduse, sector))
         print("--------------------------------------")
@@ -1747,7 +1727,6 @@ def calc_service_switch(
             print("  curr year: " + str(service_tech_incr_cy_p * service_service_all_techs))
         except:
             pass'''
-
         if  service_tech_by_p_INPUT[tech] * service_service_all_techs > 0 and sig_param_tech[tech]['steepness'] == None:
             print("ERROR")
             prnt(":")
@@ -1759,7 +1738,7 @@ def calc_service_switch(
 
         logging.debug("{} - {} - {} - {} - {}".format(
             curr_yr, service_tech_incr_cy_p, sig_param_tech[tech], service_service_all_techs, switched_service_tech_y_cy[tech]))
-        
+
         assert switched_service_tech_y_cy[tech] >= 0 # Test that no minus
 
     return switched_service_tech_y_cy
@@ -1767,8 +1746,8 @@ def calc_service_switch(
 '''def calc_service_switch_OLD(
         tot_service_yh_cy,
         service_tech_by_p_INPUT,
-        tech_increase_service,
-        tech_decrease_service,
+        tech_increased_service,
+        tech_decreased_service,
         tech_constant_service,
         sig_param_tech,
         curr_yr
@@ -1781,9 +1760,9 @@ def calc_service_switch(
         Hourly service of all technologies
     service_tech_by_p : dict
         Fraction of service per technology
-    tech_increase_service : dict
+    tech_increased_service : dict
         Technologies with increased service
-    tech_decrease_service : dict
+    tech_decreased_service : dict
         Technologies with decreased service
     tech_constant_service : dict
         Technologies with constant service
@@ -1821,12 +1800,12 @@ def calc_service_switch(
     # ------------
     # Add base year of decreasing technologies to allow later substraction
     ## ORIGtech_service_cy_p.update(tech_decrease_service)
-    #for tech in tech_decrease_service:
+    #for tech in tech_decreased_service:
     #    tech_service_cy_p[tech] = service_tech_by_p[tech]
 
     # Calculate service share to asign for substracted fuel
     service_tech_decrease_by_rel = fuel_service_switch.get_service_rel_tech_decr_by(
-        tech_decrease_service,
+        tech_decreased_service,
         service_tech_by_p_INPUT)
 
     # ------------
@@ -1834,8 +1813,8 @@ def calc_service_switch(
     # ------------
     # Calculated gained service and substract this
     # proportionally along all decreasing technologies
-    print("a: " + str(tech_increase_service))
-    for tech_incr in tech_increase_service:
+    print("a: " + str(tech_increased_service))
+    for tech_incr in tech_increased_service:
 
         # Calculated increased service share per tech
         service_tech_incr_cy_p = get_service_diffusion(
