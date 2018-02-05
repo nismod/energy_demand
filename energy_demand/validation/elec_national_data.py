@@ -70,7 +70,7 @@ def read_raw_elec_2015(path_to_csv, year=2015):
 
                 # Sum value of first and second half hour
                 hour_elec_demand_INDO = half_hour_demand_indo + float(line[2])
-                hour_elec_demand_ITSDO = half_hour_demand_itsdo + float(line[4]) 
+                hour_elec_demand_ITSDO = half_hour_demand_itsdo + float(line[4])
 
                 # Convert MW to GWH (input is MW aggregated for two half
                 # hourly measurements, therfore divide by 0.5)
@@ -114,48 +114,37 @@ def compare_results(
 
     x_data = range(nr_of_h_to_plot)
 
-    #y_real_indo = []
-    #y_real_itsdo = []
     y_real_indo_factored = []
     y_calculated_list = []
-    y_diff = []
+    y_diff_p = []
+    y_diff_abs = []
 
     for day in days_to_plot:
         for hour in range(24):
-            #y_real_indo.append(y_real_array_indo[day][hour])
-            #y_real_itsdo.append(y_real_array_itsdo[day][hour])
-            y_calculated_list.append(y_calculated_array[day][hour])
-            y_real_indo_factored.append(y_factored_indo[day][hour])
+            y_calculated_list.append(
+                y_calculated_array[day][hour])
+            y_real_indo_factored.append(
+                y_factored_indo[day][hour])
+
+            # Calculate absolute differences
+            y_diff_abs.append(abs(y_factored_indo[day][hour] - y_calculated_array[day][hour]))
 
             # Calculate difference in percent
-            y_diff.append((100 / y_factored_indo[day][hour]) * y_calculated_array[day][hour] - 100)
-
-    logging.warning("=============ee")
-    logging.warning(y_calculated_array.shape)
-    logging.warning(np.sum(y_calculated_array))
-    logging.warning(np.sum(y_calculated_list))
-    logging.warning(np.sum(y_calculated_array[20]))
-    logging.warning(np.sum(y_calculated_array[20]) / np.sum(y_calculated_array))
-    logging.warning(np.sum(y_calculated_list[20]))
-    first_h_day20 = 20 * 24
-    last_h_day20 =  21 * 24
-    _scrapsum = 0
-    for i in range(first_h_day20, last_h_day20):
-        _scrapsum += np.sum(y_calculated_list[i])
-    logging.warning("DEMAND IN DAY 20: {}  {}".format(_scrapsum, _scrapsum / np.sum(y_calculated_list)))
+            y_diff_p.append((100 / y_factored_indo[day][hour]) * y_calculated_array[day][hour] - 100)
 
     # -------------
     # RMSE
     # -------------
-    #rmse_val_indo = basic_functions.rmse(np.array(y_real_indo), np.array(y_calculated_list))
-    #rmse_val_itsdo = basic_functions.rmse(np.array(y_real_itsdo), np.array(y_calculated_list))
     rmse_val_corrected = basic_functions.rmse(np.array(y_real_indo_factored), np.array(y_calculated_list))
-    #rmse_val_own_factor_correction = basic_functions.rmse(np.array(y_real_indo), np.array(y_calculated_list))
 
     # ----------
     # Standard deviation
     # ----------
-    standard_dev_real_modelled = np.std(y_diff)
+    standard_dev_real_modelled = np.std(y_diff_p)       # Differences in %
+    standard_dev_real_modelled_abs = np.std(y_diff_abs) # Absolute differences 
+
+    logging.warning("Standard deviation given as percentage: " + str(standard_dev_real_modelled))
+    logging.warning("Standard deviation given as GW:         " + str(standard_dev_real_modelled_abs))
 
     # ---------
     # R squared
@@ -168,12 +157,13 @@ def compare_results(
     # Plot residuals
     # ----------
     plot_residual_histogram(
-        y_diff, path_result, "residuals_{}".format(name_fig))
+        y_diff_p, path_result, "residuals_{}".format(name_fig))
 
     # ----------
     # Plot figure
     # ----------
-    fig = plt.figure(figsize=plotting_program.cm2inch(16, 8))
+    fig = plt.figure(
+        figsize=plotting_program.cm2inch(22, 8)) #width, height
 
     # plot points
     plt.plot(
@@ -194,10 +184,8 @@ def compare_results(
         fillstyle='full',
         color='blue')
 
-    #plt.plot(
-    # x_data, y_real_indo_factored, color='gray', fillstyle='full', markeredgewidth=0.5, marker='o', markersize=10, label='TD_factored')
-    #plt.plot(
-    # x_data, y_calculated_list, color='white', fillstyle='none', markeredgewidth=0.5, marker='o', markersize=10, label='modelled')
+    #Grid
+    #plt.grid(True)
 
     plt.xlim([0, 8760])
     plt.margins(x=0)
@@ -206,7 +194,8 @@ def compare_results(
     # -------------------
     # Label x axis in dates
     # -------------------
-    major_ticks_days, major_ticks_labels = get_date_strings(x_data, daystep=7)
+    major_ticks_days, major_ticks_labels = get_date_strings(
+        x_data, daystep=2)
 
     plt.xticks(major_ticks_days, major_ticks_labels)
 
@@ -220,10 +209,11 @@ def compare_results(
         'size': 8}
 
     plt.title(
-        'RMSE: {} Std_dev: {} R_squared: {}'.format(
+        'RMSE: {} Std_dev: {} (+-{}) R_squared: {}'.format(
             round(rmse_val_corrected, 3),
             round(standard_dev_real_modelled, 3),
-            round(r_value, 4)),
+            round(standard_dev_real_modelled_abs, 3),
+            round(r_value, 3)),
         fontsize=10,
         fontdict=font_additional_info,
         loc='right')
@@ -377,6 +367,8 @@ def plot_residual_histogram(values, path_result, name_fig):
     # -----------
     # Test for normal distribution
     # https://stackoverflow.com/questions/12838993/scipy-normaltest-how-is-it-used
+    # http://www.socscistatistics.com/pvalues/chidistribution.aspx
+    # http://stattrek.com/chi-square-test/goodness-of-fit.aspx?Tutorial=AP
     # -----------
     chi_squared, p_value = stats.normaltest(values)
 
@@ -392,7 +384,8 @@ def plot_residual_histogram(values, path_result, name_fig):
     plt.xlabel('Smarts')
     plt.ylabel('Probability')
     plt.title("Residual distribution (chi_squared: {}  p_value:  {}".format(
-        round(chi_squared, 4), round(p_value, 4)),
+        round(chi_squared, 4),
+        round(p_value, 4)),
         fontsize=10,
         fontdict=font_additional_info,
         loc='right')

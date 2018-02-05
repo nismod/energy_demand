@@ -83,12 +83,12 @@ class WeatherRegion(object):
             t_diff_param['sig_midpoint'],
             t_diff_param['sig_steeppness'],
             t_diff_param['yr_until_changed'])
-        rs_t_base_cooling_cy = hdd_cdd.sigm_temp(
+        '''rs_t_base_cooling_cy = hdd_cdd.sigm_temp(
             strategy_variables['rs_t_base_cooling_future_yr'],
             t_bases['rs_t_cooling_by'], base_yr, curr_yr,
             t_diff_param['sig_midpoint'],
             t_diff_param['sig_steeppness'],
-            t_diff_param['yr_until_changed'])
+            t_diff_param['yr_until_changed'])'''
 
         ss_t_base_heating_cy = hdd_cdd.sigm_temp(
             strategy_variables['ss_t_base_heating_future_yr'],
@@ -181,17 +181,18 @@ class WeatherRegion(object):
             temp_by, t_bases['rs_t_heating_by'], model_yeardays)
         self.rs_hdd_cy, rs_fuel_shape_heating_yd = hdd_cdd.calc_reg_hdd(
             temp_cy, rs_t_base_heating_cy, model_yeardays)
-        self.rs_cdd_by, _ = hdd_cdd.calc_reg_cdd(
-            temp_by, t_bases['rs_t_cooling_by'], model_yeardays)
-        self.rs_cdd_cy, rs_fuel_shape_cooling_yd = hdd_cdd.calc_reg_cdd(
-            temp_cy, rs_t_base_cooling_cy, model_yeardays)
+        #self.rs_cdd_by, _ = hdd_cdd.calc_reg_cdd(
+        #    temp_by, t_bases['rs_t_cooling_by'], model_yeardays)
+        #self.rs_cdd_cy, rs_fuel_shape_cooling_yd = hdd_cdd.calc_reg_cdd(
+        #    temp_cy, rs_t_base_cooling_cy, model_yeardays)
 
         # -------Calculate climate change correction factors
         try:
             self.rs_heating_factor_y = np.nan_to_num(
                 1.0 / float(np.sum(self.rs_hdd_by))) * np.sum(self.rs_hdd_cy)
-            self.rs_cooling_factor_y = np.nan_to_num(
-                1.0 / float(np.sum(self.rs_cdd_by))) * np.sum(self.rs_cdd_cy)
+            #self.rs_cooling_factor_y = np.nan_to_num(
+            #    1.0 / float(np.sum(self.rs_cdd_by))) * np.sum(self.rs_cdd_cy)
+            self.rs_cooling_factor_y = 1
         except ZeroDivisionError:
             self.rs_heating_factor_y = 1
             self.rs_cooling_factor_y = 1

@@ -236,17 +236,20 @@ def calc_av_heat_pump_eff_ey(technologies, heat_pump_assump):
     ---------
     technologies : dict
         Technologies
+    heat_pump_assump : dict
+        Ditionary with split of heat pumps for every fueltype
 
     Return
     ------
     technologies : dict
         Updated technologies
     """
-    for fueltype in heat_pump_assump:
+    for fueltype, heat_pump_split in heat_pump_assump.items():
         av_eff_hps_ey = 0
 
-        for heat_pump_type in heat_pump_assump[fueltype]:
-            share_heat_pump = heat_pump_assump[fueltype][heat_pump_type]
+        for heat_pump_type, share_heat_pump in heat_pump_split.items():
+
+            # End year efficiency of heat pump
             eff_heat_pump_ey = technologies[heat_pump_type].eff_ey
 
             # Calc average values

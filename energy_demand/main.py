@@ -21,7 +21,8 @@ NICETOHAVE
 - Convert paths dict to objects
 -
 
-DISTRICT HEATING TECHS
+DISTRICT HEATING TECH
+TODO: Write function to test wheter swichtes are possible (e.g. that not more from one technology to another is replaced than possible)
 TODO: Improve industry related demand --> define strategies
 TODO: Related ed to houses & householdsize
 TODO: Define efficencies of all techsg
@@ -35,6 +36,8 @@ TODO: Load different temp --> for different years
 TODO: THECK VARIALBES IN HOUSEHOLD MODEL
 TODO: WRITE COOLING PARAMETER
 TODO: FUEL; SERVICE SWITHC AS INPUT
+TODO: Repair LOG FILE
+#WRAPPER BASE AND CURRENT YEAR GVA
 """
 import os
 import sys
@@ -161,12 +164,12 @@ if __name__ == "__main__":
     # Load data
     data = {}
     data['criterias'] = {}
-    data['criterias']['mode_constrained'] = False #constrained_by_technologies
+    data['criterias']['mode_constrained'] = True #constrained_by_technologies
     data['criterias']['plot_HDD_chart'] = False
     data['criterias']['virtual_building_stock_criteria'] = True
     data['criterias']['spatial_exliclit_diffusion'] = False
     data['criterias']['write_to_txt'] = False
-    data['criterias']['beyond_supply_outputs'] = False
+    data['criterias']['beyond_supply_outputs'] = True
     data['criterias']['plot_tech_lp'] = True
 
     data['paths'] = data_loader.load_paths(path_main)
@@ -176,7 +179,7 @@ if __name__ == "__main__":
     data['sim_param'] = {}
     data['sim_param']['base_yr'] = 2015
     data['sim_param']['curr_yr'] = data['sim_param']['base_yr']
-    data['sim_param']['simulated_yrs'] = [2015, 2050]
+    data['sim_param']['simulated_yrs'] = [2015, 2016, 2030, 2050]
 
     # local scrap
     data['lu_reg'] = data_loader.load_LAC_geocodes_info(
@@ -323,9 +326,13 @@ if __name__ == "__main__":
 
         # --------------------
         # Result unconstrained
-        # --------------------
+        # -------------------- TODO: CHECK THAT SECTORS ARE CORRECLTED USED (3, FUETLYPESE7)
         #supply_results = modelrun_obj.ed_fueltype_regs_yh #TODO: NEEDED?
         supply_results_unconstrained = modelrun_obj.ed_submodel_fueltype_regs_yh #TODO: NEEDED?
+
+        # TODO REFORMULATE BECAUSE OF SECTORS
+        supply_results_unconstrained = sum(supply_results_unconstrained[:,])
+        print("SHAPE: " + str(supply_results_unconstrained))
 
         if data['criterias']['beyond_supply_outputs']:
 

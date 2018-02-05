@@ -256,7 +256,7 @@ def write_supply_results(
     ):
     """Write model results to text as follows:
 
-        name of file: name_year_fueltype  
+        name of file: name_year_fueltype
         array in file:  np.array(region, timesteps)
 
     Arguments

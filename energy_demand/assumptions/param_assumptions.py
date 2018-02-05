@@ -189,16 +189,16 @@ def load_param_assump(paths, assumptions):
     strategy_vars['ss_t_base_heating_future_yr'] = 15.5
 
     # Cooling base temperature
-    strategy_variables.append({
+    '''strategy_variables.append({
         "name": "rs_t_base_cooling_future_yr",
         "absolute_range": (0, 25),
         "description": "Base temperature assumption residential sector cooling",
         "suggested_range": (13, 17),
         "default_value": assumptions['t_bases']['rs_t_cooling_by'],
-        "units": '°C'})
+        "units": '°C'})'''
 
     # Future base year temperature
-    strategy_vars['rs_t_base_cooling_future_yr'] = 21
+    strategy_vars['rs_t_base_cooling_future_yr'] = 5
 
     strategy_variables.append({
         "name": "ss_t_base_cooling_future_yr",
@@ -314,7 +314,7 @@ def load_param_assump(paths, assumptions):
 
     # How much of the floorarea is cooled in end year (example: 0.5 --> 50% of floorarea is cooled)
     # Carbon Trust. (2012). Air conditioning. Maximising comfort, minimising energy consumption.
-    strategy_vars['cooled_floorarea__ss_cooling_humidification'] = 0.4
+    strategy_vars['cooled_floorarea__ss_cooling_humidification'] = 0.35
 
     # Year until floor area change is fully realised
     strategy_vars['cooled_floorarea_yr_until_changed'] = yr_until_changed_all_things

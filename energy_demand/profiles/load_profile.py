@@ -575,10 +575,8 @@ def calc_av_lp(demand_yh, seasons, model_yeardays_daytype):
         new_data_dh = demand_yh[yearday]
         existing_array = season_daytypes[season][daytype_yearday]
 
-        stacked_array = np.vstack([existing_array, new_data_dh])
-
         # Add to dict
-        season_daytypes[season][daytype_yearday] = stacked_array
+        season_daytypes[season][daytype_yearday] = np.vstack([existing_array, new_data_dh])
 
     # -----------------------------
     # Calculate average of all dict

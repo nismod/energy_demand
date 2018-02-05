@@ -169,7 +169,8 @@ class Dwelling(object):
                     for scenario_driver in scenario_drivers:
                         scenario_driver_value *= getattr(self, scenario_driver) #: sum drivers
                 except TypeError:
-                    logging.info("Scenario driver `%s` calculation not possible", scenario_driver)
+                    #logging.info("Scenario driver `%s` calculation not possible", scenario_driver)
+                    pass
 
                 Dwelling.__setattr__(
                     self,

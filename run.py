@@ -31,7 +31,7 @@ from energy_demand.profiles import hdd_cdd
 
 # must match smif project name for Local Authority Districts
 REGION_SET_NAME = 'lad_uk_2016'
-NR_OF_MODELLEd_REGIONS = 391 # uk: 391, england.: 380
+NR_OF_MODELLEd_REGIONS = 2 # uk: 391, england.: 380
 
 class EDWrapper(SectorModel):
     """Energy Demand Wrapper
@@ -54,14 +54,14 @@ class EDWrapper(SectorModel):
         data = defaultdict(dict, data)
 
         # Criteria
-        data['criterias']['mode_constrained'] = False                    # True: Technologies are defined in ED model and fuel is provided, False: Heat is delievered not per technologies
+        data['criterias']['mode_constrained'] = True                    # True: Technologies are defined in ED model and fuel is provided, False: Heat is delievered not per technologies
         data['criterias']['virtual_building_stock_criteria'] = True     # True: Run virtual building stock model
         data['criterias']['plot_HDD_chart'] = False                     # True: Plotting of HDD vs gas chart
         data['criterias']['validation_criteria'] = False                 # True: Plot validation plots
         data['criterias']['spatial_exliclit_diffusion'] = False         # True: Spatial explicit calculations
-        data['criterias']['writeYAML'] = False
+        data['criterias']['writeYAML'] = False                          # Parameter to create SMIF files
         data['criterias']['write_to_txt'] = True
-        data['criterias']['beyond_supply_outputs'] = False              # If only for smif: FAlse, for other plots: True
+        data['criterias']['beyond_supply_outputs'] = True              # If only for smif: FAlse, for other plots: True
         data['criterias']['plot_crit'] = True
         data['criterias']['plot_tech_lp'] = True
 
@@ -206,7 +206,7 @@ class EDWrapper(SectorModel):
             data['assumptions']['technologies'],
             data['assumptions']['strategy_variables']['eff_achiev_f'],
             data['assumptions']['strategy_variables']['split_hp_gshp_to_ashp_ey'])
-
+        
         # ------------------------
         # Pass along to simulate()
         # ------------------------
@@ -321,7 +321,6 @@ class EDWrapper(SectorModel):
         data = self.pass_to_simulate(data, self.user_data['fuel_disagg'])
         data['assumptions'] = self.pass_to_simulate(data['assumptions'], self.user_data['init_cont'])
 
-
         # Update: Necessary updates after external data definition
         data['assumptions']['technologies'] = non_param_assumptions.update_assumptions(
             data['assumptions']['technologies'],
@@ -418,26 +417,46 @@ class EDWrapper(SectorModel):
                         path_result=path_folder_lp,
                         ed_yh=ed_yh[data['lookups']['fueltypes']['electricity']],
                         days_to_plot=winter_week)
+            # print("DDDDDDDDD")
+            '''print(sim_obj.ed_fueltype_regs_yh.shape)
+            print(sim_obj.tot_fuel_y_enduse_specific_yh.shape)
+            print(sim_obj.reg_load_factor_y.shape)
+            print(sim_obj.tot_peak_enduses_fueltype.shape)
+            print(sim_obj.reg_load_factor_yd.shape)'''
 
-            path_run = data['local_paths']['data_results_model_runs']
             write_data.write_supply_results(
-                timestep, "result_tot_yh", path_run, sim_obj.ed_fueltype_regs_yh, "result_tot_submodels_fueltypes")
+                timestep,
+                "result_tot_yh",
+                data['local_paths']['data_results_model_runs'],
+                sim_obj.ed_fueltype_regs_yh,
+                "result_tot_submodels_fueltypes")
             write_data.write_enduse_specific(
-                timestep, path_run, sim_obj.tot_fuel_y_enduse_specific_yh, "out_enduse_specific")
+                timestep,
+                data['local_paths']['data_results_model_runs'],
+                sim_obj.tot_fuel_y_enduse_specific_yh,
+                "out_enduse_specific")
             write_data.write_max_results(
-                timestep, path_run, "result_tot_peak_enduses_fueltype", sim_obj.tot_peak_enduses_fueltype, "tot_peak_enduses_fueltype")
+                timestep, data['local_paths']['data_results_model_runs'],
+                "result_tot_peak_enduses_fueltype", sim_obj.tot_peak_enduses_fueltype,
+                "tot_peak_enduses_fueltype")
             write_data.write_lf(
-                path_run, "result_reg_load_factor_y", [timestep], sim_obj.reg_load_factor_y, 'reg_load_factor_y')
+                data['local_paths']['data_results_model_runs'], "result_reg_load_factor_y",
+                [timestep], sim_obj.reg_load_factor_y, 'reg_load_factor_y')
             write_data.write_lf(
-                path_run, "result_reg_load_factor_yd", [timestep], sim_obj.reg_load_factor_yd, 'reg_load_factor_yd')
+                data['local_paths']['data_results_model_runs'], "result_reg_load_factor_yd",
+                [timestep], sim_obj.reg_load_factor_yd, 'reg_load_factor_yd')
             write_data.write_lf(
-                path_run, "result_reg_load_factor_winter", [timestep], sim_obj.reg_seasons_lf['winter'], 'reg_load_factor_winter')
+                data['local_paths']['data_results_model_runs'], "result_reg_load_factor_winter",
+                [timestep], sim_obj.reg_seasons_lf['winter'], 'reg_load_factor_winter')
             write_data.write_lf(
-                path_run, "result_reg_load_factor_spring", [timestep], sim_obj.reg_seasons_lf['spring'], 'reg_load_factor_spring')
+                data['local_paths']['data_results_model_runs'], "result_reg_load_factor_spring",
+                [timestep], sim_obj.reg_seasons_lf['spring'], 'reg_load_factor_spring')
             write_data.write_lf(
-                path_run, "result_reg_load_factor_summer", [timestep], sim_obj.reg_seasons_lf['summer'], 'reg_load_factor_summer')
+                data['local_paths']['data_results_model_runs'], "result_reg_load_factor_summer",
+                [timestep], sim_obj.reg_seasons_lf['summer'], 'reg_load_factor_summer')
             write_data.write_lf(
-                path_run, "result_reg_load_factor_autumn", [timestep], sim_obj.reg_seasons_lf['autumn'], 'reg_load_factor_autumn')
+                data['local_paths']['data_results_model_runs'], "result_reg_load_factor_autumn",
+                [timestep], sim_obj.reg_seasons_lf['autumn'], 'reg_load_factor_autumn')
             logging.info("... finished writing results to file")
 
         # ------------------------------------
@@ -446,12 +465,12 @@ class EDWrapper(SectorModel):
         # Form of np.array(fueltype, sectors, region, periods)
         results_unconstrained = sim_obj.ed_submodel_fueltype_regs_yh
         #write_data.write_supply_results(
-        # ['rs_submodel', 'ss_submodel', 'is_submodel'],timestep, path_run, results_unconstrained, "results_unconstrained")
+        # ['rs_submodel', 'ss_submodel', 'is_submodel'],timestep, data['local_paths']['data_results_model_runs'], results_unconstrained, "results_unconstrained")
 
         # Form of {constrained_techs: np.array(fueltype, sectors, region, periods)}
         results_constrained = sim_obj.ed_techs_submodel_fueltype_regs_yh
         #write_data.write_supply_results(
-        # ['rs_submodel', 'ss_submodel', 'is_submodel'], timestep, path_run, results_unconstrained, "results_constrained")
+        # ['rs_submodel', 'ss_submodel', 'is_submodel'], timestep, data['local_paths']['data_results_model_runs'], results_unconstrained, "results_constrained")
 
         # --------------------------------------------------------
         # Reshape day and hours to yearhous (from (365, 24) to 8760)
@@ -709,8 +728,7 @@ def constrained_results(
 
             if key_name in supply_results.keys():
 
-                # Iterate over reigons and add fuel
-                # Do not replace by +=
+                # Iterate over reigons and add fuel (Do not replace by +=)
                 for region_nr, _ in enumerate(regions):
                     supply_results[key_name][region_nr] = supply_results[key_name][region_nr] + fuel_tech[submodel_nr][region_nr][fueltype_int]
             else:
@@ -737,16 +755,18 @@ def constrained_results(
         for fueltype_str, fueltype_int in fueltypes.items():
 
             if fueltype_str == 'heat':
-                #Do not add non_heating demand for fueltype heat
-                pass
+                pass #Do not add non_heating demand for fueltype heat
             else:
                 # Generate key name (must be defined in `sector_models`)
-                key_name = "{}_{}_{}".format(submodel, fueltype_str, "non_heating")
+                key_name = "{}_{}_{}".format(
+                    submodel, fueltype_str, "non_heating")
 
                 # Iterate regions and add fuel
                 supply_results[key_name] = np.zeros((len(regions), model_yearhours_nrs))
                 for region_nr, _ in enumerate(regions):
                     supply_results[key_name][region_nr] = non_heating_ed[submodel_nr][region_nr][fueltype_int]
+                # Test without iterating
+                #supply_results[key_name][region_nr] = non_heating_ed[submodel_nr][:, 0]
 
     logging.info("Prepared results for energy supply model in constrained mode")
     return dict(supply_results)
