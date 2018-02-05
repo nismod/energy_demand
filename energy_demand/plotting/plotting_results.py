@@ -1,6 +1,7 @@
 """Plotting model results and storing as PDF to result folder
 """
 import os
+import sys
 import logging
 import numpy as np
 import matplotlib.pyplot as plt
@@ -57,21 +58,24 @@ def run_all_plot_functions(
         sim_param['simulated_yrs'],
         results_container['results_enduse_every_year'],
         enduses['rs_all_enduses'],
-        os.path.join(local_paths['data_results_PDF'], "stacked_rs_country.pdf"))
+        os.path.join(
+            local_paths['data_results_PDF'],"stacked_rs_country.pdf"))
 
     # Service
     plt_stacked_enduse(
         sim_param['simulated_yrs'],
         results_container['results_enduse_every_year'],
         enduses['ss_all_enduses'],
-        os.path.join(local_paths['data_results_PDF'], "stacked_ss_country.pdf"))
+        os.path.join(
+            local_paths['data_results_PDF'], "stacked_ss_country.pdf"))
 
     # Industry
     plt_stacked_enduse(
         sim_param['simulated_yrs'],
         results_container['results_enduse_every_year'],
         enduses['is_all_enduses'],
-        os.path.join(local_paths['data_results_PDF'], "stacked_is_country_.pdf"))
+        os.path.join(
+            local_paths['data_results_PDF'], "stacked_is_country_.pdf"))
 
     # ------------------------------
     # Plot annual demand for enduses for all submodels
@@ -338,7 +342,9 @@ def plot_seasonal_lf(
     # ------------
     plt.legend(
         ncol=2,
-        prop={'family': 'arial','size': 8},
+        prop={
+            'family': 'arial',
+            'size': 5},
         loc='best',
         frameon=False)
     '''recs = []
@@ -455,13 +461,18 @@ def plot_lf_y(
     plt.savefig(path_plot_fig)
     plt.close()
 
-def plt_stacked_enduse(years_simulated, results_enduse_every_year, enduses_data, fig_name):
+def plt_stacked_enduse(
+        years_simulated,
+        results_enduse_every_year,
+        enduses_data,
+        fig_name
+    ):
     """Plots stacked energy demand
 
     Arguments
     ----------
-    data : dict
-        Data container
+    years_simulated : list
+        Simulated years
     results_enduse_every_year : dict
         Results [year][enduse][fueltype_array_position]
 
@@ -472,36 +483,62 @@ def plt_stacked_enduse(years_simulated, results_enduse_every_year, enduses_data,
     Note
     ----
         -   Sum across all fueltypes
+        -   Not possible to plot single year
 
-    # INFO Cannot plot a single year?
+    https://matplotlib.org/examples/pylab_examples/stackplot_demo.html
     """
-    x_data = np.array(years_simulated)
-    y_data = np.zeros((len(enduses_data), len(years_simulated), ))
+    nr_of_modelled_years = len(years_simulated)
 
+    x_data = np.array(years_simulated)
+
+    y_value_arrays = []
     legend_entries = []
+
     for enduse_array_nr, enduse in enumerate(enduses_data):
         legend_entries.append(enduse)
+
+        y_values_enduse_yrs = np.zeros((nr_of_modelled_years))
 
         for year_array_nr, model_year in enumerate(results_enduse_every_year.keys()):
 
             # Sum across all fueltypes
-            sum_across_fueltypes = np.sum(results_enduse_every_year[model_year][enduse])
+            tot_across_fueltypes = np.sum(results_enduse_every_year[model_year][enduse])
 
             # Conversion: Convert GWh per years to GW
-            yearly_sum_twh = conversions.gwh_to_twh(sum_across_fueltypes)
+            yearly_sum_twh = conversions.gwh_to_twh(tot_across_fueltypes)
 
-            y_data[enduse_array_nr][year_array_nr] += yearly_sum_twh #yearly_sum_gw
+            logging.debug("... model_year {} enduse {}  twh {}".format(
+                model_year, enduse, np.sum(yearly_sum_twh)))
 
-            print("summing:  ...  model_year {} enduse {}  twh {}".format(model_year, enduse, np.sum(yearly_sum_twh)))
+            if yearly_sum_twh < 0:
+                print("no minus values allowed {}  {}  {}".format(enduse, yearly_sum_twh, model_year))
+                sys.exit("ERROR")
+
+            y_values_enduse_yrs[year_array_nr] = yearly_sum_twh
+
+        # Add array with values for every year to list
+        y_value_arrays.append(y_values_enduse_yrs)
+
+    # Convert to stacked
+    y_stacked = np.row_stack((y_value_arrays))
 
     # Set figure size
-    fig = plt.figure(figsize=plotting_program.cm2inch(8, 8))
+    fig = plt.figure(
+        figsize=plotting_program.cm2inch(8, 8))
+
     ax = fig.add_subplot(1, 1, 1)
 
     color_list = [
-        'darkturquoise', 'orange', 'firebrick',
-        'darkviolet', 'khaki', 'olive', 'darkseagreen',
-        'darkcyan', 'indianred', 'darkblue',
+        'darkturquoise',
+        'orange',
+        'firebrick',
+        'darkviolet',
+        'khaki',
+        'olive',
+        'darkseagreen',
+        'darkcyan',
+        'indianred',
+        'darkblue',
         'orchid',
         'gainsboro',
         'mediumseagreen',
@@ -524,36 +561,24 @@ def plt_stacked_enduse(years_simulated, results_enduse_every_year, enduses_data,
     # ----------
     # Stack plot
     # ----------
-    colors = tuple(color_list[:len(enduses_data)])
+    color_stackplots = color_list[:len(enduses_data)]
 
-    stack_plot = ax.stackplot(
+    ax.stackplot(
         x_data,
-        y_data,
-        colors=colors)
+        y_stacked,
+        colors=color_stackplots)  #y_value_arrays
+    #ax.stackplot(x, y1, y2, y3, labels=labels)
 
-    # -------
-    # Legend
-    # -------
-    # Get color of stacks in stackplot
-    color_stackplots = [mpl.patches.Rectangle((0, 0), 0, 0, facecolor=pol.get_facecolor()[0]) for pol in stack_plot]
-
-    '''plt.legend(
-        color_stackplots,
+    plt.legend(
         legend_entries,
+        prop={
+            'family':'arial',
+            'size': 5},
         ncol=2,
-        loc='best',
-        frameon=False)'''
-
-    # Put a legend below current axis
-    ax.legend(
-        color_stackplots,
-        legend_entries,
         loc='upper center',
         bbox_to_anchor=(0.5, -0.05),
-        prop={'family': 'arial', 'size': 3},
         frameon=False,
-        shadow=True,
-        ncol=2)
+        shadow=True)
 
     # -------
     # Axis
@@ -563,9 +588,9 @@ def plt_stacked_enduse(years_simulated, results_enduse_every_year, enduses_data,
     # -------
     # Labels
     # -------
-    plt.ylabel("GW")
-    plt.xlabel("year")
-    plt.title("ED whole UK")
+    plt.ylabel("TWh", fontsize=10)
+    plt.xlabel("Year", fontsize=10)
+    plt.title("ED whole UK", fontsize=10)
 
     # Tight layout
     plt.tight_layout()
@@ -607,9 +632,9 @@ def plt_stacked_enduse_sectors(
 
     # Set figure size
     fig = plt.figure(figsize=plotting_program.cm2inch(8, 8))
+
     ax = fig.add_subplot(1, 1, 1)
 
-    #for submodel in (rs_enduses, ss_enduses, is_enduses):
     for model_year, data_model_run in enumerate(results_enduse_every_year.values()):
 
         submodel = 0
@@ -626,7 +651,6 @@ def plt_stacked_enduse_sectors(
             for enduse in ss_enduses:
 
                 # Conversion: Convert gwh per years to gw
-
                 yearly_sum_gw = np.sum(data_model_run[enduse][fueltype_int])
                 yearly_sum_twh = conversions.gwh_to_twh(yearly_sum_gw)
                 y_data[submodel][model_year] += yearly_sum_twh #yearly_sum_gw
@@ -640,43 +664,41 @@ def plt_stacked_enduse_sectors(
                 yearly_sum_twh = conversions.gwh_to_twh(yearly_sum_gw)
                 y_data[submodel][model_year] += yearly_sum_twh #yearly_sum_gw
 
+    # Convert to stack
+    y_stacked = np.row_stack((y_data))
+
     ##import matplotlib.colors as colors #for color_name in colors.cnmaes:
-    color_list = ['darkturquoise', 'orange', 'firebrick']
+    color_stackplots = ['darkturquoise', 'orange', 'firebrick']
 
     # ----------
     # Stack plot
     # ----------
-    colors = tuple(color_list)
-    stack_plot = ax.stackplot(x_data, y_data, colors=colors)
+    ax.stackplot(
+        x_data,
+        y_stacked,
+        colors=color_stackplots)
 
     # ------------
     # Plot color legend with colors for every SUBMODEL
     # ------------
-    recs = []
-    for color_nr in range(0, len(colors)):
-        recs.append(mpatches.Rectangle((0, 0), 1, 1, fc=colors[color_nr], alpha=1.0))
-
+    '''recs = []
+    for color_nr in range(0, len(color_stackplots)):
+        recs.append(mpatches.Rectangle((0, 0), 1, 1, fc=color_stackplots[color_nr], alpha=1.0))'''
     leg_labels = ['residential', 'service', 'industry']
 
     plt.legend(
-        recs,
+        #recs,
         leg_labels,
         ncol=1,
-        prop={'family': 'arial','size': 8},
+        prop={
+            'family': 'arial',
+            'size': 5},
         loc='best',
         frameon=False)
 
     # -------
     # Axis
     # -------
-    '''base_yr, year_interval = 2015, 5
-    end_yr = list(years_simulated)
-
-    major_ticks = np.arange(
-        base_yr, end_yr[-1] + year_interval, year_interval)
-
-    plt.xticks(major_ticks, major_ticks)'''
-
     plt.xticks(years_simulated, years_simulated)
     plt.axis('tight')
 
@@ -792,7 +814,12 @@ def plt_fuels_enduses_week(
     
     plt.axis('tight')
 
-    plt.legend(ncol=2, frameon=False)
+    plt.legend(
+        ncol=2,
+        frameon=False,
+        prop={
+            'family': 'arial',
+            'size': 10},)
 
     plt.ylabel("GW")
     plt.xlabel("day")
@@ -869,7 +896,7 @@ def plt_fuels_enduses_y(results, lookups, fig_name):
         plt.plot(
             list(fuel_fueltype_yrs.keys()), #years
             list(fuel_fueltype_yrs.values()), #yearly data per fueltype
-            linestyle=linestyles[counter],
+            #linestyle=linestyles[counter],
             color=color_line,
             label=fueltype_str)
 
@@ -884,7 +911,9 @@ def plt_fuels_enduses_y(results, lookups, fig_name):
     plt.legend(
         ncol=2,
         loc=2,
-        prop={'family': 'arial','size': 8},
+        prop={
+            'family': 'arial',
+            'size': 10},
         frameon=False)
 
     # ---------
@@ -897,7 +926,7 @@ def plt_fuels_enduses_y(results, lookups, fig_name):
     # Tight layout
     plt.tight_layout()
     plt.margins(x=0)
-
+    plt.show()
     # Save fig
     plt.savefig(fig_name)
     plt.close()
@@ -951,7 +980,7 @@ def plt_fuels_peak_h(tot_fuel_dh_peak, lookups, path_plot_fig):
         plt.plot(
             years,
             y_init[fueltype],
-            linestyle=linestyles[fueltype],
+            #linestyle=linestyles[fueltype],
             linewidth=0.7)
 
     # Legend
@@ -1172,7 +1201,8 @@ def plot_load_profile_dh_multiple(
                 calc_av_lp_real[season][daytype])
 
             # Calculate standard deviation
-            std_dev = np.std(calc_av_lp_real[season][daytype] - calc_av_lp_modelled[season][daytype])
+            std_dev_p = np.std(calc_av_lp_real[season][daytype] - calc_av_lp_modelled[season][daytype])
+            std_dev_abs = np.std(abs(calc_av_lp_real[season][daytype] - calc_av_lp_modelled[season][daytype]))
 
             # -----------
             # Labelling
@@ -1184,7 +1214,12 @@ def plot_load_profile_dh_multiple(
                 'size': 8}
 
             title_info = ('{}, {}'.format(season, daytype))
-            plt.text(1, 0.55, "RMSE: {}, R_squared: {}, std: {}".format(round(rmse, 2), round(r_value, 2), round(std_dev, 2)), fontdict=font_additional_info)
+            plt.text(1, 0.55, "RMSE: {}, R_squared: {}, std: {} (+- {})".format(
+                round(rmse, 2),
+                round(r_value, 2),
+                round(std_dev_p, 2),
+                round(std_dev_abs, 2),
+                fontdict=font_additional_info))
             plt.title(title_info, loc='left', fontdict=font_additional_info)
             #plt.ylabel("hours")
             #plt.ylabel("average electricity [GW]")
@@ -1195,7 +1230,9 @@ def plot_load_profile_dh_multiple(
     plt.legend(
         ncol=1,
         loc=2,
-        prop={'family': 'arial', 'size': 8},
+        prop={
+            'family': 'arial',
+            'size': 5},
         frameon=False)
 
     # Tight layout
@@ -1310,8 +1347,6 @@ def plot_lp_yh(data_dh_modelled):
 
     # Save fig
     plt.show()
-    #plt.savefig(path_fig_name)
-    #plt.close()
 
 def plot_lp_yd(data_dh_modelled):
     """plot yearly profile
@@ -1336,8 +1371,6 @@ def plot_lp_yd(data_dh_modelled):
     plt.margins(x=0)
 
     plt.show()
-    #plt.savefig(path_fig_name)
-    #plt.close()
 
     #creating a timer object and setting an interval
     timer = fig.canvas.new_timer(interval = 1500)

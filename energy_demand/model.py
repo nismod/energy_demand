@@ -324,7 +324,7 @@ def aggr_fuel_aggr(
 
             fuels = get_fuels_yh(
                 enduse_object,
-                attribute_technologies, #'techs_fuel_yh',
+                attribute_technologies, #'techs_fuel_yh'
                 model_yearhours_nrs,
                 model_yeardays_nrs)
 
@@ -336,7 +336,7 @@ def aggr_fuel_aggr(
                 # Fuel per technology
                 fuels = get_fuels_yh(
                     enduse_object,
-                    attribute_non_technology, #'fuel_yh',
+                    attribute_non_technology, #'fuel_yh'
                     model_yearhours_nrs,
                     model_yeardays_nrs)
                 input_array += fuels
@@ -492,6 +492,7 @@ def industry_submodel(
                 enduse=enduse,
                 sector=sector,
                 fuel=region.is_enduses_sectors_fuels[enduse][sector],
+                service_tech_by_p=assumptions['is_service_tech_by_p'][sector][enduse],
                 tech_stock=region.is_tech_stock,
                 heating_factor_y=region.is_heating_factor_y,
                 cooling_factor_y=region.is_cooling_factor_y,
@@ -506,7 +507,6 @@ def industry_submodel(
                 fueltypes_nr=lookups['fueltypes_nr'],
                 fueltypes=lookups['fueltypes'],
                 model_yeardays_nrs=assumptions['model_yeardays_nrs'],
-        
                 reg_scen_drivers=assumptions['scenario_drivers']['is_submodule'],
                 flat_profile_crit=flat_profile_crit)
 
@@ -581,6 +581,7 @@ def residential_submodel(
                 enduse=enduse,
                 sector=sector,
                 fuel=region.rs_enduses_fuel[enduse],
+                service_tech_by_p=assumptions['rs_service_tech_by_p'][enduse],
                 tech_stock=region.rs_tech_stock,
                 heating_factor_y=region.rs_heating_factor_y,
                 cooling_factor_y=region.rs_cooling_factor_y,
@@ -635,7 +636,7 @@ def service_submodel(
     for sector in sectors:
         for enduse in enduses:
 
-            # Change if single or muplite region
+            # Change if single or muplite region #TODO SECTOR SPECIFIC
             if criterias['spatial_exliclit_diffusion']:
                 service_switches = assumptions['ss_service_switch'][enduse][region.name]
                 sig_param_tech = assumptions['ss_sig_param_tech'][enduse][region.name]
@@ -643,12 +644,17 @@ def service_submodel(
                 tech_decreased_service = assumptions['ss_tech_decreased_service'][enduse][region.name]
                 tech_constant_service = assumptions['ss_tech_constant_service'][enduse][region.name]
             else:
-                service_switches = assumptions['ss_service_switch'][enduse]
+                '''service_switches = assumptions['ss_service_switch'][enduse]
                 sig_param_tech = assumptions['ss_sig_param_tech'][enduse]
                 tech_increased_service = assumptions['ss_tech_increased_service'][enduse]
                 tech_decreased_service = assumptions['ss_tech_decreased_service'][enduse]
-                tech_constant_service = assumptions['ss_tech_constant_service'][enduse]
+                tech_constant_service = assumptions['ss_tech_constant_service'][enduse]'''
 
+                service_switches = assumptions['ss_service_switch'][enduse][sector]
+                sig_param_tech = assumptions['ss_sig_param_tech'][enduse][sector]
+                tech_increased_service = assumptions['ss_tech_increased_service'][enduse][sector]
+                tech_decreased_service = assumptions['ss_tech_decreased_service'][enduse][sector]
+                tech_constant_service = assumptions['ss_tech_constant_service'][enduse][sector]
             # Create submodule
             submodel = endusefunctions.Enduse(
                 region_name=region.name,
@@ -661,6 +667,9 @@ def service_submodel(
                 enduse=enduse,
                 sector=sector,
                 fuel=region.ss_enduses_sectors_fuels[enduse][sector],
+                #service_tech_by_p=assumptions['ss_service_tech_by_p'][enduse],
+                service_tech_by_p=assumptions['ss_service_tech_by_p'][sector][enduse], #SECTOR SPECIFIC
+                #service_by_ey_f=assumptions['ss_servic_by_ey_factor'],
                 tech_stock=region.ss_tech_stock,
                 heating_factor_y=region.ss_heating_factor_y,
                 cooling_factor_y=region.ss_cooling_factor_y,
@@ -990,7 +999,7 @@ def aggregate_final_results(
                 model_yearhours_nrs,
                 fueltypes_nr,
                 model_yeardays_nrs,
-                'fuel_yh', 
+                'fuel_yh',
                 'techs_fuel_yh',
                 technologies)
 

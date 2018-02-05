@@ -5,6 +5,7 @@ import operator
 import logging
 import numpy as np
 import matplotlib.pyplot as plt
+from scipy import stats
 from energy_demand.basic import conversions
 from energy_demand.profiles import generic_shapes
 from energy_demand.plotting import plotting_program
@@ -70,14 +71,14 @@ def temporal_validation(
         date_prop.date_to_yearday(2015, 10, 12), date_prop.date_to_yearday(2015, 10, 19))) #Oct
 
     # TWO WEEKS
-    winter_week = list(range(
+    '''winter_week = list(range(
         date_prop.date_to_yearday(2015, 1, 5), date_prop.date_to_yearday(2015, 1, 19))) #Jan
     spring_week = list(range(
         date_prop.date_to_yearday(2015, 5, 4), date_prop.date_to_yearday(2015, 5, 18))) #May
     summer_week = list(range(
         date_prop.date_to_yearday(2015, 7, 6), date_prop.date_to_yearday(2015, 7, 20))) #Jul
     autumn_week = list(range(
-        date_prop.date_to_yearday(2015, 10, 5), date_prop.date_to_yearday(2015, 10, 19))) #Oct
+        date_prop.date_to_yearday(2015, 10, 5), date_prop.date_to_yearday(2015, 10, 19))) #Oct'''
 
     days_to_plot = winter_week + spring_week + summer_week + autumn_week
 
@@ -293,12 +294,10 @@ def spatial_validation(
                 try:
                     # Test wheter data is provided for LAD
                     if subnational_elec[reg_geocode] == 0:
-                        # Ignore region
-                        pass
+                        pass # Ignore region
                     else:
                         # --Sub Regional Electricity demand
-                        gw_per_region_real = subnational_elec[reg_geocode]
-                        result_dict['real_demand'][reg_geocode] = gw_per_region_real
+                        result_dict['real_demand'][reg_geocode] = subnational_elec[reg_geocode]
 
                         # Convert GWh to GW
                         gw_per_region_modelled = np.sum(ed_fueltype_regs_yh[fueltype_int][region_array_nr])
@@ -309,10 +308,15 @@ def spatial_validation(
                     logging.warning(
                         "Sub-national spatial validation: No fuel is availalbe for region %s", reg_geocode)
 
+    logging.info("Comparison: modelled: {}  real: {}".format(
+        sum(result_dict['modelled_demand'].values()),
+        sum(result_dict['real_demand'].values())))
+
     # --------------------
     # Calculate statistics
     # --------------------
     all_diff_real_modelled_p = []
+    all_diff_real_modelled_abs = []
 
     for reg_geocode in lu_reg:
         try:
@@ -321,6 +325,7 @@ def spatial_validation(
 
             diff_real_modelled_p = (100/real) * modelled
             all_diff_real_modelled_p.append(diff_real_modelled_p)
+            all_diff_real_modelled_abs.append(real - modelled)
         except KeyError:
             pass
 
@@ -328,7 +333,8 @@ def spatial_validation(
     av_deviation_real_modelled = np.mean(all_diff_real_modelled_p)
 
     # Calculate standard deviation
-    standard_dev_real_modelled = np.std(all_diff_real_modelled_p)
+    std_dev_p = np.std(all_diff_real_modelled_p)
+    std_dev_abs = np.std(all_diff_real_modelled_abs)
 
     # RMSE calculations
     rmse_value = basic_functions.rmse(
@@ -345,7 +351,9 @@ def spatial_validation(
     # -------------------------------------
     # Plot
     # -------------------------------------
-    fig = plt.figure(figsize=plotting_program.cm2inch(17, 10))
+    fig = plt.figure(
+        figsize=plotting_program.cm2inch(9, 8)) #width, height (9, 8)
+
     ax = fig.add_subplot(1, 1, 1)
 
     x_values = np.arange(0, len(sorted_dict_real_elec_demand), 1)
@@ -355,17 +363,27 @@ def spatial_validation(
 
     labels = []
     for sorted_region in sorted_dict_real_elec_demand:
-        y_real_elec_demand.append(result_dict['real_demand'][sorted_region[0]])
-        y_modelled_elec_demand.append(result_dict['modelled_demand'][sorted_region[0]])
+
+        geocode_lad = sorted_region[0]
+
+        y_real_elec_demand.append(
+            result_dict['real_demand'][geocode_lad])
+        y_modelled_elec_demand.append(
+            result_dict['modelled_demand'][geocode_lad])
+
         logging.debug(
             "validation for LAD region: %s %s diff: %s",
-            result_dict['real_demand'][sorted_region[0]],
-            result_dict['modelled_demand'][sorted_region[0]],
-            result_dict['modelled_demand'][sorted_region[0]] - result_dict['real_demand'][sorted_region[0]])
+            result_dict['real_demand'][geocode_lad],
+            result_dict['modelled_demand'][geocode_lad],
+            result_dict['modelled_demand'][geocode_lad] - result_dict['real_demand'][geocode_lad])
 
         # Labels
-        geocode_lad = sorted_region[0]
         labels.append(geocode_lad)
+
+    # Calculate r_squared
+    _slope, _intercept, r_value, _p_value, _std_err = stats.linregress(
+        y_real_elec_demand,
+        y_modelled_elec_demand)
 
     # --------
     # Axis
@@ -385,7 +403,7 @@ def spatial_validation(
         y_real_elec_demand,
         linestyle='None',
         marker='o',
-        markersize=1.3,
+        markersize=1.6,
         fillstyle='full',
         markerfacecolor='grey',
         markeredgewidth=0.2,
@@ -397,7 +415,7 @@ def spatial_validation(
         y_modelled_elec_demand,
         marker='o',
         linestyle='None',
-        markersize=1.3,
+        markersize=1.6,
         markerfacecolor='white',
         fillstyle='none',
         markeredgewidth=0.5,
@@ -412,8 +430,6 @@ def spatial_validation(
     # Labelling
     # -----------
     if label_points:
-
-        # Add plots to electricity
         for pos, txt in enumerate(labels):
             #ax.annotate(txt, x_values[pos], y_modelled_elec_demand[pos])¨#if arrow wants to be added
             ax.text(
@@ -425,12 +441,15 @@ def spatial_validation(
                 fontsize=3)
 
     font_additional_info = {
-        'family': 'arial', 'color': 'black', 'weight': 'normal', 'size': 8}
-    title_info = ('RMSE: {}, d_real_model: {}, reg_nr: {}, std_dev: {}'.format(
-        round(rmse_value, 3),
-        round(av_deviation_real_modelled, 3),
-        len(y_real_elec_demand),
-        round(standard_dev_real_modelled, 3)))
+        'family': 'arial',
+        'color': 'black',
+        'weight': 'normal',
+        'size': 8}
+
+    title_info = ('r_value: {},std_dev: {} ({})'.format(
+        round(r_value, 3),
+        round(std_dev_p, 3),
+        round(std_dev_abs, 3)))
 
     plt.title(
         title_info,
@@ -444,18 +463,20 @@ def spatial_validation(
     # Legend
     # --------
     plt.legend(
-        prop={'family': 'arial', 'size': 8},
+        prop={
+            'family': 'arial',
+            'size': 8},
         frameon=False)
 
     # Tight layout
     plt.margins(x=0)
     plt.tight_layout()
+    plt.savefig(fig_name)
 
     if plotshow:
         plt.show()
-    # Save fig
-    plt.savefig(fig_name)
-    plt.close()
+    else:
+        plt.close()
 
 '''def correction_uk_northern_ireland_2015():
     """Not used yet

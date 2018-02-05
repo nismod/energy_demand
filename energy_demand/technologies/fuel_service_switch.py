@@ -207,11 +207,6 @@ def capacity_installations(
     -------
     Capacity switches overwrite existing service switches
     """
-    # -------------------------------------
-    # Assign correct fuel shares and fuels
-    # -------------------------------------
-    service_switches = [] # List to store service switches
-
     # Get all affected enduses of capacity switches
     switch_enduses = set([])
     for switch in capacity_switches:
@@ -221,6 +216,8 @@ def capacity_installations(
     if switch_enduses == []:
         pass # not capacity switch defined
     else:
+        service_switches = [] # List to store service switches
+
         for enduse in switch_enduses:
 
             # Get all capacity switches related to this enduse

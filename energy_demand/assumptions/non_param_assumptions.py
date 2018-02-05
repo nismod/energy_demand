@@ -56,8 +56,8 @@ def load_non_param_assump(
     #       is_weekend_factor : float
     #           Weekend effect for industry submodel enduses
     # ------------------------------------------------------------
-    assumptions['ss_t_cooling_weekend_factor'] = 0.6    # 0.6
-    assumptions['ss_weekend_factor'] = 0.8              # 0.8
+    assumptions['ss_t_cooling_weekend_factor'] = 0.5    # 0.6
+    assumptions['ss_weekend_factor'] = 0.7              # 0.8
     assumptions['is_weekend_factor'] = 0.4              # 0.4
 
     # ============================================================
@@ -235,7 +235,7 @@ def load_non_param_assump(
     # ------------------------------------------------------------
     assumptions['assump_cooling_floorarea'] = {}
 
-    # (see Abela et al. 2016)
+    # (See Abela et al. 2016)
     assumptions['assump_cooling_floorarea']['cooled_ss_floorarea_by'] = 0.35
 
     # ============================================================
@@ -247,7 +247,7 @@ def load_non_param_assump(
     #   smart_meter_p_by : int
     #       The percentage of households with smart meters in by
     #   smart_meter_diff_params : dict
-    #       Sigmoid diffusion parameter of smater meters        
+    #       Sigmoid diffusion parameter of smater meters
     # ------------------------------------------------------------
     assumptions['smart_meter_assump'] = {}
     assumptions['smart_meter_assump']['smart_meter_p_by'] = 0.1
@@ -279,14 +279,14 @@ def load_non_param_assump(
     # ------------------------------------------------------------
     assumptions['t_bases'] = {}
     assumptions['t_bases']['rs_t_heating_by'] = 15.5    #
-    assumptions['t_bases']['rs_t_cooling_by'] = 21
+    #assumptions['t_bases']['rs_t_cooling_by'] = Not implemented
 
     assumptions['t_bases']['ss_t_heating_by'] = 15.5    #
     assumptions['t_bases']['ss_t_cooling_by'] = 5       #
 
     assumptions['t_bases']['is_t_heating_by'] = 15.5    #
     #assumptions['t_bases']['is_t_cooling_by'] = Not implemented
-    
+
     assumptions['base_temp_diff_params'] = {
         'sig_midpoint': 0,
         'sig_steeppness': 1,
@@ -342,11 +342,8 @@ def load_non_param_assump(
         fueltypes)
 
     # Collect all heating technologies
-    assumptions['heating_technologies'] = assumptions[
-        'tech_list']['tech_CHP'] + assumptions[
-            'tech_list']['tech_heating_const'] + assumptions[
-                'tech_list']['tech_heating_temp_dep'] + assumptions[
-                    'tech_list']['tech_district_heating']
+    # TODO: MAYBE ADD IN TECH DOC ANOTHER LIST SPECIFYING ALL HEATING TECHs
+    assumptions['heating_technologies'] = get_all_heating_techs(assumptions['tech_list'])
 
     # ============================================================
     # Enduse diffusion paramters
@@ -475,3 +472,29 @@ def update_assumptions(
         technologies, installed_heat_pump_ey)
 
     return technologies
+
+def get_all_heating_techs(tech_lists):
+    """Get all heating technologies from tech lists
+    """
+    heating_technologies = []
+
+    for tech in tech_lists['tech_heating_const']:
+        if tech != 'dummy_tech':
+            heating_technologies.append(tech)
+    for tech in tech_lists['tech_heating_temp_dep']:
+        if tech != 'dummy_tech':
+            heating_technologies.append(tech)
+    for tech in tech_lists['tech_district_heating']:
+        if tech != 'dummy_tech':
+            heating_technologies.append(tech)
+    for tech in tech_lists['secondary_heating_electricity']:
+        if tech != 'dummy_tech':
+            heating_technologies.append(tech)
+    for tech in tech_lists['storage_heating_electricity']:
+        if tech != 'dummy_tech':
+            heating_technologies.append(tech)
+    for tech in tech_lists['tech_CHP']:
+        if tech != 'dummy_tech':
+            heating_technologies.append(tech)
+
+    return heating_technologies

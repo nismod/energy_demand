@@ -11,7 +11,7 @@
   climate_change_temp_d__Oct: 0
   climate_change_temp_d__Sep: 0
   climate_change_temp_diff_yr_until_changed: 2050
-  cooled_floorarea__ss_cooling_humidification: 0.4
+  cooled_floorarea__ss_cooling_humidification: 0.35
   cooled_floorarea_yr_until_changed: 2050
   demand_management_improvement__is_compressed_air: 0
   demand_management_improvement__is_drying_separation: 0
@@ -77,7 +77,7 @@
   heat_recoved__ss_space_heating: 0.0
   heat_recovered_yr_until_changed: 2050
   is_t_base_heating_future_yr: 15.5
-  rs_t_base_cooling_future_yr: 21
+  rs_t_base_cooling_future_yr: 5
   rs_t_base_heating_future_yr: 15.5
   smart_meter_improvement_is_compressed_air: 0
   smart_meter_improvement_is_drying_separation: 0
