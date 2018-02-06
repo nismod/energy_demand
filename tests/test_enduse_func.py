@@ -8,7 +8,6 @@ from energy_demand.technologies import technological_stock
 from energy_demand.profiles import load_profile
 
 '''def test_assign_lp_no_techs():
-    
     enduse,
     sector,
     load_profiles,
@@ -127,18 +126,17 @@ def test_service_switch():
         "boilerA": 365*24*2 * share_boilerA_cy, # * 0.5
         "boilerB": 365*24*2 * share_boilerB_cy} # * 0.5
 
-    print(round(expected_tech_service_cy_p["boilerA"], 3))
-    print(round(np.sum(result["boilerA"]), 3))
     assert round(expected_tech_service_cy_p["boilerA"], 3) == round(np.sum(result["boilerA"]), 3)
     assert round(expected_tech_service_cy_p["boilerB"], 3) == round(np.sum(result["boilerB"]), 3)
 
     # --------------------------------------------
+    
     l_value = 1.0
-    share_boilerA_by = 0
-    share_boilerA_cy = 1
+    share_boilerA_by = 0.01
+    share_boilerA_cy = 0.99
 
-    share_boilerB_by = 1
-    share_boilerB_cy = 0
+    share_boilerB_by = 0.99
+    share_boilerB_cy = 0.01
 
     base_yr = 2020
     curr_yr = 2060
@@ -161,7 +159,6 @@ def test_service_switch():
         xdata,
         ydataB)
 
-    tot_service_yh_cy = 365 * 24 #constant share of 1 in every hour
     service_tech_by_p = {
         "boilerA": share_boilerA_by,
         "boilerB": share_boilerB_by}
@@ -186,8 +183,8 @@ def test_service_switch():
 
     half_time_factor = 1
     expected_tech_service_cy_p = {
-        "boilerA": 365*24*2,
-        "boilerB": 0}
+        "boilerA": (365*24*2) * 0.99,
+        "boilerB": (365*24*2) * 0.01}
 
     assert round(expected_tech_service_cy_p["boilerA"], 3) == round(np.sum(result["boilerA"]), 3)
     assert round(expected_tech_service_cy_p["boilerB"], 3) == round(np.sum(result["boilerB"]), 3)
@@ -199,7 +196,7 @@ def test_service_switch():
     share_boilerB_by = 0.9999
 
     share_boilerA_cy = 0.9999
-    share_boilerB_cy = 0.0000
+    share_boilerB_cy = 0.0001
 
     base_yr = 2020.0
     curr_yr = 2040.0
@@ -223,7 +220,6 @@ def test_service_switch():
     #plot sigmoid curve
     #plotting_program.plotout_sigmoid_tech_diff(l_value, "GG", "DD", xdata, ydata, fit_parameter, False)
 
-    tot_service_yh_cy = 365 * 24 #  np.full((365, 24), 1.0) #constant share of 1 in every hour
     service_tech_by_p = {
         "boilerA": share_boilerA_by,
         "boilerB": share_boilerB_by}
@@ -425,7 +421,7 @@ def test_fuel_to_service():
     assert service_tech['techA'] == 1000
 
     # ---
-    fuel_fueltype_tech_p_by = {0 : {'techA': 1.0}, 1: {}} #'dummy_tech': 1.0}}
+    fuel_fueltype_tech_p_by = {0: {}, 1 : {'techA': 1.0}} #'dummy_tech': 1.0}}
     fuel_new_y = {0: 0, 1: 2000}
     fuel_tech_p_by = {0 : {}, 1: {'techA': 1.0}}
     fueltypes = {'gas': 0, 'heat': 1}
@@ -456,7 +452,7 @@ def test_fuel_to_service():
 
     assert service_tech['techA'] == 2000
     #TODO ADD MORE TESTS
-
+test_fuel_to_service()
 def test_service_to_fuel():
 
     technologies = {'techA': read_data.TechnologyData()}

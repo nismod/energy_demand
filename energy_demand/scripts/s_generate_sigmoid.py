@@ -94,17 +94,16 @@ def calc_sigmoid_parameters(l_value, xdata, ydata, fit_assump_init=0.001, error_
                     pass
 
             # Select start parameters depending on pos or neg diff
-            if crit_plus_minus == 'plus':
-                start_parameters[1] = start_param_list[1] * 1
-            else:
-                start_parameters[1] = start_param_list[1] * -1
+            if crit_plus_minus == 'minus':
+                start_parameters[1] = start_parameters[1] * -1
 
             # Fit function
             fit_parameter = fit_sigmoid_diffusion(
                 l_value,
                 xdata,
                 ydata,
-                start_parameters)
+                start_parameters,
+                number_of_iterations=10000)
 
             # Test if start paramters are identical to fitting parameters
             if (crit_plus_minus == 'plus' and fit_parameter[1] < 0) or (
@@ -236,7 +235,7 @@ def get_tech_future_service(
 
     return dict(tech_increased_service), dict(tech_decreased_service), dict(tech_constant_service)
 
-def fit_sigmoid_diffusion(l_value, x_data, y_data, start_parameters):
+def fit_sigmoid_diffusion(l_value, x_data, y_data, start_parameters, number_of_iterations=10000):
     """Fit sigmoid curve based on two points on the diffusion curve
 
     Arguments
@@ -247,6 +246,8 @@ def fit_sigmoid_diffusion(l_value, x_data, y_data, start_parameters):
         X coordinate of two points
     y_data : array
         X coordinate of two points
+    number_of_iterations : int
+        Number of iterations used for sigmoid fitting
 
     Returns
     -------
@@ -276,7 +277,7 @@ def fit_sigmoid_diffusion(l_value, x_data, y_data, start_parameters):
         x_data,
         y_data,
         p0=start_parameters,
-        maxfev=100000) # Numer of iterations
+        maxfev=number_of_iterations)
 
     return popt
 
@@ -739,7 +740,7 @@ def tech_sigmoid_parameters(
             point_x_projected = yr_until_switched
             point_y_projected = service_tech_switched_p[tech]
 
-            # What if point projected is zero
+            # If future share is zero, entry small value
             if point_y_projected == 0:
                 point_y_projected = fit_assump_init
 
