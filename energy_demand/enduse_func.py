@@ -272,8 +272,7 @@ class Enduse(object):
                     'tot_service_y_cy',
                     base_yr,
                     curr_yr)
-                print("A BEVORE")
-                print(service_tech_y_cy)
+
                 service_tech_y_cy = apply_heat_recovery(
                     enduse,
                     assumptions['strategy_variables'],
@@ -287,16 +286,13 @@ class Enduse(object):
                 # Switches (service or fuel)
                 # --------------------------------
                 if crit_switch_service:
-                    print("swithcrit")
+
                     # Convert aggregated sector service percentages to sector service percentages
                     # Calculate service difference between by and ey for every tech as a factor
-                    #all_techs = list(tech_increased_service.keys()) + list(tech_decreased_service.keys()) + list(tech_constant_service.keys())
-                    all_techs = self.enduse_techs #TODO
-
                     service_tech_y_cy = calc_service_switch(
                         service_tech_y_cy,
                         service_tech_by_p,
-                        all_techs,
+                        self.enduse_techs,
                         sig_param_tech,
                         curr_yr)
 
@@ -304,8 +300,6 @@ class Enduse(object):
                 # Convert annual service to fuel per fueltype
                 # -------------------------------------------
                 #TODO MAYBE REMOVE FUEL SPECIFIC AND REPLACE FUEL_Y by sum(fuel_YH)
-                print("--------A")
-                print(service_tech_y_cy)
                 self.fuel_new_y, fuel_tech_y = service_to_fuel(
                     enduse,
                     service_tech_y_cy,
@@ -321,10 +315,7 @@ class Enduse(object):
 
                 # Copy
                 self.fuel_y = self.fuel_new_y
-                print("... Fuel train F: " + str(self.fuel_new_y))
-                print("vv: " + str(sum(fuel)))
-                print(service_tech_y_cy)
-
+   
                 # ------------------------------------------
                 # Assign load profiles
                 # ------------------------------------------
@@ -1666,10 +1657,9 @@ def get_service_diffusion(sig_param_tech, curr_yr):
         Share of service per technology of current year
     """
     if sig_param_tech['l_parameter'] == None:
-        # TODO: NOT DEFINED, resp. same as inital
         service_tech_p = 0
     elif sig_param_tech['l_parameter'] == 'linear':
-        service_tech_p = 'identical' #TODO
+        service_tech_p = 'identical'
     else:
         service_tech_p = diffusion_technologies.sigmoid_function(
             curr_yr,
