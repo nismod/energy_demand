@@ -126,7 +126,7 @@ class Enduse(object):
         ):
         """Enduse class constructor
         """
-        logging.debug("... =====Enduse: {}  Sector:  {}".format(enduse, sector))
+        print("... =====Enduse: {}  Sector:  {}".format(enduse, sector))
         self.region_name = region_name
         self.enduse = enduse
         self.fuel_new_y = fuel
@@ -163,7 +163,7 @@ class Enduse(object):
                 heating_factor_y,
                 assumptions['enduse_space_heating'],
                 assumptions['ss_enduse_space_cooling'])
-            #logging.info("... Fuel train B: " + str(np.sum(self.fuel_new_y)))
+            print("... Fuel train B: " + str(np.sum(self.fuel_new_y)))
             #print("... Fuel train B: " + str(np.sum(self.fuel_new_y)))
 
             # --Change fuel consumption based on smart meter induced general savings
@@ -174,7 +174,7 @@ class Enduse(object):
                 assumptions['strategy_variables'],
                 base_yr,
                 curr_yr)
-            #logging.info("... Fuel train C: " + str(np.sum(self.fuel_new_y)))
+            print("... Fuel train C: " + str(np.sum(self.fuel_new_y)))
             #print("... Fuel train C: " + str(np.sum(self.fuel_new_y)))
 
             # --Enduse specific fuel consumption change in %
@@ -185,7 +185,7 @@ class Enduse(object):
                 assumptions['strategy_variables'],
                 base_yr,
                 curr_yr)
-            #logging.info("... Fuel train D: " + str(np.sum(self.fuel_new_y)))
+            print("... Fuel train D: " + str(np.sum(self.fuel_new_y)))
             #print("... Fuel train D: " + str(np.sum(self.fuel_new_y)))
 
             # Calculate new fuel demands after scenario drivers
@@ -199,8 +199,10 @@ class Enduse(object):
                 reg_scen_drivers,
                 base_yr,
                 curr_yr)
-            #logging.info("... Fuel train E: " + str(np.sum(self.fuel_new_y)))
+            print("... Fuel train E: " + str(np.sum(self.fuel_new_y)))
             #print("... Fuel train E: " + str(np.sum(self.fuel_new_y)))
+            if enduse == "ss_cooling_humidification":
+                print("dd")
 
             # Apply cooling scenario variable
             self.fuel_new_y = apply_cooling(
@@ -211,7 +213,8 @@ class Enduse(object):
                 enduse_overall_change['other_enduse_mode_info'],
                 base_yr,
                 curr_yr)
-
+            print("... Fuel train E1: " + str(np.sum(self.fuel_new_y)))
+            #print("... Fuel train E: " + str(np.sum(self.fuel_new_y)))
             # ----------------------------------
             # Hourly Disaggregation
             # ----------------------------------
@@ -269,7 +272,8 @@ class Enduse(object):
                     'tot_service_y_cy',
                     base_yr,
                     curr_yr)
-
+                print("A BEVORE")
+                print(service_tech_y_cy)
                 service_tech_y_cy = apply_heat_recovery(
                     enduse,
                     assumptions['strategy_variables'],
@@ -283,7 +287,7 @@ class Enduse(object):
                 # Switches (service or fuel)
                 # --------------------------------
                 if crit_switch_service:
-
+                    print("swithcrit")
                     # Convert aggregated sector service percentages to sector service percentages
                     # Calculate service difference between by and ey for every tech as a factor
                     #all_techs = list(tech_increased_service.keys()) + list(tech_decreased_service.keys()) + list(tech_constant_service.keys())
@@ -300,6 +304,8 @@ class Enduse(object):
                 # Convert annual service to fuel per fueltype
                 # -------------------------------------------
                 #TODO MAYBE REMOVE FUEL SPECIFIC AND REPLACE FUEL_Y by sum(fuel_YH)
+                print("--------A")
+                print(service_tech_y_cy)
                 self.fuel_new_y, fuel_tech_y = service_to_fuel(
                     enduse,
                     service_tech_y_cy,
@@ -315,7 +321,9 @@ class Enduse(object):
 
                 # Copy
                 self.fuel_y = self.fuel_new_y
-                logging.debug("... Fuel train F: " + str(self.fuel_new_y))
+                print("... Fuel train F: " + str(self.fuel_new_y))
+                print("vv: " + str(sum(fuel)))
+                print(service_tech_y_cy)
 
                 # ------------------------------------------
                 # Assign load profiles
@@ -1673,7 +1681,7 @@ def get_service_diffusion(sig_param_tech, curr_yr):
 
 def calc_service_switch(
         service_tech_y_cy,
-        service_tech_by_p_INPUT,
+        service_tech_by_p,
         all_technologies,
         sig_param_tech,
         curr_yr
@@ -1719,18 +1727,18 @@ def calc_service_switch(
         print("--------------------------------------")
         print("   " + str(service_service_all_techs))
         print("  curr year share " + str(service_tech_incr_cy_p))
-        print("  base year share " + str(service_tech_by_p_INPUT[tech]))
+        print("  base year share " + str(service_tech_by_p[tech]))
         try:
-            print("  base year: " + str(service_tech_by_p_INPUT[tech] * service_service_all_techs))
+            print("  base year: " + str(service_tech_by_p[tech] * service_service_all_techs))
             print("  curr year: " + str(service_tech_incr_cy_p * service_service_all_techs))
         except:
             pass'''
-        if  service_tech_by_p_INPUT[tech] * service_service_all_techs > 0 and sig_param_tech[tech]['steepness'] == None:
+        if  service_tech_by_p[tech] * service_service_all_techs > 0 and sig_param_tech[tech]['steepness'] == None:
             print("ERROR")
             prnt(":")
 
         if service_tech_incr_cy_p == 'identical':
-            switched_service_tech_y_cy[tech] = service_service_all_techs * service_tech_by_p_INPUT[tech]
+            switched_service_tech_y_cy[tech] = service_service_all_techs * service_tech_by_p[tech]
         else:
             switched_service_tech_y_cy[tech] = service_service_all_techs * service_tech_incr_cy_p
 
@@ -1785,7 +1793,7 @@ def apply_cooling(
     """
     try:
         # Floor area share cooled in end year
-        cooled_floorearea_p = strategy_variables["cooled_floorarea__{}".format(enduse)]
+        cooled_floorearea_p_ey = strategy_variables["cooled_floorarea__{}".format(enduse)]
 
         # Fraction of heat recovered up to current year
         sig_diff_factor = diffusion_technologies.sigmoid_diffusion(
@@ -1795,10 +1803,14 @@ def apply_cooling(
             other_enduse_mode_info['sigmoid']['sig_midpoint'],
             other_enduse_mode_info['sigmoid']['sig_steeppness'])
 
-        # Floor area percentage cooled in by and cy
-        cooled_floorarea_p_cy = sig_diff_factor * cooled_floorearea_p
+        # Floor area percentage cooled in by
         cooled_floorarea_p_by = assump_cooling_floorarea
 
+        # Additionall floor area
+        additional_floor_area_p = sig_diff_factor * (cooled_floorearea_p_ey - cooled_floorarea_p_by)
+
+        cooled_floorarea_p_cy = cooled_floorarea_p_by + additional_floor_area_p
+        
         # Calculate factor
         floorare_cooling_factor = cooled_floorarea_p_cy / cooled_floorarea_p_by
 

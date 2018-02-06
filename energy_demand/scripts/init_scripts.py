@@ -28,15 +28,18 @@ def scenario_initalisation(path_data_ed, data=False):
     data : dict
         Data container
     """
-    logging.info("... start running sceario_initialisation scripts")
+    logging.info(
+        "... Start initialisation scripts")
 
     init_cont = defaultdict(dict)
     fuel_disagg = {}
 
-    logger_setup.set_up_logger(os.path.join(path_data_ed, "scenario_init.log"))
+    # Create logger
+    logger_setup.set_up_logger(
+        os.path.join(path_data_ed, "scenario_init.log"))
 
     # --------------------------------------------
-    # Delete processed data from former model runs and create folders
+    # Delete results from previous model runs and initialise folders
     # --------------------------------------------
     logging.info("... delete previous model run results")
 
@@ -59,9 +62,9 @@ def scenario_initalisation(path_data_ed, data=False):
     data['scenario_data']['employment_stats'] = data_loader.read_employment_stats(
         data['local_paths']['path_employment_statistics'])
 
-    # -------------------
+    # ---------------------------------------
     # Disaggregate fuel for all regions init_cont
-    # -------------------
+    # ---------------------------------------
     fuel_disagg['rs_fuel_disagg'], fuel_disagg['ss_fuel_disagg'], fuel_disagg['is_fuel_disagg'] = s_disaggregation.disaggregate_base_demand(
         data['lu_reg'],
         data['sim_param']['base_yr'],
@@ -76,10 +79,9 @@ def scenario_initalisation(path_data_ed, data=False):
         data['sectors']['all_sectors'],
         data['enduses'])
 
-    # -------------------
-    # Convert base year fuel input assumptions to energy service
-    # on a national scale (across all sectors)
-    # -------------------
+    # ---------------------------------------
+    # Convert base year fuel input assumptions to energy service on a national scale
+    # ---------------------------------------
 
     # Residential
     init_cont['rs_service_tech_by_p'], init_cont['rs_service_fueltype_tech_by_p'], init_cont['rs_service_fueltype_by_p'] = s_fuel_to_service.get_service_fueltype_tech(
@@ -90,7 +92,7 @@ def scenario_initalisation(path_data_ed, data=False):
         data['fuels']['rs_fuel_raw_data_enduses'],
         data['assumptions']['technologies'])
 
-    #Enduse, sector
+    # Service
     init_cont['ss_service_tech_by_p'] = {}
     for sector in data['sectors']['ss_sectors']:
         init_cont['ss_service_tech_by_p'][sector], init_cont['ss_service_fueltype_tech_by_p'][sector], init_cont['ss_service_fueltype_by_p'][sector] = s_fuel_to_service.get_service_fueltype_tech(
@@ -102,6 +104,7 @@ def scenario_initalisation(path_data_ed, data=False):
             data['assumptions']['technologies'],
             sector)
 
+    # Industry
     init_cont['is_service_tech_by_p'] = {}
     for sector in data['sectors']['is_sectors']:
         init_cont['is_service_tech_by_p'][sector], init_cont['is_service_fueltype_tech_by_p'][sector], init_cont['is_service_fueltype_by_p'][sector] = s_fuel_to_service.get_service_fueltype_tech(
@@ -112,38 +115,38 @@ def scenario_initalisation(path_data_ed, data=False):
             data['fuels']['is_fuel_raw_data_enduses'],
             data['assumptions']['technologies'],
             sector)
+
     # ------------------------------------
-    # Autocomplement defined service switches
-    # with technologies not explicitly specified in switch
-    # on a national scale
+    # Autocomplement defined service switches with technologies not
+    # explicitly specified in switch on a national scale
     # ------------------------------------
+    init_cont['rs_service_switches'] = data['assumptions']['rs_service_switches']
+    init_cont['ss_service_switches'] = data['assumptions']['ss_service_switches']
+    init_cont['is_service_switches'] = data['assumptions']['is_service_switches']
 
     rs_service_switches_autocompleted = fuel_service_switch.autocomplete_switches(
-        data['assumptions']['rs_service_switches'],
+        init_cont['rs_service_switches'],
         data['assumptions']['rs_specified_tech_enduse_by'],
         init_cont['rs_service_tech_by_p'])
 
     ss_service_switches_autocompleted = {}
     for sector in data['sectors']['ss_sectors']:
         ss_service_switches_autocompleted[sector] = fuel_service_switch.autocomplete_switches(
-            data['assumptions']['ss_service_switches'],
+            init_cont['ss_service_switches'],
             data['assumptions']['ss_specified_tech_enduse_by'],
             init_cont['ss_service_tech_by_p'][sector])
 
     is_service_switches_autocompleted = {}
     for sector in data['sectors']['is_sectors']:
         is_service_switches_autocompleted[sector] = fuel_service_switch.autocomplete_switches(
-            data['assumptions']['is_service_switches'],
+            init_cont['is_service_switches'],
             data['assumptions']['is_specified_tech_enduse_by'],
             init_cont['is_service_tech_by_p'][sector])
 
-    init_cont['rs_service_switches'] = data['assumptions']['rs_service_switches']
-    init_cont['ss_service_switches'] = data['assumptions']['ss_service_switches']
-    init_cont['is_service_switches'] = data['assumptions']['is_service_switches']
-
-    # ------------
+    # ------------------------------------
     # Capacity installations (on a national scale)
-    # ------------
+    # ------------------------------------
+    # Residential
     init_cont['rs_service_switches'] = fuel_service_switch.capacity_installations(
         init_cont['rs_service_switches'],
         data['assumptions']['capacity_switches']['rs_capacity_switches'],
@@ -183,10 +186,10 @@ def scenario_initalisation(path_data_ed, data=False):
         data['assumptions']['is_fuel_tech_p_by'],
         data['sim_param']['base_yr'])
 
-    # -------------------------------------
+    # ------------------------------------
     # Get service shares of technologies for future year by considering
     # SERVICE switch on a national scale
-    # -------------------------------------
+    # ------------------------------------
     rs_share_service_tech_ey_p = fuel_service_switch.get_share_service_tech_ey(
         rs_service_switches_autocompleted,
         data['assumptions']['rs_specified_tech_enduse_by'])
@@ -458,7 +461,8 @@ def sig_param_calculation_including_fuel_switch(
     # Test if a service and fuel switch are defined simultaneously
     # ---------
     if crit_switch_service and crit_fuel_switch:
-        print("Error: Can't define fuel and service switch for {}".format(enduse))
+        logging.warning(
+            "Error: Not possible to define fuel plus service switch for {}".format(enduse))
 
     # -------------------------------
     # Initialisations
@@ -499,7 +503,6 @@ def sig_param_calculation_including_fuel_switch(
         #NEW TODO
         ##all_techs = list(tech_increased_service.keys()) + list(tech_decrased_share.keys()) + list(tech_constant_service.keys())
         all_techs = service_tech_by_p.keys()
-
 
         # Calculate sigmoid diffusion parameters (if no switches, no calculations)
         l_values_sig = s_generate_sigmoid.get_l_values(

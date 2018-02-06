@@ -794,7 +794,7 @@ def tech_sigmoid_parameters(
                             xdata,
                             ydata,
                             fit_parameter,
-                            plot_crit=True,
+                            plot_crit=False, #TRUE
                             close_window_crit=True)
 
     return dict(sigmoid_parameters)

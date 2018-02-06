@@ -36,7 +36,7 @@ TODO: Load different temp --> for different years
 TODO: THECK VARIALBES IN HOUSEHOLD MODEL
 TODO: WRITE COOLING PARAMETER
 TODO: FUEL; SERVICE SWITHC AS INPUT
-TODO: Repair LOG FILE 
+TODO: Repair LOG FILE
 #WRAPPER BASE AND CURRENT YEAR GVA
 """
 import os
@@ -79,7 +79,6 @@ def energy_demand_model(data, fuel_in=0, fuel_in_elec=0):
         data['criterias']['mode_constrained'],
         data['assumptions']['enduse_space_heating'])
 
-    print("Fuel input:          " + str(fuel_in))
     print("================================================")
     print("Simulation year:     " + str(modelrun_obj.curr_yr))
     print("Number of regions    " + str(data['reg_nrs']))
@@ -105,7 +104,7 @@ def energy_demand_model(data, fuel_in=0, fuel_in_elec=0):
     print("-----------")
     print("gas fuel in:         " + str(fuel_in_gas))
     print("gas fuel out:        " + str(np.sum(modelrun_obj.ed_fueltype_national_yh[data['lookups']['fueltypes']['gas']])))
-    print("gas diff:            " + str(round(np.sum(modelrun_obj.ed_fueltype_national_yh[data['lookups']['fueltypes']['gas']]), 4) - fuel_in_gas))
+    print("gas diff:            " + str(round(np.sum(modelrun_obj.ed_fueltype_national_yh[data['lookups']['fueltypes']['gas']]) - fuel_in_gas, 4)))
     print("-----------")
     print("hydro fuel in:       " + str(fuel_in_hydrogen))
     print("hydro fuel out:      " + str(np.sum(modelrun_obj.ed_fueltype_national_yh[data['lookups']['fueltypes']['hydrogen']])))
@@ -116,12 +115,12 @@ def energy_demand_model(data, fuel_in=0, fuel_in_elec=0):
     print("heat fuel out:       " + str(np.sum(modelrun_obj.ed_fueltype_national_yh[data['lookups']['fueltypes']['heat']])))
     print("heat diff:           " + str(round(np.sum(modelrun_obj.ed_fueltype_national_yh[data['lookups']['fueltypes']['heat']]) - fuel_in_heat, 4)))
     print("-----------")
-    print("Diff elec %:         " + str((round(1/(np.sum(modelrun_obj.ed_fueltype_national_yh[data['lookups']['fueltypes']['electricity']]))) * fuel_in_elec, 4)))
-    print("Diff gas %:          " + str((round(1/(np.sum(modelrun_obj.ed_fueltype_national_yh[data['lookups']['fueltypes']['gas']]))) * fuel_in_gas, 4)))
-    print("Diff oil %:          " + str((round(1/(np.sum(modelrun_obj.ed_fueltype_national_yh[data['lookups']['fueltypes']['oil']]))) * fuel_in_oil, 4)))
-    print("Diff solid_fuel %:   " + str((round(1/(np.sum(modelrun_obj.ed_fueltype_national_yh[data['lookups']['fueltypes']['solid_fuel']]))) * fuel_in_solid_fuel, 4)))
-    print("Diff hydrogen %:     " + str((round(1/(np.sum(modelrun_obj.ed_fueltype_national_yh[data['lookups']['fueltypes']['hydrogen']]))) * fuel_in_hydrogen, 4)))
-    print("Diff biomass %:      " + str((round(1/(np.sum(modelrun_obj.ed_fueltype_national_yh[data['lookups']['fueltypes']['biomass']]))) * fuel_in_biomass, 4)))
+    print("Diff elec %:         " + str(round((1/(np.sum(modelrun_obj.ed_fueltype_national_yh[data['lookups']['fueltypes']['electricity']]))) * fuel_in_elec, 4)))
+    print("Diff gas %:          " + str(round((1/(np.sum(modelrun_obj.ed_fueltype_national_yh[data['lookups']['fueltypes']['gas']]))) * fuel_in_gas, 4)))
+    print("Diff oil %:          " + str(round((1/(np.sum(modelrun_obj.ed_fueltype_national_yh[data['lookups']['fueltypes']['oil']]))) * fuel_in_oil, 4)))
+    print("Diff solid_fuel %:   " + str(round((1/(np.sum(modelrun_obj.ed_fueltype_national_yh[data['lookups']['fueltypes']['solid_fuel']]))) * fuel_in_solid_fuel, 4)))
+    print("Diff hydrogen %:     " + str(round((1/(np.sum(modelrun_obj.ed_fueltype_national_yh[data['lookups']['fueltypes']['hydrogen']]))) * fuel_in_hydrogen, 4)))
+    print("Diff biomass %:      " + str(round((1/(np.sum(modelrun_obj.ed_fueltype_national_yh[data['lookups']['fueltypes']['biomass']]))) * fuel_in_biomass, 4)))
     print("================================================")
 
     logging.info("...finished running energy demand model simulation")
