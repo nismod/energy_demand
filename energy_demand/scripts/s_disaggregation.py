@@ -467,7 +467,7 @@ def rs_disaggregate(
     Note
     -----
     Used disaggregation factors for residential according
-    to enduse (see Section XY Documentation TODO)
+    to enduse (see Documentation)
     """
     logging.debug("... disagreggate residential demand")
 

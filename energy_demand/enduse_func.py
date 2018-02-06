@@ -237,7 +237,7 @@ class Enduse(object):
                 # ------------------------------------
                 # Calculate regional energy service
                 # ------------------------------------
-                tot_service_y_cy, service_tech_y_cy, _ = fuel_to_service(
+                tot_service_y_cy, service_tech_y_cy = fuel_to_service(
                     enduse,
                     self.fuel_new_y,
                     self.enduse_techs,
@@ -285,7 +285,6 @@ class Enduse(object):
                 # -------------------------------------------
                 # Convert annual service to fuel per fueltype
                 # -------------------------------------------
-                #TODO MAYBE REMOVE FUEL SPECIFIC AND REPLACE FUEL_Y by sum(fuel_YH)
                 self.fuel_new_y, fuel_tech_y = service_to_fuel(
                     enduse,
                     service_tech_y_cy,
@@ -301,12 +300,11 @@ class Enduse(object):
 
                 # Copy
                 self.fuel_y = self.fuel_new_y
-   
+
                 # ------------------------------------------
                 # Assign load profiles
                 # ------------------------------------------
                 if self.flat_profile_crit:
-                    #TODO MAYBE REMOVE FUEL SPECIFIC AND REPLACE FUEL_Y by sum(fuel_YH)
                     self.fuel_y = calc_fuel_tech_y(
                         enduse,
                         tech_stock,
@@ -1146,9 +1144,6 @@ def fuel_to_service(
     service_fueltype_tech_p : dict
         Fraction of energy service per fueltype and technology
         (within every fueltype sums up to one)
-    service_tech_p_by : dict
-        Fraction of service per fueltype
-        (within every fueltype sums up to one)
 
     Note
     -----
@@ -1186,9 +1181,6 @@ def fuel_to_service(
                 # Calculate fuel share and convert fuel to service
                 service_tech_y = fuel_new_y[fueltype] * fuel_share * tech_eff
 
-                logging.debug("eg: ---{} - {} - {} - {}".format(
-                    service_tech_y, fuel_new_y[fueltype], fuel_share, tech_eff))
-
                 service_tech[tech] += service_tech_y
 
                 # Add fuel for each technology (float() is necessary to avoid inf error)
@@ -1216,11 +1208,7 @@ def fuel_to_service(
                     service_fueltype_tech[fueltypes['heat']][tech] = 0
                     service_fueltype_tech[fueltypes['heat']][tech] += float(np.sum(fuel_tech))
 
-    # Convert service of every technology to fraction of total service
-    service_tech_p_by = convert_service_to_p(tot_service_y, service_fueltype_tech)
-    #TODO: NOT NECESSARY BECAUSE FOR SECTORS DIFFERENT DEPENDING ON INPUT FUELTYPE
-
-    return tot_service_y, service_tech, service_tech_p_by
+    return tot_service_y, service_tech
 
 def apply_heat_recovery(
         enduse,
@@ -1354,7 +1342,6 @@ def apply_scenario_drivers(
                 cy_driver_data = population[curr_yr][region_name]
             #TODO :ADD OTHER ENDSES
 
-            # TODO TESTING
             if math.isnan(by_driver_data):
                 logging.warning("INF ERROR")
                 by_driver_data = 1
@@ -1392,7 +1379,7 @@ def apply_scenario_drivers(
             except ZeroDivisionError:
                 factor_driver = 1
 
-            # Check if float('nan')  #TODO: WRITE SOME MORE TEST AROUND THIS FACTOR
+            # Check if float('nan')
             if math.isnan(factor_driver):
                 logging.warning("Something went wrong wtih scenario")
                 factor_driver = 1

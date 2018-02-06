@@ -8,9 +8,6 @@ import logging
 from energy_demand.basic import date_prop
 from energy_demand.read_write import read_data
 from energy_demand.read_write import write_data
-from energy_demand.read_write import data_loader
-from energy_demand.assumptions import non_param_assumptions
-from energy_demand.assumptions import param_assumptions
 from energy_demand.profiles import load_profile as lp
 
 def read_csv(path_to_csv):
@@ -159,17 +156,13 @@ def read_hes_data(paths_hes, nr_app_type_lu):
         Path to HES raw data file
     nr_app_type_lu : dict
         Number of appliances (defines size of container to store data)
-    day_type_lu : dict
-        Look-up table for daytypes
 
     Returns
     -------
     hes_data : dict
-        HES non peak raw data TODO CORRECT
+        HES non peak raw data per fueltype
     hes_y_coldest : array
         HES for coldest day
-    hes_y_warmest : array
-        HES for warmest day
 
     Note
     ----

@@ -2,8 +2,6 @@
 
 This file holds all functions necessary to read in information
 and data to run the energy demand model.
-
-TODO :CLEAN FUNCTIONS
 """
 import sys
 import os
@@ -41,6 +39,8 @@ class TechnologyData(object):
         Maximum theoretical fraction of how much
         this indivdual technology can contribute
         to total energy service of its enduse
+    fueltypes : crit or bool,default=None
+        Fueltype or criteria
     """
     def __init__(
             self,
@@ -156,6 +156,20 @@ class ServiceSwitch(object):
 def read_in_results(path_runs, lookups, seasons, model_yeardays_daytype, lu_reg):
     """Read and post calculate results from txt files
     and store into container
+
+    Arguments
+    ---------
+    path_runs : str
+        Paths
+    lookups : dict
+        lookups
+    seasons : dict
+        seasons
+    model_yeardays_daytype : dict
+        Daytype of modelled yeardays
+    lu_reg : dict
+        Regions
+
     """
     logging.info("... Reading in results")
 
@@ -208,22 +222,23 @@ def read_in_results(path_runs, lookups, seasons, model_yeardays_daytype, lu_reg)
     return results_container
 
 def calc_av_per_season_fueltype(results_every_year, seasons, model_yeardays_daytype):
-    """TODO# Calculate average per season and fueltype for every fueltype
+    """Calculate average demand per season and fueltype for every fueltype
 
     Arguments
     ---------
-    results_every_year : 
-
-    seasons : 
-
-    model_yeardays_daytype : 
+    results_every_year : dict
+        Results for every year
+    seasons : dict
+        Seasons
+    model_yeardays_daytype : list
+        Daytype of modelled days
 
     Returns
     -------
     av_season_daytype_cy : 
-
+        Average demand per season and daytype
     season_daytype_cy : 
-
+        Demand per season and daytpe
     """
     av_season_daytype_cy = defaultdict(dict)
     season_daytype_cy = defaultdict(dict)
@@ -850,7 +865,7 @@ def read_service_fueltype_tech_by_p(path_to_csv):
     ----------
     path_to_csv : str
         Path to csv
-    
+
     Returns
     -------
     service_fueltype_tech_by_p
@@ -1065,7 +1080,8 @@ def read_scenaric_population_data(path_enduse_specific_results):
     """
     results = defaultdict(dict)
 
-    all_txt_files_in_folder = os.listdir(path_enduse_specific_results)
+    all_txt_files_in_folder = os.listdir(
+        path_enduse_specific_results)
 
     # Iterate files
     for file_path in all_txt_files_in_folder:
@@ -1143,7 +1159,7 @@ def get_position(headings, name):
         List with names
     name : str
         Name of entry to find
-    
+
     Returns
     -------
     position : int

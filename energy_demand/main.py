@@ -41,7 +41,9 @@ TODO: FUEL; SERVICE SWITHC AS INPUT
 import os
 import sys
 import logging
+import datetime
 import numpy as np
+import cProfile
 from energy_demand import model
 from energy_demand.basic import testing_functions as testing
 
@@ -140,7 +142,6 @@ if __name__ == "__main__":
         local_data_path = sys.argv[1]
 
     # -------------- SCRAP
-    from pyinstrument import Profiler
     from energy_demand.assumptions import non_param_assumptions
     from energy_demand.assumptions import param_assumptions
     from energy_demand.read_write import data_loader
@@ -158,9 +159,6 @@ if __name__ == "__main__":
     logger_setup.set_up_logger(
         os.path.join(local_data_path, "logging_local_run.log"))
 
-    # Run settings
-    instrument_profiler = False
-
     # Load data
     data = {}
     data['criterias'] = {}
@@ -168,7 +166,7 @@ if __name__ == "__main__":
     data['criterias']['plot_HDD_chart'] = False                 # Wheather HDD chart is plotted or not
     data['criterias']['virtual_building_stock_criteria'] = True # Wheater model uses a virtual dwelling stock or not
     data['criterias']['spatial_exliclit_diffusion'] = True      # Wheater spatially epxlicit diffusion or not
-    data['criterias']['write_to_txt'] = False                   # Wheater results are written to txt files
+    data['criterias']['write_to_txt'] = True                   # Wheater results are written to txt files
     data['criterias']['beyond_supply_outputs'] = True           # Wheater all results besides integraded smif run are calculated
     data['criterias']['plot_tech_lp'] = True                    # Wheater all individual load profils are plotted
 
@@ -276,14 +274,6 @@ if __name__ == "__main__":
     logging.info("... Load data from script calculations")
     data = read_data.load_script_data(data)
 
-    # --------------------
-    # Initialise scenario
-    # --------------------
-    '''logging.info("... Initialise function execution") #TODO NEW
-    from energy_demand.scripts.init_scripts import scenario_initalisation
-    data['init_cont'], data['fuel_disagg'] = scenario_initalisation(
-        data['data_path'], data)'''
-        
     #-------------------
     # Folder cleaning
     #--------------------
@@ -311,12 +301,6 @@ if __name__ == "__main__":
             data['criterias']['mode_constrained'],
             data['assumptions']['enduse_space_heating'])
 
-        #-------------PROFILER
-        if instrument_profiler:
-            profiler = Profiler(use_signal=False)
-            profiler.start()
-
-        import datetime
         a = datetime.datetime.now()
 
         # Main model run function
@@ -325,22 +309,15 @@ if __name__ == "__main__":
             fuel_in,
             fuel_in_elec)
 
-        if instrument_profiler:
-            profiler.stop()
-            logging.debug("Profiler Results")
-            print(profiler.output_text(unicode=True, color=True))
-
-
-
         # --------------------
         # Result unconstrained
-        # -------------------- TODO: CHECK THAT SECTORS ARE CORRECLTED USED (3, FUETLYPESE7)
-        #supply_results = modelrun_obj.ed_fueltype_regs_yh #TODO: NEEDED?
-        supply_results_unconstrained = modelrun_obj.ed_submodel_fueltype_regs_yh #TODO: NEEDED?
+        #
+        # Sum according to first element in array (sectors)
+        # which aggregtes over the sectors
+        # ---
+        supply_results_unconstrained = sum(modelrun_obj.ed_submodel_fueltype_regs_yh[:,])
 
-        # TODO REFORMULATE BECAUSE OF SECTORS
-        supply_results_unconstrained = sum(supply_results_unconstrained[:,])
-
+        # Write out all calculations which are not used for SMIF
         if data['criterias']['beyond_supply_outputs']:
 
             ed_fueltype_regs_yh = modelrun_obj.ed_fueltype_regs_yh
@@ -364,29 +341,67 @@ if __name__ == "__main__":
 
             # Write unconstrained results
             if data['criterias']['write_to_txt']:
-                write_data.write_supply_results(
-                    ['rs_submodel', 'ss_submodel', 'is_submodel'],
+                #TODO NOT USED SO FAR
+                '''write_data.write_supply_results(
                     sim_yr,
+                    data['lu_reg'],
+                    "supply_results",
                     path_runs,
                     supply_results_unconstrained,
-                    "supply_results")
-
+                    "supply_results")'''
+                write_data.write_supply_results(
+                    sim_yr,
+                    "result_tot_yh",
+                    path_runs,
+                    modelrun_obj.ed_fueltype_regs_yh,
+                    "result_tot_submodels_fueltypes")
                 write_data.write_enduse_specific(
-                    sim_yr, path_runs, out_enduse_specific, "out_enduse_specific")
+                    sim_yr,
+                    path_runs,
+                    out_enduse_specific,
+                    "out_enduse_specific")
                 write_data.write_max_results(
-                    sim_yr, path_runs, "result_tot_peak_enduses_fueltype", tot_peak_enduses_fueltype, "tot_peak_enduses_fueltype")
+                    sim_yr,
+                    path_runs,
+                    "result_tot_peak_enduses_fueltype",
+                    tot_peak_enduses_fueltype,
+                    "tot_peak_enduses_fueltype")
                 write_data.write_lf(
-                    path_runs, "result_reg_load_factor_y", [sim_yr], reg_load_factor_y, 'reg_load_factor_y')
+                    path_runs,
+                    "result_reg_load_factor_y",
+                    [sim_yr],
+                    reg_load_factor_y,
+                    'reg_load_factor_y')
                 write_data.write_lf(
-                    path_runs, "result_reg_load_factor_yd", [sim_yr], reg_load_factor_yd, 'reg_load_factor_yd')
+                    path_runs,
+                    "result_reg_load_factor_yd",
+                    [sim_yr],
+                    reg_load_factor_yd,
+                    'reg_load_factor_yd')
                 write_data.write_lf(
-                    path_runs, "result_reg_load_factor_winter", [sim_yr], reg_load_factor_winter, 'reg_load_factor_winter')
+                    path_runs,
+                    "result_reg_load_factor_winter",
+                    [sim_yr],
+                    reg_load_factor_winter,
+                    'reg_load_factor_winter')
                 write_data.write_lf(
-                    path_runs, "result_reg_load_factor_spring", [sim_yr], reg_load_factor_spring, 'reg_load_factor_spring')
+                    path_runs,
+                    "result_reg_load_factor_spring",
+                    [sim_yr],
+                    reg_load_factor_spring,
+                    'reg_load_factor_spring')
                 write_data.write_lf(
-                    path_runs, "result_reg_load_factor_summer", [sim_yr], reg_load_factor_summer, 'reg_load_factor_summer')
+                    path_runs,
+                    "result_reg_load_factor_summer",
+                    [sim_yr],
+                    reg_load_factor_summer,
+                    'reg_load_factor_summer')
                 write_data.write_lf(
-                    path_runs, "result_reg_load_factor_autumn", [sim_yr], reg_load_factor_autumn, 'reg_load_factor_autumn')
+                    path_runs,
+                    "result_reg_load_factor_autumn",
+                    [sim_yr],
+                    reg_load_factor_autumn,
+                    'reg_load_factor_autumn')
 
                 # -------------------------------------------
                 # Write population files of simulation year
@@ -397,7 +412,7 @@ if __name__ == "__main__":
 
                 write_data.write_pop(
                     sim_yr,
-                    data['local_paths']['data_results'],
+                    data['local_paths']['model_run_pop'],
                     pop_array_reg)
                 logging.info("... Finished writing results to file")
 

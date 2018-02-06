@@ -451,8 +451,7 @@ def test_fuel_to_service():
         mode_constrained=False) #Difference
 
     assert service_tech['techA'] == 2000
-    #TODO ADD MORE TESTS
-test_fuel_to_service()
+
 def test_service_to_fuel():
 
     technologies = {'techA': read_data.TechnologyData()}

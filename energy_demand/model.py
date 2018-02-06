@@ -240,19 +240,25 @@ def fuel_aggr(
 
     Arguments
     ----------
-    input_array : array
-        Array to sum results
-    attribute_to_get : str
-        Attribue to sumarise
+    sector_models : list
+        Sector models
     sum_crit : str
         Criteria
     model_yearhours_nrs : int
         Number of modelled hours in a year
+    fueltypes_nr : int
+        Number of fueltypes
+    attribute_to_get : str
+        Attribue to sumarise
     model_yeardays_nrs : int
         Number of modelled yeardays
-    region_name : str, default=False
-        Name of region
-    TODO
+    attribute_non_technology : str
+        Attribute
+    attribute_technologies : str
+        Attribute
+    technologies : dict
+        Technologies
+
     Returns
     -------
     input_array : array
@@ -403,7 +409,7 @@ def get_fuels_yh(
                 nr_modelled_hours_factor, dtype=float)
             fuels = fuels_reg_y[:, np.newaxis, np.newaxis] * fast_shape
         elif attribute_to_get == 'techs_fuel_peak_h':
-            fuels =  1 / model_yearhours_nrs # TODO OR IS IT 1 / 24?
+            fuels = 1 / model_yearhours_nrs
 
     else: #If not flat shape, use yh load profile of enduse
         if attribute_to_get == 'fuel_peak_dh':

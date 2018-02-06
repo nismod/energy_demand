@@ -326,15 +326,15 @@ def sum_across_sectors_all_regs(fuel_disagg_reg):
 
     return fuel_aggregated
 
-def convert_fuel_switches_to_service_switches(
+def convert_sharesdict_to_service_switches(
         yr_until_switched,
         enduse,
         service_tech_switched_p,
         regions=False,
         regional_specific=False
     ):
-    """Convert fuel switches to service switches.
-    TODO IMPROVe
+    """Convert service of technologies to service switches.
+
     Arguments
     ---------
     yr_until_switched : int
@@ -359,28 +359,30 @@ def convert_fuel_switches_to_service_switches(
         for reg in regions:
             new_service_switches[reg] = []
 
-            for tech in service_tech_switched_p[reg]:
+            for tech, service_tech_p in service_tech_switched_p[reg].items():
+
                 if tech == 'dummy_tech':
                     pass
                 else:
                     switch_new = read_data.ServiceSwitch(
                         enduse=enduse,
                         technology_install=tech,
-                        service_share_ey=service_tech_switched_p[reg][tech],
+                        service_share_ey=service_tech_p,
                         switch_yr=yr_until_switched)
 
                     new_service_switches[reg].append(switch_new)
     else:
         new_service_switches = []
 
-        for tech in service_tech_switched_p:
+        for tech, service_tech_p in service_tech_switched_p.items():
+
             if tech == 'dummy_tech':
                 pass
             else:
                 switch_new = read_data.ServiceSwitch(
                     enduse=enduse,
                     technology_install=tech,
-                    service_share_ey=service_tech_switched_p[tech],
+                    service_share_ey=service_tech_p,
                     switch_yr=yr_until_switched)
 
                 new_service_switches.append(switch_new)
@@ -400,7 +402,8 @@ def sig_param_calculation_including_fuel_switch(
         regions=False,
         regional_specific=False
     ):
-    """Calculate sigmoid paramaters and consider fuel switches
+    """Calculate sigmoid diffusion paramaters whilst
+    consider fuel switches.
 
     Arguments
     ---------
@@ -415,13 +418,13 @@ def sig_param_calculation_including_fuel_switch(
     service_switches : dict
         service switches
     service_tech_by_p : dict
-
+        Service share per technology in base year
     service_fueltype_by_p : dict
-
+        Service share per fueltype for base year
     share_service_tech_ey_p : dict
-
+        Service share per technology for end year
     fuel_tech_p_by : dict
-
+        Fuel share per technology in base year
     regions : dict
         Regions
     regional_specific : bool, default=False
@@ -512,13 +515,13 @@ def sig_param_calculation_including_fuel_switch(
             regions=regions,
             regional_specific=regional_specific)
 
-        # GET YEAR OF AN SWITCH (all the same) TODO
+        # Get year of switches
         for fuelswitch in enduse_fuel_switches:
             yr_until_switched = fuelswitch.switch_yr
             break
 
-        # Convert fuel switch to service switches
-        service_switches_out = convert_fuel_switches_to_service_switches(
+        # Convert serivce shares to service switches
+        service_switches_out = convert_sharesdict_to_service_switches(
             yr_until_switched=yr_until_switched,
             enduse=enduse,
             service_tech_switched_p=service_tech_switched_p,
@@ -534,7 +537,7 @@ def sig_param_calculation_including_fuel_switch(
     if crit_switch_service or crit_fuel_switch:
         print("... calculate sigmoid for techs defined in switch")
 
-        # TODO GET YEAR OF SWITCHES IN ENDUSE (ALL NEED SAME ENDYEAR)
+        # Get year of switches
         if regional_specific:
             for region in regions:
                 for switch in service_switches_out[region]:

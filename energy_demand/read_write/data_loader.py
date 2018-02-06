@@ -296,6 +296,8 @@ def load_local_paths(path):
             path, '_result_data', 'PDF_results'),
         'data_results_validation': os.path.join(
             path, '_result_data', 'PDF_validation'),
+        'model_run_pop': os.path.join(
+            path, '_result_data', 'model_run_pop'),
         'data_results_shapefiles': os.path.join(
             path, '_result_data', 'result_shapefiles')}
 
