@@ -46,9 +46,10 @@ def plotout_sigmoid_tech_diff(L_value, technology, xdata, ydata, fit_parameter, 
 
     if plot_crit:
         if close_window_crit:
-            timer.start()
             pylab.show()
         else:
+            timer.start()
+            pylab.show()
             pass
     else:
         pass

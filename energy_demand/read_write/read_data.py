@@ -1,4 +1,9 @@
 """Reading raw data
+
+This file holds all functions necessary to read in information
+and data to run the energy demand model.
+
+TODO :CLEAN FUNCTIONS
 """
 import sys
 import os
@@ -470,6 +475,18 @@ def service_switch(path_to_csv, technologies):
     Notes
     -----
     The base year service shares are generated from technology stock definition
+
+
+    Info
+    -----
+    The following attributes need to be defined for a service switch.
+
+        Attribute                   Description
+        ==========                  =========================
+        enduse                      [str]   Enduse affected by switch
+        tech                        [str]   Technology
+        switch_yr                   [int]   Year until switch is fully realised
+        service_share_ey            [str]   Service share of 'tech' in 'switch_yr'
     """
     service_switches = []
 
@@ -516,6 +533,19 @@ def read_fuel_switches(path_to_csv, enduses, fueltypes):
     -------
     dict_with_switches : dict
         All assumptions about fuel switches provided as input
+
+
+    Info
+    -----
+    The following attributes need to be defined for a fuel switch.
+
+        Attribute                   Description
+        ==========                  =========================
+        enduse                      [str]   Enduse affected by switch
+        enduse_fueltype_replace     [str]   Fueltype to be switched from
+        technology_install          [str]   Technology which is installed
+        switch_yr                   [int]   Year until switch is fully realised
+        fuel_share_switched_ey      [float] Share of fuel which is switched until switch_yr
     """
     fuel_switches = []
 
@@ -534,7 +564,6 @@ def read_fuel_switches(path_to_csv, enduses, fueltypes):
                         fuel_share_switched_ey=float(row[4])))
             except (KeyError, ValueError):
                 sys.exit("Check if provided data is complete (no emptly csv entries)")
-
 
     # Testing wheter the provided inputs make sense
     for obj in fuel_switches:
@@ -603,7 +632,6 @@ def read_technologies(path_to_csv, fueltypes):
         diff_method	market_entry    [int]   Year of market entry of technology
         tech_list                   [str]   Definition of to which group
                                             of technologies a technology belongs
-            TODO: MROE INFO
         tech_max_share              [float] Maximum share of technology related
                                             energy service which can be reached in theory
     """
@@ -822,7 +850,10 @@ def read_service_fueltype_tech_by_p(path_to_csv):
     ----------
     path_to_csv : str
         Path to csv
-
+    
+    Returns
+    -------
+    service_fueltype_tech_by_p
     """
     service_fueltype_tech_by_p = {}
 

@@ -11,7 +11,7 @@ from scipy.optimize import curve_fit
 from energy_demand.technologies import diffusion_technologies
 from energy_demand.plotting import plotting_program
 
-def calc_sigmoid_parameters(l_value, xdata, ydata, error_range=0.00002):
+def calc_sigmoid_parameters(l_value, xdata, ydata, fit_assump_init=0.001, error_range=0.00002):
     """Calculate sigmoid parameters. Check if fitting is good enough.
 
     Arguments
@@ -22,6 +22,8 @@ def calc_sigmoid_parameters(l_value, xdata, ydata, error_range=0.00002):
         X data
     ydata : array
         Y data
+    fit_assump_init : float
+        Small value for correct sigmoid diffusion in case start value is equal to L
     fit_crit_max : float
         Criteria to control and abort fit
     fit_crit_min : float
@@ -86,14 +88,23 @@ def calc_sigmoid_parameters(l_value, xdata, ydata, error_range=0.00002):
             else:
                 crit_plus_minus = 'minus'
 
+                if l_value == ydata[0]:
+                    l_value += fit_assump_init
+                else:
+                    pass
+
+            # Select start parameters depending on pos or neg diff
+            if crit_plus_minus == 'plus':
+                start_parameters[1] = start_param_list[1] * 1
+            else:
+                start_parameters[1] = start_param_list[1] * -1
+
             # Fit function
             fit_parameter = fit_sigmoid_diffusion(
                 l_value,
-                np.array(xdata),
-                np.array(ydata),
+                xdata,
+                ydata,
                 start_parameters)
-
-            logging.debug("Fit parameters: %s %s %s", fit_parameter, xdata, ydata)
 
             # Test if start paramters are identical to fitting parameters
             if (crit_plus_minus == 'plus' and fit_parameter[1] < 0) or (
@@ -102,39 +113,57 @@ def calc_sigmoid_parameters(l_value, xdata, ydata, error_range=0.00002):
                 if cnt >= len(start_param_list):
                     logging.critical("Error: Sigmoid curve fitting failed")
             else:
-                pass # corret sign
+                #pass # corret sign
 
-            if (fit_parameter[0] == start_parameters[0]) or (
-                    fit_parameter[1] == start_parameters[1]):
-                cnt += 1
-                if cnt >= len(start_param_list):
-                    logging.critical("Error: Sigmoid curve fitting failed")
-            else:
-                successfull = True
-
-                # -------------------------
-                # Check how good the fit is
-                # -------------------------
-                y_calculated = diffusion_technologies.sigmoid_function(
-                    xdata[1], l_value, *fit_parameter)
-
-                fit_measure_in_percent = float((100.0 / ydata[1]) * y_calculated)
-                if fit_measure_in_percent < (100.0 - error_range) or fit_measure_in_percent > (100.0 + error_range):
-                    logging.debug(
-                        "... Fitting measure %s (percent) is not good enough", fit_measure_in_percent)
-                    successfull = False
+                if (fit_parameter[0] == start_parameters[0]) or (
+                        fit_parameter[1] == start_parameters[1]):
                     cnt += 1
+                    if cnt >= len(start_param_list):
+                        logging.critical("Error: Sigmoid curve fitting failed")
                 else:
-                    logging.warning(".... fitting successfull {}  {} ".format(fit_measure_in_percent, fit_parameter))
+                    successfull = True
 
+                    logging.debug("Fit parameters: %s %s %s", fit_parameter, xdata, ydata)
+                    '''plotting_program.plotout_sigmoid_tech_diff(
+                        l_value,
+                        "ttse",
+                        xdata,
+                        ydata,
+                        fit_parameter,
+                        plot_crit=True, #TRUE
+                        close_window_crit=True)'''
+                    # -------------------------
+                    # Check how good the fit is
+                    # -------------------------
+                    y_calculated = diffusion_technologies.sigmoid_function(
+                        x_value=xdata[1],
+                        l_value=l_value,
+                        midpoint=fit_parameter[0],
+                        steepness=fit_parameter[1])
+
+                    fit_measure_in_percent = float((100.0 / ydata[1]) * y_calculated)
+                    if fit_measure_in_percent < (100.0 - error_range) or fit_measure_in_percent > (100.0 + error_range):
+                        logging.debug(
+                            "... Fitting measure %s (percent) is not good enough", fit_measure_in_percent)
+                        successfull = False
+                        cnt += 1
+                    else:
+                        logging.warning(".... fitting successfull {}  {} ".format(fit_measure_in_percent, fit_parameter))
+                        '''plotting_program.plotout_sigmoid_tech_diff(
+                            l_value,
+                            "FINISHED FITTING",
+                            xdata,
+                            ydata,
+                            fit_parameter,
+                            plot_crit=True, #TRUE
+                            close_window_crit=True)'''
         except (RuntimeError, IndexError):
             logging.debug("Unsuccessful fit %s %s", start_parameters[0], start_parameters[1])
             cnt += 1
 
             if cnt >= len(start_param_list):
                 logging.critical("Check whether start year is <= the year 2000")
-                logging.critical("Sigmoid fit error: Try changing fit_crit_max and fit_crit_min")
-                prnt("Error: Fitting erorr did not work,") #TODO CRASH WOTHERWISE
+                raise Exception("Fitting did not work")
 
     return fit_parameter
 
@@ -247,7 +276,7 @@ def fit_sigmoid_diffusion(l_value, x_data, y_data, start_parameters):
         x_data,
         y_data,
         p0=start_parameters,
-        maxfev=10000) # Numer of iterations
+        maxfev=100000) # Numer of iterations
 
     return popt
 
@@ -266,7 +295,7 @@ def tech_l_sigmoid(
 
     Arguments
     ----------
-    service_tech_switched_ey : dict 
+    service_tech_switched_ey : dict
         Ey service tech
     enduse_fuel_switches : dict
         Fuel switches of enduse
@@ -285,23 +314,20 @@ def tech_l_sigmoid(
         L value for sigmoid diffusion of all technologies
         for which a switch is implemented
     """
-    fit_assump_init = 0.01 #NEW
-
     l_values_sig = {}
 
     # Check wheter there are technologies in this enduse which are switched
     if installed_tech == []:
         pass
     else:
-        print("Technologes to calculate sigmoid %s ", installed_tech)
+        logging.debug("Technologes to calculate sigmoid %s", installed_tech)
 
         # Iterite list with enduses where fuel switches are defined
         for technology in installed_tech:
 
-            # IF technology is decreasing
+            # If decreasing technology, L-Value stays initial value
             if service_tech_by_p[technology] > service_tech_switched_ey[technology]:
-                # If decreasing technology, L-Value stays initial value
-                l_values_sig[technology] = service_tech_by_p[technology] # TODO NECESSARY?+ fit_assump_init  # TODO GLOBI + fit fit_assump_init
+                l_values_sig[technology] = service_tech_by_p[technology]
 
             else:
                 # Future service share is higher
@@ -317,18 +343,6 @@ def tech_l_sigmoid(
                 # Read L-values with calculating maximum sigmoid theoretical diffusion
                 l_values_sig[technology] = tech_install_p[technology]
 
-            '''# Calculate maximum service demand for specific tech TODO
-            tech_install_p = calc_service_fuel_switched(
-                enduse_fuel_switches,
-                technologies,
-                service_fueltype_by_p,
-                service_tech_by_p,
-                fuel_tech_p_by,
-                'max_switch')
-
-            # Read L-values with calculating maximum sigmoid theoretical diffusion
-            l_values_sig[technology] = tech_install_p[technology]'''
-
     return l_values_sig
 
 def calc_service_fuel_switched(
@@ -340,7 +354,6 @@ def calc_service_fuel_switched(
         switch_type
     ):
     """Calculate energy service demand percentages after fuel switches
-
 
     TODO CLEAN AN IMPROVE
 
@@ -365,7 +378,7 @@ def calc_service_fuel_switched(
     service_tech_switched_p : dict
         Service in future year with added and substracted
         service demand for every technology
-    TODO ANNOTATE
+
     Note
     ----
     Implement changes in heat demand (all technolgies within
@@ -385,7 +398,6 @@ def calc_service_fuel_switched(
         # e.g. 10% of service is gas ---> if we replace 50% --> minus 5 percent
         if switch_type == 'max_switch':
             change_service_fueltype_by_p = service_p_by * technologies[tech_install].tech_max_share
-            print("   - {}   {}".format(technologies[tech_install].tech_max_share, service_p_by))
         elif switch_type == 'actual_switch':
             change_service_fueltype_by_p = service_p_by * fuel_switch.fuel_share_switched_ey
 
@@ -453,7 +465,7 @@ def get_tech_installed(enduse, fuel_switches):
 
 def get_l_values(
         technologies,
-        tech_increased_service,
+        technologies_to_consider,
         regions=False,
         regional_specific=False
     ):
@@ -464,8 +476,8 @@ def get_l_values(
     ----------
     technologies : dict
         Technologies
-    tech_increased_service : list
-        Technologies with increased service (installed technologies)
+    technologies_to_consider : list
+        Technologies to consider
     service_fueltype_by_p :
         Fraction of service per fueltype in base year
     regions : dict
@@ -475,25 +487,23 @@ def get_l_values(
 
     Return
     ------
-    service_tech_switched_p : dict
-        Share of service per technology after switch
     l_values_sig : dict
-        Sigmoid paramters of all installed technologies
+        Sigmoid paramters
     """
     l_values_sig = defaultdict(dict)
-    #TODO SAME NO DIFFERENCE
+
     if regional_specific:
         for reg in regions:
-            if tech_increased_service == []:
+            if technologies_to_consider == []:
                 pass
             else:
-                for tech in tech_increased_service: #[reg]:
+                for tech in technologies_to_consider:
                     l_values_sig[reg][tech] = technologies[tech].tech_max_share
     else:
-        if tech_increased_service == []:
+        if technologies_to_consider == []:
             pass
         else:
-            for tech in tech_increased_service:
+            for tech in technologies_to_consider:
                 l_values_sig[tech] = technologies[tech].tech_max_share
 
     return dict(l_values_sig)
@@ -601,7 +611,6 @@ def calc_sigm_parameters(
         l_values_sig,
         service_tech_by_p,
         service_tech_switched_p,
-        #tech_increased_service,
         regions=False,
         regional_specific=False
     ):
@@ -614,6 +623,8 @@ def calc_sigm_parameters(
 
     Arguments
     ---------
+    yr_until_switched : float
+        Year until switch is fully realised
     base_yr : int
         Base year
     technologies : dict
@@ -639,27 +650,20 @@ def calc_sigm_parameters(
     if regional_specific:
         for reg in regions:
 
-            installed_techs = service_tech_switched_p[reg].keys()
-
             # Calclulate sigmoid parameters for every installed technology
             sig_param_tech[reg] = tech_sigmoid_parameters(
                 yr_until_switched,
                 base_yr,
                 technologies,
-                installed_techs,
                 l_values_sig[reg],
                 service_tech_by_p,
                 service_tech_switched_p[reg])
     else:
-        #installed_techs = list(tech_increased_service.keys())
-        installed_techs = service_tech_switched_p.keys()
-
         # Calclulate sigmoid parameters for every installed technology
         sig_param_tech = tech_sigmoid_parameters(
             yr_until_switched,
             base_yr,
             technologies,
-            installed_techs,
             l_values_sig,
             service_tech_by_p,
             service_tech_switched_p)
@@ -670,7 +674,6 @@ def tech_sigmoid_parameters(
         yr_until_switched,
         base_yr,
         technologies,
-        installed_tech,
         l_values,
         service_tech_by_p,
         service_tech_switched_p,
@@ -687,10 +690,6 @@ def tech_sigmoid_parameters(
         base year
     technologies : dict
         technologies
-    installed_tech : list or dict
-        Installed technologies
-    installed_tech : list
-        List with installed technologies in fuel switches
     l_values : dict
         L values for maximum possible diffusion of technologies
     service_tech_by_p : dict
@@ -705,6 +704,9 @@ def tech_sigmoid_parameters(
     sigmoid_parameters : dict
         Sigmoid diffusion parameters to read energy service demand percentage (not fuel!)
     """
+    # Technologies to apply calculation
+    installed_techs = service_tech_switched_p.keys()
+
     # As fit does not work with a starting point of 0,
     # an initial small value needs to be assumed
     fit_assump_init = 0.001
@@ -712,10 +714,10 @@ def tech_sigmoid_parameters(
     sigmoid_parameters = defaultdict(dict)
 
     # Fitting criteria where the calculated sigmoid slope and midpoint can be provided limits
-    if installed_tech == []:
-        logging.debug("NO TECHNOLOGY.. %s", installed_tech)
+    if installed_techs == []:
+        pass
     else:
-        for tech in installed_tech:
+        for tech in installed_techs:
             logging.debug("... create sigmoid diffusion parameters %s", tech)
 
             # --------
@@ -725,9 +727,9 @@ def tech_sigmoid_parameters(
             if technologies[tech].market_entry > base_yr:
                 point_x_by = technologies[tech].market_entry
                 point_y_by = fit_assump_init
-            else: # If market entry before, set to 2015
-                point_x_by = base_yr                    # Base year service share
-                point_y_by = service_tech_by_p[tech]    # Current service share
+            else:
+                point_x_by = base_yr                            # Base year service share
+                point_y_by = service_tech_by_p[tech]            # Current service share
 
                 #If the base year is the market entry year use a very small number
                 if point_y_by == 0:
@@ -745,8 +747,9 @@ def tech_sigmoid_parameters(
             xdata = np.array([point_x_by, point_x_projected])
             ydata = np.array([point_y_by, point_y_projected])
 
-            logging.debug("... create sigmoid diffusion %s - %s - %s - %s - l_val: %s - %s - %s".format(
-                tech, xdata, ydata, fit_assump_init, l_values[tech], point_y_by, point_y_projected))
+            logging.debug(
+                "... create sigmoid diffusion %s - %s - %s - %s - l_val: %s - %s - %s".format(
+                    tech, xdata, ydata, fit_assump_init, l_values[tech], point_y_by, point_y_projected))
 
             # If no change in by to ey but not zero (lineare change)
             if (round(point_y_by, 10) == round(point_y_projected, 10)) and (
@@ -761,8 +764,7 @@ def tech_sigmoid_parameters(
                 # Test if ftting is possible ()
                 if (point_y_by == fit_assump_init and point_y_projected == fit_assump_init) or (
                         l_values[tech] == 0 or (
-                            round(point_y_by, 6)) == round(point_y_projected, 6)): # or (
-                                #point_y_by == 'nan' and point_y_projected == 'nan'): #NEW
+                            round(point_y_by, 6)) == round(point_y_projected, 6)):
 
                     # If no increase or decrease, if no future potential share
                     sigmoid_parameters[tech]['midpoint'] = None
@@ -776,6 +778,7 @@ def tech_sigmoid_parameters(
                         l_values[tech],
                         xdata,
                         ydata,
+                        fit_assump_init=fit_assump_init,
                         error_range=0.0002)
 
                     logging.debug(

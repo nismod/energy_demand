@@ -67,10 +67,10 @@ def test_service_switch():
     """Test
     """
     # Install technology B and replace 50% of fueltype 0
-    l_value = 0.9
+    l_value = 1.0
+
     share_boilerA_by = 0.1
     share_boilerA_cy = 0.2 #1
-
     share_boilerB_by = 0.9
     share_boilerB_cy = 0.8
 
@@ -82,6 +82,7 @@ def test_service_switch():
 
     xdata = np.array([base_yr, end_yr])
     ydata = np.array([share_boilerA_by, share_boilerA_cy])
+    ydataB = np.array([share_boilerB_by, share_boilerB_cy])
     assert l_value >= share_boilerA_cy
 
     # fit parameters
@@ -90,35 +91,44 @@ def test_service_switch():
         xdata,
         ydata)
 
-    tot_service_yh_cy = np.full((365, 24), 1.0) #constant share of 1 in every hour
-    service_tech_by_p = {"boilerA": share_boilerA_by, "boilerB": share_boilerB_by}
-    tech_increase_service = {"boilerA": share_boilerA_by}
-    tech_decrease_service = {"boilerB": share_boilerB_by}
-    tech_constant_service = []
+    fit_parameterB = s_generate_sigmoid.calc_sigmoid_parameters(
+        l_value,
+        xdata,
+        ydataB)
+
+    tot_service_yh_cy = {
+        'boilerA': 365*24,
+        'boilerB': 365*24, }#constant share of 1 in every hour
+
+    service_tech_by_p = {
+        "boilerA": share_boilerA_by,
+        "boilerB": share_boilerB_by}
+
+    all_technologies = ['boilerA', 'boilerB']
 
     sig_param_tech = {
             "boilerA": {
                 'midpoint': fit_parameter[0],
                 'steepness': fit_parameter[1],
-                'l_parameter': l_value}
-        }
+                'l_parameter': l_value},
+            "boilerB": {
+                'midpoint': fit_parameterB[0],
+                'steepness': fit_parameterB[1],
+                'l_parameter': l_value}}
 
     result = enduse_func.calc_service_switch(
-        tot_service_yh_cy,
-        service_tech_by_p,
-        tech_increase_service,
-        tech_decrease_service,
-        tech_constant_service,
-        sig_param_tech,
-        curr_yr)
+        service_tech_y_cy=tot_service_yh_cy,
+        service_tech_by_p=service_tech_by_p,
+        all_technologies=all_technologies,
+        sig_param_tech=sig_param_tech,
+        curr_yr=curr_yr)
 
     expected_tech_service_cy_p = {
-        "boilerA": 365*24 * share_boilerA_cy, # * 0.5
-        "boilerB": 365*24 * share_boilerB_cy} # * 0.5
-    #print(round(expected_tech_service_cy_p["boilerA"], 3))
-    #print(round(np.sum(result["boilerA"]), 3))
-    #print(round(expected_tech_service_cy_p["boilerB"], 3) )
-    #print(round(np.sum(result["boilerB"]), 3))
+        "boilerA": 365*24*2 * share_boilerA_cy, # * 0.5
+        "boilerB": 365*24*2 * share_boilerB_cy} # * 0.5
+
+    print(round(expected_tech_service_cy_p["boilerA"], 3))
+    print(round(np.sum(result["boilerA"]), 3))
     assert round(expected_tech_service_cy_p["boilerA"], 3) == round(np.sum(result["boilerA"]), 3)
     assert round(expected_tech_service_cy_p["boilerB"], 3) == round(np.sum(result["boilerB"]), 3)
 
@@ -137,6 +147,7 @@ def test_service_switch():
     # ----- Calculate sigmoids
     xdata = np.array([base_yr, end_yr])
     ydata = np.array([share_boilerA_by, share_boilerA_cy])
+    ydataB = np.array([share_boilerB_by, share_boilerB_cy])
     assert l_value >= share_boilerA_cy
 
     # fit parameters
@@ -145,32 +156,37 @@ def test_service_switch():
         xdata,
         ydata)
 
-    tot_service_yh_cy = np.full((365, 24), 1.0) #constant share of 1 in every hour
-    service_tech_by_p = {"boilerA": share_boilerA_by, "boilerB": share_boilerB_by}
+    fit_parameterB = s_generate_sigmoid.calc_sigmoid_parameters(
+        l_value,
+        xdata,
+        ydataB)
 
-    tech_increase_service = {"boilerA": share_boilerA_by}
-    tech_decrease_service = {"boilerB": share_boilerB_by}
-    tech_constant_service = []
+    tot_service_yh_cy = 365 * 24 #constant share of 1 in every hour
+    service_tech_by_p = {
+        "boilerA": share_boilerA_by,
+        "boilerB": share_boilerB_by}
 
     sig_param_tech = {
             "boilerA": {
                 'midpoint': fit_parameter[0],
                 'steepness': fit_parameter[1],
-                'l_parameter': l_value}
+                'l_parameter': l_value},
+            "boilerB": {
+                'midpoint': fit_parameterB[0],
+                'steepness': fit_parameterB[1],
+                'l_parameter': l_value},
         }
 
     result = enduse_func.calc_service_switch(
         tot_service_yh_cy,
         service_tech_by_p,
-        tech_increase_service,
-        tech_decrease_service,
-        tech_constant_service,
+        all_technologies,
         sig_param_tech,
         curr_yr)
 
     half_time_factor = 1
     expected_tech_service_cy_p = {
-        "boilerA": 365*24,
+        "boilerA": 365*24*2,
         "boilerB": 0}
 
     assert round(expected_tech_service_cy_p["boilerA"], 3) == round(np.sum(result["boilerA"]), 3)
@@ -192,6 +208,7 @@ def test_service_switch():
     # ----- Calculate sigmoids
     xdata = np.array([base_yr, end_yr])
     ydata = np.array([share_boilerA_by, share_boilerA_cy])
+    ydataB = np.array([share_boilerB_by, share_boilerB_cy])
     assert l_value >= share_boilerA_cy
 
     # fit parameters
@@ -199,37 +216,40 @@ def test_service_switch():
         l_value,
         xdata,
         ydata)
-
+    fit_parameterB = s_generate_sigmoid.calc_sigmoid_parameters(
+        l_value,
+        xdata,
+        ydataB)
     #plot sigmoid curve
     #plotting_program.plotout_sigmoid_tech_diff(l_value, "GG", "DD", xdata, ydata, fit_parameter, False)
 
-    tot_service_yh_cy = np.full((365, 24), 1.0) #constant share of 1 in every hour
-    service_tech_by_p = {"boilerA": share_boilerA_by, "boilerB": share_boilerB_by}
-
-    tech_increase_service = {"boilerA": share_boilerA_by}
-    tech_decrease_service = {"boilerB": share_boilerB_by}
-    tech_constant_service = []
+    tot_service_yh_cy = 365 * 24 #  np.full((365, 24), 1.0) #constant share of 1 in every hour
+    service_tech_by_p = {
+        "boilerA": share_boilerA_by,
+        "boilerB": share_boilerB_by}
 
     enduse = "heating"
     sig_param_tech = {
             "boilerA": {
                 'midpoint': fit_parameter[0],
                 'steepness': fit_parameter[1],
-                'l_parameter': l_value}
+                'l_parameter': l_value},
+            "boilerB": {
+                'midpoint': fit_parameterB[0],
+                'steepness': fit_parameterB[1],
+                'l_parameter': l_value},
         }
 
     result = enduse_func.calc_service_switch(
         tot_service_yh_cy,
         service_tech_by_p,
-        tech_increase_service,
-        tech_decrease_service,
-        tech_constant_service,
+        all_technologies,
         sig_param_tech,
         curr_yr)
 
     expected_tech_service_cy_p = {
-        "boilerA": 365*24*0.5,
-        "boilerB": 365*24*0.5}
+        "boilerA": 365*24*0.5*2,
+        "boilerB": 365*24*0.5*2}
 
     assert round(expected_tech_service_cy_p["boilerA"], 1) == round(np.sum(result["boilerA"]), 1)
     assert round(expected_tech_service_cy_p["boilerB"], 1) == round(np.sum(result["boilerB"]), 1)
@@ -366,7 +386,7 @@ def test_fuel_to_service():
     enduse = 'heating'
     fuel_new_y = {0: 2000}
     enduse_techs = ['techA']
-    fuel_tech_p_by = {0 : {'techA': 1.0}}
+    fuel_fueltype_tech_p_by = {0 : {'techA': 1.0}}
 
     technologies = {'techA': read_data.TechnologyData()}
     technologies['techA'].fueltype_str = 'gas'
@@ -397,7 +417,7 @@ def test_fuel_to_service():
         enduse=enduse,
         fuel_new_y=fuel_new_y,
         enduse_techs=enduse_techs,
-        fuel_tech_p_by=fuel_tech_p_by,
+        fuel_fueltype_tech_p_by=fuel_fueltype_tech_p_by,
         tech_stock=tech_stock,
         fueltypes=fueltypes,
         mode_constrained=True)
@@ -405,6 +425,7 @@ def test_fuel_to_service():
     assert service_tech['techA'] == 1000
 
     # ---
+    fuel_fueltype_tech_p_by = {0 : {'techA': 1.0}, 1: {}} #'dummy_tech': 1.0}}
     fuel_new_y = {0: 0, 1: 2000}
     fuel_tech_p_by = {0 : {}, 1: {'techA': 1.0}}
     fueltypes = {'gas': 0, 'heat': 1}
@@ -428,7 +449,7 @@ def test_fuel_to_service():
         enduse=enduse,
         fuel_new_y=fuel_new_y,
         enduse_techs=enduse_techs,
-        fuel_tech_p_by=fuel_tech_p_by,
+        fuel_fueltype_tech_p_by=fuel_fueltype_tech_p_by,
         tech_stock=tech_stock,
         fueltypes=fueltypes,
         mode_constrained=False) #Difference
@@ -783,7 +804,7 @@ def test_test():
     """Test
     """
     # Install technology B and replace 50% of fueltype 0
-    tot_service_yh_cy = 3724.1471455
+    tot_service = 3724.1471455
     service_tech_by_p = {
         'boiler_solid_fuel': 0.0,
         'boiler_gas': 0.97611092943131095,
@@ -792,6 +813,11 @@ def test_test():
         'district_heating_electricity': 0.0,
         'boiler_oil': 0.0028402839847661808,
         'boiler_biomass': 0.0, 'boiler_hydrogen': 0.0, 'heat_pumps_hydrogen': 0.0}
+
+    service_tech_y_cy = {}
+    for tech in service_tech_by_p.keys():
+        service_tech_y_cy[tech] = service_tech_by_p[tech] * tot_service
+
     tech_decrease_service = {
         'boiler_gas': 0.076246771740129615}
 
@@ -811,11 +837,9 @@ def test_test():
     curr_yr = 2050
 
     result = enduse_func.calc_service_switch(
-        tot_service_yh_cy=tot_service_yh_cy,
+        service_tech_y_cy=service_tech_y_cy,
         service_tech_by_p=service_tech_by_p,
-        tech_increase_service=tech_increase_service,
-        tech_decrease_service=tech_decrease_service,
-        tech_constant_service=tech_constant_service,
+        all_technologies=tech_increase_service, #service_tech_by_p.keys(),
         sig_param_tech=sig_param_tech,
         curr_yr=curr_yr)
     summe = 0.70627648300491375 * 3724.1471455
