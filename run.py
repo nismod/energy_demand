@@ -53,7 +53,7 @@ class EDWrapper(SectorModel):
         data = defaultdict(dict)
 
         # Criteria
-        data['criterias']['mode_constrained'] = True                    # True: Technologies are defined in ED model and fuel is provided, False: Heat is delievered not per technologies
+        data['criterias']['mode_constrained'] = False                    # True: Technologies are defined in ED model and fuel is provided, False: Heat is delievered not per technologies
         data['criterias']['virtual_building_stock_criteria'] = True     # True: Run virtual building stock model
         data['criterias']['plot_HDD_chart'] = False                     # True: Plotting of HDD vs gas chart
         data['criterias']['validation_criteria'] = False                # True: Plot validation plots
@@ -168,18 +168,18 @@ class EDWrapper(SectorModel):
             year_to_model=2015)
 
         # ----------------------------------
-        # Calculating COOLING CDD PARAMETER
+        # Calculate correction factors
         # ----------------------------------
         data['assumptions']['cdd_weekend_cfactors'] = hdd_cdd.calc_weekend_corr_f(
-            data['assumptions']['model_yeardays_daytype'], 
+            data['assumptions']['model_yeardays_daytype'],
             data['assumptions']['ss_t_cooling_weekend_factor'])
-        
+
         data['assumptions']['ss_weekend_f'] = hdd_cdd.calc_weekend_corr_f(
-            data['assumptions']['model_yeardays_daytype'], 
+            data['assumptions']['model_yeardays_daytype'],
             data['assumptions']['ss_weekend_factor'])
 
         data['assumptions']['is_weekend_f'] = hdd_cdd.calc_weekend_corr_f(
-            data['assumptions']['model_yeardays_daytype'], 
+            data['assumptions']['model_yeardays_daytype'],
             data['assumptions']['is_weekend_factor'])
 
         # ------------
@@ -212,7 +212,7 @@ class EDWrapper(SectorModel):
             data['assumptions']['technologies'],
             data['assumptions']['strategy_variables']['eff_achiev_f'],
             data['assumptions']['strategy_variables']['split_hp_gshp_to_ashp_ey'])
-        
+
         # ------------------------
         # Pass along to simulate()
         # ------------------------

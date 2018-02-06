@@ -157,8 +157,8 @@ def get_service_fueltype_tech(
     service_fueltype_by_p = init_nested_dict_zero(
         service_tech_by_p.keys(),
         range(len(fueltypes)))
-
-    #for enduse, fuel in fuels.items(): #TODO: REPLACE WITH ENDUSES and improve reading in with all sectors directly
+    
+    #TODO: REPLACE WITH ENDUSES and improve reading in with all sectors directly
     for enduse in enduses:
         if not sector:
             fuel = fuels[enduse]

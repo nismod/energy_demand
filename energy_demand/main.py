@@ -36,7 +36,7 @@ TODO: Load different temp --> for different years
 TODO: THECK VARIALBES IN HOUSEHOLD MODEL
 TODO: WRITE COOLING PARAMETER
 TODO: FUEL; SERVICE SWITHC AS INPUT
-TODO: Repair LOG FILE
+TODO: Repair LOG FILE 
 #WRAPPER BASE AND CURRENT YEAR GVA
 """
 import os
@@ -89,19 +89,19 @@ def energy_demand_model(data, fuel_in=0, fuel_in_elec=0):
     print("-----------")
     print("oil fuel in:         " + str(fuel_in_oil))
     print("oil fuel out:        " + str(np.sum(modelrun_obj.ed_fueltype_national_yh[data['lookups']['fueltypes']['oil']])))
-    print("oil diff:            " + str(round(np.sum(modelrun_obj.ed_fueltype_national_yh[data['lookups']['fueltypes']['oil']]), 4) - fuel_in_oil))
+    print("oil diff:            " + str(round(np.sum(modelrun_obj.ed_fueltype_national_yh[data['lookups']['fueltypes']['oil']]) - fuel_in_oil, 4)))
     print("-----------")
     print("biomass fuel in:     " + str(fuel_in_biomass))
     print("biomass fuel out:    " + str(np.sum(modelrun_obj.ed_fueltype_national_yh[data['lookups']['fueltypes']['biomass']])))
-    print("biomass diff:        " + str(round(np.sum(modelrun_obj.ed_fueltype_national_yh[data['lookups']['fueltypes']['biomass']]), 4) - fuel_in_biomass))
+    print("biomass diff:        " + str(round(np.sum(modelrun_obj.ed_fueltype_national_yh[data['lookups']['fueltypes']['biomass']]) - fuel_in_biomass, 4)))
     print("-----------")
     print("solid_fuel fuel in:  " + str(fuel_in_solid_fuel))
     print("solid_fuel fuel out: " + str(np.sum(modelrun_obj.ed_fueltype_national_yh[data['lookups']['fueltypes']['solid_fuel']])))
-    print("solid_fuel diff:     " + str(round(np.sum(modelrun_obj.ed_fueltype_national_yh[data['lookups']['fueltypes']['solid_fuel']]), 4) - fuel_in_solid_fuel))
+    print("solid_fuel diff:     " + str(round(np.sum(modelrun_obj.ed_fueltype_national_yh[data['lookups']['fueltypes']['solid_fuel']]) - fuel_in_solid_fuel, 4)))
     print("-----------")
     print("elec fuel in:        " + str(fuel_in_elec))
     print("elec fuel out:       " + str(np.sum(modelrun_obj.ed_fueltype_national_yh[data['lookups']['fueltypes']['electricity']])))
-    print("ele fuel diff:       " + str(round(np.sum(modelrun_obj.ed_fueltype_national_yh[data['lookups']['fueltypes']['electricity']]), 4) - fuel_in_elec))
+    print("ele fuel diff:       " + str(round(np.sum(modelrun_obj.ed_fueltype_national_yh[data['lookups']['fueltypes']['electricity']]) - fuel_in_elec, 4)))
     print("-----------")
     print("gas fuel in:         " + str(fuel_in_gas))
     print("gas fuel out:        " + str(np.sum(modelrun_obj.ed_fueltype_national_yh[data['lookups']['fueltypes']['gas']])))
@@ -109,19 +109,19 @@ def energy_demand_model(data, fuel_in=0, fuel_in_elec=0):
     print("-----------")
     print("hydro fuel in:       " + str(fuel_in_hydrogen))
     print("hydro fuel out:      " + str(np.sum(modelrun_obj.ed_fueltype_national_yh[data['lookups']['fueltypes']['hydrogen']])))
-    print("hydro diff:          " + str(round(np.sum(modelrun_obj.ed_fueltype_national_yh[data['lookups']['fueltypes']['hydrogen']]), 4) - fuel_in_hydrogen))
+    print("hydro diff:          " + str(round(np.sum(modelrun_obj.ed_fueltype_national_yh[data['lookups']['fueltypes']['hydrogen']]) - fuel_in_hydrogen, 4)))
     print("-----------")
     print("TOTAL HEATING        " + str(tot_heating))
     print("heat fuel in:        " + str(fuel_in_heat))
     print("heat fuel out:       " + str(np.sum(modelrun_obj.ed_fueltype_national_yh[data['lookups']['fueltypes']['heat']])))
-    print("heat diff:           " + str(round(np.sum(modelrun_obj.ed_fueltype_national_yh[data['lookups']['fueltypes']['heat']]), 4) - fuel_in_heat))
+    print("heat diff:           " + str(round(np.sum(modelrun_obj.ed_fueltype_national_yh[data['lookups']['fueltypes']['heat']]) - fuel_in_heat, 4)))
     print("-----------")
-    print("Diff elec %:         " + str((1/(round(np.sum(modelrun_obj.ed_fueltype_national_yh[data['lookups']['fueltypes']['electricity']]), 4))) * fuel_in_elec))
-    print("Diff gas %:          " + str((1/(round(np.sum(modelrun_obj.ed_fueltype_national_yh[data['lookups']['fueltypes']['gas']]), 4))) * fuel_in_gas))
-    print("Diff oil %:          " + str((1/(round(np.sum(modelrun_obj.ed_fueltype_national_yh[data['lookups']['fueltypes']['oil']]), 4))) * fuel_in_oil))
-    print("Diff solid_fuel %:   " + str((1/(round(np.sum(modelrun_obj.ed_fueltype_national_yh[data['lookups']['fueltypes']['solid_fuel']]), 4))) * fuel_in_solid_fuel))
-    print("Diff hydrogen %:     " + str((1/(round(np.sum(modelrun_obj.ed_fueltype_national_yh[data['lookups']['fueltypes']['hydrogen']]), 4))) * fuel_in_hydrogen))
-    print("Diff biomass %:      " + str((1/(round(np.sum(modelrun_obj.ed_fueltype_national_yh[data['lookups']['fueltypes']['biomass']]), 4))) * fuel_in_biomass))
+    print("Diff elec %:         " + str((round(1/(np.sum(modelrun_obj.ed_fueltype_national_yh[data['lookups']['fueltypes']['electricity']]))) * fuel_in_elec, 4)))
+    print("Diff gas %:          " + str((round(1/(np.sum(modelrun_obj.ed_fueltype_national_yh[data['lookups']['fueltypes']['gas']]))) * fuel_in_gas, 4)))
+    print("Diff oil %:          " + str((round(1/(np.sum(modelrun_obj.ed_fueltype_national_yh[data['lookups']['fueltypes']['oil']]))) * fuel_in_oil, 4)))
+    print("Diff solid_fuel %:   " + str((round(1/(np.sum(modelrun_obj.ed_fueltype_national_yh[data['lookups']['fueltypes']['solid_fuel']]))) * fuel_in_solid_fuel, 4)))
+    print("Diff hydrogen %:     " + str((round(1/(np.sum(modelrun_obj.ed_fueltype_national_yh[data['lookups']['fueltypes']['hydrogen']]))) * fuel_in_hydrogen, 4)))
+    print("Diff biomass %:      " + str((round(1/(np.sum(modelrun_obj.ed_fueltype_national_yh[data['lookups']['fueltypes']['biomass']]))) * fuel_in_biomass, 4)))
     print("================================================")
 
     logging.info("...finished running energy demand model simulation")
@@ -153,10 +153,12 @@ if __name__ == "__main__":
     from energy_demand.basic import date_prop
     from energy_demand.profiles import hdd_cdd
 
-    path_main = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..")
+    path_main = os.path.join(
+        os.path.dirname(os.path.abspath(__file__)), "..")
 
     # Initialise logger
-    logger_setup.set_up_logger(os.path.join(local_data_path, "logging_local_run.log"))
+    logger_setup.set_up_logger(
+        os.path.join(local_data_path, "logging_local_run.log"))
 
     # Run settings
     instrument_profiler = False
@@ -164,13 +166,13 @@ if __name__ == "__main__":
     # Load data
     data = {}
     data['criterias'] = {}
-    data['criterias']['mode_constrained'] = True #constrained_by_technologies
-    data['criterias']['plot_HDD_chart'] = False
-    data['criterias']['virtual_building_stock_criteria'] = True
-    data['criterias']['spatial_exliclit_diffusion'] = False
-    data['criterias']['write_to_txt'] = False
-    data['criterias']['beyond_supply_outputs'] = True
-    data['criterias']['plot_tech_lp'] = True
+    data['criterias']['mode_constrained'] = True               # Whether model is run in constrained mode or not
+    data['criterias']['plot_HDD_chart'] = False                 # Wheather HDD chart is plotted or not
+    data['criterias']['virtual_building_stock_criteria'] = True # Wheater model uses a virtual dwelling stock or not
+    data['criterias']['spatial_exliclit_diffusion'] = False      # Wheater spatially epxlicit diffusion or not
+    data['criterias']['write_to_txt'] = False                   # Wheater results are written to txt files
+    data['criterias']['beyond_supply_outputs'] = True           # Wheater all results besides integraded smif run are calculated
+    data['criterias']['plot_tech_lp'] = True                    # Wheater all individual load profils are plotted
 
     data['paths'] = data_loader.load_paths(path_main)
     data['local_paths'] = data_loader.load_local_paths(local_data_path)
@@ -241,15 +243,15 @@ if __name__ == "__main__":
     # Calculating COOLING CDD PARAMETER
     # ----------------------------------
     data['assumptions']['cdd_weekend_cfactors'] = hdd_cdd.calc_weekend_corr_f(
-        data['assumptions']['model_yeardays_daytype'], 
+        data['assumptions']['model_yeardays_daytype'],
         data['assumptions']['ss_t_cooling_weekend_factor'])
 
     data['assumptions']['ss_weekend_f'] = hdd_cdd.calc_weekend_corr_f(
-        data['assumptions']['model_yeardays_daytype'], 
+        data['assumptions']['model_yeardays_daytype'],
         data['assumptions']['ss_weekend_factor'])
 
     data['assumptions']['is_weekend_f'] = hdd_cdd.calc_weekend_corr_f(
-        data['assumptions']['model_yeardays_daytype'], 
+        data['assumptions']['model_yeardays_daytype'],
         data['assumptions']['is_weekend_factor'])
 
 
@@ -276,6 +278,14 @@ if __name__ == "__main__":
     logging.info("... Load data from script calculations")
     data = read_data.load_script_data(data)
 
+    # --------------------
+    # Initialise scenario
+    # --------------------
+    '''logging.info("... Initialise function execution") #TODO NEW
+    from energy_demand.scripts.init_scripts import scenario_initalisation
+    data['init_cont'], data['fuel_disagg'] = scenario_initalisation(
+        data['data_path'], data)'''
+        
     #-------------------
     # Folder cleaning
     #--------------------
@@ -332,7 +342,6 @@ if __name__ == "__main__":
 
         # TODO REFORMULATE BECAUSE OF SECTORS
         supply_results_unconstrained = sum(supply_results_unconstrained[:,])
-        print("SHAPE: " + str(supply_results_unconstrained))
 
         if data['criterias']['beyond_supply_outputs']:
 

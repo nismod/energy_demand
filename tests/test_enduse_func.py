@@ -51,7 +51,7 @@ def test_get_crit_switch():
     assert result2 == False
 
 def test_get_peak_day():
-    """
+    """testing
     """
 
     fuel_yh = np.zeros((8, 365, 24))

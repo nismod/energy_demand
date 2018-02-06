@@ -13,7 +13,7 @@ def cm2inch(*tupl):
     else:
         return tuple(i/inch for i in tupl)
 
-def plotout_sigmoid_tech_diff(L_value, technology, xdata, ydata, fit_parameter, close_window_crit=True):
+def plotout_sigmoid_tech_diff(L_value, technology, xdata, ydata, fit_parameter, plot_crit=False, close_window_crit=True):
     """Plot sigmoid diffusion
     """
     def close_event():
@@ -44,8 +44,12 @@ def plotout_sigmoid_tech_diff(L_value, technology, xdata, ydata, fit_parameter, 
     pylab.ylabel('Market share of technology on energy service')
     pylab.title("Sigmoid diffusion of technology {}".format(technology))
 
-    if close_window_crit:
-        timer.start()
+    if plot_crit:
+        if close_window_crit:
+            timer.start()
+            pylab.show()
+        else:
+            pass
     else:
         pass
-    pylab.show()
+

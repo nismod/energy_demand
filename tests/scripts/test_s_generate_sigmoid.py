@@ -15,10 +15,6 @@ def test_tech_sigmoid_paramters():
         technology_install='boilerA',
         switch_yr=2050)]
 
-    service_switches = [read_data.ServiceSwitch(
-        technology_install='boilerA',
-        switch_yr=2050)]
-
     technologies = {'boilerA': read_data.TechnologyData(
         market_entry=1990)}
 
@@ -29,8 +25,7 @@ def test_tech_sigmoid_paramters():
         installed_tech=['boilerA'],
         l_values={'boilerA': 1.0},
         service_tech_by_p={'boilerA': 0.5, 'boilerB': 0.5},
-        service_tech_switched_p={'boilerA': assump_fy, 'boilerB': 0},
-        service_switches=service_switches)
+        service_tech_switched_p={'boilerA': assump_fy, 'boilerB': 0})
 
     y_calculated = diffusion_technologies.sigmoid_function(
         2050, 1.0, result['boilerA']['midpoint'], result['boilerA']['steepness'])
@@ -48,14 +43,12 @@ def test_tech_sigmoid_paramters():
         installed_tech=['boilerA'],
         l_values={'boilerA': 1.0},
         service_tech_by_p={'boilerA': 0.5, 'boilerB': 0.5},
-        service_tech_switched_p={'boilerA': assump_fy, 'boilerB': 0},
-        service_switches=service_switches)
+        service_tech_switched_p={'boilerA': assump_fy, 'boilerB': 0})
 
     y_calculated = diffusion_technologies.sigmoid_function(
         2050, 1.0, result['boilerA']['midpoint'], result['boilerA']['steepness'])
 
     assert y_calculated >= (assump_fy - 0.02) and y_calculated <= assump_fy + 0.02
-
 def test_get_tech_future_service():
     """
     """
@@ -91,6 +84,7 @@ def test_calc_sigmoid_parameters():
         xdata,
         ydata,
         fit_parameter,
+        True,
         False # Close windows
         )
     '''
@@ -148,6 +142,7 @@ def test_calc_sigmoid_parameters3():
         xdata,
         ydata,
         fit_parameter,
+        True,
         False)
 
     assert round(y_calculated, 3) == round(ydata[1], 3)
