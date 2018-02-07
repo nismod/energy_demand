@@ -48,6 +48,57 @@ all ITRC models and provides demands to the supply model.
 ![Model overview](../docs/documentation_images/000-model_overview.jpg)
 *Figure XY: Overview of modelled end uses and sectors*
 
+### 2.1 End uses
+
+<table align="center">
+  <tr>
+    <th align="left">Residential Submodel</th>
+    <th align="left">Service Submodel</th>
+    <th align="left">Industry Submodel</th>
+  </tr>
+  <tr>
+    <td></td>
+    <td></td>
+    <td></td>
+  </tr>
+  <tr>
+    <td><b>End use</b></td>
+    <td></td>
+    <td></td>
+  </tr>
+  <tr>
+    <td>Et</td>
+    <td>Ates</td>
+    <td>te</td>
+  </tr>
+    <td>Health</td>
+    <td>Health</td>
+    <td>Health</td>
+  </tr>
+    <tr></td>
+    <td></td>
+    <td></td>
+  </tr>
+    <td><b>Sectors</b></td>
+    <td></td>
+    <td></td>
+  </tr>
+    <tr>
+    <td>Offices</td>
+    <td>Offices</td>
+  </tr>
+    <tr>
+    <td>Retail</td>
+    <td>Retail</td>
+  </tr>
+    <tr>
+    <td>Storage</td>
+    <td>Aggregated across all sectors</td>
+  </tr>
+</table>
+
+*Table 2.1: Modelled submodels, enduses and sectors*
+
 
 ## 3. Main working steps
 
