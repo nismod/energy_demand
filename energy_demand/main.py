@@ -15,11 +15,14 @@ https://nismod.github.io/docs/smif-prerequisites.html#sector-modeller
 # Implement that e.g. 2015 - 2030 one technology and 2030 - 2050 another technology
 # backcasting
 # Industry INFO about efficiencies & technologies: Define strategy variables
-# Cooling?
+
+INTERFACE QUESTIONS
+------------------
+- Virtual dwelling stock data?
+- fuel switches?
 
 NICETOHAVE
 - Convert paths dict to objects
--
 
 DISTRICT HEATING TECH
 TODO: Write function to test wheter swichtes are possible (e.g. that not more from one technology to another is replaced than possible)
@@ -166,8 +169,8 @@ if __name__ == "__main__":
     data['criterias']['plot_HDD_chart'] = False                 # Wheather HDD chart is plotted or not
     data['criterias']['virtual_building_stock_criteria'] = True # Wheater model uses a virtual dwelling stock or not
     data['criterias']['spatial_exliclit_diffusion'] = True      # Wheater spatially epxlicit diffusion or not
-    data['criterias']['write_to_txt'] = True                   # Wheater results are written to txt files
-    data['criterias']['beyond_supply_outputs'] = True           # Wheater all results besides integraded smif run are calculated
+    data['criterias']['write_to_txt'] = False                   # Wheater results are written to txt files
+    data['criterias']['beyond_supply_outputs'] = False           # Wheater all results besides integraded smif run are calculated
     data['criterias']['plot_tech_lp'] = True                    # Wheater all individual load profils are plotted
 
     data['paths'] = data_loader.load_paths(path_main)

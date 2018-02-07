@@ -31,7 +31,7 @@ def load_spatial_diff_values(regions, enduses):
         cnt = 0
         for region in regions:
 
-            dummy_index = 1 #TODO
+            dummy_index = 1
             #dummy_index = dummy_indeces[cnt]
 
             spatial_index[enduse][region] = dummy_index
@@ -243,26 +243,28 @@ def spatially_differentiated_modelling(
     regions : dict
         Regions
     all_enduses : dict
-        Enduses
-
-    init_cont : 
-
-    sum_across_sectors_all_regs : 
-
-    rs_share_service_tech_ey_p : 
-
-    ss_share_service_tech_ey_p : 
-
-    is_share_service_tech_ey_p : 
-
+        Enduse
+    init_cont : dict
+        TO_DEFINE
+    sum_across_sectors_all_regs : dict
+        TO_DEFINE
+    rs_share_service_tech_ey_p : dict
+        TO_DEFINE
+    ss_share_service_tech_ey_p : dict
+        TO_DEFINE
+    is_share_service_tech_ey_p : dict
+        TO_DEFINE
     techs_affected_spatial_f : list
         Technologies which are affected by spatially heterogeneous diffusion
 
     Returns
     --------
-    rs_reg_share_service_tech_ey_p
-    ss_reg_share_service_tech_ey_p
-    is_reg_share_service_tech_ey_p
+    rs_reg_share_service_tech_ey_p :
+        TO_DEFINE
+    ss_reg_share_service_tech_ey_p :
+        TO_DEFINE
+    is_reg_share_service_tech_ey_p :
+        TO_DEFINE
     init_cont
 
     Explanation

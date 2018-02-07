@@ -96,14 +96,18 @@ def calc_sigmoid_parameters(l_value, xdata, ydata, fit_assump_init=0.001, error_
             # Select start parameters depending on pos or neg diff
             if crit_plus_minus == 'minus':
                 start_parameters[1] *= -1
-
+            # -----------------------------------
             # Fit function
+            # Info: If the fitting function throws errors,
+            #       it is possible to change the parameters
+            #       `number_of_iterations`.
+            # -----------------------------------
             fit_parameter = fit_sigmoid_diffusion(
                 l_value,
                 xdata,
                 ydata,
                 start_parameters,
-                number_of_iterations=1000) #TODO 10000
+                number_of_iterations=1000)
 
             # Test if start paramters are identical to fitting parameters
             if (crit_plus_minus == 'plus' and fit_parameter[1] < 0) or (
@@ -355,7 +359,7 @@ def calc_service_fuel_switched(
         fuel_tech_p_by,
         switch_type
     ):
-    """Calculate energy service demand percentages after fuel switches
+    """Calculate energy service demand percentages after fuel switches.
 
     Arguments
     ----------
@@ -378,11 +382,6 @@ def calc_service_fuel_switched(
     service_tech_switched_p : dict
         Service in future year with added and substracted
         service demand for every technology
-    TODO MORE DESCRITPION
-    Note
-    ----
-        Implement changes in heat demand (all technolgies within
-        a fueltypes are replaced proportionally)
     """
     service_tech_switched_p = {}
 
@@ -391,45 +390,46 @@ def calc_service_fuel_switched(
         tech_install = fuel_switch.technology_install
         tech_replace_fueltype = fuel_switch.enduse_fueltype_replace
 
-        # Share of energy service before switch
+        # Share of energy service of repalced fueltype before switch in base year
         service_p_by = service_fueltype_by_p[tech_replace_fueltype]
 
         # Service demand per fueltype that will be switched
-        # e.g. 10% of service is gas ---> if we replace 50% --> minus 5 percent
+        # (e.g. 10% of service is gas ---> if we replace 50% --> minus 5 percent)
         if switch_type == 'max_switch':
-            change_service_fueltype_by_p = service_p_by * technologies[tech_install].tech_max_share
+            diff_service_fueltype_by_p = service_p_by * technologies[tech_install].tech_max_share
         elif switch_type == 'actual_switch':
-            change_service_fueltype_by_p = service_p_by * fuel_switch.fuel_share_switched_ey
+            diff_service_fueltype_by_p = service_p_by * fuel_switch.fuel_share_switched_ey
 
-        # ---Service addition
-        service_tech_switched_p[tech_install] = service_tech_by_p[tech_install] + change_service_fueltype_by_p
+        # Service addition
+        service_tech_switched_p[tech_install] = service_tech_by_p[tech_install] + diff_service_fueltype_by_p
 
-        # Iterate technologies which are replaced for this fueltype and substract service demand for replaced technologies
+        # Iterate technologies which are replaced for this fueltype and substract
+        # service demand for replaced technologies proportionally
         for tech, fuel_tech_p in fuel_tech_p_by[tech_replace_fueltype].items():
-            service_tech_switched_p[tech] = service_tech_by_p[tech] - (change_service_fueltype_by_p * fuel_tech_p)
+            service_tech_switched_p[tech] = service_tech_by_p[tech] - (diff_service_fueltype_by_p * fuel_tech_p)
 
     # -----------------------
     # Calculate service fraction of all technologies in
     # enduse not affected by fuel switch
     # -----------------------
     affected_service_p_ey = sum(service_tech_switched_p.values())
-    remaining_service_to_distr_p = 1 - affected_service_p_ey
+    unaffected_service_to_distr_p = 1 - affected_service_p_ey
 
     # Calculate service fraction of remaining technologies
-    all_fractions_unaffected_switch = {}
+    fractions_unaffected_switch = {}
     for tech, service_tech_p in service_tech_by_p.items():
         if tech not in service_tech_switched_p.keys():
-            all_fractions_unaffected_switch[tech] = service_tech_p
-        
-    # Iterate all technologies of enduse_by
-    service_tot_remaining = sum(all_fractions_unaffected_switch.values())
+            fractions_unaffected_switch[tech] = service_tech_p
+
+    # Sum of unaffected service shares
+    service_tot_remaining = sum(fractions_unaffected_switch.values())
 
     # Get relative distribution of all not affected techs
-    for tech, tech_fraction in all_fractions_unaffected_switch.items():
+    for tech, tech_fraction in fractions_unaffected_switch.items():
 
         # Relative share
         rel_service_fraction_p = tech_fraction / service_tot_remaining
-        service_tech_switched_p[tech] = rel_service_fraction_p * remaining_service_to_distr_p
+        service_tech_switched_p[tech] = rel_service_fraction_p * unaffected_service_to_distr_p
 
     return dict(service_tech_switched_p)
 
@@ -504,7 +504,7 @@ def get_l_values(
 
     return dict(l_values_sig)
 
-def calc_diff_fuel_switch(
+def fuel_switch_implementation(
         technologies,
         enduse_fuel_switches,
         affected_techs,
@@ -514,9 +514,8 @@ def calc_diff_fuel_switch(
         regions=False,
         regional_specific=False
     ):
-    """Calculate future service share
-    after fuels witches and calculte sigmoid
-    diffusion paramters.
+    """Calculate future service share after fuel switches
+    and calculte sigmoid diffusion paramters.
 
     Arguments
     ----------
@@ -761,8 +760,8 @@ def tech_sigmoid_parameters(
 
             # If no change in by to ey but not zero (lineare change)
             if (round(point_y_by, 10) == round(point_y_ey, 10)) and (
-                point_y_ey != fit_assump_init) and (
-                    point_y_by != fit_assump_init):
+                    point_y_ey != fit_assump_init) and (
+                        point_y_by != fit_assump_init):
 
                 # Linear diffusion (because by and ey share are identical)
                 sig_params[tech]['midpoint'] = 'linear'
@@ -796,7 +795,7 @@ def tech_sigmoid_parameters(
                     sig_params[tech]['steepness'] = fit_parameter[1] # Steepnes (k)
                     sig_params[tech]['l_parameter'] = l_values[tech] # maximum p
 
-                    if plot_sigmoid_diffusion:
+                    '''if plot_sigmoid_diffusion:
                         plotting_program.plotout_sigmoid_tech_diff(
                             l_values[tech],
                             tech,
@@ -804,6 +803,6 @@ def tech_sigmoid_parameters(
                             ydata,
                             fit_parameter,
                             plot_crit=False, #TRUE
-                            close_window_crit=True)
+                            close_window_crit=True)'''
 
     return dict(sig_params)
