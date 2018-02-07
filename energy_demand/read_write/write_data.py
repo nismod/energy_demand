@@ -287,18 +287,16 @@ def write_supply_results(
     basic_functions.create_folder(path_result_sub_folder)
 
     # Write to txt
-    for region_array_nr, model_results in enumerate(model_results):
-        for fueltype_nr, fuel in enumerate(model_results):
-            path_file = os.path.join(
-                path_result_sub_folder,
-                "{}__{}__{}__{}__{}".format(
-                    file_name,
-                    sim_yr,
-                    fueltype_nr,
-                    region_array_nr,
-                    ".txt"))
+    for fueltype_nr, fuel in enumerate(model_results):
+        path_file = os.path.join(
+            path_result_sub_folder,
+            "{}__{}__{}__{}".format(
+                file_name,
+                sim_yr,
+                fueltype_nr,
+                ".txt"))
 
-            np.savetxt(path_file, fuel, delimiter=',')
+        np.savetxt(path_file, fuel, delimiter=',')
 
 def write_enduse_specific(sim_yr, path_result, model_results, filename):
     """Write out enduse specific results for every hour

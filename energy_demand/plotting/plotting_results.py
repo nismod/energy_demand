@@ -862,7 +862,6 @@ def plt_fuels_enduses_y(results, lookups, fig_name):
 
             #Conversion: Convert gwh per years to gw
             yearly_sum_gw = tot_gwh_fueltype_y
-
             yearly_sum_twh = conversions.gwh_to_twh(yearly_sum_gw)
 
             data_years[year] = yearly_sum_twh #yearly_sum_gw
@@ -887,17 +886,18 @@ def plt_fuels_enduses_y(results, lookups, fig_name):
         'darkturquoise', 'orange', 'firebrick',
         'darkviolet', 'khaki', 'olive', 'darkseagreen',
         'darkcyan', 'indianred', 'darkblue']
+
     linestyles = plotting_styles.linestyles()
 
     for counter, (fueltype_str, fuel_fueltype_yrs) in enumerate(y_values_fueltype.items()):
-        color_line = str(color_list.pop())
 
-        # plot line
+        print("CCC: {}  {}".format(fueltype_str, np.sum(fuel_fueltype_yrs.values())))
+
         plt.plot(
-            list(fuel_fueltype_yrs.keys()), #years
-            list(fuel_fueltype_yrs.values()), #yearly data per fueltype
+            list(fuel_fueltype_yrs.keys()),     # years
+            list(fuel_fueltype_yrs.values()),   # yearly data per fueltype
             #linestyle=linestyles[counter],
-            color=color_line,
+            color=str(color_list.pop()),
             label=fueltype_str)
 
     # ----

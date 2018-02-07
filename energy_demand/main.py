@@ -250,7 +250,6 @@ if __name__ == "__main__":
         data['assumptions']['model_yeardays_daytype'],
         data['assumptions']['is_weekend_factor'])
 
-
     # ------------------------------
     if data['criterias']['virtual_building_stock_criteria']:
         rs_floorarea, ss_floorarea = data_loader.virtual_building_datasets(

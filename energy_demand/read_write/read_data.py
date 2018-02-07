@@ -153,7 +153,7 @@ class ServiceSwitch(object):
         self.service_share_ey = service_share_ey
         self.switch_yr = switch_yr
 
-def read_in_results(path_runs, lookups, seasons, model_yeardays_daytype, lu_reg):
+def read_in_results(path_runs, lookups, seasons, model_yeardays_daytype, regions):
     """Read and post calculate results from txt files
     and store into container
 
@@ -167,9 +167,8 @@ def read_in_results(path_runs, lookups, seasons, model_yeardays_daytype, lu_reg)
         seasons
     model_yeardays_daytype : dict
         Daytype of modelled yeardays
-    lu_reg : dict
+    regions : dict
         Regions
-
     """
     logging.info("... Reading in results")
 
@@ -184,7 +183,7 @@ def read_in_results(path_runs, lookups, seasons, model_yeardays_daytype, lu_reg)
         lookups['fueltypes_nr'], path_runs)
 
     results_container['results_every_year'] = read_results_yh(
-        lookups['fueltypes_nr'], len(lu_reg), path_runs)
+        lookups['fueltypes_nr'], len(regions), path_runs)
 
     results_container['tot_peak_enduses_fueltype'] = read_max_results(
         os.path.join(path_runs, "result_tot_peak_enduses_fueltype"))
@@ -287,12 +286,12 @@ def read_results_yh(fueltypes_nr, reg_nrs, path_to_folder):
 
     # Iterate files in folder
     for file_path in all_txt_files_in_folder:
-        logging.info("... file_path: " + str(file_path))
         try:
             path_file_to_read = os.path.join(path_to_folder, file_path)
             file_path_split = file_path.split("__")
             year = int(file_path_split[1])
             fueltype_array_position = int(file_path_split[2])
+
             txt_data = np.loadtxt(path_file_to_read, delimiter=',')
 
             try:
