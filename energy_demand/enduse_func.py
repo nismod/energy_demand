@@ -1359,7 +1359,7 @@ def apply_scenario_drivers(
             factor_driver = 1
 
         if math.isnan(factor_driver):
-            prnt("ssERROR")
+            sys.exit("Error xcx")
 
         fuel_y = fuel_y * factor_driver
     else:
@@ -1626,7 +1626,7 @@ def get_service_diffusion(sig_param_tech, curr_yr):
     service_tech_p : dict
         Share of service per technology of current year
     """
-    if sig_param_tech['l_parameter'] == None:
+    if sig_param_tech['l_parameter'] is None:
         service_tech_p = 0
     elif sig_param_tech['l_parameter'] == 'linear':
         service_tech_p = 'identical'
@@ -1648,6 +1648,11 @@ def calc_service_switch(
     ):
     """Apply change in service depending on defined service switches.
 
+    The service which is fulfilled by new technologies as defined
+    in the service switches is substracted of the replaced
+    technologies proportionally to the base year distribution
+    of these technologies.
+
     Paramters
     ---------
     tot_service_yh_cy : array
@@ -1665,52 +1670,35 @@ def calc_service_switch(
     -------
     switched_service_tech_y_cy : dict
         Service per technology in current year after switch in a year
-    TODO
-    Note
-    ----
-    The service which is fulfilled by new technologies is
-    substracted of the replaced technologies proportionally
-    to the base year distribution of these technologies
     """
-    switched_service_tech_y_cy = {} #rename
+    switched_service_tech_y_cy = {}
 
-    # Calculate cy for all enduses on aggre_sector_ assumption
+    # Service of all technologies
     service_service_all_techs = sum(service_tech_y_cy.values())
 
     for tech in all_technologies:
 
-        # 1. Calculated increased service share per tech for cy
+        # Calculated service share per tech for cy with sigmoid parameters
         service_tech_incr_cy_p = get_service_diffusion(
             sig_param_tech[tech], curr_yr)
-        '''print("  ")
-        print("INTER: {} {} {}".format(tech, enduse, sector))
-        print("--------------------------------------")
-        print("   " + str(service_service_all_techs))
-        print("  curr year share " + str(service_tech_incr_cy_p))
-        print("  base year share " + str(service_tech_by_p[tech]))
-        try:
-            print("  base year: " + str(service_tech_by_p[tech] * service_service_all_techs))
-            print("  curr year: " + str(service_tech_incr_cy_p * service_service_all_techs))
-        except:
-            pass'''
-
-        if  service_tech_by_p[tech] * service_service_all_techs > 0 and sig_param_tech[tech]['steepness'] == None:
-            print("ERROR")
-            prnt(":")
 
         if service_tech_incr_cy_p == 'identical':
-            switched_service_tech_y_cy[tech] = service_service_all_techs * service_tech_by_p[tech]
+            switched_service_tech_y_cy[tech] = service_tech_y_cy[tech] #service_service_all_techs * service_tech_by_p[tech]
         else:
             switched_service_tech_y_cy[tech] = service_service_all_techs * service_tech_incr_cy_p
 
-        logging.debug("%s - %s - %s - %s - %s",
+        logging.debug(
+            "%s - %s - %s - %s - %s",
             curr_yr,
             service_tech_incr_cy_p,
             sig_param_tech[tech],
             service_service_all_techs,
             switched_service_tech_y_cy[tech])
 
-        assert switched_service_tech_y_cy[tech] >= 0 # Test that no minus
+        if service_tech_by_p[tech] * service_service_all_techs > 0 and sig_param_tech[tech]['steepness'] is None:
+            sys.exit("Error in service switch")
+
+        assert switched_service_tech_y_cy[tech] >= 0
 
     return switched_service_tech_y_cy
 

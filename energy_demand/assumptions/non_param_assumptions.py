@@ -235,7 +235,7 @@ def load_non_param_assump(
     # ------------------------------------------------------------
     assumptions['assump_cooling_floorarea'] = {}
 
-    # (See Abela et al. 2016)
+    # See Abela et al. (2016)
     assumptions['assump_cooling_floorarea']['cooled_ss_floorarea_by'] = 0.35
 
     # ============================================================
@@ -312,10 +312,8 @@ def load_non_param_assump(
         'rs_space_heating', 'ss_space_heating', 'is_space_heating']
 
     assumptions['enduse_rs_space_cooling'] = []
-    #['ss_fans', 'ss_cooling_humidification', 'ss_cooled_storage']
-    assumptions['ss_enduse_space_cooling'] = ['ss_cooling_humidification']
+    assumptions['ss_enduse_space_cooling'] = ['ss_cooling_humidification'] #['ss_fans', 'ss_cooled_storage']
 
-    #TODO: REPLAE NON DEFINED TECH IN FLUETPYES NOT WITH DUMMY TECH BUT ONLY IF NONE TECHNOLOGY AT ALL IS DEFINED
     # ============================================================
     # Assumption related to technologies
     # ============================================================

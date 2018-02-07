@@ -418,7 +418,7 @@ def load_tech_profiles(tech_lp, paths, local_paths, plot_tech_lp=False):
     tech_lp['rs_lp_heating_hp_dh'] = read_data.read_load_shapes_tech(
         paths['lp_elec_hp_dh'])
 
-    tech_lp['rs_shapes_cooling_dh'] = read_data.read_load_shapes_tech(paths['path_shape_rs_cooling']) # TODO
+    #tech_lp['rs_shapes_cooling_dh'] = read_data.read_load_shapes_tech(paths['path_shape_rs_cooling'])
     tech_lp['ss_shapes_cooling_dh'] = read_data.read_load_shapes_tech(paths['path_shape_ss_cooling'])
 
     # Add fuel data of other model enduses to the fuel data table (E.g. ICT or wastewater)

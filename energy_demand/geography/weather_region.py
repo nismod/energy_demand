@@ -381,7 +381,6 @@ class WeatherRegion(object):
                 ss_shape_yh = load_profile.calc_yh(
                     ss_fuel_shape_coolin_yd,
                     tech_lp['ss_profile_cooling_y_dh'], model_yeardays)
-                    #tech_lp['ss_shapes_dh'][cooling_enduse][sector]['shape_non_peak_y_dh'], model_yeardays) #worse
 
                 self.ss_load_profiles.add_lp(
                     unique_identifier=uuid.uuid4(),
