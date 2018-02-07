@@ -409,7 +409,7 @@ def test_fuel_to_service():
         t_base_heating_cy=15.5,
         enduse_technologies={'heating': ['techA']})
 
-    tot_service_y, service_tech, service_tech_p = enduse_func.fuel_to_service(
+    tot_service_y, service_tech = enduse_func.fuel_to_service(
         enduse=enduse,
         fuel_new_y=fuel_new_y,
         enduse_techs=enduse_techs,
@@ -441,7 +441,7 @@ def test_fuel_to_service():
         t_base_heating_cy=15.5,
         enduse_technologies={'heating': ['techA']})
 
-    tot_service_y, service_tech, service_tech_p = enduse_func.fuel_to_service(
+    tot_service_y, service_tech = enduse_func.fuel_to_service(
         enduse=enduse,
         fuel_new_y=fuel_new_y,
         enduse_techs=enduse_techs,
