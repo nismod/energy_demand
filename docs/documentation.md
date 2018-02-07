@@ -175,40 +175,99 @@ modelles end uses and sectors (see Figure 2.1 and Table 2.1).
   <tr>
     <td>&nbsp</td>
     <td>Retail</td>
-    <td>&nbsp</td>
+    <td>Manufacture of wood related products</td>
   </tr>
   <tr>
     <td>&nbsp</td>
     <td>Storage</td>
+    <td>Manufacture of paper and paper products</td>
+  </tr>
+  <tr>
     <td>&nbsp</td>
+    <td>&nbsp</td>
+    <td>Printing and publishing of recorded media and other publishing activities</td>
+  </tr>
+  <tr>
+    <td>&nbsp</td>
+    <td>&nbsp</td>
+    <td>Manufacture of chemicals and chemical products</td>
+  </tr>
+  <tr>
+    <td>&nbsp</td>
+    <td>&nbsp</td>
+    <td>Manufacture of basic pharmaceutical products and pharmaceutical preparations</td>
+  </tr>
+  <tr>
+    <td>&nbsp</td>
+    <td>&nbsp</td>
+    <td>Manufacture of rubber and plastic products</td>
+  </tr>
+  <tr>
+    <td>&nbsp</td>
+    <td>&nbsp</td>
+    <td>Manufacture of other non-metallic mineral products</td>
+  </tr>
+  <tr>
+    <td>&nbsp</td>
+    <td>&nbsp</td>
+    <td>Manufacture of basic metals</td>
+  </tr>
+  <tr>
+    <td>&nbsp</td>
+    <td>&nbsp</td>
+    <td>Manufacture of fabricated metal products, except machinery and equipment</td>
+  </tr
+    <tr>
+    <td>&nbsp</td>
+    <td>&nbsp</td>
+    <td>Manufacture of computer, electronic and optical products</td>
+  </tr>
+  <tr>
+    <td>&nbsp</td>
+    <td>&nbsp</td>
+    <td>Manufacture of electrical equipment</td>
+  </tr>
+  <tr>
+    <td>&nbsp</td>
+    <td>&nbsp</td>
+    <td>Manufacture of machinery and equipment n.e.c.</td>
+  </tr>
+  <tr>
+    <td>&nbsp</td>
+    <td>&nbsp</td>
+    <td>Manufacture of motor vehicles, trailers and semi-trailers</td>
+  </tr>
+  <tr>
+    <td>&nbsp</td>
+    <td>&nbsp</td>
+    <td>Manufacture of other transport equipment</td>
+  </tr>
+  <tr>
+    <td>&nbsp</td>
+    <td>&nbsp</td>
+    <td>Manufacture of furniture</td>
+  </tr>
+  <tr>
+    <td>&nbsp</td>
+    <td>&nbsp</td>
+    <td>Other manufacturing</td>
+  </tr>
+  <tr>
+    <td>&nbsp</td>
+    <td>&nbsp</td>
+    <td>Water collection, treatment and supply</td>
+  </tr>
+  <tr>
+    <td>&nbsp</td>
+    <td>&nbsp</td>
+    <td>Waste collection, treatment and disposal activities; materials recovery</td>
   </tr>
 </table>
 
 *Table 2.1: Complete overview of modelled submodels, enduses and sectors*
 
-
-
-
-Manufacture of wood related products
-Manufacture of paper and paper products
-Printing and publishing of recorded media and other publishing activities
-Manufacture of chemicals and chemical products
-Manufacture of basic pharmaceutical products and pharmaceutical preparations
-Manufacture of rubber and plastic products
-Manufacture of other non-metallic mineral products
-Manufacture of basic metals
-Manufacture of fabricated metal products, except machinery and equipment
-Manufacture of computer, electronic and optical products
-Manufacture of electrical equipment
-Manufacture of machinery and equipment n.e.c.
-Manufacture of motor vehicles, trailers and semi-trailers
-Manufacture of other transport equipment
-Manufacture of furniture
-Other manufacturing
-Water collection, treatment and supply
-Waste collection, treatment and disposal activities; materials recovery
-
-
+More information on sectors and their fuel inputs can be found here:
+https://www.gov.uk/government/uploads/system/uploads/attachment_data/file/573271/ECUK_user_guide_November_2016_final.pdf
 
 ## 3. Main working steps
 

@@ -1790,12 +1790,14 @@ def industry_enduse_changes(enduse, sector, curr_yr, strategy_variables, fuels):
     fuels : np.array
         Changed fuels depending on scenario
     """
-    
     if enduse == "is_" 
-    try:
+
 
         # Industral enduse specific scenario variables
         savings = sm_assump_strategy['smart_meter_improvement_{}'.format(enduse)]
+
+    else:
+        pass
 
     return fuels
 
