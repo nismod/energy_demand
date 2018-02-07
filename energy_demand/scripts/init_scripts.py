@@ -28,8 +28,7 @@ def scenario_initalisation(path_data_ed, data=False):
     data : dict
         Data container
     """
-    logging.info(
-        "... Start initialisation scripts")
+    logging.info("... Start initialisation scripts")
 
     init_cont = defaultdict(dict)
     fuel_disagg = {}
@@ -80,7 +79,8 @@ def scenario_initalisation(path_data_ed, data=False):
         data['enduses'])
 
     # ---------------------------------------
-    # Convert base year fuel input assumptions to energy service on a national scale
+    # Convert base year fuel input assumptions to
+    # energy service on a national scale
     # ---------------------------------------
 
     # Residential
@@ -124,28 +124,32 @@ def scenario_initalisation(path_data_ed, data=False):
     init_cont['ss_service_switches'] = data['assumptions']['ss_service_switches']
     init_cont['is_service_switches'] = data['assumptions']['is_service_switches']
 
-    rs_service_switches_autocompleted = fuel_service_switch.autocomplete_switches(
+    rs_service_switches_completed = fuel_service_switch.autocomplete_switches(
         init_cont['rs_service_switches'],
         data['assumptions']['rs_specified_tech_enduse_by'],
         init_cont['rs_service_tech_by_p'])
 
-    ss_service_switches_autocompleted = {}
+    ss_service_switches_completed = {}
     for sector in data['sectors']['ss_sectors']:
-        ss_service_switches_autocompleted[sector] = fuel_service_switch.autocomplete_switches(
+        ss_service_switches_completed[sector] = fuel_service_switch.autocomplete_switches(
             init_cont['ss_service_switches'],
             data['assumptions']['ss_specified_tech_enduse_by'],
             init_cont['ss_service_tech_by_p'][sector])
 
-    is_service_switches_autocompleted = {}
+    is_service_switches_completed = {}
     for sector in data['sectors']['is_sectors']:
-        is_service_switches_autocompleted[sector] = fuel_service_switch.autocomplete_switches(
+        is_service_switches_completed[sector] = fuel_service_switch.autocomplete_switches(
             init_cont['is_service_switches'],
             data['assumptions']['is_specified_tech_enduse_by'],
             init_cont['is_service_tech_by_p'][sector])
 
     # ------------------------------------
-    # Capacity installations (on a national scale)
+    # Capacity installations
+    # ======================
+    # Calculate service shares considering potential capacity installations
+    # on a national scale
     # ------------------------------------
+
     # Residential
     init_cont['rs_service_switches'] = fuel_service_switch.capacity_installations(
         init_cont['rs_service_switches'],
@@ -187,33 +191,29 @@ def scenario_initalisation(path_data_ed, data=False):
         data['sim_param']['base_yr'])
 
     # ------------------------------------
+    # Service switches
+    # ================
+    #
     # Get service shares of technologies for future year by considering
-    # SERVICE switch on a national scale
+    # service switches (defined on a national scale)
     # ------------------------------------
     rs_share_service_tech_ey_p = fuel_service_switch.get_share_service_tech_ey(
-        rs_service_switches_autocompleted,
+        rs_service_switches_completed,
         data['assumptions']['rs_specified_tech_enduse_by'])
 
     ss_share_service_tech_ey_p = {}
     for sector in data['sectors']['ss_sectors']:
         ss_share_service_tech_ey_p[sector] = fuel_service_switch.get_share_service_tech_ey(
-            ss_service_switches_autocompleted[sector],
+            ss_service_switches_completed[sector],
             data['assumptions']['ss_specified_tech_enduse_by'])
 
     is_share_service_tech_ey_p = {}
     for sector in data['sectors']['is_sectors']:
         is_share_service_tech_ey_p[sector] = fuel_service_switch.get_share_service_tech_ey(
-            is_service_switches_autocompleted[sector],
+            is_service_switches_completed[sector],
             data['assumptions']['is_specified_tech_enduse_by'])
 
-    # -------------------------------
-    # Calculate sigmoid diffusion parameters
-    # (either for every region or aggregated for all regions)
-    # -------------------------------
-
-    # -------------------------------
-    # Spatially differentiated modelling
-    # -------------------------------
+    # Spatial explicit modelling
     if data['criterias']['spatial_exliclit_diffusion']:
         rs_reg_share_service_tech_ey_p, ss_reg_share_service_tech_ey_p, is_reg_share_service_tech_ey_p, init_cont = spatial_diffusion.spatially_differentiated_modelling(
             data['lu_reg'],
@@ -235,14 +235,18 @@ def scenario_initalisation(path_data_ed, data=False):
         regional_specific = False
 
     # ---------------------------------------
-    # Calculate sigmoid diffusion
+    # Fuel switches
+    # =============
+    #
+    # Calculate sigmoid diffusion considering fuel switches
+    # and service switches
     #
     # Non spatiall differentiated modelling of
     # technology diffusion (same diffusion pattern for
-    # the whole UK) or spatiall differentiated (every region)
+    # the whole UK) or spatially differentiated (every region)
     # ---------------------------------------
     for enduse in data['enduses']['rs_all_enduses']:
-        init_cont['rs_sig_param_tech'][enduse], init_cont['rs_service_switch'][enduse] = sig_param_calculation_including_fuel_switch(
+        init_cont['rs_sig_param_tech'][enduse], init_cont['rs_service_switch'][enduse] = sig_param_calculation_incl_fuel_switch(
             data['sim_param']['base_yr'],
             data['assumptions']['technologies'],
             enduse=enduse,
@@ -257,13 +261,12 @@ def scenario_initalisation(path_data_ed, data=False):
 
     for enduse in data['enduses']['ss_all_enduses']:
         init_cont['ss_sig_param_tech'][enduse] = {}
-        init_cont['ss_sig_param_tech'][enduse] = {}
         init_cont['ss_tech_decreased_service'][enduse] = {}
         init_cont['ss_tech_constant_service'][enduse] = {}
         init_cont['ss_service_switch'][enduse] = {}
 
         for sector in data['sectors']['ss_sectors']:
-            init_cont['ss_sig_param_tech'][enduse][sector], init_cont['ss_service_switch'][enduse][sector] = sig_param_calculation_including_fuel_switch(
+            init_cont['ss_sig_param_tech'][enduse][sector], init_cont['ss_service_switch'][enduse][sector] = sig_param_calculation_incl_fuel_switch(
                 data['sim_param']['base_yr'],
                 data['assumptions']['technologies'],
                 enduse=enduse,
@@ -278,13 +281,12 @@ def scenario_initalisation(path_data_ed, data=False):
 
     for enduse in data['enduses']['is_all_enduses']:
         init_cont['is_sig_param_tech'][enduse] = {}
-        init_cont['is_sig_param_tech'][enduse] = {}
         init_cont['is_tech_decreased_service'][enduse] = {}
         init_cont['is_tech_constant_service'][enduse] = {}
         init_cont['is_service_switch'][enduse] = {}
 
         for sector in data['sectors']['is_sectors']:
-            init_cont['is_sig_param_tech'][enduse][sector], init_cont['is_service_switch'][enduse][sector] = sig_param_calculation_including_fuel_switch(
+            init_cont['is_sig_param_tech'][enduse][sector], init_cont['is_service_switch'][enduse][sector] = sig_param_calculation_incl_fuel_switch(
                 data['sim_param']['base_yr'],
                 data['assumptions']['technologies'],
                 enduse=enduse,
@@ -389,7 +391,7 @@ def convert_sharesdict_to_service_switches(
 
     return new_service_switches
 
-def sig_param_calculation_including_fuel_switch(
+def sig_param_calculation_incl_fuel_switch(
         base_yr,
         technologies,
         enduse,
@@ -402,8 +404,11 @@ def sig_param_calculation_including_fuel_switch(
         regions=False,
         regional_specific=False
     ):
-    """Calculate sigmoid diffusion paramaters whilst
-    consider fuel switches.
+    """Calculate sigmoid diffusion paramaters considering
+    fuel or service switches
+
+    Test if service switch and fuel switch are defined
+    simultaneously, which is not possible.
 
     Arguments
     ---------
@@ -437,7 +442,6 @@ def sig_param_calculation_including_fuel_switch(
     tech_switch_affected = s_generate_sigmoid.get_tech_installed(
         enduse, fuel_switches)
 
-    # Test if any switch is implemented for enduse
     if len(tech_switch_affected) > 0:
         crit_fuel_switch = True
     else:
@@ -454,18 +458,17 @@ def sig_param_calculation_including_fuel_switch(
     else:
         crit_switch_service = False
 
-    # --------
+    # ------------------------------------------
     # Test if a service and fuel switch are defined simultaneously
-    # ---------
+    # ------------------------------------------
     if crit_switch_service and crit_fuel_switch:
         logging.warning(
             "Error: Not possible to define fuel plus service switch for %s", enduse)
 
-    # -------------------------------
+    # ------------------------------------------
     # Initialisations
-    # -------------------------------
+    # ------------------------------------------
     sig_param_tech = {}
-
     if regional_specific:
         service_switches_out = {}
         for region in regions:
@@ -474,13 +477,15 @@ def sig_param_calculation_including_fuel_switch(
     else:
         service_switches_out = service_switches_enduse
 
-    # -------------------------------
+    # ------------------------------------------
     # SERVICE switch
-    # Calculate technologies with more, less and constant service based on service switch assumptions
-    # Calculate l_values
-    # -------------------------------
+    #
+    # Calculate service shares considering service switches and the
+    # diffusion parameters
+    # ------------------------------------------
     if crit_switch_service:
         print("...... service switch")
+
         # Calculate only from service switch
         service_tech_switched_p = share_service_tech_ey_p
 
@@ -493,9 +498,9 @@ def sig_param_calculation_including_fuel_switch(
             regions=regions,
             regional_specific=regional_specific)
 
-    # -------------
+    # ------------------------------------------
     # FUEL switch
-    # -------------
+    # ------------------------------------------
     if crit_fuel_switch:
         print("... calculate sigmoid based on FUEL switches {}".format(enduse))
 
@@ -505,7 +510,7 @@ def sig_param_calculation_including_fuel_switch(
 
         all_techs = service_tech_by_p.keys()
 
-        service_tech_switched_p, l_values_sig = s_generate_sigmoid.calc_diff_fuel_switch(
+        service_tech_switched_p, l_values_sig = s_generate_sigmoid.fuel_switch_implementation(
             technologies,
             enduse_fuel_switches,
             all_techs,
