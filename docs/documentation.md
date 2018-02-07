@@ -45,10 +45,12 @@ all ITRC models and provides demands to the supply model.
 
 ## 2. Overview of model and simulation approach
 
-![Model overview](../docs/documentation_images/000-model_overview.jpg)
-*Figure XY: Overview of modelled end uses and sectors*
 
-### 2.1 End uses
+### 2.1 Modelled end uses and sectors
+
+The energy demand model create of three main submodules which model
+residential, service and industrial energy demand. Each submodule
+modelles end uses and sectors (see Table 2.1).
 
 <table align="center">
   <tr>
@@ -63,41 +65,128 @@ all ITRC models and provides demands to the supply model.
   </tr>
   <tr>
     <td><b>End use</b></td>
-    <td></td>
-    <td></td>
+    <td><b>End use</b></td>
+    <td><b>End use</b></td>
   </tr>
   <tr>
-    <td>Et</td>
-    <td>Ates</td>
-    <td>te</td>
+    <td>space heating</td>
+    <td>space heating</td>
+    <td>space heating</td>
   </tr>
-    <td>Health</td>
-    <td>Health</td>
-    <td>Health</td>
+  <tr>
+    <td>water heating</td>
+    <td>water heating</td>
+    <td>drying and separation</td>
   </tr>
-    <tr>&nbsp</td>
+  <tr>
+    <td>lighting</td>
+    <td>lighting</td>
+    <td>lighting</td>
+  </tr>
+  <tr>
+    <td>cooking</td>
+    <td>catering</td>
+    <td>motors</td>
+  </tr>
+  <tr>
+    <td>cold</td>
+    <td>cooling and humidification</td>
+    <td>refrigeration</td>
+  </tr>
+  <tr>
+    <td>home_computing</td>
+    <td>ICT equipment</td>
+    <td>compressed air</td>
+  </tr>
+  <tr>
+    <td>consumer_electronics</td>
+    <td>fans</td>
+    <td>high temperature processes</td>
+  </tr>
+  <tr>
+    <td>wet</td>
+    <td>small power</td>
+    <td>low temperature processes</td>
+  </tr>
+  <tr>
+    <td>&nbsp</td>
+    <td>other gas</td>
+    <td>other</td>
+  </tr>
+  <tr>
+    <td>&nbsp</td>
+    <td>other electricity</td>
+    <td>&nbsp</td>
+  </tr>
+  <tr>
+    <td>&nbsp</td>
+    <td>cooled storage</td>
+    <td>&nbsp</td>
+  </tr>
+  <tr>
     <td>&nbsp</td>
     <td>&nbsp</td>
+    <td>&nbsp</td>
+  </td>
+  <tr>
+    <td><b>Sector</b></td>
+    <td><b>Sector</b></td>
+    <td><b>Sector</b></td>
   </tr>
-    <td><b>Sectors</b></td>
-    <td></td>
-    <td></td>
+  <tr>
+    <td>&nbsp</td>
+    <td>Community, arts and leisure</td>
+    <td>Other mining and quarrying</td>
   </tr>
-    <tr>
+  <tr>
+    <td>&nbsp</td>
+    <td>Education</td>
+    <td>Manufacture of food products</td>
+  </tr>
+  <tr>
+    <td>&nbsp</td>
+    <td>Emergency Services</td>
+    <td>Manufacture of beverages</td>
+  </tr>
+  <tr>
+    <td>&nbsp</td>
+    <td>Health</td>
+    <td>&nbsp</td>
+  </tr>
+  <tr>
+    <td>&nbsp</td>
+    <td>Hospitality</td>
+    <td>&nbsp</td>
+  </tr>
+  <tr>
+    <td>&nbsp</td>
+    <td>Military</td>
+    <td>&nbsp</td>
+  </tr>
+  <tr>
+    <td>&nbsp</td>
     <td>Offices</td>
-    <td>Offices</td>
+    <td>&nbsp</td>
   </tr>
-    <tr>
+  <tr>
+    <td>&nbsp</td>
     <td>Retail</td>
-    <td>Retail</td>
+    <td>&nbsp</td>
   </tr>
-    <tr>
+  <tr>
+    <td>&nbsp</td>
     <td>Storage</td>
-    <td>Aggregated across all sectors</td>
+    <td>&nbsp</td>
   </tr>
 </table>
 
 *Table 2.1: Modelled submodels, enduses and sectors*
+
+
+![Model overview](../docs/documentation_images/000-model_overview.jpg)
+*Figure 2.1: Overview of modelled end uses and sectors*
+
+
 
 
 ## 3. Main working steps
@@ -228,8 +317,38 @@ For all hours with loads higher than the new maximum hourly load, the shiftable 
 
 Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nullam eu mi placerat, ultricies urna id, pharetra dui. Mauris quis mi sit amet se
 
-### 5.2 Scenario input parameters
-Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nullam eu mi placerat, ultricies urna id, pharetra dui. Mauris quis mi sit am
+### 5.2 Scenario parameters
+
+#### 5.2.1 Residential module
+
+    Parameter name        Description
+
+    Variable_x            End year of balbla djkfla jadlfjölak j
+    Variable_x            BLABLABLABL ABLBLABA  
+    Variable_x            BLABLABLABL ABLBLABA  
+    Variable_x            BLABLABLABL ABLBLABA  
+    Variable_x            BLABLABLABL ABLBLABA  
+  
+
+#### 5.2.1 Service module
+
+    Parameter name        Description
+
+    Variable_x            End year of balbla djkfla jadlfjölak j
+    Variable_x            BLABLABLABL ABLBLABA  
+    Variable_x            BLABLABLABL ABLBLABA  
+    Variable_x            BLABLABLABL ABLBLABA  
+    Variable_x            BLABLABLABL ABLBLABA  
+  
+#### 5.2.1 Industry module
+
+    Parameter name        Description
+
+    Variable_x            End year of balbla djkfla jadlfjölak j
+    Variable_x            BLABLABLABL ABLBLABA  
+    Variable_x            BLABLABLABL ABLBLABA  
+    Variable_x            BLABLABLABL ABLBLABA  
+    Variable_x            BLABLABLABL ABLBLABA  
 
 ## 6. Disaggregation
 Lorem ipsum dolor sit ametes 
@@ -241,35 +360,37 @@ Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nullam eu mi placerat, 
 ### 6.2 Spatial disaggregation
 
 
-Employment data are used to improve industry related dissagregation: 
+Employment data are used to improve industry related dissagregation.
+The ECUK sector and employment statistics are matched as follows: 
 
-    wood        
-    textiles       
-    chemicals       None
-    printing        None
-    electrical_equipment        None
-    paper       None
-    basic_metals        None
-    beverages       None
-    pharmaceuticals       None
-    machinery       None
-    water_collection_treatment        None
-    food_production       None
-    rubber_plastics       None
-    wearing_appeal        None
-    other_transport_equipment       None
-    leather       None
-    motor_vehicles        None
-    waste_collection        None
-    tobacco       None
-    mining        None
-    other_manufacturing       None
-    furniture       None
-    non_metallic_minearl_products       None
-    computer        None
-    fabricated_metal_products       None
-  
-Matching of ECUK and employment data
+    Industry Sector                 Emplyoment Sector
+
+    wood                            XX
+    textiles                        XX
+    chemicals                       XX        
+    printing                        XX
+    electrical_equipment            XX
+    paper                           XX
+    basic_metals                    XX
+    beverages                       XX
+    pharmaceuticals                 XX
+    machinery                       XX
+    water_collection_treatment      XX
+    food_production                 XX
+    rubber_plastics                 XX
+    wearing_appeal                  XX
+    other_transport_equipment       XX
+    leather                         XX
+    motor_vehicles                  XX
+    waste_collection                XX
+    tobacco                         XX
+    mining                          XX
+    other_manufacturing             XX
+    furniture                       XX
+    non_metallic_minearl_products   XX     
+    computer                        XX
+    fabricated_metal_products       XX
+
       
 ## 10. Reading the code
 
@@ -526,3 +647,13 @@ UK Met Office (2015): ‘MIDAS: UK hourly weather observation data’. Centre fo
 - https://www.codecogs.com/latex/eqneditor.php used for this documentation
 
 
+
+2. *Another item*
+
+  * Unordered sub-list. 
+
+1. Actual numbers don't matter, just that it's a number
+  1. Ordered sub-list
+
+4. And another item.
+   You can have properly indented paragraphs within list items. Notice the blank line above, and the leading spaces (at least one, but we'll use three here to also align the raw Markdown).
