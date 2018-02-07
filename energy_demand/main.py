@@ -20,6 +20,7 @@ INTERFACE QUESTIONS
 ------------------
 - Virtual dwelling stock data?
 - fuel switches?
+- Sub-sectoral GVA
 
 NICETOHAVE
 - Convert paths dict to objects

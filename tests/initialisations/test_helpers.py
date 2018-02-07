@@ -25,14 +25,6 @@ def test_set_same_eff_all_tech():
     """Test
     """
     eff_to_assign = 0.5
-    techs = {"tech_a": {'eff_achieved': 0}}
-    techs_eff = helpers.set_same_eff_all_tech(techs)
-
-    expected = {"tech_a": {'eff_achieved': eff_to_assign}}
-
-    assert techs_eff == expected
-
-def set_same_eff_all_tech():
 
     technologies = {
         'boilerA': read_data.TechnologyData(
@@ -46,7 +38,8 @@ def set_same_eff_all_tech():
             tech_max_share=1.0,
             fueltypes={'gas': 1})}
 
-    result = helpers.set_same_eff_all_tech(technologies, tech_eff_achieved_f=0.4)
+    techs_eff = helpers.set_same_eff_all_tech(
+        technologies=technologies,
+        tech_eff_achieved_f=0.44)
 
-
-    result['boilerA'].eff_achieved == 0.4
+    assert techs_eff['boilerA'].eff_achieved == 0.44
