@@ -1784,20 +1784,44 @@ def industry_enduse_changes(enduse, sector, curr_yr, strategy_variables, fuels):
 
     Arguments
     ---------
+    enduse : str
+        Enduse
+    sector : str
+        Sector
+    curr_yr : int
+        Current year
+    strategy_variables : dict
+        All strategy variables
+    fuels : array
+        Annual fuels
 
     Returns
     --------
     fuels : np.array
         Changed fuels depending on scenario
+
+    Info
+    ----
+    OLD MODEL TODO
+
     """
-    if enduse == "is_" 
+    if enduse == "is_low_temp_process":
+
+        # Diffusion of policy
+        #cy_factor = by_value / cy_value / by_value
+        #Multiply fuels
+        #fuels = fuels * cy_factor
+
+        '''
+        Theoretical maximal potential for every sector
+        --> improvement in % of every sector?
 
 
-        # Industral enduse specific scenario variables
-        savings = sm_assump_strategy['smart_meter_improvement_{}'.format(enduse)]
-
+        '''
+        pass
+    elif enduse == 'is_high_temp_process':
+        pass
     else:
         pass
 
     return fuels
-

@@ -891,8 +891,6 @@ def plt_fuels_enduses_y(results, lookups, fig_name):
 
     for counter, (fueltype_str, fuel_fueltype_yrs) in enumerate(y_values_fueltype.items()):
 
-        print("CCC: {}  {}".format(fueltype_str, np.sum(fuel_fueltype_yrs.values())))
-
         plt.plot(
             list(fuel_fueltype_yrs.keys()),     # years
             list(fuel_fueltype_yrs.values()),   # yearly data per fueltype
