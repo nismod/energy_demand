@@ -25,16 +25,13 @@ DISTRICT HEATING TECH
 TODO: Write function to test wheter swichtes are possible (e.g. that not more from one technology to another is replaced than possible)
 TODO: Improve industry related demand --> define strategies
 TODO: Related ed to houses & householdsize
-TODO: Define efficencies of all techsg
-TODO: Base year fuel assignements
+TODO: Define efficencies of all techs
 TODO: ET_module
-TODO: COOLING? --> Test if adding with adapted cooling function
 TODO: SENSITIVITY
 TODO: Accounting module for energy and emissions
 TODO: data loading, load multiple years for real elec data
 TODO: Load different temp --> for different years
 TODO: THECK VARIALBES IN HOUSEHOLD MODEL
-TODO: WRITE COOLING PARAMETER
 TODO: FUEL; SERVICE SWITHC AS INPUT
 #WRAPPER BASE AND CURRENT YEAR GVA
 """
@@ -43,7 +40,6 @@ import sys
 import logging
 import datetime
 import numpy as np
-import cProfile
 from energy_demand import model
 from energy_demand.basic import testing_functions as testing
 

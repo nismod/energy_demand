@@ -431,7 +431,7 @@ class EDWrapper(SectorModel):
                         path_result=path_folder_lp,
                         ed_yh=ed_yh[data['lookups']['fueltypes']['electricity']],
                         days_to_plot=winter_week)
-            print(sim_obj.ed_fueltype_regs_yh.shape)
+
             write_data.write_supply_results(
                 timestep,
                 "result_tot_yh",

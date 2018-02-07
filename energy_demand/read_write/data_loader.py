@@ -369,9 +369,9 @@ def load_paths(path):
         'path_shape_ss_cooling': os.path.join(
             path, 'config_data', 'submodel_service', 'shape_service_cooling.csv'),
         'lp_elec_storage_heating': os.path.join(
-            #path, 'config_data', 'submodel_residential', 'lp_elec_storage_heating_HES.csv'), #Worst
-            #path, 'config_data', 'submodel_residential', 'lp_elec_storage_heating_Bossmann.csv'), #Better
-            path, 'config_data', 'submodel_residential', 'lp_elec_storage_heating_HESReport.csv'), #BEST
+            #path, 'config_data', 'submodel_residential', 'lp_elec_storage_heating_HES.csv'), # Worst
+            #path, 'config_data', 'submodel_residential', 'lp_elec_storage_heating_Bossmann.csv'), # Better
+            path, 'config_data', 'submodel_residential', 'lp_elec_storage_heating_HESReport.csv'), # Best
         'lp_elec_secondary_heating': os.path.join(
             path, 'config_data', 'submodel_residential', 'lp_elec_secondary_heating_HES.csv'),
 
