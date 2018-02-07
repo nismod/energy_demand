@@ -57,9 +57,9 @@ all ITRC models and provides demands to the supply model.
     <th align="left">Industry Submodel</th>
   </tr>
   <tr>
-    <td></td>
-    <td></td>
-    <td></td>
+    <td>&nbsp</td>
+    <td>&nbsp</td>
+    <td>&nbsp</td>
   </tr>
   <tr>
     <td><b>End use</b></td>
@@ -75,9 +75,9 @@ all ITRC models and provides demands to the supply model.
     <td>Health</td>
     <td>Health</td>
   </tr>
-    <tr></td>
-    <td></td>
-    <td></td>
+    <tr>&nbsp</td>
+    <td>&nbsp</td>
+    <td>&nbsp</td>
   </tr>
     <td><b>Sectors</b></td>
     <td></td>
