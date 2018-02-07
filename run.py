@@ -433,38 +433,38 @@ class EDWrapper(SectorModel):
                         days_to_plot=winter_week)
 
             write_data.write_supply_results(
-                timestep,
+                data_handle.current_timestep,
                 "result_tot_yh",
                 data['local_paths']['data_results_model_runs'],
                 sim_obj.ed_fueltype_regs_yh,
                 "result_tot_submodels_fueltypes")
             write_data.write_enduse_specific(
-                timestep,
+                data_handle.current_timestep,
                 data['local_paths']['data_results_model_runs'],
                 sim_obj.tot_fuel_y_enduse_specific_yh,
                 "out_enduse_specific")
             write_data.write_max_results(
-                timestep, data['local_paths']['data_results_model_runs'],
+                data_handle.current_timestep, data['local_paths']['data_results_model_runs'],
                 "result_tot_peak_enduses_fueltype", sim_obj.tot_peak_enduses_fueltype,
                 "tot_peak_enduses_fueltype")
             write_data.write_lf(
                 data['local_paths']['data_results_model_runs'], "result_reg_load_factor_y",
-                [timestep], sim_obj.reg_load_factor_y, 'reg_load_factor_y')
+                [data_handle.current_timestep], sim_obj.reg_load_factor_y, 'reg_load_factor_y')
             write_data.write_lf(
                 data['local_paths']['data_results_model_runs'], "result_reg_load_factor_yd",
-                [timestep], sim_obj.reg_load_factor_yd, 'reg_load_factor_yd')
+                [data_handle.current_timestep], sim_obj.reg_load_factor_yd, 'reg_load_factor_yd')
             write_data.write_lf(
                 data['local_paths']['data_results_model_runs'], "result_reg_load_factor_winter",
-                [timestep], sim_obj.reg_seasons_lf['winter'], 'reg_load_factor_winter')
+                [data_handle.current_timestep], sim_obj.reg_seasons_lf['winter'], 'reg_load_factor_winter')
             write_data.write_lf(
                 data['local_paths']['data_results_model_runs'], "result_reg_load_factor_spring",
-                [timestep], sim_obj.reg_seasons_lf['spring'], 'reg_load_factor_spring')
+                [data_handle.current_timestep], sim_obj.reg_seasons_lf['spring'], 'reg_load_factor_spring')
             write_data.write_lf(
                 data['local_paths']['data_results_model_runs'], "result_reg_load_factor_summer",
-                [timestep], sim_obj.reg_seasons_lf['summer'], 'reg_load_factor_summer')
+                [data_handle.current_timestep], sim_obj.reg_seasons_lf['summer'], 'reg_load_factor_summer')
             write_data.write_lf(
                 data['local_paths']['data_results_model_runs'], "result_reg_load_factor_autumn",
-                [timestep], sim_obj.reg_seasons_lf['autumn'], 'reg_load_factor_autumn')
+                [data_handle.current_timestep], sim_obj.reg_seasons_lf['autumn'], 'reg_load_factor_autumn')
             logging.info("... finished writing results to file")
 
         # ------------------------------------
