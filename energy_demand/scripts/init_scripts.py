@@ -434,6 +434,13 @@ def sig_param_calculation_incl_fuel_switch(
         Regions
     regional_specific : bool, default=False
         criteria
+
+    Returns
+    -------
+    sig_param_tech : dict
+        Sigmoid parameters for all affected technologies
+    service_switches_out : 
+
     """
     # ----------------------------------------
     # Test if fuel switch is defined for enduse
@@ -541,31 +548,45 @@ def sig_param_calculation_incl_fuel_switch(
 
     if crit_switch_service or crit_fuel_switch:
         print("... calculate sigmoid for techs defined in switch")
+        # Calculates parameters for sigmoid diffusion of
+        # technologies which are switched to/installed. With
+        # `regional_specific` the assumption can be changed that
+        # the technology diffusion is the same over all the uk
+        # (if `regional_specific`== False, no regionally different diffusion)
+        sig_param_tech = {}
 
-        # Get year of switches
         if regional_specific:
+
+            # Get year of switches
             for region in regions:
                 for switch in service_switches_out[region]:
                     yr_until_switched = switch.switch_yr
                     break
                 break
+
+            for reg in regions:
+                sig_param_tech[reg] = s_generate_sigmoid.tech_sigmoid_parameters(
+                    yr_until_switched,
+                    base_yr,
+                    technologies,
+                    l_values_sig[reg],
+                    service_tech_by_p,
+                    service_tech_switched_p[reg])
         else:
+
+            # Get year of switches
             for switch in service_switches_out:
                 yr_until_switched = switch.switch_yr
                 break
 
-        # EY for every sector the same, independent of inital values. However initial are different
-        # because of idfferent fuel inptus
-        # Calculate sigmoid for technologies defined in switch
-        sig_param_tech = s_generate_sigmoid.calc_sigm_parameters(
-            yr_until_switched,
-            base_yr,
-            technologies,
-            l_values_sig,
-            service_tech_by_p,
-            service_tech_switched_p,
-            regions=regions,
-            regional_specific=regional_specific)
+            # Calclulate sigmoid parameters for every installed technology
+            sig_param_tech = s_generate_sigmoid.tech_sigmoid_parameters(
+                yr_until_switched,
+                base_yr,
+                technologies,
+                l_values_sig,
+                service_tech_by_p,
+                service_tech_switched_p)
     else:
         pass #no switches are defined
 
