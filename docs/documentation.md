@@ -50,7 +50,11 @@ all ITRC models and provides demands to the supply model.
 
 The energy demand model create of three main submodules which model
 residential, service and industrial energy demand. Each submodule
-modelles end uses and sectors (see Table 2.1).
+modelles end uses and sectors (see Figure 2.1 and Table 2.1).
+
+![Model overview](../docs/documentation_images/000-model_overview.jpg)
+*Figure 2.1: Overview of modelled end uses and sectors*
+
 
 <table align="center">
   <tr>
@@ -151,22 +155,22 @@ modelles end uses and sectors (see Table 2.1).
   <tr>
     <td>&nbsp</td>
     <td>Health</td>
-    <td>&nbsp</td>
+    <td>Manufacture of tobacco products</td>
   </tr>
   <tr>
     <td>&nbsp</td>
     <td>Hospitality</td>
-    <td>&nbsp</td>
+    <td>Manufacture of textiles</td>
   </tr>
   <tr>
     <td>&nbsp</td>
     <td>Military</td>
-    <td>&nbsp</td>
+    <td>Manufacture of wearing apparel</td>
   </tr>
   <tr>
     <td>&nbsp</td>
     <td>Offices</td>
-    <td>&nbsp</td>
+    <td>Manufacture of leather and related products</td>
   </tr>
   <tr>
     <td>&nbsp</td>
@@ -180,12 +184,29 @@ modelles end uses and sectors (see Table 2.1).
   </tr>
 </table>
 
-*Table 2.1: Modelled submodels, enduses and sectors*
+*Table 2.1: Complete overview of modelled submodels, enduses and sectors*
 
 
-![Model overview](../docs/documentation_images/000-model_overview.jpg)
-*Figure 2.1: Overview of modelled end uses and sectors*
 
+
+Manufacture of wood related products
+Manufacture of paper and paper products
+Printing and publishing of recorded media and other publishing activities
+Manufacture of chemicals and chemical products
+Manufacture of basic pharmaceutical products and pharmaceutical preparations
+Manufacture of rubber and plastic products
+Manufacture of other non-metallic mineral products
+Manufacture of basic metals
+Manufacture of fabricated metal products, except machinery and equipment
+Manufacture of computer, electronic and optical products
+Manufacture of electrical equipment
+Manufacture of machinery and equipment n.e.c.
+Manufacture of motor vehicles, trailers and semi-trailers
+Manufacture of other transport equipment
+Manufacture of furniture
+Other manufacturing
+Water collection, treatment and supply
+Waste collection, treatment and disposal activities; materials recovery
 
 
 

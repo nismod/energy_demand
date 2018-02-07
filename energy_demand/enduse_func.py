@@ -175,7 +175,6 @@ class Enduse(object):
                 base_yr,
                 curr_yr)
             logging.debug("... Fuel train D: " + str(np.sum(self.fuel_new_y)))
-            #logging.debug("... Fuel train D: " + str(np.sum(self.fuel_new_y)))
 
             # Calculate new fuel demands after scenario drivers
             self.fuel_new_y = apply_scenario_drivers(
@@ -199,8 +198,16 @@ class Enduse(object):
                 enduse_overall_change['other_enduse_mode_info'],
                 base_yr,
                 curr_yr)
-
             logging.debug("... Fuel train E1: " + str(np.sum(self.fuel_new_y)))
+
+            # Industry related change
+            self.fuel_new_y = industry_enduse_changes(
+                enduse,
+                sector,
+                curr_yr,
+                assumptions['strategy_variables'],
+                self.fuel_new_y)
+
             # ----------------------------------
             # Hourly Disaggregation
             # ----------------------------------
@@ -1769,3 +1776,26 @@ def apply_cooling(
     except KeyError:
         # no cooling defined for enduse
         return fuel_y
+
+def industry_enduse_changes(enduse, sector, curr_yr, strategy_variables, fuels):
+    """This function changes the fuel if the enduse
+    is a an industrial enduse depending on assumed
+    industry related scenario paramters
+
+    Arguments
+    ---------
+
+    Returns
+    --------
+    fuels : np.array
+        Changed fuels depending on scenario
+    """
+    
+    if enduse == "is_" 
+    try:
+
+        # Industral enduse specific scenario variables
+        savings = sm_assump_strategy['smart_meter_improvement_{}'.format(enduse)]
+
+    return fuels
+
