@@ -312,26 +312,6 @@ def test_calc_lf_improvement():
 def test_Enduse():
     """
     """
-    '''enduse_funct.Enduse(
-        region_name="testregion",
-        data,
-        enduse,
-        sector,
-        fuel,
-        tech_stock,
-        heating_factor_y,
-        cooling_factor_y,
-        fuel_switches,
-        service_switches,
-        fuel_tech_p_by,
-        tech_increased_service,
-        tech_decreased_service,
-        tech_constant_service,
-        installed_tech,
-        sig_param_tech,
-        enduse_overall_change,
-        regional_lp_stock
-        )'''
     pass
 
 def test_get_enduse_tech():

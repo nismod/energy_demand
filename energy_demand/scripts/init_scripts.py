@@ -261,8 +261,6 @@ def scenario_initalisation(path_data_ed, data=False):
 
     for enduse in data['enduses']['ss_all_enduses']:
         init_cont['ss_sig_param_tech'][enduse] = {}
-        init_cont['ss_tech_decreased_service'][enduse] = {}
-        init_cont['ss_tech_constant_service'][enduse] = {}
         init_cont['ss_service_switch'][enduse] = {}
 
         for sector in data['sectors']['ss_sectors']:
@@ -281,8 +279,6 @@ def scenario_initalisation(path_data_ed, data=False):
 
     for enduse in data['enduses']['is_all_enduses']:
         init_cont['is_sig_param_tech'][enduse] = {}
-        init_cont['is_tech_decreased_service'][enduse] = {}
-        init_cont['is_tech_constant_service'][enduse] = {}
         init_cont['is_service_switch'][enduse] = {}
 
         for sector in data['sectors']['is_sectors']:

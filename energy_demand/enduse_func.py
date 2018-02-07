@@ -1686,18 +1686,18 @@ def calc_service_switch(
     for tech in all_technologies:
 
         # Calculated service share per tech for cy with sigmoid parameters
-        service_tech_incr_cy_p = get_service_diffusion(
+        service_tech_cy_p = get_service_diffusion(
             sig_param_tech[tech], curr_yr)
 
-        if service_tech_incr_cy_p == 'identical':
+        if service_tech_cy_p == 'identical':
             switched_service_tech_y_cy[tech] = service_tech_y_cy[tech] #service_service_all_techs * service_tech_by_p[tech]
         else:
-            switched_service_tech_y_cy[tech] = service_service_all_techs * service_tech_incr_cy_p
+            switched_service_tech_y_cy[tech] = service_service_all_techs * service_tech_cy_p
 
         logging.debug(
             "%s - %s - %s - %s - %s",
             curr_yr,
-            service_tech_incr_cy_p,
+            service_tech_cy_p,
             sig_param_tech[tech],
             service_service_all_techs,
             switched_service_tech_y_cy[tech])

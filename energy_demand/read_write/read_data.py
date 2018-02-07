@@ -751,16 +751,68 @@ def read_fuel_is(path_to_csv, fueltypes_nr, fueltypes):
 
     Returns
     -------
-    elements_array : dict
-        Returns an dict with arrays
+    fuels : dict
+        Industry fuels
+    all_sectors : list
+        Industral sectors
+    all_enduses : list
+        Industrial enduses
 
-    Notes
-    -----
-    the first row is the fuel_ID
-    The header is the sub_key
+    Info
+    ----
+    Source: User Guide Energy Consumption in the UK
+            https://www.gov.uk/government/uploads/system/uploads/attach
+            ment_data/file/573271/ECUK_user_guide_November_2016_final.pdf
+
+    High temperature processes
+    =============================
+    High temperature processing dominates energy consumption in the iron and steel,
+    non-ferrous metal, bricks, cement, glass and potteries industries. This includes
+    coke ovens, blast furnaces and other furnaces, kilns and glass tanks.
+    
+    Low temperature processes
+    =============================
+    Low temperature processes are the largest end use of energy for the food, drink
+    and tobacco industry. This includes process heating and distillation in the
+    chemicals sector; baking and separation processes in food and drink; pressing and
+    drying processes, in paper manufacture; and washing, scouring, dyeing and drying
+    in the textiles industry.
+    
+    Drying/separation
+    =============================
+    Drying and separation is important in paper-making while motor processes are used
+    more in the manufacture of chemicals and chemical products than in any other
+    individual industry.
+    
+    Motors
+    =============================
+    This includes pumping, fans and machinery drives.
+
+    Compressed air
+    =============================
+    Compressed air processes are mainly used in the publishing, printing and
+    reproduction of recorded media sub-sector.
+    
+    Lighting
+    =============================
+    Lighting (along with space heating) is one of the main end uses in engineering
+    (mechanical and electrical engineering and vehicles industries).
+    
+    Refrigeration
+    =============================
+    Refrigeration processes are mainly used in the chemicals and food and drink
+    industries.
+    
+    Space heating
+    =============================
+    Space heating (along with lighting) is one of the main end uses in engineering
+    (mechanical and electrical engineering and vehicles industries).
+    
+    Other
+    =============================
     """
     lines = []
-    end_uses_dict = {}
+    fuels = {}
 
     with open(path_to_csv, 'r') as csvfile:
         read_lines = csv.reader(csvfile, delimiter=',')
@@ -781,9 +833,9 @@ def read_fuel_is(path_to_csv, fueltypes_nr, fueltypes):
 
         # Initialise dict
         for enduse in all_enduses:
-            end_uses_dict[enduse] = {}
+            fuels[enduse] = {}
             for sector in all_sectors:
-                end_uses_dict[str(enduse)][str(sector)] = np.zeros((fueltypes_nr), dtype=float)
+                fuels[str(enduse)][str(sector)] = np.zeros((fueltypes_nr), dtype=float)
 
         for row in lines:
             sector = row[0]
@@ -793,9 +845,9 @@ def read_fuel_is(path_to_csv, fueltypes_nr, fueltypes):
                     enduse = str(_headings[position])
                     fueltype = _secondline[position]
                     fueltype_int = tech_related.get_fueltype_int(fueltypes, fueltype)
-                    end_uses_dict[enduse][sector][fueltype_int] += float(row[position])
+                    fuels[enduse][sector][fueltype_int] += float(row[position])
 
-    return end_uses_dict, list(all_sectors), list(all_enduses)
+    return fuels, list(all_sectors), list(all_enduses)
 
 def read_installed_tech(path_to_csv):
     """Read
