@@ -4,7 +4,6 @@ penetration
 """
 from collections import defaultdict
 import numpy as np
-from energy_demand.scripts import s_generate_sigmoid
 from energy_demand.scripts import init_scripts
 
 def load_spatial_diff_values(regions, enduses):
@@ -231,10 +230,8 @@ def calc_regional_services(
 def spatially_differentiated_modelling(
         regions,
         all_enduses,
-        all_sectors,
         init_cont,
         fuel_disagg,
-        sum_across_sectors_all_regs,
         rs_share_service_tech_ey_p,
         ss_share_service_tech_ey_p,
         is_share_service_tech_ey_p,
@@ -247,8 +244,7 @@ def spatially_differentiated_modelling(
         Regions
     all_enduses : dict
         Enduses
-    all_sectors : dict
-        Sectors
+
     init_cont : 
 
     sum_across_sectors_all_regs : 
@@ -308,7 +304,7 @@ def spatially_differentiated_modelling(
         for enduse, uk_techs_service_p in uk_techs_service_enduses_p.items():
             ss_reg_share_service_tech_ey_p[sector][enduse] = calc_regional_services(
                 enduse,
-                uk_techs_service_p, #ss_share_service_tech_ey_p,
+                uk_techs_service_p,
                 regions,
                 spatial_diffusion_factor,
                 ss_aggr_fuel,
@@ -322,45 +318,10 @@ def spatially_differentiated_modelling(
         for enduse, uk_techs_service_p in uk_techs_service_enduses_p.items():
             is_reg_share_service_tech_ey_p[sector][enduse] = calc_regional_services(
                 enduse,
-                uk_techs_service_p, #is_share_service_tech_ey_p,
+                uk_techs_service_p,
                 regions,
                 spatial_diffusion_factor,
                 is_aggr_fuel,
                 techs_affected_spatial_f)
-
-    # -------------------------------
-    # Calculate regional service shares of technologies for every technology
-    # -------------------------------
-    for enduse in init_cont['rs_service_tech_by_p']:
-        init_cont['rs_tech_increased_service'][enduse], init_cont['rs_tech_decreased_service'][enduse], init_cont['rs_tech_constant_service'][enduse], = s_generate_sigmoid.get_tech_future_service(
-            init_cont['rs_service_tech_by_p'][enduse],
-            rs_reg_share_service_tech_ey_p[enduse],
-            regions,
-            True)
-
-    init_cont['ss_tech_increased_service'] = defaultdict(dict)
-    init_cont['ss_tech_decreased_service'] = defaultdict(dict)
-    init_cont['ss_tech_constant_service'] = defaultdict(dict)
-    
-    for sector in all_sectors['ss_sectors']:
-        for enduse in init_cont['ss_service_tech_by_p'][sector]:
-            init_cont['ss_tech_increased_service'][enduse][sector], init_cont['ss_tech_decreased_service'][enduse][sector], init_cont['ss_tech_constant_service'][enduse][sector] = s_generate_sigmoid.get_tech_future_service(
-                init_cont['ss_service_tech_by_p'][sector][enduse],
-                ss_reg_share_service_tech_ey_p[sector][enduse],
-                regions,
-                True)
-
-    init_cont['is_tech_increased_service'] = defaultdict(dict)
-    init_cont['is_tech_decreased_service'] = defaultdict(dict)
-    init_cont['is_tech_constant_service'] = defaultdict(dict)
-
-    for sector in all_sectors['is_sectors']:
-        for enduse in init_cont['is_service_tech_by_p'][sector]:
-            for sector in all_sectors['is_sectors']:
-                init_cont['is_tech_increased_service'][enduse][sector], init_cont['is_tech_decreased_service'][enduse][sector], init_cont['is_tech_constant_service'][enduse][sector] = s_generate_sigmoid.get_tech_future_service(
-                    init_cont['is_service_tech_by_p'][sector][enduse],
-                    is_reg_share_service_tech_ey_p[sector][enduse],
-                    regions,
-                    True)
 
     return rs_reg_share_service_tech_ey_p, ss_reg_share_service_tech_ey_p, is_reg_share_service_tech_ey_p, init_cont

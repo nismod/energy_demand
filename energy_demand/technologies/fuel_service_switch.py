@@ -264,7 +264,7 @@ def create_service_switch(
     capacity_switch : obj
         Capacity switch
     enduse_capacity_switches : list
-        All capacity switches of an enduse
+        All capacity switches of an enduse (see warning)
     technologies : dict
         Technologies
     other_enduse_mode_info : dict
@@ -282,12 +282,23 @@ def create_service_switch(
         Service switches
 
     Major steps
-    ----
-    1.  Convert fuel per technology to service in ey
-    2.  Convert installed capacity to service of ey and add this
-    3.  Calculate percentage of service for ey
-    4.  Write out as service switch
+    -------
+        1.  Convert fuel per technology to service in ey
+        2.  Convert installed capacity to service of ey and add this
+        3.  Calculate percentage of service for ey
+        4.  Write out as service switch
+
+    Warning
+    -------
+        -   The year until the switch happens must be the same for all switches
     """
+    # ------------
+    # Calculate year until switch happens
+    # -----------
+    for switch in enduse_capacity_switches:
+        switch_yr = switch.switch_yr
+        continue
+
     # ---------------------------------------------
     # Calculate service per technology for end year
     # ---------------------------------------------
@@ -346,10 +357,7 @@ def create_service_switch(
     service_switches_enduse = []
     for tech, service_tech_p in service_enduse_tech.items():
 
-        # WARNING: MUST BE THE SAME YEAR FOR ALL CAPACITY SWITCHES
-        for switch in enduse_capacity_switches: #TODO
-            switch_yr = switch.switch_yr
-            continue
+
 
         service_switch = read_data.ServiceSwitch(
             enduse=enduse,

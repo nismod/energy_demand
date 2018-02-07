@@ -240,19 +240,25 @@ def fuel_aggr(
 
     Arguments
     ----------
-    input_array : array
-        Array to sum results
-    attribute_to_get : str
-        Attribue to sumarise
+    sector_models : list
+        Sector models
     sum_crit : str
         Criteria
     model_yearhours_nrs : int
         Number of modelled hours in a year
+    fueltypes_nr : int
+        Number of fueltypes
+    attribute_to_get : str
+        Attribue to sumarise
     model_yeardays_nrs : int
         Number of modelled yeardays
-    region_name : str, default=False
-        Name of region
-    TODO
+    attribute_non_technology : str
+        Attribute
+    attribute_technologies : str
+        Attribute
+    technologies : dict
+        Technologies
+
     Returns
     -------
     input_array : array
@@ -403,7 +409,7 @@ def get_fuels_yh(
                 nr_modelled_hours_factor, dtype=float)
             fuels = fuels_reg_y[:, np.newaxis, np.newaxis] * fast_shape
         elif attribute_to_get == 'techs_fuel_peak_h':
-            fuels =  1 / model_yearhours_nrs # TODO OR IS IT 1 / 24?
+            fuels = 1 / model_yearhours_nrs
 
     else: #If not flat shape, use yh load profile of enduse
         if attribute_to_get == 'fuel_peak_dh':
@@ -469,15 +475,9 @@ def residential_submodel(
             if criterias['spatial_exliclit_diffusion']:
                 service_switches = assumptions['rs_service_switch'][enduse][region.name]
                 sig_param_tech = assumptions['rs_sig_param_tech'][enduse][region.name]
-                tech_increased_service = assumptions['rs_tech_increased_service'][enduse][region.name]
-                tech_decreased_service = assumptions['rs_tech_decreased_service'][enduse][region.name]
-                tech_constant_service = assumptions['rs_tech_constant_service'][enduse][region.name]
             else:
                 service_switches = assumptions['rs_service_switch'][enduse]
                 sig_param_tech = assumptions['rs_sig_param_tech'][enduse]
-                tech_increased_service = assumptions['rs_tech_increased_service'][enduse]
-                tech_decreased_service = assumptions['rs_tech_decreased_service'][enduse]
-                tech_constant_service = assumptions['rs_tech_constant_service'][enduse]
 
             # Create submodule
             submodel = endusefunctions.Enduse(
@@ -497,9 +497,6 @@ def residential_submodel(
                 cooling_factor_y=region.rs_cooling_factor_y,
                 service_switches=service_switches,
                 fuel_fueltype_tech_p_by=assumptions['rs_fuel_tech_p_by'][enduse],
-                tech_increased_service=tech_increased_service,
-                tech_decreased_service=tech_decreased_service,
-                tech_constant_service=tech_constant_service,
                 sig_param_tech=sig_param_tech,
                 criterias=criterias,
                 fueltypes_nr=lookups['fueltypes_nr'],
@@ -550,15 +547,9 @@ def service_submodel(
             if criterias['spatial_exliclit_diffusion']:
                 service_switches = assumptions['ss_service_switch'][enduse][sector][region.name]
                 sig_param_tech = assumptions['ss_sig_param_tech'][enduse][sector][region.name]
-                tech_increased_service = assumptions['ss_tech_increased_service'][enduse][sector][region.name]
-                tech_decreased_service = assumptions['ss_tech_decreased_service'][enduse][sector][region.name]
-                tech_constant_service = assumptions['ss_tech_constant_service'][enduse][sector][region.name]
             else:
                 service_switches = assumptions['ss_service_switch'][enduse][sector]
                 sig_param_tech = assumptions['ss_sig_param_tech'][enduse][sector]
-                tech_increased_service = assumptions['ss_tech_increased_service'][enduse][sector]
-                tech_decreased_service = assumptions['ss_tech_decreased_service'][enduse][sector]
-                tech_constant_service = assumptions['ss_tech_constant_service'][enduse][sector]
 
             # Create submodule
             submodel = endusefunctions.Enduse(
@@ -578,9 +569,6 @@ def service_submodel(
                 cooling_factor_y=region.ss_cooling_factor_y,
                 service_switches=service_switches,
                 fuel_fueltype_tech_p_by=assumptions['ss_fuel_tech_p_by'][enduse],
-                tech_increased_service=tech_increased_service,
-                tech_decreased_service=tech_decreased_service,
-                tech_constant_service=tech_constant_service,
                 sig_param_tech=sig_param_tech,
                 criterias=criterias,
                 fueltypes_nr=lookups['fueltypes_nr'],
@@ -639,15 +627,9 @@ def industry_submodel(
             if criterias['spatial_exliclit_diffusion']:
                 service_switches = assumptions['is_service_switch'][enduse][sector][region.name]
                 sig_param_tech = assumptions['is_sig_param_tech'][enduse][sector][region.name]
-                tech_increased_service = assumptions['is_tech_increased_service'][enduse][sector][region.name]
-                tech_decreased_service = assumptions['is_tech_decreased_service'][enduse][sector][region.name]
-                tech_constant_service = assumptions['is_tech_constant_service'][enduse][sector][region.name]
             else:
                 service_switches = assumptions['is_service_switch'][enduse][sector]
                 sig_param_tech = assumptions['is_sig_param_tech'][enduse][sector]
-                tech_increased_service = assumptions['is_tech_increased_service'][enduse][sector]
-                tech_decreased_service = assumptions['is_tech_decreased_service'][enduse][sector]
-                tech_constant_service = assumptions['is_tech_constant_service'][enduse][sector]
 
             # Create submodule
             submodel = endusefunctions.Enduse(
@@ -667,9 +649,6 @@ def industry_submodel(
                 cooling_factor_y=region.is_cooling_factor_y,
                 service_switches=service_switches,
                 fuel_fueltype_tech_p_by=assumptions['is_fuel_tech_p_by'][enduse],
-                tech_increased_service=tech_increased_service,
-                tech_decreased_service=tech_decreased_service,
-                tech_constant_service=tech_constant_service,
                 sig_param_tech=sig_param_tech,
                 enduse_overall_change=assumptions['enduse_overall_change'],
                 criterias=criterias,

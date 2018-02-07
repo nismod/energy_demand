@@ -27,14 +27,14 @@ def set_up_logger(path_log_file):
     logging.basicConfig(
         filename=path_log_file,
         filemode='w', #'a, w'
-        level=logging.CRITICAL, #INFO, DEBUG, ERROR, CRITICAL
+        level=logging.DEBUG, #INFO, DEBUG, ERROR, CRITICAL
         format=('%(asctime)s - %(name)s - %(levelname)s - %(message)s'))
 
     # Necessary to add loggers in visual studio console
     ##logging.getLogger().addHandler(logging.StreamHandler())
 
     # Turn on/off logger
-    logging.disable = False
+    #logging.disable = False
     #logging.disable(logging.CRITICAL)
 
     logging.info("... logger is set up")

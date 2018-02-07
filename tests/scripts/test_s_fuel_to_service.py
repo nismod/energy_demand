@@ -67,6 +67,7 @@ def test_get_service_fueltype_tech():
             'sig_steeppness': 1}}
 
     service_tech_by_p, service_fueltype_tech_by_p, service_fueltype_by_p = s_fuel_to_service.get_service_fueltype_tech(
+       enduses=['heating'],
        tech_list=tech_list,
        fueltypes=fueltypes,
        fuel_p_tech_by=fuel_p_tech_by,
@@ -109,6 +110,7 @@ def test_get_service_fueltype_tech():
             'sig_steeppness': 1}}
 
     service_tech_by_p, service_fueltype_tech_by_p, service_fueltype_by_p = s_fuel_to_service.get_service_fueltype_tech(
+       enduses=['heating'],
        tech_list=tech_list,
        fueltypes=fueltypes,
        fuel_p_tech_by=fuel_p_tech_by,
@@ -164,6 +166,7 @@ def test_get_service_fueltype_tech():
             'sig_steeppness': 1}}
 
     service_tech_by_p, service_fueltype_tech_by_p, service_fueltype_by_p = s_fuel_to_service.get_service_fueltype_tech(
+       enduses=['heating'],
        tech_list=tech_list,
        fueltypes=fueltypes,
        fuel_p_tech_by=fuel_p_tech_by,

@@ -124,9 +124,9 @@ class EDWrapper(SectorModel):
         pop_dict = {}
         for r_idx, region in enumerate(self.get_region_names(REGION_SET_NAME)):
             pop_dict[region] = pop_array[r_idx, 0]
-        data['population'][data['sim_param']['base_yr']] = pop_dict 
+        data['population'][data['sim_param']['base_yr']] = pop_dict
 
-        gva_array = data_handle.get_base_timestep_data('gva') 
+        gva_array = data_handle.get_base_timestep_data('gva')
         gva_dict = {}
         for r_idx, region in enumerate(self.get_region_names(REGION_SET_NAME)):
             gva_dict[region] = gva_array[r_idx, 0]
@@ -201,7 +201,6 @@ class EDWrapper(SectorModel):
         # ------------------------
         # Load all SMIF parameters and replace data dict
         # ------------------------
-
         parameters = data_handle.get_parameters()
         data['assumptions'] = self.load_smif_parameters(
             parameters,
@@ -432,13 +431,7 @@ class EDWrapper(SectorModel):
                         path_result=path_folder_lp,
                         ed_yh=ed_yh[data['lookups']['fueltypes']['electricity']],
                         days_to_plot=winter_week)
-            # print("DDDDDDDDD")
-            '''print(sim_obj.ed_fueltype_regs_yh.shape)
-            print(sim_obj.tot_fuel_y_enduse_specific_yh.shape)
-            print(sim_obj.reg_load_factor_y.shape)
-            print(sim_obj.tot_peak_enduses_fueltype.shape)
-            print(sim_obj.reg_load_factor_yd.shape)'''
-
+            print(sim_obj.ed_fueltype_regs_yh.shape)
             write_data.write_supply_results(
                 timestep,
                 "result_tot_yh",

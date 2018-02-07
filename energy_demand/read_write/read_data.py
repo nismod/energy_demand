@@ -1,4 +1,7 @@
 """Reading raw data
+
+This file holds all functions necessary to read in information
+and data to run the energy demand model.
 """
 import sys
 import os
@@ -36,6 +39,8 @@ class TechnologyData(object):
         Maximum theoretical fraction of how much
         this indivdual technology can contribute
         to total energy service of its enduse
+    fueltypes : crit or bool,default=None
+        Fueltype or criteria
     """
     def __init__(
             self,
@@ -151,6 +156,20 @@ class ServiceSwitch(object):
 def read_in_results(path_runs, lookups, seasons, model_yeardays_daytype, lu_reg):
     """Read and post calculate results from txt files
     and store into container
+
+    Arguments
+    ---------
+    path_runs : str
+        Paths
+    lookups : dict
+        lookups
+    seasons : dict
+        seasons
+    model_yeardays_daytype : dict
+        Daytype of modelled yeardays
+    lu_reg : dict
+        Regions
+
     """
     logging.info("... Reading in results")
 
@@ -203,22 +222,23 @@ def read_in_results(path_runs, lookups, seasons, model_yeardays_daytype, lu_reg)
     return results_container
 
 def calc_av_per_season_fueltype(results_every_year, seasons, model_yeardays_daytype):
-    """TODO# Calculate average per season and fueltype for every fueltype
+    """Calculate average demand per season and fueltype for every fueltype
 
     Arguments
     ---------
-    results_every_year : 
-
-    seasons : 
-
-    model_yeardays_daytype : 
+    results_every_year : dict
+        Results for every year
+    seasons : dict
+        Seasons
+    model_yeardays_daytype : list
+        Daytype of modelled days
 
     Returns
     -------
     av_season_daytype_cy : 
-
+        Average demand per season and daytype
     season_daytype_cy : 
-
+        Demand per season and daytpe
     """
     av_season_daytype_cy = defaultdict(dict)
     season_daytype_cy = defaultdict(dict)
@@ -470,6 +490,18 @@ def service_switch(path_to_csv, technologies):
     Notes
     -----
     The base year service shares are generated from technology stock definition
+
+
+    Info
+    -----
+    The following attributes need to be defined for a service switch.
+
+        Attribute                   Description
+        ==========                  =========================
+        enduse                      [str]   Enduse affected by switch
+        tech                        [str]   Technology
+        switch_yr                   [int]   Year until switch is fully realised
+        service_share_ey            [str]   Service share of 'tech' in 'switch_yr'
     """
     service_switches = []
 
@@ -516,6 +548,19 @@ def read_fuel_switches(path_to_csv, enduses, fueltypes):
     -------
     dict_with_switches : dict
         All assumptions about fuel switches provided as input
+
+
+    Info
+    -----
+    The following attributes need to be defined for a fuel switch.
+
+        Attribute                   Description
+        ==========                  =========================
+        enduse                      [str]   Enduse affected by switch
+        enduse_fueltype_replace     [str]   Fueltype to be switched from
+        technology_install          [str]   Technology which is installed
+        switch_yr                   [int]   Year until switch is fully realised
+        fuel_share_switched_ey      [float] Share of fuel which is switched until switch_yr
     """
     fuel_switches = []
 
@@ -534,7 +579,6 @@ def read_fuel_switches(path_to_csv, enduses, fueltypes):
                         fuel_share_switched_ey=float(row[4])))
             except (KeyError, ValueError):
                 sys.exit("Check if provided data is complete (no emptly csv entries)")
-
 
     # Testing wheter the provided inputs make sense
     for obj in fuel_switches:
@@ -603,7 +647,6 @@ def read_technologies(path_to_csv, fueltypes):
         diff_method	market_entry    [int]   Year of market entry of technology
         tech_list                   [str]   Definition of to which group
                                             of technologies a technology belongs
-            TODO: MROE INFO
         tech_max_share              [float] Maximum share of technology related
                                             energy service which can be reached in theory
     """
@@ -823,6 +866,9 @@ def read_service_fueltype_tech_by_p(path_to_csv):
     path_to_csv : str
         Path to csv
 
+    Returns
+    -------
+    service_fueltype_tech_by_p
     """
     service_fueltype_tech_by_p = {}
 
@@ -1034,7 +1080,8 @@ def read_scenaric_population_data(path_enduse_specific_results):
     """
     results = defaultdict(dict)
 
-    all_txt_files_in_folder = os.listdir(path_enduse_specific_results)
+    all_txt_files_in_folder = os.listdir(
+        path_enduse_specific_results)
 
     # Iterate files
     for file_path in all_txt_files_in_folder:
@@ -1112,7 +1159,7 @@ def get_position(headings, name):
         List with names
     name : str
         Name of entry to find
-    
+
     Returns
     -------
     position : int

@@ -92,42 +92,45 @@ def date_to_yearday(year, month, day):
 
     return yearday
 
-def clean_weather_data_raw(temp_stations, stations_outside_UK, placeholder_value=999):
+def clean_weather_data_raw(all_temp_stations, stations_outside_UK, placeholder_value=999):
     """Relace missing data measurement points and
     remove weater stations with no data
 
     Arguments
     ----------
-    temp_stations : dict
+    all_temp_stations : dict
         Raw data of temperature measurements
+    stations_outside_UK : list
+        Stations outside of UK
     placeholder_value : int
         Placeholder value for missing measurement point
 
     Returns
     -------
-    temp_stations_cleaned : dict
+    temp_stations : dict
         Cleaned temp measurements
 
     Notes
     -----
     In the temperature mesaurements there are missing data
     points and for some stations, only 0 values are provided.
+
     From the raw dataset, all those stations are excluded where:
         - At least one day in a year has no measurement values
         - There is a day in the year with too many 0 values (zeros_day_crit criteria)
         - There is a day in a year with more than one missing measurement point
+        - Are not located in UK
 
     In case only one measurement point is missing, this point gets interpolated.
-    TODO CLEAN
     """
-    zeros_day_crit = 10 # How many 0 values there must be in a day in order to ignore weater station
-    temp_stations_cleaned = {}
+    zeros_day_crit = 10 # Number of 0 values there must be in a day in order to ignore weather station
+    temp_stations = {}
 
-    for station_id in temp_stations:
+    for station_id in all_temp_stations:
         if station_id in stations_outside_UK:
             pass
         else:
-            # Iterate to see if data can be copyed or not
+            # Iterate to see if data can be copyed
             copy_weater_station_data = True
             for day_nr, day in enumerate(temp_stations[station_id]):
                 if np.sum(day) == 0:
@@ -135,53 +138,46 @@ def clean_weather_data_raw(temp_stations, stations_outside_UK, placeholder_value
 
                 # Count number of zeroes in a day
                 cnt_zeros = collections.Counter(day)[0]
-                '''# Count number of zeros in a day
-                cnt_zeros = 0
-                for hour in day:
-                    if hour == 0:
-                        cnt_zeros += 1'''
 
                 if cnt_zeros > zeros_day_crit:
                     copy_weater_station_data = False
 
             if copy_weater_station_data:
-                temp_stations_cleaned[station_id] = temp_stations[station_id]
-            else: # Do not add data
-                continue
+                temp_stations[station_id] = temp_stations[station_id]
 
-            # Check if missing single temp measurements
-            for day_nr, day in enumerate(temp_stations[station_id]):
-                if placeholder_value in day: # If day with missing data point
+                # Check if missing single temp measurements
+                for day_nr, day in enumerate(temp_stations[station_id]):
+                    if placeholder_value in day: # If day with missing data point
 
-                    # check number of missing values
-                    nr_of_missing_values = 0
-                    for hour in day:
-                        if hour == placeholder_value:
-                            nr_of_missing_values += 1
+                        # check number of missing values
+                        nr_of_missing_values = 0
+                        for hour in day:
+                            if hour == placeholder_value:
+                                nr_of_missing_values += 1
 
-                    # If only one placeholder
-                    if nr_of_missing_values == 1:
+                        # If only one placeholder
+                        if nr_of_missing_values == 1:
 
-                        # Interpolate depending on hour
-                        for hour, temp in enumerate(day):
-                            if temp == placeholder_value:
-                                #if hour == 0 or hour == 23:
-                                if hour == 0: #If value of hours hour in day is missing
-                                    # Replace with temperature of next hour
-                                    temp_stations_cleaned[station_id][day_nr][hour] = day[hour + 1]
-                                elif hour == 23:
-                                    # Replace with temperature of previos hour
-                                    temp_stations_cleaned[station_id][day_nr][hour] = day[hour - 1]
-                                else:
-                                    # Interpolate
-                                    temp_stations_cleaned[station_id][day_nr][hour] = (day[hour - 1] + day[hour + 1]) / 2
+                            # Interpolate depending on hour
+                            for hour, temp in enumerate(day):
+                                if temp == placeholder_value:
 
-                    # if more than one temperture data point is missing in a day, remove weather station
-                    if nr_of_missing_values > 1:
-                        del temp_stations_cleaned[station_id]
-                        break
+                                    if hour == 0: #If value of hours hour in day is missing
+                                        # Replace with temperature of next hour
+                                        temp_stations[station_id][day_nr][hour] = day[hour + 1]
+                                    elif hour == 23:
+                                        # Replace with temperature of previos hour
+                                        temp_stations[station_id][day_nr][hour] = day[hour - 1]
+                                    else:
+                                        # Interpolate
+                                        temp_stations[station_id][day_nr][hour] = (day[hour - 1] + day[hour + 1]) / 2
 
-    return temp_stations_cleaned
+                        # if more than one temperture data point is missing in a day, remove weather station
+                        if nr_of_missing_values > 1:
+                            del temp_stations[station_id]
+                            break
+
+    return temp_stations
 
 def read_weather_stations_raw(path_to_csv, stations_with_data):
     """Read in weather stations from csv

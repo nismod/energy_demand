@@ -6,7 +6,6 @@ from energy_demand.scripts import s_generate_sigmoid
 from energy_demand.technologies import diffusion_technologies
 from energy_demand.read_write import read_data
 from energy_demand.technologies import tech_related
-
 def test_tech_sigmoid_paramters():
     """testng
     """
@@ -15,15 +14,16 @@ def test_tech_sigmoid_paramters():
         technology_install='boilerA',
         switch_yr=2050)]
 
-    technologies = {'boilerA': read_data.TechnologyData(
-        market_entry=1990)}
+    technologies = {
+        'boilerA': read_data.TechnologyData(market_entry=1990),
+        'boilerB': read_data.TechnologyData(market_entry=1990)}
 
     assump_fy = 1.0
     result = s_generate_sigmoid.tech_sigmoid_parameters(
+        yr_until_switched=2050,
         base_yr=2010,
         technologies=technologies,
-        installed_tech=['boilerA'],
-        l_values={'boilerA': 1.0},
+        l_values={'boilerA': 1.0, 'boilerB': 1.0},
         service_tech_by_p={'boilerA': 0.5, 'boilerB': 0.5},
         service_tech_switched_p={'boilerA': assump_fy, 'boilerB': 0})
 
@@ -33,15 +33,12 @@ def test_tech_sigmoid_paramters():
     assert y_calculated >= (assump_fy - 0.02) and y_calculated <= assump_fy + 0.02
 
     # ------------
-    technologies = {'boilerA': read_data.TechnologyData(
-        market_entry=1990)}
-
     assump_fy = 1.0
     result = s_generate_sigmoid.tech_sigmoid_parameters(
+        yr_until_switched=2050,
         base_yr=2010,
         technologies=technologies,
-        installed_tech=['boilerA'],
-        l_values={'boilerA': 1.0},
+        l_values={'boilerA': 1.0, 'boilerB': 1.0},
         service_tech_by_p={'boilerA': 0.5, 'boilerB': 0.5},
         service_tech_switched_p={'boilerA': assump_fy, 'boilerB': 0})
 
@@ -108,46 +105,6 @@ def test_calc_sigmoid_parameters2():
     y_calculated = diffusion_technologies.sigmoid_function(xdata[1], l_value, *fit_parameter)
 
     assert round(y_calculated, 3) == round(ydata[1], 3)
-
-
-def test_calc_sigmoid_parameters3():
-    """Testing
-    """
-    '''l_value = 1.0
-    xdata = np.array([2015.0, 2050.0])
-    ydata = np.array([0.76246772, 0.07624677])'''
-    
-    '''l_value = 1.0  #0.01521908  0.04503956
-    xdata = np.array([2015.0, 2050.0])
-    ydata = np.array([0.015219077406592408, 0.04503955540635414]) '''#[0.015219077406592408, 0.04503955540635414]) #np.array([0.01521908, 0.04503956]) 
-
-    l_value = 1 #0.77 #0.7624677174012964
-    xdata = np.array([2015.0, 2050.0])
-    #ydata = np.array([0.76246772, 0.07624677])
-    ydata = np.array([0.09, 0.09])
-    # fit parameters
-    fit_parameter = s_generate_sigmoid.calc_sigmoid_parameters(
-        l_value,
-        xdata,
-        ydata,
-        error_range=0.01) #0.005
-
-    y_calculated = diffusion_technologies.sigmoid_function(xdata[1], l_value, *fit_parameter)
-
-    # PLOT
-    from energy_demand.plotting import plotting_program
-    plotting_program.plotout_sigmoid_tech_diff(
-        l_value,
-        "test technology in test",
-        xdata,
-        ydata,
-        fit_parameter,
-        True,
-        False)
-
-    assert round(y_calculated, 3) == round(ydata[1], 3)
-
-#test_calc_sigmoid_parameters3()
 
 def test_get_tech_installed():
     """"""
@@ -367,17 +324,27 @@ def test_tech_l_sigmoid():
         )]
 
     service_fueltype_p =  {1: 1.0, 2: 0.0}
-    service_tech_by_p = {'boilerA': 1.0, 'boilerB': 0.0}
-    fuel_tech_p_by  = {1: {'boilerA': 1.0}, 2: {'boilerB': 1.0}}
+    service_tech_by_p = {
+        'boilerA': 1.0,
+        'boilerB': 0.0}
+
+    fuel_tech_p_by = {
+        1: {'boilerA': 1.0},
+        2: {'boilerB': 1.0}}
     installed_tech = ['boilerB']
 
+    service_tech_switched_ey = {
+        'boilerA': 0.0,
+        'boilerB': 1.0}
+
     result = s_generate_sigmoid.tech_l_sigmoid(
-        fuel_switches,
-        technologies,
-        installed_tech,
-        service_fueltype_p,
-        service_tech_by_p,
-        fuel_tech_p_by)
+        service_tech_switched_ey=service_tech_switched_ey,
+        enduse_fuel_switches=fuel_switches,
+        technologies=technologies,
+        installed_tech=installed_tech,
+        service_fueltype_by_p=service_fueltype_p,
+        service_tech_by_p=service_tech_by_p,
+        fuel_tech_p_by=fuel_tech_p_by)
 
     assert result['boilerB'] == 1.0
 
@@ -420,14 +387,16 @@ def test_tech_l_sigmoid():
     fuel_tech_p_by = {1: {'boilerA': 1.0}, 2: {'boilerB': 1.0}}
     installed_tech = ['boilerB']
 
-    result = s_generate_sigmoid.tech_l_sigmoid(
-        fuel_switches,
-        technologies,
-        installed_tech,
-        service_fueltype_p,
-        service_tech_by_p,
-        fuel_tech_p_by)
+    service_tech_switched_ey = {'boilerA': 0.5, 'boilerB': 0.5}
 
+    result = s_generate_sigmoid.tech_l_sigmoid(
+        service_tech_switched_ey=service_tech_switched_ey,
+        enduse_fuel_switches=fuel_switches,
+        technologies=technologies,
+        installed_tech=installed_tech,
+        service_fueltype_by_p=service_fueltype_p,
+        service_tech_by_p=service_tech_by_p,
+        fuel_tech_p_by=fuel_tech_p_by)
     assert result['boilerB'] == 0.8
 
 def test_get_sig_diffusion():

@@ -60,12 +60,6 @@ class Enduse(object):
         Service switches
     fuel_fueltype_tech_p_by : dict
         Fuel tech assumtions in base year
-    tech_increased_service : dict
-        Technologies per enduse with increased service due to scenarios
-    tech_decreased_service : dict
-        Technologies per enduse with decreased service due to scenarios
-    tech_constant_service : dict
-        Technologies per enduse with constat service
     sig_param_tech : dict
         Sigmoid parameters
     enduse_overall_change : dict
@@ -111,9 +105,6 @@ class Enduse(object):
             cooling_factor_y,
             service_switches,
             fuel_fueltype_tech_p_by,
-            tech_increased_service,
-            tech_decreased_service,
-            tech_constant_service,
             sig_param_tech,
             enduse_overall_change,
             criterias,
@@ -126,7 +117,7 @@ class Enduse(object):
         ):
         """Enduse class constructor
         """
-        print("... =====Enduse: {}  Sector:  {}".format(enduse, sector))
+        logging.debug(" =====Enduse: {}  Sector:  {}".format(enduse, sector))
         self.region_name = region_name
         self.enduse = enduse
         self.fuel_new_y = fuel
@@ -163,8 +154,7 @@ class Enduse(object):
                 heating_factor_y,
                 assumptions['enduse_space_heating'],
                 assumptions['ss_enduse_space_cooling'])
-            print("... Fuel train B: " + str(np.sum(self.fuel_new_y)))
-            #print("... Fuel train B: " + str(np.sum(self.fuel_new_y)))
+            logging.debug("... Fuel train B: " + str(np.sum(self.fuel_new_y)))
 
             # --Change fuel consumption based on smart meter induced general savings
             self.fuel_new_y = apply_smart_metering(
@@ -174,8 +164,7 @@ class Enduse(object):
                 assumptions['strategy_variables'],
                 base_yr,
                 curr_yr)
-            print("... Fuel train C: " + str(np.sum(self.fuel_new_y)))
-            #print("... Fuel train C: " + str(np.sum(self.fuel_new_y)))
+            logging.debug("... Fuel train C: " + str(np.sum(self.fuel_new_y)))
 
             # --Enduse specific fuel consumption change in %
             self.fuel_new_y = apply_specific_change(
@@ -185,8 +174,8 @@ class Enduse(object):
                 assumptions['strategy_variables'],
                 base_yr,
                 curr_yr)
-            print("... Fuel train D: " + str(np.sum(self.fuel_new_y)))
-            #print("... Fuel train D: " + str(np.sum(self.fuel_new_y)))
+            logging.debug("... Fuel train D: " + str(np.sum(self.fuel_new_y)))
+            #logging.debug("... Fuel train D: " + str(np.sum(self.fuel_new_y)))
 
             # Calculate new fuel demands after scenario drivers
             self.fuel_new_y = apply_scenario_drivers(
@@ -199,10 +188,7 @@ class Enduse(object):
                 reg_scen_drivers,
                 base_yr,
                 curr_yr)
-            print("... Fuel train E: " + str(np.sum(self.fuel_new_y)))
-            #print("... Fuel train E: " + str(np.sum(self.fuel_new_y)))
-            if enduse == "ss_cooling_humidification":
-                print("dd")
+            logging.debug("... Fuel train E: " + str(np.sum(self.fuel_new_y)))
 
             # Apply cooling scenario variable
             self.fuel_new_y = apply_cooling(
@@ -213,8 +199,8 @@ class Enduse(object):
                 enduse_overall_change['other_enduse_mode_info'],
                 base_yr,
                 curr_yr)
-            print("... Fuel train E1: " + str(np.sum(self.fuel_new_y)))
-            #print("... Fuel train E: " + str(np.sum(self.fuel_new_y)))
+
+            logging.debug("... Fuel train E1: " + str(np.sum(self.fuel_new_y)))
             # ----------------------------------
             # Hourly Disaggregation
             # ----------------------------------
@@ -251,7 +237,7 @@ class Enduse(object):
                 # ------------------------------------
                 # Calculate regional energy service
                 # ------------------------------------
-                tot_service_y_cy, service_tech_y_cy, _ = fuel_to_service(
+                tot_service_y_cy, service_tech_y_cy = fuel_to_service(
                     enduse,
                     self.fuel_new_y,
                     self.enduse_techs,
@@ -299,7 +285,6 @@ class Enduse(object):
                 # -------------------------------------------
                 # Convert annual service to fuel per fueltype
                 # -------------------------------------------
-                #TODO MAYBE REMOVE FUEL SPECIFIC AND REPLACE FUEL_Y by sum(fuel_YH)
                 self.fuel_new_y, fuel_tech_y = service_to_fuel(
                     enduse,
                     service_tech_y_cy,
@@ -315,12 +300,11 @@ class Enduse(object):
 
                 # Copy
                 self.fuel_y = self.fuel_new_y
-   
+
                 # ------------------------------------------
                 # Assign load profiles
                 # ------------------------------------------
                 if self.flat_profile_crit:
-                    #TODO MAYBE REMOVE FUEL SPECIFIC AND REPLACE FUEL_Y by sum(fuel_YH)
                     self.fuel_y = calc_fuel_tech_y(
                         enduse,
                         tech_stock,
@@ -556,7 +540,6 @@ def calc_lf_improvement(
     peak_shift_crit : bool
         True: Peak is shifted, False: Peak isn't shifed
     """
-
     # Calculate linear diffusion of improvement of load management
     lin_diff_factor = diffusion_technologies.linear_diff(
         base_yr, curr_yr, 0, 1, yr_until_changed)
@@ -810,7 +793,7 @@ def calc_peak_tech_dh(
         load_profile,
         mode_constrained
     ):
-    """Calculate peak demand for every fueltype and technology
+    """Iterate technologies in enduse and calculate peak demand
 
     Arguments
     ----------
@@ -838,14 +821,12 @@ def calc_peak_tech_dh(
 
     Note
     ----
-    - This function gets the hourly values of the peak day for every fueltype.
+    -   This function gets the hourly values of the peak day for every fueltype.
         The daily fuel is converted to dh for each technology.
 
-    - For some technology types (heat_pump a)
+    -   For some technology types (heat_pump)
         the dh peak day profile is not read in from technology
         stock but from shape_yh of peak day.
-    # Iterate technologies in enduse and assign technology specific profiles
-    TODO: CLEAN
     """
     if mode_constrained:
         fuels_peak_dh = {}
@@ -853,12 +834,14 @@ def calc_peak_tech_dh(
         fuels_peak_dh = np.zeros((24), dtype=float)
 
     for tech in enduse_techs:
-        tech_type = tech_stock.get_tech_attr(enduse, tech, 'tech_type')
+
+        tech_type = tech_stock.get_tech_attr(
+            enduse, tech, 'tech_type')
 
         if tech_type == 'heat_pump':
             """Read fuel from peak day
             """
-            # Get day with most fuel across all fueltypes
+            # Get day with most fuel
             if isinstance(fuel_yh, dict):
                 peak_day_nr = get_peak_day_single_fueltype(fuel_yh[tech])
             else:
@@ -893,11 +876,9 @@ def calc_peak_tech_dh(
         fuel_tech_peak_dh = tech_peak_dh * fuel_tech_peak_d
 
         if mode_constrained:
-            # Fill fuel array with fuel of tech fueltype
             fuels_peak_dh[tech] = fuel_tech_peak_dh
         else:
             # Peak day fuel shape * fueltype distribution for peak day
-            # select from (7, nr_of_days, 24) only peak day for all fueltypes
             fuels_peak_dh += fuel_tech_peak_dh
 
     return fuels_peak_dh
@@ -1163,9 +1144,6 @@ def fuel_to_service(
     service_fueltype_tech_p : dict
         Fraction of energy service per fueltype and technology
         (within every fueltype sums up to one)
-    service_tech_p_by : dict
-        Fraction of service per fueltype
-        (within every fueltype sums up to one)
 
     Note
     -----
@@ -1203,9 +1181,6 @@ def fuel_to_service(
                 # Calculate fuel share and convert fuel to service
                 service_tech_y = fuel_new_y[fueltype] * fuel_share * tech_eff
 
-                logging.debug("eg: ---{} - {} - {} - {}".format(
-                    service_tech_y, fuel_new_y[fueltype], fuel_share, tech_eff))
-
                 service_tech[tech] += service_tech_y
 
                 # Add fuel for each technology (float() is necessary to avoid inf error)
@@ -1233,11 +1208,7 @@ def fuel_to_service(
                     service_fueltype_tech[fueltypes['heat']][tech] = 0
                     service_fueltype_tech[fueltypes['heat']][tech] += float(np.sum(fuel_tech))
 
-    # Convert service of every technology to fraction of total service
-    service_tech_p_by = convert_service_to_p(tot_service_y, service_fueltype_tech)
-    #TODO: NOT NECESSARY BECAUSE FOR SECTORS DIFFERENT DEPENDING ON INPUT FUELTYPE
-
-    return tot_service_y, service_tech, service_tech_p_by
+    return tot_service_y, service_tech
 
 def apply_heat_recovery(
         enduse,
@@ -1371,7 +1342,6 @@ def apply_scenario_drivers(
                 cy_driver_data = population[curr_yr][region_name]
             #TODO :ADD OTHER ENDSES
 
-            # TODO TESTING
             if math.isnan(by_driver_data):
                 logging.warning("INF ERROR")
                 by_driver_data = 1
@@ -1409,7 +1379,7 @@ def apply_scenario_drivers(
             except ZeroDivisionError:
                 factor_driver = 1
 
-            # Check if float('nan')  #TODO: WRITE SOME MORE TEST AROUND THIS FACTOR
+            # Check if float('nan')
             if math.isnan(factor_driver):
                 logging.warning("Something went wrong wtih scenario")
                 factor_driver = 1
@@ -1723,6 +1693,7 @@ def calc_service_switch(
             print("  curr year: " + str(service_tech_incr_cy_p * service_service_all_techs))
         except:
             pass'''
+
         if  service_tech_by_p[tech] * service_service_all_techs > 0 and sig_param_tech[tech]['steepness'] == None:
             print("ERROR")
             prnt(":")
@@ -1732,12 +1703,12 @@ def calc_service_switch(
         else:
             switched_service_tech_y_cy[tech] = service_service_all_techs * service_tech_incr_cy_p
 
-        logging.debug("%s - %s - %s - %s - %s".format(
+        logging.debug("%s - %s - %s - %s - %s",
             curr_yr,
             service_tech_incr_cy_p,
             sig_param_tech[tech],
             service_service_all_techs,
-            switched_service_tech_y_cy[tech]))
+            switched_service_tech_y_cy[tech])
 
         assert switched_service_tech_y_cy[tech] >= 0 # Test that no minus
 

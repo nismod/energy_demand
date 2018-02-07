@@ -48,8 +48,7 @@ def main(path_data_energy_demand):
 
     # Read scenario data
     data['scenario_data'] = {}
-    data['scenario_data']['population'] = read_data.read_scenaric_population_data(
-        os.path.join(data['local_paths']['data_results'], 'model_run_pop'))
+    data['scenario_data']['population'] = read_data.read_scenaric_population_data(data['local_paths']['model_run_pop'])
 
     # --------------------------------------------
     # Reading in results from different model runs
@@ -90,5 +89,5 @@ def main(path_data_energy_demand):
     logging.info("... finished reading and plotting results")
     print("... finished reading and plotting results")
 
-main("C://Users//cenv0553//nismod//data_energy_demand")
-#main("C://DATA_NISMODII//data_energy_demand")
+#main(os.path.abspath("C://Users//cenv0553//nismod//data_energy_demand"))
+main(os.path.abspath("C://DATA_NISMODII//data_energy_demand"))

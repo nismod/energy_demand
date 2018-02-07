@@ -95,10 +95,8 @@ def sum_fuel_enduse_sectors(data_enduses, enduses, nr_fueltypes):
         aggregated_fuel_enduse[str(enduse)] = np.zeros((nr_fueltypes), dtype=float)
 
     # Iterate and sum fuel per enduse
-    #for fuels_sector in data_enduses.values():
     for enduse in enduses:
-        for sector, fuels_sector in data_enduses[enduse].items():
-            aggregated_fuel_enduse[enduse] += fuels_sector
+        aggregated_fuel_enduse[enduse] = sum(data_enduses[enduse].values())
 
     return aggregated_fuel_enduse
 
@@ -157,8 +155,7 @@ def get_service_fueltype_tech(
     service_fueltype_by_p = init_nested_dict_zero(
         service_tech_by_p.keys(),
         range(len(fueltypes)))
-    
-    #TODO: REPLACE WITH ENDUSES and improve reading in with all sectors directly
+
     for enduse in enduses:
         if not sector:
             fuel = fuels[enduse]

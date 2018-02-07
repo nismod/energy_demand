@@ -185,8 +185,9 @@ def write_yaml_param_complete(path_yaml, dict_to_dump):
     # Dump list
     dump(list_to_dump, path_yaml)
 
-def write_simulation_inifile(path, sim_param, enduses, assumptions, reg_nrs, lu_reg):
-    """Write .ini file with simulation parameters
+def write_simulation_inifile(path, sim_param, enduses, assumptions, reg_nrs, regions):
+    """Create .ini file with simulation parameters which ared
+    used to read in correctly the simulation results
 
     Arguments
     ---------
@@ -194,8 +195,18 @@ def write_simulation_inifile(path, sim_param, enduses, assumptions, reg_nrs, lu_
         Path to result foder
     sim_param : dict
         Contains all information necessary to plot results
+    enduses : dict
+        Enduses
+    assumptions : dict
+        Assumptions
+    reg_nrs : int
+        Number of regions
+    regions : dict
+        Regions
+
     """
-    path_ini_file = os.path.join(path, 'model_run_sim_param.ini')
+    path_ini_file = os.path.join(
+        path, 'model_run_sim_param.ini')
 
     config = configparser.ConfigParser()
 
@@ -212,16 +223,15 @@ def write_simulation_inifile(path, sim_param, enduses, assumptions, reg_nrs, lu_
     config.add_section('ENDUSES')
 
     #convert list to strings
-    config['ENDUSES']['rs_all_enduses'] = str(enduses['rs_all_enduses']) 
+    config['ENDUSES']['rs_all_enduses'] = str(enduses['rs_all_enduses'])
     config['ENDUSES']['ss_all_enduses'] = str(enduses['ss_all_enduses'])
     config['ENDUSES']['is_all_enduses'] = str(enduses['is_all_enduses'])
 
     config.add_section('REGIONS')
-    config['REGIONS']['lu_reg'] = str(lu_reg)
+    config['REGIONS']['lu_reg'] = str(regions)
 
     with open(path_ini_file, 'w') as f:
         config.write(f)
-
     pass
 
 def write_lf(path_result_folder, path_new_folder, parameters, model_results, file_name):
@@ -249,7 +259,7 @@ def write_lf(path_result_folder, path_new_folder, parameters, model_results, fil
 
 def write_supply_results(
         sim_yr,
-        path_new_folder,
+        name_new_folder,
         path_result,
         model_results,
         file_name
@@ -263,8 +273,8 @@ def write_supply_results(
     ---------
     sim_yr : int
         Simulation year
-    path_new_folder : str
-        Path
+    name_new_folder : str
+        Name of folder to create
     path_result : str
         Paths
     model_results : array
@@ -273,20 +283,22 @@ def write_supply_results(
         File name
     """
     # Create folder and subolder
-    path_result_sub_folder = os.path.join(path_result, path_new_folder)
+    path_result_sub_folder = os.path.join(path_result, name_new_folder)
     basic_functions.create_folder(path_result_sub_folder)
 
     # Write to txt
-    for fueltype_nr, fuel in enumerate(model_results):
-        path_file = os.path.join(
-            path_result_sub_folder, #path_result,
-            "{}__{}__{}__{}".format(
-                file_name,
-                sim_yr,
-                fueltype_nr,
-                ".txt"))
+    for region_array_nr, model_results in enumerate(model_results):
+        for fueltype_nr, fuel in enumerate(model_results):
+            path_file = os.path.join(
+                path_result_sub_folder,
+                "{}__{}__{}__{}__{}".format(
+                    file_name,
+                    sim_yr,
+                    fueltype_nr,
+                    region_array_nr,
+                    ".txt"))
 
-        np.savetxt(path_file, fuel, delimiter=',')
+            np.savetxt(path_file, fuel, delimiter=',')
 
 def write_enduse_specific(sim_yr, path_result, model_results, filename):
     """Write out enduse specific results for every hour
