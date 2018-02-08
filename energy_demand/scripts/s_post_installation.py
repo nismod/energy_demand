@@ -66,8 +66,8 @@ def post_install_setup(args):
     basic_functions.create_folder(data['local_paths']['dir_raw_weather_data'])
     basic_functions.create_folder(data['local_paths']['dir_changed_weather_station_data'])
     basic_functions.create_folder(data['local_paths']['load_profiles'])
-    basic_functions.create_folder(data['local_paths']['rs_load_profiles'])
-    basic_functions.create_folder(data['local_paths']['ss_load_profiles'])
+    basic_functions.create_folder(data['local_paths']['rs_load_profile_txt'])
+    basic_functions.create_folder(data['local_paths']['ss_load_profile_txt'])
     basic_functions.create_folder(data['local_paths']['dir_disaggregated'])
 
     # Read in temperature data from raw files

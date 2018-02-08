@@ -376,15 +376,15 @@ def create_txt_shapes(
 
 def create_csv_file(path, rows):
     """
+    #filewriter.writerow(['Spam', 'Lovely Spam', 'Wonderful Spam'])
     """
-    with open(path, 'w') as csvfile:
+    with open(path, 'w', newline='') as csvfile: #newline=None
 
         filewriter = csv.writer(
             csvfile,
             delimiter=',',
-            quotechar='|',
-            quoting=csv.QUOTE_MINIMAL)
+            quotechar='|') #,
+            #quoting=csv.QUOTE_MINIMAL)
 
         for row in rows:
             filewriter.writerow(row)
-            #filewriter.writerow(['Spam', 'Lovely Spam', 'Wonderful Spam'])

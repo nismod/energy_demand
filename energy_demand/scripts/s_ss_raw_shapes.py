@@ -30,13 +30,13 @@ def read_raw_carbon_trust_data(folder_path):
 
     Returns
     -------
-    load_shape_y_dh : array
+    load_shape_y_dh : np.array((365, 24))
         Load shape for every day (tot sum 365)
-    load_peak_shape_dh : array
+    load_peak_shape_dh : np.array((24))
         Peak loadshape for peak day
-    shape_peak_yd_factor : array
+    shape_peak_yd_factor : float
         Peak load factor
-    shape_non_peak_yd : array
+    shape_non_peak_yd : np.array((365))
         Yh load profile
 
     Note
@@ -329,7 +329,7 @@ def run(paths, local_paths, lookups):
 
             write_data.create_txt_shapes(
                 joint_string_name,
-                local_paths['ss_load_profiles'],
+                local_paths['ss_load_profile_txt'],
                 load_peak_shape_dh,
                 shape_non_peak_y_dh,
                 shape_peak_yd_factor,

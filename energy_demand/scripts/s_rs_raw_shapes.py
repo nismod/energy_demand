@@ -249,7 +249,7 @@ def run(paths, local_paths, base_yr):
             # Write txt files
             write_data.create_txt_shapes(
                 enduse,
-                local_paths['rs_load_profiles'],
+                local_paths['rs_load_profile_txt'],
                 shape_peak_dh,
                 shape_non_peak_y_dh,
                 shape_peak_yd_factor,

@@ -280,10 +280,6 @@ def load_local_paths(path):
             path, '_processed_data', '_post_installation_data', 'raw_weather_data'),
         'load_profiles': os.path.join(
             path, '_processed_data', '_post_installation_data', 'load_profiles'),
-        'rs_load_profiles': os.path.join(
-            path, '_processed_data', '_post_installation_data', 'load_profiles', 'rs_submodel'),
-        'ss_load_profiles': os.path.join(
-            path, '_processed_data', '_post_installation_data', 'load_profiles', 'ss_submodel'),
         'dir_disaggregated': os.path.join(
             path, '_processed_data', '_post_installation_data', 'disaggregated'),
         'rs_load_profile_txt': os.path.join(
