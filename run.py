@@ -31,7 +31,7 @@ from energy_demand.profiles import hdd_cdd
 
 # must match smif project name for Local Authority Districts
 REGION_SET_NAME = 'lad_uk_2016'
-NR_OF_MODELLEd_REGIONS = 2 # uk: 391, england.: 380
+NR_OF_MODELLEd_REGIONS = 391 # uk: 391, england.: 380
 
 class EDWrapper(SectorModel):
     """Energy Demand Wrapper
@@ -56,7 +56,7 @@ class EDWrapper(SectorModel):
         data['criterias']['mode_constrained'] = True                    # True: Technologies are defined in ED model and fuel is provided, False: Heat is delievered not per technologies
         data['criterias']['virtual_building_stock_criteria'] = True     # True: Run virtual building stock model
         data['criterias']['plot_HDD_chart'] = False                     # True: Plotting of HDD vs gas chart
-        data['criterias']['validation_criteria'] = False                # True: Plot validation plots
+        data['criterias']['validation_criteria'] = True                # True: Plot validation plots
         data['criterias']['spatial_exliclit_diffusion'] = False         # True: Spatial explicit calculations
         data['criterias']['writeYAML'] = False                          # Parameter to create SMIF files
         data['criterias']['write_to_txt'] = True
@@ -309,11 +309,11 @@ class EDWrapper(SectorModel):
         # ---------------------------------------------
         # Logger
         # ---------------------------------------------
-        logger_setup.set_up_logger(os.path.join(data['local_paths']['data_results'], "logger_smif_run.log"))
+        logger_setup.set_up_logger(os.path.join(data['local_paths']['data_results'], "logger_smif_run_sven.log"))
 
-        data['sim_param']['base_yr'] = self.user_data['base_yr'] # Base year definition
+        data['sim_param']['base_yr'] = self.user_data['base_yr']    # Base year definition
         data['sim_param']['curr_yr'] = data_handle.current_timestep # Read in current year from smif
-        data['sim_param']['simulated_yrs'] = self.timesteps      # Read in all simulated years from smif
+        data['sim_param']['simulated_yrs'] = self.timesteps         # Read in all simulated years from smif
 
         # ---------------------------------------------
         # Load data from scripts (Get simulation parameters from before_model_run()

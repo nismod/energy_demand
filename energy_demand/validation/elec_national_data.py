@@ -121,10 +121,8 @@ def compare_results(
 
     for day in days_to_plot:
         for hour in range(24):
-            y_calculated_list.append(
-                y_calculated_array[day][hour])
-            y_real_indo_factored.append(
-                y_factored_indo[day][hour])
+            y_calculated_list.append(y_calculated_array[day][hour])
+            y_real_indo_factored.append(y_factored_indo[day][hour])
 
             # Calculate absolute differences
             y_diff_abs.append(abs(y_factored_indo[day][hour] - y_calculated_array[day][hour]))

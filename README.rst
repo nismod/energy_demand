@@ -44,15 +44,14 @@ energy demand model simulation.
 first the model needs to be set up one (Section 1.1). The scenario Set-up need to be
 run every time the model is run with different assumptions (Section 1.2).
 
-1.1 Model Set-Up
--------------
+1.1 Model Set-Up (with complete data)
+---------------------------------------------
 
-
-1.  Add all necessary HIRE data into a local directory as ``path/to/energy_data_folder`` and
+1.  Add all necessary data into a local directory as ``path/to/energy_data_folder`` and
     download the energy_demand python code.
 
    Note: Because some data is not open source, the full data needs to be optained
-   from the consortium. Please contact XY.
+   from the consortium. However, the model can be run with dummy data (see Section 1.2)
 
 
 2. Navigate to the folder where the python code is saved. Open a command and type into
@@ -68,6 +67,30 @@ run every time the model is run with different assumptions (Section 1.2).
    the necessary data to run the model.
 
    Note: The `post_install_setup` generates new folders in the 
+   ``energy_data_folder``.
+
+1.2 Alternative Model Set-Up (with restricted data)
+---------------------------------------------
+
+1.  Add the minimum data requirements into a local directory as ``path/to/energy_data_folder`` and
+    download the energy_demand python code.
+
+2. Navigate to the folder where the python code is saved. Open a command and type into
+   a command line (in a virtual environment):
+
+   ``python setup.py develop``
+
+3. Install HIRE from within the console with the command
+
+   ``energy_demand post_install_setup_minimum -d1 path/to/energy_data_folder -d2 path/to/python_scripts``
+
+   Example:
+    energy_demand post_install_setup_minimum -d1 C:/Users/cenv0553/nismod/models/energy_demand -d2 C:/Users/cenv0553/nismod/data_energy_demand
+
+   The ``path/to/energy_data_folder`` is the path to the location with
+   the necessary minimum dummy data to run the model.
+
+   Note: The `post_install_setup_minimum` generates new folders in the 
    ``energy_data_folder``.
 
 2. Running the model with smif

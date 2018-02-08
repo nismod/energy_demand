@@ -25,6 +25,7 @@ INTERFACE QUESTIONS
 NICETOHAVE
 - Convert paths dict to objects
 
+TODO: Update SUB_NATIONAL ELEC and GAS DEMAND BECVAUSE CHANGED VALUES 
 DISTRICT HEATING TECH
 TODO: Write function to test wheter swichtes are possible (e.g. that not more from one technology to another is replaced than possible)
 TODO: Improve industry related demand --> define strategies

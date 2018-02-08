@@ -1,12 +1,10 @@
 """This file creates dummy data needed specifically for the energy_demand model
 """
 import os
-from datetime import date
 import numpy as np
 from energy_demand.read_write import write_data
 from energy_demand.read_write import data_loader
 from energy_demand.basic import basic_functions
-from energy_demand.basic import date_prop
 from energy_demand.scripts import s_rs_raw_shapes
 from energy_demand.assumptions import non_param_assumptions
 from energy_demand.scripts import s_raw_weather_data
@@ -28,7 +26,11 @@ def dummy_raw_weather_data(local_paths):
     """Write dummy temperature for a single weather station
     """
     create_folders_to_file(local_paths['dir_raw_weather_data'], "_processed_data")
-    '''create_folders_to_file(local_paths['folder_path_weater_data'], "_raw_data")
+    '''
+    from datetime import date
+    from energy_demand.basic import date_prop
+
+    create_folders_to_file(local_paths['folder_path_weater_data'], "_raw_data")
 
     list_dates = date_prop.fullyear_dates(
         start=date(2015, 1, 1),
@@ -55,12 +57,15 @@ def dummy_raw_weather_data(local_paths):
         os.path.join(local_paths['folder_path_weater_data']),
         rows)'''
     temp_data = {}
-    temp_data['station_Nr_999'] = np.zeros((365,24))
+
+    temp_data['station_Nr_999'] = np.zeros((365, 24))
+
     for i in range(365):
-        temp_data['station_Nr_999'][i] = [8,8,8,8, 9,9,9,9, 12,12,12,12, 16,16,16,16, 10,10,10,10, 7,7,7,7]
+        temp_data['station_Nr_999'][i] = [
+            8, 8, 8, 8, 9, 9, 9, 9, 12, 12, 12, 12, 16, 16, 16, 16, 10, 10, 10, 10, 7, 7, 7, 7]
 
     s_raw_weather_data.write_weather_data(
-        local_paths['dir_raw_weather_data'],
+        local_paths['dir_raw_weather_data'], 
         temp_data)
 
 def create_folders_to_file(path_to_file, attr_split):
@@ -108,16 +113,27 @@ def dummy_sectoral_load_profiles(local_paths, path_main):
                 shape_peak_yd_factor,
                 shape_non_peak_yd)
 
-def main(local_data_path, path_energy_demand):
-    """
-    """
+def post_install_setup_minimum(args): #path_energy_demand, local_data_path):
+    """If not all data are available, this scripts allows to
+    create dummy datas (temperature and service sector load profiles)
 
+    Arguments
+    ---------
+    local_data_path : str
+        Path to `energy_demand_data` folder
+    path_energy_demand : str
+        Path to energy demand python files
+    """
+    #local_data_path = args.data_energy_demand
+    path_energy_demand = args.path_energy_demand
+    local_data_path = args.local_data_path
+    
     # ==========================================
     # Post installation setup witout access to non publicy available data
     # ==========================================
     print(
         "... start running initialisation scripts without access to publicly available data")
-    
+
     # Load paths
     local_paths = data_loader.load_local_paths(local_data_path)
 
@@ -180,4 +196,4 @@ def main(local_data_path, path_energy_demand):
 
     print("Finished post installation setup with non-access to full data")
 
-main("C:/_DUMMY", "C:/Users/cenv0553/nismod/models/energy_demand")
+#post_install_setup_minimum("C:/_DUMMY", "C:/Users/cenv0553/nismod/models/energy_demand")

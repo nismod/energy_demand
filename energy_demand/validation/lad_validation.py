@@ -35,8 +35,7 @@ def temporal_validation(
     Arguments
     ---------
     local_paths :
-    lookups :
-    ed_fueltype_national_yh
+    elec_ed_fueltype_national_yh 
     elec_2015_indo
     elec_2015_itsdo
     plot_criteria : bool
@@ -151,6 +150,7 @@ def tempo_spatial_validation(
     subnational_gas = data_loader.read_national_real_gas_data(
         local_paths['path_val_subnational_gas'])
 
+    logging.info("Validation of electricity")
     spatial_validation(
         reg_coord,
         ed_fueltype_regs_yh,
@@ -162,6 +162,7 @@ def tempo_spatial_validation(
         label_points=False,
         plotshow=plot_crit)
 
+    logging.info("Validation of GAS")
     spatial_validation(
         reg_coord,
         ed_fueltype_regs_yh,
@@ -260,7 +261,7 @@ def spatial_validation(
         fueltype_int,
         fueltype_str,
         lu_reg,
-        subnational_elec,
+        subnational_demand,
         fig_name,
         label_points=False,
         plotshow=False
@@ -272,7 +273,9 @@ def spatial_validation(
     lad_infos_shapefile : dict
         Infos of shapefile (dbf / csv)
     ed_fueltype_regs_yh : object
-        Regional fuel
+        Regional fuel Given as GWh (?)
+    subnational_demand : 
+        for electricity: Sub-national electrcity demand given as GWh
 
     Note
     -----
@@ -293,17 +296,18 @@ def spatial_validation(
 
                 try:
                     # Test wheter data is provided for LAD
-                    if subnational_elec[reg_geocode] == 0:
+                    if subnational_demand[reg_geocode] == 0:
                         pass # Ignore region
                     else:
-                        # --Sub Regional Electricity demand
-                        result_dict['real_demand'][reg_geocode] = subnational_elec[reg_geocode]
+                        # --Sub Regional Electricity demand (as GWh)
+                        result_dict['real_demand'][reg_geocode] = subnational_demand[reg_geocode]
 
-                        # Convert GWh to GW
                         gw_per_region_modelled = np.sum(ed_fueltype_regs_yh[fueltype_int][region_array_nr])
 
                         # Correct ECUK data with correction factor
                         result_dict['modelled_demand'][reg_geocode] = gw_per_region_modelled
+                        logging.warning("{}, {}".format(reg_geocode, gw_per_region_modelled)) #subnational_demand[reg_geocode]))
+
                 except KeyError:
                     logging.warning(
                         "Sub-national spatial validation: No fuel is availalbe for region %s", reg_geocode)
