@@ -98,12 +98,12 @@ modelles end uses and sectors (see Figure 2.1 and Table 2.1).
     <td>refrigeration</td>
   </tr>
   <tr>
-    <td>home_computing</td>
+    <td>home computing</td>
     <td>ICT equipment</td>
     <td>compressed air</td>
   </tr>
   <tr>
-    <td>consumer_electronics</td>
+    <td>consumer electronics</td>
     <td>fans</td>
     <td>high temperature processes</td>
   </tr>
@@ -185,7 +185,7 @@ modelles end uses and sectors (see Figure 2.1 and Table 2.1).
   <tr>
     <td>&nbsp</td>
     <td>&nbsp</td>
-    <td>Printing and publishing of recorded media and other publishing activities</td>
+    <td>Printing and publishing of recorded media<br>and other publishing activities</td>
   </tr>
   <tr>
     <td>&nbsp</td>
@@ -195,7 +195,7 @@ modelles end uses and sectors (see Figure 2.1 and Table 2.1).
   <tr>
     <td>&nbsp</td>
     <td>&nbsp</td>
-    <td>Manufacture of basic pharmaceutical products and pharmaceutical preparations</td>
+    <td>Manufacture of basic pharmaceutical products<br> and pharmaceutical preparations</td>
   </tr>
   <tr>
     <td>&nbsp</td>
@@ -215,7 +215,7 @@ modelles end uses and sectors (see Figure 2.1 and Table 2.1).
   <tr>
     <td>&nbsp</td>
     <td>&nbsp</td>
-    <td>Manufacture of fabricated metal products, except machinery and equipment</td>
+    <td>Manufacture of fabricated metal products, <br>except machinery and equipment</td>
   </tr
     <tr>
     <td>&nbsp</td>
@@ -235,7 +235,7 @@ modelles end uses and sectors (see Figure 2.1 and Table 2.1).
   <tr>
     <td>&nbsp</td>
     <td>&nbsp</td>
-    <td>Manufacture of motor vehicles, trailers and semi-trailers</td>
+    <td>Manufacture of motor vehicles, <br>trailers and semi-trailers</td>
   </tr>
   <tr>
     <td>&nbsp</td>
@@ -260,14 +260,13 @@ modelles end uses and sectors (see Figure 2.1 and Table 2.1).
   <tr>
     <td>&nbsp</td>
     <td>&nbsp</td>
-    <td>Waste collection, treatment and disposal activities; materials recovery</td>
+    <td>Waste collection, treatment and disposal <br>activities; materials recovery</td>
   </tr>
 </table>
 
 *Table 2.1: Complete overview of modelled submodels, enduses and sectors*
 
-More information on sectors and their fuel inputs can be found here:
-https://www.gov.uk/government/uploads/system/uploads/attachment_data/file/573271/ECUK_user_guide_November_2016_final.pdf
+More information on sectors and their fuel inputs can be found [here](https://www.gov.uk/government/uploads/system/uploads/attachment_data/file/573271/ECUK_user_guide_November_2016_final.pdf).
 
 ## 3. Main working steps
 

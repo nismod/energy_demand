@@ -132,38 +132,6 @@ def autocomplete_switches(service_switches, specified_tech_enduse_by, service_te
 
     return service_switches_out
 
-def get_service_rel_tech_decr_by(tech_decrease_service, service_tech_by_p):
-    """Iterate technologies with future reduced service
-    demand (replaced tech) and calculate their relative
-    share of service in the base year
-
-    Arguments
-    ----------
-    tech_decrease_service : dict
-        Technologies with decreased service
-    service_tech_by_p : dict
-        Share of service of technologies in by
-
-    Returns
-    -------
-    rel_share_service_tech_decr_by : dict
-        Relative share of service of replaced technologies
-    """
-    rel_share_service_tech_decr_by = {}
-
-    # Summed share of all diminishing technologies
-    sum_service_tech_decrease_p = sum(
-        [service_tech_by_p[tech] for tech in tech_decrease_service])
-
-    # Relative of each diminishing tech (convert abs in dict to rel in dict)
-    for tech in tech_decrease_service:
-        try:
-            rel_share_service_tech_decr_by[tech] = service_tech_by_p[tech] / float(sum_service_tech_decrease_p)
-        except ZeroDivisionError:
-            rel_share_service_tech_decr_by[tech] = 0
-
-    return rel_share_service_tech_decr_by
-
 def capacity_installations(
         service_switches,
         capacity_switches,

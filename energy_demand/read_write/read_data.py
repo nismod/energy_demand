@@ -401,37 +401,36 @@ def read_fuel_ss(path_to_csv, fueltypes_nr):
 
     Returns
     -------
-    elements_array : dict
-        Returns an dict with arrays
-
-    Notes
-    -----
-    the first row is the fuel_ID
-    The header is the sub_key
+    fuels : dict
+        Fuels per enduse
+    sectors : list
+        Service sectors
+    enduses : list
+        Service enduses
     """
     lines = []
-    end_uses_dict = {}
+    fuels = {}
 
     with open(path_to_csv, 'r') as csvfile:
         read_lines = csv.reader(csvfile, delimiter=',')
-        _headings = next(read_lines) # Skip first row
-        _secondline = next(read_lines) # Skip first row
+        _headings = next(read_lines) # Skip row
+        _secondline = next(read_lines) # Skip row
 
         # All sectors
-        all_sectors = set([])
+        sectors = set([])
         for sector in _secondline[1:]: #skip fuel ID:
-            all_sectors.add(sector)
+            sectors.add(sector)
 
         # All enduses
-        all_enduses = set([])
+        enduses = set([])
         for enduse in _headings[1:]: #skip fuel ID:
-            all_enduses.add(enduse)
+            enduses.add(enduse)
 
         # Initialise dict
-        for enduse in all_enduses:
-            end_uses_dict[enduse] = {}
-            for sector in all_sectors:
-                end_uses_dict[enduse][sector] = np.zeros((fueltypes_nr), dtype=float)
+        for enduse in enduses:
+            fuels[enduse] = {}
+            for sector in sectors:
+                fuels[enduse][sector] = np.zeros((fueltypes_nr), dtype=float)
 
         for row in read_lines:
             lines.append(row)
@@ -440,9 +439,9 @@ def read_fuel_ss(path_to_csv, fueltypes_nr):
             for cnt, entry in enumerate(row[1:], 1):
                 enduse = _headings[cnt]
                 sector = _secondline[cnt]
-                end_uses_dict[enduse][sector][cnt_fueltype] += float(entry)
+                fuels[enduse][sector][cnt_fueltype] += float(entry)
 
-    return end_uses_dict, list(all_sectors), list(all_enduses)
+    return fuels, list(sectors), list(enduses)
 
 def read_load_shapes_tech(path_to_csv):
     """This function reads in csv technology shapes
@@ -490,7 +489,6 @@ def service_switch(path_to_csv, technologies):
     -----
     The base year service shares are generated from technology stock definition
 
-
     Info
     -----
     The following attributes need to be defined for a service switch.
@@ -515,9 +513,7 @@ def service_switch(path_to_csv, technologies):
                         enduse=str(row[0]),
                         technology_install=str(row[1]),
                         service_share_ey=float(row[2]),
-                        switch_yr=float(row[3])
-                    )
-                )
+                        switch_yr=float(row[3])))
             except (KeyError, ValueError):
                 sys.exit("Check if provided data is complete (no empty csv entries)")
 
@@ -701,8 +697,10 @@ def read_fuel_rs(path_to_csv):
 
     Returns
     -------
-    elements_array : dict
-        Returns an dict with arrays
+    fuels : dict
+        Residential fuels
+    enduses : list
+        Residential end uses
 
     Notes
     -----
@@ -711,7 +709,7 @@ def read_fuel_rs(path_to_csv):
     """
     try:
         lines = []
-        end_uses_dict = {}
+        fuels = {}
 
         with open(path_to_csv, 'r') as csvfile:
             read_lines = csv.reader(csvfile, delimiter=',')
@@ -721,21 +719,21 @@ def read_fuel_rs(path_to_csv):
                 lines.append(row)
 
             for i in _headings[1:]: # skip first
-                end_uses_dict[i] = np.zeros((len(lines)), dtype=float)
+                fuels[i] = np.zeros((len(lines)), dtype=float)
 
             for cnt_fueltype, row in enumerate(lines):
                 cnt = 1 #skip first
                 for fuel in row[1:]:
                     end_use = _headings[cnt]
-                    end_uses_dict[end_use][cnt_fueltype] = float(fuel)
+                    fuels[end_use][cnt_fueltype] = float(fuel)
                     cnt += 1
     except (KeyError, ValueError):
         sys.exit("Check whether tehre any empty cells in the csv files for enduse '{}".format(end_use))
 
     # Create list with all rs enduses
-    all_enduses = end_uses_dict.keys()
+    enduses = fuels.keys()
 
-    return end_uses_dict, list(all_enduses)
+    return fuels, list(enduses)
 
 def read_fuel_is(path_to_csv, fueltypes_nr, fueltypes):
     """This function reads in base_data_CSV all fuel types
@@ -751,16 +749,68 @@ def read_fuel_is(path_to_csv, fueltypes_nr, fueltypes):
 
     Returns
     -------
-    elements_array : dict
-        Returns an dict with arrays
+    fuels : dict
+        Industry fuels
+    sectors : list
+        Industral sectors
+    enduses : list
+        Industrial enduses
 
-    Notes
-    -----
-    the first row is the fuel_ID
-    The header is the sub_key
+    Info
+    ----
+    Source: User Guide Energy Consumption in the UK
+            https://www.gov.uk/government/uploads/system/uploads/attach
+            ment_data/file/573271/ECUK_user_guide_November_2016_final.pdf
+
+    High temperature processes
+    =============================
+    High temperature processing dominates energy consumption in the iron and steel,
+    non-ferrous metal, bricks, cement, glass and potteries industries. This includes
+    coke ovens, blast furnaces and other furnaces, kilns and glass tanks.
+
+    Low temperature processes
+    =============================
+    Low temperature processes are the largest end use of energy for the food, drink
+    and tobacco industry. This includes process heating and distillation in the
+    chemicals sector; baking and separation processes in food and drink; pressing and
+    drying processes, in paper manufacture; and washing, scouring, dyeing and drying
+    in the textiles industry.
+
+    Drying/separation
+    =============================
+    Drying and separation is important in paper-making while motor processes are used
+    more in the manufacture of chemicals and chemical products than in any other
+    individual industry.
+
+    Motors
+    =============================
+    This includes pumping, fans and machinery drives.
+
+    Compressed air
+    =============================
+    Compressed air processes are mainly used in the publishing, printing and
+    reproduction of recorded media sub-sector.
+
+    Lighting
+    =============================
+    Lighting (along with space heating) is one of the main end uses in engineering
+    (mechanical and electrical engineering and vehicles industries).
+
+    Refrigeration
+    =============================
+    Refrigeration processes are mainly used in the chemicals and food and drink
+    industries.
+
+    Space heating
+    =============================
+    Space heating (along with lighting) is one of the main end uses in engineering
+    (mechanical and electrical engineering and vehicles industries).
+
+    Other
+    =============================
     """
     lines = []
-    end_uses_dict = {}
+    fuels = {}
 
     with open(path_to_csv, 'r') as csvfile:
         read_lines = csv.reader(csvfile, delimiter=',')
@@ -768,22 +818,22 @@ def read_fuel_is(path_to_csv, fueltypes_nr, fueltypes):
         _secondline = next(read_lines)
 
         # All sectors
-        all_enduses = set([])
+        enduses = set([])
         for enduse in _headings[1:]:
             if enduse is not '':
-                all_enduses.add(enduse)
+                enduses.add(enduse)
 
         # All enduses
-        all_sectors = set([])
+        sectors = set([])
         for line in read_lines:
             lines.append(line)
-            all_sectors.add(line[0])
+            sectors.add(line[0])
 
         # Initialise dict
-        for enduse in all_enduses:
-            end_uses_dict[enduse] = {}
-            for sector in all_sectors:
-                end_uses_dict[str(enduse)][str(sector)] = np.zeros((fueltypes_nr), dtype=float)
+        for enduse in enduses:
+            fuels[enduse] = {}
+            for sector in sectors:
+                fuels[str(enduse)][str(sector)] = np.zeros((fueltypes_nr), dtype=float)
 
         for row in lines:
             sector = row[0]
@@ -793,254 +843,9 @@ def read_fuel_is(path_to_csv, fueltypes_nr, fueltypes):
                     enduse = str(_headings[position])
                     fueltype = _secondline[position]
                     fueltype_int = tech_related.get_fueltype_int(fueltypes, fueltype)
-                    end_uses_dict[enduse][sector][fueltype_int] += float(row[position])
+                    fuels[enduse][sector][fueltype_int] += float(row[position])
 
-    return end_uses_dict, list(all_sectors), list(all_enduses)
-
-def read_installed_tech(path_to_csv):
-    """Read
-
-    Arguments
-    --------
-    path_to_csv : str
-        Path
-    """
-    tech_installed = {}
-
-    with open(path_to_csv, 'r') as csvfile:
-        read_lines = csv.reader(csvfile, delimiter=',')
-        _headings = next(read_lines) # Skip headers
-
-        for row in read_lines:
-            enduse = str.strip(row[0])
-            technology = str.strip(row[1])
-
-            try:
-                tech_installed[enduse]
-            except KeyError:
-                tech_installed[enduse] = []
-
-            # If no tech
-            if technology == "[]":
-                pass
-            else:
-                tech_installed[enduse].append(technology)
-
-    return tech_installed
-
-def read_sig_param_tech(path_to_csv):
-    """Read
-    """
-    logging.debug("... read in sig parameters: %s", path_to_csv)
-    sig_param_tech = {}
-
-    with open(path_to_csv, 'r') as csvfile:
-        read_lines = csv.reader(csvfile, delimiter=',')
-        _headings = next(read_lines) # Skip headers
-
-        for row in read_lines:
-            enduse = str.strip(row[0])
-            technology = str.strip(row[1])
-            midpoint = float(row[2])
-            steepness = float(row[3])
-            l_parameter = float(row[4])
-
-            try:
-                sig_param_tech[enduse]
-            except KeyError:
-                sig_param_tech[enduse] = {}
-
-            sig_param_tech[enduse][technology] = {}
-            sig_param_tech[enduse][technology]['midpoint'] = midpoint
-            sig_param_tech[enduse][technology]['steepness'] = steepness
-            sig_param_tech[enduse][technology]['l_parameter'] = l_parameter
-
-    return sig_param_tech
-
-def read_service_fueltype_tech_by_p(path_to_csv):
-    """Read in service data
-
-    Arguments
-    ----------
-    path_to_csv : str
-        Path to csv
-
-    Returns
-    -------
-    service_fueltype_tech_by_p
-    """
-    service_fueltype_tech_by_p = {}
-
-    with open(path_to_csv, 'r') as csvfile:
-        read_lines = csv.reader(csvfile, delimiter=',')
-        _headings = next(read_lines) # Skip headers
-
-        for row in read_lines:
-            service = str.strip(row[0])
-            fueltype = int(row[1])
-            tech = str.strip(row[2])
-            service_p = float(row[3])
-
-            try:
-                service_fueltype_tech_by_p[service]
-            except KeyError:
-                service_fueltype_tech_by_p[service] = {}
-            try:
-                service_fueltype_tech_by_p[service][fueltype]
-            except KeyError:
-                service_fueltype_tech_by_p[service][fueltype] = {}
-
-            if tech == 'None':
-                service_fueltype_tech_by_p[service][fueltype] = {}
-            else:
-                try:
-                    service_fueltype_tech_by_p[service][fueltype][tech]
-                except KeyError:
-                    service_fueltype_tech_by_p[service][fueltype][tech] = 0
-
-                service_fueltype_tech_by_p[service][fueltype][tech] += service_p
-
-    return service_fueltype_tech_by_p
-
-def read_service_fueltype_by_p(path_to_csv):
-    """Read
-    """
-    logging.debug("... read in service data: %s", path_to_csv)
-    service_fueltype_by_p = {}
-
-    with open(path_to_csv, 'r') as csvfile:
-        read_lines = csv.reader(csvfile, delimiter=',')
-        _headings = next(read_lines) # Skip headers
-
-        for row in read_lines:
-            service = str.strip(row[0])
-            fueltype = int(row[1])
-            service_p = float(row[2])
-
-            try:
-                service_fueltype_by_p[service]
-            except KeyError:
-                service_fueltype_by_p[service] = {}
-            try:
-                service_fueltype_by_p[service][fueltype]
-            except KeyError:
-                service_fueltype_by_p[service][fueltype] = 0
-
-            service_fueltype_by_p[service][fueltype] += service_p
-
-    return service_fueltype_by_p
-
-def read_service_tech_by_p(path_to_csv):
-    """Read
-    """
-    logging.debug("... read in service data: %s", path_to_csv)
-    service_tech_by_p = {}
-
-    with open(path_to_csv, 'r') as csvfile:
-        read_lines = csv.reader(csvfile, delimiter=',')
-        _headings = next(read_lines) # Skip headers
-
-        for row in read_lines:
-            service = str.strip(row[0])
-            tech = str.strip(row[1])
-            service_p = float(row[2])
-
-            try:
-                service_tech_by_p[service]
-            except KeyError:
-                service_tech_by_p[service] = {}
-            try:
-                service_tech_by_p[service][tech]
-            except KeyError:
-                service_tech_by_p[service][tech] = 0
-
-            service_tech_by_p[service][tech] += service_p
-
-    return service_tech_by_p
-
-def read_disaggregated_fuel(path_to_csv, fueltypes_nr):
-    """Read disaggregated fuel
-s
-    Arguments
-    ----------
-    path_to_csv : str
-        Path to csv file
-    fueltypes_nr : int
-        Nr of fueltypes
-
-    Returns
-    -------
-    fuel_sector_enduse : dict
-        Disaggregated fuel
-
-    """
-    fuel_sector_enduse = {}
-
-    with open(path_to_csv, 'r') as csvfile:
-        read_lines = csv.reader(csvfile, delimiter=',')
-        _headings = next(read_lines) # Skip headers
-
-        for row in read_lines:
-            region = str.strip(row[0])
-            enduse = str.strip(row[1])
-            fueltype = int(row[2])
-            fuel = float(row[3])
-            try:
-                fuel_sector_enduse[region]
-            except KeyError:
-                fuel_sector_enduse[region] = {}
-            try:
-                fuel_sector_enduse[region][enduse]
-            except KeyError:
-                fuel_sector_enduse[region][enduse] = np.zeros((fueltypes_nr), dtype=float)
-
-            fuel_sector_enduse[region][enduse][fueltype] = fuel
-
-    return fuel_sector_enduse
-
-def read_disaggregated_fuel_sector(path_to_csv, fueltypes_nr):
-    """Read disaggregated fuel
-
-    Arguments
-    ----------
-    path_to_csv : str
-        Path to csv file
-    fueltypes_nr : int
-        Nr of fueltypes
-
-    Returns
-    -------
-    fuel_sector_enduse : dict
-        Disaggregated fuel
-    """
-    fuel_sector_enduse = {}
-
-    with open(path_to_csv, 'r') as csvfile:
-        read_lines = csv.reader(csvfile, delimiter=',')
-        _headings = next(read_lines) # Skip headers
-
-        for row in read_lines:
-            region = str.strip(row[0])
-            enduse = str.strip(row[1])
-            sector = str.strip(row[2])
-            fueltype = int(row[3])
-            fuel = float(row[4])
-            try:
-                fuel_sector_enduse[region]
-            except KeyError:
-                fuel_sector_enduse[region] = {}
-            try:
-                fuel_sector_enduse[region][sector]
-            except KeyError:
-                fuel_sector_enduse[region][sector] = {}
-            try:
-                fuel_sector_enduse[region][enduse][sector]
-            except KeyError:
-                fuel_sector_enduse[region][enduse][sector] = np.zeros((fueltypes_nr), dtype=float)
-
-            fuel_sector_enduse[region][enduse][sector][fueltype] = fuel
-
-    return fuel_sector_enduse
+    return fuels, list(sectors), list(enduses)
 
 def read_lf_y(path_enduse_specific_results):
     """Read load factors from txt file
@@ -1123,7 +928,8 @@ def capacity_installations(path_to_csv):
                         switch_yr=float(row[2].strip()),
                         installed_capacity=float(row[3].strip())))
             except (KeyError, ValueError):
-                sys.exit("Error in loading service switch: Check if provided data is complete (no emptly csv entries)")
+                sys.exit(
+                    "Error in loading service switch: Check if provided data is complete (no emptly csv entries)")
 
     return service_switches
 

@@ -64,8 +64,6 @@ def load_non_param_assump(
     #   Modelled day related factors
     # ============================================================
     #
-    #   Weekend
-    #
     #       model_yeardays_nrs : int
     #           Number of modelled yeardays (default=365)
     #       model_yearhours_nrs : int
@@ -313,6 +311,25 @@ def load_non_param_assump(
 
     assumptions['enduse_rs_space_cooling'] = []
     assumptions['ss_enduse_space_cooling'] = ['ss_cooling_humidification'] #['ss_fans', 'ss_cooled_storage']
+
+    # ============================================================
+    # Industry submodel related parameters
+    # ============================================================
+    #
+    #   Assumptions related to industrial enduses
+    #
+    #   s
+    #       Spl
+    # ------------------------------------------------------------
+    '''Fuel use ratio - dry process over wet process in cement sector
+    Fuel use ratio - novel alkali cement over incumbent process in cement sector
+    Fuel use ratio - novel partially dehydrated cement over incumbent process in cement sector
+    Fuel use ratio - electric arc furnace over blast furnace steel making in cement sector
+    Fuel use ratio - continuous over ingot casting in cement sector
+    Fuel use ratio - cold over hot rolling in cement sector'''
+    # Hith temperature process -- cement, non-ferrous metla, coke ovens, blast furnaces, kilns,..
+
+
 
     # ============================================================
     # Assumption related to technologies
