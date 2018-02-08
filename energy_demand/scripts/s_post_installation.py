@@ -34,7 +34,8 @@ def post_install_setup(args):
     local_data_path = args.data_energy_demand
 
     # Initialise logger
-    logger_setup.set_up_logger(os.path.join(local_data_path, "logging_post_install_setup.log"))
+    logger_setup.set_up_logger(
+        os.path.join(local_data_path, "logging_post_install_setup.log"))
     logging.info("... start local energy demand calculations")
 
     # Load data
@@ -69,6 +70,10 @@ def post_install_setup(args):
     basic_functions.create_folder(data['local_paths']['ss_load_profiles'])
     basic_functions.create_folder(data['local_paths']['dir_disaggregated'])
 
+    # Read in temperature data from raw files
+    s_raw_weather_data.run(
+        data['local_paths'])
+
     # Read in service submodel shapes
     s_ss_raw_shapes.run(
         data['paths'],
@@ -80,14 +85,6 @@ def post_install_setup(args):
         data['paths'],
         data['local_paths'],
         data['sim_param']['base_yr'])
-
-    # Read in temperature data from raw files
-    s_raw_weather_data.run(
-        data['local_paths'])
-
-    # Read in temperature data from raw files
-    s_raw_weather_data.run(
-        data['local_paths'])
 
     logging.info("... finished post_install_setup")
     print("... finished post_install_setup")

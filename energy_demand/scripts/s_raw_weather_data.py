@@ -132,7 +132,7 @@ def clean_weather_data_raw(all_temp_stations, stations_outside_UK, placeholder_v
         else:
             # Iterate to see if data can be copyed
             copy_weater_station_data = True
-            for day_nr, day in enumerate(temp_stations[station_id]):
+            for day_nr, day in enumerate(all_temp_stations[station_id]):
                 if np.sum(day) == 0:
                     copy_weater_station_data = False
 
@@ -143,10 +143,10 @@ def clean_weather_data_raw(all_temp_stations, stations_outside_UK, placeholder_v
                     copy_weater_station_data = False
 
             if copy_weater_station_data:
-                temp_stations[station_id] = temp_stations[station_id]
+                temp_stations[station_id] = all_temp_stations[station_id]
 
                 # Check if missing single temp measurements
-                for day_nr, day in enumerate(temp_stations[station_id]):
+                for day_nr, day in enumerate(all_temp_stations[station_id]):
                     if placeholder_value in day: # If day with missing data point
 
                         # check number of missing values
@@ -164,13 +164,13 @@ def clean_weather_data_raw(all_temp_stations, stations_outside_UK, placeholder_v
 
                                     if hour == 0: #If value of hours hour in day is missing
                                         # Replace with temperature of next hour
-                                        temp_stations[station_id][day_nr][hour] = day[hour + 1]
+                                        all_temp_stations[station_id][day_nr][hour] = day[hour + 1]
                                     elif hour == 23:
                                         # Replace with temperature of previos hour
-                                        temp_stations[station_id][day_nr][hour] = day[hour - 1]
+                                        all_temp_stations[station_id][day_nr][hour] = day[hour - 1]
                                     else:
                                         # Interpolate
-                                        temp_stations[station_id][day_nr][hour] = (day[hour - 1] + day[hour + 1]) / 2
+                                        all_temp_stations[station_id][day_nr][hour] = (day[hour - 1] + day[hour + 1]) / 2
 
                         # if more than one temperture data point is missing in a day, remove weather station
                         if nr_of_missing_values > 1:

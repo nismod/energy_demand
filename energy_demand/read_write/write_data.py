@@ -9,6 +9,7 @@ from energy_demand.geography import write_shp
 import yaml
 from yaml import Loader, Dumper
 import collections
+import csv
 
 def write_array_to_txt(path_result, array):
     """Write scenario population for a year to txt file
@@ -371,3 +372,19 @@ def create_txt_shapes(
         shape_non_peak_yd)
 
     return
+
+
+def create_csv_file(path, rows):
+    """
+    """
+    with open(path, 'w') as csvfile:
+
+        filewriter = csv.writer(
+            csvfile,
+            delimiter=',',
+            quotechar='|',
+            quoting=csv.QUOTE_MINIMAL)
+
+        for row in rows:
+            filewriter.writerow(row)
+            #filewriter.writerow(['Spam', 'Lovely Spam', 'Wonderful Spam'])

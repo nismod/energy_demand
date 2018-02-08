@@ -1057,7 +1057,7 @@ def service_to_fuel(
     For every technology the service is taken and converted
     to fuel based on efficiency of current year
 
-    Inputs
+    Arguments
     ------
     enduse : str
         Enduse
@@ -1072,8 +1072,8 @@ def service_to_fuel(
     mode_constrained : bool
         Mode running criteria
 
-    Return
-    ------
+    Returns
+    -------
     fuel_new_y : array
         Fuel per fueltype
     fuel_per_tech : dict

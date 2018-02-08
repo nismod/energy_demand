@@ -257,9 +257,7 @@ class EDWrapper(SectorModel):
 
         Arguments
         ---------
-        timestep : int
-            The name of the current timestep
-        data : dict
+        data_handle : dict
             A dictionary containing all parameters and model inputs defined in
             the smif configuration by name
 

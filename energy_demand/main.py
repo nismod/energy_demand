@@ -37,6 +37,7 @@ TODO: data loading, load multiple years for real elec data
 TODO: Load different temp --> for different years
 TODO: THECK VARIALBES IN HOUSEHOLD MODEL
 TODO: FUEL; SERVICE SWITHC AS INPUT
+TODO: WRITE MULTIPLE DIMENS ION ARRAY
 #WRAPPER BASE AND CURRENT YEAR GVA
 """
 import os

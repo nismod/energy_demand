@@ -319,7 +319,7 @@ def load_non_param_assump(
     #   Assumptions related to industrial enduses
     #
     #   s
-    #       Spl
+    #       S
     # ------------------------------------------------------------
     '''Fuel use ratio - dry process over wet process in cement sector
     Fuel use ratio - novel alkali cement over incumbent process in cement sector
