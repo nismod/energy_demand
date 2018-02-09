@@ -5,14 +5,15 @@ import sys
 import logging
 import numpy as np
 import matplotlib.pyplot as plt
-import matplotlib as mpl
-import matplotlib.patches as mpatches
+from collections import defaultdict
+import operator
+
 from energy_demand.plotting import plotting_program
 from energy_demand.basic import basic_functions, conversions
-from matplotlib.patches import Rectangle
 from energy_demand.plotting import plotting_styles
 from energy_demand.technologies import tech_related
 from scipy import stats
+
 
 # INFO
 # https://stackoverflow.com/questions/35099130/change-spacing-of-dashes-in-dashed-line-in-matplotlib
@@ -39,6 +40,7 @@ def order_polygon(upper_boundary, lower_bdoundary):
 def run_all_plot_functions(
         results_container,
         reg_nrs,
+        regions,
         lookups,
         local_paths,
         assumptions,
@@ -50,6 +52,23 @@ def run_all_plot_functions(
     logging.info("... plotting results")
     print("... plotting results")
 
+    # ----------
+    # Plot LAD differences for first and last year
+    # ----------
+    try:
+        plot_lad_comparison(
+            base_yr=2015,
+            comparison_year=2050,
+            regions=regions,
+            ed_year_fueltype_regs_yh=results_container['results_every_year'],
+            fueltype_int=lookups['fueltypes']['electricity'],
+            fueltype_str='electricity',
+            fig_path=os.path.join(
+                local_paths['data_results_PDF'],"comparions_LAD_modelled_by_cy.pdf"),
+            label_points=False,
+            plotshow=True)
+    except:
+        pass
     # ------------
     # Plot stacked annual enduses
     # ------------
@@ -1430,5 +1449,170 @@ def plot_enduse_yh(
     if plot_crit:
         plt.show()
         plt.close()
+    else:
+        plt.close()
+
+def plot_lad_comparison(
+        base_yr,
+        comparison_year,
+        regions,
+        ed_year_fueltype_regs_yh,
+        fueltype_int,
+        fueltype_str,
+        fig_path,
+        label_points=False,
+        plotshow=False
+    ):
+    """Compare energy demand for regions for the base yeard and
+    a future year
+
+    Arguments
+    ----------
+    comparison_year : int
+        Year to compare base year values to
+    Note
+    -----
+    SOURCE OF LADS:
+        - Data for northern ireland is not included in that, however in BEIS dataset!
+    """
+    result_dict = defaultdict(dict)
+
+    # -------------------------------------------
+    # Get base year modelled demand
+    # -------------------------------------------
+    for year, fuels in ed_year_fueltype_regs_yh.items():
+
+        if year == base_yr:
+            for region_array_nr, reg_geocode in enumerate(regions):
+                gw_per_region_modelled = np.sum(fuels[fueltype_int][region_array_nr])
+                result_dict['demand_by'][reg_geocode] = gw_per_region_modelled
+        elif year == comparison_year:
+            for region_array_nr, reg_geocode in enumerate(regions):
+                gw_per_region_modelled = np.sum(fuels[fueltype_int][region_array_nr])
+                result_dict['demand_cy'][reg_geocode] = gw_per_region_modelled
+        else:
+            pass
+
+    logging.info("Comparison: modelled: {}  real: {}".format(
+        sum(result_dict['demand_by'].values()),
+        sum(result_dict['demand_cy'].values())))
+
+    # -----------------
+    # Sort results according to size
+    # -----------------
+    sorted_dict_real = sorted(
+        result_dict['demand_by'].items(),
+        key=operator.itemgetter(1))
+
+    # -------------------------------------
+    # Plot
+    # -------------------------------------
+    fig = plt.figure(
+        figsize=plotting_program.cm2inch(9, 8)) #width, height
+
+    ax = fig.add_subplot(1, 1, 1)
+
+    x_values = np.arange(0, len(sorted_dict_real), 1)
+
+    y_real_elec_demand = []
+    y_modelled_elec_demand = []
+
+    labels = []
+    for sorted_region in sorted_dict_real:
+
+        geocode_lad = sorted_region[0]
+
+        y_real_elec_demand.append(
+            result_dict['demand_by'][geocode_lad])
+        y_modelled_elec_demand.append(
+            result_dict['demand_cy'][geocode_lad])
+
+        logging.debug(
+            "validation for LAD region: %s %s diff: %s",
+            result_dict['demand_by'][geocode_lad],
+            result_dict['demand_cy'][geocode_lad],
+            result_dict['demand_cy'][geocode_lad] - result_dict['demand_by'][geocode_lad])
+
+        labels.append(geocode_lad)
+
+    # --------
+    # Axis
+    # --------
+    plt.tick_params(
+        axis='x',          # changes apply to the x-axis
+        which='both',      # both major and minor ticks are affected
+        bottom='off',      # ticks along the bottom edge are off
+        top='off',         # ticks along the top edge are off
+        labelbottom='off') # labels along the bottom edge are off
+
+    # ----------------------------------------------
+    # Plot
+    # ----------------------------------------------
+    plt.plot(
+        x_values,
+        y_real_elec_demand,
+        linestyle='None',
+        marker='o',
+        markersize=1.6, #1.6
+        fillstyle='full',
+        markerfacecolor='grey',
+        markeredgewidth=0.2,
+        color='black',
+        label='actual')
+
+    plt.plot(
+        x_values,
+        y_modelled_elec_demand,
+        marker='o',
+        linestyle='None',
+        markersize=1.6,
+        markerfacecolor='white',
+        fillstyle='none',
+        markeredgewidth=0.5,
+        markeredgecolor='blue',
+        color='black',
+        label='model')
+
+    # Limit
+    plt.ylim(ymin=0)
+
+    # -----------
+    # Labelling
+    # -----------
+    if label_points:
+        for pos, txt in enumerate(labels):
+            ax.text(
+                x_values[pos],
+                y_modelled_elec_demand[pos],
+                txt,
+                horizontalalignment="right",
+                verticalalignment="top",
+                fontsize=3)
+
+    font_additional_info = {
+        'family': 'arial',
+        'color': 'black',
+        'weight': 'normal',
+        'size': 8}
+
+    plt.xlabel("UK regions (excluding northern ireland)")
+    plt.ylabel("{} [GWh]".format(fueltype_str))
+
+    # --------
+    # Legend
+    # --------
+    plt.legend(
+        prop={
+            'family': 'arial',
+            'size': 8},
+        frameon=False)
+
+    # Tight layout
+    plt.margins(x=0)
+    plt.tight_layout()
+    plt.savefig(fig_path)
+
+    if plotshow:
+        plt.show()
     else:
         plt.close()

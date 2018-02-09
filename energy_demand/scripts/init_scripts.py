@@ -54,6 +54,7 @@ def scenario_initalisation(path_data_ed, data=False):
     basic_functions.create_folder(data['local_paths']['data_results_PDF'])
     basic_functions.create_folder(data['local_paths']['data_results_model_run_pop'])
     basic_functions.create_folder(data['local_paths']['data_results_validation'])
+    basic_functions.create_folder(data['local_paths']['data_results_model_runs'])
 
     # ---------------------------------------
     # Load local datasets for disaggregateion

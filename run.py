@@ -31,7 +31,7 @@ from energy_demand.profiles import hdd_cdd
 
 # must match smif project name for Local Authority Districts
 REGION_SET_NAME = 'lad_uk_2016'
-NR_OF_MODELLEd_REGIONS = 391 # uk: 391, england.: 380
+NR_OF_MODELLEd_REGIONS = 391 #391 # uk: 391, england.: 380
 
 class EDWrapper(SectorModel):
     """Energy Demand Wrapper
@@ -56,13 +56,14 @@ class EDWrapper(SectorModel):
         data['criterias']['mode_constrained'] = True                    # True: Technologies are defined in ED model and fuel is provided, False: Heat is delievered not per technologies
         data['criterias']['virtual_building_stock_criteria'] = True     # True: Run virtual building stock model
         data['criterias']['plot_HDD_chart'] = False                     # True: Plotting of HDD vs gas chart
-        data['criterias']['validation_criteria'] = True                # True: Plot validation plots
+        data['criterias']['validation_criteria'] = False                # True: Plot validation plots
         data['criterias']['spatial_exliclit_diffusion'] = False         # True: Spatial explicit calculations
         data['criterias']['writeYAML'] = False                          # Parameter to create SMIF files
         data['criterias']['write_to_txt'] = True
         data['criterias']['beyond_supply_outputs'] = True               # If only for smif: FAlse, for other plots: True
         data['criterias']['plot_crit'] = True
         data['criterias']['plot_tech_lp'] = True
+        data['criterias']['crit_plot_enduse_lp'] = False
 
         data['sim_param']['base_yr'] = data_handle.timesteps[0] # Base year
         data['sim_param']['curr_yr'] = data['sim_param']['base_yr']
@@ -398,15 +399,14 @@ class EDWrapper(SectorModel):
         # -------------------------------------------
         # Write annual results to txt files
         # -------------------------------------------
+
         if data['criterias']['write_to_txt']:
             #tot_fuel_y_max_enduses = sim_obj.tot_fuel_y_max_enduses
             logging.info("... Start writing results to file")
-
+           
             # ----
             # Plot individual enduse
-            # ----
-            crit_plot_enduse_lp = True
-            if crit_plot_enduse_lp and data_handle.current_timestep == 2015:
+            if data['criterias']['crit_plot_enduse_lp'] and data_handle.current_timestep == 2015:
 
                 # Maybe move to result folder in a later step
                 path_folder_lp = os.path.join(data['local_paths']['data_results'], 'individual_enduse_lp')
@@ -436,6 +436,7 @@ class EDWrapper(SectorModel):
                 data['local_paths']['data_results_model_runs'],
                 sim_obj.ed_fueltype_regs_yh,
                 "result_tot_submodels_fueltypes")
+
             write_data.write_enduse_specific(
                 data_handle.current_timestep,
                 data['local_paths']['data_results_model_runs'],
@@ -581,14 +582,14 @@ class EDWrapper(SectorModel):
 
         return dict(output_dict)
 
-    def load_smif_parameters(self, data, assumptions):
-        """Get all model parameters from smif (`data`) depending
+    def load_smif_parameters(self, data_handle, assumptions):
+        """Get all model parameters from smif (`data_handle`) depending
         on narrative and replace in assumption dict
 
         Arguments
         ---------
-        data : dict
-            Dict with all data
+        data_handle : dict
+            Dict with all data_handle
         assumptions : dict
             Assumptions
 
@@ -602,12 +603,12 @@ class EDWrapper(SectorModel):
         # Get all parameter names
         all_strategy_variables = self.parameters.keys()
 
-        # Get variable from dict and reassign and delete from data
+        # Get variable from dict and reassign and delete from data_handle
         for var_name in all_strategy_variables:
-            logging.info("Load strategy parameter: {}  {}".format(var_name, data[var_name]))
+            logging.info("Load strategy parameter: {}  {}".format(var_name, data_handle[var_name]))
 
-            # Get narrative variable from input data dict
-            strategy_variables[var_name] = data[var_name]
+            # Get narrative variable from input data_handle dict
+            strategy_variables[var_name] = data_handle[var_name]
 
         # Add to assumptions
         assumptions['strategy_variables'] = strategy_variables

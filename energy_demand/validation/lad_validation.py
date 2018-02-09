@@ -348,7 +348,7 @@ def spatial_validation(
     # -----------------
     # Sort results according to size
     # -----------------
-    sorted_dict_real_elec_demand = sorted(
+    sorted_dict_real = sorted(
         result_dict['real_demand'].items(),
         key=operator.itemgetter(1))
 
@@ -360,13 +360,13 @@ def spatial_validation(
 
     ax = fig.add_subplot(1, 1, 1)
 
-    x_values = np.arange(0, len(sorted_dict_real_elec_demand), 1)
+    x_values = np.arange(0, len(sorted_dict_real), 1)
 
     y_real_elec_demand = []
     y_modelled_elec_demand = []
 
     labels = []
-    for sorted_region in sorted_dict_real_elec_demand:
+    for sorted_region in sorted_dict_real:
 
         geocode_lad = sorted_region[0]
 
