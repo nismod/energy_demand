@@ -52,6 +52,10 @@ class EDWrapper(SectorModel):
         """
         data = defaultdict(dict)
 
+        # -----------
+        # INFORMATION: IF you want only to run smif, use the following configuration: fast_smif_run == True
+        # -----------
+
         # Criteria
         data['criterias']['mode_constrained'] = True                    # True: Technologies are defined in ED model and fuel is provided, False: Heat is delievered not per technologies
         data['criterias']['virtual_building_stock_criteria'] = True     # True: Run virtual building stock model
@@ -69,7 +73,7 @@ class EDWrapper(SectorModel):
         data['sim_param']['curr_yr'] = data['sim_param']['base_yr']
         self.user_data['base_yr'] = data['sim_param']['base_yr']
 
-        '''fast_smif_run = False #YEAY
+        fast_smif_run = True
 
         if fast_smif_run == True:
             data['criterias']['write_to_txt'] = False
@@ -82,7 +86,8 @@ class EDWrapper(SectorModel):
             data['criterias']['beyond_supply_outputs'] = True
             data['criterias']['validation_criteria'] = True
             data['criterias']['plot_tech_lp'] = True
-            data['criterias']['plot_crit'] = True'''
+            data['criterias']['plot_crit'] = True
+
         # -----------------------------
         # Paths
         # -----------------------------

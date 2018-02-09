@@ -1558,7 +1558,7 @@ def plot_lad_comparison(
         markerfacecolor='grey',
         markeredgewidth=0.2,
         color='black',
-        label='actual')
+        label='BASE YEAR')
 
     plt.plot(
         x_values,
@@ -1571,7 +1571,7 @@ def plot_lad_comparison(
         markeredgewidth=0.5,
         markeredgecolor='blue',
         color='black',
-        label='model')
+        label='CURRENT YEAr')
 
     # Limit
     plt.ylim(ymin=0)
