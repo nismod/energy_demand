@@ -3,7 +3,9 @@ import os
 import csv
 import logging
 import numpy as np
+from scipy import stats
 import matplotlib.pyplot as plt
+import matplotlib.mlab as mlab
 from energy_demand.basic import date_prop
 from energy_demand.basic import conversions
 from energy_demand.plotting import plotting_program
@@ -68,7 +70,7 @@ def read_raw_elec_2015(path_to_csv, year=2015):
 
                 # Sum value of first and second half hour
                 hour_elec_demand_INDO = half_hour_demand_indo + float(line[2])
-                hour_elec_demand_ITSDO = half_hour_demand_itsdo + float(line[4]) 
+                hour_elec_demand_ITSDO = half_hour_demand_itsdo + float(line[4])
 
                 # Convert MW to GWH (input is MW aggregated for two half
                 # hourly measurements, therfore divide by 0.5)
@@ -112,28 +114,54 @@ def compare_results(
 
     x_data = range(nr_of_h_to_plot)
 
-    y_real_indo = []
-    y_real_itsdo = []
     y_real_indo_factored = []
-    y_calculated = []
+    y_calculated_list = []
+    y_diff_p = []
+    y_diff_abs = []
 
     for day in days_to_plot:
         for hour in range(24):
-            y_real_indo.append(y_real_array_indo[day][hour])
-            y_real_itsdo.append(y_real_array_itsdo[day][hour])
-            y_calculated.append(y_calculated_array[day][hour])
+            y_calculated_list.append(y_calculated_array[day][hour])
             y_real_indo_factored.append(y_factored_indo[day][hour])
 
+            # Calculate absolute differences
+            y_diff_abs.append(abs(y_factored_indo[day][hour] - y_calculated_array[day][hour]))
+
+            # Calculate difference in percent
+            y_diff_p.append((100 / y_factored_indo[day][hour]) * y_calculated_array[day][hour] - 100)
+
+    # -------------
     # RMSE
-    rmse_val_indo = basic_functions.rmse(np.array(y_real_indo), np.array(y_calculated))
-    rmse_val_itsdo = basic_functions.rmse(np.array(y_real_itsdo), np.array(y_calculated))
-    rmse_val_corrected = basic_functions.rmse(np.array(y_real_indo_factored), np.array(y_calculated))
-    #rmse_val_own_factor_correction = basic_functions.rmse(np.array(y_real_indo), np.array(y_calculated))
+    # -------------
+    rmse_val_corrected = basic_functions.rmse(np.array(y_real_indo_factored), np.array(y_calculated_list))
 
+    # ----------
+    # Standard deviation
+    # ----------
+    standard_dev_real_modelled = np.std(y_diff_p)       # Differences in %
+    standard_dev_real_modelled_abs = np.std(y_diff_abs) # Absolute differences 
+
+    logging.warning("Standard deviation given as percentage: " + str(standard_dev_real_modelled))
+    logging.warning("Standard deviation given as GW:         " + str(standard_dev_real_modelled_abs))
+
+    # ---------
     # R squared
-    #slope, intercept, r_value, p_value, std_err = stats.linregress(np.array(y_real_indo), np.array(y_calculated))
+    # ---------
+    slope, intercept, r_value, p_value, std_err = stats.linregress(
+        y_real_indo_factored,
+        y_calculated_list)
 
-    fig = plt.figure(figsize=plotting_program.cm2inch(16, 8))
+    # ----------
+    # Plot residuals
+    # ----------
+    plot_residual_histogram(
+        y_diff_p, path_result, "residuals_{}".format(name_fig))
+
+    # ----------
+    # Plot figure
+    # ----------
+    fig = plt.figure(
+        figsize=plotting_program.cm2inch(22, 8)) #width, height
 
     # plot points
     plt.plot(
@@ -147,30 +175,46 @@ def compare_results(
 
     plt.plot(
         x_data,
-        y_calculated,
-        label='modelled',
+        y_calculated_list,
+        label='model',
         linestyle='--',
         linewidth=0.5,
         fillstyle='full',
         color='blue')
 
-    #plt.plot(x_data, y_real_indo_factored, color='gray', fillstyle='full', markeredgewidth=0.5, marker='o', markersize=10, label='TD_factored')
-    #plt.plot(x_data, y_calculated, color='white', fillstyle='none', markeredgewidth=0.5, marker='o', markersize=10, label='modelled')
+    #Grid
+    #plt.grid(True)
 
     plt.xlim([0, 8760])
     plt.margins(x=0)
     plt.axis('tight')
 
+    # -------------------
+    # Label x axis in dates
+    # -------------------
+    major_ticks_days, major_ticks_labels = get_date_strings(
+        x_data, daystep=2)
+
+    plt.xticks(major_ticks_days, major_ticks_labels)
+
     # ----------
     # Labelling
     # ----------
-    font_additional_info = {'family': 'arial', 'color':  'black', 'weight': 'normal','size': 8}
+    font_additional_info = {
+        'family': 'arial',
+        'color': 'black',
+        'weight': 'normal',
+        'size': 8}
+
     plt.title(
-        'RMSE (TD): {} RMSE (TSD): {} RMSE (factored TSD): {}'.format(
-            round(rmse_val_indo, 3), round(rmse_val_itsdo, 3), round(rmse_val_corrected)),
-            fontsize=10,
-            fontdict=font_additional_info,
-            loc='right')
+        'RMSE: {} Std_dev: {} (+-{}) R_squared: {}'.format(
+            round(rmse_val_corrected, 3),
+            round(standard_dev_real_modelled, 3),
+            round(standard_dev_real_modelled_abs, 3),
+            round(r_value, 3)),
+        fontsize=10,
+        fontdict=font_additional_info,
+        loc='right')
 
     plt.title(title_left, loc='left')
 
@@ -212,18 +256,18 @@ def compare_peak(
     plt.plot(
         range(24),
         tot_peak_enduses_fueltype,
-        color='black',
+        color='blue',
         linestyle='-',
         linewidth=0.5,
-        label='modelled')
+        label='model')
     #plt.plot(range(24), validation_elec_data_2015[max_day], color='green', label='real')
     plt.plot(
         range(24),
         validation_elec_2015_peak,
-        color='blue',
+        color='black',
         linestyle='--',
         linewidth=0.5,
-        label='real')
+        label='actual')
 
     # Y-axis ticks
     plt.xlim(0, 25)
@@ -286,6 +330,92 @@ def compare_results_hour_boxplots(
 
     plt.xlabel("hour")
     plt.ylabel("Modelled electricity difference (real-modelled) [%]")
-    
+
     plt.savefig(os.path.join(path_result, name_fig))
     plt.close()
+
+def plot_residual_histogram(values, path_result, name_fig):
+    """Plot residuals as histogram and test for normal distribution
+
+    https://matplotlib.org/1.2.1/examples/pylab_examples/histogram_demo.html
+    https://stackoverflow.com/questions/22179119/normality-test-of-a-distribution-in-python
+    """
+    plt.figure(facecolor="white")
+
+    # Sort according to size
+    values.sort()
+
+    # the histogram of the data
+    n, bins, patches = plt.hist(
+        values,
+        50,
+        normed=1,
+        facecolor='grey')
+
+    # ------------------
+    # Plot normal distribution
+    # ------------------
+    mu = np.mean(values)
+    sigma = np.std(values)
+    plt.plot(
+        bins,
+        mlab.normpdf(bins, mu, sigma),
+        color='r')
+
+    # -----------
+    # Test for normal distribution
+    # https://stackoverflow.com/questions/12838993/scipy-normaltest-how-is-it-used
+    # http://www.socscistatistics.com/pvalues/chidistribution.aspx
+    # http://stattrek.com/chi-square-test/goodness-of-fit.aspx?Tutorial=AP
+    # -----------
+    chi_squared, p_value = stats.normaltest(values)
+
+    # ---------------
+    # plot histogram
+    # ---------------
+    font_additional_info = {
+        'family': 'arial',
+        'color': 'black',
+        'weight': 'normal',
+        'size': 8}
+
+    plt.xlabel('Smarts')
+    plt.ylabel('Probability')
+    plt.title("Residual distribution (chi_squared: {}  p_value:  {}".format(
+        round(chi_squared, 4),
+        round(p_value, 4)),
+        fontsize=10,
+        fontdict=font_additional_info,
+        loc='right')
+    #plt.grid(True)
+
+    #Save fig
+    plt.savefig(os.path.join(path_result, name_fig))
+
+def get_date_strings(x_data, daystep):
+    """Calculate date and position for range
+    input of yeardays
+    """
+    major_ticks_days = []
+    major_ticks_labels = []
+    cnt = 0
+    cnt_daystep = 0
+
+    for yearhour in x_data:
+        if cnt == 23:
+            yearday_int = ((yearhour + 1) / 24) -1
+            str_date = str(date_prop.yearday_to_date(2015, yearday_int))
+            str_date_short = str_date[5:]
+
+            if daystep == cnt_daystep:
+                major_ticks_labels.append(str_date_short)
+                major_ticks_days.append(yearhour - 24)
+                cnt = 0
+                cnt_daystep = 0
+            else:
+                cnt = 0
+                cnt_daystep += 1
+        else:
+            cnt += 1
+
+    return major_ticks_days, major_ticks_labels

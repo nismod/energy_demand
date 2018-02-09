@@ -30,7 +30,7 @@ def insert_dummy_tech(technologies, tech_p_by, all_specified_tech_enduse_by):
         Technologies
     """
     for end_use in tech_p_by:
-        for fuel_type in tech_p_by[end_use]:
+        for fueltype in tech_p_by[end_use]:
             all_defined_tech_in_fueltype = tech_p_by[end_use].values()
             for definition in all_defined_tech_in_fueltype:
 
@@ -46,11 +46,11 @@ def insert_dummy_tech(technologies, tech_p_by, all_specified_tech_enduse_by):
 
             # If an enduse has no defined technologies across all fueltypes
             if crit_tech_defined_in_enduse is False:
-                if tech_p_by[end_use][fuel_type] == {}:
+                if tech_p_by[end_use][fueltype] == {}:
                     all_specified_tech_enduse_by[end_use].append("dummy_tech")
 
                     # Assign total fuel demand to dummy technology
-                    tech_p_by[end_use][fuel_type] = {"dummy_tech": 1.0}
+                    tech_p_by[end_use][fueltype] = {"dummy_tech": 1.0}
 
                     # Insert dummy tech
                     technologies['dummy_tech'] = read_data.TechnologyData()
@@ -197,7 +197,7 @@ def get_fueltype_int(fueltypes, fueltype_string):
     fueltype_in_string : str
         Fueltype string
     """
-    if fueltypes == None:
+    if fueltypes is None:
         return None
     else:
         return fueltypes[fueltype_string]
@@ -218,40 +218,38 @@ def get_tech_type(tech_name, tech_list):
     tech_type : string
         Technology type
     """
-    if tech_name in tech_list['tech_heating_temp_dep']:
-        tech_type = 'heat_pump'
-    elif tech_name in tech_list['tech_heating_const']:
-        tech_type = 'boiler_heating_tech'
-    elif tech_name in tech_list['primary_heating_electricity']:
-        tech_type = 'storage_heating_electricity'
-    elif tech_name in tech_list['secondary_heating_electricity']:
-        tech_type = 'secondary_heating_electricity'
-    elif tech_name == 'dummy_tech':
+    if tech_name == 'dummy_tech':
         tech_type = 'dummy_tech'
     else:
-        tech_type = 'regular_tech'
+        if tech_name in tech_list['tech_heating_temp_dep']:
+            tech_type = 'heat_pump'
+        else:
+            tech_type = 'other_tech'
 
     return tech_type
 
 def calc_av_heat_pump_eff_ey(technologies, heat_pump_assump):
-    """Calculate end year average efficiency of 
+    """Calculate end year average efficiency of
     heat pumps depending on split of heat pumps
 
     Arguments
     ---------
     technologies : dict
         Technologies
+    heat_pump_assump : dict
+        Ditionary with split of heat pumps for every fueltype
 
     Return
     ------
     technologies : dict
         Updated technologies
     """
-    for fueltype in heat_pump_assump:
+    for fueltype, heat_pump_split in heat_pump_assump.items():
         av_eff_hps_ey = 0
 
-        for heat_pump_type in heat_pump_assump[fueltype]:
-            share_heat_pump = heat_pump_assump[fueltype][heat_pump_type]
+        for heat_pump_type, share_heat_pump in heat_pump_split.items():
+
+            # End year efficiency of heat pump
             eff_heat_pump_ey = technologies[heat_pump_type].eff_ey
 
             # Calc average values
@@ -262,21 +260,21 @@ def calc_av_heat_pump_eff_ey(technologies, heat_pump_assump):
 
         # Add new averaged technology
         technologies[name_av_hp].eff_ey = av_eff_hps_ey
-    
+
     return technologies
 
-def generate_heat_pump_from_split(temp_dependent_tech_list, technologies, heat_pump_assump, fueltypes):
-    """Delete all heat_pump from tech dict, define average new heat pump
-    technologies 'av_heat_pump_fueltype' with efficiency depending on installed ratio
+def generate_heat_pump_from_split(technologies, heat_pump_assump, fueltypes):
+    """Define average new heat pumptechnologies 'av_heat_pump_fueltype' with
+    efficiency depending on installed ratio of heat pumps
 
     Arguments
     ----------
-    temp_dependent_tech_list : list
-        List to store temperature dependent technologies (e.g. heat-pumps)
     technologies : dict
         Technologies
     heat_pump_assump : dict
         The split of the ASHP and GSHP
+    fueltypes : dict
+        Fueltypes lookup
 
     Returns
     -------
@@ -291,6 +289,7 @@ def generate_heat_pump_from_split(temp_dependent_tech_list, technologies, heat_p
       (the lowest is selected if different years)
     - Diff method is linear
     """
+    temp_dependent_tech_list = []
     heat_pumps = []
 
     # Calculate average efficiency of heat pump depending on installed ratio
@@ -330,7 +329,7 @@ def generate_heat_pump_from_split(temp_dependent_tech_list, technologies, heat_p
 
         # Add new averaged technology
         technologies[name_av_hp] = read_data.TechnologyData(
-            fuel_type=fueltype,
+            fueltype=fueltype,
             eff_by=av_eff_hps_by,
             eff_ey=av_eff_hps_ey,
             year_eff_ey=av_year_eff_ey,
@@ -343,15 +342,11 @@ def generate_heat_pump_from_split(temp_dependent_tech_list, technologies, heat_p
 
         heat_pumps.append(name_av_hp)
 
-    # Remove all heat pumps from tech dict
-    '''for fueltype in heat_pump_assump:
-        for heat_pump_type in heat_pump_assump[fueltype]:
-            del technologies[heat_pump_type]'''
-
     return technologies, temp_dependent_tech_list, heat_pumps
 
 def calc_eff_cy(
-        sim_param,
+        base_yr,
+        curr_yr,
         eff_by,
         eff_ey,
         yr_until_changed,
@@ -364,8 +359,10 @@ def calc_eff_cy(
 
     Arguments
     ----------
-    sim_param : dict
-        Base simulation parameters
+    base_yr : int
+        Base year
+    curr_yr : int
+        Current year
     eff_by : dict
         Base year efficiency
     eff_ey : dict
@@ -389,13 +386,13 @@ def calc_eff_cy(
     The development of efficiency improvements over time is assumed to be linear
     This can however be changed with the `diff_method` attribute
 
-    TODO: Generate two types of sigmoid (convex & concav)
+    NICETOHAVE: Generate two types of sigmoid (convex & concav)
     """
     # Theoretical maximum efficiency potential if theoretical maximum is linearly calculated
     if diff_method == 'linear':
         theor_max_eff = diffusion.linear_diff(
-            sim_param['base_yr'],
-            sim_param['curr_yr'],
+            base_yr,
+            curr_yr,
             eff_by,
             eff_ey,
             yr_until_changed)
@@ -407,8 +404,8 @@ def calc_eff_cy(
 
     elif diff_method == 'sigmoid':
         theor_max_eff = diffusion.sigmoid_diffusion(
-            sim_param['base_yr'],
-            sim_param['curr_yr'],
+            base_yr,
+            curr_yr,
             yr_until_changed,
             other_enduse_mode_info['sigmoid']['sig_midpoint'],
             other_enduse_mode_info['sigmoid']['sig_steeppness'])
@@ -429,8 +426,6 @@ def generate_ashp_gshp_split(split_hp_gshp_ashp):
     ----------
     split_factor : float
         Fraction of ASHP to GSHP
-    data : dict
-        Data
 
     Returns
     --------
@@ -446,8 +441,8 @@ def generate_ashp_gshp_split(split_hp_gshp_ashp):
 
     installed_heat_pump_by = {
         'hydrogen': {
-            'heat_pump_ASHP_hydro': ashp_fraction,
-            'heat_pump_GSHP_hydro': gshp_fraction
+            'heat_pump_ASHP_hydrogen': ashp_fraction,
+            'heat_pump_GSHP_hydrogen': gshp_fraction
             },
         'electricity': {
             'heat_pump_ASHP_electricity': ashp_fraction,

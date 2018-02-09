@@ -26,7 +26,7 @@ def array_to_dict(result_array, lu_reg):
     result_array : array
         Results in region_array
     lu_reg : list
-        List with all regions (oder is the same)
+        List with all regions (order is the same)
 
     Returns
     --------
@@ -34,8 +34,8 @@ def array_to_dict(result_array, lu_reg):
         reg, value
     """
     result_dict = {}
-    for reg_array_nr, region_name in enumerate(lu_reg):
-        result_dict[region_name] = result_array[reg_array_nr]
+    for reg_array_nr, region in enumerate(lu_reg):
+        result_dict[region] = result_array[reg_array_nr]
 
     return result_dict
 
@@ -46,8 +46,8 @@ def create_folder(path_folder, name_subfolder=None):
     ----------
     path : str
         Path to folder
-    folder_name : str
-        Name of folder to create
+    folder_name : str, default=None
+        Name of subfolder to create
     """
     if not name_subfolder:
         if not os.path.exists(path_folder):
@@ -56,6 +56,19 @@ def create_folder(path_folder, name_subfolder=None):
         path_result_subolder = os.path.join(path_folder, name_subfolder)
         if not os.path.exists(path_result_subolder):
             os.makedirs(path_result_subolder)
+
+def delete_folder(path_folder):
+    """Delete folder or subfolder
+
+    Arguments
+    ----------
+    path : str
+        Path to folder
+    folder_name : str, default=None
+        Name of subfolder to create
+    """
+    if os.path.exists(path_folder):
+        shutil.rmtree(path_folder)
 
 def del_previous_results(path_folder, path_subfolder_keep):
     """Delete all model results from previous model run. Do not
@@ -87,11 +100,25 @@ def del_previous_setup(path_folder):
 
     Arguments
     ---------
-    path : str
+    path_folder : str
         Path to results of model run
     """
     if os.path.exists(path_folder):
         shutil.rmtree(path_folder, ignore_errors=True)
+        logging.info("... deleted previous scenario results")
+    else:
+        pass
+
+def del_file(path_file):
+    """Delete all model results from previous model run
+
+    Arguments
+    ---------
+    path_folder : str
+        Path to results of model run
+    """
+    if os.path.isfile(path_file):
+        os.remove(path_file)
         logging.info("... deleted previous scenario results")
     else:
         pass
@@ -137,12 +164,12 @@ def get_month_from_string(month_string):
     return int(month)
 
 def get_month_from_int(month_int):
-    """Convert string month to int month with Jan == 1
+    """Convert inger month to string month with Jan == 1
 
     Argument
     --------
-    month_string : str
-        Month given as a string
+    month_int : str
+        Month given as a integer
 
     Returns
     --------

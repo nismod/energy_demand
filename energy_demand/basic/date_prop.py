@@ -4,7 +4,7 @@ time related functionality
 """
 from datetime import date
 from datetime import timedelta
-from isoweek import Week
+
 import numpy as np
 
 # Weeks in middle of meteorological seasons
@@ -20,8 +20,25 @@ summer_week = list(range(
 autumn_week = list(range(
     date_prop.date_to_yearday(year_to_model, 10, 12),
     date_prop.date_to_yearday(year_to_model, 10, 26))) #Oct'''
-    
-def get_model_yeardays_datype(year_to_model):
+
+def get_model_yeardays_daytype(year_to_model):
+    """For yearday, daytype and date related
+    properties
+
+    Arguments
+    ---------
+    year_to_model : int
+        Year to get daytpes
+
+    Returns
+    -------
+    model_yeardays_daytype : dict
+        Dict with description for every day if working or holiday
+    yeardays_month : dict
+        For every month the yeardays (as int) are provided
+    yeardays_month_days : dict
+        For every month, all dates are provided as date objects
+    """
     # --------------------------------------
     # Calculate for all yeardays the daytype of base year
     # --------------------------------------
@@ -42,9 +59,8 @@ def get_model_yeardays_datype(year_to_model):
     for i in range(12):
         yeardays_month_days[i] = []
 
-    yeardays_month = []
-
     # Get month type of yearday for every day
+    yeardays_month = []
     for yearday, date_object in enumerate(list_dates):
         month_yearday = date_object.timetuple().tm_mon - 1
         yeardays_month.append(month_yearday)
@@ -54,6 +70,11 @@ def get_model_yeardays_datype(year_to_model):
 
 def read_season(year_to_model):
     """
+
+    Arguments
+    ---------
+    year_to_model : int
+        Year which is modelled
     """
     # Full meteorological seasons
     seasons = {}
@@ -95,6 +116,7 @@ def read_season(year_to_model):
     -----
     if year is a leap year, funciton may not work properly
     """
+    from isoweek import Week
     list_days = []
     monday_in_week = Week(year, week_nr).monday()
 
@@ -145,7 +167,8 @@ def date_to_yearday(year, month, day):
     return yearday
 
 def yearday_to_date(year, yearday_python):
-    """Gets the yearday of a year minus one to correct because of python iteration
+    """Gets the yearday of a year minus one to correct
+    because of python iteration
 
     Arguments
     ----------
@@ -203,6 +226,7 @@ def get_weekday_type(date_to_test):
         if year == 2015:
             bank_holidays = [
                 date(2015, 1, 1),
+                date(2015, 1, 2),
                 date(2015, 4, 3),
                 date(2015, 4, 6),
                 date(2015, 5, 4),
@@ -216,6 +240,7 @@ def get_weekday_type(date_to_test):
         elif year == 2014:
             bank_holidays = [
                 date(2014, 1, 1),
+                date(2014, 1, 2),
                 date(2014, 4, 18),
                 date(2014, 4, 21),
                 date(2014, 5, 5),
@@ -231,6 +256,7 @@ def get_weekday_type(date_to_test):
         elif year == 2013:
             bank_holidays = [
                 date(2013, 1, 1),
+                date(2013, 1, 2),
                 date(2013, 4, 29),
                 date(2013, 4, 1),
                 date(2013, 5, 6),

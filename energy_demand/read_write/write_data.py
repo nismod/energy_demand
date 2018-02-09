@@ -9,17 +9,29 @@ from energy_demand.geography import write_shp
 import yaml
 from yaml import Loader, Dumper
 import collections
+import csv
+
+def write_array_to_txt(path_result, array):
+    """Write scenario population for a year to txt file
+    """
+    np.savetxt(path_result, array, delimiter=',')
 
 def write_pop(sim_yr, path_result, pop_y):
-    """Write scenario population for a year
+    """Write scenario population for a year to txt file
+
+    Parameters
+    ----------
+    sim_yr : int
+        Simulation year
+    path_result : str
+        Path to resulting folder
+    pop_y : array
+        Population of simulation year
     """
     path_file = os.path.join(
-        path_result,
-        "model_run_pop", "pop__{}__{}".format(sim_yr, ".txt"))
+        path_result, "pop__{}__{}".format(sim_yr, ".txt"))
 
     np.savetxt(path_file, pop_y, delimiter=',')
-
-    pass
 
 def create_shp_results(data, results_container, paths, lookups, lu_reg):
     """Create csv file and merge with shape
@@ -111,6 +123,31 @@ def dump(data, file_path):
     with open(file_path, 'w') as file_handle:
         return yaml.dump(data, file_handle, Dumper=Dumper, default_flow_style=False)
 
+def write_yaml_output_keynames(path_yaml, key_names):
+    """Generate YAML file where the outputs
+    for the sector model can be easily copied
+
+    Arguments
+    ----------
+    path_yaml : str
+        Path where yaml file is saved
+    key_names : dict
+        Names of keys of supply_out dict
+    """
+    list_to_dump = []
+
+    for key_name in key_names:
+        dict_to_dump = {
+            'name': key_name,
+            'spatial_resolution': 'lad_uk_2016',
+            'temporal_resolution': 'hourly',
+            'units': 'GWh'
+        }
+
+        list_to_dump.append(dict_to_dump)
+
+    dump(list_to_dump, path_yaml)
+
 def write_yaml_param_scenario(path_yaml, dict_to_dump):
     """Write all strategy variables to YAML file
 
@@ -149,8 +186,9 @@ def write_yaml_param_complete(path_yaml, dict_to_dump):
     # Dump list
     dump(list_to_dump, path_yaml)
 
-def write_simulation_inifile(path, sim_param, enduses, assumptions, reg_nrs, lu_reg):
-    """Write .ini file with simulation parameters
+def write_simulation_inifile(path, sim_param, enduses, assumptions, reg_nrs, regions):
+    """Create .ini file with simulation parameters which ared
+    used to read in correctly the simulation results
 
     Arguments
     ---------
@@ -158,8 +196,18 @@ def write_simulation_inifile(path, sim_param, enduses, assumptions, reg_nrs, lu_
         Path to result foder
     sim_param : dict
         Contains all information necessary to plot results
+    enduses : dict
+        Enduses
+    assumptions : dict
+        Assumptions
+    reg_nrs : int
+        Number of regions
+    regions : dict
+        Regions
+
     """
-    path_ini_file = os.path.join(path, 'model_run_sim_param.ini')
+    path_ini_file = os.path.join(
+        path, 'model_run_sim_param.ini')
 
     config = configparser.ConfigParser()
 
@@ -174,16 +222,17 @@ def write_simulation_inifile(path, sim_param, enduses, assumptions, reg_nrs, lu_
     # Other information to pass to plotting and summing function
     # ----------------------------
     config.add_section('ENDUSES')
-    config['ENDUSES']['rs_all_enduses'] = str(enduses['rs_all_enduses']) #convert list to string
+
+    #convert list to strings
+    config['ENDUSES']['rs_all_enduses'] = str(enduses['rs_all_enduses'])
     config['ENDUSES']['ss_all_enduses'] = str(enduses['ss_all_enduses'])
     config['ENDUSES']['is_all_enduses'] = str(enduses['is_all_enduses'])
 
     config.add_section('REGIONS')
-    config['REGIONS']['lu_reg'] = str(lu_reg)
+    config['REGIONS']['lu_reg'] = str(regions)
 
     with open(path_ini_file, 'w') as f:
         config.write(f)
-
     pass
 
 def write_lf(path_result_folder, path_new_folder, parameters, model_results, file_name):
@@ -209,27 +258,49 @@ def write_lf(path_result_folder, path_new_folder, parameters, model_results, fil
 
     pass
 
-def write_supply_results(sim_yr, path_result, model_results, file_name):
-    """Store yearly model resul to txt
+def write_supply_results(
+        sim_yr,
+        name_new_folder,
+        path_result,
+        model_results,
+        file_name
+    ):
+    """Write model results to text as follows:
 
-    Store numpy array to txt
+        name of file: name_year_fueltype
+        array in file:  np.array(region, timesteps)
 
-    Fueltype : Regions : Fuel
+    Arguments
+    ---------
+    sim_yr : int
+        Simulation year
+    name_new_folder : str
+        Name of folder to create
+    path_result : str
+        Paths
+    model_results : array
+        Results to store to txt
+    file_name : str
+        File name
     """
-    # Create folder for model simulation year
-    basic_functions.create_folder(path_result)
+    # Create folder and subolder
+    path_result_sub_folder = os.path.join(path_result, name_new_folder)
+    basic_functions.create_folder(path_result_sub_folder)
 
     # Write to txt
     for fueltype_nr, fuel in enumerate(model_results):
         path_file = os.path.join(
-            path_result,
-            "{}__{}__{}__{}".format(file_name, sim_yr, fueltype_nr, ".txt"))
+            path_result_sub_folder,
+            "{}__{}__{}__{}".format(
+                file_name,
+                sim_yr,
+                fueltype_nr,
+                ".txt"))
+
         np.savetxt(path_file, fuel, delimiter=',')
 
-    pass
-
 def write_enduse_specific(sim_yr, path_result, model_results, filename):
-    """Store
+    """Write out enduse specific results for every hour
 
     Store numpy array to txt
     """
@@ -243,6 +314,7 @@ def write_enduse_specific(sim_yr, path_result, model_results, filename):
             path_file = os.path.join(
                 os.path.join(path_result, "enduse_specific_results"),
                 "{}__{}__{}__{}__{}".format(filename, enduse, sim_yr, fueltype_nr, ".txt"))
+            logging.debug("... Write to file: {}  {}  {} ".format(sim_yr, enduse, np.sum(fueltype_nr)))
             np.savetxt(path_file, fuel_fueltype, delimiter=',')
 
     return
@@ -263,3 +335,56 @@ def write_max_results(sim_yr, path_result, result_foldername, model_results, fil
     np.savetxt(path_file, model_results, delimiter=',')
 
     return
+
+def create_txt_shapes(
+        end_use,
+        path_txt_shapes,
+        shape_peak_dh,
+        shape_non_peak_y_dh,
+        shape_peak_yd_factor,
+        shape_non_peak_yd
+    ):
+    """Function collecting functions to write out arrays
+    to txt files
+    """
+    write_array_to_txt(
+        os.path.join(
+            path_txt_shapes,
+            str(end_use) + str("__") + str('shape_peak_dh') + str('.txt')),
+        shape_peak_dh)
+
+    write_array_to_txt(
+        os.path.join(
+            path_txt_shapes,
+            str(end_use) + str("__") + str('shape_non_peak_y_dh') + str('.txt')),
+        shape_non_peak_y_dh)
+
+    write_array_to_txt(
+        os.path.join(
+            path_txt_shapes,
+            str(end_use) + str("__") + str('shape_peak_yd_factor') + str('.txt')),
+        np.array([shape_peak_yd_factor]))
+
+    write_array_to_txt(
+        os.path.join(
+            path_txt_shapes,
+            str(end_use) + str("__") + str('shape_non_peak_yd') + str('.txt')),
+        shape_non_peak_yd)
+
+    return
+
+
+def create_csv_file(path, rows):
+    """
+    #filewriter.writerow(['Spam', 'Lovely Spam', 'Wonderful Spam'])
+    """
+    with open(path, 'w', newline='') as csvfile: #newline=None
+
+        filewriter = csv.writer(
+            csvfile,
+            delimiter=',',
+            quotechar='|') #,
+            #quoting=csv.QUOTE_MINIMAL)
+
+        for row in rows:
+            filewriter.writerow(row)

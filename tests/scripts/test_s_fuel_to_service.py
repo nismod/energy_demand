@@ -40,15 +40,15 @@ def test_get_service_fueltype_tech():
     tech_list = { 
         'tech_heating_temp_dep': ['heat_p'],
         'tech_heating_const': ['boilerA'],
-        'primary_heating_electricity': ['boilerC'],
+        'storage_heating_electricity': ['boilerC'],
         'secondary_heating_electricity': []}
 
-    lu_fueltypes = {
+    fueltypes = {
         'gas': 0} 
 
     technologies = {
         'boilerA': read_data.TechnologyData(
-            fuel_type='gas',
+            fueltype='gas',
             eff_by=0.5,
             eff_ey=0.5,
             year_eff_ey=2015,
@@ -56,7 +56,7 @@ def test_get_service_fueltype_tech():
             diff_method='linear',
             market_entry=1990,
             tech_max_share=1.0,
-            fueltypes=lu_fueltypes)}
+            fueltypes=fueltypes)}
 
     fuel_p_tech_by = {'heating': {0: {'boilerA': 1.0}}}
 
@@ -67,8 +67,9 @@ def test_get_service_fueltype_tech():
             'sig_steeppness': 1}}
 
     service_tech_by_p, service_fueltype_tech_by_p, service_fueltype_by_p = s_fuel_to_service.get_service_fueltype_tech(
+       enduses=['heating'],
        tech_list=tech_list,
-       lu_fueltypes=lu_fueltypes,
+       fueltypes=fueltypes,
        fuel_p_tech_by=fuel_p_tech_by,
        fuels={'heating': np.array([100])}, # 0 == gas
        technologies=technologies)
@@ -80,7 +81,7 @@ def test_get_service_fueltype_tech():
     # -------------------------------------
     technologies = {
         'boilerA': read_data.TechnologyData(
-            fuel_type='gas',
+            fueltype='gas',
             eff_by=0.5,
             eff_ey=0.5,
             year_eff_ey=2015,
@@ -88,9 +89,9 @@ def test_get_service_fueltype_tech():
             diff_method='linear',
             market_entry=1990,
             tech_max_share=1.0,
-            fueltypes=lu_fueltypes),
+            fueltypes=fueltypes),
         'boilerB': read_data.TechnologyData(
-            fuel_type='gas',
+            fueltype='gas',
             eff_by=0.5,
             eff_ey=0.5,
             year_eff_ey=2015,
@@ -98,7 +99,7 @@ def test_get_service_fueltype_tech():
             diff_method='linear',
             market_entry=1990,
             tech_max_share=1.0,
-            fueltypes=lu_fueltypes)}
+            fueltypes=fueltypes)}
 
     fuel_p_tech_by = {'heating': {0: {'boilerA': 0.5, 'boilerB': 0.5}}}
 
@@ -109,8 +110,9 @@ def test_get_service_fueltype_tech():
             'sig_steeppness': 1}}
 
     service_tech_by_p, service_fueltype_tech_by_p, service_fueltype_by_p = s_fuel_to_service.get_service_fueltype_tech(
+       enduses=['heating'],
        tech_list=tech_list,
-       lu_fueltypes=lu_fueltypes,
+       fueltypes=fueltypes,
        fuel_p_tech_by=fuel_p_tech_by,
        fuels={'heating': np.array([100])}, # 0 == gas
        technologies=technologies)
@@ -126,16 +128,16 @@ def test_get_service_fueltype_tech():
     tech_list = { 
         'tech_heating_temp_dep': ['heat_p'],
         'tech_heating_const': ['boilerA', 'boilerB'],
-        'primary_heating_electricity': [],
+        'storage_heating_electricity': [],
         'secondary_heating_electricity': []}
     
-    lu_fueltypes = {
+    fueltypes = {
         'gas': 0,
         'electricity': 1} 
 
     technologies = {
         'boilerA': read_data.TechnologyData(
-            fuel_type='gas',
+            fueltype='gas',
             eff_by=0.5,
             eff_ey=0.5,
             year_eff_ey=2015,
@@ -143,9 +145,9 @@ def test_get_service_fueltype_tech():
             diff_method='linear',
             market_entry=1990,
             tech_max_share=1.0,
-            fueltypes=lu_fueltypes),
+            fueltypes=fueltypes),
         'boilerB': read_data.TechnologyData(
-            fuel_type='electricity',
+            fueltype='electricity',
             eff_by=0.5,
             eff_ey=0.5,
             year_eff_ey=2015,
@@ -153,7 +155,7 @@ def test_get_service_fueltype_tech():
             diff_method='linear',
             market_entry=1990,
             tech_max_share=1.0,
-            fueltypes=lu_fueltypes)}
+            fueltypes=fueltypes)}
 
     fuel_p_tech_by = {'heating': {0: {'boilerA': 1.0}, 1: {'boilerB': 1.0}}}
 
@@ -164,8 +166,9 @@ def test_get_service_fueltype_tech():
             'sig_steeppness': 1}}
 
     service_tech_by_p, service_fueltype_tech_by_p, service_fueltype_by_p = s_fuel_to_service.get_service_fueltype_tech(
+       enduses=['heating'],
        tech_list=tech_list,
-       lu_fueltypes=lu_fueltypes,
+       fueltypes=fueltypes,
        fuel_p_tech_by=fuel_p_tech_by,
        fuels={'heating': np.array([100, 300])}, # tripple elec than gas
        technologies=technologies)

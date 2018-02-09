@@ -6,8 +6,8 @@ class Region(object):
 
     Arguments
     ---------
-    region_name : str
-        Unique identifyer of region_name
+    name : str
+        Name of region
     rs_fuel_disagg : dict
         Nested dict by region, enduse => np.array, single dimension for fuel type
     ss_fuel_disagg : dict
@@ -23,10 +23,17 @@ class Region(object):
     is calculated and the technology and load profiles imported from
     this station
     """
-    def __init__(self, region_name, rs_fuel_disagg, ss_fuel_disagg, is_fuel_disagg, weather_region):
+    def __init__(
+            self,
+            name,
+            rs_fuel_disagg,
+            ss_fuel_disagg,
+            is_fuel_disagg,
+            weather_region
+        ):
         """Constructor
         """
-        self.region_name = region_name
+        self.name = name
 
         # Fuels
         self.rs_enduses_fuel = rs_fuel_disagg

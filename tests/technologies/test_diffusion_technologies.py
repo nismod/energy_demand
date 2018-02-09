@@ -43,6 +43,21 @@ def test_linear_diff():
 def test_sigmoid_diffusion():
     """testing
     """
+    base_yr = 2015
+    curr_yr = 2015
+    end_yr = 2020
+    sig_midpoint = 0
+    sig_steeppness = 1
+
+    result = diffusion_technologies.sigmoid_diffusion(
+        base_yr,
+        curr_yr,
+        end_yr,
+        sig_midpoint,
+        sig_steeppness)
+
+    assert result == 0
+
 
     base_yr = 2015
     curr_yr = 2020

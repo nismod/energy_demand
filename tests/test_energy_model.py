@@ -1,1 +1,1 @@
-from energy_demand import energy_model
+from energy_demand import model

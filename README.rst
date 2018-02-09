@@ -44,21 +44,20 @@ energy demand model simulation.
 first the model needs to be set up one (Section 1.1). The scenario Set-up need to be
 run every time the model is run with different assumptions (Section 1.2).
 
-1.1 Model Set-Up
--------------
+1.1 Model Set-Up (with complete data)
+---------------------------------------------
 
-
-1.  Add all necessary HIRE data into a local directory as ``path/to/energy_data_folder`` and
+1.  Add all necessary data into a local directory as ``path/to/energy_data_folder`` and
     download the energy_demand python code.
 
    Note: Because some data is not open source, the full data needs to be optained
-   from the consortium. Please contact XY.
+   from the consortium. However, the model can be run with dummy data (see Section 1.2)
 
 
 2. Navigate to the folder where the python code is saved. Open a command and type into
    a command line (in a virtual environment):
 
-   ``setup.py develop``
+   ``python setup.py develop``
 
 3. Install HIRE from within the console with the command
 
@@ -70,24 +69,29 @@ run every time the model is run with different assumptions (Section 1.2).
    Note: The `post_install_setup` generates new folders in the 
    ``energy_data_folder``.
 
+1.2 Alternative Model Set-Up (with restricted data)
+---------------------------------------------
 
-1.2 Scenario Set-up 
-----------------
+1.  Add the minimum data requirements into a local directory as ``path/to/energy_data_folder`` and
+    download the energy_demand python code.
 
+2. Navigate to the folder where the python code is saved. Open a command and type into
+   a command line (in a virtual environment):
 
-1. For every scenario run, the energy demand module needs to be
-   initialised from the command line as follows:
+   ``python setup.py develop``
 
-   ``energy_demand scenario_initialisation -d path/to/energy_data_folder``
+3. Install HIRE from within the console with the command
 
-   Note: Upon scenario initialisation, data gets saved in the ``_process_data`` 
-   folder which contain assumption specific data.
+   ``energy_demand post_install_setup_minimum -d1 path/to/energy_data_folder -d2 path/to/python_scripts``
 
-2. Run the model from the console with the command
+   Example:
+    energy_demand post_install_setup_minimum -d1 C:/Users/cenv0553/nismod/models/energy_demand -d2 C:/Users/cenv0553/nismod/data_energy_demand
 
-   ``energy_demand run -d path/to/energy_data_folder``
+   The ``path/to/energy_data_folder`` is the path to the location with
+   the necessary minimum dummy data to run the model.
 
-
+   Note: The `post_install_setup_minimum` generates new folders in the 
+   ``energy_data_folder``.
 
 2. Running the model with smif
 ========================
@@ -106,7 +110,7 @@ Other help
 ==========
 To change the logger level of an individual sector model with smif, type:
 
-`smif -v run modelrun_id` or `smif -vv run modelrun_id`
+``smif -v run modelrun_id`` or ``smif -vv run modelrun_id``
 
 Literature
 ========================

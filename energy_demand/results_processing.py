@@ -1,5 +1,5 @@
 """Read in model results and plot results
-"""
+§"""
 import os
 import logging
 from energy_demand.read_write import data_loader, read_data, write_data
@@ -17,7 +17,7 @@ def main(path_data_energy_demand):
     """
 
     # Write shapefiles
-    write_shapefiles = True
+    write_shapefiles = False
 
     # Set up logger
     logger_setup.set_up_logger(
@@ -44,23 +44,23 @@ def main(path_data_energy_demand):
 
     # Other information is read in
     data['assumptions']['seasons'] = date_prop.read_season(year_to_model=2015)
-    data['assumptions']['model_yeardays_daytype'], data['assumptions']['yeardays_month'], data['assumptions']['yeardays_month_days'] = date_prop.get_model_yeardays_datype(year_to_model=2015)
+    data['assumptions']['model_yeardays_daytype'], data['assumptions']['yeardays_month'], data['assumptions']['yeardays_month_days'] = date_prop.get_model_yeardays_daytype(year_to_model=2015)
 
     # Read scenario data
     data['scenario_data'] = {}
-    data['scenario_data']['population'] = read_data.read_pop(
-        os.path.join(data['local_paths']['data_results'], 'model_run_pop'))
+    data['scenario_data']['population'] = read_data.read_scenaric_population_data(data['local_paths']['model_run_pop'])
 
     # --------------------------------------------
     # Reading in results from different model runs
     # --------------------------------------------
     print("... start reading in model txt results")
-    #O read in and plot in same step if memory is a problem
+    #Read in and plot in same step if memory is a problem
     results_container = read_data.read_in_results(
         data['local_paths']['data_results_model_runs'],
         data['lookups'],
         data['assumptions']['seasons'],
-        data['assumptions']['model_yeardays_daytype'])
+        data['assumptions']['model_yeardays_daytype'],
+        data['lu_reg'])
 
     # ----------------
     # Write results to CSV files and merge with shapefile
@@ -80,6 +80,7 @@ def main(path_data_energy_demand):
     plotting_results.run_all_plot_functions(
         results_container,
         data['reg_nrs'],
+        data['lu_reg'],
         data['lookups'],
         data['local_paths'],
         data['assumptions'],
@@ -87,5 +88,10 @@ def main(path_data_energy_demand):
         data['enduses'])
 
     logging.info("... finished reading and plotting results")
+    print("... finished reading and plotting results")
 
-main("C://Users//cenv0553//nismod//data_energy_demand")
+print("............sratrp rocessing")
+#main(os.path.abspath("C://Users//cenv0553//nismod//data_energy_demand"))
+main("C:/Users/cenv0553/nismod/data_energy_demand")
+#main(os.path.abspath("C://DATA_NISMODII//data_energy_demand"))
+

@@ -6,8 +6,8 @@ import csv
 from datetime import date
 import numpy as np
 from energy_demand.read_write import read_data
+from energy_demand.read_write import write_data
 from energy_demand.basic import date_prop
-from energy_demand.scripts import s_shared_functions
 from energy_demand.profiles import load_profile
 
 def dict_init_carbon_trust():
@@ -30,13 +30,13 @@ def read_raw_carbon_trust_data(folder_path):
 
     Returns
     -------
-    load_shape_y_dh : array
+    load_shape_y_dh : np.array((365, 24))
         Load shape for every day (tot sum 365)
-    load_peak_shape_dh : array
+    load_peak_shape_dh : np.array((24))
         Peak loadshape for peak day
-    shape_peak_yd_factor : array
+    shape_peak_yd_factor : float
         Peak load factor
-    shape_non_peak_yd : array
+    shape_non_peak_yd : np.array((365))
         Yh load profile
 
     Note
@@ -52,7 +52,7 @@ def read_raw_carbon_trust_data(folder_path):
     def initialise_main_dict():
         """Helper function to initialise dict
         """
-        out_dict_av = {0: {}, 1: {}}
+        out_dict_av = {'working_day': {}, 'holiday': {}}
         for dtype in out_dict_av:
             month_dict = {}
             for month in range(12):
@@ -62,7 +62,7 @@ def read_raw_carbon_trust_data(folder_path):
 
     def initialise_out_dict_av():
         """Helper function to initialise dict"""
-        out_dict_av = {0: {}, 1: {}}
+        out_dict_av = {'working_day': {}, 'holiday': {}}
         for dtype in out_dict_av:
             month_dict = {}
             for month in range(12):
@@ -125,11 +125,6 @@ def read_raw_carbon_trust_data(folder_path):
                     date_row = date(year, month, day)
                     daytype = date_prop.get_weekday_type(date_row)
 
-                    if daytype == 'holiday':
-                        daytype = 1
-                    else:
-                        daytype = 0
-
                     yearday_python = date_row.timetuple().tm_yday - 1 # - 1 because in _info: 1.Jan = 1
                     month_python = month - 1 # Month Python
 
@@ -185,7 +180,6 @@ def read_raw_carbon_trust_data(folder_path):
     # -----------------------------------------------
     # Calculate average load shapes for every month
     # -----------------------------------------------
-    # -- Average (initialise dict)
     out_dict_av = initialise_out_dict_av()
 
     for daytype in main_dict:
@@ -256,12 +250,9 @@ def assign_data_to_year(carbon_trust_data, base_yr):
         month_python = yearday.timetuple().tm_mon - 1 # - 1 because in _info: Month 1 = Jan
         yearday_python = yearday.timetuple().tm_yday - 1 # - 1 because in _info: 1.Jan = 1
         daytype = date_prop.get_weekday_type(yearday)
-        if daytype == 'holiday':
-            daytype = 1
-        else:
-            daytype = 0
 
-        _data = carbon_trust_data[daytype][month_python] # Get day from HES raw data array
+        # Get day from HES raw data array
+        _data = carbon_trust_data[daytype][month_python]
 
         # Add values to yearly
         _data = np.array(list(_data.items()))
@@ -269,45 +260,46 @@ def assign_data_to_year(carbon_trust_data, base_yr):
 
     return shape_non_peak_y_dh
 
-def run(data):
+def run(paths, local_paths, lookups):
     """Function to run script
     """
     print("... start script %s", os.path.basename(__file__))
-    _, ss_sectors, ss_enduses = read_data.read_csv_data_service(
-        data['paths']['ss_fuel_raw_data_enduses'],
-        data['lookups']['fueltypes_nr'])
+    _, ss_sectors, ss_enduses = read_data.read_fuel_ss(
+        paths['ss_fuel_raw_data_enduses'],
+        lookups['fueltypes_nr'])
 
     # Iterate sectors and read in shape
     for sector in ss_sectors:
 
         # Match electricity shapes for every sector
+        # to correct folder with load profiles
         if sector == 'community_arts_leisure':
             sector_folder_path_elec = os.path.join(
-                data['local_paths']['folder_raw_carbon_trust'], "Community")
+                local_paths['folder_raw_carbon_trust'], "Community")
         elif sector == 'education':
             sector_folder_path_elec = os.path.join(
-                data['local_paths']['folder_raw_carbon_trust'], "Education")
+                local_paths['folder_raw_carbon_trust'], "Education")
         elif sector == 'emergency_services':
             sector_folder_path_elec = os.path.join(
-                data['local_paths']['folder_raw_carbon_trust'], "_all_elec")
+                local_paths['folder_raw_carbon_trust'], "_all_elec")
         elif sector == 'health':
             sector_folder_path_elec = os.path.join(
-                data['local_paths']['folder_raw_carbon_trust'], "Health")
+                local_paths['folder_raw_carbon_trust'], "Health")
         elif sector == 'hospitality':
             sector_folder_path_elec = os.path.join(
-                data['local_paths']['folder_raw_carbon_trust'], "_all_elec")
+                local_paths['folder_raw_carbon_trust'], "_all_elec")
         elif sector == 'military':
             sector_folder_path_elec = os.path.join(
-                data['local_paths']['folder_raw_carbon_trust'], "_all_elec")
+                local_paths['folder_raw_carbon_trust'], "_all_elec")
         elif sector == 'offices':
             sector_folder_path_elec = os.path.join(
-                data['local_paths']['folder_raw_carbon_trust'], "Offices")
+                local_paths['folder_raw_carbon_trust'], "Offices")
         elif sector == 'retail':
             sector_folder_path_elec = os.path.join(
-                data['local_paths']['folder_raw_carbon_trust'], "Retail")
+                local_paths['folder_raw_carbon_trust'], "Retail")
         elif sector == 'storage':
             sector_folder_path_elec = os.path.join(
-                data['local_paths']['folder_raw_carbon_trust'], "_all_elec")
+                local_paths['folder_raw_carbon_trust'], "_all_elec")
         else:
             sys.exit("Error: The sector {} could not be assigned".format(sector))
 
@@ -315,20 +307,18 @@ def run(data):
         # Assign shape across enduse for service sector
         # ------------------------------------------------------
         for enduse in ss_enduses:
-            #print("Enduse service: %s in sector %s", enduse, sector)
+            print("Enduse service: %s in sector %s", enduse, sector)
+
+            # Enduses
+            enduses_mainly_gas = ['ss_water_heating', 'ss_space_heating', 'ss_other_gas']
 
             # Select shape depending on enduse
-            if enduse in ['ss_water_heating', 'ss_space_heating', 'ss_other_gas']:
+            if enduse in enduses_mainly_gas:
                 folder_path = os.path.join(
-                    data['local_paths']['folder_raw_carbon_trust'],
+                    local_paths['folder_raw_carbon_trust'],
                     "_all_gas")
             else:
-                if enduse == 'ss_other_electricity' or enduse == 'ss_cooling_and_ventilation':
-                    folder_path = os.path.join(
-                        data['local_paths']['folder_raw_carbon_trust'],
-                        "_all_elec")
-                else:
-                    folder_path = sector_folder_path_elec
+                folder_path = sector_folder_path_elec
 
             # Read in shape from carbon trust metering trial dataset
             shape_non_peak_y_dh, load_peak_shape_dh, shape_peak_yd_factor, shape_non_peak_yd = read_raw_carbon_trust_data(
@@ -337,9 +327,9 @@ def run(data):
             # Write shapes to txt
             joint_string_name = str(sector) + "__" + str(enduse)
 
-            s_shared_functions.create_txt_shapes(
+            write_data.create_txt_shapes(
                 joint_string_name,
-                data['local_paths']['ss_load_profiles'],
+                local_paths['ss_load_profile_txt'],
                 load_peak_shape_dh,
                 shape_non_peak_y_dh,
                 shape_peak_yd_factor,
@@ -352,64 +342,3 @@ def run(data):
     print("... finished script %s", os.path.basename(__file__))
 
     return
-
-'''
-def compare_jan_jul(main_dict_dayyear_absolute):
-    """ COMPARE JAN AND JUL DATA"""
-    # Percentages for every day:
-    jan_yearday = range(0, 30)
-    jul_yearday = range(181, 212)
-    jan = {k: [] for k in range(24)}
-    jul = {k: [] for k in range(24)}
-
-    # Read out for the whole months of jan and ful
-    for day in main_dict_dayyear_absolute:
-        for h in main_dict_dayyear_absolute[day]:
-            if day in jan_yearday:
-                jan[h].append(main_dict_dayyear_absolute[day][h])
-            if day in jul_yearday:
-                jul[h].append(main_dict_dayyear_absolute[day][h])
-    #print(jan)
-    # Average the montly entries
-    for i in jan:
-        print("Nr of datapoints in Jan for hour: " + str(len(jan[i])))
-        jan[i] = sum(jan[i]) / len(jan[i])
-
-    for i in jul:
-        print("Nr of datapoints in Jul for hour:" + str(len(jul[i])))
-        jul[i] = sum(jul[i]) / len(jul[i])
-
-    # Test HEATING_ELEC SHARE DIFFERENCE JAN and JUN [daytype][_month][_hr]
-    jan = np.array(list(jan.items())) #convert to array
-    jul = np.array(list(jul.items())) #convert to array
-    jul_percent_of_jan = (100/jan[:, 1]) * jul[:, 1]
-
-    x_values = range(24)
-    y_values = list(jan[:, 1]) # to get percentages
-    plt.plot(x_values, list(jan[:, 1]), label="Jan")
-    plt.plot(x_values, list(jul[:, 1]), label="Jul")
-    plt.plot(x_values, list(jul_percent_of_jan), label="% dif of Jan - Jul")
-    plt.legend()
-    plt.show()
-
-
-    #--- if JAn = 100%
-    jul_percent_of_jan = (100/jan[:, 1]) * jul[:, 1]
-    for h ,i in enumerate(jul_percent_of_jan):
-        print("h: " + str(h) + "  %" + str(i) + "   Diff: " + str(100-i))
-
-    plot_load_shape_yd_non_resid(jan)
-    print("TEST: " + str(jan-jul))
-
-def plot_load_shape_yd_non_resid(daily_load_shape):
-    """With input 2 dim array plot daily load"""
-
-    x_values = range(24)
-    y_values = list(daily_load_shape[:, 1]) # to get percentages
-
-    plt.plot(x_values, y_values)
-
-    plt.xlabel("ABSOLUTE VALUES TEST NONRESID")
-    plt.legend(ncol=2, frameon=False)
-    plt.show()
-'''

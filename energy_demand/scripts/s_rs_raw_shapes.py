@@ -6,11 +6,8 @@ from datetime import date
 import numpy as np
 import logging
 from energy_demand.basic import date_prop
-from energy_demand.scripts import s_shared_functions
 from energy_demand.read_write import read_data
-from energy_demand.read_write import data_loader
-from energy_demand.assumptions import non_param_assumptions
-from energy_demand.assumptions import param_assumptions
+from energy_demand.read_write import write_data
 from energy_demand.profiles import load_profile as lp
 
 def read_csv(path_to_csv):
@@ -52,7 +49,7 @@ def get_hes_load_shapes(appliances_hes_matching, year_raw_values, hes_y_peak, en
     ----------
     appliances_hes_matching : dict
         HES appliances are matched witch enduses
-    year_raw_values : data
+    year_raw_values : array
         Yearly values from raw
     hes_y_peak : data
         Peak raw values
@@ -72,10 +69,7 @@ def get_hes_load_shapes(appliances_hes_matching, year_raw_values, hes_y_peak, en
     The HES appliances are matched with enduses
     """
     # Match enduse with HES appliance ID (see look_up table in original files for more information)
-    if enduse in appliances_hes_matching:
-        hes_app_id = appliances_hes_matching[enduse]
-    else:
-        logging.debug("...The enduse has not HES ID and thus shape")
+    hes_app_id = appliances_hes_matching[enduse]
 
     # Total yearly demand of hes_app_id
     tot_enduse_y = np.sum(year_raw_values[:, :, hes_app_id])
@@ -92,7 +86,7 @@ def get_hes_load_shapes(appliances_hes_matching, year_raw_values, hes_y_peak, en
     tot_peak_demand_d = np.sum(peak_h_values)
 
     # Factor to calculate daily peak demand from yearly demand
-    shape_peak_yd_factor = (1.0 / tot_enduse_y) * tot_peak_demand_d
+    shape_peak_yd_factor = tot_peak_demand_d / tot_enduse_y
 
     # ---Calculate non-peak shapes
     shape_non_peak_yd = np.zeros((365), dtype=float)
@@ -123,35 +117,38 @@ def assign_hes_data_to_year(nr_of_appliances, hes_data, base_yr):
     year_raw_values : array
         Energy data for every day in the base year for every appliances
     """
-    year_raw_values = np.zeros((365, 24, nr_of_appliances), dtype=float)
+    year_raw_values = np.zeros((365, 24, nr_of_appliances), dtype=float) #yeardays, houry, appliances
 
     # Create list with all dates of a whole year
     list_dates = date_prop.fullyear_dates(
         start=date(base_yr, 1, 1),
-        end=date(base_yr, 12, 31)
-        )
+        end=date(base_yr, 12, 31))
 
     # Assign every date to the place in the array of the year
-    for yearday in list_dates:
-        month_python = yearday.timetuple().tm_mon - 1 # - 1 because in _info: Month 1 = Jan
-        yearday_python = yearday.timetuple().tm_yday - 1 # - 1 because in _info: 1.Jan = 1
-        daytype = date_prop.get_weekday_type(yearday)
+    for yearday_date in list_dates:
 
-        if daytype == 'holiday':
-            daytype = 1
-        else:
-            daytype = 0
+        month_python = date_prop.get_month_from_yeraday(
+            yearday_date.timetuple().tm_year,
+            yearday_date.timetuple().tm_yday)
+
+        yearday_python = date_prop.date_to_yearday(
+            yearday_date.timetuple().tm_year,
+            yearday_date.timetuple().tm_mon,
+            yearday_date.timetuple().tm_mday)
+
+        daytype_str = date_prop.get_weekday_type(yearday_date)
 
         # Get day from HES raw data array
-        year_raw_values[yearday_python] = hes_data[daytype][month_python]
+        year_raw_values[yearday_python] = hes_data[daytype_str][month_python]
 
     return year_raw_values
 
 def read_hes_data(paths_hes, nr_app_type_lu):
-    """Read in HES raw csv files and provide for every day in a year (yearday) all fuels
+    """Read in HES raw csv files and provide for every
+    day in a year (yearday) all fuels
 
-    The fuel is provided for every daytype (weekend or working day) for every month
-    and every appliance_typ
+    The fuel is provided for every daytype (weekend or working day)
+    for every month and every appliance_typ
 
     Arguments
     ----------
@@ -159,61 +156,52 @@ def read_hes_data(paths_hes, nr_app_type_lu):
         Path to HES raw data file
     nr_app_type_lu : dict
         Number of appliances (defines size of container to store data)
-    day_type_lu : dict
-        Look-up table for daytypes
 
     Returns
     -------
-    hes_data : array
-        HES non peak raw data
+    hes_data : dict
+        HES non peak raw data per fueltype
     hes_y_coldest : array
         HES for coldest day
-    hes_y_warmest : array
-        HES for warmest day
 
     Note
     ----
         -   As only shapes are generated, the absolute
             values are irrelevant, i.e. the unit of energy
     """
-    # Daytypes
     day_type_lu = {
-        0: 'weekend_day',
+        0: 'holiday',
         1: 'working_day',
-        2: 'coldest_day',
-        3: 'warmest_day'
-        }
+        2: 'coldest'}
 
-    hes_data = np.zeros((len(day_type_lu), 12, 24, nr_app_type_lu), dtype=float)
+    hes_data = {}
+    for day_type_str in day_type_lu.values():
+        hes_data[day_type_str] = np.zeros((12, 24, nr_app_type_lu), dtype=float)
 
     hes_y_coldest = np.zeros((24, nr_app_type_lu), dtype=float)
-    hes_y_warmest = np.zeros((24, nr_app_type_lu), dtype=float)
 
     # Read in raw HES data from CSV
     raw_elec_data = read_csv(paths_hes)
 
     # Iterate raw data of hourly eletrictiy demand
     for row in raw_elec_data:
-        month, daytype, appliance_typ = int(row[0]), int(row[1]), int(row[2])
+        month_int, day_type, appliance_typ = int(row[0]), str(row[1]), int(row[2])
         k_header = 3 #Row in Excel where energy data start
 
         for hour in range(24):
             hourly_value = float(row[k_header])
 
             # if coldest (see HES file)
-            if daytype == 2:
+            if day_type == 'coldest':
                 hes_y_coldest[hour][appliance_typ] = hourly_value
                 k_header += 1
-            elif daytype == 3:
-                hes_y_warmest[hour][appliance_typ] = hourly_value
-                k_header += 1
             else:
-                hes_data[daytype][month][hour][appliance_typ] = hourly_value
+                hes_data[day_type][month_int][hour][appliance_typ] = hourly_value
                 k_header += 1
 
-    return hes_data, hes_y_coldest, hes_y_warmest
+    return hes_data, hes_y_coldest
 
-def run(data):
+def run(paths, local_paths, base_yr):
     """Function to run script
     """
     print("... start script %s", os.path.basename(__file__))
@@ -233,18 +221,18 @@ def run(data):
 
     # HES data -- Generate generic load profiles
     # for all electricity appliances from HES data
-    hes_data, hes_y_peak, _ = read_hes_data(
-        data['local_paths']['path_bd_e_load_profiles'],
+    hes_data, hes_y_peak = read_hes_data(
+        local_paths['path_bd_e_load_profiles'],
         len(hes_appliances_matching))
 
     # Assign read in raw data to the base year
     year_raw_hes_values = assign_hes_data_to_year(
         len(hes_appliances_matching),
         hes_data,
-        int(data['sim_param']['base_yr']))
+        int(base_yr))
 
-    _, rs_enduses = read_data.read_base_data_resid(
-        data['paths']['rs_fuel_raw_data_enduses'])
+    _, rs_enduses = read_data.read_fuel_rs(
+        paths['rs_fuel_raw_data_enduses'])
 
     # Load shape for all enduses
     for enduse in rs_enduses:
@@ -259,9 +247,9 @@ def run(data):
                 enduse)
 
             # Write txt files
-            s_shared_functions.create_txt_shapes(
+            write_data.create_txt_shapes(
                 enduse,
-                data['local_paths']['rs_load_profiles'],
+                local_paths['rs_load_profile_txt'],
                 shape_peak_dh,
                 shape_non_peak_y_dh,
                 shape_peak_yd_factor,

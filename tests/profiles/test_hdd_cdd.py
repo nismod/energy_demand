@@ -3,6 +3,38 @@
 from energy_demand.profiles import hdd_cdd
 import numpy as np
 
+def calc_weekend_corr_f():
+    """Testing
+    """
+    wkend_factor = 0.5
+    model_yeardays_daytype = ['working_day', 'holiday']
+    result = hdd_cdd.calc_weekend_corr_f(
+        model_yeardays_daytype=model_yeardays_daytype,
+        wkend_factor=wkend_factor)
+
+    assert result[0] == 1.0
+    assert result[1] == wkend_factor
+
+def test_averaged_temp():
+    """Testing
+    """
+    temp_yh = np.zeros((365, 24))
+
+    for day in range(365):
+        for hour in range(24):
+            temp_yh[day][hour] = np.random.randint(-4, 30)
+
+    result = hdd_cdd.averaged_temp(temp_yh, nr_day_to_av=1)
+
+    expected = (temp_yh[0] + temp_yh[1]) / 2
+
+    expected2 = (expected + temp_yh[2]) / 2
+
+    # positive values
+    np.testing.assert_array_equal(result[1], expected)
+
+    np.testing.assert_array_equal(result[2], expected2)
+
 def test_calc_hdd():
     """testing
     """
@@ -13,7 +45,7 @@ def test_calc_hdd():
         for hour in range(24):
             temp_yh[day][hour] = np.random.randint(-4, 30)
 
-    result = hdd_cdd.calc_hdd(t_base, temp_yh)
+    result = hdd_cdd.calc_hdd(t_base, temp_yh, nr_day_to_av=0)
 
     temp_yh[temp_yh > t_base] = t_base
 
@@ -32,11 +64,11 @@ def test_calc_cdd():
         for hour in range(24):
             temp_yh[day][hour] = np.random.randint(-4, 30)
 
-    result = hdd_cdd.calc_cdd(t_base, temp_yh)
+    result = hdd_cdd.calc_cdd(t_base, temp_yh, nr_day_to_av=0)
 
     temp_yh[temp_yh < t_base] = t_base
 
-    expected = np.sum(temp_yh -t_base) / 24
+    expected = np.sum(temp_yh - t_base) / 24
 
     # positive values
     assert round(np.sum(result), 3) == round(expected, 3)
@@ -52,12 +84,12 @@ def test_sigm_temp():
     yr_until_changed = 2020
 
     end_yr_t_base = 13
-    rs_t_base_heating_base_yr = 15
+    rs_t_heating_by = 15
     rs_t_base_heating_future_yr = end_yr_t_base
 
     result = hdd_cdd.sigm_temp(
         rs_t_base_heating_future_yr,
-        rs_t_base_heating_base_yr,
+        rs_t_heating_by,
         2015,
         2020,
         sig_midpoint,

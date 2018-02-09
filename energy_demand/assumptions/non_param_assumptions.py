@@ -7,21 +7,27 @@ from energy_demand.basic import testing_functions, date_prop
 from energy_demand.assumptions import assumptions_fuel_shares
 from energy_demand.initalisations import helpers
 
-def load_non_param_assump(base_yr, paths, enduses, lookups):
+def load_non_param_assump(
+        base_yr,
+        paths,
+        enduses,
+        fueltypes,
+        fueltypes_nr
+    ):
     """Initialise assumptions and load all assumptions
     which are not defined as parameters for smif (e.g. base
     year values for assumptions)
 
     Parameters
     ----------
-    base_yr : dict
+    base_yr : int
         Simulation parameters
     paths : dict
         Paths
     enduses : dict
         Enduses
-    lookups : dict
-        Lookups
+    fueltypes : dict
+        Fueltypes lookup
     """
     logging.debug("... load non parameter assumptions")
     assumptions = {}
@@ -29,8 +35,43 @@ def load_non_param_assump(base_yr, paths, enduses, lookups):
     yr_until_changed_all_things = 2050 #TODO
 
     # ============================================================
-    # Modelled yeardays (if model whole year, set to 365)
+    #   Model calibration factors
     # ============================================================
+    #
+    #   These calibration factors are used to match the modelled
+    #   electrictiy demand better with the validation data.
+    #
+    #   Weekend effects are used to distribut energy demands
+    #   between working and weekend days. With help of these
+    #   factors, the demand on weekends and holidays can be
+    #   be lowered compared to working days.
+    #   This factor can be applied either directly to an enduse
+    #   or to the hdd or cdd calculations (to correct cooling
+    #   or heating demand)
+    #
+    #       ss_t_cooling_weekend_factor : float
+    #           Weekend effect for cooling enduses
+    #       ss_weekend_factor : float
+    #           WWeekend effect for service submodel enduses
+    #       is_weekend_factor : float
+    #           Weekend effect for industry submodel enduses
+    # ------------------------------------------------------------
+    assumptions['ss_t_cooling_weekend_factor'] = 0.5    # 0.6
+    assumptions['ss_weekend_factor'] = 0.7              # 0.8
+    assumptions['is_weekend_factor'] = 0.4              # 0.4
+
+    # ============================================================
+    #   Modelled day related factors
+    # ============================================================
+    #
+    #       model_yeardays_nrs : int
+    #           Number of modelled yeardays (default=365)
+    #       model_yearhours_nrs : int
+    #           Number of modelled yearhours (default=8760)
+    #        model_yeardays_date : dict
+    #           Contains for the base year for each days
+    #           the information wheter this is a working or holiday
+    # ------------------------------------------------------------
     assumptions['model_yeardays'] = list(range(365))
 
     # Calculate dates of modelled days
@@ -39,19 +80,43 @@ def load_non_param_assump(base_yr, paths, enduses, lookups):
         assumptions['model_yeardays_date'].append(
             date_prop.yearday_to_date(base_yr, yearday))
 
-    # Nr of modelled days and hours
     assumptions['model_yeardays_nrs'] = len(assumptions['model_yeardays'])
     assumptions['model_yearhours_nrs'] = len(assumptions['model_yeardays']) * 24
 
     # ============================================================
-    # Dwelling stock related assumptions
+    #   Dwelling stock related assumptions
     # ============================================================
-    # Change in floor area per person up to end_yr 1.0 = 100%
-    assumptions['assump_diff_floorarea_pp'] = 1
+    #
+    #   Assumptions to generate a virtual dwelling stock
+    #
+    #       assump_diff_floorarea_pp : float
+    #           Change in floor area per person (%, 1=100%)
+    #       assump_diff_floorarea_pp_yr_until_changed : int
+    #           Year until this change in floor area happens
+    #       assump_dwtype_distr_by : dict
+    #           Housing Stock Distribution by Type
+    #               Source: UK Housing Energy Fact File, Table 4c
+    #       assump_dwtype_distr_future : dict
+    #           welling type distribution end year
+    #               Source: UK Housing Energy Fact File, Table 4c
+    #       assump_dwtype_floorarea_by : dict
+    #           Floor area per dwelling type (Annex Table 3.1)
+    #               Source: UK Housing Energy Fact File, Table 4c
+    #       assump_dwtype_floorarea_future : dict
+    #           Floor area per dwelling type
+    #               Source: UK Housing Energy Fact File, Table 4c
+    #       dwtype_age_distr : dict
+    #           Floor area per dwelling type
+    #               Source: Housing Energy Fact Sheet)
+    #       yr_until_changed : int
+    #           Year until change is realised
+    #
+    # https://www.gov.uk/government/statistics/english-housing-survey-2014-to-2015-housing-stock-report
+    # ------------------------------------------------------------
+    assumptions['assump_diff_floorarea_pp'] = 1.0
+
     assumptions['assump_diff_floorarea_pp_yr_until_changed'] = yr_until_changed_all_things
 
-    # Dwelling type distribution base year (fixed)
-    # Source: Table 4c: Housing Stock Distribution by Type, UK Housing Energy Fact File
     assumptions['assump_dwtype_distr_by'] = {
         'semi_detached': 0.26,
         'terraced': 0.283,
@@ -59,8 +124,6 @@ def load_non_param_assump(base_yr, paths, enduses, lookups):
         'detached': 0.166,
         'bungalow': 0.088}
 
-    # Dwelling type distribution end year
-    # Source: Housing Energy Fact File, Table 4c: Housing Stock Distribution by Type
     assumptions['assump_dwtype_distr_future'] = {
 
         # Year until change is implemented
@@ -72,8 +135,6 @@ def load_non_param_assump(base_yr, paths, enduses, lookups):
         'detached': 0.166,
         'bungalow': 0.088}
 
-    # Floor area per dwelling type (Annex Table 3.1)
-    # https://www.gov.uk/government/statistics/english-housing-survey-2014-to-2015-housing-stock-report
     assumptions['assump_dwtype_floorarea_by'] = {
         'semi_detached': 96,
         'terraced': 82.5,
@@ -81,10 +142,8 @@ def load_non_param_assump(base_yr, paths, enduses, lookups):
         'detached': 147,
         'bungalow': 77}
 
-    # Floor area per dwelling type
     assumptions['assump_dwtype_floorarea_future'] = {
 
-        # Year until change is implemented
         'yr_until_changed': yr_until_changed_all_things,
 
         'semi_detached': 96,
@@ -93,10 +152,8 @@ def load_non_param_assump(base_yr, paths, enduses, lookups):
         'detached': 147,
         'bungalow': 77}
 
-    # Assumption about age distribution (Source: Housing Energy Fact Sheet)
     # (Average builing age within age class, fraction)
-    # Note: By changing this fraction, the number of refurbished houses can be
-    # be changed
+    # Note: the number of refurbished houses can be changed ?? TODO: IMPELEMENT AS SCENARIO
     assumptions['dwtype_age_distr'] = {
         2015: {
             '1918' :0.21,
@@ -106,13 +163,24 @@ def load_non_param_assump(base_yr, paths, enduses, lookups):
             '2002': 0.05}}
 
     # ============================================================
-    #  Scenario drivers
+    #   Scenario drivers TODO: CHECK all scenario drivers
     # ============================================================
+    #
+    #   For every enduse the relevant factors which affect enduse
+    #   consumption can be added in a list.
+    #
+    #   Note:   If e.g. floorarea and population are added, the
+    #           effects will be overestimates (i.e. no multi-
+    #           collinearity are considered).
+    #
+    #       scenario_drivers : dict
+    #           Scenario drivers per enduse
+    # ------------------------------------------------------------
     assumptions['scenario_drivers'] = {}
 
     # --Residential SubModel
     assumptions['scenario_drivers']['rs_submodule'] = {
-        'rs_space_heating': ['floorarea', 'hlc'], #Do not use also pop because otherwise problems that e.g. existing stock + new has smaller scen value than... floorarea already contains pop, Do not use HDD because otherweise double count
+        'rs_space_heating': ['floorarea', 'hlc'], # Do not use HDD or pop because otherweise double count
         'rs_water_heating': ['population'],
         'rs_lighting': ['population', 'floorarea'],
         'rs_cooking': ['population'],
@@ -121,14 +189,17 @@ def load_non_param_assump(base_yr, paths, enduses, lookups):
         'rs_consumer_electronics': ['population'],
         'rs_home_computing': ['population']}
 
-    # --Service Submodel
+    # --Service Submodel (Table 5.5a)
     assumptions['scenario_drivers']['ss_submodule'] = {
         'ss_space_heating': ['floorarea'],
         'ss_water_heating': ['population'],
         'ss_lighting': ['floorarea'],
         'ss_catering': ['population'],
-        'ss_computing': ['population'],
-        'ss_space_cooling': ['floorarea'],
+        'ss_ICT_equipment': ['population'],
+        'ss_cooling_humidification': ['floorarea'],
+        'ss_fans': ['floorarea'],
+        'ss_small_power': ['population'],
+        'ss_cooled_storage': ['floorarea'],
         'ss_other_gas': ['floorarea'],
         'ss_other_electricity': ['floorarea']}
 
@@ -145,8 +216,37 @@ def load_non_param_assump(base_yr, paths, enduses, lookups):
         'is_refrigeration': ['gva']}
 
     # ============================================================
+    #   Cooling related assumptions
+    # ============================================================
+    #
+    #   Parameters related to cooling enduses are defined here.
+    #
+    #   assump_cooling_floorarea : int
+    #       The percentage of cooled floor space in the base year
+    #
+    #   Literature
+    #   ----------
+    #   Abela, A. et al. (2016). Study on Energy Use by Air
+    #   Conditioning. Bre, (June), 31. Retrieved from
+    #   https://www.bre.co.uk/filelibrary/pdf/projects/aircon-energy-use
+    #   /StudyOnEnergyUseByAirConditioningFinalReport.pdf
+    # ------------------------------------------------------------
+    assumptions['assump_cooling_floorarea'] = {}
+
+    # See Abela et al. (2016)
+    assumptions['assump_cooling_floorarea']['cooled_ss_floorarea_by'] = 0.35
+
+    # ============================================================
     # Smart meter related base year assumptions
     # ============================================================
+    #
+    #   Parameters related to smart metering
+    #
+    #   smart_meter_p_by : int
+    #       The percentage of households with smart meters in by
+    #   smart_meter_diff_params : dict
+    #       Sigmoid diffusion parameter of smater meters
+    # ------------------------------------------------------------
     assumptions['smart_meter_assump'] = {}
     assumptions['smart_meter_assump']['smart_meter_p_by'] = 0.1
     assumptions['smart_meter_assump']['smart_meter_diff_params'] = {
@@ -154,60 +254,129 @@ def load_non_param_assump(base_yr, paths, enduses, lookups):
         'sig_steeppness': 1}
 
     # ============================================================
-    # Base temperature related base year assumptions
+    # Base temperature assumptions
     # ============================================================
-    assumptions['rs_t_base_heating'] = {}
-    assumptions['ss_t_base_heating'] = {}
-    assumptions['rs_t_base_cooling'] = {}
-    assumptions['ss_t_base_cooling'] = {}
-    assumptions['rs_t_base_heating']['rs_t_base_heating_base_yr'] = 15.5
-    assumptions['ss_t_base_heating']['ss_t_base_heating_base_yr'] = 15.5
-    assumptions['rs_t_base_cooling']['rs_t_base_cooling_base_yr'] = 21
-    assumptions['ss_t_base_cooling']['ss_t_base_cooling_base_yr'] = 21
+    #
+    #   Parameters related to smart metering
+    #
+    #   rs_t_heating_by : int
+    #       Residential submodel base temp of heating of base year
+    #   rs_t_cooling_by : int
+    #       Residential submodel base temp of cooling of base year
+    #   base_temp_diff_params : dict
+    #       Sigmoid temperature diffusion parameters
+    #   ...
+    #
+    #   Note
+    #   ----
+    #   Because demand for cooling cannot directly be linked to
+    #   calculated cdd, the paramters 'ss_t_cooling_by' is used
+    #   as a calibration factor. By artifiallcy lowering this
+    #   parameter, the energy demand assignement over the days
+    #   in a year is improved.
+    # ------------------------------------------------------------
+    assumptions['t_bases'] = {}
+    assumptions['t_bases']['rs_t_heating_by'] = 15.5    #
+    #assumptions['t_bases']['rs_t_cooling_by'] = Not implemented
+
+    assumptions['t_bases']['ss_t_heating_by'] = 15.5    #
+    assumptions['t_bases']['ss_t_cooling_by'] = 5       #
+
+    assumptions['t_bases']['is_t_heating_by'] = 15.5    #
+    #assumptions['t_bases']['is_t_cooling_by'] = Not implemented
+
+    assumptions['base_temp_diff_params'] = {
+        'sig_midpoint': 0,
+        'sig_steeppness': 1,
+        'yr_until_changed': yr_until_changed_all_things}
+
+    # ============================================================
+    # Enduses lists affed by hdd/cdd
+    # ============================================================
+    #
+    #   These lists show for which enduses temperature related
+    #   calculations are performed.
+    #
+    #   enduse_space_heating : list
+    #       All enduses for which hdd are used for yd calculations
+    #   enduse_rs_space_cooling : list
+    #       All residential enduses for which cdd are used for
+    #       yd calculations
+    #   ss_enduse_space_cooling : list
+    #       All service submodel enduses for which cdd are used for
+    #       yd calculations
+    # ------------------------------------------------------------
+    assumptions['enduse_space_heating'] = [
+        'rs_space_heating', 'ss_space_heating', 'is_space_heating']
+
+    assumptions['enduse_rs_space_cooling'] = []
+    assumptions['ss_enduse_space_cooling'] = ['ss_cooling_humidification'] #['ss_fans', 'ss_cooled_storage']
+
+    # ============================================================
+    # Industry submodel related parameters
+    # ============================================================
+    #
+    #   Assumptions related to industrial enduses
+    #
+    #   s
+    #       S
+    # ------------------------------------------------------------
+    '''Fuel use ratio - dry process over wet process in cement sector
+    Fuel use ratio - novel alkali cement over incumbent process in cement sector
+    Fuel use ratio - novel partially dehydrated cement over incumbent process in cement sector
+    Fuel use ratio - electric arc furnace over blast furnace steel making in cement sector
+    Fuel use ratio - continuous over ingot casting in cement sector
+    Fuel use ratio - cold over hot rolling in cement sector'''
+    # Hith temperature process -- cement, non-ferrous metla, coke ovens, blast furnaces, kilns,..
+
+
 
     # ============================================================
     # Assumption related to technologies
     # ============================================================
+    #
+    #   Assumptions related to technologies
+    #
+    #   split_hp_gshp_to_ashp_by : list
+    #       Split between GSHP and ASHP (in %, 1=100%),
+    #       Share of installed heat pumps in base year (ASHP to GSHP)
+    # ------------------------------------------------------------
+    assumptions['split_hp_gshp_to_ashp_by'] = 0.1
+
     assumptions['technologies'], assumptions['tech_list'] = read_data.read_technologies(
         paths['path_technologies'],
-        lookups['fueltype'])
+        fueltypes)
 
-    # --Heat pumps. Share of installed heat pumps in base year (ASHP to GSHP)
-    assumptions['split_hp_gshp_to_ashp_by'] = 0.1
-    assumptions['installed_heat_pump_by'] = tech_related.generate_ashp_gshp_split(assumptions['split_hp_gshp_to_ashp_by'])
+    assumptions['installed_heat_pump_by'] = tech_related.generate_ashp_gshp_split(
+        assumptions['split_hp_gshp_to_ashp_by'])
 
     # Add heat pumps to technologies
     assumptions['technologies'], assumptions['tech_list']['tech_heating_temp_dep'], assumptions['heat_pumps'] = tech_related.generate_heat_pump_from_split(
-        [],
         assumptions['technologies'],
         assumptions['installed_heat_pump_by'],
-        lookups['fueltype'])
+        fueltypes)
+
+    # Collect all heating technologies
+    # TODO: MAYBE ADD IN TECH DOC ANOTHER LIST SPECIFYING ALL HEATING TECHs
+    assumptions['heating_technologies'] = get_all_heating_techs(assumptions['tech_list'])
 
     # ============================================================
-    # Enduse technology definition list
+    # Enduse diffusion paramters
     # ============================================================
-    assumptions['enduse_space_heating'] = ['rs_space_heating', 'rs_space_heating', 'is_space_heating']
-    assumptions['enduse_space_cooling'] = ['rs_space_cooling', 'ss_space_cooling', 'is_space_cooling']
-    assumptions['tech_list']['enduse_water_heating'] = ['rs_water_heating', 'ss_water_heating']
-
-    # ============================================================
-    # Enduse diffusion parameters
-    # ============================================================
+    #
+    #   Assumptions related to general diffusion
+    #
+    #   This parameters are used to specify e.g. diffusion of
+    #   an enduse which is not specified by technologies
+    #   or the diffusion of a policy of changing a parameter
+    #   over time.
+    # ------------------------------------------------------------
     assumptions['enduse_overall_change'] = {}
     assumptions['enduse_overall_change']['other_enduse_mode_info'] = {
         'diff_method': 'linear', # sigmoid or linear
         'sigmoid': {
             'sig_midpoint': 0,
             'sig_steeppness': 1}}
-
-    # ============================================================
-    # Temperature diffusion parameters
-    # ============================================================
-    # Sigmoid parameters for temperature
-    assumptions['base_temp_diff_params'] = {
-        'sig_midpoint': 0,
-        'sig_steeppness': 1,
-        'yr_until_changed': yr_until_changed_all_things}
 
     # ============================================================
     # Fuel Stock Definition
@@ -217,37 +386,37 @@ def load_non_param_assump(base_yr, paths, enduses, lookups):
     assumptions = assumptions_fuel_shares.assign_by_fuel_tech_p(
         assumptions,
         enduses,
-        lookups)
+        fueltypes,
+        fueltypes_nr)
 
     # ============================================================
-    # Scenaric fuel switches
+    # Read in fuel and capacity switches
     # ============================================================
+
+    # Read in scenaric fuel switches
     assumptions['rs_fuel_switches'] = read_data.read_fuel_switches(
-        paths['rs_path_fuel_switches'], enduses, lookups['fueltype'])
+        paths['rs_path_fuel_switches'], enduses, fueltypes)
     assumptions['ss_fuel_switches'] = read_data.read_fuel_switches(
-        paths['ss_path_fuel_switches'], enduses, lookups['fueltype'])
+        paths['ss_path_fuel_switches'], enduses, fueltypes)
     assumptions['is_fuel_switches'] = read_data.read_fuel_switches(
-        paths['is_path_fuel_switches'], enduses, lookups['fueltype'])
+        paths['is_path_fuel_switches'], enduses, fueltypes)
 
-    # ============================================================
     # Read in scenaric service switches
-    # ============================================================
-    assumptions['rs_service_switches'] = read_data.read_service_switch(
+    assumptions['rs_service_switches'] = read_data.service_switch(
         paths['rs_path_service_switch'], assumptions['technologies'])
-    assumptions['ss_service_switches'] = read_data.read_service_switch(
+    assumptions['ss_service_switches'] = read_data.service_switch(
         paths['ss_path_service_switch'], assumptions['technologies'])
-    assumptions['is_service_switches'] = read_data.read_service_switch(
+    assumptions['is_service_switches'] = read_data.service_switch(
         paths['is_path_industry_switch'], assumptions['technologies'])
 
-    # ============================================================
     # Read in scenaric capacity switches
-    # Warning: Overwrites other switches
-    # ============================================================
-    # Reading in assumptions on capacity installations from csv file
     assumptions['capacity_switches'] = {}
-    assumptions['capacity_switches']['rs_capacity_switches'] = read_data.read_capacity_installation(paths['rs_path_capacity_installation'])
-    assumptions['capacity_switches']['ss_capacity_switches'] = read_data.read_capacity_installation(paths['ss_path_capacity_installation'])
-    assumptions['capacity_switches']['is_capacity_switches'] = read_data.read_capacity_installation(paths['is_path_capacity_installation'])
+    assumptions['capacity_switches']['rs_capacity_switches'] = read_data.capacity_installations(
+        paths['rs_path_capacity_installation'])
+    assumptions['capacity_switches']['ss_capacity_switches'] = read_data.capacity_installations(
+        paths['ss_path_capacity_installation'])
+    assumptions['capacity_switches']['is_capacity_switches'] = read_data.capacity_installations(
+        paths['is_path_capacity_installation'])
 
     # ========================================
     # Helper functions
@@ -259,7 +428,6 @@ def load_non_param_assump(base_yr, paths, enduses, lookups):
     assumptions['is_fuel_tech_p_by'], assumptions['is_specified_tech_enduse_by'], assumptions['technologies'] = tech_related.insert_dummy_tech(
         assumptions['technologies'], assumptions['is_fuel_tech_p_by'], assumptions['is_specified_tech_enduse_by'])
 
-    # All enduses with dummy technologies
     assumptions['rs_dummy_enduses'] = tech_related.get_enduses_with_dummy_tech(
         assumptions['rs_fuel_tech_p_by'])
     assumptions['ss_dummy_enduses'] = tech_related.get_enduses_with_dummy_tech(
@@ -267,13 +435,12 @@ def load_non_param_assump(base_yr, paths, enduses, lookups):
     assumptions['is_dummy_enduses'] = tech_related.get_enduses_with_dummy_tech(
         assumptions['is_fuel_tech_p_by'])
 
-    # ============================================================
-    # Helper functions
-    # ============================================================
-    testing_functions.testing_fuel_tech_shares(assumptions['rs_fuel_tech_p_by'])
-    testing_functions.testing_fuel_tech_shares(assumptions['ss_fuel_tech_p_by'])
-    testing_functions.testing_fuel_tech_shares(assumptions['is_fuel_tech_p_by'])
-
+    testing_functions.testing_fuel_tech_shares(
+        assumptions['rs_fuel_tech_p_by'])
+    testing_functions.testing_fuel_tech_shares(
+        assumptions['ss_fuel_tech_p_by'])
+    testing_functions.testing_fuel_tech_shares(
+        assumptions['is_fuel_tech_p_by'])
     testing_functions.testing_tech_defined(
         assumptions['technologies'], assumptions['rs_specified_tech_enduse_by'])
     testing_functions.testing_tech_defined(
@@ -283,7 +450,11 @@ def load_non_param_assump(base_yr, paths, enduses, lookups):
 
     return assumptions
 
-def update_assumptions(technologies, factor_achieved, split_hp_gshp_to_ashp_ey):
+def update_assumptions(
+        technologies,
+        factor_achieved,
+        split_hp_gshp_to_ashp_ey
+    ):
     """Updates technology related properties based on
     scenario assumptions. Calculate average efficiency of
     heat pumps depending on mix of GSHP and ASHP,
@@ -298,6 +469,7 @@ def update_assumptions(technologies, factor_achieved, split_hp_gshp_to_ashp_ey):
         Factor achieved
     split_hp_gshp_to_ashp_ey : float
         Mix of GSHP and GSHP
+
     Note
     ----
     This needs to be run everytime an assumption is changed
@@ -315,3 +487,29 @@ def update_assumptions(technologies, factor_achieved, split_hp_gshp_to_ashp_ey):
         technologies, installed_heat_pump_ey)
 
     return technologies
+
+def get_all_heating_techs(tech_lists):
+    """Get all heating technologies from tech lists
+    """
+    heating_technologies = []
+
+    for tech in tech_lists['tech_heating_const']:
+        if tech != 'dummy_tech':
+            heating_technologies.append(tech)
+    for tech in tech_lists['tech_heating_temp_dep']:
+        if tech != 'dummy_tech':
+            heating_technologies.append(tech)
+    for tech in tech_lists['tech_district_heating']:
+        if tech != 'dummy_tech':
+            heating_technologies.append(tech)
+    for tech in tech_lists['secondary_heating_electricity']:
+        if tech != 'dummy_tech':
+            heating_technologies.append(tech)
+    for tech in tech_lists['storage_heating_electricity']:
+        if tech != 'dummy_tech':
+            heating_technologies.append(tech)
+    for tech in tech_lists['tech_CHP']:
+        if tech != 'dummy_tech':
+            heating_technologies.append(tech)
+
+    return heating_technologies

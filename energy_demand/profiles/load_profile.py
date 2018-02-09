@@ -2,10 +2,10 @@
 """
 import uuid
 import logging
-from collections import defaultdict
 import numpy as np
 from energy_demand.profiles import generic_shapes
 from energy_demand.initalisations import helpers
+from energy_demand.profiles import load_profile
 
 class LoadProfileStock(object):
     """Collection of load shapes in a list
@@ -35,17 +35,19 @@ class LoadProfileStock(object):
         """Add load profile to stock
 
         Arguments
-        ----------
+        ---------
+        unique_identifier : str
+            Name (unique identifier)
         technologies : list
             Technologies for which the profile applies
         enduses : list
             Enduses for which the profile applies
-        sectors : list
-            Sectors for which the profile applies
         shape_yd : array
             Shape yd (from year to day)
         shape_yh : array
             Shape yh (from year to hour)
+        sectors : list, default=False
+            Sectors for which the profile applies
         enduse_peak_yd_factor : float
             Factor to calculate daily demand from yearly demand
             Standard value is average daily amount
@@ -97,7 +99,7 @@ class LoadProfileStock(object):
 
         Return
         ------
-        Load profile
+        Load profile attribute
         """
         # Get key from lookup dict
         position_in_dict = self.dict_tuple_keys[(enduse, sector, technology)]
@@ -138,7 +140,12 @@ class LoadProfileStock(object):
         if sector == 'dummy_sector':
             return load_profile_obj.shape_peak_dh
         else:
-            return load_profile_obj.shape_peak_dh[sector][enduse]['shape_peak_dh']
+            # CHECK
+            '''if isinstance(load_profile_obj.shape_peak_dh, dict):
+                return load_profile_obj.shape_peak_dh[enduse][sector]['shape_peak_dh']
+            else:
+                return load_profile_obj.shape_peak_dh'''
+            return load_profile_obj.shape_peak_dh
 
 def generate_key_lu_dict(dict_tuple_keys, unique_identifier, enduses, sectors, technologies):
     """Generate look_up keys to position in 'load_profile_dict'
@@ -155,6 +162,11 @@ def generate_key_lu_dict(dict_tuple_keys, unique_identifier, enduses, sectors, t
         List with sectors
     technologies : list
         List with technologies
+
+    Returns
+    -------
+    dict_tuple_keys : str
+        Lookup position in dict
     """
     for enduse in enduses:
         for sector in sectors:
@@ -171,6 +183,11 @@ def get_stock_enduses(load_profile_dict):
     ---------
     load_profile_dict : dict
         All load profiles of load profile stock
+
+    Returns
+    ------
+    all_enduses : list
+        All enduses in stock
     """
     all_enduses = set([])
     for profile_obj in load_profile_dict.values():
@@ -295,7 +312,31 @@ def calk_peak_h_dh(fuel_peak_dh):
 
     return peak_fueltype_h
 
-def create_load_profile_stock(tech_lp, assumptions, sectors):
+def calk_peak_h_dh_single_fueltype(fuel_peak_dh):
+    """Ger peak hour in peak day
+
+    Arguments
+    ----------
+    fuel_peak_dh : array
+        Fuel of peak day for every fueltype
+
+    Return
+    ------
+    peak_fueltype_h : array
+        Fuel for maximum hour in peak day per fueltype
+    """
+    # Get maximum value per row (maximum fuel hour per fueltype)
+    peak_fueltype_h = np.max(fuel_peak_dh, axis=0)
+
+    return peak_fueltype_h
+
+def create_load_profile_stock(
+        tech_lp,
+        assumptions,
+        sectors,
+        model_yeardays,
+        all_enduses
+    ):
     """Assign load profiles which are the same for all regions
     ``non_regional_load_profiles``
 
@@ -307,6 +348,8 @@ def create_load_profile_stock(tech_lp, assumptions, sectors):
         Assumptions
     sectors : dict
         Sectors
+    all_enduses : dict
+        Enduses
 
     Returns
     -------
@@ -315,107 +358,143 @@ def create_load_profile_stock(tech_lp, assumptions, sectors):
     """
     non_regional_lp_stock = LoadProfileStock("non_regional_load_profiles")
 
-    # Lighting (residential)
+    # ---------
+    # Residential Submodel
+    # ---------
+    shape_yh = calc_yh(
+        tech_lp['rs_shapes_yd']['rs_lighting']['shape_non_peak_yd'],
+        tech_lp['rs_shapes_dh']['rs_lighting']['shape_non_peak_y_dh'],
+        model_yeardays)
+
+    # rs_lighting
     non_regional_lp_stock.add_lp(
         unique_identifier=uuid.uuid4(),
         technologies=assumptions['tech_list']['rs_lighting'],
         enduses=['rs_lighting'],
         shape_yd=tech_lp['rs_shapes_yd']['rs_lighting']['shape_non_peak_yd'],
-        shape_yh=tech_lp['rs_shapes_dh']['rs_lighting']['shape_non_peak_y_dh'] * tech_lp['rs_shapes_yd']['rs_lighting']['shape_non_peak_yd'][:, np.newaxis],
+        shape_yh=shape_yh,
         enduse_peak_yd_factor=tech_lp['rs_shapes_yd']['rs_lighting']['shape_peak_yd_factor'],
         shape_peak_dh=tech_lp['rs_shapes_dh']['rs_lighting']['shape_peak_dh'])
 
-    # rs_cold (residential refrigeration)
-    non_regional_lp_stock.add_lp(
-        unique_identifier=uuid.uuid4(),
-        technologies=assumptions['tech_list']['rs_cold'],
-        enduses=['rs_cold'],
-        shape_yd=tech_lp['rs_shapes_yd']['rs_cold']['shape_non_peak_yd'],
-        shape_yh=tech_lp['rs_shapes_dh']['rs_cold']['shape_non_peak_y_dh'] * tech_lp['rs_shapes_yd']['rs_cold']['shape_non_peak_yd'][:, np.newaxis],
-        enduse_peak_yd_factor=tech_lp['rs_shapes_yd']['rs_cold']['shape_peak_yd_factor'],
-        shape_peak_dh=tech_lp['rs_shapes_dh']['rs_cold']['shape_peak_dh'])
+    # Skip temperature dependent end uses (regional)
+    if 'rs_cold' in assumptions['enduse_rs_space_cooling']:
+        pass
+    else:
+        shape_yh = calc_yh(
+            tech_lp['rs_shapes_yd']['rs_cold']['shape_non_peak_yd'],
+            tech_lp['rs_shapes_dh']['rs_cold']['shape_non_peak_y_dh'],
+            model_yeardays)
+
+        # rs_cold (residential refrigeration)
+        non_regional_lp_stock.add_lp(
+            unique_identifier=uuid.uuid4(),
+            technologies=assumptions['tech_list']['rs_cold'],
+            enduses=['rs_cold'],
+            shape_yd=tech_lp['rs_shapes_yd']['rs_cold']['shape_non_peak_yd'],
+            shape_yh=shape_yh,
+            enduse_peak_yd_factor=tech_lp['rs_shapes_yd']['rs_cold']['shape_peak_yd_factor'],
+            shape_peak_dh=tech_lp['rs_shapes_dh']['rs_cold']['shape_peak_dh'])
 
     # rs_cooking
+    shape_yh = calc_yh(
+        tech_lp['rs_shapes_yd']['rs_cooking']['shape_non_peak_yd'],
+        tech_lp['rs_shapes_dh']['rs_cooking']['shape_non_peak_y_dh'],
+        model_yeardays)
     non_regional_lp_stock.add_lp(
         unique_identifier=uuid.uuid4(),
         technologies=assumptions['tech_list']['rs_cooking'],
         enduses=['rs_cooking'],
         shape_yd=tech_lp['rs_shapes_yd']['rs_cooking']['shape_non_peak_yd'],
-        shape_yh=tech_lp['rs_shapes_dh']['rs_cooking']['shape_non_peak_y_dh'] * tech_lp['rs_shapes_yd']['rs_cooking']['shape_non_peak_yd'][:, np.newaxis],
+        shape_yh=shape_yh,
         enduse_peak_yd_factor=tech_lp['rs_shapes_yd']['rs_cooking']['shape_peak_yd_factor'],
         shape_peak_dh=tech_lp['rs_shapes_dh']['rs_cooking']['shape_peak_dh'])
 
     # rs_wet
+    shape_yh = calc_yh(
+        tech_lp['rs_shapes_yd']['rs_wet']['shape_non_peak_yd'],
+        tech_lp['rs_shapes_dh']['rs_wet']['shape_non_peak_y_dh'],
+        model_yeardays)
     non_regional_lp_stock.add_lp(
         unique_identifier=uuid.uuid4(),
         technologies=assumptions['tech_list']['rs_wet'],
         enduses=['rs_wet'],
         shape_yd=tech_lp['rs_shapes_yd']['rs_wet']['shape_non_peak_yd'],
-        shape_yh=tech_lp['rs_shapes_dh']['rs_wet']['shape_non_peak_y_dh'] * tech_lp['rs_shapes_yd']['rs_wet']['shape_non_peak_yd'][:, np.newaxis],
+        shape_yh=shape_yh,
         enduse_peak_yd_factor=tech_lp['rs_shapes_yd']['rs_wet']['shape_peak_yd_factor'],
         shape_peak_dh=tech_lp['rs_shapes_dh']['rs_wet']['shape_peak_dh'])
 
     # -- dummy rs technologies (apply enduse sepcific shape)
     for enduse in assumptions['rs_dummy_enduses']:
+
         tech_list = helpers.get_nested_dict_key(assumptions['rs_fuel_tech_p_by'][enduse])
+
+        shape_yh = calc_yh(
+            tech_lp['rs_shapes_yd'][enduse]['shape_non_peak_yd'],
+            tech_lp['rs_shapes_dh'][enduse]['shape_non_peak_y_dh'],
+            model_yeardays)
+
         non_regional_lp_stock.add_lp(
             unique_identifier=uuid.uuid4(),
             technologies=tech_list,
             enduses=[enduse],
             shape_yd=tech_lp['rs_shapes_yd'][enduse]['shape_non_peak_yd'],
-            shape_yh=tech_lp['rs_shapes_dh'][enduse]['shape_non_peak_y_dh'] * tech_lp['rs_shapes_yd'][enduse]['shape_non_peak_yd'][:, np.newaxis],
+            shape_yh=shape_yh,
             enduse_peak_yd_factor=tech_lp['rs_shapes_yd'][enduse]['shape_peak_yd_factor'],
             shape_peak_dh=tech_lp['rs_shapes_dh'][enduse]['shape_peak_dh'])
 
-    # - dummy ss technologies
-    for enduse in assumptions['ss_dummy_enduses']:
-        tech_list = helpers.get_nested_dict_key(assumptions['ss_fuel_tech_p_by'][enduse])
-        for sector in sectors['ss_sectors']:
-            non_regional_lp_stock.add_lp(
-                unique_identifier=uuid.uuid4(),
-                technologies=tech_list,
-                enduses=[enduse],
-                shape_yd=tech_lp['ss_shapes_yd'][sector][enduse]['shape_non_peak_yd'],
-                shape_yh=tech_lp['ss_shapes_dh'][sector][enduse]['shape_non_peak_y_dh'] * tech_lp['ss_shapes_yd'][sector][enduse]['shape_non_peak_yd'][:, np.newaxis],
-                sectors=[sector],
-                enduse_peak_yd_factor=tech_lp['ss_shapes_yd'][sector][enduse]['shape_peak_yd_factor'],
-                shape_peak_dh=tech_lp['ss_shapes_dh'][sector][enduse]['shape_peak_dh'])
+    # ---------
+    # Service Submodel
+    # ----------
+    # - Assign to each enduse the carbon fuel trust dataset
+    for enduse in all_enduses['ss_all_enduses']:
 
-    # dummy is - Flat load profile
-    shape_peak_dh, _, shape_peak_yd_factor, shape_non_peak_yd, shape_non_peak_yh = generic_shapes.flat_shape(
-        assumptions['model_yeardays_nrs'])
+        # Skip temperature dependent end uses (regional) because load profile in regional load profile stock
+        if enduse in assumptions['enduse_space_heating'] or enduse in assumptions['ss_enduse_space_cooling']:
+            pass
+        else:
+            # Get technologies with assigned fuel shares
+            tech_list = helpers.get_nested_dict_key(
+                assumptions['ss_fuel_tech_p_by'][enduse])
 
-    # If space heating, add load shapes for service sector
-    shape_peak_dh_sectors_enduses = defaultdict(dict)
-    all_enduses_including_heating = assumptions['is_dummy_enduses']
-    all_enduses_including_heating.append("is_space_heating")
-    for sector in sectors['is_sectors']:
-        for enduse in all_enduses_including_heating:
-            if enduse == "is_space_heating":
-                shape_peak_dh_sectors_enduses[sector][enduse] = {
-                    'shape_peak_dh':
-                    tech_lp['ss_shapes_dh'][sectors['ss_sectors'][0]]["ss_space_heating"]['shape_peak_dh']}
-            else:
-                shape_peak_dh_sectors_enduses[sector][enduse] = {
-                    'shape_peak_dh': shape_peak_dh}
+            for sector in sectors['ss_sectors']:
 
-    for enduse in assumptions['is_dummy_enduses']:
+                # Apply correction factor for weekend_effect
+                shape_non_peak_yd = tech_lp['ss_shapes_yd'][enduse][sector]['shape_non_peak_yd'] * assumptions['ss_weekend_f']
+                shape_non_peak_yd = load_profile.abs_to_rel(shape_non_peak_yd)
 
-        # Add load profile for space heating of ss sector
-        if enduse == "is_space_heating":
-            tech_list = helpers.get_nested_dict_key(assumptions['is_fuel_tech_p_by'][enduse])
-            for sector in sectors['is_sectors']:
+                shape_yh = calc_yh(
+                    shape_non_peak_yd, #tech_lp['ss_shapes_yd'][enduse][sector]['shape_non_peak_yd'],
+                    tech_lp['ss_shapes_dh'][enduse][sector]['shape_non_peak_y_dh'],
+                    model_yeardays)
+
                 non_regional_lp_stock.add_lp(
                     unique_identifier=uuid.uuid4(),
                     technologies=tech_list,
                     enduses=[enduse],
-                    shape_yd=tech_lp['ss_shapes_yd'][sectors['ss_sectors'][0]]["ss_space_heating"]['shape_non_peak_yd'],
-                    shape_yh=tech_lp['ss_shapes_dh'][sectors['ss_sectors'][0]]["ss_space_heating"]['shape_non_peak_y_dh'] * tech_lp['ss_shapes_yd'][sectors['ss_sectors'][0]]["ss_space_heating"]['shape_non_peak_yd'][:, np.newaxis],
+                    shape_yd=tech_lp['ss_shapes_yd'][enduse][sector]['shape_non_peak_yd'],
+                    shape_yh=shape_yh,
                     sectors=[sector],
-                    enduse_peak_yd_factor=tech_lp['ss_shapes_yd'][sectors['ss_sectors'][0]]["ss_space_heating"]['shape_peak_yd_factor'],
-                    shape_peak_dh=dict(shape_peak_dh_sectors_enduses))
+                    enduse_peak_yd_factor=tech_lp['ss_shapes_yd'][enduse][sector]['shape_peak_yd_factor'],
+                    shape_peak_dh=tech_lp['ss_shapes_dh'][enduse][sector]['shape_peak_dh'])
+
+    # ---------
+    # Industry Submodel
+    # ---------
+    # Generate flat load profiles
+    shape_peak_dh, _, shape_peak_yd_factor, shape_non_peak_yd, shape_non_peak_yh = generic_shapes.flat_shape(
+        assumptions['model_yeardays_nrs'])
+
+    # Apply correction factor for weekend_effect
+    shape_non_peak_yd = shape_non_peak_yd * assumptions['is_weekend_f']
+    shape_non_peak_yd = load_profile.abs_to_rel(shape_non_peak_yd)
+
+    for enduse in assumptions['is_dummy_enduses']:
+        if enduse == "is_space_heating":
+            pass # Do not create non regional stock because temp dependent
         else:
-            tech_list = helpers.get_nested_dict_key(assumptions['is_fuel_tech_p_by'][enduse])
+            tech_list = helpers.get_nested_dict_key(
+                assumptions['is_fuel_tech_p_by'][enduse])
+
             for sector in sectors['is_sectors']:
                 non_regional_lp_stock.add_lp(
                     unique_identifier=uuid.uuid4(),
@@ -425,7 +504,7 @@ def create_load_profile_stock(tech_lp, assumptions, sectors):
                     shape_yh=shape_non_peak_yh,
                     sectors=[sector],
                     enduse_peak_yd_factor=shape_peak_yd_factor,
-                    shape_peak_dh=dict(shape_peak_dh_sectors_enduses))
+                    shape_peak_dh=shape_peak_dh)
 
     return non_regional_lp_stock
 
@@ -454,23 +533,31 @@ def calc_av_lp(demand_yh, seasons, model_yeardays_daytype):
     """
     season_daytypes = {
         'spring': {
-            'workday': np.zeros((0, 24), dtype=float), 'holiday': np.zeros((0, 24), dtype=float)},
+            'workday': np.zeros((0, 24), dtype=float),
+            'holiday': np.zeros((0, 24), dtype=float)},
         'summer': {
-            'workday': np.zeros((0, 24), dtype=float), 'holiday': np.zeros((0, 24), dtype=float)},
+            'workday': np.zeros((0, 24), dtype=float),
+            'holiday': np.zeros((0, 24), dtype=float)},
         'autumn': {
-            'workday': np.zeros((0, 24), dtype=float), 'holiday': np.zeros((0, 24), dtype=float)},
+            'workday': np.zeros((0, 24), dtype=float),
+            'holiday': np.zeros((0, 24), dtype=float)},
         'winter': {
-            'workday': np.zeros((0, 24), dtype=float), 'holiday': np.zeros((0, 24), dtype=float)}}
+            'workday': np.zeros((0, 24), dtype=float),
+            'holiday': np.zeros((0, 24), dtype=float)}}
 
     av_season_daytypes = {
         'spring': {
-            'workday': np.zeros((0, 24), dtype=float), 'holiday': np.zeros((0, 24), dtype=float)},
+            'workday': np.zeros((0, 24), dtype=float),
+            'holiday': np.zeros((0, 24), dtype=float)},
         'summer': {
-            'workday': np.zeros((0, 24), dtype=float), 'holiday': np.zeros((0, 24), dtype=float)},
+            'workday': np.zeros((0, 24), dtype=float),
+            'holiday': np.zeros((0, 24), dtype=float)},
         'autumn': {
-            'workday': np.zeros((0, 24), dtype=float), 'holiday': np.zeros((0, 24), dtype=float)},
+            'workday': np.zeros((0, 24), dtype=float),
+            'holiday': np.zeros((0, 24), dtype=float)},
         'winter': {
-            'workday': np.zeros((0, 24), dtype=float), 'holiday': np.zeros((0, 24), dtype=float)}}
+            'workday': np.zeros((0, 24), dtype=float),
+            'holiday': np.zeros((0, 24), dtype=float)}}
 
     for yearday, daytype_yearday in enumerate(model_yeardays_daytype):
 
@@ -488,18 +575,36 @@ def calc_av_lp(demand_yh, seasons, model_yeardays_daytype):
         new_data_dh = demand_yh[yearday]
         existing_array = season_daytypes[season][daytype_yearday]
 
-        stacked_array = np.vstack([existing_array, new_data_dh])
-
         # Add to dict
-        season_daytypes[season][daytype_yearday] = stacked_array
+        season_daytypes[season][daytype_yearday] = np.vstack([existing_array, new_data_dh])
 
     # -----------------------------
     # Calculate average of all dict
     # -----------------------------
+    # Calculate average over every hour in a day
     for season, daytypes_data in season_daytypes.items():
         for daytype, daytpe_data in daytypes_data.items():
-
-            # Calculate average over every hour in a day
             av_season_daytypes[season][daytype] = np.mean(daytpe_data, axis=0)
 
     return av_season_daytypes, season_daytypes
+
+def calc_yh(shape_yd, shape_y_dh, model_yeardays):
+    """Calculate the shape based on yh and y_dh shape
+
+    Inputs
+    -------
+    shape_yd : array
+        Shape with fuel amount for every day (365)
+    shape_y_dh : array
+        Shape for every day (365, 24), total sum = 365
+    model_yeardays : array
+        Modelled yeardays
+
+    Returns
+    -------
+    shape_yh : array
+        Shape for every hour in a year (total sum == 1)
+    """
+    shape_yh = shape_yd[:, np.newaxis] * shape_y_dh[[model_yeardays]]
+
+    return shape_yh

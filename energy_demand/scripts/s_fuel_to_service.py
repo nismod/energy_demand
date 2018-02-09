@@ -67,27 +67,48 @@ def sum_2_level_dict(two_level_dict):
         Number of all entries in nested dict
     """
     tot_sum = 0
-    for  j in two_level_dict.values():
+    for j in two_level_dict.values():
         tot_sum += sum(j.values())
 
     return tot_sum
 
-def ss_sum_fuel_enduse_sectors(ss_fuel_raw_data_enduses, ss_enduses, nr_fueltypes):
+def sum_fuel_enduse_sectors(data_enduses, enduses, nr_fueltypes):
     """Aggregated fuel for all sectors according to enduse
+
+    Arguments
+    --------
+    data_enduses : dict
+        Fuel per enduse
+    enduses : list
+        Enduses
+    nr_fueltypes : int
+        Number of fuetlypes
+
+    Returns
+    -------
+    aggregated_fuel_enduse : dict
+        Arregated fuel per enduse ({enduse: np.array(fueltype)})
     """
     aggregated_fuel_enduse = {}
 
-    for enduse in ss_enduses:
+    for enduse in enduses:
         aggregated_fuel_enduse[str(enduse)] = np.zeros((nr_fueltypes), dtype=float)
 
     # Iterate and sum fuel per enduse
-    for fuels_sector in ss_fuel_raw_data_enduses.values():
-        for enduse, fuels_enduse in fuels_sector.items():
-            aggregated_fuel_enduse[enduse] += fuels_enduse
+    for enduse in enduses:
+        aggregated_fuel_enduse[enduse] = sum(data_enduses[enduse].values())
 
     return aggregated_fuel_enduse
 
-def get_service_fueltype_tech(tech_list, lu_fueltypes, fuel_p_tech_by, fuels, technologies):
+def get_service_fueltype_tech(
+        enduses,
+        tech_list,
+        fueltypes,
+        fuel_p_tech_by,
+        fuels,
+        technologies,
+        sector=False
+    ):
     """Calculate total energy service fractions per technology.
     Tis calculation converts fuels into energy services (e.g. heating
     for fuel into heat demand) and then calculated how much an invidual
@@ -101,7 +122,7 @@ def get_service_fueltype_tech(tech_list, lu_fueltypes, fuel_p_tech_by, fuels, te
     ----------
     tech_list : list
         Technologies
-    lu_fueltypes : dict
+    fueltypes : dict
         Fueltypes
     fuel_p_tech_by : dict
         Assumed fraction of fuel for each technology within a fueltype
@@ -121,21 +142,27 @@ def get_service_fueltype_tech(tech_list, lu_fueltypes, fuel_p_tech_by, fuels, te
         Percentage of energy service per fueltype
     """
     # Energy service per technology for base year
-    service = init_nested_dict_brackets(fuels, lu_fueltypes.values())
+    service = init_nested_dict_brackets(
+        fuels, fueltypes.values())
 
      # Percentage of total energy service per technology for base year
     service_tech_by_p = helpers.init_dict_brackets(fuels)
 
     # Percentage of service per technologies within the fueltypes
-    service_fueltype_tech_by_p = init_nested_dict_brackets(fuels, lu_fueltypes.values())
+    service_fueltype_tech_by_p = init_nested_dict_brackets(fuels, fueltypes.values())
 
     # Percentage of service per fueltype
     service_fueltype_by_p = init_nested_dict_zero(
         service_tech_by_p.keys(),
-        range(len(lu_fueltypes)))
+        range(len(fueltypes)))
 
-    for enduse, fuel in fuels.items():
-        for fueltype, fuel_fueltype in enumerate(fuel): #Iterate array
+    for enduse in enduses:
+        if not sector:
+            fuel = fuels[enduse]
+        else:
+            fuel = fuels[enduse][sector]
+
+        for fueltype, fuel_fueltype in enumerate(fuel):
             tot_service_fueltype = 0
 
             for tech in fuel_p_tech_by[enduse][fueltype]:

@@ -13,7 +13,8 @@ from energy_demand.main import energy_demand_model
 from energy_demand.read_write import data_loader
 from energy_demand.assumptions import non_param_assumptions
 from energy_demand.assumptions import param_assumptions
-from energy_demand.scripts.init_scripts import post_install_setup
+from energy_demand.scripts.s_post_installation import post_install_setup
+from energy_demand.scripts.s_write_dummy_data import post_install_setup_minimum
 from energy_demand.scripts.init_scripts import scenario_initalisation
 from energy_demand.read_write import read_data
 from energy_demand.dwelling_stock import dw_stock
@@ -39,6 +40,7 @@ def run_model(args):
 
     #NOTE: TO RUN FROM COMMAND LINE
     """
+
     #Subfolder where module is installed
     path_main_data = resource_filename(Requirement.parse("energy_demand"), "data")
     path_main = os.path.join(path_main_data, '../')
@@ -56,10 +58,11 @@ def run_model(args):
     data['sim_param']['simulated_yrs'] = [2015, 2018, 2025, 2050]
 
     # Assumptions
-    data['assumptions'] = non_param_assumptions.load_non_param_assump(data['sim_param']['base_yr'], data['paths'], data['enduses'], data['lookups'])
+    data['assumptions'] = non_param_assumptions.load_non_param_assump(
+        data['sim_param']['base_yr'], data['paths'], data['enduses'], data['lookups']['fueltypes'], data['lookups']['fueltypes_nr'])
     param_assumptions.load_param_assump(data['paths'], data['assumptions'])
     data['assumptions']['seasons'] = date_prop.read_season(year_to_model=2015)
-    data['assumptions']['model_yeardays_daytype'], data['assumptions']['yeardays_month'], data['assumptions']['yeardays_month_days'] = date_prop.get_model_yeardays_datype(year_to_model=2015)
+    data['assumptions']['model_yeardays_daytype'], data['assumptions']['yeardays_month'], data['assumptions']['yeardays_month_days'] = date_prop.get_model_yeardays_daytype(year_to_model=2015)
     data['assumptions']['technologies'] = non_param_assumptions.update_assumptions(
         data['assumptions']['technologies'],
         data['assumptions']['strategy_variables']['eff_achiev_f'],
@@ -73,7 +76,9 @@ def run_model(args):
 
     data['weather_stations'], data['temp_data'] = data_loader.load_temp_data(data['local_paths'])
     
-    data['rs_floorarea'], data['ss_floorarea'] = data_loader.virtual_building_datasets(data['lu_reg'], data['sectors']['all_sectors'], data)
+    data['rs_floorarea'], data['ss_floorarea'] = data_loader.virtual_building_datasets(
+        data['lu_reg'], data['sectors']['all_sectors'], 
+        data['local_paths'])
 
     rs_floorarea = defaultdict(dict)
     for year in range(2015, 2101):
@@ -102,6 +107,7 @@ def run_model(args):
     basic_functions.create_folder(data['local_paths']['data_results_PDF'])
     basic_functions.create_folder(data['local_paths']['data_results'], "model_run_pop")
 
+    print("... start energy demand model")
     results = energy_demand_model(data)
 
     logging.debug("... Result section")
@@ -130,31 +136,49 @@ def parse_arguments():
     # Run main model
     parser_run = subparsers.add_parser(
         'run',
-        help='Run the model'
-        )
+        help='Run the model')
+
     parser_run.add_argument(
         '-d',
         '--data_folder',
         default='./processed_data',
-        help='Path to the input data folder'
-        )
+        help='Path to the input data folder')
+
     parser_run.set_defaults(func=run_model)
 
     # Initialisation of energy demand model (processing raw files)
     parser_init = subparsers.add_parser(
         'post_install_setup',
-        help='Executes the raw reading functions'
-        )
+        help='Executes the raw reading functions')
+
     parser_init.add_argument(
         '-d',
         '--data_energy_demand',
         default='./data_energy_demand',
-        help='Path to the input data folder'
-        )
+        help='Path to the input data folder')
 
     parser_init.set_defaults(func=post_install_setup)
 
-    # Scenario initialisation
+    # Initialisation of energy demand model (processing raw files)
+    parser_init2 = subparsers.add_parser(
+        'post_install_setup_minimum',
+        help='Executes the minimum dummy raw reading functions')
+
+    parser_init2.add_argument(
+        '-d1',
+        '--path_energy_demand',
+        default='./data_energy_demand',
+        help='Path to the input data folder')
+
+    parser_init2.add_argument(
+        '-d2',
+        '--local_data_path',
+        default='./data_energy_demand',
+        help='Path to the python scripts')
+
+    parser_init2.set_defaults(func=post_install_setup_minimum)
+
+    '''# Scenario initialisation
     scenario_init = subparsers.add_parser(
         'scenario_initialisation',
         help='Needs to be initialised')
@@ -163,10 +187,9 @@ def parse_arguments():
         '-d',
         '--data_energy_demand',
         default='./data_energy_demand',
-        help='Path to main data folder'
-        )
+        help='Path to main data folder')
 
-    scenario_init.set_defaults(func=init_scenario)
+    scenario_init.set_defaults(func=init_scenario)'''
 
     return parser
 

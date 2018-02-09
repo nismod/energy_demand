@@ -4,30 +4,25 @@ from energy_demand.technologies import tech_related
 def test_get_tech_type():
     """
     """
-    tech_list = { 
+    tech_list = {
         'tech_heating_temp_dep': ['heat_p'],
         'tech_heating_const': ['boilerA'],
-        'primary_heating_electricity': ['boilerC'],
+        'storage_heating_electricity': ['boilerC'],
         'secondary_heating_electricity': []
     }
     assert tech_related.get_tech_type('dummy_tech', tech_list) == 'dummy_tech'
-    assert tech_related.get_tech_type('boilerA', tech_list) == 'boiler_heating_tech'
     assert tech_related.get_tech_type('heat_p', tech_list) == 'heat_pump'
-    assert tech_related.get_tech_type('boilerC', tech_list) == 'storage_heating_electricity'
-    assert tech_related.get_tech_type('test_tech', tech_list) == 'regular_tech'
+    assert tech_related.get_tech_type('test_tech', tech_list) == 'other_tech'
 
 def test_calc_eff_cy():
     """
     """
-    sim_param = {
-        'base_yr': 2015,
-        'curr_yr': 2020}
-
     other_enduse_mode_info = {
         'diff_method': 'linear'},
 
     out_value = tech_related.calc_eff_cy(
-        sim_param=sim_param,
+        base_yr=2015,
+        curr_yr=2020,
         eff_by= 1.0,
         eff_ey= 2.0,
         yr_until_changed=2020,
@@ -41,7 +36,8 @@ def test_calc_eff_cy():
         'sigmoid': {'sig_midpoint': 0,'sig_steeppness': 1}}
 
     out_value = tech_related.calc_eff_cy(
-        sim_param=sim_param,
+        base_yr=2015,
+        curr_yr=2020,
         eff_by= 1.0,
         eff_ey= 2.0,
         yr_until_changed=2020,
@@ -89,23 +85,70 @@ def test_eff_heat_pump():
 def test_get_fueltype_str():
     """Testing function
     """
-    lu_fueltypes = {'gas': 1}
+    fueltypes = {'gas': 1}
     in_value = 1
     expected = 'gas'
 
     # call function
-    out_value = tech_related.get_fueltype_str(lu_fueltypes, in_value)
+    out_value = tech_related.get_fueltype_str(fueltypes, in_value)
 
     assert out_value == expected
 
 def test_get_fueltype_int():
     """Testing function
     """
-    lu_fueltypes = {'gas': 1}
+    fueltypes = {'gas': 1}
     in_value = 'gas'
     expected = 1
 
     # call function
-    out_value = tech_related.get_fueltype_int(lu_fueltypes, in_value)
+    out_value = tech_related.get_fueltype_int(fueltypes, in_value)
 
     assert out_value == expected
+
+def test_calc_av_heat_pump_eff_ey():
+    """testing
+    """
+
+
+    from energy_demand.read_write import read_data
+
+
+    technologies = {
+        'heat_pump_ASHP_electricity': read_data.TechnologyData(),
+        'heat_pump_GSHP_electricity': read_data.TechnologyData(),
+        'heat_pumps_electricity': read_data.TechnologyData()
+        }
+    technologies['heat_pump_ASHP_electricity'].fueltype_str = 'electricity'
+    technologies['heat_pump_ASHP_electricity'].eff_achieved = 1.0
+    technologies['heat_pump_ASHP_electricity'].diff_method = 'linear'
+    technologies['heat_pump_ASHP_electricity'].eff_by = 0.5
+    technologies['heat_pump_ASHP_electricity'].eff_ey = 0.5
+    technologies['heat_pump_ASHP_electricity'].year_eff_ey = 2020
+
+    technologies['heat_pump_GSHP_electricity'].fueltype_str = 'electricity'
+    technologies['heat_pump_GSHP_electricity'].eff_achieved = 1.0
+    technologies['heat_pump_GSHP_electricity'].diff_method = 'linear'
+    technologies['heat_pump_GSHP_electricity'].eff_by = 1.0
+    technologies['heat_pump_GSHP_electricity'].eff_ey = 1.0
+    technologies['heat_pump_GSHP_electricity'].year_eff_ey = 2020
+
+    technologies['heat_pumps_electricity'].fueltype_str = 'electricity'
+    technologies['heat_pumps_electricity'].eff_achieved = 1.0
+    technologies['heat_pumps_electricity'].diff_method = 'linear'
+    technologies['heat_pumps_electricity'].eff_by = 1.0
+    technologies['heat_pumps_electricity'].eff_ey = 99999
+    technologies['heat_pumps_electricity'].year_eff_ey = 2020
+
+    heat_pump_assump = {
+        'electricity': {
+            'heat_pump_ASHP_electricity': 0.7,
+            'heat_pump_GSHP_electricity': 0.3
+            }
+    }
+
+    result = tech_related.calc_av_heat_pump_eff_ey(
+        technologies,
+        heat_pump_assump)
+
+    assert result['heat_pumps_electricity'].eff_ey == 0.7 * 0.5 + 0.3 * 1.0

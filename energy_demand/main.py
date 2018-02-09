@@ -1,25 +1,54 @@
 """
 Energy Demand Model
 ===================
-- run in constrained mode
-Development checklist: https://nismod.github.io/docs/development-checklist.html
+Contains the function `energy_demand_model` which is used
+to run the energy demand model
+
+Tools
+------
+Profiling: https://jiffyclub.github.io/snakeviz/
+
+Development checklist:
+https://nismod.github.io/docs/development-checklist.html
 https://nismod.github.io/docs/
 https://nismod.github.io/docs/smif-prerequisites.html#sector-modeller
 # Implement that e.g. 2015 - 2030 one technology and 2030 - 2050 another technology
-# Calculate sigmoid for different regions
 # backcasting
 # Industry INFO about efficiencies & technologies: Define strategy variables
-# Cooling?
-# convert documentation in rst?
-# Check whether fuel switches can be written as servie switch
+
+INTERFACE QUESTIONS
+------------------
+- Virtual dwelling stock data?
+- fuel switches?
+- Sub-sectoral GVA
+
+NICETOHAVE
+- Convert paths dict to objects
+
+TODO: Update SUB_NATIONAL ELEC and GAS DEMAND BECVAUSE CHANGED VALUES 
+DISTRICT HEATING TECH
+TODO: Write function to test wheter swichtes are possible (e.g. that not more from one technology to another is replaced than possible)
+TODO: Improve industry related demand --> define strategies
+TODO: Related ed to houses & householdsize
+TODO: Define efficencies of all techs
+TODO: ET_module
+TODO: SENSITIVITY
+TODO: Accounting module for energy and emissions
+TODO: data loading, load multiple years for real elec data
+TODO: Load different temp --> for different years
+TODO: THECK VARIALBES IN HOUSEHOLD MODEL
+TODO: FUEL; SERVICE SWITHC AS INPUT
+TODO: WRITE MULTIPLE DIMENS ION ARRAY
+TODO: VORHER NACHHER ON LAD LEVEL
+#WRAPPER BASE AND CURRENT YEAR GVA
 """
 import os
 import sys
 import logging
+import datetime
 import numpy as np
-from energy_demand import energy_model
+from energy_demand import model
 from energy_demand.basic import testing_functions as testing
-from energy_demand.technologies import fuel_service_switch
 
 def energy_demand_model(data, fuel_in=0, fuel_in_elec=0):
     """Main function of energy demand model to calculate yearly demand
@@ -34,45 +63,73 @@ def energy_demand_model(data, fuel_in=0, fuel_in_elec=0):
     result_dict : dict
         A nested dictionary containing all data for energy supply model with
         timesteps for every hour in a year.
-        [fuel_type : region : timestep]
-    model_run_object : dict
+        [fueltype : region : timestep]
+    modelrun_obj : dict
         Object of a yearly model run
 
     Note
     ----
     This function is executed in the wrapper
     """
-    fuel_in, fuel_in_elec, fuel_in_gas = testing.test_function_fuel_sum(data)
-    print("VORHER Fuel input:          " + str(fuel_in))
-    print("VORHER elec fuel in:        " + str(fuel_in_elec))
-
-    model_run_object = energy_model.EnergyModel(
-        region_names=data['lu_reg'],
+    modelrun_obj = model.EnergyDemandModel(
+        regions=data['lu_reg'],
         data=data)
 
-    print("Fuel input:          " + str(fuel_in))
+    # ----------------
+    # Information
+    # ----------------
+    fuel_in, fuel_in_biomass, fuel_in_elec, fuel_in_gas, fuel_in_heat, fuel_in_hydrogen, fuel_in_solid_fuel, fuel_in_oil, tot_heating = testing.test_function_fuel_sum(
+        data,
+        data['criterias']['mode_constrained'],
+        data['assumptions']['enduse_space_heating'])
+
     print("================================================")
-    print("Simulation year:     " + str(model_run_object.curr_yr))
+    print("Simulation year:     " + str(modelrun_obj.curr_yr))
     print("Number of regions    " + str(data['reg_nrs']))
-    print("Fuel input:          " + str(fuel_in))
-    print("Fuel output:         " + str(np.sum(model_run_object.ed_fueltype_national_yh)))
-    print("FUEL DIFFERENCE:     " + str(round((np.sum(model_run_object.ed_fueltype_national_yh) - fuel_in), 4)))
-    print("--")
+    print("Total fuel input:    " + str(fuel_in))
+    print("Total output:        " + str(np.sum(modelrun_obj.ed_fueltype_national_yh)))
+    print("Total difference:    " + str(round((np.sum(modelrun_obj.ed_fueltype_national_yh) - fuel_in), 4)))
+    print("-----------")
+    print("oil fuel in:         " + str(fuel_in_oil))
+    print("oil fuel out:        " + str(np.sum(modelrun_obj.ed_fueltype_national_yh[data['lookups']['fueltypes']['oil']])))
+    print("oil diff:            " + str(round(np.sum(modelrun_obj.ed_fueltype_national_yh[data['lookups']['fueltypes']['oil']]) - fuel_in_oil, 4)))
+    print("-----------")
+    print("biomass fuel in:     " + str(fuel_in_biomass))
+    print("biomass fuel out:    " + str(np.sum(modelrun_obj.ed_fueltype_national_yh[data['lookups']['fueltypes']['biomass']])))
+    print("biomass diff:        " + str(round(np.sum(modelrun_obj.ed_fueltype_national_yh[data['lookups']['fueltypes']['biomass']]) - fuel_in_biomass, 4)))
+    print("-----------")
+    print("solid_fuel fuel in:  " + str(fuel_in_solid_fuel))
+    print("solid_fuel fuel out: " + str(np.sum(modelrun_obj.ed_fueltype_national_yh[data['lookups']['fueltypes']['solid_fuel']])))
+    print("solid_fuel diff:     " + str(round(np.sum(modelrun_obj.ed_fueltype_national_yh[data['lookups']['fueltypes']['solid_fuel']]) - fuel_in_solid_fuel, 4)))
+    print("-----------")
     print("elec fuel in:        " + str(fuel_in_elec))
-    print("elec fuel out:       " + str(np.sum(model_run_object.ed_fueltype_national_yh[data['lookups']['fueltype']['electricity']])))
-    print("ele fuel diff:       " + str(round(np.sum(model_run_object.ed_fueltype_national_yh[data['lookups']['fueltype']['electricity']]), 4) - fuel_in_elec))
-    print("--")
+    print("elec fuel out:       " + str(np.sum(modelrun_obj.ed_fueltype_national_yh[data['lookups']['fueltypes']['electricity']])))
+    print("ele fuel diff:       " + str(round(np.sum(modelrun_obj.ed_fueltype_national_yh[data['lookups']['fueltypes']['electricity']]) - fuel_in_elec, 4)))
+    print("-----------")
     print("gas fuel in:         " + str(fuel_in_gas))
-    print("gas fuel out:        " + str(np.sum(model_run_object.ed_fueltype_national_yh[data['lookups']['fueltype']['gas']])))
-    print("gas diff:            " + str(round(np.sum(model_run_object.ed_fueltype_national_yh[data['lookups']['fueltype']['gas']]), 4) - fuel_in_gas))
-    print("--")
-    print("Diff elec %:         " + str((1/(round(np.sum(model_run_object.ed_fueltype_national_yh[data['lookups']['fueltype']['electricity']]), 4))) * fuel_in_elec))
-    print("Diff gas %:          " + str((1/(round(np.sum(model_run_object.ed_fueltype_national_yh[data['lookups']['fueltype']['gas']]), 4))) * fuel_in_gas))
+    print("gas fuel out:        " + str(np.sum(modelrun_obj.ed_fueltype_national_yh[data['lookups']['fueltypes']['gas']])))
+    print("gas diff:            " + str(round(np.sum(modelrun_obj.ed_fueltype_national_yh[data['lookups']['fueltypes']['gas']]) - fuel_in_gas, 4)))
+    print("-----------")
+    print("hydro fuel in:       " + str(fuel_in_hydrogen))
+    print("hydro fuel out:      " + str(np.sum(modelrun_obj.ed_fueltype_national_yh[data['lookups']['fueltypes']['hydrogen']])))
+    print("hydro diff:          " + str(round(np.sum(modelrun_obj.ed_fueltype_national_yh[data['lookups']['fueltypes']['hydrogen']]) - fuel_in_hydrogen, 4)))
+    print("-----------")
+    print("TOTAL HEATING        " + str(tot_heating))
+    print("heat fuel in:        " + str(fuel_in_heat))
+    print("heat fuel out:       " + str(np.sum(modelrun_obj.ed_fueltype_national_yh[data['lookups']['fueltypes']['heat']])))
+    print("heat diff:           " + str(round(np.sum(modelrun_obj.ed_fueltype_national_yh[data['lookups']['fueltypes']['heat']]) - fuel_in_heat, 4)))
+    print("-----------")
+    print("Diff elec %:         " + str(round((1/(np.sum(modelrun_obj.ed_fueltype_national_yh[data['lookups']['fueltypes']['electricity']]))) * fuel_in_elec, 4)))
+    print("Diff gas %:          " + str(round((1/(np.sum(modelrun_obj.ed_fueltype_national_yh[data['lookups']['fueltypes']['gas']]))) * fuel_in_gas, 4)))
+    print("Diff oil %:          " + str(round((1/(np.sum(modelrun_obj.ed_fueltype_national_yh[data['lookups']['fueltypes']['oil']]))) * fuel_in_oil, 4)))
+    print("Diff solid_fuel %:   " + str(round((1/(np.sum(modelrun_obj.ed_fueltype_national_yh[data['lookups']['fueltypes']['solid_fuel']]))) * fuel_in_solid_fuel, 4)))
+    print("Diff hydrogen %:     " + str(round((1/(np.sum(modelrun_obj.ed_fueltype_national_yh[data['lookups']['fueltypes']['hydrogen']]))) * fuel_in_hydrogen, 4)))
+    print("Diff biomass %:      " + str(round((1/(np.sum(modelrun_obj.ed_fueltype_national_yh[data['lookups']['fueltypes']['biomass']]))) * fuel_in_biomass, 4)))
     print("================================================")
 
     logging.info("...finished running energy demand model simulation")
 
-    return model_run_object
+    return modelrun_obj
 
 if __name__ == "__main__":
     """
@@ -83,11 +140,11 @@ if __name__ == "__main__":
         print("    python main.py ../energy_demand_data\n")
         print("... Defaulting to C:/DATA_NISMODII/data_energy_demand")
         local_data_path = os.path.abspath('C:/DATA_NISMODII/data_energy_demand')
+        ##local_data_path = os.path.abspath('C:/Users/cenv0553/nismod/data_energy_demand')
     else:
         local_data_path = sys.argv[1]
 
     # -------------- SCRAP
-    from pyinstrument import Profiler
     from energy_demand.assumptions import non_param_assumptions
     from energy_demand.assumptions import param_assumptions
     from energy_demand.read_write import data_loader
@@ -96,24 +153,25 @@ if __name__ == "__main__":
     from energy_demand.read_write import read_data
     from energy_demand.basic import basic_functions
     from energy_demand.basic import date_prop
+    from energy_demand.profiles import hdd_cdd
 
-    path_main = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..")
+    path_main = os.path.join(
+        os.path.dirname(os.path.abspath(__file__)), "..")
 
     # Initialise logger
-    logger_setup.set_up_logger(os.path.join(local_data_path, "logging_local_run.log"))
-
-    # Run settings
-    instrument_profiler = True
-    validation_criteria = False
-    virtual_building_stock_criteria = True
+    logger_setup.set_up_logger(
+        os.path.join(local_data_path, "logging_local_run.log"))
 
     # Load data
     data = {}
     data['criterias'] = {}
-    data['criterias']['mode_constrained'] = False
-    data['criterias']['plot_HDD_chart'] = False
-    data['criterias']['virtual_building_stock_criteria'] = virtual_building_stock_criteria
-    data['criterias']['spatial_exliclit_diffusion'] = True
+    data['criterias']['mode_constrained'] = True               # Whether model is run in constrained mode or not
+    data['criterias']['plot_HDD_chart'] = False                 # Wheather HDD chart is plotted or not
+    data['criterias']['virtual_building_stock_criteria'] = True # Wheater model uses a virtual dwelling stock or not
+    data['criterias']['spatial_exliclit_diffusion'] = True      # Wheater spatially epxlicit diffusion or not
+    data['criterias']['write_to_txt'] = False                   # Wheater results are written to txt files
+    data['criterias']['beyond_supply_outputs'] = False           # Wheater all results besides integraded smif run are calculated
+    data['criterias']['plot_tech_lp'] = True                    # Wheater all individual load profils are plotted
 
     data['paths'] = data_loader.load_paths(path_main)
     data['local_paths'] = data_loader.load_local_paths(local_data_path)
@@ -122,8 +180,11 @@ if __name__ == "__main__":
     data['sim_param'] = {}
     data['sim_param']['base_yr'] = 2015
     data['sim_param']['curr_yr'] = data['sim_param']['base_yr']
-    data['sim_param']['simulated_yrs'] = [2015, 2050]
-    data['lu_reg'] = data_loader.load_LAC_geocodes_info(data['local_paths']['path_dummy_regions'])
+    data['sim_param']['simulated_yrs'] = [2015, 2016, 2030, 2050]
+
+    # local scrap
+    data['lu_reg'] = data_loader.load_LAC_geocodes_info(
+        os.path.join(local_data_path, '_raw_data', 'B-census_data', 'regions_local_area_districts', '_quick_and_dirty_spatial_disaggregation', 'infuse_dist_lyr_2011_saved.csv'))
 
     # GVA
     gva_data = {}
@@ -151,15 +212,23 @@ if __name__ == "__main__":
     # ------------------------------
     # Parameters not defined within smif
     data['assumptions'] = non_param_assumptions.load_non_param_assump(
-        data['sim_param']['base_yr'], data['paths'], data['enduses'], data['lookups'])
+        data['sim_param']['base_yr'],
+        data['paths'],
+        data['enduses'],
+        data['lookups']['fueltypes'],
+        data['lookups']['fueltypes_nr'])
 
     # Parameters defined within smif
     param_assumptions.load_param_assump(data['paths'], data['assumptions'])
 
     data['assumptions']['seasons'] = date_prop.read_season(year_to_model=2015)
-    data['assumptions']['model_yeardays_daytype'], data['assumptions']['yeardays_month'], data['assumptions']['yeardays_month_days'] = date_prop.get_model_yeardays_datype(year_to_model=2015)
+    data['assumptions']['model_yeardays_daytype'], data['assumptions']['yeardays_month'], data['assumptions']['yeardays_month_days'] = date_prop.get_model_yeardays_daytype(year_to_model=2015)
 
-    data['tech_lp'] = data_loader.load_data_profiles(data['paths'], data['local_paths'], data['assumptions']['model_yeardays'], data['assumptions']['model_yeardays_daytype'])
+    data['tech_lp'] = data_loader.load_data_profiles(
+        data['paths'], data['local_paths'],
+        data['assumptions']['model_yeardays'],
+        data['assumptions']['model_yeardays_daytype'],
+        data['criterias']['plot_tech_lp'])
     data['assumptions']['technologies'] = non_param_assumptions.update_assumptions(
         data['assumptions']['technologies'],
         data['assumptions']['strategy_variables']['eff_achiev_f'],
@@ -169,41 +238,27 @@ if __name__ == "__main__":
 
     data['reg_nrs'] = len(data['lu_reg'])
 
+    # ----------------------------------
+    # Calculating COOLING CDD PARAMETER
+    # ----------------------------------
+    data['assumptions']['cdd_weekend_cfactors'] = hdd_cdd.calc_weekend_corr_f(
+        data['assumptions']['model_yeardays_daytype'],
+        data['assumptions']['ss_t_cooling_weekend_factor'])
+
+    data['assumptions']['ss_weekend_f'] = hdd_cdd.calc_weekend_corr_f(
+        data['assumptions']['model_yeardays_daytype'],
+        data['assumptions']['ss_weekend_factor'])
+
+    data['assumptions']['is_weekend_f'] = hdd_cdd.calc_weekend_corr_f(
+        data['assumptions']['model_yeardays_daytype'],
+        data['assumptions']['is_weekend_factor'])
+
     # ------------------------------
     if data['criterias']['virtual_building_stock_criteria']:
-        rs_floorarea, ss_floorarea = data_loader.virtual_building_datasets(data['lu_reg'], data['sectors']['all_sectors'], data)
-    else:
-        pass
-
-    # ---------------------
-    # Calculate all capacity switches
-    # ---------------------
-    data['assumptions']['rs_service_switches'] = fuel_service_switch.capacity_installations(
-        data['assumptions']['rs_service_switches'],
-        data['assumptions']['capacity_switches']['rs_capacity_switches'],
-        data['assumptions']['technologies'],
-        data['assumptions']['enduse_overall_change']['other_enduse_mode_info'],
-        data['fuels']['rs_fuel_raw_data_enduses'],
-        data['assumptions']['rs_fuel_tech_p_by'],
-        data['sim_param']['base_yr'])
-
-    data['assumptions']['ss_service_switches'] = fuel_service_switch.capacity_installations(
-        data['assumptions']['ss_service_switches'],
-        data['assumptions']['capacity_switches']['ss_capacity_switches'],
-        data['assumptions']['technologies'],
-        data['assumptions']['enduse_overall_change']['other_enduse_mode_info'],
-        data['fuels']['ss_fuel_raw_data_enduses'],
-        data['assumptions']['ss_fuel_tech_p_by'],
-        data['sim_param']['base_yr'])
-
-    data['assumptions']['is_service_switches'] = fuel_service_switch.capacity_installations(
-        data['assumptions']['is_service_switches'],
-        data['assumptions']['capacity_switches']['is_capacity_switches'],
-        data['assumptions']['technologies'],
-        data['assumptions']['enduse_overall_change']['other_enduse_mode_info'],
-        data['fuels']['is_fuel_raw_data_enduses'],
-        data['assumptions']['is_fuel_tech_p_by'],
-        data['sim_param']['base_yr'])
+        rs_floorarea, ss_floorarea = data_loader.virtual_building_datasets(
+            data['lu_reg'],
+            data['sectors']['all_sectors'],
+            data['local_paths'])
 
     #Scenario data
     data['scenario_data'] = {
@@ -228,6 +283,7 @@ if __name__ == "__main__":
     basic_functions.del_previous_setup(data['local_paths']['data_results'])
     basic_functions.create_folder(data['local_paths']['data_results'])
     basic_functions.create_folder(data['local_paths']['data_results_PDF'])
+    basic_functions.create_folder(data['local_paths']['data_results_model_run_pop'])
 
     # Create .ini file with simulation information
     write_data.write_simulation_inifile(
@@ -242,61 +298,128 @@ if __name__ == "__main__":
         data['sim_param']['curr_yr'] = sim_yr
 
         logging.info("Simulation for year --------------:  " + str(sim_yr))
-        fuel_in, fuel_in_elec, fuel_in_gas = testing.test_function_fuel_sum(data)
+        fuel_in, fuel_in_biomass, fuel_in_elec, fuel_in_gas, fuel_in_heat, fuel_in_hydro, fuel_in_solid_fuel, fuel_in_oil, tot_heating = testing.test_function_fuel_sum(
+            data,
+            data['criterias']['mode_constrained'],
+            data['assumptions']['enduse_space_heating'])
 
-        #-------------PROFILER
-        if instrument_profiler:
-            profiler = Profiler(use_signal=False)
-            profiler.start()
+        a = datetime.datetime.now()
 
         # Main model run function
-        model_run_object = energy_demand_model(
+        modelrun_obj = energy_demand_model(
             data,
             fuel_in,
             fuel_in_elec)
 
-        if instrument_profiler:
-            profiler.stop()
-            logging.debug("Profiler Results")
-            print(profiler.output_text(unicode=True, color=True))
+        # --------------------
+        # Result unconstrained
+        #
+        # Sum according to first element in array (sectors)
+        # which aggregtes over the sectors
+        # ---
+        supply_results_unconstrained = sum(modelrun_obj.ed_submodel_fueltype_regs_yh[:,])
 
-        # Take attributes from model object run
-        supply_results = model_run_object.ed_fueltype_regs_yh
-        ed_fueltype_regs_yh = model_run_object.ed_fueltype_regs_yh
-        out_enduse_specific = model_run_object.tot_fuel_y_enduse_specific_h
-        tot_peak_enduses_fueltype = model_run_object.tot_peak_enduses_fueltype
-        tot_fuel_y_max_enduses = model_run_object.tot_fuel_y_max_enduses
-        ed_fueltype_national_yh = model_run_object.ed_fueltype_national_yh
+        # Write out all calculations which are not used for SMIF
+        if data['criterias']['beyond_supply_outputs']:
 
-        reg_load_factor_y = model_run_object.reg_load_factor_y
-        reg_load_factor_yd = model_run_object.reg_load_factor_yd
-        reg_load_factor_winter = model_run_object.reg_load_factor_seasons['winter']
-        reg_load_factor_spring = model_run_object.reg_load_factor_seasons['spring']
-        reg_load_factor_summer = model_run_object.reg_load_factor_seasons['summer']
-        reg_load_factor_autumn = model_run_object.reg_load_factor_seasons['autumn']
+            ed_fueltype_regs_yh = modelrun_obj.ed_fueltype_regs_yh
+            out_enduse_specific = modelrun_obj.tot_fuel_y_enduse_specific_yh
+            tot_peak_enduses_fueltype = modelrun_obj.tot_peak_enduses_fueltype
+            tot_fuel_y_max_enduses = modelrun_obj.tot_fuel_y_max_enduses
+            ed_fueltype_national_yh = modelrun_obj.ed_fueltype_national_yh
 
-        # -------------------------------------------
-        # Write annual results to txt files
-        # -------------------------------------------
-        logging.info("... Start writing results to file")
-        path_runs = data['local_paths']['data_results_model_runs']
+            reg_load_factor_y = modelrun_obj.reg_load_factor_y
+            reg_load_factor_yd = modelrun_obj.reg_load_factor_yd
+            reg_load_factor_winter = modelrun_obj.reg_seasons_lf['winter']
+            reg_load_factor_spring = modelrun_obj.reg_seasons_lf['spring']
+            reg_load_factor_summer = modelrun_obj.reg_seasons_lf['summer']
+            reg_load_factor_autumn = modelrun_obj.reg_seasons_lf['autumn']
 
-        write_data.write_supply_results(
-            sim_yr, path_runs, supply_results, "supply_results")
-        write_data.write_enduse_specific(
-            sim_yr, path_runs, out_enduse_specific, "out_enduse_specific")
-        write_data.write_max_results(
-            sim_yr, path_runs, "result_tot_peak_enduses_fueltype", tot_peak_enduses_fueltype, "tot_peak_enduses_fueltype")
-        write_data.write_lf(
-            path_runs, "result_reg_load_factor_y", [sim_yr], reg_load_factor_y, 'reg_load_factor_y')
-        write_data.write_lf(
-            path_runs, "result_reg_load_factor_yd", [sim_yr], reg_load_factor_yd, 'reg_load_factor_yd')
+            # -------------------------------------------
+            # Write annual results to txt files
+            # -------------------------------------------
+            logging.info("... Start writing results to file")
+            path_runs = data['local_paths']['data_results_model_runs']
 
-        write_data.write_lf(path_runs, "result_reg_load_factor_winter", [sim_yr], reg_load_factor_winter, 'reg_load_factor_winter')
-        write_data.write_lf(path_runs, "result_reg_load_factor_spring", [sim_yr], reg_load_factor_spring, 'reg_load_factor_spring')
-        write_data.write_lf(path_runs, "result_reg_load_factor_summer", [sim_yr], reg_load_factor_summer, 'reg_load_factor_summer')
-        write_data.write_lf(path_runs, "result_reg_load_factor_autumn", [sim_yr], reg_load_factor_autumn, 'reg_load_factor_autumn')
+            # Write unconstrained results
+            if data['criterias']['write_to_txt']:
+                #TODO NOT USED SO FAR
+                '''write_data.write_supply_results(
+                    sim_yr,
+                    data['lu_reg'],
+                    "supply_results",
+                    path_runs,
+                    supply_results_unconstrained,
+                    "supply_results")'''
+                write_data.write_supply_results(
+                    sim_yr,
+                    "result_tot_yh",
+                    path_runs,
+                    modelrun_obj.ed_fueltype_regs_yh,
+                    "result_tot_submodels_fueltypes")
+                write_data.write_enduse_specific(
+                    sim_yr,
+                    path_runs,
+                    out_enduse_specific,
+                    "out_enduse_specific")
+                write_data.write_max_results(
+                    sim_yr,
+                    path_runs,
+                    "result_tot_peak_enduses_fueltype",
+                    tot_peak_enduses_fueltype,
+                    "tot_peak_enduses_fueltype")
+                write_data.write_lf(
+                    path_runs,
+                    "result_reg_load_factor_y",
+                    [sim_yr],
+                    reg_load_factor_y,
+                    'reg_load_factor_y')
+                write_data.write_lf(
+                    path_runs,
+                    "result_reg_load_factor_yd",
+                    [sim_yr],
+                    reg_load_factor_yd,
+                    'reg_load_factor_yd')
+                write_data.write_lf(
+                    path_runs,
+                    "result_reg_load_factor_winter",
+                    [sim_yr],
+                    reg_load_factor_winter,
+                    'reg_load_factor_winter')
+                write_data.write_lf(
+                    path_runs,
+                    "result_reg_load_factor_spring",
+                    [sim_yr],
+                    reg_load_factor_spring,
+                    'reg_load_factor_spring')
+                write_data.write_lf(
+                    path_runs,
+                    "result_reg_load_factor_summer",
+                    [sim_yr],
+                    reg_load_factor_summer,
+                    'reg_load_factor_summer')
+                write_data.write_lf(
+                    path_runs,
+                    "result_reg_load_factor_autumn",
+                    [sim_yr],
+                    reg_load_factor_autumn,
+                    'reg_load_factor_autumn')
 
-        logging.info("... Finished writing results to file")
+                # -------------------------------------------
+                # Write population files of simulation year
+                # -------------------------------------------
+                pop_array_reg = np.zeros((len(data['lu_reg'])))
+                for reg_array_nr, reg in enumerate(data['lu_reg']):
+                    pop_array_reg[reg_array_nr] = data['scenario_data']['population'][sim_yr][reg]
+
+                write_data.write_pop(
+                    sim_yr,
+                    data['local_paths']['model_run_pop'],
+                    pop_array_reg)
+                logging.info("... Finished writing results to file")
+
+    b = datetime.datetime.now()
+    print("TOTAL TIME: " + str(b-a))
 
     logging.info("... Finished running Energy Demand Model")
+    print("... Finished running Energy Demand Model")

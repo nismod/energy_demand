@@ -11,9 +11,59 @@ from datetime import date
 from energy_demand.read_write import read_data, read_weather_data
 from energy_demand.basic import conversions
 from energy_demand.basic import date_prop
+from energy_demand.plotting import plotting_results
+from energy_demand.basic import basic_functions
+
+def load_basic_lookups():
+    """Definition of basic lookups or other related information
+
+    Return
+    ------
+    lookups : dict
+        Lookup information and other very basic properties
+    """
+    lookups = {}
+
+    lookups['dwtype'] = {
+        0: 'detached',
+        1: 'semi_detached',
+        2: 'terraced',
+        3: 'flat',
+        4: 'bungalow'}
+
+    lookups['fueltypes'] = {
+        'solid_fuel': 0,
+        'gas': 1,
+        'electricity': 2,
+        'oil': 3,
+        'biomass': 4,
+        'hydrogen': 5,
+        'heat': 6}
+
+    lookups['fueltypes_nr'] = int(len(lookups['fueltypes']))
+
+    return lookups
 
 def load_sim_param_ini(path):
     """Load simulation parameter run information
+
+    Arguments
+    ---------
+    path : str
+        Path to `ini` file
+
+    Returns
+    -------
+    sim_param : dict
+        Simulation parameters
+    enduses : dict
+        Enduses
+    assumptions : dict
+        Assumptions
+    reg_nrs : dict
+        Number of regions
+    lu_reg : dict
+        Regions
     """
     config = configparser.ConfigParser()
 
@@ -42,7 +92,7 @@ def load_sim_param_ini(path):
 def read_national_real_elec_data(path_to_csv):
     """Read in national consumption from csv file. The unit
     in the original csv is in GWh per region per year.
-
+    TODO: UPDATE VALUES
     Arguments
     ---------
     path_to_csv : str
@@ -55,8 +105,7 @@ def read_national_real_elec_data(path_to_csv):
 
     Info
     -----
-    Source: https://www.gov.uk/government/statistical-data-sets/
-    regional-and-local-authority-electricity-consumption-statistics-2005-to-2011
+    Source: https://www.gov.uk/government/statistical-data-sets/regional-and-local-authority-electricity-consumption-statistics-2005-to-2011
     """
     national_fuel_data = {}
     with open(path_to_csv, 'r') as csvfile:
@@ -66,9 +115,7 @@ def read_national_real_elec_data(path_to_csv):
         for row in read_lines:
             geocode = str.strip(row[2])
             tot_consumption_unclean = row[7].strip()
-            total_consumption = float(tot_consumption_unclean.replace(",", ""))
-
-            national_fuel_data[geocode] = total_consumption
+            national_fuel_data[geocode] = float(tot_consumption_unclean.replace(",", ""))
 
     return national_fuel_data
 
@@ -84,7 +131,7 @@ def read_national_real_gas_data(path_to_csv):
     -------
     national_fuel_data : dict
         geocode, total consumption
-
+    TODO: UNIT GWh?
     Info
     -----
     Source: https://www.gov.uk/government/statistical-data-sets
@@ -111,67 +158,63 @@ def read_national_real_gas_data(path_to_csv):
 
     return national_fuel_data
 
-def load_basic_lookups():
-    """Definition of basic lookups or other related information
-
-    Return
-    ------
-    lookups : dict
-        Lookup information and other very basic properties
-    """
-    lookups = {}
-
-    lookups['dwtype'] = {
-        0: 'detached',
-        1: 'semi_detached',
-        2: 'terraced',
-        3: 'flat',
-        4: 'bungalow'}
-
-    lookups['fueltype'] = {
-        'solid_fuel': 0,
-        'gas': 1,
-        'electricity': 2,
-        'oil': 3,
-        'biomass': 4,
-        'hydrogen': 5,
-        'heat': 6
-        }
-
-    lookups['fueltypes_nr'] = int(len(lookups['fueltype']))
-
-    return lookups
-
-def virtual_building_datasets(lu_reg, all_sectors, data):
+def virtual_building_datasets(lu_reg, all_sectors, local_paths):
     """Load necessary data for virtual building stock
     in case the link to the building stock model in
     Newcastle is not used
 
     Arguments
     ---------
+    lu_reg : dict
+        Regions
+    all_sectors : dict
+        All sectors
 
+    Returns
+    -------
+    rs_floorarea : dict
+        Residential floor area
+    ss_floorarea : dict
+        Service sector floor area
     """
-    # Read in floor area as m2 from somewhere
-    # Read in floor area as m2 per sector from somewhere
-
     # --------------------------------------------------
     # Floor area for residential buildings for base year
     # --------------------------------------------------
+    resid_footprint, non_res_flootprint = read_data.read_floor_area_virtual_stock(
+        local_paths['path_floor_area_virtual_stock_by'])
+
     rs_floorarea = defaultdict(dict)
     for year in range(2015, 2101):
-        for region_geocode in lu_reg:
-            rs_floorarea[year][region_geocode] = data['population'][2015][region_geocode]
+        for reg_geocode in lu_reg:
+            try:
+                rs_floorarea[year][reg_geocode] = resid_footprint[reg_geocode]
+            except:
+                #logging.warning("No virtual residential floor area for region %s %s", reg_geocode, year)
+                rs_floorarea[year][reg_geocode] = 1
 
     # --------------------------------------------------
     # Floor area for service sector buildings
     # --------------------------------------------------
+    # No sector specific floorarea
+    ss_floorarea_sector_by = {}
+    for year in range(2015, 2101):
+        ss_floorarea_sector_by[year] = defaultdict(dict)
+        for reg_geocode in lu_reg:
+            for sector in all_sectors:
+                try:
+                    ss_floorarea_sector_by[year][reg_geocode][sector] = non_res_flootprint[reg_geocode]
+                except:
+                    #logging.warning("No virtual service floor area for region %s %s", reg_geocode, year)
+                    ss_floorarea_sector_by[year][reg_geocode][sector] = 1
+
+    '''
     ss_floorarea_sector_by = {}
     for year in range(2015, 2101):
         ss_floorarea_sector_by[year] = defaultdict(dict)
         for reg_geocode in lu_reg:
             for sector in all_sectors:
                 ss_floorarea_sector_by[year][reg_geocode][sector] = 10000
-
+    '''
     ss_floorarea = dict(ss_floorarea_sector_by)
 
     return dict(rs_floorarea), dict(ss_floorarea)
@@ -190,6 +233,8 @@ def load_local_paths(path):
         All local paths used in model
     """
     paths = {
+        'local_path_datafolder':
+            path,
         'path_bd_e_load_profiles': os.path.join(
             path, '_raw_data', 'A-HES_data', 'HES_base_appliances_eletricity_load_profiles.csv'),
         'folder_raw_carbon_trust': os.path.join(
@@ -205,15 +250,17 @@ def load_local_paths(path):
         'path_val_subnational_gas': os.path.join(
             path, '_raw_data', 'D-validation', '02_subnational_gas_demand', 'data_2015_gas.csv'),
         'path_employment_statistics': os.path.join(
-            path, '_raw_data', 'b-census_data', 'employment_statistics_2011_LAD', 'LAD_prior_2015.csv'),
-        'path_dummy_regions': os.path.join(
-            path, '_raw_data', 'B-census_data', 'regions_local_area_districts', '_quick_and_dirty_spatial_disaggregation', 'infuse_dist_lyr_2011_saved.csv'),
+            path, '_raw_data', 'B-census_data', 'employment_statistics_2011_LAD', 'LAD_prior_2015.csv'),
+        'path_floor_area_virtual_stock_by': os.path.join(
+            path, '_raw_data', 'K-floor_area', 'floor_area_by.csv'),
         'path_assumptions_db': os.path.join(
             path, '_processed_data', 'assumptions_from_db'),
         'data_processed': os.path.join(
             path, '_processed_data'),
         'data_results': os.path.join(
             path, '_result_data'),
+        'data_results_model_run_pop': os.path.join(
+            path, '_result_data', 'model_run_pop'),
         'lad_shapefile': os.path.join(
             path, '_raw_data', 'C_LAD_geography', 'lad_2016.shp'),
         'path_post_installation_data': os.path.join(
@@ -232,11 +279,7 @@ def load_local_paths(path):
             path, '_processed_data', '_post_installation_data', 'raw_weather_data'),
         'load_profiles': os.path.join(
             path, '_processed_data', '_post_installation_data', 'load_profiles'),
-        'rs_load_profiles': os.path.join(
-            path, '_processed_data', '_post_installation_data', 'load_profiles', 'rs_submodel'),
-        'ss_load_profiles': os.path.join(
-            path, '_processed_data', '_post_installation_data', 'load_profiles', 'ss_submodel'),
-        'dir_disattregated': os.path.join(
+        'dir_disaggregated': os.path.join(
             path, '_processed_data', '_post_installation_data', 'disaggregated'),
         'rs_load_profile_txt': os.path.join(
             path, '_processed_data', '_post_installation_data', 'load_profiles', 'rs_submodel'),
@@ -248,6 +291,8 @@ def load_local_paths(path):
             path, '_result_data', 'PDF_results'),
         'data_results_validation': os.path.join(
             path, '_result_data', 'PDF_validation'),
+        'model_run_pop': os.path.join(
+            path, '_result_data', 'model_run_pop'),
         'data_results_shapefiles': os.path.join(
             path, '_result_data', 'result_shapefiles')}
 
@@ -267,7 +312,6 @@ def load_paths(path):
         Data container containing dics
     """
     paths = {
-
         'path_main': path,
 
         # Path for dwelling stock assumptions
@@ -276,23 +320,23 @@ def load_paths(path):
 
         # Path to all technologies
         'path_technologies': os.path.join(
-            path, 'config_data', 'scenario_and_base_data', 'technology_base_scenario.csv'),
+            path, 'config_data', 'technology_definition.csv'),
 
         # Fuel switches
         'rs_path_fuel_switches': os.path.join(
-            path, 'config_data', 'submodel_residential', 'switches_fuel_scenaric.csv'),
+            path, 'config_data', 'submodel_residential', 'switches_fuel.csv'),
         'ss_path_fuel_switches': os.path.join(
-            path, 'config_data', 'submodel_service', 'switches_fuel_scenaric.csv'),
+            path, 'config_data', 'submodel_service', 'switches_fuel.csv'),
         'is_path_fuel_switches': os.path.join(
-            path, 'config_data', 'submodel_industry', 'switches_fuel_scenaric.csv'),
+            path, 'config_data', 'submodel_industry', 'switches_fuel.csv'),
 
         # Path to service switches
         'rs_path_service_switch': os.path.join(
-            path, 'config_data', 'submodel_residential', 'switches_service_scenaric.csv'),
+            path, 'config_data', 'submodel_residential', 'switches_service.csv'),
         'ss_path_service_switch': os.path.join(
-            path, 'config_data', 'submodel_service', 'switches_service_scenaric.csv'),
+            path, 'config_data', 'submodel_service', 'switches_service.csv'),
         'is_path_industry_switch': os.path.join(
-            path, 'config_data', 'submodel_industry', 'switches_industry_scenaric.csv'),
+            path, 'config_data', 'submodel_industry', 'switches_industry.csv'),
 
         # Path to capacity installations
         'rs_path_capacity_installation': os.path.join(
@@ -301,13 +345,14 @@ def load_paths(path):
             path, 'config_data', 'submodel_service', 'capacity_installations.csv'),
         'is_path_capacity_installation': os.path.join(
             path, 'config_data', 'submodel_industry', 'capacity_installations.csv'),
+
         # Paths to fuel raw data
         'rs_fuel_raw_data_enduses': os.path.join(
-            path, 'config_data', 'submodel_residential', 'rs_fuel_data.csv'),
+            path, 'config_data', 'submodel_residential', 'rs_fuel.csv'),
         'ss_fuel_raw_data_enduses': os.path.join(
-            path, 'config_data', 'submodel_service', 'data_service_by_fuel_end_uses.csv'),
+            path, 'config_data', 'submodel_service', 'ss_fuel.csv'),
         'is_fuel_raw_data_enduses': os.path.join(
-            path, 'config_data', 'submodel_industry', 'data_industry_by_fuel_end_uses.csv'),
+            path, 'config_data', 'submodel_industry', 'is_fuel.csv'),
 
         # Technologies load shapes
         'lp_elec_hp_dh': os.path.join(
@@ -318,25 +363,36 @@ def load_paths(path):
             path, 'config_data', 'submodel_residential', 'shape_residential_cooling.csv'),
         'path_shape_ss_cooling': os.path.join(
             path, 'config_data', 'submodel_service', 'shape_service_cooling.csv'),
-        'lp_elec_primary_heating': os.path.join(
-            path, 'config_data', 'submodel_residential', 'lp_elec_primary_heating_HES.csv'),
+        'lp_elec_storage_heating': os.path.join(
+            #path, 'config_data', 'submodel_residential', 'lp_elec_storage_heating_HES.csv'), # Worst
+            #path, 'config_data', 'submodel_residential', 'lp_elec_storage_heating_Bossmann.csv'), # Better
+            path, 'config_data', 'submodel_residential', 'lp_elec_storage_heating_HESReport.csv'), # Best
         'lp_elec_secondary_heating': os.path.join(
             path, 'config_data', 'submodel_residential', 'lp_elec_secondary_heating_HES.csv'),
 
         'yaml_parameters': os.path.join(path, 'yaml_parameters.yml'),
         'yaml_parameters_default': os.path.join(path, 'yaml_parameters_default.yml'),
+        'yaml_parameters_keynames_constrained': os.path.join(path, 'yaml_parameters_keynames_constrained.yml'),
+        'yaml_parameters_keynames_unconstrained': os.path.join(path, 'yaml_parameters_keynames_unconstrained.yml'),
         'yaml_parameters_scenario': os.path.join(path, 'yaml_parameters_scenario.yml')
         }
 
     return paths
 
-def load_data_tech_profiles(tech_lp, paths):
+def load_tech_profiles(tech_lp, paths, local_paths, plot_tech_lp=False):
     """Load technology specific load profiles
 
     Arguments
     ----------
-    data : dict
-        Data container
+    tech_lp : dict
+        Load profiles
+    paths : dict
+        Paths
+    local_paths : dict
+        Local paths
+    plot_tech_lp : bool
+        Criteria wheter individual tech lp are
+        saved as figure to separte folder
 
     Returns
     ------
@@ -357,44 +413,124 @@ def load_data_tech_profiles(tech_lp, paths):
     tech_lp['rs_lp_heating_hp_dh'] = read_data.read_load_shapes_tech(
         paths['lp_elec_hp_dh'])
 
-    tech_lp['rs_shapes_cooling_dh'] = read_data.read_csv_float(paths['path_shape_rs_cooling']) # ??
-    tech_lp['ss_shapes_cooling_dh'] = read_data.read_csv_float(paths['path_shape_ss_cooling']) # ??
-    #from energy_demand.plotting import plotting_results
-    #plotting_results.plot_load_profile_dh(data['rs_lp_heating_boilers_dh'][0] * 45.8)
-    #plotting_results.plot_load_profile_dh(data['rs_lp_heating_boilers_dh'][1] * 45.8)
-    #plotting_results.plot_load_profile_dh(data['rs_lp_heating_boilers_dh'][data['lookups']['fueltype']['electricity']] * 45.8)
+    #tech_lp['rs_shapes_cooling_dh'] = read_data.read_load_shapes_tech(paths['path_shape_rs_cooling']) #Not implemented
+    tech_lp['ss_shapes_cooling_dh'] = read_data.read_load_shapes_tech(paths['path_shape_ss_cooling'])
 
     # Add fuel data of other model enduses to the fuel data table (E.g. ICT or wastewater)
     tech_lp['rs_lp_storage_heating_dh'] = read_data.read_load_shapes_tech(
-        paths['lp_elec_primary_heating'])
+        paths['lp_elec_storage_heating'])
     tech_lp['rs_lp_second_heating_dh'] = read_data.read_load_shapes_tech(
         paths['lp_elec_secondary_heating'])
 
-    '''plotting_results.plot_load_profile_dh(data['tech_lp']['rs_lp_storage_heating_dh'][0] * 45.8)
-    plotting_results.plot_load_profile_dh(data['tech_lp']['rs_lp_storage_heating_dh'][1] * 45.8)
-    plotting_results.plot_load_profile_dh(data['tech_lp']['rs_lp_storage_heating_dh'][2] * 45.8)
-    plotting_results.plot_load_profile_dh(data['tech_lp']['rs_lp_second_heating_dh'][0] * 45.8)
-    plotting_results.plot_load_profile_dh(data['tech_lp']['rs_lp_second_heating_dh'][1] * 45.8)
-    plotting_results.plot_load_profile_dh(data['tech_lp']['rs_lp_second_heating_dh'][2] * 45.8)
-    '''
+    # --------------------------------------------
+    # Print individualtechnology load profiles of technologies
+    # --------------------------------------------
+    if plot_tech_lp:
+
+        # Maybe move to result folder in a later step
+        path_folder_lp = os.path.join(local_paths['local_path_datafolder'], 'individual_lp')
+        basic_functions.create_folder(path_folder_lp)
+
+        # Boiler
+        plotting_results.plot_lp_dh(
+            tech_lp['rs_lp_heating_boilers_dh']['workday'] * 100,
+            path_folder_lp,
+            "{}".format("heating_boilers_workday"))
+        plotting_results.plot_lp_dh(
+            tech_lp['rs_lp_heating_boilers_dh']['holiday'] * 100,
+            path_folder_lp,
+            "{}".format("heating_boilers_holiday"))
+        plotting_results.plot_lp_dh(
+            tech_lp['rs_lp_heating_boilers_dh']['peakday'] * 100,
+            path_folder_lp,
+            "{}".format("heating_boilers_peakday"))
+
+        # CHP
+        plotting_results.plot_lp_dh(
+            tech_lp['rs_lp_heating_hp_dh']['workday'] * 100,
+            path_folder_lp,
+            "{}".format("heatpump_workday"))
+        plotting_results.plot_lp_dh(
+            tech_lp['rs_lp_heating_hp_dh']['holiday'] * 100,
+            path_folder_lp,
+            "{}".format("heatpump_holiday"))
+        plotting_results.plot_lp_dh(
+            tech_lp['rs_lp_heating_hp_dh']['peakday'] * 100,
+            path_folder_lp,
+            "{}".format("heatpump_peakday"))
+
+        # HP
+        plotting_results.plot_lp_dh(
+            tech_lp['rs_lp_heating_CHP_dh']['workday'] * 100,
+            path_folder_lp,
+            "{}".format("heating_CHP_workday"))
+        plotting_results.plot_lp_dh(
+            tech_lp['rs_lp_heating_CHP_dh']['holiday'] * 100,
+            path_folder_lp,
+            "{}".format("heating_CHP_holiday"))
+        plotting_results.plot_lp_dh(
+            tech_lp['rs_lp_heating_CHP_dh']['peakday'] * 100,
+            path_folder_lp,
+            "{}".format("heating_CHP_peakday"))
+
+        # Stroage heating
+        plotting_results.plot_lp_dh(
+            tech_lp['rs_lp_storage_heating_dh']['workday'] * 100,
+            path_folder_lp,
+            "{}".format("storage_heating_workday"))
+        plotting_results.plot_lp_dh(
+            tech_lp['rs_lp_storage_heating_dh']['holiday'] * 100,
+            path_folder_lp,
+            "{}".format("storage_heating_holiday"))
+        plotting_results.plot_lp_dh(
+            tech_lp['rs_lp_storage_heating_dh']['peakday'] * 100,
+            path_folder_lp,
+            "{}".format("storage_heating_peakday"))
+
+        # Direct electric heating
+        plotting_results.plot_lp_dh(
+            tech_lp['rs_lp_second_heating_dh']['workday'] * 100,
+            path_folder_lp,
+            "{}".format("secondary_heating_workday"))
+        plotting_results.plot_lp_dh(
+            tech_lp['rs_lp_second_heating_dh']['holiday'] * 100,
+            path_folder_lp,
+            "{}".format("secondary_heating_holiday"))
+        plotting_results.plot_lp_dh(
+            tech_lp['rs_lp_second_heating_dh']['peakday'] * 100,
+            path_folder_lp,
+            "{}".format("secondary_heating_peakday"))
+
     return tech_lp
 
-def load_data_profiles(paths, local_paths, model_yeardays, model_yeardays_daytype):
+def load_data_profiles(paths, local_paths, model_yeardays, model_yeardays_daytype, plot_tech_lp):
     """Collect load profiles from txt files
 
     Arguments
     ----------
-    data : dict
-        Data container
+    paths : dict
+        Paths
+    local_paths : dict
+        Loal Paths
+    model_yeardays : int
+        Number of modelled yeardays
+    model_yeardays_daytype : int
+        Daytype of every modelled day
+    plot_tech_lp : bool
+        Criteria wheter to plot out individual load profiles of techs
     """
     logging.debug("... read in load shapes from txt files")
 
     tech_lp = {}
 
-    # Load technology specific load profiles
-    tech_lp = load_data_tech_profiles(
+    # ------------------------------------
+    # Technology specific load profiles
+    # ------------------------------------
+    tech_lp = load_tech_profiles(
         tech_lp,
-        paths)
+        paths,
+        local_paths,
+        plot_tech_lp)
 
     # Load enduse load profiles
     tech_lp['rs_shapes_dh'], tech_lp['rs_shapes_yd'] = rs_collect_shapes_from_txts(
@@ -430,6 +566,10 @@ def load_data_profiles(paths, local_paths, model_yeardays, model_yeardays_daytyp
     # Micro CHP
     tech_lp['rs_profile_chp_y_dh'] = get_shape_every_day(
         'rs_lp_heating_CHP_dh', tech_lp, model_yeardays_daytype)
+
+    # Service Cooling tech
+    tech_lp['ss_profile_cooling_y_dh'] = get_shape_every_day(
+        'ss_shapes_cooling_dh', tech_lp, model_yeardays_daytype)
 
     return tech_lp
 
@@ -485,6 +625,7 @@ def load_temp_data(paths):
     """
     weather_stations = read_weather_data.read_weather_station_script_data(
         paths['changed_weather_station_data'])
+
     temp_data = read_weather_data.read_weather_data_script_data(
         paths['dir_raw_weather_data'])
 
@@ -492,6 +633,11 @@ def load_temp_data(paths):
 
 def load_fuels(paths, lookups):
     """Load in ECUK fuel data, enduses and sectors
+
+    Sources:
+        Residential:    Table 3.02, Table 3.08
+        Service:        Table 5.5a
+        Industry:       Table 4.04
 
     Arguments
     ---------
@@ -513,28 +659,31 @@ def load_fuels(paths, lookups):
     sectors = {}
     fuels = {}
 
-    # Residential Sector (ECUK Table XY and Table XY)
-    rs_fuel_raw_data_enduses, enduses['rs_all_enduses'] = read_data.read_base_data_resid(
+    # Residential Sector
+    rs_fuel_raw_data_enduses, enduses['rs_all_enduses'] = read_data.read_fuel_rs(
         paths['rs_fuel_raw_data_enduses'])
 
-    # Service Sector (ECUK Table XY)
-    ss_fuel_raw_data_enduses, sectors['ss_sectors'], enduses['ss_all_enduses'] = read_data.read_csv_data_service(
+    # Service Sector
+    ss_fuel_raw_data_enduses, sectors['ss_sectors'], enduses['ss_all_enduses'] = read_data.read_fuel_ss(
         paths['ss_fuel_raw_data_enduses'],
         lookups['fueltypes_nr'])
 
-    # Industry fuel (ECUK Table 4.04)
-    is_fuel_raw_data_enduses, sectors['is_sectors'], enduses['is_all_enduses'] = read_data.read_csv_base_data_industry(
-        paths['is_fuel_raw_data_enduses'], lookups['fueltypes_nr'], lookups['fueltype'])
+    # Industry fuel
+    is_fuel_raw_data_enduses, sectors['is_sectors'], enduses['is_all_enduses'] = read_data.read_fuel_is(
+        paths['is_fuel_raw_data_enduses'], lookups['fueltypes_nr'], lookups['fueltypes'])
 
-    all_enduses = []
+    # Iterate enduses per sudModel and flatten list
+    enduses['all_enduses'] = []
     for enduse in enduses.values():
-        all_enduses += enduse
-    enduses['all_enduses'] = all_enduses
+        enduses['all_enduses'] += enduse
 
     # Convert units
-    fuels['rs_fuel_raw_data_enduses'] = conversions.convert_fueltypes_ktoe_GWh(rs_fuel_raw_data_enduses)
-    fuels['ss_fuel_raw_data_enduses'] = conversions.convert_fueltypes_sectors_ktoe_gwh(ss_fuel_raw_data_enduses)
-    fuels['is_fuel_raw_data_enduses'] = conversions.convert_fueltypes_sectors_ktoe_gwh(is_fuel_raw_data_enduses)
+    fuels['rs_fuel_raw_data_enduses'] = conversions.convert_fueltypes_ktoe_GWh(
+        rs_fuel_raw_data_enduses)
+    fuels['ss_fuel_raw_data_enduses'] = conversions.convert_fueltypes_sectors_ktoe_gwh(
+        ss_fuel_raw_data_enduses)
+    fuels['is_fuel_raw_data_enduses'] = conversions.convert_fueltypes_sectors_ktoe_gwh(
+        is_fuel_raw_data_enduses)
 
     sectors['all_sectors'] = [
         'community_arts_leisure',
@@ -552,7 +701,7 @@ def load_fuels(paths, lookups):
 
 def rs_collect_shapes_from_txts(txt_path, model_yeardays):
     """All pre-processed load shapes are read in from .txt files
-    without accesing raw files
+    without accessing raw files
 
     This loads HES files for residential sector
 
@@ -583,13 +732,13 @@ def rs_collect_shapes_from_txts(txt_path, model_yeardays):
 
     # Read load shapes from txt files for enduses
     for enduse in enduses:
-        shape_peak_dh = read_data.read_txt_shape_peak_dh(
+        shape_peak_dh = read_data.read_np_array_from_txt(
             os.path.join(txt_path, str(enduse) + str("__") + str('shape_peak_dh') + str('.txt')))
-        shape_non_peak_y_dh = read_data.read_txt_shape_non_peak_yh(
+        shape_non_peak_y_dh = read_data.read_np_array_from_txt(
             os.path.join(txt_path, str(enduse) + str("__") + str('shape_non_peak_y_dh') + str('.txt')))
-        shape_peak_yd_factor = read_data.read_txt_shape_peak_yd_factor(
-            os.path.join(txt_path, str(enduse) + str("__") + str('shape_peak_yd_factor') + str('.txt')))
-        shape_non_peak_yd = read_data.read_txt_shape_non_peak_yd(
+        shape_peak_yd_factor = float(read_data.read_np_array_from_txt(
+            os.path.join(txt_path, str(enduse) + str("__") + str('shape_peak_yd_factor') + str('.txt'))))
+        shape_non_peak_yd = read_data.read_np_array_from_txt(
             os.path.join(txt_path, str(enduse) + str("__") + str('shape_non_peak_yd') + str('.txt')))
 
         # Select only modelled days (nr_of_days, 24)
@@ -632,29 +781,27 @@ def ss_collect_shapes_from_txts(txt_path, model_yeardays):
         enduses.add(enduse)
         sectors.add(sector)
 
-    ss_shapes_dh = {}
-    ss_shapes_yd = {}
+    ss_shapes_dh = defaultdict(dict)
+    ss_shapes_yd = defaultdict(dict)
 
     # Read load shapes from txt files for enduses
-    for sector in sectors:
-        ss_shapes_dh[sector] = {}
-        ss_shapes_yd[sector] = {}
-
-        for enduse in enduses:
+    for enduse in enduses:
+        for sector in sectors:
             joint_string_name = str(sector) + "__" + str(enduse)
-            shape_peak_dh = read_data.read_txt_shape_peak_dh(
+
+            shape_peak_dh = read_data.read_np_array_from_txt(
                 os.path.join(
                     txt_path,
                     str(joint_string_name) + str("__") + str('shape_peak_dh') + str('.txt')))
-            shape_non_peak_y_dh = read_data.read_txt_shape_non_peak_yh(
+            shape_non_peak_y_dh = read_data.read_np_array_from_txt(
                 os.path.join(
                     txt_path,
                     str(joint_string_name) + str("__") + str('shape_non_peak_y_dh') + str('.txt')))
-            shape_peak_yd_factor = read_data.read_txt_shape_peak_yd_factor(
+            shape_peak_yd_factor = float(read_data.read_np_array_from_txt(
                 os.path.join(
                     txt_path,
-                    str(joint_string_name) + str("__") + str('shape_peak_yd_factor') + str('.txt')))
-            shape_non_peak_yd = read_data.read_txt_shape_non_peak_yd(
+                    str(joint_string_name) + str("__") + str('shape_peak_yd_factor') + str('.txt'))))
+            shape_non_peak_yd = read_data.read_np_array_from_txt(
                 os.path.join(
                     txt_path,
                     str(joint_string_name) + str("__") + str('shape_non_peak_yd') + str('.txt')))
@@ -665,15 +812,15 @@ def ss_collect_shapes_from_txts(txt_path, model_yeardays):
             shape_non_peak_y_dh_selection = shape_non_peak_y_dh[[model_yeardays]]
             shape_non_peak_yd_selection = shape_non_peak_yd[[model_yeardays]]
 
-            ss_shapes_dh[sector][enduse] = {
+            ss_shapes_dh[enduse][sector] = {
                 'shape_peak_dh': shape_peak_dh,
                 'shape_non_peak_y_dh': shape_non_peak_y_dh_selection}
 
-            ss_shapes_yd[sector][enduse] = {
+            ss_shapes_yd[enduse][sector] = {
                 'shape_peak_yd_factor': shape_peak_yd_factor,
                 'shape_non_peak_yd': shape_non_peak_yd_selection}
 
-    return ss_shapes_dh, ss_shapes_yd
+    return dict(ss_shapes_dh), dict(ss_shapes_yd)
 
 def create_enduse_dict(data, rs_fuel_raw_data_enduses):
     """Create dictionary with all residential enduses and store in data dict
@@ -703,7 +850,7 @@ def create_enduse_dict(data, rs_fuel_raw_data_enduses):
     return enduses
 
 def ss_read_shapes_enduse_techs(ss_shapes_dh, ss_shapes_yd):
-    """Iterate carbon trust dataset and read out shapes for enduses
+    """Iterate carbon trust dataset and read out shapes for enduses.
 
     Arguments
     ----------
@@ -726,12 +873,11 @@ def ss_read_shapes_enduse_techs(ss_shapes_dh, ss_shapes_yd):
     ss_all_tech_shapes_dh = {}
     ss_all_tech_shapes_yd = {}
 
-    for sector in ss_shapes_yd:
-        for enduse in ss_shapes_yd[sector]:
-            ss_all_tech_shapes_dh[enduse] = ss_shapes_dh[sector][enduse]
-            ss_all_tech_shapes_yd[enduse] = ss_shapes_yd[sector][enduse]
-
-        break #only iterate first sector as all enduses are the same in all sectors
+    for enduse in ss_shapes_yd:
+        for sector in ss_shapes_yd[enduse]:
+            ss_all_tech_shapes_dh[enduse] = ss_shapes_dh[enduse][sector]
+            ss_all_tech_shapes_yd[enduse] = ss_shapes_yd[enduse][sector]
+            break #only iterate first sector as all enduses are the same in all sectors
 
     return ss_all_tech_shapes_dh, ss_all_tech_shapes_yd
 
@@ -763,7 +909,7 @@ def load_LAC_geocodes_info(path_to_csv):
 
     return data
 
-def read_employment_statistics(path_to_csv):
+def read_employment_stats(path_to_csv):
     """Read in employment statistics per LAD.
 
     This dataset provides 2011 estimates that classify usual
@@ -806,11 +952,11 @@ def read_employment_statistics(path_to_csv):
     Industry: T Activities of households as employers; undifferentiated goods - and services - producing activities of households for own use
     Industry: U Activities of extraterritorial organisations and bodies
     """
+    data = defaultdict(dict)
+
     with open(path_to_csv, 'r') as csvfile:
         lines = csv.reader(csvfile, delimiter=',')
         _headings = next(lines) # Skip first row
-
-        data = defaultdict(dict)
 
         for line in lines:
             geocode = str.strip(line[2])
