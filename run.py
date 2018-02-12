@@ -15,7 +15,6 @@ from energy_demand.plotting import plotting_results
 from energy_demand.basic import basic_functions
 from energy_demand.scripts.init_scripts import scenario_initalisation
 from energy_demand.technologies import tech_related
-from energy_demand.cli import run_model
 from energy_demand.dwelling_stock import dw_stock
 from energy_demand.read_write import read_data
 from energy_demand.read_write import write_data
