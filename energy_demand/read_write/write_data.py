@@ -16,8 +16,8 @@ def write_array_to_txt(path_result, array):
     """
     np.savetxt(path_result, array, delimiter=',')
 
-def write_pop(sim_yr, path_result, pop_y):
-    """Write scenario population for a year to txt file
+def write_scenaric_population_data(sim_yr, path_result, pop_y):
+    """Write scenario population for a year to '.npy' file
 
     Parameters
     ----------
@@ -29,9 +29,9 @@ def write_pop(sim_yr, path_result, pop_y):
         Population of simulation year
     """
     path_file = os.path.join(
-        path_result, "pop__{}__{}".format(sim_yr, ".txt"))
+        path_result, "pop__{}__{}".format(sim_yr, ".npy"))
 
-    np.savetxt(path_file, pop_y, delimiter=',')
+    np.save(path_file, pop_y)
 
 def create_shp_results(data, results_container, paths, lookups, lu_reg):
     """Create csv file and merge with shape
@@ -236,12 +236,21 @@ def write_simulation_inifile(path, sim_param, enduses, assumptions, reg_nrs, reg
     pass
 
 def write_lf(path_result_folder, path_new_folder, parameters, model_results, file_name):
-    """Write numpy array to txt file
+    """Write numpy array to `.npy` file
 
+    path_result_folder,
+    path_new_folder,
+    parameters,
+    model_results,
+    file_name
     """
     # Create folder and subolder
-    basic_functions.create_folder(path_result_folder)
-    path_result_sub_folder = os.path.join(path_result_folder, path_new_folder)
+    basic_functions.create_folder(
+        path_result_folder)
+
+    path_result_sub_folder = os.path.join(
+        path_result_folder, path_new_folder)
+
     basic_functions.create_folder(path_result_sub_folder)
 
     # Create full file_name
@@ -251,12 +260,9 @@ def write_lf(path_result_folder, path_new_folder, parameters, model_results, fil
     # Generate full path
     path_file = os.path.join(path_result_sub_folder, file_name)
 
-    # Write array to txt (only 2 dimensinal array possible)
-    for fueltype_nr, fuel_fueltype in enumerate(model_results):
-        path_file_fueltype = path_file + "__" + str(fueltype_nr) + "__" + ".txt"
-        np.savetxt(path_file_fueltype, fuel_fueltype, delimiter=',')
+    path_file_fueltype = path_file + "__" + ".npy"
 
-    pass
+    np.save(path_file_fueltype, model_results)
 
 def write_supply_results(
         sim_yr,
@@ -265,10 +271,10 @@ def write_supply_results(
         model_results,
         file_name
     ):
-    """Write model results to text as follows:
+    """Write model results to numpy file as follows:
 
-        name of file: name_year_fueltype
-        array in file:  np.array(region, timesteps)
+        name of file: name_year
+        array in file:  np.array(region, fueltype, timesteps)
 
     Arguments
     ---------
@@ -284,45 +290,70 @@ def write_supply_results(
         File name
     """
     # Create folder and subolder
-    path_result_sub_folder = os.path.join(path_result, name_new_folder)
-    basic_functions.create_folder(path_result_sub_folder)
+    path_result_sub_folder = os.path.join(
+        path_result, name_new_folder)
 
-    # Write to txt
-    for fueltype_nr, fuel in enumerate(model_results):
-        path_file = os.path.join(
-            path_result_sub_folder,
-            "{}__{}__{}__{}".format(
-                file_name,
-                sim_yr,
-                fueltype_nr,
-                ".txt"))
+    basic_functions.create_folder(
+        path_result_sub_folder)
 
-        np.savetxt(path_file, fuel, delimiter=',')
+    path_file = os.path.join(
+        path_result_sub_folder,
+        "{}__{}__{}".format(
+            file_name,
+            sim_yr,
+            ".npy"))
+
+    np.save(path_file, model_results)
 
 def write_enduse_specific(sim_yr, path_result, model_results, filename):
-    """Write out enduse specific results for every hour
+    """Write out enduse specific results for every hour and store to
+    `.npy` file
 
-    Store numpy array to txt
+    Arguments
+    -----------
+    sim_yr : int
+        Simulation year
+    path_result : str
+        Path
+    model_results : dict
+        Modelling results
+    filename : str
+        File name
     """
     # Create folder for model simulation year
     basic_functions.create_folder(path_result)
-    basic_functions.create_folder(path_result, "enduse_specific_results")
 
-     # Write to txt
+    basic_functions.create_folder(
+        path_result, "enduse_specific_results")
+
     for enduse, fuel in model_results.items():
-        for fueltype_nr, fuel_fueltype in enumerate(fuel):
-            path_file = os.path.join(
-                os.path.join(path_result, "enduse_specific_results"),
-                "{}__{}__{}__{}__{}".format(filename, enduse, sim_yr, fueltype_nr, ".txt"))
-            logging.debug("... Write to file: {}  {}  {} ".format(sim_yr, enduse, np.sum(fueltype_nr)))
-            np.savetxt(path_file, fuel_fueltype, delimiter=',')
 
-    return
+        path_file = os.path.join(
+            os.path.join(path_result, "enduse_specific_results"),
+            "{}__{}__{}__{}".format(
+                filename,
+                enduse,
+                sim_yr,
+                ".npy"))
+
+        np.save(path_file, fuel)
 
 def write_max_results(sim_yr, path_result, result_foldername, model_results, filename):
-    """Store yearly model resuls to txt
+    """Store yearly model resuls to numpy array '.npy'
 
-    Store numpy array to txt
+    Arguments
+    ---------
+    sim_yr : int
+        Simulation year
+    path_result : str
+        Result path
+    result_foldername : str
+        Folder name
+    model_results : np.array
+        Model results
+    filename : str
+        File name
+
     """
     # Create folder and subolder
     basic_functions.create_folder(path_result)
@@ -331,8 +362,9 @@ def write_max_results(sim_yr, path_result, result_foldername, model_results, fil
     # Write to txt
     path_file = os.path.join(
         os.path.join(path_result, result_foldername),
-        "{}__{}__{}".format(filename, sim_yr, ".txt"))
-    np.savetxt(path_file, model_results, delimiter=',')
+        "{}__{}__{}".format(filename, sim_yr, ".npy"))
+
+    np.save(path_file, model_results)
 
     return
 

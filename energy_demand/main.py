@@ -31,15 +31,12 @@ TODO: Write function to test wheter swichtes are possible (e.g. that not more fr
 TODO: Improve industry related demand --> define strategies
 TODO: Related ed to houses & householdsize
 TODO: Define efficencies of all techs
-TODO: ET_module
 TODO: SENSITIVITY
 TODO: Accounting module for energy and emissions
 TODO: data loading, load multiple years for real elec data
 TODO: Load different temp --> for different years
 TODO: THECK VARIALBES IN HOUSEHOLD MODEL
 TODO: FUEL; SERVICE SWITHC AS INPUT
-TODO: WRITE MULTIPLE DIMENS ION ARRAY
-TODO: VORHER NACHHER ON LAD LEVEL
 #WRAPPER BASE AND CURRENT YEAR GVA
 """
 import os
@@ -169,8 +166,8 @@ if __name__ == "__main__":
     data['criterias']['plot_HDD_chart'] = False                 # Wheather HDD chart is plotted or not
     data['criterias']['virtual_building_stock_criteria'] = True # Wheater model uses a virtual dwelling stock or not
     data['criterias']['spatial_exliclit_diffusion'] = True      # Wheater spatially epxlicit diffusion or not
-    data['criterias']['write_to_txt'] = False                   # Wheater results are written to txt files
-    data['criterias']['beyond_supply_outputs'] = False           # Wheater all results besides integraded smif run are calculated
+    data['criterias']['write_to_txt'] = True                   # Wheater results are written to txt files
+    data['criterias']['beyond_supply_outputs'] = True           # Wheater all results besides integraded smif run are calculated
     data['criterias']['plot_tech_lp'] = True                    # Wheater all individual load profils are plotted
 
     data['paths'] = data_loader.load_paths(path_main)
@@ -184,7 +181,7 @@ if __name__ == "__main__":
 
     # local scrap
     data['lu_reg'] = data_loader.load_LAC_geocodes_info(
-        os.path.join(local_data_path, '_raw_data', 'B-census_data', 'regions_local_area_districts', '_quick_and_dirty_spatial_disaggregation', 'infuse_dist_lyr_2011_saved.csv'))
+        os.path.join(local_data_path, '_raw_data', '_quick_and_dirty_spatial_disaggregation', 'infuse_dist_lyr_2011_saved.csv'))
 
     # GVA
     gva_data = {}
@@ -412,7 +409,7 @@ if __name__ == "__main__":
                 for reg_array_nr, reg in enumerate(data['lu_reg']):
                     pop_array_reg[reg_array_nr] = data['scenario_data']['population'][sim_yr][reg]
 
-                write_data.write_pop(
+                write_data.write_scenaric_population_data(
                     sim_yr,
                     data['local_paths']['model_run_pop'],
                     pop_array_reg)

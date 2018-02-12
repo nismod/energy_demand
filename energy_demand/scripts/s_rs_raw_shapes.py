@@ -222,7 +222,7 @@ def run(paths, local_paths, base_yr):
     # HES data -- Generate generic load profiles
     # for all electricity appliances from HES data
     hes_data, hes_y_peak = read_hes_data(
-        local_paths['path_bd_e_load_profiles'],
+        local_paths['lp_rs'],
         len(hes_appliances_matching))
 
     # Assign read in raw data to the base year

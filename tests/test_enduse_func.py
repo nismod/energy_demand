@@ -7,19 +7,41 @@ from energy_demand.read_write import read_data
 from energy_demand.technologies import technological_stock
 from energy_demand.profiles import load_profile
 
-'''def test_assign_lp_no_techs():
-    enduse,
-    sector,
-    load_profiles,
-    fuel_new_y
+def test_assign_lp_no_techs():
 
-    result = enduse_func.assign_lp_no_techs(
-        enduse,
-        sector,
-        load_profiles,
-        fuel_new_y
-    )'''
+    lp_stock_obj = load_profile.LoadProfileStock("test_stock")
 
+    # Shape
+    _a = np.zeros((365, 24))
+    _b = np.array(range(365))
+    shape_yh = _a + _b[:, np.newaxis]
+    shape_yh = shape_yh / float(np.sum(range(365)) * 24)
+
+    lp_stock_obj.add_lp(
+        unique_identifier="A123",
+        technologies=['dummy_tech'],
+        enduses=['test_enduse'],
+        shape_yd=np.full((365,24), 1 / 365),
+        shape_yh=shape_yh,
+        sectors=['test_sector'],
+        enduse_peak_yd_factor=1.0/365,
+        shape_peak_dh=np.full((24), 1.0/24))
+
+    fuel_new_y = np.zeros((3, ))
+    fuel_new_y[2] = 100
+    fuel_yh, fuel_peak_dh, fuel_peak_h = enduse_func.assign_lp_no_techs(
+        enduse="test_enduse",
+        sector="test_sector",
+        load_profiles=lp_stock_obj,
+        fuel_new_y=fuel_new_y)
+
+    assert np.sum(fuel_yh) == 100
+
+    assert np.sum(fuel_peak_dh) == 100 * (1.0/365)
+
+    assert fuel_peak_h[2] == fuel_peak_dh[2][0]
+
+test_assign_lp_no_techs()
 def test_get_crit_switch():
     """
     """

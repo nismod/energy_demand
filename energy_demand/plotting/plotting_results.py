@@ -49,8 +49,6 @@ def run_all_plot_functions(
     ):
     """Summary function to plot all results
     """
-    logging.info("... plotting results")
-    print("... plotting results")
 
     # ----------
     # Plot LAD differences for first and last year
@@ -67,11 +65,13 @@ def run_all_plot_functions(
                 local_paths['data_results_PDF'],"comparions_LAD_modelled_by_cy.pdf"),
             label_points=False,
             plotshow=True)
+        print("... plotted by-cy LAD energy demand compariosn")
     except:
         pass
     # ------------
     # Plot stacked annual enduses
     # ------------
+    print("... start plotting stacked enduse")
     # Residential
     plt_stacked_enduse(
         sim_param['simulated_yrs'],
