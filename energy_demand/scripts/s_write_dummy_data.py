@@ -113,20 +113,19 @@ def dummy_sectoral_load_profiles(local_paths, path_main):
                 shape_peak_yd_factor,
                 shape_non_peak_yd)
 
-def post_install_setup_minimum(args): #path_energy_demand, local_data_path):
+def post_install_setup_minimum(args):
     """If not all data are available, this scripts allows to
     create dummy datas (temperature and service sector load profiles)
 
     Arguments
     ---------
-    local_data_path : str
+    path_local_data : str
         Path to `energy_demand_data` folder
     path_energy_demand : str
         Path to energy demand python files
     """
-    #local_data_path = args.data_energy_demand
     path_energy_demand = args.path_energy_demand
-    local_data_path = args.local_data_path
+    path_local_data = args.path_local_data
     
     # ==========================================
     # Post installation setup witout access to non publicy available data
@@ -135,11 +134,11 @@ def post_install_setup_minimum(args): #path_energy_demand, local_data_path):
         "... start running initialisation scripts without access to publicly available data")
 
     # Load paths
-    local_paths = data_loader.load_local_paths(local_data_path)
+    local_paths = data_loader.load_local_paths(path_local_data)
 
     # Create folders to input data
-    raw_folder = os.path.join(local_data_path, '_raw_data')
-    processed_folder = os.path.join(local_data_path, '_processed_data')
+    raw_folder = os.path.join(path_local_data, '_raw_data')
+    processed_folder = os.path.join(path_local_data, '_processed_data')
     basic_functions.create_folder(raw_folder)
     basic_functions.create_folder(processed_folder)
 
