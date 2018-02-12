@@ -31,7 +31,7 @@ from energy_demand.profiles import hdd_cdd
 
 # must match smif project name for Local Authority Districts
 REGION_SET_NAME = 'lad_uk_2016'
-NR_OF_MODELLEd_REGIONS = 391 #391 # uk: 391, england.: 380
+NR_OF_MODELLEd_REGIONS = 2 #391 # uk: 391, england.: 380
 
 class EDWrapper(SectorModel):
     """Energy Demand Wrapper
@@ -73,7 +73,7 @@ class EDWrapper(SectorModel):
         data['sim_param']['curr_yr'] = data['sim_param']['base_yr']
         self.user_data['base_yr'] = data['sim_param']['base_yr']
 
-        fast_smif_run = True
+        fast_smif_run = False
 
         if fast_smif_run == True:
             data['criterias']['write_to_txt'] = False
@@ -81,12 +81,14 @@ class EDWrapper(SectorModel):
             data['criterias']['validation_criteria'] = False
             data['criterias']['plot_tech_lp'] = False
             data['criterias']['plot_crit'] = False
+            data['criterias']['crit_plot_enduse_lp'] = False
         elif fast_smif_run == False:
             data['criterias']['write_to_txt'] = True
             data['criterias']['beyond_supply_outputs'] = True
-            data['criterias']['validation_criteria'] = True
-            data['criterias']['plot_tech_lp'] = True
-            data['criterias']['plot_crit'] = True
+            data['criterias']['validation_criteria'] = False
+            data['criterias']['plot_tech_lp'] = False
+            data['criterias']['plot_crit'] = False
+            data['criterias']['crit_plot_enduse_lp'] = False
 
         # -----------------------------
         # Paths
@@ -250,7 +252,7 @@ class EDWrapper(SectorModel):
         # Write population scenario data to txt files for this scenario run
         # ------
         for t_idx, timestep in enumerate(self.timesteps):
-            write_data.write_pop(
+            write_data.write_scenaric_population_data(
                 timestep,
                 data['local_paths']['data_results_model_run_pop'],
                 pop_array[t_idx])
@@ -408,7 +410,7 @@ class EDWrapper(SectorModel):
         if data['criterias']['write_to_txt']:
             #tot_fuel_y_max_enduses = sim_obj.tot_fuel_y_max_enduses
             logging.info("... Start writing results to file")
-           
+
             # ----
             # Plot individual enduse
             if data['criterias']['crit_plot_enduse_lp'] and data_handle.current_timestep == 2015:
@@ -441,7 +443,6 @@ class EDWrapper(SectorModel):
                 data['local_paths']['data_results_model_runs'],
                 sim_obj.ed_fueltype_regs_yh,
                 "result_tot_submodels_fueltypes")
-
             write_data.write_enduse_specific(
                 data_handle.current_timestep,
                 data['local_paths']['data_results_model_runs'],

@@ -16,8 +16,10 @@ def main(path_data_energy_demand):
         Path to results
     """
 
-    # Write shapefiles
-    write_shapefiles = False
+    # ---------
+    # Criterias
+    # ---------
+    write_shapefiles = False        # Write shapefiles
 
     # Set up logger
     logger_setup.set_up_logger(
@@ -27,7 +29,8 @@ def main(path_data_energy_demand):
     # Load necessary inputs for read in
     # ------------------
     data = {}
-    data['local_paths'] = data_loader.load_local_paths(path_data_energy_demand)
+    data['local_paths'] = data_loader.load_local_paths(
+        path_data_energy_demand)
     data['lookups'] = data_loader.load_basic_lookups()
 
     # ---------------
@@ -48,13 +51,14 @@ def main(path_data_energy_demand):
 
     # Read scenario data
     data['scenario_data'] = {}
-    data['scenario_data']['population'] = read_data.read_scenaric_population_data(data['local_paths']['model_run_pop'])
+    data['scenario_data']['population'] = read_data.read_scenaric_population_data(
+        data['local_paths']['model_run_pop'])
 
     # --------------------------------------------
     # Reading in results from different model runs
+    # Read in and plot in same step if memory is a problem
     # --------------------------------------------
     print("... start reading in model txt results")
-    #Read in and plot in same step if memory is a problem
     results_container = read_data.read_in_results(
         data['local_paths']['data_results_model_runs'],
         data['lookups'],
@@ -77,6 +81,7 @@ def main(path_data_energy_demand):
     # ------------------------------
     # Plotting results
     # ------------------------------
+    print("... start plotting results")
     plotting_results.run_all_plot_functions(
         results_container,
         data['reg_nrs'],
@@ -90,7 +95,7 @@ def main(path_data_energy_demand):
     logging.info("... finished reading and plotting results")
     print("... finished reading and plotting results")
 
-print("............sratrp rocessing")
+
 #main(os.path.abspath("C://Users//cenv0553//nismod//data_energy_demand"))
 main("C:/Users/cenv0553/nismod/data_energy_demand")
 #main(os.path.abspath("C://DATA_NISMODII//data_energy_demand"))

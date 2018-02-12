@@ -39,7 +39,7 @@ TODO: Load different temp --> for different years
 TODO: THECK VARIALBES IN HOUSEHOLD MODEL
 TODO: FUEL; SERVICE SWITHC AS INPUT
 TODO: WRITE MULTIPLE DIMENS ION ARRAY
-TODO: VORHER NACHHER ON LAD LEVEL
+TODO: ADD SMALL DATASETS TO GIT
 #WRAPPER BASE AND CURRENT YEAR GVA
 """
 import os
@@ -169,8 +169,8 @@ if __name__ == "__main__":
     data['criterias']['plot_HDD_chart'] = False                 # Wheather HDD chart is plotted or not
     data['criterias']['virtual_building_stock_criteria'] = True # Wheater model uses a virtual dwelling stock or not
     data['criterias']['spatial_exliclit_diffusion'] = True      # Wheater spatially epxlicit diffusion or not
-    data['criterias']['write_to_txt'] = False                   # Wheater results are written to txt files
-    data['criterias']['beyond_supply_outputs'] = False           # Wheater all results besides integraded smif run are calculated
+    data['criterias']['write_to_txt'] = True                   # Wheater results are written to txt files
+    data['criterias']['beyond_supply_outputs'] = True           # Wheater all results besides integraded smif run are calculated
     data['criterias']['plot_tech_lp'] = True                    # Wheater all individual load profils are plotted
 
     data['paths'] = data_loader.load_paths(path_main)
@@ -357,6 +357,8 @@ if __name__ == "__main__":
                     path_runs,
                     modelrun_obj.ed_fueltype_regs_yh,
                     "result_tot_submodels_fueltypes")
+                
+                print("ddd")
                 write_data.write_enduse_specific(
                     sim_yr,
                     path_runs,
@@ -412,7 +414,7 @@ if __name__ == "__main__":
                 for reg_array_nr, reg in enumerate(data['lu_reg']):
                     pop_array_reg[reg_array_nr] = data['scenario_data']['population'][sim_yr][reg]
 
-                write_data.write_pop(
+                write_data.write_scenaric_population_data(
                     sim_yr,
                     data['local_paths']['model_run_pop'],
                     pop_array_reg)

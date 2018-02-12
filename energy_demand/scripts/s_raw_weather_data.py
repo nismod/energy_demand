@@ -237,7 +237,7 @@ def read_weather_stations_raw(path_to_csv, stations_with_data):
     return weather_stations
 
 def write_weather_data(path_to_txt, weather_data):
-    """Write wheather data to csv file
+    """Write wheather data to '.txt' file
 
     Arguments
     ----------
@@ -249,8 +249,14 @@ def write_weather_data(path_to_txt, weather_data):
     logging.info("... start write_weather_data")
 
     for station_id in weather_data:
-        file_name = os.path.join(path_to_txt, "tempdata__{}__{}".format(str(station_id), ".txt"))
-        np.savetxt(file_name, weather_data[station_id], delimiter=',')
+        file_name = os.path.join(
+            path_to_txt,
+            "tempdata__{}__{}".format(str(station_id), ".txt"))
+
+        np.savetxt(
+            file_name,
+            weather_data[station_id],
+            delimiter=',')
 
     logging.info("... finished write_weather_data")
     return
