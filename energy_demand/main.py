@@ -182,7 +182,7 @@ if __name__ == "__main__":
 
     # local scrap
     data['lu_reg'] = data_loader.load_LAC_geocodes_info(
-        os.path.join(local_data_path, '_raw_data', 'B-census_data', 'regions_local_area_districts', '_quick_and_dirty_spatial_disaggregation', 'infuse_dist_lyr_2011_saved.csv'))
+        os.path.join(local_data_path, '_raw_data', '_quick_and_dirty_spatial_disaggregation', 'infuse_dist_lyr_2011_saved.csv'))
 
     # GVA
     gva_data = {}

@@ -247,8 +247,6 @@ def load_local_paths(path):
             path, '_raw_data', 'D-validation', '01_subnational_elec_demand', 'data_2015_elec.csv'),
         'path_val_subnational_gas': os.path.join(
             path, '_raw_data', 'D-validation', '02_subnational_gas_demand', 'data_2015_gas.csv'),
-        'path_employment_statistics': os.path.join(
-            path, '_raw_data', 'B-census_data', 'employment_statistics_2011_LAD', 'LAD_prior_2015.csv'),
         'path_floor_area_virtual_stock_by': os.path.join(
             path, '_raw_data', 'K-floor_area', 'floor_area_by.csv'),
         'path_assumptions_db': os.path.join(
@@ -371,6 +369,10 @@ def load_paths(path):
             path, 'config_data', 'submodel_residential', 'lp_elec_storage_heating_HESReport.csv'), # Best
         'lp_elec_secondary_heating': os.path.join(
             path, 'config_data', 'submodel_residential', 'lp_elec_secondary_heating_HES.csv'),
+
+        # Census data
+        'path_employment_statistics': os.path.join(
+            path, 'config_data', '04-census_data', 'LAD_census_data.csv'),
 
         'yaml_parameters': os.path.join(path, 'yaml_parameters.yml'),
         'yaml_parameters_default': os.path.join(path, 'yaml_parameters_default.yml'),

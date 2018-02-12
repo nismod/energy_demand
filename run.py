@@ -85,7 +85,7 @@ class EDWrapper(SectorModel):
         elif fast_smif_run == False:
             data['criterias']['write_to_txt'] = True
             data['criterias']['beyond_supply_outputs'] = True
-            data['criterias']['validation_criteria'] = False
+            data['criterias']['validation_criteria'] = True
             data['criterias']['plot_tech_lp'] = False
             data['criterias']['plot_crit'] = False
             data['criterias']['crit_plot_enduse_lp'] = False
