@@ -235,8 +235,6 @@ def load_local_paths(path):
     paths = {
         'local_path_datafolder':
             path,
-        'path_bd_e_load_profiles': os.path.join(
-            path, '_raw_data', 'A-HES_data', 'HES_base_appliances_eletricity_load_profiles.csv'),
         'folder_raw_carbon_trust': os.path.join(
             path, '_raw_data', "G_Carbon_Trust_advanced_metering_trial"),
         'folder_path_weater_data': os.path.join(
@@ -353,6 +351,10 @@ def load_paths(path):
             path, 'config_data', 'submodel_service', 'ss_fuel.csv'),
         'is_fuel_raw_data_enduses': os.path.join(
             path, 'config_data', 'submodel_industry', 'is_fuel.csv'),
+
+        # Load profiles
+        'lp_rs': os.path.join(
+            path, 'config_data', 'rs_submodel', 'HES_lp.csv'),
 
         # Technologies load shapes
         'lp_elec_hp_dh': os.path.join(

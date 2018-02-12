@@ -31,14 +31,12 @@ TODO: Write function to test wheter swichtes are possible (e.g. that not more fr
 TODO: Improve industry related demand --> define strategies
 TODO: Related ed to houses & householdsize
 TODO: Define efficencies of all techs
-TODO: ET_module
 TODO: SENSITIVITY
 TODO: Accounting module for energy and emissions
 TODO: data loading, load multiple years for real elec data
 TODO: Load different temp --> for different years
 TODO: THECK VARIALBES IN HOUSEHOLD MODEL
 TODO: FUEL; SERVICE SWITHC AS INPUT
-TODO: WRITE MULTIPLE DIMENS ION ARRAY
 TODO: ADD SMALL DATASETS TO GIT
 #WRAPPER BASE AND CURRENT YEAR GVA
 """
