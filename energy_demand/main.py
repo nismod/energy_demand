@@ -37,7 +37,6 @@ TODO: data loading, load multiple years for real elec data
 TODO: Load different temp --> for different years
 TODO: THECK VARIALBES IN HOUSEHOLD MODEL
 TODO: FUEL; SERVICE SWITHC AS INPUT
-TODO: ADD SMALL DATASETS TO GIT
 #WRAPPER BASE AND CURRENT YEAR GVA
 """
 import os
@@ -355,8 +354,6 @@ if __name__ == "__main__":
                     path_runs,
                     modelrun_obj.ed_fueltype_regs_yh,
                     "result_tot_submodels_fueltypes")
-                
-                print("ddd")
                 write_data.write_enduse_specific(
                     sim_yr,
                     path_runs,

@@ -349,7 +349,7 @@ class Enduse(object):
                     if mode_constrained:
                         self.techs_fuel_yh = {}
                         for tech in fuel_yh:
-                            self.techs_fuel_yh[tech], self.techs_fuel_peak_h[tech], self.techs_fuel_peak_dh[tech] = demand_management(
+                            self.techs_fuel_yh[tech], self.techs_fuel_peak_dh[tech], self.techs_fuel_peak_h[tech] = demand_management(
                                 enduse,
                                 base_yr,
                                 curr_yr,
@@ -370,7 +370,7 @@ class Enduse(object):
                     else: # (not specific for technologies)
 
                         # Demand management for heating related technologies
-                        self.fuel_yh, self.fuel_peak_h, self.fuel_peak_dh = demand_management(
+                        self.fuel_yh, self.fuel_peak_dh , self.fuel_peak_h = demand_management(
                             enduse,
                             base_yr,
                             curr_yr,
@@ -435,10 +435,10 @@ def demand_management(
     -------
     fuel_yh : array
         Fuel of yh
-    fuel_peak_h : array
-        Fuel of peak hour
     fuel_peak_dh : array
         Fuel of peak day
+    fuel_peak_h : array
+        Fuel of peak hour
     """
     # ------------------------------
     # Test if peak is shifted or not
@@ -515,7 +515,7 @@ def demand_management(
         fuel_peak_h = lp.calk_peak_h_dh_single_fueltype(
             fuel_peak_dh)
 
-    return fuel_yh, fuel_peak_h, fuel_peak_dh
+    return fuel_yh, fuel_peak_dh, fuel_peak_h
 
 def calc_lf_improvement(
         lf_improvement_ey,
@@ -563,8 +563,8 @@ def calc_lf_improvement(
     return lf_improved_cy
 
 def assign_lp_no_techs(enduse, sector, load_profiles, fuel_new_y):
-    """Assign load profiles for an enduse which has no
-    technologies defined.
+    """Assign load profiles for an enduse
+    which has no technologies defined.
 
     Arguments
     ---------
