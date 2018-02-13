@@ -545,6 +545,12 @@ class EDWrapper(SectorModel):
         time_end = datetime.datetime.now()
         print("... Total Time: " + str(time_end- time_start))
 
+        # ------------------------------------
+        # Write results to smif
+        # ------------------------------------
+        results_array = np.resize(supply_results['residential_solid_fuel_boiler_solid_fuel'], (3, 8760))
+        data_handle.set_results('residential_solid_fuel_boiler_solid_fuel', results_array)
+
         return supply_results
 
     def extract_obj(self, results):
