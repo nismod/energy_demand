@@ -202,7 +202,7 @@ class Technology(object):
     Arguments
     ----------
     tech_name : str
-        Technology Name
+        The name of a technology
     data : dict
         All internal and external provided data
     temp_by : array
@@ -218,7 +218,12 @@ class Technology(object):
 
     Notes
     -----
-    UPDATE
+    TODO: ADD DESCRIPTION ATTIRBUTE
+    Technologies only coming on the market in the future can be defined by
+    defining a future market entry year. Additionally, for all technologies,
+    the name, fuel type, technology type
+    and the maximum market penetration needs to be defined.
+
 
     """
     def __init__(

@@ -1,6 +1,9 @@
 """This file contains all calculations related
 to spatial explicit calculations of technology/innovation
-penetration
+penetration.
+
+TODO MORE INFO
+
 """
 from collections import defaultdict
 import numpy as np

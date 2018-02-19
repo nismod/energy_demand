@@ -375,7 +375,8 @@ Lorem ipsu
 
 #### 5.1.1 Technologies
 
-Lorem 
+Technology Class (see model docu)
+- 
 
 #### 5.1.2 Load profiles
 
