@@ -38,6 +38,34 @@ TODO: Load different temp --> for different years
 TODO: THECK VARIALBES IN HOUSEHOLD MODEL
 TODO: FUEL; SERVICE SWITHC AS INPUT
 #WRAPPER BASE AND CURRENT YEAR GVA
+#TODO REPLACE CAPACITY INSTALLATION/ SWITCH
+#TODO: TEST IF ONE DAY FOR EFEFECTIVE TEMPERATURE IS NOT AOBUT THE SAME
+#TODO: TEST IF ONLY HEATING CAN BE FACTORED
+combined heat and power (CHP) engines, natural gas boilers, thermal
+City – add description to technologies
+
+solid fuel boiler
+pellet boiler
+oil boiler
+gas boiler
+coal boiler
+direct electric
+wood boiler
+conservation
+heat pump
+solar thermal
+district heating
+demand response
+COOL IDEA: FLOWER DIAGRAMS FOR EVERY DAY (envelopes
+https://matplotlib.org/examples/api/radar_chart.html radar charts)
+
+1. Steps
+- define concept (e.g. rural_urban)
+- calculate congruence values
+- attribute diffusion weights to congruence values
+- Calculate spatial index
+
+
 """
 import os
 import sys
