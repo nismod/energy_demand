@@ -7,9 +7,8 @@ from energy_demand.read_write import data_loader, read_data
 import os
 
 def test_assign_by_fuel_tech_p():
-    """DUMMY OS FAR
     """
-    path_main = os.path.abspath("C://Users//cenv0553//nismod//models//energy_demand")
+    """
     path_main = os.path.join("")
 
     # Load data
@@ -26,14 +25,11 @@ def test_assign_by_fuel_tech_p():
 
     data['assumptions'] = non_param_assumptions.load_non_param_assump(
         data['sim_param']['base_yr'], data['paths'], data['enduses'], data['lookups']['fueltypes'], data['lookups']['fueltypes_nr'])
+
     param_assumptions.load_param_assump(data['paths'], data['assumptions'])
-    #data['assumptions'] = read_data.read_param_yaml(data['paths']['yaml_parameters'])
 
     result = assumptions_fuel_shares.assign_by_fuel_tech_p(
         data['assumptions'],
         data['enduses'],
         data['lookups']['fueltypes'],
         data['lookups']['fueltypes_nr'])
-
-    # Dummy test
-    assert result['test'] == 'test'

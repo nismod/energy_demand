@@ -29,7 +29,7 @@ from energy_demand.technologies import fuel_service_switch
 from energy_demand.profiles import hdd_cdd
 
 # must match smif project name for Local Authority Districts
-NR_OF_MODELLEd_REGIONS = 391 #391 # uk: 391, england.: 380
+NR_OF_MODELLEd_REGIONS = 10 #391 # uk: 391, england.: 380
 
 class EDWrapper(SectorModel):
     """Energy Demand Wrapper
@@ -81,12 +81,12 @@ class EDWrapper(SectorModel):
             data['criterias']['plot_crit'] = False
             data['criterias']['crit_plot_enduse_lp'] = False
         elif fast_smif_run == False:
-            data['criterias']['write_to_txt'] = False
-            data['criterias']['beyond_supply_outputs'] = False
+            data['criterias']['write_to_txt'] = True
+            data['criterias']['beyond_supply_outputs'] = True
             data['criterias']['validation_criteria'] = False
-            data['criterias']['plot_tech_lp'] = False
+            data['criterias']['plot_tech_lp'] = True
             data['criterias']['plot_crit'] = False
-            data['criterias']['crit_plot_enduse_lp'] = False
+            data['criterias']['crit_plot_enduse_lp'] = True
 
         # -----------------------------
         # Paths
@@ -351,12 +351,12 @@ class EDWrapper(SectorModel):
             gva_dict_current[region] = gva_array_current[r_idx, 0]
 
         pop_by_cy = {}
-        pop_by_cy[data['sim_param']['base_yr']] = self.user_data['population'][data_handle.base_timestep]  # Get population of by
-        pop_by_cy[data['sim_param']['curr_yr']] = pop_dict_current       # Get population of cy
+        pop_by_cy[data['sim_param']['base_yr']] = self.user_data['population'][data_handle.base_timestep] # Get population of by
+        pop_by_cy[data['sim_param']['curr_yr']] = pop_dict_current # Get population of cy
 
         gva_by_cy = {}
-        gva_by_cy[data['sim_param']['base_yr']] = self.user_data['gva'][data_handle.base_timestep]          # Get gva of by
-        gva_by_cy[data['sim_param']['curr_yr']] = gva_dict_current       # Get gva of cy
+        gva_by_cy[data['sim_param']['base_yr']] = self.user_data['gva'][data_handle.base_timestep] # Get gva of by
+        gva_by_cy[data['sim_param']['curr_yr']] = gva_dict_current # Get gva of cy
 
         data['scenario_data'] = {
             'gva': gva_by_cy,
@@ -501,12 +501,11 @@ class EDWrapper(SectorModel):
                 8760)
         results_constrained = results_constrained_reshaped
 
-        results_unconstrained_reshaped = results_unconstrained.reshape(
+        results_unconstrained = results_unconstrained.reshape(
             len(supply_sectors),
             data['reg_nrs'],
             data['lookups']['fueltypes_nr'],
             8760)
-        results_unconstrained = results_unconstrained_reshaped
 
         # -------------------------------------
         # Generate dict for supply model
@@ -542,24 +541,26 @@ class EDWrapper(SectorModel):
         for key in supply_results:
             _total_scrap += np.sum(supply_results[key])
         print("FINALSUM: " + str(_total_scrap))
-        logging.info("... finished wrapper calculations")
-
+        
         time_end = datetime.datetime.now()
         print("... Total Time: " + str(time_end - time_start))
 
         # ------------------------------------
         # Write results to smif
         # ------------------------------------
-        #print(supply_results.keys())
-        #print(supply_results)
-        #results_array = np.resize(
-        #    supply_results['residential_solid_fuel_boiler_solid_fuel'], (data['reg_nrs'], 8760))
-        #print("B")
         for key_name, result_to_txt in supply_results.items():
-            print("KEYNAME ".format(key_name))
-            data_handle.set_results(key_name, result_to_txt)
-        #print("C")
-        print("finished supply results")
+
+            #SCRAO
+            if NR_OF_MODELLEd_REGIONS != 391:
+                # do not write out resutls
+                logging.warning("NO SMIF RESULT FILE ARE WRITTEN OUT")
+            else:
+                # Write out correct results
+                data_handle.set_results(
+                    key_name,
+                    result_to_txt)
+
+        logging.info("... finished wrapper execution")
         return supply_results
 
     def extract_obj(self, results):
@@ -604,7 +605,7 @@ class EDWrapper(SectorModel):
 
         # Get variable from dict and reassign and delete from data_handle
         for var_name in all_strategy_variables:
-            logging.info("Load strategy parameter: {}  {}".format(var_name, data_handle[var_name]))
+            logging.debug("Load strategy parameter: {}  {}".format(var_name, data_handle[var_name]))
 
             # Get narrative variable from input data_handle dict
             strategy_variables[var_name] = data_handle[var_name]

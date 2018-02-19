@@ -53,6 +53,7 @@ class TechnologyData(object):
             market_entry=2015,
             tech_list=None,
             tech_max_share=None,
+            description=None,
             fueltypes=None
         ):
         self.fueltype_str = fueltype
@@ -65,6 +66,7 @@ class TechnologyData(object):
         self.market_entry = market_entry
         self.tech_list = tech_list
         self.tech_max_share = tech_max_share
+        self.description = description
 
 class CapacitySwitch(object):
     """Capacity switch class for storing
@@ -614,18 +616,21 @@ def read_technologies(path_to_csv, fueltypes):
         year_eff_ey	                [int]   Future year where efficiency is fully reached
         eff_achieved                [float] Factor of how much of the efficiency
                                             is achieved (overwritten by scenario input)
+                                            This is set to 1.0 as default for initial
+                                            technology class generation
         diff_method	market_entry    [int]   Year of market entry of technology
         tech_list                   [str]   Definition of to which group
                                             of technologies a technology belongs
         tech_max_share              [float] Maximum share of technology related
                                             energy service which can be reached in theory
+        description                 [str]   Optional technology description
     """
     dict_technologies = {}
     dict_tech_lists = {}
 
     with open(path_to_csv, 'r') as csvfile:
         read_lines = csv.reader(csvfile, delimiter=',')
-        _headings = next(read_lines) # Skip first row
+        _headings = next(read_lines) # Skip heading
 
         for row in read_lines:
             technology = row[0]
@@ -635,16 +640,18 @@ def read_technologies(path_to_csv, fueltypes):
                     eff_by=float(row[2]),
                     eff_ey=float(row[3]),
                     year_eff_ey=float(row[4]),
-                    eff_achieved=float(row[5]),
-                    diff_method=str(row[6]),
-                    market_entry=float(row[7]),
-                    tech_list=str.strip(row[8]),
-                    tech_max_share=float(str.strip(row[9])),
+                    eff_achieved=1.0, # Set to one as default
+                    diff_method=str(row[5]),
+                    market_entry=float(row[6]),
+                    tech_list=str.strip(row[7]),
+                    tech_max_share=float(str.strip(row[8])),
+                    description=str(row[9]),
                     fueltypes=fueltypes)
                 try:
-                    dict_tech_lists[str.strip(row[8])].append(technology)
+                    dict_tech_lists[str.strip(row[7])].append(technology)
                 except KeyError:
-                    dict_tech_lists[str.strip(row[8])] = [technology]
+                    dict_tech_lists[str.strip(row[7])] = [technology]
+
             except Exception as e:
                 logging.error(e)
                 logging.error(row)

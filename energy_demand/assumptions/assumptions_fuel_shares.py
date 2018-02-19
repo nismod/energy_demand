@@ -126,7 +126,7 @@ def assign_by_fuel_tech_p(assumptions, enduses, fueltypes, fueltypes_nr):
     # https://doi.org/10.1016/j.enpol.2015.06.016
     # ---------------
     assumptions['rs_fuel_tech_p_by']['rs_space_heating'][fueltypes['solid_fuel']] = {
-        'boiler_solid_fuel': 1.0}
+        'boiler_solid_fuel': 1.0, 'boiler_coal': 0.0}
 
     assumptions['rs_fuel_tech_p_by']['rs_space_heating'][fueltypes['oil']] = {
         'boiler_oil': 1.0}
@@ -144,7 +144,9 @@ def assign_by_fuel_tech_p(assumptions, enduses, fueltypes, fueltypes_nr):
 
     assumptions['rs_fuel_tech_p_by']['rs_space_heating'][fueltypes['biomass']] = {
         'boiler_biomass': 1.0,
-        'district_heating_biomass': 0.0}
+        'district_heating_biomass': 0.0,
+        'boiler_wood': 0.0,
+        'boiler_pellet': 0.0}
 
     assumptions['rs_fuel_tech_p_by']['rs_space_heating'][fueltypes['hydrogen']] = {
         'boiler_hydrogen': 1.0,
@@ -177,7 +179,7 @@ def assign_by_fuel_tech_p(assumptions, enduses, fueltypes, fueltypes_nr):
     # For ss_space heating the load profile is the same for all technologies
 
     # ----------------
-    # ss_space_heating
+    # Service space heating (ss_space_heating)
     # ----------------
     assumptions['ss_fuel_tech_p_by']['ss_space_heating'][fueltypes['solid_fuel']] = {
         'boiler_solid_fuel': 1.0}
@@ -213,17 +215,13 @@ def assign_by_fuel_tech_p(assumptions, enduses, fueltypes, fueltypes_nr):
     assumptions['ss_fuel_tech_p_by']['ss_cooling_humidification'][fueltypes['oil']] = {
         'central_air_conditioner_oil': 0.64,
         'decentral_air_conditioner_oil': 0.36}
-    '''assumptions['ss_fuel_tech_p_by']['ss_cooled_storage'][fueltypes['electricity']] = {
-        'ss_cooling_tech_electricity': 1.0}
-    assumptions['ss_fuel_tech_p_by']['ss_fans'][fueltypes['electricity']] = {
-        'ss_cooling_tech_electricity': 1.0}'''
 
     # ===================
     # Industry subModel  - Fuel shares of technologies in enduse
     # ===================
 
     # ----------------
-    # is_space_heating
+    # Industrial space heating (is_space_heating)
     # ----------------
     assumptions['is_fuel_tech_p_by']['is_space_heating'][fueltypes['solid_fuel']] = {
         'boiler_solid_fuel': 1.0}
@@ -271,7 +269,5 @@ def assign_by_fuel_tech_p(assumptions, enduses, fueltypes, fueltypes_nr):
         assumptions['heat_pumps'],
         assumptions['is_specified_tech_enduse_by'],
         'is_space_heating')
-
-    assumptions['test'] = 'test'
 
     return assumptions

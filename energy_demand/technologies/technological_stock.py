@@ -190,7 +190,8 @@ def create_tech_stock(
                     temp_by,
                     temp_cy,
                     t_base_heating_by,
-                    t_base_heating_cy)
+                    t_base_heating_cy,
+                    technologies[technology_name].description)
 
             stock_technologies[(technology_name, enduse)] = tech_obj
 
@@ -223,8 +224,6 @@ class Technology(object):
     defining a future market entry year. Additionally, for all technologies,
     the name, fuel type, technology type
     and the maximum market penetration needs to be defined.
-
-
     """
     def __init__(
             self,
@@ -244,20 +243,22 @@ class Technology(object):
             temp_cy=None,
             t_base_heating_by=None,
             t_base_heating_cy=None,
+            description=''
         ):
         """Contructor
         """
         if tech_name == 'dummy_tech':
             self.tech_name = tech_name
             self.tech_type = tech_type
+            self.description = description
         else:
             self.tech_name = tech_name
             self.tech_type = tech_type
             self.fueltype_str = tech_fueltype
             self.fueltype_int = tech_related.get_fueltype_int(fueltypes, tech_fueltype)
-            #self.market_entry = assumptions['technologies'][tech_name]['market_entry']
             self.tech_eff_achieved_f = tech_eff_achieved
             self.diff_method = tech_diff_method
+            self.description = description
 
             # --------------------------------------------------------------
             # Base and current year efficiencies depending on technology type

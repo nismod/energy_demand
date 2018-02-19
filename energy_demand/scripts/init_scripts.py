@@ -506,7 +506,7 @@ def sig_param_calculation_incl_fuel_switch(
     # FUEL switch
     # ------------------------------------------
     if crit_fuel_switch:
-        print("... calculate sigmoid based on FUEL switches {}".format(enduse))
+        logging.debug("... calculate sigmoid based on FUEL switches {}".format(enduse))
 
         # Get fuel switches of enduse
         enduse_fuel_switches = fuel_service_switch.get_fuel_switches_enduse(
@@ -544,7 +544,7 @@ def sig_param_calculation_incl_fuel_switch(
         assert round(sum(share_service_tech_ey_p.values()), 3) == 1
 
     if crit_switch_service or crit_fuel_switch:
-        print("... calculate sigmoid for techs defined in switch")
+        logging.debug("... calculate sigmoid for techs defined in switch")
         # Calculates parameters for sigmoid diffusion of
         # technologies which are switched to/installed. With
         # `regional_specific` the assumption can be changed that
