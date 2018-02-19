@@ -56,6 +56,7 @@ heat pump
 solar thermal
 district heating
 demand response
+
 COOL IDEA: FLOWER DIAGRAMS FOR EVERY DAY (envelopes
 https://matplotlib.org/examples/api/radar_chart.html radar charts)
 

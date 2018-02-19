@@ -29,8 +29,7 @@ from energy_demand.technologies import fuel_service_switch
 from energy_demand.profiles import hdd_cdd
 
 # must match smif project name for Local Authority Districts
-REGION_SET_NAME = 'lad_uk_2016'
-NR_OF_MODELLEd_REGIONS = 2 #391 # uk: 391, england.: 380
+NR_OF_MODELLEd_REGIONS = 391 #391 # uk: 391, england.: 380
 
 class EDWrapper(SectorModel):
     """Energy Demand Wrapper
@@ -82,9 +81,9 @@ class EDWrapper(SectorModel):
             data['criterias']['plot_crit'] = False
             data['criterias']['crit_plot_enduse_lp'] = False
         elif fast_smif_run == False:
-            data['criterias']['write_to_txt'] = True
-            data['criterias']['beyond_supply_outputs'] = True
-            data['criterias']['validation_criteria'] = True
+            data['criterias']['write_to_txt'] = False
+            data['criterias']['beyond_supply_outputs'] = False
+            data['criterias']['validation_criteria'] = False
             data['criterias']['plot_tech_lp'] = False
             data['criterias']['plot_crit'] = False
             data['criterias']['crit_plot_enduse_lp'] = False
@@ -106,13 +105,16 @@ class EDWrapper(SectorModel):
         # -----------------------------
         # Region related info
         # -----------------------------
-        data['lu_reg'] = self.get_region_names(REGION_SET_NAME)
+        region_set_name = self.regions.names[0]
 
-        reg_centroids = self.get_region_centroids(REGION_SET_NAME)
+        data['lu_reg'] = self.get_region_names(region_set_name)
+
+        reg_centroids = self.get_region_centroids(region_set_name)
         data['reg_coord'] = self.get_long_lat_decimal_degrees(reg_centroids)
 
         # SCRAP REMOVE: ONLY SELECT NR OF MODELLED REGIONS
         data['lu_reg'] = data['lu_reg'][:NR_OF_MODELLEd_REGIONS]
+
         logging.info("Modelled for a number of regions: " + str(len(data['lu_reg'])))
         data['reg_nrs'] = len(data['lu_reg'])
 
@@ -129,13 +131,13 @@ class EDWrapper(SectorModel):
         # -----------------------------
         pop_array = data_handle.get_base_timestep_data('population')
         pop_dict = {}
-        for r_idx, region in enumerate(self.get_region_names(REGION_SET_NAME)):
+        for r_idx, region in enumerate(data['lu_reg']):
             pop_dict[region] = pop_array[r_idx, 0]
         data['population'][data['sim_param']['base_yr']] = pop_dict
 
         gva_array = data_handle.get_base_timestep_data('gva')
         gva_dict = {}
-        for r_idx, region in enumerate(self.get_region_names(REGION_SET_NAME)):
+        for r_idx, region in enumerate(data['lu_reg']):
             gva_dict[region] = gva_array[r_idx, 0]
         data['gva'][data['sim_param']['base_yr']] = gva_dict
 
@@ -344,7 +346,7 @@ class EDWrapper(SectorModel):
         gva_dict_current = {}
         pop_dict_current = {}
 
-        for r_idx, region in enumerate(self.get_region_names(REGION_SET_NAME)):
+        for r_idx, region in enumerate(data['lu_reg']):
             pop_dict_current[region] = pop_array_current[r_idx, 0]
             gva_dict_current[region] = gva_array_current[r_idx, 0]
 
@@ -543,14 +545,21 @@ class EDWrapper(SectorModel):
         logging.info("... finished wrapper calculations")
 
         time_end = datetime.datetime.now()
-        print("... Total Time: " + str(time_end- time_start))
+        print("... Total Time: " + str(time_end - time_start))
 
         # ------------------------------------
         # Write results to smif
         # ------------------------------------
-        results_array = np.resize(supply_results['residential_solid_fuel_boiler_solid_fuel'], (3, 8760))
-        data_handle.set_results('residential_solid_fuel_boiler_solid_fuel', results_array)
-
+        #print(supply_results.keys())
+        #print(supply_results)
+        #results_array = np.resize(
+        #    supply_results['residential_solid_fuel_boiler_solid_fuel'], (data['reg_nrs'], 8760))
+        #print("B")
+        for key_name, result_to_txt in supply_results.items():
+            print("KEYNAME ".format(key_name))
+            data_handle.set_results(key_name, result_to_txt)
+        #print("C")
+        print("finished supply results")
         return supply_results
 
     def extract_obj(self, results):
@@ -571,27 +580,6 @@ class EDWrapper(SectorModel):
             dict_to_copy_into[key] = value
 
         return dict(dict_to_copy_into)
-
-    def array_to_dict(self, input_array):
-        """Convert array to dict
-
-        Arguments
-        ---------
-        input_array : numpy.ndarray
-            timesteps, regions, interval
-
-        Returns
-        -------
-        output_dict : dict
-            timesteps, region, interval
-
-        """
-        output_dict = defaultdict(dict)
-        for t_idx, timestep in enumerate(self.timesteps):
-            for r_idx, region in enumerate(self.get_region_names(REGION_SET_NAME)):
-                output_dict[timestep][region] = input_array[t_idx, r_idx, 0]
-
-        return dict(output_dict)
 
     def load_smif_parameters(self, data_handle, assumptions):
         """Get all model parameters from smif (`data_handle`) depending

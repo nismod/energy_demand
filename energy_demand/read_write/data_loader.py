@@ -310,75 +310,81 @@ def load_paths(path):
     paths = {
         'path_main': path,
 
-        # Path for dwelling stock assumptions
-        'path_hourly_gas_shape_resid': os.path.join(
-            path, 'config_data', 'submodel_residential', 'lp_gas_boiler_dh_SANSOM.csv'),
+
+
 
         # Path to all technologies
         'path_technologies': os.path.join(
-            path, 'config_data', 'technology_definition.csv'),
+            path, 'config_data', '08-technologies', 'technology_definition.csv'),
 
         # Fuel switches
         'rs_path_fuel_switches': os.path.join(
-            path, 'config_data', 'submodel_residential', 'switches_fuel.csv'),
+            path, 'config_data', '07-switches', 'rs_switches_fuel.csv'),
         'ss_path_fuel_switches': os.path.join(
-            path, 'config_data', 'submodel_service', 'switches_fuel.csv'),
+            path, 'config_data', '07-switches', 'ss_switches_fuel.csv'),
         'is_path_fuel_switches': os.path.join(
-            path, 'config_data', 'submodel_industry', 'switches_fuel.csv'),
+            path, 'config_data', '07-switches', 'is_switches_fuel.csv'),
 
         # Path to service switches
         'rs_path_service_switch': os.path.join(
-            path, 'config_data', 'submodel_residential', 'switches_service.csv'),
+            path, 'config_data', '07-switches', 'rs_switches_service.csv'),
         'ss_path_service_switch': os.path.join(
-            path, 'config_data', 'submodel_service', 'switches_service.csv'),
+            path, 'config_data', '07-switches', 'ss_switches_service.csv'),
         'is_path_industry_switch': os.path.join(
-            path, 'config_data', 'submodel_industry', 'switches_industry.csv'),
+            path, 'config_data', '07-switches', 'is_switches_service.csv'),
 
         # Path to capacity installations
         'rs_path_capacity_installation': os.path.join(
-            path, 'config_data', 'submodel_residential', 'capacity_installations.csv'),
+            path, 'config_data', '07-switches', 'rs_capacity_installations.csv'),
         'ss_path_capacity_installation': os.path.join(
-            path, 'config_data', 'submodel_service', 'capacity_installations.csv'),
+            path, 'config_data', '07-switches', 'ss_capacity_installations.csv'),
         'is_path_capacity_installation': os.path.join(
-            path, 'config_data', 'submodel_industry', 'capacity_installations.csv'),
+            path, 'config_data', '07-switches', 'is_capacity_installations.csv'),
 
         # Paths to fuel raw data
         'rs_fuel_raw_data_enduses': os.path.join(
-            path, 'config_data', 'submodel_residential', 'rs_fuel.csv'),
+            path, 'config_data', '06-fuels', 'rs_fuel.csv'),
         'ss_fuel_raw_data_enduses': os.path.join(
-            path, 'config_data', 'submodel_service', 'ss_fuel.csv'),
+            path, 'config_data', '06-fuels', 'ss_fuel.csv'),
         'is_fuel_raw_data_enduses': os.path.join(
-            path, 'config_data', 'submodel_industry', 'is_fuel.csv'),
+            path, 'config_data', '06-fuels', 'is_fuel.csv'),
 
         # Load profiles
         'lp_rs': os.path.join(
-            path, 'config_data', 'rs_submodel', 'HES_lp.csv'),
+            path, 'config_data', '03-load_profiles', 'rs_submodel', 'HES_lp.csv'),
 
         # Technologies load shapes
+        'path_hourly_gas_shape_resid': os.path.join(
+            path, 'config_data', '03-load_profiles', 'rs_submodel', 'lp_gas_boiler_dh_SANSOM.csv'),
         'lp_elec_hp_dh': os.path.join(
-            path, 'config_data', 'submodel_residential', 'lp_elec_hp_dh_LOVE.csv'),
+            path, 'config_data', '03-load_profiles', 'rs_submodel', 'lp_elec_hp_dh_LOVE.csv'),
         'lp_all_microCHP_dh': os.path.join(
-            path, 'config_data', 'submodel_residential', 'lp_all_microCHP_dh_SANSOM.csv'),
+            path, 'config_data', '03-load_profiles', 'rs_submodel', 'lp_all_microCHP_dh_SANSOM.csv'),
         'path_shape_rs_cooling': os.path.join(
-            path, 'config_data', 'submodel_residential', 'shape_residential_cooling.csv'),
+            path, 'config_data', '03-load_profiles', 'rs_submodel', 'shape_residential_cooling.csv'),
         'path_shape_ss_cooling': os.path.join(
-            path, 'config_data', 'ss_submodel', 'shape_service_cooling.csv'),
+            path, 'config_data', '03-load_profiles', 'ss_submodel', 'shape_service_cooling.csv'),
         'lp_elec_storage_heating': os.path.join(
-            #path, 'config_data', 'submodel_residential', 'lp_elec_storage_heating_HES.csv'), # Worst
-            #path, 'config_data', 'submodel_residential', 'lp_elec_storage_heating_Bossmann.csv'), # Better
-            path, 'config_data', 'submodel_residential', 'lp_elec_storage_heating_HESReport.csv'), # Best
+            #path, 'config_data', '03-load_profiles', 'rs_submodel', 'lp_elec_storage_heating_HES.csv'), # Worst
+            #path, 'config_data', '03-load_profiles', 'rs_submodel', 'lp_elec_storage_heating_Bossmann.csv'), # Better
+            path, 'config_data', '03-load_profiles', 'rs_submodel', 'lp_elec_storage_heating_HESReport.csv'), # Best
         'lp_elec_secondary_heating': os.path.join(
-            path, 'config_data', 'submodel_residential', 'lp_elec_secondary_heating_HES.csv'),
+            path, 'config_data', '03-load_profiles', 'rs_submodel', 'lp_elec_secondary_heating_HES.csv'),
 
         # Census data
         'path_employment_statistics': os.path.join(
             path, 'config_data', '04-census_data', 'LAD_census_data.csv'),
 
-        'yaml_parameters': os.path.join(path, 'yaml_parameters.yml'),
-        'yaml_parameters_default': os.path.join(path, 'yaml_parameters_default.yml'),
-        'yaml_parameters_keynames_constrained': os.path.join(path, 'yaml_parameters_keynames_constrained.yml'),
-        'yaml_parameters_keynames_unconstrained': os.path.join(path, 'yaml_parameters_keynames_unconstrained.yml'),
-        'yaml_parameters_scenario': os.path.join(path, 'yaml_parameters_scenario.yml')
+        'yaml_parameters': os.path.join(
+            path, 'yaml_parameters.yml'),
+        'yaml_parameters_default': os.path.join(
+            path, 'yaml_parameters_default.yml'),
+        'yaml_parameters_keynames_constrained': os.path.join(
+            path, 'yaml_parameters_keynames_constrained.yml'),
+        'yaml_parameters_keynames_unconstrained': os.path.join(
+            path, 'yaml_parameters_keynames_unconstrained.yml'),
+        'yaml_parameters_scenario': os.path.join(
+            path, 'yaml_parameters_scenario.yml')
         }
 
     return paths

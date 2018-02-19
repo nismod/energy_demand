@@ -17,9 +17,10 @@ def test_get_nested_dict_key():
     """
     nested_dict = {"a": {"c": 1, "d": 3}, "b": {"e": 4}}
     keys = helpers.get_nested_dict_key(nested_dict)
-    expected = ["c", "d", "e"]
 
-    assert keys == expected
+    assert "c" in keys
+    assert "d" in keys
+    assert "e" in keys
 
 def test_set_same_eff_all_tech():
     """Test

@@ -3,8 +3,8 @@
 import os
 import csv
 from datetime import date
-import numpy as np
 import logging
+import numpy as np
 from energy_demand.basic import date_prop
 from energy_demand.read_write import read_data
 from energy_demand.read_write import write_data
