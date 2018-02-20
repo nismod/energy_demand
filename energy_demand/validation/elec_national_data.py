@@ -141,8 +141,10 @@ def compare_results(
     standard_dev_real_modelled = np.std(y_diff_p)       # Differences in %
     standard_dev_real_modelled_abs = np.std(y_diff_abs) # Absolute differences 
 
-    logging.warning("Standard deviation given as percentage: " + str(standard_dev_real_modelled))
-    logging.warning("Standard deviation given as GW:         " + str(standard_dev_real_modelled_abs))
+    logging.info(
+        "Standard deviation given as percentage: " + str(standard_dev_real_modelled))
+    logging.info(
+        "Standard deviation given as GW:         " + str(standard_dev_real_modelled_abs))
 
     # ---------
     # R squared

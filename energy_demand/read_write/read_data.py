@@ -653,10 +653,10 @@ def read_technologies(path_to_csv, fueltypes):
                     dict_tech_lists[str.strip(row[7])] = [technology]
 
             except Exception as e:
-                logging.error(e)
-                logging.error(row)
+
                 logging.error(
-                    "Error in technology loading table. Check if e.g. empty field")
+                    "Error technology table (e.g. empty field): {} {}".format(
+                        e, row))
                 sys.exit()
 
     # Add dummy_technology to all tech_lists
@@ -836,12 +836,16 @@ def read_lf_y(result_path):
     ----------
     result_path : str
         Path
+
+    Returns
+    -------
+    results : dict
+        Annual results
     """
     results = {}
 
     all_txt_files_in_folder = os.listdir(result_path)
 
-    # Iterate files
     for file_path in all_txt_files_in_folder:
         path_file_to_read = os.path.join(result_path, file_path)
         file_path_split = file_path.split("__")
@@ -882,7 +886,7 @@ def read_scenaric_population_data(result_path):
 
     return results
 
-def capacity_installations(path_to_csv):
+def capacity_switch(path_to_csv):
     """This function reads in service assumptions
     from csv file
 

@@ -20,8 +20,6 @@
     https://nismod.github.io/docs/
     https://nismod.github.io/docs/smif-prerequisites.html#sector-modeller
 
-
-
 # Implement that e.g. 2015 - 2030 one technology and 2030 - 2050 another technology
 # backcasting
 # Industry INFO about efficiencies & technologies: Define strategy variables
@@ -36,34 +34,19 @@ NICETOHAVE
 - Convert paths dict to objects
 
 TODO: Update SUB_NATIONAL ELEC and GAS DEMAND BECVAUSE CHANGED VALUES 
-
 TODO: Write function to test wheter swichtes are possible (e.g. that not more from one technology to another is replaced than possible)
 TODO: Improve industry related demand --> define strategies
 TODO: Related ed to houses & householdsize
 TODO: Define efficencies of all techs
 TODO: SENSITIVITY
-TODO: Accounting module for energy and emissions
 TODO: data loading, load multiple years for real elec data
 TODO: Load different temp --> for different years
 TODO: THECK VARIALBES IN HOUSEHOLD MODEL
 TODO: FUEL; SERVICE SWITHC AS INPUT
 #WRAPPER BASE AND CURRENT YEAR GVA
-#TODO REPLACE CAPACITY INSTALLATION/ SWITCH
-#TODO: TEST IF ONE DAY FOR EFEFECTIVE TEMPERATURE IS NOT AOBUT THE SAME
-#TODO: TEST IF ONLY HEATING CAN BE FACTORED
-combined heat and power (CHP) engines, thermal
-City – add description to technologies
-DISTRICT HEATING TECH
 
 COOL IDEA: FLOWER DIAGRAMS FOR EVERY DAY (envelopes
 https://matplotlib.org/examples/api/radar_chart.html radar charts)
-
-1. Steps
-- define concept (e.g. rural_urban)
-- calculate congruence values
-- attribute diffusion weights to congruence values
-- Calculate spatial index
-
 """
 import os
 import sys

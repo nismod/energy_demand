@@ -152,7 +152,7 @@ def scenario_initalisation(path_data_ed, data=False):
     # ------------------------------------
 
     # Residential
-    init_cont['rs_service_switches'] = fuel_service_switch.capacity_installations(
+    init_cont['rs_service_switches'] = fuel_service_switch.capacity_switch(
         init_cont['rs_service_switches'],
         data['assumptions']['capacity_switches']['rs_capacity_switches'],
         data['assumptions']['technologies'],
@@ -167,7 +167,7 @@ def scenario_initalisation(path_data_ed, data=False):
         data['enduses']['ss_all_enduses'],
         data['lookups']['fueltypes_nr'])
 
-    init_cont['ss_service_switches'] = fuel_service_switch.capacity_installations(
+    init_cont['ss_service_switches'] = fuel_service_switch.capacity_switch(
         init_cont['ss_service_switches'],
         data['assumptions']['capacity_switches']['ss_capacity_switches'],
         data['assumptions']['technologies'],
@@ -182,7 +182,7 @@ def scenario_initalisation(path_data_ed, data=False):
         data['enduses']['is_all_enduses'],
         data['lookups']['fueltypes_nr'])
 
-    init_cont['is_service_switches'] = fuel_service_switch.capacity_installations(
+    init_cont['is_service_switches'] = fuel_service_switch.capacity_switch(
         init_cont['is_service_switches'],
         data['assumptions']['capacity_switches']['is_capacity_switches'],
         data['assumptions']['technologies'],
@@ -506,28 +506,65 @@ def sig_param_calculation_incl_fuel_switch(
     # FUEL switch
     # ------------------------------------------
     if crit_fuel_switch:
-        logging.debug("... calculate sigmoid based on FUEL switches {}".format(enduse))
+        """
+        Calculate future service share after fuel switches
+        and calculte sigmoid diffusion paramters.
+        """
+        logging.debug(
+            "... calculate sigmoid based on FUEL switches %s", enduse)
 
         # Get fuel switches of enduse
         enduse_fuel_switches = fuel_service_switch.get_fuel_switches_enduse(
             fuel_switches, enduse)
-
-        all_techs = service_tech_by_p.keys()
-
-        service_tech_switched_p, l_values_sig = s_generate_sigmoid.fuel_switch_implementation(
-            technologies,
-            enduse_fuel_switches,
-            all_techs,
-            service_fueltype_by_p,
-            service_tech_by_p,
-            fuel_tech_p_by,
-            regions=regions,
-            regional_specific=regional_specific)
-
+        
         # Get year of switches
         for fuelswitch in enduse_fuel_switches:
             yr_until_switched = fuelswitch.switch_yr
             break
+
+        if regional_specific:
+            l_values_sig = {}
+            service_tech_switched_p = {}
+
+            for reg in regions:
+
+                # Calculate service demand after fuel switches for each technology
+                service_tech_switched_p[reg] = s_generate_sigmoid.calc_service_fuel_switched(
+                    enduse_fuel_switches,
+                    technologies,
+                    service_fueltype_by_p,
+                    service_tech_by_p,
+                    fuel_tech_p_by,
+                    'actual_switch')
+
+                # Calculate L for every technology for sigmod diffusion
+                l_values_sig[reg] = s_generate_sigmoid.tech_l_sigmoid(
+                    service_tech_switched_p[reg],
+                    enduse_fuel_switches,
+                    technologies,
+                    service_tech_by_p.keys(),
+                    service_fueltype_by_p,
+                    service_tech_by_p,
+                    fuel_tech_p_by)
+        else:
+            # Calculate future service demand after fuel switches for each technology
+            service_tech_switched_p = s_generate_sigmoid.calc_service_fuel_switched(
+                enduse_fuel_switches,
+                technologies,
+                service_fueltype_by_p,
+                service_tech_by_p,
+                fuel_tech_p_by,
+                'actual_switch')
+
+            # Calculate L for every technology for sigmod diffusion
+            l_values_sig = s_generate_sigmoid.tech_l_sigmoid(
+                service_tech_switched_p,
+                enduse_fuel_switches,
+                technologies,
+                service_tech_by_p.keys(),
+                service_fueltype_by_p,
+                service_tech_by_p,
+                fuel_tech_p_by)
 
         # Convert serivce shares to service switches
         service_switches_out = convert_sharesdict_to_service_switches(

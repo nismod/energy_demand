@@ -317,8 +317,6 @@ def is_disaggregate(
 
         # -----
         # Disaggregate with employment statistics
-        # -----
-        logging.info("___________________________ other data for disaggregation")
         # The BEIS sectors are matched with census data sectors {ECUK industry sectors: 'Emplyoment sectors'}
         '''sectormatch_ecuk_with_census = {
             'wood': 'C16,17',
@@ -366,7 +364,7 @@ def is_disaggregate(
             'fabricated_metal_products': None,
             'other_manufacturing': None,
             'furniture': None,
-            'machinery': None,                            # Improvements with M #BUT NOT REALLY CORRECT CLASSIFICATION
+            'machinery': None,     # Improvements with M #BUT NOT REALLY CORRECT CLASSIFICATION
             'water_collection_treatment': None,
             'rubber_plastics': None, #not really, bessere Streeung
             'other_transport_equipment': None,
@@ -375,6 +373,7 @@ def is_disaggregate(
             'tobacco': None,
             'non_metallic_minearl_products': None  #Worsen
         }
+
         # ----------------------------------------
         # Summarise national employment per sector
         # ----------------------------------------

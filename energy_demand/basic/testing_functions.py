@@ -52,8 +52,9 @@ def testing_tech_defined(technologies, all_tech_enduse):
     for enduse in all_tech_enduse:
         for tech in all_tech_enduse[enduse]:
             if tech not in technologies:
+
                 sys.exit(
-                    "The technology '{}' for which fuel was attributed isn't defined in tech stock".format(
+                    "Error: '{}' is not defined in technology_definition.csv".format(
                         tech))
 
 def test_function_fuel_sum(data, mode_constrained, space_heating_enduses):

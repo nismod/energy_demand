@@ -11,7 +11,13 @@ from scipy.optimize import curve_fit
 from energy_demand.technologies import diffusion_technologies
 from energy_demand.plotting import plotting_program
 
-def calc_sigmoid_parameters(l_value, xdata, ydata, fit_assump_init=0.001, error_range=0.00002):
+def calc_sigmoid_parameters(
+        l_value,
+        xdata,
+        ydata,
+        fit_assump_init=0.001,
+        error_range=0.00002
+    ):
     """Calculate sigmoid parameters. Check if fitting is good enough.
 
     Arguments
@@ -434,98 +440,6 @@ def get_l_values(
                 l_values_sig[tech] = technologies[tech].tech_max_share
 
     return dict(l_values_sig)
-
-def fuel_switch_implementation(
-        technologies,
-        enduse_fuel_switches,
-        affected_techs,
-        service_fueltype_by_p,
-        service_tech_by_p,
-        fuel_tech_p_by,
-        regions=False,
-        regional_specific=False
-    ):
-    """Calculate future service share after fuel switches
-    and calculte sigmoid diffusion paramters.
-
-    Arguments
-    ----------
-    technologies : dict
-        Technologies
-    enduse_fuel_switches : dict
-        Fuel switches
-    affected_techs : list
-        Technologies for which the calculation is executed
-    service_tech_ey_p : dict
-        Fraction of service in end year
-    service_fueltype_by_p :
-        Fraction of service per fueltype in base year
-    service_tech_by_p :
-        Fraction of service per technology in base year
-    fuel_tech_p_by :
-        Fraction of fuel per technology in base year
-    regions : crit or dict, bool=False
-        Regions
-    regional_specific : bool,default=FAlse
-        Whether the calculation is for all regions or not
-
-    Return
-    ------
-    service_tech_switched_p : dict
-        Service share per technology after switch
-    l_values_sig : dict
-        Sigmoid L values
-
-    Note
-    ----
-    It is assumed that the technology diffusion is the same over
-    all the uk (no regional different diffusion)
-    """
-    if regional_specific:
-        l_values_sig = {}
-        service_tech_switched_p = {}
-
-        for reg in regions:
-
-            # Calculate service demand after fuel switches for each technology
-            service_tech_switched_p[reg] = calc_service_fuel_switched(
-                enduse_fuel_switches,
-                technologies,
-                service_fueltype_by_p,
-                service_tech_by_p,
-                fuel_tech_p_by,
-                'actual_switch')
-
-            # Calculate L for every technology for sigmod diffusion
-            l_values_sig[reg] = tech_l_sigmoid(
-                service_tech_switched_p[reg],
-                enduse_fuel_switches,
-                technologies,
-                affected_techs,
-                service_fueltype_by_p,
-                service_tech_by_p,
-                fuel_tech_p_by)
-    else:
-        # Calculate future service demand after fuel switches for each technology
-        service_tech_switched_p = calc_service_fuel_switched(
-            enduse_fuel_switches,
-            technologies,
-            service_fueltype_by_p,
-            service_tech_by_p,
-            fuel_tech_p_by,
-            'actual_switch')
-
-        # Calculate L for every technology for sigmod diffusion
-        l_values_sig = tech_l_sigmoid(
-            service_tech_switched_p,
-            enduse_fuel_switches,
-            technologies,
-            affected_techs,
-            service_fueltype_by_p,
-            service_tech_by_p,
-            fuel_tech_p_by)
-
-    return dict(service_tech_switched_p), dict(l_values_sig)
 
 def tech_sigmoid_parameters(
         yr_until_switched,

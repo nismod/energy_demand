@@ -114,6 +114,7 @@ class EnergyDemandModel(object):
             # Aggregate results
             # ---------------------------------------------
             aggr_results = aggregate_final_results(
+                self.curr_yr,
                 aggr_results,
                 reg_array_nr,
                 all_submodels,
@@ -879,6 +880,7 @@ def create_dwelling_stock(regions, curr_yr, data):
     return data
 
 def aggregate_final_results(
+        curr_yr,
         aggr_results,
         reg_array_nr,
         all_submodels,
@@ -1073,12 +1075,20 @@ def aggregate_final_results(
         average_fuel_yd = np.mean(fuel_region_yh, axis=2)
 
         # Calculate load factors across all enduses (Yearly lf)
-        load_factor_y = load_factors.calc_lf_y(fuel_region_yh, average_fuel_yd)
+        load_factor_y = load_factors.calc_lf_y(
+            fuel_region_yh,
+            average_fuel_yd)
 
         # Calculate load factors across all enduses (Daily lf)
-        load_factor_yd = load_factors.calc_lf_d(fuel_region_yh, average_fuel_yd, mode_constrained=False)
+        load_factor_yd = load_factors.calc_lf_d(
+            fuel_region_yh,
+            average_fuel_yd,
+            mode_constrained=False)
+
         load_factor_seasons = load_factors.calc_lf_season(
-            seasons, fuel_region_yh, average_fuel_yd)
+            seasons,
+            fuel_region_yh,
+            average_fuel_yd)
 
         # Copy regional load factors
         for fueltype_nr in fueltypes.values():

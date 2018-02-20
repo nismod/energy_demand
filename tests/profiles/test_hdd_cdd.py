@@ -15,7 +15,7 @@ def calc_weekend_corr_f():
     assert result[0] == 1.0
     assert result[1] == wkend_factor
 
-def test_averaged_temp():
+def test_effective_temps():
     """Testing
     """
     temp_yh = np.zeros((365, 24))
@@ -24,7 +24,7 @@ def test_averaged_temp():
         for hour in range(24):
             temp_yh[day][hour] = np.random.randint(-4, 30)
 
-    result = hdd_cdd.averaged_temp(temp_yh, nr_day_to_av=1)
+    result = hdd_cdd.effective_temps(temp_yh, nr_day_to_av=1)
 
     expected = (temp_yh[0] + temp_yh[1]) / 2
 

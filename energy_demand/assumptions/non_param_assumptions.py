@@ -411,11 +411,11 @@ def load_non_param_assump(
 
     # Read in scenaric capacity switches
     assumptions['capacity_switches'] = {}
-    assumptions['capacity_switches']['rs_capacity_switches'] = read_data.capacity_installations(
+    assumptions['capacity_switches']['rs_capacity_switches'] = read_data.capacity_switch(
         paths['rs_path_capacity_installation'])
-    assumptions['capacity_switches']['ss_capacity_switches'] = read_data.capacity_installations(
+    assumptions['capacity_switches']['ss_capacity_switches'] = read_data.capacity_switch(
         paths['ss_path_capacity_installation'])
-    assumptions['capacity_switches']['is_capacity_switches'] = read_data.capacity_installations(
+    assumptions['capacity_switches']['is_capacity_switches'] = read_data.capacity_switch(
         paths['is_path_capacity_installation'])
 
     # ========================================

@@ -485,8 +485,7 @@ def get_shape_peak_yd_factor(demand_yd):
     return max_factor_yd
 
 def get_fuel_shape_heating_hp_yh(tech_lp_y_dh, tech_stock, rs_hdd_cy, model_yeardays):
-    """Convert daily shapes to houly based on
-    robert sansom daily load for heatpump
+    """Convert daily shapes to houly based on load for heatpump
 
     This is for non-peak.
 

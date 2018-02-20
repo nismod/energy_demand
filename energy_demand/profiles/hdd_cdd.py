@@ -29,7 +29,7 @@ def calc_hdd(t_base, temp_yh, nr_day_to_av):
     # ---------------------------------------------
     # Average temperature with previous day(s) information
     # ---------------------------------------------
-    temp_yh = averaged_temp(
+    temp_yh = effective_temps(
         temp_yh,
         nr_day_to_av=nr_day_to_av)
 
@@ -42,8 +42,8 @@ def calc_hdd(t_base, temp_yh, nr_day_to_av):
 
     return hdd_d
 
-def averaged_temp(temp_yh, nr_day_to_av):
-    """Calculate effective temperatures.
+def effective_temps(temp_yh, nr_day_to_av):
+    """Calculate effective temperatures
 
     Todays temperatures (starting from 2. of January) are averaged with
     yesterdays temperatures. This is done to follow the methodology of
@@ -146,7 +146,7 @@ def calc_cdd(t_base_cooling, temp_yh, nr_day_to_av):
     # ---------------------------------------------
     # Average temperature with previous day(s) information
     # ---------------------------------------------
-    temp_yh = averaged_temp(
+    temp_yh = effective_temps(
         temp_yh,
         nr_day_to_av)
 
@@ -198,7 +198,7 @@ def get_hdd_country(
             diff_params['sig_steeppness'],
             diff_params['yr_until_changed'])
 
-        hdd_reg = calc_hdd(t_base_heating_cy, temperatures, nr_day_to_av=2)
+        hdd_reg = calc_hdd(t_base_heating_cy, temperatures, nr_day_to_av=1)
 
         hdd_regions[region] = np.sum(hdd_reg)
 
@@ -259,7 +259,7 @@ def get_cdd_country(
             diff_params['sig_steeppness'],
             diff_params['yr_until_changed'])
 
-        cdd_reg = calc_cdd(t_base_heating_cy, temperatures, nr_day_to_av=2)
+        cdd_reg = calc_cdd(t_base_heating_cy, temperatures, nr_day_to_av=1)
 
         cdd_regions[region] = np.sum(cdd_reg)
 
@@ -356,7 +356,7 @@ def calc_reg_hdd(temperatures, t_base_heating, model_yeardays):
     - The diffusion is assumed to be sigmoid
     """
     # Temperatures of full year
-    hdd_d = calc_hdd(t_base_heating, temperatures, nr_day_to_av=2)
+    hdd_d = calc_hdd(t_base_heating, temperatures, nr_day_to_av=1)
 
     shape_hdd_d = load_profile.abs_to_rel(hdd_d)
 
@@ -391,7 +391,7 @@ def calc_reg_cdd(temperatures, t_base_cooling, model_yeardays):
     - The Cooling Degree Days are calculated based on assumptions of
       the base temperature of the current year.
     """
-    cdd_d = calc_cdd(t_base_cooling, temperatures, nr_day_to_av=2)
+    cdd_d = calc_cdd(t_base_cooling, temperatures, nr_day_to_av=1)
     shape_cdd_d = load_profile.abs_to_rel(cdd_d)
 
     # Select only modelled yeardays
@@ -400,6 +400,8 @@ def calc_reg_cdd(temperatures, t_base_cooling, model_yeardays):
 
     # If no calc_provide flat curve
     if np.sum(cdd_d_selection) == 0:
-        shape_cdd_d_selection = np.full((len(model_yeardays)), 1 / len(model_yeardays))
+        shape_cdd_d_selection = np.full(
+            (len(model_yeardays)),
+            1 / len(model_yeardays))
 
     return cdd_d_selection, shape_cdd_d_selection

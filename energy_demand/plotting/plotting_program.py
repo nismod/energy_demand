@@ -13,7 +13,15 @@ def cm2inch(*tupl):
     else:
         return tuple(i/inch for i in tupl)
 
-def plotout_sigmoid_tech_diff(L_value, technology, xdata, ydata, fit_parameter, plot_crit=False, close_window_crit=True):
+def plotout_sigmoid_tech_diff(
+        L_value,
+        technology,
+        xdata,
+        ydata,
+        fit_parameter,
+        plot_crit=False,
+        close_window_crit=True
+    ):
     """Plot sigmoid diffusion
     """
     def close_event():
@@ -21,7 +29,7 @@ def plotout_sigmoid_tech_diff(L_value, technology, xdata, ydata, fit_parameter, 
         """
         plt.close()
 
-    logging.warning("... plot sigmoid diffusion {} {} {} {}".format(
+    logging.debug("... plot sigmoid diffusion {} {} {} {}".format(
         technology, L_value, xdata, ydata))
 
     x = np.linspace(1990, 2110, 300)

@@ -29,7 +29,7 @@ from energy_demand.technologies import fuel_service_switch
 from energy_demand.profiles import hdd_cdd
 
 # must match smif project name for Local Authority Districts
-NR_OF_MODELLEd_REGIONS = 10 #391 # uk: 391, england.: 380
+NR_OF_MODELLEd_REGIONS = 391 #391 # uk: 391, england.: 380
 
 class EDWrapper(SectorModel):
     """Energy Demand Wrapper
@@ -51,25 +51,13 @@ class EDWrapper(SectorModel):
         data = defaultdict(dict)
 
         # -----------
-        # INFORMATION: IF you want only to run smif, use the following configuration: fast_smif_run == True
+        # INFORMATION:
+        # you only running smif, use the following configuration: fast_smif_run == True
         # -----------
-
-        # Criteria
         data['criterias']['mode_constrained'] = True                    # True: Technologies are defined in ED model and fuel is provided, False: Heat is delievered not per technologies
         data['criterias']['virtual_building_stock_criteria'] = True     # True: Run virtual building stock model
-        data['criterias']['plot_HDD_chart'] = False                     # True: Plotting of HDD vs gas chart
-        data['criterias']['validation_criteria'] = False                # True: Plot validation plots
-        data['criterias']['spatial_exliclit_diffusion'] = False         # True: Spatial explicit calculations
-        data['criterias']['writeYAML'] = False                          # Parameter to create SMIF files
-        data['criterias']['write_to_txt'] = True
-        data['criterias']['beyond_supply_outputs'] = True               # If only for smif: FAlse, for other plots: True
-        data['criterias']['plot_crit'] = True
-        data['criterias']['plot_tech_lp'] = True
-        data['criterias']['crit_plot_enduse_lp'] = False
-
-        data['sim_param']['base_yr'] = data_handle.timesteps[0] # Base year
-        data['sim_param']['curr_yr'] = data['sim_param']['base_yr']
-        self.user_data['base_yr'] = data['sim_param']['base_yr']
+        data['criterias']['spatial_exliclit_diffusion'] = True         # True: Spatial explicit calculations
+        data['criterias']['writeYAML'] = False                          # True: Write YAML parameters
 
         fast_smif_run = False
 
@@ -80,13 +68,20 @@ class EDWrapper(SectorModel):
             data['criterias']['plot_tech_lp'] = False
             data['criterias']['plot_crit'] = False
             data['criterias']['crit_plot_enduse_lp'] = False
+            data['criterias']['plot_HDD_chart'] = False
         elif fast_smif_run == False:
             data['criterias']['write_to_txt'] = True
             data['criterias']['beyond_supply_outputs'] = True
             data['criterias']['validation_criteria'] = False
-            data['criterias']['plot_tech_lp'] = True
+            data['criterias']['plot_tech_lp'] = False
             data['criterias']['plot_crit'] = False
-            data['criterias']['crit_plot_enduse_lp'] = True
+            data['criterias']['crit_plot_enduse_lp'] = False
+            data['criterias']['plot_HDD_chart'] = False
+
+
+        data['sim_param']['base_yr'] = data_handle.timesteps[0]
+        data['sim_param']['curr_yr'] = data_handle.timesteps[0]
+        self.user_data['base_yr'] = data['sim_param']['base_yr']
 
         # -----------------------------
         # Paths
@@ -327,9 +322,12 @@ class EDWrapper(SectorModel):
         # ---------------------------------------------
         # Load data from scripts (Get simulation parameters from before_model_run()
         # ---------------------------------------------
-        data = self.pass_to_simulate(data, self.user_data['data_pass_along'])
-        data = self.pass_to_simulate(data, self.user_data['fuel_disagg'])
-        data['assumptions'] = self.pass_to_simulate(data['assumptions'], self.user_data['init_cont'])
+        data = self.pass_to_simulate(
+            data, self.user_data['data_pass_along'])
+        data = self.pass_to_simulate(
+            data, self.user_data['fuel_disagg'])
+        data['assumptions'] = self.pass_to_simulate(
+            data['assumptions'], self.user_data['init_cont'])
 
         # Update: Necessary updates after external data definition
         data['assumptions']['technologies'] = non_param_assumptions.update_assumptions(
@@ -407,13 +405,13 @@ class EDWrapper(SectorModel):
         # -------------------------------------------
         # Write annual results to txt files
         # -------------------------------------------
-
         if data['criterias']['write_to_txt']:
             #tot_fuel_y_max_enduses = sim_obj.tot_fuel_y_max_enduses
             logging.info("... Start writing results to file")
 
-            # ----
+            # ------------------------
             # Plot individual enduse
+            # ------------------------
             if data['criterias']['crit_plot_enduse_lp'] and data_handle.current_timestep == 2015:
 
                 # Maybe move to result folder in a later step
@@ -430,7 +428,7 @@ class EDWrapper(SectorModel):
                 autumn_week = list(range(
                     date_prop.date_to_yearday(2015, 10, 12), date_prop.date_to_yearday(2015, 10, 19))) #Oct
 
-                # plot electricity
+                # Plot electricity
                 for enduse, ed_yh in sim_obj.tot_fuel_y_enduse_specific_yh.items():
                     plotting_results.plot_enduse_yh(
                         name_fig="individ__{}".format(enduse),
@@ -541,13 +539,14 @@ class EDWrapper(SectorModel):
         for key in supply_results:
             _total_scrap += np.sum(supply_results[key])
         print("FINALSUM: " + str(_total_scrap))
-        
+
         time_end = datetime.datetime.now()
         print("... Total Time: " + str(time_end - time_start))
 
         # ------------------------------------
         # Write results to smif
         # ------------------------------------
+        '''print(" ddd  " + str(supply_results.keys()))
         for key_name, result_to_txt in supply_results.items():
 
             #SCRAO
@@ -555,12 +554,15 @@ class EDWrapper(SectorModel):
                 # do not write out resutls
                 logging.warning("NO SMIF RESULT FILE ARE WRITTEN OUT")
             else:
+                print("write out results set {} ".format(key_name))
+                print(result_to_txt.shape)
                 # Write out correct results
                 data_handle.set_results(
                     key_name,
                     result_to_txt)
+        '''
 
-        logging.info("... finished wrapper execution")
+        print("... finished wrapper execution")
         return supply_results
 
     def extract_obj(self, results):
@@ -838,6 +840,8 @@ def model_tech_simplification(tech):
         tech_newly_assigned = 'boiler_gas'
     elif tech == 'boiler_condensing_oil':
         tech_newly_assigned = 'boiler_oil'
+    #elif tech == 'boiler_condensing_hydrogen':
+    #    tech_newly_assigned = 'boiler_hydrogen'
     elif tech == 'storage_heater_electricity':
         tech_newly_assigned = 'boiler_electricity'
     elif tech == 'secondary_heater_electricity':

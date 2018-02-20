@@ -3,10 +3,12 @@
 import os
 import sys
 import logging
-import numpy as np
-import matplotlib.pyplot as plt
 from collections import defaultdict
 import operator
+from math import pi
+import numpy as np
+import matplotlib.pyplot as plt
+import pandas as pd
 
 from energy_demand.plotting import plotting_program
 from energy_demand.basic import basic_functions, conversions
@@ -28,7 +30,13 @@ def plot_lp_dh_SCRAP(data_dh_modelled):
     plt.show()
 
 def order_polygon(upper_boundary, lower_bdoundary):
-    """create correct sorting to draw filled polygon
+    """Create correct sorting to draw filled polygon
+
+    Arguments
+    ---------
+
+    Returns
+    -------
     """
     min_max_polygon = []
     for pnt in upper_boundary:
@@ -62,12 +70,13 @@ def run_all_plot_functions(
             fueltype_int=lookups['fueltypes']['electricity'],
             fueltype_str='electricity',
             fig_path=os.path.join(
-                local_paths['data_results_PDF'],"comparions_LAD_modelled_by_cy.pdf"),
+                local_paths['data_results_PDF'], "comparions_LAD_modelled_by_cy.pdf"),
             label_points=False,
-            plotshow=True)
+            plotshow=False)
         print("... plotted by-cy LAD energy demand compariosn")
     except:
         pass
+
     # ------------
     # Plot stacked annual enduses
     # ------------
@@ -174,8 +183,14 @@ def run_all_plot_functions(
     base_year = 2015
     for year in results_container['av_season_daytype_cy'].keys():
         for fueltype_int in results_container['av_season_daytype_cy'][year].keys():
-            fueltype_str = tech_related.get_fueltype_str(lookups['fueltypes'], fueltype_int)
+
+            fueltype_str = tech_related.get_fueltype_str(
+                lookups['fueltypes'], fueltype_int)
+            
             plot_load_profile_dh_multiple(
+                fueltype_str,
+                year,
+                local_paths['data_results_PDF'],
                 os.path.join(
                     local_paths['data_results_PDF'],
                     'season_daytypes_by_cy_comparison__{}__{}.pdf'.format(year, fueltype_str)),
@@ -248,6 +263,7 @@ def plot_seasonal_lf(
     if plot_individ_lines:
         for reg_nr in range(reg_nrs):
             for season, lf_fueltypes_season in load_factors_seasonal.items():
+
                 x_values_season_year = []
                 y_values_season_year = []
                 for year, lf_fueltype_reg in lf_fueltypes_season.items():
@@ -353,7 +369,7 @@ def plot_seasonal_lf(
 
     # Minor ticks
     minor_ticks = np.arange(base_yr,years[-1] + minor_interval, minor_interval)
-    ax.set_xticks(minor_ticks, minor = True)
+    ax.set_xticks(minor_ticks, minor=True)
     #ax.set_xlabel(minor_ticks)
 
     # ------------
@@ -447,7 +463,7 @@ def plot_lf_y(
             edgecolor=None,
             linewidth=0,
             fill='True')
-        
+
         ax.add_patch(polygon)
     # -----------------
     # Axis
@@ -1003,7 +1019,9 @@ def plt_fuels_peak_h(tot_fuel_dh_peak, lookups, path_plot_fig):
     # Legend
     ax.legend(
         legend_entries,
-        prop={'family': 'arial','size': 8},
+        prop={
+            'family': 'arial',
+            'size': 8},
         frameon=False)
 
     # -
@@ -1039,6 +1057,9 @@ def plt_fuels_peak_h(tot_fuel_dh_peak, lookups, path_plot_fig):
     plt.close()
 
 def plot_load_profile_dh_multiple(
+        fueltype_str,
+        year,
+        path_fig_folder,
         path_plot_fig,
         calc_av_lp_modelled,
         calc_av_lp_real,
@@ -1061,7 +1082,10 @@ def plot_load_profile_dh_multiple(
 
     # set size
     fig = plt.figure(figsize=plotting_program.cm2inch(14, 25))
-    ax = fig.add_subplot(nrows=nrows, ncols=ncols)
+    
+    ax = fig.add_subplot(
+        nrows=nrows,
+        ncols=ncols)
 
     plot_nr = 0
     row = -1
@@ -1093,6 +1117,22 @@ def plot_load_profile_dh_multiple(
                 label='av_modelled or av cy',
                 linestyle='--',
                 linewidth=0.5)
+
+            # --------------
+            # Radar plots
+            # --------------
+            radar_plot = False
+
+            if radar_plot:
+                name_spider_plot = os.path.join(
+                    path_fig_folder,
+                    "spider_{}_{}_{}_{}_.pdf".format(year, fueltype_str, season, daytype))
+
+                plot_radar_plot(
+                    list(calc_av_lp_modelled[season][daytype]),
+                    name_spider_plot,
+                    plot_steps=20,
+                    plotshow=False)
 
             # ------------------
             # Plot every single line
@@ -1470,6 +1510,7 @@ def plot_lad_comparison(
     ----------
     comparison_year : int
         Year to compare base year values to
+
     Note
     -----
     SOURCE OF LADS:
@@ -1493,7 +1534,7 @@ def plot_lad_comparison(
         else:
             pass
 
-    logging.info("Comparison: modelled: {}  real: {}".format(
+    logging.info("Comparison: modelled: %s real: %s".format(
         sum(result_dict['demand_by'].values()),
         sum(result_dict['demand_cy'].values())))
 
@@ -1519,7 +1560,6 @@ def plot_lad_comparison(
 
     labels = []
     for sorted_region in sorted_dict_real:
-
         geocode_lad = sorted_region[0]
 
         y_real_elec_demand.append(
@@ -1558,7 +1598,7 @@ def plot_lad_comparison(
         markerfacecolor='grey',
         markeredgewidth=0.2,
         color='black',
-        label='BASE YEAR')
+        label='base year: {}'.format(base_yr))
 
     plt.plot(
         x_values,
@@ -1571,7 +1611,7 @@ def plot_lad_comparison(
         markeredgewidth=0.5,
         markeredgecolor='blue',
         color='black',
-        label='CURRENT YEAr')
+        label='current year: {}'.format(comparison_year))
 
     # Limit
     plt.ylim(ymin=0)
@@ -1589,12 +1629,6 @@ def plot_lad_comparison(
                 verticalalignment="top",
                 fontsize=3)
 
-    font_additional_info = {
-        'family': 'arial',
-        'color': 'black',
-        'weight': 'normal',
-        'size': 8}
-
     plt.xlabel("UK regions (excluding northern ireland)")
     plt.ylabel("{} [GWh]".format(fueltype_str))
 
@@ -1610,6 +1644,115 @@ def plot_lad_comparison(
     # Tight layout
     plt.margins(x=0)
     plt.tight_layout()
+    plt.savefig(fig_path)
+
+    if plotshow:
+        plt.show()
+    else:
+        plt.close()
+
+def plot_radar_plot(dh_profile, fig_path, plot_steps=30, plotshow=False):
+    """Plot daily load profile on a radar plot
+
+    Arguments
+    ---------
+    dh_profile : list
+        Dh values to plot
+    fig_path : str
+        Path to save figure
+
+    SOURCE: https://python-graph-gallery.com/390-basic-radar-chart/
+    """
+
+    # Get maximum demand
+    max_entry = np.array(dh_profile).max()
+    max_demand = round(max_entry, -1) + 10 # Round to nearest 10 plus add 10
+    max_demand = 120 #SCRAP
+
+
+    nr_of_plot_steps = int(max_demand / plot_steps) + 1
+
+    axis_plots_inner = []
+    axis_plots_outer = []
+
+    # Innter ciruclar axis
+    for i in range(nr_of_plot_steps):
+        axis_plots_inner.append(plot_steps*i)
+        axis_plots_outer.append(str(plot_steps*i))
+
+    # ---------
+    data = {
+        'dh_profile': ['testname']}
+
+    for hour in range(24):
+
+        # Key: Label outer circle
+        data[hour] = dh_profile[hour]
+
+    # Set data
+    df = pd.DataFrame(data)
+
+    # number of variable
+    categories=list(df)[1:]
+    N = len(categories)
+
+    # We are going to plot the first line of the data frame.
+    # But we need to repeat the first value to close the circular graph:
+    values=df.loc[0].drop('dh_profile').values.flatten().tolist()
+    values += values[:1]
+
+    # What will be the angle of each axis in the plot? (we divide the plot / number of variable)
+    angles = [n / float(N) * 2 * pi for n in range(N)]
+    angles += angles[:1]
+
+    # Initialise the spider plot
+    ax = plt.subplot(111, polar=True)
+
+    #plt.figure(figsize=plotting_program.cm2inch(8, 8))
+    #ax = plt.subplot(111, polar=True)
+    #fig, ax = plt.subplots(figsize=plotting_program.cm2inch(8, 8))
+    #ax = plt.subplot(111, polar=True)
+
+    # Change to clockwise cirection
+    ax.set_theta_direction(-1)
+    #ax.set_theta_offset(pi/2.0)
+
+    # Set first hour on top
+    ax.set_theta_zero_location("N")
+
+    # Draw one axe per variable + add labels labels yet
+    plt.xticks(
+        angles[:-1],
+        categories,
+        color='grey',
+        size=8)
+
+   
+    # Draw ylabels
+    ax.set_rlabel_position(0)
+    plt.yticks(
+        axis_plots_inner,
+        axis_plots_outer,
+        color="grey",
+        size=7)
+
+    # Set limit to size
+    plt.ylim(0, max_demand)
+
+    # Plot data
+    ax.plot(
+        angles,
+        values,
+        linestyle='--',
+        linewidth=0.5)
+
+    # Fill area (TODO SAME AS )
+    ax.fill(
+        angles,
+        values,
+        'blue', #b
+        alpha=0.1)
+
     plt.savefig(fig_path)
 
     if plotshow:

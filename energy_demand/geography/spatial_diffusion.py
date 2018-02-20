@@ -4,6 +4,12 @@ penetration.
 
 TODO MORE INFO
 
+1. Steps
+- define concept (e.g. rural_urban)
+- calculate congruence values
+- attribute diffusion weights to congruence values
+- Calculate spatial index
+
 """
 from collections import defaultdict
 import numpy as np

@@ -74,7 +74,7 @@ def test_create_service_switch():
         if entry.technology_install == 'boiler_gas':
             assert expected == entry.service_share_ey
 test_create_service_switch()
-def test_capacity_installations():
+def test_capacity_switch():
     """
     """
     other_enduse_mode_info = {
@@ -103,7 +103,7 @@ def test_capacity_installations():
         )
     ]
 
-    result_service_switches = fuel_service_switch.capacity_installations(
+    result_service_switches = fuel_service_switch.capacity_switch(
         service_switches=[],
         capacity_switches=capacity_switches,
         technologies=technologies,
@@ -150,7 +150,7 @@ def test_capacity_installations():
             )
         ]
 
-    result_service_switches = fuel_service_switch.capacity_installations(
+    result_service_switches = fuel_service_switch.capacity_switch(
         service_switches=result_service_switches,
         capacity_switches=capacity_switches,
         technologies=technologies,

@@ -127,7 +127,8 @@ class Enduse(object):
         self.techs_fuel_peak_h = {}
         self.techs_fuel_peak_dh = {}
 
-        if np.sum(fuel) == 0: #If enduse has no fuel return empty shapes
+        if np.sum(fuel) == 0:
+            #If enduse has no fuel return empty shapes
             self.flat_profile_crit = True
             self.fuel_y = fuel
             self.fuel_yh = 0
@@ -363,7 +364,6 @@ class Enduse(object):
                                 load_profiles,
                                 mode_constrained=True)
 
-                        # If technologies, use technology dicts
                         self.fuel_yh = None
                         self.fuel_peak_h = None
                         self.fuel_peak_dh = None
@@ -464,12 +464,9 @@ def demand_management(
 
         # Calculate average for every day
         if mode_constrained:
-            axis = 1
+            average_fuel_yd = np.mean(fuel_yh, axis=1)
         else:
-            axis = 2
-
-        # Calculate average for every day
-        average_fuel_yd = np.mean(fuel_yh, axis=axis)
+            average_fuel_yd = np.mean(fuel_yh, axis=2)
 
         # Calculate load factors (only inter_day load shifting as for now)
         loadfactor_yd_cy = lf.calc_lf_d(

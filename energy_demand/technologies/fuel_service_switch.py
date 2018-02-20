@@ -132,7 +132,7 @@ def autocomplete_switches(service_switches, specified_tech_enduse_by, service_te
 
     return service_switches_out
 
-def capacity_installations(
+def capacity_switch(
         service_switches,
         capacity_switches,
         technologies,
@@ -146,7 +146,7 @@ def capacity_installations(
     Service switch are calculated based on the assumed
     capacity installation (in absolute GW) of technologies.
     Assumptions on capacities are defined in the
-    CSV file `assumptions_capacity_installations.csv`
+    CSV file `xx_capacity_switch.csv`
 
     Arguments
     ---------
@@ -404,7 +404,7 @@ def capacity_to_service_switches(assumptions, fuels, base_yr):
     base_yr : int
         Base year
     """
-    assumptions['rs_service_switches'] = capacity_installations(
+    assumptions['rs_service_switches'] = capacity_switch(
         assumptions['rs_service_switches'],
         assumptions['capacity_switches']['rs_capacity_switches'],
         assumptions['technologies'],
@@ -413,7 +413,7 @@ def capacity_to_service_switches(assumptions, fuels, base_yr):
         assumptions['rs_fuel_tech_p_by'],
         base_yr)
 
-    assumptions['ss_service_switches'] = capacity_installations(
+    assumptions['ss_service_switches'] = capacity_switch(
         assumptions['ss_service_switches'],
         assumptions['capacity_switches']['ss_capacity_switches'],
         assumptions['technologies'],
@@ -422,7 +422,7 @@ def capacity_to_service_switches(assumptions, fuels, base_yr):
         assumptions['ss_fuel_tech_p_by'],
         base_yr)
 
-    assumptions['is_service_switches'] = capacity_installations(
+    assumptions['is_service_switches'] = capacity_switch(
         assumptions['is_service_switches'],
         assumptions['capacity_switches']['is_capacity_switches'],
         assumptions['technologies'],

@@ -219,7 +219,6 @@ class Technology(object):
 
     Notes
     -----
-    TODO: ADD DESCRIPTION ATTIRBUTE
     Technologies only coming on the market in the future can be defined by
     defining a future market entry year. Additionally, for all technologies,
     the name, fuel type, technology type
