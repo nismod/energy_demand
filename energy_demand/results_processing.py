@@ -23,7 +23,8 @@ def main(path_data_energy_demand):
 
     # Set up logger
     logger_setup.set_up_logger(
-        os.path.join(path_data_energy_demand, "logging_plotting.log"))
+        os.path.join(
+            path_data_energy_demand, "logging_plotting.log"))
 
     # ------------------
     # Load necessary inputs for read in
@@ -61,10 +62,8 @@ def main(path_data_energy_demand):
     print("... start reading in model txt results")
     results_container = read_data.read_in_results(
         data['local_paths']['data_results_model_runs'],
-        data['lookups'],
         data['assumptions']['seasons'],
-        data['assumptions']['model_yeardays_daytype'],
-        data['lu_reg'])
+        data['assumptions']['model_yeardays_daytype'])
 
     # ----------------
     # Write results to CSV files and merge with shapefile

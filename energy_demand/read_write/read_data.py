@@ -155,7 +155,7 @@ class ServiceSwitch(object):
         self.service_share_ey = service_share_ey
         self.switch_yr = switch_yr
 
-def read_in_results(path_runs, lookups, seasons, model_yeardays_daytype, regions):
+def read_in_results(path_runs, seasons, model_yeardays_daytype):
     """Read and post calculate results from txt files
     and store into container
 
@@ -163,14 +163,11 @@ def read_in_results(path_runs, lookups, seasons, model_yeardays_daytype, regions
     ---------
     path_runs : str
         Paths
-    lookups : dict
-        lookups
     seasons : dict
         seasons
     model_yeardays_daytype : dict
         Daytype of modelled yeardays
-    regions : dict
-        Regions
+
     """
     logging.info("... Reading in results")
 
@@ -179,7 +176,7 @@ def read_in_results(path_runs, lookups, seasons, model_yeardays_daytype, regions
     # -------------
     # Fuels
     # -------------
-    results_container['results_enduse_every_year'] = read_enduse_specific_results_txt(
+    results_container['results_enduse_every_year'] = read_enduse_specific_results(
         path_runs)
 
     results_container['results_every_year'] = read_results_yh(path_runs)
@@ -317,7 +314,7 @@ def read_max_results(path):
 
     return results
 
-def read_enduse_specific_results_txt(path_to_folder):
+def read_enduse_specific_results(path_to_folder):
     """Read enduse specific results
 
     Arguments

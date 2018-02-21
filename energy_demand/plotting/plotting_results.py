@@ -384,17 +384,6 @@ def plot_seasonal_lf(
             'size': 5},
         loc='best',
         frameon=False)
-    '''recs = []
-    for color_nr in range(0, len(class_colours)):
-        recs.append(mpatches.Rectangle((0,0), 1, 1, fc=class_colours[color_nr], alpha=1.0))
-
-    plt.legend(
-        recs,
-        classes,
-        ncol=2,
-        prop={'family': 'arial','size': 8},
-        loc='best',
-        frameon=False)'''
 
     # Tight layout
     plt.tight_layout()
@@ -565,35 +554,7 @@ def plt_stacked_enduse(
 
     ax = fig.add_subplot(1, 1, 1)
 
-    color_list = [
-        'darkturquoise',
-        'orange',
-        'firebrick',
-        'darkviolet',
-        'khaki',
-        'olive',
-        'darkseagreen',
-        'darkcyan',
-        'indianred',
-        'darkblue',
-        'orchid',
-        'gainsboro',
-        'mediumseagreen',
-        'lightgray',
-        'mediumturquoise',
-        'darksage',
-        'lemonchiffon',
-        'cadetblue',
-        'lightyellow',
-        'lavenderblush',
-        'coral',
-        'purple',
-        'aqua',
-        'mediumslateblue',
-        'darkorange',
-        'mediumaquamarine',
-        'darksalmon',
-        'beige']
+    color_list = plotting_styles.color_list()
 
     # ----------
     # Stack plot
@@ -718,13 +679,9 @@ def plt_stacked_enduse_sectors(
     # ------------
     # Plot color legend with colors for every SUBMODEL
     # ------------
-    '''recs = []
-    for color_nr in range(0, len(color_stackplots)):
-        recs.append(mpatches.Rectangle((0, 0), 1, 1, fc=color_stackplots[color_nr], alpha=1.0))'''
     leg_labels = ['residential', 'service', 'industry']
 
     plt.legend(
-        #recs,
         leg_labels,
         ncol=1,
         prop={
@@ -862,7 +819,6 @@ def plt_fuels_enduses_week(
     plt.xlabel("day")
     plt.title("tot annual ED, all enduses, fueltype {}".format(year_to_plot + 2050))
 
-    # Saving figure
     plt.savefig(fig_name)
     plt.close()
 
@@ -961,8 +917,9 @@ def plt_fuels_enduses_y(results, lookups, fig_name):
     # Tight layout
     plt.tight_layout()
     plt.margins(x=0)
+
     plt.show()
-    # Save fig
+
     plt.savefig(fig_name)
     plt.close()
 
@@ -1332,28 +1289,7 @@ def plot_load_profile_dh(data_dh_real, data_dh_modelled, path_plot_fig):
     plt.savefig(path_plot_fig)
     plt.close()
 
-def testplot():
-    """TESTLINELOTS
-    """
-    x_values = [[3, 23], [32, 12]]
-    y_values = [[4, 44], [33, 1]]
 
-    for line_nr in range(2):
-        plt.plot(x_values[line_nr], y_values[line_nr], color='green') #'ro', markersize=1,
-    testplot()
-    plt.show()
-
-'''
-    # Scatter plot over years
-    for year, lf_fueltype_reg in load_factors_y.items():
-        for _region, lf_reg in enumerate(lf_fueltype_reg[fueltype_int]):
-            x_values.append(year)
-            y_values.append(lf_reg)
-
-    #plt.plot(x_values, y_values)
-    plt.scatter(x_values, y_values)
-
-'''
 def plot_lp_dh(data_dh_modelled, path_plot_fig, fig_name):
     """plot daily profile
     """
@@ -1364,7 +1300,7 @@ def plot_lp_dh(data_dh_modelled, path_plot_fig, fig_name):
     path_fig_name = os.path.join(
         path_plot_fig,
         fig_name)
-        
+
     # -----------------
     # Axis
     # -----------------

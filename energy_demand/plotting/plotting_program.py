@@ -29,9 +29,6 @@ def plotout_sigmoid_tech_diff(
         """
         plt.close()
 
-    #logging.debug("... plot sigmoid diffusion {} {} {} {}".format(
-    #    technology, L_value, xdata, ydata))
-
     x = np.linspace(1990, 2110, 300)
     y = diffusion_technologies.sigmoid_function(x, L_value, *fit_parameter)
 

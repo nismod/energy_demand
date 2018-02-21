@@ -232,7 +232,8 @@ def tempo_spatial_validation(
     # ---------------------------------------------------
     # Validation of national electrictiy demand for peak
     # ---------------------------------------------------
-    logging.debug("...validation of peak data: compare peak with data")
+    logging.debug(
+        "...validation of peak data: compare peak with data")
 
     # Peak across all fueltypes WARNING: Fueltype specific
     peak_day = enduse_func.get_peak_day_all_fueltypes(ed_fueltype_national_yh)
@@ -487,24 +488,3 @@ def spatial_validation(
         plt.show()
     else:
         plt.close()
-
-'''def correction_uk_northern_ireland_2015():
-    """Not used yet
-    """
-    # ------------
-    # Substraction demand for northern ireland proportionally
-    # to the population. The population data are taken from
-    # https://www.ons.gov.uk/peoplepopulationandcommunity
-    # populationandmigration/populationestimates/bulletins
-    # annualmidyearpopulationestimates/mid2015
-    #
-    # The reason to correct for norther ireland is becauss
-    # in the national electricity data, nothern ireland is
-    # not included. However, in BEIS, Northern ireland is included.
-    # ------------
-    pop_northern_ireland_2015 = 1851600
-    pop_wales_scotland_england_2015 = 3099100 + 5373000 + 54786300
-    pop_tot_uk = pop_northern_ireland_2015 + pop_wales_scotland_england_2015
-    correction_factor = pop_wales_scotland_england_2015 / pop_tot_uk
-
-    return correction_factor'''

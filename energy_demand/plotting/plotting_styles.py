@@ -31,3 +31,38 @@ def linestyles():
         linestyles_out[nr] = linestyle
 
     return linestyles_out
+
+def color_list():
+    """ List with colors
+    """
+    color_list = [
+        'darkturquoise',
+        'orange',
+        'firebrick',
+        'darkviolet',
+        'khaki',
+        'olive',
+        'darkseagreen',
+        'darkcyan',
+        'indianred',
+        'darkblue',
+        'orchid',
+        'gainsboro',
+        'mediumseagreen',
+        'lightgray',
+        'mediumturquoise',
+        'darksage',
+        'lemonchiffon',
+        'cadetblue',
+        'lightyellow',
+        'lavenderblush',
+        'coral',
+        'purple',
+        'aqua',
+        'mediumslateblue',
+        'darkorange',
+        'mediumaquamarine',
+        'darksalmon',
+        'beige']
+
+    return color_list
