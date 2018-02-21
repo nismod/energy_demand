@@ -92,7 +92,7 @@ def load_sim_param_ini(path):
 def read_national_real_elec_data(path_to_csv):
     """Read in national consumption from csv file. The unit
     in the original csv is in GWh per region per year.
-    TODO: UPDATE VALUES
+
     Arguments
     ---------
     path_to_csv : str
@@ -105,7 +105,9 @@ def read_national_real_elec_data(path_to_csv):
 
     Info
     -----
-    Source: https://www.gov.uk/government/statistical-data-sets/regional-and-local-authority-electricity-consumption-statistics-2005-to-2011
+    Source: https://www.gov.uk/government/statistical-data-sets
+    /regional-and-local-authority-electricity-
+    consumption-statistics-2005-to-2011
     """
     national_fuel_data = {}
     with open(path_to_csv, 'r') as csvfile:

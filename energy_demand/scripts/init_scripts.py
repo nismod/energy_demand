@@ -2,6 +2,7 @@
 model installation and after each scenario definition
 """
 import os
+import sys
 import logging
 from collections import defaultdict
 import numpy as np
@@ -469,6 +470,7 @@ def sig_param_calc_incl_fuel_switch(
         logging.warning(
             "Error: Not possible to define fuel plus service switch for %s",
             enduse)
+        sys.exit()
 
     # ------------------------------------------
     # Initialisations
@@ -489,7 +491,7 @@ def sig_param_calc_incl_fuel_switch(
     # switches and the diffusion parameters
     # ------------------------------------------
     if crit_switch_service:
-
+        logging.info("SERVICE: " + str(enduse) + str(share_service_tech_ey_p))
         # Calculate only from service switch
         service_tech_switched_p = share_service_tech_ey_p
 
@@ -510,7 +512,7 @@ def sig_param_calc_incl_fuel_switch(
         Calculate future service share after fuel switches
         and calculte sigmoid diffusion paramters.
         """
-
+        print("*****FUELSWITCH")
         # Get fuel switches of enduse
         enduse_fuel_switches = fuel_service_switch.get_fuel_switches_enduse(
             fuel_switches, enduse)
@@ -575,10 +577,11 @@ def sig_param_calc_incl_fuel_switch(
         # Calculate only from fuel switch
         share_service_tech_ey_p = fuel_service_switch.switches_to_dict(
             service_switches_out, regional_specific)
-
+        print(share_service_tech_ey_p.values())
         assert round(sum(share_service_tech_ey_p.values()), 3) == 1
 
     if crit_switch_service or crit_fuel_switch:
+        logging.info("---------- switches {} {}  {}".format(enduse, crit_switch_service, crit_fuel_switch))
         # Calculates parameters for sigmoid diffusion of
         # technologies which are switched to/installed. With
         # `regional_specific` the assumption can be changed that

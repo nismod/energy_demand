@@ -225,7 +225,7 @@ def tempo_spatial_validation(
         plot_radar=False,
         plot_all_entries=False,
         plot_max_min_polygon=True,
-        plot_figure=False,
+        plotshow=False,
         max_y_to_plot=60,
         fueltype_str=False,
         year=False)
@@ -310,15 +310,15 @@ def spatial_validation(
                         # --Sub Regional Electricity demand (as GWh)
                         result_dict['real_demand'][reg_geocode] = subnational_demand[reg_geocode]
 
-                        gw_per_region_modelled = np.sum(ed_fueltype_regs_yh[fueltype_int][region_array_nr])
+                        gwh_modelled = np.sum(ed_fueltype_regs_yh[fueltype_int][region_array_nr])
 
                         # Correct ECUK data with correction factor
-                        result_dict['modelled_demand'][reg_geocode] = gw_per_region_modelled
-                        logging.warning("{}, {}".format(reg_geocode, gw_per_region_modelled)) #subnational_demand[reg_geocode]))
+                        result_dict['modelled_demand'][reg_geocode] = gwh_modelled
+                        logging.warning("{}, {}".format(reg_geocode, gwh_modelled))
 
                 except KeyError:
                     logging.warning(
-                        "Sub-national spatial validation: No fuel is availalbe for region %s", reg_geocode)
+                        "Sub-national spatial validation: No fuel for region %s", reg_geocode)
 
     logging.info("Comparison: modelled: {}  real: {}".format(
         sum(result_dict['modelled_demand'].values()),

@@ -6,11 +6,104 @@ import numpy as np
 import matplotlib.pyplot as plt
 from energy_demand.plotting import plotting_styles
 from energy_demand.plotting import plotting_program
+from energy_demand.basic import conversions
+
+def plot_tot_y_over_time(
+        scenario_data,
+        fig_name,
+        plotshow=False
+    ):
+    """Plot total demand over simulation period for every
+    scenario for all regions
+    """
+    # Set figure size
+    plt.figure(figsize=plotting_program.cm2inch(14, 8))
+
+    y_scenario = {}
+
+    for scenario_name, scen_data in scenario_data.items():
+
+        # Read out fueltype specific max h load
+        data_years = {}
+        for year, data_year in scen_data['results_every_year'].items():
+
+            # Sum all regions and fueltypes
+            tot_gwh_fueltype_y = np.sum(np.sum(data_year))
+
+            # Convert to TWh
+            tot_twh_fueltype_y = conversions.gwh_to_twh(tot_gwh_fueltype_y)
+            print("GWH: " + str(tot_gwh_fueltype_y))
+            print("TWH: " + str(tot_twh_fueltype_y))
+            data_years[year] = tot_twh_fueltype_y
+
+        y_scenario[scenario_name] = data_years
+
+    # -----------------
+    # Axis
+    # -----------------
+    base_yr, year_interval = 2015, 5
+    first_scen = list(y_scenario.keys())[0]
+    end_yr = list(y_scenario[first_scen].keys())
+
+    major_ticks = np.arange(
+        base_yr,
+        end_yr[-1] + year_interval,
+        year_interval)
+
+    plt.xticks(major_ticks, major_ticks)
+
+    # ----------
+    # Plot lines
+    # ----------
+    color_list_selection = plotting_styles.color_list_selection()
+
+    for fueltype_str, fuel_fueltype_yrs in y_scenario.items():
+
+        plt.plot(
+            list(fuel_fueltype_yrs.keys()),     # years
+            list(fuel_fueltype_yrs.values()),   # yearly data per fueltype
+            color=str(color_list_selection.pop()),
+            label=fueltype_str)
+
+    # ----
+    # Axis
+    # ----
+    plt.ylim(ymin=0)
+
+    # ------------
+    # Plot legend
+    # ------------
+    plt.legend(
+        ncol=2,
+        loc=2,
+        prop={
+            'family': 'arial',
+            'size': 10},
+        frameon=False)
+
+    # ---------
+    # Labels
+    # ---------
+    plt.ylabel("TWh")
+    plt.xlabel("year")
+    plt.title("tot y ED all fueltypes")
+
+    # Tight layout
+    plt.tight_layout()
+    plt.margins(x=0)
+
+    plt.savefig(fig_name)
+
+    if plotshow:
+        plt.show()
+        plt.close()
+    else:
+        plt.close()
 
 def plot_LAD_comparison_scenarios(
         scenario_data,
         year_to_plot,
-        fig_path,
+        fig_name,
         plotshow=True
     ):
     """Plot chart comparing total annual demand for all LADs
@@ -21,7 +114,7 @@ def plot_LAD_comparison_scenarios(
         Scenario name, scenario data
     year_to_plot : int
         Year to plot different LAD values
-    fig_path : str
+    fig_name : str
         Path to out pdf figure
     plotshow : bool
         Plot figure or not
@@ -104,6 +197,10 @@ def plot_LAD_comparison_scenarios(
 
             sorted_year_data.append(tot_fuel_across_fueltypes)
 
+        # Calculate total annual demand
+        tot_demand = sum(sorted_year_data)
+        scenario_name = "{} (tot: {}[GWh])".format(scenario_name, round(tot_demand, 2))
+
         plt.plot(
             x_values,
             sorted_year_data,
@@ -151,7 +248,7 @@ def plot_LAD_comparison_scenarios(
         fontdict=font_additional_info)
 
     plt.xlabel("UK regions (excluding northern ireland)")
-    plt.ylabel("{} [GWh]")
+    plt.ylabel("[GWh]")
 
     # --------
     # Legend
@@ -165,8 +262,7 @@ def plot_LAD_comparison_scenarios(
     # Tight layout
     plt.margins(x=0)
     plt.tight_layout()
-    plt.show()
-    plt.savefig(fig_path)
+    plt.savefig(fig_name)
 
     if plotshow:
         plt.show()

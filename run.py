@@ -29,7 +29,7 @@ from energy_demand.technologies import fuel_service_switch
 from energy_demand.profiles import hdd_cdd
 
 # must match smif project name for Local Authority Districts
-NR_OF_MODELLEd_REGIONS = 10 #391 # uk: 391, england.: 380
+NR_OF_MODELLEd_REGIONS = 391 #391 # uk: 391, england.: 380
 
 class EDWrapper(SectorModel):
     """Energy Demand Wrapper

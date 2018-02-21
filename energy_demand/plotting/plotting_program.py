@@ -35,7 +35,7 @@ def plotout_sigmoid_tech_diff(
     fig = plt.figure()
 
     #creating a timer object and setting an interval
-    timer = fig.canvas.new_timer(interval = 555)
+    timer = fig.canvas.new_timer(interval=555)
     timer.add_callback(close_event)
 
     fig.set_size_inches(12, 8)
@@ -58,4 +58,3 @@ def plotout_sigmoid_tech_diff(
             pass
     else:
         pass
-

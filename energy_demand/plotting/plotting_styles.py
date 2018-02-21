@@ -68,6 +68,24 @@ def color_list():
 
     return color_list
 
+def color_list_selection():
+    """
+    """
+
+    color_list_selection = [
+        'darkturquoise',
+        'orange',
+        'firebrick',
+        'darkviolet',
+        'khaki',
+        'olive',
+        'darkseagreen',
+        'darkcyan',
+        'indianred',
+        'darkblue']
+
+    return color_list_selection
+
 def font_info():
     """
     """

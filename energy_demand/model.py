@@ -33,7 +33,6 @@ class EnergyDemandModel(object):
         """Constructor
         """
         logging.info("... start main energy demand function")
-        print("... start main energy demand function")
         self.curr_yr = data['sim_param']['curr_yr']
 
         # --------------
