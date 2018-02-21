@@ -68,7 +68,7 @@ def calc_sigmoid_parameters(
         2.8, 2.85, 2.9, 2.95, 3.0, 3.05, 3.1, 3.15, 3.2, 3.25, 3.3, 3.35, 3.40, 3.45,
         3.5, 3.55, 3.6, 3.65, 3.7, 3.75, 3.8, 3.85, 3.9, 3.95, 4.0, 4.05, 4.1, 4.15,
         4.2, 4.25, 4.3, 4.35, 4.4, 4.45, 4.5, 4.55, 4.6, 4.65, 4.7, 4.75, 4.8, 4.85,
-        4.9, 4.95, 1.0, 0.001, 0.01, 0.1, 60.0, 100.0, 200.0, 400.0, 500.0, 1000.0,
+        4.9, 4.95, 1.0, 0.0001, 0.001, 0.01, 0.1, 60.0, 100.0, 200.0, 400.0, 500.0, 1000.0,
         1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0, 10.0, 11.0, 12.0, 13.0, 14.0,
         15.0, 16.0, 17.0, 18.0, 19.0, 20.0, 21.0, 22.0, 23.0, 24.0, 25.0, 26.0, 27.0,
         28.0, 29.0, 30.0, 31.0, 32.0, 33.0, 34.0, 35.0, 36.0, 37.0, 38.0, 39.0, 40.0,
@@ -323,6 +323,10 @@ def calc_service_fuel_switched(
     service_tech_switched_p : dict
         Service in future year with added and substracted
         service demand for every technology
+
+    Note
+    ----
+    Assertion may be removed to increase speed
     """
     service_tech_switched_p = {}
 
@@ -333,53 +337,45 @@ def calc_service_fuel_switched(
 
         # Share of energy service of repalced fueltype before switch in base year
         service_p_by = service_fueltype_by_p[tech_replace_fueltype]
-        import pprint 
-        pprint.pprint(service_tech_by_p)
-        # Service demand per fueltype that will be switched
-        # (e.g. 10% of service is gas ---> if we replace 50% --> minus 5 percent)
+
+        # Service share of fueltype that will be switched
         if switch_type == 'max_switch':
             diff_service_fueltype_by_p = service_p_by * technologies[tech_install].tech_max_share
         elif switch_type == 'actual_switch':
             diff_service_fueltype_by_p = service_p_by * fuel_switch.fuel_share_switched_ey
 
+        # ----------------
         # Service addition
+        # ----------------
         service_tech_switched_p[tech_install] = service_tech_by_p[tech_install] + diff_service_fueltype_by_p
 
+        # ----------------
+        # Service substraction
+        # ----------------
         # Iterate technologies which are replaced for this fueltype and substract
         # service demand for replaced technologies proportionally
-        # OLD for tech, fuel_tech_p in fuel_tech_p_by[tech_replace_fueltype].items():
-        # OLD    service_tech_switched_p[tech] = service_tech_by_p[tech] - (diff_service_fueltype_by_p * fuel_tech_p)
 
-        # ---NEW Calculate proportional share in by
+        # Calculate proportional share of technologies in replaced fueltype in by
         technologies_replaced = list(fuel_tech_p_by[tech_replace_fueltype].keys())
+
         tot_by_share = 0
         for tech in technologies_replaced:
             tot_by_share += service_tech_by_p[tech]
-        print("REPLACED " + str(technologies_replaced))
-        for tech in technologies_replaced:
-            print(" ")
-            print("=========        " + str(tech))
-            print("Total percent von fueltype           " + str(service_p_by))
-            print("total percent von all disen techs:   " + str(tot_by_share))
-            print("Tech share                           " + str(service_tech_by_p[tech]))
-            print("rel tech share:                      " + str(service_tech_by_p[tech] / tot_by_share))
-            print("Replacine share                      " + str(fuel_switch.fuel_share_switched_ey))
-            print("Fueltype p das abezogen wird         " + str(diff_service_fueltype_by_p))
-            print("Fueltype p das abezogen wird         " + str(service_p_by * fuel_switch.fuel_share_switched_ey))
-            print(switch_type)
-            print(round(service_tech_by_p[tech], 5))
-            print(round(diff_service_fueltype_by_p * (service_tech_by_p[tech] / tot_by_share), 5))
 
-            service_tech_switched_p[tech] = round(service_tech_by_p[tech], 5) - round(diff_service_fueltype_by_p * (service_tech_by_p[tech] / tot_by_share), 5)
-            print("EEEEEEEEE: " + str(service_tech_switched_p[tech]))
-            #because of roudning error may e minuse
-            #service_tech_switched_p[tech] = service_tech_by_p[tech] - (diff_service_fueltype_by_p * (service_tech_by_p[tech] / tot_by_share))
-            print(round(service_tech_switched_p[tech], 8))
-            if service_tech_switched_p[tech] < 0:
-                print("..")
-                pprint.pprint(service_tech_switched_p)
+        # Substract switched share proportionally to base year service in fueltype
+        for tech in technologies_replaced:
+
+            # Because of rounding error otherwise minus values possible
+            round_digits = 5
+
+            # Relative share in by
+            rel_tech_by_p = service_tech_by_p[tech] / tot_by_share
+
+            # Substract (service_by - service to switch * relative share)
+            service_tech_switched_p[tech] = round(service_tech_by_p[tech], round_digits) - round(diff_service_fueltype_by_p * rel_tech_by_p, round_digits)
 
             assert service_tech_switched_p[tech] >= 0
+
     # -----------------------
     # Calculate service fraction of all technologies in
     # enduse not affected by fuel switch
@@ -403,9 +399,7 @@ def calc_service_fuel_switched(
         rel_service_fraction_p = tech_fraction / service_tot_remaining
         service_tech_switched_p[tech] = rel_service_fraction_p * unaffected_service_to_distr_p
 
-        # NEW
-        print(" a: {}  {}  {}".format(tech, tech_fraction, service_tot_remaining))
-        assert service_tech_switched_p[tech] >= 0
+        assert service_tech_switched_p[tech] >= 0 #NEW
 
     return dict(service_tech_switched_p)
 
@@ -532,7 +526,18 @@ def tech_sigmoid_parameters(
     -------
     sig_params : dict
         Sigmoid diffusion parameters to read energy service demand percentage (not fuel!)
+    
+    Info
+    -----
+        `rounding_accuracy`     This rounds the by and ey service share
+                                to the defined number of digits. Because of
+                                rounding error, there might be very small
+                                differences in percentual service demand.
+
     """
+    # Criteria how much difference in % can be rounded
+    rounding_accuracy = 4
+
     # Technologies to apply calculation
     installed_techs = service_tech_switched_p.keys()
 
@@ -571,12 +576,11 @@ def tech_sigmoid_parameters(
             xdata = np.array([point_x_by, point_x_ey])
             ydata = np.array([point_y_by, point_y_ey])
 
-            logging.info(
-                "... create sigmoid diffusion %s - %s - %s - %s - l_val: %s - %s - %s",
-                tech, xdata, ydata, fit_assump_init, l_values[tech], point_y_by, point_y_ey)
+            #logging.info(
+            #    "... create sigmoid diffusion %s - %s - %s - %s - l_val: %s - %s - %s",
+            #    tech, xdata, ydata, fit_assump_init, l_values[tech], point_y_by, point_y_ey)
 
             # If no change in by to ey but not zero (lineare change)
-            rounding_accuracy = 5
             if (round(point_y_by, rounding_accuracy) == round(point_y_ey, rounding_accuracy)) and (
                     point_y_ey != fit_assump_init) and (
                         point_y_by != fit_assump_init):
@@ -602,11 +606,7 @@ def tech_sigmoid_parameters(
                         xdata,
                         ydata,
                         fit_assump_init=fit_assump_init,
-                        error_range=0.0002)
-
-                    #logging.debug(
-                    #    " ... Fitting  %s: Midpoint: %s steepness: %s",
-                    #    tech, fit_parameter[0], fit_parameter[1])
+                        error_range=0.02) #0.0002 #TODO MAYBE TOO BIG
 
                     # Insert parameters
                     sig_params[tech]['midpoint'] = fit_parameter[0] # midpoint (x0)
