@@ -44,7 +44,11 @@ def plot_multiple_scenarios(path_to_scenarios):
     # ------------
     # Create plots
     # ------------
-    plotting_multiple_scenarios.plot_LAD_comparison_scenarios(scenario_data)
+    plotting_multiple_scenarios.plot_LAD_comparison_scenarios(
+        scenario_data,
+        year_to_plot=2050,
+        fig_path=os.path.join(path_to_scenarios, "LAD_multiple.pdf"),
+        plotshow=False)
 
     return
 

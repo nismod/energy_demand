@@ -9,10 +9,26 @@ from energy_demand.plotting import plotting_program
 
 def plot_LAD_comparison_scenarios(
         scenario_data,
-        year_to_plot=2050,
+        year_to_plot,
+        fig_path,
         plotshow=True
     ):
     """Plot chart comparing total annual demand for all LADs
+
+    Arguments
+    ---------
+    scenario_data : dict
+        Scenario name, scenario data
+    year_to_plot : int
+        Year to plot different LAD values
+    fig_path : str
+        Path to out pdf figure
+    plotshow : bool
+        Plot figure or not
+
+    Info
+    -----
+    if scenario name starts with _ the legend does not work
     """
 
     # Get first scenario in dict
@@ -57,15 +73,9 @@ def plot_LAD_comparison_scenarios(
     # ----------------------------------------------
     # Plot base year values
     # ----------------------------------------------
-    # Order data (actually not necessar for base year)
     base_year_data = []
     for reg_array_nr in sorted_regions_nrs:
-
-        tot_fuel_across_fueltypes = 0
-        for fueltype, fuel_fueltype in enumerate(scenario_data[first_scenario]['results_every_year'][2015]):
-            tot_fuel_across_fueltypes += np.sum(fuel_fueltype[reg_array_nr])
-
-        base_year_data.append(tot_fuel_across_fueltypes)
+        base_year_data.append(regions[reg_array_nr])
 
     plt.plot(
         x_values,
@@ -75,23 +85,22 @@ def plot_LAD_comparison_scenarios(
         markersize=1.6,
         fillstyle='full',
         markerfacecolor='grey',
-        markeredgewidth=0.2,
+        markeredgewidth=0.4,
         color='black',
-        label='actual')
+        label='actual_by')
 
     # ----------------------------------------------
     # Plot all future scenario values
     # ----------------------------------------------
     color_list = plotting_styles.color_list()
 
-    for scenario_nr, (scenario, fuel_data) in enumerate(scenario_data.items()):
+    for scenario_nr, (scenario_name, fuel_data) in enumerate(scenario_data.items()):
 
         sorted_year_data = []
         for reg_array_nr in sorted_regions_nrs:
-
             tot_fuel_across_fueltypes = 0
             for fueltype, fuel_fueltype in enumerate(fuel_data['results_every_year'][year_to_plot]):
-                tot_fuel_across_fueltypes += np.sum(fuel_fueltype[reg_array_nr])
+                tot_fuel_across_fueltypes += np.sum(fuel_fueltype[reg_array_nr][reg_array_nr])
 
             sorted_year_data.append(tot_fuel_across_fueltypes)
 
@@ -103,9 +112,9 @@ def plot_LAD_comparison_scenarios(
             markersize=1.6,
             fillstyle='full',
             markerfacecolor=color_list[scenario_nr],
-            markeredgewidth=0.2,
-            color='black',
-            label='actual')
+            markeredgewidth=0.4,
+            color=color_list[scenario_nr],
+            label=scenario_name)
 
     # --------
     # Axis
@@ -123,7 +132,7 @@ def plot_LAD_comparison_scenarios(
     # -----------
     # Labelling
     # -----------
-    label_points = False
+    '''label_points = False
     if label_points:
         for pos, txt in enumerate(labels):
             ax.text(
@@ -132,16 +141,12 @@ def plot_LAD_comparison_scenarios(
                 txt,
                 horizontalalignment="right",
                 verticalalignment="top",
-                fontsize=3)
+                fontsize=3)'''
 
-    font_additional_info = {
-        'family': 'arial',
-        'color': 'black',
-        'weight': 'normal',
-        'size': 8}
-    title_info = "TEST"
+    font_additional_info = plotting_styles.font_info()
+
     plt.title(
-        title_info,
+        "TEST",
         loc='left',
         fontdict=font_additional_info)
 
@@ -160,7 +165,8 @@ def plot_LAD_comparison_scenarios(
     # Tight layout
     plt.margins(x=0)
     plt.tight_layout()
-    plt.savefig(fig_name)
+    plt.show()
+    plt.savefig(fig_path)
 
     if plotshow:
         plt.show()

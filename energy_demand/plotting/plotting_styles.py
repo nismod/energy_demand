@@ -1,6 +1,7 @@
 """Plotting styles
 """
 from collections import OrderedDict
+
 def linestyles():
     """
     https://matplotlib.org/gallery/lines_bars_and_markers/linestyles.html
@@ -66,3 +67,14 @@ def color_list():
         'beige']
 
     return color_list
+
+def font_info():
+    """
+    """
+    font_additional_info = {
+        'family': 'arial',
+        'color': 'black',
+        'weight': 'normal',
+        'size': 8}
+
+    return font_additional_info

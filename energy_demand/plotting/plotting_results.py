@@ -1224,11 +1224,7 @@ def plot_load_profile_dh_multiple(
             # -----------
             # Labelling
             # -----------
-            font_additional_info = {
-                'family': 'arial',
-                'color': 'black',
-                'weight': 'normal',
-                'size': 8}
+            font_additional_info = plotting_styles.font_info()
 
             title_info = ('{}, {}'.format(season, daytype))
             plt.text(1, 0.55, "RMSE: {}, R_squared: {}, std: {} (+- {})".format(
@@ -1412,11 +1408,7 @@ def plot_enduse_yh(
     # ----------
     # Labelling
     # ----------
-    font_additional_info = {
-        'family': 'arial',
-        'color': 'black',
-        'weight': 'normal',
-        'size': 8}
+    font_additional_info = plotting_styles.font_info()
 
     plt.xlabel("hour", fontsize=10)
     plt.ylabel("uk electrictiy use [GW]", fontsize=10)

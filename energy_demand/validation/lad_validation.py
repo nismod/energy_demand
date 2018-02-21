@@ -16,6 +16,7 @@ from energy_demand.read_write import data_loader
 from energy_demand.basic import date_prop
 from energy_demand import enduse_func
 from energy_demand.profiles import load_profile
+from energy_demand.plotting import plotting_styles
 
 def temporal_validation(
         local_paths,
@@ -451,11 +452,7 @@ def spatial_validation(
                 verticalalignment="top",
                 fontsize=3)
 
-    font_additional_info = {
-        'family': 'arial',
-        'color': 'black',
-        'weight': 'normal',
-        'size': 8}
+    font_additional_info = plotting_styles.font_info()
 
     title_info = ('r_value: {},std_dev: {} ({})'.format(
         round(r_value, 3),
