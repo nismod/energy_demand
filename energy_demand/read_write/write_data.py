@@ -48,7 +48,6 @@ def create_shp_results(data, results_container, paths, lookups, lu_reg):
         Region in a list with order how they are stored in result array
     """
     logging.info("... create result shapefiles")
-    print("... create result shapefiles")
 
     # ------------------------------------
     # Create shapefile with load factors

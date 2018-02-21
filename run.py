@@ -56,7 +56,7 @@ class EDWrapper(SectorModel):
         # -----------
         data['criterias']['mode_constrained'] = True                    # True: Technologies are defined in ED model and fuel is provided, False: Heat is delievered not per technologies
         data['criterias']['virtual_building_stock_criteria'] = True     # True: Run virtual building stock model
-        data['criterias']['spatial_exliclit_diffusion'] = True         # True: Spatial explicit calculations
+        data['criterias']['spatial_exliclit_diffusion'] = False         # True: Spatial explicit calculations
         data['criterias']['writeYAML'] = False                          # True: Write YAML parameters
 
         fast_smif_run = False
@@ -72,12 +72,11 @@ class EDWrapper(SectorModel):
         elif fast_smif_run == False:
             data['criterias']['write_to_txt'] = True
             data['criterias']['beyond_supply_outputs'] = True
-            data['criterias']['validation_criteria'] = False
+            data['criterias']['validation_criteria'] = True
             data['criterias']['plot_tech_lp'] = False
             data['criterias']['plot_crit'] = False
             data['criterias']['crit_plot_enduse_lp'] = False
             data['criterias']['plot_HDD_chart'] = False
-
 
         data['sim_param']['base_yr'] = data_handle.timesteps[0]
         data['sim_param']['curr_yr'] = data_handle.timesteps[0]
@@ -197,7 +196,7 @@ class EDWrapper(SectorModel):
             data['criterias']['plot_tech_lp'])
 
         # ---------------------
-        # Convert capacity switches to service switches for every submodel
+        # Convert capacity switches to service switches
         # ---------------------
         data['assumptions'] = fuel_service_switch.capacity_to_service_switches(
             data['assumptions'], data['fuels'], data['sim_param']['base_yr'])
@@ -287,6 +286,7 @@ class EDWrapper(SectorModel):
             key: name defined in sector models
                 value: np.zeros((len(reg), len(intervals)) )
         """
+        logging.info("... start simulate() function in wrapper")
         time_start = datetime.datetime.now()
 
         # Init default dict
@@ -396,6 +396,7 @@ class EDWrapper(SectorModel):
                 data['lookups']['fueltypes'],
                 data['lookups']['fueltypes_nr'],
                 data['local_paths'],
+                data['paths'],
                 data['lu_reg'],
                 data['reg_coord'],
                 data['assumptions']['seasons'],
@@ -607,7 +608,8 @@ class EDWrapper(SectorModel):
 
         # Get variable from dict and reassign and delete from data_handle
         for var_name in all_strategy_variables:
-            logging.debug("Load strategy parameter: {}  {}".format(var_name, data_handle[var_name]))
+            #logging.debug("Load strategy parameter: {} {}".format(
+            #    var_name, data_handle[var_name]))
 
             # Get narrative variable from input data_handle dict
             strategy_variables[var_name] = data_handle[var_name]
@@ -757,8 +759,6 @@ def constrained_results(
                 supply_results[key_name] = np.zeros((len(regions), model_yearhours_nrs))
                 for region_nr, _ in enumerate(regions):
                     supply_results[key_name][region_nr] = non_heating_ed[submodel_nr][region_nr][fueltype_int]
-                # Test without iterating
-                #supply_results[key_name][region_nr] = non_heating_ed[submodel_nr][:, 0]
 
     logging.info("Prepared results for energy supply model in constrained mode")
     return dict(supply_results)
@@ -840,8 +840,6 @@ def model_tech_simplification(tech):
         tech_newly_assigned = 'boiler_gas'
     elif tech == 'boiler_condensing_oil':
         tech_newly_assigned = 'boiler_oil'
-    #elif tech == 'boiler_condensing_hydrogen':
-    #    tech_newly_assigned = 'boiler_hydrogen'
     elif tech == 'storage_heater_electricity':
         tech_newly_assigned = 'boiler_electricity'
     elif tech == 'secondary_heater_electricity':

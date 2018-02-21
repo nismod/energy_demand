@@ -91,7 +91,6 @@ def del_previous_results(path_folder, path_subfolder_keep):
             # Do not deleted post installation files
             if path_subfolder != path_subfolder_keep:
                 shutil.rmtree(path_subfolder)
-        logging.info("... deleted previous scenario results")
     else:
         pass
 
@@ -105,7 +104,6 @@ def del_previous_setup(path_folder):
     """
     if os.path.exists(path_folder):
         shutil.rmtree(path_folder, ignore_errors=True)
-        logging.info("... deleted previous scenario results")
     else:
         pass
 
@@ -119,7 +117,6 @@ def del_file(path_file):
     """
     if os.path.isfile(path_file):
         os.remove(path_file)
-        logging.info("... deleted previous scenario results")
     else:
         pass
 

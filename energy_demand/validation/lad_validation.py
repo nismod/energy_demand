@@ -105,6 +105,7 @@ def tempo_spatial_validation(
         fueltypes,
         fueltypes_nr,
         local_paths,
+        paths,
         lu_reg,
         reg_coord,
         seasons,
@@ -146,9 +147,9 @@ def tempo_spatial_validation(
     # Spatial validation
     # -------------------------------------------
     subnational_elec = data_loader.read_national_real_elec_data(
-        local_paths['path_val_subnational_elec'])
+        paths['path_val_subnational_elec'])
     subnational_gas = data_loader.read_national_real_gas_data(
-        local_paths['path_val_subnational_gas'])
+        paths['path_val_subnational_gas'])
 
     logging.info("Validation of electricity")
     spatial_validation(
@@ -179,7 +180,7 @@ def tempo_spatial_validation(
     # -------------------------------------------
     # Read validation data
     elec_2015_indo, elec_2015_itsdo = elec_national_data.read_raw_elec_2015(
-        local_paths['path_val_nat_elec_data'])
+        paths['path_val_nat_elec_data'])
 
     diff_factor_elec = np.sum(ed_fueltype_national_yh[fueltypes['electricity']]) / np.sum(elec_2015_indo)
     logging.info("... ed difference between modellend and real [percent] %s: ", (1 - diff_factor_elec) * 100)
@@ -211,17 +212,22 @@ def tempo_spatial_validation(
 
     # Plot average daily loads
     plotting_results.plot_load_profile_dh_multiple(
-        os.path.join(
+        path_fig_folder=local_paths['data_results_validation'],
+        path_plot_fig=os.path.join(
             local_paths['data_results_validation'],
             'validation_all_season_daytypes.pdf'),
-        calc_av_lp_modelled,
-        calc_av_lp_real,
-        calc_lp_modelled,
-        calc_lp_real,
+        calc_av_lp_modelled=calc_av_lp_modelled,
+        calc_av_lp_real=calc_av_lp_real,
+        calc_lp_modelled=calc_lp_modelled,
+        calc_lp_real=calc_lp_real,
         plot_peak=True,
+        plot_radar=False,
         plot_all_entries=False,
+        plot_max_min_polygon=True,
         plot_figure=False,
-        max_y_to_plot=60)
+        max_y_to_plot=60,
+        fueltype_str=False,
+        year=False)
 
     # ---------------------------------------------------
     # Validation of national electrictiy demand for peak

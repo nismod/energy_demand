@@ -241,12 +241,6 @@ def load_local_paths(path):
             path, '_raw_data', 'H-Met_office_weather_data', 'midas_wxhrly_201501-201512.csv'),
         'folder_path_weater_stations': os.path.join(
             path, '_raw_data', 'H-Met_office_weather_data', 'excel_list_station_details.csv'),
-        'path_val_nat_elec_data': os.path.join(
-            path, '_raw_data', 'D-validation', '03_national_elec_demand_2015', 'elec_demand_2015.csv'),
-        'path_val_subnational_elec': os.path.join(
-            path, '_raw_data', 'D-validation', '01_subnational_elec_demand', 'data_2015_elec.csv'),
-        'path_val_subnational_gas': os.path.join(
-            path, '_raw_data', 'D-validation', '02_subnational_gas_demand', 'data_2015_gas.csv'),
         'path_floor_area_virtual_stock_by': os.path.join(
             path, '_raw_data', 'K-floor_area', 'floor_area_by.csv'),
         'path_assumptions_db': os.path.join(
@@ -375,6 +369,14 @@ def load_paths(path):
         'path_employment_statistics': os.path.join(
             path, 'config_data', '04-census_data', 'LAD_census_data.csv'),
 
+        # Validation datasets
+        'path_val_subnational_elec': os.path.join(
+            path, 'config_data', '01-validation_datasets', '02_subnational_elec', 'data_2015_elec.csv'),
+        'path_val_subnational_gas': os.path.join(
+            path, 'config_data', '01-validation_datasets', '03_subnational_gas', 'data_2015_gas.csv'),
+        'path_val_nat_elec_data': os.path.join(
+            path, 'config_data', '01-validation_datasets', '01_national_elec_2015', 'elec_demand_2015.csv'),
+    
         'yaml_parameters': os.path.join(
             path, 'yaml_parameters.yml'),
         'yaml_parameters_default': os.path.join(
@@ -529,8 +531,6 @@ def load_data_profiles(paths, local_paths, model_yeardays, model_yeardays_daytyp
     plot_tech_lp : bool
         Criteria wheter to plot out individual load profiles of techs
     """
-    logging.debug("... read in load shapes from txt files")
-
     tech_lp = {}
 
     # ------------------------------------

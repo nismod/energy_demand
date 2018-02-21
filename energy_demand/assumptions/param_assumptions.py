@@ -309,7 +309,7 @@ def load_param_assump(paths, assumptions):
         "absolute_range": (0, 1),
         "description": "Percentage of floorarea which is cooled (service sector)",
         "suggested_range": (0, 1),
-        "default_value": assumptions['assump_cooling_floorarea']['cooled_ss_floorarea_by'],
+        "default_value": assumptions['cooled_ss_floorarea_by'],
         "units": '%'})
 
     # How much of the floorarea is cooled in end year (example: 0.5 --> 50% of floorarea is cooled)

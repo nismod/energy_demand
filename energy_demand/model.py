@@ -147,7 +147,7 @@ class EnergyDemandModel(object):
             figure_HHD_gas_demand.main(regions, weather_regions, data)
 
 def simulate_region(region, data, weather_regions):
-    """Run submodels for a single region, return aggregate results
+    """Run submodels for a single region
 
     Arguments
     ---------
@@ -163,7 +163,7 @@ def simulate_region(region, data, weather_regions):
     XX_submodels : obj
         SubModel result object
     """
-    logging.debug("... Running for region %s", region)
+    logging.debug("... Simulate region %s", region)
 
     # Get closest weather station to `Region`
     closest_weather_reg = get_closest_station(
@@ -172,7 +172,8 @@ def simulate_region(region, data, weather_regions):
         data['weather_stations'])
 
     closest_weather_region = weather_regions[closest_weather_reg]
-    logging.debug("Closest weather station: %s", closest_weather_reg)
+    #logging.debug(
+    # "Closest weather station: %s", closest_weather_reg)
 
     region_obj = Region(
         name=region,

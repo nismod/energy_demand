@@ -186,22 +186,24 @@ def run_all_plot_functions(
 
             fueltype_str = tech_related.get_fueltype_str(
                 lookups['fueltypes'], fueltype_int)
-            
+
             plot_load_profile_dh_multiple(
-                fueltype_str,
-                year,
-                local_paths['data_results_PDF'],
-                os.path.join(
+                path_fig_folder=local_paths['data_results_PDF'],
+                path_plot_fig=os.path.join(
                     local_paths['data_results_PDF'],
                     'season_daytypes_by_cy_comparison__{}__{}.pdf'.format(year, fueltype_str)),
-                results_container['av_season_daytype_cy'][year][fueltype_int], #current year
-                results_container['av_season_daytype_cy'][base_year][fueltype_int], # base year
-                results_container['season_daytype_cy'][year][fueltype_int], #current year
-                results_container['season_daytype_cy'][base_year][fueltype_int], # base year
+                calc_av_lp_modelled=results_container['av_season_daytype_cy'][year][fueltype_int],  # current year
+                calc_av_lp_real=results_container['av_season_daytype_cy'][base_year][fueltype_int], # base year
+                calc_lp_modelled=results_container['season_daytype_cy'][year][fueltype_int],        # current year
+                calc_lp_real=results_container['season_daytype_cy'][base_year][fueltype_int],       # base year
                 plot_peak=True,
                 plot_all_entries=False,
+                plot_max_min_polygon=True,
                 plot_figure=False,
-                max_y_to_plot=120)
+                plot_radar=False,
+                max_y_to_plot=120,
+                fueltype_str=fueltype_str,
+                year=year)
 
     # ---------------------------------
     # Plot hourly peak loads over time for different fueltypes
@@ -1057,8 +1059,6 @@ def plt_fuels_peak_h(tot_fuel_dh_peak, lookups, path_plot_fig):
     plt.close()
 
 def plot_load_profile_dh_multiple(
-        fueltype_str,
-        year,
         path_fig_folder,
         path_plot_fig,
         calc_av_lp_modelled,
@@ -1066,10 +1066,13 @@ def plot_load_profile_dh_multiple(
         calc_lp_modelled=None,
         calc_lp_real=None,
         plot_peak=False,
+        plot_radar=False,
         plot_all_entries=False,
         plot_max_min_polygon=True,
         plot_figure=False,
-        max_y_to_plot=60
+        max_y_to_plot=60,
+        fueltype_str=False,
+        year=False
     ):
     """Plotting average saisonal loads for each daytype. As an input
     GWh is provided, which for each h is cancelled out to GW.
@@ -1077,15 +1080,12 @@ def plot_load_profile_dh_multiple(
     https://stackoverflow.com/questions/4325733/save-a-subplot-in-matplotlib
     http://matthiaseisen.com/matplotlib/shapes/reg-polygon/
     """
-    nrows = 4
-    ncols = 2
-
-    # set size
-    fig = plt.figure(figsize=plotting_program.cm2inch(14, 25))
+    fig = plt.figure(
+        figsize=plotting_program.cm2inch(14, 25))
     
     ax = fig.add_subplot(
-        nrows=nrows,
-        ncols=ncols)
+        nrows=4,
+        ncols=2)
 
     plot_nr = 0
     row = -1
@@ -1102,6 +1102,7 @@ def plot_load_profile_dh_multiple(
             # Plot average
             # ------------------
             x_values = range(24)
+
             plt.plot(
                 x_values,
                 list(calc_av_lp_real[season][daytype]),
@@ -1121,12 +1122,14 @@ def plot_load_profile_dh_multiple(
             # --------------
             # Radar plots
             # --------------
-            radar_plot = False
-
-            if radar_plot:
+            if plot_radar:
                 name_spider_plot = os.path.join(
                     path_fig_folder,
-                    "spider_{}_{}_{}_{}_.pdf".format(year, fueltype_str, season, daytype))
+                    "spider_{}_{}_{}_{}_.pdf".format(
+                        year,
+                        fueltype_str,
+                        season,
+                        daytype))
 
                 plot_radar_plot(
                     list(calc_av_lp_modelled[season][daytype]),

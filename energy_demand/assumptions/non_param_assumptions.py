@@ -29,7 +29,6 @@ def load_non_param_assump(
     fueltypes : dict
         Fueltypes lookup
     """
-    logging.debug("... load non parameter assumptions")
     assumptions = {}
 
     yr_until_changed_all_things = 2050 #TODO
@@ -126,7 +125,6 @@ def load_non_param_assump(
 
     assumptions['assump_dwtype_distr_future'] = {
 
-        # Year until change is implemented
         'yr_until_changed': yr_until_changed_all_things,
 
         'semi_detached': 0.26,
@@ -161,6 +159,9 @@ def load_non_param_assump(
             '1977.5': 0.3,
             '1996.5': 0.08,
             '2002': 0.05}}
+        
+    # TODO: DEFINE VARIABLE HOW MUCH IN END YEAR IS 2002
+
 
     # ============================================================
     #   Scenario drivers TODO: CHECK all scenario drivers
@@ -231,10 +232,9 @@ def load_non_param_assump(
     #   https://www.bre.co.uk/filelibrary/pdf/projects/aircon-energy-use
     #   /StudyOnEnergyUseByAirConditioningFinalReport.pdf
     # ------------------------------------------------------------
-    assumptions['assump_cooling_floorarea'] = {}
 
     # See Abela et al. (2016)
-    assumptions['assump_cooling_floorarea']['cooled_ss_floorarea_by'] = 0.35
+    assumptions['cooled_ss_floorarea_by'] = 0.35
 
     # ============================================================
     # Smart meter related base year assumptions
@@ -329,8 +329,6 @@ def load_non_param_assump(
     Fuel use ratio - cold over hot rolling in cement sector'''
     # Hith temperature process -- cement, non-ferrous metla, coke ovens, blast furnaces, kilns,..
 
-
-
     # ============================================================
     # Assumption related to technologies
     # ============================================================
@@ -344,8 +342,7 @@ def load_non_param_assump(
     assumptions['split_hp_gshp_to_ashp_by'] = 0.1
 
     assumptions['technologies'], assumptions['tech_list'] = read_data.read_technologies(
-        paths['path_technologies'],
-        fueltypes)
+        paths['path_technologies'], fueltypes)
 
     assumptions['installed_heat_pump_by'] = tech_related.generate_ashp_gshp_split(
         assumptions['split_hp_gshp_to_ashp_by'])

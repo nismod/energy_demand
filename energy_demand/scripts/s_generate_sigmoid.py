@@ -102,6 +102,7 @@ def calc_sigmoid_parameters(
             # Select start parameters depending on pos or neg diff
             if crit_plus_minus == 'minus':
                 start_parameters[1] *= -1
+
             # -----------------------------------
             # Fit function
             # Info: If the fitting function throws errors,
@@ -132,7 +133,6 @@ def calc_sigmoid_parameters(
                 else:
                     successfull = True
 
-                    logging.debug("Fit parameters: %s %s %s", fit_parameter, xdata, ydata)
                     '''plotting_program.plotout_sigmoid_tech_diff(
                         l_value,
                         "ttse",
@@ -152,13 +152,13 @@ def calc_sigmoid_parameters(
 
                     fit_measure_in_percent = float((100.0 / ydata[1]) * y_calculated)
                     if fit_measure_in_percent < (100.0 - error_range) or fit_measure_in_percent > (100.0 + error_range):
-                        logging.debug(
-                            "... Fitting measure %s (percent) is not good enough", fit_measure_in_percent)
+                        #logging.debug(
+                        #    "... Fitting measure %s (percent) is not good enough", fit_measure_in_percent)
                         successfull = False
                         cnt += 1
                     else:
-                        logging.debug(
-                            ".... fitting successfull %s %s", fit_measure_in_percent, fit_parameter)
+                        #logging.debug(
+                        #    ".... fitting successfull %s %s", fit_measure_in_percent, fit_parameter)
                         '''plotting_program.plotout_sigmoid_tech_diff(
                             l_value,
                             "FINISHED FITTING",
@@ -168,16 +168,21 @@ def calc_sigmoid_parameters(
                             plot_crit=True, #TRUE
                             close_window_crit=True)'''
         except (RuntimeError, IndexError):
-            logging.debug("Unsuccessful fit %s %s", start_parameters[0], start_parameters[1])
             cnt += 1
 
             if cnt >= len(start_param_list):
-                logging.critical("Check whether start year is <= the year 2000")
-                raise Exception("Fitting did not work")
+                raise Exception(
+                    "Fitting did not work: Check whether start year is <= the year 2000")
 
     return fit_parameter
 
-def fit_sigmoid_diffusion(l_value, x_data, y_data, start_parameters, number_of_iterations=10000):
+def fit_sigmoid_diffusion(
+        l_value,
+        x_data,
+        y_data,
+        start_parameters,
+        number_of_iterations=10000
+    ):
     """Fit sigmoid curve based on two points on the diffusion curve
 
     Arguments
@@ -263,7 +268,6 @@ def tech_l_sigmoid(
     if installed_tech == []:
         pass
     else:
-        logging.debug("Technologes to calculate sigmoid %s", installed_tech)
 
         # Iterite list with enduses where fuel switches are defined
         for technology in installed_tech:
@@ -504,7 +508,6 @@ def tech_sigmoid_parameters(
         pass
     else:
         for tech in installed_techs:
-            logging.debug("... create sigmoid diffusion parameters %s", tech)
 
             # --------
             # Test whether technology has the market entry before or after base year,
@@ -533,9 +536,9 @@ def tech_sigmoid_parameters(
             xdata = np.array([point_x_by, point_x_ey])
             ydata = np.array([point_y_by, point_y_ey])
 
-            logging.debug(
-                "... create sigmoid diffusion %s - %s - %s - %s - l_val: %s - %s - %s",
-                tech, xdata, ydata, fit_assump_init, l_values[tech], point_y_by, point_y_ey)
+            #logging.debug(
+            #    "... create sigmoid diffusion %s - %s - %s - %s - l_val: %s - %s - %s",
+            #    tech, xdata, ydata, fit_assump_init, l_values[tech], point_y_by, point_y_ey)
 
             # If no change in by to ey but not zero (lineare change)
             if (round(point_y_by, 10) == round(point_y_ey, 10)) and (
@@ -565,9 +568,9 @@ def tech_sigmoid_parameters(
                         fit_assump_init=fit_assump_init,
                         error_range=0.0002)
 
-                    logging.debug(
-                        " ... Fitting  %s: Midpoint: %s steepness: %s",
-                        tech, fit_parameter[0], fit_parameter[1])
+                    #logging.debug(
+                    #    " ... Fitting  %s: Midpoint: %s steepness: %s",
+                    #    tech, fit_parameter[0], fit_parameter[1])
 
                     # Insert parameters
                     sig_params[tech]['midpoint'] = fit_parameter[0] # midpoint (x0)

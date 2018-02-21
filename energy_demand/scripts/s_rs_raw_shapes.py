@@ -237,7 +237,9 @@ def run(paths, local_paths, base_yr):
     # Load shape for all enduses
     for enduse in rs_enduses:
         if enduse not in hes_appliances_matching:
-            logging.debug("Warning: The enduse %s is not defined in hes_appliances_matching", enduse)
+            logging.debug(
+                "Warning: The enduse %s is not definedin hes_appliances_matching",
+                enduse)
         else:
             # Generate HES load shapes
             shape_peak_dh, shape_non_peak_y_dh, shape_peak_yd_factor, shape_non_peak_yd = get_hes_load_shapes(
@@ -255,5 +257,5 @@ def run(paths, local_paths, base_yr):
                 shape_peak_yd_factor,
                 shape_non_peak_yd)
 
-    print("... finished script %s", os.path.basename(__file__))
+    logging.info("... finished script %s", os.path.basename(__file__))
     return

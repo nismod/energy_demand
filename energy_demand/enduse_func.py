@@ -117,7 +117,7 @@ class Enduse(object):
         ):
         """Enduse class constructor
         """
-        logging.debug(" =====Enduse: {}  Sector:  {}".format(enduse, sector))
+        #logging.debug(" =====Enduse: {}  Sector:  {}".format(enduse, sector))
         self.region_name = region_name
         self.enduse = enduse
         self.fuel_new_y = fuel
@@ -155,7 +155,7 @@ class Enduse(object):
                 heating_factor_y,
                 assumptions['enduse_space_heating'],
                 assumptions['ss_enduse_space_cooling'])
-            logging.debug("... Fuel train B: " + str(np.sum(self.fuel_new_y)))
+            #logging.debug("... Fuel train B: " + str(np.sum(self.fuel_new_y)))
 
             # --Change fuel consumption based on smart meter induced general savings
             self.fuel_new_y = apply_smart_metering(
@@ -165,7 +165,7 @@ class Enduse(object):
                 assumptions['strategy_variables'],
                 base_yr,
                 curr_yr)
-            logging.debug("... Fuel train C: " + str(np.sum(self.fuel_new_y)))
+            #logging.debug("... Fuel train C: " + str(np.sum(self.fuel_new_y)))
 
             # --Enduse specific fuel consumption change in %
             self.fuel_new_y = apply_specific_change(
@@ -175,7 +175,7 @@ class Enduse(object):
                 assumptions['strategy_variables'],
                 base_yr,
                 curr_yr)
-            logging.debug("... Fuel train D: " + str(np.sum(self.fuel_new_y)))
+            #logging.debug("... Fuel train D: " + str(np.sum(self.fuel_new_y)))
 
             # Calculate new fuel demands after scenario drivers
             self.fuel_new_y = apply_scenario_drivers(
@@ -188,18 +188,18 @@ class Enduse(object):
                 reg_scen_drivers,
                 base_yr,
                 curr_yr)
-            logging.debug("... Fuel train E: " + str(np.sum(self.fuel_new_y)))
+            #logging.debug("... Fuel train E: " + str(np.sum(self.fuel_new_y)))
 
             # Apply cooling scenario variable
             self.fuel_new_y = apply_cooling(
                 enduse,
                 self.fuel_new_y,
                 assumptions['strategy_variables'],
-                assumptions['assump_cooling_floorarea']['cooled_ss_floorarea_by'],
+                assumptions['cooled_ss_floorarea_by'],
                 enduse_overall_change['other_enduse_mode_info'],
                 base_yr,
                 curr_yr)
-            logging.debug("... Fuel train E1: " + str(np.sum(self.fuel_new_y)))
+            #logging.debug("... Fuel train E1: " + str(np.sum(self.fuel_new_y)))
 
             # Industry related change
             self.fuel_new_y = industry_enduse_changes(
@@ -449,12 +449,12 @@ def demand_management(
 
         if strategy_variables[param_name] == 0:
             peak_shift_crit = False
-            logging.debug("... no load management")
+            #logging.debug("... no load management")
         else:
             peak_shift_crit = True
-            logging.debug("... load management for " + str(enduse))
+            #logging.debug("... load management for " + str(enduse))
     except KeyError:
-        logging.debug("... no load management")
+        #logging.debug("... no load management")
         peak_shift_crit = False
 
     # ------------------------------
@@ -634,10 +634,10 @@ def get_lp_stock(enduse, non_regional_lp_stock, regional_lp_stock):
     be applied for all regions is used (`non_regional_lp_stock`)
     """
     if enduse in non_regional_lp_stock.enduses_in_stock:
-        logging.debug("Stock (non_regional):   " + str(enduse))
+        #logging.debug("Stock (non_regional):   " + str(enduse))
         return non_regional_lp_stock
     else:
-        logging.debug("Stock (regional)        " + str(enduse))
+        #logging.debug("Stock (regional)        " + str(enduse))
         return regional_lp_stock
 
 def get_running_mode(enduse, mode_constrained, enduse_space_heating):
@@ -1388,10 +1388,8 @@ def apply_scenario_drivers(
                 logging.warning("Something went wrong wtih scenario")
                 factor_driver = 1
 
-            logging.debug("... Scenario drivers: {}  {}  {}".format(
-                by_driver,
-                cy_driver,
-                factor_driver))
+            #logging.debug("... Scenario drivers: {} {} {}".format(
+            #    by_driver, cy_driver, factor_driver))
 
             fuel_y = fuel_y * factor_driver
         else:
@@ -1687,17 +1685,18 @@ def calc_service_switch(
             sig_param_tech[tech], curr_yr)
 
         if service_tech_cy_p == 'identical':
-            switched_service_tech_y_cy[tech] = service_tech_y_cy[tech] #service_service_all_techs * service_tech_by_p[tech]
+             #service_service_all_techs * service_tech_by_p[tech]
+            switched_service_tech_y_cy[tech] = service_tech_y_cy[tech]
         else:
             switched_service_tech_y_cy[tech] = service_service_all_techs * service_tech_cy_p
 
-        logging.debug(
+        '''logging.debug(
             "%s - %s - %s - %s - %s",
             curr_yr,
             service_tech_cy_p,
             sig_param_tech[tech],
             service_service_all_techs,
-            switched_service_tech_y_cy[tech])
+            switched_service_tech_y_cy[tech])'''
 
         if service_tech_by_p[tech] * service_service_all_techs > 0 and sig_param_tech[tech]['steepness'] is None:
             sys.exit("Error in service switch")
@@ -1710,7 +1709,7 @@ def apply_cooling(
         enduse,
         fuel_y,
         strategy_variables,
-        assump_cooling_floorarea,
+        cooled_floorarea_p_by,
         other_enduse_mode_info,
         base_yr,
         curr_yr):
@@ -1729,7 +1728,7 @@ def apply_cooling(
         Annual fuel demand
     strategy_variables : dict
         Strategy variables
-    assump_cooling_floorarea : dict
+    cooled_floorarea_p_by : dict
         Assumption about cooling floor area in base year
     other_enduse_mode_info : dict
         diffusion parameters
@@ -1756,20 +1755,18 @@ def apply_cooling(
             other_enduse_mode_info['sigmoid']['sig_midpoint'],
             other_enduse_mode_info['sigmoid']['sig_steeppness'])
 
-        # Floor area percentage cooled in by
-        cooled_floorarea_p_by = assump_cooling_floorarea
-
         # Additionall floor area
         additional_floor_area_p = sig_diff_factor * (cooled_floorearea_p_ey - cooled_floorarea_p_by)
 
         cooled_floorarea_p_cy = cooled_floorarea_p_by + additional_floor_area_p
-        
+
         # Calculate factor
         floorare_cooling_factor = cooled_floorarea_p_cy / cooled_floorarea_p_by
 
         # Apply factor
         fuel_y = fuel_y * floorare_cooling_factor
         return fuel_y
+
     except KeyError:
         # no cooling defined for enduse
         return fuel_y
