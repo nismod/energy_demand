@@ -117,11 +117,11 @@ def test_service_switch():
         xdata,
         ydataB)
 
-    tot_service_yh_cy = {
+    tot_s_yh_cy = {
         'boilerA': 365*24,
         'boilerB': 365*24, }#constant share of 1 in every hour
 
-    service_tech_by_p = {
+    s_tech_by_p = {
         "boilerA": share_boilerA_by,
         "boilerB": share_boilerB_by}
 
@@ -138,8 +138,8 @@ def test_service_switch():
                 'l_parameter': l_value}}
 
     result = enduse_func.calc_service_switch(
-        service_tech_y_cy=tot_service_yh_cy,
-        service_tech_by_p=service_tech_by_p,
+        s_tech_y_cy=tot_s_yh_cy,
+        s_tech_by_p=s_tech_by_p,
         all_technologies=all_technologies,
         sig_param_tech=sig_param_tech,
         curr_yr=curr_yr)
@@ -181,7 +181,7 @@ def test_service_switch():
         xdata,
         ydataB)
 
-    service_tech_by_p = {
+    s_tech_by_p = {
         "boilerA": share_boilerA_by,
         "boilerB": share_boilerB_by}
 
@@ -197,8 +197,8 @@ def test_service_switch():
         }
 
     result = enduse_func.calc_service_switch(
-        tot_service_yh_cy,
-        service_tech_by_p,
+        tot_s_yh_cy,
+        s_tech_by_p,
         all_technologies,
         sig_param_tech,
         curr_yr)
@@ -242,7 +242,7 @@ def test_service_switch():
     #plot sigmoid curve
     #plotting_program.plotout_sigmoid_tech_diff(l_value, "GG", "DD", xdata, ydata, fit_parameter, False)
 
-    service_tech_by_p = {
+    s_tech_by_p = {
         "boilerA": share_boilerA_by,
         "boilerB": share_boilerB_by}
 
@@ -259,8 +259,8 @@ def test_service_switch():
         }
 
     result = enduse_func.calc_service_switch(
-        tot_service_yh_cy,
-        service_tech_by_p,
+        tot_s_yh_cy,
+        s_tech_by_p,
         all_technologies,
         sig_param_tech,
         curr_yr)
@@ -275,26 +275,26 @@ def test_service_switch():
 def test_convert_service_to_p():
     """Testing
     """
-    tot_service_y = 8760
-    service_fueltype_tech = {
+    tot_s_y = 8760
+    s_fueltype_tech = {
         0: {
             'techA': 8760 * 0.5,
             'techB': 8760 * 0.5}
         }
 
-    expected = enduse_func.convert_service_to_p(tot_service_y, service_fueltype_tech)
+    expected = enduse_func.convert_service_to_p(tot_s_y, s_fueltype_tech)
 
     assert expected['techA'] == 0.5
     assert expected['techB'] == 0.5
 
-'''def test_convert_service_tech_to_p():
+'''def test_convert_s_tech_to_p():
     """testing
     """
     service = {
         0: {'techA': 50, 'techB': 50},
         1: {'techC': 50, 'techD': 150}}
 
-    expected = enduse_func.convert_service_tech_to_p(service)
+    expected = enduse_func.convert_s_tech_to_p(service)
 
     assert expected[0]['techA'] == 50.0 / 100
     assert expected[0]['techB'] == 50.0 / 100
@@ -411,7 +411,7 @@ def test_fuel_to_service():
         t_base_heating_cy=15.5,
         enduse_technologies={'heating': ['techA']})
 
-    tot_service_y, service_tech = enduse_func.fuel_to_service(
+    tot_s_y, service_tech = enduse_func.fuel_to_service(
         enduse=enduse,
         fuel_new_y=fuel_new_y,
         enduse_techs=enduse_techs,
@@ -443,7 +443,7 @@ def test_fuel_to_service():
         t_base_heating_cy=15.5,
         enduse_technologies={'heating': ['techA']})
 
-    tot_service_y, service_tech = enduse_func.fuel_to_service(
+    tot_s_y, service_tech = enduse_func.fuel_to_service(
         enduse=enduse,
         fuel_new_y=fuel_new_y,
         enduse_techs=enduse_techs,
@@ -520,7 +520,7 @@ def test_apply_heat_recovery():
         strategy_variables={'heat_recoved__heating': 0.5, 'heat_recovered_yr_until_changed': 2020},
         enduse_overall_change=other_enduse_mode_info,
         service=100,
-        crit_dict='tot_service_y_cy',
+        crit_dict='tot_s_y_cy',
         base_yr=2015,
         curr_yr=2020)
 
@@ -782,7 +782,7 @@ def test_apply_cooling():
     strategy_variables = {}
     strategy_variables['cooled_floorarea_yr_until_changed'] = 2020
     strategy_variables['cooled_floorarea__{}'.format('cooling_enduse')] = 0.5
-    
+
     assump_cooling_floorarea = 0.25
     fuel_y = np.array([100])
 
@@ -790,19 +790,19 @@ def test_apply_cooling():
         enduse='cooling_enduse',
         fuel_y=fuel_y,
         strategy_variables=strategy_variables,
-        assump_cooling_floorarea=assump_cooling_floorarea,
+        cooled_floorarea_p_by=assump_cooling_floorarea,
         other_enduse_mode_info=other_enduse_mode_info,
         base_yr=2015,
         curr_yr=2020)
 
-    assert np.sum(result) == np.sum(fuel_y) *  strategy_variables['cooled_floorarea__{}'.format('cooling_enduse')] / assump_cooling_floorarea
+    assert np.sum(result) == np.sum(fuel_y) * strategy_variables['cooled_floorarea__{}'.format('cooling_enduse')] / assump_cooling_floorarea
 
 def test_test():
     """Test
     """
     # Install technology B and replace 50% of fueltype 0
     tot_service = 3724.1471455
-    service_tech_by_p = {
+    s_tech_by_p = {
         'boiler_solid_fuel': 0.0,
         'boiler_gas': 0.97611092943131095,
         'boiler_electricity': 0.017996039327478529,
@@ -811,9 +811,9 @@ def test_test():
         'boiler_oil': 0.0028402839847661808,
         'boiler_biomass': 0.0, 'boiler_hydrogen': 0.0, 'heat_pumps_hydrogen': 0.0}
 
-    service_tech_y_cy = {}
-    for tech in service_tech_by_p.keys():
-        service_tech_y_cy[tech] = service_tech_by_p[tech] * tot_service
+    s_tech_y_cy = {}
+    for tech in s_tech_by_p.keys():
+        s_tech_y_cy[tech] = s_tech_by_p[tech] * tot_service
 
     tech_decrease_service = {
         'boiler_gas': 0.076246771740129615}
@@ -834,9 +834,9 @@ def test_test():
     curr_yr = 2050
 
     result = enduse_func.calc_service_switch(
-        service_tech_y_cy=service_tech_y_cy,
-        service_tech_by_p=service_tech_by_p,
-        all_technologies=tech_increase_service, #service_tech_by_p.keys(),
+        s_tech_y_cy=s_tech_y_cy,
+        s_tech_by_p=s_tech_by_p,
+        all_technologies=tech_increase_service, #s_tech_by_p.keys(),
         sig_param_tech=sig_param_tech,
         curr_yr=curr_yr)
     summe = 0.70627648300491375 * 3724.1471455

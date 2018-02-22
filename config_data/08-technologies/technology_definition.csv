@@ -41,7 +41,7 @@ central_air_conditioner_oil,oil,0.5,0.5,2050,linear,2010,tech_cooling_const,1,,0
 decentral_air_conditioner_oil,oil,0.5,0.5,2050,linear,2010,tech_cooling_const,1,,0.5
 central_air_conditioner_gas,gas,0.5,0.5,2050,linear,2010,tech_cooling_const,1,,0.5
 decentral_air_conditioner_gas,gas,0.5,0.5,2050,linear,2010,tech_cooling_const,0.89,,0.5
-district_heating_CHP_gas,gas,999,999,2050,linear,2010,tech_district_heating,0.2,,9999999999
-district_heating_electricity,electricity,999,999,2050,linear,2010,tech_district_heating,0.2,,9999999999
-district_heating_biomass,biomass,999,999,2050,linear,2010,tech_district_heating,0.2,,9999999999
-district_heating_fuel_cell,hydrogen,999,999,2050,linear,2010,tech_district_heating,0.2,,9999999999
+district_heating_CHP_gas,gas,1,1,2050,linear,2010,tech_district_heating,0.2,,9999999999
+district_heating_electricity,electricity,1,1,2050,linear,2010,tech_district_heating,0.2,,9999999999
+district_heating_biomass,biomass,1,1,2050,linear,2010,tech_district_heating,0.2,,9999999999
+district_heating_fuel_cell,hydrogen,1,1,2050,linear,2010,tech_district_heating,0.2,,9999999999

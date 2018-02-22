@@ -241,9 +241,9 @@ def spatially_differentiated_modelling(
         all_enduses,
         init_cont,
         fuel_disagg,
-        rs_share_service_tech_ey_p,
-        ss_share_service_tech_ey_p,
-        is_share_service_tech_ey_p,
+        rs_share_s_tech_ey_p,
+        ss_share_s_tech_ey_p,
+        is_share_s_tech_ey_p,
         techs_affected_spatial_f,
     ):
     """
@@ -257,22 +257,22 @@ def spatially_differentiated_modelling(
         TO_DEFINE
     sum_across_sectors_all_regs : dict
         TO_DEFINE
-    rs_share_service_tech_ey_p : dict
+    rs_share_s_tech_ey_p : dict
         TO_DEFINE
-    ss_share_service_tech_ey_p : dict
+    ss_share_s_tech_ey_p : dict
         TO_DEFINE
-    is_share_service_tech_ey_p : dict
+    is_share_s_tech_ey_p : dict
         TO_DEFINE
     techs_affected_spatial_f : list
         Technologies which are affected by spatially heterogeneous diffusion
 
     Returns
     --------
-    rs_reg_share_service_tech_ey_p :
+    rs_reg_share_s_tech_ey_p :
         TO_DEFINE
-    ss_reg_share_service_tech_ey_p :
+    ss_reg_share_s_tech_ey_p :
         TO_DEFINE
-    is_reg_share_service_tech_ey_p :
+    is_reg_share_s_tech_ey_p :
         TO_DEFINE
     init_cont
 
@@ -296,9 +296,9 @@ def spatially_differentiated_modelling(
         [fuel_disagg['rs_fuel_disagg'], fuel_disagg['ss_fuel_disagg'], fuel_disagg['is_fuel_disagg']])
 
     # Residential spatial explicit modelling
-    rs_reg_share_service_tech_ey_p = {}
-    for enduse, uk_techs_service_p in rs_share_service_tech_ey_p.items():
-        rs_reg_share_service_tech_ey_p[enduse] = calc_regional_services(
+    rs_reg_share_s_tech_ey_p = {}
+    for enduse, uk_techs_service_p in rs_share_s_tech_ey_p.items():
+        rs_reg_share_s_tech_ey_p[enduse] = calc_regional_services(
             enduse,
             uk_techs_service_p,
             regions,
@@ -309,11 +309,11 @@ def spatially_differentiated_modelling(
     # Generate sigmoid curves (s_generate_sigmoid) for every region
     ss_aggr_fuel = init_scripts.sum_across_sectors_all_regs(fuel_disagg['ss_fuel_disagg'])
 
-    ss_reg_share_service_tech_ey_p = {}
-    for sector, uk_techs_service_enduses_p in ss_share_service_tech_ey_p.items():
-        ss_reg_share_service_tech_ey_p[sector] = {}
+    ss_reg_share_s_tech_ey_p = {}
+    for sector, uk_techs_service_enduses_p in ss_share_s_tech_ey_p.items():
+        ss_reg_share_s_tech_ey_p[sector] = {}
         for enduse, uk_techs_service_p in uk_techs_service_enduses_p.items():
-            ss_reg_share_service_tech_ey_p[sector][enduse] = calc_regional_services(
+            ss_reg_share_s_tech_ey_p[sector][enduse] = calc_regional_services(
                 enduse,
                 uk_techs_service_p,
                 regions,
@@ -323,11 +323,11 @@ def spatially_differentiated_modelling(
 
     is_aggr_fuel = init_scripts.sum_across_sectors_all_regs(fuel_disagg['is_fuel_disagg'])
 
-    is_reg_share_service_tech_ey_p = {}
-    for sector, uk_techs_service_enduses_p in is_share_service_tech_ey_p.items():
-        is_reg_share_service_tech_ey_p[sector] = {}
+    is_reg_share_s_tech_ey_p = {}
+    for sector, uk_techs_service_enduses_p in is_share_s_tech_ey_p.items():
+        is_reg_share_s_tech_ey_p[sector] = {}
         for enduse, uk_techs_service_p in uk_techs_service_enduses_p.items():
-            is_reg_share_service_tech_ey_p[sector][enduse] = calc_regional_services(
+            is_reg_share_s_tech_ey_p[sector][enduse] = calc_regional_services(
                 enduse,
                 uk_techs_service_p,
                 regions,
@@ -335,4 +335,4 @@ def spatially_differentiated_modelling(
                 is_aggr_fuel,
                 techs_affected_spatial_f)
 
-    return rs_reg_share_service_tech_ey_p, ss_reg_share_service_tech_ey_p, is_reg_share_service_tech_ey_p, init_cont
+    return rs_reg_share_s_tech_ey_p, ss_reg_share_s_tech_ey_p, is_reg_share_s_tech_ey_p, init_cont

@@ -492,7 +492,7 @@ def residential_submodel(
                 enduse=enduse,
                 sector=sector,
                 fuel=region.rs_enduses_fuel[enduse],
-                service_tech_by_p=assumptions['rs_service_tech_by_p'][enduse],
+                s_tech_by_p=assumptions['rs_s_tech_by_p'][enduse],
                 tech_stock=region.rs_tech_stock,
                 heating_factor_y=region.rs_heating_factor_y,
                 cooling_factor_y=region.rs_cooling_factor_y,
@@ -564,7 +564,7 @@ def service_submodel(
                 enduse=enduse,
                 sector=sector,
                 fuel=region.ss_enduses_sectors_fuels[enduse][sector],
-                service_tech_by_p=assumptions['ss_service_tech_by_p'][sector][enduse], #SECTOR SPECIFIC
+                s_tech_by_p=assumptions['ss_s_tech_by_p'][sector][enduse], #SECTOR SPECIFIC
                 tech_stock=region.ss_tech_stock,
                 heating_factor_y=region.ss_heating_factor_y,
                 cooling_factor_y=region.ss_cooling_factor_y,
@@ -644,7 +644,7 @@ def industry_submodel(
                 enduse=enduse,
                 sector=sector,
                 fuel=region.is_enduses_sectors_fuels[enduse][sector],
-                service_tech_by_p=assumptions['is_service_tech_by_p'][sector][enduse],
+                s_tech_by_p=assumptions['is_s_tech_by_p'][sector][enduse],
                 tech_stock=region.is_tech_stock,
                 heating_factor_y=region.is_heating_factor_y,
                 cooling_factor_y=region.is_cooling_factor_y,

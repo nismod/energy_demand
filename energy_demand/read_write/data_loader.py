@@ -115,8 +115,8 @@ def read_national_real_elec_data(path_to_csv):
         _headings = next(read_lines) # Skip first row
 
         for row in read_lines:
-            geocode = str.strip(row[2])
-            tot_consumption_unclean = row[7].strip()
+            geocode = str.strip(row[2])                 # LA Code
+            tot_consumption_unclean = row[3].strip()    # Total consumption
             national_fuel_data[geocode] = float(tot_consumption_unclean.replace(",", ""))
 
     return national_fuel_data
@@ -148,8 +148,8 @@ def read_national_real_gas_data(path_to_csv):
         _headings = next(read_lines) # Skip first row
 
         for row in read_lines:
-            geocode = str.strip(row[3])
-            tot_consumption_unclean = row[10].strip()
+            geocode = str.strip(row[2])                 # LA Code
+            tot_consumption_unclean = row[3].strip()    # Total consumption
 
             if tot_consumption_unclean == '-':
                 total_consumption = 0 # No entry provided

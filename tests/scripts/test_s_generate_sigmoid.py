@@ -24,8 +24,8 @@ def test_tech_sigmoid_paramters():
         base_yr=2010,
         technologies=technologies,
         l_values={'boilerA': 1.0, 'boilerB': 1.0},
-        service_tech_by_p={'boilerA': 0.5, 'boilerB': 0.5},
-        service_tech_switched_p={'boilerA': assump_fy, 'boilerB': 0})
+        s_tech_by_p={'boilerA': 0.5, 'boilerB': 0.5},
+        s_tech_switched_p={'boilerA': assump_fy, 'boilerB': 0})
 
     y_calculated = diffusion_technologies.sigmoid_function(
         2050, 1.0, result['boilerA']['midpoint'], result['boilerA']['steepness'])
@@ -39,8 +39,8 @@ def test_tech_sigmoid_paramters():
         base_yr=2010,
         technologies=technologies,
         l_values={'boilerA': 1.0, 'boilerB': 1.0},
-        service_tech_by_p={'boilerA': 0.5, 'boilerB': 0.5},
-        service_tech_switched_p={'boilerA': assump_fy, 'boilerB': 0})
+        s_tech_by_p={'boilerA': 0.5, 'boilerB': 0.5},
+        s_tech_switched_p={'boilerA': assump_fy, 'boilerB': 0})
 
     y_calculated = diffusion_technologies.sigmoid_function(
         2050, 1.0, result['boilerA']['midpoint'], result['boilerA']['steepness'])
@@ -173,14 +173,14 @@ def test_calc_service_fuel_switched():
         )]
 
     service_fueltype_p = {1: 1.0, 2: 0.0}
-    service_tech_by_p = {'boilerA': 1.0, 'boilerB': 0.0}
+    s_tech_by_p = {'boilerA': 1.0, 'boilerB': 0.0}
     fuel_tech_p_by = {1: {'boilerA': 1.0}, 2: {'boilerB': 1.0}}
 
     result = s_generate_sigmoid.calc_service_fuel_switched(
         fuel_switches,
         technologies,
         service_fueltype_p,
-        service_tech_by_p,
+        s_tech_by_p,
         fuel_tech_p_by,
         switch_type='actual_switch')
 
@@ -199,14 +199,14 @@ def test_calc_service_fuel_switched():
         )]
 
     service_fueltype_p = {1: 1.0, 2: 0.0}
-    service_tech_by_p = {'boilerA': 1.0, 'boilerB': 0.0}
+    s_tech_by_p = {'boilerA': 1.0, 'boilerB': 0.0}
     fuel_tech_p_by = {1: {'boilerA': 1.0}, 2: {'boilerB': 1.0}}
 
     result = s_generate_sigmoid.calc_service_fuel_switched(
         fuel_switches,
         technologies,
         service_fueltype_p,
-        service_tech_by_p,
+        s_tech_by_p,
         fuel_tech_p_by,
         switch_type='actual_switch')
 
@@ -225,14 +225,14 @@ def test_calc_service_fuel_switched():
         )]
 
     service_fueltype_p = {1: 0.5, 2: 0.5}
-    service_tech_by_p = {'boilerA': 0.5, 'boilerB': 0.5}
+    s_tech_by_p = {'boilerA': 0.5, 'boilerB': 0.5}
     fuel_tech_p_by = {1: {'boilerA': 1.0}, 2: {'boilerB': 1.0}}
 
     result = s_generate_sigmoid.calc_service_fuel_switched(
         fuel_switches,
         technologies,
         service_fueltype_p,
-        service_tech_by_p,
+        s_tech_by_p,
         fuel_tech_p_by,
         switch_type='actual_switch')
 
@@ -251,14 +251,14 @@ def test_calc_service_fuel_switched():
         )]
 
     service_fueltype_p = {1: 0.5, 2: 0.5}
-    service_tech_by_p = {'boilerA': 0.25, 'boilerB': 0.5, 'boilerC': 0.25}
+    s_tech_by_p = {'boilerA': 0.25, 'boilerB': 0.5, 'boilerC': 0.25}
     fuel_tech_p_by  = {1: {'boilerA': 0.5, 'boilerC': 0.5,}, 2: {'boilerB': 1.0}}
 
     result = s_generate_sigmoid.calc_service_fuel_switched(
         fuel_switches,
         technologies,
         service_fueltype_p,
-        service_tech_by_p,
+        s_tech_by_p,
         fuel_tech_p_by,
         switch_type='actual_switch')
 
@@ -313,7 +313,7 @@ def test_tech_l_sigmoid():
         )]
 
     service_fueltype_p =  {1: 1.0, 2: 0.0}
-    service_tech_by_p = {
+    s_tech_by_p = {
         'boilerA': 1.0,
         'boilerB': 0.0}
 
@@ -322,17 +322,17 @@ def test_tech_l_sigmoid():
         2: {'boilerB': 1.0}}
     installed_tech = ['boilerB']
 
-    service_tech_switched_ey = {
+    s_tech_switched_ey = {
         'boilerA': 0.0,
         'boilerB': 1.0}
 
     result = s_generate_sigmoid.tech_l_sigmoid(
-        service_tech_switched_ey=service_tech_switched_ey,
+        s_tech_switched_ey=s_tech_switched_ey,
         enduse_fuel_switches=fuel_switches,
         technologies=technologies,
         installed_tech=installed_tech,
-        service_fueltype_by_p=service_fueltype_p,
-        service_tech_by_p=service_tech_by_p,
+        s_fueltype_by_p=service_fueltype_p,
+        s_tech_by_p=s_tech_by_p,
         fuel_tech_p_by=fuel_tech_p_by)
 
     assert result['boilerB'] == 1.0
@@ -372,19 +372,19 @@ def test_tech_l_sigmoid():
         )]
 
     service_fueltype_p = {1: 1.0, 2: 0.0}
-    service_tech_by_p = {'boilerA': 1.0, 'boilerB': 0.0}
+    s_tech_by_p = {'boilerA': 1.0, 'boilerB': 0.0}
     fuel_tech_p_by = {1: {'boilerA': 1.0}, 2: {'boilerB': 1.0}}
     installed_tech = ['boilerB']
 
-    service_tech_switched_ey = {'boilerA': 0.5, 'boilerB': 0.5}
+    s_tech_switched_ey = {'boilerA': 0.5, 'boilerB': 0.5}
 
     result = s_generate_sigmoid.tech_l_sigmoid(
-        service_tech_switched_ey=service_tech_switched_ey,
+        s_tech_switched_ey=s_tech_switched_ey,
         enduse_fuel_switches=fuel_switches,
         technologies=technologies,
         installed_tech=installed_tech,
-        service_fueltype_by_p=service_fueltype_p,
-        service_tech_by_p=service_tech_by_p,
+        s_fueltype_by_p=service_fueltype_p,
+        s_tech_by_p=s_tech_by_p,
         fuel_tech_p_by=fuel_tech_p_by)
     assert result['boilerB'] == 0.8
 
@@ -434,24 +434,24 @@ def test_get_sig_diffusion():
             fueltypes=fueltype_lookup)}
 
     tech_increased_service = ['boilerA']
-    service_tech_ey_p =  {'boilerA': 0.6, 'boilerB': 0.4}
+    s_tech_ey_p =  {'boilerA': 0.6, 'boilerB': 0.4}
 
     sig_param = s_generate_sigmoid.get_l_values(
         technologies,
         tech_increased_service,
-        service_tech_ey_p)
+        s_tech_ey_p)
 
     assert sig_param['boilerA'] == 1.0
 
     # -----
 
     tech_increased_service = ['boilerC']
-    service_tech_ey_p = {'boilerC': 0.5, 'boilerA': 0.0, 'boilerB': 0.0}
+    s_tech_ey_p = {'boilerC': 0.5, 'boilerA': 0.0, 'boilerB': 0.0}
 
     sig_param = s_generate_sigmoid.get_l_values(
         technologies,
         tech_increased_service,
-        service_tech_ey_p)
+        s_tech_ey_p)
 
 
     assert sig_param['boilerC'] == 0.999

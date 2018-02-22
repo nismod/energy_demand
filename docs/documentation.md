@@ -481,6 +481,7 @@ This section provides an overview of how to read the code.
 Within the code, different abbreviations are consistenly used
 across all modules.
 
+    s_:         Energy service
     rs:         Residential Submodel
     ss:         Service Submodel
     ts:         Transportation Submodel
