@@ -70,12 +70,19 @@ def main(path_data_energy_demand):
     # ----------------
     if write_shapefiles:
         print("... create shapefile")
-        write_data.create_shp_results(
+        from energy_demand.read_write import create_shp_maps
+        create_shp_maps.create_geopanda_files(
             data,
             results_container,
             data['local_paths'],
             data['lookups'],
             data['lu_reg'])
+        '''write_data.create_shp_results(
+            data,
+            results_container,
+            data['local_paths'],
+            data['lookups'],
+            data['lu_reg'])'''
 
     # ------------------------------
     # Plotting results
