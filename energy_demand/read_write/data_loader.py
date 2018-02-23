@@ -122,7 +122,7 @@ def read_national_real_elec_data(path_to_csv):
     return national_fuel_data
 
 def read_national_real_gas_data(path_to_csv):
-    """Read in national consumption from csv file, 
+    """Read in national consumption from csv file
 
     Arguments
     ---------

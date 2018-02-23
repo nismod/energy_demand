@@ -9,6 +9,39 @@ import pysal as ps
 from pysal.contrib.viz import mapping as maps
 import numpy as np
 from energy_demand.basic import basic_functions
+from pysal.esda.mapclassify import User_Defined
+
+def hack_classification(lad_geopanda_shp, bins, color_list, field_name_to_plot):
+    """OWn classification with bins
+
+    # https://automating-gis-processes.github.io/2016/Lesson5-interactive-map-bokeh.html
+    # http://pysal.readthedocs.io/en/latest/library/esda/mapclassify.html 'User_defined' is not yet implemented
+
+    Work arounde taken from
+    Source: https://stackoverflow.com/questions/41783090/plotting-a-choropleth-map-with-geopandas-using-a-user-defined-classification-s
+    """
+    from matplotlib.colors import LinearSegmentedColormap
+
+    # Maps values to a bin.
+    # The mapped values must start at 0 and end at 1.
+    def bin_mapping(x):
+        for idx, bound in enumerate(bins):
+            if x < bound:
+                return idx / (len(bins) - 1.0)
+
+    # Create the list of bin labels and the list of colors 
+    # corresponding to each bin
+    bin_labels = [idx / (len(bins) - 1.0) for idx in range(len(bins))]
+
+    # Create the custom color map
+    cmap = LinearSegmentedColormap.from_list(
+        'mycmap', 
+        [(lbl, color) for lbl, color in zip(bin_labels, color_list)])
+
+    # Reclassify
+    lad_geopanda_shp['reclassified'] = lad_geopanda_shp[field_name_to_plot].apply(bin_mapping)
+
+    return lad_geopanda_shp, cmap
 
 def plot_lad_national(
         lad_geopanda_shp,
@@ -22,8 +55,10 @@ def plot_lad_national(
     column : str
         Column to plot
 
-    INfo
+    Info
     -----
+        Map color:  https://matplotlib.org/users/colormaps.html
+
     http://darribas.org/gds_scipy16/ipynb_md/02_geovisualization.html
     https://stackoverflow.com/questions/41783090/plotting-a-choropleth-map-with-geopandas-using-a-user-defined-classification-s 
     """
@@ -31,25 +66,94 @@ def plot_lad_national(
         result_path,
         field_name_to_plot)
 
-    fig_map, ax = plt.subplots(
+    fig_map, axes = plt.subplots(
         1,
-        figsize=(5, 10))
+        figsize=(5, 8))
 
-    ax = lad_geopanda_shp.plot(
-        axes=ax,
+
+    # -----------------------------
+    # Plot map wtih all value hues
+    # -----------------------------
+    '''lad_geopanda_shp.plot(
+        axes=axes,
+        column=field_name_to_plot,
+        cmap='OrRd',
+        legend=True)
+    plt.show()'''
+
+    # ------------
+    # Own classification (work around)
+    # ------------
+
+    # Own classification bins
+    bins = [x for x in range(0, 1000000, 200000)]
+
+    # Own colors
+    color_list = ['#edf8fb', '#b2e2e2', '#66c2a4', '#2ca25f', '#006d2c'] # '#fef0d9', '#fdcc8a', '#fc8d59', '#e34a33', '#b30000']
+
+    lad_geopanda_shp, cmap = hack_classification(lad_geopanda_shp, bins, color_list, field_name_to_plot)
+
+    lad_geopanda_shp.plot(
+        axes=axes,
+        column='reclassified',
+        cmap=cmap,
+        alpha=1,
+        vmin=0,
+        vmax=1)
+    
+    # -----------------------------
+    # Plot map wtih all value hues
+    # -----------------------------
+    '''lad_geopanda_shp.plot(
+        axes=axes,
+        column=field_name_to_plot,
+        cmap='OrRd',
+        legend=True)'''
+
+    # -----------------------------
+    # Plot map wtih quantiles
+    # -----------------------------
+    '''lad_geopanda_shp.plot(
+        axes=axes,
         column=field_name_to_plot,
         scheme='QUANTILES',
         k=5,
-        cmap='OrRd',                #https://matplotlib.org/users/colormaps.html
-        legend=True)
+        cmap='OrRd',
+        legend=True)'''
 
-    fig_map.suptitle('testtile')
+    # -----------------------------
+    # Plot map wtih quantiles
+    # -----------------------------
+    '''lad_geopanda_shp.plot(
+        axes=axes,
+        column=field_name_to_plot,
+        scheme='equal_interval',
+        k=5,
+        cmap='OrRd',
+        legend=True)'''
+
+    #lad_geopanda_shp.User_Defined(lad_geopanda_shp, bins)
+    '''lad_geopanda_shp.assign(cl=interval_data.yb).plot(
+        column='cl',
+        categorical=True,
+        k=10,
+        cmap='OrRd',
+        linewidth=0.1,
+        ax=axes,
+        edgecolor='white',
+        legend=True,
+        scheme='User_Defined')'''
+
+
+    # Title
+    fig_map.suptitle(field_name_to_plot)
 
     # Make that not distorted
     lims = plt.axis('equal') 
 
-    plt.show()
+    # Save figure
     plt.savefig(fig_name)
+    plt.show()
 
 def merge_data_to_shp(shp_gdp, merge_data, unique_merge_id):
     """Merge data to geopanda dataframe which is read
@@ -108,13 +212,10 @@ def test():
     print("DATA")
     print(lads_shapes[column_to_plot])
     print("------------------")
-
-    #lads_shapes.merge(merge_data, on='geo_code')
-
     # ---------------------------
     # PLots
     # ---------------------------
-    fig_map, ax = plt.subplots(1, figsize=(5, 10))
+    fig_map, axes = plt.subplots(1, figsize=(5, 10))
 
     '''ax = plot(
         lads_shapes[name_of_new_data_column],
@@ -123,8 +224,8 @@ def test():
         k=3,
         colormap='OrRd',
         legend=True)'''
-    ax = lads_shapes.plot(
-        axes=ax,
+    lads_shapes.plot(
+        axes=axes,
         column=column_to_plot,
         scheme='QUANTILES',
         k=5,
@@ -169,11 +270,16 @@ def create_geopanda_files(data, results_container, paths, lookups, lu_reg):
 
         field_name = 'pop_{}'.format(year)
 
+        #print("A   ---------")
+        #print(data['scenario_data']['population'][year])
+
         # Both need to be lists
         merge_data = {
             str(field_name): data['scenario_data']['population'][year].flatten().tolist(),
             str(unique_merge_id): list(lu_reg)}
-
+        #print("B   ---------")
+        #print(data['scenario_data']['population'][year][4])
+        #prnt(".")
         # Merge to shapefile
         lad_geopanda_shp = merge_data_to_shp(
             lad_geopanda_shp,
