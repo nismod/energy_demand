@@ -1,7 +1,7 @@
 #http://darribas.org/gds15/content/labs/lab_03.html
 #https://stackoverflow.com/questions/31755886/choropleth-map-from-geopandas-geodatafame
 # http://geopandas.org
-
+import os
 import matplotlib.pyplot as plt
 import geopandas as gpd
 import pandas as pd
@@ -9,6 +9,47 @@ import pysal as ps
 from pysal.contrib.viz import mapping as maps
 import numpy as np
 from energy_demand.basic import basic_functions
+
+def plot_lad_national(
+        lad_geopanda_shp,
+        field_name_to_plot,
+        result_path
+    ):
+    """Create plot of LADs and store to file
+
+    Arguments
+    ---------
+    column : str
+        Column to plot
+
+    INfo
+    -----
+    http://darribas.org/gds_scipy16/ipynb_md/02_geovisualization.html
+    https://stackoverflow.com/questions/41783090/plotting-a-choropleth-map-with-geopandas-using-a-user-defined-classification-s 
+    """
+    fig_name = os.path.join(
+        result_path,
+        field_name_to_plot)
+
+    fig_map, ax = plt.subplots(
+        1,
+        figsize=(5, 10))
+
+    ax = lad_geopanda_shp.plot(
+        axes=ax,
+        column=field_name_to_plot,
+        scheme='QUANTILES',
+        k=5,
+        cmap='OrRd',                #https://matplotlib.org/users/colormaps.html
+        legend=True)
+
+    fig_map.suptitle('testtile')
+
+    # Make that not distorted
+    lims = plt.axis('equal') 
+
+    plt.show()
+    plt.savefig(fig_name)
 
 def merge_data_to_shp(shp_gdp, merge_data, unique_merge_id):
     """Merge data to geopanda dataframe which is read
@@ -133,32 +174,18 @@ def create_geopanda_files(data, results_container, paths, lookups, lu_reg):
             str(field_name): data['scenario_data']['population'][year].flatten().tolist(),
             str(unique_merge_id): list(lu_reg)}
 
-        print("FIELDNAME " + str(field_name))
         # Merge to shapefile
         lad_geopanda_shp = merge_data_to_shp(
             lad_geopanda_shp,
             merge_data,
             unique_merge_id)
-        print("----------- " + str(field_name))
-        print(lad_geopanda_shp)
 
-        fig_map, ax = plt.subplots(1, figsize=(5, 10))
+        # plot and save as fig
+        plot_lad_national(
+            lad_geopanda_shp=lad_geopanda_shp,
+            field_name_to_plot=field_name,
+            result_path=paths['data_results_shapefiles'])
 
-        ax = lad_geopanda_shp.plot(
-            axes=ax,
-            column=field_name,
-            scheme='QUANTILES',
-            k=5,
-            cmap='OrRd',
-            legend=True)
-
-        fig_map.suptitle('testtile')
-
-        # Make that not distorted
-        lims = plt.axis('equal') 
-
-        plt.show()
-        prnt("...finish")
     '''# ------------------------------------
     # Create shapefile with yearly total fuel all enduses
     # ------------------------------------
