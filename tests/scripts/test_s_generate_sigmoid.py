@@ -6,6 +6,7 @@ from energy_demand.scripts import s_generate_sigmoid
 from energy_demand.technologies import diffusion_technologies
 from energy_demand.read_write import read_data
 from energy_demand.technologies import tech_related
+
 def test_tech_sigmoid_paramters():
     """testng
     """
@@ -83,7 +84,7 @@ def test_calc_sigmoid_parameters2():
     """
     l_value = 1.0
     xdata = np.array([2020.0, 2060.0])
-    ydata = np.array([0, 1])
+    ydata = np.array([0.01, 0.99])
 
     # fit parameters
     fit_parameter = s_generate_sigmoid.calc_sigmoid_parameters(

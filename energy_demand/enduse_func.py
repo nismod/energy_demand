@@ -1377,9 +1377,9 @@ def apply_scenario_drivers(
             cy_driver = getattr(dw_stock[curr_yr], enduse)
             #assert by_driver != 'nan' and assert cy_driver != 'nan'
 
-            # base year / current (checked) (as in chapter 3.1.2 EQ E-2) TODO
+            # base year / current (checked)
             try:
-                factor_driver = cy_driver / by_driver # FROZEN
+                factor_driver = cy_driver / by_driver
             except ZeroDivisionError:
                 factor_driver = 1
 

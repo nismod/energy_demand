@@ -399,7 +399,7 @@ def test_fuel_to_service():
     tech_stock = technological_stock.TechStock(
         stock_name="stock_name",
         technologies=technologies,
-        tech_list={'tech_heating_temp_dep': [], 'tech_heating_const': ['techA']},
+        tech_list={'heating_non_const': [], 'heating_const': ['techA']},
         other_enduse_mode_info={'linear'},
         base_yr=2015,
         curr_yr=2020,
@@ -431,7 +431,7 @@ def test_fuel_to_service():
     tech_stock = technological_stock.TechStock(
         stock_name="stock_name",
         technologies=technologies,
-        tech_list={'tech_heating_temp_dep': [], 'tech_heating_const': ['techA']},
+        tech_list={'heating_non_const': [], 'heating_const': ['techA']},
         other_enduse_mode_info={'linear'},
         base_yr=2015,
         curr_yr=2020,
@@ -469,7 +469,7 @@ def test_service_to_fuel():
     tech_stock = technological_stock.TechStock(
         stock_name="stock_name",
         technologies=technologies,
-        tech_list={'tech_heating_temp_dep': [], 'tech_heating_const': ['techA']},
+        tech_list={'heating_non_const': [], 'heating_const': ['techA']},
         other_enduse_mode_info={'linear'},
         base_yr=2015,
         curr_yr=2020,
@@ -574,7 +574,7 @@ def test_calc_fuel_tech_y():
     tech_stock = technological_stock.TechStock(
         stock_name="stock_name",
         technologies=technologies,
-        tech_list={'tech_heating_temp_dep': [], 'tech_heating_const': ['techA']},
+        tech_list={'heating_non_const': [], 'heating_const': ['techA']},
         other_enduse_mode_info={'linear'},
         base_yr=2015,
         curr_yr=2020,
@@ -622,7 +622,7 @@ def test_calc_fuel_tech_yh():
     '''tech_stock = technological_stock.TechStock(
         stock_name="stock_name",
         technologies=technologies,
-        tech_list={'tech_heating_temp_dep': [], 'tech_heating_const': ['techA']},
+        tech_list={'heating_non_const': [], 'heating_const': ['techA']},
         other_enduse_mode_info={'linear'},
         base_yr=2015,
         curr_yr=2020,

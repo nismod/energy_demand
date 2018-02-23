@@ -348,7 +348,7 @@ def load_non_param_assump(
         assumptions['split_hp_gshp_to_ashp_by'])
 
     # Add heat pumps to technologies
-    assumptions['technologies'], assumptions['tech_list']['tech_heating_temp_dep'], assumptions['heat_pumps'] = tech_related.generate_heat_pump_from_split(
+    assumptions['technologies'], assumptions['tech_list']['heating_non_const'], assumptions['heat_pumps'] = tech_related.generate_heat_pump_from_split(
         assumptions['technologies'],
         assumptions['installed_heat_pump_by'],
         fueltypes)
@@ -490,10 +490,10 @@ def get_all_heating_techs(tech_lists):
     """
     heating_technologies = []
 
-    for tech in tech_lists['tech_heating_const']:
+    for tech in tech_lists['heating_const']:
         if tech != 'dummy_tech':
             heating_technologies.append(tech)
-    for tech in tech_lists['tech_heating_temp_dep']:
+    for tech in tech_lists['heating_non_const']:
         if tech != 'dummy_tech':
             heating_technologies.append(tech)
     for tech in tech_lists['tech_district_heating']:

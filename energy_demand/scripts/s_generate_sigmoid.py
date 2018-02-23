@@ -65,19 +65,7 @@ def calc_sigmoid_parameters(
         1.0,
         0.0001, 0.001, 0.01, 0.1,
         0.05, 0.1, 0.15, 0.2, 0.25, 0.3, 0.35, 0.4, 0.45, 0.5, 0.55, 0.6, 0.65,
-        # 0.7, 0.75, 0.8, 0.85, 0.9, 0.95, 1.0, 1.05, 1.1, 1.15, 1.2, 1.25, 1.3, 1.35,
-        # 1.4, 1.45, 1.5, 1.55, 1.6, 1.650, 1.7, 1.75, 1.8, 1.85, 1.9, 1.95, 2.0, 2.05,
-        #2.1, 2.15, 2.2, 2.25, 2.3, 2.35, 2.4, 2.45, 2.5, 2.55, 2.6, 2.65, 2.7, 2.75,
-        #2.8, 2.85, 2.9, 2.95, 3.0, 3.05, 3.1, 3.15, 3.2, 3.25, 3.3, 3.35, 3.40, 3.45,
-        #3.5, 3.55, 3.6, 3.65, 3.7, 3.75, 3.8, 3.85, 3.9, 3.95, 4.0, 4.05, 4.1, 4.15,
-        #4.2, 4.25, 4.3, 4.35, 4.4, 4.45, 4.5, 4.55, 4.6, 4.65, 4.7, 4.75, 4.8, 4.85,
-        #4.9, 4.95,
         10, 20, 30, 40, 50, 60, 70, 80, 90, 100.0, 200.0, 400.0, 500.0, 1000, 10000]
-
-    '''start_param_list = [0, 1, 0.0001, 0.001, 0.01, 0.1, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100.0, 200.0, 400.0, 500.0, 1000, 10000]
-    start_param_list_inverse = start_param_list[::-1]
-    param_lists1 = start_param_list + start_param_list_inverse + start_param_list + start_param_list_inverse
-    param_lists2 = start_param_list + start_param_list_inverse + start_param_list_inverse + start_param_list'''
 
     assert l_value >= ydata[0]
 
@@ -92,9 +80,6 @@ def calc_sigmoid_parameters(
                 round(start_param_list[cnt], 3),
                 round(start_param_list[cnt], 3)]
             
-            '''start_parameters = [
-                param_lists1[cnt],
-                param_lists2[cnt]]'''
             # ------------------------------------------------
             # Test if parameter[1] shoudl be minus or positive
             # ------------------------------------------------
@@ -112,7 +97,7 @@ def calc_sigmoid_parameters(
             if crit_plus_minus == 'minus':
                 start_parameters[0] *= 1
                 start_parameters[1] *= -1
-            print(" parametsre {}  {} {} {}".format(xdata, ydata, start_parameters, l_value))
+            ####print(" parametsre {}  {} {} {}".format(xdata, ydata, start_parameters, l_value))
             # -----------------------------------
             # Fit function
             # Info: If the fitting function throws errors,
@@ -167,7 +152,7 @@ def calc_sigmoid_parameters(
                         steepness=fit_parameter[1])
 
                     fit_measure_in_percent_by = float((100.0 / ydata[0]) * y_calculated_by)
-                    fit_measure_in_percent_ey = float((100.0 / ydata[1]) * y_calculated_ey) #NEW TODO TODO
+                    fit_measure_in_percent_ey = float((100.0 / ydata[1]) * y_calculated_ey)
 
                     if (fit_measure_in_percent_ey < (100.0 - error_range) or fit_measure_in_percent_ey > (100.0 + error_range)) or (
                         fit_measure_in_percent_by < (100.0 - error_range) or fit_measure_in_percent_by > (100.0 + error_range)):
@@ -627,7 +612,7 @@ def tech_sigmoid_parameters(
                         xdata,
                         ydata,
                         fit_assump_init=fit_assump_init,
-                        error_range=0.0002) #0.0002 #TODO MAYBE TOO BIG
+                        error_range=0.0002)
 
                     # Insert parameters
                     sig_params[tech]['midpoint'] = fit_parameter[0] # midpoint (x0)

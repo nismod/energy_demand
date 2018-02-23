@@ -32,8 +32,6 @@
 
 NICETOHAVE
 - Convert paths dict to objects
-TODO: REALLY gwh_to_twh
-TODO: Update SUB_NATIONAL ELEC and GAS DEMAND BECVAUSE CHANGED VALUES 
 TODO: Write function to test wheter swichtes are possible (e.g. that not more from one technology to another is replaced than possible)
 TODO: Improve industry related demand --> define strategies
 TODO: Related ed to houses & householdsize
@@ -44,6 +42,7 @@ TODO: THECK VARIALBES IN HOUSEHOLD MODEL
 TODO: FUEL; SERVICE SWITHC AS INPUT
 TODO: PEAK SHAPE vs PEAK FROM LOAD PROFILES
 TODO: IF spatial explicity, still very slow
+TODO: UPDate all fuel data with new ECUK DATA
 """
 import os
 import sys
@@ -86,9 +85,13 @@ def energy_demand_model(data, fuel_in=0, fuel_in_elec=0):
         data['criterias']['mode_constrained'],
         data['assumptions']['enduse_space_heating'])
 
+    from energy_demand.basic import conversions
     print("================================================")
     print("Simulation year:     " + str(modelrun_obj.curr_yr))
     print("Number of regions    " + str(data['reg_nrs']))
+    print(" -- ")
+    print(" TOTAL KTOE:         " + str(conversions.gwh_to_ktoe(fuel_in)))
+    print(" -- ")
     print("[GWh] Total fuel input:    " + str(fuel_in))
     print("[GWh] Total output:        " + str(np.sum(modelrun_obj.ed_fueltype_national_yh)))
     print("[GWh] Total difference:    " + str(round((np.sum(modelrun_obj.ed_fueltype_national_yh) - fuel_in), 4)))

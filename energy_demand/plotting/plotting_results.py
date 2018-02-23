@@ -1669,7 +1669,6 @@ def plot_radar_plot(dh_profile, fig_name, plot_steps=30, plotshow=False):
         color='grey',
         size=8)
 
-   
     # Draw ylabels
     ax.set_rlabel_position(0)
     plt.yticks(
@@ -1688,7 +1687,6 @@ def plot_radar_plot(dh_profile, fig_name, plot_steps=30, plotshow=False):
         linestyle='--',
         linewidth=0.5)
 
-    # Fill area (TODO SAME AS )
     ax.fill(
         angles,
         values,

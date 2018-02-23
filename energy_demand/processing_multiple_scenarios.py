@@ -66,6 +66,12 @@ def process_scenarios(path_to_scenarios):
         fig_name=os.path.join(path_to_scenarios, "tot_y_multiple.pdf"),
         plotshow=True)
 
+    # Plot for all regions demand for every year in line plot
+    plotting_multiple_scenarios.plot_reg_y_over_time(
+        scenario_data,
+        fig_name=os.path.join(path_to_scenarios, "reg_y_multiple.pdf"),
+        plotshow=True)
+
     # Plot comparison of total demand for a year for all LADs (scatter plot)
     plotting_multiple_scenarios.plot_LAD_comparison_scenarios(
         scenario_data,
@@ -77,9 +83,9 @@ def process_scenarios(path_to_scenarios):
     return
 
 # Execute rusult processing for every scenario
-#process_result_multi_scen(
-#    os.path.abspath("C:/Users/cenv0553/nismod/data_energy_demand/_MULTIPLE_RESULTS"))
+process_result_multi_scen(
+    os.path.abspath("C:/Users/cenv0553/nismod/data_energy_demand/_MULT2"))
 
 # Generate plots across all scenarios
-process_scenarios(
-    os.path.abspath("C:/Users/cenv0553/nismod/data_energy_demand/_MULT2"))
+#process_scenarios(
+ #   os.path.abspath("C:/Users/cenv0553/nismod/data_energy_demand/_MULT2"))

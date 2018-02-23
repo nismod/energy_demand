@@ -555,27 +555,34 @@ based on....
 
 *Table 2: Technology assignement to enduses*
 
-## 12 Used Data Sets
+## 12 Data sets
 
 This section provides an overview of all used datasets in HIRE and necessary data preparation.
 
-### 12.1 National Energy Data
+### 12.1 National Energy Statistics
 
-The base year energy consumption of the UK (ECUK) in terms of fuels and technology shares for the residential, service and industry sectors is taken from the Department for Business, Energy and Industrial Strategy ([BEIS, 2016](https://www.gov.uk/government/collections/energy-consumption-in-the-uk)). National final energy data is provided for 6 fuel types (solid fuel, gas, electricity, oil, heat sold, bioenergy and waste) in the unit of ktoe (tonne of oil equivalents). All energy unit conversions are based on the unit converter by the International Energy Agency ([IEA, 2017](http://www.iea.org/statistics/resources/unitconverter)).
+The base year final energy consumption of the UK (ECUK) in terms of fuels and technology shares for the residential, service and industry sectors is taken from the Department for Business, Energy and Industrial Strategy ([BEIS, 2016](https://www.gov.uk/government/collections/energy-consumption-in-the-uk)). National final energy data is provided for 6 fuel types (solid fuel, gas, electricity, oil, heat sold, bioenergy and waste) in the unit of ktoe (tonne of oil equivalents). All energy unit conversions are based on the unit converter by the International Energy Agency ([IEA, 2017](http://www.iea.org/statistics/resources/unitconverter)).
+
+Even though sub-national data for gas and electricity consumption are  [available](https://www.gov.uk/government/uploads/system/uploads/attachment_data/file/541163/ECUK_2016.pdf) from BEIS, they do not provide the same level of differentiation with respect to distinguishing between different endues or sectors.
 
 
-### 12.2 Household Electricity Servey
+### 12.2 Household Electricity Servey (DECC 2014)
 
 The [Household Electricity Survey (HES)](https://www.gov.uk/government/collections/household-electricity-survey)
-is the most detailed monitoring of electricity use ever carried out in the UK.
-Electricity consumption was monitored at an appliance level in 250
-owner-occupied households across England from 2010 to 2011.
+by the Department of Energy & Climate Change (DECC 2014) is the most detailed monitoring
+of electricity use carried out in the UK. Electricity consumption was monitored
+at an appliance level in 250 owner-occupied households across England from 2010 to 2011.
+From the provided spreadsheet for users (DECC 2017), peak load profiles and averaged monthly data
+are available for a sample of 250 households on a 10 minutes basis. The data are aggregated
+to hourly resolution to derive hourly load profiles for the full year.
+
 The load profiles for different residential enduses for
 different daytypes (weekend, working day) are taken from a [24 hour spreadsheet tool](https://www.gov.uk/government/publications/spreadsheet-tools-for-users).
 
+
 ### 12.3 Carbon Trust advanced metering trial
 
-The (Carbon Trust, 2007) advanced metering trial dataset contains hourly electricity and gas demand measurements for different service (business) sectors. The Carbon Trust data does not allow distinguishing between different end uses within each sector. According to the dominant fuel type of each end use, either aggregated gas or sector specific load profiles are therefore assigned. For ‘water heating’, ‘space heating’ and the ‘other_gas_enduse’, all gas measurements across all sectors are used, because the sample size was too little to distinguish between gas use for different sectors. For all other end uses, sector specific electricity load profiles are assigned. The provided sectors in the data trial do not fully correspond to the ECUK sectors (see Table 5) and where a sector is missing, the aggregated profiles across all sectors are used. No technology specific load profiles are used.
+The (Carbon Trust, 2007) advanced metering trial dataset contains hourly electricity and gas demand measurements for different service (business) sectors from over 500 measurement sites broken down in sectors. The Carbon Trust data does not allow distinguishing between different end uses within each sector. According to the dominant fuel type of each end use, either aggregated gas or sector specific load profiles are therefore assigned. For ‘water heating’, ‘space heating’ and the ‘other_gas_enduse’, all gas measurements across all sectors are used, because the sample size was too little to distinguish between gas use for different sectors. For all other end uses, sector specific electricity load profiles are assigned. The provided sectors in the data trial do not fully correspond to the ECUK sectors (see Table 5) and where a sector is missing, the aggregated profiles across all sectors are used. No technology specific load profiles are used.
 
 <table align="center">
   <tr>
@@ -620,16 +627,17 @@ The (Carbon Trust, 2007) advanced metering trial dataset contains hourly electri
   </tr>
 </table>
 
-*Table 3: Matching sectors from the ECUK dataset and sectors from the Carbon Trust dataset*
+*Table 5: Matching sectors from the ECUK dataset and sectors from the Carbon Trust dataset*
 
-Yearly load profiles are generated based on averaging measurements for every month and day type (weekend, working day). In addition, average peak daily load profiles and the peak day factor is calculated. Only the yearly load profile for space heating is generated as explained in Section XY . The daily load profiles are derived from gas load profile from the Carbon Trust dataset. Data preparation and cleaning was necessary of the raw input files (see XY):
+Yearly load profiles are generated based on averaging measurements for every month and day type (weekend, working day). In addition, average peak daily load profiles and the peak day factor is calculated. Only the yearly load profile for space heating is generated based on HDD calculations.
 
 Data preparation of the raw input files was necessary:
-•	Half-hourly data was converted into hourly data
-•	Within each sector, only datasets containing at least one full year of monitoring data are used, from which only one full year is selected
-•	Only datasets having not more than one missing measurement point per day are used
-•	The data was cleaned from obviously wrong measurement points (containing very large minus values)
-•	missing measurement points are interpolated 
+
+*	Half-hourly data was converted into hourly data
+*	Within each sector, only datasets containing at least one full year of monitoring data are used, from which only one full year is selected
+*	Only datasets having not more than one missing measurement point per day are used
+*	The data was cleaned from obviously wrong measurement points (containing very large minus values)
+*	missing measurement points are interpolated 
 
 
 **More information**
@@ -640,19 +648,14 @@ Data preparation of the raw input files was necessary:
 To calculate regional daily hourly load heating profiles, hourly temperature data are used from the UK Met Office (2015) and loaded for weather stations across the UK.
 
 ### 12.5 Census data
-
-https://www.nomisweb.co.uk/census/2011/qs605uk.pdf
+Employment statistics from the census (Office for National Statistics 2011)
+are used to disaggregate industry related energy demands for different end uses and sectors.
 
 **More information**
 - The data download link can be found [here](http://catalogue.ceda.ac.uk/uuid/916ac4bbc46f7685ae9a5e10451bae7c)
 - The station ID can be retreived [here](http://badc.nerc.ac.uk/cgi-bin/midas_stations/search_by_name.cgi.py?name=&minyear=&maxyear=)
 - Metadatda of raw data can be found [here](http://artefacts.ceda.ac.uk/badc_datadocs/ukmo-midas/WH_Table.html)
 
-
-### 12.5 Census Data
-
-
-http://datashine.org.uk/#table=QS605EW&col=QS605EW0004&ramp=RdYlGn&layers=BTTT&zoom=8&lon=-0.8789&lat=51.2172
 
 ### 12.6 Technology specific load shapes
 
@@ -661,6 +664,11 @@ different typical load profils for weekdays, weekends and the peak day
 are derived from measuremnt trials, i.e. load profiles are
 modelled in a bottom-up way. In every case, only the profile (i.e.
 the 'shape' of a profile) is read as an input into the model.
+
+In case fuel is switched to another technology, it is assumed that
+the load profile looks the same for the new fuel type. If e.g.
+a gas boiler is replaced by a hydrogen boiler, the load profiles
+are the same for the fueltype hydrogen or oil.
 
 For different heating technologies, load shares are derived from the
 following sources:
@@ -689,22 +697,14 @@ following sources:
 - **Primary and secondary electirc heating**
 
   The load profiles are based on the Household Electricity
-  Survey (HES) by the Department of Energy & 
-  Climate Change (DECC, 2014).
+  Survey (HES) by the Department of Energy & Climate Change (DECC, 2014).
 
-Note: In case fuel is switched to another technology, it is assumed that
-the load profile looks the same for the new fuel type. If e.g.
-a gas boiler is replaced by a hydrogen boiler, the load profiles
-are the same for the fueltype hydrogen or oil.
 
-- COOLNIG?
-    - **Residential**: Taken from *Denholm, P., Ong, S., & Booten, C. (2012).
-        Using Utility Load Data to Estimate Demand for Space Cooling and
-        Potential for Shiftable Loads, (May), 23.
-        Retrieved from http://www.nrel.gov/docs/fy12osti/54509.pdf*
+- **Cooling**
 
-    - **Service**: *Knight, Dunn, Environments Carbon and Cooling in
-        Uk Office Environments*
+  The daily load profiles for service submodel cooling demands are taken
+  from Dunn and Knight (2005). For the residential sector,
+
 
 ## Literature
 
@@ -714,6 +714,8 @@ Carbon Trust (2007). Advanced metering for SMEs Carbon and cost savings. Retriev
    [https://www.carbontrust.com/media/77244/ctc713_advanced_metering_for_smes.pdf](https://www.carbontrust.com/media/77244/ctc713_advanced_metering_for_smes.pdf)
 
 DECC (2014) Household Electricity Survey. Retrieved from:[https://www.gov.uk/government/collections/household-electricity-survey](https://www.gov.uk/government/collections/household-electricity-survey)
+
+Dunn, G. N. and Knight, I. P. (2005) ‘Carbon and Cooling in Uk Office Environments’, in Proceedings of the 10th International Conference Indoor Air Quality and Climate. Beijing, China, p. 6. Available at: http://www.cardiff.ac.uk/archi/research/auditac/pdf/auditac_carbon.pdf.
 
 Love, J., Smith, A. Z. P., Watson, S., Oikonomou, E., Summerfield, A., Gleeson, C., … Lowe, R. (2017). The addition of heat pump electricity load profiles to GB electricity demand: Evidence from a heat pump field trial. Applied Energy, 204, 332–342. [https://doi.org/10.1016/j.apenergy.2017.07.026](https://doi.org/10.1016/j.apenergy.2017.07.026)
 
@@ -727,6 +729,7 @@ UK Met Office (2015): ‘MIDAS: UK hourly weather observation data’. Centre fo
 ###### Varia
 - https://www.codecogs.com/latex/eqneditor.php used for this documentation
 
+All energy unit conversions are based on the unit converter by the International Energy Agency (IEA 2017).
 
 
 2. *Another item*
@@ -738,3 +741,11 @@ UK Met Office (2015): ‘MIDAS: UK hourly weather observation data’. Centre fo
 
 4. And another item.
    You can have properly indented paragraphs within list items. Notice the blank line above, and the leading spaces (at least one, but we'll use three here to also align the raw Markdown).
+
+
+   
+    - **Residential**: Taken from *Denholm, P., Ong, S., & Booten, C. (2012).
+        Using Utility Load Data to Estimate Demand for Space Cooling and
+        Potential for Shiftable Loads, (May), 23.
+        Retrieved from http://www.nrel.gov/docs/fy12osti/54509.pdf*
+        (not yet used)

@@ -30,6 +30,7 @@ from energy_demand.profiles import hdd_cdd
 
 # must match smif project name for Local Authority Districts
 NR_OF_MODELLEd_REGIONS = 391 #391 # uk: 391, england.: 380
+WRITEOUTSMIFRESULTS = False
 
 class EDWrapper(SectorModel):
     """Energy Demand Wrapper
@@ -123,10 +124,10 @@ class EDWrapper(SectorModel):
         # -----------------------------
         # Obtain external scenario data
         # -----------------------------
-        pop_array = data_handle.get_base_timestep_data('population')
+        pop_array_current = data_handle.get_base_timestep_data('population')
         pop_dict = {}
         for r_idx, region in enumerate(data['lu_reg']):
-            pop_dict[region] = pop_array[r_idx, 0]
+            pop_dict[region] = pop_array_current[r_idx, 0]
         data['population'][data['sim_param']['base_yr']] = pop_dict
 
         gva_array = data_handle.get_base_timestep_data('gva')
@@ -243,15 +244,6 @@ class EDWrapper(SectorModel):
         self.user_data['init_cont'], self.user_data['fuel_disagg'] = scenario_initalisation(
             self.user_data['data_path'], data)
 
-        # ------
-        # Write population scenario data to txt files for this scenario run
-        # ------
-        for t_idx, timestep in enumerate(self.timesteps):
-            write_data.write_scenaric_population_data(
-                timestep,
-                data['local_paths']['data_results_model_run_pop'],
-                pop_array[t_idx])
-
     def initialise(self, initial_conditions):
         pass
 
@@ -310,11 +302,6 @@ class EDWrapper(SectorModel):
         data['paths'] = data_loader.load_paths(path_main)
         data['local_paths'] = data_loader.load_local_paths(self.user_data['data_path'])
 
-        # ---------------------------------------------
-        # Logger
-        # ---------------------------------------------
-        logger_setup.set_up_logger(os.path.join(data['local_paths']['data_results'], "logger_smif_run_sven.log"))
-
         data['sim_param']['base_yr'] = self.user_data['base_yr']    # Base year definition
         data['sim_param']['curr_yr'] = data_handle.current_timestep # Read in current year from smif
         data['sim_param']['simulated_yrs'] = self.timesteps         # Read in all simulated years from smif
@@ -338,8 +325,8 @@ class EDWrapper(SectorModel):
         # ---------------------------------------------
         # Scenario data
         # ---------------------------------------------
-        pop_array_current = data_handle.get_data('population') #for simulation year
-        gva_array_current = data_handle.get_data('gva') #for simulation year
+        pop_array_current = data_handle.get_data('population')  # of simulation year
+        gva_array_current = data_handle.get_data('gva')         # of simulation year
 
         gva_dict_current = {}
         pop_dict_current = {}
@@ -544,24 +531,33 @@ class EDWrapper(SectorModel):
         time_end = datetime.datetime.now()
         print("... Total Time: " + str(time_end - time_start))
 
+        # ------
+        # Write population data of current year to file
+        # ------
+        write_data.write_scenaric_population_data(
+            data_handle.current_timestep,
+            data['local_paths']['data_results_model_run_pop'],
+            pop_array_current)
+
         # ------------------------------------
         # Write results to smif
         # ------------------------------------
-        '''print(" ddd  " + str(supply_results.keys()))
-        for key_name, result_to_txt in supply_results.items():
+        if WRITEOUTSMIFRESULTS:
+            for key_name, result_to_txt in supply_results.items():
+                if NR_OF_MODELLEd_REGIONS != 391:
+                    # do not write out resutls
+                    logging.warning("NO SMIF RESULT FILE ARE WRITTEN OUT")
+                else:
+                    print(
+                        "write out results set {} {}".format(
+                            key_name,
+                            result_to_txt.shape))
 
-            #SCRAO
-            if NR_OF_MODELLEd_REGIONS != 391:
-                # do not write out resutls
-                logging.warning("NO SMIF RESULT FILE ARE WRITTEN OUT")
-            else:
-                print("write out results set {} ".format(key_name))
-                print(result_to_txt.shape)
-                # Write out correct results
-                data_handle.set_results(
-                    key_name,
-                    result_to_txt)
-        '''
+                    data_handle.set_results(
+                        key_name,
+                        result_to_txt)
+                    print("finished writing result")
+
 
         print("... finished wrapper execution")
         return supply_results
@@ -608,8 +604,6 @@ class EDWrapper(SectorModel):
 
         # Get variable from dict and reassign and delete from data_handle
         for var_name in all_strategy_variables:
-            #logging.debug("Load strategy parameter: {} {}".format(
-            #    var_name, data_handle[var_name]))
 
             # Get narrative variable from input data_handle dict
             strategy_variables[var_name] = data_handle[var_name]

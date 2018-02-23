@@ -369,7 +369,7 @@ def create_load_profile_stock(
     # rs_lighting
     non_regional_lp_stock.add_lp(
         unique_identifier=uuid.uuid4(),
-        technologies=assumptions['tech_list']['rs_lighting'],
+        technologies=assumptions['tech_list']['lighting'],
         enduses=['rs_lighting'],
         shape_yd=tech_lp['rs_shapes_yd']['rs_lighting']['shape_non_peak_yd'],
         shape_yh=shape_yh,
@@ -388,7 +388,7 @@ def create_load_profile_stock(
         # rs_cold (residential refrigeration)
         non_regional_lp_stock.add_lp(
             unique_identifier=uuid.uuid4(),
-            technologies=assumptions['tech_list']['rs_cold'],
+            technologies=assumptions['tech_list']['cold'],
             enduses=['rs_cold'],
             shape_yd=tech_lp['rs_shapes_yd']['rs_cold']['shape_non_peak_yd'],
             shape_yh=shape_yh,
@@ -402,7 +402,7 @@ def create_load_profile_stock(
         model_yeardays)
     non_regional_lp_stock.add_lp(
         unique_identifier=uuid.uuid4(),
-        technologies=assumptions['tech_list']['rs_cooking'],
+        technologies=assumptions['tech_list']['cooking'],
         enduses=['rs_cooking'],
         shape_yd=tech_lp['rs_shapes_yd']['rs_cooking']['shape_non_peak_yd'],
         shape_yh=shape_yh,
@@ -416,7 +416,7 @@ def create_load_profile_stock(
         model_yeardays)
     non_regional_lp_stock.add_lp(
         unique_identifier=uuid.uuid4(),
-        technologies=assumptions['tech_list']['rs_wet'],
+        technologies=assumptions['tech_list']['wet'],
         enduses=['rs_wet'],
         shape_yd=tech_lp['rs_shapes_yd']['rs_wet']['shape_non_peak_yd'],
         shape_yh=shape_yh,

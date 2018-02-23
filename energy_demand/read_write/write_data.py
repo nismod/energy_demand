@@ -29,7 +29,8 @@ def write_scenaric_population_data(sim_yr, path_result, pop_y):
         Population of simulation year
     """
     path_file = os.path.join(
-        path_result, "pop__{}__{}".format(sim_yr, ".npy"))
+        path_result,
+        "pop__{}__{}".format(sim_yr, ".npy"))
 
     np.save(path_file, pop_y)
 
@@ -56,14 +57,20 @@ def create_shp_results(data, results_container, paths, lookups, lu_reg):
     # Iterate fueltpyes and years and add as attributes
     for year in results_container['load_factors_y'].keys():
         for fueltype in range(lookups['fueltypes_nr']):
+
+            results = basic_functions.array_to_dict(
+                results_container['load_factors_y'][year][fueltype], lu_reg)
+
             field_names.append('y_{}_{}'.format(year, fueltype))
-            csv_results.append(
-                basic_functions.array_to_dict(
-                    results_container['load_factors_y'][year][fueltype], lu_reg))
+            csv_results.append(results)
 
         # Add population
         field_names.append('pop_{}'.format(year))
-        csv_results.append(basic_functions.array_to_dict(data['scenario_data']['population'][year], lu_reg))
+
+        pop_dict = basic_functions.array_to_dict(
+            data['scenario_data']['population'][year], lu_reg)
+
+        csv_results.append(pop_dict)
 
     write_shp.write_result_shapefile(
         paths['lad_shapefile'],

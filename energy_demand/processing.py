@@ -19,7 +19,7 @@ def main(path_data_energy_demand):
     # ---------
     # Criterias
     # ---------
-    write_shapefiles = False        # Write shapefiles
+    write_shapefiles = True        # Write shapefiles
 
     # Set up logger
     logger_setup.set_up_logger(

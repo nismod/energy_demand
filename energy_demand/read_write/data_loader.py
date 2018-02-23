@@ -122,7 +122,7 @@ def read_national_real_elec_data(path_to_csv):
     return national_fuel_data
 
 def read_national_real_gas_data(path_to_csv):
-    """Read in national consumption from csv file
+    """Read in national consumption from csv file, 
 
     Arguments
     ---------
@@ -133,14 +133,16 @@ def read_national_real_gas_data(path_to_csv):
     -------
     national_fuel_data : dict
         geocode, total consumption
-    TODO: UNIT GWh?
+
     Info
     -----
-    Source: https://www.gov.uk/government/statistical-data-sets
-    /gas-sales-and-numbers-of-customers-by-region-and-local-authority
+        -   Source: https://www.gov.uk/government/statistical-data-sets
+            /gas-sales-and-numbers-of-customers-by-region-and-local-authority
 
-    If for a LAD no information is provided,
-    the energy demand is set to zero.
+        -   units are provided as GWh
+
+        -   If for a LAD no information is provided,
+            the energy demand is set to zero.
     """
     national_fuel_data = {}
     with open(path_to_csv, 'r') as csvfile:
