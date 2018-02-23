@@ -85,7 +85,7 @@ run every time the model is run with different assumptions (Section 1.2).
    ``energy_demand post_install_setup_minimum -d1 path/to/energy_data_folder -d2 path/to/python_files``
 
    Example:
-    energy_demand post_install_setup_minimum -d1 C:/Users/cenv0553/nismod/models/energy_demand -d2 C:/Users/cenv0553/nismod/data_energy_demand
+    energy_demand post_install_setup_minimum -d1  C:/Users/cenv0553/nismod/data_energy_demand -d2 C:/Users/cenv0553/nismod/models/energy_demand
 
    The ``path/to/energy_data_folder`` is the path to the location with
    the necessary minimum dummy data to run the model.

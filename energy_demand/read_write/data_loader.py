@@ -309,8 +309,6 @@ def load_paths(path):
         'path_main': path,
 
 
-
-
         # Path to all technologies
         'path_technologies': os.path.join(
             path, 'config_data', '08-technologies', 'technology_definition.csv'),
@@ -380,7 +378,7 @@ def load_paths(path):
             path, 'config_data', '01-validation_datasets', '03_subnational_gas', 'data_2015_gas.csv'),
         'path_val_nat_elec_data': os.path.join(
             path, 'config_data', '01-validation_datasets', '01_national_elec_2015', 'elec_demand_2015.csv'),
-    
+
         'yaml_parameters': os.path.join(
             path, 'yaml_parameters.yml'),
         'yaml_parameters_default': os.path.join(

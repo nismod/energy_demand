@@ -126,7 +126,9 @@ def post_install_setup_minimum(args):
     """
     path_energy_demand = args.path_energy_demand
     path_local_data = args.path_local_data
-    
+    #print("A: " + str(path_energy_demand))
+    #print("B: " + str(path_local_data))
+    #prnt(":")
     # ==========================================
     # Post installation setup witout access to non publicy available data
     # ==========================================
@@ -168,7 +170,7 @@ def post_install_setup_minimum(args):
         data['lookups']['fueltypes_nr'])
 
     # Read in residential submodel shapes
-    s_rs_raw_shapes.run(
+    s_rs_raw_shapes.run( 
         data['paths'],
         local_paths,
         data['sim_param']['base_yr'])
