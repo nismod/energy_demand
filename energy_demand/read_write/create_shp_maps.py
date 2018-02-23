@@ -10,6 +10,8 @@ from pysal.contrib.viz import mapping as maps
 import numpy as np
 from energy_demand.basic import basic_functions
 from pysal.esda.mapclassify import User_Defined
+import matplotlib.patches as mpatches
+from matplotlib.colors import LinearSegmentedColormap
 
 def hack_classification(lad_geopanda_shp, bins, color_list, field_name_to_plot):
     """OWn classification with bins
@@ -20,17 +22,15 @@ def hack_classification(lad_geopanda_shp, bins, color_list, field_name_to_plot):
     Work arounde taken from
     Source: https://stackoverflow.com/questions/41783090/plotting-a-choropleth-map-with-geopandas-using-a-user-defined-classification-s
     """
-    from matplotlib.colors import LinearSegmentedColormap
-
-    # Maps values to a bin.
-    # The mapped values must start at 0 and end at 1.
     def bin_mapping(x):
+        """Maps values to a bin.
+        The mapped values must start at 0 and end at 1.
+        """
         for idx, bound in enumerate(bins):
             if x < bound:
                 return idx / (len(bins) - 1.0)
 
-    # Create the list of bin labels and the list of colors 
-    # corresponding to each bin
+    # Create the list of bin labels and the list of colors corresponding to each bin
     bin_labels = [idx / (len(bins) - 1.0) for idx in range(len(bins))]
 
     # Create the custom color map
@@ -48,7 +48,7 @@ def plot_lad_national(
         field_name_to_plot,
         result_path
     ):
-    """Create plot of LADs and store to file
+    """Create plot of LADs and store to map file (PDF)
 
     Arguments
     ---------
@@ -84,23 +84,66 @@ def plot_lad_national(
     # ------------
     # Own classification (work around)
     # ------------
-
+    from energy_demand.plotting import plotting_styles
     # Own classification bins
     bins = [x for x in range(0, 1000000, 200000)]
-
+    bins = [0, 10, 20, 30, 120000]
     # Own colors
-    color_list = ['#edf8fb', '#b2e2e2', '#66c2a4', '#2ca25f', '#006d2c'] # '#fef0d9', '#fdcc8a', '#fc8d59', '#e34a33', '#b30000']
+    # TEST ALSO https://pypi.python.org/pypi/brewer2mpl/1.4
+    #color_list = ['#edf8fb', '#b2e2e2', '#66c2a4', '#2ca25f', '#006d2c'] # '#fef0d9', '#fdcc8a', '#fc8d59', '#e34a33', '#b30000']
 
-    lad_geopanda_shp, cmap = hack_classification(lad_geopanda_shp, bins, color_list, field_name_to_plot)
+    #color_list = plotting_styles( len(bins))
+    def rgb2hex(r,g,b):
+        hex = "#{:02x}{:02x}{:02x}".format(r,g,b)
+        return hex
+
+    import palettable #https://jiffyclub.github.io/palettable/colorbrewer/sequential/
+    color_list = []
+    #color_list_rgb = palettable.colorbrewer.qualitative.Dark2_7
+    color_list_rgb = palettable.colorbrewer.sequential.Greens_9
+
+    for color in color_list_rgb.colors[:len(bins)]:
+        color_list.append(rgb2hex(color[0], color[1], color[2]))
+
+    lad_geopanda_shp, cmap = hack_classification(
+        lad_geopanda_shp,
+        bins,
+        color_list,
+        field_name_to_plot)
+
+    # Legend
+    legend_handles = []
+    for bin_nr, color in enumerate(color_list):
+        
+        # Legend label
+        if bin_nr == len(bins) -1:
+            label_legend_patch = "{} {}".format(">", bins[bin_nr])
+        else:
+            label_legend_patch = "{} - {}".format(bins[bin_nr], bins[bin_nr + 1])
+
+        patch = mpatches.Patch(
+            color=color,
+            label=str(label_legend_patch))
+
+        legend_handles.append(patch)
+
+    # Plot legend
+    plt.legend(
+        handles=legend_handles,
+        prop={
+            'family': 'arial',
+            'size': 10},
+        frameon=False)
 
     lad_geopanda_shp.plot(
         axes=axes,
         column='reclassified',
+        legend=False,
         cmap=cmap,
         alpha=1,
         vmin=0,
         vmax=1)
-    
+
     # -----------------------------
     # Plot map wtih all value hues
     # -----------------------------
@@ -144,12 +187,11 @@ def plot_lad_national(
         legend=True,
         scheme='User_Defined')'''
 
-
     # Title
     fig_map.suptitle(field_name_to_plot)
 
     # Make that not distorted
-    lims = plt.axis('equal') 
+    plt.axis('equal') 
 
     # Save figure
     plt.savefig(fig_name)
@@ -186,59 +228,8 @@ def merge_data_to_shp(shp_gdp, merge_data, unique_merge_id):
         merge_dataframe,
         on=unique_merge_id)
 
-    print("New fields: " + str(list(shp_gdp_merged)))
-
     return shp_gdp_merged
 
-def test():
-    """
-    """
-    shapefile_link = 'C:/Users/cenv0553/nismod/data_energy_demand/_raw_data/C_LAD_geography/lad_2016.shp'
-    lads_shapes = gpd.read_file(shapefile_link)
-
-    # Variables
-    name_of_new_data_column = 'testdata'    # Name of merged data
-    column_to_plot = 'y_2016_2'             # Name of column to plot data
-
-    merge_data = {
-        name_of_new_data_column: [9999, 9999],
-        'geo_code': ['W06000016', 'S12000013']}
-
-    # Merge
-    lads_shapes = merge_data_to_shp(lads_shapes, merge_data, 'geo_code')
-
-    # Get all data rows of dataframe
-    print(list(lads_shapes))
-    print("DATA")
-    print(lads_shapes[column_to_plot])
-    print("------------------")
-    # ---------------------------
-    # PLots
-    # ---------------------------
-    fig_map, axes = plt.subplots(1, figsize=(5, 10))
-
-    '''ax = plot(
-        lads_shapes[name_of_new_data_column],
-        column=name_of_new_data_column,
-        scheme='QUANTILES',
-        k=3,
-        colormap='OrRd',
-        legend=True)'''
-    lads_shapes.plot(
-        axes=axes,
-        column=column_to_plot,
-        scheme='QUANTILES',
-        k=5,
-        colormap='OrRd',
-        legend=True)
-
-    fig_map.suptitle('testtile')
-    lims = plt.axis('equal') #Make that not distorted
-    plt.show()
-    #ax = plot_dataframe(lads_shapes, column='CRIME', scheme='QUANTILES', k=3, colormap='OrRd', legend=True)
-    print("finished")
-
-#test()
 def create_geopanda_files(data, results_container, paths, lookups, lu_reg):
     """Create map related files from results
 
@@ -270,16 +261,11 @@ def create_geopanda_files(data, results_container, paths, lookups, lu_reg):
 
         field_name = 'pop_{}'.format(year)
 
-        #print("A   ---------")
-        #print(data['scenario_data']['population'][year])
-
         # Both need to be lists
         merge_data = {
             str(field_name): data['scenario_data']['population'][year].flatten().tolist(),
             str(unique_merge_id): list(lu_reg)}
-        #print("B   ---------")
-        #print(data['scenario_data']['population'][year][4])
-        #prnt(".")
+
         # Merge to shapefile
         lad_geopanda_shp = merge_data_to_shp(
             lad_geopanda_shp,
