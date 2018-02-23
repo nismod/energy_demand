@@ -4,7 +4,7 @@ from collections import defaultdict
 from energy_demand.technologies import tech_related
 from energy_demand.read_write import read_data
 
-def get_share_service_tech_ey(service_switches, specified_tech_enduse_by):
+def get_share_s_tech_ey(service_switches, specified_tech_enduse_by):
     """Get fraction of service for each technology
     defined in a switch for the future year
 
@@ -42,7 +42,7 @@ def get_share_service_tech_ey(service_switches, specified_tech_enduse_by):
 
     return enduse_tech_ey_p
 
-def autocomplete_switches(service_switches, specified_tech_enduse_by, service_tech_by_p):
+def autocomplete_switches(service_switches, specified_tech_enduse_by, s_tech_by_p):
     """Helper function to add not defined technologies in switch
     and set correct future year service share. If the defined
     service switches do not sum up to 100% service,
@@ -55,7 +55,7 @@ def autocomplete_switches(service_switches, specified_tech_enduse_by, service_te
         Defined service switches
     specified_tech_enduse_by : dict
         Specified technologies of an enduse
-    service_tech_by_p : dict
+    s_tech_by_p : dict
         Share of service of technology in base year
 
     Returns
@@ -92,7 +92,7 @@ def autocomplete_switches(service_switches, specified_tech_enduse_by, service_te
 
         for tech in specified_tech_enduse_by[enduse]:
             if tech not in assigned_technologies:
-                tech_not_assigned_by_p[tech] = service_tech_by_p[enduse][tech]
+                tech_not_assigned_by_p[tech] = s_tech_by_p[enduse][tech]
 
         # convert to percentage
         tot_share_not_assigned = sum(tech_not_assigned_by_p.values())
@@ -287,8 +287,8 @@ def create_service_switch(
                 technologies[tech].diff_method)
 
             # Convert to service (fuel * fuelshare * eff)
-            service_tech_ey_y = fuel_enduse_y[fueltype] * fuel_share_by * tech_eff_ey
-            service_enduse_tech[tech] = service_tech_ey_y
+            s_tech_ey_y = fuel_enduse_y[fueltype] * fuel_share_by * tech_eff_ey
+            service_enduse_tech[tech] = s_tech_ey_y
 
     # -------------------------------------------
     # Calculate service of installed capacity of increased
@@ -315,22 +315,22 @@ def create_service_switch(
     # -------------------------------------------
     # Calculate service in % per enduse
     # -------------------------------------------
-    tot_service = sum(service_enduse_tech.values())
+    tot_s = sum(service_enduse_tech.values())
     for tech, service_tech in service_enduse_tech.items():
-        service_enduse_tech[tech] = service_tech / tot_service
+        service_enduse_tech[tech] = service_tech / tot_s
 
     # -------------------------------------------
     # Add to switch of technology_install
     # -------------------------------------------
     service_switches_enduse = []
-    for tech, service_tech_p in service_enduse_tech.items():
+    for tech, s_tech_p in service_enduse_tech.items():
 
 
 
         service_switch = read_data.ServiceSwitch(
             enduse=enduse,
             technology_install=tech,
-            service_share_ey=service_tech_p,
+            service_share_ey=s_tech_p,
             switch_yr=switch_yr)
 
         service_switches_enduse.append(service_switch)
@@ -373,23 +373,23 @@ def switches_to_dict(service_switches, regional_specific):
 
     Returns
     -------
-    service_tech_by_p : dict
+    s_tech_by_p : dict
         Service tech after service switch
 
     service_switches : dict
         Reg, fuel_swtiches
     """
-    service_tech_by_p = defaultdict(dict)
+    s_tech_by_p = defaultdict(dict)
 
     if regional_specific:
         for reg, reg_switches in service_switches.items():
             for switch in reg_switches:
-                service_tech_by_p[reg][switch.technology_install] = switch.service_share_ey
+                s_tech_by_p[reg][switch.technology_install] = switch.service_share_ey
     else:
         for switch in service_switches:
-            service_tech_by_p[switch.technology_install] = switch.service_share_ey
+            s_tech_by_p[switch.technology_install] = switch.service_share_ey
 
-    return dict(service_tech_by_p)
+    return dict(s_tech_by_p)
 
 def capacity_to_service_switches(assumptions, fuels, base_yr):
     """Convert capacity switches to service switches for

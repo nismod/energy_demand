@@ -228,7 +228,7 @@ class WeatherRegion(object):
             rs_fuel_shape_heating_yd, tech_lp['rs_profile_boilers_y_dh'], model_yeardays)
         self.rs_load_profiles.add_lp(
             unique_identifier=uuid.uuid4(),
-            technologies=tech_lists['tech_heating_const'],
+            technologies=tech_lists['heating_const'],
             enduses=['rs_space_heating', 'rs_water_heating'],
             shape_yd=rs_fuel_shape_heating_yd,
             shape_yh=rs_profile_boilers_y_dh,
@@ -281,7 +281,7 @@ class WeatherRegion(object):
 
         self.rs_load_profiles.add_lp(
             unique_identifier=uuid.uuid4(),
-            technologies=tech_lists['tech_heating_temp_dep'],
+            technologies=tech_lists['heating_non_const'],
             enduses=['rs_space_heating', 'rs_water_heating'],
             shape_yd=rs_fuel_shape_heating_yd,
             shape_yh=rs_fuel_shape_hp_yh,
@@ -368,7 +368,7 @@ class WeatherRegion(object):
         #------
         # Add cooling technologies for service sector
         #------
-        coolings_techs = tech_lists['tech_cooling_const']
+        coolings_techs = tech_lists['cooling_const']
 
         for cooling_enduse in assumptions['ss_enduse_space_cooling']:
             for sector in sectors['ss_sectors']:

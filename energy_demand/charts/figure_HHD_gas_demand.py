@@ -14,7 +14,7 @@ from scipy import stats
 import matplotlib.pyplot as plt
 from energy_demand.plotting import plotting_program
 from energy_demand.geography.weather_station_location import get_closest_station
-from energy_demand.basic import conversions
+from energy_demand.plotting import plotting_styles
 
 def main(regions, weather_regions, data):
     """Plot weighted HDD (HDD per Region & region pop)
@@ -860,7 +860,7 @@ def main(regions, weather_regions, data):
     # ---------------------
     # Labelling
     # ---------------------
-    font_additional_info = {'family': 'arial', 'color': 'black', 'weight': 'normal', 'size': 8}
+    font_additional_info = plotting_styles.font_info()
     #plt.xlabel("UK non daily metered gas demand [GWh per day]")
     #plt.ylabel("HDD * POP [mio]")
     plt.title("slope: {}, intercept: {}, r2: {})".format(round(slope, 3), round(intercept, 3), round(r_value, 3)), fontdict=font_additional_info)

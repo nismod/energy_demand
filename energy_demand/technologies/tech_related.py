@@ -221,7 +221,7 @@ def get_tech_type(tech_name, tech_list):
     if tech_name == 'dummy_tech':
         tech_type = 'dummy_tech'
     else:
-        if tech_name in tech_list['tech_heating_temp_dep']:
+        if tech_name in tech_list['heating_non_const']:
             tech_type = 'heat_pump'
         else:
             tech_type = 'other_tech'
@@ -334,7 +334,7 @@ def generate_heat_pump_from_split(technologies, heat_pump_assump, fueltypes):
             eff_achieved=eff_achieved_av,
             diff_method='linear',
             market_entry=market_entry_lowest,
-            tech_list='tech_heating_temp_dep',
+            tech_list='heating_non_const',
             tech_max_share=tech_max_share,
             fueltypes=fueltypes)
 

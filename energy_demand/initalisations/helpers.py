@@ -35,14 +35,14 @@ def service_type_tech_by_p(fueltypes, fuel_tech_p_by):
 
     Return
     -------
-    service_fueltype_tech_by_p : dict
+    s_fueltype_tech_by_p : dict
         Fraction of service per fueltype and technology for base year
     """
-    service_fueltype_tech_by_p = {}
+    s_fueltype_tech_by_p = {}
     for fueltype_int in fueltypes.values():
-        service_fueltype_tech_by_p[fueltype_int] = dict.fromkeys(fuel_tech_p_by[fueltype_int].keys(), 0)
+        s_fueltype_tech_by_p[fueltype_int] = dict.fromkeys(fuel_tech_p_by[fueltype_int].keys(), 0)
 
-    return service_fueltype_tech_by_p
+    return s_fueltype_tech_by_p
 
 def init_dict_brackets(first_level_keys):
     """Initialise a  dictionary with one level

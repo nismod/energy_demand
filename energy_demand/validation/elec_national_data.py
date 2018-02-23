@@ -10,6 +10,7 @@ from energy_demand.basic import date_prop
 from energy_demand.basic import conversions
 from energy_demand.plotting import plotting_program
 from energy_demand.basic import basic_functions
+from energy_demand.plotting import plotting_styles
 
 def read_raw_elec_2015(path_to_csv, year=2015):
     """Read in national electricity values provided
@@ -202,11 +203,7 @@ def compare_results(
     # ----------
     # Labelling
     # ----------
-    font_additional_info = {
-        'family': 'arial',
-        'color': 'black',
-        'weight': 'normal',
-        'size': 8}
+    font_additional_info = plotting_styles.font_info()
 
     plt.title(
         'RMSE: {} Std_dev: {} (+-{}) R_squared: {}'.format(
@@ -375,11 +372,7 @@ def plot_residual_histogram(values, path_result, name_fig):
     # ---------------
     # plot histogram
     # ---------------
-    font_additional_info = {
-        'family': 'arial',
-        'color': 'black',
-        'weight': 'normal',
-        'size': 8}
+    font_additional_info = plotting_styles.font_info()
 
     plt.xlabel('Smarts')
     plt.ylabel('Probability')

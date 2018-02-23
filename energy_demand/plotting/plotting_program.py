@@ -29,16 +29,13 @@ def plotout_sigmoid_tech_diff(
         """
         plt.close()
 
-    #logging.debug("... plot sigmoid diffusion {} {} {} {}".format(
-    #    technology, L_value, xdata, ydata))
-
     x = np.linspace(1990, 2110, 300)
     y = diffusion_technologies.sigmoid_function(x, L_value, *fit_parameter)
 
     fig = plt.figure()
 
     #creating a timer object and setting an interval
-    timer = fig.canvas.new_timer(interval = 555)
+    timer = fig.canvas.new_timer(interval=555)
     timer.add_callback(close_event)
 
     fig.set_size_inches(12, 8)
@@ -61,4 +58,3 @@ def plotout_sigmoid_tech_diff(
             pass
     else:
         pass
-

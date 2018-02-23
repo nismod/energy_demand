@@ -16,6 +16,7 @@ from energy_demand.read_write import data_loader
 from energy_demand.basic import date_prop
 from energy_demand import enduse_func
 from energy_demand.profiles import load_profile
+from energy_demand.plotting import plotting_styles
 
 def temporal_validation(
         local_paths,
@@ -224,7 +225,7 @@ def tempo_spatial_validation(
         plot_radar=False,
         plot_all_entries=False,
         plot_max_min_polygon=True,
-        plot_figure=False,
+        plotshow=False,
         max_y_to_plot=60,
         fueltype_str=False,
         year=False)
@@ -232,7 +233,8 @@ def tempo_spatial_validation(
     # ---------------------------------------------------
     # Validation of national electrictiy demand for peak
     # ---------------------------------------------------
-    logging.debug("...validation of peak data: compare peak with data")
+    logging.debug(
+        "...validation of peak data: compare peak with data")
 
     # Peak across all fueltypes WARNING: Fueltype specific
     peak_day = enduse_func.get_peak_day_all_fueltypes(ed_fueltype_national_yh)
@@ -308,15 +310,15 @@ def spatial_validation(
                         # --Sub Regional Electricity demand (as GWh)
                         result_dict['real_demand'][reg_geocode] = subnational_demand[reg_geocode]
 
-                        gw_per_region_modelled = np.sum(ed_fueltype_regs_yh[fueltype_int][region_array_nr])
+                        gwh_modelled = np.sum(ed_fueltype_regs_yh[fueltype_int][region_array_nr])
 
                         # Correct ECUK data with correction factor
-                        result_dict['modelled_demand'][reg_geocode] = gw_per_region_modelled
-                        logging.warning("{}, {}".format(reg_geocode, gw_per_region_modelled)) #subnational_demand[reg_geocode]))
+                        result_dict['modelled_demand'][reg_geocode] = gwh_modelled
+                        logging.warning("{}, {}".format(reg_geocode, gwh_modelled))
 
                 except KeyError:
                     logging.warning(
-                        "Sub-national spatial validation: No fuel is availalbe for region %s", reg_geocode)
+                        "Sub-national spatial validation: No fuel for region %s", reg_geocode)
 
     logging.info("Comparison: modelled: {}  real: {}".format(
         sum(result_dict['modelled_demand'].values()),
@@ -450,11 +452,7 @@ def spatial_validation(
                 verticalalignment="top",
                 fontsize=3)
 
-    font_additional_info = {
-        'family': 'arial',
-        'color': 'black',
-        'weight': 'normal',
-        'size': 8}
+    font_additional_info = plotting_styles.font_info()
 
     title_info = ('r_value: {},std_dev: {} ({})'.format(
         round(r_value, 3),
@@ -487,24 +485,3 @@ def spatial_validation(
         plt.show()
     else:
         plt.close()
-
-'''def correction_uk_northern_ireland_2015():
-    """Not used yet
-    """
-    # ------------
-    # Substraction demand for northern ireland proportionally
-    # to the population. The population data are taken from
-    # https://www.ons.gov.uk/peoplepopulationandcommunity
-    # populationandmigration/populationestimates/bulletins
-    # annualmidyearpopulationestimates/mid2015
-    #
-    # The reason to correct for norther ireland is becauss
-    # in the national electricity data, nothern ireland is
-    # not included. However, in BEIS, Northern ireland is included.
-    # ------------
-    pop_northern_ireland_2015 = 1851600
-    pop_wales_scotland_england_2015 = 3099100 + 5373000 + 54786300
-    pop_tot_uk = pop_northern_ireland_2015 + pop_wales_scotland_england_2015
-    correction_factor = pop_wales_scotland_england_2015 / pop_tot_uk
-
-    return correction_factor'''

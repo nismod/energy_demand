@@ -162,7 +162,7 @@ def assign_by_fuel_tech_p(assumptions, enduses, fueltypes, fueltypes_nr):
         'heat_pumps_hydrogen': 0.0}
 
     # ---------------
-    # Water heating TODO: TRANSFER TECHS FROM SPACE HEATING
+    # Water heating
     # ---------------
     assumptions['rs_fuel_tech_p_by']['rs_water_heating'][fueltypes['solid_fuel']] = {
         'boiler_solid_fuel': 1.0}
@@ -176,15 +176,14 @@ def assign_by_fuel_tech_p(assumptions, enduses, fueltypes, fueltypes_nr):
         'boiler_gas': 0.4}
 
     assumptions['rs_fuel_tech_p_by']['rs_water_heating'][fueltypes['electricity']] = {
-        'stirling_micro_CHP_electricity': 0.0, #REALLY?
+        'stirling_micro_CHP_electricity': 0.0,
         'boiler_electricity': 1.0}
 
     assumptions['rs_fuel_tech_p_by']['rs_water_heating'][fueltypes['biomass']] = {
         'boiler_biomass': 1.0}
 
     assumptions['rs_fuel_tech_p_by']['rs_water_heating'][fueltypes['hydrogen']] = {
-        'fuel_cell_hydrogen': 0,            #REALLY?
-        'boiler_condensing_hydrogen': 0.0,  #REALLY?
+        'fuel_cell_hydrogen': 0,
         'boiler_hydrogen': 1.0}
 
     # ===================
@@ -199,7 +198,7 @@ def assign_by_fuel_tech_p(assumptions, enduses, fueltypes, fueltypes_nr):
         'boiler_solid_fuel': 1.0}
 
     assumptions['ss_fuel_tech_p_by']['ss_space_heating'][fueltypes['gas']] = {
-        'district_heating_CHP_gas': 0.0, #REally?
+        'district_heating_CHP_gas': 0.0,
         'boiler_condensing_gas': 0.6,
         'boiler_gas': 0.4}
 
@@ -216,10 +215,10 @@ def assign_by_fuel_tech_p(assumptions, enduses, fueltypes, fueltypes_nr):
         'boiler_biomass': 1.0}
 
     assumptions['ss_fuel_tech_p_by']['ss_space_heating'][fueltypes['hydrogen']] = {
-        'fuel_cell_hydrogen': 0,        #REALLY?
+        'fuel_cell_hydrogen': 0,
         'boiler_hydrogen': 1.0,
         'heat_pumps_hydrogen': 0.0,
-        'district_heating_fuel_cell': 0.0} #REALLY?
+        'district_heating_fuel_cell': 0.0}
 
     # ------------------------------
     # Cooling
@@ -240,13 +239,13 @@ def assign_by_fuel_tech_p(assumptions, enduses, fueltypes, fueltypes_nr):
     # ===================
 
     # ----------------
-    # Industrial space heating (is_space_heating) TODO: GET ALL TECHS FROM HEATING
+    # Industrial space heating (is_space_heating)
     # ----------------
     assumptions['is_fuel_tech_p_by']['is_space_heating'][fueltypes['solid_fuel']] = {
         'boiler_solid_fuel': 1.0}
 
     assumptions['is_fuel_tech_p_by']['is_space_heating'][fueltypes['gas']] = {
-        'district_heating_CHP_gas': 0.0, #REally?
+        'district_heating_CHP_gas': 0.0,
         'boiler_condensing_gas': 0.6,
         'boiler_gas': 0.4}
 
@@ -263,10 +262,10 @@ def assign_by_fuel_tech_p(assumptions, enduses, fueltypes, fueltypes_nr):
         'boiler_biomass': 1.0}
 
     assumptions['is_fuel_tech_p_by']['is_space_heating'][fueltypes['hydrogen']] = {
-        'fuel_cell_hydrogen': 0, #REALLY?
+        'fuel_cell_hydrogen': 0,
         'boiler_hydrogen': 1.0,
         'heat_pumps_hydrogen': 0.0,
-        'district_heating_fuel_cell': 0.0} #REALLY?
+        'district_heating_fuel_cell': 0.0}
 
     # ------------------
     # Get technologies of an enduse

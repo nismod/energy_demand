@@ -1,6 +1,7 @@
 """Plotting styles
 """
 from collections import OrderedDict
+
 def linestyles():
     """
     https://matplotlib.org/gallery/lines_bars_and_markers/linestyles.html
@@ -31,3 +32,67 @@ def linestyles():
         linestyles_out[nr] = linestyle
 
     return linestyles_out
+
+def color_list():
+    """ List with colors
+    """
+    color_list = [
+        'darkturquoise',
+        'orange',
+        'firebrick',
+        'darkviolet',
+        'khaki',
+        'olive',
+        'darkseagreen',
+        'darkcyan',
+        'indianred',
+        'darkblue',
+        'orchid',
+        'gainsboro',
+        'mediumseagreen',
+        'lightgray',
+        'mediumturquoise',
+        'darksage',
+        'lemonchiffon',
+        'cadetblue',
+        'lightyellow',
+        'lavenderblush',
+        'coral',
+        'purple',
+        'aqua',
+        'mediumslateblue',
+        'darkorange',
+        'mediumaquamarine',
+        'darksalmon',
+        'beige']
+
+    return color_list
+
+def color_list_selection():
+    """
+    """
+
+    color_list_selection = [
+        'darkturquoise',
+        'orange',
+        'firebrick',
+        'darkviolet',
+        'khaki',
+        'olive',
+        'darkseagreen',
+        'darkcyan',
+        'indianred',
+        'darkblue']
+
+    return color_list_selection
+
+def font_info():
+    """
+    """
+    font_additional_info = {
+        'family': 'arial',
+        'color': 'black',
+        'weight': 'normal',
+        'size': 8}
+
+    return font_additional_info

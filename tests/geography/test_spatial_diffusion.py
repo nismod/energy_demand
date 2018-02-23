@@ -27,8 +27,8 @@ from energy_demand.geography import spatial_diffusion
         print("--")
         print(_a + _b)
         print("_--")
-        print(switches_cont['rs_share_service_tech_ey_p']['rs_space_heating']['heat_pumps_electricity'])
-        print(_scrap * switches_cont['rs_share_service_tech_ey_p']['rs_space_heating']['heat_pumps_electricity'])
+        print(switches_cont['rs_share_s_tech_ey_p']['rs_space_heating']['heat_pumps_electricity'])
+        print(_scrap * switches_cont['rs_share_s_tech_ey_p']['rs_space_heating']['heat_pumps_electricity'])
 
 
 '''

@@ -175,12 +175,12 @@ def autocomplete_switches():
         2020)]
 
     specified_tech_enduse_by = {'heating': ['techA', 'techB']}
-    service_tech_by_p = {'heating': {'techA': 0.8, 'techB': 0.2}}
+    s_tech_by_p = {'heating': {'techA': 0.8, 'techB': 0.2}}
 
     service_switches = fuel_service_switch.autocomplete_switches(
         service_switches=service_switches,
         specified_tech_enduse_by=specified_tech_enduse_by,
-        service_tech_by_p=service_tech_by_p)
+        s_tech_by_p=s_tech_by_p)
     
     for switch in service_switches:
         if switch.technology_install == 'techA':
@@ -197,12 +197,12 @@ def autocomplete_switches():
         2020)]
 
     specified_tech_enduse_by = {'heating': ['techA', 'techB', 'techC']}
-    service_tech_by_p = {'heating': {'techA': 0.6, 'techB': 0.2,'techC': 0.1}}
+    s_tech_by_p = {'heating': {'techA': 0.6, 'techB': 0.2,'techC': 0.1}}
 
     service_switches = fuel_service_switch.autocomplete_switches(
         service_switches=service_switches,
         specified_tech_enduse_by=specified_tech_enduse_by,
-        service_tech_by_p=service_tech_by_p)
+        s_tech_by_p=s_tech_by_p)
     
     for switch in service_switches:
         if switch.technology_install == 'techA':
@@ -213,7 +213,7 @@ def autocomplete_switches():
         if switch.technology_install == 'techC':
             assert switch.service_share_ey == 0.7 * (1.0 / 3.0)
 
-def test_get_share_service_tech_ey():
+def test_get_share_s_tech_ey():
     """testing"""
 
     service_switches = [read_data.ServiceSwitch(
@@ -224,7 +224,7 @@ def test_get_share_service_tech_ey():
 
     specified_tech_enduse_by = {'heating': ['techA', 'techB', 'techC']}
 
-    result = fuel_service_switch.get_share_service_tech_ey(
+    result = fuel_service_switch.get_share_s_tech_ey(
         service_switches=service_switches,
         specified_tech_enduse_by=specified_tech_enduse_by)
     
