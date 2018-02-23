@@ -72,35 +72,36 @@ def plot_lad_national(
 
 
     # -----------------------------
-    # Plot map wtih all value hues
+    # Plot map with all value hues
     # -----------------------------
-    '''lad_geopanda_shp.plot(
+    lad_geopanda_shp.plot(
         axes=axes,
         column=field_name_to_plot,
         cmap='OrRd',
         legend=True)
-    plt.show()'''
+    plt.show()
 
-    # ------------
+    '''# ------------
     # Own classification (work around)
     # ------------
     from energy_demand.plotting import plotting_styles
     # Own classification bins
     bins = [x for x in range(0, 1000000, 200000)]
-    bins = [0, 10, 20, 30, 120000]
-    # Own colors
-    # TEST ALSO https://pypi.python.org/pypi/brewer2mpl/1.4
+    bins = [0, 50000, 100000]
+
+
     #color_list = ['#edf8fb', '#b2e2e2', '#66c2a4', '#2ca25f', '#006d2c'] # '#fef0d9', '#fdcc8a', '#fc8d59', '#e34a33', '#b30000']
 
-    #color_list = plotting_styles( len(bins))
     def rgb2hex(r,g,b):
+        """Convert RGB to HEX
+        """
         hex = "#{:02x}{:02x}{:02x}".format(r,g,b)
         return hex
 
     import palettable #https://jiffyclub.github.io/palettable/colorbrewer/sequential/
     color_list = []
-    #color_list_rgb = palettable.colorbrewer.qualitative.Dark2_7
-    color_list_rgb = palettable.colorbrewer.sequential.Greens_9
+    color_list_rgb = palettable.colorbrewer.qualitative.Dark2_7
+    #color_list_rgb = palettable.colorbrewer.sequential.Greens_9
 
     for color in color_list_rgb.colors[:len(bins)]:
         color_list.append(rgb2hex(color[0], color[1], color[2]))
@@ -143,7 +144,7 @@ def plot_lad_national(
         alpha=1,
         vmin=0,
         vmax=1)
-
+    '''
     # -----------------------------
     # Plot map wtih all value hues
     # -----------------------------
@@ -265,7 +266,13 @@ def create_geopanda_files(data, results_container, paths, lookups, lu_reg):
         merge_data = {
             str(field_name): data['scenario_data']['population'][year].flatten().tolist(),
             str(unique_merge_id): list(lu_reg)}
-
+        print("MERGE DATA")
+        for reg_nr, reg in enumerate(lu_reg):
+            print("reg: {}  {}".format(reg, data['scenario_data']['population'][year][reg_nr]))
+        print(data['scenario_data']['population'][year].shape)
+        prnt(":")
+        print(merge_data)
+        # TESTING WHY NOT FUNCTIONS IN TODO TODO
         # Merge to shapefile
         lad_geopanda_shp = merge_data_to_shp(
             lad_geopanda_shp,
