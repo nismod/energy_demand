@@ -1,4 +1,4 @@
-"""The sector model wrapper for smif to run the energy demand model
+"""The sector model wrapper for smif to run the energy demand model test
 """
 import os
 import logging
