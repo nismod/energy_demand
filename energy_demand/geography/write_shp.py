@@ -86,7 +86,6 @@ def write_result_shapefile(lad_geometry_shp, out_shape, field_names, csv_results
         logging.warning(
             "No result value for regions '%s' in joining shapefile",
             missing_recors)
-        
         print(
             "No result value for regions '%s' in joining shapefile",
             missing_recors)

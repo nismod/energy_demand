@@ -1,7 +1,8 @@
-#http://darribas.org/gds15/content/labs/lab_03.html
-#https://stackoverflow.com/questions/31755886/choropleth-map-from-geopandas-geodatafame
-# http://geopandas.org
+"""Function to create map plots of the results with help of
+the geopanda library (http://geopandas.org)
+"""
 import os
+import numpy as np
 import geopandas as gpd
 import pandas as pd
 import palettable #https://jiffyclub.github.io/palettable/colorbrewer/sequential/
@@ -11,7 +12,7 @@ from matplotlib.colors import LinearSegmentedColormap
 from energy_demand.basic import basic_functions
 from energy_demand.plotting import plotting_styles
 
-def own_classification_work_round(bins, min_value, lad_geopanda_shp, field_name_to_plot):
+def own_classification_work_round(bins, min_value, lad_geopanda_shp, field_name_to_plot, legend_title):
     """Generate plot with own classification of choropleth maps
 
     The vues for plotting are taken from `palette`
@@ -35,11 +36,11 @@ def own_classification_work_round(bins, min_value, lad_geopanda_shp, field_name_
 
         [x for x in range(0, 1000000, 200000)]
     """
-    def rgb2hex(r, g, b):
+    def rgb2hex(r_color, g_color, b_color):
         """Convert RGB to HEX
         """
-        return "#{:02x}{:02x}{:02x}".format(r,g,b)
-    
+        return "#{:02x}{:02x}{:02x}".format(r_color, g_color, b_color)
+
     # --------------
     # Color paletts
     # --------------
@@ -60,7 +61,6 @@ def own_classification_work_round(bins, min_value, lad_geopanda_shp, field_name_
     # ----------
     # Legend
     # ----------
-    # TODO: REPLACE 0 WITH SAMMELS NUMBER
     legend_handles = []
     for bin_nr, color in enumerate(color_list):
 
@@ -80,24 +80,36 @@ def own_classification_work_round(bins, min_value, lad_geopanda_shp, field_name_
 
     plt.legend(
         handles=legend_handles,
+        title=legend_title,
         prop={
             'family': 'arial',
             'size': 10},
+        loc='upper center',
+        bbox_to_anchor=(0.5, -0.05),
         frameon=False)
 
     return lad_geopanda_shp, cmap
 
 def hack_classification(lad_geopanda_shp, bins, color_list, field_name_to_plot):
     """Remap according to user defined classification
+
+    Arguments
+    ----------
+    lad_geopanda_shp : dataframe
+        Shapefile geopanda dataframe
+    bins : list
+        Classification boders
+    color_list : list
+        List with colors for every category
+    field_name_to_plot : str
+        Name of figure to plot
     """
-    def bin_mapping(x):
+    def bin_mapping(value_to_classify):
         """Maps values to a bin.
         The mapped values must start at 0 and end at 1.
         """
         for idx, bound in enumerate(bins):
-
-            # TODO CHCANGED
-            if x < bound:
+            if value_to_classify < bound:
                 return idx / (len(bins) - 1.0)
 
     # Create the list of bin labels and the list of colors corresponding to each bin
@@ -105,7 +117,7 @@ def hack_classification(lad_geopanda_shp, bins, color_list, field_name_to_plot):
 
     # Create the custom color map
     cmap = LinearSegmentedColormap.from_list(
-        'mycmap', 
+        'mycmap',
         [(lbl, color) for lbl, color in zip(bin_labels, color_list)])
 
     # Reclassify
@@ -115,8 +127,13 @@ def hack_classification(lad_geopanda_shp, bins, color_list, field_name_to_plot):
 
 def plot_lad_national(
         lad_geopanda_shp,
+        legend_unit,
         field_name_to_plot,
-        result_path
+        fig_name_part,
+        result_path,
+        plotshow=False,
+        user_classification=False,
+        bins=[]
     ):
     """Create plot of LADs and store to map file (PDF)
 
@@ -124,67 +141,87 @@ def plot_lad_national(
     ---------
     lad_geopanda_shp : dataframe
         Geopanda dataframe
+    legend_unit : str
+        Unit of values
     field_name_to_plot : str
         Field name to plot in map
+    fig_name_part : str
+        Additional string naming variable
     result_path : str
         Path to figure to plot
+    user_classification : bool
+        Criteria if user classification or not
+    bins : list
+        Classification boders
+
+        # Classification borders
+        # Note:
+        #   First bin entry must not be zero! (the first entry is alwys from zero to first entry)
+        #   Last bin entry is always theretical maximum
 
     Info
     -----
         Map color:  https://matplotlib.org/users/colormaps.html
 
     http://darribas.org/gds_scipy16/ipynb_md/02_geovisualization.html
-    https://stackoverflow.com/questions/41783090/plotting-a-choropleth-map-with-geopandas-using-a-user-defined-classification-s 
+    https://stackoverflow.com/questions/41783090/plotting-a-choropleth
+    -map-with-geopandas-using-a-user-defined-classification-s
     """
     fig_name = os.path.join(
         result_path,
-        field_name_to_plot)
+        "{}.{}".format(field_name_to_plot, "pdf"))
 
     fig_map, axes = plt.subplots(
         1,
         figsize=(5, 8))
 
-    # -----------------------------
-    # Plot map with all value hues
-    # -----------------------------
-    '''lad_geopanda_shp.plot(
-        axes=axes,
-        column=field_name_to_plot,
-        cmap='OrRd',
-        legend=True)'''
+    legend_title = "unit [{}]".format(legend_unit)
 
     # -----------------------------
     # Own classification (work around)
     # -----------------------------
+    if user_classification:
 
-    # Get maximum and minum values
-    max_value = lad_geopanda_shp[field_name_to_plot].max()
-    min_value = lad_geopanda_shp[field_name_to_plot].min()
+        # Get maximum and minum values
+        max_value = lad_geopanda_shp[field_name_to_plot].max()
+        min_value = lad_geopanda_shp[field_name_to_plot].min()
 
-    # Classification borders
-    # Note: 
-    #   First bin entry must not be zero! (the first entry is alwys from zero to first entry)
-    #   Last bin entry is always theretical maximum
-    bins = [50000, 300000, max_value]
+        bins.append(max_value)
 
-    # Hack
-    lad_geopanda_shp, cmap = own_classification_work_round(
-        bins,
-        min_value,
-        lad_geopanda_shp,
-        field_name_to_plot)
+        lad_geopanda_shp, cmap = own_classification_work_round(
+            bins,
+            min_value,
+            lad_geopanda_shp,
+            field_name_to_plot,
+            legend_title)
 
-    lad_geopanda_shp.plot(
-        axes=axes,
-        column='reclassified',
-        legend=False,
-        cmap=cmap,
-        alpha=1,
-        vmin=0,
-        vmax=1)
+        lad_geopanda_shp.plot(
+            axes=axes,
+            column='reclassified',
+            legend=False,
+            cmap=cmap,
+            alpha=1,
+            vmin=0,
+            vmax=1)
+    else:
+
+        # -----------------------------
+        # Plot map with all value hues
+        # -----------------------------
+        lad_geopanda_shp.plot(
+            axes=axes,
+            column=field_name_to_plot,
+            cmap='OrRd',
+            alpha=1,
+            legend=True)
+
+        plt.legend(
+            title=legend_title,
+            fontsize=8,
+            fontfamily='arial')
 
     # -----------------------------
-    # Plot map wtih all value hues
+    # Plot map with all value hues
     # -----------------------------
     '''lad_geopanda_shp.plot(
         axes=axes,
@@ -222,34 +259,52 @@ def plot_lad_national(
         k=10,
         cmap='OrRd',
         linewidth=0.1,
-        ax=axes,
+        axes=axes,
         edgecolor='white',
         legend=True,
         scheme='User_Defined')'''
 
     # Title
+    field_name_to_plot = os.path.join(
+        field_name_to_plot,
+        fig_name_part)
+
     fig_map.suptitle(field_name_to_plot)
 
     # Make that not distorted
     plt.axis('equal')
 
+    # Tight layout
+    plt.margins(x=0)
+
+    # Add space for legend
+    plt.subplots_adjust(bottom=0.2)
+
     # Save figure
     plt.savefig(fig_name)
-    plt.show()
+
+    if plotshow:
+        plt.show()
+        plt.close()
+    else:
+        plt.close()
 
 def merge_data_to_shp(shp_gdp, merge_data, unique_merge_id):
-    """Merge data to geopanda dataframe which is read
-    from shapefile
-
-    Steps
-    - create dataframe from merge_data
+    """Merge data to geopanda dataframe which is read from shapefile
 
     Arguments
     ----------
+    shp_gdp : dataframe
+        Geopanda dataframe from shapefile
     merge_data : dict
         Data to merge
     unique_merge_id : str
         Unique ID to make attribute merge
+
+    Returns
+    --------
+    shp_gdp_merged : dataframe
+        Geopanda containing merged dataframe
 
     Example for merge_data
     ------------------------
@@ -263,15 +318,14 @@ def merge_data_to_shp(shp_gdp, merge_data, unique_merge_id):
     merge_dataframe = pd.DataFrame(
         data=merge_data)
 
-    # Merge
     shp_gdp_merged = shp_gdp.merge(
         merge_dataframe,
         on=unique_merge_id)
 
     return shp_gdp_merged
 
-def create_geopanda_files(data, results_container, paths, lu_reg):
-    """Create map related files from results
+def create_geopanda_files(data, results_container, paths, lu_reg, fueltypes_nr):
+    """Create map related files (png) from results.
 
     Arguments
     ---------
@@ -281,8 +335,9 @@ def create_geopanda_files(data, results_container, paths, lu_reg):
         Paths
     lu_reg : list
         Region in a list with order how they are stored in result array
+    fueltypes_nr : int
+        Number of fueltypes
     """
-
     # --------
     # Read LAD shapefile and create geopanda
     # --------
@@ -303,71 +358,90 @@ def create_geopanda_files(data, results_container, paths, lu_reg):
             str(field_name): data['scenario_data']['population'][year].flatten().tolist(),
             str(unique_merge_id): list(lu_reg)}
 
-        for reg_nr, i in enumerate(list(lu_reg)):
-            print("REG: {}  {}".format(i, data['scenario_data']['population'][year][reg_nr]))
-
-
         # Merge to shapefile
         lad_geopanda_shp = merge_data_to_shp(
             lad_geopanda_shp,
             merge_data,
             unique_merge_id)
 
-        # plot and save as fig
+        # If user classified, defined bins
+        bins = [50000, 300000]
+
         plot_lad_national(
             lad_geopanda_shp=lad_geopanda_shp,
+            legend_unit="people",
             field_name_to_plot=field_name,
-            result_path=paths['data_results_shapefiles'])
+            fig_name_part="pop_",
+            result_path=paths['data_results_shapefiles'],
+            user_classification=True,
+            bins=bins)
 
-    '''# ------------------------------------
-    # Create shapefile with yearly total fuel all enduses
     # ------------------------------------
-
-    # Iterate fueltpyes and years and add as attributes
+    # Total fuel all enduses
+    # ------------------------------------
     for year in results_container['results_every_year'].keys():
-        for fueltype in range(lookups['fueltypes_nr']):
-
-            # Calculate yearly sum
-            yearly_sum = np.sum(results_container['results_every_year'][year][fueltype], axis=1)
-            yearly_sum_gw = yearly_sum
+        for fueltype in range(fueltypes_nr):
 
             field_name = 'y_{}_{}'.format(year, fueltype)
-            merge_data = basic_functions.array_to_dict(yearly_sum_gw, lu_reg)
 
-    write_shp.write_result_shapefile(
-        paths['lad_shapefile'],
-        os.path.join(paths['data_results_shapefiles'], 'fuel_y'),
-        field_names,
-        csv_results)
-    '''
+            # Calculate yearly sum
+            yearly_sum_gwh = np.sum(
+                results_container['results_every_year'][year][fueltype],
+                axis=1)
 
+            fuel_data = basic_functions.array_to_dict(yearly_sum_gwh, lu_reg)
 
-    '''# ------------------------------------
+            # Both need to be lists
+            merge_data = {
+                str(field_name): list(fuel_data.values()),
+                str(unique_merge_id): list(lu_reg)}
+
+            # Merge to shapefile
+            lad_geopanda_shp = merge_data_to_shp(
+                lad_geopanda_shp,
+                merge_data,
+                unique_merge_id)
+
+            # If user classified, defined bins
+            #bins = [50000, 300000]
+            plot_lad_national(
+                lad_geopanda_shp=lad_geopanda_shp,
+                legend_unit="GWh",
+                field_name_to_plot=field_name,
+                fig_name_part="tot_all_enduses_y_",
+                result_path=paths['data_results_shapefiles'],
+                user_classification=False) #,
+                #bins=bins)
+
+    # ------------------------------------
     # Create shapefile with load factors
     # ------------------------------------
-    field_names, csv_results = [], []
-    # Iterate fueltpyes and years and add as attributes
     for year in results_container['load_factors_y'].keys():
-        for fueltype in range(lookups['fueltypes_nr']):
+        for fueltype in range(fueltypes_nr):
+
+            field_name = 'lf_{}_{}'.format(year, fueltype)
 
             results = basic_functions.array_to_dict(
                 results_container['load_factors_y'][year][fueltype], lu_reg)
 
-            field_names.append('y_{}_{}'.format(year, fueltype))
-            csv_results.append(results)
+            # Both need to be lists
+            merge_data = {
+                str(field_name): list(results.values()),
+                str(unique_merge_id): list(lu_reg)}
 
-        # Add population
-        field_names.append('pop_{}'.format(year))
+            # Merge to shapefile
+            lad_geopanda_shp = merge_data_to_shp(
+                lad_geopanda_shp,
+                merge_data,
+                unique_merge_id)
 
-        pop_dict = basic_functions.array_to_dict(
-            data['scenario_data']['population'][year], lu_reg)
-
-        csv_results.append(pop_dict)
-
-    write_shp.write_result_shapefile(
-        paths['lad_shapefile'],
-        os.path.join(paths['data_results_shapefiles'], 'lf_max_y'),
-        field_names,
-        csv_results)
-
-    '''
+            # If user classified, defined bins
+            #bins = [50000, 300000]
+            plot_lad_national(
+                lad_geopanda_shp=lad_geopanda_shp,
+                legend_unit="%",
+                field_name_to_plot=field_name,
+                fig_name_part="lf_max_y",
+                result_path=paths['data_results_shapefiles'],
+                user_classification=False) #True,
+                #bins=bins)

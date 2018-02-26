@@ -1,4 +1,4 @@
-"""Generate plots for multiple scenarios
+"""Generate plots for multiple scenarios 
 """
 import os
 from energy_demand.read_write import read_data

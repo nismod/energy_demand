@@ -288,7 +288,7 @@ def load_local_paths(path):
         'model_run_pop': os.path.join(
             path, '_result_data', 'model_run_pop'),
         'data_results_shapefiles': os.path.join(
-            path, '_result_data', 'result_shapefiles')}
+            path, '_result_data', 'spatial_results')}
 
     return paths
 
