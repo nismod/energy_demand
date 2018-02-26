@@ -1,4 +1,4 @@
-"""Generate plots for multiple scenarios
+"""Generate plots for multiple scenarios 
 """
 import os
 from energy_demand.read_write import read_data
@@ -16,7 +16,7 @@ def process_result_multi_scen(path_to_scenarios):
         Path to folders with stored results
     """
 
-    # Get all folders with scenario run results  (name of folder is scenario)
+    # Get all folders with scenario run results (name of folder is scenario)
     scenarios = os.listdir(path_to_scenarios)
 
     for scenario in scenarios:

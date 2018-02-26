@@ -4,7 +4,7 @@ import os
 import logging
 from energy_demand.read_write import data_loader, read_data, write_data
 from energy_demand.basic import date_prop
-from energy_demand.plotting import plotting_results
+from energy_demand.plotting import plotting_results, result_mapping
 from energy_demand.basic import logger_setup, basic_functions
 
 def main(path_data_energy_demand):
@@ -70,12 +70,19 @@ def main(path_data_energy_demand):
     # ----------------
     if write_shapefiles:
         print("... create shapefile")
-        write_data.create_shp_results(
+        '''write_data.create_shp_results(
             data,
             results_container,
             data['local_paths'],
             data['lookups'],
             data['lu_reg'])
+        print("created shapefile............")'''
+        result_mapping.create_geopanda_files(
+            data,
+            results_container,
+            data['local_paths'],
+            data['lu_reg'],
+            data['lookups']['fueltypes_nr'])
 
     # ------------------------------
     # Plotting results
@@ -95,7 +102,5 @@ def main(path_data_energy_demand):
     print("... finished reading and plotting results")
 
 #main(os.path.abspath("C://Users//cenv0553//nismod//data_energy_demand"))
-
 #main(os.path.abspath("C://DATA_NISMODII//data_energy_demand"))
-
 #main("C:/Users/cenv0553/nismod/data_energy_demand")

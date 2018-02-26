@@ -122,7 +122,7 @@ def read_national_real_elec_data(path_to_csv):
     return national_fuel_data
 
 def read_national_real_gas_data(path_to_csv):
-    """Read in national consumption from csv file, 
+    """Read in national consumption from csv file
 
     Arguments
     ---------
@@ -288,7 +288,7 @@ def load_local_paths(path):
         'model_run_pop': os.path.join(
             path, '_result_data', 'model_run_pop'),
         'data_results_shapefiles': os.path.join(
-            path, '_result_data', 'result_shapefiles')}
+            path, '_result_data', 'spatial_results')}
 
     return paths
 
