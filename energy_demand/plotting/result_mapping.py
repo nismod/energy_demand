@@ -212,13 +212,17 @@ def plot_lad_national(
             axes=axes,
             column=field_name_to_plot,
             cmap='OrRd',
-            alpha=1,
-            legend=True)
+            legend=True,
+            alpha=1)
 
         plt.legend(
             title=legend_title,
-            fontsize=8,
-            fontfamily='arial')
+            prop={
+                'family': 'arial',
+                'size': 10},
+            loc='upper center',
+            bbox_to_anchor=(0.5, -0.05),
+            frameon=False)
 
     # -----------------------------
     # Plot map with all value hues

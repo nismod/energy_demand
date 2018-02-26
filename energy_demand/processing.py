@@ -4,9 +4,8 @@ import os
 import logging
 from energy_demand.read_write import data_loader, read_data, write_data
 from energy_demand.basic import date_prop
-from energy_demand.plotting import plotting_results
+from energy_demand.plotting import plotting_results, result_mapping
 from energy_demand.basic import logger_setup, basic_functions
-from energy_demand.read_write import create_shp_maps
 
 def main(path_data_energy_demand):
     """Read in all results and plot PDFs
@@ -78,7 +77,7 @@ def main(path_data_energy_demand):
             data['lookups'],
             data['lu_reg'])
         print("created shapefile............")'''
-        create_shp_maps.create_geopanda_files(
+        result_mapping.create_geopanda_files(
             data,
             results_container,
             data['local_paths'],
