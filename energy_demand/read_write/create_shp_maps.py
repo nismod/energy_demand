@@ -2,31 +2,101 @@
 #https://stackoverflow.com/questions/31755886/choropleth-map-from-geopandas-geodatafame
 # http://geopandas.org
 import os
-import matplotlib.pyplot as plt
 import geopandas as gpd
 import pandas as pd
-import pysal as ps
-from pysal.contrib.viz import mapping as maps
-import numpy as np
-from energy_demand.basic import basic_functions
-from pysal.esda.mapclassify import User_Defined
+import palettable #https://jiffyclub.github.io/palettable/colorbrewer/sequential/
+import matplotlib.pyplot as plt
 import matplotlib.patches as mpatches
 from matplotlib.colors import LinearSegmentedColormap
+from energy_demand.basic import basic_functions
+from energy_demand.plotting import plotting_styles
+
+def own_classification_work_round(bins, min_value, lad_geopanda_shp, field_name_to_plot):
+    """Generate plot with own classification of choropleth maps
+
+    The vues for plotting are taken from `palette`
+    Arguments
+    ---------
+    bins : list
+        List with own borders for classification
+    min_value : float
+        Mininum data value
+    lad_geopanda_shp : geopanda dataframe
+        Figure pandaframe
+    field_name_to_plot : str
+        Name of figure to plot
+    axes : axes
+        Axis of figure
+
+    Info
+    ----
+    Source: https://stackoverflow.com/questions/41783090/plotting-a-
+    choropleth-map-with-geopandas-using-a-user-defined-classification-s
+
+        [x for x in range(0, 1000000, 200000)]
+    """
+    def rgb2hex(r, g, b):
+        """Convert RGB to HEX
+        """
+        return "#{:02x}{:02x}{:02x}".format(r,g,b)
+    
+    # --------------
+    # Color paletts
+    # --------------
+    color_list_rgb = palettable.colorbrewer.qualitative.Dark2_7
+    #color_list_rgb = palettable.colorbrewer.sequential.Greens_9
+
+    color_list = []
+    for color in color_list_rgb.colors[:len(bins)]:
+        color_list.append(rgb2hex(color[0], color[1], color[2]))
+
+    # Reclassify
+    lad_geopanda_shp, cmap = hack_classification(
+        lad_geopanda_shp,
+        bins,
+        color_list,
+        field_name_to_plot)
+
+    # ----------
+    # Legend
+    # ----------
+    # TODO: REPLACE 0 WITH SAMMELS NUMBER
+    legend_handles = []
+    for bin_nr, color in enumerate(color_list):
+
+        # Legend label
+        if bin_nr == 0: #first bin entry
+            label_legend_patch = "< {} (min {})".format(bins[bin_nr], min_value)
+        elif bin_nr == len(bins) - 1: #last bin entry
+            label_legend_patch = "> {} ( max {})".format(bins[bin_nr - 1], bins[bin_nr])
+        else:
+            label_legend_patch = "{} - {}".format(bins[bin_nr - 1], bins[bin_nr])
+
+        patch = mpatches.Patch(
+            color=color,
+            label=str(label_legend_patch))
+
+        legend_handles.append(patch)
+
+    plt.legend(
+        handles=legend_handles,
+        prop={
+            'family': 'arial',
+            'size': 10},
+        frameon=False)
+
+    return lad_geopanda_shp, cmap
 
 def hack_classification(lad_geopanda_shp, bins, color_list, field_name_to_plot):
-    """OWn classification with bins
-
-    # https://automating-gis-processes.github.io/2016/Lesson5-interactive-map-bokeh.html
-    # http://pysal.readthedocs.io/en/latest/library/esda/mapclassify.html 'User_defined' is not yet implemented
-
-    Work arounde taken from
-    Source: https://stackoverflow.com/questions/41783090/plotting-a-choropleth-map-with-geopandas-using-a-user-defined-classification-s
+    """Remap according to user defined classification
     """
     def bin_mapping(x):
         """Maps values to a bin.
         The mapped values must start at 0 and end at 1.
         """
         for idx, bound in enumerate(bins):
+
+            # TODO CHCANGED
             if x < bound:
                 return idx / (len(bins) - 1.0)
 
@@ -52,8 +122,12 @@ def plot_lad_national(
 
     Arguments
     ---------
-    column : str
-        Column to plot
+    lad_geopanda_shp : dataframe
+        Geopanda dataframe
+    field_name_to_plot : str
+        Field name to plot in map
+    result_path : str
+        Path to figure to plot
 
     Info
     -----
@@ -70,71 +144,35 @@ def plot_lad_national(
         1,
         figsize=(5, 8))
 
-
     # -----------------------------
     # Plot map with all value hues
     # -----------------------------
-    lad_geopanda_shp.plot(
+    '''lad_geopanda_shp.plot(
         axes=axes,
         column=field_name_to_plot,
         cmap='OrRd',
-        legend=True)
-    plt.show()
+        legend=True)'''
 
-    '''# ------------
+    # -----------------------------
     # Own classification (work around)
-    # ------------
-    from energy_demand.plotting import plotting_styles
-    # Own classification bins
-    bins = [x for x in range(0, 1000000, 200000)]
-    bins = [0, 50000, 100000]
+    # -----------------------------
 
+    # Get maximum and minum values
+    max_value = lad_geopanda_shp[field_name_to_plot].max()
+    min_value = lad_geopanda_shp[field_name_to_plot].min()
 
-    #color_list = ['#edf8fb', '#b2e2e2', '#66c2a4', '#2ca25f', '#006d2c'] # '#fef0d9', '#fdcc8a', '#fc8d59', '#e34a33', '#b30000']
+    # Classification borders
+    # Note: 
+    #   First bin entry must not be zero! (the first entry is alwys from zero to first entry)
+    #   Last bin entry is always theretical maximum
+    bins = [50000, 300000, max_value]
 
-    def rgb2hex(r,g,b):
-        """Convert RGB to HEX
-        """
-        hex = "#{:02x}{:02x}{:02x}".format(r,g,b)
-        return hex
-
-    import palettable #https://jiffyclub.github.io/palettable/colorbrewer/sequential/
-    color_list = []
-    color_list_rgb = palettable.colorbrewer.qualitative.Dark2_7
-    #color_list_rgb = palettable.colorbrewer.sequential.Greens_9
-
-    for color in color_list_rgb.colors[:len(bins)]:
-        color_list.append(rgb2hex(color[0], color[1], color[2]))
-
-    lad_geopanda_shp, cmap = hack_classification(
-        lad_geopanda_shp,
+    # Hack
+    lad_geopanda_shp, cmap = own_classification_work_round(
         bins,
-        color_list,
+        min_value,
+        lad_geopanda_shp,
         field_name_to_plot)
-
-    # Legend
-    legend_handles = []
-    for bin_nr, color in enumerate(color_list):
-        
-        # Legend label
-        if bin_nr == len(bins) -1:
-            label_legend_patch = "{} {}".format(">", bins[bin_nr])
-        else:
-            label_legend_patch = "{} - {}".format(bins[bin_nr], bins[bin_nr + 1])
-
-        patch = mpatches.Patch(
-            color=color,
-            label=str(label_legend_patch))
-
-        legend_handles.append(patch)
-
-    # Plot legend
-    plt.legend(
-        handles=legend_handles,
-        prop={
-            'family': 'arial',
-            'size': 10},
-        frameon=False)
 
     lad_geopanda_shp.plot(
         axes=axes,
@@ -144,7 +182,7 @@ def plot_lad_national(
         alpha=1,
         vmin=0,
         vmax=1)
-    '''
+
     # -----------------------------
     # Plot map wtih all value hues
     # -----------------------------
@@ -176,6 +214,7 @@ def plot_lad_national(
         cmap='OrRd',
         legend=True)'''
 
+    #from pysal.esda.mapclassify import User_Defined
     #lad_geopanda_shp.User_Defined(lad_geopanda_shp, bins)
     '''lad_geopanda_shp.assign(cl=interval_data.yb).plot(
         column='cl',
@@ -192,7 +231,7 @@ def plot_lad_national(
     fig_map.suptitle(field_name_to_plot)
 
     # Make that not distorted
-    plt.axis('equal') 
+    plt.axis('equal')
 
     # Save figure
     plt.savefig(fig_name)
@@ -231,7 +270,7 @@ def merge_data_to_shp(shp_gdp, merge_data, unique_merge_id):
 
     return shp_gdp_merged
 
-def create_geopanda_files(data, results_container, paths, lookups, lu_reg):
+def create_geopanda_files(data, results_container, paths, lu_reg):
     """Create map related files from results
 
     Arguments
@@ -240,8 +279,6 @@ def create_geopanda_files(data, results_container, paths, lookups, lu_reg):
         Data container
     paths : dict
         Paths
-    lookups : dict
-        Lookups
     lu_reg : list
         Region in a list with order how they are stored in result array
     """
@@ -249,11 +286,10 @@ def create_geopanda_files(data, results_container, paths, lookups, lu_reg):
     # --------
     # Read LAD shapefile and create geopanda
     # --------
-    lad_shapefile = paths['lad_shapefile']
-    lad_geopanda_shp = gpd.read_file(lad_shapefile)
+    lad_geopanda_shp = gpd.read_file(paths['lad_shapefile'])
 
     # Attribute merge unique Key
-    unique_merge_id = 'geo_code'
+    unique_merge_id = 'name' #'geo_code'
 
     # ---------
     # Population
@@ -266,13 +302,11 @@ def create_geopanda_files(data, results_container, paths, lookups, lu_reg):
         merge_data = {
             str(field_name): data['scenario_data']['population'][year].flatten().tolist(),
             str(unique_merge_id): list(lu_reg)}
-        print("MERGE DATA")
-        for reg_nr, reg in enumerate(lu_reg):
-            print("reg: {}  {}".format(reg, data['scenario_data']['population'][year][reg_nr]))
-        print(data['scenario_data']['population'][year].shape)
-        prnt(":")
-        print(merge_data)
-        # TESTING WHY NOT FUNCTIONS IN TODO TODO
+
+        for reg_nr, i in enumerate(list(lu_reg)):
+            print("REG: {}  {}".format(i, data['scenario_data']['population'][year][reg_nr]))
+
+
         # Merge to shapefile
         lad_geopanda_shp = merge_data_to_shp(
             lad_geopanda_shp,

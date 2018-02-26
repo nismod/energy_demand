@@ -16,7 +16,7 @@ def process_result_multi_scen(path_to_scenarios):
         Path to folders with stored results
     """
 
-    # Get all folders with scenario run results  (name of folder is scenario)
+    # Get all folders with scenario run results (name of folder is scenario)
     scenarios = os.listdir(path_to_scenarios)
 
     for scenario in scenarios:

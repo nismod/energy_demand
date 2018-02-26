@@ -6,6 +6,7 @@ from energy_demand.read_write import data_loader, read_data, write_data
 from energy_demand.basic import date_prop
 from energy_demand.plotting import plotting_results
 from energy_demand.basic import logger_setup, basic_functions
+from energy_demand.read_write import create_shp_maps
 
 def main(path_data_energy_demand):
     """Read in all results and plot PDFs
@@ -70,19 +71,21 @@ def main(path_data_energy_demand):
     # ----------------
     if write_shapefiles:
         print("... create shapefile")
-        from energy_demand.read_write import create_shp_maps
-        create_shp_maps.create_geopanda_files(
+
+        write_data.create_shp_results(
             data,
             results_container,
             data['local_paths'],
             data['lookups'],
             data['lu_reg'])
-        '''write_data.create_shp_results(
+        print("created shapefile............")
+        create_shp_maps.create_geopanda_files(
             data,
             results_container,
             data['local_paths'],
-            data['lookups'],
-            data['lu_reg'])'''
+            data['lu_reg'])
+        pint("FINISHEd")
+
 
     # ------------------------------
     # Plotting results
@@ -102,7 +105,5 @@ def main(path_data_energy_demand):
     print("... finished reading and plotting results")
 
 #main(os.path.abspath("C://Users//cenv0553//nismod//data_energy_demand"))
-
 #main(os.path.abspath("C://DATA_NISMODII//data_energy_demand"))
-
 #main("C:/Users/cenv0553/nismod/data_energy_demand")

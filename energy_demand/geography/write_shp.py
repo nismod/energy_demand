@@ -45,10 +45,10 @@ def write_result_shapefile(lad_geometry_shp, out_shape, field_names, csv_results
     for field_name in field_names:
         writer.field(field_name, "F", decimal=10) #Float
 
-    # Get position of field 'name' #corresponds to LAD Geocode
+    # Get position of field 'name' 
     position = 0
     for field_name in record.fields[1:]:
-        if field_name[0] == 'name':
+        if field_name[0] == 'name': #corresponds to LAD Geocode
             position_field_name = position
             break
         else:
@@ -84,7 +84,12 @@ def write_result_shapefile(lad_geometry_shp, out_shape, field_names, csv_results
 
     if missing_recors != []:
         logging.warning(
-            "No result value for regions '%s' in joining shapefile", missing_recors)
+            "No result value for regions '%s' in joining shapefile",
+            missing_recors)
+        
+        print(
+            "No result value for regions '%s' in joining shapefile",
+            missing_recors)
     else:
         pass
 
