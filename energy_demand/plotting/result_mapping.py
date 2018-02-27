@@ -21,6 +21,7 @@ def user_defined_classification(
         legend_title,
         color_palette,
         color_prop,
+        color_zero=False,
         color_list=False
     ):
     """Generate plot with own classification of choropleth maps
@@ -71,25 +72,47 @@ def user_defined_classification(
     # Legend
     # ----------
     legend_handles = []
-    for bin_nr, color in enumerate(color_list):
 
-        # Legend label
+    # Small number for plotting corrrect charts
+    small_number = 0.01
+
+    for bin_nr, bin_entry in enumerate(bins):
+
+        # Legend labels
         if bin_nr == 0: #first bin entry
+            if bins[bin_nr] < 0:
+                label_patch = "> {} (min {})".format(bin_entry, min_value)
 
-            if bins[bin_nr] < 0:
-                label_patch = "> {} (min {})".format(bins[bin_nr], min_value)
+                if min_value > bin_entry:
+                    print("Classification boundry is not clever for low values")
             else:
-                label_patch = "< {} (min {})".format(bins[bin_nr], min_value)
+                label_patch = "< {} (min {})".format(bin_entry, min_value)
         elif bin_nr == len(bins) - 1: #last bin entry
-            label_patch = "> {} (max {})".format(bins[bin_nr - 1], max_value)
+            label_patch = "> {} (max {})".format(bin_entry - small_number, max_value)
+
+            if max_value < bin_entry:
+                print("Classification boundry is not clever for low values")
         else:
-            if bins[bin_nr] < 0:
-                label_patch = "{}  ―  {}".format(bins[bin_nr - 1], bins[bin_nr])
+
+            # Add zero label if it exists
+            if bins[bin_nr - 1] == 0:
+                label_patch = "0"
+                patch = mpatches.Patch(
+                    color=color_zero,
+                    label=str(label_patch))
+
+                legend_handles.append(patch)
+
+            if bin_entry < 0:
+                label_patch = "{}  ―  {}".format(bins[bin_nr - 1], bin_entry - small_number)
             else:
-                label_patch = "{}  ―  {}".format(bins[bin_nr - 1], bins[bin_nr])
+                if bins[bin_nr - 1] == 0:
+                    label_patch = "{}  ―  {}".format(bins[bin_nr - 1] + small_number, bin_entry - small_number)
+                else:
+                    label_patch = "{}  ―  {}".format(bins[bin_nr - 1], bin_entry - small_number)
 
         patch = mpatches.Patch(
-            color=color,
+            color=color_list[bin_nr],
             label=str(label_patch))
 
         legend_handles.append(patch)
@@ -124,31 +147,22 @@ def hack_classification(lad_geopanda_shp, bins, color_list, field_to_plot):
         """Maps values to a bin.
         The mapped values must start at 0 and end at 1.
         """
-        '''if value_to_classify < 0:
-            for idx, bound in enumerate(bins):
+        # Treat -0 and 0 the same
+        if value_to_classify == 0 or value_to_classify == -0:
+            value_to_classify = 0
 
-                if bound >=0:
-                    if value_to_classify < bound:
-                        return idx / (len(bins) - 1.0)
-                else:
-                    if value_to_classify > bound:
-                        return idx / (len(bins) - 1.0)
-        else:'''
+            # get position of zero value
+            for idx, bound in enumerate(bins):
+                if value_to_classify == bound:
+                    return idx / (len(bins) - 1.0)
+
         for idx, bound in enumerate(bins):
-                if value_to_classify < bound:
-                    return idx / (len(bins) - 1.0)
-        '''for idx, bound in enumerate(bins):
-            if bound > 0:
-                if value_to_classify < bound:
-                    return idx / (len(bins) - 1.0)
-            else:
-                if value_to_classify > bound:
-                    return idx / (len(bins) - 1.0)'''
+            if value_to_classify < bound:
+                return idx / (len(bins) - 1.0)
 
     # Create the list of bin labels and the list of colors corresponding to each bin
     bin_labels = [idx / (len(bins) - 1.0) for idx in range(len(bins))]
-    print("color_list:  " + str(color_list))
-    print("bins:  " + str(bins))
+
     # Create the custom color map
     cmap = LinearSegmentedColormap.from_list(
         'mycmap',
@@ -169,9 +183,10 @@ def plot_lad_national(
         color_prop,
         user_classification=False,
         color_list=False,
+        color_zero=False,
         bins=[],
         file_type="png", #"pdf"
-        plotshow=True
+        plotshow=False
     ):
     """Create plot of LADs and store to map file (PDF)
 
@@ -222,9 +237,7 @@ def plot_lad_national(
         result_path,
         "{}.{}".format(field_to_plot, file_type))
 
-    fig_map, axes = plt.subplots(
-        1,
-        figsize=(5, 8))
+    fig_map, axes = plt.subplots(1, figsize=(5, 8))
 
     legend_title = "unit [{}]".format(legend_unit)
 
@@ -247,7 +260,7 @@ def plot_lad_national(
         max_value = round(lad_geopanda_shp[field_to_plot].max(), 3)
 
         # Add maximum value
-        #bins.append(max_value)
+        bins.append(max_value)
 
         lad_geopanda_shp, cmap = user_defined_classification(
             bins,
@@ -258,6 +271,7 @@ def plot_lad_national(
             legend_title,
             color_palette=color_palette,
             color_prop=color_prop,
+            color_zero=color_zero,
             color_list=color_list)
 
         lad_geopanda_shp.plot(
@@ -268,6 +282,18 @@ def plot_lad_national(
             alpha=1,
             vmin=0,
             vmax=1)
+
+        '''# ---------
+        # select all polygons with value 0 of attribute to plot
+        # ---------
+        all_zero_polygons = getattr(lad_geopanda_shp, field_to_plot)
+        lad_geopanda_shp = lad_geopanda_shp[(all_zero_polygons==0)]
+        lad_geopanda_shp.plot(
+            ax=axes,
+            linewidth=0.6,
+            color="#8a2be2", #or white
+            edgecolor='black')
+        plt.show()'''
     else:
 
         # -----------------------------
@@ -347,7 +373,8 @@ def plot_lad_national(
     plt.margins(x=0)
 
     # Add space for legend
-    plt.subplots_adjust(bottom=0.2)
+    plt.subplots_adjust(
+        bottom=0.4) #0.2 the charts
 
     # Save figure
     plt.savefig(fig_name)
@@ -456,10 +483,11 @@ def create_geopanda_files(data, results_container, paths, lu_reg, fueltypes_nr):
         # If user classified, defined bins  [x for x in range(0, 1000000, 200000)]
         bins = [-4, -2, 0, 2, 4] # must be of uneven length containing zero
 
-        color_list, color_prop, user_classification = colors_plus_minus_map(
+        color_list, color_prop, user_classification, color_zero = colors_plus_minus_map(
             bins,
             'qualitative',
-            False)
+            False,
+            color_zero='#8a2be2') #"#8a2be2" #ffffff'
 
         plot_lad_national(
             lad_geopanda_shp=lad_geopanda_shp,
@@ -471,8 +499,9 @@ def create_geopanda_files(data, results_container, paths, lu_reg, fueltypes_nr):
             color_prop=color_prop,
             user_classification=user_classification,
             color_list=color_list,
+            color_zero=color_zero,
             bins=bins)
-    pint(".ff.")
+    #pint(".ff.")
     # ======================================
     # Population
     # ======================================
@@ -576,7 +605,7 @@ def create_geopanda_files(data, results_container, paths, lu_reg, fueltypes_nr):
                 color_prop='qualitative',
                 user_classification=False)
 
-def colors_plus_minus_map(bins, color_prop, plus_minus=True, user_classification=False):
+def colors_plus_minus_map(bins, color_prop, plus_minus=True, user_classification=False, color_zero='#ffffff'):
     """Create color scheme in case plus and minus classes
     are defined (i.e. negative and positive values to
     classify)
@@ -591,7 +620,8 @@ def colors_plus_minus_map(bins, color_prop, plus_minus=True, user_classification
         Criteria to switch colors
     user_classification : bool
         Criteria whether used classification or not
-    
+    color_zero : str, default=white hex color
+        Color of zero values
     Returns
     -------
     color_list : list
@@ -600,6 +630,8 @@ def colors_plus_minus_map(bins, color_prop, plus_minus=True, user_classification
         Type of colors
     user_classification : bool
         Wheter user defined color scheme or not
+    color_zero : hex_color string
+        Color of zero values
     """
     if min(bins) < 0:
 
@@ -611,8 +643,8 @@ def colors_plus_minus_map(bins, color_prop, plus_minus=True, user_classification
             color_list_neg = getattr(palettable.colorbrewer.sequential, 'Reds_9').hex_colors
             color_list_pos = getattr(palettable.colorbrewer.sequential, 'Greens_9').hex_colors
 
-        # Select correct number of colors
-        color_list = color_list_pos[:len(bins)]
+        # Select correct number of colors or addapt colors
+        color_list_pos = color_list_pos[1:]
 
         # Invert negative colors
         color_list_neg = color_list_neg[::-1]
@@ -622,11 +654,13 @@ def colors_plus_minus_map(bins, color_prop, plus_minus=True, user_classification
         color_list = []
         for i in range(nr_of_cat_pos_neg + 1): #add one to get class up to zero
             color_list.append(color_list_neg[i])
-        for i in range(nr_of_cat_pos_neg):
+
+
+        for i in range(nr_of_cat_pos_neg + 1): # add one to get class beyond last bin
             color_list.append(color_list_pos[i])
 
-        return color_list, 'user_defined', True
+        return color_list, 'user_defined', True, color_zero
 
     else:
         # regular classification
-        return [], color_prop, False
+        return [], color_prop, False, False
