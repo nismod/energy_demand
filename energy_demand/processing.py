@@ -83,7 +83,8 @@ def main(path_data_energy_demand):
             results_container,
             data['local_paths'],
             data['lu_reg'],
-            data['lookups']['fueltypes_nr'])
+            data['lookups']['fueltypes_nr'],
+            data['lookups']['fueltypes'])
 
     # ------------------------------
     # Plotting results

@@ -11,6 +11,7 @@ import matplotlib.pyplot as plt
 import matplotlib.patches as mpatches
 from matplotlib.colors import LinearSegmentedColormap
 from energy_demand.basic import basic_functions
+from energy_demand.technologies import tech_related
 
 def user_defined_classification(
         bins,
@@ -185,7 +186,7 @@ def plot_lad_national(
         color_list=False,
         color_zero=False,
         bins=[],
-        file_type="png", #"pdf"
+        file_type="pdf", #"png"
         plotshow=False
     ):
     """Create plot of LADs and store to map file (PDF)
@@ -360,9 +361,7 @@ def plot_lad_national(
         scheme='User_Defined')'''
 
     # Title
-    field_to_plot = os.path.join(
-        field_to_plot,
-        fig_name_part)
+    field_to_plot = field_to_plot + fig_name_part
 
     fig_map.suptitle(field_to_plot)
 
@@ -420,7 +419,7 @@ def merge_data_to_shp(shp_gdp, merge_data, unique_merge_id):
 
     return shp_gdp_merged
 
-def create_geopanda_files(data, results_container, paths, lu_reg, fueltypes_nr):
+def create_geopanda_files(data, results_container, paths, lu_reg, fueltypes_nr, fueltypes):
     """Create map related files (png) from results.
 
     Arguments
@@ -443,7 +442,6 @@ def create_geopanda_files(data, results_container, paths, lu_reg, fueltypes_nr):
     # Attribute merge unique Key
     unique_merge_id = 'name' #'geo_code'
 
-
     # ======================================
     # Spatial maps of difference in load factors
     # ======================================
@@ -453,8 +451,9 @@ def create_geopanda_files(data, results_container, paths, lu_reg, fueltypes_nr):
     base_yr = simulated_yrs[0]
 
     for fueltype in range(fueltypes_nr):
-
-        field_name = 'lf_diff_{}_{}'.format(final_yr, fueltype)
+        
+        fueltype_str = tech_related.get_fueltype_str(fueltypes, fueltype)
+        field_name = 'lf_diff_{}_{}'.format(final_yr, fueltype_str)
 
         lf_final_yr = basic_functions.array_to_dict(
             results_container['load_factors_y'][final_yr][fueltype],
@@ -484,10 +483,10 @@ def create_geopanda_files(data, results_container, paths, lu_reg, fueltypes_nr):
         bins = [-4, -2, 0, 2, 4] # must be of uneven length containing zero
 
         color_list, color_prop, user_classification, color_zero = colors_plus_minus_map(
-            bins,
-            'qualitative',
-            False,
-            color_zero='#8a2be2') #"#8a2be2" #ffffff'
+            bins=bins,
+            color_prop='qualitative',
+            color_order=True,
+            color_zero='#ffffff') #"#8a2be2" #ffffff'
 
         plot_lad_national(
             lad_geopanda_shp=lad_geopanda_shp,
@@ -501,7 +500,7 @@ def create_geopanda_files(data, results_container, paths, lu_reg, fueltypes_nr):
             color_list=color_list,
             color_zero=color_zero,
             bins=bins)
-    #pint(".ff.")
+
     # ======================================
     # Population
     # ======================================
@@ -561,7 +560,6 @@ def create_geopanda_files(data, results_container, paths, lu_reg, fueltypes_nr):
                 unique_merge_id)
 
             # If user classified, defined bins
-            #bins = [50000, 300000]
             plot_lad_national(
                 lad_geopanda_shp=lad_geopanda_shp,
                 legend_unit="GWh",
@@ -605,7 +603,7 @@ def create_geopanda_files(data, results_container, paths, lu_reg, fueltypes_nr):
                 color_prop='qualitative',
                 user_classification=False)
 
-def colors_plus_minus_map(bins, color_prop, plus_minus=True, user_classification=False, color_zero='#ffffff'):
+def colors_plus_minus_map(bins, color_prop, color_order=True, color_zero='#ffffff'):
     """Create color scheme in case plus and minus classes
     are defined (i.e. negative and positive values to
     classify)
@@ -616,7 +614,7 @@ def colors_plus_minus_map(bins, color_prop, plus_minus=True, user_classification
         List with borders
     color_prop : str
         Type of color is not plus_minus map
-    plus_minus : bool
+    color_order : bool
         Criteria to switch colors
     user_classification : bool
         Criteria whether used classification or not
@@ -636,7 +634,7 @@ def colors_plus_minus_map(bins, color_prop, plus_minus=True, user_classification
     if min(bins) < 0:
 
         # Colors pos and neg
-        if plus_minus:
+        if color_order:
             color_list_pos = getattr(palettable.colorbrewer.sequential, 'Reds_9').hex_colors
             color_list_neg = getattr(palettable.colorbrewer.sequential, 'Greens_9').hex_colors
         else:
