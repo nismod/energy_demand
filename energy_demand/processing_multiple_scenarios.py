@@ -50,7 +50,11 @@ def process_scenarios(path_to_scenarios):
         # Add scenario name to folder
         scenario_data[scenario] = {}
 
-        path_to_result_files = os.path.join(path_to_scenarios, scenario, '_result_data', 'model_run_results_txt')
+        path_to_result_files = os.path.join(
+            path_to_scenarios,
+            scenario,
+            '_result_data',
+            'model_run_results_txt')
 
         scenario_data[scenario] = read_data.read_in_results(
             path_runs=path_to_result_files,
@@ -85,7 +89,7 @@ def process_scenarios(path_to_scenarios):
 # Execute rusult processing for every scenario
 process_result_multi_scen(
     os.path.abspath("C:/Users/cenv0553/nismod/data_energy_demand/_MULT2"))
-
+5
 # Generate plots across all scenarios
 #process_scenarios(
- #   os.path.abspath("C:/Users/cenv0553/nismod/data_energy_demand/_MULT2"))
+#    os.path.abspath("C:/Users/cenv0553/nismod/data_energy_demand/_MULT2"))

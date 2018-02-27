@@ -1564,6 +1564,11 @@ def apply_smart_metering(
             sm_assump['smart_meter_diff_params']['sig_midpoint'],
             sm_assump['smart_meter_diff_params']['sig_steeppness'])
 
+        if isinstance(sigm_factor, float):
+            pass
+        else:
+            sys.exit("ERROR TODO TODO")
+
         # Smart Meter penetration (percentage of people having smart meters)
         penetration_by = sm_assump['smart_meter_p_by']
         penetration_cy = sm_assump['smart_meter_p_by'] + (

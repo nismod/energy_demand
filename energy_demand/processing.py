@@ -19,7 +19,8 @@ def main(path_data_energy_demand):
     # ---------
     # Criterias
     # ---------
-    write_shapefiles = True        # Write shapefiles
+    write_shapefiles = False    # Write shapefiles
+    spatial_results = True      # Spatial geopanda maps
 
     # Set up logger
     logger_setup.set_up_logger(
@@ -69,14 +70,14 @@ def main(path_data_energy_demand):
     # Write results to CSV files and merge with shapefile
     # ----------------
     if write_shapefiles:
-        print("... create shapefile")
-        '''write_data.create_shp_results(
+        write_data.create_shp_results(
             data,
             results_container,
             data['local_paths'],
             data['lookups'],
             data['lu_reg'])
-        print("created shapefile............")'''
+
+    if spatial_results:
         result_mapping.create_geopanda_files(
             data,
             results_container,
@@ -87,7 +88,6 @@ def main(path_data_energy_demand):
     # ------------------------------
     # Plotting results
     # ------------------------------
-    print("... start plotting results")
     plotting_results.run_all_plot_functions(
         results_container,
         data['reg_nrs'],
