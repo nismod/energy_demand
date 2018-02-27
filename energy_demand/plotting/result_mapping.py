@@ -23,6 +23,7 @@ def user_defined_classification(
         legend_title,
         color_palette,
         color_prop,
+        placeholder_zero_color,
         color_zero=False,
         color_list=False
     ):
@@ -63,26 +64,27 @@ def user_defined_classification(
     # Shorten color list
     color_list = color_list[:len(bins)]
 
+    # ---------
     # Reclassify
+    # ---------
     reclass_lad_geopanda_shp, cmap = re_classification(
         lad_geopanda_shp,
         bins,
         color_list,
         field_to_plot,
-        color_zero)
+        color_zero,
+        placeholder_zero_color)
 
     # ----------
-    # Legend
+    # Legend and legend labels
     # ----------
     legend_handles = []
-
-    # Small number for plotting corrrect charts
-    small_number = 0.01
+    small_number = 0.01 # Small number for plotting corrrect charts
 
     for bin_nr, bin_entry in enumerate(bins):
 
-        # Legend labels
         if bin_nr == 0: #first bin entry
+
             if bins[bin_nr] < 0:
                 label_patch = "> {} (min {})".format(bin_entry, min_value)
 
@@ -96,16 +98,20 @@ def user_defined_classification(
             if max_value < bin_entry:
                 print("Classification boundry is not clever for low values")
         else:
-
+            # ----------------------------
             # Add zero label if it exists
+            # ----------------------------
             if bins[bin_nr - 1] == 0:
-                label_patch = "0"
                 patch = mpatches.Patch(
                     color=color_zero,
-                    label=str(label_patch))
-
+                    label=str("0"))
                 legend_handles.append(patch)
+            else:
+                pass
 
+            # ----------------------------
+            # Other other labels
+            # ----------------------------
             if bin_entry < 0:
                 label_patch = "{}  ―  {}".format(bins[bin_nr - 1], bin_entry - small_number)
             else:
@@ -132,7 +138,7 @@ def user_defined_classification(
 
     return reclass_lad_geopanda_shp, cmap
 
-def bin_mapping(value_to_classify, class_bins, dummy_small_nr_for_zero_color):
+def bin_mapping(value_to_classify, class_bins, placeholder_zero_color):
     """Maps values to a bin.
     The mapped values must start at 0 and end at 1.
 
@@ -159,13 +165,19 @@ def bin_mapping(value_to_classify, class_bins, dummy_small_nr_for_zero_color):
         '''for idx, bound in enumerate(class_bins):
             if value_to_classify == bound:
                 return idx / (len(class_bins) - 1.0)'''
-        return dummy_small_nr_for_zero_color
+        return placeholder_zero_color
 
     for idx, bound in enumerate(class_bins):
         if value_to_classify < bound:
             return idx / (len(class_bins) - 1.0)
-        
-def re_classification(lad_geopanda_shp, bins, color_list, field_to_plot, color_zero):
+
+def re_classification(
+        lad_geopanda_shp,
+        bins, color_list,
+        field_to_plot,
+        color_zero,
+        placeholder_zero_color
+    ):
     """Reclassify according to user defined classification
 
     Arguments
@@ -178,8 +190,11 @@ def re_classification(lad_geopanda_shp, bins, color_list, field_to_plot, color_z
         List with colors for every category
     field_to_plot : str
         Name of figure to plot
+    color_zero : str
+        Color for zeros
+    placeholder_zero_color : float
+        Number to assign for zero values
     """
-    dummy_small_nr_for_zero_color = 0.001
 
     # Create the list of bin labels and the list of colors corresponding to each bin
     bin_labels = []
@@ -197,7 +212,7 @@ def re_classification(lad_geopanda_shp, bins, color_list, field_to_plot, color_z
     if color_zero != False:
         insert_pos = 1
         color_list_copy.insert(insert_pos, color_zero)
-        bin_labels_copy.insert(insert_pos, float(dummy_small_nr_for_zero_color))
+        bin_labels_copy.insert(insert_pos, float(placeholder_zero_color))
     else:
         pass
 
@@ -214,7 +229,7 @@ def re_classification(lad_geopanda_shp, bins, color_list, field_to_plot, color_z
     lad_geopanda_shp['reclassified'] = lad_geopanda_shp[field_to_plot].apply(
         func=bin_mapping,
         class_bins=bins,
-        dummy_small_nr_for_zero_color=float(dummy_small_nr_for_zero_color))
+        placeholder_zero_color=float(placeholder_zero_color))
 
     return lad_geopanda_shp, cmap
 
@@ -292,13 +307,16 @@ def plot_lad_national(
     lad_geopanda_shp.plot(
         ax=axes,
         linewidth=0.6,
-        color=None, #or white
+        color=None,
         edgecolor='black')
 
     # -----------------------------
     # Own classification (work around)
     # -----------------------------
     if user_classification:
+
+        # Color to assing zero values
+        placeholder_zero_color = 0.001
 
         # Get maximum and minum values
         rounding_digits = 10
@@ -317,6 +335,7 @@ def plot_lad_national(
             legend_title,
             color_palette=color_palette,
             color_prop=color_prop,
+            placeholder_zero_color=placeholder_zero_color,
             color_zero=color_zero,
             color_list=color_list)
 
@@ -334,13 +353,13 @@ def plot_lad_national(
         # Select all polygons with value 0 of attribute to plot
         # ---------
         all_zero_polygons = getattr(lad_geopanda_shp_reclass, 'reclassified')
-        lad_geopanda_shp_zeros = lad_geopanda_shp_reclass[(all_zero_polygons==0.001)]
-        
+        lad_geopanda_shp_zeros = lad_geopanda_shp_reclass[(all_zero_polygons==placeholder_zero_color)]
+
         # If more than 0 polygons are selected with classified number of zero, plot them
         if lad_geopanda_shp_zeros.shape[0] > 0:
             lad_geopanda_shp_zeros.plot(
                 ax=axes,
-                color="#8a2be2")#or white
+                color=color_zero)#or white "#8a2be2"
 
     else:
 
@@ -547,7 +566,7 @@ def create_geopanda_files(
             bins=bins,
             color_prop='qualitative',
             color_order=True,
-            color_zero='#8a2be2') #"#8a2be2" ffffff
+            color_zero='#ffffff') #"#8a2be2" ffffff
 
         plot_lad_national(
             lad_geopanda_shp=lad_geopanda_shp,
