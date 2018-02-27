@@ -135,6 +135,17 @@ def user_defined_classification(
 def bin_mapping(value_to_classify, class_bins, dummy_small_nr_for_zero_color):
     """Maps values to a bin.
     The mapped values must start at 0 and end at 1.
+
+    Arguments
+    ---------
+    value_to_classify : float
+        Value to classify
+    class_bins : list
+        Bins to use for classification
+
+    Returns
+    -------
+    classified value
     """
     round_digits = 4
 
@@ -179,9 +190,6 @@ def re_classification(lad_geopanda_shp, bins, color_list, field_to_plot, color_z
     # ----------------------
     # Add white bin and color
     # ----------------------
-    print("=''00000000")
-    print(color_list)
-    print(bin_labels)
     color_list_copy = copy.copy(color_list)
     bin_labels_copy = copy.copy(bin_labels)
 
@@ -203,14 +211,11 @@ def re_classification(lad_geopanda_shp, bins, color_list, field_to_plot, color_z
         color_bin_match_list)
 
     # Reclassify
-    print(cmap._segmentdata)
-    print(lad_geopanda_shp[field_to_plot])
-    print("----")
     lad_geopanda_shp['reclassified'] = lad_geopanda_shp[field_to_plot].apply(
         func=bin_mapping,
         class_bins=bins,
-        dummy_small_nr_for_zero_color=dummy_small_nr_for_zero_color)
-    print(lad_geopanda_shp['reclassified'])
+        dummy_small_nr_for_zero_color=float(dummy_small_nr_for_zero_color))
+
     return lad_geopanda_shp, cmap
 
 def plot_lad_national(
@@ -315,6 +320,7 @@ def plot_lad_national(
             color_zero=color_zero,
             color_list=color_list)
 
+        # Plot reclassified
         lad_geopanda_shp_reclass.plot(
             ax=axes,
             column='reclassified',
@@ -325,16 +331,16 @@ def plot_lad_national(
             vmax=1)
 
         # ---------
-        # Aelect all polygons with value 0 of attribute to plot and set to zero color
+        # Select all polygons with value 0 of attribute to plot
         # ---------
-        all_zero_polygons = getattr(lad_geopanda_shp, field_to_plot)
-        lad_geopanda_shp = lad_geopanda_shp[(all_zero_polygons==0)]
-        lad_geopanda_shp.plot(
-            ax=axes,
-            linewidth=0.6,
-            color="#8a2be2", #or white
-            edgecolor='black')
-        #plt.show()
+        all_zero_polygons = getattr(lad_geopanda_shp_reclass, 'reclassified')
+        lad_geopanda_shp_zeros = lad_geopanda_shp_reclass[(all_zero_polygons==0.001)]
+        
+        # If more than 0 polygons are selected with classified number of zero, plot them
+        if lad_geopanda_shp_zeros.shape[0] > 0:
+            lad_geopanda_shp_zeros.plot(
+                ax=axes,
+                color="#8a2be2")#or white
 
     else:
 
@@ -509,8 +515,6 @@ def create_geopanda_files(
 
         fueltype_str = tech_related.get_fueltype_str(fueltypes, fueltype)
         field_name = 'lf_diff_{}_{}_'.format(final_yr, fueltype_str)
-        if fueltype_str == 'hydrogen':
-            print("..")
 
         lf_end_yr = basic_functions.array_to_dict(
             results_container['load_factors_y'][final_yr][fueltype],
