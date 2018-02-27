@@ -64,7 +64,7 @@ def user_defined_classification(
     color_list = color_list[:len(bins)]
 
     # Reclassify
-    lad_geopanda_shp, cmap = re_classification(
+    reclass_lad_geopanda_shp, cmap = re_classification(
         lad_geopanda_shp,
         bins,
         color_list,
@@ -130,8 +130,30 @@ def user_defined_classification(
         bbox_to_anchor=(0.5, -0.05),
         frameon=False)
 
-    return lad_geopanda_shp, cmap
+    return reclass_lad_geopanda_shp, cmap
 
+def bin_mapping(value_to_classify, class_bins, dummy_small_nr_for_zero_color):
+    """Maps values to a bin.
+    The mapped values must start at 0 and end at 1.
+    """
+    round_digits = 4
+
+    value_to_classify = round(value_to_classify, round_digits)
+
+    # Treat -0 and 0 the same
+    if value_to_classify == 0 or value_to_classify == -0:
+        value_to_classify = 0
+
+        # get position of zero value
+        '''for idx, bound in enumerate(class_bins):
+            if value_to_classify == bound:
+                return idx / (len(class_bins) - 1.0)'''
+        return dummy_small_nr_for_zero_color
+
+    for idx, bound in enumerate(class_bins):
+        if value_to_classify < bound:
+            return idx / (len(class_bins) - 1.0)
+        
 def re_classification(lad_geopanda_shp, bins, color_list, field_to_plot, color_zero):
     """Reclassify according to user defined classification
 
@@ -146,45 +168,49 @@ def re_classification(lad_geopanda_shp, bins, color_list, field_to_plot, color_z
     field_to_plot : str
         Name of figure to plot
     """
+    dummy_small_nr_for_zero_color = 0.001
+
+    # Create the list of bin labels and the list of colors corresponding to each bin
+    bin_labels = []
+    for idx in range(len(bins)):
+        val_bin = idx / (len(bins) - 1.0)
+        bin_labels.append(val_bin)
+
+    # ----------------------
+    # Add white bin and color
+    # ----------------------
+    print("=''00000000")
+    print(color_list)
+    print(bin_labels)
     color_list_copy = copy.copy(color_list)
+    bin_labels_copy = copy.copy(bin_labels)
 
     # Add zero color in color list if a min_plus map
     if color_zero != False:
-        middle_pos_color_list = int(len(color_list) / 2)
-        color_list_copy.insert(middle_pos_color_list, color_zero)
+        insert_pos = 1
+        color_list_copy.insert(insert_pos, color_zero)
+        bin_labels_copy.insert(insert_pos, float(dummy_small_nr_for_zero_color))
     else:
-        color_list_copy = copy.copy(color_list)
-
-    def bin_mapping(value_to_classify):
-        """Maps values to a bin.
-        The mapped values must start at 0 and end at 1.
-        """
-        # Treat -0 and 0 the same
-        if value_to_classify == 0 or value_to_classify == -0:
-            value_to_classify = 0
-
-            # get position of zero value
-            for idx, bound in enumerate(bins):
-                if value_to_classify == bound:
-                    print("Class val1 " + str(idx / (len(bins) - 1.0)))
-                    return idx / (len(bins) - 1.0)
-
-        for idx, bound in enumerate(bins):
-            if value_to_classify < bound:
-                print("Class val-2 " + str(idx / (len(bins) - 1.0)))
-                return idx / (len(bins) - 1.0)
-
-    # Create the list of bin labels and the list of colors corresponding to each bin
-    bin_labels = [idx / (len(bins) - 1.0) for idx in range(len(bins))]
+        pass
 
     # Create the custom color map
+    color_bin_match_list = []
+    for lbl, color in zip(bin_labels_copy, color_list_copy):
+        color_bin_match_list.append((lbl, color))
+
     cmap = LinearSegmentedColormap.from_list(
         'mycmap',
-        [(lbl, color) for lbl, color in zip(bin_labels, color_list_copy)])
+        color_bin_match_list)
 
     # Reclassify
-    lad_geopanda_shp['reclassified'] = lad_geopanda_shp[field_to_plot].apply(bin_mapping)
-
+    print(cmap._segmentdata)
+    print(lad_geopanda_shp[field_to_plot])
+    print("----")
+    lad_geopanda_shp['reclassified'] = lad_geopanda_shp[field_to_plot].apply(
+        func=bin_mapping,
+        class_bins=bins,
+        dummy_small_nr_for_zero_color=dummy_small_nr_for_zero_color)
+    print(lad_geopanda_shp['reclassified'])
     return lad_geopanda_shp, cmap
 
 def plot_lad_national(
@@ -199,7 +225,7 @@ def plot_lad_national(
         color_list=False,
         color_zero=False,
         bins=[],
-        file_type="pdf", #"png"
+        file_type="png", #"png" pdf
         plotshow=False
     ):
     """Create plot of LADs and store to map file (PDF)
@@ -277,7 +303,7 @@ def plot_lad_national(
         # Add maximum value
         bins.append(max_value)
 
-        lad_geopanda_shp, cmap = user_defined_classification(
+        lad_geopanda_shp_reclass, cmap = user_defined_classification(
             bins,
             min_value,
             max_value,
@@ -289,7 +315,7 @@ def plot_lad_national(
             color_zero=color_zero,
             color_list=color_list)
 
-        lad_geopanda_shp.plot(
+        lad_geopanda_shp_reclass.plot(
             ax=axes,
             column='reclassified',
             legend=False,
@@ -298,8 +324,8 @@ def plot_lad_national(
             vmin=0,
             vmax=1)
 
-        '''# ---------
-        # select all polygons with value 0 of attribute to plot
+        # ---------
+        # Aelect all polygons with value 0 of attribute to plot and set to zero color
         # ---------
         all_zero_polygons = getattr(lad_geopanda_shp, field_to_plot)
         lad_geopanda_shp = lad_geopanda_shp[(all_zero_polygons==0)]
@@ -308,7 +334,8 @@ def plot_lad_national(
             linewidth=0.6,
             color="#8a2be2", #or white
             edgecolor='black')
-        plt.show()'''
+        #plt.show()
+
     else:
 
         # -----------------------------
@@ -482,7 +509,7 @@ def create_geopanda_files(
 
         fueltype_str = tech_related.get_fueltype_str(fueltypes, fueltype)
         field_name = 'lf_diff_{}_{}_'.format(final_yr, fueltype_str)
-        if fueltype_str == 'biomass':
+        if fueltype_str == 'hydrogen':
             print("..")
 
         lf_end_yr = basic_functions.array_to_dict(
@@ -516,7 +543,7 @@ def create_geopanda_files(
             bins=bins,
             color_prop='qualitative',
             color_order=True,
-            color_zero='#ffffff') #"#8a2be2"
+            color_zero='#8a2be2') #"#8a2be2" ffffff
 
         plot_lad_national(
             lad_geopanda_shp=lad_geopanda_shp,
