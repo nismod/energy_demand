@@ -365,7 +365,7 @@ def test_apply_smart_metering():
     sm_assump = {}
     sm_assump['smart_meter_diff_params'] = {}
     sm_assump['smart_meter_diff_params']['sig_midpoint'] = 0
-    sm_assump['smart_meter_diff_params']['sig_steeppness'] = 1
+    sm_assump['smart_meter_diff_params']['sig_steepness'] = 1
     sm_assump['smart_meter_p_by'] = 0
 
     result = enduse_func.apply_smart_metering(
@@ -513,7 +513,7 @@ def test_apply_heat_recovery():
     other_enduse_mode_info['other_enduse_mode_info'] = {}
     other_enduse_mode_info['other_enduse_mode_info']['sigmoid'] = {}
     other_enduse_mode_info['other_enduse_mode_info']['sigmoid']['sig_midpoint'] = 0
-    other_enduse_mode_info['other_enduse_mode_info']['sigmoid']['sig_steeppness'] = 1
+    other_enduse_mode_info['other_enduse_mode_info']['sigmoid']['sig_steepness'] = 1
 
     result = enduse_func.apply_heat_recovery(
         enduse='heating',
@@ -777,7 +777,7 @@ def test_apply_cooling():
     other_enduse_mode_info = {}
     other_enduse_mode_info['sigmoid'] = {}
     other_enduse_mode_info['sigmoid']['sig_midpoint'] = 0
-    other_enduse_mode_info['sigmoid']['sig_steeppness'] = 1
+    other_enduse_mode_info['sigmoid']['sig_steepness'] = 1
 
     strategy_variables = {}
     strategy_variables['cooled_floorarea_yr_until_changed'] = 2020

@@ -83,9 +83,9 @@ def load_sim_param_ini(path):
     # Other information
     # -----------------
     enduses = {}
-    enduses['rs_all_enduses'] = ast.literal_eval(config['ENDUSES']['rs_all_enduses']) #convert string lists to list
-    enduses['ss_all_enduses'] = ast.literal_eval(config['ENDUSES']['ss_all_enduses'])
-    enduses['is_all_enduses'] = ast.literal_eval(config['ENDUSES']['is_all_enduses'])
+    enduses['rs_enduses'] = ast.literal_eval(config['ENDUSES']['rs_enduses']) #convert string lists to list
+    enduses['ss_enduses'] = ast.literal_eval(config['ENDUSES']['ss_enduses'])
+    enduses['is_enduses'] = ast.literal_eval(config['ENDUSES']['is_enduses'])
 
     return sim_param, enduses, assumptions, reg_nrs, lu_reg
 
@@ -672,16 +672,16 @@ def load_fuels(paths, lookups):
     fuels = {}
 
     # Residential Sector
-    rs_fuel_raw_data_enduses, enduses['rs_all_enduses'] = read_data.read_fuel_rs(
+    rs_fuel_raw_data_enduses, enduses['rs_enduses'] = read_data.read_fuel_rs(
         paths['rs_fuel_raw_data_enduses'])
 
     # Service Sector
-    ss_fuel_raw_data_enduses, sectors['ss_sectors'], enduses['ss_all_enduses'] = read_data.read_fuel_ss(
+    ss_fuel_raw_data_enduses, sectors['ss_sectors'], enduses['ss_enduses'] = read_data.read_fuel_ss(
         paths['ss_fuel_raw_data_enduses'],
         lookups['fueltypes_nr'])
 
     # Industry fuel
-    is_fuel_raw_data_enduses, sectors['is_sectors'], enduses['is_all_enduses'] = read_data.read_fuel_is(
+    is_fuel_raw_data_enduses, sectors['is_sectors'], enduses['is_enduses'] = read_data.read_fuel_is(
         paths['is_fuel_raw_data_enduses'], lookups['fueltypes_nr'], lookups['fueltypes'])
 
     # Iterate enduses per sudModel and flatten list

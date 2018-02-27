@@ -94,7 +94,7 @@ def dummy_sectoral_load_profiles(local_paths, path_main):
 
     dict_enduses, dict_sectors, dict_fuels = data_loader.load_fuels(paths, lookups)
 
-    for enduse in dict_enduses['ss_all_enduses']:
+    for enduse in dict_enduses['ss_enduses']:
         for sector in dict_sectors['ss_sectors']:
 
             joint_string_name = str(sector) + "__" + str(enduse)
@@ -126,9 +126,7 @@ def post_install_setup_minimum(args):
     """
     path_energy_demand = args.path_energy_demand
     path_local_data = args.path_local_data
-    #print("A: " + str(path_energy_demand))
-    #print("B: " + str(path_local_data))
-    #prnt(":")
+
     # ==========================================
     # Post installation setup witout access to non publicy available data
     # ==========================================

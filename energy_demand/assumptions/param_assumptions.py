@@ -318,7 +318,7 @@ def load_param_assump(paths, assumptions):
 
     # Year until floor area change is fully realised
     strategy_vars['cooled_floorarea_yr_until_changed'] = yr_until_changed_all_things
-    
+
     # Penetration of cooling devices
     # COLING_OENETRATION ()
     # Or Assumkp Peneetration curve in relation to HDD from PAPER #Residential
@@ -402,6 +402,7 @@ def load_param_assump(paths, assumptions):
         'enduse_change__rs_home_computing': 1,
 
         # Submodel Service (Table 5.5a)
+        # same % improvements from baseline for all sectors
         'enduse_change__ss_space_heating': 1,
         'enduse_change__ss_water_heating': 1,
         'enduse_change__ss_cooling_humidification': 1,
@@ -415,6 +416,7 @@ def load_param_assump(paths, assumptions):
         'enduse_change__ss_other_electricity': 1,
 
         # Submodel Industry
+        # same % improvements from baseline for all sectors
         'enduse_change__is_high_temp_process': 1,
         'enduse_change__is_low_temp_process': 1,
         'enduse_change__is_drying_separation': 1,

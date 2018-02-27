@@ -57,7 +57,7 @@ def createNEWCASTLE_dwelling_stock(curr_yr, region, data, parameter_list):
                 region=region,
                 coordinates=data['reg_coord'][region],
                 floorarea=floor_area_dwtype_age_class,
-                enduses=data['enduses']['rs_all_enduses'],
+                enduses=data['enduses']['rs_enduses'],
                 driver_assumptions=data['assumptions']['scenario_drivers']['rs_submodule'],
                 population=pop_dwtype_age_class,
                 age=age_class,
@@ -68,7 +68,7 @@ def createNEWCASTLE_dwelling_stock(curr_yr, region, data, parameter_list):
     dwelling_stock = DwellingStock(
         region,
         dw_stock,
-        data['enduses']['rs_all_enduses'])
+        data['enduses']['rs_enduses'])
 
     return dwelling_stock
 

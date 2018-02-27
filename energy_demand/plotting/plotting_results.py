@@ -84,7 +84,7 @@ def run_all_plot_functions(
     plt_stacked_enduse(
         sim_param['simulated_yrs'],
         results_container['results_enduse_every_year'],
-        enduses['rs_all_enduses'],
+        enduses['rs_enduses'],
         os.path.join(
             local_paths['data_results_PDF'],"stacked_rs_country.pdf"))
 
@@ -92,7 +92,7 @@ def run_all_plot_functions(
     plt_stacked_enduse(
         sim_param['simulated_yrs'],
         results_container['results_enduse_every_year'],
-        enduses['ss_all_enduses'],
+        enduses['ss_enduses'],
         os.path.join(
             local_paths['data_results_PDF'], "stacked_ss_country.pdf"))
 
@@ -100,7 +100,7 @@ def run_all_plot_functions(
     plt_stacked_enduse(
         sim_param['simulated_yrs'],
         results_container['results_enduse_every_year'],
-        enduses['is_all_enduses'],
+        enduses['is_enduses'],
         os.path.join(
             local_paths['data_results_PDF'], "stacked_is_country_.pdf"))
 
@@ -111,9 +111,9 @@ def run_all_plot_functions(
         lookups,
         sim_param['simulated_yrs'],
         results_container['results_enduse_every_year'],
-        enduses['rs_all_enduses'],
-        enduses['ss_all_enduses'],
-        enduses['is_all_enduses'],
+        enduses['rs_enduses'],
+        enduses['ss_enduses'],
+        enduses['is_enduses'],
         os.path.join(local_paths['data_results_PDF'],
         "stacked_all_enduses_country.pdf"))
 

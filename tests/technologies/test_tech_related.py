@@ -33,7 +33,7 @@ def test_calc_eff_cy():
     assert out_value == 2.0
 
     other_enduse_mode_info = {
-        'sigmoid': {'sig_midpoint': 0,'sig_steeppness': 1}}
+        'sigmoid': {'sig_midpoint': 0,'sig_steepness': 1}}
 
     out_value = tech_related.calc_eff_cy(
         base_yr=2015,

@@ -230,9 +230,9 @@ def write_simulation_inifile(path, sim_param, enduses, assumptions, reg_nrs, reg
     config.add_section('ENDUSES')
 
     #convert list to strings
-    config['ENDUSES']['rs_all_enduses'] = str(enduses['rs_all_enduses'])
-    config['ENDUSES']['ss_all_enduses'] = str(enduses['ss_all_enduses'])
-    config['ENDUSES']['is_all_enduses'] = str(enduses['is_all_enduses'])
+    config['ENDUSES']['rs_enduses'] = str(enduses['rs_enduses'])
+    config['ENDUSES']['ss_enduses'] = str(enduses['ss_enduses'])
+    config['ENDUSES']['is_enduses'] = str(enduses['is_enduses'])
 
     config.add_section('REGIONS')
     config['REGIONS']['lu_reg'] = str(regions)

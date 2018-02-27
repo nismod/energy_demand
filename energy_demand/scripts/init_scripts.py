@@ -86,7 +86,7 @@ def scenario_initalisation(path_data_ed, data=False):
     # ---------------------------------------
     # Residential
     init_cont['rs_s_tech_by_p'], init_cont['rs_s_fueltype_tech_by_p'], init_cont['rs_s_fueltype_by_p'] = s_fuel_to_service.get_s_fueltype_tech(
-        data['enduses']['rs_all_enduses'],
+        data['enduses']['rs_enduses'],
         data['assumptions']['tech_list'],
         data['lookups']['fueltypes'],
         data['assumptions']['rs_fuel_tech_p_by'],
@@ -97,7 +97,7 @@ def scenario_initalisation(path_data_ed, data=False):
     init_cont['ss_s_tech_by_p'] = {}
     for sector in data['sectors']['ss_sectors']:
         init_cont['ss_s_tech_by_p'][sector], init_cont['ss_s_fueltype_tech_by_p'][sector], init_cont['ss_s_fueltype_by_p'][sector] = s_fuel_to_service.get_s_fueltype_tech(
-            data['enduses']['ss_all_enduses'],
+            data['enduses']['ss_enduses'],
             data['assumptions']['tech_list'],
             data['lookups']['fueltypes'],
             data['assumptions']['ss_fuel_tech_p_by'],
@@ -109,7 +109,7 @@ def scenario_initalisation(path_data_ed, data=False):
     init_cont['is_s_tech_by_p'] = {}
     for sector in data['sectors']['is_sectors']:
         init_cont['is_s_tech_by_p'][sector], init_cont['is_s_fueltype_tech_by_p'][sector], init_cont['is_s_fueltype_by_p'][sector] = s_fuel_to_service.get_s_fueltype_tech(
-            data['enduses']['is_all_enduses'],
+            data['enduses']['is_enduses'],
             data['assumptions']['tech_list'],
             data['lookups']['fueltypes'],
             data['assumptions']['is_fuel_tech_p_by'],
@@ -165,7 +165,7 @@ def scenario_initalisation(path_data_ed, data=False):
     # Service
     ss_aggr_sector_fuels = s_fuel_to_service.sum_fuel_enduse_sectors(
         data['fuels']['ss_fuel_raw_data_enduses'],
-        data['enduses']['ss_all_enduses'],
+        data['enduses']['ss_enduses'],
         data['lookups']['fueltypes_nr'])
 
     init_cont['ss_service_switches'] = fuel_service_switch.capacity_switch(
@@ -180,7 +180,7 @@ def scenario_initalisation(path_data_ed, data=False):
     # Industry
     is_aggr_sector_fuels = s_fuel_to_service.sum_fuel_enduse_sectors(
         data['fuels']['is_fuel_raw_data_enduses'],
-        data['enduses']['is_all_enduses'],
+        data['enduses']['is_enduses'],
         data['lookups']['fueltypes_nr'])
 
     init_cont['is_service_switches'] = fuel_service_switch.capacity_switch(
@@ -249,7 +249,7 @@ def scenario_initalisation(path_data_ed, data=False):
     # the whole UK) or spatially differentiated (every region)
     # ---------------------------------------
     logging.debug("... processing fuel switches")
-    for enduse in data['enduses']['rs_all_enduses']:
+    for enduse in data['enduses']['rs_enduses']:
         init_cont['rs_sig_param_tech'][enduse], init_cont['rs_service_switch'][enduse] = sig_param_calc_incl_fuel_switch(
             data['sim_param']['base_yr'],
             data['assumptions']['technologies'],
@@ -263,7 +263,7 @@ def scenario_initalisation(path_data_ed, data=False):
             regions=regions,
             regional_specific=regional_specific)
 
-    for enduse in data['enduses']['ss_all_enduses']:
+    for enduse in data['enduses']['ss_enduses']:
         init_cont['ss_sig_param_tech'][enduse] = {}
         init_cont['ss_service_switch'][enduse] = {}
 
@@ -281,7 +281,7 @@ def scenario_initalisation(path_data_ed, data=False):
                 regions=regions,
                 regional_specific=regional_specific)
 
-    for enduse in data['enduses']['is_all_enduses']:
+    for enduse in data['enduses']['is_enduses']:
         init_cont['is_sig_param_tech'][enduse] = {}
         init_cont['is_service_switch'][enduse] = {}
 

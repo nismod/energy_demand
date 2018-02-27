@@ -66,7 +66,7 @@ def sigmoid_function(x_value, l_value, midpoint, steepness):
     """
     return l_value / (1 + np.exp(-steepness * ((x_value - 2000.0) - midpoint)))
 
-def sigmoid_diffusion(base_yr, curr_yr, end_yr, sig_midpoint, sig_steeppness):
+def sigmoid_diffusion(base_yr, curr_yr, end_yr, sig_midpoint, sig_steepness):
     """Calculates a sigmoid diffusion path of a lower to a higher value with
     assumed saturation at the end year
 
@@ -81,7 +81,7 @@ def sigmoid_diffusion(base_yr, curr_yr, end_yr, sig_midpoint, sig_steeppness):
     sig_midpoint : float
         Mid point of sigmoid diffusion function can be used to shift
         curve to the left or right (standard value: 0)
-    sig_steeppness : float
+    sig_steepness : float
         Steepness of sigmoid diffusion function The steepness of the
         sigmoid curve (standard value: 1)
 
@@ -102,9 +102,9 @@ def sigmoid_diffusion(base_yr, curr_yr, end_yr, sig_midpoint, sig_steeppness):
     Always returns positive value. Needs to be considered for changes in negative
     """
     if curr_yr == base_yr:
-        return 0
+        return float(0)
     elif curr_yr == end_yr:
-        return 1
+        return float(1)
     else:
         # Translates simulation year on the sigmoid graph reaching from -6 to +6 (x-value)
         if end_yr == base_yr:
@@ -113,6 +113,6 @@ def sigmoid_diffusion(base_yr, curr_yr, end_yr, sig_midpoint, sig_steeppness):
             y_trans = -5.0 + (10.0 / (end_yr - base_yr)) * (curr_yr - base_yr)
 
         # Get a value between 0 and 1 (sigmoid curve ranging from 0 to 1)
-        cy_p = 1.0 / (1 + math.exp(-1 * sig_steeppness * (y_trans - sig_midpoint)))
+        cy_p = 1.0 / (1 + math.exp(-1 * sig_steepness * (y_trans - sig_midpoint)))
 
-        return cy_p
+        return float(cy_p)

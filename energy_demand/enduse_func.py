@@ -1264,7 +1264,7 @@ def apply_heat_recovery(
                 curr_yr,
                 strategy_variables['heat_recovered_yr_until_changed'],
                 enduse_overall_change['other_enduse_mode_info']['sigmoid']['sig_midpoint'],
-                enduse_overall_change['other_enduse_mode_info']['sigmoid']['sig_steeppness'])
+                enduse_overall_change['other_enduse_mode_info']['sigmoid']['sig_steepness'])
 
             heat_recovered_p_cy = sig_diff_factor * heat_recovered_p
 
@@ -1465,7 +1465,7 @@ def apply_specific_change(
                 curr_yr,
                 enduse_overall_change_strategy['enduse_specific_change_yr_until_changed'],
                 enduse_overall_change['other_enduse_mode_info']['sigmoid']['sig_midpoint'],
-                enduse_overall_change['other_enduse_mode_info']['sigmoid']['sig_steeppness'])
+                enduse_overall_change['other_enduse_mode_info']['sigmoid']['sig_steepness'])
             change_cy = diff_fuel_consump * sig_diff_factor
 
         return fuel_y * change_cy
@@ -1562,12 +1562,10 @@ def apply_smart_metering(
             curr_yr,
             sm_assump_strategy['smart_meter_yr_until_changed'],
             sm_assump['smart_meter_diff_params']['sig_midpoint'],
-            sm_assump['smart_meter_diff_params']['sig_steeppness'])
+            sm_assump['smart_meter_diff_params']['sig_steepness'])
 
-        if isinstance(sigm_factor, float):
-            pass
-        else:
-            sys.exit("ERROR TODO TODO")
+        # Check if float
+        assert isinstance(sigm_factor, float)
 
         # Smart Meter penetration (percentage of people having smart meters)
         penetration_by = sm_assump['smart_meter_p_by']
@@ -1758,7 +1756,7 @@ def apply_cooling(
             curr_yr,
             strategy_variables['cooled_floorarea_yr_until_changed'],
             other_enduse_mode_info['sigmoid']['sig_midpoint'],
-            other_enduse_mode_info['sigmoid']['sig_steeppness'])
+            other_enduse_mode_info['sigmoid']['sig_steepness'])
 
         # Additionall floor area
         additional_floor_area_p = sig_diff_factor * (cooled_floorearea_p_ey - cooled_floorarea_p_by)
@@ -1777,7 +1775,7 @@ def apply_cooling(
         return fuel_y
 
 def industry_enduse_changes(enduse, sector, curr_yr, strategy_variables, fuels):
-    """This function changes the fuel if the enduse
+    """This function changes the demand if the enduse
     is a an industrial enduse depending on assumed
     industry related scenario paramters
 
@@ -1804,6 +1802,7 @@ def industry_enduse_changes(enduse, sector, curr_yr, strategy_variables, fuels):
     OLD MODEL TODO
 
     """
+    #if sector == 
     if enduse == "is_low_temp_process":
 
         # Diffusion of policy

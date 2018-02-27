@@ -406,7 +406,7 @@ def calc_eff_cy(
             curr_yr,
             yr_until_changed,
             other_enduse_mode_info['sigmoid']['sig_midpoint'],
-            other_enduse_mode_info['sigmoid']['sig_steeppness'])
+            other_enduse_mode_info['sigmoid']['sig_steepness'])
 
         # Differencey in efficiency change
         efficiency_change = theor_max_eff * (eff_ey - eff_by)

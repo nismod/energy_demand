@@ -6,7 +6,7 @@ from energy_demand.basic import date_prop
 from energy_demand.plotting import plotting_multiple_scenarios
 from energy_demand import processing
 
-def process_result_multi_scen(path_to_scenarios):
+def process_result_multi_scen(path_to_scenarios, path_shapefile_input):
     """Iterate the folders with scenario
     runs and calculate PDF results
 
@@ -15,12 +15,11 @@ def process_result_multi_scen(path_to_scenarios):
     path_to_scenarios : str
         Path to folders with stored results
     """
-
     # Get all folders with scenario run results (name of folder is scenario)
     scenarios = os.listdir(path_to_scenarios)
 
     for scenario in scenarios:
-        processing.main(os.path.join(path_to_scenarios, scenario))
+        processing.main(os.path.join(path_to_scenarios, scenario), path_shapefile_input)
 
     return
 
@@ -88,8 +87,9 @@ def process_scenarios(path_to_scenarios):
 
 # Execute rusult processing for every scenario
 process_result_multi_scen(
-    os.path.abspath("C:/Users/cenv0553/nismod/data_energy_demand/_MULT2"))
-5
+    os.path.abspath("C:/Users/cenv0553/nismod/data_energy_demand/_MULT2"),
+    os.path.abspath('C:/Users/cenv0553/nismod/data_energy_demand/_raw_data/C_LAD_geography/lad_2016.shp'))
+
 # Generate plots across all scenarios
 #process_scenarios(
 #    os.path.abspath("C:/Users/cenv0553/nismod/data_energy_demand/_MULT2"))

@@ -251,7 +251,7 @@ def load_non_param_assump(
     assumptions['smart_meter_assump']['smart_meter_p_by'] = 0.1
     assumptions['smart_meter_assump']['smart_meter_diff_params'] = {
         'sig_midpoint': 0,
-        'sig_steeppness': 1}
+        'sig_steepness': 1}
 
     # ============================================================
     # Base temperature assumptions
@@ -287,7 +287,7 @@ def load_non_param_assump(
 
     assumptions['base_temp_diff_params'] = {
         'sig_midpoint': 0,
-        'sig_steeppness': 1,
+        'sig_steepness': 1,
         'yr_until_changed': yr_until_changed_all_things}
 
     # ============================================================
@@ -310,7 +310,7 @@ def load_non_param_assump(
         'rs_space_heating', 'ss_space_heating', 'is_space_heating']
 
     assumptions['enduse_rs_space_cooling'] = []
-    assumptions['ss_enduse_space_cooling'] = ['ss_cooling_humidification'] #['ss_fans', 'ss_cooled_storage']
+    assumptions['ss_enduse_space_cooling'] = ['ss_cooling_humidification']
 
     # ============================================================
     # Industry submodel related parameters
@@ -321,12 +321,52 @@ def load_non_param_assump(
     #   s
     #       S
     # ------------------------------------------------------------
-    '''Fuel use ratio - dry process over wet process in cement sector
+    # Sectors
+    '''
+    other_manufacturing
+    pharmaceuticals
+    waste_collection
+    machinery
+    leather
+    furniture
+    mining
+    rubber_plastics
+    computer
+    other_transport_equipment
+    basic_metals
+    tobacco
+    textiles
+    paper
+    chemicals
+    non_metallic_minearl_products
+    food_production
+    wearing_appeal
+    fabricated_metal_products
+    beverages
+    motor_vehicles
+    wood
+    printing
+    water_collection_treatment
+    electrical_equipment'''
+
+    '''
+    Fuel use ratio - dry process over wet process in cement sector
     Fuel use ratio - novel alkali cement over incumbent process in cement sector
     Fuel use ratio - novel partially dehydrated cement over incumbent process in cement sector
     Fuel use ratio - electric arc furnace over blast furnace steel making in cement sector
     Fuel use ratio - continuous over ingot casting in cement sector
     Fuel use ratio - cold over hot rolling in cement sector'''
+
+    '''
+    BAT - iron & steel - Coke ovens	Sectoral share (%)
+    BAT - iron & steel - EAF/BOF 	Sectoral share - EOF %
+    BAT - iron & steel - continous/Ingot casting 	Sectoral share - continuous %
+    BAT - iron & steel - cold/hot rolling 	Sectoral share - cold %
+    BAT - iron & steel - substitute	Sectoral share - substitute %
+    BAT - cement - dry/wet process 	Dry/wet process (Dry %)
+    BAT - cement - Novel-Alkali-activated (alumino-silicate, geopolymer)	Sectoral share of Alkali activated %
+    BAT - cement - Novel-Partially prehydrated Calcium silicate hydrate	Sectoral share - Partially prehydrated %'''
+
     # Hith temperature process -- cement, non-ferrous metla, coke ovens, blast furnaces, kilns,..
 
     # ============================================================
@@ -373,7 +413,7 @@ def load_non_param_assump(
         'diff_method': 'linear', # sigmoid or linear
         'sigmoid': {
             'sig_midpoint': 0,
-            'sig_steeppness': 1}}
+            'sig_steepness': 1}}
 
     # ============================================================
     # Fuel Stock Definition

@@ -69,7 +69,7 @@ def disaggregate_base_demand(
         reg_coord,
         weather_stations,
         temp_data,
-        enduses['rs_all_enduses'],
+        enduses['rs_enduses'],
         crit_limited_disagg_pop_hdd=True,
         crit_limited_disagg_pop=False, # Only pop
         crit_full_disagg=False)
@@ -85,7 +85,7 @@ def disaggregate_base_demand(
         reg_coord,
         temp_data,
         weather_stations,
-        enduses['ss_all_enduses'],
+        enduses['ss_enduses'],
         sectors['ss_sectors'],
         all_sectors,
         crit_limited_disagg_pop_hdd=False,
@@ -97,7 +97,7 @@ def disaggregate_base_demand(
         base_yr,
         fuels['is_fuel_raw_data_enduses'],
         lu_reg,
-        enduses['is_all_enduses'],
+        enduses['is_enduses'],
         sectors['is_sectors'],
         scenario_data['employment_stats'],
         scenario_data,
@@ -425,7 +425,7 @@ def is_disaggregate(
 
                         is_fuel_disagg[region][enduse][sector] = is_national_fuel[enduse][sector] * reg_disag_factor
                     else:
-                        #for enduse in enduses['is_all_enduses']:
+                        #for enduse in enduses['is_enduses']:
                         national_sector_employment = tot_national_sector_employment[matched_sector]
                         reg_sector_employment = employment_statistics[region][matched_sector]
 

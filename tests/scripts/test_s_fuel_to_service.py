@@ -64,7 +64,7 @@ def test_get_s_fueltype_tech():
         'diff_method': 'linear',
         'sigmoid': {
             'sig_midpoint': 0,
-            'sig_steeppness': 1}}
+            'sig_steepness': 1}}
 
     s_tech_by_p, s_fueltype_tech_by_p, s_fueltype_by_p = s_fuel_to_service.get_s_fueltype_tech(
        enduses=['heating'],
@@ -107,7 +107,7 @@ def test_get_s_fueltype_tech():
         'diff_method': 'linear',
         'sigmoid': {
             'sig_midpoint': 0,
-            'sig_steeppness': 1}}
+            'sig_steepness': 1}}
 
     s_tech_by_p, s_fueltype_tech_by_p, s_fueltype_by_p = s_fuel_to_service.get_s_fueltype_tech(
        enduses=['heating'],
@@ -163,7 +163,7 @@ def test_get_s_fueltype_tech():
         'diff_method': 'linear',
         'sigmoid': {
             'sig_midpoint': 0,
-            'sig_steeppness': 1}}
+            'sig_steepness': 1}}
 
     s_tech_by_p, s_fueltype_tech_by_p, s_fueltype_by_p = s_fuel_to_service.get_s_fueltype_tech(
        enduses=['heating'],

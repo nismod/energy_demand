@@ -41,12 +41,12 @@ def assign_by_fuel_tech_p(assumptions, enduses, fueltypes, fueltypes_nr):
         'heat': 6
     """
     assumptions['rs_fuel_tech_p_by'] = helpers.init_fuel_tech_p_by(
-        enduses['rs_all_enduses'], fueltypes_nr)
+        enduses['rs_enduses'], fueltypes_nr)
     assumptions['ss_fuel_tech_p_by'] = helpers.init_fuel_tech_p_by(
-        enduses['ss_all_enduses'], fueltypes_nr)
+        enduses['ss_enduses'], fueltypes_nr)
     assumptions['is_fuel_tech_p_by'] = helpers.init_fuel_tech_p_by(
-        enduses['is_all_enduses'], fueltypes_nr)
-
+        enduses['is_enduses'], fueltypes_nr)
+    
     # ====================
     # Residential Submodel
     # ====================

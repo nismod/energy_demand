@@ -122,11 +122,12 @@ def calc_lf_y(fuel_yh, average_fuel_yd):
     Returns
     -------
     load_factor_y : array
-        Yearly load factors
+        Yearly load factors as percentage (100% = 100)
+
     Note
     -----
-    Load factor = average load / maximum load in given time period
-    https://en.wikipedia.org/wiki/Load_factor_(electrical)
+        Load factor = average load / maximum load in given time period
+        https://en.wikipedia.org/wiki/Load_factor_(electrical)
     """
     # Calculate average yearly fuel per fueltype
     average_load_y = np.average(average_fuel_yd, axis=1)

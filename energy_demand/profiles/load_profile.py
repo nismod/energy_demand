@@ -446,7 +446,7 @@ def create_load_profile_stock(
     # Service Submodel
     # ----------
     # - Assign to each enduse the carbon fuel trust dataset
-    for enduse in all_enduses['ss_all_enduses']:
+    for enduse in all_enduses['ss_enduses']:
 
         # Skip temperature dependent end uses (regional) because load profile in regional load profile stock
         if enduse in assumptions['enduse_space_heating'] or enduse in assumptions['ss_enduse_space_cooling']:

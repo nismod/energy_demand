@@ -567,7 +567,7 @@ def read_fuel_switches(path_to_csv, enduses, fueltypes):
 
     # Test whether defined enduse exist
     for obj in fuel_switches:
-        if obj.enduse in enduses['ss_all_enduses'] or obj.enduse in enduses['rs_all_enduses'] or obj.enduse in enduses['is_all_enduses']:
+        if obj.enduse in enduses['ss_enduses'] or obj.enduse in enduses['rs_enduses'] or obj.enduse in enduses['is_enduses']:
             pass
         else:
             sys.exit(
@@ -914,19 +914,26 @@ def capacity_switch(path_to_csv):
     return service_switches
 
 def read_floor_area_virtual_stock(path_to_csv):
-    """Read in floor area for virtual building stock
+    """Read in floor area from csv file for every LAD
+    to generate virtual building stock.
 
-    TODO: CSV File from newcastle
     Arguments
     ---------
     path_floor_area : str
         Path to csv file
+
+    Returns
+    -------
+    res_floorarea : dict
+        Residential floor area per region
+    non_res_floorarea : dict
+        Non residential floor area per region
     """
     res_floorarea, non_res_floorarea = {}, {}
 
     with open(path_to_csv, 'r') as csvfile:
         read_lines = csv.reader(csvfile, delimiter=',')
-        _headings = next(read_lines) # Skip first row
+        _headings = next(read_lines)
 
         for row in read_lines:
             geo_name = str.strip(row[get_position(_headings, 'lad')])

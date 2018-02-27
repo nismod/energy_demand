@@ -7,13 +7,15 @@ from energy_demand.basic import date_prop
 from energy_demand.plotting import plotting_results, result_mapping
 from energy_demand.basic import logger_setup, basic_functions
 
-def main(path_data_energy_demand):
+def main(path_data_energy_demand, path_shapefile_input):
     """Read in all results and plot PDFs
 
     Arguments
     ----------
     path_data_energy_demand : str
         Path to results
+    path_shapefile_input : str
+        Path to shapefile
     """
 
     # ---------
@@ -60,7 +62,6 @@ def main(path_data_energy_demand):
     # Reading in results from different model runs
     # Read in and plot in same step if memory is a problem
     # --------------------------------------------
-    print("... start reading in model txt results")
     results_container = read_data.read_in_results(
         data['local_paths']['data_results_model_runs'],
         data['assumptions']['seasons'],
@@ -84,7 +85,8 @@ def main(path_data_energy_demand):
             data['local_paths'],
             data['lu_reg'],
             data['lookups']['fueltypes_nr'],
-            data['lookups']['fueltypes'])
+            data['lookups']['fueltypes'],
+            path_shapefile_input)
 
     # ------------------------------
     # Plotting results

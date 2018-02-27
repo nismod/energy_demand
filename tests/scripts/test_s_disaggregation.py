@@ -21,7 +21,7 @@ def test_rs_disaggregate():
     assumptions = {
         'base_temp_diff_params': {
             'sig_midpoint': 0,
-            'sig_steeppness': 1,
+            'sig_steepness': 1,
             'yr_until_changed': 2020},
         'strategy_variables': {'rs_t_base_heating_future_yr': 0},
         't_bases': {'rs_t_heating_by': 0}}
@@ -94,7 +94,7 @@ def test_ss_disaggregate():
     assumptions = {
         'base_temp_diff_params': {
             'sig_midpoint': 0,
-            'sig_steeppness': 1,
+            'sig_steepness': 1,
             'yr_until_changed': 2020},
         'strategy_variables': {'ss_t_base_heating_future_yr': 0, 'ss_t_base_cooling_future_yr': 0},
         't_bases': {'ss_t_heating_by': 0, 'ss_t_cooling_by': 0}}

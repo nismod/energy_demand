@@ -3,6 +3,7 @@ the geopanda library (http://geopandas.org)
 """
 import os
 import logging
+import copy
 import numpy as np
 import geopandas as gpd
 import pandas as pd
@@ -63,11 +64,12 @@ def user_defined_classification(
     color_list = color_list[:len(bins)]
 
     # Reclassify
-    lad_geopanda_shp, cmap = hack_classification(
+    lad_geopanda_shp, cmap = re_classification(
         lad_geopanda_shp,
         bins,
         color_list,
-        field_to_plot)
+        field_to_plot,
+        color_zero)
 
     # ----------
     # Legend
@@ -130,8 +132,8 @@ def user_defined_classification(
 
     return lad_geopanda_shp, cmap
 
-def hack_classification(lad_geopanda_shp, bins, color_list, field_to_plot):
-    """Remap according to user defined classification
+def re_classification(lad_geopanda_shp, bins, color_list, field_to_plot, color_zero):
+    """Reclassify according to user defined classification
 
     Arguments
     ----------
@@ -144,6 +146,15 @@ def hack_classification(lad_geopanda_shp, bins, color_list, field_to_plot):
     field_to_plot : str
         Name of figure to plot
     """
+    color_list_copy = copy.copy(color_list)
+
+    # Add zero color in color list if a min_plus map
+    if color_zero != False:
+        middle_pos_color_list = int(len(color_list) / 2)
+        color_list_copy.insert(middle_pos_color_list, color_zero)
+    else:
+        color_list_copy = copy.copy(color_list)
+
     def bin_mapping(value_to_classify):
         """Maps values to a bin.
         The mapped values must start at 0 and end at 1.
@@ -155,10 +166,12 @@ def hack_classification(lad_geopanda_shp, bins, color_list, field_to_plot):
             # get position of zero value
             for idx, bound in enumerate(bins):
                 if value_to_classify == bound:
+                    print("Class val1 " + str(idx / (len(bins) - 1.0)))
                     return idx / (len(bins) - 1.0)
 
         for idx, bound in enumerate(bins):
             if value_to_classify < bound:
+                print("Class val-2 " + str(idx / (len(bins) - 1.0)))
                 return idx / (len(bins) - 1.0)
 
     # Create the list of bin labels and the list of colors corresponding to each bin
@@ -167,7 +180,7 @@ def hack_classification(lad_geopanda_shp, bins, color_list, field_to_plot):
     # Create the custom color map
     cmap = LinearSegmentedColormap.from_list(
         'mycmap',
-        [(lbl, color) for lbl, color in zip(bin_labels, color_list)])
+        [(lbl, color) for lbl, color in zip(bin_labels, color_list_copy)])
 
     # Reclassify
     lad_geopanda_shp['reclassified'] = lad_geopanda_shp[field_to_plot].apply(bin_mapping)
@@ -257,8 +270,9 @@ def plot_lad_national(
     if user_classification:
 
         # Get maximum and minum values
-        min_value = round(lad_geopanda_shp[field_to_plot].min(), 3)
-        max_value = round(lad_geopanda_shp[field_to_plot].max(), 3)
+        rounding_digits = 10
+        min_value = round(lad_geopanda_shp[field_to_plot].min(), rounding_digits)
+        max_value = round(lad_geopanda_shp[field_to_plot].max(), rounding_digits)
 
         # Add maximum value
         bins.append(max_value)
@@ -419,7 +433,15 @@ def merge_data_to_shp(shp_gdp, merge_data, unique_merge_id):
 
     return shp_gdp_merged
 
-def create_geopanda_files(data, results_container, paths, lu_reg, fueltypes_nr, fueltypes):
+def create_geopanda_files(
+        data,
+        results_container,
+        paths,
+        lu_reg,
+        fueltypes_nr,
+        fueltypes,
+        path_shapefile_input
+    ):
     """Create map related files (png) from results.
 
     Arguments
@@ -437,8 +459,13 @@ def create_geopanda_files(data, results_container, paths, lu_reg, fueltypes_nr, 
     # --------
     # Read LAD shapefile and create geopanda
     # --------
-    lad_geopanda_shp = gpd.read_file(paths['lad_shapefile'])
-
+    try:
+        # Single scenario run
+        lad_geopanda_shp = gpd.read_file(paths['lad_shapefile'])
+    except IOError:
+        # Multiple scenario runs
+        lad_geopanda_shp = gpd.read_file(path_shapefile_input)
+  
     # Attribute merge unique Key
     unique_merge_id = 'name' #'geo_code'
 
@@ -451,11 +478,14 @@ def create_geopanda_files(data, results_container, paths, lu_reg, fueltypes_nr, 
     base_yr = simulated_yrs[0]
 
     for fueltype in range(fueltypes_nr):
-        
-        fueltype_str = tech_related.get_fueltype_str(fueltypes, fueltype)
-        field_name = 'lf_diff_{}_{}'.format(final_yr, fueltype_str)
+        print("FUELTYPEL " + str(fueltype))
 
-        lf_final_yr = basic_functions.array_to_dict(
+        fueltype_str = tech_related.get_fueltype_str(fueltypes, fueltype)
+        field_name = 'lf_diff_{}_{}_'.format(final_yr, fueltype_str)
+        if fueltype_str == 'biomass':
+            print("..")
+
+        lf_end_yr = basic_functions.array_to_dict(
             results_container['load_factors_y'][final_yr][fueltype],
             lu_reg)
 
@@ -463,10 +493,10 @@ def create_geopanda_files(data, results_container, paths, lu_reg, fueltypes_nr, 
             results_container['load_factors_y'][base_yr][fueltype],
             lu_reg)
 
-        # Calculate load factor difference base and final year
+        # Calculate load factor difference base and final year (100 = 100%)
         diff_lf = {}
         for reg in lu_reg:
-            diff_lf[reg] = lf_final_yr[reg] - lf_base_yr[reg]
+            diff_lf[reg] = lf_end_yr[reg] - lf_base_yr[reg]
 
         # Both need to be lists
         merge_data = {
@@ -486,7 +516,7 @@ def create_geopanda_files(data, results_container, paths, lu_reg, fueltypes_nr, 
             bins=bins,
             color_prop='qualitative',
             color_order=True,
-            color_zero='#ffffff') #"#8a2be2" #ffffff'
+            color_zero='#ffffff') #"#8a2be2"
 
         plot_lad_national(
             lad_geopanda_shp=lad_geopanda_shp,
@@ -507,7 +537,7 @@ def create_geopanda_files(data, results_container, paths, lu_reg, fueltypes_nr, 
     for year in results_container['results_every_year'].keys():
 
         field_name = 'pop_{}'.format(year)
-        print("FIELDNAME " + str(field_name))
+
         # Both need to be lists
         merge_data = {
             str(field_name): data['scenario_data']['population'][year].flatten().tolist(),
@@ -603,7 +633,12 @@ def create_geopanda_files(data, results_container, paths, lu_reg, fueltypes_nr, 
                 color_prop='qualitative',
                 user_classification=False)
 
-def colors_plus_minus_map(bins, color_prop, color_order=True, color_zero='#ffffff'):
+def colors_plus_minus_map(
+        bins,
+        color_prop,
+        color_order=True,
+        color_zero='#ffffff'
+    ):
     """Create color scheme in case plus and minus classes
     are defined (i.e. negative and positive values to
     classify)
@@ -620,6 +655,7 @@ def colors_plus_minus_map(bins, color_prop, color_order=True, color_zero='#fffff
         Criteria whether used classification or not
     color_zero : str, default=white hex color
         Color of zero values
+
     Returns
     -------
     color_list : list
@@ -652,7 +688,6 @@ def colors_plus_minus_map(bins, color_prop, color_order=True, color_zero='#fffff
         color_list = []
         for i in range(nr_of_cat_pos_neg + 1): #add one to get class up to zero
             color_list.append(color_list_neg[i])
-
 
         for i in range(nr_of_cat_pos_neg + 1): # add one to get class beyond last bin
             color_list.append(color_list_pos[i])
