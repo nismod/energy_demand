@@ -136,6 +136,8 @@ class ServiceSwitch(object):
     ---------
     enduse : str
         Enduse of affected switch
+    sector : str
+        Sector
     technology_install : str
         Installed technology
     service_share_ey : float
@@ -146,6 +148,7 @@ class ServiceSwitch(object):
     def __init__(
             self,
             enduse=None,
+            sector=None,
             technology_install=None,
             service_share_ey=None,
             switch_yr=None
@@ -154,6 +157,11 @@ class ServiceSwitch(object):
         self.technology_install = technology_install
         self.service_share_ey = service_share_ey
         self.switch_yr = switch_yr
+
+        if sector == '':
+            self.sector = None # Not sector defined
+        else:
+            self.sector = sector
 
 def read_in_results(path_runs, seasons, model_yeardays_daytype):
     """Read and post calculate results from txt files
@@ -471,6 +479,7 @@ def service_switch(path_to_csv, technologies):
         tech                        [str]   Technology
         switch_yr                   [int]   Year until switch is fully realised
         service_share_ey            [str]   Service share of 'tech' in 'switch_yr'
+        sector                      [str]   Optional sector specific info where switch applies
     """
     service_switches = []
 
@@ -485,7 +494,9 @@ def service_switch(path_to_csv, technologies):
                         enduse=str(row[0]),
                         technology_install=str(row[1]),
                         service_share_ey=float(row[2]),
-                        switch_yr=float(row[3])))
+                        switch_yr=float(row[3]),
+                        sector=str(row[4])))
+
             except (KeyError, ValueError):
                 sys.exit("Check if provided data is complete (no empty csv entries)")
 

@@ -42,12 +42,17 @@ def get_share_s_tech_ey(service_switches, specified_tech_enduse_by):
 
     return enduse_tech_ey_p
 
-def autocomplete_switches(service_switches, specified_tech_enduse_by, s_tech_by_p):
+def autocomplete_switches(
+        service_switches,
+        specified_tech_enduse_by,
+        s_tech_by_p,
+        sector=False
+    ):
     """Helper function to add not defined technologies in switch
     and set correct future year service share. If the defined
     service switches do not sum up to 100% service,
     the remaining service is distriputed proportionally
-    to all remaining technologies
+    to all remaining technologies.
 
     Argument
     --------
@@ -87,7 +92,7 @@ def autocomplete_switches(service_switches, specified_tech_enduse_by, s_tech_by_
                 switches_enduse.append(switch)
                 switch_yr = switch.switch_yr
 
-        # Calculate relative by proportion of not assigned tchnologies
+        # Calculate relative by proportion of not assigned technologies
         tech_not_assigned_by_p = {}
 
         for tech in specified_tech_enduse_by[enduse]:
@@ -110,6 +115,7 @@ def autocomplete_switches(service_switches, specified_tech_enduse_by, s_tech_by_
                 if assigned_service == 1.0:
                     switch_new = read_data.ServiceSwitch(
                         enduse=enduse,
+                        sector=sector,
                         technology_install=tech,
                         service_share_ey=0,
                         switch_yr=switch_yr)
@@ -120,6 +126,7 @@ def autocomplete_switches(service_switches, specified_tech_enduse_by, s_tech_by_
 
                     switch_new = read_data.ServiceSwitch(
                         enduse=enduse,
+                        sector=sector,
                         technology_install=tech,
                         service_share_ey=tech_ey_p,
                         switch_yr=switch_yr)

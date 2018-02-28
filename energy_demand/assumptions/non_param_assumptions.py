@@ -358,6 +358,8 @@ def load_non_param_assump(
     assumptions['eff_hot_rolling_process'] = 1.0   #TODO
 
 
+
+
     # ---------------
     p_service_electric_arc_furnace = 0.5            #TODO: DEFINE FROM BASE YEAR FUEL MIX
     p_service_basic_oxygen_furnace = 1 - p_service_electric_arc_furnace

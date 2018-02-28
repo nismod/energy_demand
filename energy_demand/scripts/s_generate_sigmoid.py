@@ -79,7 +79,7 @@ def calc_sigmoid_parameters(
             start_parameters = [
                 round(start_param_list[cnt], 3),
                 round(start_param_list[cnt], 3)]
-            
+
             # ------------------------------------------------
             # Test if parameter[1] shoudl be minus or positive
             # ------------------------------------------------
@@ -582,9 +582,9 @@ def tech_sigmoid_parameters(
             xdata = np.array([point_x_by, point_x_ey])
             ydata = np.array([point_y_by, point_y_ey])
 
-            #logging.info(
-            #    "... create sigmoid diffusion %s - %s - %s - %s - l_val: %s - %s - %s",
-            #    tech, xdata, ydata, fit_assump_init, l_values[tech], point_y_by, point_y_ey)
+            logging.info(
+                "... create sigmoid diffusion %s - %s - %s - %s - l_val: %s - %s - %s",
+                tech, xdata, ydata, fit_assump_init, l_values[tech], point_y_by, point_y_ey)
 
             # If no change in by to ey but not zero (lineare change)
             if (round(point_y_by, rounding_accuracy) == round(point_y_ey, rounding_accuracy)) and (

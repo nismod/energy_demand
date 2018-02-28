@@ -284,7 +284,7 @@ def assign_by_fuel_tech_p(assumptions, enduses, sectors, fueltypes, fueltypes_nr
     #TODO: SCENARIO VARIABLES: SWITCH FOR METALL PROCESSES (e.g. ELECTRIC FURNACE IN END YEAR IN PERCENT)
     #TODO: SCENARIO VARIABLE Hot_cold_rolling_share
     # basic_metals (sector)
-    assumptions['is_fuel_tech_p_by']['is_high_temp_process']['non_metallic_minearl_products'][fueltypes['solid_fuel']] = {
+    assumptions['is_fuel_tech_p_by']['is_high_temp_process']['basic_metals'][fueltypes['solid_fuel']] = {
         'basic_oxygen_furnace': 1.0}
 
     assumptions['is_fuel_tech_p_by']['is_high_temp_process']['basic_metals'][fueltypes['electricity']] = {
@@ -295,7 +295,8 @@ def assign_by_fuel_tech_p(assumptions, enduses, sectors, fueltypes, fueltypes_nr
 
     ## Sector non_metallic_minearl_products
     # CEMENT STUFF
-
+    #assumptions['is_fuel_tech_p_by']['is_high_temp_process']['non_metallic_minearl_products'][fueltypes['solid_fuel']] = {
+    #    'basic_oxygen_furnace': 1.0}
 
     # ------------------
     # Get technologies of an enduse

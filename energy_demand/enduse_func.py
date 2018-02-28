@@ -241,6 +241,7 @@ class Enduse(object):
                 mode_constrained, crit_switch_service = get_enduse_configuration(
                     criterias['mode_constrained'],
                     enduse,
+                    sector,
                     assumptions['enduse_space_heating'],
                     base_yr,
                     curr_yr,
@@ -677,6 +678,7 @@ def get_running_mode(enduse, mode_constrained, enduse_space_heating):
 def get_enduse_configuration(
         mode_constrained,
         enduse,
+        sector,
         enduse_space_heating,
         base_yr,
         curr_yr,
@@ -704,6 +706,7 @@ def get_enduse_configuration(
 
     crit_switch_service = get_crit_switch(
         enduse,
+        sector,
         service_switches,
         base_yr,
         curr_yr,
@@ -711,15 +714,19 @@ def get_enduse_configuration(
 
     return mode_constrained, crit_switch_service
 
-def get_crit_switch(enduse, switches, base_yr, curr_yr, mode_constrained):
+def get_crit_switch(enduse, sector, switches, base_yr, curr_yr, mode_constrained):
     """Test whether there is a switch (service or fuel)
 
     Arguments
     ----------
-    switches : dict
-        All switches
-    sim_param : float
-        Base Arguments
+    enduse : str
+        Enduse
+    sector : str
+        Sector
+    base_yr : int
+        Base year
+    curr_yr : int
+        Current year
     mode_constrained : bool
         Mode criteria
 
@@ -731,8 +738,15 @@ def get_crit_switch(enduse, switches, base_yr, curr_yr, mode_constrained):
         return False
     else:
         for switch in switches:
-            if switch.enduse == enduse:
-                return True
+
+            # Not sector specific search
+            if switch.sector == False:
+                if switch.enduse == enduse:
+                    return True
+            else:
+                # Sector specific search
+                if switch.enduse == enduse and switch.sector == sector:
+                    return True
 
         return False
 

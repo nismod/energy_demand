@@ -133,17 +133,27 @@ def scenario_initalisation(path_data_ed, data=False):
 
     ss_service_switches_completed = {}
     for sector in data['sectors']['ss_sectors']:
+
+        # Get all switches of a sector
+        sector_switches = get_sector_switches(sector, init_cont['ss_service_switches'])
+
         ss_service_switches_completed[sector] = fuel_service_switch.autocomplete_switches(
             init_cont['ss_service_switches'],
             data['assumptions']['ss_specified_tech_enduse_by'],
-            init_cont['ss_s_tech_by_p'][sector])
+            init_cont['ss_s_tech_by_p'][sector],
+            sector=sector)
 
     is_service_switches_completed = {}
     for sector in data['sectors']['is_sectors']:
+
+        # Get all switches of a sector
+        sector_switches = get_sector_switches(sector, init_cont['is_service_switches'])
+
         is_service_switches_completed[sector] = fuel_service_switch.autocomplete_switches(
-            init_cont['is_service_switches'],
+            sector_switches,
             data['assumptions']['is_specified_tech_enduse_by'],
-            init_cont['is_s_tech_by_p'][sector])
+            init_cont['is_s_tech_by_p'][sector],
+            sector=sector)
 
     # ------------------------------------
     # Capacity switches (installations)
@@ -625,3 +635,23 @@ def sig_param_calc_incl_fuel_switch(
         pass #no switches are defined
 
     return sig_param_tech, service_switches_out
+
+def get_sector_switches(sector_to_match, service_switches):
+    """Get all switches of a sector if the switches are
+    defined specifically for a sector. If the switches are
+    not specifically for a sector, return all switches
+
+
+    """
+    # Get all sectors for this enduse
+    switches = set([])
+    for switch in service_switches:
+        if switch.sector == sector_to_match:
+            switches.add(switch)
+        # Not defined specifically for sectors and add all
+        elif switch.sector == None:   
+            switches.add(switch)
+        else:
+            pass
+
+    return list(switches)
