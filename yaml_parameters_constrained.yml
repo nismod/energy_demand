@@ -515,6 +515,36 @@
 - absolute_range: !!python/tuple
   - 0
   - 1
+  default_value: 2050
+  description: Year until floor area is fully changed
+  name: cooled_floorarea_yr_until_changed
+  suggested_range: !!python/tuple
+  - 2015
+  - 2100
+  units: year
+- absolute_range: !!python/tuple
+  - 0
+  - 1
+  default_value: 2050
+  description: Year until cold rolling steel manufacturing change is fully realised
+  name: hot_cold_rolling_yr_until_changed
+  suggested_range: !!python/tuple
+  - 2015
+  - 2100
+  units: year
+- absolute_range: !!python/tuple
+  - 0
+  - 1
+  default_value: 0.5
+  description: Share of cold rolling given in percent)
+  name: p_cold_rolling_steel
+  suggested_range: !!python/tuple
+  - 0
+  - 1
+  units: '%'
+- absolute_range: !!python/tuple
+  - 0
+  - 1
   default_value: 0
   description: Reduction in heat because of heat recovery and recycling (residential
     sector)

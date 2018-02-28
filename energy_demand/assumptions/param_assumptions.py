@@ -316,6 +316,14 @@ def load_param_assump(paths, assumptions):
     # Carbon Trust. (2012). Air conditioning. Maximising comfort, minimising energy consumption.
     strategy_vars['cooled_floorarea__ss_cooling_humidification'] = 0.35
 
+    strategy_variables.append({
+        "name": "cooled_floorarea_yr_until_changed",
+        "absolute_range": (0, 1),
+        "description": "Year until floor area is fully changed",
+        "suggested_range": (2015, 2100),
+        "default_value": 2050,
+        "units": 'year'})
+
     # Year until floor area change is fully realised
     strategy_vars['cooled_floorarea_yr_until_changed'] = yr_until_changed_all_things
 
@@ -323,6 +331,29 @@ def load_param_assump(paths, assumptions):
     # COLING_OENETRATION ()
     # Or Assumkp Peneetration curve in relation to HDD from PAPER #Residential
     # Assumption on recovered heat (lower heat demand based on heat recovery)
+
+    # ============================================================
+    # Industrial processes
+    # ============================================================
+    strategy_vars['hot_cold_rolling_yr_until_changed'] = yr_until_changed_all_things
+
+    strategy_variables.append({
+        "name": "hot_cold_rolling_yr_until_changed",
+        "absolute_range": (0, 1),
+        "description": "Year until cold rolling steel manufacturing change is fully realised",
+        "suggested_range": (2015, 2100),
+        "default_value": 2050,
+        "units": 'year'})
+
+    strategy_variables.append({
+        "name": "p_cold_rolling_steel",
+        "absolute_range": (0, 1),
+        "description": "Share of cold rolling given in percent)",
+        "suggested_range": (0, 1),
+        "default_value": assumptions['p_cold_rolling_steel_by'],
+        "units": '%'})
+
+    strategy_vars['p_cold_rolling_steel'] = assumptions['p_cold_rolling_steel_by']
 
     # ============================================================
     # Heat recycling & Reuse
@@ -457,10 +488,10 @@ def load_param_assump(paths, assumptions):
     # Create parameter file only with fully descried parameters
     # and write to yaml file
     # -----------------------
-    basic_functions.del_file(paths['yaml_parameters_default'])
+    basic_functions.del_file(paths['yaml_parameters_constrained'])
 
     write_data.write_yaml_param_complete(
-        paths['yaml_parameters_default'],
+        paths['yaml_parameters_constrained'],
         strategy_variables)
 
     basic_functions.del_file(paths['yaml_parameters_scenario'])
@@ -470,6 +501,5 @@ def load_param_assump(paths, assumptions):
 
     # Replace strategy variables
     assumptions['strategy_variables'] = strategy_vars
-    assumptions['testing'] = True
 
     return

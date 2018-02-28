@@ -44,3 +44,6 @@ district_heating_CHP_gas,gas,1,1,2050,linear,2010,tech_district_heating,0.2,,999
 district_heating_electricity,electricity,1,1,2050,linear,2010,tech_district_heating,0.2,,9999999999
 district_heating_biomass,biomass,1,1,2050,linear,2010,tech_district_heating,0.2,,9999999999
 district_heating_fuel_cell,hydrogen,1,1,2050,linear,2010,tech_district_heating,0.2,,9999999999
+basic_oxygen_furnace,solid_fuel,1,1,2050,linear,2010,tech_district_heating,1,,9999999999
+electric_arc_furnace,electricity,1,1,2050,linear,2010,tech_district_heating,1,,9999999999
+SNG_furnace,biomass,1,1,2050,linear,2020,tech_district_heating,1,,9999999999

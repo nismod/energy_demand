@@ -381,8 +381,8 @@ def load_paths(path):
 
         'yaml_parameters': os.path.join(
             path, 'yaml_parameters.yml'),
-        'yaml_parameters_default': os.path.join(
-            path, 'yaml_parameters_default.yml'),
+        'yaml_parameters_constrained': os.path.join(
+            path, 'yaml_parameters_constrained.yml'),
         'yaml_parameters_keynames_constrained': os.path.join(
             path, 'yaml_parameters_keynames_constrained.yml'),
         'yaml_parameters_keynames_unconstrained': os.path.join(

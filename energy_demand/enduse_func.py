@@ -206,9 +206,12 @@ class Enduse(object):
             self.fuel_new_y = industry_enduse_changes(
                 enduse,
                 sector,
+                base_yr,
                 curr_yr,
                 assumptions['strategy_variables'],
-                self.fuel_new_y)
+                self.fuel_new_y,
+                enduse_overall_change['other_enduse_mode_info'],
+                assumptions)
 
             # ----------------------------------
             # Hourly Disaggregation
@@ -1776,7 +1779,16 @@ def apply_cooling(
         # no cooling defined for enduse
         return fuel_y
 
-def industry_enduse_changes(enduse, sector, curr_yr, strategy_variables, fuels):
+def industry_enduse_changes(
+        enduse,
+        sector,
+        base_yr,
+        curr_yr,
+        strategy_variables,
+        fuels,
+        other_enduse_mode_info,
+        assumptions
+    ):
     """This function changes the demand if the enduse
     is a an industrial enduse depending on assumed
     industry related scenario paramters
@@ -1804,6 +1816,8 @@ def industry_enduse_changes(enduse, sector, curr_yr, strategy_variables, fuels):
     OLD MODEL TODO
 
     """
+    factor = 1
+
     if enduse == "is_low_temp_process":
 
         # Diffusion of policy
@@ -1825,8 +1839,40 @@ def industry_enduse_changes(enduse, sector, curr_yr, strategy_variables, fuels):
         # define new fuel
         # Get correct technologies
         #if sector == 'non_metallic'
+
+        if sector == 'basic_metals':
+
+            # Reduce depending on hot_rolling process
+            p_cold_rolling_by = assumptions['p_cold_rolling_steel_by']
+            p_hot_rolling_by = 1.0 - p_cold_rolling_by
+
+            # Get sigmoid transition for share in rolling
+            sig_diff_factor = diffusion_technologies.sigmoid_diffusion(
+                base_yr,
+                curr_yr,
+                strategy_variables['hot_cold_rolling_yr_until_changed'],
+                other_enduse_mode_info['sigmoid']['sig_midpoint'],
+                other_enduse_mode_info['sigmoid']['sig_steepness'])
+
+            # Difference in shares of cold rolling
+            diff_cold_rolling = strategy_variables['p_cold_rolling_steel'] - p_cold_rolling_by
+
+            # Diff until cy
+            diff_cold_rolling_cy = sig_diff_factor * diff_cold_rolling
+
+            p_cold_rolling_cy = p_cold_rolling_by + diff_cold_rolling_cy
+            p_hot_rolling_cy = 1 - p_cold_rolling_cy
+
+            # Calculate fraction
+            p_by = p_cold_rolling_by * assumptions['eff_cold_rolling_process'] + p_hot_rolling_by * assumptions['eff_hot_rolling_process']
+            p_cy = p_cold_rolling_cy * assumptions['eff_cold_rolling_process']  + p_hot_rolling_cy * assumptions['eff_hot_rolling_process'] 
+
+            factor = p_cy  / p_by
+
         pass
     else:
         pass
 
-    return fuels
+    fuels_out = fuels * factor
+
+    return fuels_out

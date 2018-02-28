@@ -324,12 +324,17 @@ def load_non_param_assump(
     # ------------------------------------------------------------
 
     # --------------------------------------------
-    # Enduses
-    #   - heating
-    #   - lighting
-    #   --> No scenario drivers but driven by switches
+    # heating 
+    # -------------------------------------------- 
+    # --> No scenario drivers but driven by switches
+
     # --------------------------------------------
-    #   - high_temp_ process
+    # lighting 
+    # -------------------------------------------- 
+    # --> No scenario drivers but driven by switches
+
+    # --------------------------------------------
+    # high_temp_ process 
     #       High temperature processing dominates energy consumption in the iron and steel,
     #       non-ferrous metal, bricks, cement, glass and potteries industries. This includes
     #          - coke ovens
@@ -337,12 +342,41 @@ def load_non_param_assump(
     #          - kilns and
     #          - glass tanks.
 
+    #BAF: basic_oxygen_furnace
+    #EAF: electric_arc_furnace
+
+    #BAT - iron & steel - Coke ovens	Sectoral share (%)
+    #BAT - iron & steel - EAF/BOF 	Sectoral share - EOF %
+    #BAT - iron & steel - continous/Ingot casting 	Sectoral share - continuous %
+    #BAT - iron & steel - cold/hot rolling 	Sectoral share - cold %
+    #BAT - iron & steel - substitute	Sectoral share - substitute %
+
+    # --------------------------------------------
+
+    # Share of cold rolling in steel manufacturing (total = hot and cold)
+    assumptions['p_cold_rolling_steel_by']  = 0.5  #TODO
+    assumptions['eff_cold_rolling_process'] = 1.0  #TODO
+    assumptions['eff_hot_rolling_process'] = 1.0   #TODO
+
+
+
+    # ---------------
+    p_service_electric_arc_furnace = 0.5            #TODO: DEFINE FROM BASE YEAR FUEL MIX
+
+    p_service_basic_oxygen_furnace = 1 - p_service_electric_arc_furnace
+    p_SNG_furnace = 0 #biomass
+    # Sector metalic (steel industry)
+
     assumpt_fraction_cement_of_high_temp_process = 0.5 # (non_metallic)
     assumpt_fraction_netall_of_high_temp_process = 0.5 # (basic_metals)
+    
+    #scrap-based production: electric arc furnace 
+    #direct reduction process: natrual gas based, electric arc furnace
+    #BF-BOF (blast furnace - basix oxgen furnace)
 
-    p_coke_ovens = 1 
-    p_blast_furnaces = 1
-    p_kilns = 1
+
+    # Sectors non_metallic_minearl_products
+
     # --> Define efficiencis of technologies
     #   - Other (?)
     #   .ev refrigeration / compressed air / motors
@@ -350,7 +384,9 @@ def load_non_param_assump(
     #
     #   
 
-    # Sectors
+
+
+
     # High consumption in Chemicals, Non_metallic mineral products, paper, food_production
     ''' 'is_high_temp_process': ['gva'],
         'is_low_temp_process': ['gva'],
@@ -399,11 +435,7 @@ def load_non_param_assump(
     Fuel use ratio - cold over hot rolling in cement sector
     '''
     '''
-    BAT - iron & steel - Coke ovens	Sectoral share (%)
-    BAT - iron & steel - EAF/BOF 	Sectoral share - EOF %
-    BAT - iron & steel - continous/Ingot casting 	Sectoral share - continuous %
-    BAT - iron & steel - cold/hot rolling 	Sectoral share - cold %
-    BAT - iron & steel - substitute	Sectoral share - substitute %
+
     BAT - cement - dry/wet process 	Dry/wet process (Dry %)
     BAT - cement - Novel-Alkali-activated (alumino-silicate, geopolymer)	Sectoral share of Alkali activated %
     BAT - cement - Novel-Partially prehydrated Calcium silicate hydrate	Sectoral share - Partially prehydrated %'''
@@ -528,11 +560,9 @@ def load_non_param_assump(
     # ----
     testing_functions.testing_fuel_tech_shares(
         assumptions['rs_fuel_tech_p_by'])
-
     for enduse in assumptions['ss_fuel_tech_p_by']:
         testing_functions.testing_fuel_tech_shares(
             assumptions['ss_fuel_tech_p_by'][enduse])
-
     for enduse in assumptions['is_fuel_tech_p_by']:
         testing_functions.testing_fuel_tech_shares(
             assumptions['is_fuel_tech_p_by'][enduse])
