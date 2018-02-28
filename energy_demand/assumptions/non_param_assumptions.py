@@ -344,11 +344,10 @@ def load_non_param_assump(
 
     #BAF: basic_oxygen_furnace
     #EAF: electric_arc_furnace
-
     #BAT - iron & steel - Coke ovens	Sectoral share (%)
-    #BAT - iron & steel - EAF/BOF 	Sectoral share - EOF %
+    #BAT - iron & steel - EAF/BOF 	    Sectoral share - EOF %
     #BAT - iron & steel - continous/Ingot casting 	Sectoral share - continuous %
-    #BAT - iron & steel - cold/hot rolling 	Sectoral share - cold %
+    #BAT - iron & steel - cold/hot rolling 	Sectoral share - cold %                     #DONE
     #BAT - iron & steel - substitute	Sectoral share - substitute %
 
     # --------------------------------------------
@@ -359,10 +358,8 @@ def load_non_param_assump(
     assumptions['eff_hot_rolling_process'] = 1.0   #TODO
 
 
-
     # ---------------
     p_service_electric_arc_furnace = 0.5            #TODO: DEFINE FROM BASE YEAR FUEL MIX
-
     p_service_basic_oxygen_furnace = 1 - p_service_electric_arc_furnace
     p_SNG_furnace = 0 #biomass
     # Sector metalic (steel industry)

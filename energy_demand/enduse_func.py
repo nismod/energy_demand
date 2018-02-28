@@ -1833,46 +1833,98 @@ def industry_enduse_changes(
         '''
         pass
     elif enduse == 'is_high_temp_process':
-        
-        # Iterate technologies of enduse and shares
-        # calculate efficiencies
-        # define new fuel
-        # Get correct technologies
-        #if sector == 'non_metallic'
+
 
         if sector == 'basic_metals':
 
-            # Reduce depending on hot_rolling process
-            p_cold_rolling_by = assumptions['p_cold_rolling_steel_by']
-            p_hot_rolling_by = 1.0 - p_cold_rolling_by
-
-            # Get sigmoid transition for share in rolling
-            sig_diff_factor = diffusion_technologies.sigmoid_diffusion(
+            # Calculate factor depending on fraction of hot and cold steel rolling process
+            factor = hot_cold_process(
                 base_yr,
                 curr_yr,
-                strategy_variables['hot_cold_rolling_yr_until_changed'],
-                other_enduse_mode_info['sigmoid']['sig_midpoint'],
-                other_enduse_mode_info['sigmoid']['sig_steepness'])
+                strategy_variables,
+                other_enduse_mode_info,
+                assumptions)
 
-            # Difference in shares of cold rolling
-            diff_cold_rolling = strategy_variables['p_cold_rolling_steel'] - p_cold_rolling_by
+        if sector == 'non_metallic_minearl_products':
 
-            # Diff until cy
-            diff_cold_rolling_cy = sig_diff_factor * diff_cold_rolling
+            # Calculate factor depending on cement processes
+            factor = cement_process()
 
-            p_cold_rolling_cy = p_cold_rolling_by + diff_cold_rolling_cy
-            p_hot_rolling_cy = 1 - p_cold_rolling_cy
-
-            # Calculate fraction
-            p_by = p_cold_rolling_by * assumptions['eff_cold_rolling_process'] + p_hot_rolling_by * assumptions['eff_hot_rolling_process']
-            p_cy = p_cold_rolling_cy * assumptions['eff_cold_rolling_process']  + p_hot_rolling_cy * assumptions['eff_hot_rolling_process'] 
-
-            factor = p_cy  / p_by
-
-        pass
     else:
         pass
 
     fuels_out = fuels * factor
 
     return fuels_out
+
+def hot_cold_process(
+        base_yr,
+        curr_yr,
+        strategy_variables,
+        other_enduse_mode_info,
+        assumptions
+    ):
+    """Calculate factor based on the fraction of hot
+    and cold rolling processes in steel manufacturing.
+    The fraction of either process is calculated based on
+    the scenario input of the future share of cold rollling
+    processes. A sigmoid diffusion towards this fucture defined
+    fraction is implemented.
+
+    Arguments
+    ----------
+    base_yr : float
+        Base year
+    curr_yr : float
+        Current year
+    strategy_variables : dict
+        Strategy variables
+    other_enduse_mode_info : dict
+        Sigmoid diffusion parameters
+    assumptions : dict
+        Assumptions including efficiencies of either process
+        and the base year share
+
+    Returns
+    -------
+    factor : float
+        Factor to change energy demand
+    """
+
+    # Reduce demand depending on fraction of hot and cold steel rolling process
+    p_cold_rolling_by = assumptions['p_cold_rolling_steel_by']
+    p_hot_rolling_by = 1.0 - p_cold_rolling_by
+
+    # Get sigmoid transition for share in rolling
+    sig_diff_factor = diffusion_technologies.sigmoid_diffusion(
+        base_yr,
+        curr_yr,
+        strategy_variables['hot_cold_rolling_yr_until_changed'],
+        other_enduse_mode_info['sigmoid']['sig_midpoint'],
+        other_enduse_mode_info['sigmoid']['sig_steepness'])
+
+    # Difference p cold rolling
+    diff_cold_rolling = strategy_variables['p_cold_rolling_steel'] - p_cold_rolling_by
+
+    # Difference until cy
+    diff_cold_rolling_cy = sig_diff_factor * diff_cold_rolling
+
+    # Calculate cy p
+    p_cold_rolling_cy = p_cold_rolling_by + diff_cold_rolling_cy
+    p_hot_rolling_cy = 1 - p_cold_rolling_cy
+
+    # Calculate factor
+    eff_cold = assumptions['eff_cold_rolling_process']
+    eff_hot = assumptions['eff_hot_rolling_process']
+
+    p_by = p_cold_rolling_by * eff_cold + p_hot_rolling_by * eff_hot
+    p_cy = p_cold_rolling_cy * eff_cold  + p_hot_rolling_cy * eff_hot
+
+    factor = p_cy  / p_by
+
+    return factor
+
+def cement_process():
+
+    factor = 1
+    return factor
