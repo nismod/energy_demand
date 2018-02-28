@@ -63,7 +63,7 @@ def disaggregate_base_demand(
         lu_reg,
         base_yr,
         curr_yr,
-        fuels['rs_fuel_raw_data_enduses'],
+        fuels['rs_fuel_raw'],
         scenario_data,
         assumptions,
         reg_coord,
@@ -76,7 +76,7 @@ def disaggregate_base_demand(
 
     # Disaggregate service submodel data
     ss_fuel_disagg = ss_disaggregate(
-        fuels['ss_fuel_raw_data_enduses'],
+        fuels['ss_fuel_raw'],
         assumptions,
         scenario_data,
         base_yr,
@@ -95,7 +95,7 @@ def disaggregate_base_demand(
     # Disaggregate industry submodel data with employment statistics
     is_fuel_disagg = is_disaggregate(
         base_yr,
-        fuels['is_fuel_raw_data_enduses'],
+        fuels['is_fuel_raw'],
         lu_reg,
         enduses['is_enduses'],
         sectors['is_sectors'],

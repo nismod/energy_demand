@@ -12,10 +12,15 @@ def test_load_non_param_assump():
     data = {}
     paths = data_loader.load_paths(path_main)
     lookups = data_loader.load_basic_lookups()
-    enduses, _, _ = data_loader.load_fuels(paths, lookups)
+    enduses, sectors, _ = data_loader.load_fuels(paths, lookups)
 
     non_param_assumptions.load_non_param_assump(
-        2015, paths, enduses, lookups['fueltypes'], lookups['fueltypes_nr'])
+        2015,
+        paths,
+        enduses,
+        sectors,
+        lookups['fueltypes'],
+        lookups['fueltypes_nr'])
 
     # Test if yaml file is created
     #assert 

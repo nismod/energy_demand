@@ -52,7 +52,6 @@ def testing_tech_defined(technologies, all_tech_enduse):
     for enduse in all_tech_enduse:
         for tech in all_tech_enduse[enduse]:
             if tech not in technologies:
-
                 sys.exit(
                     "Error: '{}' is not defined in technology_definition.csv".format(
                         tech))

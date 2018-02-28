@@ -196,6 +196,9 @@ def capacity_switch(
 
             # Iterate capacity switches
             for capacity_switch in enduse_capacity_switches:
+                
+                # Select any sector
+                any_sector = fuel_shares_enduse_by[enduse].keys()[0] #TODO IMPROVE
 
                 # Calculate service switches
                 enduse_service_switches = create_service_switch(
@@ -204,7 +207,7 @@ def capacity_switch(
                     enduse_capacity_switches,
                     technologies,
                     other_enduse_mode_info,
-                    fuel_shares_enduse_by[enduse],
+                    fuel_shares_enduse_by[enduse][any_sector],
                     base_yr,
                     fuels[enduse])
 
@@ -409,7 +412,7 @@ def capacity_to_service_switches(assumptions, fuels, base_yr):
         assumptions['capacity_switches']['rs_capacity_switches'],
         assumptions['technologies'],
         assumptions['enduse_overall_change']['other_enduse_mode_info'],
-        fuels['rs_fuel_raw_data_enduses'],
+        fuels['rs_fuel_raw'],
         assumptions['rs_fuel_tech_p_by'],
         base_yr)
 
@@ -418,7 +421,7 @@ def capacity_to_service_switches(assumptions, fuels, base_yr):
         assumptions['capacity_switches']['ss_capacity_switches'],
         assumptions['technologies'],
         assumptions['enduse_overall_change']['other_enduse_mode_info'],
-        fuels['ss_fuel_raw_data_enduses'],
+        fuels['ss_fuel_raw'],
         assumptions['ss_fuel_tech_p_by'],
         base_yr)
 
@@ -427,7 +430,7 @@ def capacity_to_service_switches(assumptions, fuels, base_yr):
         assumptions['capacity_switches']['is_capacity_switches'],
         assumptions['technologies'],
         assumptions['enduse_overall_change']['other_enduse_mode_info'],
-        fuels['is_fuel_raw_data_enduses'],
+        fuels['is_fuel_raw'],
         assumptions['is_fuel_tech_p_by'],
         base_yr)
 

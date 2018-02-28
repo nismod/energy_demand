@@ -117,7 +117,8 @@ class Enduse(object):
         ):
         """Enduse class constructor
         """
-        #logging.debug(" =====Enduse: {}  Sector:  {}".format(enduse, sector))
+        #logging.warning(" =====Enduse: {}  Sector:  {}".format(enduse, sector))
+        #print(" =====Enduse: {}  Sector:  {}".format(enduse, sector))
         self.region_name = region_name
         self.enduse = enduse
         self.fuel_new_y = fuel
@@ -142,7 +143,7 @@ class Enduse(object):
                 regional_lp_stock)
 
             # Get technologies of enduse
-            self.enduse_techs = get_enduse_tech(fuel_fueltype_tech_p_by)
+            self.enduse_techs = get_enduse_techs(fuel_fueltype_tech_p_by)
 
             # -------------------------------
             # Cascade of calculations on a yearly scale
@@ -887,7 +888,7 @@ def calc_peak_tech_dh(
 
     return fuels_peak_dh
 
-def get_enduse_tech(fuel_fueltype_tech_p_by):
+def get_enduse_techs(fuel_fueltype_tech_p_by):
     """Get all defined technologies of an enduse
 
     Arguments
@@ -915,6 +916,7 @@ def get_enduse_tech(fuel_fueltype_tech_p_by):
     for no fueltype or for all fueltypes
     """
     enduse_techs = []
+
     for tech_fueltype in fuel_fueltype_tech_p_by.values():
         if 'dummy_tech' in tech_fueltype.keys():
             return []
@@ -1802,7 +1804,6 @@ def industry_enduse_changes(enduse, sector, curr_yr, strategy_variables, fuels):
     OLD MODEL TODO
 
     """
-    #if sector == 
     if enduse == "is_low_temp_process":
 
         # Diffusion of policy
@@ -1818,6 +1819,12 @@ def industry_enduse_changes(enduse, sector, curr_yr, strategy_variables, fuels):
         '''
         pass
     elif enduse == 'is_high_temp_process':
+        
+        # Iterate technologies of enduse and shares
+        # calculate efficiencies
+        # define new fuel
+        # Get correct technologies
+        #if sector == 'non_metallic'
         pass
     else:
         pass

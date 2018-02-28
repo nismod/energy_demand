@@ -11,6 +11,7 @@ def load_non_param_assump(
         base_yr,
         paths,
         enduses,
+        sectors,
         fueltypes,
         fueltypes_nr
     ):
@@ -321,33 +322,73 @@ def load_non_param_assump(
     #   s
     #       S
     # ------------------------------------------------------------
+
+    # --------------------------------------------
+    # Enduses
+    #   - heating
+    #   - lighting
+    #   --> No scenario drivers but driven by switches
+    # --------------------------------------------
+    #   - high_temp_ process
+    #       High temperature processing dominates energy consumption in the iron and steel,
+    #       non-ferrous metal, bricks, cement, glass and potteries industries. This includes
+    #          - coke ovens
+    #          - blast furnaces and other furnaces
+    #          - kilns and
+    #          - glass tanks.
+
+    assumpt_fraction_cement_of_high_temp_process = 0.5 # (non_metallic)
+    assumpt_fraction_netall_of_high_temp_process = 0.5 # (basic_metals)
+
+    p_coke_ovens = 1 
+    p_blast_furnaces = 1
+    p_kilns = 1
+    # --> Define efficiencis of technologies
+    #   - Other (?)
+    #   .ev refrigeration / compressed air / motors
+    #   
+    #
+    #   
+
+    # Sectors
+    # High consumption in Chemicals, Non_metallic mineral products, paper, food_production
+    ''' 'is_high_temp_process': ['gva'],
+        'is_low_temp_process': ['gva'],
+        'is_drying_separation': ['gva'],
+        'is_motors': ['gva'],
+        'is_compressed_air': ['gva'],
+        'is_lighting': ['gva'],
+        'is_space_heating': ['gva'],
+        'is_other': ['gva'],
+        'is_refrigeration': ['gva']}'''
+
     # Sectors
     '''
-    other_manufacturing
-    pharmaceuticals
-    waste_collection
-    machinery
-    leather
-    furniture
-    mining
-    rubber_plastics
-    computer
-    other_transport_equipment
-    basic_metals
-    tobacco
-    textiles
-    paper
-    chemicals
-    non_metallic_minearl_products
-    food_production
-    wearing_appeal
-    fabricated_metal_products
-    beverages
-    motor_vehicles
-    wood
-    printing
-    water_collection_treatment
-    electrical_equipment'''
+    'other_manufacturing': ,
+    'pharmaceuticals': ,
+    'waste_collection': ,
+    'machinery': ,
+    'leather': ,
+    'furniture': ,
+    'mining': ,
+    'rubber_plastics': ,
+    'computer': ,
+    'other_transport_equipment': ,
+    'basic_metals': ,
+    'tobacco': ,
+    'textiles': ,
+    'paper': ,
+    'chemicals': ,
+    'non_metallic_minearl_products': ,
+    'food_production': ,
+    'wearing_appeal': ,
+    'fabricated_metal_products': ,
+    'beverages': ,
+    'motor_vehicles': ,
+    'wood': ,
+    'printing': ,
+    'water_collection_treatment': ,
+    'electrical_equipment': '''
 
     '''
     Fuel use ratio - dry process over wet process in cement sector
@@ -355,8 +396,8 @@ def load_non_param_assump(
     Fuel use ratio - novel partially dehydrated cement over incumbent process in cement sector
     Fuel use ratio - electric arc furnace over blast furnace steel making in cement sector
     Fuel use ratio - continuous over ingot casting in cement sector
-    Fuel use ratio - cold over hot rolling in cement sector'''
-
+    Fuel use ratio - cold over hot rolling in cement sector
+    '''
     '''
     BAT - iron & steel - Coke ovens	Sectoral share (%)
     BAT - iron & steel - EAF/BOF 	Sectoral share - EOF %
@@ -367,6 +408,12 @@ def load_non_param_assump(
     BAT - cement - Novel-Alkali-activated (alumino-silicate, geopolymer)	Sectoral share of Alkali activated %
     BAT - cement - Novel-Partially prehydrated Calcium silicate hydrate	Sectoral share - Partially prehydrated %'''
 
+    # -----------------
+    # Steel production
+    # -----------------
+    # blast furnace process
+    # electric arc furnace
+    # directe reduced iron
     # Hith temperature process -- cement, non-ferrous metla, coke ovens, blast furnaces, kilns,..
 
     # ============================================================
@@ -423,6 +470,7 @@ def load_non_param_assump(
     assumptions = assumptions_fuel_shares.assign_by_fuel_tech_p(
         assumptions,
         enduses,
+        sectors,
         fueltypes,
         fueltypes_nr)
 
@@ -459,25 +507,36 @@ def load_non_param_assump(
     # Helper functions
     # ========================================
     assumptions['rs_fuel_tech_p_by'], assumptions['rs_specified_tech_enduse_by'], assumptions['technologies'] = tech_related.insert_dummy_tech(
-        assumptions['technologies'], assumptions['rs_fuel_tech_p_by'], assumptions['rs_specified_tech_enduse_by'])
+        assumptions['technologies'],
+        assumptions['rs_fuel_tech_p_by'],
+        assumptions['rs_specified_tech_enduse_by'])
+
     assumptions['ss_fuel_tech_p_by'], assumptions['ss_specified_tech_enduse_by'], assumptions['technologies'] = tech_related.insert_dummy_tech(
-        assumptions['technologies'], assumptions['ss_fuel_tech_p_by'], assumptions['ss_specified_tech_enduse_by'])
+        assumptions['technologies'],
+        assumptions['ss_fuel_tech_p_by'],
+        assumptions['ss_specified_tech_enduse_by'],
+        sector_crit=True)
+
     assumptions['is_fuel_tech_p_by'], assumptions['is_specified_tech_enduse_by'], assumptions['technologies'] = tech_related.insert_dummy_tech(
-        assumptions['technologies'], assumptions['is_fuel_tech_p_by'], assumptions['is_specified_tech_enduse_by'])
+        assumptions['technologies'],
+        assumptions['is_fuel_tech_p_by'],
+        assumptions['is_specified_tech_enduse_by'],
+        sector_crit=True)
 
-    assumptions['rs_dummy_enduses'] = tech_related.get_enduses_with_dummy_tech(
+    # ----
+    # Testing
+    # ----
+    testing_functions.testing_fuel_tech_shares(
         assumptions['rs_fuel_tech_p_by'])
-    assumptions['ss_dummy_enduses'] = tech_related.get_enduses_with_dummy_tech(
-        assumptions['ss_fuel_tech_p_by'])
-    assumptions['is_dummy_enduses'] = tech_related.get_enduses_with_dummy_tech(
-        assumptions['is_fuel_tech_p_by'])
 
-    testing_functions.testing_fuel_tech_shares(
-        assumptions['rs_fuel_tech_p_by'])
-    testing_functions.testing_fuel_tech_shares(
-        assumptions['ss_fuel_tech_p_by'])
-    testing_functions.testing_fuel_tech_shares(
-        assumptions['is_fuel_tech_p_by'])
+    for enduse in assumptions['ss_fuel_tech_p_by']:
+        testing_functions.testing_fuel_tech_shares(
+            assumptions['ss_fuel_tech_p_by'][enduse])
+
+    for enduse in assumptions['is_fuel_tech_p_by']:
+        testing_functions.testing_fuel_tech_shares(
+            assumptions['is_fuel_tech_p_by'][enduse])
+
     testing_functions.testing_tech_defined(
         assumptions['technologies'], assumptions['rs_specified_tech_enduse_by'])
     testing_functions.testing_tech_defined(

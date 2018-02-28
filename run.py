@@ -165,6 +165,7 @@ class EDWrapper(SectorModel):
             data['sim_param']['base_yr'],
             data['paths'],
             data['enduses'],
+            data['sectors'],
             data['lookups']['fueltypes'],
             data['lookups']['fueltypes_nr'])
         data['assumptions']['seasons'] = date_prop.read_season(year_to_model=2015)

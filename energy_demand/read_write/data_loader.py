@@ -338,11 +338,11 @@ def load_paths(path):
             path, 'config_data', '07-switches', 'is_capacity_installations.csv'),
 
         # Paths to fuel raw data
-        'rs_fuel_raw_data_enduses': os.path.join(
+        'rs_fuel_raw': os.path.join(
             path, 'config_data', '06-fuels', 'rs_fuel.csv'),
-        'ss_fuel_raw_data_enduses': os.path.join(
+        'ss_fuel_raw': os.path.join(
             path, 'config_data', '06-fuels', 'ss_fuel.csv'),
-        'is_fuel_raw_data_enduses': os.path.join(
+        'is_fuel_raw': os.path.join(
             path, 'config_data', '06-fuels', 'is_fuel.csv'),
 
         # Load profiles
@@ -673,16 +673,16 @@ def load_fuels(paths, lookups):
 
     # Residential Sector
     rs_fuel_raw_data_enduses, enduses['rs_enduses'] = read_data.read_fuel_rs(
-        paths['rs_fuel_raw_data_enduses'])
+        paths['rs_fuel_raw'])
 
     # Service Sector
-    ss_fuel_raw_data_enduses, sectors['ss_sectors'], enduses['ss_enduses'] = read_data.read_fuel_ss(
-        paths['ss_fuel_raw_data_enduses'],
+    ss_fuel_raw, sectors['ss_sectors'], enduses['ss_enduses'] = read_data.read_fuel_ss(
+        paths['ss_fuel_raw'],
         lookups['fueltypes_nr'])
 
     # Industry fuel
-    is_fuel_raw_data_enduses, sectors['is_sectors'], enduses['is_enduses'] = read_data.read_fuel_is(
-        paths['is_fuel_raw_data_enduses'], lookups['fueltypes_nr'], lookups['fueltypes'])
+    is_fuel_raw, sectors['is_sectors'], enduses['is_enduses'] = read_data.read_fuel_is(
+        paths['is_fuel_raw'], lookups['fueltypes_nr'], lookups['fueltypes'])
 
     # Iterate enduses per sudModel and flatten list
     enduses['all_enduses'] = []
@@ -690,12 +690,12 @@ def load_fuels(paths, lookups):
         enduses['all_enduses'] += enduse
 
     # Convert units
-    fuels['rs_fuel_raw_data_enduses'] = conversions.convert_fueltypes_ktoe_GWh(
+    fuels['rs_fuel_raw'] = conversions.convert_fueltypes_ktoe_GWh(
         rs_fuel_raw_data_enduses)
-    fuels['ss_fuel_raw_data_enduses'] = conversions.convert_fueltypes_sectors_ktoe_gwh(
-        ss_fuel_raw_data_enduses)
-    fuels['is_fuel_raw_data_enduses'] = conversions.convert_fueltypes_sectors_ktoe_gwh(
-        is_fuel_raw_data_enduses)
+    fuels['ss_fuel_raw'] = conversions.convert_fueltypes_sectors_ktoe_gwh(
+        ss_fuel_raw)
+    fuels['is_fuel_raw'] = conversions.convert_fueltypes_sectors_ktoe_gwh(
+        is_fuel_raw)
 
     sectors['all_sectors'] = [
         'community_arts_leisure',

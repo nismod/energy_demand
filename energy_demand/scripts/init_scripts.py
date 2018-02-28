@@ -90,7 +90,7 @@ def scenario_initalisation(path_data_ed, data=False):
         data['assumptions']['tech_list'],
         data['lookups']['fueltypes'],
         data['assumptions']['rs_fuel_tech_p_by'],
-        data['fuels']['rs_fuel_raw_data_enduses'],
+        data['fuels']['rs_fuel_raw'],
         data['assumptions']['technologies'])
 
     # Service
@@ -101,7 +101,7 @@ def scenario_initalisation(path_data_ed, data=False):
             data['assumptions']['tech_list'],
             data['lookups']['fueltypes'],
             data['assumptions']['ss_fuel_tech_p_by'],
-            data['fuels']['ss_fuel_raw_data_enduses'],
+            data['fuels']['ss_fuel_raw'],
             data['assumptions']['technologies'],
             sector)
 
@@ -113,7 +113,7 @@ def scenario_initalisation(path_data_ed, data=False):
             data['assumptions']['tech_list'],
             data['lookups']['fueltypes'],
             data['assumptions']['is_fuel_tech_p_by'],
-            data['fuels']['is_fuel_raw_data_enduses'],
+            data['fuels']['is_fuel_raw'],
             data['assumptions']['technologies'],
             sector)
 
@@ -158,13 +158,13 @@ def scenario_initalisation(path_data_ed, data=False):
         data['assumptions']['capacity_switches']['rs_capacity_switches'],
         data['assumptions']['technologies'],
         data['assumptions']['enduse_overall_change']['other_enduse_mode_info'],
-        data['fuels']['rs_fuel_raw_data_enduses'],
+        data['fuels']['rs_fuel_raw'],
         data['assumptions']['rs_fuel_tech_p_by'],
         data['sim_param']['base_yr'])
 
     # Service
     ss_aggr_sector_fuels = s_fuel_to_service.sum_fuel_enduse_sectors(
-        data['fuels']['ss_fuel_raw_data_enduses'],
+        data['fuels']['ss_fuel_raw'],
         data['enduses']['ss_enduses'],
         data['lookups']['fueltypes_nr'])
 
@@ -179,7 +179,7 @@ def scenario_initalisation(path_data_ed, data=False):
 
     # Industry
     is_aggr_sector_fuels = s_fuel_to_service.sum_fuel_enduse_sectors(
-        data['fuels']['is_fuel_raw_data_enduses'],
+        data['fuels']['is_fuel_raw'],
         data['enduses']['is_enduses'],
         data['lookups']['fueltypes_nr'])
 
@@ -277,7 +277,7 @@ def scenario_initalisation(path_data_ed, data=False):
                 s_tech_by_p=init_cont['ss_s_tech_by_p'][sector][enduse],
                 s_fueltype_by_p=init_cont['ss_s_fueltype_by_p'][sector][enduse],
                 share_s_tech_ey_p=ss_share_s_tech_ey_p[sector][enduse],
-                fuel_tech_p_by=data['assumptions']['ss_fuel_tech_p_by'][enduse],
+                fuel_tech_p_by=data['assumptions']['ss_fuel_tech_p_by'][enduse][sector],
                 regions=regions,
                 regional_specific=regional_specific)
 
@@ -295,7 +295,7 @@ def scenario_initalisation(path_data_ed, data=False):
                 s_tech_by_p=init_cont['is_s_tech_by_p'][sector][enduse],
                 s_fueltype_by_p=init_cont['is_s_fueltype_by_p'][sector][enduse],
                 share_s_tech_ey_p=is_share_s_tech_ey_p[sector][enduse],
-                fuel_tech_p_by=data['assumptions']['is_fuel_tech_p_by'][enduse],
+                fuel_tech_p_by=data['assumptions']['is_fuel_tech_p_by'][enduse][sector],
                 regions=regions,
                 regional_specific=regional_specific)
 
@@ -512,7 +512,6 @@ def sig_param_calc_incl_fuel_switch(
         Calculate future service share after fuel switches
         and calculte sigmoid diffusion paramters.
         """
-        print("*****FUELSWITCH")
         # Get fuel switches of enduse
         enduse_fuel_switches = fuel_service_switch.get_fuel_switches_enduse(
             fuel_switches, enduse)

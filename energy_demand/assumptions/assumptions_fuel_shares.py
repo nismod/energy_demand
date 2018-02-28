@@ -6,7 +6,7 @@ different technologies are defined in this file.
 """
 from energy_demand.initalisations import helpers
 
-def assign_by_fuel_tech_p(assumptions, enduses, fueltypes, fueltypes_nr):
+def assign_by_fuel_tech_p(assumptions, enduses, sectors, fueltypes, fueltypes_nr):
     """Assigning fuel share per enduse for different technologies
     for the base year.
 
@@ -16,6 +16,8 @@ def assign_by_fuel_tech_p(assumptions, enduses, fueltypes, fueltypes_nr):
         Assumptions
     enduses : dict
         Enduses
+    sectors : dict
+        Sectors per submodel
     fueltypes : dict
         Fueltypes lookup
     fueltypes_nr : int
@@ -234,6 +236,10 @@ def assign_by_fuel_tech_p(assumptions, enduses, fueltypes, fueltypes_nr):
         'central_air_conditioner_oil': 0.64,
         'decentral_air_conditioner_oil': 0.36}
 
+    # Helper: Transfer all defined shares for every enduse to every sector
+    assumptions['ss_fuel_tech_p_by'] = helpers.copy_fractions_all_sectors(
+        assumptions['ss_fuel_tech_p_by'], sectors['ss_sectors'])
+
     # ===================
     # Industry subModel  - Fuel shares of technologies in enduse
     # ===================
@@ -267,17 +273,22 @@ def assign_by_fuel_tech_p(assumptions, enduses, fueltypes, fueltypes_nr):
         'heat_pumps_hydrogen': 0.0,
         'district_heating_fuel_cell': 0.0}
 
+
+    # Helper: Transfer all defined shares for every enduse to every sector
+    assumptions['is_fuel_tech_p_by'] = helpers.copy_fractions_all_sectors(
+        assumptions['is_fuel_tech_p_by'], sectors['is_sectors'])
+
     # ------------------
     # Get technologies of an enduse
     # ------------------
     assumptions['rs_specified_tech_enduse_by'] = helpers.get_def_techs(
-        assumptions['rs_fuel_tech_p_by'])
+        assumptions['rs_fuel_tech_p_by'], sector_crit=False)
 
     assumptions['ss_specified_tech_enduse_by'] = helpers.get_def_techs(
-        assumptions['ss_fuel_tech_p_by'])
+        assumptions['ss_fuel_tech_p_by'], sector_crit=True)
 
     assumptions['is_specified_tech_enduse_by'] = helpers.get_def_techs(
-        assumptions['is_fuel_tech_p_by'])
+        assumptions['is_fuel_tech_p_by'], sector_crit=True)
 
     assumptions['rs_specified_tech_enduse_by'] = helpers.add_undef_techs(
         assumptions['heat_pumps'],

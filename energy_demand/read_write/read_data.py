@@ -349,7 +349,9 @@ def load_script_data(data):
     data : dict
         Data container
     """
-    init_cont, fuel_disagg = init_scripts.scenario_initalisation(data['paths']['path_main'], data)
+    init_cont, fuel_disagg = init_scripts.scenario_initalisation(
+        data['paths']['path_main'],
+        data)
 
     for key, value in init_cont.items():
         data['assumptions'][key] = value
@@ -741,15 +743,19 @@ def read_fuel_is(path_to_csv, fueltypes_nr, fueltypes):
     =============================
     High temperature processing dominates energy consumption in the iron and steel,
     non-ferrous metal, bricks, cement, glass and potteries industries. This includes
-    coke ovens, blast furnaces and other furnaces, kilns and glass tanks.
+        - coke ovens
+        - blast furnaces and other furnaces
+        - kilns and
+        - glass tanks.
 
     Low temperature processes
     =============================
     Low temperature processes are the largest end use of energy for the food, drink
-    and tobacco industry. This includes process heating and distillation in the
-    chemicals sector; baking and separation processes in food and drink; pressing and
-    drying processes, in paper manufacture; and washing, scouring, dyeing and drying
-    in the textiles industry.
+    and tobacco industry. This includes:
+        - process heating and distillation in the chemicals sector;
+        - baking and separation processes in food and drink;
+        - pressing and drying processes, in paper manufacture;
+        - and washing, scouring, dyeing and drying in the textiles industry.
 
     Drying/separation
     =============================
@@ -874,7 +880,6 @@ def read_scenaric_population_data(result_path):
         year = int(file_path_split[1])
 
         # Add year if not already exists
-        print(path_file_to_read)
         results[year] = np.load(path_file_to_read)
 
     return results

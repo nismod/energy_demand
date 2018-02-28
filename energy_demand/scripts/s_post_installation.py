@@ -53,6 +53,7 @@ def post_install_setup(args):
         data['sim_param']['base_yr'],
         data['paths'],
         data['enduses'],
+        data['sectors'],
         data['lookups']['fueltypes'],
         data['lookups']['fueltypes_nr'])
 

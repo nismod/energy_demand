@@ -463,7 +463,7 @@ def residential_submodel(
     logging.debug("... residential submodel start")
 
     if not sectors:
-        sectors = ['dummy_sector']
+        sectors = [False]
     else:
         pass
 
@@ -569,7 +569,7 @@ def service_submodel(
                 heating_factor_y=region.ss_heating_factor_y,
                 cooling_factor_y=region.ss_cooling_factor_y,
                 service_switches=service_switches,
-                fuel_fueltype_tech_p_by=assumptions['ss_fuel_tech_p_by'][enduse],
+                fuel_fueltype_tech_p_by=assumptions['ss_fuel_tech_p_by'][enduse][sector],
                 sig_param_tech=sig_param_tech,
                 criterias=criterias,
                 fueltypes_nr=lookups['fueltypes_nr'],
@@ -649,7 +649,7 @@ def industry_submodel(
                 heating_factor_y=region.is_heating_factor_y,
                 cooling_factor_y=region.is_cooling_factor_y,
                 service_switches=service_switches,
-                fuel_fueltype_tech_p_by=assumptions['is_fuel_tech_p_by'][enduse],
+                fuel_fueltype_tech_p_by=assumptions['is_fuel_tech_p_by'][enduse][sector],
                 sig_param_tech=sig_param_tech,
                 enduse_overall_change=assumptions['enduse_overall_change'],
                 criterias=criterias,

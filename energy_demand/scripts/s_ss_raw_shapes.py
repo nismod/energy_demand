@@ -265,7 +265,7 @@ def run(paths, local_paths, lookups):
     """
     print("... start script %s", os.path.basename(__file__))
     _, ss_sectors, ss_enduses = read_data.read_fuel_ss(
-        paths['ss_fuel_raw_data_enduses'],
+        paths['ss_fuel_raw'],
         lookups['fueltypes_nr'])
 
     # Iterate sectors and read in shape

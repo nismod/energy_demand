@@ -1,6 +1,6 @@
 """
 
-    Energy Demand Model
+    Energy Demand Model 
     ===================
     Contains the function `energy_demand_model` which is used
     to run the energy demand model
@@ -43,6 +43,7 @@ TODO: FUEL; SERVICE SWITHC AS INPUT
 TODO: PEAK SHAPE vs PEAK FROM LOAD PROFILES
 TODO: IF spatial explicity, still very slow
 TODO: UPDate all fuel data with new ECUK DATA
+TODO: IMPORT SECTOR GVA TO DRIVE INDUSTRY DEMAND
 """
 import os
 import sys
@@ -221,6 +222,7 @@ if __name__ == "__main__":
         data['sim_param']['base_yr'],
         data['paths'],
         data['enduses'],
+        data['sectors'],
         data['lookups']['fueltypes'],
         data['lookups']['fueltypes_nr'])
 

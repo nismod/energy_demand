@@ -1,11 +1,10 @@
 """Functions related to technologies
 """
-import logging
 import numpy as np
 from energy_demand.technologies import diffusion_technologies as diffusion
 from energy_demand.read_write import read_data
 
-def insert_dummy_tech(technologies, tech_p_by, all_specified_tech_enduse_by):
+def insert_dummy_tech(technologies, tech_p_by, all_specified_tech_enduse_by, sector_crit=False):
     """Define dummy technologies. Where no specific technologies are
     assigned for an enduse and a fueltype, dummy technologies
     are generated. This is necessary because the model needs
@@ -28,36 +27,58 @@ def insert_dummy_tech(technologies, tech_p_by, all_specified_tech_enduse_by):
         Technologies per enduse
     technologies : dict
         Technologies
+    
+    #TODO IMRPOVE AND MAKE SHORTER
     """
-    for end_use in tech_p_by:
-        for fueltype in tech_p_by[end_use]:
-            all_defined_tech_in_fueltype = tech_p_by[end_use].values()
-            for definition in all_defined_tech_in_fueltype:
+    if sector_crit is True:
 
-                crit_tech_defined_in_enduse = False
+        for end_use in tech_p_by:
+            for sector in tech_p_by[end_use]:
+                for fueltype in tech_p_by[end_use][sector]:
+                    all_defined_tech_in_fueltype = tech_p_by[end_use][sector].values()
+                    for definition in all_defined_tech_in_fueltype:
+                        if definition == {}:
+                            crit_tech_defined_in_enduse = False
+                        else:
+                            crit_tech_defined_in_enduse = True
+                            continue
+
+                    # If an enduse has no defined technologies across all fueltypes
+                    if crit_tech_defined_in_enduse is False:
+                        if tech_p_by[end_use][sector][fueltype] == {}:
+                            all_specified_tech_enduse_by[end_use].append("dummy_tech")
+
+                            # Assign total fuel demand to dummy technology
+                            tech_p_by[end_use][sector][fueltype] = {"dummy_tech": 1.0}
+
+                            # Insert dummy tech
+                            technologies['dummy_tech'] = read_data.TechnologyData()
+
+    else:
+        for end_use in tech_p_by:
+            for fueltype in tech_p_by[end_use]:
                 all_defined_tech_in_fueltype = tech_p_by[end_use].values()
                 for definition in all_defined_tech_in_fueltype:
                     if definition == {}:
-                        #crit_tech_defined_in_enduse = False #
-                        pass
+                        crit_tech_defined_in_enduse = False
                     else:
                         crit_tech_defined_in_enduse = True
                         continue
 
-            # If an enduse has no defined technologies across all fueltypes
-            if crit_tech_defined_in_enduse is False:
-                if tech_p_by[end_use][fueltype] == {}:
-                    all_specified_tech_enduse_by[end_use].append("dummy_tech")
+                # If an enduse has no defined technologies across all fueltypes
+                if crit_tech_defined_in_enduse is False:
+                    if tech_p_by[end_use][fueltype] == {}:
+                        all_specified_tech_enduse_by[end_use].append("dummy_tech")
 
-                    # Assign total fuel demand to dummy technology
-                    tech_p_by[end_use][fueltype] = {"dummy_tech": 1.0}
+                        # Assign total fuel demand to dummy technology
+                        tech_p_by[end_use][fueltype] = {"dummy_tech": 1.0}
 
-                    # Insert dummy tech
-                    technologies['dummy_tech'] = read_data.TechnologyData()
+                        # Insert dummy tech
+                        technologies['dummy_tech'] = read_data.TechnologyData()
 
     return tech_p_by, all_specified_tech_enduse_by, technologies
 
-def get_enduses_with_dummy_tech(enduse_tech_p_by):
+'''def get_enduses_no_techs_defined(enduse_tech_p_by):
     """Find all enduses with defined dummy technologies
 
     Arguments
@@ -67,18 +88,28 @@ def get_enduses_with_dummy_tech(enduse_tech_p_by):
 
     Return
     ------
-    dummy_enduses : list
+    enduses_no_techs : list
         List with all endueses with dummy technologies
     """
-    dummy_enduses = []
+    enduses_no_techs = []
     for enduse, fueltype_techs in enduse_tech_p_by.items():
+
+        tech_def_crit = False
         for techs in fueltype_techs.values():
             for tech in techs:
                 if tech == 'dummy_tech':
-                    dummy_enduses.append(enduse)
+                    pass
+                else:
+                    tech_def_crit = True
                     continue
 
-    return list(set(dummy_enduses))
+        # Add enduse if no technology next to 'dummy_tech' was defined for any fueltype
+        if tech_def_crit:
+            pass
+        else:
+            enduses_no_techs.append(enduse)
+
+    return list(set(enduses_no_techs))'''
 
 def calc_hp_eff(temp_yh, efficiency_intersect, t_base_heating):
     """Calculate efficiency of heat pumps according to
