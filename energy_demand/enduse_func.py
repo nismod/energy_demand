@@ -14,6 +14,7 @@ from energy_demand.initalisations import helpers
 from energy_demand.profiles import load_profile as lp
 from energy_demand.profiles import load_factors as lf
 from energy_demand.technologies import diffusion_technologies
+from energy_demand.basic import lookup_tables
 
 class Enduse(object):
     """Enduse Class for all endueses in each SubModel
@@ -1369,10 +1370,15 @@ def apply_scenario_drivers(
             if scenario_driver == 'gva':
                 by_driver_data = gva[base_yr][region_name]
                 cy_driver_data = gva[curr_yr][region_name]
-                
+
                 '''if submodel == 'is_submodel':
-                    by_driver_data = industry_gva[base_yr][region_name][sector]
-                    cy_driver_data = industry_gva[curr_yr][region_name][sector]
+
+                    # Map enduse to SIC letter
+                    lu_industry_sic = lookup_tables.industrydemand_name_sic2007()
+                    sic_letter = lu_industry_sic[sector][sic_2007_letter]
+
+                    by_driver_data = industry_gva[base_yr][region_name][sic_lettersector]
+                    cy_driver_data = industry_gva[curr_yr][region_name][sic_letter]
                 else:
                     by_driver_data = gva[base_yr][region_name]
                     cy_driver_data = gva[curr_yr][region_name]'''
@@ -1876,7 +1882,7 @@ def industry_enduse_changes(
                 other_enduse_mode_info,
                 assumptions)
 
-        if sector == 'non_metallic_minearl_products':
+        if sector == 'non_metallic_mineral_products':
 
             # Calculate factor depending on cement processes
             factor = cement_process()

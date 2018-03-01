@@ -27,6 +27,7 @@ from energy_demand.basic import logger_setup
 from energy_demand.validation import lad_validation
 from energy_demand.technologies import fuel_service_switch
 from energy_demand.profiles import hdd_cdd
+from energy_demand.basic import lookup_tables
 
 # must match smif project name for Local Authority Districts
 NR_OF_MODELLEd_REGIONS = 391 #391 # uk: 391, england.: 380
@@ -116,7 +117,7 @@ class EDWrapper(SectorModel):
         # ---------------------
         # Energy demand specific input which need to generated or read in
         # ---------------------
-        data['lookups'] = data_loader.load_basic_lookups()
+        data['lookups'] = lookup_tables.basic_lookups()
         data['weather_stations'], data['temp_data'] = data_loader.load_temp_data(data['local_paths'])
         data['enduses'], data['sectors'], data['fuels'] = data_loader.load_fuels(
             data['paths'], data['lookups'])
@@ -139,8 +140,7 @@ class EDWrapper(SectorModel):
 
         data['population'][data['sim_param']['base_yr']] = pop_dict
         data['gva'][data['sim_param']['base_yr']] = gva_dict
-        #data['industry_gva'][data['sim_param']['base_yr']] = pop_dict
-
+        #data['industry_gva'][data['sim_param']['base_yr']] = gva_industry_dict
         data['industry_gva'] = "TST"
 
         # Get building related data
@@ -229,6 +229,7 @@ class EDWrapper(SectorModel):
         # Pass along to simulate()
         # ------------------------
         self.user_data['gva'] = data['gva']
+        self.user_data['industry_gva'] = data['industry_gva']
         self.user_data['population'] = data['population']
         self.user_data['rs_floorarea'] = rs_floorarea
         self.user_data['ss_floorarea'] = ss_floorarea
@@ -344,17 +345,22 @@ class EDWrapper(SectorModel):
             pop_dict_current[region] = pop_array_current[r_idx, 0]
             gva_dict_current[region] = gva_array_current[r_idx, 0]
 
-        pop_by_cy = {}
-        pop_by_cy[data['sim_param']['base_yr']] = self.user_data['population'][data_handle.base_timestep] # by
-        pop_by_cy[data['sim_param']['curr_yr']] = pop_dict_current # Get population of cy
+        pop_dict = {}
+        pop_dict[data['sim_param']['base_yr']] = self.user_data['population'][data_handle.base_timestep] # by
+        pop_dict[data['sim_param']['curr_yr']] = pop_dict_current # Get population of cy
 
-        gva_by_cy = {}
-        gva_by_cy[data['sim_param']['base_yr']] = self.user_data['gva'][data_handle.base_timestep] # by
-        gva_by_cy[data['sim_param']['curr_yr']] = gva_dict_current # Get gva of cy
+        gva_dict = {}
+        gva_dict[data['sim_param']['base_yr']] = self.user_data['gva'][data_handle.base_timestep] # by
+        gva_dict[data['sim_param']['curr_yr']] = gva_dict_current # Get gva of cy
+
+        gva_industry_dict = {}
+        #gva_industry_dict[data['sim_param']['base_yr']] = self.user_data['gva'][data_handle.base_timestep] # by
+        #gva_industry_cy[data['sim_param']['curr_yr']] = gva_dict_current # Get gva of cy'''
 
         data['scenario_data'] = {
-            'gva': gva_by_cy,
-            'population': pop_by_cy,
+            'gva': gva_dict,
+            'population': pop_dict,
+            'industry_gva': gva_industry_dict,
 
             # Only add newcastle floorarea here
             'floor_area': {

@@ -831,8 +831,12 @@ def read_fuel_is(path_to_csv, fueltypes_nr, fueltypes):
     =============================
 
     -----------------------
-    Industry classes
+    Industry classes from BEIS
     -----------------------
+    Info: https://unstats.un.org/unsd/cr/registry/regcst.asp?Cl=27
+
+    SIC 2007    Name
+    --------    ------
     08	Other mining and quarrying
     10	Manufacture of food products
     11	Manufacture of beverages
@@ -858,8 +862,6 @@ def read_fuel_is(path_to_csv, fueltypes_nr, fueltypes):
     32	Other manufacturing
     36	Water collection, treatment and supply
     38	Waste collection, treatment and disposal activities; materials recovery
-
-
     """
     rows_list = []
     fuels = {}

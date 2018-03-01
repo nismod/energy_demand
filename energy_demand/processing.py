@@ -6,6 +6,7 @@ from energy_demand.read_write import data_loader, read_data, write_data
 from energy_demand.basic import date_prop
 from energy_demand.plotting import plotting_results, result_mapping
 from energy_demand.basic import logger_setup, basic_functions
+from energy_demand.basic import lookup_tables
 
 def main(path_data_energy_demand, path_shapefile_input):
     """Read in all results and plot PDFs
@@ -34,7 +35,7 @@ def main(path_data_energy_demand, path_shapefile_input):
     data = {}
     data['local_paths'] = data_loader.load_local_paths(
         path_data_energy_demand)
-    data['lookups'] = data_loader.load_basic_lookups()
+    data['lookups'] = lookup_tables.basic_lookups()
 
     # ---------------
     # Folder cleaning

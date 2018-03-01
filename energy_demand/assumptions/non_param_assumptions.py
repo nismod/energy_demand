@@ -374,7 +374,7 @@ def load_non_param_assump(
     #BF-BOF (blast furnace - basix oxgen furnace)
 
 
-    # Sectors non_metallic_minearl_products
+    # Sectors non_metallic_mineral_products
 
     # --> Define efficiencis of technologies
     #   - Other (?)
@@ -414,7 +414,7 @@ def load_non_param_assump(
     'textiles': ,
     'paper': ,
     'chemicals': ,
-    'non_metallic_minearl_products': ,
+    'non_metallic_mineral_products': ,
     'food_production': ,
     'wearing_appeal': ,
     'fabricated_metal_products': ,

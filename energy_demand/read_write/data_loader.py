@@ -14,36 +14,6 @@ from energy_demand.basic import date_prop
 from energy_demand.plotting import plotting_results
 from energy_demand.basic import basic_functions
 
-def load_basic_lookups():
-    """Definition of basic lookups or other related information
-
-    Return
-    ------
-    lookups : dict
-        Lookup information and other very basic properties
-    """
-    lookups = {}
-
-    lookups['dwtype'] = {
-        0: 'detached',
-        1: 'semi_detached',
-        2: 'terraced',
-        3: 'flat',
-        4: 'bungalow'}
-
-    lookups['fueltypes'] = {
-        'solid_fuel': 0,
-        'gas': 1,
-        'electricity': 2,
-        'oil': 3,
-        'biomass': 4,
-        'hydrogen': 5,
-        'heat': 6}
-
-    lookups['fueltypes_nr'] = int(len(lookups['fueltypes']))
-
-    return lookups
-
 def load_sim_param_ini(path):
     """Load simulation parameter run information
 

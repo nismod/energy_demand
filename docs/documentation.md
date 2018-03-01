@@ -467,7 +467,7 @@ The ECUK sector and employment statistics are matched as follows:
     mining                          XX
     other_manufacturing             XX
     furniture                       XX
-    non_metallic_minearl_products   XX     
+    non_metallic_mineral_products   XX     
     computer                        XX
     fabricated_metal_products       XX
 

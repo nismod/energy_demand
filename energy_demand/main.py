@@ -57,6 +57,7 @@ import datetime
 import numpy as np
 from energy_demand import model
 from energy_demand.basic import testing_functions as testing
+from energy_demand.basic import lookup_tables
 
 def energy_demand_model(data, fuel_in=0, fuel_in_elec=0):
     """Main function of energy demand model to calculate yearly demand
@@ -187,7 +188,7 @@ if __name__ == "__main__":
 
     data['paths'] = data_loader.load_paths(path_main)
     data['local_paths'] = data_loader.load_local_paths(local_data_path)
-    data['lookups'] = data_loader.load_basic_lookups()
+    data['lookups'] = lookup_tables.basic_lookups()
     data['enduses'], data['sectors'], data['fuels'] = data_loader.load_fuels(data['paths'], data['lookups'])
     data['sim_param'] = {}
     data['sim_param']['base_yr'] = 2015
@@ -272,6 +273,10 @@ if __name__ == "__main__":
             data['lu_reg'],
             data['sectors']['all_sectors'],
             data['local_paths'])
+
+
+    # Lookup table to import industry sectoral gva
+    lookup_tables.industrydemand_name_sic2007()
 
     data['industry_gva'] = "TST"
 

@@ -353,7 +353,7 @@ def is_disaggregate(
             'mining': 'B',
             'other_manufacturing': 'C18,31,32',
             'furniture': 'C',
-            'non_metallic_minearl_products': 'C',
+            'non_metallic_mineral_products': 'C',
             'computer': 'C26-30',
             'fabricated_metal_products': 'C'}'''
 
@@ -383,7 +383,7 @@ def is_disaggregate(
             'motor_vehicles': None,
             'waste_collection': None, #about the same with F
             'tobacco': None,
-            'non_metallic_minearl_products': None  #Worsen
+            'non_metallic_mineral_products': None  #Worsen
         }
 
         # ----------------------------------------

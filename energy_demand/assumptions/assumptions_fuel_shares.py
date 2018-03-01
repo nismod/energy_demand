@@ -293,9 +293,9 @@ def assign_by_fuel_tech_p(assumptions, enduses, sectors, fueltypes, fueltypes_nr
     assumptions['is_fuel_tech_p_by']['is_high_temp_process']['basic_metals'][fueltypes['biomass']] = {
         'SNG_furnace': 1.0}
 
-    ## Sector non_metallic_minearl_products
+    ## Sector non_metallic_mineral_products
     # CEMENT STUFF
-    #assumptions['is_fuel_tech_p_by']['is_high_temp_process']['non_metallic_minearl_products'][fueltypes['solid_fuel']] = {
+    #assumptions['is_fuel_tech_p_by']['is_high_temp_process']['non_metallic_mineral_products'][fueltypes['solid_fuel']] = {
     #    'basic_oxygen_furnace': 1.0}
 
     # ------------------
