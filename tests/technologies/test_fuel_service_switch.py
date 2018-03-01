@@ -217,7 +217,7 @@ def test_get_share_s_tech_ey():
         technology_install='techA',
         service_share_ey=0.3,
         switch_yr=2020)]
-        
+
     specified_tech_enduse_by = {'heating': ['techA', 'techB', 'techC']}
 
     result = fuel_service_switch.get_share_s_tech_ey(
@@ -225,4 +225,3 @@ def test_get_share_s_tech_ey():
         specified_tech_enduse_by=specified_tech_enduse_by)
 
     assert result['heating']['techA'] == 0.3
-test_get_share_s_tech_ey()

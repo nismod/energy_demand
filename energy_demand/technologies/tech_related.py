@@ -37,52 +37,64 @@ def insert_dummy_tech(
 
         for end_use, enduse_fueltypes_techs in tech_p_by.items():
             for sector in enduse_fueltypes_techs:
+
+                # Check if in any fueltype a technology is defined
+                '''crit_tech_defined = False
                 for fueltype in enduse_fueltypes_techs[sector]:
                     all_def_techs_fueltype = enduse_fueltypes_techs[sector].values()
                     for definition in all_def_techs_fueltype:
-                        if definition == {}:
-                            crit_tech_defined = False
+                        if definition == {} and not crit_tech_defined:
+                            pass
                         else:
                             crit_tech_defined = True
-                            continue
+                            break'''
 
-                    # If an enduse has no defined technologies across all fueltypes
-                    if crit_tech_defined is False:
-                        if enduse_fueltypes_techs[sector][fueltype] == {}:
-                            all_specified_tech_enduse_by[end_use].append("dummy_tech")
+                # If an enduse has no defined technologies across all fueltypes
+                #if crit_tech_defined is False:
+                append_dummy_tech = False
+                for fueltype in enduse_fueltypes_techs[sector]:
+                    if  enduse_fueltypes_techs[sector][fueltype] == {}:
+                        # Assign total fuel demand to dummy technology
+                        tech_p_by[end_use][sector][fueltype] = {"dummy_tech": 1.0}
+                        append_dummy_tech = True
 
-                            # Assign total fuel demand to dummy technology
-                            tech_p_by[end_use][sector][fueltype] = {"dummy_tech": 1.0}
-
-                            # Insert dummy tech
-                            technologies['dummy_tech'] = read_data.TechnologyData(
-                                eff_by=1,
-                                eff_ey=1,
-                                year_eff_ey=2100,
-                                eff_achieved=1,
-                                diff_method='linear')
-
+                if append_dummy_tech:
+                    #if enduse_fueltypes_techs[sector][fueltype] == {}:
+                    all_specified_tech_enduse_by[end_use].append("dummy_tech")
     else:
         for end_use, enduse_fueltypes_techs in tech_p_by.items():
+
+            # Check if in any fueltype a technology is defined
+            '''crit_tech_defined = False
             for fueltype in enduse_fueltypes_techs:
                 all_def_techs_fueltype = enduse_fueltypes_techs.values()
                 for definition in all_def_techs_fueltype:
-                    if definition == {}:
-                        crit_tech_defined = False
+                    if definition == {} and not crit_tech_defined:
+                        pass
                     else:
                         crit_tech_defined = True
-                        continue
+                        break'''
 
+            #if not crit_tech_defined:
+            append_dummy_tech = False
+            for fueltype in enduse_fueltypes_techs:
+                if enduse_fueltypes_techs[fueltype] == {} :
+                    # Assign total fuel demand to dummy technology
+                    tech_p_by[end_use][fueltype] = {"dummy_tech": 1.0}
+                    append_dummy_tech = True
                 # If an enduse has no defined technologies across all fueltypes
-                if crit_tech_defined is False:
-                    if enduse_fueltypes_techs[fueltype] == {}:
-                        all_specified_tech_enduse_by[end_use].append("dummy_tech")
+                #if crit_tech_defined is False:
+                #if enduse_fueltypes_techs[fueltype] == {}:
+            if append_dummy_tech:
+                all_specified_tech_enduse_by[end_use].append("dummy_tech")
 
-                        # Assign total fuel demand to dummy technology
-                        tech_p_by[end_use][fueltype] = {"dummy_tech": 1.0}
-
-                        # Insert dummy tech
-                        technologies['dummy_tech'] = read_data.TechnologyData()
+    # Insert dummy tech
+    technologies['dummy_tech'] = read_data.TechnologyData(
+        eff_by=1,
+        eff_ey=1,
+        year_eff_ey=2100,
+        eff_achieved=1,
+        diff_method='linear')
 
     return tech_p_by, all_specified_tech_enduse_by, technologies
 

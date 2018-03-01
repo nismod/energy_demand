@@ -39,18 +39,8 @@ def calc_sigmoid_parameters(
 
     Note
     -------
-    `error_range` can be changed if the plotting is weird. If you increase
-    chances are however hiigher that the fitting does not work anymore.
-
-        How start parameters are generated:
-
-            start_param_list = []
-            for start in [x * 0.05 for x in range(0, 100)]:
-                start_param_list.append(float(start))
-            for start in [1.0, 0.001, 0.01, 0.1, 60.0, 100.0, 200.0, 400.0, 500.0, 1000.0]:
-                start_param_list.append(float(start))
-            for start in range(1, 59):
-                start_param_list.append(float(start))
+        `error_range` can be changed if the plotting is weird. If you increase
+        chances are however hiigher that the fitting does not work anymore.
 
     Returns
     ------
@@ -61,11 +51,11 @@ def calc_sigmoid_parameters(
     # Generate possible starting parameters for fit
     # ---------------------------------------------
     start_param_list = [
-        0.0,
-        1.0,
-        0.0001, 0.001, 0.01, 0.1,
-        0.05, 0.1, 0.15, 0.2, 0.25, 0.3, 0.35, 0.4, 0.45, 0.5, 0.55, 0.6, 0.65,
-        10, 20, 30, 40, 50, 60, 70, 80, 90, 100.0, 200.0, 400.0, 500.0, 1000, 10000]
+        0.0, 1.0, 0.0001, 0.001, 0.01, 0.1,
+        0.05, 0.1, 0.15, 0.2, 0.25, 0.3, 0.35,
+        0.4, 0.45, 0.5, 0.55, 0.6, 0.65,
+        10, 20, 30, 40, 50, 60, 70, 80,
+        90, 100.0, 200.0, 400.0, 500.0, 1000, 10000]
 
     assert l_value >= ydata[0]
 
@@ -151,19 +141,19 @@ def calc_sigmoid_parameters(
                         midpoint=fit_parameter[0],
                         steepness=fit_parameter[1])
 
-                    fit_measure_in_percent_by = float((100.0 / ydata[0]) * y_calculated_by)
-                    fit_measure_in_percent_ey = float((100.0 / ydata[1]) * y_calculated_ey)
+                    fit_measure_p_by = float((100.0 / ydata[0]) * y_calculated_by)
+                    fit_measure_p_ey = float((100.0 / ydata[1]) * y_calculated_ey)
 
-                    if (fit_measure_in_percent_ey < (100.0 - error_range) or fit_measure_in_percent_ey > (100.0 + error_range)) or (
-                        fit_measure_in_percent_by < (100.0 - error_range) or fit_measure_in_percent_by > (100.0 + error_range)):
+                    if (fit_measure_p_ey < (100.0 - error_range) or fit_measure_p_ey > (100.0 + error_range)) or (
+                        fit_measure_p_by < (100.0 - error_range) or fit_measure_p_by > (100.0 + error_range)):
                         #print(
-                        #    "... Fitting measure %s %s (percent) is not good enough", fit_measure_in_percent_by, fit_measure_in_percent_ey)
+                        #    "... Fitting measure %s %s (percent) is not good enough", fit_measure_p_by, fit_measure_p_ey)
                         successfull = False
                         cnt += 1
                     else:
                         pass
                         #logging.info(
-                        #    ".... fitting successfull %s %s %s", fit_measure_in_percent_ey, fit_measure_in_percent_by, fit_parameter)
+                        #    ".... fitting successfull %s %s %s", fit_measure_p_ey, fit_measure_p_by, fit_parameter)
                         '''plotting_program.plotout_sigmoid_tech_diff(
                             l_value,
                             "FINISHED FITTING",
@@ -642,7 +632,8 @@ def tech_sigmoid_parameters(
                         because the points to fit are too similar.
                         """
                         logging.warning(
-                            "SIGMODI DIFFUSION FAIOLE BECAUSE TO SMALL DIFFERENCE")
+                            "Instead of sigmoid a linear approximation is used %s %s",
+                                xdata, ydata)
 
                         sig_params[tech]['midpoint'] = 'linear'
                         sig_params[tech]['steepness'] = 'linear'

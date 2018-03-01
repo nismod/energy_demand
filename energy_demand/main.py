@@ -39,16 +39,15 @@ TODO: SENSITIVITY
 TODO: data loading, load multiple years for real elec data
 TODO: Load different temp --> for different years
 TODO: THECK VARIALBES IN HOUSEHOLD MODEL
-TODO: FUEL; SERVICE SWITHC AS INPUT
+TODO: FUEL; SERVICE SWITHC AS INPUT¨
+TODO: REMOVE SEPEARATE PEAK CALUCLATIONS AND SHAPES
 TODO: PEAK SHAPE vs PEAK FROM LOAD PROFILES
 TODO: IF spatial explicity, still very slow
 TODO: UPDate all fuel data with new ECUK DATA
-TODO: IMPORT SECTOR GVA TO DRIVE INDUSTRY DEMAND
 TODO: TEST IS SECTOR TECH SWITCH
 TODO: SECTOR SPECIFIC SWITCHES
 TODO: STORE RESULTS PER ANNUAL YEAR AND GENERATE FUNCTION TO COLLECT PLOTS AND CREATE GIF
 TODO: TRY TO REMOVE DUMMY_TECH
-TODO: GVA MAPPING USED FOR DRIVERS
 """
 import os
 import sys
@@ -284,7 +283,7 @@ if __name__ == "__main__":
     data['scenario_data'] = {
         'gva': data['gva'],
         'population': data['population'],
-        'industry_gva': data['inudstry_gva'],
+        'industry_gva': data['industry_gva'],
         'floor_area': {
             'rs_floorarea': rs_floorarea,
             'ss_floorarea': ss_floorarea}}

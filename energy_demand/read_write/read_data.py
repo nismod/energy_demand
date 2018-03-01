@@ -779,6 +779,11 @@ def read_fuel_is(path_to_csv, fueltypes_nr, fueltypes):
             https://www.gov.uk/government/uploads/system/uploads/attach
             ment_data/file/573271/ECUK_user_guide_November_2016_final.pdf
 
+            https://unstats.un.org/unsd/cr/registry/regcst.asp?Cl=27
+
+            http://ec.europa.eu/eurostat/ramon/nomenclatures/
+            index.cfm?TargetUrl=LST_NOM_DTL&StrNom=NACE_REV2&StrLanguageCode=EN&IntPcKey=&StrLayoutCode=
+
     High temperature processes
     =============================
     High temperature processing dominates energy consumption in the iron and steel,
@@ -833,7 +838,6 @@ def read_fuel_is(path_to_csv, fueltypes_nr, fueltypes):
     -----------------------
     Industry classes from BEIS
     -----------------------
-    Info: https://unstats.un.org/unsd/cr/registry/regcst.asp?Cl=27
 
     SIC 2007    Name
     --------    ------

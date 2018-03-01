@@ -122,7 +122,7 @@ class Enduse(object):
         """Enduse class constructor
         """
         #logging.warning(" =====Enduse: {}  Sector:  {}".format(enduse, sector))
-        #print(" =====Enduse: {}  Sector:  {}".format(enduse, sector))
+        print(" =====Enduse: {}  Sector:  {}".format(enduse, sector))
         self.region_name = region_name
         self.enduse = enduse
         self.fuel_new_y = fuel
@@ -219,7 +219,8 @@ class Enduse(object):
                 self.fuel_new_y,
                 enduse_overall_change['other_enduse_mode_info'],
                 assumptions)
-
+            if enduse == 'rs_space_heating':
+                print(".")
             # ----------------------------------
             # Hourly Disaggregation
             # ----------------------------------
@@ -289,8 +290,10 @@ class Enduse(object):
                     curr_yr)
 
                 # --------------------------------
-                # Switches (service or fuel)
+                # Switches
                 # --------------------------------
+                if enduse == 'rs_space_heating':
+                    print(".")
                 if crit_switch_service:
 
                     # Convert aggregated sector service percentages to sector service percentages
@@ -411,9 +414,7 @@ def demand_management(
         mode_constrained
     ):
     """Demand management. This function shifts peak per of this enduse
-    depending on peak shifting factors
-
-    So far only inter day load shifting
+    depending on peak shifting factors. So far only inter day load shifting
 
     Arguments
     ----------
@@ -460,13 +461,15 @@ def demand_management(
         param_name = 'demand_management_improvement__{}'.format(enduse)
 
         if strategy_variables[param_name] == 0:
+
+            # no load management
             peak_shift_crit = False
-            #logging.debug("... no load management")
         else:
+            # load management
             peak_shift_crit = True
-            #logging.debug("... load management for " + str(enduse))
     except KeyError:
-        #logging.debug("... no load management")
+
+        # no load management
         peak_shift_crit = False
 
     # ------------------------------
@@ -928,7 +931,7 @@ def get_enduse_techs(fuel_fueltype_tech_p_by):
     Note
     ----
     All technologies are read out, including those which
-    are potentiall defined in fuel or service switches.
+    are potentially defined in fuel or service switches.
 
     If for an enduse a dummy technology is defined,
     the technologies of an enduse are set to an empty
@@ -943,6 +946,7 @@ def get_enduse_techs(fuel_fueltype_tech_p_by):
 
     for tech_fueltype in fuel_fueltype_tech_p_by.values():
         if 'dummy_tech' in tech_fueltype.keys():
+            #if list(tech_fueltype.keys()) == []:
             return []
         else:
             enduse_techs += tech_fueltype.keys()
@@ -1315,7 +1319,7 @@ def apply_scenario_drivers(
         sector,
         fuel_y,
         dw_stock,
-        region_name,
+        region,
         gva,
         population,
         industry_gva,
@@ -1335,7 +1339,7 @@ def apply_scenario_drivers(
         Yearly fuel per fueltype
     dw_stock : object
         Dwelling stock
-    region_name : str
+    region : str
         Region name
     gva : dict
         GVA
@@ -1368,8 +1372,8 @@ def apply_scenario_drivers(
 
             # Get correct data depending on driver
             if scenario_driver == 'gva':
-                by_driver_data = gva[base_yr][region_name]
-                cy_driver_data = gva[curr_yr][region_name]
+                by_driver_data = gva[base_yr][region]
+                cy_driver_data = gva[curr_yr][region]
 
                 '''if submodel == 'is_submodel':
 
@@ -1377,15 +1381,18 @@ def apply_scenario_drivers(
                     lu_industry_sic = lookup_tables.industrydemand_name_sic2007()
                     sic_letter = lu_industry_sic[sector][sic_2007_letter]
 
-                    by_driver_data = industry_gva[base_yr][region_name][sic_lettersector]
-                    cy_driver_data = industry_gva[curr_yr][region_name][sic_letter]
+                    by_driver_data = industry_gva[base_yr][region][sic_lettersector]
+                    cy_driver_data = industry_gva[curr_yr][region][sic_letter]
                 else:
-                    by_driver_data = gva[base_yr][region_name]
-                    cy_driver_data = gva[curr_yr][region_name]'''
+
+                    # Calculate overall GVA for all sectors TODO
+
+                    by_driver_data = gva[base_yr][region]
+                    cy_driver_data = gva[curr_yr][region]'''
 
             elif scenario_driver == 'population':
-                by_driver_data = population[base_yr][region_name]
-                cy_driver_data = population[curr_yr][region_name]
+                by_driver_data = population[base_yr][region]
+                cy_driver_data = population[curr_yr][region]
             #TODO :ADD OTHER ENDSES
 
             if math.isnan(by_driver_data):

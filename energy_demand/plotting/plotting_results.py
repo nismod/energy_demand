@@ -16,35 +16,6 @@ from energy_demand.plotting import plotting_styles
 from energy_demand.technologies import tech_related
 from scipy import stats
 
-
-# INFO
-# https://stackoverflow.com/questions/35099130/change-spacing-of-dashes-in-dashed-line-in-matplotlib
-# https://www.packtpub.com/mapt/book/big_data_and_business_intelligence/9781849513265/4/ch04lvl1sec56/using-a-logarithmic-scale
-# Setting x labels: https://matplotlib.org/examples/pylab_examples/major_minor_demo1.html
-
-def plot_lp_dh_SCRAP(data_dh_modelled):
-    x_values = range(24)
-    plt.plot(x_values, list(data_dh_modelled), color='red', label='modelled')
-    plt.tight_layout()
-    plt.margins(x=0)
-    plt.show()
-
-def order_polygon(upper_boundary, lower_bdoundary):
-    """Create correct sorting to draw filled polygon
-
-    Arguments
-    ---------
-
-    Returns
-    -------
-    """
-    min_max_polygon = []
-    for pnt in upper_boundary:
-        min_max_polygon.append(pnt)
-    for pnt in reversed(lower_bdoundary):
-        min_max_polygon.append(pnt)
-    return min_max_polygon
-
 def run_all_plot_functions(
         results_container,
         reg_nrs,
@@ -57,6 +28,17 @@ def run_all_plot_functions(
     ):
     """Summary function to plot all results
     """
+
+    # -----------
+    # Set which plots to plot
+    # -----------
+    plot_stacked_enduses = True
+    plot_y_all_enduses = True
+    plot_fuels_enduses_y = True
+    plot_lf = False                         # Plot load factors
+    plot_week_h = True
+    plot_h_peak_fueltypes = True
+    plot_averaged_season_fueltype = False   # Compare for every season and daytype the daily loads
 
     # ----------
     # Plot LAD differences for first and last year
@@ -80,53 +62,56 @@ def run_all_plot_functions(
     # ------------
     # Plot stacked annual enduses
     # ------------
-    # Residential
-    plt_stacked_enduse(
-        sim_param['simulated_yrs'],
-        results_container['results_enduse_every_year'],
-        enduses['rs_enduses'],
-        os.path.join(
-            local_paths['data_results_PDF'],"stacked_rs_country.pdf"))
+    if plot_stacked_enduses:
+        # Residential
+        plt_stacked_enduse(
+            sim_param['simulated_yrs'],
+            results_container['results_enduse_every_year'],
+            enduses['rs_enduses'],
+            os.path.join(
+                local_paths['data_results_PDF'],"stacked_rs_country.pdf"))
 
-    # Service
-    plt_stacked_enduse(
-        sim_param['simulated_yrs'],
-        results_container['results_enduse_every_year'],
-        enduses['ss_enduses'],
-        os.path.join(
-            local_paths['data_results_PDF'], "stacked_ss_country.pdf"))
+        # Service
+        plt_stacked_enduse(
+            sim_param['simulated_yrs'],
+            results_container['results_enduse_every_year'],
+            enduses['ss_enduses'],
+            os.path.join(
+                local_paths['data_results_PDF'], "stacked_ss_country.pdf"))
 
-    # Industry
-    plt_stacked_enduse(
-        sim_param['simulated_yrs'],
-        results_container['results_enduse_every_year'],
-        enduses['is_enduses'],
-        os.path.join(
-            local_paths['data_results_PDF'], "stacked_is_country_.pdf"))
+        # Industry
+        plt_stacked_enduse(
+            sim_param['simulated_yrs'],
+            results_container['results_enduse_every_year'],
+            enduses['is_enduses'],
+            os.path.join(
+                local_paths['data_results_PDF'], "stacked_is_country_.pdf"))
 
     # ------------------------------
     # Plot annual demand for enduses for all submodels
     # ------------------------------
-    plt_stacked_enduse_sectors(
-        lookups,
-        sim_param['simulated_yrs'],
-        results_container['results_enduse_every_year'],
-        enduses['rs_enduses'],
-        enduses['ss_enduses'],
-        enduses['is_enduses'],
-        os.path.join(local_paths['data_results_PDF'],
-        "stacked_all_enduses_country.pdf"))
+    if plot_y_all_enduses:
+        plt_stacked_enduse_sectors(
+            lookups,
+            sim_param['simulated_yrs'],
+            results_container['results_enduse_every_year'],
+            enduses['rs_enduses'],
+            enduses['ss_enduses'],
+            enduses['is_enduses'],
+            os.path.join(local_paths['data_results_PDF'],
+            "stacked_all_enduses_country.pdf"))
 
     # --------------
     # Fuel per fueltype for whole country over annual timesteps
     # ----------------
-    logging.debug("... Plot total fuel (y) per fueltype")
-    plt_fuels_enduses_y(
-        results_container['results_every_year'],
-        lookups,
-        os.path.join(
-            local_paths['data_results_PDF'],
-            'y_fueltypes_all_enduses.pdf'))
+    if plot_fuels_enduses_y:
+        logging.debug("... Plot total fuel (y) per fueltype")
+        plt_fuels_enduses_y(
+            results_container['results_every_year'],
+            lookups,
+            os.path.join(
+                local_paths['data_results_PDF'],
+                'y_fueltypes_all_enduses.pdf'))
 
     # ----------
     # Plot seasonal typical load profiles
@@ -136,89 +121,119 @@ def run_all_plot_functions(
     # ------------------------------------
     # Load factors per fueltype and region
     # ------------------------------------
-    for fueltype_str, fueltype_int in lookups['fueltypes'].items():
-        plot_seasonal_lf(
-            fueltype_int,
-            fueltype_str,
-            results_container['load_factor_seasons'],
-            reg_nrs,
-            os.path.join(
-                local_paths['data_results_PDF'],
-                'lf_seasonal_{}.pdf'.format(fueltype_str)))
+    if plot_lf:
+        for fueltype_str, fueltype_int in lookups['fueltypes'].items():
+            plot_seasonal_lf(
+                fueltype_int,
+                fueltype_str,
+                results_container['load_factor_seasons'],
+                reg_nrs,
+                os.path.join(
+                    local_paths['data_results_PDF'],
+                    'lf_seasonal_{}.pdf'.format(fueltype_str)))
 
-        plot_lf_y(
-            fueltype_int,
-            fueltype_str,
-            results_container['load_factors_yd'],
-            reg_nrs,
-            os.path.join(
-                local_paths['data_results_PDF'], 'lf_yd_{}.pdf'.format(fueltype_str)))
+            plot_lf_y(
+                fueltype_int,
+                fueltype_str,
+                results_container['load_factors_yd'],
+                reg_nrs,
+                os.path.join(
+                    local_paths['data_results_PDF'], 'lf_yd_{}.pdf'.format(fueltype_str)))
 
-        # load_factors_yd = max daily value / average annual daily value
-        plot_lf_y(
-            fueltype_int,
-            fueltype_str,
-            results_container['load_factors_y'],
-            reg_nrs,
-            os.path.join(
-                local_paths['data_results_PDF'],
-                'lf_y_{}.pdf'.format(fueltype_str)))
+            # load_factors_yd = max daily value / average annual daily value
+            plot_lf_y(
+                fueltype_int,
+                fueltype_str,
+                results_container['load_factors_y'],
+                reg_nrs,
+                os.path.join(
+                    local_paths['data_results_PDF'],
+                    'lf_y_{}.pdf'.format(fueltype_str)))
 
     # --------------
     # Fuel week of base year
     # ----------------
-    logging.debug("... plot a full week")
-    plt_fuels_enduses_week(
-        results_container['results_every_year'],
-        lookups,
-        assumptions['model_yearhours_nrs'],
-        assumptions['model_yeardays_nrs'],
-        2015,
-        os.path.join(local_paths['data_results_PDF'], "tot_all_enduse03.pdf"))
+    if plot_week_h:
+        logging.debug("... plot a full week")
+        plt_fuels_enduses_week(
+            results_container['results_every_year'],
+            lookups,
+            assumptions['model_yearhours_nrs'],
+            assumptions['model_yeardays_nrs'],
+            2015,
+            os.path.join(local_paths['data_results_PDF'], "tot_all_enduse03.pdf"))
 
     # ------------------------------------
     # Plot averaged per season and fueltype
     # ------------------------------------
-    base_year = 2015
-    for year in results_container['av_season_daytype_cy'].keys():
-        for fueltype_int in results_container['av_season_daytype_cy'][year].keys():
+    if plot_averaged_season_fueltype:
+        base_year = 2015
+        for year in results_container['av_season_daytype_cy'].keys():
+            for fueltype_int in results_container['av_season_daytype_cy'][year].keys():
 
-            fueltype_str = tech_related.get_fueltype_str(
-                lookups['fueltypes'], fueltype_int)
+                fueltype_str = tech_related.get_fueltype_str(
+                    lookups['fueltypes'], fueltype_int)
 
-            plot_load_profile_dh_multiple(
-                path_fig_folder=local_paths['data_results_PDF'],
-                path_plot_fig=os.path.join(
-                    local_paths['data_results_PDF'],
-                    'season_daytypes_by_cy_comparison__{}__{}.pdf'.format(year, fueltype_str)),
-                calc_av_lp_modelled=results_container['av_season_daytype_cy'][year][fueltype_int],  # current year
-                calc_av_lp_real=results_container['av_season_daytype_cy'][base_year][fueltype_int], # base year
-                calc_lp_modelled=results_container['season_daytype_cy'][year][fueltype_int],        # current year
-                calc_lp_real=results_container['season_daytype_cy'][base_year][fueltype_int],       # base year
-                plot_peak=True,
-                plot_all_entries=False,
-                plot_max_min_polygon=True,
-                plotshow=False,
-                plot_radar=False,
-                max_y_to_plot=120,
-                fueltype_str=fueltype_str,
-                year=year)
+                plot_load_profile_dh_multiple(
+                    path_fig_folder=local_paths['data_results_PDF'],
+                    path_plot_fig=os.path.join(
+                        local_paths['data_results_PDF'],
+                        'season_daytypes_by_cy_comparison__{}__{}.pdf'.format(year, fueltype_str)),
+                    calc_av_lp_modelled=results_container['av_season_daytype_cy'][year][fueltype_int],  # current year
+                    calc_av_lp_real=results_container['av_season_daytype_cy'][base_year][fueltype_int], # base year
+                    calc_lp_modelled=results_container['season_daytype_cy'][year][fueltype_int],        # current year
+                    calc_lp_real=results_container['season_daytype_cy'][base_year][fueltype_int],       # base year
+                    plot_peak=True,
+                    plot_all_entries=False,
+                    plot_max_min_polygon=True,
+                    plotshow=False,
+                    plot_radar=False,
+                    max_y_to_plot=120,
+                    fueltype_str=fueltype_str,
+                    year=year)
 
     # ---------------------------------
     # Plot hourly peak loads over time for different fueltypes
     # --------------------------------
-    plt_fuels_peak_h(
-        results_container['tot_peak_enduses_fueltype'],
-        lookups,
-        os.path.join(
-            local_paths['data_results_PDF'],
-            'fuel_fueltypes_peak_h.pdf'))
+    if plot_h_peak_fueltypes:
+        plt_fuels_peak_h(
+            results_container['tot_peak_enduses_fueltype'],
+            lookups,
+            os.path.join(
+                local_paths['data_results_PDF'],
+                'fuel_fueltypes_peak_h.pdf'))
 
     # -
     #     #tot_fuel_y_enduse_specific_h
     # -
     print("finisthed plotting")
     return
+
+
+def plot_lp_dh_SCRAP(data_dh_modelled):
+    x_values = range(24)
+    plt.plot(x_values, list(data_dh_modelled), color='red', label='modelled')
+    plt.tight_layout()
+    plt.margins(x=0)
+    plt.show()
+
+def order_polygon(upper_boundary, lower_boundary):
+    """Create correct sorting to draw filled polygon
+
+    Arguments
+    ---------
+    upper_boundary
+    lower_boundary
+
+    Returns
+    -------
+    """
+    min_max_polygon = []
+    for pnt in upper_boundary:
+        min_max_polygon.append(pnt)
+    for pnt in reversed(lower_boundary):
+        min_max_polygon.append(pnt)
+    return min_max_polygon
 
 def plot_seasonal_lf(
         fueltype_int,
