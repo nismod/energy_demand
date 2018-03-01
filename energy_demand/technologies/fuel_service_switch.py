@@ -1,8 +1,30 @@
 """Function related to service or fuel switch
 """
+import logging
 from collections import defaultdict
 from energy_demand.technologies import tech_related
 from energy_demand.read_write import read_data
+from energy_demand.basic import basic_functions
+
+def sum_fuel_across_sectors(enduse_fuels):
+    """Sum fuel across sectors of an enduse if multiple sectors.
+    Otherwise return unchanged `enduse_fuels`
+
+    Arguments
+    ---------
+    enduse_fuels : dict or np.array
+        Fuels of an enduse either for sectors or already aggregated
+
+    Returns
+    -------
+    sum_array : np.array
+        Sum of fuels of all sectors
+    """
+    if isinstance(enduse_fuels, dict):
+        sum_array = sum(enduse_fuels.values())
+        return sum_array
+    else:
+        return enduse_fuels
 
 def get_share_s_tech_ey(service_switches, specified_tech_enduse_by):
     """Get fraction of service for each technology
@@ -204,24 +226,47 @@ def capacity_switch(
 
             # Iterate capacity switches
             for switch in enduse_capacity_switches:
-
+                logging.info("::::::::: " + str(enduse))
                 # Test if sector specific switch
                 if switch.sector == None:
-                    fuel_shares = fuel_shares_enduse_by[enduse]
+                    
+                    # If not specifically defined per sector, get fuel shares for any sector
+                    depth_dict = basic_functions.dict_depth(
+                        fuel_shares_enduse_by)
+                    logging.warning("======================== " + str(depth_dict))
+                    if depth_dict == 3:
+                        # Fuel share are only given per enduses
+                        fuel_shares = fuel_shares_enduse_by[enduse]
+                        sector = switch.sector
+                        fuel_to_use = fuels[enduse]
+                    elif depth_dict == 4:
+                        # Fuel shares are provide per enduse and sectors
+                        all_sectors = list(fuel_shares_enduse_by[enduse].keys())
+
+                        any_sector = all_sectors[0]
+                        logging.warning("any_sector " + str(any_sector))
+                        logging.warning(fuels[enduse])
+                        fuel_shares = fuel_shares_enduse_by[enduse][any_sector]
+                        fuel_to_use = sum_fuel_across_sectors(fuels[enduse])
+
+                        sector = None
                 else:
+                    # Get fuel share specificla for the enduse and sector
                     fuel_shares = fuel_shares_enduse_by[enduse][switch.sector]
-                    #any_sector = fuel_shares_enduse_by[enduse].keys()[0] #TODO IMPROVE
+                    fuel_to_use = fuels[enduse]
+                    sector = switch.sector
 
                 # Calculate service switches
                 enduse_service_switches = create_service_switch(
                     enduse,
+                    sector,
                     switch,
                     enduse_capacity_switches,
                     technologies,
                     other_enduse_mode_info,
                     fuel_shares,
                     base_yr,
-                    fuels[enduse])
+                    fuel_to_use)
 
                 # Add service switches
                 service_switches += enduse_service_switches
@@ -230,6 +275,7 @@ def capacity_switch(
 
 def create_service_switch(
         enduse,
+        sector, #NW
         switch,
         enduse_capacity_switches,
         technologies,
@@ -286,13 +332,12 @@ def create_service_switch(
     # Calculate service per technology for end year
     # ---------------------------------------------
     service_enduse_tech = {}
-
+    logging.warning("FF: " + str(fuel_shares_enduse_by))
+    logging.warning(fuel_enduse_y)
     for fueltype, tech_fuel_shares in fuel_shares_enduse_by.items():
         for tech, fuel_share_by in tech_fuel_shares.items():
 
             # Efficiency of year when capacity is fully installed
-            if tech == 'dummy_tech':
-                print("..")
             tech_eff_ey = tech_related.calc_eff_cy(
                 base_yr,
                 switch.switch_yr,
@@ -345,6 +390,7 @@ def create_service_switch(
 
         service_switch = read_data.ServiceSwitch(
             enduse=enduse,
+            sector=sector, #TODO NEW
             technology_install=tech,
             service_share_ey=s_tech_p,
             switch_yr=switch_yr)

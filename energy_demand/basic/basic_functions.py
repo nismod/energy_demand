@@ -5,6 +5,13 @@ import logging
 import shutil
 import numpy as np
 
+def dict_depth(dictionary):
+    """Get depth of nested dict
+    """
+    if isinstance(dictionary, dict):
+        return 1 + (max(map(dict_depth, dictionary.values())) if dictionary else 0)
+    return 0
+
 def rmse(predictions, targets):
     """RMSE calculations
 

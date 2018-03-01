@@ -498,13 +498,19 @@ def service_switch(path_to_csv, technologies):
 
         for row in rows:
             try:
+                # Check if setor is defined
+                try:
+                    sector = str(row[4])
+                except IndexError:
+                    sector = ''
+
                 service_switches.append(
                     ServiceSwitch(
                         enduse=str(row[0]),
                         technology_install=str(row[1]),
                         service_share_ey=float(row[2]),
                         switch_yr=float(row[3]),
-                        sector=str(row[4])))
+                        sector=sector))
 
             except (KeyError, ValueError):
                 sys.exit("Check if provided data is complete (no empty csv entries)")
@@ -559,6 +565,12 @@ def read_fuel_switches(path_to_csv, enduses, fueltypes):
 
         for row in rows:
             try:
+                
+                try:
+                    sector = str(row[5])
+                except IndexError:
+                    sector = ''
+
                 fuel_switches.append(
                     FuelSwitch(
                         enduse=str(row[0]),
@@ -566,7 +578,7 @@ def read_fuel_switches(path_to_csv, enduses, fueltypes):
                         technology_install=str(row[2]),
                         switch_yr=float(row[3]),
                         fuel_share_switched_ey=float(row[4]),
-                        sector=str(row[5])))
+                        sector=sector))
             except (KeyError, ValueError):
                 sys.exit("Check if provided data is complete (no emptly csv entries)")
 
@@ -950,14 +962,20 @@ def read_capacity_switch(path_to_csv):
 
         for row in rows:
             try:
-                service_switches.append(
+                
+                # Check if setor is defined
+                try:
+                    sector = str(row[4])
+                except IndexError:
+                    sector = ''
 
+                service_switches.append(
                     CapacitySwitch(
                         enduse=str(row[0].strip()),
                         technology_install=str(row[1].strip()),
                         switch_yr=float(row[2].strip()),
                         installed_capacity=float(row[3].strip()),
-                        sector=str(row[4].strip())))
+                        sector=sector))
 
             except (KeyError, ValueError):
                 sys.exit(

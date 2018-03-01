@@ -632,15 +632,18 @@ def tech_sigmoid_parameters(
                                 xdata,
                                 ydata,
                                 fit_parameter,
-                                plot_crit=True, #TRUE
+                                plot_crit=True,
                                 close_window_crit=True)
                     except:
                         #TODO NEW
-                        """If sigmoid fitting failed (E.g. because difference are too small, assume lineare difufsion)
+                        """If sigmoid fitting failed
+                        (E.g. because difference are too small, assume lineare difufsion)
                         """
-                        logging.warning("SIGMODI DIFFUSION FAIOLE BECAUSE TO SMALL DIFFERENCE")
+                        logging.warning(
+                            "SIGMODI DIFFUSION FAIOLE BECAUSE TO SMALL DIFFERENCE")
+
                         sig_params[tech]['midpoint'] = 'linear'
                         sig_params[tech]['steepness'] = 'linear'
                         sig_params[tech]['l_parameter'] = 'linear'
-    
+
     return dict(sig_params)
