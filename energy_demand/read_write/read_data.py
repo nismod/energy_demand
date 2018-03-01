@@ -119,10 +119,12 @@ class FuelSwitch(object):
             enduse_fueltype_replace=None,
             technology_install=None,
             switch_yr=None,
-            fuel_share_switched_ey=None
+            fuel_share_switched_ey=None,
+            sector=None
         ):
 
         self.enduse = enduse
+        self.sector = sector
         self.enduse_fueltype_replace = enduse_fueltype_replace
         self.technology_install = technology_install
         self.switch_yr = switch_yr
@@ -388,13 +390,13 @@ def read_fuel_ss(path_to_csv, fueltypes_nr):
     enduses : list
         Service enduses
     """
-    lines = []
+    rows_list = []
     fuels = {}
 
     with open(path_to_csv, 'r') as csvfile:
-        read_lines = csv.reader(csvfile, delimiter=',')
-        _headings = next(read_lines) # Skip row
-        _secondline = next(read_lines) # Skip row
+        rows = csv.reader(csvfile, delimiter=',')
+        _headings = next(rows) # Skip row
+        _secondline = next(rows) # Skip row
 
         # All sectors
         sectors = set([])
@@ -412,10 +414,10 @@ def read_fuel_ss(path_to_csv, fueltypes_nr):
             for sector in sectors:
                 fuels[enduse][sector] = np.zeros((fueltypes_nr), dtype=float)
 
-        for row in read_lines:
-            lines.append(row)
+        for row in rows:
+            rows_list.append(row)
 
-        for cnt_fueltype, row in enumerate(lines):
+        for cnt_fueltype, row in enumerate(rows_list):
             for cnt, entry in enumerate(row[1:], 1):
                 enduse = _headings[cnt]
                 sector = _secondline[cnt]
@@ -434,10 +436,10 @@ def read_load_shapes_tech(path_to_csv):
     load_shapes_dh = {}
 
     with open(path_to_csv, 'r') as csvfile:
-        read_lines = csv.reader(csvfile, delimiter=',')
-        _headings = next(read_lines) # Skip first row
+        rows = csv.reader(csvfile, delimiter=',')
+        _headings = next(rows) # Skip first row
 
-        for row in read_lines:
+        for row in rows:
             dh_shape = np.zeros((24), dtype=float)
             for cnt, row_entry in enumerate(row[1:], 1):
                 dh_shape[int(_headings[cnt])] = float(row_entry)
@@ -484,10 +486,10 @@ def service_switch(path_to_csv, technologies):
     service_switches = []
 
     with open(path_to_csv, 'r') as csvfile:
-        read_lines = csv.reader(csvfile, delimiter=',')
-        _headings = next(read_lines) # Skip first row
+        rows = csv.reader(csvfile, delimiter=',')
+        _headings = next(rows) # Skip first row
 
-        for row in read_lines:
+        for row in rows:
             try:
                 service_switches.append(
                     ServiceSwitch(
@@ -543,10 +545,10 @@ def read_fuel_switches(path_to_csv, enduses, fueltypes):
     fuel_switches = []
 
     with open(path_to_csv, 'r') as csvfile:
-        read_lines = csv.reader(csvfile, delimiter=',')
-        _headings = next(read_lines)
+        rows = csv.reader(csvfile, delimiter=',')
+        _headings = next(rows)
 
-        for row in read_lines:
+        for row in rows:
             try:
                 fuel_switches.append(
                     FuelSwitch(
@@ -635,10 +637,10 @@ def read_technologies(path_to_csv, fueltypes):
     dict_tech_lists = {}
 
     with open(path_to_csv, 'r') as csvfile:
-        read_lines = csv.reader(csvfile, delimiter=',')
-        _headings = next(read_lines) # Skip heading
+        rows = csv.reader(csvfile, delimiter=',')
+        _headings = next(rows) # Skip heading
 
-        for row in read_lines:
+        for row in rows:
             technology = row[0]
             try:
                 dict_technologies[technology] = TechnologyData(
@@ -696,27 +698,29 @@ def read_fuel_rs(path_to_csv):
     The header is the sub_key
     """
     try:
-        lines = []
+        rows_list = []
         fuels = {}
 
         with open(path_to_csv, 'r') as csvfile:
-            read_lines = csv.reader(csvfile, delimiter=',')
-            _headings = next(read_lines) # Skip first row
+            rows = csv.reader(csvfile, delimiter=',')
+            _headings = next(rows) # Skip first row
 
-            for row in read_lines:
-                lines.append(row)
+            for row in rows:
+                rows_list.append(row)
 
             for i in _headings[1:]: # skip first
-                fuels[i] = np.zeros((len(lines)), dtype=float)
+                fuels[i] = np.zeros((len(rows_list)), dtype=float)
 
-            for cnt_fueltype, row in enumerate(lines):
+            for cnt_fueltype, row in enumerate(rows_list):
                 cnt = 1 #skip first
                 for fuel in row[1:]:
                     end_use = _headings[cnt]
                     fuels[end_use][cnt_fueltype] = float(fuel)
                     cnt += 1
     except (KeyError, ValueError):
-        sys.exit("Check whether tehre any empty cells in the csv files for enduse '{}".format(end_use))
+        sys.exit(
+            "Check if empty cells in the csv files for enduse '{}".format(
+                end_use))
 
     # Create list with all rs enduses
     enduses = fuels.keys()
@@ -801,13 +805,13 @@ def read_fuel_is(path_to_csv, fueltypes_nr, fueltypes):
     Other
     =============================
     """
-    lines = []
+    rows_list = []
     fuels = {}
 
     with open(path_to_csv, 'r') as csvfile:
-        read_lines = csv.reader(csvfile, delimiter=',')
-        _headings = next(read_lines)
-        _secondline = next(read_lines)
+        rows = csv.reader(csvfile, delimiter=',')
+        _headings = next(rows)
+        _secondline = next(rows)
 
         # All sectors
         enduses = set([])
@@ -817,17 +821,19 @@ def read_fuel_is(path_to_csv, fueltypes_nr, fueltypes):
 
         # All enduses
         sectors = set([])
-        for line in read_lines:
-            lines.append(line)
-            sectors.add(line[0])
+        for row in rows:
+            rows_list.append(row)
+            sectors.add(row[0])
 
         # Initialise dict
         for enduse in enduses:
             fuels[enduse] = {}
             for sector in sectors:
-                fuels[str(enduse)][str(sector)] = np.zeros((fueltypes_nr), dtype=float)
 
-        for row in lines:
+                fuels[str(enduse)][str(sector)] = np.zeros(
+                    (fueltypes_nr), dtype=float)
+
+        for row in rows_list:
             sector = row[0]
             for position, entry in enumerate(row[1:], 1): # Start with position 1
 
@@ -895,7 +901,7 @@ def read_scenaric_population_data(result_path):
 
     return results
 
-def capacity_switch(path_to_csv):
+def read_capacity_switch(path_to_csv):
     """This function reads in service assumptions
     from csv file
 
@@ -912,10 +918,10 @@ def capacity_switch(path_to_csv):
     service_switches = []
 
     with open(path_to_csv, 'r') as csvfile:
-        read_lines = csv.reader(csvfile, delimiter=',')
-        _headings = next(read_lines) # Skip first row
+        rows = csv.reader(csvfile, delimiter=',')
+        _headings = next(rows) # Skip first row
 
-        for row in read_lines:
+        for row in rows:
             try:
                 service_switches.append(
                     CapacitySwitch(
@@ -948,10 +954,10 @@ def read_floor_area_virtual_stock(path_to_csv):
     res_floorarea, non_res_floorarea = {}, {}
 
     with open(path_to_csv, 'r') as csvfile:
-        read_lines = csv.reader(csvfile, delimiter=',')
-        _headings = next(read_lines)
+        rows = csv.reader(csvfile, delimiter=',')
+        _headings = next(rows)
 
-        for row in read_lines:
+        for row in rows:
             geo_name = str.strip(row[get_position(_headings, 'lad')])
             res_floorarea[geo_name] = float(row[get_position(_headings, 'res_footprint_area')])
             non_res_floorarea[geo_name] = float(row[get_position(_headings, 'nonres_footprint_area')])

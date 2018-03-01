@@ -197,20 +197,25 @@ def capacity_switch(
 
             # Get all capacity switches related to this enduse
             enduse_capacity_switches = []
-            for capacity_switch in capacity_switches:
-                if capacity_switch.enduse == enduse:
-                    enduse_capacity_switches.append(capacity_switch)
+            for switch in capacity_switches:
+                if switch.enduse == enduse:
+                    enduse_capacity_switches.append(switch)
 
             # Iterate capacity switches
-            for capacity_switch in enduse_capacity_switches:
-                
+            for switch in enduse_capacity_switches:
+
+                print("fuel_shares_enduse_by")
+                print(fuel_shares_enduse_by)
+                #prnt(",")
                 # Select any sector
+                #sectors = 
                 any_sector = fuel_shares_enduse_by[enduse].keys()[0] #TODO IMPROVE
+
 
                 # Calculate service switches
                 enduse_service_switches = create_service_switch(
                     enduse,
-                    capacity_switch,
+                    switch,
                     enduse_capacity_switches,
                     technologies,
                     other_enduse_mode_info,
@@ -335,8 +340,6 @@ def create_service_switch(
     service_switches_enduse = []
     for tech, s_tech_p in service_enduse_tech.items():
 
-
-
         service_switch = read_data.ServiceSwitch(
             enduse=enduse,
             technology_install=tech,
@@ -408,7 +411,7 @@ def capacity_to_service_switches(assumptions, fuels, base_yr):
     Arguments
     ---------
     assumptions : dict
-        Container
+        Container with assumptions
     fuels : dict
         Fuels
     base_yr : int

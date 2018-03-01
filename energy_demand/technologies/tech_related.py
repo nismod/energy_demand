@@ -4,7 +4,12 @@ import numpy as np
 from energy_demand.technologies import diffusion_technologies as diffusion
 from energy_demand.read_write import read_data
 
-def insert_dummy_tech(technologies, tech_p_by, all_specified_tech_enduse_by, sector_crit=False):
+def insert_dummy_tech(
+        technologies,
+        tech_p_by,
+        all_specified_tech_enduse_by,
+        sector_crit=False
+    ):
     """Define dummy technologies. Where no specific technologies are
     assigned for an enduse and a fueltype, dummy technologies
     are generated. This is necessary because the model needs
@@ -27,25 +32,23 @@ def insert_dummy_tech(technologies, tech_p_by, all_specified_tech_enduse_by, sec
         Technologies per enduse
     technologies : dict
         Technologies
-    
-    #TODO IMRPOVE AND MAKE SHORTER
     """
     if sector_crit is True:
 
-        for end_use in tech_p_by:
-            for sector in tech_p_by[end_use]:
-                for fueltype in tech_p_by[end_use][sector]:
-                    all_defined_tech_in_fueltype = tech_p_by[end_use][sector].values()
-                    for definition in all_defined_tech_in_fueltype:
+        for end_use, enduse_fueltypes_techs in tech_p_by.items():
+            for sector in enduse_fueltypes_techs:
+                for fueltype in enduse_fueltypes_techs[sector]:
+                    all_def_techs_fueltype = enduse_fueltypes_techs[sector].values()
+                    for definition in all_def_techs_fueltype:
                         if definition == {}:
-                            crit_tech_defined_in_enduse = False
+                            crit_tech_defined = False
                         else:
-                            crit_tech_defined_in_enduse = True
+                            crit_tech_defined = True
                             continue
 
                     # If an enduse has no defined technologies across all fueltypes
-                    if crit_tech_defined_in_enduse is False:
-                        if tech_p_by[end_use][sector][fueltype] == {}:
+                    if crit_tech_defined is False:
+                        if enduse_fueltypes_techs[sector][fueltype] == {}:
                             all_specified_tech_enduse_by[end_use].append("dummy_tech")
 
                             # Assign total fuel demand to dummy technology
@@ -55,19 +58,19 @@ def insert_dummy_tech(technologies, tech_p_by, all_specified_tech_enduse_by, sec
                             technologies['dummy_tech'] = read_data.TechnologyData()
 
     else:
-        for end_use in tech_p_by:
-            for fueltype in tech_p_by[end_use]:
-                all_defined_tech_in_fueltype = tech_p_by[end_use].values()
-                for definition in all_defined_tech_in_fueltype:
+        for end_use, enduse_fueltypes_techs in tech_p_by.items():
+            for fueltype in enduse_fueltypes_techs:
+                all_def_techs_fueltype = enduse_fueltypes_techs.values()
+                for definition in all_def_techs_fueltype:
                     if definition == {}:
-                        crit_tech_defined_in_enduse = False
+                        crit_tech_defined = False
                     else:
-                        crit_tech_defined_in_enduse = True
+                        crit_tech_defined = True
                         continue
 
                 # If an enduse has no defined technologies across all fueltypes
-                if crit_tech_defined_in_enduse is False:
-                    if tech_p_by[end_use][fueltype] == {}:
+                if crit_tech_defined is False:
+                    if enduse_fueltypes_techs[fueltype] == {}:
                         all_specified_tech_enduse_by[end_use].append("dummy_tech")
 
                         # Assign total fuel demand to dummy technology
@@ -77,39 +80,6 @@ def insert_dummy_tech(technologies, tech_p_by, all_specified_tech_enduse_by, sec
                         technologies['dummy_tech'] = read_data.TechnologyData()
 
     return tech_p_by, all_specified_tech_enduse_by, technologies
-
-'''def get_enduses_no_techs_defined(enduse_tech_p_by):
-    """Find all enduses with defined dummy technologies
-
-    Arguments
-    ----------
-    enduse_tech_p_by : dict
-        Fuel share definition of technologies
-
-    Return
-    ------
-    enduses_no_techs : list
-        List with all endueses with dummy technologies
-    """
-    enduses_no_techs = []
-    for enduse, fueltype_techs in enduse_tech_p_by.items():
-
-        tech_def_crit = False
-        for techs in fueltype_techs.values():
-            for tech in techs:
-                if tech == 'dummy_tech':
-                    pass
-                else:
-                    tech_def_crit = True
-                    continue
-
-        # Add enduse if no technology next to 'dummy_tech' was defined for any fueltype
-        if tech_def_crit:
-            pass
-        else:
-            enduses_no_techs.append(enduse)
-
-    return list(set(enduses_no_techs))'''
 
 def calc_hp_eff(temp_yh, efficiency_intersect, t_base_heating):
     """Calculate efficiency of heat pumps according to
@@ -179,14 +149,11 @@ def eff_heat_pump(temp_diff, efficiency_intersect, m_slope=-.08, h_diff=10):
 
     Note
     ----
-    Because the efficieny of heat pumps is temperature dependent, the efficiency needs to
-    be calculated based on slope and intersect which is provided as input for temp difference 10
+    Because the efficieny of heat pumps is temperature dependent,
+    the efficiency needs to be calculated based on slope and
+    intersect which is provided as input for temp difference 10
     and treated as efficiency
     """
-    #efficiency_hp = m_slope * h_diff + (intersect + (-1 * m_slope * 10))
-    #var_c = efficiency_intersect - (m_slope * h_diff)
-    #efficiency_hp = m_slope * temp_diff + var_c
-
     efficiency_hp = m_slope * temp_diff + (efficiency_intersect - (m_slope * h_diff))
 
     # Calculate average efficiency over whole year

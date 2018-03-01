@@ -1,6 +1,6 @@
 """
 
-    Energy Demand Model 
+    Energy Demand Model
     ===================
     Contains the function `energy_demand_model` which is used
     to run the energy demand model
@@ -44,6 +44,8 @@ TODO: PEAK SHAPE vs PEAK FROM LOAD PROFILES
 TODO: IF spatial explicity, still very slow
 TODO: UPDate all fuel data with new ECUK DATA
 TODO: IMPORT SECTOR GVA TO DRIVE INDUSTRY DEMAND
+TODO: TEST IS SECTOR TECH SWITCH
+TODO: SECTOR SPECIFIC SWITCHES
 """
 import os
 import sys

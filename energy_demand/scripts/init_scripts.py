@@ -525,7 +525,7 @@ def sig_param_calc_incl_fuel_switch(
         # Get fuel switches of enduse
         enduse_fuel_switches = fuel_service_switch.get_fuel_switches_enduse(
             fuel_switches, enduse)
-        
+
         # Get year of switches
         for fuelswitch in enduse_fuel_switches:
             yr_until_switched = fuelswitch.switch_yr
@@ -590,13 +590,12 @@ def sig_param_calc_incl_fuel_switch(
         assert round(sum(share_s_tech_ey_p.values()), 3) == 1
 
     if crit_switch_service or crit_fuel_switch:
-        logging.info("---------- switches {} {}  {}".format(enduse, crit_switch_service, crit_fuel_switch))
+        logging.info("---------- switches %s %s %s", enduse, crit_switch_service, crit_fuel_switch)
 
         # Calculates parameters for sigmoid diffusion of
         # technologies which are switched to/installed. With
         # `regional_specific` the assumption can be changed that
         # the technology diffusion is the same over all the uk
-        # (if `regional_specific`== False, no regionally different diffusion)
         sig_param_tech = {}
 
         if regional_specific:
@@ -649,7 +648,7 @@ def get_sector_switches(sector_to_match, service_switches):
         if switch.sector == sector_to_match:
             switches.add(switch)
         # Not defined specifically for sectors and add all
-        elif switch.sector == None:   
+        elif not switch.sector:
             switches.add(switch)
         else:
             pass

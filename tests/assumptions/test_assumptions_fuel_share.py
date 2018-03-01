@@ -36,5 +36,6 @@ def test_assign_by_fuel_tech_p():
     result = assumptions_fuel_shares.assign_by_fuel_tech_p(
         data['assumptions'],
         data['enduses'],
+        data['sectors'],
         data['lookups']['fueltypes'],
         data['lookups']['fueltypes_nr'])

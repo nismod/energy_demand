@@ -8,7 +8,8 @@ from energy_demand.technologies import technological_stock
 from energy_demand.profiles import load_profile
 
 def test_assign_lp_no_techs():
-
+    """Testing
+    """
     lp_stock_obj = load_profile.LoadProfileStock("test_stock")
 
     # Shape
@@ -36,12 +37,9 @@ def test_assign_lp_no_techs():
         fuel_new_y=fuel_new_y)
 
     assert np.sum(fuel_yh) == 100
-
     assert np.sum(fuel_peak_dh) == 100 * (1.0/365)
-
     assert fuel_peak_h[2] == fuel_peak_dh[2][0]
 
-test_assign_lp_no_techs()
 def test_get_crit_switch():
     """
     """
@@ -52,6 +50,7 @@ def test_get_crit_switch():
 
     result = enduse_func.get_crit_switch(
         'heating',
+        None,
         fuelswitches,
         2015,
         2020,
@@ -64,6 +63,7 @@ def test_get_crit_switch():
 
     result2 = enduse_func.get_crit_switch(
         'heating',
+        None,
         fuelswitches,
         2015,
         2020,
@@ -186,14 +186,14 @@ def test_service_switch():
         "boilerB": share_boilerB_by}
 
     sig_param_tech = {
-            "boilerA": {
-                'midpoint': fit_parameter[0],
-                'steepness': fit_parameter[1],
-                'l_parameter': l_value},
-            "boilerB": {
-                'midpoint': fit_parameterB[0],
-                'steepness': fit_parameterB[1],
-                'l_parameter': l_value},
+        "boilerA": {
+            'midpoint': fit_parameter[0],
+            'steepness': fit_parameter[1],
+            'l_parameter': l_value},
+        "boilerB": {
+            'midpoint': fit_parameterB[0],
+            'steepness': fit_parameterB[1],
+            'l_parameter': l_value},
         }
 
     result = enduse_func.calc_service_switch(
@@ -239,8 +239,6 @@ def test_service_switch():
         l_value,
         xdata,
         ydataB)
-    #plot sigmoid curve
-    #plotting_program.plotout_sigmoid_tech_diff(l_value, "GG", "DD", xdata, ydata, fit_parameter, False)
 
     s_tech_by_p = {
         "boilerA": share_boilerA_by,
@@ -248,15 +246,15 @@ def test_service_switch():
 
     enduse = "heating"
     sig_param_tech = {
-            "boilerA": {
-                'midpoint': fit_parameter[0],
-                'steepness': fit_parameter[1],
-                'l_parameter': l_value},
-            "boilerB": {
-                'midpoint': fit_parameterB[0],
-                'steepness': fit_parameterB[1],
-                'l_parameter': l_value},
-        }
+        "boilerA": {
+            'midpoint': fit_parameter[0],
+            'steepness': fit_parameter[1],
+            'l_parameter': l_value},
+        "boilerB": {
+            'midpoint': fit_parameterB[0],
+            'steepness': fit_parameterB[1],
+            'l_parameter': l_value},
+    }
 
     result = enduse_func.calc_service_switch(
         tot_s_yh_cy,
@@ -287,27 +285,13 @@ def test_convert_service_to_p():
     assert expected['techA'] == 0.5
     assert expected['techB'] == 0.5
 
-'''def test_convert_s_tech_to_p():
-    """testing
-    """
-    service = {
-        0: {'techA': 50, 'techB': 50},
-        1: {'techC': 50, 'techD': 150}}
-
-    expected = enduse_func.convert_s_tech_to_p(service)
-
-    assert expected[0]['techA'] == 50.0 / 100
-    assert expected[0]['techB'] == 50.0 / 100
-    assert expected[1]['techC'] == 50.0 / 200
-    assert expected[1]['techD'] == 150.0 / 200'''
-
 def test_calc_lf_improvement():
     """
     """
     base_yr = 2010
     curr_yr = 2015
 
-    lf_improvement_ey = 0.5 #{'demand_management_improvement__heating': } #50% improvement
+    lf_improvement_ey = 0.5
 
     #all factors must be smaller than one
     loadfactor_yd_cy = np.zeros((2, 2)) #to fueltypes, two days
@@ -342,7 +326,10 @@ def test_get_enduse_tech():
     fuel_tech_p_by = {
         0: {'techA': 0.4, 'techB': 0.6},
         1: {'techC': 0.4, 'techD': 0.6}}
-    result = enduse_func.get_enduse_tech(fuel_tech_p_by)
+    result = enduse_func.get_enduse_techs(
+        fuel_tech_p_by,
+        )
+
     expected = ['techA', 'techB', 'techC', 'techD']
     assert expected[0] in result
     assert expected[1] in result
@@ -352,7 +339,7 @@ def test_get_enduse_tech():
     fuel_tech_p_by = {
         0: {'techA': 0.4, 'techB': 0.6},
         1: {'dummy_tech': 0.4, 'techD': 0.6}}
-    result = enduse_func.get_enduse_tech(fuel_tech_p_by)
+    result = enduse_func.get_enduse_techs(fuel_tech_p_by)
     expected = []
     assert expected == result
 
@@ -703,7 +690,6 @@ def test_apply_specific_change():
 def test_get_enduse_configuration():
     """Testing
     """
-
     fuel_switches = [read_data.FuelSwitch(
         enduse='heating',
         enduse_fueltype_replace="",
@@ -719,6 +705,7 @@ def test_get_enduse_configuration():
     mode_constrained, crit_switch_service = enduse_func.get_enduse_configuration(
         mode_constrained=False,
         enduse='heating',
+        sector=None,
         enduse_space_heating=['heating'],
         base_yr=2015,
         curr_yr=2020,
@@ -727,8 +714,8 @@ def test_get_enduse_configuration():
     assert mode_constrained == False
 
     # If constrained mode, no switches
-    assert crit_switch_service == False #Ignore switches if not constrained
-   
+    assert crit_switch_service == False
+
     # ---
     service_switches = [read_data.ServiceSwitch(
         enduse='heating',
@@ -738,6 +725,7 @@ def test_get_enduse_configuration():
     mode_constrained, crit_switch_service = enduse_func.get_enduse_configuration(
         mode_constrained=True,
         enduse='heating',
+        sector=None,
         enduse_space_heating=['heating'],
         base_yr=2015,
         curr_yr=2020,
@@ -763,6 +751,7 @@ def test_get_enduse_configuration():
     mode_constrained, crit_switch_service = enduse_func.get_enduse_configuration(
         mode_constrained=False,
         enduse='heating',
+        sector=False,
         enduse_space_heating=['heating'],
         base_yr=2015,
         curr_yr=2020,

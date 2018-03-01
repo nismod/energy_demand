@@ -1,9 +1,6 @@
 """
 """
 from energy_demand.technologies import fuel_service_switch
-import numpy as np
-from energy_demand import enduse_func
-from energy_demand.scripts import s_generate_sigmoid
 from energy_demand.read_write import read_data
 
 def test_create_service_switch():
@@ -19,7 +16,7 @@ def test_create_service_switch():
         switch_yr=2020,
         installed_capacity=installed_capacity
         )]
-    
+
     capacity_switch = read_data.CapacitySwitch(
         enduse='heating',
         technology_install='boiler_gas',
@@ -73,9 +70,9 @@ def test_create_service_switch():
     for entry in results:
         if entry.technology_install == 'boiler_gas':
             assert expected == entry.service_share_ey
-test_create_service_switch()
+
 def test_capacity_switch():
-    """
+    """Testing
     """
     other_enduse_mode_info = {
         'diff_method': 'linear',
@@ -85,8 +82,8 @@ def test_capacity_switch():
 
     technologies = {'techA': read_data.TechnologyData(
         fueltype='oil',
-        eff_by= 1.0,
-        eff_ey= 1.0,
+        eff_by=1.0,
+        eff_ey=1.0,
         year_eff_ey=2020,
         eff_achieved=1.0,
         diff_method='linear',
@@ -99,8 +96,7 @@ def test_capacity_switch():
             enduse='heating',
             technology_install='techA',
             switch_yr=2050,
-            installed_capacity=200
-        )
+            installed_capacity=200)
     ]
 
     result_service_switches = fuel_service_switch.capacity_switch(
@@ -117,12 +113,12 @@ def test_capacity_switch():
             assert switch.service_share_ey == 1.0
 
     #---------------
-    
+
     technologies = {
         'techA': read_data.TechnologyData(
             fueltype='oil',
-            eff_by= 1.0,
-            eff_ey= 1.0,
+            eff_by=1.0,
+            eff_ey=1.0,
             year_eff_ey=2020,
             eff_achieved=1.0,
             diff_method='linear',
@@ -131,24 +127,22 @@ def test_capacity_switch():
             tech_max_share=1.0),
         'techB': read_data.TechnologyData(
             fueltype='oil',
-            eff_by= 1.0,
-            eff_ey= 1.0,
+            eff_by=1.0,
+            eff_ey=1.0,
             year_eff_ey=2020,
             eff_achieved=1.0,
             diff_method='linear',
             market_entry=2010,
             tech_list='tech_heating',
-            tech_max_share=1.0),
-        }
+            tech_max_share=1.0)}
 
     capacity_switches = [
-            read_data.CapacitySwitch(
-                enduse='heating',
-                technology_install='techA',
-                switch_yr=2050,
-                installed_capacity=200
-            )
-        ]
+        read_data.CapacitySwitch(
+            enduse='heating',
+            technology_install='techA',
+            switch_yr=2050,
+            installed_capacity=200)
+    ]
 
     result_service_switches = fuel_service_switch.capacity_switch(
         service_switches=result_service_switches,
@@ -164,9 +158,9 @@ def test_capacity_switch():
             assert round(switch.service_share_ey, 3) == round((1 / (300)) * 250, 3)
         if switch.technology_install == 'techB':
             assert round(switch.service_share_ey, 3) == round((1 / (300)) * 50, 3)
-
+test_capacity_switch()
 def autocomplete_switches():
-    """
+    """Testing
     """
     service_switches = [read_data.ServiceSwitch(
         'heating',
@@ -203,11 +197,10 @@ def autocomplete_switches():
         service_switches=service_switches,
         specified_tech_enduse_by=specified_tech_enduse_by,
         s_tech_by_p=s_tech_by_p)
-    
+
     for switch in service_switches:
         if switch.technology_install == 'techA':
             assert switch.service_share_ey == 0.3
-        
         if switch.technology_install == 'techB':
             assert switch.service_share_ey == 0.7 * (2.0 / 3.0)
         if switch.technology_install == 'techC':
