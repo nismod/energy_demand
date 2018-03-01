@@ -1,10 +1,11 @@
 """
 """
+import os
+from energy_demand.basic import lookup_tables
 from energy_demand.assumptions import assumptions_fuel_shares
 from energy_demand.assumptions import non_param_assumptions
 from energy_demand.assumptions import param_assumptions
 from energy_demand.read_write import data_loader, read_data
-import os
 
 def test_assign_by_fuel_tech_p():
     """

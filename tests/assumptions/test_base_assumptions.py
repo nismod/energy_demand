@@ -1,7 +1,9 @@
-from energy_demand.assumptions import non_param_assumptions
-from energy_demand.assumptions import param_assumptions
-from energy_demand.read_write import data_loader
+"""Testing
+"""
 import os
+from energy_demand.basic import lookup_tables
+from energy_demand.assumptions import non_param_assumptions
+from energy_demand.read_write import data_loader
 
 def test_load_non_param_assump():
 

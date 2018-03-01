@@ -27,8 +27,8 @@ def test_create_service_switch():
         'technologies':
             {'boiler_oil': read_data.TechnologyData(
                 fueltype='oil',
-                eff_by= 1.0,
-                eff_ey= 1.0,
+                eff_by=1.0,
+                eff_ey=1.0,
                 year_eff_ey=2020,
                 eff_achieved=1.0,
                 diff_method='linear',
@@ -38,7 +38,7 @@ def test_create_service_switch():
             'boiler_gas': read_data.TechnologyData(
                 fueltype='gas',
                 eff_by=1.0,
-                eff_ey= 1.0,
+                eff_ey=1.0,
                 year_eff_ey=2020,
                 eff_achieved=1.0,
                 diff_method='linear',
@@ -53,9 +53,11 @@ def test_create_service_switch():
     base_yr = 2015
 
     fuels =  {0: 0, 1: 10} #array originally
+    sector = None
 
     results = fuel_service_switch.create_service_switch(
         enduses,
+        sector,
         capacity_switch,
         capacity_switches,
         assumptions['technologies'],
@@ -210,15 +212,17 @@ def test_get_share_s_tech_ey():
     """testing"""
 
     service_switches = [read_data.ServiceSwitch(
-        'heating',
-        'techA',
-        0.3,
-        2020)]
-
+        enduse='heating',
+        sector=None,
+        technology_install='techA',
+        service_share_ey=0.3,
+        switch_yr=2020)]
+        
     specified_tech_enduse_by = {'heating': ['techA', 'techB', 'techC']}
 
     result = fuel_service_switch.get_share_s_tech_ey(
         service_switches=service_switches,
         specified_tech_enduse_by=specified_tech_enduse_by)
-    
+
     assert result['heating']['techA'] == 0.3
+test_get_share_s_tech_ey()

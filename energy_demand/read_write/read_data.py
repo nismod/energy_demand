@@ -89,7 +89,7 @@ class CapacitySwitch(object):
             technology_install,
             switch_yr,
             installed_capacity,
-            sector
+            sector=None
         ):
 
         self.enduse = enduse
