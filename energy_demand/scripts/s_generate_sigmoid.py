@@ -584,7 +584,12 @@ def tech_sigmoid_parameters(
 
             logging.info(
                 "... create sigmoid diffusion %s - %s - %s - %s - l_val: %s - %s - %s",
-                tech, xdata, ydata, fit_assump_init, l_values[tech], point_y_by, point_y_ey)
+                tech,
+                xdata,
+                ydata,
+                fit_assump_init,
+                l_values[tech],
+                point_y_by, point_y_ey)
 
             # If no change in by to ey but not zero (lineare change)
             if (round(point_y_by, rounding_accuracy) == round(point_y_ey, rounding_accuracy)) and (
@@ -606,27 +611,36 @@ def tech_sigmoid_parameters(
                     sig_params[tech]['l_parameter'] = None
                 else:
 
-                    # Parameter fitting
-                    fit_parameter = calc_sigmoid_parameters(
-                        l_values[tech],
-                        xdata,
-                        ydata,
-                        fit_assump_init=fit_assump_init,
-                        error_range=0.0002)
-
-                    # Insert parameters
-                    sig_params[tech]['midpoint'] = fit_parameter[0] # midpoint (x0)
-                    sig_params[tech]['steepness'] = fit_parameter[1] # Steepnes (k)
-                    sig_params[tech]['l_parameter'] = l_values[tech] # maximum p
-
-                    if plot_sigmoid_diffusion:
-                        plotting_program.plotout_sigmoid_tech_diff(
+                    try:
+                        # Parameter fitting
+                        fit_parameter = calc_sigmoid_parameters(
                             l_values[tech],
-                            tech,
                             xdata,
                             ydata,
-                            fit_parameter,
-                            plot_crit=True, #TRUE
-                            close_window_crit=True)
+                            fit_assump_init=fit_assump_init,
+                            error_range=0.0002)
 
+                        # Insert parameters
+                        sig_params[tech]['midpoint'] = fit_parameter[0] # midpoint (x0)
+                        sig_params[tech]['steepness'] = fit_parameter[1] # Steepnes (k)
+                        sig_params[tech]['l_parameter'] = l_values[tech] # maximum p
+
+                        if plot_sigmoid_diffusion:
+                            plotting_program.plotout_sigmoid_tech_diff(
+                                l_values[tech],
+                                tech,
+                                xdata,
+                                ydata,
+                                fit_parameter,
+                                plot_crit=True, #TRUE
+                                close_window_crit=True)
+                    except:
+                        #TODO NEW
+                        """If sigmoid fitting failed (E.g. because difference are too small, assume lineare difufsion)
+                        """
+                        logging.warning("SIGMODI DIFFUSION FAIOLE BECAUSE TO SMALL DIFFERENCE")
+                        sig_params[tech]['midpoint'] = 'linear'
+                        sig_params[tech]['steepness'] = 'linear'
+                        sig_params[tech]['l_parameter'] = 'linear'
+    
     return dict(sig_params)

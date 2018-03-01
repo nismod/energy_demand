@@ -55,7 +55,12 @@ def insert_dummy_tech(
                             tech_p_by[end_use][sector][fueltype] = {"dummy_tech": 1.0}
 
                             # Insert dummy tech
-                            technologies['dummy_tech'] = read_data.TechnologyData()
+                            technologies['dummy_tech'] = read_data.TechnologyData(
+                                eff_by=1,
+                                eff_ey=1,
+                                year_eff_ey=2100,
+                                eff_achieved=1,
+                                diff_method='linear')
 
     else:
         for end_use, enduse_fueltypes_techs in tech_p_by.items():

@@ -191,7 +191,8 @@ def capacity_switch(
     if switch_enduses == []:
         pass # not capacity switch defined
     else:
-        service_switches = [] # List to store service switches
+        # List to store service switches
+        service_switches = []
 
         for enduse in switch_enduses:
 
@@ -204,13 +205,12 @@ def capacity_switch(
             # Iterate capacity switches
             for switch in enduse_capacity_switches:
 
-                print("fuel_shares_enduse_by")
-                print(fuel_shares_enduse_by)
-                #prnt(",")
-                # Select any sector
-                #sectors = 
-                any_sector = fuel_shares_enduse_by[enduse].keys()[0] #TODO IMPROVE
-
+                # Test if sector specific switch
+                if switch.sector == None:
+                    fuel_shares = fuel_shares_enduse_by[enduse]
+                else:
+                    fuel_shares = fuel_shares_enduse_by[enduse][switch.sector]
+                    #any_sector = fuel_shares_enduse_by[enduse].keys()[0] #TODO IMPROVE
 
                 # Calculate service switches
                 enduse_service_switches = create_service_switch(
@@ -219,7 +219,7 @@ def capacity_switch(
                     enduse_capacity_switches,
                     technologies,
                     other_enduse_mode_info,
-                    fuel_shares_enduse_by[enduse][any_sector],
+                    fuel_shares,
                     base_yr,
                     fuels[enduse])
 
@@ -230,7 +230,7 @@ def capacity_switch(
 
 def create_service_switch(
         enduse,
-        capacity_switch,
+        switch,
         enduse_capacity_switches,
         technologies,
         other_enduse_mode_info,
@@ -244,7 +244,7 @@ def create_service_switch(
     ---------
     enduse : dict
         Enduse
-    capacity_switch : obj
+    switch : obj
         Capacity switch
     enduse_capacity_switches : list
         All capacity switches of an enduse (see warning)
@@ -291,9 +291,11 @@ def create_service_switch(
         for tech, fuel_share_by in tech_fuel_shares.items():
 
             # Efficiency of year when capacity is fully installed
+            if tech == 'dummy_tech':
+                print("..")
             tech_eff_ey = tech_related.calc_eff_cy(
                 base_yr,
-                capacity_switch.switch_yr,
+                switch.switch_yr,
                 technologies[tech].eff_by,
                 technologies[tech].eff_ey,
                 technologies[tech].year_eff_ey,
@@ -302,6 +304,7 @@ def create_service_switch(
                 technologies[tech].diff_method)
 
             # Convert to service (fuel * fuelshare * eff)
+            print("{} {} {}".format(fuel_enduse_y[fueltype], fuel_share_by, tech_eff_ey))
             s_tech_ey_y = fuel_enduse_y[fueltype] * fuel_share_by * tech_eff_ey
             service_enduse_tech[tech] = s_tech_ey_y
 

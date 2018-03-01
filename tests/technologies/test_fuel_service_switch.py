@@ -158,7 +158,7 @@ def test_capacity_switch():
             assert round(switch.service_share_ey, 3) == round((1 / (300)) * 250, 3)
         if switch.technology_install == 'techB':
             assert round(switch.service_share_ey, 3) == round((1 / (300)) * 50, 3)
-test_capacity_switch()
+
 def autocomplete_switches():
     """Testing
     """

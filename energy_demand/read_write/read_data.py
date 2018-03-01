@@ -20,9 +20,9 @@ class TechnologyData(object):
     ---------
     fueltype : str
         Fueltype of technology
-    eff_by : str
+    eff_by : str, default=1
         Efficiency of technology in base year
-    eff_ey : str
+    eff_ey : str, default=1
         Efficiency of technology in future year
     year_eff_ey : int
         Future year when eff_ey is fully realised
@@ -88,13 +88,19 @@ class CapacitySwitch(object):
             enduse,
             technology_install,
             switch_yr,
-            installed_capacity
+            installed_capacity,
+            sector
         ):
 
         self.enduse = enduse
         self.technology_install = technology_install
         self.switch_yr = switch_yr
         self.installed_capacity = installed_capacity
+
+        if sector == '':
+            self.sector = None # Not sector defined
+        else:
+            self.sector = sector
 
 class FuelSwitch(object):
     """Fuel switch class for storing
@@ -122,7 +128,8 @@ class FuelSwitch(object):
             fuel_share_switched_ey=None,
             sector=None
         ):
-
+        """Constructor
+        """
         self.enduse = enduse
         self.sector = sector
         self.enduse_fueltype_replace = enduse_fueltype_replace
@@ -541,6 +548,8 @@ def read_fuel_switches(path_to_csv, enduses, fueltypes):
         technology_install          [str]   Technology which is installed
         switch_yr                   [int]   Year until switch is fully realised
         fuel_share_switched_ey      [float] Share of fuel which is switched until switch_yr
+        sector                      [str]   Optional sector specific info where switch applies
+                                            If field is empty the switch is across all sectors
     """
     fuel_switches = []
 
@@ -556,7 +565,8 @@ def read_fuel_switches(path_to_csv, enduses, fueltypes):
                         enduse_fueltype_replace=fueltypes[str(row[1])],
                         technology_install=str(row[2]),
                         switch_yr=float(row[3]),
-                        fuel_share_switched_ey=float(row[4])))
+                        fuel_share_switched_ey=float(row[4]),
+                        sector=str(row[5])))
             except (KeyError, ValueError):
                 sys.exit("Check if provided data is complete (no emptly csv entries)")
 
@@ -564,9 +574,12 @@ def read_fuel_switches(path_to_csv, enduses, fueltypes):
     for obj in fuel_switches:
         if obj.fuel_share_switched_ey == 0:
             sys.exit(
-                "Input error: The share of switched fuel needs to be > 0. Delete {} from input".format(
+                "Input error: The share of switched fuel must be > 0. Delete {} from input".format(
                     obj.technology_install))
 
+    # --------
+    # Testing
+    # --------
     # Test if more than 100% per fueltype is switched
     for obj in fuel_switches:
         enduse = obj.enduse
@@ -663,8 +676,8 @@ def read_technologies(path_to_csv, fueltypes):
             except Exception as e:
 
                 logging.error(
-                    "Error technology table (e.g. empty field): {} {}".format(
-                        e, row))
+                    "Error technology table (e.g. empty field): %s %s", e, row)
+    
                 sys.exit()
 
     # Add dummy_technology to all tech_lists
@@ -914,24 +927,41 @@ def read_capacity_switch(path_to_csv):
     -------
     service_switches : dict
         Service switches which implement the defined capacity installation
+
+    Info
+    -----
+    The following attributes need to be defined for a capacity switch.
+
+        Attribute                   Description
+        ==========                  =========================
+        enduse                      [str]   Enduse affected by switch
+        tech                        [str]   Technology installed
+        switch_yr                   [int]   Year until switch is fully realised
+        installed_capacity          [float] Installed total capacity in GWh
+        sector                      [str]   Optional sector specific info where switch applies
+                                            If field is empty the switch is across all sectors
+
     """
     service_switches = []
 
     with open(path_to_csv, 'r') as csvfile:
         rows = csv.reader(csvfile, delimiter=',')
-        _headings = next(rows) # Skip first row
+        _headings = next(rows)
 
         for row in rows:
             try:
                 service_switches.append(
+
                     CapacitySwitch(
                         enduse=str(row[0].strip()),
                         technology_install=str(row[1].strip()),
                         switch_yr=float(row[2].strip()),
-                        installed_capacity=float(row[3].strip())))
+                        installed_capacity=float(row[3].strip()),
+                        sector=str(row[4].strip())))
+
             except (KeyError, ValueError):
                 sys.exit(
-                    "Error in loading service switch: Check if provided data is complete (no emptly csv entries)")
+                    "Error in loading capacity switch: Check if no emptly csv entries (except for optional sector field)")
 
     return service_switches
 
