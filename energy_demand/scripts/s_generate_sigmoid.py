@@ -563,14 +563,14 @@ def tech_sigmoid_parameters(
                 point_x_by = technologies[tech].market_entry
                 point_y_by = fit_assump_init
             else:
-                point_x_by = base_yr                 # Base year
+                point_x_by = base_yr           # Base year
                 point_y_by = s_tech_by_p[tech] # Base year service share
 
                 # If the base year is the market entry year use a very small number
                 if point_y_by == 0:
                     point_y_by = fit_assump_init
 
-            # Future energy service demand (second point on sigmoid curve for fitting)
+            # Future energy service demand
             point_x_ey = yr_until_switched
             point_y_ey = s_tech_switched_p[tech]
 
@@ -582,14 +582,14 @@ def tech_sigmoid_parameters(
             xdata = np.array([point_x_by, point_x_ey])
             ydata = np.array([point_y_by, point_y_ey])
 
-            logging.info(
+            '''logging.info(
                 "... create sigmoid diffusion %s - %s - %s - %s - l_val: %s - %s - %s",
                 tech,
                 xdata,
                 ydata,
                 fit_assump_init,
                 l_values[tech],
-                point_y_by, point_y_ey)
+                point_y_by, point_y_ey)'''
 
             # If no change in by to ey but not zero (lineare change)
             if (round(point_y_by, rounding_accuracy) == round(point_y_ey, rounding_accuracy)) and (
@@ -635,9 +635,11 @@ def tech_sigmoid_parameters(
                                 plot_crit=True,
                                 close_window_crit=True)
                     except:
-                        #TODO NEW
-                        """If sigmoid fitting failed
-                        (E.g. because difference are too small, assume lineare difufsion)
+
+                        """If sigmoid fitting failed, implement linear diffusion
+
+                        The sigmoid diffusion may fail if the fitting does not work
+                        because the points to fit are too similar.
                         """
                         logging.warning(
                             "SIGMODI DIFFUSION FAIOLE BECAUSE TO SMALL DIFFERENCE")

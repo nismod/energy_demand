@@ -530,7 +530,6 @@ def create_geopanda_files(
     base_yr = simulated_yrs[0]
 
     for fueltype in range(fueltypes_nr):
-        print("FUELTYPEL " + str(fueltype))
 
         fueltype_str = tech_related.get_fueltype_str(fueltypes, fueltype)
         field_name = 'lf_diff_{}_{}_'.format(final_yr, fueltype_str)

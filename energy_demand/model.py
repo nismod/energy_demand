@@ -482,6 +482,7 @@ def residential_submodel(
 
             # Create submodule
             submodel = endusefunctions.Enduse(
+                submodel='rs_submodel',
                 region_name=region.name,
                 scenario_data=scenario_data,
                 assumptions=assumptions,
@@ -554,6 +555,7 @@ def service_submodel(
 
             # Create submodule
             submodel = endusefunctions.Enduse(
+                submodel='ss_submodel',
                 region_name=region.name,
                 scenario_data=scenario_data,
                 assumptions=assumptions,
@@ -634,6 +636,7 @@ def industry_submodel(
 
             # Create submodule
             submodel = endusefunctions.Enduse(
+                submodel='is_submodel',
                 region_name=region.name,
                 scenario_data=scenario_data,
                 assumptions=assumptions,

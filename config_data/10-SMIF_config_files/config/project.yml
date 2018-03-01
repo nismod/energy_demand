@@ -1,0 +1,82 @@
+name: "Test Project"
+scenario_sets:
+- name: population
+  description: 'UK population, total people'
+- name: gva
+  description: 'Gross value added'
+- name: transport_energy_demand
+  description: 'Hourly electricity demand of transport model'
+narrative_sets:
+- name: technology
+  description: 'Describes the evolution of technology'
+# ------------------------------------------------
+region_definitions:
+# shared understanding of regions within the modelled area (e.g. GB)
+- name: lad_uk_2016
+  description: 'Local Authority Districts (data from 2016, unchanged since 2009)'
+  filename: lad_uk_2016-12/lad_uk_2016-12.shp
+# ------------------------------------------------
+interval_definitions:
+# shared understanding of time intervals within a year
+- name: annual
+  description: 'Single interval for whole year'
+  filename: annual_intervals.csv
+- name: hourly
+  description: 'Every hour in a year'
+  filename: hourly_intervals.csv
+# ------------------------------------------------
+units:
+# ------------------------------------------------
+scenarios:
+# given input data, required values for every year of a model run
+- name: et_demand_baseline
+  description: 'Baseline GWh of transport for the UK'
+  scenario_set: transport_energy_demand
+  parameters:
+  - name: electricity
+    filename: et_demand_electricity.csv
+    spatial_resolution: lad_uk_2016
+    temporal_resolution: annual
+    units: GWh
+- name: pop_baseline
+  description: 'Baseline population for the UK'
+  scenario_set: population
+  parameters:
+  - name: population
+    filename: uk_population_by_district_codes_Baseline.csv
+    spatial_resolution: lad_uk_2016
+    temporal_resolution: annual
+    units: people
+- name: pop_high
+  description: 'High population for the UK'
+  scenario_set: population
+  parameters:
+  - name: population
+    filename: uk_population_by_district_codes_High.csv
+    spatial_resolution: lad_uk_2016
+    temporal_resolution: annual
+    units: people
+- name: pop_low
+  description: 'Low population for the UK'
+  scenario_set: population
+  parameters:
+  - name: population
+    filename: uk_population_by_district_codes_Low.csv
+    spatial_resolution: lad_uk_2016
+    temporal_resolution: annual
+    units: people
+- name: gva_baseline
+  description: 'Baseline gva for the UK'
+  scenario_set: gva
+  parameters:
+  - name: gva
+    filename: gva_sven.csv
+    spatial_resolution: lad_uk_2016
+    temporal_resolution: annual
+    units: pounds
+# ------------------------------------------------
+narratives:
+- name: 'test_narrative'
+  description: 'High penetration of SMART technology on the demand side'
+  filename: narrative_test.yml
+  narrative_set: technology

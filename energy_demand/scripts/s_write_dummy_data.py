@@ -130,8 +130,7 @@ def post_install_setup_minimum(args):
     # ==========================================
     # Post installation setup witout access to non publicy available data
     # ==========================================
-    print(
-        "... start running initialisation scripts without access to publicly available data")
+    print("... running initialisation scripts with only publicly available data")
 
     # Load paths
     local_paths = data_loader.load_local_paths(path_local_data)

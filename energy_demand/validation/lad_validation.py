@@ -282,7 +282,8 @@ def spatial_validation(
         Infos of shapefile (dbf / csv)
     ed_fueltype_regs_yh : object
         Regional fuel Given as GWh (?)
-    subnational_demand : 
+    subnational_demand : dict
+    
         for electricity: Sub-national electrcity demand given as GWh
 
     Note
@@ -314,7 +315,6 @@ def spatial_validation(
 
                         # Correct ECUK data with correction factor
                         result_dict['modelled_demand'][reg_geocode] = gwh_modelled
-                        logging.warning("{}, {}".format(reg_geocode, gwh_modelled))
 
                 except KeyError:
                     logging.warning(
@@ -443,7 +443,7 @@ def spatial_validation(
     # -----------
     if label_points:
         for pos, txt in enumerate(labels):
-            #ax.annotate(txt, x_values[pos], y_modelled_elec_demand[pos])¨#if arrow wants to be added
+
             ax.text(
                 x_values[pos],
                 y_modelled_elec_demand[pos],

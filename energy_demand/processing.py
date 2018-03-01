@@ -17,12 +17,11 @@ def main(path_data_energy_demand, path_shapefile_input):
     path_shapefile_input : str
         Path to shapefile
     """
-
     # ---------
     # Criterias
     # ---------
     write_shapefiles = False    # Write shapefiles
-    spatial_results = True      # Spatial geopanda maps
+    spatial_results = False      # Spatial geopanda maps
 
     # Set up logger
     logger_setup.set_up_logger(

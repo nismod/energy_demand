@@ -32,6 +32,8 @@ class Enduse(object):
 
     Arguments
     ----------
+    submodel : str
+        Submodel
     region_name : str
         Region name
     scenario_data : dict
@@ -89,6 +91,7 @@ class Enduse(object):
     """
     def __init__(
             self,
+            submodel,
             region_name,
             scenario_data,
             assumptions,
@@ -113,7 +116,7 @@ class Enduse(object):
             model_yeardays_nrs,
             dw_stock=False,
             reg_scen_drivers=None,
-            flat_profile_crit=False,
+            flat_profile_crit=False
         ):
         """Enduse class constructor
         """
@@ -180,12 +183,15 @@ class Enduse(object):
 
             # Calculate new fuel demands after scenario drivers
             self.fuel_new_y = apply_scenario_drivers(
+                submodel,
                 enduse,
+                sector,
                 self.fuel_new_y,
                 dw_stock,
                 region_name,
                 scenario_data['gva'],
                 scenario_data['population'],
+                scenario_data['industry_gva'],
                 reg_scen_drivers,
                 base_yr,
                 curr_yr)
@@ -1303,12 +1309,15 @@ def apply_heat_recovery(
         return service
 
 def apply_scenario_drivers(
+        submodel,
         enduse,
+        sector,
         fuel_y,
         dw_stock,
         region_name,
         gva,
         population,
+        industry_gva,
         reg_scen_drivers,
         base_yr,
         curr_yr
@@ -1360,6 +1369,14 @@ def apply_scenario_drivers(
             if scenario_driver == 'gva':
                 by_driver_data = gva[base_yr][region_name]
                 cy_driver_data = gva[curr_yr][region_name]
+                
+                '''if submodel == 'is_submodel':
+                    by_driver_data = industry_gva[base_yr][region_name][sector]
+                    cy_driver_data = industry_gva[curr_yr][region_name][sector]
+                else:
+                    by_driver_data = gva[base_yr][region_name]
+                    cy_driver_data = gva[curr_yr][region_name]'''
+
             elif scenario_driver == 'population':
                 by_driver_data = population[base_yr][region_name]
                 cy_driver_data = population[curr_yr][region_name]

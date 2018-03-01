@@ -122,19 +122,26 @@ class EDWrapper(SectorModel):
             data['paths'], data['lookups'])
 
         # -----------------------------
-        # Obtain external scenario data
+        # Obtain external base year scenario data
         # -----------------------------
-        pop_array_current = data_handle.get_base_timestep_data('population')
-        pop_dict = {}
-        for r_idx, region in enumerate(data['lu_reg']):
-            pop_dict[region] = pop_array_current[r_idx, 0]
-        data['population'][data['sim_param']['base_yr']] = pop_dict
+        pop_array_by = data_handle.get_base_timestep_data('population')
+        gva_array_by = data_handle.get_base_timestep_data('gva')
+        #industry_gva_by = data_handle.get_base_timestep_data('industry_gva')
 
-        gva_array = data_handle.get_base_timestep_data('gva')
+        pop_dict = {}
         gva_dict = {}
+        gva_industry_dict = {}
+
         for r_idx, region in enumerate(data['lu_reg']):
-            gva_dict[region] = gva_array[r_idx, 0]
+            pop_dict[region] = pop_array_by[r_idx, 0]
+            gva_dict[region] = gva_array_by[r_idx, 0]
+            #gva_industry_dict[region] = industry_gva_by[r_idx, 0]
+
+        data['population'][data['sim_param']['base_yr']] = pop_dict
         data['gva'][data['sim_param']['base_yr']] = gva_dict
+        #data['industry_gva'][data['sim_param']['base_yr']] = pop_dict
+
+        data['industry_gva'] = "TST"
 
         # Get building related data
         if data['criterias']['virtual_building_stock_criteria']:
@@ -152,6 +159,7 @@ class EDWrapper(SectorModel):
         data['scenario_data'] = {
             'gva': data['gva'],
             'population': data['population'],
+            'industry_gva': data['industry_gva'],
             'floor_area': {
                 'rs_floorarea': rs_floorarea,
                 'ss_floorarea': ss_floorarea
@@ -337,11 +345,11 @@ class EDWrapper(SectorModel):
             gva_dict_current[region] = gva_array_current[r_idx, 0]
 
         pop_by_cy = {}
-        pop_by_cy[data['sim_param']['base_yr']] = self.user_data['population'][data_handle.base_timestep] # Get population of by
+        pop_by_cy[data['sim_param']['base_yr']] = self.user_data['population'][data_handle.base_timestep] # by
         pop_by_cy[data['sim_param']['curr_yr']] = pop_dict_current # Get population of cy
 
         gva_by_cy = {}
-        gva_by_cy[data['sim_param']['base_yr']] = self.user_data['gva'][data_handle.base_timestep] # Get gva of by
+        gva_by_cy[data['sim_param']['base_yr']] = self.user_data['gva'][data_handle.base_timestep] # by
         gva_by_cy[data['sim_param']['curr_yr']] = gva_dict_current # Get gva of cy
 
         data['scenario_data'] = {
