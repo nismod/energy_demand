@@ -489,7 +489,7 @@ def create_geopanda_files(
         data,
         results_container,
         paths,
-        lu_reg,
+        regions,
         fueltypes_nr,
         fueltypes,
         path_shapefile_input
@@ -502,7 +502,7 @@ def create_geopanda_files(
         Data container
     paths : dict
         Paths
-    lu_reg : list
+    regions : list
         Region in a list with order how they are stored in result array
     fueltypes_nr : int
         Number of fueltypes
@@ -536,21 +536,21 @@ def create_geopanda_files(
 
         lf_end_yr = basic_functions.array_to_dict(
             results_container['load_factors_y'][final_yr][fueltype],
-            lu_reg)
+            regions)
 
         lf_base_yr = basic_functions.array_to_dict(
             results_container['load_factors_y'][base_yr][fueltype],
-            lu_reg)
+            regions)
 
         # Calculate load factor difference base and final year (100 = 100%)
         diff_lf = {}
-        for reg in lu_reg:
+        for reg in regions:
             diff_lf[reg] = lf_end_yr[reg] - lf_base_yr[reg]
 
         # Both need to be lists
         merge_data = {
             str(field_name): list(diff_lf.values()),
-            str(unique_merge_id): list(lu_reg)}
+            str(unique_merge_id): list(regions)}
 
         # Merge to shapefile
         lad_geopanda_shp = merge_data_to_shp(
@@ -590,7 +590,7 @@ def create_geopanda_files(
         # Both need to be lists
         merge_data = {
             str(field_name): data['scenario_data']['population'][year].flatten().tolist(),
-            str(unique_merge_id): list(lu_reg)}
+            str(unique_merge_id): list(regions)}
 
         # Merge to shapefile
         lad_geopanda_shp = merge_data_to_shp(
@@ -625,12 +625,12 @@ def create_geopanda_files(
                 results_container['results_every_year'][year][fueltype],
                 axis=1)
 
-            fuel_data = basic_functions.array_to_dict(yearly_sum_gwh, lu_reg)
+            fuel_data = basic_functions.array_to_dict(yearly_sum_gwh, regions)
 
             # Both need to be lists
             merge_data = {
                 str(field_name): list(fuel_data.values()),
-                str(unique_merge_id): list(lu_reg)}
+                str(unique_merge_id): list(regions)}
 
             # Merge to shapefile
             lad_geopanda_shp = merge_data_to_shp(
@@ -658,12 +658,12 @@ def create_geopanda_files(
             field_name = 'lf_{}_{}'.format(year, fueltype)
 
             results = basic_functions.array_to_dict(
-                results_container['load_factors_y'][year][fueltype], lu_reg)
+                results_container['load_factors_y'][year][fueltype], regions)
 
             # Both need to be lists
             merge_data = {
                 str(field_name): list(results.values()),
-                str(unique_merge_id): list(lu_reg)}
+                str(unique_merge_id): list(regions)}
 
             # Merge to shapefile
             lad_geopanda_shp = merge_data_to_shp(

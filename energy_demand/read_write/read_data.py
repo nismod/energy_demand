@@ -1067,27 +1067,35 @@ def read_floor_area_virtual_stock(path_to_csv):
         for row in rows:
             geo_name = str.strip(row[get_position(_headings, 'lad')])
 
-            if row[get_position(_headings, 'res_bld_floor_area')] == 'null':
-                res_floorarea[geo_name] = 1 #TODO
+            if (row[get_position(_headings, 'res_bld_floor_area')] == 'null') or (
+                row[get_position(_headings, 'nonres_bld_floor_area')] == 'null') or (
+                    row[get_position(_headings, 'mixeduse_bld_floor_area')] == 'null'):
+                    res_floorarea[geo_name] = 1 #TODO
+                    non_res_floorarea[geo_name] = 1 #TODO
+                    floorarea_mixed[geo_name] = 1 #TODO
             else:
-                res_floorarea[geo_name] = float(row[get_position(_headings, 'res_bld_floor_area')])
-            if row[get_position(_headings, 'nonres_bld_floor_area')] == 'null':
-                non_res_floorarea[geo_name] = 1 #TODO
-            else:
-                non_res_floorarea[geo_name] = float(row[get_position(_headings, 'nonres_bld_floor_area')])
 
-            if row[get_position(_headings, 'mixeduse_bld_floor_area')] == 'null':
-                floorarea_mixed[geo_name] = 1 #TODO
-            else:
-                floorarea_mixed[geo_name] = float(row[get_position(_headings, 'mixeduse_bld_floor_area')])
+                if row[get_position(_headings, 'res_bld_floor_area')] == 'null':
+                    res_floorarea[geo_name] = 1 #TODO
+                else:
+                    res_floorarea[geo_name] = float(row[get_position(_headings, 'res_bld_floor_area')])
+                if row[get_position(_headings, 'nonres_bld_floor_area')] == 'null':
+                    non_res_floorarea[geo_name] = 1 #TODO
+                else:
+                    non_res_floorarea[geo_name] = float(row[get_position(_headings, 'nonres_bld_floor_area')])
 
-            # Distribute mixed floor area
-            non_res_from_mixed = floorarea_mixed[geo_name] * p_mixed_no_resid
-            res_from_mixed = floorarea_mixed[geo_name] * p_mixed_resid
+                if row[get_position(_headings, 'mixeduse_bld_floor_area')] == 'null':
+                    floorarea_mixed[geo_name] = 1 #TODO
+                else:
+                    floorarea_mixed[geo_name] = float(row[get_position(_headings, 'mixeduse_bld_floor_area')])
 
-            # Add
-            res_floorarea[geo_name] += res_from_mixed
-            non_res_floorarea[geo_name] += non_res_from_mixed
+                # Distribute mixed floor area
+                non_res_from_mixed = floorarea_mixed[geo_name] * p_mixed_no_resid
+                res_from_mixed = floorarea_mixed[geo_name] * p_mixed_resid
+
+                # Add
+                res_floorarea[geo_name] += res_from_mixed
+                non_res_floorarea[geo_name] += non_res_from_mixed
 
     return res_floorarea, non_res_floorarea
 

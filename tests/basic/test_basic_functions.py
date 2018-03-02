@@ -25,8 +25,8 @@ def test_array_to_dict():
     result_array = np.ones((3)) + 2
     result_array[2] = 44
 
-    lu_reg = ["A", "B", "C"]
-    result = basic_functions.array_to_dict(result_array, lu_reg)
+    regions = ["A", "B", "C"]
+    result = basic_functions.array_to_dict(result_array, regions)
 
     expected = {"A": 3, "B": 3, "C": 44}
     assert result == expected

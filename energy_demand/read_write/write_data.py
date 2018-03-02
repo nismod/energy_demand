@@ -34,7 +34,7 @@ def write_scenaric_population_data(sim_yr, path_result, pop_y):
 
     np.save(path_file, pop_y)
 
-def create_shp_results(data, results_container, paths, lookups, lu_reg):
+def create_shp_results(data, results_container, paths, lookups, regions):
     """Create csv file and merge with shape
 
     Arguments
@@ -45,7 +45,7 @@ def create_shp_results(data, results_container, paths, lookups, lu_reg):
         Paths
     lookups : dict
         Lookups
-    lu_reg : list
+    regions : list
         Region in a list with order how they are stored in result array
     """
     logging.info("... create result shapefiles")
@@ -59,7 +59,7 @@ def create_shp_results(data, results_container, paths, lookups, lu_reg):
         for fueltype in range(lookups['fueltypes_nr']):
 
             results = basic_functions.array_to_dict(
-                results_container['load_factors_y'][year][fueltype], lu_reg)
+                results_container['load_factors_y'][year][fueltype], regions)
 
             field_names.append('y_{}_{}'.format(year, fueltype))
             csv_results.append(results)
@@ -68,7 +68,7 @@ def create_shp_results(data, results_container, paths, lookups, lu_reg):
         field_names.append('pop_{}'.format(year))
 
         pop_dict = basic_functions.array_to_dict(
-            data['scenario_data']['population'][year], lu_reg)
+            data['scenario_data']['population'][year], regions)
 
         csv_results.append(pop_dict)
 
@@ -93,12 +93,12 @@ def create_shp_results(data, results_container, paths, lookups, lu_reg):
 
             field_names.append('y_{}_{}'.format(year, fueltype))
             csv_results.append(
-                basic_functions.array_to_dict(yearly_sum_gw, lu_reg))
+                basic_functions.array_to_dict(yearly_sum_gw, regions))
 
         # Add population
         field_names.append('pop_{}'.format(year))
         csv_results.append(
-            basic_functions.array_to_dict(data['scenario_data']['population'][year], lu_reg))
+            basic_functions.array_to_dict(data['scenario_data']['population'][year], regions))
 
     write_shp.write_result_shapefile(
         paths['lad_shapefile'],

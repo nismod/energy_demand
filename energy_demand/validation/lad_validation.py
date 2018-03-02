@@ -107,7 +107,7 @@ def tempo_spatial_validation(
         fueltypes_nr,
         local_paths,
         paths,
-        lu_reg,
+        regions,
         reg_coord,
         seasons,
         model_yeardays_daytype,
@@ -138,7 +138,7 @@ def tempo_spatial_validation(
     tot_fuel_peak_dh = np.add(tot_fuel_peak_dh, model_object_transport.fuel_peak_dh)
 
     # Add electricity of transportion to regional yh fuel proportionally to population
-    for region_array_nr, region in enumerate(lu_reg):
+    for region_array_nr, region in enumerate(regions):
 
         # Disaggregation factor for transport electricity
         factor_transport_reg = scenario_data['population'][base_yr][region] / sum(scenario_data['population'][base_yr].values())
@@ -158,7 +158,7 @@ def tempo_spatial_validation(
         ed_fueltype_regs_yh,
         fueltypes['electricity'],
         'electricity',
-        lu_reg,
+        regions,
         subnational_elec,
         os.path.join(local_paths['data_results_validation'], 'validation_spatial_elec.pdf'),
         label_points=False,
@@ -170,7 +170,7 @@ def tempo_spatial_validation(
         ed_fueltype_regs_yh,
         fueltypes['gas'],
         'gas',
-        lu_reg,
+        regions,
         subnational_gas,
         os.path.join(local_paths['data_results_validation'], 'validation_spatial_gas.pdf'),
         label_points=False,
@@ -268,7 +268,7 @@ def spatial_validation(
         ed_fueltype_regs_yh,
         fueltype_int,
         fueltype_str,
-        lu_reg,
+        regions,
         subnational_demand,
         fig_name,
         label_points=False,
@@ -299,7 +299,7 @@ def spatial_validation(
     # -------------------------------------------
     # Match ECUK sub-regional demand with geocode
     # -------------------------------------------
-    for region_array_nr, region in enumerate(lu_reg):
+    for region_array_nr, region in enumerate(regions):
         for reg_geocode in reg_coord:
             if reg_geocode == region:
 
@@ -330,7 +330,7 @@ def spatial_validation(
     all_diff_real_modelled_p = []
     all_diff_real_modelled_abs = []
 
-    for reg_geocode in lu_reg:
+    for reg_geocode in regions:
         try:
             real = result_dict['real_demand'][reg_geocode]
             modelled = result_dict['modelled_demand'][reg_geocode]

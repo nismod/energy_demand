@@ -32,7 +32,7 @@ def load_sim_param_ini(path):
         Assumptions
     reg_nrs : dict
         Number of regions
-    lu_reg : dict
+    regions : dict
         Regions
     """
     config = configparser.ConfigParser()
@@ -40,7 +40,7 @@ def load_sim_param_ini(path):
     config.read(os.path.join(path, 'model_run_sim_param.ini'))
 
     reg_nrs = int(config['SIM_PARAM']['reg_nrs'])
-    lu_reg = ast.literal_eval(config['REGIONS']['lu_reg'])
+    regions = ast.literal_eval(config['REGIONS']['lu_reg'])
     sim_param = {}
     sim_param['base_yr'] = int(config['SIM_PARAM']['base_yr'])
     sim_param['simulated_yrs'] = ast.literal_eval(config['SIM_PARAM']['simulated_yrs'])
@@ -57,7 +57,7 @@ def load_sim_param_ini(path):
     enduses['ss_enduses'] = ast.literal_eval(config['ENDUSES']['ss_enduses'])
     enduses['is_enduses'] = ast.literal_eval(config['ENDUSES']['is_enduses'])
 
-    return sim_param, enduses, assumptions, reg_nrs, lu_reg
+    return sim_param, enduses, assumptions, reg_nrs, regions
 
 def read_national_real_elec_data(path_to_csv):
     """Read in national consumption from csv file. The unit
@@ -132,14 +132,14 @@ def read_national_real_gas_data(path_to_csv):
 
     return national_fuel_data
 
-def virtual_building_datasets(lu_reg, all_sectors, local_paths):
+def virtual_building_datasets(regions, all_sectors, local_paths):
     """Load necessary data for virtual building stock
     in case the link to the building stock model in
     Newcastle is not used
 
     Arguments
     ---------
-    lu_reg : dict
+    regions : dict
         Regions
     all_sectors : dict
         All sectors
@@ -161,7 +161,7 @@ def virtual_building_datasets(lu_reg, all_sectors, local_paths):
 
     rs_floorarea = defaultdict(dict)
     for year in range(2015, 2101):
-        for reg_geocode in lu_reg:
+        for reg_geocode in regions:
             try:
                 rs_floorarea[year][reg_geocode] = resid_footprint[reg_geocode]
             except:
@@ -175,7 +175,7 @@ def virtual_building_datasets(lu_reg, all_sectors, local_paths):
     ss_floorarea_sector_by = {}
     for year in range(2015, 2101):
         ss_floorarea_sector_by[year] = defaultdict(dict)
-        for reg_geocode in lu_reg:
+        for reg_geocode in regions:
             for sector in all_sectors:
                 try:
                     ss_floorarea_sector_by[year][reg_geocode][sector] = non_res_flootprint[reg_geocode]

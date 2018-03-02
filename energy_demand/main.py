@@ -198,7 +198,7 @@ if __name__ == "__main__":
     # local scrap
     data['lu_reg'] = data_loader.load_LAC_geocodes_info(
         os.path.join(local_data_path, '_raw_data', '_quick_and_dirty_spatial_disaggregation', 'infuse_dist_lyr_2011_saved.csv'))
-
+    
     # GVA
     gva_data = {}
     for year in range(2015, 2101):
@@ -220,6 +220,7 @@ if __name__ == "__main__":
     for reg in data['lu_reg']:
         data['reg_coord'][reg] = {'longitude': 52.58, 'latitude': -1.091}
 
+    data['lu_reg'] = list(data['lu_reg'].keys())
     # ------------------------------
     # Assumptions
     # ------------------------------
@@ -273,7 +274,7 @@ if __name__ == "__main__":
             data['lu_reg'],
             data['sectors']['all_sectors'],
             data['local_paths'])
-
+ 
 
     # Lookup table to import industry sectoral gva
     lookup_tables.industrydemand_name_sic2007()

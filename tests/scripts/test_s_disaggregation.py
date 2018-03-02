@@ -6,7 +6,7 @@ from energy_demand.scripts import s_disaggregation
 def test_rs_disaggregate():
     """testing
     """
-    lu_reg = ['regA', 'regB']
+    regions = ['regA', 'regB']
     base_yr= 2015
     curr_yr= 2020
 
@@ -37,7 +37,7 @@ def test_rs_disaggregate():
     enduses = ['rs_space_heating']
 
     result = s_disaggregation.rs_disaggregate(
-        lu_reg,
+        regions,
         base_yr,
         curr_yr,
         rs_national_fuel,
@@ -55,7 +55,7 @@ def test_rs_disaggregate():
 
     # -----   
     result = s_disaggregation.rs_disaggregate(
-        lu_reg,
+        regions,
         base_yr,
         curr_yr,
         rs_national_fuel,
@@ -74,7 +74,7 @@ def test_rs_disaggregate():
 def test_ss_disaggregate():
     """testing
     """
-    lu_reg = ['regA', 'regB']
+    regions = ['regA', 'regB']
     base_yr= 2015
     curr_yr= 2020
 
@@ -118,7 +118,7 @@ def test_ss_disaggregate():
         scenario_data,
         base_yr,
         curr_yr,
-        lu_reg,
+        regions,
         reg_coord,
         temp_data,
         weather_stations,
@@ -138,7 +138,7 @@ def test_is_ss_disaggregate():
     national_fuel = 100
     raw_fuel_sectors_enduses = {'is_space_heating': { 'mining': national_fuel,
                                 'pharmaceuticals': national_fuel}}
-    lu_reg = ['regA', 'regB']
+    regions = ['regA', 'regB']
     enduses = ['is_space_heating']
     sectors = ['mining', 'pharmaceuticals']
 
@@ -154,7 +154,7 @@ def test_is_ss_disaggregate():
     result = s_disaggregation.is_disaggregate(
         base_yr,
         raw_fuel_sectors_enduses,
-        lu_reg,
+        regions,
         enduses,
         sectors,
         employment_statistics,
@@ -167,7 +167,7 @@ def test_is_ss_disaggregate():
     result = s_disaggregation.is_disaggregate(
         base_yr,
         raw_fuel_sectors_enduses,
-        lu_reg,
+        regions,
         enduses,
         sectors,
         employment_statistics,
