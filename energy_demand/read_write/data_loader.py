@@ -150,6 +150,8 @@ def virtual_building_datasets(lu_reg, all_sectors, local_paths):
         Residential floor area
     ss_floorarea : dict
         Service sector floor area
+
+        TODO IMPROVE
     """
     # --------------------------------------------------
     # Floor area for residential buildings for base year
@@ -163,11 +165,11 @@ def virtual_building_datasets(lu_reg, all_sectors, local_paths):
             try:
                 rs_floorarea[year][reg_geocode] = resid_footprint[reg_geocode]
             except:
-                #logging.warning("No virtual residential floor area for region %s %s", reg_geocode, year)
+                logging.warning("No virtual residential floor area for region %s %s", reg_geocode, year)
                 rs_floorarea[year][reg_geocode] = 1
 
     # --------------------------------------------------
-    # Floor area for service sector buildings
+    # Floor area for service sector buildings TODO SO FAR THE SAME FOR EVERY SECTOR
     # --------------------------------------------------
     # No sector specific floorarea
     ss_floorarea_sector_by = {}
@@ -178,20 +180,10 @@ def virtual_building_datasets(lu_reg, all_sectors, local_paths):
                 try:
                     ss_floorarea_sector_by[year][reg_geocode][sector] = non_res_flootprint[reg_geocode]
                 except:
-                    #logging.warning("No virtual service floor area for region %s %s", reg_geocode, year)
+                    logging.warning("No virtual service floor area for region %s %s", reg_geocode, year)
                     ss_floorarea_sector_by[year][reg_geocode][sector] = 1
 
-    '''
-    ss_floorarea_sector_by = {}
-    for year in range(2015, 2101):
-        ss_floorarea_sector_by[year] = defaultdict(dict)
-        for reg_geocode in lu_reg:
-            for sector in all_sectors:
-                ss_floorarea_sector_by[year][reg_geocode][sector] = 10000
-    '''
-    ss_floorarea = dict(ss_floorarea_sector_by)
-
-    return dict(rs_floorarea), dict(ss_floorarea)
+    return dict(rs_floorarea), dict(ss_floorarea_sector_by)
 
 def load_local_paths(path):
     """Create all local paths
@@ -216,7 +208,7 @@ def load_local_paths(path):
         'folder_path_weater_stations': os.path.join(
             path, '_raw_data', 'H-Met_office_weather_data', 'excel_list_station_details.csv'),
         'path_floor_area_virtual_stock_by': os.path.join(
-            path, '_raw_data', 'K-floor_area', 'floor_area_by.csv'),
+            path, '_raw_data', 'K-floor_area', 'floor_area_by_II_email.csv'),  #floor_area_by
         'path_assumptions_db': os.path.join(
             path, '_processed_data', 'assumptions_from_db'),
         'data_processed': os.path.join(
