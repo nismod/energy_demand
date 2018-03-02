@@ -537,7 +537,7 @@ def load_non_param_assump(
     # ========================================
     # Helper functions
     # ========================================
-    assumptions['rs_fuel_tech_p_by'], assumptions['rs_specified_tech_enduse_by'], assumptions['technologies'] = tech_related.insert_dummy_tech(
+    '''assumptions['rs_fuel_tech_p_by'], assumptions['rs_specified_tech_enduse_by'], assumptions['technologies'] = tech_related.insert_dummy_tech(
         assumptions['technologies'],
         assumptions['rs_fuel_tech_p_by'],
         assumptions['rs_specified_tech_enduse_by'],
@@ -553,7 +553,7 @@ def load_non_param_assump(
         assumptions['technologies'],
         assumptions['is_fuel_tech_p_by'],
         assumptions['is_specified_tech_enduse_by'],
-        sector_crit=True)
+        sector_crit=True)'''
 
     # ----
     # Testing

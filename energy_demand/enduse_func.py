@@ -269,7 +269,6 @@ class Enduse(object):
 
                 # ------------------------------------
                 # Reduction of service because of heat recovery
-                # (standard sigmoid diffusion)
                 # ------------------------------------
                 tot_s_y_cy = apply_heat_recovery(
                     enduse,
@@ -945,8 +944,8 @@ def get_enduse_techs(fuel_fueltype_tech_p_by):
     enduse_techs = []
 
     for tech_fueltype in fuel_fueltype_tech_p_by.values():
-        if 'dummy_tech' in tech_fueltype.keys():
-            #if list(tech_fueltype.keys()) == []:
+        #if 'dummy_tech' in tech_fueltype.keys():
+        if list(tech_fueltype.keys()) == []:
             return []
         else:
             enduse_techs += tech_fueltype.keys()

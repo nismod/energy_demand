@@ -88,7 +88,7 @@ def insert_dummy_tech(
             if append_dummy_tech:
                 all_specified_tech_enduse_by[end_use].append("dummy_tech")
 
-    # Insert dummy tech
+    # Insert dummy tech TODO: ADD THIS IN TECHNOLOGY STOCK
     technologies['dummy_tech'] = read_data.TechnologyData(
         eff_by=1,
         eff_ey=1,

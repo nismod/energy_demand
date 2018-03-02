@@ -225,6 +225,8 @@ def get_s_fueltype_tech(
 
             #OptimizeWarning: Covariance of the parameters could not be estimated
             with np.errstate(divide='ignore'):
+                print("total_s: " + str(total_s))
+                print("total_s: " + str(s_fueltype_by_p[enduse][fueltype]))
                 s_fueltype_by_p[enduse][fueltype] = s_fueltype_by_p[enduse][fueltype] / total_s
 
     # Assert does not work for endues with no defined technologies
