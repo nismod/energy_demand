@@ -122,7 +122,7 @@ class Enduse(object):
         """Enduse class constructor
         """
         #logging.warning(" =====Enduse: {}  Sector:  {}".format(enduse, sector))
-        print(" =====Enduse: {}  Sector:  {}".format(enduse, sector))
+        #print(" =====Enduse: {}  Sector:  {}".format(enduse, sector))
         self.region_name = region_name
         self.enduse = enduse
         self.fuel_new_y = fuel
@@ -220,7 +220,8 @@ class Enduse(object):
                 enduse_overall_change['other_enduse_mode_info'],
                 assumptions)
             if enduse == 'rs_space_heating':
-                print(".")
+                #print(".")
+                pass
             # ----------------------------------
             # Hourly Disaggregation
             # ----------------------------------
@@ -229,8 +230,7 @@ class Enduse(object):
                 are read from dummy shape, which show the load profiles of the whole enduse.
                 No switches can be implemented and only overall change of enduse.
 
-                Note: for heating, technologies need to be assigned. Otherwise,
-                here there will be problems
+                Note: for heating, technologies need to be assigned.
                 """
                 if flat_profile_crit:
                     self.fuel_y = self.fuel_new_y * model_yeardays_nrs / 365.0
@@ -291,8 +291,6 @@ class Enduse(object):
                 # --------------------------------
                 # Switches
                 # --------------------------------
-                if enduse == 'rs_space_heating':
-                    print(".")
                 if crit_switch_service:
 
                     # Convert aggregated sector service percentages to sector service percentages
@@ -334,6 +332,7 @@ class Enduse(object):
                         fueltypes_nr,
                         fueltypes,
                         mode_constrained)
+            
                 else:
                     #---NON-PEAK
                     fuel_yh = calc_fuel_tech_yh(
@@ -749,7 +748,7 @@ def get_crit_switch(enduse, sector, switches, base_yr, curr_yr, mode_constrained
         for switch in switches:
 
             # Not sector specific search
-            if switch.sector == False:
+            if not switch.sector:
                 if switch.enduse == enduse:
                     return True
             else:
@@ -757,6 +756,7 @@ def get_crit_switch(enduse, sector, switches, base_yr, curr_yr, mode_constrained
                 if switch.enduse == enduse and switch.sector == sector:
                     return True
 
+        # No switch as found for this enduse
         return False
 
 def get_peak_day_all_fueltypes(fuel_yh):
@@ -944,8 +944,8 @@ def get_enduse_techs(fuel_fueltype_tech_p_by):
     enduse_techs = []
 
     for tech_fueltype in fuel_fueltype_tech_p_by.values():
-        #if 'dummy_tech' in tech_fueltype.keys():
-        if list(tech_fueltype.keys()) == []:
+        if 'dummy_tech' in tech_fueltype.keys():
+        #if list(tech_fueltype.keys()) == []:
             return []
         else:
             enduse_techs += tech_fueltype.keys()

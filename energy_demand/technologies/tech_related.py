@@ -4,15 +4,41 @@ import numpy as np
 from energy_demand.technologies import diffusion_technologies as diffusion
 from energy_demand.read_write import read_data
 
+def test_if_tech_defined(enduse_fueltypes_techs):
+    """Test if a technology has been configured,
+    i.e. a fuel share has been assgined to one of the
+    fueltpyes in `assumptions_fuel_shares`.
+
+    Arguments
+    ---------
+    enduse_fueltypes_techs : dict
+        Configured technologies and fuel shares of an enduse
+
+    Returns
+    -------
+    c_tech_defined : bool
+        Criteria whether technologies have been configured
+        for an enduse or not
+    """
+    c_tech_defined = False
+
+    for fueltype in enduse_fueltypes_techs:
+        if enduse_fueltypes_techs[fueltype] == {}:
+            pass
+        else:
+            c_tech_defined = True
+            break
+
+    return c_tech_defined
+
 def insert_dummy_tech(
         technologies,
         tech_p_by,
         all_specified_tech_enduse_by,
         sector_crit=False
     ):
-    """Define dummy technologies. Where no specific technologies are
-    assigned for an enduse and a fueltype, dummy technologies
-    are generated. This is necessary because the model needs
+    """If no technology is defined for a fueltype in an enduse add
+    a dumppy technology. This is necessary because the model needs
     a technology for every fueltype in an enduse.
 
     Arguments
@@ -38,55 +64,34 @@ def insert_dummy_tech(
         for end_use, enduse_fueltypes_techs in tech_p_by.items():
             for sector in enduse_fueltypes_techs:
 
-                # Check if in any fueltype a technology is defined
-                '''crit_tech_defined = False
-                for fueltype in enduse_fueltypes_techs[sector]:
-                    all_def_techs_fueltype = enduse_fueltypes_techs[sector].values()
-                    for definition in all_def_techs_fueltype:
-                        if definition == {} and not crit_tech_defined:
-                            pass
-                        else:
-                            crit_tech_defined = True
-                            break'''
+                # Test if a technology is defined in any fueltype
+                c_tech_defined = test_if_tech_defined(enduse_fueltypes_techs[sector])
 
-                # If an enduse has no defined technologies across all fueltypes
-                #if crit_tech_defined is False:
-                append_dummy_tech = False
-                for fueltype in enduse_fueltypes_techs[sector]:
-                    if  enduse_fueltypes_techs[sector][fueltype] == {}:
-                        # Assign total fuel demand to dummy technology
-                        tech_p_by[end_use][sector][fueltype] = {"dummy_tech": 1.0}
-                        append_dummy_tech = True
+                if not c_tech_defined:
+                    for fueltype in enduse_fueltypes_techs[sector]:
+                        if enduse_fueltypes_techs[sector][fueltype] == {}:
 
-                if append_dummy_tech:
-                    #if enduse_fueltypes_techs[sector][fueltype] == {}:
+                            # Assign total fuel demand to dummy technology
+                            tech_p_by[end_use][sector][fueltype] = {"dummy_tech": 1.0}
+
                     all_specified_tech_enduse_by[end_use].append("dummy_tech")
+                else:
+                    pass
     else:
         for end_use, enduse_fueltypes_techs in tech_p_by.items():
 
-            # Check if in any fueltype a technology is defined
-            '''crit_tech_defined = False
-            for fueltype in enduse_fueltypes_techs:
-                all_def_techs_fueltype = enduse_fueltypes_techs.values()
-                for definition in all_def_techs_fueltype:
-                    if definition == {} and not crit_tech_defined:
-                        pass
-                    else:
-                        crit_tech_defined = True
-                        break'''
+            # Test if a technology is defined in any fueltype
+            c_tech_defined = test_if_tech_defined(enduse_fueltypes_techs)
 
-            #if not crit_tech_defined:
-            append_dummy_tech = False
-            for fueltype in enduse_fueltypes_techs:
-                if enduse_fueltypes_techs[fueltype] == {} :
-                    # Assign total fuel demand to dummy technology
-                    tech_p_by[end_use][fueltype] = {"dummy_tech": 1.0}
-                    append_dummy_tech = True
-                # If an enduse has no defined technologies across all fueltypes
-                #if crit_tech_defined is False:
-                #if enduse_fueltypes_techs[fueltype] == {}:
-            if append_dummy_tech:
+            if not c_tech_defined:
+                for fueltype in enduse_fueltypes_techs:
+                    if enduse_fueltypes_techs[fueltype] == {}:
+                        # Assign total fuel demand to dummy technology
+                        tech_p_by[end_use][fueltype] = {"dummy_tech": 1.0}
+
                 all_specified_tech_enduse_by[end_use].append("dummy_tech")
+            else:
+                pass
 
     # Insert dummy tech TODO: ADD THIS IN TECHNOLOGY STOCK
     technologies['dummy_tech'] = read_data.TechnologyData(

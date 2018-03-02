@@ -71,7 +71,7 @@ def autocomplete_switches(
         sector=False
     ):
     """Helper function to add not defined technologies in switch
-    and set correct future year service share. If the defined
+    and set correct future service share. If the defined
     service switches do not sum up to 100% service,
     the remaining service is distriputed proportionally
     to all remaining technologies.

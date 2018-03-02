@@ -64,7 +64,6 @@ class TechStock(object):
         """
         self.stock_name = stock_name
 
-        # Select only modelled yeardays
         self.stock_technologies = create_tech_stock(
             technologies,
             tech_list,

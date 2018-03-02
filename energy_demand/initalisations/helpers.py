@@ -135,7 +135,7 @@ def get_def_techs(fuel_tech_p_by, sector_crit):
                 for fueltype in fuel_tech_p_by[enduse][sector]:
                     for i in list(fuel_tech_p_by[enduse][sector][fueltype].keys()):
                         all_defined_tech_service_ey[enduse].append(i)
-                    break #TODO NOT SECTOR SPECIFIC 
+
     else:
         for enduse in fuel_tech_p_by:
             all_defined_tech_service_ey[enduse] = []
