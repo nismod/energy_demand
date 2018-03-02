@@ -40,7 +40,7 @@ def load_sim_param_ini(path):
     config.read(os.path.join(path, 'model_run_sim_param.ini'))
 
     reg_nrs = int(config['SIM_PARAM']['reg_nrs'])
-    regions = ast.literal_eval(config['REGIONS']['lu_reg'])
+    regions = ast.literal_eval(config['REGIONS']['regions'])
     sim_param = {}
     sim_param['base_yr'] = int(config['SIM_PARAM']['base_yr'])
     sim_param['simulated_yrs'] = ast.literal_eval(config['SIM_PARAM']['simulated_yrs'])

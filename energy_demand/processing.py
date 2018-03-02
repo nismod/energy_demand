@@ -46,7 +46,7 @@ def main(path_data_energy_demand, path_shapefile_input):
     basic_functions.create_folder(data['local_paths']['data_results_shapefiles'])
 
     # Simulation information is read in from .ini file for results
-    data['sim_param'], data['enduses'], data['assumptions'], data['reg_nrs'], data['lu_reg'] = data_loader.load_sim_param_ini(
+    data['sim_param'], data['enduses'], data['assumptions'], data['reg_nrs'], data['regions'] = data_loader.load_sim_param_ini(
         data['local_paths']['data_results'])
 
     # Other information is read in
@@ -76,14 +76,14 @@ def main(path_data_energy_demand, path_shapefile_input):
             results_container,
             data['local_paths'],
             data['lookups'],
-            data['lu_reg'])
+            data['regions'])
 
     if spatial_results:
         result_mapping.create_geopanda_files(
             data,
             results_container,
             data['local_paths'],
-            data['lu_reg'],
+            data['regions'],
             data['lookups']['fueltypes_nr'],
             data['lookups']['fueltypes'],
             path_shapefile_input)
@@ -94,7 +94,7 @@ def main(path_data_energy_demand, path_shapefile_input):
     plotting_results.run_all_plot_functions(
         results_container,
         data['reg_nrs'],
-        data['lu_reg'],
+        data['regions'],
         data['lookups'],
         data['local_paths'],
         data['assumptions'],

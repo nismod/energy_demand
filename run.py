@@ -103,16 +103,16 @@ class EDWrapper(SectorModel):
         # -----------------------------
         region_set_name = self.regions.names[0]
 
-        data['lu_reg'] = self.get_region_names(region_set_name)
+        data['regions'] = self.get_region_names(region_set_name)
 
         reg_centroids = self.get_region_centroids(region_set_name)
         data['reg_coord'] = self.get_long_lat_decimal_degrees(reg_centroids)
 
         # SCRAP REMOVE: ONLY SELECT NR OF MODELLED REGIONS
-        data['lu_reg'] = data['lu_reg'][:NR_OF_MODELLEd_REGIONS]
+        data['regions'] = data['regions'][:NR_OF_MODELLEd_REGIONS]
 
-        logging.info("Modelled for a number of regions: " + str(len(data['lu_reg'])))
-        data['reg_nrs'] = len(data['lu_reg'])
+        logging.info("Modelled for a number of regions: " + str(len(data['regions'])))
+        data['reg_nrs'] = len(data['regions'])
 
         # ---------------------
         # Energy demand specific input which need to generated or read in
@@ -133,7 +133,7 @@ class EDWrapper(SectorModel):
         gva_dict = {}
         gva_industry_dict = {}
 
-        for r_idx, region in enumerate(data['lu_reg']):
+        for r_idx, region in enumerate(data['regions']):
             pop_dict[region] = pop_array_by[r_idx, 0]
             gva_dict[region] = gva_array_by[r_idx, 0]
             #gva_industry_dict[region] = industry_gva_by[r_idx, 0]
@@ -146,7 +146,7 @@ class EDWrapper(SectorModel):
         # Get building related data
         if data['criterias']['virtual_building_stock_criteria']:
             rs_floorarea, ss_floorarea = data_loader.virtual_building_datasets(
-                data['lu_reg'], data['sectors']['all_sectors'], data['local_paths'])
+                data['regions'], data['sectors']['all_sectors'], data['local_paths'])
         else:
             pass
             # Load floor area from newcastle
@@ -244,7 +244,7 @@ class EDWrapper(SectorModel):
         self.user_data['data_pass_along']['sectors'] = data['sectors']
         self.user_data['data_pass_along']['fuels'] = data['fuels']
         self.user_data['data_pass_along']['reg_coord'] = data['reg_coord']
-        self.user_data['data_pass_along']['lu_reg'] = data['lu_reg']
+        self.user_data['data_pass_along']['regions'] = data['regions']
         self.user_data['data_pass_along']['reg_nrs'] = data['reg_nrs']
 
         # --------------------
@@ -341,7 +341,7 @@ class EDWrapper(SectorModel):
         gva_dict_current = {}
         pop_dict_current = {}
 
-        for r_idx, region in enumerate(data['lu_reg']):
+        for r_idx, region in enumerate(data['regions']):
             pop_dict_current[region] = pop_array_current[r_idx, 0]
             gva_dict_current[region] = gva_array_current[r_idx, 0]
 
@@ -376,7 +376,7 @@ class EDWrapper(SectorModel):
             data['enduses'],
             data['assumptions'],
             data['reg_nrs'],
-            data['lu_reg'])
+            data['regions'])
 
         # ---------------------------------------------
         # Run energy demand model
@@ -399,7 +399,7 @@ class EDWrapper(SectorModel):
                 data['lookups']['fueltypes_nr'],
                 data['local_paths'],
                 data['paths'],
-                data['lu_reg'],
+                data['regions'],
                 data['reg_coord'],
                 data['assumptions']['seasons'],
                 data['assumptions']['model_yeardays_daytype'],
@@ -513,7 +513,7 @@ class EDWrapper(SectorModel):
         # -------------------------------------
         if data['criterias']['mode_constrained']:
             supply_results = constrained_results(
-                data['lu_reg'],
+                data['regions'],
                 results_constrained,
                 results_unconstrained,
                 supply_sectors,
@@ -527,7 +527,7 @@ class EDWrapper(SectorModel):
                     data['paths']['yaml_parameters_keynames_constrained'], supply_results.keys())
         else:
             supply_results = unconstrained_results(
-                data['lu_reg'],
+                data['regions'],
                 results_unconstrained,
                 supply_sectors,
                 data['lookups']['fueltypes'],

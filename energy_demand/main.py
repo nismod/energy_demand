@@ -81,7 +81,7 @@ def energy_demand_model(data, fuel_in=0, fuel_in_elec=0):
     This function is executed in the wrapper
     """
     modelrun_obj = model.EnergyDemandModel(
-        regions=data['lu_reg'],
+        regions=data['regions'],
         data=data)
 
     # ----------------
@@ -196,14 +196,14 @@ if __name__ == "__main__":
     data['sim_param']['simulated_yrs'] = [2015, 2016, 2030, 2050]
 
     # local scrap
-    data['lu_reg'] = data_loader.load_LAC_geocodes_info(
+    data['regions'] = data_loader.load_LAC_geocodes_info(
         os.path.join(local_data_path, '_raw_data', '_quick_and_dirty_spatial_disaggregation', 'infuse_dist_lyr_2011_saved.csv'))
     
     # GVA
     gva_data = {}
     for year in range(2015, 2101):
         gva_data[year] = {}
-        for region_geocode in data['lu_reg']:
+        for region_geocode in data['regions']:
             gva_data[year][region_geocode] = 999
     data['gva'] = gva_data
 
@@ -211,16 +211,16 @@ if __name__ == "__main__":
     pop_dummy = {}
     for year in range(2015, 2101):
         _data = {}
-        for reg_geocode in data['lu_reg']:
-            _data[reg_geocode] = data['lu_reg'][reg_geocode]['POP_JOIN']
+        for reg_geocode in data['regions']:
+            _data[reg_geocode] = data['regions'][reg_geocode]['POP_JOIN']
         pop_dummy[year] = _data
     data['population'] = pop_dummy
 
     data['reg_coord'] = {}
-    for reg in data['lu_reg']:
+    for reg in data['regions']:
         data['reg_coord'][reg] = {'longitude': 52.58, 'latitude': -1.091}
 
-    data['lu_reg'] = list(data['lu_reg'].keys())
+    data['regions'] = list(data['regions'].keys())
     # ------------------------------
     # Assumptions
     # ------------------------------
@@ -251,7 +251,7 @@ if __name__ == "__main__":
 
     data['weather_stations'], data['temp_data'] = data_loader.load_temp_data(data['local_paths'])
 
-    data['reg_nrs'] = len(data['lu_reg'])
+    data['reg_nrs'] = len(data['regions'])
 
     # ----------------------------------
     # Calculating COOLING CDD PARAMETER
@@ -271,7 +271,7 @@ if __name__ == "__main__":
     # ------------------------------
     if data['criterias']['virtual_building_stock_criteria']:
         rs_floorarea, ss_floorarea = data_loader.virtual_building_datasets(
-            data['lu_reg'],
+            data['regions'],
             data['sectors']['all_sectors'],
             data['local_paths'])
  
@@ -314,7 +314,7 @@ if __name__ == "__main__":
         data['enduses'],
         data['assumptions'],
         data['reg_nrs'],
-        data['lu_reg'])
+        data['regions'])
 
     for sim_yr in data['sim_param']['simulated_yrs']:
         data['sim_param']['curr_yr'] = sim_yr
@@ -368,7 +368,7 @@ if __name__ == "__main__":
                 #TODO NOT USED SO FAR
                 '''write_data.write_supply_results(
                     sim_yr,
-                    data['lu_reg'],
+                    data['regions'],
                     "supply_results",
                     path_runs,
                     supply_results_unconstrained,
@@ -430,8 +430,8 @@ if __name__ == "__main__":
                 # -------------------------------------------
                 # Write population files of simulation year
                 # -------------------------------------------
-                pop_array_reg = np.zeros((len(data['lu_reg'])))
-                for reg_array_nr, reg in enumerate(data['lu_reg']):
+                pop_array_reg = np.zeros((len(data['regions'])))
+                for reg_array_nr, reg in enumerate(data['regions']):
                     pop_array_reg[reg_array_nr] = data['scenario_data']['population'][sim_yr][reg]
 
                 write_data.write_scenaric_population_data(

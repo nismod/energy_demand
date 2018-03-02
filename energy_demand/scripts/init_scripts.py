@@ -67,7 +67,7 @@ def scenario_initalisation(path_data_ed, data=False):
     # Disaggregate fuel for all regions init_cont
     # ---------------------------------------
     fuel_disagg['rs_fuel_disagg'], fuel_disagg['ss_fuel_disagg'], fuel_disagg['is_fuel_disagg'] = s_disaggregation.disaggregate_base_demand(
-        data['lu_reg'],
+        data['regions'],
         data['sim_param']['base_yr'],
         data['sim_param']['curr_yr'],
         data['fuels'],
@@ -229,7 +229,7 @@ def scenario_initalisation(path_data_ed, data=False):
     # Spatial explicit modelling
     if data['criterias']['spatial_exliclit_diffusion']:
         rs_reg_share_s_tech_ey_p, ss_reg_share_s_tech_ey_p, is_reg_share_s_tech_ey_p, init_cont = spatial_diffusion.spatially_differentiated_modelling(
-            data['lu_reg'],
+            data['regions'],
             data['enduses']['all_enduses'],
             init_cont,
             fuel_disagg,
@@ -238,7 +238,7 @@ def scenario_initalisation(path_data_ed, data=False):
             is_share_s_tech_ey_p,
             techs_affected_spatial_f=['heat_pumps_electricity'])
 
-        regions = data['lu_reg']
+        regions = data['regions']
         regional_specific = True
         rs_share_s_tech_ey_p = rs_reg_share_s_tech_ey_p
         ss_share_s_tech_ey_p = ss_reg_share_s_tech_ey_p

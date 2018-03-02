@@ -235,7 +235,7 @@ def write_simulation_inifile(path, sim_param, enduses, assumptions, reg_nrs, reg
     config['ENDUSES']['is_enduses'] = str(enduses['is_enduses'])
 
     config.add_section('REGIONS')
-    config['REGIONS']['lu_reg'] = str(regions)
+    config['REGIONS']['regions'] = str(regions)
 
     with open(path_ini_file, 'w') as f:
         config.write(f)
