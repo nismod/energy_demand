@@ -332,7 +332,6 @@ class Enduse(object):
                         fueltypes_nr,
                         fueltypes,
                         mode_constrained)
-            
                 else:
                     #---NON-PEAK
                     fuel_yh = calc_fuel_tech_yh(
@@ -599,7 +598,7 @@ def assign_lp_no_techs(enduse, sector, load_profiles, fuel_new_y):
     fuel = fuel_new_y[:, np.newaxis, np.newaxis]
 
     fuel_yh = load_profiles.get_lp(
-        enduse, sector, 'dummy_tech', 'shape_yh') * fuel
+        enduse, sector, 'placeholder_tech', 'shape_yh') * fuel
 
     # Read dh profile from peak day. Get this day
     # where the fuel demand across all fueltypes is highest
@@ -609,7 +608,7 @@ def assign_lp_no_techs(enduse, sector, load_profiles, fuel_new_y):
         fuel_yh[:, peak_day, :])
 
     enduse_peak_yd_factor = load_profiles.get_lp(
-        enduse, sector, 'dummy_tech', 'enduse_peak_yd_factor')
+        enduse, sector, 'placeholder_tech', 'enduse_peak_yd_factor')
 
     fuel_peak_dh = fuel_new_y[:, np.newaxis] * enduse_peak_yd_factor * shape_peak_dh
 
@@ -944,7 +943,7 @@ def get_enduse_techs(fuel_fueltype_tech_p_by):
     enduse_techs = []
 
     for tech_fueltype in fuel_fueltype_tech_p_by.values():
-        if 'dummy_tech' in tech_fueltype.keys():
+        if 'placeholder_tech' in tech_fueltype.keys():
         #if list(tech_fueltype.keys()) == []:
             return []
         else:

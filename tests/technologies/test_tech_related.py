@@ -10,7 +10,7 @@ def test_get_tech_type():
         'storage_heating_electricity': ['boilerC'],
         'secondary_heating_electricity': []
     }
-    assert tech_related.get_tech_type('dummy_tech', tech_list) == 'dummy_tech'
+    assert tech_related.get_tech_type('placeholder_tech', tech_list) == 'placeholder_tech'
     assert tech_related.get_tech_type('heat_p', tech_list) == 'heat_pump'
     assert tech_related.get_tech_type('test_tech', tech_list) == 'other_tech'
 

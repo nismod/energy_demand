@@ -222,7 +222,7 @@ def get_s_fueltype_tech(
                     s_p_tech = s_tech / total_s
 
                      # Do not add dummy technology with zero service
-                    if technology == 'dummy_tech' and s_p_tech == 0:
+                    if technology == 'placeholder_tech' and s_p_tech == 0:
                         pass
                     else:
                         s_tech_by_p[enduse][technology] = s_tech / total_s

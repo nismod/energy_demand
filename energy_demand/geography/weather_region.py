@@ -204,7 +204,7 @@ class WeatherRegion(object):
         # RESIDENITAL COOLING
         #rs_peak_yd_cooling_factor = get_shape_peak_yd_factor(self.rs_cdd_cy)
         rs_cold_techs = tech_lists['rs_cold']
-        rs_cold_techs.append('dummy_tech')
+        rs_cold_techs.append('placeholder_tech')
 
         # ----Cooling residential
         #rs_fuel_shape_cooling_yh = load_profile.calc_yh(

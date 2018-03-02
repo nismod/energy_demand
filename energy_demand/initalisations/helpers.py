@@ -113,13 +113,15 @@ def add_undef_techs(heat_pumps, all_specified_tech_enduse, enduse):
     return all_specified_tech_enduse
 
 def get_def_techs(fuel_tech_p_by, sector_crit):
-    """Collect all technologies across all fueltypes for all endueses where
-    a service share is defined for the end_year
+    """Collect all technologies across all
+    fueltypes for each endues
 
     Arguments
     ----------
     fuel_tech_p_by : dict
         Fuel share per technology for base year
+    sector_crit : bool
+        Criteria wheter fuel is given by sector or not
 
     Returns
     -------

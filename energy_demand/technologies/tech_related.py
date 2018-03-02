@@ -31,7 +31,7 @@ def test_if_tech_defined(enduse_fueltypes_techs):
 
     return c_tech_defined
 
-def insert_dummy_tech(
+def insert_placholder_techs(
         technologies,
         tech_p_by,
         all_specified_tech_enduse_by,
@@ -72,9 +72,9 @@ def insert_dummy_tech(
                         if enduse_fueltypes_techs[sector][fueltype] == {}:
 
                             # Assign total fuel demand to dummy technology
-                            tech_p_by[end_use][sector][fueltype] = {"dummy_tech": 1.0}
+                            tech_p_by[end_use][sector][fueltype] = {"placeholder_tech": 1.0}
 
-                    all_specified_tech_enduse_by[end_use].append("dummy_tech")
+                    all_specified_tech_enduse_by[end_use].append("placeholder_tech")
                 else:
                     pass
     else:
@@ -87,14 +87,14 @@ def insert_dummy_tech(
                 for fueltype in enduse_fueltypes_techs:
                     if enduse_fueltypes_techs[fueltype] == {}:
                         # Assign total fuel demand to dummy technology
-                        tech_p_by[end_use][fueltype] = {"dummy_tech": 1.0}
+                        tech_p_by[end_use][fueltype] = {"placeholder_tech": 1.0}
 
-                all_specified_tech_enduse_by[end_use].append("dummy_tech")
+                all_specified_tech_enduse_by[end_use].append("placeholder_tech")
             else:
                 pass
 
-    # Insert dummy tech TODO: ADD THIS IN TECHNOLOGY STOCK
-    technologies['dummy_tech'] = read_data.TechnologyData(
+    # Insert placeholder technology
+    technologies['placeholder_tech'] = read_data.TechnologyData(
         eff_by=1,
         eff_ey=1,
         year_eff_ey=2100,
@@ -238,8 +238,8 @@ def get_tech_type(tech_name, tech_list):
     tech_type : string
         Technology type
     """
-    if tech_name == 'dummy_tech':
-        tech_type = 'dummy_tech'
+    if tech_name == 'placeholder_tech':
+        tech_type = 'placeholder_tech'
     else:
         if tech_name in tech_list['heating_non_const']:
             tech_type = 'heat_pump'

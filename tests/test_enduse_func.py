@@ -20,7 +20,7 @@ def test_assign_lp_no_techs():
 
     lp_stock_obj.add_lp(
         unique_identifier="A123",
-        technologies=['dummy_tech'],
+        technologies=['placeholder_tech'],
         enduses=['test_enduse'],
         shape_yd=np.full((365,24), 1 / 365),
         shape_yh=shape_yh,
@@ -338,7 +338,7 @@ def test_get_enduse_tech():
 
     fuel_tech_p_by = {
         0: {'techA': 0.4, 'techB': 0.6},
-        1: {'dummy_tech': 0.4, 'techD': 0.6}}
+        1: {'placeholder_tech': 0.4, 'techD': 0.6}}
     result = enduse_func.get_enduse_techs(fuel_tech_p_by)
     expected = []
     assert expected == result
@@ -410,7 +410,7 @@ def test_fuel_to_service():
     assert service_tech['techA'] == 1000
 
     # ---
-    fuel_fueltype_tech_p_by = {0: {}, 1 : {'techA': 1.0}} #'dummy_tech': 1.0}}
+    fuel_fueltype_tech_p_by = {0: {}, 1 : {'techA': 1.0}} #'placeholder_tech': 1.0}}
     fuel_new_y = {0: 0, 1: 2000}
     fuel_tech_p_by = {0 : {}, 1: {'techA': 1.0}}
     fueltypes = {'gas': 0, 'heat': 1}

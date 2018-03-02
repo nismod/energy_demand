@@ -373,7 +373,7 @@ def convert_sharesdict_to_service_switches(
 
             for tech, s_tech_p in s_tech_switched_p[reg].items():
 
-                if tech == 'dummy_tech':
+                if tech == 'placeholder_tech':
                     pass
                 else:
                     switch_new = read_data.ServiceSwitch(
@@ -388,7 +388,7 @@ def convert_sharesdict_to_service_switches(
 
         for tech, s_tech_p in s_tech_switched_p.items():
 
-            if tech == 'dummy_tech':
+            if tech == 'placeholder_tech':
                 pass
             else:
                 switch_new = read_data.ServiceSwitch(

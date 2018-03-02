@@ -618,7 +618,7 @@ def read_fuel_switches(path_to_csv, enduses, fueltypes):
 
 def read_technologies(path_to_csv, fueltypes):
     """Read in technology definition csv file. Append
-    for every technology type a 'dummy_tech'.
+    for every technology type a 'placeholder_tech'.
 
     Arguments
     ----------
@@ -631,7 +631,7 @@ def read_technologies(path_to_csv, fueltypes):
         All technologies and their assumptions provided as input
     dict_tech_lists : dict
         List with technologies. The technology type
-        is defined in the technology input file. A dummy_tech
+        is defined in the technology input file. A placeholder technology
         is added for every list in order to allow that a generic
         technology type can be added for every enduse
 
@@ -689,12 +689,11 @@ def read_technologies(path_to_csv, fueltypes):
 
                 logging.error(
                     "Error technology table (e.g. empty field): %s %s", e, row)
-    
                 sys.exit()
 
-    # Add dummy_technology to all tech_lists
+    # Add placeholder technology to all tech_lists
     for tech_list in dict_tech_lists.values():
-        tech_list.append('dummy_tech')
+        tech_list.append('placeholder_tech')
 
     return dict_technologies, dict_tech_lists
 

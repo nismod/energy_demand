@@ -168,7 +168,7 @@ def create_tech_stock(
                 technology_name,
                 tech_list)
 
-            if tech_type == 'dummy_tech':
+            if tech_type == 'placeholder_tech':
                 tech_obj = Technology(
                     technology_name,
                     tech_type)
@@ -245,7 +245,7 @@ class Technology(object):
         ):
         """Contructor
         """
-        if tech_name == 'dummy_tech':
+        if tech_name == 'placeholder_tech':
             self.tech_name = tech_name
             self.tech_type = tech_type
             self.description = description

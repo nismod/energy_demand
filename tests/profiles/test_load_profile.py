@@ -49,7 +49,7 @@ def test_LoadProfileStock():
     # -----
     result_obj.add_lp(
         unique_identifier="A123",
-        technologies=['dummy_tech'],
+        technologies=['placeholder_tech'],
         enduses=['cooking'],
         shape_yd=np.zeros((365)),
         shape_yh=np.zeros((365, 24)),
@@ -68,7 +68,7 @@ def test_LoadProfileStock():
     # -----
     result_obj.add_lp(
         unique_identifier="A123",
-        technologies=['dummy_tech'],
+        technologies=['placeholder_tech'],
         enduses=['cooking'],
         shape_yd=np.zeros((365)),
         shape_yh=np.zeros((365, 24)),
@@ -80,17 +80,17 @@ def test_LoadProfileStock():
     assert result == ['cooking']
 
     # test get_lp()
-    np.testing.assert_array_equal(np.zeros((365)), result_obj.get_lp('cooking', 'sectorA', 'dummy_tech', 'shape_yd'))
-    np.testing.assert_array_equal(np.zeros((365, 24)), result_obj.get_lp('cooking', 'sectorA', 'dummy_tech', 'shape_yh'))
-    np.testing.assert_array_equal(np.zeros((365, 24)), result_obj.get_lp('cooking', 'sectorA', 'dummy_tech', 'shape_y_dh'))
-    np.testing.assert_array_equal(np.full((24), 1.0/24), result_obj.get_lp('cooking', 'sectorA', 'dummy_tech', 'shape_peak_dh'))
-    np.testing.assert_array_equal(1.0/365, result_obj.get_lp('cooking', 'sectorA', 'dummy_tech', 'enduse_peak_yd_factor'))
+    np.testing.assert_array_equal(np.zeros((365)), result_obj.get_lp('cooking', 'sectorA', 'placeholder_tech', 'shape_yd'))
+    np.testing.assert_array_equal(np.zeros((365, 24)), result_obj.get_lp('cooking', 'sectorA', 'placeholder_tech', 'shape_yh'))
+    np.testing.assert_array_equal(np.zeros((365, 24)), result_obj.get_lp('cooking', 'sectorA', 'placeholder_tech', 'shape_y_dh'))
+    np.testing.assert_array_equal(np.full((24), 1.0/24), result_obj.get_lp('cooking', 'sectorA', 'placeholder_tech', 'shape_peak_dh'))
+    np.testing.assert_array_equal(1.0/365, result_obj.get_lp('cooking', 'sectorA', 'placeholder_tech', 'enduse_peak_yd_factor'))
 
     # test get_shape_peak_dh()
-    '''_var = result_obj.get_lp('cooking', 'sectorA', 'dummy_tech', 'shape_peak_dh')
+    '''_var = result_obj.get_lp('cooking', 'sectorA', 'placeholder_tech', 'shape_peak_dh')
     np.testing.assert_array_equal(
         _var, 
-        result_obj.get_shape_peak_dh('cooking', 'sectorA', 'dummy_tech'))'''
+        result_obj.get_shape_peak_dh('cooking', 'sectorA', 'placeholder_tech'))'''
 #test_LoadProfileStock()
 
 def test_generate_key_lu_dict():

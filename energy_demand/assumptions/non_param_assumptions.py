@@ -537,19 +537,19 @@ def load_non_param_assump(
     # ========================================
     # Helper functions
     # ========================================
-    assumptions['rs_fuel_tech_p_by'], assumptions['rs_specified_tech_enduse_by'], assumptions['technologies'] = tech_related.insert_dummy_tech(
+    assumptions['rs_fuel_tech_p_by'], assumptions['rs_specified_tech_enduse_by'], assumptions['technologies'] = tech_related.insert_placholder_techs(
         assumptions['technologies'],
         assumptions['rs_fuel_tech_p_by'],
         assumptions['rs_specified_tech_enduse_by'],
         sector_crit=False)
 
-    assumptions['ss_fuel_tech_p_by'], assumptions['ss_specified_tech_enduse_by'], assumptions['technologies'] = tech_related.insert_dummy_tech(
+    assumptions['ss_fuel_tech_p_by'], assumptions['ss_specified_tech_enduse_by'], assumptions['technologies'] = tech_related.insert_placholder_techs(
         assumptions['technologies'],
         assumptions['ss_fuel_tech_p_by'],
         assumptions['ss_specified_tech_enduse_by'],
         sector_crit=True)
 
-    assumptions['is_fuel_tech_p_by'], assumptions['is_specified_tech_enduse_by'], assumptions['technologies'] = tech_related.insert_dummy_tech(
+    assumptions['is_fuel_tech_p_by'], assumptions['is_specified_tech_enduse_by'], assumptions['technologies'] = tech_related.insert_placholder_techs(
         assumptions['technologies'],
         assumptions['is_fuel_tech_p_by'],
         assumptions['is_specified_tech_enduse_by'],
@@ -620,22 +620,22 @@ def get_all_heating_techs(tech_lists):
     heating_technologies = []
 
     for tech in tech_lists['heating_const']:
-        if tech != 'dummy_tech':
+        if tech != 'placeholder_tech':
             heating_technologies.append(tech)
     for tech in tech_lists['heating_non_const']:
-        if tech != 'dummy_tech':
+        if tech != 'placeholder_tech':
             heating_technologies.append(tech)
     for tech in tech_lists['tech_district_heating']:
-        if tech != 'dummy_tech':
+        if tech != 'placeholder_tech':
             heating_technologies.append(tech)
     for tech in tech_lists['secondary_heating_electricity']:
-        if tech != 'dummy_tech':
+        if tech != 'placeholder_tech':
             heating_technologies.append(tech)
     for tech in tech_lists['storage_heating_electricity']:
-        if tech != 'dummy_tech':
+        if tech != 'placeholder_tech':
             heating_technologies.append(tech)
     for tech in tech_lists['tech_CHP']:
-        if tech != 'dummy_tech':
+        if tech != 'placeholder_tech':
             heating_technologies.append(tech)
 
     return heating_technologies
