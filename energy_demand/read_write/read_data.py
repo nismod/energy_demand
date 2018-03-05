@@ -245,9 +245,9 @@ def calc_av_per_season_fueltype(results_every_year, seasons, model_yeardays_dayt
 
     Returns
     -------
-    av_season_daytype_cy : 
+    av_season_daytype_cy :
         Average demand per season and daytype
-    season_daytype_cy : 
+    season_daytype_cy :
         Demand per season and daytpe
     """
     av_season_daytype_cy = defaultdict(dict)
@@ -999,7 +999,7 @@ def read_capacity_switch(path_to_csv):
 
         for row in rows:
             try:
-                
+
                 # Check if setor is defined
                 try:
                     sector = str(row[4])
@@ -1020,7 +1020,7 @@ def read_capacity_switch(path_to_csv):
 
     return service_switches
 
-def read_floor_area_virtual_stock(path_to_csv):
+def read_floor_area_virtual_stock(path_to_csv, p_mixed_resid=0.5):
     """Read in floor area from csv file for every LAD
     to generate virtual building stock.
 
@@ -1028,6 +1028,8 @@ def read_floor_area_virtual_stock(path_to_csv):
     ---------
     path_floor_area : str
         Path to csv file
+    p_mixed_resid : float
+        Factor to assign mixed floor area
 
     Returns
     -------
@@ -1035,26 +1037,16 @@ def read_floor_area_virtual_stock(path_to_csv):
         Residential floor area per region
     non_res_floorarea : dict
         Non residential floor area per region
-    
+
     Info
     -----
-    TODO: Assing mixed end use depending on assumption
+    *   The mixed floor area (residential and non residential) is distributed
+        according to `p_mixed_resid`.
+    
     TODO: READ IN SECTOR SPECIFIC FLOOR AREA OR CALCLATE IT SOMEHOW
     """
-    # Original File
-    '''res_floorarea, non_res_floorarea = {}, {}
-
-    with open(path_to_csv, 'r') as csvfile:
-        rows = csv.reader(csvfile, delimiter=',')
-        _headings = next(rows)
-
-        for row in rows:
-            geo_name = str.strip(row[get_position(_headings, 'lad')])
-            res_floorarea[geo_name] = float(row[get_position(_headings, 'res_footprint_area')])
-            non_res_floorarea[geo_name] = float(row[get_position(_headings, 'nonres_footprint_area')])'''
-
-    # Redistribute the mixed
-    p_mixed_resid = 0.2
+    # Redistribute the mixed enduse
+    p_mixed_resid = 0.5
     p_mixed_no_resid = 1 - p_mixed_resid
 
     # Second Mail from Craig
@@ -1074,7 +1066,6 @@ def read_floor_area_virtual_stock(path_to_csv):
                     non_res_floorarea[geo_name] = 1 #TODO
                     floorarea_mixed[geo_name] = 1 #TODO
             else:
-
                 if row[get_position(_headings, 'res_bld_floor_area')] == 'null':
                     res_floorarea[geo_name] = 1 #TODO
                 else:

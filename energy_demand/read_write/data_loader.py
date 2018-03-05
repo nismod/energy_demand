@@ -81,10 +81,10 @@ def read_national_real_elec_data(path_to_csv):
     """
     national_fuel_data = {}
     with open(path_to_csv, 'r') as csvfile:
-        read_lines = csv.reader(csvfile, delimiter=',')
-        _headings = next(read_lines) # Skip first row
+        rows = csv.reader(csvfile, delimiter=',')
+        headings = next(rows) # Skip first row
 
-        for row in read_lines:
+        for row in rows:
             geocode = str.strip(row[2])                 # LA Code
             tot_consumption_unclean = row[3].strip()    # Total consumption
             national_fuel_data[geocode] = float(tot_consumption_unclean.replace(",", ""))
@@ -116,10 +116,10 @@ def read_national_real_gas_data(path_to_csv):
     """
     national_fuel_data = {}
     with open(path_to_csv, 'r') as csvfile:
-        read_lines = csv.reader(csvfile, delimiter=',')
-        _headings = next(read_lines) # Skip first row
+        rows = csv.reader(csvfile, delimiter=',')
+        headings = next(rows) # Skip first row
 
-        for row in read_lines:
+        for row in rows:
             geocode = str.strip(row[2])                 # LA Code
             tot_consumption_unclean = row[3].strip()    # Total consumption
 
@@ -132,7 +132,7 @@ def read_national_real_gas_data(path_to_csv):
 
     return national_fuel_data
 
-def virtual_building_datasets(regions, all_sectors, local_paths, base_yr=2015):
+def floor_area_virtual_dw(regions, all_sectors, local_paths, base_yr, p_mixed_resid):
     """Load necessary data for virtual building stock
     in case the link to the building stock model in
     Newcastle is not used
@@ -145,6 +145,10 @@ def virtual_building_datasets(regions, all_sectors, local_paths, base_yr=2015):
         All sectors
     local_paths : dict
         Paths
+    base_yr : float
+        Base year
+    p_mixed_resid : float
+        PArameter to redistributed mixed enduse
 
     Returns
     -------
@@ -152,41 +156,36 @@ def virtual_building_datasets(regions, all_sectors, local_paths, base_yr=2015):
         Residential floor area
     ss_floorarea : dict
         Service sector floor area
-
-        TODO IMPROVE
     """
     # --------------------------------------------------
     # Floor area for residential buildings for base year
     # --------------------------------------------------
-    #resid_footprint_lad_census, non_res_flootprint_lad_census = read_data.read_floor_area_virtual_stock(
-    #    local_paths['path_floor_area_virtual_stock_by'])
-
-    # Map LADs from census (2011) or LADs of 2015
-    #resid_footprint = map_LAD_2011_2015(resid_footprint_lad_census)
-    #non_res_flootprint = map_LAD_2011_2015(non_res_flootprint_lad_census)
-
     resid_footprint, non_res_flootprint = read_data.read_floor_area_virtual_stock(
-        local_paths['path_floor_area_virtual_stock_by'])
-    
+        local_paths['path_floor_area_virtual_stock_by'],
+        p_mixed_resid=p_mixed_resid)
+
     rs_floorarea = defaultdict(dict)
-    for reg_geocode in regions:
+    for region in regions:
         try:
-            rs_floorarea[base_yr][reg_geocode] = resid_footprint[reg_geocode]
+            rs_floorarea[base_yr][region] = resid_footprint[region]
         except:
-            logging.warning("No virtual residential floor area for region %s ", reg_geocode)
-            rs_floorarea[base_yr][reg_geocode] = 1
+            logging.warning(
+                "No virtual residential floor area for region %s ", region)
+            rs_floorarea[base_yr][region] = 1
+
     # --------------------------------------------------
-    # Floor area for service sector buildings TODO SO FAR THE SAME FOR EVERY SECTOR
+    # Floor area for service sector buildings
+    # TODO SO FAR THE SAME FOR EVERY SECTOR
     # --------------------------------------------------
     ss_floorarea_sector_by = {}
     ss_floorarea_sector_by[base_yr] = defaultdict(dict)
-    for reg_geocode in regions:
+    for region in regions:
         for sector in all_sectors:
             try:
-                ss_floorarea_sector_by[base_yr][reg_geocode][sector] = non_res_flootprint[reg_geocode]
+                ss_floorarea_sector_by[base_yr][region][sector] = non_res_flootprint[region]
             except:
-                logging.warning("No virtual service floor area for region %s", reg_geocode)
-                ss_floorarea_sector_by[base_yr][reg_geocode][sector] = 1
+                logging.warning("No virtual service floor area for region %s", region)
+                ss_floorarea_sector_by[base_yr][region][sector] = 1
 
     return dict(rs_floorarea), dict(ss_floorarea_sector_by)
 
@@ -274,7 +273,6 @@ def load_paths(path):
     """
     paths = {
         'path_main': path,
-
 
         # Path to all technologies
         'path_technologies': os.path.join(
@@ -877,17 +875,17 @@ def load_LAC_geocodes_info(path_to_csv):
     - PROVIDED IN UNIT?? (KWH I guess)
     """
     with open(path_to_csv, 'r') as csvfile:
-        read_lines = csv.reader(csvfile, delimiter=',')
-        _headings = next(read_lines) # Skip first row
+        rows = csv.reader(csvfile, delimiter=',')
+        headings = next(rows) # Skip first row
         data = {}
 
-        for row in read_lines:
+        for row in rows:
             values_line = {}
             for number, value in enumerate(row[1:], 1):
                 try:
-                    values_line[_headings[number]] = float(value)
+                    values_line[headings[number]] = float(value)
                 except ValueError:
-                    values_line[_headings[number]] = str(value)
+                    values_line[headings[number]] = str(value)
 
             # Add entry with geo_code
             data[row[0]] = values_line
@@ -941,13 +939,13 @@ def read_employment_stats(path_to_csv):
 
     with open(path_to_csv, 'r') as csvfile:
         lines = csv.reader(csvfile, delimiter=',')
-        _headings = next(lines) # Skip first row
+        headings = next(lines) # Skip first row
 
         for line in lines:
             geocode = str.strip(line[2])
 
             # Iterate fields and copy values
-            for counter, heading in enumerate(_headings[4:], 4):
+            for counter, heading in enumerate(headings[4:], 4):
                 heading_split = heading.split(":")
                 category_unclean = str.strip(heading_split[1])
                 category_full_name = str.strip(category_unclean.split(" ")[0]).replace(" ", "_")

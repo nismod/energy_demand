@@ -116,7 +116,7 @@ def calc_sigmoid_parameters(
                     if cnt >= len(start_param_list):
                         raise Exception("Error: Sigmoid curve fitting failed")
                 else:
-                    successfull = True
+                    
 
                     '''plotting_program.plotout_sigmoid_tech_diff(
                         l_value,
@@ -151,6 +151,7 @@ def calc_sigmoid_parameters(
                         successfull = False
                         cnt += 1
                     else:
+                        successfull = True
                         pass
                         #logging.info(
                         #    ".... fitting successfull %s %s %s", fit_measure_p_ey, fit_measure_p_by, fit_parameter)

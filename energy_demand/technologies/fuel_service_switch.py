@@ -383,7 +383,7 @@ def create_service_switch(
 
         service_switch = read_data.ServiceSwitch(
             enduse=enduse,
-            sector=sector, #TODO NEW
+            sector=sector,
             technology_install=tech,
             service_share_ey=s_tech_p,
             switch_yr=switch_yr)

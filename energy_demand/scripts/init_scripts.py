@@ -121,7 +121,7 @@ def scenario_initalisation(path_data_ed, data=False):
     # Autocomplement defined service switches with technologies not
     # explicitly specified in switch on a national scale
     # ------------------------------------
-    logging.debug("... autocompleting switches")
+    print("... autocompleting switches")
     init_cont['rs_service_switches'] = data['assumptions']['rs_service_switches']
     init_cont['ss_service_switches'] = data['assumptions']['ss_service_switches']
     init_cont['is_service_switches'] = data['assumptions']['is_service_switches']
@@ -161,7 +161,7 @@ def scenario_initalisation(path_data_ed, data=False):
     # Calculate service shares considering potential capacity installations
     # on a national scale
     # ------------------------------------
-    logging.debug("... processing capacity switches")
+    print("... processing capacity switches")
     # Residential
     init_cont['rs_service_switches'] = fuel_service_switch.capacity_switch(
         init_cont['rs_service_switches'],
@@ -209,7 +209,7 @@ def scenario_initalisation(path_data_ed, data=False):
     # Get service shares of technologies for future year by considering
     # service switches (defined on a national scale)
     # ------------------------------------
-    logging.debug("... processing service switches")
+    print("... processing service switches")
     rs_share_s_tech_ey_p = fuel_service_switch.get_share_s_tech_ey(
         rs_service_switches_completed,
         data['assumptions']['rs_specified_tech_enduse_by'])
@@ -258,8 +258,9 @@ def scenario_initalisation(path_data_ed, data=False):
     # technology diffusion (same diffusion pattern for
     # the whole UK) or spatially differentiated (every region)
     # ---------------------------------------
-    logging.debug("... processing fuel switches")
+    print("... processing fuel switches")
     for enduse in data['enduses']['rs_enduses']:
+        print("enduse rs : " + str(enduse))
         init_cont['rs_sig_param_tech'][enduse], init_cont['rs_service_switch'][enduse] = sig_param_calc_incl_fuel_switch(
             data['sim_param']['base_yr'],
             data['assumptions']['technologies'],
@@ -274,6 +275,7 @@ def scenario_initalisation(path_data_ed, data=False):
             regional_specific=regional_specific)
 
     for enduse in data['enduses']['ss_enduses']:
+        print("enduse ss : " + str(enduse))
         init_cont['ss_sig_param_tech'][enduse] = {}
         init_cont['ss_service_switch'][enduse] = {}
 
@@ -292,10 +294,14 @@ def scenario_initalisation(path_data_ed, data=False):
                 regional_specific=regional_specific)
 
     for enduse in data['enduses']['is_enduses']:
+        print("enduse is : " + str(enduse))
         init_cont['is_sig_param_tech'][enduse] = {}
         init_cont['is_service_switch'][enduse] = {}
 
         for sector in data['sectors']['is_sectors']:
+            print("SECTOR: " + str(sector))
+            if sector == 'basic_metals' and enduse == 'is_high_temp_process':
+                print("..")
             init_cont['is_sig_param_tech'][enduse][sector], init_cont['is_service_switch'][enduse][sector] = sig_param_calc_incl_fuel_switch(
                 data['sim_param']['base_yr'],
                 data['assumptions']['technologies'],
@@ -309,7 +315,7 @@ def scenario_initalisation(path_data_ed, data=False):
                 regions=regions,
                 regional_specific=regional_specific)
 
-    logging.debug("... finished scenario initialisation")
+    print("... finished scenario initialisation")
     return dict(init_cont), fuel_disagg
 
 def sum_across_sectors_all_regs(fuel_disagg_reg):
@@ -608,6 +614,7 @@ def sig_param_calc_incl_fuel_switch(
                 break
 
             for reg in regions:
+                print("Regional specific. " + str(reg))
                 sig_param_tech[reg] = s_generate_sigmoid.tech_sigmoid_parameters(
                     yr_until_switched,
                     base_yr,

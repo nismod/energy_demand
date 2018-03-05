@@ -383,7 +383,7 @@ class Enduse(object):
                     else: # (not specific for technologies)
 
                         # Demand management for heating related technologies
-                        self.fuel_yh, self.fuel_peak_dh , self.fuel_peak_h = demand_management(
+                        self.fuel_yh, self.fuel_peak_dh, self.fuel_peak_h = demand_management(
                             enduse,
                             base_yr,
                             curr_yr,

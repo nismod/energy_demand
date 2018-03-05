@@ -32,6 +32,8 @@
 
 NICETOHAVE
 - Convert paths dict to objects
+
+TODOS
 TODO: Write function to test wheter swichtes are possible (e.g. that not more from one technology to another is replaced than possible)
 TODO: Improve industry related demand --> define strategies
 TODO: Related ed to houses & householdsize
@@ -45,12 +47,12 @@ TODO: PEAK SHAPE vs PEAK FROM LOAD PROFILES
 TODO: IF spatial explicity, still very slow
 TODO: UPDate all fuel data with new ECUK DATA
 TODO: TEST IS SECTOR TECH SWITCH
-TODO: SECTOR SPECIFIC SWITCHES
-TODO: REFURBISHMENT RATE
 TODO: STORE RESULTS PER ANNUAL YEAR AND GENERATE FUNCTION TO COLLECT PLOTS AND CREATE GIF
 TODO: get_position for all readings of csv file
 TODO: WHAT ABOU NON_RESIDENTIAL FLOOR AREA: FOR WHAT?
 TODO: REMOVE PEAK SHAPES
+TODO: SPATIAL DISAGGREGATION FACTORS RESID/NONRESID SHARE
+RURAL URBAN : http://www.gov.scot/Topics/Statistics/About/Methodology/UrbanRuralClassification/Urban-Rural-Classification-2011-12/2011-2012-Urban-Rural-Lookups
 """
 import os
 import sys
@@ -272,18 +274,18 @@ if __name__ == "__main__":
 
     # ------------------------------
     if data['criterias']['virtual_building_stock_criteria']:
-        rs_floorarea, ss_floorarea = data_loader.virtual_building_datasets(
+        rs_floorarea, ss_floorarea = data_loader.floor_area_virtual_dw(
             data['regions'],
             data['sectors']['all_sectors'],
             data['local_paths'],
-            data['sim_param']['base_yr'])
- 
+            data['sim_param']['base_yr'],
+            p_mixed_resid=0.5)
 
     # Lookup table to import industry sectoral gva
     lookup_tables.industrydemand_name_sic2007()
 
     data['industry_gva'] = "TST"
-    print("AAAAAAAAA")
+
     #Scenario data
     data['scenario_data'] = {
         'gva': data['gva'],
@@ -293,23 +295,23 @@ if __name__ == "__main__":
             'rs_floorarea': rs_floorarea,
             'ss_floorarea': ss_floorarea}}
 
-    logging.info("Start Energy Demand Model with python version: " + str(sys.version))
-    logging.info("Info model run")
-    logging.info("Nr of Regions " + str(data['reg_nrs']))
+    print("Start Energy Demand Model with python version: " + str(sys.version))
+    print("Info model run")
+    print("Nr of Regions " + str(data['reg_nrs']))
 
     # In order to load these data, the initialisation scripts need to be run
-    logging.info("... Load data from script calculations")
+    print("... Load data from script calculations")
     data = read_data.load_script_data(data)
-
+    print("AAAAAAAAAAAAAAAA")
     #-------------------
     # Folder cleaning
     #--------------------
-    logging.info("... delete previous model run results")
+    print("... delete previous model run results")
     basic_functions.del_previous_setup(data['local_paths']['data_results'])
     basic_functions.create_folder(data['local_paths']['data_results'])
     basic_functions.create_folder(data['local_paths']['data_results_PDF'])
     basic_functions.create_folder(data['local_paths']['data_results_model_run_pop'])
-
+    print("BBBBBBBBBB")
     # Create .ini file with simulation information
     write_data.write_simulation_inifile(
         data['local_paths']['data_results'],
@@ -318,11 +320,11 @@ if __name__ == "__main__":
         data['assumptions'],
         data['reg_nrs'],
         data['regions'])
-
+    print("AAAAAAAAAAAAAAAA")
     for sim_yr in data['sim_param']['simulated_yrs']:
         data['sim_param']['curr_yr'] = sim_yr
 
-        logging.info("Simulation for year --------------:  " + str(sim_yr))
+        print("Simulation for year --------------:  " + str(sim_yr))
         fuel_in, fuel_in_biomass, fuel_in_elec, fuel_in_gas, fuel_in_heat, fuel_in_hydro, fuel_in_solid_fuel, fuel_in_oil, tot_heating = testing.test_function_fuel_sum(
             data,
             data['criterias']['mode_constrained'],
@@ -363,7 +365,7 @@ if __name__ == "__main__":
             # -------------------------------------------
             # Write annual results to txt files
             # -------------------------------------------
-            logging.info("... Start writing results to file")
+            print("... Start writing results to file")
             path_runs = data['local_paths']['data_results_model_runs']
 
             # Write unconstrained results
@@ -441,10 +443,10 @@ if __name__ == "__main__":
                     sim_yr,
                     data['local_paths']['model_run_pop'],
                     pop_array_reg)
-                logging.info("... Finished writing results to file")
+                print("... Finished writing results to file")
 
     b = datetime.datetime.now()
     print("TOTAL TIME: " + str(b-a))
 
-    logging.info("... Finished running Energy Demand Model")
     print("... Finished running Energy Demand Model")
+
