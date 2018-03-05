@@ -132,28 +132,6 @@ def read_national_real_gas_data(path_to_csv):
 
     return national_fuel_data
 
-def map_LAD_2011_2015(lad_data):
-    """Map key of LADs of the census data from the year
-    2011 with the LAD keys from the year 2015
-    """
-    key_dict = {
-
-        # LAD 2011      #LAD 2015
-        '': '',
-    }
-    mapped_LADs = {}
-    for lad_id, data in lad_data.items():
-
-        # Lads with different lad id
-        try:
-            mapped_lad_id = key_dict[lad_id]
-        except KeyError:
-            mapped_lad_id = lad_id
-
-        mapped_LADs[mapped_lad_id] = data
-
-    return mapped_LADs
-
 def virtual_building_datasets(regions, all_sectors, local_paths, base_yr=2015):
     """Load necessary data for virtual building stock
     in case the link to the building stock model in

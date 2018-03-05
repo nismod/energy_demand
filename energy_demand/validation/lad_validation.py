@@ -18,6 +18,27 @@ from energy_demand import enduse_func
 from energy_demand.profiles import load_profile
 from energy_demand.plotting import plotting_styles
 
+def map_LAD_2011_2015(lad_data):
+    """Map key of LADs of the census data from the year
+    2011 with the LAD keys from the year 2015
+    """
+    key_dict = {
+
+        # LAD 2011      #LAD 2015
+        '': '',
+    }
+    mapped_LADs = {}
+    for lad_id, data in lad_data.items():
+
+        # Lads with different lad id
+        try:
+            mapped_lad_id = key_dict[lad_id]
+        except KeyError:
+            mapped_lad_id = lad_id
+
+        mapped_LADs[mapped_lad_id] = data
+
+    return mapped_LADs
 def temporal_validation(
         local_paths,
         elec_ed_fueltype_national_yh,
@@ -115,7 +136,16 @@ def tempo_spatial_validation(
     ):
     """Validate national hourly demand for yearls fuel
     for all LADs. Test how the national disaggregation
-    works
+    works.
+
+    Info
+    -----
+    Because the floor area is only availabe for LADs from 2001,
+    the LADs are converted to 2015 LADs.
+
+    * missing S12000013 (Na h-Eileanan Siar) and S12000027 (Shetland Islands)
+    * E41000324 (City of London, Westminster) splits to E09000001 (City of London) and E09000033 (Westminster)
+    * E41000052 (Cornwall, Isles of Scilly) splits to E06000052 (Cornwall) and E06000053 (Isles of Scilly) (edited)
     """
     logging.info("... spatial validation")
 
@@ -151,6 +181,13 @@ def tempo_spatial_validation(
         paths['path_val_subnational_elec'])
     subnational_gas = data_loader.read_national_real_gas_data(
         paths['path_val_subnational_gas'])
+
+
+    # Remap demands between 2011 and 2015 LADs
+    #subnational_elec = map_LAD_2011_2015(subnational_elec)
+    #asubnational_gas = map_LAD_2011_2015(subnational_gas)¨
+    #subnational_gas = map_LAD_2011_2015(subnational_gas)
+    #subnational_gas = map_LAD_2011_2015(subnational_gas)
 
     logging.info("Validation of electricity")
     spatial_validation(

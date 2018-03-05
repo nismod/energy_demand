@@ -289,7 +289,7 @@ class Enduse(object):
                 # ------------------------------------
                 # Reduction of service because of improvement in air leakeage
                 # ------------------------------------
-                tot_s_y_cy, s_tech_y_cy = apply_air_leakage(
+                tot_s_y_cy = apply_air_leakage(
                     enduse,
                     assumptions['strategy_variables'],
                     assumptions['enduse_overall_change'],
@@ -298,14 +298,14 @@ class Enduse(object):
                     base_yr,
                     curr_yr)
 
-                '''s_tech_y_cy = apply_air_leakage(
+                s_tech_y_cy = apply_air_leakage(
                     enduse,
                     assumptions['strategy_variables'],
                     assumptions['enduse_overall_change'],
                     s_tech_y_cy,
                     'service_tech',
                     base_yr,
-                    curr_yr)'''
+                    curr_yr)
 
                 # --------------------------------
                 # Switches
@@ -1391,7 +1391,7 @@ def apply_air_leakage(
             f_improvement = air_leakage_cy / air_leakage_by
 
             # Apply to technologies each stored in dictionary or array
-            #if crit_dict == 'service_tech':
+            if crit_dict == 'service_tech':
                 service_reduced = {}
                 for tech, service_tech in service.items():
                     service_reduced[tech] = service_tech * f_improvement
@@ -1400,7 +1400,7 @@ def apply_air_leakage(
 
             return service_reduced
     except KeyError:
-        return service, 
+        return service
 
 def apply_scenario_drivers(
         submodel,
