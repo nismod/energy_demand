@@ -2,20 +2,33 @@
 the geopanda library (http://geopandas.org)
 """
 import os
+import logging
+import copy
 import numpy as np
 import geopandas as gpd
 import pandas as pd
-import palettable #https://jiffyclub.github.io/palettable/colorbrewer/sequential/
+import palettable
 import matplotlib.pyplot as plt
 import matplotlib.patches as mpatches
 from matplotlib.colors import LinearSegmentedColormap
 from energy_demand.basic import basic_functions
-from energy_demand.plotting import plotting_styles
+from energy_demand.technologies import tech_related
 
-def own_classification_work_round(bins, min_value, lad_geopanda_shp, field_name_to_plot, legend_title):
+def user_defined_classification(
+        bins,
+        min_value,
+        max_value,
+        lad_geopanda_shp,
+        field_to_plot,
+        legend_title,
+        color_palette,
+        color_prop,
+        placeholder_zero_color,
+        color_zero=False,
+        color_list=False
+    ):
     """Generate plot with own classification of choropleth maps
 
-    The vues for plotting are taken from `palette`
     Arguments
     ---------
     bins : list
@@ -24,57 +37,92 @@ def own_classification_work_round(bins, min_value, lad_geopanda_shp, field_name_
         Mininum data value
     lad_geopanda_shp : geopanda dataframe
         Figure pandaframe
-    field_name_to_plot : str
+    field_to_plot : str
         Name of figure to plot
     axes : axes
         Axis of figure
+    color_palette : list
+        List name of color scheme
+    color_prop : str
+        If wither sequential or qualitative colors
 
     Info
     ----
     Source: https://stackoverflow.com/questions/41783090/plotting-a-
     choropleth-map-with-geopandas-using-a-user-defined-classification-s
-
-        [x for x in range(0, 1000000, 200000)]
     """
-    def rgb2hex(r_color, g_color, b_color):
-        """Convert RGB to HEX
-        """
-        return "#{:02x}{:02x}{:02x}".format(r_color, g_color, b_color)
-
     # --------------
     # Color paletts
     # --------------
-    color_list_rgb = palettable.colorbrewer.qualitative.Dark2_7
-    #color_list_rgb = palettable.colorbrewer.sequential.Greens_9
+    if color_prop == 'sequential':
+        color_list = getattr(palettable.colorbrewer.sequential, color_palette).hex_colors
+    elif color_prop == 'qualitative':
+        color_list = getattr(palettable.colorbrewer.qualitative, color_palette).hex_colors
+    elif color_prop == 'user_defined':
+        color_list = color_list
 
-    color_list = []
-    for color in color_list_rgb.colors[:len(bins)]:
-        color_list.append(rgb2hex(color[0], color[1], color[2]))
+    # Shorten color list
+    color_list = color_list[:len(bins)]
 
+    # ---------
     # Reclassify
-    lad_geopanda_shp, cmap = hack_classification(
+    # ---------
+    reclass_lad_geopanda_shp, cmap = re_classification(
         lad_geopanda_shp,
         bins,
         color_list,
-        field_name_to_plot)
+        field_to_plot,
+        color_zero,
+        placeholder_zero_color)
 
     # ----------
-    # Legend
+    # Legend and legend labels
     # ----------
     legend_handles = []
-    for bin_nr, color in enumerate(color_list):
+    small_number = 0.01 # Small number for plotting corrrect charts
 
-        # Legend label
+    for bin_nr, bin_entry in enumerate(bins):
+
         if bin_nr == 0: #first bin entry
-            label_legend_patch = "< {} (min {})".format(bins[bin_nr], min_value)
+
+            if bins[bin_nr] < 0:
+                label_patch = "> {} (min {})".format(bin_entry, min_value)
+
+                if min_value > bin_entry:
+                    print("Classification boundry is not clever for low values")
+            else:
+                label_patch = "< {} (min {})".format(bin_entry, min_value)
         elif bin_nr == len(bins) - 1: #last bin entry
-            label_legend_patch = "> {} ( max {})".format(bins[bin_nr - 1], bins[bin_nr])
+            label_patch = "> {} (max {})".format(bin_entry - small_number, max_value)
+
+            if max_value < bin_entry:
+                print("Classification boundry is not clever for low values")
         else:
-            label_legend_patch = "{} - {}".format(bins[bin_nr - 1], bins[bin_nr])
+            # ----------------------------
+            # Add zero label if it exists
+            # ----------------------------
+            if bins[bin_nr - 1] == 0:
+                patch = mpatches.Patch(
+                    color=color_zero,
+                    label=str("0"))
+                legend_handles.append(patch)
+            else:
+                pass
+
+            # ----------------------------
+            # Other other labels
+            # ----------------------------
+            if bin_entry < 0:
+                label_patch = "{}  ―  {}".format(bins[bin_nr - 1], bin_entry - small_number)
+            else:
+                if bins[bin_nr - 1] == 0:
+                    label_patch = "{}  ―  {}".format(bins[bin_nr - 1] + small_number, bin_entry - small_number)
+                else:
+                    label_patch = "{}  ―  {}".format(bins[bin_nr - 1], bin_entry - small_number)
 
         patch = mpatches.Patch(
-            color=color,
-            label=str(label_legend_patch))
+            color=color_list[bin_nr],
+            label=str(label_patch))
 
         legend_handles.append(patch)
 
@@ -88,10 +136,49 @@ def own_classification_work_round(bins, min_value, lad_geopanda_shp, field_name_
         bbox_to_anchor=(0.5, -0.05),
         frameon=False)
 
-    return lad_geopanda_shp, cmap
+    return reclass_lad_geopanda_shp, cmap
 
-def hack_classification(lad_geopanda_shp, bins, color_list, field_name_to_plot):
-    """Remap according to user defined classification
+def bin_mapping(value_to_classify, class_bins, placeholder_zero_color):
+    """Maps values to a bin.
+    The mapped values must start at 0 and end at 1.
+
+    Arguments
+    ---------
+    value_to_classify : float
+        Value to classify
+    class_bins : list
+        Bins to use for classification
+
+    Returns
+    -------
+    classified value
+    """
+    round_digits = 4
+
+    value_to_classify = round(value_to_classify, round_digits)
+
+    # Treat -0 and 0 the same
+    if value_to_classify == 0 or value_to_classify == -0:
+        value_to_classify = 0
+
+        # get position of zero value
+        '''for idx, bound in enumerate(class_bins):
+            if value_to_classify == bound:
+                return idx / (len(class_bins) - 1.0)'''
+        return placeholder_zero_color
+
+    for idx, bound in enumerate(class_bins):
+        if value_to_classify < bound:
+            return idx / (len(class_bins) - 1.0)
+
+def re_classification(
+        lad_geopanda_shp,
+        bins, color_list,
+        field_to_plot,
+        color_zero,
+        placeholder_zero_color
+    ):
+    """Reclassify according to user defined classification
 
     Arguments
     ----------
@@ -101,39 +188,65 @@ def hack_classification(lad_geopanda_shp, bins, color_list, field_name_to_plot):
         Classification boders
     color_list : list
         List with colors for every category
-    field_name_to_plot : str
+    field_to_plot : str
         Name of figure to plot
+    color_zero : str
+        Color for zeros
+    placeholder_zero_color : float
+        Number to assign for zero values
     """
-    def bin_mapping(value_to_classify):
-        """Maps values to a bin.
-        The mapped values must start at 0 and end at 1.
-        """
-        for idx, bound in enumerate(bins):
-            if value_to_classify < bound:
-                return idx / (len(bins) - 1.0)
 
     # Create the list of bin labels and the list of colors corresponding to each bin
-    bin_labels = [idx / (len(bins) - 1.0) for idx in range(len(bins))]
+    bin_labels = []
+    for idx in range(len(bins)):
+        val_bin = idx / (len(bins) - 1.0)
+        bin_labels.append(val_bin)
+
+    # ----------------------
+    # Add white bin and color
+    # ----------------------
+    color_list_copy = copy.copy(color_list)
+    bin_labels_copy = copy.copy(bin_labels)
+
+    # Add zero color in color list if a min_plus map
+    if color_zero != False:
+        insert_pos = 1
+        color_list_copy.insert(insert_pos, color_zero)
+        bin_labels_copy.insert(insert_pos, float(placeholder_zero_color))
+    else:
+        pass
 
     # Create the custom color map
+    color_bin_match_list = []
+    for lbl, color in zip(bin_labels_copy, color_list_copy):
+        color_bin_match_list.append((lbl, color))
+
     cmap = LinearSegmentedColormap.from_list(
         'mycmap',
-        [(lbl, color) for lbl, color in zip(bin_labels, color_list)])
+        color_bin_match_list)
 
     # Reclassify
-    lad_geopanda_shp['reclassified'] = lad_geopanda_shp[field_name_to_plot].apply(bin_mapping)
+    lad_geopanda_shp['reclassified'] = lad_geopanda_shp[field_to_plot].apply(
+        func=bin_mapping,
+        class_bins=bins,
+        placeholder_zero_color=float(placeholder_zero_color))
 
     return lad_geopanda_shp, cmap
 
 def plot_lad_national(
         lad_geopanda_shp,
         legend_unit,
-        field_name_to_plot,
+        field_to_plot,
         fig_name_part,
         result_path,
-        plotshow=False,
+        color_palette,
+        color_prop,
         user_classification=False,
-        bins=[]
+        color_list=False,
+        color_zero=False,
+        bins=[],
+        file_type="png", #"png" pdf
+        plotshow=False
     ):
     """Create plot of LADs and store to map file (PDF)
 
@@ -143,7 +256,7 @@ def plot_lad_national(
         Geopanda dataframe
     legend_unit : str
         Unit of values
-    field_name_to_plot : str
+    field_to_plot : str
         Field name to plot in map
     fig_name_part : str
         Additional string naming variable
@@ -153,64 +266,109 @@ def plot_lad_national(
         Criteria if user classification or not
     bins : list
         Classification boders
-
-        # Classification borders
-        # Note:
-        #   First bin entry must not be zero! (the first entry is alwys from zero to first entry)
-        #   Last bin entry is always theretical maximum
+    color_palette : list
+        List name of color scheme
+    color_list : list
+        User defined color scheme
+    color_prop : str
+        If whether sequential or qualitative colors
 
     Info
-    -----
-        Map color:  https://matplotlib.org/users/colormaps.html
+    ----
 
-    http://darribas.org/gds_scipy16/ipynb_md/02_geovisualization.html
-    https://stackoverflow.com/questions/41783090/plotting-a-choropleth
-    -map-with-geopandas-using-a-user-defined-classification-s
+        color_palette
+
+            Colorbrewer defined color schemes can be found here:
+            https://jiffyclub.github.io/palettable/colorbrewer/sequential/
+
+        bins (Classification borders)
+
+            If only positive numbers are to classify, the first entry must not be zero.
+            If positive and negative numbers, a user defined  color schmene `color_list`
+            generated with `colors_plus_minus_map` must be provided as an input and
+            user_classification set to `user_classification`.
+
+        Geopanda info:
+        http://darribas.org/gds_scipy16/ipynb_md/02_geovisualization.html
+        https://stackoverflow.com/questions/41783090/plotting-a-choropleth
+        -map-with-geopandas-using-a-user-defined-classification-s
     """
     fig_name = os.path.join(
         result_path,
-        "{}.{}".format(field_name_to_plot, "pdf"))
+        "{}.{}".format(field_to_plot, file_type))
 
-    fig_map, axes = plt.subplots(
-        1,
-        figsize=(5, 8))
+    fig_map, axes = plt.subplots(1, figsize=(5, 8))
 
     legend_title = "unit [{}]".format(legend_unit)
+
+    # --------------------
+    # Plot polygon borders and set per default to white
+    # --------------------
+    lad_geopanda_shp.plot(
+        ax=axes,
+        linewidth=0.6,
+        color=None,
+        edgecolor='black')
 
     # -----------------------------
     # Own classification (work around)
     # -----------------------------
     if user_classification:
 
-        # Get maximum and minum values
-        max_value = lad_geopanda_shp[field_name_to_plot].max()
-        min_value = lad_geopanda_shp[field_name_to_plot].min()
+        # Color to assing zero values
+        placeholder_zero_color = 0.001
 
+        # Get maximum and minum values
+        rounding_digits = 10
+        min_value = round(lad_geopanda_shp[field_to_plot].min(), rounding_digits)
+        max_value = round(lad_geopanda_shp[field_to_plot].max(), rounding_digits)
+
+        # Add maximum value
         bins.append(max_value)
 
-        lad_geopanda_shp, cmap = own_classification_work_round(
+        lad_geopanda_shp_reclass, cmap = user_defined_classification(
             bins,
             min_value,
+            max_value,
             lad_geopanda_shp,
-            field_name_to_plot,
-            legend_title)
+            field_to_plot,
+            legend_title,
+            color_palette=color_palette,
+            color_prop=color_prop,
+            placeholder_zero_color=placeholder_zero_color,
+            color_zero=color_zero,
+            color_list=color_list)
 
-        lad_geopanda_shp.plot(
-            axes=axes,
+        # Plot reclassified
+        lad_geopanda_shp_reclass.plot(
+            ax=axes,
             column='reclassified',
             legend=False,
             cmap=cmap,
             alpha=1,
             vmin=0,
             vmax=1)
+
+        # ---------
+        # Select all polygons with value 0 of attribute to plot
+        # ---------
+        all_zero_polygons = getattr(lad_geopanda_shp_reclass, 'reclassified')
+        lad_geopanda_shp_zeros = lad_geopanda_shp_reclass[(all_zero_polygons==placeholder_zero_color)]
+
+        # If more than 0 polygons are selected with classified number of zero, plot them
+        if lad_geopanda_shp_zeros.shape[0] > 0:
+            lad_geopanda_shp_zeros.plot(
+                ax=axes,
+                color=color_zero)#or white "#8a2be2"
+
     else:
 
         # -----------------------------
         # Plot map with all value hues
         # -----------------------------
         lad_geopanda_shp.plot(
-            axes=axes,
-            column=field_name_to_plot,
+            ax=axes,
+            column=field_to_plot,
             cmap='OrRd',
             legend=True,
             alpha=1)
@@ -229,7 +387,7 @@ def plot_lad_national(
     # -----------------------------
     '''lad_geopanda_shp.plot(
         axes=axes,
-        column=field_name_to_plot,
+        column=field_to_plot,
         cmap='OrRd',
         legend=True)'''
 
@@ -238,7 +396,7 @@ def plot_lad_national(
     # -----------------------------
     '''lad_geopanda_shp.plot(
         axes=axes,
-        column=field_name_to_plot,
+        column=field_to_plot,
         scheme='QUANTILES',
         k=5,
         cmap='OrRd',
@@ -249,7 +407,7 @@ def plot_lad_national(
     # -----------------------------
     '''lad_geopanda_shp.plot(
         axes=axes,
-        column=field_name_to_plot,
+        column=field_to_plot,
         scheme='equal_interval',
         k=5,
         cmap='OrRd',
@@ -269,11 +427,9 @@ def plot_lad_national(
         scheme='User_Defined')'''
 
     # Title
-    field_name_to_plot = os.path.join(
-        field_name_to_plot,
-        fig_name_part)
+    field_to_plot = field_to_plot + fig_name_part
 
-    fig_map.suptitle(field_name_to_plot)
+    fig_map.suptitle(field_to_plot)
 
     # Make that not distorted
     plt.axis('equal')
@@ -282,7 +438,8 @@ def plot_lad_national(
     plt.margins(x=0)
 
     # Add space for legend
-    plt.subplots_adjust(bottom=0.2)
+    plt.subplots_adjust(
+        bottom=0.4) #0.2 the charts
 
     # Save figure
     plt.savefig(fig_name)
@@ -328,7 +485,15 @@ def merge_data_to_shp(shp_gdp, merge_data, unique_merge_id):
 
     return shp_gdp_merged
 
-def create_geopanda_files(data, results_container, paths, lu_reg, fueltypes_nr):
+def create_geopanda_files(
+        data,
+        results_container,
+        paths,
+        regions,
+        fueltypes_nr,
+        fueltypes,
+        path_shapefile_input
+    ):
     """Create map related files (png) from results.
 
     Arguments
@@ -337,22 +502,87 @@ def create_geopanda_files(data, results_container, paths, lu_reg, fueltypes_nr):
         Data container
     paths : dict
         Paths
-    lu_reg : list
+    regions : list
         Region in a list with order how they are stored in result array
     fueltypes_nr : int
         Number of fueltypes
     """
+    logging.info("... create spatial maps of results")
     # --------
     # Read LAD shapefile and create geopanda
     # --------
-    lad_geopanda_shp = gpd.read_file(paths['lad_shapefile'])
-
+    try:
+        # Single scenario run
+        lad_geopanda_shp = gpd.read_file(paths['lad_shapefile'])
+    except IOError:
+        # Multiple scenario runs
+        lad_geopanda_shp = gpd.read_file(path_shapefile_input)
+  
     # Attribute merge unique Key
     unique_merge_id = 'name' #'geo_code'
 
-    # ---------
+    # ======================================
+    # Spatial maps of difference in load factors
+    # ======================================
+    simulated_yrs = list(results_container['load_factors_y'].keys())
+
+    final_yr = simulated_yrs[-1]
+    base_yr = simulated_yrs[0]
+
+    for fueltype in range(fueltypes_nr):
+
+        fueltype_str = tech_related.get_fueltype_str(fueltypes, fueltype)
+        field_name = 'lf_diff_{}_{}_'.format(final_yr, fueltype_str)
+
+        lf_end_yr = basic_functions.array_to_dict(
+            results_container['load_factors_y'][final_yr][fueltype],
+            regions)
+
+        lf_base_yr = basic_functions.array_to_dict(
+            results_container['load_factors_y'][base_yr][fueltype],
+            regions)
+
+        # Calculate load factor difference base and final year (100 = 100%)
+        diff_lf = {}
+        for reg in regions:
+            diff_lf[reg] = lf_end_yr[reg] - lf_base_yr[reg]
+
+        # Both need to be lists
+        merge_data = {
+            str(field_name): list(diff_lf.values()),
+            str(unique_merge_id): list(regions)}
+
+        # Merge to shapefile
+        lad_geopanda_shp = merge_data_to_shp(
+            lad_geopanda_shp,
+            merge_data,
+            unique_merge_id)
+
+        # If user classified, defined bins  [x for x in range(0, 1000000, 200000)]
+        bins = [-4, -2, 0, 2, 4] # must be of uneven length containing zero
+
+        color_list, color_prop, user_classification, color_zero = colors_plus_minus_map(
+            bins=bins,
+            color_prop='qualitative',
+            color_order=True,
+            color_zero='#ffffff') #"#8a2be2" ffffff
+
+        plot_lad_national(
+            lad_geopanda_shp=lad_geopanda_shp,
+            legend_unit="%",
+            field_to_plot=field_name,
+            fig_name_part="lf_max_y",
+            result_path=paths['data_results_shapefiles'],
+            color_palette='Purples_9',
+            color_prop=color_prop,
+            user_classification=user_classification,
+            color_list=color_list,
+            color_zero=color_zero,
+            bins=bins)
+
+    # ======================================
     # Population
-    # ---------
+    # ======================================
     for year in results_container['results_every_year'].keys():
 
         field_name = 'pop_{}'.format(year)
@@ -360,7 +590,7 @@ def create_geopanda_files(data, results_container, paths, lu_reg, fueltypes_nr):
         # Both need to be lists
         merge_data = {
             str(field_name): data['scenario_data']['population'][year].flatten().tolist(),
-            str(unique_merge_id): list(lu_reg)}
+            str(unique_merge_id): list(regions)}
 
         # Merge to shapefile
         lad_geopanda_shp = merge_data_to_shp(
@@ -374,15 +604,17 @@ def create_geopanda_files(data, results_container, paths, lu_reg, fueltypes_nr):
         plot_lad_national(
             lad_geopanda_shp=lad_geopanda_shp,
             legend_unit="people",
-            field_name_to_plot=field_name,
+            field_to_plot=field_name,
             fig_name_part="pop_",
             result_path=paths['data_results_shapefiles'],
+            color_palette='Dark2_7',
+            color_prop='qualitative',
             user_classification=True,
             bins=bins)
 
-    # ------------------------------------
+    # ======================================
     # Total fuel all enduses
-    # ------------------------------------
+    # ======================================
     for year in results_container['results_every_year'].keys():
         for fueltype in range(fueltypes_nr):
 
@@ -393,12 +625,12 @@ def create_geopanda_files(data, results_container, paths, lu_reg, fueltypes_nr):
                 results_container['results_every_year'][year][fueltype],
                 axis=1)
 
-            fuel_data = basic_functions.array_to_dict(yearly_sum_gwh, lu_reg)
+            fuel_data = basic_functions.array_to_dict(yearly_sum_gwh, regions)
 
             # Both need to be lists
             merge_data = {
                 str(field_name): list(fuel_data.values()),
-                str(unique_merge_id): list(lu_reg)}
+                str(unique_merge_id): list(regions)}
 
             # Merge to shapefile
             lad_geopanda_shp = merge_data_to_shp(
@@ -407,31 +639,31 @@ def create_geopanda_files(data, results_container, paths, lu_reg, fueltypes_nr):
                 unique_merge_id)
 
             # If user classified, defined bins
-            #bins = [50000, 300000]
             plot_lad_national(
                 lad_geopanda_shp=lad_geopanda_shp,
                 legend_unit="GWh",
-                field_name_to_plot=field_name,
+                field_to_plot=field_name,
                 fig_name_part="tot_all_enduses_y_",
                 result_path=paths['data_results_shapefiles'],
-                user_classification=False) #,
-                #bins=bins)
+                color_palette='Dark2_7',
+                color_prop='qualitative',
+                user_classification=False)
 
-    # ------------------------------------
-    # Create shapefile with load factors
-    # ------------------------------------
+    # ======================================
+    # Load factors
+    # ======================================
     for year in results_container['load_factors_y'].keys():
         for fueltype in range(fueltypes_nr):
 
             field_name = 'lf_{}_{}'.format(year, fueltype)
 
             results = basic_functions.array_to_dict(
-                results_container['load_factors_y'][year][fueltype], lu_reg)
+                results_container['load_factors_y'][year][fueltype], regions)
 
             # Both need to be lists
             merge_data = {
                 str(field_name): list(results.values()),
-                str(unique_merge_id): list(lu_reg)}
+                str(unique_merge_id): list(regions)}
 
             # Merge to shapefile
             lad_geopanda_shp = merge_data_to_shp(
@@ -440,12 +672,77 @@ def create_geopanda_files(data, results_container, paths, lu_reg, fueltypes_nr):
                 unique_merge_id)
 
             # If user classified, defined bins
-            #bins = [50000, 300000]
             plot_lad_national(
                 lad_geopanda_shp=lad_geopanda_shp,
                 legend_unit="%",
-                field_name_to_plot=field_name,
+                field_to_plot=field_name,
                 fig_name_part="lf_max_y",
                 result_path=paths['data_results_shapefiles'],
-                user_classification=False) #True,
-                #bins=bins)
+                color_palette='Dark2_7',
+                color_prop='qualitative',
+                user_classification=False)
+
+def colors_plus_minus_map(
+        bins,
+        color_prop,
+        color_order=True,
+        color_zero='#ffffff'
+    ):
+    """Create color scheme in case plus and minus classes
+    are defined (i.e. negative and positive values to
+    classify)
+
+    Arguments
+    ---------
+    bins : list
+        List with borders
+    color_prop : str
+        Type of color is not plus_minus map
+    color_order : bool
+        Criteria to switch colors
+    user_classification : bool
+        Criteria whether used classification or not
+    color_zero : str, default=white hex color
+        Color of zero values
+
+    Returns
+    -------
+    color_list : list
+        List with colors
+    color_prop : str
+        Type of colors
+    user_classification : bool
+        Wheter user defined color scheme or not
+    color_zero : hex_color string
+        Color of zero values
+    """
+    if min(bins) < 0:
+
+        # Colors pos and neg
+        if color_order:
+            color_list_pos = getattr(palettable.colorbrewer.sequential, 'Reds_9').hex_colors
+            color_list_neg = getattr(palettable.colorbrewer.sequential, 'Greens_9').hex_colors
+        else:
+            color_list_neg = getattr(palettable.colorbrewer.sequential, 'Reds_9').hex_colors
+            color_list_pos = getattr(palettable.colorbrewer.sequential, 'Greens_9').hex_colors
+
+        # Select correct number of colors or addapt colors
+        color_list_pos = color_list_pos[1:]
+
+        # Invert negative colors
+        color_list_neg = color_list_neg[::-1]
+
+        nr_of_cat_pos_neg = int((len(bins) -1) / 2)
+
+        color_list = []
+        for i in range(nr_of_cat_pos_neg + 1): #add one to get class up to zero
+            color_list.append(color_list_neg[i])
+
+        for i in range(nr_of_cat_pos_neg + 1): # add one to get class beyond last bin
+            color_list.append(color_list_pos[i])
+
+        return color_list, 'user_defined', True, color_zero
+
+    else:
+        # regular classification
+        return [], color_prop, False, False

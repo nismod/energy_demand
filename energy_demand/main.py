@@ -32,6 +32,8 @@
 
 NICETOHAVE
 - Convert paths dict to objects
+
+TODOS
 TODO: Write function to test wheter swichtes are possible (e.g. that not more from one technology to another is replaced than possible)
 TODO: Improve industry related demand --> define strategies
 TODO: Related ed to houses & householdsize
@@ -39,10 +41,18 @@ TODO: SENSITIVITY
 TODO: data loading, load multiple years for real elec data
 TODO: Load different temp --> for different years
 TODO: THECK VARIALBES IN HOUSEHOLD MODEL
-TODO: FUEL; SERVICE SWITHC AS INPUT
+TODO: FUEL; SERVICE SWITHC AS INPUT¨
+TODO: REMOVE SEPEARATE PEAK CALUCLATIONS AND SHAPES
 TODO: PEAK SHAPE vs PEAK FROM LOAD PROFILES
 TODO: IF spatial explicity, still very slow
 TODO: UPDate all fuel data with new ECUK DATA
+TODO: TEST IS SECTOR TECH SWITCH
+TODO: STORE RESULTS PER ANNUAL YEAR AND GENERATE FUNCTION TO COLLECT PLOTS AND CREATE GIF
+TODO: get_position for all readings of csv file
+TODO: WHAT ABOU NON_RESIDENTIAL FLOOR AREA: FOR WHAT?
+TODO: REMOVE PEAK SHAPES
+TODO: SPATIAL DISAGGREGATION FACTORS RESID/NONRESID SHARE
+RURAL URBAN : http://www.gov.scot/Topics/Statistics/About/Methodology/UrbanRuralClassification/Urban-Rural-Classification-2011-12/2011-2012-Urban-Rural-Lookups
 """
 import os
 import sys
@@ -51,6 +61,7 @@ import datetime
 import numpy as np
 from energy_demand import model
 from energy_demand.basic import testing_functions as testing
+from energy_demand.basic import lookup_tables
 
 def energy_demand_model(data, fuel_in=0, fuel_in_elec=0):
     """Main function of energy demand model to calculate yearly demand
@@ -74,7 +85,7 @@ def energy_demand_model(data, fuel_in=0, fuel_in_elec=0):
     This function is executed in the wrapper
     """
     modelrun_obj = model.EnergyDemandModel(
-        regions=data['lu_reg'],
+        regions=data['regions'],
         data=data)
 
     # ----------------
@@ -181,7 +192,7 @@ if __name__ == "__main__":
 
     data['paths'] = data_loader.load_paths(path_main)
     data['local_paths'] = data_loader.load_local_paths(local_data_path)
-    data['lookups'] = data_loader.load_basic_lookups()
+    data['lookups'] = lookup_tables.basic_lookups()
     data['enduses'], data['sectors'], data['fuels'] = data_loader.load_fuels(data['paths'], data['lookups'])
     data['sim_param'] = {}
     data['sim_param']['base_yr'] = 2015
@@ -189,14 +200,14 @@ if __name__ == "__main__":
     data['sim_param']['simulated_yrs'] = [2015, 2016, 2030, 2050]
 
     # local scrap
-    data['lu_reg'] = data_loader.load_LAC_geocodes_info(
+    data['regions'] = data_loader.load_LAC_geocodes_info(
         os.path.join(local_data_path, '_raw_data', '_quick_and_dirty_spatial_disaggregation', 'infuse_dist_lyr_2011_saved.csv'))
-
+    
     # GVA
     gva_data = {}
     for year in range(2015, 2101):
         gva_data[year] = {}
-        for region_geocode in data['lu_reg']:
+        for region_geocode in data['regions']:
             gva_data[year][region_geocode] = 999
     data['gva'] = gva_data
 
@@ -204,15 +215,16 @@ if __name__ == "__main__":
     pop_dummy = {}
     for year in range(2015, 2101):
         _data = {}
-        for reg_geocode in data['lu_reg']:
-            _data[reg_geocode] = data['lu_reg'][reg_geocode]['POP_JOIN']
+        for reg_geocode in data['regions']:
+            _data[reg_geocode] = data['regions'][reg_geocode]['POP_JOIN']
         pop_dummy[year] = _data
     data['population'] = pop_dummy
 
     data['reg_coord'] = {}
-    for reg in data['lu_reg']:
+    for reg in data['regions']:
         data['reg_coord'][reg] = {'longitude': 52.58, 'latitude': -1.091}
 
+    data['regions'] = list(data['regions'].keys())
     # ------------------------------
     # Assumptions
     # ------------------------------
@@ -221,6 +233,7 @@ if __name__ == "__main__":
         data['sim_param']['base_yr'],
         data['paths'],
         data['enduses'],
+        data['sectors'],
         data['lookups']['fueltypes'],
         data['lookups']['fueltypes_nr'])
 
@@ -242,7 +255,7 @@ if __name__ == "__main__":
 
     data['weather_stations'], data['temp_data'] = data_loader.load_temp_data(data['local_paths'])
 
-    data['reg_nrs'] = len(data['lu_reg'])
+    data['reg_nrs'] = len(data['regions'])
 
     # ----------------------------------
     # Calculating COOLING CDD PARAMETER
@@ -261,36 +274,44 @@ if __name__ == "__main__":
 
     # ------------------------------
     if data['criterias']['virtual_building_stock_criteria']:
-        rs_floorarea, ss_floorarea = data_loader.virtual_building_datasets(
-            data['lu_reg'],
+        rs_floorarea, ss_floorarea = data_loader.floor_area_virtual_dw(
+            data['regions'],
             data['sectors']['all_sectors'],
-            data['local_paths'])
+            data['local_paths'],
+            data['sim_param']['base_yr'],
+            p_mixed_resid=0.5)
+
+    # Lookup table to import industry sectoral gva
+    lookup_tables.industrydemand_name_sic2007()
+
+    data['industry_gva'] = "TST"
 
     #Scenario data
     data['scenario_data'] = {
         'gva': data['gva'],
         'population': data['population'],
+        'industry_gva': data['industry_gva'],
         'floor_area': {
             'rs_floorarea': rs_floorarea,
             'ss_floorarea': ss_floorarea}}
 
-    logging.info("Start Energy Demand Model with python version: " + str(sys.version))
-    logging.info("Info model run")
-    logging.info("Nr of Regions " + str(data['reg_nrs']))
+    print("Start Energy Demand Model with python version: " + str(sys.version))
+    print("Info model run")
+    print("Nr of Regions " + str(data['reg_nrs']))
 
     # In order to load these data, the initialisation scripts need to be run
-    logging.info("... Load data from script calculations")
+    print("... Load data from script calculations")
     data = read_data.load_script_data(data)
-
+    print("AAAAAAAAAAAAAAAA")
     #-------------------
     # Folder cleaning
     #--------------------
-    logging.info("... delete previous model run results")
+    print("... delete previous model run results")
     basic_functions.del_previous_setup(data['local_paths']['data_results'])
     basic_functions.create_folder(data['local_paths']['data_results'])
     basic_functions.create_folder(data['local_paths']['data_results_PDF'])
     basic_functions.create_folder(data['local_paths']['data_results_model_run_pop'])
-
+    print("BBBBBBBBBB")
     # Create .ini file with simulation information
     write_data.write_simulation_inifile(
         data['local_paths']['data_results'],
@@ -298,12 +319,12 @@ if __name__ == "__main__":
         data['enduses'],
         data['assumptions'],
         data['reg_nrs'],
-        data['lu_reg'])
-
+        data['regions'])
+    print("AAAAAAAAAAAAAAAA")
     for sim_yr in data['sim_param']['simulated_yrs']:
         data['sim_param']['curr_yr'] = sim_yr
 
-        logging.info("Simulation for year --------------:  " + str(sim_yr))
+        print("Simulation for year --------------:  " + str(sim_yr))
         fuel_in, fuel_in_biomass, fuel_in_elec, fuel_in_gas, fuel_in_heat, fuel_in_hydro, fuel_in_solid_fuel, fuel_in_oil, tot_heating = testing.test_function_fuel_sum(
             data,
             data['criterias']['mode_constrained'],
@@ -344,7 +365,7 @@ if __name__ == "__main__":
             # -------------------------------------------
             # Write annual results to txt files
             # -------------------------------------------
-            logging.info("... Start writing results to file")
+            print("... Start writing results to file")
             path_runs = data['local_paths']['data_results_model_runs']
 
             # Write unconstrained results
@@ -352,7 +373,7 @@ if __name__ == "__main__":
                 #TODO NOT USED SO FAR
                 '''write_data.write_supply_results(
                     sim_yr,
-                    data['lu_reg'],
+                    data['regions'],
                     "supply_results",
                     path_runs,
                     supply_results_unconstrained,
@@ -414,18 +435,18 @@ if __name__ == "__main__":
                 # -------------------------------------------
                 # Write population files of simulation year
                 # -------------------------------------------
-                pop_array_reg = np.zeros((len(data['lu_reg'])))
-                for reg_array_nr, reg in enumerate(data['lu_reg']):
+                pop_array_reg = np.zeros((len(data['regions'])))
+                for reg_array_nr, reg in enumerate(data['regions']):
                     pop_array_reg[reg_array_nr] = data['scenario_data']['population'][sim_yr][reg]
 
                 write_data.write_scenaric_population_data(
                     sim_yr,
                     data['local_paths']['model_run_pop'],
                     pop_array_reg)
-                logging.info("... Finished writing results to file")
+                print("... Finished writing results to file")
 
     b = datetime.datetime.now()
     print("TOTAL TIME: " + str(b-a))
 
-    logging.info("... Finished running Energy Demand Model")
     print("... Finished running Energy Demand Model")
+

@@ -1,8 +1,30 @@
 """Function related to service or fuel switch
 """
+import logging
 from collections import defaultdict
 from energy_demand.technologies import tech_related
 from energy_demand.read_write import read_data
+from energy_demand.basic import basic_functions
+
+def sum_fuel_across_sectors(enduse_fuels):
+    """Sum fuel across sectors of an enduse if multiple sectors.
+    Otherwise return unchanged `enduse_fuels`
+
+    Arguments
+    ---------
+    enduse_fuels : dict or np.array
+        Fuels of an enduse either for sectors or already aggregated
+
+    Returns
+    -------
+    sum_array : np.array
+        Sum of fuels of all sectors
+    """
+    if isinstance(enduse_fuels, dict):
+        sum_array = sum(enduse_fuels.values())
+        return sum_array
+    else:
+        return enduse_fuels
 
 def get_share_s_tech_ey(service_switches, specified_tech_enduse_by):
     """Get fraction of service for each technology
@@ -42,12 +64,17 @@ def get_share_s_tech_ey(service_switches, specified_tech_enduse_by):
 
     return enduse_tech_ey_p
 
-def autocomplete_switches(service_switches, specified_tech_enduse_by, s_tech_by_p):
+def autocomplete_switches(
+        service_switches,
+        specified_tech_enduse_by,
+        s_tech_by_p,
+        sector=False
+    ):
     """Helper function to add not defined technologies in switch
-    and set correct future year service share. If the defined
+    and set correct future service share. If the defined
     service switches do not sum up to 100% service,
     the remaining service is distriputed proportionally
-    to all remaining technologies
+    to all remaining technologies.
 
     Argument
     --------
@@ -87,7 +114,7 @@ def autocomplete_switches(service_switches, specified_tech_enduse_by, s_tech_by_
                 switches_enduse.append(switch)
                 switch_yr = switch.switch_yr
 
-        # Calculate relative by proportion of not assigned tchnologies
+        # Calculate relative by proportion of not assigned technologies
         tech_not_assigned_by_p = {}
 
         for tech in specified_tech_enduse_by[enduse]:
@@ -110,6 +137,7 @@ def autocomplete_switches(service_switches, specified_tech_enduse_by, s_tech_by_
                 if assigned_service == 1.0:
                     switch_new = read_data.ServiceSwitch(
                         enduse=enduse,
+                        sector=sector,
                         technology_install=tech,
                         service_share_ey=0,
                         switch_yr=switch_yr)
@@ -120,6 +148,7 @@ def autocomplete_switches(service_switches, specified_tech_enduse_by, s_tech_by_
 
                     switch_new = read_data.ServiceSwitch(
                         enduse=enduse,
+                        sector=sector,
                         technology_install=tech,
                         service_share_ey=tech_ey_p,
                         switch_yr=switch_yr)
@@ -184,29 +213,55 @@ def capacity_switch(
     if switch_enduses == []:
         pass # not capacity switch defined
     else:
-        service_switches = [] # List to store service switches
+        # List to store service switches
+        service_switches = []
 
         for enduse in switch_enduses:
 
             # Get all capacity switches related to this enduse
             enduse_capacity_switches = []
-            for capacity_switch in capacity_switches:
-                if capacity_switch.enduse == enduse:
-                    enduse_capacity_switches.append(capacity_switch)
+            for switch in capacity_switches:
+                if switch.enduse == enduse:
+                    enduse_capacity_switches.append(switch)
 
             # Iterate capacity switches
-            for capacity_switch in enduse_capacity_switches:
+            for switch in enduse_capacity_switches:
+
+                # Test if sector specific switch
+                if switch.sector == None:
+
+                    # Check depth of dict
+                    depth_dict = basic_functions.dict_depth(
+                        fuel_shares_enduse_by)
+
+                    if depth_dict == 3:
+                        # Fuel share are only given per enduses
+                        fuel_shares = fuel_shares_enduse_by[enduse]
+                        fuel_to_use = fuels[enduse]
+                        sector = switch.sector
+                    elif depth_dict == 4:
+                        # Fuel shares are provide per enduse and sectors
+                        any_sector = list(fuel_shares_enduse_by[enduse].keys())[0]
+                        fuel_shares = fuel_shares_enduse_by[enduse][any_sector]
+                        fuel_to_use = sum_fuel_across_sectors(fuels[enduse])
+                        sector = None
+                else:
+                    # Get fuel share speifically for the enduse and sector
+                    fuel_shares = fuel_shares_enduse_by[enduse][switch.sector]
+                    fuel_to_use = fuels[enduse]
+                    sector = switch.sector
 
                 # Calculate service switches
                 enduse_service_switches = create_service_switch(
                     enduse,
-                    capacity_switch,
+                    sector,
+                    switch,
                     enduse_capacity_switches,
                     technologies,
                     other_enduse_mode_info,
-                    fuel_shares_enduse_by[enduse],
+                    fuel_shares,
                     base_yr,
-                    fuels[enduse])
+                    fuel_to_use)
 
                 # Add service switches
                 service_switches += enduse_service_switches
@@ -215,7 +270,8 @@ def capacity_switch(
 
 def create_service_switch(
         enduse,
-        capacity_switch,
+        sector,
+        switch,
         enduse_capacity_switches,
         technologies,
         other_enduse_mode_info,
@@ -229,7 +285,7 @@ def create_service_switch(
     ---------
     enduse : dict
         Enduse
-    capacity_switch : obj
+    switch : obj
         Capacity switch
     enduse_capacity_switches : list
         All capacity switches of an enduse (see warning)
@@ -278,7 +334,7 @@ def create_service_switch(
             # Efficiency of year when capacity is fully installed
             tech_eff_ey = tech_related.calc_eff_cy(
                 base_yr,
-                capacity_switch.switch_yr,
+                switch.switch_yr,
                 technologies[tech].eff_by,
                 technologies[tech].eff_ey,
                 technologies[tech].year_eff_ey,
@@ -325,10 +381,9 @@ def create_service_switch(
     service_switches_enduse = []
     for tech, s_tech_p in service_enduse_tech.items():
 
-
-
         service_switch = read_data.ServiceSwitch(
             enduse=enduse,
+            sector=sector,
             technology_install=tech,
             service_share_ey=s_tech_p,
             switch_yr=switch_yr)
@@ -398,7 +453,7 @@ def capacity_to_service_switches(assumptions, fuels, base_yr):
     Arguments
     ---------
     assumptions : dict
-        Container
+        Container with assumptions
     fuels : dict
         Fuels
     base_yr : int
@@ -409,7 +464,7 @@ def capacity_to_service_switches(assumptions, fuels, base_yr):
         assumptions['capacity_switches']['rs_capacity_switches'],
         assumptions['technologies'],
         assumptions['enduse_overall_change']['other_enduse_mode_info'],
-        fuels['rs_fuel_raw_data_enduses'],
+        fuels['rs_fuel_raw'],
         assumptions['rs_fuel_tech_p_by'],
         base_yr)
 
@@ -418,7 +473,7 @@ def capacity_to_service_switches(assumptions, fuels, base_yr):
         assumptions['capacity_switches']['ss_capacity_switches'],
         assumptions['technologies'],
         assumptions['enduse_overall_change']['other_enduse_mode_info'],
-        fuels['ss_fuel_raw_data_enduses'],
+        fuels['ss_fuel_raw'],
         assumptions['ss_fuel_tech_p_by'],
         base_yr)
 
@@ -427,7 +482,7 @@ def capacity_to_service_switches(assumptions, fuels, base_yr):
         assumptions['capacity_switches']['is_capacity_switches'],
         assumptions['technologies'],
         assumptions['enduse_overall_change']['other_enduse_mode_info'],
-        fuels['is_fuel_raw_data_enduses'],
+        fuels['is_fuel_raw'],
         assumptions['is_fuel_tech_p_by'],
         base_yr)
 

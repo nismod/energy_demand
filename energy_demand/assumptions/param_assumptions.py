@@ -316,16 +316,47 @@ def load_param_assump(paths, assumptions):
     # Carbon Trust. (2012). Air conditioning. Maximising comfort, minimising energy consumption.
     strategy_vars['cooled_floorarea__ss_cooling_humidification'] = 0.35
 
+    strategy_variables.append({
+        "name": "cooled_floorarea_yr_until_changed",
+        "absolute_range": (0, 1),
+        "description": "Year until floor area is fully changed",
+        "suggested_range": (2015, 2100),
+        "default_value": 2050,
+        "units": 'year'})
+
     # Year until floor area change is fully realised
     strategy_vars['cooled_floorarea_yr_until_changed'] = yr_until_changed_all_things
-    
+
     # Penetration of cooling devices
     # COLING_OENETRATION ()
     # Or Assumkp Peneetration curve in relation to HDD from PAPER #Residential
     # Assumption on recovered heat (lower heat demand based on heat recovery)
 
     # ============================================================
-    # Heat recycling & Reuse
+    # Industrial processes
+    # ============================================================
+    strategy_vars['hot_cold_rolling_yr_until_changed'] = yr_until_changed_all_things
+
+    strategy_variables.append({
+        "name": "hot_cold_rolling_yr_until_changed",
+        "absolute_range": (0, 1),
+        "description": "Year until cold rolling steel manufacturing change is fully realised",
+        "suggested_range": (2015, 2100),
+        "default_value": 2050,
+        "units": 'year'})
+
+    strategy_variables.append({
+        "name": "p_cold_rolling_steel",
+        "absolute_range": (0, 1),
+        "description": "Share of cold rolling given in percent)",
+        "suggested_range": (0, 1),
+        "default_value": assumptions['p_cold_rolling_steel_by'],
+        "units": '%'})
+
+    strategy_vars['p_cold_rolling_steel'] = assumptions['p_cold_rolling_steel_by']
+
+    # ============================================================
+    # Heat recycling & reuse
     # ============================================================
     strategy_variables.append({
         "name": "heat_recoved__rs_space_heating",
@@ -367,6 +398,49 @@ def load_param_assump(paths, assumptions):
     # Year until recycling is fully realised
     strategy_vars['heat_recovered_yr_until_changed'] = yr_until_changed_all_things
 
+    # ============================================================
+    # Air leakage
+    # ============================================================
+    strategy_variables.append({
+        "name": "air_leakage__rs_space_heating",
+        "absolute_range": (0, 1),
+        "description": "Reduction in heat because of air leakage improvement (residential sector)",
+        "suggested_range": (0, 1),
+        "default_value": 0,
+        "units": '%'})
+
+    strategy_variables.append({
+        "name": "air_leakage__ss_space_heating",
+        "absolute_range": (0, 1),
+        "description": "Reduction in heat because of of air leakage improvementservice sector)",
+        "suggested_range": (0, 1),
+        "default_value": 0,
+        "units": '%'})
+
+    strategy_variables.append({
+        "name": "air_leakage__is_space_heating",
+        "absolute_range": (0, 1),
+        "description": "Reduction in heat because of air leakage improvement (industry sector)",
+        "suggested_range": (0, 1),
+        "default_value": 0,
+        "units": '%'})
+
+    strategy_variables.append({
+        "name": "air_leakage_yr_until_changed",
+        "absolute_range": (2015, 2100),
+        "description": "Year until heat air leakage improvement is full implemented",
+        "suggested_range": (2015, 2100),
+        "default_value": 2050,
+        "units": 'year'})
+
+    # Heat recycling assumptions (e.g. 0.2 = 20% improvement and thus 20% reduction)
+    strategy_vars['air_leakage__rs_space_heating'] = 0.0
+    strategy_vars['air_leakage__ss_space_heating'] = 0.0
+    strategy_vars['air_leakage__is_space_heating'] = 0.0
+
+    # Year until recycling is fully realised
+    strategy_vars['air_leakage_yr_until_changed'] = yr_until_changed_all_things
+
     # ---------------------------------------------------------
     # General change in fuel consumption for specific enduses
     # ---------------------------------------------------------
@@ -402,6 +476,7 @@ def load_param_assump(paths, assumptions):
         'enduse_change__rs_home_computing': 1,
 
         # Submodel Service (Table 5.5a)
+        # same % improvements from baseline for all sectors
         'enduse_change__ss_space_heating': 1,
         'enduse_change__ss_water_heating': 1,
         'enduse_change__ss_cooling_humidification': 1,
@@ -415,6 +490,7 @@ def load_param_assump(paths, assumptions):
         'enduse_change__ss_other_electricity': 1,
 
         # Submodel Industry
+        # same % improvements from baseline for all sectors
         'enduse_change__is_high_temp_process': 1,
         'enduse_change__is_low_temp_process': 1,
         'enduse_change__is_drying_separation': 1,
@@ -455,10 +531,10 @@ def load_param_assump(paths, assumptions):
     # Create parameter file only with fully descried parameters
     # and write to yaml file
     # -----------------------
-    basic_functions.del_file(paths['yaml_parameters_default'])
+    basic_functions.del_file(paths['yaml_parameters_constrained'])
 
     write_data.write_yaml_param_complete(
-        paths['yaml_parameters_default'],
+        paths['yaml_parameters_constrained'],
         strategy_variables)
 
     basic_functions.del_file(paths['yaml_parameters_scenario'])
@@ -468,6 +544,5 @@ def load_param_assump(paths, assumptions):
 
     # Replace strategy variables
     assumptions['strategy_variables'] = strategy_vars
-    assumptions['testing'] = True
 
     return

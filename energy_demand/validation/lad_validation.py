@@ -3,6 +3,7 @@
 import os
 import operator
 import logging
+import copy
 import numpy as np
 import matplotlib.pyplot as plt
 from scipy import stats
@@ -17,6 +18,42 @@ from energy_demand.basic import date_prop
 from energy_demand import enduse_func
 from energy_demand.profiles import load_profile
 from energy_demand.plotting import plotting_styles
+
+def map_LAD_2011_2015(lad_data):
+    """Map LAD 2015 values to LAD 2011.
+
+    Arguments
+    -----------
+    lad_data : dict
+        LAD 2015 data
+
+    Returns
+    --------
+    mapped_lads : dict
+        LAD 2011 census data lads
+    """
+    mapped_lads = copy.deepcopy(lad_data)
+
+    mapped_lads.keys()
+
+    # E41000324 (City of London, Westminster) splits
+    # to E09000001 (City of London) and E09000033 (Westminster)
+    mapped_lads['E41000324'] = lad_data['E09000001'] + lad_data['E09000033']
+    del mapped_lads['E09000001']
+    del mapped_lads['E09000033']
+
+    # E41000052 (Cornwall, Isles of Scilly) splits
+    # to E06000052 (Cornwall) and E06000053 (Isles of Scilly) (edited)
+    mapped_lads['E41000052'] = lad_data['E06000052'] + lad_data['E06000053']
+    del mapped_lads['E06000052']
+    del mapped_lads['E06000053']
+
+    # missing S12000013 (Na h-Eileanan Siar)
+    # and S12000027 (Shetland Islands)
+    del mapped_lads['S12000013']
+    del mapped_lads['S12000027']
+
+    return mapped_lads
 
 def temporal_validation(
         local_paths,
@@ -107,7 +144,7 @@ def tempo_spatial_validation(
         fueltypes_nr,
         local_paths,
         paths,
-        lu_reg,
+        regions,
         reg_coord,
         seasons,
         model_yeardays_daytype,
@@ -115,7 +152,12 @@ def tempo_spatial_validation(
     ):
     """Validate national hourly demand for yearls fuel
     for all LADs. Test how the national disaggregation
-    works
+    works.
+
+    Info
+    -----
+    Because the floor area is only availabe for LADs from 2001,
+    the LADs are converted to 2015 LADs.
     """
     logging.info("... spatial validation")
 
@@ -138,7 +180,7 @@ def tempo_spatial_validation(
     tot_fuel_peak_dh = np.add(tot_fuel_peak_dh, model_object_transport.fuel_peak_dh)
 
     # Add electricity of transportion to regional yh fuel proportionally to population
-    for region_array_nr, region in enumerate(lu_reg):
+    for region_array_nr, region in enumerate(regions):
 
         # Disaggregation factor for transport electricity
         factor_transport_reg = scenario_data['population'][base_yr][region] / sum(scenario_data['population'][base_yr].values())
@@ -152,26 +194,44 @@ def tempo_spatial_validation(
     subnational_gas = data_loader.read_national_real_gas_data(
         paths['path_val_subnational_gas'])
 
+    # Create fueltype secific dict
+    fuel_elec_regs_yh = {}
+    for region_array_nr, region in enumerate(regions):
+        gwh_modelled = np.sum(ed_fueltype_regs_yh[fueltypes['electricity']][region_array_nr])
+        fuel_elec_regs_yh[region] = gwh_modelled
+
+    # Create fueltype secific dict
+    fuel_gas_regs_yh = {}
+    for region_array_nr, region in enumerate(regions):
+        gwh_modelled = np.sum(ed_fueltype_regs_yh[fueltypes['gas']][region_array_nr])
+        fuel_gas_regs_yh[region] = gwh_modelled
+
+    # ----------------------------------------
+    # Remap demands between 2011 and 2015 LADs
+    # ----------------------------------------
+    subnational_elec = map_LAD_2011_2015(subnational_elec)
+    subnational_gas = map_LAD_2011_2015(subnational_gas)
+    fuel_elec_regs_yh = map_LAD_2011_2015(fuel_elec_regs_yh)
+    fuel_gas_regs_yh = map_LAD_2011_2015(fuel_gas_regs_yh)
+
     logging.info("Validation of electricity")
     spatial_validation(
         reg_coord,
-        ed_fueltype_regs_yh,
-        fueltypes['electricity'],
-        'electricity',
-        lu_reg,
+        fuel_elec_regs_yh,
         subnational_elec,
+        regions,
+        'elec',
         os.path.join(local_paths['data_results_validation'], 'validation_spatial_elec.pdf'),
         label_points=False,
         plotshow=plot_crit)
 
-    logging.info("Validation of GAS")
+    logging.info("Validation of gas")
     spatial_validation(
         reg_coord,
-        ed_fueltype_regs_yh,
-        fueltypes['gas'],
-        'gas',
-        lu_reg,
+        fuel_gas_regs_yh,
         subnational_gas,
+        regions,
+        'gas',
         os.path.join(local_paths['data_results_validation'], 'validation_spatial_gas.pdf'),
         label_points=False,
         plotshow=plot_crit)
@@ -183,10 +243,11 @@ def tempo_spatial_validation(
     elec_2015_indo, elec_2015_itsdo = elec_national_data.read_raw_elec_2015(
         paths['path_val_nat_elec_data'])
 
-    diff_factor_elec = np.sum(ed_fueltype_national_yh[fueltypes['electricity']]) / np.sum(elec_2015_indo)
-    logging.info("... ed difference between modellend and real [percent] %s: ", (1 - diff_factor_elec) * 100)
+    f_diff_elec = np.sum(ed_fueltype_national_yh[fueltypes['electricity']]) / np.sum(elec_2015_indo)
+    logging.info(
+        "... ed diff modellend and real [p] %s: ", (1 - f_diff_elec) * 100)
 
-    elec_factored_yh = diff_factor_elec * elec_2015_indo
+    elec_factored_yh = f_diff_elec * elec_2015_indo
 
     temporal_validation(
         local_paths,
@@ -265,11 +326,10 @@ def tempo_spatial_validation(
 
 def spatial_validation(
         reg_coord,
-        ed_fueltype_regs_yh,
-        fueltype_int,
+        subnational_modelled,
+        subnational_real,
+        regions,
         fueltype_str,
-        lu_reg,
-        subnational_demand,
         fig_name,
         label_points=False,
         plotshow=False
@@ -282,7 +342,7 @@ def spatial_validation(
         Infos of shapefile (dbf / csv)
     ed_fueltype_regs_yh : object
         Regional fuel Given as GWh (?)
-    subnational_demand : 
+    subnational_real : dict
         for electricity: Sub-national electrcity demand given as GWh
 
     Note
@@ -298,31 +358,22 @@ def spatial_validation(
     # -------------------------------------------
     # Match ECUK sub-regional demand with geocode
     # -------------------------------------------
-    for region_array_nr, region in enumerate(lu_reg):
+    for region in regions:
         for reg_geocode in reg_coord:
             if reg_geocode == region:
 
                 try:
-                    # Test wheter data is provided for LAD
-                    if subnational_demand[reg_geocode] == 0:
-                        pass # Ignore region
+                    # Test wheter data is provided for LAD or owtherwise ignore
+                    if subnational_real[reg_geocode] == 0:
+                        pass
                     else:
                         # --Sub Regional Electricity demand (as GWh)
-                        result_dict['real_demand'][reg_geocode] = subnational_demand[reg_geocode]
-
-                        gwh_modelled = np.sum(ed_fueltype_regs_yh[fueltype_int][region_array_nr])
-
-                        # Correct ECUK data with correction factor
-                        result_dict['modelled_demand'][reg_geocode] = gwh_modelled
-                        logging.warning("{}, {}".format(reg_geocode, gwh_modelled))
+                        result_dict['real_demand'][reg_geocode] = subnational_real[reg_geocode]
+                        result_dict['modelled_demand'][reg_geocode] = subnational_modelled[reg_geocode]
 
                 except KeyError:
                     logging.warning(
                         "Sub-national spatial validation: No fuel for region %s", reg_geocode)
-
-    logging.info("Comparison: modelled: {}  real: {}".format(
-        sum(result_dict['modelled_demand'].values()),
-        sum(result_dict['real_demand'].values())))
 
     # --------------------
     # Calculate statistics
@@ -330,7 +381,7 @@ def spatial_validation(
     all_diff_real_modelled_p = []
     all_diff_real_modelled_abs = []
 
-    for reg_geocode in lu_reg:
+    for reg_geocode in regions:
         try:
             real = result_dict['real_demand'][reg_geocode]
             modelled = result_dict['modelled_demand'][reg_geocode]
@@ -383,11 +434,13 @@ def spatial_validation(
         y_modelled_elec_demand.append(
             result_dict['modelled_demand'][geocode_lad])
 
-        logging.debug(
-            "validation for LAD region: %s %s diff: %s",
-            result_dict['real_demand'][geocode_lad],
-            result_dict['modelled_demand'][geocode_lad],
-            result_dict['modelled_demand'][geocode_lad] - result_dict['real_demand'][geocode_lad])
+        logging.info(
+            "validation %s LAD %s: %s %s   (%s p diff)",
+            fueltype_str,
+            geocode_lad,
+            round(result_dict['real_demand'][geocode_lad], 4),
+            round(result_dict['modelled_demand'][geocode_lad], 4),
+            round(100 - (100 / result_dict['real_demand'][geocode_lad]) * result_dict['modelled_demand'][geocode_lad], 4))
 
         # Labels
         labels.append(geocode_lad)
@@ -443,7 +496,7 @@ def spatial_validation(
     # -----------
     if label_points:
         for pos, txt in enumerate(labels):
-            #ax.annotate(txt, x_values[pos], y_modelled_elec_demand[pos])¨#if arrow wants to be added
+
             ax.text(
                 x_values[pos],
                 y_modelled_elec_demand[pos],

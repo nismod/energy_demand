@@ -90,11 +90,11 @@ def dummy_sectoral_load_profiles(local_paths, path_main):
     create_folders_to_file(os.path.join(local_paths['ss_load_profile_txt'], "dumm"), "_processed_data")
 
     paths = data_loader.load_paths(path_main)
-    lookups = data_loader.load_basic_lookups()
+    lu = lookup_tables.basic_lookups()
 
-    dict_enduses, dict_sectors, dict_fuels = data_loader.load_fuels(paths, lookups)
+    dict_enduses, dict_sectors, dict_fuels = data_loader.load_fuels(paths, lu)
 
-    for enduse in dict_enduses['ss_all_enduses']:
+    for enduse in dict_enduses['ss_enduses']:
         for sector in dict_sectors['ss_sectors']:
 
             joint_string_name = str(sector) + "__" + str(enduse)
@@ -126,14 +126,11 @@ def post_install_setup_minimum(args):
     """
     path_energy_demand = args.path_energy_demand
     path_local_data = args.path_local_data
-    #print("A: " + str(path_energy_demand))
-    #print("B: " + str(path_local_data))
-    #prnt(":")
+
     # ==========================================
     # Post installation setup witout access to non publicy available data
     # ==========================================
-    print(
-        "... start running initialisation scripts without access to publicly available data")
+    print("... running initialisation scripts with only publicly available data")
 
     # Load paths
     local_paths = data_loader.load_local_paths(path_local_data)
@@ -157,7 +154,7 @@ def post_install_setup_minimum(args):
     data['sim_param'] = {}
     data['sim_param']['base_yr'] = 2015
     data['paths'] = data_loader.load_paths(path_energy_demand)
-    data['lookups'] = data_loader.load_basic_lookups()
+    data['lookups'] = lookup_tables.basic_lookups()
     data['enduses'], data['sectors'], data['fuels'] = data_loader.load_fuels(
         data['paths'], data['lookups'])
 
@@ -166,6 +163,7 @@ def post_install_setup_minimum(args):
         data['sim_param']['base_yr'],
         data['paths'],
         data['enduses'],
+        data['sectors'],
         data['lookups']['fueltypes'],
         data['lookups']['fueltypes_nr'])
 

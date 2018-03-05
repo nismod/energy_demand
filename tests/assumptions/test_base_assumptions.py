@@ -1,7 +1,9 @@
-from energy_demand.assumptions import non_param_assumptions
-from energy_demand.assumptions import param_assumptions
-from energy_demand.read_write import data_loader
+"""Testing
+"""
 import os
+from energy_demand.basic import lookup_tables
+from energy_demand.assumptions import non_param_assumptions
+from energy_demand.read_write import data_loader
 
 def test_load_non_param_assump():
 
@@ -11,11 +13,16 @@ def test_load_non_param_assump():
     # Load data
     data = {}
     paths = data_loader.load_paths(path_main)
-    lookups = data_loader.load_basic_lookups()
-    enduses, _, _ = data_loader.load_fuels(paths, lookups)
+    lu = lookup_tables.basic_lookups()
+    enduses, sectors, _ = data_loader.load_fuels(paths, lu)
 
     non_param_assumptions.load_non_param_assump(
-        2015, paths, enduses, lookups['fueltypes'], lookups['fueltypes_nr'])
+        2015,
+        paths,
+        enduses,
+        sectors,
+        lu['fueltypes'],
+        lu['fueltypes_nr'])
 
     # Test if yaml file is created
     #assert 
@@ -29,7 +36,7 @@ def test_load_param_assump():
     # Load data
     data = {}
     data['paths'] = data_loader.load_paths(path_main)
-    data['lookups'] = data_loader.load_basic_lookups()
+    data['lookups'] = lookup_tables.basic_lookups()
     data['enduses'], data['sectors'], data['fuels'] = data_loader.load_fuels(data['paths'], data['lookups'])
 
     sim_param_expected = {}

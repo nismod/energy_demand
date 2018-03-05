@@ -14,36 +14,6 @@ from energy_demand.basic import date_prop
 from energy_demand.plotting import plotting_results
 from energy_demand.basic import basic_functions
 
-def load_basic_lookups():
-    """Definition of basic lookups or other related information
-
-    Return
-    ------
-    lookups : dict
-        Lookup information and other very basic properties
-    """
-    lookups = {}
-
-    lookups['dwtype'] = {
-        0: 'detached',
-        1: 'semi_detached',
-        2: 'terraced',
-        3: 'flat',
-        4: 'bungalow'}
-
-    lookups['fueltypes'] = {
-        'solid_fuel': 0,
-        'gas': 1,
-        'electricity': 2,
-        'oil': 3,
-        'biomass': 4,
-        'hydrogen': 5,
-        'heat': 6}
-
-    lookups['fueltypes_nr'] = int(len(lookups['fueltypes']))
-
-    return lookups
-
 def load_sim_param_ini(path):
     """Load simulation parameter run information
 
@@ -62,7 +32,7 @@ def load_sim_param_ini(path):
         Assumptions
     reg_nrs : dict
         Number of regions
-    lu_reg : dict
+    regions : dict
         Regions
     """
     config = configparser.ConfigParser()
@@ -70,7 +40,7 @@ def load_sim_param_ini(path):
     config.read(os.path.join(path, 'model_run_sim_param.ini'))
 
     reg_nrs = int(config['SIM_PARAM']['reg_nrs'])
-    lu_reg = ast.literal_eval(config['REGIONS']['lu_reg'])
+    regions = ast.literal_eval(config['REGIONS']['regions'])
     sim_param = {}
     sim_param['base_yr'] = int(config['SIM_PARAM']['base_yr'])
     sim_param['simulated_yrs'] = ast.literal_eval(config['SIM_PARAM']['simulated_yrs'])
@@ -83,11 +53,11 @@ def load_sim_param_ini(path):
     # Other information
     # -----------------
     enduses = {}
-    enduses['rs_all_enduses'] = ast.literal_eval(config['ENDUSES']['rs_all_enduses']) #convert string lists to list
-    enduses['ss_all_enduses'] = ast.literal_eval(config['ENDUSES']['ss_all_enduses'])
-    enduses['is_all_enduses'] = ast.literal_eval(config['ENDUSES']['is_all_enduses'])
+    enduses['rs_enduses'] = ast.literal_eval(config['ENDUSES']['rs_enduses']) #convert string lists to list
+    enduses['ss_enduses'] = ast.literal_eval(config['ENDUSES']['ss_enduses'])
+    enduses['is_enduses'] = ast.literal_eval(config['ENDUSES']['is_enduses'])
 
-    return sim_param, enduses, assumptions, reg_nrs, lu_reg
+    return sim_param, enduses, assumptions, reg_nrs, regions
 
 def read_national_real_elec_data(path_to_csv):
     """Read in national consumption from csv file. The unit
@@ -111,10 +81,10 @@ def read_national_real_elec_data(path_to_csv):
     """
     national_fuel_data = {}
     with open(path_to_csv, 'r') as csvfile:
-        read_lines = csv.reader(csvfile, delimiter=',')
-        _headings = next(read_lines) # Skip first row
+        rows = csv.reader(csvfile, delimiter=',')
+        headings = next(rows) # Skip first row
 
-        for row in read_lines:
+        for row in rows:
             geocode = str.strip(row[2])                 # LA Code
             tot_consumption_unclean = row[3].strip()    # Total consumption
             national_fuel_data[geocode] = float(tot_consumption_unclean.replace(",", ""))
@@ -146,10 +116,10 @@ def read_national_real_gas_data(path_to_csv):
     """
     national_fuel_data = {}
     with open(path_to_csv, 'r') as csvfile:
-        read_lines = csv.reader(csvfile, delimiter=',')
-        _headings = next(read_lines) # Skip first row
+        rows = csv.reader(csvfile, delimiter=',')
+        headings = next(rows) # Skip first row
 
-        for row in read_lines:
+        for row in rows:
             geocode = str.strip(row[2])                 # LA Code
             tot_consumption_unclean = row[3].strip()    # Total consumption
 
@@ -162,17 +132,23 @@ def read_national_real_gas_data(path_to_csv):
 
     return national_fuel_data
 
-def virtual_building_datasets(lu_reg, all_sectors, local_paths):
+def floor_area_virtual_dw(regions, all_sectors, local_paths, base_yr, p_mixed_resid):
     """Load necessary data for virtual building stock
     in case the link to the building stock model in
     Newcastle is not used
 
     Arguments
     ---------
-    lu_reg : dict
+    regions : dict
         Regions
     all_sectors : dict
         All sectors
+    local_paths : dict
+        Paths
+    base_yr : float
+        Base year
+    p_mixed_resid : float
+        PArameter to redistributed mixed enduse
 
     Returns
     -------
@@ -185,43 +161,33 @@ def virtual_building_datasets(lu_reg, all_sectors, local_paths):
     # Floor area for residential buildings for base year
     # --------------------------------------------------
     resid_footprint, non_res_flootprint = read_data.read_floor_area_virtual_stock(
-        local_paths['path_floor_area_virtual_stock_by'])
+        local_paths['path_floor_area_virtual_stock_by'],
+        p_mixed_resid=p_mixed_resid)
 
     rs_floorarea = defaultdict(dict)
-    for year in range(2015, 2101):
-        for reg_geocode in lu_reg:
-            try:
-                rs_floorarea[year][reg_geocode] = resid_footprint[reg_geocode]
-            except:
-                #logging.warning("No virtual residential floor area for region %s %s", reg_geocode, year)
-                rs_floorarea[year][reg_geocode] = 1
+    for region in regions:
+        try:
+            rs_floorarea[base_yr][region] = resid_footprint[region]
+        except:
+            logging.warning(
+                "No virtual residential floor area for region %s ", region)
+            rs_floorarea[base_yr][region] = 1
 
     # --------------------------------------------------
     # Floor area for service sector buildings
+    # TODO SO FAR THE SAME FOR EVERY SECTOR
     # --------------------------------------------------
-    # No sector specific floorarea
     ss_floorarea_sector_by = {}
-    for year in range(2015, 2101):
-        ss_floorarea_sector_by[year] = defaultdict(dict)
-        for reg_geocode in lu_reg:
-            for sector in all_sectors:
-                try:
-                    ss_floorarea_sector_by[year][reg_geocode][sector] = non_res_flootprint[reg_geocode]
-                except:
-                    #logging.warning("No virtual service floor area for region %s %s", reg_geocode, year)
-                    ss_floorarea_sector_by[year][reg_geocode][sector] = 1
+    ss_floorarea_sector_by[base_yr] = defaultdict(dict)
+    for region in regions:
+        for sector in all_sectors:
+            try:
+                ss_floorarea_sector_by[base_yr][region][sector] = non_res_flootprint[region]
+            except:
+                logging.warning("No virtual service floor area for region %s", region)
+                ss_floorarea_sector_by[base_yr][region][sector] = 1
 
-    '''
-    ss_floorarea_sector_by = {}
-    for year in range(2015, 2101):
-        ss_floorarea_sector_by[year] = defaultdict(dict)
-        for reg_geocode in lu_reg:
-            for sector in all_sectors:
-                ss_floorarea_sector_by[year][reg_geocode][sector] = 10000
-    '''
-    ss_floorarea = dict(ss_floorarea_sector_by)
-
-    return dict(rs_floorarea), dict(ss_floorarea)
+    return dict(rs_floorarea), dict(ss_floorarea_sector_by)
 
 def load_local_paths(path):
     """Create all local paths
@@ -246,7 +212,7 @@ def load_local_paths(path):
         'folder_path_weater_stations': os.path.join(
             path, '_raw_data', 'H-Met_office_weather_data', 'excel_list_station_details.csv'),
         'path_floor_area_virtual_stock_by': os.path.join(
-            path, '_raw_data', 'K-floor_area', 'floor_area_by.csv'),
+            path, '_raw_data', 'K-floor_area', 'floor_area_by_II_email.csv'),  #floor_area_by
         'path_assumptions_db': os.path.join(
             path, '_processed_data', 'assumptions_from_db'),
         'data_processed': os.path.join(
@@ -308,7 +274,6 @@ def load_paths(path):
     paths = {
         'path_main': path,
 
-
         # Path to all technologies
         'path_technologies': os.path.join(
             path, 'config_data', '08-technologies', 'technology_definition.csv'),
@@ -338,11 +303,11 @@ def load_paths(path):
             path, 'config_data', '07-switches', 'is_capacity_installations.csv'),
 
         # Paths to fuel raw data
-        'rs_fuel_raw_data_enduses': os.path.join(
+        'rs_fuel_raw': os.path.join(
             path, 'config_data', '06-fuels', 'rs_fuel.csv'),
-        'ss_fuel_raw_data_enduses': os.path.join(
+        'ss_fuel_raw': os.path.join(
             path, 'config_data', '06-fuels', 'ss_fuel.csv'),
-        'is_fuel_raw_data_enduses': os.path.join(
+        'is_fuel_raw': os.path.join(
             path, 'config_data', '06-fuels', 'is_fuel.csv'),
 
         # Load profiles
@@ -381,8 +346,8 @@ def load_paths(path):
 
         'yaml_parameters': os.path.join(
             path, 'yaml_parameters.yml'),
-        'yaml_parameters_default': os.path.join(
-            path, 'yaml_parameters_default.yml'),
+        'yaml_parameters_constrained': os.path.join(
+            path, 'yaml_parameters_constrained.yml'),
         'yaml_parameters_keynames_constrained': os.path.join(
             path, 'yaml_parameters_keynames_constrained.yml'),
         'yaml_parameters_keynames_unconstrained': os.path.join(
@@ -517,7 +482,13 @@ def load_tech_profiles(tech_lp, paths, local_paths, plot_tech_lp=False):
 
     return tech_lp
 
-def load_data_profiles(paths, local_paths, model_yeardays, model_yeardays_daytype, plot_tech_lp):
+def load_data_profiles(
+        paths,
+        local_paths,
+        model_yeardays,
+        model_yeardays_daytype,
+        plot_tech_lp
+    ):
     """Collect load profiles from txt files
 
     Arguments
@@ -672,17 +643,17 @@ def load_fuels(paths, lookups):
     fuels = {}
 
     # Residential Sector
-    rs_fuel_raw_data_enduses, enduses['rs_all_enduses'] = read_data.read_fuel_rs(
-        paths['rs_fuel_raw_data_enduses'])
+    rs_fuel_raw_data_enduses, enduses['rs_enduses'] = read_data.read_fuel_rs(
+        paths['rs_fuel_raw'])
 
     # Service Sector
-    ss_fuel_raw_data_enduses, sectors['ss_sectors'], enduses['ss_all_enduses'] = read_data.read_fuel_ss(
-        paths['ss_fuel_raw_data_enduses'],
+    ss_fuel_raw, sectors['ss_sectors'], enduses['ss_enduses'] = read_data.read_fuel_ss(
+        paths['ss_fuel_raw'],
         lookups['fueltypes_nr'])
 
     # Industry fuel
-    is_fuel_raw_data_enduses, sectors['is_sectors'], enduses['is_all_enduses'] = read_data.read_fuel_is(
-        paths['is_fuel_raw_data_enduses'], lookups['fueltypes_nr'], lookups['fueltypes'])
+    is_fuel_raw, sectors['is_sectors'], enduses['is_enduses'] = read_data.read_fuel_is(
+        paths['is_fuel_raw'], lookups['fueltypes_nr'], lookups['fueltypes'])
 
     # Iterate enduses per sudModel and flatten list
     enduses['all_enduses'] = []
@@ -690,12 +661,12 @@ def load_fuels(paths, lookups):
         enduses['all_enduses'] += enduse
 
     # Convert units
-    fuels['rs_fuel_raw_data_enduses'] = conversions.convert_fueltypes_ktoe_GWh(
+    fuels['rs_fuel_raw'] = conversions.convert_fueltypes_ktoe_GWh(
         rs_fuel_raw_data_enduses)
-    fuels['ss_fuel_raw_data_enduses'] = conversions.convert_fueltypes_sectors_ktoe_gwh(
-        ss_fuel_raw_data_enduses)
-    fuels['is_fuel_raw_data_enduses'] = conversions.convert_fueltypes_sectors_ktoe_gwh(
-        is_fuel_raw_data_enduses)
+    fuels['ss_fuel_raw'] = conversions.convert_fueltypes_sectors_ktoe_gwh(
+        ss_fuel_raw)
+    fuels['is_fuel_raw'] = conversions.convert_fueltypes_sectors_ktoe_gwh(
+        is_fuel_raw)
 
     sectors['all_sectors'] = [
         'community_arts_leisure',
@@ -904,17 +875,17 @@ def load_LAC_geocodes_info(path_to_csv):
     - PROVIDED IN UNIT?? (KWH I guess)
     """
     with open(path_to_csv, 'r') as csvfile:
-        read_lines = csv.reader(csvfile, delimiter=',')
-        _headings = next(read_lines) # Skip first row
+        rows = csv.reader(csvfile, delimiter=',')
+        headings = next(rows) # Skip first row
         data = {}
 
-        for row in read_lines:
+        for row in rows:
             values_line = {}
             for number, value in enumerate(row[1:], 1):
                 try:
-                    values_line[_headings[number]] = float(value)
+                    values_line[headings[number]] = float(value)
                 except ValueError:
-                    values_line[_headings[number]] = str(value)
+                    values_line[headings[number]] = str(value)
 
             # Add entry with geo_code
             data[row[0]] = values_line
@@ -968,13 +939,13 @@ def read_employment_stats(path_to_csv):
 
     with open(path_to_csv, 'r') as csvfile:
         lines = csv.reader(csvfile, delimiter=',')
-        _headings = next(lines) # Skip first row
+        headings = next(lines) # Skip first row
 
         for line in lines:
             geocode = str.strip(line[2])
 
             # Iterate fields and copy values
-            for counter, heading in enumerate(_headings[4:], 4):
+            for counter, heading in enumerate(headings[4:], 4):
                 heading_split = heading.split(":")
                 category_unclean = str.strip(heading_split[1])
                 category_full_name = str.strip(category_unclean.split(" ")[0]).replace(" ", "_")

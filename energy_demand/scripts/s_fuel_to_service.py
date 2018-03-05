@@ -110,8 +110,8 @@ def get_s_fueltype_tech(
         sector=False
     ):
     """Calculate total energy service fractions per technology.
-    Tis calculation converts fuels into energy services (e.g. heating
-    for fuel into heat demand) and then calculated how much an invidual
+    This calculation converts fuels into energy services (e.g. heating
+    for fuel into heat demand) and then calculates how much an invidual
     technology contributes as a fraction of total energy service demand.
 
     This is calculated to determine how much the technology
@@ -120,6 +120,8 @@ def get_s_fueltype_tech(
 
     Arguments
     ----------
+    enduses : dict
+        Enduses
     tech_list : list
         Technologies
     fueltypes : dict
@@ -160,18 +162,20 @@ def get_s_fueltype_tech(
 
         if not sector:
             fuel = fuels[enduse]
+            selec_fuel_p_tech_by = fuel_p_tech_by[enduse]
         else:
             fuel = fuels[enduse][sector]
+            selec_fuel_p_tech_by = fuel_p_tech_by[enduse][sector]
 
         for fueltype, fuel_fueltype in enumerate(fuel):
             tot_s_fueltype = 0
 
-            for tech in fuel_p_tech_by[enduse][fueltype]:
+            # Initialise
+            for tech in selec_fuel_p_tech_by[fueltype]:
                 service[enduse][fueltype][tech] = 0
 
-            # Iterate technologies to calculate share of energy
-            # service depending on fuel and efficiencies
-            for tech, fuel_alltech_by in fuel_p_tech_by[enduse][fueltype].items():
+            # Iterate technologies to calculate share of energy service depending on fuel and efficiencies
+            for tech, fuel_alltech_by in selec_fuel_p_tech_by[fueltype].items():
 
                 # Fuel share based on defined shares within fueltype (share of fuel * total fuel)
                 fuel_tech = fuel_alltech_by * fuel_fueltype
@@ -184,8 +188,6 @@ def get_s_fueltype_tech(
                     eff_tech = tech_related.eff_heat_pump(
                         temp_diff=10,
                         efficiency_intersect=technologies[tech].eff_by)
-                elif tech_type == 'dummy_tech':
-                    eff_tech = 1
                 else:
                     eff_tech = technologies[tech].eff_by
 
@@ -199,7 +201,7 @@ def get_s_fueltype_tech(
                 tot_s_fueltype += s_fueltype_tech
 
             # Calculate percentage of service enduse within fueltype
-            for tech in fuel_p_tech_by[enduse][fueltype]:
+            for tech in selec_fuel_p_tech_by[fueltype]:
                 if tot_s_fueltype == 0: # No fuel in this fueltype
                     s_fueltype_tech_by_p[enduse][fueltype][tech] = 0
                     s_fueltype_by_p[enduse][fueltype] += 0
@@ -215,8 +217,15 @@ def get_s_fueltype_tech(
             for technology, s_tech in technology_s_enduse.items():
 
                 with np.errstate(divide='ignore'):
-                    s_tech_by_p[enduse][technology] = s_tech / total_s
-                    warnings.filterwarnings('ignore')
+
+                    # Calculate service
+                    s_p_tech = s_tech / total_s
+
+                     # Do not add dummy technology with zero service
+                    if technology == 'placeholder_tech' and s_p_tech == 0:
+                        pass
+                    else:
+                        s_tech_by_p[enduse][technology] = s_tech / total_s
 
         # Convert service per enduse
         for fueltype in s_fueltype_by_p[enduse]:
@@ -225,8 +234,8 @@ def get_s_fueltype_tech(
             with np.errstate(divide='ignore'):
                 s_fueltype_by_p[enduse][fueltype] = s_fueltype_by_p[enduse][fueltype] / total_s
 
-    # Assert does not work for endues with no defined technologies
-    # --------
+    warnings.filterwarnings('ignore') # Ignore warnings
+
     # Test if the energy service for all technologies is 100%
     # Test if within fueltype always 100 energy service
     return s_tech_by_p, s_fueltype_tech_by_p, s_fueltype_by_p

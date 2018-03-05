@@ -39,18 +39,8 @@ def calc_sigmoid_parameters(
 
     Note
     -------
-    `error_range` can be changed if the plotting is weird. If you increase
-    chances are however hiigher that the fitting does not work anymore.
-
-        How start parameters are generated:
-
-            start_param_list = []
-            for start in [x * 0.05 for x in range(0, 100)]:
-                start_param_list.append(float(start))
-            for start in [1.0, 0.001, 0.01, 0.1, 60.0, 100.0, 200.0, 400.0, 500.0, 1000.0]:
-                start_param_list.append(float(start))
-            for start in range(1, 59):
-                start_param_list.append(float(start))
+        `error_range` can be changed if the plotting is weird. If you increase
+        chances are however hiigher that the fitting does not work anymore.
 
     Returns
     ------
@@ -61,11 +51,11 @@ def calc_sigmoid_parameters(
     # Generate possible starting parameters for fit
     # ---------------------------------------------
     start_param_list = [
-        0.0,
-        1.0,
-        0.0001, 0.001, 0.01, 0.1,
-        0.05, 0.1, 0.15, 0.2, 0.25, 0.3, 0.35, 0.4, 0.45, 0.5, 0.55, 0.6, 0.65,
-        10, 20, 30, 40, 50, 60, 70, 80, 90, 100.0, 200.0, 400.0, 500.0, 1000, 10000]
+        0.0, 1.0, 0.0001, 0.001, 0.01, 0.1,
+        0.05, 0.1, 0.15, 0.2, 0.25, 0.3, 0.35,
+        0.4, 0.45, 0.5, 0.55, 0.6, 0.65,
+        10, 20, 30, 40, 50, 60, 70, 80,
+        90, 100.0, 200.0, 400.0, 500.0, 1000, 10000]
 
     assert l_value >= ydata[0]
 
@@ -79,7 +69,7 @@ def calc_sigmoid_parameters(
             start_parameters = [
                 round(start_param_list[cnt], 3),
                 round(start_param_list[cnt], 3)]
-            
+
             # ------------------------------------------------
             # Test if parameter[1] shoudl be minus or positive
             # ------------------------------------------------
@@ -126,7 +116,7 @@ def calc_sigmoid_parameters(
                     if cnt >= len(start_param_list):
                         raise Exception("Error: Sigmoid curve fitting failed")
                 else:
-                    successfull = True
+                    
 
                     '''plotting_program.plotout_sigmoid_tech_diff(
                         l_value,
@@ -151,19 +141,20 @@ def calc_sigmoid_parameters(
                         midpoint=fit_parameter[0],
                         steepness=fit_parameter[1])
 
-                    fit_measure_in_percent_by = float((100.0 / ydata[0]) * y_calculated_by)
-                    fit_measure_in_percent_ey = float((100.0 / ydata[1]) * y_calculated_ey)
+                    fit_measure_p_by = float((100.0 / ydata[0]) * y_calculated_by)
+                    fit_measure_p_ey = float((100.0 / ydata[1]) * y_calculated_ey)
 
-                    if (fit_measure_in_percent_ey < (100.0 - error_range) or fit_measure_in_percent_ey > (100.0 + error_range)) or (
-                        fit_measure_in_percent_by < (100.0 - error_range) or fit_measure_in_percent_by > (100.0 + error_range)):
+                    if (fit_measure_p_ey < (100.0 - error_range) or fit_measure_p_ey > (100.0 + error_range)) or (
+                        fit_measure_p_by < (100.0 - error_range) or fit_measure_p_by > (100.0 + error_range)):
                         #print(
-                        #    "... Fitting measure %s %s (percent) is not good enough", fit_measure_in_percent_by, fit_measure_in_percent_ey)
+                        #    "... Fitting measure %s %s (percent) is not good enough", fit_measure_p_by, fit_measure_p_ey)
                         successfull = False
                         cnt += 1
                     else:
+                        successfull = True
                         pass
                         #logging.info(
-                        #    ".... fitting successfull %s %s %s", fit_measure_in_percent_ey, fit_measure_in_percent_by, fit_parameter)
+                        #    ".... fitting successfull %s %s %s", fit_measure_p_ey, fit_measure_p_by, fit_parameter)
                         '''plotting_program.plotout_sigmoid_tech_diff(
                             l_value,
                             "FINISHED FITTING",
@@ -563,14 +554,14 @@ def tech_sigmoid_parameters(
                 point_x_by = technologies[tech].market_entry
                 point_y_by = fit_assump_init
             else:
-                point_x_by = base_yr                 # Base year
+                point_x_by = base_yr           # Base year
                 point_y_by = s_tech_by_p[tech] # Base year service share
 
                 # If the base year is the market entry year use a very small number
                 if point_y_by == 0:
                     point_y_by = fit_assump_init
 
-            # Future energy service demand (second point on sigmoid curve for fitting)
+            # Future energy service demand
             point_x_ey = yr_until_switched
             point_y_ey = s_tech_switched_p[tech]
 
@@ -582,9 +573,14 @@ def tech_sigmoid_parameters(
             xdata = np.array([point_x_by, point_x_ey])
             ydata = np.array([point_y_by, point_y_ey])
 
-            #logging.info(
-            #    "... create sigmoid diffusion %s - %s - %s - %s - l_val: %s - %s - %s",
-            #    tech, xdata, ydata, fit_assump_init, l_values[tech], point_y_by, point_y_ey)
+            '''logging.info(
+                "... create sigmoid diffusion %s - %s - %s - %s - l_val: %s - %s - %s",
+                tech,
+                xdata,
+                ydata,
+                fit_assump_init,
+                l_values[tech],
+                point_y_by, point_y_ey)'''
 
             # If no change in by to ey but not zero (lineare change)
             if (round(point_y_by, rounding_accuracy) == round(point_y_ey, rounding_accuracy)) and (
@@ -606,27 +602,42 @@ def tech_sigmoid_parameters(
                     sig_params[tech]['l_parameter'] = None
                 else:
 
-                    # Parameter fitting
-                    fit_parameter = calc_sigmoid_parameters(
-                        l_values[tech],
-                        xdata,
-                        ydata,
-                        fit_assump_init=fit_assump_init,
-                        error_range=0.0002)
-
-                    # Insert parameters
-                    sig_params[tech]['midpoint'] = fit_parameter[0] # midpoint (x0)
-                    sig_params[tech]['steepness'] = fit_parameter[1] # Steepnes (k)
-                    sig_params[tech]['l_parameter'] = l_values[tech] # maximum p
-
-                    if plot_sigmoid_diffusion:
-                        plotting_program.plotout_sigmoid_tech_diff(
+                    try:
+                        # Parameter fitting
+                        fit_parameter = calc_sigmoid_parameters(
                             l_values[tech],
-                            tech,
                             xdata,
                             ydata,
-                            fit_parameter,
-                            plot_crit=True, #TRUE
-                            close_window_crit=True)
+                            fit_assump_init=fit_assump_init,
+                            error_range=0.0002)
+
+                        # Insert parameters
+                        sig_params[tech]['midpoint'] = fit_parameter[0] # midpoint (x0)
+                        sig_params[tech]['steepness'] = fit_parameter[1] # Steepnes (k)
+                        sig_params[tech]['l_parameter'] = l_values[tech] # maximum p
+
+                        if plot_sigmoid_diffusion:
+                            plotting_program.plotout_sigmoid_tech_diff(
+                                l_values[tech],
+                                tech,
+                                xdata,
+                                ydata,
+                                fit_parameter,
+                                plot_crit=True,
+                                close_window_crit=True)
+                    except:
+
+                        """If sigmoid fitting failed, implement linear diffusion
+
+                        The sigmoid diffusion may fail if the fitting does not work
+                        because the points to fit are too similar.
+                        """
+                        logging.warning(
+                            "Instead of sigmoid a linear approximation is used %s %s",
+                                xdata, ydata)
+
+                        sig_params[tech]['midpoint'] = 'linear'
+                        sig_params[tech]['steepness'] = 'linear'
+                        sig_params[tech]['l_parameter'] = 'linear'
 
     return dict(sig_params)

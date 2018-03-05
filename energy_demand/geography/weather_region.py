@@ -81,13 +81,13 @@ class WeatherRegion(object):
             base_yr,
             curr_yr,
             t_diff_param['sig_midpoint'],
-            t_diff_param['sig_steeppness'],
+            t_diff_param['sig_steepness'],
             t_diff_param['yr_until_changed'])
         '''rs_t_base_cooling_cy = hdd_cdd.sigm_temp(
             strategy_variables['rs_t_base_cooling_future_yr'],
             t_bases['rs_t_cooling_by'], base_yr, curr_yr,
             t_diff_param['sig_midpoint'],
-            t_diff_param['sig_steeppness'],
+            t_diff_param['sig_steepness'],
             t_diff_param['yr_until_changed'])'''
 
         ss_t_base_heating_cy = hdd_cdd.sigm_temp(
@@ -96,7 +96,7 @@ class WeatherRegion(object):
             base_yr,
             curr_yr,
             t_diff_param['sig_midpoint'],
-            t_diff_param['sig_steeppness'],
+            t_diff_param['sig_steepness'],
             t_diff_param['yr_until_changed'])
         ss_t_base_cooling_cy = hdd_cdd.sigm_temp(
             strategy_variables['ss_t_base_cooling_future_yr'],
@@ -104,7 +104,7 @@ class WeatherRegion(object):
             base_yr,
             curr_yr,
             t_diff_param['sig_midpoint'],
-            t_diff_param['sig_steeppness'],
+            t_diff_param['sig_steepness'],
             t_diff_param['yr_until_changed'])
 
         is_t_base_heating_cy = hdd_cdd.sigm_temp(
@@ -113,7 +113,7 @@ class WeatherRegion(object):
             base_yr,
             curr_yr,
             t_diff_param['sig_midpoint'],
-            t_diff_param['sig_steeppness'],
+            t_diff_param['sig_steepness'],
             t_diff_param['yr_until_changed'])
         '''is_t_base_cooling_cy = hdd_cdd.sigm_temp(
             strategy_variables['is_t_base_cooling_future_yr'],
@@ -121,7 +121,7 @@ class WeatherRegion(object):
             base_yr,
             curr_yr,
             t_diff_param['sig_midpoint'],
-            t_diff_param['sig_steeppness'],
+            t_diff_param['sig_steepness'],
             t_diff_param['yr_until_changed'])'''
 
         # Create technology stocks
@@ -137,7 +137,7 @@ class WeatherRegion(object):
             temp_by,
             temp_cy,
             t_bases['rs_t_heating_by'],
-            all_enduses['rs_all_enduses'],
+            all_enduses['rs_enduses'],
             rs_t_base_heating_cy,
             assumptions['rs_specified_tech_enduse_by'])
 
@@ -152,7 +152,7 @@ class WeatherRegion(object):
             temp_by,
             temp_cy,
             t_bases['ss_t_heating_by'],
-            all_enduses['ss_all_enduses'],
+            all_enduses['ss_enduses'],
             ss_t_base_heating_cy,
             assumptions['ss_specified_tech_enduse_by'])
 
@@ -167,7 +167,7 @@ class WeatherRegion(object):
             temp_by,
             temp_cy,
             t_bases['is_t_heating_by'],
-            all_enduses['is_all_enduses'],
+            all_enduses['is_enduses'],
             ss_t_base_heating_cy,
             assumptions['is_specified_tech_enduse_by'])
 
@@ -204,7 +204,7 @@ class WeatherRegion(object):
         # RESIDENITAL COOLING
         #rs_peak_yd_cooling_factor = get_shape_peak_yd_factor(self.rs_cdd_cy)
         rs_cold_techs = tech_lists['rs_cold']
-        rs_cold_techs.append('dummy_tech')
+        rs_cold_techs.append('placeholder_tech')
 
         # ----Cooling residential
         #rs_fuel_shape_cooling_yh = load_profile.calc_yh(

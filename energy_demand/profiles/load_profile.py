@@ -60,7 +60,7 @@ class LoadProfileStock(object):
         a flat shape is assumed.
         """
         if not sectors:
-            sectors = ['dummy_sector']
+            sectors = [False]
         else:
             pass
 
@@ -137,7 +137,7 @@ class LoadProfileStock(object):
         load_profile_obj = self.load_profile_dict[position_in_dict]
 
         # Test if dummy sector and thus shape_peak not provided for different sectors
-        if sector == 'dummy_sector':
+        if sector == False:
             return load_profile_obj.shape_peak_dh
         else:
             # CHECK
@@ -423,40 +423,44 @@ def create_load_profile_stock(
         enduse_peak_yd_factor=tech_lp['rs_shapes_yd']['rs_wet']['shape_peak_yd_factor'],
         shape_peak_dh=tech_lp['rs_shapes_dh']['rs_wet']['shape_peak_dh'])
 
-    # -- dummy rs technologies (apply enduse sepcific shape)
-    for enduse in assumptions['rs_dummy_enduses']:
+    # -- Apply enduse sepcific shapes for enduses with not technologies with own defined shapes
+    for enduse in all_enduses['rs_enduses']: #['rs_dummy_enduses']:
 
-        tech_list = helpers.get_nested_dict_key(assumptions['rs_fuel_tech_p_by'][enduse])
+        # Enduses where technology specific load profiles are defined for yh
+        if enduse == 'rs_space_heating':
+            pass
+        else:
+            tech_list = helpers.get_nested_dict_key(assumptions['rs_fuel_tech_p_by'][enduse])
 
-        shape_yh = calc_yh(
-            tech_lp['rs_shapes_yd'][enduse]['shape_non_peak_yd'],
-            tech_lp['rs_shapes_dh'][enduse]['shape_non_peak_y_dh'],
-            model_yeardays)
+            shape_yh = calc_yh(
+                tech_lp['rs_shapes_yd'][enduse]['shape_non_peak_yd'],
+                tech_lp['rs_shapes_dh'][enduse]['shape_non_peak_y_dh'],
+                model_yeardays)
 
-        non_regional_lp_stock.add_lp(
-            unique_identifier=uuid.uuid4(),
-            technologies=tech_list,
-            enduses=[enduse],
-            shape_yd=tech_lp['rs_shapes_yd'][enduse]['shape_non_peak_yd'],
-            shape_yh=shape_yh,
-            enduse_peak_yd_factor=tech_lp['rs_shapes_yd'][enduse]['shape_peak_yd_factor'],
-            shape_peak_dh=tech_lp['rs_shapes_dh'][enduse]['shape_peak_dh'])
+            non_regional_lp_stock.add_lp(
+                unique_identifier=uuid.uuid4(),
+                technologies=tech_list,
+                enduses=[enduse],
+                shape_yd=tech_lp['rs_shapes_yd'][enduse]['shape_non_peak_yd'],
+                shape_yh=shape_yh,
+                enduse_peak_yd_factor=tech_lp['rs_shapes_yd'][enduse]['shape_peak_yd_factor'],
+                shape_peak_dh=tech_lp['rs_shapes_dh'][enduse]['shape_peak_dh'])
 
     # ---------
     # Service Submodel
     # ----------
     # - Assign to each enduse the carbon fuel trust dataset
-    for enduse in all_enduses['ss_all_enduses']:
+    for enduse in all_enduses['ss_enduses']:
 
         # Skip temperature dependent end uses (regional) because load profile in regional load profile stock
         if enduse in assumptions['enduse_space_heating'] or enduse in assumptions['ss_enduse_space_cooling']:
             pass
         else:
-            # Get technologies with assigned fuel shares
-            tech_list = helpers.get_nested_dict_key(
-                assumptions['ss_fuel_tech_p_by'][enduse])
-
             for sector in sectors['ss_sectors']:
+
+                # Get technologies with assigned fuel shares
+                tech_list = helpers.get_nested_dict_key(
+                    assumptions['ss_fuel_tech_p_by'][enduse][sector])
 
                 # Apply correction factor for weekend_effect
                 shape_non_peak_yd = tech_lp['ss_shapes_yd'][enduse][sector]['shape_non_peak_yd'] * assumptions['ss_weekend_f']
@@ -488,14 +492,15 @@ def create_load_profile_stock(
     shape_non_peak_yd = shape_non_peak_yd * assumptions['is_weekend_f']
     shape_non_peak_yd = load_profile.abs_to_rel(shape_non_peak_yd)
 
-    for enduse in assumptions['is_dummy_enduses']:
+    for enduse in all_enduses['is_enduses']:
         if enduse == "is_space_heating":
             pass # Do not create non regional stock because temp dependent
         else:
-            tech_list = helpers.get_nested_dict_key(
-                assumptions['is_fuel_tech_p_by'][enduse])
-
             for sector in sectors['is_sectors']:
+
+                tech_list = helpers.get_nested_dict_key(
+                    assumptions['is_fuel_tech_p_by'][enduse][sector])
+
                 non_regional_lp_stock.add_lp(
                     unique_identifier=uuid.uuid4(),
                     technologies=tech_list,

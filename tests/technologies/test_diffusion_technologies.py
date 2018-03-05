@@ -47,14 +47,14 @@ def test_sigmoid_diffusion():
     curr_yr = 2015
     end_yr = 2020
     sig_midpoint = 0
-    sig_steeppness = 1
+    sig_steepness = 1
 
     result = diffusion_technologies.sigmoid_diffusion(
         base_yr,
         curr_yr,
         end_yr,
         sig_midpoint,
-        sig_steeppness)
+        sig_steepness)
 
     assert result == 0
 
@@ -63,14 +63,14 @@ def test_sigmoid_diffusion():
     curr_yr = 2020
     end_yr = 2020
     sig_midpoint = 0
-    sig_steeppness = 1
+    sig_steepness = 1
 
     result = diffusion_technologies.sigmoid_diffusion(
         base_yr,
         curr_yr,
         end_yr,
         sig_midpoint,
-        sig_steeppness)
+        sig_steepness)
 
     assert result == 1
     
@@ -80,14 +80,14 @@ def test_sigmoid_diffusion():
     curr_yr = 2015
     end_yr = 2020
     sig_midpoint = 0
-    sig_steeppness = 1
+    sig_steepness = 1
 
     result = diffusion_technologies.sigmoid_diffusion(
         base_yr,
         curr_yr,
         end_yr,
         sig_midpoint,
-        sig_steeppness)
+        sig_steepness)
 
     assert result == 0    
 
@@ -97,13 +97,13 @@ def test_sigmoid_diffusion():
     curr_yr = 2020
     end_yr = 2025
     sig_midpoint = 0
-    sig_steeppness = 1
+    sig_steepness = 1
 
     result = diffusion_technologies.sigmoid_diffusion(
         base_yr,
         curr_yr,
         end_yr,
         sig_midpoint,
-        sig_steeppness)
+        sig_steepness)
 
     assert result == 0.5

@@ -5,10 +5,41 @@ import numpy as np
 from energy_demand.technologies import diffusion_technologies as diffusion
 from energy_demand.read_write import read_data
 
-def insert_dummy_tech(technologies, tech_p_by, all_specified_tech_enduse_by):
-    """Define dummy technologies. Where no specific technologies are
-    assigned for an enduse and a fueltype, dummy technologies
-    are generated. This is necessary because the model needs
+def test_if_tech_defined(enduse_fueltypes_techs):
+    """Test if a technology has been configured,
+    i.e. a fuel share has been assgined to one of the
+    fueltpyes in `assumptions_fuel_shares`.
+
+    Arguments
+    ---------
+    enduse_fueltypes_techs : dict
+        Configured technologies and fuel shares of an enduse
+
+    Returns
+    -------
+    c_tech_defined : bool
+        Criteria whether technologies have been configured
+        for an enduse or not
+    """
+    c_tech_defined = False
+
+    for fueltype in enduse_fueltypes_techs:
+        if enduse_fueltypes_techs[fueltype] == {}:
+            pass
+        else:
+            c_tech_defined = True
+            break
+
+    return c_tech_defined
+
+def insert_placholder_techs(
+        technologies,
+        tech_p_by,
+        all_specified_tech_enduse_by,
+        sector_crit=False
+    ):
+    """If no technology is defined for a fueltype in an enduse add
+    a dumppy technology. This is necessary because the model needs
     a technology for every fueltype in an enduse.
 
     Arguments
@@ -29,56 +60,49 @@ def insert_dummy_tech(technologies, tech_p_by, all_specified_tech_enduse_by):
     technologies : dict
         Technologies
     """
-    for end_use in tech_p_by:
-        for fueltype in tech_p_by[end_use]:
-            all_defined_tech_in_fueltype = tech_p_by[end_use].values()
-            for definition in all_defined_tech_in_fueltype:
+    if sector_crit is True:
 
-                crit_tech_defined_in_enduse = False
-                all_defined_tech_in_fueltype = tech_p_by[end_use].values()
-                for definition in all_defined_tech_in_fueltype:
-                    if definition == {}:
-                        #crit_tech_defined_in_enduse = False #
-                        pass
-                    else:
-                        crit_tech_defined_in_enduse = True
-                        continue
+        for end_use, enduse_fueltypes_techs in tech_p_by.items():
+            for sector in enduse_fueltypes_techs:
 
-            # If an enduse has no defined technologies across all fueltypes
-            if crit_tech_defined_in_enduse is False:
-                if tech_p_by[end_use][fueltype] == {}:
-                    all_specified_tech_enduse_by[end_use].append("dummy_tech")
+                # Test if a technology is defined in any fueltype
+                c_tech_defined = test_if_tech_defined(enduse_fueltypes_techs[sector])
 
-                    # Assign total fuel demand to dummy technology
-                    tech_p_by[end_use][fueltype] = {"dummy_tech": 1.0}
+                if not c_tech_defined:
+                    for fueltype in enduse_fueltypes_techs[sector]:
+                        if enduse_fueltypes_techs[sector][fueltype] == {}:
 
-                    # Insert dummy tech
-                    technologies['dummy_tech'] = read_data.TechnologyData()
+                            # Assign total fuel demand to dummy technology
+                            tech_p_by[end_use][sector][fueltype] = {"placeholder_tech": 1.0}
+
+                    all_specified_tech_enduse_by[end_use].append("placeholder_tech")
+                else:
+                    pass
+    else:
+        for end_use, enduse_fueltypes_techs in tech_p_by.items():
+
+            # Test if a technology is defined in any fueltype
+            c_tech_defined = test_if_tech_defined(enduse_fueltypes_techs)
+
+            if not c_tech_defined:
+                for fueltype in enduse_fueltypes_techs:
+                    if enduse_fueltypes_techs[fueltype] == {}:
+                        # Assign total fuel demand to dummy technology
+                        tech_p_by[end_use][fueltype] = {"placeholder_tech": 1.0}
+
+                all_specified_tech_enduse_by[end_use].append("placeholder_tech")
+            else:
+                pass
+
+    # Insert placeholder technology
+    technologies['placeholder_tech'] = read_data.TechnologyData(
+        eff_by=1,
+        eff_ey=1,
+        year_eff_ey=2100,
+        eff_achieved=1,
+        diff_method='linear')
 
     return tech_p_by, all_specified_tech_enduse_by, technologies
-
-def get_enduses_with_dummy_tech(enduse_tech_p_by):
-    """Find all enduses with defined dummy technologies
-
-    Arguments
-    ----------
-    enduse_tech_p_by : dict
-        Fuel share definition of technologies
-
-    Return
-    ------
-    dummy_enduses : list
-        List with all endueses with dummy technologies
-    """
-    dummy_enduses = []
-    for enduse, fueltype_techs in enduse_tech_p_by.items():
-        for techs in fueltype_techs.values():
-            for tech in techs:
-                if tech == 'dummy_tech':
-                    dummy_enduses.append(enduse)
-                    continue
-
-    return list(set(dummy_enduses))
 
 def calc_hp_eff(temp_yh, efficiency_intersect, t_base_heating):
     """Calculate efficiency of heat pumps according to
@@ -148,14 +172,11 @@ def eff_heat_pump(temp_diff, efficiency_intersect, m_slope=-.08, h_diff=10):
 
     Note
     ----
-    Because the efficieny of heat pumps is temperature dependent, the efficiency needs to
-    be calculated based on slope and intersect which is provided as input for temp difference 10
+    Because the efficieny of heat pumps is temperature dependent,
+    the efficiency needs to be calculated based on slope and
+    intersect which is provided as input for temp difference 10
     and treated as efficiency
     """
-    #efficiency_hp = m_slope * h_diff + (intersect + (-1 * m_slope * 10))
-    #var_c = efficiency_intersect - (m_slope * h_diff)
-    #efficiency_hp = m_slope * temp_diff + var_c
-
     efficiency_hp = m_slope * temp_diff + (efficiency_intersect - (m_slope * h_diff))
 
     # Calculate average efficiency over whole year
@@ -218,8 +239,8 @@ def get_tech_type(tech_name, tech_list):
     tech_type : string
         Technology type
     """
-    if tech_name == 'dummy_tech':
-        tech_type = 'dummy_tech'
+    if tech_name == 'placeholder_tech':
+        tech_type = 'placeholder_tech'
     else:
         if tech_name in tech_list['heating_non_const']:
             tech_type = 'heat_pump'
@@ -386,35 +407,43 @@ def calc_eff_cy(
 
     NICETOHAVE: Generate two types of sigmoid (convex & concav)
     """
-    # Theoretical maximum efficiency potential if theoretical maximum is linearly calculated
     if diff_method == 'linear':
+        # Theoretical maximum efficiency potential (linear improvement)
         theor_max_eff = diffusion.linear_diff(
             base_yr,
             curr_yr,
             eff_by,
             eff_ey,
             yr_until_changed)
-
-        # Consider actual achieved efficiency
-        eff_cy = theor_max_eff * tech_eff_achieved_f
-
-        return eff_cy
-
+        
+        # Differencey in efficiency change
+        max_eff_gain = theor_max_eff - eff_by
+    
     elif diff_method == 'sigmoid':
-        theor_max_eff = diffusion.sigmoid_diffusion(
+        # Theoretical maximum efficiency potential (sigmoid improvement)
+        diff_cy = diffusion.sigmoid_diffusion(
             base_yr,
             curr_yr,
             yr_until_changed,
             other_enduse_mode_info['sigmoid']['sig_midpoint'],
-            other_enduse_mode_info['sigmoid']['sig_steeppness'])
+            other_enduse_mode_info['sigmoid']['sig_steepness'])
 
         # Differencey in efficiency change
-        efficiency_change = theor_max_eff * (eff_ey - eff_by)
+        max_eff_gain = diff_cy * (eff_ey - eff_by)
 
-        # Actual efficiency potential
-        eff_cy = eff_by + efficiency_change
+    else:
+        if not diff_method:
+            return None
+        else:
+            logging.exception("Not correct diffusion assigned %s", diff_method)
 
-        return eff_cy
+    # Consider actual achieved efficiency
+    actual_eff_gain = max_eff_gain * tech_eff_achieved_f
+
+    # Actual efficiency potential
+    eff_cy = eff_by + actual_eff_gain
+
+    return eff_cy
 
 def generate_ashp_gshp_split(split_hp_gshp_ashp):
     """Assing split for each fueltype of heat pump technologies,

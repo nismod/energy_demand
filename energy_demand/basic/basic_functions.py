@@ -5,6 +5,13 @@ import logging
 import shutil
 import numpy as np
 
+def dict_depth(dictionary):
+    """Get depth of nested dict
+    """
+    if isinstance(dictionary, dict):
+        return 1 + (max(map(dict_depth, dictionary.values())) if dictionary else 0)
+    return 0
+
 def rmse(predictions, targets):
     """RMSE calculations
 
@@ -17,7 +24,7 @@ def rmse(predictions, targets):
     """
     return np.sqrt(((predictions - targets) ** 2).mean())
 
-def array_to_dict(result_array, lu_reg):
+def array_to_dict(result_array, regions):
     """Convert an array with regions to dict
     with region as key
 
@@ -25,7 +32,7 @@ def array_to_dict(result_array, lu_reg):
     ---------
     result_array : array
         Results in region_array
-    lu_reg : list
+    regions : list
         List with all regions (order is the same)
 
     Returns
@@ -34,7 +41,7 @@ def array_to_dict(result_array, lu_reg):
         reg, value
     """
     result_dict = {}
-    for reg_array_nr, region in enumerate(lu_reg):
+    for reg_array_nr, region in enumerate(regions):
         result_dict[region] = result_array[reg_array_nr]
 
     return result_dict

@@ -1,4 +1,8 @@
-- climate_change_temp_d__Apr: 0
+- air_leakage__is_space_heating: 0.0
+  air_leakage__rs_space_heating: 0.0
+  air_leakage__ss_space_heating: 0.0
+  air_leakage_yr_until_changed: 2050
+  climate_change_temp_d__Apr: 0
   climate_change_temp_d__Aug: 0
   climate_change_temp_d__Dec: 0
   climate_change_temp_d__Feb: 0
@@ -76,7 +80,9 @@
   heat_recoved__rs_space_heating: 0.0
   heat_recoved__ss_space_heating: 0.0
   heat_recovered_yr_until_changed: 2050
+  hot_cold_rolling_yr_until_changed: 2050
   is_t_base_heating_future_yr: 15.5
+  p_cold_rolling_steel: 0.5
   rs_t_base_cooling_future_yr: 5
   rs_t_base_heating_future_yr: 15.5
   smart_meter_improvement_is_compressed_air: 0

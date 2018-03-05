@@ -20,9 +20,9 @@ class TechnologyData(object):
     ---------
     fueltype : str
         Fueltype of technology
-    eff_by : str
+    eff_by : str, default=1
         Efficiency of technology in base year
-    eff_ey : str
+    eff_ey : str, default=1
         Efficiency of technology in future year
     year_eff_ey : int
         Future year when eff_ey is fully realised
@@ -88,13 +88,19 @@ class CapacitySwitch(object):
             enduse,
             technology_install,
             switch_yr,
-            installed_capacity
+            installed_capacity,
+            sector=None
         ):
 
         self.enduse = enduse
         self.technology_install = technology_install
         self.switch_yr = switch_yr
         self.installed_capacity = installed_capacity
+
+        if sector == '':
+            self.sector = None # Not sector defined
+        else:
+            self.sector = sector
 
 class FuelSwitch(object):
     """Fuel switch class for storing
@@ -119,10 +125,13 @@ class FuelSwitch(object):
             enduse_fueltype_replace=None,
             technology_install=None,
             switch_yr=None,
-            fuel_share_switched_ey=None
+            fuel_share_switched_ey=None,
+            sector=None
         ):
-
+        """Constructor
+        """
         self.enduse = enduse
+        self.sector = sector
         self.enduse_fueltype_replace = enduse_fueltype_replace
         self.technology_install = technology_install
         self.switch_yr = switch_yr
@@ -136,6 +145,8 @@ class ServiceSwitch(object):
     ---------
     enduse : str
         Enduse of affected switch
+    sector : str
+        Sector
     technology_install : str
         Installed technology
     service_share_ey : float
@@ -146,6 +157,7 @@ class ServiceSwitch(object):
     def __init__(
             self,
             enduse=None,
+            sector=None,
             technology_install=None,
             service_share_ey=None,
             switch_yr=None
@@ -154,6 +166,11 @@ class ServiceSwitch(object):
         self.technology_install = technology_install
         self.service_share_ey = service_share_ey
         self.switch_yr = switch_yr
+
+        if sector == '':
+            self.sector = None # Not sector defined
+        else:
+            self.sector = sector
 
 def read_in_results(path_runs, seasons, model_yeardays_daytype):
     """Read and post calculate results from txt files
@@ -228,9 +245,9 @@ def calc_av_per_season_fueltype(results_every_year, seasons, model_yeardays_dayt
 
     Returns
     -------
-    av_season_daytype_cy : 
+    av_season_daytype_cy :
         Average demand per season and daytype
-    season_daytype_cy : 
+    season_daytype_cy :
         Demand per season and daytpe
     """
     av_season_daytype_cy = defaultdict(dict)
@@ -349,7 +366,9 @@ def load_script_data(data):
     data : dict
         Data container
     """
-    init_cont, fuel_disagg = init_scripts.scenario_initalisation(data['paths']['path_main'], data)
+    init_cont, fuel_disagg = init_scripts.scenario_initalisation(
+        data['paths']['path_main'],
+        data)
 
     for key, value in init_cont.items():
         data['assumptions'][key] = value
@@ -378,13 +397,13 @@ def read_fuel_ss(path_to_csv, fueltypes_nr):
     enduses : list
         Service enduses
     """
-    lines = []
+    rows_list = []
     fuels = {}
 
     with open(path_to_csv, 'r') as csvfile:
-        read_lines = csv.reader(csvfile, delimiter=',')
-        _headings = next(read_lines) # Skip row
-        _secondline = next(read_lines) # Skip row
+        rows = csv.reader(csvfile, delimiter=',')
+        _headings = next(rows) # Skip row
+        _secondline = next(rows) # Skip row
 
         # All sectors
         sectors = set([])
@@ -402,10 +421,10 @@ def read_fuel_ss(path_to_csv, fueltypes_nr):
             for sector in sectors:
                 fuels[enduse][sector] = np.zeros((fueltypes_nr), dtype=float)
 
-        for row in read_lines:
-            lines.append(row)
+        for row in rows:
+            rows_list.append(row)
 
-        for cnt_fueltype, row in enumerate(lines):
+        for cnt_fueltype, row in enumerate(rows_list):
             for cnt, entry in enumerate(row[1:], 1):
                 enduse = _headings[cnt]
                 sector = _secondline[cnt]
@@ -424,10 +443,10 @@ def read_load_shapes_tech(path_to_csv):
     load_shapes_dh = {}
 
     with open(path_to_csv, 'r') as csvfile:
-        read_lines = csv.reader(csvfile, delimiter=',')
-        _headings = next(read_lines) # Skip first row
+        rows = csv.reader(csvfile, delimiter=',')
+        _headings = next(rows) # Skip first row
 
-        for row in read_lines:
+        for row in rows:
             dh_shape = np.zeros((24), dtype=float)
             for cnt, row_entry in enumerate(row[1:], 1):
                 dh_shape[int(_headings[cnt])] = float(row_entry)
@@ -469,21 +488,30 @@ def service_switch(path_to_csv, technologies):
         tech                        [str]   Technology
         switch_yr                   [int]   Year until switch is fully realised
         service_share_ey            [str]   Service share of 'tech' in 'switch_yr'
+        sector                      [str]   Optional sector specific info where switch applies
     """
     service_switches = []
 
     with open(path_to_csv, 'r') as csvfile:
-        read_lines = csv.reader(csvfile, delimiter=',')
-        _headings = next(read_lines) # Skip first row
+        rows = csv.reader(csvfile, delimiter=',')
+        _headings = next(rows) # Skip first row
 
-        for row in read_lines:
+        for row in rows:
             try:
+                # Check if setor is defined
+                try:
+                    sector = str(row[get_position(_headings, 'sector')])
+                except IndexError:
+                    sector = ''
+
                 service_switches.append(
                     ServiceSwitch(
-                        enduse=str(row[0]),
-                        technology_install=str(row[1]),
-                        service_share_ey=float(row[2]),
-                        switch_yr=float(row[3])))
+                        enduse=str(row[get_position(_headings, 'enduse')]),
+                        technology_install=str(row[get_position(_headings, 'tech')]),
+                        service_share_ey=float(row[get_position(_headings, 'service_share_ey')]),
+                        switch_yr=float(row[get_position(_headings, 'switch_yr')]),
+                        sector=sector))
+
             except (KeyError, ValueError):
                 sys.exit("Check if provided data is complete (no empty csv entries)")
 
@@ -526,22 +554,32 @@ def read_fuel_switches(path_to_csv, enduses, fueltypes):
         technology_install          [str]   Technology which is installed
         switch_yr                   [int]   Year until switch is fully realised
         fuel_share_switched_ey      [float] Share of fuel which is switched until switch_yr
+        sector                      [str]   Optional sector specific info where switch applies
+                                            If field is empty the switch is across all sectors
     """
     fuel_switches = []
 
     with open(path_to_csv, 'r') as csvfile:
-        read_lines = csv.reader(csvfile, delimiter=',')
-        _headings = next(read_lines)
+        rows = csv.reader(csvfile, delimiter=',')
+        _headings = next(rows)
 
-        for row in read_lines:
+        for row in rows:
             try:
+
+                try:
+                    sector = str(row[get_position(_headings, 'sector')])
+                except IndexError:
+                    sector = ''
+
                 fuel_switches.append(
                     FuelSwitch(
-                        enduse=str(row[0]),
-                        enduse_fueltype_replace=fueltypes[str(row[1])],
-                        technology_install=str(row[2]),
-                        switch_yr=float(row[3]),
-                        fuel_share_switched_ey=float(row[4])))
+                        enduse=str(row[get_position(_headings, 'enduse')]),
+                        enduse_fueltype_replace=fueltypes[str(row[get_position(_headings, 'enduse_fueltype_replace')])],
+                        technology_install=str(row[get_position(_headings, 'technology_install')]),
+                        switch_yr=float(row[get_position(_headings, 'switch_yr')]),
+                        fuel_share_switched_ey=float(row[get_position(_headings, 'fuel_share_switched_ey')]),
+                        sector=sector))
+
             except (KeyError, ValueError):
                 sys.exit("Check if provided data is complete (no emptly csv entries)")
 
@@ -549,9 +587,12 @@ def read_fuel_switches(path_to_csv, enduses, fueltypes):
     for obj in fuel_switches:
         if obj.fuel_share_switched_ey == 0:
             sys.exit(
-                "Input error: The share of switched fuel needs to be > 0. Delete {} from input".format(
+                "Input error: The share of switched fuel must be > 0. Delete {} from input".format(
                     obj.technology_install))
 
+    # --------
+    # Testing
+    # --------
     # Test if more than 100% per fueltype is switched
     for obj in fuel_switches:
         enduse = obj.enduse
@@ -567,7 +608,7 @@ def read_fuel_switches(path_to_csv, enduses, fueltypes):
 
     # Test whether defined enduse exist
     for obj in fuel_switches:
-        if obj.enduse in enduses['ss_all_enduses'] or obj.enduse in enduses['rs_all_enduses'] or obj.enduse in enduses['is_all_enduses']:
+        if obj.enduse in enduses['ss_enduses'] or obj.enduse in enduses['rs_enduses'] or obj.enduse in enduses['is_enduses']:
             pass
         else:
             sys.exit(
@@ -578,7 +619,7 @@ def read_fuel_switches(path_to_csv, enduses, fueltypes):
 
 def read_technologies(path_to_csv, fueltypes):
     """Read in technology definition csv file. Append
-    for every technology type a 'dummy_tech'.
+    for every technology type a 'placeholder_tech'.
 
     Arguments
     ----------
@@ -591,7 +632,7 @@ def read_technologies(path_to_csv, fueltypes):
         All technologies and their assumptions provided as input
     dict_tech_lists : dict
         List with technologies. The technology type
-        is defined in the technology input file. A dummy_tech
+        is defined in the technology input file. A placeholder technology
         is added for every list in order to allow that a generic
         technology type can be added for every enduse
 
@@ -622,10 +663,10 @@ def read_technologies(path_to_csv, fueltypes):
     dict_tech_lists = {}
 
     with open(path_to_csv, 'r') as csvfile:
-        read_lines = csv.reader(csvfile, delimiter=',')
-        _headings = next(read_lines) # Skip heading
+        rows = csv.reader(csvfile, delimiter=',')
+        _headings = next(rows) # Skip heading
 
-        for row in read_lines:
+        for row in rows:
             technology = row[0]
             try:
                 dict_technologies[technology] = TechnologyData(
@@ -648,13 +689,12 @@ def read_technologies(path_to_csv, fueltypes):
             except Exception as e:
 
                 logging.error(
-                    "Error technology table (e.g. empty field): {} {}".format(
-                        e, row))
+                    "Error technology table (e.g. empty field): %s %s", e, row)
                 sys.exit()
 
-    # Add dummy_technology to all tech_lists
+    # Add placeholder technology to all tech_lists
     for tech_list in dict_tech_lists.values():
-        tech_list.append('dummy_tech')
+        tech_list.append('placeholder_tech')
 
     return dict_technologies, dict_tech_lists
 
@@ -683,27 +723,29 @@ def read_fuel_rs(path_to_csv):
     The header is the sub_key
     """
     try:
-        lines = []
+        rows_list = []
         fuels = {}
 
         with open(path_to_csv, 'r') as csvfile:
-            read_lines = csv.reader(csvfile, delimiter=',')
-            _headings = next(read_lines) # Skip first row
+            rows = csv.reader(csvfile, delimiter=',')
+            _headings = next(rows) # Skip first row
 
-            for row in read_lines:
-                lines.append(row)
+            for row in rows:
+                rows_list.append(row)
 
             for i in _headings[1:]: # skip first
-                fuels[i] = np.zeros((len(lines)), dtype=float)
+                fuels[i] = np.zeros((len(rows_list)), dtype=float)
 
-            for cnt_fueltype, row in enumerate(lines):
+            for cnt_fueltype, row in enumerate(rows_list):
                 cnt = 1 #skip first
                 for fuel in row[1:]:
                     end_use = _headings[cnt]
                     fuels[end_use][cnt_fueltype] = float(fuel)
                     cnt += 1
     except (KeyError, ValueError):
-        sys.exit("Check whether tehre any empty cells in the csv files for enduse '{}".format(end_use))
+        sys.exit(
+            "Check if empty cells in the csv files for enduse '{}".format(
+                end_use))
 
     # Create list with all rs enduses
     enduses = fuels.keys()
@@ -737,19 +779,28 @@ def read_fuel_is(path_to_csv, fueltypes_nr, fueltypes):
             https://www.gov.uk/government/uploads/system/uploads/attach
             ment_data/file/573271/ECUK_user_guide_November_2016_final.pdf
 
+            https://unstats.un.org/unsd/cr/registry/regcst.asp?Cl=27
+
+            http://ec.europa.eu/eurostat/ramon/nomenclatures/
+            index.cfm?TargetUrl=LST_NOM_DTL&StrNom=NACE_REV2&StrLanguageCode=EN&IntPcKey=&StrLayoutCode=
+
     High temperature processes
     =============================
     High temperature processing dominates energy consumption in the iron and steel,
     non-ferrous metal, bricks, cement, glass and potteries industries. This includes
-    coke ovens, blast furnaces and other furnaces, kilns and glass tanks.
+        - coke ovens
+        - blast furnaces and other furnaces
+        - kilns and
+        - glass tanks.
 
     Low temperature processes
     =============================
     Low temperature processes are the largest end use of energy for the food, drink
-    and tobacco industry. This includes process heating and distillation in the
-    chemicals sector; baking and separation processes in food and drink; pressing and
-    drying processes, in paper manufacture; and washing, scouring, dyeing and drying
-    in the textiles industry.
+    and tobacco industry. This includes:
+        - process heating and distillation in the chemicals sector;
+        - baking and separation processes in food and drink;
+        - pressing and drying processes, in paper manufacture;
+        - and washing, scouring, dyeing and drying in the textiles industry.
 
     Drying/separation
     =============================
@@ -783,14 +834,46 @@ def read_fuel_is(path_to_csv, fueltypes_nr, fueltypes):
 
     Other
     =============================
+
+    -----------------------
+    Industry classes from BEIS
+    -----------------------
+
+    SIC 2007    Name
+    --------    ------
+    08	Other mining and quarrying
+    10	Manufacture of food products
+    11	Manufacture of beverages
+    12	Manufacture of tobacco products
+    13	Manufacture of textiles
+    14	Manufacture of wearing apparel
+    15	Manufacture of leather and related products
+    16	Manufacture of wood and of products of wood and cork, except furniture; manufacture of articles of straw and plaiting materials
+    17	Manufacture of paper and paper products
+    18	Printing and publishing of recorded media and other publishing activities
+    20	Manufacture of chemicals and chemical products
+    21	Manufacture of basic pharmaceutical products and pharmaceutical preparations
+    22	Manufacture of rubber and plastic products
+    23	Manufacture of other non-metallic mineral products
+    24	Manufacture of basic metals
+    25	Manufacture of fabricated metal products, except machinery and equipment
+    26	Manufacture of computer, electronic and optical products
+    27	Manufacture of electrical equipment
+    28	Manufacture of machinery and equipment n.e.c.
+    29	Manufacture of motor vehicles, trailers and semi-trailers
+    30	Manufacture of other transport equipment
+    31	Manufacture of furniture
+    32	Other manufacturing
+    36	Water collection, treatment and supply
+    38	Waste collection, treatment and disposal activities; materials recovery
     """
-    lines = []
+    rows_list = []
     fuels = {}
 
     with open(path_to_csv, 'r') as csvfile:
-        read_lines = csv.reader(csvfile, delimiter=',')
-        _headings = next(read_lines)
-        _secondline = next(read_lines)
+        rows = csv.reader(csvfile, delimiter=',')
+        _headings = next(rows)
+        _secondline = next(rows)
 
         # All sectors
         enduses = set([])
@@ -800,17 +883,19 @@ def read_fuel_is(path_to_csv, fueltypes_nr, fueltypes):
 
         # All enduses
         sectors = set([])
-        for line in read_lines:
-            lines.append(line)
-            sectors.add(line[0])
+        for row in rows:
+            rows_list.append(row)
+            sectors.add(row[0])
 
         # Initialise dict
         for enduse in enduses:
             fuels[enduse] = {}
             for sector in sectors:
-                fuels[str(enduse)][str(sector)] = np.zeros((fueltypes_nr), dtype=float)
 
-        for row in lines:
+                fuels[str(enduse)][str(sector)] = np.zeros(
+                    (fueltypes_nr), dtype=float)
+
+        for row in rows_list:
             sector = row[0]
             for position, entry in enumerate(row[1:], 1): # Start with position 1
 
@@ -874,12 +959,11 @@ def read_scenaric_population_data(result_path):
         year = int(file_path_split[1])
 
         # Add year if not already exists
-        print(path_file_to_read)
         results[year] = np.load(path_file_to_read)
 
     return results
 
-def capacity_switch(path_to_csv):
+def read_capacity_switch(path_to_csv):
     """This function reads in service assumptions
     from csv file
 
@@ -892,51 +976,122 @@ def capacity_switch(path_to_csv):
     -------
     service_switches : dict
         Service switches which implement the defined capacity installation
+
+    Info
+    -----
+    The following attributes need to be defined for a capacity switch.
+
+        Attribute                   Description
+        ==========                  =========================
+        enduse                      [str]   Enduse affected by switch
+        tech                        [str]   Technology installed
+        switch_yr                   [int]   Year until switch is fully realised
+        installed_capacity          [float] Installed total capacity in GWh
+        sector                      [str]   Optional sector specific info where switch applies
+                                            If field is empty the switch is across all sectors
+
     """
     service_switches = []
 
     with open(path_to_csv, 'r') as csvfile:
-        read_lines = csv.reader(csvfile, delimiter=',')
-        _headings = next(read_lines) # Skip first row
+        rows = csv.reader(csvfile, delimiter=',')
+        _headings = next(rows)
 
-        for row in read_lines:
+        for row in rows:
             try:
+
+                # Check if setor is defined
+                try:
+                    sector = str(row[4])
+                except IndexError:
+                    sector = ''
+
                 service_switches.append(
                     CapacitySwitch(
                         enduse=str(row[0].strip()),
                         technology_install=str(row[1].strip()),
                         switch_yr=float(row[2].strip()),
-                        installed_capacity=float(row[3].strip())))
+                        installed_capacity=float(row[3].strip()),
+                        sector=sector))
+
             except (KeyError, ValueError):
                 sys.exit(
-                    "Error in loading service switch: Check if provided data is complete (no emptly csv entries)")
+                    "Error in loading capacity switch: Check if no emptly csv entries (except for optional sector field)")
 
     return service_switches
 
-def read_floor_area_virtual_stock(path_to_csv):
-    """Read in floor area for virtual building stock
+def read_floor_area_virtual_stock(path_to_csv, p_mixed_resid=0.5):
+    """Read in floor area from csv file for every LAD
+    to generate virtual building stock.
 
-    TODO: CSV File from newcastle
     Arguments
     ---------
     path_floor_area : str
         Path to csv file
+    p_mixed_resid : float
+        Factor to assign mixed floor area
+
+    Returns
+    -------
+    res_floorarea : dict
+        Residential floor area per region
+    non_res_floorarea : dict
+        Non residential floor area per region
+
+    Info
+    -----
+    *   The mixed floor area (residential and non residential) is distributed
+        according to `p_mixed_resid`.
+    
+    TODO: READ IN SECTOR SPECIFIC FLOOR AREA OR CALCLATE IT SOMEHOW
     """
-    res_floorarea, non_res_floorarea = {}, {}
+    # Redistribute the mixed enduse
+    p_mixed_resid = 0.5
+    p_mixed_no_resid = 1 - p_mixed_resid
+
+    # Second Mail from Craig
+    res_floorarea, non_res_floorarea, floorarea_mixed = {}, {}, {}
 
     with open(path_to_csv, 'r') as csvfile:
-        read_lines = csv.reader(csvfile, delimiter=',')
-        _headings = next(read_lines) # Skip first row
+        rows = csv.reader(csvfile, delimiter=',')
+        _headings = next(rows)
 
-        for row in read_lines:
+        for row in rows:
             geo_name = str.strip(row[get_position(_headings, 'lad')])
-            res_floorarea[geo_name] = float(row[get_position(_headings, 'res_footprint_area')])
-            non_res_floorarea[geo_name] = float(row[get_position(_headings, 'nonres_footprint_area')])
+
+            if (row[get_position(_headings, 'res_bld_floor_area')] == 'null') or (
+                row[get_position(_headings, 'nonres_bld_floor_area')] == 'null') or (
+                    row[get_position(_headings, 'mixeduse_bld_floor_area')] == 'null'):
+                    res_floorarea[geo_name] = 1 #TODO
+                    non_res_floorarea[geo_name] = 1 #TODO
+                    floorarea_mixed[geo_name] = 1 #TODO
+            else:
+                if row[get_position(_headings, 'res_bld_floor_area')] == 'null':
+                    res_floorarea[geo_name] = 1 #TODO
+                else:
+                    res_floorarea[geo_name] = float(row[get_position(_headings, 'res_bld_floor_area')])
+                if row[get_position(_headings, 'nonres_bld_floor_area')] == 'null':
+                    non_res_floorarea[geo_name] = 1 #TODO
+                else:
+                    non_res_floorarea[geo_name] = float(row[get_position(_headings, 'nonres_bld_floor_area')])
+
+                if row[get_position(_headings, 'mixeduse_bld_floor_area')] == 'null':
+                    floorarea_mixed[geo_name] = 1 #TODO
+                else:
+                    floorarea_mixed[geo_name] = float(row[get_position(_headings, 'mixeduse_bld_floor_area')])
+
+                # Distribute mixed floor area
+                non_res_from_mixed = floorarea_mixed[geo_name] * p_mixed_no_resid
+                res_from_mixed = floorarea_mixed[geo_name] * p_mixed_resid
+
+                # Add
+                res_floorarea[geo_name] += res_from_mixed
+                non_res_floorarea[geo_name] += non_res_from_mixed
 
     return res_floorarea, non_res_floorarea
 
 def get_position(headings, name):
-    """Read position in list
+    """Get position of an entry in a list
 
     Arguments
     ---------
@@ -968,4 +1123,5 @@ def read_np_array_from_txt(path_file_to_read):
         Array containing read text
     """
     txt_array = np.loadtxt(path_file_to_read, delimiter=',')
+
     return txt_array

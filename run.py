@@ -27,6 +27,7 @@ from energy_demand.basic import logger_setup
 from energy_demand.validation import lad_validation
 from energy_demand.technologies import fuel_service_switch
 from energy_demand.profiles import hdd_cdd
+from energy_demand.basic import lookup_tables
 
 # must match smif project name for Local Authority Districts
 NR_OF_MODELLEd_REGIONS = 391 #391 # uk: 391, england.: 380
@@ -58,7 +59,7 @@ class EDWrapper(SectorModel):
         data['criterias']['mode_constrained'] = True                    # True: Technologies are defined in ED model and fuel is provided, False: Heat is delievered not per technologies
         data['criterias']['virtual_building_stock_criteria'] = True     # True: Run virtual building stock model
         data['criterias']['spatial_exliclit_diffusion'] = False         # True: Spatial explicit calculations
-        data['criterias']['writeYAML'] = False                          # True: Write YAML parameters
+        data['criterias']['writeYAML'] = True                          # True: Write YAML parameters
 
         fast_smif_run = False
 
@@ -102,44 +103,54 @@ class EDWrapper(SectorModel):
         # -----------------------------
         region_set_name = self.regions.names[0]
 
-        data['lu_reg'] = self.get_region_names(region_set_name)
+        data['regions'] = self.get_region_names(region_set_name)
 
         reg_centroids = self.get_region_centroids(region_set_name)
         data['reg_coord'] = self.get_long_lat_decimal_degrees(reg_centroids)
 
         # SCRAP REMOVE: ONLY SELECT NR OF MODELLED REGIONS
-        data['lu_reg'] = data['lu_reg'][:NR_OF_MODELLEd_REGIONS]
+        data['regions'] = data['regions'][:NR_OF_MODELLEd_REGIONS]
 
-        logging.info("Modelled for a number of regions: " + str(len(data['lu_reg'])))
-        data['reg_nrs'] = len(data['lu_reg'])
+        logging.info("Modelled for a number of regions: " + str(len(data['regions'])))
+        data['reg_nrs'] = len(data['regions'])
 
         # ---------------------
         # Energy demand specific input which need to generated or read in
         # ---------------------
-        data['lookups'] = data_loader.load_basic_lookups()
+        data['lookups'] = lookup_tables.basic_lookups()
         data['weather_stations'], data['temp_data'] = data_loader.load_temp_data(data['local_paths'])
         data['enduses'], data['sectors'], data['fuels'] = data_loader.load_fuels(
             data['paths'], data['lookups'])
 
         # -----------------------------
-        # Obtain external scenario data
+        # Obtain external base year scenario data
         # -----------------------------
-        pop_array_current = data_handle.get_base_timestep_data('population')
-        pop_dict = {}
-        for r_idx, region in enumerate(data['lu_reg']):
-            pop_dict[region] = pop_array_current[r_idx, 0]
-        data['population'][data['sim_param']['base_yr']] = pop_dict
+        pop_array_by = data_handle.get_base_timestep_data('population')
+        gva_array_by = data_handle.get_base_timestep_data('gva')
+        #industry_gva_by = data_handle.get_base_timestep_data('industry_gva')
 
-        gva_array = data_handle.get_base_timestep_data('gva')
+        pop_dict = {}
         gva_dict = {}
-        for r_idx, region in enumerate(data['lu_reg']):
-            gva_dict[region] = gva_array[r_idx, 0]
+        gva_industry_dict = {}
+
+        for r_idx, region in enumerate(data['regions']):
+            pop_dict[region] = pop_array_by[r_idx, 0]
+            gva_dict[region] = gva_array_by[r_idx, 0]
+            #gva_industry_dict[region] = industry_gva_by[r_idx, 0]
+
+        data['population'][data['sim_param']['base_yr']] = pop_dict
         data['gva'][data['sim_param']['base_yr']] = gva_dict
+        #data['industry_gva'][data['sim_param']['base_yr']] = gva_industry_dict
+        data['industry_gva'] = "TST"
 
         # Get building related data
         if data['criterias']['virtual_building_stock_criteria']:
-            rs_floorarea, ss_floorarea = data_loader.virtual_building_datasets(
-                data['lu_reg'], data['sectors']['all_sectors'], data['local_paths'])
+            rs_floorarea, ss_floorarea = data_loader.floor_area_virtual_dw(
+                data['regions'],
+                data['sectors']['all_sectors'],
+                data['local_paths'],
+                base_yr=data['sim_param']['base_yr'],
+                p_mixed_resid=0.5)
         else:
             pass
             # Load floor area from newcastle
@@ -152,6 +163,7 @@ class EDWrapper(SectorModel):
         data['scenario_data'] = {
             'gva': data['gva'],
             'population': data['population'],
+            'industry_gva': data['industry_gva'],
             'floor_area': {
                 'rs_floorarea': rs_floorarea,
                 'ss_floorarea': ss_floorarea
@@ -165,6 +177,7 @@ class EDWrapper(SectorModel):
             data['sim_param']['base_yr'],
             data['paths'],
             data['enduses'],
+            data['sectors'],
             data['lookups']['fueltypes'],
             data['lookups']['fueltypes_nr'])
         data['assumptions']['seasons'] = date_prop.read_season(year_to_model=2015)
@@ -220,6 +233,7 @@ class EDWrapper(SectorModel):
         # Pass along to simulate()
         # ------------------------
         self.user_data['gva'] = data['gva']
+        self.user_data['industry_gva'] = data['industry_gva']
         self.user_data['population'] = data['population']
         self.user_data['rs_floorarea'] = rs_floorarea
         self.user_data['ss_floorarea'] = ss_floorarea
@@ -234,7 +248,7 @@ class EDWrapper(SectorModel):
         self.user_data['data_pass_along']['sectors'] = data['sectors']
         self.user_data['data_pass_along']['fuels'] = data['fuels']
         self.user_data['data_pass_along']['reg_coord'] = data['reg_coord']
-        self.user_data['data_pass_along']['lu_reg'] = data['lu_reg']
+        self.user_data['data_pass_along']['regions'] = data['regions']
         self.user_data['data_pass_along']['reg_nrs'] = data['reg_nrs']
 
         # --------------------
@@ -331,21 +345,26 @@ class EDWrapper(SectorModel):
         gva_dict_current = {}
         pop_dict_current = {}
 
-        for r_idx, region in enumerate(data['lu_reg']):
+        for r_idx, region in enumerate(data['regions']):
             pop_dict_current[region] = pop_array_current[r_idx, 0]
             gva_dict_current[region] = gva_array_current[r_idx, 0]
 
-        pop_by_cy = {}
-        pop_by_cy[data['sim_param']['base_yr']] = self.user_data['population'][data_handle.base_timestep] # Get population of by
-        pop_by_cy[data['sim_param']['curr_yr']] = pop_dict_current # Get population of cy
+        pop_dict = {}
+        pop_dict[data['sim_param']['base_yr']] = self.user_data['population'][data_handle.base_timestep] # by
+        pop_dict[data['sim_param']['curr_yr']] = pop_dict_current # Get population of cy
 
-        gva_by_cy = {}
-        gva_by_cy[data['sim_param']['base_yr']] = self.user_data['gva'][data_handle.base_timestep] # Get gva of by
-        gva_by_cy[data['sim_param']['curr_yr']] = gva_dict_current # Get gva of cy
+        gva_dict = {}
+        gva_dict[data['sim_param']['base_yr']] = self.user_data['gva'][data_handle.base_timestep] # by
+        gva_dict[data['sim_param']['curr_yr']] = gva_dict_current # Get gva of cy
+
+        gva_industry_dict = {}
+        #gva_industry_dict[data['sim_param']['base_yr']] = self.user_data['gva'][data_handle.base_timestep] # by
+        #gva_industry_cy[data['sim_param']['curr_yr']] = gva_dict_current # Get gva of cy'''
 
         data['scenario_data'] = {
-            'gva': gva_by_cy,
-            'population': pop_by_cy,
+            'gva': gva_dict,
+            'population': pop_dict,
+            'industry_gva': gva_industry_dict,
 
             # Only add newcastle floorarea here
             'floor_area': {
@@ -361,7 +380,7 @@ class EDWrapper(SectorModel):
             data['enduses'],
             data['assumptions'],
             data['reg_nrs'],
-            data['lu_reg'])
+            data['regions'])
 
         # ---------------------------------------------
         # Run energy demand model
@@ -384,7 +403,7 @@ class EDWrapper(SectorModel):
                 data['lookups']['fueltypes_nr'],
                 data['local_paths'],
                 data['paths'],
-                data['lu_reg'],
+                data['regions'],
                 data['reg_coord'],
                 data['assumptions']['seasons'],
                 data['assumptions']['model_yeardays_daytype'],
@@ -498,7 +517,7 @@ class EDWrapper(SectorModel):
         # -------------------------------------
         if data['criterias']['mode_constrained']:
             supply_results = constrained_results(
-                data['lu_reg'],
+                data['regions'],
                 results_constrained,
                 results_unconstrained,
                 supply_sectors,
@@ -512,7 +531,7 @@ class EDWrapper(SectorModel):
                     data['paths']['yaml_parameters_keynames_constrained'], supply_results.keys())
         else:
             supply_results = unconstrained_results(
-                data['lu_reg'],
+                data['regions'],
                 results_unconstrained,
                 supply_sectors,
                 data['lookups']['fueltypes'],

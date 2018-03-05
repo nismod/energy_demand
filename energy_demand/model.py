@@ -193,7 +193,7 @@ def simulate_region(region, data, weather_regions):
         data['sim_param'],
         data['lookups'],
         data['criterias'],
-        data['enduses']['rs_all_enduses'])
+        data['enduses']['rs_enduses'])
 
     # --------------------
     # Service SubModel
@@ -207,7 +207,7 @@ def simulate_region(region, data, weather_regions):
         data['sim_param'],
         data['lookups'],
         data['criterias'],
-        data['enduses']['ss_all_enduses'],
+        data['enduses']['ss_enduses'],
         data['sectors']['ss_sectors'])
 
     # --------------------
@@ -221,7 +221,7 @@ def simulate_region(region, data, weather_regions):
         data['sim_param'],
         data['lookups'],
         data['criterias'],
-        data['enduses']['is_all_enduses'],
+        data['enduses']['is_enduses'],
         data['sectors']['is_sectors'])
 
     return rs_submodel, ss_submodel, is_submodel
@@ -463,7 +463,7 @@ def residential_submodel(
     logging.debug("... residential submodel start")
 
     if not sectors:
-        sectors = ['dummy_sector']
+        sectors = [False]
     else:
         pass
 
@@ -482,6 +482,7 @@ def residential_submodel(
 
             # Create submodule
             submodel = endusefunctions.Enduse(
+                submodel='rs_submodel',
                 region_name=region.name,
                 scenario_data=scenario_data,
                 assumptions=assumptions,
@@ -554,6 +555,7 @@ def service_submodel(
 
             # Create submodule
             submodel = endusefunctions.Enduse(
+                submodel='ss_submodel',
                 region_name=region.name,
                 scenario_data=scenario_data,
                 assumptions=assumptions,
@@ -569,7 +571,7 @@ def service_submodel(
                 heating_factor_y=region.ss_heating_factor_y,
                 cooling_factor_y=region.ss_cooling_factor_y,
                 service_switches=service_switches,
-                fuel_fueltype_tech_p_by=assumptions['ss_fuel_tech_p_by'][enduse],
+                fuel_fueltype_tech_p_by=assumptions['ss_fuel_tech_p_by'][enduse][sector],
                 sig_param_tech=sig_param_tech,
                 criterias=criterias,
                 fueltypes_nr=lookups['fueltypes_nr'],
@@ -634,6 +636,7 @@ def industry_submodel(
 
             # Create submodule
             submodel = endusefunctions.Enduse(
+                submodel='is_submodel',
                 region_name=region.name,
                 scenario_data=scenario_data,
                 assumptions=assumptions,
@@ -649,7 +652,7 @@ def industry_submodel(
                 heating_factor_y=region.is_heating_factor_y,
                 cooling_factor_y=region.is_cooling_factor_y,
                 service_switches=service_switches,
-                fuel_fueltype_tech_p_by=assumptions['is_fuel_tech_p_by'][enduse],
+                fuel_fueltype_tech_p_by=assumptions['is_fuel_tech_p_by'][enduse][sector],
                 sig_param_tech=sig_param_tech,
                 enduse_overall_change=assumptions['enduse_overall_change'],
                 criterias=criterias,
@@ -821,7 +824,7 @@ def create_virtual_dwelling_stocks(regions, curr_yr, data):
             data['scenario_data'],
             data['sim_param']['simulated_yrs'],
             data['lookups']['dwtype'],
-            data['enduses']['rs_all_enduses'],
+            data['enduses']['rs_enduses'],
             data['reg_coord'],
             data['assumptions']['scenario_drivers']['rs_submodule'],
             data['sim_param']['base_yr'],
@@ -831,7 +834,7 @@ def create_virtual_dwelling_stocks(regions, curr_yr, data):
         # Dwelling stock of service SubModel for base year
         data['ss_dw_stock'][region][data['sim_param']['base_yr']] = dw_stock.ss_dw_stock(
             region,
-            data['enduses']['ss_all_enduses'],
+            data['enduses']['ss_enduses'],
             data['sectors']['ss_sectors'],
             data['scenario_data'],
             data['reg_coord'],
@@ -847,7 +850,7 @@ def create_virtual_dwelling_stocks(regions, curr_yr, data):
             data['scenario_data'],
             data['sim_param']['simulated_yrs'],
             data['lookups']['dwtype'],
-            data['enduses']['rs_all_enduses'],
+            data['enduses']['rs_enduses'],
             data['reg_coord'],
             data['assumptions']['scenario_drivers']['rs_submodule'],
             curr_yr,
@@ -857,7 +860,7 @@ def create_virtual_dwelling_stocks(regions, curr_yr, data):
         # Dwelling stock of service SubModel for current year
         data['ss_dw_stock'][region][curr_yr] = dw_stock.ss_dw_stock(
             region,
-            data['enduses']['ss_all_enduses'],
+            data['enduses']['ss_enduses'],
             data['sectors']['ss_sectors'],
             data['scenario_data'],
             data['reg_coord'],
@@ -870,6 +873,12 @@ def create_virtual_dwelling_stocks(regions, curr_yr, data):
 
 def create_dwelling_stock(regions, curr_yr, data):
     """Create dwelling stock based on NEWCASTLE data
+
+    Arguments
+    ---------
+
+    Returns
+    -------
     """
      #TODO
     #data['rs_dw_stock'][region][curr_yr] = dw_stock.createNEWCASTLE_dwelling_stock(

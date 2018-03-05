@@ -11,6 +11,7 @@ def load_non_param_assump(
         base_yr,
         paths,
         enduses,
+        sectors,
         fueltypes,
         fueltypes_nr
     ):
@@ -152,16 +153,19 @@ def load_non_param_assump(
 
     # (Average builing age within age class, fraction)
     # Note: the number of refurbished houses can be changed ?? TODO: IMPELEMENT AS SCENARIO
+    # The newest category of 2015 is added to implement change in refurbishing rate
+    # For the base year, this is set to zero (if e.g. with future scenario set to 5%, then
+    # proportionally to base year distribution number of houses are refurbished)
     assumptions['dwtype_age_distr'] = {
         2015: {
             '1918' :0.21,
             '1941': 0.36,
             '1977.5': 0.3,
             '1996.5': 0.08,
-            '2002': 0.05}}
+            '2002': 0.05}} #,
+            #'2015': 0.0}}
         
     # TODO: DEFINE VARIABLE HOW MUCH IN END YEAR IS 2002
-
 
     # ============================================================
     #   Scenario drivers TODO: CHECK all scenario drivers
@@ -251,7 +255,7 @@ def load_non_param_assump(
     assumptions['smart_meter_assump']['smart_meter_p_by'] = 0.1
     assumptions['smart_meter_assump']['smart_meter_diff_params'] = {
         'sig_midpoint': 0,
-        'sig_steeppness': 1}
+        'sig_steepness': 1}
 
     # ============================================================
     # Base temperature assumptions
@@ -287,7 +291,7 @@ def load_non_param_assump(
 
     assumptions['base_temp_diff_params'] = {
         'sig_midpoint': 0,
-        'sig_steeppness': 1,
+        'sig_steepness': 1,
         'yr_until_changed': yr_until_changed_all_things}
 
     # ============================================================
@@ -310,7 +314,7 @@ def load_non_param_assump(
         'rs_space_heating', 'ss_space_heating', 'is_space_heating']
 
     assumptions['enduse_rs_space_cooling'] = []
-    assumptions['ss_enduse_space_cooling'] = ['ss_cooling_humidification'] #['ss_fans', 'ss_cooled_storage']
+    assumptions['ss_enduse_space_cooling'] = ['ss_cooling_humidification']
 
     # ============================================================
     # Industry submodel related parameters
@@ -321,12 +325,129 @@ def load_non_param_assump(
     #   s
     #       S
     # ------------------------------------------------------------
-    '''Fuel use ratio - dry process over wet process in cement sector
+
+    # --------------------------------------------
+    # heating 
+    # -------------------------------------------- 
+    # --> No scenario drivers but driven by switches
+
+    # --------------------------------------------
+    # lighting 
+    # -------------------------------------------- 
+    # --> No scenario drivers but driven by switches
+
+    # --------------------------------------------
+    # high_temp_ process 
+    #       High temperature processing dominates energy consumption in the iron and steel,
+    #       non-ferrous metal, bricks, cement, glass and potteries industries. This includes
+    #          - coke ovens
+    #          - blast furnaces and other furnaces
+    #          - kilns and
+    #          - glass tanks.
+
+    #BAF: basic_oxygen_furnace
+    #EAF: electric_arc_furnace
+    #BAT - iron & steel - Coke ovens	Sectoral share (%)
+    #BAT - iron & steel - EAF/BOF 	    Sectoral share - EOF %
+    #BAT - iron & steel - continous/Ingot casting 	Sectoral share - continuous %
+    #BAT - iron & steel - cold/hot rolling 	Sectoral share - cold %                     #DONE
+    #BAT - iron & steel - substitute	Sectoral share - substitute %
+
+    # --------------------------------------------
+
+    # Share of cold rolling in steel manufacturing (total = hot and cold)
+    assumptions['p_cold_rolling_steel_by']  = 0.5  #TODO
+    assumptions['eff_cold_rolling_process'] = 1.0  #TODO
+    assumptions['eff_hot_rolling_process'] = 1.0   #TODO
+
+
+
+
+    # ---------------
+    p_service_electric_arc_furnace = 0.5            #TODO: DEFINE FROM BASE YEAR FUEL MIX
+    p_service_basic_oxygen_furnace = 1 - p_service_electric_arc_furnace
+    p_SNG_furnace = 0 #biomass
+    # Sector metalic (steel industry)
+
+    assumpt_fraction_cement_of_high_temp_process = 0.5 # (non_metallic)
+    assumpt_fraction_netall_of_high_temp_process = 0.5 # (basic_metals)
+    
+    #scrap-based production: electric arc furnace 
+    #direct reduction process: natrual gas based, electric arc furnace
+    #BF-BOF (blast furnace - basix oxgen furnace)
+
+
+    # Sectors non_metallic_mineral_products
+
+    # --> Define efficiencis of technologies
+    #   - Other (?)
+    #   .ev refrigeration / compressed air / motors
+    #   
+    #
+    #   
+
+
+
+
+    # High consumption in Chemicals, Non_metallic mineral products, paper, food_production
+    ''' 'is_high_temp_process': ['gva'],
+        'is_low_temp_process': ['gva'],
+        'is_drying_separation': ['gva'],
+        'is_motors': ['gva'],
+        'is_compressed_air': ['gva'],
+        'is_lighting': ['gva'],
+        'is_space_heating': ['gva'],
+        'is_other': ['gva'],
+        'is_refrigeration': ['gva']}'''
+
+    # Sectors
+    '''
+    'other_manufacturing': ,
+    'pharmaceuticals': ,
+    'waste_collection': ,
+    'machinery': ,
+    'leather': ,
+    'furniture': ,
+    'mining': ,
+    'rubber_plastics': ,
+    'computer': ,
+    'other_transport_equipment': ,
+    'basic_metals': ,
+    'tobacco': ,
+    'textiles': ,
+    'paper': ,
+    'chemicals': ,
+    'non_metallic_mineral_products': ,
+    'food_production': ,
+    'wearing_appeal': ,
+    'fabricated_metal_products': ,
+    'beverages': ,
+    'motor_vehicles': ,
+    'wood': ,
+    'printing': ,
+    'water_collection_treatment': ,
+    'electrical_equipment': '''
+
+    '''
+    Fuel use ratio - dry process over wet process in cement sector
     Fuel use ratio - novel alkali cement over incumbent process in cement sector
     Fuel use ratio - novel partially dehydrated cement over incumbent process in cement sector
     Fuel use ratio - electric arc furnace over blast furnace steel making in cement sector
     Fuel use ratio - continuous over ingot casting in cement sector
-    Fuel use ratio - cold over hot rolling in cement sector'''
+    Fuel use ratio - cold over hot rolling in cement sector
+    '''
+    '''
+
+    BAT - cement - dry/wet process 	Dry/wet process (Dry %)
+    BAT - cement - Novel-Alkali-activated (alumino-silicate, geopolymer)	Sectoral share of Alkali activated %
+    BAT - cement - Novel-Partially prehydrated Calcium silicate hydrate	Sectoral share - Partially prehydrated %'''
+
+    # -----------------
+    # Steel production
+    # -----------------
+    # blast furnace process
+    # electric arc furnace
+    # directe reduced iron
     # Hith temperature process -- cement, non-ferrous metla, coke ovens, blast furnaces, kilns,..
 
     # ============================================================
@@ -373,7 +494,7 @@ def load_non_param_assump(
         'diff_method': 'linear', # sigmoid or linear
         'sigmoid': {
             'sig_midpoint': 0,
-            'sig_steeppness': 1}}
+            'sig_steepness': 1}}
 
     # ============================================================
     # Fuel Stock Definition
@@ -383,6 +504,7 @@ def load_non_param_assump(
     assumptions = assumptions_fuel_shares.assign_by_fuel_tech_p(
         assumptions,
         enduses,
+        sectors,
         fueltypes,
         fueltypes_nr)
 
@@ -408,36 +530,46 @@ def load_non_param_assump(
 
     # Read in scenaric capacity switches
     assumptions['capacity_switches'] = {}
-    assumptions['capacity_switches']['rs_capacity_switches'] = read_data.capacity_switch(
+    assumptions['capacity_switches']['rs_capacity_switches'] = read_data.read_capacity_switch(
         paths['rs_path_capacity_installation'])
-    assumptions['capacity_switches']['ss_capacity_switches'] = read_data.capacity_switch(
+    assumptions['capacity_switches']['ss_capacity_switches'] = read_data.read_capacity_switch(
         paths['ss_path_capacity_installation'])
-    assumptions['capacity_switches']['is_capacity_switches'] = read_data.capacity_switch(
+    assumptions['capacity_switches']['is_capacity_switches'] = read_data.read_capacity_switch(
         paths['is_path_capacity_installation'])
 
     # ========================================
     # Helper functions
     # ========================================
-    assumptions['rs_fuel_tech_p_by'], assumptions['rs_specified_tech_enduse_by'], assumptions['technologies'] = tech_related.insert_dummy_tech(
-        assumptions['technologies'], assumptions['rs_fuel_tech_p_by'], assumptions['rs_specified_tech_enduse_by'])
-    assumptions['ss_fuel_tech_p_by'], assumptions['ss_specified_tech_enduse_by'], assumptions['technologies'] = tech_related.insert_dummy_tech(
-        assumptions['technologies'], assumptions['ss_fuel_tech_p_by'], assumptions['ss_specified_tech_enduse_by'])
-    assumptions['is_fuel_tech_p_by'], assumptions['is_specified_tech_enduse_by'], assumptions['technologies'] = tech_related.insert_dummy_tech(
-        assumptions['technologies'], assumptions['is_fuel_tech_p_by'], assumptions['is_specified_tech_enduse_by'])
+    assumptions['rs_fuel_tech_p_by'], assumptions['rs_specified_tech_enduse_by'], assumptions['technologies'] = tech_related.insert_placholder_techs(
+        assumptions['technologies'],
+        assumptions['rs_fuel_tech_p_by'],
+        assumptions['rs_specified_tech_enduse_by'],
+        sector_crit=False)
 
-    assumptions['rs_dummy_enduses'] = tech_related.get_enduses_with_dummy_tech(
-        assumptions['rs_fuel_tech_p_by'])
-    assumptions['ss_dummy_enduses'] = tech_related.get_enduses_with_dummy_tech(
-        assumptions['ss_fuel_tech_p_by'])
-    assumptions['is_dummy_enduses'] = tech_related.get_enduses_with_dummy_tech(
-        assumptions['is_fuel_tech_p_by'])
+    assumptions['ss_fuel_tech_p_by'], assumptions['ss_specified_tech_enduse_by'], assumptions['technologies'] = tech_related.insert_placholder_techs(
+        assumptions['technologies'],
+        assumptions['ss_fuel_tech_p_by'],
+        assumptions['ss_specified_tech_enduse_by'],
+        sector_crit=True)
 
+    assumptions['is_fuel_tech_p_by'], assumptions['is_specified_tech_enduse_by'], assumptions['technologies'] = tech_related.insert_placholder_techs(
+        assumptions['technologies'],
+        assumptions['is_fuel_tech_p_by'],
+        assumptions['is_specified_tech_enduse_by'],
+        sector_crit=True)
+
+    # ----
+    # Testing
+    # ----
     testing_functions.testing_fuel_tech_shares(
         assumptions['rs_fuel_tech_p_by'])
-    testing_functions.testing_fuel_tech_shares(
-        assumptions['ss_fuel_tech_p_by'])
-    testing_functions.testing_fuel_tech_shares(
-        assumptions['is_fuel_tech_p_by'])
+    for enduse in assumptions['ss_fuel_tech_p_by']:
+        testing_functions.testing_fuel_tech_shares(
+            assumptions['ss_fuel_tech_p_by'][enduse])
+    for enduse in assumptions['is_fuel_tech_p_by']:
+        testing_functions.testing_fuel_tech_shares(
+            assumptions['is_fuel_tech_p_by'][enduse])
+
     testing_functions.testing_tech_defined(
         assumptions['technologies'], assumptions['rs_specified_tech_enduse_by'])
     testing_functions.testing_tech_defined(
@@ -491,22 +623,22 @@ def get_all_heating_techs(tech_lists):
     heating_technologies = []
 
     for tech in tech_lists['heating_const']:
-        if tech != 'dummy_tech':
+        if tech != 'placeholder_tech':
             heating_technologies.append(tech)
     for tech in tech_lists['heating_non_const']:
-        if tech != 'dummy_tech':
+        if tech != 'placeholder_tech':
             heating_technologies.append(tech)
     for tech in tech_lists['tech_district_heating']:
-        if tech != 'dummy_tech':
+        if tech != 'placeholder_tech':
             heating_technologies.append(tech)
     for tech in tech_lists['secondary_heating_electricity']:
-        if tech != 'dummy_tech':
+        if tech != 'placeholder_tech':
             heating_technologies.append(tech)
     for tech in tech_lists['storage_heating_electricity']:
-        if tech != 'dummy_tech':
+        if tech != 'placeholder_tech':
             heating_technologies.append(tech)
     for tech in tech_lists['tech_CHP']:
-        if tech != 'dummy_tech':
+        if tech != 'placeholder_tech':
             heating_technologies.append(tech)
 
     return heating_technologies

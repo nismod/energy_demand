@@ -264,7 +264,7 @@ def plot_LAD_comparison_scenarios(
     # Plot
     # -------------------------------------
     fig = plt.figure(
-        figsize=plotting_program.cm2inch(9, 8)) #width, height (9, 8)
+        figsize=plotting_program.cm2inch(9, 8))
 
     ax = fig.add_subplot(1, 1, 1)
 
@@ -343,23 +343,21 @@ def plot_LAD_comparison_scenarios(
     # -----------
     # Labelling
     # -----------
-    '''label_points = False
+    label_points = False
     if label_points:
         for pos, txt in enumerate(labels):
             ax.text(
                 x_values[pos],
-                y_modelled_elec_demand[pos],
+                sorted_year_data[pos],
                 txt,
                 horizontalalignment="right",
                 verticalalignment="top",
-                fontsize=3)'''
-
-    font_additional_info = plotting_styles.font_info()
+                fontsize=3)
 
     plt.title(
         "TEST",
         loc='left',
-        fontdict=font_additional_info)
+        fontdict=plotting_styles.font_info())
 
     plt.xlabel("UK regions (excluding northern ireland)")
     plt.ylabel("[GWh]")

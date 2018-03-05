@@ -6,20 +6,23 @@ from energy_demand.read_write import data_loader, read_data, write_data
 from energy_demand.basic import date_prop
 from energy_demand.plotting import plotting_results, result_mapping
 from energy_demand.basic import logger_setup, basic_functions
+from energy_demand.basic import lookup_tables
 
-def main(path_data_energy_demand):
+def main(path_data_energy_demand, path_shapefile_input):
     """Read in all results and plot PDFs
 
     Arguments
     ----------
     path_data_energy_demand : str
         Path to results
+    path_shapefile_input : str
+        Path to shapefile
     """
-
     # ---------
     # Criterias
     # ---------
-    write_shapefiles = True        # Write shapefiles
+    write_shapefiles = False    # Write shapefiles
+    spatial_results = False      # Spatial geopanda maps
 
     # Set up logger
     logger_setup.set_up_logger(
@@ -32,7 +35,7 @@ def main(path_data_energy_demand):
     data = {}
     data['local_paths'] = data_loader.load_local_paths(
         path_data_energy_demand)
-    data['lookups'] = data_loader.load_basic_lookups()
+    data['lookups'] = lookup_tables.basic_lookups()
 
     # ---------------
     # Folder cleaning
@@ -43,7 +46,7 @@ def main(path_data_energy_demand):
     basic_functions.create_folder(data['local_paths']['data_results_shapefiles'])
 
     # Simulation information is read in from .ini file for results
-    data['sim_param'], data['enduses'], data['assumptions'], data['reg_nrs'], data['lu_reg'] = data_loader.load_sim_param_ini(
+    data['sim_param'], data['enduses'], data['assumptions'], data['reg_nrs'], data['regions'] = data_loader.load_sim_param_ini(
         data['local_paths']['data_results'])
 
     # Other information is read in
@@ -59,7 +62,6 @@ def main(path_data_energy_demand):
     # Reading in results from different model runs
     # Read in and plot in same step if memory is a problem
     # --------------------------------------------
-    print("... start reading in model txt results")
     results_container = read_data.read_in_results(
         data['local_paths']['data_results_model_runs'],
         data['assumptions']['seasons'],
@@ -69,29 +71,30 @@ def main(path_data_energy_demand):
     # Write results to CSV files and merge with shapefile
     # ----------------
     if write_shapefiles:
-        print("... create shapefile")
-        '''write_data.create_shp_results(
+        write_data.create_shp_results(
             data,
             results_container,
             data['local_paths'],
             data['lookups'],
-            data['lu_reg'])
-        print("created shapefile............")'''
+            data['regions'])
+
+    if spatial_results:
         result_mapping.create_geopanda_files(
             data,
             results_container,
             data['local_paths'],
-            data['lu_reg'],
-            data['lookups']['fueltypes_nr'])
+            data['regions'],
+            data['lookups']['fueltypes_nr'],
+            data['lookups']['fueltypes'],
+            path_shapefile_input)
 
     # ------------------------------
     # Plotting results
     # ------------------------------
-    print("... start plotting results")
     plotting_results.run_all_plot_functions(
         results_container,
         data['reg_nrs'],
-        data['lu_reg'],
+        data['regions'],
         data['lookups'],
         data['local_paths'],
         data['assumptions'],

@@ -1,0 +1,12 @@
+name: 'et_module'
+description: 'Run et_module'
+stamp: "2017-11-07T14:15:00+00:00"
+timesteps:
+- 2015
+- 2020
+- 2050
+sos_model: et_module
+decision_module: ''
+scenarios:
+  transport_energy_demand: et_demand_baseline
+narratives: {}

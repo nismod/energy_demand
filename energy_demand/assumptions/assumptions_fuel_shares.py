@@ -6,7 +6,7 @@ different technologies are defined in this file.
 """
 from energy_demand.initalisations import helpers
 
-def assign_by_fuel_tech_p(assumptions, enduses, fueltypes, fueltypes_nr):
+def assign_by_fuel_tech_p(assumptions, enduses, sectors, fueltypes, fueltypes_nr):
     """Assigning fuel share per enduse for different technologies
     for the base year.
 
@@ -16,6 +16,8 @@ def assign_by_fuel_tech_p(assumptions, enduses, fueltypes, fueltypes_nr):
         Assumptions
     enduses : dict
         Enduses
+    sectors : dict
+        Sectors per submodel
     fueltypes : dict
         Fueltypes lookup
     fueltypes_nr : int
@@ -26,9 +28,9 @@ def assign_by_fuel_tech_p(assumptions, enduses, fueltypes, fueltypes_nr):
     assumptions : dict
         Asssumptions
 
-    Note
+    Important note
     ----
-    - In an enduse, either all fueltypes need to be
+    - In an enduse, either all fueltypes with assigned fuelsneed to be
       assigned with technologies or none. No mixing possible
 
     - Technologies can be defined for the following fueltypes:
@@ -41,11 +43,11 @@ def assign_by_fuel_tech_p(assumptions, enduses, fueltypes, fueltypes_nr):
         'heat': 6
     """
     assumptions['rs_fuel_tech_p_by'] = helpers.init_fuel_tech_p_by(
-        enduses['rs_all_enduses'], fueltypes_nr)
+        enduses['rs_enduses'], fueltypes_nr)
     assumptions['ss_fuel_tech_p_by'] = helpers.init_fuel_tech_p_by(
-        enduses['ss_all_enduses'], fueltypes_nr)
+        enduses['ss_enduses'], fueltypes_nr)
     assumptions['is_fuel_tech_p_by'] = helpers.init_fuel_tech_p_by(
-        enduses['is_all_enduses'], fueltypes_nr)
+        enduses['is_enduses'], fueltypes_nr)
 
     # ====================
     # Residential Submodel
@@ -136,7 +138,7 @@ def assign_by_fuel_tech_p(assumptions, enduses, fueltypes, fueltypes_nr):
         'boiler_oil': 0.4}
 
     # ---
-    # According to table 3.19, 59.7% (43.5% + 14.3%) have some form of condensing boiler. 
+    # According to table 3.19, 59.7% (43.5% + 14.3%) have some form of condensing boiler.
     # ---
     assumptions['rs_fuel_tech_p_by']['rs_space_heating'][fueltypes['gas']] = {
         'boiler_condensing_gas': 0.58,
@@ -189,10 +191,10 @@ def assign_by_fuel_tech_p(assumptions, enduses, fueltypes, fueltypes_nr):
     # ===================
     # Service subModel
     # ===================
-    # For ss_space heating the load profile is the same for all technologies
 
     # ----------------
     # Service space heating (ss_space_heating)
+    #  For ss_space heating the load profile is the same for all technologies
     # ----------------
     assumptions['ss_fuel_tech_p_by']['ss_space_heating'][fueltypes['solid_fuel']] = {
         'boiler_solid_fuel': 1.0}
@@ -234,6 +236,10 @@ def assign_by_fuel_tech_p(assumptions, enduses, fueltypes, fueltypes_nr):
         'central_air_conditioner_oil': 0.64,
         'decentral_air_conditioner_oil': 0.36}
 
+    # Helper: Transfer all defined shares for every enduse to every sector
+    assumptions['ss_fuel_tech_p_by'] = helpers.copy_fractions_all_sectors(
+        assumptions['ss_fuel_tech_p_by'], sectors['ss_sectors'])
+
     # ===================
     # Industry subModel  - Fuel shares of technologies in enduse
     # ===================
@@ -267,17 +273,42 @@ def assign_by_fuel_tech_p(assumptions, enduses, fueltypes, fueltypes_nr):
         'heat_pumps_hydrogen': 0.0,
         'district_heating_fuel_cell': 0.0}
 
+    # Helper: Transfer all defined shares for every enduse to every sector
+    assumptions['is_fuel_tech_p_by'] = helpers.copy_fractions_all_sectors(
+        assumptions['is_fuel_tech_p_by'], sectors['is_sectors'])
+
+    # ----------------
+    # Industrial High temporal processes (is_high_temp_process)
+    # Sector specific technologies
+    # ----------------
+    #TODO: SCENARIO VARIABLES: SWITCH FOR METALL PROCESSES (e.g. ELECTRIC FURNACE IN END YEAR IN PERCENT)
+    #TODO: SCENARIO VARIABLE Hot_cold_rolling_share
+    # basic_metals (sector)
+    assumptions['is_fuel_tech_p_by']['is_high_temp_process']['basic_metals'][fueltypes['solid_fuel']] = {
+        'basic_oxygen_furnace': 1.0}
+
+    assumptions['is_fuel_tech_p_by']['is_high_temp_process']['basic_metals'][fueltypes['electricity']] = {
+        'electric_arc_furnace': 1.0}
+
+    assumptions['is_fuel_tech_p_by']['is_high_temp_process']['basic_metals'][fueltypes['biomass']] = {
+        'SNG_furnace': 1.0}
+
+    ## Sector non_metallic_mineral_products
+    # CEMENT STUFF
+    #assumptions['is_fuel_tech_p_by']['is_high_temp_process']['non_metallic_mineral_products'][fueltypes['solid_fuel']] = {
+    #    'basic_oxygen_furnace': 1.0}
+
     # ------------------
     # Get technologies of an enduse
     # ------------------
     assumptions['rs_specified_tech_enduse_by'] = helpers.get_def_techs(
-        assumptions['rs_fuel_tech_p_by'])
+        assumptions['rs_fuel_tech_p_by'], sector_crit=False)
 
     assumptions['ss_specified_tech_enduse_by'] = helpers.get_def_techs(
-        assumptions['ss_fuel_tech_p_by'])
+        assumptions['ss_fuel_tech_p_by'], sector_crit=True)
 
     assumptions['is_specified_tech_enduse_by'] = helpers.get_def_techs(
-        assumptions['is_fuel_tech_p_by'])
+        assumptions['is_fuel_tech_p_by'], sector_crit=True)
 
     assumptions['rs_specified_tech_enduse_by'] = helpers.add_undef_techs(
         assumptions['heat_pumps'],
