@@ -169,7 +169,7 @@ def test_calc_service_fuel_switched():
             enduse='heating',
             technology_install='boilerB',
             switch_yr=2020,
-            enduse_fueltype_replace=tech_related.get_fueltype_int(fueltype_lookup, 'gas'),
+            fueltype_replace=tech_related.get_fueltype_int(fueltype_lookup, 'gas'),
             fuel_share_switched_ey=1.0
         )]
 
@@ -195,7 +195,7 @@ def test_calc_service_fuel_switched():
             enduse='heating',
             technology_install='boilerB',
             switch_yr=3050,
-            enduse_fueltype_replace=tech_related.get_fueltype_int(fueltype_lookup, 'gas'),
+            fueltype_replace=tech_related.get_fueltype_int(fueltype_lookup, 'gas'),
             fuel_share_switched_ey=0.5
         )]
 
@@ -221,7 +221,7 @@ def test_calc_service_fuel_switched():
             enduse='heating',
             technology_install='boilerB',
             switch_yr=3050,
-            enduse_fueltype_replace=tech_related.get_fueltype_int(fueltype_lookup, 'gas'),
+            fueltype_replace=tech_related.get_fueltype_int(fueltype_lookup, 'gas'),
             fuel_share_switched_ey=0.5
         )]
 
@@ -247,7 +247,7 @@ def test_calc_service_fuel_switched():
             enduse='heating',
             technology_install='boilerB',
             switch_yr=3050,
-            enduse_fueltype_replace=tech_related.get_fueltype_int(fueltype_lookup, 'gas'),
+            fueltype_replace=tech_related.get_fueltype_int(fueltype_lookup, 'gas'),
             fuel_share_switched_ey=0.5
         )]
 
@@ -309,7 +309,7 @@ def test_tech_l_sigmoid():
             enduse='heating',
             technology_install='boilerB',
             switch_yr=2020,
-            enduse_fueltype_replace=tech_related.get_fueltype_int(fueltype_lookup, 'gas'),
+            fueltype_replace=tech_related.get_fueltype_int(fueltype_lookup, 'gas'),
             fuel_share_switched_ey=1.0
         )]
 
@@ -368,7 +368,7 @@ def test_tech_l_sigmoid():
             enduse='heating',
             technology_install='boilerB',
             switch_yr=2020,
-            enduse_fueltype_replace=tech_related.get_fueltype_int(fueltype_lookup, 'gas'),
+            fueltype_replace=tech_related.get_fueltype_int(fueltype_lookup, 'gas'),
             fuel_share_switched_ey=0.5 #info lower than max
         )]
 

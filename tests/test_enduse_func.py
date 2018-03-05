@@ -692,7 +692,7 @@ def test_get_enduse_configuration():
     """
     fuel_switches = [read_data.FuelSwitch(
         enduse='heating',
-        enduse_fueltype_replace="",
+        fueltype_replace="",
         technology_install='boilerB',
         switch_yr=2020,
         fuel_share_switched_ey=""
@@ -740,7 +740,7 @@ def test_get_enduse_configuration():
 
     fuel_switches = [read_data.FuelSwitch(
         enduse='heating',
-        enduse_fueltype_replace="",
+        fueltype_replace="",
         technology_install='boilerB',
         switch_yr=2020,
         fuel_share_switched_ey=""

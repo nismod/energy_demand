@@ -89,7 +89,7 @@ def disaggregate_base_demand(
         enduses['ss_enduses'],
         sectors['ss_sectors'],
         all_sectors,
-        crit_limited_disagg_pop_hdd=True,   # Only pop TODO TODO
+        crit_limited_disagg_pop_hdd=False,   # Only pop TODO TODO
         crit_limited_disagg_pop=False,      # Only pop and hdd
         crit_full_disagg=True)             # Full disaggregation
 
@@ -529,6 +529,10 @@ def is_disaggregate(
             'computer': 'C26-30',           # Improvements
             'leather': 'C13-15',            # Gas improve, electrectiy same
             'wearing_appeal': 'C13-15',     # Improvements
+            'basic_metals': 'C',            # Improve deviation
+
+            'non_metallic_mineral_products': 'C',  #improve
+
 
             'electrical_equipment': None,   # 'C26-30', #Streuung besser
             'wood': None,                   #Worse
@@ -536,7 +540,6 @@ def is_disaggregate(
             'chemicals': None,              #Worse better streuung
             'printing': None,               #Streeung besser
             'paper': None,                  #WORSE
-            'basic_metals': None,           #improve deviation
             'beverages': None,
             'fabricated_metal_products': None,
             'other_manufacturing': None,
@@ -548,7 +551,7 @@ def is_disaggregate(
             'motor_vehicles': None,
             'waste_collection': None, #about the same with F
             'tobacco': None,
-            'non_metallic_mineral_products': None  #Worsen
+            
         }
 
         # ----------------------------------------

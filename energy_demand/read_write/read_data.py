@@ -110,7 +110,7 @@ class FuelSwitch(object):
     ---------
     enduse : str
         Enduse of affected switch
-    enduse_fueltype_replace : str
+    fueltype_replace : str
         Fueltype which is beeing switched from
     technology_install : str
         Installed technology
@@ -122,7 +122,7 @@ class FuelSwitch(object):
     def __init__(
             self,
             enduse=None,
-            enduse_fueltype_replace=None,
+            fueltype_replace=None,
             technology_install=None,
             switch_yr=None,
             fuel_share_switched_ey=None,
@@ -132,7 +132,7 @@ class FuelSwitch(object):
         """
         self.enduse = enduse
         self.sector = sector
-        self.enduse_fueltype_replace = enduse_fueltype_replace
+        self.fueltype_replace = fueltype_replace
         self.technology_install = technology_install
         self.switch_yr = switch_yr
         self.fuel_share_switched_ey = fuel_share_switched_ey
@@ -550,7 +550,7 @@ def read_fuel_switches(path_to_csv, enduses, fueltypes):
         Attribute                   Description
         ==========                  =========================
         enduse                      [str]   Enduse affected by switch
-        enduse_fueltype_replace     [str]   Fueltype to be switched from
+        fueltype_replace     [str]   Fueltype to be switched from
         technology_install          [str]   Technology which is installed
         switch_yr                   [int]   Year until switch is fully realised
         fuel_share_switched_ey      [float] Share of fuel which is switched until switch_yr
@@ -574,7 +574,7 @@ def read_fuel_switches(path_to_csv, enduses, fueltypes):
                 fuel_switches.append(
                     FuelSwitch(
                         enduse=str(row[get_position(_headings, 'enduse')]),
-                        enduse_fueltype_replace=fueltypes[str(row[get_position(_headings, 'enduse_fueltype_replace')])],
+                        fueltype_replace=fueltypes[str(row[get_position(_headings, 'fueltype_replace')])],
                         technology_install=str(row[get_position(_headings, 'technology_install')]),
                         switch_yr=float(row[get_position(_headings, 'switch_yr')]),
                         fuel_share_switched_ey=float(row[get_position(_headings, 'fuel_share_switched_ey')]),
@@ -596,10 +596,10 @@ def read_fuel_switches(path_to_csv, enduses, fueltypes):
     # Test if more than 100% per fueltype is switched
     for obj in fuel_switches:
         enduse = obj.enduse
-        fueltype = obj.enduse_fueltype_replace
+        fueltype = obj.fueltype_replace
         tot_share_fueltype_switched = 0
         for obj_iter in fuel_switches:
-            if enduse == obj_iter.enduse and fueltype == obj_iter.enduse_fueltype_replace:
+            if enduse == obj_iter.enduse and fueltype == obj_iter.fueltype_replace:
                 tot_share_fueltype_switched += obj_iter.fuel_share_switched_ey
         if tot_share_fueltype_switched > 1.0:
             sys.exit(

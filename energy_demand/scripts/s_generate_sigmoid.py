@@ -329,7 +329,7 @@ def calc_service_fuel_switched(
     for fuel_switch in fuel_switches:
 
         tech_install = fuel_switch.technology_install
-        tech_replace_fueltype = fuel_switch.enduse_fueltype_replace
+        tech_replace_fueltype = fuel_switch.fueltype_replace
 
         # Share of energy service of repalced fueltype before switch in base year
         service_p_by = s_fueltype_by_p[tech_replace_fueltype]
