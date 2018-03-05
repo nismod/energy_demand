@@ -3,6 +3,7 @@
 import os
 import operator
 import logging
+import copy
 import numpy as np
 import matplotlib.pyplot as plt
 from scipy import stats
@@ -19,26 +20,41 @@ from energy_demand.profiles import load_profile
 from energy_demand.plotting import plotting_styles
 
 def map_LAD_2011_2015(lad_data):
-    """Map key of LADs of the census data from the year
-    2011 with the LAD keys from the year 2015
+    """Map LAD 2015 values to LAD 2011.
+
+    Arguments
+    -----------
+    lad_data : dict
+        LAD 2015 data
+
+    Returns
+    --------
+    mapped_lads : dict
+        LAD 2011 census data lads
     """
-    key_dict = {
+    mapped_lads = copy.deepcopy(lad_data)
 
-        # LAD 2011      #LAD 2015
-        '': '',
-    }
-    mapped_LADs = {}
-    for lad_id, data in lad_data.items():
+    mapped_lads.keys()
 
-        # Lads with different lad id
-        try:
-            mapped_lad_id = key_dict[lad_id]
-        except KeyError:
-            mapped_lad_id = lad_id
+    # E41000324 (City of London, Westminster) splits
+    # to E09000001 (City of London) and E09000033 (Westminster)
+    mapped_lads['E41000324'] = lad_data['E09000001'] + lad_data['E09000033']
+    del mapped_lads['E09000001']
+    del mapped_lads['E09000033']
 
-        mapped_LADs[mapped_lad_id] = data
+    # E41000052 (Cornwall, Isles of Scilly) splits
+    # to E06000052 (Cornwall) and E06000053 (Isles of Scilly) (edited)
+    mapped_lads['E41000052'] = lad_data['E06000052'] + lad_data['E06000053']
+    del mapped_lads['E06000052']
+    del mapped_lads['E06000053']
 
-    return mapped_LADs
+    # missing S12000013 (Na h-Eileanan Siar)
+    # and S12000027 (Shetland Islands)
+    del mapped_lads['S12000013']
+    del mapped_lads['S12000027']
+
+    return mapped_lads
+
 def temporal_validation(
         local_paths,
         elec_ed_fueltype_national_yh,
@@ -142,10 +158,6 @@ def tempo_spatial_validation(
     -----
     Because the floor area is only availabe for LADs from 2001,
     the LADs are converted to 2015 LADs.
-
-    * missing S12000013 (Na h-Eileanan Siar) and S12000027 (Shetland Islands)
-    * E41000324 (City of London, Westminster) splits to E09000001 (City of London) and E09000033 (Westminster)
-    * E41000052 (Cornwall, Isles of Scilly) splits to E06000052 (Cornwall) and E06000053 (Isles of Scilly) (edited)
     """
     logging.info("... spatial validation")
 
@@ -182,33 +194,44 @@ def tempo_spatial_validation(
     subnational_gas = data_loader.read_national_real_gas_data(
         paths['path_val_subnational_gas'])
 
+    # Create fueltype secific dict
+    fuel_elec_regs_yh = {}
+    for region_array_nr, region in enumerate(regions):
+        gwh_modelled = np.sum(ed_fueltype_regs_yh[fueltypes['electricity']][region_array_nr])
+        fuel_elec_regs_yh[region] = gwh_modelled
 
+    # Create fueltype secific dict
+    fuel_gas_regs_yh = {}
+    for region_array_nr, region in enumerate(regions):
+        gwh_modelled = np.sum(ed_fueltype_regs_yh[fueltypes['gas']][region_array_nr])
+        fuel_gas_regs_yh[region] = gwh_modelled
+
+    # ----------------------------------------
     # Remap demands between 2011 and 2015 LADs
-    #subnational_elec = map_LAD_2011_2015(subnational_elec)
-    #asubnational_gas = map_LAD_2011_2015(subnational_gas)¨
-    #subnational_gas = map_LAD_2011_2015(subnational_gas)
-    #subnational_gas = map_LAD_2011_2015(subnational_gas)
+    # ----------------------------------------
+    subnational_elec = map_LAD_2011_2015(subnational_elec)
+    subnational_gas = map_LAD_2011_2015(subnational_gas)
+    fuel_elec_regs_yh = map_LAD_2011_2015(fuel_elec_regs_yh)
+    fuel_gas_regs_yh = map_LAD_2011_2015(fuel_gas_regs_yh)
 
     logging.info("Validation of electricity")
     spatial_validation(
         reg_coord,
-        ed_fueltype_regs_yh,
-        fueltypes['electricity'],
-        'electricity',
-        regions,
+        fuel_elec_regs_yh,
         subnational_elec,
+        regions,
+        'elec',
         os.path.join(local_paths['data_results_validation'], 'validation_spatial_elec.pdf'),
         label_points=False,
         plotshow=plot_crit)
 
-    logging.info("Validation of GAS")
+    logging.info("Validation of gas")
     spatial_validation(
         reg_coord,
-        ed_fueltype_regs_yh,
-        fueltypes['gas'],
-        'gas',
-        regions,
+        fuel_gas_regs_yh,
         subnational_gas,
+        regions,
+        'gas',
         os.path.join(local_paths['data_results_validation'], 'validation_spatial_gas.pdf'),
         label_points=False,
         plotshow=plot_crit)
@@ -220,10 +243,11 @@ def tempo_spatial_validation(
     elec_2015_indo, elec_2015_itsdo = elec_national_data.read_raw_elec_2015(
         paths['path_val_nat_elec_data'])
 
-    diff_factor_elec = np.sum(ed_fueltype_national_yh[fueltypes['electricity']]) / np.sum(elec_2015_indo)
-    logging.info("... ed difference between modellend and real [percent] %s: ", (1 - diff_factor_elec) * 100)
+    f_diff_elec = np.sum(ed_fueltype_national_yh[fueltypes['electricity']]) / np.sum(elec_2015_indo)
+    logging.info(
+        "... ed diff modellend and real [p] %s: ", (1 - f_diff_elec) * 100)
 
-    elec_factored_yh = diff_factor_elec * elec_2015_indo
+    elec_factored_yh = f_diff_elec * elec_2015_indo
 
     temporal_validation(
         local_paths,
@@ -302,11 +326,10 @@ def tempo_spatial_validation(
 
 def spatial_validation(
         reg_coord,
-        ed_fueltype_regs_yh,
-        fueltype_int,
-        fueltype_str,
+        subnational_modelled,
+        subnational_real,
         regions,
-        subnational_demand,
+        fueltype_str,
         fig_name,
         label_points=False,
         plotshow=False
@@ -319,8 +342,7 @@ def spatial_validation(
         Infos of shapefile (dbf / csv)
     ed_fueltype_regs_yh : object
         Regional fuel Given as GWh (?)
-    subnational_demand : dict
-    
+    subnational_real : dict
         for electricity: Sub-national electrcity demand given as GWh
 
     Note
@@ -336,22 +358,18 @@ def spatial_validation(
     # -------------------------------------------
     # Match ECUK sub-regional demand with geocode
     # -------------------------------------------
-    for region_array_nr, region in enumerate(regions):
+    for region in regions:
         for reg_geocode in reg_coord:
             if reg_geocode == region:
 
                 try:
-                    # Test wheter data is provided for LAD
-                    if subnational_demand[reg_geocode] == 0:
-                        pass # Ignore region
+                    # Test wheter data is provided for LAD or owtherwise ignore
+                    if subnational_real[reg_geocode] == 0:
+                        pass
                     else:
                         # --Sub Regional Electricity demand (as GWh)
-                        result_dict['real_demand'][reg_geocode] = subnational_demand[reg_geocode]
-
-                        gwh_modelled = np.sum(ed_fueltype_regs_yh[fueltype_int][region_array_nr])
-
-                        # Correct ECUK data with correction factor
-                        result_dict['modelled_demand'][reg_geocode] = gwh_modelled
+                        result_dict['real_demand'][reg_geocode] = subnational_real[reg_geocode]
+                        result_dict['modelled_demand'][reg_geocode] = subnational_modelled[reg_geocode]
 
                 except KeyError:
                     logging.warning(
