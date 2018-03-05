@@ -162,11 +162,10 @@ def load_non_param_assump(
             '1941': 0.36,
             '1977.5': 0.3,
             '1996.5': 0.08,
-            '2002': 0.05)}} #,
+            '2002': 0.05}} #,
             #'2015': 0.0}}
         
     # TODO: DEFINE VARIABLE HOW MUCH IN END YEAR IS 2002
-
 
     # ============================================================
     #   Scenario drivers TODO: CHECK all scenario drivers

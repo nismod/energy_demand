@@ -587,6 +587,46 @@
 - absolute_range: !!python/tuple
   - 0
   - 1
+  default_value: 0
+  description: Reduction in heat because of air leakage improvement (residential sector)
+  name: air_leakage__rs_space_heating
+  suggested_range: !!python/tuple
+  - 0
+  - 1
+  units: '%'
+- absolute_range: !!python/tuple
+  - 0
+  - 1
+  default_value: 0
+  description: Reduction in heat because of of air leakage improvementservice sector)
+  name: air_leakage__ss_space_heating
+  suggested_range: !!python/tuple
+  - 0
+  - 1
+  units: '%'
+- absolute_range: !!python/tuple
+  - 0
+  - 1
+  default_value: 0
+  description: Reduction in heat because of air leakage improvement (industry sector)
+  name: air_leakage__is_space_heating
+  suggested_range: !!python/tuple
+  - 0
+  - 1
+  units: '%'
+- absolute_range: !!python/tuple
+  - 2015
+  - 2100
+  default_value: 2050
+  description: Year until heat air leakage improvement is full implemented
+  name: air_leakage_yr_until_changed
+  suggested_range: !!python/tuple
+  - 2015
+  - 2100
+  units: year
+- absolute_range: !!python/tuple
+  - 0
+  - 1
   default_value: 2050
   description: Year until change in enduse assumption is implemented
   name: enduse_specific_change_yr_until_changed

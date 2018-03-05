@@ -1132,4 +1132,5 @@ def read_np_array_from_txt(path_file_to_read):
         Array containing read text
     """
     txt_array = np.loadtxt(path_file_to_read, delimiter=',')
+
     return txt_array

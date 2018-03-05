@@ -285,26 +285,27 @@ class Enduse(object):
                     'service_tech',
                     base_yr,
                     curr_yr)
+
                 # ------------------------------------
                 # Reduction of service because of improvement in air leakeage
                 # ------------------------------------
-                tot_s_y_cy = apply_air_leakage(
+                tot_s_y_cy, s_tech_y_cy = apply_air_leakage(
                     enduse,
                     assumptions['strategy_variables'],
                     assumptions['enduse_overall_change'],
                     tot_s_y_cy,
-                    'tot_s_y_cy',
+                    s_tech_y_cy,
                     base_yr,
                     curr_yr)
 
-                s_tech_y_cy = apply_air_leakage(
+                '''s_tech_y_cy = apply_air_leakage(
                     enduse,
                     assumptions['strategy_variables'],
                     assumptions['enduse_overall_change'],
                     s_tech_y_cy,
                     'service_tech',
                     base_yr,
-                    curr_yr)
+                    curr_yr)'''
 
                 # --------------------------------
                 # Switches
@@ -1374,7 +1375,7 @@ def apply_air_leakage(
         if air_leakage_improvement == 0:
             return service
         else:
-            air_leakage_improvement_by = 1
+            air_leakage_by = 1
 
             # Fraction of heat recovered in current year
             sig_diff_factor = diffusion_technologies.sigmoid_diffusion(
@@ -1385,19 +1386,21 @@ def apply_air_leakage(
                 enduse_overall_change['other_enduse_mode_info']['sigmoid']['sig_steepness'])
 
             air_leakage_improvement_cy = sig_diff_factor * air_leakage_improvement
+            air_leakage_cy = 1 - air_leakage_improvement_cy
+
+            f_improvement = air_leakage_cy / air_leakage_by
 
             # Apply to technologies each stored in dictionary or array
-            if crit_dict == 'service_tech':
+            #if crit_dict == 'service_tech':
                 service_reduced = {}
                 for tech, service_tech in service.items():
-                    service_reduced[tech] = service_tech * air_leakage_improvement_cy / air_leakage_improvement_by
+                    service_reduced[tech] = service_tech * f_improvement
             elif crit_dict == 'tot_s_y_cy':
-                service_reduced = service * air_leakage_improvement_cy / air_leakage_improvement_by
+                service_reduced = service * f_improvement
 
             return service_reduced
     except KeyError:
-        # no recycling defined
-        return service
+        return service, 
 
 def apply_scenario_drivers(
         submodel,

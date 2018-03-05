@@ -798,20 +798,20 @@ def generate_dw_existing(
     dw_stock_by, control_pop, control_floorarea = [], 0, 0
 
     # Iterate dwelling types
-    for dw_type_name in dw_lu.values():
+    for dwtype_name in dw_lu.values():
 
         # Calculate floor area per dwelling type
-        dw_type_floorarea = floorarea_p[dw_type_name] * floorarea_by
+        dwtype_floorarea = floorarea_p[dwtype_name] * floorarea_by
 
         # Distribute according to age
-        for dwtype_age in dwtype_age_distr_by.values():
+        for dwtype_age in dwtype_age_distr_by.keys():
 
             # Floor area of dwelling_class_age (distribute proportionally floor area)
-            dw_type_age_class_floorarea = dw_type_floorarea * dwtype_age_distr_by[dwtype_age]
+            dwtype_age_class_floorarea = dwtype_floorarea * dwtype_age_distr_by[dwtype_age]
 
             # Floor area per person is divided by base area value to calc pop
             if floorarea_pp != 0:
-                pop_dwtype_age_class = dw_type_age_class_floorarea / floorarea_pp
+                pop_dwtype_age_class = dwtype_age_class_floorarea / floorarea_pp
             else:
                 pop_dwtype_age_class = 0
 
@@ -821,15 +821,15 @@ def generate_dw_existing(
                     curr_yr=curr_yr,
                     region=region,
                     coordinates=reg_coord[region],
-                    floorarea=dw_type_age_class_floorarea,
+                    floorarea=dwtype_age_class_floorarea,
                     enduses=enduses,
                     driver_assumptions=driver_assumptions,
                     population=pop_dwtype_age_class,
                     age=float(dwtype_age),
-                    dwtype=dw_type_name,
+                    dwtype=dwtype_name,
                     gva=scenario_data['gva'][curr_yr][region]))
 
-            control_floorarea += dw_type_age_class_floorarea
+            control_floorarea += dwtype_age_class_floorarea
             control_pop += pop_dwtype_age_class
 
     #Testing
@@ -891,10 +891,10 @@ def generate_dw_new(
     control_pop, control_floorarea = 0, 0
 
     # Iterate dwelling types
-    for dw_type_name in dwtypes.values():
+    for dwtype_name in dwtypes.values():
 
         # Calculate new floor area per dewlling type
-        dw_type_new_floorarea = floorarea_p_by[dw_type_name] * new_floorarea_cy
+        dw_type_new_floorarea = floorarea_p_by[dwtype_name] * new_floorarea_cy
 
         # Calculate pop (Floor area is divided by floorarea_per_person)
         pop_dwtype_new_build_cy = dw_type_new_floorarea / floorarea_pp_cy
@@ -910,7 +910,7 @@ def generate_dw_new(
                 driver_assumptions=driver_assumptions,
                 population=pop_dwtype_new_build_cy,
                 age=curr_yr,
-                dwtype=dw_type_name,
+                dwtype=dwtype_name,
                 gva=scenario_data['gva'][curr_yr][region]))
 
         control_floorarea += dw_type_new_floorarea

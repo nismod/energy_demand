@@ -1,4 +1,8 @@
-- climate_change_temp_d__Apr: 0
+- air_leakage__is_space_heating: 0.0
+  air_leakage__rs_space_heating: 0.0
+  air_leakage__ss_space_heating: 0.0
+  air_leakage_yr_until_changed: 2050
+  climate_change_temp_d__Apr: 0
   climate_change_temp_d__Aug: 0
   climate_change_temp_d__Dec: 0
   climate_change_temp_d__Feb: 0

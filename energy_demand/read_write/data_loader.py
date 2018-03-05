@@ -182,21 +182,15 @@ def virtual_building_datasets(regions, all_sectors, local_paths, base_yr=2015):
     # --------------------------------------------------
     #resid_footprint_lad_census, non_res_flootprint_lad_census = read_data.read_floor_area_virtual_stock(
     #    local_paths['path_floor_area_virtual_stock_by'])
-    resid_footprint, non_res_flootprint = read_data.read_floor_area_virtual_stock(
-        local_paths['path_floor_area_virtual_stock_by'])
-    
+
     # Map LADs from census (2011) or LADs of 2015
     #resid_footprint = map_LAD_2011_2015(resid_footprint_lad_census)
     #non_res_flootprint = map_LAD_2011_2015(non_res_flootprint_lad_census)
 
+    resid_footprint, non_res_flootprint = read_data.read_floor_area_virtual_stock(
+        local_paths['path_floor_area_virtual_stock_by'])
+    
     rs_floorarea = defaultdict(dict)
-    '''for year in range(2015, 2101):
-        for reg_geocode in regions:
-            try:
-                rs_floorarea[year][reg_geocode] = resid_footprint[reg_geocode]
-            except:
-                logging.warning("No virtual residential floor area for region %s %s", reg_geocode, year)
-                rs_floorarea[year][reg_geocode] = 1'''
     for reg_geocode in regions:
         try:
             rs_floorarea[base_yr][reg_geocode] = resid_footprint[reg_geocode]
@@ -206,18 +200,7 @@ def virtual_building_datasets(regions, all_sectors, local_paths, base_yr=2015):
     # --------------------------------------------------
     # Floor area for service sector buildings TODO SO FAR THE SAME FOR EVERY SECTOR
     # --------------------------------------------------
-    # No sector specific floorarea
     ss_floorarea_sector_by = {}
-    '''for year in range(2015, 2101):
-        ss_floorarea_sector_by[year] = defaultdict(dict)
-        for reg_geocode in regions:
-            for sector in all_sectors:
-                try:
-                    ss_floorarea_sector_by[year][reg_geocode][sector] = non_res_flootprint[reg_geocode]
-                except:
-                    logging.warning("No virtual service floor area for region %s %s", reg_geocode, year)
-                    ss_floorarea_sector_by[year][reg_geocode][sector] = 1'''
-
     ss_floorarea_sector_by[base_yr] = defaultdict(dict)
     for reg_geocode in regions:
         for sector in all_sectors:
