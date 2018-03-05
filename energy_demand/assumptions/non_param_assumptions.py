@@ -153,13 +153,17 @@ def load_non_param_assump(
 
     # (Average builing age within age class, fraction)
     # Note: the number of refurbished houses can be changed ?? TODO: IMPELEMENT AS SCENARIO
+    # The newest category of 2015 is added to implement change in refurbishing rate
+    # For the base year, this is set to zero (if e.g. with future scenario set to 5%, then
+    # proportionally to base year distribution number of houses are refurbished)
     assumptions['dwtype_age_distr'] = {
         2015: {
             '1918' :0.21,
             '1941': 0.36,
             '1977.5': 0.3,
             '1996.5': 0.08,
-            '2002': 0.05}}
+            '2002': 0.05)}} #,
+            #'2015': 0.0}}
         
     # TODO: DEFINE VARIABLE HOW MUCH IN END YEAR IS 2002
 

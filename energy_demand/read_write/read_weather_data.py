@@ -2,6 +2,7 @@
 """
 import os
 import csv
+import logging
 from collections import defaultdict
 import numpy as np
 
@@ -31,6 +32,12 @@ def read_weather_station_script_data(path_to_csv):
 
             temp_stations[station_id]['station_latitude'] = latitude
             temp_stations[station_id]['station_longitude'] = longitude
+
+            # Plot weather stations
+            logging.debug("Station name: %s,  Longitude: %s, Latitude: %s",
+                station_id,
+                longitude,
+                latitude)
 
     return dict(temp_stations)
 

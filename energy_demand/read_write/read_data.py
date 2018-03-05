@@ -1054,7 +1054,7 @@ def read_floor_area_virtual_stock(path_to_csv):
             non_res_floorarea[geo_name] = float(row[get_position(_headings, 'nonres_footprint_area')])'''
 
     # Redistribute the mixed
-    p_mixed_resid = 0.5
+    p_mixed_resid = 0.2
     p_mixed_no_resid = 1 - p_mixed_resid
 
     # Second Mail from Craig

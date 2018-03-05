@@ -356,7 +356,7 @@ def load_param_assump(paths, assumptions):
     strategy_vars['p_cold_rolling_steel'] = assumptions['p_cold_rolling_steel_by']
 
     # ============================================================
-    # Heat recycling & Reuse
+    # Heat recycling & reuse
     # ============================================================
     strategy_variables.append({
         "name": "heat_recoved__rs_space_heating",
@@ -397,6 +397,49 @@ def load_param_assump(paths, assumptions):
 
     # Year until recycling is fully realised
     strategy_vars['heat_recovered_yr_until_changed'] = yr_until_changed_all_things
+
+    # ============================================================
+    # Air leakage
+    # ============================================================
+    strategy_variables.append({
+        "name": "air_leakage__rs_space_heating",
+        "absolute_range": (0, 1),
+        "description": "Reduction in heat because of air leakage improvement (residential sector)",
+        "suggested_range": (0, 1),
+        "default_value": 0,
+        "units": '%'})
+
+    strategy_variables.append({
+        "name": "air_leakage__ss_space_heating",
+        "absolute_range": (0, 1),
+        "description": "Reduction in heat because of of air leakage improvementservice sector)",
+        "suggested_range": (0, 1),
+        "default_value": 0,
+        "units": '%'})
+
+    strategy_variables.append({
+        "name": "air_leakage__is_space_heating",
+        "absolute_range": (0, 1),
+        "description": "Reduction in heat because of air leakage improvement (industry sector)",
+        "suggested_range": (0, 1),
+        "default_value": 0,
+        "units": '%'})
+
+    strategy_variables.append({
+        "name": "air_leakage_yr_until_changed",
+        "absolute_range": (2015, 2100),
+        "description": "Year until heat air leakage improvement is full implemented",
+        "suggested_range": (2015, 2100),
+        "default_value": 2050,
+        "units": 'year'})
+
+    # Heat recycling assumptions (e.g. 0.2 = 20% improvement and thus 20% reduction)
+    strategy_vars['air_leakage__rs_space_heating'] = 0.0
+    strategy_vars['air_leakage__ss_space_heating'] = 0.0
+    strategy_vars['air_leakage__is_space_heating'] = 0.0
+
+    # Year until recycling is fully realised
+    strategy_vars['air_leakage_yr_until_changed'] = yr_until_changed_all_things
 
     # ---------------------------------------------------------
     # General change in fuel consumption for specific enduses

@@ -219,9 +219,7 @@ class Enduse(object):
                 self.fuel_new_y,
                 enduse_overall_change['other_enduse_mode_info'],
                 assumptions)
-            if enduse == 'rs_space_heating':
-                #print(".")
-                pass
+
             # ----------------------------------
             # Hourly Disaggregation
             # ----------------------------------
@@ -280,6 +278,26 @@ class Enduse(object):
                     curr_yr)
 
                 s_tech_y_cy = apply_heat_recovery(
+                    enduse,
+                    assumptions['strategy_variables'],
+                    assumptions['enduse_overall_change'],
+                    s_tech_y_cy,
+                    'service_tech',
+                    base_yr,
+                    curr_yr)
+                # ------------------------------------
+                # Reduction of service because of improvement in air leakeage
+                # ------------------------------------
+                tot_s_y_cy = apply_air_leakage(
+                    enduse,
+                    assumptions['strategy_variables'],
+                    assumptions['enduse_overall_change'],
+                    tot_s_y_cy,
+                    'tot_s_y_cy',
+                    base_yr,
+                    curr_yr)
+
+                s_tech_y_cy = apply_air_leakage(
                     enduse,
                     assumptions['strategy_variables'],
                     assumptions['enduse_overall_change'],
@@ -1305,6 +1323,76 @@ def apply_heat_recovery(
             # Apply to array
             elif crit_dict == 'tot_s_y_cy':
                 service_reduced = service * (1.0 - heat_recovered_p_cy)
+
+            return service_reduced
+    except KeyError:
+        # no recycling defined
+        return service
+
+def apply_air_leakage(
+        enduse,
+        strategy_variables,
+        enduse_overall_change,
+        service,
+        crit_dict,
+        base_yr,
+        curr_yr
+    ):
+    """Reduce heating demand according to assumption on
+    improvements in air leaking
+
+    Arguments
+    ----------
+    enduse : str
+        Enduse
+    strategy_variables : dict
+        Strategy variables
+    enduse_overall_change : dict
+        Sigmoid diffusion info
+    service : dict or array
+        Service of current year
+    crit_dict : str
+        Criteria to run function differently
+    base_yr : int
+        Base year
+    curr_yr : int
+        Current year
+
+    Returns
+    -------
+    service_reduced : dict or array
+        Service after assumptions on air leaking improvements
+
+    Note
+    ----
+    A standard sigmoid diffusion is assumed from base year to end year
+    """
+    try:
+        # Fraction of heat recovered until end year
+        air_leakage_improvement = strategy_variables["air_leakage__{}".format(enduse)]
+
+        if air_leakage_improvement == 0:
+            return service
+        else:
+            air_leakage_improvement_by = 1
+
+            # Fraction of heat recovered in current year
+            sig_diff_factor = diffusion_technologies.sigmoid_diffusion(
+                base_yr,
+                curr_yr,
+                strategy_variables['air_leakage_yr_until_changed'],
+                enduse_overall_change['other_enduse_mode_info']['sigmoid']['sig_midpoint'],
+                enduse_overall_change['other_enduse_mode_info']['sigmoid']['sig_steepness'])
+
+            air_leakage_improvement_cy = sig_diff_factor * air_leakage_improvement
+
+            # Apply to technologies each stored in dictionary or array
+            if crit_dict == 'service_tech':
+                service_reduced = {}
+                for tech, service_tech in service.items():
+                    service_reduced[tech] = service_tech * air_leakage_improvement_cy / air_leakage_improvement_by
+            elif crit_dict == 'tot_s_y_cy':
+                service_reduced = service * air_leakage_improvement_cy / air_leakage_improvement_by
 
             return service_reduced
     except KeyError:

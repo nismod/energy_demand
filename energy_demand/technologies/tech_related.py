@@ -1,5 +1,6 @@
 """Functions related to technologies
 """
+import logging
 import numpy as np
 from energy_demand.technologies import diffusion_technologies as diffusion
 from energy_demand.read_write import read_data
@@ -406,22 +407,21 @@ def calc_eff_cy(
 
     NICETOHAVE: Generate two types of sigmoid (convex & concav)
     """
-    # Theoretical maximum efficiency potential if theoretical maximum is linearly calculated
     if diff_method == 'linear':
+        # Theoretical maximum efficiency potential (linear improvement)
         theor_max_eff = diffusion.linear_diff(
             base_yr,
             curr_yr,
             eff_by,
             eff_ey,
             yr_until_changed)
-
-        # Consider actual achieved efficiency
-        eff_cy = theor_max_eff * tech_eff_achieved_f
-
-        return eff_cy
-
+        
+        # Differencey in efficiency change
+        max_eff_gain = theor_max_eff - eff_by
+    
     elif diff_method == 'sigmoid':
-        theor_max_eff = diffusion.sigmoid_diffusion(
+        # Theoretical maximum efficiency potential (sigmoid improvement)
+        diff_cy = diffusion.sigmoid_diffusion(
             base_yr,
             curr_yr,
             yr_until_changed,
@@ -429,12 +429,21 @@ def calc_eff_cy(
             other_enduse_mode_info['sigmoid']['sig_steepness'])
 
         # Differencey in efficiency change
-        efficiency_change = theor_max_eff * (eff_ey - eff_by)
+        max_eff_gain = diff_cy * (eff_ey - eff_by)
 
-        # Actual efficiency potential
-        eff_cy = eff_by + efficiency_change
+    else:
+        if not diff_method:
+            return None
+        else:
+            logging.exception("Not correct diffusion assigned %s", diff_method)
 
-        return eff_cy
+    # Consider actual achieved efficiency
+    actual_eff_gain = max_eff_gain * tech_eff_achieved_f
+
+    # Actual efficiency potential
+    eff_cy = eff_by + actual_eff_gain
+
+    return eff_cy
 
 def generate_ashp_gshp_split(split_hp_gshp_ashp):
     """Assing split for each fueltype of heat pump technologies,

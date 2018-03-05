@@ -132,7 +132,29 @@ def read_national_real_gas_data(path_to_csv):
 
     return national_fuel_data
 
-def virtual_building_datasets(regions, all_sectors, local_paths):
+def map_LAD_2011_2015(lad_data):
+    """Map key of LADs of the census data from the year
+    2011 with the LAD keys from the year 2015
+    """
+    key_dict = {
+
+        # LAD 2011      #LAD 2015
+        '': '',
+    }
+    mapped_LADs = {}
+    for lad_id, data in lad_data.items():
+
+        # Lads with different lad id
+        try:
+            mapped_lad_id = key_dict[lad_id]
+        except KeyError:
+            mapped_lad_id = lad_id
+
+        mapped_LADs[mapped_lad_id] = data
+
+    return mapped_LADs
+
+def virtual_building_datasets(regions, all_sectors, local_paths, base_yr=2015):
     """Load necessary data for virtual building stock
     in case the link to the building stock model in
     Newcastle is not used
@@ -143,6 +165,8 @@ def virtual_building_datasets(regions, all_sectors, local_paths):
         Regions
     all_sectors : dict
         All sectors
+    local_paths : dict
+        Paths
 
     Returns
     -------
@@ -156,24 +180,35 @@ def virtual_building_datasets(regions, all_sectors, local_paths):
     # --------------------------------------------------
     # Floor area for residential buildings for base year
     # --------------------------------------------------
+    #resid_footprint_lad_census, non_res_flootprint_lad_census = read_data.read_floor_area_virtual_stock(
+    #    local_paths['path_floor_area_virtual_stock_by'])
     resid_footprint, non_res_flootprint = read_data.read_floor_area_virtual_stock(
         local_paths['path_floor_area_virtual_stock_by'])
+    
+    # Map LADs from census (2011) or LADs of 2015
+    #resid_footprint = map_LAD_2011_2015(resid_footprint_lad_census)
+    #non_res_flootprint = map_LAD_2011_2015(non_res_flootprint_lad_census)
 
     rs_floorarea = defaultdict(dict)
-    for year in range(2015, 2101):
+    '''for year in range(2015, 2101):
         for reg_geocode in regions:
             try:
                 rs_floorarea[year][reg_geocode] = resid_footprint[reg_geocode]
             except:
                 logging.warning("No virtual residential floor area for region %s %s", reg_geocode, year)
-                rs_floorarea[year][reg_geocode] = 1
-
+                rs_floorarea[year][reg_geocode] = 1'''
+    for reg_geocode in regions:
+        try:
+            rs_floorarea[base_yr][reg_geocode] = resid_footprint[reg_geocode]
+        except:
+            logging.warning("No virtual residential floor area for region %s ", reg_geocode)
+            rs_floorarea[base_yr][reg_geocode] = 1
     # --------------------------------------------------
     # Floor area for service sector buildings TODO SO FAR THE SAME FOR EVERY SECTOR
     # --------------------------------------------------
     # No sector specific floorarea
     ss_floorarea_sector_by = {}
-    for year in range(2015, 2101):
+    '''for year in range(2015, 2101):
         ss_floorarea_sector_by[year] = defaultdict(dict)
         for reg_geocode in regions:
             for sector in all_sectors:
@@ -181,7 +216,16 @@ def virtual_building_datasets(regions, all_sectors, local_paths):
                     ss_floorarea_sector_by[year][reg_geocode][sector] = non_res_flootprint[reg_geocode]
                 except:
                     logging.warning("No virtual service floor area for region %s %s", reg_geocode, year)
-                    ss_floorarea_sector_by[year][reg_geocode][sector] = 1
+                    ss_floorarea_sector_by[year][reg_geocode][sector] = 1'''
+
+    ss_floorarea_sector_by[base_yr] = defaultdict(dict)
+    for reg_geocode in regions:
+        for sector in all_sectors:
+            try:
+                ss_floorarea_sector_by[base_yr][reg_geocode][sector] = non_res_flootprint[reg_geocode]
+            except:
+                logging.warning("No virtual service floor area for region %s", reg_geocode)
+                ss_floorarea_sector_by[base_yr][reg_geocode][sector] = 1
 
     return dict(rs_floorarea), dict(ss_floorarea_sector_by)
 

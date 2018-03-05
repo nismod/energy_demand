@@ -49,6 +49,9 @@ TODO: SECTOR SPECIFIC SWITCHES
 TODO: REFURBISHMENT RATE
 TODO: STORE RESULTS PER ANNUAL YEAR AND GENERATE FUNCTION TO COLLECT PLOTS AND CREATE GIF
 TODO: get_position for all readings of csv file
+TODO: WHAT ABOU NON_RESIDENTIAL FLOOR AREA: FOR WHAT?
+TODO: REMOVE PEAK SHAPES
+TODO: AIR LEAKAGE RATE?
 """
 import os
 import sys
@@ -273,7 +276,8 @@ if __name__ == "__main__":
         rs_floorarea, ss_floorarea = data_loader.virtual_building_datasets(
             data['regions'],
             data['sectors']['all_sectors'],
-            data['local_paths'])
+            data['local_paths'],
+            data['sim_param']['base_yr'])
  
 
     # Lookup table to import industry sectoral gva

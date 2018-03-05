@@ -1,8 +1,11 @@
+"""Testing
+"""
 import numpy as np
 from energy_demand.technologies import tech_related
+from energy_demand.read_write import read_data
 
 def test_get_tech_type():
-    """
+    """Testing
     """
     tech_list = {
         'heating_non_const': ['heat_p'],
@@ -15,7 +18,7 @@ def test_get_tech_type():
     assert tech_related.get_tech_type('test_tech', tech_list) == 'other_tech'
 
 def test_calc_eff_cy():
-    """
+    """Testing
     """
     other_enduse_mode_info = {
         'diff_method': 'linear'},
@@ -23,8 +26,8 @@ def test_calc_eff_cy():
     out_value = tech_related.calc_eff_cy(
         base_yr=2015,
         curr_yr=2020,
-        eff_by= 1.0,
-        eff_ey= 2.0,
+        eff_by=1.0,
+        eff_ey=2.0,
         yr_until_changed=2020,
         other_enduse_mode_info=other_enduse_mode_info,
         tech_eff_achieved_f=1.0,
@@ -32,14 +35,13 @@ def test_calc_eff_cy():
 
     assert out_value == 2.0
 
-    other_enduse_mode_info = {
-        'sigmoid': {'sig_midpoint': 0,'sig_steepness': 1}}
+    other_enduse_mode_info = {'sigmoid': {'sig_midpoint': 0,'sig_steepness': 1}}
 
     out_value = tech_related.calc_eff_cy(
         base_yr=2015,
         curr_yr=2020,
-        eff_by= 1.0,
-        eff_ey= 2.0,
+        eff_by=1.0,
+        eff_ey=2.0,
         yr_until_changed=2020,
         other_enduse_mode_info=other_enduse_mode_info,
         tech_eff_achieved_f=1.0,
@@ -50,7 +52,6 @@ def test_calc_eff_cy():
 def test_calc_hp_eff():
     """Testing function
     """
-
     temp_yh = np.zeros((365, 24)) + 10
 
     efficiency_intersect = 10
@@ -67,7 +68,7 @@ def test_calc_hp_eff():
     assert type(out_value) == expected
 
 def test_eff_heat_pump():
-    """
+    """Testing
     """
     t_base = 15.5
     temp_yh = np.zeros((365, 24)) + 5 #make diff 10 degrees
@@ -109,11 +110,6 @@ def test_get_fueltype_int():
 def test_calc_av_heat_pump_eff_ey():
     """testing
     """
-
-
-    from energy_demand.read_write import read_data
-
-
     technologies = {
         'heat_pump_ASHP_electricity': read_data.TechnologyData(),
         'heat_pump_GSHP_electricity': read_data.TechnologyData(),

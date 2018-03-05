@@ -320,10 +320,6 @@ def spatial_validation(
                     logging.warning(
                         "Sub-national spatial validation: No fuel for region %s", reg_geocode)
 
-    logging.info("Comparison: modelled: {}  real: {}".format(
-        sum(result_dict['modelled_demand'].values()),
-        sum(result_dict['real_demand'].values())))
-
     # --------------------
     # Calculate statistics
     # --------------------
@@ -383,11 +379,13 @@ def spatial_validation(
         y_modelled_elec_demand.append(
             result_dict['modelled_demand'][geocode_lad])
 
-        logging.debug(
-            "validation for LAD region: %s %s diff: %s",
-            result_dict['real_demand'][geocode_lad],
-            result_dict['modelled_demand'][geocode_lad],
-            result_dict['modelled_demand'][geocode_lad] - result_dict['real_demand'][geocode_lad])
+        logging.info(
+            "validation %s LAD %s: %s %s   (%s p diff)",
+            fueltype_str,
+            geocode_lad,
+            round(result_dict['real_demand'][geocode_lad], 4),
+            round(result_dict['modelled_demand'][geocode_lad], 4),
+            round(100 - (100 / result_dict['real_demand'][geocode_lad]) * result_dict['modelled_demand'][geocode_lad], 4))
 
         # Labels
         labels.append(geocode_lad)

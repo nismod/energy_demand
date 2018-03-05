@@ -679,7 +679,9 @@ def rs_disaggregate(
     regions_with_floorarea = list(regions)
     for reg in regions_without_floorarea:
         regions_with_floorarea.remove(reg)
-
+    #print("regions_without_floorarea")
+    #print(regions_without_floorarea)
+    #prnt("")
     # ====================================
     # Disaggregate for region without floor area with population
     # ====================================

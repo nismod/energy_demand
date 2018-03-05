@@ -114,7 +114,8 @@ class Dwelling(object):
             age=None,
             dwtype=None,
             sector_type=None,
-            gva=None
+            gva=None,
+            #air_leakage_rate=1.0
         ):
         """Constructor of Dwelling Class
         """
@@ -129,6 +130,7 @@ class Dwelling(object):
         self.floorarea = floorarea
         self.sector_type = sector_type
         self.gva = gva
+        #self.air_leakage_rate = air_leakage_rate
         #self.income = get_income_factor(income)?? MAYBE
         #self.household_size = get_household_factor(household_size)?? MAYBE
 
@@ -802,10 +804,10 @@ def generate_dw_existing(
         dw_type_floorarea = floorarea_p[dw_type_name] * floorarea_by
 
         # Distribute according to age
-        for dwtype_age_id in dwtype_age_distr_by:
+        for dwtype_age in dwtype_age_distr_by.values():
 
             # Floor area of dwelling_class_age (distribute proportionally floor area)
-            dw_type_age_class_floorarea = dw_type_floorarea * dwtype_age_distr_by[dwtype_age_id]
+            dw_type_age_class_floorarea = dw_type_floorarea * dwtype_age_distr_by[dwtype_age]
 
             # Floor area per person is divided by base area value to calc pop
             if floorarea_pp != 0:
@@ -823,7 +825,7 @@ def generate_dw_existing(
                     enduses=enduses,
                     driver_assumptions=driver_assumptions,
                     population=pop_dwtype_age_class,
-                    age=float(dwtype_age_id),
+                    age=float(dwtype_age),
                     dwtype=dw_type_name,
                     gva=scenario_data['gva'][curr_yr][region]))
 
