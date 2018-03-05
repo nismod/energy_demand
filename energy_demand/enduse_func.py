@@ -256,7 +256,7 @@ class Enduse(object):
                 # ------------------------------------
                 # Calculate regional energy service
                 # ------------------------------------
-                tot_s_y_cy, s_tech_y_cy = fuel_to_service(
+                s_tot_y_cy, s_tech_y_cy = fuel_to_service(
                     enduse,
                     self.fuel_new_y,
                     self.enduse_techs,
@@ -268,42 +268,24 @@ class Enduse(object):
                 # ------------------------------------
                 # Reduction of service because of heat recovery
                 # ------------------------------------
-                tot_s_y_cy = apply_heat_recovery(
+                s_tot_y_cy, s_tech_y_cy = apply_heat_recovery(
                     enduse,
                     assumptions['strategy_variables'],
                     assumptions['enduse_overall_change'],
-                    tot_s_y_cy,
-                    'tot_s_y_cy',
-                    base_yr,
-                    curr_yr)
-
-                s_tech_y_cy = apply_heat_recovery(
-                    enduse,
-                    assumptions['strategy_variables'],
-                    assumptions['enduse_overall_change'],
+                    s_tot_y_cy,
                     s_tech_y_cy,
-                    'service_tech',
                     base_yr,
                     curr_yr)
 
                 # ------------------------------------
                 # Reduction of service because of improvement in air leakeage
                 # ------------------------------------
-                tot_s_y_cy = apply_air_leakage(
+                s_tot_y_cy, s_tech_y_cy = apply_air_leakage(
                     enduse,
                     assumptions['strategy_variables'],
                     assumptions['enduse_overall_change'],
-                    tot_s_y_cy,
+                    s_tot_y_cy,
                     s_tech_y_cy,
-                    base_yr,
-                    curr_yr)
-
-                s_tech_y_cy = apply_air_leakage(
-                    enduse,
-                    assumptions['strategy_variables'],
-                    assumptions['enduse_overall_change'],
-                    s_tech_y_cy,
-                    'service_tech',
                     base_yr,
                     curr_yr)
 
@@ -1266,7 +1248,7 @@ def apply_heat_recovery(
         strategy_variables,
         enduse_overall_change,
         service,
-        crit_dict,
+        service_techs,
         base_yr,
         curr_yr
     ):
@@ -1303,7 +1285,7 @@ def apply_heat_recovery(
         heat_recovered_p = strategy_variables["heat_recoved__{}".format(enduse)]
 
         if heat_recovered_p == 0:
-            return service
+            return service, service_techs
         else:
             # Fraction of heat recovered in current year
             sig_diff_factor = diffusion_technologies.sigmoid_diffusion(
@@ -1316,26 +1298,24 @@ def apply_heat_recovery(
             heat_recovered_p_cy = sig_diff_factor * heat_recovered_p
 
             # Apply to technologies each stored in dictionary
-            if crit_dict == 'service_tech':
-                service_reduced = {}
-                for tech, service_tech in service.items():
-                    service_reduced[tech] = service_tech * (1.0 - heat_recovered_p_cy)
+            service_reduced_techs = {}
+            for tech, service_tech in service_techs.items():
+                service_reduced_techs[tech] = service_tech * (1.0 - heat_recovered_p_cy)
 
             # Apply to array
-            elif crit_dict == 'tot_s_y_cy':
-                service_reduced = service * (1.0 - heat_recovered_p_cy)
+            service_reduced = service * (1.0 - heat_recovered_p_cy)
 
             return service_reduced
     except KeyError:
         # no recycling defined
-        return service
+        return service, service_techs
 
 def apply_air_leakage(
         enduse,
         strategy_variables,
         enduse_overall_change,
         service,
-        crit_dict,
+        service_techs,
         base_yr,
         curr_yr
     ):
@@ -1368,12 +1348,13 @@ def apply_air_leakage(
     ----
     A standard sigmoid diffusion is assumed from base year to end year
     """
+    
     try:
         # Fraction of heat recovered until end year
         air_leakage_improvement = strategy_variables["air_leakage__{}".format(enduse)]
 
         if air_leakage_improvement == 0:
-            return service
+            return service, service_techs
         else:
             air_leakage_by = 1
 
@@ -1391,16 +1372,16 @@ def apply_air_leakage(
             f_improvement = air_leakage_cy / air_leakage_by
 
             # Apply to technologies each stored in dictionary or array
-            if crit_dict == 'service_tech':
-                service_reduced = {}
-                for tech, service_tech in service.items():
-                    service_reduced[tech] = service_tech * f_improvement
-            elif crit_dict == 'tot_s_y_cy':
-                service_reduced = service * f_improvement
 
-            return service_reduced
+            service_reduced_techs = {}
+            for tech, service_tech in service_techs.items():
+                service_reduced_techs[tech] = service_tech * f_improvement
+
+            service_reduced = service * f_improvement
+
+            return service_reduced, service_reduced_techs
     except KeyError:
-        return service
+        return service, service_techs
 
 def apply_scenario_drivers(
         submodel,

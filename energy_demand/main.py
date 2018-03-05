@@ -51,7 +51,6 @@ TODO: STORE RESULTS PER ANNUAL YEAR AND GENERATE FUNCTION TO COLLECT PLOTS AND C
 TODO: get_position for all readings of csv file
 TODO: WHAT ABOU NON_RESIDENTIAL FLOOR AREA: FOR WHAT?
 TODO: REMOVE PEAK SHAPES
-TODO: AIR LEAKAGE RATE?
 """
 import os
 import sys
@@ -284,7 +283,7 @@ if __name__ == "__main__":
     lookup_tables.industrydemand_name_sic2007()
 
     data['industry_gva'] = "TST"
-
+    print("AAAAAAAAA")
     #Scenario data
     data['scenario_data'] = {
         'gva': data['gva'],

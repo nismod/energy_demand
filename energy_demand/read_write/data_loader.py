@@ -484,7 +484,13 @@ def load_tech_profiles(tech_lp, paths, local_paths, plot_tech_lp=False):
 
     return tech_lp
 
-def load_data_profiles(paths, local_paths, model_yeardays, model_yeardays_daytype, plot_tech_lp):
+def load_data_profiles(
+        paths,
+        local_paths,
+        model_yeardays,
+        model_yeardays_daytype,
+        plot_tech_lp
+    ):
     """Collect load profiles from txt files
 
     Arguments
