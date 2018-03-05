@@ -332,7 +332,7 @@ def create_service_switch(
         for tech, fuel_share_by in tech_fuel_shares.items():
 
             # Efficiency of year when capacity is fully installed
-            tech_eff_ey = tech_related.calc_eff_cy(
+            eff_ey = tech_related.calc_eff_cy(
                 base_yr,
                 switch.switch_yr,
                 technologies[tech].eff_by,
@@ -343,7 +343,7 @@ def create_service_switch(
                 technologies[tech].diff_method)
 
             # Convert to service (fuel * fuelshare * eff)
-            s_tech_ey_y = fuel_enduse_y[fueltype] * fuel_share_by * tech_eff_ey
+            s_tech_ey_y = fuel_enduse_y[fueltype] * fuel_share_by * eff_ey
             service_enduse_tech[tech] = s_tech_ey_y
 
     # -------------------------------------------
@@ -352,7 +352,7 @@ def create_service_switch(
     # -------------------------------------------
     for capacity_switch in enduse_capacity_switches:
 
-        tech_eff_ey = tech_related.calc_eff_cy(
+        eff_ey = tech_related.calc_eff_cy(
             base_yr,
             capacity_switch.switch_yr,
             technologies[capacity_switch.technology_install].eff_by,
@@ -363,7 +363,7 @@ def create_service_switch(
             technologies[capacity_switch.technology_install].diff_method)
 
         # Convert installed capacity to service
-        installed_capacity_ey = capacity_switch.installed_capacity * tech_eff_ey
+        installed_capacity_ey = capacity_switch.installed_capacity * eff_ey
 
         # Add capacity
         service_enduse_tech[capacity_switch.technology_install] += installed_capacity_ey

@@ -78,14 +78,14 @@ class TechStock(object):
             potential_enduses,
             enduse_technologies)
 
-    def get_tech_attr(self, enduse, tech_name, attribute_to_get):
+    def get_tech_attr(self, enduse, name, attribute_to_get):
         """Get a technology attribute from a technology object stored in a list
 
         Arguments
         ----------
         enduse : string
             Enduse to read technology specified for this enduse
-        tech_name : string
+        name : string
             List with stored technologies
         attribute_to_get : string
             Attribute of technology to get
@@ -95,7 +95,7 @@ class TechStock(object):
         tech_attribute : attribute
             Technology attribute
         """
-        tech_object = self.stock_technologies[(tech_name, enduse)]
+        tech_object = self.stock_technologies[(name, enduse)]
 
         if attribute_to_get == 'fueltype_str':
             attribute_value = tech_object.fueltype_str
@@ -201,7 +201,7 @@ class Technology(object):
 
     Arguments
     ----------
-    tech_name : str
+    name : str
         The name of a technology
     data : dict
         All internal and external provided data
@@ -225,13 +225,13 @@ class Technology(object):
     """
     def __init__(
             self,
-            tech_name,
+            name,
             tech_type,
-            tech_fueltype=None,
-            tech_eff_achieved=None,
-            tech_diff_method=None,
-            tech_eff_by=None,
-            tech_eff_ey=None,
+            fueltype_str=None,
+            eff_achieved=None,
+            diff_method=None,
+            eff_by=None,
+            eff_ey=None,
             year_eff_ey=None,
             other_enduse_mode_info=None,
             base_yr=None,
@@ -245,17 +245,17 @@ class Technology(object):
         ):
         """Contructor
         """
-        if tech_name == 'placeholder_tech':
-            self.tech_name = tech_name
+        if name == 'placeholder_tech':
+            self.name = name
             self.tech_type = tech_type
             self.description = description
         else:
-            self.tech_name = tech_name
+            self.name = name
             self.tech_type = tech_type
-            self.fueltype_str = tech_fueltype
-            self.fueltype_int = tech_related.get_fueltype_int(fueltypes, tech_fueltype)
-            self.tech_eff_achieved_f = tech_eff_achieved
-            self.diff_method = tech_diff_method
+            self.fueltype_str = fueltype_str
+            self.fueltype_int = tech_related.get_fueltype_int(fueltypes, fueltype_str)
+            self.eff_achieved_f = eff_achieved
+            self.diff_method = diff_method
             self.description = description
 
             # --------------------------------------------------------------
@@ -264,7 +264,7 @@ class Technology(object):
             if tech_type == 'heat_pump':
                 self.eff_by = tech_related.calc_hp_eff(
                     temp_by,
-                    tech_eff_by,
+                    eff_by,
                     t_base_heating_by)
 
                 self.eff_cy = tech_related.calc_hp_eff(
@@ -272,21 +272,21 @@ class Technology(object):
                     tech_related.calc_eff_cy(
                         base_yr,
                         curr_yr,
-                        tech_eff_by,
-                        tech_eff_ey,
+                        eff_by,
+                        eff_ey,
                         year_eff_ey,
                         other_enduse_mode_info,
-                        self.tech_eff_achieved_f,
+                        self.eff_achieved_f,
                         self.diff_method),
                     t_base_heating_cy)
             else:
-                self.eff_by = tech_eff_by
+                self.eff_by = eff_by
                 self.eff_cy = tech_related.calc_eff_cy(
                     base_yr,
                     curr_yr,
-                    tech_eff_by,
-                    tech_eff_ey,
+                    eff_by,
+                    eff_ey,
                     year_eff_ey,
                     other_enduse_mode_info,
-                    self.tech_eff_achieved_f,
+                    self.eff_achieved_f,
                     self.diff_method)
