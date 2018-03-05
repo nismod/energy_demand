@@ -89,7 +89,7 @@ def disaggregate_base_demand(
         enduses['ss_enduses'],
         sectors['ss_sectors'],
         all_sectors,
-        crit_limited_disagg_pop_hdd=True,   # Only pop
+        crit_limited_disagg_pop_hdd=True,   # Only pop TODO TODO
         crit_limited_disagg_pop=False,      # Only pop and hdd
         crit_full_disagg=True)             # Full disaggregation
 

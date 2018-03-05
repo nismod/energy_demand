@@ -53,7 +53,7 @@ TODO: WHAT ABOU NON_RESIDENTIAL FLOOR AREA: FOR WHAT?
 TODO: REMOVE PEAK SHAPES
 TODO: SPATIAL DISAGGREGATION FACTORS RESID/NONRESID SHARE
 RURAL URBAN : http://www.gov.scot/Topics/Statistics/About/Methodology/UrbanRuralClassification/Urban-Rural-Classification-2011-12/2011-2012-Urban-Rural-Lookups
-"""
+s"""
 import os
 import sys
 import logging
@@ -449,4 +449,3 @@ if __name__ == "__main__":
     print("TOTAL TIME: " + str(b-a))
 
     print("... Finished running Energy Demand Model")
-
