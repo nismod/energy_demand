@@ -2,6 +2,7 @@
 Functions related to the technological stock
 """
 import sys
+import logging
 from energy_demand.technologies import tech_related
 
 class TechStock(object):
@@ -162,39 +163,60 @@ def create_tech_stock(
     stock_technologies = {}
 
     for enduse in enduses:
-        for technology_name in enduse_technologies[enduse]:
+        for technology in enduse_technologies[enduse]:
 
             tech_type = tech_related.get_tech_type(
-                technology_name,
+                technology,
                 tech_list)
 
             if tech_type == 'placeholder_tech':
-                tech_obj = Technology(
-                    technology_name,
-                    tech_type)
+                # This is placeholder technology a whole enduse
+                pass #Ignore
+                '''tech_obj = Technology(
+                    name=technology,
+                    tech_type='placeholder_tech')
+                    fueltype_str=fueltype_str,
+                    fueltypes=fueltypes)'''
+
             else:
                 tech_obj = Technology(
-                    technology_name,
-                    tech_type,
-                    technologies[technology_name].fueltype_str,
-                    technologies[technology_name].eff_achieved,
-                    technologies[technology_name].diff_method,
-                    technologies[technology_name].eff_by,
-                    technologies[technology_name].eff_ey,
-                    technologies[technology_name].year_eff_ey,
-                    technologies[technology_name].market_entry, #TODO NEW
-                    technologies[technology_name].tech_max_share, #TODO NEW 
-                    other_enduse_mode_info,
-                    base_yr,
-                    curr_yr,
-                    fueltypes,
-                    temp_by,
-                    temp_cy,
-                    t_base_heating_by,
-                    t_base_heating_cy,
-                    technologies[technology_name].description)
+                    name=technology,
+                    tech_type=tech_type,
+                    fueltype_str=technologies[technology].fueltype_str,
+                    eff_achieved=technologies[technology].eff_achieved,
+                    diff_method=technologies[technology].diff_method,
+                    eff_by=technologies[technology].eff_by,
+                    eff_ey=technologies[technology].eff_ey,
+                    year_eff_ey=technologies[technology].year_eff_ey,
+                    market_entry=technologies[technology].market_entry,
+                    tech_max_share=technologies[technology].tech_max_share,
+                    other_enduse_mode_info=other_enduse_mode_info,
+                    base_yr=base_yr,
+                    curr_yr=curr_yr,
+                    fueltypes=fueltypes,
+                    temp_by=temp_by,
+                    temp_cy=temp_cy,
+                    t_base_heating_by=t_base_heating_by,
+                    t_base_heating_cy=t_base_heating_cy,
+                    description=technologies[technology].description)
 
-            stock_technologies[(technology_name, enduse)] = tech_obj
+                stock_technologies[(technology, enduse)] = tech_obj
+
+        # ----------------------------------------------------------------
+        # Add for every enduse placeholder technologies for every fueltype
+        # ----------------------------------------------------------------
+        for fueltype_str in fueltypes:
+
+            placeholder_technology = 'placeholder_tech__{}'.format(fueltype_str)
+
+            # Placeholder technology
+            tech_obj = Technology(
+                name=placeholder_technology,
+                tech_type='placeholder_tech',
+                fueltype_str=fueltype_str,
+                fueltypes=fueltypes)
+
+            stock_technologies[(placeholder_technology, enduse)] = tech_obj
 
     return stock_technologies
 
@@ -271,10 +293,19 @@ class Technology(object):
         ):
         """Contructor
         """
-        if name == 'placeholder_tech':
+        if tech_type == 'placeholder_tech':
             self.name = name
             self.tech_type = tech_type
             self.description = description
+            self.fueltype_str = fueltype_str
+            
+            logging.info("DDDDDDDD")
+            logging.info(fueltypes)
+            logging.info(fueltype_str)
+            self.fueltype_int = tech_related.get_fueltype_int(fueltypes, fueltype_str)
+            self.eff_by = 1.0
+            self.eff_cy = 1.0
+            self.eff_ey = 1.0
         else:
             self.name = name
             self.tech_type = tech_type

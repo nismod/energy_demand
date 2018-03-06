@@ -14,6 +14,7 @@ from energy_demand.initalisations import helpers
 from energy_demand.profiles import load_profile as lp
 from energy_demand.profiles import load_factors as lf
 from energy_demand.technologies import diffusion_technologies
+from energy_demand.technologies import tech_related
 from energy_demand.basic import lookup_tables
 
 class Enduse(object):
@@ -958,7 +959,7 @@ def get_enduse_techs(fuel_fueltype_tech_p_by):
     enduse_techs = []
 
     for tech_fueltype in fuel_fueltype_tech_p_by.values():
-        if 'placeholder_tech' in tech_fueltype.keys():
+        if 'placeholder_tech' in tech_fueltype.keys(): #TODO IMPLEMENT: HWY NOT ALL {}
         #if list(tech_fueltype.keys()) == []:
             return []
         else:
@@ -1129,6 +1130,7 @@ def service_to_fuel(
 
     if mode_constrained:
         for tech, service in service_tech.items():
+            logging.info("TECHNOLOGY " + str(tech))
             tech_eff = tech_stock.get_tech_attr(
                 enduse, tech, 'eff_cy')
 
@@ -1211,53 +1213,80 @@ def fuel_to_service(
         Efficiencies are only considered if converting back to fuel
         However, the self.fuel_new_y is taken because the actual
         service was reduced e.g. due to smart meters or temperatur changes
+    
+    TODO IMPROVE
     """
-    service_tech = dict.fromkeys(enduse_techs, 0)
+    #service_tech = dict.fromkeys(enduse_techs, 0) #TODO: UNIQUE NOW
+    service_tech = {}
     tot_s_y = 0
 
     if mode_constrained:
         """Constrained version
         """
-        s_fueltype_tech = helpers.service_type_tech_by_p(
-            fueltypes, fuel_fueltype_tech_p_by)
-        print("A: ")
-        print(fuel_fueltype_tech_p_by)
+        #s_fueltype_tech = helpers.service_type_tech_by_p(
+        #    fueltypes, fuel_fueltype_tech_p_by)
+        #s_fueltype_tech = defaultdict(dict) #NEW UNIQUE
         # Calulate share of energy service per tech depending on fuel and efficiencies
-        for fueltype, tech_list in fuel_fueltype_tech_p_by.items():
-            for tech, fuel_share in tech_list.items():
+        for fueltype_int, tech_list in fuel_fueltype_tech_p_by.items():
+            logging.warning("A:  " + str(fueltype_int))
+            # Get technologies to iterate
+            if tech_list == {} and fuel_new_y[fueltype_int] == 0:   # No technology or fuel defined
+                techs_with_fuel = {}
+            elif tech_list == {} and fuel_new_y[fueltype_int] > 0:  # Fuel defined but no technologies
+                fueltype_str = tech_related.get_fueltype_str(fueltypes, fueltype_int)
+                placeholder_tech = 'placeholder_tech__{}'.format(fueltype_str)
+                logging.warning("F: " + str(placeholder_tech))
+                techs_with_fuel = {placeholder_tech: 1.0}
+            else:
+                techs_with_fuel = tech_list
+
+            for tech, fuel_share in techs_with_fuel.items():
+                
                 tech_eff = tech_stock.get_tech_attr(enduse, tech, 'eff_by')
-
+                logging.warning("B: {}   {} {} ".format(tech, fuel_share, tech_eff))
                 # Calculate fuel share and convert fuel to service
-                s_tech_y = fuel_new_y[fueltype] * fuel_share * tech_eff
+                s_tech_y = fuel_new_y[fueltype_int] * fuel_share * tech_eff
 
-                service_tech[tech] += s_tech_y
+                #service_tech[tech] += s_tech_y
+                service_tech[tech] = s_tech_y
 
                 # Add fuel for each technology (float() is necessary to avoid inf error)
-                s_fueltype_tech[fueltype][tech] += s_tech_y
-
+                #s_fueltype_tech[fueltype_int][tech] += s_tech_y
+                #s_fueltype_tech[fueltype_int][tech] = s_tech_y
+    
                 # Sum total yearly service
                 tot_s_y += s_tech_y #(y)
 
-                logging.info("FUEL TO SERVICE {} eff: {} service_tec: {} fuel: {} share: {}".format(tech, tech_eff, s_tech_y, fuel_new_y[fueltype], fuel_share))
+                logging.info(
+                    "FUEL TO SERVICE {} eff: {} service_tec: {} fuel: {} share: {}".format(tech, tech_eff, s_tech_y, fuel_new_y[fueltype_int], fuel_share))
     else:
         """
         Unconstrained version
         no efficiencies are considered, because not technology specific service calculation
         """
-        s_fueltype_tech = helpers.service_type_tech_by_p(fueltypes, fuel_fueltype_tech_p_by)
+        #s_fueltype_tech = helpers.service_type_tech_by_p(fueltypes, fuel_fueltype_tech_p_by)
         # Calculate share of service
-        for fueltype, tech_list in fuel_fueltype_tech_p_by.items():
-            for tech, fuel_share in tech_list.items():
-                fuel_tech = fuel_new_y[fueltype] * fuel_share
+        for fueltype_int, tech_list in fuel_fueltype_tech_p_by.items():
+
+            # Get technologies to iterate
+            if tech_list == {} and fuel_new_y[fueltype_int] == 0:   # No technology or fuel defined
+                techs_with_fuel = {}
+            elif tech_list == {} and fuel_new_y[fueltype_int] > 0:  # Fuel defined but no technologies
+                techs_with_fuel = {'placeholder_tech': 1.0}
+            else:
+                techs_with_fuel = tech_list
+
+            for tech, fuel_share in techs_with_fuel.items():
+                fuel_tech = fuel_new_y[fueltype_int] * fuel_share
                 tot_s_y += fuel_tech
                 service_tech[tech] += fuel_tech
 
                 # Assign all service to fueltype 'heat_fueltype'
-                try:
+                '''try:
                     s_fueltype_tech[fueltypes['heat']][tech] += float(np.sum(fuel_tech))
                 except KeyError:
                     s_fueltype_tech[fueltypes['heat']][tech] = 0
-                    s_fueltype_tech[fueltypes['heat']][tech] += float(np.sum(fuel_tech))
+                    s_fueltype_tech[fueltypes['heat']][tech] += float(np.sum(fuel_tech))'''
 
     return tot_s_y, service_tech
 
