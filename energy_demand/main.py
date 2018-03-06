@@ -145,7 +145,7 @@ def energy_demand_model(data, fuel_in=0, fuel_in_elec=0):
     print("================================================")
 
     logging.info("...finished running energy demand model simulation")
-
+    prnt(":")
     return modelrun_obj
 
 if __name__ == "__main__":
@@ -320,7 +320,7 @@ if __name__ == "__main__":
         data['assumptions'],
         data['reg_nrs'],
         data['regions'])
-    print("AAAAAAAAAAAAAAAA")
+
     for sim_yr in data['sim_param']['simulated_yrs']:
         data['sim_param']['curr_yr'] = sim_yr
 

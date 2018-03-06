@@ -502,27 +502,17 @@ def test_apply_heat_recovery():
     other_enduse_mode_info['other_enduse_mode_info']['sigmoid']['sig_midpoint'] = 0
     other_enduse_mode_info['other_enduse_mode_info']['sigmoid']['sig_steepness'] = 1
 
-    result = enduse_func.apply_heat_recovery(
+    result, result_tech = enduse_func.apply_heat_recovery(
         enduse='heating',
         strategy_variables={'heat_recoved__heating': 0.5, 'heat_recovered_yr_until_changed': 2020},
         enduse_overall_change=other_enduse_mode_info,
         service=100,
-        crit_dict='tot_s_y_cy',
+        service_techs={'techA': 100},
         base_yr=2015,
         curr_yr=2020)
 
     assert result == 50
-
-    result = enduse_func.apply_heat_recovery(
-        enduse='heating',
-        strategy_variables={'heat_recoved__heating': 0.5, 'heat_recovered_yr_until_changed': 2020},
-        enduse_overall_change=other_enduse_mode_info,
-        service={'techA': 100},
-        crit_dict='service_tech',
-        base_yr=2015,
-        curr_yr=2020)
-
-    assert result == {'techA': 50}
+    assert result_tech == {'techA': 50}
 
 def test_apply_climate_chante():
 

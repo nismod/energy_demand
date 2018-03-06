@@ -182,6 +182,8 @@ def create_tech_stock(
                     technologies[technology_name].eff_by,
                     technologies[technology_name].eff_ey,
                     technologies[technology_name].year_eff_ey,
+                    technologies[technology_name].market_entry, #TODO NEW
+                    technologies[technology_name].tech_max_share, #TODO NEW 
                     other_enduse_mode_info,
                     base_yr,
                     curr_yr,
@@ -203,8 +205,32 @@ class Technology(object):
     ----------
     name : str
         The name of a technology
-    data : dict
-        All internal and external provided data
+    tech_type : str
+        Technology type
+    fueltype_str : str
+        Fueltype given as string
+    eff_achieved : float
+        Percentage of how much the potential efficiency improvement is reaslied
+    diff_method : str
+        How the diffusion occurs (sigmoid or linear)
+    eff_by : float
+        Base year efficiency
+    eff_ey : float
+        Future end year efficiency
+    year_eff_ey : float
+        Year when the efficiency `eff_ey` is fully realised
+    market_entry : float
+        Year when technology comes on the market
+    tech_max_share : float
+        Maximum theoretical penetration of technology
+    other_enduse_mode_info : dict
+        Sigmoid diffusion informaiton
+    base_yr : float
+        Base year
+    curr_yr : float
+        Current year
+    fueltypes : dict
+        Fueltype
     temp_by : array
         Temperatures of base year
     temp_cy : array
@@ -213,15 +239,13 @@ class Technology(object):
         Base temperature for heating
     t_base_heating_cy : float
         Base temperature current year
-    tech_type : str
-        Technology type
+    description : str
+        Technology description
 
     Notes
     -----
-    Technologies only coming on the market in the future can be defined by
-    defining a future market entry year. Additionally, for all technologies,
-    the name, fuel type, technology type
-    and the maximum market penetration needs to be defined.
+    * Technologies only coming on the market in the future can be defined by
+      defining a future market entry year
     """
     def __init__(
             self,
@@ -233,6 +257,8 @@ class Technology(object):
             eff_by=None,
             eff_ey=None,
             year_eff_ey=None,
+            market_entry=None,
+            tech_max_share=None,
             other_enduse_mode_info=None,
             base_yr=None,
             curr_yr=None,
@@ -257,6 +283,8 @@ class Technology(object):
             self.eff_achieved_f = eff_achieved
             self.diff_method = diff_method
             self.description = description
+            self.market_entry = market_entry
+            self.tech_max_share = tech_max_share
 
             # --------------------------------------------------------------
             # Base and current year efficiencies depending on technology type
