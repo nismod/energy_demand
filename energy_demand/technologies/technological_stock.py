@@ -2,7 +2,6 @@
 Functions related to the technological stock
 """
 import sys
-import logging
 from energy_demand.technologies import tech_related
 
 class TechStock(object):
@@ -171,13 +170,7 @@ def create_tech_stock(
 
             if tech_type == 'placeholder_tech':
                 # This is placeholder technology a whole enduse
-                pass #Ignore
-                '''tech_obj = Technology(
-                    name=technology,
-                    tech_type='placeholder_tech')
-                    fueltype_str=fueltype_str,
-                    fueltypes=fueltypes)'''
-
+                pass
             else:
                 tech_obj = Technology(
                     name=technology,
@@ -298,10 +291,6 @@ class Technology(object):
             self.tech_type = tech_type
             self.description = description
             self.fueltype_str = fueltype_str
-            
-            logging.info("DDDDDDDD")
-            logging.info(fueltypes)
-            logging.info(fueltype_str)
             self.fueltype_int = tech_related.get_fueltype_int(fueltypes, fueltype_str)
             self.eff_by = 1.0
             self.eff_cy = 1.0

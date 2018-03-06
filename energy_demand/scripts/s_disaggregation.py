@@ -6,18 +6,6 @@ import copy
 from collections import defaultdict
 from energy_demand.profiles import hdd_cdd
 from energy_demand.basic import testing_functions
-'''
-============================================
-MEthod to derive GVA/POP SERVICE FLOOR AREAS
-============================================
-
-1. Step
-Get correlation between regional GVA and (regional floor area/reg pop) of every sector of base year
--- Get this correlation for every region and build national correlation
-
-2. Step
-Calculate future regional floor area demand based on GVA and pop projection
-'''
 
 def disaggregate_base_demand(
         regions,
@@ -211,101 +199,6 @@ def ss_disaggregate(
         crit_limited_disagg_pop_hdd=crit_limited_disagg_pop_hdd,
         crit_full_disagg=crit_full_disagg)
 
-    '''
-    # Total floor area for every enduse per sector
-    national_floorarea_by_sector = {}
-    for sector in sectors:
-        national_floorarea_by_sector[sector] = 0
-        for region in regions:
-            national_floorarea_by_sector[sector] += scenario_data['floor_area']['ss_floorarea'][base_yr][region][sector]
-
-    tot_pop = 0
-    tot_floor_area = {}
-    tot_floor_area_pop = {}
-    tot_pop_hdd = {}
-    tot_pop_cdd = {}
-    for sector in all_sectors:
-        tot_floor_area[sector] = 0
-        tot_floor_area_pop[sector] = 0
-        tot_pop_hdd[sector] = 0
-        tot_pop_cdd[sector] = 0
-
-    for region in regions:
-        reg_hdd = ss_hdd_individ_region[region]
-        reg_cdd = ss_cdd_individ_region[region]
-
-        # Population
-        reg_pop = scenario_data['population'][base_yr][region]
-
-        tot_pop += reg_pop
-
-        for sector in all_sectors:
-
-            # Floor Area of sector
-            reg_floor_area = scenario_data['floor_area']['ss_floorarea'][base_yr][region][sector]
-
-            # National disaggregation factors
-            tot_floor_area[sector] += reg_floor_area
-            tot_floor_area_pop[sector] += reg_floor_area * reg_pop
-            tot_pop_hdd[sector] += reg_pop * reg_hdd
-            tot_pop_cdd[sector] += reg_pop * reg_cdd
-
-    # ---------------------------------------
-    # Disaggregate according to enduse
-    # ---------------------------------------
-    for region in regions:
-        #ss_fuel_disagg[region] = {}
-        ss_fuel_disagg[region] = defaultdict(dict)
-
-        # Regional factors
-        reg_hdd = ss_hdd_individ_region[region]
-        reg_cdd = ss_cdd_individ_region[region]
-
-        reg_pop = scenario_data['population'][base_yr][region]
-
-        reg_diasg_factor = reg_pop / tot_pop
-
-        for enduse in enduses:
-            #ss_fuel_disagg[region][enduse] = {}
-
-            for sector in sectors:
-                #print("reg_diasg_factor: {} {} {}".format(sector, enduse, reg_diasg_factor))
-                reg_floor_area = scenario_data['floor_area']['ss_floorarea'][base_yr][region][sector]
-
-                if crit_limited_disagg_pop and not crit_limited_disagg_pop_hdd:
-                    #logging.debug(" ... Disaggregation ss: populaton")
-                    # ----
-                    # Only disaggregated with population
-                    # ----
-                    reg_diasg_factor = reg_pop / tot_pop
-
-                elif crit_limited_disagg_pop_hdd and not crit_full_disagg:
-                    #logging.debug(" ... Disaggregation ss: populaton, HDD")
-                    # ----
-                    # Only disaggregat with population and hdd and cdd
-                    # ----
-                    if enduse == 'ss_cooling_humidification':
-                        reg_diasg_factor = (reg_pop * reg_cdd) / tot_pop_cdd[sector]
-                    elif enduse == 'ss_space_heating':
-                        reg_diasg_factor = (reg_pop * reg_hdd) / tot_pop_hdd[sector]
-                    else:
-                        reg_diasg_factor = reg_pop / tot_pop
-                elif crit_full_disagg:
-                    #logging.debug(" ... Disaggregation ss: populaton, HDD, floor_area")
-                    # ----
-                    # disaggregat with pop, hdd/cdd, floor area
-                    # ----
-                    if enduse == 'ss_cooling_humidification':
-                        reg_diasg_factor = (reg_pop * reg_cdd) / tot_pop_cdd[sector]
-                    elif enduse == 'ss_space_heating':
-                        reg_diasg_factor = (reg_floor_area * reg_pop) / tot_floor_area_pop[sector]
-                    elif enduse == 'ss_lighting':
-                        reg_diasg_factor = reg_floor_area / tot_floor_area[sector]
-                    else:
-                        reg_diasg_factor = reg_pop / tot_pop
-
-                ss_fuel_disagg[region][enduse][sector] = ss_national_fuel[enduse][sector] * reg_diasg_factor
-    '''
     # -----------------
     # Check if total fuel is the
     # same before and after aggregation
@@ -525,20 +418,23 @@ def is_disaggregate(
         sectormatch_ecuk_with_census = {
             'mining': 'B',                  # Improvement
             'food_production': 'C10-12',    # Improvement
-            'pharmaceuticals': 'M',         # Improvements
-            'computer': 'C26-30',           # Improvements
+            'pharmaceuticals': 'M',         # Improvement
+            'computer': 'C26-30',           # Improvement
             'leather': 'C13-15',            # Gas improve, electrectiy same
-            'wearing_appeal': 'C13-15',     # Improvements
+            'wearing_appeal': 'C13-15',     # Improvement
             'basic_metals': 'C',            # Improve deviation
 
             'non_metallic_mineral_products': 'C',  #improve
 
 
             'electrical_equipment': None,   # 'C26-30', #Streuung besser
+            'printing': None,               # Streeung besser
+            'rubber_plastics': None,        # not really, bessere Streeung
+        
             'wood': None,                   #Worse
             'textiles': None,               #Worse
             'chemicals': None,              #Worse better streuung
-            'printing': None,               #Streeung besser
+            
             'paper': None,                  #WORSE
             'beverages': None,
             'fabricated_metal_products': None,
@@ -546,7 +442,7 @@ def is_disaggregate(
             'furniture': None,
             'machinery': None,     # Improvements with M #BUT NOT REALLY CORRECT CLASSIFICATION
             'water_collection_treatment': None,
-            'rubber_plastics': None, #not really, bessere Streeung
+            
             'other_transport_equipment': None,
             'motor_vehicles': None,
             'waste_collection': None, #about the same with F
@@ -674,17 +570,13 @@ def rs_disaggregate(
     # ---------------------------------------
     # Overall disaggregation factors per enduse
     # ---------------------------------------
-    # HERE
-
     # Get all regions with missing floor area data
     regions_without_floorarea = get_regions_missing_floor_area(
         regions, scenario_data['floor_area']['rs_floorarea'], base_yr)
     regions_with_floorarea = list(regions)
     for reg in regions_without_floorarea:
         regions_with_floorarea.remove(reg)
-    #print("regions_without_floorarea")
-    #print(regions_without_floorarea)
-    #prnt("")
+
     # ====================================
     # Disaggregate for region without floor area with population
     # ====================================
@@ -720,72 +612,7 @@ def rs_disaggregate(
         crit_limited_disagg_pop=crit_limited_disagg_pop,
         crit_limited_disagg_pop_hdd=crit_limited_disagg_pop_hdd,
         crit_full_disagg=crit_full_disagg)
-    
-    '''
 
-    total_pop = 0
-    total_hdd_floorarea = 0
-    total_floor_area = 0
-
-    for region in regions:
-
-        # HDD
-        reg_hdd = rs_hdd_individ_region[region]
-
-        # Floor Area across all sectors
-        reg_floor_area = scenario_data['floor_area']['rs_floorarea'][base_yr][region]
-
-        # Population
-        reg_pop = scenario_data['population'][base_yr][region]
-
-        # National dissagregation factors
-        total_pop += reg_pop
-        total_hdd_floorarea += reg_hdd * reg_floor_area
-        total_floor_area += reg_floor_area
-        #TODO: GVA?
-
-    # ---------------------------------------
-    # Disaggregate according to enduse
-    # ---------------------------------------
-    for region in regions:
-        reg_pop = scenario_data['population'][base_yr][region]
-        reg_hdd = rs_hdd_individ_region[region]
-        reg_floor_area = scenario_data['floor_area']['rs_floorarea'][base_yr][region]
-
-        # Disaggregate fuel depending on end_use
-        for enduse in rs_national_fuel:
-            if crit_limited_disagg_pop and not crit_limited_disagg_pop_hdd and not crit_full_disagg:
-                #logging.debug(" ... Disaggregation rss: populaton")
-                # ----------------------------------
-                # Only disaggregate with population
-                # ----------------------------------
-                reg_diasg_factor = reg_pop / total_pop
-
-            elif crit_limited_disagg_pop_hdd and not crit_full_disagg:
-                #logging.debug(" ... Disaggregation rss: populaton, hdd")
-                # -------------------
-                # Disaggregation with pop and hdd
-                # -------------------
-                if enduse == 're_space_heating':
-                    reg_diasg_factor = (reg_hdd * reg_pop) / total_hdd_floorarea
-                else:
-                    reg_diasg_factor = reg_pop / total_pop
-            elif crit_full_disagg:
-                logging.warning(" ... Disaggregation rss: populaton, hdd, floor_area")
-                # -------------------
-                # Full disaggregation
-                # -------------------
-                if enduse == 'rs_space_heating':
-                    reg_diasg_factor = (reg_hdd * reg_floor_area) / total_hdd_floorarea
-                elif enduse == 'rs_lighting':
-                    reg_diasg_factor = reg_floor_area / total_floor_area
-                else:
-                    reg_diasg_factor = reg_pop / total_pop
-
-            # Disaggregate
-            rs_fuel_disagg[region][enduse] = rs_national_fuel[enduse] * reg_diasg_factor
-    # HERE
-    '''
     # -----------------
     # Check if total fuel is the same before and after aggregation
     #------------------
@@ -868,6 +695,7 @@ def disagg_rs_general(
 
             # Disaggregate
             rs_fuel_disagg[region][enduse] = rs_national_fuel[enduse] * reg_diasg_factor
+
     return rs_fuel_disagg
 
 def write_disagg_fuel(path_to_txt, data):

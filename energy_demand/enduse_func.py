@@ -122,8 +122,7 @@ class Enduse(object):
         ):
         """Enduse class constructor
         """
-        logging.warning(" =====Enduse: {}  Sector:  {}".format(enduse, sector))
-        #print(" =====Enduse: {}  Sector:  {}".format(enduse, sector))
+        #logging.debug(" =====Enduse: {}  Sector:  {}".format(enduse, sector))
         self.region_name = region_name
         self.enduse = enduse
         self.fuel_new_y = fuel
@@ -161,8 +160,8 @@ class Enduse(object):
                 heating_factor_y,
                 assumptions['enduse_space_heating'],
                 assumptions['ss_enduse_space_cooling'])
-            logging.debug("... Fuel train B: " + str(np.sum(self.fuel_new_y)))
-            _aa = round(np.sum(self.fuel_new_y), 5)
+            #logging.debug("... Fuel train B: " + str(np.sum(self.fuel_new_y)))
+
             # --Change fuel consumption based on smart meter induced general savings
             self.fuel_new_y = apply_smart_metering(
                 enduse,
@@ -171,7 +170,7 @@ class Enduse(object):
                 assumptions['strategy_variables'],
                 base_yr,
                 curr_yr)
-            logging.debug("... Fuel train C: " + str(np.sum(self.fuel_new_y)))
+            #logging.debug("... Fuel train C: " + str(np.sum(self.fuel_new_y)))
 
             # --Enduse specific fuel consumption change in %
             self.fuel_new_y = apply_specific_change(
@@ -181,7 +180,7 @@ class Enduse(object):
                 assumptions['strategy_variables'],
                 base_yr,
                 curr_yr)
-            logging.debug("... Fuel train D: " + str(np.sum(self.fuel_new_y)))
+            #logging.debug("... Fuel train D: " + str(np.sum(self.fuel_new_y)))
 
             # Calculate new fuel demands after scenario drivers
             self.fuel_new_y = apply_scenario_drivers(
@@ -197,7 +196,7 @@ class Enduse(object):
                 reg_scen_drivers,
                 base_yr,
                 curr_yr)
-            logging.debug("... Fuel train E: " + str(np.sum(self.fuel_new_y)))
+            #logging.debug("... Fuel train E: " + str(np.sum(self.fuel_new_y)))
 
             # Apply cooling scenario variable
             self.fuel_new_y = apply_cooling(
@@ -208,7 +207,7 @@ class Enduse(object):
                 enduse_overall_change['other_enduse_mode_info'],
                 base_yr,
                 curr_yr)
-            logging.debug("... Fuel train E1: " + str(np.sum(self.fuel_new_y)))
+            #logging.debug("... Fuel train E1: " + str(np.sum(self.fuel_new_y)))
 
             # Industry related change
             self.fuel_new_y = industry_enduse_changes(
@@ -220,7 +219,7 @@ class Enduse(object):
                 self.fuel_new_y,
                 enduse_overall_change['other_enduse_mode_info'],
                 assumptions)
-            logging.debug("... Fuel train E2: " + str(np.sum(self.fuel_new_y)))
+            #logging.debug("... Fuel train E2: " + str(np.sum(self.fuel_new_y)))
 
             # ----------------------------------
             # Hourly Disaggregation
@@ -261,7 +260,6 @@ class Enduse(object):
                 s_tot_y_cy, s_tech_y_cy = fuel_to_service(
                     enduse,
                     self.fuel_new_y,
-                    self.enduse_techs,
                     fuel_fueltype_tech_p_by,
                     tech_stock,
                     fueltypes,
@@ -270,7 +268,6 @@ class Enduse(object):
                 # ------------------------------------
                 # Reduction of service because of heat recovery
                 # ------------------------------------
-                logging.warning("A ============= " + str(np.sum(s_tot_y_cy)))
                 s_tot_y_cy, s_tech_y_cy = apply_heat_recovery(
                     enduse,
                     assumptions['strategy_variables'],
@@ -283,7 +280,6 @@ class Enduse(object):
                 # ------------------------------------
                 # Reduction of service because of improvement in air leakeage
                 # ------------------------------------
-                logging.warning("B ============= " + str(np.sum(s_tot_y_cy)))
                 s_tot_y_cy, s_tech_y_cy = apply_air_leakage(
                     enduse,
                     assumptions['strategy_variables'],
@@ -292,8 +288,7 @@ class Enduse(object):
                     s_tech_y_cy,
                     base_yr,
                     curr_yr)
-                logging.warning("C ============= " + str(np.sum(s_tot_y_cy)))
-                logging.warning("SWITHC CRIT " + str(crit_switch_service))
+
                 # --------------------------------
                 # Switches
                 # --------------------------------
@@ -318,17 +313,8 @@ class Enduse(object):
                     fueltypes_nr,
                     fueltypes,
                     mode_constrained)
+                #logging.debug("... Fuel train Post service: " + str(np.sum(self.fuel_new_y)))
 
-                logging.debug("... Fuel train Post service: " + str(np.sum(self.fuel_new_y)))
-                _bb = round(np.sum(self.fuel_new_y), 5)
-                if _bb != _aa:
-                    print("opa")
-                    print(_aa)
-                    print(_bb)
-                    print(self.enduse_techs)
-                    prit(".")
-                #if enduse == 'rs_space_heating':
-                #    prnt(".")
                 # Delete all technologies with no fuel assigned
                 for tech, fuel_tech in fuel_tech_y.items():
                     if fuel_tech == 0:
@@ -662,10 +648,8 @@ def get_lp_stock(enduse, non_regional_lp_stock, regional_lp_stock):
     be applied for all regions is used (`non_regional_lp_stock`)
     """
     if enduse in non_regional_lp_stock.enduses_in_stock:
-        #logging.debug("Stock (non_regional):   " + str(enduse))
         return non_regional_lp_stock
     else:
-        #logging.debug("Stock (regional)        " + str(enduse))
         return regional_lp_stock
 
 def get_running_mode(enduse, mode_constrained, enduse_space_heating):
@@ -959,8 +943,7 @@ def get_enduse_techs(fuel_fueltype_tech_p_by):
     enduse_techs = []
 
     for tech_fueltype in fuel_fueltype_tech_p_by.values():
-        if 'placeholder_tech' in tech_fueltype.keys(): #TODO IMPLEMENT: HWY NOT ALL {}
-        #if list(tech_fueltype.keys()) == []:
+        if 'placeholder_tech' in tech_fueltype.keys():
             return []
         else:
             enduse_techs += tech_fueltype.keys()
@@ -1130,7 +1113,7 @@ def service_to_fuel(
 
     if mode_constrained:
         for tech, service in service_tech.items():
-            logging.info("TECHNOLOGY " + str(tech))
+
             tech_eff = tech_stock.get_tech_attr(
                 enduse, tech, 'eff_cy')
 
@@ -1144,7 +1127,6 @@ def service_to_fuel(
 
             # Multiply fuel of technology per fueltype with shape of annual distrbution
             fuel_new_y[fueltype_int] += fuel
-            logging.info(" SERVICE TO FUEL   {}  {}  {} {} {}".format(tech, tech_eff, service, fuel, fueltype_int))
     else:
         for tech, fuel_tech in service_tech.items():
             fuel_new_y[fueltypes['heat']] += fuel_tech
@@ -1155,7 +1137,6 @@ def service_to_fuel(
 def fuel_to_service(
         enduse,
         fuel_new_y,
-        enduse_techs,
         fuel_fueltype_tech_p_by,
         tech_stock,
         fueltypes,
@@ -1216,55 +1197,39 @@ def fuel_to_service(
     
     TODO IMPROVE
     """
-    #service_tech = dict.fromkeys(enduse_techs, 0) #TODO: UNIQUE NOW
     service_tech = {}
     tot_s_y = 0
 
     if mode_constrained:
         """Constrained version
         """
-        #s_fueltype_tech = helpers.service_type_tech_by_p(
-        #    fueltypes, fuel_fueltype_tech_p_by)
-        #s_fueltype_tech = defaultdict(dict) #NEW UNIQUE
         # Calulate share of energy service per tech depending on fuel and efficiencies
         for fueltype_int, tech_list in fuel_fueltype_tech_p_by.items():
-            logging.warning("A:  " + str(fueltype_int))
+
             # Get technologies to iterate
             if tech_list == {} and fuel_new_y[fueltype_int] == 0:   # No technology or fuel defined
                 techs_with_fuel = {}
             elif tech_list == {} and fuel_new_y[fueltype_int] > 0:  # Fuel defined but no technologies
                 fueltype_str = tech_related.get_fueltype_str(fueltypes, fueltype_int)
                 placeholder_tech = 'placeholder_tech__{}'.format(fueltype_str)
-                logging.warning("F: " + str(placeholder_tech))
                 techs_with_fuel = {placeholder_tech: 1.0}
             else:
                 techs_with_fuel = tech_list
 
             for tech, fuel_share in techs_with_fuel.items():
-                
                 tech_eff = tech_stock.get_tech_attr(enduse, tech, 'eff_by')
-                logging.warning("B: {}   {} {} ".format(tech, fuel_share, tech_eff))
+
                 # Calculate fuel share and convert fuel to service
                 s_tech_y = fuel_new_y[fueltype_int] * fuel_share * tech_eff
-
-                #service_tech[tech] += s_tech_y
                 service_tech[tech] = s_tech_y
 
-                # Add fuel for each technology (float() is necessary to avoid inf error)
-                #s_fueltype_tech[fueltype_int][tech] += s_tech_y
-                #s_fueltype_tech[fueltype_int][tech] = s_tech_y
-    
                 # Sum total yearly service
                 tot_s_y += s_tech_y #(y)
-
-                logging.info(
-                    "FUEL TO SERVICE {} eff: {} service_tec: {} fuel: {} share: {}".format(tech, tech_eff, s_tech_y, fuel_new_y[fueltype_int], fuel_share))
     else:
         """
         Unconstrained version
         no efficiencies are considered, because not technology specific service calculation
         """
-        #s_fueltype_tech = helpers.service_type_tech_by_p(fueltypes, fuel_fueltype_tech_p_by)
         # Calculate share of service
         for fueltype_int, tech_list in fuel_fueltype_tech_p_by.items():
 
@@ -1272,21 +1237,20 @@ def fuel_to_service(
             if tech_list == {} and fuel_new_y[fueltype_int] == 0:   # No technology or fuel defined
                 techs_with_fuel = {}
             elif tech_list == {} and fuel_new_y[fueltype_int] > 0:  # Fuel defined but no technologies
-                techs_with_fuel = {'placeholder_tech': 1.0}
+                fueltype_str = tech_related.get_fueltype_str(fueltypes, fueltype_int)
+                placeholder_tech = 'placeholder_tech__{}'.format(fueltype_str)
+                techs_with_fuel = {placeholder_tech: 1.0}
             else:
                 techs_with_fuel = tech_list
 
             for tech, fuel_share in techs_with_fuel.items():
+                
+                # Calculate fuel share and convert fuel to service
                 fuel_tech = fuel_new_y[fueltype_int] * fuel_share
-                tot_s_y += fuel_tech
-                service_tech[tech] += fuel_tech
+                service_tech[tech] = fuel_tech
 
-                # Assign all service to fueltype 'heat_fueltype'
-                '''try:
-                    s_fueltype_tech[fueltypes['heat']][tech] += float(np.sum(fuel_tech))
-                except KeyError:
-                    s_fueltype_tech[fueltypes['heat']][tech] = 0
-                    s_fueltype_tech[fueltypes['heat']][tech] += float(np.sum(fuel_tech))'''
+                # Sum total yearly service
+                tot_s_y += fuel_tech
 
     return tot_s_y, service_tech
 

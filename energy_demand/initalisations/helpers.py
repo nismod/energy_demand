@@ -16,7 +16,8 @@ def copy_fractions_all_sectors(fuel_tech_p_by, sectors):
     Returns
     -------
     out_dict : dict
-        Fuel shares for all sectors {enduse: {sector: {fueltype: {tech: {share}}}}}
+        Fuel shares for all sectors
+        {enduse: {sector: {fueltype: {tech: {share}}}}}
     """
     out_dict = defaultdict(dict)
 
@@ -47,27 +48,6 @@ def init_fuel_tech_p_by(all_enduses_with_fuels, fueltypes_nr):
         fuel_tech_p_by[enduse] = dict.fromkeys(range(fueltypes_nr), {})
 
     return fuel_tech_p_by
-
-def service_type_tech_by_p(fueltypes, fuel_tech_p_by):
-    """Initialise dict and fill with zeros
-
-    Arguments
-    ----------
-    fueltypes : dict
-        Look-up dictionary
-    fuel_tech_p_by : dict
-        Fuel fraction per technology for base year
-
-    Return
-    -------
-    s_fueltype_tech_by_p : dict
-        Fraction of service per fueltype and technology for base year
-    """
-    s_fueltype_tech_by_p = {}
-    for fueltype_int in fueltypes.values():
-        s_fueltype_tech_by_p[fueltype_int] = dict.fromkeys(fuel_tech_p_by[fueltype_int].keys(), 0)
-
-    return s_fueltype_tech_by_p
 
 def init_dict_brackets(first_level_keys):
     """Initialise a  dictionary with one level

@@ -30,6 +30,17 @@
     - fuel switches?
     - Sub-sectoral GVA
 
+============================================
+MEthod to derive GVA/POP SERVICE FLOOR AREAS
+============================================
+
+1. Step
+Get correlation between regional GVA and (regional floor area/reg pop) of every sector of base year
+-- Get this correlation for every region and build national correlation
+
+2. Step
+Calculate future regional floor area demand based on GVA and pop projection
+
 NICETOHAVE
 - Convert paths dict to objects
 
@@ -145,7 +156,7 @@ def energy_demand_model(data, fuel_in=0, fuel_in_elec=0):
     print("================================================")
 
     logging.info("...finished running energy demand model simulation")
-    prnt(":")
+    #prnt(":")
     return modelrun_obj
 
 if __name__ == "__main__":
