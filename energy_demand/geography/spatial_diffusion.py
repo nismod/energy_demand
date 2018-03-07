@@ -31,10 +31,6 @@ def from_socio_economic_data_to_spatial_diffusion_values(regions, diffusionv_val
     *   SPEED 'diffusions_speed_lower_concept' 
     """
     spatial_diffusion_values = {}
-    # Load socio economic data (e.g. income)
-    #socio_economic_data_collecition = False
-    #if socio_economic_data_collecition:
-    #    congruence_values = calculate_congruence_values()
 
     # ------------------
     # Diffusion speed
@@ -46,19 +42,20 @@ def from_socio_economic_data_to_spatial_diffusion_values(regions, diffusionv_val
     congruence_value = {
         0 : {'congruence_value': 0, 'description': 'missing values'}, #Lower concept diffusion speed
         1 : {'congruence_value': 1 - 0.8, 'description': 'Mainly Rural (rural including hub towns >=80%)'},
-        2 : {'congruence_value': 1 - 0.7, 'description': 'Largely Rural (rural including hub towns 50-79%) '},
+        2 : {'congruence_value': 1 - 0.7, 'description': 'Largely Rural (rural including hub towns 50-79%)'},
         3 : {'congruence_value': 1 - 0.35, 'description': 'Urban with Significant Rural (rural including hub towns 26-49%)'},
-        4 : {'congruence_value': 1 - 20, 'description': 'Urban with City and Town'},
-        5 : {'congruence_value': 1 - 20, 'description': 'Urban with Minor Conurbation'},
-        6 : {'congruence_value': 1 - 20, 'description': 'Urban with Major Conurbation'}}
+        4 : {'congruence_value': 1 - 0.20, 'description': 'Urban with City and Town'},
+        5 : {'congruence_value': 1 - 0.20, 'description': 'Urban with Minor Conurbation'},
+        6 : {'congruence_value': 1 - 0.20, 'description': 'Urban with Major Conurbation'}}
     
     # Calculate diffusion values baed on speed attributes
-    diffusionv_values = {}
+    diffusion_values = {}
     for concept_id, con_values in congruence_value.items():
         lower_concept_val = con_values['congruence_value'] * diffusions_speed_lower_concept
         higher_concept_val = con_values['congruence_value'] * diffusions_speed_higher_concept
 
-        diffusionv_values[concept_id]['diffusion_speed'] = lower_concept_val + higher_concept_val
+        diffusion_values[concept_id] = {}
+        diffusion_values[concept_id]['diffusion_speed'] = lower_concept_val + higher_concept_val
 
     # ------------------
     # Real data
@@ -71,11 +68,11 @@ def from_socio_economic_data_to_spatial_diffusion_values(regions, diffusionv_val
         # Multiply speed of diffusion of concept with concept congruence value
         try:
             ruc11cd_value = ruc11cd_values[region] 
-        except:
+        except KeyError:
             ruc11cd_value = 1
             print("ERROR: SET TO CONGRUEN VALUE +")
 
-        spatial_diffusion_values[region] = diffusionv_values[ruc11cd_value]['diffusion_speed']
+        spatial_diffusion_values[region] = diffusion_values[ruc11cd_value]['diffusion_speed']
 
     return spatial_diffusion_values
 
@@ -380,7 +377,7 @@ def spatially_differentiated_modelling(
     # -------------
     # Technology specific diffusion of end year shares
     # -------------
-    test_factor_overall_enduse_heating_improvement = 0.2 #air_leakage__rs_space_heating
+    test_factor_overall_enduse_heating_improvement = 0.2
     affected_enduse = 'rs_space_heating'
 
     # end use specficic improvements 
@@ -391,7 +388,7 @@ def spatially_differentiated_modelling(
         regions=regions,
         spatial_factors=f_spatial_diffusion,
         fuel_disaggregated=fuel_disagg['rs_fuel_disagg'])
-    print(":")
+
     # -------------
     # Technology specific diffusion of end year shares
     # -------------
@@ -438,7 +435,7 @@ def spatially_differentiated_modelling(
                 is_aggr_fuel,
                 techs_affected_spatial_f)
 
-    return rs_reg_share_s_tech_ey_p, ss_reg_share_s_tech_ey_p, is_reg_share_s_tech_ey_p, init_cont
+    return rs_reg_share_s_tech_ey_p, ss_reg_share_s_tech_ey_p, is_reg_share_s_tech_ey_p, init_cont, f_spatial_diffusion
 
 def factor_improvements_single(
         factor_uk,

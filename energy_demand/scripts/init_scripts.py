@@ -233,7 +233,7 @@ def scenario_initalisation(path_data_ed, data=False):
         techs_affected_spatial_f = ['heat_pumps_electricity']
         #TODO IMPLEMENT THAT NOT A TECHNOLOGY BUT AN ENDUSE
 
-        rs_reg_share_s_tech_ey_p, ss_reg_share_s_tech_ey_p, is_reg_share_s_tech_ey_p, init_cont = spatial_diffusion.spatially_differentiated_modelling(
+        rs_reg_share_s_tech_ey_p, ss_reg_share_s_tech_ey_p, is_reg_share_s_tech_ey_p, init_cont, f_spatial_diffusion = spatial_diffusion.spatially_differentiated_modelling(
             data['regions'],
             data['enduses']['all_enduses'],
             init_cont,
@@ -251,6 +251,7 @@ def scenario_initalisation(path_data_ed, data=False):
     else:
         regions = False
         regional_specific = False
+        f_spatial_diffusion = False
 
     # ---------------------------------------
     # Fuel switches
@@ -321,7 +322,7 @@ def scenario_initalisation(path_data_ed, data=False):
                 regional_specific=regional_specific)
 
     print("... finished scenario initialisation")
-    return dict(init_cont), fuel_disagg
+    return dict(init_cont), fuel_disagg, f_spatial_diffusion
 
 def sum_across_sectors_all_regs(fuel_disagg_reg):
     """Sum fuel across all sectors for every region
