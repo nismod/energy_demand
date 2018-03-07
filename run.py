@@ -52,7 +52,7 @@ class EDWrapper(SectorModel):
         """
         data = defaultdict(dict)
 
-        p_mixed_resid = 0.8       # Spatial calibration factor for virtual dwelling stock
+        p_mixed_resid = 0.2       # TODO: Spatial calibration factor for virtual dwelling stock
 
         # -----------
         # INFORMATION:

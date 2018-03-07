@@ -12,7 +12,7 @@ import energy_demand.enduse_func as endusefunctions
 from energy_demand.geography.region import Region
 from energy_demand.geography.weather_region import WeatherRegion
 from energy_demand.dwelling_stock import dw_stock
-from energy_demand.geography.weather_station_location import get_closest_station
+
 from energy_demand.basic import testing_functions as testing
 from energy_demand.profiles import load_profile, load_factors
 from energy_demand.charts import figure_HHD_gas_demand
@@ -164,28 +164,24 @@ def simulate_region(region, data, weather_regions):
     """
     logging.debug("... Simulate region %s", region)
 
-    # Get closest weather station to `Region`
-    closest_weather_reg = get_closest_station(
-        data['reg_coord'][region]['longitude'],
-        data['reg_coord'][region]['latitude'],
-        data['weather_stations'])
-
-    closest_weather_region = weather_regions[closest_weather_reg]
-    #logging.debug(
-    # "Closest weather station: %s", closest_weather_reg)
-
     region_obj = Region(
         name=region,
+        longitude=data['reg_coord'][region]['longitude'],
+        latitude=data['reg_coord'][region]['latitude'],
         rs_fuel_disagg=data['rs_fuel_disagg'][region],
         ss_fuel_disagg=data['ss_fuel_disagg'][region],
         is_fuel_disagg=data['is_fuel_disagg'][region],
-        weather_region=closest_weather_region)
+        weather_stations=data['weather_stations'])
+
+    # Closest weather region object
+    weather_region_obj = weather_regions[region_obj.closest_weather_region_id]
 
     # --------------------
     # Residential SubModel
     # --------------------
     rs_submodel = residential_submodel(
         region_obj,
+        weather_region_obj,
         data['scenario_data'],
         data['rs_dw_stock'][region],
         data['non_regional_lp_stock'],
@@ -200,6 +196,7 @@ def simulate_region(region, data, weather_regions):
     # --------------------
     ss_submodel = service_submodel(
         region_obj,
+        weather_region_obj,
         data['scenario_data'],
         data['ss_dw_stock'][region],
         data['non_regional_lp_stock'],
@@ -215,6 +212,7 @@ def simulate_region(region, data, weather_regions):
     # --------------------
     is_submodel = industry_submodel(
         region_obj,
+        weather_region_obj,
         data['scenario_data'],
         data['non_regional_lp_stock'],
         data['assumptions'],
@@ -434,6 +432,7 @@ def get_fuels_yh(
 
 def residential_submodel(
         region,
+        weather_region,
         scenario_data,
         rs_dw_stock,
         non_regional_lp_stock,
@@ -486,7 +485,7 @@ def residential_submodel(
                 region_name=region.name,
                 scenario_data=scenario_data,
                 assumptions=assumptions,
-                regional_lp_stock=region.rs_load_profiles,
+                regional_lp_stock=weather_region.rs_load_profiles,
                 non_regional_lp_stock=non_regional_lp_stock,
                 base_yr=sim_param['base_yr'],
                 curr_yr=sim_param['curr_yr'],
@@ -494,9 +493,9 @@ def residential_submodel(
                 sector=sector,
                 fuel=region.rs_enduses_fuel[enduse],
                 s_tech_by_p=assumptions['rs_s_tech_by_p'][enduse],
-                tech_stock=region.rs_tech_stock,
-                heating_factor_y=region.rs_heating_factor_y,
-                cooling_factor_y=region.rs_cooling_factor_y,
+                tech_stock=weather_region.rs_tech_stock,
+                heating_factor_y=weather_region.f_heat_rs_y,
+                cooling_factor_y=weather_region.f_cooling_rs_y,
                 service_switches=service_switches,
                 fuel_fueltype_tech_p_by=assumptions['rs_fuel_tech_p_by'][enduse],
                 sig_param_tech=sig_param_tech,
@@ -513,6 +512,7 @@ def residential_submodel(
 
 def service_submodel(
         region,
+        weather_region,
         scenario_data,
         ss_dw_stock,
         non_regional_lp_stock,
@@ -559,7 +559,7 @@ def service_submodel(
                 region_name=region.name,
                 scenario_data=scenario_data,
                 assumptions=assumptions,
-                regional_lp_stock=region.ss_load_profiles,
+                regional_lp_stock=weather_region.ss_load_profiles,
                 non_regional_lp_stock=non_regional_lp_stock,
                 base_yr=sim_param['base_yr'],
                 curr_yr=sim_param['curr_yr'],
@@ -567,9 +567,9 @@ def service_submodel(
                 sector=sector,
                 fuel=region.ss_enduses_sectors_fuels[enduse][sector],
                 s_tech_by_p=assumptions['ss_s_tech_by_p'][sector][enduse], #SECTOR SPECIFIC
-                tech_stock=region.ss_tech_stock,
-                heating_factor_y=region.ss_heating_factor_y,
-                cooling_factor_y=region.ss_cooling_factor_y,
+                tech_stock=weather_region.ss_tech_stock,
+                heating_factor_y=weather_region.f_heat_ss_y,
+                cooling_factor_y=weather_region.f_cooling_ss_y,
                 service_switches=service_switches,
                 fuel_fueltype_tech_p_by=assumptions['ss_fuel_tech_p_by'][enduse][sector],
                 sig_param_tech=sig_param_tech,
@@ -587,6 +587,7 @@ def service_submodel(
 
 def industry_submodel(
         region,
+        weather_region,
         scenario_data,
         non_regional_lp_stock,
         assumptions,
@@ -640,7 +641,7 @@ def industry_submodel(
                 region_name=region.name,
                 scenario_data=scenario_data,
                 assumptions=assumptions,
-                regional_lp_stock=region.is_load_profiles,
+                regional_lp_stock=weather_region.is_load_profiles,
                 non_regional_lp_stock=non_regional_lp_stock,
                 base_yr=sim_param['base_yr'],
                 curr_yr=sim_param['curr_yr'],
@@ -648,9 +649,9 @@ def industry_submodel(
                 sector=sector,
                 fuel=region.is_enduses_sectors_fuels[enduse][sector],
                 s_tech_by_p=assumptions['is_s_tech_by_p'][sector][enduse],
-                tech_stock=region.is_tech_stock,
-                heating_factor_y=region.is_heating_factor_y,
-                cooling_factor_y=region.is_cooling_factor_y,
+                tech_stock=weather_region.is_tech_stock,
+                heating_factor_y=weather_region.f_heat_is_y,
+                cooling_factor_y=weather_region.f_cooling_is_y,
                 service_switches=service_switches,
                 fuel_fueltype_tech_p_by=assumptions['is_fuel_tech_p_by'][enduse][sector],
                 sig_param_tech=sig_param_tech,

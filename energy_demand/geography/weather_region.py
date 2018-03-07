@@ -181,14 +181,14 @@ class WeatherRegion(object):
 
         # -------Calculate climate change correction factors
         try:
-            self.rs_heating_factor_y = np.nan_to_num(
+            self.f_heat_rs_y = np.nan_to_num(
                 1.0 / float(np.sum(self.rs_hdd_by))) * np.sum(self.rs_hdd_cy)
-            #self.rs_cooling_factor_y = np.nan_to_num(
+            #self.f_cooling_rs_y = np.nan_to_num(
             #    1.0 / float(np.sum(self.rs_cdd_by))) * np.sum(self.rs_cdd_cy)
-            self.rs_cooling_factor_y = 1
+            self.f_cooling_rs_y = 1
         except ZeroDivisionError:
-            self.rs_heating_factor_y = 1
-            self.rs_cooling_factor_y = 1
+            self.f_heat_rs_y = 1
+            self.f_cooling_rs_y = 1
 
         # yd peak factors for heating and cooling
         rs_peak_yd_heating_factor = get_shape_peak_yd_factor(self.rs_hdd_cy)
@@ -311,13 +311,13 @@ class WeatherRegion(object):
             temp_cy, ss_t_base_cooling_cy, model_yeardays)
 
         try:
-            self.ss_heating_factor_y = np.nan_to_num(
+            self.f_heat_ss_y = np.nan_to_num(
                 1.0 / float(np.sum(ss_hdd_by))) * np.sum(ss_hdd_cy)
-            self.ss_cooling_factor_y = np.nan_to_num(
+            self.f_cooling_ss_y = np.nan_to_num(
                 1.0 / float(np.sum(ss_cdd_by))) * np.sum(ss_cdd_cy)
         except ZeroDivisionError:
-            self.ss_heating_factor_y = 1
-            self.ss_cooling_factor_y = 1
+            self.f_heat_ss_y = 1
+            self.f_cooling_ss_y = 1
 
         # ----------------------------------------------
         # Apply weekend correction factor fo ss heating
@@ -409,12 +409,12 @@ class WeatherRegion(object):
         #    temp_cy, ss_t_base_cooling_cy, model_yeardays)
 
         try:
-            self.is_heating_factor_y = np.nan_to_num(1.0 / float(np.sum(is_hdd_by))) * np.sum(is_hdd_cy)
-            #self.is_cooling_factor_y = np.nan_to_num(1.0 / float(np.sum(is_cdd_by))) * np.sum(is_cdd_cy)
-            self.is_cooling_factor_y = 1
+            self.f_heat_is_y = np.nan_to_num(1.0 / float(np.sum(is_hdd_by))) * np.sum(is_hdd_cy)
+            #self.f_cooling_is_y = np.nan_to_num(1.0 / float(np.sum(is_cdd_by))) * np.sum(is_cdd_cy)
+            self.f_cooling_is_y = 1
         except ZeroDivisionError:
-            self.is_heating_factor_y = 1
-            self.is_cooling_factor_y = 1
+            self.f_heat_is_y = 1
+            self.f_cooling_is_y = 1
 
         is_peak_yd_heating_factor = get_shape_peak_yd_factor(is_hdd_cy)
         #is_peak_yd_cooling_factor = self.get_shape_peak_yd_factor(is_cdd_cy)
