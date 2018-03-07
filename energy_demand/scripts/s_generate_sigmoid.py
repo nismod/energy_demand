@@ -568,7 +568,10 @@ def tech_sigmoid_parameters(
             # If future share is zero, entry small value
             if point_y_ey == 0:
                 point_y_ey = fit_assump_init
-
+            elif point_y_ey == 1.0:
+                point_y_ey = 1 - fit_assump_init # TODO: NEW CRITERIA
+            else:
+                pass
             # Data of the two points
             xdata = np.array([point_x_by, point_x_ey])
             ydata = np.array([point_y_by, point_y_ey])

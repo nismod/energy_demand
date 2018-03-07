@@ -11,7 +11,7 @@ class TechStock(object):
     """
     def __init__(
             self,
-            stock_name,
+            name,
             technologies,
             tech_list,
             other_enduse_mode_info,
@@ -29,7 +29,7 @@ class TechStock(object):
 
         Arguments
         ----------
-        stock_name : str
+        name : str
             Name of technology stock
         technologies : dict
             All technologies and their properties
@@ -62,7 +62,7 @@ class TechStock(object):
           in different enduses and either a technology specific shape is
           assigned or an overall enduse shape
         """
-        self.stock_name = stock_name
+        self.name = name
 
         self.stock_technologies = create_tech_stock(
             technologies,

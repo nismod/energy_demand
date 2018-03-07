@@ -44,7 +44,7 @@ def test_LoadProfileStock():
 
     expected = "test_stock"
 
-    assert result_obj.stock_name == expected
+    assert result_obj.name == expected
 
     # -----
     result_obj.add_lp(

@@ -11,11 +11,11 @@ class LoadProfileStock(object):
 
     Arguments
     ----------
-    stock_name : string
+    name : string
         Load profile stock name
     """
-    def __init__(self, stock_name):
-        self.stock_name = stock_name
+    def __init__(self, name):
+        self.name = name
         self.load_profile_dict = {}
         self.dict_tuple_keys = {}
         self.enduses_in_stock = set([])

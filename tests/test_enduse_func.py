@@ -384,7 +384,7 @@ def test_fuel_to_service():
     fueltypes = {'gas': 0} #, 'heat': 1}
 
     tech_stock = technological_stock.TechStock(
-        stock_name="stock_name",
+        name="name",
         technologies=technologies,
         tech_list={'heating_non_const': [], 'heating_const': ['techA']},
         other_enduse_mode_info={'linear'},
@@ -416,7 +416,7 @@ def test_fuel_to_service():
     fueltypes = {'gas': 0, 'heat': 1}
 
     tech_stock = technological_stock.TechStock(
-        stock_name="stock_name",
+        name="name",
         technologies=technologies,
         tech_list={'heating_non_const': [], 'heating_const': ['techA']},
         other_enduse_mode_info={'linear'},
@@ -454,7 +454,7 @@ def test_service_to_fuel():
     fueltypes = {'gas': 0}
 
     tech_stock = technological_stock.TechStock(
-        stock_name="stock_name",
+        name="name",
         technologies=technologies,
         tech_list={'heating_non_const': [], 'heating_const': ['techA']},
         other_enduse_mode_info={'linear'},
@@ -549,7 +549,7 @@ def test_calc_fuel_tech_y():
     fueltypes = {'gas': 0}
 
     tech_stock = technological_stock.TechStock(
-        stock_name="stock_name",
+        name="name",
         technologies=technologies,
         tech_list={'heating_non_const': [], 'heating_const': ['techA']},
         other_enduse_mode_info={'linear'},
@@ -597,7 +597,7 @@ def test_calc_fuel_tech_yh():
     technologies['techA'].year_eff_ey = 2020
 
     '''tech_stock = technological_stock.TechStock(
-        stock_name="stock_name",
+        name="name",
         technologies=technologies,
         tech_list={'heating_non_const': [], 'heating_const': ['techA']},
         other_enduse_mode_info={'linear'},

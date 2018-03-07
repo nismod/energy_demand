@@ -69,7 +69,7 @@ def test_TechStock():
     all_technologies['boilerA'].year_eff_ey = 2020
 
     stock_obj = technological_stock.TechStock(
-        stock_name="stock_name",
+        name="name",
         technologies=all_technologies,
         tech_list={'heating_non_const': [], 'heating_const': ['boilerA']},
         other_enduse_mode_info={'linear'},
@@ -83,5 +83,5 @@ def test_TechStock():
         t_base_heating_cy=15.5,
         enduse_technologies={'heating': ['boilerA']})
 
-    assert stock_obj.stock_name == "stock_name"
+    assert stock_obj.name == "name"
     assert stock_obj.get_tech_attr('heating', 'boilerA', 'eff_by') == 1.0
