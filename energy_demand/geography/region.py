@@ -1,4 +1,4 @@
-"""Region representation
+"""Region Class
 """
 from energy_demand.geography import weather_station_location
 
@@ -9,20 +9,22 @@ class Region(object):
     ---------
     name : str
         Name of region
+    longitude : float
+        Longitude coordinate
+    latitude : float
+        Latitude coordinate
     rs_fuel_disagg : dict
         Nested dict by region, enduse => np.array, single dimension for fuel type
     ss_fuel_disagg : dict
         Nested dict by region, sector, enduse => np.array, single dimension for fuel type
     is_fuel_disagg : dict
         Nested dict by region, sector, enduse => np.array, single dimension for fuel type
-    weather_regions : obj
+    weather_regions : dict
         Weather regions
 
     Note
     ----
-    All fuel is stored in the region class and the closest weather station
-    is calculated and the technology and load profiles imported from
-    this station
+    *   The closest weather station is calculated
     """
     def __init__(
             self,
