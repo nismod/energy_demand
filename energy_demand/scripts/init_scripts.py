@@ -121,7 +121,7 @@ def scenario_initalisation(path_data_ed, data=False):
     # Autocomplement defined service switches with technologies not
     # explicitly specified in switch on a national scale
     # ------------------------------------
-    print("... autocompleting switches")
+    print("... autocompleting switches") # TODO: READ FROM WRAPPER FIRST FUNCTION as SCENARIO
     init_cont['rs_service_switches'] = data['assumptions']['rs_service_switches']
     init_cont['ss_service_switches'] = data['assumptions']['ss_service_switches']
     init_cont['is_service_switches'] = data['assumptions']['is_service_switches']
@@ -228,6 +228,11 @@ def scenario_initalisation(path_data_ed, data=False):
 
     # Spatial explicit modelling
     if data['criterias']['spatial_exliclit_diffusion']:
+
+        # Define technologies which are affected by spatial explicit diffusion
+        techs_affected_spatial_f = ['heat_pumps_electricity']
+        #TODO IMPLEMENT THAT NOT A TECHNOLOGY BUT AN ENDUSE
+
         rs_reg_share_s_tech_ey_p, ss_reg_share_s_tech_ey_p, is_reg_share_s_tech_ey_p, init_cont = spatial_diffusion.spatially_differentiated_modelling(
             data['regions'],
             data['enduses']['all_enduses'],
@@ -236,7 +241,7 @@ def scenario_initalisation(path_data_ed, data=False):
             rs_share_s_tech_ey_p,
             ss_share_s_tech_ey_p,
             is_share_s_tech_ey_p,
-            techs_affected_spatial_f=['heat_pumps_electricity'])
+            techs_affected_spatial_f=techs_affected_spatial_f)
 
         regions = data['regions']
         regional_specific = True

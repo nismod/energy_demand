@@ -13,10 +13,79 @@ TODO MORE INFO
 """
 from collections import defaultdict
 import numpy as np
+from random import randint
 from energy_demand.scripts import init_scripts
+from energy_demand.read_write import read_data
 
-def load_spatial_diff_values(regions, enduses):
+def from_socio_economic_data_to_spatial_diffusion_values(regions, diffusionv_values=None):
+    """Create SDI from socio-economic data
+
+
+
+    concepts : list
+        List with concepts (e.g. poor, welathy, rich)
+
+
+    Info
+    ------
+    *   SPEED 'diffusions_speed_lower_concept' 
+    """
+    spatial_diffusion_values = {}
+    # Load socio economic data (e.g. income)
+    #socio_economic_data_collecition = False
+    #if socio_economic_data_collecition:
+    #    congruence_values = calculate_congruence_values()
+
+    # ------------------
+    # Diffusion speed
+    # ------------------
+    diffusions_speed_lower_concept = 1
+    diffusions_speed_higher_concept = 2
+
+    # How much congruent to urban (e.g. with rural population share) https://www.gov.uk/government/uploads/system/uploads/attachment_data/file/591464/RUCLAD_leaflet_Jan2017.pdf
+    congruence_value = {
+        0 : {'congruence_value': 0, 'description': 'missing values'}, #Lower concept diffusion speed
+        1 : {'congruence_value': 1 - 0.8, 'description': 'Mainly Rural (rural including hub towns >=80%)'},
+        2 : {'congruence_value': 1 - 0.7, 'description': 'Largely Rural (rural including hub towns 50-79%) '},
+        3 : {'congruence_value': 1 - 0.35, 'description': 'Urban with Significant Rural (rural including hub towns 26-49%)'},
+        4 : {'congruence_value': 1 - 20, 'description': 'Urban with City and Town'},
+        5 : {'congruence_value': 1 - 20, 'description': 'Urban with Minor Conurbation'},
+        6 : {'congruence_value': 1 - 20, 'description': 'Urban with Major Conurbation'}}
+    
+    # Calculate diffusion values baed on speed attributes
+    diffusionv_values = {}
+    for concept_id, con_values in congruence_value.items():
+        lower_concept_val = con_values['congruence_value'] * diffusions_speed_lower_concept
+        higher_concept_val = con_values['congruence_value'] * diffusions_speed_higher_concept
+
+        diffusionv_values[concept_id]['diffusion_speed'] = lower_concept_val + higher_concept_val
+
+    # ------------------
+    # Real data
+    # ------------------
+    ruc11cd_values = read_data.taget_ruc11cd_values(
+        path_to_csv="C://Users//cenv0553//nismod//data_energy_demand//_raw_data//RUC11_LAD11_ENv2.csv")
+
+    for region in regions:
+
+        # Multiply speed of diffusion of concept with concept congruence value
+        try:
+            ruc11cd_value = ruc11cd_values[region] 
+        except:
+            ruc11cd_value = 1
+            print("ERROR: SET TO CONGRUEN VALUE +")
+
+        spatial_diffusion_values[region] = diffusionv_values[ruc11cd_value]['diffusion_speed']
+
+    return spatial_diffusion_values
+
+def load_spatial_diffusion_values(regions, enduses):
     """Load or calculate spatial diffusion values
+
+    This are the values which already incorporate different
+    speeds in diffusion and the congruence values
+
+    
     e.g. based on urban/rural population
 
     TODO: Maybe read in
@@ -35,15 +104,21 @@ def load_spatial_diff_values(regions, enduses):
     """
     spatial_index = defaultdict(dict)
 
+    spatial_index_cl = from_socio_economic_data_to_spatial_diffusion_values(regions)
+
+    # Apply the diffusion values for all enduses
     for enduse in enduses:
-        #dummy_indeces = [1.6, 2.5] #[2.8, 5.5] #[1.4, 2]
+        #dummy_indeces = [1.6, 2.5.]
         cnt = 0
         for region in regions:
 
-            dummy_index = 1
+           # dummy_index = 1
             #dummy_index = dummy_indeces[cnt]
+            #dummy_index = randint(1, 10)
+            #spatial_index[enduse][region] = dummy_index
 
-            spatial_index[enduse][region] = dummy_index
+            spatial_index[enduse][region] = spatial_index_cl[region]
+
             cnt += 1
 
     return dict(spatial_index)
@@ -66,12 +141,12 @@ def calc_diff_factor(regions, spatial_diff_values, fuels):
 
     Example
     -------
-    If e.g. the national assumption of a technology diffusion
-    of 50% exists (e.g. 50% of service are heat pumps), this
+    If the national assumption of a technology diffusion
+    of 50% is defined (e.g. 50% of service are heat pumps), this
     percentage can be changed per region, i.e. in some regions
-    with higher diffusion factors, a larger percentage adapt
-    the technology on the expense of other regions where a
-    lower percentage adapt this technology. In sum however,
+    with higher diffusion factors, a larger percentage adopt
+    the technology on the expense of other regions, where a
+    lower percentage adopt this technology. In sum however,
     for all regions, the total service still sums up to 50%.
     """
     # Calculate fraction of energy demand of every region of total demand
@@ -140,7 +215,10 @@ def calc_diff_factor(regions, spatial_diff_values, fuels):
 
     # Testing
     for enduse in reg_fraction_multiplied_index:
-        np.testing.assert_almost_equal(sum(reg_fraction_multiplied_index[enduse].values()), 1, decimal=2)
+        np.testing.assert_almost_equal(
+            sum(reg_fraction_multiplied_index[enduse].values()),
+            1,
+            decimal=2)
 
     return reg_fraction_multiplied_index
 
@@ -152,7 +230,7 @@ def calc_regional_services(
         fuel_disaggregated,
         techs_affected_spatial_f
     ):
-    """Calculate regional specific model end year service shares
+    """Calculate regional specific end year service shares
     of technologies (rs_reg_enduse_tech_p_ey)
 
     Arguments
@@ -219,10 +297,11 @@ def calc_regional_services(
                 # If not specified, use fuel disaggregation for enduse factor
                 reg_service_tech = uk_service_tech * fuel_disagg_factor
 
-            if reg_service_tech == 0:
-                reg_enduse_tech_p_ey[region][tech] = 0
-            else:
-                reg_enduse_tech_p_ey[region][tech] = reg_service_tech
+            #if reg_service_tech == 0:
+            #    reg_enduse_tech_p_ey[region][tech] = 0
+            #else:
+            #    reg_enduse_tech_p_ey[region][tech] = reg_service_tech
+            reg_enduse_tech_p_ey[region][tech] = reg_service_tech
 
         # ---------------------------------------------
         # C.) Calculate regional fraction
@@ -276,23 +355,47 @@ def spatially_differentiated_modelling(
 
     Explanation
     ============
-    (1) Define all technologies which are spatiall differentiated
+    (1) Define all technologies which are spatially differentiated
 
     (2) Load all diffusion values
 
     (3) Calculate diffusion factors
     """
-    # Load diffusion values
-    spatial_diff_values = load_spatial_diff_values(
+    # -----
+    # Diffusion values
+    # -----
+    spatial_diff_values = load_spatial_diffusion_values(
         regions,
         all_enduses)
 
+    # -----
+    # Calculation of sigmoid diffusion factors
+    # -----
     # Load diffusion factors
-    spatial_diffusion_factor = calc_diff_factor(
+    f_spatial_diffusion = calc_diff_factor(
         regions,
         spatial_diff_values,
         [fuel_disagg['rs_fuel_disagg'], fuel_disagg['ss_fuel_disagg'], fuel_disagg['is_fuel_disagg']])
 
+    # -------------
+    # Technology specific diffusion of end year shares
+    # -------------
+    test_factor_overall_enduse_heating_improvement = 0.2 #air_leakage__rs_space_heating
+    affected_enduse = 'rs_space_heating'
+
+    # end use specficic improvements 
+    single_variable_d = factor_improvements_single(
+        factor_uk=test_factor_overall_enduse_heating_improvement,
+        factor_uk_name='test_factor_overall_enduse_heating_improvement',
+        enduse=affected_enduse,
+        regions=regions,
+        spatial_factors=f_spatial_diffusion,
+        fuel_disaggregated=fuel_disagg['rs_fuel_disagg'])
+    print(":")
+    # -------------
+    # Technology specific diffusion of end year shares
+    # -------------
+    # TODO MAYBE WRITE IN FUNCTIONS
     # Residential spatial explicit modelling
     rs_reg_share_s_tech_ey_p = {}
     for enduse, uk_techs_service_p in rs_share_s_tech_ey_p.items():
@@ -300,12 +403,13 @@ def spatially_differentiated_modelling(
             enduse,
             uk_techs_service_p,
             regions,
-            spatial_diffusion_factor,
+            f_spatial_diffusion,
             fuel_disagg['rs_fuel_disagg'],
             techs_affected_spatial_f)
 
     # Generate sigmoid curves (s_generate_sigmoid) for every region
-    ss_aggr_fuel = init_scripts.sum_across_sectors_all_regs(fuel_disagg['ss_fuel_disagg'])
+    ss_aggr_fuel = init_scripts.sum_across_sectors_all_regs(
+        fuel_disagg['ss_fuel_disagg'])
 
     ss_reg_share_s_tech_ey_p = {}
     for sector, uk_techs_service_enduses_p in ss_share_s_tech_ey_p.items():
@@ -315,11 +419,12 @@ def spatially_differentiated_modelling(
                 enduse,
                 uk_techs_service_p,
                 regions,
-                spatial_diffusion_factor,
+                f_spatial_diffusion,
                 ss_aggr_fuel,
                 techs_affected_spatial_f)
 
-    is_aggr_fuel = init_scripts.sum_across_sectors_all_regs(fuel_disagg['is_fuel_disagg'])
+    is_aggr_fuel = init_scripts.sum_across_sectors_all_regs(
+        fuel_disagg['is_fuel_disagg'])
 
     is_reg_share_s_tech_ey_p = {}
     for sector, uk_techs_service_enduses_p in is_share_s_tech_ey_p.items():
@@ -329,8 +434,91 @@ def spatially_differentiated_modelling(
                 enduse,
                 uk_techs_service_p,
                 regions,
-                spatial_diffusion_factor,
+                f_spatial_diffusion,
                 is_aggr_fuel,
                 techs_affected_spatial_f)
 
     return rs_reg_share_s_tech_ey_p, ss_reg_share_s_tech_ey_p, is_reg_share_s_tech_ey_p, init_cont
+
+def factor_improvements_single(
+        factor_uk,
+        factor_uk_name,
+        enduse,
+        regions,
+        spatial_factors,
+        fuel_disaggregated,
+    ):
+    """Calculate regional specific end year service shares
+    of technologies (rs_reg_enduse_tech_p_ey)
+
+    Arguments
+    =========
+    factor_uk : float
+        Improvement of either an enduse or a variable for the whole UK
+
+
+    uk_techs_service_p : dict
+        Service shares per technology for future year
+    regions : dict
+        Regions
+    spatial_factors : dict
+        Spatial factor per enduse and region
+    fuel_disaggregated : dict
+        Fuels per region
+    techs_affected_spatial_f : list
+        List with technologies where spatial diffusion is affected
+
+    Returns
+    -------
+    rs_reg_enduse_tech_p_ey : dict
+        Regional specific model end year service shares of techs
+
+    Modelling steps
+    -----
+    A.) Calculation national end use service to reduce
+        (e.g. 50% heat pumps for all regions) (uk_tech_service_ey_p)
+
+    B.) Distribute this service according to spatial index for
+        techs where the spatial explicit diffusion applies (techs_affected_spatial_f).
+        Otherwise disaggregated according to fuel
+
+    C.) Convert regional service reduction to ey % in region
+    """
+    reg_enduse_tech_p_ey = defaultdict(dict)
+
+    # ------------------------------------
+    # Calculate national total enduse fuel and service
+    # ------------------------------------
+    uk_enduse_fuel = 0
+    for region in regions:
+        reg_enduse_tech_p_ey[region] = {}
+        uk_enduse_fuel += np.sum(fuel_disaggregated[region][enduse])
+
+    # ----
+    # Service of enduse for all regions
+    # ----
+    uk_service_enduse = 100
+
+    for region in regions:
+
+        # Disaggregation factor
+        fuel_disagg_factor = np.sum(fuel_disaggregated[region][enduse]) / uk_enduse_fuel
+
+        # Variable to factorise
+        uk_service_factor = factor_uk * uk_service_enduse
+
+        # ---------------------------------------------
+        # B.) Calculate regional service for technology
+        # ---------------------------------------------
+        reg_service_tech = uk_service_factor * spatial_factors[enduse][region]
+
+        reg_enduse_tech_p_ey[region][factor_uk_name] = reg_service_tech
+
+        # ---------------------------------------------
+        # C.) Calculate regional fraction
+        # ---------------------------------------------
+        tot_service_reg_enduse = fuel_disagg_factor * uk_service_enduse
+
+        reg_enduse_tech_p_ey[region][factor_uk_name] = reg_enduse_tech_p_ey[region][factor_uk_name] / tot_service_reg_enduse
+
+    return dict(reg_enduse_tech_p_ey)

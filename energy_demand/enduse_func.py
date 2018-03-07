@@ -1364,12 +1364,18 @@ def apply_air_leakage(
         # Fraction of heat recovered until end year
         air_leakage_improvement = strategy_variables["air_leakage__{}".format(enduse)]
 
+        '''
+        if regional_specific:
+            air_leakage_improvement = XY PERCENT REGIONAL DIFFERENT
+        '''
+
         if air_leakage_improvement == 0:
             return service, service_techs
         else:
             air_leakage_by = 1
 
             # Fraction of heat recovered in current year
+            #TODO AIR LEAKAGE SIGMOID IF REGIONALLY SPECIFIC
             sig_diff_factor = diffusion_technologies.sigmoid_diffusion(
                 base_yr,
                 curr_yr,

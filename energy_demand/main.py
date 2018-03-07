@@ -45,6 +45,7 @@ NICETOHAVE
 - Convert paths dict to objects
 
 TODOS
+TODO: LOAD IN SCENARIO PARAMETERS IN INITIAL_SETUP FUNCTION IN RUn file
 TODO: Write function to test wheter swichtes are possible (e.g. that not more from one technology to another is replaced than possible)
 TODO: Improve industry related demand --> define strategies
 TODO: Related ed to houses & householdsize
@@ -159,7 +160,7 @@ def energy_demand_model(data, fuel_in=0, fuel_in_elec=0):
     print("================================================")
 
     logging.info("...finished running energy demand model simulation")
-    #prnt(":")
+    prnt(":")
     return modelrun_obj
 
 if __name__ == "__main__":

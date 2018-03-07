@@ -2,7 +2,6 @@
 """Script to run after installation of HIRE
 
 Script function which are executed after model installation and
-
 """
 import os
 import logging
@@ -15,6 +14,7 @@ from energy_demand.scripts import s_ss_raw_shapes
 from energy_demand.read_write import data_loader
 from energy_demand.basic import logger_setup
 from energy_demand.basic import basic_functions
+from energy_demand.basic import lookup_tables
 
 def post_install_setup(args):
     """Run this function after installing the energy_demand
