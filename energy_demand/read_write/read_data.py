@@ -1046,7 +1046,6 @@ def read_floor_area_virtual_stock(path_to_csv, p_mixed_resid=0.5):
     TODO: READ IN SECTOR SPECIFIC FLOOR AREA OR CALCLATE IT SOMEHOW
     """
     # Redistribute the mixed enduse
-    p_mixed_resid = 0.5
     p_mixed_no_resid = 1 - p_mixed_resid
 
     # Second Mail from Craig

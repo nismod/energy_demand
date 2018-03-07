@@ -84,7 +84,7 @@ def temporal_validation(
     # ----------------
     days_to_plot = list(range(0, 365))
     elec_national_data.compare_results(
-        'validation_temporal_electricity_weeks_selection.pdf',
+        'validation_temporal_electricity_8760h.pdf',
         local_paths['data_results_validation'],
         elec_2015_indo,
         elec_2015_itsdo,
@@ -92,7 +92,7 @@ def temporal_validation(
         elec_ed_fueltype_national_yh,
         'all_submodels',
         days_to_plot,
-        plot_crit=plot_criteria)
+        plot_crit=True)
 
     # ----------------
     # Plot four weeks
@@ -120,7 +120,7 @@ def temporal_validation(
     days_to_plot = winter_week + spring_week + summer_week + autumn_week
 
     elec_national_data.compare_results(
-        'validation_temporal_electricity_8760h.pdf',
+        'validation_temporal_electricity_weeks_selection.pdf',
         local_paths['data_results_validation'],
         elec_2015_indo,
         elec_2015_itsdo,

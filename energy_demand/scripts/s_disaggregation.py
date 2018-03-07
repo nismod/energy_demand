@@ -238,11 +238,16 @@ def disagg_ss_general(
     tot_floor_area_pop = {}
     tot_pop_hdd = {}
     tot_pop_cdd = {}
+    tot_floor_area_hdd = {}
+    tot_floor_area_cdd = {}
+
     for sector in all_sectors:
         tot_floor_area[sector] = 0
         tot_floor_area_pop[sector] = 0
         tot_pop_hdd[sector] = 0
         tot_pop_cdd[sector] = 0
+        tot_floor_area_hdd[sector] = 0
+        tot_floor_area_cdd[sector] = 0
 
     for region in all_regions:
         reg_hdd = ss_hdd_individ_region[region]
@@ -250,7 +255,6 @@ def disagg_ss_general(
 
         # Population
         reg_pop = scenario_data['population'][base_yr][region]
-
         tot_pop += reg_pop
 
         for sector in all_sectors:
@@ -261,8 +265,10 @@ def disagg_ss_general(
             # National disaggregation factors
             tot_floor_area[sector] += reg_floor_area
             tot_floor_area_pop[sector] += reg_floor_area * reg_pop
+            tot_floor_area_hdd[sector] += reg_floor_area * reg_hdd
             tot_pop_hdd[sector] += reg_pop * reg_hdd
             tot_pop_cdd[sector] += reg_pop * reg_cdd
+            tot_floor_area_cdd[sector] += reg_floor_area * reg_cdd
 
     # ---------------------------------------
     # Disaggregate according to enduse
@@ -280,23 +286,22 @@ def disagg_ss_general(
         reg_diasg_factor = reg_pop / tot_pop
 
         for enduse in enduses:
-            #ss_fuel_disagg[region][enduse] = {}
 
             for sector in sectors:
                 #print("reg_diasg_factor: {} {} {}".format(sector, enduse, reg_diasg_factor))
                 reg_floor_area = scenario_data['floor_area']['ss_floorarea'][base_yr][region][sector]
 
                 if crit_limited_disagg_pop and not crit_limited_disagg_pop_hdd:
-                    #logging.debug(" ... Disaggregation ss: populaton")
+    
                     # ----
-                    # Only disaggregated with population
+                    #logging.debug(" ... Disaggregation ss: populaton")
                     # ----
                     reg_diasg_factor = reg_pop / tot_pop
 
                 elif crit_limited_disagg_pop_hdd and not crit_full_disagg:
-                    #logging.debug(" ... Disaggregation ss: populaton, HDD")
+
                     # ----
-                    # Only disaggregat with population and hdd and cdd
+                    #logging.debug(" ... Disaggregation ss: populaton, HDD")
                     # ----
                     if enduse == 'ss_cooling_humidification':
                         reg_diasg_factor = (reg_pop * reg_cdd) / tot_pop_cdd[sector]
@@ -305,14 +310,17 @@ def disagg_ss_general(
                     else:
                         reg_diasg_factor = reg_pop / tot_pop
                 elif crit_full_disagg:
-                    #logging.debug(" ... Disaggregation ss: populaton, HDD, floor_area")
+
                     # ----
-                    # disaggregat with pop, hdd/cdd, floor area
+                    # logging.debug(" ... Disaggregation ss: populaton, HDD, floor_area")
                     # ----
                     if enduse == 'ss_cooling_humidification':
-                        reg_diasg_factor = (reg_pop * reg_cdd) / tot_pop_cdd[sector]
+                        #reg_diasg_factor = (reg_pop * reg_cdd) / tot_pop_cdd[sector]
+                        reg_diasg_factor = (reg_floor_area * reg_cdd) / tot_floor_area_cdd[sector] #TODO TEST IF REALLY BETTER
+                        #reg_diasg_factor = reg_floor_area / tot_floor_area[sector]
                     elif enduse == 'ss_space_heating':
-                        reg_diasg_factor = (reg_floor_area * reg_pop) / tot_floor_area_pop[sector]
+                        reg_diasg_factor = (reg_floor_area * reg_hdd) / tot_floor_area_hdd[sector] #TODO TEST IF REALLY BETTER
+                        reg_diasg_factor = reg_floor_area / tot_floor_area[sector] #Best (better than if including hdd)
                     elif enduse == 'ss_lighting':
                         reg_diasg_factor = reg_floor_area / tot_floor_area[sector]
                     else:
@@ -388,66 +396,42 @@ def is_disaggregate(
         # -----
         # Disaggregate with employment statistics
         # The BEIS sectors are matched with census data sectors {ECUK industry sectors: 'Emplyoment sectors'}
-        '''sectormatch_ecuk_with_census = {
-            'wood': 'C16,17',
-            'textiles': 'C13-15',
-            'chemicals': 'C19-22',
-            'printing': 'C',
-            'electrical_equipment':'C26-30',
-            'paper': 'C16,17',
-            'basic_metals': 'C',
-            'beverages': 'C10-12',
-            'pharmaceuticals': 'M',
-            'machinery': 'C26-30',
-            'water_collection_treatment': 'E',
-            'food_production': 'C10-12',
-            'rubber_plastics': 'C19-22',
-            'wearing_appeal': 'C13-15',
-            'other_transport_equipment': 'H',
-            'leather': 'C13-15',
-            'motor_vehicles': 'G',
-            'waste_collection': 'E',
-            'tobacco': 'C10-12',
-            'mining': 'B',
-            'other_manufacturing': 'C18,31,32',
-            'furniture': 'C',
-            'non_metallic_mineral_products': 'C',
-            'computer': 'C26-30',
-            'fabricated_metal_products': 'C'}'''
-
         sectormatch_ecuk_with_census = {
-            'mining': 'B',                  # Improvement
-            'food_production': 'C10-12',    # Improvement
-            'pharmaceuticals': 'M',         # Improvement
-            'computer': 'C26-30',           # Improvement
-            'leather': 'C13-15',            # Gas improve, electrectiy same
-            'wearing_appeal': 'C13-15',     # Improvement
-            'basic_metals': 'C',            # Improve deviation
 
-            'non_metallic_mineral_products': 'C',  #improve
+            # Significant improvement
+            'mining': 'B',
+            'food_production': 'C10-12',
+            'pharmaceuticals': 'M',
+            'computer': 'C26-30',
+            'leather': 'C13-15',
+            'wearing_appeal': 'C13-15',
 
+            # Improvement
+            'basic_metals': 'C',
+            'non_metallic_mineral_products': 'C',
+            'electrical_equipment': 'C26-30',
+            'printing': 'C',
+            'rubber_plastics': 'C19-22',
+            'chemicals': 'C19-22',
+            'wood': 'C16,17',
+            'paper': 'C16,17',
 
-            'electrical_equipment': None,   # 'C26-30', #Streuung besser
-            'printing': None,               # Streeung besser
-            'rubber_plastics': None,        # not really, bessere Streeung
-        
-            'wood': None,                   #Worse
-            'textiles': None,               #Worse
-            'chemicals': None,              #Worse better streuung
-            
-            'paper': None,                  #WORSE
-            'beverages': None,
-            'fabricated_metal_products': None,
-            'other_manufacturing': None,
-            'furniture': None,
-            'machinery': None,     # Improvements with M #BUT NOT REALLY CORRECT CLASSIFICATION
-            'water_collection_treatment': None,
-            
-            'other_transport_equipment': None,
-            'motor_vehicles': None,
-            'waste_collection': None, #about the same with F
-            'tobacco': None,
-            
+            # Worse and better
+            'fabricated_metal_products': 'C',   # Gas better, elec worse test C23-25  previous 'C'
+            'textiles': 'C13-15',               # Gas better, elec worse
+            'motor_vehicles': 'G',              # Gas better, elec worse
+
+            # Indifferent
+            'machinery': None,                  # 'C'
+            'tobacco': None,                    # 'C10-12'
+            'other_transport_equipment': None,  # 'H'
+            'other_manufacturing': None,        # 'C18,31,32'
+            'water_collection_treatment': None, # 'E'
+            'waste_collection': None,           # 'E'
+            'furniture': None,                  # C18,31,32'
+
+            # Worse
+            'beverages': None                   # 'C10-12'  
         }
 
         # ----------------------------------------
@@ -481,10 +465,8 @@ def is_disaggregate(
                     matched_sector = sectormatch_ecuk_with_census[sector]
 
                     # Disaggregate with population
-                    if matched_sector == None:
-                        
+                    if not matched_sector:
                         reg_pop = scenario_data['population'][base_yr][region]
-                        
                         reg_disag_factor = reg_pop / tot_pop
 
                         is_fuel_disagg[region][enduse][sector] = is_national_fuel[enduse][sector] * reg_disag_factor
@@ -666,28 +648,29 @@ def disagg_rs_general(
         # Disaggregate fuel depending on end_use
         for enduse in rs_national_fuel:
             if crit_limited_disagg_pop and not crit_limited_disagg_pop_hdd and not crit_full_disagg:
-                #logging.debug(" ... Disaggregation rss: populaton")
+
                 # ----------------------------------
-                # Only disaggregate with population
+                #logging.debug(" ... Disaggregation rss: populaton")
                 # ----------------------------------
                 reg_diasg_factor = reg_pop / total_pop
 
             elif crit_limited_disagg_pop_hdd and not crit_full_disagg:
-                #logging.debug(" ... Disaggregation rss: populaton, hdd")
+
                 # -------------------
-                # Disaggregation with pop and hdd
+                #logging.debug(" ... Disaggregation rss: populaton, hdd")
                 # -------------------
                 if enduse == 're_space_heating':
                     reg_diasg_factor = (reg_hdd * reg_pop) / total_hdd_floorarea
                 else:
                     reg_diasg_factor = reg_pop / total_pop
             elif crit_full_disagg:
-                logging.warning(" ... Disaggregation rss: populaton, hdd, floor_area")
+
                 # -------------------
-                # Full disaggregation
+                #logging.warning(" ... Disaggregation rss: populaton, hdd, floor_area")
                 # -------------------
                 if enduse == 'rs_space_heating':
-                    reg_diasg_factor = (reg_hdd * reg_floor_area) / total_hdd_floorarea
+                    reg_diasg_factor = (reg_hdd * reg_floor_area) / total_hdd_floorarea #TODO TEST IF REALLY BETTER
+                    #reg_diasg_factor = reg_floor_area / total_floor_area
                 elif enduse == 'rs_lighting':
                     reg_diasg_factor = reg_floor_area / total_floor_area
                 else:

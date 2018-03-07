@@ -71,7 +71,11 @@ class WeatherRegion(object):
         # Calculate current year temperatures
         # -----------------------------------
         temp_cy = change_temp_climate(
-            temp_by, yeardays_month_days, strategy_variables, base_yr, curr_yr,
+            temp_by,
+            yeardays_month_days,
+            strategy_variables,
+            base_yr,
+            curr_yr,
             strategy_variables['climate_change_temp_diff_yr_until_changed'])
 
         # Change base temperatures depending on change in t_base
@@ -80,51 +84,40 @@ class WeatherRegion(object):
             t_bases['rs_t_heating_by'],
             base_yr,
             curr_yr,
-            t_diff_param['sig_midpoint'],
-            t_diff_param['sig_steepness'],
-            t_diff_param['yr_until_changed'])
+            t_diff_param)
         '''rs_t_base_cooling_cy = hdd_cdd.sigm_temp(
             strategy_variables['rs_t_base_cooling_future_yr'],
             t_bases['rs_t_cooling_by'], base_yr, curr_yr,
-            t_diff_param['sig_midpoint'],
-            t_diff_param['sig_steepness'],
-            t_diff_param['yr_until_changed'])'''
+            t_diff_param)'''
 
         ss_t_base_heating_cy = hdd_cdd.sigm_temp(
             strategy_variables['ss_t_base_heating_future_yr'],
             t_bases['ss_t_heating_by'],
             base_yr,
             curr_yr,
-            t_diff_param['sig_midpoint'],
-            t_diff_param['sig_steepness'],
-            t_diff_param['yr_until_changed'])
+            t_diff_param)
         ss_t_base_cooling_cy = hdd_cdd.sigm_temp(
             strategy_variables['ss_t_base_cooling_future_yr'],
             t_bases['ss_t_cooling_by'],
             base_yr,
             curr_yr,
-            t_diff_param['sig_midpoint'],
-            t_diff_param['sig_steepness'],
-            t_diff_param['yr_until_changed'])
+            t_diff_param)
 
         is_t_base_heating_cy = hdd_cdd.sigm_temp(
             strategy_variables['is_t_base_heating_future_yr'],
             t_bases['is_t_heating_by'],
             base_yr,
             curr_yr,
-            t_diff_param['sig_midpoint'],
-            t_diff_param['sig_steepness'],
-            t_diff_param['yr_until_changed'])
+            t_diff_param)
         '''is_t_base_cooling_cy = hdd_cdd.sigm_temp(
             strategy_variables['is_t_base_cooling_future_yr'],
             t_bases['is_t_cooling_by'],
             base_yr,
             curr_yr,
-            t_diff_param['sig_midpoint'],
-            t_diff_param['sig_steepness'],
-            t_diff_param['yr_until_changed'])'''
+            t_diff_param)'''
 
-        # Create technology stocks
+        # -------------------
+        # Technology stocks
         # -------------------
         self.rs_tech_stock = technological_stock.TechStock(
             'rs_tech_stock',
@@ -329,7 +322,7 @@ class WeatherRegion(object):
         # ----------------------------------------------
         # Apply weekend correction factor fo ss heating
         # ----------------------------------------------
-        ss_cdd_by = ss_cdd_by * assumptions['cdd_weekend_cfactors']
+        ss_cdd_by = ss_cdd_by #* assumptions['cdd_weekend_cfactors'] #TODO NOT WORKING PROPERLY YET
 
         ss_peak_yd_heating_factor = get_shape_peak_yd_factor(ss_hdd_cy)
         ss_peak_yd_cooling_factor = get_shape_peak_yd_factor(ss_cdd_cy)
@@ -344,6 +337,12 @@ class WeatherRegion(object):
             ss_fuel_shape_heating_yd,
             'ss_space_heating',
             model_yeardays_nrs)
+
+        # Apply correction factor for weekend_effect TODO NEW TODO NTEW
+        # ------ TODO TODO
+        ss_fuel_shape_heating_yd = ss_fuel_shape_heating_yd * assumptions['ss_weekend_f']
+        ss_fuel_shape_heating_yd_weighted = load_profile.abs_to_rel(ss_fuel_shape_heating_yd)
+        # ------ TODO TODO
 
         # Flatten list of all potential technologies
         ss_space_heating_tech_lists = list(tech_lists.values())
@@ -360,7 +359,7 @@ class WeatherRegion(object):
             technologies=all_techs_ss_space_heating,
             enduses=['ss_space_heating'],
             sectors=sectors['ss_sectors'],
-            shape_yd=ss_fuel_shape_heating_yd,
+            shape_yd=ss_fuel_shape_heating_yd_weighted,
             shape_yh=ss_fuel_shape_any_tech,
             enduse_peak_yd_factor=ss_peak_yd_heating_factor,
             shape_peak_dh=ss_space_heating_shape_peak_dh)
@@ -373,8 +372,8 @@ class WeatherRegion(object):
         for cooling_enduse in assumptions['ss_enduse_space_cooling']:
             for sector in sectors['ss_sectors']:
 
-                # Apply correction factor for weekend_effect
-                ss_fuel_shape_coolin_yd = ss_fuel_shape_coolin_yd * assumptions['ss_weekend_f']
+                # Apply correction factor for weekend_effect 'cdd_weekend_cfactors'
+                ss_fuel_shape_coolin_yd = ss_fuel_shape_coolin_yd * assumptions['cdd_weekend_cfactors']
                 ss_fuel_shape_coolin_yd = load_profile.abs_to_rel(ss_fuel_shape_coolin_yd)
 
                 # Ev auch tech_lp['ss_shapes_cooling_dh']
@@ -428,7 +427,7 @@ class WeatherRegion(object):
         is_space_heating_tech_lists = list(tech_lists.values())
         all_techs_is_space_heating = [item for sublist in is_space_heating_tech_lists for item in sublist]
 
-        # Apply correction factor for weekend_effect
+        # Apply correction factor for weekend_effect for space heating load profile
         is_fuel_shape_heating_yd = is_fuel_shape_heating_yd * assumptions['is_weekend_f']
         is_fuel_shape_heating_yd = load_profile.abs_to_rel(is_fuel_shape_heating_yd)
 

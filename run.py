@@ -52,6 +52,8 @@ class EDWrapper(SectorModel):
         """
         data = defaultdict(dict)
 
+        p_mixed_resid = 0.8       # Spatial calibration factor for virtual dwelling stock
+
         # -----------
         # INFORMATION:
         # you only running smif, use the following configuration: fast_smif_run == True
@@ -150,7 +152,7 @@ class EDWrapper(SectorModel):
                 data['sectors']['all_sectors'],
                 data['local_paths'],
                 base_yr=data['sim_param']['base_yr'],
-                p_mixed_resid=0.5)
+                p_mixed_resid=p_mixed_resid)
         else:
             pass
             # Load floor area from newcastle

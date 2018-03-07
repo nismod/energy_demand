@@ -5,7 +5,6 @@ import logging
 import numpy as np
 from energy_demand.profiles import generic_shapes
 from energy_demand.initalisations import helpers
-from energy_demand.profiles import load_profile
 
 class LoadProfileStock(object):
     """Collection of load shapes in a list
@@ -424,7 +423,7 @@ def create_load_profile_stock(
         shape_peak_dh=tech_lp['rs_shapes_dh']['rs_wet']['shape_peak_dh'])
 
     # -- Apply enduse sepcific shapes for enduses with not technologies with own defined shapes
-    for enduse in all_enduses['rs_enduses']: #['rs_dummy_enduses']:
+    for enduse in all_enduses['rs_enduses']:
 
         # Enduses where technology specific load profiles are defined for yh
         if enduse == 'rs_space_heating':
@@ -464,10 +463,10 @@ def create_load_profile_stock(
 
                 # Apply correction factor for weekend_effect
                 shape_non_peak_yd = tech_lp['ss_shapes_yd'][enduse][sector]['shape_non_peak_yd'] * assumptions['ss_weekend_f']
-                shape_non_peak_yd = load_profile.abs_to_rel(shape_non_peak_yd)
+                shape_non_peak_yd_weighted = abs_to_rel(shape_non_peak_yd)
 
                 shape_yh = calc_yh(
-                    shape_non_peak_yd, #tech_lp['ss_shapes_yd'][enduse][sector]['shape_non_peak_yd'],
+                    shape_non_peak_yd_weighted, #shape_non_peak_yd, #shape_non_peak_yd_weighted,
                     tech_lp['ss_shapes_dh'][enduse][sector]['shape_non_peak_y_dh'],
                     model_yeardays)
 
@@ -475,7 +474,7 @@ def create_load_profile_stock(
                     unique_identifier=uuid.uuid4(),
                     technologies=tech_list,
                     enduses=[enduse],
-                    shape_yd=tech_lp['ss_shapes_yd'][enduse][sector]['shape_non_peak_yd'],
+                    shape_yd=shape_non_peak_yd_weighted, #shape_non_peak_yd, # TODO NEW SKARK
                     shape_yh=shape_yh,
                     sectors=[sector],
                     enduse_peak_yd_factor=tech_lp['ss_shapes_yd'][enduse][sector]['shape_peak_yd_factor'],
@@ -488,9 +487,9 @@ def create_load_profile_stock(
     shape_peak_dh, _, shape_peak_yd_factor, shape_non_peak_yd, shape_non_peak_yh = generic_shapes.flat_shape(
         assumptions['model_yeardays_nrs'])
 
-    # Apply correction factor for weekend_effect
+    # Apply correction factor for weekend_effect to flat load profile for industry
     shape_non_peak_yd = shape_non_peak_yd * assumptions['is_weekend_f']
-    shape_non_peak_yd = load_profile.abs_to_rel(shape_non_peak_yd)
+    shape_non_peak_yd_weighted = abs_to_rel(shape_non_peak_yd)
 
     for enduse in all_enduses['is_enduses']:
         if enduse == "is_space_heating":
@@ -505,7 +504,7 @@ def create_load_profile_stock(
                     unique_identifier=uuid.uuid4(),
                     technologies=tech_list,
                     enduses=[enduse],
-                    shape_yd=shape_non_peak_yd,
+                    shape_yd=shape_non_peak_yd_weighted,
                     shape_yh=shape_non_peak_yh,
                     sectors=[sector],
                     enduse_peak_yd_factor=shape_peak_yd_factor,
