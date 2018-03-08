@@ -373,24 +373,25 @@ def spatially_differentiated_modelling(
 
     # -------------
     # ===========================Technology specific diffusion of end year shares
-    # -------------
-    test_factor_overall_enduse_heating_improvement = 0.2
-    affected_enduse = 'rs_space_heating'
+    local = False
+    if local == True:
+        test_factor_overall_enduse_heating_improvement = 0.2
+        affected_enduse = 'rs_space_heating'
 
-    # Get enduse specific fuel for each region
-    fuels_reg = get_enduse_specific_fuel_all_regs(
-        enduse=affected_enduse,
-        fuels_disagg=[fuel_disagg['rs_fuel_disagg'], fuel_disagg['ss_fuel_disagg'], fuel_disagg['is_fuel_disagg']])
-    
+        # Get enduse specific fuel for each region
+        fuels_reg = get_enduse_specific_fuel_all_regs(
+            enduse=affected_enduse,
+            fuels_disagg=[fuel_disagg['rs_fuel_disagg'], fuel_disagg['ss_fuel_disagg'], fuel_disagg['is_fuel_disagg']])
+        
 
-    # end use specficic improvements 
-    single_variable_d = {}
-    single_variable_d[str(test_factor_overall_enduse_heating_improvement)] = factor_improvements_single(
-        factor_uk=test_factor_overall_enduse_heating_improvement,
-        regions=regions,
-        spatial_factors=f_spatial_diffusion[affected_enduse],
-        fuel_regs_enduse=fuels_reg)
-    rint("ffd")
+        # end use specficic improvements 
+        single_variable_d = {}
+        single_variable_d[str(test_factor_overall_enduse_heating_improvement)] = factor_improvements_single(
+            factor_uk=test_factor_overall_enduse_heating_improvement,
+            regions=regions,
+            spatial_factors=f_spatial_diffusion[affected_enduse],
+            fuel_regs_enduse=fuels_reg)
+
     # ===========================
 
     # -------------
@@ -543,6 +544,25 @@ def factor_improvements_single(
     # ---------
     # PROBLEM THAT MORE THAN 100 percent could be reached if nt normed
     # ---------
+    reg_enduse_tech_p_ey_capped = {}
+    # Cap regions which have already reached and are larger than 1.0
+    cap_max_crit = 1.0 #100%
+    demand_lost = 0
+    for region, region_factor in reg_enduse_tech_p_ey.items():
+        if region_factor > cap_max_crit:
+            logging.warning("INFO: FOR A REGION THE SHARE OF IMPROVEMENTIS LARGER THAN 1.0.")
+
+            # Demand which is lost and capped
+            diff_to_cap = region_factor - cap_max_crit
+            demand_lost += diff_to_cap * np.sum(fuel_regs_enduse[region])
+
+            reg_enduse_tech_p_ey_capped[region] = cap_max_crit
+        else:
+            reg_enduse_tech_p_ey_capped[region] = region_factor
+
+    # Replace
+    reg_enduse_tech_p_ey = reg_enduse_tech_p_ey_capped
+
     # NORMALISE AS NOT LARGER THAN 0
     """normed_val = {}
     norm_sum = sum(reg_enduse_tech_p_ey.values())
@@ -560,9 +580,11 @@ def factor_improvements_single(
     ("TESTDUM c " + str(test3))
     """
     #Soul be the same
+    logging.info("FAKTOR UK :" + str(factor_uk))
+    logging.info("Lost demand: " + str(demand_lost))
     logging.info("TESTDUM a " + str(test))
     logging.info("TESTDUM b " + str(uk_enduse_fuel * factor_uk))
-    
+
     return reg_enduse_tech_p_ey
 
 def get_enduse_specific_fuel_all_regs(

@@ -243,7 +243,8 @@ class EDWrapper(SectorModel):
         # SHIFT TO INITIALISATION SCRIPTS
         # -----------------------------
         # From UK factors to regional specific factors (TODO TODO)
-        # -----------------------------¨
+        # -----------------------------
+
         if data['criterias']['spatial_exliclit_diffusion']:
             # For every parameter which is defined regionally specific, spatial sig parameters need to be calulated
             air_leakage__rs_space_heating = data['assumptions']['strategy_variables']['air_leakage__rs_space_heating'] #0.8 #TODO TEST
@@ -251,6 +252,7 @@ class EDWrapper(SectorModel):
             logging.info("   ")
             logging.info("======Variable to distribute" + str(air_leakage__rs_space_heating))
             logging.info("   ")
+
             affected_enduse = 'rs_space_heating'
 
             # Get enduse specific fuel for each region
@@ -269,6 +271,8 @@ class EDWrapper(SectorModel):
                 spatial_factors=f_spatial_diffusion[affected_enduse],
                 fuel_regs_enduse=fuels_reg)
             logging.info("=================")
+            for i, j in single_variable_d[str(air_leakage__rs_space_heating)].items():
+                logging.info("new factor: {}  {}".format(i, j)) 
             prnt("fffffffff:")
         else:
             logging.info("Not spatially explicit diffusion modelling")
