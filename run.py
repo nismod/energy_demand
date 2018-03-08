@@ -219,9 +219,7 @@ class EDWrapper(SectorModel):
         # ------------------------
         # Load all SMIF parameters and replace data dict
         # ------------------------
-        data['assumptions'] = self.load_smif_parameters(
-            data_handle,
-            data['assumptions'])
+        data['assumptions'] = self.load_smif_parameters(data['assumptions'])
 
         # Update technologies after strategy definition
         data['assumptions']['technologies'] = non_param_assumptions.update_assumptions(
@@ -600,7 +598,7 @@ class EDWrapper(SectorModel):
 
         return dict(dict_to_copy_into)
 
-    def load_smif_parameters(self, data_handle, assumptions):
+    def load_smif_parameters(self, assumptions):
         """Get all model parameters from smif (`data_handle`) depending
         on narrative and replace in assumption dict
 
@@ -623,7 +621,7 @@ class EDWrapper(SectorModel):
 
             # Get narrative variable from input data_handle dict
             self.logger.debug("Getting parameter: %s", name)
-            strategy_variables[name] = data_handle.get_parameter(name)
+            strategy_variables[name] = self.data_handle.get_parameter(name)
 
         # Add to assumptions
         assumptions['strategy_variables'] = strategy_variables
