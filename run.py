@@ -28,6 +28,7 @@ from energy_demand.validation import lad_validation
 from energy_demand.technologies import fuel_service_switch
 from energy_demand.profiles import hdd_cdd
 from energy_demand.basic import lookup_tables
+from energy_demand.geography import spatial_diffusion
 
 # must match smif project name for Local Authority Districts
 NR_OF_MODELLEd_REGIONS = 391 #391 # uk: 391, england.: 380
@@ -60,7 +61,7 @@ class EDWrapper(SectorModel):
         # -----------
         data['criterias']['mode_constrained'] = True                    # True: Technologies are defined in ED model and fuel is provided, False: Heat is delievered not per technologies
         data['criterias']['virtual_building_stock_criteria'] = True     # True: Run virtual building stock model
-        data['criterias']['spatial_exliclit_diffusion'] = False         # True: Spatial explicit calculations
+        data['criterias']['spatial_exliclit_diffusion'] = True         # True: Spatial explicit calculations
         data['criterias']['writeYAML'] = True                          # True: Write YAML parameters
 
         fast_smif_run = False
@@ -221,15 +222,57 @@ class EDWrapper(SectorModel):
         # Load all SMIF parameters and replace data dict
         # ------------------------
         parameters = data_handle.get_parameters()
-        data['assumptions'] = self.load_smif_parameters(
+        data['assumptions']['strategy_variables'] = self.load_smif_parameters(
             parameters,
             data['assumptions'])
-
+        
         # Update technologies after strategy definition
         data['assumptions']['technologies'] = non_param_assumptions.update_assumptions(
             data['assumptions']['technologies'],
             data['assumptions']['strategy_variables']['eff_achiev_f'],
             data['assumptions']['strategy_variables']['split_hp_gshp_to_ashp_ey'])
+
+        # --------------------
+        # Initialise scenario
+        # --------------------
+        logging.info("... Initialise function execution")
+        self.user_data['init_cont'], self.user_data['fuel_disagg'], f_spatial_diffusion = scenario_initalisation(
+            self.user_data['data_path'], data)
+
+        # ===================================================================
+        # SHIFT TO INITIALISATION SCRIPTS
+        # -----------------------------
+        # From UK factors to regional specific factors (TODO TODO)
+        # -----------------------------¨
+        if data['criterias']['spatial_exliclit_diffusion']:
+            # For every parameter which is defined regionally specific, spatial sig parameters need to be calulated
+            air_leakage__rs_space_heating = data['assumptions']['strategy_variables']['air_leakage__rs_space_heating'] #0.8 #TODO TEST
+
+            logging.info("   ")
+            logging.info("======Variable to distribute" + str(air_leakage__rs_space_heating))
+            logging.info("   ")
+            affected_enduse = 'rs_space_heating'
+
+            # Get enduse specific fuel for each region
+            fuels_reg = spatial_diffusion.get_enduse_specific_fuel_all_regs(
+                enduse=affected_enduse,
+                fuels_disagg=[
+                    self.user_data['fuel_disagg']['rs_fuel_disagg'],
+                    self.user_data['fuel_disagg']['ss_fuel_disagg'],
+                    self.user_data['fuel_disagg']['is_fuel_disagg']])
+
+            # end use specficic improvements 
+            single_variable_d = {}
+            single_variable_d[str(air_leakage__rs_space_heating)] = spatial_diffusion.factor_improvements_single(
+                factor_uk=air_leakage__rs_space_heating,
+                regions=data['regions'],
+                spatial_factors=f_spatial_diffusion[affected_enduse],
+                fuel_regs_enduse=fuels_reg)
+            logging.info("=================")
+            prnt("fffffffff:")
+        else:
+            logging.info("Not spatially explicit diffusion modelling")
+        # ===================================================================
 
         # ------------------------
         # Pass along to simulate()
@@ -252,14 +295,6 @@ class EDWrapper(SectorModel):
         self.user_data['data_pass_along']['reg_coord'] = data['reg_coord']
         self.user_data['data_pass_along']['regions'] = data['regions']
         self.user_data['data_pass_along']['reg_nrs'] = data['reg_nrs']
-
-        # --------------------
-        # Initialise scenario
-        # --------------------
-        logging.info("... Initialise function execution")
-        self.user_data['init_cont'], self.user_data['fuel_disagg'], f_spatial_diffusion = scenario_initalisation(
-            self.user_data['data_path'], data)
-
         self.user_data['data_pass_along']['f_spatial_diffusion'] = f_spatial_diffusion
 
     def initialise(self, initial_conditions):
@@ -333,12 +368,6 @@ class EDWrapper(SectorModel):
             data, self.user_data['fuel_disagg'])
         data['assumptions'] = self.pass_to_simulate(
             data['assumptions'], self.user_data['init_cont'])
-
-        # --
-        # spatial explicit diffusion factors
-        # --
-        #print(data['f_spatial_diffusion'])
-        #prnt(".")
 
         # Update: Necessary updates after external data definition
         data['assumptions']['technologies'] = non_param_assumptions.update_assumptions(
@@ -623,8 +652,8 @@ class EDWrapper(SectorModel):
 
         Returns
         -------
-        assumptions : dict
-            Assumptions with added strategy variables
+        strategy_variables : dict
+            Updated strategy variables
         """
         strategy_variables = {}
 
@@ -637,10 +666,7 @@ class EDWrapper(SectorModel):
             # Get narrative variable from input data_handle dict
             strategy_variables[var_name] = data_handle[var_name]
 
-        # Add to assumptions
-        assumptions['strategy_variables'] = strategy_variables
-
-        return assumptions
+        return strategy_variables
 
     def get_long_lat_decimal_degrees(self, reg_centroids):
         """Project coordinates from shapefile to get
@@ -871,3 +897,17 @@ def model_tech_simplification(tech):
         tech_newly_assigned = tech
 
     return tech_newly_assigned
+
+def spatial_sigmoid_calculations_NEW(f_spatial_diffusion):
+    test_factor_overall_enduse_heating_improvement = 0.2
+    affected_enduse = 'rs_space_heating'
+
+    # end use specficic improvements 
+    single_variable_d = factor_improvements_single(
+        factor_uk=test_factor_overall_enduse_heating_improvement,
+        factor_uk_name='test_factor_overall_enduse_heating_improvement',
+        enduse=affected_enduse,
+        regions=regions,
+        spatial_factors=f_spatial_diffusion,
+        fuel_disaggregated=fuel_disagg['rs_fuel_disagg'])
+

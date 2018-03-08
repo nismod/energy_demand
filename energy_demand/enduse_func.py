@@ -10,7 +10,6 @@ import sys
 import logging
 import math
 import numpy as np
-from energy_demand.initalisations import helpers
 from energy_demand.profiles import load_profile as lp
 from energy_demand.profiles import load_factors as lf
 from energy_demand.technologies import diffusion_technologies
@@ -1316,7 +1315,7 @@ def apply_heat_recovery(
             # Apply to array
             service_reduced = service * (1.0 - heat_recovered_p_cy)
 
-            return service_reduced
+            return service_reduced, service_reduced_techs
     except KeyError:
         # no recycling defined
         return service, service_techs

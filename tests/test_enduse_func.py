@@ -401,7 +401,6 @@ def test_fuel_to_service():
     tot_s_y, service_tech = enduse_func.fuel_to_service(
         enduse=enduse,
         fuel_new_y=fuel_new_y,
-        enduse_techs=enduse_techs,
         fuel_fueltype_tech_p_by=fuel_fueltype_tech_p_by,
         tech_stock=tech_stock,
         fueltypes=fueltypes,
@@ -433,7 +432,6 @@ def test_fuel_to_service():
     tot_s_y, service_tech = enduse_func.fuel_to_service(
         enduse=enduse,
         fuel_new_y=fuel_new_y,
-        enduse_techs=enduse_techs,
         fuel_fueltype_tech_p_by=fuel_fueltype_tech_p_by,
         tech_stock=tech_stock,
         fueltypes=fueltypes,
@@ -442,7 +440,7 @@ def test_fuel_to_service():
     assert service_tech['techA'] == 2000
 
 def test_service_to_fuel():
-
+    """Testing"""
     technologies = {'techA': read_data.TechnologyData()}
     technologies['techA'].fueltype_str = 'gas'
     technologies['techA'].eff_achieved = 1.0
@@ -495,7 +493,7 @@ def test_service_to_fuel():
     assert fuel_new_y[1] == 100
 
 def test_apply_heat_recovery():
-
+    """Testing"""
     other_enduse_mode_info = {}
     other_enduse_mode_info['other_enduse_mode_info'] = {}
     other_enduse_mode_info['other_enduse_mode_info']['sigmoid'] = {}
@@ -513,9 +511,9 @@ def test_apply_heat_recovery():
 
     assert result == 50
     assert result_tech == {'techA': 50}
-test_apply_heat_recovery()
-def test_apply_climate_chante():
 
+def test_apply_climate_chante():
+    """Testing"""
 
     result = enduse_func.apply_climate_change(
         enduse='heating',
