@@ -87,7 +87,7 @@ class EDWrapper(SectorModel):
         # -----------------------------
         # Paths
         # -----------------------------
-        path_main = resource_filename(Requirement.parse("energy_demand"), "")
+        path_main = os.path.dirname(os.path.abspath(__file__))
 
         config = configparser.ConfigParser()
         config.read(os.path.join(path_main, 'wrapperconfig.ini'))
@@ -297,7 +297,7 @@ class EDWrapper(SectorModel):
         data = defaultdict(dict)
 
         # Paths
-        path_main = resource_filename(Requirement.parse("energy_demand"), "")
+        path_main = os.path.dirname(os.path.abspath(__file__))
 
         # Ini info
         config = configparser.ConfigParser()
