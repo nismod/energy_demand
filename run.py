@@ -311,7 +311,9 @@ class EDWrapper(SectorModel):
         path_nismod, folder = os.path.split(path)
         self.user_data['data_path'] = os.path.join(path_nismod, 'data_energy_demand')
 
-        data['paths'] = data_loader.load_paths(path_main)
+        config_data = resource_filename(Requirement.parse("energy_demand"), "")
+
+        data['paths'] = data_loader.load_paths(config_data)
         data['local_paths'] = data_loader.load_local_paths(self.user_data['data_path'])
 
         data['sim_param']['base_yr'] = self.user_data['base_yr']    # Base year definition
