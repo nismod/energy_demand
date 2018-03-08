@@ -31,7 +31,7 @@ from energy_demand.basic import lookup_tables
 
 # must match smif project name for Local Authority Districts
 NR_OF_MODELLEd_REGIONS = 391 #391 # uk: 391, england.: 380
-WRITEOUTSMIFRESULTS = False
+WRITEOUTSMIFRESULTS = True
 
 class EDWrapper(SectorModel):
     """Energy Demand Wrapper
@@ -61,7 +61,7 @@ class EDWrapper(SectorModel):
         data['criterias']['spatial_exliclit_diffusion'] = False         # True: Spatial explicit calculations
         data['criterias']['writeYAML'] = True                          # True: Write YAML parameters
 
-        fast_smif_run = False
+        fast_smif_run = True
 
         if fast_smif_run == True:
             data['criterias']['write_to_txt'] = False
@@ -101,7 +101,8 @@ class EDWrapper(SectorModel):
         # -----------------------------
         # Region related info
         # -----------------------------
-        region_set_name = self.regions.names[0]
+        region_set_name = 'lad_uk_2016'
+        print("Region set name: {}".format(region_set_name))
 
         data['regions'] = self.get_region_names(region_set_name)
 
@@ -218,9 +219,8 @@ class EDWrapper(SectorModel):
         # ------------------------
         # Load all SMIF parameters and replace data dict
         # ------------------------
-        parameters = data_handle.get_parameters()
         data['assumptions'] = self.load_smif_parameters(
-            parameters,
+            data_handle,
             data['assumptions'])
 
         # Update technologies after strategy definition
@@ -567,15 +567,15 @@ class EDWrapper(SectorModel):
                     # do not write out resutls
                     logging.warning("NO SMIF RESULT FILE ARE WRITTEN OUT")
                 else:
-                    print(
-                        "write out results set {} {}".format(
+                    if key_name in self.outputs.names:
+                        print("write out results set {} {}".format(
                             key_name,
                             result_to_txt.shape))
 
-                    data_handle.set_results(
-                        key_name,
-                        result_to_txt)
-                    print("finished writing result")
+                        data_handle.set_results(
+                            key_name,
+                            result_to_txt)
+                        print("finished writing result")
 
 
         print("... finished wrapper execution")
@@ -618,14 +618,12 @@ class EDWrapper(SectorModel):
         """
         strategy_variables = {}
 
-        # Get all parameter names
-        all_strategy_variables = self.parameters.keys()
-
         # Get variable from dict and reassign and delete from data_handle
-        for var_name in all_strategy_variables:
+        for name in self.parameters.keys():
 
             # Get narrative variable from input data_handle dict
-            strategy_variables[var_name] = data_handle[var_name]
+            self.logger.debug("Getting parameter: %s", name)
+            strategy_variables[name] = data_handle.get_parameter(name)
 
         # Add to assumptions
         assumptions['strategy_variables'] = strategy_variables
