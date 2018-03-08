@@ -35,7 +35,7 @@ class Enduse(object):
     ----------
     submodel : str
         Submodel
-    region_name : str
+    region : str
         Region name
     scenario_data : dict
         Scenario data
@@ -93,7 +93,7 @@ class Enduse(object):
     def __init__(
             self,
             submodel,
-            region_name,
+            region,
             scenario_data,
             assumptions,
             regional_lp_stock,
@@ -122,7 +122,7 @@ class Enduse(object):
         """Enduse class constructor
         """
         #logging.warning(" =====Enduse: {}  Sector:  {}".format(enduse, sector))
-        self.region_name = region_name
+        self.region = region
         self.enduse = enduse
         self.fuel_new_y = fuel
         self.flat_profile_crit = flat_profile_crit
@@ -188,7 +188,7 @@ class Enduse(object):
                 sector,
                 self.fuel_new_y,
                 dw_stock,
-                region_name,
+                region,
                 scenario_data['gva'],
                 scenario_data['population'],
                 scenario_data['industry_gva'],
@@ -281,7 +281,7 @@ class Enduse(object):
                 # ------------------------------------
                 s_tot_y_cy, s_tech_y_cy = apply_air_leakage(
                     enduse,
-                    region_name,
+                    region,
                     assumptions['strategy_variables'],
                     assumptions['enduse_overall_change'],
                     s_tot_y_cy,
@@ -609,10 +609,10 @@ def assign_lp_no_techs(enduse, sector, load_profiles, fuel_new_y):
     shape_peak_dh = lp.abs_to_rel(
         fuel_yh[:, peak_day, :])
 
-    enduse_peak_yd_factor = load_profiles.get_lp(
-        enduse, sector, 'placeholder_tech', 'enduse_peak_yd_factor')
+    f_peak_yd = load_profiles.get_lp(
+        enduse, sector, 'placeholder_tech', 'f_peak_yd')
 
-    fuel_peak_dh = fuel_new_y[:, np.newaxis] * enduse_peak_yd_factor * shape_peak_dh
+    fuel_peak_dh = fuel_new_y[:, np.newaxis] * f_peak_yd * shape_peak_dh
 
     fuel_peak_h = lp.calk_peak_h_dh(fuel_peak_dh)
 
@@ -647,7 +647,7 @@ def get_lp_stock(enduse, non_regional_lp_stock, regional_lp_stock):
     is returned. Otherwise, non-regional load profiles which can
     be applied for all regions is used (`non_regional_lp_stock`)
     """
-    if enduse in non_regional_lp_stock.enduses_in_stock:
+    if enduse in non_regional_lp_stock.stock_enduses:
         return non_regional_lp_stock
     else:
         return regional_lp_stock
@@ -892,11 +892,11 @@ def calc_peak_tech_dh(
         else:
             """Calculate fuel with peak factor
             """
-            enduse_peak_yd_factor = load_profile.get_lp(
-                enduse, sector, tech, 'enduse_peak_yd_factor')
+            f_peak_yd = load_profile.get_lp(
+                enduse, sector, tech, 'f_peak_yd')
 
             # Calculate fuel for peak day
-            fuel_tech_peak_d = enduse_fuel_tech[tech] * enduse_peak_yd_factor
+            fuel_tech_peak_d = enduse_fuel_tech[tech] * f_peak_yd
 
             # Assign Peak shape of a peak day of a technology
             tech_peak_dh = load_profile.get_shape_peak_dh(

@@ -511,7 +511,7 @@ def factor_improvements_single(
                 round(reg_enduse_tech_p_ey[reg], 3), 
                 round(spatial_diff_values[region], 3)
                 ))
-    prnt(":")
+    #prnt(":") KROKODIL
 
 
     speed_enduse_normed = True

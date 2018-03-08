@@ -40,7 +40,7 @@ class WeatherRegion(object):
 
     Note
     ----
-    - For each region_name, a technology stock is defined
+    - For each region, a technology stock is defined
     - regional specific fuel shapes are assigned to technologies
     """
     def __init__(
@@ -213,7 +213,7 @@ class WeatherRegion(object):
                 enduses=enduse, #['rs_cooling'],
                 shape_yd=rs_fuel_shape_cooling_yd,
                 shape_yh=rs_fuel_shape_cooling_yh,
-                enduse_peak_yd_factor=rs_peak_yd_cooling_factor,
+                f_peak_yd=rs_peak_yd_cooling_factor,
                 shape_peak_dh=tech_lp['rs_shapes_cooling_dh']['peakday'])
         '''
         # ------Heating boiler
@@ -225,7 +225,7 @@ class WeatherRegion(object):
             enduses=['rs_space_heating', 'rs_water_heating'],
             shape_yd=rs_fuel_shape_heating_yd,
             shape_yh=rs_profile_boilers_y_dh,
-            enduse_peak_yd_factor=rs_peak_yd_heating_factor,
+            f_peak_yd=rs_peak_yd_heating_factor,
             shape_peak_dh=tech_lp['rs_lp_heating_boilers_dh']['peakday'])
 
         # ------Heating CHP
@@ -238,7 +238,7 @@ class WeatherRegion(object):
             enduses=['rs_space_heating', 'rs_water_heating'],
             shape_yd=rs_fuel_shape_heating_yd,
             shape_yh=rs_profile_chp_y_dh,
-            enduse_peak_yd_factor=rs_peak_yd_heating_factor,
+            f_peak_yd=rs_peak_yd_heating_factor,
             shape_peak_dh=tech_lp['rs_lp_heating_CHP_dh']['peakday'])
 
         # ------Electric heating, storage heating (primary)
@@ -250,7 +250,7 @@ class WeatherRegion(object):
             enduses=['rs_space_heating', 'rs_water_heating'],
             shape_yd=rs_fuel_shape_heating_yd,
             shape_yh=rs_profile_storage_heater_y_dh,
-            enduse_peak_yd_factor=rs_peak_yd_heating_factor,
+            f_peak_yd=rs_peak_yd_heating_factor,
             shape_peak_dh=tech_lp['rs_lp_storage_heating_dh']['peakday'])
 
         # ------Electric heating secondary (direct elec heating)
@@ -262,7 +262,7 @@ class WeatherRegion(object):
             enduses=['rs_space_heating', 'rs_water_heating'],
             shape_yd=rs_fuel_shape_heating_yd,
             shape_yh=rs_profile_elec_heater_y_dh,
-            enduse_peak_yd_factor=rs_peak_yd_heating_factor,
+            f_peak_yd=rs_peak_yd_heating_factor,
             shape_peak_dh=tech_lp['rs_lp_second_heating_dh']['peakday'])
 
         # ------Heat pump heating
@@ -278,7 +278,7 @@ class WeatherRegion(object):
             enduses=['rs_space_heating', 'rs_water_heating'],
             shape_yd=rs_fuel_shape_heating_yd,
             shape_yh=rs_fuel_shape_hp_yh,
-            enduse_peak_yd_factor=rs_peak_yd_heating_factor,
+            f_peak_yd=rs_peak_yd_heating_factor,
             shape_peak_dh=tech_lp['rs_lp_heating_CHP_dh']['peakday'])
 
         # ------District_heating_electricity --> Assumption made that same curve as CHP
@@ -291,7 +291,7 @@ class WeatherRegion(object):
             enduses=['rs_space_heating', 'rs_water_heating'],
             shape_yd=rs_fuel_shape_heating_yd,
             shape_yh=rs_profile_chp_y_dh,
-            enduse_peak_yd_factor=rs_peak_yd_heating_factor,
+            f_peak_yd=rs_peak_yd_heating_factor,
             shape_peak_dh=tech_lp['rs_lp_heating_boilers_dh']['peakday'])
 
         # -------------------
@@ -361,7 +361,7 @@ class WeatherRegion(object):
             sectors=sectors['ss_sectors'],
             shape_yd=ss_fuel_shape_heating_yd_weighted,
             shape_yh=ss_fuel_shape_any_tech,
-            enduse_peak_yd_factor=ss_peak_yd_heating_factor,
+            f_peak_yd=ss_peak_yd_heating_factor,
             shape_peak_dh=ss_space_heating_shape_peak_dh)
 
         #------
@@ -388,7 +388,7 @@ class WeatherRegion(object):
                     sectors=[sector],
                     shape_yd=ss_fuel_shape_coolin_yd,
                     shape_yh=ss_shape_yh,
-                    enduse_peak_yd_factor=ss_peak_yd_cooling_factor,
+                    f_peak_yd=ss_peak_yd_cooling_factor,
                     shape_peak_dh=tech_lp['ss_shapes_cooling_dh']['peakday'])
 
         # --------------------------------
@@ -452,7 +452,7 @@ class WeatherRegion(object):
             sectors=sectors['is_sectors'],
             shape_yd=is_fuel_shape_heating_yd,
             shape_yh=is_fuel_shape_any_tech, #flat_is_fuel_shape_any_tech,
-            enduse_peak_yd_factor=is_peak_yd_heating_factor)
+            f_peak_yd=is_peak_yd_heating_factor)
 
 def get_shape_peak_yd_factor(demand_yd):
     """From yd shape calculate maximum relative yearly service demand

@@ -119,7 +119,7 @@ class Dwelling(object):
         ):
         """Constructor of Dwelling Class
         """
-        self.dw_region_name = region
+        #self.dw_region_name = region
         self.curr_yr = curr_yr
         self.enduses = enduses
         self.longitude = coordinates['longitude']
@@ -196,7 +196,7 @@ class DwellingStock(object):
         enduses : list
             Enduses
         """
-        self.region_name = region
+        #self.region = region
         self.dwellings = dwellings
 
         # Calculate pop of dwelling stock
@@ -205,8 +205,7 @@ class DwellingStock(object):
         # Calculate enduse specific scenario driver
         for enduse in enduses:
 
-            enduse_scenario_driver = get_scenario_driver_enduse(
-                dwellings,
+            enduse_scenario_driver = self.get_scenario_driver(
                 enduse)
 
             DwellingStock.__setattr__(
@@ -214,19 +213,19 @@ class DwellingStock(object):
                 enduse,
                 enduse_scenario_driver)
 
-def get_scenario_driver_enduse(dwellings, enduse):
-    """Sum all scenario driver for space heating
+    def get_scenario_driver(self, enduse):
+        """Sum all scenario driver for an enduse
 
-    Arguments
-    ----------
-    enduse: string
-        Enduse
-    """
-    sum_driver = 0
-    for dwelling in dwellings:
-        sum_driver += getattr(dwelling, enduse)
+        Arguments
+        ----------
+        enduse: string
+            Enduse to calculate scenario drivers
+        """
+        sum_driver = 0
+        for dwelling in self.dwellings:
+            sum_driver += getattr(dwelling, enduse)
 
-    return sum_driver
+        return sum_driver
 
 def get_tot_pop(dwellings):
     """Get total population of all dwellings

@@ -25,7 +25,7 @@ def test_assign_lp_no_techs():
         shape_yd=np.full((365,24), 1 / 365),
         shape_yh=shape_yh,
         sectors=['test_sector'],
-        enduse_peak_yd_factor=1.0/365,
+        f_peak_yd=1.0/365,
         shape_peak_dh=np.full((24), 1.0/24))
 
     fuel_new_y = np.zeros((3, ))
@@ -623,7 +623,7 @@ def test_calc_fuel_tech_yh():
         shape_yd=np.full((365,24), 1 / 365),
         shape_yh=shape_yh,
         sectors=['sectorA'],
-        enduse_peak_yd_factor=1.0/365,
+        f_peak_yd=1.0/365,
         shape_peak_dh=np.full((24), 1.0/24))
 
     fuel = 200

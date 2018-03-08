@@ -16,9 +16,9 @@ class LoadProfileStock(object):
     """
     def __init__(self, name):
         self.name = name
-        self.load_profile_dict = {}
+        self.load_profiles = {}
         self.dict_tuple_keys = {}
-        self.enduses_in_stock = set([])
+        self.stock_enduses = set([])
 
     def add_lp(
             self,
@@ -28,7 +28,7 @@ class LoadProfileStock(object):
             shape_yd,
             shape_yh,
             sectors=False,
-            enduse_peak_yd_factor=1.0/365,
+            f_peak_yd=1.0/365,
             shape_peak_dh=np.full((24), 1.0/24)
         ):
         """Add load profile to stock
@@ -47,7 +47,7 @@ class LoadProfileStock(object):
             Shape yh (from year to hour)
         sectors : list, default=False
             Sectors for which the profile applies
-        enduse_peak_yd_factor : float
+        f_peak_yd : float
             Factor to calculate daily demand from yearly demand
             Standard value is average daily amount
         shape_peak_dh : array, default=1/24
@@ -55,7 +55,7 @@ class LoadProfileStock(object):
 
         Note
         -----
-        If no ``shape_peak_dh`` or ``enduse_peak_yd_factor`` is provided
+        If no ``shape_peak_dh`` or ``f_peak_yd`` is provided
         a flat shape is assumed.
         """
         if not sectors:
@@ -63,12 +63,12 @@ class LoadProfileStock(object):
         else:
             pass
 
-        self.load_profile_dict[unique_identifier] = LoadProfile(
+        self.load_profiles[unique_identifier] = LoadProfile(
             enduses,
             unique_identifier,
             shape_yd,
             shape_yh,
-            enduse_peak_yd_factor,
+            f_peak_yd,
             shape_peak_dh)
 
         # Generate lookup dictionary with triple key
@@ -80,7 +80,7 @@ class LoadProfileStock(object):
             technologies)
 
         # Update enduses in stock
-        self.enduses_in_stock = get_stock_enduses(self.load_profile_dict)
+        self.stock_enduses = get_stock_enduses(self.load_profiles)
 
     def get_lp(self, enduse, sector, technology, shape):
         """Get shape for a certain technology, enduse and sector
@@ -94,7 +94,7 @@ class LoadProfileStock(object):
         technology : str
             technology
         shape : str
-            Type of shape which is to be read out from 'load_profile_dict'
+            Type of shape which is to be read out from 'load_profiles'
 
         Return
         ------
@@ -104,7 +104,7 @@ class LoadProfileStock(object):
         position_in_dict = self.dict_tuple_keys[(enduse, sector, technology)]
 
         # Get correct object
-        load_profile_obj = self.load_profile_dict[position_in_dict]
+        load_profile_obj = self.load_profiles[position_in_dict]
 
         if shape == 'shape_yh':
             return load_profile_obj.shape_yh
@@ -112,8 +112,8 @@ class LoadProfileStock(object):
             return load_profile_obj.shape_yd
         elif shape == 'shape_y_dh':
             return load_profile_obj.shape_y_dh
-        elif shape == 'enduse_peak_yd_factor':
-            return load_profile_obj.enduse_peak_yd_factor
+        elif shape == 'f_peak_yd':
+            return load_profile_obj.f_peak_yd
         elif shape == 'shape_peak_dh':
             return load_profile_obj.shape_peak_dh
         else:
@@ -133,7 +133,7 @@ class LoadProfileStock(object):
             technology
         """
         position_in_dict = self.dict_tuple_keys[(enduse, sector, technology)]
-        load_profile_obj = self.load_profile_dict[position_in_dict]
+        load_profile_obj = self.load_profiles[position_in_dict]
 
         # Test if dummy sector and thus shape_peak not provided for different sectors
         if sector == False:
@@ -147,7 +147,7 @@ class LoadProfileStock(object):
             return load_profile_obj.shape_peak_dh
 
 def generate_key_lu_dict(dict_tuple_keys, unique_identifier, enduses, sectors, technologies):
-    """Generate look_up keys to position in 'load_profile_dict'
+    """Generate look_up keys to position in 'load_profiles'
 
     Arguments
     ----------
@@ -174,13 +174,13 @@ def generate_key_lu_dict(dict_tuple_keys, unique_identifier, enduses, sectors, t
 
     return dict_tuple_keys
 
-def get_stock_enduses(load_profile_dict):
+def get_stock_enduses(load_profiles):
     """Update the list of the object with all
     enduses for which load profies are provided
 
     Arguments
     ---------
-    load_profile_dict : dict
+    load_profiles : dict
         All load profiles of load profile stock
 
     Returns
@@ -189,7 +189,7 @@ def get_stock_enduses(load_profile_dict):
         All enduses in stock
     """
     all_enduses = set([])
-    for profile_obj in load_profile_dict.values():
+    for profile_obj in load_profiles.values():
         for enduse in profile_obj.enduses:
             all_enduses.add(enduse)
 
@@ -206,7 +206,7 @@ class LoadProfile(object):
         Shape yd (from year to day)
     shape_yh : array
         Shape yh (from year to hour)
-    enduse_peak_yd_factor : float
+    f_peak_yd : float
         Factor to calculate daily demand from yearly demand
         Standard value is average daily amount
     shape_peak_dh : array
@@ -218,7 +218,7 @@ class LoadProfile(object):
             unique_identifier,
             shape_yd,
             shape_yh,
-            enduse_peak_yd_factor,
+            f_peak_yd,
             shape_peak_dh
         ):
         """Constructor
@@ -227,12 +227,11 @@ class LoadProfile(object):
         self.enduses = enduses
         self.shape_yd = shape_yd
         self.shape_yh = shape_yh
-        self.enduse_peak_yd_factor = enduse_peak_yd_factor
+        self.f_peak_yd = f_peak_yd
+        self.shape_peak_dh = shape_peak_dh
 
         # Calculate percentage for every day
         self.shape_y_dh = calc_y_dh_shape_from_yh(shape_yh)
-
-        self.shape_peak_dh = shape_peak_dh
 
 def calc_y_dh_shape_from_yh(shape_yh):
     """Calculate shape for every day
@@ -372,7 +371,7 @@ def create_load_profile_stock(
         enduses=['rs_lighting'],
         shape_yd=tech_lp['rs_shapes_yd']['rs_lighting']['shape_non_peak_yd'],
         shape_yh=shape_yh,
-        enduse_peak_yd_factor=tech_lp['rs_shapes_yd']['rs_lighting']['shape_peak_yd_factor'],
+        f_peak_yd=tech_lp['rs_shapes_yd']['rs_lighting']['shape_peak_yd_factor'],
         shape_peak_dh=tech_lp['rs_shapes_dh']['rs_lighting']['shape_peak_dh'])
 
     # Skip temperature dependent end uses (regional)
@@ -391,7 +390,7 @@ def create_load_profile_stock(
             enduses=['rs_cold'],
             shape_yd=tech_lp['rs_shapes_yd']['rs_cold']['shape_non_peak_yd'],
             shape_yh=shape_yh,
-            enduse_peak_yd_factor=tech_lp['rs_shapes_yd']['rs_cold']['shape_peak_yd_factor'],
+            f_peak_yd=tech_lp['rs_shapes_yd']['rs_cold']['shape_peak_yd_factor'],
             shape_peak_dh=tech_lp['rs_shapes_dh']['rs_cold']['shape_peak_dh'])
 
     # rs_cooking
@@ -405,7 +404,7 @@ def create_load_profile_stock(
         enduses=['rs_cooking'],
         shape_yd=tech_lp['rs_shapes_yd']['rs_cooking']['shape_non_peak_yd'],
         shape_yh=shape_yh,
-        enduse_peak_yd_factor=tech_lp['rs_shapes_yd']['rs_cooking']['shape_peak_yd_factor'],
+        f_peak_yd=tech_lp['rs_shapes_yd']['rs_cooking']['shape_peak_yd_factor'],
         shape_peak_dh=tech_lp['rs_shapes_dh']['rs_cooking']['shape_peak_dh'])
 
     # rs_wet
@@ -419,7 +418,7 @@ def create_load_profile_stock(
         enduses=['rs_wet'],
         shape_yd=tech_lp['rs_shapes_yd']['rs_wet']['shape_non_peak_yd'],
         shape_yh=shape_yh,
-        enduse_peak_yd_factor=tech_lp['rs_shapes_yd']['rs_wet']['shape_peak_yd_factor'],
+        f_peak_yd=tech_lp['rs_shapes_yd']['rs_wet']['shape_peak_yd_factor'],
         shape_peak_dh=tech_lp['rs_shapes_dh']['rs_wet']['shape_peak_dh'])
 
     # -- Apply enduse sepcific shapes for enduses with not technologies with own defined shapes
@@ -442,7 +441,7 @@ def create_load_profile_stock(
                 enduses=[enduse],
                 shape_yd=tech_lp['rs_shapes_yd'][enduse]['shape_non_peak_yd'],
                 shape_yh=shape_yh,
-                enduse_peak_yd_factor=tech_lp['rs_shapes_yd'][enduse]['shape_peak_yd_factor'],
+                f_peak_yd=tech_lp['rs_shapes_yd'][enduse]['shape_peak_yd_factor'],
                 shape_peak_dh=tech_lp['rs_shapes_dh'][enduse]['shape_peak_dh'])
 
     # ---------
@@ -477,7 +476,7 @@ def create_load_profile_stock(
                     shape_yd=shape_non_peak_yd_weighted, #shape_non_peak_yd, # TODO NEW SKARK
                     shape_yh=shape_yh,
                     sectors=[sector],
-                    enduse_peak_yd_factor=tech_lp['ss_shapes_yd'][enduse][sector]['shape_peak_yd_factor'],
+                    f_peak_yd=tech_lp['ss_shapes_yd'][enduse][sector]['shape_peak_yd_factor'],
                     shape_peak_dh=tech_lp['ss_shapes_dh'][enduse][sector]['shape_peak_dh'])
 
     # ---------
@@ -507,7 +506,7 @@ def create_load_profile_stock(
                     shape_yd=shape_non_peak_yd_weighted,
                     shape_yh=shape_non_peak_yh,
                     sectors=[sector],
-                    enduse_peak_yd_factor=shape_peak_yd_factor,
+                    f_peak_yd=shape_peak_yd_factor,
                     shape_peak_dh=shape_peak_dh)
 
     return non_regional_lp_stock
