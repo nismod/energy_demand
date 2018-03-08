@@ -475,6 +475,8 @@ def residential_submodel(
             if criterias['spatial_exliclit_diffusion']:
                 service_switches = assumptions['rs_service_switch'][enduse][region.name]
                 sig_param_tech = assumptions['rs_sig_param_tech'][enduse][region.name]
+
+                #assumptions = assumptions['strategy_variables'][region.name]
             else:
                 service_switches = assumptions['rs_service_switch'][enduse]
                 sig_param_tech = assumptions['rs_sig_param_tech'][enduse]

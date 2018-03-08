@@ -160,7 +160,7 @@ def energy_demand_model(data, fuel_in=0, fuel_in_elec=0):
     print("================================================")
 
     logging.info("...finished running energy demand model simulation")
-    prnt(":")
+    #prnt(":")
     return modelrun_obj
 
 if __name__ == "__main__":

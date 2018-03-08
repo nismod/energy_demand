@@ -121,7 +121,7 @@ class Enduse(object):
         ):
         """Enduse class constructor
         """
-        #logging.debug(" =====Enduse: {}  Sector:  {}".format(enduse, sector))
+        #logging.warning(" =====Enduse: {}  Sector:  {}".format(enduse, sector))
         self.region_name = region_name
         self.enduse = enduse
         self.fuel_new_y = fuel
@@ -281,6 +281,7 @@ class Enduse(object):
                 # ------------------------------------
                 s_tot_y_cy, s_tech_y_cy = apply_air_leakage(
                     enduse,
+                    region_name,
                     assumptions['strategy_variables'],
                     assumptions['enduse_overall_change'],
                     s_tot_y_cy,
@@ -1322,6 +1323,7 @@ def apply_heat_recovery(
 
 def apply_air_leakage(
         enduse,
+        region,
         strategy_variables,
         enduse_overall_change,
         service,
@@ -1363,10 +1365,13 @@ def apply_air_leakage(
         # Fraction of heat recovered until end year
         air_leakage_improvement = strategy_variables["air_leakage__{}".format(enduse)]
 
-        '''
-        if regional_specific:
-            air_leakage_improvement = XY PERCENT REGIONAL DIFFERENT
-        '''
+        # NEW TEST TODO TODO
+        regional_specific = False
+        if regional_specific and enduse != 'ss_space_heating' and enduse != 'is_space_heating':
+            # Get regional specific strategy variable TODO MAKE REGIONAL FOR ALL
+            air_leakage_improvement = strategy_variables["air_leakage__{}".format(enduse)][region]
+        else:
+            air_leakage_improvement = strategy_variables["air_leakage__{}".format(enduse)] 
 
         if air_leakage_improvement == 0:
             return service, service_techs

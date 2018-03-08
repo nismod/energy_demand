@@ -61,7 +61,7 @@ class EDWrapper(SectorModel):
         # -----------
         data['criterias']['mode_constrained'] = True                    # True: Technologies are defined in ED model and fuel is provided, False: Heat is delievered not per technologies
         data['criterias']['virtual_building_stock_criteria'] = True     # True: Run virtual building stock model
-        data['criterias']['spatial_exliclit_diffusion'] = True         # True: Spatial explicit calculations
+        data['criterias']['spatial_exliclit_diffusion'] = False         # True: Spatial explicit calculations
         data['criterias']['writeYAML'] = True                          # True: Write YAML parameters
 
         fast_smif_run = False
@@ -264,16 +264,14 @@ class EDWrapper(SectorModel):
                     self.user_data['fuel_disagg']['is_fuel_disagg']])
 
             # end use specficic improvements 
-            single_variable_d = {}
-            single_variable_d[str(air_leakage__rs_space_heating)] = spatial_diffusion.factor_improvements_single(
+            reg_specific_variables = spatial_diffusion.factor_improvements_single(
                 factor_uk=air_leakage__rs_space_heating,
                 regions=data['regions'],
                 spatial_factors=f_spatial_diffusion[affected_enduse],
                 fuel_regs_enduse=fuels_reg)
-            logging.info("=================")
-            for i, j in single_variable_d[str(air_leakage__rs_space_heating)].items():
-                logging.info("new factor: {}  {}".format(i, j)) 
-            prnt("fffffffff:")
+            
+            data['assumptions']['strategy_variables']['air_leakage__rs_space_heating'] = reg_specific_variables
+
         else:
             logging.info("Not spatially explicit diffusion modelling")
         # ===================================================================
@@ -619,7 +617,6 @@ class EDWrapper(SectorModel):
                         key_name,
                         result_to_txt)
                     print("finished writing result")
-
 
         print("... finished wrapper execution")
         return supply_results

@@ -435,8 +435,8 @@ def load_param_assump(paths, assumptions):
 
     # Heat recycling assumptions (e.g. 0.2 = 20% improvement and thus 20% reduction)
     strategy_vars['air_leakage__rs_space_heating'] = 0.0
-    strategy_vars['air_leakage__ss_space_heating'] = 0.0
-    strategy_vars['air_leakage__is_space_heating'] = 0.0
+    strategy_vars['air_leakage__ss_space_heating'] = 0.0 #TODO: ADD
+    strategy_vars['air_leakage__is_space_heating'] = 0.0 #TODO: ADD
 
     # Year until recycling is fully realised
     strategy_vars['air_leakage_yr_until_changed'] = yr_until_changed_all_things
