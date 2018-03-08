@@ -1366,7 +1366,7 @@ def apply_air_leakage(
         air_leakage_improvement = strategy_variables["air_leakage__{}".format(enduse)]
 
         # NEW TEST TODO TODO
-        regional_specific = False
+        regional_specific = True
         if regional_specific and enduse != 'ss_space_heating' and enduse != 'is_space_heating':
             # Get regional specific strategy variable TODO MAKE REGIONAL FOR ALL
             air_leakage_improvement = strategy_variables["air_leakage__{}".format(enduse)][region]

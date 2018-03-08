@@ -61,7 +61,7 @@ class EDWrapper(SectorModel):
         # -----------
         data['criterias']['mode_constrained'] = True                    # True: Technologies are defined in ED model and fuel is provided, False: Heat is delievered not per technologies
         data['criterias']['virtual_building_stock_criteria'] = True     # True: Run virtual building stock model
-        data['criterias']['spatial_exliclit_diffusion'] = False         # True: Spatial explicit calculations
+        data['criterias']['spatial_exliclit_diffusion'] = True         # True: Spatial explicit calculations
         data['criterias']['writeYAML'] = True                          # True: Write YAML parameters
 
         fast_smif_run = False
@@ -236,44 +236,9 @@ class EDWrapper(SectorModel):
         # Initialise scenario
         # --------------------
         logging.info("... Initialise function execution")
-        self.user_data['init_cont'], self.user_data['fuel_disagg'], f_spatial_diffusion = scenario_initalisation(
+        self.user_data['init_cont'], self.user_data['fuel_disagg'] = scenario_initalisation(
             self.user_data['data_path'], data)
 
-        # ===================================================================
-        # SHIFT TO INITIALISATION SCRIPTS
-        # -----------------------------
-        # From UK factors to regional specific factors (TODO TODO)
-        # -----------------------------
-
-        if data['criterias']['spatial_exliclit_diffusion']:
-            # For every parameter which is defined regionally specific, spatial sig parameters need to be calulated
-            air_leakage__rs_space_heating = data['assumptions']['strategy_variables']['air_leakage__rs_space_heating'] #0.8 #TODO TEST
-
-            logging.info("   ")
-            logging.info("======Variable to distribute" + str(air_leakage__rs_space_heating))
-            logging.info("   ")
-
-            affected_enduse = 'rs_space_heating'
-
-            # Get enduse specific fuel for each region
-            fuels_reg = spatial_diffusion.get_enduse_specific_fuel_all_regs(
-                enduse=affected_enduse,
-                fuels_disagg=[
-                    self.user_data['fuel_disagg']['rs_fuel_disagg'],
-                    self.user_data['fuel_disagg']['ss_fuel_disagg'],
-                    self.user_data['fuel_disagg']['is_fuel_disagg']])
-
-            # end use specficic improvements 
-            reg_specific_variables = spatial_diffusion.factor_improvements_single(
-                factor_uk=air_leakage__rs_space_heating,
-                regions=data['regions'],
-                spatial_factors=f_spatial_diffusion[affected_enduse],
-                fuel_regs_enduse=fuels_reg)
-            
-            data['assumptions']['strategy_variables']['air_leakage__rs_space_heating'] = reg_specific_variables
-
-        else:
-            logging.info("Not spatially explicit diffusion modelling")
         # ===================================================================
 
         # ------------------------
@@ -297,7 +262,7 @@ class EDWrapper(SectorModel):
         self.user_data['data_pass_along']['reg_coord'] = data['reg_coord']
         self.user_data['data_pass_along']['regions'] = data['regions']
         self.user_data['data_pass_along']['reg_nrs'] = data['reg_nrs']
-        self.user_data['data_pass_along']['f_spatial_diffusion'] = f_spatial_diffusion
+        self.user_data['data_pass_along']['reg_nrs'] = data['reg_nrs']
 
     def initialise(self, initial_conditions):
         pass
@@ -608,15 +573,10 @@ class EDWrapper(SectorModel):
                     # do not write out resutls
                     logging.warning("NO SMIF RESULT FILE ARE WRITTEN OUT")
                 else:
-                    print(
-                        "write out results set {} {}".format(
-                            key_name,
-                            result_to_txt.shape))
-
                     data_handle.set_results(
                         key_name,
                         result_to_txt)
-                    print("finished writing result")
+                    logging.info("finished writing result")
 
         print("... finished wrapper execution")
         return supply_results
@@ -899,7 +859,7 @@ def model_tech_simplification(tech):
 
     return tech_newly_assigned
 
-def spatial_sigmoid_calculations_NEW(f_spatial_diffusion):
+'''def spatial_sigmoid_calculations_NEW(f_spatial_diffusion):
     test_factor_overall_enduse_heating_improvement = 0.2
     affected_enduse = 'rs_space_heating'
 
@@ -910,5 +870,6 @@ def spatial_sigmoid_calculations_NEW(f_spatial_diffusion):
         enduse=affected_enduse,
         regions=regions,
         spatial_factors=f_spatial_diffusion,
-        fuel_disaggregated=fuel_disagg['rs_fuel_disagg'])
+        spatial_diff_values)spatial_diff_values
+        fuel_disaggregated=fuel_disagg['rs_fuel_disagg'])'''
 

@@ -233,7 +233,7 @@ def scenario_initalisation(path_data_ed, data=False):
         techs_affected_spatial_f = ['heat_pumps_electricity']
         #TODO IMPLEMENT THAT NOT A TECHNOLOGY BUT AN ENDUSE
 
-        rs_reg_share_s_tech_ey_p, ss_reg_share_s_tech_ey_p, is_reg_share_s_tech_ey_p, init_cont, f_spatial_diffusion = spatial_diffusion.spatially_differentiated_modelling(
+        rs_reg_share_s_tech_ey_p, ss_reg_share_s_tech_ey_p, is_reg_share_s_tech_ey_p, init_cont, f_spatial_diffusion, spatial_diff_values = spatial_diffusion.spatially_differentiated_modelling(
             data['regions'],
             data['enduses']['all_enduses'],
             init_cont,
@@ -319,8 +319,43 @@ def scenario_initalisation(path_data_ed, data=False):
                 regions=regions,
                 regional_specific=regional_specific)
 
+    # ===================================================================
+    # SHIFT TO INITIALISATION SCRIPTS
+    # -----------------------------
+    # From UK factors to regional specific factors (TODO TODO)
+    # -----------------------------
+    init_cont['strategy_variables'] = data['assumptions']['strategy_variables']
+    if data['criterias']['spatial_exliclit_diffusion']:
+
+        # For every parameter which is defined regionally specific, spatial sig parameters need to be calulated
+        air_leakage__rs_space_heating = data['assumptions']['strategy_variables']['air_leakage__rs_space_heating']
+        affected_enduse = 'rs_space_heating'
+
+        # Get enduse specific fuel for each region
+        fuels_reg = spatial_diffusion.get_enduse_specific_fuel_all_regs(
+            enduse=affected_enduse,
+            fuels_disagg=[
+                fuel_disagg['rs_fuel_disagg'],
+                fuel_disagg['ss_fuel_disagg'],
+                fuel_disagg['is_fuel_disagg']])
+
+        factor_uk = air_leakage__rs_space_heating
+
+        # end use specficic improvements 
+        reg_specific_variables = spatial_diffusion.factor_improvements_single(
+            factor_uk=factor_uk,
+            regions=data['regions'],
+            spatial_factors=f_spatial_diffusion[affected_enduse],
+            spatial_diff_values=spatial_diff_values[affected_enduse],
+            fuel_regs_enduse=fuels_reg)
+
+        init_cont['strategy_variables']['air_leakage__rs_space_heating'] = reg_specific_variables
+
+    else:
+        logging.info("Not spatially explicit diffusion modelling")
+
     print("... finished scenario initialisation")
-    return dict(init_cont), fuel_disagg, f_spatial_diffusion
+    return dict(init_cont), fuel_disagg
 
 def sum_across_sectors_all_regs(fuel_disagg_reg):
     """Sum fuel across all sectors for every region

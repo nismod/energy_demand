@@ -6,14 +6,17 @@
     to run the energy demand model
 
 
-    SMIF info
-    ---------
-    http://smif.readthedocs.io/en/latest/getting_started.html#project-configuration
+    ---------------------
+    SMIF
+    ---------------------
+    Information about the integration framework: http://smif.readthedocs.io/
 
+    ---------------------
     Tools
-    ------
-    Profiling: https://jiffyclub.github.io/snakeviz/
+    ---------------------
+    Profiling:  https://jiffyclub.github.io/snakeviz/
 
+    ---------------------
     Development checklist
     ---------------------
     https://nismod.github.io/docs/development-checklist.html
