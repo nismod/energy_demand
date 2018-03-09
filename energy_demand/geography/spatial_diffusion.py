@@ -439,18 +439,14 @@ def factor_improvements_single(
     =========
     factor_uk : float
         Improvement of either an enduse or a variable for the whole UK
-
-
-    uk_techs_service_p : dict
-        Service shares per technology for future year
     regions : dict
         Regions
     spatial_factors : dict
-        Spatial factor per enduse and region
-    fuel_disaggregated : dict
-        Fuels per region
-    techs_affected_spatial_f : list
-        List with technologies where spatial diffusion is affected
+        Spatial factors
+    spatial_diff_values : dict
+        Spatial diffusion values
+    fuel_regs_enduse : dict
+        Fuels per region and end use
 
     Returns
     -------
@@ -473,9 +469,7 @@ def factor_improvements_single(
 
         # Set maximum diffusion values as 100% and calculate relative speed of all values
         max_value_diffusion = max(list(spatial_diff_values.values()))
-        #logging.warning("LISTE")
-        #logging.warning(list(spatial_diff_values.values()))
-        #logging.warning(max_value_diffusion)
+
         p_spatial_diff = {}
         for region in regions:
             p_spatial_diff[region] = spatial_diff_values[region] / max_value_diffusion #convert regional valus to p value
@@ -483,16 +477,7 @@ def factor_improvements_single(
 
         reg_enduse_tech_p_ey = {}
         for region in regions:
-        #logging.warning(".. {}  {} {}".format(factor_uk, p_spatial_diff[region], factor_uk * p_spatial_diff[region]))
             reg_enduse_tech_p_ey[region] = factor_uk * p_spatial_diff[region]
-
-    '''logging.info("===========")
-    for reg in reg_enduse_tech_p_ey:
-        logging.info(
-            " neu:  {} alt:  {}".format(
-                round(reg_enduse_tech_p_ey[reg], 3), 
-                round(spatial_diff_values[region], 3)
-                ))'''
 
     # Map with normalised with population (pot lager than 1) prnt(":") KROKODIL
     speed_enduse_normed = False
@@ -533,7 +518,6 @@ def factor_improvements_single(
             #tot_service_reg_enduse = f_fuel_disagg_p ##* uk_service_enduse
 
             reg_enduse_tech_p_ey[region] = reg_service_tech / f_fuel_disagg_p #tot_service_reg_enduse
-
 
 
             logging.info(
@@ -600,8 +584,6 @@ def factor_improvements_single(
             round(_a, 3)))
     ("TESTDUM c " + str(test3))
     """
-
-
     return reg_enduse_tech_p_ey
 
 def get_enduse_specific_fuel_all_regs(

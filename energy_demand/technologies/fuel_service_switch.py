@@ -228,7 +228,7 @@ def capacity_switch(
             for switch in enduse_capacity_switches:
 
                 # Test if sector specific switch
-                if switch.sector == None:
+                if switch.sector is None:
 
                     # Check depth of dict
                     depth_dict = basic_functions.dict_depth(

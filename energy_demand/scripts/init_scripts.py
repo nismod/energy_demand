@@ -20,8 +20,13 @@ from energy_demand.read_write import read_data
 def scenario_initalisation(path_data_ed, data=False):
     """Scripts which need to be run for every different scenario.
     Only needs to be executed once for each scenario (not for every
-    simulation year)
+    simulation year).
 
+    The following calculations are performed:
+
+        I.      Disaggregation of fuel for every region
+        II.     
+        III.    
     Arguments
     ----------
     path_data_ed : str
@@ -57,15 +62,16 @@ def scenario_initalisation(path_data_ed, data=False):
     basic_functions.create_folder(data['local_paths']['data_results_validation'])
     basic_functions.create_folder(data['local_paths']['data_results_model_runs'])
 
+
     # ---------------------------------------
+    # I. Disaggregation
+    # ---------------------------------------
+
     # Load local datasets for disaggregateion
-    # ---------------------------------------
     data['scenario_data']['employment_stats'] = data_loader.read_employment_stats(
         data['paths']['path_employment_statistics'])
 
-    # ---------------------------------------
     # Disaggregate fuel for all regions init_cont
-    # ---------------------------------------
     fuel_disagg['rs_fuel_disagg'], fuel_disagg['ss_fuel_disagg'], fuel_disagg['is_fuel_disagg'] = s_disaggregation.disaggregate_base_demand(
         data['regions'],
         data['sim_param']['base_yr'],
@@ -337,7 +343,12 @@ def scenario_initalisation(path_data_ed, data=False):
 
         # Iterate strategy variables and calculate regional variable
         for strategy_var_name, strategy_var_across_all_regs in data['assumptions']['strategy_variables'].items():
-
+            print(
+                "Strat var: {} {}".format(
+                    strategy_var_name,
+                    strategy_var_across_all_regs['scenario_value']))
+            if strategy_var_name == 'smart_meter_p_future':
+                print(".")
             # Get affected enduse of strategy_variable (TODO ASSIGN IN ASSUMPTIONS)
             affected_enduse = 'rs_space_heating' #TODO ONLY NEEDED IF NOT ALL SPEED
 
@@ -359,7 +370,7 @@ def scenario_initalisation(path_data_ed, data=False):
 
             for region in regions:
                 init_cont['regional_strategy_variables'][region][strategy_var_name] = {
-                    'scenario_value': reg_specific_variables[region],
+                    'scenario_value': float(reg_specific_variables[region]),
                     'affected_enduses': data['assumptions']['strategy_variables'][strategy_var_name]['affected_enduses']}
 
         init_cont['regional_strategy_variables'] = dict(init_cont['regional_strategy_variables'])

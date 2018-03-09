@@ -3,7 +3,7 @@
     Energy Demand Model
     ===================
     Contains the function `energy_demand_model` which is used
-    to run the energy demand model
+    to run the energy demand model 
 
 
     ---------------------
@@ -257,11 +257,13 @@ if __name__ == "__main__":
         data['lookups']['fueltypes_nr'])
 
     # Parameters defined within smif
-    data['assumptions']['strategy_variables'] = param_assumptions.load_param_assump(data['paths'], data['assumptions'])
-
+    data['assumptions']['strategy_variables'] = param_assumptions.load_param_assump(
+        data['paths'], data['assumptions'])
+    print(data['assumptions']['strategy_variables']['split_hp_gshp_to_ashp_ey']['scenario_value'])
     data['assumptions']['seasons'] = date_prop.read_season(year_to_model=2015)
     data['assumptions']['model_yeardays_daytype'], data['assumptions']['yeardays_month'], data['assumptions']['yeardays_month_days'] = date_prop.get_model_yeardays_daytype(year_to_model=2015)
-
+    print("A ")
+    print(data['assumptions']['strategy_variables']['split_hp_gshp_to_ashp_ey']['scenario_value'])
     data['tech_lp'] = data_loader.load_data_profiles(
         data['paths'], data['local_paths'],
         data['assumptions']['model_yeardays'],

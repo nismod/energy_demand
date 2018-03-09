@@ -599,7 +599,7 @@ class EDWrapper(SectorModel):
 
     def load_smif_parameters(self, data_handle, assumptions):
         """Get all model parameters from smif (`data_handle`) depending
-        on narrative. Create the dict `strategy_variables` and 
+        on narrative. Create the dict `strategy_variables` and
         add scenario value as well as affected enduses of
         each variable.
 
@@ -626,11 +626,18 @@ class EDWrapper(SectorModel):
         # Get variable from dict and reassign and delete from data_handle
         for var_name in all_strategy_variables:
 
+            # Get
+            if data_handle[var_name] == 'True':
+                scenario_value = True
+            elif data_handle[var_name] == 'False':
+                scenario_value = False
+            else:
+                scenario_value = float(data_handle[var_name])
+
             # Get narrative variable from input data_handle dict
             strategy_variables[var_name] = {
 
-                # Set value
-                'scenario_value': data_handle[var_name],
+                'scenario_value': scenario_value,
 
                 # Get affected enduses of this variable defined in `load_param_assump`
                 'affected_enduses': all_info_scenario_param[var_name]['affected_enduses']}

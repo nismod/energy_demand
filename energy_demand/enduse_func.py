@@ -1691,7 +1691,7 @@ def apply_smart_metering(
         sigm_factor = diffusion_technologies.sigmoid_diffusion(
             base_yr,
             curr_yr,
-            strategy_variables['smart_meter_yr_until_changed'],
+            strategy_variables['smart_meter_yr_until_changed']['scenario_value'],
             sm_assump['smart_meter_diff_params']['sig_midpoint'],
             sm_assump['smart_meter_diff_params']['sig_steepness'])
 
