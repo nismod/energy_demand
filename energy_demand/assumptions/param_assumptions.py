@@ -260,7 +260,7 @@ def load_param_assump(paths=None, assumptions=None):
         "units": 'year'})
 
     # Fraction of population for future year
-    strategy_vars['smart_meter_p_future'] = 0.1
+    strategy_vars['smart_meter_p_future'] = 0.1 #TODO MAKE THAT DIFFERENCE IS USED AND NOT ABS
 
     # Year until change is implemented
     strategy_vars['smart_meter_yr_until_changed'] = yr_until_changed_all_things
@@ -271,11 +271,11 @@ def load_param_assump(paths=None, assumptions=None):
 
         # Residential
         'smart_meter_improvement_rs_cold': 0.03,
-        'smart_meter_improvement_rs_cooking': 0.03,
+        #'smart_meter_improvement_rs_cooking': 0.03,
         'smart_meter_improvement_rs_lighting': 0.03,
         'smart_meter_improvement_rs_wet': 0.03,
         'smart_meter_improvement_rs_consumer_electronics': 0.03,
-        'smart_meter_improvement_rs_home_computing': 0.03,
+        #'smart_meter_improvement_rs_home_computing': 0.03,
         'smart_meter_improvement_rs_space_heating': 0.03,
 
         # Service
@@ -357,8 +357,8 @@ def load_param_assump(paths=None, assumptions=None):
         "description": "Year until cold rolling steel manufacturing change is fully realised",
         "suggested_range": (2015, 2100),
         "default_value": 2050,
-        "units": 'year'})#,
-        #"affected_enduses": [enduses['is_enduses']]})
+        "units": 'year',
+        "affected_enduses": ['is_high_temp_process']})
 
     strategy_variables.append({
         "name": "p_cold_rolling_steel",

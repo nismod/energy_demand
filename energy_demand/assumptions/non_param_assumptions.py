@@ -36,6 +36,14 @@ def load_non_param_assump(
     yr_until_changed_all_things = 2050 #TODO
 
     # ============================================================
+    # Spatially modelled variables
+    # ============================================================
+    # Define all variables which are affected by regional diffusion
+    assumptions['spatially_modelled_vars'] = [
+        'smart_meter_p_future'
+    ]
+
+    # ============================================================
     #   Model calibration factors
     # ============================================================
     #

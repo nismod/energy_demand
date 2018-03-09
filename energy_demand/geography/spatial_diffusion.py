@@ -11,6 +11,7 @@ TODO MORE INFO
 - Calculate spatial index
 
 """
+import sys
 import logging
 from collections import defaultdict
 import numpy as np
@@ -97,23 +98,22 @@ def load_spatial_diffusion_values(regions, enduses):
     spatial_index : dict
         Spatial index
     """
-    spatial_index = defaultdict(dict)
+    spatial_diff = defaultdict(dict)
 
-    spatial_index_cl = from_socio_economic_data_to_spatial_diffusion_values(regions)
+    spatial_diff_cl = from_socio_economic_data_to_spatial_diffusion_values(regions)
 
     # Apply the diffusion values for all enduses
-    for enduse in enduses:
-        #dummy_indeces = [1.6, 2.5.]
-        cnt = 0
-        for region in regions:
-            #dummy_index = 1
-            #dummy_index = dummy_indeces[cnt]
-            #spatial_index[enduse][region] = dummy_index
+    #dummy_indeces = [1.6, 2.5.]
+    cnt = 0
+    for region in regions:
+        #dummy_index = 1
+        #dummy_index = dummy_indeces[cnt]
+        #spatial_diff[enduse][region] = dummy_index
 
-            spatial_index[enduse][region] = spatial_index_cl[region]
-            cnt += 1
+        spatial_diff[region] = spatial_diff_cl[region]
+        cnt += 1
 
-    return dict(spatial_index)
+    return dict(spatial_diff)
 
 def calc_diff_factor(regions, spatial_diff_values, fuels):
     """From spatial diffusion values calculate diffusion
@@ -127,7 +127,7 @@ def calc_diff_factor(regions, spatial_diff_values, fuels):
     regions : dict
         Regions
     spatial_diff_values : dict
-        Spatial diffusion index values Enduse, reg
+        Spatial diffusion index values
     fuels : array
         Fuels per enduse or fuel per sector and enduse
 
@@ -200,7 +200,7 @@ def calc_diff_factor(regions, spatial_diff_values, fuels):
         for enduse, regions_fuel_p in fraction_p.items():
             reg_fraction_multiplied_index[enduse] = {}
             for reg, fuel_p in regions_fuel_p.items():
-                reg_fraction_multiplied_index[enduse][reg] = fuel_p * spatial_diff_values[enduse][reg]
+                reg_fraction_multiplied_index[enduse][reg] = fuel_p * spatial_diff_values[reg]
 
     #-----------
     # Normalize
@@ -464,7 +464,13 @@ def factor_improvements_single(
 
     C.) Convert regional service reduction to ey % in region
     """
-    only_speed_map = True
+    if fuel_regs_enduse == {}:
+        only_speed_map = True
+    else:
+        only_speed_map = False
+    
+    speed_enduse_normed = False
+    #only_speed_map = True
     if only_speed_map:
 
         # Set maximum diffusion values as 100% and calculate relative speed of all values
@@ -479,9 +485,8 @@ def factor_improvements_single(
         for region in regions:
             reg_enduse_tech_p_ey[region] = factor_uk * p_spatial_diff[region]
 
-    # Map with normalised with population (pot lager than 1) prnt(":") KROKODIL
-    speed_enduse_normed = False
     if speed_enduse_normed:
+        # Map with normalised with population (pot lager than 1)
         reg_enduse_tech_p_ey = {}
 
         # ------------------------------------
@@ -494,7 +499,6 @@ def factor_improvements_single(
         # ----
         # Service of enduse for all regions
         # ----
-        ##uk_service_enduse = 100
         test = 0
 
         for region in regions:
@@ -502,23 +506,15 @@ def factor_improvements_single(
             # Disaggregation factor (share of regional fuel compared to total fuel)
             f_fuel_disagg_p = np.sum(fuel_regs_enduse[region]) / uk_enduse_fuel
 
-            # How much service is affected in current region if would be everywhere the same
-            #uk_service_factored = factor_uk ##* uk_service_enduse
-
             # ---------------------------------------------
             # B.) Calculate regional service for technology
             # ---------------------------------------------
             reg_service_tech = factor_uk * spatial_factors[region]
 
-            #reg_enduse_tech_p_ey[region] = reg_service_tech
-
             # ---------------------------------------------
             # C.) Calculate regional fraction
             # ---------------------------------------------
-            #tot_service_reg_enduse = f_fuel_disagg_p ##* uk_service_enduse
-
-            reg_enduse_tech_p_ey[region] = reg_service_tech / f_fuel_disagg_p #tot_service_reg_enduse
-
+            reg_enduse_tech_p_ey[region] = reg_service_tech / f_fuel_disagg_p
 
             logging.info(
                 "FUEL FACTOR reg: {}  val: {}, f: {} fuel: {}  fuel: {} ".format(
@@ -538,7 +534,6 @@ def factor_improvements_single(
                     ))'''
 
             test += (reg_enduse_tech_p_ey[region] * np.sum(fuel_regs_enduse[region]))
-
 
         # ---------
         # PROBLEM THAT MORE THAN 100 percent could be reached if nt normed
@@ -563,27 +558,11 @@ def factor_improvements_single(
         reg_enduse_tech_p_ey = reg_enduse_tech_p_ey_capped
 
         #Soul be the same
-        logging.info("FAKTOR UK :" + str(factor_uk))
-        logging.info("Lost demand: " + str(demand_lost))
-        logging.info("TESTDUM a " + str(test))
-        logging.info("TESTDUM b " + str(uk_enduse_fuel * factor_uk))
+        logging.warning("FAKTOR UK :" + str(factor_uk))
+        logging.warning("Lost demand: " + str(demand_lost))
+        logging.warning("TESTDUM a " + str(test))
+        logging.warning("TESTDUM b " + str(uk_enduse_fuel * factor_uk))
 
-    # NORMALISE AS NOT LARGER THAN 0
-    """normed_val = {}
-    norm_sum = sum(reg_enduse_tech_p_ey.values())
-    for reg, val in reg_enduse_tech_p_ey.items():
-        normed_val[reg] = val / norm_sum
-
-    test3 = 0
-    for reg, val in normed_val.items():
-        _a = val * uk_enduse_fuel
-        test3 += _a
-        logging.info("NORM: {}  {}  {}".format(
-            reg,
-            round(val, 3),
-            round(_a, 3)))
-    ("TESTDUM c " + str(test3))
-    """
     return reg_enduse_tech_p_ey
 
 def get_enduse_specific_fuel_all_regs(
@@ -595,14 +574,16 @@ def get_enduse_specific_fuel_all_regs(
     """
     fuels_enduse = {}
 
-    for fuel_submodel in fuels_disagg:
-        for reg, enduse_fuels in fuel_submodel.items():
-            for enduse_to_match, fuels_regs in enduse_fuels.items():
-                if enduse == enduse_to_match:
-                    fuels_enduse[reg] = fuels_regs
-
-    if fuels_enduse == {}:
-        import sys
-        sys.exit("ERROR NOT ABLE TO FIND FUE")
-    else:
+    if enduse == []:
         return fuels_enduse
+    else:    
+        for fuel_submodel in fuels_disagg:
+            for reg, enduse_fuels in fuel_submodel.items():
+                for enduse_to_match, fuels_regs in enduse_fuels.items():
+                    if enduse == enduse_to_match:
+                        fuels_enduse[reg] = fuels_regs
+
+        if fuels_enduse == {}:
+            sys.exit("ERROR NOT ABLE TO FIND FUEL")
+        else:
+            return fuels_enduse

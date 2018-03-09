@@ -1119,6 +1119,8 @@ def service_to_fuel(
 
             fueltype_int = tech_stock.get_tech_attr(
                 enduse, tech, 'fueltype_int')
+            
+            #TODO MULTIPLE FUELTYPES OF TECH??
 
             # Convert to fuel
             fuel = service / tech_eff
@@ -1244,7 +1246,7 @@ def fuel_to_service(
                 techs_with_fuel = tech_list
 
             for tech, fuel_share in techs_with_fuel.items():
-                
+
                 # Calculate fuel share and convert fuel to service
                 fuel_tech = fuel_new_y[fueltype_int] * fuel_share
                 service_tech[tech] = fuel_tech
@@ -1685,7 +1687,7 @@ def apply_smart_metering(
     """
     try:
 
-        savings = strategy_variables['smart_meter_improvement_{}'.format(enduse)]['scenario_value']
+        enduse_savings = strategy_variables['smart_meter_improvement_{}'.format(enduse)]['scenario_value']
 
         # Sigmoid diffusion up to current year
         sigm_factor = diffusion_technologies.sigmoid_diffusion(
@@ -1703,7 +1705,7 @@ def apply_smart_metering(
         penetration_cy = sm_assump['smart_meter_p_by'] + (
             sigm_factor * (strategy_variables['smart_meter_p_future']['scenario_value'] - sm_assump['smart_meter_p_by']))
 
-        saved_fuel = fuel_y * (penetration_cy -penetration_by) * savings
+        saved_fuel = fuel_y * (penetration_cy - penetration_by) * enduse_savings
         fuel_y = fuel_y - saved_fuel
 
         return fuel_y

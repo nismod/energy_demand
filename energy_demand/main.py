@@ -60,6 +60,7 @@ TODO: FUEL; SERVICE SWITHC AS INPUT¨
 TODO: REMOVE SEPEARATE PEAK CALUCLATIONS AND SHAPES
 TODO: PEAK SHAPE vs PEAK FROM LOAD PROFILES
 TODO: IF spatial explicity, still very slow
+TODO: HYBRID TECHNOLOGIES?
 TODO: UPDate all fuel data with new ECUK DATA
 TODO: TEST IS SECTOR TECH SWITCH
 TODO: STORE RESULTS PER ANNUAL YEAR AND GENERATE FUNCTION TO COLLECT PLOTS AND CREATE GIF
@@ -71,7 +72,7 @@ TODO: EFFECTIVE TEMPERATURES WITH TWO DAYS nr_day_to_av=1 instaed of nr_day_to_a
 TODO: INTERFACE AND 
 TODO: SO FAR ALSO ALL SERVICE ENDUSES ARE MULTIPLIED
 RURAL URBAN : http://www.gov.scot/Topics/Statistics/About/Methodology/UrbanRuralClassification/Urban-Rural-Classification-2011-12/2011-2012-Urban-Rural-Lookups
-s"""
+"""
 import os
 import sys
 import logging
@@ -259,11 +260,10 @@ if __name__ == "__main__":
     # Parameters defined within smif
     data['assumptions']['strategy_variables'] = param_assumptions.load_param_assump(
         data['paths'], data['assumptions'])
-    print(data['assumptions']['strategy_variables']['split_hp_gshp_to_ashp_ey']['scenario_value'])
+
     data['assumptions']['seasons'] = date_prop.read_season(year_to_model=2015)
     data['assumptions']['model_yeardays_daytype'], data['assumptions']['yeardays_month'], data['assumptions']['yeardays_month_days'] = date_prop.get_model_yeardays_daytype(year_to_model=2015)
-    print("A ")
-    print(data['assumptions']['strategy_variables']['split_hp_gshp_to_ashp_ey']['scenario_value'])
+
     data['tech_lp'] = data_loader.load_data_profiles(
         data['paths'], data['local_paths'],
         data['assumptions']['model_yeardays'],

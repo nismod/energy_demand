@@ -61,7 +61,7 @@ class EDWrapper(SectorModel):
         # -----------
         data['criterias']['mode_constrained'] = True                    # True: Technologies are defined in ED model and fuel is provided, False: Heat is delievered not per technologies
         data['criterias']['virtual_building_stock_criteria'] = True     # True: Run virtual building stock model
-        data['criterias']['spatial_exliclit_diffusion'] = False         # True: Spatial explicit calculations
+        data['criterias']['spatial_exliclit_diffusion'] = True         # True: Spatial explicit calculations
         data['criterias']['writeYAML'] = True                          # True: Write YAML parameters
 
         fast_smif_run = False
