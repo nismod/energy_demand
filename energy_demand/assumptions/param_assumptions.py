@@ -271,11 +271,11 @@ def load_param_assump(paths=None, assumptions=None):
 
         # Residential
         'smart_meter_improvement_rs_cold': 0.03,
-        #'smart_meter_improvement_rs_cooking': 0.03,
+        'smart_meter_improvement_rs_cooking': 0.03,
         'smart_meter_improvement_rs_lighting': 0.03,
         'smart_meter_improvement_rs_wet': 0.03,
         'smart_meter_improvement_rs_consumer_electronics': 0.03,
-        #'smart_meter_improvement_rs_home_computing': 0.03,
+        'smart_meter_improvement_rs_home_computing': 0.03,
         'smart_meter_improvement_rs_space_heating': 0.03,
 
         # Service
@@ -540,14 +540,14 @@ def load_param_assump(paths=None, assumptions=None):
 
     # --Assumption how much of technological efficiency is reached
     strategy_variables.append({
-        "name": "eff_achiev_f",
+        "name": "f_eff_achieved",
         "absolute_range": (0, 1),
         "description": "Fraction achieved of efficiency improvements",
         "suggested_range": (0, 1),
         "default_value": 1.0,
         "units": '%'})
 
-    strategy_vars["eff_achiev_f"] = 1.0
+    strategy_vars["f_eff_achieved"] = 1.0
 
     # -----------------------
     # Create parameter file only with fully descried parameters

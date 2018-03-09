@@ -261,7 +261,7 @@ if __name__ == "__main__":
     data['assumptions']['strategy_variables'] = param_assumptions.load_param_assump(
         data['paths'], data['assumptions'])
 
-    data['assumptions']['seasons'] = date_prop.read_season(year_to_model=2015)
+    data['assumptions']['seasons'] = date_prop.read_season(year_to_model=data['sim_param']['base_yr'])
     data['assumptions']['model_yeardays_daytype'], data['assumptions']['yeardays_month'], data['assumptions']['yeardays_month_days'] = date_prop.get_model_yeardays_daytype(year_to_model=2015)
 
     data['tech_lp'] = data_loader.load_data_profiles(
@@ -271,7 +271,7 @@ if __name__ == "__main__":
         data['criterias']['plot_tech_lp'])
     data['assumptions']['technologies'] = non_param_assumptions.update_assumptions(
         data['assumptions']['technologies'],
-        data['assumptions']['strategy_variables']['eff_achiev_f']['scenario_value'],
+        data['assumptions']['strategy_variables']['f_eff_achieved']['scenario_value'],
         data['assumptions']['strategy_variables']['split_hp_gshp_to_ashp_ey']['scenario_value'])
 
     data['weather_stations'], data['temp_data'] = data_loader.load_temp_data(data['local_paths'])

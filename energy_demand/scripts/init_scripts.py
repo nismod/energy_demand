@@ -54,14 +54,17 @@ def scenario_initalisation(path_data_ed, data=False):
 
     basic_functions.del_previous_setup(data['local_paths']['data_results'])
 
-    basic_functions.create_folder(data['local_paths']['data_results'])
-    basic_functions.create_folder(data['local_paths']['dir_services'])
-    basic_functions.create_folder(data['local_paths']['path_sigmoid_data'])
-    basic_functions.create_folder(data['local_paths']['data_results_PDF'])
-    basic_functions.create_folder(data['local_paths']['data_results_model_run_pop'])
-    basic_functions.create_folder(data['local_paths']['data_results_validation'])
-    basic_functions.create_folder(data['local_paths']['data_results_model_runs'])
+    folders_to_create = [
+        data['local_paths']['data_results'],
+        data['local_paths']['dir_services'],
+        data['local_paths']['path_sigmoid_data'],
+        data['local_paths']['data_results_PDF'],
+        data['local_paths']['data_results_model_run_pop'],
+        data['local_paths']['data_results_validation'],
+        data['local_paths']['data_results_model_runs']]
 
+    for folder in folders_to_create:
+        basic_functions.create_folder(folder)
 
     # ---------------------------------------
     # I. Disaggregation
@@ -242,18 +245,13 @@ def scenario_initalisation(path_data_ed, data=False):
     # Spatial explicit modelling
     if data['criterias']['spatial_exliclit_diffusion']:
 
-        # Define technologies which are affected by spatial explicit diffusion
-        techs_affected_spatial_f = ['heat_pumps_electricity']
-        #TODO IMPLEMENT THAT NOT A TECHNOLOGY BUT AN ENDUSE
-
-        rs_reg_share_s_tech_ey_p, ss_reg_share_s_tech_ey_p, is_reg_share_s_tech_ey_p, f_spatial_diffusion, spatial_diff_values = spatial_diffusion.spatially_differentiated_modelling(
-            data['regions'],
-            data['enduses']['all_enduses'],
-            fuel_disagg,
-            rs_share_s_tech_ey_p,
-            ss_share_s_tech_ey_p,
-            is_share_s_tech_ey_p,
-            techs_affected_spatial_f=techs_affected_spatial_f)
+        rs_reg_share_s_tech_ey_p, ss_reg_share_s_tech_ey_p, is_reg_share_s_tech_ey_p, spatial_diff_f, spatial_diff_values = spatial_diffusion.spatially_differentiated_modelling(
+            regions=data['regions'],
+            fuel_disagg=fuel_disagg,
+            rs_share_s_tech_ey_p=rs_share_s_tech_ey_p,
+            ss_share_s_tech_ey_p=ss_share_s_tech_ey_p,
+            is_share_s_tech_ey_p=is_share_s_tech_ey_p,
+            techs_affected_spatial_f=data['assumptions']['techs_affected_spatial_f'])
 
         regions = data['regions']
         rs_share_s_tech_ey_p = rs_reg_share_s_tech_ey_p
@@ -261,7 +259,7 @@ def scenario_initalisation(path_data_ed, data=False):
         is_share_s_tech_ey_p = is_reg_share_s_tech_ey_p
     else:
         regions = False
-        f_spatial_diffusion = False
+        spatial_diff_f = False
         spatial_diff_values = False
 
     # ---------------------------------------
@@ -352,18 +350,22 @@ def scenario_initalisation(path_data_ed, data=False):
                         'scenario_value': float(strategy_var_across_all_regs['scenario_value']), # UK value
                         'affected_enduses': data['assumptions']['strategy_variables'][strategy_var_name]['affected_enduses']}
             else:
-                logging.warning("=====")
-                logging.warning(strategy_var_name)
+
                 # Get affected enduse of strategy_variable
                 affected_enduse =  strategy_var_across_all_regs['affected_enduses']
-                logging.warning(affected_enduse)
+    
                 if affected_enduse == []:
                     logging.warning(
                         "ERROR: For scenario varialbe {} no affected enduse is defined and thus only speed is used for diffusion".format(strategy_var_name))
-                    #only_speed = True
                 else:
-                    #only_speed = True
-                    pass
+
+                    logging.warning(affected_enduse)
+                    prnt(":")
+                    #only_speed = True TODO READ FROM LIST not nice - make that only one
+                    for enduse in affected_enduse:
+                        affected_enduse = enduse
+                        #spatial_diff_values_enduse = spatial_diff_values[enduse]
+                        pass
 
                 # Get enduse specific fuel for each region
                 fuels_reg = spatial_diffusion.get_enduse_specific_fuel_all_regs(
@@ -377,8 +379,8 @@ def scenario_initalisation(path_data_ed, data=False):
                 reg_specific_variables = spatial_diffusion.factor_improvements_single(
                     factor_uk=strategy_var_across_all_regs['scenario_value'],
                     regions=data['regions'],
-                    spatial_factors=f_spatial_diffusion,
-                    spatial_diff_values=spatial_diff_values[affected_enduse],
+                    spatial_factors=spatial_diff_f,
+                    spatial_diff_values=spatial_diff_values,
                     fuel_regs_enduse=fuels_reg)
 
                 for region in regions:

@@ -44,15 +44,14 @@ def get_share_s_tech_ey(service_switches, specified_tech_enduse_by):
     """
     enduse_tech_ey_p = {}
 
-    all_enduses = []
+    enduses = []
     for switch in service_switches:
-        enduse = switch.enduse
-        if enduse not in all_enduses:
-            all_enduses.append(enduse)
-            enduse_tech_ey_p[enduse] = {}
+        if switch.enduse not in enduses:
+            enduses.append(switch.enduse)
+            enduse_tech_ey_p[switch.enduse] = {}
 
     # Iterate all endusese and assign all lines
-    for enduse in all_enduses:
+    for enduse in enduses:
         for switch in service_switches:
             if switch.enduse == enduse:
                 enduse_tech_ey_p[enduse][switch.technology_install] = switch.service_share_ey

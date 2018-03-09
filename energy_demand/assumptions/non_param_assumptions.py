@@ -43,8 +43,11 @@ def load_non_param_assump(
         'smart_meter_p_future'
     ]
 
+    # Define technologies which are affected by spatial explicit diffusion
+    assumptions['techs_affected_spatial_f'] = ['heat_pumps_electricity']
+
     # ============================================================
-    #   Model calibration factors
+    # Model calibration factors
     # ============================================================
     #
     #   These calibration factors are used to match the modelled
@@ -65,7 +68,6 @@ def load_non_param_assump(
     #       is_weekend_factor : float
     #           Weekend effect for industry submodel enduses
     # ------------------------------------------------------------
-    #                                                           ORIGINAL
     assumptions['ss_t_cooling_weekend_factor'] = 0.6            # 0.5
     assumptions['ss_weekend_factor'] = 0.8                      # 0.7 
     assumptions['is_weekend_factor'] = 0.4                      # 0.4   

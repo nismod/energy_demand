@@ -33,7 +33,7 @@ def from_socio_economic_data_to_spatial_diffusion_values(regions, diffusionv_val
     spatial_diffusion_values = {}
 
     # ------------------
-    # Diffusion speed
+    # Diffusion speed assumptions
     # ------------------
     diffusions_speed_lower_concept = 1
     diffusions_speed_higher_concept = 2
@@ -76,46 +76,36 @@ def from_socio_economic_data_to_spatial_diffusion_values(regions, diffusionv_val
 
     return spatial_diffusion_values
 
-def load_spatial_diffusion_values(regions, enduses):
-    """Load or calculate spatial diffusion values
+def load_spatial_diffusion_values(regions):
+    """Load spatial diffusion values
 
     This are the values which already incorporate different
     speeds in diffusion and the congruence values
 
     e.g. based on urban/rural population
 
-    TODO: Maybe read in
-
     Arguments
     ---------
     regions : dict
         Regions
-    enduses : list
-        Enduses for which spatial explicit is calculated
 
     Returns
     -------
-    spatial_index : dict
-        Spatial index
+    spatial_diff : dict
+        Spatial diffusion values based on speed assumptions
     """
-    spatial_diff = defaultdict(dict)
+    spatial_diff = {}
 
-    spatial_diff_cl = from_socio_economic_data_to_spatial_diffusion_values(regions)
+    # Diffusion values based on urban/rural
+    spatial_diff_urban_rural = from_socio_economic_data_to_spatial_diffusion_values(regions)
 
-    # Apply the diffusion values for all enduses
-    #dummy_indeces = [1.6, 2.5.]
-    cnt = 0
     for region in regions:
         #dummy_index = 1
-        #dummy_index = dummy_indeces[cnt]
-        #spatial_diff[enduse][region] = dummy_index
+        spatial_diff[region] = spatial_diff_urban_rural[region]
 
-        spatial_diff[region] = spatial_diff_cl[region]
-        cnt += 1
+    return spatial_diff
 
-    return dict(spatial_diff)
-
-def calc_diff_factor(regions, spatial_diff_values, fuels):
+def calc_diffusion_f(regions, spatial_diff_values, fuels):
     """From spatial diffusion values calculate diffusion
     factor for every region (which needs to sum up to one
     across all regions) and end use. With help of these calculation diffusion
@@ -309,12 +299,11 @@ def calc_regional_services(
 
 def spatially_differentiated_modelling(
         regions,
-        all_enduses,
         fuel_disagg,
         rs_share_s_tech_ey_p,
         ss_share_s_tech_ey_p,
         is_share_s_tech_ey_p,
-        techs_affected_spatial_f,
+        techs_affected_spatial_f
     ):
     """
     TODO
@@ -341,9 +330,9 @@ def spatially_differentiated_modelling(
     XX_reg_share_s_tech_ey_p :
         Technology specific service shares for every region (residential)
         considering differences in diffusion speed. If the calculated
-        `f_spatial_diff_normed` values are all smaller than one,
+        `spatial_diff_f` values are all smaller than one,
         the total service share across the UK sums up to the calculated
-        shares across all regions. If `f_spatial_diff_normed` has values
+        shares across all regions. If `spatial_diff_f` has values
         larger than 1, they are capped and the total sum is not idential.
         This means that some regions reach the maximum defined value (`cap_max`)
         before other regions and stay at that level. Other regions diffuse
@@ -351,7 +340,7 @@ def spatially_differentiated_modelling(
         cannot over-compensate, the total sum is not identical).
 
     init_cont
-    f_spatial_diff_normed : dict
+    spatial_diff_f : dict
         Diffusion values with normed population. If no value
         is larger than 1, the total sum of all shares calculated
         for every region is identical to the defined scenario variable.
@@ -371,13 +360,12 @@ def spatially_differentiated_modelling(
     # I. Diffusion values
     # -----
     spatial_diff_values = load_spatial_diffusion_values(
-        regions,
-        all_enduses)
+        regions)
 
     # -----
-    # II. Calculation of sigmoid diffusion factors
+    # II. Calculation of sigmoid diffusion factors based for every enduse
     # -----
-    f_spatial_diff_normed = calc_diff_factor(
+    spatial_diff_f = calc_diffusion_f(
         regions,
         spatial_diff_values,
         [fuel_disagg['rs_fuel_disagg'], fuel_disagg['ss_fuel_disagg'], fuel_disagg['is_fuel_disagg']])
@@ -395,7 +383,7 @@ def spatially_differentiated_modelling(
             enduse,
             uk_techs_service_p,
             regions,
-            f_spatial_diff_normed,
+            spatial_diff_f,
             fuel_disagg['rs_fuel_disagg'],
             techs_affected_spatial_f)
 
@@ -407,7 +395,7 @@ def spatially_differentiated_modelling(
                 enduse,
                 uk_techs_service_p,
                 regions,
-                f_spatial_diff_normed,
+                spatial_diff_f,
                 fuel_disagg['ss_fuel_disagg_sum_all_sectors'],
                 techs_affected_spatial_f)
 
@@ -419,18 +407,18 @@ def spatially_differentiated_modelling(
                 enduse,
                 uk_techs_service_p,
                 regions,
-                f_spatial_diff_normed,
+                spatial_diff_f,
                 fuel_disagg['is_aggr_fuel_sum_all_sectors'],
                 techs_affected_spatial_f)
 
-    return rs_reg_share_s_tech_ey_p, ss_reg_share_s_tech_ey_p, is_reg_share_s_tech_ey_p, f_spatial_diff_normed, spatial_diff_values
+    return rs_reg_share_s_tech_ey_p, ss_reg_share_s_tech_ey_p, is_reg_share_s_tech_ey_p, spatial_diff_f, spatial_diff_values
 
 def factor_improvements_single(
         factor_uk,
         regions,
         spatial_factors,
         spatial_diff_values,
-        fuel_regs_enduse,
+        fuel_regs_enduse
     ):
     """Calculate regional specific end year service shares
     of technologies (rs_reg_enduse_tech_p_ey)

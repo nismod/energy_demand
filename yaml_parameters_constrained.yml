@@ -811,7 +811,7 @@
   - 1
   default_value: 1.0
   description: Fraction achieved of efficiency improvements
-  name: eff_achiev_f
+  name: f_eff_achieved
   suggested_range: !!python/tuple
   - 0
   - 1
