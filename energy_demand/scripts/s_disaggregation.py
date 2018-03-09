@@ -28,8 +28,12 @@ def disaggregate_base_demand(
 
     Arguments
     ----------
-    base_yr
-    curr_yr
+    regions : dict
+        Regions
+    base_yr : int
+        Base year
+    curr_yr : int
+        Current year
     fuels
     scenario_data
     assumptions

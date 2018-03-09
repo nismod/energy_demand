@@ -61,7 +61,7 @@ class EDWrapper(SectorModel):
         # -----------
         data['criterias']['mode_constrained'] = True                    # True: Technologies are defined in ED model and fuel is provided, False: Heat is delievered not per technologies
         data['criterias']['virtual_building_stock_criteria'] = True     # True: Run virtual building stock model
-        data['criterias']['spatial_exliclit_diffusion'] = True         # True: Spatial explicit calculations
+        data['criterias']['spatial_exliclit_diffusion'] = False         # True: Spatial explicit calculations
         data['criterias']['writeYAML'] = True                          # True: Write YAML parameters
 
         fast_smif_run = False
@@ -599,7 +599,9 @@ class EDWrapper(SectorModel):
 
     def load_smif_parameters(self, data_handle, assumptions):
         """Get all model parameters from smif (`data_handle`) depending
-        on narrative and replace in assumption dict
+        on narrative. Create the dict `strategy_variables` and 
+        add scenario value as well as affected enduses of
+        each variable.
 
         Arguments
         ---------
@@ -623,27 +625,22 @@ class EDWrapper(SectorModel):
 
         # Get variable from dict and reassign and delete from data_handle
         for var_name in all_strategy_variables:
-            logging.warning(" -- {}  {}".format(var_name, data_handle[var_name]))
+
             # Get narrative variable from input data_handle dict
             strategy_variables[var_name] = {
 
                 # Set value
                 'scenario_value': data_handle[var_name],
 
-                # Get affected enduses of this variable
-                'affected_enduses': param_assumptions.get_affected_enduse(all_info_scenario_param, var_name)
-                }
-
-            if var_name == 'demand_management_improvement__rs_space_heating':
-                logging.warning(strategy_variables[var_name])
-                #prit(":")
+                # Get affected enduses of this variable defined in `load_param_assump`
+                'affected_enduses': all_info_scenario_param[var_name]['affected_enduses']}
 
         return strategy_variables
 
     def get_long_lat_decimal_degrees(self, reg_centroids):
         """Project coordinates from shapefile to get
         decimal degrees (from OSGB_1936_British_National_Grid to
-        WGS 84 projection). Info: #http://spatialreference.org/ref/epsg/wgs-84/
+        WGS 84 projection).
 
         Arguments
         ---------
@@ -654,6 +651,10 @@ class EDWrapper(SectorModel):
         -------
         reg_coord : dict
             Contains long and latidue for every region in decimal degrees
+        
+        Info
+        ----
+        http://spatialreference.org/ref/epsg/wgs-84/
         """
         reg_coord = {}
         for centroid in reg_centroids:

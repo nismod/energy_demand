@@ -6,6 +6,7 @@ This script can be run to write out all paramters as YAML
 file. This file is not executed when running the ed model
 from within smif.
 """
+import copy
 import logging
 from energy_demand.read_write import write_data
 from energy_demand.basic import basic_functions
@@ -420,7 +421,8 @@ def load_param_assump(paths=None, assumptions=None):
         "description": "Reduction in heat because of air leakage improvement (residential sector)",
         "suggested_range": (0, 1),
         "default_value": 0,
-        "units": '%'})
+        "units": '%',
+        'affected_enduses': ['rs_space_heating']})
 
     strategy_variables.append({
         "name": "air_leakage__ss_space_heating",
@@ -428,7 +430,8 @@ def load_param_assump(paths=None, assumptions=None):
         "description": "Reduction in heat because of of air leakage improvementservice sector)",
         "suggested_range": (0, 1),
         "default_value": 0,
-        "units": '%'})
+        "units": '%',
+        'affected_enduses': ['ss_space_heating']})
 
     strategy_variables.append({
         "name": "air_leakage__is_space_heating",
@@ -448,8 +451,8 @@ def load_param_assump(paths=None, assumptions=None):
 
     # Heat recycling assumptions (e.g. 0.2 = 20% improvement and thus 20% reduction)
     strategy_vars['air_leakage__rs_space_heating'] = 0.0
-    strategy_vars['air_leakage__ss_space_heating'] = 0.0 #TODO: ADD
-    strategy_vars['air_leakage__is_space_heating'] = 0.0 #TODO: ADD
+    strategy_vars['air_leakage__ss_space_heating'] = 0.0
+    strategy_vars['air_leakage__is_space_heating'] = 0.0
 
     # Year until recycling is fully realised
     strategy_vars['air_leakage_yr_until_changed'] = yr_until_changed_all_things
@@ -547,32 +550,49 @@ def load_param_assump(paths=None, assumptions=None):
     if not paths:
         pass
     else:
+        strategy_variables_write = copy.copy(strategy_variables)
 
         # Delete affected_enduses
-        for var in strategy_variables:
-            del var['affected_enduses']
+        for var in strategy_variables_write:
+            try:
+                del var['affected_enduses']
+            except KeyError:
+                pass
 
+        # Delete existing files
         basic_functions.del_file(paths['yaml_parameters_constrained'])
+        basic_functions.del_file(paths['yaml_parameters_scenario'])
 
+        # Write new files
         write_data.write_yaml_param_complete(
             paths['yaml_parameters_constrained'],
-            strategy_variables)
-
-        basic_functions.del_file(paths['yaml_parameters_scenario'])
+            strategy_variables_write)
         write_data.write_yaml_param_scenario(
             paths['yaml_parameters_scenario'],
             strategy_vars)
 
-    return strategy_variables
+    # Convert to dict for loacl running purposes
+    strategy_vars_out = {}
+    for var in strategy_variables:
+        var_name = var['name']
+        strategy_vars_out[var_name] = var
+        strategy_vars_out[var_name]['scenario_value'] = var['default_value']
 
-def get_affected_enduse(strategy_variables, var_to_get):
+        # If no 'affected_enduses' defined, add empty list of affected enduses
+        affected_enduses = get_affected_enduse(strategy_variables, var_name)
+
+        strategy_vars_out[var['name']]['affected_enduses'] = affected_enduses
+
+    return dict(strategy_vars_out)
+
+def get_affected_enduse(strategy_variables, name):
     """Get all defined affected enduses of a scenario variable
 
     Arguments
     ---------
-    strategy_variables : list
-        List with all defined strategy variables
-    var_to_get : str
+    strategy_variables : dict
+        Dict with all defined strategy variables
+    name : str
         Name of variable to get
 
     Returns
@@ -580,12 +600,14 @@ def get_affected_enduse(strategy_variables, var_to_get):
     enduses : list
         AFfected enduses of scenario variable
     """
-    for var in strategy_variables:
-        if var['name'] == var_to_get:
-            try:
+    try:
+        for var in strategy_variables:
+            if var['name'] == name:
                 enduses = var['affected_enduses']
+
                 return enduses
-            except KeyError:
-                # Not affected enduses defined
-                enduses = []
-                return enduses
+    except KeyError:
+        # Not affected enduses defined
+        enduses = []
+
+        return enduses

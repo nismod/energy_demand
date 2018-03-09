@@ -1999,9 +1999,9 @@ def hot_cold_process(
 
     Arguments
     ----------
-    base_yr : float
+    base_yr : int
         Base year
-    curr_yr : float
+    curr_yr : int
         Current year
     strategy_variables : dict
         Strategy variables

@@ -343,7 +343,7 @@ def scenario_initalisation(path_data_ed, data=False):
 
             # Get enduse specific fuel for each region
             fuels_reg = spatial_diffusion.get_enduse_specific_fuel_all_regs(
-                enduse=affected_enduse, #Maybe multiple
+                enduse=affected_enduse,
                 fuels_disagg=[
                     fuel_disagg['rs_fuel_disagg'],
                     fuel_disagg['ss_fuel_disagg'],
@@ -700,8 +700,6 @@ def get_sector_switches(sector_to_match, service_switches):
     """Get all switches of a sector if the switches are
     defined specifically for a sector. If the switches are
     not specifically for a sector, return all switches
-
-
     """
     # Get all sectors for this enduse
     switches = set([])

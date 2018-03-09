@@ -243,6 +243,7 @@ if __name__ == "__main__":
         data['reg_coord'][reg] = {'longitude': 52.58, 'latitude': -1.091}
 
     data['regions'] = list(data['regions'].keys())
+
     # ------------------------------
     # Assumptions
     # ------------------------------
@@ -256,7 +257,7 @@ if __name__ == "__main__":
         data['lookups']['fueltypes_nr'])
 
     # Parameters defined within smif
-    param_assumptions.load_param_assump(data['paths'], data['assumptions'])
+    data['assumptions']['strategy_variables'] = param_assumptions.load_param_assump(data['paths'], data['assumptions'])
 
     data['assumptions']['seasons'] = date_prop.read_season(year_to_model=2015)
     data['assumptions']['model_yeardays_daytype'], data['assumptions']['yeardays_month'], data['assumptions']['yeardays_month_days'] = date_prop.get_model_yeardays_daytype(year_to_model=2015)
@@ -319,8 +320,8 @@ if __name__ == "__main__":
 
     # In order to load these data, the initialisation scripts need to be run
     print("... Load data from script calculations")
-    data = read_data.load_script_data(data)
-    print("AAAAAAAAAAAAAAAA")
+    data = read_data.load_script_data(data) #SCENARIO INITIALISATION
+
     #-------------------
     # Folder cleaning
     #--------------------
@@ -329,7 +330,7 @@ if __name__ == "__main__":
     basic_functions.create_folder(data['local_paths']['data_results'])
     basic_functions.create_folder(data['local_paths']['data_results_PDF'])
     basic_functions.create_folder(data['local_paths']['data_results_model_run_pop'])
-    print("BBBBBBBBBB")
+
     # Create .ini file with simulation information
     write_data.write_simulation_inifile(
         data['local_paths']['data_results'],

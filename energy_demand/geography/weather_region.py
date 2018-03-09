@@ -75,8 +75,7 @@ class WeatherRegion(object):
             yeardays_month_days,
             strategy_variables,
             base_yr,
-            curr_yr,
-            strategy_variables['climate_change_temp_diff_yr_until_changed']['scenario_value'])
+            curr_yr)
 
         # Change base temperatures depending on change in t_base
         rs_t_base_heating_cy = hdd_cdd.sigm_temp(
@@ -609,10 +608,9 @@ def ss_get_sector_enduse_shape(tech_lps, heating_lp_yd, enduse, model_yeardays_n
 def change_temp_climate(
         temp_data,
         yeardays_month_days,
-        assumptions_temp_change,
+        strategy_variables,
         base_yr,
-        curr_yr,
-        yr_until_changed
+        curr_yr
     ):
     """Change temperature data for every year depending
     on simple climate change assumptions
@@ -623,14 +621,12 @@ def change_temp_climate(
         Data
     yeardays_month_days : dict
         Month containing all yeardays
-    assumptions_temp_change : dict
+    strategy_variables : dict
         Assumption on temperature change
     base_yr : int
         Base year
     curr_yr : int
         Current year
-    yr_until_changed : int
-        Year until change is fully implemented
 
     Returns
     -------
@@ -649,8 +645,8 @@ def change_temp_climate(
             base_yr=base_yr,
             curr_yr=curr_yr,
             value_start=0,
-            value_end=assumptions_temp_change[param_name_month],
-            yr_until_changed=yr_until_changed)
+            value_end=strategy_variables[param_name_month]['scenario_value'],
+            yr_until_changed=strategy_variables['climate_change_temp_diff_yr_until_changed']['scenario_value'])
 
         temp_climate_change[month_yeardays] = temp_data[month_yeardays] + lin_diff_factor
 

@@ -465,7 +465,7 @@ def create_load_profile_stock(
                 shape_non_peak_yd_weighted = abs_to_rel(shape_non_peak_yd)
 
                 shape_yh = calc_yh(
-                    shape_non_peak_yd_weighted, #shape_non_peak_yd, #shape_non_peak_yd_weighted,
+                    shape_non_peak_yd_weighted, #shape_non_peak_yd
                     tech_lp['ss_shapes_dh'][enduse][sector]['shape_non_peak_y_dh'],
                     model_yeardays)
 
@@ -473,7 +473,7 @@ def create_load_profile_stock(
                     unique_identifier=uuid.uuid4(),
                     technologies=tech_list,
                     enduses=[enduse],
-                    shape_yd=shape_non_peak_yd_weighted, #shape_non_peak_yd, # TODO NEW SKARK
+                    shape_yd=shape_non_peak_yd_weighted,
                     shape_yh=shape_yh,
                     sectors=[sector],
                     f_peak_yd=tech_lp['ss_shapes_yd'][enduse][sector]['shape_peak_yd_factor'],

@@ -27,7 +27,7 @@ def from_socio_economic_data_to_spatial_diffusion_values(regions, diffusionv_val
 
     Info
     ------
-    *   SPEED 'diffusions_speed_lower_concept' 
+    *   SPEED 'diffusions_speed_lower_concept'
     """
     spatial_diffusion_values = {}
 
@@ -46,7 +46,7 @@ def from_socio_economic_data_to_spatial_diffusion_values(regions, diffusionv_val
         4 : {'congruence_value': 1 - 0.20, 'description': 'Urban with City and Town'},
         5 : {'congruence_value': 1 - 0.20, 'description': 'Urban with Minor Conurbation'},
         6 : {'congruence_value': 1 - 0.20, 'description': 'Urban with Major Conurbation'}}
-    
+
     # Calculate diffusion values baed on speed attributes
     diffusion_values = {}
     for concept_id, con_values in congruence_value.items():
@@ -66,7 +66,7 @@ def from_socio_economic_data_to_spatial_diffusion_values(regions, diffusionv_val
 
         # Multiply speed of diffusion of concept with concept congruence value
         try:
-            ruc11cd_value = ruc11cd_values[region] 
+            ruc11cd_value = ruc11cd_values[region]
         except KeyError:
             ruc11cd_value = 1
             ("ERROR: SET TO CONGRUEN VALUE +")
@@ -81,7 +81,6 @@ def load_spatial_diffusion_values(regions, enduses):
     This are the values which already incorporate different
     speeds in diffusion and the congruence values
 
-    
     e.g. based on urban/rural population
 
     TODO: Maybe read in
@@ -387,7 +386,7 @@ def spatially_differentiated_modelling(
     # III. Technology specific shares of service in end year are calculated
     #      TODO: MAYBE ADD CAPPING VALUE
     
-    # Generate sigmoid curves (s_generate_sigmoid) for every region
+    # Generate sigmoid curves (s_generate_sigmoid) for every regio
     # -------------
     # Residential spatial explicit modelling
     rs_reg_share_s_tech_ey_p = {}
@@ -609,8 +608,8 @@ def get_enduse_specific_fuel_all_regs(
         enduse,
         fuels_disagg):
     """Get enduse for all regions for a specific enduse
-    read from a list of 
-    TODO: IMPROVE SPEED
+    read from a list of
+    TODO: IMPROVE SPEE
     """
     fuels_enduse = {}
 
