@@ -7,6 +7,7 @@ from energy_demand.basic import testing_functions, date_prop
 from energy_demand.assumptions import assumptions_fuel_shares
 from energy_demand.initalisations import helpers
 
+#TODO MAKE THAT ALL ASSUMPTIONS ARE IMPROVEMENTS (e.g. improvement floor area cooling)
 def load_non_param_assump(
         base_yr,
         paths,
@@ -239,7 +240,7 @@ def load_non_param_assump(
     # ------------------------------------------------------------
 
     # See Abela et al. (2016)
-    assumptions['cooled_ss_floorarea_by'] = 0.35
+    assumptions['cooled_ss_floorarea_by'] = 0.35 #TODO IMPROVEMENT RELATIVE
 
     # ============================================================
     # Smart meter related base year assumptions
