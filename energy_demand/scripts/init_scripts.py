@@ -331,6 +331,8 @@ def scenario_initalisation(path_data_ed, data=False):
     # -----------------------------
     if data['criterias']['spatial_exliclit_diffusion']:
         logging.info("Spatially explicit diffusion modelling")
+
+        # Convert strategy variables to regional variables
         init_cont['regional_strategy_variables'] = defaultdict(dict)
 
         # Iterate strategy variables and calculate regional variable
@@ -349,16 +351,18 @@ def scenario_initalisation(path_data_ed, data=False):
 
             # end use specficic improvements 
             reg_specific_variables = spatial_diffusion.factor_improvements_single(
-                factor_uk=strategy_var_across_all_regs,
+                factor_uk=strategy_var_across_all_regs['scenario_value'],
                 regions=data['regions'],
                 spatial_factors=f_spatial_diffusion[affected_enduse],
                 spatial_diff_values=spatial_diff_values[affected_enduse],
                 fuel_regs_enduse=fuels_reg)
 
             for region in regions:
-                init_cont['regional_strategy_variables'][region][strategy_var_name] = reg_specific_variables[region]
+                init_cont['regional_strategy_variables'][region][strategy_var_name] = {
+                    'scenario_value': reg_specific_variables[region],
+                    'affected_enduses': data['assumptions']['strategy_variables'][strategy_var_name]['affected_enduses']}
 
-        init_cont['regional_strategy_variables'] = dict(init_cont['regional_strategy_variables']) #Convert to dict
+        init_cont['regional_strategy_variables'] = dict(init_cont['regional_strategy_variables'])
     else:
         logging.info("Not spatially explicit diffusion modelling")
 

@@ -76,41 +76,41 @@ class WeatherRegion(object):
             strategy_variables,
             base_yr,
             curr_yr,
-            strategy_variables['climate_change_temp_diff_yr_until_changed'])
+            strategy_variables['climate_change_temp_diff_yr_until_changed']['scenario_value'])
 
         # Change base temperatures depending on change in t_base
         rs_t_base_heating_cy = hdd_cdd.sigm_temp(
-            strategy_variables['rs_t_base_heating_future_yr'],
+            strategy_variables['rs_t_base_heating_future_yr']['scenario_value'],
             t_bases['rs_t_heating_by'],
             base_yr,
             curr_yr,
             t_diff_param)
         '''rs_t_base_cooling_cy = hdd_cdd.sigm_temp(
-            strategy_variables['rs_t_base_cooling_future_yr'],
+            strategy_variables['rs_t_base_cooling_future_yr']['scenario_value'],
             t_bases['rs_t_cooling_by'], base_yr, curr_yr,
             t_diff_param)'''
 
         ss_t_base_heating_cy = hdd_cdd.sigm_temp(
-            strategy_variables['ss_t_base_heating_future_yr'],
+            strategy_variables['ss_t_base_heating_future_yr']['scenario_value'],
             t_bases['ss_t_heating_by'],
             base_yr,
             curr_yr,
             t_diff_param)
         ss_t_base_cooling_cy = hdd_cdd.sigm_temp(
-            strategy_variables['ss_t_base_cooling_future_yr'],
+            strategy_variables['ss_t_base_cooling_future_yr']['scenario_value'],
             t_bases['ss_t_cooling_by'],
             base_yr,
             curr_yr,
             t_diff_param)
 
         is_t_base_heating_cy = hdd_cdd.sigm_temp(
-            strategy_variables['is_t_base_heating_future_yr'],
+            strategy_variables['is_t_base_heating_future_yr']['scenario_value'],
             t_bases['is_t_heating_by'],
             base_yr,
             curr_yr,
             t_diff_param)
         '''is_t_base_cooling_cy = hdd_cdd.sigm_temp(
-            strategy_variables['is_t_base_cooling_future_yr'],
+            strategy_variables['is_t_base_cooling_future_yr']['scenario_value'],
             t_bases['is_t_cooling_by'],
             base_yr,
             curr_yr,

@@ -10,7 +10,7 @@ import logging
 from energy_demand.read_write import write_data
 from energy_demand.basic import basic_functions
 
-def load_param_assump(paths, assumptions):
+def load_param_assump(paths=None, assumptions=None):
     """All assumptions of the energy demand model
     are loaded and added to the data dictionary
 
@@ -30,6 +30,19 @@ def load_param_assump(paths, assumptions):
 
     strategy_variables = []
     strategy_vars = {}
+
+    if not assumptions:
+        assumptions = {}
+        assumptions['split_hp_gshp_to_ashp_by'] = None
+        assumptions['smart_meter_assump'] = {}
+        assumptions['smart_meter_assump']['smart_meter_p_by'] = None
+        assumptions['cooled_ss_floorarea_by'] = None
+        assumptions['p_cold_rolling_steel_by'] = None
+        assumptions['t_bases'] = {}
+        assumptions['t_bases']['rs_t_heating_by'] = None
+        assumptions['t_bases']['ss_t_heating_by'] = None
+        assumptions['t_bases']['ss_t_cooling_by'] = None
+        assumptions['t_bases']['is_t_heating_by'] = None
 
     yr_until_changed_all_things = 2050 #TODO
 
@@ -531,18 +544,48 @@ def load_param_assump(paths, assumptions):
     # Create parameter file only with fully descried parameters
     # and write to yaml file
     # -----------------------
-    basic_functions.del_file(paths['yaml_parameters_constrained'])
+    if not paths:
+        pass
+    else:
 
-    write_data.write_yaml_param_complete(
-        paths['yaml_parameters_constrained'],
-        strategy_variables)
+        # Delete affected_enduses
+        for var in strategy_variables:
+            del var['affected_enduses']
 
-    basic_functions.del_file(paths['yaml_parameters_scenario'])
-    write_data.write_yaml_param_scenario(
-        paths['yaml_parameters_scenario'],
-        strategy_vars)
+        basic_functions.del_file(paths['yaml_parameters_constrained'])
 
-    # Replace strategy variables
-    assumptions['strategy_variables'] = strategy_vars
+        write_data.write_yaml_param_complete(
+            paths['yaml_parameters_constrained'],
+            strategy_variables)
 
-    return
+        basic_functions.del_file(paths['yaml_parameters_scenario'])
+        write_data.write_yaml_param_scenario(
+            paths['yaml_parameters_scenario'],
+            strategy_vars)
+
+    return strategy_variables
+
+def get_affected_enduse(strategy_variables, var_to_get):
+    """Get all defined affected enduses of a scenario variable
+
+    Arguments
+    ---------
+    strategy_variables : list
+        List with all defined strategy variables
+    var_to_get : str
+        Name of variable to get
+
+    Returns
+    -------
+    enduses : list
+        AFfected enduses of scenario variable
+    """
+    for var in strategy_variables:
+        if var['name'] == var_to_get:
+            try:
+                enduses = var['affected_enduses']
+                return enduses
+            except KeyError:
+                # Not affected enduses defined
+                enduses = []
+                return enduses

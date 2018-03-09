@@ -516,24 +516,24 @@ def factor_improvements_single(
         for region in regions:
 
             # Disaggregation factor (share of regional fuel compared to total fuel)
-            f_fuel_disagg = np.sum(fuel_regs_enduse[region]) / uk_enduse_fuel
+            f_fuel_disagg_p = np.sum(fuel_regs_enduse[region]) / uk_enduse_fuel
 
             # How much service is affected in current region if would be everywhere the same
-            uk_service_factored = factor_uk ##* uk_service_enduse
+            #uk_service_factored = factor_uk ##* uk_service_enduse
 
             # ---------------------------------------------
             # B.) Calculate regional service for technology
             # ---------------------------------------------
-            reg_service_tech = uk_service_factored * spatial_factors[region]
+            reg_service_tech = factor_uk * spatial_factors[region]
 
             #reg_enduse_tech_p_ey[region] = reg_service_tech
 
             # ---------------------------------------------
             # C.) Calculate regional fraction
             # ---------------------------------------------
-            tot_service_reg_enduse = f_fuel_disagg ##* uk_service_enduse
+            #tot_service_reg_enduse = f_fuel_disagg_p ##* uk_service_enduse
 
-            reg_enduse_tech_p_ey[region] = reg_service_tech / tot_service_reg_enduse
+            reg_enduse_tech_p_ey[region] = reg_service_tech / f_fuel_disagg_p #tot_service_reg_enduse
 
 
 
@@ -541,7 +541,7 @@ def factor_improvements_single(
                 "FUEL FACTOR reg: {}  val: {}, f: {} fuel: {}  fuel: {} ".format(
                     region,
                     round(reg_enduse_tech_p_ey[region], 3),
-                    round(f_fuel_disagg, 3),
+                    round(f_fuel_disagg_p, 3),
                     round(uk_enduse_fuel, 3),
                     round(np.sum(fuel_regs_enduse[region]), 3)
                     ))
@@ -549,7 +549,7 @@ def factor_improvements_single(
                 "FUEL FACTOR reg: {}  val: {}, f: {} fuel: {}  fuel: {} ".format(
                     region,
                     round(reg_enduse_tech_p_ey[region], 3),
-                    round(f_fuel_disagg, 3),
+                    round(f_fuel_disagg_p, 3),
                     round(uk_enduse_fuel, 3),
                     round(np.sum(fuel_regs_enduse[region]), 3)
                     ))'''

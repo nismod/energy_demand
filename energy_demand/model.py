@@ -561,7 +561,7 @@ def service_submodel(
                 service_switches = assumptions['ss_service_switch'][enduse][sector][region.name]
                 sig_param_tech = assumptions['ss_sig_param_tech'][enduse][sector][region.name]
 
-                strategy_variables=strategy_variables = assumptions['regional_strategy_variables'][region.name]
+                strategy_variables = assumptions['regional_strategy_variables'][region.name]
             else:
                 service_switches = assumptions['ss_service_switch'][enduse][sector]
                 sig_param_tech = assumptions['ss_sig_param_tech'][enduse][sector]
@@ -653,7 +653,7 @@ def industry_submodel(
                 service_switches = assumptions['is_service_switch'][enduse][sector][region.name]
                 sig_param_tech = assumptions['is_sig_param_tech'][enduse][sector][region.name]
 
-                strategy_variables=strategy_variables = assumptions['regional_strategy_variables'][region.name]
+                strategy_variables = assumptions['regional_strategy_variables'][region.name]
             else:
                 service_switches = assumptions['is_service_switch'][enduse][sector]
                 sig_param_tech = assumptions['is_sig_param_tech'][enduse][sector]

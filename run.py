@@ -225,12 +225,12 @@ class EDWrapper(SectorModel):
         data['assumptions']['strategy_variables'] = self.load_smif_parameters(
             parameters,
             data['assumptions'])
-        
+
         # Update technologies after strategy definition
         data['assumptions']['technologies'] = non_param_assumptions.update_assumptions(
             data['assumptions']['technologies'],
-            data['assumptions']['strategy_variables']['eff_achiev_f'],
-            data['assumptions']['strategy_variables']['split_hp_gshp_to_ashp_ey'])
+            data['assumptions']['strategy_variables']['eff_achiev_f']['scenario_value'],
+            data['assumptions']['strategy_variables']['split_hp_gshp_to_ashp_ey']['scenario_value'])
 
         # --------------------
         # Initialise scenario
@@ -336,8 +336,8 @@ class EDWrapper(SectorModel):
         # Update: Necessary updates after external data definition
         data['assumptions']['technologies'] = non_param_assumptions.update_assumptions(
             data['assumptions']['technologies'],
-            data['assumptions']['strategy_variables']['eff_achiev_f'],
-            data['assumptions']['strategy_variables']['split_hp_gshp_to_ashp_ey'])
+            data['assumptions']['strategy_variables']['eff_achiev_f']['scenario_value'],
+            data['assumptions']['strategy_variables']['split_hp_gshp_to_ashp_ey']['scenario_value'])
 
         # ---------------------------------------------
         # Scenario data
@@ -615,14 +615,28 @@ class EDWrapper(SectorModel):
         """
         strategy_variables = {}
 
+        # All information of all scenario parameters
+        all_info_scenario_param = param_assumptions.load_param_assump()
+
         # Get all parameter names
         all_strategy_variables = self.parameters.keys()
 
         # Get variable from dict and reassign and delete from data_handle
         for var_name in all_strategy_variables:
-
+            logging.warning(" -- {}  {}".format(var_name, data_handle[var_name]))
             # Get narrative variable from input data_handle dict
-            strategy_variables[var_name] = data_handle[var_name]
+            strategy_variables[var_name] = {
+
+                # Set value
+                'scenario_value': data_handle[var_name],
+
+                # Get affected enduses of this variable
+                'affected_enduses': param_assumptions.get_affected_enduse(all_info_scenario_param, var_name)
+                }
+
+            if var_name == 'demand_management_improvement__rs_space_heating':
+                logging.warning(strategy_variables[var_name])
+                #prit(":")
 
         return strategy_variables
 
@@ -869,4 +883,3 @@ def model_tech_simplification(tech):
         spatial_factors=f_spatial_diffusion,
         spatial_diff_values)spatial_diff_values
         fuel_disaggregated=fuel_disagg['rs_fuel_disagg'])'''
-

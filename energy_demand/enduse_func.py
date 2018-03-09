@@ -459,7 +459,7 @@ def demand_management(
         # Get assumed load shift
         param_name = 'demand_management_improvement__{}'.format(enduse)
 
-        if strategy_variables[param_name] == 0:
+        if strategy_variables[param_name]['scenario_value'] == 0:
 
             # no load management
             peak_shift_crit = False
@@ -488,11 +488,11 @@ def demand_management(
 
         # Calculate current year load factors
         lf_improved_cy = calc_lf_improvement(
-            strategy_variables[param_name],
+            strategy_variables[param_name]['scenario_value'],
             base_yr,
             curr_yr,
             loadfactor_yd_cy,
-            strategy_variables['demand_management_yr_until_changed'])
+            strategy_variables['demand_management_yr_until_changed']['scenario_value'])
 
         fuel_yh = lf.peak_shaving_max_min(
             lf_improved_cy, average_fuel_yd, fuel_yh, mode_constrained)
@@ -1293,7 +1293,7 @@ def apply_heat_recovery(
     """
     try:
         # Fraction of heat recovered until end year
-        heat_recovered_p = strategy_variables["heat_recoved__{}".format(enduse)]
+        heat_recovered_p = strategy_variables["heat_recoved__{}".format(enduse)]['scenario_value']
 
         if heat_recovered_p == 0:
             return service, service_techs
@@ -1302,7 +1302,7 @@ def apply_heat_recovery(
             sig_diff_factor = diffusion_technologies.sigmoid_diffusion(
                 base_yr,
                 curr_yr,
-                strategy_variables['heat_recovered_yr_until_changed'],
+                strategy_variables['heat_recovered_yr_until_changed']['scenario_value'],
                 enduse_overall_change['other_enduse_mode_info']['sigmoid']['sig_midpoint'],
                 enduse_overall_change['other_enduse_mode_info']['sigmoid']['sig_steepness'])
 
@@ -1362,7 +1362,7 @@ def apply_air_leakage(
     
     try:
         # Fraction of heat recovered until end year
-        air_leakage_improvement = strategy_variables["air_leakage__{}".format(enduse)]
+        air_leakage_improvement = strategy_variables["air_leakage__{}".format(enduse)]['scenario_value']
 
         if air_leakage_improvement == 0:
             return service, service_techs
@@ -1373,7 +1373,7 @@ def apply_air_leakage(
             sig_diff_factor = diffusion_technologies.sigmoid_diffusion(
                 base_yr,
                 curr_yr,
-                strategy_variables['air_leakage_yr_until_changed'],
+                strategy_variables['air_leakage_yr_until_changed']['scenario_value'],
                 enduse_overall_change['other_enduse_mode_info']['sigmoid']['sig_midpoint'],
                 enduse_overall_change['other_enduse_mode_info']['sigmoid']['sig_steepness'])
 
@@ -1533,7 +1533,7 @@ def apply_specific_change(
         enduse,
         fuel_y,
         enduse_overall_change,
-        enduse_overall_change_strategy,
+        strategy_variables,
         base_yr,
         curr_yr
     ):
@@ -1556,7 +1556,7 @@ def apply_specific_change(
         Yearly fuel per fueltype
     enduse_overall_change : dict
         Info about how the enduse is overall changed (e.g. diff method)
-    enduse_overall_change_strategy : dict
+    strategy_variables : dict
         Change in overall enduse for every enduse (percent ey)
     base_yr : int
         Base year
@@ -1570,7 +1570,8 @@ def apply_specific_change(
     """
     # Fuel consumption shares in base and end year
     percent_by = 1.0
-    percent_ey = enduse_overall_change_strategy['enduse_change__{}'.format(enduse)]
+
+    percent_ey = strategy_variables['enduse_change__{}'.format(enduse)]['scenario_value']
 
     # Share of fuel consumption difference
     diff_fuel_consump = percent_ey - percent_by
@@ -1585,7 +1586,7 @@ def apply_specific_change(
                 curr_yr,
                 percent_by,
                 percent_ey,
-                enduse_overall_change_strategy['enduse_specific_change_yr_until_changed'])
+                strategy_variables['enduse_specific_change_yr_until_changed']['scenario_value'])
             change_cy = lin_diff_factor
 
         # Sigmoid diffusion up to cy
@@ -1593,7 +1594,7 @@ def apply_specific_change(
             sig_diff_factor = diffusion_technologies.sigmoid_diffusion(
                 base_yr,
                 curr_yr,
-                enduse_overall_change_strategy['enduse_specific_change_yr_until_changed'],
+                strategy_variables['enduse_specific_change_yr_until_changed']['scenario_value'],
                 enduse_overall_change['other_enduse_mode_info']['sigmoid']['sig_midpoint'],
                 enduse_overall_change['other_enduse_mode_info']['sigmoid']['sig_steepness'])
             change_cy = diff_fuel_consump * sig_diff_factor
@@ -1651,7 +1652,7 @@ def apply_smart_metering(
         enduse,
         fuel_y,
         sm_assump,
-        sm_assump_strategy,
+        strategy_variables,
         base_yr,
         curr_yr
     ):
@@ -1665,7 +1666,7 @@ def apply_smart_metering(
         Yearly fuel per fueltype
     sm_assump : dict
         smart meter assumptions
-    sm_assump_strategy : dict
+    strategy_variables : dict
         Base simulation parameters
     base_yr, curr_yr : int
         years
@@ -1684,13 +1685,13 @@ def apply_smart_metering(
     """
     try:
 
-        savings = sm_assump_strategy['smart_meter_improvement_{}'.format(enduse)]
+        savings = strategy_variables['smart_meter_improvement_{}'.format(enduse)]['scenario_value']
 
         # Sigmoid diffusion up to current year
         sigm_factor = diffusion_technologies.sigmoid_diffusion(
             base_yr,
             curr_yr,
-            sm_assump_strategy['smart_meter_yr_until_changed'],
+            strategy_variables['smart_meter_yr_until_changed'],
             sm_assump['smart_meter_diff_params']['sig_midpoint'],
             sm_assump['smart_meter_diff_params']['sig_steepness'])
 
@@ -1700,7 +1701,7 @@ def apply_smart_metering(
         # Smart Meter penetration (percentage of people having smart meters)
         penetration_by = sm_assump['smart_meter_p_by']
         penetration_cy = sm_assump['smart_meter_p_by'] + (
-            sigm_factor * (sm_assump_strategy['smart_meter_p_future'] - sm_assump['smart_meter_p_by']))
+            sigm_factor * (strategy_variables['smart_meter_p_future']['scenario_value'] - sm_assump['smart_meter_p_by']))
 
         saved_fuel = fuel_y * (penetration_cy -penetration_by) * savings
         fuel_y = fuel_y - saved_fuel
@@ -1878,13 +1879,13 @@ def apply_cooling(
     """
     try:
         # Floor area share cooled in end year
-        cooled_floorearea_p_ey = strategy_variables["cooled_floorarea__{}".format(enduse)]
+        cooled_floorearea_p_ey = strategy_variables["cooled_floorarea__{}".format(enduse)]['scenario_value']
 
         # Fraction of heat recovered up to current year
         sig_diff_factor = diffusion_technologies.sigmoid_diffusion(
             base_yr,
             curr_yr,
-            strategy_variables['cooled_floorarea_yr_until_changed'],
+            strategy_variables['cooled_floorarea_yr_until_changed']['scenario_value'],
             other_enduse_mode_info['sigmoid']['sig_midpoint'],
             other_enduse_mode_info['sigmoid']['sig_steepness'])
 
@@ -2024,12 +2025,12 @@ def hot_cold_process(
     sig_diff_factor = diffusion_technologies.sigmoid_diffusion(
         base_yr,
         curr_yr,
-        strategy_variables['hot_cold_rolling_yr_until_changed'],
+        strategy_variables['hot_cold_rolling_yr_until_changed']['scenario_value'],
         other_enduse_mode_info['sigmoid']['sig_midpoint'],
         other_enduse_mode_info['sigmoid']['sig_steepness'])
 
     # Difference p cold rolling
-    diff_cold_rolling = strategy_variables['p_cold_rolling_steel'] - p_cold_rolling_by
+    diff_cold_rolling = strategy_variables['p_cold_rolling_steel']['scenario_value'] - p_cold_rolling_by
 
     # Difference until cy
     diff_cold_rolling_cy = sig_diff_factor * diff_cold_rolling
