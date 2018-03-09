@@ -112,7 +112,7 @@
   smart_meter_improvement_ss_small_power: 0
   smart_meter_improvement_ss_space_heating: 0.03
   smart_meter_improvement_ss_water_heating: 0
-  smart_meter_p_future: 0.1
+  smart_meter_improvement_p: 0.1
   smart_meter_yr_until_changed: 2050
   split_hp_gshp_to_ashp_ey: 0.5
   ss_t_base_cooling_future_yr: 5

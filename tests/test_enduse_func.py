@@ -348,7 +348,7 @@ def test_apply_smart_metering():
     sm_assump_strategy = {}
     sm_assump_strategy['smart_meter_yr_until_changed'] = 2020
     sm_assump_strategy['smart_meter_improvement_heating'] = 0.5 #50% improvement
-    sm_assump_strategy['smart_meter_p_future'] = 1.0
+    sm_assump_strategy['smart_meter_improvement_p'] = 1.0
     sm_assump = {}
     sm_assump['smart_meter_diff_params'] = {}
     sm_assump['smart_meter_diff_params']['sig_midpoint'] = 0

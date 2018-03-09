@@ -640,7 +640,7 @@ class EDWrapper(SectorModel):
                 'scenario_value': scenario_value,
 
                 # Get affected enduses of this variable defined in `load_param_assump`
-                'affected_enduses': all_info_scenario_param[var_name]['affected_enduses']}
+                'affected_enduse': all_info_scenario_param[var_name]['affected_enduse']}
 
         return strategy_variables
 

@@ -40,7 +40,7 @@ def load_non_param_assump(
     # ============================================================
     # Define all variables which are affected by regional diffusion
     assumptions['spatially_modelled_vars'] = [
-        'smart_meter_p_future'
+        'smart_meter_improvement_p'
     ]
 
     # Define technologies which are affected by spatial explicit diffusion

@@ -321,7 +321,7 @@
   - 1
   default_value: '0.1'
   description: Population diffusion of smart meters
-  name: smart_meter_p_future
+  name: smart_meter_improvement_p
   suggested_range: !!python/tuple
   - 10
   - 100

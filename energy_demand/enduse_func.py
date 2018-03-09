@@ -1700,10 +1700,12 @@ def apply_smart_metering(
         # Check if float
         assert isinstance(sigm_factor, float)
 
+        # Improvement of smart meter penetration
+        penetration_improvement = strategy_variables['smart_meter_improvement_p']['scenario_value']
+
         # Smart Meter penetration (percentage of people having smart meters)
         penetration_by = sm_assump['smart_meter_p_by']
-        penetration_cy = sm_assump['smart_meter_p_by'] + (
-            sigm_factor * (strategy_variables['smart_meter_p_future']['scenario_value'] - sm_assump['smart_meter_p_by']))
+        penetration_cy = sm_assump['smart_meter_p_by'] + sigm_factor * penetration_improvement
 
         saved_fuel = fuel_y * (penetration_cy - penetration_by) * enduse_savings
         fuel_y = fuel_y - saved_fuel

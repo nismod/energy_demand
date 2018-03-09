@@ -125,7 +125,7 @@ def load_param_assump(paths=None, assumptions=None):
             "suggested_range": (0, 1),
             "default_value": 0,
             "units": '%',
-            'affected_enduses': [demand_name.split("__")[1]]})
+            'affected_enduse': [demand_name.split("__")[1]]})
 
         strategy_vars[demand_name] = scenario_value
 
@@ -244,10 +244,10 @@ def load_param_assump(paths=None, assumptions=None):
     # Reasonable assumption is between 0.03 and 0.01 (DECC 2015)
     # ============================================================
     strategy_variables.append({
-        "name": "smart_meter_p_future",
+        "name": "smart_meter_improvement_p",
         "absolute_range": (0, 1),
-        "description": "Population diffusion of smart meters",
-        "suggested_range": (10, 100),
+        "description": "Improvement of smart meter penetration",
+        "suggested_range": (0, 0.9),
         "default_value": '{}'.format(assumptions['smart_meter_assump']['smart_meter_p_by']),
         "units": '%'})
 
@@ -259,8 +259,8 @@ def load_param_assump(paths=None, assumptions=None):
         "default_value": 2050,
         "units": 'year'})
 
-    # Fraction of population for future year
-    strategy_vars['smart_meter_p_future'] = 0.1 #TODO MAKE THAT DIFFERENCE IS USED AND NOT ABS
+    # Improvement of fraction of population for future year (base year = 0.1)
+    strategy_vars['smart_meter_improvement_p'] = 0
 
     # Year until change is implemented
     strategy_vars['smart_meter_yr_until_changed'] = yr_until_changed_all_things
@@ -311,7 +311,7 @@ def load_param_assump(paths=None, assumptions=None):
             "suggested_range": (0, 1),
             "default_value": '0',
             "units": '%',
-            "affected_enduses": [enduse_name.split("__"[1])]})
+            "affected_enduse": [enduse_name.split("__"[1])]})
 
         strategy_vars[enduse_name] = param_value
 
@@ -358,7 +358,7 @@ def load_param_assump(paths=None, assumptions=None):
         "suggested_range": (2015, 2100),
         "default_value": 2050,
         "units": 'year',
-        "affected_enduses": ['is_high_temp_process']})
+        "affected_enduse": ['is_high_temp_process']})
 
     strategy_variables.append({
         "name": "p_cold_rolling_steel",
@@ -380,7 +380,7 @@ def load_param_assump(paths=None, assumptions=None):
         "suggested_range": (0, 1),
         "default_value": 0,
         "units": '%',
-        'affected_enduses': ['rs_space_heating']})
+        'affected_enduse': ['rs_space_heating']})
 
     strategy_variables.append({
         "name": "heat_recoved__ss_space_heating",
@@ -389,7 +389,7 @@ def load_param_assump(paths=None, assumptions=None):
         "suggested_range": (0, 1),
         "default_value": 0,
         "units": '%',
-        'affected_enduses': ['ss_space_heating']})
+        'affected_enduse': ['ss_space_heating']})
 
     strategy_variables.append({
         "name": "heat_recoved__is_space_heating",
@@ -398,7 +398,7 @@ def load_param_assump(paths=None, assumptions=None):
         "suggested_range": (0, 1),
         "default_value": 0,
         "units": '%',
-        'affected_enduses': ['is_space_heating']})
+        'affected_enduse': ['is_space_heating']})
 
     strategy_variables.append({
         "name": "heat_recovered_yr_until_changed",
@@ -426,7 +426,7 @@ def load_param_assump(paths=None, assumptions=None):
         "suggested_range": (0, 1),
         "default_value": 0,
         "units": '%',
-        'affected_enduses': ['rs_space_heating']})
+        'affected_enduse': ['rs_space_heating']})
 
     strategy_variables.append({
         "name": "air_leakage__ss_space_heating",
@@ -435,7 +435,7 @@ def load_param_assump(paths=None, assumptions=None):
         "suggested_range": (0, 1),
         "default_value": 0,
         "units": '%',
-        'affected_enduses': ['ss_space_heating']})
+        'affected_enduse': ['ss_space_heating']})
 
     strategy_variables.append({
         "name": "air_leakage__is_space_heating",
@@ -444,7 +444,7 @@ def load_param_assump(paths=None, assumptions=None):
         "suggested_range": (0, 1),
         "default_value": 0,
         "units": '%',
-        "affected_enduses": ['is_space_heating']})
+        "affected_enduse": ['is_space_heating']})
 
     strategy_variables.append({
         "name": "air_leakage_yr_until_changed",
@@ -531,7 +531,7 @@ def load_param_assump(paths=None, assumptions=None):
             "suggested_range": (0, 1),
             "default_value": 1,
             "units": '%',
-            'affected_enduses': [enduse_name.split("__")[1]]})
+            'affected_enduse': [enduse_name.split("__")[1]]})
         strategy_vars[enduse_name] = param_value
 
     # ============================================================
@@ -558,10 +558,10 @@ def load_param_assump(paths=None, assumptions=None):
     else:
         strategy_variables_write = copy.copy(strategy_variables)
 
-        # Delete affected_enduses
+        # Delete affected_enduse
         for var in strategy_variables_write:
             try:
-                del var['affected_enduses']
+                del var['affected_enduse']
             except KeyError:
                 pass
 
@@ -595,9 +595,9 @@ def load_param_assump(paths=None, assumptions=None):
 
         strategy_vars_out[var_name]['scenario_value'] = scenario_value
 
-        # If no 'affected_enduses' defined, add empty list of affected enduses
-        affected_enduses = get_affected_enduse(strategy_variables, var_name)
-        strategy_vars_out[var['name']]['affected_enduses'] = affected_enduses
+        # If no 'affected_enduse' defined, add empty list of affected enduses
+        affected_enduse = get_affected_enduse(strategy_variables, var_name)
+        strategy_vars_out[var['name']]['affected_enduse'] = affected_enduse
 
     return dict(strategy_vars_out)
 
@@ -619,7 +619,7 @@ def get_affected_enduse(strategy_variables, name):
     try:
         for var in strategy_variables:
             if var['name'] == name:
-                enduses = var['affected_enduses']
+                enduses = var['affected_enduse']
 
                 return enduses
     except KeyError:

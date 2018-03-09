@@ -336,36 +336,31 @@ def scenario_initalisation(path_data_ed, data=False):
 
         # Convert strategy variables to regional variables
         init_cont['regional_strategy_variables'] = defaultdict(dict)
-        logging.warning("_--------------------")
+       
 
         # Iterate strategy variables and calculate regional variable
         for strategy_var_name, strategy_var_across_all_regs in data['assumptions']['strategy_variables'].items():
 
+            logging.warning("_-------------------- " + str(strategy_var_name))
 
-            # Check wheter scenario varaible is regionally modelled
+            # Check whether scenario varaible is regionally modelled
             if strategy_var_name not in data['assumptions']['spatially_modelled_vars']:
+
                 #Variable is not spatially modelled
                 for region in regions:
                     init_cont['regional_strategy_variables'][region][strategy_var_name] = {
                         'scenario_value': float(strategy_var_across_all_regs['scenario_value']), # UK value
-                        'affected_enduses': data['assumptions']['strategy_variables'][strategy_var_name]['affected_enduses']}
+                        'affected_enduse': data['assumptions']['strategy_variables'][strategy_var_name]['affected_enduse']}
             else:
 
                 # Get affected enduse of strategy_variable
-                affected_enduse =  strategy_var_across_all_regs['affected_enduses']
+                affected_enduse =  strategy_var_across_all_regs['affected_enduse']
     
                 if affected_enduse == []:
                     logging.warning(
                         "ERROR: For scenario varialbe {} no affected enduse is defined and thus only speed is used for diffusion".format(strategy_var_name))
                 else:
-
-                    logging.warning(affected_enduse)
-                    prnt(":")
-                    #only_speed = True TODO READ FROM LIST not nice - make that only one
-                    for enduse in affected_enduse:
-                        affected_enduse = enduse
-                        #spatial_diff_values_enduse = spatial_diff_values[enduse]
-                        pass
+                    pass
 
                 # Get enduse specific fuel for each region
                 fuels_reg = spatial_diffusion.get_enduse_specific_fuel_all_regs(
@@ -386,7 +381,7 @@ def scenario_initalisation(path_data_ed, data=False):
                 for region in regions:
                     init_cont['regional_strategy_variables'][region][strategy_var_name] = {
                         'scenario_value': float(reg_specific_variables[region]), #Regional value
-                        'affected_enduses': data['assumptions']['strategy_variables'][strategy_var_name]['affected_enduses']}
+                        'affected_enduse': data['assumptions']['strategy_variables'][strategy_var_name]['affected_enduse']}
 
         init_cont['regional_strategy_variables'] = dict(init_cont['regional_strategy_variables'])
     else:
