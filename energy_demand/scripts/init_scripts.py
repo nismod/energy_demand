@@ -80,6 +80,13 @@ def scenario_initalisation(path_data_ed, data=False):
         data['sectors']['all_sectors'],
         data['enduses'])
 
+    # Sum across all sectors for every submodel
+    fuel_disagg['ss_fuel_disagg_sum_all_sectors'] = sum_across_sectors_all_regs(
+        fuel_disagg['ss_fuel_disagg'])
+
+    fuel_disagg['is_aggr_fuel_sum_all_sectors'] = sum_across_sectors_all_regs(
+        fuel_disagg['is_fuel_disagg'])
+
     # ---------------------------------------
     # Convert base year fuel input assumptions to
     # energy service on a national scale
@@ -233,10 +240,9 @@ def scenario_initalisation(path_data_ed, data=False):
         techs_affected_spatial_f = ['heat_pumps_electricity']
         #TODO IMPLEMENT THAT NOT A TECHNOLOGY BUT AN ENDUSE
 
-        rs_reg_share_s_tech_ey_p, ss_reg_share_s_tech_ey_p, is_reg_share_s_tech_ey_p, init_cont, f_spatial_diffusion, spatial_diff_values = spatial_diffusion.spatially_differentiated_modelling(
+        rs_reg_share_s_tech_ey_p, ss_reg_share_s_tech_ey_p, is_reg_share_s_tech_ey_p, f_spatial_diffusion, spatial_diff_values = spatial_diffusion.spatially_differentiated_modelling(
             data['regions'],
             data['enduses']['all_enduses'],
-            init_cont,
             fuel_disagg,
             rs_share_s_tech_ey_p,
             ss_share_s_tech_ey_p,
@@ -244,13 +250,11 @@ def scenario_initalisation(path_data_ed, data=False):
             techs_affected_spatial_f=techs_affected_spatial_f)
 
         regions = data['regions']
-        regional_specific = True
         rs_share_s_tech_ey_p = rs_reg_share_s_tech_ey_p
         ss_share_s_tech_ey_p = ss_reg_share_s_tech_ey_p
         is_share_s_tech_ey_p = is_reg_share_s_tech_ey_p
     else:
         regions = False
-        regional_specific = False
         f_spatial_diffusion = False
         spatial_diff_values = False
 
@@ -279,7 +283,7 @@ def scenario_initalisation(path_data_ed, data=False):
             share_s_tech_ey_p=rs_share_s_tech_ey_p[enduse],
             fuel_tech_p_by=data['assumptions']['rs_fuel_tech_p_by'][enduse],
             regions=regions,
-            regional_specific=regional_specific)
+            regional_specific=data['criterias']['spatial_exliclit_diffusion'])
 
     for enduse in data['enduses']['ss_enduses']:
 
@@ -298,7 +302,7 @@ def scenario_initalisation(path_data_ed, data=False):
                 share_s_tech_ey_p=ss_share_s_tech_ey_p[sector][enduse],
                 fuel_tech_p_by=data['assumptions']['ss_fuel_tech_p_by'][enduse][sector],
                 regions=regions,
-                regional_specific=regional_specific)
+                regional_specific=data['criterias']['spatial_exliclit_diffusion'])
 
     for enduse in data['enduses']['is_enduses']:
 
@@ -318,14 +322,13 @@ def scenario_initalisation(path_data_ed, data=False):
                 share_s_tech_ey_p=is_share_s_tech_ey_p[sector][enduse],
                 fuel_tech_p_by=data['assumptions']['is_fuel_tech_p_by'][enduse][sector],
                 regions=regions,
-                regional_specific=regional_specific)
+                regional_specific=data['criterias']['spatial_exliclit_diffusion'])
 
     # ===================================================================
     # SHIFT TO INITIALISATION SCRIPTS
     # -----------------------------
     # From UK factors to regional specific factors (TODO TODO)
     # -----------------------------
-
     if data['criterias']['spatial_exliclit_diffusion']:
         logging.info("Spatially explicit diffusion modelling")
         init_cont['regional_strategy_variables'] = defaultdict(dict)

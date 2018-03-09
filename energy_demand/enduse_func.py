@@ -282,7 +282,6 @@ class Enduse(object):
                 # ------------------------------------
                 s_tot_y_cy, s_tech_y_cy = apply_air_leakage(
                     enduse,
-                    region,
                     strategy_variables,
                     assumptions['enduse_overall_change'],
                     s_tot_y_cy,
@@ -1324,7 +1323,6 @@ def apply_heat_recovery(
 
 def apply_air_leakage(
         enduse,
-        region,
         strategy_variables,
         enduse_overall_change,
         service,
