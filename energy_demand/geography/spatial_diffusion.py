@@ -14,7 +14,6 @@ TODO MORE INFO
 import logging
 from collections import defaultdict
 import numpy as np
-from random import randint
 from energy_demand.scripts import init_scripts
 from energy_demand.read_write import read_data
 
@@ -372,7 +371,7 @@ def spatially_differentiated_modelling(
         [fuel_disagg['rs_fuel_disagg'], fuel_disagg['ss_fuel_disagg'], fuel_disagg['is_fuel_disagg']])
 
     # -------------
-    # ===========================Technology specific diffusion of end year shares
+    '''# ===========================Technology specific diffusion of end year shares
     local = False
     if local == True:
         test_factor_overall_enduse_heating_improvement = 0.2
@@ -392,13 +391,11 @@ def spatially_differentiated_modelling(
             spatial_factors=f_spatial_diffusion[affected_enduse],
             spatial_diff_values=spatial_diff_values[affected_enduse],
             fuel_regs_enduse=fuels_reg)
-
-    # ===========================
+    # ==========================='''
 
     # -------------
     # Technology specific diffusion of end year shares
     # -------------
-    # TODO MAYBE WRITE IN FUNCTIONS
     # Residential spatial explicit modelling
     rs_reg_share_s_tech_ey_p = {}
     for enduse, uk_techs_service_p in rs_share_s_tech_ey_p.items():
@@ -491,30 +488,29 @@ def factor_improvements_single(
 
         # Set maximum diffusion values as 100% and calculate relative speed of all values
         max_value_diffusion = max(list(spatial_diff_values.values()))
-        logging.warning("LISTE")
-        logging.warning(list(spatial_diff_values.values()))
-        logging.warning(max_value_diffusion)
+        #logging.warning("LISTE")
+        #logging.warning(list(spatial_diff_values.values()))
+        #logging.warning(max_value_diffusion)
         p_spatial_diff = {}
         for region in regions:
             p_spatial_diff[region] = spatial_diff_values[region] / max_value_diffusion #convert regional valus to p value
-            logging.warning("NORMIEREN: {} {} {} ".format(max_value_diffusion, spatial_diff_values[region],  p_spatial_diff[region]))
+            #logging.warning("NORMIEREN: {} {} {} ".format(max_value_diffusion, spatial_diff_values[region], p_spatial_diff[region]))
 
         reg_enduse_tech_p_ey = {}
         for region in regions:
-            logging.warning(".. {}  {} {}".format(factor_uk, p_spatial_diff[region], factor_uk * p_spatial_diff[region]))
+        #logging.warning(".. {}  {} {}".format(factor_uk, p_spatial_diff[region], factor_uk * p_spatial_diff[region]))
             reg_enduse_tech_p_ey[region] = factor_uk * p_spatial_diff[region]
 
-    logging.info("===========")
+    '''logging.info("===========")
     for reg in reg_enduse_tech_p_ey:
         logging.info(
             " neu:  {} alt:  {}".format(
                 round(reg_enduse_tech_p_ey[reg], 3), 
                 round(spatial_diff_values[region], 3)
-                ))
-    #prnt(":") KROKODIL
+                ))'''
 
-
-    speed_enduse_normed = True
+    # Map with normalised with population (pot lager than 1) prnt(":") KROKODIL
+    speed_enduse_normed = False
     if speed_enduse_normed:
         reg_enduse_tech_p_ey = {}
 
@@ -575,27 +571,33 @@ def factor_improvements_single(
             test += (reg_enduse_tech_p_ey[region] * np.sum(fuel_regs_enduse[region]))
 
 
-    # ---------
-    # PROBLEM THAT MORE THAN 100 percent could be reached if nt normed
-    # ---------
-    reg_enduse_tech_p_ey_capped = {}
-    # Cap regions which have already reached and are larger than 1.0
-    cap_max_crit = 1.0 #100%
-    demand_lost = 0
-    for region, region_factor in reg_enduse_tech_p_ey.items():
-        if region_factor > cap_max_crit:
-            logging.warning("INFO: FOR A REGION THE SHARE OF IMPROVEMENTIS LARGER THAN 1.0.")
+        # ---------
+        # PROBLEM THAT MORE THAN 100 percent could be reached if nt normed
+        # ---------
+        reg_enduse_tech_p_ey_capped = {}
+        # Cap regions which have already reached and are larger than 1.0
+        cap_max_crit = 1.0 #100%
+        demand_lost = 0
+        for region, region_factor in reg_enduse_tech_p_ey.items():
+            if region_factor > cap_max_crit:
+                logging.warning("INFO: FOR A REGION THE SHARE OF IMPROVEMENTIS LARGER THAN 1.0.")
 
-            # Demand which is lost and capped
-            diff_to_cap = region_factor - cap_max_crit
-            demand_lost += diff_to_cap * np.sum(fuel_regs_enduse[region])
+                # Demand which is lost and capped
+                diff_to_cap = region_factor - cap_max_crit
+                demand_lost += diff_to_cap * np.sum(fuel_regs_enduse[region])
 
-            reg_enduse_tech_p_ey_capped[region] = cap_max_crit
-        else:
-            reg_enduse_tech_p_ey_capped[region] = region_factor
+                reg_enduse_tech_p_ey_capped[region] = cap_max_crit
+            else:
+                reg_enduse_tech_p_ey_capped[region] = region_factor
 
-    # Replace
-    reg_enduse_tech_p_ey = reg_enduse_tech_p_ey_capped
+        # Replace
+        reg_enduse_tech_p_ey = reg_enduse_tech_p_ey_capped
+
+        #Soul be the same
+        logging.info("FAKTOR UK :" + str(factor_uk))
+        logging.info("Lost demand: " + str(demand_lost))
+        logging.info("TESTDUM a " + str(test))
+        logging.info("TESTDUM b " + str(uk_enduse_fuel * factor_uk))
 
     # NORMALISE AS NOT LARGER THAN 0
     """normed_val = {}
@@ -613,11 +615,7 @@ def factor_improvements_single(
             round(_a, 3)))
     ("TESTDUM c " + str(test3))
     """
-    #Soul be the same
-    logging.info("FAKTOR UK :" + str(factor_uk))
-    logging.info("Lost demand: " + str(demand_lost))
-    logging.info("TESTDUM a " + str(test))
-    logging.info("TESTDUM b " + str(uk_enduse_fuel * factor_uk))
+
 
     return reg_enduse_tech_p_ey
 

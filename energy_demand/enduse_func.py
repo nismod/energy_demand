@@ -112,6 +112,7 @@ class Enduse(object):
             sig_param_tech,
             enduse_overall_change,
             criterias,
+            strategy_variables,
             fueltypes_nr,
             fueltypes,
             model_yeardays_nrs,
@@ -166,7 +167,7 @@ class Enduse(object):
                 enduse,
                 self.fuel_new_y,
                 assumptions['smart_meter_assump'],
-                assumptions['strategy_variables'],
+                strategy_variables,
                 base_yr,
                 curr_yr)
             #logging.debug("... Fuel train C: " + str(np.sum(self.fuel_new_y)))
@@ -176,7 +177,7 @@ class Enduse(object):
                 enduse,
                 self.fuel_new_y,
                 enduse_overall_change,
-                assumptions['strategy_variables'],
+                strategy_variables,
                 base_yr,
                 curr_yr)
             #logging.debug("... Fuel train D: " + str(np.sum(self.fuel_new_y)))
@@ -201,7 +202,7 @@ class Enduse(object):
             self.fuel_new_y = apply_cooling(
                 enduse,
                 self.fuel_new_y,
-                assumptions['strategy_variables'],
+                strategy_variables,
                 assumptions['cooled_ss_floorarea_by'],
                 enduse_overall_change['other_enduse_mode_info'],
                 base_yr,
@@ -214,7 +215,7 @@ class Enduse(object):
                 sector,
                 base_yr,
                 curr_yr,
-                assumptions['strategy_variables'],
+                strategy_variables,
                 self.fuel_new_y,
                 enduse_overall_change['other_enduse_mode_info'],
                 assumptions)
@@ -269,7 +270,7 @@ class Enduse(object):
                 # ------------------------------------
                 s_tot_y_cy, s_tech_y_cy = apply_heat_recovery(
                     enduse,
-                    assumptions['strategy_variables'],
+                    strategy_variables,
                     assumptions['enduse_overall_change'],
                     s_tot_y_cy,
                     s_tech_y_cy,
@@ -282,7 +283,7 @@ class Enduse(object):
                 s_tot_y_cy, s_tech_y_cy = apply_air_leakage(
                     enduse,
                     region,
-                    assumptions['strategy_variables'],
+                    strategy_variables,
                     assumptions['enduse_overall_change'],
                     s_tot_y_cy,
                     s_tech_y_cy,
@@ -368,7 +369,7 @@ class Enduse(object):
                                 enduse,
                                 base_yr,
                                 curr_yr,
-                                assumptions['strategy_variables'],
+                                strategy_variables,
                                 fuel_yh[tech],
                                 fuel_peak_dh[tech],
                                 [tech],
@@ -388,7 +389,7 @@ class Enduse(object):
                             enduse,
                             base_yr,
                             curr_yr,
-                            assumptions['strategy_variables'],
+                            strategy_variables,
                             fuel_yh,
                             fuel_peak_dh,
                             self.enduse_techs,
@@ -1365,21 +1366,12 @@ def apply_air_leakage(
         # Fraction of heat recovered until end year
         air_leakage_improvement = strategy_variables["air_leakage__{}".format(enduse)]
 
-        # NEW TEST TODO TODO
-        regional_specific = True
-        if regional_specific and enduse != 'ss_space_heating' and enduse != 'is_space_heating':
-            # Get regional specific strategy variable TODO MAKE REGIONAL FOR ALL
-            air_leakage_improvement = strategy_variables["air_leakage__{}".format(enduse)][region]
-        else:
-            air_leakage_improvement = strategy_variables["air_leakage__{}".format(enduse)] 
-
         if air_leakage_improvement == 0:
             return service, service_techs
         else:
             air_leakage_by = 1
 
             # Fraction of heat recovered in current year
-            #TODO AIR LEAKAGE SIGMOID IF REGIONALLY SPECIFIC
             sig_diff_factor = diffusion_technologies.sigmoid_diffusion(
                 base_yr,
                 curr_yr,

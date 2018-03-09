@@ -471,17 +471,23 @@ def residential_submodel(
     for sector in sectors:
         for enduse in enduses:
 
-            # Change if for multiple or single regions
+            # ------------------------------------------------------
+            # Configure and select correct Enduse() specific inputs
+            # ------------------------------------------------------
             if criterias['spatial_exliclit_diffusion']:
                 service_switches = assumptions['rs_service_switch'][enduse][region.name]
                 sig_param_tech = assumptions['rs_sig_param_tech'][enduse][region.name]
 
-                #assumptions = assumptions['strategy_variables'][region.name]
+                strategy_variables = assumptions['regional_strategy_variables'][region.name]
             else:
                 service_switches = assumptions['rs_service_switch'][enduse]
                 sig_param_tech = assumptions['rs_sig_param_tech'][enduse]
 
-            # Create submodule
+                strategy_variables = assumptions['strategy_variables']
+
+            # ------------------------------------------------------
+            # Create submodel
+            # ------------------------------------------------------
             submodel = endusefunctions.Enduse(
                 submodel='rs_submodel',
                 region=region.name,
@@ -502,6 +508,7 @@ def residential_submodel(
                 fuel_fueltype_tech_p_by=assumptions['rs_fuel_tech_p_by'][enduse],
                 sig_param_tech=sig_param_tech,
                 criterias=criterias,
+                strategy_variables=strategy_variables,
                 fueltypes_nr=lookups['fueltypes_nr'],
                 fueltypes=lookups['fueltypes'],
                 model_yeardays_nrs=assumptions['model_yeardays_nrs'],
@@ -547,15 +554,23 @@ def service_submodel(
     for sector in sectors:
         for enduse in enduses:
 
-            # Change if single or muplite region
+            # ------------------------------------------------------
+            # Configure and select correct Enduse() specific inputs
+            # ------------------------------------------------------
             if criterias['spatial_exliclit_diffusion']:
                 service_switches = assumptions['ss_service_switch'][enduse][sector][region.name]
                 sig_param_tech = assumptions['ss_sig_param_tech'][enduse][sector][region.name]
+
+                strategy_variables=strategy_variables = assumptions['regional_strategy_variables'][region.name]
             else:
                 service_switches = assumptions['ss_service_switch'][enduse][sector]
                 sig_param_tech = assumptions['ss_sig_param_tech'][enduse][sector]
 
-            # Create submodule
+                strategy_variables = assumptions['strategy_variables']
+
+            # ------------------------------------------------------
+            # Create submodel
+            # ------------------------------------------------------
             submodel = endusefunctions.Enduse(
                 submodel='ss_submodel',
                 region=region.name,
@@ -576,6 +591,7 @@ def service_submodel(
                 fuel_fueltype_tech_p_by=assumptions['ss_fuel_tech_p_by'][enduse][sector],
                 sig_param_tech=sig_param_tech,
                 criterias=criterias,
+                strategy_variables=strategy_variables,
                 fueltypes_nr=lookups['fueltypes_nr'],
                 fueltypes=lookups['fueltypes'],
                 model_yeardays_nrs=assumptions['model_yeardays_nrs'],
@@ -625,6 +641,9 @@ def industry_submodel(
     for sector in sectors:
         for enduse in enduses:
 
+            # ------------------------------------------------------
+            # Configure and select correct Enduse() specific inputs
+            # ------------------------------------------------------
             if enduse == "is_space_heating":
                 flat_profile_crit = False
             else:
@@ -633,11 +652,17 @@ def industry_submodel(
             if criterias['spatial_exliclit_diffusion']:
                 service_switches = assumptions['is_service_switch'][enduse][sector][region.name]
                 sig_param_tech = assumptions['is_sig_param_tech'][enduse][sector][region.name]
+
+                strategy_variables=strategy_variables = assumptions['regional_strategy_variables'][region.name]
             else:
                 service_switches = assumptions['is_service_switch'][enduse][sector]
                 sig_param_tech = assumptions['is_sig_param_tech'][enduse][sector]
 
-            # Create submodule
+                strategy_variables = assumptions['strategy_variables']
+
+            # ------------------------------------------------------
+            # Create submodel
+            # ------------------------------------------------------
             submodel = endusefunctions.Enduse(
                 submodel='is_submodel',
                 region=region.name,
@@ -659,6 +684,7 @@ def industry_submodel(
                 sig_param_tech=sig_param_tech,
                 enduse_overall_change=assumptions['enduse_overall_change'],
                 criterias=criterias,
+                strategy_variables=strategy_variables,
                 fueltypes_nr=lookups['fueltypes_nr'],
                 fueltypes=lookups['fueltypes'],
                 model_yeardays_nrs=assumptions['model_yeardays_nrs'],

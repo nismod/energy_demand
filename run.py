@@ -239,8 +239,6 @@ class EDWrapper(SectorModel):
         self.user_data['init_cont'], self.user_data['fuel_disagg'] = scenario_initalisation(
             self.user_data['data_path'], data)
 
-        # ===================================================================
-
         # ------------------------
         # Pass along to simulate()
         # ------------------------
@@ -261,7 +259,6 @@ class EDWrapper(SectorModel):
         self.user_data['data_pass_along']['fuels'] = data['fuels']
         self.user_data['data_pass_along']['reg_coord'] = data['reg_coord']
         self.user_data['data_pass_along']['regions'] = data['regions']
-        self.user_data['data_pass_along']['reg_nrs'] = data['reg_nrs']
         self.user_data['data_pass_along']['reg_nrs'] = data['reg_nrs']
 
     def initialise(self, initial_conditions):

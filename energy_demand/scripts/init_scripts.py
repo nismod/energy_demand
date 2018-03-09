@@ -252,6 +252,7 @@ def scenario_initalisation(path_data_ed, data=False):
         regions = False
         regional_specific = False
         f_spatial_diffusion = False
+        spatial_diff_values = False
 
     # ---------------------------------------
     # Fuel switches
@@ -324,35 +325,42 @@ def scenario_initalisation(path_data_ed, data=False):
     # -----------------------------
     # From UK factors to regional specific factors (TODO TODO)
     # -----------------------------
-    init_cont['strategy_variables'] = data['assumptions']['strategy_variables']
+
     if data['criterias']['spatial_exliclit_diffusion']:
+        logging.info("Spatially explicit diffusion modelling")
+        init_cont['regional_strategy_variables'] = defaultdict(dict)
 
-        # For every parameter which is defined regionally specific, spatial sig parameters need to be calulated
-        air_leakage__rs_space_heating = data['assumptions']['strategy_variables']['air_leakage__rs_space_heating']
-        affected_enduse = 'rs_space_heating'
+        # Iterate strategy variables and calculate regional variable
+        for strategy_var_name, strategy_var_across_all_regs in data['assumptions']['strategy_variables'].items():
 
-        # Get enduse specific fuel for each region
-        fuels_reg = spatial_diffusion.get_enduse_specific_fuel_all_regs(
-            enduse=affected_enduse,
-            fuels_disagg=[
-                fuel_disagg['rs_fuel_disagg'],
-                fuel_disagg['ss_fuel_disagg'],
-                fuel_disagg['is_fuel_disagg']])
+            # Get affected enduse of strategy_variable (TODO ASSIGN IN ASSUMPTIONS)
+            affected_enduse = 'rs_space_heating' #TODO ONLY NEEDED IF NOT ALL SPEED
 
-        factor_uk = air_leakage__rs_space_heating
+            # Get enduse specific fuel for each region
+            fuels_reg = spatial_diffusion.get_enduse_specific_fuel_all_regs(
+                enduse=affected_enduse, #Maybe multiple
+                fuels_disagg=[
+                    fuel_disagg['rs_fuel_disagg'],
+                    fuel_disagg['ss_fuel_disagg'],
+                    fuel_disagg['is_fuel_disagg']])
 
-        # end use specficic improvements 
-        reg_specific_variables = spatial_diffusion.factor_improvements_single(
-            factor_uk=factor_uk,
-            regions=data['regions'],
-            spatial_factors=f_spatial_diffusion[affected_enduse],
-            spatial_diff_values=spatial_diff_values[affected_enduse],
-            fuel_regs_enduse=fuels_reg)
+            # end use specficic improvements 
+            reg_specific_variables = spatial_diffusion.factor_improvements_single(
+                factor_uk=strategy_var_across_all_regs,
+                regions=data['regions'],
+                spatial_factors=f_spatial_diffusion[affected_enduse],
+                spatial_diff_values=spatial_diff_values[affected_enduse],
+                fuel_regs_enduse=fuels_reg)
 
-        init_cont['strategy_variables']['air_leakage__rs_space_heating'] = reg_specific_variables
+            for region in regions:
+                init_cont['regional_strategy_variables'][region][strategy_var_name] = reg_specific_variables[region]
 
+        init_cont['regional_strategy_variables'] = dict(init_cont['regional_strategy_variables']) #Convert to dict
     else:
         logging.info("Not spatially explicit diffusion modelling")
+
+        init_cont['regional_strategy_variables'] = None
+        init_cont['strategy_variables'] = data['assumptions']['strategy_variables']
 
     print("... finished scenario initialisation")
     return dict(init_cont), fuel_disagg
