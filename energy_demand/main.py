@@ -283,15 +283,15 @@ if __name__ == "__main__":
     # ----------------------------------
     data['assumptions']['cdd_weekend_cfactors'] = hdd_cdd.calc_weekend_corr_f(
         data['assumptions']['model_yeardays_daytype'],
-        data['assumptions']['ss_t_cooling_weekend_factor'])
+        data['assumptions']['f_ss_cooling_weekend'])
 
     data['assumptions']['ss_weekend_f'] = hdd_cdd.calc_weekend_corr_f(
         data['assumptions']['model_yeardays_daytype'],
-        data['assumptions']['ss_weekend_factor'])
+        data['assumptions']['f_ss_weekend'])
 
     data['assumptions']['is_weekend_f'] = hdd_cdd.calc_weekend_corr_f(
         data['assumptions']['model_yeardays_daytype'],
-        data['assumptions']['is_weekend_factor'])
+        data['assumptions']['f_is_weekend'])
 
     # ------------------------------
     if data['criterias']['virtual_building_stock_criteria']:
@@ -300,7 +300,7 @@ if __name__ == "__main__":
             data['sectors']['all_sectors'],
             data['local_paths'],
             data['sim_param']['base_yr'],
-            p_mixed_resid=0.5)
+            f_mixed_floorarea=data['assumptions']['f_mixed_floorarea'])
 
     # Lookup table to import industry sectoral gva
     lookup_tables.industrydemand_name_sic2007()

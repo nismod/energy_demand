@@ -53,8 +53,6 @@ class EDWrapper(SectorModel):
         """
         data = defaultdict(dict)
 
-        p_mixed_resid = 0.2       # TODO: Spatial calibration factor for virtual dwelling stock
-
         # -----------
         # INFORMATION:
         # you only running smif, use the following configuration: fast_smif_run == True
@@ -126,6 +124,20 @@ class EDWrapper(SectorModel):
         data['enduses'], data['sectors'], data['fuels'] = data_loader.load_fuels(
             data['paths'], data['lookups'])
 
+        # ------------
+        # Load assumptions
+        # ------------
+        data['assumptions'] = non_param_assumptions.load_non_param_assump(
+            data['sim_param']['base_yr'],
+            data['paths'],
+            data['enduses'],
+            data['sectors'],
+            data['lookups']['fueltypes'],
+            data['lookups']['fueltypes_nr'])
+        data['assumptions']['seasons'] = date_prop.read_season(year_to_model=2015)
+        data['assumptions']['model_yeardays_daytype'], data['assumptions']['yeardays_month'], data['assumptions']['yeardays_month_days'] = date_prop.get_model_yeardays_daytype(
+            year_to_model=2015)
+
         # -----------------------------
         # Obtain external base year scenario data
         # -----------------------------
@@ -154,7 +166,7 @@ class EDWrapper(SectorModel):
                 data['sectors']['all_sectors'],
                 data['local_paths'],
                 base_yr=data['sim_param']['base_yr'],
-                p_mixed_resid=p_mixed_resid)
+                f_mixed_floorarea=data['assumptions']['f_mixed_floorarea'])
         else:
             pass
             # Load floor area from newcastle
@@ -181,34 +193,22 @@ class EDWrapper(SectorModel):
                 }
         }
 
-        # ------------
-        # Load assumptions
-        # ------------
-        data['assumptions'] = non_param_assumptions.load_non_param_assump(
-            data['sim_param']['base_yr'],
-            data['paths'],
-            data['enduses'],
-            data['sectors'],
-            data['lookups']['fueltypes'],
-            data['lookups']['fueltypes_nr'])
-        data['assumptions']['seasons'] = date_prop.read_season(year_to_model=2015)
-        data['assumptions']['model_yeardays_daytype'], data['assumptions']['yeardays_month'], data['assumptions']['yeardays_month_days'] = date_prop.get_model_yeardays_daytype(
-            year_to_model=2015)
+
 
         # ----------------------------------
         # Calculate correction factors
         # ----------------------------------
         data['assumptions']['cdd_weekend_cfactors'] = hdd_cdd.calc_weekend_corr_f(
             data['assumptions']['model_yeardays_daytype'],
-            data['assumptions']['ss_t_cooling_weekend_factor'])
+            data['assumptions']['f_ss_cooling_weekend'])
 
         data['assumptions']['ss_weekend_f'] = hdd_cdd.calc_weekend_corr_f(
             data['assumptions']['model_yeardays_daytype'],
-            data['assumptions']['ss_weekend_factor'])
+            data['assumptions']['f_ss_weekend'])
 
         data['assumptions']['is_weekend_f'] = hdd_cdd.calc_weekend_corr_f(
             data['assumptions']['model_yeardays_daytype'],
-            data['assumptions']['is_weekend_factor'])
+            data['assumptions']['f_is_weekend'])
 
         # ------------
         # Load load profiles of technologies

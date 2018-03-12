@@ -1045,7 +1045,7 @@ def read_capacity_switch(path_to_csv):
 
     return service_switches
 
-def read_floor_area_virtual_stock(path_to_csv, p_mixed_resid=0.5):
+def read_floor_area_virtual_stock(path_to_csv, f_mixed_floorarea=0.5):
     """Read in floor area from csv file for every LAD
     to generate virtual building stock.
 
@@ -1053,7 +1053,7 @@ def read_floor_area_virtual_stock(path_to_csv, p_mixed_resid=0.5):
     ---------
     path_floor_area : str
         Path to csv file
-    p_mixed_resid : float
+    f_mixed_floorarea : float
         Factor to assign mixed floor area
 
     Returns
@@ -1066,12 +1066,12 @@ def read_floor_area_virtual_stock(path_to_csv, p_mixed_resid=0.5):
     Info
     -----
     *   The mixed floor area (residential and non residential) is distributed
-        according to `p_mixed_resid`.
+        according to `f_mixed_floorarea`.
     
     TODO: READ IN SECTOR SPECIFIC FLOOR AREA OR CALCLATE IT SOMEHOW
     """
     # Redistribute the mixed enduse
-    p_mixed_no_resid = 1 - p_mixed_resid
+    p_mixed_no_resid = 1 - f_mixed_floorarea
 
     # Second Mail from Craig
     res_floorarea, non_res_floorarea, floorarea_mixed = {}, {}, {}
@@ -1106,7 +1106,7 @@ def read_floor_area_virtual_stock(path_to_csv, p_mixed_resid=0.5):
 
                 # Distribute mixed floor area
                 non_res_from_mixed = floorarea_mixed[geo_name] * p_mixed_no_resid
-                res_from_mixed = floorarea_mixed[geo_name] * p_mixed_resid
+                res_from_mixed = floorarea_mixed[geo_name] * f_mixed_floorarea
 
                 # Add
                 res_floorarea[geo_name] += res_from_mixed

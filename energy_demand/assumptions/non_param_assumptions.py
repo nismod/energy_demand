@@ -60,16 +60,21 @@ def load_non_param_assump(
     #   or to the hdd or cdd calculations (to correct cooling
     #   or heating demand)
     #
-    #       ss_t_cooling_weekend_factor : float
+    #       f_ss_cooling_weekend : float
     #           Weekend effect for cooling enduses
-    #       ss_weekend_factor : float
+    #       f_ss_weekend : float
     #           WWeekend effect for service submodel enduses
-    #       is_weekend_factor : float
+    #       f_is_weekend : float
     #           Weekend effect for industry submodel enduses
     # ------------------------------------------------------------
-    assumptions['ss_t_cooling_weekend_factor'] = 0.6            # 0.5
-    assumptions['ss_weekend_factor'] = 0.8                      # 0.7 
-    assumptions['is_weekend_factor'] = 0.4                      # 0.4   
+    
+    # Temporal calibration factors
+    assumptions['f_ss_cooling_weekend'] = 0.6            # 0.5
+    assumptions['f_ss_weekend'] = 0.8                      # 0.7 
+    assumptions['f_is_weekend'] = 0.4                      # 0.4   
+
+    #Spatial calibration factor
+    assumptions['f_mixed_floorarea'] = 0.2                          # 0.4
 
     # ============================================================
     #   Modelled day related factors
