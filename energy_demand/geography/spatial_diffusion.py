@@ -1,23 +1,13 @@
 """This file contains all calculations related
 to spatial explicit calculations of technology/innovation
-penetration.
+penetration."""
 
-TODO MORE INFO
-
-1. Steps
-- define concept (e.g. rural_urban)
-- calculate congruence values
-- attribute diffusion weights to congruence values
-- Calculate spatial index
-
-"""
 import sys
 import logging
 from collections import defaultdict
 import numpy as np
-from energy_demand.read_write import read_data
 
-def from_socio_economic_data_to_spatial_diffusion_values(regions, diffusionv_values=None):
+def from_socio_economic_data_to_spatial_diffusion_values(regions, pop_density):
     """Create SDI from socio-economic data
 
 
@@ -28,15 +18,50 @@ def from_socio_economic_data_to_spatial_diffusion_values(regions, diffusionv_val
 
     Info
     ------
-    *   SPEED 'diffusions_speed_lower_concept'
+    *   SPEED 'speed_con_min'
     """
-    spatial_diffusion_values = {}
+    diffusion_values = {}
 
     # ------------------
     # Diffusion speed assumptions
     # ------------------
-    diffusions_speed_lower_concept = 1
-    diffusions_speed_higher_concept = 2
+    speed_con_min = 1  # Speed at val_con == 0
+    speed_con_max = 2  # Speed at con_val == 1
+
+    # Real values
+    real_values = pop_density
+
+    # Max congruence value
+    con_max = max(real_values.values())
+
+    for region in regions:
+
+        # Multiply speed of diffusion of concept with concept congruence value
+        try:
+            real_value = real_values[region]
+        except KeyError:
+            real_value = con_max
+            print("ERROR: SET TO CONGRUEN VALUE +")
+
+        # Calculate congruence value
+        congruence_value = real_value / con_max
+
+        # Calculate diffusion value
+        lower_concept_val = (1 - congruence_value) * speed_con_min
+        higher_concept_val = congruence_value * speed_con_max
+
+        diffusion_values[region] = lower_concept_val + higher_concept_val
+
+        logging.info("Reg: {} diffusion_value: {} real_value: {} ".format(
+            region, lower_concept_val + higher_concept_val, real_value))
+
+    '''diffusion_values = {}
+
+    # ------------------
+    # Diffusion speed assumptions
+    # ------------------
+    speed_con_min = 1  # Speed at val_con == 0
+    speed_con_max = 2 # Speed at con_val == 1
 
     # How much congruent to urban (e.g. with rural population share) https://www.gov.uk/government/uploads/system/uploads/attachment_data/file/591464/RUCLAD_leaflet_Jan2017.pdf
     congruence_value = {
@@ -51,8 +76,8 @@ def from_socio_economic_data_to_spatial_diffusion_values(regions, diffusionv_val
     # Calculate diffusion values baed on speed attributes
     diffusion_values = {}
     for concept_id, con_values in congruence_value.items():
-        lower_concept_val = con_values['congruence_value'] * diffusions_speed_lower_concept
-        higher_concept_val = con_values['congruence_value'] * diffusions_speed_higher_concept
+        lower_concept_val = (1 - con_values['congruence_value']) * speed_con_min
+        higher_concept_val = con_values['congruence_value'] * speed_con_max
 
         diffusion_values[concept_id] = {}
         diffusion_values[concept_id]['diffusion_speed'] = lower_concept_val + higher_concept_val
@@ -72,11 +97,11 @@ def from_socio_economic_data_to_spatial_diffusion_values(regions, diffusionv_val
             ruc11cd_value = 1
             ("ERROR: SET TO CONGRUEN VALUE +")
 
-        spatial_diffusion_values[region] = diffusion_values[ruc11cd_value]['diffusion_speed']
+        diffusion_values[region] = diffusion_values[ruc11cd_value]['diffusion_speed']'''
 
-    return spatial_diffusion_values
+    return diffusion_values
 
-def load_spatial_diffusion_values(regions):
+def spatial_diffusion_values(regions, pop_density):
     """Load spatial diffusion values
 
     This are the values which already incorporate different
@@ -97,7 +122,7 @@ def load_spatial_diffusion_values(regions):
     spatial_diff = {}
 
     # Diffusion values based on urban/rural
-    spatial_diff_urban_rural = from_socio_economic_data_to_spatial_diffusion_values(regions)
+    spatial_diff_urban_rural = from_socio_economic_data_to_spatial_diffusion_values(regions, pop_density)
 
     for region in regions:
         #dummy_index = 1
@@ -303,10 +328,11 @@ def spatially_differentiated_modelling(
         rs_share_s_tech_ey_p,
         ss_share_s_tech_ey_p,
         is_share_s_tech_ey_p,
-        techs_affected_spatial_f
+        techs_affected_spatial_f,
+        pop_density
     ):
     """
-    TODO
+    Model 
 
     regions : dict
         Regions
@@ -352,18 +378,19 @@ def spatially_differentiated_modelling(
     Explanation
     ============
     (I)     Load diffusion values
-    (II)    Calculate diffusion values create diffusion factors considering fuels
+    (II)    Calculate diffusion factors
     (III)   Calculate sigmoid diffusion values for technology
             specific enduse service shares for every region
     """
     # -----
-    # I. Diffusion values
+    # I. Diffusion diffusion values
     # -----
-    spatial_diff_values = load_spatial_diffusion_values(
-        regions)
+    spatial_diff_values = spatial_diffusion_values(
+        regions,
+        pop_density)
 
     # -----
-    # II. Calculation of sigmoid diffusion factors based for every enduse
+    # II. Calculation of diffusion factors
     # -----
     spatial_diff_f = calc_diffusion_f(
         regions,
@@ -372,8 +399,9 @@ def spatially_differentiated_modelling(
 
     # -------------
     # III. Technology specific shares of service in end year are calculated
-    #      TODO: MAYBE ADD CAPPING VALUE
+    # TODO: MAYBE ADD CAPPING VALUE
     
+    # -------------
     # Generate sigmoid curves (s_generate_sigmoid) for every regio
     # -------------
     # Residential spatial explicit modelling
@@ -461,6 +489,8 @@ def factor_improvements_single(
     #only_speed_map = True
     if only_speed_map:
 
+        factor_uk = 0.5 #TODO SCRAP
+
         # Set maximum diffusion values as 100% and calculate relative speed of all values
         max_value_diffusion = max(list(spatial_diff_values.values()))
 
@@ -472,6 +502,10 @@ def factor_improvements_single(
         reg_enduse_tech_p_ey = {}
         for region in regions:
             reg_enduse_tech_p_ey[region] = factor_uk * p_spatial_diff[region]
+        logging.warning(
+            reg_enduse_tech_p_ey
+        )
+        #prnt(":")
 
     if speed_enduse_normed:
         # Map with normalised with population (pot lager than 1)
@@ -501,7 +535,7 @@ def factor_improvements_single(
 
             # ---------------------------------------------
             # C.) Calculate regional fraction
-            # ---------------------------------------------
+            # --------------------------------------------- TODO: WEISO DAS NOCH?
             reg_enduse_tech_p_ey[region] = reg_service_tech / f_fuel_disagg_p
 
             logging.info(

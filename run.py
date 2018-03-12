@@ -160,6 +160,13 @@ class EDWrapper(SectorModel):
             #rs_floorarea = defaultdict(dict)
             #ss_floorarea = defaultdict(dict)
 
+        # -----------------------
+        # Calculate population density for base year
+        # -----------------------
+        data['pop_density'] = {}
+        for region in self.regions.get_entry(region_set_name):
+            data['pop_density'][region.name] = data['population'][data['sim_param']['base_yr']][region.name] / region.shape.area
+
         # --------------
         # Scenario data
         # --------------

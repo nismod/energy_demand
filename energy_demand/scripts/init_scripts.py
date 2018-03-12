@@ -1,21 +1,16 @@
 """Script functions which are executed after
 model installation and after each scenario definition
 """
+import logging
 import os
 import sys
-import logging
 from collections import defaultdict
 import numpy as np
-
-from energy_demand.read_write import data_loader
-from energy_demand.scripts import s_fuel_to_service
-from energy_demand.scripts import s_generate_sigmoid
-from energy_demand.scripts import s_disaggregation
-from energy_demand.basic import basic_functions
-from energy_demand.basic import logger_setup
-from energy_demand.technologies import fuel_service_switch
+from energy_demand.basic import basic_functions, logger_setup
 from energy_demand.geography import spatial_diffusion
-from energy_demand.read_write import read_data
+from energy_demand.read_write import data_loader, read_data
+from energy_demand.scripts import (s_disaggregation, s_fuel_to_service, s_generate_sigmoid)
+from energy_demand.technologies import fuel_service_switch
 
 def scenario_initalisation(path_data_ed, data=False):
     """Scripts which need to be run for every different scenario.
@@ -25,8 +20,9 @@ def scenario_initalisation(path_data_ed, data=False):
     The following calculations are performed:
 
         I.      Disaggregation of fuel for every region
-        II.     
-        III.    
+        II.     Switches calculations
+        III.    Spatial explicit diffusion modelling
+
     Arguments
     ----------
     path_data_ed : str
@@ -39,15 +35,12 @@ def scenario_initalisation(path_data_ed, data=False):
     init_cont = defaultdict(dict)
     fuel_disagg = {}
 
-    # Create logger
     logger_setup.set_up_logger(
         os.path.join(path_data_ed, "scenario_init.log"))
 
     # --------------------------------------------
     # Delete results from previous model runs and initialise folders
     # --------------------------------------------
-    logging.info("... delete previous model run results")
-
     basic_functions.del_previous_results(
         data['local_paths']['data_processed'],
         data['local_paths']['path_post_installation_data'])
@@ -66,15 +59,15 @@ def scenario_initalisation(path_data_ed, data=False):
     for folder in folders_to_create:
         basic_functions.create_folder(folder)
 
-    # ---------------------------------------
+    # ===========================================
     # I. Disaggregation
-    # ---------------------------------------
+    # ===========================================
 
-    # Load local datasets for disaggregateion
+    # Load data for disaggregateion
     data['scenario_data']['employment_stats'] = data_loader.read_employment_stats(
         data['paths']['path_employment_statistics'])
 
-    # Disaggregate fuel for all regions init_cont
+    # Disaggregate fuel for all regions
     fuel_disagg['rs_fuel_disagg'], fuel_disagg['ss_fuel_disagg'], fuel_disagg['is_fuel_disagg'] = s_disaggregation.disaggregate_base_demand(
         data['regions'],
         data['sim_param']['base_yr'],
@@ -89,7 +82,7 @@ def scenario_initalisation(path_data_ed, data=False):
         data['sectors']['all_sectors'],
         data['enduses'])
 
-    # Sum across all sectors for every submodel
+    # Sum demand across all sectors for every region
     fuel_disagg['ss_fuel_disagg_sum_all_sectors'] = sum_across_sectors_all_regs(
         fuel_disagg['ss_fuel_disagg'])
 
@@ -97,9 +90,9 @@ def scenario_initalisation(path_data_ed, data=False):
         fuel_disagg['is_fuel_disagg'])
 
     # ---------------------------------------
-    # Convert base year fuel input assumptions to
-    # energy service on a national scale
+    # Convert base year fuel input assumptions to energy service
     # ---------------------------------------
+
     # Residential
     init_cont['rs_s_tech_by_p'], init_cont['rs_s_fueltype_tech_by_p'], init_cont['rs_s_fueltype_by_p'] = s_fuel_to_service.get_s_fueltype_tech(
         data['enduses']['rs_enduses'],
@@ -133,17 +126,16 @@ def scenario_initalisation(path_data_ed, data=False):
             data['assumptions']['technologies'],
             sector)
 
+    # ===========================================
+    # II. Switches
+    # ===========================================
+
     # ------------------------------------
     # Autocomplement defined service switches with technologies not
     # explicitly specified in switch on a national scale
     # ------------------------------------
-    print("... autocompleting switches") # TODO: READ FROM WRAPPER FIRST FUNCTION as SCENARIO
-    init_cont['rs_service_switches'] = data['assumptions']['rs_service_switches']
-    init_cont['ss_service_switches'] = data['assumptions']['ss_service_switches']
-    init_cont['is_service_switches'] = data['assumptions']['is_service_switches']
-
     rs_service_switches_completed = fuel_service_switch.autocomplete_switches(
-        init_cont['rs_service_switches'],
+        data['assumptions']['rs_service_switches'],
         data['assumptions']['rs_specified_tech_enduse_by'],
         init_cont['rs_s_tech_by_p'])
 
@@ -151,10 +143,11 @@ def scenario_initalisation(path_data_ed, data=False):
     for sector in data['sectors']['ss_sectors']:
 
         # Get all switches of a sector
-        sector_switches = get_sector_switches(sector, init_cont['ss_service_switches'])
+        sector_switches = get_sector_switches(
+            sector, init_cont['ss_service_switches'])
 
         ss_service_switches_completed[sector] = fuel_service_switch.autocomplete_switches(
-            init_cont['ss_service_switches'],
+            data['assumptions']['ss_service_switches'],
             data['assumptions']['ss_specified_tech_enduse_by'],
             init_cont['ss_s_tech_by_p'][sector],
             sector=sector)
@@ -163,7 +156,8 @@ def scenario_initalisation(path_data_ed, data=False):
     for sector in data['sectors']['is_sectors']:
 
         # Get all switches of a sector
-        sector_switches = get_sector_switches(sector, init_cont['is_service_switches'])
+        sector_switches = get_sector_switches(
+            sector, data['assumptions']['is_service_switches'])
 
         is_service_switches_completed[sector] = fuel_service_switch.autocomplete_switches(
             sector_switches,
@@ -172,12 +166,12 @@ def scenario_initalisation(path_data_ed, data=False):
             sector=sector)
 
     # ------------------------------------
-    # Capacity switches (installations)
+    # Capacity switches
     # ======================
     # Calculate service shares considering potential capacity installations
     # on a national scale
     # ------------------------------------
-    print("... processing capacity switches")
+
     # Residential
     init_cont['rs_service_switches'] = fuel_service_switch.capacity_switch(
         init_cont['rs_service_switches'],
@@ -225,7 +219,6 @@ def scenario_initalisation(path_data_ed, data=False):
     # Get service shares of technologies for future year by considering
     # service switches (defined on a national scale)
     # ------------------------------------
-    print("... processing service switches")
     rs_share_s_tech_ey_p = fuel_service_switch.get_share_s_tech_ey(
         rs_service_switches_completed,
         data['assumptions']['rs_specified_tech_enduse_by'])
@@ -251,7 +244,8 @@ def scenario_initalisation(path_data_ed, data=False):
             rs_share_s_tech_ey_p=rs_share_s_tech_ey_p,
             ss_share_s_tech_ey_p=ss_share_s_tech_ey_p,
             is_share_s_tech_ey_p=is_share_s_tech_ey_p,
-            techs_affected_spatial_f=data['assumptions']['techs_affected_spatial_f'])
+            techs_affected_spatial_f=data['assumptions']['techs_affected_spatial_f'],
+            pop_density=data['pop_density'])
 
         regions = data['regions']
         rs_share_s_tech_ey_p = rs_reg_share_s_tech_ey_p
@@ -273,7 +267,6 @@ def scenario_initalisation(path_data_ed, data=False):
     # technology diffusion (same diffusion pattern for
     # the whole UK) or spatially differentiated (every region)
     # ---------------------------------------
-    print("... processing fuel switches")
     for enduse in data['enduses']['rs_enduses']:
 
         init_cont['rs_sig_param_tech'][enduse], init_cont['rs_service_switch'][enduse] = sig_param_calc_incl_fuel_switch(
@@ -328,43 +321,39 @@ def scenario_initalisation(path_data_ed, data=False):
                 regions=regions,
                 regional_specific=data['criterias']['spatial_exliclit_diffusion'])
 
-    # -----------------------------
+    # ===========================================
+    # III. Spatial explicit modelling
+    #
     # From UK factors to regional specific factors
-    # -----------------------------
+    # Convert strategy variables to regional variables
+    # ===========================================
     if data['criterias']['spatial_exliclit_diffusion']:
         logging.info("Spatially explicit diffusion modelling")
 
-        # Convert strategy variables to regional variables
         init_cont['regional_strategy_variables'] = defaultdict(dict)
-       
 
         # Iterate strategy variables and calculate regional variable
-        for strategy_var_name, strategy_var_across_all_regs in data['assumptions']['strategy_variables'].items():
-
-            logging.warning("_-------------------- " + str(strategy_var_name))
+        for var_name, strategy_var in data['assumptions']['strategy_variables'].items():
 
             # Check whether scenario varaible is regionally modelled
-            if strategy_var_name not in data['assumptions']['spatially_modelled_vars']:
+            if var_name not in data['assumptions']['spatially_modelled_vars']:
 
                 #Variable is not spatially modelled
                 for region in regions:
-                    init_cont['regional_strategy_variables'][region][strategy_var_name] = {
-                        'scenario_value': float(strategy_var_across_all_regs['scenario_value']), # UK value
-                        'affected_enduse': data['assumptions']['strategy_variables'][strategy_var_name]['affected_enduse']}
+                    init_cont['regional_strategy_variables'][region][var_name] = {
+                        'scenario_value': float(strategy_var['scenario_value']),
+                        'affected_enduse': data['assumptions']['strategy_variables'][var_name]['affected_enduse']}
             else:
 
-                # Get affected enduse of strategy_variable
-                affected_enduse =  strategy_var_across_all_regs['affected_enduse']
-    
-                if affected_enduse == []:
+                if strategy_var['affected_enduse'] == []:
                     logging.warning(
-                        "ERROR: For scenario varialbe {} no affected enduse is defined and thus only speed is used for diffusion".format(strategy_var_name))
+                        "ERROR: For scenario varialbe {} no affected enduse is defined and thus only speed is used for diffusion".format(var_name))
                 else:
                     pass
 
                 # Get enduse specific fuel for each region
                 fuels_reg = spatial_diffusion.get_enduse_specific_fuel_all_regs(
-                    enduse=affected_enduse,
+                    enduse=strategy_var['affected_enduse'],
                     fuels_disagg=[
                         fuel_disagg['rs_fuel_disagg'],
                         fuel_disagg['ss_fuel_disagg'],
@@ -372,16 +361,16 @@ def scenario_initalisation(path_data_ed, data=False):
 
                 # end use specficic improvements 
                 reg_specific_variables = spatial_diffusion.factor_improvements_single(
-                    factor_uk=strategy_var_across_all_regs['scenario_value'],
+                    factor_uk=strategy_var['scenario_value'],
                     regions=data['regions'],
                     spatial_factors=spatial_diff_f,
                     spatial_diff_values=spatial_diff_values,
                     fuel_regs_enduse=fuels_reg)
 
                 for region in regions:
-                    init_cont['regional_strategy_variables'][region][strategy_var_name] = {
-                        'scenario_value': float(reg_specific_variables[region]), #Regional value
-                        'affected_enduse': data['assumptions']['strategy_variables'][strategy_var_name]['affected_enduse']}
+                    init_cont['regional_strategy_variables'][region][var_name] = {
+                        'scenario_value': float(reg_specific_variables[region]),
+                        'affected_enduse': strategy_var['affected_enduse']}
 
         init_cont['regional_strategy_variables'] = dict(init_cont['regional_strategy_variables'])
     else:
@@ -390,7 +379,7 @@ def scenario_initalisation(path_data_ed, data=False):
         init_cont['regional_strategy_variables'] = None
         init_cont['strategy_variables'] = data['assumptions']['strategy_variables']
 
-    print("... finished scenario initialisation")
+    logging.info("... finished scenario initialisation")
     return dict(init_cont), fuel_disagg
 
 def sum_across_sectors_all_regs(fuel_disagg_reg):

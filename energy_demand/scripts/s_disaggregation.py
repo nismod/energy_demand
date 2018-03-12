@@ -51,7 +51,8 @@ def disaggregate_base_demand(
     # -------------------------------------
     # Factors to choose for disaggregation
     # -------------------------------------
-    # Disaggregate residential submodel data
+
+    # Residential
     rs_fuel_disagg = rs_disaggregate(
         regions,
         base_yr,
@@ -67,7 +68,7 @@ def disaggregate_base_demand(
         crit_limited_disagg_pop=False,      # Only pop and hdd
         crit_full_disagg=True)             # Full disaggregation
 
-    # Disaggregate service submodel data
+    # Service
     ss_fuel_disagg = ss_disaggregate(
         fuels['ss_fuel_raw'],
         assumptions,
@@ -85,7 +86,7 @@ def disaggregate_base_demand(
         crit_limited_disagg_pop=False,      # Only pop and hdd
         crit_full_disagg=True)             # Full disaggregation
 
-    # Disaggregate industry submodel data with employment statistics
+    # Industry
     is_fuel_disagg = is_disaggregate(
         base_yr,
         fuels['is_fuel_raw'],

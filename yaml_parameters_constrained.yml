@@ -320,11 +320,11 @@
   - 0
   - 1
   default_value: '0.1'
-  description: Population diffusion of smart meters
+  description: Improvement of smart meter penetration
   name: smart_meter_improvement_p
   suggested_range: !!python/tuple
-  - 10
-  - 100
+  - 0
+  - 0.9
   units: '%'
 - absolute_range: !!python/tuple
   - 0

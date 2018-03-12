@@ -378,31 +378,25 @@ def spatial_validation(
     # --------------------
     # Calculate statistics
     # --------------------
-    all_diff_real_modelled_p = []
-    all_diff_real_modelled_abs = []
+    diff_real_modelled_p = []
+    diff_real_modelled_abs = []
 
     for reg_geocode in regions:
         try:
             real = result_dict['real_demand'][reg_geocode]
             modelled = result_dict['modelled_demand'][reg_geocode]
 
-            diff_real_modelled_p = (100/real) * modelled
-            all_diff_real_modelled_p.append(diff_real_modelled_p)
-            all_diff_real_modelled_abs.append(real - modelled)
+            diff_real_modelled_p.append((100/real) * modelled)
+            diff_real_modelled_abs.append(real - modelled)
         except KeyError:
             pass
 
     # Calculate the average deviation between reald and modelled
-    av_deviation_real_modelled = np.mean(all_diff_real_modelled_p)
+    av_deviation_real_modelled = np.mean(diff_real_modelled_p)
 
     # Calculate standard deviation
-    std_dev_p = np.std(all_diff_real_modelled_p)
-    std_dev_abs = np.std(all_diff_real_modelled_abs)
-
-    # RMSE calculations
-    rmse_value = basic_functions.rmse(
-        np.array(list(result_dict['modelled_demand'].values())),
-        np.array(list(result_dict['real_demand'].values())))
+    std_dev_p = np.std(diff_real_modelled_p)        # Given as percent
+    std_dev_abs = np.std(diff_real_modelled_abs)    # Given as energy unit
 
     # -----------------
     # Sort results according to size
@@ -421,17 +415,17 @@ def spatial_validation(
 
     x_values = np.arange(0, len(sorted_dict_real), 1)
 
-    y_real_elec_demand = []
-    y_modelled_elec_demand = []
+    y_real_demand = []
+    y_modelled_demand = []
 
     labels = []
     for sorted_region in sorted_dict_real:
 
         geocode_lad = sorted_region[0]
 
-        y_real_elec_demand.append(
+        y_real_demand.append(
             result_dict['real_demand'][geocode_lad])
-        y_modelled_elec_demand.append(
+        y_modelled_demand.append(
             result_dict['modelled_demand'][geocode_lad])
 
         logging.info(
@@ -447,8 +441,8 @@ def spatial_validation(
 
     # Calculate r_squared
     _slope, _intercept, r_value, _p_value, _std_err = stats.linregress(
-        y_real_elec_demand,
-        y_modelled_elec_demand)
+        y_real_demand,
+        y_modelled_demand)
 
     # --------
     # Axis
@@ -465,7 +459,7 @@ def spatial_validation(
     # ----------------------------------------------
     plt.plot(
         x_values,
-        y_real_elec_demand,
+        y_real_demand,
         linestyle='None',
         marker='o',
         markersize=1.6,
@@ -477,7 +471,7 @@ def spatial_validation(
 
     plt.plot(
         x_values,
-        y_modelled_elec_demand,
+        y_modelled_demand,
         marker='o',
         linestyle='None',
         markersize=1.6,
@@ -499,7 +493,7 @@ def spatial_validation(
 
             ax.text(
                 x_values[pos],
-                y_modelled_elec_demand[pos],
+                y_modelled_demand[pos],
                 txt,
                 horizontalalignment="right",
                 verticalalignment="top",
@@ -507,10 +501,13 @@ def spatial_validation(
 
     font_additional_info = plotting_styles.font_info()
 
-    title_info = ('r_value: {},std_dev: {} ({})'.format(
-        round(r_value, 3),
-        round(std_dev_p, 3),
-        round(std_dev_abs, 3)))
+    font_additional_info['size'] = 6
+
+    title_info = ('R_2: {}, std_%: {} (GWh {}), av_diff_%: {}'.format(
+        round(r_value, 2),
+        round(std_dev_p, 2),
+        round(std_dev_abs, 2),
+        round(av_deviation_real_modelled, 2)))
 
     plt.title(
         title_info,

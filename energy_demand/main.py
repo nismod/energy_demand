@@ -68,9 +68,9 @@ TODO: get_position for all readings of csv file
 TODO: WHAT ABOU NON_RESIDENTIAL FLOOR AREA: FOR WHAT?
 TODO: REMOVE PEAK SHAPES
 TODO: SPATIAL DISAGGREGATION FACTORS RESID/NONRESID SHARE
-TODO: EFFECTIVE TEMPERATURES WITH TWO DAYS nr_day_to_av=1 instaed of nr_day_to_av=2
 TODO: INTERFACE AND 
 TODO: SO FAR ALSO ALL SERVICE ENDUSES ARE MULTIPLIED
+TODO: DWELLING DENSITY FOR EVERY LAD
 RURAL URBAN : http://www.gov.scot/Topics/Statistics/About/Methodology/UrbanRuralClassification/Urban-Rural-Classification-2011-12/2011-2012-Urban-Rural-Lookups
 """
 import os
