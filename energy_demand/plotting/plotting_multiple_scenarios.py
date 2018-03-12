@@ -27,7 +27,7 @@ def plot_reg_y_over_time(
         for year, fueltype_reg_time in scen_data['results_every_year'].items():
             data_years_regs[year] = {}
 
-            for fueltype, regions_fuel in enumerate(fueltype_reg_time):
+            for _fueltype, regions_fuel in enumerate(fueltype_reg_time):
                 
                 for region_nr, region_fuel in enumerate(regions_fuel):
 

@@ -41,6 +41,6 @@ def test_set_same_eff_all_tech():
 
     techs_eff = helpers.set_same_eff_all_tech(
         technologies=technologies,
-        tech_eff_achieved_f=0.44)
+        eff_achieved_f=0.44)
 
     assert techs_eff['boilerA'].eff_achieved == 0.44

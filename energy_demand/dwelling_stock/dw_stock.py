@@ -58,7 +58,7 @@ def createNEWCASTLE_dwelling_stock(curr_yr, region, data, parameter_list):
                 coordinates=data['reg_coord'][region],
                 floorarea=floor_area_dwtype_age_class,
                 enduses=data['enduses']['rs_enduses'],
-                driver_assumptions=data['assumptions']['scenario_drivers']['rs_submodule'],
+                driver_assumptions=data['assumptions'].scenario_drivers['rs_submodule'],
                 population=pop_dwtype_age_class,
                 age=age_class,
                 dwtype=dwelling_type,
@@ -119,7 +119,7 @@ class Dwelling(object):
         ):
         """Constructor of Dwelling Class
         """
-        self.dw_region_name = region
+        #self.dw_region_name = region
         self.curr_yr = curr_yr
         self.enduses = enduses
         self.longitude = coordinates['longitude']
@@ -196,7 +196,7 @@ class DwellingStock(object):
         enduses : list
             Enduses
         """
-        self.region_name = region
+        #self.region = region
         self.dwellings = dwellings
 
         # Calculate pop of dwelling stock
@@ -205,8 +205,7 @@ class DwellingStock(object):
         # Calculate enduse specific scenario driver
         for enduse in enduses:
 
-            enduse_scenario_driver = get_scenario_driver_enduse(
-                dwellings,
+            enduse_scenario_driver = self.get_scenario_driver(
                 enduse)
 
             DwellingStock.__setattr__(
@@ -214,19 +213,19 @@ class DwellingStock(object):
                 enduse,
                 enduse_scenario_driver)
 
-def get_scenario_driver_enduse(dwellings, enduse):
-    """Sum all scenario driver for space heating
+    def get_scenario_driver(self, enduse):
+        """Sum all scenario driver for an enduse
 
-    Arguments
-    ----------
-    enduse: string
-        Enduse
-    """
-    sum_driver = 0
-    for dwelling in dwellings:
-        sum_driver += getattr(dwelling, enduse)
+        Arguments
+        ----------
+        enduse: string
+            Enduse to calculate scenario drivers
+        """
+        sum_driver = 0
+        for dwelling in self.dwellings:
+            sum_driver += getattr(dwelling, enduse)
 
-    return sum_driver
+        return sum_driver
 
 def get_tot_pop(dwellings):
     """Get total population of all dwellings
@@ -462,7 +461,7 @@ def ss_dw_stock(
             '''
             # Change in floor are for service submodel depending on sector
             # (if no change set to 1, if e.g. 10% decrease change to 0.9)
-            assumptions['ss_floorarea_change_ey_p'] = {
+            assumptions.ss_floorarea_change_ey_p = {
 
                 'yr_until_changed': yr_until_changed_all_things,
 
@@ -479,9 +478,9 @@ def ss_dw_stock(
                 '''
         else:
             # Change in floor area up to end year
-            if sector in assumptions['ss_floorarea_change_ey_p']:
-                change_floorarea_p_ey = assumptions['ss_floorarea_change_ey_p'][sector]
-                yr_until_changed = assumptions['ss_floorarea_change_ey_p']['yr_until_changed']
+            if sector in assumptions.ss_floorarea_change_ey_p:
+                change_floorarea_p_ey = assumptions.ss_floorarea_change_ey_p[sector]
+                yr_until_changed = assumptions.ss_floorarea_change_ey_p['yr_until_changed']
             else:
                 sys.exit(
                     "Error: The ss building stock sector floor area assumption is not defined")
@@ -505,7 +504,7 @@ def ss_dw_stock(
                 coordinates=reg_coord[region],
                 floorarea=floorarea_sector_cy,
                 enduses=enduses,
-                driver_assumptions=assumptions['scenario_drivers']['ss_submodule'],
+                driver_assumptions=assumptions.scenario_drivers['ss_submodule'],
                 sector_type=sector,
                 gva=scenario_data['gva'][curr_yr][region]))
 
@@ -566,15 +565,15 @@ def rs_dw_stock(
 
         # Get changes in absolute floor area per dwelling type over time
         dwtype_floor_area = get_dwtype_floor_area(
-            assumptions['assump_dwtype_floorarea_by'],
-            assumptions['assump_dwtype_floorarea_future'],
+            assumptions.assump_dwtype_floorarea_by,
+            assumptions.assump_dwtype_floorarea_future,
             base_yr,
             simulated_yrs)
 
         # Get distribution of dwelling types of all simulation years
         dwtype_distr = get_dwtype_distr(
-            assumptions['assump_dwtype_distr_by'],
-            assumptions['assump_dwtype_distr_future'],
+            assumptions.assump_dwtype_distr_by,
+            assumptions.assump_dwtype_distr_future,
             base_yr,
             simulated_yrs)
 
@@ -584,8 +583,8 @@ def rs_dw_stock(
             scenario_data['population'][base_yr][region],
             base_yr,
             simulated_yrs,
-            assumptions['assump_diff_floorarea_pp'],
-            assumptions['assump_diff_floorarea_pp_yr_until_changed'])
+            assumptions.assump_diff_floorarea_pp,
+            assumptions.assump_diff_floorarea_pp_yr_until_changed)
 
         # Get fraction of total floorarea for every dwelling type
         floorarea_p = get_floorarea_dwtype_p(
@@ -631,7 +630,7 @@ def rs_dw_stock(
             dw_lu=dwelling_types,
             floorarea_p=floorarea_p[base_yr],
             floorarea_by=floorarea_by,
-            dwtype_age_distr_by=assumptions['dwtype_age_distr'][base_yr],
+            dwtype_age_distr_by=assumptions.dwtype_age_distr[base_yr],
             floorarea_pp=floorarea_pp_by,
             tot_floorarea_cy=floorarea_by,
             pop_by=population_by)
@@ -670,7 +669,7 @@ def rs_dw_stock(
             dw_lu=dwelling_types,
             floorarea_p=floorarea_p[curr_yr],
             floorarea_by=remaining_area,
-            dwtype_age_distr_by=assumptions['dwtype_age_distr'][base_yr],
+            dwtype_age_distr_by=assumptions.dwtype_age_distr[base_yr],
             floorarea_pp=floorarea_pp_cy,
             tot_floorarea_cy=remaining_area,
             pop_by=population_by_existing)

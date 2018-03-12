@@ -221,8 +221,8 @@ def write_simulation_inifile(path, sim_param, enduses, assumptions, reg_nrs, reg
     config['SIM_PARAM']['reg_nrs'] = str(reg_nrs)
     config['SIM_PARAM']['base_yr'] = str(sim_param['base_yr'])
     config['SIM_PARAM']['simulated_yrs'] = str(sim_param['simulated_yrs'])
-    config['SIM_PARAM']['model_yearhours_nrs'] = str(assumptions['model_yearhours_nrs'])
-    config['SIM_PARAM']['model_yeardays_nrs'] = str(assumptions['model_yeardays_nrs'])
+    config['SIM_PARAM']['model_yearhours_nrs'] = str(assumptions.model_yearhours_nrs)
+    config['SIM_PARAM']['model_yeardays_nrs'] = str(assumptions.model_yeardays_nrs)
 
     # ----------------------------
     # Other information to pass to plotting and summing function

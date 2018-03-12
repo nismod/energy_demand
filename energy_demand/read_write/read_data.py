@@ -13,6 +13,31 @@ from energy_demand.technologies import tech_related
 from energy_demand.profiles import load_profile
 from energy_demand.scripts import init_scripts
 
+def taget_ruc11cd_values(path_to_csv):
+    """read urban/rural classifiation
+
+    """
+
+    # Data for ENGLAND
+    out = {}
+    with open(path_to_csv, 'r') as csvfile:
+        rows = csv.reader(csvfile, delimiter=',')
+        headings = next(rows)
+        _sceond_row = next(rows)
+
+        for row in rows:
+            lad_region = str(row[get_position(headings, 'LAD11CD')])
+            ruc11 = int(row[get_position(headings, 'RUC11CD')])
+
+            out[lad_region] = ruc11
+   
+    # Data for SCOTLAND
+
+
+    # Data for IRELAND
+
+    return out
+
 class TechnologyData(object):
     """Class to store technology related data
 
@@ -110,7 +135,7 @@ class FuelSwitch(object):
     ---------
     enduse : str
         Enduse of affected switch
-    enduse_fueltype_replace : str
+    fueltype_replace : str
         Fueltype which is beeing switched from
     technology_install : str
         Installed technology
@@ -122,7 +147,7 @@ class FuelSwitch(object):
     def __init__(
             self,
             enduse=None,
-            enduse_fueltype_replace=None,
+            fueltype_replace=None,
             technology_install=None,
             switch_yr=None,
             fuel_share_switched_ey=None,
@@ -132,7 +157,7 @@ class FuelSwitch(object):
         """
         self.enduse = enduse
         self.sector = sector
-        self.enduse_fueltype_replace = enduse_fueltype_replace
+        self.fueltype_replace = fueltype_replace
         self.technology_install = technology_install
         self.switch_yr = switch_yr
         self.fuel_share_switched_ey = fuel_share_switched_ey
@@ -371,7 +396,7 @@ def load_script_data(data):
         data)
 
     for key, value in init_cont.items():
-        data['assumptions'][key] = value
+        setattr(data['assumptions'], key, value)
 
     for key, value in fuel_disagg.items():
         data[key] = value
@@ -402,7 +427,7 @@ def read_fuel_ss(path_to_csv, fueltypes_nr):
 
     with open(path_to_csv, 'r') as csvfile:
         rows = csv.reader(csvfile, delimiter=',')
-        _headings = next(rows) # Skip row
+        headings = next(rows) # Skip row
         _secondline = next(rows) # Skip row
 
         # All sectors
@@ -412,7 +437,7 @@ def read_fuel_ss(path_to_csv, fueltypes_nr):
 
         # All enduses
         enduses = set([])
-        for enduse in _headings[1:]: #skip fuel ID:
+        for enduse in headings[1:]: #skip fuel ID:
             enduses.add(enduse)
 
         # Initialise dict
@@ -426,7 +451,7 @@ def read_fuel_ss(path_to_csv, fueltypes_nr):
 
         for cnt_fueltype, row in enumerate(rows_list):
             for cnt, entry in enumerate(row[1:], 1):
-                enduse = _headings[cnt]
+                enduse = headings[cnt]
                 sector = _secondline[cnt]
                 fuels[enduse][sector][cnt_fueltype] += float(entry)
 
@@ -444,12 +469,12 @@ def read_load_shapes_tech(path_to_csv):
 
     with open(path_to_csv, 'r') as csvfile:
         rows = csv.reader(csvfile, delimiter=',')
-        _headings = next(rows) # Skip first row
+        headings = next(rows) # Skip first row
 
         for row in rows:
             dh_shape = np.zeros((24), dtype=float)
             for cnt, row_entry in enumerate(row[1:], 1):
-                dh_shape[int(_headings[cnt])] = float(row_entry)
+                dh_shape[int(headings[cnt])] = float(row_entry)
 
             load_shapes_dh[str(row[0])] = dh_shape
 
@@ -494,22 +519,22 @@ def service_switch(path_to_csv, technologies):
 
     with open(path_to_csv, 'r') as csvfile:
         rows = csv.reader(csvfile, delimiter=',')
-        _headings = next(rows) # Skip first row
+        headings = next(rows) # Skip first row
 
         for row in rows:
             try:
                 # Check if setor is defined
                 try:
-                    sector = str(row[get_position(_headings, 'sector')])
+                    sector = str(row[get_position(headings, 'sector')])
                 except IndexError:
                     sector = ''
 
                 service_switches.append(
                     ServiceSwitch(
-                        enduse=str(row[get_position(_headings, 'enduse')]),
-                        technology_install=str(row[get_position(_headings, 'tech')]),
-                        service_share_ey=float(row[get_position(_headings, 'service_share_ey')]),
-                        switch_yr=float(row[get_position(_headings, 'switch_yr')]),
+                        enduse=str(row[get_position(headings, 'enduse')]),
+                        technology_install=str(row[get_position(headings, 'tech')]),
+                        service_share_ey=float(row[get_position(headings, 'service_share_ey')]),
+                        switch_yr=float(row[get_position(headings, 'switch_yr')]),
                         sector=sector))
 
             except (KeyError, ValueError):
@@ -550,7 +575,7 @@ def read_fuel_switches(path_to_csv, enduses, fueltypes):
         Attribute                   Description
         ==========                  =========================
         enduse                      [str]   Enduse affected by switch
-        enduse_fueltype_replace     [str]   Fueltype to be switched from
+        fueltype_replace     [str]   Fueltype to be switched from
         technology_install          [str]   Technology which is installed
         switch_yr                   [int]   Year until switch is fully realised
         fuel_share_switched_ey      [float] Share of fuel which is switched until switch_yr
@@ -561,23 +586,23 @@ def read_fuel_switches(path_to_csv, enduses, fueltypes):
 
     with open(path_to_csv, 'r') as csvfile:
         rows = csv.reader(csvfile, delimiter=',')
-        _headings = next(rows)
+        headings = next(rows)
 
         for row in rows:
             try:
 
                 try:
-                    sector = str(row[get_position(_headings, 'sector')])
+                    sector = str(row[get_position(headings, 'sector')])
                 except IndexError:
                     sector = ''
 
                 fuel_switches.append(
                     FuelSwitch(
-                        enduse=str(row[get_position(_headings, 'enduse')]),
-                        enduse_fueltype_replace=fueltypes[str(row[get_position(_headings, 'enduse_fueltype_replace')])],
-                        technology_install=str(row[get_position(_headings, 'technology_install')]),
-                        switch_yr=float(row[get_position(_headings, 'switch_yr')]),
-                        fuel_share_switched_ey=float(row[get_position(_headings, 'fuel_share_switched_ey')]),
+                        enduse=str(row[get_position(headings, 'enduse')]),
+                        fueltype_replace=fueltypes[str(row[get_position(headings, 'fueltype_replace')])],
+                        technology_install=str(row[get_position(headings, 'technology_install')]),
+                        switch_yr=float(row[get_position(headings, 'switch_yr')]),
+                        fuel_share_switched_ey=float(row[get_position(headings, 'fuel_share_switched_ey')]),
                         sector=sector))
 
             except (KeyError, ValueError):
@@ -596,10 +621,10 @@ def read_fuel_switches(path_to_csv, enduses, fueltypes):
     # Test if more than 100% per fueltype is switched
     for obj in fuel_switches:
         enduse = obj.enduse
-        fueltype = obj.enduse_fueltype_replace
+        fueltype = obj.fueltype_replace
         tot_share_fueltype_switched = 0
         for obj_iter in fuel_switches:
-            if enduse == obj_iter.enduse and fueltype == obj_iter.enduse_fueltype_replace:
+            if enduse == obj_iter.enduse and fueltype == obj_iter.fueltype_replace:
                 tot_share_fueltype_switched += obj_iter.fuel_share_switched_ey
         if tot_share_fueltype_switched > 1.0:
             sys.exit(
@@ -664,7 +689,7 @@ def read_technologies(path_to_csv, fueltypes):
 
     with open(path_to_csv, 'r') as csvfile:
         rows = csv.reader(csvfile, delimiter=',')
-        _headings = next(rows) # Skip heading
+        headings = next(rows) # Skip heading
 
         for row in rows:
             technology = row[0]
@@ -728,18 +753,18 @@ def read_fuel_rs(path_to_csv):
 
         with open(path_to_csv, 'r') as csvfile:
             rows = csv.reader(csvfile, delimiter=',')
-            _headings = next(rows) # Skip first row
+            headings = next(rows) # Skip first row
 
             for row in rows:
                 rows_list.append(row)
 
-            for i in _headings[1:]: # skip first
+            for i in headings[1:]: # skip first
                 fuels[i] = np.zeros((len(rows_list)), dtype=float)
 
             for cnt_fueltype, row in enumerate(rows_list):
                 cnt = 1 #skip first
                 for fuel in row[1:]:
-                    end_use = _headings[cnt]
+                    end_use = headings[cnt]
                     fuels[end_use][cnt_fueltype] = float(fuel)
                     cnt += 1
     except (KeyError, ValueError):
@@ -872,12 +897,12 @@ def read_fuel_is(path_to_csv, fueltypes_nr, fueltypes):
 
     with open(path_to_csv, 'r') as csvfile:
         rows = csv.reader(csvfile, delimiter=',')
-        _headings = next(rows)
+        headings = next(rows)
         _secondline = next(rows)
 
         # All sectors
         enduses = set([])
-        for enduse in _headings[1:]:
+        for enduse in headings[1:]:
             if enduse is not '':
                 enduses.add(enduse)
 
@@ -900,7 +925,7 @@ def read_fuel_is(path_to_csv, fueltypes_nr, fueltypes):
             for position, entry in enumerate(row[1:], 1): # Start with position 1
 
                 if entry != '':
-                    enduse = str(_headings[position])
+                    enduse = str(headings[position])
                     fueltype = _secondline[position]
                     fueltype_int = tech_related.get_fueltype_int(fueltypes, fueltype)
                     fuels[enduse][sector][fueltype_int] += float(row[position])
@@ -1016,11 +1041,11 @@ def read_capacity_switch(path_to_csv):
 
             except (KeyError, ValueError):
                 sys.exit(
-                    "Error in loading capacity switch: Check if no emptly csv entries (except for optional sector field)")
+                    "Error in loading capacity switch: Check empty csv entries (except for optional sector field)")
 
     return service_switches
 
-def read_floor_area_virtual_stock(path_to_csv, p_mixed_resid=0.5):
+def read_floor_area_virtual_stock(path_to_csv, f_mixed_floorarea=0.5):
     """Read in floor area from csv file for every LAD
     to generate virtual building stock.
 
@@ -1028,7 +1053,7 @@ def read_floor_area_virtual_stock(path_to_csv, p_mixed_resid=0.5):
     ---------
     path_floor_area : str
         Path to csv file
-    p_mixed_resid : float
+    f_mixed_floorarea : float
         Factor to assign mixed floor area
 
     Returns
@@ -1041,48 +1066,47 @@ def read_floor_area_virtual_stock(path_to_csv, p_mixed_resid=0.5):
     Info
     -----
     *   The mixed floor area (residential and non residential) is distributed
-        according to `p_mixed_resid`.
+        according to `f_mixed_floorarea`.
     
     TODO: READ IN SECTOR SPECIFIC FLOOR AREA OR CALCLATE IT SOMEHOW
     """
     # Redistribute the mixed enduse
-    p_mixed_resid = 0.5
-    p_mixed_no_resid = 1 - p_mixed_resid
+    p_mixed_no_resid = 1 - f_mixed_floorarea
 
     # Second Mail from Craig
     res_floorarea, non_res_floorarea, floorarea_mixed = {}, {}, {}
 
     with open(path_to_csv, 'r') as csvfile:
         rows = csv.reader(csvfile, delimiter=',')
-        _headings = next(rows)
+        headings = next(rows)
 
         for row in rows:
-            geo_name = str.strip(row[get_position(_headings, 'lad')])
+            geo_name = str.strip(row[get_position(headings, 'lad')])
 
-            if (row[get_position(_headings, 'res_bld_floor_area')] == 'null') or (
-                row[get_position(_headings, 'nonres_bld_floor_area')] == 'null') or (
-                    row[get_position(_headings, 'mixeduse_bld_floor_area')] == 'null'):
+            if (row[get_position(headings, 'res_bld_floor_area')] == 'null') or (
+                row[get_position(headings, 'nonres_bld_floor_area')] == 'null') or (
+                    row[get_position(headings, 'mixeduse_bld_floor_area')] == 'null'):
                     res_floorarea[geo_name] = 1 #TODO
                     non_res_floorarea[geo_name] = 1 #TODO
                     floorarea_mixed[geo_name] = 1 #TODO
             else:
-                if row[get_position(_headings, 'res_bld_floor_area')] == 'null':
+                if row[get_position(headings, 'res_bld_floor_area')] == 'null':
                     res_floorarea[geo_name] = 1 #TODO
                 else:
-                    res_floorarea[geo_name] = float(row[get_position(_headings, 'res_bld_floor_area')])
-                if row[get_position(_headings, 'nonres_bld_floor_area')] == 'null':
+                    res_floorarea[geo_name] = float(row[get_position(headings, 'res_bld_floor_area')])
+                if row[get_position(headings, 'nonres_bld_floor_area')] == 'null':
                     non_res_floorarea[geo_name] = 1 #TODO
                 else:
-                    non_res_floorarea[geo_name] = float(row[get_position(_headings, 'nonres_bld_floor_area')])
+                    non_res_floorarea[geo_name] = float(row[get_position(headings, 'nonres_bld_floor_area')])
 
-                if row[get_position(_headings, 'mixeduse_bld_floor_area')] == 'null':
+                if row[get_position(headings, 'mixeduse_bld_floor_area')] == 'null':
                     floorarea_mixed[geo_name] = 1 #TODO
                 else:
-                    floorarea_mixed[geo_name] = float(row[get_position(_headings, 'mixeduse_bld_floor_area')])
+                    floorarea_mixed[geo_name] = float(row[get_position(headings, 'mixeduse_bld_floor_area')])
 
                 # Distribute mixed floor area
                 non_res_from_mixed = floorarea_mixed[geo_name] * p_mixed_no_resid
-                res_from_mixed = floorarea_mixed[geo_name] * p_mixed_resid
+                res_from_mixed = floorarea_mixed[geo_name] * f_mixed_floorarea
 
                 # Add
                 res_floorarea[geo_name] += res_from_mixed

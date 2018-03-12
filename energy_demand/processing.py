@@ -22,7 +22,7 @@ def main(path_data_energy_demand, path_shapefile_input):
     # Criterias
     # ---------
     write_shapefiles = False    # Write shapefiles
-    spatial_results = False      # Spatial geopanda maps
+    spatial_results = True      # Spatial geopanda maps
 
     # Set up logger
     logger_setup.set_up_logger(
@@ -49,7 +49,7 @@ def main(path_data_energy_demand, path_shapefile_input):
     data['sim_param'], data['enduses'], data['assumptions'], data['reg_nrs'], data['regions'] = data_loader.load_sim_param_ini(
         data['local_paths']['data_results'])
 
-    # Other information is read in
+    # Other information is read in TODO IMPROVE
     data['assumptions']['seasons'] = date_prop.read_season(year_to_model=2015)
     data['assumptions']['model_yeardays_daytype'], data['assumptions']['yeardays_month'], data['assumptions']['yeardays_month_days'] = date_prop.get_model_yeardays_daytype(year_to_model=2015)
 

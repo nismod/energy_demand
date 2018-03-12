@@ -196,7 +196,8 @@ def compare_results(
     # Label x axis in dates
     # -------------------
     major_ticks_days, major_ticks_labels = get_date_strings(
-        x_data, daystep=2)
+        days_to_plot,
+        daystep=1)
 
     plt.xticks(major_ticks_days, major_ticks_labels)
 
@@ -218,7 +219,7 @@ def compare_results(
     plt.title(title_left, loc='left')
 
     plt.xlabel("hour", fontsize=10)
-    plt.ylabel("uk electrictiy use [GW] for {}".format(title_left), fontsize=10)
+    plt.ylabel("uk elec use [GW] for {}".format(title_left), fontsize=10)
 
     plt.legend(frameon=False)
 
@@ -387,30 +388,31 @@ def plot_residual_histogram(values, path_result, name_fig):
     #Save fig
     plt.savefig(os.path.join(path_result, name_fig))
 
-def get_date_strings(x_data, daystep):
+def get_date_strings(days_to_plot, daystep):
     """Calculate date and position for range
     input of yeardays
     """
     major_ticks_days = []
     major_ticks_labels = []
     cnt = 0
-    cnt_daystep = 0
+    cnt_daystep = 1
 
-    for yearhour in x_data:
-        if cnt == 23:
-            yearday_int = ((yearhour + 1) / 24) -1
-            str_date = str(date_prop.yearday_to_date(2015, yearday_int))
-            str_date_short = str_date[5:]
+    for day in days_to_plot:
+        str_date = str(date_prop.yearday_to_date(2015, day))
+        str_date_short = str_date[5:]
+        yearhour = cnt * 24
 
-            if daystep == cnt_daystep:
-                major_ticks_labels.append(str_date_short)
-                major_ticks_days.append(yearhour - 24)
-                cnt = 0
-                cnt_daystep = 0
-            else:
-                cnt = 0
-                cnt_daystep += 1
+        if daystep == cnt_daystep:
+
+            # Label
+            major_ticks_labels.append(str_date_short)
+
+            # Position
+            major_ticks_days.append(yearhour)
+            cnt_daystep = 1
+            cnt += 1
         else:
+            cnt_daystep += 1
             cnt += 1
 
     return major_ticks_days, major_ticks_labels

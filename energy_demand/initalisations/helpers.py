@@ -16,7 +16,8 @@ def copy_fractions_all_sectors(fuel_tech_p_by, sectors):
     Returns
     -------
     out_dict : dict
-        Fuel shares for all sectors {enduse: {sector: {fueltype: {tech: {share}}}}}
+        Fuel shares for all sectors
+        {enduse: {sector: {fueltype: {tech: {share}}}}}
     """
     out_dict = defaultdict(dict)
 
@@ -47,27 +48,6 @@ def init_fuel_tech_p_by(all_enduses_with_fuels, fueltypes_nr):
         fuel_tech_p_by[enduse] = dict.fromkeys(range(fueltypes_nr), {})
 
     return fuel_tech_p_by
-
-def service_type_tech_by_p(fueltypes, fuel_tech_p_by):
-    """Initialise dict and fill with zeros
-
-    Arguments
-    ----------
-    fueltypes : dict
-        Look-up dictionary
-    fuel_tech_p_by : dict
-        Fuel fraction per technology for base year
-
-    Return
-    -------
-    s_fueltype_tech_by_p : dict
-        Fraction of service per fueltype and technology for base year
-    """
-    s_fueltype_tech_by_p = {}
-    for fueltype_int in fueltypes.values():
-        s_fueltype_tech_by_p[fueltype_int] = dict.fromkeys(fuel_tech_p_by[fueltype_int].keys(), 0)
-
-    return s_fueltype_tech_by_p
 
 def init_dict_brackets(first_level_keys):
     """Initialise a  dictionary with one level
@@ -166,14 +146,14 @@ def get_nested_dict_key(nested_dict):
 
     return all_nested_keys
 
-def set_same_eff_all_tech(technologies, tech_eff_achieved_f=1):
+def set_same_eff_all_tech(technologies, eff_achieved_f=1):
     """Helper function to assing same achieved efficiency
 
     Arguments
     ----------
     technologies : dict
         Technologies
-    tech_eff_achieved_f : float,default=1
+    eff_achieved_f : float,default=1
         Factor showing the fraction of how much an efficiency is achieved
 
     Returns
@@ -182,6 +162,6 @@ def set_same_eff_all_tech(technologies, tech_eff_achieved_f=1):
         Adapted technolog
     """
     for technology in technologies:
-        technologies[technology].eff_achieved = tech_eff_achieved_f
+        technologies[technology].eff_achieved = eff_achieved_f
 
     return technologies

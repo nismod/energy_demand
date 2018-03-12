@@ -132,7 +132,7 @@ def read_national_real_gas_data(path_to_csv):
 
     return national_fuel_data
 
-def floor_area_virtual_dw(regions, all_sectors, local_paths, base_yr, p_mixed_resid):
+def floor_area_virtual_dw(regions, all_sectors, local_paths, base_yr, f_mixed_floorarea):
     """Load necessary data for virtual building stock
     in case the link to the building stock model in
     Newcastle is not used
@@ -147,7 +147,7 @@ def floor_area_virtual_dw(regions, all_sectors, local_paths, base_yr, p_mixed_re
         Paths
     base_yr : float
         Base year
-    p_mixed_resid : float
+    f_mixed_floorarea : float
         PArameter to redistributed mixed enduse
 
     Returns
@@ -162,7 +162,7 @@ def floor_area_virtual_dw(regions, all_sectors, local_paths, base_yr, p_mixed_re
     # --------------------------------------------------
     resid_footprint, non_res_flootprint = read_data.read_floor_area_virtual_stock(
         local_paths['path_floor_area_virtual_stock_by'],
-        p_mixed_resid=p_mixed_resid)
+        f_mixed_floorarea=f_mixed_floorarea)
 
     rs_floorarea = defaultdict(dict)
     for region in regions:

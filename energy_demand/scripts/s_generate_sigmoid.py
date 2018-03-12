@@ -329,7 +329,7 @@ def calc_service_fuel_switched(
     for fuel_switch in fuel_switches:
 
         tech_install = fuel_switch.technology_install
-        tech_replace_fueltype = fuel_switch.enduse_fueltype_replace
+        tech_replace_fueltype = fuel_switch.fueltype_replace
 
         # Share of energy service of repalced fueltype before switch in base year
         service_p_by = s_fueltype_by_p[tech_replace_fueltype]
@@ -568,7 +568,10 @@ def tech_sigmoid_parameters(
             # If future share is zero, entry small value
             if point_y_ey == 0:
                 point_y_ey = fit_assump_init
-
+            elif point_y_ey == 1.0:
+                point_y_ey = 1 - fit_assump_init # TODO: NEW CRITERIA
+            else:
+                pass
             # Data of the two points
             xdata = np.array([point_x_by, point_x_ey])
             ydata = np.array([point_y_by, point_y_ey])

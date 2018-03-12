@@ -44,7 +44,7 @@ def test_LoadProfileStock():
 
     expected = "test_stock"
 
-    assert result_obj.stock_name == expected
+    assert result_obj.name == expected
 
     # -----
     result_obj.add_lp(
@@ -54,12 +54,12 @@ def test_LoadProfileStock():
         shape_yd=np.zeros((365)),
         shape_yh=np.zeros((365, 24)),
         sectors=False,
-        enduse_peak_yd_factor=1.0/365,
+        f_peak_yd=1.0/365,
         shape_peak_dh=np.full((24), 1.0/24))
 
-    result = result_obj.enduses_in_stock
+    result = result_obj.stock_enduses
 
-    result2 = load_profile.get_stock_enduses(result_obj.load_profile_dict)
+    result2 = load_profile.get_stock_enduses(result_obj.load_profiles)
 
     assert result == ['cooking']
     assert result2 == ['cooking']
@@ -73,10 +73,10 @@ def test_LoadProfileStock():
         shape_yd=np.zeros((365)),
         shape_yh=np.zeros((365, 24)),
         sectors=['sectorA'],
-        enduse_peak_yd_factor=1.0/365,
+        f_peak_yd=1.0/365,
         shape_peak_dh=np.full((24), 1.0/24))
 
-    result = result_obj.enduses_in_stock
+    result = result_obj.stock_enduses
     assert result == ['cooking']
 
     # test get_lp()
@@ -84,7 +84,7 @@ def test_LoadProfileStock():
     np.testing.assert_array_equal(np.zeros((365, 24)), result_obj.get_lp('cooking', 'sectorA', 'placeholder_tech', 'shape_yh'))
     np.testing.assert_array_equal(np.zeros((365, 24)), result_obj.get_lp('cooking', 'sectorA', 'placeholder_tech', 'shape_y_dh'))
     np.testing.assert_array_equal(np.full((24), 1.0/24), result_obj.get_lp('cooking', 'sectorA', 'placeholder_tech', 'shape_peak_dh'))
-    np.testing.assert_array_equal(1.0/365, result_obj.get_lp('cooking', 'sectorA', 'placeholder_tech', 'enduse_peak_yd_factor'))
+    np.testing.assert_array_equal(1.0/365, result_obj.get_lp('cooking', 'sectorA', 'placeholder_tech', 'f_peak_yd'))
 
     # test get_shape_peak_dh()
     '''_var = result_obj.get_lp('cooking', 'sectorA', 'placeholder_tech', 'shape_peak_dh')
@@ -114,7 +114,7 @@ def test_LoadProfile():
         unique_identifier="A123",
         shape_yd=np.zeros((365)),
         shape_yh=np.zeros((365, 24)),
-        enduse_peak_yd_factor=0.7,
+        f_peak_yd=0.7,
         shape_peak_dh=np.zeros((24)))
 
     

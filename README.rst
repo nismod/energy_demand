@@ -82,7 +82,7 @@ run every time the model is run with different assumptions (Section 1.2).
 
 3. Install HIRE from within the console with the command
 
-   ``energy_demand post_install_setup_minimum -d1 path/to/energy_data_folder -d2 path/to/python_files``
+   ``energy_demand post_install_setup_minimum -d1 path/to/python_files -d2 path/to/energy_data_folder``
 
    Example:
     energy_demand post_install_setup_minimum -d1  C:/Users/cenv0553/nismod/data_energy_demand -d2 C:/Users/cenv0553/nismod/models/energy_demand
@@ -114,6 +114,4 @@ To change the logger level of an individual sector model with smif, type:
 
 Literature
 ========================
-Baruah, P., Eyre, N., Qadrdan, M., Chaudry, M., Blainey, S., Hall, J. W., … Tran, M. (2014). Energy
-system impacts from heat and transport electrification. Proceedings of the ICE - Energy, 
-167(3), 139–151. https://doi.org/10.1680/ener.14.00008
+Eggimann et al. (2018): In progress

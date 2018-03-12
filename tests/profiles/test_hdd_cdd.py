@@ -79,9 +79,10 @@ def test_sigm_temp():
     assumptions = {}
     assumptions['smart_meter_assump'] = {}
     assumptions['smart_meter_assump']['smart_meter_diff_params'] = {}
-    sig_midpoint = 0
-    sig_steepness = 1
-    yr_until_changed = 2020
+    diff_param = {}
+    diff_param['sig_midpoint'] = 0
+    diff_param['sig_steepness'] = 1
+    diff_param['yr_until_changed'] = 2020
 
     end_yr_t_base = 13
     rs_t_heating_by = 15
@@ -92,9 +93,7 @@ def test_sigm_temp():
         rs_t_heating_by,
         2015,
         2020,
-        sig_midpoint,
-        sig_steepness,
-        yr_until_changed)
+        diff_param)
 
     expected = end_yr_t_base
     assert result == expected

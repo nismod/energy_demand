@@ -40,7 +40,7 @@ def test_get_tot_pop():
     assert out_value == expected
     assert out_value2 == expected2
 
-def test_get_scenario_driver_enduse():
+def test_get_scenario_driver():
     """Testing
     """
     scenario_drivers = {'heating': ['population']}
@@ -59,7 +59,7 @@ def test_get_scenario_driver_enduse():
     expected = 4.4
 
     # call function
-    out_value = dw_stock.get_scenario_driver_enduse(dw_stock_object.dwellings, 'population')
+    out_value = dw_stock.get_scenario_driver(dw_stock_object.dwellings, 'population')
 
     assert out_value == expected
 

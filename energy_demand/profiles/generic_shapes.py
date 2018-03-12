@@ -52,7 +52,7 @@ class GenericFlatEnduse(object):
         Number of modelled yeardays
     """
     def __init__(self, enduse_fuel, model_yeardays_nrs):
-        self.fuel_new_y = enduse_fuel
+        self.fuel_new_y = enduse_fuel #TODO IS this needed? 
 
         shape_peak_dh, shape_non_peak_y_dh, shape_peak_yd_factor, shape_non_peak_yd, _ = flat_shape(model_yeardays_nrs)
 

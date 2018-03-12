@@ -73,7 +73,7 @@ def sum_2_level_dict(two_level_dict):
     return tot_sum
 
 def sum_fuel_enduse_sectors(data_enduses, enduses, nr_fueltypes):
-    """Aggregated fuel for all sectors according to enduse
+    """Aggregate fuel for all sectors according to enduse
 
     Arguments
     --------
@@ -91,10 +91,6 @@ def sum_fuel_enduse_sectors(data_enduses, enduses, nr_fueltypes):
     """
     aggregated_fuel_enduse = {}
 
-    for enduse in enduses:
-        aggregated_fuel_enduse[str(enduse)] = np.zeros((nr_fueltypes), dtype=float)
-
-    # Iterate and sum fuel per enduse
     for enduse in enduses:
         aggregated_fuel_enduse[enduse] = sum(data_enduses[enduse].values())
 
