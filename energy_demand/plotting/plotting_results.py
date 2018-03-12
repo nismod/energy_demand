@@ -1434,8 +1434,6 @@ def plot_enduse_yh(
     # ----------
     # Labelling
     # ----------
-    font_additional_info = plotting_styles.font_info()
-
     plt.xlabel("hour", fontsize=10)
     plt.ylabel("uk elec use [GW]", fontsize=10)
 

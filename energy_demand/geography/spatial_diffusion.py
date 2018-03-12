@@ -532,7 +532,7 @@ def factor_improvements_single(
         # Replace
         reg_enduse_tech_p_ey = reg_enduse_tech_p_ey_capped
 
-        #Soul be the same
+
         logging.warning("FAKTOR UK :" + str(factor_uk))
         logging.warning("Lost demand: " + str(demand_lost))
         logging.warning("TESTDUM a " + str(test))

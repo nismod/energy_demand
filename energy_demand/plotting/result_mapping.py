@@ -617,8 +617,9 @@ def create_geopanda_files(
     # ======================================
     for year in results_container['results_every_year'].keys():
         for fueltype in range(fueltypes_nr):
-
-            field_name = 'y_{}_{}'.format(year, fueltype)
+            
+            fueltype_str = tech_related.get_fueltype_str(fueltypes, fueltype)
+            field_name = 'y_{}_{}'.format(year, fueltype_str)
 
             # Calculate yearly sum
             yearly_sum_gwh = np.sum(
@@ -655,7 +656,8 @@ def create_geopanda_files(
     for year in results_container['load_factors_y'].keys():
         for fueltype in range(fueltypes_nr):
 
-            field_name = 'lf_{}_{}'.format(year, fueltype)
+            fueltype_str = tech_related.get_fueltype_str(fueltypes, fueltype)
+            field_name = 'lf_{}_{}'.format(year, fueltype_str)
 
             results = basic_functions.array_to_dict(
                 results_container['load_factors_y'][year][fueltype], regions)

@@ -38,9 +38,9 @@ def load_non_param_assump(
     # Spatially modelled variables
     # ============================================================
     # Define all variables which are affected by regional diffusion
-    assumptions['spatially_modelled_vars'] = [
-        'smart_meter_improvement_p'
-    ]
+    assumptions['spatially_modelled_vars'] = []
+    #    'smart_meter_improvement_p'
+    #]
 
     # Define technologies which are affected by spatial explicit diffusion
     assumptions['techs_affected_spatial_f'] = ['heat_pumps_electricity']
@@ -173,13 +173,10 @@ def load_non_param_assump(
             '1941': 0.36,
             '1977.5': 0.3,
             '1996.5': 0.08,
-            '2002': 0.05}} #,
-            #'2015': 0.0}}
-        
-    # TODO: DEFINE VARIABLE HOW MUCH IN END YEAR IS 2002
+            '2002': 0.05}}
 
     # ============================================================
-    #   Scenario drivers TODO: CHECK all scenario drivers
+    #   Scenario drivers
     # ============================================================
     #
     #   For every enduse the relevant factors which affect enduse
@@ -212,12 +209,12 @@ def load_non_param_assump(
         'ss_lighting': ['floorarea'],
         'ss_catering': ['population'],
         'ss_ICT_equipment': ['population'],
-        'ss_cooling_humidification': ['floorarea'],
-        'ss_fans': ['floorarea'],
+        'ss_cooling_humidification': ['floorarea', 'population'],
+        'ss_fans': ['floorarea', 'population'],
         'ss_small_power': ['population'],
-        'ss_cooled_storage': ['floorarea'],
-        'ss_other_gas': ['floorarea'],
-        'ss_other_electricity': ['floorarea']}
+        'ss_cooled_storage': ['population'],
+        'ss_other_gas': ['population'],
+        'ss_other_electricity': ['population']}
 
     # --Industry Submodel
     assumptions['scenario_drivers']['is_submodule'] = {
@@ -249,7 +246,7 @@ def load_non_param_assump(
     # ------------------------------------------------------------
 
     # See Abela et al. (2016)
-    assumptions['cooled_ss_floorarea_by'] = 0.35 #TODO IMPROVEMENT RELATIVE
+    assumptions['cooled_ss_floorarea_by'] = 0.35
 
     # ============================================================
     # Smart meter related base year assumptions

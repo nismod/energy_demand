@@ -1573,7 +1573,7 @@ def apply_specific_change(
     # Fuel consumption shares in base and end year
     percent_by = 1.0
 
-    percent_ey = strategy_variables['enduse_change__{}'.format(enduse)]['scenario_value']
+    percent_ey = percent_by + strategy_variables['enduse_change__{}'.format(enduse)]['scenario_value']
 
     # Share of fuel consumption difference
     diff_fuel_consump = percent_ey - percent_by
@@ -1882,8 +1882,9 @@ def apply_cooling(
         of identical array
     """
     try:
+
         # Floor area share cooled in end year
-        cooled_floorearea_p_ey = strategy_variables["cooled_floorarea__{}".format(enduse)]['scenario_value']
+        cooled_floorearea_p_ey = cooled_floorarea_p_by + strategy_variables["cooled_floorarea__{}".format(enduse)]['scenario_value']
 
         # Fraction of heat recovered up to current year
         sig_diff_factor = diffusion_technologies.sigmoid_diffusion(

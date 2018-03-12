@@ -62,7 +62,6 @@ class EDWrapper(SectorModel):
         data['criterias']['mode_constrained'] = True                    # True: Technologies are defined in ED model and fuel is provided, False: Heat is delievered not per technologies
         data['criterias']['virtual_building_stock_criteria'] = True     # True: Run virtual building stock model
         data['criterias']['spatial_exliclit_diffusion'] = True         # True: Spatial explicit calculations
-        data['criterias']['writeYAML'] = True                          # True: Write YAML parameters
 
         fast_smif_run = False
 
@@ -74,6 +73,7 @@ class EDWrapper(SectorModel):
             data['criterias']['plot_crit'] = False
             data['criterias']['crit_plot_enduse_lp'] = False
             data['criterias']['plot_HDD_chart'] = False
+            data['criterias']['writeYAML'] = False
         elif fast_smif_run == False:
             data['criterias']['write_to_txt'] = True
             data['criterias']['beyond_supply_outputs'] = True
@@ -82,6 +82,7 @@ class EDWrapper(SectorModel):
             data['criterias']['plot_crit'] = False
             data['criterias']['crit_plot_enduse_lp'] = False
             data['criterias']['plot_HDD_chart'] = False
+            data['criterias']['writeYAML'] = True                           # True: Write YAML parameters
 
         data['sim_param']['base_yr'] = data_handle.timesteps[0]
         data['sim_param']['curr_yr'] = data_handle.timesteps[0]

@@ -64,7 +64,7 @@ def disaggregate_base_demand(
         weather_stations,
         temp_data,
         enduses['rs_enduses'],
-        crit_limited_disagg_pop_hdd=False,   # Only pop
+        crit_limited_disagg_pop_hdd=True,   # Only pop
         crit_limited_disagg_pop=False,      # Only pop and hdd
         crit_full_disagg=True)             # Full disaggregation
 
@@ -95,8 +95,8 @@ def disaggregate_base_demand(
         sectors['is_sectors'],
         scenario_data['employment_stats'],
         scenario_data,
-        crit_limited_disagg_pop=False,
-        crit_employment=True)
+        crit_limited_disagg_pop=True,
+        crit_employment=False)
 
     return dict(rs_fuel_disagg), dict(ss_fuel_disagg), dict(is_fuel_disagg)
 

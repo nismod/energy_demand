@@ -59,7 +59,7 @@ def load_param_assump(paths=None, assumptions=None):
         "description": "Relative GSHP (%) to GSHP+ASHP",
         "suggested_range": (assumptions['split_hp_gshp_to_ashp_by'], 0.5),
         "default_value": assumptions['split_hp_gshp_to_ashp_by'],
-        "units": '%'})
+        "units": 'decimal'})
 
     # ============================================================
     #  Demand management assumptions (daily demand shape)
@@ -124,7 +124,7 @@ def load_param_assump(paths=None, assumptions=None):
             "description": "reduction in load factor for enduse {}".format(demand_name),
             "suggested_range": (0, 1),
             "default_value": 0,
-            "units": '%',
+            "units": 'decimal',
             'affected_enduse': [demand_name.split("__")[1]]})
 
         strategy_vars[demand_name] = scenario_value
@@ -249,7 +249,7 @@ def load_param_assump(paths=None, assumptions=None):
         "description": "Improvement of smart meter penetration",
         "suggested_range": (0, 0.9),
         "default_value": '{}'.format(assumptions['smart_meter_assump']['smart_meter_p_by']),
-        "units": '%'})
+        "units": 'decimal'})
 
     strategy_variables.append({
         "name": "smart_meter_yr_until_changed",
@@ -310,7 +310,7 @@ def load_param_assump(paths=None, assumptions=None):
             "description": "Smart meter induced savings for enduse {}".format(enduse_name),
             "suggested_range": (0, 1),
             "default_value": '0',
-            "units": '%',
+            "units": 'decimal',
             "affected_enduse": [enduse_name.split("__"[1])]})
 
         strategy_vars[enduse_name] = param_value
@@ -321,14 +321,15 @@ def load_param_assump(paths=None, assumptions=None):
     strategy_variables.append({
         "name": "cooled_floorarea__ss_cooling_humidification",
         "absolute_range": (0, 1),
-        "description": "Percentage of floorarea which is cooled (service sector)",
-        "suggested_range": (0, 1),
+        "description": "Increase in percentage of floorarea which is cooled (service sector)",
+        "suggested_range": (-1, 1),
         "default_value": assumptions['cooled_ss_floorarea_by'],
-        "units": '%'})
+        "units": 'decimal'})
 
     # How much of the floorarea is cooled in end year (example: 0.5 --> 50% of floorarea is cooled)
     # Carbon Trust. (2012). Air conditioning. Maximising comfort, minimising energy consumption.
-    strategy_vars['cooled_floorarea__ss_cooling_humidification'] = 0.35
+    #TODO IMPROVEMENT
+    strategy_vars['cooled_floorarea__ss_cooling_humidification'] = 0 # 0.35 # 0
 
     strategy_variables.append({
         "name": "cooled_floorarea_yr_until_changed",
@@ -366,7 +367,7 @@ def load_param_assump(paths=None, assumptions=None):
         "description": "Share of cold rolling given in percent)",
         "suggested_range": (0, 1),
         "default_value": assumptions['p_cold_rolling_steel_by'],
-        "units": '%'})
+        "units": 'decimal'})
 
     strategy_vars['p_cold_rolling_steel'] = assumptions['p_cold_rolling_steel_by']
 
@@ -379,7 +380,7 @@ def load_param_assump(paths=None, assumptions=None):
         "description": "Reduction in heat because of heat recovery and recycling (residential sector)",
         "suggested_range": (0, 1),
         "default_value": 0,
-        "units": '%',
+        "units": 'decimal',
         'affected_enduse': ['rs_space_heating']})
 
     strategy_variables.append({
@@ -388,7 +389,7 @@ def load_param_assump(paths=None, assumptions=None):
         "description": "Reduction in heat because of heat recovery and recycling (service sector)",
         "suggested_range": (0, 1),
         "default_value": 0,
-        "units": '%',
+        "units": 'decimal',
         'affected_enduse': ['ss_space_heating']})
 
     strategy_variables.append({
@@ -397,7 +398,7 @@ def load_param_assump(paths=None, assumptions=None):
         "description": "Reduction in heat because of heat recovery and recycling (industry sector)",
         "suggested_range": (0, 1),
         "default_value": 0,
-        "units": '%',
+        "units": 'decimal',
         'affected_enduse': ['is_space_heating']})
 
     strategy_variables.append({
@@ -425,7 +426,7 @@ def load_param_assump(paths=None, assumptions=None):
         "description": "Reduction in heat because of air leakage improvement (residential sector)",
         "suggested_range": (0, 1),
         "default_value": 0,
-        "units": '%',
+        "units": 'decimal',
         'affected_enduse': ['rs_space_heating']})
 
     strategy_variables.append({
@@ -434,7 +435,7 @@ def load_param_assump(paths=None, assumptions=None):
         "description": "Reduction in heat because of of air leakage improvementservice sector)",
         "suggested_range": (0, 1),
         "default_value": 0,
-        "units": '%',
+        "units": 'decimal',
         'affected_enduse': ['ss_space_heating']})
 
     strategy_variables.append({
@@ -443,7 +444,7 @@ def load_param_assump(paths=None, assumptions=None):
         "description": "Reduction in heat because of air leakage improvement (industry sector)",
         "suggested_range": (0, 1),
         "default_value": 0,
-        "units": '%',
+        "units": 'decimal',
         "affected_enduse": ['is_space_heating']})
 
     strategy_variables.append({
@@ -487,40 +488,40 @@ def load_param_assump(paths=None, assumptions=None):
     enduse_overall_change_enduses = {
 
         # Submodel Residential
-        'enduse_change__rs_space_heating': 1,
-        'enduse_change__rs_water_heating': 1,
-        'enduse_change__rs_lighting': 1,
-        'enduse_change__rs_cooking': 1,
-        'enduse_change__rs_cold': 1,
-        'enduse_change__rs_wet': 1,
-        'enduse_change__rs_consumer_electronics': 1,
-        'enduse_change__rs_home_computing': 1,
+        'enduse_change__rs_space_heating': 0,
+        'enduse_change__rs_water_heating': 0,
+        'enduse_change__rs_lighting': 0,
+        'enduse_change__rs_cooking': 0,
+        'enduse_change__rs_cold': 0,
+        'enduse_change__rs_wet': 0,
+        'enduse_change__rs_consumer_electronics': 0,
+        'enduse_change__rs_home_computing': 0,
 
         # Submodel Service (Table 5.5a)
         # same % improvements from baseline for all sectors
-        'enduse_change__ss_space_heating': 1,
-        'enduse_change__ss_water_heating': 1,
-        'enduse_change__ss_cooling_humidification': 1,
-        'enduse_change__ss_fans': 1,
-        'enduse_change__ss_lighting': 1,
-        'enduse_change__ss_catering': 1,
-        'enduse_change__ss_small_power': 1,
-        'enduse_change__ss_ICT_equipment': 1,
-        'enduse_change__ss_cooled_storage': 1,
-        'enduse_change__ss_other_gas': 1,
-        'enduse_change__ss_other_electricity': 1,
+        'enduse_change__ss_space_heating': 0,
+        'enduse_change__ss_water_heating': 0,
+        'enduse_change__ss_cooling_humidification': 0,
+        'enduse_change__ss_fans': 0,
+        'enduse_change__ss_lighting': 0,
+        'enduse_change__ss_catering': 0,
+        'enduse_change__ss_small_power': 0,
+        'enduse_change__ss_ICT_equipment': 0,
+        'enduse_change__ss_cooled_storage': 0,
+        'enduse_change__ss_other_gas': 0,
+        'enduse_change__ss_other_electricity': 0,
 
         # Submodel Industry
         # same % improvements from baseline for all sectors
-        'enduse_change__is_high_temp_process': 1,
-        'enduse_change__is_low_temp_process': 1,
-        'enduse_change__is_drying_separation': 1,
-        'enduse_change__is_motors': 1,
-        'enduse_change__is_compressed_air': 1,
-        'enduse_change__is_lighting': 1,
-        'enduse_change__is_space_heating': 1,
-        'enduse_change__is_other': 1,
-        'enduse_change__is_refrigeration': 1}
+        'enduse_change__is_high_temp_process': 0,
+        'enduse_change__is_low_temp_process': 0,
+        'enduse_change__is_drying_separation': 0,
+        'enduse_change__is_motors': 0,
+        'enduse_change__is_compressed_air': 0,
+        'enduse_change__is_lighting': 0,
+        'enduse_change__is_space_heating': 0,
+        'enduse_change__is_other': 0,
+        'enduse_change__is_refrigeration': 0}
 
     # Helper function to create description of parameters for all enduses
     for enduse_name, param_value in enduse_overall_change_enduses.items():
@@ -530,7 +531,7 @@ def load_param_assump(paths=None, assumptions=None):
             "description": "Enduse specific change {}".format(enduse_name),
             "suggested_range": (0, 1),
             "default_value": 1,
-            "units": '%',
+            "units": 'decimal',
             'affected_enduse': [enduse_name.split("__")[1]]})
         strategy_vars[enduse_name] = param_value
 
@@ -545,7 +546,7 @@ def load_param_assump(paths=None, assumptions=None):
         "description": "Fraction achieved of efficiency improvements",
         "suggested_range": (0, 1),
         "default_value": 1.0,
-        "units": '%'})
+        "units": 'decimal'})
 
     strategy_vars["f_eff_achieved"] = 1.0
 
