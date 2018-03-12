@@ -197,7 +197,7 @@ def compare_results(
     # -------------------
     major_ticks_days, major_ticks_labels = get_date_strings(
         days_to_plot,
-        daystep=1) #TOW DAYS
+        daystep=1)
 
     plt.xticks(major_ticks_days, major_ticks_labels)
 
@@ -395,7 +395,7 @@ def get_date_strings(days_to_plot, daystep):
     major_ticks_days = []
     major_ticks_labels = []
     cnt = 0
-    cnt_daystep = 0
+    cnt_daystep = 1
 
     for day in days_to_plot:
         str_date = str(date_prop.yearday_to_date(2015, day))
@@ -408,8 +408,8 @@ def get_date_strings(days_to_plot, daystep):
             major_ticks_labels.append(str_date_short)
 
             # Position
-            major_ticks_days.append(yearhour - 24)
-            cnt_daystep = 0
+            major_ticks_days.append(yearhour)
+            cnt_daystep = 1
             cnt += 1
         else:
             cnt_daystep += 1

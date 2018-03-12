@@ -48,6 +48,7 @@ NICETOHAVE
 - Convert paths dict to objects
 
 TODOS
+TODO: WHY NOT CORRECT PLOTTING IRLEAND
 TODO: LOAD IN SCENARIO PARAMETERS IN INITIAL_SETUP FUNCTION IN RUn file
 TODO: Write function to test wheter swichtes are possible (e.g. that not more from one technology to another is replaced than possible)
 TODO: Improve industry related demand --> define strategies
@@ -81,6 +82,14 @@ import numpy as np
 from energy_demand import model
 from energy_demand.basic import testing_functions as testing
 from energy_demand.basic import lookup_tables
+from energy_demand.basic import conversions
+from energy_demand.assumptions import non_param_assumptions
+from energy_demand.assumptions import param_assumptions
+from energy_demand.read_write import data_loader
+from energy_demand.basic import logger_setup
+from energy_demand.read_write import write_data
+from energy_demand.read_write import read_data
+from energy_demand.basic import basic_functions
 
 def energy_demand_model(data, assumptions, fuel_in=0, fuel_in_elec=0):
     """Main function of energy demand model to calculate yearly demand
@@ -116,7 +125,7 @@ def energy_demand_model(data, assumptions, fuel_in=0, fuel_in_elec=0):
         data['criterias']['mode_constrained'],
         assumptions.enduse_space_heating)
 
-    from energy_demand.basic import conversions
+    
     print("================================================")
     print("Simulation year:     " + str(modelrun_obj.curr_yr))
     print("Number of regions    " + str(data['reg_nrs']))
@@ -182,15 +191,7 @@ if __name__ == "__main__":
         local_data_path = sys.argv[1]
 
     # -------------- SCRAP
-    from energy_demand.assumptions import non_param_assumptions
-    from energy_demand.assumptions import param_assumptions
-    from energy_demand.read_write import data_loader
-    from energy_demand.basic import logger_setup
-    from energy_demand.read_write import write_data
-    from energy_demand.read_write import read_data
-    from energy_demand.basic import basic_functions
-    from energy_demand.basic import date_prop
-    from energy_demand.profiles import hdd_cdd
+
 
     path_main = os.path.join(
         os.path.dirname(os.path.abspath(__file__)), "..")

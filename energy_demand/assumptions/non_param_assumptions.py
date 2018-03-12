@@ -21,7 +21,7 @@ class Assumptions(object):
             fueltypes_nr=None
         ):
 
-        self.yr_until_changed_all_things = 2050
+        yr_until_changed_all_things = 2050
 
         # ============================================================
         # Spatially modelled variables
@@ -55,6 +55,9 @@ class Assumptions(object):
         #           WWeekend effect for service submodel enduses
         #       f_is_weekend : float
         #           Weekend effect for industry submodel enduses
+        #       f_mixed_floorarea : float
+        #           Share of floor_area which is assigned to either
+        #           residential or non_residential floor area
         # ------------------------------------------------------------
 
         # Temporal calibration factors
@@ -62,7 +65,7 @@ class Assumptions(object):
         self.f_ss_weekend = 0.8                      # 0.7
         self.f_is_weekend = 0.4                      # 0.4
 
-        #Spatial calibration factor
+        # Spatial calibration factor
         self.f_mixed_floorarea = 0.2                 # 0.4
 
         # ============================================================
@@ -79,7 +82,7 @@ class Assumptions(object):
         # ------------------------------------------------------------
         self.model_yeardays = list(range(365))
 
-        # Calculate dates of modelled days
+        # Calculate dates
         self.model_yeardays_date = []
         for yearday in self.model_yeardays:
             self.model_yeardays_date.append(
@@ -120,7 +123,7 @@ class Assumptions(object):
         # ------------------------------------------------------------
         self.assump_diff_floorarea_pp = 1.0
 
-        self.assump_diff_floorarea_pp_yr_until_changed = self.yr_until_changed_all_things
+        self.assump_diff_floorarea_pp_yr_until_changed = yr_until_changed_all_things
 
         self.assump_dwtype_distr_by = {
             'semi_detached': 0.26,
@@ -131,7 +134,7 @@ class Assumptions(object):
 
         self.assump_dwtype_distr_future = {
 
-            'yr_until_changed': self.yr_until_changed_all_things,
+            'yr_until_changed': yr_until_changed_all_things,
 
             'semi_detached': 0.26,
             'terraced': 0.283,
@@ -148,7 +151,7 @@ class Assumptions(object):
 
         self.assump_dwtype_floorarea_future = {
 
-            'yr_until_changed': self.yr_until_changed_all_things,
+            'yr_until_changed': yr_until_changed_all_things,
 
             'semi_detached': 96,
             'terraced': 82.5,
@@ -294,7 +297,7 @@ class Assumptions(object):
         self.base_temp_diff_params = {
             'sig_midpoint': 0,
             'sig_steepness': 1,
-            'yr_until_changed': self.yr_until_changed_all_things}
+            'yr_until_changed': yr_until_changed_all_things}
 
         # ============================================================
         # Enduses lists affed by hdd/cdd
@@ -383,10 +386,7 @@ class Assumptions(object):
         #   .ev refrigeration / compressed air / motors
         #   
         #
-        #   
-
-
-
+        #  
 
         # High consumption in Chemicals, Non_metallic mineral products, paper, food_production
         ''' 'is_high_temp_process': ['gva'],
@@ -461,24 +461,17 @@ class Assumptions(object):
         # ------------------------------------------------------------
         self.split_hp_gshp_to_ashp_by = 0.1
 
-        technologies, tech_list = read_data.read_technologies(
+        self.technologies, self.tech_list = read_data.read_technologies(
             paths['path_technologies'], fueltypes)
-        
-        self.technologies = technologies
-        self.tech_list = tech_list
 
         self.installed_heat_pump_by = tech_related.generate_ashp_gshp_split(
             self.split_hp_gshp_to_ashp_by)
 
         # Add heat pumps to technologies
-        technologies, tech_list['heating_non_const'], heat_pumps = tech_related.generate_heat_pump_from_split(
+        self.technologies, self.tech_list['heating_non_const'], self.heat_pumps = tech_related.generate_heat_pump_from_split(
             self.technologies,
             self.installed_heat_pump_by,
             fueltypes)
-
-        self.technologies = technologies
-        self.tech_list['heating_non_const'] = tech_list['heating_non_const']
-        self.heat_pumps = heat_pumps
 
         # Collect all heating technologies
         # TODO: MAYBE ADD IN TECH DOC ANOTHER LIST SPECIFYING ALL HEATING TECHs
@@ -497,7 +490,7 @@ class Assumptions(object):
         # ------------------------------------------------------------
         self.enduse_overall_change = {}
         self.enduse_overall_change['other_enduse_mode_info'] = {
-            'diff_method': 'linear', # sigmoid or linear
+            'diff_method': 'linear',
             'sigmoid': {
                 'sig_midpoint': 0,
                 'sig_steepness': 1}}
@@ -507,19 +500,44 @@ class Assumptions(object):
         # Provide for every fueltype of an enduse
         # the share of fuel which is used by technologies for thebase year
         # ============================================================
-        additional_assump_vars = assumptions_fuel_shares.assign_by_fuel_tech_p(
+        self.rs_fuel_tech_p_by, self.ss_fuel_tech_p_by, self.is_fuel_tech_p_by = assumptions_fuel_shares.assign_by_fuel_tech_p(
             enduses,
             sectors,
             fueltypes,
-            fueltypes_nr,
-            self.heat_pumps)
+            fueltypes_nr)
 
-        # Set as variable names
-        for var_name, var_values in additional_assump_vars.items():
-            setattr(self, var_name, var_values)
+        # ========================================
+        # Get technologies of an enduse
+        # ========================================
+        self.rs_specified_tech_enduse_by = helpers.get_def_techs(
+            self.rs_fuel_tech_p_by, sector_crit=False)
+
+        self.ss_specified_tech_enduse_by = helpers.get_def_techs(
+            self.ss_fuel_tech_p_by, sector_crit=True)
+
+        self.is_specified_tech_enduse_by = helpers.get_def_techs(
+            self.is_fuel_tech_p_by, sector_crit=True)
+
+        rs_specified_tech_enduse_by_new = helpers.add_undef_techs(
+            self.heat_pumps,
+            self.rs_specified_tech_enduse_by,
+            'rs_space_heating')
+        self.rs_specified_tech_enduse_by = rs_specified_tech_enduse_by_new
+
+        ss_specified_tech_enduse_by_new = helpers.add_undef_techs(
+            self.heat_pumps,
+            self.ss_specified_tech_enduse_by,
+            'ss_space_heating')
+        self.ss_specified_tech_enduse_by = ss_specified_tech_enduse_by_new
+
+        is_specified_tech_enduse_by_new = helpers.add_undef_techs(
+            self.heat_pumps,
+            self.is_specified_tech_enduse_by,
+            'is_space_heating')
+        self.is_specified_tech_enduse_by = is_specified_tech_enduse_by_new
 
         # ============================================================
-        # Read in fuel and capacity switches
+        # Read in switches
         # ============================================================
 
         # Read in scenaric fuel switches
@@ -548,39 +566,8 @@ class Assumptions(object):
             paths['is_path_capacity_installation'])
 
         # ========================================
-        # Helper functions
-        # ========================================
-        rs_fuel_tech_p_by, rs_specified_tech_enduse_by, technologies = tech_related.insert_placholder_techs(
-            self.technologies,
-            self.rs_fuel_tech_p_by,
-            self.rs_specified_tech_enduse_by,
-            sector_crit=False)
-
-        self.rs_fuel_tech_p_by = rs_fuel_tech_p_by 
-        self.rs_specified_tech_enduse_by = rs_specified_tech_enduse_by
-        self.technologies = technologies
-
-        ss_fuel_tech_p_by, ss_specified_tech_enduse_by, technologies = tech_related.insert_placholder_techs(
-            self.technologies,
-            self.ss_fuel_tech_p_by,
-            self.ss_specified_tech_enduse_by,
-            sector_crit=True)
-
-        self.ss_fuel_tech_p_by = ss_fuel_tech_p_by 
-        self.ss_specified_tech_enduse_by = ss_specified_tech_enduse_by
-        self.technologies = technologies
-
-        is_fuel_tech_p_by, is_specified_tech_enduse_by, technologies = tech_related.insert_placholder_techs(
-            self.technologies,
-            self.is_fuel_tech_p_by,
-            self.is_specified_tech_enduse_by,
-            sector_crit=True)
-
-        self.is_fuel_tech_p_by = is_fuel_tech_p_by 
-        self.is_specified_tech_enduse_by = is_specified_tech_enduse_by
-        self.technologies = technologies
-
         # General other assumptions
+        # ========================================
         self.seasons = date_prop.read_season(year_to_model=base_yr)
 
         model_yeardays_daytype, yeardays_month, yeardays_month_days = date_prop.get_model_yeardays_daytype(
@@ -590,9 +577,30 @@ class Assumptions(object):
         self.yeardays_month = yeardays_month
         self.yeardays_month_days = yeardays_month_days
 
-        # --------------
+        # ========================================
+        # Helper functions
+        # ========================================
+        self.rs_fuel_tech_p_by, self.rs_specified_tech_enduse_by, self.technologies = tech_related.insert_placholder_techs(
+            self.technologies,
+            self.rs_fuel_tech_p_by,
+            self.rs_specified_tech_enduse_by,
+            sector_crit=False)
+
+        self.ss_fuel_tech_p_by, self.ss_specified_tech_enduse_by, self.technologies = tech_related.insert_placholder_techs(
+            self.technologies,
+            self.ss_fuel_tech_p_by,
+            self.ss_specified_tech_enduse_by,
+            sector_crit=True)
+
+        self.is_fuel_tech_p_by, self.is_specified_tech_enduse_by, self.technologies = tech_related.insert_placholder_techs(
+            self.technologies,
+            self.is_fuel_tech_p_by,
+            self.is_specified_tech_enduse_by,
+            sector_crit=True)
+
+        # ========================================
         # Calculations with assumptions
-        # --------------
+        # ========================================
         self.cdd_weekend_cfactors = hdd_cdd.calc_weekend_corr_f(
             model_yeardays_daytype,
             self.f_ss_cooling_weekend)
@@ -605,9 +613,9 @@ class Assumptions(object):
             model_yeardays_daytype,
             self.f_is_weekend)
 
-        # ----
+        # ========================================
         # Testing
-        # ----
+        # ========================================
         testing_functions.testing_fuel_tech_shares(
             self.rs_fuel_tech_p_by)
         for enduse in self.ss_fuel_tech_p_by:
