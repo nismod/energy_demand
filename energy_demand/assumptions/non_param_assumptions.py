@@ -1,6 +1,5 @@
 """All assumptions are either loaded in this file or definied here
 """
-import logging
 from energy_demand.read_write import read_data
 from energy_demand.technologies import tech_related
 from energy_demand.basic import testing_functions, date_prop

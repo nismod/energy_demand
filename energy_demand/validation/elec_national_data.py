@@ -197,7 +197,7 @@ def compare_results(
     # -------------------
     major_ticks_days, major_ticks_labels = get_date_strings(
         days_to_plot,
-        daystep=2)
+        daystep=1) #TOW DAYS
 
     plt.xticks(major_ticks_days, major_ticks_labels)
 
@@ -219,7 +219,7 @@ def compare_results(
     plt.title(title_left, loc='left')
 
     plt.xlabel("hour", fontsize=10)
-    plt.ylabel("uk electrictiy use [GW] for {}".format(title_left), fontsize=10)
+    plt.ylabel("uk elec use [GW] for {}".format(title_left), fontsize=10)
 
     plt.legend(frameon=False)
 

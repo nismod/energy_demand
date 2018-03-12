@@ -10,11 +10,8 @@ import numpy as np
 def from_socio_economic_data_to_spatial_diffusion_values(regions, pop_density):
     """Create SDI from socio-economic data
 
-
-
     concepts : list
         List with concepts (e.g. poor, welathy, rich)
-
 
     Info
     ------
@@ -54,50 +51,6 @@ def from_socio_economic_data_to_spatial_diffusion_values(regions, pop_density):
 
         logging.info("Reg: {} diffusion_value: {} real_value: {} ".format(
             region, lower_concept_val + higher_concept_val, real_value))
-
-    '''diffusion_values = {}
-
-    # ------------------
-    # Diffusion speed assumptions
-    # ------------------
-    speed_con_min = 1  # Speed at val_con == 0
-    speed_con_max = 2 # Speed at con_val == 1
-
-    # How much congruent to urban (e.g. with rural population share) https://www.gov.uk/government/uploads/system/uploads/attachment_data/file/591464/RUCLAD_leaflet_Jan2017.pdf
-    congruence_value = {
-        0 : {'congruence_value': 0, 'description': 'missing values'}, #Lower concept diffusion speed
-        1 : {'congruence_value': 1 - 0.8, 'description': 'Mainly Rural (rural including hub towns >=80%)'},
-        2 : {'congruence_value': 1 - 0.7, 'description': 'Largely Rural (rural including hub towns 50-79%)'},
-        3 : {'congruence_value': 1 - 0.35, 'description': 'Urban with Significant Rural (rural including hub towns 26-49%)'},
-        4 : {'congruence_value': 1 - 0.20, 'description': 'Urban with City and Town'},
-        5 : {'congruence_value': 1 - 0.20, 'description': 'Urban with Minor Conurbation'},
-        6 : {'congruence_value': 1 - 0.20, 'description': 'Urban with Major Conurbation'}}
-
-    # Calculate diffusion values baed on speed attributes
-    diffusion_values = {}
-    for concept_id, con_values in congruence_value.items():
-        lower_concept_val = (1 - con_values['congruence_value']) * speed_con_min
-        higher_concept_val = con_values['congruence_value'] * speed_con_max
-
-        diffusion_values[concept_id] = {}
-        diffusion_values[concept_id]['diffusion_speed'] = lower_concept_val + higher_concept_val
-
-    # ------------------
-    # Real data
-    # ------------------
-    ruc11cd_values = read_data.taget_ruc11cd_values(
-        path_to_csv="C://Users//cenv0553//nismod//data_energy_demand//_raw_data//RUC11_LAD11_ENv2.csv")
-
-    for region in regions:
-
-        # Multiply speed of diffusion of concept with concept congruence value
-        try:
-            ruc11cd_value = ruc11cd_values[region]
-        except KeyError:
-            ruc11cd_value = 1
-            ("ERROR: SET TO CONGRUEN VALUE +")
-
-        diffusion_values[region] = diffusion_values[ruc11cd_value]['diffusion_speed']'''
 
     return diffusion_values
 
@@ -400,7 +353,7 @@ def spatially_differentiated_modelling(
     # -------------
     # III. Technology specific shares of service in end year are calculated
     # TODO: MAYBE ADD CAPPING VALUE
-    
+
     # -------------
     # Generate sigmoid curves (s_generate_sigmoid) for every regio
     # -------------
