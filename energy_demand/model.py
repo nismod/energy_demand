@@ -28,8 +28,10 @@ class EnergyDemandModel(object):
         Region names
     data : dict
         Main data container
+    assumptions : obj
+        Assumptions and calculations based on assumptions
     """
-    def __init__(self, regions, data):
+    def __init__(self, regions, data, assumptions):
         """Constructor
         """
         logging.info("... start main energy demand function")
@@ -40,9 +42,9 @@ class EnergyDemandModel(object):
         # --------------
         data['non_regional_lp_stock'] = load_profile.create_load_profile_stock(
             data['tech_lp'],
-            data['assumptions'],
+            assumptions,
             data['sectors'],
-            data['assumptions']['model_yeardays'],
+            assumptions.model_yeardays,
             data['enduses'])
 
         # --------------
@@ -54,16 +56,16 @@ class EnergyDemandModel(object):
                 name=weather_region,
                 base_yr=data['sim_param']['base_yr'],
                 curr_yr=data['sim_param']['curr_yr'],
-                strategy_variables=data['assumptions']['strategy_variables'],
-                t_bases=data['assumptions']['t_bases'],
-                t_diff_param=data['assumptions']['base_temp_diff_params'],
-                tech_lists=data['assumptions']['tech_list'],
-                technologies=data['assumptions']['technologies'],
-                assumptions=data['assumptions'],
+                strategy_variables=assumptions.strategy_variables,
+                t_bases=assumptions.t_bases,
+                t_diff_param=assumptions.base_temp_diff_params,
+                tech_lists=assumptions.tech_list,
+                technologies=data['technologies'],
+                assumptions=assumptions,
                 fueltypes=data['lookups']['fueltypes'],
-                model_yeardays_nrs=data['assumptions']['model_yeardays_nrs'],
-                model_yeardays=data['assumptions']['model_yeardays'],
-                yeardays_month_days=data['assumptions']['yeardays_month_days'],
+                model_yeardays_nrs=assumptions.model_yeardays_nrs,
+                model_yeardays=assumptions.model_yeardays,
+                yeardays_month_days=assumptions.yeardays_month_days,
                 all_enduses=data['enduses'],
                 temp_by=data['temp_data'][weather_region],
                 tech_lp=data['tech_lp'],
@@ -92,9 +94,9 @@ class EnergyDemandModel(object):
             data['lookups']['fueltypes_nr'],
             data['sectors'],
             data['reg_nrs'],
-            data['assumptions']['model_yearhours_nrs'],
-            data['assumptions']['model_yeardays_nrs'],
-            data['assumptions']['heating_technologies'])
+            assumptions.model_yearhours_nrs,
+            assumptions.model_yeardays_nrs,
+            assumptions.heating_technologies)
 
         # ---------------------------------------------
         # Iterate over regions and Simulate
@@ -113,18 +115,17 @@ class EnergyDemandModel(object):
             # Aggregate results
             # ---------------------------------------------
             aggr_results = aggregate_final_results(
-                self.curr_yr,
                 aggr_results,
                 reg_array_nr,
                 all_submodels,
                 data['criterias']['mode_constrained'],
                 data['lookups']['fueltypes'],
                 data['lookups']['fueltypes_nr'],
-                data['assumptions']['model_yearhours_nrs'],
-                data['assumptions']['model_yeardays_nrs'],
-                data['assumptions']['seasons'],
-                data['assumptions']['enduse_space_heating'],
-                data['assumptions']['technologies'],
+                assumptions.model_yearhours_nrs,
+                assumptions.model_yeardays_nrs,
+                assumptions.seasons,
+                assumptions.enduse_space_heating,
+                data['technologies'],
                 data['criterias']['beyond_supply_outputs'])
 
         # -------
@@ -475,15 +476,15 @@ def residential_submodel(
             # Configure and select correct Enduse() specific inputs
             # ------------------------------------------------------
             if criterias['spatial_exliclit_diffusion']:
-                service_switches = assumptions['rs_service_switch'][enduse][region.name]
-                sig_param_tech = assumptions['rs_sig_param_tech'][enduse][region.name]
+                service_switches = assumptions.rs_service_switch[enduse][region.name]
+                sig_param_tech = assumptions.rs_sig_param_tech[enduse][region.name]
 
-                strategy_variables = assumptions['regional_strategy_variables'][region.name]
+                strategy_variables = assumptions.regional_strategy_variables[region.name]
             else:
-                service_switches = assumptions['rs_service_switch'][enduse]
-                sig_param_tech = assumptions['rs_sig_param_tech'][enduse]
+                service_switches = assumptions.rs_service_switch[enduse]
+                sig_param_tech = assumptions.rs_sig_param_tech[enduse]
 
-                strategy_variables = assumptions['strategy_variables']
+                strategy_variables = assumptions.strategy_variables
 
             # ------------------------------------------------------
             # Create submodel
@@ -500,19 +501,19 @@ def residential_submodel(
                 enduse=enduse,
                 sector=sector,
                 fuel=region.rs_enduses_fuel[enduse],
-                s_tech_by_p=assumptions['rs_s_tech_by_p'][enduse],
+                s_tech_by_p=assumptions.rs_s_tech_by_p[enduse],
                 tech_stock=weather_region.rs_tech_stock,
                 heating_factor_y=weather_region.f_heat_rs_y,
                 cooling_factor_y=weather_region.f_cooling_rs_y,
                 service_switches=service_switches,
-                fuel_fueltype_tech_p_by=assumptions['rs_fuel_tech_p_by'][enduse],
+                fuel_fueltype_tech_p_by=assumptions.rs_fuel_tech_p_by[enduse],
                 sig_param_tech=sig_param_tech,
                 criterias=criterias,
                 strategy_variables=strategy_variables,
                 fueltypes_nr=lookups['fueltypes_nr'],
                 fueltypes=lookups['fueltypes'],
-                model_yeardays_nrs=assumptions['model_yeardays_nrs'],
-                enduse_overall_change=assumptions['enduse_overall_change'],
+                model_yeardays_nrs=assumptions.model_yeardays_nrs,
+                enduse_overall_change=assumptions.enduse_overall_change,
                 dw_stock=rs_dw_stock)
 
             submodels.append(submodel)
@@ -558,15 +559,15 @@ def service_submodel(
             # Configure and select correct Enduse() specific inputs
             # ------------------------------------------------------
             if criterias['spatial_exliclit_diffusion']:
-                service_switches = assumptions['ss_service_switch'][enduse][sector][region.name]
-                sig_param_tech = assumptions['ss_sig_param_tech'][enduse][sector][region.name]
+                service_switches = assumptions.ss_service_switch[enduse][sector][region.name]
+                sig_param_tech = assumptions.ss_sig_param_tech[enduse][sector][region.name]
 
-                strategy_variables = assumptions['regional_strategy_variables'][region.name]
+                strategy_variables = assumptions.regional_strategy_variables[region.name]
             else:
-                service_switches = assumptions['ss_service_switch'][enduse][sector]
-                sig_param_tech = assumptions['ss_sig_param_tech'][enduse][sector]
+                service_switches = assumptions.ss_service_switch[enduse][sector]
+                sig_param_tech = assumptions.ss_sig_param_tech[enduse][sector]
 
-                strategy_variables = assumptions['strategy_variables']
+                strategy_variables = assumptions.strategy_variables
 
             # ------------------------------------------------------
             # Create submodel
@@ -583,19 +584,19 @@ def service_submodel(
                 enduse=enduse,
                 sector=sector,
                 fuel=region.ss_enduses_sectors_fuels[enduse][sector],
-                s_tech_by_p=assumptions['ss_s_tech_by_p'][sector][enduse], #SECTOR SPECIFIC
+                s_tech_by_p=assumptions.ss_s_tech_by_p[sector][enduse], #SECTOR SPECIFIC
                 tech_stock=weather_region.ss_tech_stock,
                 heating_factor_y=weather_region.f_heat_ss_y,
                 cooling_factor_y=weather_region.f_cooling_ss_y,
                 service_switches=service_switches,
-                fuel_fueltype_tech_p_by=assumptions['ss_fuel_tech_p_by'][enduse][sector],
+                fuel_fueltype_tech_p_by=assumptions.ss_fuel_tech_p_by[enduse][sector],
                 sig_param_tech=sig_param_tech,
                 criterias=criterias,
                 strategy_variables=strategy_variables,
                 fueltypes_nr=lookups['fueltypes_nr'],
                 fueltypes=lookups['fueltypes'],
-                model_yeardays_nrs=assumptions['model_yeardays_nrs'],
-                enduse_overall_change=assumptions['enduse_overall_change'],
+                model_yeardays_nrs=assumptions.model_yeardays_nrs,
+                enduse_overall_change=assumptions.enduse_overall_change,
                 dw_stock=ss_dw_stock)
 
             # Add to list
@@ -650,15 +651,15 @@ def industry_submodel(
                 flat_profile_crit = True
 
             if criterias['spatial_exliclit_diffusion']:
-                service_switches = assumptions['is_service_switch'][enduse][sector][region.name]
-                sig_param_tech = assumptions['is_sig_param_tech'][enduse][sector][region.name]
+                service_switches = assumptions.is_service_switch[enduse][sector][region.name]
+                sig_param_tech = assumptions.is_sig_param_tech[enduse][sector][region.name]
 
-                strategy_variables = assumptions['regional_strategy_variables'][region.name]
+                strategy_variables = assumptions.regional_strategy_variables[region.name]
             else:
-                service_switches = assumptions['is_service_switch'][enduse][sector]
-                sig_param_tech = assumptions['is_sig_param_tech'][enduse][sector]
+                service_switches = assumptions.is_service_switch[enduse][sector]
+                sig_param_tech = assumptions.is_sig_param_tech[enduse][sector]
 
-                strategy_variables = assumptions['strategy_variables']
+                strategy_variables = assumptions.strategy_variables
 
             # ------------------------------------------------------
             # Create submodel
@@ -675,20 +676,20 @@ def industry_submodel(
                 enduse=enduse,
                 sector=sector,
                 fuel=region.is_enduses_sectors_fuels[enduse][sector],
-                s_tech_by_p=assumptions['is_s_tech_by_p'][sector][enduse],
+                s_tech_by_p=assumptions.is_s_tech_by_p[sector][enduse],
                 tech_stock=weather_region.is_tech_stock,
                 heating_factor_y=weather_region.f_heat_is_y,
                 cooling_factor_y=weather_region.f_cooling_is_y,
                 service_switches=service_switches,
-                fuel_fueltype_tech_p_by=assumptions['is_fuel_tech_p_by'][enduse][sector],
+                fuel_fueltype_tech_p_by=assumptions.is_fuel_tech_p_by[enduse][sector],
                 sig_param_tech=sig_param_tech,
-                enduse_overall_change=assumptions['enduse_overall_change'],
+                enduse_overall_change=assumptions.enduse_overall_change,
                 criterias=criterias,
                 strategy_variables=strategy_variables,
                 fueltypes_nr=lookups['fueltypes_nr'],
                 fueltypes=lookups['fueltypes'],
-                model_yeardays_nrs=assumptions['model_yeardays_nrs'],
-                reg_scen_drivers=assumptions['scenario_drivers']['is_submodule'],
+                model_yeardays_nrs=assumptions.model_yeardays_nrs,
+                reg_scen_drivers=assumptions.scenario_drivers['is_submodule'],
                 flat_profile_crit=flat_profile_crit)
 
             # Add to list
@@ -855,7 +856,7 @@ def create_virtual_dwelling_stocks(regions, curr_yr, data):
             data['lookups']['dwtype'],
             data['enduses']['rs_enduses'],
             data['reg_coord'],
-            data['assumptions']['scenario_drivers']['rs_submodule'],
+            data['assumptions'].scenario_drivers['rs_submodule'],
             data['sim_param']['base_yr'],
             data['sim_param']['base_yr'],
             data['criterias']['virtual_building_stock_criteria'])
@@ -881,7 +882,7 @@ def create_virtual_dwelling_stocks(regions, curr_yr, data):
             data['lookups']['dwtype'],
             data['enduses']['rs_enduses'],
             data['reg_coord'],
-            data['assumptions']['scenario_drivers']['rs_submodule'],
+            data['assumptions'].scenario_drivers['rs_submodule'],
             curr_yr,
             data['sim_param']['base_yr'],
             data['criterias']['virtual_building_stock_criteria'])
@@ -918,7 +919,6 @@ def create_dwelling_stock(regions, curr_yr, data):
     return data
 
 def aggregate_final_results(
-        curr_yr,
         aggr_results,
         reg_array_nr,
         all_submodels,

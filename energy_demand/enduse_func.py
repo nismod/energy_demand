@@ -158,15 +158,15 @@ class Enduse(object):
                 self.fuel_new_y,
                 cooling_factor_y,
                 heating_factor_y,
-                assumptions['enduse_space_heating'],
-                assumptions['ss_enduse_space_cooling'])
+                assumptions.enduse_space_heating,
+                assumptions.ss_enduse_space_cooling)
             #logging.debug("... Fuel train B: " + str(np.sum(self.fuel_new_y)))
 
             # --Change fuel consumption based on smart meter induced general savings
             self.fuel_new_y = apply_smart_metering(
                 enduse,
                 self.fuel_new_y,
-                assumptions['smart_meter_assump'],
+                assumptions.smart_meter_assump,
                 strategy_variables,
                 base_yr,
                 curr_yr)
@@ -203,7 +203,7 @@ class Enduse(object):
                 enduse,
                 self.fuel_new_y,
                 strategy_variables,
-                assumptions['cooled_ss_floorarea_by'],
+                assumptions.cooled_ss_floorarea_by,
                 enduse_overall_change['other_enduse_mode_info'],
                 base_yr,
                 curr_yr)
@@ -249,7 +249,7 @@ class Enduse(object):
                     criterias['mode_constrained'],
                     enduse,
                     sector,
-                    assumptions['enduse_space_heating'],
+                    assumptions.enduse_space_heating,
                     base_yr,
                     curr_yr,
                     service_switches)
@@ -271,7 +271,7 @@ class Enduse(object):
                 s_tot_y_cy, s_tech_y_cy = apply_heat_recovery(
                     enduse,
                     strategy_variables,
-                    assumptions['enduse_overall_change'],
+                    assumptions.enduse_overall_change,
                     s_tot_y_cy,
                     s_tech_y_cy,
                     base_yr,
@@ -283,7 +283,7 @@ class Enduse(object):
                 s_tot_y_cy, s_tech_y_cy = apply_air_leakage(
                     enduse,
                     strategy_variables,
-                    assumptions['enduse_overall_change'],
+                    assumptions.enduse_overall_change,
                     s_tot_y_cy,
                     s_tech_y_cy,
                     base_yr,
@@ -2023,7 +2023,7 @@ def hot_cold_process(
     """
 
     # Reduce demand depending on fraction of hot and cold steel rolling process
-    p_cold_rolling_by = assumptions['p_cold_rolling_steel_by']
+    p_cold_rolling_by = assumptions.p_cold_rolling_steel_by
     p_hot_rolling_by = 1.0 - p_cold_rolling_by
 
     # Get sigmoid transition for share in rolling
@@ -2045,8 +2045,8 @@ def hot_cold_process(
     p_hot_rolling_cy = 1 - p_cold_rolling_cy
 
     # Calculate factor
-    eff_cold = assumptions['eff_cold_rolling_process']
-    eff_hot = assumptions['eff_hot_rolling_process']
+    eff_cold = assumptions.eff_cold_rolling_process
+    eff_hot = assumptions.eff_hot_rolling_process
 
     p_by = p_cold_rolling_by * eff_cold + p_hot_rolling_by * eff_hot
     p_cy = p_cold_rolling_cy * eff_cold  + p_hot_rolling_cy * eff_hot

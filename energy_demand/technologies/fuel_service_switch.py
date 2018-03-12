@@ -456,31 +456,32 @@ def capacity_to_service_switches(assumptions, fuels, base_yr):
     base_yr : int
         Base year
     """
-    assumptions['rs_service_switches'] = capacity_switch(
-        assumptions['rs_service_switches'],
-        assumptions['capacity_switches']['rs_capacity_switches'],
-        assumptions['technologies'],
-        assumptions['enduse_overall_change']['other_enduse_mode_info'],
+    capacity_switches = {}
+    capacity_switches['rs_service_switches'] = capacity_switch(
+        assumptions.rs_service_switches,
+        assumptions.capacity_switches['rs_capacity_switches'],
+        assumptions.technologies,
+        assumptions.enduse_overall_change['other_enduse_mode_info'],
         fuels['rs_fuel_raw'],
-        assumptions['rs_fuel_tech_p_by'],
+        assumptions.rs_fuel_tech_p_by,
         base_yr)
 
-    assumptions['ss_service_switches'] = capacity_switch(
-        assumptions['ss_service_switches'],
-        assumptions['capacity_switches']['ss_capacity_switches'],
-        assumptions['technologies'],
-        assumptions['enduse_overall_change']['other_enduse_mode_info'],
+    capacity_switches['ss_service_switches'] = capacity_switch(
+        assumptions.ss_service_switches,
+        assumptions.capacity_switches['ss_capacity_switches'],
+        assumptions.technologies,
+        assumptions.enduse_overall_change['other_enduse_mode_info'],
         fuels['ss_fuel_raw'],
-        assumptions['ss_fuel_tech_p_by'],
+        assumptions.ss_fuel_tech_p_by,
         base_yr)
 
-    assumptions['is_service_switches'] = capacity_switch(
-        assumptions['is_service_switches'],
-        assumptions['capacity_switches']['is_capacity_switches'],
-        assumptions['technologies'],
-        assumptions['enduse_overall_change']['other_enduse_mode_info'],
+    capacity_switches['is_service_switches'] = capacity_switch(
+        assumptions.is_service_switches,
+        assumptions.capacity_switches['is_capacity_switches'],
+        assumptions.technologies,
+        assumptions.enduse_overall_change['other_enduse_mode_info'],
         fuels['is_fuel_raw'],
-        assumptions['is_fuel_tech_p_by'],
+        assumptions.is_fuel_tech_p_by,
         base_yr)
 
-    return assumptions
+    return capacity_switches

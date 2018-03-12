@@ -396,7 +396,7 @@ def load_script_data(data):
         data)
 
     for key, value in init_cont.items():
-        data['assumptions'][key] = value
+        setattr(data['assumptions'], key, value)
 
     for key, value in fuel_disagg.items():
         data[key] = value

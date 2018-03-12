@@ -127,16 +127,17 @@ class EDWrapper(SectorModel):
         # ------------
         # Load assumptions
         # ------------
-        data['assumptions'] = non_param_assumptions.load_non_param_assump(
+        assumptions = non_param_assumptions.Assumptions(
             data['sim_param']['base_yr'],
             data['paths'],
             data['enduses'],
             data['sectors'],
             data['lookups']['fueltypes'],
             data['lookups']['fueltypes_nr'])
-        data['assumptions']['seasons'] = date_prop.read_season(year_to_model=2015)
-        data['assumptions']['model_yeardays_daytype'], data['assumptions']['yeardays_month'], data['assumptions']['yeardays_month_days'] = date_prop.get_model_yeardays_daytype(
-            year_to_model=2015)
+
+        strategy_variables = param_assumptions.load_param_assump(
+            data['paths'], assumptions)
+        assumptions.__setattr__('strategy_variables', strategy_variables)
 
         # -----------------------------
         # Obtain external base year scenario data
@@ -166,7 +167,7 @@ class EDWrapper(SectorModel):
                 data['sectors']['all_sectors'],
                 data['local_paths'],
                 base_yr=data['sim_param']['base_yr'],
-                f_mixed_floorarea=data['assumptions']['f_mixed_floorarea'])
+                f_mixed_floorarea=assumptions.f_mixed_floorarea)
         else:
             pass
             # Load floor area from newcastle
@@ -193,56 +194,43 @@ class EDWrapper(SectorModel):
                 }
         }
 
-
-
-        # ----------------------------------
-        # Calculate correction factors
-        # ----------------------------------
-        data['assumptions']['cdd_weekend_cfactors'] = hdd_cdd.calc_weekend_corr_f(
-            data['assumptions']['model_yeardays_daytype'],
-            data['assumptions']['f_ss_cooling_weekend'])
-
-        data['assumptions']['ss_weekend_f'] = hdd_cdd.calc_weekend_corr_f(
-            data['assumptions']['model_yeardays_daytype'],
-            data['assumptions']['f_ss_weekend'])
-
-        data['assumptions']['is_weekend_f'] = hdd_cdd.calc_weekend_corr_f(
-            data['assumptions']['model_yeardays_daytype'],
-            data['assumptions']['f_is_weekend'])
-
         # ------------
         # Load load profiles of technologies
         # ------------
         data['tech_lp'] = data_loader.load_data_profiles(
             data['paths'],
             data['local_paths'],
-            data['assumptions']['model_yeardays'],
-            data['assumptions']['model_yeardays_daytype'],
+            assumptions.model_yeardays,
+            assumptions.model_yeardays_daytype,
             data['criterias']['plot_tech_lp'])
 
         # ---------------------
         # Convert capacity switches to service switches
         # ---------------------
-        data['assumptions'] = fuel_service_switch.capacity_to_service_switches(
-            data['assumptions'], data['fuels'], data['sim_param']['base_yr'])
+        capacity_switches = fuel_service_switch.capacity_to_service_switches(
+            assumptions, data['fuels'], data['sim_param']['base_yr'])
+        for i, j in capacity_switches.items():
+            assumptions.__setattr__(i, j)
 
         # ------------------------
         # Load all SMIF parameters and replace data dict
         # ------------------------
         parameters = data_handle.get_parameters()
-        data['assumptions']['strategy_variables'] = self.load_smif_parameters(
-            parameters,
-            data['assumptions'])
+        strategy_variables = self.load_smif_parameters(
+            parameters)
+        assumptions.__setattr__('strategy_variables', strategy_variables)
 
         # Update technologies after strategy definition
-        data['assumptions']['technologies'] = non_param_assumptions.update_assumptions(
-            data['assumptions']['technologies'],
-            data['assumptions']['strategy_variables']['f_eff_achieved']['scenario_value'],
-            data['assumptions']['strategy_variables']['split_hp_gshp_to_ashp_ey']['scenario_value'])
+        technologies = non_param_assumptions.update_assumptions(
+            assumptions.technologies,
+            assumptions.strategy_variables['f_eff_achieved']['scenario_value'],
+            assumptions.strategy_variables['split_hp_gshp_to_ashp_ey']['scenario_value'])
+        data['technologies'] = technologies
 
         # --------------------
         # Initialise scenario
         # --------------------
+        data['assumptions'] = assumptions
         logging.info("... Initialise function execution")
         self.user_data['init_cont'], self.user_data['fuel_disagg'] = scenario_initalisation(
             self.user_data['data_path'], data)
@@ -261,7 +249,7 @@ class EDWrapper(SectorModel):
         self.user_data['data_pass_along']['weather_stations'] = data['weather_stations']
         self.user_data['data_pass_along']['tech_lp'] = data['tech_lp']
         self.user_data['data_pass_along']['lookups'] = data['lookups']
-        self.user_data['data_pass_along']['assumptions'] = data['assumptions']
+        self.user_data['data_pass_along']['assumptions'] = assumptions
         self.user_data['data_pass_along']['enduses'] = data['enduses']
         self.user_data['data_pass_along']['sectors'] = data['sectors']
         self.user_data['data_pass_along']['fuels'] = data['fuels']
@@ -338,15 +326,18 @@ class EDWrapper(SectorModel):
             data, self.user_data['data_pass_along'])
         data = self.pass_to_simulate(
             data, self.user_data['fuel_disagg'])
-        data['assumptions'] = self.pass_to_simulate(
-            data['assumptions'], self.user_data['init_cont'])
+
+        for key, value in self.user_data['init_cont'].items():
+            data['assumptions'].__setattr__(key, value)
 
         # Update: Necessary updates after external data definition
-        data['assumptions']['technologies'] = non_param_assumptions.update_assumptions(
-            data['assumptions']['technologies'],
-            data['assumptions']['strategy_variables']['f_eff_achieved']['scenario_value'],
-            data['assumptions']['strategy_variables']['split_hp_gshp_to_ashp_ey']['scenario_value'])
+        technologies = non_param_assumptions.update_assumptions(
+            data['assumptions'].technologies,
+            data['assumptions'].strategy_variables['f_eff_achieved']['scenario_value'],
+            data['assumptions'].strategy_variables['split_hp_gshp_to_ashp_ey']['scenario_value'])
 
+        data['technologies'] = technologies
+    
         # ---------------------------------------------
         # Scenario data
         # ---------------------------------------------
@@ -396,7 +387,7 @@ class EDWrapper(SectorModel):
         # ---------------------------------------------
         # Run energy demand model
         # ---------------------------------------------
-        sim_obj = energy_demand_model(data)
+        sim_obj = energy_demand_model(data, data['assumptions'])
 
         # ------------------------------------------------
         # Validation base year: Hourly temporal validation
@@ -404,8 +395,8 @@ class EDWrapper(SectorModel):
         if data['criterias']['validation_criteria'] == True and data_handle.current_timestep == data['sim_param']['base_yr']:
             lad_validation.tempo_spatial_validation(
                 data['sim_param']['base_yr'],
-                data['assumptions']['model_yearhours_nrs'],
-                data['assumptions']['model_yeardays_nrs'],
+                data['assumptions'].model_yearhours_nrs,
+                data['assumptions'].model_yeardays_nrs,
                 data['scenario_data'],
                 sim_obj.ed_fueltype_national_yh,
                 sim_obj.ed_fueltype_regs_yh,
@@ -416,8 +407,8 @@ class EDWrapper(SectorModel):
                 data['paths'],
                 data['regions'],
                 data['reg_coord'],
-                data['assumptions']['seasons'],
-                data['assumptions']['model_yeardays_daytype'],
+                data['assumptions'].seasons,
+                data['assumptions'].model_yeardays_daytype,
                 data['criterias']['plot_crit'])
 
         # -------------------------------------------
@@ -533,7 +524,7 @@ class EDWrapper(SectorModel):
                 results_unconstrained,
                 supply_sectors,
                 data['lookups']['fueltypes'],
-                data['assumptions']['technologies'],
+                data['technologies'],
                 model_yearhours_nrs=8760)
 
             # Generate YAML file with keynames for `sector_model`
@@ -605,7 +596,7 @@ class EDWrapper(SectorModel):
 
         return dict(dict_to_copy_into)
 
-    def load_smif_parameters(self, data_handle, assumptions):
+    def load_smif_parameters(self, data_handle):
         """Get all model parameters from smif (`data_handle`) depending
         on narrative. Create the dict `strategy_variables` and
         add scenario value as well as affected enduses of
@@ -666,7 +657,7 @@ class EDWrapper(SectorModel):
         -------
         reg_coord : dict
             Contains long and latidue for every region in decimal degrees
-        
+
         Info
         ----
         http://spatialreference.org/ref/epsg/wgs-84/
@@ -675,7 +666,7 @@ class EDWrapper(SectorModel):
         for centroid in reg_centroids:
 
             inProj = Proj(init='epsg:27700') # OSGB_1936_British_National_Grid
-            outProj = Proj(init='epsg:4326') #WGS 84 projection
+            outProj = Proj(init='epsg:4326') # WGS 84 projection
 
             # Convert to decimal degrees
             long_dd, lat_dd = transform(

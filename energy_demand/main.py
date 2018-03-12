@@ -82,7 +82,7 @@ from energy_demand import model
 from energy_demand.basic import testing_functions as testing
 from energy_demand.basic import lookup_tables
 
-def energy_demand_model(data, fuel_in=0, fuel_in_elec=0):
+def energy_demand_model(data, assumptions, fuel_in=0, fuel_in_elec=0):
     """Main function of energy demand model to calculate yearly demand
 
     Arguments
@@ -105,7 +105,8 @@ def energy_demand_model(data, fuel_in=0, fuel_in_elec=0):
     """
     modelrun_obj = model.EnergyDemandModel(
         regions=data['regions'],
-        data=data)
+        data=data,
+        assumptions=assumptions)
 
     # ----------------
     # Information
@@ -113,7 +114,7 @@ def energy_demand_model(data, fuel_in=0, fuel_in_elec=0):
     fuel_in, fuel_in_biomass, fuel_in_elec, fuel_in_gas, fuel_in_heat, fuel_in_hydrogen, fuel_in_solid_fuel, fuel_in_oil, tot_heating = testing.test_function_fuel_sum(
         data,
         data['criterias']['mode_constrained'],
-        data['assumptions']['enduse_space_heating'])
+        assumptions.enduse_space_heating)
 
     from energy_demand.basic import conversions
     print("================================================")
@@ -232,66 +233,54 @@ if __name__ == "__main__":
 
     # Population
     pop_dummy = {}
+    pop_density = {}
     for year in range(2015, 2101):
         _data = {}
         for reg_geocode in data['regions']:
             _data[reg_geocode] = data['regions'][reg_geocode]['POP_JOIN']
         pop_dummy[year] = _data
+        
     data['population'] = pop_dummy
-
+    
     data['reg_coord'] = {}
     for reg in data['regions']:
         data['reg_coord'][reg] = {'longitude': 52.58, 'latitude': -1.091}
-
+        pop_density[reg] = 1
     data['regions'] = list(data['regions'].keys())
-
+    data['pop_density'] = pop_density
     # ------------------------------
     # Assumptions
     # ------------------------------
     # Parameters not defined within smif
-    data['assumptions'] = non_param_assumptions.load_non_param_assump(
+    assumptions = non_param_assumptions.Assumptions(
         data['sim_param']['base_yr'],
         data['paths'],
         data['enduses'],
         data['sectors'],
         data['lookups']['fueltypes'],
         data['lookups']['fueltypes_nr'])
-
+    data['assumptions'] = assumptions
     # Parameters defined within smif
-    data['assumptions']['strategy_variables'] = param_assumptions.load_param_assump(
-        data['paths'], data['assumptions'])
 
-    data['assumptions']['seasons'] = date_prop.read_season(year_to_model=data['sim_param']['base_yr'])
-    data['assumptions']['model_yeardays_daytype'], data['assumptions']['yeardays_month'], data['assumptions']['yeardays_month_days'] = date_prop.get_model_yeardays_daytype(year_to_model=2015)
+    strategy_variables = param_assumptions.load_param_assump(
+        data['paths'], data['assumptions'])
+    data['assumptions'].__setattr__('strategy_variables', strategy_variables)
 
     data['tech_lp'] = data_loader.load_data_profiles(
         data['paths'], data['local_paths'],
-        data['assumptions']['model_yeardays'],
-        data['assumptions']['model_yeardays_daytype'],
+        data['assumptions'].model_yeardays,
+        data['assumptions'].model_yeardays_daytype,
         data['criterias']['plot_tech_lp'])
-    data['assumptions']['technologies'] = non_param_assumptions.update_assumptions(
-        data['assumptions']['technologies'],
-        data['assumptions']['strategy_variables']['f_eff_achieved']['scenario_value'],
-        data['assumptions']['strategy_variables']['split_hp_gshp_to_ashp_ey']['scenario_value'])
+
+    technologies = non_param_assumptions.update_assumptions(
+        data['assumptions'].technologies,
+        data['assumptions'].strategy_variables['f_eff_achieved']['scenario_value'],
+        data['assumptions'].strategy_variables['split_hp_gshp_to_ashp_ey']['scenario_value'])
+    data['technologies'] = technologies
 
     data['weather_stations'], data['temp_data'] = data_loader.load_temp_data(data['local_paths'])
 
     data['reg_nrs'] = len(data['regions'])
-
-    # ----------------------------------
-    # Calculating COOLING CDD PARAMETER
-    # ----------------------------------
-    data['assumptions']['cdd_weekend_cfactors'] = hdd_cdd.calc_weekend_corr_f(
-        data['assumptions']['model_yeardays_daytype'],
-        data['assumptions']['f_ss_cooling_weekend'])
-
-    data['assumptions']['ss_weekend_f'] = hdd_cdd.calc_weekend_corr_f(
-        data['assumptions']['model_yeardays_daytype'],
-        data['assumptions']['f_ss_weekend'])
-
-    data['assumptions']['is_weekend_f'] = hdd_cdd.calc_weekend_corr_f(
-        data['assumptions']['model_yeardays_daytype'],
-        data['assumptions']['f_is_weekend'])
 
     # ------------------------------
     if data['criterias']['virtual_building_stock_criteria']:
@@ -300,7 +289,7 @@ if __name__ == "__main__":
             data['sectors']['all_sectors'],
             data['local_paths'],
             data['sim_param']['base_yr'],
-            f_mixed_floorarea=data['assumptions']['f_mixed_floorarea'])
+            f_mixed_floorarea=data['assumptions'].f_mixed_floorarea)
 
     # Lookup table to import industry sectoral gva
     lookup_tables.industrydemand_name_sic2007()
@@ -349,13 +338,14 @@ if __name__ == "__main__":
         fuel_in, fuel_in_biomass, fuel_in_elec, fuel_in_gas, fuel_in_heat, fuel_in_hydro, fuel_in_solid_fuel, fuel_in_oil, tot_heating = testing.test_function_fuel_sum(
             data,
             data['criterias']['mode_constrained'],
-            data['assumptions']['enduse_space_heating'])
+            data['assumptions'].enduse_space_heating)
 
         a = datetime.datetime.now()
 
         # Main model run function
         modelrun_obj = energy_demand_model(
             data,
+            data['assumptions'],
             fuel_in,
             fuel_in_elec)
 

@@ -158,8 +158,8 @@ def run_all_plot_functions(
         plt_fuels_enduses_week(
             results_container['results_every_year'],
             lookups,
-            assumptions['model_yearhours_nrs'],
-            assumptions['model_yeardays_nrs'],
+            assumptions.model_yearhours_nrs,
+            assumptions.model_yeardays_nrs,
             2015,
             os.path.join(local_paths['data_results_PDF'], "tot_all_enduse03.pdf"))
 

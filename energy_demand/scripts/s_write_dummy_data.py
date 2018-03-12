@@ -8,6 +8,7 @@ from energy_demand.basic import basic_functions
 from energy_demand.scripts import s_rs_raw_shapes
 from energy_demand.assumptions import non_param_assumptions
 from energy_demand.scripts import s_raw_weather_data
+from energy_demand.basic import lookup_tables
 
 def dummy_raw_weather_station(local_paths):
     """Write dummy weater station for a single weather station
@@ -159,7 +160,7 @@ def post_install_setup_minimum(args):
         data['paths'], data['lookups'])
 
     # Assumptions
-    data['assumptions'] = non_param_assumptions.load_non_param_assump(
+    data['assumptions'] = non_param_assumptions.Assumptions(
         data['sim_param']['base_yr'],
         data['paths'],
         data['enduses'],
@@ -168,7 +169,7 @@ def post_install_setup_minimum(args):
         data['lookups']['fueltypes_nr'])
 
     # Read in residential submodel shapes
-    s_rs_raw_shapes.run( 
+    s_rs_raw_shapes.run(
         data['paths'],
         local_paths,
         data['sim_param']['base_yr'])
@@ -186,7 +187,6 @@ def post_install_setup_minimum(args):
     # Generate dummy temperatures
     # --------
     dummy_raw_weather_data(local_paths)
-
 
     # --------
     # Dummy service sector load profiles

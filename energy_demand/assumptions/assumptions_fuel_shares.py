@@ -1,18 +1,18 @@
 """
-Base year fuel share assumptions
+Base year fuel share additional_assump_vars
 =========================================
 All fuel shares of the base year for the
 different technologies are defined in this file.
 """
 from energy_demand.initalisations import helpers
 
-def assign_by_fuel_tech_p(assumptions, enduses, sectors, fueltypes, fueltypes_nr):
+def assign_by_fuel_tech_p(enduses, sectors, fueltypes, fueltypes_nr, heat_pumps):
     """Assigning fuel share per enduse for different technologies
     for the base year.
 
     Arguments
     ----------
-    assumptions : dict
+    additional_assump_vars : dict
         Assumptions
     enduses : dict
         Enduses
@@ -25,7 +25,7 @@ def assign_by_fuel_tech_p(assumptions, enduses, sectors, fueltypes, fueltypes_nr
 
     Returns
     -------
-    assumptions : dict
+    additional_assump_vars : dict
         Asssumptions
 
     Important note
@@ -42,11 +42,12 @@ def assign_by_fuel_tech_p(assumptions, enduses, sectors, fueltypes, fueltypes_nr
         'hydrogen': 5,
         'heat': 6
     """
-    assumptions['rs_fuel_tech_p_by'] = helpers.init_fuel_tech_p_by(
+    additional_assump_vars = {}
+    additional_assump_vars['rs_fuel_tech_p_by'] = helpers.init_fuel_tech_p_by(
         enduses['rs_enduses'], fueltypes_nr)
-    assumptions['ss_fuel_tech_p_by'] = helpers.init_fuel_tech_p_by(
+    additional_assump_vars['ss_fuel_tech_p_by'] = helpers.init_fuel_tech_p_by(
         enduses['ss_enduses'], fueltypes_nr)
-    assumptions['is_fuel_tech_p_by'] = helpers.init_fuel_tech_p_by(
+    additional_assump_vars['is_fuel_tech_p_by'] = helpers.init_fuel_tech_p_by(
         enduses['is_enduses'], fueltypes_nr)
 
     # ====================
@@ -57,7 +58,7 @@ def assign_by_fuel_tech_p(assumptions, enduses, sectors, fueltypes, fueltypes_nr
     # rs_lighting
     # Calculated on the basis of ECUK Table 3.08
     # ---------------
-    assumptions['rs_fuel_tech_p_by']['rs_lighting'][fueltypes['electricity']] = {
+    additional_assump_vars['rs_fuel_tech_p_by']['rs_lighting'][fueltypes['electricity']] = {
         'standard_lighting_bulb': 0.04,
         'halogen': 0.56,
         'fluorescent_strip_lightinging' : 0.07,
@@ -68,7 +69,7 @@ def assign_by_fuel_tech_p(assumptions, enduses, sectors, fueltypes, fueltypes_nr
     # rs_cold
     # Calculated on the basis of ECUK Table 3.08
     # ---------------
-    assumptions['rs_fuel_tech_p_by']['rs_cold'][fueltypes['electricity']] = {
+    additional_assump_vars['rs_fuel_tech_p_by']['rs_cold'][fueltypes['electricity']] = {
         'chest_freezer': 0.087,
         'fridge_freezer': 0.588,
         'refrigerator': 0.143,
@@ -80,21 +81,21 @@ def assign_by_fuel_tech_p(assumptions, enduses, sectors, fueltypes, fueltypes_nr
     # Calculated on the assumption that 5 to 10%
     # of all households have induction hobs (https://productspy.co.uk/are-induction-hobs-safe/ (5-10%))
     # ---------------
-    assumptions['rs_fuel_tech_p_by']['rs_cooking'][fueltypes['electricity']] = {
+    additional_assump_vars['rs_fuel_tech_p_by']['rs_cooking'][fueltypes['electricity']] = {
         'hob_electricity': 0.95,
         'hob_induction_electricity': 0.05}
-    assumptions['rs_fuel_tech_p_by']['rs_cooking'][fueltypes['gas']] = {
+    additional_assump_vars['rs_fuel_tech_p_by']['rs_cooking'][fueltypes['gas']] = {
         'hob_gas': 1.0}
-    assumptions['rs_fuel_tech_p_by']['rs_cooking'][fueltypes['hydrogen']] = {
+    additional_assump_vars['rs_fuel_tech_p_by']['rs_cooking'][fueltypes['hydrogen']] = {
         'hob_hydrogen': 1.0}
-    assumptions['rs_fuel_tech_p_by']['rs_cooking'][fueltypes['biomass']] = {
+    additional_assump_vars['rs_fuel_tech_p_by']['rs_cooking'][fueltypes['biomass']] = {
         'hob_biomass': 1.0}
 
     # ---------------
     # rs_wet
     # calculated on the basis of EUCK Table 3.08
     # ---------------
-    assumptions['rs_fuel_tech_p_by']['rs_wet'][fueltypes['electricity']] = {
+    additional_assump_vars['rs_fuel_tech_p_by']['rs_wet'][fueltypes['electricity']] = {
         'washing_machine': 0.305,
         'washer_dryer': 0.157,
         'dishwasher': 0.220,
@@ -130,34 +131,34 @@ def assign_by_fuel_tech_p(assumptions, enduses, sectors, fueltypes, fueltypes_nr
     # Learning lessons from Finland. Energy Policy, 85, 369–375.
     # https://doi.org/10.1016/j.enpol.2015.06.016
     # ---------------
-    assumptions['rs_fuel_tech_p_by']['rs_space_heating'][fueltypes['solid_fuel']] = {
+    additional_assump_vars['rs_fuel_tech_p_by']['rs_space_heating'][fueltypes['solid_fuel']] = {
         'boiler_solid_fuel': 1.0}
 
-    assumptions['rs_fuel_tech_p_by']['rs_space_heating'][fueltypes['oil']] = {
+    additional_assump_vars['rs_fuel_tech_p_by']['rs_space_heating'][fueltypes['oil']] = {
         'boiler_condensing_oil': 0.6,
         'boiler_oil': 0.4}
 
     # ---
     # According to table 3.19, 59.7% (43.5% + 14.3%) have some form of condensing boiler.
     # ---
-    assumptions['rs_fuel_tech_p_by']['rs_space_heating'][fueltypes['gas']] = {
+    additional_assump_vars['rs_fuel_tech_p_by']['rs_space_heating'][fueltypes['gas']] = {
         'boiler_condensing_gas': 0.58,
         'boiler_gas': 0.40,
         'stirling_micro_CHP_gas': 0.02,
         'district_heating_CHP_gas': 0}  #REALLY?
 
-    assumptions['rs_fuel_tech_p_by']['rs_space_heating'][fueltypes['electricity']] = {
+    additional_assump_vars['rs_fuel_tech_p_by']['rs_space_heating'][fueltypes['electricity']] = {
         'stirling_micro_CHP_electricity': 0.0, #REALLY?
         'storage_heater_electricity': 0.62,
         'secondary_heater_electricity': 0.25,
         'district_heating_electricity': 0.08, # same shape as CHP
         'heat_pumps_electricity': 0.05}
 
-    assumptions['rs_fuel_tech_p_by']['rs_space_heating'][fueltypes['biomass']] = {
+    additional_assump_vars['rs_fuel_tech_p_by']['rs_space_heating'][fueltypes['biomass']] = {
         'boiler_biomass': 1.0,
         'district_heating_biomass': 0.0}  #REALLY?
 
-    assumptions['rs_fuel_tech_p_by']['rs_space_heating'][fueltypes['hydrogen']] = {
+    additional_assump_vars['rs_fuel_tech_p_by']['rs_space_heating'][fueltypes['hydrogen']] = {
         'fuel_cell_hydrogen': 0,         #REALLY?
         'district_heating_fuel_cell': 0, #REALLY?
         'boiler_hydrogen': 1.0,
@@ -166,25 +167,25 @@ def assign_by_fuel_tech_p(assumptions, enduses, sectors, fueltypes, fueltypes_nr
     # ---------------
     # Water heating
     # ---------------
-    assumptions['rs_fuel_tech_p_by']['rs_water_heating'][fueltypes['solid_fuel']] = {
+    additional_assump_vars['rs_fuel_tech_p_by']['rs_water_heating'][fueltypes['solid_fuel']] = {
         'boiler_solid_fuel': 1.0}
 
-    assumptions['rs_fuel_tech_p_by']['rs_water_heating'][fueltypes['oil']] = {
+    additional_assump_vars['rs_fuel_tech_p_by']['rs_water_heating'][fueltypes['oil']] = {
         'boiler_condensing_oil': 0.6,
         'boiler_oil': 0.4}
 
-    assumptions['rs_fuel_tech_p_by']['rs_water_heating'][fueltypes['gas']] = {
+    additional_assump_vars['rs_fuel_tech_p_by']['rs_water_heating'][fueltypes['gas']] = {
         'boiler_condensing_gas': 0.6,
         'boiler_gas': 0.4}
 
-    assumptions['rs_fuel_tech_p_by']['rs_water_heating'][fueltypes['electricity']] = {
+    additional_assump_vars['rs_fuel_tech_p_by']['rs_water_heating'][fueltypes['electricity']] = {
         'stirling_micro_CHP_electricity': 0.0,
         'boiler_electricity': 1.0}
 
-    assumptions['rs_fuel_tech_p_by']['rs_water_heating'][fueltypes['biomass']] = {
+    additional_assump_vars['rs_fuel_tech_p_by']['rs_water_heating'][fueltypes['biomass']] = {
         'boiler_biomass': 1.0}
 
-    assumptions['rs_fuel_tech_p_by']['rs_water_heating'][fueltypes['hydrogen']] = {
+    additional_assump_vars['rs_fuel_tech_p_by']['rs_water_heating'][fueltypes['hydrogen']] = {
         'fuel_cell_hydrogen': 0,
         'boiler_hydrogen': 1.0}
 
@@ -196,27 +197,27 @@ def assign_by_fuel_tech_p(assumptions, enduses, sectors, fueltypes, fueltypes_nr
     # Service space heating (ss_space_heating)
     #  For ss_space heating the load profile is the same for all technologies
     # ----------------
-    assumptions['ss_fuel_tech_p_by']['ss_space_heating'][fueltypes['solid_fuel']] = {
+    additional_assump_vars['ss_fuel_tech_p_by']['ss_space_heating'][fueltypes['solid_fuel']] = {
         'boiler_solid_fuel': 1.0}
 
-    assumptions['ss_fuel_tech_p_by']['ss_space_heating'][fueltypes['gas']] = {
+    additional_assump_vars['ss_fuel_tech_p_by']['ss_space_heating'][fueltypes['gas']] = {
         'district_heating_CHP_gas': 0.0,
         'boiler_condensing_gas': 0.6,
         'boiler_gas': 0.4}
 
-    assumptions['ss_fuel_tech_p_by']['ss_space_heating'][fueltypes['electricity']] = {
+    additional_assump_vars['ss_fuel_tech_p_by']['ss_space_heating'][fueltypes['electricity']] = {
         'boiler_electricity': 0.96,
         'heat_pumps_electricity': 0.04,
         'district_heating_electricity': 0}
 
-    assumptions['ss_fuel_tech_p_by']['ss_space_heating'][fueltypes['oil']] = {
+    additional_assump_vars['ss_fuel_tech_p_by']['ss_space_heating'][fueltypes['oil']] = {
         'boiler_condensing_oil': 0.6,
         'boiler_oil': 0.4}
 
-    assumptions['ss_fuel_tech_p_by']['ss_space_heating'][fueltypes['biomass']] = {
+    additional_assump_vars['ss_fuel_tech_p_by']['ss_space_heating'][fueltypes['biomass']] = {
         'boiler_biomass': 1.0}
 
-    assumptions['ss_fuel_tech_p_by']['ss_space_heating'][fueltypes['hydrogen']] = {
+    additional_assump_vars['ss_fuel_tech_p_by']['ss_space_heating'][fueltypes['hydrogen']] = {
         'fuel_cell_hydrogen': 0,
         'boiler_hydrogen': 1.0,
         'heat_pumps_hydrogen': 0.0,
@@ -226,19 +227,19 @@ def assign_by_fuel_tech_p(assumptions, enduses, sectors, fueltypes, fueltypes_nr
     # Cooling
     # ECUK Table 5.09
     # ------------------------------
-    assumptions['ss_fuel_tech_p_by']['ss_cooling_humidification'][fueltypes['electricity']] = {
+    additional_assump_vars['ss_fuel_tech_p_by']['ss_cooling_humidification'][fueltypes['electricity']] = {
         'central_air_conditioner_electricity': 0.64,
         'decentral_air_conditioner_electricity': 0.36}
-    assumptions['ss_fuel_tech_p_by']['ss_cooling_humidification'][fueltypes['gas']] = {
+    additional_assump_vars['ss_fuel_tech_p_by']['ss_cooling_humidification'][fueltypes['gas']] = {
         'central_air_conditioner_gas': 0.64,
         'decentral_air_conditioner_gas': 0.36}
-    assumptions['ss_fuel_tech_p_by']['ss_cooling_humidification'][fueltypes['oil']] = {
+    additional_assump_vars['ss_fuel_tech_p_by']['ss_cooling_humidification'][fueltypes['oil']] = {
         'central_air_conditioner_oil': 0.64,
         'decentral_air_conditioner_oil': 0.36}
 
     # Helper: Transfer all defined shares for every enduse to every sector
-    assumptions['ss_fuel_tech_p_by'] = helpers.copy_fractions_all_sectors(
-        assumptions['ss_fuel_tech_p_by'], sectors['ss_sectors'])
+    additional_assump_vars['ss_fuel_tech_p_by'] = helpers.copy_fractions_all_sectors(
+        additional_assump_vars['ss_fuel_tech_p_by'], sectors['ss_sectors'])
 
     # ===================
     # Industry subModel  - Fuel shares of technologies in enduse
@@ -247,35 +248,35 @@ def assign_by_fuel_tech_p(assumptions, enduses, sectors, fueltypes, fueltypes_nr
     # ----------------
     # Industrial space heating (is_space_heating)
     # ----------------
-    assumptions['is_fuel_tech_p_by']['is_space_heating'][fueltypes['solid_fuel']] = {
+    additional_assump_vars['is_fuel_tech_p_by']['is_space_heating'][fueltypes['solid_fuel']] = {
         'boiler_solid_fuel': 1.0}
 
-    assumptions['is_fuel_tech_p_by']['is_space_heating'][fueltypes['gas']] = {
+    additional_assump_vars['is_fuel_tech_p_by']['is_space_heating'][fueltypes['gas']] = {
         'district_heating_CHP_gas': 0.0,
         'boiler_condensing_gas': 0.6,
         'boiler_gas': 0.4}
 
-    assumptions['is_fuel_tech_p_by']['is_space_heating'][fueltypes['electricity']] = {
+    additional_assump_vars['is_fuel_tech_p_by']['is_space_heating'][fueltypes['electricity']] = {
         'boiler_electricity': 0.96,
         'heat_pumps_electricity': 0.04,
         'district_heating_electricity': 0}
 
-    assumptions['is_fuel_tech_p_by']['is_space_heating'][fueltypes['oil']] = {
+    additional_assump_vars['is_fuel_tech_p_by']['is_space_heating'][fueltypes['oil']] = {
         'boiler_condensing_oil': 0.6,
         'boiler_oil': 0.4}
 
-    assumptions['is_fuel_tech_p_by']['is_space_heating'][fueltypes['biomass']] = {
+    additional_assump_vars['is_fuel_tech_p_by']['is_space_heating'][fueltypes['biomass']] = {
         'boiler_biomass': 1.0}
 
-    assumptions['is_fuel_tech_p_by']['is_space_heating'][fueltypes['hydrogen']] = {
+    additional_assump_vars['is_fuel_tech_p_by']['is_space_heating'][fueltypes['hydrogen']] = {
         'fuel_cell_hydrogen': 0,
         'boiler_hydrogen': 1.0,
         'heat_pumps_hydrogen': 0.0,
         'district_heating_fuel_cell': 0.0}
 
     # Helper: Transfer all defined shares for every enduse to every sector
-    assumptions['is_fuel_tech_p_by'] = helpers.copy_fractions_all_sectors(
-        assumptions['is_fuel_tech_p_by'], sectors['is_sectors'])
+    additional_assump_vars['is_fuel_tech_p_by'] = helpers.copy_fractions_all_sectors(
+        additional_assump_vars['is_fuel_tech_p_by'], sectors['is_sectors'])
 
     # ----------------
     # Industrial High temporal processes (is_high_temp_process)
@@ -284,45 +285,45 @@ def assign_by_fuel_tech_p(assumptions, enduses, sectors, fueltypes, fueltypes_nr
     #TODO: SCENARIO VARIABLES: SWITCH FOR METALL PROCESSES (e.g. ELECTRIC FURNACE IN END YEAR IN PERCENT)
     #TODO: SCENARIO VARIABLE Hot_cold_rolling_share
     # basic_metals (sector)
-    assumptions['is_fuel_tech_p_by']['is_high_temp_process']['basic_metals'][fueltypes['solid_fuel']] = {
+    additional_assump_vars['is_fuel_tech_p_by']['is_high_temp_process']['basic_metals'][fueltypes['solid_fuel']] = {
         'basic_oxygen_furnace': 1.0}
 
-    assumptions['is_fuel_tech_p_by']['is_high_temp_process']['basic_metals'][fueltypes['electricity']] = {
+    additional_assump_vars['is_fuel_tech_p_by']['is_high_temp_process']['basic_metals'][fueltypes['electricity']] = {
         'electric_arc_furnace': 1.0}
 
-    assumptions['is_fuel_tech_p_by']['is_high_temp_process']['basic_metals'][fueltypes['biomass']] = {
+    additional_assump_vars['is_fuel_tech_p_by']['is_high_temp_process']['basic_metals'][fueltypes['biomass']] = {
         'SNG_furnace': 1.0}
 
     ## Sector non_metallic_mineral_products
     # CEMENT STUFF
-    #assumptions['is_fuel_tech_p_by']['is_high_temp_process']['non_metallic_mineral_products'][fueltypes['solid_fuel']] = {
+    #additional_assump_vars['is_fuel_tech_p_by']['is_high_temp_process']['non_metallic_mineral_products'][fueltypes['solid_fuel']] = {
     #    'basic_oxygen_furnace': 1.0}
 
     # ------------------
     # Get technologies of an enduse
     # ------------------
-    assumptions['rs_specified_tech_enduse_by'] = helpers.get_def_techs(
-        assumptions['rs_fuel_tech_p_by'], sector_crit=False)
+    additional_assump_vars['rs_specified_tech_enduse_by'] = helpers.get_def_techs(
+        additional_assump_vars['rs_fuel_tech_p_by'], sector_crit=False)
 
-    assumptions['ss_specified_tech_enduse_by'] = helpers.get_def_techs(
-        assumptions['ss_fuel_tech_p_by'], sector_crit=True)
+    additional_assump_vars['ss_specified_tech_enduse_by'] = helpers.get_def_techs(
+        additional_assump_vars['ss_fuel_tech_p_by'], sector_crit=True)
 
-    assumptions['is_specified_tech_enduse_by'] = helpers.get_def_techs(
-        assumptions['is_fuel_tech_p_by'], sector_crit=True)
+    additional_assump_vars['is_specified_tech_enduse_by'] = helpers.get_def_techs(
+        additional_assump_vars['is_fuel_tech_p_by'], sector_crit=True)
 
-    assumptions['rs_specified_tech_enduse_by'] = helpers.add_undef_techs(
-        assumptions['heat_pumps'],
-        assumptions['rs_specified_tech_enduse_by'],
+    additional_assump_vars['rs_specified_tech_enduse_by'] = helpers.add_undef_techs(
+        heat_pumps,
+        additional_assump_vars['rs_specified_tech_enduse_by'],
         'rs_space_heating')
 
-    assumptions['ss_specified_tech_enduse_by'] = helpers.add_undef_techs(
-        assumptions['heat_pumps'],
-        assumptions['ss_specified_tech_enduse_by'],
+    additional_assump_vars['ss_specified_tech_enduse_by'] = helpers.add_undef_techs(
+        heat_pumps,
+        additional_assump_vars['ss_specified_tech_enduse_by'],
         'ss_space_heating')
 
-    assumptions['is_specified_tech_enduse_by'] = helpers.add_undef_techs(
-        assumptions['heat_pumps'],
-        assumptions['is_specified_tech_enduse_by'],
+    additional_assump_vars['is_specified_tech_enduse_by'] = helpers.add_undef_techs(
+        heat_pumps,
+        additional_assump_vars['is_specified_tech_enduse_by'],
         'is_space_heating')
 
-    return assumptions
+    return additional_assump_vars

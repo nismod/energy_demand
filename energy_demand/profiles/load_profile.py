@@ -342,8 +342,7 @@ def create_load_profile_stock(
     ----------
     tech_lp : dict
         Load profiles
-    assumptions : dict
-        Assumptions
+    assumptions. dict       Assumptions
     sectors : dict
         Sectors
     all_enduses : dict
@@ -367,7 +366,7 @@ def create_load_profile_stock(
     # rs_lighting
     non_regional_lp_stock.add_lp(
         unique_identifier=uuid.uuid4(),
-        technologies=assumptions['tech_list']['lighting'],
+        technologies=assumptions.tech_list['lighting'],
         enduses=['rs_lighting'],
         shape_yd=tech_lp['rs_shapes_yd']['rs_lighting']['shape_non_peak_yd'],
         shape_yh=shape_yh,
@@ -375,7 +374,7 @@ def create_load_profile_stock(
         shape_peak_dh=tech_lp['rs_shapes_dh']['rs_lighting']['shape_peak_dh'])
 
     # Skip temperature dependent end uses (regional)
-    if 'rs_cold' in assumptions['enduse_rs_space_cooling']:
+    if 'rs_cold' in assumptions.enduse_rs_space_cooling:
         pass
     else:
         shape_yh = calc_yh(
@@ -386,7 +385,7 @@ def create_load_profile_stock(
         # rs_cold (residential refrigeration)
         non_regional_lp_stock.add_lp(
             unique_identifier=uuid.uuid4(),
-            technologies=assumptions['tech_list']['cold'],
+            technologies=assumptions.tech_list['cold'],
             enduses=['rs_cold'],
             shape_yd=tech_lp['rs_shapes_yd']['rs_cold']['shape_non_peak_yd'],
             shape_yh=shape_yh,
@@ -400,7 +399,7 @@ def create_load_profile_stock(
         model_yeardays)
     non_regional_lp_stock.add_lp(
         unique_identifier=uuid.uuid4(),
-        technologies=assumptions['tech_list']['cooking'],
+        technologies=assumptions.tech_list['cooking'],
         enduses=['rs_cooking'],
         shape_yd=tech_lp['rs_shapes_yd']['rs_cooking']['shape_non_peak_yd'],
         shape_yh=shape_yh,
@@ -414,7 +413,7 @@ def create_load_profile_stock(
         model_yeardays)
     non_regional_lp_stock.add_lp(
         unique_identifier=uuid.uuid4(),
-        technologies=assumptions['tech_list']['wet'],
+        technologies=assumptions.tech_list['wet'],
         enduses=['rs_wet'],
         shape_yd=tech_lp['rs_shapes_yd']['rs_wet']['shape_non_peak_yd'],
         shape_yh=shape_yh,
@@ -428,7 +427,7 @@ def create_load_profile_stock(
         if enduse == 'rs_space_heating':
             pass
         else:
-            tech_list = helpers.get_nested_dict_key(assumptions['rs_fuel_tech_p_by'][enduse])
+            tech_list = helpers.get_nested_dict_key(assumptions.rs_fuel_tech_p_by[enduse])
 
             shape_yh = calc_yh(
                 tech_lp['rs_shapes_yd'][enduse]['shape_non_peak_yd'],
@@ -451,17 +450,17 @@ def create_load_profile_stock(
     for enduse in all_enduses['ss_enduses']:
 
         # Skip temperature dependent end uses (regional) because load profile in regional load profile stock
-        if enduse in assumptions['enduse_space_heating'] or enduse in assumptions['ss_enduse_space_cooling']:
+        if enduse in assumptions.enduse_space_heating or enduse in assumptions.ss_enduse_space_cooling:
             pass
         else:
             for sector in sectors['ss_sectors']:
 
                 # Get technologies with assigned fuel shares
                 tech_list = helpers.get_nested_dict_key(
-                    assumptions['ss_fuel_tech_p_by'][enduse][sector])
+                    assumptions.ss_fuel_tech_p_by[enduse][sector])
 
                 # Apply correction factor for weekend_effect
-                shape_non_peak_yd = tech_lp['ss_shapes_yd'][enduse][sector]['shape_non_peak_yd'] * assumptions['ss_weekend_f']
+                shape_non_peak_yd = tech_lp['ss_shapes_yd'][enduse][sector]['shape_non_peak_yd'] * assumptions.ss_weekend_f
                 shape_non_peak_yd_weighted = abs_to_rel(shape_non_peak_yd)
 
                 shape_yh = calc_yh(
@@ -484,10 +483,10 @@ def create_load_profile_stock(
     # ---------
     # Generate flat load profiles
     shape_peak_dh, _, shape_peak_yd_factor, shape_non_peak_yd, shape_non_peak_yh = generic_shapes.flat_shape(
-        assumptions['model_yeardays_nrs'])
+        assumptions.model_yeardays_nrs)
 
     # Apply correction factor for weekend_effect to flat load profile for industry
-    shape_non_peak_yd = shape_non_peak_yd * assumptions['is_weekend_f']
+    shape_non_peak_yd = shape_non_peak_yd * assumptions.is_weekend_f
     shape_non_peak_yd_weighted = abs_to_rel(shape_non_peak_yd)
 
     for enduse in all_enduses['is_enduses']:
@@ -497,7 +496,7 @@ def create_load_profile_stock(
             for sector in sectors['is_sectors']:
 
                 tech_list = helpers.get_nested_dict_key(
-                    assumptions['is_fuel_tech_p_by'][enduse][sector])
+                    assumptions.is_fuel_tech_p_by[enduse][sector])
 
                 non_regional_lp_stock.add_lp(
                     unique_identifier=uuid.uuid4(),

@@ -122,7 +122,7 @@ class WeatherRegion(object):
             'rs_tech_stock',
             technologies,
             tech_lists,
-            assumptions['enduse_overall_change']['other_enduse_mode_info'],
+            assumptions.enduse_overall_change['other_enduse_mode_info'],
             base_yr,
             curr_yr,
             fueltypes,
@@ -131,13 +131,13 @@ class WeatherRegion(object):
             t_bases['rs_t_heating_by'],
             all_enduses['rs_enduses'],
             rs_t_base_heating_cy,
-            assumptions['rs_specified_tech_enduse_by'])
+            assumptions.rs_specified_tech_enduse_by)
 
         self.ss_tech_stock = technological_stock.TechStock(
             'ss_tech_stock',
             technologies,
             tech_lists,
-            assumptions['enduse_overall_change']['other_enduse_mode_info'],
+            assumptions.enduse_overall_change['other_enduse_mode_info'],
             base_yr,
             curr_yr,
             fueltypes,
@@ -146,13 +146,13 @@ class WeatherRegion(object):
             t_bases['ss_t_heating_by'],
             all_enduses['ss_enduses'],
             ss_t_base_heating_cy,
-            assumptions['ss_specified_tech_enduse_by'])
+            assumptions.ss_specified_tech_enduse_by)
 
         self.is_tech_stock = technological_stock.TechStock(
             'is_tech_stock',
             technologies,
             tech_lists,
-            assumptions['enduse_overall_change']['other_enduse_mode_info'],
+            assumptions.enduse_overall_change['other_enduse_mode_info'],
             base_yr,
             curr_yr,
             fueltypes,
@@ -161,7 +161,7 @@ class WeatherRegion(object):
             t_bases['is_t_heating_by'],
             all_enduses['is_enduses'],
             ss_t_base_heating_cy,
-            assumptions['is_specified_tech_enduse_by'])
+            assumptions.is_specified_tech_enduse_by)
 
         # -------------------
         # Residential Load profiles
@@ -205,7 +205,7 @@ class WeatherRegion(object):
         #shape_yh=tech_lp['rs_shapes_dh'][cooling_enduse]['shape_non_peak_y_dh'] * ss_fuel_shape_coolin_yd[:, np.newaxis],
         rs_fuel_shape_cooling_yh = self.get_shape_cooling_yh(data, rs_fuel_shape_cooling_yd, 'rs_shapes_cooling_dh')
 
-        for cooling_enduse in assumptions['enduse_rs_space_cooling']:
+        for cooling_enduse in assumptions.enduse_rs_space_cooling:
             self.rs_load_profiles.add_lp(
                 unique_identifier=uuid.uuid4(),
                 technologies=rs_cold_techs,
@@ -321,7 +321,7 @@ class WeatherRegion(object):
         # ----------------------------------------------
         # Apply weekend correction factor fo ss heating
         # ----------------------------------------------
-        ss_cdd_by = ss_cdd_by #* assumptions['cdd_weekend_cfactors'] #TODO NOT WORKING PROPERLY YET
+        ss_cdd_by = ss_cdd_by #* assumptions.cdd_weekend_cfactors #TODO NOT WORKING PROPERLY YET
 
         ss_peak_yd_heating_factor = get_shape_peak_yd_factor(ss_hdd_cy)
         ss_peak_yd_cooling_factor = get_shape_peak_yd_factor(ss_cdd_cy)
@@ -339,7 +339,7 @@ class WeatherRegion(object):
 
         # Apply correction factor for weekend_effect TODO NEW TODO NTEW
         # ------ TODO TODO
-        ss_fuel_shape_heating_yd = ss_fuel_shape_heating_yd * assumptions['ss_weekend_f']
+        ss_fuel_shape_heating_yd = ss_fuel_shape_heating_yd * assumptions.ss_weekend_f
         ss_fuel_shape_heating_yd_weighted = load_profile.abs_to_rel(ss_fuel_shape_heating_yd)
         # ------ TODO TODO
 
@@ -368,11 +368,11 @@ class WeatherRegion(object):
         #------
         coolings_techs = tech_lists['cooling_const']
 
-        for cooling_enduse in assumptions['ss_enduse_space_cooling']:
+        for cooling_enduse in assumptions.ss_enduse_space_cooling:
             for sector in sectors['ss_sectors']:
 
                 # Apply correction factor for weekend_effect 'cdd_weekend_cfactors'
-                ss_fuel_shape_coolin_yd = ss_fuel_shape_coolin_yd * assumptions['cdd_weekend_cfactors']
+                ss_fuel_shape_coolin_yd = ss_fuel_shape_coolin_yd * assumptions.cdd_weekend_cfactors
                 ss_fuel_shape_coolin_yd = load_profile.abs_to_rel(ss_fuel_shape_coolin_yd)
 
                 # Ev auch tech_lp['ss_shapes_cooling_dh']
@@ -427,7 +427,7 @@ class WeatherRegion(object):
         all_techs_is_space_heating = [item for sublist in is_space_heating_tech_lists for item in sublist]
 
         # Apply correction factor for weekend_effect for space heating load profile
-        is_fuel_shape_heating_yd = is_fuel_shape_heating_yd * assumptions['is_weekend_f']
+        is_fuel_shape_heating_yd = is_fuel_shape_heating_yd * assumptions.is_weekend_f
         is_fuel_shape_heating_yd = load_profile.abs_to_rel(is_fuel_shape_heating_yd)
 
         # Y_dh Heating profile is taken from service sector
@@ -435,13 +435,13 @@ class WeatherRegion(object):
             tech_lp['ss_all_tech_shapes_dh'],
             is_fuel_shape_heating_yd,
             'ss_space_heating',
-            assumptions['model_yeardays_nrs'])
+            assumptions.model_yeardays_nrs)
 
         # Alternatively generate y_dh flat profile
         #from energy_demand.profiles import generic_shapes
         #shape_peak_dh, _, shape_peak_yd_factor, shape_non_peak_yd, shape_non_peak_yh = generic_shapes.flat_shape(
-        #    assumptions['model_yeardays_nrs'])
-        #flat_is_fuel_shape_any_tech = np.full((assumptions['model_yeardays_nrs'], 24), (1.0/24.0), dtype=float)
+        #    assumptions.model_yeardays_nrs)
+        #flat_is_fuel_shape_any_tech = np.full((assumptions.model_yeardays_nrs, 24), (1.0/24.0), dtype=float)
         #flat_is_fuel_shape_any_tech = flat_is_fuel_shape_any_tech * is_fuel_shape_heating_yd[:, np.newaxis]
 
         self.is_load_profiles.add_lp(

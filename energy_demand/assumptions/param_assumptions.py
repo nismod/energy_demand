@@ -10,6 +10,7 @@ import copy
 import logging
 from energy_demand.read_write import write_data
 from energy_demand.basic import basic_functions
+from energy_demand.assumptions import non_param_assumptions
 
 def load_param_assump(paths=None, assumptions=None):
     """All assumptions of the energy demand model
@@ -33,17 +34,19 @@ def load_param_assump(paths=None, assumptions=None):
     strategy_vars = {}
 
     if not assumptions:
-        assumptions = {}
-        assumptions['split_hp_gshp_to_ashp_by'] = None
-        assumptions['smart_meter_assump'] = {}
-        assumptions['smart_meter_assump']['smart_meter_p_by'] = None
-        assumptions['cooled_ss_floorarea_by'] = None
-        assumptions['p_cold_rolling_steel_by'] = None
-        assumptions['t_bases'] = {}
-        assumptions['t_bases']['rs_t_heating_by'] = None
-        assumptions['t_bases']['ss_t_heating_by'] = None
-        assumptions['t_bases']['ss_t_cooling_by'] = None
-        assumptions['t_bases']['is_t_heating_by'] = None
+        assumptions_dict = {}
+        assumptions_dict['split_hp_gshp_to_ashp_by'] = None
+        assumptions_dict['smart_meter_assump'] = {}
+        assumptions_dict['smart_meter_assump']['smart_meter_p_by'] = None
+        assumptions_dict['cooled_ss_floorarea_by'] = None
+        assumptions_dict['p_cold_rolling_steel_by'] = None
+        assumptions_dict['t_bases'] = {}
+        assumptions_dict['t_bases']['rs_t_heating_by'] = None
+        assumptions_dict['t_bases']['ss_t_heating_by'] = None
+        assumptions_dict['t_bases']['ss_t_cooling_by'] = None
+        assumptions_dict['t_bases']['is_t_heating_by'] = None
+
+        assumptions = non_param_assumptions.DummyClass(assumptions_dict)
 
     yr_until_changed_all_things = 2050 #TODO
 
@@ -57,8 +60,8 @@ def load_param_assump(paths=None, assumptions=None):
         "name": "split_hp_gshp_to_ashp_ey",
         "absolute_range": (0, 1),
         "description": "Relative GSHP (%) to GSHP+ASHP",
-        "suggested_range": (assumptions['split_hp_gshp_to_ashp_by'], 0.5),
-        "default_value": assumptions['split_hp_gshp_to_ashp_by'],
+        "suggested_range": (assumptions.split_hp_gshp_to_ashp_by, 0.5),
+        "default_value": assumptions.split_hp_gshp_to_ashp_by,
         "units": 'decimal'})
 
     # ============================================================
@@ -184,7 +187,7 @@ def load_param_assump(paths=None, assumptions=None):
         "absolute_range": (0, 20),
         "description": "Base temperature assumption residential heating",
         "suggested_range": (13, 17),
-        "default_value": assumptions['t_bases']['rs_t_heating_by'],
+        "default_value": assumptions.t_bases['rs_t_heating_by'],
         "units": '°C'})
 
     # Future base year temperature
@@ -195,7 +198,7 @@ def load_param_assump(paths=None, assumptions=None):
         "absolute_range": (0, 20),
         "description": "Base temperature assumption service sector heating",
         "suggested_range": (13, 17),
-        "default_value": assumptions['t_bases']['ss_t_heating_by'],
+        "default_value": assumptions.t_bases['ss_t_heating_by'],
         "units": '°C'})
 
     # Future base year temperature
@@ -207,7 +210,7 @@ def load_param_assump(paths=None, assumptions=None):
         "absolute_range": (0, 25),
         "description": "Base temperature assumption residential sector cooling",
         "suggested_range": (13, 17),
-        "default_value": assumptions['t_bases']['rs_t_cooling_by'],
+        "default_value": assumptions.t_bases['rs_t_cooling_by'],
         "units": '°C'})'''
 
     # Future base year temperature
@@ -218,7 +221,7 @@ def load_param_assump(paths=None, assumptions=None):
         "absolute_range": (0, 25),
         "description": "Base temperature assumption service sector cooling",
         "suggested_range": (13, 17),
-        "default_value": assumptions['t_bases']['ss_t_cooling_by'],
+        "default_value": assumptions.t_bases['ss_t_cooling_by'],
         "units": '°C'})
 
     # Future base year temperature
@@ -230,7 +233,7 @@ def load_param_assump(paths=None, assumptions=None):
         "absolute_range": (0, 20),
         "description": "Base temperature assumption service sector heating",
         "suggested_range": (13, 17),
-        "default_value": assumptions['t_bases']['is_t_heating_by'],
+        "default_value": assumptions.t_bases['is_t_heating_by'],
         "units": '°C'})
 
     # Future base year temperature
@@ -248,7 +251,7 @@ def load_param_assump(paths=None, assumptions=None):
         "absolute_range": (0, 1),
         "description": "Improvement of smart meter penetration",
         "suggested_range": (0, 0.9),
-        "default_value": '{}'.format(assumptions['smart_meter_assump']['smart_meter_p_by']),
+        "default_value": '{}'.format(assumptions.smart_meter_assump['smart_meter_p_by']),
         "units": 'decimal'})
 
     strategy_variables.append({
@@ -323,7 +326,7 @@ def load_param_assump(paths=None, assumptions=None):
         "absolute_range": (0, 1),
         "description": "Increase in percentage of floorarea which is cooled (service sector)",
         "suggested_range": (-1, 1),
-        "default_value": assumptions['cooled_ss_floorarea_by'],
+        "default_value": assumptions.cooled_ss_floorarea_by,
         "units": 'decimal'})
 
     # How much of the floorarea is cooled in end year (example: 0.5 --> 50% of floorarea is cooled)
@@ -366,10 +369,10 @@ def load_param_assump(paths=None, assumptions=None):
         "absolute_range": (0, 1),
         "description": "Share of cold rolling given in percent)",
         "suggested_range": (0, 1),
-        "default_value": assumptions['p_cold_rolling_steel_by'],
+        "default_value": assumptions.p_cold_rolling_steel_by,
         "units": 'decimal'})
 
-    strategy_vars['p_cold_rolling_steel'] = assumptions['p_cold_rolling_steel_by']
+    strategy_vars['p_cold_rolling_steel'] = assumptions.p_cold_rolling_steel_by
 
     # ============================================================
     # Heat recycling & reuse
