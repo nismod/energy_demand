@@ -255,8 +255,8 @@ if __name__ == "__main__":
     # ------------------------------
     # Parameters not defined within smif
     data['assumptions']  = non_param_assumptions.Assumptions(
-        base_yr=data['sim_param']['base_yr'],
-        curr_yr=data['sim_param']['base_yr'],
+        base_yr=2015,
+        curr_yr=2015,
         simulated_yrs=[2015, 2016, 2030, 2050],
         paths=data['paths'],
         enduses=data['enduses'],
@@ -292,7 +292,7 @@ if __name__ == "__main__":
             data['regions'],
             data['sectors']['all_sectors'],
             data['local_paths'],
-            data['sim_param']['base_yr'],
+            data['assumptions'].base_yr,
             f_mixed_floorarea=data['assumptions'].f_mixed_floorarea)
 
     # Lookup table to import industry sectoral gva
@@ -335,8 +335,8 @@ if __name__ == "__main__":
         data['reg_nrs'],
         data['regions'])
 
-    for sim_yr in data['sim_param']['simulated_yrs']:
-        data['sim_param']['curr_yr'] = sim_yr
+    for sim_yr in data['assumptions'].simulated_yrs:
+        setattr(data['assumptions'], 'curr_yr', sim_yr)
 
         print("Simulation for year --------------:  " + str(sim_yr))
         fuel_in, fuel_in_biomass, fuel_in_elec, fuel_in_gas, fuel_in_heat, fuel_in_hydro, fuel_in_solid_fuel, fuel_in_oil, tot_heating = testing.test_function_fuel_sum(

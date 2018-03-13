@@ -98,7 +98,6 @@ def main(path_data_energy_demand, path_shapefile_input):
         data['lookups'],
         data['local_paths'],
         data['assumptions'],
-        data['sim_param'],
         data['enduses'])
 
     logging.info("... finished reading and plotting results")

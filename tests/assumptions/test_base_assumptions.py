@@ -41,8 +41,6 @@ def test_load_param_assump():
 
     sim_param_expected = {}
     sim_param_expected['base_yr'] = 2015
-    sim_param_expected['simulated_yrs'] = [2015, 2020, 2025]
-    sim_param_expected['curr_yr'] = 2015
 
     #assumptions_expected = param_assumptions.load_param_assump(data['paths'], data['enduses'])
 

@@ -142,8 +142,6 @@ def create_tech_stock(
         Technology list
     other_enduse_mode_info : dict
         Diffusion info
-    sim_param : dict
-        Simulation parameter
     lookups : dict
         Lookups
     temp_by : array

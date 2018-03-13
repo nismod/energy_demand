@@ -521,8 +521,6 @@ def rs_disaggregate(
     ----------
     regions : dict
         Regions
-    sim_param : dict
-        Simulation parameters
     rs_national_fuel : dict
         Fuel per enduse for residential submodel
 
@@ -774,8 +772,8 @@ def run(data):
     # Disaggregation
     rs_fuel_disagg, ss_fuel_disagg, is_fuel_disagg = disaggregate_base_demand(
         data['regions'],
-        data['sim_param']['base_yr'],
-        data['sim_param']['curr_yr'],
+        data['assumptions'].base_yr,
+        data['assumptions'].curr_yr,
         data['fuels'],
         data['scenario_data'],
         data['assumptions'],

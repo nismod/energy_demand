@@ -35,7 +35,7 @@ class EnergyDemandModel(object):
         """Constructor
         """
         logging.info("... start main energy demand function")
-        self.curr_yr = data['sim_param']['curr_yr']
+        self.curr_yr = assumptions.curr_yr
 
         # --------------
         # Create non regional dependent load profiles
@@ -54,8 +54,8 @@ class EnergyDemandModel(object):
         for weather_region in data['weather_stations']:
             weather_regions[weather_region] = WeatherRegion(
                 name=weather_region,
-                base_yr=data['sim_param']['base_yr'],
-                curr_yr=data['sim_param']['curr_yr'],
+                base_yr=assumptions.base_yr,
+                curr_yr=assumptions.curr_yr,
                 strategy_variables=assumptions.strategy_variables,
                 t_bases=assumptions.t_bases,
                 t_diff_param=assumptions.base_temp_diff_params,
@@ -187,7 +187,6 @@ def simulate_region(region, data, weather_regions):
         data['rs_dw_stock'][region],
         data['non_regional_lp_stock'],
         data['assumptions'],
-        data['sim_param'],
         data['lookups'],
         data['criterias'],
         data['enduses']['rs_enduses'])
@@ -202,7 +201,6 @@ def simulate_region(region, data, weather_regions):
         data['ss_dw_stock'][region],
         data['non_regional_lp_stock'],
         data['assumptions'],
-        data['sim_param'],
         data['lookups'],
         data['criterias'],
         data['enduses']['ss_enduses'],
@@ -217,7 +215,6 @@ def simulate_region(region, data, weather_regions):
         data['scenario_data'],
         data['non_regional_lp_stock'],
         data['assumptions'],
-        data['sim_param'],
         data['lookups'],
         data['criterias'],
         data['enduses']['is_enduses'],
@@ -438,7 +435,6 @@ def residential_submodel(
         rs_dw_stock,
         non_regional_lp_stock,
         assumptions,
-        sim_param,
         lookups,
         criterias,
         enduses,
@@ -496,8 +492,8 @@ def residential_submodel(
                 assumptions=assumptions,
                 regional_lp_stock=weather_region.rs_load_profiles,
                 non_regional_lp_stock=non_regional_lp_stock,
-                base_yr=sim_param['base_yr'],
-                curr_yr=sim_param['curr_yr'],
+                base_yr=assumptions.base_yr,
+                curr_yr=assumptions.curr_yr,
                 enduse=enduse,
                 sector=sector,
                 fuel=region.rs_enduses_fuel[enduse],
@@ -527,7 +523,6 @@ def service_submodel(
         ss_dw_stock,
         non_regional_lp_stock,
         assumptions,
-        sim_param,
         lookups,
         criterias,
         enduses,
@@ -579,8 +574,8 @@ def service_submodel(
                 assumptions=assumptions,
                 regional_lp_stock=weather_region.ss_load_profiles,
                 non_regional_lp_stock=non_regional_lp_stock,
-                base_yr=sim_param['base_yr'],
-                curr_yr=sim_param['curr_yr'],
+                base_yr=assumptions.base_yr,
+                curr_yr=assumptions.curr_yr,
                 enduse=enduse,
                 sector=sector,
                 fuel=region.ss_enduses_sectors_fuels[enduse][sector],
@@ -610,7 +605,6 @@ def industry_submodel(
         scenario_data,
         non_regional_lp_stock,
         assumptions,
-        sim_param,
         lookups,
         criterias,
         enduses,
@@ -671,8 +665,8 @@ def industry_submodel(
                 assumptions=assumptions,
                 regional_lp_stock=weather_region.is_load_profiles,
                 non_regional_lp_stock=non_regional_lp_stock,
-                base_yr=sim_param['base_yr'],
-                curr_yr=sim_param['curr_yr'],
+                base_yr=assumptions.base_yr,
+                curr_yr=assumptions.curr_yr,
                 enduse=enduse,
                 sector=sector,
                 fuel=region.is_enduses_sectors_fuels[enduse][sector],
@@ -848,29 +842,29 @@ def create_virtual_dwelling_stocks(regions, curr_yr, data):
     for region in regions:
 
         # Dwelling stock of residential SubModel for base year
-        data['rs_dw_stock'][region][data['sim_param']['base_yr']] = dw_stock.rs_dw_stock(
+        data['rs_dw_stock'][region][data['assumptions'].base_yr] = dw_stock.rs_dw_stock(
             region,
             data['assumptions'],
             data['scenario_data'],
-            data['sim_param']['simulated_yrs'],
+            data['assumptions'].simulated_yrs,
             data['lookups']['dwtype'],
             data['enduses']['rs_enduses'],
             data['reg_coord'],
             data['assumptions'].scenario_drivers['rs_submodule'],
-            data['sim_param']['base_yr'],
-            data['sim_param']['base_yr'],
+            data['assumptions'].base_yr,
+            data['assumptions'].base_yr,
             data['criterias']['virtual_building_stock_criteria'])
 
         # Dwelling stock of service SubModel for base year
-        data['ss_dw_stock'][region][data['sim_param']['base_yr']] = dw_stock.ss_dw_stock(
+        data['ss_dw_stock'][region][data['assumptions'].base_yr] = dw_stock.ss_dw_stock(
             region,
             data['enduses']['ss_enduses'],
             data['sectors']['ss_sectors'],
             data['scenario_data'],
             data['reg_coord'],
             data['assumptions'],
-            data['sim_param']['base_yr'],
-            data['sim_param']['base_yr'],
+            data['assumptions'].base_yr,
+            data['assumptions'].base_yr,
             data['criterias']['virtual_building_stock_criteria'])
 
         # Dwelling stock of residential SubModel for current year
@@ -878,13 +872,13 @@ def create_virtual_dwelling_stocks(regions, curr_yr, data):
             region,
             data['assumptions'],
             data['scenario_data'],
-            data['sim_param']['simulated_yrs'],
+            data['assumptions'].simulated_yrs,
             data['lookups']['dwtype'],
             data['enduses']['rs_enduses'],
             data['reg_coord'],
             data['assumptions'].scenario_drivers['rs_submodule'],
             curr_yr,
-            data['sim_param']['base_yr'],
+            data['assumptions'].base_yr,
             data['criterias']['virtual_building_stock_criteria'])
 
         # Dwelling stock of service SubModel for current year
@@ -896,7 +890,7 @@ def create_virtual_dwelling_stocks(regions, curr_yr, data):
             data['reg_coord'],
             data['assumptions'],
             curr_yr,
-            data['sim_param']['base_yr'],
+            data['assumptions'].base_yr,
             data['criterias']['virtual_building_stock_criteria'])
 
     return data

@@ -130,6 +130,7 @@ class EDWrapper(SectorModel):
         assumptions = non_param_assumptions.Assumptions(
             base_yr=data_handle.timesteps[0],
             curr_yr=data_handle.timesteps[0],
+            simulated_yrs=self.timesteps,
             paths=data['paths'],
             enduses=data['enduses'],
             sectors=data['sectors'],
@@ -156,9 +157,9 @@ class EDWrapper(SectorModel):
             gva_dict[region] = gva_array_by[r_idx, 0]
             #gva_industry_dict[region] = industry_gva_by[r_idx, 0]
 
-        data['population'][data['sim_param']['base_yr']] = pop_dict
-        data['gva'][data['sim_param']['base_yr']] = gva_dict
-        #data['industry_gva'][data['sim_param']['base_yr']] = gva_industry_dict
+        data['population'][assumptions.base_yr] = pop_dict
+        data['gva'][assumptions.base_yr] = gva_dict
+        #data['industry_gva'][assumptions.base_yr] = gva_industry_dict
         data['industry_gva'] = "TST"
 
         # Get building related data
@@ -167,7 +168,7 @@ class EDWrapper(SectorModel):
                 data['regions'],
                 data['sectors']['all_sectors'],
                 data['local_paths'],
-                base_yr=data['sim_param']['base_yr'],
+                base_yr=assumptions.base_yr,
                 f_mixed_floorarea=assumptions.f_mixed_floorarea)
         else:
             pass
@@ -180,7 +181,7 @@ class EDWrapper(SectorModel):
         # -----------------------
         data['pop_density'] = {}
         for region in self.regions.get_entry(region_set_name):
-            data['pop_density'][region.name] = data['population'][data['sim_param']['base_yr']][region.name] / region.shape.area
+            data['pop_density'][region.name] = data['population'][assumptions.base_yr][region.name] / region.shape.area
 
         # --------------
         # Scenario data
@@ -209,7 +210,7 @@ class EDWrapper(SectorModel):
         # Convert capacity switches to service switches
         # ---------------------
         capacity_switches = fuel_service_switch.capacity_to_service_switches(
-            assumptions, data['fuels'], data['sim_param']['base_yr'])
+            assumptions, data['fuels'], assumptions.base_yr)
         for i, j in capacity_switches.items():
             assumptions.__setattr__(i, j)
 
@@ -336,7 +337,6 @@ class EDWrapper(SectorModel):
             data['assumptions'].technologies,
             data['assumptions'].strategy_variables['f_eff_achieved']['scenario_value'],
             data['assumptions'].strategy_variables['split_hp_gshp_to_ashp_ey']['scenario_value'])
-
         data['technologies'] = technologies
     
         # ---------------------------------------------
@@ -353,16 +353,16 @@ class EDWrapper(SectorModel):
             gva_dict_current[region] = gva_array_current[r_idx, 0]
 
         pop_dict = {}
-        pop_dict[data['sim_param']['base_yr']] = self.user_data['population'][data_handle.base_timestep] # by
-        pop_dict[data['sim_param']['curr_yr']] = pop_dict_current # Get population of cy
+        pop_dict[data['assumptions'].base_yr] = self.user_data['population'][data_handle.base_timestep] # by
+        pop_dict[data['assumptions'].curr_yr] = pop_dict_current # Get population of cy
 
         gva_dict = {}
-        gva_dict[data['sim_param']['base_yr']] = self.user_data['gva'][data_handle.base_timestep] # by
-        gva_dict[data['sim_param']['curr_yr']] = gva_dict_current # Get gva of cy
+        gva_dict[data['assumptions'].base_yr] = self.user_data['gva'][data_handle.base_timestep] # by
+        gva_dict[data['assumptions'].curr_yr] = gva_dict_current # Get gva of cy
 
         gva_industry_dict = {}
-        #gva_industry_dict[data['sim_param']['base_yr']] = self.user_data['gva'][data_handle.base_timestep] # by
-        #gva_industry_cy[data['sim_param']['curr_yr']] = gva_dict_current # Get gva of cy'''
+        #gva_industry_dict[data['assumptions'].base_yr] = self.user_data['gva'][data_handle.base_timestep] # by
+        #gva_industry_cy[data['assumptions'].curr_yr] = gva_dict_current # Get gva of cy'''
 
         data['scenario_data'] = {
             'gva': gva_dict,
@@ -393,9 +393,9 @@ class EDWrapper(SectorModel):
         # ------------------------------------------------
         # Validation base year: Hourly temporal validation
         # ------------------------------------------------
-        if data['criterias']['validation_criteria'] == True and data_handle.current_timestep == data['sim_param']['base_yr']:
+        if data['criterias']['validation_criteria'] == True and data_handle.current_timestep == data['assumptions'].base_yr:
             lad_validation.tempo_spatial_validation(
-                data['sim_param']['base_yr'],
+                data['assumptions'].base_yr,
                 data['assumptions'].model_yearhours_nrs,
                 data['assumptions'].model_yeardays_nrs,
                 data['scenario_data'],
