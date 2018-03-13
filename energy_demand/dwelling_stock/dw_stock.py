@@ -370,8 +370,6 @@ def get_dwtype_distr(dwtype_distr_by, assump_dwtype_distr_future, base_yr, sim_p
         Distribution of dwelling types base year
     assump_dwtype_distr_future : dict
         Distribution of dwelling types end year
-    sim_param : list
-        Simulation parameters
 
     Returns
     -------

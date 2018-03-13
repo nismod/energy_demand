@@ -46,7 +46,7 @@ def main(path_data_energy_demand, path_shapefile_input):
     basic_functions.create_folder(data['local_paths']['data_results_shapefiles'])
 
     # Simulation information is read in from .ini file for results
-    data['sim_param'], data['enduses'], data['assumptions'], data['reg_nrs'], data['regions'] = data_loader.load_sim_param_ini(
+    data['enduses'], data['assumptions'], data['reg_nrs'], data['regions'] = data_loader.load_ini_param(
         data['local_paths']['data_results'])
 
     # Other information is read in TODO IMPROVE

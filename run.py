@@ -82,10 +82,6 @@ class EDWrapper(SectorModel):
             data['criterias']['plot_HDD_chart'] = False
             data['criterias']['writeYAML'] = True                           # True: Write YAML parameters
 
-        data['sim_param']['base_yr'] = data_handle.timesteps[0]
-        data['sim_param']['curr_yr'] = data_handle.timesteps[0]
-        self.user_data['base_yr'] = data['sim_param']['base_yr']
-
         # -----------------------------
         # Paths
         # -----------------------------
@@ -317,10 +313,6 @@ class EDWrapper(SectorModel):
         data['paths'] = data_loader.load_paths(path_main)
         data['local_paths'] = data_loader.load_local_paths(self.user_data['data_path'])
 
-        data['sim_param']['base_yr'] = self.user_data['base_yr']    # Base year definition
-        data['sim_param']['curr_yr'] = data_handle.current_timestep # Read in current year from smif
-        data['sim_param']['simulated_yrs'] = self.timesteps         # Read in all simulated years from smif
-
         # ---------------------------------------------
         # Load data from scripts (Get simulation parameters from before_model_run()
         # ---------------------------------------------
@@ -379,7 +371,6 @@ class EDWrapper(SectorModel):
         # ---------------------------------------------
         write_data.write_simulation_inifile(
             data['local_paths']['data_results'],
-            data['sim_param'],
             data['enduses'],
             data['assumptions'],
             data['reg_nrs'],

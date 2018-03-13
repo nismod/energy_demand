@@ -217,8 +217,6 @@ def get_cdd_country(
 
     Arguments
     ----------
-    sim_param : dict
-        Simulation parameters
     regions : dict
         Dictionary containing regions
     temp_data : array

@@ -216,10 +216,6 @@ if __name__ == "__main__":
     data['local_paths'] = data_loader.load_local_paths(local_data_path)
     data['lookups'] = lookup_tables.basic_lookups()
     data['enduses'], data['sectors'], data['fuels'] = data_loader.load_fuels(data['paths'], data['lookups'])
-    data['sim_param'] = {}
-    data['sim_param']['base_yr'] = 2015
-    data['sim_param']['curr_yr'] = data['sim_param']['base_yr']
-    data['sim_param']['simulated_yrs'] = [2015, 2016, 2030, 2050]
 
     # local scrap
     data['regions'] = data_loader.load_LAC_geocodes_info(
@@ -329,7 +325,6 @@ if __name__ == "__main__":
     # Create .ini file with simulation information
     write_data.write_simulation_inifile(
         data['local_paths']['data_results'],
-        data['sim_param'],
         data['enduses'],
         data['assumptions'],
         data['reg_nrs'],

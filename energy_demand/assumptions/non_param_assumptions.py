@@ -203,8 +203,8 @@ class Assumptions(object):
             'rs_cooking': ['population'],
             'rs_cold': ['population'],
             'rs_wet': ['population'],
-            'rs_consumer_electronics': ['population'],
-            'rs_home_computing': ['population']}
+            'rs_consumer_electronics': ['population'], #GVA TODO
+            'rs_home_computing': ['population']} #GVA 
 
         # --Service Submodel (Table 5.5a)
         self.scenario_drivers['ss_submodule'] = {
@@ -291,15 +291,17 @@ class Assumptions(object):
         #   parameter, the energy demand assignement over the days
         #   in a year is improved.
         # ------------------------------------------------------------
-        self.t_bases = {}
-        self.t_bases['rs_t_heating_by'] = 15.5    #
-        #self.t_bases['rs_t_cooling_by'] = Not implemented
+        t_bases = {}
+        t_bases['rs_t_heating_by'] = 15.5    #
+        #t_bases['rs_t_cooling_by'] = Not implemented
 
-        self.t_bases['ss_t_heating_by'] = 15.5    #
-        self.t_bases['ss_t_cooling_by'] = 5       # Orig: 5
+        t_bases['ss_t_heating_by'] = 15.5    #
+        t_bases['ss_t_cooling_by'] = 5       # Orig: 5
 
-        self.t_bases['is_t_heating_by'] = 15.5    #
+        t_bases['is_t_heating_by'] = 15.5    #
         #self.t_bases['is_t_cooling_by'] = Not implemented
+
+        self.t_bases = DummyClass(t_bases) #TODO TEST
 
         self.base_temp_diff_params = {
             'sig_midpoint': 0,
@@ -712,3 +714,13 @@ class DummyClass(object):
         ):
         for var, value in variables.items():
             setattr(self, var, value)
+
+'''class BaseTemps(object):
+    """Assumptions
+    """
+    def __init__(
+            self,
+            variables
+        ):
+        for var, value in variables.items():
+            setattr(self, var, value)'''
