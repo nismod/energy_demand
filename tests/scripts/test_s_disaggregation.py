@@ -8,8 +8,8 @@ def test_rs_disaggregate():
     """testing
     """
     regions = ['regA', 'regB']
-    base_yr= 2015
-    curr_yr= 2020
+    base_yr = 2015
+    curr_yr = 2020
 
     national_fuel = 100
     rs_national_fuel = {'rs_space_heating': national_fuel}
@@ -24,7 +24,7 @@ def test_rs_disaggregate():
             'sig_midpoint': 0,
             'sig_steepness': 1,
             'yr_until_changed': 2020},
-        'strategy_variables': {'rs_t_base_heating_future_yr': 0}}
+        'strategy_variables': {'rs_t_base_heating_future_yr': {'scenario_value': 0}}}
 
     assumptions = non_param_assumptions.DummyClass(assumptions)
     assumptions.__setattr__('t_bases', non_param_assumptions.DummyClass({'rs_t_heating_by': 0}))
@@ -78,8 +78,8 @@ def test_ss_disaggregate():
     """testing
     """
     regions = ['regA', 'regB']
-    base_yr= 2015
-    curr_yr= 2020
+    base_yr = 2015
+    curr_yr = 2020
 
     national_fuel = 100
     raw_fuel_sectors_enduses = {'ss_space_heating': {'sectorA': national_fuel}}
@@ -93,13 +93,13 @@ def test_ss_disaggregate():
                  2015: {'regA': {'sectorA': 100}, 'regB': {'sectorA': 100}}}
             },
         }
-    
+
     assumptions = {
         'base_temp_diff_params': {
             'sig_midpoint': 0,
             'sig_steepness': 1,
             'yr_until_changed': 2020},
-        'strategy_variables': {'ss_t_base_heating_future_yr': 0, 'ss_t_base_cooling_future_yr': 0}}
+        'strategy_variables': {'ss_t_base_heating_future_yr': {'scenario_value': 0}, 'ss_t_base_cooling_future_yr': {'scenario_value': 0}}}
 
     assumptions = non_param_assumptions.DummyClass(assumptions)
     assumptions.__setattr__('t_bases', non_param_assumptions.DummyClass({'ss_t_heating_by': 0, 'ss_t_cooling_by': 0}))

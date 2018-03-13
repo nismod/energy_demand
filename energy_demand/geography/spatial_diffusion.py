@@ -78,7 +78,6 @@ def spatial_diffusion_values(regions, pop_density):
     spatial_diff_urban_rural = from_socio_economic_data_to_spatial_diffusion_values(regions, pop_density)
 
     for region in regions:
-        #dummy_index = 1
         spatial_diff[region] = spatial_diff_urban_rural[region]
 
     return spatial_diff
@@ -164,6 +163,7 @@ def calc_diffusion_f(regions, spatial_diff_values, fuels):
         # ----------
         # Multiply fraction of enduse with spatial_diff_values
         # ----------
+        #TODO AS IN WORD
         reg_fraction_multiplied_index = {}
         for enduse, regions_fuel_p in fraction_p.items():
             reg_fraction_multiplied_index[enduse] = {}
@@ -199,7 +199,7 @@ def calc_regional_services(
     of technologies (rs_reg_enduse_tech_p_ey)
 
     Arguments
-    =========
+    ---------
     uk_techs_service_p : dict
         Service shares per technology for future year
     regions : dict
@@ -240,7 +240,6 @@ def calc_regional_services(
     # ----
     # Service of enduse for all regions
     # ----
-    ##uk_service_enduse = 100
     for region in regions:
 
         # Disaggregation factor
@@ -249,7 +248,7 @@ def calc_regional_services(
         # Calculate fraction of regional service
         for tech, uk_tech_service_ey_p in uk_techs_service_p.items():
 
-            uk_service_tech = uk_tech_service_ey_p ##* uk_service_enduse
+            uk_service_tech = uk_tech_service_ey_p
 
             # ---------------------------------------------
             # B.) Calculate regional service for technology
@@ -269,9 +268,19 @@ def calc_regional_services(
         tot_service_reg_enduse = f_fuel_disagg ##* uk_service_enduse
 
         for tech, service_tech in reg_enduse_tech_p_ey[region].items():
-            reg_enduse_tech_p_ey[region][tech] = service_tech / tot_service_reg_enduse
 
             #MAYBE ADD CAPPING VALUE TODO
+            capping_val = 1
+
+            service_share = service_tech / tot_service_reg_enduse
+
+            if service_share > capping_val:
+                reg_enduse_tech_p_ey[region][tech] = capping_val
+                logging.warning("CAPPING VALUE REACHED {}  {}  ".format(region, service_share))
+            else:
+                reg_enduse_tech_p_ey[region][tech] = service_share
+            #OlD
+            #reg_enduse_tech_p_ey[region][tech] = service_tech / tot_service_reg_enduse
 
     return dict(reg_enduse_tech_p_ey)
 

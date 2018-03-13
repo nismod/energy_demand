@@ -73,18 +73,19 @@ def test_change_temp_climate():
         11: [334, 335, 336, 337, 338, 339, 340, 341, 342, 343, 344, 345, 346, 347, 348, 349, 350, 351, 352, 353, 354, 355, 356, 357, 358, 359, 360, 361, 362, 363, 364]}
 
     strategy_variables = {
-        'climate_change_temp_d__Jan': 2, # January (can be plus or minus)
-        'climate_change_temp_d__Feb': 3, # February
-        'climate_change_temp_d__Mar': 0, # March
-        'climate_change_temp_d__Apr': 0, # April
-        'climate_change_temp_d__May': 0, # May
-        'climate_change_temp_d__Jun': 0, # June
-        'climate_change_temp_d__Jul': 0, # July
-        'climate_change_temp_d__Aug': 0, # August
-        'climate_change_temp_d__Sep': 0, # September
-        'climate_change_temp_d__Oct': 0, # October
-        'climate_change_temp_d__Nov': 0, # November
-        'climate_change_temp_d__Dec': 0}
+        'climate_change_temp_d__Jan': {'scenario_value': 2}, # January (can be plus or minus)
+        'climate_change_temp_d__Feb': {'scenario_value': 3}, # February
+        'climate_change_temp_d__Mar': {'scenario_value': 0}, # March
+        'climate_change_temp_d__Apr': {'scenario_value': 0}, # April
+        'climate_change_temp_d__May': {'scenario_value': 0}, # May
+        'climate_change_temp_d__Jun': {'scenario_value': 0}, # June
+        'climate_change_temp_d__Jul': {'scenario_value': 0}, # July
+        'climate_change_temp_d__Aug': {'scenario_value': 0}, # August
+        'climate_change_temp_d__Sep': {'scenario_value': 0}, # September
+        'climate_change_temp_d__Oct': {'scenario_value': 0}, # October
+        'climate_change_temp_d__Nov': {'scenario_value': 0}, # November
+        'climate_change_temp_d__Dec': {'scenario_value': 0},
+        'climate_change_temp_diff_yr_until_changed': {'scenario_value': 2020}}
 
     base_yr = 2010
     curr_yr = 2020

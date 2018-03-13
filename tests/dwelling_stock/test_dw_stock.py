@@ -59,7 +59,7 @@ def test_get_scenario_driver():
     expected = 4.4
 
     # call function
-    out_value = dw_stock_object.get_scenario_driver(['heating'])
+    out_value = dw_stock_object.get_scenario_driver('heating')
     #out_value = dw_stock.get_scenario_driver(dw_stock_object.dwellings, 'population')
 
     assert out_value == expected
