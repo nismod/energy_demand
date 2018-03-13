@@ -14,6 +14,8 @@ class Assumptions(object):
     def __init__(
             self,
             base_yr=None,
+            curr_yr=None,
+            simulated_yrs=None,
             paths=None,
             enduses=None,
             sectors=None,
@@ -22,6 +24,11 @@ class Assumptions(object):
         ):
 
         yr_until_changed_all_things = 2050
+
+        # Simulation parameters
+        self.base_yr = base_yr
+        self.curr_yr = curr_yr
+        self.simulated_yrs = simulated_yrs
 
         # ============================================================
         # Spatially modelled variables

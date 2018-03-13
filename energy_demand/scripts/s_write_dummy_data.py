@@ -161,12 +161,12 @@ def post_install_setup_minimum(args):
 
     # Assumptions
     data['assumptions'] = non_param_assumptions.Assumptions(
-        data['sim_param']['base_yr'],
-        data['paths'],
-        data['enduses'],
-        data['sectors'],
-        data['lookups']['fueltypes'],
-        data['lookups']['fueltypes_nr'])
+        base_yr=data['sim_param']['base_yr'],
+        paths=data['paths'],
+        enduses=data['enduses'],
+        sectors=data['sectors'],
+        fueltypes=data['lookups']['fueltypes'],
+        fueltypes_nr=data['lookups']['fueltypes_nr']
 
     # Read in residential submodel shapes
     s_rs_raw_shapes.run(

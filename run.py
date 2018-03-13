@@ -128,12 +128,13 @@ class EDWrapper(SectorModel):
         # Load assumptions
         # ------------
         assumptions = non_param_assumptions.Assumptions(
-            data['sim_param']['base_yr'],
-            data['paths'],
-            data['enduses'],
-            data['sectors'],
-            data['lookups']['fueltypes'],
-            data['lookups']['fueltypes_nr'])
+            base_yr=data_handle.timesteps[0],
+            curr_yr=data_handle.timesteps[0],
+            paths=data['paths'],
+            enduses=data['enduses'],
+            sectors=data['sectors'],
+            fueltypes=data['lookups']['fueltypes'],
+            fueltypes_nr=data['lookups']['fueltypes_nr'])
 
         strategy_variables = param_assumptions.load_param_assump(
             data['paths'], assumptions)

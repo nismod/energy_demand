@@ -48,6 +48,7 @@ NICETOHAVE
 - Convert paths dict to objects
 
 TODOS
+TODO: REMOVE SIM PARAM AND ADD TO ASSUMPTIONS
 TODO: WHY NOT CORRECT PLOTTING IRLEAND
 TODO: LOAD IN SCENARIO PARAMETERS IN INITIAL_SETUP FUNCTION IN RUn file
 TODO: Write function to test wheter swichtes are possible (e.g. that not more from one technology to another is replaced than possible)
@@ -253,14 +254,16 @@ if __name__ == "__main__":
     # Assumptions
     # ------------------------------
     # Parameters not defined within smif
-    assumptions = non_param_assumptions.Assumptions(
-        data['sim_param']['base_yr'],
-        data['paths'],
-        data['enduses'],
-        data['sectors'],
-        data['lookups']['fueltypes'],
-        data['lookups']['fueltypes_nr'])
-    data['assumptions'] = assumptions
+    data['assumptions']  = non_param_assumptions.Assumptions(
+        base_yr=data['sim_param']['base_yr'],
+        curr_yr=data['sim_param']['base_yr'],
+        simulated_yrs=[2015, 2016, 2030, 2050],
+        paths=data['paths'],
+        enduses=data['enduses'],
+        sectors=data['sectors'],
+        fueltypes=data['lookups']['fueltypes'],
+        fueltypes_nr=data['lookups']['fueltypes_nr'])
+
     # Parameters defined within smif
 
     strategy_variables = param_assumptions.load_param_assump(

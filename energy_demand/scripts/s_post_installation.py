@@ -50,12 +50,12 @@ def post_install_setup(args):
 
     # Assumptions
     data['assumptions'] = non_param_assumptions.Assumptions(
-        data['sim_param']['base_yr'],
-        data['paths'],
-        data['enduses'],
-        data['sectors'],
-        data['lookups']['fueltypes'],
-        data['lookups']['fueltypes_nr'])
+        base_yr=data['sim_param']['base_yr'],
+        paths=data['paths'],
+        enduses=data['enduses'],
+        sectors=data['sectors'],
+        fueltypes=data['lookups']['fueltypes'],
+        fueltypes_nr=data['lookups']['fueltypes_nr']
 
     # Delete all previous data from previous model runs
     basic_functions.del_previous_setup(data['local_paths']['data_processed'])
