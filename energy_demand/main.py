@@ -73,6 +73,7 @@ TODO: SPATIAL DISAGGREGATION FACTORS RESID/NONRESID SHARE
 TODO: INTERFACE AND 
 TODO: SO FAR ALSO ALL SERVICE ENDUSES ARE MULTIPLIED
 TODO: DWELLING DENSITY FOR EVERY LAD
+TODO: TEST IF CORRECT REGIONAL CALCULATIONS AS DSCRIEBED IN
 RURAL URBAN : http://www.gov.scot/Topics/Statistics/About/Methodology/UrbanRuralClassification/Urban-Rural-Classification-2011-12/2011-2012-Urban-Rural-Lookups
 """
 import os
@@ -166,12 +167,12 @@ def energy_demand_model(data, assumptions, fuel_in=0, fuel_in_elec=0):
     print("[GWh] heat fuel out:       " + str(np.sum(modelrun_obj.ed_fueltype_national_yh[data['lookups']['fueltypes']['heat']])))
     print("[GWh] heat diff:           " + str(round(np.sum(modelrun_obj.ed_fueltype_national_yh[data['lookups']['fueltypes']['heat']]) - fuel_in_heat, 4)))
     print("-----------")
-    print("Diff elec %:         " + str(round((1/(np.sum(modelrun_obj.ed_fueltype_national_yh[data['lookups']['fueltypes']['electricity']]))) * fuel_in_elec, 4)))
-    print("Diff gas %:          " + str(round((1/(np.sum(modelrun_obj.ed_fueltype_national_yh[data['lookups']['fueltypes']['gas']]))) * fuel_in_gas, 4)))
-    print("Diff oil %:          " + str(round((1/(np.sum(modelrun_obj.ed_fueltype_national_yh[data['lookups']['fueltypes']['oil']]))) * fuel_in_oil, 4)))
-    print("Diff solid_fuel %:   " + str(round((1/(np.sum(modelrun_obj.ed_fueltype_national_yh[data['lookups']['fueltypes']['solid_fuel']]))) * fuel_in_solid_fuel, 4)))
-    print("Diff hydrogen %:     " + str(round((1/(np.sum(modelrun_obj.ed_fueltype_national_yh[data['lookups']['fueltypes']['hydrogen']]))) * fuel_in_hydrogen, 4)))
-    print("Diff biomass %:      " + str(round((1/(np.sum(modelrun_obj.ed_fueltype_national_yh[data['lookups']['fueltypes']['biomass']]))) * fuel_in_biomass, 4)))
+    print("Diff elec %:         " + str(round((np.sum(modelrun_obj.ed_fueltype_national_yh[data['lookups']['fueltypes']['electricity']])/ fuel_in_elec), 4)))
+    print("Diff gas %:          " + str(round((np.sum(modelrun_obj.ed_fueltype_national_yh[data['lookups']['fueltypes']['gas']])/ fuel_in_gas), 4)))
+    print("Diff oil %:          " + str(round((np.sum(modelrun_obj.ed_fueltype_national_yh[data['lookups']['fueltypes']['oil']])/ fuel_in_oil), 4)))
+    print("Diff solid_fuel %:   " + str(round((np.sum(modelrun_obj.ed_fueltype_national_yh[data['lookups']['fueltypes']['solid_fuel']])/ fuel_in_solid_fuel), 4)))
+    print("Diff hydrogen %:     " + str(round((np.sum(modelrun_obj.ed_fueltype_national_yh[data['lookups']['fueltypes']['hydrogen']])/ fuel_in_hydrogen), 4)))
+    print("Diff biomass %:      " + str(round((np.sum(modelrun_obj.ed_fueltype_national_yh[data['lookups']['fueltypes']['biomass']])/ fuel_in_biomass), 4)))
     print("================================================")
 
     logging.info("...finished running energy demand model simulation")

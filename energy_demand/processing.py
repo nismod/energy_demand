@@ -50,7 +50,7 @@ def main(path_data_energy_demand, path_shapefile_input):
         data['local_paths']['data_results'])
 
     # Other information is read in TODO IMPROVE
-    data['assumptions']['seasons'] = date_prop.read_season(year_to_model=2015)
+    data['assumptions']['seasons'] = date_prop.get_season(year_to_model=2015)
     data['assumptions']['model_yeardays_daytype'], data['assumptions']['yeardays_month'], data['assumptions']['yeardays_month_days'] = date_prop.get_model_yeardays_daytype(year_to_model=2015)
 
     # Read scenario data

@@ -321,6 +321,9 @@ class EDWrapper(SectorModel):
         data = self.pass_to_simulate(
             data, self.user_data['fuel_disagg'])
 
+        # Set current year
+        data['assumptions'].__setattr__('curr_yr', data_handle.current_timestep)
+
         for key, value in self.user_data['init_cont'].items():
             data['assumptions'].__setattr__(key, value)
 

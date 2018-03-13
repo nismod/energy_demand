@@ -207,7 +207,7 @@ def compare_results(
     font_additional_info = plotting_styles.font_info()
 
     plt.title(
-        'RMSE: {} Std_dev: {} (+-{}) R_squared: {}'.format(
+        'RMSE: {} Std_dev_% {} (+-{} GW) R_2: {}'.format(
             round(rmse_val_corrected, 3),
             round(standard_dev_real_modelled, 3),
             round(standard_dev_real_modelled_abs, 3),

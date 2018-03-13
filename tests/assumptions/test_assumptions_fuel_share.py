@@ -21,18 +21,19 @@ def test_assign_by_fuel_tech_p():
     #Load assumptions
     base_yr = 2015
 
-    data['assumptions'] = non_param_assumptions.load_non_param_assump(
+    data['assumptions'] = non_param_assumptions.Assumptions(
         base_yr=base_yr,
-        data['paths'],
-        data['enduses'],
-        data['sectors'],
-        data['lookups']['fueltypes'],
-        data['lookups']['fueltypes_nr'])
+        curr_yr=None,
+        simulated_yrs=None,
+        paths=data['paths'],
+        enduses=data['enduses'],
+        sectors=data['sectors'],
+        fueltypes=data['lookups']['fueltypes'],
+        fueltypes_nr=data['lookups']['fueltypes_nr'])
 
     param_assumptions.load_param_assump(data['paths'], data['assumptions'])
 
     result = assumptions_fuel_shares.assign_by_fuel_tech_p(
-        data['assumptions'],
         data['enduses'],
         data['sectors'],
         data['lookups']['fueltypes'],

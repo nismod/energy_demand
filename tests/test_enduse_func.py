@@ -359,7 +359,7 @@ def test_apply_smart_metering():
         enduse='heating',
         fuel_y=100,
         sm_assump=sm_assump,
-        sm_assump_strategy=sm_assump_strategy,
+        strategy_variables=sm_assump_strategy,
         base_yr=2015,
         curr_yr=2020)
 
@@ -669,7 +669,7 @@ def test_apply_specific_change():
         enduse='heating',
         fuel_y=fuel_y,
         enduse_overall_change=enduse_overall_change,
-        enduse_overall_change_strategy=enduse_overall_change_strategy,
+        strategy_variables=enduse_overall_change_strategy,
         base_yr=2015,
         curr_yr=2020)
 

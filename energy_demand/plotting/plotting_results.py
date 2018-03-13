@@ -64,7 +64,7 @@ def run_all_plot_functions(
     if plot_stacked_enduses:
         # Residential
         plt_stacked_enduse(
-            assumptions.years_simulated,
+            assumptions['simulated_yrs'],
             results_container['results_enduse_every_year'],
             enduses['rs_enduses'],
             os.path.join(
@@ -72,7 +72,7 @@ def run_all_plot_functions(
 
         # Service
         plt_stacked_enduse(
-            assumptions.years_simulated,
+            assumptions['simulated_yrs'],
             results_container['results_enduse_every_year'],
             enduses['ss_enduses'],
             os.path.join(
@@ -80,7 +80,7 @@ def run_all_plot_functions(
 
         # Industry
         plt_stacked_enduse(
-            assumptions.years_simulated,
+            assumptions['simulated_yrs'],
             results_container['results_enduse_every_year'],
             enduses['is_enduses'],
             os.path.join(
@@ -92,7 +92,7 @@ def run_all_plot_functions(
     if plot_y_all_enduses:
         plt_stacked_enduse_sectors(
             lookups,
-            assumptions.years_simulated,
+            assumptions['simulated_yrs'],
             results_container['results_enduse_every_year'],
             enduses['rs_enduses'],
             enduses['ss_enduses'],
@@ -157,8 +157,8 @@ def run_all_plot_functions(
         plt_fuels_enduses_week(
             results_container['results_every_year'],
             lookups,
-            assumptions.model_yearhours_nrs,
-            assumptions.model_yeardays_nrs,
+            assumptions['model_yearhours_nrs'],
+            assumptions['model_yeardays_nrs'],
             2015,
             os.path.join(local_paths['data_results_PDF'], "tot_all_enduse03.pdf"))
 

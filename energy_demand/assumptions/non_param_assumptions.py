@@ -7,7 +7,6 @@ from energy_demand.assumptions import assumptions_fuel_shares
 from energy_demand.initalisations import helpers
 from energy_demand.profiles import hdd_cdd
 
-#TODO MAKE THAT ALL ASSUMPTIONS ARE IMPROVEMENTS (e.g. improvement floor area cooling)
 class Assumptions(object):
     """Assumptions
     """
@@ -410,33 +409,6 @@ class Assumptions(object):
 
         # Sectors
         '''
-        'other_manufacturing': ,
-        'pharmaceuticals': ,
-        'waste_collection': ,
-        'machinery': ,
-        'leather': ,
-        'furniture': ,
-        'mining': ,
-        'rubber_plastics': ,
-        'computer': ,
-        'other_transport_equipment': ,
-        'basic_metals': ,
-        'tobacco': ,
-        'textiles': ,
-        'paper': ,
-        'chemicals': ,
-        'non_metallic_mineral_products': ,
-        'food_production': ,
-        'wearing_appeal': ,
-        'fabricated_metal_products': ,
-        'beverages': ,
-        'motor_vehicles': ,
-        'wood': ,
-        'printing': ,
-        'water_collection_treatment': ,
-        'electrical_equipment': '''
-
-        '''
         Fuel use ratio - dry process over wet process in cement sector
         Fuel use ratio - novel alkali cement over incumbent process in cement sector
         Fuel use ratio - novel partially dehydrated cement over incumbent process in cement sector
@@ -577,14 +549,10 @@ class Assumptions(object):
         # ========================================
         # General other assumptions
         # ========================================
-        self.seasons = date_prop.read_season(year_to_model=base_yr)
+        self.seasons = date_prop.get_season(year_to_model=base_yr)
 
-        model_yeardays_daytype, yeardays_month, yeardays_month_days = date_prop.get_model_yeardays_daytype(
+        self.model_yeardays_daytype, self.yeardays_month, self.yeardays_month_days = date_prop.get_model_yeardays_daytype(
             year_to_model=base_yr)
-
-        self.model_yeardays_daytype = model_yeardays_daytype
-        self.yeardays_month = yeardays_month
-        self.yeardays_month_days = yeardays_month_days
 
         # ========================================
         # Helper functions
@@ -611,15 +579,15 @@ class Assumptions(object):
         # Calculations with assumptions
         # ========================================
         self.cdd_weekend_cfactors = hdd_cdd.calc_weekend_corr_f(
-            model_yeardays_daytype,
+            self.model_yeardays_daytype,
             self.f_ss_cooling_weekend)
 
         self.ss_weekend_f = hdd_cdd.calc_weekend_corr_f(
-            model_yeardays_daytype,
+            self.model_yeardays_daytype,
             self.f_ss_weekend)
 
         self.is_weekend_f = hdd_cdd.calc_weekend_corr_f(
-            model_yeardays_daytype,
+            self.model_yeardays_daytype,
             self.f_is_weekend)
 
         # ========================================

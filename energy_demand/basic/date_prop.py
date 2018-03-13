@@ -68,7 +68,7 @@ def get_model_yeardays_daytype(year_to_model):
 
     return model_yeardays_daytype, yeardays_month, yeardays_month_days
 
-def read_season(year_to_model):
+def get_season(year_to_model):
     """
 
     Arguments
