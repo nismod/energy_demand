@@ -239,7 +239,7 @@ def scenario_initalisation(path_data_ed, data=False):
     if data['criterias']['spatial_exliclit_diffusion']:
         import pprint #KROKODIL TODO TODO
         logging.warning(pprint.pprint(rs_share_s_tech_ey_p))
-        prnt(":")
+        #prnt(":")
         rs_reg_share_s_tech_ey_p, ss_reg_share_s_tech_ey_p, is_reg_share_s_tech_ey_p, spatial_diff_f, spatial_diff_values = spatial_diffusion.spatially_differentiated_modelling(
             regions=data['regions'],
             fuel_disagg=fuel_disagg,
@@ -255,7 +255,7 @@ def scenario_initalisation(path_data_ed, data=False):
         is_share_s_tech_ey_p = is_reg_share_s_tech_ey_p
 
         logging.warning(pprint.pprint(rs_share_s_tech_ey_p))
-        prnt(":")
+        #prnt(":")
     else:
         regions = False
         spatial_diff_f = False

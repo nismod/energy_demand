@@ -14,7 +14,7 @@ region_definitions:
 # shared understanding of regions within the modelled area (e.g. GB)
 - name: lad_uk_2016
   description: 'Local Authority Districts (data from 2016, unchanged since 2009)'
-  filename: lad_uk_2016-12/lad_uk_2016-12.shp
+  filename: same_as_scenario_data/lad_2016_uk_simplified.shp #lad_uk_2016-12/lad_uk_2016-12.shp
 # ------------------------------------------------
 interval_definitions:
 # shared understanding of time intervals within a year
