@@ -214,13 +214,10 @@ class EDWrapper(SectorModel):
         # ------------------------
         # Load all SMIF parameters and replace data dict
         # ------------------------
-        #data['assumptions'] = self.load_smif_parameters(data['assumptions'])
-
-        parameters = data_handle.get_parameters()
         strategy_variables = self.load_smif_parameters(
-            parameters)
+            data_handle)
+    
         assumptions.__setattr__('strategy_variables', strategy_variables)
-
 
         # Update technologies after strategy definition
         technologies = non_param_assumptions.update_assumptions(
@@ -566,19 +563,10 @@ class EDWrapper(SectorModel):
         # ------------------------------------
         if WRITEOUTSMIFRESULTS:
             for key_name, result_to_txt in supply_results.items():
-                  if key_name in self.outputs.names:
-                      data_handle.set_results(
-                          key_name,
-                          result_to_txt)
-             '''
-                #if NR_OF_MODELLEd_REGIONS != 391:
-                #    # do not write out resutls
-                #    logging.warning("NO SMIF RESULT FILE ARE WRITTEN OUT")
-                #else:
+                if key_name in self.outputs.names:
                     data_handle.set_results(
                         key_name,
                         result_to_txt)
-                    logging.info("finished writing result")'''
 
         print("... finished wrapper execution")
         return supply_results
@@ -601,13 +589,9 @@ class EDWrapper(SectorModel):
             dict_to_copy_into[key] = value
 
         return dict(dict_to_copy_into)
-'''
-bug/wrapper
-    def load_smif_parameters(self, assumptions):
-=======
+
     def load_smif_parameters(self, data_handle):
-master
-        """Get all model parameters from smif (`data_handle`) depending
+        """Get all model parameters from smif (`parameters`) depending
         on narrative. Create the dict `strategy_variables` and
         add scenario value as well as affected enduses of
         each variable.
@@ -615,9 +599,7 @@ master
         Arguments
         ---------
         data_handle : dict
-            Dict with all data_handle
-        assumptions : dict
-            Assumptions
+            Data handler
 
         Returns
         -------
@@ -626,41 +608,33 @@ master
         """
         strategy_variables = {}
 
-#<<<<<<< bug/wrapper
-
         # All information of all scenario parameters
         all_info_scenario_param = param_assumptions.load_param_assump()
 
-        # Get all parameter names
-        all_strategy_variables = self.parameters.keys()
-
-#master
-        # Get variable from dict and reassign and delete from data_handle
+        # Get variable from dict and reassign and delete from parameters
         for name in self.parameters.keys():
 
-            # Get
-            if data_handle[var_name] == 'True':
+            # Get scenario value
+            scenario_value = data_handle.get_parameter(name)
+
+            if scenario_value == 'True':
                 scenario_value = True
-            elif data_handle[var_name] == 'False':
+            elif scenario_value == 'False':
                 scenario_value = False
             else:
-                scenario_value = float(data_handle[var_name])
+                pass
 
-            # Get narrative variable from input data_handle dict
-#bug/wrapper
-            self.logger.debug("Getting parameter: %s", name)
-            strategy_variables[name] = self.data_handle.get_parameter(name)
+            self.logger.debug(
+                "Getting parameter: %s value: %s", name, scenario_value)
 
-            strategy_variables[var_name] = {
+            strategy_variables[name] = {
 
                 'scenario_value': scenario_value,
-#master
 
                 # Get affected enduses of this variable defined in `load_param_assump`
-                'affected_enduse': all_info_scenario_param[var_name]['affected_enduse']}
+                'affected_enduse': all_info_scenario_param[name]['affected_enduse']}
 
         return strategy_variables
-'''
 
     def get_long_lat_decimal_degrees(self, reg_centroids):
         """Project coordinates from shapefile to get
