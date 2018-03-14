@@ -132,7 +132,7 @@ def scenario_initalisation(path_data_ed, data=False):
 
     # ------------------------------------
     # Autocomplement defined service switches with technologies not
-    # explicitly specified in switch on a national scale
+    # explicitly specified in switch on a global scale
     # ------------------------------------
     rs_service_switches_completed = fuel_service_switch.autocomplete_switches(
         data['assumptions'].rs_service_switches,
@@ -169,7 +169,7 @@ def scenario_initalisation(path_data_ed, data=False):
     # Capacity switches
     # ======================
     # Calculate service shares considering potential capacity installations
-    # on a national scale
+    # on a global scale
     # ------------------------------------
 
     # Residential
@@ -213,7 +213,7 @@ def scenario_initalisation(path_data_ed, data=False):
         data['assumptions'].base_yr)
 
     # ------------------------------------
-    # Service switches
+    # Service switches TODO: SO FAR ONLY SERVICE SWITCH SPATIALLY EXPLICIT
     # ================
     #
     # Get service shares of technologies for future year by considering
@@ -237,9 +237,6 @@ def scenario_initalisation(path_data_ed, data=False):
 
     # Spatial explicit modelling
     if data['criterias']['spatial_exliclit_diffusion']:
-        import pprint #KROKODIL TODO TODO
-        logging.warning(pprint.pprint(rs_share_s_tech_ey_p))
-        #prnt(":")
 
         # Calculate spatial diffusion factors
         f_reg, f_reg_norm, f_reg_norm_abs = spatial_diffusion.calc_spatially_diffusion_factors(
@@ -247,6 +244,7 @@ def scenario_initalisation(path_data_ed, data=False):
             fuel_disagg=fuel_disagg,
             pop_density=data['pop_density'])
 
+        # Calculate regional technology diffusion fractions with f_reg_norm
         rs_reg_share_s_tech_ey_p, ss_reg_share_s_tech_ey_p, is_reg_share_s_tech_ey_p = spatial_diffusion.spatially_differentiated_modelling(
             regions=data['regions'],
             fuel_disagg=fuel_disagg,
@@ -283,7 +281,7 @@ def scenario_initalisation(path_data_ed, data=False):
             data['assumptions'].base_yr,
             data['technologies'],
             enduse=enduse,
-            fuel_switches=data['assumptions'].rs_fuel_switches,
+            fuel_switches=data['assumptions'].rs_fuel_switches, #TODO MAKE SPATIAL REGIONAL EXPLICIT
             service_switches=init_cont['rs_service_switches'],
             s_tech_by_p=init_cont['rs_s_tech_by_p'][enduse],
             s_fueltype_by_p=init_cont['rs_s_fueltype_by_p'][enduse],
@@ -378,6 +376,7 @@ def scenario_initalisation(path_data_ed, data=False):
                     f_reg_norm_abs=f_reg_norm_abs,
                     fuel_regs_enduse=fuels_reg)
 
+                # Add regional specific values
                 for region in regions:
                     init_cont['regional_strategy_variables'][region][var_name] = {
                         'scenario_value': float(reg_specific_variables[region]),
@@ -619,7 +618,7 @@ def sig_param_calc_incl_fuel_switch(
             for reg in regions:
 
                 # Calculate service demand after fuel switches for each technology
-                s_tech_switched_p[reg] = s_generate_sigmoid.calc_service_fuel_switched(
+                s_tech_switched_p[reg] = s_generate_sigmoid.calc_service_fuel_switched( 
                     enduse_fuel_switches,
                     technologies,
                     s_fueltype_by_p,

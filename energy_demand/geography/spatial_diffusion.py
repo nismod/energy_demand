@@ -306,24 +306,31 @@ def calc_regional_services(
 
         # Disaggregation factor
         f_fuel_disagg = np.sum(fuel_disaggregated[region][enduse]) / uk_enduse_fuel
-
+        print("SUMME should be 1")
+        print(sum(uk_techs_service_p.values()))
         # Calculate fraction of regional service
         for tech, uk_tech_service_ey_p in uk_techs_service_p.items():
 
-            uk_service_tech = uk_tech_service_ey_p
+            global_tech_service_ey_p = uk_tech_service_ey_p
 
             # ---------------------------------------------
             # B.) Calculate regional service for technology
             # ---------------------------------------------
             if tech in techs_affected_spatial_f:
                 # Use spatial factors
-                reg_service_tech = uk_service_tech * spatial_factors[enduse][region]
+                reg_service_tech = global_tech_service_ey_p * spatial_factors[enduse][region]
             else:
                 # If not specified, use fuel disaggregation for enduse factor
-                reg_service_tech = uk_service_tech * f_fuel_disagg
+                reg_service_tech = global_tech_service_ey_p #* f_fuel_disagg
 
             reg_enduse_tech_p_ey[region][tech] = reg_service_tech
+            print("--")
+            print(global_tech_service_ey_p)
+            print(reg_service_tech)
 
+        import pprint
+        print(sum(reg_enduse_tech_p_ey[region].values()))
+        pprint.pprint(reg_enduse_tech_p_ey[region])
         # ---------------------------------------------
         # C.) Calculate regional fraction
         # ---------------------------------------------
