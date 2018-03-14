@@ -158,7 +158,7 @@ def autocomplete_switches(
         spatial_exliclit_diffusion=False,
         regions=False,
         f_diffusion=False,
-        techs_affected_spatial_f:=False
+        techs_affected_spatial_f=False
     ):
     """Add not defined technologies in switches
     and set correct future service share.
@@ -285,7 +285,15 @@ def autocomplete_switches(
             # Append all to list
             service_switches_out[region].extend(switches_new)
 
-    return service_switches_out
+    # ==============
+    #  TODO MOVED HERE
+    # ================
+    reg_share_s_tech_ey_p = get_share_s_tech_ey(
+        service_switches_out,
+        specified_tech_enduse_by,
+        spatial_exliclit_diffusion)
+
+    return reg_share_s_tech_ey_p
 
 def capacity_switch(
         capacity_switches,
