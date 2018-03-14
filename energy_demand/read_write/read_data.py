@@ -126,6 +126,18 @@ class CapacitySwitch(object):
             self.sector = None # Not sector defined
         else:
             self.sector = sector
+    
+    def update(self, name, value):
+        """Update  switch
+
+        Arguments
+        ---------
+        name : str
+            name of attribute
+        value : any
+            Type of value
+        """
+        setattr(self, name, value)
 
 class FuelSwitch(object):
     """Fuel switch class for storing
@@ -162,6 +174,18 @@ class FuelSwitch(object):
         self.switch_yr = switch_yr
         self.fuel_share_switched_ey = fuel_share_switched_ey
 
+    def update(self, name, value):
+        """Update  switch
+
+        Arguments
+        ---------
+        name : str
+            name of attribute
+        value : any
+            Type of value
+        """
+        setattr(self, name, value)
+
 class ServiceSwitch(object):
     """Service switch class for storing
     switches
@@ -196,6 +220,18 @@ class ServiceSwitch(object):
             self.sector = None # Not sector defined
         else:
             self.sector = sector
+    
+    def update(self, name, value):
+        """Update service switch
+
+        Arguments
+        ---------
+        name : str
+            name of attribute
+        value : any
+            Type of value
+        """
+        setattr(self, name, value)
 
 def read_in_results(path_runs, seasons, model_yeardays_daytype):
     """Read and post calculate results from txt files

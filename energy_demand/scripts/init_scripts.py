@@ -12,6 +12,7 @@ from energy_demand.read_write import data_loader, read_data
 from energy_demand.scripts import (s_disaggregation, s_fuel_to_service, s_generate_sigmoid)
 from energy_demand.technologies import fuel_service_switch
 import pprint
+
 def scenario_initalisation(path_data_ed, data=False):
     """Scripts which need to be run for every different scenario.
     Only needs to be executed once for each scenario (not for every
@@ -248,8 +249,6 @@ def scenario_initalisation(path_data_ed, data=False):
 
     # Spatial explicit modelling
     if data['criterias']['spatial_exliclit_diffusion']:
-        
-        # ============= RESIDENTIAL
 
         # Calculate spatial diffusion factors
         f_reg, f_reg_norm, f_reg_norm_abs = spatial_diffusion.calc_spatially_diffusion_factors(
@@ -257,6 +256,7 @@ def scenario_initalisation(path_data_ed, data=False):
             fuel_disagg=fuel_disagg,
             pop_density=data['pop_density']) #TODO MAYBE f_reg enduse specific
 
+        # ============= RESIDENTIAL
         # REGIONAL  autocompletion and regional calculation of diffusion
         # Calculate regional technology diffusion fractions with f_reg_norm
         rs_service_switches_completed = fuel_service_switch.autocomplete_switches(
@@ -272,7 +272,6 @@ def scenario_initalisation(path_data_ed, data=False):
             rs_service_switches_completed,
             data['assumptions'].rs_specified_tech_enduse_by,
             data['criterias']['spatial_exliclit_diffusion'])
-
 
         # =========== SERVICE
         ss_service_switches_completed = {}
@@ -299,7 +298,6 @@ def scenario_initalisation(path_data_ed, data=False):
                 data['assumptions'].ss_specified_tech_enduse_by,
                 data['criterias']['spatial_exliclit_diffusion'])    
 
-
         #========== INDUSTRY
         is_service_switches_completed = {}
         for sector in data['sectors']['is_sectors']:
@@ -325,9 +323,6 @@ def scenario_initalisation(path_data_ed, data=False):
                 data['assumptions'].is_specified_tech_enduse_by,
                 data['criterias']['spatial_exliclit_diffusion'])
 
-
-        
-        pprint.pprint(rs_reg_share_s_tech_ey_p)
         regions = data['regions']
         rs_share_s_tech_ey_p = rs_reg_share_s_tech_ey_p
         ss_share_s_tech_ey_p = ss_share_s_tech_ey_p

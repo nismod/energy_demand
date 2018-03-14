@@ -1,5 +1,6 @@
 """Function related to service or fuel switch
 """
+import logging
 from collections import defaultdict
 from energy_demand.technologies import tech_related
 from energy_demand.read_write import read_data
@@ -155,25 +156,31 @@ def autocomplete_switches(
                             # Regional diffusion calculation
                             service_share_ey_regional = service_share_ey_global * f_diffusion[enduse][region]
 
-                            #print("A " + str(region))
-                            #print(service_share_ey_global)
-                            #print(service_share_ey_regional)
-
                             # if larger than max crit, set to 1 TODO
                             max_crit = 1
                             if service_share_ey_regional > max_crit:
 
-                                service_share_ey_regional = 1.0
+                                service_share_ey_regional = max_crit
         
                             if s_tot_defined + service_share_ey_regional > 1.0:
                                 print("ERROR: MORE THAN ONE TECHNOLOG SWICHED WITH LARGER SHARE")
                                 prnt(".")
+                            logging.warning("A %s  %s", region, switch.technology_install)
+                            logging.warning(service_share_ey_global)
+                            logging.warning(service_share_ey_regional)
                         else:
                             service_share_ey_regional = switch.service_share_ey
 
+                        switch_new = read_data.ServiceSwitch(
+                            enduse=switch.enduse,
+                            sector=switch.sector,
+                            technology_install=switch.technology_install,
+                            service_share_ey=service_share_ey_regional,
+                            switch_yr=switch.switch_yr)
+                                
                         s_tot_defined += service_share_ey_regional
                         switch_technologies.append(switch.technology_install)
-                        enduse_switches.append(switch)
+                        enduse_switches.append(switch_new)
                         switch_yr = switch.switch_yr
 
                     # Calculate relative by proportion of not assigned technologies in base year
