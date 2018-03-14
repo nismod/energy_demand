@@ -31,8 +31,8 @@ from energy_demand.basic import lookup_tables
 from energy_demand.geography import spatial_diffusion
 
 # must match smif project name for Local Authority Districts
+WRITEOUTSMIFRESULTS = True
 NR_OF_MODELLEd_REGIONS = 406 # 391 #391 # uk: 391, england.: 380
-WRITEOUTSMIFRESULTS = False
 
 class EDWrapper(SectorModel):
     """Energy Demand Wrapper
@@ -61,7 +61,7 @@ class EDWrapper(SectorModel):
         data['criterias']['virtual_building_stock_criteria'] = True     # True: Run virtual building stock model
         data['criterias']['spatial_exliclit_diffusion'] = False         # True: Spatial explicit calculations
 
-        fast_smif_run = False
+        fast_smif_run = True
 
         if fast_smif_run == True:
             data['criterias']['write_to_txt'] = False
@@ -85,7 +85,7 @@ class EDWrapper(SectorModel):
         # -----------------------------
         # Paths
         # -----------------------------
-        path_main = resource_filename(Requirement.parse("energy_demand"), "")
+        path_main = os.path.dirname(os.path.abspath(__file__))
 
         config = configparser.ConfigParser()
         config.read(os.path.join(path_main, 'wrapperconfig.ini'))
@@ -99,7 +99,8 @@ class EDWrapper(SectorModel):
         # -----------------------------
         # Region related info
         # -----------------------------
-        region_set_name = self.regions.names[0]
+        region_set_name = 'lad_uk_2016'
+        print("Region set name: {}".format(region_set_name))
 
         data['regions'] = self.get_region_names(region_set_name)
 
@@ -213,10 +214,13 @@ class EDWrapper(SectorModel):
         # ------------------------
         # Load all SMIF parameters and replace data dict
         # ------------------------
+        #data['assumptions'] = self.load_smif_parameters(data['assumptions'])
+
         parameters = data_handle.get_parameters()
         strategy_variables = self.load_smif_parameters(
             parameters)
         assumptions.__setattr__('strategy_variables', strategy_variables)
+
 
         # Update technologies after strategy definition
         technologies = non_param_assumptions.update_assumptions(
@@ -296,7 +300,7 @@ class EDWrapper(SectorModel):
         data = defaultdict(dict)
 
         # Paths
-        path_main = resource_filename(Requirement.parse("energy_demand"), "")
+        path_main = os.path.dirname(os.path.abspath(__file__))
 
         # Ini info
         config = configparser.ConfigParser()
@@ -310,7 +314,9 @@ class EDWrapper(SectorModel):
         path_nismod, folder = os.path.split(path)
         self.user_data['data_path'] = os.path.join(path_nismod, 'data_energy_demand')
 
-        data['paths'] = data_loader.load_paths(path_main)
+        config_data = resource_filename(Requirement.parse("energy_demand"), "")
+
+        data['paths'] = data_loader.load_paths(config_data)
         data['local_paths'] = data_loader.load_local_paths(self.user_data['data_path'])
 
         # ---------------------------------------------
@@ -560,6 +566,11 @@ class EDWrapper(SectorModel):
         # ------------------------------------
         if WRITEOUTSMIFRESULTS:
             for key_name, result_to_txt in supply_results.items():
+                  if key_name in self.outputs.names:
+                      data_handle.set_results(
+                          key_name,
+                          result_to_txt)
+             '''
                 #if NR_OF_MODELLEd_REGIONS != 391:
                 #    # do not write out resutls
                 #    logging.warning("NO SMIF RESULT FILE ARE WRITTEN OUT")
@@ -567,7 +578,7 @@ class EDWrapper(SectorModel):
                     data_handle.set_results(
                         key_name,
                         result_to_txt)
-                    logging.info("finished writing result")
+                    logging.info("finished writing result")'''
 
         print("... finished wrapper execution")
         return supply_results
@@ -590,8 +601,12 @@ class EDWrapper(SectorModel):
             dict_to_copy_into[key] = value
 
         return dict(dict_to_copy_into)
-
+'''
+bug/wrapper
+    def load_smif_parameters(self, assumptions):
+=======
     def load_smif_parameters(self, data_handle):
+master
         """Get all model parameters from smif (`data_handle`) depending
         on narrative. Create the dict `strategy_variables` and
         add scenario value as well as affected enduses of
@@ -611,14 +626,17 @@ class EDWrapper(SectorModel):
         """
         strategy_variables = {}
 
+#<<<<<<< bug/wrapper
+
         # All information of all scenario parameters
         all_info_scenario_param = param_assumptions.load_param_assump()
 
         # Get all parameter names
         all_strategy_variables = self.parameters.keys()
 
+#master
         # Get variable from dict and reassign and delete from data_handle
-        for var_name in all_strategy_variables:
+        for name in self.parameters.keys():
 
             # Get
             if data_handle[var_name] == 'True':
@@ -629,14 +647,20 @@ class EDWrapper(SectorModel):
                 scenario_value = float(data_handle[var_name])
 
             # Get narrative variable from input data_handle dict
+#bug/wrapper
+            self.logger.debug("Getting parameter: %s", name)
+            strategy_variables[name] = self.data_handle.get_parameter(name)
+
             strategy_variables[var_name] = {
 
                 'scenario_value': scenario_value,
+#master
 
                 # Get affected enduses of this variable defined in `load_param_assump`
                 'affected_enduse': all_info_scenario_param[var_name]['affected_enduse']}
 
         return strategy_variables
+'''
 
     def get_long_lat_decimal_degrees(self, reg_centroids):
         """Project coordinates from shapefile to get

@@ -48,5 +48,6 @@ model_output/*.csv
 model_output/*.pdf
 data/data_scripts/*.csv
 data/data_scripts/*.txt
+wrapperconfig.ini
 _raw_data/*
 _processed_data/*
