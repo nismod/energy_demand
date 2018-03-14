@@ -13,6 +13,48 @@ from energy_demand.scripts import (s_disaggregation, s_fuel_to_service, s_genera
 from energy_demand.technologies import fuel_service_switch
 import pprint
 
+def global_to_reg_capacity_switch(regions, global_capactiy_switch, spatial_factors):
+    """Conversion of global capacity switch instlalations
+    to regional installation
+    """
+    reg_capacity_switch = {}
+
+    # Get all affected enduses of capacity switches
+    switch_enduses = set([])
+    for switch in global_capactiy_switch:
+        switch_enduses.add(switch.enduse)
+    switch_enduses = list(switch_enduses)
+
+    for enduse in switch_enduses:
+
+        reg_capacity_switch[enduse] = []
+        # Get all capacity switches related to this enduse
+        enduse_capacity_switches = []
+        for switch in global_capactiy_switch:
+            if switch.enduse == enduse:
+                enduse_capacity_switches.append(switch)
+
+        test = 0
+        for region in regions:
+
+            for switch in enduse_capacity_switches:
+
+                global_capacity = switch.installed_capacity
+                regional_capacity = global_capacity  * spatial_factors[switch.enduse][region]
+                test += regional_capacity
+                new_switch = read_data.CapacitySwitch(
+                    enduse=switch.enduse,
+                    technology_install=switch.technology_install,
+                    switch_yr=switch.switch_yr,
+                    installed_capacity=regional_capacity,
+                    sector=switch.sector)
+
+            reg_capacity_switch[enduse].append(new_switch)
+
+        print("TEST: " + str(test))
+        print(global_capacity)
+    return reg_capacity_switch
+
 def scenario_initalisation(path_data_ed, data=False):
     """Scripts which need to be run for every different scenario.
     Only needs to be executed once for each scenario (not for every
@@ -128,6 +170,22 @@ def scenario_initalisation(path_data_ed, data=False):
             sector)
 
     # ===========================================
+    # SPATIAL CALCULATIONS factors
+    # ===========================================
+    # Spatial explicit modelling
+    if data['criterias']['spatial_exliclit_diffusion']:
+
+        # =====================================
+        # Calculate spatial diffusion factors
+        # =====================================
+        f_reg, f_reg_norm, f_reg_norm_abs = spatial_diffusion.calc_spatially_diffusion_factors(
+            regions=data['regions'],
+            fuel_disagg=fuel_disagg,
+            pop_density=data['pop_density']) #TODO MAYBE f_reg enduse specific
+    else:
+        pass
+
+    # ===========================================
     # II. Switches
     # ===========================================
     # ------------------------------------
@@ -137,10 +195,25 @@ def scenario_initalisation(path_data_ed, data=False):
     # on a global scale 
     # TODO WIRD DAS NICHT SCHON IN RUN BERECHNET WO CAPACITY IN SERVICE UMGEWANDELT WIRD MAKE SPATIAL
     # ------------------------------------
+    # Convert capacity swtihces to regional switches
+    if data['criterias']['spatial_exliclit_diffusion']:
+
+        capacity_switches_rs = global_to_reg_capacity_switch(data['regions'], data['assumptions'].capacity_switches['rs_capacity_switches'], f_reg_norm_abs)
+        capacity_switches_ss = global_to_reg_capacity_switch(data['regions'], data['assumptions'].capacity_switches['ss_capacity_switches'], f_reg_norm_abs)
+        capacity_switches_is = global_to_reg_capacity_switch(data['regions'], data['assumptions'].capacity_switches['is_capacity_switches'], f_reg_norm_abs)
+
+        #capacity_switches_rs = data['assumptions'].capacity_switches['rs_capacity_switches']
+        #capacity_switches_ss = data['assumptions'].capacity_switches['ss_capacity_switches']
+        #capacity_switches_is = data['assumptions'].capacity_switches['is_capacity_switches']
+
+    else:
+        capacity_switches_rs = data['assumptions'].capacity_switches['rs_capacity_switches']
+        capacity_switches_ss = data['assumptions'].capacity_switches['ss_capacity_switches']
+        capacity_switches_is = data['assumptions'].capacity_switches['is_capacity_switches']
 
     # Residential
     rs_service_switches = fuel_service_switch.capacity_switch(
-        data['assumptions'].capacity_switches['rs_capacity_switches'],
+        capacity_switches_rs,
         data['technologies'],
         data['assumptions'].enduse_overall_change['other_enduse_mode_info'],
         data['fuels']['rs_fuel_raw'],
@@ -155,7 +228,7 @@ def scenario_initalisation(path_data_ed, data=False):
 
     #sum_across_sectors_all_regs
     ss_service_switches = fuel_service_switch.capacity_switch(
-        data['assumptions'].capacity_switches['ss_capacity_switches'],
+        capacity_switches_ss,
         data['technologies'],
         data['assumptions'].enduse_overall_change['other_enduse_mode_info'],
         ss_aggr_sector_fuels,
@@ -169,7 +242,7 @@ def scenario_initalisation(path_data_ed, data=False):
         data['enduses']['is_enduses'])
 
     is_service_switches = fuel_service_switch.capacity_switch(
-        data['assumptions'].capacity_switches['is_capacity_switches'],
+        capacity_switches_is,
         data['technologies'],
         data['assumptions'].enduse_overall_change['other_enduse_mode_info'],
         is_aggr_sector_fuels,
@@ -248,14 +321,6 @@ def scenario_initalisation(path_data_ed, data=False):
 
     # Spatial explicit modelling
     if data['criterias']['spatial_exliclit_diffusion']:
-
-        # =====================================
-        # Calculate spatial diffusion factors
-        # =====================================
-        f_reg, f_reg_norm, f_reg_norm_abs = spatial_diffusion.calc_spatially_diffusion_factors(
-            regions=data['regions'],
-            fuel_disagg=fuel_disagg,
-            pop_density=data['pop_density']) #TODO MAYBE f_reg enduse specific
 
         # =====================================
         # Residential
