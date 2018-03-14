@@ -517,7 +517,7 @@ def create_geopanda_files(
     except IOError:
         # Multiple scenario runs
         lad_geopanda_shp = gpd.read_file(path_shapefile_input)
-  
+
     # Attribute merge unique Key
     unique_merge_id = 'name' #'geo_code'
 
@@ -526,6 +526,9 @@ def create_geopanda_files(
     # ======================================
     simulated_yrs = list(results_container['load_factors_y'].keys())
 
+    print(len(results_container['load_factors_y'][2015]))
+    print(len(regions))
+    prnt(":")
     final_yr = simulated_yrs[-1]
     base_yr = simulated_yrs[0]
 
@@ -565,7 +568,7 @@ def create_geopanda_files(
             bins=bins,
             color_prop='qualitative',
             color_order=True,
-            color_zero='#ffffff') #"#8a2be2" ffffff
+            color_zero='#ffffff') #8a2be2
 
         plot_lad_national(
             lad_geopanda_shp=lad_geopanda_shp,
@@ -617,8 +620,9 @@ def create_geopanda_files(
     # ======================================
     for year in results_container['results_every_year'].keys():
         for fueltype in range(fueltypes_nr):
-
-            field_name = 'y_{}_{}'.format(year, fueltype)
+            
+            fueltype_str = tech_related.get_fueltype_str(fueltypes, fueltype)
+            field_name = 'y_{}_{}'.format(year, fueltype_str)
 
             # Calculate yearly sum
             yearly_sum_gwh = np.sum(
@@ -655,7 +659,8 @@ def create_geopanda_files(
     for year in results_container['load_factors_y'].keys():
         for fueltype in range(fueltypes_nr):
 
-            field_name = 'lf_{}_{}'.format(year, fueltype)
+            fueltype_str = tech_related.get_fueltype_str(fueltypes, fueltype)
+            field_name = 'lf_{}_{}'.format(year, fueltype_str)
 
             results = basic_functions.array_to_dict(
                 results_container['load_factors_y'][year][fueltype], regions)

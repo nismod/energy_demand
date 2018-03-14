@@ -6,11 +6,13 @@ This script can be run to write out all paramters as YAML
 file. This file is not executed when running the ed model
 from within smif.
 """
+import copy
 import logging
 from energy_demand.read_write import write_data
 from energy_demand.basic import basic_functions
+from energy_demand.assumptions import non_param_assumptions
 
-def load_param_assump(paths, assumptions):
+def load_param_assump(paths=None, assumptions=None):
     """All assumptions of the energy demand model
     are loaded and added to the data dictionary
 
@@ -31,6 +33,22 @@ def load_param_assump(paths, assumptions):
     strategy_variables = []
     strategy_vars = {}
 
+    if not assumptions:
+        assumptions_dict = {}
+        assumptions_dict['split_hp_gshp_to_ashp_by'] = None
+        assumptions_dict['smart_meter_assump'] = {}
+        assumptions_dict['smart_meter_assump']['smart_meter_p_by'] = None
+        assumptions_dict['cooled_ss_floorarea_by'] = None
+        assumptions_dict['p_cold_rolling_steel_by'] = None
+        assumptions_dict['t_bases'] = {}
+        assumptions_dict['t_bases']['rs_t_heating_by'] = None
+        assumptions_dict['t_bases']['ss_t_heating_by'] = None
+        assumptions_dict['t_bases']['ss_t_cooling_by'] = None
+        assumptions_dict['t_bases']['is_t_heating_by'] = None
+
+        assumptions = non_param_assumptions.DummyClass(assumptions_dict)
+        setattr(assumptions, 't_bases', non_param_assumptions.DummyClass(assumptions_dict['t_bases']))
+
     yr_until_changed_all_things = 2050 #TODO
 
     # ----------------------
@@ -43,9 +61,9 @@ def load_param_assump(paths, assumptions):
         "name": "split_hp_gshp_to_ashp_ey",
         "absolute_range": (0, 1),
         "description": "Relative GSHP (%) to GSHP+ASHP",
-        "suggested_range": (assumptions['split_hp_gshp_to_ashp_by'], 0.5),
-        "default_value": assumptions['split_hp_gshp_to_ashp_by'],
-        "units": '%'})
+        "suggested_range": (assumptions.split_hp_gshp_to_ashp_by, 0.5),
+        "default_value": assumptions.split_hp_gshp_to_ashp_by,
+        "units": 'decimal'})
 
     # ============================================================
     #  Demand management assumptions (daily demand shape)
@@ -110,7 +128,8 @@ def load_param_assump(paths, assumptions):
             "description": "reduction in load factor for enduse {}".format(demand_name),
             "suggested_range": (0, 1),
             "default_value": 0,
-            "units": '%'})
+            "units": 'decimal',
+            'affected_enduse': [demand_name.split("__")[1]]})
 
         strategy_vars[demand_name] = scenario_value
 
@@ -164,28 +183,26 @@ def load_param_assump(paths, assumptions):
     # Base temperature assumptions for heating and cooling demand
     # The diffusion is asumed to be linear
     # ============================================================
-    # Parameters info
     strategy_variables.append({
         "name": "rs_t_base_heating_future_yr",
         "absolute_range": (0, 20),
         "description": "Base temperature assumption residential heating",
         "suggested_range": (13, 17),
-        "default_value": assumptions['t_bases']['rs_t_heating_by'],
+        "default_value": assumptions.t_bases.rs_t_heating_by,
         "units": '°C'})
 
     # Future base year temperature
     strategy_vars['rs_t_base_heating_future_yr'] = 15.5
 
-    # Parameters info
     strategy_variables.append({
         "name": "ss_t_base_heating_future_yr",
         "absolute_range": (0, 20),
         "description": "Base temperature assumption service sector heating",
         "suggested_range": (13, 17),
-        "default_value": assumptions['t_bases']['ss_t_heating_by'],
+        "default_value": assumptions.t_bases.ss_t_heating_by,
         "units": '°C'})
 
-        # Future base year temperature
+    # Future base year temperature
     strategy_vars['ss_t_base_heating_future_yr'] = 15.5
 
     # Cooling base temperature
@@ -194,7 +211,7 @@ def load_param_assump(paths, assumptions):
         "absolute_range": (0, 25),
         "description": "Base temperature assumption residential sector cooling",
         "suggested_range": (13, 17),
-        "default_value": assumptions['t_bases']['rs_t_cooling_by'],
+        "default_value": assumptions.t_bases['rs_t_cooling_by'],
         "units": '°C'})'''
 
     # Future base year temperature
@@ -205,7 +222,7 @@ def load_param_assump(paths, assumptions):
         "absolute_range": (0, 25),
         "description": "Base temperature assumption service sector cooling",
         "suggested_range": (13, 17),
-        "default_value": assumptions['t_bases']['ss_t_cooling_by'],
+        "default_value": assumptions.t_bases.ss_t_cooling_by,
         "units": '°C'})
 
     # Future base year temperature
@@ -217,10 +234,10 @@ def load_param_assump(paths, assumptions):
         "absolute_range": (0, 20),
         "description": "Base temperature assumption service sector heating",
         "suggested_range": (13, 17),
-        "default_value": assumptions['t_bases']['is_t_heating_by'],
+        "default_value": assumptions.t_bases.is_t_heating_by,
         "units": '°C'})
 
-        # Future base year temperature
+    # Future base year temperature
     strategy_vars['is_t_base_heating_future_yr'] = 15.5
 
     # ============================================================
@@ -231,12 +248,12 @@ def load_param_assump(paths, assumptions):
     # Reasonable assumption is between 0.03 and 0.01 (DECC 2015)
     # ============================================================
     strategy_variables.append({
-        "name": "smart_meter_p_future",
+        "name": "smart_meter_improvement_p",
         "absolute_range": (0, 1),
-        "description": "Population diffusion of smart meters",
-        "suggested_range": (10, 100),
-        "default_value": '{}'.format(assumptions['smart_meter_assump']['smart_meter_p_by']),
-        "units": '%'})
+        "description": "Improvement of smart meter penetration",
+        "suggested_range": (0, 0.9),
+        "default_value": '{}'.format(assumptions.smart_meter_assump['smart_meter_p_by']),
+        "units": 'decimal'})
 
     strategy_variables.append({
         "name": "smart_meter_yr_until_changed",
@@ -246,8 +263,8 @@ def load_param_assump(paths, assumptions):
         "default_value": 2050,
         "units": 'year'})
 
-    # Fraction of population for future year
-    strategy_vars['smart_meter_p_future'] = 0.1
+    # Improvement of fraction of population for future year (base year = 0.1)
+    strategy_vars['smart_meter_improvement_p'] = 0
 
     # Year until change is implemented
     strategy_vars['smart_meter_yr_until_changed'] = yr_until_changed_all_things
@@ -297,7 +314,8 @@ def load_param_assump(paths, assumptions):
             "description": "Smart meter induced savings for enduse {}".format(enduse_name),
             "suggested_range": (0, 1),
             "default_value": '0',
-            "units": '%'})
+            "units": 'decimal',
+            "affected_enduse": [enduse_name.split("__"[1])]})
 
         strategy_vars[enduse_name] = param_value
 
@@ -307,14 +325,15 @@ def load_param_assump(paths, assumptions):
     strategy_variables.append({
         "name": "cooled_floorarea__ss_cooling_humidification",
         "absolute_range": (0, 1),
-        "description": "Percentage of floorarea which is cooled (service sector)",
-        "suggested_range": (0, 1),
-        "default_value": assumptions['cooled_ss_floorarea_by'],
-        "units": '%'})
+        "description": "Increase in percentage of floorarea which is cooled (service sector)",
+        "suggested_range": (-1, 1),
+        "default_value": assumptions.cooled_ss_floorarea_by,
+        "units": 'decimal'})
 
     # How much of the floorarea is cooled in end year (example: 0.5 --> 50% of floorarea is cooled)
     # Carbon Trust. (2012). Air conditioning. Maximising comfort, minimising energy consumption.
-    strategy_vars['cooled_floorarea__ss_cooling_humidification'] = 0.35
+    #TODO IMPROVEMENT
+    strategy_vars['cooled_floorarea__ss_cooling_humidification'] = 0 # 0.35 # 0
 
     strategy_variables.append({
         "name": "cooled_floorarea_yr_until_changed",
@@ -343,17 +362,18 @@ def load_param_assump(paths, assumptions):
         "description": "Year until cold rolling steel manufacturing change is fully realised",
         "suggested_range": (2015, 2100),
         "default_value": 2050,
-        "units": 'year'})
+        "units": 'year',
+        "affected_enduse": ['is_high_temp_process']})
 
     strategy_variables.append({
         "name": "p_cold_rolling_steel",
         "absolute_range": (0, 1),
         "description": "Share of cold rolling given in percent)",
         "suggested_range": (0, 1),
-        "default_value": assumptions['p_cold_rolling_steel_by'],
-        "units": '%'})
+        "default_value": assumptions.p_cold_rolling_steel_by,
+        "units": 'decimal'})
 
-    strategy_vars['p_cold_rolling_steel'] = assumptions['p_cold_rolling_steel_by']
+    strategy_vars['p_cold_rolling_steel'] = assumptions.p_cold_rolling_steel_by
 
     # ============================================================
     # Heat recycling & reuse
@@ -364,7 +384,8 @@ def load_param_assump(paths, assumptions):
         "description": "Reduction in heat because of heat recovery and recycling (residential sector)",
         "suggested_range": (0, 1),
         "default_value": 0,
-        "units": '%'})
+        "units": 'decimal',
+        'affected_enduse': ['rs_space_heating']})
 
     strategy_variables.append({
         "name": "heat_recoved__ss_space_heating",
@@ -372,7 +393,8 @@ def load_param_assump(paths, assumptions):
         "description": "Reduction in heat because of heat recovery and recycling (service sector)",
         "suggested_range": (0, 1),
         "default_value": 0,
-        "units": '%'})
+        "units": 'decimal',
+        'affected_enduse': ['ss_space_heating']})
 
     strategy_variables.append({
         "name": "heat_recoved__is_space_heating",
@@ -380,7 +402,8 @@ def load_param_assump(paths, assumptions):
         "description": "Reduction in heat because of heat recovery and recycling (industry sector)",
         "suggested_range": (0, 1),
         "default_value": 0,
-        "units": '%'})
+        "units": 'decimal',
+        'affected_enduse': ['is_space_heating']})
 
     strategy_variables.append({
         "name": "heat_recovered_yr_until_changed",
@@ -407,7 +430,8 @@ def load_param_assump(paths, assumptions):
         "description": "Reduction in heat because of air leakage improvement (residential sector)",
         "suggested_range": (0, 1),
         "default_value": 0,
-        "units": '%'})
+        "units": 'decimal',
+        'affected_enduse': ['rs_space_heating']})
 
     strategy_variables.append({
         "name": "air_leakage__ss_space_heating",
@@ -415,7 +439,8 @@ def load_param_assump(paths, assumptions):
         "description": "Reduction in heat because of of air leakage improvementservice sector)",
         "suggested_range": (0, 1),
         "default_value": 0,
-        "units": '%'})
+        "units": 'decimal',
+        'affected_enduse': ['ss_space_heating']})
 
     strategy_variables.append({
         "name": "air_leakage__is_space_heating",
@@ -423,7 +448,8 @@ def load_param_assump(paths, assumptions):
         "description": "Reduction in heat because of air leakage improvement (industry sector)",
         "suggested_range": (0, 1),
         "default_value": 0,
-        "units": '%'})
+        "units": 'decimal',
+        "affected_enduse": ['is_space_heating']})
 
     strategy_variables.append({
         "name": "air_leakage_yr_until_changed",
@@ -466,40 +492,40 @@ def load_param_assump(paths, assumptions):
     enduse_overall_change_enduses = {
 
         # Submodel Residential
-        'enduse_change__rs_space_heating': 1,
-        'enduse_change__rs_water_heating': 1,
-        'enduse_change__rs_lighting': 1,
-        'enduse_change__rs_cooking': 1,
-        'enduse_change__rs_cold': 1,
-        'enduse_change__rs_wet': 1,
-        'enduse_change__rs_consumer_electronics': 1,
-        'enduse_change__rs_home_computing': 1,
+        'enduse_change__rs_space_heating': 0,
+        'enduse_change__rs_water_heating': 0,
+        'enduse_change__rs_lighting': 0,
+        'enduse_change__rs_cooking': 0,
+        'enduse_change__rs_cold': 0,
+        'enduse_change__rs_wet': 0,
+        'enduse_change__rs_consumer_electronics': 0,
+        'enduse_change__rs_home_computing': 0,
 
         # Submodel Service (Table 5.5a)
         # same % improvements from baseline for all sectors
-        'enduse_change__ss_space_heating': 1,
-        'enduse_change__ss_water_heating': 1,
-        'enduse_change__ss_cooling_humidification': 1,
-        'enduse_change__ss_fans': 1,
-        'enduse_change__ss_lighting': 1,
-        'enduse_change__ss_catering': 1,
-        'enduse_change__ss_small_power': 1,
-        'enduse_change__ss_ICT_equipment': 1,
-        'enduse_change__ss_cooled_storage': 1,
-        'enduse_change__ss_other_gas': 1,
-        'enduse_change__ss_other_electricity': 1,
+        'enduse_change__ss_space_heating': 0,
+        'enduse_change__ss_water_heating': 0,
+        'enduse_change__ss_cooling_humidification': 0,
+        'enduse_change__ss_fans': 0,
+        'enduse_change__ss_lighting': 0,
+        'enduse_change__ss_catering': 0,
+        'enduse_change__ss_small_power': 0,
+        'enduse_change__ss_ICT_equipment': 0,
+        'enduse_change__ss_cooled_storage': 0,
+        'enduse_change__ss_other_gas': 0,
+        'enduse_change__ss_other_electricity': 0,
 
         # Submodel Industry
         # same % improvements from baseline for all sectors
-        'enduse_change__is_high_temp_process': 1,
-        'enduse_change__is_low_temp_process': 1,
-        'enduse_change__is_drying_separation': 1,
-        'enduse_change__is_motors': 1,
-        'enduse_change__is_compressed_air': 1,
-        'enduse_change__is_lighting': 1,
-        'enduse_change__is_space_heating': 1,
-        'enduse_change__is_other': 1,
-        'enduse_change__is_refrigeration': 1}
+        'enduse_change__is_high_temp_process': 0,
+        'enduse_change__is_low_temp_process': 0,
+        'enduse_change__is_drying_separation': 0,
+        'enduse_change__is_motors': 0,
+        'enduse_change__is_compressed_air': 0,
+        'enduse_change__is_lighting': 0,
+        'enduse_change__is_space_heating': 0,
+        'enduse_change__is_other': 0,
+        'enduse_change__is_refrigeration': 0}
 
     # Helper function to create description of parameters for all enduses
     for enduse_name, param_value in enduse_overall_change_enduses.items():
@@ -509,7 +535,8 @@ def load_param_assump(paths, assumptions):
             "description": "Enduse specific change {}".format(enduse_name),
             "suggested_range": (0, 1),
             "default_value": 1,
-            "units": '%'})
+            "units": 'decimal',
+            'affected_enduse': [enduse_name.split("__")[1]]})
         strategy_vars[enduse_name] = param_value
 
     # ============================================================
@@ -518,31 +545,90 @@ def load_param_assump(paths, assumptions):
 
     # --Assumption how much of technological efficiency is reached
     strategy_variables.append({
-        "name": "eff_achiev_f",
+        "name": "f_eff_achieved",
         "absolute_range": (0, 1),
         "description": "Fraction achieved of efficiency improvements",
         "suggested_range": (0, 1),
         "default_value": 1.0,
-        "units": '%'})
+        "units": 'decimal'})
 
-    strategy_vars["eff_achiev_f"] = 1.0
+    strategy_vars["f_eff_achieved"] = 1.0
 
     # -----------------------
     # Create parameter file only with fully descried parameters
     # and write to yaml file
     # -----------------------
-    basic_functions.del_file(paths['yaml_parameters_constrained'])
+    if not paths:
+        pass
+    else:
+        strategy_variables_write = copy.copy(strategy_variables)
 
-    write_data.write_yaml_param_complete(
-        paths['yaml_parameters_constrained'],
-        strategy_variables)
+        # Delete affected_enduse
+        for var in strategy_variables_write:
+            try:
+                del var['affected_enduse']
+            except KeyError:
+                pass
 
-    basic_functions.del_file(paths['yaml_parameters_scenario'])
-    write_data.write_yaml_param_scenario(
-        paths['yaml_parameters_scenario'],
-        strategy_vars)
+        # Delete existing files
+        basic_functions.del_file(paths['yaml_parameters_constrained'])
+        basic_functions.del_file(paths['yaml_parameters_scenario'])
 
-    # Replace strategy variables
-    assumptions['strategy_variables'] = strategy_vars
+        # Write new files
+        write_data.write_yaml_param_complete(
+            paths['yaml_parameters_constrained'],
+            strategy_variables_write)
+        write_data.write_yaml_param_scenario(
+            paths['yaml_parameters_scenario'],
+            strategy_vars)
 
-    return
+    # Convert to dict for loacl running purposes
+    strategy_vars_out = {}
+    for var in strategy_variables:
+
+        var_name = var['name']
+        strategy_vars_out[var_name] = var
+
+        if var['default_value'] == 'True' or var['default_value'] is True:
+            scenario_value = True
+        elif var['default_value'] == 'False' or var['default_value'] is False:
+            scenario_value = False
+        elif var['default_value'] == 'None' or var['default_value'] is None:
+            scenario_value = None
+        else:
+            scenario_value = float(var['default_value'])
+
+        strategy_vars_out[var_name]['scenario_value'] = scenario_value
+
+        # If no 'affected_enduse' defined, add empty list of affected enduses
+        affected_enduse = get_affected_enduse(strategy_variables, var_name)
+        strategy_vars_out[var['name']]['affected_enduse'] = affected_enduse
+
+    return dict(strategy_vars_out)
+
+def get_affected_enduse(strategy_variables, name):
+    """Get all defined affected enduses of a scenario variable
+
+    Arguments
+    ---------
+    strategy_variables : dict
+        Dict with all defined strategy variables
+    name : str
+        Name of variable to get
+
+    Returns
+    -------
+    enduses : list
+        AFfected enduses of scenario variable
+    """
+    try:
+        for var in strategy_variables:
+            if var['name'] == name:
+                enduses = var['affected_enduse']
+
+                return enduses
+    except KeyError:
+        # Not affected enduses defined
+        enduses = []
+
+        return enduses

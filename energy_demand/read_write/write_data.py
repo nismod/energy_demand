@@ -192,7 +192,7 @@ def write_yaml_param_complete(path_yaml, dict_to_dump):
     # Dump list
     dump(list_to_dump, path_yaml)
 
-def write_simulation_inifile(path, sim_param, enduses, assumptions, reg_nrs, regions):
+def write_simulation_inifile(path, enduses, assumptions, reg_nrs, regions):
     """Create .ini file with simulation parameters which ared
     used to read in correctly the simulation results
 
@@ -200,8 +200,6 @@ def write_simulation_inifile(path, sim_param, enduses, assumptions, reg_nrs, reg
     ---------
     path : str
         Path to result foder
-    sim_param : dict
-        Contains all information necessary to plot results
     enduses : dict
         Enduses
     assumptions : dict
@@ -219,10 +217,10 @@ def write_simulation_inifile(path, sim_param, enduses, assumptions, reg_nrs, reg
 
     config.add_section('SIM_PARAM')
     config['SIM_PARAM']['reg_nrs'] = str(reg_nrs)
-    config['SIM_PARAM']['base_yr'] = str(sim_param['base_yr'])
-    config['SIM_PARAM']['simulated_yrs'] = str(sim_param['simulated_yrs'])
-    config['SIM_PARAM']['model_yearhours_nrs'] = str(assumptions['model_yearhours_nrs'])
-    config['SIM_PARAM']['model_yeardays_nrs'] = str(assumptions['model_yeardays_nrs'])
+    config['SIM_PARAM']['base_yr'] = str(assumptions.base_yr)
+    config['SIM_PARAM']['simulated_yrs'] = str(assumptions.simulated_yrs)
+    config['SIM_PARAM']['model_yearhours_nrs'] = str(assumptions.model_yearhours_nrs)
+    config['SIM_PARAM']['model_yeardays_nrs'] = str(assumptions.model_yeardays_nrs)
 
     # ----------------------------
     # Other information to pass to plotting and summing function

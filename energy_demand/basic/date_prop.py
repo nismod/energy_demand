@@ -68,7 +68,7 @@ def get_model_yeardays_daytype(year_to_model):
 
     return model_yeardays_daytype, yeardays_month, yeardays_month_days
 
-def read_season(year_to_model):
+def get_season(year_to_model):
     """
 
     Arguments
@@ -232,7 +232,10 @@ def get_weekday_type(date_to_test):
                 date(2015, 5, 4),
                 date(2015, 5, 25),
                 date(2015, 8, 31),
+                date(2015, 12, 24),
                 date(2015, 12, 25),
+                date(2015, 12, 26),
+                date(2015, 12, 27),
                 date(2015, 12, 28),
                 date(2015, 12, 29),
                 date(2015, 12, 30),
@@ -246,6 +249,7 @@ def get_weekday_type(date_to_test):
                 date(2014, 5, 5),
                 date(2014, 5, 26),
                 date(2014, 8, 25),
+                date(2014, 12, 24),
                 date(2014, 12, 25),
                 date(2014, 12, 26),
                 date(2014, 12, 27),
@@ -262,6 +266,7 @@ def get_weekday_type(date_to_test):
                 date(2013, 5, 6),
                 date(2013, 5, 27),
                 date(2013, 8, 26),
+                date(2013, 12, 24),
                 date(2013, 12, 25),
                 date(2013, 12, 26),
                 date(2013, 12, 27),
@@ -279,6 +284,7 @@ def get_weekday_type(date_to_test):
                 date(2012, 6, 4),
                 date(2012, 6, 7),
                 date(2012, 8, 27),
+                date(2012, 12, 24),
                 date(2012, 12, 25),
                 date(2012, 12, 26),
                 date(2012, 12, 27),
@@ -297,6 +303,7 @@ def get_weekday_type(date_to_test):
                 date(2011, 5, 2),
                 date(2011, 5, 30),
                 date(2011, 8, 29),
+                date(2011, 12, 24),
                 date(2011, 12, 25),
                 date(2011, 12, 26),
                 date(2011, 12, 27),
@@ -312,6 +319,7 @@ def get_weekday_type(date_to_test):
                 date(2010, 5, 3),
                 date(2010, 5, 31),
                 date(2010, 8, 30),
+                date(2010, 12, 24),
                 date(2010, 12, 25),
                 date(2010, 12, 26),
                 date(2010, 12, 27),
@@ -327,12 +335,14 @@ def get_weekday_type(date_to_test):
                 date(2009, 5, 4),
                 date(2009, 5, 25),
                 date(2009, 8, 31),
+                date(2009, 12, 24),
                 date(2009, 12, 25),
                 date(2009, 12, 26),
                 date(2009, 12, 27),
                 date(2009, 12, 28),
                 date(2009, 12, 29),
-                date(2009, 12, 30)]
+                date(2009, 12, 30),
+                date(2009, 12, 31)]
         elif year == 2008:
             bank_holidays = [
                 date(2008, 1, 1),
@@ -341,12 +351,14 @@ def get_weekday_type(date_to_test):
                 date(2008, 5, 5),
                 date(2008, 5, 26),
                 date(2008, 8, 25),
+                date(2008, 12, 24),
                 date(2008, 12, 25),
                 date(2008, 12, 26),
                 date(2008, 12, 27),
                 date(2008, 12, 28),
                 date(2008, 12, 29),
-                date(2008, 12, 30)]
+                date(2008, 12, 30),
+                date(2008, 12, 31)]
         elif year == 2007:
             bank_holidays = [
                 date(2007, 1, 1),
@@ -355,12 +367,14 @@ def get_weekday_type(date_to_test):
                 date(2007, 5, 7),
                 date(2007, 5, 28),
                 date(2007, 8, 27),
+                date(2007, 12, 24),
                 date(2007, 12, 25),
                 date(2007, 12, 26),
                 date(2007, 12, 27),
                 date(2007, 12, 28),
                 date(2007, 12, 29),
-                date(2007, 12, 30)]
+                date(2007, 12, 30),
+                date(2007, 12, 31)]
         elif year == 2006:
             bank_holidays = [
                 date(2006, 1, 2),
@@ -369,11 +383,13 @@ def get_weekday_type(date_to_test):
                 date(2006, 5, 1),
                 date(2006, 5, 29),
                 date(2006, 8, 28),
+                date(2006, 12, 24),
                 date(2006, 12, 25),
                 date(2006, 12, 26),
                 date(2006, 12, 27),
                 date(2006, 12, 28),
                 date(2006, 12, 29),
+                date(2006, 12, 30),
                 date(2006, 12, 30)]
         elif year == 2005:
             bank_holidays = [
@@ -385,12 +401,14 @@ def get_weekday_type(date_to_test):
                 date(2005, 5, 2),
                 date(2005, 5, 30),
                 date(2005, 8, 29),
+                date(2005, 12, 24),
                 date(2005, 12, 25),
                 date(2005, 12, 26),
                 date(2005, 12, 27),
                 date(2005, 12, 28),
                 date(2005, 12, 29),
-                date(2005, 12, 30)]
+                date(2005, 12, 30),
+                date(2005, 12, 31)]
         elif year == 2004:
             bank_holidays = [
                 date(2004, 1, 1),
@@ -400,12 +418,14 @@ def get_weekday_type(date_to_test):
                 date(2004, 5, 3),
                 date(2004, 5, 31),
                 date(2004, 8, 30),
+                date(2004, 12, 24),
                 date(2004, 12, 25),
                 date(2004, 12, 26),
                 date(2004, 12, 27),
                 date(2004, 12, 28),
                 date(2004, 12, 29),
-                date(2004, 12, 30)]
+                date(2004, 12, 30),
+                date(2004, 12, 31)]
         elif year == 2003:
             bank_holidays = [
                 date(2003, 1, 1),
@@ -413,12 +433,14 @@ def get_weekday_type(date_to_test):
                 date(2003, 5, 5),
                 date(2003, 5, 26),
                 date(2003, 8, 25),
+                date(2003, 12, 24),
                 date(2003, 12, 25),
                 date(2003, 12, 26),
                 date(2003, 12, 27),
                 date(2003, 12, 28),
                 date(2003, 12, 29),
-                date(2003, 12, 30)]
+                date(2003, 12, 30),
+                date(2003, 12, 31)]
         elif year == 2002:
             bank_holidays = [
                 date(2002, 1, 1),
@@ -427,12 +449,14 @@ def get_weekday_type(date_to_test):
                 date(2002, 6, 3),
                 date(2002, 6, 4),
                 date(2002, 8, 26),
+                date(2002, 12, 24),
                 date(2002, 12, 25),
                 date(2002, 12, 26),
                 date(2002, 12, 27),
                 date(2002, 12, 28),
                 date(2002, 12, 29),
-                date(2002, 12, 30)]
+                date(2002, 12, 30),
+                date(2002, 12, 31)]
         else:
             bank_holidays = []
 

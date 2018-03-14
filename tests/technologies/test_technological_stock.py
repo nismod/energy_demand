@@ -7,13 +7,13 @@ def test_Technology():
     """
     """
     tech = technological_stock.Technology(
-        tech_name="boilerA",
+        name="boilerA",
         tech_type="heating_tech",
-        tech_fueltype="electricity",
-        tech_eff_achieved=1.0,
-        tech_diff_method='linear',
-        tech_eff_by=0.5,
-        tech_eff_ey=1.0,
+        fueltype_str="electricity",
+        eff_achieved=1.0,
+        diff_method='linear',
+        eff_by=0.5,
+        eff_ey=1.0,
         year_eff_ey=2020,
         other_enduse_mode_info={'linear'},
         base_yr=2015,
@@ -24,17 +24,17 @@ def test_Technology():
         t_base_heating_by=15.5,
         t_base_heating_cy=15.5)
 
-    assert tech.tech_name == "boilerA"
+    assert tech.name == "boilerA"
     assert tech.eff_cy == 1.0
 
     tech2 = technological_stock.Technology(
-        tech_name="boilerA",
+        name="boilerA",
         tech_type="heat_pump",
-        tech_fueltype="electricity",
-        tech_eff_achieved=1.0,
-        tech_diff_method='linear',
-        tech_eff_by=0.5,
-        tech_eff_ey=1.0,
+        fueltype_str="electricity",
+        eff_achieved=1.0,
+        diff_method='linear',
+        eff_by=0.5,
+        eff_ey=1.0,
         year_eff_ey=2020,
         other_enduse_mode_info={'linear'},
         base_yr=2015,
@@ -48,10 +48,10 @@ def test_Technology():
     assert tech2.eff_cy == 1.0
 
     tech3 = technological_stock.Technology(
-        tech_name="dummy_tech",
+        name="dummy_tech",
         tech_type="heating_tech")
 
-    assert tech3.tech_name == "dummy_tech"
+    assert tech3.name == "dummy_tech"
 
 def test_TechStock():
 
@@ -69,7 +69,7 @@ def test_TechStock():
     all_technologies['boilerA'].year_eff_ey = 2020
 
     stock_obj = technological_stock.TechStock(
-        stock_name="stock_name",
+        name="name",
         technologies=all_technologies,
         tech_list={'heating_non_const': [], 'heating_const': ['boilerA']},
         other_enduse_mode_info={'linear'},
@@ -83,5 +83,5 @@ def test_TechStock():
         t_base_heating_cy=15.5,
         enduse_technologies={'heating': ['boilerA']})
 
-    assert stock_obj.stock_name == "stock_name"
+    assert stock_obj.name == "name"
     assert stock_obj.get_tech_attr('heating', 'boilerA', 'eff_by') == 1.0

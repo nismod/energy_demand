@@ -14,7 +14,7 @@ from energy_demand.basic import date_prop
 from energy_demand.plotting import plotting_results
 from energy_demand.basic import basic_functions
 
-def load_sim_param_ini(path):
+def load_ini_param(path):
     """Load simulation parameter run information
 
     Arguments
@@ -24,8 +24,6 @@ def load_sim_param_ini(path):
 
     Returns
     -------
-    sim_param : dict
-        Simulation parameters
     enduses : dict
         Enduses
     assumptions : dict
@@ -41,13 +39,12 @@ def load_sim_param_ini(path):
 
     reg_nrs = int(config['SIM_PARAM']['reg_nrs'])
     regions = ast.literal_eval(config['REGIONS']['regions'])
-    sim_param = {}
-    sim_param['base_yr'] = int(config['SIM_PARAM']['base_yr'])
-    sim_param['simulated_yrs'] = ast.literal_eval(config['SIM_PARAM']['simulated_yrs'])
 
     assumptions = {}
     assumptions['model_yearhours_nrs'] = int(config['SIM_PARAM']['model_yearhours_nrs'])
     assumptions['model_yeardays_nrs'] = int(config['SIM_PARAM']['model_yeardays_nrs'])
+    assumptions['base_yr'] = int(config['SIM_PARAM']['base_yr'])
+    assumptions['simulated_yrs'] = ast.literal_eval(config['SIM_PARAM']['simulated_yrs'])
 
     # -----------------
     # Other information
@@ -57,7 +54,7 @@ def load_sim_param_ini(path):
     enduses['ss_enduses'] = ast.literal_eval(config['ENDUSES']['ss_enduses'])
     enduses['is_enduses'] = ast.literal_eval(config['ENDUSES']['is_enduses'])
 
-    return sim_param, enduses, assumptions, reg_nrs, regions
+    return enduses, assumptions, reg_nrs, regions
 
 def read_national_real_elec_data(path_to_csv):
     """Read in national consumption from csv file. The unit
@@ -132,7 +129,7 @@ def read_national_real_gas_data(path_to_csv):
 
     return national_fuel_data
 
-def floor_area_virtual_dw(regions, all_sectors, local_paths, base_yr, p_mixed_resid):
+def floor_area_virtual_dw(regions, all_sectors, local_paths, base_yr, f_mixed_floorarea):
     """Load necessary data for virtual building stock
     in case the link to the building stock model in
     Newcastle is not used
@@ -147,7 +144,7 @@ def floor_area_virtual_dw(regions, all_sectors, local_paths, base_yr, p_mixed_re
         Paths
     base_yr : float
         Base year
-    p_mixed_resid : float
+    f_mixed_floorarea : float
         PArameter to redistributed mixed enduse
 
     Returns
@@ -162,7 +159,7 @@ def floor_area_virtual_dw(regions, all_sectors, local_paths, base_yr, p_mixed_re
     # --------------------------------------------------
     resid_footprint, non_res_flootprint = read_data.read_floor_area_virtual_stock(
         local_paths['path_floor_area_virtual_stock_by'],
-        p_mixed_resid=p_mixed_resid)
+        f_mixed_floorarea=f_mixed_floorarea)
 
     rs_floorarea = defaultdict(dict)
     for region in regions:

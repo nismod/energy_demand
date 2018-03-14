@@ -3,17 +3,20 @@
     Energy Demand Model
     ===================
     Contains the function `energy_demand_model` which is used
-    to run the energy demand model
+    to run the energy demand model 
 
 
-    SMIF info
-    ---------
-    http://smif.readthedocs.io/en/latest/getting_started.html#project-configuration
+    ---------------------
+    SMIF
+    ---------------------
+    Information about the integration framework: http://smif.readthedocs.io/
 
+    ---------------------
     Tools
-    ------
-    Profiling: https://jiffyclub.github.io/snakeviz/
+    ---------------------
+    Profiling:  https://jiffyclub.github.io/snakeviz/
 
+    ---------------------
     Development checklist
     ---------------------
     https://nismod.github.io/docs/development-checklist.html
@@ -30,10 +33,24 @@
     - fuel switches?
     - Sub-sectoral GVA
 
+============================================
+MEthod to derive GVA/POP SERVICE FLOOR AREAS
+============================================
+
+1. Step
+Get correlation between regional GVA and (regional floor area/reg pop) of every sector of base year
+-- Get this correlation for every region and build national correlation
+
+2. Step
+Calculate future regional floor area demand based on GVA and pop projection
+
 NICETOHAVE
 - Convert paths dict to objects
 
 TODOS
+TODO: REMOVE SIM PARAM AND ADD TO ASSUMPTIONS
+TODO: WHY NOT CORRECT PLOTTING IRLEAND
+TODO: LOAD IN SCENARIO PARAMETERS IN INITIAL_SETUP FUNCTION IN RUn file
 TODO: Write function to test wheter swichtes are possible (e.g. that not more from one technology to another is replaced than possible)
 TODO: Improve industry related demand --> define strategies
 TODO: Related ed to houses & householdsize
@@ -45,6 +62,7 @@ TODO: FUEL; SERVICE SWITHC AS INPUT¨
 TODO: REMOVE SEPEARATE PEAK CALUCLATIONS AND SHAPES
 TODO: PEAK SHAPE vs PEAK FROM LOAD PROFILES
 TODO: IF spatial explicity, still very slow
+TODO: HYBRID TECHNOLOGIES?
 TODO: UPDate all fuel data with new ECUK DATA
 TODO: TEST IS SECTOR TECH SWITCH
 TODO: STORE RESULTS PER ANNUAL YEAR AND GENERATE FUNCTION TO COLLECT PLOTS AND CREATE GIF
@@ -52,6 +70,10 @@ TODO: get_position for all readings of csv file
 TODO: WHAT ABOU NON_RESIDENTIAL FLOOR AREA: FOR WHAT?
 TODO: REMOVE PEAK SHAPES
 TODO: SPATIAL DISAGGREGATION FACTORS RESID/NONRESID SHARE
+TODO: INTERFACE AND 
+TODO: SO FAR ALSO ALL SERVICE ENDUSES ARE MULTIPLIED
+TODO: DWELLING DENSITY FOR EVERY LAD
+TODO: TEST IF CORRECT REGIONAL CALCULATIONS AS DSCRIEBED IN
 RURAL URBAN : http://www.gov.scot/Topics/Statistics/About/Methodology/UrbanRuralClassification/Urban-Rural-Classification-2011-12/2011-2012-Urban-Rural-Lookups
 """
 import os
@@ -62,8 +84,16 @@ import numpy as np
 from energy_demand import model
 from energy_demand.basic import testing_functions as testing
 from energy_demand.basic import lookup_tables
+from energy_demand.basic import conversions
+from energy_demand.assumptions import non_param_assumptions
+from energy_demand.assumptions import param_assumptions
+from energy_demand.read_write import data_loader
+from energy_demand.basic import logger_setup
+from energy_demand.read_write import write_data
+from energy_demand.read_write import read_data
+from energy_demand.basic import basic_functions
 
-def energy_demand_model(data, fuel_in=0, fuel_in_elec=0):
+def energy_demand_model(data, assumptions, fuel_in=0, fuel_in_elec=0):
     """Main function of energy demand model to calculate yearly demand
 
     Arguments
@@ -86,7 +116,8 @@ def energy_demand_model(data, fuel_in=0, fuel_in_elec=0):
     """
     modelrun_obj = model.EnergyDemandModel(
         regions=data['regions'],
-        data=data)
+        data=data,
+        assumptions=assumptions)
 
     # ----------------
     # Information
@@ -94,9 +125,9 @@ def energy_demand_model(data, fuel_in=0, fuel_in_elec=0):
     fuel_in, fuel_in_biomass, fuel_in_elec, fuel_in_gas, fuel_in_heat, fuel_in_hydrogen, fuel_in_solid_fuel, fuel_in_oil, tot_heating = testing.test_function_fuel_sum(
         data,
         data['criterias']['mode_constrained'],
-        data['assumptions']['enduse_space_heating'])
+        assumptions.enduse_space_heating)
 
-    from energy_demand.basic import conversions
+    
     print("================================================")
     print("Simulation year:     " + str(modelrun_obj.curr_yr))
     print("Number of regions    " + str(data['reg_nrs']))
@@ -136,16 +167,16 @@ def energy_demand_model(data, fuel_in=0, fuel_in_elec=0):
     print("[GWh] heat fuel out:       " + str(np.sum(modelrun_obj.ed_fueltype_national_yh[data['lookups']['fueltypes']['heat']])))
     print("[GWh] heat diff:           " + str(round(np.sum(modelrun_obj.ed_fueltype_national_yh[data['lookups']['fueltypes']['heat']]) - fuel_in_heat, 4)))
     print("-----------")
-    print("Diff elec %:         " + str(round((1/(np.sum(modelrun_obj.ed_fueltype_national_yh[data['lookups']['fueltypes']['electricity']]))) * fuel_in_elec, 4)))
-    print("Diff gas %:          " + str(round((1/(np.sum(modelrun_obj.ed_fueltype_national_yh[data['lookups']['fueltypes']['gas']]))) * fuel_in_gas, 4)))
-    print("Diff oil %:          " + str(round((1/(np.sum(modelrun_obj.ed_fueltype_national_yh[data['lookups']['fueltypes']['oil']]))) * fuel_in_oil, 4)))
-    print("Diff solid_fuel %:   " + str(round((1/(np.sum(modelrun_obj.ed_fueltype_national_yh[data['lookups']['fueltypes']['solid_fuel']]))) * fuel_in_solid_fuel, 4)))
-    print("Diff hydrogen %:     " + str(round((1/(np.sum(modelrun_obj.ed_fueltype_national_yh[data['lookups']['fueltypes']['hydrogen']]))) * fuel_in_hydrogen, 4)))
-    print("Diff biomass %:      " + str(round((1/(np.sum(modelrun_obj.ed_fueltype_national_yh[data['lookups']['fueltypes']['biomass']]))) * fuel_in_biomass, 4)))
+    print("Diff elec %:         " + str(round((np.sum(modelrun_obj.ed_fueltype_national_yh[data['lookups']['fueltypes']['electricity']])/ fuel_in_elec), 4)))
+    print("Diff gas %:          " + str(round((np.sum(modelrun_obj.ed_fueltype_national_yh[data['lookups']['fueltypes']['gas']])/ fuel_in_gas), 4)))
+    print("Diff oil %:          " + str(round((np.sum(modelrun_obj.ed_fueltype_national_yh[data['lookups']['fueltypes']['oil']])/ fuel_in_oil), 4)))
+    print("Diff solid_fuel %:   " + str(round((np.sum(modelrun_obj.ed_fueltype_national_yh[data['lookups']['fueltypes']['solid_fuel']])/ fuel_in_solid_fuel), 4)))
+    print("Diff hydrogen %:     " + str(round((np.sum(modelrun_obj.ed_fueltype_national_yh[data['lookups']['fueltypes']['hydrogen']])/ fuel_in_hydrogen), 4)))
+    print("Diff biomass %:      " + str(round((np.sum(modelrun_obj.ed_fueltype_national_yh[data['lookups']['fueltypes']['biomass']])/ fuel_in_biomass), 4)))
     print("================================================")
 
     logging.info("...finished running energy demand model simulation")
-
+    #prnt(":")
     return modelrun_obj
 
 if __name__ == "__main__":
@@ -162,15 +193,7 @@ if __name__ == "__main__":
         local_data_path = sys.argv[1]
 
     # -------------- SCRAP
-    from energy_demand.assumptions import non_param_assumptions
-    from energy_demand.assumptions import param_assumptions
-    from energy_demand.read_write import data_loader
-    from energy_demand.basic import logger_setup
-    from energy_demand.read_write import write_data
-    from energy_demand.read_write import read_data
-    from energy_demand.basic import basic_functions
-    from energy_demand.basic import date_prop
-    from energy_demand.profiles import hdd_cdd
+
 
     path_main = os.path.join(
         os.path.dirname(os.path.abspath(__file__)), "..")
@@ -194,10 +217,6 @@ if __name__ == "__main__":
     data['local_paths'] = data_loader.load_local_paths(local_data_path)
     data['lookups'] = lookup_tables.basic_lookups()
     data['enduses'], data['sectors'], data['fuels'] = data_loader.load_fuels(data['paths'], data['lookups'])
-    data['sim_param'] = {}
-    data['sim_param']['base_yr'] = 2015
-    data['sim_param']['curr_yr'] = data['sim_param']['base_yr']
-    data['sim_param']['simulated_yrs'] = [2015, 2016, 2030, 2050]
 
     # local scrap
     data['regions'] = data_loader.load_LAC_geocodes_info(
@@ -213,64 +232,56 @@ if __name__ == "__main__":
 
     # Population
     pop_dummy = {}
+    pop_density = {}
     for year in range(2015, 2101):
         _data = {}
         for reg_geocode in data['regions']:
             _data[reg_geocode] = data['regions'][reg_geocode]['POP_JOIN']
         pop_dummy[year] = _data
+        
     data['population'] = pop_dummy
-
+    
     data['reg_coord'] = {}
     for reg in data['regions']:
         data['reg_coord'][reg] = {'longitude': 52.58, 'latitude': -1.091}
-
+        pop_density[reg] = 1
     data['regions'] = list(data['regions'].keys())
+    data['pop_density'] = pop_density
     # ------------------------------
     # Assumptions
     # ------------------------------
     # Parameters not defined within smif
-    data['assumptions'] = non_param_assumptions.load_non_param_assump(
-        data['sim_param']['base_yr'],
-        data['paths'],
-        data['enduses'],
-        data['sectors'],
-        data['lookups']['fueltypes'],
-        data['lookups']['fueltypes_nr'])
+    data['assumptions']  = non_param_assumptions.Assumptions(
+        base_yr=2015,
+        curr_yr=2015,
+        simulated_yrs=[2015, 2016, 2030, 2050],
+        paths=data['paths'],
+        enduses=data['enduses'],
+        sectors=data['sectors'],
+        fueltypes=data['lookups']['fueltypes'],
+        fueltypes_nr=data['lookups']['fueltypes_nr'])
 
     # Parameters defined within smif
-    param_assumptions.load_param_assump(data['paths'], data['assumptions'])
 
-    data['assumptions']['seasons'] = date_prop.read_season(year_to_model=2015)
-    data['assumptions']['model_yeardays_daytype'], data['assumptions']['yeardays_month'], data['assumptions']['yeardays_month_days'] = date_prop.get_model_yeardays_daytype(year_to_model=2015)
+    strategy_variables = param_assumptions.load_param_assump(
+        data['paths'], data['assumptions'])
+    data['assumptions'].__setattr__('strategy_variables', strategy_variables)
 
     data['tech_lp'] = data_loader.load_data_profiles(
         data['paths'], data['local_paths'],
-        data['assumptions']['model_yeardays'],
-        data['assumptions']['model_yeardays_daytype'],
+        data['assumptions'].model_yeardays,
+        data['assumptions'].model_yeardays_daytype,
         data['criterias']['plot_tech_lp'])
-    data['assumptions']['technologies'] = non_param_assumptions.update_assumptions(
-        data['assumptions']['technologies'],
-        data['assumptions']['strategy_variables']['eff_achiev_f'],
-        data['assumptions']['strategy_variables']['split_hp_gshp_to_ashp_ey'])
+
+    technologies = non_param_assumptions.update_assumptions(
+        data['assumptions'].technologies,
+        data['assumptions'].strategy_variables['f_eff_achieved']['scenario_value'],
+        data['assumptions'].strategy_variables['split_hp_gshp_to_ashp_ey']['scenario_value'])
+    data['technologies'] = technologies
 
     data['weather_stations'], data['temp_data'] = data_loader.load_temp_data(data['local_paths'])
 
     data['reg_nrs'] = len(data['regions'])
-
-    # ----------------------------------
-    # Calculating COOLING CDD PARAMETER
-    # ----------------------------------
-    data['assumptions']['cdd_weekend_cfactors'] = hdd_cdd.calc_weekend_corr_f(
-        data['assumptions']['model_yeardays_daytype'],
-        data['assumptions']['ss_t_cooling_weekend_factor'])
-
-    data['assumptions']['ss_weekend_f'] = hdd_cdd.calc_weekend_corr_f(
-        data['assumptions']['model_yeardays_daytype'],
-        data['assumptions']['ss_weekend_factor'])
-
-    data['assumptions']['is_weekend_f'] = hdd_cdd.calc_weekend_corr_f(
-        data['assumptions']['model_yeardays_daytype'],
-        data['assumptions']['is_weekend_factor'])
 
     # ------------------------------
     if data['criterias']['virtual_building_stock_criteria']:
@@ -278,8 +289,8 @@ if __name__ == "__main__":
             data['regions'],
             data['sectors']['all_sectors'],
             data['local_paths'],
-            data['sim_param']['base_yr'],
-            p_mixed_resid=0.5)
+            data['assumptions'].base_yr,
+            f_mixed_floorarea=data['assumptions'].f_mixed_floorarea)
 
     # Lookup table to import industry sectoral gva
     lookup_tables.industrydemand_name_sic2007()
@@ -301,8 +312,8 @@ if __name__ == "__main__":
 
     # In order to load these data, the initialisation scripts need to be run
     print("... Load data from script calculations")
-    data = read_data.load_script_data(data)
-    print("AAAAAAAAAAAAAAAA")
+    data = read_data.load_script_data(data) #SCENARIO INITIALISATION
+
     #-------------------
     # Folder cleaning
     #--------------------
@@ -311,30 +322,30 @@ if __name__ == "__main__":
     basic_functions.create_folder(data['local_paths']['data_results'])
     basic_functions.create_folder(data['local_paths']['data_results_PDF'])
     basic_functions.create_folder(data['local_paths']['data_results_model_run_pop'])
-    print("BBBBBBBBBB")
+
     # Create .ini file with simulation information
     write_data.write_simulation_inifile(
         data['local_paths']['data_results'],
-        data['sim_param'],
         data['enduses'],
         data['assumptions'],
         data['reg_nrs'],
         data['regions'])
-    print("AAAAAAAAAAAAAAAA")
-    for sim_yr in data['sim_param']['simulated_yrs']:
-        data['sim_param']['curr_yr'] = sim_yr
+
+    for sim_yr in data['assumptions'].simulated_yrs:
+        setattr(data['assumptions'], 'curr_yr', sim_yr)
 
         print("Simulation for year --------------:  " + str(sim_yr))
         fuel_in, fuel_in_biomass, fuel_in_elec, fuel_in_gas, fuel_in_heat, fuel_in_hydro, fuel_in_solid_fuel, fuel_in_oil, tot_heating = testing.test_function_fuel_sum(
             data,
             data['criterias']['mode_constrained'],
-            data['assumptions']['enduse_space_heating'])
+            data['assumptions'].enduse_space_heating)
 
         a = datetime.datetime.now()
 
         # Main model run function
         modelrun_obj = energy_demand_model(
             data,
+            data['assumptions'],
             fuel_in,
             fuel_in_elec)
 
@@ -449,4 +460,3 @@ if __name__ == "__main__":
     print("TOTAL TIME: " + str(b-a))
 
     print("... Finished running Energy Demand Model")
-

@@ -1,6 +1,5 @@
 """Function related to service or fuel switch
 """
-import logging
 from collections import defaultdict
 from energy_demand.technologies import tech_related
 from energy_demand.read_write import read_data
@@ -44,15 +43,14 @@ def get_share_s_tech_ey(service_switches, specified_tech_enduse_by):
     """
     enduse_tech_ey_p = {}
 
-    all_enduses = []
+    enduses = []
     for switch in service_switches:
-        enduse = switch.enduse
-        if enduse not in all_enduses:
-            all_enduses.append(enduse)
-            enduse_tech_ey_p[enduse] = {}
+        if switch.enduse not in enduses:
+            enduses.append(switch.enduse)
+            enduse_tech_ey_p[switch.enduse] = {}
 
     # Iterate all endusese and assign all lines
-    for enduse in all_enduses:
+    for enduse in enduses:
         for switch in service_switches:
             if switch.enduse == enduse:
                 enduse_tech_ey_p[enduse][switch.technology_install] = switch.service_share_ey
@@ -70,9 +68,10 @@ def autocomplete_switches(
         s_tech_by_p,
         sector=False
     ):
-    """Helper function to add not defined technologies in switch
-    and set correct future service share. If the defined
-    service switches do not sum up to 100% service,
+    """Add not defined technologies in switches
+    and set correct future service share.
+    
+    If the defined service switches do not sum up to 100% service,
     the remaining service is distriputed proportionally
     to all remaining technologies.
 
@@ -92,49 +91,47 @@ def autocomplete_switches(
     """
     service_switches_out = []
 
-    # ---------------------------------
-    # Get all enduses defined in switch
-    # ---------------------------------
-    all_enduses_with_switches = set([])
+    # Get all enduses defined in switches
+    enduses = set([])
     for switch in service_switches:
-        all_enduses_with_switches.add(switch.enduse)
-    all_enduses_with_switches = list(all_enduses_with_switches)
+        enduses.add(switch.enduse)
+    enduses = list(enduses)
 
-    for enduse in all_enduses_with_switches:
+    for enduse in enduses:
 
         # Get all switches of this enduse
-        switches_enduse = []
-        assigned_service = 0
-        assigned_technologies = []
+        enduse_switches = []
+        s_tot_defined = 0
+        switch_technologies = []
 
         for switch in service_switches:
             if switch.enduse == enduse:
-                assigned_service += switch.service_share_ey
-                assigned_technologies.append(switch.technology_install)
-                switches_enduse.append(switch)
+                s_tot_defined += switch.service_share_ey
+                switch_technologies.append(switch.technology_install)
+                enduse_switches.append(switch)
                 switch_yr = switch.switch_yr
 
         # Calculate relative by proportion of not assigned technologies
         tech_not_assigned_by_p = {}
 
         for tech in specified_tech_enduse_by[enduse]:
-            if tech not in assigned_technologies:
+            if tech not in switch_technologies:
                 tech_not_assigned_by_p[tech] = s_tech_by_p[enduse][tech]
 
-        # convert to percentage
+        # Normalise: convert to percentage
         tot_share_not_assigned = sum(tech_not_assigned_by_p.values())
         for tech, share_by in tech_not_assigned_by_p.items():
             tech_not_assigned_by_p[tech] = share_by / tot_share_not_assigned
 
         # Calculate not defined share in switches
-        not_assigned_service = 1 - assigned_service
+        not_assigned_service = 1 - s_tot_defined
 
         # Get all defined technologies in base year
         for tech in specified_tech_enduse_by[enduse]:
 
-            if tech not in assigned_technologies:
+            if tech not in switch_technologies:
 
-                if assigned_service == 1.0:
+                if s_tot_defined == 1.0:
                     switch_new = read_data.ServiceSwitch(
                         enduse=enduse,
                         sector=sector,
@@ -155,7 +152,7 @@ def autocomplete_switches(
                     service_switches_out.append(switch_new)
             else:
                 # If assigned copy to final switches
-                for switch in switches_enduse:
+                for switch in enduse_switches:
                     if switch.technology_install == tech:
                         service_switches_out.append(switch)
 
@@ -228,7 +225,7 @@ def capacity_switch(
             for switch in enduse_capacity_switches:
 
                 # Test if sector specific switch
-                if switch.sector == None:
+                if switch.sector is None:
 
                     # Check depth of dict
                     depth_dict = basic_functions.dict_depth(
@@ -332,7 +329,7 @@ def create_service_switch(
         for tech, fuel_share_by in tech_fuel_shares.items():
 
             # Efficiency of year when capacity is fully installed
-            tech_eff_ey = tech_related.calc_eff_cy(
+            eff_ey = tech_related.calc_eff_cy(
                 base_yr,
                 switch.switch_yr,
                 technologies[tech].eff_by,
@@ -343,7 +340,7 @@ def create_service_switch(
                 technologies[tech].diff_method)
 
             # Convert to service (fuel * fuelshare * eff)
-            s_tech_ey_y = fuel_enduse_y[fueltype] * fuel_share_by * tech_eff_ey
+            s_tech_ey_y = fuel_enduse_y[fueltype] * fuel_share_by * eff_ey
             service_enduse_tech[tech] = s_tech_ey_y
 
     # -------------------------------------------
@@ -352,7 +349,7 @@ def create_service_switch(
     # -------------------------------------------
     for capacity_switch in enduse_capacity_switches:
 
-        tech_eff_ey = tech_related.calc_eff_cy(
+        eff_ey = tech_related.calc_eff_cy(
             base_yr,
             capacity_switch.switch_yr,
             technologies[capacity_switch.technology_install].eff_by,
@@ -363,7 +360,7 @@ def create_service_switch(
             technologies[capacity_switch.technology_install].diff_method)
 
         # Convert installed capacity to service
-        installed_capacity_ey = capacity_switch.installed_capacity * tech_eff_ey
+        installed_capacity_ey = capacity_switch.installed_capacity * eff_ey
 
         # Add capacity
         service_enduse_tech[capacity_switch.technology_install] += installed_capacity_ey
@@ -459,31 +456,32 @@ def capacity_to_service_switches(assumptions, fuels, base_yr):
     base_yr : int
         Base year
     """
-    assumptions['rs_service_switches'] = capacity_switch(
-        assumptions['rs_service_switches'],
-        assumptions['capacity_switches']['rs_capacity_switches'],
-        assumptions['technologies'],
-        assumptions['enduse_overall_change']['other_enduse_mode_info'],
+    capacity_switches = {}
+    capacity_switches['rs_service_switches'] = capacity_switch(
+        assumptions.rs_service_switches,
+        assumptions.capacity_switches['rs_capacity_switches'],
+        assumptions.technologies,
+        assumptions.enduse_overall_change['other_enduse_mode_info'],
         fuels['rs_fuel_raw'],
-        assumptions['rs_fuel_tech_p_by'],
+        assumptions.rs_fuel_tech_p_by,
         base_yr)
 
-    assumptions['ss_service_switches'] = capacity_switch(
-        assumptions['ss_service_switches'],
-        assumptions['capacity_switches']['ss_capacity_switches'],
-        assumptions['technologies'],
-        assumptions['enduse_overall_change']['other_enduse_mode_info'],
+    capacity_switches['ss_service_switches'] = capacity_switch(
+        assumptions.ss_service_switches,
+        assumptions.capacity_switches['ss_capacity_switches'],
+        assumptions.technologies,
+        assumptions.enduse_overall_change['other_enduse_mode_info'],
         fuels['ss_fuel_raw'],
-        assumptions['ss_fuel_tech_p_by'],
+        assumptions.ss_fuel_tech_p_by,
         base_yr)
 
-    assumptions['is_service_switches'] = capacity_switch(
-        assumptions['is_service_switches'],
-        assumptions['capacity_switches']['is_capacity_switches'],
-        assumptions['technologies'],
-        assumptions['enduse_overall_change']['other_enduse_mode_info'],
+    capacity_switches['is_service_switches'] = capacity_switch(
+        assumptions.is_service_switches,
+        assumptions.capacity_switches['is_capacity_switches'],
+        assumptions.technologies,
+        assumptions.enduse_overall_change['other_enduse_mode_info'],
         fuels['is_fuel_raw'],
-        assumptions['is_fuel_tech_p_by'],
+        assumptions.is_fuel_tech_p_by,
         base_yr)
 
-    return assumptions
+    return capacity_switches

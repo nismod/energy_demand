@@ -11,7 +11,7 @@ class TechStock(object):
     """
     def __init__(
             self,
-            stock_name,
+            name,
             technologies,
             tech_list,
             other_enduse_mode_info,
@@ -29,7 +29,7 @@ class TechStock(object):
 
         Arguments
         ----------
-        stock_name : str
+        name : str
             Name of technology stock
         technologies : dict
             All technologies and their properties
@@ -62,7 +62,7 @@ class TechStock(object):
           in different enduses and either a technology specific shape is
           assigned or an overall enduse shape
         """
-        self.stock_name = stock_name
+        self.name = name
 
         self.stock_technologies = create_tech_stock(
             technologies,
@@ -78,14 +78,14 @@ class TechStock(object):
             potential_enduses,
             enduse_technologies)
 
-    def get_tech_attr(self, enduse, tech_name, attribute_to_get):
+    def get_tech_attr(self, enduse, name, attribute_to_get):
         """Get a technology attribute from a technology object stored in a list
 
         Arguments
         ----------
         enduse : string
             Enduse to read technology specified for this enduse
-        tech_name : string
+        name : string
             List with stored technologies
         attribute_to_get : string
             Attribute of technology to get
@@ -95,7 +95,7 @@ class TechStock(object):
         tech_attribute : attribute
             Technology attribute
         """
-        tech_object = self.stock_technologies[(tech_name, enduse)]
+        tech_object = self.stock_technologies[(name, enduse)]
 
         if attribute_to_get == 'fueltype_str':
             attribute_value = tech_object.fueltype_str
@@ -142,8 +142,6 @@ def create_tech_stock(
         Technology list
     other_enduse_mode_info : dict
         Diffusion info
-    sim_param : dict
-        Simulation parameter
     lookups : dict
         Lookups
     temp_by : array
@@ -162,37 +160,54 @@ def create_tech_stock(
     stock_technologies = {}
 
     for enduse in enduses:
-        for technology_name in enduse_technologies[enduse]:
+        for technology in enduse_technologies[enduse]:
 
             tech_type = tech_related.get_tech_type(
-                technology_name,
+                technology,
                 tech_list)
 
             if tech_type == 'placeholder_tech':
-                tech_obj = Technology(
-                    technology_name,
-                    tech_type)
+                # This is placeholder technology a whole enduse
+                pass
             else:
                 tech_obj = Technology(
-                    technology_name,
-                    tech_type,
-                    technologies[technology_name].fueltype_str,
-                    technologies[technology_name].eff_achieved,
-                    technologies[technology_name].diff_method,
-                    technologies[technology_name].eff_by,
-                    technologies[technology_name].eff_ey,
-                    technologies[technology_name].year_eff_ey,
-                    other_enduse_mode_info,
-                    base_yr,
-                    curr_yr,
-                    fueltypes,
-                    temp_by,
-                    temp_cy,
-                    t_base_heating_by,
-                    t_base_heating_cy,
-                    technologies[technology_name].description)
+                    name=technology,
+                    tech_type=tech_type,
+                    fueltype_str=technologies[technology].fueltype_str,
+                    eff_achieved=technologies[technology].eff_achieved,
+                    diff_method=technologies[technology].diff_method,
+                    eff_by=technologies[technology].eff_by,
+                    eff_ey=technologies[technology].eff_ey,
+                    year_eff_ey=technologies[technology].year_eff_ey,
+                    market_entry=technologies[technology].market_entry,
+                    tech_max_share=technologies[technology].tech_max_share,
+                    other_enduse_mode_info=other_enduse_mode_info,
+                    base_yr=base_yr,
+                    curr_yr=curr_yr,
+                    fueltypes=fueltypes,
+                    temp_by=temp_by,
+                    temp_cy=temp_cy,
+                    t_base_heating_by=t_base_heating_by,
+                    t_base_heating_cy=t_base_heating_cy,
+                    description=technologies[technology].description)
 
-            stock_technologies[(technology_name, enduse)] = tech_obj
+                stock_technologies[(technology, enduse)] = tech_obj
+
+        # ----------------------------------------------------------------
+        # Add for every enduse placeholder technologies for every fueltype
+        # ----------------------------------------------------------------
+        for fueltype_str in fueltypes:
+
+            placeholder_technology = 'placeholder_tech__{}'.format(fueltype_str)
+
+            # Placeholder technology
+            tech_obj = Technology(
+                name=placeholder_technology,
+                tech_type='placeholder_tech',
+                fueltype_str=fueltype_str,
+                fueltypes=fueltypes)
+
+            stock_technologies[(placeholder_technology, enduse)] = tech_obj
 
     return stock_technologies
 
@@ -201,10 +216,34 @@ class Technology(object):
 
     Arguments
     ----------
-    tech_name : str
+    name : str
         The name of a technology
-    data : dict
-        All internal and external provided data
+    tech_type : str
+        Technology type
+    fueltype_str : str
+        Fueltype given as string
+    eff_achieved : float
+        Percentage of how much the potential efficiency improvement is reaslied
+    diff_method : str
+        How the diffusion occurs (sigmoid or linear)
+    eff_by : float
+        Base year efficiency
+    eff_ey : float
+        Future end year efficiency
+    year_eff_ey : float
+        Year when the efficiency `eff_ey` is fully realised
+    market_entry : float
+        Year when technology comes on the market
+    tech_max_share : float
+        Maximum theoretical penetration of technology
+    other_enduse_mode_info : dict
+        Sigmoid diffusion informaiton
+    base_yr : float
+        Base year
+    curr_yr : float
+        Current year
+    fueltypes : dict
+        Fueltype
     temp_by : array
         Temperatures of base year
     temp_cy : array
@@ -213,26 +252,26 @@ class Technology(object):
         Base temperature for heating
     t_base_heating_cy : float
         Base temperature current year
-    tech_type : str
-        Technology type
+    description : str
+        Technology description
 
     Notes
     -----
-    Technologies only coming on the market in the future can be defined by
-    defining a future market entry year. Additionally, for all technologies,
-    the name, fuel type, technology type
-    and the maximum market penetration needs to be defined.
+    * Technologies only coming on the market in the future can be defined by
+      defining a future market entry year
     """
     def __init__(
             self,
-            tech_name,
+            name,
             tech_type,
-            tech_fueltype=None,
-            tech_eff_achieved=None,
-            tech_diff_method=None,
-            tech_eff_by=None,
-            tech_eff_ey=None,
+            fueltype_str=None,
+            eff_achieved=None,
+            diff_method=None,
+            eff_by=None,
+            eff_ey=None,
             year_eff_ey=None,
+            market_entry=None,
+            tech_max_share=None,
             other_enduse_mode_info=None,
             base_yr=None,
             curr_yr=None,
@@ -245,18 +284,25 @@ class Technology(object):
         ):
         """Contructor
         """
-        if tech_name == 'placeholder_tech':
-            self.tech_name = tech_name
+        if tech_type == 'placeholder_tech':
+            self.name = name
             self.tech_type = tech_type
             self.description = description
+            self.fueltype_str = fueltype_str
+            self.fueltype_int = tech_related.get_fueltype_int(fueltypes, fueltype_str)
+            self.eff_by = 1.0
+            self.eff_cy = 1.0
+            self.eff_ey = 1.0
         else:
-            self.tech_name = tech_name
+            self.name = name
             self.tech_type = tech_type
-            self.fueltype_str = tech_fueltype
-            self.fueltype_int = tech_related.get_fueltype_int(fueltypes, tech_fueltype)
-            self.tech_eff_achieved_f = tech_eff_achieved
-            self.diff_method = tech_diff_method
+            self.fueltype_str = fueltype_str
+            self.fueltype_int = tech_related.get_fueltype_int(fueltypes, fueltype_str)
+            self.eff_achieved_f = eff_achieved
+            self.diff_method = diff_method
             self.description = description
+            self.market_entry = market_entry
+            self.tech_max_share = tech_max_share
 
             # --------------------------------------------------------------
             # Base and current year efficiencies depending on technology type
@@ -264,7 +310,7 @@ class Technology(object):
             if tech_type == 'heat_pump':
                 self.eff_by = tech_related.calc_hp_eff(
                     temp_by,
-                    tech_eff_by,
+                    eff_by,
                     t_base_heating_by)
 
                 self.eff_cy = tech_related.calc_hp_eff(
@@ -272,21 +318,21 @@ class Technology(object):
                     tech_related.calc_eff_cy(
                         base_yr,
                         curr_yr,
-                        tech_eff_by,
-                        tech_eff_ey,
+                        eff_by,
+                        eff_ey,
                         year_eff_ey,
                         other_enduse_mode_info,
-                        self.tech_eff_achieved_f,
+                        self.eff_achieved_f,
                         self.diff_method),
                     t_base_heating_cy)
             else:
-                self.eff_by = tech_eff_by
+                self.eff_by = eff_by
                 self.eff_cy = tech_related.calc_eff_cy(
                     base_yr,
                     curr_yr,
-                    tech_eff_by,
-                    tech_eff_ey,
+                    eff_by,
+                    eff_ey,
                     year_eff_ey,
                     other_enduse_mode_info,
-                    self.tech_eff_achieved_f,
+                    self.eff_achieved_f,
                     self.diff_method)

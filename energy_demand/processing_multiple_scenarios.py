@@ -23,7 +23,7 @@ def process_result_multi_scen(path_to_scenarios, path_shapefile_input):
 
     return
 
-def process_scenarios(path_to_scenarios):
+def process_scenarios(path_to_scenarios, year_to_model=2015):
     """Iterate folder with scenario results and plot charts
 
     Arguments
@@ -31,11 +31,11 @@ def process_scenarios(path_to_scenarios):
     path_to_scenarios : str
         Path to folders with stored results
     """
-    seasons = date_prop.read_season(
-        year_to_model=2015)
+    seasons = date_prop.get_season(
+        year_to_model=year_to_model)
 
     model_yeardays_daytype, _, _ = date_prop.get_model_yeardays_daytype(
-        year_to_model=2015)
+        year_to_model=year_to_model)
 
     # Get all folders with scenario run results  (name of folder is scenario)
     scenarios = os.listdir(path_to_scenarios)

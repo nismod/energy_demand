@@ -2,13 +2,14 @@
 """
 import numpy as np
 from energy_demand.scripts import s_disaggregation
+from energy_demand.assumptions import non_param_assumptions
 
 def test_rs_disaggregate():
     """testing
     """
     regions = ['regA', 'regB']
-    base_yr= 2015
-    curr_yr= 2020
+    base_yr = 2015
+    curr_yr = 2020
 
     national_fuel = 100
     rs_national_fuel = {'rs_space_heating': national_fuel}
@@ -23,8 +24,10 @@ def test_rs_disaggregate():
             'sig_midpoint': 0,
             'sig_steepness': 1,
             'yr_until_changed': 2020},
-        'strategy_variables': {'rs_t_base_heating_future_yr': 0},
-        't_bases': {'rs_t_heating_by': 0}}
+        'strategy_variables': {'rs_t_base_heating_future_yr': {'scenario_value': 0}}}
+
+    assumptions = non_param_assumptions.DummyClass(assumptions)
+    assumptions.__setattr__('t_bases', non_param_assumptions.DummyClass({'rs_t_heating_by': 0}))
 
     reg_coord = {
         'regA': {'longitude': 0,'latitude': 0},
@@ -53,7 +56,7 @@ def test_rs_disaggregate():
 
     assert result['regA']['rs_space_heating'] == national_fuel / 2
 
-    # -----   
+    # -----
     result = s_disaggregation.rs_disaggregate(
         regions,
         base_yr,
@@ -75,8 +78,8 @@ def test_ss_disaggregate():
     """testing
     """
     regions = ['regA', 'regB']
-    base_yr= 2015
-    curr_yr= 2020
+    base_yr = 2015
+    curr_yr = 2020
 
     national_fuel = 100
     raw_fuel_sectors_enduses = {'ss_space_heating': {'sectorA': national_fuel}}
@@ -96,8 +99,10 @@ def test_ss_disaggregate():
             'sig_midpoint': 0,
             'sig_steepness': 1,
             'yr_until_changed': 2020},
-        'strategy_variables': {'ss_t_base_heating_future_yr': 0, 'ss_t_base_cooling_future_yr': 0},
-        't_bases': {'ss_t_heating_by': 0, 'ss_t_cooling_by': 0}}
+        'strategy_variables': {'ss_t_base_heating_future_yr': {'scenario_value': 0}, 'ss_t_base_cooling_future_yr': {'scenario_value': 0}}}
+
+    assumptions = non_param_assumptions.DummyClass(assumptions)
+    assumptions.__setattr__('t_bases', non_param_assumptions.DummyClass({'ss_t_heating_by': 0, 'ss_t_cooling_by': 0}))
 
     reg_coord = {
         'regA': {'longitude': 0,'latitude': 0},
@@ -136,8 +141,10 @@ def test_is_ss_disaggregate():
 
     base_yr = 2015
     national_fuel = 100
-    raw_fuel_sectors_enduses = {'is_space_heating': { 'mining': national_fuel,
-                                'pharmaceuticals': national_fuel}}
+    raw_fuel_sectors_enduses = {'is_space_heating': {
+        'mining': national_fuel,
+        'pharmaceuticals': national_fuel}}
+
     regions = ['regA', 'regB']
     enduses = ['is_space_heating']
     sectors = ['mining', 'pharmaceuticals']
@@ -174,7 +181,7 @@ def test_is_ss_disaggregate():
         scenario_data,
         crit_limited_disagg_pop=False,
         crit_employment=True)
-    
+
     assert result['regA']['is_space_heating']['mining'] == 0
     assert round(result['regA']['is_space_heating']['pharmaceuticals'], 3) == round(10.0/15.0 * 100,3) 
     assert result['regB']['is_space_heating']['mining'] == 100

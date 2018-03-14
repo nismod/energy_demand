@@ -23,7 +23,6 @@ def run_all_plot_functions(
         lookups,
         local_paths,
         assumptions,
-        sim_param,
         enduses
     ):
     """Summary function to plot all results
@@ -65,7 +64,7 @@ def run_all_plot_functions(
     if plot_stacked_enduses:
         # Residential
         plt_stacked_enduse(
-            sim_param['simulated_yrs'],
+            assumptions['simulated_yrs'],
             results_container['results_enduse_every_year'],
             enduses['rs_enduses'],
             os.path.join(
@@ -73,7 +72,7 @@ def run_all_plot_functions(
 
         # Service
         plt_stacked_enduse(
-            sim_param['simulated_yrs'],
+            assumptions['simulated_yrs'],
             results_container['results_enduse_every_year'],
             enduses['ss_enduses'],
             os.path.join(
@@ -81,7 +80,7 @@ def run_all_plot_functions(
 
         # Industry
         plt_stacked_enduse(
-            sim_param['simulated_yrs'],
+            assumptions['simulated_yrs'],
             results_container['results_enduse_every_year'],
             enduses['is_enduses'],
             os.path.join(
@@ -93,7 +92,7 @@ def run_all_plot_functions(
     if plot_y_all_enduses:
         plt_stacked_enduse_sectors(
             lookups,
-            sim_param['simulated_yrs'],
+            assumptions['simulated_yrs'],
             results_container['results_enduse_every_year'],
             enduses['rs_enduses'],
             enduses['ss_enduses'],
@@ -1434,10 +1433,8 @@ def plot_enduse_yh(
     # ----------
     # Labelling
     # ----------
-    font_additional_info = plotting_styles.font_info()
-
     plt.xlabel("hour", fontsize=10)
-    plt.ylabel("uk electrictiy use [GW]", fontsize=10)
+    plt.ylabel("uk elec use [GW]", fontsize=10)
 
     plt.legend(frameon=False)
 

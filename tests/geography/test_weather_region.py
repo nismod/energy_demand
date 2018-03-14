@@ -71,36 +71,31 @@ def test_change_temp_climate():
         9: [273, 274, 275, 276, 277, 278, 279, 280, 281, 282, 283, 284, 285, 286, 287, 288, 289, 290, 291, 292, 293, 294, 295, 296, 297, 298, 299, 300, 301, 302, 303],
         10: [304, 305, 306, 307, 308, 309, 310, 311, 312, 313, 314, 315, 316, 317, 318, 319, 320, 321, 322, 323, 324, 325, 326, 327, 328, 329, 330, 331, 332, 333],
         11: [334, 335, 336, 337, 338, 339, 340, 341, 342, 343, 344, 345, 346, 347, 348, 349, 350, 351, 352, 353, 354, 355, 356, 357, 358, 359, 360, 361, 362, 363, 364]}
-    
 
-    assumptions_temp_change = {
-            'climate_change_temp_d__Jan': 2, # January (can be plus or minus)
-            'climate_change_temp_d__Feb': 3, # February
-            'climate_change_temp_d__Mar': 0, # March
-            'climate_change_temp_d__Apr': 0, # April
-            'climate_change_temp_d__May': 0, # May
-            'climate_change_temp_d__Jun': 0, # June
-            'climate_change_temp_d__Jul': 0, # July
-            'climate_change_temp_d__Aug': 0, # August
-            'climate_change_temp_d__Sep': 0, # September
-            'climate_change_temp_d__Oct': 0, # October
-            'climate_change_temp_d__Nov': 0, # November
-            'climate_change_temp_d__Dec': 0}
+    strategy_variables = {
+        'climate_change_temp_d__Jan': {'scenario_value': 2}, # January (can be plus or minus)
+        'climate_change_temp_d__Feb': {'scenario_value': 3}, # February
+        'climate_change_temp_d__Mar': {'scenario_value': 0}, # March
+        'climate_change_temp_d__Apr': {'scenario_value': 0}, # April
+        'climate_change_temp_d__May': {'scenario_value': 0}, # May
+        'climate_change_temp_d__Jun': {'scenario_value': 0}, # June
+        'climate_change_temp_d__Jul': {'scenario_value': 0}, # July
+        'climate_change_temp_d__Aug': {'scenario_value': 0}, # August
+        'climate_change_temp_d__Sep': {'scenario_value': 0}, # September
+        'climate_change_temp_d__Oct': {'scenario_value': 0}, # October
+        'climate_change_temp_d__Nov': {'scenario_value': 0}, # November
+        'climate_change_temp_d__Dec': {'scenario_value': 0},
+        'climate_change_temp_diff_yr_until_changed': {'scenario_value': 2020}}
 
     base_yr = 2010
     curr_yr = 2020
-    yr_until_changed = 2020
-
 
     result = weather_region.change_temp_climate(
         temp_data,
         yeardays_month_days,
-        assumptions_temp_change,
+        strategy_variables,
         base_yr,
-        curr_yr,
-        yr_until_changed)
+        curr_yr)
 
-    assert result[30][0] ==  5 + 2
-    assert result[40][0] ==  10 + 3
-
-test_change_temp_climate()
+    assert result[30][0] == 5 + 2
+    assert result[40][0] == 10 + 3
