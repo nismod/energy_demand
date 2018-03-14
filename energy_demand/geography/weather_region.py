@@ -80,37 +80,37 @@ class WeatherRegion(object):
         # Change base temperatures depending on change in t_base
         rs_t_base_heating_cy = hdd_cdd.sigm_temp(
             strategy_variables['rs_t_base_heating_future_yr']['scenario_value'],
-            t_bases['rs_t_heating_by'],
+            t_bases.rs_t_heating_by,
             base_yr,
             curr_yr,
             t_diff_param)
         '''rs_t_base_cooling_cy = hdd_cdd.sigm_temp(
             strategy_variables['rs_t_base_cooling_future_yr']['scenario_value'],
-            t_bases['rs_t_cooling_by'], base_yr, curr_yr,
+            t_bases.rs_t_cooling_by, base_yr, curr_yr,
             t_diff_param)'''
 
         ss_t_base_heating_cy = hdd_cdd.sigm_temp(
             strategy_variables['ss_t_base_heating_future_yr']['scenario_value'],
-            t_bases['ss_t_heating_by'],
+            t_bases.ss_t_heating_by,
             base_yr,
             curr_yr,
             t_diff_param)
         ss_t_base_cooling_cy = hdd_cdd.sigm_temp(
             strategy_variables['ss_t_base_cooling_future_yr']['scenario_value'],
-            t_bases['ss_t_cooling_by'],
+            t_bases.ss_t_cooling_by,
             base_yr,
             curr_yr,
             t_diff_param)
 
         is_t_base_heating_cy = hdd_cdd.sigm_temp(
             strategy_variables['is_t_base_heating_future_yr']['scenario_value'],
-            t_bases['is_t_heating_by'],
+            t_bases.is_t_heating_by,
             base_yr,
             curr_yr,
             t_diff_param)
         '''is_t_base_cooling_cy = hdd_cdd.sigm_temp(
             strategy_variables['is_t_base_cooling_future_yr']['scenario_value'],
-            t_bases['is_t_cooling_by'],
+            t_bases.is_t_cooling_by,
             base_yr,
             curr_yr,
             t_diff_param)'''
@@ -128,7 +128,7 @@ class WeatherRegion(object):
             fueltypes,
             temp_by,
             temp_cy,
-            t_bases['rs_t_heating_by'],
+            t_bases.rs_t_heating_by,
             all_enduses['rs_enduses'],
             rs_t_base_heating_cy,
             assumptions.rs_specified_tech_enduse_by)
@@ -143,7 +143,7 @@ class WeatherRegion(object):
             fueltypes,
             temp_by,
             temp_cy,
-            t_bases['ss_t_heating_by'],
+            t_bases.ss_t_heating_by,
             all_enduses['ss_enduses'],
             ss_t_base_heating_cy,
             assumptions.ss_specified_tech_enduse_by)
@@ -158,7 +158,7 @@ class WeatherRegion(object):
             fueltypes,
             temp_by,
             temp_cy,
-            t_bases['is_t_heating_by'],
+            t_bases.is_t_heating_by,
             all_enduses['is_enduses'],
             ss_t_base_heating_cy,
             assumptions.is_specified_tech_enduse_by)
@@ -170,11 +170,11 @@ class WeatherRegion(object):
 
         # --------Calculate HDD/CDD
         self.rs_hdd_by, _ = hdd_cdd.calc_reg_hdd(
-            temp_by, t_bases['rs_t_heating_by'], model_yeardays)
+            temp_by, t_bases.rs_t_heating_by, model_yeardays)
         self.rs_hdd_cy, rs_fuel_shape_heating_yd = hdd_cdd.calc_reg_hdd(
             temp_cy, rs_t_base_heating_cy, model_yeardays)
         #self.rs_cdd_by, _ = hdd_cdd.calc_reg_cdd(
-        #    temp_by, t_bases['rs_t_cooling_by'], model_yeardays)
+        #    temp_by, t_bases.rs_t_cooling_by, model_yeardays)
         #self.rs_cdd_cy, rs_fuel_shape_cooling_yd = hdd_cdd.calc_reg_cdd(
         #    temp_cy, rs_t_base_cooling_cy, model_yeardays)
 
@@ -300,12 +300,12 @@ class WeatherRegion(object):
 
         # --------HDD/CDD
         ss_hdd_by, _ = hdd_cdd.calc_reg_hdd(
-            temp_by, t_bases['ss_t_heating_by'], model_yeardays)
+            temp_by, t_bases.ss_t_heating_by, model_yeardays)
         ss_hdd_cy, ss_fuel_shape_heating_yd = hdd_cdd.calc_reg_hdd(
             temp_cy, ss_t_base_heating_cy, model_yeardays)
 
         ss_cdd_by, _ = hdd_cdd.calc_reg_cdd(
-            temp_by, t_bases['ss_t_cooling_by'], model_yeardays)
+            temp_by, t_bases.ss_t_cooling_by, model_yeardays)
         ss_cdd_cy, ss_fuel_shape_coolin_yd = hdd_cdd.calc_reg_cdd(
             temp_cy, ss_t_base_cooling_cy, model_yeardays)
 
@@ -397,9 +397,9 @@ class WeatherRegion(object):
 
         # --------HDD/CDD
         is_hdd_by, _ = hdd_cdd.calc_reg_hdd(
-            temp_by, t_bases['is_t_heating_by'], model_yeardays)
+            temp_by, t_bases.is_t_heating_by, model_yeardays)
         #is_cdd_by, _ = hdd_cdd.calc_reg_cdd(
-        #    temp_by, t_bases['is_t_cooling_by'], model_yeardays)
+        #    temp_by, t_bases.is_t_cooling_by, model_yeardays)
 
         # Take same base temperature as for service sector
         is_hdd_cy, is_fuel_shape_heating_yd = hdd_cdd.calc_reg_hdd(

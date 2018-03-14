@@ -31,7 +31,7 @@ def process_scenarios(path_to_scenarios, year_to_model=2015):
     path_to_scenarios : str
         Path to folders with stored results
     """
-    seasons = date_prop.read_season(
+    seasons = date_prop.get_season(
         year_to_model=year_to_model)
 
     model_yeardays_daytype, _, _ = date_prop.get_model_yeardays_daytype(

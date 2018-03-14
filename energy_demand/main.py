@@ -48,6 +48,7 @@ NICETOHAVE
 - Convert paths dict to objects
 
 TODOS
+TODO: REMOVE SIM PARAM AND ADD TO ASSUMPTIONS
 TODO: WHY NOT CORRECT PLOTTING IRLEAND
 TODO: LOAD IN SCENARIO PARAMETERS IN INITIAL_SETUP FUNCTION IN RUn file
 TODO: Write function to test wheter swichtes are possible (e.g. that not more from one technology to another is replaced than possible)
@@ -72,6 +73,7 @@ TODO: SPATIAL DISAGGREGATION FACTORS RESID/NONRESID SHARE
 TODO: INTERFACE AND 
 TODO: SO FAR ALSO ALL SERVICE ENDUSES ARE MULTIPLIED
 TODO: DWELLING DENSITY FOR EVERY LAD
+TODO: TEST IF CORRECT REGIONAL CALCULATIONS AS DSCRIEBED IN
 RURAL URBAN : http://www.gov.scot/Topics/Statistics/About/Methodology/UrbanRuralClassification/Urban-Rural-Classification-2011-12/2011-2012-Urban-Rural-Lookups
 """
 import os
@@ -165,12 +167,12 @@ def energy_demand_model(data, assumptions, fuel_in=0, fuel_in_elec=0):
     print("[GWh] heat fuel out:       " + str(np.sum(modelrun_obj.ed_fueltype_national_yh[data['lookups']['fueltypes']['heat']])))
     print("[GWh] heat diff:           " + str(round(np.sum(modelrun_obj.ed_fueltype_national_yh[data['lookups']['fueltypes']['heat']]) - fuel_in_heat, 4)))
     print("-----------")
-    print("Diff elec %:         " + str(round((1/(np.sum(modelrun_obj.ed_fueltype_national_yh[data['lookups']['fueltypes']['electricity']]))) * fuel_in_elec, 4)))
-    print("Diff gas %:          " + str(round((1/(np.sum(modelrun_obj.ed_fueltype_national_yh[data['lookups']['fueltypes']['gas']]))) * fuel_in_gas, 4)))
-    print("Diff oil %:          " + str(round((1/(np.sum(modelrun_obj.ed_fueltype_national_yh[data['lookups']['fueltypes']['oil']]))) * fuel_in_oil, 4)))
-    print("Diff solid_fuel %:   " + str(round((1/(np.sum(modelrun_obj.ed_fueltype_national_yh[data['lookups']['fueltypes']['solid_fuel']]))) * fuel_in_solid_fuel, 4)))
-    print("Diff hydrogen %:     " + str(round((1/(np.sum(modelrun_obj.ed_fueltype_national_yh[data['lookups']['fueltypes']['hydrogen']]))) * fuel_in_hydrogen, 4)))
-    print("Diff biomass %:      " + str(round((1/(np.sum(modelrun_obj.ed_fueltype_national_yh[data['lookups']['fueltypes']['biomass']]))) * fuel_in_biomass, 4)))
+    print("Diff elec %:         " + str(round((np.sum(modelrun_obj.ed_fueltype_national_yh[data['lookups']['fueltypes']['electricity']])/ fuel_in_elec), 4)))
+    print("Diff gas %:          " + str(round((np.sum(modelrun_obj.ed_fueltype_national_yh[data['lookups']['fueltypes']['gas']])/ fuel_in_gas), 4)))
+    print("Diff oil %:          " + str(round((np.sum(modelrun_obj.ed_fueltype_national_yh[data['lookups']['fueltypes']['oil']])/ fuel_in_oil), 4)))
+    print("Diff solid_fuel %:   " + str(round((np.sum(modelrun_obj.ed_fueltype_national_yh[data['lookups']['fueltypes']['solid_fuel']])/ fuel_in_solid_fuel), 4)))
+    print("Diff hydrogen %:     " + str(round((np.sum(modelrun_obj.ed_fueltype_national_yh[data['lookups']['fueltypes']['hydrogen']])/ fuel_in_hydrogen), 4)))
+    print("Diff biomass %:      " + str(round((np.sum(modelrun_obj.ed_fueltype_national_yh[data['lookups']['fueltypes']['biomass']])/ fuel_in_biomass), 4)))
     print("================================================")
 
     logging.info("...finished running energy demand model simulation")
@@ -215,10 +217,6 @@ if __name__ == "__main__":
     data['local_paths'] = data_loader.load_local_paths(local_data_path)
     data['lookups'] = lookup_tables.basic_lookups()
     data['enduses'], data['sectors'], data['fuels'] = data_loader.load_fuels(data['paths'], data['lookups'])
-    data['sim_param'] = {}
-    data['sim_param']['base_yr'] = 2015
-    data['sim_param']['curr_yr'] = data['sim_param']['base_yr']
-    data['sim_param']['simulated_yrs'] = [2015, 2016, 2030, 2050]
 
     # local scrap
     data['regions'] = data_loader.load_LAC_geocodes_info(
@@ -253,14 +251,16 @@ if __name__ == "__main__":
     # Assumptions
     # ------------------------------
     # Parameters not defined within smif
-    assumptions = non_param_assumptions.Assumptions(
-        data['sim_param']['base_yr'],
-        data['paths'],
-        data['enduses'],
-        data['sectors'],
-        data['lookups']['fueltypes'],
-        data['lookups']['fueltypes_nr'])
-    data['assumptions'] = assumptions
+    data['assumptions']  = non_param_assumptions.Assumptions(
+        base_yr=2015,
+        curr_yr=2015,
+        simulated_yrs=[2015, 2016, 2030, 2050],
+        paths=data['paths'],
+        enduses=data['enduses'],
+        sectors=data['sectors'],
+        fueltypes=data['lookups']['fueltypes'],
+        fueltypes_nr=data['lookups']['fueltypes_nr'])
+
     # Parameters defined within smif
 
     strategy_variables = param_assumptions.load_param_assump(
@@ -289,7 +289,7 @@ if __name__ == "__main__":
             data['regions'],
             data['sectors']['all_sectors'],
             data['local_paths'],
-            data['sim_param']['base_yr'],
+            data['assumptions'].base_yr,
             f_mixed_floorarea=data['assumptions'].f_mixed_floorarea)
 
     # Lookup table to import industry sectoral gva
@@ -326,14 +326,13 @@ if __name__ == "__main__":
     # Create .ini file with simulation information
     write_data.write_simulation_inifile(
         data['local_paths']['data_results'],
-        data['sim_param'],
         data['enduses'],
         data['assumptions'],
         data['reg_nrs'],
         data['regions'])
 
-    for sim_yr in data['sim_param']['simulated_yrs']:
-        data['sim_param']['curr_yr'] = sim_yr
+    for sim_yr in data['assumptions'].simulated_yrs:
+        setattr(data['assumptions'], 'curr_yr', sim_yr)
 
         print("Simulation for year --------------:  " + str(sim_yr))
         fuel_in, fuel_in_biomass, fuel_in_elec, fuel_in_gas, fuel_in_heat, fuel_in_hydro, fuel_in_solid_fuel, fuel_in_oil, tot_heating = testing.test_function_fuel_sum(

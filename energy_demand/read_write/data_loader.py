@@ -14,7 +14,7 @@ from energy_demand.basic import date_prop
 from energy_demand.plotting import plotting_results
 from energy_demand.basic import basic_functions
 
-def load_sim_param_ini(path):
+def load_ini_param(path):
     """Load simulation parameter run information
 
     Arguments
@@ -24,8 +24,6 @@ def load_sim_param_ini(path):
 
     Returns
     -------
-    sim_param : dict
-        Simulation parameters
     enduses : dict
         Enduses
     assumptions : dict
@@ -41,13 +39,12 @@ def load_sim_param_ini(path):
 
     reg_nrs = int(config['SIM_PARAM']['reg_nrs'])
     regions = ast.literal_eval(config['REGIONS']['regions'])
-    sim_param = {}
-    sim_param['base_yr'] = int(config['SIM_PARAM']['base_yr'])
-    sim_param['simulated_yrs'] = ast.literal_eval(config['SIM_PARAM']['simulated_yrs'])
 
     assumptions = {}
     assumptions['model_yearhours_nrs'] = int(config['SIM_PARAM']['model_yearhours_nrs'])
     assumptions['model_yeardays_nrs'] = int(config['SIM_PARAM']['model_yeardays_nrs'])
+    assumptions['base_yr'] = int(config['SIM_PARAM']['base_yr'])
+    assumptions['simulated_yrs'] = ast.literal_eval(config['SIM_PARAM']['simulated_yrs'])
 
     # -----------------
     # Other information
@@ -57,7 +54,7 @@ def load_sim_param_ini(path):
     enduses['ss_enduses'] = ast.literal_eval(config['ENDUSES']['ss_enduses'])
     enduses['is_enduses'] = ast.literal_eval(config['ENDUSES']['is_enduses'])
 
-    return sim_param, enduses, assumptions, reg_nrs, regions
+    return enduses, assumptions, reg_nrs, regions
 
 def read_national_real_elec_data(path_to_csv):
     """Read in national consumption from csv file. The unit

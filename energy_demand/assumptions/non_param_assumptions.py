@@ -7,13 +7,14 @@ from energy_demand.assumptions import assumptions_fuel_shares
 from energy_demand.initalisations import helpers
 from energy_demand.profiles import hdd_cdd
 
-#TODO MAKE THAT ALL ASSUMPTIONS ARE IMPROVEMENTS (e.g. improvement floor area cooling)
 class Assumptions(object):
     """Assumptions
     """
     def __init__(
             self,
             base_yr=None,
+            curr_yr=None,
+            simulated_yrs=None,
             paths=None,
             enduses=None,
             sectors=None,
@@ -22,6 +23,11 @@ class Assumptions(object):
         ):
 
         yr_until_changed_all_things = 2050
+
+        # Simulation parameters
+        self.base_yr = base_yr
+        self.curr_yr = curr_yr
+        self.simulated_yrs = simulated_yrs
 
         # ============================================================
         # Spatially modelled variables
@@ -196,8 +202,8 @@ class Assumptions(object):
             'rs_cooking': ['population'],
             'rs_cold': ['population'],
             'rs_wet': ['population'],
-            'rs_consumer_electronics': ['population'],
-            'rs_home_computing': ['population']}
+            'rs_consumer_electronics': ['population'], #GVA TODO
+            'rs_home_computing': ['population']} #GVA 
 
         # --Service Submodel (Table 5.5a)
         self.scenario_drivers['ss_submodule'] = {
@@ -284,15 +290,17 @@ class Assumptions(object):
         #   parameter, the energy demand assignement over the days
         #   in a year is improved.
         # ------------------------------------------------------------
-        self.t_bases = {}
-        self.t_bases['rs_t_heating_by'] = 15.5    #
-        #self.t_bases['rs_t_cooling_by'] = Not implemented
+        t_bases = {}
+        t_bases['rs_t_heating_by'] = 15.5    #
+        #t_bases['rs_t_cooling_by'] = Not implemented
 
-        self.t_bases['ss_t_heating_by'] = 15.5    #
-        self.t_bases['ss_t_cooling_by'] = 5       # Orig: 5
+        t_bases['ss_t_heating_by'] = 15.5    #
+        t_bases['ss_t_cooling_by'] = 5       # Orig: 5
 
-        self.t_bases['is_t_heating_by'] = 15.5    #
+        t_bases['is_t_heating_by'] = 15.5    #
         #self.t_bases['is_t_cooling_by'] = Not implemented
+
+        self.t_bases = DummyClass(t_bases) #TODO TEST
 
         self.base_temp_diff_params = {
             'sig_midpoint': 0,
@@ -400,33 +408,6 @@ class Assumptions(object):
             'is_refrigeration': ['gva']}'''
 
         # Sectors
-        '''
-        'other_manufacturing': ,
-        'pharmaceuticals': ,
-        'waste_collection': ,
-        'machinery': ,
-        'leather': ,
-        'furniture': ,
-        'mining': ,
-        'rubber_plastics': ,
-        'computer': ,
-        'other_transport_equipment': ,
-        'basic_metals': ,
-        'tobacco': ,
-        'textiles': ,
-        'paper': ,
-        'chemicals': ,
-        'non_metallic_mineral_products': ,
-        'food_production': ,
-        'wearing_appeal': ,
-        'fabricated_metal_products': ,
-        'beverages': ,
-        'motor_vehicles': ,
-        'wood': ,
-        'printing': ,
-        'water_collection_treatment': ,
-        'electrical_equipment': '''
-
         '''
         Fuel use ratio - dry process over wet process in cement sector
         Fuel use ratio - novel alkali cement over incumbent process in cement sector
@@ -568,14 +549,10 @@ class Assumptions(object):
         # ========================================
         # General other assumptions
         # ========================================
-        self.seasons = date_prop.read_season(year_to_model=base_yr)
+        self.seasons = date_prop.get_season(year_to_model=base_yr)
 
-        model_yeardays_daytype, yeardays_month, yeardays_month_days = date_prop.get_model_yeardays_daytype(
+        self.model_yeardays_daytype, self.yeardays_month, self.yeardays_month_days = date_prop.get_model_yeardays_daytype(
             year_to_model=base_yr)
-
-        self.model_yeardays_daytype = model_yeardays_daytype
-        self.yeardays_month = yeardays_month
-        self.yeardays_month_days = yeardays_month_days
 
         # ========================================
         # Helper functions
@@ -602,15 +579,15 @@ class Assumptions(object):
         # Calculations with assumptions
         # ========================================
         self.cdd_weekend_cfactors = hdd_cdd.calc_weekend_corr_f(
-            model_yeardays_daytype,
+            self.model_yeardays_daytype,
             self.f_ss_cooling_weekend)
 
         self.ss_weekend_f = hdd_cdd.calc_weekend_corr_f(
-            model_yeardays_daytype,
+            self.model_yeardays_daytype,
             self.f_ss_weekend)
 
         self.is_weekend_f = hdd_cdd.calc_weekend_corr_f(
-            model_yeardays_daytype,
+            self.model_yeardays_daytype,
             self.f_is_weekend)
 
         # ========================================
@@ -705,3 +682,13 @@ class DummyClass(object):
         ):
         for var, value in variables.items():
             setattr(self, var, value)
+
+'''class BaseTemps(object):
+    """Assumptions
+    """
+    def __init__(
+            self,
+            variables
+        ):
+        for var, value in variables.items():
+            setattr(self, var, value)'''

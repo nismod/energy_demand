@@ -39,9 +39,9 @@ def post_install_setup(args):
     logging.info("... start local energy demand calculations")
 
     # Load data
+    base_yr = 2015
+
     data = {}
-    data['sim_param'] = {}
-    data['sim_param']['base_yr'] = 2015
     data['paths'] = data_loader.load_paths(path_main)
     data['local_paths'] = data_loader.load_local_paths(local_data_path)
     data['lookups'] = lookup_tables.basic_lookups()
@@ -50,12 +50,12 @@ def post_install_setup(args):
 
     # Assumptions
     data['assumptions'] = non_param_assumptions.Assumptions(
-        data['sim_param']['base_yr'],
-        data['paths'],
-        data['enduses'],
-        data['sectors'],
-        data['lookups']['fueltypes'],
-        data['lookups']['fueltypes_nr'])
+        base_yr=base_yr,
+        paths=data['paths'],
+        enduses=data['enduses'],
+        sectors=data['sectors'],
+        fueltypes=data['lookups']['fueltypes'],
+        fueltypes_nr=data['lookups']['fueltypes_nr'])
 
     # Delete all previous data from previous model runs
     basic_functions.del_previous_setup(data['local_paths']['data_processed'])
@@ -85,7 +85,7 @@ def post_install_setup(args):
     s_rs_raw_shapes.run(
         data['paths'],
         data['local_paths'],
-        data['sim_param']['base_yr'])
+        base_yr)
 
     logging.info("... finished post_install_setup")
     print("... finished post_install_setup")

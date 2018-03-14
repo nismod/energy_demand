@@ -151,9 +151,8 @@ def post_install_setup_minimum(args):
     basic_functions.create_folder(local_paths['dir_disaggregated'])
 
     # Load data
+    base_yr = 2015
     data = {}
-    data['sim_param'] = {}
-    data['sim_param']['base_yr'] = 2015
     data['paths'] = data_loader.load_paths(path_energy_demand)
     data['lookups'] = lookup_tables.basic_lookups()
     data['enduses'], data['sectors'], data['fuels'] = data_loader.load_fuels(
@@ -161,18 +160,18 @@ def post_install_setup_minimum(args):
 
     # Assumptions
     data['assumptions'] = non_param_assumptions.Assumptions(
-        data['sim_param']['base_yr'],
-        data['paths'],
-        data['enduses'],
-        data['sectors'],
-        data['lookups']['fueltypes'],
-        data['lookups']['fueltypes_nr'])
+        base_yr=base_yr,
+        paths=data['paths'],
+        enduses=data['enduses'],
+        sectors=data['sectors'],
+        fueltypes=data['lookups']['fueltypes'],
+        fueltypes_nr=data['lookups']['fueltypes_nr']
 
     # Read in residential submodel shapes
     s_rs_raw_shapes.run(
         data['paths'],
         local_paths,
-        data['sim_param']['base_yr'])
+        base_yr)
 
     # ==========================================
     # Create not publica available files

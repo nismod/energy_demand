@@ -46,11 +46,11 @@ def main(path_data_energy_demand, path_shapefile_input):
     basic_functions.create_folder(data['local_paths']['data_results_shapefiles'])
 
     # Simulation information is read in from .ini file for results
-    data['sim_param'], data['enduses'], data['assumptions'], data['reg_nrs'], data['regions'] = data_loader.load_sim_param_ini(
+    data['enduses'], data['assumptions'], data['reg_nrs'], data['regions'] = data_loader.load_ini_param(
         data['local_paths']['data_results'])
 
     # Other information is read in TODO IMPROVE
-    data['assumptions']['seasons'] = date_prop.read_season(year_to_model=2015)
+    data['assumptions']['seasons'] = date_prop.get_season(year_to_model=2015)
     data['assumptions']['model_yeardays_daytype'], data['assumptions']['yeardays_month'], data['assumptions']['yeardays_month_days'] = date_prop.get_model_yeardays_daytype(year_to_model=2015)
 
     # Read scenario data
@@ -98,7 +98,6 @@ def main(path_data_energy_demand, path_shapefile_input):
         data['lookups'],
         data['local_paths'],
         data['assumptions'],
-        data['sim_param'],
         data['enduses'])
 
     logging.info("... finished reading and plotting results")

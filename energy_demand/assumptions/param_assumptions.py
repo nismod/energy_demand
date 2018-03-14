@@ -47,6 +47,7 @@ def load_param_assump(paths=None, assumptions=None):
         assumptions_dict['t_bases']['is_t_heating_by'] = None
 
         assumptions = non_param_assumptions.DummyClass(assumptions_dict)
+        setattr(assumptions, 't_bases', non_param_assumptions.DummyClass(assumptions_dict['t_bases']))
 
     yr_until_changed_all_things = 2050 #TODO
 
@@ -187,7 +188,7 @@ def load_param_assump(paths=None, assumptions=None):
         "absolute_range": (0, 20),
         "description": "Base temperature assumption residential heating",
         "suggested_range": (13, 17),
-        "default_value": assumptions.t_bases['rs_t_heating_by'],
+        "default_value": assumptions.t_bases.rs_t_heating_by,
         "units": '°C'})
 
     # Future base year temperature
@@ -198,7 +199,7 @@ def load_param_assump(paths=None, assumptions=None):
         "absolute_range": (0, 20),
         "description": "Base temperature assumption service sector heating",
         "suggested_range": (13, 17),
-        "default_value": assumptions.t_bases['ss_t_heating_by'],
+        "default_value": assumptions.t_bases.ss_t_heating_by,
         "units": '°C'})
 
     # Future base year temperature
@@ -221,7 +222,7 @@ def load_param_assump(paths=None, assumptions=None):
         "absolute_range": (0, 25),
         "description": "Base temperature assumption service sector cooling",
         "suggested_range": (13, 17),
-        "default_value": assumptions.t_bases['ss_t_cooling_by'],
+        "default_value": assumptions.t_bases.ss_t_cooling_by,
         "units": '°C'})
 
     # Future base year temperature
@@ -233,7 +234,7 @@ def load_param_assump(paths=None, assumptions=None):
         "absolute_range": (0, 20),
         "description": "Base temperature assumption service sector heating",
         "suggested_range": (13, 17),
-        "default_value": assumptions.t_bases['is_t_heating_by'],
+        "default_value": assumptions.t_bases.is_t_heating_by,
         "units": '°C'})
 
     # Future base year temperature

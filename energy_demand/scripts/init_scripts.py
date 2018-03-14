@@ -1,9 +1,9 @@
 """Script functions which are executed after
 model installation and after each scenario definition
 """
-import logging
 import os
 import sys
+import logging
 from collections import defaultdict
 import numpy as np
 from energy_demand.basic import basic_functions, logger_setup
@@ -70,8 +70,8 @@ def scenario_initalisation(path_data_ed, data=False):
     # Disaggregate fuel for all regions
     fuel_disagg['rs_fuel_disagg'], fuel_disagg['ss_fuel_disagg'], fuel_disagg['is_fuel_disagg'] = s_disaggregation.disaggregate_base_demand(
         data['regions'],
-        data['sim_param']['base_yr'],
-        data['sim_param']['curr_yr'],
+        data['assumptions'].base_yr,
+        data['assumptions'].curr_yr,
         data['fuels'],
         data['scenario_data'],
         data['assumptions'],      
@@ -174,13 +174,13 @@ def scenario_initalisation(path_data_ed, data=False):
 
     # Residential
     init_cont['rs_service_switches'] = fuel_service_switch.capacity_switch(
-        init_cont['rs_service_switches'],
+        data['assumptions'].rs_service_switches,
         data['assumptions'].capacity_switches['rs_capacity_switches'],
         data['technologies'],
         data['assumptions'].enduse_overall_change['other_enduse_mode_info'],
         data['fuels']['rs_fuel_raw'],
         data['assumptions'].rs_fuel_tech_p_by,
-        data['sim_param']['base_yr'])
+        data['assumptions'].base_yr)
 
     # Service
     ss_aggr_sector_fuels = s_fuel_to_service.sum_fuel_enduse_sectors(
@@ -189,13 +189,13 @@ def scenario_initalisation(path_data_ed, data=False):
         data['lookups']['fueltypes_nr'])
 
     init_cont['ss_service_switches'] = fuel_service_switch.capacity_switch(
-        init_cont['ss_service_switches'],
+        data['assumptions'].ss_service_switches,
         data['assumptions'].capacity_switches['ss_capacity_switches'],
         data['technologies'],
         data['assumptions'].enduse_overall_change['other_enduse_mode_info'],
         ss_aggr_sector_fuels,
         data['assumptions'].ss_fuel_tech_p_by,
-        data['sim_param']['base_yr'])
+        data['assumptions'].base_yr)
 
     # Industry
     is_aggr_sector_fuels = s_fuel_to_service.sum_fuel_enduse_sectors(
@@ -204,13 +204,13 @@ def scenario_initalisation(path_data_ed, data=False):
         data['lookups']['fueltypes_nr'])
 
     init_cont['is_service_switches'] = fuel_service_switch.capacity_switch(
-        init_cont['is_service_switches'],
+        data['assumptions'].is_service_switches,
         data['assumptions'].capacity_switches['is_capacity_switches'],
         data['technologies'],
         data['assumptions'].enduse_overall_change['other_enduse_mode_info'],
         is_aggr_sector_fuels,
         data['assumptions'].is_fuel_tech_p_by,
-        data['sim_param']['base_yr'])
+        data['assumptions'].base_yr)
 
     # ------------------------------------
     # Service switches
@@ -237,7 +237,9 @@ def scenario_initalisation(path_data_ed, data=False):
 
     # Spatial explicit modelling
     if data['criterias']['spatial_exliclit_diffusion']:
-
+        import pprint
+        logging.warning(pprint.pprint(rs_share_s_tech_ey_p))
+        prnt(":")
         rs_reg_share_s_tech_ey_p, ss_reg_share_s_tech_ey_p, is_reg_share_s_tech_ey_p, spatial_diff_f, spatial_diff_values = spatial_diffusion.spatially_differentiated_modelling(
             regions=data['regions'],
             fuel_disagg=fuel_disagg,
@@ -251,6 +253,9 @@ def scenario_initalisation(path_data_ed, data=False):
         rs_share_s_tech_ey_p = rs_reg_share_s_tech_ey_p
         ss_share_s_tech_ey_p = ss_reg_share_s_tech_ey_p
         is_share_s_tech_ey_p = is_reg_share_s_tech_ey_p
+
+        logging.warning(pprint.pprint(rs_share_s_tech_ey_p))
+        prnt(":")
     else:
         regions = False
         spatial_diff_f = False
@@ -270,7 +275,7 @@ def scenario_initalisation(path_data_ed, data=False):
     for enduse in data['enduses']['rs_enduses']:
 
         init_cont['rs_sig_param_tech'][enduse], init_cont['rs_service_switch'][enduse] = sig_param_calc_incl_fuel_switch(
-            data['sim_param']['base_yr'],
+            data['assumptions'].base_yr,
             data['technologies'],
             enduse=enduse,
             fuel_switches=data['assumptions'].rs_fuel_switches,
@@ -289,7 +294,7 @@ def scenario_initalisation(path_data_ed, data=False):
 
         for sector in data['sectors']['ss_sectors']:
             init_cont['ss_sig_param_tech'][enduse][sector], init_cont['ss_service_switch'][enduse][sector] = sig_param_calc_incl_fuel_switch(
-                data['sim_param']['base_yr'],
+                data['assumptions'].base_yr,
                 data['technologies'],
                 enduse=enduse,
                 fuel_switches=data['assumptions'].ss_fuel_switches,
@@ -309,7 +314,7 @@ def scenario_initalisation(path_data_ed, data=False):
         for sector in data['sectors']['is_sectors']:
 
             init_cont['is_sig_param_tech'][enduse][sector], init_cont['is_service_switch'][enduse][sector] = sig_param_calc_incl_fuel_switch(
-                data['sim_param']['base_yr'],
+                data['assumptions'].base_yr,
                 data['technologies'],
                 enduse=enduse,
                 fuel_switches=data['assumptions'].is_fuel_switches,
