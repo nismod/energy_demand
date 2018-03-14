@@ -526,9 +526,6 @@ def create_geopanda_files(
     # ======================================
     simulated_yrs = list(results_container['load_factors_y'].keys())
 
-    print(len(results_container['load_factors_y'][2015]))
-    print(len(regions))
-    prnt(":")
     final_yr = simulated_yrs[-1]
     base_yr = simulated_yrs[0]
 

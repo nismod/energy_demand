@@ -48,7 +48,6 @@ NICETOHAVE
 - Convert paths dict to objects
 
 TODOS
-TODO: REMOVE SIM PARAM AND ADD TO ASSUMPTIONS
 TODO: WHY NOT CORRECT PLOTTING IRLEAND
 TODO: LOAD IN SCENARIO PARAMETERS IN INITIAL_SETUP FUNCTION IN RUn file
 TODO: Write function to test wheter swichtes are possible (e.g. that not more from one technology to another is replaced than possible)
@@ -70,9 +69,7 @@ TODO: get_position for all readings of csv file
 TODO: WHAT ABOU NON_RESIDENTIAL FLOOR AREA: FOR WHAT?
 TODO: REMOVE PEAK SHAPES
 TODO: SPATIAL DISAGGREGATION FACTORS RESID/NONRESID SHARE
-TODO: INTERFACE AND 
 TODO: SO FAR ALSO ALL SERVICE ENDUSES ARE MULTIPLIED
-TODO: DWELLING DENSITY FOR EVERY LAD
 TODO: TEST IF CORRECT REGIONAL CALCULATIONS AS DSCRIEBED IN
 RURAL URBAN : http://www.gov.scot/Topics/Statistics/About/Methodology/UrbanRuralClassification/Urban-Rural-Classification-2011-12/2011-2012-Urban-Rural-Lookups
 """
@@ -127,7 +124,6 @@ def energy_demand_model(data, assumptions, fuel_in=0, fuel_in_elec=0):
         data['criterias']['mode_constrained'],
         assumptions.enduse_space_heating)
 
-    
     print("================================================")
     print("Simulation year:     " + str(modelrun_obj.curr_yr))
     print("Number of regions    " + str(data['reg_nrs']))
@@ -176,7 +172,6 @@ def energy_demand_model(data, assumptions, fuel_in=0, fuel_in_elec=0):
     print("================================================")
 
     logging.info("...finished running energy demand model simulation")
-    #prnt(":")
     return modelrun_obj
 
 if __name__ == "__main__":

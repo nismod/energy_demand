@@ -33,6 +33,7 @@ def write_scenaric_population_data(sim_yr, path_result, pop_y):
         "pop__{}__{}".format(sim_yr, ".npy"))
 
     np.save(path_file, pop_y)
+    logging.info("... finished saving population")
 
 def create_shp_results(data, results_container, paths, lookups, regions):
     """Create csv file and merge with shape

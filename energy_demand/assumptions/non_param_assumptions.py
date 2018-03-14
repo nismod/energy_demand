@@ -609,6 +609,18 @@ class Assumptions(object):
         testing_functions.testing_tech_defined(
             self.technologies, self.is_specified_tech_enduse_by)
 
+    def update(self, name, value):
+        """Update assumptions
+
+        Arguments
+        ---------
+        name : str
+            name of attribute
+        value : any
+            Type of value
+        """
+        setattr(self, name, value)
+
 def update_assumptions(
         technologies,
         factor_achieved,

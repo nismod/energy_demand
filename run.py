@@ -31,8 +31,8 @@ from energy_demand.basic import lookup_tables
 from energy_demand.geography import spatial_diffusion
 
 # must match smif project name for Local Authority Districts
-WRITEOUTSMIFRESULTS = True
-NR_OF_MODELLEd_REGIONS = 406 # 391 #391 # uk: 391, england.: 380
+WRITEOUTSMIFRESULTS = False
+NR_OF_MODELLEd_REGIONS = 391 # uk: 391 (including ireland), england.: 380
 
 class EDWrapper(SectorModel):
     """Energy Demand Wrapper
@@ -61,7 +61,7 @@ class EDWrapper(SectorModel):
         data['criterias']['virtual_building_stock_criteria'] = True     # True: Run virtual building stock model
         data['criterias']['spatial_exliclit_diffusion'] = False         # True: Spatial explicit calculations
 
-        fast_smif_run = True
+        fast_smif_run = False
 
         if fast_smif_run == True:
             data['criterias']['write_to_txt'] = False
@@ -86,9 +86,9 @@ class EDWrapper(SectorModel):
         # Paths
         # -----------------------------
         path_main = os.path.dirname(os.path.abspath(__file__))
-
         config = configparser.ConfigParser()
         config.read(os.path.join(path_main, 'wrapperconfig.ini'))
+
         self.user_data['data_path'] = config['PATHS']['path_local_data']
         self.processed_path = config['PATHS']['path_processed_data']
         self.result_path = config['PATHS']['path_result_data']
@@ -136,7 +136,7 @@ class EDWrapper(SectorModel):
 
         strategy_variables = param_assumptions.load_param_assump(
             data['paths'], assumptions)
-        assumptions.__setattr__('strategy_variables', strategy_variables)
+        assumptions.update('strategy_variables', strategy_variables)
 
         # -----------------------------
         # Obtain external base year scenario data
@@ -208,16 +208,15 @@ class EDWrapper(SectorModel):
         # ---------------------
         capacity_switches = fuel_service_switch.capacity_to_service_switches(
             assumptions, data['fuels'], assumptions.base_yr)
-        for i, j in capacity_switches.items():
-            assumptions.__setattr__(i, j)
+        for switch_name, switch_value in capacity_switches.items():
+            assumptions.update(switch_name, switch_value)
 
         # ------------------------
         # Load all SMIF parameters and replace data dict
         # ------------------------
         strategy_variables = self.load_smif_parameters(
             data_handle)
-    
-        assumptions.__setattr__('strategy_variables', strategy_variables)
+        assumptions.update('strategy_variables', strategy_variables)
 
         # Update technologies after strategy definition
         technologies = non_param_assumptions.update_assumptions(
@@ -562,13 +561,17 @@ class EDWrapper(SectorModel):
         # Write results to smif
         # ------------------------------------
         if WRITEOUTSMIFRESULTS:
+            logging.info("start writing out results to file for smif")
             for key_name, result_to_txt in supply_results.items():
                 if key_name in self.outputs.names:
+                    logging.info(key_name)
+                    logging.info("dd " + str(result_to_txt.shape))
                     data_handle.set_results(
                         key_name,
                         result_to_txt)
+            logging.info("finished writing out results to file for smif")
 
-        print("... finished wrapper execution")
+        logging.info("... finished wrapper execution")
         return supply_results
 
     def extract_obj(self, results):
@@ -781,7 +784,7 @@ def constrained_results(
                 for region_nr, _ in enumerate(regions):
                     supply_results[key_name][region_nr] = non_heating_ed[submodel_nr][region_nr][fueltype_int]
 
-    logging.info("Prepared results for energy supply model in constrained mode")
+    logging.info("... Prepared results for energy supply model in constrained mode")
     return dict(supply_results)
 
 def unconstrained_results(
@@ -839,7 +842,7 @@ def unconstrained_results(
             for region_nr, _ in enumerate(regions):
                 supply_results[key_name][region_nr] = results_unconstrained[submodel_nr][region_nr][fueltype_int]
 
-    logging.info("Prepared results for energy supply model in unconstrained mode")
+    logging.info("... Prepared results for energy supply model in unconstrained mode")
     return supply_results
 
 def model_tech_simplification(tech):
@@ -869,17 +872,3 @@ def model_tech_simplification(tech):
         tech_newly_assigned = tech
 
     return tech_newly_assigned
-
-'''def spatial_sigmoid_calculations_NEW(f_spatial_diffusion):
-    test_factor_overall_enduse_heating_improvement = 0.2
-    affected_enduse = 'rs_space_heating'
-
-    # end use specficic improvements 
-    single_variable_d = factor_improvements_single(
-        factor_uk=test_factor_overall_enduse_heating_improvement,
-        factor_uk_name='test_factor_overall_enduse_heating_improvement',
-        enduse=affected_enduse,
-        regions=regions,
-        spatial_factors=f_spatial_diffusion,
-        spatial_diff_values)spatial_diff_values
-        fuel_disaggregated=fuel_disagg['rs_fuel_disagg'])'''
