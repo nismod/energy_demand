@@ -517,7 +517,7 @@ def create_geopanda_files(
     except IOError:
         # Multiple scenario runs
         lad_geopanda_shp = gpd.read_file(path_shapefile_input)
-  
+
     # Attribute merge unique Key
     unique_merge_id = 'name' #'geo_code'
 
@@ -526,6 +526,9 @@ def create_geopanda_files(
     # ======================================
     simulated_yrs = list(results_container['load_factors_y'].keys())
 
+    print(len(results_container['load_factors_y'][2015]))
+    print(len(regions))
+    prnt(":")
     final_yr = simulated_yrs[-1]
     base_yr = simulated_yrs[0]
 
@@ -565,7 +568,7 @@ def create_geopanda_files(
             bins=bins,
             color_prop='qualitative',
             color_order=True,
-            color_zero='#ffffff') #"#8a2be2" ffffff
+            color_zero='#ffffff') #8a2be2
 
         plot_lad_national(
             lad_geopanda_shp=lad_geopanda_shp,

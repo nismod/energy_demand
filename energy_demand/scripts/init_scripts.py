@@ -237,7 +237,7 @@ def scenario_initalisation(path_data_ed, data=False):
 
     # Spatial explicit modelling
     if data['criterias']['spatial_exliclit_diffusion']:
-        import pprint
+        import pprint #KROKODIL TODO TODO
         logging.warning(pprint.pprint(rs_share_s_tech_ey_p))
         prnt(":")
         rs_reg_share_s_tech_ey_p, ss_reg_share_s_tech_ey_p, is_reg_share_s_tech_ey_p, spatial_diff_f, spatial_diff_values = spatial_diffusion.spatially_differentiated_modelling(

@@ -49,7 +49,7 @@ def main(path_data_energy_demand, path_shapefile_input):
     data['enduses'], data['assumptions'], data['reg_nrs'], data['regions'] = data_loader.load_ini_param(
         data['local_paths']['data_results'])
 
-    # Other information is read in TODO IMPROVE
+    # Other information is read in
     data['assumptions']['seasons'] = date_prop.get_season(year_to_model=2015)
     data['assumptions']['model_yeardays_daytype'], data['assumptions']['yeardays_month'], data['assumptions']['yeardays_month_days'] = date_prop.get_model_yeardays_daytype(year_to_model=2015)
 
@@ -100,9 +100,4 @@ def main(path_data_energy_demand, path_shapefile_input):
         data['assumptions'],
         data['enduses'])
 
-    logging.info("... finished reading and plotting results")
     print("... finished reading and plotting results")
-
-#main(os.path.abspath("C://Users//cenv0553//nismod//data_energy_demand"))
-#main(os.path.abspath("C://DATA_NISMODII//data_energy_demand"))
-#main("C:/Users/cenv0553/nismod/data_energy_demand")

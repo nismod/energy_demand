@@ -31,7 +31,7 @@ from energy_demand.basic import lookup_tables
 from energy_demand.geography import spatial_diffusion
 
 # must match smif project name for Local Authority Districts
-NR_OF_MODELLEd_REGIONS = 391 #391 # uk: 391, england.: 380
+NR_OF_MODELLEd_REGIONS = 406 # 391 #391 # uk: 391, england.: 380
 WRITEOUTSMIFRESULTS = False
 
 class EDWrapper(SectorModel):
@@ -59,7 +59,7 @@ class EDWrapper(SectorModel):
         # -----------
         data['criterias']['mode_constrained'] = True                    # True: Technologies are defined in ED model and fuel is provided, False: Heat is delievered not per technologies
         data['criterias']['virtual_building_stock_criteria'] = True     # True: Run virtual building stock model
-        data['criterias']['spatial_exliclit_diffusion'] = True         # True: Spatial explicit calculations
+        data['criterias']['spatial_exliclit_diffusion'] = False         # True: Spatial explicit calculations
 
         fast_smif_run = False
 
@@ -560,10 +560,10 @@ class EDWrapper(SectorModel):
         # ------------------------------------
         if WRITEOUTSMIFRESULTS:
             for key_name, result_to_txt in supply_results.items():
-                if NR_OF_MODELLEd_REGIONS != 391:
-                    # do not write out resutls
-                    logging.warning("NO SMIF RESULT FILE ARE WRITTEN OUT")
-                else:
+                #if NR_OF_MODELLEd_REGIONS != 391:
+                #    # do not write out resutls
+                #    logging.warning("NO SMIF RESULT FILE ARE WRITTEN OUT")
+                #else:
                     data_handle.set_results(
                         key_name,
                         result_to_txt)
