@@ -240,26 +240,31 @@ def scenario_initalisation(path_data_ed, data=False):
         import pprint #KROKODIL TODO TODO
         logging.warning(pprint.pprint(rs_share_s_tech_ey_p))
         #prnt(":")
-        rs_reg_share_s_tech_ey_p, ss_reg_share_s_tech_ey_p, is_reg_share_s_tech_ey_p, spatial_diff_f, spatial_diff_values = spatial_diffusion.spatially_differentiated_modelling(
+
+        # Calculate spatial diffusion factors
+        f_reg, f_reg_norm, f_reg_norm_abs = spatial_diffusion.calc_spatially_diffusion_factors(
+            regions=data['regions'],
+            fuel_disagg=fuel_disagg,
+            pop_density=data['pop_density'])
+
+        rs_reg_share_s_tech_ey_p, ss_reg_share_s_tech_ey_p, is_reg_share_s_tech_ey_p = spatial_diffusion.spatially_differentiated_modelling(
             regions=data['regions'],
             fuel_disagg=fuel_disagg,
             rs_share_s_tech_ey_p=rs_share_s_tech_ey_p,
             ss_share_s_tech_ey_p=ss_share_s_tech_ey_p,
             is_share_s_tech_ey_p=is_share_s_tech_ey_p,
             techs_affected_spatial_f=data['assumptions'].techs_affected_spatial_f,
-            pop_density=data['pop_density'])
+            spatial_diffusion_factor=f_reg_norm)
 
         regions = data['regions']
         rs_share_s_tech_ey_p = rs_reg_share_s_tech_ey_p
         ss_share_s_tech_ey_p = ss_reg_share_s_tech_ey_p
         is_share_s_tech_ey_p = is_reg_share_s_tech_ey_p
 
-        logging.warning(pprint.pprint(rs_share_s_tech_ey_p))
-        #prnt(":")
     else:
         regions = False
-        spatial_diff_f = False
-        spatial_diff_values = False
+        f_reg = False
+        f_reg_norm_abs = False
 
     # ---------------------------------------
     # Fuel switches
@@ -343,7 +348,7 @@ def scenario_initalisation(path_data_ed, data=False):
             # Check whether scenario varaible is regionally modelled
             if var_name not in data['assumptions'].spatially_modelled_vars:
 
-                #Variable is not spatially modelled
+                # Variable is not spatially modelled
                 for region in regions:
                     init_cont['regional_strategy_variables'][region][var_name] = {
                         'scenario_value': float(strategy_var['scenario_value']),
@@ -368,8 +373,9 @@ def scenario_initalisation(path_data_ed, data=False):
                 reg_specific_variables = spatial_diffusion.factor_improvements_single(
                     factor_uk=strategy_var['scenario_value'],
                     regions=data['regions'],
-                    spatial_factors=spatial_diff_f,
-                    spatial_diff_values=spatial_diff_values,
+                    f_reg=f_reg,
+                    f_reg_norm=f_reg_norm,
+                    f_reg_norm_abs=f_reg_norm_abs,
                     fuel_regs_enduse=fuels_reg)
 
                 for region in regions:
