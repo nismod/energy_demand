@@ -57,7 +57,7 @@ def get_share_s_tech_ey(
                 if switch.enduse not in enduses:
                     enduses.append(switch.enduse)
                     enduse_tech_ey_p[switch.enduse][reg] = {}
-           
+
             # Iterate all endusese and assign all lines
             for enduse in enduses:
                 for switch in switches:
@@ -76,6 +76,7 @@ def get_share_s_tech_ey(
             if switch.enduse not in enduses:
                 enduses.append(switch.enduse)
                 enduse_tech_ey_p[switch.enduse] = {}
+        print(service_switches)
 
         # Iterate all endusese and assign all lines
         for enduse in enduses:
@@ -308,7 +309,7 @@ def autocomplete_switches(
         specified_tech_enduse_by,
         spatial_exliclit_diffusion)
 
-    return reg_share_s_tech_ey_p, service_switches_out
+    return reg_share_s_tech_ey_p #, service_switches_out
 
 def capacity_switch(
         capacity_switches,
