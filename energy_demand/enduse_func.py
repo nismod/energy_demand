@@ -252,7 +252,8 @@ class Enduse(object):
                     assumptions.enduse_space_heating,
                     base_yr,
                     curr_yr,
-                    service_switches)
+                    service_switches,
+                    assumptions.crit_switch_happening)
 
                 # ------------------------------------
                 # Calculate regional energy service
@@ -689,7 +690,8 @@ def get_enduse_configuration(
         enduse_space_heating,
         base_yr,
         curr_yr,
-        service_switches
+        service_switches,
+        crit_switch_happening
     ):
     """Get enduse specific configuration
 
@@ -711,13 +713,24 @@ def get_enduse_configuration(
         mode_constrained,
         enduse_space_heating)
 
-    crit_switch_service = get_crit_switch(
+    if enduse in crit_switch_happening and base_yr != curr_yr:
+        if crit_switch_happening[enduse] != [None]:
+            crit_switch_service = True
+        else:
+            if sector in crit_switch_happening[enduse]:
+                crit_switch_service = True
+            else:
+                crit_switch_service = False
+    else:
+        crit_switch_service = False
+
+    '''crit_switch_service = get_crit_switch(
         enduse,
         sector,
         service_switches,
         base_yr,
         curr_yr,
-        mode_constrained)
+        mode_constrained)'''
 
     return mode_constrained, crit_switch_service
 

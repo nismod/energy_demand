@@ -472,7 +472,7 @@ def residential_submodel(
             # Configure and select correct Enduse() specific inputs
             # ------------------------------------------------------
             if criterias['spatial_exliclit_diffusion']:
-                service_switches = assumptions.rs_service_switch[enduse][region.name]
+                service_switches = assumptions.rs_service_switch[enduse][region.name] #TODO SWITCHES ARE NOT USED ACTUALLY
                 sig_param_tech = assumptions.rs_sig_param_tech[enduse][region.name]
 
                 strategy_variables = assumptions.regional_strategy_variables[region.name]
@@ -497,7 +497,7 @@ def residential_submodel(
                 enduse=enduse,
                 sector=sector,
                 fuel=region.rs_enduses_fuel[enduse],
-                s_tech_by_p=assumptions.rs_s_tech_by_p[enduse],
+                s_tech_by_p=assumptions.rs_s_tech_by_p[enduse], #TODO TODO REMOVE NOT REALLY NECESSARY
                 tech_stock=weather_region.rs_tech_stock,
                 heating_factor_y=weather_region.f_heat_rs_y,
                 cooling_factor_y=weather_region.f_cooling_rs_y,

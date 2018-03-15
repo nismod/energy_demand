@@ -87,8 +87,9 @@ def get_share_s_tech_ey(
         for enduse in specified_tech_enduse_by:
             if enduse not in enduse_tech_ey_p:
                 enduse_tech_ey_p[enduse] = {}
-
-    return dict(enduse_tech_ey_p)
+    
+    enduse_tech_ey_p = dict(enduse_tech_ey_p)
+    return enduse_tech_ey_p
 
 def create_switches_with_service_shares(
         enduse,
@@ -304,7 +305,7 @@ def autocomplete_switches(
         specified_tech_enduse_by,
         spatial_exliclit_diffusion)
 
-    return reg_share_s_tech_ey_p
+    return reg_share_s_tech_ey_p, service_switches_out
 
 def capacity_switch(
         capacity_switches,
@@ -541,7 +542,7 @@ def create_service_switch(
 
     return service_switches_enduse
 
-def get_fuel_switches_enduse(switches, enduse):
+def get_fuel_switches_enduse(switches, enduse, regional_specific=False):
     """Get all fuel switches of a specific enduse
 
     Arguments
@@ -556,11 +557,20 @@ def get_fuel_switches_enduse(switches, enduse):
     enduse_switches : list
         All switches of a specific enduse
     """
-    enduse_switches = []
+    
 
-    for fuel_switch in switches:
-        if fuel_switch.enduse == enduse:
-            enduse_switches.append(fuel_switch)
+    if regional_specific:
+        enduse_switches = {}
+        for reg in switches:
+            enduse_switches[reg] = []
+            for fuel_switch in switches[reg]:
+                if fuel_switch.enduse == enduse:
+                    enduse_switches[reg].append(fuel_switch)
+    else:
+        enduse_switches = []
+        for fuel_switch in switches:
+            if fuel_switch.enduse == enduse:
+                enduse_switches.append(fuel_switch)
 
     return enduse_switches
 

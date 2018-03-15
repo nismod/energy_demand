@@ -547,15 +547,16 @@ class Assumptions(object):
             paths['is_path_capacity_installation'])
 
         # TESTING IF SWITCHES DEFINITION IS CORRECT
-        #TODO KRODKODIL
-        testing_functions.switch_testing(
+        #TODO KRODKODIL DESCRIBE INT MORE DETAIL
+        all_enduses_with_switch = testing_functions.switch_testing(
             fuel_switches = [self.rs_fuel_switches, self.ss_fuel_switches, self.is_fuel_switches],
             service_switches = [self.rs_service_switches, self.ss_service_switches, self.is_service_switches],
             capacity_switches = [
                 self.capacity_switches['rs_capacity_switches'],
                 self.capacity_switches['ss_capacity_switches'], 
-                self.capacity_switches['is_capacity_switches']]
-        )
+                self.capacity_switches['is_capacity_switches']])
+
+        self.crit_switch_happening = all_enduses_with_switch
 
         # ========================================
         # General other assumptions

@@ -7,20 +7,44 @@ import logging
 def switch_testing(fuel_switches, service_switches, capacity_switches):
     """Test if swithes defined for same enduse
     """
+    all_switches_incl_sectors = {}
+
     enduses_fuel_switch = set([])
     for model_switch in fuel_switches:
         for switch in model_switch:
             enduses_fuel_switch.add(switch.enduse)
+
+            # Collect all enduses and affected sectors
+            if switch.enduse not in all_switches_incl_sectors:
+                all_switches_incl_sectors[switch.enduse] = set([])
+                all_switches_incl_sectors[switch.enduse].add(switch.sector)
+            else:
+                all_switches_incl_sectors[switch.enduse].add(switch.sector)
 
     enduses_service_switch = set([])
     for model_switch in service_switches:
         for switch in model_switch:
             enduses_service_switch.add(switch.enduse)
 
+            # Collect all enduses and affected sectors
+            if switch.enduse not in all_switches_incl_sectors:
+                all_switches_incl_sectors[switch.enduse] = set([])
+                all_switches_incl_sectors[switch.enduse].add(switch.sector)
+            else:
+                all_switches_incl_sectors[switch.enduse].add(switch.sector)
+
     enduses_capacity_switch = set([])
     for model_switch in capacity_switches:
         for switch in model_switch:
             enduses_capacity_switch.add(switch.enduse)
+
+            # Collect all enduses and affected sectors
+            if switch.enduse not in all_switches_incl_sectors:
+                all_switches_incl_sectors[switch.enduse] = set([])
+                all_switches_incl_sectors[switch.enduse].add(switch.sector)
+
+            else:
+                all_switches_incl_sectors[switch.enduse].add(switch.sector)
 
     enduses_fuel_switch = list(enduses_fuel_switch)
     enduses_service_switch = list(enduses_service_switch)
@@ -41,7 +65,10 @@ def switch_testing(fuel_switches, service_switches, capacity_switches):
         if enduse in enduses_fuel_switch or enduse in enduses_service_switch:
             logging.warning("Error: Enduse '%s' is defined in fuel switch and also in either service or capacity. Not possible", enduse)
             sys.exit()
-    
+
+    for enduse in all_switches_incl_sectors:
+        all_switches_incl_sectors[enduse] = list(all_switches_incl_sectors[enduse])
+    return all_switches_incl_sectors
 
 def test_region_selection(ed_fueltype_regs_yh):
     """function to see whether if only some days are selected
