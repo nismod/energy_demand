@@ -472,14 +472,12 @@ def residential_submodel(
             # Configure and select correct Enduse() specific inputs
             # ------------------------------------------------------
             if criterias['spatial_exliclit_diffusion']:
-                service_switches = assumptions.rs_service_switch[enduse][region.name] #TODO SWITCHES ARE NOT USED ACTUALLY
+                #service_switches = assumptions.rs_service_switch[enduse][region.name] #TODO SWITCHES ARE NOT USED ACTUALLY
                 sig_param_tech = assumptions.rs_sig_param_tech[enduse][region.name]
-
                 strategy_variables = assumptions.regional_strategy_variables[region.name]
             else:
-                service_switches = assumptions.rs_service_switch[enduse]
+                #service_switches = assumptions.rs_service_switch[enduse]
                 sig_param_tech = assumptions.rs_sig_param_tech[enduse]
-
                 strategy_variables = assumptions.strategy_variables
 
             # ------------------------------------------------------
@@ -501,7 +499,7 @@ def residential_submodel(
                 tech_stock=weather_region.rs_tech_stock,
                 heating_factor_y=weather_region.f_heat_rs_y,
                 cooling_factor_y=weather_region.f_cooling_rs_y,
-                service_switches=service_switches,
+                #service_switches=service_switches,
                 fuel_fueltype_tech_p_by=assumptions.rs_fuel_tech_p_by[enduse],
                 sig_param_tech=sig_param_tech,
                 criterias=criterias,
@@ -554,14 +552,12 @@ def service_submodel(
             # Configure and select correct Enduse() specific inputs
             # ------------------------------------------------------
             if criterias['spatial_exliclit_diffusion']:
-                service_switches = assumptions.ss_service_switch[enduse][sector][region.name]
+                #service_switches = assumptions.ss_service_switch[enduse][sector][region.name]
                 sig_param_tech = assumptions.ss_sig_param_tech[enduse][sector][region.name]
-
                 strategy_variables = assumptions.regional_strategy_variables[region.name]
             else:
-                service_switches = assumptions.ss_service_switch[enduse][sector]
+                #service_switches = assumptions.ss_service_switch[enduse][sector]
                 sig_param_tech = assumptions.ss_sig_param_tech[enduse][sector]
-
                 strategy_variables = assumptions.strategy_variables
 
             # ------------------------------------------------------
@@ -583,7 +579,7 @@ def service_submodel(
                 tech_stock=weather_region.ss_tech_stock,
                 heating_factor_y=weather_region.f_heat_ss_y,
                 cooling_factor_y=weather_region.f_cooling_ss_y,
-                service_switches=service_switches,
+                #service_switches=service_switches,
                 fuel_fueltype_tech_p_by=assumptions.ss_fuel_tech_p_by[enduse][sector],
                 sig_param_tech=sig_param_tech,
                 criterias=criterias,
@@ -645,14 +641,12 @@ def industry_submodel(
                 flat_profile_crit = True
 
             if criterias['spatial_exliclit_diffusion']:
-                service_switches = assumptions.is_service_switch[enduse][sector][region.name]
+                #service_switches = assumptions.is_service_switch[enduse][sector][region.name]
                 sig_param_tech = assumptions.is_sig_param_tech[enduse][sector][region.name]
-
                 strategy_variables = assumptions.regional_strategy_variables[region.name]
             else:
-                service_switches = assumptions.is_service_switch[enduse][sector]
+                #service_switches = assumptions.is_service_switch[enduse][sector]
                 sig_param_tech = assumptions.is_sig_param_tech[enduse][sector]
-
                 strategy_variables = assumptions.strategy_variables
 
             # ------------------------------------------------------
@@ -674,7 +668,7 @@ def industry_submodel(
                 tech_stock=weather_region.is_tech_stock,
                 heating_factor_y=weather_region.f_heat_is_y,
                 cooling_factor_y=weather_region.f_cooling_is_y,
-                service_switches=service_switches,
+                #service_switches=service_switches,
                 fuel_fueltype_tech_p_by=assumptions.is_fuel_tech_p_by[enduse][sector],
                 sig_param_tech=sig_param_tech,
                 enduse_overall_change=assumptions.enduse_overall_change,

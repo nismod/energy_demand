@@ -179,7 +179,6 @@ def scenario_initalisation(path_data_ed, data=False):
     #
     # Calculate spatial diffusion factors
     # ===========================================
- 
     if data['criterias']['spatial_exliclit_diffusion']:
         #TODO MAYBE f_reg enduse region specific
         f_reg, f_reg_norm, f_reg_norm_abs = spatial_diffusion.calc_spatially_diffusion_factors(
@@ -296,9 +295,9 @@ def scenario_initalisation(path_data_ed, data=False):
         # Because both national, possible
     
     # out switches
-    rs_out = rs_service_switches_from_capacity
-    ss_out = ss_service_switches_from_capacity
-    is_out = is_service_switches_from_capacity
+    #rs_out = rs_service_switches_from_capacity
+    #ss_out = ss_service_switches_from_capacity
+    #is_out = is_service_switches_from_capacity
 
     # ======================
     # Service switches
@@ -942,7 +941,6 @@ def sig_param_calc_incl_fuel_switch(
 
         if regional_specific:
 
-            logging.info(service_switches_out)
             # Get year of switches
             for region in regions:
                 for switch in service_switches_out[region]:
@@ -976,6 +974,7 @@ def sig_param_calc_incl_fuel_switch(
                 l_values_sig,
                 s_tech_by_p,
                 s_tech_switched_p)
+        logging.info("... moving on")
     else:
         pass #no switches are defined
 

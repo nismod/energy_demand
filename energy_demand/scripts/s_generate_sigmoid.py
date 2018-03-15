@@ -585,6 +585,14 @@ def tech_sigmoid_parameters(
                 l_values[tech],
                 point_y_by, point_y_ey)'''
 
+            # If difference is smaller than a certain share, approximate with linear TODO NEW
+            linear_approx_crit = 0.001
+            if abs(ydata[1] - ydata[0]) < linear_approx_crit: #
+                logging.debug("Linear approximation...")
+                sig_params[tech]['midpoint'] = 'linear'
+                sig_params[tech]['steepness'] = 'linear'
+                sig_params[tech]['l_parameter'] = 'linear'
+
             # If no change in by to ey but not zero (lineare change)
             if (round(point_y_by, rounding_accuracy) == round(point_y_ey, rounding_accuracy)) and (
                     point_y_ey != fit_assump_init) and (

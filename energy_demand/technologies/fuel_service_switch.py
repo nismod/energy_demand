@@ -160,11 +160,11 @@ def autocomplete_switches(
         regions=False,
         f_diffusion=False,
         techs_affected_spatial_f=False,
-        service_switches_from_capacity=False
+        service_switches_from_capacity=[]
     ):
     """Add not defined technologies in switches
     and set correct future service share.
-    
+
     If the defined service switches do not sum up to 100% service,
     the remaining service is distriputed proportionally
     to all remaining technologies.
@@ -223,16 +223,16 @@ def autocomplete_switches(
                             # if larger than max crit, set to 1 TODO
                             max_crit = 1
                             if service_share_ey_regional > max_crit:
-
                                 service_share_ey_regional = max_crit
-        
+
                             if s_tot_defined + service_share_ey_regional > 1.0:
-                                print("ERROR: MORE THAN ONE TECHNOLOG SWICHED WITH LARGER SHARE")
+                                logging.warning("ERROR: MORE THAN ONE TECHNOLOG SWICHED WITH LARGER SHARE: ")
+                                logging.warning(" {}  {} {}".format(s_tot_defined, service_share_ey_regional, s_tot_defined + service_share_ey_regional))
                                 prnt(".")
 
-                            logging.warning("A %s  %s", region, switch.technology_install)
-                            logging.warning(service_share_ey_global)
-                            logging.warning(service_share_ey_regional)
+                            #logging.debug("A %s  %s", region, switch.technology_install)
+                            #logging.debug(service_share_ey_global)
+                            #logging.debug(service_share_ey_regional)
                         else:
                             service_share_ey_regional = switch.service_share_ey
 
@@ -294,6 +294,9 @@ def autocomplete_switches(
             #service_switches_out[region].extend(switches_new)
             service_switches_out.extend(switches_new)
             
+            logging.info(service_switches_out)
+            logging.info("---")
+            logging.info(service_switches_from_capacity)
             # Append regional other capacity switches
             service_switches_out.extend(service_switches_from_capacity)
 

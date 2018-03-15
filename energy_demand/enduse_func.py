@@ -107,7 +107,7 @@ class Enduse(object):
             tech_stock,
             heating_factor_y,
             cooling_factor_y,
-            service_switches,
+            #service_switches,
             fuel_fueltype_tech_p_by,
             sig_param_tech,
             enduse_overall_change,
@@ -252,7 +252,7 @@ class Enduse(object):
                     assumptions.enduse_space_heating,
                     base_yr,
                     curr_yr,
-                    service_switches,
+                    #service_switches,
                     assumptions.crit_switch_happening)
 
                 # ------------------------------------
@@ -690,7 +690,7 @@ def get_enduse_configuration(
         enduse_space_heating,
         base_yr,
         curr_yr,
-        service_switches,
+        #service_switches,
         crit_switch_happening
     ):
     """Get enduse specific configuration
