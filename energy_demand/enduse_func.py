@@ -245,6 +245,7 @@ class Enduse(object):
                 # ----
                 # Get enduse specific configurations
                 # ----
+                
                 mode_constrained, crit_switch_service = get_enduse_configuration(
                     criterias['mode_constrained'],
                     enduse,
@@ -255,6 +256,7 @@ class Enduse(object):
                     #service_switches,
                     assumptions.crit_switch_happening)
 
+                logging.info("TEST CIRT: {}".format(crit_switch_service))
                 # ------------------------------------
                 # Calculate regional energy service
                 # ------------------------------------
@@ -294,7 +296,7 @@ class Enduse(object):
                 # Switches
                 # --------------------------------
                 if crit_switch_service:
-
+                    logging.info("fds {} {}  {}".format(sig_param_tech, enduse, sector))
                     # Convert aggregated sector service percentages to sector service percentages
                     # Calculate service difference between by and ey for every tech as a factor
                     s_tech_y_cy = calc_service_switch(
@@ -714,7 +716,11 @@ def get_enduse_configuration(
         enduse_space_heating)
 
     if enduse in crit_switch_happening and base_yr != curr_yr:
-        if crit_switch_happening[enduse] != [None]:
+        logging.info("ENDUSE IN CRITSWITHCHAPP " + str(crit_switch_happening[enduse]))
+        
+        #if crit_switch_happening[enduse] != [None]:
+        #    crit_switch_service = True
+        if sector == False: #TODO NEW
             crit_switch_service = True
         else:
             if sector in crit_switch_happening[enduse]:

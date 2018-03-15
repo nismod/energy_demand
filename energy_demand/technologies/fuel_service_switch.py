@@ -227,10 +227,14 @@ def autocomplete_switches(
                                 service_share_ey_regional = max_crit
 
                             if s_tot_defined + service_share_ey_regional > 1.0:
-                                logging.warning("ERROR: MORE THAN ONE TECHNOLOG SWICHED WITH LARGER SHARE: ")
-                                logging.warning(" {}  {} {}".format(s_tot_defined, service_share_ey_regional, s_tot_defined + service_share_ey_regional))
-                                prnt(".")
 
+                                #TODO IMPROVE THAT ROUNDING 1 .. make nicer
+                                if round(s_tot_defined + service_share_ey_regional) > 1:
+                                    logging.warning("ERROR: MORE THAN ONE TECHNOLOG SWICHED WITH LARGER SHARE: ")
+                                    logging.warning(" {}  {} {}".format(s_tot_defined, service_share_ey_regional, s_tot_defined + service_share_ey_regional))
+                                    prnt(".")
+                                else:
+                                    service_share_ey_regional = max_crit - service_share_ey_regional #TODO NEW
                             #logging.debug("A %s  %s", region, switch.technology_install)
                             #logging.debug(service_share_ey_global)
                             #logging.debug(service_share_ey_regional)
@@ -295,9 +299,9 @@ def autocomplete_switches(
             #service_switches_out[region].extend(switches_new)
             service_switches_out.extend(switches_new)
             
-            logging.info(service_switches_out)
-            logging.info("---")
-            logging.info(service_switches_from_capacity)
+            #logging.info(service_switches_out)
+            #logging.info("---")
+            #logging.info(service_switches_from_capacity)
             # Append regional other capacity switches
             service_switches_out.extend(service_switches_from_capacity)
 
@@ -309,7 +313,7 @@ def autocomplete_switches(
         specified_tech_enduse_by,
         spatial_exliclit_diffusion)
 
-    return reg_share_s_tech_ey_p #, service_switches_out
+    return reg_share_s_tech_ey_p, service_switches_out
 
 def capacity_switch(
         capacity_switches,
@@ -566,8 +570,10 @@ def get_fuel_switches_enduse(switches, enduse, regional_specific=False):
     if regional_specific:
         enduse_switches = {}
         for reg in switches:
+            #logging.warning("REG: " + str(reg))
             enduse_switches[reg] = []
             for fuel_switch in switches[reg]:
+                #logging.warning("ff: " + str(fuel_switch))
                 if fuel_switch.enduse == enduse:
                     enduse_switches[reg].append(fuel_switch)
     else:
