@@ -158,7 +158,8 @@ def autocomplete_switches(
         spatial_exliclit_diffusion=False,
         regions=False,
         f_diffusion=False,
-        techs_affected_spatial_f=False
+        techs_affected_spatial_f=False,
+        service_switches_from_capacity=False
     ):
     """Add not defined technologies in switches
     and set correct future service share.
@@ -196,6 +197,9 @@ def autocomplete_switches(
         for region in regions:
             service_switches_out[region] = []
 
+            # Append regional other capacity switches
+            service_switches_out[region].extend(service_switches_from_capacity[region])
+
             for enduse in enduses:
 
                 # Get all switches of this enduse
@@ -206,7 +210,7 @@ def autocomplete_switches(
                 for switch in service_switches:
                     if switch.enduse == enduse:
 
-                        # Global share of technolog diffusion
+                        # Global share of technology diffusion
                         service_share_ey_global = switch.service_share_ey
 
                         # IF technology is affected by spatial exlicit diffusion
@@ -224,6 +228,7 @@ def autocomplete_switches(
                             if s_tot_defined + service_share_ey_regional > 1.0:
                                 print("ERROR: MORE THAN ONE TECHNOLOG SWICHED WITH LARGER SHARE")
                                 prnt(".")
+
                             logging.warning("A %s  %s", region, switch.technology_install)
                             logging.warning(service_share_ey_global)
                             logging.warning(service_share_ey_regional)
@@ -242,6 +247,7 @@ def autocomplete_switches(
                         enduse_switches.append(switch_new)
                         switch_yr = switch.switch_yr
 
+                    # Create switch
                     switches_new = create_switches_with_service_shares(
                         enduse=enduse,
                         s_tech_by_p=s_tech_by_p,
@@ -254,6 +260,7 @@ def autocomplete_switches(
 
                     # Append all to list
                     service_switches_out[region].extend(switches_new)
+
     else:
         service_switches_out = []
 
@@ -283,10 +290,14 @@ def autocomplete_switches(
                 switch_yr=switch_yr)
 
             # Append all to list
-            service_switches_out[region].extend(switches_new)
+            #service_switches_out[region].extend(switches_new)
+            service_switches_out.extend(switches_new)
+            
+            # Append regional other capacity switches
+            service_switches_out.extend(service_switches_from_capacity)
 
     # ==============
-    #  TODO MOVED HERE
+    # TODO MOVED HERE
     # ================
     reg_share_s_tech_ey_p = get_share_s_tech_ey(
         service_switches_out,
@@ -304,12 +315,20 @@ def capacity_switch(
         base_yr
     ):
     """Create service switches based on assumption on
-    changes in installed fuel capacity ("capacty switches").
+    changes in installed fuel capacity (`capacty switches`).
     Service switch are calculated based on the assumed
     capacity installation (in absolute GW) of technologies.
     Assumptions on capacities are defined in the
     CSV file `xx_capacity_switch.csv`
 
+    Note
+    -----
+    TODO: With the information about the installed capacity
+    only the change in percentage in end year gets calulated.
+    This means that there is not absolute change in demand (
+        e.g. you cant add additional demand of an existing technology
+        --> It is only a switch
+    )
     Arguments
     ---------
     capacity_switches : list
@@ -338,15 +357,11 @@ def capacity_switch(
     # Get all affected enduses of capacity switches
     switch_enduses = set([])
     for switch in capacity_switches:
-        logging.warning(capacity_switches)
-        logging.warning("--")
-        logging.warning(switch)
         switch_enduses.add(switch.enduse)
     switch_enduses = list(switch_enduses)
 
     if switch_enduses == []:
-        # not capacity switch defined
-        service_switches = []
+        service_switches = [] # not capacity switch defined
     else:
         # List to store service switches
         service_switches = []
@@ -362,7 +377,6 @@ def capacity_switch(
             # Iterate capacity switches
             for switch in enduse_capacity_switches:
 
-                # Test if sector specific switch
                 if switch.sector is None:
 
                     # Check depth of dict
@@ -381,7 +395,7 @@ def capacity_switch(
                         fuel_to_use = sum_fuel_across_sectors(fuels[enduse])
                         sector = None
                 else:
-                    # Get fuel share speifically for the enduse and sector
+                    # Get fuel share specifically for the enduse and sector
                     fuel_shares = fuel_shares_enduse_by[enduse][switch.sector]
                     fuel_to_use = fuels[enduse]
                     sector = switch.sector
@@ -443,7 +457,7 @@ def create_service_switch(
     Major steps
     -------
         1.  Convert fuel per technology to service in ey
-        2.  Convert installed capacity to service of ey and add this
+        2.  Convert installed capacity to service of ey and add service
         3.  Calculate percentage of service for ey
         4.  Write out as service switch
 
@@ -485,23 +499,23 @@ def create_service_switch(
     # Calculate service of installed capacity of increased
     # (installed) technologies
     # -------------------------------------------
-    for capacity_switch in enduse_capacity_switches:
+    for switch in enduse_capacity_switches:
 
         eff_ey = tech_related.calc_eff_cy(
             base_yr,
-            capacity_switch.switch_yr,
-            technologies[capacity_switch.technology_install].eff_by,
-            technologies[capacity_switch.technology_install].eff_ey,
-            technologies[capacity_switch.technology_install].year_eff_ey,
+            switch.switch_yr,
+            technologies[switch.technology_install].eff_by,
+            technologies[switch.technology_install].eff_ey,
+            technologies[switch.technology_install].year_eff_ey,
             other_enduse_mode_info,
-            technologies[capacity_switch.technology_install].eff_achieved,
-            technologies[capacity_switch.technology_install].diff_method)
+            technologies[switch.technology_install].eff_achieved,
+            technologies[switch.technology_install].diff_method)
 
         # Convert installed capacity to service
-        installed_capacity_ey = capacity_switch.installed_capacity * eff_ey
+        installed_capacity_ey = switch.installed_capacity * eff_ey
 
         # Add capacity
-        service_enduse_tech[capacity_switch.technology_install] += installed_capacity_ey
+        service_enduse_tech[switch.technology_install] += installed_capacity_ey
 
     # -------------------------------------------
     # Calculate service in % per enduse

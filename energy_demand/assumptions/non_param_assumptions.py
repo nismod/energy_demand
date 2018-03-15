@@ -538,13 +538,24 @@ class Assumptions(object):
             paths['is_path_industry_switch'], self.technologies)
 
         # Read in scenaric capacity switches
-        self.capacity_switches = {}
+        self.capacity_switches = {} #TODO WHY THE OTHER ONES NOT DICT??
         self.capacity_switches['rs_capacity_switches'] = read_data.read_capacity_switch(
             paths['rs_path_capacity_installation'])
         self.capacity_switches['ss_capacity_switches'] = read_data.read_capacity_switch(
             paths['ss_path_capacity_installation'])
         self.capacity_switches['is_capacity_switches'] = read_data.read_capacity_switch(
             paths['is_path_capacity_installation'])
+
+        # TESTING IF SWITCHES DEFINITION IS CORRECT
+        #TODO KRODKODIL
+        testing_functions.switch_testing(
+            fuel_switches = [self.rs_fuel_switches, self.ss_fuel_switches, self.is_fuel_switches],
+            service_switches = [self.rs_service_switches, self.ss_service_switches, self.is_service_switches],
+            capacity_switches = [
+                self.capacity_switches['rs_capacity_switches'],
+                self.capacity_switches['ss_capacity_switches'], 
+                self.capacity_switches['is_capacity_switches']]
+        )
 
         # ========================================
         # General other assumptions

@@ -2,6 +2,46 @@
 """
 import sys
 import numpy as np
+import logging
+
+def switch_testing(fuel_switches, service_switches, capacity_switches):
+    """Test if swithes defined for same enduse
+    """
+    enduses_fuel_switch = set([])
+    for model_switch in fuel_switches:
+        for switch in model_switch:
+            enduses_fuel_switch.add(switch.enduse)
+
+    enduses_service_switch = set([])
+    for model_switch in service_switches:
+        for switch in model_switch:
+            enduses_service_switch.add(switch.enduse)
+
+    enduses_capacity_switch = set([])
+    for model_switch in capacity_switches:
+        for switch in model_switch:
+            enduses_capacity_switch.add(switch.enduse)
+
+    enduses_fuel_switch = list(enduses_fuel_switch)
+    enduses_service_switch = list(enduses_service_switch)
+    enduses_capacity_switch = list(enduses_capacity_switch)
+
+    # Test if same enduses in any list
+    for enduse in enduses_fuel_switch:
+        if enduse in enduses_service_switch or enduse in enduses_capacity_switch:
+            logging.warning("Error: Enduse '%s' is defined in fuel switch and also in either service or capacity. Not possible", enduse)
+            sys.exit()
+
+    for enduse in enduses_service_switch:
+        if enduse in enduses_fuel_switch or enduse in enduses_capacity_switch:
+            logging.warning("Error: Enduse '%s' is defined in fuel switch and also in either service or capacity. Not possible", enduse)
+            sys.exit()
+
+    for enduse in enduses_capacity_switch:
+        if enduse in enduses_fuel_switch or enduse in enduses_service_switch:
+            logging.warning("Error: Enduse '%s' is defined in fuel switch and also in either service or capacity. Not possible", enduse)
+            sys.exit()
+    
 
 def test_region_selection(ed_fueltype_regs_yh):
     """function to see whether if only some days are selected

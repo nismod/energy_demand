@@ -1823,7 +1823,6 @@ def calc_service_switch(
             sig_param_tech[tech], curr_yr)
 
         if s_tech_cy_p == 'identical':
-             #service_service_all_techs * s_tech_by_p[tech]
             switched_s_tech_y_cy[tech] = s_tech_y_cy[tech]
         else:
             switched_s_tech_y_cy[tech] = service_service_all_techs * s_tech_cy_p
