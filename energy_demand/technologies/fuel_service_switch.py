@@ -5,6 +5,7 @@ from collections import defaultdict
 from energy_demand.technologies import tech_related
 from energy_demand.read_write import read_data
 from energy_demand.basic import basic_functions
+import pprint
 
 def sum_fuel_across_sectors(enduse_fuels):
     """Sum fuel across sectors of an enduse if multiple sectors.
@@ -578,6 +579,7 @@ def get_fuel_switches_enduse(switches, enduse, regional_specific=False):
                     enduse_switches[reg].append(fuel_switch)
     else:
         enduse_switches = []
+        logging.warning("switches: " + str(pprint.pprint(switches)))
         for fuel_switch in switches:
             if fuel_switch.enduse == enduse:
                 enduse_switches.append(fuel_switch)

@@ -53,11 +53,8 @@ def global_to_reg_capacity_switch(regions, global_capactiy_switch, spatial_facto
                     installed_capacity=regional_capacity,
                     sector=switch.sector)
 
-            #reg_capacity_switch[enduse].append(new_switch)
             reg_capacity_switch[region].append(new_switch)
 
-        print("TEST: " + str(test))
-        print(global_capacity)
     return reg_capacity_switch
 
 def scenario_initalisation(path_data_ed, data=False):
@@ -544,7 +541,7 @@ def scenario_initalisation(path_data_ed, data=False):
                 data['technologies'],
                 enduse=enduse,
                 fuel_switches=data['assumptions'].rs_fuel_switches, 
-                service_switches=init_cont['rs_service_switches'], #TODO CHECK THIS ONE
+                service_switches=rs_switches_autocompleted, #init_cont['rs_service_switches'], #TODO CHECK THIS ONE
                 s_tech_by_p=init_cont['rs_s_tech_by_p'][enduse],
                 s_fueltype_by_p=init_cont['rs_s_fueltype_by_p'][enduse],
                 share_s_tech_ey_p=rs_share_s_tech_ey_p[enduse],
@@ -565,7 +562,7 @@ def scenario_initalisation(path_data_ed, data=False):
                     data['technologies'],
                     enduse=enduse,
                     fuel_switches=data['assumptions'].ss_fuel_switches,
-                    service_switches=init_cont['ss_service_switches'],
+                    service_switches=ss_switches_autocompleted[sector], #init_cont['ss_service_switches'],
                     s_tech_by_p=init_cont['ss_s_tech_by_p'][sector][enduse],
                     s_fueltype_by_p=init_cont['ss_s_fueltype_by_p'][sector][enduse],
                     share_s_tech_ey_p=ss_share_s_tech_ey_p[sector][enduse],
@@ -589,7 +586,7 @@ def scenario_initalisation(path_data_ed, data=False):
                     data['technologies'],
                     enduse=enduse,
                     fuel_switches=data['assumptions'].is_fuel_switches,
-                    service_switches=init_cont['is_service_switches'],
+                    service_switches=is_switches_autocompleted[sector], #init_cont['is_service_switches'],
                     s_tech_by_p=init_cont['is_s_tech_by_p'][sector][enduse],
                     s_fueltype_by_p=init_cont['is_s_fueltype_by_p'][sector][enduse],
                     share_s_tech_ey_p=is_share_s_tech_ey_p[sector][enduse],
@@ -833,8 +830,8 @@ def sig_param_calc_incl_fuel_switch(
     #logging.info("ffffffffff")
     #logging.info(fuel_switches)
     #logging.info("sssssssssss")
-    #logging.info(service_switches)
-    #logging.info("fffffffffffffffffff")
+    logging.info(service_switches)
+    logging.info("fffffffffffffffffff")
     #logging.info(service_switches_enduse)
     '''
 
@@ -862,7 +859,6 @@ def sig_param_calc_incl_fuel_switch(
             service_switches_out[region] = service_switches_enduse[region]
     else:
         service_switches_out = service_switches_enduse'''
-    
 
     sig_param_tech = {}
     service_switches_out = {} #REMOVE ENTIRELy
@@ -873,8 +869,6 @@ def sig_param_calc_incl_fuel_switch(
     else:
         service_switches_out = service_switches_enduse
 
-    #logging.info("bbbbbbbbbb")
-    #logging.info(service_switches_out)
     if enduse in crit_switch_happening:
         logging.info("EfffIN CRITSWITHCHAPP {}  {}".format(crit_switch_happening[enduse], sector))
         if not sector:
@@ -992,7 +986,7 @@ def sig_param_calc_incl_fuel_switch(
 
     if crit_switch_service or crit_fuel_switch:
         logging.info("---------- switches %s %s %s", enduse, crit_switch_service, crit_fuel_switch)
-
+        logging.info(service_switches_out)
         # Calculates parameters for sigmoid diffusion of
         # technologies which are switched to/installed. With
         # `regional_specific` the assumption can be changed that
