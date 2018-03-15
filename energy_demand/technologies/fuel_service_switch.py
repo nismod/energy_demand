@@ -338,12 +338,15 @@ def capacity_switch(
     # Get all affected enduses of capacity switches
     switch_enduses = set([])
     for switch in capacity_switches:
+        logging.warning(capacity_switches)
+        logging.warning("--")
+        logging.warning(switch)
         switch_enduses.add(switch.enduse)
     switch_enduses = list(switch_enduses)
 
     if switch_enduses == []:
+        # not capacity switch defined
         service_switches = []
-        pass # not capacity switch defined
     else:
         # List to store service switches
         service_switches = []
@@ -590,40 +593,43 @@ def capacity_to_service_switches(assumptions, fuels, base_yr):
         Fuels
     base_yr : int
         Base year
+    
+    Returns
+    -------
+    container : dict
+        Result container
     """
     #TODO REALLY SUMMING AND ADDING?
-    capacity_switches = {}
-    #capacity_switches['rs_service_switches'] = capacity_switch(
+    container = {}
+    logging.warning("tt")
+    logging.warning(assumptions.capacity_switches['rs_capacity_switches'])
+    logging.warning("ddddddd")
+
     rs_service_switches = capacity_switch(
-        #assumptions.rs_service_switches,
         assumptions.capacity_switches['rs_capacity_switches'],
         assumptions.technologies,
         assumptions.enduse_overall_change['other_enduse_mode_info'],
         fuels['rs_fuel_raw'],
         assumptions.rs_fuel_tech_p_by,
         base_yr)
-    capacity_switches['rs_service_switches'] = rs_service_switches + assumptions.rs_service_switches
+    container['rs_service_switches'] = rs_service_switches + assumptions.rs_service_switches
 
-    #capacity_switches['ss_service_switches'] = capacity_switch(
     ss_service_switches = capacity_switch(
-        #assumptions.ss_service_switches,
         assumptions.capacity_switches['ss_capacity_switches'],
         assumptions.technologies,
         assumptions.enduse_overall_change['other_enduse_mode_info'],
         fuels['ss_fuel_raw'],
         assumptions.ss_fuel_tech_p_by,
         base_yr)
-    capacity_switches['rs_service_switches'] = rs_service_switches + assumptions.rs_service_switches
+    container['ss_service_switches'] = ss_service_switches + assumptions.ss_service_switches
 
-    #capacity_switches['is_service_switches'] = capacity_switch(
     is_service_switches = capacity_switch(
-        #assumptions.is_service_switches,
         assumptions.capacity_switches['is_capacity_switches'],
         assumptions.technologies,
         assumptions.enduse_overall_change['other_enduse_mode_info'],
         fuels['is_fuel_raw'],
         assumptions.is_fuel_tech_p_by,
         base_yr)
-    capacity_switches['is_service_switches'] = is_service_switches + assumptions.is_service_switches
+    container['is_service_switches'] = is_service_switches + assumptions.is_service_switches
 
-    return capacity_switches
+    return container
