@@ -633,7 +633,7 @@ class Assumptions(object):
         """
         setattr(self, name, value)
 
-def update_assumptions(
+def update_technology_assumption(
         technologies,
         factor_achieved,
         split_hp_gshp_to_ashp_ey

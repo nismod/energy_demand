@@ -495,7 +495,7 @@ def residential_submodel(
                 enduse=enduse,
                 sector=sector,
                 fuel=region.rs_enduses_fuel[enduse],
-                s_tech_by_p=assumptions.rs_s_tech_by_p[enduse], #TODO TODO REMOVE NOT REALLY NECESSARY
+                #s_tech_by_p=assumptions.rs_s_tech_by_p[enduse], #TODO TODO REMOVE NOT REALLY NECESSARY
                 tech_stock=weather_region.rs_tech_stock,
                 heating_factor_y=weather_region.f_heat_rs_y,
                 cooling_factor_y=weather_region.f_cooling_rs_y,
@@ -575,7 +575,7 @@ def service_submodel(
                 enduse=enduse,
                 sector=sector,
                 fuel=region.ss_enduses_sectors_fuels[enduse][sector],
-                s_tech_by_p=assumptions.ss_s_tech_by_p[sector][enduse], #SECTOR SPECIFIC
+                #s_tech_by_p=assumptions.ss_s_tech_by_p[sector][enduse], #SECTOR SPECIFIC
                 tech_stock=weather_region.ss_tech_stock,
                 heating_factor_y=weather_region.f_heat_ss_y,
                 cooling_factor_y=weather_region.f_cooling_ss_y,
@@ -661,7 +661,7 @@ def industry_submodel(
                 enduse=enduse,
                 sector=sector,
                 fuel=region.is_enduses_sectors_fuels[enduse][sector],
-                s_tech_by_p=assumptions.is_s_tech_by_p[sector][enduse],
+                #s_tech_by_p=assumptions.is_s_tech_by_p[sector][enduse],
                 tech_stock=weather_region.is_tech_stock,
                 heating_factor_y=weather_region.f_heat_is_y,
                 cooling_factor_y=weather_region.f_cooling_is_y,

@@ -101,7 +101,7 @@ class Enduse(object):
             enduse,
             sector,
             fuel,
-            s_tech_by_p,
+            #s_tech_by_p,
             tech_stock,
             heating_factor_y,
             cooling_factor_y,
@@ -287,8 +287,9 @@ class Enduse(object):
                 # Calculate services per technology for cy based on fitted parameters
                 # --------------------------------
                 s_tech_y_cy = calc_service_switch(
+                    enduse,
                     s_tech_y_cy,
-                    s_tech_by_p,
+                    #s_tech_by_p,
                     self.enduse_techs,
                     sig_param_tech,
                     curr_yr,
@@ -1760,8 +1761,9 @@ def get_service_diffusion(sig_param_tech, curr_yr):
     return s_tech_p
 
 def calc_service_switch(
+        enduse,
         s_tech_y_cy,
-        s_tech_by_p,
+        #s_tech_by_p,
         all_technologies,
         sig_param_tech,
         curr_yr,
@@ -1794,6 +1796,9 @@ def calc_service_switch(
     switched_s_tech_y_cy : dict
         Service per technology in current year after switch in a year
     """
+    # ----------------------------------------
+    # Test wheter swich is defined or not
+    # ----------------------------------------
     #TODO THIS IS ALSO DONE ELSWHERE I GUESS
     if enduse in crit_switch_happening and base_yr != curr_yr:
         if not sector:
@@ -1805,13 +1810,16 @@ def calc_service_switch(
                 crit_switch_service = False
     else:
         crit_switch_service = False
-    
+
+    # ----------------------------------------
+    # Calculate switch
+    # ----------------------------------------
     if crit_switch_service:
 
         switched_s_tech_y_cy = {}
 
         # Service of all technologies
-        service_service_all_techs = sum(s_tech_y_cy.values())
+        service_all_techs = sum(s_tech_y_cy.values())
 
         for tech in all_technologies:
 
@@ -1822,21 +1830,21 @@ def calc_service_switch(
             if s_tech_cy_p == 'identical':
                 switched_s_tech_y_cy[tech] = s_tech_y_cy[tech]
             else:
-                switched_s_tech_y_cy[tech] = service_service_all_techs * s_tech_cy_p
+                switched_s_tech_y_cy[tech] = service_all_techs * s_tech_cy_p
 
             '''logging.debug(
                 "%s - %s - %s - %s - %s",
                 curr_yr,
                 s_tech_cy_p,
                 sig_param_tech[tech],
-                service_service_all_techs,
+                service_all_techs,
                 switched_s_tech_y_cy[tech])'''
 
-            if s_tech_by_p[tech] * service_service_all_techs > 0 and sig_param_tech[tech]['steepness'] is None:
-                sys.exit("Error in service switch")
+            #if s_tech_by_p[tech] * service_all_techs > 0 and sig_param_tech[tech]['steepness'] is None:
+            #    sys.exit("Error in service switch")
 
             assert switched_s_tech_y_cy[tech] >= 0
-        
+
         return switched_s_tech_y_cy
     else:
         return s_tech_y_cy

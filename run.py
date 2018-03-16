@@ -222,7 +222,7 @@ class EDWrapper(SectorModel):
         assumptions.update('strategy_variables', strategy_variables)
 
         # Update technologies after strategy definition
-        technologies = non_param_assumptions.update_assumptions(
+        technologies = non_param_assumptions.update_technology_assumption(
             assumptions.technologies,
             assumptions.strategy_variables['f_eff_achieved']['scenario_value'],
             assumptions.strategy_variables['split_hp_gshp_to_ashp_ey']['scenario_value'])
@@ -333,8 +333,8 @@ class EDWrapper(SectorModel):
             data['assumptions'].update(key, value)
 
 
-        # Update: Necessary updates after external data definition #TODO ONLY update and not update_assumptions
-        technologies = non_param_assumptions.update_assumptions(
+        # Update: Necessary updates after external data definition
+        technologies = non_param_assumptions.update_technology_assumption(
             data['assumptions'].technologies,
             data['assumptions'].strategy_variables['f_eff_achieved']['scenario_value'],
             data['assumptions'].strategy_variables['split_hp_gshp_to_ashp_ey']['scenario_value'])
