@@ -532,8 +532,9 @@ def tech_sigmoid_parameters(
                                 differences in percentual service demand.
 
     """
-    # Criteria how much difference in % can be rounded
-    rounding_accuracy = 4
+    # Criteria
+    rounding_accuracy = 4       # Criteria how much difference in % can be rounded
+    linear_approx_crit = 0.001  # Criteria of difference in decimal from which on linear approximation is used
 
     # Technologies to apply calculation
     installed_techs = s_tech_switched_p.keys()
@@ -569,9 +570,10 @@ def tech_sigmoid_parameters(
             if point_y_ey == 0:
                 point_y_ey = fit_assump_init
             elif point_y_ey == 1.0:
-                point_y_ey = 1 - fit_assump_init # TODO: NEW CRITERIA
+                point_y_ey = 1 - fit_assump_init
             else:
                 pass
+
             # Data of the two points
             xdata = np.array([point_x_by, point_x_ey])
             ydata = np.array([point_y_by, point_y_ey])
@@ -585,7 +587,6 @@ def tech_sigmoid_parameters(
                 l_values[tech],
                 point_y_by, point_y_ey)'''
 
-            
             # If no change in by to ey but not zero (lineare change)
             if (round(point_y_by, rounding_accuracy) == round(point_y_ey, rounding_accuracy)) and (
                     point_y_ey != fit_assump_init) and (
@@ -606,8 +607,7 @@ def tech_sigmoid_parameters(
                     sig_params[tech]['l_parameter'] = None
                 else:
 
-                    # If difference is smaller than a certain share, approximate with linear TODO NEW
-                    linear_approx_crit = 0.001
+                    # If difference is smaller than a certain share, approximate with linear
                     if abs(ydata[1] - ydata[0]) < linear_approx_crit:
                         logging.debug("Linear approximation...")
                         sig_params[tech]['midpoint'] = 'linear'
@@ -645,8 +645,7 @@ def tech_sigmoid_parameters(
                         because the points to fit are too similar.
                         """
                         logging.warning(
-                            "Instead of sigmoid a linear approximation is used %s %s",
-                                xdata, ydata)
+                            "Instead of sigmoid a linear approximation is used %s %s", xdata, ydata)
 
                         sig_params[tech]['midpoint'] = 'linear'
                         sig_params[tech]['steepness'] = 'linear'

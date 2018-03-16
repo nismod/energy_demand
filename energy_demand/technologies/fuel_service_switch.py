@@ -5,7 +5,6 @@ from collections import defaultdict
 from energy_demand.technologies import tech_related
 from energy_demand.read_write import read_data
 from energy_demand.basic import basic_functions
-import pprint
 
 def sum_fuel_across_sectors(enduse_fuels):
     """Sum fuel across sectors of an enduse if multiple sectors.
@@ -29,7 +28,7 @@ def sum_fuel_across_sectors(enduse_fuels):
 
 def get_share_s_tech_ey(
         service_switches,
-        specified_tech_enduse_by, 
+        specified_tech_enduse_by,
         spatial_exliclit_diffusion=False
     ):
     """Get fraction of service for each technology
@@ -77,7 +76,6 @@ def get_share_s_tech_ey(
             if switch.enduse not in enduses:
                 enduses.append(switch.enduse)
                 enduse_tech_ey_p[switch.enduse] = {}
-        print(service_switches)
 
         # Iterate all endusese and assign all lines
         for enduse in enduses:
@@ -89,9 +87,8 @@ def get_share_s_tech_ey(
         for enduse in specified_tech_enduse_by:
             if enduse not in enduse_tech_ey_p:
                 enduse_tech_ey_p[enduse] = {}
-    
-    enduse_tech_ey_p = dict(enduse_tech_ey_p)
-    return enduse_tech_ey_p
+
+    return dict(enduse_tech_ey_p)
 
 def create_switches_with_service_shares(
         enduse,
@@ -298,12 +295,12 @@ def autocomplete_switches(
 
             # Append all to list
             service_switches_out.extend(switches_new)
-            
+
             # Append regional other capacity switches
             service_switches_out.extend(service_switches_from_capacity)
 
     # ==============
-    # TODO MOVED HERE
+    # Calculate fraction of service for each technology
     # ================
     reg_share_s_tech_ey_p = get_share_s_tech_ey(
         service_switches_out,

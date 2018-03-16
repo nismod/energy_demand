@@ -667,6 +667,11 @@ def get_running_mode(enduse, mode_constrained, enduse_space_heating):
     the supply model not specified for technologies. Otherwise,
     heat demand is supplied per technology
     """
+    print(enduse_space_heating)
+    print(type(enduse_space_heating))
+    print(type(enduse))
+    for i in enduse_space_heating:
+        print(type(i))
     if mode_constrained:
         return True
     elif not mode_constrained and enduse in enduse_space_heating:
@@ -1763,7 +1768,6 @@ def get_service_diffusion(sig_param_tech, curr_yr):
 def calc_service_switch(
         enduse,
         s_tech_y_cy,
-        #s_tech_by_p,
         all_technologies,
         sig_param_tech,
         curr_yr,
@@ -1782,8 +1786,6 @@ def calc_service_switch(
     ---------
     tot_s_yh_cy : array
         Hourly service of all technologies
-    s_tech_by_p : dict
-        Fraction of service per technology
     all_technologies : dict
         Technologies to iterate
     sig_param_tech : dict

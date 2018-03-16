@@ -19,7 +19,9 @@ def process_result_multi_scen(path_to_scenarios, path_shapefile_input):
     scenarios = os.listdir(path_to_scenarios)
 
     for scenario in scenarios:
-        processing.main(os.path.join(path_to_scenarios, scenario), path_shapefile_input)
+        processing.main(
+            os.path.join(path_to_scenarios, scenario),
+            path_shapefile_input)
 
     return
 

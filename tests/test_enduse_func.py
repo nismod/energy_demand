@@ -40,7 +40,7 @@ def test_assign_lp_no_techs():
     assert np.sum(fuel_peak_dh) == 100 * (1.0/365)
     assert fuel_peak_h[2] == fuel_peak_dh[2][0]
 
-def test_get_crit_switch():
+'''def test_get_crit_switch():
     """
     """
     mode_constrained = True
@@ -69,7 +69,7 @@ def test_get_crit_switch():
         2020,
         mode_constrained)
 
-    assert result2 == False
+    assert result2 == False'''
 
 def test_get_peak_day():
     """testing
@@ -136,13 +136,16 @@ def test_service_switch():
                 'midpoint': fit_parameterB[0],
                 'steepness': fit_parameterB[1],
                 'l_parameter': l_value}}
-
+    crit_switch_happening = {'test_enduse': ['test_sector']}
     result = enduse_func.calc_service_switch(
+        enduse='test_enduse',
         s_tech_y_cy=tot_s_yh_cy,
-        s_tech_by_p=s_tech_by_p,
         all_technologies=all_technologies,
         sig_param_tech=sig_param_tech,
-        curr_yr=curr_yr)
+        curr_yr=curr_yr,
+        base_yr=base_yr,
+        sector='test_sector',
+        crit_switch_happening=crit_switch_happening)
 
     expected_tech_service_cy_p = {
         "boilerA": 365*24*2 * share_boilerA_cy, # * 0.5
@@ -197,11 +200,14 @@ def test_service_switch():
         }
 
     result = enduse_func.calc_service_switch(
-        tot_s_yh_cy,
-        s_tech_by_p,
-        all_technologies,
-        sig_param_tech,
-        curr_yr)
+        enduse='test_enduse',
+        s_tech_y_cy=tot_s_yh_cy,
+        all_technologies=all_technologies,
+        sig_param_tech=sig_param_tech,
+        curr_yr=curr_yr,
+        base_yr=base_yr,
+        sector='test_sector',
+        crit_switch_happening=crit_switch_happening)
 
     half_time_factor = 1
     expected_tech_service_cy_p = {
@@ -257,11 +263,14 @@ def test_service_switch():
     }
 
     result = enduse_func.calc_service_switch(
-        tot_s_yh_cy,
-        s_tech_by_p,
-        all_technologies,
-        sig_param_tech,
-        curr_yr)
+        enduse='test_enduse',
+        s_tech_y_cy=tot_s_yh_cy,
+        all_technologies=all_technologies,
+        sig_param_tech=sig_param_tech,
+        curr_yr=curr_yr,
+        base_yr=base_yr,
+        sector='test_sector',
+        crit_switch_happening=crit_switch_happening)
 
     expected_tech_service_cy_p = {
         "boilerA": 365*24*0.5*2,
@@ -686,26 +695,18 @@ def test_get_enduse_configuration():
         fueltype_replace="",
         technology_install='boilerB',
         switch_yr=2020,
-        fuel_share_switched_ey=""
-    )]
+        fuel_share_switched_ey="")]
 
     service_switches = [read_data.ServiceSwitch(
         technology_install='boilerA',
         switch_yr=2050)]
 
-    mode_constrained, crit_switch_service = enduse_func.get_enduse_configuration(
+    mode_constrained = enduse_func.get_enduse_configuration(
         mode_constrained=False,
         enduse='heating',
-        sector=None,
-        enduse_space_heating=['heating'],
-        base_yr=2015,
-        curr_yr=2020,
-        service_switches=service_switches)
+        enduse_space_heating=['heating'])
 
     assert mode_constrained == False
-
-    # If constrained mode, no switches
-    assert crit_switch_service == False
 
     # ---
     service_switches = [read_data.ServiceSwitch(
@@ -713,19 +714,12 @@ def test_get_enduse_configuration():
         technology_install='boilerA',
         switch_yr=2050)]
 
-    mode_constrained, crit_switch_service = enduse_func.get_enduse_configuration(
+    mode_constrained = enduse_func.get_enduse_configuration(
         mode_constrained=True,
         enduse='heating',
-        sector=None,
-        enduse_space_heating=['heating'],
-        base_yr=2015,
-        curr_yr=2020,
-        service_switches=service_switches)
+        enduse_space_heating=['heating'])
 
     assert mode_constrained == True
-
-    # If constrained mode, no switches
-    assert crit_switch_service == True
 
     # ---
 
@@ -739,18 +733,13 @@ def test_get_enduse_configuration():
 
     service_switches = []
 
-    mode_constrained, crit_switch_service = enduse_func.get_enduse_configuration(
+    mode_constrained = enduse_func.get_enduse_configuration(
         mode_constrained=False,
         enduse='heating',
-        sector=False,
-        enduse_space_heating=['heating'],
-        base_yr=2015,
-        curr_yr=2020,
-        service_switches=service_switches)
+        enduse_space_heating=['heating'])
 
     assert mode_constrained == False
-    assert crit_switch_service == False
-
+test_get_enduse_configuration()
 def test_apply_cooling():
     """testing
     """
@@ -777,7 +766,7 @@ def test_apply_cooling():
 
     assert np.sum(result) == np.sum(fuel_y) * (1 + strategy_variables['cooled_floorarea__{}'.format('cooling_enduse')]['scenario_value'] / assump_cooling_floorarea)
 
-def test_test():
+def test_calc_service_switch():
     """Test
     """
     # Install technology B and replace 50% of fueltype 0
@@ -811,13 +800,20 @@ def test_test():
     sig_param_tech = {
         'heat_pumps_electricity': {
             'midpoint': 36.713854146192347, 'steepness': 0.16754533086981224, 'l_parameter': 0.78252325474504336}}
-    curr_yr = 2050
 
+    curr_yr = 2050
+    base_yr = 2015
+
+    crit_switch_happening = {'test_enduse': ['test_sector']}
     result = enduse_func.calc_service_switch(
+        enduse='test_enduse',
         s_tech_y_cy=s_tech_y_cy,
-        s_tech_by_p=s_tech_by_p,
-        all_technologies=tech_increase_service, #s_tech_by_p.keys(),
+        all_technologies=tech_increase_service,
         sig_param_tech=sig_param_tech,
-        curr_yr=curr_yr)
+        curr_yr=curr_yr,
+        base_yr=base_yr,
+        sector='test_sector',
+        crit_switch_happening=crit_switch_happening)
+
     summe = 0.70627648300491375 * 3724.1471455
     assert result['heat_pumps_electricity'] == summe

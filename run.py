@@ -332,7 +332,6 @@ class EDWrapper(SectorModel):
         for key, value in self.user_data['init_cont'].items():
             data['assumptions'].update(key, value)
 
-
         # Update: Necessary updates after external data definition
         technologies = non_param_assumptions.update_technology_assumption(
             data['assumptions'].technologies,
