@@ -41,48 +41,29 @@ def parse_arguments():
 
     # Initialisation of energy demand model (processing raw files)
     parser_init = subparsers.add_parser(
-        'post_install_setup',
+        'setup',
         help='Executes the raw reading functions')
 
     parser_init.add_argument(
         '-d',
-        '--data_energy_demand',
+        '--local_data',
         default='./data_energy_demand',
-        help='Path to the input data folder')
+        help='Path to the local data folder')
 
     parser_init.set_defaults(func=post_install_setup)
 
     # Initialisation of energy demand model (processing raw files)
     parser_init2 = subparsers.add_parser(
-        'post_install_setup_minimum',
+        'minimal_setup',
         help='Executes the minimum dummy raw reading functions')
 
     parser_init2.add_argument(
-        '-d1',
-        '--path_energy_demand',
-        default='./energy_demand',
-        help='Path to the energy demand python files')
-
-    parser_init2.add_argument(
-        '-d2',
-        '--path_local_data',
+        '-d',
+        '--local_data',
         default='./data_energy_demand',
-        help='Path to the data folder')
+        help='Path to the local data folder')
 
     parser_init2.set_defaults(func=post_install_setup_minimum)
-
-    '''# Scenario initialisation
-    scenario_init = subparsers.add_parser(
-        'scenario_initialisation',
-        help='Needs to be initialised')
-
-    scenario_init.add_argument(
-        '-d',
-        '--data_energy_demand',
-        default='./data_energy_demand',
-        help='Path to main data folder')
-
-    scenario_init.set_defaults(func=init_scenario)'''
 
     return parser
 

@@ -2,6 +2,8 @@
 """
 import os
 import numpy as np
+from pkg_resources import Requirement
+from pkg_resources import resource_filename
 from energy_demand.read_write import write_data
 from energy_demand.read_write import data_loader
 from energy_demand.basic import basic_functions
@@ -125,7 +127,7 @@ def post_install_setup_minimum(args):
     path_energy_demand : str
         Path to energy demand python files
     """
-    path_energy_demand = args.path_energy_demand
+    path_energy_demand = resource_filename(Requirement.parse("energy_demand"), "")
     path_local_data = args.path_local_data
 
     # ==========================================
