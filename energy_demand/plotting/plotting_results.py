@@ -104,7 +104,8 @@ def run_all_plot_functions(
     # Fuel per fueltype for whole country over annual timesteps
     # ----------------
     if plot_fuels_enduses_y:
-        logging.debug("... Plot total fuel (y) per fueltype")
+
+        #... Plot total fuel (y) per fueltype as line chart"
         plt_fuels_enduses_y(
             results_container['results_every_year'],
             lookups,

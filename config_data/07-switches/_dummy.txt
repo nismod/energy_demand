@@ -18,6 +18,7 @@ Service switches
 # Residential
 rs_space_heating,boiler_hydrogen,0.7,2050
 rs_space_heating,heat_pumps_electricity,0.1,2050
+rs_space_heating,heat_pumps_electricity,0.5,2050
 
 # Service
 ss_space_heating,heat_pumps_electricity,0.7,2050
@@ -27,7 +28,7 @@ ss_space_heating,heat_pumps_electricity,0.7,2050
 is_space_heating,boiler_gas,0.2,2050
 is_space_heating,boiler_gas,0.1,2050
 is_space_heating,heat_pumps_electricity,0.9,2050
-
+is_high_temp_process,SNG_furnace,1.0,2050,basic_metals
 
 --> -SECTOR SPECIFIC
 is_high_temp_process,SNG_furnace,0.5,2050,basic_metals

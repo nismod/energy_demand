@@ -7,7 +7,7 @@ import logging
 from collections import defaultdict
 import numpy as np
 
-def from_socio_economic_data_to_spatial_diffusion_values(regions, pop_density):
+def realdata_to_spatialdiffval(regions, real_values, speed_con_max):
     """Create SDI from socio-economic data
 
     concepts : list
@@ -19,14 +19,9 @@ def from_socio_economic_data_to_spatial_diffusion_values(regions, pop_density):
     """
     diffusion_values = {}
 
-    # ------------------
     # Diffusion speed assumptions
-    # ------------------
-    speed_con_min = 1  # Speed at val_con == 0
-    speed_con_max = 2  # Speed at con_val == 1
-
-    # Real values
-    real_values = pop_density
+    speed_con_min = 1               # Speed at val_con == 0
+    speed_con_max = speed_con_max   # Speed at con_val == 1
 
     # Max congruence value
     con_max = max(real_values.values())
@@ -37,8 +32,8 @@ def from_socio_economic_data_to_spatial_diffusion_values(regions, pop_density):
         try:
             real_value = real_values[region]
         except KeyError:
-            real_value = con_max
-            print("ERROR: SET TO CONGRUEN VALUE +")
+            real_value = np.mean(real_values.values())
+            logging.warning("Set average real data for region %s", region)
 
         # Calculate congruence value
         congruence_value = real_value / con_max
@@ -49,8 +44,11 @@ def from_socio_economic_data_to_spatial_diffusion_values(regions, pop_density):
 
         diffusion_values[region] = lower_concept_val + higher_concept_val
 
-        logging.info("Reg: {} diffusion_value: {} real_value: {} ".format(
-            region, lower_concept_val + higher_concept_val, real_value))
+        logging.info(
+            "Reg: %s diffusion_value: %s real_value: %s",
+            region,
+            lower_concept_val + higher_concept_val,
+            real_value)
 
     return diffusion_values
 
@@ -75,14 +73,17 @@ def spatial_diffusion_values(regions, pop_density):
     spatial_diff = {}
 
     # Diffusion values based on urban/rural
-    spatial_diff_urban_rural = from_socio_economic_data_to_spatial_diffusion_values(regions, pop_density)
+    spatial_diff_urban_rural = realdata_to_spatialdiffval(
+        regions=regions,                # Regions
+        real_values=pop_density,        # Real values
+        speed_con_max=2)                # Speed
 
     for region in regions:
         spatial_diff[region] = spatial_diff_urban_rural[region]
 
     return spatial_diff
 
-def calc_diffusion_f(regions, spatial_diff_values, fuels):
+def calc_diffusion_f(regions, f_reg, spatial_diff_values, fuels):
     """From spatial diffusion values calculate diffusion
     factor for every region (which needs to sum up to one
     across all regions) and end use. With help of these calculation diffusion
@@ -93,6 +94,8 @@ def calc_diffusion_f(regions, spatial_diff_values, fuels):
     ----------
     regions : dict
         Regions
+    f_reg : dict
+        Regional not weighted diffusion factors
     spatial_diff_values : dict
         Spatial diffusion index values
     fuels : array
@@ -113,14 +116,15 @@ def calc_diffusion_f(regions, spatial_diff_values, fuels):
     The total sum can be higher than 1 in case of high values.
     Therfore the factors need to be capped. TODO MORE INFO
     """
+
     # Calculate fraction of energy demand of every region of total demand
     reg_enduse_p = defaultdict(dict)
-    fraction_p = defaultdict(dict)
+    fuels_enduse = {}
 
     for fuel_submodel in fuels:
 
         # -----------------------------------
-        # If sectors, sum fuel across sectors
+        # Sum fuel across sectors
         # -----------------------------------
         fuel_submodel_new = defaultdict(dict)
         for reg, entries in fuel_submodel.items():
@@ -135,15 +139,15 @@ def calc_diffusion_f(regions, spatial_diff_values, fuels):
                         fuel_submodel_new[reg][enduse] += np.sum(entries[enduse][sector])
 
                 fuel_submodel = fuel_submodel_new
-
             except IndexError:
                 enduses = entries.keys()
                 break
 
         # --------------------
-        # Calculate % of enduse ed of a region of total enduse ed
+        # Calculate fraction of fuel for each region
         # --------------------
         for enduse in enduses:
+            fuels_enduse[enduse] = 0
 
             # Total uk fuel of enduse
             tot_enduse_uk = 0
@@ -153,39 +157,97 @@ def calc_diffusion_f(regions, spatial_diff_values, fuels):
             # Calculate regional % of enduse
             for region in regions:
                 reg_enduse_p[enduse][region] = np.sum(fuel_submodel[region][enduse]) / tot_enduse_uk
-
-            tot_reg_enduse_p = sum(reg_enduse_p[enduse].values())
-
-            # Calculate fraction
-            for region in regions:
-                fraction_p[enduse][region] = np.sum(reg_enduse_p[enduse][region]) / tot_reg_enduse_p
+                fuels_enduse[enduse] += np.sum(fuel_submodel[region][enduse])
 
         # ----------
-        # Multiply fraction of enduse with spatial_diff_values
+        # Norm spatial factor (f_reg_norm) with population (does not sum upt to 1.p Eq. 7 Appendix)
         # ----------
-        #TODO AS IN WORD
-        reg_fraction_multiplied_index = {}
-        for enduse, regions_fuel_p in fraction_p.items():
-            reg_fraction_multiplied_index[enduse] = {}
+        f_reg_norm = {}
+
+        for enduse, regions_fuel_p in reg_enduse_p.items():
+
+            # Sum across all regs (factor * fuel_p)
+            sum_p_f_all_regs = 0
+            for i in regions:
+                sum_p_f_all_regs += f_reg[i] * regions_fuel_p[reg]
+
+            f_reg_norm[enduse] = {}
             for reg, fuel_p in regions_fuel_p.items():
-                reg_fraction_multiplied_index[enduse][reg] = fuel_p * spatial_diff_values[reg]
+                f_reg_norm[enduse][reg] = f_reg[reg] / sum_p_f_all_regs
+
+        # ----------
+        # Norm which sums up to 1 (f_reg_norm_abs) (e.g. distriubte 200 units across space)
+        # ----------
+        f_reg_norm_abs = {}
+        for enduse, regions_fuel_p in reg_enduse_p.items():
+            f_reg_norm_abs[enduse] = {}
+            for reg, fuel_p in regions_fuel_p.items():
+                f_reg_norm_abs[enduse][reg] = fuel_p * spatial_diff_values[reg]
 
     #-----------
-    # Normalize
+    # Normalize f_reg_norm_abs
     #-----------
-    for enduse in reg_fraction_multiplied_index:
-        sum_enduse = sum(reg_fraction_multiplied_index[enduse].values())
-        for reg in reg_fraction_multiplied_index[enduse]:
-            reg_fraction_multiplied_index[enduse][reg] = reg_fraction_multiplied_index[enduse][reg] / sum_enduse
+    for enduse in f_reg_norm_abs:
+        sum_enduse = sum(f_reg_norm_abs[enduse].values())
+        for reg in f_reg_norm_abs[enduse]:
+            f_reg_norm_abs[enduse][reg] = f_reg_norm_abs[enduse][reg] / sum_enduse
 
     # Testing
-    for enduse in reg_fraction_multiplied_index:
+    for enduse in f_reg_norm_abs:
         np.testing.assert_almost_equal(
-            sum(reg_fraction_multiplied_index[enduse].values()),
+            sum(f_reg_norm_abs[enduse].values()),
             1,
             decimal=2)
 
-    return reg_fraction_multiplied_index
+    #-----------
+    # TESTING 
+    #-----------
+    '''enduse = 'ss_water_heating'
+    tot_amount_to_distribute = 200
+
+    # -----
+    # f_reg_norm_abs
+    # -----
+    # To distribute full absolute amount across all regs
+    __t = 0
+    for reg in regions:
+        __t += f_reg_norm_abs[enduse][reg] * tot_amount_to_distribute
+
+    logging.info("TOTAL MOUNT TO DISTR: " + str(tot_amount_to_distribute))
+    logging.info("TOTAL MOUNT TO DISTR CTONRLL: " + str(__t))
+
+    # -----
+    # f_reg_norm_abs
+    # -----
+    global_f = 0.9
+    _0 = []
+    _1 = []
+    _2 = []
+    
+    for reg in regions:
+        logging.warning("-------")
+        logging.warning("Not Normed: %s ", f_reg[reg] * global_f)                               # not normed
+        logging.warning("Normed: %s ", f_reg_norm[enduse][reg] * global_f)  # normed with not summing up to 1
+        logging.warning("Sums up to one: %s ", (f_reg_norm_abs[enduse][reg] * global_f))    #new
+        logging.warning((f_reg_norm_abs[enduse][reg] * global_f) / reg_enduse_p[enduse][reg]) #old
+
+        _0.append(f_reg[reg] * global_f)
+        _1.append(f_reg_norm[enduse][reg] * global_f)
+        _2.append(f_reg_norm_abs[enduse][reg] * global_f)
+
+
+    logging.info("INFOF FOR DEBBUGING")
+    logging.info(max(_0))
+    logging.info(max(_1))
+    logging.info(max(_2))
+
+    logging.info("--")
+
+    logging.info(sum(_0))
+    logging.info(sum(_1))
+    logging.info(sum(_2))'''
+
+    return f_reg_norm_abs, f_reg_norm
 
 def calc_regional_services(
         enduse,
@@ -244,35 +306,45 @@ def calc_regional_services(
 
         # Disaggregation factor
         f_fuel_disagg = np.sum(fuel_disaggregated[region][enduse]) / uk_enduse_fuel
-
+        print("SUMME should be 1")
+        print(sum(uk_techs_service_p.values()))
         # Calculate fraction of regional service
         for tech, uk_tech_service_ey_p in uk_techs_service_p.items():
 
-            uk_service_tech = uk_tech_service_ey_p
+            global_tech_service_ey_p = uk_tech_service_ey_p
 
             # ---------------------------------------------
             # B.) Calculate regional service for technology
             # ---------------------------------------------
             if tech in techs_affected_spatial_f:
                 # Use spatial factors
-                reg_service_tech = uk_service_tech * spatial_factors[enduse][region]
+                reg_service_tech = global_tech_service_ey_p * spatial_factors[enduse][region]
             else:
                 # If not specified, use fuel disaggregation for enduse factor
-                reg_service_tech = uk_service_tech * f_fuel_disagg
+                reg_service_tech = global_tech_service_ey_p #* f_fuel_disagg
 
             reg_enduse_tech_p_ey[region][tech] = reg_service_tech
+            print("--")
+            print(global_tech_service_ey_p)
+            print(reg_service_tech)
 
+        import pprint
+        print(sum(reg_enduse_tech_p_ey[region].values()))
+        pprint.pprint(reg_enduse_tech_p_ey[region])
         # ---------------------------------------------
         # C.) Calculate regional fraction
         # ---------------------------------------------
-        tot_service_reg_enduse = f_fuel_disagg ##* uk_service_enduse
+        #tot_service_reg_enduse = f_fuel_disagg ##* uk_service_enduse
 
         for tech, service_tech in reg_enduse_tech_p_ey[region].items():
-
+            
+            # ----------------------------------
             #MAYBE ADD CAPPING VALUE TODO
+            # ----------------------------------
             capping_val = 1
 
-            service_share = service_tech / tot_service_reg_enduse
+            #service_share = service_tech / tot_service_reg_enduse
+            service_share = service_tech
 
             if service_share > capping_val:
                 reg_enduse_tech_p_ey[region][tech] = capping_val
@@ -284,51 +356,20 @@ def calc_regional_services(
 
     return dict(reg_enduse_tech_p_ey)
 
-def spatially_differentiated_modelling(
+def calc_spatially_diffusion_factors(
         regions,
         fuel_disagg,
-        rs_share_s_tech_ey_p,
-        ss_share_s_tech_ey_p,
-        is_share_s_tech_ey_p,
-        techs_affected_spatial_f,
         pop_density
     ):
     """
-    Model 
 
-    regions : dict
-        Regions
-    all_enduses : dict
-        Enduse
-    init_cont : dict
-        TO_DEFINE
-    sum_across_sectors_all_regs : dict
-        TO_DEFINE
-    rs_share_s_tech_ey_p : dict
-        TO_DEFINE
-    ss_share_s_tech_ey_p : dict
-        TO_DEFINE
-    is_share_s_tech_ey_p : dict
-        TO_DEFINE
-    techs_affected_spatial_f : list
-        Technologies which are affected by spatially heterogeneous diffusion
+    Arguments
+    ---------
 
     Returns
-    --------
-    XX_reg_share_s_tech_ey_p :
-        Technology specific service shares for every region (residential)
-        considering differences in diffusion speed. If the calculated
-        `spatial_diff_f` values are all smaller than one,
-        the total service share across the UK sums up to the calculated
-        shares across all regions. If `spatial_diff_f` has values
-        larger than 1, they are capped and the total sum is not idential.
-        This means that some regions reach the maximum defined value (`cap_max`)
-        before other regions and stay at that level. Other regions diffuse
-        slower and do not reach such high leves (and because the faster regions
-        cannot over-compensate, the total sum is not identical).
+    -------
 
-    init_cont
-    spatial_diff_f : dict
+        f_reg_norm_abs : dict
         Diffusion values with normed population. If no value
         is larger than 1, the total sum of all shares calculated
         for every region is identical to the defined scenario variable.
@@ -336,6 +377,7 @@ def spatially_differentiated_modelling(
     spatial_diff_values : dict
         Spatial diffusion values (not normed, only considering differences
         in speed and congruence values)
+
 
     Explanation
     ============
@@ -352,62 +394,129 @@ def spatially_differentiated_modelling(
         pop_density)
 
     # -----
-    # II. Calculation of diffusion factors
+    # II. Calculation of diffusion factors ( Not weighted with demand)
     # -----
-    spatial_diff_f = calc_diffusion_f(
+    f_reg = {}
+
+    max_value_diffusion = max(list(spatial_diff_values.values()))
+    for region in regions:
+        f_reg[region] = spatial_diff_values[region] / max_value_diffusion
+
+    # Weighted with demand
+    f_reg_norm_abs, f_reg_norm = calc_diffusion_f(
         regions,
+        f_reg,
         spatial_diff_values,
         [fuel_disagg['rs_fuel_disagg'], fuel_disagg['ss_fuel_disagg'], fuel_disagg['is_fuel_disagg']])
 
-    # -------------
-    # III. Technology specific shares of service in end year are calculated
-    # TODO: MAYBE ADD CAPPING VALUE
+    return f_reg, f_reg_norm, f_reg_norm_abs
 
-    # -------------
-    # Generate sigmoid curves (s_generate_sigmoid) for every regio
-    # -------------
-    # Residential spatial explicit modelling
-    rs_reg_share_s_tech_ey_p = {}
-    for enduse, uk_techs_service_p in rs_share_s_tech_ey_p.items():
-        rs_reg_share_s_tech_ey_p[enduse] = calc_regional_services(
-            enduse,
-            uk_techs_service_p,
-            regions,
-            spatial_diff_f,
-            fuel_disagg['rs_fuel_disagg'],
-            techs_affected_spatial_f)
+def spatially_differentiated_modelling(
+        regions,
+        fuel_disagg,
+        rs_share_s_tech_ey_p,
+        ss_share_s_tech_ey_p,
+        is_share_s_tech_ey_p,
+        techs_affected_spatial_f,
+        spatial_diffusion_factor,
+        spatial_exliclit_diffusion=False
+    ):
+    """
+    Regional diffusion shares of technologies is calculated
+    based on calcualted spatial diffusion factors
 
-    ss_reg_share_s_tech_ey_p = {}
-    for sector, uk_techs_service_enduses_p in ss_share_s_tech_ey_p.items():
-        ss_reg_share_s_tech_ey_p[sector] = {}
-        for enduse, uk_techs_service_p in uk_techs_service_enduses_p.items():
-            ss_reg_share_s_tech_ey_p[sector][enduse] = calc_regional_services(
+    Arguments
+    ---------
+    regions : dict
+        Regions
+    fuel_disagg : dict
+        Fuel per region
+    rs_share_s_tech_ey_p : dict
+        Global technology service shares
+    ss_share_s_tech_ey_p : dict
+        Global technology service shares
+    is_share_s_tech_ey_p : dict
+        Global technology service shares
+    techs_affected_spatial_f : list
+        Technologies which are affected by spatially heterogeneous diffusion
+    spatial_diffusion_factor : dict
+        Spatial diffusion factor
+
+    Returns
+    --------
+    XX_reg_share_s_tech_ey_p :
+        Technology specific service shares for every region (residential)
+        considering differences in diffusion speed. 
+        
+        If the calculate regional shares are larger than 1.0, the 
+        diffusion is set to the maximum criteria (`cap_max`). 
+        This means that if some regions reach the maximum defined value,
+        thes cannot futher increase their share. This means that other regions diffuse
+        slower and do not reach such high leves (and because the faster regions
+        cannot over-compensate, the total sum is not identical).
+
+    Calculate sigmoid diffusion values for technology
+    specific enduse service shares for every region
+    """
+    '''if spatial_exliclit_diffusion:
+        rs_reg_share_s_tech_ey_p = {}
+
+        for enduse, uk_techs_service_p in rs_share_s_tech_ey_p.items():
+        
+            rs_reg_share_s_tech_ey_p[enduse] = calc_regional_services(
                 enduse,
                 uk_techs_service_p,
                 regions,
-                spatial_diff_f,
-                fuel_disagg['ss_fuel_disagg_sum_all_sectors'],
-                techs_affected_spatial_f)
+                spatial_diffusion_factor,
+                fuel_disagg['rs_fuel_disagg'],
+                    techs_affected_spatial_f)
 
-    is_reg_share_s_tech_ey_p = {}
-    for sector, uk_techs_service_enduses_p in is_share_s_tech_ey_p.items():
-        is_reg_share_s_tech_ey_p[sector] = {}
-        for enduse, uk_techs_service_p in uk_techs_service_enduses_p.items():
-            is_reg_share_s_tech_ey_p[sector][enduse] = calc_regional_services(
+    else:'''
+    if 1 == 1:
+        # Residential spatial explicit modelling
+        rs_reg_share_s_tech_ey_p = {}
+        for enduse, uk_techs_service_p in rs_share_s_tech_ey_p.items():
+        
+            rs_reg_share_s_tech_ey_p[enduse] = calc_regional_services(
                 enduse,
                 uk_techs_service_p,
                 regions,
-                spatial_diff_f,
-                fuel_disagg['is_aggr_fuel_sum_all_sectors'],
+                spatial_diffusion_factor,
+                fuel_disagg['rs_fuel_disagg'],
                 techs_affected_spatial_f)
 
-    return rs_reg_share_s_tech_ey_p, ss_reg_share_s_tech_ey_p, is_reg_share_s_tech_ey_p, spatial_diff_f, spatial_diff_values
+        ss_reg_share_s_tech_ey_p = {}
+        for sector, uk_techs_service_enduses_p in ss_share_s_tech_ey_p.items():
+            ss_reg_share_s_tech_ey_p[sector] = {}
+            for enduse, uk_techs_service_p in uk_techs_service_enduses_p.items():
+                ss_reg_share_s_tech_ey_p[sector][enduse] = calc_regional_services(
+                    enduse,
+                    uk_techs_service_p,
+                    regions,
+                    spatial_diffusion_factor,
+                    fuel_disagg['ss_fuel_disagg_sum_all_sectors'],
+                    techs_affected_spatial_f)
+
+        is_reg_share_s_tech_ey_p = {}
+        for sector, uk_techs_service_enduses_p in is_share_s_tech_ey_p.items():
+            is_reg_share_s_tech_ey_p[sector] = {}
+            for enduse, uk_techs_service_p in uk_techs_service_enduses_p.items():
+                is_reg_share_s_tech_ey_p[sector][enduse] = calc_regional_services(
+                    enduse,
+                    uk_techs_service_p,
+                    regions,
+                    spatial_diffusion_factor,
+                    fuel_disagg['is_aggr_fuel_sum_all_sectors'],
+                    techs_affected_spatial_f)
+
+    return rs_reg_share_s_tech_ey_p, ss_reg_share_s_tech_ey_p, is_reg_share_s_tech_ey_p
 
 def factor_improvements_single(
         factor_uk,
         regions,
-        spatial_factors,
-        spatial_diff_values,
+        f_reg,
+        f_reg_norm,
+        f_reg_norm_abs,
         fuel_regs_enduse
     ):
     """Calculate regional specific end year service shares
@@ -419,8 +528,12 @@ def factor_improvements_single(
         Improvement of either an enduse or a variable for the whole UK
     regions : dict
         Regions
-    spatial_factors : dict
-        Spatial factors
+    f_reg : dict
+        Regional spatial factors not normed with fuel demand
+    f_reg_norm : dict
+        Regional spatial factors normed with fuel demand (sum is not 1)
+    f_reg_norm_abs : dict
+        Regional spatial factors normed with fuel demand and normed that sum is 1
     spatial_diff_values : dict
         Spatial diffusion values
     fuel_regs_enduse : dict
@@ -442,110 +555,65 @@ def factor_improvements_single(
 
     C.) Convert regional service reduction to ey % in region
     """
+    reg_enduse_tech_p_ey = {}
+
+    factor_uk = 0.5 #TODO SCRAP REMOVE
+
+    # Check which factors is to be used
+    # if only distribute: f_reg_norm_abs
+    # if max 1: f_reg_nrm
+    # if not intersted in correct sum: f_reg
     if fuel_regs_enduse == {}:
-        only_speed_map = True
+        spatial_factor = f_reg
     else:
-        only_speed_map = False
-    
-    speed_enduse_normed = False
-    #only_speed_map = True
-    if only_speed_map:
+        spatial_factor = f_reg_norm_abs
 
-        factor_uk = 0.5 #TODO SCRAP
+    # Sum fuel
+    uk_enduse_fuel = 0
+    for fuel_reg in fuel_regs_enduse.values():
+        uk_enduse_fuel += np.sum(fuel_reg)
 
-        # Set maximum diffusion values as 100% and calculate relative speed of all values
-        max_value_diffusion = max(list(spatial_diff_values.values()))
+    test = 0
+    for region in regions:
+        reg_enduse_tech_p_ey[region] = factor_uk * spatial_factor[region]
 
-        p_spatial_diff = {}
-        for region in regions:
-            p_spatial_diff[region] = spatial_diff_values[region] / max_value_diffusion #convert regional valus to p value
-            #logging.warning("NORMIEREN: {} {} {} ".format(max_value_diffusion, spatial_diff_values[region], p_spatial_diff[region]))
+        logging.info(
+            "FUEL FACTOR reg: {}  val: {}, fuel: {}  fuel: {} ".format(
+                region,
+                round(reg_enduse_tech_p_ey[region], 3),
+                round(uk_enduse_fuel, 3),
+                round(np.sum(fuel_regs_enduse[region]), 3)
+                ))
 
-        reg_enduse_tech_p_ey = {}
-        for region in regions:
-            reg_enduse_tech_p_ey[region] = factor_uk * p_spatial_diff[region]
-        logging.warning(
-            reg_enduse_tech_p_ey
-        )
-        #prnt(":")
+        test += (reg_enduse_tech_p_ey[region] * np.sum(fuel_regs_enduse[region]))
 
-    if speed_enduse_normed:
-        # Map with normalised with population (pot lager than 1)
-        reg_enduse_tech_p_ey = {}
+    # ---------
+    # PROBLEM THAT MORE THAN 100 percent could be reached if nt normed
+    # ---------
+    reg_enduse_tech_p_ey_capped = {}
 
-        # ------------------------------------
-        # Calculate national total enduse fuel and service
-        # ------------------------------------
-        uk_enduse_fuel = 0
-        for fuel_reg in fuel_regs_enduse.values():
-            uk_enduse_fuel += np.sum(fuel_reg)
+    # Cap regions which have already reached and are larger than 1.0
+    cap_max_crit = 1.0 #100%
+    demand_lost = 0
+    for region, region_factor in reg_enduse_tech_p_ey.items():
+        if region_factor > cap_max_crit:
+            logging.warning("INFO: FOR A REGION THE SHARE OF IMPROVEMENTIS LARGER THAN 1.0.")
 
-        # ----
-        # Service of enduse for all regions
-        # ----
-        test = 0
+            # Demand which is lost and capped
+            diff_to_cap = region_factor - cap_max_crit
+            demand_lost += diff_to_cap * np.sum(fuel_regs_enduse[region])
 
-        for region in regions:
+            reg_enduse_tech_p_ey_capped[region] = cap_max_crit
+        else:
+            reg_enduse_tech_p_ey_capped[region] = region_factor
 
-            # Disaggregation factor (share of regional fuel compared to total fuel)
-            f_fuel_disagg_p = np.sum(fuel_regs_enduse[region]) / uk_enduse_fuel
+    # Replace
+    reg_enduse_tech_p_ey = reg_enduse_tech_p_ey_capped
 
-            # ---------------------------------------------
-            # B.) Calculate regional service for technology
-            # ---------------------------------------------
-            reg_service_tech = factor_uk * spatial_factors[region]
-
-            # ---------------------------------------------
-            # C.) Calculate regional fraction
-            # --------------------------------------------- TODO: WEISO DAS NOCH?
-            reg_enduse_tech_p_ey[region] = reg_service_tech / f_fuel_disagg_p
-
-            logging.info(
-                "FUEL FACTOR reg: {}  val: {}, f: {} fuel: {}  fuel: {} ".format(
-                    region,
-                    round(reg_enduse_tech_p_ey[region], 3),
-                    round(f_fuel_disagg_p, 3),
-                    round(uk_enduse_fuel, 3),
-                    round(np.sum(fuel_regs_enduse[region]), 3)
-                    ))
-            '''(
-                "FUEL FACTOR reg: {}  val: {}, f: {} fuel: {}  fuel: {} ".format(
-                    region,
-                    round(reg_enduse_tech_p_ey[region], 3),
-                    round(f_fuel_disagg_p, 3),
-                    round(uk_enduse_fuel, 3),
-                    round(np.sum(fuel_regs_enduse[region]), 3)
-                    ))'''
-
-            test += (reg_enduse_tech_p_ey[region] * np.sum(fuel_regs_enduse[region]))
-
-        # ---------
-        # PROBLEM THAT MORE THAN 100 percent could be reached if nt normed
-        # ---------
-        reg_enduse_tech_p_ey_capped = {}
-        # Cap regions which have already reached and are larger than 1.0
-        cap_max_crit = 1.0 #100%
-        demand_lost = 0
-        for region, region_factor in reg_enduse_tech_p_ey.items():
-            if region_factor > cap_max_crit:
-                logging.warning("INFO: FOR A REGION THE SHARE OF IMPROVEMENTIS LARGER THAN 1.0.")
-
-                # Demand which is lost and capped
-                diff_to_cap = region_factor - cap_max_crit
-                demand_lost += diff_to_cap * np.sum(fuel_regs_enduse[region])
-
-                reg_enduse_tech_p_ey_capped[region] = cap_max_crit
-            else:
-                reg_enduse_tech_p_ey_capped[region] = region_factor
-
-        # Replace
-        reg_enduse_tech_p_ey = reg_enduse_tech_p_ey_capped
-
-
-        logging.warning("FAKTOR UK :" + str(factor_uk))
-        logging.warning("Lost demand: " + str(demand_lost))
-        logging.warning("TESTDUM a " + str(test))
-        logging.warning("TESTDUM b " + str(uk_enduse_fuel * factor_uk))
+    logging.warning("FAKTOR UK :" + str(factor_uk))
+    logging.warning("Lost demand: " + str(demand_lost))
+    logging.warning("TESTDUM a " + str(test))
+    logging.warning("TESTDUM b " + str(uk_enduse_fuel * factor_uk))
 
     return reg_enduse_tech_p_ey
 

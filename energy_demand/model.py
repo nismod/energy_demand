@@ -16,7 +16,7 @@ from energy_demand.dwelling_stock import dw_stock
 from energy_demand.basic import testing_functions as testing
 from energy_demand.profiles import load_profile, load_factors
 from energy_demand.charts import figure_HHD_gas_demand
-
+import pprint
 class EnergyDemandModel(object):
     """Energy Model of a simulation yearly run.
     Main function of energy demand model. All submodels are executed here
@@ -77,7 +77,7 @@ class EnergyDemandModel(object):
         logging.info("... Generate dwelling stocks")
         if data['criterias']['virtual_building_stock_criteria']:
 
-            # Virtual dwelling stocks
+            # Virtual dwelling stocks #TODO MAKE THAT NOT DATA IN AND OUT
             data = create_virtual_dwelling_stocks(
                 regions, self.curr_yr, data)
         else:
@@ -106,7 +106,7 @@ class EnergyDemandModel(object):
                 "... Simulate region %s for year %s", region, self.curr_yr)
 
             reg_rs_submodel, reg_ss_submodel, reg_is_submodel = simulate_region(
-                region, data, weather_regions)
+                region, data, assumptions, weather_regions)
 
             # Store submodel results
             all_submodels = [reg_rs_submodel, reg_ss_submodel, reg_is_submodel]
@@ -146,7 +146,7 @@ class EnergyDemandModel(object):
             logging.info("plot figure HDD comparison")
             figure_HHD_gas_demand.main(regions, weather_regions, data)
 
-def simulate_region(region, data, weather_regions):
+def simulate_region(region, data, assumptions, weather_regions):
     """Run submodels for a single region
 
     Arguments
@@ -186,7 +186,7 @@ def simulate_region(region, data, weather_regions):
         data['scenario_data'],
         data['rs_dw_stock'][region],
         data['non_regional_lp_stock'],
-        data['assumptions'],
+        assumptions,
         data['lookups'],
         data['criterias'],
         data['enduses']['rs_enduses'])
@@ -200,7 +200,7 @@ def simulate_region(region, data, weather_regions):
         data['scenario_data'],
         data['ss_dw_stock'][region],
         data['non_regional_lp_stock'],
-        data['assumptions'],
+        assumptions,
         data['lookups'],
         data['criterias'],
         data['enduses']['ss_enduses'],
@@ -214,7 +214,7 @@ def simulate_region(region, data, weather_regions):
         weather_region_obj,
         data['scenario_data'],
         data['non_regional_lp_stock'],
-        data['assumptions'],
+        assumptions,
         data['lookups'],
         data['criterias'],
         data['enduses']['is_enduses'],
@@ -472,14 +472,12 @@ def residential_submodel(
             # Configure and select correct Enduse() specific inputs
             # ------------------------------------------------------
             if criterias['spatial_exliclit_diffusion']:
-                service_switches = assumptions.rs_service_switch[enduse][region.name]
+                #service_switches = assumptions.rs_service_switch[enduse][region.name] #TODO SWITCHES ARE NOT USED ACTUALLY
                 sig_param_tech = assumptions.rs_sig_param_tech[enduse][region.name]
-
                 strategy_variables = assumptions.regional_strategy_variables[region.name]
             else:
-                service_switches = assumptions.rs_service_switch[enduse]
+                #service_switches = assumptions.rs_service_switch[enduse]
                 sig_param_tech = assumptions.rs_sig_param_tech[enduse]
-
                 strategy_variables = assumptions.strategy_variables
 
             # ------------------------------------------------------
@@ -497,11 +495,11 @@ def residential_submodel(
                 enduse=enduse,
                 sector=sector,
                 fuel=region.rs_enduses_fuel[enduse],
-                s_tech_by_p=assumptions.rs_s_tech_by_p[enduse],
+                #s_tech_by_p=assumptions.rs_s_tech_by_p[enduse], #TODO TODO REMOVE NOT REALLY NECESSARY
                 tech_stock=weather_region.rs_tech_stock,
                 heating_factor_y=weather_region.f_heat_rs_y,
                 cooling_factor_y=weather_region.f_cooling_rs_y,
-                service_switches=service_switches,
+                #service_switches=service_switches,
                 fuel_fueltype_tech_p_by=assumptions.rs_fuel_tech_p_by[enduse],
                 sig_param_tech=sig_param_tech,
                 criterias=criterias,
@@ -554,14 +552,12 @@ def service_submodel(
             # Configure and select correct Enduse() specific inputs
             # ------------------------------------------------------
             if criterias['spatial_exliclit_diffusion']:
-                service_switches = assumptions.ss_service_switch[enduse][sector][region.name]
+                #service_switches = assumptions.ss_service_switch[enduse][sector][region.name]
                 sig_param_tech = assumptions.ss_sig_param_tech[enduse][sector][region.name]
-
                 strategy_variables = assumptions.regional_strategy_variables[region.name]
             else:
-                service_switches = assumptions.ss_service_switch[enduse][sector]
+                #service_switches = assumptions.ss_service_switch[enduse][sector]
                 sig_param_tech = assumptions.ss_sig_param_tech[enduse][sector]
-
                 strategy_variables = assumptions.strategy_variables
 
             # ------------------------------------------------------
@@ -579,11 +575,10 @@ def service_submodel(
                 enduse=enduse,
                 sector=sector,
                 fuel=region.ss_enduses_sectors_fuels[enduse][sector],
-                s_tech_by_p=assumptions.ss_s_tech_by_p[sector][enduse], #SECTOR SPECIFIC
+                #s_tech_by_p=assumptions.ss_s_tech_by_p[sector][enduse], #SECTOR SPECIFIC
                 tech_stock=weather_region.ss_tech_stock,
                 heating_factor_y=weather_region.f_heat_ss_y,
                 cooling_factor_y=weather_region.f_cooling_ss_y,
-                service_switches=service_switches,
                 fuel_fueltype_tech_p_by=assumptions.ss_fuel_tech_p_by[enduse][sector],
                 sig_param_tech=sig_param_tech,
                 criterias=criterias,
@@ -645,14 +640,10 @@ def industry_submodel(
                 flat_profile_crit = True
 
             if criterias['spatial_exliclit_diffusion']:
-                service_switches = assumptions.is_service_switch[enduse][sector][region.name]
                 sig_param_tech = assumptions.is_sig_param_tech[enduse][sector][region.name]
-
                 strategy_variables = assumptions.regional_strategy_variables[region.name]
             else:
-                service_switches = assumptions.is_service_switch[enduse][sector]
                 sig_param_tech = assumptions.is_sig_param_tech[enduse][sector]
-
                 strategy_variables = assumptions.strategy_variables
 
             # ------------------------------------------------------
@@ -670,11 +661,10 @@ def industry_submodel(
                 enduse=enduse,
                 sector=sector,
                 fuel=region.is_enduses_sectors_fuels[enduse][sector],
-                s_tech_by_p=assumptions.is_s_tech_by_p[sector][enduse],
+                #s_tech_by_p=assumptions.is_s_tech_by_p[sector][enduse],
                 tech_stock=weather_region.is_tech_stock,
                 heating_factor_y=weather_region.f_heat_is_y,
                 cooling_factor_y=weather_region.f_cooling_is_y,
-                service_switches=service_switches,
                 fuel_fueltype_tech_p_by=assumptions.is_fuel_tech_p_by[enduse][sector],
                 sig_param_tech=sig_param_tech,
                 enduse_overall_change=assumptions.enduse_overall_change,

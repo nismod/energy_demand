@@ -10,7 +10,7 @@ from collections import defaultdict
 from smif.model.sector_model import SectorModel
 from pkg_resources import Requirement, resource_filename
 from pyproj import Proj, transform
-
+import pprint
 from energy_demand.plotting import plotting_results
 from energy_demand.basic import basic_functions
 from energy_demand.scripts.init_scripts import scenario_initalisation
@@ -59,7 +59,7 @@ class EDWrapper(SectorModel):
         # -----------
         data['criterias']['mode_constrained'] = True                    # True: Technologies are defined in ED model and fuel is provided, False: Heat is delievered not per technologies
         data['criterias']['virtual_building_stock_criteria'] = True     # True: Run virtual building stock model
-        data['criterias']['spatial_exliclit_diffusion'] = True         # True: Spatial explicit calculations
+        data['criterias']['spatial_exliclit_diffusion'] = False         # True: Spatial explicit calculations
 
         fast_smif_run = False
 
@@ -178,7 +178,10 @@ class EDWrapper(SectorModel):
         # -----------------------
         data['pop_density'] = {}
         for region in self.regions.get_entry(region_set_name):
-            data['pop_density'][region.name] = data['population'][assumptions.base_yr][region.name] / region.shape.area
+            try:
+                data['pop_density'][region.name] = data['population'][assumptions.base_yr][region.name] / region.shape.area
+            except:
+                data['pop_density'][region.name] = 1
 
         # --------------
         # Scenario data
@@ -219,7 +222,7 @@ class EDWrapper(SectorModel):
         assumptions.update('strategy_variables', strategy_variables)
 
         # Update technologies after strategy definition
-        technologies = non_param_assumptions.update_assumptions(
+        technologies = non_param_assumptions.update_technology_assumption(
             assumptions.technologies,
             assumptions.strategy_variables['f_eff_achieved']['scenario_value'],
             assumptions.strategy_variables['split_hp_gshp_to_ashp_ey']['scenario_value'])
@@ -324,13 +327,13 @@ class EDWrapper(SectorModel):
             data, self.user_data['fuel_disagg'])
 
         # Set current year
-        data['assumptions'].__setattr__('curr_yr', data_handle.current_timestep)
+        data['assumptions'].update('curr_yr', data_handle.current_timestep)
 
         for key, value in self.user_data['init_cont'].items():
-            data['assumptions'].__setattr__(key, value)
+            data['assumptions'].update(key, value)
 
         # Update: Necessary updates after external data definition
-        technologies = non_param_assumptions.update_assumptions(
+        technologies = non_param_assumptions.update_technology_assumption(
             data['assumptions'].technologies,
             data['assumptions'].strategy_variables['f_eff_achieved']['scenario_value'],
             data['assumptions'].strategy_variables['split_hp_gshp_to_ashp_ey']['scenario_value'])

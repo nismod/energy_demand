@@ -126,6 +126,18 @@ class CapacitySwitch(object):
             self.sector = None # Not sector defined
         else:
             self.sector = sector
+    
+    def update(self, name, value):
+        """Update  switch
+
+        Arguments
+        ---------
+        name : str
+            name of attribute
+        value : any
+            Type of value
+        """
+        setattr(self, name, value)
 
 class FuelSwitch(object):
     """Fuel switch class for storing
@@ -162,6 +174,18 @@ class FuelSwitch(object):
         self.switch_yr = switch_yr
         self.fuel_share_switched_ey = fuel_share_switched_ey
 
+    def update(self, name, value):
+        """Update  switch
+
+        Arguments
+        ---------
+        name : str
+            name of attribute
+        value : any
+            Type of value
+        """
+        setattr(self, name, value)
+
 class ServiceSwitch(object):
     """Service switch class for storing
     switches
@@ -196,6 +220,18 @@ class ServiceSwitch(object):
             self.sector = None # Not sector defined
         else:
             self.sector = sector
+    
+    def update(self, name, value):
+        """Update service switch
+
+        Arguments
+        ---------
+        name : str
+            name of attribute
+        value : any
+            Type of value
+        """
+        setattr(self, name, value)
 
 def read_in_results(path_runs, seasons, model_yeardays_daytype):
     """Read and post calculate results from txt files
@@ -480,7 +516,7 @@ def read_load_shapes_tech(path_to_csv):
 
     return load_shapes_dh
 
-def service_switch(path_to_csv, technologies):
+def service_switch(path_to_csv, technologies, base_yr=2015):
     """This function reads in service assumptions from csv file,
     tests whether the maximum defined switch is larger than
     possible for a technology,
@@ -547,9 +583,12 @@ def service_switch(path_to_csv, technologies):
                 "Input error: more service provided for tech '{}' in enduse '{}' than max possible".format(
                     entry['enduse'], entry['technology_install']))
 
+        if entry.switch_yr <= base_yr:
+            sys.exit("Input error service switch: switch_yr must be in the future")
+
     return service_switches
 
-def read_fuel_switches(path_to_csv, enduses, fueltypes):
+def read_fuel_switches(path_to_csv, enduses, fueltypes, base_yr=2015):
     """This function reads in from CSV file defined fuel
     switch assumptions
 
@@ -630,6 +669,8 @@ def read_fuel_switches(path_to_csv, enduses, fueltypes):
             sys.exit(
                 "Input error: The fuel switches are > 1.0 for enduse {} and fueltype {}".format(
                     enduse, fueltype))
+        if obj.switch_yr <= base_yr:
+            sys.exit("Input error of fuel switch: switch_yr must be in the future")
 
     # Test whether defined enduse exist
     for obj in fuel_switches:
@@ -988,7 +1029,7 @@ def read_scenaric_population_data(result_path):
 
     return results
 
-def read_capacity_switch(path_to_csv):
+def read_capacity_switch(path_to_csv, base_yr=2015):
     """This function reads in service assumptions
     from csv file
 
@@ -1042,6 +1083,11 @@ def read_capacity_switch(path_to_csv):
             except (KeyError, ValueError):
                 sys.exit(
                     "Error in loading capacity switch: Check empty csv entries (except for optional sector field)")
+
+    # Testing
+    for obj in service_switches:
+        if obj.switch_yr <= base_yr:
+            sys.exit("Input Error capacity switch: switch_yr must be in the future")
 
     return service_switches
 

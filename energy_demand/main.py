@@ -48,7 +48,7 @@ NICETOHAVE
 - Convert paths dict to objects
 
 TODOS
-TODO: WHY NOT CORRECT PLOTTING IRLEAND
+TODO: Write all metadata of model run restuls to txt
 TODO: LOAD IN SCENARIO PARAMETERS IN INITIAL_SETUP FUNCTION IN RUn file
 TODO: Write function to test wheter swichtes are possible (e.g. that not more from one technology to another is replaced than possible)
 TODO: Improve industry related demand --> define strategies
@@ -63,7 +63,6 @@ TODO: PEAK SHAPE vs PEAK FROM LOAD PROFILES
 TODO: IF spatial explicity, still very slow
 TODO: HYBRID TECHNOLOGIES?
 TODO: UPDate all fuel data with new ECUK DATA
-TODO: TEST IS SECTOR TECH SWITCH
 TODO: STORE RESULTS PER ANNUAL YEAR AND GENERATE FUNCTION TO COLLECT PLOTS AND CREATE GIF
 TODO: get_position for all readings of csv file
 TODO: WHAT ABOU NON_RESIDENTIAL FLOOR AREA: FOR WHAT?
@@ -260,7 +259,7 @@ if __name__ == "__main__":
 
     strategy_variables = param_assumptions.load_param_assump(
         data['paths'], data['assumptions'])
-    data['assumptions'].__setattr__('strategy_variables', strategy_variables)
+    data['assumptions'].update('strategy_variables', strategy_variables)
 
     data['tech_lp'] = data_loader.load_data_profiles(
         data['paths'], data['local_paths'],
@@ -268,7 +267,7 @@ if __name__ == "__main__":
         data['assumptions'].model_yeardays_daytype,
         data['criterias']['plot_tech_lp'])
 
-    technologies = non_param_assumptions.update_assumptions(
+    technologies = non_param_assumptions.update_technology_assumption(
         data['assumptions'].technologies,
         data['assumptions'].strategy_variables['f_eff_achieved']['scenario_value'],
         data['assumptions'].strategy_variables['split_hp_gshp_to_ashp_ey']['scenario_value'])

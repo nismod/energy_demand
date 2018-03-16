@@ -59,8 +59,6 @@ class Enduse(object):
         Distribution of fuel within year to days (yd) (directly correlates with HDD)
     cooling_factor_y : array
         Distribution of fuel within year to days (yd) (directly correlates with CDD)
-    service_switches : list
-        Service switches
     fuel_fueltype_tech_p_by : dict
         Fuel tech assumtions in base year
     sig_param_tech : dict
@@ -103,11 +101,10 @@ class Enduse(object):
             enduse,
             sector,
             fuel,
-            s_tech_by_p,
+            #s_tech_by_p,
             tech_stock,
             heating_factor_y,
             cooling_factor_y,
-            service_switches,
             fuel_fueltype_tech_p_by,
             sig_param_tech,
             enduse_overall_change,
@@ -245,14 +242,10 @@ class Enduse(object):
                 # ----
                 # Get enduse specific configurations
                 # ----
-                mode_constrained, crit_switch_service = get_enduse_configuration(
+                mode_constrained = get_enduse_configuration(
                     criterias['mode_constrained'],
                     enduse,
-                    sector,
-                    assumptions.enduse_space_heating,
-                    base_yr,
-                    curr_yr,
-                    service_switches)
+                    assumptions.enduse_space_heating)
 
                 # ------------------------------------
                 # Calculate regional energy service
@@ -291,17 +284,18 @@ class Enduse(object):
 
                 # --------------------------------
                 # Switches
+                # Calculate services per technology for cy based on fitted parameters
                 # --------------------------------
-                if crit_switch_service:
-
-                    # Convert aggregated sector service percentages to sector service percentages
-                    # Calculate service difference between by and ey for every tech as a factor
-                    s_tech_y_cy = calc_service_switch(
-                        s_tech_y_cy,
-                        s_tech_by_p,
-                        self.enduse_techs,
-                        sig_param_tech,
-                        curr_yr)
+                s_tech_y_cy = calc_service_switch(
+                    enduse,
+                    s_tech_y_cy,
+                    #s_tech_by_p,
+                    self.enduse_techs,
+                    sig_param_tech,
+                    curr_yr,
+                    base_yr,
+                    sector,
+                    assumptions.crit_switch_happening)
 
                 # -------------------------------------------
                 # Convert annual service to fuel per fueltype
@@ -673,6 +667,11 @@ def get_running_mode(enduse, mode_constrained, enduse_space_heating):
     the supply model not specified for technologies. Otherwise,
     heat demand is supplied per technology
     """
+    print(enduse_space_heating)
+    print(type(enduse_space_heating))
+    print(type(enduse))
+    for i in enduse_space_heating:
+        print(type(i))
     if mode_constrained:
         return True
     elif not mode_constrained and enduse in enduse_space_heating:
@@ -685,11 +684,7 @@ def get_running_mode(enduse, mode_constrained, enduse_space_heating):
 def get_enduse_configuration(
         mode_constrained,
         enduse,
-        sector,
         enduse_space_heating,
-        base_yr,
-        curr_yr,
-        service_switches
     ):
     """Get enduse specific configuration
 
@@ -703,25 +698,15 @@ def get_enduse_configuration(
         All endueses classified as space heating
     base_yr, curr_yr : int
         Base, current, year
-    service_switches : list
-        Service switches
     """
     mode_constrained = get_running_mode(
         enduse,
         mode_constrained,
         enduse_space_heating)
 
-    crit_switch_service = get_crit_switch(
-        enduse,
-        sector,
-        service_switches,
-        base_yr,
-        curr_yr,
-        mode_constrained)
+    return mode_constrained
 
-    return mode_constrained, crit_switch_service
-
-def get_crit_switch(enduse, sector, switches, base_yr, curr_yr, mode_constrained):
+'''def get_crit_switch(enduse, sector, switches, base_yr, curr_yr, mode_constrained):
     """Test whether there is a switch (service or fuel)
 
     Arguments
@@ -757,6 +742,7 @@ def get_crit_switch(enduse, sector, switches, base_yr, curr_yr, mode_constrained
 
         # No switch as found for this enduse
         return False
+'''
 
 def get_peak_day_all_fueltypes(fuel_yh):
     """Iterate yh and get day with highes fuel (across all fueltypes).
@@ -1780,11 +1766,14 @@ def get_service_diffusion(sig_param_tech, curr_yr):
     return s_tech_p
 
 def calc_service_switch(
+        enduse,
         s_tech_y_cy,
-        s_tech_by_p,
         all_technologies,
         sig_param_tech,
-        curr_yr
+        curr_yr,
+        base_yr,
+        sector,
+        crit_switch_happening
     ):
     """Apply change in service depending on defined service switches.
 
@@ -1797,8 +1786,6 @@ def calc_service_switch(
     ---------
     tot_s_yh_cy : array
         Hourly service of all technologies
-    s_tech_by_p : dict
-        Fraction of service per technology
     all_technologies : dict
         Technologies to iterate
     sig_param_tech : dict
@@ -1811,37 +1798,58 @@ def calc_service_switch(
     switched_s_tech_y_cy : dict
         Service per technology in current year after switch in a year
     """
-    switched_s_tech_y_cy = {}
-
-    # Service of all technologies
-    service_service_all_techs = sum(s_tech_y_cy.values())
-
-    for tech in all_technologies:
-
-        # Calculated service share per tech for cy with sigmoid parameters
-        s_tech_cy_p = get_service_diffusion(
-            sig_param_tech[tech], curr_yr)
-
-        if s_tech_cy_p == 'identical':
-             #service_service_all_techs * s_tech_by_p[tech]
-            switched_s_tech_y_cy[tech] = s_tech_y_cy[tech]
+    # ----------------------------------------
+    # Test wheter swich is defined or not
+    # ----------------------------------------
+    #TODO THIS IS ALSO DONE ELSWHERE I GUESS
+    if enduse in crit_switch_happening and base_yr != curr_yr:
+        if not sector:
+            crit_switch_service = True
         else:
-            switched_s_tech_y_cy[tech] = service_service_all_techs * s_tech_cy_p
+            if sector in crit_switch_happening[enduse]:
+                crit_switch_service = True
+            else:
+                crit_switch_service = False
+    else:
+        crit_switch_service = False
 
-        '''logging.debug(
-            "%s - %s - %s - %s - %s",
-            curr_yr,
-            s_tech_cy_p,
-            sig_param_tech[tech],
-            service_service_all_techs,
-            switched_s_tech_y_cy[tech])'''
+    # ----------------------------------------
+    # Calculate switch
+    # ----------------------------------------
+    if crit_switch_service:
 
-        if s_tech_by_p[tech] * service_service_all_techs > 0 and sig_param_tech[tech]['steepness'] is None:
-            sys.exit("Error in service switch")
+        switched_s_tech_y_cy = {}
 
-        assert switched_s_tech_y_cy[tech] >= 0
+        # Service of all technologies
+        service_all_techs = sum(s_tech_y_cy.values())
 
-    return switched_s_tech_y_cy
+        for tech in all_technologies:
+
+            # Calculated service share per tech for cy with sigmoid parameters
+            s_tech_cy_p = get_service_diffusion(
+                sig_param_tech[tech], curr_yr)
+
+            if s_tech_cy_p == 'identical':
+                switched_s_tech_y_cy[tech] = s_tech_y_cy[tech]
+            else:
+                switched_s_tech_y_cy[tech] = service_all_techs * s_tech_cy_p
+
+            '''logging.debug(
+                "%s - %s - %s - %s - %s",
+                curr_yr,
+                s_tech_cy_p,
+                sig_param_tech[tech],
+                service_all_techs,
+                switched_s_tech_y_cy[tech])'''
+
+            #if s_tech_by_p[tech] * service_all_techs > 0 and sig_param_tech[tech]['steepness'] is None:
+            #    sys.exit("Error in service switch")
+
+            assert switched_s_tech_y_cy[tech] >= 0
+
+        return switched_s_tech_y_cy
+    else:
+        return s_tech_y_cy
 
 def apply_cooling(
         enduse,

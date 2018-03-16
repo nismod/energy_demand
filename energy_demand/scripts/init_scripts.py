@@ -11,6 +11,51 @@ from energy_demand.geography import spatial_diffusion
 from energy_demand.read_write import data_loader, read_data
 from energy_demand.scripts import (s_disaggregation, s_fuel_to_service, s_generate_sigmoid)
 from energy_demand.technologies import fuel_service_switch
+import pprint
+
+def global_to_reg_capacity_switch(regions, global_capactiy_switch, spatial_factors):
+    """Conversion of global capacity switch instlalations
+    to regional installation
+    """
+    #reg_capacity_switch = defaultdict(dict)
+    reg_capacity_switch = {}
+
+    for reg in regions:
+        reg_capacity_switch[reg] = []
+
+    # Get all affected enduses of capacity switches
+    switch_enduses = set([])
+    for switch in global_capactiy_switch:
+        switch_enduses.add(switch.enduse)
+    switch_enduses = list(switch_enduses)
+
+    for enduse in switch_enduses:
+
+        ##reg_capacity_switch[enduse] = []
+        # Get all capacity switches related to this enduse
+        enduse_capacity_switches = []
+        for switch in global_capactiy_switch:
+            if switch.enduse == enduse:
+                enduse_capacity_switches.append(switch)
+
+        test = 0
+        for region in regions:
+
+            for switch in enduse_capacity_switches:
+
+                global_capacity = switch.installed_capacity
+                regional_capacity = global_capacity  * spatial_factors[switch.enduse][region]
+                test += regional_capacity
+                new_switch = read_data.CapacitySwitch(
+                    enduse=switch.enduse,
+                    technology_install=switch.technology_install,
+                    switch_yr=switch.switch_yr,
+                    installed_capacity=regional_capacity,
+                    sector=switch.sector)
+
+            reg_capacity_switch[region].append(new_switch)
+
+    return reg_capacity_switch
 
 def scenario_initalisation(path_data_ed, data=False):
     """Scripts which need to be run for every different scenario.
@@ -74,7 +119,7 @@ def scenario_initalisation(path_data_ed, data=False):
         data['assumptions'].curr_yr,
         data['fuels'],
         data['scenario_data'],
-        data['assumptions'],      
+        data['assumptions'],
         data['reg_coord'],
         data['weather_stations'],
         data['temp_data'],
@@ -94,7 +139,7 @@ def scenario_initalisation(path_data_ed, data=False):
     # ---------------------------------------
 
     # Residential
-    init_cont['rs_s_tech_by_p'], init_cont['rs_s_fueltype_tech_by_p'], init_cont['rs_s_fueltype_by_p'] = s_fuel_to_service.get_s_fueltype_tech(
+    rs_s_tech_by_p, _, rs_s_fueltype_by_p = s_fuel_to_service.get_s_fueltype_tech(
         data['enduses']['rs_enduses'],
         data['assumptions'].tech_list,
         data['lookups']['fueltypes'],
@@ -103,9 +148,10 @@ def scenario_initalisation(path_data_ed, data=False):
         data['technologies'])
 
     # Service
-    init_cont['ss_s_tech_by_p'] = {}
+    ss_s_tech_by_p = {}
+    ss_s_fueltype_by_p = {}
     for sector in data['sectors']['ss_sectors']:
-        init_cont['ss_s_tech_by_p'][sector], init_cont['ss_s_fueltype_tech_by_p'][sector], init_cont['ss_s_fueltype_by_p'][sector] = s_fuel_to_service.get_s_fueltype_tech(
+        ss_s_tech_by_p[sector], _, ss_s_fueltype_by_p[sector] = s_fuel_to_service.get_s_fueltype_tech(
             data['enduses']['ss_enduses'],
             data['assumptions'].tech_list,
             data['lookups']['fueltypes'],
@@ -115,9 +161,10 @@ def scenario_initalisation(path_data_ed, data=False):
             sector)
 
     # Industry
-    init_cont['is_s_tech_by_p'] = {}
+    is_s_tech_by_p = {}
+    is_s_fueltype_by_p = {}
     for sector in data['sectors']['is_sectors']:
-        init_cont['is_s_tech_by_p'][sector], init_cont['is_s_fueltype_tech_by_p'][sector], init_cont['is_s_fueltype_by_p'][sector] = s_fuel_to_service.get_s_fueltype_tech(
+        is_s_tech_by_p[sector], _, is_s_fueltype_by_p[sector] = s_fuel_to_service.get_s_fueltype_tech(
             data['enduses']['is_enduses'],
             data['assumptions'].tech_list,
             data['lookups']['fueltypes'],
@@ -127,143 +174,264 @@ def scenario_initalisation(path_data_ed, data=False):
             sector)
 
     # ===========================================
+    # SPATIAL CALCULATIONS factors
+    #
+    # Calculate spatial diffusion factors
+    # ===========================================
+    if data['criterias']['spatial_exliclit_diffusion']:
+        #TODO MAYBE f_reg enduse region specific
+        f_reg, f_reg_norm, f_reg_norm_abs = spatial_diffusion.calc_spatially_diffusion_factors(
+            regions=data['regions'],
+            fuel_disagg=fuel_disagg,
+            pop_density=data['pop_density'])
+    else:
+        regions = False
+        f_reg = False
+        f_reg_norm = False
+        f_reg_norm_abs = False
+
+    # ===========================================
     # II. Switches
     # ===========================================
 
-    # ------------------------------------
-    # Autocomplement defined service switches with technologies not
-    # explicitly specified in switch on a national scale
-    # ------------------------------------
-    rs_service_switches_completed = fuel_service_switch.autocomplete_switches(
-        data['assumptions'].rs_service_switches,
-        data['assumptions'].rs_specified_tech_enduse_by,
-        init_cont['rs_s_tech_by_p'])
-
-    ss_service_switches_completed = {}
-    for sector in data['sectors']['ss_sectors']:
-
-        # Get all switches of a sector
-        sector_switches = get_sector_switches(
-            sector, init_cont['ss_service_switches'])
-
-        ss_service_switches_completed[sector] = fuel_service_switch.autocomplete_switches(
-            data['assumptions'].ss_service_switches,
-            data['assumptions'].ss_specified_tech_enduse_by,
-            init_cont['ss_s_tech_by_p'][sector],
-            sector=sector)
-
-    is_service_switches_completed = {}
-    for sector in data['sectors']['is_sectors']:
-
-        # Get all switches of a sector
-        sector_switches = get_sector_switches(
-            sector, data['assumptions'].is_service_switches)
-
-        is_service_switches_completed[sector] = fuel_service_switch.autocomplete_switches(
-            sector_switches,
-            data['assumptions'].is_specified_tech_enduse_by,
-            init_cont['is_s_tech_by_p'][sector],
-            sector=sector)
-
-    # ------------------------------------
-    # Capacity switches
     # ======================
+    # Capacity switches
+    #
     # Calculate service shares considering potential capacity installations
-    # on a national scale
-    # ------------------------------------
+    # ======================
+    if data['criterias']['spatial_exliclit_diffusion']:
 
-    # Residential
-    init_cont['rs_service_switches'] = fuel_service_switch.capacity_switch(
-        data['assumptions'].rs_service_switches,
-        data['assumptions'].capacity_switches['rs_capacity_switches'],
-        data['technologies'],
-        data['assumptions'].enduse_overall_change['other_enduse_mode_info'],
-        data['fuels']['rs_fuel_raw'],
-        data['assumptions'].rs_fuel_tech_p_by,
-        data['assumptions'].base_yr)
+        # Convert globally defined swithces to regional switches
+        reg_capacity_switches_rs = global_to_reg_capacity_switch(
+            data['regions'], data['assumptions'].capacity_switches['rs_capacity_switches'], f_reg_norm_abs)
+        reg_capacity_switches_ss = global_to_reg_capacity_switch(
+            data['regions'], data['assumptions'].capacity_switches['ss_capacity_switches'], f_reg_norm_abs)
+        reg_capacity_switches_is = global_to_reg_capacity_switch(
+            data['regions'], data['assumptions'].capacity_switches['is_capacity_switches'], f_reg_norm_abs)
 
-    # Service
-    ss_aggr_sector_fuels = s_fuel_to_service.sum_fuel_enduse_sectors(
-        data['fuels']['ss_fuel_raw'],
-        data['enduses']['ss_enduses'],
-        data['lookups']['fueltypes_nr'])
+        # ITERATE OVER REGIONS
+        rs_service_switches_from_capacity = {}
+        ss_service_switches_from_capacity = {}
+        is_service_switches_from_capacity = {}
 
-    init_cont['ss_service_switches'] = fuel_service_switch.capacity_switch(
-        data['assumptions'].ss_service_switches,
-        data['assumptions'].capacity_switches['ss_capacity_switches'],
-        data['technologies'],
-        data['assumptions'].enduse_overall_change['other_enduse_mode_info'],
-        ss_aggr_sector_fuels,
-        data['assumptions'].ss_fuel_tech_p_by,
-        data['assumptions'].base_yr)
+        # Residential
+        for region in data['regions']:
+            rs_service_switches = fuel_service_switch.capacity_switch(
+                reg_capacity_switches_rs[region],
+                data['technologies'],
+                data['assumptions'].enduse_overall_change['other_enduse_mode_info'],
+                data['fuels']['rs_fuel_raw'],
+                data['assumptions'].rs_fuel_tech_p_by,
+                data['assumptions'].base_yr)
 
-    # Industry
-    is_aggr_sector_fuels = s_fuel_to_service.sum_fuel_enduse_sectors(
-        data['fuels']['is_fuel_raw'],
-        data['enduses']['is_enduses'],
-        data['lookups']['fueltypes_nr'])
+            rs_service_switches_from_capacity[region] = rs_service_switches
 
-    init_cont['is_service_switches'] = fuel_service_switch.capacity_switch(
-        data['assumptions'].is_service_switches,
-        data['assumptions'].capacity_switches['is_capacity_switches'],
-        data['technologies'],
-        data['assumptions'].enduse_overall_change['other_enduse_mode_info'],
-        is_aggr_sector_fuels,
-        data['assumptions'].is_fuel_tech_p_by,
-        data['assumptions'].base_yr)
+            # Service
+            ss_aggr_sector_fuels = s_fuel_to_service.sum_fuel_enduse_sectors(
+                data['fuels']['ss_fuel_raw'],
+                data['enduses']['ss_enduses'])
 
-    # ------------------------------------
+            ss_service_switches = fuel_service_switch.capacity_switch(
+                reg_capacity_switches_ss[region], #capacity_switches_ss,
+                data['technologies'],
+                data['assumptions'].enduse_overall_change['other_enduse_mode_info'],
+                ss_aggr_sector_fuels,
+                data['assumptions'].ss_fuel_tech_p_by,
+                data['assumptions'].base_yr)
+            
+            ss_service_switches_from_capacity[region] = ss_service_switches
+            # Industry
+            is_aggr_sector_fuels = s_fuel_to_service.sum_fuel_enduse_sectors(
+                data['fuels']['is_fuel_raw'],
+                data['enduses']['is_enduses'])
+
+            is_service_switches = fuel_service_switch.capacity_switch(
+                reg_capacity_switches_is[region], #capacity_switches_is,
+                data['technologies'],
+                data['assumptions'].enduse_overall_change['other_enduse_mode_info'],
+                is_aggr_sector_fuels,
+                data['assumptions'].is_fuel_tech_p_by,
+                data['assumptions'].base_yr)
+
+            is_service_switches_from_capacity[region] = is_service_switches
+
+    else: #Not spatial explicit
+
+        # Residential
+        rs_service_switches_from_capacity = fuel_service_switch.capacity_switch(
+            data['assumptions'].capacity_switches['rs_capacity_switches'],
+            data['technologies'],
+            data['assumptions'].enduse_overall_change['other_enduse_mode_info'],
+            data['fuels']['rs_fuel_raw'],
+            data['assumptions'].rs_fuel_tech_p_by,
+            data['assumptions'].base_yr)
+
+        # Service
+        ss_aggr_sector_fuels = s_fuel_to_service.sum_fuel_enduse_sectors(
+            data['fuels']['ss_fuel_raw'],
+            data['enduses']['ss_enduses'])
+
+        ss_service_switches_from_capacity = fuel_service_switch.capacity_switch(
+            data['assumptions'].capacity_switches['ss_capacity_switches'],
+            data['technologies'],
+            data['assumptions'].enduse_overall_change['other_enduse_mode_info'],
+            ss_aggr_sector_fuels,
+            data['assumptions'].ss_fuel_tech_p_by,
+            data['assumptions'].base_yr)
+
+        # Industry
+        is_aggr_sector_fuels = s_fuel_to_service.sum_fuel_enduse_sectors(
+            data['fuels']['is_fuel_raw'],
+            data['enduses']['is_enduses'])
+
+        is_service_switches_from_capacity = fuel_service_switch.capacity_switch(
+            data['assumptions'].capacity_switches['is_capacity_switches'],
+            data['technologies'],
+            data['assumptions'].enduse_overall_change['other_enduse_mode_info'],
+            is_aggr_sector_fuels,
+            data['assumptions'].is_fuel_tech_p_by,
+            data['assumptions'].base_yr)
+
+    # ======================
     # Service switches
-    # ================
     #
     # Get service shares of technologies for future year by considering
-    # service switches (defined on a national scale)
-    # ------------------------------------
-    rs_share_s_tech_ey_p = fuel_service_switch.get_share_s_tech_ey(
-        rs_service_switches_completed,
-        data['assumptions'].rs_specified_tech_enduse_by)
-
-    ss_share_s_tech_ey_p = {}
-    for sector in data['sectors']['ss_sectors']:
-        ss_share_s_tech_ey_p[sector] = fuel_service_switch.get_share_s_tech_ey(
-            ss_service_switches_completed[sector],
-            data['assumptions'].ss_specified_tech_enduse_by)
-
-    is_share_s_tech_ey_p = {}
-    for sector in data['sectors']['is_sectors']:
-        is_share_s_tech_ey_p[sector] = fuel_service_switch.get_share_s_tech_ey(
-            is_service_switches_completed[sector],
-            data['assumptions'].is_specified_tech_enduse_by)
-
-    # Spatial explicit modelling
+    # service switches.
+    # Autocomplement defined service switches with technologies not
+    # explicitly specified in switch on a global scale and distribute
+    # spatially
+    # ======================
     if data['criterias']['spatial_exliclit_diffusion']:
-        import pprint #KROKODIL TODO TODO
-        logging.warning(pprint.pprint(rs_share_s_tech_ey_p))
-        #prnt(":")
-        rs_reg_share_s_tech_ey_p, ss_reg_share_s_tech_ey_p, is_reg_share_s_tech_ey_p, spatial_diff_f, spatial_diff_values = spatial_diffusion.spatially_differentiated_modelling(
+
+        # REGIONAL
+
+        # =====================================
+        # Residential
+        # =====================================
+        # Autocomplete and regional diffusion levels calculations
+        reg_rs_share_s_tech_ey_p, rs_switches_autocompleted = fuel_service_switch.autocomplete_switches(
+            data['assumptions'].rs_service_switches,
+            data['assumptions'].rs_specified_tech_enduse_by,
+            rs_s_tech_by_p, #TODO remove from init_cont
+            spatial_exliclit_diffusion=data['criterias']['spatial_exliclit_diffusion'],
             regions=data['regions'],
-            fuel_disagg=fuel_disagg,
-            rs_share_s_tech_ey_p=rs_share_s_tech_ey_p,
-            ss_share_s_tech_ey_p=ss_share_s_tech_ey_p,
-            is_share_s_tech_ey_p=is_share_s_tech_ey_p,
+            f_diffusion=f_reg_norm, #TODO USE f_reg_norm
             techs_affected_spatial_f=data['assumptions'].techs_affected_spatial_f,
-            pop_density=data['pop_density'])
+            service_switches_from_capacity=rs_service_switches_from_capacity)
+
+        # =====================================
+        # Service
+        # =====================================
+        ss_switches_autocompleted = {}
+        reg_ss_share_s_tech_ey_p = {}
+        for sector in data['sectors']['ss_sectors']:
+
+            # Get all switches of a sector
+            sector_switches = get_sector_switches(
+                sector, data['assumptions'].ss_service_switches) #init_cont['ss_service_switches'])
+
+            reg_ss_share_s_tech_ey_p[sector], ss_switches_autocompleted[sector] = fuel_service_switch.autocomplete_switches(
+                sector_switches, #data['assumptions'].ss_service_switches,
+                data['assumptions'].ss_specified_tech_enduse_by,
+                ss_s_tech_by_p[sector],
+                sector=sector,
+                spatial_exliclit_diffusion=data['criterias']['spatial_exliclit_diffusion'],
+                regions=data['regions'],
+                f_diffusion=f_reg_norm, #TODO USE f_reg_norm
+                techs_affected_spatial_f=data['assumptions'].techs_affected_spatial_f,
+                service_switches_from_capacity=ss_service_switches_from_capacity)
+
+        # =====================================
+        # Industry
+        # =====================================
+        is_switches_autocompleted = {}
+        reg_is_share_s_tech_ey_p = {}
+        for sector in data['sectors']['is_sectors']:
+            
+            # Get all switches of a sector
+            sector_switches = get_sector_switches(
+                sector, data['assumptions'].is_service_switches)
+            #logging.warning("SECTOR: {}   {}".format(sector, sector_switches))
+
+            reg_is_share_s_tech_ey_p[sector], is_switches_autocompleted[sector] = fuel_service_switch.autocomplete_switches(
+                sector_switches,
+                data['assumptions'].is_specified_tech_enduse_by,
+                is_s_tech_by_p[sector],
+                sector=sector,
+                spatial_exliclit_diffusion=data['criterias']['spatial_exliclit_diffusion'],
+                regions=data['regions'],
+                f_diffusion=f_reg_norm, #TODO USE f_reg_norm
+                techs_affected_spatial_f=data['assumptions'].techs_affected_spatial_f,
+                service_switches_from_capacity=is_service_switches_from_capacity)
+            
+            #logging.warning(reg_is_share_s_tech_ey_p[sector])
+            #logging.warning("--")
 
         regions = data['regions']
-        rs_share_s_tech_ey_p = rs_reg_share_s_tech_ey_p
-        ss_share_s_tech_ey_p = ss_reg_share_s_tech_ey_p
-        is_share_s_tech_ey_p = is_reg_share_s_tech_ey_p
+        rs_share_s_tech_ey_p = reg_rs_share_s_tech_ey_p
+        ss_share_s_tech_ey_p = reg_ss_share_s_tech_ey_p
+        is_share_s_tech_ey_p = reg_is_share_s_tech_ey_p
 
-        logging.warning(pprint.pprint(rs_share_s_tech_ey_p))
-        #prnt(":")
+        '''#logging.info(data['assumptions'].is_service_switches)
+        logging.info("???????????==================")
+        logging.info(pprint.pprint(is_share_s_tech_ey_p))
+        prnt("chem")'''
     else:
-        regions = False
-        spatial_diff_f = False
-        spatial_diff_values = False
+        # Not spatially explicit
 
-    # ---------------------------------------
+        # =====================================
+        # Residential
+        # =====================================
+        # Add capacity switches to service switches
+        reg_rs_share_s_tech_ey_p, rs_switches_autocompleted = fuel_service_switch.autocomplete_switches(
+            service_switches=data['assumptions'].rs_service_switches, #switches_service_and_capacity, #init_cont['rs_service_switches'],
+            specified_tech_enduse_by=data['assumptions'].rs_specified_tech_enduse_by,
+            s_tech_by_p=rs_s_tech_by_p,
+            service_switches_from_capacity=rs_service_switches_from_capacity) #Same for regional or global
+
+        # =====================================
+        # Service
+        # ====================================
+        ss_switches_autocompleted = {}
+        reg_ss_share_s_tech_ey_p = {}
+        for sector in data['sectors']['ss_sectors']:
+
+            # Get all switches of a sector
+            sector_switches = get_sector_switches(
+                sector, data['assumptions'].ss_service_switches)
+
+            reg_ss_share_s_tech_ey_p[sector], ss_switches_autocompleted[sector] = fuel_service_switch.autocomplete_switches(
+                service_switches=sector_switches,
+                specified_tech_enduse_by=data['assumptions'].ss_specified_tech_enduse_by,
+                s_tech_by_p=ss_s_tech_by_p[sector],
+                sector=sector,
+                service_switches_from_capacity=ss_service_switches_from_capacity)
+
+        # =====================================
+        # Industry
+        # ====================================
+        is_switches_autocompleted = {}
+        reg_is_share_s_tech_ey_p = {}
+
+        for sector in data['sectors']['is_sectors']:
+
+            # Get all switches of a sector
+            sector_switches = get_sector_switches(
+                sector, data['assumptions'].is_service_switches) #switches_service_and_capacity)
+
+            reg_is_share_s_tech_ey_p[sector], is_switches_autocompleted[sector] = fuel_service_switch.autocomplete_switches(
+                service_switches=sector_switches,
+                specified_tech_enduse_by=data['assumptions'].is_specified_tech_enduse_by,
+                s_tech_by_p=is_s_tech_by_p[sector],
+                sector=sector,
+                service_switches_from_capacity=is_service_switches_from_capacity)
+
+        rs_share_s_tech_ey_p = reg_rs_share_s_tech_ey_p #rs_service_switches_completed
+        ss_share_s_tech_ey_p = reg_ss_share_s_tech_ey_p #ss_service_switches_completed
+        is_share_s_tech_ey_p = reg_is_share_s_tech_ey_p #is_service_switches_completed
+
+    # ======================
     # Fuel switches
-    # =============
     #
     # Calculate sigmoid diffusion considering fuel switches
     # and service switches
@@ -272,62 +440,125 @@ def scenario_initalisation(path_data_ed, data=False):
     # technology diffusion (same diffusion pattern for
     # the whole UK) or spatially differentiated (every region)
     # ---------------------------------------
-    for enduse in data['enduses']['rs_enduses']:
+    if data['criterias']['spatial_exliclit_diffusion']:
 
-        init_cont['rs_sig_param_tech'][enduse], init_cont['rs_service_switch'][enduse] = sig_param_calc_incl_fuel_switch(
-            data['assumptions'].base_yr,
-            data['technologies'],
-            enduse=enduse,
-            fuel_switches=data['assumptions'].rs_fuel_switches,
-            service_switches=init_cont['rs_service_switches'],
-            s_tech_by_p=init_cont['rs_s_tech_by_p'][enduse],
-            s_fueltype_by_p=init_cont['rs_s_fueltype_by_p'][enduse],
-            share_s_tech_ey_p=rs_share_s_tech_ey_p[enduse],
-            fuel_tech_p_by=data['assumptions'].rs_fuel_tech_p_by[enduse],
-            regions=regions,
-            regional_specific=data['criterias']['spatial_exliclit_diffusion'])
+        # Regional specific
+        for enduse in data['enduses']['rs_enduses']:
 
-    for enduse in data['enduses']['ss_enduses']:
-
-        init_cont['ss_sig_param_tech'][enduse] = {}
-        init_cont['ss_service_switch'][enduse] = {}
-
-        for sector in data['sectors']['ss_sectors']:
-            init_cont['ss_sig_param_tech'][enduse][sector], init_cont['ss_service_switch'][enduse][sector] = sig_param_calc_incl_fuel_switch(
+            init_cont['rs_sig_param_tech'][enduse] = sig_param_calc_incl_fuel_switch(
                 data['assumptions'].base_yr,
+                data['assumptions'].crit_switch_happening,
                 data['technologies'],
                 enduse=enduse,
-                fuel_switches=data['assumptions'].ss_fuel_switches,
-                service_switches=init_cont['ss_service_switches'],
-                s_tech_by_p=init_cont['ss_s_tech_by_p'][sector][enduse],
-                s_fueltype_by_p=init_cont['ss_s_fueltype_by_p'][sector][enduse],
-                share_s_tech_ey_p=ss_share_s_tech_ey_p[sector][enduse],
-                fuel_tech_p_by=data['assumptions'].ss_fuel_tech_p_by[enduse][sector],
+                fuel_switches=data['assumptions'].rs_fuel_switches, 
+                service_switches=rs_switches_autocompleted, # NEW Swiches of capacity are instered in service, and service... lal nowrs_service_switches_from_capacity, #init_cont['rs_service_switches'],
+                s_tech_by_p=rs_s_tech_by_p[enduse],
+                s_fueltype_by_p=rs_s_fueltype_by_p[enduse],
+                share_s_tech_ey_p=rs_share_s_tech_ey_p[enduse],
+                fuel_tech_p_by=data['assumptions'].rs_fuel_tech_p_by[enduse],
                 regions=regions,
                 regional_specific=data['criterias']['spatial_exliclit_diffusion'])
 
-    for enduse in data['enduses']['is_enduses']:
+        for enduse in data['enduses']['ss_enduses']:
+            init_cont['ss_sig_param_tech'][enduse] = {}
 
-        init_cont['is_sig_param_tech'][enduse] = {}
-        init_cont['is_service_switch'][enduse] = {}
+            for sector in data['sectors']['ss_sectors']:
+                init_cont['ss_sig_param_tech'][enduse][sector] = sig_param_calc_incl_fuel_switch(
+                    data['assumptions'].base_yr,
+                    data['assumptions'].crit_switch_happening,
+                    data['technologies'],
+                    enduse=enduse,
+                    fuel_switches=data['assumptions'].ss_fuel_switches,
+                    service_switches=ss_switches_autocompleted[sector], #ss_service_switches_from_capacity, #init_cont['ss_service_switches'],
+                    s_tech_by_p=ss_s_tech_by_p[sector][enduse],
+                    s_fueltype_by_p=ss_s_fueltype_by_p[sector][enduse],
+                    share_s_tech_ey_p=ss_share_s_tech_ey_p[sector][enduse],
+                    fuel_tech_p_by=data['assumptions'].ss_fuel_tech_p_by[enduse][sector],
+                    regions=regions,
+                    sector=sector,
+                    regional_specific=data['criterias']['spatial_exliclit_diffusion'])
 
-        for sector in data['sectors']['is_sectors']:
+        for enduse in data['enduses']['is_enduses']:
+            init_cont['is_sig_param_tech'][enduse] = {}
 
-            init_cont['is_sig_param_tech'][enduse][sector], init_cont['is_service_switch'][enduse][sector] = sig_param_calc_incl_fuel_switch(
+            for sector in data['sectors']['is_sectors']:
+
+                init_cont['is_sig_param_tech'][enduse][sector] = sig_param_calc_incl_fuel_switch(
+                    data['assumptions'].base_yr,
+                    data['assumptions'].crit_switch_happening,
+                    data['technologies'],
+                    enduse=enduse,
+                    fuel_switches=data['assumptions'].is_fuel_switches,
+                    service_switches=is_switches_autocompleted[sector],
+                    s_tech_by_p=is_s_tech_by_p[sector][enduse],
+                    s_fueltype_by_p=is_s_fueltype_by_p[sector][enduse],
+                    share_s_tech_ey_p=is_share_s_tech_ey_p[sector][enduse],
+                    fuel_tech_p_by=data['assumptions'].is_fuel_tech_p_by[enduse][sector],
+                    regions=regions,
+                    sector=sector,
+                    regional_specific=data['criterias']['spatial_exliclit_diffusion'])
+    else:
+
+        # Residential
+        for enduse in data['enduses']['rs_enduses']:
+
+            init_cont['rs_sig_param_tech'][enduse] = sig_param_calc_incl_fuel_switch(
                 data['assumptions'].base_yr,
+                data['assumptions'].crit_switch_happening,
                 data['technologies'],
                 enduse=enduse,
-                fuel_switches=data['assumptions'].is_fuel_switches,
-                service_switches=init_cont['is_service_switches'],
-                s_tech_by_p=init_cont['is_s_tech_by_p'][sector][enduse],
-                s_fueltype_by_p=init_cont['is_s_fueltype_by_p'][sector][enduse],
-                share_s_tech_ey_p=is_share_s_tech_ey_p[sector][enduse],
-                fuel_tech_p_by=data['assumptions'].is_fuel_tech_p_by[enduse][sector],
+                fuel_switches=data['assumptions'].rs_fuel_switches, 
+                service_switches=rs_switches_autocompleted, #init_cont['rs_service_switches'], #TODO CHECK THIS ONE
+                s_tech_by_p=rs_s_tech_by_p[enduse],
+                s_fueltype_by_p=rs_s_fueltype_by_p[enduse],
+                share_s_tech_ey_p=rs_share_s_tech_ey_p[enduse],
+                fuel_tech_p_by=data['assumptions'].rs_fuel_tech_p_by[enduse],
                 regions=regions,
                 regional_specific=data['criterias']['spatial_exliclit_diffusion'])
+
+         # Service
+        for enduse in data['enduses']['ss_enduses']:
+            init_cont['ss_sig_param_tech'][enduse] = {}
+
+            for sector in data['sectors']['ss_sectors']:
+                init_cont['ss_sig_param_tech'][enduse][sector] = sig_param_calc_incl_fuel_switch(
+                    data['assumptions'].base_yr,
+                    data['assumptions'].crit_switch_happening,
+                    data['technologies'],
+                    enduse=enduse,
+                    fuel_switches=data['assumptions'].ss_fuel_switches,
+                    service_switches=ss_switches_autocompleted[sector], #init_cont['ss_service_switches'],
+                    s_tech_by_p=ss_s_tech_by_p[sector][enduse],
+                    s_fueltype_by_p=ss_s_fueltype_by_p[sector][enduse],
+                    share_s_tech_ey_p=ss_share_s_tech_ey_p[sector][enduse],
+                    fuel_tech_p_by=data['assumptions'].ss_fuel_tech_p_by[enduse][sector],
+                    regions=regions,
+                    sector=sector,
+                    regional_specific=data['criterias']['spatial_exliclit_diffusion'])
+
+         # Industry
+        for enduse in data['enduses']['is_enduses']:
+            init_cont['is_sig_param_tech'][enduse] = {}
+
+            for sector in data['sectors']['is_sectors']:
+
+                init_cont['is_sig_param_tech'][enduse][sector] = sig_param_calc_incl_fuel_switch(
+                    data['assumptions'].base_yr,
+                    data['assumptions'].crit_switch_happening,
+                    data['technologies'],
+                    enduse=enduse,
+                    fuel_switches=data['assumptions'].is_fuel_switches,
+                    service_switches=is_switches_autocompleted[sector], #init_cont['is_service_switches'],
+                    s_tech_by_p=is_s_tech_by_p[sector][enduse],
+                    s_fueltype_by_p=is_s_fueltype_by_p[sector][enduse],
+                    share_s_tech_ey_p=is_share_s_tech_ey_p[sector][enduse],
+                    fuel_tech_p_by=data['assumptions'].is_fuel_tech_p_by[enduse][sector],
+                    regions=regions,
+                    sector=sector,
+                    regional_specific=data['criterias']['spatial_exliclit_diffusion'])
 
     # ===========================================
-    # III. Spatial explicit modelling
+    # III. Spatial explicit modelling of scenario variables
     #
     # From UK factors to regional specific factors
     # Convert strategy variables to regional variables
@@ -343,7 +574,7 @@ def scenario_initalisation(path_data_ed, data=False):
             # Check whether scenario varaible is regionally modelled
             if var_name not in data['assumptions'].spatially_modelled_vars:
 
-                #Variable is not spatially modelled
+                # Variable is not spatially modelled
                 for region in regions:
                     init_cont['regional_strategy_variables'][region][var_name] = {
                         'scenario_value': float(strategy_var['scenario_value']),
@@ -368,10 +599,12 @@ def scenario_initalisation(path_data_ed, data=False):
                 reg_specific_variables = spatial_diffusion.factor_improvements_single(
                     factor_uk=strategy_var['scenario_value'],
                     regions=data['regions'],
-                    spatial_factors=spatial_diff_f,
-                    spatial_diff_values=spatial_diff_values,
+                    f_reg=f_reg,
+                    f_reg_norm=f_reg_norm,
+                    f_reg_norm_abs=f_reg_norm_abs,
                     fuel_regs_enduse=fuels_reg)
 
+                # Add regional specific values
                 for region in regions:
                     init_cont['regional_strategy_variables'][region][var_name] = {
                         'scenario_value': float(reg_specific_variables[region]),
@@ -380,7 +613,6 @@ def scenario_initalisation(path_data_ed, data=False):
         init_cont['regional_strategy_variables'] = dict(init_cont['regional_strategy_variables'])
     else:
         logging.info("Not spatially explicit diffusion modelling")
-
         init_cont['regional_strategy_variables'] = None
         init_cont['strategy_variables'] = data['assumptions'].strategy_variables
 
@@ -478,6 +710,7 @@ def convert_sharesdict_to_service_switches(
 
 def sig_param_calc_incl_fuel_switch(
         base_yr,
+        crit_switch_happening,
         technologies,
         enduse,
         fuel_switches,
@@ -487,11 +720,12 @@ def sig_param_calc_incl_fuel_switch(
         share_s_tech_ey_p,
         fuel_tech_p_by,
         regions=False,
+        sector=False,
         regional_specific=False
     ):
     """Calculate sigmoid diffusion paramaters considering
     fuel or service switches. Test if service switch and
-    fuel switch are defined simultaneously (raise error if true).
+    fuel switch are defined simultaneously (raise error if true). TODO
 
     Arguments
     ---------
@@ -541,33 +775,30 @@ def sig_param_calc_incl_fuel_switch(
     # Test if service swich is defined for enduse
     # ------------------------------------------
     service_switches_enduse = fuel_service_switch.get_fuel_switches_enduse(
-        service_switches, enduse)
-
-    if len(service_switches_enduse) > 0:
-        crit_switch_service = True
-    else:
-        crit_switch_service = False
-
-    # ------------------------------------------
-    # Test if a service and fuel switch are defined simultaneously
-    # ------------------------------------------
-    if crit_switch_service and crit_fuel_switch:
-        logging.warning(
-            "Error: Not possible to define fuel plus service switch for %s",
-            enduse)
-        sys.exit()
+        service_switches, enduse, regional_specific)
 
     # ------------------------------------------
     # Initialisations
     # ------------------------------------------
     sig_param_tech = {}
+    service_switches_out = {} #REMOVE ENTIRELy
     if regional_specific:
-        service_switches_out = {}
         for region in regions:
             sig_param_tech[region] = []
-            service_switches_out[region] = service_switches_enduse
+            service_switches_out[region] = service_switches_enduse[region]
     else:
         service_switches_out = service_switches_enduse
+
+    if enduse in crit_switch_happening:
+        if not sector:
+            crit_switch_service = True
+        else:
+            if sector in crit_switch_happening[enduse]:
+                crit_switch_service = True
+            else:
+                crit_switch_service = False
+    else:
+        crit_switch_service = False
 
     # ------------------------------------------
     # SERVICE switch
@@ -613,7 +844,7 @@ def sig_param_calc_incl_fuel_switch(
             for reg in regions:
 
                 # Calculate service demand after fuel switches for each technology
-                s_tech_switched_p[reg] = s_generate_sigmoid.calc_service_fuel_switched(
+                s_tech_switched_p[reg] = s_generate_sigmoid.calc_service_fuel_switched( 
                     enduse_fuel_switches,
                     technologies,
                     s_fueltype_by_p,
@@ -678,12 +909,14 @@ def sig_param_calc_incl_fuel_switch(
             # Get year of switches
             for region in regions:
                 for switch in service_switches_out[region]:
-                    yr_until_switched = switch.switch_yr
-                    break
+
+                    if switch.enduse == enduse: #NEW
+                        yr_until_switched = switch.switch_yr
+                        break
                 break
 
             for reg in regions:
-
+                logging.info("schok {} {}".format(enduse, reg))
                 sig_param_tech[reg] = s_generate_sigmoid.tech_sigmoid_parameters(
                     yr_until_switched,
                     base_yr,
@@ -706,10 +939,11 @@ def sig_param_calc_incl_fuel_switch(
                 l_values_sig,
                 s_tech_by_p,
                 s_tech_switched_p)
+        logging.info("... moving on")
     else:
         pass #no switches are defined
 
-    return sig_param_tech, service_switches_out
+    return sig_param_tech #, service_switches_out
 
 def get_sector_switches(sector_to_match, service_switches):
     """Get all switches of a sector if the switches are

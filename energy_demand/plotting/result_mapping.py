@@ -613,12 +613,17 @@ def create_geopanda_files(
             bins=bins)
 
     # ======================================
-    # Total fuel all enduses
+    # Total fuel (y) all enduses
     # ======================================
+    base_yr = list(results_container['results_every_year'].keys())[0]
     for year in results_container['results_every_year'].keys():
         for fueltype in range(fueltypes_nr):
-            
+
             fueltype_str = tech_related.get_fueltype_str(fueltypes, fueltype)
+
+            # ---------
+            # Sum per enduse and year (y)
+            # ---------
             field_name = 'y_{}_{}'.format(year, fueltype_str)
 
             # Calculate yearly sum
@@ -626,11 +631,11 @@ def create_geopanda_files(
                 results_container['results_every_year'][year][fueltype],
                 axis=1)
 
-            fuel_data = basic_functions.array_to_dict(yearly_sum_gwh, regions)
+            data_to_plot = basic_functions.array_to_dict(yearly_sum_gwh, regions)
 
             # Both need to be lists
             merge_data = {
-                str(field_name): list(fuel_data.values()),
+                str(field_name): list(data_to_plot.values()),
                 str(unique_merge_id): list(regions)}
 
             # Merge to shapefile
@@ -650,6 +655,58 @@ def create_geopanda_files(
                 color_prop='qualitative',
                 user_classification=False)
 
+            # ===============================================
+            # Differences in percent per enduse and year (y)
+            # ===============================================
+            field_name = 'y_diff_p_{}-{},_{}'.format(base_yr, year, fueltype_str)
+
+            # Calculate yearly sums
+            yearly_sum_gwh_by = np.sum(
+                results_container['results_every_year'][base_yr][fueltype],
+                axis=1)
+
+            yearly_sum_gwh_cy = np.sum(
+                results_container['results_every_year'][year][fueltype],
+                axis=1)
+
+            # Calculate percentual difference
+            p_diff = ((yearly_sum_gwh_cy / yearly_sum_gwh_by) * 100) - 100
+
+            data_to_plot = basic_functions.array_to_dict(p_diff, regions)
+
+            # Both need to be lists
+            merge_data = {
+                str(field_name): list(data_to_plot.values()),
+                str(unique_merge_id): list(regions)}
+
+            # Merge to shapefile
+            lad_geopanda_shp = merge_data_to_shp(
+                lad_geopanda_shp,
+                merge_data,
+                unique_merge_id)
+
+            # If user classified, defined bins  [x for x in range(0, 1000000, 200000)]
+            bins = [-4, -2, 0, 2, 4] # must be of uneven length containing zero
+
+            color_list, color_prop, user_classification, color_zero = colors_plus_minus_map(
+                bins=bins,
+                color_prop='qualitative',
+                color_order=True,
+                color_zero='#ffffff') #8a2be2
+
+            # Plot difference in % per fueltype of total fuel (y)
+            plot_lad_national(
+                lad_geopanda_shp=lad_geopanda_shp,
+                legend_unit="GWh",
+                field_to_plot=field_name,
+                fig_name_part="tot_all_enduses_y_",
+                result_path=paths['data_results_shapefiles'],
+                color_palette='Purples_9',
+                color_prop=color_prop,
+                user_classification=user_classification,
+                color_list=color_list,
+                color_zero=color_zero,
+                bins=bins)
     # ======================================
     # Load factors
     # ======================================

@@ -102,7 +102,6 @@ def test_capacity_switch():
     ]
 
     result_service_switches = fuel_service_switch.capacity_switch(
-        service_switches=[],
         capacity_switches=capacity_switches,
         technologies=technologies,
         other_enduse_mode_info=other_enduse_mode_info,
@@ -147,7 +146,6 @@ def test_capacity_switch():
     ]
 
     result_service_switches = fuel_service_switch.capacity_switch(
-        service_switches=result_service_switches,
         capacity_switches=capacity_switches,
         technologies=technologies,
         other_enduse_mode_info=other_enduse_mode_info,
