@@ -174,12 +174,22 @@ class Dwelling(object):
                     #logging.info("Scenario driver `%s` calculation not possible", scenario_driver)
                     pass
 
-                Dwelling.__setattr__(
+                '''Dwelling.__setattr__(
+                    self,
+                    enduse,
+                    scenario_driver_value)'''
+
+                Dwelling.add_new_attribute(
                     self,
                     enduse,
                     scenario_driver_value)
 
             assert scenario_driver_value != 0
+    
+    def add_new_attribute(self, name, value):
+        """Add a new self asttribute to DwellingStock
+        """
+        setattr(self, name, value)
 
 class DwellingStock(object):
     """Class of the building stock in a region
@@ -208,7 +218,12 @@ class DwellingStock(object):
             enduse_scenario_driver = self.get_scenario_driver(
                 enduse)
 
-            DwellingStock.__setattr__(
+            '''DwellingStock.__setattr__(
+                self,
+                enduse,
+                enduse_scenario_driver)'''
+
+            DwellingStock.add_new_attribute(
                 self,
                 enduse,
                 enduse_scenario_driver)
@@ -226,6 +241,11 @@ class DwellingStock(object):
             sum_driver += getattr(dwelling, enduse)
 
         return sum_driver
+
+    def add_new_attribute(self, name, value):
+        """Add a new self asttribute to DwellingStock
+        """
+        setattr(self, name, value)
 
 def get_tot_pop(dwellings):
     """Get total population of all dwellings
