@@ -1,0 +1,19 @@
+name: energy_demand_unconstrained
+description: 'The future demand for energy in the UK'
+scenario_sets: # Select 0 or more of the scenario sets
+- population
+- gva
+sector_models: # Select 1 or more of the sector models
+- energy_demand_unconstrained
+dependencies:
+- source_model: population
+  source_model_output: population
+  sink_model: energy_demand
+  sink_model_input: population
+- source_model: gva
+  source_model_output: gva
+  sink_model: energy_demand
+  sink_model_input: gva
+max_iterations: 100
+convergence_absolute_tolerance: 1e-05
+convergence_relative_tolerance: 1e-05

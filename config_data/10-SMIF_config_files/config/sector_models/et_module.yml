@@ -1,0 +1,19 @@
+name: et_module
+description: ''
+path: ../models/et_module/run.py
+classname: ETWrapper
+# ---------------------------------------------------
+inputs: 
+- name: electricity
+  spatial_resolution: lad_uk_2016
+  temporal_resolution: annual
+  units: GWh
+# ---------------------------------------------------
+outputs: 
+- name: electricity
+  spatial_resolution: lad_uk_2016
+  temporal_resolution: hourly
+  units: GWh
+interventions: []
+initial_conditions: []
+parameters: []
