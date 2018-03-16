@@ -2,10 +2,19 @@ name: "Test Project"
 scenario_sets:
 - name: population
   description: 'UK population, total people'
+  facets:
+  - name: population
+    description: ''
 - name: gva
   description: 'Gross value added'
+  facets:
+  - name: gva
+    description: ''
 - name: transport_energy_demand
   description: 'Hourly electricity demand of transport model'
+  facets:
+  - name: electricity
+    description: ''
 narrative_sets:
 - name: technology
   description: 'Describes the evolution of technology'
@@ -32,7 +41,7 @@ scenarios:
 - name: et_demand_baseline
   description: 'Baseline GWh of transport for the UK'
   scenario_set: transport_energy_demand
-  parameters:
+  facets:
   - name: electricity
     filename: et_demand_electricity.csv
     spatial_resolution: lad_uk_2016
@@ -41,7 +50,7 @@ scenarios:
 - name: pop_baseline
   description: 'Baseline population for the UK'
   scenario_set: population
-  parameters:
+  facets:
   - name: population
     filename: uk_population_by_district_codes_Baseline.csv
     spatial_resolution: lad_uk_2016
@@ -50,7 +59,7 @@ scenarios:
 - name: pop_high
   description: 'High population for the UK'
   scenario_set: population
-  parameters:
+  facets:
   - name: population
     filename: uk_population_by_district_codes_High.csv
     spatial_resolution: lad_uk_2016
@@ -59,7 +68,7 @@ scenarios:
 - name: pop_low
   description: 'Low population for the UK'
   scenario_set: population
-  parameters:
+  facets:
   - name: population
     filename: uk_population_by_district_codes_Low.csv
     spatial_resolution: lad_uk_2016
@@ -68,7 +77,7 @@ scenarios:
 - name: gva_baseline
   description: 'Baseline gva for the UK'
   scenario_set: gva
-  parameters:
+  facets:
   - name: gva
     filename: gva_sven.csv
     spatial_resolution: lad_uk_2016
