@@ -337,11 +337,11 @@ class WeatherRegion(object):
             'ss_space_heating',
             model_yeardays_nrs)
 
-        # Apply correction factor for weekend_effect TODO NEW TODO NTEW
-        # ------ TODO TODO
+        # Apply correction factor for weekend_effect
+        # ------ TODO
         ss_fuel_shape_heating_yd = ss_fuel_shape_heating_yd * assumptions.ss_weekend_f
         ss_fuel_shape_heating_yd_weighted = load_profile.abs_to_rel(ss_fuel_shape_heating_yd)
-        # ------ TODO TODO
+        # ------ TODO 
 
         # Flatten list of all potential technologies
         ss_space_heating_tech_lists = list(tech_lists.values())

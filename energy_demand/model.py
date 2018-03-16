@@ -8,15 +8,15 @@ of the energy demand model
 import logging
 from collections import defaultdict
 import numpy as np
+
 import energy_demand.enduse_func as endusefunctions
 from energy_demand.geography.region import Region
 from energy_demand.geography.weather_region import WeatherRegion
 from energy_demand.dwelling_stock import dw_stock
-
 from energy_demand.basic import testing_functions as testing
 from energy_demand.profiles import load_profile, load_factors
 from energy_demand.charts import figure_HHD_gas_demand
-import pprint
+
 class EnergyDemandModel(object):
     """Energy Model of a simulation yearly run.
     Main function of energy demand model. All submodels are executed here
@@ -77,9 +77,11 @@ class EnergyDemandModel(object):
         logging.info("... Generate dwelling stocks")
         if data['criterias']['virtual_building_stock_criteria']:
 
-            # Virtual dwelling stocks #TODO MAKE THAT NOT DATA IN AND OUT
-            data = create_virtual_dwelling_stocks(
+            # Virtual dwelling stocks
+            rs_dw_stock, ss_dw_stock = create_virtual_dwelling_stocks(
                 regions, self.curr_yr, data)
+            data['rs_dw_stock'] = rs_dw_stock
+            data['ss_dw_stock'] = ss_dw_stock
         else:
             # Create dwelling stock from imported data from newcastle
             data = create_dwelling_stock(
@@ -472,11 +474,9 @@ def residential_submodel(
             # Configure and select correct Enduse() specific inputs
             # ------------------------------------------------------
             if criterias['spatial_exliclit_diffusion']:
-                #service_switches = assumptions.rs_service_switch[enduse][region.name] #TODO SWITCHES ARE NOT USED ACTUALLY
                 sig_param_tech = assumptions.rs_sig_param_tech[enduse][region.name]
                 strategy_variables = assumptions.regional_strategy_variables[region.name]
             else:
-                #service_switches = assumptions.rs_service_switch[enduse]
                 sig_param_tech = assumptions.rs_sig_param_tech[enduse]
                 strategy_variables = assumptions.strategy_variables
 
@@ -495,11 +495,9 @@ def residential_submodel(
                 enduse=enduse,
                 sector=sector,
                 fuel=region.rs_enduses_fuel[enduse],
-                #s_tech_by_p=assumptions.rs_s_tech_by_p[enduse], #TODO TODO REMOVE NOT REALLY NECESSARY
                 tech_stock=weather_region.rs_tech_stock,
                 heating_factor_y=weather_region.f_heat_rs_y,
                 cooling_factor_y=weather_region.f_cooling_rs_y,
-                #service_switches=service_switches,
                 fuel_fueltype_tech_p_by=assumptions.rs_fuel_tech_p_by[enduse],
                 sig_param_tech=sig_param_tech,
                 criterias=criterias,
@@ -552,11 +550,9 @@ def service_submodel(
             # Configure and select correct Enduse() specific inputs
             # ------------------------------------------------------
             if criterias['spatial_exliclit_diffusion']:
-                #service_switches = assumptions.ss_service_switch[enduse][sector][region.name]
                 sig_param_tech = assumptions.ss_sig_param_tech[enduse][sector][region.name]
                 strategy_variables = assumptions.regional_strategy_variables[region.name]
             else:
-                #service_switches = assumptions.ss_service_switch[enduse][sector]
                 sig_param_tech = assumptions.ss_sig_param_tech[enduse][sector]
                 strategy_variables = assumptions.strategy_variables
 
@@ -575,7 +571,6 @@ def service_submodel(
                 enduse=enduse,
                 sector=sector,
                 fuel=region.ss_enduses_sectors_fuels[enduse][sector],
-                #s_tech_by_p=assumptions.ss_s_tech_by_p[sector][enduse], #SECTOR SPECIFIC
                 tech_stock=weather_region.ss_tech_stock,
                 heating_factor_y=weather_region.f_heat_ss_y,
                 cooling_factor_y=weather_region.f_cooling_ss_y,
@@ -661,7 +656,6 @@ def industry_submodel(
                 enduse=enduse,
                 sector=sector,
                 fuel=region.is_enduses_sectors_fuels[enduse][sector],
-                #s_tech_by_p=assumptions.is_s_tech_by_p[sector][enduse],
                 tech_stock=weather_region.is_tech_stock,
                 heating_factor_y=weather_region.f_heat_is_y,
                 cooling_factor_y=weather_region.f_cooling_is_y,
@@ -816,23 +810,18 @@ def averaged_season_hourly(averaged_h, fuel_region_yh, reg_array_nr, fueltypes, 
         for fueltype in fueltypes:
             averaged_h[season][fueltype][reg_array_nr] = averaged_h[season][fueltype][reg_array_nr] / len(yeardays_modelled)
 
-    '''tot_h_sum = 0
-    for yearday in seasons['summer']:
-        tot_h_sum += fuel_region_yh[1][yearday][0]
-    assert averaged_h['summer'][1][reg_array_nr][0] * len(seasons['summer']) == tot_h_sum'''
-
     return averaged_h
 
 def create_virtual_dwelling_stocks(regions, curr_yr, data):
     """Create virtual dwelling stocks for residential
     and service sector
     """
-    data['rs_dw_stock'] = defaultdict(dict)
-    data['ss_dw_stock'] = defaultdict(dict)
+    rs_dw_stock = defaultdict(dict)
+    ss_dw_stock = defaultdict(dict)
     for region in regions:
 
         # Dwelling stock of residential SubModel for base year
-        data['rs_dw_stock'][region][data['assumptions'].base_yr] = dw_stock.rs_dw_stock(
+        rs_dw_stock[region][data['assumptions'].base_yr] = dw_stock.rs_dw_stock(
             region,
             data['assumptions'],
             data['scenario_data'],
@@ -846,7 +835,7 @@ def create_virtual_dwelling_stocks(regions, curr_yr, data):
             data['criterias']['virtual_building_stock_criteria'])
 
         # Dwelling stock of service SubModel for base year
-        data['ss_dw_stock'][region][data['assumptions'].base_yr] = dw_stock.ss_dw_stock(
+        ss_dw_stock[region][data['assumptions'].base_yr] = dw_stock.ss_dw_stock(
             region,
             data['enduses']['ss_enduses'],
             data['sectors']['ss_sectors'],
@@ -858,7 +847,7 @@ def create_virtual_dwelling_stocks(regions, curr_yr, data):
             data['criterias']['virtual_building_stock_criteria'])
 
         # Dwelling stock of residential SubModel for current year
-        data['rs_dw_stock'][region][curr_yr] = dw_stock.rs_dw_stock(
+        rs_dw_stock[region][curr_yr] = dw_stock.rs_dw_stock(
             region,
             data['assumptions'],
             data['scenario_data'],
@@ -872,7 +861,7 @@ def create_virtual_dwelling_stocks(regions, curr_yr, data):
             data['criterias']['virtual_building_stock_criteria'])
 
         # Dwelling stock of service SubModel for current year
-        data['ss_dw_stock'][region][curr_yr] = dw_stock.ss_dw_stock(
+        ss_dw_stock[region][curr_yr] = dw_stock.ss_dw_stock(
             region,
             data['enduses']['ss_enduses'],
             data['sectors']['ss_sectors'],
@@ -883,7 +872,7 @@ def create_virtual_dwelling_stocks(regions, curr_yr, data):
             data['assumptions'].base_yr,
             data['criterias']['virtual_building_stock_criteria'])
 
-    return data
+    return dict(rs_dw_stock), dict(ss_dw_stock)
 
 def create_dwelling_stock(regions, curr_yr, data):
     """Create dwelling stock based on NEWCASTLE data
@@ -894,7 +883,7 @@ def create_dwelling_stock(regions, curr_yr, data):
     Returns
     -------
     """
-     #TODO
+    #TODO
     #data['rs_dw_stock'][region][curr_yr] = dw_stock.createNEWCASTLE_dwelling_stock(
     # self.curr_yr,
     # region,

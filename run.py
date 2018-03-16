@@ -206,14 +206,6 @@ class EDWrapper(SectorModel):
             assumptions.model_yeardays_daytype,
             data['criterias']['plot_tech_lp'])
 
-        # ---------------------
-        # Convert capacity switches to service switches
-        # ---------------------
-        capacity_switches = fuel_service_switch.capacity_to_service_switches(
-            assumptions, data['fuels'], assumptions.base_yr)
-        for switch_name, switch_value in capacity_switches.items():
-            assumptions.update(switch_name, switch_value)
-
         # ------------------------
         # Load all SMIF parameters and replace data dict
         # ------------------------
@@ -239,6 +231,7 @@ class EDWrapper(SectorModel):
         # ------------------------
         # Pass along to simulate()
         # ------------------------
+        self.user_data['strategy_variables'] = data['assumptions'].strategy_variables
         self.user_data['gva'] = data['gva']
         self.user_data['industry_gva'] = data['industry_gva']
         self.user_data['population'] = data['population']
@@ -338,8 +331,8 @@ class EDWrapper(SectorModel):
             data['assumptions'].strategy_variables['f_eff_achieved']['scenario_value'],
             data['assumptions'].strategy_variables['split_hp_gshp_to_ashp_ey']['scenario_value'])
         data['technologies'] = technologies
-    
-        # ---------------------------------------------
+
+        # --------------------------------------------
         # Scenario data
         # ---------------------------------------------
         pop_array_current = data_handle.get_data('population')  # of simulation year

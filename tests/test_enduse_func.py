@@ -722,7 +722,6 @@ def test_get_enduse_configuration():
     assert mode_constrained == True
 
     # ---
-
     fuel_switches = [read_data.FuelSwitch(
         enduse='heating',
         fueltype_replace="",
@@ -739,7 +738,7 @@ def test_get_enduse_configuration():
         enduse_space_heating=['heating'])
 
     assert mode_constrained == False
-test_get_enduse_configuration()
+
 def test_apply_cooling():
     """testing
     """

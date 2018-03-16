@@ -597,11 +597,9 @@ def tech_sigmoid_parameters(
                 sig_params[tech]['steepness'] = 'linear'
                 sig_params[tech]['l_parameter'] = 'linear'
             else:
-                # Test if ftting is possible ()
+                # Test if no increase or decrease or if no future potential share
                 if (point_y_by == fit_assump_init and point_y_ey == fit_assump_init) or (
                         l_values[tech] == 0):
-
-                    # If no increase or decrease, if no future potential share
                     sig_params[tech]['midpoint'] = None
                     sig_params[tech]['steepness'] = None
                     sig_params[tech]['l_parameter'] = None
@@ -609,7 +607,8 @@ def tech_sigmoid_parameters(
 
                     # If difference is smaller than a certain share, approximate with linear
                     if abs(ydata[1] - ydata[0]) < linear_approx_crit:
-                        logging.debug("Linear approximation...")
+
+                        #logging.info("Linear approximation...")
                         sig_params[tech]['midpoint'] = 'linear'
                         sig_params[tech]['steepness'] = 'linear'
                         sig_params[tech]['l_parameter'] = 'linear'
@@ -624,9 +623,10 @@ def tech_sigmoid_parameters(
                             error_range=0.0002)
 
                         # Insert parameters
-                        sig_params[tech]['midpoint'] = fit_parameter[0] # midpoint (x0)
+                        sig_params[tech]['midpoint'] = fit_parameter[0]  # midpoint (x0)
                         sig_params[tech]['steepness'] = fit_parameter[1] # Steepnes (k)
                         sig_params[tech]['l_parameter'] = l_values[tech] # maximum p
+                        #logging.info("... successfull fitting")
 
                         if plot_sigmoid_diffusion:
                             plotting_program.plotout_sigmoid_tech_diff(

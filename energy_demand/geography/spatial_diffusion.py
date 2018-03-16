@@ -446,10 +446,10 @@ def spatially_differentiated_modelling(
     --------
     XX_reg_share_s_tech_ey_p :
         Technology specific service shares for every region (residential)
-        considering differences in diffusion speed. 
-        
-        If the calculate regional shares are larger than 1.0, the 
-        diffusion is set to the maximum criteria (`cap_max`). 
+        considering differences in diffusion speed.
+
+        If the calculate regional shares are larger than 1.0, the
+        diffusion is set to the maximum criteria (`cap_max`).
         This means that if some regions reach the maximum defined value,
         thes cannot futher increase their share. This means that other regions diffuse
         slower and do not reach such high leves (and because the faster regions
@@ -617,25 +617,38 @@ def factor_improvements_single(
 
     return reg_enduse_tech_p_ey
 
-def get_enduse_specific_fuel_all_regs(
+def get_enduse_regs(
         enduse,
         fuels_disagg):
-    """Get enduse for all regions for a specific enduse
-    read from a list of
-    TODO: IMPROVE SPEE
+    """
+    Get a specific enduse for all regions
+
+    Arguments
+    ---------
+    enduse : str
+        Enduse to sum
+    fuels_disagg : list
+        Fuels per disaggregated regions
+
+    Returns
+    -------
+    fuels_enduse : dict
+        Fuels of an enduse for all regiones
+        {'reg': np.array(enduse_fuel)}
     """
     fuels_enduse = {}
 
     if enduse == []:
-        return fuels_enduse
-    else:    
+        pass
+    else:
         for fuel_submodel in fuels_disagg:
+
             for reg, enduse_fuels in fuel_submodel.items():
                 for enduse_to_match, fuels_regs in enduse_fuels.items():
                     if enduse == enduse_to_match:
                         fuels_enduse[reg] = fuels_regs
 
-        if fuels_enduse == {}:
-            sys.exit("ERROR NOT ABLE TO FIND FUEL")
-        else:
-            return fuels_enduse
+    if fuels_enduse == {}:
+        raise Exception("Could not find fuel to get for regions")
+
+    return fuels_enduse

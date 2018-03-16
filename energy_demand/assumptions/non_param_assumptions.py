@@ -300,7 +300,7 @@ class Assumptions(object):
         t_bases['is_t_heating_by'] = 15.5    #
         #self.t_bases['is_t_cooling_by'] = Not implemented
 
-        self.t_bases = DummyClass(t_bases) #TODO TEST
+        self.t_bases = DummyClass(t_bases)
 
         self.base_temp_diff_params = {
             'sig_midpoint': 0,

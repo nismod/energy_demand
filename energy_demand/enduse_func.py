@@ -13,6 +13,7 @@ import numpy as np
 from energy_demand.profiles import load_profile as lp
 from energy_demand.profiles import load_factors as lf
 from energy_demand.technologies import diffusion_technologies
+from energy_demand.technologies import fuel_service_switch
 from energy_demand.technologies import tech_related
 from energy_demand.basic import lookup_tables
 
@@ -667,11 +668,6 @@ def get_running_mode(enduse, mode_constrained, enduse_space_heating):
     the supply model not specified for technologies. Otherwise,
     heat demand is supplied per technology
     """
-    print(enduse_space_heating)
-    print(type(enduse_space_heating))
-    print(type(enduse))
-    for i in enduse_space_heating:
-        print(type(i))
     if mode_constrained:
         return True
     elif not mode_constrained and enduse in enduse_space_heating:
@@ -1802,16 +1798,12 @@ def calc_service_switch(
     # Test wheter swich is defined or not
     # ----------------------------------------
     #TODO THIS IS ALSO DONE ELSWHERE I GUESS
-    if enduse in crit_switch_happening and base_yr != curr_yr:
-        if not sector:
-            crit_switch_service = True
-        else:
-            if sector in crit_switch_happening[enduse]:
-                crit_switch_service = True
-            else:
-                crit_switch_service = False
-    else:
-        crit_switch_service = False
+    crit_switch_service = fuel_service_switch.get_switch_criteria(
+        enduse,
+        sector,
+        crit_switch_happening,
+        base_yr,
+        curr_yr)
 
     # ----------------------------------------
     # Calculate switch

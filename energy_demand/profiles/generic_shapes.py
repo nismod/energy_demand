@@ -51,20 +51,17 @@ class GenericFlatEnduse(object):
     model_yeardays_nrs : int
         Number of modelled yeardays
     """
-    def __init__(self, enduse_fuel, model_yeardays_nrs):
-        self.fuel_new_y = enduse_fuel #TODO IS this needed? 
-
+    def __init__(self, enduse_fuel, model_yeardays_nrs): 
         shape_peak_dh, shape_non_peak_y_dh, shape_peak_yd_factor, shape_non_peak_yd, _ = flat_shape(model_yeardays_nrs)
 
         # Convert shape_peak_dh into fuel per day
         # (Multiply average daily fuel demand for flat shape * peak factor)
-        max_fuel_d = self.fuel_new_y * shape_peak_yd_factor
+        max_fuel_d = enduse_fuel * shape_peak_yd_factor
 
         # Yh fuel shape per fueltype (non-peak)
-        self.fuel_yh = self.fuel_new_y[:, np.newaxis, np.newaxis] * (shape_non_peak_yd[:, np.newaxis] * shape_non_peak_y_dh) * (model_yeardays_nrs/365.0)
+        self.fuel_yh = enduse_fuel[:, np.newaxis, np.newaxis] * (shape_non_peak_yd[:, np.newaxis] * shape_non_peak_y_dh) * (model_yeardays_nrs/365.0)
 
-        # Dh fuel shape per fueltype (peak)
-        # (shape of peak & maximum fuel per fueltype)
+        # Dh fuel shape per fueltype (peak) (shape of peak & maximum fuel per fueltype)
         self.fuel_peak_dh = shape_peak_dh * max_fuel_d[:, np.newaxis]
 
         # h fuel shape per fueltype (peak)

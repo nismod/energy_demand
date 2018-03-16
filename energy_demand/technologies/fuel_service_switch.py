@@ -6,6 +6,31 @@ from energy_demand.technologies import tech_related
 from energy_demand.read_write import read_data
 from energy_demand.basic import basic_functions
 
+def get_switch_criteria(
+        enduse,
+        sector,
+        crit_switch_happening,
+        base_yr=False,
+        curr_yr=False
+    ):
+    """Test if switch is happending
+    """
+    if base_yr == curr_yr and (base_yr != False or curr_yr != False):
+        crit_switch_service = False
+    else:
+        if enduse in crit_switch_happening:
+            if not sector:
+                crit_switch_service = True
+            else:
+                if sector in crit_switch_happening[enduse]:
+                    crit_switch_service = True
+                else:
+                    crit_switch_service = False
+        else:
+            crit_switch_service = False
+
+    return crit_switch_service
+
 def sum_fuel_across_sectors(enduse_fuels):
     """Sum fuel across sectors of an enduse if multiple sectors.
     Otherwise return unchanged `enduse_fuels`
@@ -232,7 +257,7 @@ def autocomplete_switches(
                                     logging.warning(" {}  {} {}".format(s_tot_defined, service_share_ey_regional, s_tot_defined + service_share_ey_regional))
                                     prnt(".")
                                 else:
-                                    service_share_ey_regional = max_crit - service_share_ey_regional #TODO NEW
+                                    service_share_ey_regional = max_crit - service_share_ey_regional
                             #logging.debug("A %s  %s", region, switch.technology_install)
                             #logging.debug(service_share_ey_global)
                             #logging.debug(service_share_ey_regional)
@@ -604,53 +629,3 @@ def switches_to_dict(service_switches, regional_specific):
             s_tech_by_p[switch.technology_install] = switch.service_share_ey
 
     return dict(s_tech_by_p)
-
-def capacity_to_service_switches(assumptions, fuels, base_yr):
-    """Convert capacity switches to service switches for
-    every submodel.
-
-    Arguments
-    ---------
-    assumptions : dict
-        Container with assumptions
-    fuels : dict
-        Fuels
-    base_yr : int
-        Base year
-    
-    Returns
-    -------
-    container : dict
-        Result container
-    """
-    #TODO REALLY SUMMING AND ADDING?
-    container = {}
-
-    rs_service_switches = capacity_switch(
-        assumptions.capacity_switches['rs_capacity_switches'],
-        assumptions.technologies,
-        assumptions.enduse_overall_change['other_enduse_mode_info'],
-        fuels['rs_fuel_raw'],
-        assumptions.rs_fuel_tech_p_by,
-        base_yr)
-    container['rs_service_switches'] = rs_service_switches + assumptions.rs_service_switches
-
-    ss_service_switches = capacity_switch(
-        assumptions.capacity_switches['ss_capacity_switches'],
-        assumptions.technologies,
-        assumptions.enduse_overall_change['other_enduse_mode_info'],
-        fuels['ss_fuel_raw'],
-        assumptions.ss_fuel_tech_p_by,
-        base_yr)
-    container['ss_service_switches'] = ss_service_switches + assumptions.ss_service_switches
-
-    is_service_switches = capacity_switch(
-        assumptions.capacity_switches['is_capacity_switches'],
-        assumptions.technologies,
-        assumptions.enduse_overall_change['other_enduse_mode_info'],
-        fuels['is_fuel_raw'],
-        assumptions.is_fuel_tech_p_by,
-        base_yr)
-    container['is_service_switches'] = is_service_switches + assumptions.is_service_switches
-
-    return container
