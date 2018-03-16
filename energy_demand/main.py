@@ -7,7 +7,7 @@
 
 
     ---------------------
-    SMIF
+    SMIF test
     ---------------------
     Information about the integration framework: http://smif.readthedocs.io/
 
