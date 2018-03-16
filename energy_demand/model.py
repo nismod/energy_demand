@@ -472,8 +472,6 @@ def residential_submodel(
             # Configure and select correct Enduse() specific inputs
             # ------------------------------------------------------
             if criterias['spatial_exliclit_diffusion']:
-                logging.info("WASI ST DAS {}".format(enduse))
-                logging.info(pprint.pprint(assumptions.rs_sig_param_tech[enduse]))
                 #service_switches = assumptions.rs_service_switch[enduse][region.name] #TODO SWITCHES ARE NOT USED ACTUALLY
                 sig_param_tech = assumptions.rs_sig_param_tech[enduse][region.name]
                 strategy_variables = assumptions.regional_strategy_variables[region.name]
@@ -647,11 +645,6 @@ def industry_submodel(
             else:
                 sig_param_tech = assumptions.is_sig_param_tech[enduse][sector]
                 strategy_variables = assumptions.strategy_variables
-
-            #if enduse == 'is_high_temp_process' and sector == 'basic_metals':
-            #     logging.info("LOGG {}  {} ".format(enduse, sector))
-            #    logging.info(sig_param_tech)
-            #    prnt("tset")
 
             # ------------------------------------------------------
             # Create submodel

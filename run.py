@@ -32,7 +32,7 @@ from energy_demand.geography import spatial_diffusion
 
 # must match smif project name for Local Authority Districts
 WRITEOUTSMIFRESULTS = False
-NR_OF_MODELLEd_REGIONS = 3#391 # uk: 391 (including ireland), england.: 380
+NR_OF_MODELLEd_REGIONS = 391 # uk: 391 (including ireland), england.: 380
 
 class EDWrapper(SectorModel):
     """Energy Demand Wrapper
@@ -59,9 +59,9 @@ class EDWrapper(SectorModel):
         # -----------
         data['criterias']['mode_constrained'] = True                    # True: Technologies are defined in ED model and fuel is provided, False: Heat is delievered not per technologies
         data['criterias']['virtual_building_stock_criteria'] = True     # True: Run virtual building stock model
-        data['criterias']['spatial_exliclit_diffusion'] = True         # True: Spatial explicit calculations
+        data['criterias']['spatial_exliclit_diffusion'] = False         # True: Spatial explicit calculations
 
-        fast_smif_run = True
+        fast_smif_run = False
 
         if fast_smif_run == True:
             data['criterias']['write_to_txt'] = False

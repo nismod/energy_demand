@@ -59,8 +59,6 @@ class Enduse(object):
         Distribution of fuel within year to days (yd) (directly correlates with HDD)
     cooling_factor_y : array
         Distribution of fuel within year to days (yd) (directly correlates with CDD)
-    service_switches : list
-        Service switches
     fuel_fueltype_tech_p_by : dict
         Fuel tech assumtions in base year
     sig_param_tech : dict
@@ -107,7 +105,6 @@ class Enduse(object):
             tech_stock,
             heating_factor_y,
             cooling_factor_y,
-            #service_switches,
             fuel_fueltype_tech_p_by,
             sig_param_tech,
             enduse_overall_change,
@@ -245,7 +242,6 @@ class Enduse(object):
                 # ----
                 # Get enduse specific configurations
                 # ----
-                
                 mode_constrained, crit_switch_service = get_enduse_configuration(
                     criterias['mode_constrained'],
                     enduse,
@@ -253,10 +249,8 @@ class Enduse(object):
                     assumptions.enduse_space_heating,
                     base_yr,
                     curr_yr,
-                    #service_switches,
                     assumptions.crit_switch_happening)
 
-                logging.info("TEST CIRT: {}".format(crit_switch_service))
                 # ------------------------------------
                 # Calculate regional energy service
                 # ------------------------------------
@@ -294,11 +288,9 @@ class Enduse(object):
 
                 # --------------------------------
                 # Switches
+                # Calculate services per technology for cy based on fitted parameters
                 # --------------------------------
                 if crit_switch_service:
-                    logging.info("fds {} {}  {}".format(sig_param_tech, enduse, sector))
-                    # Convert aggregated sector service percentages to sector service percentages
-                    # Calculate service difference between by and ey for every tech as a factor
                     s_tech_y_cy = calc_service_switch(
                         s_tech_y_cy,
                         s_tech_by_p,
@@ -692,7 +684,6 @@ def get_enduse_configuration(
         enduse_space_heating,
         base_yr,
         curr_yr,
-        #service_switches,
         crit_switch_happening
     ):
     """Get enduse specific configuration
@@ -707,20 +698,15 @@ def get_enduse_configuration(
         All endueses classified as space heating
     base_yr, curr_yr : int
         Base, current, year
-    service_switches : list
-        Service switches
     """
     mode_constrained = get_running_mode(
         enduse,
         mode_constrained,
         enduse_space_heating)
 
+    #TODO THIS IS ALSO DONE ELSWHERE I GUESS
     if enduse in crit_switch_happening and base_yr != curr_yr:
-        logging.info("ENDUSE IN CRITSWITHCHAPP " + str(crit_switch_happening[enduse]))
-        
-        #if crit_switch_happening[enduse] != [None]:
-        #    crit_switch_service = True
-        if sector == False: #TODO NEW
+        if not sector:
             crit_switch_service = True
         else:
             if sector in crit_switch_happening[enduse]:
@@ -730,17 +716,9 @@ def get_enduse_configuration(
     else:
         crit_switch_service = False
 
-    '''crit_switch_service = get_crit_switch(
-        enduse,
-        sector,
-        service_switches,
-        base_yr,
-        curr_yr,
-        mode_constrained)'''
-
     return mode_constrained, crit_switch_service
 
-def get_crit_switch(enduse, sector, switches, base_yr, curr_yr, mode_constrained):
+'''def get_crit_switch(enduse, sector, switches, base_yr, curr_yr, mode_constrained):
     """Test whether there is a switch (service or fuel)
 
     Arguments
@@ -776,6 +754,7 @@ def get_crit_switch(enduse, sector, switches, base_yr, curr_yr, mode_constrained
 
         # No switch as found for this enduse
         return False
+'''
 
 def get_peak_day_all_fueltypes(fuel_yh):
     """Iterate yh and get day with highes fuel (across all fueltypes).

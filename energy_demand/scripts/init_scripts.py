@@ -442,13 +442,7 @@ def scenario_initalisation(path_data_ed, data=False):
 
         # Regional specific
         for enduse in data['enduses']['rs_enduses']:
-            
-            #logging.warning("A")
-            #logging.warning(data['assumptions'].rs_fuel_switches)
-            #logging.warning("B")
-            #logging.warning(rs_service_switches_from_capacity)
-            #logging.warning("d")
-            #logging.warning(rs_switches_autocompleted)
+
             init_cont['rs_sig_param_tech'][enduse], init_cont['rs_service_switch'][enduse] = sig_param_calc_incl_fuel_switch(
                 data['assumptions'].base_yr,
                 data['assumptions'].curr_yr,
@@ -464,15 +458,10 @@ def scenario_initalisation(path_data_ed, data=False):
                 regions=regions,
                 regional_specific=data['criterias']['spatial_exliclit_diffusion'])
 
-        #logging.warning(pprint.pprint(init_cont['rs_sig_param_tech']))
-        #prnt("sve")
         for enduse in data['enduses']['ss_enduses']:
             init_cont['ss_sig_param_tech'][enduse] = {}
             init_cont['ss_service_switch'][enduse] = {}
 
-            #logging.info("ff")
-            #logging.info(ss_switches_autocompleted.keys())
-            #prnt(".")
             for sector in data['sectors']['ss_sectors']:
                 init_cont['ss_sig_param_tech'][enduse][sector], init_cont['ss_service_switch'][enduse][sector] = sig_param_calc_incl_fuel_switch(
                     data['assumptions'].base_yr,
@@ -495,9 +484,6 @@ def scenario_initalisation(path_data_ed, data=False):
             init_cont['is_service_switch'][enduse] = {}
 
             for sector in data['sectors']['is_sectors']:
-                
-                #logging.info(data['sectors']['is_sectors'])
-                #logging.info(is_share_s_tech_ey_p[sector][enduse])
 
                 init_cont['is_sig_param_tech'][enduse][sector], init_cont['is_service_switch'][enduse][sector] = sig_param_calc_incl_fuel_switch(
                     data['assumptions'].base_yr,
@@ -506,7 +492,7 @@ def scenario_initalisation(path_data_ed, data=False):
                     data['technologies'],
                     enduse=enduse,
                     fuel_switches=data['assumptions'].is_fuel_switches,
-                    service_switches=is_switches_autocompleted[sector], #is_service_switches_from_capacity, #init_cont['is_service_switches'],
+                    service_switches=is_switches_autocompleted[sector],
                     s_tech_by_p=init_cont['is_s_tech_by_p'][sector][enduse],
                     s_fueltype_by_p=init_cont['is_s_fueltype_by_p'][sector][enduse],
                     share_s_tech_ey_p=is_share_s_tech_ey_p[sector][enduse],
@@ -514,21 +500,6 @@ def scenario_initalisation(path_data_ed, data=False):
                     regions=regions,
                     sector=sector,
                     regional_specific=data['criterias']['spatial_exliclit_diffusion'])
-
-                if enduse == 'is_high_temp_process' and sector == 'basic_metals':
-                    logging.info(is_service_switches_from_capacity)
-                    logging.info("--ff-------")
-                    logging.info(is_share_s_tech_ey_p[sector][enduse])
-                    logging.info("--ff1-------")
-                    logging.info(init_cont['is_sig_param_tech'][enduse][sector])
-                    logging.info("--ff2-------")
-                    logging.info(is_service_switches_from_capacity)
-                    logging.info("--ff3-------")
-                    logging.info(data['assumptions'].is_fuel_switches)
-                    logging.info("aaaaadddddfdsfsddd")
-                    #prnt("hah,")
-                    logging.info(pprint.pprint(init_cont['is_sig_param_tech']))
-                    #prnt("han:") #HANNAH
     else:
 
         # Residential
@@ -553,7 +524,7 @@ def scenario_initalisation(path_data_ed, data=False):
         for enduse in data['enduses']['ss_enduses']:
             init_cont['ss_sig_param_tech'][enduse] = {}
             init_cont['ss_service_switch'][enduse] = {}
-            
+
             for sector in data['sectors']['ss_sectors']:
                 init_cont['ss_sig_param_tech'][enduse][sector], init_cont['ss_service_switch'][enduse][sector] = sig_param_calc_incl_fuel_switch(
                     data['assumptions'].base_yr,
@@ -595,9 +566,6 @@ def scenario_initalisation(path_data_ed, data=False):
                     sector=sector,
                     regional_specific=data['criterias']['spatial_exliclit_diffusion'])
 
-    #logging.warning("ffffffffffffff")
-    #logging.info(pprint.pprint(init_cont['is_sig_param_tech']))
-    #prnt(":")
     # ===========================================
     # III. Spatial explicit modelling of scenario variables
     #
@@ -801,7 +769,6 @@ def sig_param_calc_incl_fuel_switch(
     service_switches_out : list
         Service switches
     """
-
     # ----------------------------------------
     # Test if fuel switch is defined for enduse
     # Get affected technologies in fuel switch
@@ -814,52 +781,15 @@ def sig_param_calc_incl_fuel_switch(
     else:
         crit_fuel_switch = False
 
-    # ----------------------------------------
-    # Test if fuel switch is defined for enduse
-    # Get affected technologies in fuel switch
-    # ----------------------------------------
-    '''tech_switch_affected = s_generate_sigmoid.get_tech_installed(
-        enduse, fuel_switches)'''
-
     # ------------------------------------------
     # Test if service swich is defined for enduse
     # ------------------------------------------
-    #logging.warning(pprint.pprint(service_switches))
     service_switches_enduse = fuel_service_switch.get_fuel_switches_enduse(
         service_switches, enduse, regional_specific)
-    #logging.info("ffffffffff")
-    #logging.info(fuel_switches)
-    #logging.info("sssssssssss")
-    logging.info(service_switches)
-    logging.info("fffffffffffffffffff")
-    #logging.info(service_switches_enduse)
-    '''
-
-    if regional_specific:
-        for reg in service_switches_enduse:
-            if len(service_switches_enduse[reg]) > 0:
-                crit_switch_service = True
-            else:
-                crit_switch_service = False
-            break
-    else:
-        if len(service_switches_enduse) > 0:
-            crit_switch_service = True
-        else:
-            crit_switch_service = False
 
     # ------------------------------------------
     # Initialisations
     # ------------------------------------------
-    sig_param_tech = {}
-    if regional_specific:
-        service_switches_out = {}
-        for region in regions:
-            sig_param_tech[region] = []
-            service_switches_out[region] = service_switches_enduse[region]
-    else:
-        service_switches_out = service_switches_enduse'''
-
     sig_param_tech = {}
     service_switches_out = {} #REMOVE ENTIRELy
     if regional_specific:
@@ -870,7 +800,6 @@ def sig_param_calc_incl_fuel_switch(
         service_switches_out = service_switches_enduse
 
     if enduse in crit_switch_happening:
-        logging.info("EfffIN CRITSWITHCHAPP {}  {}".format(crit_switch_happening[enduse], sector))
         if not sector:
             crit_switch_service = True
         else:
@@ -879,14 +808,7 @@ def sig_param_calc_incl_fuel_switch(
             else:
                 crit_switch_service = False
     else:
-        logging.info("NOT CIRT {} {}".format(base_yr, curr_yr))
         crit_switch_service = False
-
-
-    '''if enduse in crit_switch_happening:
-        crit_switch_service = True
-    else:
-        crit_switch_service = False'''
 
     # ------------------------------------------
     # SERVICE switch
@@ -894,7 +816,6 @@ def sig_param_calc_incl_fuel_switch(
     # Calculate service shares considering service
     # switches and the diffusion parameters
     # ------------------------------------------
-    logging.info("CRIT WITHIN: {}  {}".format(crit_switch_service, crit_fuel_switch))
     if crit_switch_service:
 
         # Calculate only from service switch
@@ -986,7 +907,7 @@ def sig_param_calc_incl_fuel_switch(
 
     if crit_switch_service or crit_fuel_switch:
         logging.info("---------- switches %s %s %s", enduse, crit_switch_service, crit_fuel_switch)
-        logging.info(service_switches_out)
+
         # Calculates parameters for sigmoid diffusion of
         # technologies which are switched to/installed. With
         # `regional_specific` the assumption can be changed that
@@ -1005,7 +926,7 @@ def sig_param_calc_incl_fuel_switch(
                 break
 
             for reg in regions:
-                logging.info("schok {} {} {}".format(enduse, reg, service_switches_out))
+                logging.info("schok {} {}".format(enduse, reg))
                 sig_param_tech[reg] = s_generate_sigmoid.tech_sigmoid_parameters(
                     yr_until_switched,
                     base_yr,

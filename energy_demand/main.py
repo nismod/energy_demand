@@ -260,7 +260,7 @@ if __name__ == "__main__":
 
     strategy_variables = param_assumptions.load_param_assump(
         data['paths'], data['assumptions'])
-    data['assumptions'].__setattr__('strategy_variables', strategy_variables)
+    data['assumptions'].update('strategy_variables', strategy_variables)
 
     data['tech_lp'] = data_loader.load_data_profiles(
         data['paths'], data['local_paths'],

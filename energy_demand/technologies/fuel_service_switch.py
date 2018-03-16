@@ -297,12 +297,8 @@ def autocomplete_switches(
                 switch_yr=switch_yr)
 
             # Append all to list
-            #service_switches_out[region].extend(switches_new)
             service_switches_out.extend(switches_new)
             
-            #logging.info(service_switches_out)
-            #logging.info("---")
-            #logging.info(service_switches_from_capacity)
             # Append regional other capacity switches
             service_switches_out.extend(service_switches_from_capacity)
 
@@ -566,20 +562,15 @@ def get_fuel_switches_enduse(switches, enduse, regional_specific=False):
     enduse_switches : list
         All switches of a specific enduse
     """
-    
-
     if regional_specific:
         enduse_switches = {}
         for reg in switches:
-            #logging.warning("REG: " + str(reg))
             enduse_switches[reg] = []
             for fuel_switch in switches[reg]:
-                #logging.warning("ff: " + str(fuel_switch))
                 if fuel_switch.enduse == enduse:
                     enduse_switches[reg].append(fuel_switch)
     else:
         enduse_switches = []
-        logging.warning("switches: " + str(pprint.pprint(switches)))
         for fuel_switch in switches:
             if fuel_switch.enduse == enduse:
                 enduse_switches.append(fuel_switch)
@@ -637,9 +628,6 @@ def capacity_to_service_switches(assumptions, fuels, base_yr):
     """
     #TODO REALLY SUMMING AND ADDING?
     container = {}
-    logging.warning("tt")
-    logging.warning(assumptions.capacity_switches['rs_capacity_switches'])
-    logging.warning("ddddddd")
 
     rs_service_switches = capacity_switch(
         assumptions.capacity_switches['rs_capacity_switches'],
