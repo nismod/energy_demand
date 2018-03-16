@@ -5,7 +5,7 @@ import numpy as np
 from energy_demand.read_write import write_data
 from energy_demand.read_write import data_loader
 from energy_demand.basic import basic_functions
-from energy_demand.scripts import s_rs_raw_shapes
+from energy_demand.scripts.s_rs_raw_shapes import run
 from energy_demand.assumptions import non_param_assumptions
 from energy_demand.scripts import s_raw_weather_data
 from energy_demand.basic import lookup_tables
@@ -165,13 +165,10 @@ def post_install_setup_minimum(args):
         enduses=data['enduses'],
         sectors=data['sectors'],
         fueltypes=data['lookups']['fueltypes'],
-        fueltypes_nr=data['lookups']['fueltypes_nr']
+        fueltypes_nr=data['lookups']['fueltypes_nr'])
 
     # Read in residential submodel shapes
-    s_rs_raw_shapes.run(
-        data['paths'],
-        local_paths,
-        base_yr)
+    run(data['paths'], local_paths, base_yr)
 
     # ==========================================
     # Create not publica available files
