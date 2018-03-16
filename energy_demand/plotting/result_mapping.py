@@ -14,6 +14,14 @@ from matplotlib.colors import LinearSegmentedColormap
 from energy_demand.basic import basic_functions
 from energy_demand.technologies import tech_related
 
+'''def get_reasonable_bin_values(data_to_plot):
+    """Get reasonalbe bin values
+    """
+    max_val = max(data_to_plot)
+    min_val = min(data_to_plot)
+
+    get_reasonable_bin_values(list(data_to_plot.values()))'''
+
 def user_defined_classification(
         bins,
         min_value,
@@ -686,6 +694,7 @@ def create_geopanda_files(
                 unique_merge_id)
 
             # If user classified, defined bins  [x for x in range(0, 1000000, 200000)]
+            #bins = get_reasonable_bin_values(list(data_to_plot.values()))
             bins = [-4, -2, 0, 2, 4] # must be of uneven length containing zero
 
             color_list, color_prop, user_classification, color_zero = colors_plus_minus_map(

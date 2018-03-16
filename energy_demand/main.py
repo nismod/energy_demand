@@ -48,6 +48,7 @@ NICETOHAVE
 - Convert paths dict to objects
 
 TODOS
+TODO: CLEAN CONFIG_DATA
 TODO: Write all metadata of model run restuls to txt
 TODO: LOAD IN SCENARIO PARAMETERS IN INITIAL_SETUP FUNCTION IN RUn file
 TODO: Write function to test wheter swichtes are possible (e.g. that not more from one technology to another is replaced than possible)
