@@ -14,13 +14,28 @@ from matplotlib.colors import LinearSegmentedColormap
 from energy_demand.basic import basic_functions
 from energy_demand.technologies import tech_related
 
-'''def get_reasonable_bin_values(data_to_plot):
-    """Get reasonalbe bin values
+'''def get_reasonable_bin_values(data_to_plot, bin_nrs=2):
+    """Get reasonable bin values
     """
+    def round_down(num, divisor):
+        return num - (num%divisor)
+
     max_val = max(data_to_plot)
     min_val = min(data_to_plot)
 
-    get_reasonable_bin_values(list(data_to_plot.values()))'''
+    if abs(max_val) > abs(min_val):
+        # Larger positive valus
+        equal_cat = max_val / bin_nrs
+
+        rounding_to_nr = 10
+
+        # Round down to 
+        bin_diff = round_down(equal_cat, rounding_to_nr)
+
+    else:
+        #lager negative values
+
+    '''
 
 def user_defined_classification(
         bins,
@@ -253,7 +268,7 @@ def plot_lad_national(
         color_list=False,
         color_zero=False,
         bins=[],
-        file_type="png", #"png" pdf
+        file_type="pdf", #"png" pdf
         plotshow=False
     ):
     """Create plot of LADs and store to map file (PDF)
@@ -538,7 +553,7 @@ def create_geopanda_files(
     base_yr = simulated_yrs[0]
 
     for fueltype in range(fueltypes_nr):
-
+        logging.info(" progress.. {}".format(fueltype))
         fueltype_str = tech_related.get_fueltype_str(fueltypes, fueltype)
         field_name = 'lf_diff_{}_{}_'.format(final_yr, fueltype_str)
 
@@ -567,7 +582,8 @@ def create_geopanda_files(
             unique_merge_id)
 
         # If user classified, defined bins  [x for x in range(0, 1000000, 200000)]
-        bins = [-4, -2, 0, 2, 4] # must be of uneven length containing zero
+        #bins = [-4, -2, 0, 2, 4] # must be of uneven length containing zero
+        bins = [-15, -10, -5, 0, 5, 10, 15] # must be of uneven length containing zero
 
         color_list, color_prop, user_classification, color_zero = colors_plus_minus_map(
             bins=bins,
@@ -626,7 +642,7 @@ def create_geopanda_files(
     base_yr = list(results_container['results_every_year'].keys())[0]
     for year in results_container['results_every_year'].keys():
         for fueltype in range(fueltypes_nr):
-
+            logging.info(" progress.. {}".format(fueltype))
             fueltype_str = tech_related.get_fueltype_str(fueltypes, fueltype)
 
             # ---------
@@ -666,7 +682,7 @@ def create_geopanda_files(
             # ===============================================
             # Differences in percent per enduse and year (y)
             # ===============================================
-            field_name = 'y_diff_p_{}-{},_{}'.format(base_yr, year, fueltype_str)
+            field_name = 'y_diff_p_{}-{}_{}'.format(base_yr, year, fueltype_str)
 
             # Calculate yearly sums
             yearly_sum_gwh_by = np.sum(
@@ -695,7 +711,8 @@ def create_geopanda_files(
 
             # If user classified, defined bins  [x for x in range(0, 1000000, 200000)]
             #bins = get_reasonable_bin_values(list(data_to_plot.values()))
-            bins = [-4, -2, 0, 2, 4] # must be of uneven length containing zero
+            #bins = [-4, -2, 0, 2, 4] # must be of uneven length containing zero
+            bins = [-30, -20, -10, 0, 10, 20, 30] # must be of uneven length containing zero
 
             color_list, color_prop, user_classification, color_zero = colors_plus_minus_map(
                 bins=bins,
@@ -721,7 +738,7 @@ def create_geopanda_files(
     # ======================================
     for year in results_container['load_factors_y'].keys():
         for fueltype in range(fueltypes_nr):
-
+            logging.info(" progress.. {}".format(fueltype))
             fueltype_str = tech_related.get_fueltype_str(fueltypes, fueltype)
             field_name = 'lf_{}_{}'.format(year, fueltype_str)
 
