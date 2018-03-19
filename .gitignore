@@ -43,6 +43,9 @@ docs/_build/*
 cover/*
 MANIFEST
 
+# Model configuration
+*.ini
+
 # Model results
 model_output/*.csv
 model_output/*.pdf

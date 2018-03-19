@@ -59,7 +59,7 @@ class EDWrapper(SectorModel):
         # -----------
         data['criterias']['mode_constrained'] = True                    # True: Technologies are defined in ED model and fuel is provided, False: Heat is delievered not per technologies
         data['criterias']['virtual_building_stock_criteria'] = True     # True: Run virtual building stock model
-        data['criterias']['spatial_exliclit_diffusion'] = False         # True: Spatial explicit calculations
+        data['criterias']['spatial_exliclit_diffusion'] = True         # True: Spatial explicit calculations
 
         fast_smif_run = False
 
@@ -93,7 +93,10 @@ class EDWrapper(SectorModel):
         self.processed_path = config['PATHS']['path_processed_data']
         self.result_path = config['PATHS']['path_result_data']
 
-        data['paths'] = data_loader.load_paths(path_main)
+        # config data
+        config_data = resource_filename(Requirement.parse("energy_demand"), "config_data")
+        data['paths'] = data_loader.load_paths(config_data)
+        # downloaded (FTP) data
         data['local_paths'] = data_loader.load_local_paths(self.user_data['data_path'])
 
         # -----------------------------
@@ -306,7 +309,7 @@ class EDWrapper(SectorModel):
         path_nismod, folder = os.path.split(path)
         self.user_data['data_path'] = os.path.join(path_nismod, 'data_energy_demand')
 
-        config_data = resource_filename(Requirement.parse("energy_demand"), "")
+        config_data = resource_filename(Requirement.parse("energy_demand"), "config_data")
 
         data['paths'] = data_loader.load_paths(config_data)
         data['local_paths'] = data_loader.load_local_paths(self.user_data['data_path'])

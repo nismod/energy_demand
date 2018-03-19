@@ -39,15 +39,15 @@ energy demand model simulation.
 
 
 1. Initialising and running the model (local)
-========================
+=============================================
 **HIRE** is written in Python (Python>=3.6). In order to run HIRE,
-first the model needs to be set up one (Section 1.1). The scenario Set-up need to be
+first the model needs to be set up (Section 1.1). The scenario setup needs to be
 run every time the model is run with different assumptions (Section 1.2).
 
 1.1 Model Set-Up (with complete data)
----------------------------------------------
+-------------------------------------
 
-1.  Add all necessary data into a local directory as ``path/to/energy_data_folder`` and
+1.  Add all necessary data into a local directory such as ``path/to/energy_data_folder`` and
     download the energy_demand python code.
 
    Note: Because some data is not open source, the full data needs to be optained
@@ -57,16 +57,16 @@ run every time the model is run with different assumptions (Section 1.2).
 2. Navigate to the folder where the python code is saved. Open a command and type into
    a command line (in a virtual environment):
 
-   ``python setup.py develop``
+   ``python setup.py develop`` or ``python setup.py install``
 
 3. Install HIRE from within the console with the command
 
-   ``energy_demand post_install_setup -d path/to/energy_data_folder``
+   ``energy_demand setup -d path/to/energy_data_folder``
 
    The ``path/to/energy_data_folder`` is the path to the location with
    the necessary data to run the model.
 
-   Note: The `post_install_setup` generates new folders in the 
+   Note: The ``setup`` command generates new subfolders in the 
    ``energy_data_folder``.
 
 1.2 Alternative Model Set-Up (with restricted data)
@@ -78,19 +78,20 @@ run every time the model is run with different assumptions (Section 1.2).
 2. Navigate to the folder where the python code is saved. Open a command and type into
    a command line (in a virtual environment):
 
-   ``python setup.py develop``
+   ``python setup.py develop`` or ``python setup.py install``
 
 3. Install HIRE from within the console with the command
 
-   ``energy_demand post_install_setup_minimum -d1 path/to/python_files -d2 path/to/energy_data_folder``
+   ``energy_demand minimal_setup -d path/to/energy_data_folder``
 
-   Example:
-    energy_demand post_install_setup_minimum -d1  C:/Users/cenv0553/nismod/data_energy_demand -d2 C:/Users/cenv0553/nismod/models/energy_demand
+   Example::
+
+    energy_demand minimal_setup -d  C:/Users/fred1234/data_energy_demand
 
    The ``path/to/energy_data_folder`` is the path to the location with
    the necessary minimum dummy data to run the model.
 
-   Note: The `post_install_setup_minimum` generates new folders in the 
+   Note: The ``minimal_setup`` command generates new folders in the 
    ``energy_data_folder``.
 
 2. Running the model with smif
@@ -100,7 +101,7 @@ run every time the model is run with different assumptions (Section 1.2).
 
 2. Install and set-up smif (see instructions `here <https://github.com/nismod/smif>`_)
 
-3. Run the the energy demand model for a scenario with 
+3. Run the energy demand model for a scenario with 
    the command: ``smif run NAME_SCENARIO``
 
    For an overview of all possible scenario and their explanation,

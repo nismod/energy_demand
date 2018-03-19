@@ -225,9 +225,9 @@ def scenario_initalisation(path_data_ed, data=False):
             data['regions'], data['assumptions'].capacity_switches['is_capacity_switches'], f_diffusion)
 
         # ITERATE OVER REGIONS
-        rs_service_switches_from_capacity = {}
-        ss_service_switches_from_capacity = {}
-        is_service_switches_from_capacity = {}
+        rs_service_switches_incl_cap = {}
+        ss_service_switches_inlc_cap = {}
+        is_service_switches_incl_cap = {}
 
         for region in data['regions']:
 
@@ -239,7 +239,7 @@ def scenario_initalisation(path_data_ed, data=False):
                 data['fuels']['rs_fuel_raw'],
                 data['assumptions'].rs_fuel_tech_p_by,
                 data['assumptions'].base_yr)
-            rs_service_switches_from_capacity[region] = rs_service_switches
+            rs_service_switches_incl_cap[region] = rs_service_switches
 
             # Service
             ss_aggr_sector_fuels = s_fuel_to_service.sum_fuel_enduse_sectors(
@@ -253,7 +253,7 @@ def scenario_initalisation(path_data_ed, data=False):
                 ss_aggr_sector_fuels,
                 data['assumptions'].ss_fuel_tech_p_by,
                 data['assumptions'].base_yr)
-            ss_service_switches_from_capacity[region] = ss_service_switches
+            ss_service_switches_inlc_cap[region] = ss_service_switches
 
             # Industry
             is_aggr_sector_fuels = s_fuel_to_service.sum_fuel_enduse_sectors(
@@ -267,12 +267,12 @@ def scenario_initalisation(path_data_ed, data=False):
                 is_aggr_sector_fuels,
                 data['assumptions'].is_fuel_tech_p_by,
                 data['assumptions'].base_yr)
-            is_service_switches_from_capacity[region] = is_service_switches
+            is_service_switches_incl_cap[region] = is_service_switches
 
     else: #Not spatial explicit
 
         # Residential
-        rs_service_switches_from_capacity = fuel_service_switch.capacity_switch(
+        rs_service_switches_incl_cap = fuel_service_switch.capacity_switch(
             data['assumptions'].capacity_switches['rs_capacity_switches'],
             data['technologies'],
             data['assumptions'].enduse_overall_change['other_enduse_mode_info'],
@@ -285,7 +285,7 @@ def scenario_initalisation(path_data_ed, data=False):
             data['fuels']['ss_fuel_raw'],
             data['enduses']['ss_enduses'])
 
-        ss_service_switches_from_capacity = fuel_service_switch.capacity_switch(
+        ss_service_switches_inlc_cap = fuel_service_switch.capacity_switch(
             data['assumptions'].capacity_switches['ss_capacity_switches'],
             data['technologies'],
             data['assumptions'].enduse_overall_change['other_enduse_mode_info'],
@@ -298,7 +298,7 @@ def scenario_initalisation(path_data_ed, data=False):
             data['fuels']['is_fuel_raw'],
             data['enduses']['is_enduses'])
 
-        is_service_switches_from_capacity = fuel_service_switch.capacity_switch(
+        is_service_switches_incl_cap = fuel_service_switch.capacity_switch(
             data['assumptions'].capacity_switches['is_capacity_switches'],
             data['technologies'],
             data['assumptions'].enduse_overall_change['other_enduse_mode_info'],
@@ -331,7 +331,7 @@ def scenario_initalisation(path_data_ed, data=False):
             regions=data['regions'],
             f_diffusion=f_diffusion,
             techs_affected_spatial_f=data['assumptions'].techs_affected_spatial_f,
-            service_switches_from_capacity=rs_service_switches_from_capacity)
+            service_switches_from_capacity=rs_service_switches_incl_cap)
 
 
         # Service
@@ -352,7 +352,7 @@ def scenario_initalisation(path_data_ed, data=False):
                 regions=data['regions'],
                 f_diffusion=f_diffusion,
                 techs_affected_spatial_f=data['assumptions'].techs_affected_spatial_f,
-                service_switches_from_capacity=ss_service_switches_from_capacity)
+                service_switches_from_capacity=ss_service_switches_inlc_cap)
 
         # Industry
         is_switches_autocompleted = {}
@@ -373,7 +373,7 @@ def scenario_initalisation(path_data_ed, data=False):
                 regions=data['regions'],
                 f_diffusion=f_diffusion,
                 techs_affected_spatial_f=data['assumptions'].techs_affected_spatial_f,
-                service_switches_from_capacity=is_service_switches_from_capacity)
+                service_switches_from_capacity=is_service_switches_incl_cap)
     else: # Not spatially explicit
 
         # Residential
@@ -381,7 +381,7 @@ def scenario_initalisation(path_data_ed, data=False):
             service_switches=data['assumptions'].rs_service_switches,
             specified_tech_enduse_by=data['assumptions'].rs_specified_tech_enduse_by,
             s_tech_by_p=rs_s_tech_by_p,
-            service_switches_from_capacity=rs_service_switches_from_capacity)
+            service_switches_from_capacity=rs_service_switches_incl_cap)
 
         # Service
         ss_switches_autocompleted = {}
@@ -397,7 +397,7 @@ def scenario_initalisation(path_data_ed, data=False):
                 specified_tech_enduse_by=data['assumptions'].ss_specified_tech_enduse_by,
                 s_tech_by_p=ss_s_tech_by_p[sector],
                 sector=sector,
-                service_switches_from_capacity=ss_service_switches_from_capacity)
+                service_switches_from_capacity=ss_service_switches_inlc_cap)
 
         # Industry
         is_switches_autocompleted = {}
@@ -414,7 +414,7 @@ def scenario_initalisation(path_data_ed, data=False):
                 specified_tech_enduse_by=data['assumptions'].is_specified_tech_enduse_by,
                 s_tech_by_p=is_s_tech_by_p[sector],
                 sector=sector,
-                service_switches_from_capacity=is_service_switches_from_capacity)
+                service_switches_from_capacity=is_service_switches_incl_cap)
 
     # ========================================================================================
     # Fuel switches
@@ -432,7 +432,7 @@ def scenario_initalisation(path_data_ed, data=False):
                 data['assumptions'].crit_switch_happening,
                 data['technologies'],
                 enduse=enduse,
-                fuel_switches=data['assumptions'].rs_fuel_switches, 
+                fuel_switches=data['assumptions'].rs_fuel_switches,
                 service_switches=rs_switches_autocompleted,
                 s_tech_by_p=rs_s_tech_by_p[enduse],
                 s_fueltype_by_p=rs_s_fueltype_by_p[enduse],
@@ -562,8 +562,8 @@ def scenario_initalisation(path_data_ed, data=False):
 
                 if strategy_var['affected_enduse'] == []:
                     logging.warning(
-                        "For scenario var {} no affected enduse is defined. Thus speed is used for diffusion".format(
-                            var_name))
+                        "For scenario var %s no affected enduse is defined. Thus speed is used for diffusion",
+                            var_name)
                 else:
                     pass
 
