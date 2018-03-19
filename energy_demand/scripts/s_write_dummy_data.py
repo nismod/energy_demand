@@ -128,7 +128,7 @@ def post_install_setup_minimum(args):
         Path to energy demand python files
     """
     path_energy_demand = resource_filename(Requirement.parse("energy_demand"), "")
-    path_local_data = args.path_local_data
+    path_local_data = args.local_data
 
     # ==========================================
     # Post installation setup witout access to non publicy available data

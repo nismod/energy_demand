@@ -66,7 +66,7 @@ run every time the model is run with different assumptions (Section 1.2).
    The ``path/to/energy_data_folder`` is the path to the location with
    the necessary data to run the model.
 
-   Note: The `post_install_setup` generates new subfolders in the 
+   Note: The ``setup`` command generates new subfolders in the 
    ``energy_data_folder``.
 
 1.2 Alternative Model Set-Up (with restricted data)
@@ -86,12 +86,12 @@ run every time the model is run with different assumptions (Section 1.2).
 
    Example::
 
-    energy_demand post_install_setup_minimum -d  C:/Users/fred1234/data_energy_demand
+    energy_demand minimal_setup -d  C:/Users/fred1234/data_energy_demand
 
    The ``path/to/energy_data_folder`` is the path to the location with
    the necessary minimum dummy data to run the model.
 
-   Note: The `post_install_setup_minimum` generates new folders in the 
+   Note: The ``minimal_setup`` command generates new folders in the 
    ``energy_data_folder``.
 
 2. Running the model with smif
