@@ -127,7 +127,6 @@ def energy_demand_model(data, assumptions, fuel_in=0, fuel_in_elec=0):
     print("================================================")
     print("Simulation year:     " + str(modelrun_obj.curr_yr))
     print("Number of regions    " + str(data['reg_nrs']))
-    print(" -- ")
     print(" TOTAL KTOE:         " + str(conversions.gwh_to_ktoe(fuel_in)))
     print(" -- ")
     print("[GWh] Total fuel input:    " + str(fuel_in))
