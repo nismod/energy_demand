@@ -62,6 +62,7 @@ def run_all_plot_functions(
     # Plot stacked annual enduses
     # ------------
     if plot_stacked_enduses:
+        logging.info("plot stacked enduses")
         # Residential
         plt_stacked_enduse(
             assumptions['simulated_yrs'],
@@ -90,6 +91,7 @@ def run_all_plot_functions(
     # Plot annual demand for enduses for all submodels
     # ------------------------------
     if plot_y_all_enduses:
+        logging.info("plot annual demand for enduses for all submodels")
         plt_stacked_enduse_sectors(
             lookups,
             assumptions['simulated_yrs'],
@@ -104,7 +106,7 @@ def run_all_plot_functions(
     # Fuel per fueltype for whole country over annual timesteps
     # ----------------
     if plot_fuels_enduses_y:
-
+        logging.info("plot Fuel per fueltype for whole country over annual timesteps")
         #... Plot total fuel (y) per fueltype as line chart"
         plt_fuels_enduses_y(
             results_container['results_every_year'],
@@ -123,6 +125,7 @@ def run_all_plot_functions(
     # ------------------------------------
     if plot_lf:
         for fueltype_str, fueltype_int in lookups['fueltypes'].items():
+            logging.info("plot Load factors per fueltype and region")
             plot_seasonal_lf(
                 fueltype_int,
                 fueltype_str,

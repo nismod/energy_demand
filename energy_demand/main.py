@@ -7,7 +7,7 @@
 
 
     ---------------------
-    SMIF
+    SMIF test
     ---------------------
     Information about the integration framework: http://smif.readthedocs.io/
 
@@ -48,6 +48,7 @@ NICETOHAVE
 - Convert paths dict to objects
 
 TODOS
+TODO: CLEAN CONFIG_DATA
 TODO: Write all metadata of model run restuls to txt
 TODO: LOAD IN SCENARIO PARAMETERS IN INITIAL_SETUP FUNCTION IN RUn file
 TODO: Write function to test wheter swichtes are possible (e.g. that not more from one technology to another is replaced than possible)
@@ -126,7 +127,6 @@ def energy_demand_model(data, assumptions, fuel_in=0, fuel_in_elec=0):
     print("================================================")
     print("Simulation year:     " + str(modelrun_obj.curr_yr))
     print("Number of regions    " + str(data['reg_nrs']))
-    print(" -- ")
     print(" TOTAL KTOE:         " + str(conversions.gwh_to_ktoe(fuel_in)))
     print(" -- ")
     print("[GWh] Total fuel input:    " + str(fuel_in))

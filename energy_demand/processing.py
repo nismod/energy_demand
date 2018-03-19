@@ -79,6 +79,7 @@ def main(path_data_energy_demand, path_shapefile_input):
             data['regions'])
 
     if spatial_results:
+        logging.info("Create spatial geopanda files")
         result_mapping.create_geopanda_files(
             data,
             results_container,
