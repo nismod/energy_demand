@@ -59,3 +59,4 @@ _config_data/01-validation_datasets/*
 _config_data/02-spatial_index/*
 _config_data/05-dwelling_stock_related/*
 _config_data/09-emission_factors/*
+_config_data/*.yml
