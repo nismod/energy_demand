@@ -223,7 +223,6 @@ def plot_radar_plots_average_peak_day(
         # Create base year peak load profile
         # -----------------
         all_regs_fueltypes_yh_by = {}
-        #all_fuels = np.array()
         for fueltype, fuels_regs in enumerate(scenario_data[first_scenario]['results_every_year'][2015]):
             for region_array_nr, fuel_reg in enumerate(fuels_regs):
                 try:
