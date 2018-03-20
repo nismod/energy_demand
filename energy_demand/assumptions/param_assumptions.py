@@ -531,10 +531,10 @@ def load_param_assump(paths=None, assumptions=None):
     for enduse_name, param_value in enduse_overall_change_enduses.items():
         strategy_variables.append({
             "name": enduse_name,
-            "absolute_range": (0, 1),
+            "absolute_range": (-1, 1),
             "description": "Enduse specific change {}".format(enduse_name),
             "suggested_range": (0, 1),
-            "default_value": 1,
+            "default_value": 0,
             "units": 'decimal',
             'affected_enduse': [enduse_name.split("__")[1]]})
         strategy_vars[enduse_name] = param_value

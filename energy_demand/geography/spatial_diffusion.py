@@ -2,10 +2,10 @@
 to spatial explicit calculations of technology/innovation
 penetration."""
 
-import sys
 import logging
 from collections import defaultdict
 import numpy as np
+from energy_demand.plotting import plotting_program
 
 def realdata_to_spatialdiffval(regions, real_values, speed_con_max):
     """Create SDI from socio-economic data
@@ -23,6 +23,30 @@ def realdata_to_spatialdiffval(regions, real_values, speed_con_max):
     speed_con_min = 1               # Speed at val_con == 0
     speed_con_max = speed_con_max   # Speed at con_val == 1
 
+    # ----------------
+    # plot real values to check for outliers
+    # ----------------
+    #plotting_program.plot_xy(list(real_values.values()))
+
+    # Select number of outliers to remove extrems
+    nr_of_utliers = 20
+
+    sorted_vals = list(real_values.values())
+    sorted_vals.sort()
+
+    # Get value of largest outlier
+    treshold_upper_real_value = sorted_vals[-nr_of_utliers]
+
+    for reg, val in real_values.items():
+        if val > treshold_upper_real_value:
+            real_values[reg] = treshold_upper_real_value
+
+    # Plot after removing outliers
+    #plotting_program.plot_xy(list(real_values.values()))
+
+    # ----------------
+    # Concruence calculations
+    # -----------------
     # Max congruence value
     con_max = max(real_values.values())
 
@@ -52,7 +76,7 @@ def realdata_to_spatialdiffval(regions, real_values, speed_con_max):
 
     return diffusion_values
 
-def spatial_diffusion_values(regions, pop_density):
+def spatial_diffusion_values(regions, real_values, speed_con_max):
     """Load spatial diffusion values
 
     This are the values which already incorporate different
@@ -75,8 +99,8 @@ def spatial_diffusion_values(regions, pop_density):
     # Diffusion values based on urban/rural
     spatial_diff_urban_rural = realdata_to_spatialdiffval(
         regions=regions,                # Regions
-        real_values=pop_density,        # Real values
-        speed_con_max=3)                # Speed (vorher 4) #TODO
+        real_values=real_values,        # Real values
+        speed_con_max=speed_con_max) # TODOsomehow not works if set to 1.0 (meanign all value are the same)
 
     for region in regions:
         spatial_diff[region] = spatial_diff_urban_rural[region]
@@ -306,8 +330,7 @@ def calc_regional_services(
 
         # Disaggregation factor
         f_fuel_disagg = np.sum(fuel_disaggregated[region][enduse]) / uk_enduse_fuel
-        print("SUMME should be 1")
-        print(sum(uk_techs_service_p.values()))
+
         # Calculate fraction of regional service
         for tech, uk_tech_service_ey_p in uk_techs_service_p.items():
 
@@ -324,18 +347,10 @@ def calc_regional_services(
                 reg_service_tech = global_tech_service_ey_p #* f_fuel_disagg
 
             reg_enduse_tech_p_ey[region][tech] = reg_service_tech
-            print("--")
-            print(global_tech_service_ey_p)
-            print(reg_service_tech)
 
-        import pprint
-        print(sum(reg_enduse_tech_p_ey[region].values()))
-        pprint.pprint(reg_enduse_tech_p_ey[region])
         # ---------------------------------------------
         # C.) Calculate regional fraction
         # ---------------------------------------------
-        #tot_service_reg_enduse = f_fuel_disagg ##* uk_service_enduse
-
         for tech, service_tech in reg_enduse_tech_p_ey[region].items():
             
             # ----------------------------------
@@ -359,13 +374,18 @@ def calc_regional_services(
 def calc_spatially_diffusion_factors(
         regions,
         fuel_disagg,
-        pop_density
+        real_values,
+        speed_con_max
     ):
     """
 
     Arguments
     ---------
-
+    regions : dict
+        Regions
+    fuel_disagg : dict
+        Disaggregated fuel per region
+    pop
     Returns
     -------
 
@@ -390,8 +410,9 @@ def calc_spatially_diffusion_factors(
     # I. Diffusion diffusion values
     # -----
     spatial_diff_values = spatial_diffusion_values(
-        regions,
-        pop_density)
+        regions=regions,
+        real_values=real_values,
+        speed_con_max=speed_con_max)
 
     # -----
     # II. Calculation of diffusion factors ( Not weighted with demand)

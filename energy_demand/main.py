@@ -71,8 +71,8 @@ TODO: REMOVE PEAK SHAPES
 TODO: SPATIAL DISAGGREGATION FACTORS RESID/NONRESID SHARE
 TODO: SO FAR ALSO ALL SERVICE ENDUSES ARE MULTIPLIED
 TODO: TEST IF CORRECT REGIONAL CALCULATIONS AS DSCRIEBED IN
-RURAL URBAN : http://www.gov.scot/Topics/Statistics/About/Methodology/UrbanRuralClassification/Urban-Rural-Classification-2011-12/2011-2012-Urban-Rural-Lookups
-"""
+TODO: Spatial diffusion: Cap largest 5% of values and set to 1
+5"""
 import os
 import sys
 import logging
@@ -182,15 +182,14 @@ if __name__ == "__main__":
         print("    python main.py ../energy_demand_data\n")
         print("... Defaulting to C:/DATA_NISMODII/data_energy_demand")
         local_data_path = os.path.abspath('C:/DATA_NISMODII/data_energy_demand')
-        ##local_data_path = os.path.abspath('C:/Users/cenv0553/nismod/data_energy_demand')
     else:
         local_data_path = sys.argv[1]
 
     # -------------- SCRAP
 
-
-    path_main = os.path.join(
-        os.path.dirname(os.path.abspath(__file__)), "..")
+    path_main = os.path.abspath(
+        os.path.join(
+            os.path.dirname(__file__), '..', "config_data"))
 
     # Initialise logger
     logger_setup.set_up_logger(
@@ -232,7 +231,7 @@ if __name__ == "__main__":
         for reg_geocode in data['regions']:
             _data[reg_geocode] = data['regions'][reg_geocode]['POP_JOIN']
         pop_dummy[year] = _data
-        
+
     data['population'] = pop_dummy
     
     data['reg_coord'] = {}

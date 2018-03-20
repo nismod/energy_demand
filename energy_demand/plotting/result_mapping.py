@@ -263,7 +263,7 @@ def plot_lad_national(
         fig_name_part,
         result_path,
         color_palette,
-        color_prop,
+        color_prop=False,
         user_classification=False,
         color_list=False,
         color_zero=False,
@@ -337,6 +337,7 @@ def plot_lad_national(
     # Own classification (work around)
     # -----------------------------
     if user_classification:
+        logging.info("User classification")
 
         # Color to assing zero values
         placeholder_zero_color = 0.001
@@ -382,77 +383,76 @@ def plot_lad_national(
         if lad_geopanda_shp_zeros.shape[0] > 0:
             lad_geopanda_shp_zeros.plot(
                 ax=axes,
-                color=color_zero)#or white "#8a2be2"
-
+                color=color_zero)
     else:
+        logging.info("not user classification")
 
-        # -----------------------------
+        # ----------------------------
         # Plot map with all value hues
         # -----------------------------
+        '''
+        lad_geopanda_shp.plot(
+            ax=axes,
+            column=field_to_plot,
+            legend=True)
+        '''
+        '''
         lad_geopanda_shp.plot(
             ax=axes,
             column=field_to_plot,
             cmap='OrRd',
+            legend=True)
+        '''
+
+        # -----------------------------
+        # Plot map with quantiles
+        # -----------------------------
+        #'''
+        lad_geopanda_shp.plot(
+            axes=axes,
+            column=field_to_plot,
+            scheme='equal_interval', #quantiles
+            k=10,
+            cmap='OrRd',
+            legend=True)
+        #'''
+
+        # -----------------------------
+        # Plot map wtih quantiles
+        # -----------------------------
+        '''lad_geopanda_shp.plot(
+            axes=axes,
+            column=field_to_plot,
+            scheme='equal_interval',
+            k=5,
+            cmap='OrRd',
+            legend=True)'''
+
+        #from pysal.esda.mapclassify import User_Defined
+        #lad_geopanda_shp.User_Defined(lad_geopanda_shp, bins)
+        '''lad_geopanda_shp.assign(cl=interval_data.yb).plot(
+            column='cl',
+            categorical=True,
+            k=10,
+            cmap='OrRd',
+            linewidth=0.1,
+            axes=axes,
+            edgecolor='white',
             legend=True,
-            alpha=1)
+            scheme='User_Defined')'''
 
-        plt.legend(
-            title=legend_title,
-            prop={
-                'family': 'arial',
-                'size': 10},
-            loc='upper center',
-            bbox_to_anchor=(0.5, -0.05),
-            frameon=False)
-
-    # -----------------------------
-    # Plot map with all value hues
-    # -----------------------------
-    '''lad_geopanda_shp.plot(
-        axes=axes,
-        column=field_to_plot,
-        cmap='OrRd',
-        legend=True)'''
-
-    # -----------------------------
-    # Plot map wtih quantiles
-    # -----------------------------
-    '''lad_geopanda_shp.plot(
-        axes=axes,
-        column=field_to_plot,
-        scheme='QUANTILES',
-        k=5,
-        cmap='OrRd',
-        legend=True)'''
-
-    # -----------------------------
-    # Plot map wtih quantiles
-    # -----------------------------
-    '''lad_geopanda_shp.plot(
-        axes=axes,
-        column=field_to_plot,
-        scheme='equal_interval',
-        k=5,
-        cmap='OrRd',
-        legend=True)'''
-
-    #from pysal.esda.mapclassify import User_Defined
-    #lad_geopanda_shp.User_Defined(lad_geopanda_shp, bins)
-    '''lad_geopanda_shp.assign(cl=interval_data.yb).plot(
-        column='cl',
-        categorical=True,
-        k=10,
-        cmap='OrRd',
-        linewidth=0.1,
-        axes=axes,
-        edgecolor='white',
-        legend=True,
-        scheme='User_Defined')'''
+        # Legend taken form axis
+        #'''
+        legend = axes.get_legend()
+        legend.set_title(legend_title, prop={
+            'family': 'arial',
+            'size': 10})
+        legend.set_frame_on(False)
+        legend.set_bbox_to_anchor((0.5, -0.05))
+        #'''
 
     # Title
-    field_to_plot = field_to_plot + fig_name_part
-
-    fig_map.suptitle(field_to_plot)
+    fig_map.suptitle(field_to_plot + fig_name_part)
 
     # Make that not distorted
     plt.axis('equal')
@@ -462,11 +462,11 @@ def plot_lad_national(
 
     # Add space for legend
     plt.subplots_adjust(
-        bottom=0.4) #0.2 the charts
+        bottom=0.4)
 
     # Save figure
     plt.savefig(fig_name)
-
+    plotshow = True
     if plotshow:
         plt.show()
         plt.close()
@@ -508,6 +508,71 @@ def merge_data_to_shp(shp_gdp, merge_data, unique_merge_id):
 
     return shp_gdp_merged
 
+def plot_spatial_mapping_example(
+        diffusion_vals,
+        global_value,
+        paths,
+        regions,
+        path_shapefile_input
+    ):
+    """Figure plot
+
+    Plot a map which distributes a global parameter to
+    regional parameters based on diffusion values.
+
+    """
+    # Read LAD shapefile and create geopanda
+    lad_geopanda_shp = gpd.read_file(path_shapefile_input)
+
+    # Attribute merge unique Key
+    unique_merge_id = 'name' #'geo_code'
+
+    field_name = 'Fig_XX_spatial_diffusion_vals'
+
+    # Calculate regional values
+    regional_vals = {}
+    for region in regions:
+        regional_vals[region] = global_value * diffusion_vals[region]
+        logging.warning("PLOT reg: {}  region_val: {} global: {} diff: {}".format(region, regional_vals[region], global_value, diffusion_vals[region]))
+
+    # Both need to be lists
+    merge_data = {
+        str(field_name): list(regional_vals.values()),
+        str(unique_merge_id): list(regions)}
+
+    # Merge to shapefile
+    lad_geopanda_shp = merge_data_to_shp(
+        lad_geopanda_shp,
+        merge_data,
+        unique_merge_id)
+
+    # If user classified, defined bins  [x for x in range(0, 1000000, 200000)]
+    #bins = [-4, -2, 0, 2, 4] # must be of uneven length containing zero
+    #bins = [-15, -10, -5, 0, 5, 10, 15] # must be of uneven length containing zero
+    bins = []
+
+    color_list, color_prop, user_classification, color_zero = colors_plus_minus_map(
+        bins=bins,
+        color_prop='qualitative',
+        color_order=True,
+        color_zero='#ffffff')
+
+    plot_lad_national(
+        lad_geopanda_shp=lad_geopanda_shp,
+        legend_unit="%",
+        field_to_plot=field_name,
+        fig_name_part="lf_max_y",
+        result_path=paths['data_results_PDF'],
+        color_palette='Purples_9') #,
+        #color_prop=color_prop,
+        #user_classification=user_classification,
+        #color_list=color_list,
+        #color_zero=color_zero,
+        #bins=bins)
+    logging.warning("FFFFFFF")
+    prnt("fff.")
+    return
+
 def create_geopanda_files(
         data,
         results_container,
@@ -515,7 +580,7 @@ def create_geopanda_files(
         regions,
         fueltypes_nr,
         fueltypes,
-        path_shapefile_input
+        
     ):
     """Create map related files (png) from results.
 
@@ -539,7 +604,7 @@ def create_geopanda_files(
         lad_geopanda_shp = gpd.read_file(paths['lad_shapefile'])
     except IOError:
         # Multiple scenario runs
-        lad_geopanda_shp = gpd.read_file(path_shapefile_input)
+        lad_geopanda_shp = gpd.read_file() #TODO why empty?
 
     # Attribute merge unique Key
     unique_merge_id = 'name' #'geo_code'
@@ -553,7 +618,7 @@ def create_geopanda_files(
     base_yr = simulated_yrs[0]
 
     for fueltype in range(fueltypes_nr):
-        logging.info(" progress.. {}".format(fueltype))
+        logging.info("progress.. {}".format(fueltype))
         fueltype_str = tech_related.get_fueltype_str(fueltypes, fueltype)
         field_name = 'lf_diff_{}_{}_'.format(final_yr, fueltype_str)
 
@@ -801,7 +866,10 @@ def colors_plus_minus_map(
     color_zero : hex_color string
         Color of zero values
     """
-    if min(bins) < 0:
+    if bins == []:
+        # regular classification
+        return [], color_prop, False, False
+    elif min(bins) < 0:
 
         # Colors pos and neg
         if color_order:

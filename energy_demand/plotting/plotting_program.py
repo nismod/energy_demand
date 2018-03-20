@@ -1,5 +1,4 @@
 import numpy as np
-import logging
 import matplotlib.pyplot as plt
 import pylab
 from energy_demand.technologies import diffusion_technologies
@@ -58,3 +57,10 @@ def plotout_sigmoid_tech_diff(
             pass
     else:
         pass
+
+def plot_xy(y_values):
+
+    x_values = range(len(y_values))
+
+    plt.plot(x_values, y_values, 'ro')
+    plt.show()

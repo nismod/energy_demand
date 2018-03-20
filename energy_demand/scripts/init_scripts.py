@@ -10,6 +10,7 @@ from energy_demand.geography import spatial_diffusion
 from energy_demand.read_write import data_loader, read_data
 from energy_demand.scripts import (s_disaggregation, s_fuel_to_service, s_generate_sigmoid)
 from energy_demand.technologies import fuel_service_switch
+from energy_demand.plotting import result_mapping
 
 def global_to_reg_capacity_switch(regions, global_capactiy_switch, spatial_factors):
     """Conversion of global capacity switch instlalations
@@ -188,19 +189,40 @@ def scenario_initalisation(path_data_ed, data=False):
         f_reg, f_reg_norm, f_reg_norm_abs = spatial_diffusion.calc_spatially_diffusion_factors(
             regions=data['regions'],
             fuel_disagg=fuel_disagg,
-            pop_density=data['pop_density'])
+            real_values=pop_density pop_density,    # Real value to select
+            speed_con_max=1.5)                      # diffusion speed differences
 
-        #regions = data['regions']
+        # ---------------------
+        # Plot figure for paper
+        # ---------------------
+        plot_fig_paper = True
+        if plot_fig_paper:
+            #GNU TODO TODO TODO
+
+            # Global value to distribute
+            global_value = 50
+
+            # Select spatial diffusion factor
+            #diffusion_vals = f_reg                                 # not weighted
+            diffusion_vals = f_reg_norm['rs_space_heating']         # Weighted with enduse
+            #diffusion_vals = f_reg_norm_abs['rs_space_heating']    # Absolute distribution (only for capacity installements)
+
+            path_shapefile_input = os.path.abspath(
+                'C:/Users/cenv0553/nismod/data_energy_demand/_raw_data/C_LAD_geography/same_as_pop_scenario/lad_2016_uk_simplified.shp')
+
+            result_mapping.plot_spatial_mapping_example(
+                diffusion_vals=diffusion_vals,
+                global_value=global_value,
+                paths=data['local_paths'],
+                regions=data['regions'],
+                path_shapefile_input=path_shapefile_input)
+
     else:
-
-        # Set regions to false
-        #regions = False
         f_reg = False
         f_reg_norm = False
         f_reg_norm_abs = False
 
         init_cont['regional_strategy_variables'] = None
-        #init_cont['strategy_variables'] = data['assumptions'].strategy_variables
 
     # ===========================================
     # II. Switches
