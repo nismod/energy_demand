@@ -76,7 +76,7 @@ def spatial_diffusion_values(regions, pop_density):
     spatial_diff_urban_rural = realdata_to_spatialdiffval(
         regions=regions,                # Regions
         real_values=pop_density,        # Real values
-        speed_con_max=3)                # Speed (vorher 2) #TODO
+        speed_con_max=3)                # Speed (vorher 4) #TODO
 
     for region in regions:
         spatial_diff[region] = spatial_diff_urban_rural[region]

@@ -1,14 +1,17 @@
 """Testing
 """
-import os
+from pkg_resources import resource_filename
+from pkg_resources import Requirement
 from energy_demand.basic import lookup_tables
 from energy_demand.assumptions import non_param_assumptions
 from energy_demand.read_write import data_loader
+from pkg_resources import resource_filename
+from pkg_resources import Requirement
 
 def test_load_non_param_assump():
-
-    path_main = os.path.abspath("C://Users//cenv0553//nismod//models//energy_demand")
-    path_main = os.path.join("")
+    """
+    """
+    path_main = resource_filename(Requirement.parse("energy_demand"), "config_data")
 
     # Load data
     data = {}
@@ -32,8 +35,7 @@ def test_load_non_param_assump():
 def test_load_param_assump():
     """
     """
-    path_main = os.path.abspath("C://Users//cenv0553//nismod//models//energy_demand")
-    path_main = os.path.join("")
+    path_main = resource_filename(Requirement.parse("energy_demand"), "config_data")
 
     # Load data
     data = {}

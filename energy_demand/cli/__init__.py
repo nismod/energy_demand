@@ -38,7 +38,6 @@ def parse_arguments():
 
     subparsers = parser.add_subparsers()
 
-
     # Initialisation of energy demand model (processing raw files)
     parser_init = subparsers.add_parser(
         'setup',

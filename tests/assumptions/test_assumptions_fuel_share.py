@@ -1,16 +1,17 @@
 """
 """
-import os
 from energy_demand.basic import lookup_tables
 from energy_demand.assumptions import assumptions_fuel_shares
 from energy_demand.assumptions import non_param_assumptions
 from energy_demand.assumptions import param_assumptions
 from energy_demand.read_write import data_loader, read_data
+from pkg_resources import resource_filename
+from pkg_resources import Requirement
 
 def test_assign_by_fuel_tech_p():
     """
     """
-    path_main = os.path.join("")
+    path_main = resource_filename(Requirement.parse("energy_demand"), 'config_data')
 
     # Load data
     data = {}

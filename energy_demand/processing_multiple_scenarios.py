@@ -95,13 +95,13 @@ def process_scenarios(path_to_scenarios, year_to_model=2015):
 # ------------------------------------
 # Execute rusult processing for every scenario
 # ------------------------------------^
-'''
+#'''
 process_result_multi_scen(
     os.path.abspath("C:/Users/cenv0553/nismod/data_energy_demand/_MULT2"),
     os.path.abspath('C:/Users/cenv0553/nismod/data_energy_demand/_raw_data/C_LAD_geography/same_as_pop_scenario/lad_2016_uk_simplified.shp'))
-'''
+#'''
 
 # ------------------------------------
 # Generate plots across all scenarios
 # ------------------------------------
-process_scenarios(os.path.abspath("C:/Users/cenv0553/nismod/data_energy_demand/_MULT2"))
+#process_scenarios(os.path.abspath("C:/Users/cenv0553/nismod/data_energy_demand/_MULT2"))
