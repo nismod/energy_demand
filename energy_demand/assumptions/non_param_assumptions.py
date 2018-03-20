@@ -202,7 +202,7 @@ class Assumptions(object):
             'rs_cooking': ['population'],
             'rs_cold': ['population'],
             'rs_wet': ['population'],
-            'rs_consumer_electronics': ['population'], #GVA TODO
+            'rs_consumer_electronics': ['population'], #GVA TODO. As soon as GVA is avaiable, drive it with GVA
             'rs_home_computing': ['population']} #GVA 
 
         # --Service Submodel (Table 5.5a)

@@ -37,7 +37,7 @@ def run_all_plot_functions(
     plot_lf = False                         # Plot load factors
     plot_week_h = True
     plot_h_peak_fueltypes = True
-    plot_averaged_season_fueltype = False   # Compare for every season and daytype the daily loads
+    plot_averaged_season_fueltype = True   # Compare for every season and daytype the daily loads
 
     # ----------
     # Plot LAD differences for first and last year
@@ -190,7 +190,7 @@ def run_all_plot_functions(
                     plot_all_entries=False,
                     plot_max_min_polygon=True,
                     plotshow=False,
-                    plot_radar=False,
+                    plot_radar=True, #TRUE
                     max_y_to_plot=120,
                     fueltype_str=fueltype_str,
                     year=year)
@@ -1708,6 +1708,116 @@ def plot_radar_plot(dh_profile, fig_name, plot_steps=30, plotshow=False):
         values,
         'blue', #b
         alpha=0.1)
+
+    plt.savefig(fig_name)
+
+    if plotshow:
+        plt.show()
+        plt.close()
+    else:
+        plt.close()
+
+def plot_radar_plot_multiple_lines(dh_profiles, fig_name, plot_steps=30, plotshow=False):
+    """Plot daily load profile on a radar plot
+
+    Arguments
+    ---------
+    dh_profile : list
+        Dh values to plot
+    fig_name : str
+        Path to save figure
+
+    SOURCE: https://python-graph-gallery.com/390-basic-radar-chart/
+    """
+
+    # Get maximum demand of first array
+    max_entry = np.array(dh_profiles[0]).max()
+    max_demand = round(max_entry, -1) + 10 # Round to nearest 10 plus add 10
+    max_demand = 120 #SCRAP
+
+    #
+
+    nr_of_plot_steps = int(max_demand / plot_steps) + 1
+
+    axis_plots_inner = []
+    axis_plots_outer = []
+
+    # Innter ciruclar axis
+    for i in range(nr_of_plot_steps):
+        axis_plots_inner.append(plot_steps*i)
+        axis_plots_outer.append(str(plot_steps*i))
+
+    # Iterate lines
+    for dh_profile in dh_profiles:
+
+        data = {'dh_profile': ['testname']}
+
+        for hour in range(24):
+
+            # Key: Label outer circle
+            data[hour] = dh_profile[hour]
+
+        # Set data
+        df = pd.DataFrame(data)
+
+        # number of variable
+        categories=list(df)[1:]
+        N = len(categories)
+
+        # We are going to plot the first line of the data frame.
+        # But we need to repeat the first value to close the circular graph:
+        values=df.loc[0].drop('dh_profile').values.flatten().tolist()
+        values += values[:1]
+
+        # What will be the angle of each axis in the plot? (we divide the plot / number of variable)
+        angles = [n / float(N) * 2 * pi for n in range(N)]
+        angles += angles[:1]
+
+        # Initialise the spider plot
+        ax = plt.subplot(111, polar=True)
+
+        #plt.figure(figsize=plotting_program.cm2inch(8, 8))
+        #ax = plt.subplot(111, polar=True)
+        #fig, ax = plt.subplots(figsize=plotting_program.cm2inch(8, 8))
+        #ax = plt.subplot(111, polar=True)
+
+        # Change to clockwise cirection
+        ax.set_theta_direction(-1)
+        #ax.set_theta_offset(pi/2.0)
+
+        # Set first hour on top
+        ax.set_theta_zero_location("N")
+
+        # Draw one axe per variable + add labels labels yet
+        plt.xticks(
+            angles[:-1],
+            categories,
+            color='grey',
+            size=8)
+
+        # Draw ylabels
+        ax.set_rlabel_position(0)
+        plt.yticks(
+            axis_plots_inner,
+            axis_plots_outer,
+            color="grey",
+            size=7)
+
+        # Set limit to size
+        plt.ylim(0, max_demand)
+
+        # Plot data
+        ax.plot(
+            angles,
+            values,
+            linestyle='--',
+            linewidth=0.5)
+
+        ax.fill(
+            angles,
+            values,
+            'blue', #b
+            alpha=0.1)
 
     plt.savefig(fig_name)
 
