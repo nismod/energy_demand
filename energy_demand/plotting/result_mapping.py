@@ -549,7 +549,7 @@ def plot_spatial_mapping_example(
     # If user classified, defined bins  [x for x in range(0, 1000000, 200000)]
     #bins = [-4, -2, 0, 2, 4] # must be of uneven length containing zero
     #bins = [-15, -10, -5, 0, 5, 10, 15] # must be of uneven length containing zero
-    bins = []
+    bins = [40, 50, 60, 70]
 
     color_list, color_prop, user_classification, color_zero = colors_plus_minus_map(
         bins=bins,
@@ -563,12 +563,13 @@ def plot_spatial_mapping_example(
         field_to_plot=field_name,
         fig_name_part="lf_max_y",
         result_path=paths['data_results_PDF'],
-        color_palette='Purples_9') #,
-        #color_prop=color_prop,
-        #user_classification=user_classification,
-        #color_list=color_list,
-        #color_zero=color_zero,
-        #bins=bins)
+        color_palette='Purples_9', #) #,
+
+        color_prop=color_prop,
+        user_classification=user_classification,
+        color_list=color_list,
+        color_zero=color_zero,
+        bins=bins)
     logging.warning("FFFFFFF")
     prnt("fff.")
     return
@@ -869,6 +870,7 @@ def colors_plus_minus_map(
     if bins == []:
         # regular classification
         return [], color_prop, False, False
+
     elif min(bins) < 0:
 
         # Colors pos and neg
@@ -879,17 +881,28 @@ def colors_plus_minus_map(
             color_list_neg = getattr(palettable.colorbrewer.sequential, 'Reds_9').hex_colors
             color_list_pos = getattr(palettable.colorbrewer.sequential, 'Greens_9').hex_colors
 
-        # Select correct number of colors or addapt colors
-        color_list_pos = color_list_pos[1:]
+        # Number of categories
+        nr_of_cat_pos_neg = int((len(bins) -1) / 2)
 
         # Invert negative colors
         color_list_neg = color_list_neg[::-1]
 
-        nr_of_cat_pos_neg = int((len(bins) -1) / 2)
-
         color_list = []
         for i in range(nr_of_cat_pos_neg + 1): #add one to get class up to zero
             color_list.append(color_list_neg[i])
+
+        for i in range(nr_of_cat_pos_neg + 1): # add one to get class beyond last bin
+            color_list.append(color_list_pos[i])
+
+        return color_list, 'user_defined', True, color_zero
+
+    elif min(bins) > 0:
+
+        color_list = []
+        color_list_pos = getattr(palettable.colorbrewer.sequential, 'Reds_9').hex_colors
+
+        # Number of categories
+        nr_of_cat_pos_neg = int((len(bins)))
 
         for i in range(nr_of_cat_pos_neg + 1): # add one to get class beyond last bin
             color_list.append(color_list_pos[i])

@@ -189,8 +189,8 @@ def scenario_initalisation(path_data_ed, data=False):
         f_reg, f_reg_norm, f_reg_norm_abs = spatial_diffusion.calc_spatially_diffusion_factors(
             regions=data['regions'],
             fuel_disagg=fuel_disagg,
-            real_values=pop_density pop_density,    # Real value to select
-            speed_con_max=1.5)                      # diffusion speed differences
+            real_values=data['pop_density'],    # Real value to select
+            speed_con_max=1.0)                      # diffusion speed differences
 
         # ---------------------
         # Plot figure for paper
