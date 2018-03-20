@@ -54,9 +54,9 @@ data/data_scripts/*.txt
 wrapperconfig.ini
 _raw_data/*
 _processed_data/*
-_config_data/*
-_config_data/01-validation_datasets/*
-_config_data/02-spatial_index/*
-_config_data/05-dwelling_stock_related/*
-_config_data/09-emission_factors/*
-_config_data/*.yml
+config_data/*
+config_data/01-validation_datasets/*
+config_data/02-spatial_index/*
+config_data/05-dwelling_stock_related/*
+config_data/09-emission_factors/*
+config_data/*.yml
