@@ -1717,7 +1717,12 @@ def plot_radar_plot(dh_profile, fig_name, plot_steps=30, plotshow=False):
     else:
         plt.close()
 
-def plot_radar_plot_multiple_lines(dh_profiles, fig_name, plot_steps=30, plotshow=False):
+def plot_radar_plot_multiple_lines(
+        dh_profiles,
+        fig_name,
+        plot_steps=30,
+        plotshow=False
+    ):
     """Plot daily load profile on a radar plot
 
     Arguments
@@ -1730,12 +1735,14 @@ def plot_radar_plot_multiple_lines(dh_profiles, fig_name, plot_steps=30, plotsho
     SOURCE: https://python-graph-gallery.com/390-basic-radar-chart/
     """
 
-    # Get maximum demand of first array
-    max_entry = np.array(dh_profiles[0]).max()
-    max_demand = round(max_entry, -1) + 10 # Round to nearest 10 plus add 10
-    max_demand = 120 #SCRAP
+    # Get maximum demand of all lines
+    max_entry = 0
+    for line_entries in dh_profiles:
+        max_in_line = max(line_entries)
+        if max_in_line > max_entry:
+            max_entry = max_in_line
 
-    #
+    max_demand = round(max_entry, -1) + 10 # Round to nearest 10 plus add 10
 
     nr_of_plot_steps = int(max_demand / plot_steps) + 1
 
@@ -1747,8 +1754,14 @@ def plot_radar_plot_multiple_lines(dh_profiles, fig_name, plot_steps=30, plotsho
         axis_plots_inner.append(plot_steps*i)
         axis_plots_outer.append(str(plot_steps*i))
 
+    color_lines = ['grey', 'blue']
+    years = ['2015', '2050']
+
     # Iterate lines
-    for dh_profile in dh_profiles:
+    for cnt, dh_profile in enumerate(dh_profiles):
+
+        color_line = color_lines[cnt]
+        year_line = years[cnt]
 
         data = {'dh_profile': ['testname']}
 
@@ -1811,13 +1824,26 @@ def plot_radar_plot_multiple_lines(dh_profiles, fig_name, plot_steps=30, plotsho
             angles,
             values,
             linestyle='--',
-            linewidth=0.5)
+            linewidth=0.5,
+            label="{}".format(year_line))
 
         ax.fill(
             angles,
             values,
-            'blue', #b
+            color_line, #b
             alpha=0.1)
+
+    # ------------
+    # Plot legend
+    # ------------
+    plt.legend(
+        ncol=2,
+        loc='best',
+        prop={
+            'family': 'arial',
+            'size': 10},
+        frameon=False)
+
 
     plt.savefig(fig_name)
 

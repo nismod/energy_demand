@@ -1,6 +1,7 @@
 """
 This file containes functions to plot multiple scenarios in a folder
 """
+import os
 import operator
 import numpy as np
 import matplotlib.pyplot as plt
@@ -8,6 +9,8 @@ from energy_demand.plotting import plotting_styles
 from energy_demand.plotting import plotting_program
 from energy_demand.basic import conversions
 from energy_demand.plotting import plotting_results
+from energy_demand.basic import lookup_tables
+from energy_demand.technologies import tech_related
 
 def plot_reg_y_over_time(
         scenario_data,
@@ -211,69 +214,73 @@ def plot_radar_plots_average_peak_day(
         scenario_data,
         year_to_plot,
         fig_name,
-        plotshow):
-        """Compare averaged dh profile overall regions for peak day
-        """
+        plotshow
+    ):
+    """Compare averaged dh profile overall regions for peak day
+    for future year and base year
+    """
+    lookups = lookup_tables.basic_lookups()
 
-        # Scenarios
-        all_scenarios = list(scenario_data.keys())
-        first_scenario = str(all_scenarios[:1][0])
+    # Scenarios
+    all_scenarios = list(scenario_data.keys())
+    first_scenario = str(all_scenarios[:1][0])
 
-        # ----------------
-        # Create base year peak load profile
-        # -----------------
-        all_regs_fueltypes_yh_by = {}
-        for fueltype, fuels_regs in enumerate(scenario_data[first_scenario]['results_every_year'][2015]):
-            for region_array_nr, fuel_reg in enumerate(fuels_regs):
-                try:
-                    all_regs_fueltypes_yh_by[fueltype] += fuel_reg
-                except KeyError:
-                    all_regs_fueltypes_yh_by[fueltype] = fuel_reg
-                
-                try:
-                    all_fuels += fuel_reg
-                except:
-                    all_fuels = fuel_reg
+    # ----------------
+    # Create base year peak load profile
+    # -----------------
+    all_regs_fueltypes_yh_by = {}
+    for fueltype, fuels_regs in enumerate(scenario_data[first_scenario]['results_every_year'][2015]):
+        for region_array_nr, fuel_reg in enumerate(fuels_regs):
+            try:
+                all_regs_fueltypes_yh_by[fueltype] += fuel_reg
+            except KeyError:
+                all_regs_fueltypes_yh_by[fueltype] = fuel_reg
 
-        # Future year
-        all_regs_fueltypes_yh_ey = {}
-        for fueltype, fuels_regs in enumerate(scenario_data[first_scenario]['results_every_year'][year_to_plot]):
-            for region_array_nr, fuel_reg in enumerate(fuels_regs):
-                try:
-                    all_regs_fueltypes_yh_ey[fueltype] += fuel_reg
-                except KeyError:
-                    all_regs_fueltypes_yh_ey[fueltype] = fuel_reg
+            try:
+                all_fuels_by += fuel_reg
+            except:
+                all_fuels_by = fuel_reg
 
-        # -----------
-        # get peak day across all fueltypes
-        # -----------
-        for fueltype in all_regs_fueltypes_yh_by.keys():
-            all_regs_fueltypes_yh_by[fueltype].reshape((365, 24))
-        for fueltype in all_regs_fueltypes_yh_ey.keys():
-            all_regs_fueltypes_yh_ey[fueltype].reshape((365, 24))
+    # ------------------------
+    # Future year load profile
+    # ------------------------
+    all_regs_fueltypes_yh_ey = {}
+    for fueltype, fuels_regs in enumerate(scenario_data[first_scenario]['results_every_year'][year_to_plot]):
+        for region_array_nr, fuel_reg in enumerate(fuels_regs):
+            try:
+                all_regs_fueltypes_yh_ey[fueltype] += fuel_reg
+            except KeyError:
+                all_regs_fueltypes_yh_ey[fueltype] = fuel_reg
 
-        all_fuels_d = all_fuels.np.reshape((365, 24))
+    # -----------
+    # get peak day across all fueltypes
+    # -----------
+    for fueltype in all_regs_fueltypes_yh_by.keys():
+        all_regs_fueltypes_yh_by[fueltype] = all_regs_fueltypes_yh_by[fueltype].reshape((365, 24))
+    for fueltype in all_regs_fueltypes_yh_ey.keys():
+        all_regs_fueltypes_yh_ey[fueltype] = all_regs_fueltypes_yh_ey[fueltype].reshape((365, 24))
 
-        peak_day_nr = np.argmax(all_fuels_d, axis=0)
+    all_fuels_by_d = all_fuels_by.reshape((365, 24))
 
-        print("peak_day_nr" + str(peak_day_nr))
+    peak_day_nr = np.argmax(np.sum(all_fuels_by_d, axis=1))
 
-        #fueltype_to_plot = 'electricity']
-        for fueltype, fuels_regs in all_regs_fueltypes_yh_by.items():
+    for fueltype in all_regs_fueltypes_yh_by.keys():
+    
+        fueltype_str = tech_related.get_fueltype_str(lookups['fueltypes'], fueltype)
+        name_spider_plot = os.path.join(fig_name, "spider_{}_.pdf".format(fueltype_str))
 
-            name_spider_plot = "spider_{}".format(fueltype)
-            # ----------------------------------
-            # Plot dh for peak day for base year
-            # ----------------------------------
-            individ_radars_to_plot_dh = [
-                list(all_regs_fueltypes_yh_by[fueltype][peak_day_nr]),
-                list(all_regs_fueltypes_yh_ey[peak_day_nr])]
+        # ----------------------------------
+        # Plot dh for peak day for base year
+        # ----------------------------------
+        individ_radars_to_plot_dh = [
+            list(all_regs_fueltypes_yh_by[fueltype][peak_day_nr]),
+            list(all_regs_fueltypes_yh_ey[fueltype][peak_day_nr])]
 
-            plotting_results.plot_radar_plot_multiple_lines(
-                individ_radars_to_plot_dh,
-                name_spider_plot,
-                plot_steps=20,
-                plotshow=False)
+        plotting_results.plot_radar_plot_multiple_lines(
+            individ_radars_to_plot_dh,
+            name_spider_plot,
+            plot_steps=20,
+            plotshow=False)
 
 def plot_LAD_comparison_scenarios(
         scenario_data,
