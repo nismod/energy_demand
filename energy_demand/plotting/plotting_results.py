@@ -9,6 +9,7 @@ from math import pi
 import numpy as np
 import matplotlib.pyplot as plt
 import pandas as pd
+from matplotlib.ticker import MultipleLocator, FormatStrFormatter
 
 from energy_demand.plotting import plotting_program
 from energy_demand.basic import basic_functions, conversions
@@ -1732,7 +1733,9 @@ def plot_radar_plot_multiple_lines(
         dh_profiles,
         fig_name,
         plot_steps=30,
-        plotshow=False
+        plotshow=False,
+        lf_y_by=None,
+        lf_y_cy=None
     ):
     """Plot daily load profile on a radar plot
 
@@ -1767,6 +1770,12 @@ def plot_radar_plot_multiple_lines(
         axis_plots_inner.append(plot_steps*i)
         axis_plots_innter_position.append(str(plot_steps*i))
 
+    # Minor ticks
+    minor_tick_interval = plot_steps / 2
+    minor_ticks = []
+    for i in range(nr_of_plot_steps * 2):
+        minor_ticks.append(minor_tick_interval * i)
+
     color_lines = ['grey', 'blue']
     years = ['2015', '2050']
 
@@ -1793,7 +1802,7 @@ def plot_radar_plot_multiple_lines(
 
         # We are going to plot the first line of the data frame.
         # But we need to repeat the first value to close the circular graph:
-        values=df.loc[0].drop('dh_profile').values.flatten().tolist()
+        values = df.loc[0].drop('dh_profile').values.flatten().tolist()
         values += values[:1]
 
         # What will be the angle of each axis in the plot? (we divide the plot / number of variable)
@@ -1803,14 +1812,9 @@ def plot_radar_plot_multiple_lines(
         # Initialise the spider plot
         ax = plt.subplot(111, polar=True)
 
-        # Change axis
-        ax.yaxis.grid(color='grey', linestyle='--', linewidth=0.5)
-        ax.xaxis.grid(color='grey', linestyle=':', linewidth=0.25)
-
-        #plt.figure(figsize=plotting_program.cm2inch(8, 8))
-        #ax = plt.subplot(111, polar=True)
-        #fig, ax = plt.subplots(figsize=plotting_program.cm2inch(8, 8))
-        #ax = plt.subplot(111, polar=True)
+        # Change axis properties
+        ax.yaxis.grid(color='grey', linestyle='--', linewidth=0.75)
+        ax.xaxis.grid(color='grey', linestyle=':', linewidth=0.5)
 
         # Change to clockwise cirection
         ax.set_theta_direction(-1)
@@ -1818,14 +1822,6 @@ def plot_radar_plot_multiple_lines(
 
         # Set first hour on top
         ax.set_theta_zero_location("N")
-
-
-        # Modify grids
-        #plt.yticks(axis_plots_inner,  "-", alpha=0.4, label="first")
-        '''for i in ax:
-            i.patch.set_visible(False)
-            i.grid("off")
-            i.xaxis.set_visible(False)'''
 
         # Draw one axe per variable + add labels labels yet (numbers)
         plt.xticks(
@@ -1836,11 +1832,27 @@ def plot_radar_plot_multiple_lines(
 
         # Draw ylabels (numbers)
         ax.set_rlabel_position(0)
+
+        # Remove last and first element
+        if len(axis_plots_inner) == 2:
+            axis_plots_inner = axis_plots_inner[1:]
+            axis_plots_innter_position = axis_plots_innter_position[1:]
+        elif len(axis_plots_inner) > 2:
+            axis_plots_inner = axis_plots_inner[1:1]
+            axis_plots_innter_position = axis_plots_innter_position[1:1]
+        else:
+            pass
+    
+        # Working alternative
         plt.yticks(
             axis_plots_inner,
             axis_plots_innter_position,
             color="black",
             size=8)
+
+        #ax.set_yticks(axis_plots_inner, minor=False)
+        #ax.tick_params(axis='y', pad=35) 
+        #ax.set_yticks(minor_ticks, minor=True) #Somehow not working
 
         # Set limit to size
         plt.ylim(0, max_demand)
@@ -1850,7 +1862,7 @@ def plot_radar_plot_multiple_lines(
             angles,
             values,
             linestyle='--',
-            linewidth=0.5,
+            linewidth=0.8,
             label="{}".format(year_line))
 
         # Radar area
@@ -1861,7 +1873,14 @@ def plot_radar_plot_multiple_lines(
             alpha=0.1)
 
     # ------------
-    # Plot legend
+    # Title
+    # ------------
+    plt.title(" lf_y_by: {} lf_y_cy: {}".format(
+        round(lf_y_by, 2),
+        round(lf_y_cy, 2)))
+
+    # ------------
+    # Legend
     # ------------
     plt.legend(
         ncol=2,

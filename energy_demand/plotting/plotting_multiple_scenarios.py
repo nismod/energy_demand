@@ -272,6 +272,18 @@ def plot_radar_plots_average_peak_day(
 
         name_spider_plot = os.path.join(fig_name, "spider_{}.pdf".format(fueltype_str))
 
+        # ---------------------------
+        # TODO CALCULATE LAOAD FACTORS
+        # ---------------------------
+        # calc_lf_y_single_fueltype
+        max_load_h_by = max(all_regs_fueltypes_yh_by[fueltype][peak_day_nr])
+        average_load_y_by = np.mean(all_regs_fueltypes_yh_by[fueltype])
+        load_factor_fueltype_y_by = (average_load_y_by / max_load_h_by) * 100 #convert to percentage
+        
+        max_load_h_cy = max(all_regs_fueltypes_yh_ey[fueltype][peak_day_nr])
+        average_load_y_cy = np.mean(all_regs_fueltypes_yh_ey[fueltype])
+        load_factor_fueltype_y_cy = (average_load_y_cy / max_load_h_cy) * 100 #convert to percentage
+
         # ----------------------------------
         # Plot dh for peak day for base year
         # ----------------------------------
@@ -283,7 +295,9 @@ def plot_radar_plots_average_peak_day(
             individ_radars_to_plot_dh,
             name_spider_plot,
             plot_steps=50,
-            plotshow=False)
+            plotshow=False,
+            lf_y_by=load_factor_fueltype_y_by,
+            lf_y_cy=load_factor_fueltype_y_cy)
 
 def plot_LAD_comparison_scenarios(
         scenario_data,
