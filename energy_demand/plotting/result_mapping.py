@@ -547,8 +547,8 @@ def plot_spatial_mapping_example(
         unique_merge_id)
 
     # If user classified, defined bins  [x for x in range(0, 1000000, 200000)]
-    #bins = [-4, -2, 0, 2, 4] # must be of uneven length containing zero
-    #bins = [-15, -10, -5, 0, 5, 10, 15] # must be of uneven length containing zero
+    #bins = [-4, -2, 0, 2, 4] # must be of uneven length containing zero if minus values
+    #bins = [-15, -10, -5, 0, 5, 10, 15] 
     bins = [40, 50, 60, 70]
 
     color_list, color_prop, user_classification, color_zero = colors_plus_minus_map(
@@ -563,15 +563,13 @@ def plot_spatial_mapping_example(
         field_to_plot=field_name,
         fig_name_part="lf_max_y",
         result_path=paths['data_results_PDF'],
-        color_palette='Purples_9', #) #,
-
+        color_palette='Purples_9',
         color_prop=color_prop,
         user_classification=user_classification,
         color_list=color_list,
         color_zero=color_zero,
         bins=bins)
-    logging.warning("FFFFFFF")
-    prnt("fff.")
+
     return
 
 def create_geopanda_files(
