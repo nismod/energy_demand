@@ -115,7 +115,7 @@ def get_share_s_tech_ey(
 
     return dict(enduse_tech_ey_p)
 
-def create_switches_with_service_shares(
+def create_switches_from_s_shares(
         enduse,
         s_tech_by_p,
         switch_technologies,
@@ -125,7 +125,28 @@ def create_switches_with_service_shares(
         sector,
         switch_yr
     ):
-    """TODO
+    """
+    
+    TODO
+
+    Arguments
+    ----------
+    enduse : str
+        Enduse
+    s_tech_by_p :
+        Service share per technology in base year
+    switch_technologies : list
+        Technologies volved in switch
+    specified_tech_enduse_by :
+
+    enduse_switches :
+
+    s_tot_defined :
+
+    sector :
+
+    switch_yr :
+
     """
     service_switches_out = []
 
@@ -141,7 +162,7 @@ def create_switches_with_service_shares(
         tech_not_assigned_by_p[tech] = share_by / tot_share_not_assigned
 
     # Calculate not defined share in switches
-    not_assigned_service = 1 - s_tot_defined
+    s_not_assigned = 1 - s_tot_defined
 
     # Get all defined technologies in base year
     for tech in specified_tech_enduse_by[enduse]:
@@ -158,7 +179,7 @@ def create_switches_with_service_shares(
                 service_switches_out.append(switch_new)
             else:
                 # Reduce share proportionally
-                tech_ey_p = tech_not_assigned_by_p[tech] * not_assigned_service
+                tech_ey_p = tech_not_assigned_by_p[tech] * s_not_assigned
 
                 switch_new = read_data.ServiceSwitch(
                     enduse=enduse,
@@ -277,7 +298,7 @@ def autocomplete_switches(
                         switch_yr = switch.switch_yr
 
                     # Create switch
-                    switches_new = create_switches_with_service_shares(
+                    switches_new = create_switches_from_s_shares(
                         enduse=enduse,
                         s_tech_by_p=s_tech_by_p,
                         switch_technologies=switch_technologies,
@@ -308,7 +329,7 @@ def autocomplete_switches(
                     switch_yr = switch.switch_yr
 
             # Calculate relative by proportion of not assigned technologies
-            switches_new = create_switches_with_service_shares(
+            switches_new = create_switches_from_s_shares(
                 enduse=enduse,
                 s_tech_by_p=s_tech_by_p,
                 switch_technologies=switch_technologies,
@@ -343,7 +364,7 @@ def capacity_switch(
         base_yr
     ):
     """Create service switches based on assumption on
-    changes in installed fuel capacity (`capacty switches`).
+    changes in installed fuel capacity (`capacity switches`).
     Service switch are calculated based on the assumed
     capacity installation (in absolute GW) of technologies.
     Assumptions on capacities are defined in the
@@ -351,12 +372,11 @@ def capacity_switch(
 
     Note
     -----
-    TODO: With the information about the installed capacity
+    With the information about the installed capacity
     only the change in percentage in end year gets calulated.
     This means that there is not absolute change in demand (
         e.g. you cant add additional demand of an existing technology
-        --> It is only a switch
-    )
+        --> It is only a switch)
     Arguments
     ---------
     capacity_switches : list

@@ -1976,7 +1976,7 @@ def industry_enduse_changes(
                 other_enduse_mode_info,
                 assumptions)
 
-        if sector == 'non_metallic_mineral_products':
+        elif sector == 'non_metallic_mineral_products':
 
             # Calculate factor depending on cement processes
             factor = cement_process()

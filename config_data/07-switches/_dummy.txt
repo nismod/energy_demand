@@ -5,6 +5,8 @@ Fuel switches
 # Residential
 rs_space_heating,gas,boiler_hydrogen,2050,0.99
 
+rs_lighting, ...
+
 # Service
 ss_space_heating,gas,heat_pumps_electricity,2050,0.9,
 

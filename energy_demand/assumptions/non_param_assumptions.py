@@ -35,7 +35,7 @@ class Assumptions(object):
         # Define all variables which are affected by regional diffusion
         self.spatially_modelled_vars = []
         #    'smart_meter_improvement_p'
-        #]
+        #] TODO
 
         # Define technologies which are affected by spatial explicit diffusion
         self.techs_affected_spatial_f = ['heat_pumps_electricity']
@@ -346,18 +346,22 @@ class Assumptions(object):
 
         # --------------------------------------------
         # lighting 
-        # -------------------------------------------- 
-        # --> No scenario drivers but driven by switches
+        #
+        # We do not define individual technologies because e.g. unclear how much LED. Therfore overall efficiency increase
+        #--------------------------------------------
+        #is_lighting_eff_change = 0 #Efficiency of lighting TODO IMPLEMENT
 
         # --------------------------------------------
-        # high_temp_ process 
+        # high_temp_ process
+        #
         #       High temperature processing dominates energy consumption in the iron and steel,
         #       non-ferrous metal, bricks, cement, glass and potteries industries. This includes
         #          - coke ovens
         #          - blast furnaces and other furnaces
         #          - kilns and
         #          - glass tanks.
-
+        # High consumption in Chemicals, Non_metallic mineral products, paper, food_production
+        # Fuel use ratio - electric arc furnace over blast furnace steel making in cement sector
         #BAF: basic_oxygen_furnace
         #EAF: electric_arc_furnace
         #BAT - iron & steel - Coke ovens	Sectoral share (%)
@@ -365,73 +369,86 @@ class Assumptions(object):
         #BAT - iron & steel - continous/Ingot casting 	Sectoral share - continuous %
         #BAT - iron & steel - cold/hot rolling 	Sectoral share - cold %                     #DONE
         #BAT - iron & steel - substitute	Sectoral share - substitute %
-
         # --------------------------------------------
 
         # Share of cold rolling in steel manufacturing (total = hot and cold)
-        self.p_cold_rolling_steel_by  = 0.5  #TODO
+        # *****************
+        # TODO Fuel use ratio - cold over hot rolling in cement sector
+        self.p_cold_rolling_steel_by = 0.5  #TODO
         self.eff_cold_rolling_process = 1.0  #TODO
         self.eff_hot_rolling_process = 1.0   #TODO
 
-        # ---------------
-        p_service_electric_arc_furnace = 0.5            #TODO: DEFINE FROM BASE YEAR FUEL MIX
-        p_service_basic_oxygen_furnace = 1 - p_service_electric_arc_furnace
-        p_SNG_furnace = 0 #biomass
-        # Sector metalic (steel industry)
-
-        assumpt_fraction_cement_of_high_temp_process = 0.5 # (non_metallic)
-        assumpt_fraction_netall_of_high_temp_process = 0.5 # (basic_metals)
-        
+        # Steel production - Enduse: is_high_temp_process, Sector: basic_metals
+        # *****************
+        # With industry service switch, the future shares
+        # in 'basic_oxygen_furnace', 'electric_arc_furnace', and 'SNG_furnace'
+        # can be specified
+        # TODO: # blast furnace process, electric arc furnace, directe reduced iron
         #scrap-based production: electric arc furnace 
         #direct reduction process: natrual gas based, electric arc furnace
         #BF-BOF (blast furnace - basix oxgen furnace)
+        #       Example service switch: 
+        #           is_high_temp_process,SNG_furnace,1.0,2050,basic_metals
 
-
-        # Sectors non_metallic_mineral_products
-
-        # --> Define efficiencis of technologies
-        #   - Other (?)
-        #   .ev refrigeration / compressed air / motors
-        #   
-        #
-        #  
-
-        # High consumption in Chemicals, Non_metallic mineral products, paper, food_production
-        ''' 'is_high_temp_process': ['gva'],
-            'is_low_temp_process': ['gva'],
-            'is_drying_separation': ['gva'],
-            'is_motors': ['gva'],
-            'is_compressed_air': ['gva'],
-            'is_lighting': ['gva'],
-            'is_space_heating': ['gva'],
-            'is_other': ['gva'],
-            'is_refrigeration': ['gva']}'''
-
-        # Sectors
+        # Cement production - Enduse: is_high_temp_process, Sector: non_metallic_mineral_products
+        # *****************
+        # technologies: Dry kilns, semi
         '''
         Fuel use ratio - dry process over wet process in cement sector
         Fuel use ratio - novel alkali cement over incumbent process in cement sector
         Fuel use ratio - novel partially dehydrated cement over incumbent process in cement sector
-        Fuel use ratio - electric arc furnace over blast furnace steel making in cement sector
         Fuel use ratio - continuous over ingot casting in cement sector
-        Fuel use ratio - cold over hot rolling in cement sector
-        '''
-        '''
 
         BAT - cement - dry/wet process 	Dry/wet process (Dry %)
         BAT - cement - Novel-Alkali-activated (alumino-silicate, geopolymer)	Sectoral share of Alkali activated %
         BAT - cement - Novel-Partially prehydrated Calcium silicate hydrate	Sectoral share - Partially prehydrated %'''
 
-        # -----------------
-        # Steel production
-        # -----------------
-        # blast furnace process
-        # electric arc furnace
-        # directe reduced iron
-        # Hith temperature process -- cement, non-ferrous metla, coke ovens, blast furnaces, kilns,..
+        # CHEMICALs - Enduse: is_high_temp_process, Sector: CHEMICALS
+        # *****************
+
+        # ----------------
+        # Efficiency of motors
+        # ----------------
+        #is_motors_eff_change = 0
+
+        # ----------------
+        # Efficiency of others
+        # ----------------
+        #is_others_eff_change = 0
+
+        # ----------------
+        # Efficiency of others
+        # ----------------
+        #is_refrigeration_eff_change = 0
+        
+        # ----------------
+        # Efficiency of is_compressed_air
+        # ----------------
+        #is_compressed_air_eff_change =
+
+        # ----------------
+        # Efficiency of is_drying_separation
+        # ----------------
+        #is_drying_separation_eff_change = 
+
+        # ----------------
+        # Efficiency of is_low_temp_process
+        # ----------------
+        #is_low_temp_process_eff_change = 
+
+        ''' 'is_high_temp_process': ['gva'], DONE
+            'is_low_temp_process': ['gva'], DONE
+            'is_drying_separation': ['gva'] DONE,
+            'is_motors': ['gva'], DONE
+            'is_compressed_air': ['gva'], DONE
+            'is_lighting': ['gva'], DONE
+            'is_space_heating': ['gva'], DONE
+            'is_other': ['gva'] DONE, 
+            'is_refrigeration': ['gva']} DONE'''
+
 
         # ============================================================
-        # Assumption related to technologies
+        # Assumption related to heat pump technologies
         # ============================================================
         #
         #   Assumptions related to technologies
