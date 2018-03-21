@@ -1631,12 +1631,12 @@ def plot_radar_plot(dh_profile, fig_name, plot_steps=30, plotshow=False):
     nr_of_plot_steps = int(max_demand / plot_steps) + 1
 
     axis_plots_inner = []
-    axis_plots_outer = []
+    axis_plots_innter_position = []
 
     # Innter ciruclar axis
     for i in range(nr_of_plot_steps):
         axis_plots_inner.append(plot_steps*i)
-        axis_plots_outer.append(str(plot_steps*i))
+        axis_plots_innter_position.append(str(plot_steps*i))
 
     # ---------
     data = {
@@ -1666,6 +1666,16 @@ def plot_radar_plot(dh_profile, fig_name, plot_steps=30, plotshow=False):
     # Initialise the spider plot
     ax = plt.subplot(111, polar=True)
 
+    '''fig = plt.figure()
+    ax = plt.subplot(111, polar=True)
+    ax.yaxis.grid(color='r', linestyle='--', linewidth=2)
+    plt.show()'''
+
+    # Change circula axis
+    #ax = fig.addxes_a(polar=True)
+    #ax.xaxis.grid(color='red', linestyle='--', linewidth="2")
+    ax.yaxis.grid(color='red', linestyle='--', linewidth="3")
+
     #plt.figure(figsize=plotting_program.cm2inch(8, 8))
     #ax = plt.subplot(111, polar=True)
     #fig, ax = plt.subplots(figsize=plotting_program.cm2inch(8, 8))
@@ -1689,7 +1699,7 @@ def plot_radar_plot(dh_profile, fig_name, plot_steps=30, plotshow=False):
     ax.set_rlabel_position(0)
     plt.yticks(
         axis_plots_inner,
-        axis_plots_outer,
+        axis_plots_innter_position,
         color="grey",
         size=7)
 
@@ -1709,6 +1719,7 @@ def plot_radar_plot(dh_profile, fig_name, plot_steps=30, plotshow=False):
         'blue', #b
         alpha=0.1)
 
+    # Save fig
     plt.savefig(fig_name)
 
     if plotshow:
@@ -1747,12 +1758,14 @@ def plot_radar_plot_multiple_lines(
     nr_of_plot_steps = int(max_demand / plot_steps) + 1
 
     axis_plots_inner = []
-    axis_plots_outer = []
+    axis_plots_innter_position = []
 
-    # Innter ciruclar axis
+    # --------------------
+    # Ciruclar axis
+    # --------------------
     for i in range(nr_of_plot_steps):
         axis_plots_inner.append(plot_steps*i)
-        axis_plots_outer.append(str(plot_steps*i))
+        axis_plots_innter_position.append(str(plot_steps*i))
 
     color_lines = ['grey', 'blue']
     years = ['2015', '2050']
@@ -1760,6 +1773,7 @@ def plot_radar_plot_multiple_lines(
     # Iterate lines
     for cnt, dh_profile in enumerate(dh_profiles):
 
+        # Line properties
         color_line = color_lines[cnt]
         year_line = years[cnt]
 
@@ -1774,7 +1788,7 @@ def plot_radar_plot_multiple_lines(
         df = pd.DataFrame(data)
 
         # number of variable
-        categories=list(df)[1:]
+        categories = list(df)[1:]
         N = len(categories)
 
         # We are going to plot the first line of the data frame.
@@ -1789,6 +1803,10 @@ def plot_radar_plot_multiple_lines(
         # Initialise the spider plot
         ax = plt.subplot(111, polar=True)
 
+        # Change axis
+        ax.yaxis.grid(color='grey', linestyle='--', linewidth=0.5)
+        ax.xaxis.grid(color='grey', linestyle=':', linewidth=0.25)
+
         #plt.figure(figsize=plotting_program.cm2inch(8, 8))
         #ax = plt.subplot(111, polar=True)
         #fig, ax = plt.subplots(figsize=plotting_program.cm2inch(8, 8))
@@ -1801,20 +1819,28 @@ def plot_radar_plot_multiple_lines(
         # Set first hour on top
         ax.set_theta_zero_location("N")
 
-        # Draw one axe per variable + add labels labels yet
+
+        # Modify grids
+        #plt.yticks(axis_plots_inner,  "-", alpha=0.4, label="first")
+        '''for i in ax:
+            i.patch.set_visible(False)
+            i.grid("off")
+            i.xaxis.set_visible(False)'''
+
+        # Draw one axe per variable + add labels labels yet (numbers)
         plt.xticks(
             angles[:-1],
             categories,
-            color='grey',
+            color='black',
             size=8)
 
-        # Draw ylabels
+        # Draw ylabels (numbers)
         ax.set_rlabel_position(0)
         plt.yticks(
             axis_plots_inner,
-            axis_plots_outer,
-            color="grey",
-            size=7)
+            axis_plots_innter_position,
+            color="black",
+            size=8)
 
         # Set limit to size
         plt.ylim(0, max_demand)
@@ -1827,10 +1853,11 @@ def plot_radar_plot_multiple_lines(
             linewidth=0.5,
             label="{}".format(year_line))
 
+        # Radar area
         ax.fill(
             angles,
             values,
-            color_line, #b
+            color_line,
             alpha=0.1)
 
     # ------------
@@ -1839,11 +1866,11 @@ def plot_radar_plot_multiple_lines(
     plt.legend(
         ncol=2,
         loc='best',
+        bbox_to_anchor=(0.5, -0.05),
         prop={
             'family': 'arial',
             'size': 10},
         frameon=False)
-
 
     plt.savefig(fig_name)
 

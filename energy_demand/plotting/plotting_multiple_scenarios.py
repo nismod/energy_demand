@@ -218,6 +218,8 @@ def plot_radar_plots_average_peak_day(
     ):
     """Compare averaged dh profile overall regions for peak day
     for future year and base year
+
+    TODO: SO FAR ONLY FOR ONE SCENARIO
     """
     lookups = lookup_tables.basic_lookups()
 
@@ -265,9 +267,10 @@ def plot_radar_plots_average_peak_day(
     peak_day_nr = np.argmax(np.sum(all_fuels_by_d, axis=1))
 
     for fueltype in all_regs_fueltypes_yh_by.keys():
-    
+
         fueltype_str = tech_related.get_fueltype_str(lookups['fueltypes'], fueltype)
-        name_spider_plot = os.path.join(fig_name, "spider_{}_.pdf".format(fueltype_str))
+
+        name_spider_plot = os.path.join(fig_name, "spider_{}.pdf".format(fueltype_str))
 
         # ----------------------------------
         # Plot dh for peak day for base year
@@ -279,7 +282,7 @@ def plot_radar_plots_average_peak_day(
         plotting_results.plot_radar_plot_multiple_lines(
             individ_radars_to_plot_dh,
             name_spider_plot,
-            plot_steps=20,
+            plot_steps=50,
             plotshow=False)
 
 def plot_LAD_comparison_scenarios(

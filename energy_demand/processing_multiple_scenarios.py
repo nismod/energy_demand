@@ -79,13 +79,13 @@ def process_scenarios(path_to_scenarios, year_to_model=2015):
     plotting_multiple_scenarios.plot_tot_y_over_time(
         scenario_data,
         fig_name=os.path.join(path_result_folder, "tot_y_multiple.pdf"),
-        plotshow=True)
+        plotshow=False)
 
     # Plot for all regions demand for every year in line plot
     plotting_multiple_scenarios.plot_reg_y_over_time(
         scenario_data,
         fig_name=os.path.join(path_result_folder, "reg_y_multiple.pdf"),
-        plotshow=True)
+        plotshow=False)
 
     # Plot comparison of total demand for a year for all LADs (scatter plot)
     plotting_multiple_scenarios.plot_LAD_comparison_scenarios(
