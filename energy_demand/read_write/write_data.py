@@ -148,8 +148,7 @@ def write_yaml_output_keynames(path_yaml, key_names):
             'name': key_name,
             'spatial_resolution': 'lad_uk_2016',
             'temporal_resolution': 'hourly',
-            'units': 'GWh'
-        }
+            'units': 'GWh'}
 
         list_to_dump.append(dict_to_dump)
 
@@ -188,6 +187,7 @@ def write_yaml_param_complete(path_yaml, dict_to_dump):
         dump_dict['name'] = paramter_info['name']
         dump_dict['default_value'] = paramter_info['default_value']
         dump_dict['units'] = paramter_info['units']
+
         list_to_dump.append(dump_dict)
 
     # Dump list

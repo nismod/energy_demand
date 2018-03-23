@@ -1,5 +1,5 @@
 ==============
-Fuel switches
+Fuel switches  rs_space_heating,heat_pumps_electricity,0.5,2050
 ==============
 
 # Residential

@@ -1732,7 +1732,7 @@ def plot_radar_plot(dh_profile, fig_name, plot_steps=30, plotshow=False):
 def plot_radar_plot_multiple_lines(
         dh_profiles,
         fig_name,
-        plot_steps=30,
+        plot_steps,
         plotshow=False,
         lf_y_by=None,
         lf_y_cy=None
@@ -1834,14 +1834,14 @@ def plot_radar_plot_multiple_lines(
         ax.set_rlabel_position(0)
 
         # Remove last and first element
-        if len(axis_plots_inner) == 2:
+        '''if len(axis_plots_inner) == 2:
             axis_plots_inner = axis_plots_inner[1:]
             axis_plots_innter_position = axis_plots_innter_position[1:]
         elif len(axis_plots_inner) > 2:
             axis_plots_inner = axis_plots_inner[1:1]
             axis_plots_innter_position = axis_plots_innter_position[1:1]
         else:
-            pass
+            pass'''
     
         # Working alternative
         plt.yticks(
