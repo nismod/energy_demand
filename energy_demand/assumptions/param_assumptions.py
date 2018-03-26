@@ -252,7 +252,7 @@ def load_param_assump(paths=None, assumptions=None):
         "absolute_range": (0, 1),
         "description": "Improvement of smart meter penetration",
         "suggested_range": (0, 0.9),
-        "default_value": '{}'.format(assumptions.smart_meter_assump['smart_meter_p_by']),
+        "default_value": assumptions.smart_meter_assump['smart_meter_p_by'],
         "units": 'decimal'})
 
     strategy_variables.append({
@@ -313,7 +313,7 @@ def load_param_assump(paths=None, assumptions=None):
             "absolute_range": (0, 1),
             "description": "Smart meter induced savings for enduse {}".format(enduse_name),
             "suggested_range": (0, 1),
-            "default_value": '0',
+            "default_value": 0,
             "units": 'decimal',
             "affected_enduse": [enduse_name.split("__"[1])]})
 

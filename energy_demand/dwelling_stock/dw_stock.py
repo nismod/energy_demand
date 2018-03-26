@@ -105,7 +105,6 @@ class Dwelling(object):
     def __init__(
             self,
             curr_yr,
-            region,
             coordinates,
             floorarea,
             enduses,
@@ -119,7 +118,6 @@ class Dwelling(object):
         ):
         """Constructor of Dwelling Class
         """
-        #self.dw_region_name = region
         self.curr_yr = curr_yr
         self.enduses = enduses
         self.longitude = coordinates['longitude']
@@ -518,7 +516,6 @@ def ss_dw_stock(
         dw_stock.append(
             Dwelling(
                 curr_yr=curr_yr,
-                region=region,
                 coordinates=reg_coord[region],
                 floorarea=floorarea_sector_cy,
                 enduses=enduses,
@@ -836,7 +833,6 @@ def generate_dw_existing(
             dw_stock_by.append(
                 Dwelling(
                     curr_yr=curr_yr,
-                    region=region,
                     coordinates=reg_coord[region],
                     floorarea=dwtype_age_class_floorarea,
                     enduses=enduses,
@@ -920,7 +916,6 @@ def generate_dw_new(
         dw_stock_new_dw.append(
             Dwelling(
                 curr_yr=curr_yr,
-                region=region,
                 coordinates=reg_coord[region],
                 floorarea=dw_type_new_floorarea,
                 enduses=enduses,

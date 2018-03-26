@@ -9,6 +9,7 @@ from math import pi
 import numpy as np
 import matplotlib.pyplot as plt
 import pandas as pd
+from matplotlib.ticker import MultipleLocator, FormatStrFormatter
 
 from energy_demand.plotting import plotting_program
 from energy_demand.basic import basic_functions, conversions
@@ -1631,12 +1632,12 @@ def plot_radar_plot(dh_profile, fig_name, plot_steps=30, plotshow=False):
     nr_of_plot_steps = int(max_demand / plot_steps) + 1
 
     axis_plots_inner = []
-    axis_plots_outer = []
+    axis_plots_innter_position = []
 
     # Innter ciruclar axis
     for i in range(nr_of_plot_steps):
         axis_plots_inner.append(plot_steps*i)
-        axis_plots_outer.append(str(plot_steps*i))
+        axis_plots_innter_position.append(str(plot_steps*i))
 
     # ---------
     data = {
@@ -1666,6 +1667,16 @@ def plot_radar_plot(dh_profile, fig_name, plot_steps=30, plotshow=False):
     # Initialise the spider plot
     ax = plt.subplot(111, polar=True)
 
+    '''fig = plt.figure()
+    ax = plt.subplot(111, polar=True)
+    ax.yaxis.grid(color='r', linestyle='--', linewidth=2)
+    plt.show()'''
+
+    # Change circula axis
+    #ax = fig.addxes_a(polar=True)
+    #ax.xaxis.grid(color='red', linestyle='--', linewidth="2")
+    ax.yaxis.grid(color='red', linestyle='--', linewidth="3")
+
     #plt.figure(figsize=plotting_program.cm2inch(8, 8))
     #ax = plt.subplot(111, polar=True)
     #fig, ax = plt.subplots(figsize=plotting_program.cm2inch(8, 8))
@@ -1689,7 +1700,7 @@ def plot_radar_plot(dh_profile, fig_name, plot_steps=30, plotshow=False):
     ax.set_rlabel_position(0)
     plt.yticks(
         axis_plots_inner,
-        axis_plots_outer,
+        axis_plots_innter_position,
         color="grey",
         size=7)
 
@@ -1709,6 +1720,7 @@ def plot_radar_plot(dh_profile, fig_name, plot_steps=30, plotshow=False):
         'blue', #b
         alpha=0.1)
 
+    # Save fig
     plt.savefig(fig_name)
 
     if plotshow:
@@ -1717,7 +1729,14 @@ def plot_radar_plot(dh_profile, fig_name, plot_steps=30, plotshow=False):
     else:
         plt.close()
 
-def plot_radar_plot_multiple_lines(dh_profiles, fig_name, plot_steps=30, plotshow=False):
+def plot_radar_plot_multiple_lines(
+        dh_profiles,
+        fig_name,
+        plot_steps,
+        plotshow=False,
+        lf_y_by=None,
+        lf_y_cy=None
+    ):
     """Plot daily load profile on a radar plot
 
     Arguments
@@ -1730,25 +1749,42 @@ def plot_radar_plot_multiple_lines(dh_profiles, fig_name, plot_steps=30, plotsho
     SOURCE: https://python-graph-gallery.com/390-basic-radar-chart/
     """
 
-    # Get maximum demand of first array
-    max_entry = np.array(dh_profiles[0]).max()
-    max_demand = round(max_entry, -1) + 10 # Round to nearest 10 plus add 10
-    max_demand = 120 #SCRAP
+    # Get maximum demand of all lines
+    max_entry = 0
+    for line_entries in dh_profiles:
+        max_in_line = max(line_entries)
+        if max_in_line > max_entry:
+            max_entry = max_in_line
 
-    #
+    max_demand = round(max_entry, -1) + 10 # Round to nearest 10 plus add 10
 
     nr_of_plot_steps = int(max_demand / plot_steps) + 1
 
     axis_plots_inner = []
-    axis_plots_outer = []
+    axis_plots_innter_position = []
 
-    # Innter ciruclar axis
+    # --------------------
+    # Ciruclar axis
+    # --------------------
     for i in range(nr_of_plot_steps):
         axis_plots_inner.append(plot_steps*i)
-        axis_plots_outer.append(str(plot_steps*i))
+        axis_plots_innter_position.append(str(plot_steps*i))
+
+    # Minor ticks
+    minor_tick_interval = plot_steps / 2
+    minor_ticks = []
+    for i in range(nr_of_plot_steps * 2):
+        minor_ticks.append(minor_tick_interval * i)
+
+    color_lines = ['grey', 'blue']
+    years = ['2015', '2050']
 
     # Iterate lines
-    for dh_profile in dh_profiles:
+    for cnt, dh_profile in enumerate(dh_profiles):
+
+        # Line properties
+        color_line = color_lines[cnt]
+        year_line = years[cnt]
 
         data = {'dh_profile': ['testname']}
 
@@ -1761,12 +1797,12 @@ def plot_radar_plot_multiple_lines(dh_profiles, fig_name, plot_steps=30, plotsho
         df = pd.DataFrame(data)
 
         # number of variable
-        categories=list(df)[1:]
+        categories = list(df)[1:]
         N = len(categories)
 
         # We are going to plot the first line of the data frame.
         # But we need to repeat the first value to close the circular graph:
-        values=df.loc[0].drop('dh_profile').values.flatten().tolist()
+        values = df.loc[0].drop('dh_profile').values.flatten().tolist()
         values += values[:1]
 
         # What will be the angle of each axis in the plot? (we divide the plot / number of variable)
@@ -1776,10 +1812,9 @@ def plot_radar_plot_multiple_lines(dh_profiles, fig_name, plot_steps=30, plotsho
         # Initialise the spider plot
         ax = plt.subplot(111, polar=True)
 
-        #plt.figure(figsize=plotting_program.cm2inch(8, 8))
-        #ax = plt.subplot(111, polar=True)
-        #fig, ax = plt.subplots(figsize=plotting_program.cm2inch(8, 8))
-        #ax = plt.subplot(111, polar=True)
+        # Change axis properties
+        ax.yaxis.grid(color='grey', linestyle='--', linewidth=0.75)
+        ax.xaxis.grid(color='grey', linestyle=':', linewidth=0.5)
 
         # Change to clockwise cirection
         ax.set_theta_direction(-1)
@@ -1788,20 +1823,36 @@ def plot_radar_plot_multiple_lines(dh_profiles, fig_name, plot_steps=30, plotsho
         # Set first hour on top
         ax.set_theta_zero_location("N")
 
-        # Draw one axe per variable + add labels labels yet
+        # Draw one axe per variable + add labels labels yet (numbers)
         plt.xticks(
             angles[:-1],
             categories,
-            color='grey',
+            color='black',
             size=8)
 
-        # Draw ylabels
+        # Draw ylabels (numbers)
         ax.set_rlabel_position(0)
+
+        # Remove last and first element
+        '''if len(axis_plots_inner) == 2:
+            axis_plots_inner = axis_plots_inner[1:]
+            axis_plots_innter_position = axis_plots_innter_position[1:]
+        elif len(axis_plots_inner) > 2:
+            axis_plots_inner = axis_plots_inner[1:1]
+            axis_plots_innter_position = axis_plots_innter_position[1:1]
+        else:
+            pass'''
+    
+        # Working alternative
         plt.yticks(
             axis_plots_inner,
-            axis_plots_outer,
-            color="grey",
-            size=7)
+            axis_plots_innter_position,
+            color="black",
+            size=8)
+
+        #ax.set_yticks(axis_plots_inner, minor=False)
+        #ax.tick_params(axis='y', pad=35) 
+        #ax.set_yticks(minor_ticks, minor=True) #Somehow not working
 
         # Set limit to size
         plt.ylim(0, max_demand)
@@ -1811,13 +1862,34 @@ def plot_radar_plot_multiple_lines(dh_profiles, fig_name, plot_steps=30, plotsho
             angles,
             values,
             linestyle='--',
-            linewidth=0.5)
+            linewidth=0.8,
+            label="{}".format(year_line))
 
+        # Radar area
         ax.fill(
             angles,
             values,
-            'blue', #b
+            color_line,
             alpha=0.1)
+
+    # ------------
+    # Title
+    # ------------
+    plt.title(" lf_y_by: {} lf_y_cy: {}".format(
+        round(lf_y_by, 2),
+        round(lf_y_cy, 2)))
+
+    # ------------
+    # Legend
+    # ------------
+    plt.legend(
+        ncol=2,
+        loc='best',
+        bbox_to_anchor=(0.5, -0.05),
+        prop={
+            'family': 'arial',
+            'size': 10},
+        frameon=False)
 
     plt.savefig(fig_name)
 

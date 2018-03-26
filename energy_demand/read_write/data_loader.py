@@ -34,7 +34,6 @@ def load_ini_param(path):
         Regions
     """
     config = configparser.ConfigParser()
-
     config.read(os.path.join(path, 'model_run_sim_param.ini'))
 
     reg_nrs = int(config['SIM_PARAM']['reg_nrs'])

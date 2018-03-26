@@ -579,7 +579,7 @@ def create_geopanda_files(
         regions,
         fueltypes_nr,
         fueltypes,
-        
+        path_shapefile_input
     ):
     """Create map related files (png) from results.
 
@@ -598,12 +598,13 @@ def create_geopanda_files(
     # --------
     # Read LAD shapefile and create geopanda
     # --------
-    try:
-        # Single scenario run
-        lad_geopanda_shp = gpd.read_file(paths['lad_shapefile'])
-    except IOError:
-        # Multiple scenario runs
-        lad_geopanda_shp = gpd.read_file() #TODO why empty?
+    #try:
+    # Single scenario run
+    lad_geopanda_shp = gpd.read_file(path_shapefile_input)
+    logging.info("t")
+    #except IOError:
+    #    # Multiple scenario runs
+    #    lad_geopanda_shp = gpd.read_file() #TODO why empty?
 
     # Attribute merge unique Key
     unique_merge_id = 'name' #'geo_code'
@@ -619,7 +620,7 @@ def create_geopanda_files(
     for fueltype in range(fueltypes_nr):
         logging.info("progress.. {}".format(fueltype))
         fueltype_str = tech_related.get_fueltype_str(fueltypes, fueltype)
-        field_name = 'lf_diff_{}_{}_'.format(final_yr, fueltype_str)
+        field_name = 'lf_diff_{}-{}_{}_'.format(base_yr, final_yr, fueltype_str)
 
         lf_end_yr = basic_functions.array_to_dict(
             results_container['load_factors_y'][final_yr][fueltype],
@@ -797,6 +798,7 @@ def create_geopanda_files(
                 color_list=color_list,
                 color_zero=color_zero,
                 bins=bins)
+
     # ======================================
     # Load factors
     # ======================================
