@@ -31,7 +31,7 @@ from energy_demand.basic import lookup_tables
 from energy_demand.geography import spatial_diffusion
 
 # must match smif project name for Local Authority Districts
-WRITEOUTSMIFRESULTS = False
+WRITEOUTSMIFRESULTS = True
 NR_OF_MODELLEd_REGIONS = 391 # uk: 391 (including ireland), england.: 380
 
 class EDWrapper(SectorModel):
@@ -61,9 +61,9 @@ class EDWrapper(SectorModel):
         data['criterias']['virtual_building_stock_criteria'] = True     # True: Run virtual building stock model
         data['criterias']['spatial_exliclit_diffusion'] = False         # True: Spatial explicit calculations
 
-        fast_smif_run = False
+        fast_smif_run = True
 
-        if fast_smif_run == True:
+        if fast_smif_run:
             data['criterias']['write_to_txt'] = False
             data['criterias']['beyond_supply_outputs'] = False
             data['criterias']['validation_criteria'] = False
@@ -72,7 +72,7 @@ class EDWrapper(SectorModel):
             data['criterias']['crit_plot_enduse_lp'] = False
             data['criterias']['plot_HDD_chart'] = False
             data['criterias']['writeYAML'] = False
-        elif fast_smif_run == False:
+        elif fast_smif_run:
             data['criterias']['write_to_txt'] = True
             data['criterias']['beyond_supply_outputs'] = True
             data['criterias']['validation_criteria'] = True

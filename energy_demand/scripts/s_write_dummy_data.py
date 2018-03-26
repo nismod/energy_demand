@@ -127,7 +127,7 @@ def post_install_setup_minimum(args):
     path_energy_demand : str
         Path to energy demand python files
     """
-    path_energy_demand = resource_filename(Requirement.parse("energy_demand"), "")
+    path_energy_demand = resource_filename(Requirement.parse("energy_demand"), "config_data")
     path_local_data = args.local_data
 
     # ==========================================
@@ -155,6 +155,7 @@ def post_install_setup_minimum(args):
     # Load data
     base_yr = 2015
     data = {}
+
     data['paths'] = data_loader.load_paths(path_energy_demand)
     data['lookups'] = lookup_tables.basic_lookups()
     data['enduses'], data['sectors'], data['fuels'] = data_loader.load_fuels(
@@ -191,6 +192,4 @@ def post_install_setup_minimum(args):
     # --------
     dummy_sectoral_load_profiles(local_paths, path_energy_demand)
 
-    print("Finished post installation setup with non-access to full data")
-
-#post_install_setup_minimum("C:/_DUMMY", "C:/Users/cenv0553/nismod/models/energy_demand")
+    print("Successfully finished post installation setup with open source data")

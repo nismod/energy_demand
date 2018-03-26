@@ -30,8 +30,9 @@ def post_install_setup(args):
     print("... start running initialisation scripts")
 
     # Paths
-    path_main = resource_filename(Requirement.parse("energy_demand"), "")
-    local_data_path = args.data_energy_demand
+    path_main = resource_filename(Requirement.parse("energy_demand"), "config_data")
+
+    local_data_path = args.local_data
 
     # Initialise logger
     logger_setup.set_up_logger(
@@ -42,6 +43,7 @@ def post_install_setup(args):
     base_yr = 2015
 
     data = {}
+
     data['paths'] = data_loader.load_paths(path_main)
     data['local_paths'] = data_loader.load_local_paths(local_data_path)
     data['lookups'] = lookup_tables.basic_lookups()
@@ -75,20 +77,22 @@ def post_install_setup(args):
     s_raw_weather_data.run(
         data['local_paths'])
 
-    # Read in service submodel shapes
+    # Read in service submodel load profiles
+    print("... creating service load profiles")
     s_ss_raw_shapes.run(
         data['paths'],
         data['local_paths'],
         data['lookups'])
 
-    # Read in residential submodel shapes
+    # Read in residential submodel load profiles
+    print("... creating residential load profiles")
     s_rs_raw_shapes.run(
         data['paths'],
         data['local_paths'],
         base_yr)
 
-    logging.info("... finished post_install_setup")
-    print("... finished post_install_setup")
+    logging.info("... finished setup")
+    print("... successfully finished setup")
     return
 
 # ------run locally
