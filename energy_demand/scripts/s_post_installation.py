@@ -31,7 +31,7 @@ def post_install_setup(args):
 
     # Paths
     path_main = resource_filename(Requirement.parse("energy_demand"), "config_data")
-
+    path_results = resource_filename(Requirement.parse("energy_demand"), "results")
     local_data_path = args.local_data
 
     # Initialise logger
@@ -41,11 +41,11 @@ def post_install_setup(args):
 
     # Load data
     base_yr = 2015
-
     data = {}
 
     data['paths'] = data_loader.load_paths(path_main)
     data['local_paths'] = data_loader.load_local_paths(local_data_path)
+    data['result_paths'] = data_loader.load_result_paths(path_results)
     data['lookups'] = lookup_tables.basic_lookups()
     data['enduses'], data['sectors'], data['fuels'] = data_loader.load_fuels(
         data['paths'], data['lookups'])
@@ -60,11 +60,11 @@ def post_install_setup(args):
         fueltypes_nr=data['lookups']['fueltypes_nr'])
 
     # Delete all previous data from previous model runs
-    basic_functions.del_previous_setup(data['result_paths']['data_processed'])
+    basic_functions.del_previous_setup(data['local_paths']['data_processed'])
     basic_functions.del_previous_setup(data['result_paths']['data_results'])
 
     # Create folders and subfolder for data_processed
-    basic_functions.create_folder(data['result_paths']['data_processed'])
+    basic_functions.create_folder(data['local_paths']['data_processed'])
     basic_functions.create_folder(data['local_paths']['path_post_installation_data'])
     basic_functions.create_folder(data['local_paths']['dir_raw_weather_data'])
     basic_functions.create_folder(data['local_paths']['dir_changed_weather_station_data'])
@@ -91,16 +91,5 @@ def post_install_setup(args):
         data['local_paths'],
         base_yr)
 
-    logging.info("... finished setup")
     print("... successfully finished setup")
     return
-
-# ------run locally
-'''
-class ClassTest():
-    def __init__(self, data_energy_demand):
-	    self.data_energy_demand = data_energy_demand
-#in_obj = ClassTest("C://Users//cenv0553//nismod//data_energy_demand")
-in_obj = ClassTest("C://DATA_NISMODII//data_energy_demand")
-post_install_setup(in_obj)
-'''

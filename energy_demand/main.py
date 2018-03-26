@@ -204,8 +204,13 @@ if __name__ == "__main__":
     data['criterias']['beyond_supply_outputs'] = True           # Wheater all results besides integraded smif run are calculated
     data['criterias']['plot_tech_lp'] = True                    # Wheater all individual load profils are plotted
 
+    # Paths
     data['paths'] = data_loader.load_paths(path_main)
     data['local_paths'] = data_loader.load_local_paths(local_data_path)
+
+    result_path = os.path.dirname(__file__).split("energy_demand\\energy_demand")[0]
+    data['result_paths'] = data_loader.load_result_paths(os.path.join(result_path, 'result_data'))
+
     data['lookups'] = lookup_tables.basic_lookups()
     data['enduses'], data['sectors'], data['fuels'] = data_loader.load_fuels(data['paths'], data['lookups'])
 
@@ -238,6 +243,7 @@ if __name__ == "__main__":
         pop_density[reg] = 1
     data['regions'] = list(data['regions'].keys())
     data['pop_density'] = pop_density
+
     # ------------------------------
     # Assumptions
     # ------------------------------

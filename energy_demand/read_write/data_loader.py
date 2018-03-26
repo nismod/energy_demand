@@ -243,22 +243,32 @@ def load_local_paths(path):
 
 def load_result_paths(path):
     """Load all result paths
+
+    Argument
+    --------
+    path : str
+        Path to result folder
+
+    Return
+    -------
+    paths : dict
+        All result paths used in model
     """
     paths = {
-        'data_results': os.path.join(
-            path, '_result_data'),
+        'data_results':
+            path,
         'data_results_model_run_pop': os.path.join(
-            path, '_result_data', 'model_run_pop'),
+            path, 'model_run_pop'),
         'data_results_model_runs': os.path.join(
-            path, '_result_data', 'model_run_results_txt'),
+            path, 'model_run_results_txt'),
         'data_results_PDF': os.path.join(
-            path, '_result_data', 'PDF_results'),
+            path, 'PDF_results'),
         'data_results_validation': os.path.join(
-            path, '_result_data', 'PDF_validation'),
+            path, 'PDF_validation'),
         'model_run_pop': os.path.join(
-            path, '_result_data', 'model_run_pop'),
+            path, 'model_run_pop'),
         'data_results_shapefiles': os.path.join(
-            path, '_result_data', 'spatial_results')}
+            path, 'spatial_results')}
 
     return paths
 
@@ -357,8 +367,7 @@ def load_paths(path):
         'yaml_parameters_keynames_unconstrained': os.path.join(
             path, 'yaml_parameters_keynames_unconstrained.yml'),
         'yaml_parameters_scenario': os.path.join(
-            path, 'yaml_parameters_scenario.yml')
-        }
+            path, 'yaml_parameters_scenario.yml')}
 
     return paths
 

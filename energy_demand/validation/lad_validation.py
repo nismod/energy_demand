@@ -56,7 +56,7 @@ def map_LAD_2011_2015(lad_data):
     return mapped_lads
 
 def temporal_validation(
-        local_paths,
+        result_paths,
         elec_ed_fueltype_national_yh,
         elec_factored_yh,
         elec_2015_indo,
@@ -72,7 +72,7 @@ def temporal_validation(
 
     Arguments
     ---------
-    local_paths :
+    result_paths :
     elec_ed_fueltype_national_yh 
     elec_2015_indo
     elec_2015_itsdo
@@ -85,7 +85,7 @@ def temporal_validation(
     days_to_plot = list(range(0, 365))
     elec_national_data.compare_results(
         'validation_temporal_electricity_8760h.pdf',
-        local_paths['data_results_validation'],
+        result_paths['data_results_validation'],
         elec_2015_indo,
         elec_2015_itsdo,
         elec_factored_yh,
@@ -121,7 +121,7 @@ def temporal_validation(
 
     elec_national_data.compare_results(
         'validation_temporal_electricity_weeks_selection.pdf',
-        local_paths['data_results_validation'],
+        result_paths['data_results_validation'],
         elec_2015_indo,
         elec_2015_itsdo,
         elec_factored_yh,
@@ -143,6 +143,7 @@ def tempo_spatial_validation(
         fueltypes,
         fueltypes_nr,
         local_paths,
+        result_paths,
         paths,
         regions,
         reg_coord,
@@ -221,7 +222,7 @@ def tempo_spatial_validation(
         subnational_elec,
         regions,
         'elec',
-        os.path.join(local_paths['data_results_validation'], 'validation_spatial_elec.pdf'),
+        os.path.join(result_paths['data_results_validation'], 'validation_spatial_elec.pdf'),
         label_points=False,
         plotshow=plot_crit)
 
@@ -232,7 +233,7 @@ def tempo_spatial_validation(
         subnational_gas,
         regions,
         'gas',
-        os.path.join(local_paths['data_results_validation'], 'validation_spatial_gas.pdf'),
+        os.path.join(result_paths['data_results_validation'], 'validation_spatial_gas.pdf'),
         label_points=False,
         plotshow=plot_crit)
 
@@ -250,7 +251,7 @@ def tempo_spatial_validation(
     elec_factored_yh = f_diff_elec * elec_2015_indo
 
     temporal_validation(
-        local_paths,
+        result_paths,
         ed_fueltype_national_yh[fueltypes['electricity']],
         elec_factored_yh,
         elec_2015_indo,
@@ -274,9 +275,9 @@ def tempo_spatial_validation(
 
     # Plot average daily loads
     plotting_results.plot_load_profile_dh_multiple(
-        path_fig_folder=local_paths['data_results_validation'],
+        path_fig_folder=result_paths['data_results_validation'],
         path_plot_fig=os.path.join(
-            local_paths['data_results_validation'],
+            result_paths['data_results_validation'],
             'validation_all_season_daytypes.pdf'),
         calc_av_lp_modelled=calc_av_lp_modelled,
         calc_av_lp_real=calc_av_lp_real,
@@ -302,14 +303,14 @@ def tempo_spatial_validation(
 
     elec_national_data.compare_peak(
         "validation_elec_peak_comparison_peakday_yh.pdf",
-        local_paths['data_results_validation'],
+        result_paths['data_results_validation'],
         elec_2015_indo[peak_day],
         ed_fueltype_national_yh[fueltypes['electricity']][peak_day])
 
     logging.info("...compare peak from max peak factors")
     elec_national_data.compare_peak(
         "validation_elec_peak_comparison_peak_shapes.pdf",
-        local_paths['data_results_validation'],
+        result_paths['data_results_validation'],
         elec_2015_indo[peak_day],
         tot_fuel_peak_dh[fueltypes['electricity']])
 
@@ -318,7 +319,7 @@ def tempo_spatial_validation(
     # ---------------------------------------------------
     elec_national_data.compare_results_hour_boxplots(
         "validation_hourly_boxplots_electricity_01.pdf",
-        local_paths['data_results_validation'],
+        result_paths['data_results_validation'],
         elec_2015_indo,
         ed_fueltype_national_yh[fueltypes['electricity']])
 

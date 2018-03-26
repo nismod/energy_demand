@@ -37,8 +37,6 @@ def process_scenarios(path_to_scenarios, year_to_model=2015):
     # Delete folder results if existing
     path_result_folder = os.path.join(path_to_scenarios, "results_multiple_scenarios")
 
-    #result_paths = load_result_paths(path_result_folder)
-
     basic_functions.delete_folder(path_result_folder)
 
     seasons = date_prop.get_season(
