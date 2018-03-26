@@ -213,10 +213,6 @@ def load_local_paths(path):
             path, '_processed_data', 'assumptions_from_db'),
         'data_processed': os.path.join(
             path, '_processed_data'),
-        'data_results': os.path.join(
-            path, '_result_data'),
-        'data_results_model_run_pop': os.path.join(
-            path, '_result_data', 'model_run_pop'),
         'lad_shapefile': os.path.join(
             path, '_raw_data', 'C_LAD_geography', 'same_as_pop_scenario', 'lad_2016_uk_simplified.shp'),
         'path_post_installation_data': os.path.join(
@@ -225,8 +221,6 @@ def load_local_paths(path):
             path, '_processed_data', '_post_installation_data', 'disaggregated'),
         'path_sigmoid_data': os.path.join(
             path, '_processed_data', 'sigmoid_data'),
-        'data_results_model_runs': os.path.join(
-            path, '_result_data', 'model_run_results_txt'),
         'dir_changed_weather_station_data': os.path.join(
             path, '_processed_data', '_post_installation_data', 'weather_station_data'),
         'changed_weather_station_data': os.path.join(
@@ -242,7 +236,21 @@ def load_local_paths(path):
         'ss_load_profile_txt': os.path.join(
             path, '_processed_data', '_post_installation_data', 'load_profiles', 'ss_submodel'),
         'dir_services': os.path.join(
-            path, '_processed_data', 'services'),
+            path, '_processed_data', 'services')
+        }
+
+    return paths
+
+def load_result_paths(path):
+    """Load all result paths
+    """
+    paths = {
+        'data_results': os.path.join(
+            path, '_result_data'),
+        'data_results_model_run_pop': os.path.join(
+            path, '_result_data', 'model_run_pop'),
+        'data_results_model_runs': os.path.join(
+            path, '_result_data', 'model_run_results_txt'),
         'data_results_PDF': os.path.join(
             path, '_result_data', 'PDF_results'),
         'data_results_validation': os.path.join(

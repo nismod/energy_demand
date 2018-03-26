@@ -95,16 +95,16 @@ def scenario_initalisation(path_data_ed, data=False):
         data['local_paths']['data_processed'],
         data['local_paths']['path_post_installation_data'])
 
-    basic_functions.del_previous_setup(data['local_paths']['data_results'])
+    basic_functions.del_previous_setup(data['result_paths']['data_results'])
 
     folders_to_create = [
-        data['local_paths']['data_results'],
         data['local_paths']['dir_services'],
         data['local_paths']['path_sigmoid_data'],
-        data['local_paths']['data_results_PDF'],
-        data['local_paths']['data_results_model_run_pop'],
-        data['local_paths']['data_results_validation'],
-        data['local_paths']['data_results_model_runs']]
+        data['result_paths']['data_results'],
+        data['result_paths']['data_results_PDF'],
+        data['result_paths']['data_results_model_run_pop'],
+        data['result_paths']['data_results_validation'],
+        data['result_paths']['data_results_model_runs']]
 
     for folder in folders_to_create:
         basic_functions.create_folder(folder)

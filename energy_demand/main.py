@@ -70,8 +70,7 @@ TODO: REMOVE PEAK SHAPES
 TODO: SPATIAL DISAGGREGATION FACTORS RESID/NONRESID SHARE
 TODO: SO FAR ALSO ALL SERVICE ENDUSES ARE MULTIPLIED
 TODO: TEST IF CORRECT REGIONAL CALCULATIONS AS DSCRIEBED IN
-TODO: Spatial diffusion: Cap largest 5% of values and set to 1
-5"""
+TODO: Spatial diffusion: Cap largest 5% of values and set to 1"""
 import os
 import sys
 import logging
@@ -310,14 +309,14 @@ if __name__ == "__main__":
     # Folder cleaning
     #--------------------
     print("... delete previous model run results")
-    basic_functions.del_previous_setup(data['local_paths']['data_results'])
-    basic_functions.create_folder(data['local_paths']['data_results'])
-    basic_functions.create_folder(data['local_paths']['data_results_PDF'])
-    basic_functions.create_folder(data['local_paths']['data_results_model_run_pop'])
+    basic_functions.del_previous_setup(data['result_paths']['data_results'])
+    basic_functions.create_folder(data['result_paths']['data_results'])
+    basic_functions.create_folder(data['result_paths']['data_results_PDF'])
+    basic_functions.create_folder(data['result_paths']['data_results_model_run_pop'])
 
     # Create .ini file with simulation information
     write_data.write_simulation_inifile(
-        data['local_paths']['data_results'],
+        data['result_paths']['data_results'],
         data['enduses'],
         data['assumptions'],
         data['reg_nrs'],
@@ -369,7 +368,7 @@ if __name__ == "__main__":
             # Write annual results to txt files
             # -------------------------------------------
             print("... Start writing results to file")
-            path_runs = data['local_paths']['data_results_model_runs']
+            path_runs = data['result_paths']['data_results_model_runs']
 
             # Write unconstrained results
             if data['criterias']['write_to_txt']:

@@ -60,11 +60,11 @@ def post_install_setup(args):
         fueltypes_nr=data['lookups']['fueltypes_nr'])
 
     # Delete all previous data from previous model runs
-    basic_functions.del_previous_setup(data['local_paths']['data_processed'])
-    basic_functions.del_previous_setup(data['local_paths']['data_results'])
+    basic_functions.del_previous_setup(data['result_paths']['data_processed'])
+    basic_functions.del_previous_setup(data['result_paths']['data_results'])
 
     # Create folders and subfolder for data_processed
-    basic_functions.create_folder(data['local_paths']['data_processed'])
+    basic_functions.create_folder(data['result_paths']['data_processed'])
     basic_functions.create_folder(data['local_paths']['path_post_installation_data'])
     basic_functions.create_folder(data['local_paths']['dir_raw_weather_data'])
     basic_functions.create_folder(data['local_paths']['dir_changed_weather_station_data'])

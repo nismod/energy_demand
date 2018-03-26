@@ -40,14 +40,14 @@ def main(path_data_energy_demand, path_shapefile_input):
     # ---------------
     # Folder cleaning
     # ---------------
-    basic_functions.del_previous_setup(data['local_paths']['data_results_PDF'])
-    basic_functions.del_previous_setup(data['local_paths']['data_results_shapefiles'])
-    basic_functions.create_folder(data['local_paths']['data_results_PDF'])
-    basic_functions.create_folder(data['local_paths']['data_results_shapefiles'])
+    basic_functions.del_previous_setup(data['result_paths']['data_results_PDF'])
+    basic_functions.del_previous_setup(data['result_paths']['data_results_shapefiles'])
+    basic_functions.create_folder(data['result_paths']['data_results_PDF'])
+    basic_functions.create_folder(data['result_paths']['data_results_shapefiles'])
 
     # Simulation information is read in from .ini file for results
     data['enduses'], data['assumptions'], data['reg_nrs'], data['regions'] = data_loader.load_ini_param(
-        data['local_paths']['data_results'])
+        data['result_paths']['data_results'])
 
     # Other information is read in
     data['assumptions']['seasons'] = date_prop.get_season(year_to_model=2015)
@@ -63,7 +63,7 @@ def main(path_data_energy_demand, path_shapefile_input):
     # Read in and plot in same step if memory is a problem
     # --------------------------------------------
     results_container = read_data.read_in_results(
-        data['local_paths']['data_results_model_runs'],
+        data['result_paths']['data_results_model_runs'],
         data['assumptions']['seasons'],
         data['assumptions']['model_yeardays_daytype'])
 

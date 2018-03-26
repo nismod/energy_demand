@@ -374,7 +374,7 @@ class EDWrapper(SectorModel):
         # Create .ini file with simulation info
         # ---------------------------------------------
         write_data.write_simulation_inifile(
-            data['local_paths']['data_results'],
+            data['result_paths']['data_results'],
             data['enduses'],
             data['assumptions'],
             data['reg_nrs'],
@@ -420,7 +420,7 @@ class EDWrapper(SectorModel):
             if data['criterias']['crit_plot_enduse_lp'] and data_handle.current_timestep == 2015:
 
                 # Maybe move to result folder in a later step
-                path_folder_lp = os.path.join(data['local_paths']['data_results'], 'individual_enduse_lp')
+                path_folder_lp = os.path.join(data['result_paths']['data_results'], 'individual_enduse_lp')
                 basic_functions.delete_folder(path_folder_lp)
                 basic_functions.create_folder(path_folder_lp)
 
@@ -444,35 +444,35 @@ class EDWrapper(SectorModel):
             write_data.write_supply_results(
                 data_handle.current_timestep,
                 "result_tot_yh",
-                data['local_paths']['data_results_model_runs'],
+                data['result_paths']['data_results_model_runs'],
                 sim_obj.ed_fueltype_regs_yh,
                 "result_tot_submodels_fueltypes")
             write_data.write_enduse_specific(
                 data_handle.current_timestep,
-                data['local_paths']['data_results_model_runs'],
+                data['result_paths']['data_results_model_runs'],
                 sim_obj.tot_fuel_y_enduse_specific_yh,
                 "out_enduse_specific")
             write_data.write_max_results(
-                data_handle.current_timestep, data['local_paths']['data_results_model_runs'],
+                data_handle.current_timestep, data['result_paths']['data_results_model_runs'],
                 "result_tot_peak_enduses_fueltype", sim_obj.tot_peak_enduses_fueltype,
                 "tot_peak_enduses_fueltype")
             write_data.write_lf(
-                data['local_paths']['data_results_model_runs'], "result_reg_load_factor_y",
+                data['result_paths']['data_results_model_runs'], "result_reg_load_factor_y",
                 [data_handle.current_timestep], sim_obj.reg_load_factor_y, 'reg_load_factor_y')
             write_data.write_lf(
-                data['local_paths']['data_results_model_runs'], "result_reg_load_factor_yd",
+                data['result_paths']['data_results_model_runs'], "result_reg_load_factor_yd",
                 [data_handle.current_timestep], sim_obj.reg_load_factor_yd, 'reg_load_factor_yd')
             write_data.write_lf(
-                data['local_paths']['data_results_model_runs'], "result_reg_load_factor_winter",
+                data['result_paths']['data_results_model_runs'], "result_reg_load_factor_winter",
                 [data_handle.current_timestep], sim_obj.reg_seasons_lf['winter'], 'reg_load_factor_winter')
             write_data.write_lf(
-                data['local_paths']['data_results_model_runs'], "result_reg_load_factor_spring",
+                data['result_paths']['data_results_model_runs'], "result_reg_load_factor_spring",
                 [data_handle.current_timestep], sim_obj.reg_seasons_lf['spring'], 'reg_load_factor_spring')
             write_data.write_lf(
-                data['local_paths']['data_results_model_runs'], "result_reg_load_factor_summer",
+                data['result_paths']['data_results_model_runs'], "result_reg_load_factor_summer",
                 [data_handle.current_timestep], sim_obj.reg_seasons_lf['summer'], 'reg_load_factor_summer')
             write_data.write_lf(
-                data['local_paths']['data_results_model_runs'], "result_reg_load_factor_autumn",
+                data['result_paths']['data_results_model_runs'], "result_reg_load_factor_autumn",
                 [data_handle.current_timestep], sim_obj.reg_seasons_lf['autumn'], 'reg_load_factor_autumn')
             logging.info("... finished writing results to file")
 
@@ -482,12 +482,12 @@ class EDWrapper(SectorModel):
         # Form of np.array(fueltype, sectors, region, periods)
         results_unconstrained = sim_obj.ed_submodel_fueltype_regs_yh
         #write_data.write_supply_results(
-        # ['rs_submodel', 'ss_submodel', 'is_submodel'],timestep, data['local_paths']['data_results_model_runs'], results_unconstrained, "results_unconstrained")
+        # ['rs_submodel', 'ss_submodel', 'is_submodel'],timestep, data['result_paths']['data_results_model_runs'], results_unconstrained, "results_unconstrained")
 
         # Form of {constrained_techs: np.array(fueltype, sectors, region, periods)}
         results_constrained = sim_obj.ed_techs_submodel_fueltype_regs_yh
         #write_data.write_supply_results(
-        # ['rs_submodel', 'ss_submodel', 'is_submodel'], timestep, data['local_paths']['data_results_model_runs'], results_unconstrained, "results_constrained")
+        # ['rs_submodel', 'ss_submodel', 'is_submodel'], timestep, data['result_paths']['data_results_model_runs'], results_unconstrained, "results_constrained")
 
         # --------------------------------------------------------
         # Reshape day and hours to yearhous (from (365, 24) to 8760)
@@ -553,7 +553,7 @@ class EDWrapper(SectorModel):
         # ------
         write_data.write_scenaric_population_data(
             data_handle.current_timestep,
-            data['local_paths']['data_results_model_run_pop'],
+            data['result_paths']['data_results_model_run_pop'],
             pop_array_current)
 
         # ------------------------------------
