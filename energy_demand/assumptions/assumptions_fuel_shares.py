@@ -41,6 +41,8 @@ def assign_by_fuel_tech_p(enduses, sectors, fueltypes, fueltypes_nr):
         'biomass': 4,
         'hydrogen': 5,
         'heat': 6
+    
+    -   Not defined fueltypes will be assigned placholder technologies
     """
     rs_fuel_tech_p_by = helpers.init_fuel_tech_p_by(
         enduses['rs_enduses'], fueltypes_nr)
@@ -287,15 +289,32 @@ def assign_by_fuel_tech_p(enduses, sectors, fueltypes, fueltypes_nr):
     is_fuel_tech_p_by['is_high_temp_process']['basic_metals'][fueltypes['solid_fuel']] = {
         'basic_oxygen_furnace': 1.0}
 
+    #is_fuel_tech_p_by['is_high_temp_process']['basic_metals'][fueltypes['oil']] = {
+    #    'SNG_furnace': 1.0} #TODO GAS
+
     is_fuel_tech_p_by['is_high_temp_process']['basic_metals'][fueltypes['electricity']] = {
         'electric_arc_furnace': 1.0}
 
-    is_fuel_tech_p_by['is_high_temp_process']['basic_metals'][fueltypes['biomass']] = {
+    is_fuel_tech_p_by['is_high_temp_process']['basic_metals'][fueltypes['gas']] = {
         'SNG_furnace': 1.0}
 
-    ## Sector non_metallic_mineral_products
-    # CEMENT STUFF
-    #is_fuel_tech_p_by['is_high_temp_process']['non_metallic_mineral_products'][fueltypes['solid_fuel']] = {
-    #    'basic_oxygen_furnace': 1.0}
+    is_fuel_tech_p_by['is_high_temp_process']['basic_metals'][fueltypes['biomass']] = {
+        'biomass_furnace': 1.0}
+
+    ## Sector non_metallic_mineral_products (sector) tODO: see: Prospects for emissions reduction in the UK cement sector)
+    is_fuel_tech_p_by['is_high_temp_process']['non_metallic_mineral_products'][fueltypes['solid_fuel']] = {
+        'dry_kiln_coal': 0.9,
+        'wet_kiln_coal': 0.1}
+    is_fuel_tech_p_by['is_high_temp_process']['non_metallic_mineral_products'][fueltypes['oil']] = {
+        'dry_kiln_oil': 0.9,
+        'wet_kiln_oil': 0.1}
+    is_fuel_tech_p_by['is_high_temp_process']['non_metallic_mineral_products'][fueltypes['gas']] = {
+        'dry_kiln_gas': 0.9,
+        'wet_kiln_gas': 0.1}
+    is_fuel_tech_p_by['is_high_temp_process']['non_metallic_mineral_products'][fueltypes['electricity']] = {
+        'dry_kiln_electricity': 0.9,
+        'wet_kiln_electricity': 0.1}
+    is_fuel_tech_p_by['is_high_temp_process']['non_metallic_mineral_products'][fueltypes['biomass']] = {
+        'dry_kiln_biomass': 1.0}
 
     return rs_fuel_tech_p_by, ss_fuel_tech_p_by, is_fuel_tech_p_by

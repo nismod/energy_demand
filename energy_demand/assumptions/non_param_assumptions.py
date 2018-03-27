@@ -723,13 +723,3 @@ class DummyClass(object):
         ):
         for var, value in variables.items():
             setattr(self, var, value)
-
-'''class BaseTemps(object):
-    """Assumptions
-    """
-    def __init__(
-            self,
-            variables
-        ):
-        for var, value in variables.items():
-            setattr(self, var, value)'''

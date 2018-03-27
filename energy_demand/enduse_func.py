@@ -1195,6 +1195,8 @@ def fuel_to_service(
             if tech_list == {} and fuel_y[fueltype_int] == 0:   # No technology or fuel defined
                 techs_with_fuel = {}
             elif tech_list == {} and fuel_y[fueltype_int] > 0:  # Fuel defined but no technologies
+
+                # IF no technology is defined, implement a placeholder tech
                 fueltype_str = tech_related.get_fueltype_str(fueltypes, fueltype_int)
                 placeholder_tech = 'placeholder_tech__{}'.format(fueltype_str)
                 techs_with_fuel = {placeholder_tech: 1.0}
@@ -1798,7 +1800,6 @@ def calc_service_switch(
     # ----------------------------------------
     # Test wheter swich is defined or not
     # ----------------------------------------
-    #TODO THIS IS ALSO DONE ELSWHERE I GUESS
     crit_switch_service = fuel_service_switch.get_switch_criteria(
         enduse,
         sector,
@@ -1834,9 +1835,6 @@ def calc_service_switch(
                 sig_param_tech[tech],
                 service_all_techs,
                 switched_s_tech_y_cy[tech])'''
-
-            #if s_tech_by_p[tech] * service_all_techs > 0 and sig_param_tech[tech]['steepness'] is None:
-            #    sys.exit("Error in service switch")
 
             assert switched_s_tech_y_cy[tech] >= 0
 

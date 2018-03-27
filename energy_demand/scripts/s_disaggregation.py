@@ -353,7 +353,6 @@ def disagg_ss_general(
                     else:
                         reg_diasg_factor = reg_pop / tot_pop
 
-                logging.warning("FACTOR ss {}: {}  {}".format(region, reg_diasg_factor, enduse))
                 ss_fuel_disagg[region][enduse][sector] = ss_national_fuel[enduse][sector] * reg_diasg_factor
 
     return ss_fuel_disagg
