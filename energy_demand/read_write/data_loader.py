@@ -3,9 +3,9 @@
 import os
 import csv
 import logging
-import numpy as np
 import configparser
 import ast
+import numpy as np
 from collections import defaultdict
 from datetime import date
 from energy_demand.read_write import read_data, read_weather_data
@@ -208,7 +208,7 @@ def load_local_paths(path):
         'folder_path_weater_stations': os.path.join(
             path, '_raw_data', 'H-Met_office_weather_data', 'excel_list_station_details.csv'),
         'path_floor_area_virtual_stock_by': os.path.join(
-            path, '_raw_data', 'K-floor_area', 'floor_area_by_II_email.csv'),  #floor_area_by
+            path, '_raw_data', 'K-floor_area', 'floor_area_2018_03_27.csv'),
         'path_assumptions_db': os.path.join(
             path, '_processed_data', 'assumptions_from_db'),
         'data_processed': os.path.join(

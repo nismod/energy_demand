@@ -1,6 +1,7 @@
 """Generate plots for multiple scenarios 
 """
 import os
+import logging
 from energy_demand.read_write import read_data
 from energy_demand.basic import date_prop
 from energy_demand.plotting import plotting_multiple_scenarios
@@ -35,7 +36,8 @@ def process_scenarios(path_to_scenarios, year_to_model=2015):
         Path to folders with stored results
     """
     # Delete folder results if existing
-    path_result_folder = os.path.join(path_to_scenarios, "results_multiple_scenarios")
+    path_result_folder = os.path.join(
+        path_to_scenarios, "_results_multiple_scenarios")
 
     basic_functions.delete_folder(path_result_folder)
 
@@ -45,7 +47,7 @@ def process_scenarios(path_to_scenarios, year_to_model=2015):
     model_yeardays_daytype, _, _ = date_prop.get_model_yeardays_daytype(
         year_to_model=year_to_model)
 
-    # Get all folders with scenario run results  (name of folder is scenario)
+    # Get all folders with scenario run results (name of folder is scenario)
     scenarios = os.listdir(path_to_scenarios)
 
     # -------------------------------
@@ -101,18 +103,20 @@ def process_scenarios(path_to_scenarios, year_to_model=2015):
         year_to_plot=2050,
         fig_name=os.path.join(path_result_folder),
         plotshow=False)
+    
+    logging.info("Finished processing multiple scenario")
     return
 
 # ------------------------------------
 # Execute rusult processing for every scenario
 # ------------------------------------^
-#'''
+'''
 process_result_multi_scen(
-    os.path.abspath("C:/Users/cenv0553/nismod/data_energy_demand/_MULT2"),
-    os.path.abspath('C:/Users/cenv0553/nismod/data_energy_demand/_raw_data/C_LAD_geography/same_as_pop_scenario/lad_2016_uk_simplified.shp'))
-#'''
+    os.path.abspath("C:/Users/cenv0553/ED/_multiple_results"),
+    os.path.abspath('C:/Users/cenv0553/ED/data/_raw_data/C_LAD_geography/same_as_pop_scenario/lad_2016_uk_simplified.shp'))
+'''
 
 # ------------------------------------
 # Generate plots across all scenarios
 # ------------------------------------
-#process_scenarios(os.path.abspath("C:/Users/cenv0553/nismod/data_energy_demand/_MULT2"))
+process_scenarios(os.path.abspath("C:/Users/cenv0553/ED/_multiple_results"))

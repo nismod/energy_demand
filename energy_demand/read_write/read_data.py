@@ -1113,7 +1113,23 @@ def read_floor_area_virtual_stock(path_to_csv, f_mixed_floorarea=0.5):
     -----
     *   The mixed floor area (residential and non residential) is distributed
         according to `f_mixed_floorarea`.
-    
+
+    Attributes from data from Newcastle
+    ===================================
+    (1) Commercial_General
+    (2) Primary_Industry
+    (3) Public_Services
+    (4) Education
+    (5) Hospitality
+    (6) Community_Arts_Leisure
+    (7) Industrial
+    (8) Healthcare
+    (9) Office
+    (10) Retail
+    (11) Transport_and_Storage
+    (12) Residential
+    (13) Military
+
     TODO: READ IN SECTOR SPECIFIC FLOOR AREA OR CALCLATE IT SOMEHOW
     """
     # Redistribute the mixed enduse

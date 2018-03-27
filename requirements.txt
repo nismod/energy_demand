@@ -11,3 +11,4 @@ pyproj
 geopandas
 pysal
 palettable
+imageio

@@ -35,6 +35,9 @@ def main(path_data_energy_demand, path_shapefile_input):
     data = {}
     data['local_paths'] = data_loader.load_local_paths(
         path_data_energy_demand)
+    data['result_paths'] = data_loader.load_result_paths(
+        path_data_energy_demand)
+
     data['lookups'] = lookup_tables.basic_lookups()
 
     # ---------------

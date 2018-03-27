@@ -11,7 +11,6 @@ from energy_demand.basic import conversions
 from energy_demand.profiles import generic_shapes
 from energy_demand.plotting import plotting_program
 from energy_demand.plotting import plotting_results
-from energy_demand.basic import basic_functions
 from energy_demand.validation import elec_national_data
 from energy_demand.read_write import data_loader
 from energy_demand.basic import date_prop
@@ -142,7 +141,6 @@ def tempo_spatial_validation(
         tot_fuel_peak_dh,
         fueltypes,
         fueltypes_nr,
-        local_paths,
         result_paths,
         paths,
         regions,
@@ -216,6 +214,7 @@ def tempo_spatial_validation(
     fuel_gas_regs_yh = map_LAD_2011_2015(fuel_gas_regs_yh)
 
     logging.info("Validation of electricity")
+    plot_crit = True
     spatial_validation(
         reg_coord,
         fuel_elec_regs_yh,
@@ -430,7 +429,7 @@ def spatial_validation(
             result_dict['modelled_demand'][geocode_lad])
 
         logging.info(
-            "validation %s LAD %s: %s %s   (%s p diff)",
+            "validation %s LAD %s: %s %s (%s p diff)",
             fueltype_str,
             geocode_lad,
             round(result_dict['real_demand'][geocode_lad], 4),

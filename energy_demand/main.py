@@ -47,18 +47,13 @@ Calculate future regional floor area demand based on GVA and pop projection
 NICETOHAVE
 - Convert paths dict to objects
 
-TODOS
-TODO: CLEAN CONFIG_DATA
 TODO: Write all metadata of model run restuls to txt
-TODO: LOAD IN SCENARIO PARAMETERS IN INITIAL_SETUP FUNCTION IN RUn file
 TODO: Write function to test wheter swichtes are possible (e.g. that not more from one technology to another is replaced than possible)
 TODO: Improve industry related demand --> define strategies
 TODO: Related ed to houses & householdsize
 TODO: SENSITIVITY
 TODO: data loading, load multiple years for real elec data
-TODO: Load different temp --> for different years
 TODO: THECK VARIALBES IN HOUSEHOLD MODEL
-TODO: FUEL; SERVICE SWITHC AS INPUT¨
 TODO: REMOVE SEPEARATE PEAK CALUCLATIONS AND SHAPES
 TODO: PEAK SHAPE vs PEAK FROM LOAD PROFILES
 TODO: HYBRID TECHNOLOGIES?
