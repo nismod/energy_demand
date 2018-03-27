@@ -1,8 +1,9 @@
 =============
-Energy Demand Model (MISTRAL)
+HIgh Resolution Energy Demand Model (HIRE)
 =============
 
-This is the full documentation of Energy Demand Model.
+This is the full documentation of HIRE,
+which was developped in the MISTRAL project.
 
 Note
 ----

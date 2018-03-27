@@ -91,7 +91,7 @@ def temporal_validation(
         elec_ed_fueltype_national_yh,
         'all_submodels',
         days_to_plot,
-        plot_crit=True)
+        plot_crit=False)
 
     # ----------------
     # Plot four weeks
@@ -214,7 +214,7 @@ def tempo_spatial_validation(
     fuel_gas_regs_yh = map_LAD_2011_2015(fuel_gas_regs_yh)
 
     logging.info("Validation of electricity")
-    plot_crit = True
+
     spatial_validation(
         reg_coord,
         fuel_elec_regs_yh,

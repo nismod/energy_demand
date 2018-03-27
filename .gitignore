@@ -46,8 +46,6 @@ MANIFEST
 # Model configuration
 *.ini
 
-docs/* #TODO REMOVE
-
 # Model results
 model_output/*.csv
 model_output/*.pdf

@@ -2,7 +2,7 @@ Code Overview
 ===================
 This section provides and overview how the model code is stored.
 
-All model input data used to configure the model is storted in the 
+All model input data used to configure the model is stored in the 
 `config_data` folder (i.e. load profiles of technologies,
 fuel input data for the whole UK).
 

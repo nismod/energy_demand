@@ -51,29 +51,10 @@ def disaggregate_base_demand(
     # -------------------------------------
     # Factors to choose for disaggregation
     # -------------------------------------
-    crit_limited_disagg_pop = True      # Only puplation
-    crit_limited_disagg_pop_hdd = False  # Only puplation and HDD
+    crit_limited_disagg_pop = False      # Only puplation
+    crit_limited_disagg_pop_hdd = True  # Only puplation and HDD
     crit_full_disagg = False              # Full disaggregation
 
-    '''_a = sum(fuels['rs_fuel_raw'].values())[2]
-    for i in fuels['ss_fuel_raw']:
-        _a+= + sum(fuels['ss_fuel_raw'][i].values())[2]
-    for i in fuels['is_fuel_raw']:
-        _a+= + sum(fuels['is_fuel_raw'][i].values())[2]
-
-    logging.warning(_a * 0.004763563768921437)
-    logging.warning("PINGU: " + str(_a))
-    logging.warning(scenario_data['population'][2015]['E07000135'])
-    logging.warning(scenario_data['population'][2015]['E07000135'] / sum(scenario_data['population'][2015].values()))
-    logging.warning(sum(scenario_data['population'][2015].values()))
-    logging.warning("---")
- 
-    logging.warning(_a * 0.004763563768921437)
-    logging.warning("PINGU: " + str(_a)) #Popualtion is wrong
-    logging.warning(scenario_data['population'][2015]['E08000025'])
-    logging.warning(scenario_data['population'][2015]['E08000025'] / sum(scenario_data['population'][2015].values()))
-    logging.warning(sum(scenario_data['population'][2015].values()))
-    prnt(":")'''
     # Residential
     rs_fuel_disagg = rs_disaggregate(
         regions,
@@ -117,8 +98,8 @@ def disaggregate_base_demand(
         sectors['is_sectors'],
         scenario_data['employment_stats'],
         scenario_data,
-        crit_limited_disagg_pop,
-        crit_full_disagg)
+        crit_limited_disagg_pop=True,
+        crit_full_disagg=crit_full_disagg)
 
     return dict(rs_fuel_disagg), dict(ss_fuel_disagg), dict(is_fuel_disagg)
 

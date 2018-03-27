@@ -72,7 +72,7 @@ class Assumptions(object):
         self.f_is_weekend = 0.4                      # 0.4
 
         # Spatial calibration factor
-        self.f_mixed_floorarea = 0.2                 # 0.4
+        self.f_mixed_floorarea = 0.4                 # 0.4
 
         # ============================================================
         #   Modelled day related factors
@@ -394,17 +394,13 @@ class Assumptions(object):
         # *****************
         # technologies: Dry kilns, semi
         '''
-        Fuel use ratio - dry process over wet process in cement sector
-        Fuel use ratio - novel alkali cement over incumbent process in cement sector
-        Fuel use ratio - novel partially dehydrated cement over incumbent process in cement sector
-        Fuel use ratio - continuous over ingot casting in cement sector
-
         BAT - cement - dry/wet process 	Dry/wet process (Dry %)
         BAT - cement - Novel-Alkali-activated (alumino-silicate, geopolymer)	Sectoral share of Alkali activated %
         BAT - cement - Novel-Partially prehydrated Calcium silicate hydrate	Sectoral share - Partially prehydrated %'''
 
         # CHEMICALs - Enduse: is_high_temp_process, Sector: CHEMICALS
         # *****************
+        # technologies: Dry & wet kilns
 
         # ----------------
         # Efficiency of motors

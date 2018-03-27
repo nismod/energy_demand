@@ -197,7 +197,7 @@ def scenario_initalisation(path_data_ed, data=False):
         # ---------------------
         plot_fig_paper = True
         if plot_fig_paper:
-            #GNU TODO TODO TODO
+            #GNU TODO
 
             # Global value to distribute
             global_value = 50
