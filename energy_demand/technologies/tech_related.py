@@ -415,10 +415,10 @@ def calc_eff_cy(
             eff_by,
             eff_ey,
             yr_until_changed)
-        
+
         # Differencey in efficiency change
         max_eff_gain = theor_max_eff - eff_by
-    
+
     elif diff_method == 'sigmoid':
         # Theoretical maximum efficiency potential (sigmoid improvement)
         diff_cy = diffusion.sigmoid_diffusion(
@@ -430,7 +430,6 @@ def calc_eff_cy(
 
         # Differencey in efficiency change
         max_eff_gain = diff_cy * (eff_ey - eff_by)
-
     else:
         if not diff_method:
             return None

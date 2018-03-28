@@ -385,7 +385,9 @@ def calc_spatially_diffusion_factors(
         Regions
     fuel_disagg : dict
         Disaggregated fuel per region
-    pop
+    real_values : dict
+        Real values
+
     Returns
     -------
 
@@ -578,36 +580,42 @@ def factor_improvements_single(
     """
     reg_enduse_tech_p_ey = {}
 
-    factor_uk = 0.5 #TODO SCRAP REMOVE
-
     # Check which factors is to be used
-    # if only distribute: f_reg_norm_abs
-    # if max 1: f_reg_nrm
-    # if not intersted in correct sum: f_reg
+    # if only distribute:               f_reg_norm_abs
+    # if max 1:                         f_reg_nrm
+    # if not intersted in correct sum:  f_reg
     if fuel_regs_enduse == {}:
+        logging.info("spatial_factor: fuel_regs_enduse")
         spatial_factor = f_reg
+
     else:
+        logging.info("spatial_factor: f_reg_norm_abs")
         spatial_factor = f_reg_norm_abs
 
-    # Sum fuel
-    uk_enduse_fuel = 0
-    for fuel_reg in fuel_regs_enduse.values():
-        uk_enduse_fuel += np.sum(fuel_reg)
+
+    # Sum fuel for all regions
+    uk_enduse_fuel = sum(fuel_regs_enduse.values())
 
     test = 0
     for region in regions:
+        
+        try:
+            test += (reg_enduse_tech_p_ey[region] * np.sum(fuel_regs_enduse[region]))
+            logging.info(
+                "FUEL FACTOR reg: {}  val: {}, fuel: {}  fuel: {} ".format(
+                    region,
+                    round(reg_enduse_tech_p_ey[region],3),
+                    round(uk_enduse_fuel, 3),
+                    round(np.sum(fuel_regs_enduse[region]),3)))
+        except:
+            pass
+    
         reg_enduse_tech_p_ey[region] = factor_uk * spatial_factor[region]
-
-        logging.info(
-            "FUEL FACTOR reg: {}  val: {}, fuel: {}  fuel: {} ".format(
-                region,
-                round(reg_enduse_tech_p_ey[region], 3),
-                round(uk_enduse_fuel, 3),
-                round(np.sum(fuel_regs_enduse[region]), 3)
-                ))
-
-        test += (reg_enduse_tech_p_ey[region] * np.sum(fuel_regs_enduse[region]))
-
+        
+        logging.info("spatial single factor reg: {}  val: {}".format(
+            region,
+            round(reg_enduse_tech_p_ey[region],3)))
+    
     # ---------
     # PROBLEM THAT MORE THAN 100 percent could be reached if nt normed
     # ---------
@@ -616,6 +624,7 @@ def factor_improvements_single(
     # Cap regions which have already reached and are larger than 1.0
     cap_max_crit = 1.0 #100%
     demand_lost = 0
+
     for region, region_factor in reg_enduse_tech_p_ey.items():
         if region_factor > cap_max_crit:
             logging.warning("INFO: FOR A REGION THE SHARE OF IMPROVEMENTIS LARGER THAN 1.0.")
@@ -654,7 +663,7 @@ def get_enduse_regs(
     Returns
     -------
     fuels_enduse : dict
-        Fuels of an enduse for all regiones
+        Fuels of an enduse for all regions
         {'reg': np.array(enduse_fuel)}
     """
     fuels_enduse = {}
@@ -663,13 +672,12 @@ def get_enduse_regs(
         pass
     else:
         for fuel_submodel in fuels_disagg:
-
             for reg, enduse_fuels in fuel_submodel.items():
                 for enduse_to_match, fuels_regs in enduse_fuels.items():
                     if enduse == enduse_to_match:
                         fuels_enduse[reg] = fuels_regs
 
-    if fuels_enduse == {}:
-        raise Exception("Could not find fuel to get for regions")
+    #if fuels_enduse == {}:
+    #    raise Exception("Could not find fuel to get for regions %s", enduse)
 
     return fuels_enduse

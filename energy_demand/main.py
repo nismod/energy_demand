@@ -1,10 +1,8 @@
 """
-
     Energy Demand Model
     ===================
     Contains the function `energy_demand_model` which is used
     to run the energy demand model 
-
 
     ---------------------
     SMIF test
@@ -23,17 +21,8 @@
     https://nismod.github.io/docs/
     https://nismod.github.io/docs/smif-prerequisites.html#sector-modeller
 
-    # Implement that e.g. 2015 - 2030 one technology and 2030 - 2050 another technology
-    # backcasting
-    # Industry INFO about efficiencies & technologies: Define strategy variables
 
-    INTERFACE QUESTIONS
-    ------------------
-    - Virtual dwelling stock data?
-    - fuel switches?
-    - Sub-sectoral GVA
-
-============================================
+===========================================
 MEthod to derive GVA/POP SERVICE FLOOR AREAS
 ============================================
 
@@ -44,28 +33,25 @@ Get correlation between regional GVA and (regional floor area/reg pop) of every 
 2. Step
 Calculate future regional floor area demand based on GVA and pop projection
 
-NICETOHAVE
-- Convert paths dict to objects
-
 TODO: Write all metadata of model run restuls to txt
 TODO: Write function to test wheter swichtes are possible (e.g. that not more from one technology to another is replaced than possible)
 TODO: Improve industry related demand --> define strategies
 TODO: Related ed to houses & householdsize
-TODO: SENSITIVITY
 TODO: data loading, load multiple years for real elec data
 TODO: THECK VARIALBES IN HOUSEHOLD MODEL
-TODO: REMOVE SEPEARATE PEAK CALUCLATIONS AND SHAPES
 TODO: PEAK SHAPE vs PEAK FROM LOAD PROFILES
 TODO: HYBRID TECHNOLOGIES?
 TODO: UPDate all fuel data with new ECUK DATA
 TODO: STORE RESULTS PER ANNUAL YEAR AND GENERATE FUNCTION TO COLLECT PLOTS AND CREATE GIF
 TODO: get_position for all readings of csv file
 TODO: WHAT ABOU NON_RESIDENTIAL FLOOR AREA: FOR WHAT?
-TODO: REMOVE PEAK SHAPES
 TODO: SPATIAL DISAGGREGATION FACTORS RESID/NONRESID SHARE
 TODO: SO FAR ALSO ALL SERVICE ENDUSES ARE MULTIPLIED
 TODO: TEST IF CORRECT REGIONAL CALCULATIONS AS DSCRIEBED IN
-TODO: Spatial diffusion: Cap largest 5% of values and set to 1"""
+TODO: Spatial diffusion: Cap largest 5% of values and set to 1
+
+TODO: TEST THAT SWITCHES CANNOT BE LARGER THAN L FOR EVERY TECHNOLOGY
+"""
 import os
 import sys
 import logging

@@ -273,7 +273,7 @@ def plot_radar_plots_average_peak_day(
         name_spider_plot = os.path.join(fig_name, "spider_{}.pdf".format(fueltype_str))
 
         # ---------------------------
-        # Calculate load factors calc_lf_y_single_fueltype
+        # Calculate load factors
         # ---------------------------
         max_load_h_by = max(all_regs_fueltypes_yh_by[fueltype][peak_day_nr])
         average_load_y_by = np.average(all_regs_fueltypes_yh_by[fueltype])

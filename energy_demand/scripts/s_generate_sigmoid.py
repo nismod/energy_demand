@@ -51,7 +51,7 @@ def calc_sigmoid_parameters(
     # Generate possible starting parameters for fit
     # ---------------------------------------------
     start_param_list = [
-        0.0, 1.0, 0.0001, 0.001, 0.01, 0.1,
+        0.0, 1.0, 0.0001, 0.001, 0.01,
         0.05, 0.1, 0.15, 0.2, 0.25, 0.3, 0.35,
         0.4, 0.45, 0.5, 0.55, 0.6, 0.65,
         10, 20, 30, 40, 50, 60, 70, 80,
@@ -87,7 +87,10 @@ def calc_sigmoid_parameters(
             if crit_plus_minus == 'minus':
                 start_parameters[0] *= 1
                 start_parameters[1] *= -1
-            ####print(" parametsre {}  {} {} {}".format(xdata, ydata, start_parameters, l_value))
+
+            logging.info(" parametsre {}  {} {} {}".format(
+                xdata, ydata, start_parameters, l_value))
+
             # -----------------------------------
             # Fit function
             # Info: If the fitting function throws errors,
@@ -108,8 +111,6 @@ def calc_sigmoid_parameters(
                 if cnt >= len(start_param_list):
                     raise Exception("Error: Sigmoid curve fitting failed")
             else:
-                #pass # corret sign
-
                 if (fit_parameter[0] == start_parameters[0]) or (
                         fit_parameter[1] == start_parameters[1]):
                     cnt += 1
@@ -117,7 +118,6 @@ def calc_sigmoid_parameters(
                         raise Exception("Error: Sigmoid curve fitting failed")
                 else:
                     
-
                     '''plotting_program.plotout_sigmoid_tech_diff(
                         l_value,
                         "ttse",
@@ -146,23 +146,24 @@ def calc_sigmoid_parameters(
 
                     if (fit_measure_p_ey < (100.0 - error_range) or fit_measure_p_ey > (100.0 + error_range)) or (
                         fit_measure_p_by < (100.0 - error_range) or fit_measure_p_by > (100.0 + error_range)):
-                        #print(
-                        #    "... Fitting measure %s %s (percent) is not good enough", fit_measure_p_by, fit_measure_p_ey)
+                        logging.info(
+                            "... Fitting measure %s %s (percent) is not good enough",
+                            fit_measure_p_by, fit_measure_p_ey)
                         successfull = False
                         cnt += 1
                     else:
                         successfull = True
-                        pass
-                        #logging.info(
-                        #    ".... fitting successfull %s %s %s", fit_measure_p_ey, fit_measure_p_by, fit_parameter)
-                        '''plotting_program.plotout_sigmoid_tech_diff(
+                        
+                        logging.info(
+                            ".... fitting successfull %s %s %s", fit_measure_p_ey, fit_measure_p_by, fit_parameter)
+                        plotting_program.plotout_sigmoid_tech_diff(
                             l_value,
                             "FINISHED FITTING",
                             xdata,
                             ydata,
                             fit_parameter,
                             plot_crit=True, #TRUE
-                            close_window_crit=True)'''
+                            close_window_crit=True)
         except (RuntimeError, IndexError):
             cnt += 1
 
@@ -264,7 +265,6 @@ def tech_l_sigmoid(
     if installed_tech == []:
         pass
     else:
-
         # Iterite list with enduses where fuel switches are defined
         for technology in installed_tech:
 
@@ -273,7 +273,6 @@ def tech_l_sigmoid(
                 l_values_sig[technology] = s_tech_by_p[technology]
 
             else:
-                # Future service share is higher
                 # Calculate maximum service demand for specific tech
                 tech_install_p = calc_service_fuel_switched(
                     enduse_fuel_switches,
@@ -479,7 +478,8 @@ def tech_sigmoid_parameters(
         s_tech_by_p,
         s_tech_switched_p,
         fit_assump_init=0.001,
-        plot_sigmoid_diffusion=False):
+        plot_sigmoid_diffusion=False
+    ):
     """Calculate sigmoid diffusion parameters based on energy service
     demand in base year and projected future energy service demand. The
     future energy servie demand is calculated based on fuel switches.
@@ -530,11 +530,10 @@ def tech_sigmoid_parameters(
                                 to the defined number of digits. Because of
                                 rounding error, there might be very small
                                 differences in percentual service demand.
-
     """
-    # Criteria
     rounding_accuracy = 4       # Criteria how much difference in % can be rounded
     linear_approx_crit = 0.001  # Criteria of difference in decimal from which on linear approximation is used
+    error_range = 0.0002        # Error how close the fit must be
 
     # Technologies to apply calculation
     installed_techs = s_tech_switched_p.keys()
@@ -578,15 +577,23 @@ def tech_sigmoid_parameters(
             xdata = np.array([point_x_by, point_x_ey])
             ydata = np.array([point_y_by, point_y_ey])
 
-            '''logging.info(
+            logging.info(
                 "... create sigmoid diffusion %s - %s - %s - %s - l_val: %s - %s - %s",
                 tech,
                 xdata,
                 ydata,
                 fit_assump_init,
                 l_values[tech],
-                point_y_by, point_y_ey)'''
+                point_y_by, point_y_ey)
 
+            # Test if end year share is larger than technological maximum
+            logging.info("----------")
+            logging.info(ydata[1])
+            logging.info(l_values[tech])
+            
+            # Test wheter maximum diffusion is larger than simulated end year share
+            assert ydata[1] <= l_values[tech] + linear_approx_crit
+ 
             # If no change in by to ey but not zero (lineare change)
             if (round(point_y_by, rounding_accuracy) == round(point_y_ey, rounding_accuracy)) and (
                     point_y_ey != fit_assump_init) and (
@@ -620,13 +627,13 @@ def tech_sigmoid_parameters(
                             xdata,
                             ydata,
                             fit_assump_init=fit_assump_init,
-                            error_range=0.0002)
+                            error_range=error_range)
 
                         # Insert parameters
                         sig_params[tech]['midpoint'] = fit_parameter[0]  # midpoint (x0)
                         sig_params[tech]['steepness'] = fit_parameter[1] # Steepnes (k)
                         sig_params[tech]['l_parameter'] = l_values[tech] # maximum p
-                        #logging.info("... successfull fitting")
+                        #logging.debug("... successfull fitting")
 
                         if plot_sigmoid_diffusion:
                             plotting_program.plotout_sigmoid_tech_diff(
@@ -646,7 +653,7 @@ def tech_sigmoid_parameters(
                         """
                         logging.warning(
                             "Instead of sigmoid a linear approximation is used %s %s", xdata, ydata)
-
+                        prnt(".")
                         sig_params[tech]['midpoint'] = 'linear'
                         sig_params[tech]['steepness'] = 'linear'
                         sig_params[tech]['l_parameter'] = 'linear'

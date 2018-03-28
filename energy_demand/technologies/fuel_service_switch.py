@@ -262,42 +262,42 @@ def autocomplete_switches(
                     if switch.enduse == enduse:
 
                         # Global share of technology diffusion
-                        service_share_ey_global = switch.service_share_ey
+                        s_share_ey_global = switch.service_share_ey
 
                         # IF technology is affected by spatial exlicit diffusion
                         if switch.technology_install in techs_affected_spatial_f:
 
                             # Regional diffusion calculation
-                            service_share_ey_regional = service_share_ey_global * f_diffusion[enduse][region]
+                            s_share_ey_regional = s_share_ey_global * f_diffusion[enduse][region]
 
                             # if larger than max crit, set to 1 TODO
                             max_crit = 1
-                            if service_share_ey_regional > max_crit:
-                                service_share_ey_regional = max_crit
+                            if s_share_ey_regional > max_crit:
+                                s_share_ey_regional = max_crit
 
-                            if s_tot_defined + service_share_ey_regional > 1.0:
+                            if s_tot_defined + s_share_ey_regional > 1.0:
 
                                 #TODO IMPROVE THAT ROUNDING 1 .. make nicer
-                                if round(s_tot_defined + service_share_ey_regional) > 1:
+                                if round(s_tot_defined + s_share_ey_regional) > 1:
                                     logging.warning("ERROR: MORE THAN ONE TECHNOLOG SWICHED WITH LARGER SHARE: ")
-                                    logging.warning(" {}  {} {}".format(s_tot_defined, service_share_ey_regional, s_tot_defined + service_share_ey_regional))
+                                    logging.warning(" {}  {} {}".format(s_tot_defined, s_share_ey_regional, s_tot_defined + s_share_ey_regional))
                                     prnt(".")
                                 else:
-                                    service_share_ey_regional = max_crit - service_share_ey_regional
+                                    s_share_ey_regional = max_crit - s_share_ey_regional
                             #logging.debug("A %s  %s", region, switch.technology_install)
-                            #logging.debug(service_share_ey_global)
-                            #logging.debug(service_share_ey_regional)
+                            #logging.debug(s_share_ey_global)
+                            #logging.debug(s_share_ey_regional)
                         else:
-                            service_share_ey_regional = switch.service_share_ey
+                            s_share_ey_regional = switch.service_share_ey
 
                         switch_new = read_data.ServiceSwitch(
                             enduse=switch.enduse,
                             sector=switch.sector,
                             technology_install=switch.technology_install,
-                            service_share_ey=service_share_ey_regional,
+                            service_share_ey=s_share_ey_regional,
                             switch_yr=switch.switch_yr)
       
-                        s_tot_defined += service_share_ey_regional
+                        s_tot_defined += s_share_ey_regional
                         switch_technologies.append(switch.technology_install)
                         enduse_switches.append(switch_new)
                         switch_yr = switch.switch_yr

@@ -2,6 +2,12 @@
 Fuel switches  rs_space_heating,heat_pumps_electricity,0.5,2050
 ==============
 
+TODO:
+rs_space_heating,gas,boiler_hydrogen,2050,0.99
+
+test that this is not possbiel (no larger shares than allowed)
+
+
 # Residential
 rs_space_heating,gas,boiler_hydrogen,2050,0.99
 

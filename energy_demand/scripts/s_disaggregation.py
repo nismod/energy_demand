@@ -167,7 +167,7 @@ def ss_disaggregate(
     # ---------------------------------------
     # Overall disaggregation factors per enduse and sector
     # ---------------------------------------
-    ss_fuel_disagg = disagg_ss_general(
+    ss_fuel_disagg = ss_disaggr(
         all_regions=regions,
         regions=regions_without_floorarea,
         sectors=sectors,
@@ -191,7 +191,7 @@ def ss_disaggregate(
                 ss_national_fuel_remaining[enduse][sector] -= ss_fuel_disagg[reg][enduse][sector]
 
     # Disaggregate with floor area
-    ss_fuel_disagg = disagg_ss_general(
+    ss_fuel_disagg = ss_disaggr(
         all_regions=regions_with_floorarea,
         regions=regions_with_floorarea,
         sectors=sectors,
@@ -216,7 +216,7 @@ def ss_disaggregate(
     logging.debug("... finished disaggregation ss")
     return dict(ss_fuel_disagg)
 
-def disagg_ss_general(
+def ss_disaggr(
         all_regions,
         regions,
         sectors,
@@ -232,7 +232,7 @@ def disagg_ss_general(
         crit_limited_disagg_pop_hdd,
         crit_full_disagg
     ):
-    """
+    """Disaggregating 
     """
     # Total floor area for every enduse per sector
     national_floorarea_by_sector = {}
@@ -300,7 +300,7 @@ def disagg_ss_general(
                 reg_floor_area = scenario_data['floor_area']['ss_floorarea'][base_yr][region][sector]
 
                 if crit_limited_disagg_pop and not crit_limited_disagg_pop_hdd:
-    
+
                     # ----
                     #logging.debug(" ... Disaggregation ss: populaton")
                     # ----
@@ -354,14 +354,22 @@ def is_disaggregate(
 
     base_yr : int
         Base year
-    is_national_fuel : 
-    regions,
-    enduses,
-    sectors,
-    employment_statistics,
-    scenario_data,
-    crit_limited_disagg_pop,
-    crit_full_disagg
+    is_national_fuel : dict
+        Fuel
+    regions : list
+        Regions
+    enduses : list
+        Enduses
+    sectors : list
+        Sectors
+    employment_statistics : dict
+        Employment statistics
+    scenario_data : dict
+        Scenario data
+    crit_limited_disagg_pop : bool
+        Criteria which diassgregation method
+    crit_full_disagg : bool
+        Criteria which diassgregation method
 
     Returns
     ---------
@@ -396,10 +404,8 @@ def is_disaggregate(
     if crit_full_disagg:
         #logging.debug(" ... Disaggregation is: Employment statistics")
 
-        # Calculate total population
-        tot_pop = 0
-        for reg in regions:
-            tot_pop += scenario_data['population'][base_yr][reg]
+        # Calculate total population of all regions
+        tot_pop = sum(scenario_data['population'][base_yr].values())
 
         # -----
         # Disaggregate with employment statistics
@@ -439,7 +445,7 @@ def is_disaggregate(
             'furniture': None,                  # C18,31,32'
 
             # Worse
-            'beverages': None                   # 'C10-12'  
+            'beverages': None                   # 'C10-12'
         }
 
         # ----------------------------------------
@@ -568,7 +574,7 @@ def rs_disaggregate(
     # ====================================
     # Disaggregate for region without floor area with population
     # ====================================
-    rs_fuel_disagg = disagg_rs_general(
+    rs_fuel_disagg = rs_disaggr(
         all_regions=regions,
         regions=regions_without_floorarea,
         base_yr=base_yr,
@@ -589,7 +595,7 @@ def rs_disaggregate(
     # ====================================
     # Disaggregate for region with floor area
     # ====================================
-    rs_fuel_disagg = disagg_rs_general(
+    rs_fuel_disagg = rs_disaggr(
         all_regions=regions_with_floorarea,
         regions=regions_with_floorarea,
         base_yr=base_yr,
@@ -609,7 +615,7 @@ def rs_disaggregate(
 
     return rs_fuel_disagg
 
-def disagg_rs_general(
+def rs_disaggr(
         all_regions,
         regions,
         base_yr,
@@ -621,7 +627,7 @@ def disagg_rs_general(
         crit_limited_disagg_pop_hdd,
         crit_full_disagg
     ):
-    """
+    """Disaggregate
     """
     total_pop = 0
     total_hdd_floorarea = 0

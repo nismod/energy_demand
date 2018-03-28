@@ -56,7 +56,7 @@ def map_LAD_2011_2015(lad_data):
 
 def temporal_validation(
         result_paths,
-        elec_ed_fueltype_national_yh,
+        ed_fueltype_yh,
         elec_factored_yh,
         elec_2015_indo,
         elec_2015_itsdo,
@@ -71,8 +71,10 @@ def temporal_validation(
 
     Arguments
     ---------
-    result_paths :
-    elec_ed_fueltype_national_yh 
+    result_paths : dict
+        Paths
+    ed_fueltype_yh : array
+        Fuel type specific yh energy demand
     elec_2015_indo
     elec_2015_itsdo
     plot_criteria : bool
@@ -88,7 +90,7 @@ def temporal_validation(
         elec_2015_indo,
         elec_2015_itsdo,
         elec_factored_yh,
-        elec_ed_fueltype_national_yh,
+        ed_fueltype_yh,
         'all_submodels',
         days_to_plot,
         plot_crit=False)
@@ -124,7 +126,7 @@ def temporal_validation(
         elec_2015_indo,
         elec_2015_itsdo,
         elec_factored_yh,
-        elec_ed_fueltype_national_yh,
+        ed_fueltype_yh,
         'all_submodels',
         days_to_plot,
         plot_crit=plot_criteria)

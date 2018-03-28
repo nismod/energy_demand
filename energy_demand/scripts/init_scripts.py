@@ -383,7 +383,6 @@ def scenario_initalisation(path_data_ed, data=False):
 
     # Residential
     for enduse in data['enduses']['rs_enduses']:
-
         init_cont['rs_sig_param_tech'][enduse] = sig_param_calc_incl_fuel_switch(
             data['assumptions'].base_yr,
             data['assumptions'].crit_switch_happening,
@@ -401,7 +400,6 @@ def scenario_initalisation(path_data_ed, data=False):
     # Service
     for enduse in data['enduses']['ss_enduses']:
         init_cont['ss_sig_param_tech'][enduse] = {}
-
         for sector in data['sectors']['ss_sectors']:
             init_cont['ss_sig_param_tech'][enduse][sector] = sig_param_calc_incl_fuel_switch(
                 data['assumptions'].base_yr,
@@ -421,9 +419,7 @@ def scenario_initalisation(path_data_ed, data=False):
     # Industry
     for enduse in data['enduses']['is_enduses']:
         init_cont['is_sig_param_tech'][enduse] = {}
-
         for sector in data['sectors']['is_sectors']:
-
             init_cont['is_sig_param_tech'][enduse][sector] = sig_param_calc_incl_fuel_switch(
                 data['assumptions'].base_yr,
                 data['assumptions'].crit_switch_happening,
@@ -446,12 +442,13 @@ def scenario_initalisation(path_data_ed, data=False):
     # Convert strategy variables to regional variables
     # ===========================================
     if data['criterias']['spatial_exliclit_diffusion']:
-        logging.info("Spatially explicit diffusion modelling")
-
         init_cont['regional_strategy_variables'] = defaultdict(dict)
 
         # Iterate strategy variables and calculate regional variable
         for var_name, strategy_var in data['assumptions'].strategy_variables.items():
+
+            logging.info("Spatially explicit diffusion modelling %s", var_name)
+            logging.info(data['assumptions'].spatially_modelled_vars)
 
             # Check whether scenario varaible is regionally modelled
             if var_name not in data['assumptions'].spatially_modelled_vars:
@@ -464,7 +461,7 @@ def scenario_initalisation(path_data_ed, data=False):
             else:
 
                 if strategy_var['affected_enduse'] == []:
-                    logging.warning(
+                    logging.info(
                         "For scenario var %s no affected enduse is defined. Thus speed is used for diffusion",
                             var_name)
                 else:
@@ -713,7 +710,7 @@ def sig_param_calc_incl_fuel_switch(
             for reg in regions:
 
                 # Calculate service demand after fuel switches for each technology
-                s_tech_switched_p[reg] = s_generate_sigmoid.calc_service_fuel_switched( 
+                s_tech_switched_p[reg] = s_generate_sigmoid.calc_service_fuel_switched(
                     enduse_fuel_switches,
                     technologies,
                     s_fueltype_by_p,
@@ -788,7 +785,7 @@ def sig_param_calc_incl_fuel_switch(
                 break
 
             for reg in regions:
-                logging.info("schok {} {}".format(enduse, reg))
+                logging.info("calculating sigmoid parameters %s %s", enduse, reg)
                 sig_param_tech[reg] = s_generate_sigmoid.tech_sigmoid_parameters(
                     yr_until_switched,
                     base_yr,
