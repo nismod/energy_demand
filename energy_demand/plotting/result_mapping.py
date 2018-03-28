@@ -598,13 +598,9 @@ def create_geopanda_files(
     # --------
     # Read LAD shapefile and create geopanda
     # --------
-    #try:
+
     # Single scenario run
     lad_geopanda_shp = gpd.read_file(path_shapefile_input)
-    logging.info("t")
-    #except IOError:
-    #    # Multiple scenario runs
-    #    lad_geopanda_shp = gpd.read_file() #TODO why empty?
 
     # Attribute merge unique Key
     unique_merge_id = 'name' #'geo_code'

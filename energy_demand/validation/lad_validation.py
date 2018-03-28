@@ -392,7 +392,7 @@ def spatial_validation(
             pass
 
     # Calculate the average deviation between reald and modelled
-    av_deviation_real_modelled = np.mean(diff_real_modelled_p)
+    av_deviation_real_modelled = np.average(diff_real_modelled_p)
 
     # Calculate standard deviation
     std_dev_p = np.std(diff_real_modelled_p)        # Given as percent

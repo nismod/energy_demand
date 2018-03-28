@@ -79,7 +79,7 @@ def test_eff_heat_pump():
     out_value = tech_related.eff_heat_pump(temp_diff, efficiency_intersect)
 
     values_every_h = -0.08 * temp_diff + (efficiency_intersect - (-0.8))
-    expected = np.mean(values_every_h)
+    expected = np.average(values_every_h)
 
     assert out_value == expected
 

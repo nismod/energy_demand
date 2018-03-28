@@ -41,7 +41,7 @@ def assign_by_fuel_tech_p(enduses, sectors, fueltypes, fueltypes_nr):
         'biomass': 4,
         'hydrogen': 5,
         'heat': 6
-    
+
     -   Not defined fueltypes will be assigned placholder technologies
     """
     rs_fuel_tech_p_by = helpers.init_fuel_tech_p_by(
@@ -281,16 +281,11 @@ def assign_by_fuel_tech_p(enduses, sectors, fueltypes, fueltypes_nr):
 
     # ----------------
     # Industrial High temporal processes (is_high_temp_process)
-    # Sector specific technologies
     # ----------------
-    #TODO: SCENARIO VARIABLES: SWITCH FOR METALL PROCESSES (e.g. ELECTRIC FURNACE IN END YEAR IN PERCENT)
-    #TODO: SCENARIO VARIABLE Hot_cold_rolling_share
-    # basic_metals (sector)
+
+    #-- basic_metals (sector)
     is_fuel_tech_p_by['is_high_temp_process']['basic_metals'][fueltypes['solid_fuel']] = {
         'basic_oxygen_furnace': 1.0}
-
-    #is_fuel_tech_p_by['is_high_temp_process']['basic_metals'][fueltypes['oil']] = {
-    #    'SNG_furnace': 1.0} #TODO GAS
 
     is_fuel_tech_p_by['is_high_temp_process']['basic_metals'][fueltypes['electricity']] = {
         'electric_arc_furnace': 1.0}
@@ -301,7 +296,7 @@ def assign_by_fuel_tech_p(enduses, sectors, fueltypes, fueltypes_nr):
     is_fuel_tech_p_by['is_high_temp_process']['basic_metals'][fueltypes['biomass']] = {
         'biomass_furnace': 1.0}
 
-    ## Sector non_metallic_mineral_products (sector) tODO: see: Prospects for emissions reduction in the UK cement sector)
+    #-- non_metallic_mineral_products
     is_fuel_tech_p_by['is_high_temp_process']['non_metallic_mineral_products'][fueltypes['solid_fuel']] = {
         'dry_kiln_coal': 0.9,
         'wet_kiln_coal': 0.1}

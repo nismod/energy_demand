@@ -355,7 +355,7 @@ def plot_residual_histogram(values, path_result, name_fig):
     # ------------------
     # Plot normal distribution
     # ------------------
-    mu = np.mean(values)
+    mu = np.average(values)
     sigma = np.std(values)
     plt.plot(
         bins,

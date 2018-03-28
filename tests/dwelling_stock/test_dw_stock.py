@@ -8,7 +8,6 @@ def test_get_tot_pop():
     scenario_drivers = {'heating': ['population']}
     classobject1 = dw_stock.Dwelling(
         2015,
-        "UK",
         {'longitude': 10, 'latitude': 10},
         1000,
         ['heating'],
@@ -18,7 +17,6 @@ def test_get_tot_pop():
 
     classobject2 = dw_stock.Dwelling(
         2015,
-        "UK",
         {'longitude': 10, 'latitude': 10},
         1000,
         ['heating'],
@@ -46,7 +44,6 @@ def test_get_scenario_driver():
     scenario_drivers = {'heating': ['population']}
     classobject1 = dw_stock.Dwelling(
         2015,
-        "UK",
         {'longitude': 10, 'latitude': 10},
         1000,
         ['heating'],
@@ -70,7 +67,6 @@ def test_dwelling():
     scenario_drivers = {'heating': ['population']}
     classobject = dw_stock.Dwelling(
         2015,
-        "UK",
         {'longitude': 10, 'latitude': 10},
         1000,
         ['heating'],

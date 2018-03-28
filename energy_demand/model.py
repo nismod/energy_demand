@@ -1083,7 +1083,7 @@ def aggregate_final_results(
         # Regional load factor calculations
         # --------------------------------------
         # Calculate average load for every day
-        average_fuel_yd = np.mean(fuel_region_yh, axis=2)
+        average_fuel_yd = np.average(fuel_region_yh, axis=2)
 
         # Calculate load factors across all enduses (Yearly lf)
         load_factor_y = load_factors.calc_lf_y(

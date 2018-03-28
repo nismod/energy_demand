@@ -180,7 +180,7 @@ def eff_heat_pump(temp_diff, efficiency_intersect, m_slope=-.08, h_diff=10):
     efficiency_hp = m_slope * temp_diff + (efficiency_intersect - (m_slope * h_diff))
 
     # Calculate average efficiency over whole year
-    efficiency_hp_mean = np.mean(efficiency_hp)
+    efficiency_hp_mean = np.average(efficiency_hp)
 
     return efficiency_hp_mean
 

@@ -111,7 +111,7 @@ def calc_lf_y_single_fueltype(fuel_yh):
     """to test
     """
 
-    average_fuel_yd = np.mean(fuel_yh, axis=1)
+    average_fuel_yd = np.average(fuel_yh, axis=1)
 
     # Calculate average yearly fuel per fueltype
     average_load_y = np.average(average_fuel_yd, axis=0)
@@ -131,8 +131,6 @@ def calc_lf_y(fuel_yh, average_fuel_yd):
     """Calculate the yearly load factor for every fueltype
     by dividing the yearly average load by the peak hourly
     load in a year.
-
-    #TODO: IS REALLY AVERAGE OVER FULL PERIOD USE AND NOT ONLY AVERAGE OF EVERY DAY?
 
     Arguments
     ---------

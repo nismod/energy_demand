@@ -56,7 +56,7 @@ def realdata_to_spatialdiffval(regions, real_values, speed_con_max):
         try:
             real_value = real_values[region]
         except KeyError:
-            real_value = np.mean(real_values.values())
+            real_value = np.average(real_values.values())
             logging.warning("Set average real data for region %s", region)
 
         # Calculate congruence value

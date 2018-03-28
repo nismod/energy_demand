@@ -344,7 +344,7 @@ def plot_seasonal_lf(
                     load_factors_seasonal[season][year][fueltype_int][reg_nr])
 
             years.append(int(year))
-            average_season_year_years.append(np.mean(average_season_year))
+            average_season_year_years.append(np.average(average_season_year))
 
         # plot average
         plt.plot(

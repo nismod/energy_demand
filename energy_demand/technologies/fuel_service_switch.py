@@ -136,7 +136,7 @@ def create_switches_from_s_shares(
     s_tech_by_p :
         Service share per technology in base year
     switch_technologies : list
-        Technologies volved in switch
+        Technologies involved in switch
     specified_tech_enduse_by :
 
     enduse_switches :
@@ -147,6 +147,10 @@ def create_switches_from_s_shares(
 
     switch_yr :
 
+    Returns
+    -------
+    service_switches_out : dict
+        Service switches
     """
     service_switches_out = []
 
@@ -235,6 +239,7 @@ def autocomplete_switches(
     for switch in service_switches:
         enduses.add(switch.enduse)
     enduses = list(enduses)
+
 
     if spatial_exliclit_diffusion:
 

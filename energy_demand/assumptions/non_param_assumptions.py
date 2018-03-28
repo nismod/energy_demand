@@ -35,7 +35,7 @@ class Assumptions(object):
         # Define all variables which are affected by regional diffusion
         self.spatially_modelled_vars = []
         #    'smart_meter_improvement_p'
-        #] TODO
+        #]
 
         # Define technologies which are affected by spatial explicit diffusion
         self.techs_affected_spatial_f = ['heat_pumps_electricity']
@@ -373,8 +373,7 @@ class Assumptions(object):
 
         # Share of cold rolling in steel manufacturing (total = hot and cold)
         # *****************
-        # TODO Fuel use ratio - cold over hot rolling in cement sector
-        self.p_cold_rolling_steel_by = 0.5  #TODO
+        self.p_cold_rolling_steel_by = 0.5   #TODO
         self.eff_cold_rolling_process = 1.0  #TODO
         self.eff_hot_rolling_process = 1.0   #TODO
 

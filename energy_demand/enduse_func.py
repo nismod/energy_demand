@@ -474,9 +474,9 @@ def demand_management(
 
         # Calculate average for every day
         if mode_constrained:
-            average_fuel_yd = np.mean(fuel_yh, axis=1)
+            average_fuel_yd = np.average(fuel_yh, axis=1)
         else:
-            average_fuel_yd = np.mean(fuel_yh, axis=2)
+            average_fuel_yd = np.average(fuel_yh, axis=2)
 
         # Calculate load factors (only inter_day load shifting as for now)
         loadfactor_yd_cy = lf.calc_lf_d(
@@ -1127,8 +1127,9 @@ def fuel_to_service(
         fueltypes,
         mode_constrained
     ):
-    """Converts fuel to energy service (1),
-    calcualates contribution service fraction (2)
+    """Converts fuel to energy service. Calculate energy service
+    of each technology based on assumptions about base year fuel
+    shares of an enduse (`fuel_fueltype_tech_p_by`).
 
     Arguments
     ----------
@@ -1136,8 +1137,6 @@ def fuel_to_service(
         Enduse
     fuel_y : array
         Fuel per fueltype
-    enduse_techs : dict
-        Technologies of enduse
     fuel_fueltype_tech_p_by : dict
         Fuel composition of base year for every fueltype for each
         enduse (assumtions for national scale)
@@ -1149,41 +1148,25 @@ def fuel_to_service(
         Criteria about mode
 
     Return
-    ------
-    tot_s_yh : array
-        Absolute total yh energy service per technology and fueltype
-    service_tech : dict
-        Absolute energy service for every technology
-    s_tech_p : dict
-        Fraction of energy service for every technology
-        (sums up to one in total (not specified by fueltype))
-    s_fueltype_tech_p : dict
-        Fraction of energy service per fueltype and technology
-        (within every fueltype sums up to one)
+    ------tot_s_y, service_tech
+    tot_s_y : array
+        Total annual energy service per technology
+    s_tech : dict
+        Total annual energy service per technology
 
     Note
     -----
-    **(1)** Calculate energy service of each technology based on assumptions
-    about base year fuel shares of an enduse (`fuel_fueltype_tech_p_by`).
-
-    **(2)** The fraction of an invidual technology to which it
-    contributes to total energy service (e.g. how much of
-    total heat service is provided by boiler technology).
-
     -   Efficiency changes of technologis are considered.
     -   Energy service = fuel * efficiency
-    -   This function can be run in two modes, depending on `mode_constrained` criteria
+    -   This function can be run in two modes, depending on `mode_constrained`
     -   The base year efficiency is taken because the actual service can
-        only be calculated with base year. Otherwise, the service would
-        increase e.g. if technologies would become more efficient.
+        only be calculated with base year.
         Efficiencies are only considered if converting back to fuel
-        However, the self.fuel_y is taken because the actual
+        The 'self.fuel_y' is taken because the actual
         service was reduced e.g. due to smart meters or temperatur changes
-
-    TODO IMPROVE
     """
-    service_tech = {}
-    tot_s_y = 0
+    s_tech_y = {}
+    s_tot_y = 0
 
     # Calculate share of service
     for fueltype_int, tech_list in fuel_fueltype_tech_p_by.items():
@@ -1206,23 +1189,23 @@ def fuel_to_service(
                 tech_eff = tech_stock.get_tech_attr(enduse, tech, 'eff_by')
 
                 # Calculate fuel share and convert fuel to service
-                s_tech_y = fuel_y[fueltype_int] * fuel_share * tech_eff
-                service_tech[tech] = s_tech_y
+                s_tech = fuel_y[fueltype_int] * fuel_share * tech_eff
+                s_tech_y[tech] = s_tech
 
                 # Sum total yearly service
-                tot_s_y += s_tech_y #(y)
+                s_tot_y += s_tech #(y)
             else:
                 """Unconstrained version
                 no efficiencies are considered, because not technology specific service calculation
                 """
                 # Calculate fuel share and convert fuel to service
                 fuel_tech = fuel_y[fueltype_int] * fuel_share
-                service_tech[tech] = fuel_tech
+                s_tech_y[tech] = fuel_tech
 
                 # Sum total yearly service
-                tot_s_y += fuel_tech
+                s_tot_y += fuel_tech
 
-    return tot_s_y, service_tech
+    return s_tot_y, s_tech_y
 
 def apply_heat_recovery(
         enduse,

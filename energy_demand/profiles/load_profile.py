@@ -586,7 +586,7 @@ def calc_av_lp(demand_yh, seasons, model_yeardays_daytype):
     # Calculate average over every hour in a day
     for season, daytypes_data in season_daytypes.items():
         for daytype, daytpe_data in daytypes_data.items():
-            av_season_daytypes[season][daytype] = np.mean(daytpe_data, axis=0)
+            av_season_daytypes[season][daytype] = np.average(daytpe_data, axis=0)
 
     return av_season_daytypes, season_daytypes
 

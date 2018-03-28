@@ -16,8 +16,7 @@ def test_rs_disaggregate():
 
     scenario_data = {
         'population': {2015: {'regA': 10, 'regB': 10}},
-        'floor_area': {'rs_floorarea': {2015: {'regA': 10, 'regB': 10}}},
-        }
+        'floor_area': {'rs_floorarea': {2015: {'regA': 10, 'regB': 10}}}}
 
     assumptions = {
         'base_temp_diff_params': {
@@ -167,7 +166,7 @@ def test_is_ss_disaggregate():
         employment_statistics,
         scenario_data,
         crit_limited_disagg_pop=True,
-        crit_employment=False)
+        crit_full_disagg=False)
 
     assert result['regA']['is_space_heating']['mining'] == 50
     # ----
@@ -180,7 +179,7 @@ def test_is_ss_disaggregate():
         employment_statistics,
         scenario_data,
         crit_limited_disagg_pop=False,
-        crit_employment=True)
+        crit_full_disagg=True)
 
     assert result['regA']['is_space_heating']['mining'] == 0
     assert round(result['regA']['is_space_heating']['pharmaceuticals'], 3) == round(10.0/15.0 * 100,3) 

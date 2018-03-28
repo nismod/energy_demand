@@ -28,13 +28,13 @@ def test_assign_lp_no_techs():
         f_peak_yd=1.0/365,
         shape_peak_dh=np.full((24), 1.0/24))
 
-    fuel_new_y = np.zeros((3, ))
-    fuel_new_y[2] = 100
+    fuel_y = np.zeros((3, ))
+    fuel_y[2] = 100
     fuel_yh, fuel_peak_dh, fuel_peak_h = enduse_func.assign_lp_no_techs(
         enduse="test_enduse",
         sector="test_sector",
         load_profiles=lp_stock_obj,
-        fuel_new_y=fuel_new_y)
+        fuel_y=fuel_y)
 
     assert np.sum(fuel_yh) == 100
     assert np.sum(fuel_peak_dh) == 100 * (1.0/365)
@@ -380,7 +380,7 @@ def test_fuel_to_service():
     """
     """
     enduse = 'heating'
-    fuel_new_y = {0: 2000}
+    fuel_y = {0: 2000}
     enduse_techs = ['techA']
     fuel_fueltype_tech_p_by = {0 : {'techA': 1.0}}
 
@@ -411,7 +411,7 @@ def test_fuel_to_service():
 
     tot_s_y, service_tech = enduse_func.fuel_to_service(
         enduse=enduse,
-        fuel_new_y=fuel_new_y,
+        fuel_y=fuel_y,
         fuel_fueltype_tech_p_by=fuel_fueltype_tech_p_by,
         tech_stock=tech_stock,
         fueltypes=fueltypes,
@@ -421,7 +421,7 @@ def test_fuel_to_service():
 
     # ---
     fuel_fueltype_tech_p_by = {0: {}, 1 : {'techA': 1.0}} #'placeholder_tech': 1.0}}
-    fuel_new_y = {0: 0, 1: 2000}
+    fuel_y = {0: 0, 1: 2000}
     fuel_tech_p_by = {0 : {}, 1: {'techA': 1.0}}
     fueltypes = {'gas': 0, 'heat': 1}
 
@@ -442,7 +442,7 @@ def test_fuel_to_service():
 
     tot_s_y, service_tech = enduse_func.fuel_to_service(
         enduse=enduse,
-        fuel_new_y=fuel_new_y,
+        fuel_y=fuel_y,
         fuel_fueltype_tech_p_by=fuel_fueltype_tech_p_by,
         tech_stock=tech_stock,
         fueltypes=fueltypes,
@@ -477,7 +477,7 @@ def test_service_to_fuel():
         t_base_heating_cy=15.5,
         enduse_technologies={'heating': ['techA']})
 
-    fuel_new_y, fuel_per_tech = enduse_func.service_to_fuel(
+    fuel_y, fuel_per_tech = enduse_func.service_to_fuel(
         "heating",
         {'techA': 100},
         tech_stock,
@@ -486,13 +486,13 @@ def test_service_to_fuel():
         True)
 
     assert fuel_per_tech['techA'] == 200
-    assert fuel_new_y == np.array([200])
+    assert fuel_y == np.array([200])
 
     # ----
 
     fueltypes = {'gas': 0, 'heat': 1}
 
-    fuel_new_y, fuel_per_tech = enduse_func.service_to_fuel(
+    fuel_y, fuel_per_tech = enduse_func.service_to_fuel(
         "heating",
         {'techA': 100},
         tech_stock,
@@ -501,7 +501,7 @@ def test_service_to_fuel():
         False)
 
     assert fuel_per_tech['techA'] == 100
-    assert fuel_new_y[1] == 100
+    assert fuel_y[1] == 100
 
 def test_apply_heat_recovery():
     """Testing"""
@@ -528,7 +528,7 @@ def test_apply_climate_chante():
 
     result = enduse_func.apply_climate_change(
         enduse='heating',
-        fuel_new_y=200,
+        fuel_y=200,
         cooling_factor_y=1.5,
         heating_factor_y=1.5,
         enduse_space_heating=['heating'],
@@ -537,7 +537,7 @@ def test_apply_climate_chante():
     assert result == 300
     result = enduse_func.apply_climate_change(
         enduse='cooling',
-        fuel_new_y=200,
+        fuel_y=200,
         cooling_factor_y=1.5,
         heating_factor_y=1.5,
         enduse_space_heating=['heating'],
