@@ -321,8 +321,6 @@ class WeatherRegion(object):
         # ----------------------------------------------
         # Apply weekend correction factor fo ss heating
         # ----------------------------------------------
-        ss_cdd_by = ss_cdd_by #* assumptions.cdd_weekend_cfactors #TODO NOT WORKING PROPERLY YET
-
         ss_peak_yd_heating_factor = get_shape_peak_yd_factor(ss_hdd_cy)
         ss_peak_yd_cooling_factor = get_shape_peak_yd_factor(ss_cdd_cy)
 

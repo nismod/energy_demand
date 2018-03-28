@@ -52,8 +52,8 @@ def disaggregate_base_demand(
     # Factors to choose for disaggregation
     # -------------------------------------
     crit_limited_disagg_pop = False      # Only puplation
-    crit_limited_disagg_pop_hdd = True  # Only puplation and HDD
-    crit_full_disagg = False              # Full disaggregation
+    crit_limited_disagg_pop_hdd = False  # Only puplation and HDD
+    crit_full_disagg = True              # Full disaggregation
 
     # Residential
     rs_fuel_disagg = rs_disaggregate(
@@ -491,9 +491,7 @@ def is_disaggregate(
                         # Disaggregated national fuel
                         is_fuel_disagg[region][enduse][sector] = is_national_fuel[enduse][sector] * reg_disag_factor
 
-    # -----------------
     # TESTING Check if total fuel is the same before and after aggregation
-    #------------------
     testing_functions.control_disaggregation(
         is_fuel_disagg,
         is_national_fuel,
@@ -564,8 +562,9 @@ def rs_disaggregate(
     regions_with_floorarea = list(regions)
     for reg in regions_without_floorarea:
         regions_with_floorarea.remove(reg)
-    logging.info("regions_without_floorarea")
-    logging.info(regions_without_floorarea)
+
+    logging.info("Regions with no floor area: %s", regions_without_floorarea)
+
     # ====================================
     # Disaggregate for region without floor area with population
     # ====================================
@@ -813,7 +812,7 @@ def get_regions_missing_floor_area(regions, floor_area_data, base_yr):
         # Floor Area across all sectors
         reg_floor_area = floor_area_data[base_yr][region]
 
-        if reg_floor_area == 1: #As dfined with 'null' in readigng in
+        if reg_floor_area == 0.0001: #As dfined with 'null' in readigng in
             regions_no_floor_area_data.append(region)
 
     return regions_no_floor_area_data

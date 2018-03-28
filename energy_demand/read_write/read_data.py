@@ -13,31 +13,6 @@ from energy_demand.technologies import tech_related
 from energy_demand.profiles import load_profile
 from energy_demand.scripts import init_scripts
 
-def taget_ruc11cd_values(path_to_csv):
-    """read urban/rural classifiation
-
-    """
-
-    # Data for ENGLAND
-    out = {}
-    with open(path_to_csv, 'r') as csvfile:
-        rows = csv.reader(csvfile, delimiter=',')
-        headings = next(rows)
-        _sceond_row = next(rows)
-
-        for row in rows:
-            lad_region = str(row[get_position(headings, 'LAD11CD')])
-            ruc11 = int(row[get_position(headings, 'RUC11CD')])
-
-            out[lad_region] = ruc11
-   
-    # Data for SCOTLAND
-
-
-    # Data for IRELAND
-
-    return out
-
 class TechnologyData(object):
     """Class to store technology related data
 
@@ -126,7 +101,7 @@ class CapacitySwitch(object):
             self.sector = None # Not sector defined
         else:
             self.sector = sector
-    
+
     def update(self, name, value):
         """Update  switch
 
@@ -1148,21 +1123,21 @@ def read_floor_area_virtual_stock(path_to_csv, f_mixed_floorarea=0.5):
             if (row[get_position(headings, 'res_bld_floor_area')] == 'null') or (
                 row[get_position(headings, 'nonres_bld_floor_area')] == 'null') or (
                     row[get_position(headings, 'mixeduse_bld_floor_area')] == 'null'):
-                    res_floorarea[geo_name] = 1 #TODO
-                    non_res_floorarea[geo_name] = 1 #TODO
-                    floorarea_mixed[geo_name] = 1 #TODO
+                    res_floorarea[geo_name] = 0.0001
+                    non_res_floorarea[geo_name] = 0.0001
+                    floorarea_mixed[geo_name] = 0.0001
             else:
                 if row[get_position(headings, 'res_bld_floor_area')] == 'null':
-                    res_floorarea[geo_name] = 1 #TODO
+                    res_floorarea[geo_name] = 0.0001
                 else:
                     res_floorarea[geo_name] = float(row[get_position(headings, 'res_bld_floor_area')])
                 if row[get_position(headings, 'nonres_bld_floor_area')] == 'null':
-                    non_res_floorarea[geo_name] = 1 #TODO
+                    non_res_floorarea[geo_name] = 0.0001
                 else:
                     non_res_floorarea[geo_name] = float(row[get_position(headings, 'nonres_bld_floor_area')])
 
                 if row[get_position(headings, 'mixeduse_bld_floor_area')] == 'null':
-                    floorarea_mixed[geo_name] = 1 #TODO
+                    floorarea_mixed[geo_name] = 0.0001
                 else:
                     floorarea_mixed[geo_name] = float(row[get_position(headings, 'mixeduse_bld_floor_area')])
 

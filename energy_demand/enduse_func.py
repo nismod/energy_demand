@@ -1179,31 +1179,30 @@ def fuel_to_service(
         Efficiencies are only considered if converting back to fuel
         However, the self.fuel_y is taken because the actual
         service was reduced e.g. due to smart meters or temperatur changes
-    
+
     TODO IMPROVE
     """
     service_tech = {}
     tot_s_y = 0
 
-    if mode_constrained:
-        """Constrained version
-        """
-        # Calulate share of energy service per tech depending on fuel and efficiencies
-        for fueltype_int, tech_list in fuel_fueltype_tech_p_by.items():
+    # Calculate share of service
+    for fueltype_int, tech_list in fuel_fueltype_tech_p_by.items():
 
-            # Get technologies to iterate
-            if tech_list == {} and fuel_y[fueltype_int] == 0:   # No technology or fuel defined
-                techs_with_fuel = {}
-            elif tech_list == {} and fuel_y[fueltype_int] > 0:  # Fuel defined but no technologies
+        # Get technologies to iterate
+        if tech_list == {} and fuel_y[fueltype_int] == 0:   # No technology or fuel defined
+            techs_with_fuel = {}
+        elif tech_list == {} and fuel_y[fueltype_int] > 0:  # Fuel defined but no technologies
+            fueltype_str = tech_related.get_fueltype_str(fueltypes, fueltype_int)
+            placeholder_tech = 'placeholder_tech__{}'.format(fueltype_str)
+            techs_with_fuel = {placeholder_tech: 1.0}
+        else:
+            techs_with_fuel = tech_list
 
-                # IF no technology is defined, implement a placeholder tech
-                fueltype_str = tech_related.get_fueltype_str(fueltypes, fueltype_int)
-                placeholder_tech = 'placeholder_tech__{}'.format(fueltype_str)
-                techs_with_fuel = {placeholder_tech: 1.0}
-            else:
-                techs_with_fuel = tech_list
+        for tech, fuel_share in techs_with_fuel.items():
 
-            for tech, fuel_share in techs_with_fuel.items():
+            if mode_constrained:
+                """Constrained version
+                """
                 tech_eff = tech_stock.get_tech_attr(enduse, tech, 'eff_by')
 
                 # Calculate fuel share and convert fuel to service
@@ -1212,26 +1211,10 @@ def fuel_to_service(
 
                 # Sum total yearly service
                 tot_s_y += s_tech_y #(y)
-    else:
-        """
-        Unconstrained version
-        no efficiencies are considered, because not technology specific service calculation
-        """
-        # Calculate share of service
-        for fueltype_int, tech_list in fuel_fueltype_tech_p_by.items():
-
-            # Get technologies to iterate
-            if tech_list == {} and fuel_y[fueltype_int] == 0:   # No technology or fuel defined
-                techs_with_fuel = {}
-            elif tech_list == {} and fuel_y[fueltype_int] > 0:  # Fuel defined but no technologies
-                fueltype_str = tech_related.get_fueltype_str(fueltypes, fueltype_int)
-                placeholder_tech = 'placeholder_tech__{}'.format(fueltype_str)
-                techs_with_fuel = {placeholder_tech: 1.0}
             else:
-                techs_with_fuel = tech_list
-
-            for tech, fuel_share in techs_with_fuel.items():
-
+                """Unconstrained version
+                no efficiencies are considered, because not technology specific service calculation
+                """
                 # Calculate fuel share and convert fuel to service
                 fuel_tech = fuel_y[fueltype_int] * fuel_share
                 service_tech[tech] = fuel_tech
@@ -1798,7 +1781,7 @@ def calc_service_switch(
         Service per technology in current year after switch in a year
     """
     # ----------------------------------------
-    # Test wheter swich is defined or not
+    # Test wheter switch is defined or not
     # ----------------------------------------
     crit_switch_service = fuel_service_switch.get_switch_criteria(
         enduse,
@@ -1827,14 +1810,6 @@ def calc_service_switch(
                 switched_s_tech_y_cy[tech] = s_tech_y_cy[tech]
             else:
                 switched_s_tech_y_cy[tech] = service_all_techs * s_tech_cy_p
-
-            '''logging.debug(
-                "%s - %s - %s - %s - %s",
-                curr_yr,
-                s_tech_cy_p,
-                sig_param_tech[tech],
-                service_all_techs,
-                switched_s_tech_y_cy[tech])'''
 
             assert switched_s_tech_y_cy[tech] >= 0
 
@@ -1975,10 +1950,9 @@ def industry_enduse_changes(
                 other_enduse_mode_info,
                 assumptions)
 
-        elif sector == 'non_metallic_mineral_products':
+        #elif sector == 'non_metallic_mineral_products':
 
-            # Calculate factor depending on cement processes
-            factor = cement_process()
+        #    # Calculate factor depending on cement processes
 
     else:
         pass
@@ -2054,7 +2028,3 @@ def hot_cold_process(
 
     return factor
 
-def cement_process():
-
-    factor = 1
-    return factor

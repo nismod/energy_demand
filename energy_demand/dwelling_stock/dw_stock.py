@@ -136,14 +136,14 @@ class Dwelling(object):
         # HOW MUCH MORE ENERGY e.g. certain dwelling type uses
         #self.ed_dw_type_factor =
 
-        # Testing
-        assert floorarea != 0
-
         #: Calculate heat loss coefficient with age and dwelling type if possible
         self.hlc = get_hlc(dwtype, age)
 
         # Generate attribute for each enduse containing calculated scenario driver value
         self.calc_scenario_driver(driver_assumptions)
+
+        # Testing
+        #assert floorarea != 0
 
     def calc_scenario_driver(self, driver_assumptions):
         """Sum scenario drivers per enduse and add as attribute

@@ -216,7 +216,6 @@ def scenario_initalisation(path_data_ed, data=False):
                 paths=data['result_paths'],
                 regions=data['regions'],
                 path_shapefile_input=path_shapefile_input)
-
     else:
         f_reg = False
         f_reg_norm = False

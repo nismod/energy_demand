@@ -67,12 +67,12 @@ class Assumptions(object):
         # ------------------------------------------------------------
 
         # Temporal calibration factors
-        self.f_ss_cooling_weekend = 0.6              # 0.5
-        self.f_ss_weekend = 0.8                      # 0.7
+        self.f_ss_cooling_weekend = 0.55              # 0.55
+        self.f_ss_weekend = 0.6                      # 0.7
         self.f_is_weekend = 0.4                      # 0.4
 
         # Spatial calibration factor
-        self.f_mixed_floorarea = 0.4                 # 0.4
+        self.f_mixed_floorarea = 0.5                 # 0.5
 
         # ============================================================
         #   Modelled day related factors
