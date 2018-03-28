@@ -883,7 +883,6 @@ def create_dwelling_stock(regions, curr_yr, data):
     Returns
     -------
     """
-    #TODO
     #data['rs_dw_stock'][region][curr_yr] = dw_stock.createNEWCASTLE_dwelling_stock(
     # self.curr_yr,
     # region,

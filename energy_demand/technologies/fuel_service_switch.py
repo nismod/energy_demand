@@ -126,8 +126,10 @@ def create_switches_from_s_shares(
         switch_yr
     ):
     """
-    
-    TODO
+    Create swiches from service shares.
+    If not 100% of the service share is defined,
+    the switches get defined which proportionally
+    decrease service of all not switche technologies
 
     Arguments
     ----------
@@ -137,15 +139,16 @@ def create_switches_from_s_shares(
         Service share per technology in base year
     switch_technologies : list
         Technologies involved in switch
-    specified_tech_enduse_by :
-
-    enduse_switches :
-
-    s_tot_defined :
-
-    sector :
-
-    switch_yr :
+    specified_tech_enduse_by : list
+        Technologies per enduse
+    enduse_switches : list
+        Switches
+    s_tot_defined : float
+        Service defined
+    sector : str
+        Sector
+    switch_yr : int
+        Year
 
     Returns
     -------
@@ -165,9 +168,6 @@ def create_switches_from_s_shares(
     for tech, share_by in tech_not_assigned_by_p.items():
         tech_not_assigned_by_p[tech] = share_by / tot_share_not_assigned
 
-    # Calculate not defined share in switches
-    s_not_assigned = 1 - s_tot_defined
-
     # Get all defined technologies in base year
     for tech in specified_tech_enduse_by[enduse]:
 
@@ -180,8 +180,10 @@ def create_switches_from_s_shares(
                     technology_install=tech,
                     service_share_ey=0,
                     switch_yr=switch_yr)
-                service_switches_out.append(switch_new)
             else:
+                # Calculate not defined share in switches
+                s_not_assigned = 1 - s_tot_defined
+
                 # Reduce share proportionally
                 tech_ey_p = tech_not_assigned_by_p[tech] * s_not_assigned
 
@@ -191,7 +193,8 @@ def create_switches_from_s_shares(
                     technology_install=tech,
                     service_share_ey=tech_ey_p,
                     switch_yr=switch_yr)
-                service_switches_out.append(switch_new)
+
+            service_switches_out.append(switch_new)
         else:
             # If assigned copy to final switches
             for switch_new in enduse_switches:
@@ -218,8 +221,6 @@ def autocomplete_switches(
     the remaining service is distriputed proportionally
     to all remaining technologies.
 
-    #TODO SIMPLIFY
-
     Argument
     --------
     service_switches : dict
@@ -239,7 +240,6 @@ def autocomplete_switches(
     for switch in service_switches:
         enduses.add(switch.enduse)
     enduses = list(enduses)
-
 
     if spatial_exliclit_diffusion:
 
@@ -296,7 +296,7 @@ def autocomplete_switches(
                             technology_install=switch.technology_install,
                             service_share_ey=service_share_ey_regional,
                             switch_yr=switch.switch_yr)
-                                
+      
                         s_tot_defined += service_share_ey_regional
                         switch_technologies.append(switch.technology_install)
                         enduse_switches.append(switch_new)
@@ -313,7 +313,6 @@ def autocomplete_switches(
                         sector=sector,
                         switch_yr=switch_yr)
 
-                    # Append all to list
                     service_switches_out[region].extend(switches_new)
 
     else:
@@ -344,15 +343,11 @@ def autocomplete_switches(
                 sector=sector,
                 switch_yr=switch_yr)
 
-            # Append all to list
             service_switches_out.extend(switches_new)
-
-            # Append regional other capacity switches
             service_switches_out.extend(service_switches_from_capacity)
 
-    # ==============
+
     # Calculate fraction of service for each technology
-    # ================
     reg_share_s_tech_ey_p = get_share_s_tech_ey(
         service_switches_out,
         specified_tech_enduse_by,

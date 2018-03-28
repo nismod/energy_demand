@@ -107,10 +107,10 @@ def peak_shaving_max_min(
 
     return shifted_fuel_yh
 
+
 def calc_lf_y_single_fueltype(fuel_yh):
     """to test
     """
-
     average_fuel_yd = np.average(fuel_yh, axis=1)
 
     # Calculate average yearly fuel per fueltype

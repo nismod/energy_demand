@@ -195,7 +195,6 @@ def scenario_initalisation(path_data_ed, data=False):
         # ---------------------
         plot_fig_paper = True
         if plot_fig_paper:
-            #GNU TODO
 
             # Global value to distribute
             global_value = 50
@@ -605,7 +604,7 @@ def sig_param_calc_incl_fuel_switch(
     ):
     """Calculate sigmoid diffusion paramaters considering
     fuel or service switches. Test if service switch and
-    fuel switch are defined simultaneously (raise error if true). TODO
+    fuel switch are defined simultaneously (raise error if true).
 
     Arguments
     ---------
@@ -707,11 +706,6 @@ def sig_param_calc_incl_fuel_switch(
         enduse_fuel_switches = fuel_service_switch.get_fuel_switches_enduse(
             fuel_switches, enduse)
 
-        # Get year of switches
-        for fuelswitch in enduse_fuel_switches:
-            yr_until_switched = fuelswitch.switch_yr
-            break
-
         if regional_specific:
             l_values_sig = {}
             s_tech_switched_p = {}
@@ -755,6 +749,11 @@ def sig_param_calc_incl_fuel_switch(
                 s_fueltype_by_p,
                 s_tech_by_p,
                 fuel_tech_p_by)
+
+        # Get year of switches
+        for fuelswitch in enduse_fuel_switches:
+            yr_until_switched = fuelswitch.switch_yr
+            break
 
         # Convert serivce shares to service switches
         service_switches_out = convert_sharesdict_to_service_switches(

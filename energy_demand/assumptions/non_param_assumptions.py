@@ -166,7 +166,6 @@ class Assumptions(object):
             'bungalow': 77}
 
         # (Average builing age within age class, fraction)
-        # Note: the number of refurbished houses can be changed ?? TODO: IMPELEMENT AS SCENARIO
         # The newest category of 2015 is added to implement change in refurbishing rate
         # For the base year, this is set to zero (if e.g. with future scenario set to 5%, then
         # proportionally to base year distribution number of houses are refurbished)
@@ -249,6 +248,7 @@ class Assumptions(object):
         # ------------------------------------------------------------
 
         # See Abela et al. (2016)
+        # Carbon Trust. (2012). Air conditioning. Maximising comfort, minimising energy consumption
         self.cooled_ss_floorarea_by = 0.35
 
         # ============================================================
@@ -382,7 +382,7 @@ class Assumptions(object):
         # With industry service switch, the future shares
         # in 'basic_oxygen_furnace', 'electric_arc_furnace', and 'SNG_furnace'
         # can be specified
-        # TODO: # blast furnace process, electric arc furnace, directe reduced iron
+
         #scrap-based production: electric arc furnace 
         #direct reduction process: natrual gas based, electric arc furnace
         #BF-BOF (blast furnace - basix oxgen furnace)
@@ -391,11 +391,7 @@ class Assumptions(object):
 
         # Cement production - Enduse: is_high_temp_process, Sector: non_metallic_mineral_products
         # *****************
-        # technologies: Dry kilns, semi
-        '''
-        BAT - cement - dry/wet process 	Dry/wet process (Dry %)
-        BAT - cement - Novel-Alkali-activated (alumino-silicate, geopolymer)	Sectoral share of Alkali activated %
-        BAT - cement - Novel-Partially prehydrated Calcium silicate hydrate	Sectoral share - Partially prehydrated %'''
+        # technologies: Dry kilns, semidry kilns
 
         # CHEMICALs - Enduse: is_high_temp_process, Sector: CHEMICALS
         # *****************
@@ -415,7 +411,7 @@ class Assumptions(object):
         # Efficiency of others
         # ----------------
         #is_refrigeration_eff_change = 0
-        
+
         # ----------------
         # Efficiency of is_compressed_air
         # ----------------

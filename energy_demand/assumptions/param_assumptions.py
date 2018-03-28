@@ -325,15 +325,13 @@ def load_param_assump(paths=None, assumptions=None):
     strategy_variables.append({
         "name": "cooled_floorarea__ss_cooling_humidification",
         "absolute_range": (0, 1),
-        "description": "Increase in percentage of floorarea which is cooled (service sector)",
+        "description": "Change in cooling of floor area (service sector)",
         "suggested_range": (-1, 1),
         "default_value": assumptions.cooled_ss_floorarea_by,
         "units": 'decimal'})
 
-    # How much of the floorarea is cooled in end year (example: 0.5 --> 50% of floorarea is cooled)
-    # Carbon Trust. (2012). Air conditioning. Maximising comfort, minimising energy consumption.
-    #TODO IMPROVEMENT
-    strategy_vars['cooled_floorarea__ss_cooling_humidification'] = 0 # 0.35 # 0
+    # Change in cooling of floor area 
+    strategy_vars['cooled_floorarea__ss_cooling_humidification'] = 0
 
     strategy_variables.append({
         "name": "cooled_floorarea_yr_until_changed",
