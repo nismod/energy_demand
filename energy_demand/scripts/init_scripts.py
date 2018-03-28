@@ -260,6 +260,8 @@ def scenario_initalisation(path_data_ed, data=False):
                 data['fuels']['rs_fuel_raw'],
                 data['assumptions'].rs_fuel_tech_p_by,
                 data['assumptions'].base_yr)
+                #spatial_exliclit_diffusion=data['criterias']['spatial_exliclit_diffusion'],
+                #regions=data['regions'],)
             rs_service_switches_incl_cap[region] = rs_service_switches
 
             # Service
@@ -338,8 +340,8 @@ def scenario_initalisation(path_data_ed, data=False):
     # spatially.
     # Autocomplete and regional diffusion levels calculations
     # ========================================================================================
-    if data['criterias']['spatial_exliclit_diffusion']:
-
+    #if data['criterias']['spatial_exliclit_diffusion']:
+    if 1 == 1:
         # Select spatial diffusion
         f_diffusion = f_reg_norm
 
@@ -353,7 +355,6 @@ def scenario_initalisation(path_data_ed, data=False):
             f_diffusion=f_diffusion,
             techs_affected_spatial_f=data['assumptions'].techs_affected_spatial_f,
             service_switches_from_capacity=rs_service_switches_incl_cap)
-
 
         # Service
         ss_switches_autocompleted = {}
@@ -395,7 +396,7 @@ def scenario_initalisation(path_data_ed, data=False):
                 f_diffusion=f_diffusion,
                 techs_affected_spatial_f=data['assumptions'].techs_affected_spatial_f,
                 service_switches_from_capacity=is_service_switches_incl_cap)
-    else: # Not spatially explicit
+    '''else: # Not spatially explicit
 
         # Residential
         rs_share_s_tech_ey_p, rs_switches_autocompleted = fuel_service_switch.autocomplete_switches(
@@ -435,7 +436,7 @@ def scenario_initalisation(path_data_ed, data=False):
                 specified_tech_enduse_by=data['assumptions'].is_specified_tech_enduse_by,
                 s_tech_by_p=is_s_tech_by_p[sector],
                 sector=sector,
-                service_switches_from_capacity=is_service_switches_incl_cap)
+                service_switches_from_capacity=is_service_switches_incl_cap)'''
 
     # ========================================================================================
     # Fuel switches
@@ -443,7 +444,8 @@ def scenario_initalisation(path_data_ed, data=False):
     # Calculate sigmoid diffusion considering fuel switches
     # and service switches. As inputs, service (and thus also capacity switches) are used
     # ========================================================================================
-    if data['criterias']['spatial_exliclit_diffusion']:
+    #if data['criterias']['spatial_exliclit_diffusion']:
+    if 1 == 1:
 
         # Residential
         for enduse in data['enduses']['rs_enduses']:
@@ -500,6 +502,7 @@ def scenario_initalisation(path_data_ed, data=False):
                     regions=data['regions'],
                     sector=sector,
                     regional_specific=data['criterias']['spatial_exliclit_diffusion'])
+    '''
     else:
 
         # Residential
@@ -556,6 +559,7 @@ def scenario_initalisation(path_data_ed, data=False):
                     fuel_tech_p_by=data['assumptions'].is_fuel_tech_p_by[enduse][sector],
                     sector=sector,
                     regional_specific=data['criterias']['spatial_exliclit_diffusion'])
+    '''
 
     # ===========================================
     # III. Spatial explicit modelling of scenario variables
@@ -884,8 +888,6 @@ def sig_param_calc_incl_fuel_switch(
         # Calculate only from fuel switch
         share_s_tech_ey_p = fuel_service_switch.switches_to_dict(
             service_switches_out, regional_specific)
-
-        assert round(sum(share_s_tech_ey_p.values()), 3) == 1
 
     if crit_switch_service or crit_fuel_switch:
         logging.info("---------- switches %s %s %s", enduse, crit_switch_service, crit_fuel_switch)

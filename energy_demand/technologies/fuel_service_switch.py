@@ -644,8 +644,12 @@ def switches_to_dict(service_switches, regional_specific):
         for reg, reg_switches in service_switches.items():
             for switch in reg_switches:
                 s_tech_by_p[reg][switch.technology_install] = switch.service_share_ey
+
+            assert round(sum(s_tech_by_p[reg].values()), 3) == 1
     else:
         for switch in service_switches:
             s_tech_by_p[switch.technology_install] = switch.service_share_ey
+
+        assert round(sum(s_tech_by_p.values()), 3) == 1
 
     return dict(s_tech_by_p)
