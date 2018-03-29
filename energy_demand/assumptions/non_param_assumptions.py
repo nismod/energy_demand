@@ -201,8 +201,8 @@ class Assumptions(object):
             'rs_cooking': ['population'],
             'rs_cold': ['population'],
             'rs_wet': ['population'],
-            'rs_consumer_electronics': ['population'], #GVA TODO. As soon as GVA is avaiable, drive it with GVA
-            'rs_home_computing': ['population']} #GVA 
+            'rs_consumer_electronics': ['population'],  #GVA TODO. As soon as GVA is avaiable, drive it with GVA
+            'rs_home_computing': ['population']}        #GVA 
 
         # --Service Submodel (Table 5.5a)
         self.scenario_drivers['ss_submodule'] = {
@@ -531,11 +531,11 @@ class Assumptions(object):
 
         # Read in scenaric fuel switches
         self.rs_fuel_switches = read_data.read_fuel_switches(
-            paths['rs_path_fuel_switches'], enduses, fueltypes)
+            paths['rs_path_fuel_switches'], enduses, fueltypes, self.technologies)
         self.ss_fuel_switches = read_data.read_fuel_switches(
-            paths['ss_path_fuel_switches'], enduses, fueltypes)
+            paths['ss_path_fuel_switches'], enduses, fueltypes, self.technologies)
         self.is_fuel_switches = read_data.read_fuel_switches(
-            paths['is_path_fuel_switches'], enduses, fueltypes)
+            paths['is_path_fuel_switches'], enduses, fueltypes, self.technologies)
 
         # Read in scenaric service switches
         self.rs_service_switches = read_data.service_switch(
@@ -546,25 +546,21 @@ class Assumptions(object):
             paths['is_path_industry_switch'], self.technologies)
 
         # Read in scenaric capacity switches
-        self.capacity_switches = {} #TODO WHY THE OTHER ONES NOT DICT??
-        self.capacity_switches['rs_capacity_switches'] = read_data.read_capacity_switch(
+        self.rs_capacity_switches = read_data.read_capacity_switch(
             paths['rs_path_capacity_installation'])
-        self.capacity_switches['ss_capacity_switches'] = read_data.read_capacity_switch(
+        self.ss_capacity_switches = read_data.read_capacity_switch(
             paths['ss_path_capacity_installation'])
-        self.capacity_switches['is_capacity_switches'] = read_data.read_capacity_switch(
+        self.is_capacity_switches = read_data.read_capacity_switch(
             paths['is_path_capacity_installation'])
 
-        # TESTING IF SWITCHES DEFINITION IS CORRECT
-        #TODO KRODKODIL DESCRIBE INT MORE DETAIL
-        all_enduses_with_switch = testing_functions.switch_testing(
+        # Testing
+        self.crit_switch_happening = testing_functions.switch_testing(
             fuel_switches = [self.rs_fuel_switches, self.ss_fuel_switches, self.is_fuel_switches],
             service_switches = [self.rs_service_switches, self.ss_service_switches, self.is_service_switches],
             capacity_switches = [
-                self.capacity_switches['rs_capacity_switches'],
-                self.capacity_switches['ss_capacity_switches'], 
-                self.capacity_switches['is_capacity_switches']])
-
-        self.crit_switch_happening = all_enduses_with_switch
+                self.rs_capacity_switches,
+                self.ss_capacity_switches, 
+                self.is_capacity_switches])
 
         # ========================================
         # General other assumptions

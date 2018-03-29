@@ -80,23 +80,16 @@ def calc_sigmoid_parameters(
 
                 if l_value == ydata[0]:
                     l_value += fit_assump_init
-                else:
-                    pass
 
             # Select start parameters depending on pos or neg diff
             if crit_plus_minus == 'minus':
                 start_parameters[0] *= 1
                 start_parameters[1] *= -1
 
-            logging.info(" parametsre {}  {} {} {}".format(
-                xdata, ydata, start_parameters, l_value))
+            #logging.debug(" patameters {} {} {} {}".format(
+            #    xdata, ydata, start_parameters, l_value))
 
-            # -----------------------------------
             # Fit function
-            # Info: If the fitting function throws errors,
-            #       it is possible to change the parameters
-            #       `number_of_iterations`.
-            # -----------------------------------
             fit_parameter = fit_sigmoid_diffusion(
                 l_value,
                 xdata,
@@ -117,18 +110,8 @@ def calc_sigmoid_parameters(
                     if cnt >= len(start_param_list):
                         raise Exception("Error: Sigmoid curve fitting failed")
                 else:
-                    
-                    '''plotting_program.plotout_sigmoid_tech_diff(
-                        l_value,
-                        "ttse",
-                        xdata,
-                        ydata,
-                        fit_parameter,
-                        plot_crit=True, #TRUE
-                        close_window_crit=True)'''
-                    # -------------------------
+
                     # Check how good the fit is
-                    # -------------------------
                     y_calculated_ey = diffusion_technologies.sigmoid_function(
                         x_value=xdata[1],
                         l_value=l_value,
@@ -146,15 +129,15 @@ def calc_sigmoid_parameters(
 
                     if (fit_measure_p_ey < (100.0 - error_range) or fit_measure_p_ey > (100.0 + error_range)) or (
                         fit_measure_p_by < (100.0 - error_range) or fit_measure_p_by > (100.0 + error_range)):
-                        logging.info(
-                            "... Fitting measure %s %s (percent) is not good enough",
-                            fit_measure_p_by, fit_measure_p_ey)
+                        
+                        #logging.debug("... Fitting measure %s %s (percent) is not good enough",
+                        #    fit_measure_p_by, fit_measure_p_ey)
                         successfull = False
                         cnt += 1
                     else:
                         successfull = True
                         
-                        logging.info(
+                        '''logging.info(
                             ".... fitting successfull %s %s %s", fit_measure_p_ey, fit_measure_p_by, fit_parameter)
                         plotting_program.plotout_sigmoid_tech_diff(
                             l_value,
@@ -162,8 +145,8 @@ def calc_sigmoid_parameters(
                             xdata,
                             ydata,
                             fit_parameter,
-                            plot_crit=True, #TRUE
-                            close_window_crit=True)
+                            plot_crit=True,
+                            close_window_crit=True)'''
         except (RuntimeError, IndexError):
             cnt += 1
 

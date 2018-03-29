@@ -12,17 +12,52 @@ def dict_depth(dictionary):
         return 1 + (max(map(dict_depth, dictionary.values())) if dictionary else 0)
     return 0
 
-def rmse(predictions, targets):
-    """RMSE calculations
+def rmse(predictions, actual_values):
+    """Root-mean-square deviation calculations
 
     Arguments
     ----------
     predictions : array
         Model prediction (real value)
-    targets : array
+    actual_values : array
         Moodelled value
+    
+    Returns
+    -------
+    rmse : array
+        root-mean-square deviation
     """
-    return np.sqrt(((predictions - targets) ** 2).mean())
+    rmse = np.sqrt(((predictions - actual_values) ** 2).mean())
+
+    return rmse
+
+'''def mape(predictions, actual_values):
+    """Mean absolute percentage error
+
+    Arguments
+    ----------
+    predictions : array
+        Model prediction (real value)
+    actual_values : array
+        Moodelled value
+    Returns
+    -------
+    mape : array
+        Mean absolute percentage error
+    """
+    mape = 100 / len(predictions) * np.sum((actual_values - predictions) / actual_values)
+
+    return mape
+
+def mean_percentage_error(predictions, actual_values):
+    """
+    
+    https://en.wikipedia.org/wiki/Mean_percentage_error
+    """
+    mpe = (100 / len(predictions)) * np.sum((actual_values - predictions) / actual_values)
+
+    return mpe'''
+
 
 def array_to_dict(result_array, regions):
     """Convert an array with regions to dict

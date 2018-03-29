@@ -245,11 +245,11 @@ def scenario_initalisation(path_data_ed, data=False):
 
         # Convert globally defined switches to regional switches
         reg_capacity_switches_rs = global_to_reg_capacity_switch(
-            data['regions'], data['assumptions'].capacity_switches['rs_capacity_switches'], f_diffusion)
+            data['regions'], data['assumptions'].rs_capacity_switches, f_diffusion)
         reg_capacity_switches_ss = global_to_reg_capacity_switch(
-            data['regions'], data['assumptions'].capacity_switches['ss_capacity_switches'], f_diffusion)
+            data['regions'], data['assumptions'].ss_capacity_switches, f_diffusion)
         reg_capacity_switches_is = global_to_reg_capacity_switch(
-            data['regions'], data['assumptions'].capacity_switches['is_capacity_switches'], f_diffusion)
+            data['regions'], data['assumptions'].is_capacity_switches, f_diffusion)
 
         rs_service_switches_incl_cap = {}
         ss_service_switches_inlc_cap = {}
@@ -284,7 +284,7 @@ def scenario_initalisation(path_data_ed, data=False):
     else: #Not spatial explicit
 
         rs_service_switches_incl_cap = fuel_service_switch.capacity_switch(
-            data['assumptions'].capacity_switches['rs_capacity_switches'],
+            data['assumptions'].rs_capacity_switches,
             data['technologies'],
             data['assumptions'].enduse_overall_change['other_enduse_mode_info'],
             data['fuels']['rs_fuel_raw'],
@@ -292,7 +292,7 @@ def scenario_initalisation(path_data_ed, data=False):
             data['assumptions'].base_yr)
 
         ss_service_switches_inlc_cap = fuel_service_switch.capacity_switch(
-            data['assumptions'].capacity_switches['ss_capacity_switches'],
+            data['assumptions'].ss_capacity_switches,
             data['technologies'],
             data['assumptions'].enduse_overall_change['other_enduse_mode_info'],
             ss_aggr_sector_fuels,
@@ -300,7 +300,7 @@ def scenario_initalisation(path_data_ed, data=False):
             data['assumptions'].base_yr)
 
         is_service_switches_incl_cap = fuel_service_switch.capacity_switch(
-            data['assumptions'].capacity_switches['is_capacity_switches'],
+            data['assumptions'].is_capacity_switches,
             data['technologies'],
             data['assumptions'].enduse_overall_change['other_enduse_mode_info'],
             is_aggr_sector_fuels,

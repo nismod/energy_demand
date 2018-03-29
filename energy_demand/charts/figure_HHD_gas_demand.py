@@ -39,15 +39,9 @@ def main(regions, weather_regions, data):
             data['reg_coord'][region]['latitude'],
             data['weather_stations'])
 
-        #closest_weather_station = '593' # Birmingham station
         closest_weather_region = weather_regions[closest_weather_station]
 
         reg_pop = data['scenario_data']['population'][base_yr][region]
-
-        ##logging.warning("REGPOP: " + str(reg_pop))
-        #logging.warning(closest_weather_region.name)
-        #logging.warning(closest_weather_region.rs_hdd_by)
-        #logging.warning(np.sum(closest_weather_region.rs_hdd_by))
 
         for day in range(365):
             reg_hdd_day = closest_weather_region.rs_hdd_by[day]

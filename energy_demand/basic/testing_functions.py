@@ -6,6 +6,15 @@ import logging
 
 def switch_testing(fuel_switches, service_switches, capacity_switches):
     """Test if swithes defined for same enduse
+
+    Arguments
+    ---------
+    fuel_switches : list
+        Switches
+    service_switches : list
+        Switches 
+    capacity_switches : list
+        Switches 
     """
     all_switches_incl_sectors = {}
 
@@ -53,21 +62,25 @@ def switch_testing(fuel_switches, service_switches, capacity_switches):
     # Test if same enduses in any list
     for enduse in enduses_fuel_switch:
         if enduse in enduses_service_switch or enduse in enduses_capacity_switch:
-            logging.warning("Error: Enduse '%s' is defined in fuel switch and also in either service or capacity. Not possible", enduse)
-            sys.exit()
+            raise Exception(
+                "Error: Enduse '%s' is defined in fuel switch and also in either service or capacity.",
+                enduse)
 
     for enduse in enduses_service_switch:
         if enduse in enduses_fuel_switch or enduse in enduses_capacity_switch:
-            logging.warning("Error: Enduse '%s' is defined in fuel switch and also in either service or capacity. Not possible", enduse)
-            sys.exit()
+            raise Exception(
+                "Error: Enduse '%s' is defined in fuel switch and also in either service or capacity.",
+                enduse)
 
     for enduse in enduses_capacity_switch:
         if enduse in enduses_fuel_switch or enduse in enduses_service_switch:
-            logging.warning("Error: Enduse '%s' is defined in fuel switch and also in either service or capacity. Not possible", enduse)
-            sys.exit()
+            raise Exception(
+                "Error: Enduse '%s' is defined in fuel switch and also in either service or capacity.",
+                enduse)
 
     for enduse in all_switches_incl_sectors:
         all_switches_incl_sectors[enduse] = list(all_switches_incl_sectors[enduse])
+
     return all_switches_incl_sectors
 
 def test_region_selection(ed_fueltype_regs_yh):
@@ -102,7 +115,7 @@ def testing_fuel_tech_shares(fuel_tech_fueltype_p):
         for fueltype in fuel_tech_fueltype_p[enduse]:
             if fuel_tech_fueltype_p[enduse][fueltype] != {}:
                 if round(sum(fuel_tech_fueltype_p[enduse][fueltype].values()), 3) != 1.0:
-                    sys.exit(
+                    raise Exception(
                         "The fuel shares assumptions are wrong for enduse {} and fueltype {} SUM: {}".format(
                             enduse, fueltype, sum(fuel_tech_fueltype_p[enduse][fueltype].values())))
 
@@ -119,7 +132,7 @@ def testing_tech_defined(technologies, all_tech_enduse):
     for enduse in all_tech_enduse:
         for tech in all_tech_enduse[enduse]:
             if tech not in technologies:
-                sys.exit(
+                raise Exception(
                     "Error: '{}' is not defined in technology_definition.csv".format(
                         tech))
 

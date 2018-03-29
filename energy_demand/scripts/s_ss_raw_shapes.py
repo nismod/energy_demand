@@ -301,7 +301,7 @@ def run(paths, local_paths, lookups):
             sector_folder_path_elec = os.path.join(
                 local_paths['folder_raw_carbon_trust'], "_all_elec")
         else:
-            sys.exit("Error: The sector {} could not be assigned".format(sector))
+            raise Exception("Error: The sector {} could not be assigned".format(sector))
 
         # ------------------------------------------------------
         # Assign shape across enduse for service sector

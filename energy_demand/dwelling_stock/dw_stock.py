@@ -498,7 +498,7 @@ def ss_dw_stock(
                 change_floorarea_p_ey = assumptions.ss_floorarea_change_ey_p[sector]
                 yr_until_changed = assumptions.ss_floorarea_change_ey_p['yr_until_changed']
             else:
-                sys.exit(
+                raise Exception(
                     "Error: The ss building stock sector floor area assumption is not defined")
 
             # Floor area of sector in current year considering linear diffusion
