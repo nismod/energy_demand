@@ -6,7 +6,6 @@ Contains the `Enduse` Class. This is the most important class
 where the change in enduse specific energy demand is simulated
 depending on scenaric assumptions.
 """
-import sys
 import logging
 import math
 import numpy as np

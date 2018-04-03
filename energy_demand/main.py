@@ -34,6 +34,7 @@ Get correlation between regional GVA and (regional floor area/reg pop) of every 
 Calculate future regional floor area demand based on GVA and pop projection
 
 TODO: Write all metadata of model run restuls to txt
+TODO: EFFICIENCS OF STRATEGIES ROLL COLD
 TODO: Related ed to houses & householdsize
 TODO: data loading, load multiple years for real elec data
 TODO: THECK VARIALBES IN HOUSEHOLD MODEL

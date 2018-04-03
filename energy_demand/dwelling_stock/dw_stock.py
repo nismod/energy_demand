@@ -2,7 +2,6 @@
 =============================
 Generates a virtual dwelling stock
 """
-import sys
 import logging
 import numpy as np
 

@@ -3,7 +3,6 @@
 This file holds all functions necessary to read in information
 and data to run the energy demand model.
 """
-import sys
 import os
 import csv
 import logging
@@ -91,7 +90,8 @@ class CapacitySwitch(object):
             installed_capacity,
             sector=None
         ):
-
+        """Constructor
+        """
         self.enduse = enduse
         self.technology_install = technology_install
         self.switch_yr = switch_yr
@@ -186,6 +186,8 @@ class ServiceSwitch(object):
             service_share_ey=None,
             switch_yr=None
         ):
+        """Constructor
+        """
         self.enduse = enduse
         self.technology_install = technology_install
         self.service_share_ey = service_share_ey
@@ -220,7 +222,6 @@ def read_in_results(path_runs, seasons, model_yeardays_daytype):
         seasons
     model_yeardays_daytype : dict
         Daytype of modelled yeardays
-
     """
     logging.info("... Reading in results")
 

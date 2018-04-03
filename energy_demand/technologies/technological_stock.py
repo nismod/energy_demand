@@ -1,7 +1,6 @@
 """
 Functions related to the technological stock
 """
-import sys
 from energy_demand.technologies import tech_related
 
 class TechStock(object):
