@@ -1,9 +1,8 @@
 
 """Testing
 """
-from energy_demand.profiles import load_profile
-import sys
 import numpy as np
+from energy_demand.profiles import load_profile
 
 def test_abs_to_rel():
     """Test

@@ -200,6 +200,8 @@ class LoadProfile(object):
 
     Arguments
     ----------
+    enduses : list
+        Enduses assigned to load profile
     unique_identifier : string
         Unique identifer for LoadProfile object
     shape_yd : array

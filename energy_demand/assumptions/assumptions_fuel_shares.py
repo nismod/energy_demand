@@ -28,7 +28,7 @@ def assign_by_fuel_tech_p(enduses, sectors, fueltypes, fueltypes_nr):
     additional_assump_vars : dict
         Asssumptions
 
-    Important note
+    Note
     ----
     - In an enduse, either all fueltypes with assigned fuelsneed to be
       assigned with technologies or none. No mixing possible

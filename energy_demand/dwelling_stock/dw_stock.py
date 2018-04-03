@@ -2,7 +2,6 @@
 =============================
 Generates a virtual dwelling stock
 """
-import sys
 import logging
 import numpy as np
 
@@ -378,7 +377,7 @@ def get_dwtype_floor_area(dwtype_floorarea_by, dwtype_floorarea_future, base_yr,
 
     return dwtype_floor_area
 
-def get_dwtype_distr(dwtype_distr_by, assump_dwtype_distr_future, base_yr, sim_period):
+def get_dwtype_distr(dwtype_distr_by, dwtype_distr_fy, base_yr, sim_period):
     """Calculates the annual distribution of dwelling types
     based on assumption of base and end year distribution
 
@@ -386,7 +385,7 @@ def get_dwtype_distr(dwtype_distr_by, assump_dwtype_distr_future, base_yr, sim_p
     ----------
     dwtype_distr_by : dict
         Distribution of dwelling types base year
-    assump_dwtype_distr_future : dict
+    dwtype_distr_fy : dict
         Distribution of dwelling types end year
 
     Returns
@@ -412,9 +411,9 @@ def get_dwtype_distr(dwtype_distr_by, assump_dwtype_distr_future, base_yr, sim_p
 
             for dwtype in dwtype_distr_by:
                 val_by = dwtype_distr_by[dwtype]
-                val_future = assump_dwtype_distr_future[dwtype]
+                val_future = dwtype_distr_fy[dwtype]
 
-                yr_until_changed = assump_dwtype_distr_future['yr_until_changed']
+                yr_until_changed = dwtype_distr_fy['yr_until_changed']
 
                 val_cy = diffusion_technologies.linear_diff(
                     base_yr,
@@ -498,7 +497,7 @@ def ss_dw_stock(
                 change_floorarea_p_ey = assumptions.ss_floorarea_change_ey_p[sector]
                 yr_until_changed = assumptions.ss_floorarea_change_ey_p['yr_until_changed']
             else:
-                sys.exit(
+                raise Exception(
                     "Error: The ss building stock sector floor area assumption is not defined")
 
             # Floor area of sector in current year considering linear diffusion
@@ -580,15 +579,15 @@ def rs_dw_stock(
 
         # Get changes in absolute floor area per dwelling type over time
         dwtype_floor_area = get_dwtype_floor_area(
-            assumptions.assump_dwtype_floorarea_by,
-            assumptions.assump_dwtype_floorarea_future,
+            assumptions.dwtype_floorarea_by,
+            assumptions.dwtype_floorarea_fy,
             base_yr,
             simulated_yrs)
 
         # Get distribution of dwelling types of all simulation years
         dwtype_distr = get_dwtype_distr(
-            assumptions.assump_dwtype_distr_by,
-            assumptions.assump_dwtype_distr_future,
+            assumptions.dwtype_distr_by,
+            assumptions.dwtype_distr_fy,
             base_yr,
             simulated_yrs)
 

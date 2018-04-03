@@ -34,23 +34,19 @@ Get correlation between regional GVA and (regional floor area/reg pop) of every 
 Calculate future regional floor area demand based on GVA and pop projection
 
 TODO: Write all metadata of model run restuls to txt
-TODO: Write function to test wheter swichtes are possible (e.g. that not more from one technology to another is replaced than possible)
-TODO: Improve industry related demand --> define strategies
+TODO: EFFICIENCS OF STRATEGIES ROLL COLD
 TODO: Related ed to houses & householdsize
 TODO: data loading, load multiple years for real elec data
 TODO: THECK VARIALBES IN HOUSEHOLD MODEL
 TODO: PEAK SHAPE vs PEAK FROM LOAD PROFILES
 TODO: HYBRID TECHNOLOGIES?
 TODO: UPDate all fuel data with new ECUK DATA
-TODO: STORE RESULTS PER ANNUAL YEAR AND GENERATE FUNCTION TO COLLECT PLOTS AND CREATE GIF
 TODO: get_position for all readings of csv file
 TODO: WHAT ABOU NON_RESIDENTIAL FLOOR AREA: FOR WHAT?
 TODO: SPATIAL DISAGGREGATION FACTORS RESID/NONRESID SHARE
 TODO: SO FAR ALSO ALL SERVICE ENDUSES ARE MULTIPLIED
 TODO: TEST IF CORRECT REGIONAL CALCULATIONS AS DSCRIEBED IN
 TODO: Spatial diffusion: Cap largest 5% of values and set to 1
-
-TODO: TEST THAT SWITCHES CANNOT BE LARGER THAN L FOR EVERY TECHNOLOGY
 """
 import os
 import sys
@@ -177,11 +173,11 @@ if __name__ == "__main__":
     # Load data
     data = {}
     data['criterias'] = {}
-    data['criterias']['mode_constrained'] = True               # Whether model is run in constrained mode or not
+    data['criterias']['mode_constrained'] = True                # Whether model is run in constrained mode or not
     data['criterias']['plot_HDD_chart'] = False                 # Wheather HDD chart is plotted or not
     data['criterias']['virtual_building_stock_criteria'] = True # Wheater model uses a virtual dwelling stock or not
     data['criterias']['spatial_exliclit_diffusion'] = True      # Wheater spatially epxlicit diffusion or not
-    data['criterias']['write_to_txt'] = True                   # Wheater results are written to txt files
+    data['criterias']['write_to_txt'] = True                    # Wheater results are written to txt files
     data['criterias']['beyond_supply_outputs'] = True           # Wheater all results besides integraded smif run are calculated
     data['criterias']['plot_tech_lp'] = True                    # Wheater all individual load profils are plotted
 
@@ -240,7 +236,6 @@ if __name__ == "__main__":
         fueltypes_nr=data['lookups']['fueltypes_nr'])
 
     # Parameters defined within smif
-
     strategy_variables = param_assumptions.load_param_assump(
         data['paths'], data['assumptions'])
     data['assumptions'].update('strategy_variables', strategy_variables)

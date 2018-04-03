@@ -6,7 +6,6 @@ Contains the `Enduse` Class. This is the most important class
 where the change in enduse specific energy demand is simulated
 depending on scenaric assumptions.
 """
-import sys
 import logging
 import math
 import numpy as np
@@ -763,8 +762,7 @@ def get_peak_day_all_fueltypes(fuel_yh):
     all_fueltypes_tot_h = np.sum(fuel_yh, axis=0)
 
     if np.sum(all_fueltypes_tot_h) == 0:
-        logging.critical("No peak can be found because no fuel assigned")
-        sys.exit("ERROR bla")
+        raise Exception("No peak can be found because no fuel assigned")
     else:
         # Sum fuel within every hour for every day and get day with maximum fuel
         peak_day_nr = np.argmax(np.sum(all_fueltypes_tot_h, axis=1))
@@ -789,8 +787,7 @@ def get_peak_day_single_fueltype(fuel_yh):
         Day with most fuel or service
     """
     if np.sum(fuel_yh) == 0:
-        logging.critical("No peak can be found because no fuel assigned")
-        sys.exit("ERROR bla")
+        raise Exception("No peak can be found because no fuel assigned")
     else:
         # Sum fuel within every hour for every day and get day with maximum fuel
         peak_day_nr = np.argmax(np.sum(fuel_yh, axis=1))
@@ -1446,7 +1443,7 @@ def apply_scenario_drivers(
             factor_driver = 1
 
         if math.isnan(factor_driver):
-            sys.exit("Error xcx")
+            raise Exception("Error xcx")
 
         fuel_y = fuel_y * factor_driver
     else:

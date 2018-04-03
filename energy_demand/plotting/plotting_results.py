@@ -555,7 +555,7 @@ def plt_stacked_enduse(
                 model_year, enduse, np.sum(yearly_sum_twh)))
 
             if yearly_sum_twh < 0:
-                sys.exit("no minus values allowed {}  {}  {}".format(enduse, yearly_sum_twh, model_year))
+                raise Exception("no minus values allowed {}  {}  {}".format(enduse, yearly_sum_twh, model_year))
 
             y_values_enduse_yrs[year_array_nr] = yearly_sum_twh
 

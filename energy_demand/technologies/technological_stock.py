@@ -1,7 +1,6 @@
 """
 Functions related to the technological stock
 """
-import sys
 from energy_demand.technologies import tech_related
 
 class TechStock(object):
@@ -114,7 +113,7 @@ class TechStock(object):
         elif attribute_to_get == 'tech_high_temp_fueltype':
             attribute_value = tech_object.tech_high_temp_fueltype
         else:
-            sys.exit("Error: Attribute not found {}".format(attribute_to_get))
+            raise Exception("Error: Attribute not found {}".format(attribute_to_get))
 
         return attribute_value
 
