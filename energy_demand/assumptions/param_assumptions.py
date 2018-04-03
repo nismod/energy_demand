@@ -1,6 +1,4 @@
 """Assumptions provided as parameters to smif. This script can be run to write out all paramters as YAML
-file. This file is not executed when running the ed model
-from within smif.
 """
 import copy
 import logging

@@ -16,8 +16,8 @@ Contents
 .. toctree::
    :maxdepth: 4
 
-   Model Documentation <documentation>
-   Code Documentation <api/modules>
+   Documentation <documentation>
+   Modelling code <api/modules/energy_demand>
    Authors <authors>
    Changelog <changes>
    License <license>
