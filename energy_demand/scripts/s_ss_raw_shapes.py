@@ -30,14 +30,14 @@ def read_raw_carbon_trust_data(folder_path):
 
     Returns
     -------
-    load_shape_y_dh : np.array((365, 24))
-        Load shape for every day (tot sum 365)
-    load_peak_shape_dh : np.array((24))
-        Peak loadshape for peak day
+    load_shape_y_dh : np.array
+        Load shape for every day (tot sum 365) ((365, 24))
+    load_peak_shape_dh : np.array
+        Peak loadshape for peak day ((24))
     shape_peak_yd_factor : float
         Peak load factor
-    shape_non_peak_yd : np.array((365))
-        Yh load profile
+    shape_non_peak_yd : np.array
+        Yh load profile ((365))
 
     Note
     -----

@@ -17,7 +17,7 @@ Contents
    :maxdepth: 4
 
    Documentation <documentation>
-   Modelling code <api/modules/energy_demand>
+   Modelling code <api/modules>
    Authors <authors>
    Changelog <changes>
    License <license>
