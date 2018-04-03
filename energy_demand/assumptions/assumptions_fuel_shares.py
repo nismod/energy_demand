@@ -1,6 +1,4 @@
-"""
-Base year fuel share additional_assump_vars
-=========================================
+"""Base year fuel share additional_assump_vars,
 All fuel shares of the base year for the
 different technologies are defined in this file.
 """
