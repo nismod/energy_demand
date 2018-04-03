@@ -21,8 +21,6 @@ Contents
    Authors <authors>
    Changelog <changes>
    License <license>
-   
-
 
 Indices and tables
 ==================
