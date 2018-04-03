@@ -1,9 +1,6 @@
-"""Load factor calculations
-===========================
-Script containing functions to calculate load factors and
+"""Script containing functions to calculate load factors and
 also peak shifting methods which are used to implement
-demand management
-"""
+demand management"""
 import numpy as np
 
 def peak_shaving_max_min(

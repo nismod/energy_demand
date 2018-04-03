@@ -1,6 +1,4 @@
-"""Virtual Dwelling Generator
-=============================
-Generates a virtual dwelling stock
+"""Virtual Dwelling Generator - Generates a virtual dwelling stock
 """
 import logging
 import numpy as np

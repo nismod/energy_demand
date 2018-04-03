@@ -1,23 +1,3 @@
-Code Overview
-===================
-This section provides and overview how the model code is stored.
-
-All model input data used to configure the model is stored in the 
-`config_data` folder (i.e. load profiles of technologies,
-fuel input data for the whole UK).
-
-The python scripts are stored in the following folders:
-
-- **assumptions** | Model assumptions which need to be configured 
-- **basic** | Standard functions
-- **charts** | Functions to generate charts
-- **cli** | Script to run model from command line
-- **dwelling_stock** | Dwelling stock related functions
-- ...
-
-All additional data necessary to run the model needs
-to be stored in a local folder (`data_energy_demand`).
-
 Documentation
 ===================
 
@@ -749,3 +729,24 @@ All energy unit conversions are based on the unit converter by the International
         Potential for Shiftable Loads, (May), 23.
         Retrieved from http://www.nrel.gov/docs/fy12osti/54509.pdf*
         (not yet used)
+
+
+Code Overview
+===================
+This section provides and overview how the model code is stored.
+
+All model input data used to configure the model is stored in the 
+`config_data` folder (i.e. load profiles of technologies,
+fuel input data for the whole UK).
+
+The python scripts are stored in the following folders:
+
+- **assumptions** | Model assumptions which need to be configured 
+- **basic** | Standard functions
+- **charts** | Functions to generate charts
+- **cli** | Script to run model from command line
+- **dwelling_stock** | Dwelling stock related functions
+- ...
+
+All additional data necessary to run the model needs
+to be stored in a local folder (`data_energy_demand`).

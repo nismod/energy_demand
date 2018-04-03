@@ -1,10 +1,6 @@
-"""
-Weather Region
-===============
-Depending on the number of weather stations, a ``WeatherRegion``
+"""Weather Region: Depending on the number of weather stations, a ``WeatherRegion``
 is generated per weather station. Within this regions,
-regional load profiles are calculated.
-"""
+regional load profiles are calculated."""
 import uuid
 import numpy as np
 from energy_demand.technologies import technological_stock
