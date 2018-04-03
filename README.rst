@@ -46,13 +46,12 @@ run with different configurations (Section 1.2).
     Note: Because some data is not open source, the full data needs to be optained
     from the consortium. However, the model can be run with dummy data (see Section 1.2)
 
-
 2.  Update the paths in the ``wrapperconfig.ini`` file in the config folder
 
 3.  Navigate to the folder where the python code is saved. Open a command and type into
     a command line (in a virtual environment):
  
-   ^``python setup.py develop`` or ``python setup.py install``
+    ``python setup.py develop`` or ``python setup.py install``
 
 4.  Install HIRE from within the console with the command
 
@@ -63,6 +62,7 @@ run with different configurations (Section 1.2).
 
     Note: The ``setup`` command generates new subfolders in the 
     ``energy_data_folder``.
+
 
 1.2 Alternative Model Set-Up (with restricted data)
 ---------------------------------------------
@@ -77,13 +77,11 @@ run with different configurations (Section 1.2).
 
     ``python setup.py develop`` or ``python setup.py install``
 
-3.  Install HIRE from within the console with the command
+4.  Install HIRE from within the console with the command
 
     ``energy_demand minimal_setup -d path/to/energy_data_folder``
 
-    Example::
-
-    energy_demand minimal_setup -d  C:/Users/fred1234/data_energy_demand
+    Example: energy_demand minimal_setup -d  C:/Users/fred1234/data_energy_demand
 
     The ``path/to/energy_data_folder`` is the path to the location with
     the necessary minimum dummy data to run the model.

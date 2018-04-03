@@ -8,7 +8,26 @@ from energy_demand.initalisations import helpers
 from energy_demand.profiles import hdd_cdd
 
 class Assumptions(object):
-    """Assumptions
+    """Assumptions of energy demand model
+
+    Arguments
+    ---------
+    base_yr : int, default=None
+        Base year
+    curr_yr : int, default=None
+        Current year
+    simulated_yrs : list, default=None
+        Simulated years
+    paths : dict, default=None
+        Paths
+    enduses : list, default=None
+        All modelled end uses
+    sectors : list, default=None
+        All modelled sectors
+    fueltypes : dict, default=None
+        Fueltype lookup
+    fueltypes_nr : int, default=None
+        Number of modelled fueltypes
     """
     def __init__(
             self,
@@ -107,16 +126,16 @@ class Assumptions(object):
         #           Change in floor area per person (%, 1=100%)
         #       assump_diff_floorarea_pp_yr_until_changed : int
         #           Year until this change in floor area happens
-        #       assump_dwtype_distr_by : dict
+        #       dwtype_distr_by : dict
         #           Housing Stock Distribution by Type
         #               Source: UK Housing Energy Fact File, Table 4c
-        #       assump_dwtype_distr_future : dict
+        #       dwtype_distr_fy : dict
         #           welling type distribution end year
         #               Source: UK Housing Energy Fact File, Table 4c
-        #       assump_dwtype_floorarea_by : dict
+        #       dwtype_floorarea_by : dict
         #           Floor area per dwelling type (Annex Table 3.1)
         #               Source: UK Housing Energy Fact File, Table 4c
-        #       assump_dwtype_floorarea_future : dict
+        #       dwtype_floorarea_fy : dict
         #           Floor area per dwelling type
         #               Source: UK Housing Energy Fact File, Table 4c
         #       dwtype_age_distr : dict
@@ -131,14 +150,14 @@ class Assumptions(object):
 
         self.assump_diff_floorarea_pp_yr_until_changed = yr_until_changed_all_things
 
-        self.assump_dwtype_distr_by = {
+        self.dwtype_distr_by = {
             'semi_detached': 0.26,
             'terraced': 0.283,
             'flat': 0.203,
             'detached': 0.166,
             'bungalow': 0.088}
 
-        self.assump_dwtype_distr_future = {
+        self.dwtype_distr_fy = {
 
             'yr_until_changed': yr_until_changed_all_things,
 
@@ -148,14 +167,14 @@ class Assumptions(object):
             'detached': 0.166,
             'bungalow': 0.088}
 
-        self.assump_dwtype_floorarea_by = {
+        self.dwtype_floorarea_by = {
             'semi_detached': 96,
             'terraced': 82.5,
             'flat': 61,
             'detached': 147,
             'bungalow': 77}
 
-        self.assump_dwtype_floorarea_future = {
+        self.dwtype_floorarea_fy = {
 
             'yr_until_changed': yr_until_changed_all_things,
 
@@ -677,6 +696,16 @@ def update_technology_assumption(
 
 def get_all_heating_techs(tech_lists):
     """Get all heating technologies from tech lists
+
+    Arguments
+    ----------
+    tech_lists : dict
+        Technologies as types
+
+    Returns
+    -------
+    heating_technologies : list
+        All heating technologies
     """
     heating_technologies = []
 
