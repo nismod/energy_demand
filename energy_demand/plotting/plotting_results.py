@@ -788,8 +788,8 @@ def plt_fuels_enduses_week(
     input GWh per h are provided, which cancels out to
     GW.
 
-    Input
-    -----
+    Arguments
+    ---------
     year_to_plot : int
         2015 --> 0
 

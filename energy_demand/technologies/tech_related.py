@@ -187,8 +187,8 @@ def eff_heat_pump(temp_diff, efficiency_intersect, m_slope=-.08, h_diff=10):
 def get_fueltype_str(fueltype_lu, fueltype_nr):
     """Read from dict the fueltype string based on fueltype KeyError
 
-    Inputs
-    ------
+    Arguments
+    ---------
     fueltype : dict
         Fueltype lookup dictionary
     fueltype_nr : int
@@ -206,8 +206,8 @@ def get_fueltype_str(fueltype_lu, fueltype_nr):
 def get_fueltype_int(fueltypes, fueltype_string):
     """Read from dict the fueltype string based on fueltype KeyError
 
-    Inputs
-    ------
+    Arguments
+    ---------
     fueltype : dict
         Fueltype lookup dictionary
     fueltype_string : int

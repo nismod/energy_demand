@@ -10,3 +10,4 @@ omit =
     energy_demand/cli/*
     energy_demand/validation/*
     energy_demand/plotting/*
+    energy_demand/processing/*

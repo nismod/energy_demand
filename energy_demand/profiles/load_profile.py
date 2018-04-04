@@ -595,8 +595,8 @@ def calc_av_lp(demand_yh, seasons, model_yeardays_daytype):
 def calc_yh(shape_yd, shape_y_dh, model_yeardays):
     """Calculate the shape based on yh and y_dh shape
 
-    Inputs
-    -------
+    Arguments
+    ---------
     shape_yd : array
         Shape with fuel amount for every day (365)
     shape_y_dh : array
