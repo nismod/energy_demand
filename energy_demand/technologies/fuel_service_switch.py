@@ -31,13 +31,13 @@ def get_switch_criteria(
 
     return crit_switch_service
 
-def sum_fuel_across_sectors(enduse_fuels):
+def sum_fuel_across_sectors(fuels):
     """Sum fuel across sectors of an enduse if multiple sectors.
-    Otherwise return unchanged `enduse_fuels`
+    Otherwise return unchanged `fuels`
 
     Arguments
     ---------
-    enduse_fuels : dict or np.array
+    fuels : dict or np.array
         Fuels of an enduse either for sectors or already aggregated
 
     Returns
@@ -45,11 +45,11 @@ def sum_fuel_across_sectors(enduse_fuels):
     sum_array : np.array
         Sum of fuels of all sectors
     """
-    if isinstance(enduse_fuels, dict):
-        sum_array = sum(enduse_fuels.values())
+    if isinstance(fuels, dict):
+        sum_array = sum(fuels.values())
         return sum_array
     else:
-        return enduse_fuels
+        return fuels
 
 def get_share_s_tech_ey(
         service_switches,

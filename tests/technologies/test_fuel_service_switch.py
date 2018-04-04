@@ -1,7 +1,70 @@
 """
 """
+import numpy as np
 from energy_demand.technologies import fuel_service_switch
 from energy_demand.read_write import read_data
+
+def test_switches_to_dict():
+
+    service_switches = [
+        read_data.ServiceSwitch(
+            enduse='heating',
+            sector=None,
+            technology_install='techA',
+            service_share_ey=0.5,
+            switch_yr=2020),
+        read_data.ServiceSwitch(
+            enduse='heating',
+            sector=None,
+            technology_install='techB',
+            service_share_ey=0.5,
+            switch_yr=2020)]
+
+    out = fuel_service_switch.switches_to_dict(
+        service_switches=service_switches,
+        regional_specific=False)
+
+    assert out == {'techA': 0.5, 'techB': 0.5}
+
+def test_get_switch_criteria():
+    """testing
+    """
+    crit_switch_happening = {'heating': ['sectorA']}
+
+    crit = fuel_service_switch.get_switch_criteria(
+        enduse='heating',
+        sector='sectorA',
+        crit_switch_happening=crit_switch_happening,
+        base_yr=2015,
+        curr_yr=2015)
+
+    assert crit == False
+
+    crit = fuel_service_switch.get_switch_criteria(
+        enduse='heating',
+        sector='sectorA',
+        crit_switch_happening=crit_switch_happening,
+        base_yr=2015,
+        curr_yr=2025)
+
+    assert crit == True
+
+    crit = fuel_service_switch.get_switch_criteria(
+        enduse='heating',
+        sector='sectorB',
+        crit_switch_happening=crit_switch_happening,
+        base_yr=2015,
+        curr_yr=2025)
+
+    assert crit == False
+
+def test_sum_fuel_across_sectors():
+    """
+    """
+    fuels = {'sectorA': np.ones(10), 'sectorB': np.ones(10)}
+    sum = fuel_service_switch.sum_fuel_across_sectors(fuels)
+
+    assert np.sum(sum) == 20
 
 def test_create_service_switch():
     """testing

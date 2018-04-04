@@ -1,0 +1,3 @@
+{
+  "tests/technologies/test_fuel_service_switch.py::test_sum_fuel_across_sectors": true
+}

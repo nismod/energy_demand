@@ -219,7 +219,7 @@ def plot_radar_plots_average_peak_day(
     """Compare averaged dh profile overall regions for peak day
     for future year and base year
 
-    TODO: SO FAR ONLY FOR ONE SCENARIO
+    MAYBE: SO FAR ONLY FOR ONE SCENARIO
     """
     lookups = lookup_tables.basic_lookups()
 
