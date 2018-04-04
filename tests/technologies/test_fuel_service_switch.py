@@ -1,7 +1,121 @@
 """
 """
+import numpy as np
 from energy_demand.technologies import fuel_service_switch
 from energy_demand.read_write import read_data
+
+def test_switches_to_dict():
+    """testing"""
+    service_switches = [
+        read_data.ServiceSwitch(
+            enduse='heating',
+            sector=None,
+            technology_install='techA',
+            service_share_ey=0.5,
+            switch_yr=2020),
+        read_data.ServiceSwitch(
+            enduse='heating',
+            sector=None,
+            technology_install='techB',
+            service_share_ey=0.5,
+            switch_yr=2020)]
+
+    out = fuel_service_switch.switches_to_dict(
+        service_switches=service_switches,
+        regional_specific=False)
+
+    assert out == {'techA': 0.5, 'techB': 0.5}
+
+def test_get_switch_criteria():
+    """testing
+    """
+    crit_switch_happening = {'heating': ['sectorA']}
+
+    crit = fuel_service_switch.get_switch_criteria(
+        enduse='heating',
+        sector='sectorA',
+        crit_switch_happening=crit_switch_happening,
+        base_yr=2015,
+        curr_yr=2015)
+
+    assert crit == False
+
+    crit = fuel_service_switch.get_switch_criteria(
+        enduse='heating',
+        sector='sectorA',
+        crit_switch_happening=crit_switch_happening,
+        base_yr=2015,
+        curr_yr=2025)
+
+    assert crit == True
+
+    crit = fuel_service_switch.get_switch_criteria(
+        enduse='heating',
+        sector='sectorB',
+        crit_switch_happening=crit_switch_happening,
+        base_yr=2015,
+        curr_yr=2025)
+
+    assert crit == False
+
+def test_sum_fuel_across_sectors():
+    """
+    """
+    fuels = {'sectorA': np.ones(10), 'sectorB': np.ones(10)}
+    sum = fuel_service_switch.sum_fuel_across_sectors(fuels)
+
+    assert np.sum(sum) == 20
+
+def test_create_switches_from_s_shares():
+
+    enduse_switches = [read_data.ServiceSwitch(
+        enduse='heating',
+        technology_install='techA',
+        switch_yr=2050,
+        service_share_ey=0.6)]
+
+    out = fuel_service_switch.create_switches_from_s_shares(
+        enduse='heating',
+        s_tech_by_p={'heating': {'techA': 0.2, 'techB': 0.8}},
+        switch_technologies=['techA'],
+        specified_tech_enduse_by={'heating': ['techA', 'techB']},
+        enduse_switches=enduse_switches,
+        s_tot_defined=0.6,
+        sector=None,
+        switch_yr=2050)
+
+    for switch in out:
+        if switch.technology_install == 'techA':
+            assert switch.service_share_ey == 0.6
+        if switch.technology_install == 'techB':
+            assert switch.service_share_ey == 0.4
+
+def test_autocomplete_switches():
+    """testing"""
+    service_switches = [read_data.ServiceSwitch(
+        enduse='heating',
+        technology_install='techA',
+        switch_yr=2050,
+        service_share_ey=0.6)]
+
+    out_1, out_2 = fuel_service_switch.autocomplete_switches(
+        service_switches=service_switches,
+        specified_tech_enduse_by={'heating': ['techA', 'techB', 'techC']},
+        s_tech_by_p={'heating': {'techA': 0.2, 'techB': 0.4, 'techC': 0.4}},
+        sector=False,
+        spatial_exliclit_diffusion=False,
+        regions=False,
+        f_diffusion=False,
+        techs_affected_spatial_f=False,
+        service_switches_from_capacity=[])
+
+    for switch in out_2:
+        if switch.technology_install == 'techA':
+            assert switch.service_share_ey == 0.6
+        if switch.technology_install == 'techB':
+            assert switch.service_share_ey == 0.2
+        if switch.technology_install == 'techC':
+            assert switch.service_share_ey == 0.2
 
 def test_create_service_switch():
     """testing

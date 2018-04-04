@@ -31,13 +31,13 @@ def get_switch_criteria(
 
     return crit_switch_service
 
-def sum_fuel_across_sectors(enduse_fuels):
+def sum_fuel_across_sectors(fuels):
     """Sum fuel across sectors of an enduse if multiple sectors.
-    Otherwise return unchanged `enduse_fuels`
+    Otherwise return unchanged `fuels`
 
     Arguments
     ---------
-    enduse_fuels : dict or np.array
+    fuels : dict or np.array
         Fuels of an enduse either for sectors or already aggregated
 
     Returns
@@ -45,11 +45,11 @@ def sum_fuel_across_sectors(enduse_fuels):
     sum_array : np.array
         Sum of fuels of all sectors
     """
-    if isinstance(enduse_fuels, dict):
-        sum_array = sum(enduse_fuels.values())
+    if isinstance(fuels, dict):
+        sum_array = sum(fuels.values())
         return sum_array
     else:
-        return enduse_fuels
+        return fuels
 
 def get_share_s_tech_ey(
         service_switches,
@@ -129,7 +129,7 @@ def create_switches_from_s_shares(
     Create swiches from service shares.
     If not 100% of the service share is defined,
     the switches get defined which proportionally
-    decrease service of all not switche technologies
+    decrease service of all not switched technologies
 
     Arguments
     ----------
@@ -232,7 +232,9 @@ def autocomplete_switches(
 
     Returns
     -------
-    service_switches_out : dict
+    reg_share_s_tech_ey_p : dict
+        Shares per technology in end year
+    service_switches_out : list
         Added services switches which now in total sum up to 100%
     """
     # Get all enduses defined in switches

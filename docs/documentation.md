@@ -1,7 +1,7 @@
 Documentation
 ===================
 
-## 1. Introduction TEST
+## 1. Introduction
 
 
 The energy demand model of the ITRC-MISTRAL framework allows 
@@ -309,106 +309,6 @@ For the residential and service sub-model, SD values are calculated based on a d
 ![Image of model integration](../docs/documentation_images/004-ULM_main_classes.jpg)
 *Figure 3.1: Interaction*
 
-## XY. Model Interaction
-
-
-
-### 3.1 Energy supply and demand model
-
-Lorem ipsum...
-![Image of model integration](../docs/documentation_images/001-Supply_and_demand_overview.png)
-*Figure 3.1: Interaction*
-
-### 3.2 Optimised and constrained model run
-
-Lorem ipsum...
-
-![Two modes](../docs/documentation_images/002-constrained_optimised_modes.png)
-*Figure 3.2: Interaction*
-
-## 4. Generic Dwelling Stock Model
-
-A generic dwelling model is implemented in HIRE which can be used in case no external dwelling stock model is available and can provide the necesarry ``dwelling`` inputs. However, instead of modelling every individual building, an abstracted dwelling respresentation of the the complete dwelling stock is modelled based on different simplified assumptions. The modelling steps are as follows for every ``Region`` (see Figure 4.1 for the detailed process flow):
-
-1. Based on base year total population and total floor area, the floor area per person is calculated (``floor_area_pp``). The floor area per person can be changed over the simulation period.
-
-2. Based on the floor area per person and scenario population input, total necessary new and existing floor area is calculated for the simulation year (by substracting the existing floor area of the total new floor area).
-
-3. Based on assumptions on the dwelling type distribution (``assump_dwtype_distr``) the floor area per dwelling type is calculated.
-
-4. Based on assumptions on the age of the dwelling types, different ``Dwelling`` objects are generated. The heat loss coefficient is calculated for every object.
-
-5. Additional dwelling stock related properties can be added to the ``Dwelling`` objects which give
-   indication of the energy demand and can be used for calculating the scenario drivers.
-
-Note: The generic dwelling model can be replaced by directly defining the the ``dwelling`` objects, if the dwelling stock information is  information is available from another source.
-
-![Dwelling model](../docs/documentation_images/003-dwelling_model.jpg)
-*Figure 4.1: Modelling steps of the residential dwelling module*
-
-
-## 5.0 Model Parameters
-
-### 5.1 General model parameters
-
-Lorem ipsu
-
-#### 5.1.1 Technologies
-
-Technology Class (see model docu)
-- 
-
-#### 5.1.2 Load profiles
-
-Lorem ips
-
-#### 5.1.2 Demand side response and peak shifting
-
-Intraday demand side responses per end use are modelled with help of load factors  (Petchers, 2003).  For every end use, a potential (linear) reduction of the load factor over time can be assumed with which the load factor of the current year is calculated (![equation](https://latex.codecogs.com/gif.latex?lf_%7Bcy%7D "l_{cy}"). With help lfcy, and the daily average load of the base year (l_av^by), the maximum hourly load per day is calculated as follows:
-
-![equation](https://latex.codecogs.com/gif.latex?l_%7Bcy%7D%5E%7Bmax%7D%20%3D%20%5Cfrac%7Bl_%7Bby%7D%5E%7Bav%7D%7D%7Blf_%7Bcy%7D%7D "l_{cy}^{max} = \frac{l_{by}^{av}}{lf_{cy}}")
-
-For all hours with loads higher than the new maximum hourly load, the shiftable load is distributed to all off-peak load hours as shown in Figure XY.
-
-![Peak shiting](../docs/documentation_images/004-peak_shifting.jpg)
-*Figure XX: Shifting loads from peak hours to off-peak hours based on load factor changes.*
-
-#### 5.1.3 Base year fuel assignement
-
-Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nullam eu mi placerat, ultricies urna id, pharetra dui. Mauris quis mi sit amet se
-
-### 5.2 Scenario parameters
-
-#### 5.2.1 Residential module
-
-    Parameter name        Description
-
-    Variable_x            End year of balbla djkfla jadlfjölak j
-    Variable_x            BLABLABLABL ABLBLABA  
-    Variable_x            BLABLABLABL ABLBLABA  
-    Variable_x            BLABLABLABL ABLBLABA  
-    Variable_x            BLABLABLABL ABLBLABA  
-  
-
-#### 5.2.1 Service module
-
-    Parameter name        Description
-
-    Variable_x            End year of balbla djkfla jadlfjölak j
-    Variable_x            BLABLABLABL ABLBLABA  
-    Variable_x            BLABLABLABL ABLBLABA  
-    Variable_x            BLABLABLABL ABLBLABA  
-    Variable_x            BLABLABLABL ABLBLABA  
-  
-#### 5.2.1 Industry module
-
-    Parameter name        Description
-
-    Variable_x            End year of balbla djkfla jadlfjölak j
-    Variable_x            BLABLABLABL ABLBLABA  
-    Variable_x            BLABLABLABL ABLBLABA  
-    Variable_x            BLABLABLABL ABLBLABA  
-    Variable_x            BLABLABLABL ABLBLABA  
 
 ## 6. Disaggregation
 Lorem ipsum dolor sit ametes 
@@ -451,7 +351,75 @@ The ECUK sector and employment statistics are matched as follows:
     computer                        XX
     fabricated_metal_products       XX
 
-      
+    
+
+#### 5.1.2 Demand side response and peak shifting
+
+Intraday demand side responses per end use are modelled with help of load factors  (Petchers, 2003).  For every end use, a potential (linear) reduction of the load factor over time can be assumed with which the load factor of the current year is calculated (![equation](https://latex.codecogs.com/gif.latex?lf_%7Bcy%7D "l_{cy}"). With help lfcy, and the daily average load of the base year (l_av^by), the maximum hourly load per day is calculated as follows:
+
+![equation](https://latex.codecogs.com/gif.latex?l_%7Bcy%7D%5E%7Bmax%7D%20%3D%20%5Cfrac%7Bl_%7Bby%7D%5E%7Bav%7D%7D%7Blf_%7Bcy%7D%7D "l_{cy}^{max} = \frac{l_{by}^{av}}{lf_{cy}}")
+
+For all hours with loads higher than the new maximum hourly load, the shiftable load is distributed to all off-peak load hours as shown in Figure XY.
+
+![Peak shiting](../docs/documentation_images/004-peak_shifting.jpg)
+*Figure XX: Shifting loads from peak hours to off-peak hours based on load factor changes.*
+
+
+
+### 3.1 Energy supply and demand model
+
+Lorem ipsum...
+![Image of model integration](../docs/documentation_images/001-Supply_and_demand_overview.png)
+*Figure 3.1: Interaction*
+
+### 3.2 Optimised and constrained model run
+
+Lorem ipsum...
+
+![Two modes](../docs/documentation_images/002-constrained_optimised_modes.png)
+*Figure 3.2: Interaction*
+
+
+## XY. Model Interaction
+
+## 5.0 Model Parameters
+
+### 5.1 General model parameters
+
+Lorem ipsu
+
+#### 5.1.1 Technologies
+
+Technology Class (see model docu)
+- 
+
+#### 5.1.2 Load profiles
+
+Lorem ips
+
+
+## XX. Generic Dwelling Stock Model
+
+### Generic dwelling stock
+
+A generic dwelling model is implemented in HIRE which can be used in case no external dwelling stock model is available and can provide the necesarry ``dwelling`` inputs. However, instead of modelling every individual building, an abstracted dwelling respresentation of the the complete dwelling stock is modelled based on different simplified assumptions. The modelling steps are as follows for every ``Region`` (see Figure 4.1 for the detailed process flow):
+
+1. Based on base year total population and total floor area, the floor area per person is calculated (``floor_area_pp``). The floor area per person can be changed over the simulation period.
+
+2. Based on the floor area per person and scenario population input, total necessary new and existing floor area is calculated for the simulation year (by substracting the existing floor area of the total new floor area).
+
+3. Based on assumptions on the dwelling type distribution (``assump_dwtype_distr``) the floor area per dwelling type is calculated.
+
+4. Based on assumptions on the age of the dwelling types, different ``Dwelling`` objects are generated. The heat loss coefficient is calculated for every object.
+
+5. Additional dwelling stock related properties can be added to the ``Dwelling`` objects which give
+   indication of the energy demand and can be used for calculating the scenario drivers.
+
+Note: The generic dwelling model can be replaced by directly defining the the ``dwelling`` objects, if the dwelling stock information is  information is available from another source.
+
+![Dwelling model](../docs/documentation_images/003-dwelling_model.jpg)
+*Figure 4.1: Modelling steps of the residential dwelling module*
+
 ## 10. Reading the code
 
 This section provides an overview of how to read the code.
