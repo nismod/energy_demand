@@ -1560,8 +1560,8 @@ def apply_climate_change(
     depending on changes in HDD and CDD within a region
     (e.g. climate change induced)
 
-    Paramters
-    ---------
+    Arguments
+    ----------
     enduse : str
         Enduse
     fuel_y : array
@@ -1739,7 +1739,7 @@ def calc_service_switch(
     technologies proportionally to the base year distribution
     of these technologies.
 
-    Paramters
+    Arguments
     ---------
     tot_s_yh_cy : array
         Hourly service of all technologies

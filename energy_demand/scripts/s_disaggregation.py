@@ -323,12 +323,9 @@ def ss_disaggr(
                     # logging.debug(" ... Disaggregation ss: populaton, HDD, floor_area")
                     # ----
                     if enduse == 'ss_cooling_humidification':
-                        #reg_diasg_factor = (reg_pop * reg_cdd) / tot_pop_cdd[sector]
-                        reg_diasg_factor = (reg_floor_area * reg_cdd) / tot_floor_area_cdd[sector] #TODO TEST IF REALLY BETTER
-                        #reg_diasg_factor = reg_floor_area / tot_floor_area[sector]
+                        reg_diasg_factor = (reg_floor_area * reg_cdd) / tot_floor_area_cdd[sector]
                     elif enduse == 'ss_space_heating':
-                        reg_diasg_factor = (reg_floor_area * reg_hdd) / tot_floor_area_hdd[sector] #TODO TEST IF REALLY BETTER
-                        reg_diasg_factor = reg_floor_area / tot_floor_area[sector] #Best (better than if including hdd)
+                        reg_diasg_factor = (reg_floor_area * reg_hdd) / tot_floor_area_hdd[sector]
                     elif enduse == 'ss_lighting':
                         reg_diasg_factor = reg_floor_area / tot_floor_area[sector]
                     else:
@@ -678,11 +675,10 @@ def rs_disaggr(
             elif crit_full_disagg:
 
                 # -------------------
-                #logging.warning(" ... Disaggregation rss: populaton, hdd, floor_area")
+                #logging.debug(" ... Disaggregation rss: populaton, hdd, floor_area")
                 # -------------------
                 if enduse == 'rs_space_heating':
-                    reg_diasg_factor = (reg_hdd * reg_floor_area) / total_hdd_floorarea #TODO TEST IF REALLY BETTER
-                    #reg_diasg_factor = reg_floor_area / total_floor_area
+                    reg_diasg_factor = (reg_hdd * reg_floor_area) / total_hdd_floorarea
                 elif enduse == 'rs_lighting':
                     reg_diasg_factor = reg_floor_area / total_floor_area
                 else:

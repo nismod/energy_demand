@@ -12,9 +12,8 @@ from energy_demand.profiles import load_profile, load_factors
 from energy_demand.charts import figure_HHD_gas_demand
 
 class EnergyDemandModel(object):
-    """Energy Model of a simulation yearly run.
-    Main function of energy demand model. All submodels are executed here
-    and all aggregation functions of the results
+    """ Main function of energy demand model. All submodels
+    are executed here and all aggregation functions of the results
 
     Arguments
     ----------

@@ -183,7 +183,6 @@ def scenario_initalisation(path_data_ed, data=False):
     # ===========================================
     if data['criterias']['spatial_exliclit_diffusion']:
 
-        #TODO MAYBE f_reg enduse region specific
         f_reg, f_reg_norm, f_reg_norm_abs = spatial_diffusion.calc_spatially_diffusion_factors(
             regions=data['regions'],
             fuel_disagg=fuel_disagg,

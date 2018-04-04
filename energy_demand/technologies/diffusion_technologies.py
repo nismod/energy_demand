@@ -38,9 +38,9 @@ def linear_diff(base_yr, curr_yr, value_start, value_end, yr_until_changed):
     return fract_cy
 
 def sigmoid_function(x_value, l_value, midpoint, steepness):
-    """Sigmoid function
+    """Sigmoid function used for fitting and plotting.
 
-    Paramters
+    Arguments
     ---------
     x_value : float
         X-Value
@@ -55,10 +55,6 @@ def sigmoid_function(x_value, l_value, midpoint, steepness):
     ------
     y-value : float
         Y-Value
-
-    Notes
-    -----
-    This function is used for fitting and plotting.
 
     Warning
     -------

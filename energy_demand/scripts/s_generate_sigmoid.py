@@ -560,23 +560,19 @@ def tech_sigmoid_parameters(
             xdata = np.array([point_x_by, point_x_ey])
             ydata = np.array([point_y_by, point_y_ey])
 
-            logging.info(
+            '''logging.info(
                 "... create sigmoid diffusion %s - %s - %s - %s - l_val: %s - %s - %s",
                 tech,
                 xdata,
                 ydata,
                 fit_assump_init,
                 l_values[tech],
-                point_y_by, point_y_ey)
+                point_y_by, point_y_ey)'''
 
             # Test if end year share is larger than technological maximum
-            logging.info("----------")
-            logging.info(ydata[1])
-            logging.info(l_values[tech])
-            
             # Test wheter maximum diffusion is larger than simulated end year share
             assert ydata[1] <= l_values[tech] + linear_approx_crit
- 
+
             # If no change in by to ey but not zero (lineare change)
             if (round(point_y_by, rounding_accuracy) == round(point_y_ey, rounding_accuracy)) and (
                     point_y_ey != fit_assump_init) and (
@@ -612,7 +608,6 @@ def tech_sigmoid_parameters(
                             fit_assump_init=fit_assump_init,
                             error_range=error_range)
 
-                        # Insert parameters
                         sig_params[tech]['midpoint'] = fit_parameter[0]  # midpoint (x0)
                         sig_params[tech]['steepness'] = fit_parameter[1] # Steepnes (k)
                         sig_params[tech]['l_parameter'] = l_values[tech] # maximum p
@@ -628,7 +623,6 @@ def tech_sigmoid_parameters(
                                 plot_crit=True,
                                 close_window_crit=True)
                     except:
-
                         """If sigmoid fitting failed, implement linear diffusion
 
                         The sigmoid diffusion may fail if the fitting does not work
@@ -636,7 +630,6 @@ def tech_sigmoid_parameters(
                         """
                         logging.warning(
                             "Instead of sigmoid a linear approximation is used %s %s", xdata, ydata)
-                        prnt(".")
                         sig_params[tech]['midpoint'] = 'linear'
                         sig_params[tech]['steepness'] = 'linear'
                         sig_params[tech]['l_parameter'] = 'linear'

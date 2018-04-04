@@ -66,8 +66,8 @@ def gwh_to_ktoe(gwh):
 def kwh_to_gwh(kwh):
     """"Conversion of MW to GWh
 
-    Input
-    -----
+    Arguments
+    ---------
     kwh : float
         Kilowatthours
 
@@ -83,8 +83,8 @@ def kwh_to_gwh(kwh):
 def mw_to_gwh(megawatt, number_of_hours):
     """"Conversion of MW to GWh
 
-    Input
-    -----
+    Arguments
+    ---------
     kwh : float
         Kilowatthours
     number_of_hours : float

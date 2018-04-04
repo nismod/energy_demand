@@ -100,7 +100,7 @@ def spatial_diffusion_values(regions, real_values, speed_con_max):
     spatial_diff_urban_rural = realdata_to_spatialdiffval(
         regions=regions,                # Regions
         real_values=real_values,        # Real values
-        speed_con_max=speed_con_max) # TODOsomehow not works if set to 1.0 (meanign all value are the same)
+        speed_con_max=speed_con_max)    # TODOsomehow not works if set to 1.0 (meanign all value are the same)
 
     for region in regions:
         spatial_diff[region] = spatial_diff_urban_rural[region]
@@ -352,13 +352,11 @@ def calc_regional_services(
         # C.) Calculate regional fraction
         # ---------------------------------------------
         for tech, service_tech in reg_enduse_tech_p_ey[region].items():
-            
+
             # ----------------------------------
             #MAYBE ADD CAPPING VALUE TODO
             # ----------------------------------
             capping_val = 1
-
-            #service_share = service_tech / tot_service_reg_enduse
             service_share = service_tech
 
             if service_share > capping_val:
@@ -366,8 +364,6 @@ def calc_regional_services(
                 logging.warning("CAPPING VALUE REACHED {}  {}  ".format(region, service_share))
             else:
                 reg_enduse_tech_p_ey[region][tech] = service_share
-            #OlD
-            #reg_enduse_tech_p_ey[region][tech] = service_tech / tot_service_reg_enduse
 
     return dict(reg_enduse_tech_p_ey)
 
@@ -609,13 +605,13 @@ def factor_improvements_single(
                     round(np.sum(fuel_regs_enduse[region]),3)))
         except:
             pass
-    
+
         reg_enduse_tech_p_ey[region] = factor_uk * spatial_factor[region]
         
         logging.info("spatial single factor reg: {}  val: {}".format(
             region,
             round(reg_enduse_tech_p_ey[region],3)))
-    
+
     # ---------
     # PROBLEM THAT MORE THAN 100 percent could be reached if nt normed
     # ---------
