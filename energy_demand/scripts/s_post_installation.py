@@ -34,10 +34,10 @@ def post_install_setup(args):
     path_results = resource_filename(Requirement.parse("energy_demand"), "results")
     local_data_path = args.local_data
 
-    # Initialise logger
-    logger_setup.set_up_logger(
-        os.path.join(local_data_path, "logging_post_install_setup.log"))
-    logging.info("... start local energy demand calculations")
+    # Initialise logger TODO
+    #logger_setup.set_up_logger(
+    #    os.path.join(local_data_path, "logging_post_install_setup.log"))
+    #logging.info("... start local energy demand calculations")
 
     # Load data
     base_yr = 2015

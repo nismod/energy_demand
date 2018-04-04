@@ -192,7 +192,8 @@ def scenario_initalisation(path_data_ed, data=False):
         # ---------------------
         # Plot figure for paper
         # ---------------------
-        plot_fig_paper = True
+        plot_fig_paper = True #FALSE
+        plot_fig_paper = False #FALSE
         if plot_fig_paper:
 
             # Global value to distribute

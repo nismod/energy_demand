@@ -386,15 +386,14 @@ class Assumptions(object):
         #BAT - iron & steel - Coke ovens	Sectoral share (%)
         #BAT - iron & steel - EAF/BOF 	    Sectoral share - EOF %
         #BAT - iron & steel - continous/Ingot casting 	Sectoral share - continuous %
-        #BAT - iron & steel - cold/hot rolling 	Sectoral share - cold %                     #DONE
         #BAT - iron & steel - substitute	Sectoral share - substitute %
         # --------------------------------------------
 
         # Share of cold rolling in steel manufacturing (total = hot and cold)
-        # *****************
-        self.p_cold_rolling_steel_by = 0.5   #TODO
-        self.eff_cold_rolling_process = 1.0  #TODO
-        self.eff_hot_rolling_process = 1.0   #TODO
+        # ***************** #BAT - iron & steel - cold/hot rolling 
+        self.p_cold_rolling_steel_by = 0.5          # https://aceroplatea.es/docs/EuropeanSteelFigures_2015.pdf
+        self.eff_cold_rolling_process = 1.8     # 80% more efficient than hot rolling Fruehan et al. (2002)
+        self.eff_hot_rolling_process = 1.0      # 100% assumed efficiency
 
         # Steel production - Enduse: is_high_temp_process, Sector: basic_metals
         # *****************

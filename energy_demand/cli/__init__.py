@@ -46,7 +46,7 @@ def parse_arguments():
     parser_init.add_argument(
         '-d',
         '--local_data',
-        default='./data_energy_demand',
+        default='./data',
         help='Path to the local data folder')
 
     parser_init.set_defaults(func=post_install_setup)
@@ -59,7 +59,7 @@ def parse_arguments():
     parser_init2.add_argument(
         '-d',
         '--local_data',
-        default='./data_energy_demand',
+        default='./data',
         help='Path to the local data folder')
 
     parser_init2.set_defaults(func=post_install_setup_minimum)

@@ -280,7 +280,7 @@ def assign_by_fuel_tech_p(enduses, sectors, fueltypes, fueltypes_nr):
     # ----------------
     # Industrial High temporal processes (is_high_temp_process)
     # ----------------
-
+    # Todays share is about: 17% electric furnace, 82% basic oxygen (Key Statistics 2016, appea, EnergyQuest)
     #-- basic_metals (sector)
     is_fuel_tech_p_by['is_high_temp_process']['basic_metals'][fueltypes['solid_fuel']] = {
         'basic_oxygen_furnace': 1.0}
