@@ -5,7 +5,7 @@ from energy_demand.technologies import fuel_service_switch
 from energy_demand.read_write import read_data
 
 def test_switches_to_dict():
-
+    """testing"""
     service_switches = [
         read_data.ServiceSwitch(
             enduse='heating',
@@ -65,6 +65,30 @@ def test_sum_fuel_across_sectors():
     sum = fuel_service_switch.sum_fuel_across_sectors(fuels)
 
     assert np.sum(sum) == 20
+
+def test_create_switches_from_s_shares():
+
+    enduse_switches = [read_data.ServiceSwitch(
+        enduse='heating',
+        technology_install='techA',
+        switch_yr=2050,
+        service_share_ey=0.6)]
+
+    out = fuel_service_switch.create_switches_from_s_shares(
+        enduse='heating',
+        s_tech_by_p={'heating': {'techA': 0.2, 'techB': 0.8}},
+        switch_technologies=['techA'],
+        specified_tech_enduse_by={'heating': ['techA', 'techB']},
+        enduse_switches=enduse_switches,
+        s_tot_defined=0.6,
+        sector=None,
+        switch_yr=2050)
+
+    for switch in out:
+        if switch.technology_install == 'techA':
+            assert switch.service_share_ey == 0.6
+        if switch.technology_install == 'techB':
+            assert switch.service_share_ey == 0.4
 
 def test_create_service_switch():
     """testing

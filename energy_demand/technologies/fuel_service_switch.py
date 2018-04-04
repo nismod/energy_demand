@@ -129,7 +129,7 @@ def create_switches_from_s_shares(
     Create swiches from service shares.
     If not 100% of the service share is defined,
     the switches get defined which proportionally
-    decrease service of all not switche technologies
+    decrease service of all not switched technologies
 
     Arguments
     ----------
