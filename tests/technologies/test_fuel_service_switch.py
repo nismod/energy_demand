@@ -90,6 +90,33 @@ def test_create_switches_from_s_shares():
         if switch.technology_install == 'techB':
             assert switch.service_share_ey == 0.4
 
+def test_autocomplete_switches():
+    """testing"""
+    service_switches = [read_data.ServiceSwitch(
+        enduse='heating',
+        technology_install='techA',
+        switch_yr=2050,
+        service_share_ey=0.6)]
+
+    out_1, out_2 = fuel_service_switch.autocomplete_switches(
+        service_switches=service_switches,
+        specified_tech_enduse_by={'heating': ['techA', 'techB', 'techC']},
+        s_tech_by_p={'heating': {'techA': 0.2, 'techB': 0.4, 'techC': 0.4}},
+        sector=False,
+        spatial_exliclit_diffusion=False,
+        regions=False,
+        f_diffusion=False,
+        techs_affected_spatial_f=False,
+        service_switches_from_capacity=[])
+
+    for switch in out_2:
+        if switch.technology_install == 'techA':
+            assert switch.service_share_ey == 0.6
+        if switch.technology_install == 'techB':
+            assert switch.service_share_ey == 0.2
+        if switch.technology_install == 'techC':
+            assert switch.service_share_ey == 0.2
+
 def test_create_service_switch():
     """testing
     """

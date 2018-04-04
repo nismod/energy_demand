@@ -34,15 +34,15 @@ def post_install_setup(args):
     path_results = resource_filename(Requirement.parse("energy_demand"), "results")
     local_data_path = args.local_data
 
-    # Initialise logger TODO
-    #logger_setup.set_up_logger(
-    #    os.path.join(local_data_path, "logging_post_install_setup.log"))
-    #logging.info("... start local energy demand calculations")
+    # Initialise logger
+    logger_setup.set_up_logger(
+        os.path.join(local_data_path, "logging_post_install_setup.log"))
+    logging.info("... start local energy demand calculations")
 
     # Load data
     base_yr = 2015
-    data = {}
 
+    data = {}
     data['paths'] = data_loader.load_paths(path_main)
     data['local_paths'] = data_loader.load_local_paths(local_data_path)
     data['result_paths'] = data_loader.load_result_paths(path_results)
@@ -73,19 +73,17 @@ def post_install_setup(args):
     basic_functions.create_folder(data['local_paths']['ss_load_profile_txt'])
     basic_functions.create_folder(data['local_paths']['dir_disaggregated'])
 
-    # Read in temperature data from raw files
+    print("... Read in temperature data from raw files")
     s_raw_weather_data.run(
         data['local_paths'])
 
-    # Read in service submodel load profiles
-    print("... creating service load profiles")
+    print("... Read in service submodel load profiles")
     s_ss_raw_shapes.run(
         data['paths'],
         data['local_paths'],
         data['lookups'])
 
-    # Read in residential submodel load profiles
-    print("... creating residential load profiles")
+    print("... Read in residential submodel load profiles")
     s_rs_raw_shapes.run(
         data['paths'],
         data['local_paths'],

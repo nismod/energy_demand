@@ -232,7 +232,9 @@ def autocomplete_switches(
 
     Returns
     -------
-    service_switches_out : dict
+    reg_share_s_tech_ey_p : dict
+        Shares per technology in end year
+    service_switches_out : list
         Added services switches which now in total sum up to 100%
     """
     # Get all enduses defined in switches

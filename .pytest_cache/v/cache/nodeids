@@ -80,6 +80,8 @@
   "tests/technologies/test_fuel_service_switch.py::test_switches_to_dict",
   "tests/technologies/test_fuel_service_switch.py::test_get_switch_criteria",
   "tests/technologies/test_fuel_service_switch.py::test_sum_fuel_across_sectors",
+  "tests/technologies/test_fuel_service_switch.py::test_create_switches_from_s_shares",
+  "tests/technologies/test_fuel_service_switch.py::test_autocomplete_switches",
   "tests/technologies/test_fuel_service_switch.py::test_create_service_switch",
   "tests/technologies/test_fuel_service_switch.py::test_capacity_switch",
   "tests/technologies/test_fuel_service_switch.py::test_get_share_s_tech_ey",
