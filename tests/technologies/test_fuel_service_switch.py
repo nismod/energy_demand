@@ -4,6 +4,54 @@ import numpy as np
 from energy_demand.technologies import fuel_service_switch
 from energy_demand.read_write import read_data
 
+def test_get_fuel_switches_enduse():
+    
+    service_switches = [
+        read_data.ServiceSwitch(
+            enduse='heating',
+            sector=None,
+            technology_install='techA',
+            service_share_ey=0.5,
+            switch_yr=2020),
+        read_data.ServiceSwitch(
+            enduse='other',
+            sector=None,
+            technology_install='techB',
+            service_share_ey=0.5,
+            switch_yr=2020)]
+
+    out = fuel_service_switch.get_fuel_switches_enduse(
+        switches=service_switches,
+        enduse='heating',
+        regional_specific=False)
+
+    for switch in out:
+        assert switch.enduse == 'heating'
+
+    # --
+    service_switches = {'regA': [
+        read_data.ServiceSwitch(
+            enduse='heating',
+            sector=None,
+            technology_install='techA',
+            service_share_ey=0.5,
+            switch_yr=2020),
+        read_data.ServiceSwitch(
+            enduse='other',
+            sector=None,
+            technology_install='techB',
+            service_share_ey=0.5,
+            switch_yr=2020)]}
+
+    out = fuel_service_switch.get_fuel_switches_enduse(
+        switches=service_switches,
+        enduse='heating',
+        regional_specific=True)
+
+    for reg in out:
+        for switch in out[reg]:
+            assert switch.enduse == 'heating'
+
 def test_switches_to_dict():
     """testing"""
     service_switches = [
@@ -116,6 +164,33 @@ def test_autocomplete_switches():
             assert switch.service_share_ey == 0.2
         if switch.technology_install == 'techC':
             assert switch.service_share_ey == 0.2
+
+    # ---
+    service_switches = [read_data.ServiceSwitch(
+        enduse='heating',
+        technology_install='techA',
+        switch_yr=2050,
+        service_share_ey=0.6)]
+
+    out_1, out_2 = fuel_service_switch.autocomplete_switches(
+        service_switches=service_switches,
+        specified_tech_enduse_by={'heating': ['techA', 'techB', 'techC']},
+        s_tech_by_p={'heating': {'techA': 0.2, 'techB': 0.4, 'techC': 0.4}},
+        sector=False,
+        spatial_exliclit_diffusion=True,
+        regions=['regA', 'regB'],
+        f_diffusion={'heating':{'regA':1.0, 'regB': 1.0}},
+        techs_affected_spatial_f=['techA'],
+        service_switches_from_capacity={'regA': [], 'regB': []})
+
+    for reg in out_2:
+        for switch in out_2[reg]:
+            if switch.technology_install == 'techA':
+                assert switch.service_share_ey == 0.6
+            if switch.technology_install == 'techB':
+                assert switch.service_share_ey == 0.2
+            if switch.technology_install == 'techC':
+                assert switch.service_share_ey == 0.2
 
 def test_create_service_switch():
     """testing

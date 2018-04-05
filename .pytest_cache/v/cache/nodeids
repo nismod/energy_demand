@@ -77,6 +77,7 @@
   "tests/scripts/test_s_rs_raw_shapes.py::test_assign_hes_data_to_year",
   "tests/technologies/test_diffusion_technologies.py::test_linear_diff",
   "tests/technologies/test_diffusion_technologies.py::test_sigmoid_diffusion",
+  "tests/technologies/test_fuel_service_switch.py::test_get_fuel_switches_enduse",
   "tests/technologies/test_fuel_service_switch.py::test_switches_to_dict",
   "tests/technologies/test_fuel_service_switch.py::test_get_switch_criteria",
   "tests/technologies/test_fuel_service_switch.py::test_sum_fuel_across_sectors",

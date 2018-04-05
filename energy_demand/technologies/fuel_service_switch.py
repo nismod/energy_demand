@@ -316,7 +316,6 @@ def autocomplete_switches(
                         switch_yr=switch_yr)
 
                     service_switches_out[region].extend(switches_new)
-
     else:
         service_switches_out = []
 

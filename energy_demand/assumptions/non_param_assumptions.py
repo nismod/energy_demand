@@ -359,16 +359,16 @@ class Assumptions(object):
         # ------------------------------------------------------------
 
         # --------------------------------------------
-        # heating 
+        # heating
         # -------------------------------------------- 
         # --> No scenario drivers but driven by switches
 
         # --------------------------------------------
-        # lighting 
+        # lighting
         #
-        # We do not define individual technologies because e.g. unclear how much LED. Therfore overall efficiency increase
+        # We do not define individual technologies because e.g. unclear how much LED.
+        # Therefore overall efficiency increase
         #--------------------------------------------
-        #is_lighting_eff_change = 0 #Efficiency of lighting TODO IMPLEMENT
 
         # --------------------------------------------
         # high_temp_ process
@@ -389,9 +389,9 @@ class Assumptions(object):
         #BAT - iron & steel - substitute	Sectoral share - substitute %
         # --------------------------------------------
 
-        # Share of cold rolling in steel manufacturing (total = hot and cold)
-        # ***************** #BAT - iron & steel - cold/hot rolling 
-        self.p_cold_rolling_steel_by = 0.5          # https://aceroplatea.es/docs/EuropeanSteelFigures_2015.pdf
+        # Share of cold rolling in steel manufacturing TODO
+        # *****************
+        self.p_cold_rolling_steel_by = 0.5      # https://aceroplatea.es/docs/EuropeanSteelFigures_2015.pdf
         self.eff_cold_rolling_process = 1.8     # 80% more efficient than hot rolling Fruehan et al. (2002)
         self.eff_hot_rolling_process = 1.0      # 100% assumed efficiency
 
