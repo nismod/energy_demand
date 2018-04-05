@@ -31,8 +31,10 @@ Get correlation between regional GVA and (regional floor area/reg pop) of every 
 -- Get this correlation for every region and build national correlation
 
 2. Step
-Calculate future regional floor area demand based on GVA and pop projection
-
+Calculate future regional floor area demand based on GVA and pop projection 
+TODO: remove secondary_heater_electricity
+TODO: ADD GENERATION FUELTYPE PER ENDUSE 
+TODO: EFFICIENC Y OF HEAT NETWORK TECHNOLOGIES
 TODO: Write all metadata of model run restuls to txt
 TODO: EFFICIENCS OF STRATEGIES ROLL COLD
 TODO: Related ed to houses & householdsize

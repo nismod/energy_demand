@@ -86,12 +86,12 @@ class Assumptions(object):
         # ------------------------------------------------------------
 
         # Temporal calibration factors
-        self.f_ss_cooling_weekend = 0.55              # 0.55
-        self.f_ss_weekend = 0.6                      # 0.7
-        self.f_is_weekend = 0.4                      # 0.4
+        self.f_ss_cooling_weekend = 0.45              # 0.55
+        self.f_ss_weekend = 0.75                      # 0.7
+        self.f_is_weekend = 0.45                      # 0.4
 
         # Spatial calibration factor
-        self.f_mixed_floorarea = 0.5                 # 0.5
+        self.f_mixed_floorarea = 0.5                  # 0.5
 
         # ============================================================
         #   Modelled day related factors
@@ -381,17 +381,12 @@ class Assumptions(object):
         #          - glass tanks.
         # High consumption in Chemicals, Non_metallic mineral products, paper, food_production
         # Fuel use ratio - electric arc furnace over blast furnace steel making in cement sector
-        #BAF: basic_oxygen_furnace
-        #EAF: electric_arc_furnace
-        #BAT - iron & steel - Coke ovens	Sectoral share (%)
-        #BAT - iron & steel - EAF/BOF 	    Sectoral share - EOF %
         #BAT - iron & steel - continous/Ingot casting 	Sectoral share - continuous %
-        #BAT - iron & steel - substitute	Sectoral share - substitute %
         # --------------------------------------------
 
-        # Share of cold rolling in steel manufacturing TODO
+        # Share of cold rolling in steel manufacturing
         # *****************
-        self.p_cold_rolling_steel_by = 0.5      # https://aceroplatea.es/docs/EuropeanSteelFigures_2015.pdf
+        self.p_cold_rolling_steel_by = 0.2      # Estimated  based on https://aceroplatea.es/docs/EuropeanSteelFigures_2015.pdf
         self.eff_cold_rolling_process = 1.8     # 80% more efficient than hot rolling Fruehan et al. (2002)
         self.eff_hot_rolling_process = 1.0      # 100% assumed efficiency
 

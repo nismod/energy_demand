@@ -104,8 +104,7 @@ def assign_by_fuel_tech_p(enduses, sectors, fueltypes, fueltypes_nr):
     # rs_space_heating
     #
     # According to the DCLG (2014) English Housing Survey. Energy Report. doi: 10.1017/CBO9781107415324.004.
-    # Annex Table 3.1, the following number of electric heating technologies
-    # can be found in the UK:
+    # Annex Table 3.1, the following number of electric heating technologies can be found in the UK:
     #
     # storage heaters             5.5   % of all houses
     # electric room heaters	      2.0   % of all houses
@@ -118,11 +117,12 @@ def assign_by_fuel_tech_p(enduses, sectors, fueltypes, fueltypes_nr):
     # heat supply for buildings (approximately 0.2%). This percentage is substract from
     # the storage heaters.
     #
-    # storage heaters             5.1   % of all houses --> ~ 62%     (100.0 / 8.15) * 5.1
-    # electric room heaters	      2.0   % of all houses --> ~ 25%     (100.0 / 8.15) * 2.0
-    # electric central heating	  0.65  % of all houses --> ~ 8%     (100.0 / 8.15) * 0.65
-    # heat pumps                  0.4   % of all houses --> ~ 5%     (100.0 / 8.15) * 0.4
-    #
+    # storage heaters                   5.1   % of all houses --> ~ 62%     (100.0 / 8.15) * 5.1
+    # secondary_heater_electricity
+    #   electric room heaters	        2.0   % of all houses --> ~ 25%     (100.0 / 8.15) * 2.0
+    #   electric central heating	    0.65  % of all houses --> ~ 8%     (100.0 / 8.15) * 0.65
+    # heat pumps                        0.4   % of all houses --> ~ 5%     (100.0 / 8.15) * 0.4
+    # 
     # OFGEM (2015); Insights paper on households with electric and other non-gas heating,
     # (December), 1–84.
     #
@@ -149,8 +149,7 @@ def assign_by_fuel_tech_p(enduses, sectors, fueltypes, fueltypes_nr):
     rs_fuel_tech_p_by['rs_space_heating'][fueltypes['electricity']] = {
         'stirling_micro_CHP_electricity': 0.0, #REALLY?
         'storage_heater_electricity': 0.62,
-        'secondary_heater_electricity': 0.25,
-        'district_heating_electricity': 0.08, # same shape as CHP
+        'secondary_heater_electricity': 0.33,
         'heat_pumps_electricity': 0.05}
 
     rs_fuel_tech_p_by['rs_space_heating'][fueltypes['biomass']] = {
@@ -206,8 +205,7 @@ def assign_by_fuel_tech_p(enduses, sectors, fueltypes, fueltypes_nr):
 
     ss_fuel_tech_p_by['ss_space_heating'][fueltypes['electricity']] = {
         'boiler_electricity': 0.96,
-        'heat_pumps_electricity': 0.04,
-        'district_heating_electricity': 0}
+        'heat_pumps_electricity': 0.04}
 
     ss_fuel_tech_p_by['ss_space_heating'][fueltypes['oil']] = {
         'boiler_condensing_oil': 0.6,
@@ -257,8 +255,7 @@ def assign_by_fuel_tech_p(enduses, sectors, fueltypes, fueltypes_nr):
 
     is_fuel_tech_p_by['is_space_heating'][fueltypes['electricity']] = {
         'boiler_electricity': 0.96,
-        'heat_pumps_electricity': 0.04,
-        'district_heating_electricity': 0}
+        'heat_pumps_electricity': 0.04}
 
     is_fuel_tech_p_by['is_space_heating'][fueltypes['oil']] = {
         'boiler_condensing_oil': 0.6,

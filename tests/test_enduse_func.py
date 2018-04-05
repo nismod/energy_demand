@@ -775,7 +775,6 @@ def test_calc_service_switch():
         'boiler_gas': 0.97611092943131095,
         'boiler_electricity': 0.017996039327478529,
         'heat_pumps_electricity': 0.0030527472564444167,
-        'district_heating_electricity': 0.0,
         'boiler_oil': 0.0028402839847661808,
         'boiler_biomass': 0.0, 'boiler_hydrogen': 0.0, 'heat_pumps_hydrogen': 0.0}
 
@@ -789,7 +788,6 @@ def test_calc_service_switch():
     tech_constant_service = {
         'boiler_solid_fuel': 0.0,
         'boiler_electricity': 0.12775323519770218,
-        'district_heating_electricity': 0.0,
         'boiler_oil': 0.089723510057254471,
         'boiler_biomass': 0.0,
         'boiler_hydrogen': 0.0,

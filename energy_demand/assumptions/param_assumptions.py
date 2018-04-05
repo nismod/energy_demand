@@ -360,7 +360,7 @@ def load_param_assump(paths=None, assumptions=None):
     strategy_variables.append({
         "name": "p_cold_rolling_steel",
         "absolute_range": (0, 1),
-        "description": "Share of cold rolling given in percent)",
+        "description": "Sectoral share of cold rolling in steel manufacturing)",
         "suggested_range": (0, 1),
         "default_value": assumptions.p_cold_rolling_steel_by,
         "units": 'decimal'})

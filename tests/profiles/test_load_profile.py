@@ -4,6 +4,17 @@
 import numpy as np
 from energy_demand.profiles import load_profile
 
+def test_calc_yh():
+
+    shape_yd = np.ones((365))
+    shape_y_dh = np.zeros((365, 25))
+    #TODO
+    out = load_profile.calc_yh(
+        shape_yd=shape_yd,
+        shape_y_dh=shape_y_dh,
+        model_yeardays=365)
+
+
 def test_abs_to_rel():
     """Test
     """

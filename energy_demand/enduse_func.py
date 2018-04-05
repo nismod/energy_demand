@@ -1083,7 +1083,7 @@ def service_to_fuel(
     - The attribute 'fuel_y' is updated
     - Fuel = Energy service / efficiency
     """
-    fuel_per_tech = {}
+    fuel_tech_y = {}
     fuel_y = np.zeros((fueltypes_nr), dtype=float)
 
     if mode_constrained:
@@ -1096,20 +1096,21 @@ def service_to_fuel(
                 enduse, tech, 'fueltype_int')
 
             #TODO MLTIPLE FUELTYPES OF TECH??
+            # Potentially add minus fuel of generated electricity from CHP
 
             # Convert to fuel
             fuel = service / tech_eff
 
-            fuel_per_tech[tech] = fuel
+            fuel_tech_y[tech] = fuel
 
             # Multiply fuel of technology per fueltype with shape of annual distrbution
             fuel_y[fueltype_int] += fuel
     else:
         for tech, fuel_tech in service_tech.items():
             fuel_y[fueltypes['heat']] += fuel_tech
-            fuel_per_tech[tech] = fuel_tech
+            fuel_tech_y[tech] = fuel_tech
 
-    return fuel_y, fuel_per_tech
+    return fuel_y, fuel_tech_y
 
 def fuel_to_service(
         enduse,
@@ -1140,10 +1141,10 @@ def fuel_to_service(
         Criteria about mode
 
     Return
-    ------tot_s_y, service_tech
+    ------
     tot_s_y : array
         Total annual energy service per technology
-    s_tech : dict
+    s_tech_y : dict
         Total annual energy service per technology
 
     Note
@@ -1180,18 +1181,21 @@ def fuel_to_service(
                 """
                 tech_eff = tech_stock.get_tech_attr(enduse, tech, 'eff_by')
 
-                # Calculate fuel share and convert fuel to service
+                # Get fuel share and convert fuel to service per technology
                 s_tech = fuel_y[fueltype_int] * fuel_share * tech_eff
+
                 s_tech_y[tech] = s_tech
 
                 # Sum total yearly service
                 s_tot_y += s_tech #(y)
             else:
                 """Unconstrained version
-                no efficiencies are considered, because not technology specific service calculation
+                efficiencies are not considered, because not technology
+                specific service calculation
                 """
-                # Calculate fuel share and convert fuel to service
+                # Calculate fuel share
                 fuel_tech = fuel_y[fueltype_int] * fuel_share
+
                 s_tech_y[tech] = fuel_tech
 
                 # Sum total yearly service
