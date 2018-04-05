@@ -244,6 +244,8 @@ def get_tech_type(name, tech_list):
     else:
         if name in tech_list['heating_non_const']:
             tech_type = 'heat_pump'
+        elif name in tech_list['tech_CHP']:
+            tech_type = 'tech_CHP'
         else:
             tech_type = 'other_tech'
 

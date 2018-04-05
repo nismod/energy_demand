@@ -78,7 +78,8 @@ class TechStock(object):
             enduse_technologies)
 
     def get_tech_attr(self, enduse, name, attribute_to_get):
-        """Get a technology attribute from a technology object stored in a list
+        """Get a technology attribute from a technology
+        object stored in a list
 
         Arguments
         ----------
@@ -96,24 +97,7 @@ class TechStock(object):
         """
         tech_object = self.stock_technologies[(name, enduse)]
 
-        if attribute_to_get == 'fueltype_str':
-            attribute_value = tech_object.fueltype_str
-        elif attribute_to_get == 'tech_type':
-            attribute_value = tech_object.tech_type
-        elif attribute_to_get == 'fueltype_int':
-            attribute_value = tech_object.fueltype_int
-        elif attribute_to_get == 'eff_cy':
-            attribute_value = tech_object.eff_cy
-        elif attribute_to_get == 'eff_by':
-            attribute_value = tech_object.eff_by
-        elif attribute_to_get == 'tech_low_temp':
-            attribute_value = tech_object.tech_low_temp
-        elif attribute_to_get == 'tech_low_temp_fueltype':
-            attribute_value = tech_object.tech_low_temp_fueltype
-        elif attribute_to_get == 'tech_high_temp_fueltype':
-            attribute_value = tech_object.tech_high_temp_fueltype
-        else:
-            raise Exception("Error: Attribute not found {}".format(attribute_to_get))
+        attribute_value = getattr(tech_object, attribute_to_get)
 
         return attribute_value
 
@@ -283,50 +267,42 @@ class Technology(object):
         ):
         """Contructor
         """
+        self.name = name
+        self.tech_type = tech_type
+        self.description = description
+        self.fueltype_str = fueltype_str
+        self.fueltype_int = tech_related.get_fueltype_int(fueltypes, fueltype_str)
+        self.eff_achieved_f = eff_achieved
+        self.diff_method = diff_method
+        self.market_entry = market_entry
+        self.tech_max_share = tech_max_share
+
         if tech_type == 'placeholder_tech':
-            self.name = name
-            self.tech_type = tech_type
-            self.description = description
-            self.fueltype_str = fueltype_str
-            self.fueltype_int = tech_related.get_fueltype_int(fueltypes, fueltype_str)
             self.eff_by = 1.0
             self.eff_cy = 1.0
-            self.eff_ey = 1.0
-        else:
-            self.name = name
-            self.tech_type = tech_type
-            self.fueltype_str = fueltype_str
-            self.fueltype_int = tech_related.get_fueltype_int(fueltypes, fueltype_str)
-            self.eff_achieved_f = eff_achieved
-            self.diff_method = diff_method
-            self.description = description
-            self.market_entry = market_entry
-            self.tech_max_share = tech_max_share
+        elif tech_type == 'tech_CHP':
+            # The standard eff_by is for heat
+            # Introducing combined heat and power. Carbon Trust
+            self.eff_by = 0.45  # Efficiency for heat #TODO REPLACE BY LIST IN CSV
+            self.eff_cy = 0.45  # Efficiency for heat
 
-            # --------------------------------------------------------------
-            # Base and current year efficiencies depending on technology type
-            # --------------------------------------------------------------
-            if tech_type == 'heat_pump':
-                self.eff_by = tech_related.calc_hp_eff(
-                    temp_by,
-                    eff_by,
-                    t_base_heating_by)
+            # --------
+            # Fueltype generation efficiency
+            # --------
+            self.fueltype_generation_str = 'electricity'
+            self.fueltype_generation_int = tech_related.get_fueltype_int(fueltypes, 'electricity')
+            self.eff_elec_by = 0.3   # Efficiency for electricity
+            self.eff_elec_cy = 0.3   # Efficiency for electricity
 
-                self.eff_cy = tech_related.calc_hp_eff(
-                    temp_cy,
-                    tech_related.calc_eff_cy(
-                        base_yr,
-                        curr_yr,
-                        eff_by,
-                        eff_ey,
-                        year_eff_ey,
-                        other_enduse_mode_info,
-                        self.eff_achieved_f,
-                        self.diff_method),
-                    t_base_heating_cy)
-            else:
-                self.eff_by = eff_by
-                self.eff_cy = tech_related.calc_eff_cy(
+        elif tech_type == 'heat_pump':
+            self.eff_by = tech_related.calc_hp_eff(
+                temp_by,
+                eff_by,
+                t_base_heating_by)
+
+            self.eff_cy = tech_related.calc_hp_eff(
+                temp_cy,
+                tech_related.calc_eff_cy(
                     base_yr,
                     curr_yr,
                     eff_by,
@@ -334,4 +310,16 @@ class Technology(object):
                     year_eff_ey,
                     other_enduse_mode_info,
                     self.eff_achieved_f,
-                    self.diff_method)
+                    self.diff_method),
+                t_base_heating_cy)
+        else:
+            self.eff_by = eff_by
+            self.eff_cy = tech_related.calc_eff_cy(
+                base_yr,
+                curr_yr,
+                eff_by,
+                eff_ey,
+                year_eff_ey,
+                other_enduse_mode_info,
+                self.eff_achieved_f,
+                self.diff_method)
