@@ -313,10 +313,17 @@ class Enduse(object):
                     if fuel_tech == 0:
                         self.enduse_techs.remove(tech)
 
+                #TODO INDUSTRY NOT TECHNOLOGY SPCIFIC SUM
+                '''if enduse in ['is_high_temp_process']: #TODO IMPROVE MAKE AS OWN LIST
+                    logging.info("...Aggregating not used technologies")
+                    fuel_tech_y_aggregated = ignore_techs(fuel_tech_y, fueltypes_nr, enduse, tech_stock)
+                    fuel_tech_y = fuel_tech_y_aggregated'''
+
                 # ------------------------------------------
                 # Assign load profiles
                 # ------------------------------------------
                 if self.flat_profile_crit:
+                    #logging.info("flat profile")
                     self.fuel_y = calc_fuel_tech_y(
                         enduse,
                         tech_stock,
@@ -324,6 +331,12 @@ class Enduse(object):
                         fueltypes_nr,
                         fueltypes,
                         mode_constrained)
+
+                    # IGNORE TECHNOLOGIES IN ENDUSE TODO TODO
+                    #if enduse in ['is_high_temp_process']:
+                    #    self.enduse_techs = []
+                        #logging.info(self.fuel_y)
+                        #prnt(":")
                 else:
                     #---NON-PEAK
                     fuel_yh = calc_fuel_tech_yh(
@@ -2007,3 +2020,18 @@ def hot_cold_process(
 
     return factor
 
+'''def ignore_techs(fuel_tech_y, fueltypes_nr, enduse, tech_stock):
+    """Aggregated fuel per technology if
+    the technologies are not necessary as outputs
+
+    e.g. technologes in industry module
+    """
+    fuel_tech_y_aggregated = np.zeros((fueltypes_nr))
+
+    for tech, fuel_tech in fuel_tech_y.items():
+        fueltype_int = tech_stock.get_tech_attr(
+            enduse, tech, 'fueltype_int')
+
+        fuel_tech_y_aggregated[fueltype_int] += fuel_tech
+
+    return fuel_tech_y_aggregated'''

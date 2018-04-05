@@ -2,14 +2,14 @@
 """
 import os
 import logging
-import numpy as np
 import configparser
-from energy_demand.basic import basic_functions, conversions
-from energy_demand.geography import write_shp
 import yaml
 from yaml import Loader, Dumper
 import collections
 import csv
+import numpy as np
+from energy_demand.basic import basic_functions, conversions
+from energy_demand.geography import write_shp
 
 def write_array_to_txt(path_result, array):
     """Write scenario population for a year to txt file
@@ -410,7 +410,6 @@ def create_txt_shapes(
 
     return
 
-
 def create_csv_file(path, rows):
     """
     #filewriter.writerow(['Spam', 'Lovely Spam', 'Wonderful Spam'])
@@ -420,8 +419,7 @@ def create_csv_file(path, rows):
         filewriter = csv.writer(
             csvfile,
             delimiter=',',
-            quotechar='|') #,
-            #quoting=csv.QUOTE_MINIMAL)
+            quotechar='|')
 
         for row in rows:
             filewriter.writerow(row)

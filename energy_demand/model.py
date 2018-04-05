@@ -247,7 +247,7 @@ def fuel_aggr(
     attribute_non_technology : str
         Attribute
     attribute_technologies : str
-        Attribute
+        Attribute 'techs_fuel_yh'
     technologies : dict
         Technologies
 
@@ -264,7 +264,7 @@ def fuel_aggr(
 
             fuels = get_fuels_yh(
                 enduse_object,
-                attribute_technologies, #'techs_fuel_yh'
+                attribute_technologies,
                 model_yearhours_nrs,
                 model_yeardays_nrs)
 
@@ -942,6 +942,8 @@ def aggregate_final_results(
         # -------------
         for submodel_nr, submodel in enumerate(all_submodels):
             for enduse_object in submodel:
+
+                # Aggregate over heating technologies
                 if enduse_object.enduse in enduse_space_heating:
 
                     # Get fuels for all techs

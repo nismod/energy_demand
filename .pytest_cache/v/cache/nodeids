@@ -55,6 +55,7 @@
   "tests/profiles/test_load_factors.py::test_calc_lf_d",
   "tests/profiles/test_load_factors.py::test_calc_lf_y",
   "tests/profiles/test_load_factors.py::test_calc_lf_season",
+  "tests/profiles/test_load_profile.py::test_calc_yh",
   "tests/profiles/test_load_profile.py::test_abs_to_rel",
   "tests/profiles/test_load_profile.py::test_calk_peak_h_dh",
   "tests/profiles/test_load_profile.py::test_LoadProfileStock",

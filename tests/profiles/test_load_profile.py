@@ -5,15 +5,20 @@ import numpy as np
 from energy_demand.profiles import load_profile
 
 def test_calc_yh():
-
+    """testing"""
     shape_yd = np.ones((365))
-    shape_y_dh = np.zeros((365, 25))
-    #TODO
+    shape_y_dh = np.zeros((365, 24))
+
+    shape_yd[0] = 2 #add plus one
+    shape_y_dh[0] = np.ones((24))
+    shape_y_dh[0][0] = 2 #add plus one in day
+
     out = load_profile.calc_yh(
         shape_yd=shape_yd,
         shape_y_dh=shape_y_dh,
         model_yeardays=365)
 
+    assert out[0][0] ==  2 * (2 / 25)
 
 def test_abs_to_rel():
     """Test

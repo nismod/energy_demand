@@ -236,7 +236,18 @@ def load_local_paths(path):
         'ss_load_profile_txt': os.path.join(
             path, '_processed_data', '_post_installation_data', 'load_profiles', 'ss_submodel'),
         'dir_services': os.path.join(
-            path, '_processed_data', 'services')
+            path, '_processed_data', 'services'),
+
+        'yaml_parameters': os.path.join(
+            path, 'yaml_parameters.yml'),
+        'yaml_parameters_constrained': os.path.join(
+            path, 'yaml_parameters_constrained.yml'),
+        'yaml_parameters_keynames_constrained': os.path.join(
+            path, 'yaml_parameters_keynames_constrained.yml'),
+        'yaml_parameters_keynames_unconstrained': os.path.join(
+            path, 'yaml_parameters_keynames_unconstrained.yml'),
+        'yaml_parameters_scenario': os.path.join(
+            path, 'yaml_parameters_scenario.yml')
         }
 
     return paths
@@ -356,18 +367,7 @@ def load_paths(path):
         'path_val_subnational_gas': os.path.join(
             path, '01-validation_datasets', '03_subnational_gas', 'data_2015_gas.csv'),
         'path_val_nat_elec_data': os.path.join(
-            path, '01-validation_datasets', '01_national_elec_2015', 'elec_demand_2015.csv'),
-
-        'yaml_parameters': os.path.join(
-            path, 'yaml_parameters.yml'),
-        'yaml_parameters_constrained': os.path.join(
-            path, 'yaml_parameters_constrained.yml'),
-        'yaml_parameters_keynames_constrained': os.path.join(
-            path, 'yaml_parameters_keynames_constrained.yml'),
-        'yaml_parameters_keynames_unconstrained': os.path.join(
-            path, 'yaml_parameters_keynames_unconstrained.yml'),
-        'yaml_parameters_scenario': os.path.join(
-            path, 'yaml_parameters_scenario.yml')}
+            path, '01-validation_datasets', '01_national_elec_2015', 'elec_demand_2015.csv')}
 
     return paths
 
