@@ -5,7 +5,7 @@ import logging
 
 def set_up_logger(path_log_file):
     """Create logger
-    Argument
+    Arguments
     --------
     path_log_file : str
         Path to logger file

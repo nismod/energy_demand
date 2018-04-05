@@ -165,8 +165,8 @@ def del_file(path_file):
 def get_month_from_string(month_string):
     """Convert string month to int month with Jan == 1
 
-    Argument
-    --------
+    Arguments
+    ----------
     month_string : str
         Month given as a string
 
@@ -205,8 +205,8 @@ def get_month_from_string(month_string):
 def get_month_from_int(month_int):
     """Convert inger month to string month with Jan == 1
 
-    Argument
-    --------
+    Arguments
+    ---------
     month_int : str
         Month given as a integer
 

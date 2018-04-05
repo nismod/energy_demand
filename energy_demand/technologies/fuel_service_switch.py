@@ -221,8 +221,8 @@ def autocomplete_switches(
     the remaining service is distriputed proportionally
     to all remaining technologies.
 
-    Argument
-    --------
+    Arguments
+    ---------
     service_switches : dict
         Defined service switches
     specified_tech_enduse_by : dict

@@ -188,7 +188,7 @@ def floor_area_virtual_dw(regions, all_sectors, local_paths, base_yr, f_mixed_fl
 def load_local_paths(path):
     """Create all local paths
 
-    Argument
+    Arguments
     --------
     path : str
         Path of local folder with data used for model
@@ -255,7 +255,7 @@ def load_local_paths(path):
 def load_result_paths(path):
     """Load all result paths
 
-    Argument
+    Arguments
     --------
     path : str
         Path to result folder
