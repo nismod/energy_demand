@@ -32,6 +32,7 @@ Get correlation between regional GVA and (regional floor area/reg pop) of every 
 
 2. Step
 Calculate future regional floor area demand based on GVA and pop projection 
+TODO: IF HYBRID: SERVICE SWICH AND CAPACITY SWITCH: ADD OTHER FUELTYPE
 TODO: remove secondary_heater_electricity
 TODO: ADD GENERATION FUELTYPE PER ENDUSE 
 TODO: EFFICIENC Y OF HEAT NETWORK TECHNOLOGIES
@@ -66,6 +67,8 @@ from energy_demand.basic import logger_setup
 from energy_demand.read_write import write_data
 from energy_demand.read_write import read_data
 from energy_demand.basic import basic_functions
+
+NR_OF_MODELLEd_REGIONS = 2
 
 def energy_demand_model(data, assumptions, fuel_in=0, fuel_in_elec=0):
     """Main function of energy demand model to calculate yearly demand
@@ -105,7 +108,8 @@ def energy_demand_model(data, assumptions, fuel_in=0, fuel_in_elec=0):
     print("Simulation year:     " + str(modelrun_obj.curr_yr))
     print("Number of regions    " + str(data['reg_nrs']))
     print(" TOTAL KTOE:         " + str(conversions.gwh_to_ktoe(fuel_in)))
-    print(" -- ")
+
+    print("-----------------")
     print("[GWh] Total fuel input:    " + str(fuel_in))
     print("[GWh] Total output:        " + str(np.sum(modelrun_obj.ed_fueltype_national_yh)))
     print("[GWh] Total difference:    " + str(round((np.sum(modelrun_obj.ed_fueltype_national_yh) - fuel_in), 4)))
@@ -196,7 +200,13 @@ if __name__ == "__main__":
     # local scrap
     data['regions'] = data_loader.load_LAC_geocodes_info(
         os.path.join(local_data_path, '_raw_data', '_quick_and_dirty_spatial_disaggregation', 'infuse_dist_lyr_2011_saved.csv'))
-    
+
+    #reg_new = {}
+    #for i in range(NR_OF_MODELLEd_REGIONS):
+    #    _entries = list(data['regions'].keys())
+    #    reg_new[_entries[i]] = data['regions'][_entries[i]]
+    #data['regions'] = reg_new
+
     # GVA
     gva_data = {}
     for year in range(2015, 2101):
@@ -258,6 +268,7 @@ if __name__ == "__main__":
 
     data['reg_nrs'] = len(data['regions'])
 
+    
     # ------------------------------
     if data['criterias']['virtual_building_stock_criteria']:
         rs_floorarea, ss_floorarea = data_loader.floor_area_virtual_dw(

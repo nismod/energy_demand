@@ -5,7 +5,7 @@ import logging
 from energy_demand.read_write import read_data
 from energy_demand.basic import date_prop
 from energy_demand.plotting import plotting_multiple_scenarios
-from energy_demand import processing
+from energy_demand.processing import processing_single_scenario
 from energy_demand.basic import basic_functions
 
 def process_result_multi_scen(path_to_scenarios, path_shapefile_input):
@@ -21,7 +21,7 @@ def process_result_multi_scen(path_to_scenarios, path_shapefile_input):
     scenarios = os.listdir(path_to_scenarios)
 
     for scenario in scenarios:
-        processing.main(
+        processing_single_scenario.main(
             os.path.join(path_to_scenarios, scenario),
             path_shapefile_input)
 
@@ -110,13 +110,13 @@ def process_scenarios(path_to_scenarios, year_to_model=2015):
 # ------------------------------------
 # Execute rusult processing for every scenario
 # ------------------------------------^
-'''
+#'''
 process_result_multi_scen(
     os.path.abspath("C:/Users/cenv0553/ED/_multiple_results"),
     os.path.abspath('C:/Users/cenv0553/ED/data/_raw_data/C_LAD_geography/same_as_pop_scenario/lad_2016_uk_simplified.shp'))
-'''
+#'''
 
 # ------------------------------------
 # Generate plots across all scenarios
 # ------------------------------------
-process_scenarios(os.path.abspath("C:/Users/cenv0553/ED/_multiple_results"))
+#process_scenarios(os.path.abspath("C:/Users/cenv0553/ED/_multiple_results"))

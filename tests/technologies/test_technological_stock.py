@@ -1,7 +1,7 @@
 """
 """
-from energy_demand.technologies import technological_stock
 import numpy as np
+from energy_demand.technologies import technological_stock
 
 def test_Technology():
     """

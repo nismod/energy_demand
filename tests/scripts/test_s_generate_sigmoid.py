@@ -10,6 +10,30 @@ from energy_demand.technologies import tech_related
 def test_tech_sigmoid_paramters():
     """testng
     """
+    '''fuel_switches = [read_data.FuelSwitch(
+        enduse='heating',
+        technology_install='boilerA',
+        switch_yr=2050)]
+
+    technologies = {
+        'boilerA': read_data.TechnologyData(market_entry=1990),
+        'boilerB': read_data.TechnologyData(market_entry=1990)}
+
+    assump_fy = 1.0
+    result = s_generate_sigmoid.tech_sigmoid_parameters(
+        yr_until_switched=2050,
+        base_yr=2010,
+        technologies=technologies,
+        l_values={'boilerA': 1.0, 'boilerB': 1.0},
+        s_tech_by_p={'boilerA': 0.5, 'boilerB': 0.5},
+        s_tech_switched_p={'boilerA': assump_fy, 'boilerB': 0})
+
+    y_calculated = diffusion_technologies.sigmoid_function(
+        2050, 1.0, result['boilerA']['midpoint'], result['boilerA']['steepness'])
+
+    assert y_calculated >= (assump_fy - 0.02) and y_calculated <= assump_fy + 0.02'''
+
+    # ---
     fuel_switches = [read_data.FuelSwitch(
         enduse='heating',
         technology_install='boilerA',
@@ -435,24 +459,32 @@ def test_get_sig_diffusion():
             fueltypes=fueltype_lookup)}
 
     tech_increased_service = ['boilerA']
-    s_tech_ey_p =  {'boilerA': 0.6, 'boilerB': 0.4}
 
     sig_param = s_generate_sigmoid.get_l_values(
         technologies,
-        tech_increased_service,
-        s_tech_ey_p)
+        tech_increased_service)
 
     assert sig_param['boilerA'] == 1.0
 
     # -----
 
     tech_increased_service = ['boilerC']
-    s_tech_ey_p = {'boilerC': 0.5, 'boilerA': 0.0, 'boilerB': 0.0}
+
+    sig_param = s_generate_sigmoid.get_l_values(
+        technologies,
+        tech_increased_service)
+
+    assert sig_param['boilerC'] == 0.999
+
+    # -----
+
+    tech_increased_service = ['boilerC']
+    regions = ['regA']
 
     sig_param = s_generate_sigmoid.get_l_values(
         technologies,
         tech_increased_service,
-        s_tech_ey_p)
+        regions=regions,
+        regional_specific=True)
 
-
-    assert sig_param['boilerC'] == 0.999
+    assert sig_param['regA']['boilerC'] == 0.999

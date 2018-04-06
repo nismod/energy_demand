@@ -18,6 +18,7 @@ def test_assign_by_fuel_tech_p():
     data['paths'] = data_loader.load_paths(path_main)
     data['lookups'] = lookup_tables.basic_lookups()
     data['enduses'], data['sectors'], data['fuels'] = data_loader.load_fuels(data['paths'], data['lookups'])
+    data['local_paths'] = data_loader.load_local_paths(path_main)
 
     #Load assumptions
     base_yr = 2015
@@ -32,9 +33,9 @@ def test_assign_by_fuel_tech_p():
         fueltypes=data['lookups']['fueltypes'],
         fueltypes_nr=data['lookups']['fueltypes_nr'])
 
-    param_assumptions.load_param_assump(data['paths'], data['assumptions'])
+    param_assumptions.load_param_assump(data['paths'], data['local_paths'], data['assumptions'])
 
-    result = assumptions_fuel_shares.assign_by_fuel_tech_p(
+    rs_fuel_tech_p_by, ss_fuel_tech_p_by, is_fuel_tech_p_by  = assumptions_fuel_shares.assign_by_fuel_tech_p( 
         data['enduses'],
         data['sectors'],
         data['lookups']['fueltypes'],

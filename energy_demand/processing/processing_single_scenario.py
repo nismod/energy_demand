@@ -18,6 +18,7 @@ def main(path_data_energy_demand, path_shapefile_input):
     path_shapefile_input : str
         Path to shapefile
     """
+    print("Start processing")
     # ---------
     # Criterias
     # ---------

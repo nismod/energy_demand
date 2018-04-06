@@ -402,24 +402,9 @@ def get_fuels_yh(
             fuels = fuels_reg_y[:, np.newaxis, np.newaxis] * fast_shape
         elif attribute_to_get == 'techs_fuel_peak_h':
             fuels = 1 / model_yearhours_nrs
-
     else: #If not flat shape, use yh load profile of enduse
-        if attribute_to_get == 'fuel_peak_dh':
-            fuels = enduse_object.fuel_peak_dh
-        elif attribute_to_get == 'techs_fuel_peak_dh':
-            fuels = enduse_object.techs_fuel_peak_dh
-        elif attribute_to_get == 'fuel_peak_h':
-            fuels = enduse_object.fuel_peak_h
-        elif attribute_to_get == 'shape_non_peak_y_dh':
-            fuels = enduse_object.shape_non_peak_y_dh
-        elif attribute_to_get == 'shape_non_peak_yd':
-            fuels = enduse_object.shape_non_peak_yd
-        elif attribute_to_get == 'fuel_yh':
-            fuels = enduse_object.fuel_yh
-        elif attribute_to_get == 'techs_fuel_yh':
-            fuels = enduse_object.techs_fuel_yh
-        elif attribute_to_get == 'techs_fuel_peak_h':
-            fuels = enduse_object.techs_fuel_peak_h
+
+        fuels = getattr(enduse_object, attribute_to_get)
 
     return fuels
 

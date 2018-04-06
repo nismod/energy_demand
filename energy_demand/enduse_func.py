@@ -113,7 +113,7 @@ class Enduse(object):
         ):
         """Enduse class constructor
         """
-        #logging.warning(" =====Enduse: {}  Sector:  {}".format(enduse, sector))
+        #logging.info(" =====Enduse: {}  Sector:  {}".format(enduse, sector))
         self.region = region
         self.enduse = enduse
         self.fuel_y = fuel
@@ -250,7 +250,7 @@ class Enduse(object):
                 # ------------------------------------
                 # Calculate regional energy service
                 # ------------------------------------
-                s_tot_y_cy, s_tech_y_cy = fuel_to_service(
+                s_tot_y_cy, s_tech_y_by = fuel_to_service(
                     enduse,
                     self.fuel_y,
                     fuel_fueltype_tech_p_by,
@@ -266,7 +266,7 @@ class Enduse(object):
                     strategy_variables,
                     assumptions.enduse_overall_change,
                     s_tot_y_cy,
-                    s_tech_y_cy,
+                    s_tech_y_by,
                     base_yr,
                     curr_yr)
 
@@ -306,6 +306,9 @@ class Enduse(object):
                     fueltypes_nr,
                     fueltypes,
                     mode_constrained)
+
+                # TODO: CONVERT GENERATED FUEL TO YH And then substract from total 
+                # TODO: DO NOT SUBRASCT ONLY FROM SINGLE ENDUSE AS THIS MIGHT BE OTHERWEISE MINUS
                 #logging.debug("... Fuel train Post service: " + str(np.sum(self.fuel_y)))
 
                 # Delete all technologies with no fuel assigned
@@ -325,12 +328,6 @@ class Enduse(object):
                         fueltypes_nr,
                         fueltypes,
                         mode_constrained)
-
-                    # IGNORE TECHNOLOGIES IN ENDUSE TODO TODO
-                    #if enduse in ['is_high_temp_process']:
-                    #    self.enduse_techs = []
-                        #logging.info(self.fuel_y)
-                        #prnt(":")
                 else:
                     #---NON-PEAK
                     fuel_yh = calc_fuel_tech_yh(
@@ -704,44 +701,6 @@ def get_enduse_configuration(
 
     return mode_constrained
 
-'''def get_crit_switch(enduse, sector, switches, base_yr, curr_yr, mode_constrained):
-    """Test whether there is a switch (service or fuel)
-
-    Arguments
-    ----------
-    enduse : str
-        Enduse
-    sector : str
-        Sector
-    base_yr : int
-        Base year
-    curr_yr : int
-        Current year
-    mode_constrained : bool
-        Mode criteria
-
-    Note
-    ----
-    If base year, no switches are implemented
-    """
-    if base_yr == curr_yr or mode_constrained is False:
-        return False
-    else:
-        for switch in switches:
-
-            # Not sector specific search
-            if not switch.sector:
-                if switch.enduse == enduse:
-                    return True
-            else:
-                # Sector specific search
-                if switch.enduse == enduse and switch.sector == sector:
-                    return True
-
-        # No switch as found for this enduse
-        return False
-'''
-
 def get_peak_day_all_fueltypes(fuel_yh):
     """Iterate yh and get day with highes fuel (across all fueltypes).
     The day with most fuel across all fueltypes is considered to
@@ -1087,8 +1046,7 @@ def service_to_fuel(
 
     Note
     -----
-    - The attribute 'fuel_y' is updated
-    - Fuel = Energy service / efficiency
+        - Fuel = Energy service / efficiency
     """
     fuel_tech_y = {}
     fuel_y = np.zeros((fueltypes_nr), dtype=float)
@@ -1098,19 +1056,14 @@ def service_to_fuel(
 
             tech_eff = tech_stock.get_tech_attr(
                 enduse, tech, 'eff_cy')
-
             fueltype_int = tech_stock.get_tech_attr(
                 enduse, tech, 'fueltype_int')
-
-            #TODO MLTIPLE FUELTYPES OF TECH??
-            # Potentially add minus fuel of generated electricity from CHP
 
             # Convert to fuel
             fuel = service / tech_eff
 
+            # Add fuel
             fuel_tech_y[tech] = fuel
-
-            # Multiply fuel of technology per fueltype with shape of annual distrbution
             fuel_y[fueltype_int] += fuel
     else:
         for tech, fuel_tech in service_tech.items():
