@@ -29,7 +29,7 @@ def load_param_assump(paths=None, local_paths=None, assumptions=None):
 
     if not assumptions:
         assumptions_dict = {}
-        assumptions_dict['split_hp_gshp_to_ashp_by'] = None
+        assumptions_dict['gshp_fraction'] = None
         assumptions_dict['smart_meter_assump'] = {}
         assumptions_dict['smart_meter_assump']['smart_meter_p_by'] = None
         assumptions_dict['cooled_ss_floorarea_by'] = None
@@ -43,20 +43,20 @@ def load_param_assump(paths=None, local_paths=None, assumptions=None):
         assumptions = non_param_assumptions.DummyClass(assumptions_dict)
         setattr(assumptions, 't_bases', non_param_assumptions.DummyClass(assumptions_dict['t_bases']))
 
-    yr_until_changed_all_things = 2050 #TODO
+    yr_until_changed_all_things = 2050
 
     # ----------------------
-    # Heat pump GASHP & ASHP fraction assumptions
-    # Relative GSHP (%) to GSHP+ASHP
+    # Heat pump technology mix
+    # Source: Hannon 2015: Raising the temperature of the UK heat pump market: Learning lessons from Finland
     # ----------------------
-    strategy_vars['split_hp_gshp_to_ashp_ey'] = 0.5 #TODO REALLY?
+    strategy_vars['gshp_fraction_ey'] = assumptions.gshp_fraction
 
     strategy_variables.append({
-        "name": "split_hp_gshp_to_ashp_ey",
+        "name": "gshp_fraction_ey",
         "absolute_range": (0, 1),
         "description": "Relative GSHP (%) to GSHP+ASHP",
-        "suggested_range": (assumptions.split_hp_gshp_to_ashp_by, 0.5),
-        "default_value": assumptions.split_hp_gshp_to_ashp_by,
+        "suggested_range": (assumptions.gshp_fraction, 0.5),
+        "default_value": assumptions.gshp_fraction,
         "units": 'decimal'})
 
     # ============================================================

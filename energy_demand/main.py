@@ -32,23 +32,13 @@ Get correlation between regional GVA and (regional floor area/reg pop) of every 
 
 2. Step
 Calculate future regional floor area demand based on GVA and pop projection 
-TODO: IF HYBRID: SERVICE SWICH AND CAPACITY SWITCH: ADD OTHER FUELTYPE
-TODO: remove secondary_heater_electricity
-TODO: ADD GENERATION FUELTYPE PER ENDUSE 
-TODO: EFFICIENC Y OF HEAT NETWORK TECHNOLOGIES
+
 TODO: Write all metadata of model run restuls to txt
-TODO: EFFICIENCS OF STRATEGIES ROLL COLD
 TODO: Related ed to houses & householdsize
 TODO: data loading, load multiple years for real elec data
-TODO: THECK VARIALBES IN HOUSEHOLD MODEL
 TODO: PEAK SHAPE vs PEAK FROM LOAD PROFILES
-TODO: HYBRID TECHNOLOGIES?
 TODO: UPDate all fuel data with new ECUK DATA
-TODO: get_position for all readings of csv file
 TODO: WHAT ABOU NON_RESIDENTIAL FLOOR AREA: FOR WHAT?
-TODO: SPATIAL DISAGGREGATION FACTORS RESID/NONRESID SHARE
-TODO: SO FAR ALSO ALL SERVICE ENDUSES ARE MULTIPLIED
-TODO: TEST IF CORRECT REGIONAL CALCULATIONS AS DSCRIEBED IN
 TODO: Spatial diffusion: Cap largest 5% of values and set to 1
 """
 import os
@@ -261,7 +251,7 @@ if __name__ == "__main__":
     technologies = non_param_assumptions.update_technology_assumption(
         data['assumptions'].technologies,
         data['assumptions'].strategy_variables['f_eff_achieved']['scenario_value'],
-        data['assumptions'].strategy_variables['split_hp_gshp_to_ashp_ey']['scenario_value'])
+        data['assumptions'].strategy_variables['gshp_fraction_ey']['scenario_value'])
     data['technologies'] = technologies
 
     data['weather_stations'], data['temp_data'] = data_loader.load_temp_data(data['local_paths'])

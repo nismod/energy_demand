@@ -121,7 +121,7 @@ def assign_by_fuel_tech_p(enduses, sectors, fueltypes, fueltypes_nr):
     # secondary_heater_electricity
     #   electric room heaters	        2.0   % of all houses --> ~ 25%     (100.0 / 8.15) * 2.0
     #   electric central heating	    0.65  % of all houses --> ~ 8%     (100.0 / 8.15) * 0.65
-    # heat pumps                        0.4   % of all houses --> ~ 5%     (100.0 / 8.15) * 0.4
+    # heat pumps                        0.4   % of all houses --> ~ 0.5%     (100.0 / 8.15) * 0.4
     # 
     # OFGEM (2015); Insights paper on households with electric and other non-gas heating,
     # (December), 1–84.
@@ -139,12 +139,15 @@ def assign_by_fuel_tech_p(enduses, sectors, fueltypes, fueltypes_nr):
 
     # ---
     # According to table 3.19, 59.7% (43.5% + 14.3%) have some form of condensing boiler.
+
+    # Todays share of district heating is about 2% of UK non-industraiyl demand
+    # http://fes.nationalgrid.com/media/1215/160712-national-grid-dh-summary-report.pdf
     # ---
     rs_fuel_tech_p_by['rs_space_heating'][fueltypes['gas']] = {
-        'boiler_condensing_gas': 0.58,
-        'boiler_gas': 0.40,
-        'stirling_micro_CHP_gas': 0.02,
-        'district_heating_CHP_gas': 0}  #REALLY?
+        'boiler_condensing_gas': 0.60,
+        'boiler_gas': 0.38,
+        'stirling_micro_CHP_gas': 0.0,
+        'district_heating_CHP_gas': 0.02}
 
     rs_fuel_tech_p_by['rs_space_heating'][fueltypes['electricity']] = {
         'storage_heater_electricity': 0.62,
@@ -197,9 +200,9 @@ def assign_by_fuel_tech_p(enduses, sectors, fueltypes, fueltypes_nr):
         'boiler_solid_fuel': 1.0}
 
     ss_fuel_tech_p_by['ss_space_heating'][fueltypes['gas']] = {
-        'district_heating_CHP_gas': 0.0,
+        'district_heating_CHP_gas': 0.02,
         'boiler_condensing_gas': 0.6,
-        'boiler_gas': 0.4}
+        'boiler_gas': 0.38}
 
     ss_fuel_tech_p_by['ss_space_heating'][fueltypes['electricity']] = {
         'boiler_electricity': 0.96,
@@ -247,9 +250,9 @@ def assign_by_fuel_tech_p(enduses, sectors, fueltypes, fueltypes_nr):
         'boiler_solid_fuel': 1.0}
 
     is_fuel_tech_p_by['is_space_heating'][fueltypes['gas']] = {
-        'district_heating_CHP_gas': 0.0,
+        'district_heating_CHP_gas': 0.02,
         'boiler_condensing_gas': 0.6,
-        'boiler_gas': 0.4}
+        'boiler_gas': 0.38}
 
     is_fuel_tech_p_by['is_space_heating'][fueltypes['electricity']] = {
         'boiler_electricity': 0.96,

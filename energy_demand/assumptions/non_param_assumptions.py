@@ -354,8 +354,9 @@ class Assumptions(object):
         #
         #   Assumptions related to industrial enduses
         #
-        #   s
-        #       S
+        #   Overal changes in industry related enduse can be changed
+        #   in 'enduse_overall_change_enduses'
+        # 
         # ------------------------------------------------------------
 
         # --------------------------------------------
@@ -366,8 +367,8 @@ class Assumptions(object):
         # --------------------------------------------
         # lighting
         #
-        # We do not define individual technologies because e.g. unclear how much LED.
-        # Therefore overall efficiency increase
+        # No individual technologies are defined. Only
+        # overall efficiency increase can be implemented
         #--------------------------------------------
 
         # --------------------------------------------
@@ -381,7 +382,7 @@ class Assumptions(object):
         #          - glass tanks.
         # High consumption in Chemicals, Non_metallic mineral products, paper, food_production
         # Fuel use ratio - electric arc furnace over blast furnace steel making in cement sector
-        #BAT - iron & steel - continous/Ingot casting 	Sectoral share - continuous %
+        # BAT - iron & steel - continous/Ingot casting 	Sectoral share - continuous %
         # --------------------------------------------
 
         # Share of cold rolling in steel manufacturing
@@ -440,34 +441,23 @@ class Assumptions(object):
         # ----------------
         #is_low_temp_process_eff_change = 
 
-        ''' 'is_high_temp_process': ['gva'], DONE
-            'is_low_temp_process': ['gva'], DONE
-            'is_drying_separation': ['gva'] DONE,
-            'is_motors': ['gva'], DONE
-            'is_compressed_air': ['gva'], DONE
-            'is_lighting': ['gva'], DONE
-            'is_space_heating': ['gva'], DONE
-            'is_other': ['gva'] DONE, 
-            'is_refrigeration': ['gva']} DONE'''
-
-
         # ============================================================
         # Assumption related to heat pump technologies
         # ============================================================
         #
         #   Assumptions related to technologies
         #
-        #   split_hp_gshp_to_ashp_by : list
-        #       Split between GSHP and ASHP (in %, 1=100%),
-        #       Share of installed heat pumps in base year (ASHP to GSHP)
+        #   gshp_fraction : list
+        #       Fraction of installed gshp_fraction heat pumps in base year
+        #       ASHP = 1 - gshp_fraction
         # ------------------------------------------------------------
-        self.split_hp_gshp_to_ashp_by = 0.1
+        self.gshp_fraction = 0.1
 
         self.technologies, self.tech_list = read_data.read_technologies(
             paths['path_technologies'], fueltypes)
 
         self.installed_heat_pump_by = tech_related.generate_ashp_gshp_split(
-            self.split_hp_gshp_to_ashp_by)
+            self.gshp_fraction)
 
         # Add heat pumps to technologies
         self.technologies, self.tech_list['heating_non_const'], self.heat_pumps = tech_related.generate_heat_pump_from_split(
@@ -653,7 +643,7 @@ class Assumptions(object):
 def update_technology_assumption(
         technologies,
         factor_achieved,
-        split_hp_gshp_to_ashp_ey
+        gshp_fraction_ey
     ):
     """Updates technology related properties based on
     scenario assumptions. Calculate average efficiency of
@@ -667,7 +657,7 @@ def update_technology_assumption(
         Technologies
     factor_achieved : float
         Factor achieved
-    split_hp_gshp_to_ashp_ey : float
+    gshp_fraction_ey : float
         Mix of GSHP and GSHP
 
     Note
@@ -681,7 +671,7 @@ def update_technology_assumption(
 
     # Calculate average eff of hp depending on fraction of GSHP to ASHP
     installed_heat_pump_ey = tech_related.generate_ashp_gshp_split(
-        split_hp_gshp_to_ashp_ey)
+        gshp_fraction_ey)
 
     technologies = tech_related.calc_av_heat_pump_eff_ey(
         technologies, installed_heat_pump_ey)

@@ -306,9 +306,6 @@ class Enduse(object):
                     fueltypes_nr,
                     fueltypes,
                     mode_constrained)
-
-                # TODO: CONVERT GENERATED FUEL TO YH And then substract from total 
-                # TODO: DO NOT SUBRASCT ONLY FROM SINGLE ENDUSE AS THIS MIGHT BE OTHERWEISE MINUS
                 #logging.debug("... Fuel train Post service: " + str(np.sum(self.fuel_y)))
 
                 # Delete all technologies with no fuel assigned

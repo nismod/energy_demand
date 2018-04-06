@@ -444,26 +444,21 @@ def calc_eff_cy(
 
     return eff_cy
 
-def generate_ashp_gshp_split(split_hp_gshp_ashp):
+def generate_ashp_gshp_split(gshp_fraction):
     """Assing split for each fueltype of heat pump technologies,
     i.e. the share of GSHP of all heat pumps
 
     Arguments
     ----------
-    split_factor : float
-        Fraction of ASHP to GSHP
+    gshp_fraction : float
+        Fraction of GSHP (GSHP + ASHP = 100%)
 
     Returns
     --------
     installed_heat_pump_by : dict
         Ditionary with split of heat pumps for every fueltype
-
-    Example
-    ------
-    split_hp_ashp_gshp = 0.2 means that 80% are GSHP and 20% ASHP
     """
-    gshp_fraction = split_hp_gshp_ashp
-    ashp_fraction = 1 - split_hp_gshp_ashp
+    ashp_fraction = 1 - gshp_fraction
 
     installed_heat_pump_by = {
         'hydrogen': {
