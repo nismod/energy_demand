@@ -19,6 +19,7 @@ __pycache__/*
 .settings
 .idea
 .vscode
+.pytest_cache
 
 # Package files
 *.egg
