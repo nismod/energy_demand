@@ -7,6 +7,34 @@ from energy_demand.read_write import read_data
 from energy_demand.technologies import technological_stock
 from energy_demand.profiles import load_profile
 
+def test_enduse():
+
+    out = enduse_func.Enduse(
+        submodel='test',
+        region='test',
+        scenario_data='test',
+        assumptions='test',
+        regional_lp_stock='test',
+        non_regional_lp_stock='test',
+        base_yr='test',
+        curr_yr='test',
+        enduse='test',
+        sector='test',
+        fuel=np.zeros((7, 0)),
+        tech_stock='test',
+        heating_factor_y='test',
+        cooling_factor_y='test',
+        fuel_fueltype_tech_p_by='test',
+        sig_param_tech='test',
+        enduse_overall_change='test',
+        criterias='test',
+        strategy_variables='test',
+        fueltypes_nr='test',
+        fueltypes='test',
+        model_yeardays_nrs='test')
+
+    assert out.flat_profile_crit == True
+
 def test_assign_lp_no_techs():
     """Testing
     """
@@ -480,7 +508,6 @@ def test_service_to_fuel():
     fuel_y, fuel_per_tech = enduse_func.service_to_fuel(
         "heating",
         {'techA': 100},
-        {'techA': 100},
         tech_stock,
         len(fueltypes),
         fueltypes,
@@ -495,7 +522,6 @@ def test_service_to_fuel():
 
     fuel_y, fuel_per_tech = enduse_func.service_to_fuel(
         "heating",
-        {'techA': 100},
         {'techA': 100},
         tech_stock,
         len(fueltypes),

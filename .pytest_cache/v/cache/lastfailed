@@ -1,3 +1,4 @@
 {
+  "tests/profiles/test_load_profile.py": true,
   "tests/profiles/test_load_profile.py::test_calc_yh": true
 }

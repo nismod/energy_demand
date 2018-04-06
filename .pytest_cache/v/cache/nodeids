@@ -1,4 +1,5 @@
 [
+  "tests/test_enduse_func.py::test_enduse",
   "tests/test_enduse_func.py::test_assign_lp_no_techs",
   "tests/test_enduse_func.py::test_get_peak_day",
   "tests/test_enduse_func.py::test_service_switch",
@@ -55,12 +56,6 @@
   "tests/profiles/test_load_factors.py::test_calc_lf_d",
   "tests/profiles/test_load_factors.py::test_calc_lf_y",
   "tests/profiles/test_load_factors.py::test_calc_lf_season",
-  "tests/profiles/test_load_profile.py::test_abs_to_rel",
-  "tests/profiles/test_load_profile.py::test_calk_peak_h_dh",
-  "tests/profiles/test_load_profile.py::test_LoadProfileStock",
-  "tests/profiles/test_load_profile.py::test_generate_key_lu_dict",
-  "tests/profiles/test_load_profile.py::test_LoadProfile",
-  "tests/profiles/test_load_profile.py::test_calc_av_lp",
   "tests/scripts/test_init_scripts.py::test_convert_sharesdict_to_service_switches",
   "tests/scripts/test_init_scripts.py::test_sum_across_sectors_all_regs",
   "tests/scripts/test_s_disaggregation.py::test_rs_disaggregate",
