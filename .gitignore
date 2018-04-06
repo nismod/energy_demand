@@ -53,8 +53,8 @@ model_output/*.pdf
 data/data_scripts/*.csv
 data/data_scripts/*.txt
 wrapperconfig.ini
-_raw_data/*
-_processed_data/*
+_raw_data
+_processed_data
 config_data/*
 config_data/01-validation_datasets/*
 config_data/02-spatial_index/*
