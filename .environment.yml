@@ -1,0 +1,28 @@
+# Conda environment specification
+# To import/create a copy of the environment:
+#    conda env create -f .environment.yml -n <environment_name>
+name: energy_demand
+channels:
+- conda-forge
+- defaults
+dependencies:
+- python=3.5
+- geopandas
+- haversine
+- imageio
+- matplotlib
+- numpy
+- palettable
+- pyinstrument
+- pyproj
+- pysal
+- pyshp
+- pytest  # test
+- pytest-cov  # test
+- pyyaml
+- recommonmark  # docs
+- scipy
+- sphinx  # docs
+- sphinx_rtd_theme  # docs
+- pip:
+  - isoweek
