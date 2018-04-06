@@ -1,7 +1,7 @@
 """
 """
-from energy_demand.technologies import technological_stock
 import numpy as np
+from energy_demand.technologies import technological_stock
 
 def test_Technology():
     """
@@ -71,7 +71,7 @@ def test_TechStock():
     stock_obj = technological_stock.TechStock(
         name="name",
         technologies=all_technologies,
-        tech_list={'heating_non_const': [], 'heating_const': ['boilerA']},
+        tech_list={'heating_non_const': [], 'heating_const': ['boilerA'], 'tech_CHP': []},
         other_enduse_mode_info={'linear'},
         base_yr=base_yr,
         curr_yr=curr_yr,

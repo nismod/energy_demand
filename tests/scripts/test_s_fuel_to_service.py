@@ -41,7 +41,8 @@ def test_get_s_fueltype_tech():
         'heating_non_const': ['heat_p'],
         'heating_const': ['boilerA'],
         'storage_heating_electricity': ['boilerC'],
-        'secondary_heating_electricity': []}
+        'secondary_heating_electricity': [],
+        'tech_CHP': []}
 
     fueltypes = {
         'gas': 0} 
@@ -129,7 +130,8 @@ def test_get_s_fueltype_tech():
         'heating_non_const': ['heat_p'],
         'heating_const': ['boilerA', 'boilerB'],
         'storage_heating_electricity': [],
-        'secondary_heating_electricity': []}
+        'secondary_heating_electricity': [],
+        'tech_CHP': []}
     
     fueltypes = {
         'gas': 0,

@@ -49,7 +49,7 @@ def load_param_assump(paths=None, local_paths=None, assumptions=None):
     # Heat pump GASHP & ASHP fraction assumptions
     # Relative GSHP (%) to GSHP+ASHP
     # ----------------------
-    strategy_vars['split_hp_gshp_to_ashp_ey'] = 0.5
+    strategy_vars['split_hp_gshp_to_ashp_ey'] = 0.5 #TODO REALLY?
 
     strategy_variables.append({
         "name": "split_hp_gshp_to_ashp_ey",

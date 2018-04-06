@@ -269,6 +269,9 @@ def compare_peak(
         linewidth=0.5,
         label='actual')
 
+    # Calculate hourly differences in %
+    diff_p_h = np.round((100 / validation_elec_2015_peak) * tot_peak_enduses_fueltype, 1)
+
     # Y-axis ticks
     plt.xlim(0, 25)
     plt.yticks(range(0, 90, 10))
@@ -276,10 +279,14 @@ def compare_peak(
     # Legend
     plt.legend(frameon=False)
 
+    font_additional_info = plotting_styles.font_info()
+
     # Labelling
-    plt.title("Peak day comparison", loc='left')
-    plt.xlabel("hours")
+    plt.title("peak comparison") # d_%:{}".format(diff_p_h), loc='left', fontdict=font_additional_info)
+    plt.xlabel("h")
     plt.ylabel("uk electrictiy use [GW]")
+
+    plt.text(-2, -10, diff_p_h, horizontalalignment='center', fontdict=font_additional_info)
 
     # Tight layout
     plt.tight_layout()
