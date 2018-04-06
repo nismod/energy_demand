@@ -459,37 +459,32 @@ def test_get_sig_diffusion():
             fueltypes=fueltype_lookup)}
 
     tech_increased_service = ['boilerA']
-    s_tech_ey_p =  {'boilerA': 0.6, 'boilerB': 0.4}
 
     sig_param = s_generate_sigmoid.get_l_values(
         technologies,
-        tech_increased_service,
-        s_tech_ey_p)
+        tech_increased_service)
 
     assert sig_param['boilerA'] == 1.0
 
     # -----
 
     tech_increased_service = ['boilerC']
-    s_tech_ey_p = {'boilerC': 0.5, 'boilerA': 0.0, 'boilerB': 0.0}
 
     sig_param = s_generate_sigmoid.get_l_values(
         technologies,
-        tech_increased_service,
-        s_tech_ey_p)
+        tech_increased_service)
 
     assert sig_param['boilerC'] == 0.999
 
     # -----
 
-    '''tech_increased_service = ['boilerC']
-    s_tech_ey_p = {'boilerC': 0.5, 'boilerA': 0.0, 'boilerB': 0.0}
+    tech_increased_service = ['boilerC']
     regions = ['regA']
+
     sig_param = s_generate_sigmoid.get_l_values(
         technologies,
         tech_increased_service,
-        s_tech_ey_p,
-        regionals=regions,
+        regions=regions,
         regional_specific=True)
 
-    #assert sig_param['regA']['boilerC'] == 0.999''' #TODO
+    assert sig_param['regA']['boilerC'] == 0.999
