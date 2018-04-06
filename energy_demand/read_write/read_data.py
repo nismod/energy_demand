@@ -235,8 +235,8 @@ def read_in_results(path_runs, seasons, model_yeardays_daytype):
 
     results_container['results_every_year'] = read_results_yh(path_runs)
 
-    results_container['tot_peak_enduses_fueltype'] = read_max_results(
-        os.path.join(path_runs, "result_tot_peak_enduses_fueltype"))
+    #results_container['tot_peak_enduses_fueltype'] = read_max_results(
+    #    os.path.join(path_runs, "result_tot_peak_enduses_fueltype"))
 
     # -------------
     # Load factors

@@ -28,7 +28,7 @@ def main(path_data_energy_demand, path_shapefile_input):
     # Set up logger
     logger_setup.set_up_logger(
         os.path.join(
-            path_data_energy_demand, "logging_plotting.log"))
+            path_data_energy_demand, "plotting.log"))
 
     # ------------------
     # Load necessary inputs for read in
@@ -37,7 +37,7 @@ def main(path_data_energy_demand, path_shapefile_input):
     data['local_paths'] = data_loader.load_local_paths(
         path_data_energy_demand)
     data['result_paths'] = data_loader.load_result_paths(
-        path_data_energy_demand)
+        os.path.join(path_data_energy_demand, '_result_data'))
 
     data['lookups'] = lookup_tables.basic_lookups()
 
@@ -51,7 +51,7 @@ def main(path_data_energy_demand, path_shapefile_input):
 
     # Simulation information is read in from .ini file for results
     data['enduses'], data['assumptions'], data['reg_nrs'], data['regions'] = data_loader.load_ini_param(
-        data['result_paths']['data_results'])
+        os.path.join(path_data_energy_demand, '_result_data'))
 
     # Other information is read in
     data['assumptions']['seasons'] = date_prop.get_season(year_to_model=2015)
@@ -59,8 +59,9 @@ def main(path_data_energy_demand, path_shapefile_input):
 
     # Read scenario data
     data['scenario_data'] = {}
+
     data['scenario_data']['population'] = read_data.read_scenaric_population_data(
-        data['local_paths']['model_run_pop'])
+        data['result_paths']['model_run_pop'])
 
     # --------------------------------------------
     # Reading in results from different model runs
@@ -87,7 +88,7 @@ def main(path_data_energy_demand, path_shapefile_input):
         result_mapping.create_geopanda_files(
             data,
             results_container,
-            data['local_paths'],
+            data['result_paths']['data_results_shapefiles'],
             data['regions'],
             data['lookups']['fueltypes_nr'],
             data['lookups']['fueltypes'],
@@ -105,4 +106,6 @@ def main(path_data_energy_demand, path_shapefile_input):
         data['assumptions'],
         data['enduses'])
 
+    print("===================================")
     print("... finished reading and plotting results")
+    print("===================================")

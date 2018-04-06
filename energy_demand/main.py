@@ -182,7 +182,7 @@ if __name__ == "__main__":
     data['local_paths'] = data_loader.load_local_paths(local_data_path)
 
     result_path = os.path.dirname(__file__).split("energy_demand\\energy_demand")[0]
-    data['result_paths'] = data_loader.load_result_paths(os.path.join(result_path, 'result_data'))
+    data['result_paths'] = data_loader.load_result_paths(os.path.join(result_path, '_result_data'))
 
     data['lookups'] = lookup_tables.basic_lookups()
     data['enduses'], data['sectors'], data['fuels'] = data_loader.load_fuels(data['paths'], data['lookups'])
@@ -338,8 +338,8 @@ if __name__ == "__main__":
 
             ed_fueltype_regs_yh = modelrun_obj.ed_fueltype_regs_yh
             out_enduse_specific = modelrun_obj.tot_fuel_y_enduse_specific_yh
-            tot_peak_enduses_fueltype = modelrun_obj.tot_peak_enduses_fueltype
-            tot_fuel_y_max_enduses = modelrun_obj.tot_fuel_y_max_enduses
+            #tot_peak_enduses_fueltype = modelrun_obj.tot_peak_enduses_fueltype
+            #tot_fuel_y_max_enduses = modelrun_obj.tot_fuel_y_max_enduses
             ed_fueltype_national_yh = modelrun_obj.ed_fueltype_national_yh
 
             reg_load_factor_y = modelrun_obj.reg_load_factor_y
@@ -376,12 +376,12 @@ if __name__ == "__main__":
                     path_runs,
                     out_enduse_specific,
                     "out_enduse_specific")
-                write_data.write_max_results(
+                ''' write_data.write_max_results(
                     sim_yr,
                     path_runs,
                     "result_tot_peak_enduses_fueltype",
                     tot_peak_enduses_fueltype,
-                    "tot_peak_enduses_fueltype")
+                    "tot_peak_enduses_fueltype")'''
                 write_data.write_lf(
                     path_runs,
                     "result_reg_load_factor_y",

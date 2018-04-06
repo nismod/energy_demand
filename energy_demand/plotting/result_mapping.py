@@ -390,12 +390,12 @@ def plot_lad_national(
         # ----------------------------
         # Plot map with all value hues
         # -----------------------------
-        '''
+        #'''
         lad_geopanda_shp.plot(
             ax=axes,
             column=field_to_plot,
             legend=True)
-        '''
+        #'''
         '''
         lad_geopanda_shp.plot(
             ax=axes,
@@ -407,7 +407,7 @@ def plot_lad_national(
         # -----------------------------
         # Plot map with quantiles
         # -----------------------------
-        #'''
+        '''
         lad_geopanda_shp.plot(
             axes=axes,
             column=field_to_plot,
@@ -415,7 +415,7 @@ def plot_lad_national(
             k=10,
             cmap='OrRd',
             legend=True)
-        #'''
+        '''
 
         # -----------------------------
         # Plot map wtih quantiles
@@ -442,14 +442,14 @@ def plot_lad_national(
             scheme='User_Defined')'''
 
         # Legend taken form axis
-        #'''
+        '''
         legend = axes.get_legend()
         legend.set_title(legend_title, prop={
             'family': 'arial',
             'size': 10})
         legend.set_frame_on(False)
         legend.set_bbox_to_anchor((0.5, -0.05))
-        #'''
+        '''
 
     # Title
     fig_map.suptitle(field_to_plot + fig_name_part)
@@ -466,7 +466,7 @@ def plot_lad_national(
 
     # Save figure
     plt.savefig(fig_name)
-    plotshow = True
+
     if plotshow:
         plt.show()
         plt.close()
@@ -575,7 +575,7 @@ def plot_spatial_mapping_example(
 def create_geopanda_files(
         data,
         results_container,
-        paths,
+        path_data_results_shapefiles,
         regions,
         fueltypes_nr,
         fueltypes,
@@ -657,7 +657,7 @@ def create_geopanda_files(
             legend_unit="%",
             field_to_plot=field_name,
             fig_name_part="lf_max_y",
-            result_path=paths['data_results_shapefiles'],
+            result_path=path_data_results_shapefiles,
             color_palette='Purples_9',
             color_prop=color_prop,
             user_classification=user_classification,
@@ -691,7 +691,7 @@ def create_geopanda_files(
             legend_unit="people",
             field_to_plot=field_name,
             fig_name_part="pop_",
-            result_path=paths['data_results_shapefiles'],
+            result_path=path_data_results_shapefiles,
             color_palette='Dark2_7',
             color_prop='qualitative',
             user_classification=True,
@@ -730,12 +730,13 @@ def create_geopanda_files(
                 unique_merge_id)
 
             # If user classified, defined bins
+            print("... plot {}".format(lad_geopanda_shp))
             plot_lad_national(
                 lad_geopanda_shp=lad_geopanda_shp,
                 legend_unit="GWh",
                 field_to_plot=field_name,
                 fig_name_part="tot_all_enduses_y_",
-                result_path=paths['data_results_shapefiles'],
+                result_path=path_data_results_shapefiles,
                 color_palette='Dark2_7',
                 color_prop='qualitative',
                 user_classification=False)
@@ -787,7 +788,7 @@ def create_geopanda_files(
                 legend_unit="GWh",
                 field_to_plot=field_name,
                 fig_name_part="tot_all_enduses_y_",
-                result_path=paths['data_results_shapefiles'],
+                result_path=path_data_results_shapefiles,
                 color_palette='Purples_9',
                 color_prop=color_prop,
                 user_classification=user_classification,
@@ -824,7 +825,7 @@ def create_geopanda_files(
                 legend_unit="%",
                 field_to_plot=field_name,
                 fig_name_part="lf_max_y",
-                result_path=paths['data_results_shapefiles'],
+                result_path=path_data_results_shapefiles,
                 color_palette='Dark2_7',
                 color_prop='qualitative',
                 user_classification=False)

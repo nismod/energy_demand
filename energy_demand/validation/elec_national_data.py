@@ -235,16 +235,20 @@ def compare_peak(
         name_fig,
         path_result,
         validation_elec_2015_peak,
-        tot_peak_enduses_fueltype
+        modelled_peak_dh
     ):
     """Compare peak electricity day with calculated peak energy demand
 
     Arguments
     ---------
-    name_fig :
-    local_paths :
-    validation_elec_2015_peak :
-    tot_peak_enduses_fueltype :
+    name_fig : str
+        Name of figure
+    local_paths : dict
+        Paths
+    validation_elec_2015_peak : array
+        Real data of peak day
+    modelled_peak_dh : array
+        Modelled peak day
     """
     logging.debug("...compare elec peak results")
 
@@ -255,7 +259,7 @@ def compare_peak(
 
     plt.plot(
         range(24),
-        tot_peak_enduses_fueltype,
+        modelled_peak_dh,
         color='blue',
         linestyle='-',
         linewidth=0.5,
@@ -270,7 +274,7 @@ def compare_peak(
         label='actual')
 
     # Calculate hourly differences in %
-    diff_p_h = np.round((100 / validation_elec_2015_peak) * tot_peak_enduses_fueltype, 1)
+    diff_p_h = np.round((100 / validation_elec_2015_peak) * modelled_peak_dh, 1)
 
     # Y-axis ticks
     plt.xlim(0, 25)
@@ -286,7 +290,14 @@ def compare_peak(
     plt.xlabel("h")
     plt.ylabel("uk electrictiy use [GW]")
 
-    plt.text(-2, -10, diff_p_h, horizontalalignment='center', fontdict=font_additional_info)
+    plt.text(
+        -6, 0, diff_p_h, 
+        horizontalalignment='center',
+        fontdict={
+        'family': 'arial',
+        'color': 'black',
+        'weight': 'normal',
+        'size': 6})
 
     # Tight layout
     plt.tight_layout()
