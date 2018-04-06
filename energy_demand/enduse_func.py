@@ -301,7 +301,6 @@ class Enduse(object):
                 # -------------------------------------------
                 self.fuel_y, fuel_tech_y = service_to_fuel(
                     enduse,
-                    s_tech_y_by,
                     s_tech_y_cy,
                     tech_stock,
                     fueltypes_nr,
@@ -1013,7 +1012,6 @@ def calc_fuel_tech_y(
 
 def service_to_fuel(
         enduse,
-        service_tech_by,
         service_tech,
         tech_stock,
         fueltypes_nr,
@@ -1028,8 +1026,6 @@ def service_to_fuel(
     ------
     enduse : str
         Enduse
-    service_tech_by : dict
-        Service per technology in base year
     service_tech : dict
         Service per fueltype and technology
     tech_stock : object
@@ -1062,8 +1058,6 @@ def service_to_fuel(
                 enduse, tech, 'eff_cy')
             fueltype_int = tech_stock.get_tech_attr(
                 enduse, tech, 'fueltype_int')
-            tech_type = tech_stock.get_tech_attr(
-                enduse, tech, 'tech_type')
 
             # Convert to fuel
             fuel = service / tech_eff
