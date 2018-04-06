@@ -397,7 +397,7 @@ def test_fuel_to_service():
     tech_stock = technological_stock.TechStock(
         name="name",
         technologies=technologies,
-        tech_list={'heating_non_const': [], 'heating_const': ['techA'], 'tech_CHP': []},
+        tech_list={'heating_non_const': [], 'heating_const': ['techA']},
         other_enduse_mode_info={'linear'},
         base_yr=2015,
         curr_yr=2020,
@@ -428,7 +428,7 @@ def test_fuel_to_service():
     tech_stock = technological_stock.TechStock(
         name="name",
         technologies=technologies,
-        tech_list={'heating_non_const': [], 'heating_const': ['techA'], 'tech_CHP': []},
+        tech_list={'heating_non_const': [], 'heating_const': ['techA']},
         other_enduse_mode_info={'linear'},
         base_yr=2015,
         curr_yr=2020,
@@ -465,7 +465,7 @@ def test_service_to_fuel():
     tech_stock = technological_stock.TechStock(
         name="name",
         technologies=technologies,
-        tech_list={'heating_non_const': [], 'heating_const': ['techA'], 'tech_CHP': []},
+        tech_list={'heating_non_const': [], 'heating_const': ['techA']},
         other_enduse_mode_info={'linear'},
         base_yr=2015,
         curr_yr=2020,
@@ -477,7 +477,7 @@ def test_service_to_fuel():
         t_base_heating_cy=15.5,
         enduse_technologies={'heating': ['techA']})
 
-    fuel_y, fuel_per_tech, fuel_supply_generated = enduse_func.service_to_fuel(
+    fuel_y, fuel_per_tech = enduse_func.service_to_fuel(
         "heating",
         {'techA': 100},
         {'techA': 100},
@@ -493,7 +493,7 @@ def test_service_to_fuel():
 
     fueltypes = {'gas': 0, 'heat': 1}
 
-    fuel_y, fuel_per_tech, fuel_supply_generated = enduse_func.service_to_fuel(
+    fuel_y, fuel_per_tech = enduse_func.service_to_fuel(
         "heating",
         {'techA': 100},
         {'techA': 100},
@@ -562,7 +562,7 @@ def test_calc_fuel_tech_y():
     tech_stock = technological_stock.TechStock(
         name="name",
         technologies=technologies,
-        tech_list={'heating_non_const': [], 'heating_const': ['techA'], 'tech_CHP': []},
+        tech_list={'heating_non_const': [], 'heating_const': ['techA']},
         other_enduse_mode_info={'linear'},
         base_yr=2015,
         curr_yr=2020,
@@ -610,7 +610,7 @@ def test_calc_fuel_tech_yh():
     '''tech_stock = technological_stock.TechStock(
         name="name",
         technologies=technologies,
-        tech_list={'heating_non_const': [], 'heating_const': ['techA'], 'tech_CHP': []},
+        tech_list={'heating_non_const': [], 'heating_const': ['techA']},
         other_enduse_mode_info={'linear'},
         base_yr=2015,
         curr_yr=2020,

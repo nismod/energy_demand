@@ -11,8 +11,7 @@ def test_get_tech_type():
         'heating_non_const': ['heat_p'],
         'heating_const': ['boilerA'],
         'storage_heating_electricity': ['boilerC'],
-        'secondary_heating_electricity': [],
-        'tech_CHP': []}
+        'secondary_heating_electricity': []}
 
     assert tech_related.get_tech_type('placeholder_tech', tech_list) == 'placeholder_tech'
     assert tech_related.get_tech_type('heat_p', tech_list) == 'heat_pump'

@@ -147,7 +147,6 @@ def assign_by_fuel_tech_p(enduses, sectors, fueltypes, fueltypes_nr):
         'district_heating_CHP_gas': 0}  #REALLY?
 
     rs_fuel_tech_p_by['rs_space_heating'][fueltypes['electricity']] = {
-        'stirling_micro_CHP_electricity': 0.0, #REALLY?
         'storage_heater_electricity': 0.62,
         'secondary_heater_electricity': 0.33,
         'heat_pumps_electricity': 0.05}
@@ -177,7 +176,6 @@ def assign_by_fuel_tech_p(enduses, sectors, fueltypes, fueltypes_nr):
         'boiler_gas': 0.4}
 
     rs_fuel_tech_p_by['rs_water_heating'][fueltypes['electricity']] = {
-        'stirling_micro_CHP_electricity': 0.0,
         'boiler_electricity': 1.0}
 
     rs_fuel_tech_p_by['rs_water_heating'][fueltypes['biomass']] = {

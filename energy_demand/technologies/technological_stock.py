@@ -280,20 +280,6 @@ class Technology(object):
         if tech_type == 'placeholder_tech':
             self.eff_by = 1.0
             self.eff_cy = 1.0
-        elif tech_type == 'tech_CHP':
-            # The standard eff_by is for heat
-            # Introducing combined heat and power. Carbon Trust
-            self.eff_by = 0.45  # Efficiency for heat #TODO REPLACE BY LIST IN CSV
-            self.eff_cy = 0.45  # Efficiency for heat
-
-            # --------
-            # Fueltype generation efficiency
-            # --------
-            self.fueltype_generation_str = 'electricity'
-            self.fueltype_generation_int = tech_related.get_fueltype_int(fueltypes, 'electricity')
-            self.eff_elec_by = 0.3   # Efficiency for electricity
-            self.eff_elec_cy = 0.3   # Efficiency for electricity
-
         elif tech_type == 'heat_pump':
             self.eff_by = tech_related.calc_hp_eff(
                 temp_by,

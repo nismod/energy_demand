@@ -217,38 +217,6 @@ def simulate_region(region, data, assumptions, weather_regions):
 
     return rs_submodel, ss_submodel, is_submodel
 
-def aggr_fuel_supply_generated(
-        sector_models,
-        model_yearhours_nrs,
-        fueltypes_nr,
-        model_yeardays_nrs,
-    ):
-    """Collect supply
-
-    Arguments
-    ----------
-    TODO TODO
-
-    Returns
-    -------
-    input_array : array
-        Summarised array
-    """
-    sum_generated_fuels = np.zeros((fueltypes_nr))
-
-    for sector_model in sector_models:
-        for enduse_object in sector_model:
-
-            fuels_generated = get_fuels_yh(
-                enduse_object,
-                'fuel_supply_generated',
-                model_yearhours_nrs,
-                model_yeardays_nrs)
-
-            sum_generated_fuels += fuels_generated
-
-    return sum_generated_fuels
-
 def fuel_aggr(
         sector_models,
         sum_crit,
@@ -434,10 +402,6 @@ def get_fuels_yh(
             fuels = fuels_reg_y[:, np.newaxis, np.newaxis] * fast_shape
         elif attribute_to_get == 'techs_fuel_peak_h':
             fuels = 1 / model_yearhours_nrs
-        
-        elif attribute_to_get == 'fuel_supply_generated': #TODO SCRAP
-            fuels = enduse_object.fuel_supply_generated
-
     else: #If not flat shape, use yh load profile of enduse
 
         fuels = getattr(enduse_object, attribute_to_get)
@@ -1003,15 +967,6 @@ def aggregate_final_results(
                 'techs_fuel_yh',
                 technologies)
 
-            # AGGREGATED GENERATED FUEL TODO PINGU
-            fuel_supply_generated = aggr_fuel_supply_generated(
-                [submodel],
-                model_yearhours_nrs,
-                fueltypes_nr,
-                model_yeardays_nrs)
-    
-            aggr_results['fuel_supply_generated'] += fuel_supply_generated
- 
             # Add SubModel specific ed
             aggr_results['ed_submodel_fueltype_regs_yh'][submodel_nr][reg_array_nr] += submodel_ed_fueltype_regs_yh
     else:
@@ -1208,7 +1163,5 @@ def initialise_result_container(
         'spring': np.zeros((fueltypes_nr, reg_nrs, 24), dtype=float),
         'winter': np.zeros((fueltypes_nr, reg_nrs, 24), dtype=float),
         'autumn': np.zeros((fueltypes_nr, reg_nrs, 24), dtype=float)}
-    
-    result_container['fuel_supply_generated'] = np.zeros((fueltypes_nr))
 
     return result_container
