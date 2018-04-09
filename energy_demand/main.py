@@ -1,30 +1,18 @@
-"""
-    Energy Demand Model
-    ===================
-    Contains the function `energy_demand_model` which is used
-    to run the energy demand model 
+""" Contains the function `energy_demand_model` used for running the energy demand model 
 
-    ---------------------
     SMIF test
-    ---------------------
     Information about the integration framework: http://smif.readthedocs.io/
 
-    ---------------------
     Tools
-    ---------------------
     Profiling:  https://jiffyclub.github.io/snakeviz/
 
-    ---------------------
     Development checklist
-    ---------------------
     https://nismod.github.io/docs/development-checklist.html
     https://nismod.github.io/docs/
     https://nismod.github.io/docs/smif-prerequisites.html#sector-modeller
 
 
-===========================================
 MEthod to derive GVA/POP SERVICE FLOOR AREAS
-============================================
 
 1. Step
 Get correlation between regional GVA and (regional floor area/reg pop) of every sector of base year
@@ -40,6 +28,7 @@ TODO: PEAK SHAPE vs PEAK FROM LOAD PROFILES
 TODO: UPDate all fuel data with new ECUK DATA
 TODO: WHAT ABOU NON_RESIDENTIAL FLOOR AREA: FOR WHAT?
 TODO: Spatial diffusion: Cap largest 5% of values and set to 1
+TODO: CONTROL ALL PEAK RESULTS
 """
 import os
 import sys
@@ -86,9 +75,7 @@ def energy_demand_model(data, assumptions, fuel_in=0, fuel_in_elec=0):
         data=data,
         assumptions=assumptions)
 
-    # ----------------
-    # Information
-    # ----------------
+    # Calculate base year demand
     fuel_in, fuel_in_biomass, fuel_in_elec, fuel_in_gas, fuel_in_heat, fuel_in_hydrogen, fuel_in_solid_fuel, fuel_in_oil, tot_heating = testing.test_function_fuel_sum(
         data,
         data['criterias']['mode_constrained'],
@@ -338,8 +325,7 @@ if __name__ == "__main__":
 
             ed_fueltype_regs_yh = modelrun_obj.ed_fueltype_regs_yh
             out_enduse_specific = modelrun_obj.tot_fuel_y_enduse_specific_yh
-            #tot_peak_enduses_fueltype = modelrun_obj.tot_peak_enduses_fueltype
-            #tot_fuel_y_max_enduses = modelrun_obj.tot_fuel_y_max_enduses
+            tot_fuel_y_max_enduses = modelrun_obj.tot_fuel_y_max_enduses
             ed_fueltype_national_yh = modelrun_obj.ed_fueltype_national_yh
 
             reg_load_factor_y = modelrun_obj.reg_load_factor_y
@@ -376,12 +362,6 @@ if __name__ == "__main__":
                     path_runs,
                     out_enduse_specific,
                     "out_enduse_specific")
-                ''' write_data.write_max_results(
-                    sim_yr,
-                    path_runs,
-                    "result_tot_peak_enduses_fueltype",
-                    tot_peak_enduses_fueltype,
-                    "tot_peak_enduses_fueltype")'''
                 write_data.write_lf(
                     path_runs,
                     "result_reg_load_factor_y",

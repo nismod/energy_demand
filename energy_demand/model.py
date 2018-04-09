@@ -1,4 +1,6 @@
-"""The function `EnergyDemandModel` executes all the submodels of the energy demand model"""
+"""The function `EnergyDemandModel` executes all the submodels of the energy demand model
+"""
+
 import logging
 from collections import defaultdict
 import numpy as np
@@ -648,7 +650,6 @@ def industry_submodel(
                 reg_scen_drivers=assumptions.scenario_drivers['is_submodule'],
                 flat_profile_crit=flat_profile_crit)
 
-            # Add to list
             submodels.append(submodel)
 
     return submodels
@@ -1018,27 +1019,6 @@ def aggregate_final_results(
             model_yeardays_nrs,
             technologies)
 
-        # Sum across all regions and calculate peak dh shape per fueltype
-        '''aggr_results['tot_peak_enduses_fueltype'] = aggr_fuel_aggr(
-            aggr_results['tot_peak_enduses_fueltype'],
-            'fuel_peak_dh',
-            'techs_fuel_peak_dh',
-            all_submodels,
-            'no_sum',
-            model_yearhours_nrs,
-            model_yeardays_nrs,
-            technologies)'''
-
-        '''aggr_results['tot_fuel_y_max_enduses'] = aggr_fuel_aggr(
-            aggr_results['tot_fuel_y_max_enduses'],
-            'fuel_peak_h',
-            'techs_fuel_peak_h',
-            all_submodels,
-            'no_sum',
-            model_yearhours_nrs,
-            model_yeardays_nrs,
-            technologies)'''
-
         # Sum across all regions and provide specific enduse
         aggr_results['tot_fuel_y_enduse_specific_yh'] = sum_enduse_all_regions(
             aggr_results['tot_fuel_y_enduse_specific_yh'],
@@ -1138,11 +1118,8 @@ def initialise_result_container(
     result_container['ed_fueltype_national_yh'] = np.zeros(
         (fueltypes_nr, model_yeardays_nrs, 24), dtype=float)
 
-    #result_container['tot_peak_enduses_fueltype'] = np.zeros(
-    #    (fueltypes_nr, 24), dtype=float)
-
-    #result_container['tot_fuel_y_max_enduses'] = np.zeros(
-    #    (fueltypes_nr), dtype=float)
+    result_container['tot_fuel_y_max_enduses'] = np.zeros(
+        (fueltypes_nr), dtype=float)
 
     result_container['tot_fuel_y_enduse_specific_yh'] = {}
 

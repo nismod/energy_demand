@@ -11,6 +11,7 @@ import pandas as pd
 from matplotlib.ticker import MultipleLocator, FormatStrFormatter
 from scipy import stats
 
+from energy_demand import enduse_func
 from energy_demand.plotting import plotting_program
 from energy_demand.basic import basic_functions, conversions
 from energy_demand.plotting import plotting_styles
@@ -38,7 +39,7 @@ def run_all_plot_functions(
     plot_week_h = True
     plot_h_peak_fueltypes = True
     plot_averaged_season_fueltype = True   # Compare for every season and daytype the daily loads
-
+    plot_radar = False                      # Plot radar spider charts
     # ----------
     # Plot LAD differences for first and last year
     # ----------
@@ -106,7 +107,7 @@ def run_all_plot_functions(
     # Fuel per fueltype for whole country over annual timesteps
     # ----------------
     if plot_fuels_enduses_y:
-        logging.info("plot Fuel per fueltype for whole country over annual timesteps")
+        logging.info("... plot fuel per fueltype for whole country over annual timesteps")
         #... Plot total fuel (y) per fueltype as line chart"
         plt_fuels_enduses_y(
             results_container['results_every_year'],
@@ -190,7 +191,7 @@ def run_all_plot_functions(
                     plot_all_entries=False,
                     plot_max_min_polygon=True,
                     plotshow=False,
-                    plot_radar=True, #TRUE
+                    plot_radar=plot_radar,
                     max_y_to_plot=120,
                     fueltype_str=fueltype_str,
                     year=year)
@@ -199,8 +200,9 @@ def run_all_plot_functions(
     # Plot hourly peak loads over time for different fueltypes
     # --------------------------------
     if plot_h_peak_fueltypes:
+
         plt_fuels_peak_h(
-            results_container['tot_peak_enduses_fueltype'],
+            results_container['results_every_year'], #results_container['tot_peak_enduses_fueltype'],
             lookups,
             os.path.join(
                 result_paths['data_results_PDF'],
@@ -448,7 +450,6 @@ def plot_lf_y(
                 linewidth=0.2,
                 color='grey')
 
-    #HANS
     if plot_max_min_polygon:
         lower_bdoundary = []
         upper_boundary = []
@@ -943,10 +944,10 @@ def plt_fuels_enduses_y(results, lookups, fig_name, plotshow=False):
     else:
         plt.close()
 
-def plt_fuels_peak_h(tot_fuel_dh_peak, lookups, path_plot_fig):
+def plt_fuels_peak_h(results_every_year, lookups, path_plot_fig):
     """Plots
 
-    Plot peak hour per fueltype over time
+    Plot peak hour per fueltype over time for 
 
     Arguments
     ---------
@@ -958,7 +959,7 @@ def plt_fuels_peak_h(tot_fuel_dh_peak, lookups, path_plot_fig):
     fig = plt.figure(figsize=plotting_program.cm2inch(14, 8))
     ax = fig.add_subplot(1, 1, 1)
 
-    nr_y_to_plot = len(tot_fuel_dh_peak)
+    nr_y_to_plot = len(results_every_year)
 
     legend_entries = []
 
@@ -970,12 +971,24 @@ def plt_fuels_peak_h(tot_fuel_dh_peak, lookups, path_plot_fig):
         # Legend
         legend_entries.append(fueltype_str)
 
-        # REad out fueltype specific peak dh load
+        # Read out fueltype specific load
         data_over_years = []
-        for model_year_object in tot_fuel_dh_peak.values():
+        for model_year_object in results_every_year.values():
+
+            # Sum fuel across all regions
+            fuel_all_regs = np.sum(model_year_object, axis=1) # (fueltypes, 8760 hours)
+            
+            # Reshape for finding peak day
+            nr_fueltypes = fuel_all_regs.shape[0]
+            fuel_all_regs_reshaped = fuel_all_regs.reshape(nr_fueltypes, 365, 24)
+
+            # Get peak day across all enduses for every region
+            peak_day = enduse_func.get_peak_day_all_fueltypes(fuel_all_regs_reshaped)
+
+            tot_fuel_dh_peak = fuel_all_regs[fueltype][peak_day]
 
             # Calculate max peak hour
-            peak_fueltyp_h = np.max(model_year_object[fueltype])
+            peak_fueltyp_h = np.max(tot_fuel_dh_peak)
 
             # Add peak hour
             data_over_years.append(peak_fueltyp_h)
@@ -987,7 +1000,7 @@ def plt_fuels_peak_h(tot_fuel_dh_peak, lookups, path_plot_fig):
     # ----------
     linestyles = plotting_styles.linestyles()
 
-    years = list(tot_fuel_dh_peak.keys())
+    years = list(results_every_year.keys())
     for fueltype, _ in enumerate(y_init):
         plt.plot(
             years,
@@ -995,7 +1008,6 @@ def plt_fuels_peak_h(tot_fuel_dh_peak, lookups, path_plot_fig):
             #linestyle=linestyles[fueltype],
             linewidth=0.7)
 
-    # Legend
     ax.legend(
         legend_entries,
         prop={
@@ -1272,14 +1284,13 @@ def plot_load_profile_dh_multiple(
     plt.tight_layout()
     plt.margins(x=0)
 
+    fig.savefig(path_plot_fig)
+
     if plotshow:
         plt.show()
         plt.close()
     else:
         plt.close()
-    # Save fig
-    fig.savefig(path_plot_fig)
-    plt.close()
 
 def plot_load_profile_dh(data_dh_real, data_dh_modelled, path_plot_fig):
     """plot daily profile

@@ -1,4 +1,4 @@
-"""Generate plots for multiple scenarios 
+"""Generate plots for multiple scenarios
 """
 import os
 import logging
@@ -34,6 +34,8 @@ def process_scenarios(path_to_scenarios, year_to_model=2015):
     ----------
     path_to_scenarios : str
         Path to folders with stored results
+    year_to_model : int, default=2015
+        Year of base year
     """
     # Delete folder results if existing
     path_result_folder = os.path.join(
@@ -107,16 +109,12 @@ def process_scenarios(path_to_scenarios, year_to_model=2015):
     logging.info("Finished processing multiple scenario")
     return
 
-# ------------------------------------
 # Execute rusult processing for every scenario
-# ------------------------------------^
 #'''
 process_result_multi_scen(
     os.path.abspath("C:/Users/cenv0553/ED/_multiple_results"),
     os.path.abspath('C:/Users/cenv0553/ED/data/_raw_data/C_LAD_geography/same_as_pop_scenario/lad_2016_uk_simplified.shp'))
 #'''
 
-# ------------------------------------
 # Generate plots across all scenarios
-# ------------------------------------
 #process_scenarios(os.path.abspath("C:/Users/cenv0553/ED/_multiple_results"))
