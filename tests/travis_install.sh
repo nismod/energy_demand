@@ -23,17 +23,15 @@ if [[ "$DISTRIB" == "conda" ]]; then
     export PATH=$HOME/miniconda/bin:$PATH
     conda update --yes conda
 
-    # Configure the conda environment and put it in the path using the
-    # provided versions
-    conda config --add channels conda-forge
-    conda create -n testenv --yes python=$PYTHON_VERSION pip numpy pyyaml matplotlib scipy
+    # Configure the conda environment using consistent .environment.yml
+    conda env create -f .environment.yml -n testenv
     source activate testenv
-
-elif [[ "$DISTRIB" == "ubuntu" ]]; then
-    # Use standard ubuntu packages in their default version
-    echo ubuntu
 fi
 
 if [[ "$COVERAGE" == "true" ]]; then
     pip install coverage coveralls
 fi
+
+# Pip install by default
+pip install -r requirements.txt
+python setup.py develop
