@@ -513,8 +513,7 @@ def calc_lf_improvement(
     return lf_improved_cy
 
 def assign_lp_no_techs(enduse, sector, load_profiles, fuel_y):
-    """Assign load profiles for an enduse
-    which has no technologies defined.
+    """Assign load profiles for an enduse which has no technologies defined
 
     Arguments
     ---------
@@ -536,13 +535,6 @@ def assign_lp_no_techs(enduse, sector, load_profiles, fuel_y):
 
     fuel_yh = load_profiles.get_lp(
         enduse, sector, 'placeholder_tech', 'shape_yh') * fuel
-
-    # Read dh profile from peak day. Get this day
-    # where the fuel demand across all fueltypes is highest
-    peak_day = get_peak_day_all_fueltypes(fuel_yh)
-
-    shape_peak_dh = lp.abs_to_rel(
-        fuel_yh[:, peak_day, :])
 
     return fuel_yh
 
