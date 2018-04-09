@@ -736,6 +736,20 @@ def read_technologies(path_to_csv, fueltypes):
                     tech_max_share=float(str.strip(row[8])),
                     description=str(row[9]),
                     fueltypes=fueltypes)
+                #TODO
+                '''
+                fueltype=str(get_position(headings, 'fueltype')),
+                eff_by=float(get_position(headings, 'eff_by')),
+                eff_ey=float(get_position(headings, 'eff_ey')),
+                year_eff_ey=float(get_position(headings, 'year_eff_ey')),
+                eff_achieved=1.0, # Set to one as default
+                diff_method=str(get_position(headings, 'diff_method')),
+                market_entry=float(get_position(headings, 'market_entry')),
+                tech_list=str.strip(get_position(headings, 'tech_list')),
+                tech_max_share=float(str.strip(get_position(headings, 'tech_max_share'))),
+                description=str(get_position(headings, 'description')),
+                fueltypes=fueltypes)
+                '''
                 try:
                     dict_tech_lists[str.strip(row[7])].append(technology)
                 except KeyError:

@@ -1202,7 +1202,6 @@ def apply_air_leakage(
     ----
     A standard sigmoid diffusion is assumed from base year to end year
     """
-    
     try:
         # Fraction of heat recovered until end year
         air_leakage_improvement = strategy_variables["air_leakage__{}".format(enduse)]['scenario_value']
@@ -1226,7 +1225,6 @@ def apply_air_leakage(
             f_improvement = air_leakage_cy / air_leakage_by
 
             # Apply to technologies each stored in dictionary or array
-
             service_reduced_techs = {}
             for tech, service_tech in service_techs.items():
                 service_reduced_techs[tech] = service_tech * f_improvement

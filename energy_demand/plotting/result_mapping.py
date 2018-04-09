@@ -29,7 +29,7 @@ from energy_demand.technologies import tech_related
 
         rounding_to_nr = 10
 
-        # Round down to 
+        # Round down to
         bin_diff = round_down(equal_cat, rounding_to_nr)
 
     else:
@@ -377,7 +377,7 @@ def plot_lad_national(
         # Select all polygons with value 0 of attribute to plot
         # ---------
         all_zero_polygons = getattr(lad_geopanda_shp_reclass, 'reclassified')
-        lad_geopanda_shp_zeros = lad_geopanda_shp_reclass[(all_zero_polygons==placeholder_zero_color)]
+        lad_geopanda_shp_zeros = lad_geopanda_shp_reclass[(all_zero_polygons == placeholder_zero_color)]
 
         # If more than 0 polygons are selected with classified number of zero, plot them
         if lad_geopanda_shp_zeros.shape[0] > 0:
@@ -801,7 +801,7 @@ def create_geopanda_files(
     # ======================================
     for year in results_container['load_factors_y'].keys():
         for fueltype in range(fueltypes_nr):
-            logging.info(" progress.. {}".format(fueltype))
+
             fueltype_str = tech_related.get_fueltype_str(fueltypes, fueltype)
             field_name = 'lf_{}_{}'.format(year, fueltype_str)
 

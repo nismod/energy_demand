@@ -83,6 +83,22 @@ def main(path_data_energy_demand, path_shapefile_input):
             data['lookups'],
             data['regions'])
 
+    # ------------------------------
+    # Plotting other results
+    # ------------------------------
+    plotting_results.run_all_plot_functions(
+        results_container,
+        data['reg_nrs'],
+        data['regions'],
+        data['lookups'],
+        data['result_paths'],
+        data['assumptions'],
+        data['enduses'])
+
+    # ------------------------------
+    # Plotting spatial results
+    # ------------------------------
+    print("... plotting spatial results")
     if spatial_results:
         logging.info("Create spatial geopanda files")
         result_mapping.create_geopanda_files(
@@ -94,17 +110,6 @@ def main(path_data_energy_demand, path_shapefile_input):
             data['lookups']['fueltypes'],
             path_shapefile_input)
 
-    # ------------------------------
-    # Plotting results
-    # ------------------------------
-    plotting_results.run_all_plot_functions(
-        results_container,
-        data['reg_nrs'],
-        data['regions'],
-        data['lookups'],
-        data['local_paths'],
-        data['assumptions'],
-        data['enduses'])
 
     print("===================================")
     print("... finished reading and plotting results")

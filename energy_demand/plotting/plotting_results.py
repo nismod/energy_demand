@@ -1,7 +1,6 @@
 """Plotting model results and storing as PDF to result folder
 """
 import os
-import sys
 import logging
 from collections import defaultdict
 import operator
@@ -10,19 +9,19 @@ import numpy as np
 import matplotlib.pyplot as plt
 import pandas as pd
 from matplotlib.ticker import MultipleLocator, FormatStrFormatter
+from scipy import stats
 
 from energy_demand.plotting import plotting_program
 from energy_demand.basic import basic_functions, conversions
 from energy_demand.plotting import plotting_styles
 from energy_demand.technologies import tech_related
-from scipy import stats
 
 def run_all_plot_functions(
         results_container,
         reg_nrs,
         regions,
         lookups,
-        local_paths,
+        result_paths,
         assumptions,
         enduses
     ):
@@ -52,7 +51,7 @@ def run_all_plot_functions(
             fueltype_int=lookups['fueltypes']['electricity'],
             fueltype_str='electricity',
             fig_name=os.path.join(
-                local_paths['data_results_PDF'], "comparions_LAD_modelled_by_cy.pdf"),
+                result_paths['data_results_PDF'], "comparions_LAD_modelled_by_cy.pdf"),
             label_points=False,
             plotshow=False)
         print("... plotted by-cy LAD energy demand compariosn")
@@ -70,7 +69,7 @@ def run_all_plot_functions(
             results_container['results_enduse_every_year'],
             enduses['rs_enduses'],
             os.path.join(
-                local_paths['data_results_PDF'],"stacked_rs_country.pdf"))
+                result_paths['data_results_PDF'], "stacked_rs_country.pdf"))
 
         # Service
         plt_stacked_enduse(
@@ -78,7 +77,7 @@ def run_all_plot_functions(
             results_container['results_enduse_every_year'],
             enduses['ss_enduses'],
             os.path.join(
-                local_paths['data_results_PDF'], "stacked_ss_country.pdf"))
+                result_paths['data_results_PDF'], "stacked_ss_country.pdf"))
 
         # Industry
         plt_stacked_enduse(
@@ -86,7 +85,7 @@ def run_all_plot_functions(
             results_container['results_enduse_every_year'],
             enduses['is_enduses'],
             os.path.join(
-                local_paths['data_results_PDF'], "stacked_is_country_.pdf"))
+                result_paths['data_results_PDF'], "stacked_is_country_.pdf"))
 
     # ------------------------------
     # Plot annual demand for enduses for all submodels
@@ -100,7 +99,7 @@ def run_all_plot_functions(
             enduses['rs_enduses'],
             enduses['ss_enduses'],
             enduses['is_enduses'],
-            os.path.join(local_paths['data_results_PDF'],
+            os.path.join(result_paths['data_results_PDF'],
             "stacked_all_enduses_country.pdf"))
 
     # --------------
@@ -113,7 +112,7 @@ def run_all_plot_functions(
             results_container['results_every_year'],
             lookups,
             os.path.join(
-                local_paths['data_results_PDF'],
+                result_paths['data_results_PDF'],
                 'y_fueltypes_all_enduses.pdf'))
 
     # ----------
@@ -133,7 +132,7 @@ def run_all_plot_functions(
                 results_container['load_factor_seasons'],
                 reg_nrs,
                 os.path.join(
-                    local_paths['data_results_PDF'],
+                    result_paths['data_results_PDF'],
                     'lf_seasonal_{}.pdf'.format(fueltype_str)))
 
             plot_lf_y(
@@ -142,7 +141,7 @@ def run_all_plot_functions(
                 results_container['load_factors_yd'],
                 reg_nrs,
                 os.path.join(
-                    local_paths['data_results_PDF'], 'lf_yd_{}.pdf'.format(fueltype_str)))
+                    result_paths['data_results_PDF'], 'lf_yd_{}.pdf'.format(fueltype_str)))
 
             # load_factors_yd = max daily value / average annual daily value
             plot_lf_y(
@@ -151,7 +150,7 @@ def run_all_plot_functions(
                 results_container['load_factors_y'],
                 reg_nrs,
                 os.path.join(
-                    local_paths['data_results_PDF'],
+                    result_paths['data_results_PDF'],
                     'lf_y_{}.pdf'.format(fueltype_str)))
 
     # --------------
@@ -165,7 +164,7 @@ def run_all_plot_functions(
             assumptions['model_yearhours_nrs'],
             assumptions['model_yeardays_nrs'],
             2015,
-            os.path.join(local_paths['data_results_PDF'], "tot_all_enduse03.pdf"))
+            os.path.join(result_paths['data_results_PDF'], "tot_all_enduse03.pdf"))
 
     # ------------------------------------
     # Plot averaged per season and fueltype
@@ -179,9 +178,9 @@ def run_all_plot_functions(
                     lookups['fueltypes'], fueltype_int)
 
                 plot_load_profile_dh_multiple(
-                    path_fig_folder=local_paths['data_results_PDF'],
+                    path_fig_folder=result_paths['data_results_PDF'],
                     path_plot_fig=os.path.join(
-                        local_paths['data_results_PDF'],
+                        result_paths['data_results_PDF'],
                         'season_daytypes_by_cy_comparison__{}__{}.pdf'.format(year, fueltype_str)),
                     calc_av_lp_modelled=results_container['av_season_daytype_cy'][year][fueltype_int],  # current year
                     calc_av_lp_real=results_container['av_season_daytype_cy'][base_year][fueltype_int], # base year
@@ -204,7 +203,7 @@ def run_all_plot_functions(
             results_container['tot_peak_enduses_fueltype'],
             lookups,
             os.path.join(
-                local_paths['data_results_PDF'],
+                result_paths['data_results_PDF'],
                 'fuel_fueltypes_peak_h.pdf'))
 
     # -
@@ -1673,10 +1672,9 @@ def plot_radar_plot(dh_profile, fig_name, plot_steps=30, plotshow=False):
     plt.show()'''
 
     # Change circula axis
-    #ax = fig.addxes_a(polar=True)
-    #ax.xaxis.grid(color='red', linestyle='--', linewidth="2")
-    ax.yaxis.grid(color='red', linestyle='--', linewidth="3")
-
+    ax.yaxis.grid(color='lightgrey', linestyle='--', linewidth=0.8) # Circular axis
+    
+    ax.xaxis.grid(color='lightgrey', linestyle='--', linewidth=0.8) # Regular axis
     #plt.figure(figsize=plotting_program.cm2inch(8, 8))
     #ax = plt.subplot(111, polar=True)
     #fig, ax = plt.subplots(figsize=plotting_program.cm2inch(8, 8))
@@ -1721,6 +1719,7 @@ def plot_radar_plot(dh_profile, fig_name, plot_steps=30, plotshow=False):
         alpha=0.1)
 
     # Save fig
+    print("fig_name: " + str(fig_name))
     plt.savefig(fig_name)
 
     if plotshow:
