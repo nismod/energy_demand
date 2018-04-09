@@ -106,7 +106,8 @@ class LoadProfileStock(object):
         # Get correct object
         load_profile_obj = self.load_profiles[position_in_dict]
 
-        if shape == 'shape_yh':
+        return getattr(load_profile_obj, shape)
+        '''if shape == 'shape_yh':
             return load_profile_obj.shape_yh
         elif shape == 'shape_yd':
             return load_profile_obj.shape_yd
@@ -118,7 +119,7 @@ class LoadProfileStock(object):
             return load_profile_obj.shape_peak_dh
         else:
             logging.critical("Specific load shape is not found in object")
-            return
+            return'''
 
     def get_shape_peak_dh(self, enduse, sector, technology):
         """Get peak_dh shape for a certain technology, enduse and sector

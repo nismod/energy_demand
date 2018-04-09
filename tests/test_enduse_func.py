@@ -8,7 +8,7 @@ from energy_demand.technologies import technological_stock
 from energy_demand.profiles import load_profile
 
 def test_enduse():
-
+    """testing"""
     out = enduse_func.Enduse(
         submodel='test',
         region='test',
@@ -50,23 +50,21 @@ def test_assign_lp_no_techs():
         unique_identifier="A123",
         technologies=['placeholder_tech'],
         enduses=['test_enduse'],
-        shape_yd=np.full((365,24), 1 / 365),
+        shape_yd=np.full((365, 24), 1 / 365),
         shape_yh=shape_yh,
         sectors=['test_sector'],
         f_peak_yd=1.0/365,
         shape_peak_dh=np.full((24), 1.0/24))
 
-    fuel_y = np.zeros((3, ))
+    fuel_y = np.zeros((3))
     fuel_y[2] = 100
-    fuel_yh, fuel_peak_dh, fuel_peak_h = enduse_func.assign_lp_no_techs(
+    fuel_yh = enduse_func.assign_lp_no_techs(
         enduse="test_enduse",
         sector="test_sector",
         load_profiles=lp_stock_obj,
         fuel_y=fuel_y)
 
     assert np.sum(fuel_yh) == 100
-    assert np.sum(fuel_peak_dh) == 100 * (1.0/365)
-    assert fuel_peak_h[2] == fuel_peak_dh[2][0]
 
 '''def test_get_crit_switch():
     """
