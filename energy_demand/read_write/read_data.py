@@ -719,42 +719,27 @@ def read_technologies(path_to_csv, fueltypes):
 
     with open(path_to_csv, 'r') as csvfile:
         rows = csv.reader(csvfile, delimiter=',')
-        headings = next(rows) # Skip heading
+        headings = next(rows)
 
         for row in rows:
-            technology = row[0]
+            technology = str(row[get_position(headings, 'technology')])
             try:
                 dict_technologies[technology] = TechnologyData(
-                    fueltype=str(row[1]),
-                    eff_by=float(row[2]),
-                    eff_ey=float(row[3]),
-                    year_eff_ey=float(row[4]),
+                    fueltype=str(row[get_position(headings, 'fueltype')]),
+                    eff_by=float(row[get_position(headings, 'efficiency in base year')]),
+                    eff_ey=float(row[get_position(headings, 'efficiency in future year')]),
+                    year_eff_ey=float(row[get_position(headings, 'year when efficiency is fully realised')]),
                     eff_achieved=1.0, # Set to one as default
-                    diff_method=str(row[5]),
-                    market_entry=float(row[6]),
-                    tech_list=str.strip(row[7]),
-                    tech_max_share=float(str.strip(row[8])),
-                    description=str(row[9]),
+                    diff_method=str(row[get_position(headings, 'diffusion method (sigmoid or linear)')]),
+                    market_entry=float(row[get_position(headings, 'market_entry')]),
+                    tech_list=str.strip(row[get_position(headings, 'technology type')]),
+                    tech_max_share=float(str.strip(row[get_position(headings, 'maximum theoretical service share of technology')])),
+                    description=str(row[get_position(headings, 'description')]),
                     fueltypes=fueltypes)
-                #TODO
-                '''
-                fueltype=str(get_position(headings, 'fueltype')),
-                eff_by=float(get_position(headings, 'eff_by')),
-                eff_ey=float(get_position(headings, 'eff_ey')),
-                year_eff_ey=float(get_position(headings, 'year_eff_ey')),
-                eff_achieved=1.0, # Set to one as default
-                diff_method=str(get_position(headings, 'diff_method')),
-                market_entry=float(get_position(headings, 'market_entry')),
-                tech_list=str.strip(get_position(headings, 'tech_list')),
-                tech_max_share=float(str.strip(get_position(headings, 'tech_max_share'))),
-                description=str(get_position(headings, 'description')),
-                fueltypes=fueltypes)
-                '''
                 try:
                     dict_tech_lists[str.strip(row[7])].append(technology)
                 except KeyError:
                     dict_tech_lists[str.strip(row[7])] = [technology]
-
             except Exception as e:
                 logging.error(
                     "Error technology table (e.g. empty field): %s %s", e, row)

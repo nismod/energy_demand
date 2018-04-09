@@ -1,4 +1,4 @@
-Technology,Fueltype,Efficiency in base year,Efficiency in future year,Year when efficiency is fully realised,Diffusion method (sigmoid or linear),market_entry,Technology type,Maximum theoretical service share of technology,Description,Efficiency in future year,
+technology,fueltype,efficiency in base year,efficiency in future year,year when efficiency is fully realised,diffusion method (sigmoid or linear),market_entry,technology type,maximum theoretical service share of technology,description,Efficiency in future year,
 halogen,electricity,0.04,0.04,2050,linear,2010,lighting,1,,0.07,
 standard_lighting_bulb,electricity,0.03,0.03,2050,linear,2010,lighting,1,,0.04,
 fluorescent_strip_lightinging,electricity,0.14,0.14,2050,linear,2010,lighting,1,,0.21,
@@ -46,13 +46,13 @@ district_heating_fuel_cell,hydrogen,0.85,0.85,2050,linear,2010,tech_district_hea
 basic_oxygen_furnace,solid_fuel,1,1,2050,linear,2010,steel_production,1,,9999999999,TODO
 electric_arc_furnace,electricity,6.1,6.1,2050,linear,2010,steel_production,1,assumed no technology imporvement,9999999999,TODO
 SNG_furnace,gas,1,1,2050,linear,2020,steel_production,1,assumed no technology imporvement,9999999999,TODO
-biomass_furnace,biomass,1,1,2050,linear,2020,steel_production,1,assumed no technology imporvement,,
-dry_kiln_coal,solid_fuel,1.8,1.8,2050,linear,2010,cement_production,1,assumed no technology imporvement,,
-dry_kiln_oil,oil,1.8,1.8,2050,linear,2010,cement_production,1,assumed no technology imporvement,,
-dry_kiln_gas,gas,1.8,1.8,2050,linear,2010,cement_production,1,assumed no technology imporvement,,
-dry_kiln_electricity,electricity,1.8,1.8,2050,linear,2010,cement_production,1,assumed no technology imporvement,,
-dry_kiln_biomass,biomass,1.8,1.8,2050,linear,2010,cement_production,1,assumed no technology imporvement,,
-wet_kiln_coal,solid_fuel,1,1,2050,linear,2010,cement_production,1,assumed no technology imporvement,,
-wet_kiln_oil,oil,1,1,2050,linear,2010,cement_production,1,assumed no technology imporvement,,
-wet_kiln_gas,gas,1,1,2050,linear,2010,cement_production,1,assumed no technology imporvement,,
-wet_kiln_electricity,electricity,1,1,2050,linear,2010,cement_production,1,assumed no technology imporvement,,
+biomass_furnace,biomass,1,1,2050,linear,2020,steel_production,1,assumed no technology imporvement,,TODO
+dry_kiln_coal,solid_fuel,1.8,1.8,2050,linear,2010,cement_production,1,assumed no technology imporvement,,TODO
+dry_kiln_oil,oil,1.8,1.8,2050,linear,2010,cement_production,1,assumed no technology imporvement,,TODO
+dry_kiln_gas,gas,1.8,1.8,2050,linear,2010,cement_production,1,assumed no technology imporvement,,TODO
+dry_kiln_electricity,electricity,1.8,1.8,2050,linear,2010,cement_production,1,assumed no technology imporvement,,TODO
+dry_kiln_biomass,biomass,1.8,1.8,2050,linear,2010,cement_production,1,assumed no technology imporvement,,TODO
+wet_kiln_coal,solid_fuel,1,1,2050,linear,2010,cement_production,1,assumed no technology imporvement,,TODO
+wet_kiln_oil,oil,1,1,2050,linear,2010,cement_production,1,assumed no technology imporvement,,TODO
+wet_kiln_gas,gas,1,1,2050,linear,2010,cement_production,1,assumed no technology imporvement,,TODO
+wet_kiln_electricity,electricity,1,1,2050,linear,2010,cement_production,1,assumed no technology imporvement,,TODO
