@@ -38,6 +38,10 @@ def get_model_yeardays_daytype(year_to_model):
         For every month the yeardays (as int) are provided
     yeardays_month_days : dict
         For every month, all dates are provided as date objects
+    
+    Note
+    ----
+    Only works with years with 365 days so far
     """
     # --------------------------------------
     # Calculate for all yeardays the daytype of base year
@@ -94,37 +98,9 @@ def get_season(year_to_model):
     seasons['autumn'] = list(range(
         date_to_yearday(year_to_model, 9, 1),
         date_to_yearday(year_to_model, 11, 30)))
-    
+
     return seasons
 
-'''def get_dates_week_nr(year, week_nr):
-    """Get all dates from a ISO week_nr in a list
-
-    Arguments
-    ----------
-    year : int
-        Year
-    week_nr : int
-        ISO week number
-
-    Returns
-    -------
-    list_days : list
-        Constaings date objects for ISO week
-
-    Note
-    -----
-    if year is a leap year, funciton may not work properly
-    """
-    from isoweek import Week
-    list_days = []
-    monday_in_week = Week(year, week_nr).monday()
-
-    for day in range(1, 8):
-        list_days.append(monday_in_week + timedelta(days=day))
-
-    return list_days
-'''
 def get_month_from_yeraday(year, yearday):
     """Get python month from yearday
 

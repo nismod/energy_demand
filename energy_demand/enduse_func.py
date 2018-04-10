@@ -315,13 +315,15 @@ class Enduse(object):
                 # ------------------------------------------
                 if self.flat_profile_crit:
                     #logging.info("flat profile")
-                    self.fuel_y = calc_fuel_tech_y(
+                    #TODO NOT NECESSARY? SOMEHOW REDUNDANT
+                    pass
+                    '''self.fuel_y = calc_fuel_tech_y(
                         enduse,
                         tech_stock,
                         fuel_tech_y,
                         fueltypes_nr,
                         fueltypes,
-                        mode_constrained)
+                        mode_constrained)'''
                 else:
                     fuel_yh = calc_fuel_tech_yh(
                         enduse,
@@ -349,7 +351,6 @@ class Enduse(object):
                                 fuel_yh[tech],
                                 [tech],
                                 sector,
-                                fuel_tech_y,
                                 tech_stock,
                                 load_profiles,
                                 mode_constrained=True)
@@ -366,7 +367,6 @@ class Enduse(object):
                             fuel_yh,
                             self.enduse_techs,
                             sector,
-                            fuel_tech_y,
                             tech_stock,
                             load_profiles,
                             mode_constrained=False)
@@ -379,7 +379,6 @@ def demand_management(
         fuel_yh,
         enduse_techs,
         sector,
-        fuel_tech_y,
         tech_stock,
         load_profiles,
         mode_constrained
@@ -403,8 +402,6 @@ def demand_management(
         Enduse specfic technologies
     sector : str
         Sector
-    fuel_tech_y : dict
-        Annual fuel per technology
     tech_stock : obj
         Technology stock
     load_profiles : obj
@@ -424,8 +421,7 @@ def demand_management(
     try:
         # Get assumed load shift
         param_name = 'demand_management_improvement__{}'.format(enduse)
-        print("NAME " + str(param_name))
-        print(strategy_variables[param_name]['scenario_value'])
+
         if strategy_variables[param_name]['scenario_value'] == 0:
 
             # no load management
@@ -829,7 +825,7 @@ def calc_fuel_tech_yh(
         enduse,
         sector,
         enduse_techs,
-        enduse_fuel_tech,
+        fuel_tech_y,
         load_profiles,
         fueltypes_nr,
         fueltypes,
@@ -840,7 +836,7 @@ def calc_fuel_tech_yh(
 
     Arguments
     ----------
-    enduse_fuel_tech : dict
+    fuel_tech_y : dict
         Fuel per technology in enduse
     tech_stock : object
         Technologies
@@ -871,7 +867,7 @@ def calc_fuel_tech_yh(
             if model_yeardays_nrs != 365:
                 load_profile = lp.abs_to_rel(load_profile)
 
-            fuel_tech_yh = enduse_fuel_tech[tech] * load_profile
+            fuel_tech_yh = fuel_tech_y[tech] * load_profile
 
             fuels_yh[tech] = fuel_tech_yh
     else:
@@ -890,7 +886,7 @@ def calc_fuel_tech_yh(
                 load_profile = lp.abs_to_rel(load_profile)
 
             # If no fuel for this tech and not defined in enduse
-            fuel_tech_yh = enduse_fuel_tech[tech] * load_profile
+            fuel_tech_yh = fuel_tech_y[tech] * load_profile
 
             fuels_yh[fueltypes['heat']] += fuel_tech_yh
 
