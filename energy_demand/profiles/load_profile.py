@@ -1,7 +1,6 @@
 """Functions related to load profiles
 """
 import uuid
-import logging
 import numpy as np
 from energy_demand.profiles import generic_shapes
 from energy_demand.initalisations import helpers

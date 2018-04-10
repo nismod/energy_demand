@@ -315,15 +315,7 @@ class Enduse(object):
                 # ------------------------------------------
                 if self.flat_profile_crit:
                     #logging.info("flat profile")
-                    #TODO NOT NECESSARY? SOMEHOW REDUNDANT
                     pass
-                    '''self.fuel_y = calc_fuel_tech_y(
-                        enduse,
-                        tech_stock,
-                        fuel_tech_y,
-                        fueltypes_nr,
-                        fueltypes,
-                        mode_constrained)'''
                 else:
                     fuel_yh = calc_fuel_tech_yh(
                         enduse,
@@ -684,102 +676,6 @@ def get_peak_day_single_fueltype(fuel_yh):
         peak_day_nr = np.argmax(np.sum(fuel_yh, axis=1))
         return peak_day_nr
 
-'''def calc_peak_tech_dh(
-        enduse,
-        sector,
-        enduse_techs,
-        enduse_fuel_tech,
-        fuel_yh,
-        tech_stock,
-        load_profile,
-        mode_constrained
-    ):
-    """Iterate technologies in enduse and calculate peak demand
-
-    Arguments
-    ----------
-    enduse : str
-        Enduse
-    sector : str
-        Sector
-    enduse_techs : list
-        Enduse technologies
-    enduse_fuel_tech : array
-        Fuel per enduse and technology
-    fuel_yh : array
-        Fuel per hours
-    tech_stock : data
-        Technology stock
-    load_profile : object
-        Load profile
-    mode_constrained : bool
-        Constrained mode criteria
-
-    Returns
-    -------
-    fuels_peak_dh : array
-        Peak values for peak day for every fueltype
-
-    Note
-    ----
-    -   This function gets the hourly values of the peak day for every fueltype.
-        The daily fuel is converted to dh for each technology.
-
-    -   For some technology types (heat_pump)
-        the dh peak day profile is not read in from technology
-        stock but from shape_yh of peak day.
-    """
-    if mode_constrained:
-        fuels_peak_dh = {}
-    else:
-        fuels_peak_dh = np.zeros((24), dtype=float)
-
-    for tech in enduse_techs:
-
-        tech_type = tech_stock.get_tech_attr(
-            enduse, tech, 'tech_type')
-
-        if tech_type == 'heat_pump':
-            """Read fuel from peak day
-            """
-            # Get day with most fuel
-            if isinstance(fuel_yh, dict):
-                peak_day_nr = get_peak_day_single_fueltype(fuel_yh[tech])
-            else:
-                peak_day_nr = get_peak_day_single_fueltype(fuel_yh)
-
-            # Calculate absolute fuel values for yd (multiply fuel with yd_shape)
-            fuel_tech_yd = enduse_fuel_tech[tech] * load_profile.get_lp(
-                enduse, sector, tech, 'shape_yd')
-
-            # Calculate fuel for peak day
-            fuel_tech_peak_d = fuel_tech_yd[peak_day_nr]
-
-            # The 'shape_peak_dh'is not defined in technology stock because
-            # in the 'Region' the peak day is not yet known
-            # Therefore, the shape_yh is read in and with help of information on peak day
-            tech_peak_dh = load_profile.get_lp(
-                enduse, sector, tech, 'shape_y_dh')[peak_day_nr]
-        else:
-            """Calculate fuel with peak factor
-            """
-            f_peak_yd = load_profile.get_lp(
-                enduse, sector, tech, 'f_peak_yd')
-
-            # Calculate fuel for peak day
-            fuel_tech_peak_d = enduse_fuel_tech[tech] * f_peak_yd
-
-        # Multiply absolute d fuels with dh peak fuel shape
-        fuel_tech_peak_dh = tech_peak_dh * fuel_tech_peak_d
-
-        if mode_constrained:
-            fuels_peak_dh[tech] = fuel_tech_peak_dh
-        else:
-            # Peak day fuel shape * fueltype distribution for peak day
-            fuels_peak_dh += fuel_tech_peak_dh
-
-    return fuels_peak_dh
-'''
 def get_enduse_techs(fuel_fueltype_tech_p_by):
     """Get all defined technologies of an enduse
 
@@ -888,54 +784,6 @@ def calc_fuel_tech_yh(
 
     return fuels_yh
 
-def calc_fuel_tech_y(
-        enduse,
-        tech_stock,
-        fuel_tech_y,
-        fueltypes_nr,
-        fueltypes,
-        mode_constrained
-    ):
-    """Calculate yearly fuel per technology (no load profile assigned).
-
-    Arguments
-    -----------
-    enduse : str
-        Enduse
-    tech_stock : object
-        Technology stock
-    fuel_tech_y : dict
-        Fuel per technology per year
-    lookups : dict
-        look-up
-    fueltype : dict
-        Integer of fueltypes
-    mode_constrained : bool
-        Running mode
-
-    Returns
-    -------
-    fuel_y : array
-        Fuel per year per fueltype
-
-    Note
-    ----
-    This function can be run in two different modes
-    """
-    fuel_y = np.zeros((fueltypes_nr), dtype=float)
-
-    for tech, fuel_tech_y in fuel_tech_y.items():
-        if mode_constrained:
-            fueltype_int = tech_stock.get_tech_attr(
-                enduse, tech, 'fueltype_int')
-
-            fuel_y[fueltype_int] += np.sum(fuel_tech_y)
-        else:
-            # Assign all to heat fueltype
-            fuel_y[fueltypes['heat']] += np.sum(fuel_tech_y)
-
-    return fuel_y
-
 def service_to_fuel(
         enduse,
         service_tech,
@@ -984,11 +832,11 @@ def service_to_fuel(
                 enduse, tech, 'eff_cy')
             fueltype_int = tech_stock.get_tech_attr(
                 enduse, tech, 'fueltype_int')
-            # TODO BAR
+            '''# TODO BAR
             tech_type = tech_stock.get_tech_attr(
                 enduse, tech, 'tech_type')
 
-            '''if tech_type == 'hybrid_tech':
+            if tech_type == 'hybrid_tech':
 
                 #TODO NEW
                 for tech_hybrid in ['heat_pumps_hybrid_electricity','boiler_hybrid_gas']:

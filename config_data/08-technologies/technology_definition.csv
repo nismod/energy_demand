@@ -56,4 +56,4 @@ wet_kiln_coal,solid_fuel,1,1,2050,linear,2010,cement_production,1,assumed no tec
 wet_kiln_oil,oil,1,1,2050,linear,2010,cement_production,1,assumed no technology imporvement,,TODO
 wet_kiln_gas,gas,1,1,2050,linear,2010,cement_production,1,assumed no technology imporvement,,TODO
 wet_kiln_electricity,electricity,1,1,2050,linear,2010,cement_production,1,assumed no technology imporvement,,TODO
-boiler_hybrid_gas,gas,0.65,0.65,2050,linear,2010,hybrid_tech,0.89,,0.94,
+,,,,,,,,,,,
