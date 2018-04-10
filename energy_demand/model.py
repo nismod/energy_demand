@@ -272,13 +272,14 @@ def fuel_aggr(
 
             if isinstance(fuels, dict):
                 for tech, fuel_tech in fuels.items():
-                    tech_fueltype = technologies[tech].fueltype_int
-                    input_array[tech_fueltype] += fuel_tech
+                    #tech_fueltype = technologies[tech].fueltype_int
+                    #input_array[tech_fueltype] += fuel_tech
+                    input_array += fuel_tech
             else:
                 # Fuel per technology
                 fuels = get_fuels_yh(
                     enduse_object,
-                    attribute_non_technology, #'fuel_yh'
+                    attribute_non_technology,
                     model_yearhours_nrs,
                     model_yeardays_nrs)
                 input_array += fuels
@@ -324,19 +325,20 @@ def aggr_fuel_aggr(
 
             fuels = get_fuels_yh(
                 enduse_object,
-                attribute_technologies, #'techs_fuel_yh'
+                attribute_technologies,
                 model_yearhours_nrs,
                 model_yeardays_nrs)
 
             if isinstance(fuels, dict):
                 for tech, fuel_tech in fuels.items():
-                    tech_fueltype = technologies[tech].fueltype_int
-                    input_array[tech_fueltype] += fuel_tech
+                    #tech_fueltype = technologies[tech].fueltype_int
+                    #input_array[tech_fueltype] += fuel_tech
+                    input_array += fuel_tech
             else:
                 # Fuel per technology
                 fuels = get_fuels_yh(
                     enduse_object,
-                    attribute_non_technology, #'fuel_yh'
+                    attribute_non_technology,
                     model_yearhours_nrs,
                     model_yeardays_nrs)
                 input_array += fuels
@@ -741,8 +743,9 @@ def sum_enduse_all_regions(
 
             if isinstance(fuels, dict):
                 for tech, fuel_tech in fuels.items():
-                    tech_fueltype = technologies[tech].fueltype_int
-                    enduse_dict[model_object.enduse][tech_fueltype] += fuel_tech
+                    #tech_fueltype = technologies[tech].fueltype_int
+                    #enduse_dict[model_object.enduse][tech_fueltype] += fuel_tech
+                    enduse_dict[model_object.enduse] += fuel_tech
             else:
                 # Fuel per technology
                 fuels = get_fuels_yh(
@@ -1007,8 +1010,8 @@ def aggregate_final_results(
         # Sum across all regions, all enduse and sectors
         aggr_results['ed_fueltype_national_yh'] = aggr_fuel_aggr(
             aggr_results['ed_fueltype_national_yh'],
-            'fuel_yh', # unconstrained
-            'techs_fuel_yh', # constrained
+            'fuel_yh',          # unconstrained
+            'techs_fuel_yh',    # constrained
             all_submodels,
             'no_sum',
             model_yearhours_nrs,

@@ -307,7 +307,7 @@ class Enduse(object):
 
                 # Delete all technologies with no fuel assigned
                 for tech, fuel_tech in fuel_tech_y.items():
-                    if fuel_tech == 0:
+                    if np.sum(fuel_tech) == 0:
                         self.enduse_techs.remove(tech)
 
                 # ------------------------------------------
@@ -318,6 +318,7 @@ class Enduse(object):
                     pass
                 else:
                     fuel_yh = calc_fuel_tech_yh(
+                        tech_stock,
                         enduse,
                         sector,
                         self.enduse_techs,
@@ -714,6 +715,7 @@ def get_enduse_techs(fuel_fueltype_tech_p_by):
     return list(set(enduse_techs))
 
 def calc_fuel_tech_yh(
+        tech_stock,
         enduse,
         sector,
         enduse_techs,
@@ -753,15 +755,22 @@ def calc_fuel_tech_yh(
         fuels_yh = {}
         for tech in enduse_techs:
 
+            # New
+            fuels_yh[tech] = np.zeros((fueltypes_nr, model_yeardays_nrs, 24), dtype=float)
+
+            fueltype_int = tech_stock.get_tech_attr(
+                enduse, tech, 'fueltype_int')
+
             load_profile = load_profiles.get_lp(
                 enduse, sector, tech, 'shape_yh')
 
             if model_yeardays_nrs != 365:
                 load_profile = lp.abs_to_rel(load_profile)
 
-            fuel_tech_yh = fuel_tech_y[tech] * load_profile
+            fuels_yh[tech][fueltype_int] = fuel_tech_y[tech][fueltype_int] * load_profile
 
-            fuels_yh[tech] = fuel_tech_yh
+            # IF MULTIOLE
+            # ITerate mutliple fueltype of technology and assign shapes
     else:
         # --
         # Unconstrained mode, i.e. not technolog specific.
@@ -863,11 +872,13 @@ def service_to_fuel(
                     fuel_tech_y[tech_hybrid] = fuel
                     fuel_y[fueltype_int] += fuel
             else:'''
+
+            fuel_tech_y[tech] = np.zeros((fueltypes_nr), dtype=float)
             # Convert to fuel
             fuel = service / tech_eff
 
             # Add fuel
-            fuel_tech_y[tech] = fuel
+            fuel_tech_y[tech][fueltype_int] = fuel
             fuel_y[fueltype_int] += fuel
     else:
         for tech, fuel_tech in service_tech.items():
