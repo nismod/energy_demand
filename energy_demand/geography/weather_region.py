@@ -208,8 +208,7 @@ class WeatherRegion(object):
                 enduses=enduse, #['rs_cooling'],
                 shape_yd=rs_fuel_shape_cooling_yd,
                 shape_yh=rs_fuel_shape_cooling_yh,
-                f_peak_yd=rs_peak_yd_cooling_factor,
-                shape_peak_dh=tech_lp['rs_shapes_cooling_dh']['peakday'])
+                f_peak_yd=rs_peak_yd_cooling_factor)
         '''
         # ------Heating boiler
         rs_profile_boilers_yh = load_profile.calc_yh(
@@ -221,8 +220,7 @@ class WeatherRegion(object):
             enduses=['rs_space_heating', 'rs_water_heating'],
             shape_yd=rs_fuel_shape_heating_yd,
             shape_yh=rs_profile_boilers_yh,
-            f_peak_yd=rs_peak_yd_heating_factor,
-            shape_peak_dh=tech_lp['rs_lp_heating_boilers_dh']['peakday'])
+            f_peak_yd=rs_peak_yd_heating_factor)
 
         # ------Heating CHP
         rs_profile_chp_yh = load_profile.calc_yh(
@@ -234,8 +232,7 @@ class WeatherRegion(object):
             enduses=['rs_space_heating', 'rs_water_heating'],
             shape_yd=rs_fuel_shape_heating_yd,
             shape_yh=rs_profile_chp_yh,
-            f_peak_yd=rs_peak_yd_heating_factor,
-            shape_peak_dh=tech_lp['rs_lp_heating_CHP_dh']['peakday'])
+            f_peak_yd=rs_peak_yd_heating_factor)
 
         # ------Electric heating, storage heating (primary)
         rs_profile_storage_heater_yh = load_profile.calc_yh(
@@ -246,8 +243,7 @@ class WeatherRegion(object):
             enduses=['rs_space_heating', 'rs_water_heating'],
             shape_yd=rs_fuel_shape_heating_yd,
             shape_yh=rs_profile_storage_heater_yh,
-            f_peak_yd=rs_peak_yd_heating_factor,
-            shape_peak_dh=tech_lp['rs_lp_storage_heating_dh']['peakday'])
+            f_peak_yd=rs_peak_yd_heating_factor)
 
         # ------Electric heating secondary (direct elec heating)
         rs_profile_elec_heater_yh = load_profile.calc_yh(
@@ -258,8 +254,7 @@ class WeatherRegion(object):
             enduses=['rs_space_heating', 'rs_water_heating'],
             shape_yd=rs_fuel_shape_heating_yd,
             shape_yh=rs_profile_elec_heater_yh,
-            f_peak_yd=rs_peak_yd_heating_factor,
-            shape_peak_dh=tech_lp['rs_lp_second_heating_dh']['peakday'])
+            f_peak_yd=rs_peak_yd_heating_factor)
 
         # ------Heat pump heating
         rs_fuel_shape_hp_yh, _ = get_fuel_shape_heating_hp_yh(
@@ -274,8 +269,7 @@ class WeatherRegion(object):
             enduses=['rs_space_heating', 'rs_water_heating'],
             shape_yd=rs_fuel_shape_heating_yd,
             shape_yh=rs_fuel_shape_hp_yh,
-            f_peak_yd=rs_peak_yd_heating_factor,
-            shape_peak_dh=tech_lp['rs_lp_heating_CHP_dh']['peakday'])
+            f_peak_yd=rs_peak_yd_heating_factor)
 
         # ------District_heating_electricity --> Assumption made that same curve as CHP
         rs_profile_chp_y_dh = load_profile.calc_yh(
@@ -287,8 +281,7 @@ class WeatherRegion(object):
             enduses=['rs_space_heating', 'rs_water_heating'],
             shape_yd=rs_fuel_shape_heating_yd,
             shape_yh=rs_profile_chp_y_dh,
-            f_peak_yd=rs_peak_yd_heating_factor,
-            shape_peak_dh=tech_lp['rs_lp_heating_boilers_dh']['peakday'])
+            f_peak_yd=rs_peak_yd_heating_factor)
 
         '''# --------------------------------------------
         # Calculate load profile for hybrid technology #TODO TODO
@@ -338,8 +331,7 @@ class WeatherRegion(object):
             enduses=['rs_space_heating'],
             shape_yd=rs_fuel_shape_heating_yd,
             shape_yh=lp_low_temp,
-            f_peak_yd=rs_peak_yd_heating_factor,
-            shape_peak_dh=tech_lp['rs_lp_heating_CHP_dh']['peakday']) #TODO REMOVE PEAK SHAPES
+            f_peak_yd=rs_peak_yd_heating_factor) #TODO REMOVE PEAK SHAPES
 
         # Hybrid heat pump profile
         self.rs_load_profiles.add_lp(
@@ -348,8 +340,7 @@ class WeatherRegion(object):
             enduses=['rs_space_heating'],
             shape_yd=rs_fuel_shape_heating_yd,
             shape_yh=lp_high_temp,
-            f_peak_yd=rs_peak_yd_heating_factor,
-            shape_peak_dh=tech_lp['rs_lp_heating_CHP_dh']['peakday']) #TODO REMOVE PEAK SHAPES
+            f_peak_yd=rs_peak_yd_heating_factor) #TODO REMOVE PEAK SHAPES
         
         from energy_demand.plotting import plotting_results
         import logging
@@ -423,8 +414,8 @@ class WeatherRegion(object):
         # ----------------
         # Get peak day and calculate peak load profile for peak day
         # ----------------
-        peak_day = get_peak_day_single_fueltype(ss_fuel_shape)
-        ss_space_heating_shape_peak_dh = load_profile.abs_to_rel(ss_fuel_shape[peak_day])
+        #peak_day = get_peak_day_single_fueltype(ss_fuel_shape)
+        #ss_space_heating_shape_peak_dh = load_profile.abs_to_rel(ss_fuel_shape[peak_day])
 
         self.ss_load_profiles.add_lp(
             unique_identifier=uuid.uuid4(),
@@ -433,8 +424,7 @@ class WeatherRegion(object):
             sectors=sectors['ss_sectors'],
             shape_yd=ss_fuel_shape_heating_yd_weighted,
             shape_yh=ss_fuel_shape_any_tech,
-            f_peak_yd=ss_peak_yd_heating_factor,
-            shape_peak_dh=ss_space_heating_shape_peak_dh)
+            f_peak_yd=ss_peak_yd_heating_factor)
 
         #------
         # Add cooling technologies for service sector
@@ -460,8 +450,7 @@ class WeatherRegion(object):
                     sectors=[sector],
                     shape_yd=ss_fuel_shape_coolin_yd,
                     shape_yh=ss_shape_yh,
-                    f_peak_yd=ss_peak_yd_cooling_factor,
-                    shape_peak_dh=tech_lp['ss_shapes_cooling_dh']['peakday'])
+                    f_peak_yd=ss_peak_yd_cooling_factor)
 
         # --------------------------------
         # Industry submodel
@@ -512,7 +501,7 @@ class WeatherRegion(object):
 
         # Alternatively generate y_dh flat profile
         #from energy_demand.profiles import generic_shapes
-        #shape_peak_dh, _, shape_peak_yd_factor, shape_non_peak_yd, shape_non_peak_yh = generic_shapes.flat_shape(
+        # _, shape_peak_yd_factor, shape_non_peak_yd, shape_non_peak_yh = generic_shapes.flat_shape(
         #    assumptions.model_yeardays_nrs)
         #flat_is_fuel_shape_any_tech = np.full((assumptions.model_yeardays_nrs, 24), (1.0/24.0), dtype=float)
         #flat_is_fuel_shape_any_tech = flat_is_fuel_shape_any_tech * is_fuel_shape_heating_yd[:, np.newaxis]

@@ -769,10 +769,6 @@ def get_peak_day_single_fueltype(fuel_yh):
             # Calculate fuel for peak day
             fuel_tech_peak_d = enduse_fuel_tech[tech] * f_peak_yd
 
-            # Assign Peak shape of a peak day of a technology
-            tech_peak_dh = load_profile.get_shape_peak_dh(
-                enduse, sector, tech)
-
         # Multiply absolute d fuels with dh peak fuel shape
         fuel_tech_peak_dh = tech_peak_dh * fuel_tech_peak_d
 

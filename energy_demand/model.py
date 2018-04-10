@@ -383,11 +383,7 @@ def get_fuels_yh(
         # Annual fuel
         fuels_reg_y = enduse_object.fuel_y
 
-        if attribute_to_get == 'fuel_peak_dh' or attribute_to_get == 'techs_fuel_peak_dh':
-            shape_peak_dh = np.full((24), 1 / 8760)
-            fuels_reg_peak = fuels_reg_y
-            fuels = fuels_reg_peak[:, np.newaxis] * shape_peak_dh
-        elif attribute_to_get == 'fuel_peak_h':
+        if attribute_to_get == 'fuel_peak_h':
             shape_peak_h = 1 / 8760
             fuels = fuels_reg_y * shape_peak_h
         elif attribute_to_get == 'shape_non_peak_y_dh':
