@@ -20,7 +20,7 @@ Get correlation between regional GVA and (regional floor area/reg pop) of every 
 
 2. Step
 Calculate future regional floor area demand based on GVA and pop projection 
-
+info: fuels_yh is made multidmensional according to fueltype
 TODO: Write all metadata of model run restuls to txt
 TODO: Related ed to houses & householdsize
 TODO: data loading, load multiple years for real elec data

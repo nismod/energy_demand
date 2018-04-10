@@ -43,6 +43,7 @@ class TechnologyData(object):
     """
     def __init__(
             self,
+            name=None,
             fueltype=None,
             eff_by=None,
             eff_ey=None,
@@ -55,6 +56,7 @@ class TechnologyData(object):
             description=None,
             fueltypes=None
         ):
+        self.name = name
         self.fueltype_str = fueltype
         self.fueltype_int = tech_related.get_fueltype_int(fueltypes, fueltype)
         self.eff_by = eff_by
@@ -722,6 +724,7 @@ def read_technologies(path_to_csv, fueltypes):
             technology = str(row[get_position(headings, 'technology')])
             try:
                 dict_technologies[technology] = TechnologyData(
+                    name=str(technology),
                     fueltype=str(row[get_position(headings, 'fueltype')]),
                     eff_by=float(row[get_position(headings, 'efficiency in base year')]),
                     eff_ey=float(row[get_position(headings, 'efficiency in future year')]),

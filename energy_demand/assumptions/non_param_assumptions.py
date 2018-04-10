@@ -2,6 +2,7 @@
 """
 from energy_demand.read_write import read_data
 from energy_demand.technologies import tech_related
+from energy_demand.technologies import technological_stock
 from energy_demand.basic import testing_functions, date_prop
 from energy_demand.assumptions import assumptions_fuel_shares
 from energy_demand.initalisations import helpers
@@ -453,6 +454,7 @@ class Assumptions(object):
         # ------------------------------------------------------------
         self.gshp_fraction = 0.1
 
+        # Load defined technologies
         self.technologies, self.tech_list = read_data.read_technologies(
             paths['path_technologies'], fueltypes)
 
@@ -468,6 +470,19 @@ class Assumptions(object):
         # Collect all heating technologies
         # TODO: MAYBE ADD IN TECH DOC ANOTHER LIST SPECIFYING ALL HEATING TECHs
         self.heating_technologies = get_all_heating_techs(self.tech_list)
+
+        # Add all hybrid technologies
+        for tech in self.technologies:
+            if tech == "boiler_gas":
+                tech_low_temp = self.technologies[tech]
+            if tech == 'heat_pumps_electricity':
+                tech_high_temp = self.technologies[tech]
+        combined_boiler_hp_system = technological_stock.HybridTech(
+            name='combined_boiler_hp_system',
+            tech_low_temp=tech_low_temp,
+            tech_high_temp=tech_high_temp)
+
+        self.technologies[combined_boiler_hp_system.name] = combined_boiler_hp_system
 
         # ============================================================
         # Enduse diffusion paramters

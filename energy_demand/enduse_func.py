@@ -427,9 +427,6 @@ def demand_management(
         # no load management
         peak_shift_crit = False
 
-    if peak_shift_crit:
-        prnt("2oko")
-        
     # ------------------------------
     # If peak shifting implemented, calculate new lp
     # ------------------------------
@@ -456,7 +453,6 @@ def demand_management(
         fuel_yh = lf.peak_shaving_max_min(
             lf_improved_cy, average_fuel_yd, fuel_yh, mode_constrained)
 
-        prnt("oko")
     else: # no peak shifting
         pass
 

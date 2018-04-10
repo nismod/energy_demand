@@ -222,6 +222,35 @@ def create_tech_stock(
 
     return stock_technologies
 
+class HybridTech(object):
+    """
+    """
+    def __init__(
+            self,
+            name,
+            lp_low_temp=None,
+            lp_high_temp=None,
+            share_service_low=None,
+            share_service_high=None,
+            tech_low_temp=None,
+            tech_high_temp=None,
+            tech_type='hybrid_tech'
+        ):
+        """Contructor
+        """
+        self.name = name
+        self.tech_type = tech_type
+
+        self.lp_low_temp = lp_low_temp
+        self.lp_high_temp = lp_high_temp
+        self.share_service_low = share_service_low
+        self.share_service_high = share_service_high
+
+        self.tech_low_temp = tech_low_temp
+        self.tech_high_temp = tech_high_temp
+
+        self.technologies = [tech_low_temp.name, tech_high_temp.name]
+
 class Technology(object):
     """Technology Class
 

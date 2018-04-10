@@ -29,9 +29,6 @@ def test_load_non_param_assump():
         fueltypes=lu['fueltypes'],
         fueltypes_nr=lu['fueltypes_nr'])
 
-    # Test if yaml file is created
-    #assert 
-
 def test_load_param_assump():
     """
     """
