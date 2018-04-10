@@ -471,7 +471,9 @@ class Assumptions(object):
         # TODO: MAYBE ADD IN TECH DOC ANOTHER LIST SPECIFYING ALL HEATING TECHs
         self.heating_technologies = get_all_heating_techs(self.tech_list)
 
-        # Add all hybrid technologies
+        # --------------------------
+        # Add all hybrid technologies TODO NEW
+        # --------------------------
         for tech in self.technologies:
             if tech == "boiler_gas":
                 tech_low_temp = self.technologies[tech]

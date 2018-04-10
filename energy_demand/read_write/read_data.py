@@ -563,7 +563,13 @@ def service_switch(path_to_csv, technologies, base_yr=2015):
 
     return service_switches
 
-def read_fuel_switches(path_to_csv, enduses, fueltypes, technologies, base_yr=2015):
+def read_fuel_switches(
+        path_to_csv,
+        enduses,
+        fueltypes,
+        technologies,
+        base_yr=2015
+    ):
     """This function reads in from CSV file defined fuel
     switch assumptions
 
@@ -641,7 +647,7 @@ def read_fuel_switches(path_to_csv, enduses, fueltypes, technologies, base_yr=20
         tot_share_fueltype_switched = 0
 
         for obj_iter in fuel_switches:
-            
+
             # Sum total switched share
             if obj.enduse == obj_iter.enduse and obj.fueltype_replace == obj_iter.fueltype_replace:
                 tot_share_fueltype_switched += obj_iter.fuel_share_switched_ey

@@ -5,6 +5,7 @@
 
     Tools
     Profiling:  https://jiffyclub.github.io/snakeviz/
+    python -m cProfile -o program.prof my_program.py
 
     Development checklist
     https://nismod.github.io/docs/development-checklist.html
@@ -50,7 +51,7 @@ from energy_demand.read_write import write_data
 from energy_demand.read_write import read_data
 from energy_demand.basic import basic_functions
 
-NR_OF_MODELLEd_REGIONS = 2
+NR_OF_MODELLEd_REGIONS = 392
 
 def energy_demand_model(data, assumptions, fuel_in=0, fuel_in_elec=0):
     """Main function of energy demand model to calculate yearly demand

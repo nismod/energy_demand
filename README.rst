@@ -31,9 +31,9 @@ energy demand simulation model.
 
 1. Initialising and running the model (local)
 =============================================
-In order to run HIRED, first the model needs to be set up (Section 1.1).
-The scenario setup needs to be run every time the model is
-run with different configurations (Section 1.2).
+In order to run HIRED, first the model needs to be set up. This can
+either be done with a complete dataset (Section 1.1) or only with
+all open source datasets (Section 1.2).
 
 **HIRE** is written in Python (Python>=3.6)
 
@@ -66,6 +66,8 @@ run with different configurations (Section 1.2).
 
 1.2 Alternative Model Set-Up (with restricted data)
 ---------------------------------------------
+This setup generated dummy temperature data and load profiles
+for the service submodel.
 
 1.  Add the minimum data requirements into a local directory as ``path/to/energy_data_folder`` and
     download the energy_demand python code.

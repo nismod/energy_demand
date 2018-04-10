@@ -1,5 +1,6 @@
 """Script to convert fuel to energy service
 """
+import logging
 import warnings
 import numpy as np
 from energy_demand.technologies import tech_related
@@ -139,6 +140,7 @@ def get_s_fueltype_tech(
     s_fueltype_by_p : dict
         Percentage of energy service per fueltype
     """
+    #TODO MAKE NICER
     service = init_nested_dict_brackets(fuels, fueltypes.values())              # Energy service per technology for base year
     s_tech_by_p = helpers.init_dict_brackets(fuels)                             # Percentage of total energy service per technology for base year
     s_fueltype_tech_by_p = init_nested_dict_brackets(fuels, fueltypes.values()) # Percentage of service per technologies within the fueltypes
@@ -164,18 +166,27 @@ def get_s_fueltype_tech(
 
             # Iterate technologies to calculate share of energy service depending on fuel and efficiencies
             for tech, fuel_alltech_by in selec_fuel_p_tech_by[fueltype].items():
-
+               
                 # Fuel share based on defined shares within fueltype (share of fuel * total fuel)
                 fuel_tech = fuel_alltech_by * fuel_fueltype
 
                 # Get technology type
                 tech_type = tech_related.get_tech_type(tech, tech_list)
-
+                logging.info("TECH: {} {}".format(tech, tech_type))
                 # Get efficiency for base year
                 if tech_type == 'heat_pump':
                     eff_tech = tech_related.eff_heat_pump(
                         temp_diff=10,
                         efficiency_intersect=technologies[tech].eff_by)
+                elif tech_type == 'hybrid_tech':
+                    
+                    logging.info(technologies[tech])
+                    print("---")
+                    # Get technology of hybrid tech with this fueltype
+                    if technologies[tech].tech_high_temp.fueltype == fueltype:
+                        eff_tech = technologies[tech].eff_by
+                    if technologies[tech].tech_low_temp.fueltype == fueltype:
+                        eff_tech = technologies[tech].eff_by
                 else:
                     eff_tech = technologies[tech].eff_by
 

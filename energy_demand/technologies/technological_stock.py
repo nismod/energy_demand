@@ -246,6 +246,8 @@ class HybridTech(object):
         self.share_service_low = share_service_low
         self.share_service_high = share_service_high
 
+        self.fueltype_low_temp = tech_low_temp.fueltype_int
+        self.fueltype_high_temp = tech_high_temp.fueltype_int
         self.tech_low_temp = tech_low_temp
         self.tech_high_temp = tech_high_temp
 
