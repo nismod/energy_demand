@@ -339,6 +339,7 @@ class Enduse(object):
                     # ---------------------------------------
                     if mode_constrained:
                         self.techs_fuel_yh = {}
+
                         for tech in fuel_yh:
                             self.techs_fuel_yh[tech] = demand_management(
                                 enduse,
@@ -423,7 +424,8 @@ def demand_management(
     try:
         # Get assumed load shift
         param_name = 'demand_management_improvement__{}'.format(enduse)
-
+        print("NAME " + str(param_name))
+        print(strategy_variables[param_name]['scenario_value'])
         if strategy_variables[param_name]['scenario_value'] == 0:
 
             # no load management
@@ -436,6 +438,9 @@ def demand_management(
         # no load management
         peak_shift_crit = False
 
+    if peak_shift_crit:
+        prnt("2oko")
+        
     # ------------------------------
     # If peak shifting implemented, calculate new lp
     # ------------------------------
@@ -462,6 +467,7 @@ def demand_management(
         fuel_yh = lf.peak_shaving_max_min(
             lf_improved_cy, average_fuel_yd, fuel_yh, mode_constrained)
 
+        prnt("oko")
     else: # no peak shifting
         pass
 
@@ -682,7 +688,7 @@ def get_peak_day_single_fueltype(fuel_yh):
         peak_day_nr = np.argmax(np.sum(fuel_yh, axis=1))
         return peak_day_nr
 
-def calc_peak_tech_dh(
+'''def calc_peak_tech_dh(
         enduse,
         sector,
         enduse_techs,
@@ -781,7 +787,7 @@ def calc_peak_tech_dh(
             fuels_peak_dh += fuel_tech_peak_dh
 
     return fuels_peak_dh
-
+'''
 def get_enduse_techs(fuel_fueltype_tech_p_by):
     """Get all defined technologies of an enduse
 

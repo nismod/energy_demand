@@ -40,6 +40,7 @@ def run_all_plot_functions(
     plot_h_peak_fueltypes = True
     plot_averaged_season_fueltype = True   # Compare for every season and daytype the daily loads
     plot_radar = False                      # Plot radar spider charts
+
     # ----------
     # Plot LAD differences for first and last year
     # ----------
@@ -58,6 +59,32 @@ def run_all_plot_functions(
         print("... plotted by-cy LAD energy demand compariosn")
     except:
         pass
+    
+    # ----------------
+    # Plot demand for every region over time
+    # -------------------
+    plot_line_for_every_region_of_peak_demand = True
+    if plot_line_for_every_region_of_peak_demand:
+        plt_one_fueltype_multiple_regions_peak_h(
+            results_container['results_every_year'],
+            lookups,
+            regions,
+            os.path.join(
+                result_paths['data_results_PDF'],
+                'plt_one_fueltype_multiple_regions_peak_h_electricity.pdf'),
+            fueltype_str_to_plot="electricity")
+
+    prnt(":")
+
+    if plot_fuels_enduses_y:
+        logging.info("... plot fuel per fueltype for whole country over annual timesteps")
+        #... Plot total fuel (y) per fueltype as line chart"
+        plt_fuels_enduses_y(
+            results_container['results_every_year'],
+            lookups,
+            os.path.join(
+                result_paths['data_results_PDF'],
+                'y_fueltypes_all_enduses.pdf'))
 
     # ------------
     # Plot stacked annual enduses
@@ -1908,3 +1935,106 @@ def plot_radar_plot_multiple_lines(
         plt.close()
     else:
         plt.close()
+
+def plt_one_fueltype_multiple_regions_peak_h(results_every_year, lookups, regions, path_plot_fig, fueltype_str_to_plot):
+    """Plot
+    Arguments
+    ---------
+    """
+    # Set figure size
+    fig = plt.figure(figsize=plotting_program.cm2inch(14, 8))
+
+    ax = fig.add_subplot(1, 1, 1)
+
+    nr_y_to_plot = len(results_every_year)
+
+    legend_entries = []
+
+    for fueltype_str, fueltype in lookups['fueltypes'].items():
+
+        if fueltype_str != fueltype_str_to_plot:
+            pass
+        else:
+            # Legend
+            #legend_entries.append(fueltype_str)
+
+            # Read out fueltype specific load
+            data_over_years = {}
+            for reg_nr, reg_geocode in enumerate(regions):
+                data_over_years[reg_nr] = []
+
+            for model_year_object in results_every_year.values():
+                
+                # Reshape for finding peak day
+                nr_fueltypes = model_year_object.shape[0]
+                nr_regs = model_year_object.shape[1]
+                fuel_reg_reshaped = model_year_object.reshape(nr_fueltypes, nr_regs, 365, 24)
+
+                for reg_nr, reg_geocode in enumerate(regions):
+
+                    # Get peak day across all enduses for every region
+                    peak_day = enduse_func.get_peak_day_single_fueltype(fuel_reg_reshaped[fueltype][reg_nr])
+
+                    tot_fuel_dh_peak = model_year_object[fueltype][reg_nr][peak_day]
+
+                    # Calculate max peak hour
+                    peak_fueltyp_h = np.max(tot_fuel_dh_peak)
+
+                    # Add peak hour
+                    data_over_years[reg_nr].append(peak_fueltyp_h)
+
+            y_init = data_over_years
+
+    # ----------
+    # Plot lines
+    # ----------
+    linestyles = plotting_styles.linestyles()
+    years = list(results_every_year.keys())
+    #color_list_selection = plotting_styles.color_list_selection()
+
+    for reg in y_init:
+        plt.plot(
+            years,
+            y_init[reg],
+            #linestyle=linestyles[fueltype],
+            color='lightblue',
+            linewidth=0.2,)
+
+    ax.legend(
+        legend_entries,
+        prop={
+            'family': 'arial',
+            'size': 8},
+        frameon=False)
+
+    # -
+    # Axis
+    # -
+    base_yr = 2015
+    major_interval = 10
+    minor_interval = 5
+
+    # Major ticks
+    major_ticks = np.arange(base_yr, years[-1] + major_interval, major_interval)
+    ax.set_xticks(major_ticks)
+
+    # Minor ticks
+    minor_ticks = np.arange(base_yr, years[-1] + minor_interval, minor_interval)
+    ax.set_xticks(minor_ticks, minor=True)
+
+    plt.xlim(2015, years[-1])
+
+    # --------
+    # Labeling
+    # --------
+    plt.ylabel("GW")
+    plt.xlabel("year")
+    plt.title("ED peak hour, y, all enduses, single regs")
+
+    # Tight layout
+    plt.tight_layout()
+    plt.margins(x=0)
+
+    # Save fig
+    fig.savefig(path_plot_fig)
+    plt.close()

@@ -7,7 +7,6 @@ def linestyles():
     https://matplotlib.org/gallery/lines_bars_and_markers/linestyles.html
 
     """
-
     linestyles = OrderedDict(
         [
             ('solid',               (0, ())),
