@@ -1,6 +1,7 @@
 """
 Functions related to the technological stock
 """
+import numpy as np
 from energy_demand.technologies import tech_related
 
 class TechStock(object):
@@ -77,6 +78,18 @@ class TechStock(object):
             potential_enduses,
             enduse_technologies)
 
+    def get_tech(self, name, enduse):
+        """Get technology of technology stock
+
+        Arguments
+        ----------
+        name : str
+            Name of technology to get
+        enduse : str
+            Enduse of technology
+        """
+        return self.stock_technologies[(name, enduse)]
+
     def get_tech_attr(self, enduse, name, attribute_to_get):
         """Get a technology attribute from a technology
         object stored in a list
@@ -100,6 +113,21 @@ class TechStock(object):
         attribute_value = getattr(tech_object, attribute_to_get)
 
         return attribute_value
+
+    def add_tech(
+            self,
+            name,
+            enduse,
+            tech_obj
+        ):
+        """Add technology to technology stock
+
+        Arguments
+        ---------
+        tech_obj : object
+            Technology object
+        """
+        self.stock_technologies[(name, enduse)] = tech_obj
 
 def create_tech_stock(
         technologies,
@@ -277,6 +305,22 @@ class Technology(object):
         self.market_entry = market_entry
         self.tech_max_share = tech_max_share
 
+        # Calculate hybrid properties
+        '''tech_type = 'hybrid_gas_elec_system'
+        if tech_type == 'hybrid_gas_elec_system':
+
+            hybrid_cutoff_temp_low = 5 #
+            hybrid_cutoff_temp_high = 8 #
+            self.temp_low = 'boiler_gas'
+            self.temp_high = 'heat_pumps_electricity'
+            # Get fraction of service for hybrid technologies for every hour
+            self.service_distr_hybrid_h_p, self.low_tech_p, self.high_tech_p = service_hybrid_tech_low_high_h_p(
+                temp_cy,
+                hybrid_cutoff_temp_low,
+                hybrid_cutoff_temp_high)
+        else:
+            pass'''
+
         if tech_type == 'placeholder_tech':
             self.eff_by = 1.0
             self.eff_cy = 1.0
@@ -309,3 +353,16 @@ class Technology(object):
                 other_enduse_mode_info,
                 self.eff_achieved_f,
                 self.diff_method)
+
+    def set_tech_attr(self, attribute_to_set, value_to_set):
+        """Get a technology attribute from a technology
+        object stored in a list
+
+        Arguments
+        ----------
+        attribute_to_set : str
+            Attribue to set
+        value_to_set : any
+            Value to set
+        """
+        setattr(self, attribute_to_set, value_to_set)

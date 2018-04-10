@@ -147,12 +147,14 @@ def assign_by_fuel_tech_p(enduses, sectors, fueltypes, fueltypes_nr):
         'boiler_condensing_gas': 0.60,
         'boiler_gas': 0.38,
         'stirling_micro_CHP_gas': 0.0,
-        'district_heating_CHP_gas': 0.02}
+        'district_heating_CHP_gas': 0.02,
+        'boiler_hybrid_gas':0}
 
     rs_fuel_tech_p_by['rs_space_heating'][fueltypes['electricity']] = {
         'storage_heater_electricity': 0.62,
         'secondary_heater_electricity': 0.33,
-        'heat_pumps_electricity': 0.05}
+        'heat_pumps_electricity': 0.05} #}4, #TODO 0.05
+        #'heat_pumps_electricity_hybrid': 0.01} #TODO
 
     rs_fuel_tech_p_by['rs_space_heating'][fueltypes['biomass']] = {
         'boiler_biomass': 1.0,

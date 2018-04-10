@@ -988,13 +988,43 @@ def service_to_fuel(
                 enduse, tech, 'eff_cy')
             fueltype_int = tech_stock.get_tech_attr(
                 enduse, tech, 'fueltype_int')
+            # TODO BAR
+            tech_type = tech_stock.get_tech_attr(
+                enduse, tech, 'tech_type')
 
-            # Convert to fuel
-            fuel = service / tech_eff
+            if tech_type == 'hybrid_tech':
 
-            # Add fuel
-            fuel_tech_y[tech] = fuel
-            fuel_y[fueltype_int] += fuel
+                #TODO NEW
+                for tech_hybrid in ['heat_pumps_hybrid_electricity','boiler_hybrid_gas']:
+
+                    fueltype_int = tech_stock.get_tech_attr(
+                        enduse, tech_hybrid, 'fueltype_int')
+
+                    tech_eff = tech_stock.get_tech_attr(
+                        enduse, tech, 'eff_cy')
+
+                    share_service = tech_stock.get_tech_attr(
+                        enduse, tech, 'share_service')
+
+                    #Calculate share of each technology
+                    service_share_hybrid_tech = service * share_service
+
+                    logging.info("ddd {} {}  {}  {} {}".format(
+                        tech, fueltype_int, share_service, tech_eff, service_share_hybrid_tech))
+                    prnt(":")
+                    # Convert to fuel
+                    fuel = service_share_hybrid_tech / tech_eff
+
+                    # Add fuel
+                    fuel_tech_y[tech_hybrid] = fuel
+                    fuel_y[fueltype_int] += fuel
+            else:
+                # Convert to fuel
+                fuel = service / tech_eff
+
+                # Add fuel
+                fuel_tech_y[tech] = fuel
+                fuel_y[fueltype_int] += fuel
     else:
         for tech, fuel_tech in service_tech.items():
             fuel_y[fueltypes['heat']] += fuel_tech

@@ -282,6 +282,10 @@ def calc_av_heat_pump_eff_ey(technologies, heat_pump_assump):
         # Add new averaged technology
         technologies[name_av_hp].eff_ey = av_eff_hps_ey
 
+        # Add also hybrid heat pumps
+        name_av_hp_hybrid = "heat_pumps_hybrid_{}".format(fueltype)
+        technologies[name_av_hp_hybrid].eff_ey = av_eff_hps_ey
+
     return technologies
 
 def generate_heat_pump_from_split(technologies, heat_pump_assump, fueltypes):
@@ -360,6 +364,24 @@ def generate_heat_pump_from_split(technologies, heat_pump_assump, fueltypes):
             fueltypes=fueltypes)
 
         heat_pumps.append(name_av_hp)
+
+
+        # ----Add also a hybrid heat pump
+        name_av_hp_hybrid = "heat_pumps_hybrid_{}".format(fueltype)
+
+        technologies[name_av_hp_hybrid] = read_data.TechnologyData(
+            fueltype=fueltype,
+            eff_by=av_eff_hps_by,
+            eff_ey=av_eff_hps_ey,
+            year_eff_ey=av_year_eff_ey,
+            eff_achieved=eff_achieved_av,
+            diff_method='linear',
+            market_entry=market_entry_lowest,
+            tech_list='heating_non_const',
+            tech_max_share=tech_max_share,
+            fueltypes=fueltypes)
+
+        heat_pumps.append(name_av_hp_hybrid)
 
     return technologies, temp_dependent_tech_list, heat_pumps
 

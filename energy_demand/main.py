@@ -30,6 +30,7 @@ TODO: WHAT ABOU NON_RESIDENTIAL FLOOR AREA: FOR WHAT?
 TODO: Spatial diffusion: Cap largest 5% of values and set to 1
 TODO: CONTROL ALL PEAK RESULTS
 TODO: HYBRID BOILER: 
+TODO: REMOVE model_yeardays_nrs
 
 Potential storline: different levels of hybrid boilers for heat?
 """
