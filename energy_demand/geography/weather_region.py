@@ -290,7 +290,7 @@ class WeatherRegion(object):
             f_peak_yd=rs_peak_yd_heating_factor,
             shape_peak_dh=tech_lp['rs_lp_heating_boilers_dh']['peakday'])
 
-        # --------------------------------------------
+        '''# --------------------------------------------
         # Calculate load profile for hybrid technology #TODO TODO
         # --------------------------------------------
         # ---
@@ -350,14 +350,14 @@ class WeatherRegion(object):
             shape_yh=lp_high_temp,
             f_peak_yd=rs_peak_yd_heating_factor,
             shape_peak_dh=tech_lp['rs_lp_heating_CHP_dh']['peakday']) #TODO REMOVE PEAK SHAPES
-
-        '''from energy_demand.plotting import plotting_results
+        
+        from energy_demand.plotting import plotting_results
         import logging
         logging.info(service_distr_hybrid_h_p['low'][12])
         logging.info("_---")
         logging.info(service_distr_hybrid_h_p['high'][12])
         plotting_results.plot_lp_dh_SCRAP(lp_low_temp[12])
-        plotting_results.plot_lp_dh_SCRAP(lp_high_temp[12])'''
+        plotting_results.plot_lp_dh_SCRAP(lp_high_temp[12])
 
         # Get heat pumps and add same properties but with different name
         tech_hp_hybrid = self.rs_tech_stock.get_tech('heat_pumps_hybrid_electricity', 'rs_space_heating')
@@ -367,7 +367,7 @@ class WeatherRegion(object):
         tech_boiler_hybrid.set_tech_attr('share_service', p_tech_low_service)
         #self.rs_tech_stock.add_tech('heat_pumps_electricity_hybrid', 'rs_space_heating', tech_hp_hybrid)
         #self.rs_tech_stock.add_tech('boiler_gas_hybrid', 'rs_space_heating', tech_boiler_hybrid)
-        # ---------------------
+        # ---------------------'''
 
         # -------------------
         # Service Load profiles

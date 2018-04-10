@@ -992,7 +992,7 @@ def service_to_fuel(
             tech_type = tech_stock.get_tech_attr(
                 enduse, tech, 'tech_type')
 
-            if tech_type == 'hybrid_tech':
+            '''if tech_type == 'hybrid_tech':
 
                 #TODO NEW
                 for tech_hybrid in ['heat_pumps_hybrid_electricity','boiler_hybrid_gas']:
@@ -1018,13 +1018,13 @@ def service_to_fuel(
                     # Add fuel
                     fuel_tech_y[tech_hybrid] = fuel
                     fuel_y[fueltype_int] += fuel
-            else:
-                # Convert to fuel
-                fuel = service / tech_eff
+            else:'''
+            # Convert to fuel
+            fuel = service / tech_eff
 
-                # Add fuel
-                fuel_tech_y[tech] = fuel
-                fuel_y[fueltype_int] += fuel
+            # Add fuel
+            fuel_tech_y[tech] = fuel
+            fuel_y[fueltype_int] += fuel
     else:
         for tech, fuel_tech in service_tech.items():
             fuel_y[fueltypes['heat']] += fuel_tech
