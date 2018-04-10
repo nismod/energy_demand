@@ -139,18 +139,10 @@ def get_s_fueltype_tech(
     s_fueltype_by_p : dict
         Percentage of energy service per fueltype
     """
-    # Energy service per technology for base year
-    service = init_nested_dict_brackets(
-        fuels, fueltypes.values())
-
-     # Percentage of total energy service per technology for base year
-    s_tech_by_p = helpers.init_dict_brackets(fuels)
-
-    # Percentage of service per technologies within the fueltypes
-    s_fueltype_tech_by_p = init_nested_dict_brackets(fuels, fueltypes.values())
-
-    # Percentage of service per fueltype
-    s_fueltype_by_p = init_nested_dict_zero(
+    service = init_nested_dict_brackets(fuels, fueltypes.values())              # Energy service per technology for base year
+    s_tech_by_p = helpers.init_dict_brackets(fuels)                             # Percentage of total energy service per technology for base year
+    s_fueltype_tech_by_p = init_nested_dict_brackets(fuels, fueltypes.values()) # Percentage of service per technologies within the fueltypes
+    s_fueltype_by_p = init_nested_dict_zero(                                    # Percentage of service per fueltype
         s_tech_by_p.keys(),
         range(len(fueltypes)))
 
@@ -225,13 +217,10 @@ def get_s_fueltype_tech(
 
         # Convert service per enduse
         for fueltype in s_fueltype_by_p[enduse]:
-
-            #OptimizeWarning: Covariance of the parameters could not be estimated
             with np.errstate(divide='ignore'):
                 s_fueltype_by_p[enduse][fueltype] = s_fueltype_by_p[enduse][fueltype] / total_s
 
-    warnings.filterwarnings('ignore') # Ignore warnings
-
+    #warnings.filterwarnings('ignore') # Ignore warnings
     # Test if the energy service for all technologies is 100%
     # Test if within fueltype always 100 energy service
     return s_tech_by_p, s_fueltype_tech_by_p, s_fueltype_by_p

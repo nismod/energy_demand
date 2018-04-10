@@ -17,6 +17,13 @@ from energy_demand.basic import basic_functions, conversions
 from energy_demand.plotting import plotting_styles
 from energy_demand.technologies import tech_related
 
+def plot_lp_dh_SCRAP(data_dh_modelled):
+    x_values = range(24)
+    plt.plot(x_values, list(data_dh_modelled), color='red', label='modelled')
+    plt.tight_layout()
+    plt.margins(x=0)
+    plt.show()
+
 def run_all_plot_functions(
         results_container,
         reg_nrs,
@@ -240,14 +247,6 @@ def run_all_plot_functions(
     # -
     print("finisthed plotting")
     return
-
-
-def plot_lp_dh_SCRAP(data_dh_modelled):
-    x_values = range(24)
-    plt.plot(x_values, list(data_dh_modelled), color='red', label='modelled')
-    plt.tight_layout()
-    plt.margins(x=0)
-    plt.show()
 
 def order_polygon(upper_boundary, lower_boundary):
     """Create correct sorting to draw filled polygon

@@ -365,7 +365,6 @@ def generate_heat_pump_from_split(technologies, heat_pump_assump, fueltypes):
 
         heat_pumps.append(name_av_hp)
 
-
         # ----Add also a hybrid heat pump
         name_av_hp_hybrid = "heat_pumps_hybrid_{}".format(fueltype)
 
