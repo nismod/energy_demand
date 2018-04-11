@@ -754,20 +754,42 @@ def calc_fuel_tech_yh(
 
         fuels_yh = {}
         for tech in enduse_techs:
-
+            logging.info("TECH: {}".format(tech))
             # New
             fuels_yh[tech] = np.zeros((fueltypes_nr, model_yeardays_nrs, 24), dtype=float)
 
-            fueltype_int = tech_stock.get_tech_attr(
-                enduse, tech, 'fueltype_int')
+            # If TODO TRANSFOER TO NON CONSTRAINED
+            tech_type = tech_stock.get_tech_attr(
+                enduse, tech, 'tech_type')
+            if tech_type == 'hybrid_tech':
 
-            load_profile = load_profiles.get_lp(
-                enduse, sector, tech, 'shape_yh')
+                hybrid_techs = tech_stock.get_tech_attr(
+                        enduse, tech, 'technologies')
 
-            if model_yeardays_nrs != 365:
-                load_profile = lp.abs_to_rel(load_profile)
+                for tech_hybrid in hybrid_techs:
 
-            fuels_yh[tech][fueltype_int] = fuel_tech_y[tech][fueltype_int] * load_profile
+                    hybrid_fueltype_int = tech_stock.get_tech_attr_of_attr(
+                        enduse, tech, tech_hybrid, 'fueltype_int')
+                    
+                    lp_name = "{}_{}".format(tech, tech_hybrid)
+                    logging.info("lp_name " + str(lp_name))
+    
+                    load_profile = load_profiles.get_lp(
+                        enduse, sector, lp_name, 'shape_yh')
+                    # Assign load profile for hybrid technology
+                    fuels_yh[tech][hybrid_fueltype_int] = fuel_tech_y[tech][hybrid_fueltype_int] * load_profile
+
+            else:
+                fueltype_int = tech_stock.get_tech_attr(
+                    enduse, tech, 'fueltype_int')
+
+                load_profile = load_profiles.get_lp(
+                    enduse, sector, tech, 'shape_yh')
+
+                if model_yeardays_nrs != 365:
+                    load_profile = lp.abs_to_rel(load_profile)
+
+                fuels_yh[tech][fueltype_int] = fuel_tech_y[tech][fueltype_int] * load_profile
 
             # IF MULTIOLE
             # ITerate mutliple fueltype of technology and assign shapes
@@ -837,14 +859,11 @@ def service_to_fuel(
     if mode_constrained:
         for tech, service in service_tech.items():
 
+            # Initialise fuel array
             fuel_tech_y[tech] = np.zeros((fueltypes_nr), dtype=float)
 
-            logging.info("TECH {}  {}".format(enduse, tech))
-            import pprint
-            logging.info(pprint.pprint(tech_stock))
+            # Get technology type
             tech_type = tech_stock.get_tech_attr(enduse, tech, 'tech_type')
-            #tech_eff = tech_stock.get_tech_attr(enduse, tech, 'eff_by')
-            #tech = tech_stock.get_tech(tech, enduse)
 
             if tech_type == 'hybrid_tech':
 
@@ -858,19 +877,12 @@ def service_to_fuel(
                 hybrid_techs = tech_stock.get_tech_attr(
                         enduse, tech, 'technologies')
 
-                logging.info("hybrid_techs " + str(hybrid_techs))
-                
                 for tech_hybrid in hybrid_techs:
-                    logging.info("tech_hybrid: " + str(tech_hybrid))
-                    '''tech_eff = tech_stock.get_tech_attr(
-                        enduse, tech_hybrid, 'eff_cy')
-                    fueltype_int = tech_stock.get_tech_attr(
-                        enduse, tech_hybrid, 'fueltype_int')'''
 
                     tech_eff = tech_stock.get_tech_attr_of_attr(
                         enduse, tech, tech_hybrid, 'eff_cy')
         
-                    fueltype_int = tech_stock.get_tech_attr_of_attr(
+                    hybrid_fueltype_int = tech_stock.get_tech_attr_of_attr(
                         enduse, tech, tech_hybrid, 'fueltype_int')
 
                     share_service = tech_stock.get_tech_attr_of_attr(
@@ -880,14 +892,14 @@ def service_to_fuel(
                     service_share_hybrid_tech = service * share_service
 
                     logging.info("ddd {} {}  {}  {} {}".format(
-                        tech, fueltype_int, share_service, tech_eff, service_share_hybrid_tech))
+                        tech, hybrid_fueltype_int, share_service, tech_eff, service_share_hybrid_tech))
 
                     # Convert to fuel
                     fuel = service_share_hybrid_tech / tech_eff
 
                     # Add fuel
-                    fuel_tech_y[tech_hybrid] = fuel
-                    fuel_y[fueltype_int] += fuel 
+                    fuel_tech_y[tech][hybrid_fueltype_int] = fuel
+                    fuel_y[hybrid_fueltype_int] += fuel 
             else:
                 tech_eff = tech_stock.get_tech_attr(
                     enduse, tech, 'eff_cy')

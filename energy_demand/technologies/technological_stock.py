@@ -258,22 +258,26 @@ class HybridTech(object):
         self.name = name
         self.tech_type = tech_type
 
-        self.lp_low_temp = lp_low_temp
-        self.lp_high_temp = lp_high_temp
+
 
         self.fueltype_low_temp = tech_low_temp.fueltype_int
         self.fueltype_high_temp = tech_high_temp.fueltype_int
-    
+
+        # Set attributes
+
         # Add shares
         #self.share_service_low = share_service_low
         #self.share_service_high = share_service_high
         tech_low_temp.set_tech_attr('share_service', share_service_low)
         tech_high_temp.set_tech_attr('share_service', share_service_high)
+        
+        #self.lp_low_temp = lp_low_temp
+        #self.lp_high_temp = lp_high_temp
+        tech_low_temp.set_tech_attr('share_service', share_service_low)
+        tech_high_temp.set_tech_attr('share_service', share_service_high)
 
         self.tech_low_temp = tech_low_temp
         self.tech_high_temp = tech_high_temp
-
-
 
         #self.technologies = [tech_low_temp.name, tech_high_temp.name]
         self.technologies = ['tech_low_temp', 'tech_high_temp']

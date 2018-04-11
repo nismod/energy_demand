@@ -708,6 +708,7 @@ def get_all_heating_techs(tech_lists):
     heating_technologies : list
         All heating technologies
     """
+    #TODO: REMOVE
     heating_technologies = []
 
     for tech in tech_lists['heating_const']:
@@ -728,6 +729,8 @@ def get_all_heating_techs(tech_lists):
     for tech in tech_lists['tech_CHP']:
         if tech != 'placeholder_tech':
             heating_technologies.append(tech)
+
+    heating_technologies.append('combined_boiler_hp_system')
 
     return heating_technologies
 

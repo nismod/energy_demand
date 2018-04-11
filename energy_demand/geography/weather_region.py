@@ -324,9 +324,9 @@ class WeatherRegion(object):
         lp_high_temp = hp_hybrid_service / np.sum(hp_hybrid_service)
 
         # Hybrid boiler profile
-        '''self.rs_load_profiles.add_lp(
+        self.rs_load_profiles.add_lp(
             unique_identifier=uuid.uuid4(),
-            technologies=['_boiler_hybrid'],
+            technologies=['combined_boiler_hp_system_tech_low_temp'],
             enduses=['rs_space_heating'],
             shape_yd=rs_fuel_shape_heating_yd,
             shape_yh=lp_low_temp)
@@ -334,10 +334,11 @@ class WeatherRegion(object):
         # Hybrid heat pump profile
         self.rs_load_profiles.add_lp(
             unique_identifier=uuid.uuid4(),
-            technologies=['_heat_pumps_electricity_hybrid'],
+            technologies=['combined_boiler_hp_system_tech_high_temp'],
             enduses=['rs_space_heating'],
             shape_yd=rs_fuel_shape_heating_yd,
             shape_yh=lp_high_temp)
+        '''
         
         from energy_demand.plotting import plotting_results
         import logging
