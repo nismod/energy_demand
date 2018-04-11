@@ -920,6 +920,7 @@ def aggregate_final_results(
     logging.debug("... start summing for supply model")
 
     if mode_constrained:
+
         # -------------
         # Summarise ed of constrained technologies
         # Aggregate fuel for constrained enduses (heating techs)
@@ -942,8 +943,7 @@ def aggregate_final_results(
 
                     # Iterate technologies and get fuel per technology
                     for heating_tech in heating_techs:
-                        logging.info("HEATINGTEHC " + str(heating_tech))
-                        logging.info(technologies[heating_tech].tech_type)
+
                         # Fuel of technology
                         tech_fuel = submodel_techs_fueltypes_yh[heating_tech]
 

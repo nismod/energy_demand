@@ -224,32 +224,6 @@ def get_fueltype_int(fueltypes, fueltype_string):
     else:
         return fueltypes[fueltype_string]
 
-def get_tech_type(name, tech_list):
-    """Get technology type of technology
-
-    Arguments
-    ----------
-    name : string
-        Technology name
-
-    tech_list : dict
-        All technology lists are defined in assumptions
-
-    Returns
-    ------
-    tech_type : string
-        Technology type
-    """
-    if name == 'placeholder_tech':
-        tech_type = 'placeholder_tech'
-    else:
-        if name in tech_list['heating_non_const']:
-            tech_type = 'heat_pump'
-        else:
-            tech_type = 'other_tech'
-
-    return tech_type
-
 def calc_av_heat_pump_eff_ey(technologies, heat_pump_assump):
     """Calculate end year average efficiency of
     heat pumps depending on split of heat pumps
@@ -283,7 +257,7 @@ def calc_av_heat_pump_eff_ey(technologies, heat_pump_assump):
         # Add new averaged technology
         technologies[name_av_hp].eff_ey = av_eff_hps_ey
 
-        # Add also hybrid heat pumps
+        # Add also hybrid heat pumps TODO
         #name_av_hp_hybrid = "heat_pumps_hybrid_{}".format(fueltype)
         #technologies[name_av_hp_hybrid].eff_ey = av_eff_hps_ey
 
@@ -377,7 +351,7 @@ def generate_heat_pump_from_split(technologies, heat_pump_assump, fueltypes):
             eff_achieved=eff_achieved_av,
             diff_method='linear',
             market_entry=market_entry_lowest,
-            tech_list='heating_non_const',
+            tech_list='heating_non_const', TODO
             tech_max_share=tech_max_share,
             fueltypes=fueltypes)
 

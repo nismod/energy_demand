@@ -479,6 +479,7 @@ class Assumptions(object):
                 tech_low_temp = self.technologies[tech]
             if tech == 'heat_pumps_electricity':
                 tech_high_temp = self.technologies[tech]
+
         combined_boiler_hp_system = technological_stock.HybridTech(
             name='combined_boiler_hp_system',
             tech_low_temp=tech_low_temp,

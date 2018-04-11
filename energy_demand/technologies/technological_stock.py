@@ -186,9 +186,6 @@ def create_tech_stock(
     for enduse in enduses:
         for technology in enduse_technologies[enduse]:
 
-            #tech_type = tech_related.get_tech_type(
-            #    technology,
-            #    tech_list)
             tech_type = technologies[technology].tech_type
 
             if tech_type == 'placeholder_tech':
@@ -245,8 +242,6 @@ class HybridTech(object):
     def __init__(
             self,
             name,
-            lp_low_temp=None,
-            lp_high_temp=None,
             share_service_low=None,
             share_service_high=None,
             tech_low_temp=None,
@@ -258,29 +253,38 @@ class HybridTech(object):
         self.name = name
         self.tech_type = tech_type
 
-
-
-        self.fueltype_low_temp = tech_low_temp.fueltype_int
-        self.fueltype_high_temp = tech_high_temp.fueltype_int
-
-        # Set attributes
-
         # Add shares
-        #self.share_service_low = share_service_low
-        #self.share_service_high = share_service_high
-        tech_low_temp.set_tech_attr('share_service', share_service_low)
-        tech_high_temp.set_tech_attr('share_service', share_service_high)
-        
-        #self.lp_low_temp = lp_low_temp
-        #self.lp_high_temp = lp_high_temp
         tech_low_temp.set_tech_attr('share_service', share_service_low)
         tech_high_temp.set_tech_attr('share_service', share_service_high)
 
         self.tech_low_temp = tech_low_temp
         self.tech_high_temp = tech_high_temp
 
-        #self.technologies = [tech_low_temp.name, tech_high_temp.name]
-        self.technologies = ['tech_low_temp', 'tech_high_temp']
+        self.technologies = ['tech_low_temp', 'tech_high_temp'] #TODO CHANGE TO HYBRID TECHNOLOGIES
+
+    def get_tech_attr(self, attribute_to_get, value_to_get):
+        """Set a technology attribute
+
+        Arguments
+        ----------
+        attribute_to_get : str
+            Attribue to get
+        value_to_get : any
+            Value to get
+        """
+        setattr(self, attribute_to_get, value_to_get)
+
+    def get_tech_hybrid_attr(self, hybrid_tech, attribute_to_get):
+        """Get attribute of self.attribute object
+        """
+
+        # Assigned hybrid technology
+        tech_object_hybrid_tech = getattr(self, hybrid_tech)
+
+        # Attribute of assigned hybrid technology
+        attribute_value = getattr(tech_object_hybrid_tech, attribute_to_get)
+
+        return attribute_value
 
 class Technology(object):
     """Technology Class
@@ -364,22 +368,6 @@ class Technology(object):
         self.diff_method = diff_method
         self.market_entry = market_entry
         self.tech_max_share = tech_max_share
-
-        # Calculate hybrid properties
-        '''tech_type = 'hybrid_gas_elec_system'
-        if tech_type == 'hybrid_gas_elec_system':
-
-            hybrid_cutoff_temp_low = 5 #
-            hybrid_cutoff_temp_high = 8 #
-            self.temp_low = 'boiler_gas'
-            self.temp_high = 'heat_pumps_electricity'
-            # Get fraction of service for hybrid technologies for every hour
-            self.service_distr_hybrid_h_p, self.low_tech_p, self.high_tech_p = service_hybrid_tech_low_high_h_p(
-                temp_cy,
-                hybrid_cutoff_temp_low,
-                hybrid_cutoff_temp_high)
-        else:
-            pass'''
 
         if tech_type == 'placeholder_tech':
             self.eff_by = 1.0

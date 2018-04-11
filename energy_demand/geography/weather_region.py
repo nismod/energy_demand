@@ -360,8 +360,8 @@ class WeatherRegion(object):
         ''' #TODO ONLY UPDATE NOT CREATE NEW
         hybrid_tech = technological_stock.HybridTech(
             name='combined_boiler_hp_system',
-            lp_low_temp=lp_low_temp,
-            lp_high_temp=lp_high_temp,
+            #lp_low_temp=lp_low_temp,
+            #lp_high_temp=lp_high_temp,
             share_service_low=p_tech_low_service,
             share_service_high=p_tech_high_service,
             tech_low_temp=self.rs_tech_stock.get_tech('boiler_gas', 'rs_space_heating'),
