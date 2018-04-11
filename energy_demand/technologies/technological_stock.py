@@ -260,7 +260,7 @@ class HybridTech(object):
         self.tech_low_temp = tech_low_temp
         self.tech_high_temp = tech_high_temp
 
-        self.technologies = ['tech_low_temp', 'tech_high_temp'] #TODO CHANGE TO HYBRID TECHNOLOGIES
+        self.hybrid_technologies = ['techhybrid_low_temp', 'techhybrid_high_temp']
 
     def get_tech_attr(self, attribute_to_get, value_to_get):
         """Set a technology attribute
