@@ -106,10 +106,9 @@ class TechStock(object):
         """
         tech_object = self.stock_technologies[(name, enduse)]
 
-        #if tech_object.tech_type == 'tech_hybrid':
         if hybrid:
-            attribute_value_high_temp = getattr(tech_object.tech_high_temp, attribute_to_get)
-            attribute_value_low_temp = getattr(tech_object.tech_low_temp, attribute_to_get)
+            attribute_value_high_temp = getattr(tech_object.tech_hybrid_high_temp, attribute_to_get)
+            attribute_value_low_temp = getattr(tech_object.tech_hybrid_low_temp, attribute_to_get)
             return attribute_value_high_temp, attribute_value_low_temp
         else:
             attribute_value = getattr(tech_object, attribute_to_get)
@@ -244,8 +243,8 @@ class HybridTech(object):
             name,
             share_service_low=None,
             share_service_high=None,
-            tech_low_temp=None,
-            tech_high_temp=None,
+            tech_hybrid_low_temp=None,
+            tech_hybrid_high_temp=None,
             tech_type='hybrid_tech'
         ):
         """Contructor
@@ -254,13 +253,13 @@ class HybridTech(object):
         self.tech_type = tech_type
 
         # Add shares
-        tech_low_temp.set_tech_attr('share_service', share_service_low)
-        tech_high_temp.set_tech_attr('share_service', share_service_high)
+        tech_hybrid_low_temp.set_tech_attr('share_service', share_service_low)
+        tech_hybrid_high_temp.set_tech_attr('share_service', share_service_high)
 
-        self.tech_low_temp = tech_low_temp
-        self.tech_high_temp = tech_high_temp
+        self.tech_hybrid_low_temp = tech_hybrid_low_temp
+        self.tech_hybrid_high_temp = tech_hybrid_high_temp
 
-        self.hybrid_technologies = ['techhybrid_low_temp', 'techhybrid_high_temp']
+        self.hybrid_technologies = ['tech_hybrid_low_temp', 'tech_hybrid_high_temp']
 
     def get_tech_attr(self, attribute_to_get, value_to_get):
         """Set a technology attribute

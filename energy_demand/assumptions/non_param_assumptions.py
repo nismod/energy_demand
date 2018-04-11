@@ -476,14 +476,14 @@ class Assumptions(object):
         # --------------------------
         for tech in self.technologies:
             if tech == "boiler_gas":
-                tech_low_temp = self.technologies[tech]
+                tech_hybrid_low_temp = self.technologies[tech]
             if tech == 'heat_pumps_electricity':
-                tech_high_temp = self.technologies[tech]
+                tech_hybrid_high_temp = self.technologies[tech]
 
         combined_boiler_hp_system = technological_stock.HybridTech(
             name='combined_boiler_hp_system',
-            tech_low_temp=tech_low_temp,
-            tech_high_temp=tech_high_temp)
+            tech_hybrid_low_temp=tech_hybrid_low_temp,
+            tech_hybrid_high_temp=tech_hybrid_high_temp)
 
         self.technologies[combined_boiler_hp_system.name] = combined_boiler_hp_system
 

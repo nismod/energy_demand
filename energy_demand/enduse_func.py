@@ -149,7 +149,7 @@ class Enduse(object):
                 assumptions.enduse_space_heating,
                 assumptions.ss_enduse_space_cooling)
             self.fuel_y = _fuel_new_y
-            #logging.debug("... Fuel train B: " + str(np.sum(self.fuel_y)))
+            logging.debug("... Fuel train B: " + str(np.sum(self.fuel_y)))
 
             # --Change fuel consumption based on smart meter induced general savings
             _fuel_new_y = apply_smart_metering(
@@ -160,7 +160,7 @@ class Enduse(object):
                 base_yr,
                 curr_yr)
             self.fuel_y = _fuel_new_y
-            #logging.debug("... Fuel train C: " + str(np.sum(self.fuel_y)))
+            logging.debug("... Fuel train C: " + str(np.sum(self.fuel_y)))
 
             # --Enduse specific fuel consumption change in %
             _fuel_new_y = apply_specific_change(
@@ -171,7 +171,7 @@ class Enduse(object):
                 base_yr,
                 curr_yr)
             self.fuel_y = _fuel_new_y
-            #logging.debug("... Fuel train D: " + str(np.sum(self.fuel_y)))
+            logging.debug("... Fuel train D: " + str(np.sum(self.fuel_y)))
 
             # Calculate new fuel demands after scenario drivers
             _fuel_new_y = apply_scenario_drivers(
@@ -188,7 +188,7 @@ class Enduse(object):
                 base_yr,
                 curr_yr)
             self.fuel_y = _fuel_new_y
-            #logging.debug("... Fuel train E: " + str(np.sum(self.fuel_y)))
+            logging.debug("... Fuel train E: " + str(np.sum(self.fuel_y)))
 
             # Apply cooling scenario variable
             _fuel_new_y = apply_cooling(
@@ -200,7 +200,7 @@ class Enduse(object):
                 base_yr,
                 curr_yr)
             self.fuel_y = _fuel_new_y
-            #logging.debug("... Fuel train E1: " + str(np.sum(self.fuel_y)))
+            logging.debug("... Fuel train E1: " + str(np.sum(self.fuel_y)))
 
             # Industry related change
             _fuel_new_y = industry_enduse_changes(
@@ -213,7 +213,7 @@ class Enduse(object):
                 enduse_overall_change['other_enduse_mode_info'],
                 assumptions)
             self.fuel_y = _fuel_new_y
-            #logging.debug("... Fuel train E2: " + str(np.sum(self.fuel_y)))
+            logging.debug("... Fuel train E2: " + str(np.sum(self.fuel_y)))
 
             # ----------------------------------
             # Hourly Disaggregation
@@ -303,7 +303,7 @@ class Enduse(object):
                     fueltypes_nr,
                     fueltypes,
                     mode_constrained)
-                #logging.debug("... Fuel train Post service: " + str(np.sum(self.fuel_y)))
+                logging.debug("... Fuel train Post service: " + str(np.sum(self.fuel_y)))
 
                 # Delete all technologies with no fuel assigned
                 for tech, fuel_tech in fuel_tech_y.items():
@@ -759,7 +759,7 @@ def calc_fuel_tech_yh(
 
             if tech_type == 'hybrid_tech':
 
-                hybrid_techs = tech_stock.get_tech_attr(enduse, tech, 'technologies')
+                hybrid_techs = tech_stock.get_tech_attr(enduse, tech, 'hybrid_technologies')
 
                 for tech_hybrid in hybrid_techs:
 
@@ -798,7 +798,8 @@ def calc_fuel_tech_yh(
 
             if tech_type == 'hybrid_tech':
 
-                hybrid_techs = tech_stock.get_tech_attr(enduse, tech, 'technologies')
+                hybrid_techs = tech_stock.get_tech_attr(
+                    enduse, tech, 'hybrid_technologies')
 
                 for tech_hybrid in hybrid_techs:
 
@@ -878,14 +879,13 @@ def service_to_fuel(
 
             if tech_type == 'hybrid_tech':
 
-                hybrid_techs = tech_stock.get_tech_attr(
-                        enduse, tech, 'technologies')
+                hybrid_techs = tech_stock.get_tech_attr(enduse, tech, 'hybrid_technologies')
 
                 for tech_hybrid in hybrid_techs:
 
                     tech_eff = tech_stock.get_tech_attr_of_attr(
                         enduse, tech, tech_hybrid, 'eff_cy')
-        
+
                     hybrid_fueltype_int = tech_stock.get_tech_attr_of_attr(
                         enduse, tech, tech_hybrid, 'fueltype_int')
 
@@ -1016,7 +1016,7 @@ def fuel_to_service(
                 #tech = tech_stock.get_tech(tech, enduse)
 
                 if tech_type == 'hybrid_tech':
-
+                    
                     # Get attributes for hybrid tech
                     fueltype_low, fueltype_high = tech_stock.get_tech_attr(
                         enduse, tech, 'fueltype_int', hybrid=True)
@@ -1316,8 +1316,7 @@ def apply_scenario_drivers(
                 logging.warning("Something went wrong wtih scenario")
                 factor_driver = 1
 
-            #logging.debug("... Scenario drivers: {} {} {}".format(
-            #    by_driver, cy_driver, factor_driver))
+            logging.debug("... Scenario drivers: {} {} {}".format(by_driver, cy_driver, factor_driver))
 
             fuel_y = fuel_y * factor_driver
         else:

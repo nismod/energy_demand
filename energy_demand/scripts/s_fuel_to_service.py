@@ -181,10 +181,10 @@ def get_s_fueltype_tech(
                         efficiency_intersect=technologies[tech].eff_by)
                 elif tech_type == 'hybrid_tech':
                     # Get technology of hybrid tech with this fueltype
-                    if technologies[tech].tech_high_temp.fueltype_int == fueltype:
-                        eff_tech = technologies[tech].tech_high_temp.eff_by
-                    if technologies[tech].tech_low_temp.fueltype_int == fueltype:
-                        eff_tech = technologies[tech].tech_low_temp.eff_by
+                    if technologies[tech].tech_hybrid_high_temp.fueltype_int == fueltype:
+                        eff_tech = technologies[tech].tech_hybrid_high_temp.eff_by
+                    if technologies[tech].tech_hybrid_low_temp.fueltype_int == fueltype:
+                        eff_tech = technologies[tech].tech_hybrid_low_temp.eff_by
                 else:
                     eff_tech = technologies[tech].eff_by
 
