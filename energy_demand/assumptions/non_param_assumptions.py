@@ -472,9 +472,9 @@ class Assumptions(object):
         self.heating_technologies = get_all_heating_techs(self.tech_list)
 
         # --------------------------
-        # Add all hybrid technologies TODO NEW
+        # Add all hybrid technologies
         # --------------------------
-        for tech in self.technologies:
+        '''for tech in self.technologies:
             if tech == "boiler_gas":
                 tech_hybrid_low_temp = self.technologies[tech]
             if tech == 'heat_pumps_electricity':
@@ -485,7 +485,7 @@ class Assumptions(object):
             tech_hybrid_low_temp=tech_hybrid_low_temp,
             tech_hybrid_high_temp=tech_hybrid_high_temp)
 
-        self.technologies[combined_boiler_hp_system.name] = combined_boiler_hp_system
+        self.technologies[combined_boiler_hp_system.name] = combined_boiler_hp_system'''
 
         # ============================================================
         # Enduse diffusion paramters
@@ -731,7 +731,7 @@ def get_all_heating_techs(tech_lists):
         if tech != 'placeholder_tech':
             heating_technologies.append(tech)
 
-    heating_technologies.append('combined_boiler_hp_system')
+    #heating_technologies.append('combined_boiler_hp_system')
 
     return heating_technologies
 

@@ -257,10 +257,6 @@ def calc_av_heat_pump_eff_ey(technologies, heat_pump_assump):
         # Add new averaged technology
         technologies[name_av_hp].eff_ey = av_eff_hps_ey
 
-        # Add also hybrid heat pumps TODO
-        #name_av_hp_hybrid = "heat_pumps_hybrid_{}".format(fueltype)
-        #technologies[name_av_hp_hybrid].eff_ey = av_eff_hps_ey
-
     return technologies
 
 def generate_heat_pump_from_split(technologies, heat_pump_assump, fueltypes):

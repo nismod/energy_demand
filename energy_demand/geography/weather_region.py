@@ -281,9 +281,9 @@ class WeatherRegion(object):
             shape_yh=rs_profile_chp_y_dh,
             f_peak_yd=rs_peak_yd_heating_factor)
 
-        #'''
+        '''
         # --------------------------------------------
-        # Calculate load profile for hybrid technology #TODO TODO
+        # Calculate load profile for hybrid technology
         # --------------------------------------------
         # ---
         # 1. Calculate share of technology use for every hour (service_distr_hybrid_h_p)
@@ -340,15 +340,14 @@ class WeatherRegion(object):
             shape_yh=lp_high_temp)
 
         '''
-        from energy_demand.plotting import plotting_results
+        #from energy_demand.plotting import plotting_results
+        #logging.info(service_distr_hybrid_h_p['low'][12])
+        #logging.info("_---")
+        #logging.info(service_distr_hybrid_h_p['high'][12])
+        #plotting_results.plot_lp_dh_SCRAP(lp_low_temp[12])
+        #plotting_results.plot_lp_dh_SCRAP(lp_high_temp[12])
 
-        logging.info(service_distr_hybrid_h_p['low'][12])
-        logging.info("_---")
-        logging.info(service_distr_hybrid_h_p['high'][12])
-        plotting_results.plot_lp_dh_SCRAP(lp_low_temp[12])
-        plotting_results.plot_lp_dh_SCRAP(lp_high_temp[12])
-
-        # Get heat pumps and add same properties but with different name
+        '''# Get heat pumps and add same properties but with different name
         tech_hp_hybrid = self.rs_tech_stock.get_tech('heat_pumps_hybrid_electricity', 'rs_space_heating')
         tech_hp_hybrid.set_tech_attr('share_service', p_tech_high_service)
         tech_hp_hybrid.set_tech_attr('tech_type', 'hybrid_tech')
@@ -357,7 +356,7 @@ class WeatherRegion(object):
         #self.rs_tech_stock.add_tech('heat_pumps_electricity_hybrid', 'rs_space_heating', tech_hp_hybrid)
         #self.rs_tech_stock.add_tech('boiler_gas_hybrid', 'rs_space_heating', tech_boiler_hybrid)
         # ---------------------
-        ''' #TODO ONLY UPDATE NOT CREATE NEW
+        #TODO ONLY UPDATE NOT CREATE NEW
         hybrid_tech = technological_stock.HybridTech(
             name='combined_boiler_hp_system',
             share_service_low=p_tech_low_service,
@@ -366,8 +365,7 @@ class WeatherRegion(object):
             tech_hybrid_high_temp=self.rs_tech_stock.get_tech('heat_pumps_electricity', 'rs_space_heating'))
 
         self.rs_tech_stock.add_tech(hybrid_tech.name, 'rs_space_heating', hybrid_tech)
-
-
+        '''
         # -------------------
         # Service Load profiles
         # ------------------

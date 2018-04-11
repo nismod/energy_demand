@@ -131,9 +131,6 @@ def testing_tech_defined(technologies, all_tech_enduse):
     for enduse in all_tech_enduse:
         for tech in all_tech_enduse[enduse]:
             if tech not in technologies:
-                '''if tech in ['heat_pumps_electricity_hybrid','boiler_gas_hybrid']:
-                    pass
-                else:'''
                 raise Exception(
                     "Error: '{}' is not defined in technology_definition.csv".format(
                         tech))

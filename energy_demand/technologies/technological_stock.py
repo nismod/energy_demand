@@ -106,13 +106,13 @@ class TechStock(object):
         """
         tech_object = self.stock_technologies[(name, enduse)]
 
-        if hybrid:
+        '''if hybrid:
             attribute_value_low_temp = getattr(tech_object.tech_hybrid_low_temp, attribute_to_get)
             attribute_value_high_temp = getattr(tech_object.tech_hybrid_high_temp, attribute_to_get)
-            
+
             return attribute_value_low_temp, attribute_value_high_temp
-        else:
-            attribute_value = getattr(tech_object, attribute_to_get)
+        else:'''
+        attribute_value = getattr(tech_object, attribute_to_get)
 
         return attribute_value
 
@@ -191,9 +191,9 @@ def create_tech_stock(
             if tech_type == 'placeholder_tech':
                 # This is placeholder technology a whole enduse
                 pass
-            elif tech_type == 'hybrid_tech':
-                # Hybrid technologies consist of individual technologies
-                pass
+            #elif tech_type == 'hybrid_tech':
+            #    # Hybrid technologies consist of individual technologies
+            #    pass
             else:
                 tech_obj = Technology(
                     name=technology,
@@ -236,7 +236,7 @@ def create_tech_stock(
 
     return stock_technologies
 
-class HybridTech(object):
+'''class HybridTech(object):
     """Hybrid technology system consisting of
     two different technologies
 
@@ -290,7 +290,7 @@ class HybridTech(object):
         attribute_value = getattr(tech_object_hybrid_tech, attribute_to_get)
 
         return attribute_value
-
+'''
 class Technology(object):
     """Technology Class
 

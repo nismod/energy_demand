@@ -947,15 +947,15 @@ def aggregate_final_results(
                         # Fuel of technology
                         tech_fuel = submodel_techs_fueltypes_yh[heating_tech]
 
-                        if technologies[heating_tech].tech_type == 'hybrid_tech':
+                        '''if technologies[heating_tech].tech_type == 'hybrid_tech':
                             # Aggregate mutliple fueltypes of hybrid technology
                             aggr_results['ed_techs_submodel_fueltype_regs_yh'][heating_tech][submodel_nr][reg_array_nr] += tech_fuel
-                        else:
-                            # Fueltype of technology
-                            fueltype_tech_int = technologies[heating_tech].fueltype_int
+                        else:'''
+                        # Fueltype of technology
+                        fueltype_tech_int = technologies[heating_tech].fueltype_int
 
-                            # Aggregate Submodel (sector) specific enduse for fueltype
-                            aggr_results['ed_techs_submodel_fueltype_regs_yh'][heating_tech][submodel_nr][reg_array_nr][fueltype_tech_int] += tech_fuel[fueltype_tech_int]
+                        # Aggregate Submodel (sector) specific enduse for fueltype
+                        aggr_results['ed_techs_submodel_fueltype_regs_yh'][heating_tech][submodel_nr][reg_array_nr][fueltype_tech_int] += tech_fuel[fueltype_tech_int]
 
         # -------------
         # Summarise remaining fuel of other enduses
