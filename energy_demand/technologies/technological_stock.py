@@ -107,9 +107,10 @@ class TechStock(object):
         tech_object = self.stock_technologies[(name, enduse)]
 
         if hybrid:
-            attribute_value_high_temp = getattr(tech_object.tech_hybrid_high_temp, attribute_to_get)
             attribute_value_low_temp = getattr(tech_object.tech_hybrid_low_temp, attribute_to_get)
-            return attribute_value_high_temp, attribute_value_low_temp
+            attribute_value_high_temp = getattr(tech_object.tech_hybrid_high_temp, attribute_to_get)
+            
+            return attribute_value_low_temp, attribute_value_high_temp
         else:
             attribute_value = getattr(tech_object, attribute_to_get)
 
@@ -236,7 +237,12 @@ def create_tech_stock(
     return stock_technologies
 
 class HybridTech(object):
-    """
+    """Hybrid technology system consisting of
+    two different technologies
+
+    Arguments
+    ---------
+
     """
     def __init__(
             self,
