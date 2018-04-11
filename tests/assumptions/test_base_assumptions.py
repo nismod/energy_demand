@@ -11,7 +11,7 @@ from pkg_resources import Requirement
 def test_load_non_param_assump():
     """
     """
-    path_main = resource_filename(Requirement.parse("energy_demand"), "config_data")
+    path_main = resource_filename(Requirement.parse("energy_demand"), os.path.join("energy_demand", "config_data"))
 
     # Load data
     data = {}
@@ -35,7 +35,7 @@ def test_load_non_param_assump():
 def test_load_param_assump():
     """
     """
-    path_main = resource_filename(Requirement.parse("energy_demand"), "config_data")
+    path_main = resource_filename(Requirement.parse("energy_demand"), os.path.join("energy_demand", "config_data"))
 
     # Load data
     data = {}
