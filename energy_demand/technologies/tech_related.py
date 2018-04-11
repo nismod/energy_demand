@@ -100,7 +100,8 @@ def insert_placholder_techs(
         eff_ey=1,
         year_eff_ey=2100,
         eff_achieved=1,
-        diff_method='linear')
+        diff_method='linear',
+        tech_type='placeholder_tech')
 
     return tech_p_by, all_specified_tech_enduse_by, technologies
 
@@ -359,7 +360,7 @@ def generate_heat_pump_from_split(technologies, heat_pump_assump, fueltypes):
             eff_achieved=eff_achieved_av,
             diff_method='linear',
             market_entry=market_entry_lowest,
-            tech_list='heating_non_const',
+            tech_type='heating_non_const',
             tech_max_share=tech_max_share,
             fueltypes=fueltypes)
 

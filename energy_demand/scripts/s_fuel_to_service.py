@@ -171,22 +171,20 @@ def get_s_fueltype_tech(
                 fuel_tech = fuel_alltech_by * fuel_fueltype
 
                 # Get technology type
-                tech_type = tech_related.get_tech_type(tech, tech_list)
-                logging.info("TECH: {} {}".format(tech, tech_type))
+                #tech_type = tech_related.get_tech_type(tech, tech_list) #TODO
+                tech_type = technologies[tech].tech_type
+
                 # Get efficiency for base year
                 if tech_type == 'heat_pump':
                     eff_tech = tech_related.eff_heat_pump(
                         temp_diff=10,
                         efficiency_intersect=technologies[tech].eff_by)
                 elif tech_type == 'hybrid_tech':
-                    
-                    logging.info(technologies[tech])
-                    print("---")
                     # Get technology of hybrid tech with this fueltype
-                    if technologies[tech].tech_high_temp.fueltype == fueltype:
-                        eff_tech = technologies[tech].eff_by
-                    if technologies[tech].tech_low_temp.fueltype == fueltype:
-                        eff_tech = technologies[tech].eff_by
+                    if technologies[tech].tech_high_temp.fueltype_int == fueltype:
+                        eff_tech = technologies[tech].tech_high_temp.eff_by
+                    if technologies[tech].tech_low_temp.fueltype_int == fueltype:
+                        eff_tech = technologies[tech].tech_low_temp.eff_by
                 else:
                     eff_tech = technologies[tech].eff_by
 

@@ -71,7 +71,6 @@ def test_TechStock():
     stock_obj = technological_stock.TechStock(
         name="name",
         technologies=all_technologies,
-        tech_list={'heating_non_const': [], 'heating_const': ['boilerA']},
         other_enduse_mode_info={'linear'},
         base_yr=base_yr,
         curr_yr=curr_yr,

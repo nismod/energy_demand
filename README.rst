@@ -29,7 +29,7 @@ HIRE is an extensive further development into a high temporal and spatial
 energy demand simulation model.
 
 
-1. Initialising and running the model (local)
+1. Model installation
 =============================================
 In order to run HIRED, first the model needs to be set up. This can
 either be done with a complete dataset (Section 1.1) or only with
@@ -37,23 +37,23 @@ all open source datasets (Section 1.2).
 
 **HIRE** is written in Python (Python>=3.6)
 
-1.1 Model Set-Up (with complete data)
+1.1 Setup with complete data
 -------------------------------------
 
-1.  Add all necessary data into a local directory such as ``path/to/energy_data_folder`` and
+1.1 Add all necessary data into a local directory such as ``path/to/energy_data_folder`` and
     download the energy_demand python code.
 
     Note: Because some data is not open source, the full data needs to be optained
     from the consortium. However, the model can be run with dummy data (see Section 1.2)
 
-2.  Update the paths in the ``wrapperconfig.ini`` file in the config folder
+1.2 Update the paths in the ``wrapperconfig.ini`` file in the config folder
 
-3.  Navigate to the folder where the python code is saved. Open a command and type into
+1.3 Navigate to the folder where the python code is saved. Open a command and type into
     a command line (in a virtual environment):
  
     ``python setup.py develop`` or ``python setup.py install``
 
-4.  Install HIRE from within the console with the command
+1.4 Install HIRE from within the console with the command
 
     ``energy_demand setup -d path/to/energy_data_folder``
 
@@ -64,32 +64,32 @@ all open source datasets (Section 1.2).
     ``energy_data_folder``.
 
 
-1.2 Alternative Model Set-Up (with restricted data)
+1.2 Setup with limited dataset
 ---------------------------------------------
 This setup generated dummy temperature data and load profiles
 for the service submodel.
 
-1.  Add the minimum data requirements into a local directory as ``path/to/energy_data_folder`` and
-    download the energy_demand python code.
+1.2.1   Add the minimum data requirements into a local directory as ``path/to/energy_data_folder`` and
+        download the energy_demand python code.
 
-2.  Update the paths in the ``wrapperconfig.ini`` file in the config folder
+1.2.1  Update the paths in the ``wrapperconfig.ini`` file in the config folder
 
-3.  Navigate to the folder where the python code is saved. Open a command and type into
-    a command line (in a virtual environment):
+1.2.2   Navigate to the folder where the python code is saved. Open a command and type into
+        a command line (in a virtual environment):
 
-    ``python setup.py develop`` or ``python setup.py install``
+        ``python setup.py develop`` or ``python setup.py install``
 
-4.  Install HIRE from within the console with the command
+1.2.3   Install HIRE from within the console with the command
 
-    ``energy_demand minimal_setup -d path/to/energy_data_folder``
+        ``energy_demand minimal_setup -d path/to/energy_data_folder``
 
-    Example: energy_demand minimal_setup -d  C:/Users/fred1234/data_energy_demand
+        Example: energy_demand minimal_setup -d  C:/Users/fred1234/data_energy_demand
 
-    The ``path/to/energy_data_folder`` is the path to the location with
-    the necessary minimum dummy data to run the model.
+        The ``path/to/energy_data_folder`` is the path to the location with
+        the necessary minimum dummy data to run the model.
 
-    Note: The ``minimal_setup`` command generates new folders in the 
-    ``energy_data_folder``.
+        Note: The ``minimal_setup`` command generates new folders in the 
+        ``energy_data_folder``.
 
 2. Running the model with smif
 ========================

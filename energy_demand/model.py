@@ -1,6 +1,5 @@
 """The function `EnergyDemandModel` executes all the submodels of the energy demand model
 """
-
 import logging
 from collections import defaultdict
 import numpy as np

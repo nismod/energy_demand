@@ -3,6 +3,7 @@ is generated per weather station. Within this regions,
 regional load profiles are calculated."""
 import uuid
 import numpy as np
+import logging
 from energy_demand.technologies import technological_stock
 from energy_demand.profiles import load_profile
 from energy_demand.profiles import hdd_cdd
@@ -117,7 +118,6 @@ class WeatherRegion(object):
         self.rs_tech_stock = technological_stock.TechStock(
             'rs_tech_stock',
             technologies,
-            tech_lists,
             assumptions.enduse_overall_change['other_enduse_mode_info'],
             base_yr,
             curr_yr,
@@ -132,7 +132,6 @@ class WeatherRegion(object):
         self.ss_tech_stock = technological_stock.TechStock(
             'ss_tech_stock',
             technologies,
-            tech_lists,
             assumptions.enduse_overall_change['other_enduse_mode_info'],
             base_yr,
             curr_yr,
@@ -147,7 +146,6 @@ class WeatherRegion(object):
         self.is_tech_stock = technological_stock.TechStock(
             'is_tech_stock',
             technologies,
-            tech_lists,
             assumptions.enduse_overall_change['other_enduse_mode_info'],
             base_yr,
             curr_yr,

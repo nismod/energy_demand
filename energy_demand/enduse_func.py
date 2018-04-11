@@ -113,6 +113,8 @@ class Enduse(object):
         ):
         """Enduse class constructor
         """
+        logging.info("=========aa=========")
+        logging.info(tech_stock)
         #logging.info(" =====Enduse: {}  Sector:  {}".format(enduse, sector))
         self.region = region
         self.enduse = enduse
@@ -254,6 +256,8 @@ class Enduse(object):
                     tech_stock,
                     fueltypes,
                     mode_constrained)
+                logging.info("==================")
+                logging.info(tech_stock)
 
                 # ------------------------------------
                 # Reduction of service because of heat recovery
@@ -833,49 +837,70 @@ def service_to_fuel(
     if mode_constrained:
         for tech, service in service_tech.items():
 
-            tech_eff = tech_stock.get_tech_attr(
-                enduse, tech, 'eff_cy')
-            fueltype_int = tech_stock.get_tech_attr(
-                enduse, tech, 'fueltype_int')
-            '''# TODO BAR
-            tech_type = tech_stock.get_tech_attr(
-                enduse, tech, 'tech_type')
+            fuel_tech_y[tech] = np.zeros((fueltypes_nr), dtype=float)
+
+            logging.info("TECH {}  {}".format(enduse, tech))
+            import pprint
+            logging.info(pprint.pprint(tech_stock))
+            tech_type = tech_stock.get_tech_attr(enduse, tech, 'tech_type')
+            #tech_eff = tech_stock.get_tech_attr(enduse, tech, 'eff_by')
+            #tech = tech_stock.get_tech(tech, enduse)
 
             if tech_type == 'hybrid_tech':
 
-                #TODO NEW
-                for tech_hybrid in ['heat_pumps_hybrid_electricity','boiler_hybrid_gas']:
+                # Get attributes for hybrid tech
+                #fueltype_low, fueltype_high = tech_stock.get_tech_attr(
+                #    enduse, tech, 'fueltype_int', hybrid=True)
+                #eff_by_low, eff_by_high = tech_stock.get_tech_attr(
+                #    enduse, tech, 'eff_by', hybrid=True)
+                #tech_name_low, tech_name_high = tech_stock.get_tech_attr(
+                #    enduse, tech, 'name', hybrid=True)
+                hybrid_techs = tech_stock.get_tech_attr(
+                        enduse, tech, 'technologies')
 
+                logging.info("hybrid_techs " + str(hybrid_techs))
+                
+                for tech_hybrid in hybrid_techs:
+                    logging.info("tech_hybrid: " + str(tech_hybrid))
+                    '''tech_eff = tech_stock.get_tech_attr(
+                        enduse, tech_hybrid, 'eff_cy')
                     fueltype_int = tech_stock.get_tech_attr(
-                        enduse, tech_hybrid, 'fueltype_int')
+                        enduse, tech_hybrid, 'fueltype_int')'''
 
-                    tech_eff = tech_stock.get_tech_attr(
-                        enduse, tech, 'eff_cy')
+                    tech_eff = tech_stock.get_tech_attr_of_attr(
+                        enduse, tech, tech_hybrid, 'eff_cy')
+        
+                    fueltype_int = tech_stock.get_tech_attr_of_attr(
+                        enduse, tech, tech_hybrid, 'fueltype_int')
 
-                    share_service = tech_stock.get_tech_attr(
-                        enduse, tech, 'share_service')
+                    share_service = tech_stock.get_tech_attr_of_attr(
+                        enduse, tech, tech_hybrid, 'share_service')
 
                     #Calculate share of each technology
                     service_share_hybrid_tech = service * share_service
 
                     logging.info("ddd {} {}  {}  {} {}".format(
                         tech, fueltype_int, share_service, tech_eff, service_share_hybrid_tech))
-                    prnt(":")
+
                     # Convert to fuel
                     fuel = service_share_hybrid_tech / tech_eff
 
                     # Add fuel
                     fuel_tech_y[tech_hybrid] = fuel
-                    fuel_y[fueltype_int] += fuel
-            else:'''
+                    fuel_y[fueltype_int] += fuel 
+            else:
+                tech_eff = tech_stock.get_tech_attr(
+                    enduse, tech, 'eff_cy')
+                fueltype_int = tech_stock.get_tech_attr(
+                    enduse, tech, 'fueltype_int')
+                
+                # ---
+                # Convert to fuel
+                fuel = service / tech_eff
 
-            fuel_tech_y[tech] = np.zeros((fueltypes_nr), dtype=float)
-            # Convert to fuel
-            fuel = service / tech_eff
-
-            # Add fuel
-            fuel_tech_y[tech][fueltype_int] = fuel
-            fuel_y[fueltype_int] += fuel
+                # Add fuel
+                fuel_tech_y[tech][fueltype_int] = fuel
+                fuel_y[fueltype_int] += fuel
     else:
         for tech, fuel_tech in service_tech.items():
             fuel_y[fueltypes['heat']] += fuel_tech
@@ -950,7 +975,26 @@ def fuel_to_service(
             if mode_constrained:
                 """Constrained version
                 """
-                tech_eff = tech_stock.get_tech_attr(enduse, tech, 'eff_by')
+                tech_type = tech_stock.get_tech_attr(enduse, tech, 'tech_type')
+                #tech_eff = tech_stock.get_tech_attr(enduse, tech, 'eff_by')
+                #tech = tech_stock.get_tech(tech, enduse)
+
+                if tech_type == 'hybrid_tech':
+
+                    # Get attributes for hybrid tech
+                    fueltype_low, fueltype_high = tech_stock.get_tech_attr(
+                        enduse, tech, 'fueltype_int', hybrid=True)
+                    eff_by_low, eff_by_high = tech_stock.get_tech_attr(
+                        enduse, tech, 'eff_by', hybrid=True)
+
+                    # Get technology of hybrid tech with this fueltype
+                    if fueltype_low == fueltype_int:
+                        tech_eff = eff_by_low
+                    if fueltype_high == fueltype_int:
+                        tech_eff = eff_by_high
+                else:
+                    tech_eff = tech_stock.get_tech_attr(enduse, tech, 'eff_by')
+                    #tech_eff = tech.eff_by
 
                 # Get fuel share and convert fuel to service per technology
                 s_tech = fuel_y[fueltype_int] * fuel_share * tech_eff

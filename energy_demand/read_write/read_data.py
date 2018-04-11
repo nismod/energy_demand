@@ -32,8 +32,8 @@ class TechnologyData(object):
         Differentiation method
     market_entry : int,default=2015
         Year when technology comes on the market
-    tech_list : list
-        List where technology is part of
+    tech_type : list
+        Technology type
     tech_max_share : float
         Maximum theoretical fraction of how much
         this indivdual technology can contribute
@@ -51,7 +51,7 @@ class TechnologyData(object):
             eff_achieved=None,
             diff_method=None,
             market_entry=2015,
-            tech_list=None,
+            tech_type=None,
             tech_max_share=None,
             description=None,
             fueltypes=None
@@ -65,9 +65,21 @@ class TechnologyData(object):
         self.eff_achieved = eff_achieved
         self.diff_method = diff_method
         self.market_entry = market_entry
-        self.tech_list = tech_list
+        self.tech_type = tech_type
         self.tech_max_share = tech_max_share
         self.description = description
+
+    def set_tech_attr(self, attribute_to_set, value_to_set):
+        """Set a technology attribute
+
+        Arguments
+        ----------
+        attribute_to_set : str
+            Attribue to set
+        value_to_set : any
+            Value to set
+        """
+        setattr(self, attribute_to_set, value_to_set)
 
 class CapacitySwitch(object):
     """Capacity switch class for storing
@@ -728,6 +740,8 @@ def read_technologies(path_to_csv, fueltypes):
 
         for row in rows:
             technology = str(row[get_position(headings, 'technology')])
+            tech_type = str.strip(row[get_position(headings, 'technology type')])
+
             try:
                 dict_technologies[technology] = TechnologyData(
                     name=str(technology),
@@ -738,14 +752,14 @@ def read_technologies(path_to_csv, fueltypes):
                     eff_achieved=1.0, # Set to one as default
                     diff_method=str(row[get_position(headings, 'diffusion method (sigmoid or linear)')]),
                     market_entry=float(row[get_position(headings, 'market_entry')]),
-                    tech_list=str.strip(row[get_position(headings, 'technology type')]),
+                    tech_type=tech_type,
                     tech_max_share=float(str.strip(row[get_position(headings, 'maximum theoretical service share of technology')])),
                     description=str(row[get_position(headings, 'description')]),
                     fueltypes=fueltypes)
                 try:
-                    dict_tech_lists[str.strip(row[7])].append(technology)
+                    dict_tech_lists[tech_type].append(technology)
                 except KeyError:
-                    dict_tech_lists[str.strip(row[7])] = [technology]
+                    dict_tech_lists[tech_type] = [technology]
             except Exception as e:
                 logging.error(
                     "Error technology table (e.g. empty field): %s %s", e, row)
