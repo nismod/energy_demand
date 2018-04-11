@@ -6,7 +6,8 @@
     Tools
     Profiling:  https://jiffyclub.github.io/snakeviz/
     python -m cProfile -o program.prof my_program.py
-
+    snakeviz program.prof
+    
     Development checklist
     https://nismod.github.io/docs/development-checklist.html
     https://nismod.github.io/docs/
