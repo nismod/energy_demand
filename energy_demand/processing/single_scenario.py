@@ -23,7 +23,17 @@ def main(path_data_energy_demand, path_shapefile_input):
     # Criterias
     # ---------
     write_shapefiles = False    # Write shapefiles
-    spatial_results = True      # Spatial geopanda maps
+    spatial_results = False      # Spatial geopanda maps
+
+    plot_crit_dict = {
+        "plot_stacked_enduses": True,
+        "plot_y_all_enduses": True,
+        "plot_fuels_enduses_y": True,
+        "plot_lf": False,
+        "plot_week_h": True,
+        "plot_h_peak_fueltypes": True,
+        "plot_averaged_season_fueltype": True,
+        "plot_radar" : False}
 
     # Set up logger
     logger_setup.set_up_logger(
@@ -59,7 +69,6 @@ def main(path_data_energy_demand, path_shapefile_input):
 
     # Read scenario data
     data['scenario_data'] = {}
-
     data['scenario_data']['population'] = read_data.read_scenaric_population_data(
         data['result_paths']['model_run_pop'])
 
@@ -93,7 +102,8 @@ def main(path_data_energy_demand, path_shapefile_input):
         data['lookups'],
         data['result_paths'],
         data['assumptions'],
-        data['enduses'])
+        data['enduses'],
+        plot_crit=plot_crit_dict)
 
     # ------------------------------
     # Plotting spatial results

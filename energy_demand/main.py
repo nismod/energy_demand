@@ -168,8 +168,9 @@ if __name__ == "__main__":
     data['criterias']['virtual_building_stock_criteria'] = True # Wheater model uses a virtual dwelling stock or not
     data['criterias']['spatial_exliclit_diffusion'] = True      # Wheater spatially epxlicit diffusion or not
     data['criterias']['write_to_txt'] = True                    # Wheater results are written to txt files
-    data['criterias']['beyond_supply_outputs'] = True           # Wheater all results besides integraded smif run are calculated
+    data['criterias']['beyond_supply_outputs'] = False           # Wheater all results besides integraded smif run are calculated
     data['criterias']['plot_tech_lp'] = True                    # Wheater all individual load profils are plotted
+    simulated_yrs = [2015]
 
     # Paths
     data['paths'] = data_loader.load_paths(path_main)
@@ -224,7 +225,7 @@ if __name__ == "__main__":
     data['assumptions']  = non_param_assumptions.Assumptions(
         base_yr=2015,
         curr_yr=2015,
-        simulated_yrs=[2015, 2016, 2030, 2050],
+        simulated_yrs=simulated_yrs,
         paths=data['paths'],
         enduses=data['enduses'],
         sectors=data['sectors'],

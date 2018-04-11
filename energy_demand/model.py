@@ -272,7 +272,7 @@ def fuel_aggr(
             if isinstance(fuels, dict):
                 for tech, fuel_tech in fuels.items():
                     tech_fueltype = technologies[tech].fueltype_int
-                    input_array[tech_fueltype] += fuel_tech[tech_fueltype]
+                    input_array[tech_fueltype] += fuel_tech  #[tech_fueltype]
                     #input_array += fuel_tech
             else:
                 # Fuel per technology
@@ -330,11 +330,11 @@ def aggr_fuel_aggr(
 
             if isinstance(fuels, dict):
                 for tech, fuel_tech in fuels.items():
+
                     tech_fueltype = technologies[tech].fueltype_int
-                    input_array[tech_fueltype] += fuel_tech[tech_fueltype]
+                    input_array[tech_fueltype] += fuel_tech
                     #input_array += fuel_tech
             else:
-                # Fuel per technology
                 fuels = get_fuels_yh(
                     enduse_object,
                     attribute_non_technology,

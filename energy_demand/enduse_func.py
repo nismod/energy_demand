@@ -243,7 +243,7 @@ class Enduse(object):
                     criterias['mode_constrained'],
                     enduse,
                     assumptions.enduse_space_heating)
-                
+                _scrap = np.sum(self.fuel_y)
                 #logging.debug("... Fuel train F2: " + str(np.sum(self.fuel_y)))
                 # ------------------------------------
                 # Calculate regional energy service
@@ -305,8 +305,6 @@ class Enduse(object):
                     fueltypes,
                     mode_constrained)
                 #logging.debug("... Fuel train Post service: " + str(np.sum(self.fuel_y)))
-                #NOTE: if hybrid, fuel between conversions is only the same
-                # if the correct demand is provided as input (practically impossible as regional specific)
 
                 # Delete all technologies with no fuel assigned
                 for tech, fuel_tech in fuel_tech_y.items():
@@ -755,9 +753,9 @@ def calc_fuel_tech_yh(
         for tech in enduse_techs:
 
             # Initialise multi fuel array
-            fuels_yh[tech] = np.zeros((fueltypes_nr, model_yeardays_nrs, 24), dtype=float)
+            '''fuels_yh[tech] = np.zeros((fueltypes_nr, model_yeardays_nrs, 24), dtype=float)
 
-            '''tech_type = tech_stock.get_tech_attr(
+            tech_type = tech_stock.get_tech_attr(
                 enduse, tech, 'tech_type')
 
             if tech_type == 'hybrid_tech':
@@ -776,9 +774,9 @@ def calc_fuel_tech_yh(
 
                     # Assign load profile for hybrid technology
                     fuels_yh[tech][hybrid_fueltype_int] = fuel_tech_y[tech][hybrid_fueltype_int] * load_profile
-            else:'''
+            else:
             fueltype_int = tech_stock.get_tech_attr(
-                enduse, tech, 'fueltype_int')
+                enduse, tech, 'fueltype_int')'''
 
             load_profile = load_profiles.get_lp(
                 enduse, sector, tech, 'shape_yh')
@@ -787,7 +785,7 @@ def calc_fuel_tech_yh(
                 load_profile = lp.abs_to_rel(load_profile)
 
             #fuels_yh[tech][fueltype_int] = fuel_tech_y[tech][fueltype_int] * load_profile
-            fuels_yh[tech][fueltype_int] = fuel_tech_y[tech] * load_profile
+            fuels_yh[tech] = fuel_tech_y[tech] * load_profile
     else:
         # --
         # Unconstrained mode, i.e. not technolog specific.
@@ -1038,11 +1036,10 @@ def fuel_to_service(
                 # Get fuel share and convert fuel to service per technology
                 s_tech = fuel_y[fueltype_int] * fuel_share * tech_eff
 
-                try:
-                    s_tech_y[tech] += s_tech
-
-                except KeyError:
-                    s_tech_y[tech] = s_tech
+                #try:
+                #    s_tech_y[tech] += s_tech
+                #except KeyError:
+                s_tech_y[tech] = s_tech
 
                 # Sum total yearly service
                 s_tot_y += s_tech #(y)
@@ -1282,10 +1279,10 @@ def apply_scenario_drivers(
             #TODO :ADD OTHER ENDSES
 
             if math.isnan(by_driver_data):
-                logging.warning("INF ERROR")
+                #logging.warning("INF ERROR")
                 by_driver_data = 1
             if math.isnan(cy_driver_data):
-                logging.warning("INF ERROR")
+                #logging.warning("INF ERROR")
                 cy_driver_data = 1
 
             # Multiply drivers
@@ -1320,10 +1317,10 @@ def apply_scenario_drivers(
 
             # Check if float('nan')
             if math.isnan(factor_driver):
-                logging.warning("Something went wrong wtih scenario")
+                #logging.warning("Something went wrong wtih scenario")
                 factor_driver = 1
 
-            logging.debug("... Scenario drivers: {} {} {}".format(by_driver, cy_driver, factor_driver))
+            #logging.debug("... Scenario drivers: {} {} {}".format(by_driver, cy_driver, factor_driver))
 
             fuel_y = fuel_y * factor_driver
         else:

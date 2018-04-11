@@ -31,7 +31,8 @@ def run_all_plot_functions(
         lookups,
         result_paths,
         assumptions,
-        enduses
+        enduses,
+        plot_crit
     ):
     """Summary function to plot all results
     """
@@ -39,14 +40,14 @@ def run_all_plot_functions(
     # -----------
     # Set which plots to plot
     # -----------
-    plot_stacked_enduses = True
-    plot_y_all_enduses = True
-    plot_fuels_enduses_y = True
-    plot_lf = False                         # Plot load factors
-    plot_week_h = True
-    plot_h_peak_fueltypes = True
-    plot_averaged_season_fueltype = True   # Compare for every season and daytype the daily loads
-    plot_radar = False                      # Plot radar spider charts
+    plot_stacked_enduses = plot_crit['plot_stacked_enduses']
+    plot_y_all_enduses = plot_crit['plot_y_all_enduses']
+    plot_fuels_enduses_y = plot_crit['plot_fuels_enduses_y']
+    plot_lf = plot_crit['plot_lf']                         # Plot load factors
+    plot_week_h = plot_crit['plot_week_h']
+    plot_h_peak_fueltypes = plot_crit['plot_h_peak_fueltypes']
+    plot_averaged_season_fueltype = plot_crit['plot_averaged_season_fueltype']   # Compare for every season and daytype the daily loads
+    plot_radar = plot_crit['plot_radar']                      # Plot radar spider charts
 
     # ----------
     # Plot LAD differences for first and last year
@@ -81,7 +82,7 @@ def run_all_plot_functions(
                 'plt_one_fueltype_multiple_regions_peak_h_electricity.pdf'),
             fueltype_str_to_plot="electricity")
 
-    prnt(":")
+    #prnt(":")
 
     if plot_fuels_enduses_y:
         logging.info("... plot fuel per fueltype for whole country over annual timesteps")

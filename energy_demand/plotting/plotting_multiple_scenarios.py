@@ -12,6 +12,130 @@ from energy_demand.plotting import plotting_results
 from energy_demand.basic import lookup_tables
 from energy_demand.technologies import tech_related
 
+def plot_heat_pump_chart(
+        scenario_data,
+        fig_name,
+        fueltype_str_input,
+        plotshow=False):
+    """
+
+    Info
+    -----
+    Run scenarios with different value in scenarion name
+
+    e.g. 0.1 heat pump --> scen_0.1
+
+    """
+    lookups = lookup_tables.basic_lookups()
+
+    # Collect value to display on axis
+    result_dict = {} # {scenario_value:  {year: {fueltype: np.array(reg, value))}}
+
+    for scenario_name, scenario_data in scenario_data.items():
+        
+        # Scenario value
+        value_scenario = float(scenario_name.split("__")[1])
+
+        # Get peak for all regions {year: {fueltype: np.array(reg,value))}
+        y_lf_fueltype = {}
+
+        for year, data_lf_fueltypes in scenario_data['load_factors_y'].items(): # {scenario_value: np.array((regions, result_value))}
+
+            y_lf_fueltype[year] = {}
+            for fueltype_int, data_lf in enumerate(data_lf_fueltypes):
+
+                fueltype_str = tech_related.get_fueltype_str(lookups['fueltypes'], fueltype_int)
+
+                # Select only fueltype data
+                if fueltype_str == fueltype_str_input:
+                    y_lf_fueltype[year] = data_lf
+                else:
+                    pass
+
+        result_dict[value_scenario] = y_lf_fueltype
+
+    #-----
+    # Plot
+    # -----
+    # Set figure size
+    plt.figure(figsize=plotting_program.cm2inch(14, 8))
+
+    # -----------------
+    # Axis
+    # -----------------
+    # Percentages on x axis
+    major_ticks = list(result_dict.keys())
+
+    plt.xticks(major_ticks, major_ticks)
+
+    # ----------
+    # Plot lines
+    # ----------
+    color_list_selection = plotting_styles.color_list_selection()
+
+    # all percent values
+    all_percent_values = list(result_dict.keys())
+
+    # Nr of years
+    for _percent_value, fuel_fueltype_yrs in result_dict.items():
+        years = list(fuel_fueltype_yrs.keys())
+        break
+
+    legend_entries = []
+    for year in years:
+        color_scenario = color_list_selection.pop()
+
+        legend_entries.append(year)
+        year_data = []
+        for _percent_value, fuel_fueltype_yrs in result_dict.items():
+
+            regs = fuel_fueltype_yrs[year]
+
+            # sum across all regions
+            lf_peak_across_all_regs = np.sum(regs)
+
+            year_data.append(lf_peak_across_all_regs)
+
+        plt.plot(
+            list(all_percent_values),
+            list(year_data),
+            color=str(color_scenario))
+    # ----
+    # Axis
+    # ----
+    plt.ylim(ymin=0)
+
+    # ------------
+    # Plot legend
+    # ------------
+    plt.legend(
+        legend_entries,
+        ncol=2,
+        loc=2,
+        prop={
+            'family': 'arial',
+            'size': 10},
+        frameon=False)
+
+    # ---------
+    # Labels
+    # ---------
+    plt.ylabel("percent of residential heat pumps")
+    plt.xlabel("peak GW fueltype")
+    plt.title("impact of changing residential heat pumps to peak")
+
+    # Tight layout
+    plt.tight_layout()
+    plt.margins(x=0)
+
+    plt.savefig(fig_name)
+
+    if plotshow:
+        plt.show()
+        plt.close()
+    else:
+        plt.close()
+    
 def plot_reg_y_over_time(
         scenario_data,
         fig_name,
