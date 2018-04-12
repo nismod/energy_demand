@@ -105,31 +105,39 @@ def plot_heat_pump_chart(
         legend_entries.append(year)
 
         # For every region
-        '''
+        #'''
         for reg_nr, _ in enumerate(regs):
             year_data = []
             for _percent_value, fuel_fueltype_yrs in result_dict.items():
                 year_data.append(fuel_fueltype_yrs[year][reg_nr])
 
-            plt.plot(
-                list(all_percent_values),
-                list(year_data),
-                color=str(color_scenario))
-        '''
+            #plt.plot(
+            #    list(all_percent_values),
+            #    list(year_data),
+            #    color=str(color_scenario))
+        #'''
 
         # PLot max min polygon
         # -----------------
-        '''plot_max_min_polygon = False
+        #'''
+        plot_max_min_polygon = True
         if plot_max_min_polygon:
 
             upper_boundary = []
             lower_bdoundary = []
 
-            # Get min and max of all entries of year of all regions
-            min_y = np.min(year_data)
-            max_y = np.max(year_data)
-            upper_boundary.append((year, min_y))
-            lower_bdoundary.append((year, max_y))
+            percent_value_data = {}
+            for _percent_value, fuel_fueltype_yrs in result_dict.items():
+                percent_value_data[_percent_value] = []
+                for reg_nr, _ in enumerate(regs):
+                    percent_value_data[_percent_value].append(result_dict[_percent_value][year])
+
+            for percent_value, percent_regs in percent_value_data.items():
+                # Get min and max of all entries of year of all regions
+                min_y = np.min(percent_regs)
+                max_y = np.max(percent_regs)
+                upper_boundary.append((percent_value, min_y))
+                lower_bdoundary.append((percent_value, max_y))
 
             # create correct sorting to draw filled polygon
             min_max_polygon = plotting_results.order_polygon(upper_boundary, lower_bdoundary)
@@ -142,8 +150,9 @@ def plot_heat_pump_chart(
                 linewidth=0,
                 fill='True')
 
-            ax.add_patch(polygon)'''
-    
+            ax.add_patch(polygon)
+        #'''
+        plt.plot()
         # Average across all regs
         #'''
         year_data = []
