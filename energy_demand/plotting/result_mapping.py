@@ -378,7 +378,7 @@ def plot_lad_national(
         # ---------
         all_zero_polygons = getattr(lad_geopanda_shp_reclass, 'reclassified')
         lad_geopanda_shp_zeros = lad_geopanda_shp_reclass[(all_zero_polygons == placeholder_zero_color)]
-
+        print("AA {}  {} ".format(color_zero, all_zero_polygons))
         # If more than 0 polygons are selected with classified number of zero, plot them
         if lad_geopanda_shp_zeros.shape[0] > 0:
             lad_geopanda_shp_zeros.plot(
@@ -390,7 +390,8 @@ def plot_lad_national(
         # ----------------------------
         # Plot map with all value hues
         # -----------------------------
-        #'''
+        #''' 
+        # Creates hues values
         lad_geopanda_shp.plot(
             ax=axes,
             column=field_to_plot,
@@ -407,15 +408,15 @@ def plot_lad_national(
         # -----------------------------
         # Plot map with quantiles
         # -----------------------------
-        '''
+        #'''
         lad_geopanda_shp.plot(
             axes=axes,
             column=field_to_plot,
-            scheme='equal_interval', #quantiles
+            scheme='equal_interval', #quantiles'
             k=10,
             cmap='OrRd',
             legend=True)
-        '''
+        #'''
 
         # -----------------------------
         # Plot map wtih quantiles
@@ -606,6 +607,55 @@ def create_geopanda_files(
     unique_merge_id = 'name' #'geo_code'
 
     # ======================================
+    # Load factors (absolute)
+    # ======================================
+    for year in results_container['load_factors_y'].keys():
+        for fueltype in range(fueltypes_nr):
+
+            fueltype_str = tech_related.get_fueltype_str(fueltypes, fueltype)
+            field_name = 'lf_{}_{}'.format(year, fueltype_str)
+
+            results = basic_functions.array_to_dict(
+                results_container['load_factors_y'][year][fueltype], regions)
+
+            # Both need to be lists
+            merge_data = {
+                str(field_name): list(results.values()),
+                str(unique_merge_id): list(regions)}
+
+            # Merge to shapefile
+            lad_geopanda_shp = merge_data_to_shp(
+                lad_geopanda_shp,
+                merge_data,
+                unique_merge_id)
+
+            # ABSOLUTE
+            bins = [40, 45, 50, 55, 60, 75, 80] # must be of uneven length containing zero
+
+            color_list, color_prop, user_classification, color_zero = colors_plus_minus_map(
+                bins=bins,
+                color_prop='qualitative',
+                color_order=True,
+                color_zero='#ffffff') #8a2be2
+
+            # If user classified, defined bins
+            plot_lad_national(
+                lad_geopanda_shp=lad_geopanda_shp,
+                legend_unit="%",
+                field_to_plot=field_name,
+                fig_name_part="lf_max_y",
+                result_path=path_data_results_shapefiles,
+                color_palette='Dark2_7',
+                color_prop=color_prop,
+                
+                user_classification=user_classification,
+                color_list=color_list,
+                bins=bins,
+                color_zero=color_zero)
+                #color_prop='qualitative',
+                #user_classification=False)
+    prnt(":")
+    # ======================================
     # Spatial maps of difference in load factors
     # ======================================
     simulated_yrs = list(results_container['load_factors_y'].keys())
@@ -795,40 +845,6 @@ def create_geopanda_files(
                 color_list=color_list,
                 color_zero=color_zero,
                 bins=bins)
-
-    # ======================================
-    # Load factors
-    # ======================================
-    for year in results_container['load_factors_y'].keys():
-        for fueltype in range(fueltypes_nr):
-
-            fueltype_str = tech_related.get_fueltype_str(fueltypes, fueltype)
-            field_name = 'lf_{}_{}'.format(year, fueltype_str)
-
-            results = basic_functions.array_to_dict(
-                results_container['load_factors_y'][year][fueltype], regions)
-
-            # Both need to be lists
-            merge_data = {
-                str(field_name): list(results.values()),
-                str(unique_merge_id): list(regions)}
-
-            # Merge to shapefile
-            lad_geopanda_shp = merge_data_to_shp(
-                lad_geopanda_shp,
-                merge_data,
-                unique_merge_id)
-
-            # If user classified, defined bins
-            plot_lad_national(
-                lad_geopanda_shp=lad_geopanda_shp,
-                legend_unit="%",
-                field_to_plot=field_name,
-                fig_name_part="lf_max_y",
-                result_path=path_data_results_shapefiles,
-                color_palette='Dark2_7',
-                color_prop='qualitative',
-                user_classification=False)
 
 def colors_plus_minus_map(
         bins,

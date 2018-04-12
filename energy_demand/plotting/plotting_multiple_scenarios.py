@@ -84,7 +84,7 @@ def plot_heat_pump_chart(
     #color_list_selection = plotting_styles.color_list_selection()
     color_list_selection = plotting_styles.get_colorbrewer_color(
         color_prop='sequential', #sequential
-        color_palette='PuRd_3',
+        color_palette='PuBu_4',
         inverse=False) # #https://jiffyclub.github.io/palettable/colorbrewer/sequential/
 
     # all percent values
@@ -104,43 +104,34 @@ def plot_heat_pump_chart(
 
         legend_entries.append(year)
 
+        # ----------------
         # For every region
-        #'''
+        # ----------------
         for reg_nr, _ in enumerate(regs):
             year_data = []
             for _percent_value, fuel_fueltype_yrs in result_dict.items():
                 year_data.append(fuel_fueltype_yrs[year][reg_nr])
 
-            #plt.plot(
-            #    list(all_percent_values),
-            #    list(year_data),
-            #    color=str(color_scenario))
-        #'''
+            plt.plot(
+                list(all_percent_values),
+                list(year_data),
+                color=str(color_scenario))
 
-        # PLot max min polygon
-        # -----------------
-        #'''
+        # --------------------
+        # Plot max min polygon
+        # --------------------
         plot_max_min_polygon = True
         if plot_max_min_polygon:
-
-            upper_boundary = []
-            lower_bdoundary = []
-
-            percent_value_data = {}
+            
+            # Create value {x_vals: [y_vals]}
+            x_y_values = {}
             for _percent_value, fuel_fueltype_yrs in result_dict.items():
-                percent_value_data[_percent_value] = []
+                x_y_values[_percent_value] = []
                 for reg_nr, _ in enumerate(regs):
-                    percent_value_data[_percent_value].append(result_dict[_percent_value][year])
+                    x_y_values[_percent_value].append(result_dict[_percent_value][year])
 
-            for percent_value, percent_regs in percent_value_data.items():
-                # Get min and max of all entries of year of all regions
-                min_y = np.min(percent_regs)
-                max_y = np.max(percent_regs)
-                upper_boundary.append((percent_value, min_y))
-                lower_bdoundary.append((percent_value, max_y))
-
-            # create correct sorting to draw filled polygon
-            min_max_polygon = plotting_results.order_polygon(upper_boundary, lower_bdoundary)
+            # Create polygons
+            min_max_polygon = plotting_results.create_min_max_polygon_from_lines(x_y_values)
 
             polygon = plt.Polygon(
                 min_max_polygon,
@@ -151,8 +142,7 @@ def plot_heat_pump_chart(
                 fill='True')
 
             ax.add_patch(polygon)
-        #'''
-        plt.plot()
+        
         # Average across all regs
         #'''
         year_data = []
@@ -194,9 +184,9 @@ def plot_heat_pump_chart(
     # ---------
     # Labels
     # ---------
-    plt.xlabel("percent of residential heat pumps")
-    plt.ylabel("load factor")
-    plt.title("impact of changing residential heat pumps to load factor")
+    plt.xlabel("heat pump residential heating [%]")
+    plt.ylabel("load factor [%] [{}]".format(fueltype_str_input))
+    #plt.title("impact of changing residential heat pumps to load factor")
 
     # Tight layout
     plt.tight_layout()

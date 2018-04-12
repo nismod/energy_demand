@@ -1646,6 +1646,9 @@ def calc_service_switch(
 
         return switched_s_tech_y_cy
     else:
+        '''if curr_yr > base_yr and enduse == 'rs_space_heating':
+            logging.debug(" {} ".format(curr_yr))
+            prnt("ERROR")'''
         return s_tech_y_cy
 
 def apply_cooling(

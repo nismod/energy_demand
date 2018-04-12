@@ -265,6 +265,31 @@ def order_polygon(upper_boundary, lower_boundary):
         min_max_polygon.append(pnt)
     for pnt in reversed(lower_boundary):
         min_max_polygon.append(pnt)
+
+    return min_max_polygon
+
+def create_min_max_polygon_from_lines(line_data):
+    """
+
+    Arguments
+    ---------
+    line_data : dict
+        linedata containing info
+            {'x_value': [y_values]}
+
+    """
+    upper_boundary = []
+    lower_bdoundary = []
+
+    for x_value, y_value in line_data.items():
+        min_y = np.min(y_value)
+        max_y = np.max(y_value)
+        upper_boundary.append((x_value, min_y))
+        lower_bdoundary.append((x_value, max_y))
+
+        # create correct sorting to draw filled polygon
+        min_max_polygon = order_polygon(upper_boundary, lower_bdoundary)
+
     return min_max_polygon
 
 def plot_seasonal_lf(
@@ -335,7 +360,9 @@ def plot_seasonal_lf(
             upper_boundary = []
             lower_bdoundary = []
 
-            for year_nr, lf_fueltype_reg in lf_fueltypes_season.items():
+            min_max_polygon = plotting_results.create_min_max_polygon_from_lines(lf_fueltypes_season)
+
+            '''for year_nr, lf_fueltype_reg in lf_fueltypes_season.items():
 
                 # Get min and max of all entries of year of all regions
                 min_y = np.min(lf_fueltype_reg[fueltype_int])
@@ -344,7 +371,7 @@ def plot_seasonal_lf(
                 lower_bdoundary.append((year_nr, max_y))
 
             # create correct sorting to draw filled polygon
-            min_max_polygon = order_polygon(upper_boundary, lower_bdoundary)
+            min_max_polygon = order_polygon(upper_boundary, lower_bdoundary)'''
 
             polygon = plt.Polygon(
                 min_max_polygon,
@@ -478,7 +505,7 @@ def plot_lf_y(
                 color='grey')
 
     if plot_max_min_polygon:
-        lower_bdoundary = []
+        '''lower_bdoundary = []
         upper_boundary = []
 
         for year_nr, lf_fueltype_reg in load_factors_y.items():
@@ -490,7 +517,9 @@ def plot_lf_y(
             lower_bdoundary.append((year_nr, max_y))
 
         # create correct sorting to draw filled polygon
-        min_max_polygon = order_polygon(upper_boundary, lower_bdoundary)
+        min_max_polygon = order_polygon(upper_boundary, lower_bdoundary)'''
+
+        min_max_polygon = plotting_results.create_min_max_polygon_from_lines(load_factors_y)
 
         polygon = plt.Polygon(
             min_max_polygon,
@@ -1191,6 +1220,7 @@ def plot_load_profile_dh_multiple(
 
                 # create correct sorting to draw filled polygon
                 min_max_polygon = order_polygon(upper_boundary, lower_bdoundary)
+                #min_max_polygon = plotting_results.create_min_max_polygon_from_lines(load_factors_y)
 
                 polygon = plt.Polygon(
                     min_max_polygon,

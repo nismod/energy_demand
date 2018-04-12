@@ -23,7 +23,7 @@ def main(path_data_energy_demand, path_shapefile_input):
     # Criterias
     # ---------
     write_shapefiles = False    # Write shapefiles
-    spatial_results = False      # Spatial geopanda maps
+    spatial_results = True      # Spatial geopanda maps
 
     plot_crit_dict = {
         "plot_stacked_enduses": True,
@@ -81,6 +81,21 @@ def main(path_data_energy_demand, path_shapefile_input):
         data['assumptions']['seasons'],
         data['assumptions']['model_yeardays_daytype'])
 
+    # ------------------------------
+    # Plotting spatial results
+    # ------------------------------
+    if spatial_results:
+        print("... plotting spatial results")
+        logging.info("Create spatial geopanda files")
+        result_mapping.create_geopanda_files(
+            data,
+            results_container,
+            data['result_paths']['data_results_shapefiles'],
+            data['regions'],
+            data['lookups']['fueltypes_nr'],
+            data['lookups']['fueltypes'],
+            path_shapefile_input)
+
     # ----------------
     # Write results to CSV files and merge with shapefile
     # ----------------
@@ -104,22 +119,6 @@ def main(path_data_energy_demand, path_shapefile_input):
         data['assumptions'],
         data['enduses'],
         plot_crit=plot_crit_dict)
-
-    # ------------------------------
-    # Plotting spatial results
-    # ------------------------------
-    print("... plotting spatial results")
-    if spatial_results:
-        logging.info("Create spatial geopanda files")
-        result_mapping.create_geopanda_files(
-            data,
-            results_container,
-            data['result_paths']['data_results_shapefiles'],
-            data['regions'],
-            data['lookups']['fueltypes_nr'],
-            data['lookups']['fueltypes'],
-            path_shapefile_input)
-
 
     print("===================================")
     print("... finished reading and plotting results")
