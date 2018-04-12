@@ -72,6 +72,7 @@ def plot_heat_pump_chart(
 
     # Criteria to plot maximum boundaries
     plot_max_min_polygon = True
+    plot_all_regs = False
 
     # Set figure size
     fig = plt.figure(figsize=plotting_program.cm2inch(16, 8))
@@ -108,7 +109,7 @@ def plot_heat_pump_chart(
     for year in years:
         color_scenario = color_list_selection.pop()
 
-        legend_entries.append(year)
+        legend_entries.append("mean {}".format(year))
 
         # ----------------
         # For every region
@@ -119,7 +120,6 @@ def plot_heat_pump_chart(
                 year_data.append(fuel_fueltype_yrs[year][reg_nr])
 
             # Paste out if not individual regions and set plot_max_min_polygon to True
-            plot_all_regs = True
             if plot_all_regs:
                 plt.plot(
                     list(all_percent_values),

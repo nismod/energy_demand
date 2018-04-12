@@ -126,5 +126,5 @@ def process_scenarios(path_to_scenarios, year_to_model=2015):
 
 # Generate plots across all scenarios
 #process_scenarios(os.path.abspath("C:/Users/cenv0553/ED/_multiple_results_eff_factor_example"))
-process_scenarios(os.path.abspath("C:/Users/cenv0553/ED/_multiple_results_hp_example_no_efficiency_improvement"))
-#process_scenarios(os.path.abspath("C:/Users/cenv0553/ED/_multiple_results_hp_example_efficiency_improvement"))
+#process_scenarios(os.path.abspath("C:/Users/cenv0553/ED/_multiple_results_hp_example_no_efficiency_improvement"))
+process_scenarios(os.path.abspath("C:/Users/cenv0553/ED/_multiple_results_hp_example_efficiency_improvement"))
