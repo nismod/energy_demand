@@ -1,6 +1,7 @@
 """Plotting styles
 """
 from collections import OrderedDict
+import palettable
 
 def linestyles():
     """
@@ -64,6 +65,17 @@ def color_list():
         'mediumaquamarine',
         'darksalmon',
         'beige']
+
+    return color_list
+
+def get_colorbrewer_color(color_prop, color_palette):
+    """
+    TODO
+    """
+    if color_prop == 'sequential':
+        color_list = getattr(palettable.colorbrewer.sequential, color_palette).hex_colors
+    if color_prop == 'qualitative':
+        color_list = getattr(palettable.colorbrewer.qualitative, color_palette).hex_colors
 
     return color_list
 

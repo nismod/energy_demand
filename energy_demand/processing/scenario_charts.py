@@ -61,7 +61,9 @@ def process_scenarios(path_to_scenarios, year_to_model=2015):
     # Create plots
     # ------------
 
+    # -------------------------------
     # Generate plot with heat pump ranges
+    # -------------------------------
     heat_pump_range_plot = True
     if heat_pump_range_plot:
         plotting_multiple_scenarios.plot_heat_pump_chart(
@@ -70,26 +72,34 @@ def process_scenarios(path_to_scenarios, year_to_model=2015):
             fueltype_str_input='electricity',
             plotshow=True)
 
+    # -------------------------------
     # Plot total demand for every year in line plot
+    # -------------------------------
     plotting_multiple_scenarios.plot_tot_y_over_time(
         scenario_data,
         fig_name=os.path.join(path_result_folder, "tot_y_multiple.pdf"),
         plotshow=False)
 
+    # -------------------------------
     # Plot for all regions demand for every year in line plot
+    # -------------------------------
     plotting_multiple_scenarios.plot_reg_y_over_time(
         scenario_data,
         fig_name=os.path.join(path_result_folder, "reg_y_multiple.pdf"),
         plotshow=False)
 
+    # -------------------------------
     # Plot comparison of total demand for a year for all LADs (scatter plot)
+    # -------------------------------
     plotting_multiple_scenarios.plot_LAD_comparison_scenarios(
         scenario_data,
         year_to_plot=2050,
         fig_name=os.path.join(path_result_folder, "LAD_multiple.pdf"),
         plotshow=False)
 
+    # -------------------------------
     # Plot different profiels in radar plot
+    # -------------------------------
     plotting_multiple_scenarios.plot_radar_plots_average_peak_day(
         scenario_data,
         year_to_plot=2050,

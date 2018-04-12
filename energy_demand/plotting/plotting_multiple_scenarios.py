@@ -32,7 +32,7 @@ def plot_heat_pump_chart(
     result_dict = {} # {scenario_value:  {year: {fueltype: np.array(reg, value))}}
 
     for scenario_name, scenario_data in scenario_data.items():
-        
+
         # Scenario value
         value_scenario = float(scenario_name.split("__")[1])
 
@@ -58,7 +58,8 @@ def plot_heat_pump_chart(
     # Plot
     # -----
     # Set figure size
-    plt.figure(figsize=plotting_program.cm2inch(14, 8))
+    fig = plt.figure(figsize=plotting_program.cm2inch(16, 8))
+    ax = fig.add_subplot(1, 1, 1)
 
     # -----------------
     # Axis
@@ -71,7 +72,10 @@ def plot_heat_pump_chart(
     # ----------
     # Plot lines
     # ----------
-    color_list_selection = plotting_styles.color_list_selection()
+    #color_list_selection = plotting_styles.color_list_selection()
+    color_list_selection = plotting_styles.get_colorbrewer_color(
+        color_prop='sequential',
+        color_palette='Greens_5')
 
     # all percent values
     all_percent_values = list(result_dict.keys())
@@ -79,6 +83,9 @@ def plot_heat_pump_chart(
     # Nr of years
     for _percent_value, fuel_fueltype_yrs in result_dict.items():
         years = list(fuel_fueltype_yrs.keys())
+        for year in years:
+            regs = fuel_fueltype_yrs[year]
+            break
         break
 
     legend_entries = []
@@ -86,32 +93,80 @@ def plot_heat_pump_chart(
         color_scenario = color_list_selection.pop()
 
         legend_entries.append(year)
+
+        # For every region
+        '''
+        for reg_nr, _ in enumerate(regs):
+            year_data = []
+            for _percent_value, fuel_fueltype_yrs in result_dict.items():
+                year_data.append(fuel_fueltype_yrs[year][reg_nr])
+
+            plt.plot(
+                list(all_percent_values),
+                list(year_data),
+                color=str(color_scenario))
+        '''
+
+        # PLot max min polygon
+        # -----------------
+        '''plot_max_min_polygon = False
+        if plot_max_min_polygon:
+
+            upper_boundary = []
+            lower_bdoundary = []
+
+            # Get min and max of all entries of year of all regions
+            min_y = np.min(year_data)
+            max_y = np.max(year_data)
+            upper_boundary.append((year, min_y))
+            lower_bdoundary.append((year, max_y))
+
+            # create correct sorting to draw filled polygon
+            min_max_polygon = plotting_results.order_polygon(upper_boundary, lower_bdoundary)
+
+            polygon = plt.Polygon(
+                min_max_polygon,
+                color=color_scenario,
+                alpha=0.2,
+                edgecolor=None,
+                linewidth=0,
+                fill='True')
+
+            ax.add_patch(polygon)'''
+    
+        # Average across all regs
+        #'''
         year_data = []
         for _percent_value, fuel_fueltype_yrs in result_dict.items():
 
             regs = fuel_fueltype_yrs[year]
 
+            # --------------------------------------
             # Average load factor across all regions
+            # --------------------------------------
             lf_peak_across_all_regs = np.average(regs)
-
             year_data.append(lf_peak_across_all_regs)
 
         plt.plot(
             list(all_percent_values),
             list(year_data),
             color=str(color_scenario))
+        #'''
     # ----
     # Axis
     # ----
     plt.ylim(ymin=0)
+    plt.ylim(ymax=100)
+    plt.xlim(xmax=0)
+    plt.xlim(xmax=100)
 
     # ------------
     # Plot legend
     # ------------
     plt.legend(
         legend_entries,
-        ncol=2,
-        loc=2,
+        ncol=1,
+        loc=3,
         prop={
             'family': 'arial',
             'size': 10},
@@ -120,9 +175,9 @@ def plot_heat_pump_chart(
     # ---------
     # Labels
     # ---------
-    plt.ylabel("percent of residential heat pumps")
-    plt.xlabel("peak GW fueltype")
-    plt.title("impact of changing residential heat pumps to peak")
+    plt.xlabel("percent of residential heat pumps")
+    plt.ylabel("load factor")
+    plt.title("impact of changing residential heat pumps to load factor")
 
     # Tight layout
     plt.tight_layout()

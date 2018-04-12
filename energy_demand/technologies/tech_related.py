@@ -345,7 +345,7 @@ def calc_eff_cy(
         eff_ey,
         yr_until_changed,
         other_enduse_mode_info,
-        eff_achieved_f,
+        f_eff_achieved,
         diff_method
     ):
     """Calculate efficiency of current year based on efficiency
@@ -365,7 +365,7 @@ def calc_eff_cy(
         Year for which the eff_ey is defined
     other_enduse_mode_info : Dict
         diffusion information
-    eff_achieved_f : dict
+    f_eff_achieved : dict
         Efficiency achievement factor (how much of the efficiency is achieved)
     diff_method : str
         Diffusion method
@@ -412,7 +412,7 @@ def calc_eff_cy(
             logging.exception("Not correct diffusion assigned %s", diff_method)
 
     # Consider actual achieved efficiency
-    actual_eff_gain = max_eff_gain * eff_achieved_f
+    actual_eff_gain = max_eff_gain * f_eff_achieved
 
     # Actual efficiency potential
     eff_cy = eff_by + actual_eff_gain
