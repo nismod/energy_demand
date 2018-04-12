@@ -71,7 +71,7 @@ def run_all_plot_functions(
     # ----------------
     # Plot demand for every region over time
     # -------------------
-    plot_line_for_every_region_of_peak_demand = True
+    plot_line_for_every_region_of_peak_demand = True #TODO
     if plot_line_for_every_region_of_peak_demand:
         plt_one_fueltype_multiple_regions_peak_h(
             results_container['results_every_year'],
@@ -81,8 +81,6 @@ def run_all_plot_functions(
                 result_paths['data_results_PDF'],
                 'plt_one_fueltype_multiple_regions_peak_h_electricity.pdf'),
             fueltype_str_to_plot="electricity")
-
-    #prnt(":")
 
     if plot_fuels_enduses_y:
         logging.info("... plot fuel per fueltype for whole country over annual timesteps")

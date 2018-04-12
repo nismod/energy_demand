@@ -369,7 +369,7 @@ class Technology(object):
         self.description = description
         self.fueltype_str = fueltype_str
         self.fueltype_int = tech_related.get_fueltype_int(fueltypes, fueltype_str)
-        self.f_eff_achieved = eff_achieved
+        self.eff_achieved = eff_achieved
         self.diff_method = diff_method
         self.market_entry = market_entry
         self.tech_max_share = tech_max_share
@@ -392,7 +392,7 @@ class Technology(object):
                     eff_ey,
                     year_eff_ey,
                     other_enduse_mode_info,
-                    self.f_eff_achieved,
+                    self.eff_achieved,
                     self.diff_method),
                 t_base_heating_cy)
         else:
@@ -404,7 +404,7 @@ class Technology(object):
                 eff_ey,
                 year_eff_ey,
                 other_enduse_mode_info,
-                self.f_eff_achieved,
+                self.eff_achieved,
                 self.diff_method)
 
     def set_tech_attr(self, attribute_to_set, value_to_set):

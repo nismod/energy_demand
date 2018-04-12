@@ -11,6 +11,7 @@ import numpy as np
 from energy_demand.technologies import tech_related
 from energy_demand.profiles import load_profile
 from energy_demand.scripts import init_scripts
+from energy_demand.basic import lookup_tables
 
 class TechnologyData(object):
     """Class to store technology related data
@@ -239,6 +240,8 @@ def read_in_results(path_runs, seasons, model_yeardays_daytype):
     """
     logging.info("... Reading in results")
 
+    lookups = lookup_tables.basic_lookups()
+
     results_container = {}
 
     # -------------
@@ -248,6 +251,24 @@ def read_in_results(path_runs, seasons, model_yeardays_daytype):
         path_runs)
 
     results_container['results_every_year'] = read_results_yh(path_runs)
+
+    # -----------------
+    # Peak calculations
+    # -----------------
+    results_container['ed_peak_h'] = {}
+
+    for year, year_yh in results_container['results_every_year'].items():
+
+        results_container['ed_peak_h'][year] = {}
+
+        for fueltype_int, reg_ed_yh in enumerate(year_yh):
+
+            fueltype_str = tech_related.get_fueltype_str(lookups['fueltypes'], fueltype_int)
+
+            # Calculate peak per fueltype for all regions (reg_ed_yh= np.array(fueltype, reg, yh)) TODO CHECK
+            all_regs_yh = np.sum(reg_ed_yh, axis=0)    # sum regs
+            peak_h = np.max(all_regs_yh)               # select max of 8760 h
+            results_container['ed_peak_h'][year][fueltype_str] = peak_h
 
     # -------------
     # Load factors

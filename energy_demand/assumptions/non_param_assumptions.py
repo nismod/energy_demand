@@ -660,7 +660,7 @@ class Assumptions(object):
 
 def update_technology_assumption(
         technologies,
-        factor_achieved,
+        f_eff_achieved,
         gshp_fraction_ey
     ):
     """Updates technology related properties based on
@@ -673,7 +673,7 @@ def update_technology_assumption(
     ----------
     technologies : dict
         Technologies
-    factor_achieved : float
+    f_eff_achieved : float
         Factor achieved
     gshp_fraction_ey : float
         Mix of GSHP and GSHP
@@ -685,7 +685,7 @@ def update_technology_assumption(
     # Assign same achieved efficiency factor for all technologies
     technologies = helpers.set_same_eff_all_tech(
         technologies,
-        factor_achieved)
+        f_eff_achieved)
 
     # Calculate average eff of hp depending on fraction of GSHP to ASHP
     installed_heat_pump_ey = tech_related.generate_ashp_gshp_split(

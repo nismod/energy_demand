@@ -243,7 +243,7 @@ class Enduse(object):
                     criterias['mode_constrained'],
                     enduse,
                     assumptions.enduse_space_heating)
-                _scrap = np.sum(self.fuel_y)
+
                 #logging.debug("... Fuel train F2: " + str(np.sum(self.fuel_y)))
                 # ------------------------------------
                 # Calculate regional energy service

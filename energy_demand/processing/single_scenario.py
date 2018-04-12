@@ -82,11 +82,23 @@ def main(path_data_energy_demand, path_shapefile_input):
         data['assumptions']['model_yeardays_daytype'])
 
     # ------------------------------
+    # Plotting other results
+    # ------------------------------
+    plotting_results.run_all_plot_functions(
+        results_container,
+        data['reg_nrs'],
+        data['regions'],
+        data['lookups'],
+        data['result_paths'],
+        data['assumptions'],
+        data['enduses'],
+        plot_crit=plot_crit_dict)
+
+    # ------------------------------
     # Plotting spatial results
     # ------------------------------
     if spatial_results:
-        print("... plotting spatial results")
-        logging.info("Create spatial geopanda files")
+        print("plotting geopandas")
         result_mapping.create_geopanda_files(
             data,
             results_container,
@@ -107,18 +119,6 @@ def main(path_data_energy_demand, path_shapefile_input):
             data['lookups'],
             data['regions'])
 
-    # ------------------------------
-    # Plotting other results
-    # ------------------------------
-    plotting_results.run_all_plot_functions(
-        results_container,
-        data['reg_nrs'],
-        data['regions'],
-        data['lookups'],
-        data['result_paths'],
-        data['assumptions'],
-        data['enduses'],
-        plot_crit=plot_crit_dict)
 
     print("===================================")
     print("... finished reading and plotting results")

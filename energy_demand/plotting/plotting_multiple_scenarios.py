@@ -3,9 +3,9 @@ This file containes functions to plot multiple scenarios in a folder
 """
 import os
 import operator
+import collections
 import numpy as np
 import matplotlib.pyplot as plt
-import collections
 
 from energy_demand.plotting import plotting_styles
 from energy_demand.plotting import plotting_program
@@ -42,7 +42,7 @@ def plot_heat_pump_chart(
         y_lf_fueltype = {}
 
         for year, data_lf_fueltypes in scenario_data['load_factors_y'].items(): # {scenario_value: np.array((regions, result_value))}
-            
+
             # TODO ONLY ONE YEAR
             if year != 2050:
                 continue
@@ -199,7 +199,97 @@ def plot_heat_pump_chart(
         plt.close()
     else:
         plt.close()
-    
+
+def plot_tot_y_peak_hour(
+        scenario_data,
+        fig_name,
+        fueltype_str_input,
+        plotshow=False
+    ):
+    """Plot fueltype specific peak h of all regions
+    """
+    plt.figure(figsize=plotting_program.cm2inch(14, 8))
+
+    '''for scenario_name, scen_data in scenario_data.items():
+
+        # Read out fueltype specific max h load
+        data_years = {}
+        for year, fueltype_ed in scen_data['ed_peak_h'].items():
+            data_years[year] = {}
+
+            for fueltype, fueltype_peak_h in fueltype_ed.items():
+
+                # Maximum hourly fuel in a year (GWh)
+                data_years[year][fueltype] = fueltype_peak_h
+
+        y_scenario[scenario_name] = data_years
+    '''
+    # -----------------
+    # Axis
+    # -----------------
+    base_yr, year_interval = 2015, 5
+    first_scen = list(scenario_data.keys())[0]
+    end_yr = list(scenario_data[first_scen]['ed_peak_h'].keys())[-1]
+
+    major_ticks = np.arange(
+        base_yr,
+        end_yr + year_interval,
+        year_interval)
+
+    plt.xticks(major_ticks, major_ticks)
+
+    # ----------
+    # Plot lines
+    # ----------
+    color_list_selection = plotting_styles.color_list_selection()
+
+    for scenario_name, fuel_fueltype_yrs in scenario_data.items():
+
+        data_container = []
+        for year, fuel_fueltypes in fuel_fueltype_yrs['ed_peak_h'].items():
+            data_container.append(fuel_fueltypes[fueltype_str_input])
+
+        plt.plot(
+            list(fuel_fueltype_yrs['ed_peak_h'].keys()),     # years
+            list(data_container),               # yearly data
+            color=str(color_list_selection.pop()),
+            label=scenario_name)
+
+    # ----
+    # Axis
+    # ----
+    plt.ylim(ymin=0)
+
+    # ------------
+    # Plot legend
+    # ------------
+    plt.legend(
+        ncol=2,
+        loc=2,
+        prop={
+            'family': 'arial',
+            'size': 10},
+        frameon=False)
+
+    # ---------
+    # Labels
+    # ---------
+    plt.ylabel("GWh")
+    plt.xlabel("year")
+    plt.title("peak_h [{}]".format(fueltype_str_input))
+
+    # Tight layout
+    plt.tight_layout()
+    plt.margins(x=0)
+
+    plt.savefig(fig_name)
+
+    if plotshow:
+        plt.show()
+        plt.close()
+    else:
+        plt.close()
+
 def plot_reg_y_over_time(
         scenario_data,
         fig_name,
@@ -238,11 +328,11 @@ def plot_reg_y_over_time(
     # -----------------
     base_yr, year_interval = 2015, 5
     first_scen = list(y_scenario.keys())[0]
-    end_yr = list(y_scenario[first_scen].keys())
+    end_yr = list(y_scenario[first_scen].keys())[-1]
 
     major_ticks = np.arange(
         base_yr,
-        end_yr[-1] + year_interval,
+        end_yr + year_interval,
         year_interval)
 
     plt.xticks(major_ticks, major_ticks)
@@ -425,7 +515,6 @@ def plot_radar_plots_average_peak_day(
                 all_regs_fueltypes_yh_by[fueltype] += fuel_reg
             except KeyError:
                 all_regs_fueltypes_yh_by[fueltype] = fuel_reg
-
             try:
                 all_fuels_by += fuel_reg
             except:

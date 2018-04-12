@@ -408,7 +408,7 @@ def plot_lad_national(
         # -----------------------------
         # Plot map with quantiles
         # -----------------------------
-        #'''
+        '''
         lad_geopanda_shp.plot(
             axes=axes,
             column=field_to_plot,
@@ -416,7 +416,7 @@ def plot_lad_national(
             k=10,
             cmap='OrRd',
             legend=True)
-        #'''
+        '''
 
         # -----------------------------
         # Plot map wtih quantiles
@@ -550,7 +550,7 @@ def plot_spatial_mapping_example(
     # If user classified, defined bins  [x for x in range(0, 1000000, 200000)]
     #bins = [-4, -2, 0, 2, 4] # must be of uneven length containing zero if minus values
     #bins = [-15, -10, -5, 0, 5, 10, 15] 
-    bins = [40, 50, 60, 70]
+    #bins = [40, 50, 60, 70]
 
     color_list, color_prop, user_classification, color_zero = colors_plus_minus_map(
         bins=bins,
@@ -630,13 +630,16 @@ def create_geopanda_files(
                 unique_merge_id)
 
             # ABSOLUTE
+            #'''
             bins = [40, 45, 50, 55, 60, 75, 80] # must be of uneven length containing zero
-
+            #bins = [55, 60, 65, 70] # must be of uneven length containing zero
             color_list, color_prop, user_classification, color_zero = colors_plus_minus_map(
                 bins=bins,
                 color_prop='qualitative',
                 color_order=True,
-                color_zero='#ffffff') #8a2be2
+                color_zero='#ffffff',
+                color_palette='YlGnBu_9') #8a2be2 'YlGnBu_9'  'PuBu_8'
+            #'''
 
             # If user classified, defined bins
             plot_lad_national(
@@ -646,15 +649,16 @@ def create_geopanda_files(
                 fig_name_part="lf_max_y",
                 result_path=path_data_results_shapefiles,
                 color_palette='Dark2_7',
+
+                #color_prop='qualitative',
+                #user_classification=False)
+
                 color_prop=color_prop,
-                
                 user_classification=user_classification,
                 color_list=color_list,
                 bins=bins,
                 color_zero=color_zero)
-                #color_prop='qualitative',
-                #user_classification=False)
-    prnt(":")
+
     # ======================================
     # Spatial maps of difference in load factors
     # ======================================
@@ -850,7 +854,8 @@ def colors_plus_minus_map(
         bins,
         color_prop,
         color_order=True,
-        color_zero='#ffffff'
+        color_zero='#ffffff',
+        color_palette='PuBu_9' #'Reds_9'
     ):
     """Create color scheme in case plus and minus classes
     are defined (i.e. negative and positive values to
@@ -912,7 +917,7 @@ def colors_plus_minus_map(
     elif min(bins) > 0:
 
         color_list = []
-        color_list_pos = getattr(palettable.colorbrewer.sequential, 'Reds_9').hex_colors
+        color_list_pos = getattr(palettable.colorbrewer.sequential, color_palette).hex_colors
 
         # Number of categories
         nr_of_cat_pos_neg = int((len(bins)))

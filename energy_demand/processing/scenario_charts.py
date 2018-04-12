@@ -64,7 +64,7 @@ def process_scenarios(path_to_scenarios, year_to_model=2015):
     # -------------------------------
     # Generate plot with heat pump ranges
     # -------------------------------
-    heat_pump_range_plot = True
+    heat_pump_range_plot = False
     if heat_pump_range_plot:
         plotting_multiple_scenarios.plot_heat_pump_chart(
             scenario_data,
@@ -98,7 +98,7 @@ def process_scenarios(path_to_scenarios, year_to_model=2015):
         plotshow=False)
 
     # -------------------------------
-    # Plot different profiels in radar plot
+    # Plot different profiles in radar plot (spider plot)
     # -------------------------------
     plotting_multiple_scenarios.plot_radar_plots_average_peak_day(
         scenario_data,
@@ -106,8 +106,17 @@ def process_scenarios(path_to_scenarios, year_to_model=2015):
         fig_name=os.path.join(path_result_folder),
         plotshow=False)
 
+    # ----------------------
+    # Plot peak hour of all fueltypes for different scenario
+    # ----------------------
+    plotting_multiple_scenarios.plot_tot_y_peak_hour(
+        scenario_data,
+        fig_name=os.path.join(path_result_folder, "tot_y_peak_h_electricity.pdf"),
+        fueltype_str_input='electricity',
+        plotshow=False)
     print("Finished processing multiple scenario")
     return
 
 # Generate plots across all scenarios
-process_scenarios(os.path.abspath("C:/Users/cenv0553/ED/_multiple_results"))
+process_scenarios(os.path.abspath("C:/Users/cenv0553/ED/_multiple_results_eff_factor_example"))
+#process_scenarios(os.path.abspath("C:/Users/cenv0553/ED/_multiple_results_hp_example"))
