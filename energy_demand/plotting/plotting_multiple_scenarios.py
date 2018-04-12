@@ -91,8 +91,8 @@ def plot_heat_pump_chart(
 
             regs = fuel_fueltype_yrs[year]
 
-            # sum across all regions
-            lf_peak_across_all_regs = np.sum(regs)
+            # Average load factor across all regions
+            lf_peak_across_all_regs = np.average(regs)
 
             year_data.append(lf_peak_across_all_regs)
 
