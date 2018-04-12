@@ -5,6 +5,8 @@ import os
 import operator
 import numpy as np
 import matplotlib.pyplot as plt
+import collections
+
 from energy_demand.plotting import plotting_styles
 from energy_demand.plotting import plotting_program
 from energy_demand.basic import conversions
@@ -40,6 +42,10 @@ def plot_heat_pump_chart(
         y_lf_fueltype = {}
 
         for year, data_lf_fueltypes in scenario_data['load_factors_y'].items(): # {scenario_value: np.array((regions, result_value))}
+            
+            # TODO ONLY ONE YEAR
+            if year != 2050:
+                continue
 
             y_lf_fueltype[year] = {}
             for fueltype_int, data_lf in enumerate(data_lf_fueltypes):
@@ -53,6 +59,9 @@ def plot_heat_pump_chart(
                     pass
 
         result_dict[value_scenario] = y_lf_fueltype
+
+    # Sort dict and convert to OrderedDict
+    result_dict = collections.OrderedDict(sorted(result_dict.items()))
 
     #-----
     # Plot
@@ -74,8 +83,9 @@ def plot_heat_pump_chart(
     # ----------
     #color_list_selection = plotting_styles.color_list_selection()
     color_list_selection = plotting_styles.get_colorbrewer_color(
-        color_prop='sequential',
-        color_palette='Greens_5')
+        color_prop='sequential', #sequential
+        color_palette='PuRd_3',
+        inverse=False) # #https://jiffyclub.github.io/palettable/colorbrewer/sequential/
 
     # all percent values
     all_percent_values = list(result_dict.keys())
@@ -157,7 +167,7 @@ def plot_heat_pump_chart(
     # ----
     plt.ylim(ymin=0)
     plt.ylim(ymax=100)
-    plt.xlim(xmax=0)
+    plt.xlim(xmin=0)
     plt.xlim(xmax=100)
 
     # ------------

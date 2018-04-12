@@ -68,7 +68,7 @@ def color_list():
 
     return color_list
 
-def get_colorbrewer_color(color_prop, color_palette):
+def get_colorbrewer_color(color_prop, color_palette, inverse=False):
     """
     TODO
     """
@@ -76,6 +76,9 @@ def get_colorbrewer_color(color_prop, color_palette):
         color_list = getattr(palettable.colorbrewer.sequential, color_palette).hex_colors
     if color_prop == 'qualitative':
         color_list = getattr(palettable.colorbrewer.qualitative, color_palette).hex_colors
+
+    if inverse:
+        color_list = color_list[::-1]
 
     return color_list
 
