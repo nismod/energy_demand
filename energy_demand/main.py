@@ -36,6 +36,8 @@ TODO: Spatial diffusion: Cap largest 5% of values and set to 1
 TODO: CONTROL ALL PEAK RESULTS
 TODO: REMOVE model_yeardays_nrs
 
+TODO: SMOOTH LINE https://stackoverflow.com/questions/25825946/generating-smooth-line-graph-using-matplotlib?lq=1
+
 Potential storline: different levels of hybrid boilers for heat?
 """
 import os

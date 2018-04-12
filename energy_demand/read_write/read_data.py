@@ -212,7 +212,7 @@ class ServiceSwitch(object):
             self.sector = None # Not sector defined
         else:
             self.sector = sector
-    
+
     def update(self, name, value):
         """Update service switch
 

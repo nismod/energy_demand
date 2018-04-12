@@ -20,8 +20,7 @@ def process_result_multi_scen(path_to_scenarios, path_shapefile_input):
 
         # Execute script to generate PDF results
         single_scenario.main(
-            os.path.join(
-                path_to_scenarios, scenario),
+            os.path.join(path_to_scenarios, scenario),
             path_shapefile_input)
 
     return
@@ -29,5 +28,6 @@ def process_result_multi_scen(path_to_scenarios, path_shapefile_input):
 # Execute rusult processing for every scenario
 process_result_multi_scen(
     #os.path.abspath("C:/Users/cenv0553/ED/_multiple_results_eff_factor_example"),
-    os.path.abspath("C:/Users/cenv0553/ED/_multiple_results_hp_example"),
+    #os.path.abspath("C:/Users/cenv0553/ED/_multiple_results_hp_example"),
+    os.path.abspath("C:/Users/cenv0553/ED/_multiple_results_hp_example_efficiency_improvement"),
     os.path.abspath('C:/Users/cenv0553/ED/data/_raw_data/C_LAD_geography/same_as_pop_scenario/lad_2016_uk_simplified.shp'))
