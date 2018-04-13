@@ -13,6 +13,7 @@ from energy_demand.basic import conversions
 from energy_demand.basic import date_prop
 from energy_demand.plotting import plotting_results
 from energy_demand.basic import basic_functions
+from energy_demand.basic import lookup_tables
 
 def load_ini_param(path):
     """Load simulation parameter run information

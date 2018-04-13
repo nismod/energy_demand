@@ -466,38 +466,46 @@ def read_fuel_ss(path_to_csv, fueltypes_nr):
     enduses : list
         Service enduses
     """
+    lookups = lookup_tables.basic_lookups()
+    fueltypes_lu = lookups['fueltypes']
+
     rows_list = []
     fuels = {}
+    try:
+        with open(path_to_csv, 'r') as csvfile:
+            rows = csv.reader(csvfile, delimiter=',')
+            headings = next(rows) # Skip row
+            _secondline = next(rows) # Skip row
 
-    with open(path_to_csv, 'r') as csvfile:
-        rows = csv.reader(csvfile, delimiter=',')
-        headings = next(rows) # Skip row
-        _secondline = next(rows) # Skip row
+            # All sectors
+            sectors = set([])
+            for sector in _secondline[1:]: #skip fuel ID:
+                sectors.add(sector)
 
-        # All sectors
-        sectors = set([])
-        for sector in _secondline[1:]: #skip fuel ID:
-            sectors.add(sector)
+            # All enduses
+            enduses = set([])
+            for enduse in headings[1:]: #skip fuel ID:
+                enduses.add(enduse)
 
-        # All enduses
-        enduses = set([])
-        for enduse in headings[1:]: #skip fuel ID:
-            enduses.add(enduse)
+            # Initialise dict
+            for enduse in enduses:
+                fuels[enduse] = {}
+                for sector in sectors:
+                    fuels[enduse][sector] = np.zeros((fueltypes_nr), dtype=float)
 
-        # Initialise dict
-        for enduse in enduses:
-            fuels[enduse] = {}
-            for sector in sectors:
-                fuels[enduse][sector] = np.zeros((fueltypes_nr), dtype=float)
+            for row in rows:
+                rows_list.append(row)
 
-        for row in rows:
-            rows_list.append(row)
-
-        for cnt_fueltype, row in enumerate(rows_list):
-            for cnt, entry in enumerate(row[1:], 1):
-                enduse = headings[cnt]
-                sector = _secondline[cnt]
-                fuels[enduse][sector][cnt_fueltype] += float(entry)
+            for row in rows_list:
+                fueltype_str = row[0]
+                fueltype_int = fueltypes_lu[fueltype_str]
+                for cnt, entry in enumerate(row[1:], 1):
+                    enduse = headings[cnt]
+                    sector = _secondline[cnt]
+                    fuels[enduse][sector][fueltype_int] += float(entry)
+    except ValueError:
+        raise Exception(
+            "The service sector fuel could not be loaded. Check if empty cells.")
 
     return fuels, list(sectors), list(enduses)
 
@@ -815,6 +823,9 @@ def read_fuel_rs(path_to_csv):
     the first row is the fuel_ID
     The header is the sub_key
     """
+    lookups = lookup_tables.basic_lookups()
+    fueltypes_lu = lookups['fueltypes']
+
     try:
         rows_list = []
         fuels = {}
@@ -826,14 +837,17 @@ def read_fuel_rs(path_to_csv):
             for row in rows:
                 rows_list.append(row)
 
-            for enduse in headings[1:]: # skip first
+            for enduse in headings[1:]:
                 fuels[enduse] = np.zeros((len(rows_list)), dtype=float)
 
-            for cnt_fueltype, row in enumerate(rows_list):
+            for row in rows_list:
+                fueltype_str = row[0]
+                fueltype_int = fueltypes_lu[fueltype_str]
+
                 cnt = 1 #skip first
                 for fuel in row[1:]:
                     enduse = headings[cnt]
-                    fuels[enduse][cnt_fueltype] = float(fuel)
+                    fuels[enduse][fueltype_int] = float(fuel)
                     cnt += 1
     except (KeyError, ValueError):
         raise Exception(
