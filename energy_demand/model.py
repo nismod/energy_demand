@@ -742,9 +742,9 @@ def sum_enduse_all_regions(
 
             if isinstance(fuels, dict):
                 for tech, fuel_tech in fuels.items():
-                    #tech_fueltype = technologies[tech].fueltype_int
-                    #enduse_dict[model_object.enduse][tech_fueltype] += fuel_tech
-                    enduse_dict[model_object.enduse] += fuel_tech
+                    tech_fueltype = technologies[tech].fueltype_int
+                    enduse_dict[model_object.enduse][tech_fueltype] += fuel_tech
+                    #enduse_dict[model_object.enduse] += fuel_tech
             else:
                 # Fuel per technology
                 fuels = get_fuels_yh(
@@ -922,8 +922,7 @@ def aggregate_final_results(
     if mode_constrained:
 
         # -------------
-        # Summarise ed of constrained technologies
-        # Aggregate fuel for constrained enduses (heating techs)
+        # Aggregate fuel of constrained technologies
         # -------------
         for submodel_nr, submodel in enumerate(all_submodels):
             for enduse_object in submodel:
@@ -947,6 +946,21 @@ def aggregate_final_results(
                         # Fuel of technology
                         tech_fuel = submodel_techs_fueltypes_yh[heating_tech]
 
+                        '''if heating_tech == 'storage_heater_electricity' and enduse_object.enduse == "rs_space_heating":
+                            logging.info("============")
+                            logging.info(tech_fuel.shape)
+                            logging.info("============")
+                            logging.info(enduse_object.enduse)
+                            logging.info(technologies[heating_tech].fueltype_int)
+                            logging.info(tech_fuel.shape)
+                            logging.info("======d======")
+                            logging.info("--- {}".format(tech_fuel.shape))
+
+                            from energy_demand.plotting import plotting_results
+                            plotting_results.plot_lp_dh_SCRAP(tech_fuel[12])
+                            plotting_results.plot_lp_dh_SCRAP(tech_fuel[12])
+                            prnt(".hhere")'''
+
                         '''if technologies[heating_tech].tech_type == 'hybrid_tech':
                             # Aggregate mutliple fueltypes of hybrid technology
                             aggr_results['ed_techs_submodel_fueltype_regs_yh'][heating_tech][submodel_nr][reg_array_nr] += tech_fuel
@@ -955,7 +969,7 @@ def aggregate_final_results(
                         fueltype_tech_int = technologies[heating_tech].fueltype_int
 
                         # Aggregate Submodel (sector) specific enduse for fueltype
-                        aggr_results['ed_techs_submodel_fueltype_regs_yh'][heating_tech][submodel_nr][reg_array_nr][fueltype_tech_int] += tech_fuel[fueltype_tech_int]
+                        aggr_results['ed_techs_submodel_fueltype_regs_yh'][heating_tech][submodel_nr][reg_array_nr][fueltype_tech_int] += tech_fuel #TODO [fueltype_tech_int]
 
         # -------------
         # Summarise remaining fuel of other enduses

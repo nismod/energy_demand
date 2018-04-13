@@ -220,7 +220,7 @@ class WeatherRegion(object):
             shape_yh=rs_profile_boilers_yh,
             f_peak_yd=rs_peak_yd_heating_factor)
 
-        # ------Heating CHP
+        # ------Heating CHP 
         rs_profile_chp_yh = load_profile.calc_yh(
             rs_fuel_shape_heating_yd, tech_lp['rs_profile_chp_y_dh'], model_yeardays)
 

@@ -337,6 +337,7 @@ class Enduse(object):
                         self.techs_fuel_yh = {}
 
                         for tech in fuel_yh:
+
                             self.techs_fuel_yh[tech] = demand_management(
                                 enduse,
                                 base_yr,
@@ -786,6 +787,35 @@ def calc_fuel_tech_yh(
 
             #fuels_yh[tech][fueltype_int] = fuel_tech_y[tech][fueltype_int] * load_profile
             fuels_yh[tech] = fuel_tech_y[tech] * load_profile
+
+            '''if tech == 'storage_heater_electricity' and enduse == "rs_space_heating":
+                logging.info("fuel_tech_y")
+                logging.info(enduse_techs)
+                logging.info(fuel_tech_y[tech])
+                logging.info("---")
+                from energy_demand.plotting import plotting_results
+                plotting_results.plot_lp_dh_SCRAP(load_profile[12])
+                plotting_results.plot_lp_dh_SCRAP(fuels_yh[tech][12])
+                import pprint
+                logging.info(pprint.pprint(fuel_tech_y))
+                prnt(".hhere")'''
+
+            '''if tech == 'storage_heater_electricity' and enduse == "rs_space_heating":
+                print("..")
+                from energy_demand.plotting import plotting_results
+                plotting_results.plot_lp_dh_SCRAP(load_profile[0])
+                plotting_results.plot_lp_dh_SCRAP(fuels_yh[tech][0])
+                logging.info("  {}  {}  {}".format(enduse, sector, tech))
+                logging.info(load_profile)
+                prnt("ff.")
+            if tech == 'storage_heater_electricity' and enduse == "rs_space_heating":
+                print("..")
+                from energy_demand.plotting import plotting_results
+                plotting_results.plot_lp_dh_SCRAP(load_profile[0])
+                plotting_results.plot_lp_dh_SCRAP(fuels_yh[tech][0])
+                logging.info("  {}  {}  {}".format(enduse, sector, tech))
+                logging.info(load_profile)
+                prnt("ff.")'''
     else:
         # --
         # Unconstrained mode, i.e. not technolog specific.
