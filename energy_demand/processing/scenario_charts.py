@@ -22,7 +22,7 @@ def process_scenarios(path_to_scenarios, year_to_model=2015):
     # -----------
     # Charts to plot
     # -----------
-    heat_pump_range_plot = True # Plot of changing scenario values stored in scenario name
+    heat_pump_range_plot = False # Plot of changing scenario values stored in scenario name
 
 
     # Delete folder results if existing
@@ -121,10 +121,17 @@ def process_scenarios(path_to_scenarios, year_to_model=2015):
         fig_name=os.path.join(path_result_folder, "tot_y_peak_h_electricity.pdf"),
         fueltype_str_input='electricity',
         plotshow=False)
+    
+    plotting_multiple_scenarios.plot_tot_y_peak_hour(
+        scenario_data,
+        fig_name=os.path.join(path_result_folder, "tot_y_peak_h_gas.pdf"),
+        fueltype_str_input='gas',
+        plotshow=False)
     print("Finished processing multiple scenario")
     return
 
 # Generate plots across all scenarios
 #process_scenarios(os.path.abspath("C:/Users/cenv0553/ED/_multiple_results_eff_factor_example"))
 #process_scenarios(os.path.abspath("C:/Users/cenv0553/ED/_multiple_results_hp_example_no_efficiency_improvement"))
-process_scenarios(os.path.abspath("C:/Users/cenv0553/ED/_multiple_results_hp_example_efficiency_improvement"))
+#process_scenarios(os.path.abspath("C:/Users/cenv0553/ED/_multiple_results_hp_example_efficiency_improvement"))
+process_scenarios(os.path.abspath("C:/Users/cenv0553/ED/_mutli_results_hp_50__eff_achieved_0.5_pop_scenarios"))
