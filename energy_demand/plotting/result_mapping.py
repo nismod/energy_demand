@@ -596,6 +596,7 @@ def create_geopanda_files(
         Number of fueltypes
     """
     logging.info("... create spatial maps of results")
+
     # --------
     # Read LAD shapefile and create geopanda
     # --------
@@ -605,6 +606,63 @@ def create_geopanda_files(
 
     # Attribute merge unique Key
     unique_merge_id = 'name' #'geo_code'
+
+    # ======================================
+    # Peak fuel (h) all enduses
+    # ======================================
+    for year in results_container['results_every_year'].keys():
+        for fueltype in range(fueltypes_nr):
+            print(" progress.. {}".format(fueltype))
+            fueltype_str = tech_related.get_fueltype_str(fueltypes, fueltype)
+
+            # Calculate peak h across all regions
+            field_name = 'peak_h_{}_{}'.format(year, fueltype_str)
+
+            # Get maxium demand of 8760 h for every region
+            h_max_gwh_regs = np.max(results_container['results_every_year'][year][fueltype], axis=1)
+
+            print("TOTAL peak fuel across all regs {} {} ".format(np.sum(h_max_gwh_regs), fueltype_str))
+
+            data_to_plot = basic_functions.array_to_dict(h_max_gwh_regs, regions)
+
+            # Both need to be lists
+            merge_data = {
+                str(field_name): list(data_to_plot.values()),
+                str(unique_merge_id): list(regions)}
+
+            # Merge to shapefile
+            lad_geopanda_shp = merge_data_to_shp(
+                lad_geopanda_shp,
+                merge_data,
+                unique_merge_id)
+
+            bins = [0.2, 0.4, 0.6, 0.8, 1.0, 1.2]
+
+            color_list, color_prop, user_classification, color_zero = colors_plus_minus_map(
+                bins=bins,
+                color_prop='qualitative',
+                color_order=True,
+                color_zero='#ffffff',
+                color_palette='YlGnBu_9') #8a2be2 'YlGnBu_9'  'PuBu_8'
+            #'''
+
+            # If user classified, defined bins
+            plot_lad_national(
+                lad_geopanda_shp=lad_geopanda_shp,
+                legend_unit="GWh",
+                field_to_plot=field_name,
+                fig_name_part=field_name,
+                result_path=path_data_results_shapefiles,
+                color_palette='Dark2_7',
+
+                #color_prop='qualitative',
+                #user_classification=False)
+
+                color_prop=color_prop,
+                user_classification=user_classification,
+                color_list=color_list,
+                bins=bins,
+                color_zero=color_zero)
 
     # ======================================
     # Load factors (absolute)
@@ -765,7 +823,7 @@ def create_geopanda_files(
             # ---------
             field_name = 'y_{}_{}'.format(year, fueltype_str)
 
-            # Calculate yearly sum
+            # Calculate yearly sum across all regions
             yearly_sum_gwh = np.sum(
                 results_container['results_every_year'][year][fueltype],
                 axis=1)
