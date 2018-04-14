@@ -127,7 +127,7 @@ def post_install_setup_minimum(args):
     path_energy_demand : str
         Path to energy demand python files
     """
-    path_energy_demand = resource_filename(Requirement.parse("energy_demand"), "config_data")
+    path_energy_demand = resource_filename(Requirement.parse("energy_demand"), os.path.join("energy_demand", "config_data"))
     path_local_data = args.local_data
 
     # ==========================================
