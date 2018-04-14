@@ -946,25 +946,6 @@ def aggregate_final_results(
                         # Fuel of technology
                         tech_fuel = submodel_techs_fueltypes_yh[heating_tech]
 
-                        '''if heating_tech == 'storage_heater_electricity' and enduse_object.enduse == "rs_space_heating":
-                            logging.info("============")
-                            logging.info(tech_fuel.shape)
-                            logging.info("============")
-                            logging.info(enduse_object.enduse)
-                            logging.info(technologies[heating_tech].fueltype_int)
-                            logging.info(tech_fuel.shape)
-                            logging.info("======d======")
-                            logging.info("--- {}".format(tech_fuel.shape))
-
-                            from energy_demand.plotting import plotting_results
-                            plotting_results.plot_lp_dh_SCRAP(tech_fuel[12])
-                            plotting_results.plot_lp_dh_SCRAP(tech_fuel[12])
-                            prnt(".hhere")'''
-
-                        '''if technologies[heating_tech].tech_type == 'hybrid_tech':
-                            # Aggregate mutliple fueltypes of hybrid technology
-                            aggr_results['ed_techs_submodel_fueltype_regs_yh'][heating_tech][submodel_nr][reg_array_nr] += tech_fuel
-                        else:'''
                         # Fueltype of technology
                         fueltype_tech_int = technologies[heating_tech].fueltype_int
 

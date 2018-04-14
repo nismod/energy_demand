@@ -36,8 +36,6 @@ TODO: CONTROL ALL PEAK RESULTS
 TODO: REMOVE model_yeardays_nrs
 TODO :CHECK LOAD PRIFILE TECH TYPE NAMES
 TODO: SMOOTH LINE https://stackoverflow.com/questions/25825946/generating-smooth-line-graph-using-matplotlib?lq=1
-
-Potential storline: different levels of hybrid boilers for heat?
 """
 import os
 import sys
