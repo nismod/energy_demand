@@ -165,9 +165,9 @@ def simulate_region(region, data, assumptions, weather_regions):
         name=region,
         longitude=data['reg_coord'][region]['longitude'],
         latitude=data['reg_coord'][region]['latitude'],
-        rs_fuel_disagg=data['rs_fuel_disagg'][region],
-        ss_fuel_disagg=data['ss_fuel_disagg'][region],
-        is_fuel_disagg=data['is_fuel_disagg'][region],
+        rs_fuel_disagg=data['fuel_disagg']['rs_fuel_disagg'][region],
+        ss_fuel_disagg=data['fuel_disagg']['ss_fuel_disagg'][region],
+        is_fuel_disagg=data['fuel_disagg']['is_fuel_disagg'][region],
         weather_stations=data['weather_stations'])
 
     # Closest weather region object
@@ -272,8 +272,7 @@ def fuel_aggr(
             if isinstance(fuels, dict):
                 for tech, fuel_tech in fuels.items():
                     tech_fueltype = technologies[tech].fueltype_int
-                    input_array[tech_fueltype] += fuel_tech  #[tech_fueltype]
-                    #input_array += fuel_tech
+                    input_array[tech_fueltype] += fuel_tech
             else:
                 # Fuel per technology
                 fuels = get_fuels_yh(
@@ -330,10 +329,8 @@ def aggr_fuel_aggr(
 
             if isinstance(fuels, dict):
                 for tech, fuel_tech in fuels.items():
-
                     tech_fueltype = technologies[tech].fueltype_int
                     input_array[tech_fueltype] += fuel_tech
-                    #input_array += fuel_tech
             else:
                 fuels = get_fuels_yh(
                     enduse_object,
@@ -1006,7 +1003,7 @@ def aggregate_final_results(
             all_submodels,
             technologies)
 
-        # Sum across all regions, all enduse and sectors
+        # Sum across all regions, all enduse and sectors #TODO WHATS DIFFERENT IN aggr_fuel_aggr and fuel_aggr ?? tODO TODO
         aggr_results['ed_fueltype_national_yh'] = aggr_fuel_aggr(
             aggr_results['ed_fueltype_national_yh'],
             'fuel_yh',          # unconstrained
