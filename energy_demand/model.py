@@ -1,6 +1,5 @@
 """The function `EnergyDemandModel` executes all the submodels of the energy demand model
 """
-
 import logging
 from collections import defaultdict
 import numpy as np
@@ -273,12 +272,13 @@ def fuel_aggr(
             if isinstance(fuels, dict):
                 for tech, fuel_tech in fuels.items():
                     tech_fueltype = technologies[tech].fueltype_int
-                    input_array[tech_fueltype] += fuel_tech
+                    input_array[tech_fueltype] += fuel_tech  #[tech_fueltype]
+                    #input_array += fuel_tech
             else:
                 # Fuel per technology
                 fuels = get_fuels_yh(
                     enduse_object,
-                    attribute_non_technology, #'fuel_yh'
+                    attribute_non_technology,
                     model_yearhours_nrs,
                     model_yeardays_nrs)
                 input_array += fuels
@@ -324,19 +324,20 @@ def aggr_fuel_aggr(
 
             fuels = get_fuels_yh(
                 enduse_object,
-                attribute_technologies, #'techs_fuel_yh'
+                attribute_technologies,
                 model_yearhours_nrs,
                 model_yeardays_nrs)
 
             if isinstance(fuels, dict):
                 for tech, fuel_tech in fuels.items():
+
                     tech_fueltype = technologies[tech].fueltype_int
                     input_array[tech_fueltype] += fuel_tech
+                    #input_array += fuel_tech
             else:
-                # Fuel per technology
                 fuels = get_fuels_yh(
                     enduse_object,
-                    attribute_non_technology, #'fuel_yh'
+                    attribute_non_technology,
                     model_yearhours_nrs,
                     model_yeardays_nrs)
                 input_array += fuels
@@ -383,11 +384,7 @@ def get_fuels_yh(
         # Annual fuel
         fuels_reg_y = enduse_object.fuel_y
 
-        if attribute_to_get == 'fuel_peak_dh' or attribute_to_get == 'techs_fuel_peak_dh':
-            shape_peak_dh = np.full((24), 1 / 8760)
-            fuels_reg_peak = fuels_reg_y
-            fuels = fuels_reg_peak[:, np.newaxis] * shape_peak_dh
-        elif attribute_to_get == 'fuel_peak_h':
+        if attribute_to_get == 'fuel_peak_h':
             shape_peak_h = 1 / 8760
             fuels = fuels_reg_y * shape_peak_h
         elif attribute_to_get == 'shape_non_peak_y_dh':
@@ -747,6 +744,7 @@ def sum_enduse_all_regions(
                 for tech, fuel_tech in fuels.items():
                     tech_fueltype = technologies[tech].fueltype_int
                     enduse_dict[model_object.enduse][tech_fueltype] += fuel_tech
+                    #enduse_dict[model_object.enduse] += fuel_tech
             else:
                 # Fuel per technology
                 fuels = get_fuels_yh(
@@ -922,9 +920,9 @@ def aggregate_final_results(
     logging.debug("... start summing for supply model")
 
     if mode_constrained:
+
         # -------------
-        # Summarise ed of constrained technologies
-        # Aggregate fuel for constrained enduses (heating techs)
+        # Aggregate fuel of constrained technologies
         # -------------
         for submodel_nr, submodel in enumerate(all_submodels):
             for enduse_object in submodel:
@@ -948,11 +946,30 @@ def aggregate_final_results(
                         # Fuel of technology
                         tech_fuel = submodel_techs_fueltypes_yh[heating_tech]
 
+                        '''if heating_tech == 'storage_heater_electricity' and enduse_object.enduse == "rs_space_heating":
+                            logging.info("============")
+                            logging.info(tech_fuel.shape)
+                            logging.info("============")
+                            logging.info(enduse_object.enduse)
+                            logging.info(technologies[heating_tech].fueltype_int)
+                            logging.info(tech_fuel.shape)
+                            logging.info("======d======")
+                            logging.info("--- {}".format(tech_fuel.shape))
+
+                            from energy_demand.plotting import plotting_results
+                            plotting_results.plot_lp_dh_SCRAP(tech_fuel[12])
+                            plotting_results.plot_lp_dh_SCRAP(tech_fuel[12])
+                            prnt(".hhere")'''
+
+                        '''if technologies[heating_tech].tech_type == 'hybrid_tech':
+                            # Aggregate mutliple fueltypes of hybrid technology
+                            aggr_results['ed_techs_submodel_fueltype_regs_yh'][heating_tech][submodel_nr][reg_array_nr] += tech_fuel
+                        else:'''
                         # Fueltype of technology
                         fueltype_tech_int = technologies[heating_tech].fueltype_int
 
                         # Aggregate Submodel (sector) specific enduse for fueltype
-                        aggr_results['ed_techs_submodel_fueltype_regs_yh'][heating_tech][submodel_nr][reg_array_nr][fueltype_tech_int] += tech_fuel[fueltype_tech_int]
+                        aggr_results['ed_techs_submodel_fueltype_regs_yh'][heating_tech][submodel_nr][reg_array_nr][fueltype_tech_int] += tech_fuel #TODO [fueltype_tech_int]
 
         # -------------
         # Summarise remaining fuel of other enduses
@@ -1011,8 +1028,8 @@ def aggregate_final_results(
         # Sum across all regions, all enduse and sectors
         aggr_results['ed_fueltype_national_yh'] = aggr_fuel_aggr(
             aggr_results['ed_fueltype_national_yh'],
-            'fuel_yh', # unconstrained
-            'techs_fuel_yh', # constrained
+            'fuel_yh',          # unconstrained
+            'techs_fuel_yh',    # constrained
             all_submodels,
             'no_sum',
             model_yearhours_nrs,

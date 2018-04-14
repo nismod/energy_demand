@@ -25,6 +25,16 @@ def main(path_data_energy_demand, path_shapefile_input):
     write_shapefiles = False    # Write shapefiles
     spatial_results = True      # Spatial geopanda maps
 
+    plot_crit_dict = {
+        "plot_stacked_enduses": True,
+        "plot_y_all_enduses": True,
+        "plot_fuels_enduses_y": True,
+        "plot_lf": False,
+        "plot_week_h": True,
+        "plot_h_peak_fueltypes": True,
+        "plot_averaged_season_fueltype": True,
+        "plot_radar" : False}
+
     # Set up logger
     logger_setup.set_up_logger(
         os.path.join(
@@ -51,7 +61,7 @@ def main(path_data_energy_demand, path_shapefile_input):
 
     # Simulation information is read in from .ini file for results
     data['enduses'], data['assumptions'], data['reg_nrs'], data['regions'] = data_loader.load_ini_param(
-        os.path.join(path_data_energy_demand, '_result_data'))
+        os.path.join(path_data_energy_demand, '_result_data')) #TODO
 
     # Other information is read in
     data['assumptions']['seasons'] = date_prop.get_season(year_to_model=2015)
@@ -59,7 +69,6 @@ def main(path_data_energy_demand, path_shapefile_input):
 
     # Read scenario data
     data['scenario_data'] = {}
-
     data['scenario_data']['population'] = read_data.read_scenaric_population_data(
         data['result_paths']['model_run_pop'])
 
@@ -72,17 +81,6 @@ def main(path_data_energy_demand, path_shapefile_input):
         data['assumptions']['seasons'],
         data['assumptions']['model_yeardays_daytype'])
 
-    # ----------------
-    # Write results to CSV files and merge with shapefile
-    # ----------------
-    if write_shapefiles:
-        write_data.create_shp_results(
-            data,
-            results_container,
-            data['local_paths'],
-            data['lookups'],
-            data['regions'])
-
     # ------------------------------
     # Plotting other results
     # ------------------------------
@@ -93,14 +91,14 @@ def main(path_data_energy_demand, path_shapefile_input):
         data['lookups'],
         data['result_paths'],
         data['assumptions'],
-        data['enduses'])
+        data['enduses'],
+        plot_crit=plot_crit_dict)
 
     # ------------------------------
     # Plotting spatial results
     # ------------------------------
-    print("... plotting spatial results")
     if spatial_results:
-        logging.info("Create spatial geopanda files")
+        print("plotting geopandas")
         result_mapping.create_geopanda_files(
             data,
             results_container,
@@ -109,6 +107,17 @@ def main(path_data_energy_demand, path_shapefile_input):
             data['lookups']['fueltypes_nr'],
             data['lookups']['fueltypes'],
             path_shapefile_input)
+
+    # ----------------
+    # Write results to CSV files and merge with shapefile
+    # ----------------
+    if write_shapefiles:
+        write_data.create_shp_results(
+            data,
+            results_container,
+            data['local_paths'],
+            data['lookups'],
+            data['regions'])
 
 
     print("===================================")

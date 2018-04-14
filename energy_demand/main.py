@@ -5,7 +5,9 @@
 
     Tools
     Profiling:  https://jiffyclub.github.io/snakeviz/
-
+    python -m cProfile -o program.prof my_program.py
+    snakeviz program.prof
+    
     Development checklist
     https://nismod.github.io/docs/development-checklist.html
     https://nismod.github.io/docs/
@@ -20,15 +22,22 @@ Get correlation between regional GVA and (regional floor area/reg pop) of every 
 
 2. Step
 Calculate future regional floor area demand based on GVA and pop projection 
-
+info: fuels_yh is made multidmensional according to fueltype
+TODO: DISAGGREGATE SERVICE SECTOR HEATING DEMANDS WITH FLOOR AREA FOR SECTORS
+TODO: BECUASE OF HYBRID SUM SWITCHES +=
+TODO: remove tech_list
 TODO: Write all metadata of model run restuls to txt
 TODO: Related ed to houses & householdsize
 TODO: data loading, load multiple years for real elec data
 TODO: PEAK SHAPE vs PEAK FROM LOAD PROFILES
-TODO: UPDate all fuel data with new ECUK DATA
 TODO: WHAT ABOU NON_RESIDENTIAL FLOOR AREA: FOR WHAT?
 TODO: Spatial diffusion: Cap largest 5% of values and set to 1
 TODO: CONTROL ALL PEAK RESULTS
+TODO: REMOVE model_yeardays_nrs
+TODO :CHECK LOAD PRIFILE TECH TYPE NAMES
+TODO: SMOOTH LINE https://stackoverflow.com/questions/25825946/generating-smooth-line-graph-using-matplotlib?lq=1
+
+Potential storline: different levels of hybrid boilers for heat?
 """
 import os
 import sys
@@ -47,7 +56,7 @@ from energy_demand.read_write import write_data
 from energy_demand.read_write import read_data
 from energy_demand.basic import basic_functions
 
-NR_OF_MODELLEd_REGIONS = 2
+NR_OF_MODELLEd_REGIONS = 392
 
 def energy_demand_model(data, assumptions, fuel_in=0, fuel_in_elec=0):
     """Main function of energy demand model to calculate yearly demand
@@ -161,8 +170,9 @@ if __name__ == "__main__":
     data['criterias']['virtual_building_stock_criteria'] = True # Wheater model uses a virtual dwelling stock or not
     data['criterias']['spatial_exliclit_diffusion'] = True      # Wheater spatially epxlicit diffusion or not
     data['criterias']['write_to_txt'] = True                    # Wheater results are written to txt files
-    data['criterias']['beyond_supply_outputs'] = True           # Wheater all results besides integraded smif run are calculated
+    data['criterias']['beyond_supply_outputs'] = False           # Wheater all results besides integraded smif run are calculated
     data['criterias']['plot_tech_lp'] = True                    # Wheater all individual load profils are plotted
+    simulated_yrs = [2015]
 
     # Paths
     data['paths'] = data_loader.load_paths(path_main)
@@ -217,7 +227,7 @@ if __name__ == "__main__":
     data['assumptions']  = non_param_assumptions.Assumptions(
         base_yr=2015,
         curr_yr=2015,
-        simulated_yrs=[2015, 2016, 2030, 2050],
+        simulated_yrs=simulated_yrs,
         paths=data['paths'],
         enduses=data['enduses'],
         sectors=data['sectors'],

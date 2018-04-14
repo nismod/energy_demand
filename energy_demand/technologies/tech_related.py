@@ -100,7 +100,8 @@ def insert_placholder_techs(
         eff_ey=1,
         year_eff_ey=2100,
         eff_achieved=1,
-        diff_method='linear')
+        diff_method='linear',
+        tech_type='placeholder_tech')
 
     return tech_p_by, all_specified_tech_enduse_by, technologies
 
@@ -223,32 +224,6 @@ def get_fueltype_int(fueltypes, fueltype_string):
     else:
         return fueltypes[fueltype_string]
 
-def get_tech_type(name, tech_list):
-    """Get technology type of technology
-
-    Arguments
-    ----------
-    name : string
-        Technology name
-
-    tech_list : dict
-        All technology lists are defined in assumptions
-
-    Returns
-    ------
-    tech_type : string
-        Technology type
-    """
-    if name == 'placeholder_tech':
-        tech_type = 'placeholder_tech'
-    else:
-        if name in tech_list['heating_non_const']:
-            tech_type = 'heat_pump'
-        else:
-            tech_type = 'other_tech'
-
-    return tech_type
-
 def calc_av_heat_pump_eff_ey(technologies, heat_pump_assump):
     """Calculate end year average efficiency of
     heat pumps depending on split of heat pumps
@@ -355,7 +330,7 @@ def generate_heat_pump_from_split(technologies, heat_pump_assump, fueltypes):
             eff_achieved=eff_achieved_av,
             diff_method='linear',
             market_entry=market_entry_lowest,
-            tech_list='heating_non_const',
+            tech_type='heating_non_const',
             tech_max_share=tech_max_share,
             fueltypes=fueltypes)
 
@@ -370,7 +345,7 @@ def calc_eff_cy(
         eff_ey,
         yr_until_changed,
         other_enduse_mode_info,
-        eff_achieved_f,
+        f_eff_achieved,
         diff_method
     ):
     """Calculate efficiency of current year based on efficiency
@@ -390,7 +365,7 @@ def calc_eff_cy(
         Year for which the eff_ey is defined
     other_enduse_mode_info : Dict
         diffusion information
-    eff_achieved_f : dict
+    f_eff_achieved : dict
         Efficiency achievement factor (how much of the efficiency is achieved)
     diff_method : str
         Diffusion method
@@ -437,7 +412,7 @@ def calc_eff_cy(
             logging.exception("Not correct diffusion assigned %s", diff_method)
 
     # Consider actual achieved efficiency
-    actual_eff_gain = max_eff_gain * eff_achieved_f
+    actual_eff_gain = max_eff_gain * f_eff_achieved
 
     # Actual efficiency potential
     eff_cy = eff_by + actual_eff_gain

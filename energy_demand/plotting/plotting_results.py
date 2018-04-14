@@ -17,6 +17,13 @@ from energy_demand.basic import basic_functions, conversions
 from energy_demand.plotting import plotting_styles
 from energy_demand.technologies import tech_related
 
+def plot_lp_dh_SCRAP(data_dh_modelled):
+    x_values = range(24)
+    plt.plot(x_values, list(data_dh_modelled), color='red', label='modelled')
+    plt.tight_layout()
+    plt.margins(x=0)
+    plt.show()
+
 def run_all_plot_functions(
         results_container,
         reg_nrs,
@@ -24,7 +31,8 @@ def run_all_plot_functions(
         lookups,
         result_paths,
         assumptions,
-        enduses
+        enduses,
+        plot_crit
     ):
     """Summary function to plot all results
     """
@@ -32,14 +40,15 @@ def run_all_plot_functions(
     # -----------
     # Set which plots to plot
     # -----------
-    plot_stacked_enduses = True
-    plot_y_all_enduses = True
-    plot_fuels_enduses_y = True
-    plot_lf = False                         # Plot load factors
-    plot_week_h = True
-    plot_h_peak_fueltypes = True
-    plot_averaged_season_fueltype = True   # Compare for every season and daytype the daily loads
-    plot_radar = False                      # Plot radar spider charts
+    plot_stacked_enduses = plot_crit['plot_stacked_enduses']
+    plot_y_all_enduses = plot_crit['plot_y_all_enduses']
+    plot_fuels_enduses_y = plot_crit['plot_fuels_enduses_y']
+    plot_lf = plot_crit['plot_lf']                         # Plot load factors
+    plot_week_h = plot_crit['plot_week_h']
+    plot_h_peak_fueltypes = plot_crit['plot_h_peak_fueltypes']
+    plot_averaged_season_fueltype = plot_crit['plot_averaged_season_fueltype']   # Compare for every season and daytype the daily loads
+    plot_radar = plot_crit['plot_radar']                      # Plot radar spider charts
+
     # ----------
     # Plot LAD differences for first and last year
     # ----------
@@ -58,6 +67,30 @@ def run_all_plot_functions(
         print("... plotted by-cy LAD energy demand compariosn")
     except:
         pass
+    
+    # ----------------
+    # Plot demand for every region over time
+    # -------------------
+    plot_line_for_every_region_of_peak_demand = True #TODO
+    if plot_line_for_every_region_of_peak_demand:
+        plt_one_fueltype_multiple_regions_peak_h(
+            results_container['results_every_year'],
+            lookups,
+            regions,
+            os.path.join(
+                result_paths['data_results_PDF'],
+                'plt_one_fueltype_multiple_regions_peak_h_electricity.pdf'),
+            fueltype_str_to_plot="electricity")
+
+    if plot_fuels_enduses_y:
+        logging.info("... plot fuel per fueltype for whole country over annual timesteps")
+        #... Plot total fuel (y) per fueltype as line chart"
+        plt_fuels_enduses_y(
+            results_container['results_every_year'],
+            lookups,
+            os.path.join(
+                result_paths['data_results_PDF'],
+                'y_fueltypes_all_enduses.pdf'))
 
     # ------------
     # Plot stacked annual enduses
@@ -214,14 +247,6 @@ def run_all_plot_functions(
     print("finisthed plotting")
     return
 
-
-def plot_lp_dh_SCRAP(data_dh_modelled):
-    x_values = range(24)
-    plt.plot(x_values, list(data_dh_modelled), color='red', label='modelled')
-    plt.tight_layout()
-    plt.margins(x=0)
-    plt.show()
-
 def order_polygon(upper_boundary, lower_boundary):
     """Create correct sorting to draw filled polygon
 
@@ -238,6 +263,31 @@ def order_polygon(upper_boundary, lower_boundary):
         min_max_polygon.append(pnt)
     for pnt in reversed(lower_boundary):
         min_max_polygon.append(pnt)
+
+    return min_max_polygon
+
+def create_min_max_polygon_from_lines(line_data):
+    """
+
+    Arguments
+    ---------
+    line_data : dict
+        linedata containing info
+            {'x_value': [y_values]}
+
+    """
+    upper_boundary = []
+    lower_bdoundary = []
+
+    for x_value, y_value in line_data.items():
+        min_y = np.min(y_value)
+        max_y = np.max(y_value)
+        upper_boundary.append((x_value, min_y))
+        lower_bdoundary.append((x_value, max_y))
+
+        # create correct sorting to draw filled polygon
+        min_max_polygon = order_polygon(upper_boundary, lower_bdoundary)
+
     return min_max_polygon
 
 def plot_seasonal_lf(
@@ -308,7 +358,9 @@ def plot_seasonal_lf(
             upper_boundary = []
             lower_bdoundary = []
 
-            for year_nr, lf_fueltype_reg in lf_fueltypes_season.items():
+            min_max_polygon = plotting_results.create_min_max_polygon_from_lines(lf_fueltypes_season)
+
+            '''for year_nr, lf_fueltype_reg in lf_fueltypes_season.items():
 
                 # Get min and max of all entries of year of all regions
                 min_y = np.min(lf_fueltype_reg[fueltype_int])
@@ -317,7 +369,7 @@ def plot_seasonal_lf(
                 lower_bdoundary.append((year_nr, max_y))
 
             # create correct sorting to draw filled polygon
-            min_max_polygon = order_polygon(upper_boundary, lower_bdoundary)
+            min_max_polygon = order_polygon(upper_boundary, lower_bdoundary)'''
 
             polygon = plt.Polygon(
                 min_max_polygon,
@@ -451,7 +503,7 @@ def plot_lf_y(
                 color='grey')
 
     if plot_max_min_polygon:
-        lower_bdoundary = []
+        '''lower_bdoundary = []
         upper_boundary = []
 
         for year_nr, lf_fueltype_reg in load_factors_y.items():
@@ -463,7 +515,9 @@ def plot_lf_y(
             lower_bdoundary.append((year_nr, max_y))
 
         # create correct sorting to draw filled polygon
-        min_max_polygon = order_polygon(upper_boundary, lower_bdoundary)
+        min_max_polygon = order_polygon(upper_boundary, lower_bdoundary)'''
+
+        min_max_polygon = plotting_results.create_min_max_polygon_from_lines(load_factors_y)
 
         polygon = plt.Polygon(
             min_max_polygon,
@@ -1164,6 +1218,7 @@ def plot_load_profile_dh_multiple(
 
                 # create correct sorting to draw filled polygon
                 min_max_polygon = order_polygon(upper_boundary, lower_bdoundary)
+                #min_max_polygon = plotting_results.create_min_max_polygon_from_lines(load_factors_y)
 
                 polygon = plt.Polygon(
                     min_max_polygon,
@@ -1908,3 +1963,106 @@ def plot_radar_plot_multiple_lines(
         plt.close()
     else:
         plt.close()
+
+def plt_one_fueltype_multiple_regions_peak_h(results_every_year, lookups, regions, path_plot_fig, fueltype_str_to_plot):
+    """Plot
+    Arguments
+    ---------
+    """
+    # Set figure size
+    fig = plt.figure(figsize=plotting_program.cm2inch(14, 8))
+
+    ax = fig.add_subplot(1, 1, 1)
+
+    nr_y_to_plot = len(results_every_year)
+
+    legend_entries = []
+
+    for fueltype_str, fueltype in lookups['fueltypes'].items():
+
+        if fueltype_str != fueltype_str_to_plot:
+            pass
+        else:
+            # Legend
+            #legend_entries.append(fueltype_str)
+
+            # Read out fueltype specific load
+            data_over_years = {}
+            for reg_nr, reg_geocode in enumerate(regions):
+                data_over_years[reg_nr] = []
+
+            for model_year_object in results_every_year.values():
+                
+                # Reshape for finding peak day
+                nr_fueltypes = model_year_object.shape[0]
+                nr_regs = model_year_object.shape[1]
+                fuel_reg_reshaped = model_year_object.reshape(nr_fueltypes, nr_regs, 365, 24)
+
+                for reg_nr, reg_geocode in enumerate(regions):
+
+                    # Get peak day across all enduses for every region
+                    peak_day = enduse_func.get_peak_day_single_fueltype(fuel_reg_reshaped[fueltype][reg_nr])
+
+                    tot_fuel_dh_peak = model_year_object[fueltype][reg_nr][peak_day]
+
+                    # Calculate max peak hour
+                    peak_fueltyp_h = np.max(tot_fuel_dh_peak)
+
+                    # Add peak hour
+                    data_over_years[reg_nr].append(peak_fueltyp_h)
+
+            y_init = data_over_years
+
+    # ----------
+    # Plot lines
+    # ----------
+    linestyles = plotting_styles.linestyles()
+    years = list(results_every_year.keys())
+    #color_list_selection = plotting_styles.color_list_selection()
+
+    for reg in y_init:
+        plt.plot(
+            years,
+            y_init[reg],
+            #linestyle=linestyles[fueltype],
+            color='lightblue',
+            linewidth=0.2,)
+
+    ax.legend(
+        legend_entries,
+        prop={
+            'family': 'arial',
+            'size': 8},
+        frameon=False)
+
+    # -
+    # Axis
+    # -
+    base_yr = 2015
+    major_interval = 10
+    minor_interval = 5
+
+    # Major ticks
+    major_ticks = np.arange(base_yr, years[-1] + major_interval, major_interval)
+    ax.set_xticks(major_ticks)
+
+    # Minor ticks
+    minor_ticks = np.arange(base_yr, years[-1] + minor_interval, minor_interval)
+    ax.set_xticks(minor_ticks, minor=True)
+
+    plt.xlim(2015, years[-1])
+
+    # --------
+    # Labeling
+    # --------
+    plt.ylabel("GW")
+    plt.xlabel("year")
+    plt.title("ED peak hour, y, all enduses, single regs")
+
+    # Tight layout
+    plt.tight_layout()
+    plt.margins(x=0)
+
+    # Save fig
+    fig.savefig(path_plot_fig)
+    plt.close()

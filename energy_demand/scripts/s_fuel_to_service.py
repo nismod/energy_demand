@@ -1,5 +1,6 @@
 """Script to convert fuel to energy service
 """
+import logging
 import warnings
 import numpy as np
 from energy_demand.technologies import tech_related
@@ -139,18 +140,11 @@ def get_s_fueltype_tech(
     s_fueltype_by_p : dict
         Percentage of energy service per fueltype
     """
-    # Energy service per technology for base year
-    service = init_nested_dict_brackets(
-        fuels, fueltypes.values())
-
-     # Percentage of total energy service per technology for base year
-    s_tech_by_p = helpers.init_dict_brackets(fuels)
-
-    # Percentage of service per technologies within the fueltypes
-    s_fueltype_tech_by_p = init_nested_dict_brackets(fuels, fueltypes.values())
-
-    # Percentage of service per fueltype
-    s_fueltype_by_p = init_nested_dict_zero(
+    #TODO MAKE NICER
+    service = init_nested_dict_brackets(fuels, fueltypes.values())              # Energy service per technology for base year
+    s_tech_by_p = helpers.init_dict_brackets(fuels)                             # Percentage of total energy service per technology for base year
+    s_fueltype_tech_by_p = init_nested_dict_brackets(fuels, fueltypes.values()) # Percentage of service per technologies within the fueltypes
+    s_fueltype_by_p = init_nested_dict_zero(                                    # Percentage of service per fueltype
         s_tech_by_p.keys(),
         range(len(fueltypes)))
 
@@ -172,18 +166,26 @@ def get_s_fueltype_tech(
 
             # Iterate technologies to calculate share of energy service depending on fuel and efficiencies
             for tech, fuel_alltech_by in selec_fuel_p_tech_by[fueltype].items():
-
+               
                 # Fuel share based on defined shares within fueltype (share of fuel * total fuel)
                 fuel_tech = fuel_alltech_by * fuel_fueltype
 
                 # Get technology type
-                tech_type = tech_related.get_tech_type(tech, tech_list)
+                #tech_type = tech_related.get_tech_type(tech, tech_list) #TODO
+                tech_type = technologies[tech].tech_type
 
                 # Get efficiency for base year
                 if tech_type == 'heat_pump':
                     eff_tech = tech_related.eff_heat_pump(
                         temp_diff=10,
                         efficiency_intersect=technologies[tech].eff_by)
+                    '''elif tech_type == 'hybrid_tech':
+                        # Get technology of hybrid tech with this fueltype
+                        if technologies[tech].tech_hybrid_high_temp.fueltype_int == fueltype:
+                            eff_tech = technologies[tech].tech_hybrid_high_temp.eff_by
+                        if technologies[tech].tech_hybrid_low_temp.fueltype_int == fueltype:
+                            eff_tech = technologies[tech].tech_hybrid_low_temp.eff_by
+                    '''
                 else:
                     eff_tech = technologies[tech].eff_by
 
@@ -225,13 +227,10 @@ def get_s_fueltype_tech(
 
         # Convert service per enduse
         for fueltype in s_fueltype_by_p[enduse]:
-
-            #OptimizeWarning: Covariance of the parameters could not be estimated
             with np.errstate(divide='ignore'):
                 s_fueltype_by_p[enduse][fueltype] = s_fueltype_by_p[enduse][fueltype] / total_s
 
-    warnings.filterwarnings('ignore') # Ignore warnings
-
+    #warnings.filterwarnings('ignore') # Ignore warnings
     # Test if the energy service for all technologies is 100%
     # Test if within fueltype always 100 energy service
     return s_tech_by_p, s_fueltype_tech_by_p, s_fueltype_by_p

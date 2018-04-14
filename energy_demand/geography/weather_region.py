@@ -3,6 +3,7 @@ is generated per weather station. Within this regions,
 regional load profiles are calculated."""
 import uuid
 import numpy as np
+import logging
 from energy_demand.technologies import technological_stock
 from energy_demand.profiles import load_profile
 from energy_demand.profiles import hdd_cdd
@@ -117,7 +118,6 @@ class WeatherRegion(object):
         self.rs_tech_stock = technological_stock.TechStock(
             'rs_tech_stock',
             technologies,
-            tech_lists,
             assumptions.enduse_overall_change['other_enduse_mode_info'],
             base_yr,
             curr_yr,
@@ -132,7 +132,6 @@ class WeatherRegion(object):
         self.ss_tech_stock = technological_stock.TechStock(
             'ss_tech_stock',
             technologies,
-            tech_lists,
             assumptions.enduse_overall_change['other_enduse_mode_info'],
             base_yr,
             curr_yr,
@@ -147,7 +146,6 @@ class WeatherRegion(object):
         self.is_tech_stock = technological_stock.TechStock(
             'is_tech_stock',
             technologies,
-            tech_lists,
             assumptions.enduse_overall_change['other_enduse_mode_info'],
             base_yr,
             curr_yr,
@@ -208,23 +206,22 @@ class WeatherRegion(object):
                 enduses=enduse, #['rs_cooling'],
                 shape_yd=rs_fuel_shape_cooling_yd,
                 shape_yh=rs_fuel_shape_cooling_yh,
-                f_peak_yd=rs_peak_yd_cooling_factor,
-                shape_peak_dh=tech_lp['rs_shapes_cooling_dh']['peakday'])
+                f_peak_yd=rs_peak_yd_cooling_factor)
         '''
         # ------Heating boiler
-        rs_profile_boilers_y_dh = load_profile.calc_yh(
+        rs_profile_boilers_yh = load_profile.calc_yh(
             rs_fuel_shape_heating_yd, tech_lp['rs_profile_boilers_y_dh'], model_yeardays)
+
         self.rs_load_profiles.add_lp(
             unique_identifier=uuid.uuid4(),
             technologies=tech_lists['heating_const'],
             enduses=['rs_space_heating', 'rs_water_heating'],
             shape_yd=rs_fuel_shape_heating_yd,
-            shape_yh=rs_profile_boilers_y_dh,
-            f_peak_yd=rs_peak_yd_heating_factor,
-            shape_peak_dh=tech_lp['rs_lp_heating_boilers_dh']['peakday'])
+            shape_yh=rs_profile_boilers_yh,
+            f_peak_yd=rs_peak_yd_heating_factor)
 
-        # ------Heating CHP
-        rs_profile_chp_y_dh = load_profile.calc_yh(
+        # ------Heating CHP 
+        rs_profile_chp_yh = load_profile.calc_yh(
             rs_fuel_shape_heating_yd, tech_lp['rs_profile_chp_y_dh'], model_yeardays)
 
         self.rs_load_profiles.add_lp(
@@ -232,33 +229,30 @@ class WeatherRegion(object):
             technologies=tech_lists['tech_CHP'],
             enduses=['rs_space_heating', 'rs_water_heating'],
             shape_yd=rs_fuel_shape_heating_yd,
-            shape_yh=rs_profile_chp_y_dh,
-            f_peak_yd=rs_peak_yd_heating_factor,
-            shape_peak_dh=tech_lp['rs_lp_heating_CHP_dh']['peakday'])
+            shape_yh=rs_profile_chp_yh,
+            f_peak_yd=rs_peak_yd_heating_factor)
 
         # ------Electric heating, storage heating (primary)
-        rs_profile_storage_heater_y_dh = load_profile.calc_yh(
+        rs_profile_storage_heater_yh = load_profile.calc_yh(
             rs_fuel_shape_heating_yd, tech_lp['rs_profile_storage_heater_y_dh'], model_yeardays)
         self.rs_load_profiles.add_lp(
             unique_identifier=uuid.uuid4(),
             technologies=tech_lists['storage_heating_electricity'],
             enduses=['rs_space_heating', 'rs_water_heating'],
             shape_yd=rs_fuel_shape_heating_yd,
-            shape_yh=rs_profile_storage_heater_y_dh,
-            f_peak_yd=rs_peak_yd_heating_factor,
-            shape_peak_dh=tech_lp['rs_lp_storage_heating_dh']['peakday'])
+            shape_yh=rs_profile_storage_heater_yh,
+            f_peak_yd=rs_peak_yd_heating_factor)
 
         # ------Electric heating secondary (direct elec heating)
-        rs_profile_elec_heater_y_dh = load_profile.calc_yh(
+        rs_profile_elec_heater_yh = load_profile.calc_yh(
             rs_fuel_shape_heating_yd, tech_lp['rs_profile_elec_heater_y_dh'], model_yeardays)
         self.rs_load_profiles.add_lp(
             unique_identifier=uuid.uuid4(),
             technologies=tech_lists['secondary_heating_electricity'],
             enduses=['rs_space_heating', 'rs_water_heating'],
             shape_yd=rs_fuel_shape_heating_yd,
-            shape_yh=rs_profile_elec_heater_y_dh,
-            f_peak_yd=rs_peak_yd_heating_factor,
-            shape_peak_dh=tech_lp['rs_lp_second_heating_dh']['peakday'])
+            shape_yh=rs_profile_elec_heater_yh,
+            f_peak_yd=rs_peak_yd_heating_factor)
 
         # ------Heat pump heating
         rs_fuel_shape_hp_yh, _ = get_fuel_shape_heating_hp_yh(
@@ -273,8 +267,7 @@ class WeatherRegion(object):
             enduses=['rs_space_heating', 'rs_water_heating'],
             shape_yd=rs_fuel_shape_heating_yd,
             shape_yh=rs_fuel_shape_hp_yh,
-            f_peak_yd=rs_peak_yd_heating_factor,
-            shape_peak_dh=tech_lp['rs_lp_heating_CHP_dh']['peakday'])
+            f_peak_yd=rs_peak_yd_heating_factor)
 
         # ------District_heating_electricity --> Assumption made that same curve as CHP
         rs_profile_chp_y_dh = load_profile.calc_yh(
@@ -286,9 +279,93 @@ class WeatherRegion(object):
             enduses=['rs_space_heating', 'rs_water_heating'],
             shape_yd=rs_fuel_shape_heating_yd,
             shape_yh=rs_profile_chp_y_dh,
-            f_peak_yd=rs_peak_yd_heating_factor,
-            shape_peak_dh=tech_lp['rs_lp_heating_boilers_dh']['peakday'])
+            f_peak_yd=rs_peak_yd_heating_factor)
 
+        '''
+        # --------------------------------------------
+        # Calculate load profile for hybrid technology
+        # --------------------------------------------
+        # ---
+        # 1. Calculate share of technology use for every hour (service_distr_hybrid_h_p)
+        # 2. Multiply service_distr_hybrid_h_p with heat demand (approximated by boiler shape)
+        # 3. Calculate % of service of tech tech (p_tech_low, p_tech_high)
+        # 4. Normalise this to obtain shape of each tech (lp_low_temp, lp_high_temp)
+        # 
+        #   To calculate fuel of tech_low:
+        #   fuel_tech_low = total service * p_tech_low * lp_low_temp
+        # -----------
+        hybrid_cutoff_temp_low = 5
+        hybrid_cutoff_temp_high = 8
+        tech_temp_low = 'boiler_gas'
+        tech_temp_lowtemp_high = 'heat_pumps_electricity'
+
+        # Get fraction of service for hybrid technologies for every hour
+        service_distr_hybrid_h_p = service_hybrid_tech_low_high_h_p(
+            temp_cy,
+            hybrid_cutoff_temp_low,
+            hybrid_cutoff_temp_high)
+
+        # Calculate service shares by multiplying fractions for every hour with service
+        p_tech_low = service_distr_hybrid_h_p['low'] * rs_profile_boilers_yh
+        p_tech_high = service_distr_hybrid_h_p['high'] * rs_profile_boilers_yh
+
+        # Share of service
+        p_tech_low_service = np.sum(p_tech_low)
+        p_tech_high_service = np.sum(p_tech_high)
+
+        # Normalise to get hybrid shapes (Create load profiles of hybrid_gas and hybrid_elec)
+        lp_low_temp = p_tech_low / np.sum(p_tech_low)
+
+        #Boiler tech lp
+        lp_low_temp = lp_low_temp
+
+        #Hybrid tech lp
+        hp_hybrid_service = p_tech_high * rs_fuel_shape_hp_yh
+        lp_high_temp = hp_hybrid_service / np.sum(hp_hybrid_service)
+
+        # Hybrid boiler profile
+        self.rs_load_profiles.add_lp(
+            unique_identifier=uuid.uuid4(),
+            technologies=['combined_boiler_hp_system_tech_hybrid_low_temp'],
+            enduses=['rs_space_heating'],
+            shape_yd=rs_fuel_shape_heating_yd,
+            shape_yh=lp_low_temp)
+
+        # Hybrid heat pump profile
+        self.rs_load_profiles.add_lp(
+            unique_identifier=uuid.uuid4(),
+            technologies=['combined_boiler_hp_system_tech_hybrid_high_temp'],
+            enduses=['rs_space_heating'],
+            shape_yd=rs_fuel_shape_heating_yd,
+            shape_yh=lp_high_temp)
+
+        '''
+        #from energy_demand.plotting import plotting_results
+        #logging.info(service_distr_hybrid_h_p['low'][12])
+        #logging.info("_---")
+        #logging.info(service_distr_hybrid_h_p['high'][12])
+        #plotting_results.plot_lp_dh_SCRAP(lp_low_temp[12])
+        #plotting_results.plot_lp_dh_SCRAP(lp_high_temp[12])
+
+        '''# Get heat pumps and add same properties but with different name
+        tech_hp_hybrid = self.rs_tech_stock.get_tech('heat_pumps_hybrid_electricity', 'rs_space_heating')
+        tech_hp_hybrid.set_tech_attr('share_service', p_tech_high_service)
+        tech_hp_hybrid.set_tech_attr('tech_type', 'hybrid_tech')
+        tech_boiler_hybrid = self.rs_tech_stock.get_tech('boiler_hybrid_gas', 'rs_space_heating')
+        tech_boiler_hybrid.set_tech_attr('share_service', p_tech_low_service)
+        #self.rs_tech_stock.add_tech('heat_pumps_electricity_hybrid', 'rs_space_heating', tech_hp_hybrid)
+        #self.rs_tech_stock.add_tech('boiler_gas_hybrid', 'rs_space_heating', tech_boiler_hybrid)
+        # ---------------------
+        #TODO ONLY UPDATE NOT CREATE NEW
+        hybrid_tech = technological_stock.HybridTech(
+            name='combined_boiler_hp_system',
+            share_service_low=p_tech_low_service,
+            share_service_high=p_tech_high_service,
+            tech_hybrid_low_temp=self.rs_tech_stock.get_tech('boiler_gas', 'rs_space_heating'),
+            tech_hybrid_high_temp=self.rs_tech_stock.get_tech('heat_pumps_electricity', 'rs_space_heating'))
+
+        self.rs_tech_stock.add_tech(hybrid_tech.name, 'rs_space_heating', hybrid_tech)
+        '''
         # -------------------
         # Service Load profiles
         # ------------------
@@ -320,7 +397,6 @@ class WeatherRegion(object):
         ss_peak_yd_heating_factor = get_shape_peak_yd_factor(ss_hdd_cy)
         ss_peak_yd_cooling_factor = get_shape_peak_yd_factor(ss_cdd_cy)
 
-
         # --Heating technologies for service sector
         #
         # (the heating shape follows the gas shape of aggregated sectors)
@@ -344,8 +420,8 @@ class WeatherRegion(object):
         # ----------------
         # Get peak day and calculate peak load profile for peak day
         # ----------------
-        peak_day = get_peak_day_single_fueltype(ss_fuel_shape)
-        ss_space_heating_shape_peak_dh = load_profile.abs_to_rel(ss_fuel_shape[peak_day])
+        #peak_day = get_peak_day_single_fueltype(ss_fuel_shape)
+        #ss_space_heating_shape_peak_dh = load_profile.abs_to_rel(ss_fuel_shape[peak_day])
 
         self.ss_load_profiles.add_lp(
             unique_identifier=uuid.uuid4(),
@@ -354,8 +430,7 @@ class WeatherRegion(object):
             sectors=sectors['ss_sectors'],
             shape_yd=ss_fuel_shape_heating_yd_weighted,
             shape_yh=ss_fuel_shape_any_tech,
-            f_peak_yd=ss_peak_yd_heating_factor,
-            shape_peak_dh=ss_space_heating_shape_peak_dh)
+            f_peak_yd=ss_peak_yd_heating_factor)
 
         #------
         # Add cooling technologies for service sector
@@ -381,8 +456,7 @@ class WeatherRegion(object):
                     sectors=[sector],
                     shape_yd=ss_fuel_shape_coolin_yd,
                     shape_yh=ss_shape_yh,
-                    f_peak_yd=ss_peak_yd_cooling_factor,
-                    shape_peak_dh=tech_lp['ss_shapes_cooling_dh']['peakday'])
+                    f_peak_yd=ss_peak_yd_cooling_factor)
 
         # --------------------------------
         # Industry submodel
@@ -433,7 +507,7 @@ class WeatherRegion(object):
 
         # Alternatively generate y_dh flat profile
         #from energy_demand.profiles import generic_shapes
-        #shape_peak_dh, _, shape_peak_yd_factor, shape_non_peak_yd, shape_non_peak_yh = generic_shapes.flat_shape(
+        # _, shape_peak_yd_factor, shape_non_peak_yd, shape_non_peak_yh = generic_shapes.flat_shape(
         #    assumptions.model_yeardays_nrs)
         #flat_is_fuel_shape_any_tech = np.full((assumptions.model_yeardays_nrs, 24), (1.0/24.0), dtype=float)
         #flat_is_fuel_shape_any_tech = flat_is_fuel_shape_any_tech * is_fuel_shape_heating_yd[:, np.newaxis]
@@ -645,3 +719,46 @@ def change_temp_climate(
         temp_climate_change[month_yeardays] = temp_data[month_yeardays] + lin_diff_factor
 
     return temp_climate_change
+
+def service_hybrid_tech_low_high_h_p(temp_cy, hybrid_cutoff_temp_low, hybrid_cutoff_temp_high):
+    """Calculate fraction of service for every hour within each hour
+
+    Arguments
+    ----------
+    temp_cy : array
+        Temperature of current year
+    hybrid_cutoff_temp_low : int
+        Temperature cut-off criteria (blow this temp, 100% service provided by lower temperature technology)
+    hybrid_cutoff_temp_high : int
+        Temperature cut-off criteria (above this temp, 100% service provided by higher temperature technology)
+
+    Return
+    ------
+    tech_low_high_p : dict
+        Share of lower and higher service fraction for every hour
+
+    Note
+    -----
+            Within every hour the fraction of service provided by the low-temp technology
+    and the high-temp technology is calculated
+    """
+    tech_low_high_p = {}
+
+    # Substract cutoff temperature from yh temp
+    hybrid_service_temp_range = hybrid_cutoff_temp_high - hybrid_cutoff_temp_low
+    fast_factor = np.divide(1.0, (hybrid_service_temp_range))
+
+    # Calculate service share (interpolate linearly)
+    service_high_tech_p_FAST = fast_factor * (temp_cy - hybrid_cutoff_temp_low)
+
+    # Set service share to 1.0
+    service_high_tech_p_FAST[temp_cy > hybrid_cutoff_temp_high] = 1.0
+
+    # Set service share to 0.0
+    service_high_tech_p_FAST[temp_cy < hybrid_cutoff_temp_low] = 0.0
+
+    # Technology split for every hour
+    tech_low_high_p['low'] = 1.0 - service_high_tech_p_FAST
+    tech_low_high_p['high'] = service_high_tech_p_FAST
+
+    return tech_low_high_p

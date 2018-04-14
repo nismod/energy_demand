@@ -251,7 +251,8 @@ def autocomplete_switches(
             service_switches_out[region] = []
 
             # Append regional other capacity switches
-            service_switches_out[region].extend(service_switches_from_capacity[region])
+            service_switches_out[region].extend(
+                service_switches_from_capacity[region])
 
             for enduse in enduses:
 
@@ -266,7 +267,7 @@ def autocomplete_switches(
                         # Global share of technology diffusion
                         s_share_ey_global = switch.service_share_ey
 
-                        # IF technology is affected by spatial exlicit diffusion
+                        # If technology is affected by spatial exlicit diffusion
                         if switch.technology_install in techs_affected_spatial_f:
 
                             # Regional diffusion calculation

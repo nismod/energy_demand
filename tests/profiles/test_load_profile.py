@@ -107,7 +107,6 @@ def test_LoadProfileStock():
     np.testing.assert_array_equal(
         _var, 
         result_obj.get_shape_peak_dh('cooking', 'sectorA', 'placeholder_tech'))'''
-#test_LoadProfileStock()
 
 def test_generate_key_lu_dict():
     """

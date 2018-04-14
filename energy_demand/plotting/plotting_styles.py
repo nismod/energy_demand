@@ -1,13 +1,13 @@
 """Plotting styles
 """
 from collections import OrderedDict
+import palettable
 
 def linestyles():
     """
     https://matplotlib.org/gallery/lines_bars_and_markers/linestyles.html
 
     """
-
     linestyles = OrderedDict(
         [
             ('solid',               (0, ())),
@@ -65,6 +65,20 @@ def color_list():
         'mediumaquamarine',
         'darksalmon',
         'beige']
+
+    return color_list
+
+def get_colorbrewer_color(color_prop, color_palette, inverse=False):
+    """
+    TODO
+    """
+    if color_prop == 'sequential':
+        color_list = getattr(palettable.colorbrewer.sequential, color_palette).hex_colors
+    if color_prop == 'qualitative':
+        color_list = getattr(palettable.colorbrewer.qualitative, color_palette).hex_colors
+
+    if inverse:
+        color_list = color_list[::-1]
 
     return color_list
 

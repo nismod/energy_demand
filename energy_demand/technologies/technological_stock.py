@@ -1,6 +1,7 @@
 """
 Functions related to the technological stock
 """
+import numpy as np
 from energy_demand.technologies import tech_related
 
 class TechStock(object):
@@ -12,7 +13,6 @@ class TechStock(object):
             self,
             name,
             technologies,
-            tech_list,
             other_enduse_mode_info,
             base_yr,
             curr_yr,
@@ -32,8 +32,6 @@ class TechStock(object):
             Name of technology stock
         technologies : dict
             All technologies and their properties
-        tech_list : dict
-            Classified technologies (e.g. all heating techs)
         other_enduse_mode_info : dict
             Other diffusion information
         base_yr : int
@@ -65,7 +63,6 @@ class TechStock(object):
 
         self.stock_technologies = create_tech_stock(
             technologies,
-            tech_list,
             other_enduse_mode_info,
             base_yr,
             curr_yr,
@@ -77,7 +74,19 @@ class TechStock(object):
             potential_enduses,
             enduse_technologies)
 
-    def get_tech_attr(self, enduse, name, attribute_to_get):
+    def get_tech(self, name, enduse):
+        """Get technology of technology stock
+
+        Arguments
+        ----------
+        name : str
+            Name of technology to get
+        enduse : str
+            Enduse of technology
+        """
+        return self.stock_technologies[(name, enduse)]
+
+    def get_tech_attr(self, enduse, name, attribute_to_get, hybrid=False):
         """Get a technology attribute from a technology
         object stored in a list
 
@@ -97,13 +106,47 @@ class TechStock(object):
         """
         tech_object = self.stock_technologies[(name, enduse)]
 
+        '''if hybrid:
+            attribute_value_low_temp = getattr(tech_object.tech_hybrid_low_temp, attribute_to_get)
+            attribute_value_high_temp = getattr(tech_object.tech_hybrid_high_temp, attribute_to_get)
+
+            return attribute_value_low_temp, attribute_value_high_temp
+        else:'''
         attribute_value = getattr(tech_object, attribute_to_get)
 
         return attribute_value
 
+    def get_tech_attr_of_attr(self, enduse, tech_name, hybrid_tech, attribute_to_get):
+        """Get attribute of self.attribute object
+        """
+        # Technology
+        tech_object = self.stock_technologies[(tech_name, enduse)]
+
+        # Assigned hybrid technology
+        tech_object_hybrid_tech = getattr(tech_object, hybrid_tech)
+
+        # Attribute of assigned hybrid technology
+        attribute_value = getattr(tech_object_hybrid_tech, attribute_to_get)
+
+        return attribute_value
+
+    def add_tech(
+            self,
+            name,
+            enduse,
+            tech_obj
+        ):
+        """Add technology to technology stock
+
+        Arguments
+        ---------
+        tech_obj : object
+            Technology object
+        """
+        self.stock_technologies[(name, enduse)] = tech_obj
+
 def create_tech_stock(
         technologies,
-        tech_list,
         other_enduse_mode_info,
         base_yr,
         curr_yr,
@@ -121,8 +164,6 @@ def create_tech_stock(
     ----------
     technologies : dict
         All technology assumptions
-    tech_list : list
-        Technology list
     other_enduse_mode_info : dict
         Diffusion info
     lookups : dict
@@ -145,17 +186,18 @@ def create_tech_stock(
     for enduse in enduses:
         for technology in enduse_technologies[enduse]:
 
-            tech_type = tech_related.get_tech_type(
-                technology,
-                tech_list)
+            tech_type = technologies[technology].tech_type
 
             if tech_type == 'placeholder_tech':
                 # This is placeholder technology a whole enduse
                 pass
+            #elif tech_type == 'hybrid_tech':
+            #    # Hybrid technologies consist of individual technologies
+            #    pass
             else:
                 tech_obj = Technology(
                     name=technology,
-                    tech_type=tech_type,
+                    tech_type=technologies[technology].tech_type,
                     fueltype_str=technologies[technology].fueltype_str,
                     eff_achieved=technologies[technology].eff_achieved,
                     diff_method=technologies[technology].diff_method,
@@ -194,6 +236,61 @@ def create_tech_stock(
 
     return stock_technologies
 
+'''class HybridTech(object):
+    """Hybrid technology system consisting of
+    two different technologies
+
+    Arguments
+    ---------
+
+    """
+    def __init__(
+            self,
+            name,
+            share_service_low=None,
+            share_service_high=None,
+            tech_hybrid_low_temp=None,
+            tech_hybrid_high_temp=None,
+            tech_type='hybrid_tech'
+        ):
+        """Contructor
+        """
+        self.name = name
+        self.tech_type = tech_type
+
+        # Add shares
+        tech_hybrid_low_temp.set_tech_attr('share_service', share_service_low)
+        tech_hybrid_high_temp.set_tech_attr('share_service', share_service_high)
+
+        self.tech_hybrid_low_temp = tech_hybrid_low_temp
+        self.tech_hybrid_high_temp = tech_hybrid_high_temp
+
+        self.hybrid_technologies = ['tech_hybrid_low_temp', 'tech_hybrid_high_temp']
+
+    def get_tech_attr(self, attribute_to_get, value_to_get):
+        """Set a technology attribute
+
+        Arguments
+        ----------
+        attribute_to_get : str
+            Attribue to get
+        value_to_get : any
+            Value to get
+        """
+        setattr(self, attribute_to_get, value_to_get)
+
+    def get_tech_hybrid_attr(self, hybrid_tech, attribute_to_get):
+        """Get attribute of self.attribute object
+        """
+
+        # Assigned hybrid technology
+        tech_object_hybrid_tech = getattr(self, hybrid_tech)
+
+        # Attribute of assigned hybrid technology
+        attribute_value = getattr(tech_object_hybrid_tech, attribute_to_get)
+
+        return attribute_value
+'''
 class Technology(object):
     """Technology Class
 
@@ -246,7 +343,7 @@ class Technology(object):
     def __init__(
             self,
             name,
-            tech_type,
+            tech_type=None,
             fueltype_str=None,
             eff_achieved=None,
             diff_method=None,
@@ -272,7 +369,7 @@ class Technology(object):
         self.description = description
         self.fueltype_str = fueltype_str
         self.fueltype_int = tech_related.get_fueltype_int(fueltypes, fueltype_str)
-        self.eff_achieved_f = eff_achieved
+        self.eff_achieved = eff_achieved
         self.diff_method = diff_method
         self.market_entry = market_entry
         self.tech_max_share = tech_max_share
@@ -295,7 +392,7 @@ class Technology(object):
                     eff_ey,
                     year_eff_ey,
                     other_enduse_mode_info,
-                    self.eff_achieved_f,
+                    self.eff_achieved,
                     self.diff_method),
                 t_base_heating_cy)
         else:
@@ -307,5 +404,17 @@ class Technology(object):
                 eff_ey,
                 year_eff_ey,
                 other_enduse_mode_info,
-                self.eff_achieved_f,
+                self.eff_achieved,
                 self.diff_method)
+
+    def set_tech_attr(self, attribute_to_set, value_to_set):
+        """Set a technology attribute
+
+        Arguments
+        ----------
+        attribute_to_set : str
+            Attribue to set
+        value_to_set : any
+            Value to set
+        """
+        setattr(self, attribute_to_set, value_to_set)

@@ -11,6 +11,7 @@ import numpy as np
 from energy_demand.technologies import tech_related
 from energy_demand.profiles import load_profile
 from energy_demand.scripts import init_scripts
+from energy_demand.basic import lookup_tables
 
 class TechnologyData(object):
     """Class to store technology related data
@@ -32,8 +33,8 @@ class TechnologyData(object):
         Differentiation method
     market_entry : int,default=2015
         Year when technology comes on the market
-    tech_list : list
-        List where technology is part of
+    tech_type : list
+        Technology type
     tech_max_share : float
         Maximum theoretical fraction of how much
         this indivdual technology can contribute
@@ -43,6 +44,7 @@ class TechnologyData(object):
     """
     def __init__(
             self,
+            name=None,
             fueltype=None,
             eff_by=None,
             eff_ey=None,
@@ -50,11 +52,12 @@ class TechnologyData(object):
             eff_achieved=None,
             diff_method=None,
             market_entry=2015,
-            tech_list=None,
+            tech_type=None,
             tech_max_share=None,
             description=None,
             fueltypes=None
         ):
+        self.name = name
         self.fueltype_str = fueltype
         self.fueltype_int = tech_related.get_fueltype_int(fueltypes, fueltype)
         self.eff_by = eff_by
@@ -63,9 +66,21 @@ class TechnologyData(object):
         self.eff_achieved = eff_achieved
         self.diff_method = diff_method
         self.market_entry = market_entry
-        self.tech_list = tech_list
+        self.tech_type = tech_type
         self.tech_max_share = tech_max_share
         self.description = description
+
+    def set_tech_attr(self, attribute_to_set, value_to_set):
+        """Set a technology attribute
+
+        Arguments
+        ----------
+        attribute_to_set : str
+            Attribue to set
+        value_to_set : any
+            Value to set
+        """
+        setattr(self, attribute_to_set, value_to_set)
 
 class CapacitySwitch(object):
     """Capacity switch class for storing
@@ -197,7 +212,7 @@ class ServiceSwitch(object):
             self.sector = None # Not sector defined
         else:
             self.sector = sector
-    
+
     def update(self, name, value):
         """Update service switch
 
@@ -225,6 +240,8 @@ def read_in_results(path_runs, seasons, model_yeardays_daytype):
     """
     logging.info("... Reading in results")
 
+    lookups = lookup_tables.basic_lookups()
+
     results_container = {}
 
     # -------------
@@ -234,6 +251,24 @@ def read_in_results(path_runs, seasons, model_yeardays_daytype):
         path_runs)
 
     results_container['results_every_year'] = read_results_yh(path_runs)
+
+    # -----------------
+    # Peak calculations
+    # -----------------
+    results_container['ed_peak_h'] = {}
+
+    for year, year_yh in results_container['results_every_year'].items():
+
+        results_container['ed_peak_h'][year] = {}
+
+        for fueltype_int, reg_ed_yh in enumerate(year_yh):
+
+            fueltype_str = tech_related.get_fueltype_str(lookups['fueltypes'], fueltype_int)
+
+            # Calculate peak per fueltype for all regions (reg_ed_yh= np.array(fueltype, reg, yh)) TODO CHECK
+            all_regs_yh = np.sum(reg_ed_yh, axis=0)    # sum regs
+            peak_h = np.max(all_regs_yh)               # select max of 8760 h
+            results_container['ed_peak_h'][year][fueltype_str] = peak_h
 
     # -------------
     # Load factors
@@ -431,38 +466,46 @@ def read_fuel_ss(path_to_csv, fueltypes_nr):
     enduses : list
         Service enduses
     """
+    lookups = lookup_tables.basic_lookups()
+    fueltypes_lu = lookups['fueltypes']
+
     rows_list = []
     fuels = {}
+    try:
+        with open(path_to_csv, 'r') as csvfile:
+            rows = csv.reader(csvfile, delimiter=',')
+            headings = next(rows) # Skip row
+            _secondline = next(rows) # Skip row
 
-    with open(path_to_csv, 'r') as csvfile:
-        rows = csv.reader(csvfile, delimiter=',')
-        headings = next(rows) # Skip row
-        _secondline = next(rows) # Skip row
+            # All sectors
+            sectors = set([])
+            for sector in _secondline[1:]: #skip fuel ID:
+                sectors.add(sector)
 
-        # All sectors
-        sectors = set([])
-        for sector in _secondline[1:]: #skip fuel ID:
-            sectors.add(sector)
+            # All enduses
+            enduses = set([])
+            for enduse in headings[1:]: #skip fuel ID:
+                enduses.add(enduse)
 
-        # All enduses
-        enduses = set([])
-        for enduse in headings[1:]: #skip fuel ID:
-            enduses.add(enduse)
+            # Initialise dict
+            for enduse in enduses:
+                fuels[enduse] = {}
+                for sector in sectors:
+                    fuels[enduse][sector] = np.zeros((fueltypes_nr), dtype=float)
 
-        # Initialise dict
-        for enduse in enduses:
-            fuels[enduse] = {}
-            for sector in sectors:
-                fuels[enduse][sector] = np.zeros((fueltypes_nr), dtype=float)
+            for row in rows:
+                rows_list.append(row)
 
-        for row in rows:
-            rows_list.append(row)
-
-        for cnt_fueltype, row in enumerate(rows_list):
-            for cnt, entry in enumerate(row[1:], 1):
-                enduse = headings[cnt]
-                sector = _secondline[cnt]
-                fuels[enduse][sector][cnt_fueltype] += float(entry)
+            for row in rows_list:
+                fueltype_str = row[0]
+                fueltype_int = fueltypes_lu[fueltype_str]
+                for cnt, entry in enumerate(row[1:], 1):
+                    enduse = headings[cnt]
+                    sector = _secondline[cnt]
+                    fuels[enduse][sector][fueltype_int] += float(entry)
+    except ValueError:
+        raise Exception(
+            "The service sector fuel could not be loaded. Check if empty cells.")
 
     return fuels, list(sectors), list(enduses)
 
@@ -561,7 +604,13 @@ def service_switch(path_to_csv, technologies, base_yr=2015):
 
     return service_switches
 
-def read_fuel_switches(path_to_csv, enduses, fueltypes, technologies, base_yr=2015):
+def read_fuel_switches(
+        path_to_csv,
+        enduses,
+        fueltypes,
+        technologies,
+        base_yr=2015
+    ):
     """This function reads in from CSV file defined fuel
     switch assumptions
 
@@ -639,7 +688,7 @@ def read_fuel_switches(path_to_csv, enduses, fueltypes, technologies, base_yr=20
         tot_share_fueltype_switched = 0
 
         for obj_iter in fuel_switches:
-            
+
             # Sum total switched share
             if obj.enduse == obj_iter.enduse and obj.fueltype_replace == obj_iter.fueltype_replace:
                 tot_share_fueltype_switched += obj_iter.fuel_share_switched_ey
@@ -720,8 +769,11 @@ def read_technologies(path_to_csv, fueltypes):
 
         for row in rows:
             technology = str(row[get_position(headings, 'technology')])
+            tech_type = str.strip(row[get_position(headings, 'technology type')])
+
             try:
                 dict_technologies[technology] = TechnologyData(
+                    name=str(technology),
                     fueltype=str(row[get_position(headings, 'fueltype')]),
                     eff_by=float(row[get_position(headings, 'efficiency in base year')]),
                     eff_ey=float(row[get_position(headings, 'efficiency in future year')]),
@@ -729,14 +781,14 @@ def read_technologies(path_to_csv, fueltypes):
                     eff_achieved=1.0, # Set to one as default
                     diff_method=str(row[get_position(headings, 'diffusion method (sigmoid or linear)')]),
                     market_entry=float(row[get_position(headings, 'market_entry')]),
-                    tech_list=str.strip(row[get_position(headings, 'technology type')]),
+                    tech_type=tech_type,
                     tech_max_share=float(str.strip(row[get_position(headings, 'maximum theoretical service share of technology')])),
                     description=str(row[get_position(headings, 'description')]),
                     fueltypes=fueltypes)
                 try:
-                    dict_tech_lists[str.strip(row[7])].append(technology)
+                    dict_tech_lists[tech_type].append(technology)
                 except KeyError:
-                    dict_tech_lists[str.strip(row[7])] = [technology]
+                    dict_tech_lists[tech_type] = [technology]
             except Exception as e:
                 logging.error(
                     "Error technology table (e.g. empty field): %s %s", e, row)
@@ -771,6 +823,9 @@ def read_fuel_rs(path_to_csv):
     the first row is the fuel_ID
     The header is the sub_key
     """
+    lookups = lookup_tables.basic_lookups()
+    fueltypes_lu = lookups['fueltypes']
+
     try:
         rows_list = []
         fuels = {}
@@ -782,14 +837,17 @@ def read_fuel_rs(path_to_csv):
             for row in rows:
                 rows_list.append(row)
 
-            for enduse in headings[1:]: # skip first
+            for enduse in headings[1:]:
                 fuels[enduse] = np.zeros((len(rows_list)), dtype=float)
 
-            for cnt_fueltype, row in enumerate(rows_list):
+            for row in rows_list:
+                fueltype_str = row[0]
+                fueltype_int = fueltypes_lu[fueltype_str]
+
                 cnt = 1 #skip first
                 for fuel in row[1:]:
                     enduse = headings[cnt]
-                    fuels[enduse][cnt_fueltype] = float(fuel)
+                    fuels[enduse][fueltype_int] = float(fuel)
                     cnt += 1
     except (KeyError, ValueError):
         raise Exception(

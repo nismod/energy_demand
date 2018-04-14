@@ -12,48 +12,6 @@ from energy_demand.scripts import (s_disaggregation, s_fuel_to_service, s_genera
 from energy_demand.technologies import fuel_service_switch
 from energy_demand.plotting import result_mapping
 
-def global_to_reg_capacity_switch(regions, global_capactiy_switch, spatial_factors):
-    """Conversion of global capacity switch instlalations
-    to regional installation
-    """
-
-    reg_capacity_switch = {}
-    for reg in regions:
-        reg_capacity_switch[reg] = []
-
-    # Get all affected enduses of capacity switches
-    switch_enduses = set([])
-    for switch in global_capactiy_switch:
-        switch_enduses.add(switch.enduse)
-    switch_enduses = list(switch_enduses)
-
-    for enduse in switch_enduses:
-
-        # Get all capacity switches related to this enduse
-        enduse_capacity_switches = []
-        for switch in global_capactiy_switch:
-            if switch.enduse == enduse:
-                enduse_capacity_switches.append(switch)
-
-        test = 0
-        for region in regions:
-
-            for switch in enduse_capacity_switches:
-
-                global_capacity = switch.installed_capacity
-                regional_capacity = global_capacity  * spatial_factors[switch.enduse][region]
-                test += regional_capacity
-                new_switch = read_data.CapacitySwitch(
-                    enduse=switch.enduse,
-                    technology_install=switch.technology_install,
-                    switch_yr=switch.switch_yr,
-                    installed_capacity=regional_capacity,
-                    sector=switch.sector)
-
-            reg_capacity_switch[region].append(new_switch)
-
-    return reg_capacity_switch
-
 def scenario_initalisation(path_data_ed, data=False):
     """Scripts which need to be run for every different scenario.
     Only needs to be executed once for each scenario (not for every
@@ -228,12 +186,10 @@ def scenario_initalisation(path_data_ed, data=False):
     #
     # Calculate service shares considering potential capacity installations
     # ========================================================================================
-    # Service
     ss_aggr_sector_fuels = s_fuel_to_service.sum_fuel_enduse_sectors(
         data['fuels']['ss_fuel_raw'],
         data['enduses']['ss_enduses'])
 
-    # Industry
     is_aggr_sector_fuels = s_fuel_to_service.sum_fuel_enduse_sectors(
         data['fuels']['is_fuel_raw'],
         data['enduses']['is_enduses'])
@@ -494,6 +450,54 @@ def scenario_initalisation(path_data_ed, data=False):
 
     logging.info("... finished scenario initialisation")
     return dict(init_cont), fuel_disagg
+
+def global_to_reg_capacity_switch(
+        regions,
+        global_capactiy_switch,
+        spatial_factors
+    ):
+    """Conversion of global capacity switch installations
+    to regional installation
+
+    TODO
+    """
+
+    reg_capacity_switch = {}
+    for reg in regions:
+        reg_capacity_switch[reg] = []
+
+    # Get all affected enduses of capacity switches
+    switch_enduses = set([])
+    for switch in global_capactiy_switch:
+        switch_enduses.add(switch.enduse)
+    switch_enduses = list(switch_enduses)
+
+    for enduse in switch_enduses:
+
+        # Get all capacity switches related to this enduse
+        enduse_capacity_switches = []
+        for switch in global_capactiy_switch:
+            if switch.enduse == enduse:
+                enduse_capacity_switches.append(switch)
+
+        test = 0
+        for region in regions:
+
+            for switch in enduse_capacity_switches:
+
+                global_capacity = switch.installed_capacity
+                regional_capacity = global_capacity  * spatial_factors[switch.enduse][region]
+                test += regional_capacity
+                new_switch = read_data.CapacitySwitch(
+                    enduse=switch.enduse,
+                    technology_install=switch.technology_install,
+                    switch_yr=switch.switch_yr,
+                    installed_capacity=regional_capacity,
+                    sector=switch.sector)
+
+            reg_capacity_switch[region].append(new_switch)
+
+    return reg_capacity_switch
 
 def sum_across_sectors_all_regs(fuel_disagg_reg):
     """Sum fuel across all sectors for every region
