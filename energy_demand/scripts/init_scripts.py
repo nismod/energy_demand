@@ -102,7 +102,6 @@ def scenario_initalisation(path_data_ed, data=False):
     # Residential
     rs_s_tech_by_p, _, rs_s_fueltype_by_p = s_fuel_to_service.get_s_fueltype_tech(
         data['enduses']['rs_enduses'],
-        data['assumptions'].tech_list,
         data['lookups']['fueltypes'],
         data['assumptions'].rs_fuel_tech_p_by,
         data['fuels']['rs_fuel_raw'],
@@ -114,7 +113,6 @@ def scenario_initalisation(path_data_ed, data=False):
     for sector in data['sectors']['ss_sectors']:
         ss_s_tech_by_p[sector], _, ss_s_fueltype_by_p[sector] = s_fuel_to_service.get_s_fueltype_tech(
             data['enduses']['ss_enduses'],
-            data['assumptions'].tech_list,
             data['lookups']['fueltypes'],
             data['assumptions'].ss_fuel_tech_p_by,
             data['fuels']['ss_fuel_raw'],
@@ -127,7 +125,6 @@ def scenario_initalisation(path_data_ed, data=False):
     for sector in data['sectors']['is_sectors']:
         is_s_tech_by_p[sector], _, is_s_fueltype_by_p[sector] = s_fuel_to_service.get_s_fueltype_tech(
             data['enduses']['is_enduses'],
-            data['assumptions'].tech_list,
             data['lookups']['fueltypes'],
             data['assumptions'].is_fuel_tech_p_by,
             data['fuels']['is_fuel_raw'],
@@ -461,7 +458,6 @@ def global_to_reg_capacity_switch(
 
     TODO
     """
-
     reg_capacity_switch = {}
     for reg in regions:
         reg_capacity_switch[reg] = []

@@ -9,6 +9,7 @@ from energy_demand.profiles import load_profile
 from energy_demand.profiles import hdd_cdd
 from energy_demand.technologies import diffusion_technologies
 from energy_demand.basic import basic_functions
+from energy_demand import enduse_func
 from energy_demand.enduse_func import get_peak_day_single_fueltype
 
 class WeatherRegion(object):
@@ -186,6 +187,10 @@ class WeatherRegion(object):
         # yd peak factors for heating and cooling
         rs_peak_yd_heating_factor = get_shape_peak_yd_factor(self.rs_hdd_cy)
 
+        # Calculate rs peak day
+        rs_peak_day = enduse_func.get_peak_day(self.rs_hdd_cy)
+        logging.info("Regional specific peak day (rs_peak_day):" + str(rs_peak_day))
+
         '''
         # RESIDENITAL COOLING
         #rs_peak_yd_cooling_factor = get_shape_peak_yd_factor(self.rs_cdd_cy)
@@ -221,8 +226,15 @@ class WeatherRegion(object):
             f_peak_yd=rs_peak_yd_heating_factor)
 
         # ------Heating CHP 
+
+        # Replace peak specific load profile for peak day
+        rs_profile_chp_y_dh = insert_peak_dh_shape(
+            peak_day=rs_peak_day,
+            shape_y_dh=tech_lp['rs_profile_chp_y_dh'],
+            tech_lp_tech=tech_lp['rs_lp_heating_CHP_dh'])
+
         rs_profile_chp_yh = load_profile.calc_yh(
-            rs_fuel_shape_heating_yd, tech_lp['rs_profile_chp_y_dh'], model_yeardays)
+            rs_fuel_shape_heating_yd, rs_profile_chp_y_dh, model_yeardays) #tech_lp['rs_profile_chp_y_dh']
 
         self.rs_load_profiles.add_lp(
             unique_identifier=uuid.uuid4(),
@@ -244,8 +256,16 @@ class WeatherRegion(object):
             f_peak_yd=rs_peak_yd_heating_factor)
 
         # ------Electric heating secondary (direct elec heating)
+
+        # Replace peak specific load profile for peak day
+        rs_profile_elec_heater_y_dh = insert_peak_dh_shape(
+            peak_day=rs_peak_day,
+            shape_y_dh=tech_lp['rs_profile_elec_heater_y_dh'],
+            tech_lp_tech=tech_lp['rs_lp_second_heating_dh'])
+
         rs_profile_elec_heater_yh = load_profile.calc_yh(
-            rs_fuel_shape_heating_yd, tech_lp['rs_profile_elec_heater_y_dh'], model_yeardays)
+            rs_fuel_shape_heating_yd, rs_profile_elec_heater_y_dh, model_yeardays) #tech_lp['rs_profile_elec_heater_y_dh']
+
         self.rs_load_profiles.add_lp(
             unique_identifier=uuid.uuid4(),
             technologies=tech_lists['secondary_heating_electricity'],
@@ -255,8 +275,15 @@ class WeatherRegion(object):
             f_peak_yd=rs_peak_yd_heating_factor)
 
         # ------Heat pump heating
-        rs_fuel_shape_hp_yh, _ = get_fuel_shape_heating_hp_yh(
-            tech_lp['rs_profile_hp_y_dh'],
+
+        #  Replace peak specific load profile for peak day
+        rs_profile_hp_y_dh = insert_peak_dh_shape(
+            peak_day=rs_peak_day,
+            shape_y_dh=tech_lp['rs_profile_hp_y_dh'],
+            tech_lp_tech=tech_lp['rs_lp_heating_hp_dh'])
+
+        rs_fuel_shape_hp_yh = get_fuel_shape_heating_hp_yh(
+            rs_profile_hp_y_dh, #tech_lp['rs_profile_hp_y_dh'],
             self.rs_tech_stock,
             self.rs_hdd_cy,
             model_yeardays)
@@ -522,7 +549,7 @@ def get_fuel_shape_heating_hp_yh(tech_lp_y_dh, tech_stock, rs_hdd_cy, model_year
     shape_y_dh[np.isnan(shape_y_dh)] = 0
 
     # Select only modelled days
-    return shape_yh[[model_yeardays]], shape_y_dh[[model_yeardays]]
+    return shape_yh[[model_yeardays]]
 
 def get_shape_cooling_yh(tech_shape, cooling_shape):
     """Convert daily shape to hourly
@@ -634,3 +661,33 @@ def change_temp_climate(
         temp_climate_change[month_yeardays] = temp_data[month_yeardays] + lin_diff_factor
 
     return temp_climate_change
+
+def insert_peak_dh_shape(
+        peak_day,
+        shape_y_dh,
+        tech_lp_tech
+    ):
+    """Insert peak specific load profile of a technology
+
+    Arguments
+    ---------
+    peak_day : int
+        Peak day nr
+    shape_y_dh : array
+        Shape of technology for every day (total sum = 365)
+    tech_lp_tech : dict
+        Technolgy specific load profiles for different day types
+    
+    Returns
+    -------
+    shape_y_dh_inserted : array
+        Array where on peak day the peak shape is inserted
+    """
+    peak_day_tech_dh = tech_lp_tech['peakday']
+
+    shape_y_dh_inserted = np.copy(shape_y_dh)
+
+    shape_y_dh_inserted[peak_day] = peak_day_tech_dh
+    
+    #assert np.sum(shape_y_dh_inserted) == 365
+    return shape_y_dh_inserted

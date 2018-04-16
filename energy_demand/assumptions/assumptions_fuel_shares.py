@@ -156,11 +156,11 @@ def assign_by_fuel_tech_p(enduses, sectors, fueltypes, fueltypes_nr):
 
     rs_fuel_tech_p_by['rs_space_heating'][fueltypes['biomass']] = {
         'boiler_biomass': 1.0,
-        'district_heating_biomass': 0.0}  #REALLY?
+        'district_heating_biomass': 0.0}
 
     rs_fuel_tech_p_by['rs_space_heating'][fueltypes['hydrogen']] = {
-        'fuel_cell_hydrogen': 0,         #REALLY?
-        'district_heating_fuel_cell': 0, #REALLY?
+        'fuel_cell_hydrogen': 0,
+        'district_heating_fuel_cell': 0,
         'boiler_hydrogen': 1.0,
         'heat_pumps_hydrogen': 0.0}
 

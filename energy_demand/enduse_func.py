@@ -629,7 +629,7 @@ def get_peak_day_all_fueltypes(fuel_yh):
     Arguments
     ---------
     fuel_yh : array (fueltype, 365, 24)
-        Fuel for every yh (fueltypes, yh) 
+        Fuel for every yh (fueltypes, yh)
 
     Return
     ------
@@ -649,12 +649,34 @@ def get_peak_day_all_fueltypes(fuel_yh):
 
         return peak_day_nr
 
+def get_peak_day(fuel_yh):
+    """Iterate an array with 365 entries and get
+    entry nr with hightest value
+
+    Arguments
+    ---------
+    fuel_yh : array (365)
+        Fuel for every day
+
+    Return
+    ------
+    peak_day_nr : int
+        Day with most fuel or service
+    """
+    if np.sum(fuel_yh) == 0:
+        logging.info("No peak can be found because no fuel assigned")
+        # Return first entry of element (which is zero)
+        return 0
+    else:
+        # Sum fuel within every hour for every day and get day with maximum fuel
+        peak_day_nr = np.argmax(fuel_yh)
+        return peak_day_nr
+
 def get_peak_day_single_fueltype(fuel_yh):
     """Iterate yh and get day with highes fuel for a single fueltype
     The day with most fuel is considered to
     be the peak day. Over the simulation period,
-    the peak day may change date in a year. If no fuel is
-    provided, the program is crashed
+    the peak day may change date in a year.
 
     Arguments
     ---------

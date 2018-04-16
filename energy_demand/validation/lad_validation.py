@@ -299,6 +299,7 @@ def tempo_spatial_validation(
 
     # Peak across all fueltypes WARNING: Fueltype specific
     peak_day = enduse_func.get_peak_day_all_fueltypes(ed_fueltype_national_yh)
+    logging.info("Peak day for comparions: " + str(peak_day))
 
     elec_national_data.compare_peak(
         "validation_elec_peak_comparison_peakday_yh.pdf",

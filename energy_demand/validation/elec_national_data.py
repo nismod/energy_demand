@@ -289,14 +289,15 @@ def compare_peak(
     plt.ylabel("uk electrictiy use [GW]")
 
     plt.text(
-        diff_p_h, 
-        position=(20,20),
-        horizontalalignment='center',
+        5,  #position
+        55, #position
+        diff_p_h,
+        #horizontalalignment='center',
         fontdict={
             'family': 'arial',
             'color': 'black',
             'weight': 'normal',
-            'size': 5})
+            'size': 4})
 
     # Tight layout
     plt.tight_layout()

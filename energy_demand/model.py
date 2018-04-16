@@ -31,9 +31,9 @@ class EnergyDemandModel(object):
         logging.info("... start main energy demand function")
         self.curr_yr = assumptions.curr_yr
 
-        # --------------
+        # ----------------------------
         # Create non regional dependent load profiles
-        # --------------
+        # ----------------------------
         data['non_regional_lp_stock'] = load_profile.create_load_profile_stock(
             data['tech_lp'],
             assumptions,
@@ -41,9 +41,9 @@ class EnergyDemandModel(object):
             assumptions.model_yeardays,
             data['enduses'])
 
-        # --------------
+        # ----------------------------
         # Create Weather Regions
-        # --------------
+        # ----------------------------
         weather_regions = {}
         for weather_region in data['weather_stations']:
             weather_regions[weather_region] = WeatherRegion(
