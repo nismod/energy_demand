@@ -283,21 +283,20 @@ def compare_peak(
     # Legend
     plt.legend(frameon=False)
 
-    font_additional_info = plotting_styles.font_info()
-
     # Labelling
     plt.title("peak comparison") # d_%:{}".format(diff_p_h), loc='left', fontdict=font_additional_info)
     plt.xlabel("h")
     plt.ylabel("uk electrictiy use [GW]")
 
     plt.text(
-        -6, 0, diff_p_h, 
+        diff_p_h, 
+        position=(20,20),
         horizontalalignment='center',
         fontdict={
-        'family': 'arial',
-        'color': 'black',
-        'weight': 'normal',
-        'size': 6})
+            'family': 'arial',
+            'color': 'black',
+            'weight': 'normal',
+            'size': 5})
 
     # Tight layout
     plt.tight_layout()
