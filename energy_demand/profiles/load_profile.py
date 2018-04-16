@@ -307,7 +307,7 @@ def create_load_profile_stock(
     """
     non_regional_lp_stock = LoadProfileStock("non_regional_load_profiles")
 
-    # ---------
+    '''# ---------
     # Residential Submodel
     # ---------
     shape_yh = calc_yh(
@@ -388,9 +388,10 @@ def create_load_profile_stock(
                 enduses=[enduse],
                 shape_yd=tech_lp['rs_shapes_yd'][enduse]['shape_non_peak_yd'],
                 shape_yh=shape_yh,
-                f_peak_yd=tech_lp['rs_shapes_yd'][enduse]['shape_peak_yd_factor'])
+                f_peak_yd=tech_lp['rs_shapes_yd'][enduse]['shape_peak_yd_factor'])'''
+    
 
-    # ---------
+    '''# ---------
     # Service Submodel
     # ----------
     # - Assign to each enduse the carbon fuel trust dataset
@@ -423,8 +424,8 @@ def create_load_profile_stock(
                     shape_yh=shape_yh,
                     sectors=[sector],
                     f_peak_yd=tech_lp['ss_shapes_yd'][enduse][sector]['shape_peak_yd_factor'])
-
-    # ---------
+    '''
+    '''# ---------
     # Industry Submodel
     # ---------
     # Generate flat load profiles
@@ -451,7 +452,7 @@ def create_load_profile_stock(
                     shape_yd=shape_non_peak_yd_weighted,
                     shape_yh=shape_non_peak_yh,
                     sectors=[sector],
-                    f_peak_yd=shape_peak_yd_factor)
+                    f_peak_yd=shape_peak_yd_factor)'''
 
     return non_regional_lp_stock
 

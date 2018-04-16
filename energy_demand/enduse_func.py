@@ -90,7 +90,7 @@ class Enduse(object):
             scenario_data,
             assumptions,
             regional_lp_stock,
-            non_regional_lp_stock,
+            #non_regional_lp_stock,
             base_yr,
             curr_yr,
             enduse,
@@ -129,11 +129,12 @@ class Enduse(object):
             self.enduse_techs = []
         else:
             # Get correct parameters depending on model configuration
-            load_profiles = get_lp_stock(
+            '''load_profiles = get_lp_stock(
                 enduse,
                 non_regional_lp_stock,
-                regional_lp_stock)
-
+                regional_lp_stock)'''
+            load_profiles = regional_lp_stock
+        
             # Get technologies of enduse
             self.enduse_techs = get_enduse_techs(fuel_fueltype_tech_p_by)
 

@@ -34,12 +34,12 @@ class EnergyDemandModel(object):
         # ----------------------------
         # Create non regional dependent load profiles
         # ----------------------------
-        data['non_regional_lp_stock'] = load_profile.create_load_profile_stock(
+        '''data['non_regional_lp_stock'] = load_profile.create_load_profile_stock(
             data['tech_lp'],
             assumptions,
             data['sectors'],
             assumptions.model_yeardays,
-            data['enduses'])
+            data['enduses'])'''
 
         # ----------------------------
         # Create Weather Regions
@@ -181,7 +181,7 @@ def simulate_region(region, data, assumptions, weather_regions):
         weather_region_obj,
         data['scenario_data'],
         data['rs_dw_stock'][region],
-        data['non_regional_lp_stock'],
+        #data['non_regional_lp_stock'],
         assumptions,
         data['lookups'],
         data['criterias'],
@@ -195,7 +195,7 @@ def simulate_region(region, data, assumptions, weather_regions):
         weather_region_obj,
         data['scenario_data'],
         data['ss_dw_stock'][region],
-        data['non_regional_lp_stock'],
+        #data['non_regional_lp_stock'],
         assumptions,
         data['lookups'],
         data['criterias'],
@@ -209,7 +209,7 @@ def simulate_region(region, data, assumptions, weather_regions):
         region_obj,
         weather_region_obj,
         data['scenario_data'],
-        data['non_regional_lp_stock'],
+        #data['non_regional_lp_stock'],
         assumptions,
         data['lookups'],
         data['criterias'],
@@ -351,7 +351,7 @@ def residential_submodel(
         weather_region,
         scenario_data,
         rs_dw_stock,
-        non_regional_lp_stock,
+        #non_regional_lp_stock,
         assumptions,
         lookups,
         criterias,
@@ -405,7 +405,7 @@ def residential_submodel(
                 scenario_data=scenario_data,
                 assumptions=assumptions,
                 regional_lp_stock=weather_region.rs_load_profiles,
-                non_regional_lp_stock=non_regional_lp_stock,
+                #non_regional_lp_stock=non_regional_lp_stock,
                 base_yr=assumptions.base_yr,
                 curr_yr=assumptions.curr_yr,
                 enduse=enduse,
@@ -433,7 +433,7 @@ def service_submodel(
         weather_region,
         scenario_data,
         ss_dw_stock,
-        non_regional_lp_stock,
+        #non_regional_lp_stock,
         assumptions,
         lookups,
         criterias,
@@ -481,7 +481,7 @@ def service_submodel(
                 scenario_data=scenario_data,
                 assumptions=assumptions,
                 regional_lp_stock=weather_region.ss_load_profiles,
-                non_regional_lp_stock=non_regional_lp_stock,
+                #non_regional_lp_stock=non_regional_lp_stock,
                 base_yr=assumptions.base_yr,
                 curr_yr=assumptions.curr_yr,
                 enduse=enduse,
@@ -509,7 +509,7 @@ def industry_submodel(
         region,
         weather_region,
         scenario_data,
-        non_regional_lp_stock,
+        #non_regional_lp_stock,
         assumptions,
         lookups,
         criterias,
@@ -566,7 +566,7 @@ def industry_submodel(
                 scenario_data=scenario_data,
                 assumptions=assumptions,
                 regional_lp_stock=weather_region.is_load_profiles,
-                non_regional_lp_stock=non_regional_lp_stock,
+                #non_regional_lp_stock=non_regional_lp_stock,
                 base_yr=assumptions.base_yr,
                 curr_yr=assumptions.curr_yr,
                 enduse=enduse,
