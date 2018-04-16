@@ -1,5 +1,6 @@
 """Testing
 """
+import os
 from pkg_resources import resource_filename
 from pkg_resources import Requirement
 from energy_demand.basic import lookup_tables

@@ -222,7 +222,7 @@ def test_create_service_switch():
                 eff_achieved=1.0,
                 diff_method='linear',
                 market_entry=2010,
-                tech_list='tech_heating',
+                tech_type='tech_heating',
                 tech_max_share=1.0),
             'boiler_gas': read_data.TechnologyData(
                 fueltype='gas',
@@ -232,7 +232,7 @@ def test_create_service_switch():
                 eff_achieved=1.0,
                 diff_method='linear',
                 market_entry=2010,
-                tech_list='tech_heating',
+                tech_type='tech_heating',
                 tech_max_share=1.0)
             },
         'other_enduse_mode_info': {'diff_method': 'linear', 'sigmoid': {'sig_midpoint': 0,'sig_steepness': 1}},
@@ -279,7 +279,7 @@ def test_capacity_switch():
         eff_achieved=1.0,
         diff_method='linear',
         market_entry=2010,
-        tech_list='tech_heating',
+        tech_type='tech_heating',
         tech_max_share=1.0)}
 
     capacity_switches = [
@@ -313,7 +313,7 @@ def test_capacity_switch():
             eff_achieved=1.0,
             diff_method='linear',
             market_entry=2010,
-            tech_list='tech_heating',
+            tech_type='tech_heating',
             tech_max_share=1.0),
         'techB': read_data.TechnologyData(
             fueltype='oil',
@@ -323,7 +323,7 @@ def test_capacity_switch():
             eff_achieved=1.0,
             diff_method='linear',
             market_entry=2010,
-            tech_list='tech_heating',
+            tech_type='tech_heating',
             tech_max_share=1.0)}
 
     capacity_switches = [

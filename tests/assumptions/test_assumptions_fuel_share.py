@@ -1,5 +1,6 @@
 """
 """
+import os
 from energy_demand.basic import lookup_tables
 from energy_demand.assumptions import assumptions_fuel_shares
 from energy_demand.assumptions import non_param_assumptions

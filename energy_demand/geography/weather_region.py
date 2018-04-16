@@ -115,9 +115,9 @@ class WeatherRegion(object):
             curr_yr,
             t_diff_param)'''
 
-        # -------------------
+        # ==================================================================
         # Technology stocks
-        # -------------------
+        # ==================================================================
         self.rs_tech_stock = technological_stock.TechStock(
             'rs_tech_stock',
             technologies,
@@ -160,9 +160,9 @@ class WeatherRegion(object):
             ss_t_base_heating_cy,
             assumptions.is_specified_tech_enduse_by)
 
-        # ============================================================
-        # Residential submodel
-        # ============================================================
+        # # ==================================================================
+        # Residential submodel load profiles
+        # # ==================================================================
         self.rs_load_profiles = load_profile.LoadProfileStock("rs_load_profiles")
 
         # --------Calculate HDD/CDD
@@ -199,24 +199,19 @@ class WeatherRegion(object):
         # ========
         # Enduse specific profiles
         # ========
-        # ---------
-        # Residential Submodel
-        # ---------
-        shape_yh = load_profile.calc_yh(
-            tech_lp['rs_shapes_yd']['rs_lighting']['shape_non_peak_yd'],
-            tech_lp['rs_shapes_dh']['rs_lighting']['shape_non_peak_y_dh'],
-            model_yeardays)
 
         # rs_lighting
-        
-        # Replace peak specific load profile for peak day
-        '''rs_profile_chp_y_dh = insert_peak_dh_shape(
-            peak_day=rs_peak_day,
-            shape_y_dh=tech_lp['rs_profile_chp_y_dh'],
-            tech_lp_tech=tech_lp['rs_lp_heating_CHP_dh'])
 
-        rs_profile_chp_yh = load_profile.calc_yh(
-            rs_fuel_shape_heating_yd, rs_profile_chp_y_dh, model_yeardays)'''
+        # Replace peak specific load profile for peak day
+        shape_y_dh = insert_peak_dh_shape(
+            peak_day=rs_peak_day,
+            shape_y_dh=tech_lp['rs_shapes_dh']['rs_lighting']['shape_non_peak_y_dh'],
+            shape_peak_dh=tech_lp['rs_shapes_dh']['rs_lighting']['shape_peak_dh'])
+
+        shape_yh = load_profile.calc_yh(
+            shape_yd=tech_lp['rs_shapes_yd']['rs_lighting']['shape_non_peak_yd'],
+            shape_y_dh=shape_y_dh, #tech_lp['rs_shapes_dh']['rs_lighting']['shape_non_peak_y_dh'],
+            model_yeardays=model_yeardays)
 
         self.rs_load_profiles.add_lp(
             unique_identifier=uuid.uuid4(),
@@ -245,6 +240,13 @@ class WeatherRegion(object):
                 f_peak_yd=tech_lp['rs_shapes_yd']['rs_cold']['shape_peak_yd_factor'])
 
         # rs_cooking
+        
+        # Replace peak specific load profile for peak day
+        shape_y_dh = insert_peak_dh_shape(
+            peak_day=rs_peak_day,
+            shape_y_dh=tech_lp['rs_shapes_dh']['rs_cooking']['shape_non_peak_y_dh'],
+            shape_peak_dh=tech_lp['rs_shapes_dh']['rs_cooking']['shape_peak_dh'])
+
         shape_yh = load_profile.calc_yh(
             tech_lp['rs_shapes_yd']['rs_cooking']['shape_non_peak_yd'],
             tech_lp['rs_shapes_dh']['rs_cooking']['shape_non_peak_y_dh'],
@@ -253,11 +255,17 @@ class WeatherRegion(object):
             unique_identifier=uuid.uuid4(),
             technologies=assumptions.tech_list['cooking'],
             enduses=['rs_cooking'],
-            shape_yd=tech_lp['rs_shapes_yd']['rs_cooking']['shape_non_peak_yd'],
+            shape_yd=shape_y_dh, #tech_lp['rs_shapes_yd']['rs_cooking']['shape_non_peak_yd'],
             shape_yh=shape_yh,
             f_peak_yd=tech_lp['rs_shapes_yd']['rs_cooking']['shape_peak_yd_factor'])
 
         # rs_wet
+        # Replace peak specific load profile for peak day
+        shape_y_dh = insert_peak_dh_shape(
+            peak_day=rs_peak_day,
+            shape_y_dh=tech_lp['rs_shapes_dh']['rs_wet']['shape_non_peak_y_dh'],
+            shape_peak_dh=tech_lp['rs_shapes_dh']['rs_wet']['shape_peak_dh'])
+
         shape_yh = load_profile.calc_yh(
             tech_lp['rs_shapes_yd']['rs_wet']['shape_non_peak_yd'],
             tech_lp['rs_shapes_dh']['rs_wet']['shape_non_peak_y_dh'],
@@ -266,7 +274,7 @@ class WeatherRegion(object):
             unique_identifier=uuid.uuid4(),
             technologies=assumptions.tech_list['wet'],
             enduses=['rs_wet'],
-            shape_yd=tech_lp['rs_shapes_yd']['rs_wet']['shape_non_peak_yd'],
+            shape_yd=shape_y_dh, #tech_lp['rs_shapes_yd']['rs_wet']['shape_non_peak_yd'],
             shape_yh=shape_yh,
             f_peak_yd=tech_lp['rs_shapes_yd']['rs_wet']['shape_peak_yd_factor'])
 
@@ -318,8 +326,6 @@ class WeatherRegion(object):
         # Technology specific profiles
         # ===========
 
-
-
         # ------Heating boiler
         rs_profile_boilers_yh = load_profile.calc_yh(
             rs_fuel_shape_heating_yd, tech_lp['rs_profile_boilers_y_dh'], model_yeardays)
@@ -332,13 +338,14 @@ class WeatherRegion(object):
             shape_yh=rs_profile_boilers_yh,
             f_peak_yd=rs_peak_yd_heating_factor)
 
-        # ------Heating CHP 
+        # ------Heating CHP
 
         # Replace peak specific load profile for peak day
         rs_profile_chp_y_dh = insert_peak_dh_shape(
             peak_day=rs_peak_day,
             shape_y_dh=tech_lp['rs_profile_chp_y_dh'],
-            tech_lp_tech=tech_lp['rs_lp_heating_CHP_dh'])
+            shape_peak_dh=tech_lp['rs_lp_heating_CHP_dh']['peakday'])
+            #tech_lp_tech=tech_lp['rs_lp_heating_CHP_dh'])
 
         rs_profile_chp_yh = load_profile.calc_yh(
             rs_fuel_shape_heating_yd, rs_profile_chp_y_dh, model_yeardays) #tech_lp['rs_profile_chp_y_dh']
@@ -368,10 +375,10 @@ class WeatherRegion(object):
         rs_profile_elec_heater_y_dh = insert_peak_dh_shape(
             peak_day=rs_peak_day,
             shape_y_dh=tech_lp['rs_profile_elec_heater_y_dh'],
-            tech_lp_tech=tech_lp['rs_lp_second_heating_dh'])
+            shape_peak_dh=tech_lp['rs_lp_second_heating_dh']['peakday'])
 
         rs_profile_elec_heater_yh = load_profile.calc_yh(
-            rs_fuel_shape_heating_yd, rs_profile_elec_heater_y_dh, model_yeardays) #tech_lp['rs_profile_elec_heater_y_dh']
+            rs_fuel_shape_heating_yd, rs_profile_elec_heater_y_dh, model_yeardays)
 
         self.rs_load_profiles.add_lp(
             unique_identifier=uuid.uuid4(),
@@ -387,7 +394,8 @@ class WeatherRegion(object):
         rs_profile_hp_y_dh = insert_peak_dh_shape(
             peak_day=rs_peak_day,
             shape_y_dh=tech_lp['rs_profile_hp_y_dh'],
-            tech_lp_tech=tech_lp['rs_lp_heating_hp_dh'])
+            shape_peak_dh=tech_lp['rs_lp_heating_hp_dh']['peakday'])
+            #tech_lp_tech=tech_lp['rs_lp_heating_hp_dh'])
 
         rs_fuel_shape_hp_yh = get_fuel_shape_heating_hp_yh(
             rs_profile_hp_y_dh, #tech_lp['rs_profile_hp_y_dh'],
@@ -415,9 +423,9 @@ class WeatherRegion(object):
             shape_yh=rs_profile_chp_y_dh,
             f_peak_yd=rs_peak_yd_heating_factor)
 
-        # ==============================================================
-        # Service Submodel
-        # ==============================================================
+        # ==================================================================
+        # Service Submodel load profiles
+        # ==================================================================
         self.ss_load_profiles = load_profile.LoadProfileStock("ss_load_profiles")
 
         # --------HDD/CDD
@@ -439,7 +447,6 @@ class WeatherRegion(object):
         except ZeroDivisionError:
             self.f_heat_ss_y = 1
             self.f_cooling_ss_y = 1
-
 
         # ========
         # Enduse specific profiles
@@ -542,9 +549,9 @@ class WeatherRegion(object):
                     shape_yh=ss_shape_yh,
                     f_peak_yd=ss_peak_yd_cooling_factor)
 
-        # --------------------------------
-        # Industry submodel
-        # --------------------------------
+        # ==================================================================
+        # Industry submodel load profiles
+        # ==================================================================
         self.is_load_profiles = load_profile.LoadProfileStock("is_load_profiles")
 
         # --------HDD/CDD
@@ -604,7 +611,7 @@ class WeatherRegion(object):
             shape_yd=is_fuel_shape_heating_yd,
             shape_yh=is_fuel_shape_any_tech, #flat_is_fuel_shape_any_tech,
             f_peak_yd=is_peak_yd_heating_factor)
-        
+
         _, shape_peak_yd_factor, shape_non_peak_yd, shape_non_peak_yh = generic_shapes.flat_shape(
             assumptions.model_yeardays_nrs)
 
@@ -832,7 +839,7 @@ def change_temp_climate(
 def insert_peak_dh_shape(
         peak_day,
         shape_y_dh,
-        tech_lp_tech
+        shape_peak_dh
     ):
     """Insert peak specific load profile of a technology
 
@@ -850,7 +857,7 @@ def insert_peak_dh_shape(
     shape_y_dh_inserted : array
         Array where on peak day the peak shape is inserted
     """
-    peak_day_tech_dh = tech_lp_tech['peakday']
+    peak_day_tech_dh = shape_peak_dh #tech_lp_tech['peakday']
 
     shape_y_dh_inserted = np.copy(shape_y_dh)
 

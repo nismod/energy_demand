@@ -235,7 +235,8 @@ def compare_peak(
         name_fig,
         path_result,
         validation_elec_2015_peak,
-        modelled_peak_dh
+        modelled_peak_dh,
+        peak_day
     ):
     """Compare peak electricity day with calculated peak energy demand
 
@@ -284,7 +285,9 @@ def compare_peak(
     plt.legend(frameon=False)
 
     # Labelling
-    plt.title("peak comparison") # d_%:{}".format(diff_p_h), loc='left', fontdict=font_additional_info)
+    
+    date_yearday = date_prop.yearday_to_date(2015, peak_day)
+    plt.title("peak comparison {}".format(date_yearday)) # d_%:{}".format(diff_p_h), loc='left', fontdict=font_additional_info)
     plt.xlabel("h")
     plt.ylabel("uk electrictiy use [GW]")
 

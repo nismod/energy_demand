@@ -36,7 +36,7 @@ class Enduse(object):
         Scenario data
     assumptions : dict
         Assumptions
-    non_regional_lp_stock : dict
+    load_profiles : dict
         Load profile stock
     base_yr : int
         Base year
@@ -89,8 +89,7 @@ class Enduse(object):
             region,
             scenario_data,
             assumptions,
-            regional_lp_stock,
-            #non_regional_lp_stock,
+            load_profiles,
             base_yr,
             curr_yr,
             enduse,
@@ -128,13 +127,7 @@ class Enduse(object):
             self.fuel_yh = 0
             self.enduse_techs = []
         else:
-            # Get correct parameters depending on model configuration
-            '''load_profiles = get_lp_stock(
-                enduse,
-                non_regional_lp_stock,
-                regional_lp_stock)'''
-            load_profiles = regional_lp_stock
-        
+
             # Get technologies of enduse
             self.enduse_techs = get_enduse_techs(fuel_fueltype_tech_p_by)
 
@@ -320,7 +313,6 @@ class Enduse(object):
                     pass
                 else:
                     fuel_yh = calc_fuel_tech_yh(
-                        tech_stock,
                         enduse,
                         sector,
                         self.enduse_techs,
@@ -532,40 +524,6 @@ def assign_lp_no_techs(enduse, sector, load_profiles, fuel_y):
 
     return fuel_yh
 
-def get_lp_stock(enduse, non_regional_lp_stock, regional_lp_stock):
-    """Defines the load profile stock depending on `enduse`.
-    (Get regional or non-regional load profile data)
-
-    Arguments
-    ----------
-    enduse : str
-        Enduse
-    non_regional_lp_stock : object
-        Non regional dependent load profiles
-    regional_lp_stock : object
-        Regional dependent load profiles
-
-    Returns
-    -------
-    load_profiles : object
-        Load profile
-
-    Note
-    -----
-    Because for some enduses the load profiles depend on the region
-    they are stored in the `WeatherRegion` Class. One such example is
-    heating. If the enduse is not dependent on the region, the same
-    load profile can be used for all regions
-
-    If the enduse depends on regional factors, `regional_lp_stock`
-    is returned. Otherwise, non-regional load profiles which can
-    be applied for all regions is used (`non_regional_lp_stock`)
-    """
-    if enduse in non_regional_lp_stock.stock_enduses:
-        return non_regional_lp_stock
-    else:
-        return regional_lp_stock
-
 def get_running_mode(enduse, mode_constrained, enduse_space_heating):
     """Checks which mode needs to be run for an enduse.
 
@@ -621,11 +579,14 @@ def get_enduse_configuration(
 
     return mode_constrained
 
+def round_down(num, divisor):
+    """Round down
+    """
+    return num - (num%divisor)
+
 def get_peak_day_all_fueltypes(fuel_yh):
-    """Iterate yh and get day with highes fuel (across all fueltypes).
-    The day with most fuel across all fueltypes is considered to
-    be the peak day. Over the simulation period,
-    the peak day may change date in a year.
+    """Iterate yh and get day containing the hour
+    with the largest demand (across all fueltypes).
 
     Arguments
     ---------
@@ -637,26 +598,28 @@ def get_peak_day_all_fueltypes(fuel_yh):
     peak_day_nr : int
         Day with most fuel or service across all fueltypes
     """
+    fuel_8760 = fuel_yh.reshape(fuel_yh.shape[0], 8760)
 
     # Sum all fuel across all fueltypes for every hour in a year
-    all_fueltypes_tot_h = np.sum(fuel_yh, axis=0)
+    all_fueltypes_tot_h = np.sum(fuel_8760, axis=0)
 
     if np.sum(all_fueltypes_tot_h) == 0:
         logging.warning("No peak can be found because no fuel assigned")
         return 0
     else:
-        # Sum fuel within every hour for every day and get day with maximum fuel
-        peak_day_nr = np.argmax(np.sum(all_fueltypes_tot_h, axis=1))
 
-        return peak_day_nr
+        # Get day with maximum hour
+        peak_day_nr = round_down(np.argmax(all_fueltypes_tot_h) / 24, 1)
+
+        return int(peak_day_nr)
 
 def get_peak_day(fuel_yh):
-    """Iterate an array with 365 entries and get
+    """Iterate an array with entries and get
     entry nr with hightest value
 
     Arguments
     ---------
-    fuel_yh : array (365)
+    fuel_yh : array (hours)
         Fuel for every day
 
     Return
@@ -671,7 +634,8 @@ def get_peak_day(fuel_yh):
     else:
         # Sum fuel within every hour for every day and get day with maximum fuel
         peak_day_nr = np.argmax(fuel_yh)
-        return peak_day_nr
+
+        return int(peak_day_nr)
 
 def get_peak_day_single_fueltype(fuel_yh):
     """Iterate yh and get day with highes fuel for a single fueltype
@@ -689,14 +653,17 @@ def get_peak_day_single_fueltype(fuel_yh):
     peak_day_nr : int
         Day with most fuel or service
     """
-    if np.sum(fuel_yh) == 0:
+    fuel_yh_8760 = fuel_yh.reshape(8760)
+
+    if np.sum(fuel_yh_8760) == 0:
         logging.info("No peak can be found because no fuel assigned")
         # Return first entry of element (which is zero)
         return 0
     else:
         # Sum fuel within every hour for every day and get day with maximum fuel
-        peak_day_nr = np.argmax(np.sum(fuel_yh, axis=1))
-        return peak_day_nr
+        peak_day_nr = round_down(np.argmax(fuel_yh_8760) / 24, 1)
+
+        return int(peak_day_nr)
 
 def get_enduse_techs(fuel_fueltype_tech_p_by):
     """Get all defined technologies of an enduse
@@ -736,7 +703,6 @@ def get_enduse_techs(fuel_fueltype_tech_p_by):
     return list(set(enduse_techs))
 
 def calc_fuel_tech_yh(
-        tech_stock,
         enduse,
         sector,
         enduse_techs,
@@ -1548,9 +1514,6 @@ def calc_service_switch(
 
         return switched_s_tech_y_cy
     else:
-        '''if curr_yr > base_yr and enduse == 'rs_space_heating':
-            logging.debug(" {} ".format(curr_yr))
-            prnt("ERROR")'''
         return s_tech_y_cy
 
 def apply_cooling(

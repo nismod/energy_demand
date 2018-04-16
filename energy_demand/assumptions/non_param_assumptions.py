@@ -88,7 +88,7 @@ class Assumptions(object):
 
         # Temporal calibration factors
         self.f_ss_cooling_weekend = 0.45              # 0.55
-        self.f_ss_weekend = 0.75                      # 0.7
+        self.f_ss_weekend = 0.8                      # 0.75
         self.f_is_weekend = 0.45                      # 0.4
 
         # Spatial calibration factor

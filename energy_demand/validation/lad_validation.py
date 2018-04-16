@@ -93,7 +93,7 @@ def temporal_validation(
         ed_fueltype_yh,
         'all_submodels',
         days_to_plot,
-        plot_crit=False)
+        plot_crit=True)
 
     # ----------------
     # Plot four weeks
@@ -299,13 +299,18 @@ def tempo_spatial_validation(
 
     # Peak across all fueltypes WARNING: Fueltype specific
     peak_day = enduse_func.get_peak_day_all_fueltypes(ed_fueltype_national_yh)
-    logging.info("Peak day for comparions: " + str(peak_day))
-
+    fueltype = fueltypes['electricity']
+    logging.info("FF " + str(fueltype))
+    logging.info(ed_fueltype_national_yh[fueltype].shape)
+    peak_day2 = enduse_func.get_peak_day_single_fueltype(ed_fueltype_national_yh[fueltype])
+    logging.info("peak_day {}  {}".format(peak_day, peak_day2))
+    prnt(".")
     elec_national_data.compare_peak(
         "validation_elec_peak_comparison_peakday_yh.pdf",
         result_paths['data_results_validation'],
         elec_2015_indo[peak_day],
-        ed_fueltype_national_yh[fueltypes['electricity']][peak_day])
+        ed_fueltype_national_yh[fueltypes['electricity']][peak_day],
+        peak_day)
 
     # ---------------------------------------------------
     # Validate boxplots for every hour (temporal validation)

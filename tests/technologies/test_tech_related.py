@@ -15,7 +15,7 @@ from energy_demand.read_write import read_data
 
     assert tech_related.get_tech_type('placeholder_tech', tech_list) == 'placeholder_tech'
     assert tech_related.get_tech_type('heat_p', tech_list) == 'heat_pump'
-    assert tech_related.get_tech_type('test_tech', tech_list) == 'other_tech''''
+    assert tech_related.get_tech_type('test_tech', tech_list) == 'other_tech'''
 
 def test_calc_eff_cy():
     """Testing

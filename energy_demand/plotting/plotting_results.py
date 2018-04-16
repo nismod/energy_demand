@@ -67,7 +67,7 @@ def run_all_plot_functions(
         print("... plotted by-cy LAD energy demand compariosn")
     except:
         pass
-    
+
     # ----------------
     # Plot demand for every region over time
     # -------------------
@@ -1964,7 +1964,13 @@ def plot_radar_plot_multiple_lines(
     else:
         plt.close()
 
-def plt_one_fueltype_multiple_regions_peak_h(results_every_year, lookups, regions, path_plot_fig, fueltype_str_to_plot):
+def plt_one_fueltype_multiple_regions_peak_h(
+        results_every_year,
+        lookups,
+        regions,
+        path_plot_fig,
+        fueltype_str_to_plot
+    ):
     """Plot
     Arguments
     ---------

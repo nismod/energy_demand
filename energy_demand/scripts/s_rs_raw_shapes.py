@@ -68,22 +68,21 @@ def get_hes_load_shapes(appliances_hes_matching, year_raw_values, hes_y_peak, en
     -----
     The HES appliances are matched with enduses
     """
-    # Match enduse with HES appliance ID (see look_up table in original files for more information)
+    # Match enduse with HES appliance ID
+    # (see look_up table in original files for more information)
     hes_app_id = appliances_hes_matching[enduse]
 
     # Total yearly demand of hes_app_id
     tot_enduse_y = np.sum(year_raw_values[:, :, hes_app_id])
 
-    # ---Peak calculation Get peak daily load shape
-
-    # Calculate amount of energy demand for peak day of hes_app_id
+    # Get peak daily load shape, calculate amount of energy demand for peak day of hes_app_id
     peak_h_values = hes_y_peak[:, hes_app_id]
-
-    # Shape of peak day (hourly values of peak day) #1.0/tot_peak_demand_d * peak_h_values
-    shape_peak_dh = lp.abs_to_rel(peak_h_values)
 
     # Maximum daily demand
     tot_peak_demand_d = np.sum(peak_h_values)
+
+    # Shape of peak day (hourly values of peak day)
+    shape_peak_dh = lp.abs_to_rel(peak_h_values)
 
     # Factor to calculate daily peak demand from yearly demand
     shape_peak_yd_factor = tot_peak_demand_d / tot_enduse_y
@@ -96,7 +95,7 @@ def get_hes_load_shapes(appliances_hes_matching, year_raw_values, hes_y_peak, en
         day_values = year_raw_values[day, :, hes_app_id]
 
         shape_non_peak_yd[day] = (1.0 / tot_enduse_y) * np.sum(day_values)
-        shape_non_peak_y_dh[day] = (1.0 / np.sum(day_values)) * day_values # daily shape
+        shape_non_peak_y_dh[day] = (1.0 / np.sum(day_values)) * day_values
 
     return shape_peak_dh, shape_non_peak_y_dh, shape_peak_yd_factor, shape_non_peak_yd
 
@@ -221,7 +220,7 @@ def run(paths, local_paths, base_yr):
 
     # HES data -- Generate generic load profiles
     # for all electricity appliances from HES data
-    hes_data, hes_y_peak = read_hes_data( 
+    hes_data, hes_y_peak = read_hes_data(
         paths['lp_rs'],
         len(hes_appliances_matching))
 

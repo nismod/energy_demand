@@ -1,0 +1,818 @@
+- absolute_range: !!python/tuple
+  - 0
+  - 1
+  default_value: 0.1
+  description: Relative GSHP (%) to GSHP+ASHP
+  name: gshp_fraction_ey
+  suggested_range: !!python/tuple
+  - 0.1
+  - 0.5
+  units: decimal
+- absolute_range: !!python/tuple
+  - 0
+  - 20
+  default_value: 2050
+  description: Year until demand management assumptions are fully realised
+  name: demand_management_yr_until_changed
+  suggested_range: !!python/tuple
+  - 2015
+  - 2100
+  units: years
+- absolute_range: &id001 !!python/tuple
+  - 0
+  - 1
+  default_value: 0
+  description: reduction in load factor for enduse demand_management_improvement__rs_space_heating
+  name: demand_management_improvement__rs_space_heating
+  suggested_range: &id002 !!python/tuple
+  - 0
+  - 1
+  units: decimal
+- absolute_range: *id001
+  default_value: 0
+  description: reduction in load factor for enduse demand_management_improvement__rs_water_heating
+  name: demand_management_improvement__rs_water_heating
+  suggested_range: *id002
+  units: decimal
+- absolute_range: *id001
+  default_value: 0
+  description: reduction in load factor for enduse demand_management_improvement__rs_lighting
+  name: demand_management_improvement__rs_lighting
+  suggested_range: *id002
+  units: decimal
+- absolute_range: *id001
+  default_value: 0
+  description: reduction in load factor for enduse demand_management_improvement__rs_cooking
+  name: demand_management_improvement__rs_cooking
+  suggested_range: *id002
+  units: decimal
+- absolute_range: *id001
+  default_value: 0
+  description: reduction in load factor for enduse demand_management_improvement__rs_cold
+  name: demand_management_improvement__rs_cold
+  suggested_range: *id002
+  units: decimal
+- absolute_range: *id001
+  default_value: 0
+  description: reduction in load factor for enduse demand_management_improvement__rs_wet
+  name: demand_management_improvement__rs_wet
+  suggested_range: *id002
+  units: decimal
+- absolute_range: *id001
+  default_value: 0
+  description: reduction in load factor for enduse demand_management_improvement__rs_consumer_electronics
+  name: demand_management_improvement__rs_consumer_electronics
+  suggested_range: *id002
+  units: decimal
+- absolute_range: *id001
+  default_value: 0
+  description: reduction in load factor for enduse demand_management_improvement__rs_home_computing
+  name: demand_management_improvement__rs_home_computing
+  suggested_range: *id002
+  units: decimal
+- absolute_range: *id001
+  default_value: 0
+  description: reduction in load factor for enduse demand_management_improvement__ss_space_heating
+  name: demand_management_improvement__ss_space_heating
+  suggested_range: *id002
+  units: decimal
+- absolute_range: *id001
+  default_value: 0
+  description: reduction in load factor for enduse demand_management_improvement__ss_water_heating
+  name: demand_management_improvement__ss_water_heating
+  suggested_range: *id002
+  units: decimal
+- absolute_range: *id001
+  default_value: 0
+  description: reduction in load factor for enduse demand_management_improvement__ss_cooling_humidification
+  name: demand_management_improvement__ss_cooling_humidification
+  suggested_range: *id002
+  units: decimal
+- absolute_range: *id001
+  default_value: 0
+  description: reduction in load factor for enduse demand_management_improvement__ss_fans
+  name: demand_management_improvement__ss_fans
+  suggested_range: *id002
+  units: decimal
+- absolute_range: *id001
+  default_value: 0
+  description: reduction in load factor for enduse demand_management_improvement__ss_lighting
+  name: demand_management_improvement__ss_lighting
+  suggested_range: *id002
+  units: decimal
+- absolute_range: *id001
+  default_value: 0
+  description: reduction in load factor for enduse demand_management_improvement__ss_catering
+  name: demand_management_improvement__ss_catering
+  suggested_range: *id002
+  units: decimal
+- absolute_range: *id001
+  default_value: 0
+  description: reduction in load factor for enduse demand_management_improvement__ss_small_power
+  name: demand_management_improvement__ss_small_power
+  suggested_range: *id002
+  units: decimal
+- absolute_range: *id001
+  default_value: 0
+  description: reduction in load factor for enduse demand_management_improvement__ss_ICT_equipment
+  name: demand_management_improvement__ss_ICT_equipment
+  suggested_range: *id002
+  units: decimal
+- absolute_range: *id001
+  default_value: 0
+  description: reduction in load factor for enduse demand_management_improvement__ss_cooled_storage
+  name: demand_management_improvement__ss_cooled_storage
+  suggested_range: *id002
+  units: decimal
+- absolute_range: *id001
+  default_value: 0
+  description: reduction in load factor for enduse demand_management_improvement__ss_other_gas
+  name: demand_management_improvement__ss_other_gas
+  suggested_range: *id002
+  units: decimal
+- absolute_range: *id001
+  default_value: 0
+  description: reduction in load factor for enduse demand_management_improvement__ss_other_electricity
+  name: demand_management_improvement__ss_other_electricity
+  suggested_range: *id002
+  units: decimal
+- absolute_range: *id001
+  default_value: 0
+  description: reduction in load factor for enduse demand_management_improvement__is_high_temp_process
+  name: demand_management_improvement__is_high_temp_process
+  suggested_range: *id002
+  units: decimal
+- absolute_range: *id001
+  default_value: 0
+  description: reduction in load factor for enduse demand_management_improvement__is_low_temp_process
+  name: demand_management_improvement__is_low_temp_process
+  suggested_range: *id002
+  units: decimal
+- absolute_range: *id001
+  default_value: 0
+  description: reduction in load factor for enduse demand_management_improvement__is_drying_separation
+  name: demand_management_improvement__is_drying_separation
+  suggested_range: *id002
+  units: decimal
+- absolute_range: *id001
+  default_value: 0
+  description: reduction in load factor for enduse demand_management_improvement__is_motors
+  name: demand_management_improvement__is_motors
+  suggested_range: *id002
+  units: decimal
+- absolute_range: *id001
+  default_value: 0
+  description: reduction in load factor for enduse demand_management_improvement__is_compressed_air
+  name: demand_management_improvement__is_compressed_air
+  suggested_range: *id002
+  units: decimal
+- absolute_range: *id001
+  default_value: 0
+  description: reduction in load factor for enduse demand_management_improvement__is_lighting
+  name: demand_management_improvement__is_lighting
+  suggested_range: *id002
+  units: decimal
+- absolute_range: *id001
+  default_value: 0
+  description: reduction in load factor for enduse demand_management_improvement__is_space_heating
+  name: demand_management_improvement__is_space_heating
+  suggested_range: *id002
+  units: decimal
+- absolute_range: *id001
+  default_value: 0
+  description: reduction in load factor for enduse demand_management_improvement__is_other
+  name: demand_management_improvement__is_other
+  suggested_range: *id002
+  units: decimal
+- absolute_range: *id001
+  default_value: 0
+  description: reduction in load factor for enduse demand_management_improvement__is_refrigeration
+  name: demand_management_improvement__is_refrigeration
+  suggested_range: *id002
+  units: decimal
+- absolute_range: !!python/tuple
+  - 2015
+  - 2100
+  default_value: 2050
+  description: Year until climate temperature changes are fully realised
+  name: climate_change_temp_diff_yr_until_changed
+  suggested_range: !!python/tuple
+  - 2030
+  - 2100
+  units: year
+- absolute_range: &id003 !!python/tuple
+  - 0
+  - 10
+  default_value: 0
+  description: Temperature change for month Jan
+  name: climate_change_temp_d__Jan
+  suggested_range: &id004 !!python/tuple
+  - -5
+  - 5
+  units: "\xB0C"
+- absolute_range: *id003
+  default_value: 0
+  description: Temperature change for month Feb
+  name: climate_change_temp_d__Feb
+  suggested_range: *id004
+  units: "\xB0C"
+- absolute_range: *id003
+  default_value: 0
+  description: Temperature change for month Mar
+  name: climate_change_temp_d__Mar
+  suggested_range: *id004
+  units: "\xB0C"
+- absolute_range: *id003
+  default_value: 0
+  description: Temperature change for month Apr
+  name: climate_change_temp_d__Apr
+  suggested_range: *id004
+  units: "\xB0C"
+- absolute_range: *id003
+  default_value: 0
+  description: Temperature change for month May
+  name: climate_change_temp_d__May
+  suggested_range: *id004
+  units: "\xB0C"
+- absolute_range: *id003
+  default_value: 0
+  description: Temperature change for month Jun
+  name: climate_change_temp_d__Jun
+  suggested_range: *id004
+  units: "\xB0C"
+- absolute_range: *id003
+  default_value: 0
+  description: Temperature change for month Jul
+  name: climate_change_temp_d__Jul
+  suggested_range: *id004
+  units: "\xB0C"
+- absolute_range: *id003
+  default_value: 0
+  description: Temperature change for month Aug
+  name: climate_change_temp_d__Aug
+  suggested_range: *id004
+  units: "\xB0C"
+- absolute_range: *id003
+  default_value: 0
+  description: Temperature change for month Sep
+  name: climate_change_temp_d__Sep
+  suggested_range: *id004
+  units: "\xB0C"
+- absolute_range: *id003
+  default_value: 0
+  description: Temperature change for month Oct
+  name: climate_change_temp_d__Oct
+  suggested_range: *id004
+  units: "\xB0C"
+- absolute_range: *id003
+  default_value: 0
+  description: Temperature change for month Nov
+  name: climate_change_temp_d__Nov
+  suggested_range: *id004
+  units: "\xB0C"
+- absolute_range: *id003
+  default_value: 0
+  description: Temperature change for month Dec
+  name: climate_change_temp_d__Dec
+  suggested_range: *id004
+  units: "\xB0C"
+- absolute_range: !!python/tuple
+  - 0
+  - 20
+  default_value: 15.5
+  description: Base temperature assumption residential heating
+  name: rs_t_base_heating_future_yr
+  suggested_range: !!python/tuple
+  - 13
+  - 17
+  units: "\xB0C"
+- absolute_range: !!python/tuple
+  - 0
+  - 20
+  default_value: 15.5
+  description: Base temperature assumption service sector heating
+  name: ss_t_base_heating_future_yr
+  suggested_range: !!python/tuple
+  - 13
+  - 17
+  units: "\xB0C"
+- absolute_range: !!python/tuple
+  - 0
+  - 25
+  default_value: 5
+  description: Base temperature assumption service sector cooling
+  name: ss_t_base_cooling_future_yr
+  suggested_range: !!python/tuple
+  - 13
+  - 17
+  units: "\xB0C"
+- absolute_range: !!python/tuple
+  - 0
+  - 20
+  default_value: 15.5
+  description: Base temperature assumption service sector heating
+  name: is_t_base_heating_future_yr
+  suggested_range: !!python/tuple
+  - 13
+  - 17
+  units: "\xB0C"
+- absolute_range: !!python/tuple
+  - 0
+  - 1
+  default_value: 0.1
+  description: Improvement of smart meter penetration
+  name: smart_meter_improvement_p
+  suggested_range: !!python/tuple
+  - 0
+  - 0.9
+  units: decimal
+- absolute_range: !!python/tuple
+  - 0
+  - 1
+  default_value: 2050
+  description: Year until smart meter assumption is implemented
+  name: smart_meter_yr_until_changed
+  suggested_range: !!python/tuple
+  - 2015
+  - 2100
+  units: year
+- absolute_range: &id005 !!python/tuple
+  - 0
+  - 1
+  default_value: 0
+  description: Smart meter induced savings for enduse smart_meter_improvement_rs_cold
+  name: smart_meter_improvement_rs_cold
+  suggested_range: &id006 !!python/tuple
+  - 0
+  - 1
+  units: decimal
+- absolute_range: *id005
+  default_value: 0
+  description: Smart meter induced savings for enduse smart_meter_improvement_rs_cooking
+  name: smart_meter_improvement_rs_cooking
+  suggested_range: *id006
+  units: decimal
+- absolute_range: *id005
+  default_value: 0
+  description: Smart meter induced savings for enduse smart_meter_improvement_rs_lighting
+  name: smart_meter_improvement_rs_lighting
+  suggested_range: *id006
+  units: decimal
+- absolute_range: *id005
+  default_value: 0
+  description: Smart meter induced savings for enduse smart_meter_improvement_rs_wet
+  name: smart_meter_improvement_rs_wet
+  suggested_range: *id006
+  units: decimal
+- absolute_range: *id005
+  default_value: 0
+  description: Smart meter induced savings for enduse smart_meter_improvement_rs_consumer_electronics
+  name: smart_meter_improvement_rs_consumer_electronics
+  suggested_range: *id006
+  units: decimal
+- absolute_range: *id005
+  default_value: 0
+  description: Smart meter induced savings for enduse smart_meter_improvement_rs_home_computing
+  name: smart_meter_improvement_rs_home_computing
+  suggested_range: *id006
+  units: decimal
+- absolute_range: *id005
+  default_value: 0
+  description: Smart meter induced savings for enduse smart_meter_improvement_rs_space_heating
+  name: smart_meter_improvement_rs_space_heating
+  suggested_range: *id006
+  units: decimal
+- absolute_range: *id005
+  default_value: 0
+  description: Smart meter induced savings for enduse smart_meter_improvement_ss_space_heating
+  name: smart_meter_improvement_ss_space_heating
+  suggested_range: *id006
+  units: decimal
+- absolute_range: *id005
+  default_value: 0
+  description: Smart meter induced savings for enduse smart_meter_improvement_ss_water_heating
+  name: smart_meter_improvement_ss_water_heating
+  suggested_range: *id006
+  units: decimal
+- absolute_range: *id005
+  default_value: 0
+  description: Smart meter induced savings for enduse smart_meter_improvement_ss_cooling_humidification
+  name: smart_meter_improvement_ss_cooling_humidification
+  suggested_range: *id006
+  units: decimal
+- absolute_range: *id005
+  default_value: 0
+  description: Smart meter induced savings for enduse smart_meter_improvement_ss_fans
+  name: smart_meter_improvement_ss_fans
+  suggested_range: *id006
+  units: decimal
+- absolute_range: *id005
+  default_value: 0
+  description: Smart meter induced savings for enduse smart_meter_improvement_ss_lighting
+  name: smart_meter_improvement_ss_lighting
+  suggested_range: *id006
+  units: decimal
+- absolute_range: *id005
+  default_value: 0
+  description: Smart meter induced savings for enduse smart_meter_improvement_ss_catering
+  name: smart_meter_improvement_ss_catering
+  suggested_range: *id006
+  units: decimal
+- absolute_range: *id005
+  default_value: 0
+  description: Smart meter induced savings for enduse smart_meter_improvement_ss_small_power
+  name: smart_meter_improvement_ss_small_power
+  suggested_range: *id006
+  units: decimal
+- absolute_range: *id005
+  default_value: 0
+  description: Smart meter induced savings for enduse smart_meter_improvement_ss_ICT_equipment
+  name: smart_meter_improvement_ss_ICT_equipment
+  suggested_range: *id006
+  units: decimal
+- absolute_range: *id005
+  default_value: 0
+  description: Smart meter induced savings for enduse smart_meter_improvement_ss_cooled_storage
+  name: smart_meter_improvement_ss_cooled_storage
+  suggested_range: *id006
+  units: decimal
+- absolute_range: *id005
+  default_value: 0
+  description: Smart meter induced savings for enduse smart_meter_improvement_ss_other_gas
+  name: smart_meter_improvement_ss_other_gas
+  suggested_range: *id006
+  units: decimal
+- absolute_range: *id005
+  default_value: 0
+  description: Smart meter induced savings for enduse smart_meter_improvement_ss_other_electricity
+  name: smart_meter_improvement_ss_other_electricity
+  suggested_range: *id006
+  units: decimal
+- absolute_range: *id005
+  default_value: 0
+  description: Smart meter induced savings for enduse smart_meter_improvement_is_high_temp_process
+  name: smart_meter_improvement_is_high_temp_process
+  suggested_range: *id006
+  units: decimal
+- absolute_range: *id005
+  default_value: 0
+  description: Smart meter induced savings for enduse smart_meter_improvement_is_low_temp_process
+  name: smart_meter_improvement_is_low_temp_process
+  suggested_range: *id006
+  units: decimal
+- absolute_range: *id005
+  default_value: 0
+  description: Smart meter induced savings for enduse smart_meter_improvement_is_drying_separation
+  name: smart_meter_improvement_is_drying_separation
+  suggested_range: *id006
+  units: decimal
+- absolute_range: *id005
+  default_value: 0
+  description: Smart meter induced savings for enduse smart_meter_improvement_is_motors
+  name: smart_meter_improvement_is_motors
+  suggested_range: *id006
+  units: decimal
+- absolute_range: *id005
+  default_value: 0
+  description: Smart meter induced savings for enduse smart_meter_improvement_is_compressed_air
+  name: smart_meter_improvement_is_compressed_air
+  suggested_range: *id006
+  units: decimal
+- absolute_range: *id005
+  default_value: 0
+  description: Smart meter induced savings for enduse smart_meter_improvement_is_lighting
+  name: smart_meter_improvement_is_lighting
+  suggested_range: *id006
+  units: decimal
+- absolute_range: *id005
+  default_value: 0
+  description: Smart meter induced savings for enduse smart_meter_improvement_is_space_heating
+  name: smart_meter_improvement_is_space_heating
+  suggested_range: *id006
+  units: decimal
+- absolute_range: *id005
+  default_value: 0
+  description: Smart meter induced savings for enduse smart_meter_improvement_is_other
+  name: smart_meter_improvement_is_other
+  suggested_range: *id006
+  units: decimal
+- absolute_range: *id005
+  default_value: 0
+  description: Smart meter induced savings for enduse smart_meter_improvement_is_refrigeration
+  name: smart_meter_improvement_is_refrigeration
+  suggested_range: *id006
+  units: decimal
+- absolute_range: !!python/tuple
+  - 0
+  - 1
+  default_value: 0.35
+  description: Change in cooling of floor area (service sector)
+  name: cooled_floorarea__ss_cooling_humidification
+  suggested_range: !!python/tuple
+  - -1
+  - 1
+  units: decimal
+- absolute_range: !!python/tuple
+  - 0
+  - 1
+  default_value: 2050
+  description: Year until floor area is fully changed
+  name: cooled_floorarea_yr_until_changed
+  suggested_range: !!python/tuple
+  - 2015
+  - 2100
+  units: year
+- absolute_range: !!python/tuple
+  - 0
+  - 1
+  default_value: 2050
+  description: Year until cold rolling steel manufacturing change is fully realised
+  name: hot_cold_rolling_yr_until_changed
+  suggested_range: !!python/tuple
+  - 2015
+  - 2100
+  units: year
+- absolute_range: !!python/tuple
+  - 0
+  - 1
+  default_value: 0.2
+  description: Sectoral share of cold rolling in steel manufacturing)
+  name: p_cold_rolling_steel
+  suggested_range: !!python/tuple
+  - 0
+  - 1
+  units: decimal
+- absolute_range: !!python/tuple
+  - 0
+  - 1
+  default_value: 0
+  description: Reduction in heat because of heat recovery and recycling (residential
+    sector)
+  name: heat_recoved__rs_space_heating
+  suggested_range: !!python/tuple
+  - 0
+  - 1
+  units: decimal
+- absolute_range: !!python/tuple
+  - 0
+  - 1
+  default_value: 0
+  description: Reduction in heat because of heat recovery and recycling (service sector)
+  name: heat_recoved__ss_space_heating
+  suggested_range: !!python/tuple
+  - 0
+  - 1
+  units: decimal
+- absolute_range: !!python/tuple
+  - 0
+  - 1
+  default_value: 0
+  description: Reduction in heat because of heat recovery and recycling (industry
+    sector)
+  name: heat_recoved__is_space_heating
+  suggested_range: !!python/tuple
+  - 0
+  - 1
+  units: decimal
+- absolute_range: !!python/tuple
+  - 2015
+  - 2100
+  default_value: 2050
+  description: Year until heat recyling is full implemented
+  name: heat_recovered_yr_until_changed
+  suggested_range: !!python/tuple
+  - 2015
+  - 2100
+  units: year
+- absolute_range: !!python/tuple
+  - 0
+  - 1
+  default_value: 0
+  description: Reduction in heat because of air leakage improvement (residential sector)
+  name: air_leakage__rs_space_heating
+  suggested_range: !!python/tuple
+  - 0
+  - 1
+  units: decimal
+- absolute_range: !!python/tuple
+  - 0
+  - 1
+  default_value: 0
+  description: Reduction in heat because of of air leakage improvementservice sector)
+  name: air_leakage__ss_space_heating
+  suggested_range: !!python/tuple
+  - 0
+  - 1
+  units: decimal
+- absolute_range: !!python/tuple
+  - 0
+  - 1
+  default_value: 0
+  description: Reduction in heat because of air leakage improvement (industry sector)
+  name: air_leakage__is_space_heating
+  suggested_range: !!python/tuple
+  - 0
+  - 1
+  units: decimal
+- absolute_range: !!python/tuple
+  - 2015
+  - 2100
+  default_value: 2050
+  description: Year until heat air leakage improvement is full implemented
+  name: air_leakage_yr_until_changed
+  suggested_range: !!python/tuple
+  - 2015
+  - 2100
+  units: year
+- absolute_range: !!python/tuple
+  - 0
+  - 1
+  default_value: 2050
+  description: Year until change in enduse assumption is implemented
+  name: enduse_specific_change_yr_until_changed
+  suggested_range: !!python/tuple
+  - 2015
+  - 2100
+  units: year
+- absolute_range: &id007 !!python/tuple
+  - -1
+  - 1
+  default_value: 0
+  description: Enduse specific change enduse_change__rs_space_heating
+  name: enduse_change__rs_space_heating
+  suggested_range: &id008 !!python/tuple
+  - 0
+  - 1
+  units: decimal
+- absolute_range: *id007
+  default_value: 0
+  description: Enduse specific change enduse_change__rs_water_heating
+  name: enduse_change__rs_water_heating
+  suggested_range: *id008
+  units: decimal
+- absolute_range: *id007
+  default_value: 0
+  description: Enduse specific change enduse_change__rs_lighting
+  name: enduse_change__rs_lighting
+  suggested_range: *id008
+  units: decimal
+- absolute_range: *id007
+  default_value: 0
+  description: Enduse specific change enduse_change__rs_cooking
+  name: enduse_change__rs_cooking
+  suggested_range: *id008
+  units: decimal
+- absolute_range: *id007
+  default_value: 0
+  description: Enduse specific change enduse_change__rs_cold
+  name: enduse_change__rs_cold
+  suggested_range: *id008
+  units: decimal
+- absolute_range: *id007
+  default_value: 0
+  description: Enduse specific change enduse_change__rs_wet
+  name: enduse_change__rs_wet
+  suggested_range: *id008
+  units: decimal
+- absolute_range: *id007
+  default_value: 0
+  description: Enduse specific change enduse_change__rs_consumer_electronics
+  name: enduse_change__rs_consumer_electronics
+  suggested_range: *id008
+  units: decimal
+- absolute_range: *id007
+  default_value: 0
+  description: Enduse specific change enduse_change__rs_home_computing
+  name: enduse_change__rs_home_computing
+  suggested_range: *id008
+  units: decimal
+- absolute_range: *id007
+  default_value: 0
+  description: Enduse specific change enduse_change__ss_space_heating
+  name: enduse_change__ss_space_heating
+  suggested_range: *id008
+  units: decimal
+- absolute_range: *id007
+  default_value: 0
+  description: Enduse specific change enduse_change__ss_water_heating
+  name: enduse_change__ss_water_heating
+  suggested_range: *id008
+  units: decimal
+- absolute_range: *id007
+  default_value: 0
+  description: Enduse specific change enduse_change__ss_cooling_humidification
+  name: enduse_change__ss_cooling_humidification
+  suggested_range: *id008
+  units: decimal
+- absolute_range: *id007
+  default_value: 0
+  description: Enduse specific change enduse_change__ss_fans
+  name: enduse_change__ss_fans
+  suggested_range: *id008
+  units: decimal
+- absolute_range: *id007
+  default_value: 0
+  description: Enduse specific change enduse_change__ss_lighting
+  name: enduse_change__ss_lighting
+  suggested_range: *id008
+  units: decimal
+- absolute_range: *id007
+  default_value: 0
+  description: Enduse specific change enduse_change__ss_catering
+  name: enduse_change__ss_catering
+  suggested_range: *id008
+  units: decimal
+- absolute_range: *id007
+  default_value: 0
+  description: Enduse specific change enduse_change__ss_small_power
+  name: enduse_change__ss_small_power
+  suggested_range: *id008
+  units: decimal
+- absolute_range: *id007
+  default_value: 0
+  description: Enduse specific change enduse_change__ss_ICT_equipment
+  name: enduse_change__ss_ICT_equipment
+  suggested_range: *id008
+  units: decimal
+- absolute_range: *id007
+  default_value: 0
+  description: Enduse specific change enduse_change__ss_cooled_storage
+  name: enduse_change__ss_cooled_storage
+  suggested_range: *id008
+  units: decimal
+- absolute_range: *id007
+  default_value: 0
+  description: Enduse specific change enduse_change__ss_other_gas
+  name: enduse_change__ss_other_gas
+  suggested_range: *id008
+  units: decimal
+- absolute_range: *id007
+  default_value: 0
+  description: Enduse specific change enduse_change__ss_other_electricity
+  name: enduse_change__ss_other_electricity
+  suggested_range: *id008
+  units: decimal
+- absolute_range: *id007
+  default_value: 0
+  description: Enduse specific change enduse_change__is_high_temp_process
+  name: enduse_change__is_high_temp_process
+  suggested_range: *id008
+  units: decimal
+- absolute_range: *id007
+  default_value: 0
+  description: Enduse specific change enduse_change__is_low_temp_process
+  name: enduse_change__is_low_temp_process
+  suggested_range: *id008
+  units: decimal
+- absolute_range: *id007
+  default_value: 0
+  description: Enduse specific change enduse_change__is_drying_separation
+  name: enduse_change__is_drying_separation
+  suggested_range: *id008
+  units: decimal
+- absolute_range: *id007
+  default_value: 0
+  description: Enduse specific change enduse_change__is_motors
+  name: enduse_change__is_motors
+  suggested_range: *id008
+  units: decimal
+- absolute_range: *id007
+  default_value: 0
+  description: Enduse specific change enduse_change__is_compressed_air
+  name: enduse_change__is_compressed_air
+  suggested_range: *id008
+  units: decimal
+- absolute_range: *id007
+  default_value: 0
+  description: Enduse specific change enduse_change__is_lighting
+  name: enduse_change__is_lighting
+  suggested_range: *id008
+  units: decimal
+- absolute_range: *id007
+  default_value: 0
+  description: Enduse specific change enduse_change__is_space_heating
+  name: enduse_change__is_space_heating
+  suggested_range: *id008
+  units: decimal
+- absolute_range: *id007
+  default_value: 0
+  description: Enduse specific change enduse_change__is_other
+  name: enduse_change__is_other
+  suggested_range: *id008
+  units: decimal
+- absolute_range: *id007
+  default_value: 0
+  description: Enduse specific change enduse_change__is_refrigeration
+  name: enduse_change__is_refrigeration
+  suggested_range: *id008
+  units: decimal
+- absolute_range: !!python/tuple
+  - 0
+  - 1
+  default_value: 1.0
+  description: Fraction achieved of efficiency improvements
+  name: f_eff_achieved
+  suggested_range: !!python/tuple
+  - 0
+  - 1
+  units: decimal

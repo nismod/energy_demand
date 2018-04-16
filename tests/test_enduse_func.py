@@ -14,8 +14,7 @@ def test_enduse():
         region='test',
         scenario_data='test',
         assumptions='test',
-        regional_lp_stock='test',
-        non_regional_lp_stock='test',
+        load_profiles='test',
         base_yr='test',
         curr_yr='test',
         enduse='test',
@@ -53,8 +52,7 @@ def test_assign_lp_no_techs():
         shape_yd=np.full((365, 24), 1 / 365),
         shape_yh=shape_yh,
         sectors=['test_sector'],
-        f_peak_yd=1.0/365,
-        shape_peak_dh=np.full((24), 1.0/24))
+        f_peak_yd=1.0/365)
 
     fuel_y = np.zeros((3))
     fuel_y[2] = 100
@@ -568,52 +566,6 @@ def test_apply_climate_chante():
 
     assert result == 300
 
-def test_calc_fuel_tech_y():
-    """Testing
-    """
-    technologies = {'techA': read_data.TechnologyData()}
-    technologies['techA'].fueltype_str = 'gas'
-    technologies['techA'].eff_achieved = 1.0
-    technologies['techA'].diff_method = 'linear'
-    technologies['techA'].eff_by = 0.5
-    technologies['techA'].eff_ey = 0.5
-    technologies['techA'].year_eff_ey = 2020
-    fueltypes = {'gas': 0}
-
-    tech_stock = technological_stock.TechStock(
-        name="name",
-        technologies=technologies,
-        other_enduse_mode_info={'linear'},
-        base_yr=2015,
-        curr_yr=2020,
-        fueltypes=fueltypes,
-        temp_by=np.ones((365, 24)) + 10,
-        temp_cy=np.ones((365, 24)) + 10,
-        t_base_heating_by=15.5,
-        potential_enduses=['heating'],
-        t_base_heating_cy=15.5,
-        enduse_technologies={'heating': ['techA']})
-    
-    result = enduse_func.calc_fuel_tech_y(
-        enduse='heating',
-        tech_stock=tech_stock,
-        fuel_tech_y={'techA': 100},
-        fueltypes_nr=2,
-        fueltypes={'heat': 1, 'gas': 0},
-        mode_constrained=False)
-
-    assert result[1] == 100
-
-    result = enduse_func.calc_fuel_tech_y(
-        enduse='heating',
-        tech_stock=tech_stock,
-        fuel_tech_y={'techA': 100},
-        fueltypes_nr=2,
-        fueltypes={'heat': 1, 'gas': 0},
-        mode_constrained=True)
-
-    assert result[0] == 100
-
 def test_calc_fuel_tech_yh():
     """Testing
     """
@@ -655,15 +607,14 @@ def test_calc_fuel_tech_yh():
         shape_yd=np.full((365,24), 1 / 365),
         shape_yh=shape_yh,
         sectors=['sectorA'],
-        f_peak_yd=1.0/365,
-        shape_peak_dh=np.full((24), 1.0/24))
+        f_peak_yd=1.0/365)
 
     fuel = 200
     results = enduse_func.calc_fuel_tech_yh(
         enduse='heating',
         sector='sectorA',
         enduse_techs=['techA'],
-        enduse_fuel_tech={'techA': fuel},
+        fuel_tech_y={'techA': fuel},
         load_profiles=lp_stock_obj,
         fueltypes_nr=2,
         fueltypes=fueltypes,
@@ -677,7 +628,7 @@ def test_calc_fuel_tech_yh():
         enduse='heating',
         sector='sectorA',
         enduse_techs=['techA'],
-        enduse_fuel_tech={'techA': fuel},
+        fuel_tech_y={'techA': fuel},
         load_profiles=lp_stock_obj,
         fueltypes_nr=2,
         fueltypes=fueltypes,

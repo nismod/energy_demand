@@ -32,16 +32,6 @@ class EnergyDemandModel(object):
         self.curr_yr = assumptions.curr_yr
 
         # ----------------------------
-        # Create non regional dependent load profiles
-        # ----------------------------
-        '''data['non_regional_lp_stock'] = load_profile.create_load_profile_stock(
-            data['tech_lp'],
-            assumptions,
-            data['sectors'],
-            assumptions.model_yeardays,
-            data['enduses'])'''
-
-        # ----------------------------
         # Create Weather Regions
         # ----------------------------
         weather_regions = {}
@@ -404,8 +394,7 @@ def residential_submodel(
                 region=region.name,
                 scenario_data=scenario_data,
                 assumptions=assumptions,
-                regional_lp_stock=weather_region.rs_load_profiles,
-                #non_regional_lp_stock=non_regional_lp_stock,
+                load_profiles=weather_region.rs_load_profiles,
                 base_yr=assumptions.base_yr,
                 curr_yr=assumptions.curr_yr,
                 enduse=enduse,
@@ -480,8 +469,7 @@ def service_submodel(
                 region=region.name,
                 scenario_data=scenario_data,
                 assumptions=assumptions,
-                regional_lp_stock=weather_region.ss_load_profiles,
-                #non_regional_lp_stock=non_regional_lp_stock,
+                load_profiles=weather_region.ss_load_profiles,
                 base_yr=assumptions.base_yr,
                 curr_yr=assumptions.curr_yr,
                 enduse=enduse,
@@ -565,8 +553,7 @@ def industry_submodel(
                 region=region.name,
                 scenario_data=scenario_data,
                 assumptions=assumptions,
-                regional_lp_stock=weather_region.is_load_profiles,
-                #non_regional_lp_stock=non_regional_lp_stock,
+                load_profiles=weather_region.is_load_profiles,
                 base_yr=assumptions.base_yr,
                 curr_yr=assumptions.curr_yr,
                 enduse=enduse,
