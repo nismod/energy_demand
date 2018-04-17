@@ -145,50 +145,24 @@ def assign_by_fuel_tech_p(enduses, sectors, fueltypes, fueltypes_nr):
     # ---
     rs_fuel_tech_p_by['rs_space_heating'][fueltypes['gas']] = {
         'boiler_condensing_gas': 0.60,
-        'boiler_gas': 0.37, #0.38
+        'boiler_gas': 0.37,
         'stirling_micro_CHP_gas': 0.0,
-        'district_heating_CHP_gas': 0.03} #} #3,
-        #'combined_boiler_hp_system': 0} #.01}
+        'district_heating_CHP_gas': 0.03}
 
     rs_fuel_tech_p_by['rs_space_heating'][fueltypes['electricity']] = {
-        'storage_heater_electricity': 0.62,     # 0.62
-        'secondary_heater_electricity':0.33,    # 0.33
-        'heat_pumps_electricity': 0.05}         #.05
-        #'combined_boiler_hp_system': 0} #.01}
+        'storage_heater_electricity': 0.62,
+        'secondary_heater_electricity':0.33,
+        'heat_pumps_electricity': 0.05}
 
     rs_fuel_tech_p_by['rs_space_heating'][fueltypes['biomass']] = {
         'boiler_biomass': 1.0,
-        'district_heating_biomass': 0.0}  #REALLY?
+        'district_heating_biomass': 0.0}
 
     rs_fuel_tech_p_by['rs_space_heating'][fueltypes['hydrogen']] = {
-        'fuel_cell_hydrogen': 0,         #REALLY?
-        'district_heating_fuel_cell': 0, #REALLY?
+        'fuel_cell_hydrogen': 0,
+        'district_heating_fuel_cell': 0,
         'boiler_hydrogen': 1.0,
         'heat_pumps_hydrogen': 0.0}
-
-    # ---------------
-    # Water heating
-    # ---------------
-    rs_fuel_tech_p_by['rs_water_heating'][fueltypes['solid_fuel']] = {
-        'boiler_solid_fuel': 1.0}
-
-    rs_fuel_tech_p_by['rs_water_heating'][fueltypes['oil']] = {
-        'boiler_condensing_oil': 0.6,
-        'boiler_oil': 0.4}
-
-    rs_fuel_tech_p_by['rs_water_heating'][fueltypes['gas']] = {
-        'boiler_condensing_gas': 0.6,
-        'boiler_gas': 0.4}
-
-    rs_fuel_tech_p_by['rs_water_heating'][fueltypes['electricity']] = {
-        'boiler_electricity': 1.0}
-
-    rs_fuel_tech_p_by['rs_water_heating'][fueltypes['biomass']] = {
-        'boiler_biomass': 1.0}
-
-    rs_fuel_tech_p_by['rs_water_heating'][fueltypes['hydrogen']] = {
-        'fuel_cell_hydrogen': 0,
-        'boiler_hydrogen': 1.0}
 
     # ===================
     # Service subModel
@@ -207,8 +181,8 @@ def assign_by_fuel_tech_p(enduses, sectors, fueltypes, fueltypes_nr):
         'boiler_gas': 0.38}
 
     ss_fuel_tech_p_by['ss_space_heating'][fueltypes['electricity']] = {
-        'boiler_electricity': 0.96,
-        'heat_pumps_electricity': 0.04}
+        'secondary_heater_electricity': 0.95,
+        'heat_pumps_electricity': 0.05}
 
     ss_fuel_tech_p_by['ss_space_heating'][fueltypes['oil']] = {
         'boiler_condensing_oil': 0.6,
@@ -257,8 +231,8 @@ def assign_by_fuel_tech_p(enduses, sectors, fueltypes, fueltypes_nr):
         'boiler_gas': 0.38}
 
     is_fuel_tech_p_by['is_space_heating'][fueltypes['electricity']] = {
-        'boiler_electricity': 0.96,
-        'heat_pumps_electricity': 0.04}
+        'secondary_heater_electricity': 0.95,
+        'heat_pumps_electricity': 0.05}
 
     is_fuel_tech_p_by['is_space_heating'][fueltypes['oil']] = {
         'boiler_condensing_oil': 0.6,

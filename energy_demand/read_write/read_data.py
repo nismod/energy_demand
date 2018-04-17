@@ -441,9 +441,9 @@ def load_script_data(data):
 
     for key, value in init_cont.items():
         setattr(data['assumptions'], key, value)
-
+    data['fuel_disagg'] = {}
     for key, value in fuel_disagg.items():
-        data[key] = value
+        data['fuel_disagg'][key] = value
 
     return data
 

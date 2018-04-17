@@ -26,8 +26,7 @@ class LoadProfileStock(object):
             enduses,
             shape_yd,
             shape_yh,
-            sectors=False,
-            f_peak_yd=1.0/365
+            sectors=False
         ):
         """Add load profile to stock
 
@@ -45,9 +44,6 @@ class LoadProfileStock(object):
             Shape yh (from year to hour)
         sectors : list, default=False
             Sectors for which the profile applies
-        f_peak_yd : float
-            Factor to calculate daily demand from yearly demand
-            Standard value is average daily amount
         """
         if not sectors:
             sectors = [False]
@@ -58,8 +54,7 @@ class LoadProfileStock(object):
             enduses,
             unique_identifier,
             shape_yd,
-            shape_yh,
-            f_peak_yd)
+            shape_yh)
 
         # Generate lookup dictionary with triple key
         self.dict_tuple_keys = generate_key_lu_dict(
@@ -90,12 +85,18 @@ class LoadProfileStock(object):
         ------
         Load profile attribute
         """
-        # Get key from lookup dict
-        position_in_dict = self.dict_tuple_keys[(enduse, sector, technology)]
+        try:
+            # Get key from lookup dict
+            position_in_dict = self.dict_tuple_keys[(enduse, sector, technology)]
 
-        # Get correct object
-        load_profile_obj = self.load_profiles[position_in_dict]
+            # Get correct object
+            load_profile_obj = self.load_profiles[position_in_dict]
 
+        except KeyError:
+            raise Exception(
+                "Please define load profile for '{}' '{}' '{}'".format(
+                    technology, enduse, sector))
+        
         return getattr(load_profile_obj, shape)
 
 def generate_key_lu_dict(dict_tuple_keys, unique_identifier, enduses, sectors, technologies):
@@ -160,8 +161,6 @@ class LoadProfile(object):
         Shape yd (from year to day)
     shape_yh : array
         Shape yh (from year to hour)
-    f_peak_yd : float
-        Factor to calculate daily demand from yearly demand
         Standard value is average daily amount
     shape_peak_dh : array
         Shape (dh), shape of a day for every hour
@@ -171,16 +170,16 @@ class LoadProfile(object):
             enduses,
             unique_identifier,
             shape_yd,
-            shape_yh,
-            f_peak_yd
+            shape_yh
         ):
         """Constructor
+
+        TODO Seperate YD AND YH ONLY HAVE y_dh and yd as input and calculate yh
         """
         self.unique_identifier = unique_identifier
         self.enduses = enduses
         self.shape_yd = shape_yd
         self.shape_yh = shape_yh
-        self.f_peak_yd = f_peak_yd
 
         # Calculate percentage for every day
         self.shape_y_dh = calc_y_dh_shape_from_yh(shape_yh)
@@ -279,181 +278,6 @@ def calk_peak_h_dh_single_fueltype(fuel_peak_dh):
     peak_fueltype_h = np.max(fuel_peak_dh, axis=0)
 
     return peak_fueltype_h
-
-def create_load_profile_stock(
-        tech_lp,
-        assumptions,
-        sectors,
-        model_yeardays,
-        all_enduses
-    ):
-    """Assign load profiles which are the same for all regions
-    ``non_regional_load_profiles``
-
-    Arguments
-    ----------
-    tech_lp : dict
-        Load profiles
-    assumptions. dict       Assumptions
-    sectors : dict
-        Sectors
-    all_enduses : dict
-        Enduses
-
-    Returns
-    -------
-    non_regional_lp_stock : object
-        Load profile stock with non regional dependent load profiles
-    """
-    non_regional_lp_stock = LoadProfileStock("non_regional_load_profiles")
-
-    # ---------
-    # Residential Submodel
-    # ---------
-    shape_yh = calc_yh(
-        tech_lp['rs_shapes_yd']['rs_lighting']['shape_non_peak_yd'],
-        tech_lp['rs_shapes_dh']['rs_lighting']['shape_non_peak_y_dh'],
-        model_yeardays)
-
-    # rs_lighting
-    non_regional_lp_stock.add_lp(
-        unique_identifier=uuid.uuid4(),
-        technologies=assumptions.tech_list['lighting'],
-        enduses=['rs_lighting'],
-        shape_yd=tech_lp['rs_shapes_yd']['rs_lighting']['shape_non_peak_yd'],
-        shape_yh=shape_yh,
-        f_peak_yd=tech_lp['rs_shapes_yd']['rs_lighting']['shape_peak_yd_factor'])
-
-    # Skip temperature dependent end uses (regional)
-    if 'rs_cold' in assumptions.enduse_rs_space_cooling:
-        pass
-    else:
-        shape_yh = calc_yh(
-            tech_lp['rs_shapes_yd']['rs_cold']['shape_non_peak_yd'],
-            tech_lp['rs_shapes_dh']['rs_cold']['shape_non_peak_y_dh'],
-            model_yeardays)
-
-        # rs_cold (residential refrigeration)
-        non_regional_lp_stock.add_lp(
-            unique_identifier=uuid.uuid4(),
-            technologies=assumptions.tech_list['cold'],
-            enduses=['rs_cold'],
-            shape_yd=tech_lp['rs_shapes_yd']['rs_cold']['shape_non_peak_yd'],
-            shape_yh=shape_yh,
-            f_peak_yd=tech_lp['rs_shapes_yd']['rs_cold']['shape_peak_yd_factor'])
-
-    # rs_cooking
-    shape_yh = calc_yh(
-        tech_lp['rs_shapes_yd']['rs_cooking']['shape_non_peak_yd'],
-        tech_lp['rs_shapes_dh']['rs_cooking']['shape_non_peak_y_dh'],
-        model_yeardays)
-    non_regional_lp_stock.add_lp(
-        unique_identifier=uuid.uuid4(),
-        technologies=assumptions.tech_list['cooking'],
-        enduses=['rs_cooking'],
-        shape_yd=tech_lp['rs_shapes_yd']['rs_cooking']['shape_non_peak_yd'],
-        shape_yh=shape_yh,
-        f_peak_yd=tech_lp['rs_shapes_yd']['rs_cooking']['shape_peak_yd_factor'])
-
-    # rs_wet
-    shape_yh = calc_yh(
-        tech_lp['rs_shapes_yd']['rs_wet']['shape_non_peak_yd'],
-        tech_lp['rs_shapes_dh']['rs_wet']['shape_non_peak_y_dh'],
-        model_yeardays)
-    non_regional_lp_stock.add_lp(
-        unique_identifier=uuid.uuid4(),
-        technologies=assumptions.tech_list['wet'],
-        enduses=['rs_wet'],
-        shape_yd=tech_lp['rs_shapes_yd']['rs_wet']['shape_non_peak_yd'],
-        shape_yh=shape_yh,
-        f_peak_yd=tech_lp['rs_shapes_yd']['rs_wet']['shape_peak_yd_factor'])
-
-    # -- Apply enduse sepcific shapes for enduses with not technologies with own defined shapes
-    for enduse in all_enduses['rs_enduses']:
-
-        # Enduses where technology specific load profiles are defined for yh
-        if enduse == 'rs_space_heating':
-            pass
-        else:
-            tech_list = helpers.get_nested_dict_key(assumptions.rs_fuel_tech_p_by[enduse])
-
-            shape_yh = calc_yh(
-                tech_lp['rs_shapes_yd'][enduse]['shape_non_peak_yd'],
-                tech_lp['rs_shapes_dh'][enduse]['shape_non_peak_y_dh'],
-                model_yeardays)
-
-            non_regional_lp_stock.add_lp(
-                unique_identifier=uuid.uuid4(),
-                technologies=tech_list,
-                enduses=[enduse],
-                shape_yd=tech_lp['rs_shapes_yd'][enduse]['shape_non_peak_yd'],
-                shape_yh=shape_yh,
-                f_peak_yd=tech_lp['rs_shapes_yd'][enduse]['shape_peak_yd_factor'])
-
-    # ---------
-    # Service Submodel
-    # ----------
-    # - Assign to each enduse the carbon fuel trust dataset
-    for enduse in all_enduses['ss_enduses']:
-
-        # Skip temperature dependent end uses (regional) because load profile in regional load profile stock
-        if enduse in assumptions.enduse_space_heating or enduse in assumptions.ss_enduse_space_cooling:
-            pass
-        else:
-            for sector in sectors['ss_sectors']:
-
-                # Get technologies with assigned fuel shares
-                tech_list = helpers.get_nested_dict_key(
-                    assumptions.ss_fuel_tech_p_by[enduse][sector])
-
-                # Apply correction factor for weekend_effect
-                shape_non_peak_yd = tech_lp['ss_shapes_yd'][enduse][sector]['shape_non_peak_yd'] * assumptions.ss_weekend_f
-                shape_non_peak_yd_weighted = abs_to_rel(shape_non_peak_yd)
-
-                shape_yh = calc_yh(
-                    shape_non_peak_yd_weighted, #shape_non_peak_yd
-                    tech_lp['ss_shapes_dh'][enduse][sector]['shape_non_peak_y_dh'],
-                    model_yeardays)
-
-                non_regional_lp_stock.add_lp(
-                    unique_identifier=uuid.uuid4(),
-                    technologies=tech_list,
-                    enduses=[enduse],
-                    shape_yd=shape_non_peak_yd_weighted,
-                    shape_yh=shape_yh,
-                    sectors=[sector],
-                    f_peak_yd=tech_lp['ss_shapes_yd'][enduse][sector]['shape_peak_yd_factor'])
-
-    # ---------
-    # Industry Submodel
-    # ---------
-    # Generate flat load profiles
-    _, shape_peak_yd_factor, shape_non_peak_yd, shape_non_peak_yh = generic_shapes.flat_shape(
-        assumptions.model_yeardays_nrs)
-
-    # Apply correction factor for weekend_effect to flat load profile for industry
-    shape_non_peak_yd = shape_non_peak_yd * assumptions.is_weekend_f
-    shape_non_peak_yd_weighted = abs_to_rel(shape_non_peak_yd)
-
-    for enduse in all_enduses['is_enduses']:
-        if enduse == "is_space_heating":
-            pass # Do not create non regional stock because temp dependent
-        else:
-            for sector in sectors['is_sectors']:
-
-                tech_list = helpers.get_nested_dict_key(
-                    assumptions.is_fuel_tech_p_by[enduse][sector])
-
-                non_regional_lp_stock.add_lp(
-                    unique_identifier=uuid.uuid4(),
-                    technologies=tech_list,
-                    enduses=[enduse],
-                    shape_yd=shape_non_peak_yd_weighted,
-                    shape_yh=shape_non_peak_yh,
-                    sectors=[sector],
-                    f_peak_yd=shape_peak_yd_factor)
-
-    return non_regional_lp_stock
 
 def calc_av_lp(demand_yh, seasons, model_yeardays_daytype):
     """Calculate average load profile for daytype and season

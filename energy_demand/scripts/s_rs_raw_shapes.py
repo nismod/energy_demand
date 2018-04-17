@@ -40,7 +40,14 @@ def read_csv(path_to_csv):
 
     return np.array(service_switches) # Convert list into array
 
-def get_hes_load_shapes(appliances_hes_matching, year_raw_values, hes_y_peak, enduse):
+def get_hes_load_shapes(
+        appliances_hes_matching,
+        year_raw_values,
+        hes_y_peak,
+        enduse,
+        single_enduse=True,
+        enduses=False
+    ):
     """Read in raw HES data and generate shapes
 
     Calculate peak day demand
@@ -68,22 +75,49 @@ def get_hes_load_shapes(appliances_hes_matching, year_raw_values, hes_y_peak, en
     -----
     The HES appliances are matched with enduses
     """
-    # Match enduse with HES appliance ID (see look_up table in original files for more information)
-    hes_app_id = appliances_hes_matching[enduse]
+    if single_enduse:
+        # Match enduse with HES appliance ID
+        # (see look_up table in original files for more information)
+        hes_app_id = appliances_hes_matching[enduse]
 
-    # Total yearly demand of hes_app_id
-    tot_enduse_y = np.sum(year_raw_values[:, :, hes_app_id])
+        # Values
+        enduse_values = year_raw_values[:, :, hes_app_id]
 
-    # ---Peak calculation Get peak daily load shape
+        # Total yearly demand of hes_app_id
+        tot_enduse_y = np.sum(year_raw_values[:, :, hes_app_id])
 
-    # Calculate amount of energy demand for peak day of hes_app_id
-    peak_h_values = hes_y_peak[:, hes_app_id]
+        # Get peak daily load shape, calculate amount of energy demand for peak day of hes_app_id
+        peak_h_values = hes_y_peak[:, hes_app_id]
 
-    # Shape of peak day (hourly values of peak day) #1.0/tot_peak_demand_d * peak_h_values
-    shape_peak_dh = lp.abs_to_rel(peak_h_values)
+    else:
+        for multi_enduse in enduses:
+
+            # Id of enduse
+            hes_app_id = appliances_hes_matching[multi_enduse]
+
+            try:
+                tot_enduse_y += np.sum(year_raw_values[:, :, hes_app_id])
+
+                # Get peak daily load shape, calculate amount of energy demand for peak day of hes_app_id
+                peak_h_values += hes_y_peak[:, hes_app_id]
+
+                # Values
+                enduse_values += year_raw_values[:, :, hes_app_id]
+
+            except:
+                # Total yearly demand of hes_app_id
+                tot_enduse_y = np.sum(year_raw_values[:, :, hes_app_id])
+                
+                # Get peak daily load shape, calculate amount of energy demand for peak day of hes_app_id
+                peak_h_values = hes_y_peak[:, hes_app_id]
+
+                enduse_values = year_raw_values[:, :, hes_app_id]
 
     # Maximum daily demand
     tot_peak_demand_d = np.sum(peak_h_values)
+
+    # Shape of peak day (hourly values of peak day)
+    shape_peak_dh = lp.abs_to_rel(peak_h_values)
 
     # Factor to calculate daily peak demand from yearly demand
     shape_peak_yd_factor = tot_peak_demand_d / tot_enduse_y
@@ -92,11 +126,11 @@ def get_hes_load_shapes(appliances_hes_matching, year_raw_values, hes_y_peak, en
     shape_non_peak_yd = np.zeros((365), dtype=float)
     shape_non_peak_y_dh = np.zeros((365, 24), dtype=float)
 
-    for day in range(365):
-        day_values = year_raw_values[day, :, hes_app_id]
+    for day, day_values in enumerate(enduse_values):
+        #day_values = year_raw_values[day, :, hes_app_id]
 
         shape_non_peak_yd[day] = (1.0 / tot_enduse_y) * np.sum(day_values)
-        shape_non_peak_y_dh[day] = (1.0 / np.sum(day_values)) * day_values # daily shape
+        shape_non_peak_y_dh[day] = (1.0 / np.sum(day_values)) * day_values
 
     return shape_peak_dh, shape_non_peak_y_dh, shape_peak_yd_factor, shape_non_peak_yd
 
@@ -213,15 +247,15 @@ def run(paths, local_paths, base_yr):
         'rs_consumer_electronics': 3,
         'rs_home_computing': 4,
         'rs_wet': 5,
-        'rs_water_heating': 6,
+        'rs_water_heating_water_heating': 6,
         'NOT_USED_unkown_1': 7,
         'NOT_USED_unkown_2': 8,
         'NOT_USED_unkown_3': 9,
-        'NOT_USED_showers': 10}
+        'rs_water_heating_showers': 10}
 
     # HES data -- Generate generic load profiles
     # for all electricity appliances from HES data
-    hes_data, hes_y_peak = read_hes_data( 
+    hes_data, hes_y_peak = read_hes_data(
         paths['lp_rs'],
         len(hes_appliances_matching))
 
@@ -236,10 +270,31 @@ def run(paths, local_paths, base_yr):
 
     # Load shape for all enduses
     for enduse in rs_enduses:
+
         if enduse not in hes_appliances_matching:
-            logging.debug(
-                "Warning: The enduse %s is not definedin hes_appliances_matching",
-                enduse)
+
+            # Merge shapes of water heating and shower
+            if enduse == 'rs_water_heating':
+
+                # Generate HES load shapes
+                shape_peak_dh, shape_non_peak_y_dh, shape_peak_yd_factor, shape_non_peak_yd = get_hes_load_shapes(
+                    hes_appliances_matching,
+                    year_raw_hes_values,
+                    hes_y_peak,
+                    enduse,
+                    single_enduse=False,
+                    enduses=['rs_water_heating_showers', 'rs_water_heating_water_heating'])
+
+                # Write txt files
+                write_data.create_txt_shapes(
+                    enduse,
+                    local_paths['rs_load_profile_txt'],
+                    shape_peak_dh,
+                    shape_non_peak_y_dh,
+                    shape_peak_yd_factor,
+                    shape_non_peak_yd)
+            else:
+                pass
         else:
             # Generate HES load shapes
             shape_peak_dh, shape_non_peak_y_dh, shape_peak_yd_factor, shape_non_peak_yd = get_hes_load_shapes(

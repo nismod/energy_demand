@@ -241,3 +241,27 @@ def get_month_from_int(month_int):
         month_str = 'Dec'
 
     return str(month_str)
+
+def remove_element_from_list(input_list, element):
+    """Remove element in list
+
+    Arguments
+    ---------
+    input_list : list
+        List with elements
+    element : any
+        Element to remove
+    
+    Returns
+    -------
+    list_new : list
+        List where element is removed
+    """
+    list_new = []
+    for i in input_list:
+        if i == element:
+            _ = 0
+        else:
+            list_new.append(i)
+
+    return list_new

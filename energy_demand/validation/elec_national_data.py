@@ -235,7 +235,8 @@ def compare_peak(
         name_fig,
         path_result,
         validation_elec_2015_peak,
-        modelled_peak_dh
+        modelled_peak_dh,
+        peak_day
     ):
     """Compare peak electricity day with calculated peak energy demand
 
@@ -277,27 +278,29 @@ def compare_peak(
     diff_p_h = np.round((100 / validation_elec_2015_peak) * modelled_peak_dh, 1)
 
     # Y-axis ticks
-    plt.xlim(0, 25)
+    plt.xlim(0, 24)
     plt.yticks(range(0, 90, 10))
-
+    plt.xticks(range(0, 24,2))
     # Legend
     plt.legend(frameon=False)
 
-    font_additional_info = plotting_styles.font_info()
-
     # Labelling
-    plt.title("peak comparison") # d_%:{}".format(diff_p_h), loc='left', fontdict=font_additional_info)
+    date_yearday = date_prop.yearday_to_date(2015, peak_day)
+    plt.title("peak comparison {}".format(date_yearday))
+
     plt.xlabel("h")
     plt.ylabel("uk electrictiy use [GW]")
 
     plt.text(
-        -6, 0, diff_p_h, 
-        horizontalalignment='center',
+        5,  #position
+        65, #position
+        diff_p_h,
+        #horizontalalignment='center',
         fontdict={
-        'family': 'arial',
-        'color': 'black',
-        'weight': 'normal',
-        'size': 6})
+            'family': 'arial',
+            'color': 'black',
+            'weight': 'normal',
+            'size': 4})
 
     # Tight layout
     plt.tight_layout()

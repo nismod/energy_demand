@@ -23,6 +23,7 @@ Get correlation between regional GVA and (regional floor area/reg pop) of every 
 2. Step
 Calculate future regional floor area demand based on GVA and pop projection 
 info: fuels_yh is made multidmensional according to fueltype
+TODO: REMOVEP EAK FACTORS
 TODO: DISAGGREGATE SERVICE SECTOR HEATING DEMANDS WITH FLOOR AREA FOR SECTORS
 TODO: BECUASE OF HYBRID SUM SWITCHES +=
 TODO: remove tech_list
@@ -35,9 +36,9 @@ TODO: Spatial diffusion: Cap largest 5% of values and set to 1
 TODO: CONTROL ALL PEAK RESULTS
 TODO: REMOVE model_yeardays_nrs
 TODO :CHECK LOAD PRIFILE TECH TYPE NAMES
+TODO: shape_peak_yd_factor
+TODO: REMOVE ALL PEAK RELATED STUFF
 TODO: SMOOTH LINE https://stackoverflow.com/questions/25825946/generating-smooth-line-graph-using-matplotlib?lq=1
-
-Potential storline: different levels of hybrid boilers for heat?
 """
 import os
 import sys
@@ -87,6 +88,7 @@ def energy_demand_model(data, assumptions, fuel_in=0, fuel_in_elec=0):
     # Calculate base year demand
     fuel_in, fuel_in_biomass, fuel_in_elec, fuel_in_gas, fuel_in_heat, fuel_in_hydrogen, fuel_in_solid_fuel, fuel_in_oil, tot_heating = testing.test_function_fuel_sum(
         data,
+        data['fuel_disagg'],
         data['criterias']['mode_constrained'],
         assumptions.enduse_space_heating)
 
@@ -156,7 +158,7 @@ if __name__ == "__main__":
 
     path_main = os.path.abspath(
         os.path.join(
-            os.path.dirname(__file__), '..', "config_data"))
+            os.path.dirname(__file__), '..', "energy_demand/config_data"))
 
     # Initialise logger
     logger_setup.set_up_logger(
@@ -285,7 +287,7 @@ if __name__ == "__main__":
 
     # In order to load these data, the initialisation scripts need to be run
     print("... Load data from script calculations")
-    data = read_data.load_script_data(data) #SCENARIO INITIALISATION
+    data = read_data.load_script_data(data)
 
     #-------------------
     # Folder cleaning
@@ -310,6 +312,7 @@ if __name__ == "__main__":
         print("Simulation for year --------------:  " + str(sim_yr))
         fuel_in, fuel_in_biomass, fuel_in_elec, fuel_in_gas, fuel_in_heat, fuel_in_hydro, fuel_in_solid_fuel, fuel_in_oil, tot_heating = testing.test_function_fuel_sum(
             data,
+            data['fuel_disagg'],
             data['criterias']['mode_constrained'],
             data['assumptions'].enduse_space_heating)
 

@@ -353,10 +353,18 @@ def load_paths(path):
             path, '03-load_profiles', 'ss_submodel', 'shape_service_cooling.csv'),
         'lp_elec_storage_heating': os.path.join(
             #path, '03-load_profiles', 'rs_submodel', 'lp_elec_storage_heating_HES.csv'), # Worst
-            #path, '03-load_profiles', 'rs_submodel', 'lp_elec_storage_heating_Bossmann.csv'), # Better
+            #path, '03-load_profiles', 'rs_submodel', 'lp_elec_storage_heating_Bossmann.csv'), # Better TRY TODO
             path, '03-load_profiles', 'rs_submodel', 'lp_elec_storage_heating_HESReport.csv'), # Best
+
+            # Combination of HES Report and Bossmann (50%, 50%)
+            #path, '03-load_profiles', 'rs_submodel', 'lp_elec_storage_heating_combined.csv'), # Best
+    
         'lp_elec_secondary_heating': os.path.join(
+            # different per daytype
             path, '03-load_profiles', 'rs_submodel', 'lp_elec_secondary_heating_HES.csv'),
+
+            # All the same
+            #path, '03-load_profiles', 'rs_submodel', 'lp_elec_secondary_heating_HES_all_same.csv'),
 
         # Census data
         'path_employment_statistics': os.path.join(
@@ -372,7 +380,7 @@ def load_paths(path):
 
     return paths
 
-def load_tech_profiles(tech_lp, paths, local_paths, plot_tech_lp=False):
+def load_tech_profiles(tech_lp, paths, local_paths, plot_tech_lp=True):
     """Load technology specific load profiles
 
     Arguments
@@ -546,31 +554,31 @@ def load_data_profiles(
 
     # Heat pumps by Love
     tech_lp['rs_profile_hp_y_dh'] = get_shape_every_day(
-        'rs_lp_heating_hp_dh', tech_lp, model_yeardays_daytype)
+        tech_lp['rs_lp_heating_hp_dh'], model_yeardays_daytype)
 
     # Storage heater
     tech_lp['rs_profile_storage_heater_y_dh'] = get_shape_every_day(
-        'rs_lp_storage_heating_dh', tech_lp, model_yeardays_daytype)
+        tech_lp['rs_lp_storage_heating_dh'], model_yeardays_daytype)
 
     # Electric heating
     tech_lp['rs_profile_elec_heater_y_dh'] = get_shape_every_day(
-        'rs_lp_second_heating_dh', tech_lp, model_yeardays_daytype)
+        tech_lp['rs_lp_second_heating_dh'], model_yeardays_daytype)
 
     # Boilers
     tech_lp['rs_profile_boilers_y_dh'] = get_shape_every_day(
-        'rs_lp_heating_boilers_dh', tech_lp, model_yeardays_daytype)
+        tech_lp['rs_lp_heating_boilers_dh'], model_yeardays_daytype)
 
     # Micro CHP
     tech_lp['rs_profile_chp_y_dh'] = get_shape_every_day(
-        'rs_lp_heating_CHP_dh', tech_lp, model_yeardays_daytype)
+        tech_lp['rs_lp_heating_CHP_dh'], model_yeardays_daytype)
 
     # Service Cooling tech
     tech_lp['ss_profile_cooling_y_dh'] = get_shape_every_day(
-        'ss_shapes_cooling_dh', tech_lp, model_yeardays_daytype)
+        tech_lp['ss_shapes_cooling_dh'], model_yeardays_daytype)
 
     return tech_lp
 
-def get_shape_every_day(tech, tech_lp, model_yeardays_daytype):
+def get_shape_every_day(tech_lp, model_yeardays_daytype):
     """Generate yh shape based on the daytype of
     every day in year. This function iteraes every day
     of the base year and assigns daily profiles depending
@@ -578,8 +586,6 @@ def get_shape_every_day(tech, tech_lp, model_yeardays_daytype):
 
     Arguments
     ---------
-    tech : str
-        Technology
     tech_lp : dict
         Technology load profiles
     model_yeardays_daytype : list
@@ -592,8 +598,8 @@ def get_shape_every_day(tech, tech_lp, model_yeardays_daytype):
         i.e. the load profile is given for every day)
     """
     # Load profiles for a single day
-    lp_holiday = tech_lp[tech]['holiday'] / np.sum(tech_lp[tech]['holiday'])
-    lp_workday = tech_lp[tech]['workday'] / np.sum(tech_lp[tech]['workday'])
+    lp_holiday = tech_lp['holiday'] / np.sum(tech_lp['holiday'])
+    lp_workday = tech_lp['workday'] / np.sum(tech_lp['workday'])
 
     load_profile_y_dh = np.zeros((365, 24), dtype=float)
 

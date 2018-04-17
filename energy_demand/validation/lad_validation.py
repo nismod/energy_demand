@@ -297,15 +297,46 @@ def tempo_spatial_validation(
     logging.debug(
         "...validation of peak data: compare peak with data")
 
+    # Because the coldest day is not the same for every region,
+    # the coldest day needs to be defined manually or defined
+    # by getting the hours with maximum electricity demand
+
     # Peak across all fueltypes WARNING: Fueltype specific
-    peak_day = enduse_func.get_peak_day_all_fueltypes(ed_fueltype_national_yh)
+    peak_day_all_fueltypes = enduse_func.get_peak_day_all_fueltypes(ed_fueltype_national_yh)
+    
+    fueltype = fueltypes['electricity']
+    peak_day_electricity = enduse_func.get_peak_day_single_fueltype(ed_fueltype_national_yh[fueltype])
 
     elec_national_data.compare_peak(
-        "validation_elec_peak_comparison_peakday_yh.pdf",
+        "validation_peak_elec_day_all_fueltypes.pdf",
+        result_paths['data_results_validation'],
+        elec_2015_indo[peak_day_all_fueltypes],
+        ed_fueltype_national_yh[fueltypes['electricity']][peak_day_all_fueltypes],
+        peak_day_all_fueltypes)
+
+    elec_national_data.compare_peak(
+        "validation_peak_elec_day_only_electricity.pdf",
+        result_paths['data_results_validation'],
+        elec_2015_indo[peak_day_electricity],
+        ed_fueltype_national_yh[fueltypes['electricity']][peak_day_electricity],
+        peak_day_electricity)
+
+    # Manual peak day
+    peak_day = 19
+    elec_national_data.compare_peak(
+        "validation_elec_peak_day_{}.pdf".format(peak_day),
         result_paths['data_results_validation'],
         elec_2015_indo[peak_day],
-        ed_fueltype_national_yh[fueltypes['electricity']][peak_day])
+        ed_fueltype_national_yh[fueltypes['electricity']][peak_day],
+        peak_day)
 
+    peak_day = 33
+    elec_national_data.compare_peak(
+        "validation_elec_peak_day_{}.pdf".format(peak_day),
+        result_paths['data_results_validation'],
+        elec_2015_indo[peak_day],
+        ed_fueltype_national_yh[fueltypes['electricity']][peak_day],
+        peak_day)
     # ---------------------------------------------------
     # Validate boxplots for every hour (temporal validation)
     # ---------------------------------------------------

@@ -30,7 +30,10 @@ def post_install_setup(args):
     print("... start running initialisation scripts")
 
     # Paths
-    path_main = resource_filename(Requirement.parse("energy_demand"), os.path.join("energy_demand", "config_data"))
+    path_main = resource_filename(
+        Requirement.parse("energy_demand"),
+        os.path.join("energy_demand", "config_data"))
+
     path_results = resource_filename(Requirement.parse("energy_demand"), "results")
     local_data_path = args.local_data
 
@@ -50,7 +53,6 @@ def post_install_setup(args):
     data['enduses'], data['sectors'], data['fuels'] = data_loader.load_fuels(
         data['paths'], data['lookups'])
 
-    # Assumptions
     data['assumptions'] = non_param_assumptions.Assumptions(
         base_yr=base_yr,
         paths=data['paths'],
@@ -73,21 +75,21 @@ def post_install_setup(args):
     basic_functions.create_folder(data['local_paths']['ss_load_profile_txt'])
     basic_functions.create_folder(data['local_paths']['dir_disaggregated'])
 
-    print("... Read in temperature data from raw files")
-    s_raw_weather_data.run(
-        data['local_paths'])
-
-    print("... Read in service submodel load profiles")
-    s_ss_raw_shapes.run(
-        data['paths'],
-        data['local_paths'],
-        data['lookups'])
-
-    print("... Read in residential submodel load profiles")
+    logging.info("... Read in residential submodel load profiles")
     s_rs_raw_shapes.run(
         data['paths'],
         data['local_paths'],
         base_yr)
+
+    logging.info("... Read in temperature data from raw files")
+    s_raw_weather_data.run(
+        data['local_paths'])
+
+    logging.info("... Read in service submodel load profiles")
+    s_ss_raw_shapes.run(
+        data['paths'],
+        data['local_paths'],
+        data['lookups'])
 
     print("... successfully finished setup")
     return

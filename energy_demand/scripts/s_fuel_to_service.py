@@ -5,6 +5,7 @@ import warnings
 import numpy as np
 from energy_demand.technologies import tech_related
 from energy_demand.initalisations import helpers
+from collections import defaultdict
 
 def init_nested_dict_brackets(first_level_keys, second_level_keys):
     """Initialise a nested dictionary with two levels
@@ -99,7 +100,6 @@ def sum_fuel_enduse_sectors(data_enduses, enduses):
 
 def get_s_fueltype_tech(
         enduses,
-        tech_list,
         fueltypes,
         fuel_p_tech_by,
         fuels,
@@ -119,8 +119,6 @@ def get_s_fueltype_tech(
     ----------
     enduses : dict
         Enduses
-    tech_list : list
-        Technologies
     fueltypes : dict
         Fueltypes
     fuel_p_tech_by : dict
@@ -141,14 +139,15 @@ def get_s_fueltype_tech(
         Percentage of energy service per fueltype
     """
     #TODO MAKE NICER
+    #service = defaultdict(dict)
     service = init_nested_dict_brackets(fuels, fueltypes.values())              # Energy service per technology for base year
     s_tech_by_p = helpers.init_dict_brackets(fuels)                             # Percentage of total energy service per technology for base year
     s_fueltype_tech_by_p = init_nested_dict_brackets(fuels, fueltypes.values()) # Percentage of service per technologies within the fueltypes
-    s_fueltype_by_p = init_nested_dict_zero(                                    # Percentage of service per fueltype
-        s_tech_by_p.keys(),
-        range(len(fueltypes)))
+    s_fueltype_by_p = init_nested_dict_zero(s_tech_by_p.keys(), range(len(fueltypes))) # Percentage of service per fueltype
 
     for enduse in enduses:
+
+        # Initialise
 
         if not sector:
             fuel = fuels[enduse]
@@ -171,7 +170,6 @@ def get_s_fueltype_tech(
                 fuel_tech = fuel_alltech_by * fuel_fueltype
 
                 # Get technology type
-                #tech_type = tech_related.get_tech_type(tech, tech_list) #TODO
                 tech_type = technologies[tech].tech_type
 
                 # Get efficiency for base year
@@ -179,13 +177,6 @@ def get_s_fueltype_tech(
                     eff_tech = tech_related.eff_heat_pump(
                         temp_diff=10,
                         efficiency_intersect=technologies[tech].eff_by)
-                    '''elif tech_type == 'hybrid_tech':
-                        # Get technology of hybrid tech with this fueltype
-                        if technologies[tech].tech_hybrid_high_temp.fueltype_int == fueltype:
-                            eff_tech = technologies[tech].tech_hybrid_high_temp.eff_by
-                        if technologies[tech].tech_hybrid_low_temp.fueltype_int == fueltype:
-                            eff_tech = technologies[tech].tech_hybrid_low_temp.eff_by
-                    '''
                 else:
                     eff_tech = technologies[tech].eff_by
 
