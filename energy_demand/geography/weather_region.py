@@ -191,14 +191,16 @@ class WeatherRegion(object):
 
         # Calculate rs peak day
         rs_peak_day = enduse_func.get_peak_day(self.rs_hdd_cy)
-        logging.info("Regional specific peak day (rs_peak_day):" + str(rs_peak_day))
+
+        logging.info(
+            "Regional specific peak day (rs_peak_day):" + str(rs_peak_day))
 
 
         # ========
         # Enduse specific profiles
         # ========
 
-        # Skip temperature dependent end uses (regional)
+        '''# Skip temperature dependent end uses (regional)
         if 'rs_cold' in assumptions.enduse_rs_space_cooling:
             pass
         else:
@@ -213,13 +215,13 @@ class WeatherRegion(object):
                 technologies=assumptions.tech_list['cold'],
                 enduses=['rs_cold'],
                 shape_yd=tech_lp['rs_shapes_yd']['rs_cold']['shape_non_peak_yd'],
-                shape_yh=shape_yh)
+                shape_yh=shape_yh)'''
 
         # -- Apply enduse sepcific shapes for enduses with not technologies with own defined shapes
         for enduse in all_enduses['rs_enduses']:
 
             # Enduses where technology specific load profiles are defined for yh
-            if enduse == 'rs_space_heating':# or enduse == 'rs_water_heating': #TODO
+            if enduse == 'rs_space_heating':
                 pass
             else:
                 tech_list = helpers.get_nested_dict_key(assumptions.rs_fuel_tech_p_by[enduse])
@@ -262,7 +264,7 @@ class WeatherRegion(object):
                 shape_yh=rs_fuel_shape_cooling_yh)
         '''
         # ==========
-        # Technology specific profiles
+        # Technology specific profiles for residential heating
         # ===========
 
         # ------Heating boiler
@@ -342,7 +344,7 @@ class WeatherRegion(object):
             shape_yd=rs_fuel_shape_heating_yd,
             shape_yh=rs_fuel_shape_hp_yh)
 
-        # ------District_heating_electricity --> Assumption made that same curve as CHP
+        # ------District_heating_electricity. Assumption made that same curve as CHP
         rs_profile_chp_y_dh = load_profile.calc_yh(
             rs_fuel_shape_heating_yd, tech_lp['rs_profile_chp_y_dh'], model_yeardays)
 
@@ -381,6 +383,12 @@ class WeatherRegion(object):
         # ========
         # Enduse specific profiles
         # ========
+
+        # Apply correction factor for weekend_effect
+        ss_fuel_shape_heating_yd = ss_fuel_shape_heating_yd * assumptions.ss_weekend_f
+        ss_fuel_shape_heating_yd_weighted = load_profile.abs_to_rel(ss_fuel_shape_heating_yd)
+
+
         # - Assign to each enduse the carbon fuel trust dataset
         for enduse in all_enduses['ss_enduses']:
 
@@ -411,33 +419,21 @@ class WeatherRegion(object):
                         shape_yh=shape_yh,
                         sectors=[sector])
 
-        # ----------------------------------------------
-        # Apply weekend correction factor fo ss heating
-        # ----------------------------------------------
-        ss_peak_yd_heating_factor = get_shape_peak_yd_factor(ss_hdd_cy)
-        ss_peak_yd_cooling_factor = get_shape_peak_yd_factor(ss_cdd_cy)
-
-        # Apply correction factor for weekend_effect
-        # ------
-        ss_fuel_shape_heating_yd = ss_fuel_shape_heating_yd * assumptions.ss_weekend_f
-        ss_fuel_shape_heating_yd_weighted = load_profile.abs_to_rel(ss_fuel_shape_heating_yd)
-        # ------
+        # ========
+        # Technology specific profiles
+        # ========
 
         # Flatten list of all potential technologies
         ss_space_heating_tech_lists = list(tech_lists.values())
         all_techs_ss_space_heating = [item for sublist in ss_space_heating_tech_lists for item in sublist]
 
-        #TODO TAKE ALSO RESIDENTIAL HEAT PUMP PROFILE FOR SERICE SECTOR
         # --
-        # Heat pump
+        # Heat pump (RESIDENTIAL HEAT PUMP PROFILE FOR SERVICE SECTOR)
         # --
-        all_techs_ss_space_heating_new = []
-        for i in all_techs_ss_space_heating:
-            if i == 'heat_pumps_electricity':
-                _ = 0
-            else:
-                all_techs_ss_space_heating_new.append(i)
-        all_techs_ss_space_heating = all_techs_ss_space_heating_new
+        # Remove tech from all space heating techs
+        all_techs_ss_space_heating = remove_element_from_list(
+            all_techs_ss_space_heating, 'heat_pumps_electricity')
+
         ss_fuel_shape_hp_yh = get_fuel_shape_heating_hp_yh(
             rs_profile_hp_y_dh,
             self.rs_tech_stock,
@@ -452,37 +448,40 @@ class WeatherRegion(object):
             shape_yd=ss_fuel_shape_heating_yd_weighted,
             shape_yh=ss_fuel_shape_hp_yh)
 
-        # -------- 
+        # --------
         # boiler_electricity
-        # ------- 
-        all_techs_ss_space_heating_new = []
-        for i in all_techs_ss_space_heating:
-            if i == 'boiler_electricity':
-                _ = 0
-            else:
-                all_techs_ss_space_heating_new.append(i)
-        all_techs_ss_space_heating = all_techs_ss_space_heating_new
+        # Info: The residential direct heating load profile is used
+        # -------
+        # Remove tech from all space heating techs
+        all_techs_ss_space_heating = remove_element_from_list(
+            all_techs_ss_space_heating, 'secondary_heater_electricity')
 
         ss_profile_elec_heater_yh = load_profile.calc_yh(
             ss_fuel_shape_heating_yd_weighted,
-            rs_profile_elec_heater_y_dh, #TODO DIRECT ELECTRIC HEATING
+            rs_profile_elec_heater_y_dh,
             model_yeardays)
 
-        # NEW Electric boiler is same as shape for direct heating of residential sector??
+        # Get aggregated electricity load profile
+        '''ss_fuel_shape_electricity, _ = ss_get_sector_enduse_shape(
+            tech_lp['ss_all_tech_shapes_dh'],
+            ss_fuel_shape_heating_yd_weighted,
+            'ss_other_electricity',
+            model_yeardays_nrs)'''
+
         self.ss_load_profiles.add_lp(
             unique_identifier=uuid.uuid4(),
-            technologies=['boiler_electricity'],
+            technologies=['secondary_heater_electricity'],
             enduses=['ss_space_heating'],
             sectors=sectors['ss_sectors'],
             shape_yd=ss_fuel_shape_heating_yd_weighted,
-            shape_yh=ss_profile_elec_heater_yh) #ss_fuel_shape_boiler_electricity_yh
+            shape_yh=ss_profile_elec_heater_yh) # ELEC CURVE ss_fuel_shape_electricity # DIRECT HEATING ss_profile_elec_heater_yh
 
         # --
-        # All other heating technologies for service sector
+        # Heating technologies (all other)
         # --
         # (the heating shape follows the gas shape of aggregated sectors)
         # meaning that for all technologies, the load profile is the same
-        ss_fuel_shape_any_tech, ss_fuel_shape = ss_get_sector_enduse_shape(
+        ss_fuel_shape_any_tech_non_electric, _ = ss_get_sector_enduse_shape(
             tech_lp['ss_all_tech_shapes_dh'],
             ss_fuel_shape_heating_yd_weighted,
             'ss_space_heating',
@@ -498,8 +497,7 @@ class WeatherRegion(object):
             enduses=['ss_space_heating'],
             sectors=sectors['ss_sectors'],
             shape_yd=ss_fuel_shape_heating_yd_weighted,
-            shape_yh=ss_fuel_shape_any_tech #flat_shape_non_peak_yh,
-            )
+            shape_yh=ss_fuel_shape_any_tech_non_electric) #flat_shape_non_peak_yh,
 
         #------
         # Add cooling technologies for service sector
@@ -511,26 +509,25 @@ class WeatherRegion(object):
 
                 # Apply correction factor for weekend_effect 'cdd_weekend_cfactors'
                 ss_fuel_shape_coolin_yd = ss_fuel_shape_coolin_yd * assumptions.cdd_weekend_cfactors
-                ss_fuel_shape_coolin_yd = load_profile.abs_to_rel(ss_fuel_shape_coolin_yd)
+                ss_fuel_shape_coolin_yd_weighted = load_profile.abs_to_rel(ss_fuel_shape_coolin_yd)
 
-                # Ev auch tech_lp['ss_shapes_cooling_dh']
                 ss_shape_yh = load_profile.calc_yh(
-                    ss_fuel_shape_coolin_yd,
-                    tech_lp['ss_profile_cooling_y_dh'], model_yeardays)
+                    ss_fuel_shape_coolin_yd_weighted,
+                    tech_lp['ss_profile_cooling_y_dh'],
+                    model_yeardays)
 
                 self.ss_load_profiles.add_lp(
                     unique_identifier=uuid.uuid4(),
                     technologies=coolings_techs,
                     enduses=[cooling_enduse],
                     sectors=[sector],
-                    shape_yd=ss_fuel_shape_coolin_yd,
+                    shape_yd=ss_fuel_shape_coolin_yd_weighted,
                     shape_yh=ss_shape_yh)
 
         # ==================================================================
         # Industry submodel load profiles
         # ==================================================================
         self.is_load_profiles = load_profile.LoadProfileStock("is_load_profiles")
-
 
         # --------HDD/CDD
         is_hdd_by, _ = hdd_cdd.calc_reg_hdd(
@@ -555,6 +552,10 @@ class WeatherRegion(object):
         is_peak_yd_heating_factor = get_shape_peak_yd_factor(is_hdd_cy)
         #is_peak_yd_cooling_factor = self.get_shape_peak_yd_factor(is_cdd_cy)
 
+        # ========
+        # Technology specific profiles
+        # ========
+
         # Cooling for industrial enduse
         # --Heating technologies for service sector (the heating shape follows
         # the gas shape of aggregated sectors)
@@ -565,35 +566,50 @@ class WeatherRegion(object):
 
         # Apply correction factor for weekend_effect for space heating load profile
         is_fuel_shape_heating_yd = is_fuel_shape_heating_yd * assumptions.is_weekend_f
-        is_fuel_shape_heating_yd = load_profile.abs_to_rel(is_fuel_shape_heating_yd)
+        is_fuel_shape_heating_yd_weighted = load_profile.abs_to_rel(is_fuel_shape_heating_yd)
 
-        # Y_dh Heating profile is taken from service sector
-        is_fuel_shape_any_tech, _ = ss_get_sector_enduse_shape(
+
+        # Remove tech from all space heating techs
+        all_techs_is_space_heating = remove_element_from_list(
+            all_techs_is_space_heating, 'secondary_heater_electricity')
+
+
+        is_profile_elec_heater_yh = load_profile.calc_yh(
+            is_fuel_shape_heating_yd_weighted,
+            rs_profile_elec_heater_y_dh,
+            model_yeardays)
+
+        self.is_load_profiles.add_lp(
+            unique_identifier=uuid.uuid4(),
+            technologies=['secondary_heater_electricity'],
+            enduses=['is_space_heating'],
+            sectors=sectors['is_sectors'],
+            shape_yd=is_fuel_shape_heating_yd_weighted,
+            shape_yh=is_profile_elec_heater_yh)
+
+        # Use direct heating from residential sector
+        '''is_fuel_shape_any_tech_non_electric, _ = ss_get_sector_enduse_shape(
             tech_lp['ss_all_tech_shapes_dh'],
-            is_fuel_shape_heating_yd,
+            is_fuel_shape_heating_yd_weighted,
             'ss_space_heating',
-            assumptions.model_yeardays_nrs)
+            assumptions.model_yeardays_nrs)'''
 
-        # Heating technologies profiles
+        # Add flat load profiles for non-electric heating technologies
         self.is_load_profiles.add_lp(
             unique_identifier=uuid.uuid4(),
             technologies=all_techs_is_space_heating,
             enduses=['is_space_heating'],
             sectors=sectors['is_sectors'],
-            shape_yd=is_fuel_shape_heating_yd,
+            shape_yd=is_fuel_shape_heating_yd_weighted,
             shape_yh=flat_shape_non_peak_yh)
-        '''self.is_load_profiles.add_lp(
-            unique_identifier=uuid.uuid4(),
-            technologies=all_techs_is_space_heating,
-            enduses=['is_space_heating'],
-            sectors=sectors['is_sectors'],
-            shape_yd=is_fuel_shape_heating_yd,
-            shape_yh=is_fuel_shape_any_tech)'''
 
         # Apply correction factor for weekend_effect to flat load profile for industry
         shape_non_peak_yd = shape_non_peak_yd * assumptions.is_weekend_f
         shape_non_peak_yd_weighted = load_profile.abs_to_rel(shape_non_peak_yd)
 
+        # ========
+        # Enduse specific profiles
+        # ========
         for enduse in all_enduses['is_enduses']:
             if enduse == "is_space_heating":
                 pass # Do not create non regional stock because temp dependent
@@ -831,7 +847,7 @@ def insert_peak_dh_shape(
     shape_y_dh_inserted : array
         Array where on peak day the peak shape is inserted
     """
-    peak_day_tech_dh = shape_peak_dh #tech_lp_tech['peakday']
+    peak_day_tech_dh = shape_peak_dh
 
     shape_y_dh_inserted = np.copy(shape_y_dh)
 
@@ -839,3 +855,15 @@ def insert_peak_dh_shape(
     
     #assert np.sum(shape_y_dh_inserted) == 365
     return shape_y_dh_inserted
+
+def remove_element_from_list(input_list, element):
+    """Remove element in list
+    """
+    list_new = []
+    for i in input_list:
+        if i == element:
+            _ = 0
+        else:
+            list_new.append(i)
+
+    return list_new

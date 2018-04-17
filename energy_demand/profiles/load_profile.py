@@ -85,12 +85,18 @@ class LoadProfileStock(object):
         ------
         Load profile attribute
         """
-        # Get key from lookup dict
-        position_in_dict = self.dict_tuple_keys[(enduse, sector, technology)]
+        try:
+            # Get key from lookup dict
+            position_in_dict = self.dict_tuple_keys[(enduse, sector, technology)]
 
-        # Get correct object
-        load_profile_obj = self.load_profiles[position_in_dict]
+            # Get correct object
+            load_profile_obj = self.load_profiles[position_in_dict]
 
+        except KeyError:
+            raise Exception(
+                "Please define load profile for '{}' '{}' '{}'".format(
+                    technology, enduse, sector))
+        
         return getattr(load_profile_obj, shape)
 
 def generate_key_lu_dict(dict_tuple_keys, unique_identifier, enduses, sectors, technologies):

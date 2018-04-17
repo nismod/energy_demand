@@ -205,8 +205,8 @@ def assign_by_fuel_tech_p(enduses, sectors, fueltypes, fueltypes_nr):
         'boiler_gas': 0.38}
 
     ss_fuel_tech_p_by['ss_space_heating'][fueltypes['electricity']] = {
-        'boiler_electricity': 0.96,
-        'heat_pumps_electricity': 0.04}
+        'secondary_heater_electricity': 0.95,
+        'heat_pumps_electricity': 0.05}
 
     ss_fuel_tech_p_by['ss_space_heating'][fueltypes['oil']] = {
         'boiler_condensing_oil': 0.6,
@@ -255,7 +255,7 @@ def assign_by_fuel_tech_p(enduses, sectors, fueltypes, fueltypes_nr):
         'boiler_gas': 0.38}
 
     is_fuel_tech_p_by['is_space_heating'][fueltypes['electricity']] = {
-        'boiler_electricity': 0.96,
+        'secondary_heater_electricity': 0.96,
         'heat_pumps_electricity': 0.04}
 
     is_fuel_tech_p_by['is_space_heating'][fueltypes['oil']] = {
