@@ -51,8 +51,7 @@ def test_assign_lp_no_techs():
         enduses=['test_enduse'],
         shape_yd=np.full((365, 24), 1 / 365),
         shape_yh=shape_yh,
-        sectors=['test_sector'],
-        f_peak_yd=1.0/365)
+        sectors=['test_sector'])
 
     fuel_y = np.zeros((3))
     fuel_y[2] = 100
@@ -606,8 +605,7 @@ def test_calc_fuel_tech_yh():
         enduses=['heating'],
         shape_yd=np.full((365,24), 1 / 365),
         shape_yh=shape_yh,
-        sectors=['sectorA'],
-        f_peak_yd=1.0/365)
+        sectors=['sectorA'])
 
     fuel = 200
     results = enduse_func.calc_fuel_tech_yh(

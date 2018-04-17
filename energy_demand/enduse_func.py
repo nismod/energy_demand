@@ -741,9 +741,7 @@ def calc_fuel_tech_yh(
 
         fuels_yh = {}
         for tech in enduse_techs:
-            
-            if enduse == 'rs_water_heating':
-                print(".")
+
             load_profile = load_profiles.get_lp(
                 enduse, sector, tech, 'shape_yh')
 

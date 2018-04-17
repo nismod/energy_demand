@@ -167,7 +167,7 @@ def assign_by_fuel_tech_p(enduses, sectors, fueltypes, fueltypes_nr):
     # ---------------
     # Water heating
     # ---------------
-    rs_fuel_tech_p_by['rs_water_heating'][fueltypes['solid_fuel']] = {
+    '''rs_fuel_tech_p_by['rs_water_heating'][fueltypes['solid_fuel']] = {
         'boiler_solid_fuel': 1.0}
 
     rs_fuel_tech_p_by['rs_water_heating'][fueltypes['oil']] = {
@@ -186,7 +186,7 @@ def assign_by_fuel_tech_p(enduses, sectors, fueltypes, fueltypes_nr):
 
     rs_fuel_tech_p_by['rs_water_heating'][fueltypes['hydrogen']] = {
         'fuel_cell_hydrogen': 0,
-        'boiler_hydrogen': 1.0}
+        'boiler_hydrogen': 1.0}'''
 
     # ===================
     # Service subModel

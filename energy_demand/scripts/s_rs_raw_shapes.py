@@ -40,7 +40,7 @@ def read_csv(path_to_csv):
 
     return np.array(service_switches) # Convert list into array
 
-def get_hes_load_shapes(appliances_hes_matching, year_raw_values, hes_y_peak, enduse):
+def get_hes_load_shapes(appliances_hes_matching, year_raw_values, hes_y_peak, enduse, single_enduse=True, enduses=False):
     """Read in raw HES data and generate shapes
 
     Calculate peak day demand
@@ -68,15 +68,34 @@ def get_hes_load_shapes(appliances_hes_matching, year_raw_values, hes_y_peak, en
     -----
     The HES appliances are matched with enduses
     """
-    # Match enduse with HES appliance ID
-    # (see look_up table in original files for more information)
-    hes_app_id = appliances_hes_matching[enduse]
+    if single_enduse:
+        # Match enduse with HES appliance ID
+        # (see look_up table in original files for more information)
+        hes_app_id = appliances_hes_matching[enduse]
 
-    # Total yearly demand of hes_app_id
-    tot_enduse_y = np.sum(year_raw_values[:, :, hes_app_id])
+        # Total yearly demand of hes_app_id
+        tot_enduse_y = np.sum(year_raw_values[:, :, hes_app_id])
 
-    # Get peak daily load shape, calculate amount of energy demand for peak day of hes_app_id
-    peak_h_values = hes_y_peak[:, hes_app_id]
+        # Get peak daily load shape, calculate amount of energy demand for peak day of hes_app_id
+        peak_h_values = hes_y_peak[:, hes_app_id]
+
+    else:
+        print("ENDUSES " + str(enduses))
+        for enduse in enduses:
+            hes_app_id = appliances_hes_matching[enduse]
+
+            try:
+                tot_enduse_y += np.sum(year_raw_values[:, :, hes_app_id])
+
+                # Get peak daily load shape, calculate amount of energy demand for peak day of hes_app_id
+                peak_h_values += hes_y_peak[:, hes_app_id]
+
+            except:
+                # Total yearly demand of hes_app_id
+                tot_enduse_y = np.sum(year_raw_values[:, :, hes_app_id])
+                
+                # Get peak daily load shape, calculate amount of energy demand for peak day of hes_app_id
+                peak_h_values = hes_y_peak[:, hes_app_id]
 
     # Maximum daily demand
     tot_peak_demand_d = np.sum(peak_h_values)
@@ -212,11 +231,11 @@ def run(paths, local_paths, base_yr):
         'rs_consumer_electronics': 3,
         'rs_home_computing': 4,
         'rs_wet': 5,
-        'rs_water_heating': 6,
+        'rs_water_heating_water_heating': 6,
         'NOT_USED_unkown_1': 7,
         'NOT_USED_unkown_2': 8,
         'NOT_USED_unkown_3': 9,
-        'NOT_USED_showers': 10}
+        'rs_water_heating_showers': 10}
 
     # HES data -- Generate generic load profiles
     # for all electricity appliances from HES data
@@ -235,10 +254,30 @@ def run(paths, local_paths, base_yr):
 
     # Load shape for all enduses
     for enduse in rs_enduses:
+
         if enduse not in hes_appliances_matching:
-            logging.debug(
-                "Warning: The enduse %s is not definedin hes_appliances_matching",
-                enduse)
+
+            # Merge shapes of water heating and shower
+            if enduse == 'rs_water_heating':
+                # Generate HES load shapes
+                shape_peak_dh, shape_non_peak_y_dh, shape_peak_yd_factor, shape_non_peak_yd = get_hes_load_shapes(
+                    hes_appliances_matching,
+                    year_raw_hes_values,
+                    hes_y_peak,
+                    'rs_water_heating_water_heating',
+                    single_enduse=False,
+                    enduses=['rs_water_heating_showers', 'rs_water_heating_water_heating'])
+
+                # Write txt files
+                write_data.create_txt_shapes(
+                    enduse,
+                    local_paths['rs_load_profile_txt'],
+                    shape_peak_dh,
+                    shape_non_peak_y_dh,
+                    shape_peak_yd_factor,
+                    shape_non_peak_yd)
+            else:
+                pass
         else:
             # Generate HES load shapes
             shape_peak_dh, shape_non_peak_y_dh, shape_peak_yd_factor, shape_non_peak_yd = get_hes_load_shapes(

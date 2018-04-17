@@ -73,21 +73,21 @@ def post_install_setup(args):
     basic_functions.create_folder(data['local_paths']['ss_load_profile_txt'])
     basic_functions.create_folder(data['local_paths']['dir_disaggregated'])
 
-    print("... Read in temperature data from raw files")
-    s_raw_weather_data.run(
-        data['local_paths'])
-
-    print("... Read in service submodel load profiles")
-    s_ss_raw_shapes.run(
-        data['paths'],
-        data['local_paths'],
-        data['lookups'])
-
-    print("... Read in residential submodel load profiles")
+    logging.info("... Read in residential submodel load profiles")
     s_rs_raw_shapes.run(
         data['paths'],
         data['local_paths'],
         base_yr)
+
+    logging.info("... Read in temperature data from raw files")
+    s_raw_weather_data.run(
+        data['local_paths'])
+
+    logging.info("... Read in service submodel load profiles")
+    s_ss_raw_shapes.run(
+        data['paths'],
+        data['local_paths'],
+        data['lookups'])
 
     print("... successfully finished setup")
     return

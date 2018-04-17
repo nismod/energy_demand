@@ -26,8 +26,7 @@ class LoadProfileStock(object):
             enduses,
             shape_yd,
             shape_yh,
-            sectors=False,
-            f_peak_yd=1.0/365
+            sectors=False
         ):
         """Add load profile to stock
 
@@ -45,9 +44,6 @@ class LoadProfileStock(object):
             Shape yh (from year to hour)
         sectors : list, default=False
             Sectors for which the profile applies
-        f_peak_yd : float
-            Factor to calculate daily demand from yearly demand
-            Standard value is average daily amount
         """
         if not sectors:
             sectors = [False]
@@ -58,8 +54,7 @@ class LoadProfileStock(object):
             enduses,
             unique_identifier,
             shape_yd,
-            shape_yh,
-            f_peak_yd)
+            shape_yh)
 
         # Generate lookup dictionary with triple key
         self.dict_tuple_keys = generate_key_lu_dict(
@@ -160,8 +155,6 @@ class LoadProfile(object):
         Shape yd (from year to day)
     shape_yh : array
         Shape yh (from year to hour)
-    f_peak_yd : float
-        Factor to calculate daily demand from yearly demand
         Standard value is average daily amount
     shape_peak_dh : array
         Shape (dh), shape of a day for every hour
@@ -171,8 +164,7 @@ class LoadProfile(object):
             enduses,
             unique_identifier,
             shape_yd,
-            shape_yh,
-            f_peak_yd
+            shape_yh
         ):
         """Constructor
 
@@ -182,7 +174,6 @@ class LoadProfile(object):
         self.enduses = enduses
         self.shape_yd = shape_yd
         self.shape_yh = shape_yh
-        self.f_peak_yd = f_peak_yd
 
         # Calculate percentage for every day
         self.shape_y_dh = calc_y_dh_shape_from_yh(shape_yh)
