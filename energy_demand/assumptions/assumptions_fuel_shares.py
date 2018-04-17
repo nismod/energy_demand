@@ -174,12 +174,12 @@ def assign_by_fuel_tech_p(enduses, sectors, fueltypes, fueltypes_nr):
         'boiler_condensing_oil': 0.6,
         'boiler_oil': 0.4}
 
+    rs_fuel_tech_p_by['rs_water_heating'][fueltypes['electricity']] = {
+        'boiler_electricity': 1.0}
+
     rs_fuel_tech_p_by['rs_water_heating'][fueltypes['gas']] = {
         'boiler_condensing_gas': 0.6,
         'boiler_gas': 0.4}
-
-    rs_fuel_tech_p_by['rs_water_heating'][fueltypes['electricity']] = {
-        'boiler_electricity': 1.0}
 
     rs_fuel_tech_p_by['rs_water_heating'][fueltypes['biomass']] = {
         'boiler_biomass': 1.0}

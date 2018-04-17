@@ -280,7 +280,7 @@ class WeatherRegion(object):
         for enduse in all_enduses['rs_enduses']:
 
             # Enduses where technology specific load profiles are defined for yh
-            if enduse == 'rs_space_heating':
+            if enduse == 'rs_space_heating': # or enduse == 'rs_water_heating': #TODO
                 pass
             else:
                 tech_list = helpers.get_nested_dict_key(assumptions.rs_fuel_tech_p_by[enduse])
@@ -397,7 +397,7 @@ class WeatherRegion(object):
             shape_peak_dh=tech_lp['rs_lp_heating_hp_dh']['peakday'])
 
         rs_fuel_shape_hp_yh = get_fuel_shape_heating_hp_yh(
-            rs_profile_hp_y_dh, #tech_lp['rs_profile_hp_y_dh'],
+            rs_profile_hp_y_dh,
             self.rs_tech_stock,
             self.rs_hdd_cy,
             model_yeardays)
@@ -405,7 +405,7 @@ class WeatherRegion(object):
         self.rs_load_profiles.add_lp(
             unique_identifier=uuid.uuid4(),
             technologies=tech_lists['heating_non_const'],
-            enduses=['rs_space_heating', 'rs_water_heating'], #, 'ss_space_heating'], #TODO: NEW ADDED SPACE HEATING
+            enduses=['rs_space_heating', 'rs_water_heating'],
             shape_yd=rs_fuel_shape_heating_yd,
             shape_yh=rs_fuel_shape_hp_yh,
             f_peak_yd=rs_peak_yd_heating_factor)
@@ -487,15 +487,7 @@ class WeatherRegion(object):
         ss_peak_yd_heating_factor = get_shape_peak_yd_factor(ss_hdd_cy)
         ss_peak_yd_cooling_factor = get_shape_peak_yd_factor(ss_cdd_cy)
 
-        # --Heating technologies for service sector
-        #
-        # (the heating shape follows the gas shape of aggregated sectors)
-        # meaning that for all technologies, the load profile is the same
-        ss_fuel_shape_any_tech, ss_fuel_shape = ss_get_sector_enduse_shape(
-            tech_lp['ss_all_tech_shapes_dh'],
-            ss_fuel_shape_heating_yd,
-            'ss_space_heating',
-            model_yeardays_nrs)
+
 
         # Apply correction factor for weekend_effect
         # ------
@@ -508,13 +500,21 @@ class WeatherRegion(object):
         all_techs_ss_space_heating = [item for sublist in ss_space_heating_tech_lists for item in sublist]
 
         #TODO TAKE ALSO RESIDENTIAL HEAT PUMP PROFILE FOR SERICE SECTOR
-        '''all_techs_ss_space_heating_new = []
+        # --
+        # Heat pump
+        # --
+        all_techs_ss_space_heating_new = []
         for i in all_techs_ss_space_heating:
             if i == 'heat_pumps_electricity':
                 _ = 0
             else:
                 all_techs_ss_space_heating_new.append(i)
         all_techs_ss_space_heating = all_techs_ss_space_heating_new
+        ss_fuel_shape_hp_yh = get_fuel_shape_heating_hp_yh(
+            rs_profile_hp_y_dh,
+            self.rs_tech_stock,
+            ss_hdd_cy,
+            model_yeardays)
 
         self.ss_load_profiles.add_lp(
             unique_identifier=uuid.uuid4(),
@@ -522,11 +522,22 @@ class WeatherRegion(object):
             enduses=['ss_space_heating'],
             sectors=sectors['ss_sectors'],
             shape_yd=ss_fuel_shape_heating_yd_weighted,
-            shape_yh=rs_fuel_shape_hp_yh,
+            shape_yh=ss_fuel_shape_hp_yh,
             f_peak_yd=ss_peak_yd_heating_factor)
-        # TODO NEW SEPERATEO ELEC DEMAND PROFILE FOR HEAT PUMP-----'''
+
+        # --
+        # All other heating technologies for service sector
+        # --
+        # (the heating shape follows the gas shape of aggregated sectors)
+        # meaning that for all technologies, the load profile is the same
+        ss_fuel_shape_any_tech, ss_fuel_shape = ss_get_sector_enduse_shape(
+            tech_lp['ss_all_tech_shapes_dh'],
+            ss_fuel_shape_heating_yd_weighted,
+            'ss_space_heating',
+            model_yeardays_nrs)
+
         # Flat load profiles
-        shape_non_peak_y_dh, shape_peak_yd_factor, shape_non_peak_yd, flat_shape_non_peak_yh = generic_shapes.flat_shape(
+        flat_shape_non_peak_y_dh, shape_peak_yd_factor, shape_non_peak_yd, flat_shape_non_peak_yh = generic_shapes.flat_shape(
             assumptions.model_yeardays_nrs)
 
         # ----------------
@@ -581,7 +592,6 @@ class WeatherRegion(object):
         # Industry submodel load profiles
         # ==================================================================
         self.is_load_profiles = load_profile.LoadProfileStock("is_load_profiles")
-
 
 
         # --------HDD/CDD

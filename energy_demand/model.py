@@ -62,10 +62,9 @@ class EnergyDemandModel(object):
         if data['criterias']['virtual_building_stock_criteria']:
 
             # Virtual dwelling stocks
-            rs_dw_stock, ss_dw_stock = create_virtual_dwelling_stocks(
+            data['rs_dw_stock'], data['ss_dw_stock'] = create_virtual_dwelling_stocks(
                 regions, self.curr_yr, data)
-            data['rs_dw_stock'] = rs_dw_stock
-            data['ss_dw_stock'] = ss_dw_stock
+
         else:
             # Create dwelling stock from imported data from newcastle
             data = create_dwelling_stock(
@@ -338,7 +337,6 @@ def residential_submodel(
         weather_region,
         scenario_data,
         rs_dw_stock,
-        #non_regional_lp_stock,
         assumptions,
         lookups,
         criterias,
@@ -419,7 +417,6 @@ def service_submodel(
         weather_region,
         scenario_data,
         ss_dw_stock,
-        #non_regional_lp_stock,
         assumptions,
         lookups,
         criterias,
