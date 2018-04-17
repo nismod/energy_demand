@@ -30,7 +30,10 @@ def post_install_setup(args):
     print("... start running initialisation scripts")
 
     # Paths
-    path_main = resource_filename(Requirement.parse("energy_demand"), os.path.join("energy_demand", "config_data"))
+    path_main = resource_filename(
+        Requirement.parse("energy_demand"),
+        os.path.join("energy_demand", "config_data"))
+
     path_results = resource_filename(Requirement.parse("energy_demand"), "results")
     local_data_path = args.local_data
 
@@ -50,7 +53,6 @@ def post_install_setup(args):
     data['enduses'], data['sectors'], data['fuels'] = data_loader.load_fuels(
         data['paths'], data['lookups'])
 
-    # Assumptions
     data['assumptions'] = non_param_assumptions.Assumptions(
         base_yr=base_yr,
         paths=data['paths'],

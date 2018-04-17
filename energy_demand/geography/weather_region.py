@@ -200,7 +200,6 @@ class WeatherRegion(object):
         # ========
         # Enduse specific profiles
         # ========
-
         '''# Skip temperature dependent end uses (regional)
         if 'rs_cold' in assumptions.enduse_rs_space_cooling:
             pass
@@ -241,7 +240,7 @@ class WeatherRegion(object):
                     unique_identifier=uuid.uuid4(),
                     technologies=tech_list,
                     enduses=[enduse],
-                    shape_yd=tech_lp['rs_shapes_yd'][enduse]['shape_non_peak_yd'],
+                    shape_yd=shape_y_dh, #tech_lp['rs_shapes_yd'][enduse]['shape_non_peak_yd'],
                     shape_yh=shape_yh)
 
         '''# RESIDENITAL COOLING
@@ -450,7 +449,7 @@ class WeatherRegion(object):
             shape_yh=ss_fuel_shape_hp_yh)
 
         # --------
-        # boiler_electricity
+        # secondary_heater_electricity
         # Info: The residential direct heating load profile is used
         # -------
         # Remove tech from all space heating techs
@@ -463,15 +462,15 @@ class WeatherRegion(object):
             model_yeardays)
 
         # Get aggregated electricity load profile
-        '''ss_fuel_shape_electricity, _ = ss_get_sector_enduse_shape(
+        ss_fuel_shape_electricity, _ = ss_get_sector_enduse_shape(
             tech_lp['ss_all_tech_shapes_dh'],
             ss_fuel_shape_heating_yd_weighted,
             'ss_other_electricity',
-            model_yeardays_nrs)'''
+            model_yeardays_nrs)
 
         self.ss_load_profiles.add_lp(
             unique_identifier=uuid.uuid4(),
-            technologies=['secondary_heater_electricity'],
+            technologies=tech_lists['secondary_heating_electricity'],
             enduses=['ss_space_heating'],
             sectors=sectors['ss_sectors'],
             shape_yd=ss_fuel_shape_heating_yd_weighted,
@@ -574,7 +573,6 @@ class WeatherRegion(object):
         all_techs_is_space_heating = basic_functions.remove_element_from_list(
             all_techs_is_space_heating, 'secondary_heater_electricity')
 
-
         is_profile_elec_heater_yh = load_profile.calc_yh(
             is_fuel_shape_heating_yd_weighted,
             rs_profile_elec_heater_y_dh,
@@ -582,18 +580,18 @@ class WeatherRegion(object):
 
         self.is_load_profiles.add_lp(
             unique_identifier=uuid.uuid4(),
-            technologies=['secondary_heater_electricity'],
+            technologies=tech_lists['secondary_heating_electricity'],
             enduses=['is_space_heating'],
             sectors=sectors['is_sectors'],
             shape_yd=is_fuel_shape_heating_yd_weighted,
             shape_yh=is_profile_elec_heater_yh)
 
         # Use direct heating from residential sector
-        '''is_fuel_shape_any_tech_non_electric, _ = ss_get_sector_enduse_shape(
+        is_fuel_shape_any_tech_non_electric, _ = ss_get_sector_enduse_shape(
             tech_lp['ss_all_tech_shapes_dh'],
             is_fuel_shape_heating_yd_weighted,
             'ss_space_heating',
-            assumptions.model_yeardays_nrs)'''
+            assumptions.model_yeardays_nrs)
 
         # Add flat load profiles for non-electric heating technologies
         self.is_load_profiles.add_lp(

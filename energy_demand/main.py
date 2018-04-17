@@ -37,6 +37,7 @@ TODO: CONTROL ALL PEAK RESULTS
 TODO: REMOVE model_yeardays_nrs
 TODO :CHECK LOAD PRIFILE TECH TYPE NAMES
 TODO: shape_peak_yd_factor
+TODO: REMOVE ALL PEAK RELATED STUFF
 TODO: SMOOTH LINE https://stackoverflow.com/questions/25825946/generating-smooth-line-graph-using-matplotlib?lq=1
 """
 import os
@@ -286,7 +287,7 @@ if __name__ == "__main__":
 
     # In order to load these data, the initialisation scripts need to be run
     print("... Load data from script calculations")
-    data = read_data.load_script_data(data) #SCENARIO INITIALISATION
+    data = read_data.load_script_data(data)
 
     #-------------------
     # Folder cleaning

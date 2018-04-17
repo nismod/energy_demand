@@ -117,7 +117,7 @@ class Enduse(object):
         self.enduse = enduse
         self.fuel_y = fuel
         self.flat_profile_crit = flat_profile_crit
-        _scrap = np.sum(self.fuel_y)
+
         self.techs_fuel_yh = None
 
         if np.sum(fuel) == 0:
@@ -208,7 +208,11 @@ class Enduse(object):
                 assumptions)
             self.fuel_y = _fuel_new_y
             #logging.debug("... Fuel train E2: " + str(np.sum(self.fuel_y)))
-
+            '''if enduse == 'rs_water_heating':
+                logging.info(self.enduse_techs)
+                logging.info(flat_profile_crit)
+                prnt(":")'''
+            #logging.info("ddddd {}  {}".format(enduse, self.enduse_techs) )
             # ----------------------------------
             # Hourly Disaggregation
             # ----------------------------------
@@ -216,8 +220,6 @@ class Enduse(object):
                 """If no technologies are defined for an enduse, the load profiles
                 are read from dummy shape, which show the load profiles of the whole enduse.
                 No switches can be implemented and only overall change of enduse.
-
-                Note: for heating, technologies need to be assigned.
                 """
                 if flat_profile_crit:
                     self.fuel_y = self.fuel_y * model_yeardays_nrs / 365.0
@@ -308,6 +310,7 @@ class Enduse(object):
                 # ------------------------------------------
                 # Assign load profiles
                 # ------------------------------------------
+                #logging.info("ENDUSE : {}   TECHS:  {}".format(enduse, self.enduse_techs))
                 if self.flat_profile_crit:
                     #logging.info("flat profile")
                     pass
@@ -323,12 +326,6 @@ class Enduse(object):
                         model_yeardays_nrs,
                         mode_constrained)
 
-                    total = sum(fuel_tech_y.values())
-                    #logging.info(" {}  {} ".format(enduse, sector))
-                    #logging.info("T: {} {} {} {}".format(sum(self.fuel_y), _scrap, total, round(fuel_yh, 6)))
-                    #assert round(sum(self.fuel_y), 6) == round(fuel_yh, 6)
-                    #assert round(sum(self.fuel_y), 6) == round(_scrap, 6)
-                    #assert round(sum(self.fuel_y), 6) == round(total, 6)
                     # --------------------------------------
                     # Demand Management (peak shaving)
                     # ---------------------------------------
@@ -520,13 +517,14 @@ def assign_lp_no_techs(enduse, sector, load_profiles, fuel_y):
 
     Returns
     -------
-    fuel_yh : array
+    fuel_yh : array (fueltype, 365, 24)
         Fuel yh
     """
-    fuel = fuel_y[:, np.newaxis, np.newaxis]
+    # Load profile for all fueltypes
+    load_profile = load_profiles.get_lp(
+        enduse, sector, 'placeholder_tech', 'shape_yh')
 
-    fuel_yh = load_profiles.get_lp(
-        enduse, sector, 'placeholder_tech', 'shape_yh') * fuel
+    fuel_yh = load_profile[:np.newaxis] * fuel_y[:, np.newaxis, np.newaxis]
 
     return fuel_yh
 
@@ -756,9 +754,18 @@ def calc_fuel_tech_yh(
             
             fuels_yh[tech] = fuel_tech_y[tech] * load_profile
 
-            #logging.info("SUM {}  {} {} {}".format(np.sum(load_profile), enduse, sector, tech))
-            assert round(np.sum(load_profile), 4) == 1 #TODO REMOVE
-            assert round(fuel_tech_y[tech], 6) == round(np.sum(fuels_yh[tech]), 6)
+            if tech == 'secondary_heating_electricity':
+                logging.info("iiii {}  {} {} {}".format(np.sum(load_profile), enduse, sector, tech))
+                prnt("")
+            '''if enduse == 'ss_space_heating' and tech == 'secondary_heater_electricity':
+    
+                logging.info("SUM {}  {} {} {}".format(np.sum(load_profile), enduse, sector, tech))
+                logging.info(load_profile)
+                logging.info(load_profile.shape)
+                logging.info(np.sum(load_profile))
+                ##assert round(np.sum(load_profile), 4) == 1 #TODO REMOVE
+                ##assert round(fuel_tech_y[tech], 6) == round(np.sum(fuels_yh[tech]), 6)
+                prnt(".")'''
     else:
         # --
         # Unconstrained mode, i.e. not technolog specific.
@@ -1503,7 +1510,8 @@ def calc_service_switch(
     # Calculate switch
     # ----------------------------------------
     if crit_switch_service:
-
+        logging.info("SWITCH TRUE")
+        prnt(":")
         switched_s_tech_y_cy = {}
 
         # Service of all technologies
