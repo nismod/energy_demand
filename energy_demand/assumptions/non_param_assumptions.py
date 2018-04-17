@@ -2,7 +2,6 @@
 """
 from energy_demand.read_write import read_data
 from energy_demand.technologies import tech_related
-from energy_demand.technologies import technological_stock
 from energy_demand.basic import testing_functions, date_prop
 from energy_demand.assumptions import assumptions_fuel_shares
 from energy_demand.initalisations import helpers
@@ -357,7 +356,7 @@ class Assumptions(object):
         #
         #   Overal changes in industry related enduse can be changed
         #   in 'enduse_overall_change_enduses'
-        # 
+        #
         # ------------------------------------------------------------
 
         # --------------------------------------------

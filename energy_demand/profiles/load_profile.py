@@ -175,6 +175,8 @@ class LoadProfile(object):
             f_peak_yd
         ):
         """Constructor
+
+        TODO Seperate YD AND YH ONLY HAVE y_dh and yd as input and calculate yh
         """
         self.unique_identifier = unique_identifier
         self.enduses = enduses

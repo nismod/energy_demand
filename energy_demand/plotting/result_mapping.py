@@ -378,7 +378,7 @@ def plot_lad_national(
         # ---------
         all_zero_polygons = getattr(lad_geopanda_shp_reclass, 'reclassified')
         lad_geopanda_shp_zeros = lad_geopanda_shp_reclass[(all_zero_polygons == placeholder_zero_color)]
-        print("AA {}  {} ".format(color_zero, all_zero_polygons))
+
         # If more than 0 polygons are selected with classified number of zero, plot them
         if lad_geopanda_shp_zeros.shape[0] > 0:
             lad_geopanda_shp_zeros.plot(
