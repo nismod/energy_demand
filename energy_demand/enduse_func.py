@@ -117,7 +117,7 @@ class Enduse(object):
         self.enduse = enduse
         self.fuel_y = fuel
         self.flat_profile_crit = flat_profile_crit
-
+        _scrap = np.sum(self.fuel_y)
         self.techs_fuel_yh = None
 
         if np.sum(fuel) == 0:
@@ -298,7 +298,7 @@ class Enduse(object):
                     fueltypes_nr,
                     fueltypes,
                     mode_constrained)
-                #logging.debug("... Fuel train Post service: " + str(np.sum(self.fuel_y)))
+                #logging.debug("... Fuel train H: " + str(np.sum(self.fuel_y)))
 
                 # Delete all technologies with no fuel assigned
                 for tech, fuel_tech in fuel_tech_y.items():
@@ -323,6 +323,12 @@ class Enduse(object):
                         model_yeardays_nrs,
                         mode_constrained)
 
+                    total = sum(fuel_tech_y.values())
+                    #logging.info(" {}  {} ".format(enduse, sector))
+                    #logging.info("T: {} {} {} {}".format(sum(self.fuel_y), _scrap, total, round(fuel_yh, 6)))
+                    #assert round(sum(self.fuel_y), 6) == round(fuel_yh, 6)
+                    #assert round(sum(self.fuel_y), 6) == round(_scrap, 6)
+                    #assert round(sum(self.fuel_y), 6) == round(total, 6)
                     # --------------------------------------
                     # Demand Management (peak shaving)
                     # ---------------------------------------
@@ -747,8 +753,12 @@ def calc_fuel_tech_yh(
 
             if model_yeardays_nrs != 365:
                 load_profile = lp.abs_to_rel(load_profile)
-
+            
             fuels_yh[tech] = fuel_tech_y[tech] * load_profile
+
+            #logging.info("SUM {}  {} {} {}".format(np.sum(load_profile), enduse, sector, tech))
+            assert round(np.sum(load_profile), 4) == 1 #TODO REMOVE
+            assert round(fuel_tech_y[tech], 6) == round(np.sum(fuels_yh[tech]), 6)
     else:
         # --
         # Unconstrained mode, i.e. not technolog specific.

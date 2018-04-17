@@ -311,6 +311,7 @@ if __name__ == "__main__":
         print("Simulation for year --------------:  " + str(sim_yr))
         fuel_in, fuel_in_biomass, fuel_in_elec, fuel_in_gas, fuel_in_heat, fuel_in_hydro, fuel_in_solid_fuel, fuel_in_oil, tot_heating = testing.test_function_fuel_sum(
             data,
+            data['fuel_disagg'],
             data['criterias']['mode_constrained'],
             data['assumptions'].enduse_space_heating)
 

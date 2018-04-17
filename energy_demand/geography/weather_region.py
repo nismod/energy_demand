@@ -13,6 +13,7 @@ from energy_demand import enduse_func
 from energy_demand.enduse_func import get_peak_day_single_fueltype
 from energy_demand.initalisations import helpers
 from energy_demand.profiles import generic_shapes
+from energy_demand.basic import basic_functions
 
 class WeatherRegion(object):
     """WeaterRegion
@@ -431,7 +432,7 @@ class WeatherRegion(object):
         # Heat pump (RESIDENTIAL HEAT PUMP PROFILE FOR SERVICE SECTOR)
         # --
         # Remove tech from all space heating techs
-        all_techs_ss_space_heating = remove_element_from_list(
+        all_techs_ss_space_heating = basic_functions.remove_element_from_list(
             all_techs_ss_space_heating, 'heat_pumps_electricity')
 
         ss_fuel_shape_hp_yh = get_fuel_shape_heating_hp_yh(
@@ -453,7 +454,7 @@ class WeatherRegion(object):
         # Info: The residential direct heating load profile is used
         # -------
         # Remove tech from all space heating techs
-        all_techs_ss_space_heating = remove_element_from_list(
+        all_techs_ss_space_heating = basic_functions.remove_element_from_list(
             all_techs_ss_space_heating, 'secondary_heater_electricity')
 
         ss_profile_elec_heater_yh = load_profile.calc_yh(
@@ -570,7 +571,7 @@ class WeatherRegion(object):
 
 
         # Remove tech from all space heating techs
-        all_techs_is_space_heating = remove_element_from_list(
+        all_techs_is_space_heating = basic_functions.remove_element_from_list(
             all_techs_is_space_heating, 'secondary_heater_electricity')
 
 
@@ -841,7 +842,7 @@ def insert_peak_dh_shape(
         Shape of technology for every day (total sum = 365)
     tech_lp_tech : dict
         Technolgy specific load profiles for different day types
-    
+
     Returns
     -------
     shape_y_dh_inserted : array
@@ -852,18 +853,6 @@ def insert_peak_dh_shape(
     shape_y_dh_inserted = np.copy(shape_y_dh)
 
     shape_y_dh_inserted[peak_day] = peak_day_tech_dh
-    
+
     #assert np.sum(shape_y_dh_inserted) == 365
     return shape_y_dh_inserted
-
-def remove_element_from_list(input_list, element):
-    """Remove element in list
-    """
-    list_new = []
-    for i in input_list:
-        if i == element:
-            _ = 0
-        else:
-            list_new.append(i)
-
-    return list_new

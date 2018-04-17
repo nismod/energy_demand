@@ -167,7 +167,7 @@ def test_function_fuel_sum(data, fuel_disagg, mode_constrained, space_heating_en
                 fuel_in_oil += np.sum(fuel_disagg['rs_fuel_disagg'][region][enduse][data['lookups']['fueltypes']['oil']])
                 fuel_in_solid_fuel += np.sum(fuel_disagg['rs_fuel_disagg'][region][enduse][data['lookups']['fueltypes']['solid_fuel']])
                 fuel_in_biomass += np.sum(fuel_disagg['rs_fuel_disagg'][region][enduse][data['lookups']['fueltypes']['biomass']])
-            
+
     for region in fuel_disagg['ss_fuel_disagg']:
         for enduse in fuel_disagg['ss_fuel_disagg'][region]:
             for sector in fuel_disagg['ss_fuel_disagg'][region][enduse]:
