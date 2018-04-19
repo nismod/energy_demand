@@ -51,7 +51,9 @@ def test_assign_lp_no_techs():
         enduses=['test_enduse'],
         shape_yd=np.full((365, 24), 1 / 365),
         shape_yh=shape_yh,
-        sectors=['test_sector'])
+        sectors=['test_sector'],
+        model_yeardays=list(range(365)),
+        shape_y_dh=False)
 
     fuel_y = np.zeros((3))
     fuel_y[2] = 100
@@ -598,6 +600,7 @@ def test_calc_fuel_tech_yh():
     _b = np.array(range(365))
     shape_yh = _a + _b[:, np.newaxis]
     shape_yh = shape_yh / float(np.sum(range(365)) * 24)
+    model_yeardays = list(range(365))
 
     lp_stock_obj.add_lp(
         unique_identifier="A123",
@@ -605,7 +608,9 @@ def test_calc_fuel_tech_yh():
         enduses=['heating'],
         shape_yd=np.full((365,24), 1 / 365),
         shape_yh=shape_yh,
-        sectors=['sectorA'])
+        sectors=['sectorA'],
+        shape_y_dh=np.full((365), 1/365),
+        model_yeardays=model_yeardays)
 
     fuel = 200
     results = enduse_func.calc_fuel_tech_yh(

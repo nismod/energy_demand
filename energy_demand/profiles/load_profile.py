@@ -22,8 +22,10 @@ class LoadProfileStock(object):
             technologies,
             enduses,
             shape_yd,
-            shape_yh,
-            sectors=False
+            shape_y_dh,
+            model_yeardays,
+            sectors=False,
+            shape_yh=False
         ):
         """Add load profile to stock
 
@@ -35,8 +37,8 @@ class LoadProfileStock(object):
             Technologies for which the profile applies
         enduses : list
             Enduses for which the profile applies
-        shape_yd : array
-            Shape yd (from year to day)
+        shape_y_dh : array
+            
         shape_yh : array
             Shape yh (from year to hour)
         sectors : list, default=False
@@ -50,8 +52,10 @@ class LoadProfileStock(object):
         self.load_profiles[unique_identifier] = LoadProfile(
             enduses,
             unique_identifier,
+            shape_yh,
             shape_yd,
-            shape_yh)
+            shape_y_dh,
+            model_yeardays)
 
         # Generate lookup dictionary with triple key
         self.dict_tuple_keys = generate_key_lu_dict(
@@ -82,17 +86,17 @@ class LoadProfileStock(object):
         ------
         Load profile attribute
         """
-        try:
-            # Get key from lookup dict
-            position_in_dict = self.dict_tuple_keys[(enduse, sector, technology)]
+        #try:
+        # Get key from lookup dict
+        position_in_dict = self.dict_tuple_keys[(enduse, sector, technology)]
 
-            # Get correct object
-            load_profile_obj = self.load_profiles[position_in_dict]
+        # Get correct object
+        load_profile_obj = self.load_profiles[position_in_dict]
 
-        except KeyError:
+        '''except KeyError:
             raise Exception(
                 "Please define load profile for '{}' '{}' '{}'".format(
-                    technology, enduse, sector))
+                    technology, enduse, sector))'''
 
         return getattr(load_profile_obj, shape)
 
@@ -154,8 +158,8 @@ class LoadProfile(object):
         Enduses assigned to load profile
     unique_identifier : string
         Unique identifer for LoadProfile object
-    shape_yd : array
-        Shape yd (from year to day)
+    shape_y_dh : array
+        Shape of every day in a year (sum = 365)
     shape_yh : array
         Shape yh (from year to hour)
         Standard value is average daily amount
@@ -166,8 +170,10 @@ class LoadProfile(object):
             self,
             enduses,
             unique_identifier,
+            shape_yh,
             shape_yd,
-            shape_yh
+            shape_y_dh,
+            model_yeardays
         ):
         """Constructor
 
@@ -175,13 +181,20 @@ class LoadProfile(object):
         """
         self.unique_identifier = unique_identifier
         self.enduses = enduses
-        self.shape_yd = shape_yd
-        self.shape_yh = shape_yh
+        #self.shape_y_dh = shape_y_dh
+
+        if isinstance(shape_yh, bool):
+            self.shape_yh = calc_yh(
+                shape_yd,
+                shape_y_dh,
+                model_yeardays)
+        else:
+            self.shape_yh = shape_yh
 
         # Calculate percentage for every day
-        self.shape_y_dh = calc_y_dh_shape_from_yh(shape_yh)
+        #self.shape_y_dh = calc_y_dh_shape_from_yh(shape_yh)
 
-def calc_y_dh_shape_from_yh(shape_yh):
+'''def calc_y_dh_shape_from_yh(shape_yh):
     """Calculate shape for every day
 
     Returns
@@ -214,7 +227,7 @@ def calc_y_dh_shape_from_yh(shape_yh):
     shape_y_dh[np.isnan(shape_y_dh)] = 0
 
     return shape_y_dh
-
+'''
 def abs_to_rel(absolute_array):
     """Convert absolute numbers in an array to relative
 

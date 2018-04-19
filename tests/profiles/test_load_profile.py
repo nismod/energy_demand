@@ -61,15 +61,17 @@ def test_LoadProfileStock():
     expected = "test_stock"
 
     assert result_obj.name == expected
-
+    model_yeardays = list(range(365))
     # -----
     result_obj.add_lp(
         unique_identifier="A123",
         technologies=['placeholder_tech'],
         enduses=['cooking'],
+        shape_y_dh=np.zeros((365)),
         shape_yd=np.zeros((365)),
         shape_yh=np.zeros((365, 24)),
-        sectors=False)
+        sectors=False,
+        model_yeardays=model_yeardays)
 
     result = result_obj.stock_enduses
 
@@ -84,18 +86,17 @@ def test_LoadProfileStock():
         unique_identifier="A123",
         technologies=['placeholder_tech'],
         enduses=['cooking'],
+        shape_y_dh=np.zeros((365)),
         shape_yd=np.zeros((365)),
         shape_yh=np.zeros((365, 24)),
-        sectors=['sectorA'])
+        sectors=['sectorA'],
+        model_yeardays=model_yeardays)
 
     result = result_obj.stock_enduses
     assert result == ['cooking']
 
     # test get_lp()
-    np.testing.assert_array_equal(np.zeros((365)), result_obj.get_lp('cooking', 'sectorA', 'placeholder_tech', 'shape_yd'))
     np.testing.assert_array_equal(np.zeros((365, 24)), result_obj.get_lp('cooking', 'sectorA', 'placeholder_tech', 'shape_yh'))
-    np.testing.assert_array_equal(np.zeros((365, 24)), result_obj.get_lp('cooking', 'sectorA', 'placeholder_tech', 'shape_y_dh'))
-    #np.testing.assert_array_equal(np.full((24), 1.0/24), result_obj.get_lp('cooking', 'sectorA', 'placeholder_tech', 'shape_peak_dh'))
 
     # test get_shape_peak_dh()
     '''_var = result_obj.get_lp('cooking', 'sectorA', 'placeholder_tech', 'shape_peak_dh')
@@ -123,7 +124,9 @@ def test_LoadProfile():
         enduses=['heating'],
         unique_identifier="A123",
         shape_yd=np.zeros((365)),
-        shape_yh=np.zeros((365, 24)))
+        shape_yh=np.zeros((365, 24)),
+        shape_y_dh=np.full((365), 1/365),
+        model_yeardays=list(range(365)))
 
     assert result_obj.enduses == ['heating']
 

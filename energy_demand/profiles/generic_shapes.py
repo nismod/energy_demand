@@ -25,7 +25,10 @@ def flat_shape(nr_of_days):
 
     flat_shape_yh = np.full((nr_of_days, 24), 1/(nr_of_days * 24), dtype=float)
 
-    return flat_shape_yd, flat_shape_yh
+    # Flat shape, ever hour same amount
+    flat_shape_y_dh = np.full((nr_of_days, 24), (1.0/24), dtype=float)
+
+    return flat_shape_yd, flat_shape_yh, flat_shape_y_dh
 
 class GenericFlatEnduse(object):
     """Class for creating generic enduses with flat shapes,
@@ -40,7 +43,7 @@ class GenericFlatEnduse(object):
     """
     def __init__(self, enduse_fuel, model_yeardays_nrs):
 
-        _, flat_shape_yh = flat_shape(model_yeardays_nrs)
+        _, flat_shape_yh, _ = flat_shape(model_yeardays_nrs)
 
         # Yh fuel shape per fueltype (non-peak)
         self.fuel_yh = enduse_fuel[:, np.newaxis, np.newaxis] * flat_shape_yh[np.newaxis, :, :] * (model_yeardays_nrs/365.0)

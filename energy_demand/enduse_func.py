@@ -340,10 +340,6 @@ class Enduse(object):
                                 curr_yr,
                                 strategy_variables,
                                 fuel_yh[tech],
-                                [tech],
-                                sector,
-                                tech_stock,
-                                load_profiles,
                                 mode_constrained=True)
 
                         self.fuel_yh = None
@@ -356,10 +352,6 @@ class Enduse(object):
                             curr_yr,
                             strategy_variables,
                             fuel_yh,
-                            self.enduse_techs,
-                            sector,
-                            tech_stock,
-                            load_profiles,
                             mode_constrained=False)
 
 def demand_management(
@@ -368,10 +360,6 @@ def demand_management(
         curr_yr,
         strategy_variables,
         fuel_yh,
-        enduse_techs,
-        sector,
-        tech_stock,
-        load_profiles,
         mode_constrained
     ):
     """Demand management. This function shifts peak per of this enduse
@@ -1511,7 +1499,7 @@ def calc_service_switch(
     # ----------------------------------------
     if crit_switch_service:
         logging.info("SWITCH TRUE")
-        prnt(":")
+
         switched_s_tech_y_cy = {}
 
         # Service of all technologies
