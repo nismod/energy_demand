@@ -11,7 +11,8 @@ def spatial_diffusion_values(
         regions,
         real_values,
         speed_con_max,
-        low_congruence_crit
+        low_congruence_crit,
+        p_outlier
     ):
     """Load spatial diffusion values
     "Create SDI from socio-economic data
@@ -25,6 +26,9 @@ def spatial_diffusion_values(
     ---------
     regions : dict
         Regions
+    p_outlier : float (percentage)
+        Percentage of outliers which are capped at both
+        ends of the value spectrum
 
     Returns
     -------
@@ -44,14 +48,14 @@ def spatial_diffusion_values(
     #plotting_program.plot_xy(list(real_values.values()))
 
     # Select number of outliers to remove lower and higher extremes
-    nr_of_utliers = 20
+    nr_of_outliers = int(100 / len(regions) * p_outlier)
 
     sorted_vals = list(real_values.values())
     sorted_vals.sort()
 
     # Get value of largest outlier
-    treshold_upper_real_value = sorted_vals[-nr_of_utliers]
-    treshold_lower_real_value = sorted_vals[nr_of_utliers]
+    treshold_upper_real_value = sorted_vals[-nr_of_outliers]
+    treshold_lower_real_value = sorted_vals[nr_of_outliers]
     
     for reg, val in real_values.items():
         if val > treshold_upper_real_value:
@@ -97,7 +101,13 @@ def spatial_diffusion_values(
             region,
             lower_concept_val + higher_concept_val,
             real_value)'''
-
+    '''min_val = max(diffusion_values.values())
+    for i in diffusion_values:
+        if diffusion_values[i] == min_val:
+            min_reg = i
+    import logging
+    logging.info("print  {}  {}  ".format(min_reg, min_val))
+    prnt(":")'''
     return diffusion_values
 
 def calc_diffusion_f(regions, f_reg, spatial_diff_values, fuels):
@@ -214,53 +224,6 @@ def calc_diffusion_f(regions, f_reg, spatial_diff_values, fuels):
             sum(f_reg_norm_abs[enduse].values()),
             1,
             decimal=2)
-
-    #-----------
-    # TESTING 
-    #-----------
-    '''enduse = 'ss_water_heating'
-    tot_amount_to_distribute = 200
-
-    # -----
-    # f_reg_norm_abs
-    # -----
-    # To distribute full absolute amount across all regs
-    __t = 0
-    for reg in regions:
-        __t += f_reg_norm_abs[enduse][reg] * tot_amount_to_distribute
-
-    logging.info("TOTAL MOUNT TO DISTR: " + str(tot_amount_to_distribute))
-    logging.info("TOTAL MOUNT TO DISTR CTONRLL: " + str(__t))
-
-    # -----
-    # f_reg_norm_abs
-    # -----
-    global_f = 0.9
-    _0 = []
-    _1 = []
-    _2 = []
-    
-    for reg in regions:
-        logging.warning("-------")
-        logging.warning("Not Normed: %s ", f_reg[reg] * global_f)                               # not normed
-        logging.warning("Normed: %s ", f_reg_norm[enduse][reg] * global_f)  # normed with not summing up to 1
-        logging.warning("Sums up to one: %s ", (f_reg_norm_abs[enduse][reg] * global_f))    #new
-        logging.warning((f_reg_norm_abs[enduse][reg] * global_f) / reg_enduse_p[enduse][reg]) #old
-
-        _0.append(f_reg[reg] * global_f)
-        _1.append(f_reg_norm[enduse][reg] * global_f)
-        _2.append(f_reg_norm_abs[enduse][reg] * global_f)
-
-    logging.info("INFOF FOR DEBBUGING")
-    logging.info(max(_0))
-    logging.info(max(_1))
-    logging.info(max(_2))
-
-    logging.info("--")
-
-    logging.info(sum(_0))
-    logging.info(sum(_1))
-    logging.info(sum(_2))'''
 
     return f_reg_norm_abs, f_reg_norm
 
@@ -402,7 +365,8 @@ def calc_spatially_diffusion_factors(
         regions=regions,
         real_values=real_values,
         speed_con_max=speed_con_max,
-        low_congruence_crit=low_congruence_crit)
+        low_congruence_crit=low_congruence_crit,
+        p_outlier=10)
 
     # -----
     # II. Calculation of diffusion factors (Not weighted with demand)

@@ -142,12 +142,12 @@ def scenario_initalisation(path_data_ed, data=False):
             fuel_disagg=fuel_disagg,
             real_values=data['pop_density'],    # Real value to select
             low_congruence_crit=True,
-            speed_con_max=3)                  # INFO: Set speed diffusion speed differences
+            speed_con_max=2.5)                  # INFO: Set speed diffusion speed differences
 
         # --------- ------------
         # Plot figure for paper
         # ---------------------
-        plot_fig_paper = True #FALSE
+        plot_fig_paper = False #FALSE
         if plot_fig_paper:
 
             # Global value to distribute
@@ -155,7 +155,7 @@ def scenario_initalisation(path_data_ed, data=False):
 
             # Select spatial diffusion factor
             #diffusion_vals = f_reg                                  # not weighted
-            diffusion_vals = f_reg_norm['rs_space_heating']         # Weighted with enduse
+            diffusion_vals = f_reg_norm['ss_space_heating']         # Weighted with enduse
             #diffusion_vals = f_reg_norm_abs['rs_space_heating']    # Absolute distribution (only for capacity installements)
 
             path_shapefile_input = os.path.abspath(
@@ -193,7 +193,9 @@ def scenario_initalisation(path_data_ed, data=False):
 
     if data['criterias']['spatial_exliclit_diffusion']:
 
+        # ----------------------
         # Select diffusion value
+        # ----------------------
         f_diffusion = f_reg_norm_abs
 
         # Convert globally defined switches to regional switches

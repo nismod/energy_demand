@@ -39,6 +39,8 @@ TODO :CHECK LOAD PRIFILE TECH TYPE NAMES
 TODO: shape_peak_yd_factor
 TODO: REMOVE ALL PEAK RELATED STUFF
 TODO: SMOOTH LINE https://stackoverflow.com/questions/25825946/generating-smooth-line-graph-using-matplotlib?lq=1
+
+TODO: plotting. IMprove bins: test if outside bins (because plots wrongly outside)
 """
 import os
 import sys

@@ -468,7 +468,6 @@ class WeatherRegion(object):
         # Technology specific profiles
         # ========
 
-
         # --Heating technologies
 
         # Flatten list of all potential heating technologies
