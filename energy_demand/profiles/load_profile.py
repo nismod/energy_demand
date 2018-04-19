@@ -1,9 +1,6 @@
 """Functions related to load profiles
 """
-import uuid
 import numpy as np
-from energy_demand.profiles import generic_shapes
-from energy_demand.initalisations import helpers
 
 class LoadProfileStock(object):
     """Collection of load shapes in a list
@@ -96,7 +93,7 @@ class LoadProfileStock(object):
             raise Exception(
                 "Please define load profile for '{}' '{}' '{}'".format(
                     technology, enduse, sector))
-        
+
         return getattr(load_profile_obj, shape)
 
 def generate_key_lu_dict(dict_tuple_keys, unique_identifier, enduses, sectors, technologies):

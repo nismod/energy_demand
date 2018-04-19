@@ -277,10 +277,18 @@ def compare_peak(
     # Calculate hourly differences in %
     diff_p_h = np.round((100 / validation_elec_2015_peak) * modelled_peak_dh, 1)
 
+    # Calculate maximum difference
+    max_h_real = np.max(validation_elec_2015_peak)
+    max_h_modelled = np.max(modelled_peak_dh)
+
+    max_h_diff = round((100 / max_h_real) * max_h_modelled, 2)
+    max_h_diff_gwh = round((abs(100 - max_h_diff)/100) * max_h_real, 2)
+
     # Y-axis ticks
     plt.xlim(0, 24)
     plt.yticks(range(0, 90, 10))
-    plt.xticks(range(0, 24,2))
+    plt.xticks(range(0, 24, 4))
+
     # Legend
     plt.legend(frameon=False)
 
@@ -288,12 +296,12 @@ def compare_peak(
     date_yearday = date_prop.yearday_to_date(2015, peak_day)
     plt.title("peak comparison {}".format(date_yearday))
 
-    plt.xlabel("h")
+    plt.xlabel("h (max {} ({} GWH)".format(max_h_diff, max_h_diff_gwh))
     plt.ylabel("uk electrictiy use [GW]")
 
     plt.text(
         5,  #position
-        65, #position
+        5, #position
         diff_p_h,
         #horizontalalignment='center',
         fontdict={
