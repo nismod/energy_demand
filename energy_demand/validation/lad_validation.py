@@ -305,7 +305,7 @@ def tempo_spatial_validation(
     peak_day_all_fueltypes = enduse_func.get_peak_day_all_fueltypes(ed_fueltype_national_yh)
     
     fueltype = fueltypes['electricity']
-    peak_day_electricity = enduse_func.get_peak_day_single_fueltype(ed_fueltype_national_yh[fueltype])
+    peak_day_electricity, _ = enduse_func.get_peak_day_single_fueltype(ed_fueltype_national_yh[fueltype])
 
     elec_national_data.compare_peak(
         "validation_peak_elec_day_all_fueltypes.pdf",

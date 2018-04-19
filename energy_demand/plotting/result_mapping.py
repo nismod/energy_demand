@@ -659,10 +659,6 @@ def create_geopanda_files(
                 fig_name_part=field_name,
                 result_path=path_data_results_shapefiles,
                 color_palette='Dark2_7',
-
-                #color_prop='qualitative',
-                #user_classification=False)
-
                 color_prop=color_prop,
                 user_classification=user_classification,
                 color_list=color_list,
@@ -712,10 +708,6 @@ def create_geopanda_files(
                 fig_name_part="lf_max_y",
                 result_path=path_data_results_shapefiles,
                 color_palette='Dark2_7',
-
-                #color_prop='qualitative',
-                #user_classification=False)
-
                 color_prop=color_prop,
                 user_classification=user_classification,
                 color_list=color_list,

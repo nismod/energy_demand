@@ -213,6 +213,7 @@ class Enduse(object):
                 logging.info(flat_profile_crit)
                 prnt(":")'''
             #logging.info("ddddd {}  {}".format(enduse, self.enduse_techs) )
+            
             # ----------------------------------
             # Hourly Disaggregation
             # ----------------------------------
@@ -637,25 +638,30 @@ def get_peak_day_single_fueltype(fuel_yh):
 
     Arguments
     ---------
-    fuel_yh : array (365, 24)
+    fuel_yh : array (365, 24) or array (8760)
         Fuel for every yh (yh)
 
     Return
     ------
     peak_day_nr : int
         Day with most fuel or service
+    peak_h : float
+        Peak hour value
     """
+
     fuel_yh_8760 = fuel_yh.reshape(8760)
 
     if np.sum(fuel_yh_8760) == 0:
         logging.info("No peak can be found because no fuel assigned")
         # Return first entry of element (which is zero)
-        return 0
+        return 0, 0
     else:
         # Sum fuel within every hour for every day and get day with maximum fuel
         peak_day_nr = round_down(np.argmax(fuel_yh_8760) / 24, 1)
 
-        return int(peak_day_nr)
+        peak_h = np.max(fuel_yh_8760)
+
+        return int(peak_day_nr), peak_h
 
 def get_enduse_techs(fuel_fueltype_tech_p_by):
     """Get all defined technologies of an enduse
@@ -1510,6 +1516,9 @@ def calc_service_switch(
             # Calculated service share per tech for cy with sigmoid parameters
             s_tech_cy_p = get_service_diffusion(
                 sig_param_tech[tech], curr_yr)
+
+            if tech == 'heat_pumps_electricity':
+                logging.info("HEP SHARE: " + str(s_tech_cy_p))
 
             if s_tech_cy_p == 'identical':
                 switched_s_tech_y_cy[tech] = s_tech_y_cy[tech]

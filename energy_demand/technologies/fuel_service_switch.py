@@ -54,7 +54,7 @@ def sum_fuel_across_sectors(fuels):
 def get_share_s_tech_ey(
         service_switches,
         specified_tech_enduse_by,
-        spatial_exliclit_diffusion=False
+        spatial_exliclit_diffusion
     ):
     """Get fraction of service for each technology
     defined in a switch for the future year

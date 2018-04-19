@@ -567,7 +567,7 @@ def factor_improvements_single(
         
         logging.info("spatial single factor reg: {}  val: {}".format(
             region,
-            round(reg_enduse_tech_p_ey[region],3)))
+            round(reg_enduse_tech_p_ey[region], 3)))
 
     # ---------
     # PROBLEM THAT MORE THAN 100 percent could be reached if nt normed

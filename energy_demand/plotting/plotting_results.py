@@ -36,6 +36,7 @@ def run_all_plot_functions(
     ):
     """Summary function to plot all results
     """
+    plot_line_for_every_region_of_peak_demand = True #TODO
 
     # -----------
     # Set which plots to plot
@@ -61,7 +62,21 @@ def run_all_plot_functions(
             fueltype_int=lookups['fueltypes']['electricity'],
             fueltype_str='electricity',
             fig_name=os.path.join(
-                result_paths['data_results_PDF'], "comparions_LAD_modelled_by_cy.pdf"),
+                result_paths['data_results_PDF'], "comparions_LAD_modelled_electricity_by_cy.pdf"),
+            label_points=False,
+            plotshow=False)
+        print("... plotted by-cy LAD energy demand compariosn")
+
+        # Plot PEAK H
+        plot_lad_comparison_peak(
+            base_yr=2015,
+            comparison_year=2050,
+            regions=regions,
+            ed_year_fueltype_regs_yh=results_container['results_every_year'],
+            fueltype_int=lookups['fueltypes']['electricity'],
+            fueltype_str='electricity',
+            fig_name=os.path.join(
+                result_paths['data_results_PDF'], "comparions_LAD_modelled_electricity_peakh_by_cy.pdf"),
             label_points=False,
             plotshow=False)
         print("... plotted by-cy LAD energy demand compariosn")
@@ -71,15 +86,15 @@ def run_all_plot_functions(
     # ----------------
     # Plot demand for every region over time
     # -------------------
-    plot_line_for_every_region_of_peak_demand = True #TODO
     if plot_line_for_every_region_of_peak_demand:
+        logging.info("... plot fuel per fueltype for every region over annual teimsteps")
         plt_one_fueltype_multiple_regions_peak_h(
             results_container['results_every_year'],
             lookups,
             regions,
             os.path.join(
                 result_paths['data_results_PDF'],
-                'plt_one_fueltype_multiple_regions_peak_h_electricity.pdf'),
+                'peak_h_total_electricity.pdf'),
             fueltype_str_to_plot="electricity")
 
     if plot_fuels_enduses_y:
@@ -97,6 +112,7 @@ def run_all_plot_functions(
     # ------------
     if plot_stacked_enduses:
         logging.info("plot stacked enduses")
+
         # Residential
         plt_stacked_enduse(
             assumptions['simulated_yrs'],
@@ -235,15 +251,12 @@ def run_all_plot_functions(
     if plot_h_peak_fueltypes:
 
         plt_fuels_peak_h(
-            results_container['results_every_year'], #results_container['tot_peak_enduses_fueltype'],
+            results_container['results_every_year'],
             lookups,
             os.path.join(
                 result_paths['data_results_PDF'],
                 'fuel_fueltypes_peak_h.pdf'))
 
-    # -
-    #     #tot_fuel_y_enduse_specific_h
-    # -
     print("finisthed plotting")
     return
 
@@ -1021,6 +1034,7 @@ def plt_fuels_peak_h(results_every_year, lookups, path_plot_fig):
     y_init = np.zeros((lookups['fueltypes_nr'], nr_y_to_plot))
 
     for fueltype_str, fueltype in lookups['fueltypes'].items():
+        fueltype_int = tech_related.get_fueltype_int(lookups['fueltypes'], fueltype_str)
 
         # Legend
         legend_entries.append(fueltype_str)
@@ -1031,28 +1045,19 @@ def plt_fuels_peak_h(results_every_year, lookups, path_plot_fig):
 
             # Sum fuel across all regions
             fuel_all_regs = np.sum(model_year_object, axis=1) # (fueltypes, 8760 hours)
-            
-            # Reshape for finding peak day
-            nr_fueltypes = fuel_all_regs.shape[0]
-            fuel_all_regs_reshaped = fuel_all_regs.reshape(nr_fueltypes, 365, 24)
-
+            print("dd  {} {}  {}".format(fueltype_str, fuel_all_regs[fueltype_int].shape, np.sum(fuel_all_regs[fueltype_int])))
             # Get peak day across all enduses for every region
-            peak_day = enduse_func.get_peak_day_all_fueltypes(fuel_all_regs_reshaped)
-
-            tot_fuel_dh_peak = fuel_all_regs[fueltype][peak_day]
-
-            # Calculate max peak hour
-            peak_fueltyp_h = np.max(tot_fuel_dh_peak)
+            _, gw_peak_fueltyp_h = enduse_func.get_peak_day_single_fueltype(fuel_all_regs[fueltype_int])
 
             # Add peak hour
-            data_over_years.append(peak_fueltyp_h)
+            data_over_years.append(gw_peak_fueltyp_h)
 
         y_init[fueltype] = data_over_years
 
     # ----------
     # Plot lines
     # ----------
-    linestyles = plotting_styles.linestyles()
+    #linestyles = plotting_styles.linestyles()
 
     years = list(results_every_year.keys())
     for fueltype, _ in enumerate(y_init):
@@ -1516,6 +1521,162 @@ def plot_enduse_yh(
     else:
         plt.close()
 
+def plot_lad_comparison_peak(
+        base_yr,
+        comparison_year,
+        regions,
+        ed_year_fueltype_regs_yh,
+        fueltype_int,
+        fueltype_str,
+        fig_name,
+        label_points=False,
+        plotshow=False
+    ):
+    """Compare energy demand for regions for the base yeard and
+    a future year
+
+    Arguments
+    ----------
+    comparison_year : int
+        Year to compare base year values to
+
+    Note
+    -----
+    SOURCE OF LADS:
+        - Data for northern ireland is not included in that, however in BEIS dataset!
+    """
+    result_dict = defaultdict(dict)
+
+    # -------------------------------------------
+    # Get base year modelled demand
+    # -------------------------------------------
+    for year, fuels in ed_year_fueltype_regs_yh.items():
+        if year == base_yr:
+            for region_array_nr, reg_geocode in enumerate(regions):
+                _, gw_peak_fueltyp_h = enduse_func.get_peak_day_single_fueltype(fuels[fueltype_int][region_array_nr])
+                result_dict['demand_by'][reg_geocode] = gw_peak_fueltyp_h
+
+        elif year == comparison_year:
+            for region_array_nr, reg_geocode in enumerate(regions):
+                _, gw_peak_fueltyp_h = enduse_func.get_peak_day_single_fueltype(fuels[fueltype_int][region_array_nr])
+                result_dict['demand_cy'][reg_geocode] = gw_peak_fueltyp_h
+        else:
+            pass
+
+    # -----------------
+    # Sort results according to size
+    # -----------------
+    sorted_dict_real = sorted(
+        result_dict['demand_by'].items(),
+        key=operator.itemgetter(1))
+
+    # -------------------------------------
+    # Plot
+    # -------------------------------------
+    fig = plt.figure(
+        figsize=plotting_program.cm2inch(9, 8)) #width, height
+
+    ax = fig.add_subplot(1, 1, 1)
+
+    x_values = np.arange(0, len(sorted_dict_real), 1)
+
+    y_real_elec_demand = []
+    y_modelled_elec_demand = []
+
+    labels = []
+    for sorted_region in sorted_dict_real:
+        geocode_lad = sorted_region[0]
+
+        y_real_elec_demand.append(
+            result_dict['demand_by'][geocode_lad])
+        y_modelled_elec_demand.append(
+            result_dict['demand_cy'][geocode_lad])
+
+        logging.debug(
+            "validation for LAD region: %s %s diff: %s",
+            result_dict['demand_by'][geocode_lad],
+            result_dict['demand_cy'][geocode_lad],
+            result_dict['demand_cy'][geocode_lad] - result_dict['demand_by'][geocode_lad])
+
+        labels.append(geocode_lad)
+
+    # --------
+    # Axis
+    # --------
+    plt.tick_params(
+        axis='x',          # changes apply to the x-axis
+        which='both',      # both major and minor ticks are affected
+        bottom='off',      # ticks along the bottom edge are off
+        top='off',         # ticks along the top edge are off
+        labelbottom='off') # labels along the bottom edge are off
+
+    # ----------------------------------------------
+    # Plot
+    # ----------------------------------------------
+    plt.plot(
+        x_values,
+        y_real_elec_demand,
+        linestyle='None',
+        marker='o',
+        markersize=1.6, #1.6
+        fillstyle='full',
+        markerfacecolor='grey',
+        markeredgewidth=0.2,
+        color='black',
+        label='base year: {}'.format(base_yr))
+
+    plt.plot(
+        x_values,
+        y_modelled_elec_demand,
+        marker='o',
+        linestyle='None',
+        markersize=1.6,
+        markerfacecolor='white',
+        fillstyle='none',
+        markeredgewidth=0.5,
+        markeredgecolor='blue',
+        color='black',
+        label='current year: {}'.format(comparison_year))
+
+    # Limit
+    plt.ylim(ymin=0)
+
+    # -----------
+    # Labelling
+    # -----------
+    if label_points:
+        for pos, txt in enumerate(labels):
+            ax.text(
+                x_values[pos],
+                y_modelled_elec_demand[pos],
+                txt,
+                horizontalalignment="right",
+                verticalalignment="top",
+                fontsize=3)
+
+    plt.xlabel("UK regions (excluding northern ireland)")
+    plt.ylabel("peak h {} [GWh]".format(fueltype_str))
+
+    # --------
+    # Legend
+    # --------
+    plt.legend(
+        prop={
+            'family': 'arial',
+            'size': 8},
+        frameon=False)
+
+    # Tight layout
+    plt.margins(x=0)
+    plt.tight_layout()
+    plt.savefig(fig_name)
+
+    if plotshow:
+        plt.show()
+        plt.close()
+    else:
+        plt.close()
+               
 def plot_lad_comparison(
         base_yr,
         comparison_year,
@@ -1998,25 +2159,19 @@ def plt_one_fueltype_multiple_regions_peak_h(
                 data_over_years[reg_nr] = []
 
             for model_year_object in results_every_year.values():
-                
-                # Reshape for finding peak day
-                nr_fueltypes = model_year_object.shape[0]
-                nr_regs = model_year_object.shape[1]
-                fuel_reg_reshaped = model_year_object.reshape(nr_fueltypes, nr_regs, 365, 24)
-
+                #_scrap = 0
                 for reg_nr, reg_geocode in enumerate(regions):
 
-                    # Get peak day across all enduses for every region
-                    peak_day = enduse_func.get_peak_day_single_fueltype(fuel_reg_reshaped[fueltype][reg_nr])
-
-                    tot_fuel_dh_peak = model_year_object[fueltype][reg_nr][peak_day]
-
-                    # Calculate max peak hour
-                    peak_fueltyp_h = np.max(tot_fuel_dh_peak)
+                    # Get peak hour value
+                    _, peak_fueltyp_h = enduse_func.get_peak_day_single_fueltype(model_year_object[fueltype][reg_nr])
 
                     # Add peak hour
                     data_over_years[reg_nr].append(peak_fueltyp_h)
-
+                    #_scrap += np.sum(peak_fueltyp_h)
+                
+                #if fueltype_str == 'electricity':
+                #    print("DD " + str(_scrap))
+                #    prnt(".")
             y_init = data_over_years
 
     # ----------

@@ -23,7 +23,7 @@ def main(path_data_energy_demand, path_shapefile_input):
     # Criterias
     # ---------
     write_shapefiles = False    # Write shapefiles
-    spatial_results = True      # Spatial geopanda maps
+    spatial_results = False      # Spatial geopanda maps
 
     plot_crit_dict = {
         "plot_stacked_enduses": True,

@@ -50,11 +50,13 @@ class Assumptions(object):
 
         # ============================================================
         # Spatially modelled variables
+        #
+        # If spatial explicit diffusion is modelled, all parameters
+        # or technologies having a spatial explicit diffusion need
+        # to be defined.
         # ============================================================
         # Define all variables which are affected by regional diffusion
-        self.spatially_modelled_vars = [
-            'smart_meter_improvement_p'
-        ]
+        self.spatially_modelled_vars = [] # ['smart_meter_improvement_p']
 
         # Define technologies which are affected by spatial explicit diffusion
         self.techs_affected_spatial_f = ['heat_pumps_electricity']

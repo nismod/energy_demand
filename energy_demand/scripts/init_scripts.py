@@ -142,7 +142,7 @@ def scenario_initalisation(path_data_ed, data=False):
             fuel_disagg=fuel_disagg,
             real_values=data['pop_density'],    # Real value to select
             low_congruence_crit=True,
-            speed_con_max=2.5)                  # INFO: Set speed diffusion speed differences
+            speed_con_max=2.5)                  # INFO: Set speed diffusion speed differences TODO Move up
 
         # --------- ------------
         # Plot figure for paper
@@ -787,7 +787,7 @@ def sig_param_calc_incl_fuel_switch(
                 break
 
             for reg in regions:
-                logging.info("calculating sigmoid parameters %s %s", enduse, reg)
+                logging.info("... ======calculating sigmoid parameters %s %s %s ", enduse, reg, s_tech_switched_p[reg]['heat_pumps_electricity'])
                 sig_param_tech[reg] = s_generate_sigmoid.tech_sigmoid_parameters(
                     yr_until_switched,
                     base_yr,
@@ -795,6 +795,8 @@ def sig_param_calc_incl_fuel_switch(
                     l_values_sig[reg],
                     s_tech_by_p,
                     s_tech_switched_p[reg])
+                #import pprint
+                #logging.info(pprint.pprint( sig_param_tech[reg]['heat_pumps_electricity']))
         else:
 
             # Get year of switches

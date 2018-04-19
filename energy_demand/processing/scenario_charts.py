@@ -27,7 +27,7 @@ def process_scenarios(path_to_scenarios, year_to_model=2015):
 
     # Delete folder results if existing
     path_result_folder = os.path.join(
-        path_to_scenarios, "_results_multiple_scenarios")
+        path_to_scenarios, "__results_multiple_scenarios")
 
     basic_functions.delete_folder(path_result_folder)
 
@@ -130,8 +130,4 @@ def process_scenarios(path_to_scenarios, year_to_model=2015):
     return
 
 # Generate plots across all scenarios
-#process_scenarios(os.path.abspath("C:/Users/cenv0553/ED/_multiple_results_eff_factor_example"))
-#process_scenarios(os.path.abspath("C:/Users/cenv0553/ED/_multiple_results_hp_example_no_efficiency_improvement"))
-#process_scenarios(os.path.abspath("C:/Users/cenv0553/ED/_multiple_results_hp_example_efficiency_improvement"))
-#process_scenarios(os.path.abspath("C:/Users/cenv0553/ED/_mutli_results_hp_50__eff_achieved_0.5_pop_scenarios"))
-process_scenarios(os.path.abspath("C:/Users/cenv0553/ED/_multiple_results"))
+process_scenarios(os.path.abspath("C:/Users/cenv0553/ED/_MULTI"))
