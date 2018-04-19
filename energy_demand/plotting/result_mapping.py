@@ -514,7 +514,8 @@ def plot_spatial_mapping_example(
         global_value,
         paths,
         regions,
-        path_shapefile_input
+        path_shapefile_input,
+        plotshow=False
     ):
     """Figure plot
 
@@ -550,7 +551,7 @@ def plot_spatial_mapping_example(
     # If user classified, defined bins  [x for x in range(0, 1000000, 200000)]
     #bins = [-4, -2, 0, 2, 4] # must be of uneven length containing zero if minus values
     #bins = [-15, -10, -5, 0, 5, 10, 15] 
-    #bins = [40, 50, 60, 70]
+    bins = [10, 20, 30, 40, 50, 60, 70, 80]
 
     color_list, color_prop, user_classification, color_zero = colors_plus_minus_map(
         bins=bins,
@@ -564,12 +565,13 @@ def plot_spatial_mapping_example(
         field_to_plot=field_name,
         fig_name_part="lf_max_y",
         result_path=paths['data_results_PDF'],
-        color_palette='Purples_9',
+        color_palette='YlGn_9', #'Purples_9',
         color_prop=color_prop,
         user_classification=user_classification,
         color_list=color_list,
         color_zero=color_zero,
-        bins=bins)
+        bins=bins,
+        plotshow=plotshow)
 
     return
 
@@ -842,7 +844,6 @@ def create_geopanda_files(
                 unique_merge_id)
 
             # If user classified, defined bins
-            print("... plot {}".format(lad_geopanda_shp))
             plot_lad_national(
                 lad_geopanda_shp=lad_geopanda_shp,
                 legend_unit="GWh",
@@ -901,7 +902,7 @@ def create_geopanda_files(
                 field_to_plot=field_name,
                 fig_name_part="tot_all_enduses_y_",
                 result_path=path_data_results_shapefiles,
-                color_palette='Purples_9',
+                color_palette='Purples_9', #'YlGn_9', #'Purples_9',
                 color_prop=color_prop,
                 user_classification=user_classification,
                 color_list=color_list,

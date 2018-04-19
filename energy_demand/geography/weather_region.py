@@ -476,8 +476,8 @@ class WeatherRegion(object):
         all_techs_is_space_heating = [item for sublist in is_space_heating_tech_lists for item in sublist]
 
         # Apply correction factor for weekend_effect for space heating load profile
-        is_fuel_shape_heating_yd = is_fuel_shape_heating_yd * assumptions.is_weekend_f
-        is_fuel_shape_heating_yd_weighted = load_profile.abs_to_rel(is_fuel_shape_heating_yd)
+        is_fuel_shape_heating_yd_weighted = load_profile.abs_to_rel(
+            is_fuel_shape_heating_yd * assumptions.is_weekend_f)
 
         # - Direct electric heating
         # Remove tech from all space heating techs

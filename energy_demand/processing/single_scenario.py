@@ -47,7 +47,7 @@ def main(path_data_energy_demand, path_shapefile_input):
     data['local_paths'] = data_loader.load_local_paths(
         path_data_energy_demand)
     data['result_paths'] = data_loader.load_result_paths(
-        os.path.join(path_data_energy_demand, '_result_data'))
+        os.path.join(path_data_energy_demand))#, '_result_data'))
 
     data['lookups'] = lookup_tables.basic_lookups()
 
@@ -61,7 +61,7 @@ def main(path_data_energy_demand, path_shapefile_input):
 
     # Simulation information is read in from .ini file for results
     data['enduses'], data['assumptions'], data['reg_nrs'], data['regions'] = data_loader.load_ini_param(
-        os.path.join(path_data_energy_demand, '_result_data')) #TODO
+        os.path.join(path_data_energy_demand))#, '_result_data')) #TODO
 
     # Other information is read in
     data['assumptions']['seasons'] = date_prop.get_season(year_to_model=2015)

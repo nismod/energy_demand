@@ -181,7 +181,6 @@ class LoadProfile(object):
         """
         self.unique_identifier = unique_identifier
         self.enduses = enduses
-        #self.shape_y_dh = shape_y_dh
 
         if isinstance(shape_yh, bool):
             self.shape_yh = calc_yh(
@@ -191,43 +190,6 @@ class LoadProfile(object):
         else:
             self.shape_yh = shape_yh
 
-        # Calculate percentage for every day
-        #self.shape_y_dh = calc_y_dh_shape_from_yh(shape_yh)
-
-'''def calc_y_dh_shape_from_yh(shape_yh):
-    """Calculate shape for every day
-
-    Returns
-    -------
-    shape_y_dh : array
-        Shape for every day
-
-    Note
-    ----
-    The output gives the shape for every day in a year (total sum == nr_of_days)
-    Within each day, the sum is 1
-
-    A RuntimeWarning may be raised if in one day a zero value is found.
-    The resulting inf are replaced however and thus this warning
-    can be ignored
-    """
-    # Calculate even if flat shape is assigned
-    # Info: nansum does not through an ErrorTimeWarning
-    # Some rowy may be zeros, i.e. division by zero results in inf values
-
-    # Unable local RuntimeWarning: divide by zero encountered
-    with np.errstate(divide='ignore'):
-        sum_every_day_p = 1 / np.sum(shape_yh, axis=1)
-    sum_every_day_p[np.isinf(sum_every_day_p)] = 0 # Replace inf by zero
-
-    # Multiply (nr_of_days) + with (nr_of_days, 24)
-    shape_y_dh = sum_every_day_p[:, np.newaxis] * shape_yh
-
-    # Replace nan by zero
-    shape_y_dh[np.isnan(shape_y_dh)] = 0
-
-    return shape_y_dh
-'''
 def abs_to_rel(absolute_array):
     """Convert absolute numbers in an array to relative
 

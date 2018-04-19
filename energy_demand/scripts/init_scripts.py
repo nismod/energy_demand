@@ -137,25 +137,24 @@ def scenario_initalisation(path_data_ed, data=False):
     # Calculate spatial diffusion factors
     # ===========================================
     if data['criterias']['spatial_exliclit_diffusion']:
-
         f_reg, f_reg_norm, f_reg_norm_abs = spatial_diffusion.calc_spatially_diffusion_factors(
             regions=data['regions'],
             fuel_disagg=fuel_disagg,
             real_values=data['pop_density'],    # Real value to select
-            speed_con_max=1.0)                  # diffusion speed differences
+            low_congruence_crit=True,
+            speed_con_max=3)                  # INFO: Set speed diffusion speed differences
 
-        # ---------------------
+        # --------- ------------
         # Plot figure for paper
         # ---------------------
         plot_fig_paper = True #FALSE
-        plot_fig_paper = False #FALSE
         if plot_fig_paper:
 
             # Global value to distribute
             global_value = 50
 
             # Select spatial diffusion factor
-            #diffusion_vals = f_reg                                 # not weighted
+            #diffusion_vals = f_reg                                  # not weighted
             diffusion_vals = f_reg_norm['rs_space_heating']         # Weighted with enduse
             #diffusion_vals = f_reg_norm_abs['rs_space_heating']    # Absolute distribution (only for capacity installements)
 
@@ -167,7 +166,8 @@ def scenario_initalisation(path_data_ed, data=False):
                 global_value=global_value,
                 paths=data['result_paths'],
                 regions=data['regions'],
-                path_shapefile_input=path_shapefile_input)
+                path_shapefile_input=path_shapefile_input,
+                plotshow=True)
     else:
         f_reg = False
         f_reg_norm = False
