@@ -142,12 +142,13 @@ def scenario_initalisation(path_data_ed, data=False):
             fuel_disagg=fuel_disagg,
             real_values=data['pop_density'],    # Real value to select
             low_congruence_crit=True,
-            speed_con_max=2.5)                  # INFO: Set speed diffusion speed differences TODO Move up
+            speed_con_max=1.2,
+            p_outlier=5)                  # INFO: Set speed diffusion speed differences TODO Move up
 
         # --------- ------------
         # Plot figure for paper
         # ---------------------
-        plot_fig_paper = False #FALSE
+        plot_fig_paper = True #FALSE
         if plot_fig_paper:
 
             # Global value to distribute

@@ -326,7 +326,9 @@ def calc_spatially_diffusion_factors(
         fuel_disagg,
         real_values,
         low_congruence_crit,
-        speed_con_max
+        speed_con_max,
+        p_outlier
+
     ):
     """
     Calculate spatial diffusion values
@@ -339,6 +341,8 @@ def calc_spatially_diffusion_factors(
         Disaggregated fuel per region
     real_values : dict
         Real values
+    p_outlier : float
+        Percentage of min and max outliers are flattened
 
     Returns
     -------
@@ -366,7 +370,7 @@ def calc_spatially_diffusion_factors(
         real_values=real_values,
         speed_con_max=speed_con_max,
         low_congruence_crit=low_congruence_crit,
-        p_outlier=10)
+        p_outlier=p_outlier)
 
     # -----
     # II. Calculation of diffusion factors (Not weighted with demand)
@@ -629,8 +633,5 @@ def get_enduse_regs(
                 for enduse_to_match, fuels_regs in enduse_fuels.items():
                     if enduse == enduse_to_match:
                         fuels_enduse[reg] = fuels_regs
-
-    #if fuels_enduse == {}:
-    #    raise Exception("Could not find fuel to get for regions %s", enduse)
 
     return fuels_enduse

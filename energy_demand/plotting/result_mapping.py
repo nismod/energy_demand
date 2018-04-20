@@ -883,7 +883,7 @@ def create_geopanda_files(
             # If user classified, defined bins  [x for x in range(0, 1000000, 200000)]
             #bins = get_reasonable_bin_values(list(data_to_plot.values()))
             #bins = [-4, -2, 0, 2, 4] # must be of uneven length containing zero
-            bins = [-30, -20, -10, 0, 10, 20, 30] # must be of uneven length containing zero
+            bins = [-20, -10, 0, 10, 20, 30, 40] # must be of uneven length containing zero
 
             color_list, color_prop, user_classification, color_zero = colors_plus_minus_map(
                 bins=bins,

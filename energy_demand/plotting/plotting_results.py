@@ -51,6 +51,25 @@ def run_all_plot_functions(
     plot_radar = plot_crit['plot_radar']                      # Plot radar spider charts
 
     # ----------
+    # Plot cross graph where very region is a dot
+    # ----------
+    plot_lad_cross_graphs = True
+    if plot_lad_cross_graphs:
+
+        plot_cross_graphs(
+            base_yr=2015,
+            comparison_year=2050,
+            regions=regions,
+            ed_year_fueltype_regs_yh=results_container['results_every_year'],
+            load_factors_y=results_container['load_factors_y'],
+            fueltype_int=lookups['fueltypes']['electricity'],
+            fueltype_str='electricity',
+            fig_name=os.path.join(
+                result_paths['data_results_PDF'], "comparions_LAD_cross_graph_electricity_by_cy.pdf"),
+            label_points=False,
+            plotshow=True)
+
+    # ----------
     # Plot LAD differences for first and last year
     # ----------
     try:
@@ -67,7 +86,7 @@ def run_all_plot_functions(
             plotshow=False)
         print("... plotted by-cy LAD energy demand compariosn")
 
-        # Plot PEAK H
+        # Plot peak h for every hour
         plot_lad_comparison_peak(
             base_yr=2015,
             comparison_year=2050,
@@ -185,13 +204,13 @@ def run_all_plot_functions(
                     result_paths['data_results_PDF'],
                     'lf_seasonal_{}.pdf'.format(fueltype_str)))
 
-            plot_lf_y(
+            '''plot_lf_y(
                 fueltype_int,
                 fueltype_str,
                 results_container['load_factors_yd'],
                 reg_nrs,
                 os.path.join(
-                    result_paths['data_results_PDF'], 'lf_yd_{}.pdf'.format(fueltype_str)))
+                    result_paths['data_results_PDF'], 'lf_yd_{}.pdf'.format(fueltype_str)))'''
 
             # load_factors_yd = max daily value / average annual daily value
             plot_lf_y(
@@ -1045,7 +1064,7 @@ def plt_fuels_peak_h(results_every_year, lookups, path_plot_fig):
 
             # Sum fuel across all regions
             fuel_all_regs = np.sum(model_year_object, axis=1) # (fueltypes, 8760 hours)
-            print("dd  {} {}  {}".format(fueltype_str, fuel_all_regs[fueltype_int].shape, np.sum(fuel_all_regs[fueltype_int])))
+
             # Get peak day across all enduses for every region
             _, gw_peak_fueltyp_h = enduse_func.get_peak_day_single_fueltype(fuel_all_regs[fueltype_int])
 
@@ -1639,8 +1658,7 @@ def plot_lad_comparison_peak(
         label='current year: {}'.format(comparison_year))
 
     # Limit
-    plt.ylim(ymin=0)
-
+    plt.ylim(ymin=0, ymax=1.2)
     # -----------
     # Labelling
     # -----------
@@ -2226,4 +2244,174 @@ def plt_one_fueltype_multiple_regions_peak_h(
 
     # Save fig
     fig.savefig(path_plot_fig)
+    plt.close()
+
+def plot_cross_graphs(
+        base_yr,
+        comparison_year,
+        regions,
+        ed_year_fueltype_regs_yh,
+        load_factors_y,
+        fueltype_int,
+        fueltype_str,
+        fig_name,
+        label_points,
+        plotshow):
+
+    result_dict = defaultdict(dict)
+
+    # -------------------------------------------
+    # Get base year modelled demand
+    # -------------------------------------------
+    for year, fuels in ed_year_fueltype_regs_yh.items():
+
+        if year == base_yr:
+            for reg_nr, reg_geocode in enumerate(regions):
+                gw_per_region_modelled = np.sum(fuels[fueltype_int][reg_nr])
+                result_dict['demand_by'][reg_geocode] = gw_per_region_modelled
+        elif year == comparison_year:
+            for reg_nr, reg_geocode in enumerate(regions):
+                gw_per_region_modelled = np.sum(fuels[fueltype_int][reg_nr])
+                result_dict['demand_cy'][reg_geocode] = gw_per_region_modelled
+        else:
+            pass
+
+    # Get load factor
+    for year, lf_fueltype_regs in load_factors_y.items():
+
+        if year == base_yr:
+            for reg_nr, reg_geocode in enumerate(regions):
+                result_dict['lf_by'][reg_geocode] = lf_fueltype_regs[fueltype_int][reg_nr]
+        elif year == comparison_year:
+            for reg_nr, reg_geocode in enumerate(regions):
+                result_dict['lf_cy'][reg_geocode] = lf_fueltype_regs[fueltype_int][reg_nr]
+        else:
+            pass
+
+    labels = []
+
+    #Base year
+    x_values, y_values = [], []
+    x_values_0_quadrant, y_values_0_quadrant = [], []
+    x_values_1_quadrant, y_values_1_quadrant = [], []
+    x_values_2_quadrant, y_values_2_quadrant = [], []
+    x_values_3_quadrant, y_values_3_quadrant = [], []
+
+    for reg_nr, reg_geocode in enumerate(regions):
+
+        # Change in load factor
+        lf_change_p = (100 / result_dict['lf_by'][reg_geocode]) * result_dict['lf_cy'][reg_geocode]
+
+        # Change in peak
+        peak_h_p = (100 / result_dict['demand_by'][reg_geocode]) * result_dict['demand_cy'][reg_geocode]
+
+        x_values.append(lf_change_p)
+        y_values.append(peak_h_p)
+
+        labels.append(reg_geocode)
+
+        if lf_change_p < 100 and peak_h_p > 100:
+            x_values_0_quadrant.append(lf_change_p)
+            y_values_0_quadrant.append(peak_h_p)
+        elif lf_change_p > 100 and peak_h_p > 100:
+            x_values_1_quadrant.append(lf_change_p)
+            y_values_1_quadrant.append(peak_h_p)
+        elif lf_change_p > 100 and peak_h_p < 100:
+            x_values_2_quadrant.append(lf_change_p)
+            y_values_2_quadrant.append(peak_h_p)
+        else:
+            x_values_3_quadrant.append(lf_change_p)
+            y_values_3_quadrant.append(peak_h_p)
+
+    # -------------------------------------
+    # Plot
+    # -------------------------------------
+    fig = plt.figure(
+        figsize=plotting_program.cm2inch(9, 8)) #width, height
+
+    ax = fig.add_subplot(1, 1, 1)
+
+    ax.scatter(
+        x_values_0_quadrant,
+        y_values_0_quadrant,
+        alpha=0.6,
+        color='rosybrown',
+        s=8)
+    ax.scatter(
+        x_values_1_quadrant,
+        y_values_1_quadrant,
+        alpha=0.6,
+        color='firebrick',
+        s=8)
+    ax.scatter(
+        x_values_2_quadrant,
+        y_values_2_quadrant,
+        alpha=0.6,
+        color='forestgreen',
+        s=8)
+    ax.scatter(
+        x_values_3_quadrant,
+        y_values_3_quadrant,
+        alpha=0.6,
+        color='darkolivegreen',
+        s=8)
+
+    # --------
+    # Axis
+    # --------
+    ax.set_xlabel("load factor change (%) {}".format(fueltype_str))
+    ax.set_ylabel("change in peak h (%) {}".format(fueltype_str))
+
+    plt.tick_params(
+        axis='x',          # changes apply to the x-axis
+        which='both',      # both major and minor ticks are affected
+        bottom='off',      # ticks along the bottom edge are off
+        top='off',         # ticks along the top edge are off
+        labelbottom='on') # labels along the bottom edge are off
+
+    # --------
+    # Grd
+    # --------
+    #ax.set_axisbelow(True)
+    #ax.grid(True)
+    #ax.set_xticks(minor=False)
+    ax.set_xticks([100], minor=True)
+    #ax.set_yticks(minor=False)
+    ax.set_yticks([100], minor=True)
+    #ax.yaxis.grid(True, which='major')
+    ax.yaxis.grid(True, which='minor', linewidth=1, color='grey', linestyle='--')
+    #ax.xaxis.grid(True, which='major')
+    ax.xaxis.grid(True, which='minor', linewidth=1, color='grey', linestyle='--')
+
+    # Limit
+    #plt.ylim(ymin=0)
+
+    # -----------
+    # Labelling
+    # -----------
+    if label_points:
+        for pos, txt in enumerate(labels):
+            ax.text(
+                x_values[pos],
+                y_values[pos],
+                txt,
+                horizontalalignment="right",
+                verticalalignment="top",
+                fontsize=6)
+    # --------
+    # Legend
+    # --------
+    plt.legend(
+        prop={
+            'family': 'arial',
+            'size': 8},
+        frameon=False)
+
+    # Tight layout
+    plt.margins(x=0)
+    plt.tight_layout()
+    plt.savefig(fig_name)
+
+    if plotshow:
+        plt.show()
     plt.close()
