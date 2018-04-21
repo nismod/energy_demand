@@ -214,7 +214,6 @@ def tempo_spatial_validation(
     fuel_gas_regs_yh = map_LAD_2011_2015(fuel_gas_regs_yh)
 
     logging.info("Validation of electricity")
-
     spatial_validation(
         reg_coord,
         fuel_elec_regs_yh,
@@ -486,6 +485,7 @@ def spatial_validation(
         y_real_demand,
         linestyle='None',
         marker='o',
+        alpha=0.6,
         markersize=1.6,
         fillstyle='full',
         markerfacecolor='grey',
@@ -499,6 +499,7 @@ def spatial_validation(
         marker='o',
         linestyle='None',
         markersize=1.6,
+        alpha=0.6,
         markerfacecolor='white',
         fillstyle='none',
         markeredgewidth=0.5,

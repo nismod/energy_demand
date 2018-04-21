@@ -252,6 +252,12 @@ def read_in_results(path_runs, seasons, model_yeardays_daytype):
 
     results_container['results_every_year'] = read_results_yh(path_runs)
 
+    for i in range(7):
+        print(np.sum(results_container['results_every_year'][2015][i]))
+        print(np.sum(results_container['results_every_year'][2050][i]))
+        print("--")
+
+    #prnt(".")
     # -----------------
     # Peak calculations
     # -----------------
@@ -273,9 +279,9 @@ def read_in_results(path_runs, seasons, model_yeardays_daytype):
     # -------------
     # Load factors
     # -------------
-    results_container['load_factors_y'] = read_lf_y(
+    results_container['reg_load_factor_y'] = read_lf_y(
         os.path.join(path_runs, "result_reg_load_factor_y"))
-    results_container['load_factors_yd'] = read_lf_y(
+    results_container['reg_load_factor_yd'] = read_lf_y(
         os.path.join(path_runs, "result_reg_load_factor_yd"))
 
     results_container['load_factor_seasons'] = {}

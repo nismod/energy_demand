@@ -151,7 +151,7 @@ def test_autocomplete_switches():
         specified_tech_enduse_by={'heating': ['techA', 'techB', 'techC']},
         s_tech_by_p={'heating': {'techA': 0.2, 'techB': 0.4, 'techC': 0.4}},
         sector=False,
-        spatial_exliclit_diffusion=False,
+        spatial_explicit_diffusion=False,
         regions=False,
         f_diffusion=False,
         techs_affected_spatial_f=False,
@@ -177,7 +177,7 @@ def test_autocomplete_switches():
         specified_tech_enduse_by={'heating': ['techA', 'techB', 'techC']},
         s_tech_by_p={'heating': {'techA': 0.2, 'techB': 0.4, 'techC': 0.4}},
         sector=False,
-        spatial_exliclit_diffusion=True,
+        spatial_explicit_diffusion=True,
         regions=['regA', 'regB'],
         f_diffusion={'heating':{'regA':1.0, 'regB': 1.0}},
         techs_affected_spatial_f=['techA'],
@@ -424,6 +424,6 @@ def test_get_share_s_tech_ey():
     result = fuel_service_switch.get_share_s_tech_ey(
         service_switches=service_switches,
         specified_tech_enduse_by=specified_tech_enduse_by,
-        spatial_exliclit_diffusion=True)
+        spatial_explicit_diffusion=True)
 
     assert result['heating']['regA']['techA'] == 0.3

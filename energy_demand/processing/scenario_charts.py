@@ -130,4 +130,4 @@ def process_scenarios(path_to_scenarios, year_to_model=2015):
     return
 
 # Generate plots across all scenarios
-process_scenarios(os.path.abspath("C:/Users/cenv0553/ED/_MULTI"))
+process_scenarios(os.path.abspath("C:/Users/cenv0553/ED/_MULTIII"))

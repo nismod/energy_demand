@@ -208,12 +208,7 @@ class Enduse(object):
                 assumptions)
             self.fuel_y = _fuel_new_y
             #logging.debug("... Fuel train E2: " + str(np.sum(self.fuel_y)))
-            '''if enduse == 'rs_water_heating':
-                logging.info(self.enduse_techs)
-                logging.info(flat_profile_crit)
-                prnt(":")'''
-            #logging.info("ddddd {}  {}".format(enduse, self.enduse_techs) )
-            
+
             # ----------------------------------
             # Hourly Disaggregation
             # ----------------------------------
@@ -648,7 +643,9 @@ def get_peak_day_single_fueltype(fuel_yh):
     peak_h : float
         Peak hour value
     """
-
+    #import copy
+    #fuel_yh_copy = copy.copy(fuel_yh)
+    #fuel_yh_8760 = fuel_yh_copy.reshape(8760)
     fuel_yh_8760 = fuel_yh.reshape(8760)
 
     if np.sum(fuel_yh_8760) == 0:
@@ -747,19 +744,6 @@ def calc_fuel_tech_yh(
                 load_profile = lp.abs_to_rel(load_profile)
             
             fuels_yh[tech] = fuel_tech_y[tech] * load_profile
-
-            if tech == 'secondary_heating_electricity':
-                logging.info("iiii {}  {} {} {}".format(np.sum(load_profile), enduse, sector, tech))
-                prnt("")
-            '''if enduse == 'ss_space_heating' and tech == 'secondary_heater_electricity':
-    
-                logging.info("SUM {}  {} {} {}".format(np.sum(load_profile), enduse, sector, tech))
-                logging.info(load_profile)
-                logging.info(load_profile.shape)
-                logging.info(np.sum(load_profile))
-                ##assert round(np.sum(load_profile), 4) == 1 #TODO REMOVE
-                ##assert round(fuel_tech_y[tech], 6) == round(np.sum(fuels_yh[tech]), 6)
-                prnt(".")'''
     else:
         # --
         # Unconstrained mode, i.e. not technolog specific.

@@ -56,11 +56,11 @@ def create_shp_results(data, results_container, paths, lookups, regions):
     # ------------------------------------
     field_names, csv_results = [], []
     # Iterate fueltpyes and years and add as attributes
-    for year in results_container['load_factors_y'].keys():
+    for year in results_container['reg_load_factor_y'].keys():
         for fueltype in range(lookups['fueltypes_nr']):
 
             results = basic_functions.array_to_dict(
-                results_container['load_factors_y'][year][fueltype], regions)
+                results_container['reg_load_factor_y'][year][fueltype], regions)
 
             field_names.append('y_{}_{}'.format(year, fueltype))
             csv_results.append(results)

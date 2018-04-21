@@ -399,7 +399,7 @@ def spatially_differentiated_modelling(
         is_share_s_tech_ey_p,
         techs_affected_spatial_f,
         spatial_diffusion_factor,
-        spatial_exliclit_diffusion=False
+        spatial_explicit_diffusion=False
     ):
     """
     Regional diffusion shares of technologies is calculated
@@ -438,56 +438,41 @@ def spatially_differentiated_modelling(
     Calculate sigmoid diffusion values for technology
     specific enduse service shares for every region
     """
-    '''if spatial_exliclit_diffusion:
-        rs_reg_share_s_tech_ey_p = {}
+    # Residential spatial explicit modelling
+    rs_reg_share_s_tech_ey_p = {}
+    for enduse, uk_techs_service_p in rs_share_s_tech_ey_p.items():
+    
+        rs_reg_share_s_tech_ey_p[enduse] = calc_regional_services(
+            enduse,
+            uk_techs_service_p,
+            regions,
+            spatial_diffusion_factor,
+            fuel_disagg['rs_fuel_disagg'],
+            techs_affected_spatial_f)
 
-        for enduse, uk_techs_service_p in rs_share_s_tech_ey_p.items():
-        
-            rs_reg_share_s_tech_ey_p[enduse] = calc_regional_services(
+    ss_reg_share_s_tech_ey_p = {}
+    for sector, uk_techs_service_enduses_p in ss_share_s_tech_ey_p.items():
+        ss_reg_share_s_tech_ey_p[sector] = {}
+        for enduse, uk_techs_service_p in uk_techs_service_enduses_p.items():
+            ss_reg_share_s_tech_ey_p[sector][enduse] = calc_regional_services(
                 enduse,
                 uk_techs_service_p,
                 regions,
                 spatial_diffusion_factor,
-                fuel_disagg['rs_fuel_disagg'],
-                    techs_affected_spatial_f)
-
-    else:'''
-    if 1 == 1:
-        # Residential spatial explicit modelling
-        rs_reg_share_s_tech_ey_p = {}
-        for enduse, uk_techs_service_p in rs_share_s_tech_ey_p.items():
-        
-            rs_reg_share_s_tech_ey_p[enduse] = calc_regional_services(
-                enduse,
-                uk_techs_service_p,
-                regions,
-                spatial_diffusion_factor,
-                fuel_disagg['rs_fuel_disagg'],
+                fuel_disagg['ss_fuel_disagg_sum_all_sectors'],
                 techs_affected_spatial_f)
 
-        ss_reg_share_s_tech_ey_p = {}
-        for sector, uk_techs_service_enduses_p in ss_share_s_tech_ey_p.items():
-            ss_reg_share_s_tech_ey_p[sector] = {}
-            for enduse, uk_techs_service_p in uk_techs_service_enduses_p.items():
-                ss_reg_share_s_tech_ey_p[sector][enduse] = calc_regional_services(
-                    enduse,
-                    uk_techs_service_p,
-                    regions,
-                    spatial_diffusion_factor,
-                    fuel_disagg['ss_fuel_disagg_sum_all_sectors'],
-                    techs_affected_spatial_f)
-
-        is_reg_share_s_tech_ey_p = {}
-        for sector, uk_techs_service_enduses_p in is_share_s_tech_ey_p.items():
-            is_reg_share_s_tech_ey_p[sector] = {}
-            for enduse, uk_techs_service_p in uk_techs_service_enduses_p.items():
-                is_reg_share_s_tech_ey_p[sector][enduse] = calc_regional_services(
-                    enduse,
-                    uk_techs_service_p,
-                    regions,
-                    spatial_diffusion_factor,
-                    fuel_disagg['is_aggr_fuel_sum_all_sectors'],
-                    techs_affected_spatial_f)
+    is_reg_share_s_tech_ey_p = {}
+    for sector, uk_techs_service_enduses_p in is_share_s_tech_ey_p.items():
+        is_reg_share_s_tech_ey_p[sector] = {}
+        for enduse, uk_techs_service_p in uk_techs_service_enduses_p.items():
+            is_reg_share_s_tech_ey_p[sector][enduse] = calc_regional_services(
+                enduse,
+                uk_techs_service_p,
+                regions,
+                spatial_diffusion_factor,
+                fuel_disagg['is_aggr_fuel_sum_all_sectors'],
+                techs_affected_spatial_f)
 
     return rs_reg_share_s_tech_ey_p, ss_reg_share_s_tech_ey_p, is_reg_share_s_tech_ey_p
 
@@ -555,7 +540,7 @@ def factor_improvements_single(
 
     test = 0
     for region in regions:
-        
+    
         try:
             test += (reg_enduse_tech_p_ey[region] * np.sum(fuel_regs_enduse[region]))
             logging.info(

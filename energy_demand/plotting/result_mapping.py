@@ -668,14 +668,14 @@ def create_geopanda_files(
     # ======================================
     # Load factors (absolute)
     # ======================================
-    for year in results_container['load_factors_y'].keys():
+    for year in results_container['reg_load_factor_y'].keys():
         for fueltype in range(fueltypes_nr):
 
             fueltype_str = tech_related.get_fueltype_str(fueltypes, fueltype)
             field_name = 'lf_{}_{}'.format(year, fueltype_str)
 
             results = basic_functions.array_to_dict(
-                results_container['load_factors_y'][year][fueltype], regions)
+                results_container['reg_load_factor_y'][year][fueltype], regions)
 
             # Both need to be lists
             merge_data = {
@@ -717,7 +717,7 @@ def create_geopanda_files(
     # ======================================
     # Spatial maps of difference in load factors
     # ======================================
-    simulated_yrs = list(results_container['load_factors_y'].keys())
+    simulated_yrs = list(results_container['reg_load_factor_y'].keys())
 
     final_yr = simulated_yrs[-1]
     base_yr = simulated_yrs[0]
@@ -728,11 +728,11 @@ def create_geopanda_files(
         field_name = 'lf_diff_{}-{}_{}_'.format(base_yr, final_yr, fueltype_str)
 
         lf_end_yr = basic_functions.array_to_dict(
-            results_container['load_factors_y'][final_yr][fueltype],
+            results_container['reg_load_factor_y'][final_yr][fueltype],
             regions)
 
         lf_base_yr = basic_functions.array_to_dict(
-            results_container['load_factors_y'][base_yr][fueltype],
+            results_container['reg_load_factor_y'][base_yr][fueltype],
             regions)
 
         # Calculate load factor difference base and final year (100 = 100%)

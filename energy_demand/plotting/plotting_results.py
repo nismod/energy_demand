@@ -16,6 +16,7 @@ from energy_demand.plotting import plotting_program
 from energy_demand.basic import basic_functions, conversions
 from energy_demand.plotting import plotting_styles
 from energy_demand.technologies import tech_related
+from energy_demand.profiles import load_factors
 
 def plot_lp_dh_SCRAP(data_dh_modelled):
     x_values = range(24)
@@ -36,38 +37,34 @@ def run_all_plot_functions(
     ):
     """Summary function to plot all results
     """
-    plot_line_for_every_region_of_peak_demand = True #TODO
 
-    # -----------
-    # Set which plots to plot
-    # -----------
-    plot_stacked_enduses = plot_crit['plot_stacked_enduses']
-    plot_y_all_enduses = plot_crit['plot_y_all_enduses']
-    plot_fuels_enduses_y = plot_crit['plot_fuels_enduses_y']
-    plot_lf = plot_crit['plot_lf']                         # Plot load factors
-    plot_week_h = plot_crit['plot_week_h']
-    plot_h_peak_fueltypes = plot_crit['plot_h_peak_fueltypes']
-    plot_averaged_season_fueltype = plot_crit['plot_averaged_season_fueltype']   # Compare for every season and daytype the daily loads
-    plot_radar = plot_crit['plot_radar']                      # Plot radar spider charts
-
-    # ----------
-    # Plot cross graph where very region is a dot
-    # ----------
-    plot_lad_cross_graphs = True
-    if plot_lad_cross_graphs:
+    if plot_crit['plot_lad_cross_graphs']:
+        # Plot cross graph where very region is a dot
+        plot_cross_graphs(
+            base_yr=2015,
+            comparison_year=2050,
+            regions=regions,
+            ed_year_fueltype_regs_yh=results_container['results_every_year'],
+            reg_load_factor_y=results_container['reg_load_factor_y'],
+            fueltype_int=lookups['fueltypes']['electricity'],
+            fueltype_str='electricity',
+            fig_name=os.path.join(
+                result_paths['data_results_PDF'], "comparions_LAD_cross_graph_electricity_by_cy.pdf"),
+            label_points=False,
+            plotshow=False)
 
         plot_cross_graphs(
             base_yr=2015,
             comparison_year=2050,
             regions=regions,
             ed_year_fueltype_regs_yh=results_container['results_every_year'],
-            load_factors_y=results_container['load_factors_y'],
-            fueltype_int=lookups['fueltypes']['electricity'],
-            fueltype_str='electricity',
+            reg_load_factor_y=results_container['reg_load_factor_y'],
+            fueltype_int=lookups['fueltypes']['gas'],
+            fueltype_str='gas',
             fig_name=os.path.join(
-                result_paths['data_results_PDF'], "comparions_LAD_cross_graph_electricity_by_cy.pdf"),
+                result_paths['data_results_PDF'], "comparions_LAD_cross_graph_gas_by_cy.pdf"),
             label_points=False,
-            plotshow=True)
+            plotshow=False)
 
     # ----------
     # Plot LAD differences for first and last year
@@ -105,7 +102,7 @@ def run_all_plot_functions(
     # ----------------
     # Plot demand for every region over time
     # -------------------
-    if plot_line_for_every_region_of_peak_demand:
+    if plot_crit['plot_line_for_every_region_of_peak_demand']:
         logging.info("... plot fuel per fueltype for every region over annual teimsteps")
         plt_one_fueltype_multiple_regions_peak_h(
             results_container['results_every_year'],
@@ -116,7 +113,7 @@ def run_all_plot_functions(
                 'peak_h_total_electricity.pdf'),
             fueltype_str_to_plot="electricity")
 
-    if plot_fuels_enduses_y:
+    if plot_crit['plot_fuels_enduses_y']:
         logging.info("... plot fuel per fueltype for whole country over annual timesteps")
         #... Plot total fuel (y) per fueltype as line chart"
         plt_fuels_enduses_y(
@@ -129,7 +126,7 @@ def run_all_plot_functions(
     # ------------
     # Plot stacked annual enduses
     # ------------
-    if plot_stacked_enduses:
+    if plot_crit['plot_stacked_enduses']:
         logging.info("plot stacked enduses")
 
         # Residential
@@ -159,7 +156,7 @@ def run_all_plot_functions(
     # ------------------------------
     # Plot annual demand for enduses for all submodels
     # ------------------------------
-    if plot_y_all_enduses:
+    if plot_crit['plot_y_all_enduses']:
         logging.info("plot annual demand for enduses for all submodels")
         plt_stacked_enduse_sectors(
             lookups,
@@ -174,7 +171,7 @@ def run_all_plot_functions(
     # --------------
     # Fuel per fueltype for whole country over annual timesteps
     # ----------------
-    if plot_fuels_enduses_y:
+    if plot_crit['plot_fuels_enduses_y']:
         logging.info("... plot fuel per fueltype for whole country over annual timesteps")
         #... Plot total fuel (y) per fueltype as line chart"
         plt_fuels_enduses_y(
@@ -192,7 +189,7 @@ def run_all_plot_functions(
     # ------------------------------------
     # Load factors per fueltype and region
     # ------------------------------------
-    if plot_lf:
+    if plot_crit['plot_lf'] :
         for fueltype_str, fueltype_int in lookups['fueltypes'].items():
             logging.info("plot Load factors per fueltype and region")
             plot_seasonal_lf(
@@ -207,16 +204,16 @@ def run_all_plot_functions(
             '''plot_lf_y(
                 fueltype_int,
                 fueltype_str,
-                results_container['load_factors_yd'],
+                results_container['reg_load_factor_yd'],
                 reg_nrs,
                 os.path.join(
                     result_paths['data_results_PDF'], 'lf_yd_{}.pdf'.format(fueltype_str)))'''
 
-            # load_factors_yd = max daily value / average annual daily value
+            # reg_load_factor_yd = max daily value / average annual daily value
             plot_lf_y(
                 fueltype_int,
                 fueltype_str,
-                results_container['load_factors_y'],
+                results_container['reg_load_factor_y'],
                 reg_nrs,
                 os.path.join(
                     result_paths['data_results_PDF'],
@@ -225,7 +222,7 @@ def run_all_plot_functions(
     # --------------
     # Fuel week of base year
     # ----------------
-    if plot_week_h:
+    if plot_crit['plot_week_h']:
         logging.debug("... plot a full week")
         plt_fuels_enduses_week(
             results_container['results_every_year'],
@@ -238,7 +235,7 @@ def run_all_plot_functions(
     # ------------------------------------
     # Plot averaged per season and fueltype
     # ------------------------------------
-    if plot_averaged_season_fueltype:
+    if plot_crit['plot_averaged_season_fueltype']:
         base_year = 2015
         for year in results_container['av_season_daytype_cy'].keys():
             for fueltype_int in results_container['av_season_daytype_cy'][year].keys():
@@ -259,7 +256,7 @@ def run_all_plot_functions(
                     plot_all_entries=False,
                     plot_max_min_polygon=True,
                     plotshow=False,
-                    plot_radar=plot_radar,
+                    plot_radar=plot_crit['plot_radar_seasonal'],
                     max_y_to_plot=120,
                     fueltype_str=fueltype_str,
                     year=year)
@@ -267,7 +264,7 @@ def run_all_plot_functions(
     # ---------------------------------
     # Plot hourly peak loads over time for different fueltypes
     # --------------------------------
-    if plot_h_peak_fueltypes:
+    if plot_crit['plot_h_peak_fueltypes']:
 
         plt_fuels_peak_h(
             results_container['results_every_year'],
@@ -499,7 +496,7 @@ def plot_seasonal_lf(
 def plot_lf_y(
         fueltype_int,
         fueltype_str,
-        load_factors_y,
+        reg_load_factor_y,
         reg_nrs,
         path_plot_fig,
         plot_individ_lines=False,
@@ -524,7 +521,7 @@ def plot_lf_y(
             x_values_year = []
             y_values_year = []
 
-            for year, lf_fueltype_reg in load_factors_y.items():
+            for year, lf_fueltype_reg in reg_load_factor_y.items():
                 x_values_year.append(year)
                 y_values_year.append(lf_fueltype_reg[fueltype_int][reg_nr])
 
@@ -538,7 +535,7 @@ def plot_lf_y(
         '''lower_bdoundary = []
         upper_boundary = []
 
-        for year_nr, lf_fueltype_reg in load_factors_y.items():
+        for year_nr, lf_fueltype_reg in reg_load_factor_y.items():
 
             # Get min and max of all entries of year of all regions
             min_y = np.min(lf_fueltype_reg[fueltype_int])
@@ -549,7 +546,7 @@ def plot_lf_y(
         # create correct sorting to draw filled polygon
         min_max_polygon = order_polygon(upper_boundary, lower_bdoundary)'''
 
-        min_max_polygon = plotting_results.create_min_max_polygon_from_lines(load_factors_y)
+        min_max_polygon = plotting_results.create_min_max_polygon_from_lines(reg_load_factor_y)
 
         polygon = plt.Polygon(
             min_max_polygon,
@@ -571,7 +568,7 @@ def plot_lf_y(
     plt.xlabel("years")
     plt.ylabel("load factor, fueltpye {} [%]".format(fueltype_str))
 
-    years = list(load_factors_y.keys())
+    years = list(reg_load_factor_y.keys())
     base_yr = 2015
 
     # Major ticks
@@ -1242,7 +1239,7 @@ def plot_load_profile_dh_multiple(
 
                 # create correct sorting to draw filled polygon
                 min_max_polygon = order_polygon(upper_boundary, lower_bdoundary)
-                #min_max_polygon = plotting_results.create_min_max_polygon_from_lines(load_factors_y)
+                #min_max_polygon = plotting_results.create_min_max_polygon_from_lines(reg_load_factor_y)
 
                 polygon = plt.Polygon(
                     min_max_polygon,
@@ -2177,7 +2174,7 @@ def plt_one_fueltype_multiple_regions_peak_h(
                 data_over_years[reg_nr] = []
 
             for model_year_object in results_every_year.values():
-                #_scrap = 0
+
                 for reg_nr, reg_geocode in enumerate(regions):
 
                     # Get peak hour value
@@ -2186,10 +2183,7 @@ def plt_one_fueltype_multiple_regions_peak_h(
                     # Add peak hour
                     data_over_years[reg_nr].append(peak_fueltyp_h)
                     #_scrap += np.sum(peak_fueltyp_h)
-                
-                #if fueltype_str == 'electricity':
-                #    print("DD " + str(_scrap))
-                #    prnt(".")
+    
             y_init = data_over_years
 
     # ----------
@@ -2251,7 +2245,7 @@ def plot_cross_graphs(
         comparison_year,
         regions,
         ed_year_fueltype_regs_yh,
-        load_factors_y,
+        reg_load_factor_y,
         fueltype_int,
         fueltype_str,
         fig_name,
@@ -2263,25 +2257,52 @@ def plot_cross_graphs(
     # -------------------------------------------
     # Get base year modelled demand
     # -------------------------------------------
+    
     for year, fuels in ed_year_fueltype_regs_yh.items():
 
         if year == base_yr:
             for reg_nr, reg_geocode in enumerate(regions):
-                gw_per_region_modelled = np.sum(fuels[fueltype_int][reg_nr])
-                result_dict['demand_by'][reg_geocode] = gw_per_region_modelled
+                result_dict['demand_by'][reg_geocode] = np.sum(fuels[fueltype_int][reg_nr])
+                result_dict['peak_h_demand_by'][reg_geocode] = np.max(fuels[fueltype_int][reg_nr])
+
+            # Demand across all regs
+            result_dict['demand_by_all_regs'] = np.sum(fuels[fueltype_int])
+
+            # Peak demand
+            fuel_all_reg_yh = np.sum(fuels[fueltype_int], axis=0)# Sum across all regions
+            result_dict['peak_h_demand_by_all_regs'] = np.max(fuel_all_reg_yh)
+
+            # Calculate national load factor
+            fuel_all_fueltype_reg_yh = np.sum(fuels, axis=1)# Sum across all regions per fueltype
+            load_factor_y = load_factors.calc_lf_y(fuel_all_fueltype_reg_yh)
+            result_dict['lf_by_all_regs_av'] = load_factor_y[fueltype_int]
+
         elif year == comparison_year:
             for reg_nr, reg_geocode in enumerate(regions):
-                gw_per_region_modelled = np.sum(fuels[fueltype_int][reg_nr])
-                result_dict['demand_cy'][reg_geocode] = gw_per_region_modelled
+                result_dict['demand_cy'][reg_geocode] = np.sum(fuels[fueltype_int][reg_nr])
+                result_dict['peak_h_demand_cy'][reg_geocode] = np.max(fuels[fueltype_int][reg_nr])
+
+            # Demand across all regs
+            result_dict['demand_cy_all_regs'] = np.sum(fuels[fueltype_int])
+
+            # Peak demand
+            fuel_all_reg_yh = np.sum(fuels[fueltype_int], axis=0) # Sum across all regions
+            result_dict['peak_h_demand_cy_all_regs'] = np.max(fuel_all_reg_yh)
+
+            # Calculate national load factor
+            fuel_all_fueltype_reg_yh = np.sum(fuels, axis=1)# Sum across all regions per fueltype
+            load_factor_y = load_factors.calc_lf_y(fuel_all_fueltype_reg_yh)
+            result_dict['lf_cy_all_regs_av'] = load_factor_y[fueltype_int]
         else:
             pass
 
     # Get load factor
-    for year, lf_fueltype_regs in load_factors_y.items():
+    for year, lf_fueltype_regs in reg_load_factor_y.items():
 
         if year == base_yr:
             for reg_nr, reg_geocode in enumerate(regions):
                 result_dict['lf_by'][reg_geocode] = lf_fueltype_regs[fueltype_int][reg_nr]
+
         elif year == comparison_year:
             for reg_nr, reg_geocode in enumerate(regions):
                 result_dict['lf_cy'][reg_geocode] = lf_fueltype_regs[fueltype_int][reg_nr]
@@ -2300,28 +2321,41 @@ def plot_cross_graphs(
     for reg_nr, reg_geocode in enumerate(regions):
 
         # Change in load factor
-        lf_change_p = (100 / result_dict['lf_by'][reg_geocode]) * result_dict['lf_cy'][reg_geocode]
+        lf_change_p = ((100 / result_dict['lf_by'][reg_geocode]) * result_dict['lf_cy'][reg_geocode]) - 100
 
-        # Change in peak
-        peak_h_p = (100 / result_dict['demand_by'][reg_geocode]) * result_dict['demand_cy'][reg_geocode]
+        # Change in peak h deman
+        demand_peak_h_p = ((100 / result_dict['peak_h_demand_by'][reg_geocode]) * result_dict['peak_h_demand_cy'][reg_geocode]) - 100
+
+        # Change in total regional demand
+        tot_demand_p = ((100 / result_dict['demand_by'][reg_geocode]) * result_dict['demand_cy'][reg_geocode]) - 100
 
         x_values.append(lf_change_p)
-        y_values.append(peak_h_p)
+        #y_values.append(tot_demand_p)
+        y_values.append(demand_peak_h_p)
 
         labels.append(reg_geocode)
 
-        if lf_change_p < 100 and peak_h_p > 100:
+        if lf_change_p < 0 and tot_demand_p > 0:
             x_values_0_quadrant.append(lf_change_p)
-            y_values_0_quadrant.append(peak_h_p)
-        elif lf_change_p > 100 and peak_h_p > 100:
+            y_values_0_quadrant.append(tot_demand_p)
+        elif lf_change_p > 0 and tot_demand_p > 0:
             x_values_1_quadrant.append(lf_change_p)
-            y_values_1_quadrant.append(peak_h_p)
-        elif lf_change_p > 100 and peak_h_p < 100:
+            y_values_1_quadrant.append(tot_demand_p)
+        elif lf_change_p > 0 and tot_demand_p < 0:
             x_values_2_quadrant.append(lf_change_p)
-            y_values_2_quadrant.append(peak_h_p)
+            y_values_2_quadrant.append(tot_demand_p)
         else:
             x_values_3_quadrant.append(lf_change_p)
-            y_values_3_quadrant.append(peak_h_p)
+            y_values_3_quadrant.append(tot_demand_p)
+
+    # Add average
+    national_tot_cy_p = ((100 / result_dict['lf_by_all_regs_av']) * result_dict['lf_cy_all_regs_av']) - 100
+    #national_tot_demand_p = ((100 / result_dict['demand_by_all_regs']) * result_dict['demand_cy_all_regs']) - 100
+    national_peak_h_p = ((100 / result_dict['peak_h_demand_by_all_regs']) * result_dict['peak_h_demand_cy_all_regs']) - 100
+
+    x_val_national_lf_demand_cy = [national_tot_cy_p]
+    #y_val_national_lf_demand_cy = [national_tot_demand_p]
+    y_val_national_lf_demand_cy = [national_peak_h_p]
 
     # -------------------------------------
     # Plot
@@ -2356,6 +2390,15 @@ def plot_cross_graphs(
         color='darkolivegreen',
         s=8)
 
+    # Add average
+    ax.scatter(
+        x_val_national_lf_demand_cy,
+        y_val_national_lf_demand_cy,
+        alpha=0.9,
+        color='black',
+        s=9,
+        label='national')
+
     # --------
     # Axis
     # --------
@@ -2365,23 +2408,23 @@ def plot_cross_graphs(
     plt.tick_params(
         axis='x',          # changes apply to the x-axis
         which='both',      # both major and minor ticks are affected
-        bottom='off',      # ticks along the bottom edge are off
+        bottom='on',      # ticks along the bottom edge are off
         top='off',         # ticks along the top edge are off
         labelbottom='on') # labels along the bottom edge are off
 
     # --------
     # Grd
     # --------
-    #ax.set_axisbelow(True)
+    ax.set_axisbelow(True)
     #ax.grid(True)
     #ax.set_xticks(minor=False)
-    ax.set_xticks([100], minor=True)
+    ax.set_xticks([0], minor=True)
     #ax.set_yticks(minor=False)
-    ax.set_yticks([100], minor=True)
+    ax.set_yticks([0], minor=True)
     #ax.yaxis.grid(True, which='major')
-    ax.yaxis.grid(True, which='minor', linewidth=1, color='grey', linestyle='--')
+    ax.yaxis.grid(True, which='minor', linewidth=0.7, color='grey', linestyle='--')
     #ax.xaxis.grid(True, which='major')
-    ax.xaxis.grid(True, which='minor', linewidth=1, color='grey', linestyle='--')
+    ax.xaxis.grid(True, which='minor', linewidth=0.7, color='grey', linestyle='--')
 
     # Limit
     #plt.ylim(ymin=0)
@@ -2401,11 +2444,12 @@ def plot_cross_graphs(
     # --------
     # Legend
     # --------
-    plt.legend(
+    '''legend(
+        loc=3,
         prop={
             'family': 'arial',
             'size': 8},
-        frameon=False)
+        frameon=False)'''
 
     # Tight layout
     plt.margins(x=0)

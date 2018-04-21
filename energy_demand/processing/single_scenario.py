@@ -23,7 +23,7 @@ def main(path_data_energy_demand, path_shapefile_input):
     # Criterias
     # ---------
     write_shapefiles = False    # Write shapefiles
-    spatial_results = True      # Spatial geopanda maps
+    spatial_results = False      # Spatial geopanda maps
 
     plot_crit_dict = {
         "plot_stacked_enduses": True,
@@ -32,8 +32,12 @@ def main(path_data_energy_demand, path_shapefile_input):
         "plot_lf": False,
         "plot_week_h": True,
         "plot_h_peak_fueltypes": True,
-        "plot_averaged_season_fueltype": True,
-        "plot_radar" : False}
+        "plot_averaged_season_fueltype": True, # Compare for every season and daytype the daily loads
+        "plot_radar" : True,
+        "plot_radar_seasonal" : False,
+        "plot_line_for_every_region_of_peak_demand" : True,
+        "plot_lad_cross_graphs" : True
+        } # Plot radar spider charts
 
     # Set up logger
     logger_setup.set_up_logger(
