@@ -25,8 +25,7 @@ def process_scenarios(path_to_scenarios, year_to_model=2015):
     # Charts to plot
     # -----------
     heat_pump_range_plot = False        # Plot of changing scenario values stored in scenario name
-    plot_multiple_cross_charts = True   # Compare cross charts of different scenario
-
+    plot_multiple_cross_charts = False   # Compare cross charts of different scenario
 
     # Delete folder results if existing
     path_result_folder = os.path.join(
@@ -83,6 +82,7 @@ def process_scenarios(path_to_scenarios, year_to_model=2015):
     # -------------------------------
     if heat_pump_range_plot:
         plotting_multiple_scenarios.plot_heat_pump_chart(
+            regions,
             scenario_data,
             fig_name=os.path.join(path_result_folder, "comparison_hp_service_switch_and_lf.pdf"),
             fueltype_str_input='electricity',
@@ -100,13 +100,30 @@ def process_scenarios(path_to_scenarios, year_to_model=2015):
             scenario_data=scenario_data,
             fueltype_int=lookups['fueltypes']['electricity'],
             fueltype_str='electricity',
-            fig_name=os.path.join(path_result_folder, "SPIDER_MULTIPLE_SCENAROIS.pdf"),
+            fig_name=os.path.join(path_result_folder, "SPIDER_MULTIPLE_SCENAROIS_electricity.pdf"),
+            label_points=False,
+            plotshow=False)
+
+        plotting_results.plot_cross_graphs_scenarios(
+            base_yr=2015,
+            comparison_year=2050,
+            regions=regions,
+            scenario_data=scenario_data,
+            fueltype_int=lookups['fueltypes']['gas'],
+            fueltype_str='gas',
+            fig_name=os.path.join(path_result_folder, "SPIDER_MULTIPLE_SCENAROIS_gas.pdf"),
             label_points=False,
             plotshow=False)
 
     # -------------------------------
     # Plot total demand for every year in line plot
     # -------------------------------
+    plotting_multiple_scenarios.plot_tot_fueltype_y_over_time(
+        scenario_data,
+        lookups['fueltypes'],
+        fig_name=os.path.join(path_result_folder, "tot_y_multiple_fueltypes.pdf"),
+        plotshow=False)
+
     plotting_multiple_scenarios.plot_tot_y_over_time(
         scenario_data,
         fig_name=os.path.join(path_result_folder, "tot_y_multiple.pdf"),
@@ -156,4 +173,6 @@ def process_scenarios(path_to_scenarios, year_to_model=2015):
     return
 
 # Generate plots across all scenarios
-process_scenarios(os.path.abspath("C:/Users/cenv0553/ED/_MULTI"))
+#process_scenarios(os.path.abspath("C:/Users/cenv0553/ED/_SCENARIOS"))
+process_scenarios(os.path.abspath("C:/Users/cenv0553/ED/_multi_scen_A"))
+#process_scenarios(os.path.abspath("C:/Users/cenv0553/ED/_MULTI"))

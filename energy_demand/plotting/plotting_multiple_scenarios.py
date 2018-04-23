@@ -17,6 +17,7 @@ from energy_demand import enduse_func
 from energy_demand.profiles import load_factors
 
 def plot_heat_pump_chart(
+        regions,
         scenario_data,
         fig_name,
         fueltype_str_input,
@@ -47,15 +48,29 @@ def plot_heat_pump_chart(
         # Get peak for all regions {year: {fueltype: np.array(reg,value))}
         y_lf_fueltype = {}
 
-        for year, data_lf_fueltypes in scenario_data['reg_load_factor_y'].items(): # {scenario_value: np.array((regions, result_value))}
-
+        # Load factor
+        '''for year, data_lf_fueltypes in scenario_data['reg_load_factor_y'].items(): # {scenario_value: np.array((regions, result_value))}
             if year != year_to_plot:
                 continue
 
             y_lf_fueltype[year] = {}
             for fueltype_int, data_lf in enumerate(data_lf_fueltypes):
-
                 fueltype_str = tech_related.get_fueltype_str(lookups['fueltypes'], fueltype_int)
+
+                # Select only fueltype data
+                if fueltype_str == fueltype_str_input:
+                    y_lf_fueltype[year] = data_lf
+                else:
+                    pass
+        '''
+        # PEAK VALUE ed_peak_regs_h ed_peak_h
+        #for year, data_lf_fueltypes in scenario_data['ed_peak_regs_h'].items():
+        for year, data_lf_fueltypes in scenario_data['ed_peak_h'].items():
+            if year != year_to_plot:
+                continue
+
+            y_lf_fueltype[year] = {}
+            for fueltype_str, data_lf in data_lf_fueltypes.items():
 
                 # Select only fueltype data
                 if fueltype_str == fueltype_str_input:
@@ -73,7 +88,7 @@ def plot_heat_pump_chart(
     # -----
 
     # Criteria to plot maximum boundaries
-    plot_max_min_polygon = True
+    plot_max_min_polygon = False #TODO
     plot_all_regs = False
 
     # Set figure size
@@ -102,9 +117,6 @@ def plot_heat_pump_chart(
     # Nr of years
     for _percent_value, fuel_fueltype_yrs in result_dict.items():
         years = list(fuel_fueltype_yrs.keys())
-        for year in years:
-            regs = fuel_fueltype_yrs[year]
-            break
         break
 
     legend_entries = []
@@ -116,7 +128,7 @@ def plot_heat_pump_chart(
         # ----------------
         # For every region
         # ----------------
-        for reg_nr, _ in enumerate(regs):
+        '''for reg_nr, _ in enumerate(regions):
             year_data = []
             for _percent_value, fuel_fueltype_yrs in result_dict.items():
                 year_data.append(fuel_fueltype_yrs[year][reg_nr])
@@ -126,7 +138,7 @@ def plot_heat_pump_chart(
                 plt.plot(
                     list(all_percent_values),
                     list(year_data),
-                    color=str(color_scenario))
+                    color=str(color_scenario))'''
 
         # --------------------
         # Plot max min polygon
@@ -137,7 +149,7 @@ def plot_heat_pump_chart(
             x_y_values = {}
             for _percent_value, fuel_fueltype_yrs in result_dict.items():
                 x_y_values[_percent_value] = []
-                for reg_nr, _ in enumerate(regs):
+                for reg_nr, _ in enumerate(regions):
                     x_y_values[_percent_value].append(result_dict[_percent_value][year])
 
             # Create polygons
@@ -152,7 +164,7 @@ def plot_heat_pump_chart(
                 fill='True')
 
             ax.add_patch(polygon)
-        
+
         # Average across all regs
         year_data = []
         for _percent_value, fuel_fueltype_yrs in result_dict.items():
@@ -173,9 +185,10 @@ def plot_heat_pump_chart(
     # Axis
     # ----
     plt.ylim(ymin=0)
-    plt.ylim(ymax=100)
+    plt.ylim(ymax=80)
+    #plt.ylim(ymax=1.2)
     plt.xlim(xmin=0)
-    plt.xlim(xmax=100)
+    plt.xlim(xmax=60)
 
     # ------------
     # Plot legend
@@ -193,7 +206,8 @@ def plot_heat_pump_chart(
     # Labels
     # ---------
     plt.xlabel("heat pump residential heating [%]")
-    plt.ylabel("load factor [%] [{}]".format(fueltype_str_input))
+    #plt.ylabel("load factor [%] [{}]".format(fueltype_str_input))
+    plt.ylabel("Peak demand h [GW] {}".format(fueltype_str_input))
     #plt.title("impact of changing residential heat pumps to load factor")
 
     # Tight layout
@@ -373,6 +387,119 @@ def plot_reg_y_over_time(
     # Labels
     # ---------
     plt.ylabel("GWh")
+    plt.xlabel("year")
+    plt.title("tot y ED all fueltypes")
+
+    # Tight layout
+    plt.tight_layout()
+    plt.margins(x=0)
+
+    plt.savefig(fig_name)
+
+    if plotshow:
+        plt.show()
+        plt.close()
+    else:
+        plt.close()
+
+def plot_tot_fueltype_y_over_time(
+        scenario_data,
+        fueltypes,
+        fig_name,
+        plotshow=False
+    ):
+    """Plot total demand over simulation period for every
+    scenario for all regions
+    """
+    # Set figure size
+    fig = plt.figure(figsize=plotting_program.cm2inch(14, 8))
+    ax = fig.add_subplot(1,1,1)
+
+    y_scenario = {}
+
+    for scenario_name, scen_data in scenario_data.items():
+
+        # Read out fueltype specific max h load
+        data_years = {}
+        for year, fueltype_reg_time in scen_data['results_every_year'].items():
+
+            # Sum all regions
+            tot_gwh_fueltype_yh = np.sum(fueltype_reg_time, axis=1)
+
+            # Sum all hours
+            tot_gwh_fueltype_y = np.sum(tot_gwh_fueltype_yh, axis=1)
+
+            # Convert to TWh
+            tot_gwh_fueltype_y = conversions.gwh_to_twh(tot_gwh_fueltype_y)
+
+            data_years[year] = tot_gwh_fueltype_y
+
+        y_scenario[scenario_name] = data_years
+
+    # -----------------
+    # Axis
+    # -----------------
+    base_yr, year_interval = 2015, 5
+    first_scen = list(y_scenario.keys())[0]
+    end_yr = list(y_scenario[first_scen].keys())
+
+    major_ticks = np.arange(
+        base_yr,
+        end_yr[-1] + year_interval,
+        year_interval)
+
+    plt.xticks(major_ticks, major_ticks)
+
+    # ----------
+    # Plot lines
+    # ----------
+    color_list_selection = plotting_styles.color_list_selection()
+
+    for scenario_name, fuel_fueltype_yrs in y_scenario.items():
+
+        for fueltype_str, fueltype_nr in fueltypes.items():
+            color = color_list_selection[fueltype_nr]
+
+            # Get fuelt per fueltpye for every year
+            fuel_fueltype = []
+            for entry in list(fuel_fueltype_yrs.values()):
+                fuel_fueltype.append(entry[fueltype_nr])
+
+            plt.plot(
+                list(fuel_fueltype_yrs.keys()),      # years
+                fuel_fueltype,                       # yearly data per fueltype
+                color=color,
+                label="{}_{}".format(scenario_name, fueltype_str))
+
+    # ----
+    # Axis
+    # ----
+    plt.ylim(ymin=0)
+
+    # ------------
+    # Plot legend
+    # ------------
+    ax.legend(
+        ncol=1,
+        loc='center left',
+        prop={
+            'family': 'arial',
+            'size': 4},
+        bbox_to_anchor=(1, 0.5),
+        )
+    '''plt.legend(
+        ncol=1,
+        loc=1,
+        bbox_to_anchor=(1, 0.5),
+        prop={
+            'family': 'arial',
+            'size': 10},
+        frameon=False)'''
+
+    # ---------
+    # Labels
+    # ---------
+    plt.ylabel("TWh")
     plt.xlabel("year")
     plt.title("tot y ED all fueltypes")
 

@@ -8,7 +8,7 @@ from energy_demand.plotting import plotting_results, result_mapping
 from energy_demand.basic import logger_setup, basic_functions
 from energy_demand.basic import lookup_tables
 
-def main(path_data_energy_demand, path_shapefile_input, plot_crit_dict):
+def main(path_data_energy_demand, path_shapefile_input):
     """Read in all results and plot PDFs
 
     Arguments
@@ -21,7 +21,7 @@ def main(path_data_energy_demand, path_shapefile_input, plot_crit_dict):
     print("Start processing")
 
     plot_crit_dict = {
-        "write_shapefiles": False,           # Write shapefiles
+        "write_shapefiles": False,          # Write shapefiles
         "spatial_results": True,            # Spatial geopanda maps
         "plot_stacked_enduses": True,
         "plot_y_all_enduses": True,

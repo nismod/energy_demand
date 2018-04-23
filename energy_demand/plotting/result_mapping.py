@@ -648,7 +648,7 @@ def create_geopanda_files(
                 color_prop='qualitative',
                 color_order=True,
                 color_zero='#ffffff',
-                color_palette='YlGnBu_9') #8a2be2 'YlGnBu_9'  'PuBu_8'
+                color_palette='YlGnBu_7') #YlGnBu_9 #8a2be2 'YlGnBu_9'  'PuBu_8'
             #'''
 
             # If user classified, defined bins
@@ -844,7 +844,7 @@ def create_geopanda_files(
                 lad_geopanda_shp=lad_geopanda_shp,
                 legend_unit="GWh",
                 field_to_plot=field_name,
-                fig_name_part="tot_all_enduses_y_",
+                fig_name_part="_tot_all_enduses_y",
                 result_path=path_data_results_shapefiles,
                 color_palette='Dark2_7',
                 color_prop='qualitative',

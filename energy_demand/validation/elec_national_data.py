@@ -256,7 +256,8 @@ def compare_peak(
     # -------------------------------
     # Compare values
     # -------------------------------
-    fig = plt.figure(figsize=plotting_program.cm2inch(8, 8))
+    fig = plt.figure(
+        figsize=plotting_program.cm2inch(8, 8))
 
     plt.plot(
         range(24),
@@ -265,7 +266,7 @@ def compare_peak(
         linestyle='-',
         linewidth=0.5,
         label='model')
-    #plt.plot(range(24), validation_elec_data_2015[max_day], color='green', label='real')
+
     plt.plot(
         range(24),
         validation_elec_2015_peak,
@@ -285,7 +286,7 @@ def compare_peak(
     max_h_diff_gwh = round((abs(100 - max_h_diff)/100) * max_h_real, 2)
 
     # Y-axis ticks
-    plt.xlim(0, 24)
+    plt.xlim(0, 23)
     plt.yticks(range(0, 90, 10))
     plt.xticks(range(0, 24, 4))
 
@@ -300,7 +301,7 @@ def compare_peak(
     plt.ylabel("uk electrictiy use [GW]")
 
     plt.text(
-        5,  #position
+        5, #position
         5, #position
         diff_p_h,
         #horizontalalignment='center',

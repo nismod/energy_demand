@@ -142,7 +142,7 @@ def scenario_initalisation(path_data_ed, data=False):
         real_values = data['pop_density']
 
         # Speed to select
-        speed_con_max = 2
+        speed_con_max = 2.5
 
         # Nr of min and max outliers to flatten
         p_outlier = 5

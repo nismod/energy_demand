@@ -52,7 +52,6 @@ def color_list():
         'mediumseagreen',
         'lightgray',
         'mediumturquoise',
-        'darksage',
         'lemonchiffon',
         'cadetblue',
         'lightyellow',
@@ -96,7 +95,8 @@ def color_list_selection():
         'darkseagreen',
         'darkcyan',
         'indianred',
-        'darkblue']
+        'darkblue'
+        ]
 
     return color_list_selection
 
