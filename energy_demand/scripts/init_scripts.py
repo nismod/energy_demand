@@ -142,7 +142,7 @@ def scenario_initalisation(path_data_ed, data=False):
         real_values = data['pop_density']
 
         # Speed to select
-        speed_con_max = 2.5
+        speed_con_max = 2
 
         # Nr of min and max outliers to flatten
         p_outlier = 5
@@ -150,7 +150,7 @@ def scenario_initalisation(path_data_ed, data=False):
         f_reg, f_reg_norm, f_reg_norm_abs = spatial_diffusion.calc_spatially_diffusion_factors(
             regions=data['regions'],
             fuel_disagg=fuel_disagg,
-            real_values=real_values,    
+            real_values=real_values,
             low_congruence_crit=True,
             speed_con_max=speed_con_max,
             p_outlier=p_outlier)

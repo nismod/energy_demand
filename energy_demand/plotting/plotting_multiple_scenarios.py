@@ -503,10 +503,10 @@ def plot_radar_plots_average_peak_day(
         # Future year load profile
         all_regs_fueltypes_yh_by = np.sum(scenario_data[scenario]['results_every_year'][base_yr], axis=1)
         all_regs_fueltypes_yh_cy = np.sum(scenario_data[scenario]['results_every_year'][year_to_plot], axis=1)
-        
+
         for fueltype_str, fueltype_int in lookups['fueltypes'].items():
 
-            name_spider_plot = os.path.join(fig_name, "spider_{}_{}.pdf".format(scenario, fueltype_str))
+            name_spider_plot = os.path.join(fig_name, "spider_scenario_{}_{}.pdf".format(scenario, fueltype_str))
 
             # ---------------------------
             # Calculate load factors

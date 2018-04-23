@@ -252,12 +252,6 @@ def read_in_results(path_runs, seasons, model_yeardays_daytype):
 
     results_container['results_every_year'] = read_results_yh(path_runs)
 
-    for i in range(7):
-        print(np.sum(results_container['results_every_year'][2015][i]))
-        print(np.sum(results_container['results_every_year'][2050][i]))
-        print("--")
-
-    #prnt(".")
     # -----------------
     # Peak calculations
     # -----------------

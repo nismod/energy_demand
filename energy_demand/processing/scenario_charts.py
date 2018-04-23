@@ -2,12 +2,14 @@
 """
 import os
 import logging
-import collections
 
 from energy_demand.read_write import read_data
 from energy_demand.basic import date_prop
 from energy_demand.plotting import plotting_multiple_scenarios
 from energy_demand.basic import basic_functions
+from energy_demand.plotting import plotting_results
+from energy_demand.basic import lookup_tables
+from energy_demand.read_write import data_loader
 
 def process_scenarios(path_to_scenarios, year_to_model=2015):
     """Iterate folder with scenario results and plot charts
@@ -22,7 +24,8 @@ def process_scenarios(path_to_scenarios, year_to_model=2015):
     # -----------
     # Charts to plot
     # -----------
-    heat_pump_range_plot = False # Plot of changing scenario values stored in scenario name
+    heat_pump_range_plot = False        # Plot of changing scenario values stored in scenario name
+    plot_multiple_cross_charts = True   # Compare cross charts of different scenario
 
 
     # Delete folder results if existing
@@ -37,8 +40,15 @@ def process_scenarios(path_to_scenarios, year_to_model=2015):
     model_yeardays_daytype, _, _ = date_prop.get_model_yeardays_daytype(
         year_to_model=year_to_model)
 
+    lookups = lookup_tables.basic_lookups()
+
     # Get all folders with scenario run results (name of folder is scenario)
     scenarios = os.listdir(path_to_scenarios)
+
+    # Simulation information is read in from .ini file for results
+    path_fist_scenario = os.path.join(path_to_scenarios, scenarios[0])
+    enduses, assumptions, reg_nrs, regions = data_loader.load_ini_param(
+        path_fist_scenario)
 
     # -------------------------------
     # Iterate folders and get results
@@ -77,6 +87,22 @@ def process_scenarios(path_to_scenarios, year_to_model=2015):
             fig_name=os.path.join(path_result_folder, "comparison_hp_service_switch_and_lf.pdf"),
             fueltype_str_input='electricity',
             plotshow=True)
+
+    # -------------------------------
+    # Compare cross charts for different scenario
+    # IDeally only compare two scenario
+    # -------------------------------
+    if plot_multiple_cross_charts:
+        plotting_results.plot_cross_graphs_scenarios(
+            base_yr=2015,
+            comparison_year=2050,
+            regions=regions,
+            scenario_data=scenario_data,
+            fueltype_int=lookups['fueltypes']['electricity'],
+            fueltype_str='electricity',
+            fig_name=os.path.join(path_result_folder, "SPIDER_MULTIPLE_SCENAROIS.pdf"),
+            label_points=False,
+            plotshow=False)
 
     # -------------------------------
     # Plot total demand for every year in line plot
@@ -130,4 +156,4 @@ def process_scenarios(path_to_scenarios, year_to_model=2015):
     return
 
 # Generate plots across all scenarios
-process_scenarios(os.path.abspath("C:/Users/cenv0553/ED/_MULTIII"))
+process_scenarios(os.path.abspath("C:/Users/cenv0553/ED/_MULTI"))
