@@ -5,6 +5,7 @@ import logging
 from collections import defaultdict
 import operator
 from math import pi
+import math
 import numpy as np
 import matplotlib.pyplot as plt
 import pandas as pd
@@ -17,6 +18,48 @@ from energy_demand.basic import basic_functions, conversions
 from energy_demand.plotting import plotting_styles
 from energy_demand.technologies import tech_related
 from energy_demand.profiles import load_factors
+from energy_demand.plotting import plotting_results
+from scipy.interpolate import interp1d
+
+def smooth_data(x_list, y_list, spider=False):
+    """Smooth data
+
+    x_list : list
+        List with hours
+
+    """
+    if spider:
+
+        nr_x_values = len(x_list)
+        min_x_val = min(x_list)
+        max_x_val = math.pi * 2 #max is tow pi
+
+        x_values = np.linspace(min_x_val, max_x_val, num=nr_x_values, endpoint=True)
+        f2 = interp1d(x_values, y_list, kind='cubic')
+
+        smoothed_data_x = np.linspace(
+            min_x_val,
+            max_x_val,
+            num=100,
+            endpoint=True)
+
+    else:
+        nr_x_values = len(x_list)
+        min_x_val = min(x_list)
+        max_x_val = max(x_list) + 1
+
+        x_values = np.linspace(min_x_val, max_x_val, num=nr_x_values, endpoint=True)
+        f2 = interp1d(x_values, y_list, kind='cubic')
+
+        smoothed_data_x = np.linspace(
+            min_x_val,
+            max_x_val,
+            num=100,
+            endpoint=True)
+
+    smoothed_data_y = f2(smoothed_data_x)
+
+    return smoothed_data_x, smoothed_data_y
 
 def plot_lp_dh_SCRAP(data_dh_modelled):
     x_values = range(24)
@@ -2007,15 +2050,27 @@ def plot_radar_plot_multiple_lines(
     for i in range(nr_of_plot_steps * 2):
         minor_ticks.append(minor_tick_interval * i)
 
-    color_lines = ['grey', 'blue']
+        # ------------
+    color_scenarios = plotting_styles.color_list_scenarios()
+    color_lines = ['black'] + color_scenarios
     years = ['2015', '2050']
+    linewidth_list = [1.0, 0.7]
 
     # Iterate lines
-    for cnt, dh_profile in enumerate(dh_profiles):
+    cnt = -1
+    for dh_profile in dh_profiles:
+
+        if cnt >= 0:
+            cnt_year = 1
+        else:
+            cnt_year = 0
+        cnt += 1
 
         # Line properties
         color_line = color_lines[cnt]
-        year_line = years[cnt]
+        year_line = years[cnt_year]
+
+        print("color line ".format(color_line))
 
         data = {'dh_profile': ['testname']}
 
@@ -2044,8 +2099,8 @@ def plot_radar_plot_multiple_lines(
         ax = plt.subplot(111, polar=True)
 
         # Change axis properties
-        ax.yaxis.grid(color='grey', linestyle='--', linewidth=0.75)
-        ax.xaxis.grid(color='grey', linestyle=':', linewidth=0.5)
+        ax.yaxis.grid(color='grey', linestyle='--', linewidth=0.5)
+        ax.xaxis.grid(color='lightgrey', linestyle=':', linewidth=0.4)
 
         # Change to clockwise cirection
         ax.set_theta_direction(-1)
@@ -2073,7 +2128,7 @@ def plot_radar_plot_multiple_lines(
             axis_plots_innter_position = axis_plots_innter_position[1:1]
         else:
             pass'''
-    
+
         # Working alternative
         plt.yticks(
             axis_plots_inner,
@@ -2088,27 +2143,44 @@ def plot_radar_plot_multiple_lines(
         # Set limit to size
         plt.ylim(0, max_demand)
 
+        # Smooth lines
+        angles_smoothed, values_smoothed = plotting_results.smooth_data(
+            angles, values, spider=True)
+
         # Plot data
         ax.plot(
-            angles,
-            values,
+            angles_smoothed,
+            values_smoothed, 
+            #angles,
+            #values,
+            color=color_line,
             linestyle='--',
-            linewidth=0.8,
+            linewidth=linewidth_list[cnt_year],
             label="{}".format(year_line))
 
         # Radar area
         ax.fill(
-            angles,
-            values,
+            angles_smoothed,
+            values_smoothed, 
+            #angles,
+            #values,
             color_line,
-            alpha=0.1)
+            alpha=0.05)
 
     # ------------
     # Title
     # ------------
-    plt.title(" lf_y_by: {} lf_y_cy: {}".format(
-        round(lf_y_by, 2),
-        round(lf_y_cy, 2)))
+    font_additional_info = plotting_styles.font_info()
+    font_additional_info['size'] = 6
+
+    title_info = " lf_y_by: {} lf_y_cy: {}".format(
+        lf_y_by,
+        lf_y_cy)
+
+    plt.title(
+        title_info,
+        loc='left',
+        fontdict=font_additional_info)
 
     # ------------
     # Legend
@@ -2119,7 +2191,7 @@ def plot_radar_plot_multiple_lines(
         bbox_to_anchor=(0.5, -0.05),
         prop={
             'family': 'arial',
-            'size': 10},
+            'size': 5},
         frameon=False)
 
     plt.savefig(fig_name)

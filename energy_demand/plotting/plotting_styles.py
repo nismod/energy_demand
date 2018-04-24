@@ -143,7 +143,6 @@ def color_list_selection():
 def color_list_scenarios():
     """
     """
-
     color_list_selection = get_colorbrewer_color(
         color_prop='qualitative', #sequential
         color_palette='Accent_6', #'Set3_12',

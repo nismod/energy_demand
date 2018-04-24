@@ -24,7 +24,7 @@ def process_scenarios(path_to_scenarios, year_to_model=2015):
     # -----------
     # Charts to plot
     # -----------
-    heat_pump_range_plot = True        # Plot of changing scenario values stored in scenario name
+    heat_pump_range_plot = False        # Plot of changing scenario values stored in scenario name
     plot_multiple_cross_charts = True   # Compare cross charts of different scenario
 
     # Delete folder results if existing
@@ -153,6 +153,7 @@ def process_scenarios(path_to_scenarios, year_to_model=2015):
     # -------------------------------
     plotting_multiple_scenarios.plot_radar_plots_average_peak_day(
         scenario_data,
+        fueltype_to_model='electricity',
         fueltypes=lookups['fueltypes'],
         year_to_plot=2050,
         fig_name=os.path.join(path_result_folder),
@@ -176,6 +177,6 @@ def process_scenarios(path_to_scenarios, year_to_model=2015):
     return
 
 # Generate plots across all scenarios
-#process_scenarios(os.path.abspath("C:/Users/cenv0553/ED/_SCENARIOS"))
-process_scenarios(os.path.abspath("C:/Users/cenv0553/ED/_multi_scen_A"))
+process_scenarios(os.path.abspath("C:/Users/cenv0553/ED/_SCENARIOS"))
+#process_scenarios(os.path.abspath("C:/Users/cenv0553/ED/_multi_scen_A"))
 #process_scenarios(os.path.abspath("C:/Users/cenv0553/ED/_MULTI"))

@@ -612,6 +612,7 @@ def plot_tot_y_over_time(
 
 def plot_radar_plots_average_peak_day(
         scenario_data,
+        fueltype_to_model,
         fueltypes,
         year_to_plot,
         fig_name,
@@ -622,11 +623,17 @@ def plot_radar_plots_average_peak_day(
 
     MAYBE: SO FAR ONLY FOR ONE SCENARIO
     """
+    name_spider_plot = os.path.join(
+        fig_name, "spider_scenarios_{}.pdf".format(fueltype_to_model))
+
     # ----------------
     # Create base year peak load profile
     # Aggregate load profiles of all regions
     # -----------------
-    for scenario in scenario_data:
+    individ_radars_to_plot_dh = []
+    load_factor_fueltype_y_cy = []
+
+    for scenario_cnt, scenario in enumerate(scenario_data):
 
         base_yr = 2015
 
@@ -634,37 +641,42 @@ def plot_radar_plots_average_peak_day(
         all_regs_fueltypes_yh_by = np.sum(scenario_data[scenario]['results_every_year'][base_yr], axis=1)
         all_regs_fueltypes_yh_cy = np.sum(scenario_data[scenario]['results_every_year'][year_to_plot], axis=1)
 
-        for fueltype_str, fueltype_int in fueltypes.items():
+        #for fueltype_str, fueltype_int in fueltypes.items():
+        fueltype_int = fueltypes[fueltype_to_model]
 
-            name_spider_plot = os.path.join(
-                fig_name, "spider_scenario_{}_{}.pdf".format(scenario, fueltype_str))
+        # ---------------------------
+        # Calculate load factors
+        # ---------------------------
+        peak_day_nr_by, _ = enduse_func.get_peak_day_single_fueltype(all_regs_fueltypes_yh_by[fueltype_int])
+        peak_day_nr_cy, _ = enduse_func.get_peak_day_single_fueltype(all_regs_fueltypes_yh_cy[fueltype_int])
 
-            # ---------------------------
-            # Calculate load factors
-            # ---------------------------
-            peak_day_nr_by, _ = enduse_func.get_peak_day_single_fueltype(all_regs_fueltypes_yh_by[fueltype_int])
-            peak_day_nr_cy, _ = enduse_func.get_peak_day_single_fueltype(all_regs_fueltypes_yh_cy[fueltype_int])
+        scen_load_factor_fueltype_y_by = load_factors.calc_lf_y(all_regs_fueltypes_yh_by)
 
-            load_factor_fueltype_y_by = load_factors.calc_lf_y(all_regs_fueltypes_yh_by)
-            load_factor_fueltype_y_cy = load_factors.calc_lf_y(all_regs_fueltypes_yh_cy)
+        load_factor_fueltype_y_by = round(scen_load_factor_fueltype_y_by[fueltype_int], 2)
+        scen_load_factor_fueltype_y_cy = load_factors.calc_lf_y(all_regs_fueltypes_yh_cy)
+        load_factor_fueltype_y_cy.append(round(scen_load_factor_fueltype_y_cy[fueltype_int], 2))
 
-            # ----------------------------------
-            # Plot dh for peak day for base year
-            # ----------------------------------
+        # ----------------------------------
+        # Plot dh for peak day for base year
+        # ----------------------------------
+        if scenario_cnt == 0:
+            # Add base year
             all_regs_fueltypes_yh_by = all_regs_fueltypes_yh_by.reshape(all_regs_fueltypes_yh_by.shape[0], 365, 24)
-            all_regs_fueltypes_yh_cy = all_regs_fueltypes_yh_cy.reshape(all_regs_fueltypes_yh_cy.shape[0], 365, 24)
+            individ_radars_to_plot_dh.append(list(all_regs_fueltypes_yh_by[fueltype_int][peak_day_nr_by]))
+        else:
+            pass
 
-            individ_radars_to_plot_dh = [
-                list(all_regs_fueltypes_yh_by[fueltype_int][peak_day_nr_by]),
-                list(all_regs_fueltypes_yh_cy[fueltype_int][peak_day_nr_cy])]
+        # Add current year
+        all_regs_fueltypes_yh_cy = all_regs_fueltypes_yh_cy.reshape(all_regs_fueltypes_yh_cy.shape[0], 365, 24)
+        individ_radars_to_plot_dh.append(list(all_regs_fueltypes_yh_cy[fueltype_int][peak_day_nr_cy]))
 
-            plotting_results.plot_radar_plot_multiple_lines(
-                individ_radars_to_plot_dh,
-                name_spider_plot,
-                plot_steps=50,
-                plotshow=False,
-                lf_y_by=load_factor_fueltype_y_by[fueltype_int],
-                lf_y_cy=load_factor_fueltype_y_cy[fueltype_int])
+    plotting_results.plot_radar_plot_multiple_lines(
+        individ_radars_to_plot_dh,
+        name_spider_plot,
+        plot_steps=50,
+        plotshow=False,
+        lf_y_by=[], #load_factor_fueltype_y_by,
+        lf_y_cy=[]) #load_factor_fueltype_y_cy)
 
 def plot_LAD_comparison_scenarios(
         scenario_data,
