@@ -42,7 +42,6 @@ def smooth_data(x_list, y_list, spider=False):
             max_x_val,
             num=400,
             endpoint=True)
-
     else:
         nr_x_values = len(x_list)
         min_x_val = min(x_list)

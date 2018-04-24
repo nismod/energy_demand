@@ -9,6 +9,7 @@ import matplotlib.mlab as mlab
 from energy_demand.basic import date_prop
 from energy_demand.basic import conversions
 from energy_demand.plotting import plotting_program
+from energy_demand.plotting import plotting_results
 from energy_demand.basic import basic_functions
 from energy_demand.plotting import plotting_styles
 
@@ -166,10 +167,14 @@ def compare_results(
     fig = plt.figure(
         figsize=plotting_program.cm2inch(22, 8)) #width, height
 
+    
+    # smooth line
+    x_data_smoothed, y_real_indo_factored_smoothed = plotting_results.smooth_data(x_data, y_real_indo_factored)
+
     # plot points
     plt.plot(
-        x_data,
-        y_real_indo_factored,
+        x_data_smoothed, #x_data,
+        y_real_indo_factored_smoothed, #y_real_indo_factored,
         label='indo_factored',
         linestyle='-',
         linewidth=0.5,
@@ -259,17 +264,22 @@ def compare_peak(
     fig = plt.figure(
         figsize=plotting_program.cm2inch(8, 8))
 
+    # smooth line
+    x_smoothed, y_modelled_peak_dh_smoothed = plotting_results.smooth_data(range(24), modelled_peak_dh)
+
     plt.plot(
-        range(24),
-        modelled_peak_dh,
+        x_smoothed, #range(24),
+        y_modelled_peak_dh_smoothed, #modelled_peak_dh,
         color='blue',
         linestyle='-',
         linewidth=0.5,
         label='model')
 
+    x_smoothed, validation_elec_2015_peak_smoothed = plotting_results.smooth_data(range(24), validation_elec_2015_peak)
+
     plt.plot(
-        range(24),
-        validation_elec_2015_peak,
+        x_smoothed, #range(24),
+        validation_elec_2015_peak_smoothed, #validation_elec_2015_peak,
         color='black',
         linestyle='--',
         linewidth=0.5,
