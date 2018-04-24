@@ -1,8 +1,6 @@
 """Generate charts from multiple scenarios
 """
 import os
-import logging
-
 from energy_demand.read_write import read_data
 from energy_demand.basic import date_prop
 from energy_demand.plotting import plotting_multiple_scenarios
@@ -83,6 +81,7 @@ def process_scenarios(path_to_scenarios, year_to_model=2015):
     if heat_pump_range_plot:
         #TODO WRITE THAT FROM SEVERAL FOLDERS CAN BE GENERATED (i.e. different scenario)
         plotting_multiple_scenarios.plot_heat_pump_chart(
+            lookups,
             regions,
             scenario_data,
             fig_name=os.path.join(path_result_folder, "comparison_hp_service_switch_and_lf.pdf"),
