@@ -120,11 +120,8 @@ def plot_heat_pump_chart_multiple(
         years = list(fuel_fueltype_yrs.keys())
         break
 
-    legend_entries = []
+    
     for year in years:
-        color_scenario = color_list_selection.pop()
-
-        legend_entries.append("mean {}".format(year))
 
         # ----------------
         # For every region
@@ -165,8 +162,14 @@ def plot_heat_pump_chart_multiple(
                 fill='True')
 
             ax.add_patch(polygon)'''
-
+        color_scenarios = plotting_styles.color_list_scenarios()
+        #legend_entries = []
+        
+        cnt = -1
         for scenario_hp, scenario_hp_result in result_dict.items():
+
+            #legend_entries.append("{}".format(scenario_hp))
+            cnt += 1
             # Average across all regs
             year_data = []
             for _percent_value, fuel_fueltype_yrs in scenario_hp_result.items():
@@ -182,7 +185,9 @@ def plot_heat_pump_chart_multiple(
             plt.plot(
                 list(all_percent_values),
                 list(year_data),
-                color=str(color_scenario))
+                label=scenario_hp,
+                color=color_scenarios[cnt]) #,
+                #color=str(color_scenario))
     # ----
     # Axis
     # ----
@@ -196,7 +201,7 @@ def plot_heat_pump_chart_multiple(
     # Plot legend
     # ------------
     plt.legend(
-        legend_entries,
+        #legend_entries,
         ncol=1,
         loc=3,
         prop={
