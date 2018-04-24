@@ -318,7 +318,6 @@ def plot_reg_y_over_time(
             data_years_regs[year] = {}
 
             for _fueltype, regions_fuel in enumerate(fueltype_reg_time):
-                
                 for region_nr, region_fuel in enumerate(regions_fuel):
 
                     # Sum all regions and fueltypes
@@ -405,6 +404,7 @@ def plot_reg_y_over_time(
 def plot_tot_fueltype_y_over_time(
         scenario_data,
         fueltypes,
+        fueltypes_to_plot,
         fig_name,
         plotshow=False
     ):
@@ -413,7 +413,8 @@ def plot_tot_fueltype_y_over_time(
     """
     # Set figure size
     fig = plt.figure(figsize=plotting_program.cm2inch(14, 8))
-    ax = fig.add_subplot(1,1,1)
+
+    ax = fig.add_subplot(1, 1, 1)
 
     y_scenario = {}
 
@@ -458,18 +459,21 @@ def plot_tot_fueltype_y_over_time(
     for scenario_name, fuel_fueltype_yrs in y_scenario.items():
 
         for fueltype_str, fueltype_nr in fueltypes.items():
-            color = color_list_selection[fueltype_nr]
 
-            # Get fuelt per fueltpye for every year
-            fuel_fueltype = []
-            for entry in list(fuel_fueltype_yrs.values()):
-                fuel_fueltype.append(entry[fueltype_nr])
+            if fueltype_str in fueltypes_to_plot:
 
-            plt.plot(
-                list(fuel_fueltype_yrs.keys()),      # years
-                fuel_fueltype,                       # yearly data per fueltype
-                color=color,
-                label="{}_{}".format(scenario_name, fueltype_str))
+                color = color_list_selection[fueltype_nr]
+
+                # Get fuelt per fueltpye for every year
+                fuel_fueltype = []
+                for entry in list(fuel_fueltype_yrs.values()):
+                    fuel_fueltype.append(entry[fueltype_nr])
+
+                plt.plot(
+                    list(fuel_fueltype_yrs.keys()),      # years
+                    fuel_fueltype,                       # yearly data per fueltype
+                    color=color,
+                    label="{}_{}".format(scenario_name, fueltype_str))
 
     # ----
     # Axis
@@ -608,6 +612,7 @@ def plot_tot_y_over_time(
 
 def plot_radar_plots_average_peak_day(
         scenario_data,
+        fueltypes,
         year_to_plot,
         fig_name,
         plotshow
@@ -617,8 +622,6 @@ def plot_radar_plots_average_peak_day(
 
     MAYBE: SO FAR ONLY FOR ONE SCENARIO
     """
-    lookups = lookup_tables.basic_lookups()
-
     # ----------------
     # Create base year peak load profile
     # Aggregate load profiles of all regions
@@ -631,9 +634,10 @@ def plot_radar_plots_average_peak_day(
         all_regs_fueltypes_yh_by = np.sum(scenario_data[scenario]['results_every_year'][base_yr], axis=1)
         all_regs_fueltypes_yh_cy = np.sum(scenario_data[scenario]['results_every_year'][year_to_plot], axis=1)
 
-        for fueltype_str, fueltype_int in lookups['fueltypes'].items():
+        for fueltype_str, fueltype_int in fueltypes.items():
 
-            name_spider_plot = os.path.join(fig_name, "spider_scenario_{}_{}.pdf".format(scenario, fueltype_str))
+            name_spider_plot = os.path.join(
+                fig_name, "spider_scenario_{}_{}.pdf".format(scenario, fueltype_str))
 
             # ---------------------------
             # Calculate load factors
@@ -643,13 +647,13 @@ def plot_radar_plots_average_peak_day(
 
             load_factor_fueltype_y_by = load_factors.calc_lf_y(all_regs_fueltypes_yh_by)
             load_factor_fueltype_y_cy = load_factors.calc_lf_y(all_regs_fueltypes_yh_cy)
-            
+
             # ----------------------------------
             # Plot dh for peak day for base year
             # ----------------------------------
             all_regs_fueltypes_yh_by = all_regs_fueltypes_yh_by.reshape(all_regs_fueltypes_yh_by.shape[0], 365, 24)
             all_regs_fueltypes_yh_cy = all_regs_fueltypes_yh_cy.reshape(all_regs_fueltypes_yh_cy.shape[0], 365, 24)
-            
+
             individ_radars_to_plot_dh = [
                 list(all_regs_fueltypes_yh_by[fueltype_int][peak_day_nr_by]),
                 list(all_regs_fueltypes_yh_cy[fueltype_int][peak_day_nr_cy])]

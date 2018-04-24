@@ -388,7 +388,7 @@ def plot_seasonal_lf(
             lower_bdoundary = []
 
             min_max_polygon = plotting_results.create_min_max_polygon_from_lines(lf_fueltypes_season)
-
+            #TODO GOOD
             '''for year_nr, lf_fueltype_reg in lf_fueltypes_season.items():
 
                 # Get min and max of all entries of year of all regions
@@ -654,7 +654,7 @@ def plt_stacked_enduse(
 
     ax = fig.add_subplot(1, 1, 1)
 
-    color_list = plotting_styles.color_list()
+    color_list = plotting_styles.color_list_scenarios()
 
     # ----------
     # Stack plot
@@ -1908,19 +1908,9 @@ def plot_radar_plot(dh_profile, fig_name, plot_steps=30, plotshow=False):
     # Initialise the spider plot
     ax = plt.subplot(111, polar=True)
 
-    '''fig = plt.figure()
-    ax = plt.subplot(111, polar=True)
-    ax.yaxis.grid(color='r', linestyle='--', linewidth=2)
-    plt.show()'''
-
     # Change circula axis
     ax.yaxis.grid(color='lightgrey', linestyle='--', linewidth=0.8, alpha=0.8) # Circular axis
-    
     ax.xaxis.grid(color='lightgrey', linestyle='--', linewidth=0.8, alpha=0.8) # Regular axis
-    #plt.figure(figsize=plotting_program.cm2inch(8, 8))
-    #ax = plt.subplot(111, polar=True)
-    #fig, ax = plt.subplots(figsize=plotting_program.cm2inch(8, 8))
-    #ax = plt.subplot(111, polar=True)
 
     # Change to clockwise cirection
     ax.set_theta_direction(-1)
@@ -2393,9 +2383,12 @@ def plot_cross_graphs(
     ax.scatter(
         x_val_national_lf_demand_cy,
         y_val_national_lf_demand_cy,
-        alpha=0.9,
-        color='black',
-        s=9,
+        alpha=1.0,
+        color=color,
+        s=20,
+        marker="v",
+        linewidth=0.5,
+        edgecolor='black',
         label='national')
 
     # --------
@@ -2548,12 +2541,14 @@ def plot_cross_graphs_scenarios(
 
     ax = fig.add_subplot(1, 1, 1)
 
-    color_list = [
+    color_list = plotting_styles.color_list_scenarios()
+    marker_list = plotting_styles.marker_list()
+    '''color_list = [
         'forestgreen',
         'rosybrown',
         'blue',
         'darkolivegreen',
-        'firebrick']
+        'firebrick']'''
 
     for scenario_nr, scenario in enumerate(all_scenarios):
 
@@ -2561,10 +2556,6 @@ def plot_cross_graphs_scenarios(
 
         #Base year
         x_values, y_values = [], []
-        x_values_0_quadrant, y_values_0_quadrant = [], []
-        x_values_1_quadrant, y_values_1_quadrant = [], []
-        x_values_2_quadrant, y_values_2_quadrant = [], []
-        x_values_3_quadrant, y_values_3_quadrant = [], []
 
         for reg_nr, reg_geocode in enumerate(regions):
 
@@ -2583,19 +2574,6 @@ def plot_cross_graphs_scenarios(
 
             labels.append(reg_geocode)
 
-            if lf_change_p < 0 and tot_demand_p > 0:
-                x_values_0_quadrant.append(lf_change_p)
-                y_values_0_quadrant.append(tot_demand_p)
-            elif lf_change_p > 0 and tot_demand_p > 0:
-                x_values_1_quadrant.append(lf_change_p)
-                y_values_1_quadrant.append(tot_demand_p)
-            elif lf_change_p > 0 and tot_demand_p < 0:
-                x_values_2_quadrant.append(lf_change_p)
-                y_values_2_quadrant.append(tot_demand_p)
-            else:
-                x_values_3_quadrant.append(lf_change_p)
-                y_values_3_quadrant.append(tot_demand_p)
-
         # Add average
         national_tot_cy_p = ((100 / result_dict['lf_by_all_regs_av']) * result_dict['lf_cy_all_regs_av'][scenario]) - 100
         #national_tot_demand_p = ((100 / result_dict['demand_by_all_regs']) * result_dict['demand_cy_all_regs'][scenario]) - 100
@@ -2609,13 +2587,19 @@ def plot_cross_graphs_scenarios(
         # Plot
         # -------------------------------------
         color = color_list[scenario_nr]
+        marker = marker_list[scenario_nr]
 
+        alpha_value = 0.6
+        marker_size = 7
         ax.scatter(
             x_values,
             y_values,
-            alpha=0.6,
+            alpha=alpha_value,
             color=color,
-            s=8,
+            #marker=marker,
+            edgecolor=color,
+            linewidth=0.5,
+            s=marker_size,
             label=scenario)
 
         # Add average
@@ -2677,9 +2661,10 @@ def plot_cross_graphs_scenarios(
     # --------
     plt.legend(
         loc='best',
+        ncol=1,
         prop={
             'family': 'arial',
-            'size': 8},
+            'size': 3},
         frameon=False)
 
     # Tight layout
@@ -2690,4 +2675,3 @@ def plot_cross_graphs_scenarios(
     if plotshow:
         plt.show()
     plt.close()
-

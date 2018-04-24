@@ -33,6 +33,46 @@ def linestyles():
 
     return linestyles_out
 
+def marker_list():
+    """markers
+    """
+
+    markers = [
+        "o",	# circle
+        "o",	# circle
+        "o",	# circle
+        "o",	# circle
+        "*",	# star
+        "+",	# plus
+        ".",	# point
+        "o",	# circle
+        ",",	# pixel
+        "P",	# plus (filled)
+        
+        "x",	# x
+        "v",	# triangle_down
+        "^",	# triangle_up
+        "<",	# triangle_left
+        ">",	# triangle_right
+        "1",	# tri_down
+        "2",	# tri_up
+        "3",	# tri_left
+        "4",	# tri_right
+        "8",	# octagon
+        "s",	# square
+        "p",	# pentagon
+
+        "h",	# hexagon1
+        "H",	# hexagon2
+       
+       
+        "X",	# x (filled)
+        "D",	# diamond
+        "d",	# thin_diamond
+        "|",	# vline
+    ]
+    return markers
+
 def color_list():
     """ List with colors
     """
@@ -98,6 +138,45 @@ def color_list_selection():
         'darkblue'
         ]
 
+    return color_list_selection
+
+def color_list_scenarios():
+    """
+    """
+
+    color_list_selection = get_colorbrewer_color(
+        color_prop='qualitative', #sequential
+        color_palette='Accent_6', #'Set3_12',
+        inverse=False) # #https://jiffyclub.github.io/palettable/colorbrewer/sequential/'''
+    color_list_selection = [
+        '#7FC97F', #green
+        'darkolivegreen', #'#BEAED4', #violet
+        '#386CB0', #blue
+        '#FDC086', #orange
+        '#F0027F', #pink
+        
+        '#FFFF99'  #yello
+        ]
+
+    '''# Set3_12
+    color_list_selection = [
+        'darkolivegreen',
+        'blue',
+        '#B3DE69', #'#FCCDE5',
+        '#FB8072',  #'#FDB462',
+        '#BEBADA', #blue #'#80B1D3',
+        '#BC80BD', #pink
+        '#8DD3C7',
+        '#FFED6F', #yellow
+        '#FFFFB3', #yellow
+        '#D9D9D9', #grey
+        '#BEBADA', #blue
+        '#CCEBC5',
+        'forestgreen',
+        'rosybrown',
+        'blue',
+        'firebrick']
+    '''
     return color_list_selection
 
 def font_info():
