@@ -6,6 +6,7 @@ import operator
 import collections
 import numpy as np
 import matplotlib.pyplot as plt
+import logging
 
 from energy_demand.plotting import plotting_styles
 from energy_demand.plotting import plotting_program
@@ -634,7 +635,8 @@ def plot_radar_plots_average_peak_day(
     load_factor_fueltype_y_cy = []
 
     for scenario_cnt, scenario in enumerate(scenario_data):
-
+        
+        print("scenario {}  {} ".format(scenario, fueltype_to_model))
         base_yr = 2015
 
         # Future year load profile
@@ -674,6 +676,7 @@ def plot_radar_plots_average_peak_day(
         individ_radars_to_plot_dh,
         name_spider_plot,
         plot_steps=50,
+        scenario_names=list(scenario_data.keys()),
         plotshow=False,
         lf_y_by=[], #load_factor_fueltype_y_by,
         lf_y_cy=[]) #load_factor_fueltype_y_cy)

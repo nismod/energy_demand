@@ -159,6 +159,14 @@ def process_scenarios(path_to_scenarios, year_to_model=2015):
         fig_name=os.path.join(path_result_folder),
         plotshow=False)
 
+    plotting_multiple_scenarios.plot_radar_plots_average_peak_day(
+        scenario_data,
+        fueltype_to_model='gas',
+        fueltypes=lookups['fueltypes'],
+        year_to_plot=2050,
+        fig_name=os.path.join(path_result_folder),
+        plotshow=False)
+    #prnt(".")
     # ----------------------
     # Plot peak hour of all fueltypes for different scenario
     # ----------------------

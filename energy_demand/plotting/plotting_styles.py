@@ -153,7 +153,6 @@ def color_list_scenarios():
         '#386CB0', #blue
         '#FDC086', #orange
         '#F0027F', #pink
-        
         '#FFFF99'  #yello
         ]
 

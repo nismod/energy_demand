@@ -35,12 +35,12 @@ def smooth_data(x_list, y_list, spider=False):
         max_x_val = math.pi * 2 #max is tow pi
 
         x_values = np.linspace(min_x_val, max_x_val, num=nr_x_values, endpoint=True)
-        f2 = interp1d(x_values, y_list, kind='cubic')
+        f2 = interp1d(x_values, y_list, kind='quadratic') #quadratic cubic
 
         smoothed_data_x = np.linspace(
             min_x_val,
             max_x_val,
-            num=100,
+            num=400,
             endpoint=True)
 
     else:
@@ -54,7 +54,7 @@ def smooth_data(x_list, y_list, spider=False):
         smoothed_data_x = np.linspace(
             min_x_val,
             max_x_val,
-            num=100,
+            num=400,
             endpoint=True)
 
     smoothed_data_y = f2(smoothed_data_x)
@@ -2007,6 +2007,7 @@ def plot_radar_plot_multiple_lines(
         dh_profiles,
         fig_name,
         plot_steps,
+        scenario_names,
         plotshow=False,
         lf_y_by=None,
         lf_y_cy=None
@@ -2055,6 +2056,8 @@ def plot_radar_plot_multiple_lines(
     color_lines = ['black'] + color_scenarios
     years = ['2015', '2050']
     linewidth_list = [1.0, 0.7]
+    linestyle_list = ['-', '--']
+    scenario_names.insert(0, "any")
 
     # Iterate lines
     cnt = -1
@@ -2070,13 +2073,10 @@ def plot_radar_plot_multiple_lines(
         color_line = color_lines[cnt]
         year_line = years[cnt_year]
 
-        print("color line ".format(color_line))
-
         data = {'dh_profile': ['testname']}
 
+        # Key: Label outer circle
         for hour in range(24):
-
-            # Key: Label outer circle
             data[hour] = dh_profile[hour]
 
         # Set data
@@ -2099,12 +2099,11 @@ def plot_radar_plot_multiple_lines(
         ax = plt.subplot(111, polar=True)
 
         # Change axis properties
-        ax.yaxis.grid(color='grey', linestyle='--', linewidth=0.5)
+        ax.yaxis.grid(color='grey', linestyle=':', linewidth=0.4)
         ax.xaxis.grid(color='lightgrey', linestyle=':', linewidth=0.4)
 
         # Change to clockwise cirection
         ax.set_theta_direction(-1)
-        #ax.set_theta_offset(pi/2.0)
 
         # Set first hour on top
         ax.set_theta_zero_location("N")
@@ -2142,6 +2141,7 @@ def plot_radar_plot_multiple_lines(
 
         # Set limit to size
         plt.ylim(0, max_demand)
+        plt.ylim(0, nr_of_plot_steps*plot_steps)
 
         # Smooth lines
         angles_smoothed, values_smoothed = plotting_results.smooth_data(
@@ -2154,9 +2154,9 @@ def plot_radar_plot_multiple_lines(
             #angles,
             #values,
             color=color_line,
-            linestyle='--',
+            linestyle=linestyle_list[cnt_year],
             linewidth=linewidth_list[cnt_year],
-            label="{}".format(year_line))
+            label="{} {}".format(year_line, scenario_names[cnt]))
 
         # Radar area
         ax.fill(
@@ -2198,9 +2198,8 @@ def plot_radar_plot_multiple_lines(
 
     if plotshow:
         plt.show()
-        plt.close()
-    else:
-        plt.close()
+
+    plt.close()
 
 def plt_one_fueltype_multiple_regions_peak_h(
         results_every_year,
