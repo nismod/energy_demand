@@ -93,12 +93,9 @@ def temporal_validation(
         ed_fueltype_yh,
         'all_submodels',
         days_to_plot,
-        plot_crit=False)
+        plot_crit=plot_criteria)
 
-    # ----------------
-    # Plot four weeks
-    # ----------------
-    # ONE WEEK
+    # Plot four weeks (one of each season)
     winter_week = list(range(
         date_prop.date_to_yearday(2015, 1, 12), date_prop.date_to_yearday(2015, 1, 19))) #Jan
     spring_week = list(range(
@@ -107,17 +104,6 @@ def temporal_validation(
         date_prop.date_to_yearday(2015, 7, 13), date_prop.date_to_yearday(2015, 7, 20))) #Jul
     autumn_week = list(range(
         date_prop.date_to_yearday(2015, 10, 12), date_prop.date_to_yearday(2015, 10, 19))) #Oct
-
-    # TWO WEEKS
-    '''winter_week = list(range(
-        date_prop.date_to_yearday(2015, 1, 5), date_prop.date_to_yearday(2015, 1, 19))) #Jan
-    spring_week = list(range(
-        date_prop.date_to_yearday(2015, 5, 4), date_prop.date_to_yearday(2015, 5, 18))) #May
-    summer_week = list(range(
-        date_prop.date_to_yearday(2015, 7, 6), date_prop.date_to_yearday(2015, 7, 20))) #Jul
-    autumn_week = list(range(
-        date_prop.date_to_yearday(2015, 10, 5), date_prop.date_to_yearday(2015, 10, 19))) #Oct'''
-
     days_to_plot = winter_week + spring_week + summer_week + autumn_week
 
     elec_national_data.compare_results(
@@ -214,7 +200,6 @@ def tempo_spatial_validation(
     fuel_gas_regs_yh = map_LAD_2011_2015(fuel_gas_regs_yh)
 
     logging.info("Validation of electricity")
-
     spatial_validation(
         reg_coord,
         fuel_elec_regs_yh,
@@ -305,7 +290,7 @@ def tempo_spatial_validation(
     peak_day_all_fueltypes = enduse_func.get_peak_day_all_fueltypes(ed_fueltype_national_yh)
     
     fueltype = fueltypes['electricity']
-    peak_day_electricity = enduse_func.get_peak_day_single_fueltype(ed_fueltype_national_yh[fueltype])
+    peak_day_electricity, _ = enduse_func.get_peak_day_single_fueltype(ed_fueltype_national_yh[fueltype])
 
     elec_national_data.compare_peak(
         "validation_peak_elec_day_all_fueltypes.pdf",
@@ -486,6 +471,7 @@ def spatial_validation(
         y_real_demand,
         linestyle='None',
         marker='o',
+        alpha=0.6,
         markersize=1.6,
         fillstyle='full',
         markerfacecolor='grey',
@@ -499,6 +485,7 @@ def spatial_validation(
         marker='o',
         linestyle='None',
         markersize=1.6,
+        alpha=0.6,
         markerfacecolor='white',
         fillstyle='none',
         markeredgewidth=0.5,

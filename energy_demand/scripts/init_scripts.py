@@ -136,27 +136,37 @@ def scenario_initalisation(path_data_ed, data=False):
     #
     # Calculate spatial diffusion factors
     # ===========================================
-    if data['criterias']['spatial_exliclit_diffusion']:
+    if data['criterias']['spatial_explicit_diffusion']:
+
+        # Real value to select
+        real_values = data['pop_density']
+
+        # Speed to select
+        speed_con_max = 2.5
+
+        # Nr of min and max outliers to flatten
+        p_outlier = 5
 
         f_reg, f_reg_norm, f_reg_norm_abs = spatial_diffusion.calc_spatially_diffusion_factors(
             regions=data['regions'],
             fuel_disagg=fuel_disagg,
-            real_values=data['pop_density'],    # Real value to select
-            speed_con_max=1.0)                  # diffusion speed differences
+            real_values=real_values,
+            low_congruence_crit=True,
+            speed_con_max=speed_con_max,
+            p_outlier=p_outlier)
 
-        # ---------------------
+        # --------- ------------
         # Plot figure for paper
         # ---------------------
-        plot_fig_paper = True #FALSE
-        plot_fig_paper = False #FALSE
+        plot_fig_paper = False #FALSE PINGU
         if plot_fig_paper:
 
             # Global value to distribute
             global_value = 50
 
             # Select spatial diffusion factor
-            #diffusion_vals = f_reg                                 # not weighted
-            diffusion_vals = f_reg_norm['rs_space_heating']         # Weighted with enduse
+            #diffusion_vals = f_reg                                  # not weighted
+            diffusion_vals = f_reg_norm['ss_space_heating']         # Weighted with enduse
             #diffusion_vals = f_reg_norm_abs['rs_space_heating']    # Absolute distribution (only for capacity installements)
 
             path_shapefile_input = os.path.abspath(
@@ -167,7 +177,8 @@ def scenario_initalisation(path_data_ed, data=False):
                 global_value=global_value,
                 paths=data['result_paths'],
                 regions=data['regions'],
-                path_shapefile_input=path_shapefile_input)
+                path_shapefile_input=path_shapefile_input,
+                plotshow=True)
     else:
         f_reg = False
         f_reg_norm = False
@@ -191,9 +202,11 @@ def scenario_initalisation(path_data_ed, data=False):
         data['fuels']['is_fuel_raw'],
         data['enduses']['is_enduses'])
 
-    if data['criterias']['spatial_exliclit_diffusion']:
+    if data['criterias']['spatial_explicit_diffusion']:
 
+        # ----------------------
         # Select diffusion value
+        # ----------------------
         f_diffusion = f_reg_norm_abs
 
         # Convert globally defined switches to regional switches
@@ -280,7 +293,7 @@ def scenario_initalisation(path_data_ed, data=False):
         data['assumptions'].rs_service_switches,
         data['assumptions'].rs_specified_tech_enduse_by,
         rs_s_tech_by_p,
-        spatial_exliclit_diffusion=data['criterias']['spatial_exliclit_diffusion'],
+        spatial_explicit_diffusion=data['criterias']['spatial_explicit_diffusion'],
         regions=data['regions'],
         f_diffusion=f_diffusion,
         techs_affected_spatial_f=data['assumptions'].techs_affected_spatial_f,
@@ -300,7 +313,7 @@ def scenario_initalisation(path_data_ed, data=False):
             data['assumptions'].ss_specified_tech_enduse_by,
             ss_s_tech_by_p[sector],
             sector=sector,
-            spatial_exliclit_diffusion=data['criterias']['spatial_exliclit_diffusion'],
+            spatial_explicit_diffusion=data['criterias']['spatial_explicit_diffusion'],
             regions=data['regions'],
             f_diffusion=f_diffusion,
             techs_affected_spatial_f=data['assumptions'].techs_affected_spatial_f,
@@ -321,7 +334,7 @@ def scenario_initalisation(path_data_ed, data=False):
             data['assumptions'].is_specified_tech_enduse_by,
             is_s_tech_by_p[sector],
             sector=sector,
-            spatial_exliclit_diffusion=data['criterias']['spatial_exliclit_diffusion'],
+            spatial_explicit_diffusion=data['criterias']['spatial_explicit_diffusion'],
             regions=data['regions'],
             f_diffusion=f_diffusion,
             techs_affected_spatial_f=data['assumptions'].techs_affected_spatial_f,
@@ -348,7 +361,7 @@ def scenario_initalisation(path_data_ed, data=False):
             share_s_tech_ey_p=rs_share_s_tech_ey_p[enduse],
             fuel_tech_p_by=data['assumptions'].rs_fuel_tech_p_by[enduse],
             regions=data['regions'],
-            regional_specific=data['criterias']['spatial_exliclit_diffusion'])
+            regional_specific=data['criterias']['spatial_explicit_diffusion'])
 
     # Service
     for enduse in data['enduses']['ss_enduses']:
@@ -367,7 +380,7 @@ def scenario_initalisation(path_data_ed, data=False):
                 fuel_tech_p_by=data['assumptions'].ss_fuel_tech_p_by[enduse][sector],
                 regions=data['regions'],
                 sector=sector,
-                regional_specific=data['criterias']['spatial_exliclit_diffusion'])
+                regional_specific=data['criterias']['spatial_explicit_diffusion'])
 
     # Industry
     for enduse in data['enduses']['is_enduses']:
@@ -386,7 +399,7 @@ def scenario_initalisation(path_data_ed, data=False):
                 fuel_tech_p_by=data['assumptions'].is_fuel_tech_p_by[enduse][sector],
                 regions=data['regions'],
                 sector=sector,
-                regional_specific=data['criterias']['spatial_exliclit_diffusion'])
+                regional_specific=data['criterias']['spatial_explicit_diffusion'])
 
     # ===========================================
     # III. Spatial explicit modelling of scenario variables
@@ -394,14 +407,13 @@ def scenario_initalisation(path_data_ed, data=False):
     # From UK factors to regional specific factors
     # Convert strategy variables to regional variables
     # ===========================================
-    if data['criterias']['spatial_exliclit_diffusion']:
+    if data['criterias']['spatial_explicit_diffusion']:
         init_cont['regional_strategy_variables'] = defaultdict(dict)
 
         # Iterate strategy variables and calculate regional variable
         for var_name, strategy_var in data['assumptions'].strategy_variables.items():
 
             logging.info("Spatially explicit diffusion modelling %s", var_name)
-            logging.info(data['assumptions'].spatially_modelled_vars)
 
             # Check whether scenario varaible is regionally modelled
             if var_name not in data['assumptions'].spatially_modelled_vars:
@@ -785,7 +797,7 @@ def sig_param_calc_incl_fuel_switch(
                 break
 
             for reg in regions:
-                logging.info("calculating sigmoid parameters %s %s", enduse, reg)
+                logging.info("... ======calculating sigmoid parameters %s %s %s ", enduse, reg, s_tech_switched_p[reg]['heat_pumps_electricity'])
                 sig_param_tech[reg] = s_generate_sigmoid.tech_sigmoid_parameters(
                     yr_until_switched,
                     base_yr,
@@ -793,6 +805,8 @@ def sig_param_calc_incl_fuel_switch(
                     l_values_sig[reg],
                     s_tech_by_p,
                     s_tech_switched_p[reg])
+                #import pprint
+                #logging.info(pprint.pprint( sig_param_tech[reg]['heat_pumps_electricity']))
         else:
 
             # Get year of switches

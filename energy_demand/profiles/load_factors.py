@@ -104,17 +104,15 @@ def peak_shaving_max_min(
 
     return shifted_fuel_yh
 
-def calc_lf_y(fuel_yh, average_fuel_yd):
+def calc_lf_y(fuel_yh):
     """Calculate the yearly load factor for every fueltype
     by dividing the yearly average load by the peak hourly
     load in a year.
 
     Arguments
     ---------
-    fuel_yh : array
-        Fuel for every day in year per fueltype
-    average_fuel_yd : array
-        Average load per day
+    fuel_yh : array (fueltypes, 365, 24) or (fueltypes, 8760)
+        Yh fuel
 
     Returns
     -------
@@ -123,22 +121,31 @@ def calc_lf_y(fuel_yh, average_fuel_yd):
 
     Note
     -----
-        Load factor = average load / maximum load in given time period
+        LECTRICAL AND PRODUCTION LOAD FACTORS
+        ## WRONG Load factor = average load / maximum load in given time period
+        Load factor = energy consumption (kWH) / peak demand (kW) * meausred hours
         https://en.wikipedia.org/wiki/Load_factor_(electrical)
+
+        https://circuitglobe.com/load-factor.html
     """
-    # Calculate average yearly fuel per fueltype
-    average_load_y = np.average(average_fuel_yd, axis=1)
+    if fuel_yh.shape[1] == 365:
+        fuel_yh_8760 = fuel_yh.reshape(fuel_yh.shape[0], 8760)
+    else:
+        fuel_yh_8760 = fuel_yh
+        pass
+
+    # Get total sum per fueltype
+    tot_load_y = np.sum(fuel_yh_8760, axis=1)
 
     # Calculate maximum hour in every day of a year
-    max_load_h_days = np.max(fuel_yh, axis=2)
-    max_load_h = np.max(max_load_h_days, axis=1)
+    max_load_h = np.max(fuel_yh_8760, axis=1)
 
     # Caclualte yearly load factor for every fueltype
     with np.errstate(divide='ignore', invalid='ignore'):
-        load_factor_y = (average_load_y / max_load_h) * 100 #convert to percentage
+        load_factor_y = tot_load_y / (max_load_h * 8760)
     load_factor_y[np.isnan(load_factor_y)] = 0
 
-    return load_factor_y
+    return load_factor_y * 100
 
 def calc_lf_season(seasons, fuel_region_yh, average_fuel_yd):
     """Calculate load factors per fueltype per region.

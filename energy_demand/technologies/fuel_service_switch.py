@@ -54,7 +54,7 @@ def sum_fuel_across_sectors(fuels):
 def get_share_s_tech_ey(
         service_switches,
         specified_tech_enduse_by,
-        spatial_exliclit_diffusion=False
+        spatial_explicit_diffusion
     ):
     """Get fraction of service for each technology
     defined in a switch for the future year
@@ -73,7 +73,7 @@ def get_share_s_tech_ey(
     """
     enduse_tech_ey_p = defaultdict(dict)
 
-    if spatial_exliclit_diffusion:
+    if spatial_explicit_diffusion:
 
         for reg, switches in service_switches.items():
 
@@ -208,7 +208,7 @@ def autocomplete_switches(
         specified_tech_enduse_by,
         s_tech_by_p,
         sector=False,
-        spatial_exliclit_diffusion=False,
+        spatial_explicit_diffusion=False,
         regions=False,
         f_diffusion=False,
         techs_affected_spatial_f=False,
@@ -243,7 +243,7 @@ def autocomplete_switches(
         enduses.add(switch.enduse)
     enduses = list(enduses)
 
-    if spatial_exliclit_diffusion:
+    if spatial_explicit_diffusion:
 
         service_switches_out = {}
 
@@ -353,7 +353,7 @@ def autocomplete_switches(
     reg_share_s_tech_ey_p = get_share_s_tech_ey(
         service_switches_out,
         specified_tech_enduse_by,
-        spatial_exliclit_diffusion)
+        spatial_explicit_diffusion)
 
     return reg_share_s_tech_ey_p, service_switches_out
 

@@ -256,10 +256,12 @@ def read_in_results(path_runs, seasons, model_yeardays_daytype):
     # Peak calculations
     # -----------------
     results_container['ed_peak_h'] = {}
+    results_container['ed_peak_regs_h'] = {}
 
     for year, year_yh in results_container['results_every_year'].items():
 
         results_container['ed_peak_h'][year] = {}
+        results_container['ed_peak_regs_h'][year] = {}
 
         for fueltype_int, reg_ed_yh in enumerate(year_yh):
 
@@ -269,13 +271,14 @@ def read_in_results(path_runs, seasons, model_yeardays_daytype):
             all_regs_yh = np.sum(reg_ed_yh, axis=0)    # sum regs
             peak_h = np.max(all_regs_yh)               # select max of 8760 h
             results_container['ed_peak_h'][year][fueltype_str] = peak_h
+            results_container['ed_peak_regs_h'][year][fueltype_str] = np.max(reg_ed_yh, axis=1)
 
     # -------------
     # Load factors
     # -------------
-    results_container['load_factors_y'] = read_lf_y(
+    results_container['reg_load_factor_y'] = read_lf_y(
         os.path.join(path_runs, "result_reg_load_factor_y"))
-    results_container['load_factors_yd'] = read_lf_y(
+    results_container['reg_load_factor_yd'] = read_lf_y(
         os.path.join(path_runs, "result_reg_load_factor_yd"))
 
     results_container['load_factor_seasons'] = {}

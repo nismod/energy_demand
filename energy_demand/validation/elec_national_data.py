@@ -9,6 +9,7 @@ import matplotlib.mlab as mlab
 from energy_demand.basic import date_prop
 from energy_demand.basic import conversions
 from energy_demand.plotting import plotting_program
+from energy_demand.plotting import plotting_results
 from energy_demand.basic import basic_functions
 from energy_demand.plotting import plotting_styles
 
@@ -134,7 +135,9 @@ def compare_results(
     # -------------
     # RMSE
     # -------------
-    rmse_val_corrected = basic_functions.rmse(np.array(y_real_indo_factored), np.array(y_calculated_list))
+    rmse_val_corrected = basic_functions.rmse(
+        np.array(y_real_indo_factored),
+        np.array(y_calculated_list))
 
     # ----------
     # Standard deviation
@@ -166,19 +169,29 @@ def compare_results(
     fig = plt.figure(
         figsize=plotting_program.cm2inch(22, 8)) #width, height
 
+    # smooth line
+    x_data_smoothed, y_real_indo_factored_smoothed = plotting_results.smooth_data(x_data, y_real_indo_factored, num=40000)
+
     # plot points
     plt.plot(
-        x_data,
-        y_real_indo_factored,
+        #x_data,
+        #y_real_indo_factored,
+        x_data_smoothed,
+        y_real_indo_factored_smoothed,
         label='indo_factored',
         linestyle='-',
         linewidth=0.5,
         fillstyle='full',
         color='black')
 
+    # smooth line
+    x_data_smoothed, y_calculated_list_smoothed = plotting_results.smooth_data(x_data, y_calculated_list, num=40000)
+
     plt.plot(
-        x_data,
-        y_calculated_list,
+        #x_data,
+        #y_calculated_list,
+        x_data_smoothed,
+        y_calculated_list_smoothed,
         label='model',
         linestyle='--',
         linewidth=0.5,
@@ -187,7 +200,6 @@ def compare_results(
 
     #Grid
     #plt.grid(True)
-
     plt.xlim([0, 8760])
     plt.margins(x=0)
     plt.axis('tight')
@@ -227,9 +239,7 @@ def compare_results(
 
     if plot_crit:
         plt.show()
-        plt.close()
-    else:
-        plt.close()
+    plt.close()
 
 def compare_peak(
         name_fig,
@@ -256,19 +266,29 @@ def compare_peak(
     # -------------------------------
     # Compare values
     # -------------------------------
-    fig = plt.figure(figsize=plotting_program.cm2inch(8, 8))
+    fig = plt.figure(
+        figsize=plotting_program.cm2inch(8, 8))
+
+    # smooth line
+    x_smoothed, y_modelled_peak_dh_smoothed = plotting_results.smooth_data(range(24), modelled_peak_dh, num=500)
 
     plt.plot(
-        range(24),
-        modelled_peak_dh,
+        #range(24),
+        #modelled_peak_dh,
+        x_smoothed,
+        y_modelled_peak_dh_smoothed,
         color='blue',
         linestyle='-',
         linewidth=0.5,
         label='model')
-    #plt.plot(range(24), validation_elec_data_2015[max_day], color='green', label='real')
+
+    x_smoothed, validation_elec_2015_peak_smoothed = plotting_results.smooth_data(range(24), validation_elec_2015_peak, num=500)
+
     plt.plot(
-        range(24),
-        validation_elec_2015_peak,
+        #range(24),
+        #validation_elec_2015_peak,
+        x_smoothed,
+        validation_elec_2015_peak_smoothed,
         color='black',
         linestyle='--',
         linewidth=0.5,
@@ -277,10 +297,18 @@ def compare_peak(
     # Calculate hourly differences in %
     diff_p_h = np.round((100 / validation_elec_2015_peak) * modelled_peak_dh, 1)
 
+    # Calculate maximum difference
+    max_h_real = np.max(validation_elec_2015_peak)
+    max_h_modelled = np.max(modelled_peak_dh)
+
+    max_h_diff = round((100 / max_h_real) * max_h_modelled, 2)
+    max_h_diff_gwh = round((abs(100 - max_h_diff)/100) * max_h_real, 2)
+
     # Y-axis ticks
-    plt.xlim(0, 24)
+    plt.xlim(0, 23)
     plt.yticks(range(0, 90, 10))
-    plt.xticks(range(0, 24,2))
+    plt.xticks(range(0, 24, 4))
+
     # Legend
     plt.legend(frameon=False)
 
@@ -288,12 +316,12 @@ def compare_peak(
     date_yearday = date_prop.yearday_to_date(2015, peak_day)
     plt.title("peak comparison {}".format(date_yearday))
 
-    plt.xlabel("h")
+    plt.xlabel("h (max {} ({} GWH)".format(max_h_diff, max_h_diff_gwh))
     plt.ylabel("uk electrictiy use [GW]")
 
     plt.text(
-        5,  #position
-        65, #position
+        5, #position
+        5, #position
         diff_p_h,
         #horizontalalignment='center',
         fontdict={
@@ -347,7 +375,6 @@ def compare_results_hour_boxplots(
     ax.boxplot(diff_values)
 
     plt.xticks(range(1, 25), range(24))
-    #plt.margins(x=0) #remove white space
 
     plt.xlabel("hour")
     plt.ylabel("Modelled electricity difference (real-modelled) [%]")
@@ -401,17 +428,14 @@ def plot_residual_histogram(values, path_result, name_fig):
     plt.title("Residual distribution (chi_squared: {}  p_value:  {}".format(
         round(chi_squared, 4),
         round(p_value, 4)),
-        fontsize=10,
-        fontdict=font_additional_info,
-        loc='right')
-    #plt.grid(True)
+              fontsize=10,
+              fontdict=font_additional_info,
+              loc='right')
 
-    #Save fig
     plt.savefig(os.path.join(path_result, name_fig))
 
 def get_date_strings(days_to_plot, daystep):
-    """Calculate date and position for range
-    input of yeardays
+    """Calculate date and position for range input of yeardays
     """
     major_ticks_days = []
     major_ticks_labels = []

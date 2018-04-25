@@ -53,7 +53,8 @@ class EnergyDemandModel(object):
                 all_enduses=data['enduses'],
                 temp_by=data['temp_data'][weather_region],
                 tech_lp=data['tech_lp'],
-                sectors=data['sectors'])
+                sectors=data['sectors'],
+                criteria=data['criterias'])
 
         # ------------------------
         # Create Dwelling Stock
@@ -374,7 +375,7 @@ def residential_submodel(
             # ------------------------------------------------------
             # Configure and select correct Enduse() specific inputs
             # ------------------------------------------------------
-            if criterias['spatial_exliclit_diffusion']:
+            if criterias['spatial_explicit_diffusion']:
                 sig_param_tech = assumptions.rs_sig_param_tech[enduse][region.name]
                 strategy_variables = assumptions.regional_strategy_variables[region.name]
             else:
@@ -448,7 +449,7 @@ def service_submodel(
             # ------------------------------------------------------
             # Configure and select correct Enduse() specific inputs
             # ------------------------------------------------------
-            if criterias['spatial_exliclit_diffusion']:
+            if criterias['spatial_explicit_diffusion']:
                 sig_param_tech = assumptions.ss_sig_param_tech[enduse][sector][region.name]
                 strategy_variables = assumptions.regional_strategy_variables[region.name]
             else:
@@ -532,7 +533,7 @@ def industry_submodel(
             else:
                 flat_profile_crit = True
 
-            if criterias['spatial_exliclit_diffusion']:
+            if criterias['spatial_explicit_diffusion']:
                 sig_param_tech = assumptions.is_sig_param_tech[enduse][sector][region.name]
                 strategy_variables = assumptions.regional_strategy_variables[region.name]
             else:
@@ -969,15 +970,12 @@ def aggregate_final_results(
         # --------------------------------------
         # Regional load factor calculations
         # --------------------------------------
-        # Calculate average load for every day
-        average_fuel_yd = np.average(fuel_region_yh, axis=2)
-
         # Calculate load factors across all enduses (Yearly lf)
         load_factor_y = load_factors.calc_lf_y(
-            fuel_region_yh,
-            average_fuel_yd)
+            fuel_region_yh)
 
-        # Calculate load factors across all enduses (Daily lf)
+        # Calculate average load for every day
+        average_fuel_yd = np.average(fuel_region_yh, axis=2)
         load_factor_yd = load_factors.calc_lf_d(
             fuel_region_yh,
             average_fuel_yd,

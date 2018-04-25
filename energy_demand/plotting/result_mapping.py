@@ -470,9 +470,7 @@ def plot_lad_national(
 
     if plotshow:
         plt.show()
-        plt.close()
-    else:
-        plt.close()
+    plt.close()
 
 def merge_data_to_shp(shp_gdp, merge_data, unique_merge_id):
     """Merge data to geopanda dataframe which is read from shapefile
@@ -514,7 +512,8 @@ def plot_spatial_mapping_example(
         global_value,
         paths,
         regions,
-        path_shapefile_input
+        path_shapefile_input,
+        plotshow=False
     ):
     """Figure plot
 
@@ -534,7 +533,6 @@ def plot_spatial_mapping_example(
     regional_vals = {}
     for region in regions:
         regional_vals[region] = global_value * diffusion_vals[region]
-        logging.warning("PLOT reg: {}  region_val: {} global: {} diff: {}".format(region, regional_vals[region], global_value, diffusion_vals[region]))
 
     # Both need to be lists
     merge_data = {
@@ -550,13 +548,19 @@ def plot_spatial_mapping_example(
     # If user classified, defined bins  [x for x in range(0, 1000000, 200000)]
     #bins = [-4, -2, 0, 2, 4] # must be of uneven length containing zero if minus values
     #bins = [-15, -10, -5, 0, 5, 10, 15] 
-    #bins = [40, 50, 60, 70]
+    bins = [20, 30, 40, 50, 60, 70, 80, 90]
 
+    if max(bins) < max(list(regional_vals.values())):
+        raise Exception("Wrong bin definition: max_val: {}  min_val: {}".format(
+            max(list(regional_vals.values())), min(list(regional_vals.values()))))
+
+    color_palette = 'YlGn_9' #'Purples_9', YlGn_9
     color_list, color_prop, user_classification, color_zero = colors_plus_minus_map(
         bins=bins,
         color_prop='qualitative',
         color_order=True,
-        color_zero='#ffffff')
+        color_zero='#ffffff',
+        color_palette=color_palette)
 
     plot_lad_national(
         lad_geopanda_shp=lad_geopanda_shp,
@@ -564,12 +568,13 @@ def plot_spatial_mapping_example(
         field_to_plot=field_name,
         fig_name_part="lf_max_y",
         result_path=paths['data_results_PDF'],
-        color_palette='Purples_9',
+        color_palette=color_palette,
         color_prop=color_prop,
         user_classification=user_classification,
         color_list=color_list,
         color_zero=color_zero,
-        bins=bins)
+        bins=bins,
+        plotshow=plotshow)
 
     return
 
@@ -643,7 +648,7 @@ def create_geopanda_files(
                 color_prop='qualitative',
                 color_order=True,
                 color_zero='#ffffff',
-                color_palette='YlGnBu_9') #8a2be2 'YlGnBu_9'  'PuBu_8'
+                color_palette='YlGnBu_7') #YlGnBu_9 #8a2be2 'YlGnBu_9'  'PuBu_8'
             #'''
 
             # If user classified, defined bins
@@ -654,10 +659,6 @@ def create_geopanda_files(
                 fig_name_part=field_name,
                 result_path=path_data_results_shapefiles,
                 color_palette='Dark2_7',
-
-                #color_prop='qualitative',
-                #user_classification=False)
-
                 color_prop=color_prop,
                 user_classification=user_classification,
                 color_list=color_list,
@@ -667,14 +668,14 @@ def create_geopanda_files(
     # ======================================
     # Load factors (absolute)
     # ======================================
-    for year in results_container['load_factors_y'].keys():
+    for year in results_container['reg_load_factor_y'].keys():
         for fueltype in range(fueltypes_nr):
 
             fueltype_str = tech_related.get_fueltype_str(fueltypes, fueltype)
             field_name = 'lf_{}_{}'.format(year, fueltype_str)
 
             results = basic_functions.array_to_dict(
-                results_container['load_factors_y'][year][fueltype], regions)
+                results_container['reg_load_factor_y'][year][fueltype], regions)
 
             # Both need to be lists
             merge_data = {
@@ -707,10 +708,6 @@ def create_geopanda_files(
                 fig_name_part="lf_max_y",
                 result_path=path_data_results_shapefiles,
                 color_palette='Dark2_7',
-
-                #color_prop='qualitative',
-                #user_classification=False)
-
                 color_prop=color_prop,
                 user_classification=user_classification,
                 color_list=color_list,
@@ -720,7 +717,7 @@ def create_geopanda_files(
     # ======================================
     # Spatial maps of difference in load factors
     # ======================================
-    simulated_yrs = list(results_container['load_factors_y'].keys())
+    simulated_yrs = list(results_container['reg_load_factor_y'].keys())
 
     final_yr = simulated_yrs[-1]
     base_yr = simulated_yrs[0]
@@ -731,11 +728,11 @@ def create_geopanda_files(
         field_name = 'lf_diff_{}-{}_{}_'.format(base_yr, final_yr, fueltype_str)
 
         lf_end_yr = basic_functions.array_to_dict(
-            results_container['load_factors_y'][final_yr][fueltype],
+            results_container['reg_load_factor_y'][final_yr][fueltype],
             regions)
 
         lf_base_yr = basic_functions.array_to_dict(
-            results_container['load_factors_y'][base_yr][fueltype],
+            results_container['reg_load_factor_y'][base_yr][fueltype],
             regions)
 
         # Calculate load factor difference base and final year (100 = 100%)
@@ -762,7 +759,8 @@ def create_geopanda_files(
             bins=bins,
             color_prop='qualitative',
             color_order=True,
-            color_zero='#ffffff') #8a2be2
+            color_zero='#ffffff',
+            color_palette='Purples_9')
 
         plot_lad_national(
             lad_geopanda_shp=lad_geopanda_shp,
@@ -842,12 +840,11 @@ def create_geopanda_files(
                 unique_merge_id)
 
             # If user classified, defined bins
-            print("... plot {}".format(lad_geopanda_shp))
             plot_lad_national(
                 lad_geopanda_shp=lad_geopanda_shp,
                 legend_unit="GWh",
                 field_to_plot=field_name,
-                fig_name_part="tot_all_enduses_y_",
+                fig_name_part="_tot_all_enduses_y",
                 result_path=path_data_results_shapefiles,
                 color_palette='Dark2_7',
                 color_prop='qualitative',
@@ -886,13 +883,14 @@ def create_geopanda_files(
             # If user classified, defined bins  [x for x in range(0, 1000000, 200000)]
             #bins = get_reasonable_bin_values(list(data_to_plot.values()))
             #bins = [-4, -2, 0, 2, 4] # must be of uneven length containing zero
-            bins = [-30, -20, -10, 0, 10, 20, 30] # must be of uneven length containing zero
+            bins = [-20, -10, 0, 10, 20, 30, 40] # must be of uneven length containing zero
 
             color_list, color_prop, user_classification, color_zero = colors_plus_minus_map(
                 bins=bins,
                 color_prop='qualitative',
                 color_order=True,
-                color_zero='#ffffff') #8a2be2
+                color_zero='#ffffff',
+                color_palette='Purples_9')
 
             # Plot difference in % per fueltype of total fuel (y)
             plot_lad_national(
@@ -901,7 +899,7 @@ def create_geopanda_files(
                 field_to_plot=field_name,
                 fig_name_part="tot_all_enduses_y_",
                 result_path=path_data_results_shapefiles,
-                color_palette='Purples_9',
+                color_palette='Purples_9', #'YlGn_9', #'Purples_9',
                 color_prop=color_prop,
                 user_classification=user_classification,
                 color_list=color_list,
@@ -913,7 +911,7 @@ def colors_plus_minus_map(
         color_prop,
         color_order=True,
         color_zero='#ffffff',
-        color_palette='PuBu_9' #'Reds_9'
+        color_palette='Purples_9'
     ):
     """Create color scheme in case plus and minus classes
     are defined (i.e. negative and positive values to

@@ -1,9 +1,6 @@
 """Functions related to load profiles
 """
-import uuid
 import numpy as np
-from energy_demand.profiles import generic_shapes
-from energy_demand.initalisations import helpers
 
 class LoadProfileStock(object):
     """Collection of load shapes in a list
@@ -25,8 +22,10 @@ class LoadProfileStock(object):
             technologies,
             enduses,
             shape_yd,
-            shape_yh,
-            sectors=False
+            shape_y_dh,
+            model_yeardays,
+            sectors=False,
+            shape_yh=False
         ):
         """Add load profile to stock
 
@@ -38,8 +37,8 @@ class LoadProfileStock(object):
             Technologies for which the profile applies
         enduses : list
             Enduses for which the profile applies
-        shape_yd : array
-            Shape yd (from year to day)
+        shape_y_dh : array
+            
         shape_yh : array
             Shape yh (from year to hour)
         sectors : list, default=False
@@ -53,8 +52,10 @@ class LoadProfileStock(object):
         self.load_profiles[unique_identifier] = LoadProfile(
             enduses,
             unique_identifier,
+            shape_yh,
             shape_yd,
-            shape_yh)
+            shape_y_dh,
+            model_yeardays)
 
         # Generate lookup dictionary with triple key
         self.dict_tuple_keys = generate_key_lu_dict(
@@ -85,18 +86,18 @@ class LoadProfileStock(object):
         ------
         Load profile attribute
         """
-        try:
-            # Get key from lookup dict
-            position_in_dict = self.dict_tuple_keys[(enduse, sector, technology)]
+        #try:
+        # Get key from lookup dict
+        position_in_dict = self.dict_tuple_keys[(enduse, sector, technology)]
 
-            # Get correct object
-            load_profile_obj = self.load_profiles[position_in_dict]
+        # Get correct object
+        load_profile_obj = self.load_profiles[position_in_dict]
 
-        except KeyError:
+        '''except KeyError:
             raise Exception(
                 "Please define load profile for '{}' '{}' '{}'".format(
-                    technology, enduse, sector))
-        
+                    technology, enduse, sector))'''
+
         return getattr(load_profile_obj, shape)
 
 def generate_key_lu_dict(dict_tuple_keys, unique_identifier, enduses, sectors, technologies):
@@ -157,8 +158,8 @@ class LoadProfile(object):
         Enduses assigned to load profile
     unique_identifier : string
         Unique identifer for LoadProfile object
-    shape_yd : array
-        Shape yd (from year to day)
+    shape_y_dh : array
+        Shape of every day in a year (sum = 365)
     shape_yh : array
         Shape yh (from year to hour)
         Standard value is average daily amount
@@ -169,8 +170,10 @@ class LoadProfile(object):
             self,
             enduses,
             unique_identifier,
+            shape_yh,
             shape_yd,
-            shape_yh
+            shape_y_dh,
+            model_yeardays
         ):
         """Constructor
 
@@ -178,45 +181,14 @@ class LoadProfile(object):
         """
         self.unique_identifier = unique_identifier
         self.enduses = enduses
-        self.shape_yd = shape_yd
-        self.shape_yh = shape_yh
 
-        # Calculate percentage for every day
-        self.shape_y_dh = calc_y_dh_shape_from_yh(shape_yh)
-
-def calc_y_dh_shape_from_yh(shape_yh):
-    """Calculate shape for every day
-
-    Returns
-    -------
-    shape_y_dh : array
-        Shape for every day
-
-    Note
-    ----
-    The output gives the shape for every day in a year (total sum == nr_of_days)
-    Within each day, the sum is 1
-
-    A RuntimeWarning may be raised if in one day a zero value is found.
-    The resulting inf are replaced however and thus this warning
-    can be ignored
-    """
-    # Calculate even if flat shape is assigned
-    # Info: nansum does not through an ErrorTimeWarning
-    # Some rowy may be zeros, i.e. division by zero results in inf values
-
-    # Unable local RuntimeWarning: divide by zero encountered
-    with np.errstate(divide='ignore'):
-        sum_every_day_p = 1 / np.sum(shape_yh, axis=1)
-    sum_every_day_p[np.isinf(sum_every_day_p)] = 0 # Replace inf by zero
-
-    # Multiply (nr_of_days) + with (nr_of_days, 24)
-    shape_y_dh = sum_every_day_p[:, np.newaxis] * shape_yh
-
-    # Replace nan by zero
-    shape_y_dh[np.isnan(shape_y_dh)] = 0
-
-    return shape_y_dh
+        if isinstance(shape_yh, bool):
+            self.shape_yh = calc_yh(
+                shape_yd,
+                shape_y_dh,
+                model_yeardays)
+        else:
+            self.shape_yh = shape_yh
 
 def abs_to_rel(absolute_array):
     """Convert absolute numbers in an array to relative

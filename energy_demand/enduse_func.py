@@ -208,11 +208,7 @@ class Enduse(object):
                 assumptions)
             self.fuel_y = _fuel_new_y
             #logging.debug("... Fuel train E2: " + str(np.sum(self.fuel_y)))
-            '''if enduse == 'rs_water_heating':
-                logging.info(self.enduse_techs)
-                logging.info(flat_profile_crit)
-                prnt(":")'''
-            #logging.info("ddddd {}  {}".format(enduse, self.enduse_techs) )
+
             # ----------------------------------
             # Hourly Disaggregation
             # ----------------------------------
@@ -340,10 +336,6 @@ class Enduse(object):
                                 curr_yr,
                                 strategy_variables,
                                 fuel_yh[tech],
-                                [tech],
-                                sector,
-                                tech_stock,
-                                load_profiles,
                                 mode_constrained=True)
 
                         self.fuel_yh = None
@@ -356,10 +348,6 @@ class Enduse(object):
                             curr_yr,
                             strategy_variables,
                             fuel_yh,
-                            self.enduse_techs,
-                            sector,
-                            tech_stock,
-                            load_profiles,
                             mode_constrained=False)
 
 def demand_management(
@@ -368,10 +356,6 @@ def demand_management(
         curr_yr,
         strategy_variables,
         fuel_yh,
-        enduse_techs,
-        sector,
-        tech_stock,
-        load_profiles,
         mode_constrained
     ):
     """Demand management. This function shifts peak per of this enduse
@@ -649,25 +633,32 @@ def get_peak_day_single_fueltype(fuel_yh):
 
     Arguments
     ---------
-    fuel_yh : array (365, 24)
+    fuel_yh : array (365, 24) or array (8760)
         Fuel for every yh (yh)
 
     Return
     ------
     peak_day_nr : int
         Day with most fuel or service
+    peak_h : float
+        Peak hour value
     """
+    #import copy
+    #fuel_yh_copy = copy.copy(fuel_yh)
+    #fuel_yh_8760 = fuel_yh_copy.reshape(8760)
     fuel_yh_8760 = fuel_yh.reshape(8760)
 
     if np.sum(fuel_yh_8760) == 0:
         logging.info("No peak can be found because no fuel assigned")
         # Return first entry of element (which is zero)
-        return 0
+        return 0, 0
     else:
         # Sum fuel within every hour for every day and get day with maximum fuel
         peak_day_nr = round_down(np.argmax(fuel_yh_8760) / 24, 1)
 
-        return int(peak_day_nr)
+        peak_h = np.max(fuel_yh_8760)
+
+        return int(peak_day_nr), peak_h
 
 def get_enduse_techs(fuel_fueltype_tech_p_by):
     """Get all defined technologies of an enduse
@@ -753,19 +744,6 @@ def calc_fuel_tech_yh(
                 load_profile = lp.abs_to_rel(load_profile)
             
             fuels_yh[tech] = fuel_tech_y[tech] * load_profile
-
-            if tech == 'secondary_heating_electricity':
-                logging.info("iiii {}  {} {} {}".format(np.sum(load_profile), enduse, sector, tech))
-                prnt("")
-            '''if enduse == 'ss_space_heating' and tech == 'secondary_heater_electricity':
-    
-                logging.info("SUM {}  {} {} {}".format(np.sum(load_profile), enduse, sector, tech))
-                logging.info(load_profile)
-                logging.info(load_profile.shape)
-                logging.info(np.sum(load_profile))
-                ##assert round(np.sum(load_profile), 4) == 1 #TODO REMOVE
-                ##assert round(fuel_tech_y[tech], 6) == round(np.sum(fuels_yh[tech]), 6)
-                prnt(".")'''
     else:
         # --
         # Unconstrained mode, i.e. not technolog specific.
@@ -1511,7 +1489,7 @@ def calc_service_switch(
     # ----------------------------------------
     if crit_switch_service:
         logging.info("SWITCH TRUE")
-        prnt(":")
+
         switched_s_tech_y_cy = {}
 
         # Service of all technologies
@@ -1522,6 +1500,9 @@ def calc_service_switch(
             # Calculated service share per tech for cy with sigmoid parameters
             s_tech_cy_p = get_service_diffusion(
                 sig_param_tech[tech], curr_yr)
+
+            if tech == 'heat_pumps_electricity':
+                logging.info("HEP SHARE: " + str(s_tech_cy_p))
 
             if s_tech_cy_p == 'identical':
                 switched_s_tech_y_cy[tech] = s_tech_y_cy[tech]
