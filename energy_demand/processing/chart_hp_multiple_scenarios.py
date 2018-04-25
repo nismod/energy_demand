@@ -25,7 +25,7 @@ def process_scenarios(path_to_scenarios, year_to_model=2015):
 
     # Delete folder results if existing
     path_result_folder = os.path.join(
-        path_to_scenarios, "__results_multiple_scenarios")
+        path_to_scenarios, "__results_hp_chart")
 
     basic_functions.delete_folder(path_result_folder)
 

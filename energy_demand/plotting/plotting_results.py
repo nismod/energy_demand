@@ -21,11 +21,13 @@ from energy_demand.profiles import load_factors
 from energy_demand.plotting import plotting_results
 from scipy.interpolate import interp1d
 
-def smooth_data(x_list, y_list, spider=False):
+def smooth_data(x_list, y_list, num=500, spider=False):
     """Smooth data
 
     x_list : list
         List with hours
+
+    # https://docs.scipy.org/doc/scipy/reference/tutorial/interpolate.html
 
     """
     if spider:
@@ -35,25 +37,27 @@ def smooth_data(x_list, y_list, spider=False):
         max_x_val = math.pi * 2 #max is tow pi
 
         x_values = np.linspace(min_x_val, max_x_val, num=nr_x_values, endpoint=True)
+
         f2 = interp1d(x_values, y_list, kind='quadratic') #quadratic cubic
 
         smoothed_data_x = np.linspace(
             min_x_val,
             max_x_val,
-            num=400,
+            num=num,
             endpoint=True)
     else:
         nr_x_values = len(x_list)
         min_x_val = min(x_list)
-        max_x_val = max(x_list) + 1
+        max_x_val = max(x_list)
 
         x_values = np.linspace(min_x_val, max_x_val, num=nr_x_values, endpoint=True)
+
         f2 = interp1d(x_values, y_list, kind='cubic')
 
         smoothed_data_x = np.linspace(
             min_x_val,
             max_x_val,
-            num=400,
+            num=num,
             endpoint=True)
 
     smoothed_data_y = f2(smoothed_data_x)
@@ -2148,10 +2152,10 @@ def plot_radar_plot_multiple_lines(
 
         # Plot data
         ax.plot(
-            angles_smoothed,
-            values_smoothed, 
             #angles,
             #values,
+            angles_smoothed,
+            values_smoothed, 
             color=color_line,
             linestyle=linestyle_list[cnt_year],
             linewidth=linewidth_list[cnt_year],
@@ -2454,7 +2458,7 @@ def plot_cross_graphs(
         x_val_national_lf_demand_cy,
         y_val_national_lf_demand_cy,
         alpha=1.0,
-        color=color,
+        color='black',
         s=20,
         marker="v",
         linewidth=0.5,
@@ -2478,14 +2482,9 @@ def plot_cross_graphs(
     # Grd
     # --------
     ax.set_axisbelow(True)
-    #ax.grid(True)
-    #ax.set_xticks(minor=False)
     ax.set_xticks([0], minor=True)
-    #ax.set_yticks(minor=False)
     ax.set_yticks([0], minor=True)
-    #ax.yaxis.grid(True, which='major')
     ax.yaxis.grid(True, which='minor', linewidth=0.7, color='grey', linestyle='--')
-    #ax.xaxis.grid(True, which='major')
     ax.xaxis.grid(True, which='minor', linewidth=0.7, color='grey', linestyle='--')
 
     # Limit

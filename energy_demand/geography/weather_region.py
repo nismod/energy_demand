@@ -61,6 +61,7 @@ class WeatherRegion(object):
             temp_by,
             tech_lp,
             sectors,
+            criteria
         ):
         """Constructor of weather region
         """
@@ -280,11 +281,24 @@ class WeatherRegion(object):
             shape_y_dh=tech_lp['rs_profile_hp_y_dh'],
             shape_peak_dh=tech_lp['rs_lp_heating_hp_dh']['peakday'])
 
-        rs_fuel_shape_hp_yh, rs_hp_shape_yd = get_fuel_shape_heating_hp_yh(
-            rs_profile_hp_y_dh,
-            self.rs_tech_stock,
-            self.rs_hdd_cy,
-            model_yeardays)
+        if criteria['flat_heat_pump_profile']:
+
+            # flat lp
+            rs_profile_hp_y_dh = flat_shape_y_dh
+            
+            rs_fuel_shape_hp_yh, rs_hp_shape_yd = get_fuel_shape_heating_hp_yh(
+                rs_profile_hp_y_dh,
+                self.rs_tech_stock,
+                self.rs_hdd_cy,
+                model_yeardays)
+
+        else:
+            # not flat lp
+            rs_fuel_shape_hp_yh, rs_hp_shape_yd = get_fuel_shape_heating_hp_yh(
+                rs_profile_hp_y_dh,
+                self.rs_tech_stock,
+                self.rs_hdd_cy,
+                model_yeardays)
 
         self.rs_load_profiles.add_lp(
             unique_identifier=uuid.uuid4(),

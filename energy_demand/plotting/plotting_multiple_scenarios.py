@@ -45,7 +45,7 @@ def plot_heat_pump_chart_multiple(
             print("Scenario to process: " + str(scenario_name))
 
             # Scenario value
-            value_scenario = float(scenario_name.split("__")[1])
+            value_scenario = int(scenario_name.split("__")[1])
 
             # Get peak for all regions {year: {fueltype: np.array(reg,value))}
             y_lf_fueltype = {}
@@ -163,12 +163,10 @@ def plot_heat_pump_chart_multiple(
 
             ax.add_patch(polygon)'''
         color_scenarios = plotting_styles.color_list_scenarios()
-        #legend_entries = []
-        
+
         cnt = -1
         for scenario_hp, scenario_hp_result in result_dict.items():
 
-            #legend_entries.append("{}".format(scenario_hp))
             cnt += 1
             # Average across all regs
             year_data = []
@@ -186,8 +184,7 @@ def plot_heat_pump_chart_multiple(
                 list(all_percent_values),
                 list(year_data),
                 label=scenario_hp,
-                color=color_scenarios[cnt]) #,
-                #color=str(color_scenario))
+                color=color_scenarios[cnt])
     # ----
     # Axis
     # ----
@@ -557,11 +554,13 @@ def plot_reg_y_over_time(
     # ----------
     # Plot lines
     # ----------
-    color_list_selection = plotting_styles.color_list_selection()
-
+    color_list_selection = plotting_styles.color_list_scenarios()
+    cnt = -1
     for scenario_name, fuel_fueltype_yrs in y_scenario.items():
 
-        color_scenario = color_list_selection.pop()
+        cnt += 1
+
+        color_scenario = color_list_selection[cnt]
 
         for year, regs in fuel_fueltype_yrs.items():
             nr_of_reg = len(regs.keys())
@@ -575,6 +574,7 @@ def plot_reg_y_over_time(
             plt.plot(
                 list(fuel_fueltype_yrs.keys()),
                 list(reg_data),
+                label="{}".format(scenario_name),
                 color=str(color_scenario))
     # ----
     # Axis
@@ -584,13 +584,13 @@ def plot_reg_y_over_time(
     # ------------
     # Plot legend
     # ------------
-    plt.legend(
+    '''plt.legend(
         ncol=2,
         loc=3,
         prop={
             'family': 'arial',
             'size': 10},
-        frameon=False)
+        frameon=False)'''
 
     # ---------
     # Labels
@@ -664,17 +664,21 @@ def plot_tot_fueltype_y_over_time(
     # ----------
     # Plot lines
     # ----------
-    color_list_selection = plotting_styles.color_list_selection()
+    #color_list_selection_fueltypes = plotting_styles.color_list_selection()
+    color_list_selection = plotting_styles.color_list_scenarios()
+    linestyles = ['--', '-', ':', "-.", ".-"] #linestyles = plotting_styles.linestyles()
 
+    cnt_scenario = -1
     for scenario_name, fuel_fueltype_yrs in y_scenario.items():
+        cnt_scenario += 1
+        color = color_list_selection[cnt_scenario]
+        cnt_linestyle = -1
 
         for fueltype_str, fueltype_nr in fueltypes.items():
 
             if fueltype_str in fueltypes_to_plot:
-
-                color = color_list_selection[fueltype_nr]
-
-                # Get fuelt per fueltpye for every year
+                cnt_linestyle += 1
+                # Get fuel per fueltpye for every year
                 fuel_fueltype = []
                 for entry in list(fuel_fueltype_yrs.values()):
                     fuel_fueltype.append(entry[fueltype_nr])
@@ -683,6 +687,7 @@ def plot_tot_fueltype_y_over_time(
                     list(fuel_fueltype_yrs.keys()),      # years
                     fuel_fueltype,                       # yearly data per fueltype
                     color=color,
+                    linestyle=linestyles[cnt_linestyle],
                     label="{}_{}".format(scenario_name, fueltype_str))
 
     # ----
@@ -699,16 +704,7 @@ def plot_tot_fueltype_y_over_time(
         prop={
             'family': 'arial',
             'size': 4},
-        bbox_to_anchor=(1, 0.5),
-        )
-    '''plt.legend(
-        ncol=1,
-        loc=1,
-        bbox_to_anchor=(1, 0.5),
-        prop={
-            'family': 'arial',
-            'size': 10},
-        frameon=False)'''
+        bbox_to_anchor=(1, 0.5))
 
     # ---------
     # Labels

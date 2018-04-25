@@ -135,7 +135,9 @@ def compare_results(
     # -------------
     # RMSE
     # -------------
-    rmse_val_corrected = basic_functions.rmse(np.array(y_real_indo_factored), np.array(y_calculated_list))
+    rmse_val_corrected = basic_functions.rmse(
+        np.array(y_real_indo_factored),
+        np.array(y_calculated_list))
 
     # ----------
     # Standard deviation
@@ -167,23 +169,29 @@ def compare_results(
     fig = plt.figure(
         figsize=plotting_program.cm2inch(22, 8)) #width, height
 
-    
     # smooth line
-    x_data_smoothed, y_real_indo_factored_smoothed = plotting_results.smooth_data(x_data, y_real_indo_factored)
+    x_data_smoothed, y_real_indo_factored_smoothed = plotting_results.smooth_data(x_data, y_real_indo_factored, num=40000)
 
     # plot points
     plt.plot(
-        x_data_smoothed, #x_data,
-        y_real_indo_factored_smoothed, #y_real_indo_factored,
+        #x_data,
+        #y_real_indo_factored,
+        x_data_smoothed,
+        y_real_indo_factored_smoothed,
         label='indo_factored',
         linestyle='-',
         linewidth=0.5,
         fillstyle='full',
         color='black')
 
+    # smooth line
+    x_data_smoothed, y_calculated_list_smoothed = plotting_results.smooth_data(x_data, y_calculated_list, num=40000)
+
     plt.plot(
-        x_data,
-        y_calculated_list,
+        #x_data,
+        #y_calculated_list,
+        x_data_smoothed,
+        y_calculated_list_smoothed,
         label='model',
         linestyle='--',
         linewidth=0.5,
@@ -192,7 +200,6 @@ def compare_results(
 
     #Grid
     #plt.grid(True)
-
     plt.xlim([0, 8760])
     plt.margins(x=0)
     plt.axis('tight')
@@ -232,9 +239,7 @@ def compare_results(
 
     if plot_crit:
         plt.show()
-        plt.close()
-    else:
-        plt.close()
+    plt.close()
 
 def compare_peak(
         name_fig,
@@ -265,21 +270,25 @@ def compare_peak(
         figsize=plotting_program.cm2inch(8, 8))
 
     # smooth line
-    x_smoothed, y_modelled_peak_dh_smoothed = plotting_results.smooth_data(range(24), modelled_peak_dh)
+    x_smoothed, y_modelled_peak_dh_smoothed = plotting_results.smooth_data(range(24), modelled_peak_dh, num=500)
 
     plt.plot(
-        x_smoothed, #range(24),
-        y_modelled_peak_dh_smoothed, #modelled_peak_dh,
+        #range(24),
+        #modelled_peak_dh,
+        x_smoothed,
+        y_modelled_peak_dh_smoothed,
         color='blue',
         linestyle='-',
         linewidth=0.5,
         label='model')
 
-    x_smoothed, validation_elec_2015_peak_smoothed = plotting_results.smooth_data(range(24), validation_elec_2015_peak)
+    x_smoothed, validation_elec_2015_peak_smoothed = plotting_results.smooth_data(range(24), validation_elec_2015_peak, num=500)
 
     plt.plot(
-        x_smoothed, #range(24),
-        validation_elec_2015_peak_smoothed, #validation_elec_2015_peak,
+        #range(24),
+        #validation_elec_2015_peak,
+        x_smoothed,
+        validation_elec_2015_peak_smoothed,
         color='black',
         linestyle='--',
         linewidth=0.5,
@@ -366,7 +375,6 @@ def compare_results_hour_boxplots(
     ax.boxplot(diff_values)
 
     plt.xticks(range(1, 25), range(24))
-    #plt.margins(x=0) #remove white space
 
     plt.xlabel("hour")
     plt.ylabel("Modelled electricity difference (real-modelled) [%]")
@@ -420,17 +428,14 @@ def plot_residual_histogram(values, path_result, name_fig):
     plt.title("Residual distribution (chi_squared: {}  p_value:  {}".format(
         round(chi_squared, 4),
         round(p_value, 4)),
-        fontsize=10,
-        fontdict=font_additional_info,
-        loc='right')
-    #plt.grid(True)
+              fontsize=10,
+              fontdict=font_additional_info,
+              loc='right')
 
-    #Save fig
     plt.savefig(os.path.join(path_result, name_fig))
 
 def get_date_strings(days_to_plot, daystep):
-    """Calculate date and position for range
-    input of yeardays
+    """Calculate date and position for range input of yeardays
     """
     major_ticks_days = []
     major_ticks_labels = []

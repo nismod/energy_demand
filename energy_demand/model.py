@@ -53,7 +53,8 @@ class EnergyDemandModel(object):
                 all_enduses=data['enduses'],
                 temp_by=data['temp_data'][weather_region],
                 tech_lp=data['tech_lp'],
-                sectors=data['sectors'])
+                sectors=data['sectors'],
+                criteria=data['criterias'])
 
         # ------------------------
         # Create Dwelling Stock
