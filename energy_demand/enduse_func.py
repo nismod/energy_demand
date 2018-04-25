@@ -308,7 +308,6 @@ class Enduse(object):
                 # ------------------------------------------
                 #logging.info("ENDUSE : {}   TECHS:  {}".format(enduse, self.enduse_techs))
                 if self.flat_profile_crit:
-                    #logging.info("flat profile")
                     pass
                 else:
                     fuel_yh = calc_fuel_tech_yh(
@@ -322,16 +321,13 @@ class Enduse(object):
                         model_yeardays_nrs,
                         mode_constrained)
 
-
-
                     # --------------------------------------
-                    # Demand Management (peak shaving)
+                    # Demand Management
                     # ---------------------------------------
                     if mode_constrained:
                         self.techs_fuel_yh = {}
 
                         for tech in fuel_yh:
-
                             self.techs_fuel_yh[tech] = demand_management(
                                 enduse,
                                 base_yr,
@@ -341,21 +337,7 @@ class Enduse(object):
                                 mode_constrained=True)
 
                         self.fuel_yh = None
-
-
-                        #Testing remove fore speed TODO
-                        '''for i in fuel_yh:
-                            logging.info(i)
-                            for j in i:
-                                assert j >= 0'''
-                        '''for tech_ed in self.techs_fuel_yh.values():
-                            for j in tech_ed:
-                                for h in j:
-                                    assert h >= 0'''
-
-                    else: # (not specific for technologies)
-
-                        # Demand management for heating related technologies
+                    else:
                         self.fuel_yh = demand_management(
                             enduse,
                             base_yr,
