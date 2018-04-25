@@ -13,7 +13,7 @@ High Resolution Energy Demand model (HIRE)
 .. image:: https://coveralls.io/repos/github/nismod/energy_demand/badge.svg?branch=master
     :target: https://coveralls.io/github/nismod/energy_demand?branch=master
 
-**HIRE** was written and developed at the `Environmental Change Institute,
+**HIRE** was written in Python (Python>=3.6) and developed at the `Environmental Change Institute,
 University of Oxford <http://www.eci.ox.ac.uk>`_ within the
 EPSRC sponsored MISTRAL programme, as part of the `Infrastructure Transition
 Research Consortium <http://www.itrc.org.uk/>`_.
@@ -31,11 +31,16 @@ energy demand simulation model.
 
 1. Initialising and running the model (local)
 =============================================
-In order to run HIRED, first the model needs to be set up (Section 1.1).
-The scenario setup needs to be run every time the model is
-run with different configurations (Section 1.2).
+The recommended installation method is to use conda <http://conda.pydata.org/miniconda.html>`_,
+which handles packages and virtual environments. First, create a conda environment
 
-**HIRE** is written in Python (Python>=3.6)
+    conda create --name energy_demand python=3.6
+
+and activate it
+
+    activate energy_demand
+
+In order to run HIRED, first the model needs to be set up (Section 1.1 or Section 1.1).
 
 1.1 Model Set-Up (with complete data)
 -------------------------------------
@@ -104,12 +109,6 @@ run with different configurations (Section 1.2).
    For an overview of all possible scenario and their explanation,
    see here `here <https://LINKTOBEDFINED.htm>`_
 
-Other help
-==========
-To change the logger level of an individual sector model with smif, type:
+    To change the logger level of an individual sector model with smif, type:
 
-``smif -v run modelrun_id`` or ``smif -vv run modelrun_id``
-
-Literature
-========================
-Eggimann et al. (2018): In progress
+    ``smif -v run modelrun_id`` or ``smif -vv run modelrun_id``

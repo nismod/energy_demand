@@ -641,7 +641,7 @@ def read_fuel_switches(
         Attribute                   Description
         ==========                  =========================
         enduse                      [str]   Enduse affected by switch
-        fueltype_replace     [str]   Fueltype to be switched from
+        fueltype_replace            [str]   Fueltype to be switched from
         technology_install          [str]   Technology which is installed
         switch_yr                   [int]   Year until switch is fully realised
         fuel_share_switched_ey      [float] Share of fuel which is switched until switch_yr
@@ -656,7 +656,6 @@ def read_fuel_switches(
 
         for row in rows:
             try:
-
                 try:
                     sector = str(row[get_position(headings, 'sector')])
                 except IndexError:
@@ -674,7 +673,7 @@ def read_fuel_switches(
             except (KeyError, ValueError):
                 raise Exception("Check if provided data is complete (no emptly csv entries)")
 
-    # -------.
+    # -------
     # Testing
     #
     # Test if more than 100% per fueltype is switched or more than
@@ -687,7 +686,6 @@ def read_fuel_switches(
                 "Input error: The share of switched fuel must be > 0. Delete {} from input".format(
                     obj.technology_install))
 
-
         tot_share_fueltype_switched = 0
 
         for obj_iter in fuel_switches:
@@ -695,13 +693,13 @@ def read_fuel_switches(
             # Sum total switched share
             if obj.enduse == obj_iter.enduse and obj.fueltype_replace == obj_iter.fueltype_replace:
                 tot_share_fueltype_switched += obj_iter.fuel_share_switched_ey
-            
+
             # Test if lager than maximum defined technology diffusion (L)
             if obj_iter.fuel_share_switched_ey > technologies[obj_iter.technology_install].tech_max_share:
                 raise Exception(
                     "Input error: more service provided for tech '{}' in enduse '{}' than max possible".format(
                         obj_iter.enduse, obj_iter.technology_install))
-        
+
         if tot_share_fueltype_switched > 1.0:
             raise Exception(
                 "Input error: The fuel switches are > 1.0 for enduse {} and fueltype {}".format(
