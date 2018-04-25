@@ -9,7 +9,7 @@ from energy_demand.geography.region import Region
 from energy_demand.geography.weather_region import WeatherRegion
 from energy_demand.dwelling_stock import dw_stock
 from energy_demand.basic import testing_functions as testing
-from energy_demand.profiles import load_profile, load_factors
+from energy_demand.profiles import load_factors
 from energy_demand.charts import figure_HHD_gas_demand
 
 class EnergyDemandModel(object):

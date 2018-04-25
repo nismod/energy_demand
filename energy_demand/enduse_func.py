@@ -322,6 +322,8 @@ class Enduse(object):
                         model_yeardays_nrs,
                         mode_constrained)
 
+
+
                     # --------------------------------------
                     # Demand Management (peak shaving)
                     # ---------------------------------------
@@ -339,6 +341,18 @@ class Enduse(object):
                                 mode_constrained=True)
 
                         self.fuel_yh = None
+
+
+                        #Testing remove fore speed TODO
+                        '''for i in fuel_yh:
+                            logging.info(i)
+                            for j in i:
+                                assert j >= 0'''
+                        '''for tech_ed in self.techs_fuel_yh.values():
+                            for j in tech_ed:
+                                for h in j:
+                                    assert h >= 0'''
+
                     else: # (not specific for technologies)
 
                         # Demand management for heating related technologies
@@ -742,7 +756,7 @@ def calc_fuel_tech_yh(
 
             if model_yeardays_nrs != 365:
                 load_profile = lp.abs_to_rel(load_profile)
-            
+
             fuels_yh[tech] = fuel_tech_y[tech] * load_profile
     else:
         # --

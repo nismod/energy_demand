@@ -165,7 +165,7 @@ def assign_by_fuel_tech_p(enduses, sectors, fueltypes, fueltypes_nr):
         'heat_pumps_hydrogen': 0.0}
 
     # -------------
-    # Residential Water heating
+    # Residential Water heating TODO CHECK 2015 SUM
     # -------------
     '''rs_fuel_tech_p_by['rs_water_heating'][fueltypes['gas']] = {
         'boiler_condensing_gas': 0.60,

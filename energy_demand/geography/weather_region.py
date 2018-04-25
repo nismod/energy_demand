@@ -207,10 +207,16 @@ class WeatherRegion(object):
         for enduse in all_enduses['rs_enduses']:
 
             # Enduses where technology specific load profiles are defined for yh
-            if enduse == 'rs_space_heating':
+            if enduse in ['rs_space_heating']: #, 'rs_water_heating']:
                 pass
             else:
-                tech_list = helpers.get_nested_dict_key(assumptions.rs_fuel_tech_p_by[enduse])
+
+                # Get all technologies of enduse
+                tech_list = helpers.get_nested_dict_key(
+                    assumptions.rs_fuel_tech_p_by[enduse])
+
+                # SCRAP REMOVE HEAT PUMP TODO ONLY FOR RS_WATER_HEATING STUFF
+                ## TODO CHECK ERROR IN SUMMING tech_list = basic_functions.remove_element_from_list(tech_list, 'heat_pumps_electricity')
 
                 shape_y_dh = insert_peak_dh_shape(
                     peak_day=rs_peak_day,
@@ -285,7 +291,7 @@ class WeatherRegion(object):
 
             # flat lp
             rs_profile_hp_y_dh = flat_shape_y_dh
-            
+
             rs_fuel_shape_hp_yh, rs_hp_shape_yd = get_fuel_shape_heating_hp_yh(
                 rs_profile_hp_y_dh,
                 self.rs_tech_stock,
@@ -303,7 +309,8 @@ class WeatherRegion(object):
         self.rs_load_profiles.add_lp(
             unique_identifier=uuid.uuid4(),
             technologies=tech_lists['heating_non_const'],
-            enduses=['rs_space_heating'],
+            #enduses=['rs_space_heating'],
+            enduses=['rs_space_heating'],# TODO ERROR IN SUMMING 2015 'rs_water_heating'], #TODO
             shape_y_dh=rs_profile_hp_y_dh,
             shape_yd=rs_hp_shape_yd,
             shape_yh=rs_fuel_shape_hp_yh,
