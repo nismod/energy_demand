@@ -76,8 +76,6 @@ def scenario_initalisation(path_data_ed, data=False):
     # Disaggregate fuel for all regions
     fuel_disagg['rs_fuel_disagg'], fuel_disagg['ss_fuel_disagg'], fuel_disagg['is_fuel_disagg'] = s_disaggregation.disaggregate_base_demand(
         data['regions'],
-        data['assumptions'].base_yr,
-        data['assumptions'].curr_yr,
         data['fuels'],
         data['scenario_data'],
         data['assumptions'],
