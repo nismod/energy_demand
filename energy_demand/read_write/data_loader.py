@@ -129,7 +129,7 @@ def read_national_real_gas_data(path_to_csv):
 
     return national_fuel_data
 
-def floor_area_virtual_dw(regions, all_sectors, local_paths, base_yr, f_mixed_floorarea):
+def floor_area_virtual_dw(regions, all_sectors, local_paths, population_by, base_yr, f_mixed_floorarea):
     """Load necessary data for virtual building stock
     in case the link to the building stock model in
     Newcastle is not used
@@ -161,6 +161,13 @@ def floor_area_virtual_dw(regions, all_sectors, local_paths, base_yr, f_mixed_fl
         local_paths['path_floor_area_virtual_stock_by'],
         f_mixed_floorarea=f_mixed_floorarea)
 
+    # -----------------
+    # Calculate average floor area per person
+    # of existing datasets. This is done to replace the missing
+    # floor area data of LADs with estimated floor areas
+    # -----------------
+    #average_pop = calc_average_pop(population_by,
+
     rs_floorarea = defaultdict(dict)
     for region in regions:
         try:
@@ -168,7 +175,9 @@ def floor_area_virtual_dw(regions, all_sectors, local_paths, base_yr, f_mixed_fl
         except:
             logging.warning(
                 "No virtual residential floor area for region %s ", region)
-            rs_floorarea[base_yr][region] = 1
+
+            #estimated_floor_area = average_pop
+            rs_floorarea[base_yr][region] = 1234
 
     # --------------------------------------------------
     # Floor area for service sector buildings
@@ -182,7 +191,7 @@ def floor_area_virtual_dw(regions, all_sectors, local_paths, base_yr, f_mixed_fl
                 ss_floorarea_sector_by[base_yr][region][sector] = non_res_flootprint[region]
             except:
                 logging.warning("No virtual service floor area for region %s", region)
-                ss_floorarea_sector_by[base_yr][region][sector] = 1
+                ss_floorarea_sector_by[base_yr][region][sector] = 1234
 
     return dict(rs_floorarea), dict(ss_floorarea_sector_by)
 

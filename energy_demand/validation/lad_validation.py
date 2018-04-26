@@ -119,6 +119,69 @@ def temporal_validation(
 
     return
 
+def spatial_validation_NEW(
+        disaggregated_fuel,
+        fueltypes,
+        result_paths,
+        paths,
+        regions,
+        reg_coord,
+        plot_crit
+    ):
+    """Spatial validation
+    """
+    # -------------------------------------------
+    # Spatial validation
+    # -------------------------------------------
+    subnational_elec = data_loader.read_national_real_elec_data(
+        paths['path_val_subnational_elec'])
+    subnational_gas = data_loader.read_national_real_gas_data(
+        paths['path_val_subnational_gas'])
+
+    # Create fueltype secific dict
+    fuel_elec_regs_yh = {}
+    for region in regions:
+        gwh_modelled = disaggregated_fuel['tot_disaggregated_regs'][region][fueltypes['electricity']]
+        fuel_elec_regs_yh[region] = gwh_modelled
+
+    # Create fueltype secific dict
+    fuel_gas_regs_yh = {}
+    for region in regions:
+        gwh_modelled = disaggregated_fuel['tot_disaggregated_regs'][region][fueltypes['gas']]
+        fuel_gas_regs_yh[region] = gwh_modelled
+
+    # ----------------------------------------
+    # Remap demands between 2011 and 2015 LADs
+    # ----------------------------------------
+    subnational_elec = map_LAD_2011_2015(subnational_elec)
+    subnational_gas = map_LAD_2011_2015(subnational_gas)
+    fuel_elec_regs_yh = map_LAD_2011_2015(fuel_elec_regs_yh)
+    fuel_gas_regs_yh = map_LAD_2011_2015(fuel_gas_regs_yh)
+
+    logging.info("Validation of electricity")
+    spatial_validation(
+        reg_coord,
+        fuel_elec_regs_yh,
+        subnational_elec,
+        regions,
+        'elec',
+        os.path.join(result_paths['data_results_validation'], 'validation_spatial_elec.pdf'),
+        label_points=False,
+        plotshow=plot_crit)
+
+    logging.info("Validation of gas")
+    spatial_validation(
+        reg_coord,
+        fuel_gas_regs_yh,
+        subnational_gas,
+        regions,
+        'gas',
+        os.path.join(result_paths['data_results_validation'], 'validation_spatial_gas.pdf'),
+        label_points=False,
+        plotshow=plot_crit)
+    
+    return
+
 def tempo_spatial_validation(
         base_yr,
         model_yearhours_nrs,
@@ -171,7 +234,7 @@ def tempo_spatial_validation(
         factor_transport_reg = scenario_data['population'][base_yr][region] / sum(scenario_data['population'][base_yr].values())
         ed_fueltype_regs_yh[fueltype_elec][region_array_nr] += model_object_transport.fuel_yh[fueltype_elec].reshape(model_yearhours_nrs) * factor_transport_reg
 
-    # -------------------------------------------
+    '''# -------------------------------------------
     # Spatial validation
     # -------------------------------------------
     subnational_elec = data_loader.read_national_real_elec_data(
@@ -219,7 +282,7 @@ def tempo_spatial_validation(
         'gas',
         os.path.join(result_paths['data_results_validation'], 'validation_spatial_gas.pdf'),
         label_points=False,
-        plotshow=plot_crit)
+        plotshow=plot_crit)'''
 
     # -------------------------------------------
     # Temporal validation (hourly for national)

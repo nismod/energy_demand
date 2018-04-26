@@ -1180,7 +1180,7 @@ def read_floor_area_virtual_stock(path_to_csv, f_mixed_floorarea=0.5):
     # Second Mail from Craig
     res_floorarea, non_res_floorarea, floorarea_mixed = {}, {}, {}
 
-    floor_area_placeholder = 1000000 #0.0001 #TODO
+    floor_area_placeholder = 1234 #0.0001 #99999999 #0.0001 #TODO
 
     with open(path_to_csv, 'r') as csvfile:
         rows = csv.reader(csvfile, delimiter=',')
