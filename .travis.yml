@@ -1,5 +1,3 @@
-# Travis configuration file using the build matrix feature
-# Read more under http://docs.travis-ci.com/user/build-configuration/
 sudo: false
 language: python
 virtualenv:
@@ -18,3 +16,21 @@ after_success:
 - if [[ "$COVERAGE" == "true" ]]; then coveralls || echo "failed"; fi
 notifications:
   email: false
+jobs:
+  include:
+    - stage: PyPI release
+      if: tag =~ ^v
+      env: PYTHON_VERSION="3.6" COVERAGE="false"
+      install: source $TRAVIS_BUILD_DIR/ci/install.sh
+      script: echo "Deploying to PyPI"
+      before_deploy:
+        - cd $TRAVIS_BUILD_DIR
+      deploy:
+        provider: pypi
+        user: roaldl
+        password:
+          secure: UzkajI0kxrX0AXNbsbF+Y7l+xlJEfCmfkAzYCLY5QaS2oY9TFyNNkgdU1hEPAVVwvFWv8rS6G+8ojUjDTxlOSCAQ189mcAUrziEQFTDxelL9e4AMtUCSVyaiIWXcHxoU4GnWIwNVvlHF+20VoMuLabYOGhZnLcWt6vxFulh3ZFmhdyoHQiniJpMQyNNCC2NlR23lxuqNQ/OP2KUnRUE5tpCRw708HVqnXXbSya4bldwTdmOAMNd24wN9DXir3IcWhe3bYPN+/95hQCtPHj7LPOw2V3yEXMZsYWQdLCxe3Aczgesppm8dgNdF/cNYRfJAW9VVTR4F+wcpNMAr8RNcigvfmLKHc9NOSbdWszTOKtwyjEafWUVdUMGy96/9mqitNvnv17oxE9FvJ9q8O6e8eRT/FKzrV8/6mtqDK6vefXvqALc94nwgDVCu0DJueLLuQuCwafrNAxCosqubVaN6+cTd5v8YDz4XV2v9naRe3grRpQjVorVAbamPR88thL68/8UmYekPioQ7YzV6HZ511IO+8VurrY/rHclBpJ+ciVzeS3issLaaxdw0iFJ6RIwUgdjfnDdtju9MBkaP6nb9uwzEPcfaf9yMFtwQxChUSN9Xfmaz8S4b2Ow4D5BUqavHNIyuVVRHNhxkIT83TPsCOBusxz2RHorSWAe8aA4FCOg=
+        on:
+          tags: true
+          all_branches: true
+skip_cleanup: true
