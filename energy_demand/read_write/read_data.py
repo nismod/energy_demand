@@ -1180,6 +1180,8 @@ def read_floor_area_virtual_stock(path_to_csv, f_mixed_floorarea=0.5):
     # Second Mail from Craig
     res_floorarea, non_res_floorarea, floorarea_mixed = {}, {}, {}
 
+    floor_area_placeholder = 1000000 #0.0001 #TODO
+
     with open(path_to_csv, 'r') as csvfile:
         rows = csv.reader(csvfile, delimiter=',')
         headings = next(rows)
@@ -1190,21 +1192,21 @@ def read_floor_area_virtual_stock(path_to_csv, f_mixed_floorarea=0.5):
             if (row[get_position(headings, 'res_bld_floor_area')] == 'null') or (
                 row[get_position(headings, 'nonres_bld_floor_area')] == 'null') or (
                     row[get_position(headings, 'mixeduse_bld_floor_area')] == 'null'):
-                    res_floorarea[geo_name] = 0.0001
-                    non_res_floorarea[geo_name] = 0.0001
-                    floorarea_mixed[geo_name] = 0.0001
+                    res_floorarea[geo_name] = floor_area_placeholder
+                    non_res_floorarea[geo_name] = floor_area_placeholder
+                    floorarea_mixed[geo_name] = floor_area_placeholder
             else:
                 if row[get_position(headings, 'res_bld_floor_area')] == 'null':
-                    res_floorarea[geo_name] = 0.0001
+                    res_floorarea[geo_name] = floor_area_placeholder
                 else:
                     res_floorarea[geo_name] = float(row[get_position(headings, 'res_bld_floor_area')])
                 if row[get_position(headings, 'nonres_bld_floor_area')] == 'null':
-                    non_res_floorarea[geo_name] = 0.0001
+                    non_res_floorarea[geo_name] = floor_area_placeholder
                 else:
                     non_res_floorarea[geo_name] = float(row[get_position(headings, 'nonres_bld_floor_area')])
 
                 if row[get_position(headings, 'mixeduse_bld_floor_area')] == 'null':
-                    floorarea_mixed[geo_name] = 0.0001
+                    floorarea_mixed[geo_name] = floor_area_placeholder
                 else:
                     floorarea_mixed[geo_name] = float(row[get_position(headings, 'mixeduse_bld_floor_area')])
 
