@@ -805,7 +805,7 @@ def get_regions_missing_floor_area(regions, floor_area_data, base_yr): #, placeh
         # Floor Area across all sectors
         reg_floor_area = floor_area_data[base_yr][region]
 
-        if reg_floor_area == 1234: #0.0001: #As dfined with 'null' in readigng in get_regions_missing_floor_area
+        if reg_floor_area == 1234567899999999: #0.0001: #As dfined with 'null' in readigng in get_regions_missing_floor_area
             regions_no_floor_area_data.append(region)
 
     return regions_no_floor_area_data
@@ -822,7 +822,7 @@ def get_regions_missing_floor_area_sector(regions, floor_area_data, base_yr):
 
         not_data = False
         for sector_data in reg_floor_area_sectors.values():
-            if sector_data == 1234: #As dfined with 'null' in readigng in
+            if sector_data == 1234567899999999: #As dfined with 'null' in readigng in
                 not_data = True
         if not_data:
             regions_no_floor_area_data.append(region)

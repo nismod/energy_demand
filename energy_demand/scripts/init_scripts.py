@@ -100,6 +100,7 @@ def scenario_initalisation(path_data_ed, data=False):
         fuel_disagg['rs_fuel_disagg'],
         fuel_disagg['ss_fuel_disagg'],
         fuel_disagg['is_fuel_disagg'])
+
     # ---------------------------------------
     # Convert base year fuel input assumptions to energy service
     # ---------------------------------------

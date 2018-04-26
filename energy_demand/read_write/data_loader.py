@@ -177,7 +177,7 @@ def floor_area_virtual_dw(regions, all_sectors, local_paths, population_by, base
                 "No virtual residential floor area for region %s ", region)
 
             #estimated_floor_area = average_pop
-            rs_floorarea[base_yr][region] = 1234
+            rs_floorarea[base_yr][region] = 1234567899999999
 
     # --------------------------------------------------
     # Floor area for service sector buildings
@@ -191,7 +191,7 @@ def floor_area_virtual_dw(regions, all_sectors, local_paths, population_by, base
                 ss_floorarea_sector_by[base_yr][region][sector] = non_res_flootprint[region]
             except:
                 logging.warning("No virtual service floor area for region %s", region)
-                ss_floorarea_sector_by[base_yr][region][sector] = 1234
+                ss_floorarea_sector_by[base_yr][region][sector] = 1234567899999999
 
     return dict(rs_floorarea), dict(ss_floorarea_sector_by)
 
