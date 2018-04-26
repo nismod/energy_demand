@@ -93,7 +93,7 @@ class Assumptions(object):
         self.f_is_weekend = 0.45                      # 0.4
 
         # Spatial calibration factor
-        self.f_mixed_floorarea = 0.4                  # 0.5
+        self.f_mixed_floorarea = 0.5                  # 0.5 #TODO
 
         # ============================================================
         #   Modelled day related factors

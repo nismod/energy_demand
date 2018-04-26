@@ -163,12 +163,34 @@ def spatial_validation_lad_level(
     # Compare total sums
     tot_sum_modelled_elec = sum(fuel_elec_regs_yh.values())
     tot_sum_real_elec = sum(subnational_elec.values())
+    
     logging.info("Spatial electricity validation: modelled: {}  real: {}".format(tot_sum_modelled_elec, tot_sum_real_elec))
     logging.info("comparison real: {}  modelled: {}".format(100, (100 / tot_sum_real_elec) * tot_sum_modelled_elec))
     tot_sum_modelled_gas = sum(fuel_gas_regs_yh.values())
     tot_sum_real_gas = sum(subnational_gas.values())
     logging.info("Spatial validation: modelled: {}  real: {}".format(tot_sum_modelled_gas, tot_sum_real_gas))
     logging.info("comparison real: {}  modelled: {}".format(100, (100 / tot_sum_real_gas) * tot_sum_modelled_gas))
+
+    correction_factor_elec = tot_sum_modelled_elec / tot_sum_real_elec
+    correction_factor_gas = tot_sum_modelled_gas/ tot_sum_real_gas
+    logging.info("-------------CORRECIOTN FATOR {}  {}".format(correction_factor_elec, correction_factor_gas))
+    for reg in subnational_elec:
+        subnational_elec[reg] *= correction_factor_elec
+    for reg in subnational_gas:
+        subnational_gas[reg] *= correction_factor_gas
+    tot_sum_real_elec = sum(subnational_elec.values())
+    tot_sum_real_gas = sum(subnational_gas.values())
+    logging.info("Spatial electricity validation: modelled: {}  real: {}".format(tot_sum_modelled_elec, tot_sum_real_elec))
+    logging.info("comparison real: {}  modelled: {}".format(100, (100 / tot_sum_real_elec) * tot_sum_modelled_elec))
+    tot_sum_modelled_gas = sum(fuel_gas_regs_yh.values())
+    tot_sum_real_gas = sum(subnational_gas.values())
+    logging.info("Spatial validation: modelled: {}  real: {}".format(tot_sum_modelled_gas, tot_sum_real_gas))
+    logging.info("comparison real: {}  modelled: {}".format(100, (100 / tot_sum_real_gas) * tot_sum_modelled_gas))
+    #prnt(".")
+    # ----------------------------------------------
+    # TODO Correct REAL Values that sum is the same
+    # ----------------------------------------------
+
 
     spatial_validation(
         reg_coord,
