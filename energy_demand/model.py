@@ -9,7 +9,7 @@ from energy_demand.geography.region import Region
 from energy_demand.geography.weather_region import WeatherRegion
 from energy_demand.dwelling_stock import dw_stock
 from energy_demand.basic import testing_functions as testing
-from energy_demand.profiles import load_profile, load_factors
+from energy_demand.profiles import load_factors
 from energy_demand.charts import figure_HHD_gas_demand
 
 class EnergyDemandModel(object):
@@ -38,18 +38,9 @@ class EnergyDemandModel(object):
         for weather_region in data['weather_stations']:
             weather_regions[weather_region] = WeatherRegion(
                 name=weather_region,
-                base_yr=assumptions.base_yr,
-                curr_yr=assumptions.curr_yr,
-                strategy_variables=assumptions.strategy_variables,
-                t_bases=assumptions.t_bases,
-                t_diff_param=assumptions.base_temp_diff_params,
-                tech_lists=assumptions.tech_list,
-                technologies=data['technologies'],
                 assumptions=assumptions,
+                technologies=data['technologies'],
                 fueltypes=data['lookups']['fueltypes'],
-                model_yeardays_nrs=assumptions.model_yeardays_nrs,
-                model_yeardays=assumptions.model_yeardays,
-                yeardays_month_days=assumptions.yeardays_month_days,
                 all_enduses=data['enduses'],
                 temp_by=data['temp_data'][weather_region],
                 tech_lp=data['tech_lp'],
@@ -64,12 +55,12 @@ class EnergyDemandModel(object):
 
             # Virtual dwelling stocks
             data['rs_dw_stock'], data['ss_dw_stock'] = create_virtual_dwelling_stocks(
-                regions, self.curr_yr, data)
+                regions, assumptions.curr_yr, data)
 
         else:
             # Create dwelling stock from imported data from newcastle
             data = create_dwelling_stock(
-                regions, self.curr_yr, data)
+                regions, assumptions.curr_yr, data)
 
         logging.info("... finished generating dwelling stock")
 
@@ -89,7 +80,7 @@ class EnergyDemandModel(object):
         # ---------------------------------------------
         for reg_array_nr, region in enumerate(regions):
             logging.info(
-                "... Simulate region %s for year %s", region, self.curr_yr)
+                "... Simulate region %s for year %s", region, assumptions.curr_yr)
 
             reg_rs_submodel, reg_ss_submodel, reg_is_submodel = simulate_region(
                 region, data, assumptions, weather_regions)
@@ -970,7 +961,7 @@ def aggregate_final_results(
         # --------------------------------------
         # Regional load factor calculations
         # --------------------------------------
-        # Calculate load factors across all enduses (Yearly lf)
+        # Calculate annual load factors across all enduses
         load_factor_y = load_factors.calc_lf_y(
             fuel_region_yh)
 
