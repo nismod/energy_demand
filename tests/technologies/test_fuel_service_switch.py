@@ -395,35 +395,35 @@ def autocomplete_switches():
         if switch.technology_install == 'techC':
             assert switch.service_share_ey == 0.7 * (1.0 / 3.0)
 
-def test_get_share_s_tech_ey():
-    """testing"""
+# def test_get_share_s_tech_ey():
+#     """testing"""
 
-    service_switches = [read_data.ServiceSwitch(
-        enduse='heating',
-        sector=None,
-        technology_install='techA',
-        service_share_ey=0.3,
-        switch_yr=2020)]
+#     service_switches = [read_data.ServiceSwitch(
+#         enduse='heating',
+#         sector=None,
+#         technology_install='techA',
+#         service_share_ey=0.3,
+#         switch_yr=2020)]
 
-    specified_tech_enduse_by = {'heating': ['techA', 'techB', 'techC']}
+#     specified_tech_enduse_by = {'heating': ['techA', 'techB', 'techC']}
 
-    result = fuel_service_switch.get_share_s_tech_ey(
-        service_switches=service_switches,
-        specified_tech_enduse_by=specified_tech_enduse_by)
+#     result = fuel_service_switch.get_share_s_tech_ey(
+#         service_switches=service_switches,
+#         specified_tech_enduse_by=specified_tech_enduse_by)
 
-    # --
-    service_switches = {'regA': [read_data.ServiceSwitch(
-        enduse='heating',
-        sector=None,
-        technology_install='techA',
-        service_share_ey=0.3,
-        switch_yr=2020)]}
+#     # --
+#     service_switches = {'regA': [read_data.ServiceSwitch(
+#         enduse='heating',
+#         sector=None,
+#         technology_install='techA',
+#         service_share_ey=0.3,
+#         switch_yr=2020)]}
 
-    specified_tech_enduse_by = {'regA': {'heating': ['techA', 'techB', 'techC']}}
+#     specified_tech_enduse_by = {'regA': {'heating': ['techA', 'techB', 'techC']}}
 
-    result = fuel_service_switch.get_share_s_tech_ey(
-        service_switches=service_switches,
-        specified_tech_enduse_by=specified_tech_enduse_by,
-        spatial_explicit_diffusion=True)
+#     result = fuel_service_switch.get_share_s_tech_ey(
+#         service_switches=service_switches,
+#         specified_tech_enduse_by=specified_tech_enduse_by,
+#         spatial_explicit_diffusion=True)
 
-    assert result['heating']['regA']['techA'] == 0.3
+#     assert result['heating']['regA']['techA'] == 0.3
