@@ -1202,8 +1202,10 @@ def read_floor_area_virtual_stock(path_to_csv, f_mixed_floorarea=0.5):
                     res_floorarea[geo_name] = float(row[get_position(headings, 'res_bld_floor_area')])
                 if row[get_position(headings, 'nonres_bld_floor_area')] == 'null':
                     non_res_floorarea[geo_name] = floor_area_placeholder
+                    #non_res_only = floor_area_placeholder #NEW
                 else:
                     non_res_floorarea[geo_name] = float(row[get_position(headings, 'nonres_bld_floor_area')])
+                    #non_res_only = float(row[get_position(headings, 'nonres_bld_floor_area')])
 
                 if row[get_position(headings, 'mixeduse_bld_floor_area')] == 'null':
                     floorarea_mixed[geo_name] = floor_area_placeholder
@@ -1211,12 +1213,17 @@ def read_floor_area_virtual_stock(path_to_csv, f_mixed_floorarea=0.5):
                     floorarea_mixed[geo_name] = float(row[get_position(headings, 'mixeduse_bld_floor_area')])
 
                 # Distribute mixed floor area
+                #TODO TODO TODO
+                #non_res_only = 
+                
                 non_res_from_mixed = floorarea_mixed[geo_name] * p_mixed_no_resid
                 res_from_mixed = floorarea_mixed[geo_name] * f_mixed_floorarea
 
+                #TODO CHECK WHETER res_bld_floor_area	nonres_bld_floor_area	mixeduse_bld_floor_area
+
                 # Add
                 res_floorarea[geo_name] += res_from_mixed
-                non_res_floorarea[geo_name] += non_res_from_mixed
+                non_res_floorarea[geo_name] += non_res_from_mixed #+ non_res_only
 
     return res_floorarea, non_res_floorarea
 

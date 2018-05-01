@@ -153,6 +153,7 @@ if __name__ == "__main__":
         print("    python main.py ../energy_demand_data\n")
         print("... Defaulting to C:/DATA_NISMODII/data_energy_demand")
         local_data_path = os.path.abspath('C:/DATA_NISMODII/data_energy_demand')
+        local_data_path = os.path.abspath('C:/users/cenv0553/ed/data_energy_demand')
     else:
         local_data_path = sys.argv[1]
 
@@ -191,12 +192,6 @@ if __name__ == "__main__":
     # local scrap
     data['regions'] = data_loader.load_LAC_geocodes_info(
         os.path.join(local_data_path, '_raw_data', '_quick_and_dirty_spatial_disaggregation', 'infuse_dist_lyr_2011_saved.csv'))
-
-    #reg_new = {}
-    #for i in range(NR_OF_MODELLEd_REGIONS):
-    #    _entries = list(data['regions'].keys())
-    #    reg_new[_entries[i]] = data['regions'][_entries[i]]
-    #data['regions'] = reg_new
 
     # GVA
     gva_data = {}

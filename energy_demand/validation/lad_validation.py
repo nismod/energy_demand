@@ -190,8 +190,6 @@ def spatial_validation_lad_level(
     # ----------------------------------------------
     # TODO Correct REAL Values that sum is the same
     # ----------------------------------------------
-
-
     spatial_validation(
         reg_coord,
         fuel_elec_regs_yh,
@@ -199,7 +197,7 @@ def spatial_validation_lad_level(
         regions,
         'elec',
         os.path.join(result_paths['data_results_validation'], 'validation_spatial_elec.pdf'),
-        label_points=False,
+        label_points=True,
         plotshow=plot_crit)
 
     logging.info("Validation of gas")
@@ -210,7 +208,7 @@ def spatial_validation_lad_level(
         regions,
         'gas',
         os.path.join(result_paths['data_results_validation'], 'validation_spatial_gas.pdf'),
-        label_points=False,
+        label_points=True,
         plotshow=plot_crit)
 
     return
@@ -464,7 +462,6 @@ def spatial_validation(
         try:
             real = result_dict['real_demand'][reg_geocode]
             modelled = result_dict['modelled_demand'][reg_geocode]
-
             diff_real_modelled_p.append((100/real) * modelled)
             diff_real_modelled_abs.append(real - modelled)
         except KeyError:
@@ -578,7 +575,7 @@ def spatial_validation(
                 txt,
                 horizontalalignment="right",
                 verticalalignment="top",
-                fontsize=3)
+                fontsize=1)
 
     font_additional_info = plotting_styles.font_info()
 

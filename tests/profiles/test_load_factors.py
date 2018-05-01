@@ -62,15 +62,14 @@ def test_calc_lf_y():
     """Test
     """
     # fueltype, days, hours
-    fuel_yh = np.ones((8, 2, 24)) #Two day example
+    fuel_yh = np.ones((8, 365, 24)) #Two day example
     fuel_yh[2][1] = np.array((range(24)))
     for i in range(12):
         fuel_yh[2][0][i] = 5
     for i in range(12, 24):
         fuel_yh[2][1][i] = 10
-    average_per_day = np.average(fuel_yh, axis=2)
 
-    result = load_factors.calc_lf_y(fuel_yh, average_per_day)
+    result = load_factors.calc_lf_y(fuel_yh)
 
     expected = np.zeros((8))
     expected[0] = np.average(fuel_yh[0]) / np.max(fuel_yh[0]) * 100

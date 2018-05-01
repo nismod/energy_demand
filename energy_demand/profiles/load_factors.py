@@ -132,7 +132,6 @@ def calc_lf_y(fuel_yh):
         fuel_yh_8760 = fuel_yh.reshape(fuel_yh.shape[0], 8760)
     else:
         fuel_yh_8760 = fuel_yh
-        pass
 
     # Get total sum per fueltype
     tot_load_y = np.sum(fuel_yh_8760, axis=1)
