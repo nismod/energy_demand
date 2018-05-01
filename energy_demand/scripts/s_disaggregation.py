@@ -45,12 +45,13 @@ def disaggregate_base_demand(
     # -------------------------------------
     # Factors to choose for disaggregation
     # -------------------------------------
-    crit_limited_disagg_pop = True      # Only population
-    crit_limited_disagg_pop_hdd = False   # Only population and HDD
+    crit_limited_disagg_pop = False      # Only population
+    crit_limited_disagg_pop_hdd = True   # Only population and HDD
     crit_full_disagg = False              # Full disaggregation
-    census_disagg = True #
+    census_disagg = False #
 
     # Residential
+    # - using hdd is not better
     rs_fuel_disagg = rs_disaggregate(
         regions,
         fuels['rs_fuel_raw'],
@@ -81,11 +82,6 @@ def disaggregate_base_demand(
         crit_full_disagg)
 
     # Industry
-    if census_disagg:
-        crit_full_disagg = True
-    else:
-        crit_full_disagg = False
-
     is_fuel_disagg = is_disaggregate(
         assumptions,
         temp_data,
@@ -97,8 +93,7 @@ def disaggregate_base_demand(
         sectors['is_sectors'],
         scenario_data['employment_stats'],
         scenario_data,
-        crit_limited_disagg_pop=crit_limited_disagg_pop,
-        crit_full_disagg=crit_full_disagg)
+        census_disagg=census_disagg)
 
     return dict(rs_fuel_disagg), dict(ss_fuel_disagg), dict(is_fuel_disagg)
 
@@ -178,8 +173,8 @@ def ss_disaggregate(
         ss_hdd_individ_region=ss_hdd_individ_region,
         ss_cdd_individ_region=ss_cdd_individ_region,
         ss_national_fuel=ss_national_fuel,
-        crit_limited_disagg_pop=True, #Set to False
-        crit_limited_disagg_pop_hdd=False, # Set to True
+        crit_limited_disagg_pop=False, #Set to False
+        crit_limited_disagg_pop_hdd=True, # Set to True
         crit_full_disagg=False)
     ss_fuel_disagg.update(ss_fuel_disagg_only_pop)
 
@@ -262,8 +257,6 @@ def ss_disaggr(
     for region in all_regions:
         reg_hdd = ss_hdd_individ_region[region]
         reg_cdd = ss_cdd_individ_region[region]
-
-        # Population
         reg_pop = scenario_data['population'][base_yr][region]
         tot_pop += reg_pop
         tot_cdd += reg_cdd
@@ -293,13 +286,10 @@ def ss_disaggr(
         reg_cdd = ss_cdd_individ_region[region]
         reg_pop = scenario_data['population'][base_yr][region]
 
+        p_pop = reg_pop / tot_pop
+
         for enduse in enduses:
             for sector in sectors:
-
-                reg_floor_area = scenario_data['floor_area']['ss_floorarea'][base_yr][region][sector]
-
-                p_pop = reg_pop / tot_pop
-
                 if crit_limited_disagg_pop and not crit_limited_disagg_pop_hdd and not crit_full_disagg:
 
                     # ----
@@ -322,6 +312,8 @@ def ss_disaggr(
 
                 elif crit_full_disagg:
 
+                    reg_floor_area = scenario_data['floor_area']['ss_floorarea'][base_yr][region][sector]
+        
                     # ----
                     # logging.debug(" ... Disaggregation ss: populaton, HDD, floor_area")
                     # ----
@@ -349,8 +341,7 @@ def is_disaggregate(
         sectors,
         employment_statistics,
         scenario_data,
-        crit_limited_disagg_pop,
-        crit_full_disagg
+        census_disagg
     ):
     """Disaggregate industry related fuel for sector and enduses with
     employment statistics
@@ -396,14 +387,13 @@ def is_disaggregate(
     is_fuel_disagg = {}
 
     # # Calculate total population of all regions
-    tot_pop = sum(scenario_data['population'][assumptions.base_yr].values())
-    #tot_hdd = sum(is_hdd_individ_region.values())
-
+    tot_pop = 0
     tot_pop_hdd = 0
     for region in regions:
         tot_pop_hdd += scenario_data['population'][assumptions.base_yr][region] * is_hdd_individ_region[region]
+        tot_pop += scenario_data['population'][assumptions.base_yr][region]
 
-    if not crit_full_disagg:
+    if not census_disagg:
 
         # ---
         # Disaggregate only with population
@@ -435,7 +425,7 @@ def is_disaggregate(
         sectormatch_ecuk_with_census = {
 
             # Significant improvement
-            'mining': 'B',
+            'mining': 'B', #'B',
             'food_production': 'C10-12',
             'pharmaceuticals': 'M',
             'computer': 'C26-30',
@@ -458,30 +448,36 @@ def is_disaggregate(
             'motor_vehicles': 'G',              # Gas better, elec worse
 
             # Indifferent
-            'machinery': None,                  # 'C'
-            'tobacco': None,                    # 'C10-12'
-            'other_transport_equipment': None,  # 'H'
-            'other_manufacturing': None,        # 'C18,31,32'
-            'water_collection_treatment': None, # 'E'
-            'waste_collection': None,           # 'E'
-            'furniture': None,                  # C18,31,32'
+            #'machinery': None,                  # 'C'
+            #'tobacco': None,                    # 'C10-12'
+            #'other_transport_equipment': None,  # 'H'
+            #'other_manufacturing': None,        # 'C18,31,32'
+            #'water_collection_treatment': None, # 'E'
+            #'waste_collection': None,           # 'E'
+            #'furniture': None,                  # C18,31,32
+
+            'machinery': 'C',
+            'tobacco': 'C10-12',
+            'other_transport_equipment': 'H',
+            'other_manufacturing': 'C18,31,32',
+            'water_collection_treatment':'E',
+            'waste_collection': 'E',
+            'furniture': 'C18,31,32',
 
             # Worse
-            'beverages': None                   # 'C10-12'
+            'beverages': 'C10-12'
         }
 
         # ----------------------------------------
         # Summarise national employment per sector
         # ----------------------------------------
-        # Initialise dict
         tot_national_sector_employment = {}
-        for sectors_reg in employment_statistics.values():
-            for sector in sectors_reg:
-                tot_national_sector_employment[sector] = 0
-            continue
-        for reg in regions:
-            for employment_sector, employment in employment_statistics[reg].items():
-                tot_national_sector_employment[employment_sector] += employment
+        for region in regions:
+            for employment_sector, employment in employment_statistics[region].items():
+                try:
+                    tot_national_sector_employment[employment_sector] += employment
+                except KeyError:
+                    tot_national_sector_employment[employment_sector] = employment
 
         # --------------------------------------------------
         # Disaggregate per region with employment statistics
@@ -490,7 +486,6 @@ def is_disaggregate(
             is_fuel_disagg[region] = {}
 
             reg_pop = scenario_data['population'][assumptions.base_yr][region]
-            reg_disag_factor = reg_pop / tot_pop
 
             # Iterate sector
             for enduse in enduses:
@@ -510,8 +505,10 @@ def is_disaggregate(
 
                         # Disaggregate with population
                         if not matched_sector:
+                            reg_disag_factor = reg_pop / tot_pop
                             is_fuel_disagg[region][enduse][sector] = is_national_fuel[enduse][sector] * reg_disag_factor
                         else:
+
                             national_sector_employment = tot_national_sector_employment[matched_sector]
                             reg_sector_employment = employment_statistics[region][matched_sector]
 
@@ -568,6 +565,7 @@ def rs_disaggregate(
     logging.debug("... disagreggate residential demand")
     rs_fuel_disagg = {}
 
+    #TODO: CHECK IF BETTER IF FLOOR SPACE HEATING OR LIGHTING ONLY
     # ---------------------------------------
     # Calculate heating degree days for regions
     # ---------------------------------------
@@ -607,8 +605,8 @@ def rs_disaggregate(
         rs_hdd_individ_region=rs_hdd_individ_region,
         scenario_data=scenario_data,
         rs_national_fuel=rs_national_fuel,
-        crit_limited_disagg_pop=True, #True, #False,
-        crit_limited_disagg_pop_hdd=False, #True, #Set to true
+        crit_limited_disagg_pop=False, #True, #False,
+        crit_limited_disagg_pop_hdd=True, #True, #Set to true
         crit_full_disagg=False)
     rs_fuel_disagg.update(rs_fuel_disagg_only_pop)
 
@@ -711,7 +709,7 @@ def rs_disaggr(
                 # -------------------
                 #logging.debug(" ... Disaggregation rss: populaton, hdd")
                 # -------------------
-                if enduse == 're_space_heating':
+                if enduse == 'rs_space_heating':
                     reg_diasg_factor = reg_pop_hdd / total_pop_hdd
                 else:
                     reg_diasg_factor = p_pop

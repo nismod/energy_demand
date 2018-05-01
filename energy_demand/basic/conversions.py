@@ -125,7 +125,7 @@ def ktoe_to_twh(ktoe):
 
     return data_twh
 
-def convert_fueltypes_ktoe_GWh(fuel_dict):
+def convert_fueltypes_ktoe_gwh(fuel_dict):
     """Iterature ktoe in fueltypes and convert to GWh
 
     Arguments
@@ -143,7 +143,8 @@ def convert_fueltypes_ktoe_GWh(fuel_dict):
     for enduse, fuels in fuel_dict.items():
 
         # apply converting function along row
-        fuel_converted[enduse] = np.apply_along_axis(func1d=ktoe_to_gwh, axis=0, arr=fuels)
+        fuel_converted[enduse] = np.apply_along_axis(
+            func1d=ktoe_to_gwh, axis=0, arr=fuels)
 
     return fuel_converted
 

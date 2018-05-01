@@ -59,7 +59,7 @@ def test_convert_fueltypes_ktoe_GWh():
     expected['enduse'][1] = 20 * 11.6300000
 
     # call function
-    out_value = conversions.convert_fueltypes_ktoe_GWh(in_value)
+    out_value = conversions.convert_fueltypes_ktoe_gwh(in_value)
 
     np.testing.assert_array_almost_equal(out_value['enduse'][0], expected['enduse'][0])
     np.testing.assert_array_almost_equal(out_value['enduse'][1], expected['enduse'][1])

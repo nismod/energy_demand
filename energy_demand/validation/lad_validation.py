@@ -134,12 +134,18 @@ def spatial_validation_lad_level(
     fuel_gas_regs_yh = {}
     fuel_gas_residential_regs_yh = {}
     fuel_gas_non_residential_regs_yh = {}
+    fuel_elec_residential_regs_yh = {}
+    fuel_elec_non_residential_regs_yh = {}
 
     # -------------------------------------------
     # Spatial validation
     # -------------------------------------------
     subnational_elec = data_loader.read_national_real_elec_data(
         paths['path_val_subnational_elec'])
+    subnational_elec_residential = data_loader.read_national_real_elec_data(
+        paths['path_val_subnational_elec_residential'])
+    subnational_elec_non_residential = data_loader.read_national_real_elec_data(
+        paths['path_val_subnational_elec_non_residential'])
     subnational_gas = data_loader.read_national_real_gas_data(
         paths['path_val_subnational_gas'])
     subnational_gas_residential = data_loader.read_national_real_gas_data(
@@ -154,6 +160,12 @@ def spatial_validation_lad_level(
         gwh_modelled_elec = disaggregated_fuel['tot_disaggregated_regs'][region][lookups['fueltypes']['electricity']]
         fuel_elec_regs_yh[region] = gwh_modelled_elec
 
+        gwh_modelled_elec_residential = disaggregated_fuel['tot_disaggregated_regs_residenital'][region][lookups['fueltypes']['electricity']]
+        fuel_elec_residential_regs_yh[region] = gwh_modelled_elec_residential
+
+        gwh_modelled_elec_non_residential = disaggregated_fuel['tot_disaggregated_regs_non_residential'][region][lookups['fueltypes']['electricity']]
+        fuel_elec_non_residential_regs_yh[region] = gwh_modelled_elec_non_residential
+        
         gwh_modelled_gas = disaggregated_fuel['tot_disaggregated_regs'][region][lookups['fueltypes']['gas']]
         fuel_gas_regs_yh[region] = gwh_modelled_gas
 
@@ -166,11 +178,18 @@ def spatial_validation_lad_level(
     # Remap demands between 2011 and 2015 LADs
     # ----------------------------------------
     subnational_elec = map_LAD_2011_2015(subnational_elec)
+    subnational_elec_residential = map_LAD_2011_2015(subnational_elec_residential)
+    subnational_elec_non_residential = map_LAD_2011_2015(subnational_elec_non_residential)
+
     subnational_gas = map_LAD_2011_2015(subnational_gas)
     subnational_gas_residential = map_LAD_2011_2015(subnational_gas_residential)
     subnational_gas_non_residential = map_LAD_2011_2015(subnational_gas_non_residential)
 
+
     fuel_elec_regs_yh = map_LAD_2011_2015(fuel_elec_regs_yh)
+    fuel_elec_residential_regs_yh = map_LAD_2011_2015(fuel_elec_residential_regs_yh)
+    fuel_elec_non_residential_regs_yh = map_LAD_2011_2015(fuel_elec_non_residential_regs_yh)
+
     fuel_gas_regs_yh = map_LAD_2011_2015(fuel_gas_regs_yh)
     fuel_gas_residential_regs_yh = map_LAD_2011_2015(fuel_gas_residential_regs_yh)
     fuel_gas_non_residential_regs_yh = map_LAD_2011_2015(fuel_gas_non_residential_regs_yh)
@@ -210,6 +229,33 @@ def spatial_validation_lad_level(
     # ----------------------------------------------
     # TODO Correct REAL Values that sum is the same
     # ----------------------------------------------
+    data_inputlist = [
+        (fuel_elec_residential_regs_yh, subnational_elec_residential),          # domestic
+        (fuel_elec_non_residential_regs_yh, subnational_elec_non_residential)]  # nondomestics
+      
+    spatial_validation_multiple(
+        reg_coord=reg_coord,
+        input_data=data_inputlist,
+        regions=regions,
+        fueltype_str='elec',
+        fig_name=os.path.join(result_paths['data_results_validation'], 'validation_multiple_elec.pdf'),
+        label_points=False,
+        plotshow=plot_crit)
+
+    data_inputlist = [
+        (fuel_gas_residential_regs_yh, subnational_gas_residential),          # domestic
+        (fuel_gas_non_residential_regs_yh, subnational_gas_non_residential)]  # nondomestics
+
+    spatial_validation_multiple(
+        reg_coord=reg_coord,
+        input_data=data_inputlist,
+        regions=regions,
+        fueltype_str='gas',
+        fig_name=os.path.join(result_paths['data_results_validation'], 'validation_multiple_gas.pdf'),
+        label_points=False,
+        plotshow=plot_crit)
+
+    logging.info("... ================= Validation of electricity")
     spatial_validation(
         reg_coord,
         fuel_elec_regs_yh,
@@ -217,6 +263,28 @@ def spatial_validation_lad_level(
         regions,
         'elec',
         os.path.join(result_paths['data_results_validation'], 'validation_spatial_elec.pdf'),
+        label_points=True,
+        plotshow=plot_crit)
+
+    logging.info("... ================= Validation of residential electricity")
+    spatial_validation(
+        reg_coord,
+        fuel_elec_residential_regs_yh,
+        subnational_elec_residential,
+        regions,
+        'elec',
+        os.path.join(result_paths['data_results_validation'], 'validation_spatial_residential_elec.pdf'),
+        label_points=True,
+        plotshow=plot_crit)
+
+    logging.info("... ================= Validation of non-residential electricity")
+    spatial_validation(
+        reg_coord,
+        fuel_elec_non_residential_regs_yh,
+        subnational_elec_non_residential,
+        regions,
+        'elec',
+        os.path.join(result_paths['data_results_validation'], 'validation_spatial_non_residential_elec.pdf'),
         label_points=True,
         plotshow=plot_crit)
 
@@ -398,7 +466,7 @@ def temporal_validation_lad(
 
     # Peak across all fueltypes WARNING: Fueltype specific
     peak_day_all_fueltypes = enduse_func.get_peak_day_all_fueltypes(ed_fueltype_national_yh)
-    
+
     fueltype = fueltypes['electricity']
     peak_day_electricity, _ = enduse_func.get_peak_day_single_fueltype(ed_fueltype_national_yh[fueltype])
 
@@ -473,7 +541,7 @@ def spatial_validation(
     result_dict = {}
     result_dict['real_demand'] = {}
     result_dict['modelled_demand'] = {}
-    logging.info("TOTAL {} ".format(sum(subnational_real.values())))
+
     # -------------------------------------------
     # Match ECUK sub-regional demand with geocode
     # -------------------------------------------
@@ -636,6 +704,237 @@ def spatial_validation(
 
     plt.xlabel("UK regions (excluding northern ireland)")
     plt.ylabel("{} [GWh]".format(fueltype_str))
+
+    # --------
+    # Legend
+    # --------
+    plt.legend(
+        prop={
+            'family': 'arial',
+            'size': 8},
+        frameon=False)
+
+    # Tight layout
+    plt.margins(x=0)
+    plt.tight_layout()
+    plt.savefig(fig_name)
+
+    if plotshow:
+        plt.show()
+    else:
+        plt.close()
+
+def spatial_validation_multiple(
+        reg_coord,
+        input_data,
+        regions,
+        fueltype_str,
+        fig_name,
+        label_points=False,
+        plotshow=False
+    ):
+    """Compare gas/elec demand for LADs
+
+    Arguments
+    ----------
+    lad_infos_shapefile : dict
+        Infos of shapefile (dbf / csv)
+    ed_fueltype_regs_yh : object
+        Regional fuel Given as GWh (?)
+    subnational_real : dict
+        for electricity: Sub-national electrcity demand given as GWh
+
+    Note
+    -----
+    SOURCE OF LADS:
+        - Data for northern ireland is not included in that, however in BEIS dataset!
+    """
+    logging.debug("... Validation of spatial disaggregation")
+
+    color_list = ['red', 'green']
+    label_list = ['domestic', 'non_domestic']
+
+    # -------------------------------------
+    # Plot
+    # -------------------------------------
+    fig = plt.figure(
+        figsize=plotting_program.cm2inch(9, 8)) #width, height (9, 8)
+
+    ax = fig.add_subplot(1, 1, 1)
+
+    cnt_color = 0
+    for i in input_data:
+        subnational_modelled = i[0]
+        subnational_real = i[1]
+
+        result_dict = {}
+        result_dict['real_demand'] = {}
+        result_dict['modelled_demand'] = {}
+
+        # -------------------------------------------
+        # Match ECUK sub-regional demand with geocode
+        # -------------------------------------------
+        for region in regions:
+            for reg_geocode in reg_coord:
+                if reg_geocode == region:
+                    try:
+                        # Test wheter data is provided for LAD or owtherwise ignore
+                        if subnational_real[reg_geocode] == 0:
+                            pass
+                        else:
+                            # --Sub Regional Electricity demand (as GWh)
+                            result_dict['real_demand'][reg_geocode] = subnational_real[reg_geocode]
+                            result_dict['modelled_demand'][reg_geocode] = subnational_modelled[reg_geocode]
+
+                    except KeyError:
+                        logging.warning(
+                            "Sub-national spatial validation: No fuel for region %s", reg_geocode)
+
+        # --------------------
+        # Calculate statistics
+        # --------------------
+        diff_real_modelled_p = []
+        diff_real_modelled_abs = []
+
+        for reg_geocode in regions:
+            try:
+                real = result_dict['real_demand'][reg_geocode]
+                modelled = result_dict['modelled_demand'][reg_geocode]
+                diff_real_modelled_p.append((100 / real) * modelled)
+                diff_real_modelled_abs.append(real - modelled)
+            except KeyError:
+                pass
+
+        # Calculate the average deviation between reald and modelled
+        av_deviation_real_modelled = np.average(diff_real_modelled_p)
+
+        # Calculate standard deviation
+        std_dev_p = np.std(diff_real_modelled_p)        # Given as percent
+        std_dev_abs = np.std(diff_real_modelled_abs)    # Given as energy unit
+
+        # -----------------
+        # Sort results according to size
+        # -----------------
+        sorted_dict_real = sorted(
+            result_dict['real_demand'].items(),
+            key=operator.itemgetter(1))
+
+        x_values = np.arange(0, len(sorted_dict_real), 1)
+
+        y_real_demand = []
+        y_modelled_demand = []
+
+        labels = []
+        for sorted_region in sorted_dict_real:
+
+            geocode_lad = sorted_region[0]
+
+            y_real_demand.append(
+                result_dict['real_demand'][geocode_lad])
+            y_modelled_demand.append(
+                result_dict['modelled_demand'][geocode_lad])
+
+            logging.info(
+                "validation %s LAD %s: real: %s modelled: %s  modelled percentage: %s (%sp diff)",
+                fueltype_str,
+                geocode_lad,
+                round(result_dict['real_demand'][geocode_lad], 4),
+                round(result_dict['modelled_demand'][geocode_lad], 4),
+                round(100 / result_dict['real_demand'][geocode_lad] * result_dict['modelled_demand'][geocode_lad], 4),
+                round(100 - (100 / result_dict['real_demand'][geocode_lad] * result_dict['modelled_demand'][geocode_lad]), 4))
+
+            # Labels
+            labels.append(geocode_lad)
+
+        # Calculate r_squared
+        _slope, _intercept, r_value, _p_value, _std_err = stats.linregress(
+            y_real_demand,
+            y_modelled_demand)
+
+        # --------
+        # Axis
+        # --------
+        plt.tick_params(
+            axis='x',          # changes apply to the x-axis
+            which='both',      # both major and minor ticks are affected
+            bottom='off',      # ticks along the bottom edge are off
+            top='off',         # ticks along the top edge are off
+            labelbottom='off') # labels along the bottom edge are off
+
+        # ----------------------------------------------
+        # Plot
+        # ----------------------------------------------
+        plt.plot(
+            x_values,
+            y_real_demand,
+            linestyle='None',
+            marker='o',
+            alpha=0.6,
+            markersize=1.6,
+            fillstyle='full',
+            markerfacecolor='grey',
+            markeredgewidth=0.2,
+            color=color_list[cnt_color], #'black',
+            markeredgecolor=color_list[cnt_color],
+            label='actual')
+
+        plt.plot(
+            x_values,
+            y_modelled_demand,
+            marker='o',
+            linestyle='None',
+            markersize=1.6,
+            alpha=0.6,
+            markerfacecolor='white',
+            fillstyle='none',
+            markeredgewidth=0.5,
+            markeredgecolor=color_list[cnt_color], #'blue',
+            color=color_list[cnt_color], #'black',
+            label='model' + label_list[cnt_color])
+
+        # -----------
+        # Labelling
+        # -----------
+        if label_points:
+            for pos, txt in enumerate(labels):
+
+                ax.text(
+                    x_values[pos],
+                    y_modelled_demand[pos],
+                    txt,
+                    horizontalalignment="right",
+                    verticalalignment="top",
+                    fontsize=1)
+
+        font_additional_info = plotting_styles.font_info()
+
+        font_additional_info['size'] = 2
+        font_additional_info['color'] = color_list[cnt_color]
+
+        title_info = ('R_2: {}, std_%: {} (GWh {}), av_diff_%: {}'.format(
+            round(r_value, 2),
+            round(std_dev_p, 2),
+            round(std_dev_abs, 2),
+            round(av_deviation_real_modelled, 2)))
+
+        #plt.title(
+        ##    title_info,
+        #    loc='left',
+        #    fontdict=font_additional_info)
+        plt.text(0.3, 0.9 - cnt_color/10, title_info, ha='center', va='center', transform=ax.transAxes, fontdict=font_additional_info)
+
+        #plt.text(10, 0.5 + cnt_color, title_info, fontdict=font_additional_info)
+
+        cnt_color =+ 1
+
+    plt.xlabel("UK regions (excluding northern ireland)")
+    plt.ylabel("{} [GWh]".format(fueltype_str))
+
+    #text(10, 10, s, fontsize=12)
+
+
+    # Limit
+    plt.ylim(ymin=0)
 
     # --------
     # Legend

@@ -382,6 +382,10 @@ def load_paths(path):
         # Validation datasets
         'path_val_subnational_elec': os.path.join(
             path, '01-validation_datasets', '02_subnational_elec', 'data_2015_elec.csv'),
+        'path_val_subnational_elec_residential': os.path.join(
+            path, '01-validation_datasets', '02_subnational_elec', 'data_2015_elec_domestic.csv'),
+        'path_val_subnational_elec_non_residential': os.path.join(
+            path, '01-validation_datasets', '02_subnational_elec', 'data_2015_elec_non_domestic.csv'),
         'path_val_subnational_gas': os.path.join(
             path, '01-validation_datasets', '03_subnational_gas', 'data_2015_gas.csv'),
         'path_val_subnational_gas_residential': os.path.join(
@@ -694,7 +698,7 @@ def load_fuels(paths, lookups):
         enduses['all_enduses'] += enduse
 
     # Convert units
-    fuels['rs_fuel_raw'] = conversions.convert_fueltypes_ktoe_GWh(
+    fuels['rs_fuel_raw'] = conversions.convert_fueltypes_ktoe_gwh(
         rs_fuel_raw_data_enduses)
     fuels['ss_fuel_raw'] = conversions.convert_fueltypes_sectors_ktoe_gwh(
         ss_fuel_raw)
