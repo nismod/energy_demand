@@ -97,10 +97,19 @@ def scenario_initalisation(path_data_ed, data=False):
     fuel_disagg['tot_disaggregated_regs'] = sum_across_all_submodels_regs(
         data['lookups']['fueltypes_nr'],
         data['regions'],
-        fuel_disagg['rs_fuel_disagg'],
+        [fuel_disagg['rs_fuel_disagg'],
         fuel_disagg['ss_fuel_disagg'],
-        fuel_disagg['is_fuel_disagg'])
+        fuel_disagg['is_fuel_disagg']])
 
+    fuel_disagg['tot_disaggregated_regs_residenital'] = sum_across_all_submodels_regs(
+        data['lookups']['fueltypes_nr'],
+        data['regions'],
+        [fuel_disagg['rs_fuel_disagg']])
+
+    fuel_disagg['tot_disaggregated_regs_non_residential'] = sum_across_all_submodels_regs(
+        data['lookups']['fueltypes_nr'],
+        data['regions'],
+        [fuel_disagg['ss_fuel_disagg'], fuel_disagg['is_fuel_disagg']])
     # ---------------------------------------
     # Convert base year fuel input assumptions to energy service
     # ---------------------------------------
@@ -516,9 +525,7 @@ def global_to_reg_capacity_switch(
 def sum_across_all_submodels_regs(
         fueltypes_nr,
         regions,
-        rs_fuel_disagg,
-        ss_fuel_disagg,
-        is_fuel_disagg
+        submodels
     ):
     """Calculate total sum of fuel per region
     """
@@ -528,19 +535,16 @@ def sum_across_all_submodels_regs(
 
         tot_reg = np.zeros((fueltypes_nr))
 
-        # Residential
-        for fuel_enduse in rs_fuel_disagg[region].values():
-            tot_reg += fuel_enduse
+        for submodel_fuel_disagg in submodels:
 
-        # Service
-        for fuel_sector_enduse in ss_fuel_disagg[region].values():
-            for sector_fuel in fuel_sector_enduse.values():
-                tot_reg += sector_fuel
-
-        # Industry
-        for fuel_sector_enduse in is_fuel_disagg[region].values():
-            for sector_fuel in fuel_sector_enduse.values():
-                tot_reg += sector_fuel
+            for fuel_sector_enduse in submodel_fuel_disagg[region].values():
+                
+                # Test if fuel for sector
+                if isinstance(fuel_sector_enduse, dict):
+                    for sector_fuel in fuel_sector_enduse.values():
+                        tot_reg += sector_fuel
+                else:
+                    tot_reg += fuel_sector_enduse
 
         fuel_aggregated_regs[region] = tot_reg
 

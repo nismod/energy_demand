@@ -677,12 +677,8 @@ def rs_disaggr(
         total_hdd_floorarea += reg_hdd * reg_floor_area
         total_floor_area += reg_floor_area
         total_pop += reg_pop
-        total_pop_hdd += reg_pop* reg_hdd
+        total_pop_hdd += reg_pop * reg_hdd
         total_hdd += reg_hdd
-
-    # Short
-    #total_hdd = sum(rs_hdd_individ_region.values())
-    #total_pop = sum(scenario_data['population'][base_yr].values())
 
     # ---------------------------------------
     # Disaggregate according to enduse
@@ -698,7 +694,7 @@ def rs_disaggr(
         p_pop = reg_pop / total_pop
         p_floor_area = reg_floor_area / total_floor_area
 
-        logging.info("Region {}  pop: {}   {} {}".format(region, reg_pop, p_pop, reg_hdd))
+        logging.info("Region {}  pop: {}   {} {} tot_pop: {}".format(region, reg_pop, p_pop, reg_hdd, total_pop))
 
         # Disaggregate fuel depending on end_use
         for enduse in rs_national_fuel:
@@ -707,6 +703,7 @@ def rs_disaggr(
                 # ----------------------------------
                 #logging.debug(" ... Disaggregation rss: populaton")
                 # ----------------------------------
+                logging.info("Disaggregate only with pop {}   {} {} ".format(p_pop, reg_pop, total_pop))
                 reg_diasg_factor = p_pop
 
             elif crit_limited_disagg_pop_hdd and not crit_full_disagg:

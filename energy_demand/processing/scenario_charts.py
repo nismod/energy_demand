@@ -165,7 +165,7 @@ def process_scenarios(path_to_scenarios, year_to_model=2015):
         year_to_plot=2050,
         fig_name=os.path.join(path_result_folder),
         plotshow=False)
-    #prnt(".")
+
     # ----------------------
     # Plot peak hour of all fueltypes for different scenario
     # ----------------------

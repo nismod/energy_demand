@@ -120,7 +120,6 @@ def temporal_validation(
     return
 
 def spatial_validation_lad_level(
-        assumtions,
         disaggregated_fuel,
         lookups,
         result_paths,
@@ -133,6 +132,8 @@ def spatial_validation_lad_level(
     """
     fuel_elec_regs_yh = {}
     fuel_gas_regs_yh = {}
+    fuel_gas_residential_regs_yh = {}
+    fuel_gas_non_residential_regs_yh = {}
 
     # -------------------------------------------
     # Spatial validation
@@ -141,27 +142,44 @@ def spatial_validation_lad_level(
         paths['path_val_subnational_elec'])
     subnational_gas = data_loader.read_national_real_gas_data(
         paths['path_val_subnational_gas'])
+    subnational_gas_residential = data_loader.read_national_real_gas_data(
+        paths['path_val_subnational_gas_residential'])
+    subnational_gas_non_residential = data_loader.read_national_real_gas_data(
+        paths['path_val_subnational_gas_non_residential'])
+    logging.info("compare total II {}  {}".format(
+        sum(subnational_gas.values()), sum(subnational_gas_residential.values())))
 
     # Create fueltype secific dict
     for region in regions:
-        gwh_modelled = disaggregated_fuel['tot_disaggregated_regs'][region][lookups['fueltypes']['electricity']]
-        fuel_elec_regs_yh[region] = gwh_modelled
+        gwh_modelled_elec = disaggregated_fuel['tot_disaggregated_regs'][region][lookups['fueltypes']['electricity']]
+        fuel_elec_regs_yh[region] = gwh_modelled_elec
 
-    # Create fueltype secific dict
-    for region in regions:
-        gwh_modelled = disaggregated_fuel['tot_disaggregated_regs'][region][lookups['fueltypes']['gas']]
-        fuel_gas_regs_yh[region] = gwh_modelled
+        gwh_modelled_gas = disaggregated_fuel['tot_disaggregated_regs'][region][lookups['fueltypes']['gas']]
+        fuel_gas_regs_yh[region] = gwh_modelled_gas
 
+        gwh_modelled_gas_residential = disaggregated_fuel['tot_disaggregated_regs_residenital'][region][lookups['fueltypes']['gas']]
+        fuel_gas_residential_regs_yh[region] = gwh_modelled_gas_residential
+        
+        gwh_modelled_gas_non_residential = disaggregated_fuel['tot_disaggregated_regs_non_residential'][region][lookups['fueltypes']['gas']]
+        fuel_gas_non_residential_regs_yh[region] = gwh_modelled_gas_non_residential
     # ----------------------------------------
     # Remap demands between 2011 and 2015 LADs
     # ----------------------------------------
     subnational_elec = map_LAD_2011_2015(subnational_elec)
     subnational_gas = map_LAD_2011_2015(subnational_gas)
+    subnational_gas_residential = map_LAD_2011_2015(subnational_gas_residential)
+    subnational_gas_non_residential = map_LAD_2011_2015(subnational_gas_non_residential)
+
     fuel_elec_regs_yh = map_LAD_2011_2015(fuel_elec_regs_yh)
     fuel_gas_regs_yh = map_LAD_2011_2015(fuel_gas_regs_yh)
+    fuel_gas_residential_regs_yh = map_LAD_2011_2015(fuel_gas_residential_regs_yh)
+    fuel_gas_non_residential_regs_yh = map_LAD_2011_2015(fuel_gas_non_residential_regs_yh)
+
+    logging.info("compare total {}  {}".format(
+        sum(fuel_gas_residential_regs_yh.values()), sum(fuel_gas_regs_yh.values())))
 
     # Compare total sums
-    tot_sum_modelled_elec = sum(fuel_elec_regs_yh.values())
+    '''tot_sum_modelled_elec = sum(fuel_elec_regs_yh.values())
     tot_sum_real_elec = sum(subnational_elec.values())
     
     logging.info("Spatial electricity validation: modelled: {}  real: {}".format(tot_sum_modelled_elec, tot_sum_real_elec))
@@ -174,10 +192,12 @@ def spatial_validation_lad_level(
     correction_factor_elec = tot_sum_modelled_elec / tot_sum_real_elec
     correction_factor_gas = tot_sum_modelled_gas/ tot_sum_real_gas
     logging.info("-------------CORRECIOTN FATOR {}  {}".format(correction_factor_elec, correction_factor_gas))
+    
     for reg in subnational_elec:
         subnational_elec[reg] *= correction_factor_elec
     for reg in subnational_gas:
         subnational_gas[reg] *= correction_factor_gas
+
     tot_sum_real_elec = sum(subnational_elec.values())
     tot_sum_real_gas = sum(subnational_gas.values())
     logging.info("Spatial electricity validation: modelled: {}  real: {}".format(tot_sum_modelled_elec, tot_sum_real_elec))
@@ -185,8 +205,8 @@ def spatial_validation_lad_level(
     tot_sum_modelled_gas = sum(fuel_gas_regs_yh.values())
     tot_sum_real_gas = sum(subnational_gas.values())
     logging.info("Spatial validation: modelled: {}  real: {}".format(tot_sum_modelled_gas, tot_sum_real_gas))
-    logging.info("comparison real: {}  modelled: {}".format(100, (100 / tot_sum_real_gas) * tot_sum_modelled_gas))
-    #prnt(".")
+    logging.info("comparison real: {}  modelled: {}".format(100, (100 / tot_sum_real_gas) * tot_sum_modelled_gas))'''
+
     # ----------------------------------------------
     # TODO Correct REAL Values that sum is the same
     # ----------------------------------------------
@@ -200,7 +220,7 @@ def spatial_validation_lad_level(
         label_points=True,
         plotshow=plot_crit)
 
-    logging.info("Validation of gas")
+    logging.info("... ================= Validation of gas")
     spatial_validation(
         reg_coord,
         fuel_gas_regs_yh,
@@ -211,6 +231,28 @@ def spatial_validation_lad_level(
         label_points=True,
         plotshow=plot_crit)
 
+    logging.info("... ================= Validaiton of residential gas")
+    spatial_validation(
+        reg_coord,
+        fuel_gas_residential_regs_yh,
+        subnational_gas_residential,
+        regions,
+        'gas',
+        os.path.join(result_paths['data_results_validation'], 'validation_spatial_residential_gas.pdf'),
+        label_points=True,
+        plotshow=plot_crit)
+    
+    logging.info("... ================= Validaiton of non residential gas")
+    spatial_validation(
+        reg_coord,
+        fuel_gas_non_residential_regs_yh,
+        subnational_gas_non_residential,
+        regions,
+        'gas',
+        os.path.join(result_paths['data_results_validation'], 'validation_spatial_non_residential_gas.pdf'),
+        label_points=True,
+        plotshow=plot_crit)
+    prn(".")
     return
 
 def temporal_validation_lad(
@@ -431,14 +473,13 @@ def spatial_validation(
     result_dict = {}
     result_dict['real_demand'] = {}
     result_dict['modelled_demand'] = {}
-
+    logging.info("TOTAL {} ".format(sum(subnational_real.values())))
     # -------------------------------------------
     # Match ECUK sub-regional demand with geocode
     # -------------------------------------------
     for region in regions:
         for reg_geocode in reg_coord:
             if reg_geocode == region:
-
                 try:
                     # Test wheter data is provided for LAD or owtherwise ignore
                     if subnational_real[reg_geocode] == 0:
@@ -462,7 +503,7 @@ def spatial_validation(
         try:
             real = result_dict['real_demand'][reg_geocode]
             modelled = result_dict['modelled_demand'][reg_geocode]
-            diff_real_modelled_p.append((100/real) * modelled)
+            diff_real_modelled_p.append((100 / real) * modelled)
             diff_real_modelled_abs.append(real - modelled)
         except KeyError:
             pass
@@ -505,12 +546,13 @@ def spatial_validation(
             result_dict['modelled_demand'][geocode_lad])
 
         logging.info(
-            "validation %s LAD %s: %s %s (%s p diff)",
+            "validation %s LAD %s: real: %s modelled: %s  modelled percentage: %s (%sp diff)",
             fueltype_str,
             geocode_lad,
             round(result_dict['real_demand'][geocode_lad], 4),
             round(result_dict['modelled_demand'][geocode_lad], 4),
-            round(100 - (100 / result_dict['real_demand'][geocode_lad]) * result_dict['modelled_demand'][geocode_lad], 4))
+            round(100 / result_dict['real_demand'][geocode_lad] * result_dict['modelled_demand'][geocode_lad], 4),
+            round(100 - (100 / result_dict['real_demand'][geocode_lad] * result_dict['modelled_demand'][geocode_lad]), 4))
 
         # Labels
         labels.append(geocode_lad)

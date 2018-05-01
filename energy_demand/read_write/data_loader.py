@@ -117,8 +117,8 @@ def read_national_real_gas_data(path_to_csv):
         headings = next(rows) # Skip first row
 
         for row in rows:
-            geocode = str.strip(row[2])                 # LA Code
-            tot_consumption_unclean = row[3].strip()    # Total consumption
+            geocode = str.strip(row[2])                 # 'LA Code'
+            tot_consumption_unclean = row[3].strip()    # 'Total consumption'
 
             if tot_consumption_unclean == '-':
                 total_consumption = 0 # No entry provided
@@ -384,6 +384,10 @@ def load_paths(path):
             path, '01-validation_datasets', '02_subnational_elec', 'data_2015_elec.csv'),
         'path_val_subnational_gas': os.path.join(
             path, '01-validation_datasets', '03_subnational_gas', 'data_2015_gas.csv'),
+        'path_val_subnational_gas_residential': os.path.join(
+            path, '01-validation_datasets', '03_subnational_gas', 'data_2015_gas_domestic.csv'),
+        'path_val_subnational_gas_non_residential': os.path.join(
+            path, '01-validation_datasets', '03_subnational_gas', 'data_2015_gas_non_domestic.csv'),
         'path_val_nat_elec_data': os.path.join(
             path, '01-validation_datasets', '01_national_elec_2015', 'elec_demand_2015.csv')}
 
