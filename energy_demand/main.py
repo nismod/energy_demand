@@ -257,15 +257,13 @@ if __name__ == "__main__":
 
     # ------------------------------
     if data['criterias']['virtual_building_stock_criteria']:
-        rs_floorarea, ss_floorarea = data_loader.floor_area_virtual_dw(
+        rs_floorarea, ss_floorarea, data['service_building_count'] = data_loader.floor_area_virtual_dw(
             data['regions'],
             data['sectors']['all_sectors'],
             data['local_paths'],
-            data['population'][2015],
             data['assumptions'].base_yr,
-            
             f_mixed_floorarea=data['assumptions'].f_mixed_floorarea)
-    prnt(".")
+
     # Lookup table to import industry sectoral gva
     lookup_tables.industrydemand_name_sic2007()
 

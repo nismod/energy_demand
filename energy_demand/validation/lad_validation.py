@@ -174,6 +174,7 @@ def spatial_validation_lad_level(
         
         gwh_modelled_gas_non_residential = disaggregated_fuel['tot_disaggregated_regs_non_residential'][region][lookups['fueltypes']['gas']]
         fuel_gas_non_residential_regs_yh[region] = gwh_modelled_gas_non_residential
+
     # ----------------------------------------
     # Remap demands between 2011 and 2015 LADs
     # ----------------------------------------
@@ -197,23 +198,38 @@ def spatial_validation_lad_level(
     logging.info("compare total {}  {}".format(
         sum(fuel_gas_residential_regs_yh.values()), sum(fuel_gas_regs_yh.values())))
 
-    # Compare total sums
-    '''tot_sum_modelled_elec = sum(fuel_elec_regs_yh.values())
-    tot_sum_real_elec = sum(subnational_elec.values())
-    
-    logging.info("Spatial electricity validation: modelled: {}  real: {}".format(tot_sum_modelled_elec, tot_sum_real_elec))
-    logging.info("comparison real: {}  modelled: {}".format(100, (100 / tot_sum_real_elec) * tot_sum_modelled_elec))
-    tot_sum_modelled_gas = sum(fuel_gas_regs_yh.values())
-    tot_sum_real_gas = sum(subnational_gas.values())
-    logging.info("Spatial validation: modelled: {}  real: {}".format(tot_sum_modelled_gas, tot_sum_real_gas))
-    logging.info("comparison real: {}  modelled: {}".format(100, (100 / tot_sum_real_gas) * tot_sum_modelled_gas))
+    # ---------------------
+    # Compare total sums and apply correction factor
+    # ---------------------
+    '''
+    # Total sum modelled
+    tot_sum_modelled_elec = sum(fuel_elec_regs_yh.values())
+    tot_sum_modelled_resid_elec = sum(fuel_elec_residential_regs_yh.values())
 
+    tot_sum_modelled_gas = sum(fuel_gas_regs_yh.values())
+
+    # Total sum real
+    tot_sum_real_elec = sum(subnational_elec.values())
+    tot_sum_real_resid_elec = sum(subnational_elec_residential.values())
+
+    #logging.info("Spatial electricity validation: modelled: {}  real: {}".format(tot_sum_modelled_elec, tot_sum_real_elec))
+    #logging.info("comparison real: {}  modelled: {}".format(100, (100 / tot_sum_real_elec) * tot_sum_modelled_elec))
+    tot_sum_real_gas = sum(subnational_gas.values())
+    #logging.info("Spatial validation: modelled: {}  real: {}".format(tot_sum_modelled_gas, tot_sum_real_gas))
+    #logging.info("comparison real: {}  modelled: {}".format(100, (100 / tot_sum_real_gas) * tot_sum_modelled_gas))
+
+    # Calculate correction factor
     correction_factor_elec = tot_sum_modelled_elec / tot_sum_real_elec
+    correction_factor_resid_elec = tot_sum_modelled_resid_elec / tot_sum_real_resid_elec
     correction_factor_gas = tot_sum_modelled_gas/ tot_sum_real_gas
     logging.info("-------------CORRECIOTN FATOR {}  {}".format(correction_factor_elec, correction_factor_gas))
     
     for reg in subnational_elec:
         subnational_elec[reg] *= correction_factor_elec
+
+    for reg in subnational_elec_residential:
+        subnational_elec_residential[reg] *= correction_factor_resid_elec
+
     for reg in subnational_gas:
         subnational_gas[reg] *= correction_factor_gas
 
@@ -224,8 +240,8 @@ def spatial_validation_lad_level(
     tot_sum_modelled_gas = sum(fuel_gas_regs_yh.values())
     tot_sum_real_gas = sum(subnational_gas.values())
     logging.info("Spatial validation: modelled: {}  real: {}".format(tot_sum_modelled_gas, tot_sum_real_gas))
-    logging.info("comparison real: {}  modelled: {}".format(100, (100 / tot_sum_real_gas) * tot_sum_modelled_gas))'''
-
+    logging.info("comparison real: {}  modelled: {}".format(100, (100 / tot_sum_real_gas) * tot_sum_modelled_gas))
+    '''
     # ----------------------------------------------
     # TODO Correct REAL Values that sum is the same
     # ----------------------------------------------
@@ -908,7 +924,7 @@ def spatial_validation_multiple(
 
         font_additional_info = plotting_styles.font_info()
 
-        font_additional_info['size'] = 2
+        font_additional_info['size'] = 4
         font_additional_info['color'] = color_list[cnt_color]
 
         title_info = ('R_2: {}, std_%: {} (GWh {}), av_diff_%: {}'.format(
@@ -917,11 +933,10 @@ def spatial_validation_multiple(
             round(std_dev_abs, 2),
             round(av_deviation_real_modelled, 2)))
 
-        #plt.title(
-        ##    title_info,
-        #    loc='left',
-        #    fontdict=font_additional_info)
-        plt.text(0.3, 0.9 - cnt_color/10, title_info, ha='center', va='center', transform=ax.transAxes, fontdict=font_additional_info)
+
+        plt.text(
+            0.3,
+            0.9 - cnt_color/10, title_info, ha='center', va='center', transform=ax.transAxes, fontdict=font_additional_info)
 
         #plt.text(10, 0.5 + cnt_color, title_info, fontdict=font_additional_info)
 

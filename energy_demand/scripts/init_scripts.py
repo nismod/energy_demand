@@ -84,7 +84,8 @@ def scenario_initalisation(path_data_ed, data=False):
         data['temp_data'],
         data['sectors'],
         data['sectors']['all_sectors'],
-        data['enduses'])
+        data['enduses'],
+        data['service_building_count'])
 
     # Sum demand across all sectors for every region
     fuel_disagg['ss_fuel_disagg_sum_all_sectors'] = sum_across_sectors_all_regs(
@@ -110,6 +111,7 @@ def scenario_initalisation(path_data_ed, data=False):
         data['lookups']['fueltypes_nr'],
         data['regions'],
         [fuel_disagg['ss_fuel_disagg'], fuel_disagg['is_fuel_disagg']])
+
     # ---------------------------------------
     # Convert base year fuel input assumptions to energy service
     # ---------------------------------------

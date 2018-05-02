@@ -129,7 +129,13 @@ def read_national_real_gas_data(path_to_csv):
 
     return national_fuel_data
 
-def floor_area_virtual_dw(regions, all_sectors, local_paths, population_by, base_yr, f_mixed_floorarea):
+def floor_area_virtual_dw(
+        regions,
+        all_sectors,
+        local_paths,
+        base_yr,
+        f_mixed_floorarea
+    ):
     """Load necessary data for virtual building stock
     in case the link to the building stock model in
     Newcastle is not used
@@ -157,7 +163,7 @@ def floor_area_virtual_dw(regions, all_sectors, local_paths, population_by, base
     # --------------------------------------------------
     # Floor area for residential buildings for base year
     # --------------------------------------------------
-    resid_footprint, non_res_flootprint = read_data.read_floor_area_virtual_stock(
+    resid_footprint, non_res_flootprint, service_building_count = read_data.read_floor_area_virtual_stock(
         local_paths['path_floor_area_virtual_stock_by'],
         f_mixed_floorarea=f_mixed_floorarea)
 
@@ -166,8 +172,6 @@ def floor_area_virtual_dw(regions, all_sectors, local_paths, population_by, base
     # of existing datasets. This is done to replace the missing
     # floor area data of LADs with estimated floor areas
     # -----------------
-    #average_pop = calc_average_pop(population_by,
-
     rs_floorarea = defaultdict(dict)
     for region in regions:
         try:
@@ -193,7 +197,7 @@ def floor_area_virtual_dw(regions, all_sectors, local_paths, population_by, base
                 logging.warning("No virtual service floor area for region %s", region)
                 ss_floorarea_sector_by[base_yr][region][sector] = 1234567899999999
 
-    return dict(rs_floorarea), dict(ss_floorarea_sector_by)
+    return dict(rs_floorarea), dict(ss_floorarea_sector_by), service_building_count
 
 def load_local_paths(path):
     """Create all local paths
