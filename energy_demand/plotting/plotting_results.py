@@ -2027,6 +2027,8 @@ def plot_radar_plot_multiple_lines(
 
     SOURCE: https://python-graph-gallery.com/390-basic-radar-chart/
     """
+    fig = plt.figure(
+        figsize=plotting_program.cm2inch(9, 12))
 
     # Get maximum demand of all lines
     max_entry = 0
@@ -2055,7 +2057,6 @@ def plot_radar_plot_multiple_lines(
     for i in range(nr_of_plot_steps * 2):
         minor_ticks.append(minor_tick_interval * i)
 
-        # ------------
     color_scenarios = plotting_styles.color_list_scenarios()
     color_lines = ['black'] + color_scenarios
     years = ['2015', '2050']
@@ -2153,8 +2154,6 @@ def plot_radar_plot_multiple_lines(
 
         # Plot data
         ax.plot(
-            #angles,
-            #values,
             angles_smoothed,
             values_smoothed, 
             color=color_line,
@@ -2172,12 +2171,13 @@ def plot_radar_plot_multiple_lines(
     font_additional_info = plotting_styles.font_info()
     font_additional_info['size'] = 5
 
-    plt.text(
-        0.5,
-        0.02,
-        list_diff_max_h,
-        fontdict=font_additional_info,
-        transform=plt.gcf().transFigure)
+    for cnt, entry in enumerate(list_diff_max_h):
+        plt.text(
+            0.25,
+            0 + cnt/50,
+            entry,
+            fontdict=font_additional_info,
+            transform=plt.gcf().transFigure)
 
     # ------------
     # Title

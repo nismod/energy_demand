@@ -99,6 +99,7 @@ def plot_heat_pump_chart_multiple(
     # Axis
     # -----------------
     first_scenario = list(result_dict.keys())[0]
+
     # Percentages on x axis
     major_ticks = list(result_dict[first_scenario].keys())
 
@@ -622,7 +623,7 @@ def plot_tot_fueltype_y_over_time(
     scenario for all regions
     """
     # Set figure size
-    fig = plt.figure(figsize=plotting_program.cm2inch(14, 8))
+    fig = plt.figure(figsize=plotting_program.cm2inch(9, 8))
 
     ax = fig.add_subplot(1, 1, 1)
 
@@ -650,7 +651,7 @@ def plot_tot_fueltype_y_over_time(
     # -----------------
     # Axis
     # -----------------
-    base_yr, year_interval = 2015, 5
+    base_yr, year_interval = 2020, 10
     first_scen = list(y_scenario.keys())[0]
     end_yr = list(y_scenario[first_scen].keys())
 
@@ -700,11 +701,12 @@ def plot_tot_fueltype_y_over_time(
     # ------------
     ax.legend(
         ncol=1,
-        loc='center left',
+        frameon=False,
+        loc='bottom left',
         prop={
             'family': 'arial',
             'size': 4},
-        bbox_to_anchor=(1, 0.5))
+        bbox_to_anchor=(1, 0.2))
 
     # ---------
     # Labels
@@ -855,8 +857,8 @@ def plot_radar_plots_average_peak_day(
         # ---------------------------
         # Calculate load factors
         # ---------------------------
-        peak_day_nr_by, _ = enduse_func.get_peak_day_single_fueltype(all_regs_fueltypes_yh_by[fueltype_int])
-        peak_day_nr_cy, _ = enduse_func.get_peak_day_single_fueltype(all_regs_fueltypes_yh_cy[fueltype_int])
+        peak_day_nr_by, by_max_h = enduse_func.get_peak_day_single_fueltype(all_regs_fueltypes_yh_by[fueltype_int])
+        peak_day_nr_cy, cy_max_h = enduse_func.get_peak_day_single_fueltype(all_regs_fueltypes_yh_cy[fueltype_int])
 
         scen_load_factor_fueltype_y_by = load_factors.calc_lf_y(all_regs_fueltypes_yh_by)
         load_factor_fueltype_y_by = round(scen_load_factor_fueltype_y_by[fueltype_int], fueltype_int)
@@ -867,24 +869,23 @@ def plot_radar_plots_average_peak_day(
         # ----------
         # Calculate change in peak
         # ----------
-        by_max_h = all_regs_fueltypes_yh_by[fueltype_int][peak_day_nr_by]
-        cy_max_h = all_regs_fueltypes_yh_cy[fueltype_int][peak_day_nr_by]
+        all_regs_fueltypes_yh_by = all_regs_fueltypes_yh_by.reshape(all_regs_fueltypes_yh_by.shape[0], 365, 24)
+        all_regs_fueltypes_yh_cy = all_regs_fueltypes_yh_cy.reshape(all_regs_fueltypes_yh_cy.shape[0], 365, 24)
 
         diff_max_h = round(((100 / by_max_h) * cy_max_h) - 100, 2)
-        label_max_h = "scen_{}_diff_{}".format(scenario, diff_max_h)
+        label_max_h = "scen: {} by: {} cy: {} d: {}".format(scenario, round(by_max_h, 2), round(cy_max_h, 2), round(diff_max_h, 2))
         list_diff_max_h.append(label_max_h)
+        print("Calculation of diff in peak: {} {} {} {}".format(scenario, round(diff_max_h, 2), round(by_max_h, 2), round(cy_max_h, 2)))
 
         # ----------------------------------
         # Plot dh for peak day for base year
         # ----------------------------------
         if scenario_cnt == 0:
-            all_regs_fueltypes_yh_by = all_regs_fueltypes_yh_by.reshape(all_regs_fueltypes_yh_by.shape[0], 365, 24)
             individ_radars_to_plot_dh.append(list(all_regs_fueltypes_yh_by[fueltype_int][peak_day_nr_by]))
         else:
             pass
 
         # Add current year
-        all_regs_fueltypes_yh_cy = all_regs_fueltypes_yh_cy.reshape(all_regs_fueltypes_yh_cy.shape[0], 365, 24)
         individ_radars_to_plot_dh.append(list(all_regs_fueltypes_yh_cy[fueltype_int][peak_day_nr_cy]))
 
     plotting_results.plot_radar_plot_multiple_lines(
@@ -893,7 +894,7 @@ def plot_radar_plots_average_peak_day(
         plot_steps=50,
         scenario_names=list(scenario_data.keys()),
         plotshow=False,
-        lf_y_by=[], #load_factor_fueltype_y_by,
+        lf_y_by=[],
         lf_y_cy=[],
         list_diff_max_h=list_diff_max_h) #load_factor_fueltype_y_cy)
 
