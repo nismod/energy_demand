@@ -409,7 +409,8 @@ def test_get_share_s_tech_ey():
 
     result = fuel_service_switch.get_share_s_tech_ey(
         service_switches=service_switches,
-        specified_tech_enduse_by=specified_tech_enduse_by)
+        specified_tech_enduse_by=specified_tech_enduse_by,
+        spatial_explicit_diffusion=False)
 
     # --
     service_switches = {'regA': [read_data.ServiceSwitch(

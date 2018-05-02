@@ -6,6 +6,7 @@ import copy
 from collections import defaultdict
 from energy_demand.profiles import hdd_cdd
 from energy_demand.basic import testing_functions
+from energy_demand.basic import lookup_tables
 
 def disaggregate_base_demand(
         regions,
@@ -17,7 +18,8 @@ def disaggregate_base_demand(
         temp_data,
         sectors,
         all_sectors,
-        enduses
+        enduses,
+        service_building_count
     ):
     """This function disaggregates fuel demand based on
     region specific parameters for the base year. The residential,
@@ -37,6 +39,8 @@ def disaggregate_base_demand(
     sectors
     all_sectors
     enduses
+    service_building_count : dict
+        Nr of buildings for service sector
 
     Returns
     -------
@@ -45,10 +49,11 @@ def disaggregate_base_demand(
     # -------------------------------------
     # Factors to choose for disaggregation
     # -------------------------------------
-    crit_limited_disagg_pop = False      # Only puplation
-    crit_limited_disagg_pop_hdd = False  # Only puplation and HDD
-    crit_full_disagg = True              # Full disaggregation
-
+    crit_limited_disagg_pop = False      # Only population
+    crit_limited_disagg_pop_hdd = True   # Only population and HDD
+    crit_full_disagg = False             # Use floor area as well
+    census_disagg = True                 # Disagregatte is_demand with census statistics
+ 
     # Residential
     rs_fuel_disagg = rs_disaggregate(
         regions,
@@ -66,6 +71,7 @@ def disaggregate_base_demand(
     # Service
     ss_fuel_disagg = ss_disaggregate(
         fuels['ss_fuel_raw'],
+        service_building_count,
         assumptions,
         scenario_data,
         regions,
@@ -81,20 +87,23 @@ def disaggregate_base_demand(
 
     # Industry
     is_fuel_disagg = is_disaggregate(
-        assumptions.base_yr,
+        assumptions,
+        temp_data,
+        reg_coord,
+        weather_stations,
         fuels['is_fuel_raw'],
         regions,
         enduses['is_enduses'],
         sectors['is_sectors'],
         scenario_data['employment_stats'],
         scenario_data,
-        crit_limited_disagg_pop=True,
-        crit_full_disagg=crit_full_disagg)
+        census_disagg=census_disagg)
 
     return dict(rs_fuel_disagg), dict(ss_fuel_disagg), dict(is_fuel_disagg)
 
 def ss_disaggregate(
         ss_national_fuel,
+        service_building_count,
         assumptions,
         scenario_data,
         regions,
@@ -152,6 +161,8 @@ def ss_disaggregate(
     for reg in regions_without_floorarea:
         regions_with_floorarea.remove(reg)
 
+    logging.info("Regions without floor area (serivce sector): %s", regions_without_floorarea)
+
     # ---------------------------------------
     # Overall disaggregation factors per enduse and sector
     # ---------------------------------------
@@ -164,11 +175,12 @@ def ss_disaggregate(
         all_sectors=all_sectors,
         base_yr=assumptions.base_yr,
         scenario_data=scenario_data,
+        service_building_count=service_building_count,
         ss_hdd_individ_region=ss_hdd_individ_region,
         ss_cdd_individ_region=ss_cdd_individ_region,
         ss_national_fuel=ss_national_fuel,
-        crit_limited_disagg_pop=False,
-        crit_limited_disagg_pop_hdd=True,
+        crit_limited_disagg_pop=False,      # Set to False
+        crit_limited_disagg_pop_hdd=True,   # Set to True
         crit_full_disagg=False)
     ss_fuel_disagg.update(ss_fuel_disagg_only_pop)
 
@@ -188,6 +200,7 @@ def ss_disaggregate(
         all_sectors=all_sectors,
         base_yr=assumptions.base_yr,
         scenario_data=scenario_data,
+        service_building_count=service_building_count,
         ss_hdd_individ_region=ss_hdd_individ_region,
         ss_cdd_individ_region=ss_cdd_individ_region,
         ss_national_fuel=ss_national_fuel_remaining,
@@ -197,12 +210,11 @@ def ss_disaggregate(
     ss_fuel_disagg.update(ss_fuel_disagg_full_data)
 
     # -----------------
-    # Check if total fuel is the
-    # same before and after aggregation
+    # Check if total fuel is the same before and after aggregation
     #------------------
     testing_functions.control_disaggregation(
         ss_fuel_disagg, ss_national_fuel, enduses, sectors)
-    logging.debug("... finished disaggregation ss")
+
     return dict(ss_fuel_disagg)
 
 def ss_disaggr(
@@ -213,6 +225,7 @@ def ss_disaggr(
         all_sectors,
         base_yr,
         scenario_data,
+        service_building_count,
         ss_hdd_individ_region,
         ss_cdd_individ_region,
         ss_national_fuel,
@@ -232,12 +245,18 @@ def ss_disaggr(
             national_floorarea_by_sector[sector] += scenario_data['floor_area']['ss_floorarea'][base_yr][region][sector]
 
     tot_pop = 0
+    tot_cdd = 0
+    tot_hdd = 0
     tot_floor_area = {}
     tot_floor_area_pop = {}
     tot_pop_hdd = {}
     tot_pop_cdd = {}
     tot_floor_area_hdd = {}
     tot_floor_area_cdd = {}
+    tot_building_cnt = {}
+
+    lu_tables = lookup_tables.basic_lookups()
+    lu_building_cnt = lu_tables['building_cnt_lu']
 
     for sector in all_sectors:
         tot_floor_area[sector] = 0
@@ -246,19 +265,26 @@ def ss_disaggr(
         tot_pop_cdd[sector] = 0
         tot_floor_area_hdd[sector] = 0
         tot_floor_area_cdd[sector] = 0
+        tot_building_cnt[sector] = 0
 
     for region in all_regions:
         reg_hdd = ss_hdd_individ_region[region]
         reg_cdd = ss_cdd_individ_region[region]
-
-        # Population
         reg_pop = scenario_data['population'][base_yr][region]
         tot_pop += reg_pop
+        tot_cdd += reg_cdd
+        tot_hdd += reg_hdd
 
         for sector in all_sectors:
 
-            # Floor Area of sector
+            # Sector specific ino
             reg_floor_area = scenario_data['floor_area']['ss_floorarea'][base_yr][region][sector]
+
+            try:
+                nr_sector_cnt_building = lu_building_cnt[sector]
+                reg_sector_building_cnt = service_building_count[nr_sector_cnt_building][region]
+            except KeyError:
+                logging.info("no building cnt for region {}".format(region))
 
             # National disaggregation factors
             tot_floor_area[sector] += reg_floor_area
@@ -267,6 +293,7 @@ def ss_disaggr(
             tot_pop_hdd[sector] += reg_pop * reg_hdd
             tot_pop_cdd[sector] += reg_pop * reg_cdd
             tot_floor_area_cdd[sector] += reg_floor_area * reg_cdd
+            tot_building_cnt[sector] += reg_sector_building_cnt
 
     # ---------------------------------------
     # Disaggregate according to enduse
@@ -279,18 +306,17 @@ def ss_disaggr(
         reg_cdd = ss_cdd_individ_region[region]
         reg_pop = scenario_data['population'][base_yr][region]
 
-        #reg_diasg_factor = reg_pop / tot_pop
+        p_pop = reg_pop / tot_pop
+
         for enduse in enduses:
             for sector in sectors:
-                #print("reg_diasg_factor: {} {} {}".format(sector, enduse, reg_diasg_factor))
-                reg_floor_area = scenario_data['floor_area']['ss_floorarea'][base_yr][region][sector]
-
                 if crit_limited_disagg_pop and not crit_limited_disagg_pop_hdd and not crit_full_disagg:
 
                     # ----
                     #logging.debug(" ... Disaggregation ss: populaton")
                     # ----
-                    reg_diasg_factor = reg_pop / tot_pop
+                    reg_diasg_factor = p_pop
+
                 elif crit_limited_disagg_pop_hdd and not crit_full_disagg:
 
                     # ----
@@ -298,11 +324,15 @@ def ss_disaggr(
                     # ----
                     if enduse == 'ss_cooling_humidification':
                         reg_diasg_factor = (reg_pop * reg_cdd) / tot_pop_cdd[sector]
+
                     elif enduse == 'ss_space_heating':
                         reg_diasg_factor = (reg_pop * reg_hdd) / tot_pop_hdd[sector]
                     else:
-                        reg_diasg_factor = reg_pop / tot_pop
+                        reg_diasg_factor = p_pop
+
                 elif crit_full_disagg:
+
+                    reg_floor_area = scenario_data['floor_area']['ss_floorarea'][base_yr][region][sector]
 
                     # ----
                     # logging.debug(" ... Disaggregation ss: populaton, HDD, floor_area")
@@ -314,22 +344,33 @@ def ss_disaggr(
                     elif enduse == 'ss_lighting':
                         reg_diasg_factor = reg_floor_area / tot_floor_area[sector]
                     else:
-                        reg_diasg_factor = reg_pop / tot_pop
+
+                        # Disaggregate with population
+                        #reg_diasg_factor = p_pop
+
+                        # Disaggregate with nr of buildings
+                        nr_sector_cnt_building = lu_building_cnt[sector]
+                        reg_sector_building_cnt = service_building_count[nr_sector_cnt_building][region]
+                        p_reg_sector_building_cnt = reg_sector_building_cnt / tot_building_cnt[sector]
+
+                        reg_diasg_factor = p_reg_sector_building_cnt
 
                 ss_fuel_disagg[region][enduse][sector] = ss_national_fuel[enduse][sector] * reg_diasg_factor
 
     return dict(ss_fuel_disagg)
 
 def is_disaggregate(
-        base_yr,
+        assumptions,
+        temp_data,
+        reg_coord,
+        weather_stations,
         is_national_fuel,
         regions,
         enduses,
         sectors,
         employment_statistics,
         scenario_data,
-        crit_limited_disagg_pop,
-        crit_full_disagg
+        census_disagg
     ):
     """Disaggregate industry related fuel for sector and enduses with
     employment statistics
@@ -358,44 +399,60 @@ def is_disaggregate(
     is_fuel_disagg : dict
         reg, enduse, sector
     """
+    is_hdd_individ_region = hdd_cdd.get_hdd_country(
+        assumptions.base_yr,
+        assumptions.curr_yr,
+        regions,
+        temp_data,
+        assumptions.base_temp_diff_params,
+        assumptions.strategy_variables['is_t_base_heating_future_yr']['scenario_value'],
+        assumptions.t_bases.is_t_heating_by,
+        reg_coord,
+        weather_stations)
+
     logging.debug("... disaggregate industry demand")
 
     is_fuel_disagg = {}
-    if crit_limited_disagg_pop and not crit_full_disagg:
+
+    # # Calculate total population of all regions
+    tot_pop = 0
+    tot_pop_hdd = 0
+    for region in regions:
+        tot_pop_hdd += scenario_data['population'][assumptions.base_yr][region] * is_hdd_individ_region[region]
+        tot_pop += scenario_data['population'][assumptions.base_yr][region]
+
+    if not census_disagg:
 
         # ---
         # Disaggregate only with population
         # ---
-        tot_pop = 0
-        for reg in regions:
-            tot_pop += scenario_data['population'][base_yr][reg]
-
         for region in regions:
             is_fuel_disagg[region] = {}
-            reg_pop = scenario_data['population'][base_yr][region]
-
-            reg_disagg_f = reg_pop / tot_pop
+            reg_pop = scenario_data['population'][assumptions.base_yr][region]
 
             for enduse in enduses:
                 is_fuel_disagg[region][enduse] = {}
+
                 for sector in sectors:
-                    is_fuel_disagg[region][enduse][sector] = is_national_fuel[enduse][sector] * reg_disagg_f
+                    if enduse == 'is_space_heating':
+                        hdd_reg = is_hdd_individ_region[region]
+                        reg_disagg_f = (hdd_reg * reg_pop) / tot_pop_hdd
+                        is_fuel_disagg[region][enduse][sector] = is_national_fuel[enduse][sector] * reg_disagg_f
+                    else:
+                        reg_disagg_f = reg_pop / tot_pop
+                        is_fuel_disagg[region][enduse][sector] = is_national_fuel[enduse][sector] * reg_disagg_f
 
         return is_fuel_disagg
 
-    if crit_full_disagg:
+    else:
         #logging.debug(" ... Disaggregation is: Employment statistics")
-
-        # Calculate total population of all regions
-        tot_pop = sum(scenario_data['population'][base_yr].values())
-
         # -----
         # Disaggregate with employment statistics
         # The BEIS sectors are matched with census data sectors {ECUK industry sectors: 'Emplyoment sectors'}
         sectormatch_ecuk_with_census = {
 
             # Significant improvement
-            'mining': 'B',
+            'mining': 'B', #'B',
             'food_production': 'C10-12',
             'pharmaceuticals': 'M',
             'computer': 'C26-30',
@@ -417,37 +474,39 @@ def is_disaggregate(
             'textiles': 'C13-15',               # Gas better, elec worse
             'motor_vehicles': 'G',              # Gas better, elec worse
 
-            # Indifferent
+            # Unclear
             'machinery': None,                  # 'C'
             'tobacco': None,                    # 'C10-12'
             'other_transport_equipment': None,  # 'H'
             'other_manufacturing': None,        # 'C18,31,32'
             'water_collection_treatment': None, # 'E'
             'waste_collection': None,           # 'E'
-            'furniture': None,                  # C18,31,32'
-
-            # Worse
-            'beverages': None                   # 'C10-12'
+            'furniture': None,                  # C18,31,32
+            'beverages': None
         }
-
         # ----------------------------------------
         # Summarise national employment per sector
         # ----------------------------------------
-        # Initialise dict
         tot_national_sector_employment = {}
-        for sectors_reg in employment_statistics.values():
-            for sector in sectors_reg:
-                tot_national_sector_employment[sector] = 0
-            continue
-        for reg in regions:
-            for employment_sector, employment in employment_statistics[reg].items():
-                tot_national_sector_employment[employment_sector] += employment
+        tot_national_sector_employment_hdd = {}
+        for region in regions:
+            is_hdd = is_hdd_individ_region[region]
+
+            for employment_sector, employment in employment_statistics[region].items():
+                try:
+                    tot_national_sector_employment[employment_sector] += employment
+                    tot_national_sector_employment_hdd[employment_sector] += employment * is_hdd
+                except KeyError:
+                    tot_national_sector_employment[employment_sector] = employment
+                    tot_national_sector_employment_hdd[employment_sector] = employment * is_hdd
 
         # --------------------------------------------------
         # Disaggregate per region with employment statistics
         # --------------------------------------------------
         for region in regions:
             is_fuel_disagg[region] = {}
+
+            reg_pop = scenario_data['population'][assumptions.base_yr][region]
 
             # Iterate sector
             for enduse in enduses:
@@ -462,24 +521,31 @@ def is_disaggregate(
 
                     # Disaggregate with population
                     if not matched_sector:
-                        reg_pop = scenario_data['population'][base_yr][region]
-                        reg_disag_factor = reg_pop / tot_pop
 
-                        is_fuel_disagg[region][enduse][sector] = is_national_fuel[enduse][sector] * reg_disag_factor
+                        if enduse == 'is_space_heating':
+                            hdd_reg = is_hdd_individ_region[region]
+                            reg_disagg_f = (hdd_reg * reg_pop) / tot_pop_hdd
+                            is_fuel_disagg[region][enduse][sector] = is_national_fuel[enduse][sector] * reg_disagg_f
+                        else:
+                            reg_disagg_f = reg_pop / tot_pop
+                            is_fuel_disagg[region][enduse][sector] = is_national_fuel[enduse][sector] * reg_disagg_f
                     else:
-                        #for enduse in enduses['is_enduses']:
-                        national_sector_employment = tot_national_sector_employment[matched_sector]
                         reg_sector_employment = employment_statistics[region][matched_sector]
 
-                        try:
-                            reg_disag_factor = reg_sector_employment / national_sector_employment
-                        except ZeroDivisionError:
-                            reg_disag_factor = 0 #No employment for this sector for this region
+                        if enduse == 'is_space_heating':
+                            national_sector_employment_hdd = tot_national_sector_employment_hdd[matched_sector]
+                            hdd_reg = is_hdd_individ_region[region]
+                            reg_disagg_f = (hdd_reg * reg_sector_employment) / national_sector_employment_hdd
+                        else:
+                            national_sector_employment = tot_national_sector_employment[matched_sector]
+                            try:
+                                reg_disagg_f = reg_sector_employment / national_sector_employment
+                            except ZeroDivisionError:
+                                reg_disagg_f = 0 #No employment for this sector for this region
 
                         # Disaggregated national fuel
-                        is_fuel_disagg[region][enduse][sector] = is_national_fuel[enduse][sector] * reg_disag_factor
+                        is_fuel_disagg[region][enduse][sector] = is_national_fuel[enduse][sector] * reg_disagg_f
 
-    # TESTING Check if total fuel is the same before and after aggregation
     testing_functions.control_disaggregation(
         is_fuel_disagg,
         is_national_fuel,
@@ -522,6 +588,7 @@ def rs_disaggregate(
     to enduse (see Documentation)
     """
     logging.debug("... disagreggate residential demand")
+    rs_fuel_disagg = {}
 
     # ---------------------------------------
     # Calculate heating degree days for regions
@@ -541,23 +608,20 @@ def rs_disaggregate(
         weather_stations)
 
     # ---------------------------------------
-    # Overall disaggregation factors per enduse
-    # ---------------------------------------
     # Get all regions with missing floor area data
+    # ---------------------------------------
     regions_without_floorarea = get_regions_missing_floor_area(
         regions, scenario_data['floor_area']['rs_floorarea'], assumptions.base_yr)
     regions_with_floorarea = list(regions)
     for reg in regions_without_floorarea:
         regions_with_floorarea.remove(reg)
 
-    logging.info("Regions with no floor area: %s", regions_without_floorarea)
+    logging.info("Regions with no floor area (residential sector): %s", regions_without_floorarea)
 
     # ====================================
     # Disaggregate for region without floor
-    # area with population (set crit_full_disagg as False)
+    # area by population and hdd (set crit_full_disagg as False)
     # ====================================
-    rs_fuel_disagg = {}
-
     rs_fuel_disagg_only_pop = rs_disaggr(
         all_regions=regions,
         regions=regions_without_floorarea,
@@ -565,17 +629,16 @@ def rs_disaggregate(
         rs_hdd_individ_region=rs_hdd_individ_region,
         scenario_data=scenario_data,
         rs_national_fuel=rs_national_fuel,
-        crit_limited_disagg_pop=False,
-        crit_limited_disagg_pop_hdd=True,
+        crit_limited_disagg_pop=False, #True, #False,
+        crit_limited_disagg_pop_hdd=True, #True, #Set to true
         crit_full_disagg=False)
     rs_fuel_disagg.update(rs_fuel_disagg_only_pop)
 
-    # Substract from national fuel already disaggregated fuel
+    # Substract fuel for regions where only population was used for disaggregation from total
     rs_national_fuel_remaining = copy.deepcopy(rs_national_fuel)
     for enduse in rs_national_fuel:
         for reg in rs_fuel_disagg:
-            # Substract fuel for regions where only population was used for disaggregation from total
-            rs_national_fuel_remaining[enduse] = rs_national_fuel_remaining[enduse] - rs_fuel_disagg[reg][enduse]
+            rs_national_fuel_remaining[enduse] -= rs_fuel_disagg[reg][enduse]
 
     # ====================================
     # Disaggregate for region with floor area
@@ -613,22 +676,17 @@ def rs_disaggr(
     ):
     """Disaggregate residential enduses
     """
+    fuel_disagg = defaultdict(dict)
+
     total_pop = 0
     total_hdd_floorarea = 0
     total_floor_area = 0
     total_pop_hdd = 0
-
-    fuel_disagg = defaultdict(dict)
+    total_hdd = 0
 
     for region in all_regions:
-
-        # HDD
         reg_hdd = rs_hdd_individ_region[region]
-
-        # Floor Area across all sectors
         reg_floor_area = scenario_data['floor_area']['rs_floorarea'][base_yr][region]
-
-        # Population
         reg_pop = scenario_data['population'][base_yr][region]
 
         # National dissagregation factors
@@ -636,6 +694,7 @@ def rs_disaggr(
         total_floor_area += reg_floor_area
         total_pop += reg_pop
         total_pop_hdd += reg_pop * reg_hdd
+        total_hdd += reg_hdd
 
     # ---------------------------------------
     # Disaggregate according to enduse
@@ -647,6 +706,9 @@ def rs_disaggr(
         reg_pop = scenario_data['population'][base_yr][region]
         reg_pop_hdd = reg_pop * reg_hdd
 
+        p_pop = reg_pop / total_pop
+        p_floor_area = reg_floor_area / total_floor_area
+
         # Disaggregate fuel depending on end_use
         for enduse in rs_national_fuel:
             if crit_limited_disagg_pop and not crit_limited_disagg_pop_hdd and not crit_full_disagg:
@@ -654,17 +716,17 @@ def rs_disaggr(
                 # ----------------------------------
                 #logging.debug(" ... Disaggregation rss: populaton")
                 # ----------------------------------
-                reg_diasg_factor = reg_pop / total_pop
+                reg_diasg_factor = p_pop
 
             elif crit_limited_disagg_pop_hdd and not crit_full_disagg:
 
                 # -------------------
                 #logging.debug(" ... Disaggregation rss: populaton, hdd")
                 # -------------------
-                if enduse == 're_space_heating':
+                if enduse == 'rs_space_heating':
                     reg_diasg_factor = reg_pop_hdd / total_pop_hdd
                 else:
-                    reg_diasg_factor = reg_pop / total_pop
+                    reg_diasg_factor = p_pop
 
             elif crit_full_disagg:
 
@@ -674,9 +736,9 @@ def rs_disaggr(
                 if enduse == 'rs_space_heating':
                     reg_diasg_factor = reg_hdd_floor_area / total_hdd_floorarea
                 elif enduse == 'rs_lighting':
-                    reg_diasg_factor = reg_floor_area / total_floor_area
+                    reg_diasg_factor = p_floor_area
                 else:
-                    reg_diasg_factor = reg_pop / total_pop
+                    reg_diasg_factor = p_pop
 
             # Disaggregate
             fuel_disagg[region][enduse] = rs_national_fuel[enduse] * reg_diasg_factor
@@ -797,7 +859,7 @@ def run(data):
     logging.debug("... finished script %s", os.path.basename(__file__))
     return
 
-def get_regions_missing_floor_area(regions, floor_area_data, base_yr):
+def get_regions_missing_floor_area(regions, floor_area_data, base_yr): #, placeholder_no_floor_area):
     """Get all regions where floorarea cannot be used for disaggregation
     """
     regions_no_floor_area_data = []
@@ -807,7 +869,7 @@ def get_regions_missing_floor_area(regions, floor_area_data, base_yr):
         # Floor Area across all sectors
         reg_floor_area = floor_area_data[base_yr][region]
 
-        if reg_floor_area == 0.0001: #As dfined with 'null' in readigng in
+        if reg_floor_area == 1234567899999999: #0.0001: #As dfined with 'null' in readigng in get_regions_missing_floor_area
             regions_no_floor_area_data.append(region)
 
     return regions_no_floor_area_data
@@ -824,7 +886,7 @@ def get_regions_missing_floor_area_sector(regions, floor_area_data, base_yr):
 
         not_data = False
         for sector_data in reg_floor_area_sectors.values():
-            if sector_data == 1: #As dfined with 'null' in readigng in
+            if sector_data == 1234567899999999: #As dfined with 'null' in readigng in
                 not_data = True
         if not_data:
             regions_no_floor_area_data.append(region)

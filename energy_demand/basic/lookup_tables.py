@@ -97,14 +97,32 @@ def industrydemand_name_sic2007():
     return lookup
 
 def basic_lookups():
-    """Definition of basic lookups or other related information
+    """Definition of basic lookup tables
 
     Return
     ------
     lookups : dict
-        Lookup information and other very basic properties
+        Lookup information
     """
     lookups = {}
+
+    # Assign BESI categories to merged AddressPoint dataset
+    lookups['building_cnt_lu'] = {
+        "commercial_General": 1,
+        "primary_Industry": 2,
+        "public_Services": 3,
+        "education": 4,
+        "hospitality": 5,
+        "community_arts_leisure": 6,
+        "industrial": 7,
+        "health": 8,
+        "offices": 9,
+        "retail": 10,
+        "storage": 11,
+        "residential": 12,
+        "military": 13,
+        'emergency_services': 8,
+        'other': 14}
 
     lookups['dwtype'] = {
         0: 'detached',

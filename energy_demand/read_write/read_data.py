@@ -1179,6 +1179,12 @@ def read_floor_area_virtual_stock(path_to_csv, f_mixed_floorarea=0.5):
 
     # Second Mail from Craig
     res_floorarea, non_res_floorarea, floorarea_mixed = {}, {}, {}
+    
+    building_count_service = {}
+    for i in range(1, 15):
+        building_count_service[i] = {}
+
+    floor_area_placeholder = 1234567899999999 #0.0001 #99999999 #0.0001 #TODO
 
     with open(path_to_csv, 'r') as csvfile:
         rows = csv.reader(csvfile, delimiter=',')
@@ -1190,21 +1196,23 @@ def read_floor_area_virtual_stock(path_to_csv, f_mixed_floorarea=0.5):
             if (row[get_position(headings, 'res_bld_floor_area')] == 'null') or (
                 row[get_position(headings, 'nonres_bld_floor_area')] == 'null') or (
                     row[get_position(headings, 'mixeduse_bld_floor_area')] == 'null'):
-                    res_floorarea[geo_name] = 0.0001
-                    non_res_floorarea[geo_name] = 0.0001
-                    floorarea_mixed[geo_name] = 0.0001
+                    res_floorarea[geo_name] = floor_area_placeholder
+                    non_res_floorarea[geo_name] = floor_area_placeholder
+                    floorarea_mixed[geo_name] = floor_area_placeholder
             else:
                 if row[get_position(headings, 'res_bld_floor_area')] == 'null':
-                    res_floorarea[geo_name] = 0.0001
+                    res_floorarea[geo_name] = floor_area_placeholder
                 else:
                     res_floorarea[geo_name] = float(row[get_position(headings, 'res_bld_floor_area')])
                 if row[get_position(headings, 'nonres_bld_floor_area')] == 'null':
-                    non_res_floorarea[geo_name] = 0.0001
+                    non_res_floorarea[geo_name] = floor_area_placeholder
+                    #non_res_only = floor_area_placeholder #NEW
                 else:
                     non_res_floorarea[geo_name] = float(row[get_position(headings, 'nonres_bld_floor_area')])
+                    #non_res_only = float(row[get_position(headings, 'nonres_bld_floor_area')])
 
                 if row[get_position(headings, 'mixeduse_bld_floor_area')] == 'null':
-                    floorarea_mixed[geo_name] = 0.0001
+                    floorarea_mixed[geo_name] = floor_area_placeholder
                 else:
                     floorarea_mixed[geo_name] = float(row[get_position(headings, 'mixeduse_bld_floor_area')])
 
@@ -1212,11 +1220,50 @@ def read_floor_area_virtual_stock(path_to_csv, f_mixed_floorarea=0.5):
                 non_res_from_mixed = floorarea_mixed[geo_name] * p_mixed_no_resid
                 res_from_mixed = floorarea_mixed[geo_name] * f_mixed_floorarea
 
+                #TODO CHECK WHETER res_bld_floor_area	nonres_bld_floor_area	mixeduse_bld_floor_area
+
                 # Add
                 res_floorarea[geo_name] += res_from_mixed
-                non_res_floorarea[geo_name] += non_res_from_mixed
+                non_res_floorarea[geo_name] += non_res_from_mixed #+ non_res_only
 
-    return res_floorarea, non_res_floorarea
+            # Read building count for service sector
+            building_1 = float(row[get_position(headings, 'building_type_count_1')])
+            building_2 = float(row[get_position(headings, 'building_type_count_2')])
+            building_3 = float(row[get_position(headings, 'building_type_count_3')])
+            building_4 = float(row[get_position(headings, 'building_type_count_4')])
+            building_5 = float(row[get_position(headings, 'building_type_count_5')])
+            building_6 = float(row[get_position(headings, 'building_type_count_6')])
+            building_7 = float(row[get_position(headings, 'building_type_count_7')])
+            building_8 = float(row[get_position(headings, 'building_type_count_8')])
+            building_9 = float(row[get_position(headings, 'building_type_count_9')])
+            building_10 = float(row[get_position(headings, 'building_type_count_10')])
+            building_11 = float(row[get_position(headings, 'building_type_count_11')])
+            building_12 = float(row[get_position(headings, 'building_type_count_12')])
+            building_13 = float(row[get_position(headings, 'building_type_count_13')])
+
+            building_count_service[1][geo_name] = building_1
+            building_count_service[2][geo_name] = building_2
+            building_count_service[3][geo_name] = building_3
+            building_count_service[4][geo_name] = building_4
+            building_count_service[5][geo_name] = building_5
+            building_count_service[6][geo_name] = building_6
+            building_count_service[7][geo_name] = building_7
+            building_count_service[8][geo_name] = building_8
+            building_count_service[9][geo_name] = building_9
+            building_count_service[10][geo_name] = building_10
+            building_count_service[11][geo_name] = building_11
+            building_count_service[12][geo_name] = building_12
+            building_count_service[13][geo_name] = building_13
+
+            # Create Other category and buildings
+            building_count_service[14][geo_name] = int(
+                building_1 + building_2 + building_3 + 
+                building_4 + building_5 + building_6 + 
+                building_7 + building_8 + building_9 + 
+                building_10 + building_11 + building_12 + 
+                building_13) 
+
+    return res_floorarea, non_res_floorarea, building_count_service
 
 def get_position(headings, name):
     """Get position of an entry in a list

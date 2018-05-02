@@ -117,8 +117,8 @@ def read_national_real_gas_data(path_to_csv):
         headings = next(rows) # Skip first row
 
         for row in rows:
-            geocode = str.strip(row[2])                 # LA Code
-            tot_consumption_unclean = row[3].strip()    # Total consumption
+            geocode = str.strip(row[2])                 # 'LA Code'
+            tot_consumption_unclean = row[3].strip()    # 'Total consumption'
 
             if tot_consumption_unclean == '-':
                 total_consumption = 0 # No entry provided
@@ -129,7 +129,13 @@ def read_national_real_gas_data(path_to_csv):
 
     return national_fuel_data
 
-def floor_area_virtual_dw(regions, all_sectors, local_paths, base_yr, f_mixed_floorarea):
+def floor_area_virtual_dw(
+        regions,
+        all_sectors,
+        local_paths,
+        base_yr,
+        f_mixed_floorarea
+    ):
     """Load necessary data for virtual building stock
     in case the link to the building stock model in
     Newcastle is not used
@@ -157,10 +163,15 @@ def floor_area_virtual_dw(regions, all_sectors, local_paths, base_yr, f_mixed_fl
     # --------------------------------------------------
     # Floor area for residential buildings for base year
     # --------------------------------------------------
-    resid_footprint, non_res_flootprint = read_data.read_floor_area_virtual_stock(
+    resid_footprint, non_res_flootprint, service_building_count = read_data.read_floor_area_virtual_stock(
         local_paths['path_floor_area_virtual_stock_by'],
         f_mixed_floorarea=f_mixed_floorarea)
 
+    # -----------------
+    # Calculate average floor area per person
+    # of existing datasets. This is done to replace the missing
+    # floor area data of LADs with estimated floor areas
+    # -----------------
     rs_floorarea = defaultdict(dict)
     for region in regions:
         try:
@@ -168,7 +179,9 @@ def floor_area_virtual_dw(regions, all_sectors, local_paths, base_yr, f_mixed_fl
         except:
             logging.warning(
                 "No virtual residential floor area for region %s ", region)
-            rs_floorarea[base_yr][region] = 1
+
+            #estimated_floor_area = average_pop
+            rs_floorarea[base_yr][region] = 1234567899999999
 
     # --------------------------------------------------
     # Floor area for service sector buildings
@@ -182,9 +195,9 @@ def floor_area_virtual_dw(regions, all_sectors, local_paths, base_yr, f_mixed_fl
                 ss_floorarea_sector_by[base_yr][region][sector] = non_res_flootprint[region]
             except:
                 logging.warning("No virtual service floor area for region %s", region)
-                ss_floorarea_sector_by[base_yr][region][sector] = 1
+                ss_floorarea_sector_by[base_yr][region][sector] = 1234567899999999
 
-    return dict(rs_floorarea), dict(ss_floorarea_sector_by)
+    return dict(rs_floorarea), dict(ss_floorarea_sector_by), service_building_count
 
 def load_local_paths(path):
     """Create all local paths
@@ -209,7 +222,7 @@ def load_local_paths(path):
         'folder_path_weater_stations': os.path.join(
             path, '_raw_data', 'H-Met_office_weather_data', 'excel_list_station_details.csv'),
         'path_floor_area_virtual_stock_by': os.path.join(
-            path, '_raw_data', 'K-floor_area', 'floor_area_2018_03_27.csv'),
+            path, '_raw_data', 'K-floor_area', 'floor_area_LAD_latest.csv'),
         'path_assumptions_db': os.path.join(
             path, '_processed_data', 'assumptions_from_db'),
         'data_processed': os.path.join(
@@ -373,8 +386,16 @@ def load_paths(path):
         # Validation datasets
         'path_val_subnational_elec': os.path.join(
             path, '01-validation_datasets', '02_subnational_elec', 'data_2015_elec.csv'),
+        'path_val_subnational_elec_residential': os.path.join(
+            path, '01-validation_datasets', '02_subnational_elec', 'data_2015_elec_domestic.csv'),
+        'path_val_subnational_elec_non_residential': os.path.join(
+            path, '01-validation_datasets', '02_subnational_elec', 'data_2015_elec_non_domestic.csv'),
         'path_val_subnational_gas': os.path.join(
             path, '01-validation_datasets', '03_subnational_gas', 'data_2015_gas.csv'),
+        'path_val_subnational_gas_residential': os.path.join(
+            path, '01-validation_datasets', '03_subnational_gas', 'data_2015_gas_domestic.csv'),
+        'path_val_subnational_gas_non_residential': os.path.join(
+            path, '01-validation_datasets', '03_subnational_gas', 'data_2015_gas_non_domestic.csv'),
         'path_val_nat_elec_data': os.path.join(
             path, '01-validation_datasets', '01_national_elec_2015', 'elec_demand_2015.csv')}
 
@@ -681,7 +702,7 @@ def load_fuels(paths, lookups):
         enduses['all_enduses'] += enduse
 
     # Convert units
-    fuels['rs_fuel_raw'] = conversions.convert_fueltypes_ktoe_GWh(
+    fuels['rs_fuel_raw'] = conversions.convert_fueltypes_ktoe_gwh(
         rs_fuel_raw_data_enduses)
     fuels['ss_fuel_raw'] = conversions.convert_fueltypes_sectors_ktoe_gwh(
         ss_fuel_raw)

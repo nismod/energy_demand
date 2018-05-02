@@ -7,19 +7,32 @@ from datetime import timedelta
 
 import numpy as np
 
-# Weeks in middle of meteorological seasons
-'''winter_week = list(range(
-    date_prop.date_to_yearday(year_to_model, 1, 12),
-    date_prop.date_to_yearday(year_to_model, 1, 26))) #Jan
-spring_week = list(range(
-    date_prop.date_to_yearday(year_to_model, 5, 11),
-    date_prop.date_to_yearday(year_to_model, 5, 25))) #May
-summer_week = list(range(
-    date_prop.date_to_yearday(year_to_model, 7, 13),
-    date_prop.date_to_yearday(year_to_model, 7, 27))) #Jul
-autumn_week = list(range(
-    date_prop.date_to_yearday(year_to_model, 10, 12),
-    date_prop.date_to_yearday(year_to_model, 10, 26))) #Oct'''
+def get_seasonal_weeks():
+    """
+    """
+    '''winter_week = list(range(
+        date_prop.date_to_yearday(year_to_model, 1, 12),
+        date_prop.date_to_yearday(year_to_model, 1, 26))) #Jan
+    spring_week = list(range(
+        date_prop.date_to_yearday(year_to_model, 5, 11),
+        date_prop.date_to_yearday(year_to_model, 5, 25))) #May
+    summer_week = list(range(
+        date_prop.date_to_yearday(year_to_model, 7, 13),
+        date_prop.date_to_yearday(year_to_model, 7, 27))) #Jul
+    autumn_week = list(range(
+        date_prop.date_to_yearday(year_to_model, 10, 12),
+        date_prop.date_to_yearday(year_to_model, 10, 26))) #Oct'''
+
+    winter_week = list(range(
+        date_to_yearday(2015, 1, 12), date_to_yearday(2015, 1, 19))) #Jan
+    spring_week = list(range(
+        date_to_yearday(2015, 5, 11), date_to_yearday(2015, 5, 18))) #May
+    summer_week = list(range(
+        date_to_yearday(2015, 7, 13), date_to_yearday(2015, 7, 20))) #Jul
+    autumn_week = list(range(
+        date_to_yearday(2015, 10, 12), date_to_yearday(2015, 10, 19))) #Oct
+
+    return winter_week, spring_week, summer_week, autumn_week
 
 def get_model_yeardays_daytype(year_to_model):
     """For yearday, daytype and date related
