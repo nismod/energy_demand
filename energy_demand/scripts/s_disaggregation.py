@@ -46,9 +46,9 @@ def disaggregate_base_demand(
     # Factors to choose for disaggregation
     # -------------------------------------
     crit_limited_disagg_pop = False      # Only population
-    crit_limited_disagg_pop_hdd = True   # Only population and HDD
-    crit_full_disagg = False              # Full disaggregation
-    census_disagg = False #
+    crit_limited_disagg_pop_hdd = False   # Only population and HDD
+    crit_full_disagg = True              # Full disaggregation
+    census_disagg = True #
 
     # Residential
     # - using hdd is not better
@@ -313,7 +313,7 @@ def ss_disaggr(
                 elif crit_full_disagg:
 
                     reg_floor_area = scenario_data['floor_area']['ss_floorarea'][base_yr][region][sector]
-        
+
                     # ----
                     # logging.debug(" ... Disaggregation ss: populaton, HDD, floor_area")
                     # ----
@@ -321,8 +321,8 @@ def ss_disaggr(
                         reg_diasg_factor = (reg_floor_area * reg_cdd) / tot_floor_area_cdd[sector]
                     elif enduse == 'ss_space_heating':
                         reg_diasg_factor = (reg_floor_area * reg_hdd) / tot_floor_area_hdd[sector]
-                    elif enduse == 'ss_lighting':
-                        reg_diasg_factor = reg_floor_area / tot_floor_area[sector]
+                    #elif enduse == 'ss_lighting':
+                    #    reg_diasg_factor = reg_floor_area / tot_floor_area[sector]
                     else:
                         reg_diasg_factor = p_pop
 
@@ -721,8 +721,8 @@ def rs_disaggr(
                 # -------------------
                 if enduse == 'rs_space_heating':
                     reg_diasg_factor = reg_hdd_floor_area / total_hdd_floorarea
-                elif enduse == 'rs_lighting':
-                    reg_diasg_factor = p_floor_area
+                #elif enduse == 'rs_lighting':
+                #    reg_diasg_factor = p_floor_area
                 else:
                     reg_diasg_factor = p_pop
 

@@ -153,7 +153,7 @@ if __name__ == "__main__":
         print("    python main.py ../energy_demand_data\n")
         print("... Defaulting to C:/DATA_NISMODII/data_energy_demand")
         local_data_path = os.path.abspath('C:/DATA_NISMODII/data_energy_demand')
-        local_data_path = os.path.abspath('C:/users/cenv0553/ed/data_energy_demand')
+        local_data_path = os.path.abspath('C:/users/cenv0553/ED/data')
     else:
         local_data_path = sys.argv[1]
 
@@ -191,7 +191,8 @@ if __name__ == "__main__":
 
     # local scrap
     data['regions'] = data_loader.load_LAC_geocodes_info(
-        os.path.join(local_data_path, '_raw_data', '_quick_and_dirty_spatial_disaggregation', 'infuse_dist_lyr_2011_saved.csv'))
+        os.path.join(
+            local_data_path, 'region_definitions', 'same_as_scenario_data', 'infuse_dist_lyr_2011_saved.csv'))
 
     # GVA
     gva_data = {}
@@ -264,7 +265,7 @@ if __name__ == "__main__":
             data['assumptions'].base_yr,
             
             f_mixed_floorarea=data['assumptions'].f_mixed_floorarea)
-
+    prnt(".")
     # Lookup table to import industry sectoral gva
     lookup_tables.industrydemand_name_sic2007()
 

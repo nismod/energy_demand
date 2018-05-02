@@ -751,7 +751,7 @@ def spatial_validation_multiple(
     """
     logging.debug("... Validation of spatial disaggregation")
 
-    color_list = ['red', 'green']
+    color_list = ['firebrick', 'darkseagreen']
     label_list = ['domestic', 'non_domestic']
 
     # -------------------------------------
