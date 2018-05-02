@@ -53,7 +53,7 @@ def disaggregate_base_demand(
     crit_limited_disagg_pop_hdd = True   # Only population and HDD
     crit_full_disagg = False             # Use floor area as well
     census_disagg = True                 # Disagregatte is_demand with census statistics
- 
+
     # Residential
     rs_fuel_disagg = rs_disaggregate(
         regions,

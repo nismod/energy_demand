@@ -127,7 +127,10 @@ def post_install_setup_minimum(args):
     path_energy_demand : str
         Path to energy demand python files
     """
-    path_energy_demand = resource_filename(Requirement.parse("energy_demand"), os.path.join("energy_demand", "config_data"))
+    path_energy_demand = resource_filename(
+        Requirement.parse("energy_demand"),
+        os.path.join("energy_demand", "config_data"))
+
     path_local_data = args.local_data
 
     # ==========================================
@@ -141,9 +144,9 @@ def post_install_setup_minimum(args):
     # Create folders to input data
     raw_folder = os.path.join(path_local_data, '_raw_data')
     processed_folder = os.path.join(path_local_data, '_processed_data')
+
     basic_functions.create_folder(raw_folder)
     basic_functions.create_folder(processed_folder)
-
     basic_functions.create_folder(local_paths['path_post_installation_data'])
     basic_functions.create_folder(local_paths['dir_raw_weather_data'])
     basic_functions.create_folder(local_paths['dir_changed_weather_station_data'])

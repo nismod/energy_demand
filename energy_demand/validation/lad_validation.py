@@ -7,8 +7,6 @@ import copy
 import numpy as np
 import matplotlib.pyplot as plt
 from scipy import stats
-from energy_demand.basic import conversions
-from energy_demand.profiles import generic_shapes
 from energy_demand.plotting import plotting_program
 from energy_demand.plotting import plotting_results
 from energy_demand.validation import elec_national_data
@@ -336,18 +334,13 @@ def spatial_validation_lad_level(
         os.path.join(result_paths['data_results_validation'], 'validation_spatial_non_residential_gas.pdf'),
         label_points=True,
         plotshow=plot_crit)
-    prn(".")
+
     return
 
 def temporal_validation_lad(
-        base_yr,
-        model_yearhours_nrs,
-        model_yeardays_nrs,
-        scenario_data,
         ed_fueltype_national_yh,
         ed_fueltype_regs_yh,
         fueltypes,
-        fueltypes_nr,
         result_paths,
         paths,
         regions,

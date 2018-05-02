@@ -838,9 +838,10 @@ def plot_radar_plots_average_peak_day(
     # -----------------
     individ_radars_to_plot_dh = []
     load_factor_fueltype_y_cy = []
+    list_diff_max_h = []
 
     for scenario_cnt, scenario in enumerate(scenario_data):
-        
+
         print("scenario {}  {} ".format(scenario, fueltype_to_model))
         base_yr = 2015
 
@@ -858,16 +859,25 @@ def plot_radar_plots_average_peak_day(
         peak_day_nr_cy, _ = enduse_func.get_peak_day_single_fueltype(all_regs_fueltypes_yh_cy[fueltype_int])
 
         scen_load_factor_fueltype_y_by = load_factors.calc_lf_y(all_regs_fueltypes_yh_by)
+        load_factor_fueltype_y_by = round(scen_load_factor_fueltype_y_by[fueltype_int], fueltype_int)
 
-        load_factor_fueltype_y_by = round(scen_load_factor_fueltype_y_by[fueltype_int], 2)
         scen_load_factor_fueltype_y_cy = load_factors.calc_lf_y(all_regs_fueltypes_yh_cy)
-        load_factor_fueltype_y_cy.append(round(scen_load_factor_fueltype_y_cy[fueltype_int], 2))
+        load_factor_fueltype_y_cy.append(round(scen_load_factor_fueltype_y_cy[fueltype_int], fueltype_int))
+
+        # ----------
+        # Calculate change in peak
+        # ----------
+        by_max_h = all_regs_fueltypes_yh_by[fueltype_int][peak_day_nr_by]
+        cy_max_h = all_regs_fueltypes_yh_cy[fueltype_int][peak_day_nr_by]
+
+        diff_max_h = round(((100 / by_max_h) * cy_max_h) - 100, 2)
+        label_max_h = "scen_{}_diff_{}".format(scenario, diff_max_h)
+        list_diff_max_h.append(label_max_h)
 
         # ----------------------------------
         # Plot dh for peak day for base year
         # ----------------------------------
         if scenario_cnt == 0:
-            # Add base year
             all_regs_fueltypes_yh_by = all_regs_fueltypes_yh_by.reshape(all_regs_fueltypes_yh_by.shape[0], 365, 24)
             individ_radars_to_plot_dh.append(list(all_regs_fueltypes_yh_by[fueltype_int][peak_day_nr_by]))
         else:
@@ -884,7 +894,8 @@ def plot_radar_plots_average_peak_day(
         scenario_names=list(scenario_data.keys()),
         plotshow=False,
         lf_y_by=[], #load_factor_fueltype_y_by,
-        lf_y_cy=[]) #load_factor_fueltype_y_cy)
+        lf_y_cy=[],
+        list_diff_max_h=list_diff_max_h) #load_factor_fueltype_y_cy)
 
 def plot_LAD_comparison_scenarios(
         scenario_data,

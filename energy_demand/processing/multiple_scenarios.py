@@ -31,5 +31,6 @@ process_result_multi_scen(
     #os.path.abspath("C:/Users/cenv0553/ED/_multiple_results_hp_example"),
     #os.path.abspath("C:/Users/cenv0553/ED/_multiple_results_hp_example_efficiency_improvement"),
     #os.path.abspath("C:/Users/cenv0553/ED/_mutli_results_hp_50__eff_achieved_0.5_pop_scenarios"),
-    os.path.abspath("C:/Users/cenv0553/ED/_MULTI"),
+    #os.path.abspath("C:/Users/cenv0553/ED/_MULTI"),
+    os.path.abspath("C:/Users/cenv0553/ED/__STORAGE"),
     os.path.abspath('C:/Users/cenv0553/ED/data/_raw_data/C_LAD_geography/same_as_pop_scenario/lad_2016_uk_simplified.shp'))

@@ -2013,7 +2013,8 @@ def plot_radar_plot_multiple_lines(
         scenario_names,
         plotshow=False,
         lf_y_by=None,
-        lf_y_cy=None
+        lf_y_cy=None,
+        list_diff_max_h=None
     ):
     """Plot daily load profile on a radar plot
 
@@ -2164,11 +2165,19 @@ def plot_radar_plot_multiple_lines(
         # Radar area
         ax.fill(
             angles_smoothed,
-            values_smoothed, 
-            #angles,
-            #values,
+            values_smoothed,
             color_line,
             alpha=0.05)
+
+    font_additional_info = plotting_styles.font_info()
+    font_additional_info['size'] = 5
+
+    plt.text(
+        0.5,
+        0.02,
+        list_diff_max_h,
+        fontdict=font_additional_info,
+        transform=plt.gcf().transFigure)
 
     # ------------
     # Title
