@@ -15,6 +15,7 @@ from energy_demand.basic import date_prop
 from energy_demand import enduse_func
 from energy_demand.profiles import load_profile
 from energy_demand.plotting import plotting_styles
+from energy_demand.basic import basic_functions
 
 def map_LAD_2011_2015(lad_data):
     """Map LAD 2015 values to LAD 2011.
@@ -246,7 +247,7 @@ def spatial_validation_lad_level(
     data_inputlist = [
         (fuel_elec_residential_regs_yh, subnational_elec_residential),          # domestic
         (fuel_elec_non_residential_regs_yh, subnational_elec_non_residential)]  # nondomestics
-      
+
     spatial_validation_multiple(
         reg_coord=reg_coord,
         input_data=data_inputlist,
@@ -580,13 +581,16 @@ def spatial_validation(
         try:
             real = result_dict['real_demand'][reg_geocode]
             modelled = result_dict['modelled_demand'][reg_geocode]
-            diff_real_modelled_p.append((100 / real) * modelled)
+            #diff_real_modelled_p.append((100 / real) * modelled)
+            diff_real_modelled_p.append(abs(100 - ((100 / real) * modelled)))
+            #logging.info("Absolute difference in percentage {}".format(abs(100 - ((100 / real) * modelled)))) #TODO
             diff_real_modelled_abs.append(real - modelled)
         except KeyError:
             pass
 
     # Calculate the average deviation between reald and modelled
     av_deviation_real_modelled = np.average(diff_real_modelled_p)
+    median_absolute_deviation = np.median(diff_real_modelled_p)    # median deviation
 
     # Calculate standard deviation
     std_dev_p = np.std(diff_real_modelled_p)        # Given as percent
@@ -698,13 +702,14 @@ def spatial_validation(
 
     font_additional_info = plotting_styles.font_info()
 
-    font_additional_info['size'] = 6
+    font_additional_info['size'] = 4
 
-    title_info = ('R_2: {}, std_%: {} (GWh {}), av_diff_%: {}'.format(
+    title_info = ('R_2: {}, std_%: {} (GWh {}), av_diff_%: {} median_abs_dev: {}'.format(
         round(r_value, 2),
         round(std_dev_p, 2),
         round(std_dev_abs, 2),
-        round(av_deviation_real_modelled, 2)))
+        round(av_deviation_real_modelled, 2),
+        round(median_absolute_deviation, 2)))
 
     plt.title(
         title_info,
@@ -767,7 +772,7 @@ def spatial_validation_multiple(
     # Plot
     # -------------------------------------
     fig = plt.figure(
-        figsize=plotting_program.cm2inch(9, 8)) #width, height (9, 8)
+        figsize=plotting_program.cm2inch(9, 8)) #width, height
 
     ax = fig.add_subplot(1, 1, 1)
 
@@ -809,17 +814,23 @@ def spatial_validation_multiple(
             try:
                 real = result_dict['real_demand'][reg_geocode]
                 modelled = result_dict['modelled_demand'][reg_geocode]
-                diff_real_modelled_p.append((100 / real) * modelled)
+                #diff_real_modelled_p.append(100 - (100 / real) * modelled)
+                diff_real_modelled_p.append(abs(100 - ((100 / real) * modelled))) # Average abs deviation
                 diff_real_modelled_abs.append(real - modelled)
             except KeyError:
                 pass
 
         # Calculate the average deviation between reald and modelled
         av_deviation_real_modelled = np.average(diff_real_modelled_p)
+        median_absolute_deviation = np.median(diff_real_modelled_p)    # median deviation
 
         # Calculate standard deviation
         std_dev_p = np.std(diff_real_modelled_p)        # Given as percent
         std_dev_abs = np.std(diff_real_modelled_abs)    # Given as energy unit
+
+        rmse = basic_functions.rmse(
+            np.array(list(result_dict['real_demand'].values())),
+            np.array(list(result_dict['modelled_demand'].values())))
 
         # -----------------
         # Sort results according to size
@@ -906,7 +917,6 @@ def spatial_validation_multiple(
         # -----------
         if label_points:
             for pos, txt in enumerate(labels):
-
                 ax.text(
                     x_values[pos],
                     y_modelled_demand[pos],
@@ -917,29 +927,29 @@ def spatial_validation_multiple(
 
         font_additional_info = plotting_styles.font_info()
 
-        font_additional_info['size'] = 4
+        font_additional_info['size'] = 3
         font_additional_info['color'] = color_list[cnt_color]
 
-        title_info = ('R_2: {}, std_%: {} (GWh {}), av_diff_%: {}'.format(
+        title_info = ('R_2: {}, std_%: {} (GWh {}), av_diff_%: {} median_abs_dev: {}'.format(
             round(r_value, 2),
             round(std_dev_p, 2),
             round(std_dev_abs, 2),
-            round(av_deviation_real_modelled, 2)))
-
+            round(av_deviation_real_modelled, 2),
+            round(median_absolute_deviation, 2)))
 
         plt.text(
-            0.3,
-            0.9 - cnt_color/10, title_info, ha='center', va='center', transform=ax.transAxes, fontdict=font_additional_info)
-
-        #plt.text(10, 0.5 + cnt_color, title_info, fontdict=font_additional_info)
+            0.2,
+            0.9 - cnt_color/10,
+            title_info,
+            ha='center',
+            va='center',
+            transform=ax.transAxes,
+            fontdict=font_additional_info)
 
         cnt_color =+ 1
 
     plt.xlabel("UK regions (excluding northern ireland)")
     plt.ylabel("{} [GWh]".format(fueltype_str))
-
-    #text(10, 10, s, fontsize=12)
-
 
     # Limit
     plt.ylim(ymin=0)
@@ -950,12 +960,13 @@ def spatial_validation_multiple(
     plt.legend(
         prop={
             'family': 'arial',
-            'size': 8},
+            'size': 6},
         frameon=False)
 
     # Tight layout
     plt.margins(x=0)
     plt.tight_layout()
+
     plt.savefig(fig_name)
 
     if plotshow:

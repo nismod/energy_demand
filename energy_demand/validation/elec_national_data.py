@@ -217,6 +217,7 @@ def compare_results(
     # Labelling
     # ----------
     font_additional_info = plotting_styles.font_info()
+    font_additional_info['size'] = 4
 
     plt.title(
         'RMSE: {} Std_dev_% {} (+-{} GW) R_2: {}'.format(
@@ -224,7 +225,6 @@ def compare_results(
             round(standard_dev_real_modelled, 3),
             round(standard_dev_real_modelled_abs, 3),
             round(r_value, 3)),
-        fontsize=10,
         fontdict=font_additional_info,
         loc='right')
 

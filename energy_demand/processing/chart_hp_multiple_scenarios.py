@@ -87,7 +87,7 @@ def process_scenarios(path_to_scenarios, year_to_model=2015):
             lookups,
             regions,
             hp_scenario_data=scenario_data,
-            fig_name=os.path.join(path_result_folder, "comparison_hp_service_switch_and_lf.pdf"),
+            fig_name=os.path.join(path_result_folder, "comparison_hp_share_peak_h.pdf"),
             fueltype_str_input='electricity',
             plotshow=True)
 

@@ -92,7 +92,7 @@ def plot_heat_pump_chart_multiple(
     plot_all_regs = False
 
     # Set figure size
-    fig = plt.figure(figsize=plotting_program.cm2inch(16, 8))
+    fig = plt.figure(figsize=plotting_program.cm2inch(9, 8))
     ax = fig.add_subplot(1, 1, 1)
 
     # -----------------

@@ -13,7 +13,8 @@ def dict_depth(dictionary):
     return 0
 
 def rmse(predictions, actual_values):
-    """Root-mean-square deviation calculations
+    """Root-mean-square deviation or 
+    Root-mean-square-erro (RMSE) calculations
 
     Arguments
     ----------
@@ -21,11 +22,21 @@ def rmse(predictions, actual_values):
         Model prediction (real value)
     actual_values : array
         Moodelled value
-    
+
     Returns
     -------
     rmse : array
         root-mean-square deviation
+
+    Info
+    -----
+
+        Alternative way
+
+        from sklearn.metrics import mean_squared_error
+        from math import sqrt
+
+        rms = sqrt(mean_squared_error(y_actual, y_predicted))
     """
     rmse = np.sqrt(((predictions - actual_values) ** 2).mean())
 
