@@ -366,7 +366,7 @@ def residential_submodel(
             # ------------------------------------------------------
             # Configure and select correct Enduse() specific inputs
             # ------------------------------------------------------
-            if criterias['spatial_explicit_diffusion']:
+            if assumptions.spatial_explicit_diffusion:
                 sig_param_tech = assumptions.rs_sig_param_tech[enduse][region.name]
                 strategy_variables = assumptions.regional_strategy_variables[region.name]
             else:
@@ -440,7 +440,7 @@ def service_submodel(
             # ------------------------------------------------------
             # Configure and select correct Enduse() specific inputs
             # ------------------------------------------------------
-            if criterias['spatial_explicit_diffusion']:
+            if assumptions.spatial_explicit_diffusion:
                 sig_param_tech = assumptions.ss_sig_param_tech[enduse][sector][region.name]
                 strategy_variables = assumptions.regional_strategy_variables[region.name]
             else:
@@ -524,7 +524,7 @@ def industry_submodel(
             else:
                 flat_profile_crit = True
 
-            if criterias['spatial_explicit_diffusion']:
+            if assumptions.spatial_explicit_diffusion:
                 sig_param_tech = assumptions.is_sig_param_tech[enduse][sector][region.name]
                 strategy_variables = assumptions.regional_strategy_variables[region.name]
             else:

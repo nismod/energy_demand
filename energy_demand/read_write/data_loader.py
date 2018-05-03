@@ -5,15 +5,12 @@ import csv
 import logging
 import configparser
 import ast
-import numpy as np
 from collections import defaultdict
-from datetime import date
+import numpy as np
 from energy_demand.read_write import read_data, read_weather_data
 from energy_demand.basic import conversions
-from energy_demand.basic import date_prop
 from energy_demand.plotting import plotting_results
 from energy_demand.basic import basic_functions
-from energy_demand.basic import lookup_tables
 
 def load_ini_param(path):
     """Load simulation parameter run information
@@ -134,7 +131,7 @@ def floor_area_virtual_dw(
         all_sectors,
         local_paths,
         base_yr,
-        f_mixed_floorarea
+        f_mixed_floorarea=0.5
     ):
     """Load necessary data for virtual building stock
     in case the link to the building stock model in
@@ -253,16 +250,15 @@ def load_local_paths(path):
             path, '_processed_data', 'services'),
 
         'yaml_parameters': os.path.join(
-            path, 'yaml_parameters.yml'),
+            path, '..', 'config', 'yaml_parameters.yml'),
         'yaml_parameters_constrained': os.path.join(
-            path, 'yaml_parameters_constrained.yml'),
+            path, '..', 'config', 'yaml_parameters_constrained.yml'),
         'yaml_parameters_keynames_constrained': os.path.join(
-            path, 'yaml_parameters_keynames_constrained.yml'),
+            path, '..', 'config', 'yaml_parameters_keynames_constrained.yml'),
         'yaml_parameters_keynames_unconstrained': os.path.join(
-            path, 'yaml_parameters_keynames_unconstrained.yml'),
+            path, '..', 'config', 'yaml_parameters_keynames_unconstrained.yml'),
         'yaml_parameters_scenario': os.path.join(
-            path, 'yaml_parameters_scenario.yml')
-        }
+            path, '..', 'config', 'yaml_parameters_scenario.yml')}
 
     return paths
 

@@ -799,7 +799,6 @@ def spatial_validation_multiple(
                             # --Sub Regional Electricity demand (as GWh)
                             result_dict['real_demand'][reg_geocode] = subnational_real[reg_geocode]
                             result_dict['modelled_demand'][reg_geocode] = subnational_modelled[reg_geocode]
-
                     except KeyError:
                         logging.warning(
                             "Sub-national spatial validation: No fuel for region %s", reg_geocode)
@@ -821,8 +820,8 @@ def spatial_validation_multiple(
                 pass
 
         # Calculate the average deviation between reald and modelled
-        av_deviation_real_modelled = np.average(diff_real_modelled_p)
-        median_absolute_deviation = np.median(diff_real_modelled_p)    # median deviation
+        av_deviation_real_modelled = np.average(diff_real_modelled_p)   # average deviation
+        median_absolute_deviation = np.median(diff_real_modelled_p)     # median deviation
 
         # Calculate standard deviation
         std_dev_p = np.std(diff_real_modelled_p)        # Given as percent
@@ -894,7 +893,7 @@ def spatial_validation_multiple(
             fillstyle='full',
             markerfacecolor='grey',
             markeredgewidth=0.2,
-            color=color_list[cnt_color], #'black',
+            color=color_list[cnt_color],
             markeredgecolor=color_list[cnt_color],
             label='actual')
 
@@ -908,8 +907,8 @@ def spatial_validation_multiple(
             markerfacecolor='white',
             fillstyle='none',
             markeredgewidth=0.5,
-            markeredgecolor=color_list[cnt_color], #'blue',
-            color=color_list[cnt_color], #'black',
+            markeredgecolor=color_list[cnt_color],
+            color=color_list[cnt_color],
             label='model' + label_list[cnt_color])
 
         # -----------
@@ -938,7 +937,7 @@ def spatial_validation_multiple(
             round(median_absolute_deviation, 2)))
 
         plt.text(
-            0.2,
+            0.4,
             0.9 - cnt_color/10,
             title_info,
             ha='center',

@@ -55,6 +55,8 @@ class Assumptions(object):
         # or technologies having a spatial explicit diffusion need
         # to be defined.
         # ============================================================
+        self.spatial_explicit_diffusion = 0 #0: False, 1: True
+
         # Define all variables which are affected by regional diffusion
         self.spatially_modelled_vars = [] # ['smart_meter_improvement_p']
 
@@ -93,7 +95,7 @@ class Assumptions(object):
         self.f_is_weekend = 0.45                      # 0.4
 
         # Spatial calibration factor
-        self.f_mixed_floorarea = 0.8                  # 0.5 #TODO
+        #self.f_mixed_floorarea = 0.8                  # 0.5 #TODO
 
         # ============================================================
         #   Modelled day related factors

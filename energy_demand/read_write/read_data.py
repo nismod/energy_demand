@@ -1179,12 +1179,12 @@ def read_floor_area_virtual_stock(path_to_csv, f_mixed_floorarea=0.5):
 
     # Second Mail from Craig
     res_floorarea, non_res_floorarea, floorarea_mixed = {}, {}, {}
-    
+
     building_count_service = {}
     for i in range(1, 15):
         building_count_service[i] = {}
 
-    floor_area_placeholder = 1234567899999999 #0.0001 #99999999 #0.0001 #TODO
+    floor_area_placeholder = 1234567899999999 #TODO
 
     with open(path_to_csv, 'r') as csvfile:
         rows = csv.reader(csvfile, delimiter=',')
@@ -1206,10 +1206,8 @@ def read_floor_area_virtual_stock(path_to_csv, f_mixed_floorarea=0.5):
                     res_floorarea[geo_name] = float(row[get_position(headings, 'res_bld_floor_area')])
                 if row[get_position(headings, 'nonres_bld_floor_area')] == 'null':
                     non_res_floorarea[geo_name] = floor_area_placeholder
-                    #non_res_only = floor_area_placeholder #NEW
                 else:
                     non_res_floorarea[geo_name] = float(row[get_position(headings, 'nonres_bld_floor_area')])
-                    #non_res_only = float(row[get_position(headings, 'nonres_bld_floor_area')])
 
                 if row[get_position(headings, 'mixeduse_bld_floor_area')] == 'null':
                     floorarea_mixed[geo_name] = floor_area_placeholder
@@ -1220,11 +1218,9 @@ def read_floor_area_virtual_stock(path_to_csv, f_mixed_floorarea=0.5):
                 non_res_from_mixed = floorarea_mixed[geo_name] * p_mixed_no_resid
                 res_from_mixed = floorarea_mixed[geo_name] * f_mixed_floorarea
 
-                #TODO CHECK WHETER res_bld_floor_area	nonres_bld_floor_area	mixeduse_bld_floor_area
-
                 # Add
                 res_floorarea[geo_name] += res_from_mixed
-                non_res_floorarea[geo_name] += non_res_from_mixed #+ non_res_only
+                non_res_floorarea[geo_name] += non_res_from_mixed
 
             # Read building count for service sector
             building_1 = float(row[get_position(headings, 'building_type_count_1')])

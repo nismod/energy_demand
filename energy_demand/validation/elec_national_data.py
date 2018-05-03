@@ -174,8 +174,6 @@ def compare_results(
 
     # plot points
     plt.plot(
-        #x_data,
-        #y_real_indo_factored,
         x_data_smoothed,
         y_real_indo_factored_smoothed,
         label='indo_factored',
