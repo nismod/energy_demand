@@ -63,6 +63,12 @@ class Assumptions(object):
         # Define technologies which are affected by spatial explicit diffusion
         self.techs_affected_spatial_f = ['heat_pumps_electricity']
 
+
+        # --------
+        # Demand management of heat pumps
+        # --------
+        self.flat_heat_pump_profile = 0 # 0: FAlse, 1: True
+
         # ============================================================
         # Model calibration factors
         # ============================================================

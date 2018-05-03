@@ -153,7 +153,7 @@ def scenario_initalisation(path_data_ed, data=False):
     #
     # Calculate spatial diffusion factors
     # ===========================================
-    if data['assumptions'].spatial_explicit_diffusion:
+    if data['assumptions'].strategy_variables['spatial_explicit_diffusion']:
 
         # Real value to select
         real_values = data['pop_density']
@@ -219,7 +219,7 @@ def scenario_initalisation(path_data_ed, data=False):
         data['fuels']['is_fuel_raw'],
         data['enduses']['is_enduses'])
 
-    if data['assumptions'].spatial_explicit_diffusion:
+    if data['assumptions'].strategy_variables['spatial_explicit_diffusion']:
 
         # ----------------------
         # Select diffusion value
@@ -310,7 +310,7 @@ def scenario_initalisation(path_data_ed, data=False):
         data['assumptions'].rs_service_switches,
         data['assumptions'].rs_specified_tech_enduse_by,
         rs_s_tech_by_p,
-        spatial_explicit_diffusion=data['assumptions'].spatial_explicit_diffusion,
+        spatial_explicit_diffusion=data['assumptions'].strategy_variables['spatial_explicit_diffusion'],
         regions=data['regions'],
         f_diffusion=f_diffusion,
         techs_affected_spatial_f=data['assumptions'].techs_affected_spatial_f,
@@ -330,7 +330,7 @@ def scenario_initalisation(path_data_ed, data=False):
             data['assumptions'].ss_specified_tech_enduse_by,
             ss_s_tech_by_p[sector],
             sector=sector,
-            spatial_explicit_diffusion=data['assumptions'].spatial_explicit_diffusion,
+            spatial_explicit_diffusion=data['assumptions'].strategy_variables['spatial_explicit_diffusion'],
             regions=data['regions'],
             f_diffusion=f_diffusion,
             techs_affected_spatial_f=data['assumptions'].techs_affected_spatial_f,
@@ -351,7 +351,7 @@ def scenario_initalisation(path_data_ed, data=False):
             data['assumptions'].is_specified_tech_enduse_by,
             is_s_tech_by_p[sector],
             sector=sector,
-            spatial_explicit_diffusion=data['assumptions'].spatial_explicit_diffusion,
+            spatial_explicit_diffusion=data['assumptions'].strategy_variables['spatial_explicit_diffusion'],
             regions=data['regions'],
             f_diffusion=f_diffusion,
             techs_affected_spatial_f=data['assumptions'].techs_affected_spatial_f,
@@ -378,7 +378,7 @@ def scenario_initalisation(path_data_ed, data=False):
             share_s_tech_ey_p=rs_share_s_tech_ey_p[enduse],
             fuel_tech_p_by=data['assumptions'].rs_fuel_tech_p_by[enduse],
             regions=data['regions'],
-            regional_specific=data['assumptions'].spatial_explicit_diffusion)
+            regional_specific=data['assumptions'].strategy_variables['spatial_explicit_diffusion'])
 
     # Service
     for enduse in data['enduses']['ss_enduses']:
@@ -397,7 +397,7 @@ def scenario_initalisation(path_data_ed, data=False):
                 fuel_tech_p_by=data['assumptions'].ss_fuel_tech_p_by[enduse][sector],
                 regions=data['regions'],
                 sector=sector,
-                regional_specific=data['assumptions'].spatial_explicit_diffusion)
+                regional_specific=data['assumptions'].strategy_variables['spatial_explicit_diffusion'])
 
     # Industry
     for enduse in data['enduses']['is_enduses']:
@@ -416,7 +416,7 @@ def scenario_initalisation(path_data_ed, data=False):
                 fuel_tech_p_by=data['assumptions'].is_fuel_tech_p_by[enduse][sector],
                 regions=data['regions'],
                 sector=sector,
-                regional_specific=data['assumptions'].spatial_explicit_diffusion)
+                regional_specific=data['assumptions'].strategy_variables['spatial_explicit_diffusion'])
 
     # ===========================================
     # III. Spatial explicit modelling of scenario variables
@@ -424,7 +424,7 @@ def scenario_initalisation(path_data_ed, data=False):
     # From UK factors to regional specific factors
     # Convert strategy variables to regional variables
     # ===========================================
-    if data['assumptions'].spatial_explicit_diffusion:
+    if data['assumptions'].strategy_variables['spatial_explicit_diffusion']:
         init_cont['regional_strategy_variables'] = defaultdict(dict)
 
         # Iterate strategy variables and calculate regional variable

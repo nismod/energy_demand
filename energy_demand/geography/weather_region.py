@@ -275,7 +275,7 @@ class WeatherRegion(object):
             shape_y_dh=tech_lp['rs_profile_hp_y_dh'],
             shape_peak_dh=tech_lp['rs_lp_heating_hp_dh']['peakday'])
 
-        if criteria['flat_heat_pump_profile']:
+        if assumptions.strategy_variables['flat_heat_pump_profile']:
 
             # flat lp
             rs_profile_hp_y_dh = flat_shape_y_dh

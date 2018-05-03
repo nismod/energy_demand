@@ -305,18 +305,18 @@ def autocomplete_switches(
                         enduse_switches.append(switch_new)
                         switch_yr = switch.switch_yr
 
-                    # Create switch
-                    switches_new = create_switches_from_s_shares(
-                        enduse=enduse,
-                        s_tech_by_p=s_tech_by_p,
-                        switch_technologies=switch_technologies,
-                        specified_tech_enduse_by=specified_tech_enduse_by,
-                        enduse_switches=enduse_switches,
-                        s_tot_defined=s_tot_defined,
-                        sector=sector,
-                        switch_yr=switch_yr)
+                        # Create switch TODO TODO SHIFTED ONE TAB CHECK 03.05.2018
+                        switches_new = create_switches_from_s_shares(
+                            enduse=enduse,
+                            s_tech_by_p=s_tech_by_p,
+                            switch_technologies=switch_technologies,
+                            specified_tech_enduse_by=specified_tech_enduse_by,
+                            enduse_switches=enduse_switches,
+                            s_tot_defined=s_tot_defined,
+                            sector=sector,
+                            switch_yr=switch_yr)
 
-                    service_switches_out[region].extend(switches_new)
+                        service_switches_out[region].extend(switches_new)
     else:
         service_switches_out = []
 

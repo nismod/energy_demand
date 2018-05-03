@@ -173,7 +173,6 @@ if __name__ == "__main__":
     data['criterias']['mode_constrained'] = True                # Whether model is run in constrained mode or not
     data['criterias']['plot_HDD_chart'] = False                 # Wheather HDD chart is plotted or not
     data['criterias']['virtual_building_stock_criteria'] = True # Wheater model uses a virtual dwelling stock or not
-    #data['criterias']['spatial_explicit_diffusion'] = True      # Wheater spatially epxlicit diffusion or not
     data['criterias']['write_to_txt'] = True                    # Wheater results are written to txt files
     data['criterias']['beyond_supply_outputs'] = False           # Wheater all results besides integraded smif run are calculated
     data['criterias']['plot_tech_lp'] = True                    # Wheater all individual load profils are plotted

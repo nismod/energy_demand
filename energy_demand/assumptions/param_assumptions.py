@@ -40,6 +40,7 @@ def load_param_assump(paths=None, local_paths=None, assumptions=None):
         assumptions_dict['t_bases']['ss_t_cooling_by'] = None
         assumptions_dict['t_bases']['is_t_heating_by'] = None
         assumptions_dict['spatial_explicit_diffusion'] = 0 #TODO As soon as smif allows bool type parameters, implement this
+        assumptions_dict['flat_heat_pump_profile'] = 0 #FAlse
         assumptions = non_param_assumptions.DummyClass(assumptions_dict)
 
         setattr(assumptions, 't_bases', non_param_assumptions.DummyClass(assumptions_dict['t_bases']))
@@ -58,6 +59,19 @@ def load_param_assump(paths=None, local_paths=None, assumptions=None):
         "suggested_range": (0, 1),
         "default_value": assumptions.spatial_explicit_diffusion,
         "units": 'years'})
+
+    # -----------
+    # Demand management of heat pumps
+    # -----------
+    strategy_vars['flat_heat_pump_profile'] = assumptions.flat_heat_pump_profile
+
+    strategy_variables.append({
+        "name": "flat_heat_pump_profile",
+        "absolute_range": (0, 1),
+        "description": "Heat pump profile flat or with actual data",
+        "suggested_range": (0, 1),
+        "default_value": assumptions.flat_heat_pump_profile,
+        "units": 'bool'})
 
     # ----------------------
     # Heat pump technology mix
