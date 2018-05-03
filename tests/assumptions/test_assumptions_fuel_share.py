@@ -12,7 +12,8 @@ from pkg_resources import Requirement
 def test_assign_by_fuel_tech_p():
     """
     """
-    path_main = resource_filename(Requirement.parse("energy_demand"), os.path.join("energy_demand", "config_data"))
+    path_main = resource_filename(
+        Requirement.parse("energy_demand"), os.path.join("energy_demand", "config_data"))
 
     # Load data
     data = {}

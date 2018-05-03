@@ -6,7 +6,7 @@ from energy_demand.read_write import write_data
 from energy_demand.basic import basic_functions
 from energy_demand.assumptions import non_param_assumptions
 
-def load_param_assump(paths=None, local_paths=None, assumptions=None):
+def load_param_assump(paths=None, local_paths=None, assumptions=None, writeYAML=False):
     """All assumptions of the energy demand model
     are loaded and added to the data dictionary
 
@@ -590,17 +590,18 @@ def load_param_assump(paths=None, local_paths=None, assumptions=None):
             except KeyError:
                 pass
 
-        # Delete existing files
-        basic_functions.del_file(local_paths['yaml_parameters_constrained'])
-        basic_functions.del_file(local_paths['yaml_parameters_scenario'])
+        if writeYAML:
+            # Delete existing files
+            basic_functions.del_file(local_paths['yaml_parameters_constrained'])
+            basic_functions.del_file(local_paths['yaml_parameters_scenario'])
 
-        # Write new files
-        write_data.write_yaml_param_complete(
-            local_paths['yaml_parameters_constrained'],
-            strategy_variables_write)
-        write_data.write_yaml_param_scenario(
-            local_paths['yaml_parameters_scenario'],
-            strategy_vars)
+            # Write new files
+            write_data.write_yaml_param_complete(
+                local_paths['yaml_parameters_constrained'],
+                strategy_variables_write)
+            write_data.write_yaml_param_scenario(
+                local_paths['yaml_parameters_scenario'],
+                strategy_vars)
 
     # Convert to dict for loacl running purposes
     strategy_vars_out = {}

@@ -842,7 +842,10 @@ def sig_param_calc_incl_fuel_switch(
                 break
 
             for reg in regions:
-                logging.info("... ======calculating sigmoid parameters %s %s %s ", enduse, reg, s_tech_switched_p[reg]['heat_pumps_electricity'])
+                logging.info(
+                    "... ======calculating sigmoid parameters %s %s %s ",
+                    enduse, reg, s_tech_switched_p[reg]['heat_pumps_electricity'])
+
                 sig_param_tech[reg] = s_generate_sigmoid.tech_sigmoid_parameters(
                     yr_until_switched,
                     base_yr,
@@ -850,8 +853,6 @@ def sig_param_calc_incl_fuel_switch(
                     l_values_sig[reg],
                     s_tech_by_p,
                     s_tech_switched_p[reg])
-                #import pprint
-                #logging.info(pprint.pprint( sig_param_tech[reg]['heat_pumps_electricity']))
         else:
 
             # Get year of switches
