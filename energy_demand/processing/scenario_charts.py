@@ -185,8 +185,8 @@ def process_scenarios(path_to_scenarios, year_to_model=2015):
 
 # Generate plots across all scenarios
 #process_scenarios(os.path.abspath("C:/Users/cenv0553/ED/__STORAGE"))
-process_scenarios(os.path.abspath("C:/Users/cenv0553/ed/results/Fig_08"))
-
+#process_scenarios(os.path.abspath("C:/Users/cenv0553/ed/results/Fig_08"))
+process_scenarios(os.path.abspath("C:/Users/cenv0553/ed/results/Fig_12"))
 #process_scenarios(os.path.abspath("C:/Users/cenv0553/ED/_MULTII"))
 #process_scenarios(os.path.abspath("C:/Users/cenv0553/ED/_multi_scen_A"))
 #process_scenarios(os.path.abspath("C:/Users/cenv0553/ED/_MULTI"))

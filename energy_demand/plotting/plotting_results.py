@@ -2183,16 +2183,15 @@ def plot_radar_plot_multiple_lines(
     # Title
     # ------------
     font_additional_info = plotting_styles.font_info()
-    font_additional_info['size'] = 6
+    font_additional_info['size'] = 4
 
-    title_info = " lf_y_by: {} lf_y_cy: {}".format(
-        lf_y_by,
-        lf_y_cy)
-
-    plt.title(
-        title_info,
-        loc='left',
-        fontdict=font_additional_info)
+    #title_info = " lf_y_by: {} lf_y_cy: {}".format(
+    #    lf_y_by,
+    #    lf_y_cy)
+    #plt.title(
+    #    title_info,
+    #    loc='left',
+    #    fontdict=font_additional_info)
 
     # ------------
     # Legend
