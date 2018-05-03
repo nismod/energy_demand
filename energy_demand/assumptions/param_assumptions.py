@@ -40,7 +40,9 @@ def load_param_assump(paths=None, local_paths=None, assumptions=None, writeYAML=
         assumptions_dict['t_bases']['ss_t_cooling_by'] = None
         assumptions_dict['t_bases']['is_t_heating_by'] = None
         assumptions_dict['spatial_explicit_diffusion'] = 0 #TODO As soon as smif allows bool type parameters, implement this
-        assumptions_dict['flat_heat_pump_profile'] = 0 #FAlse
+        assumptions_dict['flat_heat_pump_profile_both'] = 0 #FAlse
+        assumptions_dict['flat_heat_pump_profile_only_water'] = 0 #FAlse
+        
         assumptions = non_param_assumptions.DummyClass(assumptions_dict)
 
         setattr(assumptions, 't_bases', non_param_assumptions.DummyClass(assumptions_dict['t_bases']))
@@ -63,16 +65,25 @@ def load_param_assump(paths=None, local_paths=None, assumptions=None, writeYAML=
     # -----------
     # Demand management of heat pumps
     # -----------
-    strategy_vars['flat_heat_pump_profile'] = assumptions.flat_heat_pump_profile
+    strategy_vars['flat_heat_pump_profile_both'] = assumptions.flat_heat_pump_profile_both
 
     strategy_variables.append({
-        "name": "flat_heat_pump_profile",
+        "name": "flat_heat_pump_profile_both",
         "absolute_range": (0, 1),
         "description": "Heat pump profile flat or with actual data",
         "suggested_range": (0, 1),
-        "default_value": assumptions.flat_heat_pump_profile,
+        "default_value": assumptions.flat_heat_pump_profile_both,
         "units": 'bool'})
 
+    strategy_vars['flat_heat_pump_profile_only_water'] = assumptions.flat_heat_pump_profile_only_water
+
+    strategy_variables.append({
+        "name": "flat_heat_pump_profile_only_water",
+        "absolute_range": (0, 1),
+        "description": "Heat pump profile flat or with actual data only for water heating",
+        "suggested_range": (0, 1),
+        "default_value": assumptions.flat_heat_pump_profile_only_water,
+        "units": 'bool'})
     # ----------------------
     # Heat pump technology mix
     # Source: Hannon 2015: Raising the temperature of the UK heat pump market: Learning lessons from Finland

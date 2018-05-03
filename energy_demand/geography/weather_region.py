@@ -275,34 +275,72 @@ class WeatherRegion(object):
             shape_y_dh=tech_lp['rs_profile_hp_y_dh'],
             shape_peak_dh=tech_lp['rs_lp_heating_hp_dh']['peakday'])
 
-        if assumptions.strategy_variables['flat_heat_pump_profile']:
+       
 
-            # flat lp
-            rs_profile_hp_y_dh = flat_shape_y_dh
+        # flat lp
+        rs_profile_hp_y_dh = flat_shape_y_dh
 
-            rs_fuel_shape_hp_yh, rs_hp_shape_yd = get_fuel_shape_heating_hp_yh(
-                rs_profile_hp_y_dh,
-                self.rs_tech_stock,
-                self.rs_hdd_cy,
-                assumptions.model_yeardays)
-
-        else:
-            # not flat lp
-            rs_fuel_shape_hp_yh, rs_hp_shape_yd = get_fuel_shape_heating_hp_yh(
-                rs_profile_hp_y_dh,
-                self.rs_tech_stock,
-                self.rs_hdd_cy,
-                assumptions.model_yeardays)
+        flat_rs_fuel_shape_hp_yh, rs_hp_shape_yd = get_fuel_shape_heating_hp_yh(
+            rs_profile_hp_y_dh,
+            self.rs_tech_stock,
+            self.rs_hdd_cy,
+            assumptions.model_yeardays)
+        #else:
+        # not flat lp
+        rs_fuel_shape_hp_yh, rs_hp_shape_yd = get_fuel_shape_heating_hp_yh(
+            rs_profile_hp_y_dh,
+            self.rs_tech_stock,
+            self.rs_hdd_cy,
+            assumptions.model_yeardays)
 
         #TODO Info: Same load for space and water heating for HP
-        self.rs_load_profiles.add_lp(
-            unique_identifier=uuid.uuid4(),
-            technologies=assumptions.tech_list['heating_non_const'],
-            enduses=['rs_space_heating', 'rs_water_heating'],
-            shape_y_dh=rs_profile_hp_y_dh,
-            shape_yd=rs_hp_shape_yd,
-            shape_yh=rs_fuel_shape_hp_yh,
-            model_yeardays=assumptions.model_yeardays)
+        if assumptions.strategy_variables['flat_heat_pump_profile_both']['scenario_value']:
+            flat_space_heating = True
+            flat_water_heating = True
+        elif assumptions.strategy_variables['flat_heat_pump_profile_only_water']['scenario_value']:
+            flat_space_heating = False
+            flat_water_heating = False
+        else:
+            flat_space_heating = False
+            flat_water_heating = False
+
+        if flat_water_heating and flat_space_heating: #Improve
+            self.rs_load_profiles.add_lp(
+                unique_identifier=uuid.uuid4(),
+                technologies=assumptions.tech_list['heating_non_const'],
+                enduses=['rs_space_heating', 'rs_water_heating'],
+                shape_y_dh=rs_profile_hp_y_dh,
+                shape_yd=rs_hp_shape_yd,
+                shape_yh=flat_rs_fuel_shape_hp_yh,
+                model_yeardays=assumptions.model_yeardays)
+        elif flat_water_heating and not flat_space_heating:
+
+            self.rs_load_profiles.add_lp(
+                unique_identifier=uuid.uuid4(),
+                technologies=assumptions.tech_list['heating_non_const'],
+                enduses=['rs_water_heating'],
+                shape_y_dh=rs_profile_hp_y_dh,
+                shape_yd=rs_hp_shape_yd,
+                shape_yh=flat_rs_fuel_shape_hp_yh,
+                model_yeardays=assumptions.model_yeardays)
+            
+            self.rs_load_profiles.add_lp(
+                unique_identifier=uuid.uuid4(),
+                technologies=assumptions.tech_list['heating_non_const'],
+                enduses=['rs_space_heating'],
+                shape_y_dh=rs_profile_hp_y_dh,
+                shape_yd=rs_hp_shape_yd,
+                shape_yh=rs_fuel_shape_hp_yh,
+                model_yeardays=assumptions.model_yeardays)
+        else:
+            self.rs_load_profiles.add_lp(
+                unique_identifier=uuid.uuid4(),
+                technologies=assumptions.tech_list['heating_non_const'],
+                enduses=['rs_space_heating', 'rs_water_heating'],
+                shape_y_dh=rs_profile_hp_y_dh,
+                shape_yd=rs_hp_shape_yd,
+                shape_yh=flat_rs_fuel_shape_hp_yh,
+                model_yeardays=assumptions.model_yeardays)
 
         # ------District_heating_electricity. Assumption made that same curve as CHP
         self.rs_load_profiles.add_lp(
@@ -393,7 +431,7 @@ class WeatherRegion(object):
         self.ss_load_profiles.add_lp(
             unique_identifier=uuid.uuid4(),
             technologies=assumptions.tech_list['heating_non_const'],
-            enduses=['ss_space_heating'],
+            enduses=['ss_space_heating', 'ss_water_heating'],
             sectors=sectors['ss_sectors'],
             shape_y_dh=rs_profile_hp_y_dh,
             shape_yd=ss_hp_shape_yd,

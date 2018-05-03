@@ -67,8 +67,9 @@ class Assumptions(object):
         # --------
         # Demand management of heat pumps
         # --------
-        self.flat_heat_pump_profile = 0 # 0: FAlse, 1: True
-
+        self.flat_heat_pump_profile_both = 0 # 0: FAlse, 1: True
+        self.flat_heat_pump_profile_only_water = 0  # Only water
+    
         # ============================================================
         # Model calibration factors
         # ============================================================
