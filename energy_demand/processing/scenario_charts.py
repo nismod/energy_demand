@@ -111,7 +111,7 @@ def process_scenarios(path_to_scenarios, year_to_model=2015):
             scenario_data=scenario_data,
             fueltype_int=lookups['fueltypes']['gas'],
             fueltype_str='gas',
-            fig_name=os.path.join(path_result_folder, "cross_chart_SCENAROIS_gas.pdf"),
+            fig_name=os.path.join(path_result_folder, "cross_chart_gas.pdf"),
             label_points=False,
             plotshow=False)
 
@@ -185,8 +185,8 @@ def process_scenarios(path_to_scenarios, year_to_model=2015):
 
 # Generate plots across all scenarios
 #process_scenarios(os.path.abspath("C:/Users/cenv0553/ED/__STORAGE"))
-#process_scenarios(os.path.abspath("C:/Users/cenv0553/ed/results/Fig_08"))
-process_scenarios(os.path.abspath("C:/Users/cenv0553/ed/results/Fig_12"))
+process_scenarios(os.path.abspath("C:/Users/cenv0553/ed/results/Fig_08_09"))
+#process_scenarios(os.path.abspath("C:/Users/cenv0553/ed/results/Fig_12"))
 #process_scenarios(os.path.abspath("C:/Users/cenv0553/ED/_MULTII"))
 #process_scenarios(os.path.abspath("C:/Users/cenv0553/ED/_multi_scen_A"))
 #process_scenarios(os.path.abspath("C:/Users/cenv0553/ED/_MULTI"))

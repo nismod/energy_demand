@@ -2028,7 +2028,7 @@ def plot_radar_plot_multiple_lines(
     SOURCE: https://python-graph-gallery.com/390-basic-radar-chart/
     """
     fig = plt.figure(
-        figsize=plotting_program.cm2inch(9, 12))
+        figsize=plotting_program.cm2inch(9, 14))
 
     # Get maximum demand of all lines
     max_entry = 0
@@ -2168,8 +2168,7 @@ def plot_radar_plot_multiple_lines(
             color_line,
             alpha=0.05)
 
-    font_additional_info = plotting_styles.font_info()
-    font_additional_info['size'] = 5
+    font_additional_info = plotting_styles.font_info(size=5)
 
     for cnt, entry in enumerate(list_diff_max_h):
         plt.text(
@@ -2198,8 +2197,8 @@ def plot_radar_plot_multiple_lines(
     # ------------
     plt.legend(
         ncol=2,
-        loc='best',
-        bbox_to_anchor=(0.5, -0.05),
+        #loc='best',
+        bbox_to_anchor=(0.6, -0.1),
         prop={
             'family': 'arial',
             'size': 5},
@@ -2733,6 +2732,23 @@ def plot_cross_graphs_scenarios(
                 horizontalalignment="right",
                 verticalalignment="top",
                 fontsize=6)
+
+    # -------
+    # Title information
+    # -------
+    max_peak_h = max(x_values)
+    min_peak_h = min(x_values)
+    min_lf = min(y_values)
+    max_lf = max(y_values)
+
+    plt.title(
+        "max_peak_h: {} min_peak_h: {}, min_lf: {} max_lf: {}",
+        max_peak_h,
+        min_peak_h,
+        min_lf,
+        max_lf,
+        fontsize=10)
+
     # --------
     # Legend
     # --------

@@ -177,13 +177,13 @@ def color_list_scenarios():
     '''
     return color_list_selection
 
-def font_info():
+def font_info(family='arial', color='black', weight='normal', size=8):
     """
     """
     font_additional_info = {
         'family': 'arial',
         'color': 'black',
         'weight': 'normal',
-        'size': 8}
+        'size': size}
 
     return font_additional_info

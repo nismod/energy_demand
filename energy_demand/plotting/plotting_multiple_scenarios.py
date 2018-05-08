@@ -596,9 +596,13 @@ def plot_reg_y_over_time(
     # ---------
     # Labels
     # ---------
+    font_additional_info = plotting_styles.font_info(size=5)
+
     plt.ylabel("GWh")
     plt.xlabel("year")
-    plt.title("tot y ED all fueltypes")
+    plt.title(
+        "tot_y",
+        fontdict=font_additional_info)
 
     # Tight layout
     plt.tight_layout()
@@ -622,8 +626,11 @@ def plot_tot_fueltype_y_over_time(
     """Plot total demand over simulation period for every
     scenario for all regions
     """
+    diff_elec, diff_gas = [], []
+
     # Set figure size
     fig = plt.figure(figsize=plotting_program.cm2inch(9, 8))
+
 
     ax = fig.add_subplot(1, 1, 1)
 
@@ -691,6 +698,20 @@ def plot_tot_fueltype_y_over_time(
                     linestyle=linestyles[cnt_linestyle],
                     label="{}_{}".format(scenario_name, fueltype_str))
 
+                # ---
+                # Calculate difference in demand from 2015 - 2050
+                # ---
+                tot_2015 = fuel_fueltype[0]
+                tot_2050 = fuel_fueltype[-1]
+
+                p_diff_2015_2015 = (100 / tot_2015) * tot_2050
+                p_diff_2015_2015_round = float(round(p_diff_2015_2015, 1))
+
+                if fueltype_str == 'electricity':
+                    diff_elec.append(p_diff_2015_2015_round)
+                if fueltype_str == 'gas':
+                    diff_gas.append(p_diff_2015_2015_round)
+
     # ----
     # Axis
     # ----
@@ -700,20 +721,24 @@ def plot_tot_fueltype_y_over_time(
     # Plot legend
     # ------------
     ax.legend(
-        ncol=1,
+        ncol=2,
         frameon=False,
-        loc='bottom left',
+        loc='upper center',
         prop={
             'family': 'arial',
             'size': 4},
-        bbox_to_anchor=(1, 0.2))
+        bbox_to_anchor=(0.5, -0.1))
 
     # ---------
     # Labels
     # ---------
+    font_additional_info = plotting_styles.font_info(size=5)
+
     plt.ylabel("TWh")
     plt.xlabel("year")
-    plt.title("tot y ED all fueltypes")
+    plt.title(
+        "diff elec: {}, gas:¨{}".format(diff_elec, diff_gas),
+        fontdict=font_additional_info)
 
     # Tight layout
     plt.tight_layout()
@@ -793,7 +818,7 @@ def plot_tot_y_over_time(
     # ------------
     plt.legend(
         ncol=1,
-        loc=2,
+        loc=3,
         prop={
             'family': 'arial',
             'size': 10},
@@ -851,7 +876,6 @@ def plot_radar_plots_average_peak_day(
         all_regs_fueltypes_yh_by = np.sum(scenario_data[scenario]['results_every_year'][base_yr], axis=1)
         all_regs_fueltypes_yh_cy = np.sum(scenario_data[scenario]['results_every_year'][year_to_plot], axis=1)
 
-        #for fueltype_str, fueltype_int in fueltypes.items():
         fueltype_int = fueltypes[fueltype_to_model]
 
         # ---------------------------
@@ -873,7 +897,8 @@ def plot_radar_plots_average_peak_day(
         all_regs_fueltypes_yh_cy = all_regs_fueltypes_yh_cy.reshape(all_regs_fueltypes_yh_cy.shape[0], 365, 24)
 
         diff_max_h = round(((100 / by_max_h) * cy_max_h) - 100, 2)
-        label_max_h = "scen: {} by: {} cy: {} d: {}".format(scenario, round(by_max_h, 2), round(cy_max_h, 2), round(diff_max_h, 2))
+        label_max_h = "scen: {} by: {} cy: {} d: {}".format(
+            scenario, round(by_max_h, 2), round(cy_max_h, 2), round(diff_max_h, 2))
         list_diff_max_h.append(label_max_h)
         print("Calculation of diff in peak: {} {} {} {}".format(scenario, round(diff_max_h, 2), round(by_max_h, 2), round(cy_max_h, 2)))
 
@@ -896,7 +921,7 @@ def plot_radar_plots_average_peak_day(
         plotshow=False,
         lf_y_by=[],
         lf_y_cy=[],
-        list_diff_max_h=list_diff_max_h) #load_factor_fueltype_y_cy)
+        list_diff_max_h=list_diff_max_h)
 
 def plot_LAD_comparison_scenarios(
         scenario_data,

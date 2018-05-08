@@ -204,19 +204,18 @@ def spatial_validation_lad_level(
     # Total sum modelled
     tot_sum_modelled_elec = sum(fuel_elec_regs_yh.values())
     tot_sum_modelled_resid_elec = sum(fuel_elec_residential_regs_yh.values())
-
     tot_sum_modelled_gas = sum(fuel_gas_regs_yh.values())
 
     # Total sum real
     tot_sum_real_elec = sum(subnational_elec.values())
     tot_sum_real_resid_elec = sum(subnational_elec_residential.values())
 
-    #logging.info("Spatial electricity validation: modelled: {}  real: {}".format(tot_sum_modelled_elec, tot_sum_real_elec))
-    #logging.info("comparison real: {}  modelled: {}".format(100, (100 / tot_sum_real_elec) * tot_sum_modelled_elec))
+    logging.info("Spatial electricity validation: modelled: {}  real: {}".format(tot_sum_modelled_elec, tot_sum_real_elec))
+    logging.info("comparison real: {}  modelled: {}".format(100, (100 / tot_sum_real_elec) * tot_sum_modelled_elec))
     tot_sum_real_gas = sum(subnational_gas.values())
-    #logging.info("Spatial validation: modelled: {}  real: {}".format(tot_sum_modelled_gas, tot_sum_real_gas))
-    #logging.info("comparison real: {}  modelled: {}".format(100, (100 / tot_sum_real_gas) * tot_sum_modelled_gas))
-
+    logging.info("Spatial gas validation: modelled: {}  real: {}".format(tot_sum_modelled_gas, tot_sum_real_gas))
+    logging.info("comparison real: {}  modelled: {}".format(100, (100 / tot_sum_real_gas) * tot_sum_modelled_gas))
+    
     # Calculate correction factor
     correction_factor_elec = tot_sum_modelled_elec / tot_sum_real_elec
     correction_factor_resid_elec = tot_sum_modelled_resid_elec / tot_sum_real_resid_elec
@@ -240,7 +239,7 @@ def spatial_validation_lad_level(
     tot_sum_real_gas = sum(subnational_gas.values())
     logging.info("Spatial validation: modelled: {}  real: {}".format(tot_sum_modelled_gas, tot_sum_real_gas))
     logging.info("comparison real: {}  modelled: {}".format(100, (100 / tot_sum_real_gas) * tot_sum_modelled_gas))
-    '''
+    #'''
     # ----------------------------------------------
     # TODO Correct REAL Values that sum is the same
     # ----------------------------------------------
@@ -700,9 +699,7 @@ def spatial_validation(
                 verticalalignment="top",
                 fontsize=1)
 
-    font_additional_info = plotting_styles.font_info()
-
-    font_additional_info['size'] = 4
+    font_additional_info = plotting_styles.font_info(size=4)
 
     title_info = ('R_2: {}, std_%: {} (GWh {}), av_diff_%: {} median_abs_dev: {}'.format(
         round(r_value, 2),
@@ -924,10 +921,7 @@ def spatial_validation_multiple(
                     verticalalignment="top",
                     fontsize=1)
 
-        font_additional_info = plotting_styles.font_info()
-
-        font_additional_info['size'] = 3
-        font_additional_info['color'] = color_list[cnt_color]
+        font_additional_info = plotting_styles.font_info(size=3, color=color_list[cnt_color])
 
         title_info = ('R_2: {}, std_%: {} (GWh {}), av_diff_%: {} median_abs_dev: {}'.format(
             round(r_value, 2),

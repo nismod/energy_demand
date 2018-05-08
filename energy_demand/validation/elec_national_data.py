@@ -186,8 +186,6 @@ def compare_results(
     x_data_smoothed, y_calculated_list_smoothed = plotting_results.smooth_data(x_data, y_calculated_list, num=40000)
 
     plt.plot(
-        #x_data,
-        #y_calculated_list,
         x_data_smoothed,
         y_calculated_list_smoothed,
         label='model',
@@ -196,7 +194,6 @@ def compare_results(
         fillstyle='full',
         color='blue')
 
-    #Grid
     #plt.grid(True)
     plt.xlim([0, 8760])
     plt.margins(x=0)
@@ -214,8 +211,7 @@ def compare_results(
     # ----------
     # Labelling
     # ----------
-    font_additional_info = plotting_styles.font_info()
-    font_additional_info['size'] = 4
+    font_additional_info = plotting_styles.font_info(size=4)
 
     plt.title(
         'RMSE: {} Std_dev_% {} (+-{} GW) R_2: {}'.format(
@@ -271,26 +267,22 @@ def compare_peak(
     x_smoothed, y_modelled_peak_dh_smoothed = plotting_results.smooth_data(range(24), modelled_peak_dh, num=500)
 
     plt.plot(
-        #range(24),
-        #modelled_peak_dh,
         x_smoothed,
         y_modelled_peak_dh_smoothed,
         color='blue',
-        linestyle='-',
+        linestyle='--',
         linewidth=0.5,
         label='model')
 
     x_smoothed, validation_elec_2015_peak_smoothed = plotting_results.smooth_data(range(24), validation_elec_2015_peak, num=500)
 
     plt.plot(
-        #range(24),
-        #validation_elec_2015_peak,
         x_smoothed,
         validation_elec_2015_peak_smoothed,
         color='black',
-        linestyle='--',
+        linestyle='-',
         linewidth=0.5,
-        label='actual')
+        label='validation')
 
     # Calculate hourly differences in %
     diff_p_h = np.round((100 / validation_elec_2015_peak) * modelled_peak_dh, 1)
