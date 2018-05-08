@@ -6,14 +6,10 @@ import operator
 import collections
 import numpy as np
 import matplotlib.pyplot as plt
-import logging
-
 from energy_demand.plotting import plotting_styles
 from energy_demand.plotting import plotting_program
 from energy_demand.basic import conversions
 from energy_demand.plotting import plotting_results
-from energy_demand.basic import lookup_tables
-from energy_demand.technologies import tech_related
 from energy_demand import enduse_func
 from energy_demand.profiles import load_factors
 
@@ -848,8 +844,7 @@ def plot_radar_plots_average_peak_day(
         fueltype_to_model,
         fueltypes,
         year_to_plot,
-        fig_name,
-        plotshow
+        fig_name
     ):
     """Compare averaged dh profile overall regions for peak day
     for future year and base year
@@ -869,7 +864,7 @@ def plot_radar_plots_average_peak_day(
 
     for scenario_cnt, scenario in enumerate(scenario_data):
 
-        print("scenario {}  {} ".format(scenario, fueltype_to_model))
+        print("-------Scenario: {} {}".format(scenario, fueltype_to_model))
         base_yr = 2015
 
         # Future year load profile
@@ -900,7 +895,9 @@ def plot_radar_plots_average_peak_day(
         label_max_h = "scen: {} by: {} cy: {} d: {}".format(
             scenario, round(by_max_h, 2), round(cy_max_h, 2), round(diff_max_h, 2))
         list_diff_max_h.append(label_max_h)
-        print("Calculation of diff in peak: {} {} {} {}".format(scenario, round(diff_max_h, 2), round(by_max_h, 2), round(cy_max_h, 2)))
+
+        print("Calculation of diff in peak: {} {} {} {}".format(
+            scenario, round(diff_max_h, 2), round(by_max_h, 2), round(cy_max_h, 2)))
 
         # ----------------------------------
         # Plot dh for peak day for base year

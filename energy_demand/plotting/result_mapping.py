@@ -585,7 +585,8 @@ def create_geopanda_files(
         regions,
         fueltypes_nr,
         fueltypes,
-        path_shapefile_input
+        path_shapefile_input,
+        plot_crit_dict
     ):
     """Create map related files (png) from results.
 
@@ -615,263 +616,135 @@ def create_geopanda_files(
     # ======================================
     # Peak fuel (h) all enduses
     # ======================================
-    for year in results_container['results_every_year'].keys():
-        for fueltype in range(fueltypes_nr):
-            print(" progress.. {}".format(fueltype))
-            fueltype_str = tech_related.get_fueltype_str(fueltypes, fueltype)
+    if plot_crit_dict['plot_peak_h']:
+        for year in results_container['results_every_year'].keys():
+            for fueltype in range(fueltypes_nr):
+                print(" progress.. {}".format(fueltype))
+                fueltype_str = tech_related.get_fueltype_str(fueltypes, fueltype)
 
-            # Calculate peak h across all regions
-            field_name = 'peak_h_{}_{}'.format(year, fueltype_str)
+                # Calculate peak h across all regions
+                field_name = 'peak_h_{}_{}'.format(year, fueltype_str)
 
-            # Get maxium demand of 8760 h for every region
-            h_max_gwh_regs = np.max(results_container['results_every_year'][year][fueltype], axis=1)
+                # Get maxium demand of 8760 h for every region
+                h_max_gwh_regs = np.max(results_container['results_every_year'][year][fueltype], axis=1)
 
-            print("TOTAL peak fuel across all regs {} {} ".format(np.sum(h_max_gwh_regs), fueltype_str))
+                print("TOTAL peak fuel across all regs {} {} ".format(np.sum(h_max_gwh_regs), fueltype_str))
 
-            data_to_plot = basic_functions.array_to_dict(h_max_gwh_regs, regions)
+                data_to_plot = basic_functions.array_to_dict(h_max_gwh_regs, regions)
 
-            # Both need to be lists
-            merge_data = {
-                str(field_name): list(data_to_plot.values()),
-                str(unique_merge_id): list(regions)}
+                # Both need to be lists
+                merge_data = {
+                    str(field_name): list(data_to_plot.values()),
+                    str(unique_merge_id): list(regions)}
 
-            # Merge to shapefile
-            lad_geopanda_shp = merge_data_to_shp(
-                lad_geopanda_shp,
-                merge_data,
-                unique_merge_id)
+                # Merge to shapefile
+                lad_geopanda_shp = merge_data_to_shp(
+                    lad_geopanda_shp,
+                    merge_data,
+                    unique_merge_id)
 
-            bins = [0.2, 0.4, 0.6, 0.8, 1.0, 1.2]
+                bins = [0.2, 0.4, 0.6, 0.8, 1.0, 1.2]
 
-            color_list, color_prop, user_classification, color_zero = colors_plus_minus_map(
-                bins=bins,
-                color_prop='qualitative',
-                color_order=True,
-                color_zero='#ffffff',
-                color_palette='YlGnBu_7') #YlGnBu_9 #8a2be2 'YlGnBu_9'  'PuBu_8'
-            #'''
+                color_list, color_prop, user_classification, color_zero = colors_plus_minus_map(
+                    bins=bins,
+                    color_prop='qualitative',
+                    color_order=True,
+                    color_zero='#ffffff',
+                    color_palette='YlGnBu_7') #YlGnBu_9 #8a2be2 'YlGnBu_9'  'PuBu_8'
+                #'''
 
-            # If user classified, defined bins
-            plot_lad_national(
-                lad_geopanda_shp=lad_geopanda_shp,
-                legend_unit="GWh",
-                field_to_plot=field_name,
-                fig_name_part=field_name,
-                result_path=path_data_results_shapefiles,
-                color_palette='Dark2_7',
-                color_prop=color_prop,
-                user_classification=user_classification,
-                color_list=color_list,
-                bins=bins,
-                color_zero=color_zero)
+                # If user classified, defined bins
+                plot_lad_national(
+                    lad_geopanda_shp=lad_geopanda_shp,
+                    legend_unit="GWh",
+                    field_to_plot=field_name,
+                    fig_name_part=field_name,
+                    result_path=path_data_results_shapefiles,
+                    color_palette='Dark2_7',
+                    color_prop=color_prop,
+                    user_classification=user_classification,
+                    color_list=color_list,
+                    bins=bins,
+                    color_zero=color_zero)
 
     # ======================================
     # Load factors (absolute)
     # ======================================
-    for year in results_container['reg_load_factor_y'].keys():
-        for fueltype in range(fueltypes_nr):
+    if plot_crit_dict['plot_load_factors']:
+        for year in results_container['reg_load_factor_y'].keys():
+            for fueltype in range(fueltypes_nr):
 
-            fueltype_str = tech_related.get_fueltype_str(fueltypes, fueltype)
-            field_name = 'lf_{}_{}'.format(year, fueltype_str)
+                fueltype_str = tech_related.get_fueltype_str(fueltypes, fueltype)
+                field_name = 'lf_{}_{}'.format(year, fueltype_str)
 
-            results = basic_functions.array_to_dict(
-                results_container['reg_load_factor_y'][year][fueltype], regions)
+                results = basic_functions.array_to_dict(
+                    results_container['reg_load_factor_y'][year][fueltype], regions)
 
-            # Both need to be lists
-            merge_data = {
-                str(field_name): list(results.values()),
-                str(unique_merge_id): list(regions)}
+                # Both need to be lists
+                merge_data = {
+                    str(field_name): list(results.values()),
+                    str(unique_merge_id): list(regions)}
 
-            # Merge to shapefile
-            lad_geopanda_shp = merge_data_to_shp(
-                lad_geopanda_shp,
-                merge_data,
-                unique_merge_id)
+                # Merge to shapefile
+                lad_geopanda_shp = merge_data_to_shp(
+                    lad_geopanda_shp,
+                    merge_data,
+                    unique_merge_id)
 
-            # ABSOLUTE
-            #'''
-            bins = [40, 45, 50, 55, 60, 75, 80] # must be of uneven length containing zero
-            #bins = [55, 60, 65, 70] # must be of uneven length containing zero
-            color_list, color_prop, user_classification, color_zero = colors_plus_minus_map(
-                bins=bins,
-                color_prop='qualitative',
-                color_order=True,
-                color_zero='#ffffff',
-                color_palette='YlGnBu_9') #8a2be2 'YlGnBu_9'  'PuBu_8'
-            #'''
+                # ABSOLUTE
+                bins = [40, 45, 50, 55, 60, 75, 80] # must be of uneven length containing zero
+                #bins = [55, 60, 65, 70] # must be of uneven length containing zero
+                color_list, color_prop, user_classification, color_zero = colors_plus_minus_map(
+                    bins=bins,
+                    color_prop='qualitative',
+                    color_order=True,
+                    color_zero='#ffffff',
+                    color_palette='YlGnBu_9') #8a2be2 'YlGnBu_9'  'PuBu_8'
 
-            # If user classified, defined bins
-            plot_lad_national(
-                lad_geopanda_shp=lad_geopanda_shp,
-                legend_unit="%",
-                field_to_plot=field_name,
-                fig_name_part="lf_max_y",
-                result_path=path_data_results_shapefiles,
-                color_palette='Dark2_7',
-                color_prop=color_prop,
-                user_classification=user_classification,
-                color_list=color_list,
-                bins=bins,
-                color_zero=color_zero)
+                # If user classified, defined bins
+                plot_lad_national(
+                    lad_geopanda_shp=lad_geopanda_shp,
+                    legend_unit="%",
+                    field_to_plot=field_name,
+                    fig_name_part="lf_max_y",
+                    result_path=path_data_results_shapefiles,
+                    color_palette='Dark2_7',
+                    color_prop=color_prop,
+                    user_classification=user_classification,
+                    color_list=color_list,
+                    bins=bins,
+                    color_zero=color_zero)
 
     # ======================================
     # Spatial maps of difference in load factors
     # ======================================
-    simulated_yrs = list(results_container['reg_load_factor_y'].keys())
+    if plot_crit_dict['plot_load_factors_p']:
+        simulated_yrs = list(results_container['reg_load_factor_y'].keys())
 
-    final_yr = simulated_yrs[-1]
-    base_yr = simulated_yrs[0]
+        final_yr = simulated_yrs[-1]
+        base_yr = simulated_yrs[0]
 
-    for fueltype in range(fueltypes_nr):
-        logging.info("progress.. {}".format(fueltype))
-        fueltype_str = tech_related.get_fueltype_str(fueltypes, fueltype)
-        field_name = 'lf_diff_{}-{}_{}_'.format(base_yr, final_yr, fueltype_str)
-
-        lf_end_yr = basic_functions.array_to_dict(
-            results_container['reg_load_factor_y'][final_yr][fueltype],
-            regions)
-
-        lf_base_yr = basic_functions.array_to_dict(
-            results_container['reg_load_factor_y'][base_yr][fueltype],
-            regions)
-
-        # Calculate load factor difference base and final year (100 = 100%)
-        diff_lf = {}
-        for reg in regions:
-            diff_lf[reg] = lf_end_yr[reg] - lf_base_yr[reg]
-
-        # Both need to be lists
-        merge_data = {
-            str(field_name): list(diff_lf.values()),
-            str(unique_merge_id): list(regions)}
-
-        # Merge to shapefile
-        lad_geopanda_shp = merge_data_to_shp(
-            lad_geopanda_shp,
-            merge_data,
-            unique_merge_id)
-
-        # If user classified, defined bins  [x for x in range(0, 1000000, 200000)]
-        #bins = [-4, -2, 0, 2, 4] # must be of uneven length containing zero
-        bins = [-15, -10, -5, 0, 5, 10, 15] # must be of uneven length containing zero
-
-        color_list, color_prop, user_classification, color_zero = colors_plus_minus_map(
-            bins=bins,
-            color_prop='qualitative',
-            color_order=True,
-            color_zero='#ffffff',
-            color_palette='Purples_9')
-
-        plot_lad_national(
-            lad_geopanda_shp=lad_geopanda_shp,
-            legend_unit="%",
-            field_to_plot=field_name,
-            fig_name_part="lf_max_y",
-            result_path=path_data_results_shapefiles,
-            color_palette='Purples_9',
-            color_prop=color_prop,
-            user_classification=user_classification,
-            color_list=color_list,
-            color_zero=color_zero,
-            bins=bins)
-
-    # ======================================
-    # Population
-    # ======================================
-    for year in results_container['results_every_year'].keys():
-
-        field_name = 'pop_{}'.format(year)
-
-        # Both need to be lists
-        merge_data = {
-            str(field_name): data['scenario_data']['population'][year].flatten().tolist(),
-            str(unique_merge_id): list(regions)}
-
-        # Merge to shapefile
-        lad_geopanda_shp = merge_data_to_shp(
-            lad_geopanda_shp,
-            merge_data,
-            unique_merge_id)
-
-        # If user classified, defined bins
-        bins = [50000, 300000]
-
-        plot_lad_national(
-            lad_geopanda_shp=lad_geopanda_shp,
-            legend_unit="people",
-            field_to_plot=field_name,
-            fig_name_part="pop_",
-            result_path=path_data_results_shapefiles,
-            color_palette='Dark2_7',
-            color_prop='qualitative',
-            user_classification=True,
-            bins=bins)
-
-    # ======================================
-    # Total fuel (y) all enduses
-    # ======================================
-    base_yr = list(results_container['results_every_year'].keys())[0]
-    for year in results_container['results_every_year'].keys():
         for fueltype in range(fueltypes_nr):
-            logging.info(" progress.. {}".format(fueltype))
+            logging.info("progress.. {}".format(fueltype))
             fueltype_str = tech_related.get_fueltype_str(fueltypes, fueltype)
+            field_name = 'lf_diff_{}-{}_{}_'.format(base_yr, final_yr, fueltype_str)
 
-            # ---------
-            # Sum per enduse and year (y)
-            # ---------
-            field_name = 'y_{}_{}'.format(year, fueltype_str)
+            lf_end_yr = basic_functions.array_to_dict(
+                results_container['reg_load_factor_y'][final_yr][fueltype],
+                regions)
 
-            # Calculate yearly sum across all regions
-            yearly_sum_gwh = np.sum(
-                results_container['results_every_year'][year][fueltype],
-                axis=1)
+            lf_base_yr = basic_functions.array_to_dict(
+                results_container['reg_load_factor_y'][base_yr][fueltype],
+                regions)
 
-            data_to_plot = basic_functions.array_to_dict(yearly_sum_gwh, regions)
-
-            # Both need to be lists
-            merge_data = {
-                str(field_name): list(data_to_plot.values()),
-                str(unique_merge_id): list(regions)}
-
-            # Merge to shapefile
-            lad_geopanda_shp = merge_data_to_shp(
-                lad_geopanda_shp,
-                merge_data,
-                unique_merge_id)
-
-            # If user classified, defined bins
-            plot_lad_national(
-                lad_geopanda_shp=lad_geopanda_shp,
-                legend_unit="GWh",
-                field_to_plot=field_name,
-                fig_name_part="_tot_all_enduses_y",
-                result_path=path_data_results_shapefiles,
-                color_palette='Dark2_7',
-                color_prop='qualitative',
-                user_classification=False)
-
-            # ===============================================
-            # Differences in percent per enduse and year (y)
-            # ===============================================
-            field_name = 'y_diff_p_{}-{}_{}'.format(base_yr, year, fueltype_str)
-
-            # Calculate yearly sums
-            yearly_sum_gwh_by = np.sum(
-                results_container['results_every_year'][base_yr][fueltype],
-                axis=1)
-
-            yearly_sum_gwh_cy = np.sum(
-                results_container['results_every_year'][year][fueltype],
-                axis=1)
-
-            # Calculate percentual difference
-            p_diff = ((yearly_sum_gwh_cy / yearly_sum_gwh_by) * 100) - 100
-
-            data_to_plot = basic_functions.array_to_dict(p_diff, regions)
+            # Calculate load factor difference base and final year (100 = 100%)
+            diff_lf = {}
+            for reg in regions:
+                diff_lf[reg] = lf_end_yr[reg] - lf_base_yr[reg]
 
             # Both need to be lists
             merge_data = {
-                str(field_name): list(data_to_plot.values()),
+                str(field_name): list(diff_lf.values()),
                 str(unique_merge_id): list(regions)}
 
             # Merge to shapefile
@@ -881,9 +754,8 @@ def create_geopanda_files(
                 unique_merge_id)
 
             # If user classified, defined bins  [x for x in range(0, 1000000, 200000)]
-            #bins = get_reasonable_bin_values(list(data_to_plot.values()))
             #bins = [-4, -2, 0, 2, 4] # must be of uneven length containing zero
-            bins = [-20, -10, 0, 10, 20, 30, 40] # must be of uneven length containing zero
+            bins = [-15, -10, -5, 0, 5, 10, 15] # must be of uneven length containing zero
 
             color_list, color_prop, user_classification, color_zero = colors_plus_minus_map(
                 bins=bins,
@@ -892,19 +764,153 @@ def create_geopanda_files(
                 color_zero='#ffffff',
                 color_palette='Purples_9')
 
-            # Plot difference in % per fueltype of total fuel (y)
             plot_lad_national(
                 lad_geopanda_shp=lad_geopanda_shp,
-                legend_unit="GWh",
+                legend_unit="%",
                 field_to_plot=field_name,
-                fig_name_part="tot_all_enduses_y_",
+                fig_name_part="lf_max_y",
                 result_path=path_data_results_shapefiles,
-                color_palette='Purples_9', #'YlGn_9', #'Purples_9',
+                color_palette='Purples_9',
                 color_prop=color_prop,
                 user_classification=user_classification,
                 color_list=color_list,
                 color_zero=color_zero,
                 bins=bins)
+
+    # ======================================
+    # Population
+    # ======================================
+    if plot_crit_dict['plot_population']:
+        for year in results_container['results_every_year'].keys():
+
+            field_name = 'pop_{}'.format(year)
+
+            # Both need to be lists
+            merge_data = {
+                str(field_name): data['scenario_data']['population'][year].flatten().tolist(),
+                str(unique_merge_id): list(regions)}
+
+            # Merge to shapefile
+            lad_geopanda_shp = merge_data_to_shp(
+                lad_geopanda_shp,
+                merge_data,
+                unique_merge_id)
+
+            # If user classified, defined bins
+            bins = [50000, 300000]
+
+            plot_lad_national(
+                lad_geopanda_shp=lad_geopanda_shp,
+                legend_unit="people",
+                field_to_plot=field_name,
+                fig_name_part="pop_",
+                result_path=path_data_results_shapefiles,
+                color_palette='Dark2_7',
+                color_prop='qualitative',
+                user_classification=True,
+                bins=bins)
+
+    # ======================================
+    # Total fuel (y) all enduses
+    # ======================================
+    base_yr = list(results_container['results_every_year'].keys())[0]
+    for year in results_container['results_every_year'].keys():
+        for fueltype in range(fueltypes_nr):
+
+            fueltype_str = tech_related.get_fueltype_str(fueltypes, fueltype)
+
+            if plot_crit_dict['plot_total_demand_fueltype']:
+                logging.info(" progress.. {}".format(fueltype))
+
+                # ---------
+                # Sum per enduse and year (y)
+                # ---------
+                field_name = 'y_{}_{}'.format(year, fueltype_str)
+
+                # Calculate yearly sum across all regions
+                yearly_sum_gwh = np.sum(
+                    results_container['results_every_year'][year][fueltype],
+                    axis=1)
+
+                data_to_plot = basic_functions.array_to_dict(yearly_sum_gwh, regions)
+
+                # Both need to be lists
+                merge_data = {
+                    str(field_name): list(data_to_plot.values()),
+                    str(unique_merge_id): list(regions)}
+
+                # Merge to shapefile
+                lad_geopanda_shp = merge_data_to_shp(
+                    lad_geopanda_shp,
+                    merge_data,
+                    unique_merge_id)
+
+                # If user classified, defined bins
+                plot_lad_national(
+                    lad_geopanda_shp=lad_geopanda_shp,
+                    legend_unit="GWh",
+                    field_to_plot=field_name,
+                    fig_name_part="_tot_all_enduses_y",
+                    result_path=path_data_results_shapefiles,
+                    color_palette='Dark2_7',
+                    color_prop='qualitative',
+                    user_classification=False)
+
+            # ===============================================
+            # Differences in percent per enduse and year (y)
+            # ===============================================
+            if plot_crit_dict['plot_differences_p']:
+                field_name = 'y_diff_p_{}-{}_{}'.format(
+                    base_yr, year, fueltype_str)
+
+                # Calculate yearly sums
+                yearly_sum_gwh_by = np.sum(
+                    results_container['results_every_year'][base_yr][fueltype],
+                    axis=1)
+
+                yearly_sum_gwh_cy = np.sum(
+                    results_container['results_every_year'][year][fueltype],
+                    axis=1)
+
+                # Calculate percentual difference
+                p_diff = ((yearly_sum_gwh_cy / yearly_sum_gwh_by) * 100) - 100
+
+                data_to_plot = basic_functions.array_to_dict(p_diff, regions)
+
+                # Both need to be lists
+                merge_data = {
+                    str(field_name): list(data_to_plot.values()),
+                    str(unique_merge_id): list(regions)}
+
+                # Merge to shapefile
+                lad_geopanda_shp = merge_data_to_shp(
+                    lad_geopanda_shp,
+                    merge_data,
+                    unique_merge_id)
+
+                # If user classified, defined bins  [x for x in range(0, 1000000, 200000)]
+                #bins = get_reasonable_bin_values(list(data_to_plot.values()))
+                #bins = [-4, -2, 0, 2, 4] # must be of uneven length containing zero
+                bins = [-40, -30, -20, -10, 0, 10, 20, 30, 40] # must be of uneven length containing zero
+
+                color_list, color_prop, user_classification, color_zero = colors_plus_minus_map(
+                    bins=bins,
+                    color_prop='qualitative',
+                    color_order=True)
+
+                # Plot difference in % per fueltype of total fuel (y)
+                plot_lad_national(
+                    lad_geopanda_shp=lad_geopanda_shp,
+                    legend_unit="GWh",
+                    field_to_plot=field_name,
+                    fig_name_part="tot_all_enduses_y_",
+                    result_path=path_data_results_shapefiles,
+                    color_palette='Purples_9',
+                    color_prop=color_prop,
+                    user_classification=user_classification,
+                    color_list=color_list,
+                    color_zero=color_zero,
+                    bins=bins)
 
 def colors_plus_minus_map(
         bins,
@@ -949,11 +955,15 @@ def colors_plus_minus_map(
 
         # Colors pos and neg
         if color_order:
-            color_list_pos = getattr(palettable.colorbrewer.sequential, 'Reds_9').hex_colors
-            color_list_neg = getattr(palettable.colorbrewer.sequential, 'Greens_9').hex_colors
+            #color_list_pos = getattr(palettable.colorbrewer.sequential, 'Reds_9').hex_colors
+            #color_list_neg = getattr(palettable.colorbrewer.sequential, 'Greens_9').hex_colors
+            color_list_pos = getattr(palettable.colorbrewer.sequential, 'Reds_7').hex_colors
+            color_list_neg = getattr(palettable.colorbrewer.sequential, 'Greens_7').hex_colors
         else:
-            color_list_neg = getattr(palettable.colorbrewer.sequential, 'Reds_9').hex_colors
-            color_list_pos = getattr(palettable.colorbrewer.sequential, 'Greens_9').hex_colors
+            #color_list_neg = getattr(palettable.colorbrewer.sequential, 'Reds_9').hex_colors
+            #color_list_pos = getattr(palettable.colorbrewer.sequential, 'Greens_9').hex_colors
+            color_list_neg = getattr(palettable.colorbrewer.sequential, 'Reds_7').hex_colors
+            color_list_pos = getattr(palettable.colorbrewer.sequential, 'Greens_7').hex_colors
 
         # Number of categories
         nr_of_cat_pos_neg = int((len(bins) -1) / 2)

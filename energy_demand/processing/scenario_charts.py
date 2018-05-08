@@ -155,16 +155,14 @@ def process_scenarios(path_to_scenarios, year_to_model=2015):
         fueltype_to_model='electricity',
         fueltypes=lookups['fueltypes'],
         year_to_plot=2050,
-        fig_name=os.path.join(path_result_folder),
-        plotshow=False)
+        fig_name=os.path.join(path_result_folder))
 
     plotting_multiple_scenarios.plot_radar_plots_average_peak_day(
         scenario_data,
         fueltype_to_model='gas',
         fueltypes=lookups['fueltypes'],
         year_to_plot=2050,
-        fig_name=os.path.join(path_result_folder),
-        plotshow=False)
+        fig_name=os.path.join(path_result_folder))
 
     # ----------------------
     # Plot peak hour of all fueltypes for different scenario
@@ -185,8 +183,8 @@ def process_scenarios(path_to_scenarios, year_to_model=2015):
 
 # Generate plots across all scenarios
 #process_scenarios(os.path.abspath("C:/Users/cenv0553/ED/__STORAGE"))
-process_scenarios(os.path.abspath("C:/Users/cenv0553/ed/results/Fig_08_09"))
-#process_scenarios(os.path.abspath("C:/Users/cenv0553/ed/results/Fig_12"))
+#process_scenarios(os.path.abspath("C:/Users/cenv0553/ed/results/Fig_08_09"))
+process_scenarios(os.path.abspath("C:/Users/cenv0553/ed/results/Fig_13"))
 #process_scenarios(os.path.abspath("C:/Users/cenv0553/ED/_MULTII"))
 #process_scenarios(os.path.abspath("C:/Users/cenv0553/ED/_multi_scen_A"))
 #process_scenarios(os.path.abspath("C:/Users/cenv0553/ED/_MULTI"))

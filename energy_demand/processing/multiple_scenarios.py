@@ -33,5 +33,5 @@ process_result_multi_scen(
     #os.path.abspath("C:/Users/cenv0553/ED/_mutli_results_hp_50__eff_achieved_0.5_pop_scenarios"),
     #os.path.abspath("C:/Users/cenv0553/ED/_MULTI"),
     #os.path.abspath("C:/Users/cenv0553/ED/__STORAGE"),
-    #"C:/Users/cenv0553/ed/results/Fig_08_09",
+    "C:/Users/cenv0553/ed/results/Fig_08_09",
     os.path.abspath('C:/Users/cenv0553/ED/data/_raw_data/C_LAD_geography/same_as_pop_scenario/lad_2016_uk_simplified.shp'))

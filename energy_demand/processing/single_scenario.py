@@ -22,7 +22,15 @@ def main(path_data_energy_demand, path_shapefile_input):
 
     plot_crit_dict = {
         "write_shapefiles": False,          # Write shapefiles
-        "spatial_results": False,            # Spatial geopanda maps
+        "spatial_results": True,            # Spatial geopanda maps
+
+        "plot_differences_p": True,           # Spatial maps of percentage difference per fueltype over time
+        "plot_total_demand_fueltype": False,  # Spatial maps of total demand per fueltype over time
+        "plot_population": False,             # Spatial maps of population
+        "plot_load_factors": False,           # Spatial maps of load factor 
+        "plot_load_factors_p": False,         # Spatial maps of load factor change
+        "plot_peak_h": False,                 # Spatial maps of peak h demand
+
         "plot_stacked_enduses": True,
         "plot_y_all_enduses": True,
         "plot_fuels_enduses_y": True,
@@ -105,7 +113,8 @@ def main(path_data_energy_demand, path_shapefile_input):
             data['regions'],
             data['lookups']['fueltypes_nr'],
             data['lookups']['fueltypes'],
-            path_shapefile_input)
+            path_shapefile_input,
+            plot_crit_dict)
 
     # ----------------
     # Write results to CSV files and merge with shapefile

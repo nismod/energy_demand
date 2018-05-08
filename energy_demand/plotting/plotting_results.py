@@ -2057,7 +2057,12 @@ def plot_radar_plot_multiple_lines(
     for i in range(nr_of_plot_steps * 2):
         minor_ticks.append(minor_tick_interval * i)
 
+    # Colors with scenarios
     color_scenarios = plotting_styles.color_list_scenarios()
+
+    # Colors for plotting Fig. 13
+    color_scenarios = plotting_styles.color_list_selection()
+
     color_lines = ['black'] + color_scenarios
     years = ['2015', '2050']
     linewidth_list = [1.0, 0.7]
@@ -2123,16 +2128,6 @@ def plot_radar_plot_multiple_lines(
         # Draw ylabels (numbers)
         ax.set_rlabel_position(0)
 
-        # Remove last and first element
-        '''if len(axis_plots_inner) == 2:
-            axis_plots_inner = axis_plots_inner[1:]
-            axis_plots_innter_position = axis_plots_innter_position[1:]
-        elif len(axis_plots_inner) > 2:
-            axis_plots_inner = axis_plots_inner[1:1]
-            axis_plots_innter_position = axis_plots_innter_position[1:1]
-        else:
-            pass'''
-
         # Working alternative
         plt.yticks(
             axis_plots_inner,
@@ -2155,7 +2150,7 @@ def plot_radar_plot_multiple_lines(
         # Plot data
         ax.plot(
             angles_smoothed,
-            values_smoothed, 
+            values_smoothed,
             color=color_line,
             linestyle=linestyle_list[cnt_year],
             linewidth=linewidth_list[cnt_year],
@@ -2181,12 +2176,7 @@ def plot_radar_plot_multiple_lines(
     # ------------
     # Title
     # ------------
-    font_additional_info = plotting_styles.font_info()
-    font_additional_info['size'] = 4
-
-    #title_info = " lf_y_by: {} lf_y_cy: {}".format(
-    #    lf_y_by,
-    #    lf_y_cy)
+    font_additional_info = plotting_styles.font_info(size=4)
     #plt.title(
     #    title_info,
     #    loc='left',
@@ -2196,12 +2186,11 @@ def plot_radar_plot_multiple_lines(
     # Legend
     # ------------
     plt.legend(
-        ncol=2,
-        #loc='best',
-        bbox_to_anchor=(0.6, -0.1),
+        ncol=1,
+        bbox_to_anchor=(0.5, -0.1),
         prop={
             'family': 'arial',
-            'size': 5},
+            'size': 4},
         frameon=False)
 
     plt.savefig(fig_name)
@@ -2625,6 +2614,8 @@ def plot_cross_graphs_scenarios(
         'blue',
         'darkolivegreen',
         'firebrick']'''
+    all_x_values = []
+    all_y_values = []
 
     for scenario_nr, scenario in enumerate(all_scenarios):
 
@@ -2659,6 +2650,8 @@ def plot_cross_graphs_scenarios(
         #y_val_national_lf_demand_cy = [national_tot_demand_p]
         y_val_national_lf_demand_cy = [national_peak_h_p]
 
+        all_x_values += x_values
+        all_y_values += y_values
         # -------------------------------------
         # Plot
         # -------------------------------------
@@ -2736,18 +2729,20 @@ def plot_cross_graphs_scenarios(
     # -------
     # Title information
     # -------
-    max_peak_h = max(x_values)
-    min_peak_h = min(x_values)
-    min_lf = min(y_values)
-    max_lf = max(y_values)
+    max_lf = round(max(all_x_values), 2)
+    min_lf = round(min(all_x_values), 2)
+    min_peak_h = round(min(all_y_values), 2)
+    max_peak_h = round(max(all_y_values), 2)
+
+    font_additional_info = plotting_styles.font_info(size=4)
 
     plt.title(
-        "max_peak_h: {} min_peak_h: {}, min_lf: {} max_lf: {}",
-        max_peak_h,
-        min_peak_h,
-        min_lf,
-        max_lf,
-        fontsize=10)
+        "max_peak_h: {} min_peak_h: {}, min_lf: {} max_lf: {}".format(
+            max_peak_h,
+            min_peak_h,
+            min_lf,
+            max_lf),
+        fontdict=font_additional_info)
 
     # --------
     # Legend
