@@ -63,6 +63,8 @@ class Assumptions(object):
         # Define technologies which are affected by spatial explicit diffusion
         self.techs_affected_spatial_f = ['heat_pumps_electricity']
 
+        # Max penetration speed
+        self.speed_con_max = 1 # 1: uniform distribution
 
         # --------
         # Demand management of heat pumps

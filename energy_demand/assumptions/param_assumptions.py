@@ -40,6 +40,7 @@ def load_param_assump(paths=None, local_paths=None, assumptions=None, writeYAML=
         assumptions_dict['t_bases']['ss_t_cooling_by'] = None
         assumptions_dict['t_bases']['is_t_heating_by'] = None
         assumptions_dict['spatial_explicit_diffusion'] = 0 #TODO As soon as smif allows bool type parameters, implement this
+        assumptions_dict['speed_con_max'] = 1
         assumptions_dict['flat_heat_pump_profile_both'] = 0 #FAlse
         assumptions_dict['flat_heat_pump_profile_only_water'] = 0 #FAlse
         
@@ -61,6 +62,16 @@ def load_param_assump(paths=None, local_paths=None, assumptions=None, writeYAML=
         "suggested_range": (0, 1),
         "default_value": assumptions.spatial_explicit_diffusion,
         "units": 'years'})
+
+    strategy_vars['speed_con_max'] = assumptions.speed_con_max
+
+    strategy_variables.append({
+        "name": "speed_con_max",
+        "absolute_range": (0, 99),
+        "description": "Maximum speed of penetration (for spatial explicit diffusion)",
+        "suggested_range": (0, 99),
+        "default_value": assumptions.speed_con_max,
+        "units": None})
 
     # -----------
     # Demand management of heat pumps
