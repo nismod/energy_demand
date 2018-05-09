@@ -296,7 +296,7 @@ def compare_peak(
 
     # Y-axis ticks
     plt.xlim(0, 23)
-    plt.yticks(range(0, 90, 10))
+    plt.yticks(range(0, 60, 10))
     plt.xticks(range(0, 24, 4))
 
     # Legend

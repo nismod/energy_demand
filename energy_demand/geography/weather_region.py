@@ -288,8 +288,6 @@ class WeatherRegion(object):
             self.rs_hdd_cy,
             assumptions.model_yeardays)
 
-
-
         #TODO Info: Same load for space and water heating for HP
         if assumptions.strategy_variables['flat_heat_pump_profile_both']['scenario_value']:
             flat_space_heating = True
@@ -337,7 +335,7 @@ class WeatherRegion(object):
                 enduses=['rs_space_heating', 'rs_water_heating'],
                 shape_y_dh=rs_profile_hp_y_dh,
                 shape_yd=rs_hp_shape_yd,
-                shape_yh=flat_rs_fuel_shape_hp_yh,
+                shape_yh=rs_fuel_shape_hp_yh,
                 model_yeardays=assumptions.model_yeardays)
 
         # ------District_heating_electricity. Assumption made that same curve as CHP

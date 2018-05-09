@@ -160,6 +160,7 @@ def scenario_initalisation(path_data_ed, data=False):
 
         # Speed to select
         speed_con_max = 2.5
+        
 
         # Nr of min and max outliers to flatten
         p_outlier = 5

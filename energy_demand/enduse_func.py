@@ -639,9 +639,6 @@ def get_peak_day_single_fueltype(fuel_yh):
     peak_h : float
         Peak hour value
     """
-    #import copy
-    #fuel_yh_copy = copy.copy(fuel_yh)
-    #fuel_yh_8760 = fuel_yh_copy.reshape(8760)
     fuel_yh_8760 = fuel_yh.reshape(8760)
 
     if np.sum(fuel_yh_8760) == 0:
