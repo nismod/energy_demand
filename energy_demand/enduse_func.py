@@ -1477,11 +1477,21 @@ def calc_service_switch(
         base_yr,
         curr_yr)
 
+    '''if enduse == 'ss_space_heating' and curr_yr > 2015:
+        logging.info("crit_switch_happening " + str(crit_switch_happening))
+        logging.info("dd {} {}".format(enduse, sector))
+        logging.info(
+            "EGON  {} {} {}".format(
+                all_technologies,
+                curr_yr,
+                crit_switch_service
+            ))
+        prnt(":")'''
+
     # ----------------------------------------
     # Calculate switch
     # ----------------------------------------
     if crit_switch_service:
-        logging.info("SWITCH TRUE")
 
         switched_s_tech_y_cy = {}
 
@@ -1494,8 +1504,8 @@ def calc_service_switch(
             s_tech_cy_p = get_service_diffusion(
                 sig_param_tech[tech], curr_yr)
 
-            if tech == 'heat_pumps_electricity':
-                logging.info("HEP SHARE: " + str(s_tech_cy_p))
+            #if tech == 'heat_pumps_electricity':
+            #    logging.info("HEP SHARE: " + str(s_tech_cy_p))
 
             if s_tech_cy_p == 'identical':
                 switched_s_tech_y_cy[tech] = s_tech_y_cy[tech]

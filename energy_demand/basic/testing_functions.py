@@ -25,7 +25,12 @@ def switch_testing(fuel_switches, service_switches, capacity_switches):
             # Collect all enduses and affected sectors
             if switch.enduse not in all_switches_incl_sectors:
                 all_switches_incl_sectors[switch.enduse] = set([])
-                all_switches_incl_sectors[switch.enduse].add(switch.sector)
+
+                if switch.sector == None:
+                    all_switches_incl_sectors[switch.enduse] = None
+                else:
+                    all_switches_incl_sectors[switch.enduse].add(switch.sector)
+                #all_switches_incl_sectors[switch.enduse].add(switch.sector)
             else:
                 all_switches_incl_sectors[switch.enduse].add(switch.sector)
 
@@ -37,7 +42,13 @@ def switch_testing(fuel_switches, service_switches, capacity_switches):
             # Collect all enduses and affected sectors
             if switch.enduse not in all_switches_incl_sectors:
                 all_switches_incl_sectors[switch.enduse] = set([])
-                all_switches_incl_sectors[switch.enduse].add(switch.sector)
+                
+                if switch.sector == None:
+                    all_switches_incl_sectors[switch.enduse] = None
+                else:
+                    all_switches_incl_sectors[switch.enduse].add(switch.sector)
+
+                #all_switches_incl_sectors[switch.enduse].add(switch.sector)
             else:
                 all_switches_incl_sectors[switch.enduse].add(switch.sector)
 
@@ -49,7 +60,13 @@ def switch_testing(fuel_switches, service_switches, capacity_switches):
             # Collect all enduses and affected sectors
             if switch.enduse not in all_switches_incl_sectors:
                 all_switches_incl_sectors[switch.enduse] = set([])
-                all_switches_incl_sectors[switch.enduse].add(switch.sector)
+                
+                if switch.sector == None:
+                    all_switches_incl_sectors[switch.enduse] = None
+                else:
+                    all_switches_incl_sectors[switch.enduse].add(switch.sector)
+                
+                #all_switches_incl_sectors[switch.enduse].add(switch.sector)
 
             else:
                 all_switches_incl_sectors[switch.enduse].add(switch.sector)
@@ -78,7 +95,8 @@ def switch_testing(fuel_switches, service_switches, capacity_switches):
                 enduse)
 
     for enduse in all_switches_incl_sectors:
-        all_switches_incl_sectors[enduse] = list(all_switches_incl_sectors[enduse])
+        if all_switches_incl_sectors[enduse] != None:
+            all_switches_incl_sectors[enduse] = list(all_switches_incl_sectors[enduse])
 
     return all_switches_incl_sectors
 

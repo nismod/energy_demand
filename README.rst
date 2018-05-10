@@ -23,6 +23,7 @@ More information on the model can be found here
 - Eggimann et al. (2019): Modelling energy demand and supply
   within a system-of-systems approach. (working paper)
 
+
 Note: A previous energy demand model has been developped within
 `NISMOD <http://www.itrc.org.uk/nismod/#.WfCJg1tSxaQ>`_ by Pranab et al. 2014. 
 HIRE is an extensive further development into a high temporal and spatial 

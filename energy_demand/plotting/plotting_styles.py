@@ -124,19 +124,119 @@ def get_colorbrewer_color(color_prop, color_palette, inverse=False):
 def color_list_selection():
     """
     """
-
     color_list_selection = [
-        'darkturquoise',
+        'seagreen',
+        'slateblue', #'silver',
+        #'coral',
+
+        'dimgray',
+        'gray',
+        'darkgray',
+        'livghray',
+        'silver',
+        'gainsboro',
+        'whitesmoke',
+
+        'steelblue',
+        'tomato',
+        'slateblue',
+        'moccasin', #darkturquoise',
+        'khaki',
         'orange',
         'firebrick',
         'darkviolet',
-        'khaki',
         'olive',
         'darkseagreen',
         'darkcyan',
         'indianred',
         'darkblue'
         ]
+
+    return color_list_selection
+
+def rs_color_list_selection():
+    """
+    """
+    color_list_selection = [
+        'seagreen',
+        'slateblue', #'silver',
+        #'coral',
+
+        'dimgray',
+        'gray',
+        'darkgray',
+        'lightgray',
+        'silver',
+        'gainsboro',
+        'whitesmoke',
+
+        'steelblue',
+        'tomato',
+        #'slateblue',
+        'moccasin', #darkturquoise',
+        'khaki',
+        'orange'
+        ]
+
+    return color_list_selection
+
+def ss_color_list_selection():
+    """
+    """
+    color_list_selection = [
+        'seagreen',
+        'slateblue', #'silver',
+        #'coral',
+
+        #'lightslategrey',
+        'dimgray',
+        'gray',
+        #'azure',
+        'darkgray',
+        'lightgray',
+        'silver',
+        'gainsboro',
+        'whitesmoke',
+        'gainsboro',
+        'lightgray',
+        
+
+
+        'firebrick',
+        'darkviolet',
+        'olive',
+        'darkseagreen',
+        'darkcyan',
+        'indianred',
+        'darkblue',
+        'slategrey'
+        ]
+
+    return color_list_selection
+
+def is_color_list_selection():
+    """
+    """
+    color_list_selection = [
+        'seagreen',
+        'slateblue',
+
+        'dimgray',
+        'gray',
+        'darkgray',
+        'lightgray',
+        'silver',
+        'whitesmoke',
+        'gainsboro',
+        
+
+        'saddlebrown',
+        'indigo',
+        'cadetblue',
+        'yellowgreen',
+        'peachpuff',
+        'tan',
+        'pink']
 
     return color_list_selection
 

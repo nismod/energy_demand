@@ -47,7 +47,7 @@ class Assumptions(object):
         self.base_yr = base_yr
         self.curr_yr = curr_yr
         self.simulated_yrs = simulated_yrs
-
+    
         # ============================================================
         # Spatially modelled variables
         #
@@ -578,7 +578,7 @@ class Assumptions(object):
                 self.rs_capacity_switches,
                 self.ss_capacity_switches, 
                 self.is_capacity_switches])
-
+  
         # ========================================
         # General other assumptions
         # ========================================

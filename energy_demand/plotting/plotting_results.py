@@ -175,11 +175,50 @@ def run_all_plot_functions(
     if plot_crit['plot_stacked_enduses']:
         logging.info("plot stacked enduses")
 
+        rs_enduses_sorted = [
+            'rs_space_heating',
+            'rs_water_heating',
+            'rs_lighting',
+            'rs_cold',
+            'rs_wet',
+            'rs_consumer_electronics',
+            'rs_home_computing',
+            'rs_cooking']
+    
+        ss_enduses_sorted = [
+            'ss_space_heating',
+            'ss_water_heating',
+            'ss_lighting',
+            'ss_catering',
+            'ss_small_power',
+            'ss_fans',
+            'ss_cooling_humidification',
+            'ss_ICT_equipment',
+            'ss_other_gas',
+            'ss_other_electricity',
+            'ss_cooled_storage']
+        
+        is_enduses_sorted = [
+            'is_space_heating',
+            'is_lighting',
+            'is_refrigeration',
+            'is_motors',
+            'is_compressed_air',
+            'is_high_temp_process',
+            'is_low_temp_process',
+            'is_other',
+            'is_drying_separation']
+
+        rs_color_list = plotting_styles.rs_color_list_selection()
+        ss_color_list = plotting_styles.ss_color_list_selection()
+        is_color_list = plotting_styles.is_color_list_selection()
+
         # Residential
         plt_stacked_enduse(
             assumptions['simulated_yrs'],
             results_container['results_enduse_every_year'],
-            enduses['rs_enduses'],
+            rs_enduses_sorted, #enduses['rs_enduses'],
+            rs_color_list,
             os.path.join(
                 result_paths['data_results_PDF'], "stacked_rs_country.pdf"))
 
@@ -187,7 +226,8 @@ def run_all_plot_functions(
         plt_stacked_enduse(
             assumptions['simulated_yrs'],
             results_container['results_enduse_every_year'],
-            enduses['ss_enduses'],
+            ss_enduses_sorted, #enduses['ss_enduses'],
+            ss_color_list,
             os.path.join(
                 result_paths['data_results_PDF'], "stacked_ss_country.pdf"))
 
@@ -195,7 +235,8 @@ def run_all_plot_functions(
         plt_stacked_enduse(
             assumptions['simulated_yrs'],
             results_container['results_enduse_every_year'],
-            enduses['is_enduses'],
+            is_enduses_sorted, #enduses['is_enduses'],
+            is_color_list,
             os.path.join(
                 result_paths['data_results_PDF'], "stacked_is_country_.pdf"))
 
@@ -637,7 +678,8 @@ def plot_lf_y(
 def plt_stacked_enduse(
         years_simulated,
         results_enduse_every_year,
-        enduses_data,
+        enduses,
+        color_list,
         fig_name
     ):
     """Plots stacked energy demand
@@ -649,7 +691,7 @@ def plt_stacked_enduse(
     results_enduse_every_year : dict
         Results [year][enduse][fueltype_array_position]
 
-    enduses_data :
+    enduses :
     fig_name : str
         Figure name
 
@@ -667,7 +709,8 @@ def plt_stacked_enduse(
     y_value_arrays = []
     legend_entries = []
 
-    for enduse_array_nr, enduse in enumerate(enduses_data):
+    #for enduse_array_nr, enduse in enumerate(enduses_data):
+    for enduse in enduses:
         legend_entries.append(enduse)
 
         y_values_enduse_yrs = np.zeros((nr_of_modelled_years))
@@ -700,46 +743,55 @@ def plt_stacked_enduse(
 
     ax = fig.add_subplot(1, 1, 1)
 
-    color_list = plotting_styles.color_list_scenarios()
-
     # ----------
     # Stack plot
     # ----------
-    color_stackplots = color_list[:len(enduses_data)]
+    color_stackplots = color_list[:len(enduses)]
 
     ax.stackplot(
         x_data,
         y_stacked,
+        alpha=0.8,
         colors=color_stackplots)
 
-    plt.legend(
-        legend_entries,
-        prop={
-            'family':'arial',
-            'size': 5},
-        ncol=2,
-        loc='upper center',
-        bbox_to_anchor=(0.5, -0.05),
-        frameon=False,
-        shadow=True)
+    plot_legend=False
+    if plot_legend:
+        plt.legend(
+            legend_entries,
+            prop={
+                'family':'arial',
+                'size': 5},
+            ncol=2,
+            loc='upper center',
+            bbox_to_anchor=(0.5, -0.1),
+            frameon=False,
+            shadow=True)
 
     # -------
     # Axis
     # -------
-    plt.xticks(years_simulated, years_simulated)
+    year_interval = 10
+    major_ticks = np.arange(
+        years_simulated[0],
+        years_simulated[-1] + year_interval,
+        year_interval)
 
+    plt.xticks(major_ticks, major_ticks)
+
+    plt.ylim(ymax=500)
+    yticks = [100, 200, 300, 400, 500]
+    plt.yticks(yticks, yticks)
     # -------
     # Labels
     # -------
     plt.ylabel("TWh", fontsize=10)
     plt.xlabel("Year", fontsize=10)
-    plt.title("ED whole UK", fontsize=10)
+    #plt.title("ED whole UK", fontsize=10)
 
     # Tight layout
-    plt.tight_layout()
+    #plt.tight_layout()
     plt.margins(x=0)
 
-    # Save fig
     plt.savefig(fig_name)
     plt.close()
 

@@ -17,7 +17,7 @@ def process_result_multi_scen(path_to_scenarios, path_shapefile_input):
     scenarios = os.listdir(path_to_scenarios)
 
     for scenario in scenarios:
-        print("Generating result pdf for scenario {}".format(scenario))
+
         # Execute script to generate PDF results
         single_scenario.main(
             os.path.join(path_to_scenarios, scenario),
@@ -26,11 +26,11 @@ def process_result_multi_scen(path_to_scenarios, path_shapefile_input):
     return
 
 # Execute rusult processing for every scenario
-'''process_result_multi_scen(
-    "C:/Users/cenv0553/ed/results/scen_C",
-    os.path.abspath('C:/Users/cenv0553/ED/data/_raw_data/C_LAD_geography/same_as_pop_scenario/lad_2016_uk_simplified.shp'))
-'''
 process_result_multi_scen(
+    "C:/Users/cenv0553/ed/results/scen_A",
+    os.path.abspath('C:/Users/cenv0553/ED/data/_raw_data/C_LAD_geography/same_as_pop_scenario/lad_2016_uk_simplified.shp'))
+
+'''process_result_multi_scen(
     #os.path.abspath("C:/Users/cenv0553/ED/_multiple_results_eff_factor_example"),
     #os.path.abspath("C:/Users/cenv0553/ED/_multiple_results_hp_example"),
     #os.path.abspath("C:/Users/cenv0553/ED/_multiple_results_hp_example_efficiency_improvement"),
@@ -40,3 +40,4 @@ process_result_multi_scen(
     #"C:/Users/cenv0553/ed/results/Fig_08_09",
     "C:/Users/cenv0553/ed/results/scen_D",
     os.path.abspath('C:/Users/cenv0553/ED/data/_raw_data/C_LAD_geography/same_as_pop_scenario/lad_2016_uk_simplified.shp'))
+'''
