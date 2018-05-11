@@ -1,7 +1,7 @@
 .. _readme:
 
 
-High Resolution Energy Demand model (HIRE)
+HIgh-Resolution Energy Demand model (HIRE)
 ====================================
 .. image:: https://img.shields.io/badge/docs-latest-brightgreen.svg
     :target: http://ed.readthedocs.io/en/latest/?badge=latest
