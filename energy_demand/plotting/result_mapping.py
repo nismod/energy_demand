@@ -4,6 +4,7 @@ the geopanda library (http://geopandas.org)
 import os
 import logging
 import copy
+import math
 import numpy as np
 import geopandas as gpd
 import pandas as pd
@@ -14,7 +15,10 @@ from matplotlib.colors import LinearSegmentedColormap
 from energy_demand.basic import basic_functions
 from energy_demand.technologies import tech_related
 
-'''def get_reasonable_bin_values(data_to_plot, bin_nrs=2):
+def get_reasonable_bin_values(
+        data_to_plot,
+        increments=10
+    ):
     """Get reasonable bin values
     """
     def round_down(num, divisor):
@@ -23,19 +27,77 @@ from energy_demand.technologies import tech_related
     max_val = max(data_to_plot)
     min_val = min(data_to_plot)
 
-    if abs(max_val) > abs(min_val):
-        # Larger positive valus
-        equal_cat = max_val / bin_nrs
+    # Positive values
+    if min_val >= 0:
 
-        rounding_to_nr = 10
+        # Calculate number of classes
+        classes = max_val / increments
 
-        # Round down to
-        bin_diff = round_down(equal_cat, rounding_to_nr)
+        # Round down and add one class for larger values
+        nr_classes = round_down(classes, increments) + 1
 
+        if nr_classes > 9:
+            raise Exception("Nr of classes is too big")
+
+        # Classes
+        min_class = round_down(min_val, increments)                 # Minimum class
+        max_class = round_down(max_val, increments) + increments    # Maximum class
+
+        # Bin with classes
+        bins = range(min_class, max_class, increments)
     else:
         #lager negative values
 
-    '''
+        # must be of uneven length containing zero
+        largest_min = abs(min_val)
+        largest_max = abs(max_val)
+
+        nr_min_class = round_down(abs(min_val), increments) / increments
+        
+        if max_val < 0:
+            nr_pos_classes = nr_min_class
+        else:
+            nr_pos_classes = round_down(max_val, increments) / increments
+
+        if nr_min_class > nr_pos_classes:
+            # Negative has more classes
+            nr_of_classes_symetric = nr_min_class
+        else:
+            nr_of_classes_symetric = nr_pos_classes
+
+        # Number of classes
+        symetric_value = nr_of_classes_symetric * increments
+        min_class_value = int(symetric_value * -1)
+        max_class_value = int(symetric_value)
+
+        # Negative classes
+        if min_class_value / increments == 0:
+            neg_classes = [increments * -1]
+        elif min_class_value / increments == 1:
+            neg_classes = [min_class_value]
+        else:
+            neg_classes = list(range(min_class_value, 0, increments))
+
+        if max_class_value / increments == 0:
+            pos_classes = [increments * -1]
+        elif max_class_value / increments == 1:
+            pos_classes = [increments] #only one class
+        else:
+            pos_classes = list(range(increments, max_class_value + increments, increments))
+
+        bins = neg_classes + [0] + pos_classes
+
+        logging.info("______________________________________")
+        logging.info("largest_min     " + str(largest_min))
+        logging.info("largest_max     " + str(largest_max))
+        logging.info(min_val)
+        logging.info(max_val)
+        logging.info("symetric_value  " + str(symetric_value))
+        logging.info("min_class_value " + str(min_class_value))
+        logging.info("max_class_value " + str(max_class_value))
+        logging.info("bins            " + str(bins))
+
+    return bins
 
 def user_defined_classification(
         bins,
@@ -318,7 +380,7 @@ def plot_lad_national(
     """
     fig_name = os.path.join(
         result_path,
-        "{}.{}".format(field_to_plot, file_type))
+        "{}_{}.{}".format(fig_name_part, field_to_plot, file_type))
 
     fig_map, axes = plt.subplots(1, figsize=(5, 8))
 
@@ -386,7 +448,7 @@ def plot_lad_national(
                 color=color_zero)
     else:
         logging.info("not user classification")
-
+        print("tttttttt")
         # ----------------------------
         # Plot map with all value hues
         # -----------------------------
@@ -462,8 +524,7 @@ def plot_lad_national(
     plt.margins(x=0)
 
     # Add space for legend
-    plt.subplots_adjust(
-        bottom=0.4)
+    plt.subplots_adjust(bottom=0.4)
 
     # Save figure
     plt.savefig(fig_name)
@@ -692,7 +753,7 @@ def create_geopanda_files(
                     unique_merge_id)
 
                 # ABSOLUTE
-                bins = [40, 45, 50, 55, 60, 75, 80] # must be of uneven length containing zero
+                bins = [40, 45, 50, 55, 60, 75, 80]
                 #bins = [55, 60, 65, 70] # must be of uneven length containing zero
                 color_list, color_prop, user_classification, color_zero = colors_plus_minus_map(
                     bins=bins,
@@ -859,7 +920,7 @@ def create_geopanda_files(
             # ===============================================
             # Differences in percent per enduse and year (y)
             # ===============================================
-            if plot_crit_dict['plot_differences_p']:
+            if plot_crit_dict['plot_differences_p'] and year > base_yr:
                 field_name = 'y_diff_p_{}-{}_{}'.format(
                     base_yr, year, fueltype_str)
 
@@ -889,14 +950,39 @@ def create_geopanda_files(
                     unique_merge_id)
 
                 # If user classified, defined bins  [x for x in range(0, 1000000, 200000)]
-                #bins = get_reasonable_bin_values(list(data_to_plot.values()))
+                #print(list(data_to_plot.values()))
+                logging.info("OKO " + str(field_name))
+                print("OKO " + str(field_name))
+                # Test if nan vlaue in list and if yes, skipt this
+                nan_entry = False
+                nan_value = float('nan')
+                for entry in list(data_to_plot.values()):
+                    if math.isnan(entry):
+                        nan_entry = True
+                if nan_entry:
+                    continue
+
+                bins = get_reasonable_bin_values(
+                    data_to_plot=list(data_to_plot.values()),
+                    increments=10)
+
+                
                 #bins = [-4, -2, 0, 2, 4] # must be of uneven length containing zero
-                bins = [-40, -30, -20, -10, 0, 10, 20, 30, 40] # must be of uneven length containing zero
+                #bins = [-40, -30, -20, -10, 0, 10, 20, 30, 40]
 
                 color_list, color_prop, user_classification, color_zero = colors_plus_minus_map(
                     bins=bins,
                     color_prop='qualitative',
                     color_order=True)
+
+                print(color_list)
+                print(color_prop)
+                print(user_classification)
+                print("_----------------")
+                user_classification = True #NEW TODO
+
+                #if field_name == 'tot_all_enduses_y__y_diff_p_2015-2050_electricity":
+                #    prnt(".")
 
                 # Plot difference in % per fueltype of total fuel (y)
                 plot_lad_national(
@@ -908,6 +994,20 @@ def create_geopanda_files(
                     color_palette='Purples_9',
                     color_prop=color_prop,
                     user_classification=user_classification,
+                    color_list=color_list,
+                    color_zero=color_zero,
+                    bins=bins)
+
+                # PLot not user classificaiton
+                plot_lad_national(
+                    lad_geopanda_shp=lad_geopanda_shp,
+                    legend_unit="GWh",
+                    field_to_plot=field_name,
+                    fig_name_part="_huevalues_",
+                    result_path=path_data_results_shapefiles,
+                    color_palette='Purples_9',
+                    color_prop=color_prop,
+                    user_classification=False,
                     color_list=color_list,
                     color_zero=color_zero,
                     bins=bins)
@@ -952,25 +1052,21 @@ def colors_plus_minus_map(
         return [], color_prop, False, False
 
     elif min(bins) < 0:
-
+        print("negative bins")
         # Colors pos and neg
         if color_order:
-            #color_list_pos = getattr(palettable.colorbrewer.sequential, 'Reds_9').hex_colors
-            #color_list_neg = getattr(palettable.colorbrewer.sequential, 'Greens_9').hex_colors
-            color_list_pos = getattr(palettable.colorbrewer.sequential, 'Reds_7').hex_colors
-            color_list_neg = getattr(palettable.colorbrewer.sequential, 'Greens_7').hex_colors
+            color_list_pos = getattr(palettable.colorbrewer.sequential, 'Reds_7').hex_colors   # 'Reds_9'
+            color_list_neg = getattr(palettable.colorbrewer.sequential, 'Greens_7').hex_colors # 'Greens_9'
         else:
-            #color_list_neg = getattr(palettable.colorbrewer.sequential, 'Reds_9').hex_colors
-            #color_list_pos = getattr(palettable.colorbrewer.sequential, 'Greens_9').hex_colors
-            color_list_neg = getattr(palettable.colorbrewer.sequential, 'Reds_7').hex_colors
-            color_list_pos = getattr(palettable.colorbrewer.sequential, 'Greens_7').hex_colors
+            color_list_neg = getattr(palettable.colorbrewer.sequential, 'Reds_7').hex_colors   # 'Reds_9'
+            color_list_pos = getattr(palettable.colorbrewer.sequential, 'Greens_7').hex_colors # 'Greens_9'
 
         # Number of categories
         nr_of_cat_pos_neg = int((len(bins) -1) / 2)
 
         # Invert negative colors
         color_list_neg = color_list_neg[::-1]
-
+        print("nr_of_cat_pos_neg " + str(nr_of_cat_pos_neg))
         color_list = []
         for i in range(nr_of_cat_pos_neg + 1): #add one to get class up to zero
             color_list.append(color_list_neg[i])
@@ -981,7 +1077,7 @@ def colors_plus_minus_map(
         return color_list, 'user_defined', True, color_zero
 
     elif min(bins) > 0:
-
+        print("psotive bins")
         color_list = []
         color_list_pos = getattr(palettable.colorbrewer.sequential, color_palette).hex_colors
 

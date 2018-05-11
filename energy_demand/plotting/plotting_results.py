@@ -2109,11 +2109,15 @@ def plot_radar_plot_multiple_lines(
     for i in range(nr_of_plot_steps * 2):
         minor_ticks.append(minor_tick_interval * i)
 
+    # ----
+    # Select color scheme
+    # ----
+
     # Colors with scenarios
-    color_scenarios = plotting_styles.color_list_scenarios()
+    color_scenarios = plotting_styles.color_list_scenarios() #Color scheme Fig 13
 
     # Colors for plotting Fig. 13
-    color_scenarios = plotting_styles.color_list_selection()
+    #color_scenarios = plotting_styles.color_list_selection_dm() # Color scheme Fig 13
 
     color_lines = ['black'] + color_scenarios
     years = ['2015', '2050']
@@ -2660,12 +2664,7 @@ def plot_cross_graphs_scenarios(
 
     color_list = plotting_styles.color_list_scenarios()
     marker_list = plotting_styles.marker_list()
-    '''color_list = [
-        'forestgreen',
-        'rosybrown',
-        'blue',
-        'darkolivegreen',
-        'firebrick']'''
+
     all_x_values = []
     all_y_values = []
 
@@ -2679,13 +2678,16 @@ def plot_cross_graphs_scenarios(
         for reg_nr, reg_geocode in enumerate(regions):
 
             # Change in load factor
-            lf_change_p = ((100 / result_dict['lf_by'][reg_geocode]) * result_dict['lf_cy'][scenario][reg_geocode]) - 100
+            lf_change_p = (
+                (100 / result_dict['lf_by'][reg_geocode]) * result_dict['lf_cy'][scenario][reg_geocode]) - 100
 
             # Change in peak h deman
-            demand_peak_h_p = ((100 / result_dict['peak_h_demand_by'][reg_geocode]) * result_dict['peak_h_demand_cy'][scenario][reg_geocode]) - 100
+            demand_peak_h_p = (
+                (100 / result_dict['peak_h_demand_by'][reg_geocode]) * result_dict['peak_h_demand_cy'][scenario][reg_geocode]) - 100
 
             # Change in total regional demand
-            tot_demand_p = ((100 / result_dict['demand_by'][reg_geocode]) * result_dict['demand_cy'][scenario][reg_geocode]) - 100
+            tot_demand_p = (
+                (100 / result_dict['demand_by'][reg_geocode]) * result_dict['demand_cy'][scenario][reg_geocode]) - 100
 
             x_values.append(lf_change_p)
             #y_values.append(tot_demand_p)

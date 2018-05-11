@@ -561,7 +561,7 @@ def tech_sigmoid_parameters(
             xdata = np.array([point_x_by, point_x_ey])
             ydata = np.array([point_y_by, point_y_ey])
 
-            logging.info(
+            '''logging.info(
                 "... create sigmoid diffusion %s - %s - %s - %s - l_val: %s - %s - %s lval: %s",
                 tech,
                 xdata,
@@ -570,7 +570,7 @@ def tech_sigmoid_parameters(
                 l_values[tech],
                 point_y_by,
                 point_y_ey,
-                linear_approx_crit)
+                linear_approx_crit)'''
 
             # Test if end year share is larger than technological maximum
             # Test wheter maximum diffusion is larger than simulated end year share

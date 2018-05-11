@@ -240,6 +240,23 @@ def is_color_list_selection():
 
     return color_list_selection
 
+def color_list_selection_dm():
+    """
+    """
+    color_list_selection = [
+        'darkturquoise',
+        'orange',
+        'firebrick',
+        'darkviolet',
+        'khaki',
+        'olive',
+        'darkseagreen',
+        'darkcyan',
+        'indianred',
+        'darkblue']
+
+    return color_list_selection
+
 def color_list_scenarios():
     """
     """

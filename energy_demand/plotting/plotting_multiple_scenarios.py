@@ -461,11 +461,21 @@ def plot_tot_y_peak_hour(
         for year, fuel_fueltypes in fuel_fueltype_yrs['ed_peak_h'].items():
             data_container.append(fuel_fueltypes[fueltype_str_input])
 
+        # Calculate max peak in end year
+        peak_gw = round(data_container[-1], 1)
+        peak_p = round((100 / data_container[0]) * data_container[-1], 1)
+
+        # Label
+        label_scenario = "{} (peak: GW {} p: {})".format(
+            scenario_name,
+            peak_gw,
+            peak_p)
+
         plt.plot(
             list(fuel_fueltype_yrs['ed_peak_h'].keys()),     # years
             list(data_container),               # yearly data
             color=str(color_list_selection.pop()),
-            label=scenario_name)
+            label=label_scenario) #scenario_name)
 
     # ----
     # Axis
