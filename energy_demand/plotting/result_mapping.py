@@ -147,16 +147,22 @@ def user_defined_classification(
         color_list = color_list
 
     # Shorten color list
-    color_list = color_list[:len(bins)]
+    logging.info("BEFfd ")
+    logging.info(color_list)
+
+    if min(bins) > 0:
+        color_list = color_list[:len(bins)]
+    else:
+        color_list = color_list
 
     logging.info("BEFORE RECLASSIFICAOTN")
     logging.info("---")
     logging.info(bins)
     logging.info(color_list)
 
-    # ---------
+    # ------------------------------------------------------
     # Reclassify
-    # ---------
+    # ------------------------------------------------------
     reclass_lad_geopanda_shp, cmap = re_classification(
         lad_geopanda_shp,
         bins,
@@ -165,25 +171,24 @@ def user_defined_classification(
         color_zero,
         placeholder_zero_color)
 
-    # ----------
+    # ------------------------------------------------------
     # Legend and legend labels
-    # ----------
+    # ------------------------------------------------------
     legend_handles = []
     small_number = 0.01 # Small number for plotting corrrect charts
-
+    bins.append(999) # Append dummy last element for last class
     for bin_nr, bin_entry in enumerate(bins):
-
         if bin_nr == 0: #first bin entry
 
-            if bins[bin_nr] < 0:
+            if bin_entry < 0:
                 label_patch = "> {} (min {})".format(bin_entry, min_value)
 
                 if min_value > bin_entry:
                     print("Classification boundry is not clever for low values")
             else:
                 label_patch = "< {} (min {})".format(bin_entry, min_value)
-        elif bin_nr == len(bins) - 1: #last bin entry
-            #label_patch = "> {} (max {})".format(bin_entry - small_number, max_value)
+        elif bin_nr == len(bins)- 1: # -1 means that last bin entry
+            ###label_patch = "> {} (max {})".format(bins[-2], max_value)
             label_patch = "> {} (max {})".format(bins[-2], max_value)
 
             if max_value < bin_entry:
@@ -223,8 +228,7 @@ def user_defined_classification(
         handles=legend_handles,
         title=legend_title,
         prop={
-            'family': 'arial',
-            'size': 7},
+            'size': 5},
         loc='upper center',
         bbox_to_anchor=(0.5, -0.05),
         frameon=False)
@@ -270,7 +274,8 @@ def bin_mapping(
 
 def re_classification(
         lad_geopanda_shp,
-        bins, color_list,
+        bins,
+        color_list,
         field_to_plot,
         color_zero,
         placeholder_zero_color
@@ -295,11 +300,16 @@ def re_classification(
     # Create the list of bin labels and the
     # list of colors corresponding to each bin
     logging.info("EE " + str(bins))
+    nr_of_classes = int(len(bins) - 1) + 2 #class on top and bottom
     bin_labels = []
-    for idx, _ in enumerate(bins):
-        val_bin = idx / (len(bins) - 1.0)
+    
+    logging.info(nr_of_classes)
+    #for idx, _ in enumerate(bins):
+    #    val_bin = idx / (len(bins) - 1.0)
+    #    bin_labels.append(val_bin)
+    for idx in range(nr_of_classes):
+        val_bin = idx / (nr_of_classes - 1.0)
         bin_labels.append(val_bin)
-
     # ----------------------
     # Add white bin and color
     # ----------------------
@@ -329,7 +339,7 @@ def re_classification(
     logging.info("color_bin_match_list: " + str(color_bin_match_list))
     logging.info(bins)
     logging.info(bin_labels_copy)
-    
+
     cmap = LinearSegmentedColormap.from_list(
         'mycmap',
         color_bin_match_list)
@@ -337,9 +347,9 @@ def re_classification(
     # Reclassify
     lad_geopanda_shp['reclassified'] = lad_geopanda_shp[field_to_plot].apply(
         func=bin_mapping,
-        class_bins=bins, #TODO TODO TODO bin_labels_copy
+        class_bins=bins,
         placeholder_zero_color=float(placeholder_zero_color))
-    prnt(":")
+
     return lad_geopanda_shp, cmap
 
 def plot_lad_national(
@@ -437,8 +447,9 @@ def plot_lad_national(
 
         # Add maximum value
         logging.info("FINAL BIN before" + str(bins))
-        bins.append(max_value)
-        logging.info("FINAL BIN " + str(bins))
+        ###bins.append(max_value)
+
+        ###logging.info("FINAL BIN " + str(bins))
 
         lad_geopanda_shp_reclass, cmap = user_defined_classification(
             bins,
@@ -990,9 +1001,10 @@ def create_geopanda_files(
                 if nan_entry:
                     continue
 
+                bins_increments = 10
                 bins = get_reasonable_bin_values(
                     data_to_plot=list(data_to_plot.values()),
-                    increments=10)
+                    increments=bins_increments)
 
                 #bins = [-4, -2, 0, 2, 4] # must be of uneven length containing zero
                 #bins = [-40, -30, -20, -10, 0, 10, 20, 30, 40]
