@@ -11,6 +11,16 @@ import numpy as np
 from energy_demand.basic import basic_functions, conversions
 from energy_demand.geography import write_shp
 
+class ExplicitDumper(yaml.Dumper):
+    """
+    A dumper that will never emit aliases.
+    """
+    def ignore_aliases(self, data):
+        return True
+
+def tuple_representer(dumper, data):
+    return dumper.represent_scalar(tag=u'tag:yaml.org,2002:str', value='({}, {})'.format(data[0], data[1]))
+
 def write_array_to_txt(path_result, array):
     """Write scenario population for a year to txt file
     """
@@ -127,8 +137,9 @@ def dump(data, file_path):
     data
         Data to write (should be lists, dicts and simple values)
     """
+    yaml.add_representer(tuple, tuple_representer)
     with open(file_path, 'w') as file_handle:
-        return yaml.dump(data, file_handle, Dumper=Dumper, default_flow_style=False)
+        return yaml.dump(data, file_handle, Dumper=ExplicitDumper, default_flow_style=False)
 
 def write_yaml_output_keynames(path_yaml, key_names):
     """Generate YAML file where the outputs
