@@ -15,92 +15,6 @@ from matplotlib.colors import LinearSegmentedColormap
 from energy_demand.basic import basic_functions
 from energy_demand.technologies import tech_related
 
-# Old reasonable function to generate symetric values
-'''def get_reasonable_bin_values(
-        data_to_plot,
-        increments=10
-    ):
-    """Get reasonable bin values
-    """
-    def round_down(num, divisor):
-        return num - (num%divisor)
-
-    max_val = max(data_to_plot)
-    min_val = min(data_to_plot)
-
-    # Positive values
-    if min_val >= 0:
-
-        # Calculate number of classes
-        classes = max_val / increments
-
-        # Round down and add one class for larger values
-        nr_classes = round_down(classes, increments) + 1
-
-        if nr_classes > 9:
-            raise Exception("Nr of classes is too big")
-
-        # Classes
-        min_class = round_down(min_val, increments)                 # Minimum class
-        max_class = round_down(max_val, increments) + increments    # Maximum class
-
-        # Bin with classes
-        bins = range(min_class, max_class, increments)
-    else:
-        #lager negative values
-
-        # must be of uneven length containing zero
-        largest_min = abs(min_val)
-        largest_max = abs(max_val)
-
-        nr_min_class = round_down(abs(min_val), increments) / increments
-        
-        if max_val < 0:
-            nr_pos_classes = nr_min_class
-        else:
-            nr_pos_classes = round_down(max_val, increments) / increments
-
-        if nr_min_class > nr_pos_classes:
-            # Negative has more classes
-            nr_of_classes_symetric = nr_min_class
-        else:
-            nr_of_classes_symetric = nr_pos_classes
-
-        # Number of classes
-        symetric_value = nr_of_classes_symetric * increments
-        min_class_value = int(symetric_value * -1)
-        max_class_value = int(symetric_value)
-
-        # Negative classes
-        if min_class_value / increments == 0:
-            neg_classes = [increments * -1]
-        elif min_class_value / increments == 1:
-            neg_classes = [increments * -1]
-        else:
-            neg_classes = list(range(min_class_value, 0, increments))
-        
-        if max_class_value / increments == 0:
-            pos_classes = [increments]
-        elif max_class_value / increments == 1:
-            pos_classes = [increments] #only one class
-        else:
-            pos_classes = list(range(increments, max_class_value + increments, increments))
- 
-        bins = neg_classes + [0] + pos_classes
-
-        logging.info("______________________________________")
-        logging.info("largest_min     " + str(largest_min))
-        logging.info("largest_max     " + str(largest_max))
-        logging.info(min_val)
-        logging.info(max_val)
-        logging.info("symetric_value  " + str(symetric_value))
-        logging.info("min_class_value " + str(min_class_value))
-        logging.info("max_class_value " + str(max_class_value))
-        logging.info("bins            " + str(bins))
-
-    return bins
-'''
-
 def get_reasonable_bin_values(
         data_to_plot,
         increments=10
@@ -133,8 +47,8 @@ def get_reasonable_bin_values(
             min_class = increments
 
         # Bin with classes
-        logging.info("vv {}  {}".format(max_val, min_val))
-        logging.info("pos {}  {} {}".format(min_class, max_class, increments))
+        #logging.info("vv {}  {}".format(max_val, min_val))
+        #logging.info("pos {}  {} {}".format(min_class, max_class, increments))
         bins = list(range(int(min_class), int(max_class), int(increments)))
     else:
         logging.info("Neg")
@@ -145,18 +59,12 @@ def get_reasonable_bin_values(
         largest_max = abs(max_val)
 
         nr_min_class = round_down(abs(min_val), increments) / increments
-        
+
         if max_val < 0:
             nr_pos_classes = 0
         else:
             nr_pos_classes = round_down(max_val, increments) / increments + 1
 
-        '''if nr_min_class > nr_pos_classes:
-            # Negative has more classes
-            nr_of_classes_symetric = nr_min_class
-        else:
-            nr_of_classes_symetric = nr_pos_classes'''
-        
         # Number of classes
         #symetric_value = nr_of_classes_symetric * increments
         min_class_value = int(nr_min_class * -1) * increments
@@ -170,7 +78,7 @@ def get_reasonable_bin_values(
             neg_classes = [increments * -1]
         else:
             neg_classes = list(range(min_class_value, 0, increments))
-        
+
         if max_class_value == 0:
             pos_classes = []
         elif max_class_value / increments == 0:
@@ -179,8 +87,14 @@ def get_reasonable_bin_values(
             pos_classes = [increments] #only one class
         else:
             pos_classes = list(range(increments, max_class_value + increments, increments))
- 
+
         bins = neg_classes + [0] + pos_classes
+
+    # ---
+    # Test that maximum 9 classes
+    # ---
+    if len(bins) > 8:
+        raise Exception("Too many bin classes defined")
 
     return bins
 
@@ -400,7 +314,6 @@ def re_classification(
     """
     # Create the list of bin labels and the
     # list of colors corresponding to each bin
-    logging.info("EE " + str(bins))
     if max(bins) <=0:
         nr_of_classes = int(len(bins)) + 1 #only negative classes
     elif min(bins) >= 0:
@@ -409,23 +322,20 @@ def re_classification(
         nr_of_classes = int(len(bins) -1) + 2 #class on top and bottom and get rid of 0
 
     bin_labels = []
-    
-    logging.info("nr_of_classes" + str(nr_of_classes))
-    #for idx, _ in enumerate(bins):
-    #    val_bin = idx / (len(bins) - 1.0)
-    #    bin_labels.append(val_bin)
+
     for idx in range(nr_of_classes):
         val_bin = idx / (nr_of_classes - 1.0)
         bin_labels.append(val_bin)
+
     # ----------------------
     # Add white bin and color
     # ----------------------
     color_list_copy = copy.copy(color_list)
     bin_labels_copy = copy.copy(bin_labels)
 
-    logging.info("KUH " + str(color_zero))
-    logging.info(color_list_copy)
-    logging.info(bin_labels_copy)
+    #logging.info("KUH " + str(color_zero))
+    #logging.info(color_list_copy)
+    #logging.info(bin_labels_copy)
     # Add zero color in color list if a min_plus map
     if color_zero != False:
         insert_pos = 1
@@ -435,17 +345,17 @@ def re_classification(
         bin_labels_copy.insert(insert_pos, float(placeholder_zero_color))
     else:
         pass
-    logging.info("KUH 2")
-    logging.info(color_list_copy)
-    logging.info(bin_labels_copy)
+    #logging.info("KUH 2")
+    #logging.info(color_list_copy)
+    #logging.info(bin_labels_copy)
 
     # Create the custom color map
     color_bin_match_list = []
     for lbl, color in zip(bin_labels_copy, color_list_copy):
         color_bin_match_list.append((lbl, color))
-    logging.info("color_bin_match_list: " + str(color_bin_match_list))
-    logging.info(bins)
-    logging.info(bin_labels_copy)
+    ##logging.info("color_bin_match_list: " + str(color_bin_match_list))
+    ##logging.info(bins)
+    ##logging.info(bin_labels_copy)
 
     if 0 in bins:
         pass
@@ -453,17 +363,16 @@ def re_classification(
         logging.info("TT")
         #bins.insert(0, 0) #TODO
     else:
-        logging.info("aa")
         bins.insert(len(bins), 0) # Add zero at the end
 
-    logging.info("Newbin")
-    logging.info(bins)
+    #logging.info("Newbin")
+    #logging.info(bins)
  
     cmap = LinearSegmentedColormap.from_list(
         'mycmap',
         color_bin_match_list)
 
-    logging.info("cmap " + str(cmap))
+    #logging.info("cmap " + str(cmap))
 
     # Reclassify
     lad_geopanda_shp['reclassified'] = lad_geopanda_shp[field_to_plot].apply(
@@ -1082,11 +991,10 @@ def create_geopanda_files(
             # ===============================================
             # Differences in percent per enduse and year (y)
             # ===============================================
-            if plot_crit_dict['plot_differences_p'] and year == 2050: #base_yr: #TODO TODO
+            if plot_crit_dict['plot_differences_p'] and year > 2015:
                 field_name = 'y_diff_p_{}-{}_{}'.format(
                     base_yr, year, fueltype_str)
-                logging.info("===========OKO " + str(field_name))
-                print("OKO " + str(field_name))
+                #logging.info("===========field_name " + str(field_name))
 
                 # Calculate yearly sums
                 yearly_sum_gwh_by = np.sum(
@@ -1122,29 +1030,27 @@ def create_geopanda_files(
                 if nan_entry:
                     continue
 
-                bins_increments = 15
+                # ----
+                # CAlculate classes for manual classification
+                # ----
+                bins_increments = 10
+
                 bins = get_reasonable_bin_values(
                     data_to_plot=list(data_to_plot.values()),
                     increments=bins_increments)
-                
-                logging.info("Min {}  Max {}".format(
-                    min(list(data_to_plot.values())),
-                     max(list(data_to_plot.values()))))
-                logging.info("FIRST BINS: " + str(bins))
-                #bins = [-4, -2, 0, 2, 4]  +# must be of uneven length containing zero
+
+                #logging.info("Min {}  Max {}".format(
+                #    min(list(data_to_plot.values())),
+                #     max(list(data_to_plot.values()))))
+                #logging.info("FIRST BINS: " + str(bins))
+                #bins = [-4, -2, 0, 2, 4]
                 #bins = [-40, -30, -20, -10, 0, 10, 20, 30, 40]
 
                 color_list, color_prop, user_classification, color_zero = colors_plus_minus_map(
                     bins=bins,
                     color_prop='qualitative',
                     color_order=True)
-
-                logging.info("KURT")
-                logging.info(color_list)
-                logging.info(color_prop)
-                logging.info(user_classification)
-                logging.info("_----------------")
-                user_classification = True #NEW TODO
+                #user_classification = True #NEW TODO
 
                 # Plot difference in % per fueltype of total fuel (y)
                 plot_lad_national(

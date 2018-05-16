@@ -187,6 +187,6 @@ process_scenarios(os.path.abspath("C:/Users/cenv0553/ed/results/scen_B"))
 process_scenarios(os.path.abspath("C:/Users/cenv0553/ed/results/scen_C"))
 process_scenarios(os.path.abspath("C:/Users/cenv0553/ed/results/scen_D"))'''
 
-#process_scenarios(os.path.abspath("C:/Users/cenv0553/ed/results/Fig_08_09"))
+process_scenarios(os.path.abspath("C:/Users/cenv0553/ed/results/Fig_08_09"))
 #process_scenarios(os.path.abspath("C:/Users/cenv0553/ed/results/Fig_11"))
-process_scenarios(os.path.abspath("C:/Users/cenv0553/ed/results/Fig_13"))  # Color scheme Fig 13
+#process_scenarios(os.path.abspath("C:/Users/cenv0553/ed/results/Fig_13"))  # Color scheme Fig 13

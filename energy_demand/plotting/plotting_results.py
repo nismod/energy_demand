@@ -2219,34 +2219,26 @@ def plot_radar_plot_multiple_lines(
             color_line,
             alpha=0.05)
 
-    font_additional_info = plotting_styles.font_info(size=5)
+    # ------------
+    # Write outs
+    # ------------
+    font_additional_info = plotting_styles.font_info(size=4)
 
     for cnt, entry in enumerate(list_diff_max_h):
         plt.text(
-            0.25,
+            0.15,
             0 + cnt/50,
             entry,
             fontdict=font_additional_info,
             transform=plt.gcf().transFigure)
 
     # ------------
-    # Title
-    # ------------
-    font_additional_info = plotting_styles.font_info(size=4)
-    #plt.title(
-    #    title_info,
-    #    loc='left',
-    #    fontdict=font_additional_info)
-
-    # ------------
     # Legend
     # ------------
     plt.legend(
         ncol=1,
-        bbox_to_anchor=(0.5, -0.1),
-        prop={
-            'family': 'arial',
-            'size': 4},
+        bbox_to_anchor=(0.2, -0.1),
+        prop={'size': 4},
         frameon=False)
 
     plt.savefig(fig_name)
@@ -2267,8 +2259,8 @@ def plt_one_fueltype_multiple_regions_peak_h(
     Arguments
     ---------
     """
-    # Set figure size
-    fig = plt.figure(figsize=plotting_program.cm2inch(14, 8))
+    fig = plt.figure(
+        figsize=plotting_program.cm2inch(14, 8))
 
     ax = fig.add_subplot(1, 1, 1)
 
