@@ -6,6 +6,7 @@ fraction at the model end year
 """
 import logging
 from collections import defaultdict
+import math
 import numpy as np
 from scipy.optimize import curve_fit
 from energy_demand.technologies import diffusion_technologies
@@ -561,17 +562,22 @@ def tech_sigmoid_parameters(
             ydata = np.array([point_y_by, point_y_ey])
 
             '''logging.info(
-                "... create sigmoid diffusion %s - %s - %s - %s - l_val: %s - %s - %s",
+                "... create sigmoid diffusion %s - %s - %s - %s - l_val: %s - %s - %s lval: %s",
                 tech,
                 xdata,
                 ydata,
                 fit_assump_init,
                 l_values[tech],
-                point_y_by, point_y_ey)'''
+                point_y_by,
+                point_y_ey,
+                linear_approx_crit)'''
 
             # Test if end year share is larger than technological maximum
             # Test wheter maximum diffusion is larger than simulated end year share
-            assert ydata[1] <= l_values[tech] + linear_approx_crit
+            if math.isnan(ydata[1]):
+                pass
+            else:
+                assert ydata[1] <= l_values[tech] + linear_approx_crit
 
             # If no change in by to ey but not zero (lineare change)
             if (round(point_y_by, rounding_accuracy) == round(point_y_ey, rounding_accuracy)) and (

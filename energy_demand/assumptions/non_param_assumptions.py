@@ -47,7 +47,7 @@ class Assumptions(object):
         self.base_yr = base_yr
         self.curr_yr = curr_yr
         self.simulated_yrs = simulated_yrs
-
+    
         # ============================================================
         # Spatially modelled variables
         #
@@ -63,6 +63,8 @@ class Assumptions(object):
         # Define technologies which are affected by spatial explicit diffusion
         self.techs_affected_spatial_f = ['heat_pumps_electricity']
 
+        # Max penetration speed
+        self.speed_con_max = 1 # 1: uniform distribution
 
         # --------
         # Demand management of heat pumps
@@ -576,7 +578,7 @@ class Assumptions(object):
                 self.rs_capacity_switches,
                 self.ss_capacity_switches, 
                 self.is_capacity_switches])
-
+  
         # ========================================
         # General other assumptions
         # ========================================

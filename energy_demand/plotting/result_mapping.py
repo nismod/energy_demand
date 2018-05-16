@@ -4,6 +4,7 @@ the geopanda library (http://geopandas.org)
 import os
 import logging
 import copy
+import math
 import numpy as np
 import geopandas as gpd
 import pandas as pd
@@ -14,7 +15,10 @@ from matplotlib.colors import LinearSegmentedColormap
 from energy_demand.basic import basic_functions
 from energy_demand.technologies import tech_related
 
-'''def get_reasonable_bin_values(data_to_plot, bin_nrs=2):
+def get_reasonable_bin_values(
+        data_to_plot,
+        increments=10
+    ):
     """Get reasonable bin values
     """
     def round_down(num, divisor):
@@ -23,19 +27,76 @@ from energy_demand.technologies import tech_related
     max_val = max(data_to_plot)
     min_val = min(data_to_plot)
 
-    if abs(max_val) > abs(min_val):
-        # Larger positive valus
-        equal_cat = max_val / bin_nrs
+    # Positive values
+    if min_val >= 0:
 
-        rounding_to_nr = 10
+        # Calculate number of classes
+        classes = max_val / increments
 
-        # Round down to
-        bin_diff = round_down(equal_cat, rounding_to_nr)
+        # Round down and add one class for larger values
+        nr_classes = round_down(classes, increments) + 1
 
+        if nr_classes > 9:
+            raise Exception("Nr of classes is too big")
+
+        # Classes
+        min_class = round_down(min_val, increments)                              # Minimum class
+        max_class = round_down(max_val, increments) + increments + increments    # Maximum class
+
+        if min_class == 0:
+            min_class = increments
+
+        # Bin with classes
+        #logging.info("vv {}  {}".format(max_val, min_val))
+        #logging.info("pos {}  {} {}".format(min_class, max_class, increments))
+        bins = list(range(int(min_class), int(max_class), int(increments)))
     else:
+        logging.info("Neg")
         #lager negative values
 
-    '''
+        # must be of uneven length containing zero
+        largest_min = abs(min_val)
+        largest_max = abs(max_val)
+
+        nr_min_class = round_down(abs(min_val), increments) / increments
+
+        if max_val < 0:
+            nr_pos_classes = 0
+        else:
+            nr_pos_classes = round_down(max_val, increments) / increments + 1
+
+        # Number of classes
+        #symetric_value = nr_of_classes_symetric * increments
+        min_class_value = int(nr_min_class * -1) * increments
+        max_class_value = int(nr_pos_classes) * increments
+        logging.info("pos neg {} {}".format(nr_pos_classes, min_class_value))
+
+        # Negative classes
+        if min_class_value / increments == 0:
+            neg_classes = [increments * -1]
+        elif min_class_value / increments == 1:
+            neg_classes = [increments * -1]
+        else:
+            neg_classes = list(range(min_class_value, 0, increments))
+
+        if max_class_value == 0:
+            pos_classes = []
+        elif max_class_value / increments == 0:
+            pos_classes = [increments]
+        elif max_class_value / increments == 1:
+            pos_classes = [increments] #only one class
+        else:
+            pos_classes = list(range(increments, max_class_value + increments, increments))
+
+        bins = neg_classes + [0] + pos_classes
+
+    # ---
+    # Test that maximum 9 classes
+    # ---
+    if len(bins) > 8:
+        raise Exception("Too many bin classes defined")
+
+    return bins
 
 def user_defined_classification(
         bins,
@@ -85,11 +146,27 @@ def user_defined_classification(
         color_list = color_list
 
     # Shorten color list
-    color_list = color_list[:len(bins)]
+    logging.info("BEFfd ")
+    logging.info(color_list)
 
-    # ---------
+ 
+    if min(bins) > 0:
+        #bins.append(999)
+        #color_list = color_list[:len(bins)]
+        color_list = color_list[:len(bins)+1]
+    else:
+        color_list = color_list
+
+
+    logging.info(" ")
+    logging.info("BEFORE RECLASSIFICAOTN")
+    logging.info("---")
+    logging.info(bins)
+    logging.info(color_list)
+
+    # ------------------------------------------------------
     # Reclassify
-    # ---------
+    # ------------------------------------------------------
     reclass_lad_geopanda_shp, cmap = re_classification(
         lad_geopanda_shp,
         bins,
@@ -98,25 +175,34 @@ def user_defined_classification(
         color_zero,
         placeholder_zero_color)
 
-    # ----------
+    # ------------------------------------------------------
     # Legend and legend labels
-    # ----------
+    # ------------------------------------------------------
+    logging.info("bins fff")
+    logging.info(bins)
+    logging.info(color_list)
+
     legend_handles = []
     small_number = 0.01 # Small number for plotting corrrect charts
 
-    for bin_nr, bin_entry in enumerate(bins):
+    if max(bins) >= 0:
+        bins.append(999) # Append dummy last element for last class
+    else:
+        pass
 
+    for bin_nr, bin_entry in enumerate(bins):
         if bin_nr == 0: #first bin entry
 
-            if bins[bin_nr] < 0:
+            if bin_entry < 0:
                 label_patch = "> {} (min {})".format(bin_entry, min_value)
 
                 if min_value > bin_entry:
                     print("Classification boundry is not clever for low values")
             else:
                 label_patch = "< {} (min {})".format(bin_entry, min_value)
-        elif bin_nr == len(bins) - 1: #last bin entry
-            label_patch = "> {} (max {})".format(bin_entry - small_number, max_value)
+        elif bin_nr == len(bins)- 1: # -1 means that last bin entry
+            ###label_patch = "> {} (max {})".format(bins[-2], max_value)
+            label_patch = "> {} (max {})".format(bins[-2], max_value)
 
             if max_value < bin_entry:
                 print("Classification boundry is not clever for low values")
@@ -143,6 +229,8 @@ def user_defined_classification(
                 else:
                     label_patch = "{}  ―  {}".format(bins[bin_nr - 1], bin_entry - small_number)
 
+        logging.info("------label_patch: {}  {}  {}  {}".format(label_patch, bin_entry, bins, color_list))
+
         patch = mpatches.Patch(
             color=color_list[bin_nr],
             label=str(label_patch))
@@ -152,16 +240,19 @@ def user_defined_classification(
     plt.legend(
         handles=legend_handles,
         title=legend_title,
-        prop={
-            'family': 'arial',
-            'size': 10},
+        prop={'size': 5},
         loc='upper center',
         bbox_to_anchor=(0.5, -0.05),
         frameon=False)
 
     return reclass_lad_geopanda_shp, cmap
 
-def bin_mapping(value_to_classify, class_bins, placeholder_zero_color):
+def bin_mapping(
+        value_to_classify,
+        nr_of_classes,
+        class_bins,
+        placeholder_zero_color
+    ):
     """Maps values to a bin.
     The mapped values must start at 0 and end at 1.
 
@@ -182,7 +273,7 @@ def bin_mapping(value_to_classify, class_bins, placeholder_zero_color):
 
     # Treat -0 and 0 the same
     if value_to_classify == 0 or value_to_classify == -0:
-        value_to_classify = 0
+        #value_to_classify = 0
 
         # get position of zero value
         '''for idx, bound in enumerate(class_bins):
@@ -192,11 +283,14 @@ def bin_mapping(value_to_classify, class_bins, placeholder_zero_color):
 
     for idx, bound in enumerate(class_bins):
         if value_to_classify < bound:
-            return idx / (len(class_bins) - 1.0)
+            #return idx / (len(class_bins) - 1.0)
+            #logging.info("TT " + str(idx / nr_of_classes - 1.0))
+            return idx / (nr_of_classes - 1.0)
 
 def re_classification(
         lad_geopanda_shp,
-        bins, color_list,
+        bins,
+        color_list,
         field_to_plot,
         color_zero,
         placeholder_zero_color
@@ -218,11 +312,19 @@ def re_classification(
     placeholder_zero_color : float
         Number to assign for zero values
     """
+    # Create the list of bin labels and the
+    # list of colors corresponding to each bin
+    if max(bins) <=0:
+        nr_of_classes = int(len(bins)) + 1 #only negative classes
+    elif min(bins) >= 0:
+        nr_of_classes = int(len(bins)) + 1 #only negative classes
+    else:
+        nr_of_classes = int(len(bins) -1) + 2 #class on top and bottom and get rid of 0
 
-    # Create the list of bin labels and the list of colors corresponding to each bin
     bin_labels = []
-    for idx in range(len(bins)):
-        val_bin = idx / (len(bins) - 1.0)
+
+    for idx in range(nr_of_classes):
+        val_bin = idx / (nr_of_classes - 1.0)
         bin_labels.append(val_bin)
 
     # ----------------------
@@ -231,26 +333,51 @@ def re_classification(
     color_list_copy = copy.copy(color_list)
     bin_labels_copy = copy.copy(bin_labels)
 
+    #logging.info("KUH " + str(color_zero))
+    #logging.info(color_list_copy)
+    #logging.info(bin_labels_copy)
     # Add zero color in color list if a min_plus map
     if color_zero != False:
         insert_pos = 1
+        #insert_pos = int(len(bin_labels)/2) #Middle position where 0 is positioned in bins
+        #insert_pos = 0
         color_list_copy.insert(insert_pos, color_zero)
         bin_labels_copy.insert(insert_pos, float(placeholder_zero_color))
     else:
         pass
+    #logging.info("KUH 2")
+    #logging.info(color_list_copy)
+    #logging.info(bin_labels_copy)
 
     # Create the custom color map
     color_bin_match_list = []
     for lbl, color in zip(bin_labels_copy, color_list_copy):
         color_bin_match_list.append((lbl, color))
+    ##logging.info("color_bin_match_list: " + str(color_bin_match_list))
+    ##logging.info(bins)
+    ##logging.info(bin_labels_copy)
 
+    if 0 in bins:
+        pass
+    elif min(bins) > 0:
+        logging.info("TT")
+        #bins.insert(0, 0) #TODO
+    else:
+        bins.insert(len(bins), 0) # Add zero at the end
+
+    #logging.info("Newbin")
+    #logging.info(bins)
+ 
     cmap = LinearSegmentedColormap.from_list(
         'mycmap',
         color_bin_match_list)
 
+    #logging.info("cmap " + str(cmap))
+
     # Reclassify
     lad_geopanda_shp['reclassified'] = lad_geopanda_shp[field_to_plot].apply(
         func=bin_mapping,
+        nr_of_classes=nr_of_classes,
         class_bins=bins,
         placeholder_zero_color=float(placeholder_zero_color))
 
@@ -318,9 +445,11 @@ def plot_lad_national(
     """
     fig_name = os.path.join(
         result_path,
-        "{}.{}".format(field_to_plot, file_type))
+        "{}_{}.{}".format(
+            fig_name_part, field_to_plot, file_type))
 
-    fig_map, axes = plt.subplots(1, figsize=(5, 8))
+    fig_map, axes = plt.subplots(
+        1, figsize=(5, 8))
 
     legend_title = "unit [{}]".format(legend_unit)
 
@@ -340,7 +469,7 @@ def plot_lad_national(
         logging.info("User classification")
 
         # Color to assing zero values
-        placeholder_zero_color = 0.001
+        placeholder_zero_color = 0.00001
 
         # Get maximum and minum values
         rounding_digits = 10
@@ -348,7 +477,11 @@ def plot_lad_national(
         max_value = round(lad_geopanda_shp[field_to_plot].max(), rounding_digits)
 
         # Add maximum value
-        bins.append(max_value)
+        logging.info(" {} {}".format(min_value, max_value))
+        logging.info("FINAL BIN before" + str(bins))
+        ###bins.append(max_value)
+
+        ###logging.info("FINAL BIN " + str(bins))
 
         lad_geopanda_shp_reclass, cmap = user_defined_classification(
             bins,
@@ -386,7 +519,7 @@ def plot_lad_national(
                 color=color_zero)
     else:
         logging.info("not user classification")
-
+        print("tttttttt")
         # ----------------------------
         # Plot map with all value hues
         # -----------------------------
@@ -462,8 +595,7 @@ def plot_lad_national(
     plt.margins(x=0)
 
     # Add space for legend
-    plt.subplots_adjust(
-        bottom=0.4)
+    plt.subplots_adjust(bottom=0.4)
 
     # Save figure
     plt.savefig(fig_name)
@@ -554,7 +686,7 @@ def plot_spatial_mapping_example(
         raise Exception("Wrong bin definition: max_val: {}  min_val: {}".format(
             max(list(regional_vals.values())), min(list(regional_vals.values()))))
 
-    color_palette = 'YlGn_9' #'Purples_9', YlGn_9
+    color_palette = 'YlGn_9'# YlGn_9
     color_list, color_prop, user_classification, color_zero = colors_plus_minus_map(
         bins=bins,
         color_prop='qualitative',
@@ -692,7 +824,7 @@ def create_geopanda_files(
                     unique_merge_id)
 
                 # ABSOLUTE
-                bins = [40, 45, 50, 55, 60, 75, 80] # must be of uneven length containing zero
+                bins = [40, 45, 50, 55, 60, 75, 80]
                 #bins = [55, 60, 65, 70] # must be of uneven length containing zero
                 color_list, color_prop, user_classification, color_zero = colors_plus_minus_map(
                     bins=bins,
@@ -859,9 +991,10 @@ def create_geopanda_files(
             # ===============================================
             # Differences in percent per enduse and year (y)
             # ===============================================
-            if plot_crit_dict['plot_differences_p']:
+            if plot_crit_dict['plot_differences_p'] and year > 2015:
                 field_name = 'y_diff_p_{}-{}_{}'.format(
                     base_yr, year, fueltype_str)
+                #logging.info("===========field_name " + str(field_name))
 
                 # Calculate yearly sums
                 yearly_sum_gwh_by = np.sum(
@@ -888,15 +1021,36 @@ def create_geopanda_files(
                     merge_data,
                     unique_merge_id)
 
-                # If user classified, defined bins  [x for x in range(0, 1000000, 200000)]
-                #bins = get_reasonable_bin_values(list(data_to_plot.values()))
-                #bins = [-4, -2, 0, 2, 4] # must be of uneven length containing zero
-                bins = [-40, -30, -20, -10, 0, 10, 20, 30, 40] # must be of uneven length containing zero
+                # Test if nan vlaue in list and if yes, skipt this
+                nan_entry = False
+                nan_value = float('nan')
+                for entry in list(data_to_plot.values()):
+                    if math.isnan(entry):
+                        nan_entry = True
+                if nan_entry:
+                    continue
+
+                # ----
+                # CAlculate classes for manual classification
+                # ----
+                bins_increments = 10
+
+                bins = get_reasonable_bin_values(
+                    data_to_plot=list(data_to_plot.values()),
+                    increments=bins_increments)
+
+                #logging.info("Min {}  Max {}".format(
+                #    min(list(data_to_plot.values())),
+                #     max(list(data_to_plot.values()))))
+                #logging.info("FIRST BINS: " + str(bins))
+                #bins = [-4, -2, 0, 2, 4]
+                #bins = [-40, -30, -20, -10, 0, 10, 20, 30, 40]
 
                 color_list, color_prop, user_classification, color_zero = colors_plus_minus_map(
                     bins=bins,
                     color_prop='qualitative',
                     color_order=True)
+                #user_classification = True #NEW TODO
 
                 # Plot difference in % per fueltype of total fuel (y)
                 plot_lad_national(
@@ -908,6 +1062,20 @@ def create_geopanda_files(
                     color_palette='Purples_9',
                     color_prop=color_prop,
                     user_classification=user_classification,
+                    color_list=color_list,
+                    color_zero=color_zero,
+                    bins=bins)
+
+                # PLot not user classificaiton
+                plot_lad_national(
+                    lad_geopanda_shp=lad_geopanda_shp,
+                    legend_unit="GWh",
+                    field_to_plot=field_name,
+                    fig_name_part="_huevalues_",
+                    result_path=path_data_results_shapefiles,
+                    color_palette='Purples_9',
+                    color_prop=color_prop,
+                    user_classification=False,
                     color_list=color_list,
                     color_zero=color_zero,
                     bins=bins)
@@ -952,38 +1120,116 @@ def colors_plus_minus_map(
         return [], color_prop, False, False
 
     elif min(bins) < 0:
+        logging.info("negative bins" + str(bins))
 
-        # Colors pos and neg
-        if color_order:
-            #color_list_pos = getattr(palettable.colorbrewer.sequential, 'Reds_9').hex_colors
-            #color_list_neg = getattr(palettable.colorbrewer.sequential, 'Greens_9').hex_colors
-            color_list_pos = getattr(palettable.colorbrewer.sequential, 'Reds_7').hex_colors
-            color_list_neg = getattr(palettable.colorbrewer.sequential, 'Greens_7').hex_colors
+        if len(bins) > 10:
+            raise Exception("Too many bins defined: Change interval criteria")
+        if len(bins) == 10 or len(bins) == 9: # add extra color to reach 10 colors
+
+            if color_order:
+                color_list_pos = getattr(palettable.colorbrewer.sequential, 'Reds_9').hex_colors
+                color_list_pos.append('#330808')
+                color_list_neg = getattr(palettable.colorbrewer.sequential, 'Greens_9').hex_colors
+                color_list_neg.append('#0e2814')
+            else:
+                color_list_neg = getattr(palettable.colorbrewer.sequential, 'Reds_9').hex_colors   # 'Reds_9'
+                color_list_pos.append('#330808')
+                color_list_pos = getattr(palettable.colorbrewer.sequential, 'Greens_9').hex_colors # 'Greens_9'
+                color_list_pos.append('#0e2814')
+        #elif len(bins) == 9:
+        #    if color_order:
+        #        color_list_pos = getattr(palettable.colorbrewer.sequential, 'Reds_9').hex_colors
+        #        color_list_neg = getattr(palettable.colorbrewer.sequential, 'Greens_9').hex_colors
+        #    else:
+        #        color_list_neg = getattr(palettable.colorbrewer.sequential, 'Reds_9').hex_colors   # 'Reds_9'
+        #        color_list_pos = getattr(palettable.colorbrewer.sequential, 'Greens_9').hex_colors # 'Greens_9'
+        elif len(bins) == 8:
+            if color_order:
+                color_list_pos = getattr(palettable.colorbrewer.sequential, 'Reds_9').hex_colors
+                color_list_neg = getattr(palettable.colorbrewer.sequential, 'Greens_9').hex_colors
+            else:
+                color_list_neg = getattr(palettable.colorbrewer.sequential, 'Reds_9').hex_colors   # 'Reds_9'
+                color_list_pos = getattr(palettable.colorbrewer.sequential, 'Greens_9').hex_colors # 'Greens_9'
         else:
-            #color_list_neg = getattr(palettable.colorbrewer.sequential, 'Reds_9').hex_colors
-            #color_list_pos = getattr(palettable.colorbrewer.sequential, 'Greens_9').hex_colors
-            color_list_neg = getattr(palettable.colorbrewer.sequential, 'Reds_7').hex_colors
-            color_list_pos = getattr(palettable.colorbrewer.sequential, 'Greens_7').hex_colors
+            # Colors pos and neg
+            if color_order:
+                color_list_pos = getattr(palettable.colorbrewer.sequential, 'Reds_9').hex_colors   # 'Reds_9'
+                color_list_neg = getattr(palettable.colorbrewer.sequential, 'Greens_9').hex_colors # 'Greens_9'
+            else:
+                color_list_neg = getattr(palettable.colorbrewer.sequential, 'Reds_9').hex_colors   # 'Reds_9'
+                color_list_pos = getattr(palettable.colorbrewer.sequential, 'Greens_9').hex_colors # 'Greens_9'
 
         # Number of categories
-        nr_of_cat_pos_neg = int((len(bins) -1) / 2)
+        #nr_of_cat_pos_neg = int((len(bins) -1) / 2)
 
         # Invert negative colors
         color_list_neg = color_list_neg[::-1]
+        #logging.info("nr_of_cat_pos_neg " + str(nr_of_cat_pos_neg))
 
         color_list = []
-        for i in range(nr_of_cat_pos_neg + 1): #add one to get class up to zero
-            color_list.append(color_list_neg[i])
 
-        for i in range(nr_of_cat_pos_neg + 1): # add one to get class beyond last bin
-            color_list.append(color_list_pos[i])
+        if max(bins) == 0:
+            nr_of_cat_neg = int(len(bins)-1)
+            for i in range(nr_of_cat_neg + 1): #add one to get class up to zero
+                color_list.append(color_list_neg[i])
+        if max(bins) <= 0:
+            nr_of_cat_neg = int(len(bins))
+            for i in range(nr_of_cat_neg + 1): #add one to get class up to zero
+                color_list.append(color_list_neg[i])
+
+            color_list.append(color_zero) # Add 0 color
+        elif min(bins) >= 0:
+            nr_of_cat_pos = int(len(bins))
+            for i in range(nr_of_cat_pos + 1): #add one to get class up to zero
+                color_list.append(color_list_neg[i])
+            
+            color_list.insert(0, color_zero) # Add 0 color
+        else:
+            nr_of_cat_neg = 0
+            nr_of_cat_pos = 0
+        
+            for i in bins:
+                if i < 0:
+                    nr_of_cat_neg += 1
+                elif i > 0:
+                    nr_of_cat_pos += 1
+                else:
+                    pass
+    
+            for i in range(nr_of_cat_neg + 1): #add one to get class before first bin
+                color_list.append(color_list_neg[i])
+
+            for i in range(nr_of_cat_pos + 1): # add one to get class beyond last bin
+                color_list.append(color_list_pos[i])
 
         return color_list, 'user_defined', True, color_zero
 
     elif min(bins) > 0:
-
+        print("positive bins " + str(bins))
         color_list = []
-        color_list_pos = getattr(palettable.colorbrewer.sequential, color_palette).hex_colors
+
+        if len(bins) == 10 or len(bins) == 9: # add extra color to reach 10 colors
+
+            if color_order:
+                if max(bins) < 0:
+                    color_list_pos = getattr(palettable.colorbrewer.sequential, 'Greens_8').hex_colors
+                    color_list_pos.append('#0e2814')
+                else:
+                    color_list_pos = getattr(palettable.colorbrewer.sequential, 'Reds_8').hex_colors
+                    color_list_pos.append('#330808')
+            else:
+                if max(bins) < 0:
+                    color_list_pos = getattr(palettable.colorbrewer.sequential, 'Greens_9').hex_colors # 'Greens_9
+                    color_list_pos.append('#0e2814')
+                else:
+                    color_list_pos = getattr(palettable.colorbrewer.sequential, 'Reds_9').hex_colors   # 'Reds_9'
+                    color_list_pos.append('#330808')
+        else:
+            if color_order:
+                color_list_pos = getattr(palettable.colorbrewer.sequential, 'Reds_9').hex_colors   # 'Reds_9'
+            else:
+                color_list_pos = getattr(palettable.colorbrewer.sequential, 'Greens_9').hex_colors # 'Greens_9'
+        #color_list_pos = getattr(palettable.colorbrewer.sequential, color_palette).hex_colors
 
         # Number of categories
         nr_of_cat_pos_neg = int((len(bins)))

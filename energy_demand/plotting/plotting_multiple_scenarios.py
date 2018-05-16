@@ -461,11 +461,21 @@ def plot_tot_y_peak_hour(
         for year, fuel_fueltypes in fuel_fueltype_yrs['ed_peak_h'].items():
             data_container.append(fuel_fueltypes[fueltype_str_input])
 
+        # Calculate max peak in end year
+        peak_gw = round(data_container[-1], 1)
+        peak_p = round((100 / data_container[0]) * data_container[-1], 1)
+
+        # Label
+        label_scenario = "{} (peak: GW {} p: {})".format(
+            scenario_name,
+            peak_gw,
+            peak_p)
+
         plt.plot(
             list(fuel_fueltype_yrs['ed_peak_h'].keys()),     # years
             list(data_container),               # yearly data
             color=str(color_list_selection.pop()),
-            label=scenario_name)
+            label=label_scenario) #scenario_name)
 
     # ----
     # Axis
@@ -626,7 +636,6 @@ def plot_tot_fueltype_y_over_time(
 
     # Set figure size
     fig = plt.figure(figsize=plotting_program.cm2inch(9, 8))
-
 
     ax = fig.add_subplot(1, 1, 1)
 
@@ -835,9 +844,8 @@ def plot_tot_y_over_time(
 
     if plotshow:
         plt.show()
-        plt.close()
-    else:
-        plt.close()
+
+    plt.close()
 
 def plot_radar_plots_average_peak_day(
         scenario_data,
@@ -854,6 +862,8 @@ def plot_radar_plots_average_peak_day(
     name_spider_plot = os.path.join(
         fig_name, "spider_scenarios_{}.pdf".format(fueltype_to_model))
 
+    fueltype_int = fueltypes[fueltype_to_model]
+
     # ----------------
     # Create base year peak load profile
     # Aggregate load profiles of all regions
@@ -867,17 +877,20 @@ def plot_radar_plots_average_peak_day(
         print("-------Scenario: {} {}".format(scenario, fueltype_to_model))
         base_yr = 2015
 
+        # ------------------------
         # Future year load profile
+        # ------------------------
         all_regs_fueltypes_yh_by = np.sum(scenario_data[scenario]['results_every_year'][base_yr], axis=1)
         all_regs_fueltypes_yh_cy = np.sum(scenario_data[scenario]['results_every_year'][year_to_plot], axis=1)
 
-        fueltype_int = fueltypes[fueltype_to_model]
 
         # ---------------------------
         # Calculate load factors
         # ---------------------------
-        peak_day_nr_by, by_max_h = enduse_func.get_peak_day_single_fueltype(all_regs_fueltypes_yh_by[fueltype_int])
-        peak_day_nr_cy, cy_max_h = enduse_func.get_peak_day_single_fueltype(all_regs_fueltypes_yh_cy[fueltype_int])
+        peak_day_nr_by, by_max_h = enduse_func.get_peak_day_single_fueltype(
+            all_regs_fueltypes_yh_by[fueltype_int])
+        peak_day_nr_cy, cy_max_h = enduse_func.get_peak_day_single_fueltype(
+            all_regs_fueltypes_yh_cy[fueltype_int])
 
         scen_load_factor_fueltype_y_by = load_factors.calc_lf_y(all_regs_fueltypes_yh_by)
         load_factor_fueltype_y_by = round(scen_load_factor_fueltype_y_by[fueltype_int], fueltype_int)
@@ -885,19 +898,51 @@ def plot_radar_plots_average_peak_day(
         scen_load_factor_fueltype_y_cy = load_factors.calc_lf_y(all_regs_fueltypes_yh_cy)
         load_factor_fueltype_y_cy.append(round(scen_load_factor_fueltype_y_cy[fueltype_int], fueltype_int))
 
+        # ------------------------
+        # Calculate share or space and water heating of total
+        # electrictiy demand in 2050
+        # ------------------------
+        enduses_to_agg = ['rs_space_heating', 'rs_water_heating', 'ss_space_heating', 'ss_water_heating', 'is_space_heating']
+        
+        aggregated_enduse_fueltype = np.zeros((365, 24))
+        aggregated_enduse_fueltype_by = np.zeros((365, 24))
+        total_demand = np.zeros((365, 24))
+        for enduse in scenario_data[scenario]['results_enduse_every_year'][2050].keys():
+            if enduse in enduses_to_agg:
+                aggregated_enduse_fueltype += scenario_data[scenario]['results_enduse_every_year'][2050][enduse][fueltype_int]
+                aggregated_enduse_fueltype_by += scenario_data[scenario]['results_enduse_every_year'][2015][enduse][fueltype_int]
+                total_demand += scenario_data[scenario]['results_enduse_every_year'][2050][enduse][fueltype_int]
+            else:
+                total_demand += scenario_data[scenario]['results_enduse_every_year'][2050][enduse][fueltype_int]
+
+        # Total demand
+        selected_enduses_total_peak_day = round(np.max(aggregated_enduse_fueltype[peak_day_nr_cy]), 1)
+        all_enduses_total_peak_day = round(np.max(total_demand[peak_day_nr_cy]), 1)
+        selected_enduses_peak_by = round(np.max(aggregated_enduse_fueltype_by), 1)
+        print("p_all_enduses_total_peak_day " + str(all_enduses_total_peak_day))
+        print("p_selected_enduses_total_peak_day " + str(selected_enduses_total_peak_day))
+
         # ----------
         # Calculate change in peak
         # ----------
         all_regs_fueltypes_yh_by = all_regs_fueltypes_yh_by.reshape(all_regs_fueltypes_yh_by.shape[0], 365, 24)
         all_regs_fueltypes_yh_cy = all_regs_fueltypes_yh_cy.reshape(all_regs_fueltypes_yh_cy.shape[0], 365, 24)
 
-        diff_max_h = round(((100 / by_max_h) * cy_max_h) - 100, 2)
-        label_max_h = "scen: {} by: {} cy: {} d: {}".format(
-            scenario, round(by_max_h, 2), round(cy_max_h, 2), round(diff_max_h, 2))
+        diff_max_h = round(((100 / by_max_h) * cy_max_h) - 100, 1)
+
+        label_max_h = " by: {} cy: {} d: {}, scen: {} ed_peakh_heating: {}  ed_tot_peah_ {} by_heating: {}".format(
+            round(by_max_h, 2),
+            round(cy_max_h, 1),
+            round(diff_max_h, 1),
+            scenario,
+            selected_enduses_total_peak_day,
+            all_enduses_total_peak_day,
+            selected_enduses_peak_by)
+
         list_diff_max_h.append(label_max_h)
 
         print("Calculation of diff in peak: {} {} {} {}".format(
-            scenario, round(diff_max_h, 2), round(by_max_h, 2), round(cy_max_h, 2)))
+            scenario, round(diff_max_h, 1), round(by_max_h, 1), round(cy_max_h, 1)))
 
         # ----------------------------------
         # Plot dh for peak day for base year
