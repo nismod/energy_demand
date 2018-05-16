@@ -62,7 +62,7 @@ if extrapolate_specific_scenario:
     snpp = SNPPData.SNPPData()
 
     # 50 years, roughly half is extrapolated
-    years = range(2015, 2051)
+    years = range(2016, 2051)
 
     # start with an empty data frame
     result_ppp = pd.DataFrame()
@@ -83,12 +83,10 @@ if extrapolate_specific_scenario:
         region_ppl = utils.aggregate(region_ppl, ["GENDER", "C_AGE"])
         region_pph = utils.aggregate(region_pph, ["GENDER", "C_AGE"])
 
-        result_ppp.append(region_ppp, ignore_index=True)
-        result_ppl.append(region_ppl, ignore_index=True)
-        result_pph.append(region_pph, ignore_index=True)
+        region_ppp = result_ppp.append(region_ppp, ignore_index=True)
+        result_ppl = result_ppl.append(region_ppl, ignore_index=True)
+        result_pph = result_pph.append(region_pph, ignore_index=True)
 
-        break
-    print("tt")
 
     # write out results
     result_ppp.to_csv("C:/Users/cenv0553/mistral_population/__RESULTS/prinicpal_extrap_2050.csv", index=False)
