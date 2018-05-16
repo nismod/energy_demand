@@ -47,13 +47,37 @@ import population.nppdata as NPPData
 import population.snppdata as SNPPData
 import population.utils as utils
 
-reg_pop = True
-extrapolate_pop = False
-extrapolate_specific_scenario = True
+
+extrapolate_specific_scenario = True   # 2016-2050
+base_year_data = True                  # 2015
+
+if base_year_data:
+    """Base year data (no variants, same for all variants)
+    """
+    npp = NPPData.NPPData()
+    snpp = SNPPData.SNPPData()
+
+    year = 2015
+
+    # start with an empty data frame
+    result_ppp = pd.DataFrame()
+
+    # loop over all the UK LAD (or LAD-equivalents)
+    for lad in snpp.data.GEOGRAPHY_CODE.unique():
+
+        #region_ppp = snpp.create_variant('ppp', npp, lad, year)
+        region_ppp = snpp.extrapolagg(["GENDER", "C_AGE"], npp, lad, year) #princiapl
+
+        # aggregate the calculated variants by age and gender
+        result_ppp = result_ppp.append(region_ppp, ignore_index=True)
+
+    # write out results
+    result_ppp.to_csv("C:/Users/cenv0553/mistral_population/__RESULTS/all_variants_2015.csv", index=False)
+    print("Finished writting 2015 data")
 
 if extrapolate_specific_scenario:
     '''
-    Get extrapolated data for full time range for different ONS scenarios from 2015 - 2050
+    Get extrapolated data for full time range for different ONS scenarios from 2016 - 2050
     # https://github.com/nismod/population/blob/master/doc/example_variant_ex.py
     '''
 
@@ -62,6 +86,7 @@ if extrapolate_specific_scenario:
     snpp = SNPPData.SNPPData()
 
     # 50 years, roughly half is extrapolated
+    # Must start with 2015.
     years = range(2016, 2051)
 
     # start with an empty data frame
@@ -73,87 +98,24 @@ if extrapolate_specific_scenario:
     for lad in snpp.data.GEOGRAPHY_CODE.unique():
         print("Collection population for region {}".format(lad))
 
+        # Principle variant
+        region_ppp = snpp.extrapolagg(["GENDER", "C_AGE"], npp, lad, years)
+            
         # calculate the the variants
-        region_ppp = snpp.create_variant("ppp", npp, lad, years)
+        #region_ppp = snpp.create_variant("ppp", npp, lad, years)
         region_ppl = snpp.create_variant("ppl", npp, lad, years)
         region_pph = snpp.create_variant("pph", npp, lad, years)
 
         # aggregate the calculated variants by age and gender
-        region_ppp = utils.aggregate(region_ppp, ["GENDER", "C_AGE"])
         region_ppl = utils.aggregate(region_ppl, ["GENDER", "C_AGE"])
         region_pph = utils.aggregate(region_pph, ["GENDER", "C_AGE"])
 
-        region_ppp = result_ppp.append(region_ppp, ignore_index=True)
+        result_ppp = result_ppp.append(region_ppp, ignore_index=True)
         result_ppl = result_ppl.append(region_ppl, ignore_index=True)
         result_pph = result_pph.append(region_pph, ignore_index=True)
 
-
     # write out results
-    result_ppp.to_csv("C:/Users/cenv0553/mistral_population/__RESULTS/prinicpal_extrap_2050.csv", index=False)
-    result_ppl.to_csv("C:/Users/cenv0553/mistral_population/__RESULTS/lowmigration_extrap_2050.csv", index=False)
-    result_pph.to_csv("C:/Users/cenv0553/mistral_population/__RESULTS/highmigration_extrap_2050.csv", index=False)
-    print("FINISHED")
-'''
-if extrapolate_pop:
-
-    # ===================
-    # Extrapolating SNPP for 2040 - 2050
-    #https://github.com/nismod/population
-    # ===================
-
-    # initialise the population modules
-    npp = NPPData.NPPData()
-    snpp = SNPPData.SNPPData()
-
-    # get the first year where extrapolation is necessary
-    ex_start = snpp.max_year() + 1
-
-    # we extrapolate to 2050
-    ex_end = 2050
-
-    # start with an empty data frame
-    result = pd.DataFrame()
-
-    # loop over all the UK LAD (or LAD-equivalents)
-    for lad in snpp.data.GEOGRAPHY_CODE.unique():
-
-        # extrapolate
-        lad_ex = snpp.extrapolagg("GEOGRAPHY_CODE", npp, lad, range(ex_start, ex_end + 1))
-
-        # append to data
-        result = result.append(lad_ex, ignore_index=True)
-
-    # write out results
-    result.to_csv("C:/Users/cenv0553/mistral_population/population/__RESULTS/snpp_extrap_2050.csv")
-
-if reg_pop:
-
-    # initialise the population modules
-    npp = NPPData.NPPData()
-    snpp = SNPPData.SNPPData()
-
-    # get the first year where extrapolation is necessary
-    ex_start = snpp.max_year() + 1
-
-    # we extrapolate to 2050
-    ex_end = 2050 
-
-    # start with an empty data frame
-    result = pd.DataFrame()
-
-    # loop over all the UK LAD (or LAD-equivalents)
-    for lad in snpp.data.GEOGRAPHY_CODE.unique():
-
-        # get the total projected population for newcastle up to the SNPP horizon (2039)
-        lad_non_ex = snpp.aggregate("GEOGRAPHY_CODE", lad, range(2015, ex_start))
-
-        # extrapolate for another 25 years
-        lad_ex = snpp.extrapolagg("GEOGRAPHY_CODE", npp, lad, range(ex_end))
-
-        # append to data
-        result = result.append(lad_non_ex, ignore_index=True)
-        result = result.append(lad_ex, ignore_index=True)
-
-    # write out results
-    result.to_csv("C:/Users/cenv0553/mistral_population/population/__RESULTS/snpp_extrap_2015_2050_ppp.csv")
-'''
+    result_ppp.to_csv("C:/Users/cenv0553/mistral_population/__RESULTS/prinicpal_extrap_2016-2050.csv", index=False)
+    result_ppl.to_csv("C:/Users/cenv0553/mistral_population/__RESULTS/lowmigration_extrap_2016-2050.csv", index=False)
+    result_pph.to_csv("C:/Users/cenv0553/mistral_population/__RESULTS/highmigration_extrap_2016-2050.csv", index=False)
+    print("Finished writting 2016 - 2050 data")

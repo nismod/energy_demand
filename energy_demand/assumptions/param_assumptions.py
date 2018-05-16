@@ -1,5 +1,6 @@
 """Assumptions provided as parameters to smif. This script can be run to write out all paramters as YAML
 """
+import os
 import copy
 import logging
 from energy_demand.read_write import write_data
@@ -47,6 +48,26 @@ def load_param_assump(paths=None, local_paths=None, assumptions=None, writeYAML=
         assumptions = non_param_assumptions.DummyClass(assumptions_dict)
 
         setattr(assumptions, 't_bases', non_param_assumptions.DummyClass(assumptions_dict['t_bases']))
+    else:
+
+        # ------------
+        # Load assumptions
+        # ------------
+        '''path_main = resource_filename(os.path.join("energy_demand", "config_data"))
+        paths = data_loader.load_paths(path_main)
+        lookups = lookup_tables.basic_lookups()
+    
+        base_yr = 2015
+        simulated_yrs = range(2015, 2050)
+        assumptions = non_param_assumptions.Assumptions(
+            base_yr=base_yr,
+            curr_yr=base_yr,
+            simulated_yrs=simulated_yrs,
+            paths=paths,
+            enduses=[],
+            sectors=[],
+            fueltypes=lookups['fueltypes'],
+            fueltypes_nr=lookups['fueltypes_nr'])'''
 
     yr_until_changed_all_things = 2050
 
