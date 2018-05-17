@@ -44,7 +44,7 @@ def load_param_assump(paths=None, local_paths=None, assumptions=None, writeYAML=
         assumptions_dict['speed_con_max'] = 1
         assumptions_dict['flat_heat_pump_profile_both'] = 0 #FAlse
         assumptions_dict['flat_heat_pump_profile_only_water'] = 0 #FAlse
-        
+
         assumptions = non_param_assumptions.DummyClass(assumptions_dict)
 
         setattr(assumptions, 't_bases', non_param_assumptions.DummyClass(assumptions_dict['t_bases']))

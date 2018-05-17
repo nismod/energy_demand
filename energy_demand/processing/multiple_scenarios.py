@@ -31,10 +31,10 @@ def process_result_multi_scen(path_to_scenarios, path_shapefile_input):
 # Execute rusult processing for every scenario
 #process_result_multi_scen("C:/Users/cenv0553/ed/results/scen_A", os.path.abspath('C:/Users/cenv0553/ED/data/_raw_data/C_LAD_geography/same_as_pop_scenario/lad_2016_uk_simplified.shp'))
 #process_result_multi_scen("C:/Users/cenv0553/ed/results/scen_B", os.path.abspath('C:/Users/cenv0553/ED/data/_raw_data/C_LAD_geography/same_as_pop_scenario/lad_2016_uk_simplified.shp'))
-process_result_multi_scen("C:/Users/cenv0553/ed/results/scen_C", os.path.abspath('C:/Users/cenv0553/ED/data/_raw_data/C_LAD_geography/same_as_pop_scenario/lad_2016_uk_simplified.shp'))
+#process_result_multi_scen("C:/Users/cenv0553/ed/results/scen_C", os.path.abspath('C:/Users/cenv0553/ED/data/_raw_data/C_LAD_geography/same_as_pop_scenario/lad_2016_uk_simplified.shp'))
 #process_result_multi_scen("C:/Users/cenv0553/ed/results/scen_D", os.path.abspath('C:/Users/cenv0553/ED/data/_raw_data/C_LAD_geography/same_as_pop_scenario/lad_2016_uk_simplified.shp'))
 
-#process_result_multi_scen("C:/Users/cenv0553/ed/results/Fig_11", os.path.abspath('C:/Users/cenv0553/ED/data/_raw_data/C_LAD_geography/same_as_pop_scenario/lad_2016_uk_simplified.shp'))
+process_result_multi_scen("C:/Users/cenv0553/ed/results/Fig_11", os.path.abspath('C:/Users/cenv0553/ED/data/_raw_data/C_LAD_geography/same_as_pop_scenario/lad_2016_uk_simplified.shp'))
 
 '''process_result_multi_scen(
     #os.path.abspath("C:/Users/cenv0553/ED/_multiple_results_eff_factor_example"),
