@@ -2114,10 +2114,10 @@ def plot_radar_plot_multiple_lines(
     # ----
 
     # Colors with scenarios
-    color_scenarios = plotting_styles.color_list_scenarios() #Color scheme Fig 13
+    #color_scenarios = plotting_styles.color_list_scenarios() #Color scheme Fig 13
 
     # Colors for plotting Fig. 13
-    #color_scenarios = plotting_styles.color_list_selection_dm() # Color scheme Fig 13
+    color_scenarios = plotting_styles.color_list_selection_dm() # Color scheme Fig 13
 
     color_lines = ['black'] + color_scenarios
     years = ['2015', '2050']

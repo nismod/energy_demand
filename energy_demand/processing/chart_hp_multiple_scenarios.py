@@ -88,10 +88,11 @@ def process_scenarios(path_to_scenarios, year_to_model=2015):
             regions,
             hp_scenario_data=scenario_data,
             fig_name=os.path.join(path_result_folder, "comparison_hp_share_peak_h.pdf"),
+            txt_name=os.path.join(path_result_folder, "comparison_hp_share_peak_h.txt"),
             fueltype_str_input='electricity',
             plotshow=True)
 
     return
 
 # Generate plots across all scenarios
-process_scenarios(os.path.abspath("C:/Users/cenv0553/ed/results/Fig_12"))
+process_scenarios(os.path.abspath("C:/Users/cenv0553/ed/results/Fig_12_multi_hp"))

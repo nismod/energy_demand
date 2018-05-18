@@ -69,7 +69,6 @@ def get_reasonable_bin_values(
         #symetric_value = nr_of_classes_symetric * increments
         min_class_value = int(nr_min_class * -1) * increments
         max_class_value = int(nr_pos_classes) * increments
-        logging.info("pos neg {} {}".format(nr_pos_classes, min_class_value))
 
         # Negative classes
         if min_class_value / increments == 0:
@@ -735,6 +734,7 @@ def create_geopanda_files(
     """
     logging.info("... create spatial maps of results")
 
+    base_year = 2015
     # --------
     # Read LAD shapefile and create geopanda
     # --------
@@ -746,24 +746,25 @@ def create_geopanda_files(
     unique_merge_id = 'name' #'geo_code'
 
     # ======================================
-    # Peak fuel (h) all enduses
+    # Peak max h all enduses (abs)
     # ======================================
-    if plot_crit_dict['plot_peak_h']:
+    if plot_crit_dict['plot_abs_peak_h']:
         for year in results_container['results_every_year'].keys():
             for fueltype in range(fueltypes_nr):
-                print(" progress.. {}".format(fueltype))
+
                 fueltype_str = tech_related.get_fueltype_str(fueltypes, fueltype)
 
                 # Calculate peak h across all regions
-                field_name = 'peak_h_{}_{}'.format(year, fueltype_str)
+                field_name = 'peak_abs_h_{}_{}'.format(year, fueltype_str)
 
-                # Get maxium demand of 8760 h for every region
+
+                # Get maxium demand of 8760h for every region
                 h_max_gwh_regs = np.max(results_container['results_every_year'][year][fueltype], axis=1)
-
                 print("TOTAL peak fuel across all regs {} {} ".format(np.sum(h_max_gwh_regs), fueltype_str))
 
                 data_to_plot = basic_functions.array_to_dict(h_max_gwh_regs, regions)
 
+                # 
                 # Both need to be lists
                 merge_data = {
                     str(field_name): list(data_to_plot.values()),
@@ -798,6 +799,81 @@ def create_geopanda_files(
                     color_list=color_list,
                     bins=bins,
                     color_zero=color_zero)
+
+    # ======================================
+    # Peak max h all enduses (diff p)
+    # ======================================
+    if plot_crit_dict['plot_diff_peak_h']:
+        for year in results_container['results_every_year'].keys():
+            if year == base_year:
+                pass
+            else:
+                for fueltype in range(fueltypes_nr):
+                    
+                    # If total sum is zero, skip
+                    if np.sum(results_container['results_every_year'][base_year][fueltype]) == 0:
+                        continue
+
+                    # TODO Check if 'nan' entry or total sum is 0. (Remove as soon as nan error is removed)
+                    if np.isnan(np.sum(results_container['results_every_year'][base_year][fueltype])):
+                        logging.info("Error: Contains nan entry {} {}".format(year, fueltype))
+                        continue
+                    logging.info("============ {}  {}".format(fueltype, np.isnan(np.sum(results_container['results_every_year'][base_year][fueltype]))))
+                    logging.info(results_container['results_every_year'][base_year][fueltype])
+                    fueltype_str = tech_related.get_fueltype_str(fueltypes, fueltype)
+
+                    # Calculate peak h across all regions
+                    field_name = 'peak_diff_p_peak_h_{}_{}'.format(year, fueltype_str)
+
+                    # Get maxium demand of 8760h for every region for base year
+                    h_max_gwh_regs_by = np.max(results_container['results_every_year'][base_year][fueltype], axis=1)
+
+                    # Get maxium demand of 8760h for every region for current year
+                    h_max_gwh_regs_cy = np.max(results_container['results_every_year'][year][fueltype], axis=1)
+                    print("TOTAL peak fuel across all regs {} {} ".format(np.sum(h_max_gwh_regs_cy), fueltype_str))
+
+                    # Calculate difference in decimal
+                    diff_p_h_max_regs = ((100 / h_max_gwh_regs_by) * h_max_gwh_regs_cy) - 100
+
+                    data_to_plot = basic_functions.array_to_dict(diff_p_h_max_regs, regions)
+
+                    # Both need to be lists
+                    merge_data = {
+                        str(field_name): list(data_to_plot.values()),
+                        str(unique_merge_id): list(regions)}
+
+                    # Merge to shapefile
+                    lad_geopanda_shp = merge_data_to_shp(
+                        lad_geopanda_shp,
+                        merge_data,
+                        unique_merge_id)
+
+                    #bins = [0.2, 0.4, 0.6, 0.8, 1.0, 1.2]
+                    bins_increments = 10
+                    bins = get_reasonable_bin_values(
+                        data_to_plot=list(data_to_plot.values()),
+                        increments=bins_increments)
+
+                    color_list, color_prop, user_classification, color_zero = colors_plus_minus_map(
+                        bins=bins,
+                        color_prop='qualitative',
+                        color_order=True,
+                        color_zero='#ffffff',
+                        color_palette='YlGnBu_7') #YlGnBu_9 #8a2be2 'YlGnBu_9'  'PuBu_8'
+   
+                    # Ploat
+                    plot_lad_national(
+                        lad_geopanda_shp=lad_geopanda_shp,
+                        legend_unit="GWh",
+                        field_to_plot=field_name,
+                        fig_name_part=field_name,
+                        result_path=path_data_results_shapefiles,
+                        color_palette='Dark2_7',
+                        color_prop=color_prop,
+                        user_classification=user_classification,
+                        color_list=color_list,
+                        bins=bins,
+                        color_zero=color_zero)
 
     # ======================================
     # Load factors (absolute)
@@ -848,7 +924,7 @@ def create_geopanda_files(
                     color_zero=color_zero)
 
     # ======================================
-    # Spatial maps of difference in load factors
+    # Load factors (difference p)
     # ======================================
     if plot_crit_dict['plot_load_factors_p']:
         simulated_yrs = list(results_container['reg_load_factor_y'].keys())
@@ -945,7 +1021,6 @@ def create_geopanda_files(
     # ======================================
     # Total fuel (y) all enduses
     # ======================================
-    base_yr = list(results_container['results_every_year'].keys())[0]
     for year in results_container['results_every_year'].keys():
         for fueltype in range(fueltypes_nr):
 
@@ -991,14 +1066,14 @@ def create_geopanda_files(
             # ===============================================
             # Differences in percent per enduse and year (y)
             # ===============================================
-            if plot_crit_dict['plot_differences_p'] and year > 2015:
+            if plot_crit_dict['plot_differences_p'] and year > base_year:
                 field_name = 'y_diff_p_{}-{}_{}'.format(
-                    base_yr, year, fueltype_str)
+                    base_year, year, fueltype_str)
                 #logging.info("===========field_name " + str(field_name))
 
                 # Calculate yearly sums
                 yearly_sum_gwh_by = np.sum(
-                    results_container['results_every_year'][base_yr][fueltype],
+                    results_container['results_every_year'][base_year][fueltype],
                     axis=1)
 
                 yearly_sum_gwh_cy = np.sum(

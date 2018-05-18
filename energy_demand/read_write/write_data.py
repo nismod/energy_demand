@@ -26,6 +26,16 @@ def write_array_to_txt(path_result, array):
     """
     np.savetxt(path_result, array, delimiter=',')
 
+def write_list_to_txt(path_result, list):
+    """Write scenario population for a year to txt file
+    """
+    file = open(path_result, "w") 
+
+    for entry in list:
+        file.write(entry + "\n")
+
+    return
+
 def write_scenaric_population_data(sim_yr, path_result, pop_y):
     """Write scenario population for a year to '.npy' file
 
