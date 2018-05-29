@@ -1,46 +1,53 @@
 Documentation
 ===================
 
+This is the documention of the High-Resolution Energy demand model
+(HIRE) of the ITRC-MITRAL framework.
+
 ## 1. Introduction
 
-
-The energy demand model of the ITRC-MISTRAL framework allows 
-the simulation of long-term changes in energy demand patterns
+HIRE allows the simulation of long-term changes in energy demand patterns
 for the residential, service and industry sector on a high temporal
 and spatial scale. National end-use specific energy demand data is
 disaggregated on local authority district level and a bottom-up approach
 is implemented for hourly energy demand estimation for different fuel types
-and end-uses.
-Future energy demand is simulated based on different
+and end uses.Future energy demand is simulated based on different
 socio-technical scenario assumptions such as technology efficiencies,
-changes in the technological mix per end-use consumptions or behavioural change.
+changes in the technological mix per end use consumptions or behavioural change.
 Energy demand is simulated in relation to changes in scenario drivers of the
 base year. End-use specific socio-technical drivers for energy demands
-are defined and modelled where possible on a household level.
+modelled where possible on a household level.
 
-The energy demand model integrates energy demands across
-all ITRC models and provides demands to the supply model.
+     
+    The methodology is fully published in Eggimann et al. 2018: PAPER
+    , DOI: XYXYXYXY
+     
+    
+## 2. Overview
 
 
+### 2.1 Simulated end uses and sectors
 
-## 2. Overview of model and simulation approach
+Within HIRE, residential, service and industrial energy demands are
+modelled for three main sub-modules. For the United Kingomd,
+each sub module modelles end uses and sectors taken from
+BEIS (2016). An overview is given in Figure 1.
 
+![Model overview](../docs/documentation_images/01_model_overview.jpg)
+*Figure 1: Overview of modelled end uses and sectors*
 
-### 2.1 Modelled end uses and sectors
+A complete list of all modelled end uses and sectors is provided in
+Table 2.1. As HIRE is highly modular, all end uses or sectors can be 
+replaced with different end uses depending on available energy
+consumption statistics. 
 
-The energy demand model create of three main submodules which model
-residential, service and industrial energy demand. Each submodule
-modelles end uses and sectors (see Figure 2.1 and Table 2.1).
-
-![Model overview](../docs/documentation_images/000-model_overview.jpg)
-*Figure 2.1: Overview of modelled end uses and sectors*
-
+More information on sectors and their fuel inputs can be found [here](https://www.gov.uk/government/uploads/system/uploads/attachment_data/file/573271/ECUK_user_guide_November_2016_final.pdf).
 
 <table align="center">
   <tr>
-    <th align="left">Residential Submodel</th>
-    <th align="left">Service Submodel</th>
-    <th align="left">Industry Submodel</th>
+    <th align="left">Residential</th>
+    <th align="left">Service</th>
+    <th align="left">Industry</th>
   </tr>
   <tr>
     <td>&nbsp</td>
@@ -244,38 +251,44 @@ modelles end uses and sectors (see Figure 2.1 and Table 2.1).
   </tr>
 </table>
 
-*Table 2.1: Complete overview of modelled submodels, enduses and sectors*
+*Table 2.1: Complete overview of modelled submodels, enduses and sectors for the United Kingdom.*
 
-More information on sectors and their fuel inputs can be found [here](https://www.gov.uk/government/uploads/system/uploads/attachment_data/file/573271/ECUK_user_guide_November_2016_final.pdf).
+### 2.2 Work flow
 
-## 3. Main working steps
+The main working steps as outlined in Figure 2 are explained in full
+detail in Eggimann et al. (2018). 
 
-The main working steps as outlined in Figure XY are explained
+![Model overview](../docs/documentation_images/Fig_02_model_flow.jpg)
+*Figure 2: Overview of modelled end uses and sectors*
 
-### 3.1 Spatial disaggregation
+**I Step - Spatial disaggregation**
+As a starting point, national based energy demand consumption statistics
+are disaggregated to regional energy demands. This is performed with
+disaggregation factors such as population, heating degree day calculations
+or employment statistics. In case regional data is available, this step 
+can be omitted.
 
-### 3.2 Annual demand simulation
+**II Step - Demand simulation**
 
-Total energy demand of a (simulation) year (![equation](https://latex.codecogs.com/gif.latex?ED_%7By%7D%5E%7Btot%7D "ED_{y}^{tot}"))is calculated over all regions (r), sectors (s), end-uses (e), technologies (t) and fuel-types (f) as follows:
+Total energy demand of a (simulation) year (![equation](https://latex.codecogs.com/gif.latex?D%5E%7Btot%7D_%7By%7D "D^{tot}_{y}")) is calculated over all regions (r), sectors (s), end-uses (e), technologies (t) and fuel-types (f) as follows:
 
-![equation](https://latex.codecogs.com/gif.latex?ED_%7By%7D%5E%7Btot%7D%20%3D%20%5Csum_%7Br%7D%20%28%5Csum_%7Bs%7D%20%28%5Csum_%7Be%7D%20%28%5Csum_%7Bt%7D%20%28%5Csum_%7Bf%7D%28ED_%7BSD%7D%20&plus;%20ED_%7Beff%7D%20&plus;%20ED_%7Btech%7D%20&plus;%20ED_%7Bclimate%7D%20&plus;%20ED_%7Bbehaviour%7D%29%29%29%29%29 "ED_{y}^{tot} = \sum_{r} (\sum_{s} (\sum_{e} (\sum_{t} (\sum_{f}(ED_{SD} + ED_{eff} + ED_{tech} + ED_{climate} + ED_{behaviour})))))")
+![equation](https://latex.codecogs.com/gif.latex?D%5E%7Btot%7D_%7By%7D%20%3D%20D%5E%7Btot%7D_%7Bby%7D%20&plus;%20%5Csum%20_%7Br%7D%20%5Cleft%28%20%5Csum%20_%7Bs%7D%20%5Cleft%28%20%5Csum%20_%7Be%7D%20%5Cleft%28%20%5Csum%20_%7Bt%7D%20%5Cleft%28%20%5Csum%20_%7Bf%7D%20%5Cleft%28%20D%5E%7Bsd%7D_%7By%7D%20&plus;%20D%5E%7B%5Ceta%7D_%7By%7D%20&plus;%20D%5E%7Btecs%7D_%7By%7D%20&plus;%20D%5E%7Bclimate%7D_%7By%7D%20&plus;%20D%5E%7Bbehaviour%7D_%7By%7D%20%5Cright%29%20%5Cright%29%20%5Cright%29%20%5Cright%20%29%5Cright%29 "D^{tot}_{y} = D^{tot}_{by} + \sum _{r} \left( \sum _{s} \left( \sum _{e} \left( \sum _{t} \left( \sum _{f} \left( D^{sd}_{y} + D^{\eta}_{y} + D^{tecs}_{y} + D^{climate}_{y} + D^{behaviour}_{y}  \right) \right) \right) \right )\right)")
 
-![equation](https://latex.codecogs.com/gif.latex?ED_%7BSD%7D "ED_{SD}: "):        Demand change related to change in scenario driver (SD)
+![equation](https://latex.codecogs.com/gif.latex?D%5E%7Bsd%7D_%7By%7D "D^{sd}_{y}"): Demand change related to change in scenario driver (SD)
 
-![equation](https://latex.codecogs.com/gif.latex?ED_%7Beff%7D "ED_{eff}"):      Demand change related to change in technology efficiency
+![equation](https://latex.codecogs.com/gif.latex?D%5E%7B%5Ceta%7D_%7By%7D "D^{\eta}_{y}"): Demand change related to change in technology efficiency
 
-![equation](https://latex.codecogs.com/gif.latex?ED_%7Btech%7D "ED_{tech}"):      Demand change related to change in technology mix
+![equation](https://latex.codecogs.com/gif.latex?D%5E%7Btecs%7D_%7By%7D "D^{tecs}_{y}"):Demand change related to change in technology mix
 
-![equation](https://latex.codecogs.com/gif.latex?ED_%7Bclimate%7D "ED_{climate}"):  Demand change related to change in climate
+![equation](https://latex.codecogs.com/gif.latex?D%5E%7Bclimate%7D_%7By%7D "D^{climate}_{y}"): Demand change related to change in climate
 
-![equation](https://latex.codecogs.com/gif.latex?ED_%7Bbehaviour%7D "ED_{behaviour}"):      Demand change related to change in behaviour (e.g. smart meter, base temperatures)
+![equation](https://latex.codecogs.com/gif.latex?D%5E%7Bbehaviour%7D_%7By%7D "D^{behaviour}_{y}"): Demand change related to change in behaviour (e.g. smart meter, base temperatures)
 
 Energy demand change in relation to the base year (by) for end-use specific scenario drivers is defined as follows: 
 
-![equation](https://latex.codecogs.com/gif.latex?ED_%7BSD%7D%20%3D%20%5Cfrac%7BED_%7BSD%7D%5E%7Btot%7D%7D%7BSD%28by%29%7D%20*%20SD%28simulation%20year%29 "ED_{SD} = \frac{ED_{SD}^{tot}}{SD(by)} * SD(simulation year)")
+![equation](https://latex.codecogs.com/gif.latex?D%5E%7Bsd%7D_%7By%7D%20%3D%20D%5E%7Btot%7D_%7Bby%7D%20*%20%5Cfrac%7Bsd_%7By%7D%7D%7Bsd_%7Bby%7D%7D "D^{sd}_{y} = D^{tot}_{by} * \frac{sd_{y}}{sd_{by}}")
 
-For the residential and service sub-model, SD values are calculated based on a dwelling stock where scenario drivers are calculated either for dwellings or a group of dwelling (e.g. dwelling types).
-
+For the residential and service sub model, SD values are calculated based on a dwelling stock where scenario drivers are calculated either for dwellings or a group of dwelling (e.g. dwelling types).
 
 <table align="center">
   <tr>
@@ -306,56 +319,46 @@ For the residential and service sub-model, SD values are calculated based on a d
 
 *Table 1.1: End-use specific scenario drivers for energy demand*
 
-![Image of model integration](../docs/documentation_images/004-ULM_main_classes.jpg)
-*Figure 3.1: Interaction*
+### 2.3 Model Classes
+Figure 3 provides an overview of how all major classes relate to the a generated sub model.
 
+![Image of model integration](../docs/documentation_images/Fig_03_ULM_main_classes.jpg)
+*Figure 3: Interaction of all major classes of HIRE*
 
-## 6. Disaggregation
-Lorem ipsum dolor sit ametes 
+## 3 In-detailed methodology
 
-### 6.1 Temporal disaggregation
+In this section, selected aspects of the methodology are explained in more detail.
 
-Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nullam eu mi placerat, ultricies urna id, pharetra dui. Mauris quis mi sit ame
+### 3.XXXXXXXXXX Generic dwelling stock
 
-### 6.2 Spatial disaggregation
+A generic dwelling model is implemented in HIRE which can be used in case no external dwelling stock model is available to generate provide the necessary ``dwelling`` inputs. An abstracted dwelling representation is modelled with the following assumptions for the base year configuration:
 
+  •	total population
+  •	total floor area
+  •	dwelling type distribution
+  •	age distribution of dwelling types
 
-Employment data are used to improve industry related dissagregation.
-The ECUK sector and employment statistics are matched as follows: 
+However, instead of modelling every individual building, an abstracted dwelling representation of the the complete dwelling stock is modelled based on different simplified assumptions. The modelling steps are as follows for every ``Region`` (see Figure XX for the detailed process flow):
 
-    Industry Sector                 Emplyoment Sector
+1. Based on base year total population and total floor area, the floor area per person is calculated (``floor_area_pp``). The floor area per person can be changed over the simulation period.
 
-    wood                            XX
-    textiles                        XX
-    chemicals                       XX        
-    printing                        XX
-    electrical_equipment            XX
-    paper                           XX
-    basic_metals                    XX
-    beverages                       XX
-    pharmaceuticals                 XX
-    machinery                       XX
-    water_collection_treatment      XX
-    food_production                 XX
-    rubber_plastics                 XX
-    wearing_appeal                  XX
-    other_transport_equipment       XX
-    leather                         XX
-    motor_vehicles                  XX
-    waste_collection                XX
-    tobacco                         XX
-    mining                          XX
-    other_manufacturing             XX
-    furniture                       XX
-    non_metallic_mineral_products   XX     
-    computer                        XX
-    fabricated_metal_products       XX
+2. Based on the floor area per person and scenario population input, total necessary new and existing floor area is calculated for the simulation year (by subtracting the existing floor area of the total new floor area).
 
-    
+3. Based on assumptions on the dwelling type distribution (``assump_dwtype_distr``) the floor area per dwelling type is calculated.
 
-#### 5.1.2 Demand side response and peak shifting
+4. Based on assumptions on the age of the dwelling types, different ``Dwelling`` objects are generated. The heat loss coefficient is calculated for every object.
 
-Intraday demand side responses per end use are modelled with help of load factors  (Petchers, 2003).  For every end use, a potential (linear) reduction of the load factor over time can be assumed with which the load factor of the current year is calculated (![equation](https://latex.codecogs.com/gif.latex?lf_%7Bcy%7D "l_{cy}"). With help lfcy, and the daily average load of the base year (l_av^by), the maximum hourly load per day is calculated as follows:
+5. Additional dwelling stock related properties can be added to the ``Dwelling`` objects which give
+   indication of the energy demand and can be used for calculating the scenario drivers.
+
+Note: Current floor area data can be calculated based on floor area data from MasterMap data in combination with the address point dataset by the Ordonance Survey.
+
+![Dwelling model](../docs/documentation_images/Fig_XX_dwelling_stock.jpg)
+*Figure XX: Modelling steps of the residential dwelling module*
+
+### 3.XXXXXXXXXX Demand side management
+
+Dirunal demand side responses per end use are modelled with help of load factors (Petchers, 2003). For every end use, a potential (linear) reduction of the load factor over time can be assumed with which the load factor of the current year is calculated ![equation](https://latex.codecogs.com/gif.latex?lf_%7Bcy%7D "l_{cy}"). With help ![equation](https://latex.codecogs.com/gif.latex?lf_%7Bcy%7D "l_{cy}"), and the daily average load of the base year ![equation](https://latex.codecogs.com/gif.latex?l%5E%7Bav%7D_%7Bby%7D "l^{av}_{by}"), the maximum hourly load per day is calculated as follows:
 
 ![equation](https://latex.codecogs.com/gif.latex?l_%7Bcy%7D%5E%7Bmax%7D%20%3D%20%5Cfrac%7Bl_%7Bby%7D%5E%7Bav%7D%7D%7Blf_%7Bcy%7D%7D "l_{cy}^{max} = \frac{l_{by}^{av}}{lf_{cy}}")
 
@@ -363,6 +366,8 @@ For all hours with loads higher than the new maximum hourly load, the shiftable 
 
 ![Peak shiting](../docs/documentation_images/004-peak_shifting.jpg)
 *Figure XX: Shifting loads from peak hours to off-peak hours based on load factor changes.*
+
+### 3.XXXXXXXXXX Technologies and technological uptake
 
 
 
@@ -397,77 +402,6 @@ Technology Class (see model docu)
 
 Lorem ips
 
-
-## XX. Generic Dwelling Stock Model
-
-### Generic dwelling stock
-
-A generic dwelling model is implemented in HIRE which can be used in case no external dwelling stock model is available and can provide the necesarry ``dwelling`` inputs. However, instead of modelling every individual building, an abstracted dwelling respresentation of the the complete dwelling stock is modelled based on different simplified assumptions. The modelling steps are as follows for every ``Region`` (see Figure 4.1 for the detailed process flow):
-
-1. Based on base year total population and total floor area, the floor area per person is calculated (``floor_area_pp``). The floor area per person can be changed over the simulation period.
-
-2. Based on the floor area per person and scenario population input, total necessary new and existing floor area is calculated for the simulation year (by substracting the existing floor area of the total new floor area).
-
-3. Based on assumptions on the dwelling type distribution (``assump_dwtype_distr``) the floor area per dwelling type is calculated.
-
-4. Based on assumptions on the age of the dwelling types, different ``Dwelling`` objects are generated. The heat loss coefficient is calculated for every object.
-
-5. Additional dwelling stock related properties can be added to the ``Dwelling`` objects which give
-   indication of the energy demand and can be used for calculating the scenario drivers.
-
-Note: The generic dwelling model can be replaced by directly defining the the ``dwelling`` objects, if the dwelling stock information is  information is available from another source.
-
-![Dwelling model](../docs/documentation_images/003-dwelling_model.jpg)
-*Figure 4.1: Modelling steps of the residential dwelling module*
-
-## 10. Reading the code
-
-This section provides an overview of how to read the code.
-
-### 10.1 Abbreviations
-
-Within the code, different abbreviations are consistenly used
-across all modules.
-
-    s_:         Energy service
-    rs:         Residential Submodel
-    ss:         Service Submodel
-    ts:         Transportation Submodel
-
-    bd:         Base demand
-    by:         Base year
-    cy:         Current year
-    lp:         Load profile
-    dw:         Dwelling
-    p:          Fraction, i.e. (100% = 1.0)
-    pp:         Per person
-    e:          Electricitiy
-    g:          Gas
-    lu:         Look up
-
-    h:          Hour
-    d:          Day
-    y:          Year
-    yearday:    Day in a year ranging from 0 to 364
-
-    hp:         Heat pump
-    tech:       Technology
-    temp:       Temperature
-
-### 10.2 Load profiles annotation
-
-Different endings are appended to variables, depending on the temporal
-resolution of the data. The following abbreviations hold true:
-
-> `y`:  Total demand in a year
-
-> `yd`: 'Yearly load profile' - Profile for every day in a year of total yearly demand(365)
-
-> `yh`: 'Daily load profile'  - Profile for every hour in a year of total yearly demand (365, 24)
-
-> `dh`: Load profile of a single day
-
-> `y_dh`: Daily load profile within each day (365, 25). Within each day, sums up to 1.0
 
 
 ## 11.Technologies
@@ -699,13 +633,53 @@ All energy unit conversions are based on the unit converter by the International
         (not yet used)
 
 
+### 6.2 Spatial disaggregation
+
+Employment data are used to improve industry related dissagregation.
+The ECUK sector and employment statistics are matched as follows: 
+
+    Industry Sector                 Emplyoment Sector
+
+    wood                            XX
+    textiles                        XX
+    chemicals                       XX        
+    printing                        XX
+    electrical_equipment            XX
+    paper                           XX
+    basic_metals                    XX
+    beverages                       XX
+    pharmaceuticals                 XX
+    machinery                       XX
+    water_collection_treatment      XX
+    food_production                 XX
+    rubber_plastics                 XX
+    wearing_appeal                  XX
+    other_transport_equipment       XX
+    leather                         XX
+    motor_vehicles                  XX
+    waste_collection                XX
+    tobacco                         XX
+    mining                          XX
+    other_manufacturing             XX
+    furniture                       XX
+    non_metallic_mineral_products   XX     
+    computer                        XX
+    fabricated_metal_products       XX
+
+
+
+
 Code Overview
 ===================
+
+# 1. Code and data location
 This section provides and overview how the model code is stored.
 
-All model input data used to configure the model is stored in the 
+Some model input data used to configure the model is stored in the 
 `config_data` folder (i.e. load profiles of technologies,
-fuel input data for the whole UK).
+fuel input data for the whole UK). All additional data
+necessary to run the model needs to be stored in
+a local folder (`data_energy_demand`).
 
 The python scripts are stored in the following folders:
 
@@ -713,8 +687,68 @@ The python scripts are stored in the following folders:
 - **basic** | Standard functions
 - **charts** | Functions to generate charts
 - **cli** | Script to run model from command line
+- **config_data** | Configuration data (e.e.g technologies, fuel)
 - **dwelling_stock** | Dwelling stock related functions
-- ...
+- **geography** | Space related functions (e.g. weather region)
+- **initalisations** | Initialisation scripts
+- **plotting** | All plotting functionality
+- **profiles** | Load profile related functionality
+- **read_write** | Reading and writing functions
+- **script** | Scripts
+- **technologies** | Technology related funcionality
+- **validation** | Validation related scripts
 
-All additional data necessary to run the model needs
-to be stored in a local folder (`data_energy_demand`).
+Important single python scripts:
+
+main.py     - Function to run model locally
+enduse_func - Main enduse function
+model       - Main model function
+
+# 2. Reading the code
+
+This section provides an overview of how to read the code.
+
+# 2.1 Abbreviations
+
+Within the code, different abbreviations are consistenly used
+across all modules.
+
+    s_:         Energy service
+    rs:         Residential Submodel
+    ss:         Service Submodel
+    ts:         Transportation Submodel
+
+    bd:         Base demand
+    by:         Base year
+    cy:         Current year
+    lp:         Load profile
+    dw:         Dwelling
+    p:          Fraction, i.e. (100% = 1.0)
+    pp:         Per person
+    e:          Electricitiy
+    g:          Gas
+    lu:         Look up
+
+    h:          Hour
+    d:          Day
+    y:          Year
+    yearday:    Day in a year ranging from 0 to 364
+
+    hp:         Heat pump
+    tech:       Technology
+    temp:       Temperature
+
+## 2.2 Load profiles annotation
+
+Different endings are appended to variables, depending on the temporal
+resolution of the data. The following abbreviations hold true:
+
+> `y`:  Total demand in a year
+
+> `yd`: 'Yearly load profile' - Profile for every day in a year of total yearly demand(365)
+
+> `yh`: 'Daily load profile'  - Profile for every hour in a year of total yearly demand (365, 24)
+
+> `dh`: Load profile of a single day
+
+> `y_dh`: Daily load profile within each day (365, 25). Within each day, sums up to 1.0

@@ -29,7 +29,8 @@ def main(path_data_energy_demand, path_shapefile_input):
         "plot_population": False,             # Spatial maps of population
         "plot_load_factors": False,           # Spatial maps of load factor 
         "plot_load_factors_p": False,         # Spatial maps of load factor change
-        "plot_peak_h": False,                 # Spatial maps of peak h demand
+        "plot_abs_peak_h": False,             # Spatial maps of peak h demand
+        "plot_diff_peak_h": True,             # Spatial maps of peak h difference (%)
 
         "plot_stacked_enduses": True,
         "plot_y_all_enduses": True,

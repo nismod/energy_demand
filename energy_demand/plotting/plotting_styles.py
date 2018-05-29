@@ -264,6 +264,7 @@ def color_list_scenarios():
         color_prop='qualitative', #sequential
         color_palette='Accent_6', #'Set3_12',
         inverse=False) # #https://jiffyclub.github.io/palettable/colorbrewer/sequential/'''
+
     color_list_selection = [
         '#7FC97F', #green
         'darkolivegreen', #'#BEAED4', #violet
@@ -294,7 +295,12 @@ def color_list_scenarios():
     '''
     return color_list_selection
 
-def font_info(family='arial', color='black', weight='normal', size=8):
+def font_info(
+        family='arial',
+        color='black',
+        weight='normal',
+        size=8
+    ):
     """
     """
     font_additional_info = {

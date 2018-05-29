@@ -41,6 +41,10 @@ TODO: REMOVE ALL PEAK RELATED STUFF
 TODO: SMOOTH LINE https://stackoverflow.com/questions/25825946/generating-smooth-line-graph-using-matplotlib?lq=1
 TODO: plotting. IMprove bins: test if outside bins (because plots wrongly outside)
 TODO: CHECK DEMND MANAGEMENT PEAK FACTOR
+TODO: REMOVE BUG THAT FOR HYDROGEN SOMEHOW 'NAN' values
+TODO: make that can be run locally
+TODO: REMOVE DOCU
+TODO: Make that directly regional demands can be loaded.
 """
 import os
 import sys

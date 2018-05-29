@@ -123,6 +123,7 @@ def process_scenarios(path_to_scenarios, year_to_model=2015):
         lookups['fueltypes'],
         fueltypes_to_plot=['electricity', 'gas'],
         fig_name=os.path.join(path_result_folder, "tot_y_multiple_fueltypes.pdf"),
+        txt_name=os.path.join(path_result_folder, "tot_y_multiple_fueltypes.txt"),
         plotshow=False)
 
     plotting_multiple_scenarios.plot_tot_y_over_time(
@@ -182,11 +183,11 @@ def process_scenarios(path_to_scenarios, year_to_model=2015):
     return
 
 # Generate plots across all scenarios
-'''process_scenarios(os.path.abspath("C:/Users/cenv0553/ed/results/scen_A"))
+process_scenarios(os.path.abspath("C:/Users/cenv0553/ed/results/scen_A"))
 process_scenarios(os.path.abspath("C:/Users/cenv0553/ed/results/scen_B"))
 process_scenarios(os.path.abspath("C:/Users/cenv0553/ed/results/scen_C"))
-process_scenarios(os.path.abspath("C:/Users/cenv0553/ed/results/scen_D"))'''
+process_scenarios(os.path.abspath("C:/Users/cenv0553/ed/results/scen_D"))
 
 #process_scenarios(os.path.abspath("C:/Users/cenv0553/ed/results/Fig_08_09"))
-process_scenarios(os.path.abspath("C:/Users/cenv0553/ed/results/Fig_11"))
+#process_scenarios(os.path.abspath("C:/Users/cenv0553/ed/results/Fig_11"))
 #process_scenarios(os.path.abspath("C:/Users/cenv0553/ed/results/Fig_13"))  # Color scheme Fig 13
