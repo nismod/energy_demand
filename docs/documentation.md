@@ -33,7 +33,7 @@ modelled for three main sub-modules. For the United Kingomd,
 each sub module modelles end uses and sectors taken from
 BEIS (2016). An overview is given in Figure 1.
 
-![Model overview](../docs/documentation_images/01_model_overview.jpg)
+![Model overview](../docs/documentation_images/Fig_01_model_overview.jpg)
 *Figure 1: Overview of modelled end uses and sectors*
 
 A complete list of all modelled end uses and sectors is provided in
@@ -261,15 +261,14 @@ detail in Eggimann et al. (2018).
 ![Model overview](../docs/documentation_images/Fig_02_model_flow.jpg)
 *Figure 2: Overview of modelled end uses and sectors*
 
-**I Step - Spatial disaggregation**
+#### 2.2.1 I Step - Spatial disaggregation
 As a starting point, national based energy demand consumption statistics
 are disaggregated to regional energy demands. This is performed with
 disaggregation factors such as population, heating degree day calculations
 or employment statistics. In case regional data is available, this step 
 can be omitted.
 
-**II Step - Demand simulation**
-
+#### 2.2.2 II Step - Demand simulation
 Total energy demand of a (simulation) year (![equation](https://latex.codecogs.com/gif.latex?D%5E%7Btot%7D_%7By%7D "D^{tot}_{y}")) is calculated over all regions (r), sectors (s), end-uses (e), technologies (t) and fuel-types (f) as follows:
 
 ![equation](https://latex.codecogs.com/gif.latex?D%5E%7Btot%7D_%7By%7D%20%3D%20D%5E%7Btot%7D_%7Bby%7D%20&plus;%20%5Csum%20_%7Br%7D%20%5Cleft%28%20%5Csum%20_%7Bs%7D%20%5Cleft%28%20%5Csum%20_%7Be%7D%20%5Cleft%28%20%5Csum%20_%7Bt%7D%20%5Cleft%28%20%5Csum%20_%7Bf%7D%20%5Cleft%28%20D%5E%7Bsd%7D_%7By%7D%20&plus;%20D%5E%7B%5Ceta%7D_%7By%7D%20&plus;%20D%5E%7Btecs%7D_%7By%7D%20&plus;%20D%5E%7Bclimate%7D_%7By%7D%20&plus;%20D%5E%7Bbehaviour%7D_%7By%7D%20%5Cright%29%20%5Cright%29%20%5Cright%29%20%5Cright%20%29%5Cright%29 "D^{tot}_{y} = D^{tot}_{by} + \sum _{r} \left( \sum _{s} \left( \sum _{e} \left( \sum _{t} \left( \sum _{f} \left( D^{sd}_{y} + D^{\eta}_{y} + D^{tecs}_{y} + D^{climate}_{y} + D^{behaviour}_{y}  \right) \right) \right) \right )\right)")
@@ -319,45 +318,96 @@ For the residential and service sub model, SD values are calculated based on a d
 
 *Table 1.1: End-use specific scenario drivers for energy demand*
 
+#### 2.2.3 Spatial disaggregation
+In order to disaggregate annual demand for every hour in a year,
+different typical load profiles are derived from measuremnt trials. 
+Load profile are either used to disaggregate total demand of an 
+end use, sector or technology specific end use demand.
+
+Only the profile (i.e. the 'shape' of a profile)
+is read as an input into the model. In case of temperature dependent
+load profiles, the daily load profils are calculated with help of heating
+and cooling degree days (HDD, CDD).
+
+For different heating technologies, load shares are derived from the
+following sources:
+
+- **Boiler load profile**
+   Load profiles for a typicaly working, weekend and peak day
+   are derived from data provided by Sansom (2014).
+
+- **Micro-CHP**
+   Load profiles for a typicaly working, weekend and peak
+   day are derived from data provided by Sansom (2014).
+
+- **Heat pumps load profile**
+   Based on nearly 700 domestic heat pump installations,
+   Love et al. (2017) provides aggregated profiles for cold
+   and medium witer weekdays and weekends. The shape of the
+   load profiles is derived for a working, weekend and peak day.
+
+- **Primary and secondary electirc heating**
+  The load profiles are based on the Household Electricity
+  Survey (HES) by the Department of Energy & Climate Change (DECC, 2014).
+
+- **Cooling**
+  The daily load profiles for service submodel cooling demands are taken
+  from Dunn and Knight (2005). For the residential sector,
+
 ### 2.3 Model Classes
 Figure 3 provides an overview of how all major classes relate to the a generated sub model.
 
 ![Image of model integration](../docs/documentation_images/Fig_03_ULM_main_classes.jpg)
 *Figure 3: Interaction of all major classes of HIRE*
 
-## 3 In-detailed methodology
 
-In this section, selected aspects of the methodology are explained in more detail.
+## 3 Methods
+In this section, selected aspects of the methodology are explained
+in more detail.
 
 ### 3.XXXXXXXXXX Generic dwelling stock
-
-A generic dwelling model is implemented in HIRE which can be used in case no external dwelling stock model is available to generate provide the necessary ``dwelling`` inputs. An abstracted dwelling representation is modelled with the following assumptions for the base year configuration:
+A generic dwelling model is implemented in HIRE which can be used
+in case no external dwelling stock model is available to generate
+provide the necessary ``dwelling`` inputs. An abstracted dwelling
+representation is modelled with the following assumptions for
+the base year configuration:
 
   •	total population
   •	total floor area
   •	dwelling type distribution
   •	age distribution of dwelling types
 
-However, instead of modelling every individual building, an abstracted dwelling representation of the the complete dwelling stock is modelled based on different simplified assumptions. The modelling steps are as follows for every ``Region`` (see Figure XX for the detailed process flow):
+However, instead of modelling every individual building, an abstracted
+dwelling representation of the the complete dwelling stock is modelled
+based on different simplified assumptions. The modelling steps are as
+follows for every ``Region`` (see Figure XX for the detailed process flow):
 
-1. Based on base year total population and total floor area, the floor area per person is calculated (``floor_area_pp``). The floor area per person can be changed over the simulation period.
+1. Based on base year total population and total floor area, the floor
+area per person is calculated (``floor_area_pp``). The floor area per
+person can be changed over the simulation period.
 
-2. Based on the floor area per person and scenario population input, total necessary new and existing floor area is calculated for the simulation year (by subtracting the existing floor area of the total new floor area).
+2. Based on the floor area per person and scenario population input, total
+necessary new and existing floor area is calculated for the simulation
+year (by subtracting the existing floor area of the total new floor area).
 
-3. Based on assumptions on the dwelling type distribution (``assump_dwtype_distr``) the floor area per dwelling type is calculated.
+3. Based on assumptions on the dwelling type distribution (``assump_dwtype_distr``)
+the floor area per dwelling type is calculated.
 
-4. Based on assumptions on the age of the dwelling types, different ``Dwelling`` objects are generated. The heat loss coefficient is calculated for every object.
+4. Based on assumptions on the age of the dwelling types, different ``Dwelling``
+objects are generated. The heat loss coefficient is calculated for every object.
 
-5. Additional dwelling stock related properties can be added to the ``Dwelling`` objects which give
-   indication of the energy demand and can be used for calculating the scenario drivers.
+5. Additional dwelling stock related properties can be added to
+the ``Dwelling`` objects which give indication of the energy
+demand and can be used for calculating the scenario drivers.
 
-Note: Current floor area data can be calculated based on floor area data from MasterMap data in combination with the address point dataset by the Ordonance Survey.
+Note: Current floor area data can be calculated based on
+floor area data from MasterMap data in combination with the
+address point dataset by the Ordonance Survey.
 
 ![Dwelling model](../docs/documentation_images/Fig_XX_dwelling_stock.jpg)
 *Figure XX: Modelling steps of the residential dwelling module*
 
 ### 3.XXXXXXXXXX Demand side management
-
 Dirunal demand side responses per end use are modelled with help of load factors (Petchers, 2003). For every end use, a potential (linear) reduction of the load factor over time can be assumed with which the load factor of the current year is calculated ![equation](https://latex.codecogs.com/gif.latex?lf_%7Bcy%7D "l_{cy}"). With help ![equation](https://latex.codecogs.com/gif.latex?lf_%7Bcy%7D "l_{cy}"), and the daily average load of the base year ![equation](https://latex.codecogs.com/gif.latex?l%5E%7Bav%7D_%7Bby%7D "l^{av}_{by}"), the maximum hourly load per day is calculated as follows:
 
 ![equation](https://latex.codecogs.com/gif.latex?l_%7Bcy%7D%5E%7Bmax%7D%20%3D%20%5Cfrac%7Bl_%7Bby%7D%5E%7Bav%7D%7D%7Blf_%7Bcy%7D%7D "l_{cy}^{max} = \frac{l_{by}^{av}}{lf_{cy}}")
@@ -368,8 +418,36 @@ For all hours with loads higher than the new maximum hourly load, the shiftable 
 *Figure XX: Shifting loads from peak hours to off-peak hours based on load factor changes.*
 
 ### 3.XXXXXXXXXX Technologies and technological uptake
+Based on ECUK() different technologies are assigned to enduses. Efficiencies are calculated
+based on....
 
+<table align="center">
+  <tr>
+    <th align="left">Enduse</th>
+    <th align="left">Technologies</th>
+  </tr>
+  <tr>
+    <td>Wet</td>
+    <td>Washing machine, tubmle dryer, dishwasher, washer dryer</td>
+  </tr>
+  <tr>
+    <td>Cooking</td>
+    <td>Oven, Standard hub (different fueltypes), Induction hob</td>
+  </tr>
+  <tr>
+    <td>Cold</td>
+    <td>Chest freezer, Fridge freezer, Refrigerator, Upright freezer</td>
+  </tr>
+    <tr>
+    <td>Lighting</td>
+    <td>Light bulb (incandescent), Halogen, Light saving, Fluorescent, LED</td>
+  </tr>
+    <tr>
+    <td>Space and Water Heating</td>
+    <td>Boiler (different fueltypes), Condensing boiler, ASHP, GSHP, Micro-CHP, Fuel cell, Storage heating, Night storage heater, Heat network generation technologies (CHP,...)</td>
+</table>
 
+*Table 2: Technology assignement to enduses*
 
 ### 3.1 Energy supply and demand model
 
@@ -406,36 +484,7 @@ Lorem ips
 
 ## 11.Technologies
 
-Based on ECUK() different technologies are assigned to enduses. Efficiencies are calculated
-based on....
 
-<table align="center">
-  <tr>
-    <th align="left">Enduse</th>
-    <th align="left">Technologies</th>
-  </tr>
-  <tr>
-    <td>Wet</td>
-    <td>Washing machine, tubmle dryer, dishwasher, washer dryer</td>
-  </tr>
-  <tr>
-    <td>Cooking</td>
-    <td>Oven, Standard hub (different fueltypes), Induction hob</td>
-  </tr>
-  <tr>
-    <td>Cold</td>
-    <td>Chest freezer, Fridge freezer, Refrigerator, Upright freezer</td>
-  </tr>
-    <tr>
-    <td>Lighting</td>
-    <td>Light bulb (incandescent), Halogen, Light saving, Fluorescent, LED</td>
-  </tr>
-    <tr>
-    <td>Space and Water Heating</td>
-    <td>Boiler (different fueltypes), Condensing boiler, ASHP, GSHP, Micro-CHP, Fuel cell, Storage heating, Night storage heater, Heat network generation technologies (CHP,...)</td>
-</table>
-
-*Table 2: Technology assignement to enduses*
 
 ## 12 Data sets
 
@@ -541,51 +590,7 @@ are used to disaggregate industry related energy demands for different end uses 
 
 ### 12.6 Technology specific load shapes
 
-In order to generate load profiles for every hour in a year,
-different typical load profils for weekdays, weekends and the peak day
-are derived from measuremnt trials, i.e. load profiles are
-modelled in a bottom-up way. In every case, only the profile (i.e.
-the 'shape' of a profile) is read as an input into the model.
-
-In case fuel is switched to another technology, it is assumed that
-the load profile looks the same for the new fuel type. If e.g.
-a gas boiler is replaced by a hydrogen boiler, the load profiles
-are the same for the fueltype hydrogen or oil.
-
-For different heating technologies, load shares are derived from the
-following sources:
-
-
-- **Boiler load profile**
-
-   Load profiles for a typicaly working, weekend and peak day
-   are derived from data provided by Sansom (2014).
-
-
-- **Micro-CHP**
-
-   Load profiles for a typicaly working, weekend and peak
-   day are derived from data provided by Sansom (2014).
-
-
-- **Heat pumps load profile**
-
-   Based on nearly 700 domestic heat pump installations,
-   Love et al. (2017) provides aggregated profiles for cold
-   and medium witer weekdays and weekends. The shape of the
-   load profiles is derived for a working, weekend and peak day.
-
-
-- **Primary and secondary electirc heating**
-
-  The load profiles are based on the Household Electricity
-  Survey (HES) by the Department of Energy & Climate Change (DECC, 2014).
-
-
-- **Cooling**
-
-  The daily load profiles for service submodel cooling demands are taken
-  from Dunn and Knight (2005). For the residential sector,
+(cf. Technologes in Section XY)
 
 
 ## Literature
@@ -672,7 +677,6 @@ The ECUK sector and employment statistics are matched as follows:
 Code Overview
 ===================
 
-# 1. Code and data location
 This section provides and overview how the model code is stored.
 
 Some model input data used to configure the model is stored in the 
@@ -704,12 +708,6 @@ main.py     - Function to run model locally
 enduse_func - Main enduse function
 model       - Main model function
 
-# 2. Reading the code
-
-This section provides an overview of how to read the code.
-
-# 2.1 Abbreviations
-
 Within the code, different abbreviations are consistenly used
 across all modules.
 
@@ -737,8 +735,6 @@ across all modules.
     hp:         Heat pump
     tech:       Technology
     temp:       Temperature
-
-## 2.2 Load profiles annotation
 
 Different endings are appended to variables, depending on the temporal
 resolution of the data. The following abbreviations hold true:
