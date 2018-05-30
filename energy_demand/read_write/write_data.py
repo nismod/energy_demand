@@ -3,13 +3,14 @@
 import os
 import logging
 import configparser
+import csv
 import yaml
 from yaml import Loader, Dumper
 import collections
-import csv
 import numpy as np
 from energy_demand.basic import basic_functions, conversions
 from energy_demand.geography import write_shp
+from energy_demand.technologies import tech_related
 
 class ExplicitDumper(yaml.Dumper):
     """
@@ -261,7 +262,126 @@ def write_simulation_inifile(path, enduses, assumptions, reg_nrs, regions):
         config.write(f)
     pass
 
-def write_lf(path_result_folder, path_new_folder, parameters, model_results, file_name):
+def resilience_paper(
+        path_result_folder,
+        new_folder,
+        file_name,
+        results,
+        submodels,
+        regions,
+        fueltypes,
+        fueltype_str
+    ):
+    """Restuls for risk paper
+
+    results : array 
+        ed_submodel_fueltype_regs_yh (3, 391, 7, 365, 24)
+    Get maximum and minimum h electricity for eversy submodel
+    for base year
+    """
+    path_result_sub_folder = os.path.join(
+        path_result_folder, new_folder)
+
+    basic_functions.create_folder(path_result_sub_folder)
+
+    # Create file path
+    path_to_txt = os.path.join(
+        path_result_sub_folder,
+        "{}{}".format(
+            file_name,
+            ".csv"))
+
+    # Write csv
+    file = open(path_to_txt, "w")
+
+    file.write("{}, {}, {}".format( #{}, {}, {}, {}
+        'lad_nr',
+         #'submodel',
+        'min_GW_elec',
+        'max_GW_elec') + '\n')
+        #'resid_min_GW_elec',
+        #'resid_max_GW_elec',
+        #'servi_min_GW_elec',
+        #'servi_max_GW_elec',
+        #'indus_min_GW_elec',
+        #'indus_max_GW_elec') + '\n')
+
+    fueltype_int = tech_related.get_fueltype_int(
+        fueltypes, fueltype_str)
+
+    for region_nr, region in enumerate(regions):
+        
+        min_GW_elec = 0
+        max_GW_elec = 0
+
+        for submodel_nr, submodel in enumerate(submodels):
+
+            # Reshape
+            reshape_8760h = results[submodel_nr][region_nr][fueltype_int].reshape(8760)
+
+            min_GW_elec += np.min(reshape_8760h)
+            max_GW_elec += np.max(reshape_8760h)
+
+            # Min and max
+            '''if submodel_nr == 0:
+                resid_min_GW_elec = np.min(reshape_8760h)
+                resid_max_GW_elec = np.max(reshape_8760h)
+            elif submodel_nr == 1:
+                service_min_GW_elec = np.min(reshape_8760h)
+                service_max_GW_elec = np.max(reshape_8760h)
+            else:
+                industry_min_GW_elec = np.min(reshape_8760h)
+                industry_max_GW_elec = np.max(reshape_8760h)'''
+            
+        file.write("{}, {}, {}".format(
+            str.strip(region),
+            float(min_GW_elec),
+            float(max_GW_elec)) + '\n')
+
+        '''file.write("{}, {}, {}, {}, {}, {}, {}".format(
+            str.strip(region),
+            float(resid_min_GW_elec),
+            float(resid_max_GW_elec),
+            float(service_min_GW_elec),
+            float(service_max_GW_elec),
+            float(industry_min_GW_elec),
+            float(industry_max_GW_elec)
+            ) + '\n')'''
+
+    file.close()
+
+    # ----------------------
+    # Write out national average
+    # ----------------------
+    # Create file  path
+    path_to_txt_flat = os.path.join(
+        path_result_sub_folder,
+        "{}{}".format(
+            'averge_nr',
+            ".csv"))
+
+    file = open(path_to_txt_flat, "w")
+    file.write("{}".format(
+        'average_GW_UK') + '\n')
+
+    uk_av_gw_elec = 0
+    for submodel_nr, submodel in enumerate(submodels):
+        for region_nr, region in enumerate(regions):
+            reshape_8760h = results[submodel_nr][region_nr][fueltype_int].reshape(8760)
+            uk_av_gw_elec += np.average(reshape_8760h)
+
+    file.write("{}".format(uk_av_gw_elec))
+    file.close()
+    print("Finished writing out resilience .csv")
+    return
+
+def write_lf(
+        path_result_folder,
+        path_new_folder,
+        parameters,
+        model_results,
+        file_name
+    ):
     """Write numpy array to `.npy` file
 
     path_result_folder,

@@ -346,7 +346,7 @@ following sources:
    and medium witer weekdays and weekends. The shape of the
    load profiles is derived for a working, weekend and peak day.
 
-- **Primary and secondary electirc heating**
+- **Primary and secondary electric heating**
   The load profiles are based on the Household Electricity
   Survey (HES) by the Department of Energy & Climate Change (DECC, 2014).
 
@@ -354,8 +354,14 @@ following sources:
   The daily load profiles for service submodel cooling demands are taken
   from Dunn and Knight (2005). For the residential sector,
 
-### 2.3 Model Classes
-Figure 3 provides an overview of how all major classes relate to the a generated sub model.
+### 2.3 Main Classes
+Figure 3 provides an overview of how all major classes relate to each other
+for generating a sub model to simluate different end uses.
+For every simulated region, the geographically
+closeset WeatherRegion is searched and linked to the Region class. 
+Every WeatherRegion class contained a technology and load profile stock
+as depending on temperatures, the efficiencies of the technologies
+and load profiles may differ.
 
 ![Image of model integration](../docs/documentation_images/Fig_03_ULM_main_classes.jpg)
 *Figure 3: Interaction of all major classes of HIRE*
@@ -407,7 +413,7 @@ address point dataset by the Ordonance Survey.
 ![Dwelling model](../docs/documentation_images/Fig_XX_dwelling_stock.jpg)
 *Figure XX: Modelling steps of the residential dwelling module*
 
-### 3.XXXXXXXXXX Demand side management
+### 3.1 Demand side management
 Dirunal demand side responses per end use are modelled with help of load factors (Petchers, 2003). For every end use, a potential (linear) reduction of the load factor over time can be assumed with which the load factor of the current year is calculated ![equation](https://latex.codecogs.com/gif.latex?lf_%7Bcy%7D "l_{cy}"). With help ![equation](https://latex.codecogs.com/gif.latex?lf_%7Bcy%7D "l_{cy}"), and the daily average load of the base year ![equation](https://latex.codecogs.com/gif.latex?l%5E%7Bav%7D_%7Bby%7D "l^{av}_{by}"), the maximum hourly load per day is calculated as follows:
 
 ![equation](https://latex.codecogs.com/gif.latex?l_%7Bcy%7D%5E%7Bmax%7D%20%3D%20%5Cfrac%7Bl_%7Bby%7D%5E%7Bav%7D%7D%7Blf_%7Bcy%7D%7D "l_{cy}^{max} = \frac{l_{by}^{av}}{lf_{cy}}")
@@ -417,13 +423,13 @@ For all hours with loads higher than the new maximum hourly load, the shiftable 
 ![Peak shiting](../docs/documentation_images/004-peak_shifting.jpg)
 *Figure XX: Shifting loads from peak hours to off-peak hours based on load factor changes.*
 
-### 3.XXXXXXXXXX Technologies and technological uptake
-Based on ECUK() different technologies are assigned to enduses. Efficiencies are calculated
-based on....
+### 3.2 Technologies, technological diffusion
+For every end use, technologies can be defined. For the 
+UK application, the defined technologies are listed in Table 2.
 
 <table align="center">
   <tr>
-    <th align="left">Enduse</th>
+    <th align="left">End use</th>
     <th align="left">Technologies</th>
   </tr>
   <tr>
@@ -447,7 +453,7 @@ based on....
     <td>Boiler (different fueltypes), Condensing boiler, ASHP, GSHP, Micro-CHP, Fuel cell, Storage heating, Night storage heater, Heat network generation technologies (CHP,...)</td>
 </table>
 
-*Table 2: Technology assignement to enduses*
+*Table 2: Technology assignement to end uses*
 
 ### 3.1 Energy supply and demand model
 
