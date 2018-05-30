@@ -19,22 +19,20 @@ base year. End-use specific socio-technical drivers for energy demands
 modelled where possible on a household level.
 
      
-    The methodology is fully published in Eggimann et al. 2018: PAPER
-    , DOI: XYXYXYXY
-     
-    
-## 2. Overview
+  The methodology is fully published in Eggimann et al. 2018: TBD,
+  [DOI](http://www.linktodoi.com).
 
+## 2. Overview
 
 ### 2.1 Simulated end uses and sectors
 
 Within HIRE, residential, service and industrial energy demands are
 modelled for three main sub-modules. For the United Kingomd,
 each sub module modelles end uses and sectors taken from
-BEIS (2016). An overview is given in Figure 1.
+BEIS (2016). A simplified overview is given in Figure 1.
 
 ![Model overview](../docs/documentation_images/Fig_01_model_overview.jpg)
-*Figure 1: Overview of modelled end uses and sectors*
+*Figure 1: Simplified overview of modelled end uses and sectors*
 
 A complete list of all modelled end uses and sectors is provided in
 Table 2.1. As HIRE is highly modular, all end uses or sectors can be 
@@ -287,6 +285,8 @@ Energy demand change in relation to the base year (by) for end-use specific scen
 
 ![equation](https://latex.codecogs.com/gif.latex?D%5E%7Bsd%7D_%7By%7D%20%3D%20D%5E%7Btot%7D_%7Bby%7D%20*%20%5Cfrac%7Bsd_%7By%7D%7D%7Bsd_%7Bby%7D%7D "D^{sd}_{y} = D^{tot}_{by} * \frac{sd_{y}}{sd_{by}}")
 
+The individual terms are fully described in Eggimann et al. (2018).
+
 For the residential and service sub model, SD values are calculated based on a dwelling stock where scenario drivers are calculated either for dwellings or a group of dwelling (e.g. dwelling types).
 
 <table align="center">
@@ -322,15 +322,20 @@ For the residential and service sub model, SD values are calculated based on a d
 In order to disaggregate annual demand for every hour in a year,
 different typical load profiles are derived from measuremnt trials. 
 Load profile are either used to disaggregate total demand of an 
-end use, sector or technology specific end use demand.
+end use, sector or technology specific end use energy demand.
 
-Only the profile (i.e. the 'shape' of a profile)
-is read as an input into the model. In case of temperature dependent
-load profiles, the daily load profils are calculated with help of heating
-and cooling degree days (HDD, CDD).
+Only the profile (i.e. the 'shape') is loaded as an input into the model.
+In case of temperature dependent load profiles, the daily load profils
+are calculated with help of heating and cooling degree days (HDD, CDD).
 
 For different heating technologies, load shares are derived from the
 following sources:
+
+- **Heat pumps load profile**
+   Based on nearly 700 domestic heat pump installations,
+   Love et al. (2017) provides aggregated profiles for cold
+   and medium witer weekdays and weekends. The shape of the
+   load profiles is derived for a working, weekend and peak day.
 
 - **Boiler load profile**
    Load profiles for a typicaly working, weekend and peak day
@@ -340,26 +345,20 @@ following sources:
    Load profiles for a typicaly working, weekend and peak
    day are derived from data provided by Sansom (2014).
 
-- **Heat pumps load profile**
-   Based on nearly 700 domestic heat pump installations,
-   Love et al. (2017) provides aggregated profiles for cold
-   and medium witer weekdays and weekends. The shape of the
-   load profiles is derived for a working, weekend and peak day.
-
 - **Primary and secondary electric heating**
   The load profiles are based on the Household Electricity
   Survey (HES) by the Department of Energy & Climate Change (DECC, 2014).
 
 - **Cooling**
   The daily load profiles for service submodel cooling demands are taken
-  from Dunn and Knight (2005). For the residential sector,
+  from Dunn and Knight (2005).
 
 ### 2.3 Main Classes
 Figure 3 provides an overview of how all major classes relate to each other
 for generating a sub model to simluate different end uses.
 For every simulated region, the geographically
-closeset WeatherRegion is searched and linked to the Region class. 
-Every WeatherRegion class contained a technology and load profile stock
+closeset `WeatherRegion` is searched and linked to the `Region` class. 
+Every `WeatherRegion` class contains a technology and load profile stock
 as depending on temperatures, the efficiencies of the technologies
 and load profiles may differ.
 
@@ -371,7 +370,7 @@ and load profiles may differ.
 In this section, selected aspects of the methodology are explained
 in more detail.
 
-### 3.XXXXXXXXXX Generic dwelling stock
+### 3.1 Generic dwelling stock
 A generic dwelling model is implemented in HIRE which can be used
 in case no external dwelling stock model is available to generate
 provide the necessary ``dwelling`` inputs. An abstracted dwelling
@@ -411,19 +410,19 @@ floor area data from MasterMap data in combination with the
 address point dataset by the Ordonance Survey.
 
 ![Dwelling model](../docs/documentation_images/Fig_XX_dwelling_stock.jpg)
-*Figure XX: Modelling steps of the residential dwelling module*
+*Figure 4: Modelling steps of the residential dwelling module*
 
-### 3.1 Demand side management
+### 3.2 Demand side management
 Dirunal demand side responses per end use are modelled with help of load factors (Petchers, 2003). For every end use, a potential (linear) reduction of the load factor over time can be assumed with which the load factor of the current year is calculated ![equation](https://latex.codecogs.com/gif.latex?lf_%7Bcy%7D "l_{cy}"). With help ![equation](https://latex.codecogs.com/gif.latex?lf_%7Bcy%7D "l_{cy}"), and the daily average load of the base year ![equation](https://latex.codecogs.com/gif.latex?l%5E%7Bav%7D_%7Bby%7D "l^{av}_{by}"), the maximum hourly load per day is calculated as follows:
 
 ![equation](https://latex.codecogs.com/gif.latex?l_%7Bcy%7D%5E%7Bmax%7D%20%3D%20%5Cfrac%7Bl_%7Bby%7D%5E%7Bav%7D%7D%7Blf_%7Bcy%7D%7D "l_{cy}^{max} = \frac{l_{by}^{av}}{lf_{cy}}")
 
 For all hours with loads higher than the new maximum hourly load, the shiftable load is distributed to all off-peak load hours as shown in Figure XY.
 
-![Peak shiting](../docs/documentation_images/004-peak_shifting.jpg)
-*Figure XX: Shifting loads from peak hours to off-peak hours based on load factor changes.*
+![Peak shiting](../docs/documentation_images/Fig_XX_peak_shifting.jpg)
+*Figure 5: Shifting loads from peak hours to off-peak hours based on load factor changes.*
 
-### 3.2 Technologies, technological diffusion
+### 3.3 Technologies, technological diffusion
 For every end use, technologies can be defined. For the 
 UK application, the defined technologies are listed in Table 2.
 
@@ -449,47 +448,32 @@ UK application, the defined technologies are listed in Table 2.
     <td>Light bulb (incandescent), Halogen, Light saving, Fluorescent, LED</td>
   </tr>
     <tr>
-    <td>Space and Water Heating</td>
+    <td>Heating</td>
     <td>Boiler (different fueltypes), Condensing boiler, ASHP, GSHP, Micro-CHP, Fuel cell, Storage heating, Night storage heater, Heat network generation technologies (CHP,...)</td>
 </table>
 
 *Table 2: Technology assignement to end uses*
 
-### 3.1 Energy supply and demand model
+### 3.4 System-of-system embedding
+The main function of HIRE within the MISTRAL modelling framework is to provide energy demands
+to the energy supply model developped within this framwork (see Figure 6).
 
-Lorem ipsum...
-![Image of model integration](../docs/documentation_images/001-Supply_and_demand_overview.png)
-*Figure 3.1: Interaction*
+![Image of model integration](../docs/documentation_images/Fig_XX_supply_demand_linkage.jpg)
+*Figure 6: Interaction*
 
-### 3.2 Optimised and constrained model run
+This can be achieved in two ways, either demands are provided
+for an optimised or constrained model mode. In the constrained mode, heat demand
+is allocated to certain heating technologies and converted into respective fuel carriers.
+For the unconstrained mode, the energy supply model assigns technologies to meet the given
+heat demand, which is directly provided from the demand model to the supply model (see Figure 7)
 
-Lorem ipsum...
+![Two modes](../docs/documentation_images/Fig_XX_constrained_optimised_modes.jpg)
+*Figure 7: Interaction*
 
-![Two modes](../docs/documentation_images/002-constrained_optimised_modes.png)
-*Figure 3.2: Interaction*
-
-
-## XY. Model Interaction
 
 ## 5.0 Model Parameters
 
 ### 5.1 General model parameters
-
-Lorem ipsu
-
-#### 5.1.1 Technologies
-
-Technology Class (see model docu)
-- 
-
-#### 5.1.2 Load profiles
-
-Lorem ips
-
-
-
-## 11.Technologies
-
 
 
 ## 12 Data sets
@@ -497,14 +481,11 @@ Lorem ips
 This section provides an overview of all used datasets in HIRE and necessary data preparation.
 
 ### 12.1 National Energy Statistics
+The base year final energy consumption of the UK in terms of fuels and technology shares for the residential, service and industry sectors is taken from the Department for Business, Energy and Industrial Strategy ([BEIS, 2016](https://www.gov.uk/government/collections/energy-consumption-in-the-uk)). National final energy data is provided for different fuelt types in the unit of ktoe (tonne of oil equivalents). All energy unit conversions are based on the unit converter by the International Energy Agency ([IEA, 2017](http://www.iea.org/statistics/resources/unitconverter)).
 
-The base year final energy consumption of the UK (ECUK) in terms of fuels and technology shares for the residential, service and industry sectors is taken from the Department for Business, Energy and Industrial Strategy ([BEIS, 2016](https://www.gov.uk/government/collections/energy-consumption-in-the-uk)). National final energy data is provided for 6 fuel types (solid fuel, gas, electricity, oil, heat sold, bioenergy and waste) in the unit of ktoe (tonne of oil equivalents). All energy unit conversions are based on the unit converter by the International Energy Agency ([IEA, 2017](http://www.iea.org/statistics/resources/unitconverter)).
-
-Even though sub-national data for gas and electricity consumption are  [available](https://www.gov.uk/government/uploads/system/uploads/attachment_data/file/541163/ECUK_2016.pdf) from BEIS, they do not provide the same level of differentiation with respect to distinguishing between different endues or sectors.
-
+Even though sub-national data for gas and electricity consumption are [available](https://www.gov.uk/government/uploads/system/uploads/attachment_data/file/541163/ECUK_2016.pdf) from BEIS, they do not provide the same level of differentiation with respect to distinguishing between different endues or sectors.
 
 ### 12.2 Household Electricity Servey (DECC 2014)
-
 The [Household Electricity Survey (HES)](https://www.gov.uk/government/collections/household-electricity-survey)
 by the Department of Energy & Climate Change (DECC 2014) is the most detailed monitoring
 of electricity use carried out in the UK. Electricity consumption was monitored
@@ -518,8 +499,7 @@ different daytypes (weekend, working day) are taken from a [24 hour spreadsheet 
 
 
 ### 12.3 Carbon Trust advanced metering trial
-
-The (Carbon Trust, 2007) advanced metering trial dataset contains hourly electricity and gas demand measurements for different service (business) sectors from over 500 measurement sites broken down in sectors. The Carbon Trust data does not allow distinguishing between different end uses within each sector. According to the dominant fuel type of each end use, either aggregated gas or sector specific load profiles are therefore assigned. For ‘water heating’, ‘space heating’ and the ‘other_gas_enduse’, all gas measurements across all sectors are used, because the sample size was too little to distinguish between gas use for different sectors. For all other end uses, sector specific electricity load profiles are assigned. The provided sectors in the data trial do not fully correspond to the ECUK sectors (see Table 5) and where a sector is missing, the aggregated profiles across all sectors are used. No technology specific load profiles are used.
+The [Carbon Trust (2007)](http://data.ukedc.rl.ac.uk/simplebrowse/edc/efficiency/residential/Buildings/AdvancedMeteringTrial_2006/) advanced metering trial dataset contains hourly electricity and gas demand measurements for different service (business) sectors from over 500 measurement sites broken down in sectors. The Carbon Trust data does not allow distinguishing between different end uses within each sector. According to the dominant fuel type of each end use,either aggregated gas or sector specific load profiles are therefore assigned. For ‘water heating’, ‘space heating’ and the ‘other_gas_enduse’, all gas measurements across all sectors are used, because the sample size was too small. For all other end uses, sector specific electricity load profiles are assigned. The provided sectors in the data trial do not fully correspond to the ECUK sectors (see Table 5) and where a sector is missing,the aggregated profiles across all sectors are used.
 
 <table align="center">
   <tr>
@@ -566,10 +546,9 @@ The (Carbon Trust, 2007) advanced metering trial dataset contains hourly electri
 
 *Table 5: Matching sectors from the ECUK dataset and sectors from the Carbon Trust dataset*
 
-Yearly load profiles are generated based on averaging measurements for every month and day type (weekend, working day). In addition, average peak daily load profiles and the peak day factor is calculated. Only the yearly load profile for space heating is generated based on HDD calculations.
+Yearly load profiles are generated based on averaging measurements for every month and day type (weekend, working day). Only the yearly load profile for space heating is generated based on HDD calculations.
 
 Data preparation of the raw input files was necessary:
-
 *	Half-hourly data was converted into hourly data
 *	Within each sector, only datasets containing at least one full year of monitoring data are used, from which only one full year is selected
 *	Only datasets having not more than one missing measurement point per day are used
@@ -577,27 +556,16 @@ Data preparation of the raw input files was necessary:
 *	missing measurement points are interpolated 
 
 
-**More information**
- - The data download link can be found [here](http://data.ukedc.rl.ac.uk/simplebrowse/edc/efficiency/residential/Buildings/AdvancedMeteringTrial_2006/)
-
 ### 12.4 Temperature data
-
-To calculate regional daily hourly load heating profiles, hourly temperature data are used from the UK Met Office (2015) and loaded for weather stations across the UK.
+To calculate regional daily hourly load heating profiles, hourly temperature data are used from the [UK Met Office (2015)](http://catalogue.ceda.ac.uk/uuid/220a65615218d5c9cc9e4785a3234bd0) and loaded for weather stations across the UK.
 
 ### 12.5 Census data
 Employment statistics from the census (Office for National Statistics 2011)
 are used to disaggregate industry related energy demands for different end uses and sectors.
 
-**More information**
 - The data download link can be found [here](http://catalogue.ceda.ac.uk/uuid/916ac4bbc46f7685ae9a5e10451bae7c)
 - The station ID can be retreived [here](http://badc.nerc.ac.uk/cgi-bin/midas_stations/search_by_name.cgi.py?name=&minyear=&maxyear=)
 - Metadatda of raw data can be found [here](http://artefacts.ceda.ac.uk/badc_datadocs/ukmo-midas/WH_Table.html)
-
-
-### 12.6 Technology specific load shapes
-
-(cf. Technologes in Section XY)
-
 
 ## Literature
 
@@ -617,67 +585,6 @@ Petchers, N. (2003) Combined heating, cooling & power handbook: technologies & a
 Sansom, R. (2014). Decarbonising low grade heat for low carbon future. Imperial College London.
 
 UK Met Office (2015): ‘MIDAS: UK hourly weather observation data’. Centre for Environmental Data Analysis. Retrieved from: [http://catalogue.ceda.ac.uk/uuid/916ac4bbc46f7685ae9a5e10451bae7c](http://catalogue.ceda.ac.uk/uuid/916ac4bbc46f7685ae9a5e10451bae7c).
-
-
-###### Varia
-- https://www.codecogs.com/latex/eqneditor.php used for this documentation
-
-All energy unit conversions are based on the unit converter by the International Energy Agency (IEA 2017).
-
-
-2. *Another item*
-
-  * Unordered sub-list. 
-
-1. Actual numbers don't matter, just that it's a number
-  1. Ordered sub-list
-
-4. And another item.
-   You can have properly indented paragraphs within list items. Notice the blank line above, and the leading spaces (at least one, but we'll use three here to also align the raw Markdown).
-
-
-   
-    - **Residential**: Taken from *Denholm, P., Ong, S., & Booten, C. (2012).
-        Using Utility Load Data to Estimate Demand for Space Cooling and
-        Potential for Shiftable Loads, (May), 23.
-        Retrieved from http://www.nrel.gov/docs/fy12osti/54509.pdf*
-        (not yet used)
-
-
-### 6.2 Spatial disaggregation
-
-Employment data are used to improve industry related dissagregation.
-The ECUK sector and employment statistics are matched as follows: 
-
-    Industry Sector                 Emplyoment Sector
-
-    wood                            XX
-    textiles                        XX
-    chemicals                       XX        
-    printing                        XX
-    electrical_equipment            XX
-    paper                           XX
-    basic_metals                    XX
-    beverages                       XX
-    pharmaceuticals                 XX
-    machinery                       XX
-    water_collection_treatment      XX
-    food_production                 XX
-    rubber_plastics                 XX
-    wearing_appeal                  XX
-    other_transport_equipment       XX
-    leather                         XX
-    motor_vehicles                  XX
-    waste_collection                XX
-    tobacco                         XX
-    mining                          XX
-    other_manufacturing             XX
-    furniture                       XX
-    non_metallic_mineral_products   XX     
-    computer                        XX
-    fabricated_metal_products       XX
-
-
 
 
 Code Overview

@@ -757,8 +757,7 @@ def write_disagg_fuel(path_to_txt, data):
     """
     file = open(path_to_txt, "w")
     file.write("{}, {}, {}, {}".format(
-        'region', 'enduse', 'fueltypes', 'fuel') + '\n'
-              )
+        'region', 'enduse', 'fueltypes', 'fuel') + '\n')
 
     for region, enduses in data.items():
         for enduse, fuels in enduses.items():

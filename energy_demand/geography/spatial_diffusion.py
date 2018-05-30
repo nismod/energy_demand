@@ -1,11 +1,9 @@
 """This file contains all calculations related
 to spatial explicit calculations of technology/innovation
 penetration."""
-
 import logging
 from collections import defaultdict
 import numpy as np
-from energy_demand.plotting import plotting_program
 
 def spatial_diffusion_values(
         regions,
@@ -45,6 +43,7 @@ def spatial_diffusion_values(
     # ----------------
     # plot real values to check for outliers
     # ----------------
+    #from energy_demand.plotting import plotting_program
     #plotting_program.plot_xy(list(real_values.values()))
 
     # Select number of outliers to remove lower and higher extremes
@@ -56,7 +55,7 @@ def spatial_diffusion_values(
     # Get value of largest outlier
     treshold_upper_real_value = sorted_vals[-nr_of_outliers]
     treshold_lower_real_value = sorted_vals[nr_of_outliers]
-    
+
     for reg, val in real_values.items():
         if val > treshold_upper_real_value:
             real_values[reg] = treshold_upper_real_value
@@ -141,7 +140,7 @@ def calc_diffusion_f(regions, f_reg, spatial_diff_values, fuels):
     Note
     -----
     The total sum can be higher than 1 in case of high values.
-    Therfore the factors need to be capped. TODO MORE INFO
+    Therefore the factors need to be capped. TODO MORE INFO
     """
     # Calculate fraction of energy demand of every region of total demand
     reg_enduse_p = defaultdict(dict)
@@ -233,7 +232,8 @@ def calc_regional_services(
         regions,
         spatial_factors,
         fuel_disaggregated,
-        techs_affected_spatial_f
+        techs_affected_spatial_f,
+        capping_val=1
     ):
     """Calculate regional specific end year service shares
     of technologies (rs_reg_enduse_tech_p_ey)
@@ -250,6 +250,11 @@ def calc_regional_services(
         Fuels per region
     techs_affected_spatial_f : list
         List with technologies where spatial diffusion is affected
+    capping_val : float
+        Maximum service share (1.0). This is needed in case 
+        of spatial explicit diffusion modelling where the diffusion
+        speed is very large and thus would lead to areas with
+        largher shares than 1
 
     Returns
     -------
@@ -310,7 +315,6 @@ def calc_regional_services(
             # ----------------------------------
             #MAYBE ADD CAPPING VALUE TODO
             # ----------------------------------
-            capping_val = 1
             service_share = service_tech
 
             if service_share > capping_val:
@@ -441,7 +445,7 @@ def spatially_differentiated_modelling(
     # Residential spatial explicit modelling
     rs_reg_share_s_tech_ey_p = {}
     for enduse, uk_techs_service_p in rs_share_s_tech_ey_p.items():
-    
+
         rs_reg_share_s_tech_ey_p[enduse] = calc_regional_services(
             enduse,
             uk_techs_service_p,

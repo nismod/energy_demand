@@ -310,7 +310,7 @@ def resilience_paper(
         fueltypes, fueltype_str)
 
     for region_nr, region in enumerate(regions):
-        
+
         min_GW_elec = 0
         max_GW_elec = 0
 

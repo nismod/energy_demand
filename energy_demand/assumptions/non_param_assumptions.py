@@ -64,7 +64,7 @@ class Assumptions(object):
         self.techs_affected_spatial_f = ['heat_pumps_electricity']
 
         # Max penetration speed
-        self.speed_con_max = 1 # 1: uniform distribution
+        self.speed_con_max = 1 # 1: uniform distribution >1: regional differences
 
         # --------
         # Demand management of heat pumps
