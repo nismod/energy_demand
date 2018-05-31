@@ -41,7 +41,6 @@ import os
 import sys
 import time
 import logging
-import datetime
 import numpy as np
 from energy_demand import model
 from energy_demand.basic import testing_functions as testing
