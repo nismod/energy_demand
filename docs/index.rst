@@ -1,13 +1,14 @@
 =============
-HIgh Resolution Energy Demand Model (HIRE)
+HIgh Resolution Energy demand model (HIRE)
 =============
 
-This is the full documentation of HIRE,
-which was developped in the MISTRAL project.
+This is the full documentation of HIRE.
 
-Note
-----
-This is sill work in progress.
+HIRE was written in Python (Python>=3.6) and developed
+at the Environmental Change Institute, University of Oxford
+within the EPSRC sponsored MISTRAL programme,
+as part of the Infrastructure Transition
+Research Consortium.
 
 
 Contents
@@ -19,7 +20,7 @@ Contents
    Documentation <documentation>
    Modelling code <api/modules>
    Authors <authors>
-   Changelog <changes>
+   Versions <changes>
    License <license>
 
 Indices and tables
