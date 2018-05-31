@@ -171,7 +171,11 @@ def create_switches_from_s_shares(
     # Normalise: convert to percentage
     tot_share_not_assigned = sum(tech_not_assigned_by_p.values())
     for tech, share_by in tech_not_assigned_by_p.items():
-        tech_not_assigned_by_p[tech] = share_by / tot_share_not_assigned
+
+        if tot_share_not_assigned == 0:
+            tech_not_assigned_by_p[tech] = 0
+        else:
+            tech_not_assigned_by_p[tech] = share_by / tot_share_not_assigned
 
     # Get all defined technologies in base year
     for tech in specified_tech_enduse_by[enduse]:
@@ -201,9 +205,15 @@ def create_switches_from_s_shares(
 
             service_switches_out.append(switch_new)
         else:
+
             # If assigned copy to final switches
             for switch_new in enduse_switches:
                 if switch_new.technology_install == tech:
+                    
+                    # If no fuel demand, also no switch possible
+                    if tot_share_not_assigned == 0:
+                        switch_new.service_share_ey = 0
+                    
                     service_switches_out.append(switch_new)
 
     return service_switches_out
@@ -249,7 +259,6 @@ def autocomplete_switches(
     enduses = list(enduses)
 
     if spatial_explicit_diffusion:
-
         service_switches_out = {}
 
         for region in regions:
@@ -352,7 +361,6 @@ def autocomplete_switches(
 
             service_switches_out.extend(switches_new)
             service_switches_out.extend(service_switches_from_capacity)
-
 
     # Calculate fraction of service for each technology
     reg_share_s_tech_ey_p = get_share_s_tech_ey(

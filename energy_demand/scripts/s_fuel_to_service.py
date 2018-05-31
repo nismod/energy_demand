@@ -138,8 +138,6 @@ def get_s_fueltype_tech(
     s_fueltype_by_p : dict
         Percentage of energy service per fueltype
     """
-    #TODO MAKE NICER
-    #service = defaultdict(dict)
     service = init_nested_dict_brackets(fuels, fueltypes.values())              # Energy service per technology for base year
     s_tech_by_p = helpers.init_dict_brackets(fuels)                             # Percentage of total energy service per technology for base year
     s_fueltype_tech_by_p = init_nested_dict_brackets(fuels, fueltypes.values()) # Percentage of service per technologies within the fueltypes
@@ -207,14 +205,17 @@ def get_s_fueltype_tech(
 
                 with np.errstate(divide='ignore'):
 
-                    # Calculate service
-                    s_p_tech = s_tech / total_s
+                    if total_s == 0:
+                        s_p_tech = 0
+                    else:
+                        # Calculate service
+                        s_p_tech = s_tech / total_s
 
                      # Do not add dummy technology with zero service
                     if technology == 'placeholder_tech' and s_p_tech == 0:
                         pass
                     else:
-                        s_tech_by_p[enduse][technology] = s_tech / total_s
+                        s_tech_by_p[enduse][technology] = s_p_tech
 
         # Convert service per enduse
         for fueltype in s_fueltype_by_p[enduse]:

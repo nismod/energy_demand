@@ -635,7 +635,7 @@ def tech_sigmoid_parameters(
                         because the points to fit are too similar.
                         """
                         logging.warning(
-                            "Instead of sigmoid a linear approximation is used %s %s", xdata, ydata)
+                            "Instead of sigmoid a linear approximation is used %s %s %s %s", s_tech_by_p[tech], tech, xdata, ydata)
                         sig_params[tech]['midpoint'] = 'linear'
                         sig_params[tech]['steepness'] = 'linear'
                         sig_params[tech]['l_parameter'] = 'linear'

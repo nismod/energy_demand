@@ -318,7 +318,7 @@ For the residential and service sub model, SD values are calculated based on a d
 
 *Table 1.1: End-use specific scenario drivers for energy demand*
 
-#### 2.2.3 Spatial disaggregation
+#### 2.2.3 III Step - Spatial disaggregation
 In order to disaggregate annual demand for every hour in a year,
 different typical load profiles are derived from measuremnt trials. 
 Load profile are either used to disaggregate total demand of an 

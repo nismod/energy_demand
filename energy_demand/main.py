@@ -30,7 +30,6 @@ TODO: remove tech_list
 TODO: Write all metadata of model run restuls to txt
 TODO: Related ed to houses & householdsize
 TODO: data loading, load multiple years for real elec data
-TODO: PEAK SHAPE vs PEAK FROM LOAD PROFILES
 TODO: WHAT ABOU NON_RESIDENTIAL FLOOR AREA: FOR WHAT?
 TODO: Spatial diffusion: Cap largest 5% of values and set to 1
 TODO: CONTROL ALL PEAK RESULTS
@@ -38,9 +37,6 @@ TODO: REMOVE model_yeardays_nrs
 TODO :CHECK LOAD PRIFILE TECH TYPE NAMES
 TODO: shape_peak_yd_factor
 TODO: REMOVE ALL PEAK RELATED STUFF
-TODO: SMOOTH LINE https://stackoverflow.com/questions/25825946/generating-smooth-line-graph-using-matplotlib?lq=1
-TODO: plotting. IMprove bins: test if outside bins (because plots wrongly outside)
-TODO: CHECK DEMND MANAGEMENT PEAK FACTOR
 TODO: REMOVE BUG THAT FOR HYDROGEN SOMEHOW 'NAN' values
 TODO: make that can be run locally
 TODO: REMOVE DOCU
@@ -62,8 +58,6 @@ from energy_demand.basic import logger_setup
 from energy_demand.read_write import write_data
 from energy_demand.read_write import read_data
 from energy_demand.basic import basic_functions
-
-NR_OF_MODELLEd_REGIONS = 392
 
 def energy_demand_model(data, assumptions, fuel_in=0, fuel_in_elec=0):
     """Main function of energy demand model to calculate yearly demand
@@ -144,7 +138,13 @@ def energy_demand_model(data, assumptions, fuel_in=0, fuel_in_elec=0):
     print("Diff hydrogen %:     " + str(round((np.sum(modelrun_obj.ed_fueltype_national_yh[data['lookups']['fueltypes']['hydrogen']])/ fuel_in_hydrogen), 4)))
     print("Diff biomass %:      " + str(round((np.sum(modelrun_obj.ed_fueltype_national_yh[data['lookups']['fueltypes']['biomass']])/ fuel_in_biomass), 4)))
     print("================================================")
-
+    a = np.sum(np.isnan(modelrun_obj.ed_fueltype_national_yh[data['lookups']['fueltypes']['hydrogen']]))
+    print(a)
+    print("fff")
+    print(fuel_in_hydrogen)
+    print(fuel_in_biomass)
+    for i in range(7):
+        print(np.sum(modelrun_obj.ed_fueltype_national_yh[i]))
     logging.info("...finished running energy demand model simulation")
     return modelrun_obj
 
@@ -154,14 +154,10 @@ if __name__ == "__main__":
     # Paths
     if len(sys.argv) != 2:
         print("Please provide a local data path:")
-        print("    python main.py ../energy_demand_data\n")
-        print("... Defaulting to C:/DATA_NISMODII/data_energy_demand")
-        local_data_path = os.path.abspath('C:/DATA_NISMODII/data_energy_demand')
+        print("... Defaulting to C:/users/cenv0553/ED/data")
         local_data_path = os.path.abspath('C:/users/cenv0553/ED/data')
     else:
         local_data_path = sys.argv[1]
-
-    # -------------- SCRAP
 
     path_main = os.path.abspath(
         os.path.join(
@@ -178,7 +174,7 @@ if __name__ == "__main__":
     data['criterias']['plot_HDD_chart'] = False                 # Wheather HDD chart is plotted or not
     data['criterias']['virtual_building_stock_criteria'] = True # Wheater model uses a virtual dwelling stock or not
     data['criterias']['write_to_txt'] = True                    # Wheater results are written to txt files
-    data['criterias']['beyond_supply_outputs'] = False           # Wheater all results besides integraded smif run are calculated
+    data['criterias']['beyond_supply_outputs'] = False          # Wheater all results besides integraded smif run are calculated
     data['criterias']['plot_tech_lp'] = True                    # Wheater all individual load profils are plotted
     simulated_yrs = [2015]
 

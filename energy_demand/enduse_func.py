@@ -144,7 +144,8 @@ class Enduse(object):
                 assumptions.ss_enduse_space_cooling)
             self.fuel_y = _fuel_new_y
             #logging.debug("... Fuel train B: " + str(np.sum(self.fuel_y)))
-
+            if np.sum(np.isnan(self.fuel_y)) > 0:
+                logging.info("ERROR NAN")
             # --Change fuel consumption based on smart meter induced general savings
             _fuel_new_y = apply_smart_metering(
                 enduse,
@@ -155,7 +156,8 @@ class Enduse(object):
                 curr_yr)
             self.fuel_y = _fuel_new_y
             #logging.debug("... Fuel train C: " + str(np.sum(self.fuel_y)))
-
+            if np.sum(np.isnan(self.fuel_y)) > 0:
+                logging.info("ERROR NAN")
             # --Enduse specific fuel consumption change in %
             _fuel_new_y = apply_specific_change(
                 enduse,
@@ -166,7 +168,8 @@ class Enduse(object):
                 curr_yr)
             self.fuel_y = _fuel_new_y
             #logging.debug("... Fuel train D: " + str(np.sum(self.fuel_y)))
-
+            if np.sum(np.isnan(self.fuel_y)) > 0:
+                logging.info("ERROR NAN")
             # Calculate new fuel demands after scenario drivers
             _fuel_new_y = apply_scenario_drivers(
                 submodel,
@@ -183,7 +186,8 @@ class Enduse(object):
                 curr_yr)
             self.fuel_y = _fuel_new_y
             #logging.debug("... Fuel train E: " + str(np.sum(self.fuel_y)))
-
+            if np.sum(np.isnan(self.fuel_y)) > 0:
+                logging.info("ERROR NAN")
             # Apply cooling scenario variable
             _fuel_new_y = apply_cooling(
                 enduse,
@@ -195,7 +199,8 @@ class Enduse(object):
                 curr_yr)
             self.fuel_y = _fuel_new_y
             #logging.debug("... Fuel train E1: " + str(np.sum(self.fuel_y)))
-
+            if np.sum(np.isnan(self.fuel_y)) > 0:
+                logging.info("ERROR NAN")
             # Industry related change
             _fuel_new_y = industry_enduse_changes(
                 enduse,
@@ -208,7 +213,8 @@ class Enduse(object):
                 assumptions)
             self.fuel_y = _fuel_new_y
             #logging.debug("... Fuel train E2: " + str(np.sum(self.fuel_y)))
-
+            if np.sum(np.isnan(self.fuel_y)) > 0:
+                logging.info("ERROR NAN")
             # ----------------------------------
             # Hourly Disaggregation
             # ----------------------------------
@@ -237,6 +243,8 @@ class Enduse(object):
                     assumptions.enduse_space_heating)
 
                 #logging.debug("... Fuel train F2: " + str(np.sum(self.fuel_y)))
+                if np.sum(np.isnan(self.fuel_y)) > 0:
+                    logging.info("ERROR NAN")
                 # ------------------------------------
                 # Calculate regional energy service
                 # ------------------------------------
@@ -297,7 +305,8 @@ class Enduse(object):
                     fueltypes,
                     mode_constrained)
                 #logging.debug("... Fuel train H: " + str(np.sum(self.fuel_y)))
-
+                if np.sum(np.isnan(self.fuel_y)) > 0:
+                    logging.info("ERROR NAN")
                 # Delete all technologies with no fuel assigned
                 for tech, fuel_tech in fuel_tech_y.items():
                     if np.sum(fuel_tech) == 0:
@@ -1173,11 +1182,12 @@ def apply_scenario_drivers(
 
             # Check if float('nan')
             if math.isnan(factor_driver):
-                #logging.warning("Something went wrong wtih scenario")
+                logging.warning("Something went wrong wtih scenario")
                 factor_driver = 1
 
             #logging.debug("... Scenario drivers: {} {} {}".format(by_driver, cy_driver, factor_driver))
-
+            if np.sum(np.isnan(fuel_y)) > 0:
+                logging.info("ERROR NAN")
             fuel_y = fuel_y * factor_driver
         else:
             pass #enduse not define with scenario drivers
