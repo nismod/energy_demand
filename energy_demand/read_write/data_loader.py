@@ -38,8 +38,6 @@ def load_ini_param(path):
     regions = ast.literal_eval(config['REGIONS']['regions'])
 
     assumptions = {}
-    assumptions['model_yearhours_nrs'] = int(config['SIM_PARAM']['model_yearhours_nrs'])
-    assumptions['model_yeardays_nrs'] = int(config['SIM_PARAM']['model_yeardays_nrs'])
     assumptions['base_yr'] = int(config['SIM_PARAM']['base_yr'])
     assumptions['simulated_yrs'] = ast.literal_eval(config['SIM_PARAM']['simulated_yrs'])
 

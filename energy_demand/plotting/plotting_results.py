@@ -314,8 +314,6 @@ def run_all_plot_functions(
         plt_fuels_enduses_week(
             results_container['results_every_year'],
             lookups,
-            assumptions['model_yearhours_nrs'],
-            assumptions['model_yeardays_nrs'],
             2015,
             os.path.join(result_paths['data_results_PDF'], "tot_all_enduse03.pdf"))
 
@@ -961,7 +959,6 @@ def plt_fuels_enduses_week(
         results_resid,
         lookups,
         nr_of_h_to_plot,
-        model_yeardays_nrs,
         year_to_plot,
         fig_name
     ):
@@ -976,7 +973,7 @@ def plt_fuels_enduses_week(
 
     # INFO Cannot plot a single year?
     """
-    days_to_plot = range(model_yeardays_nrs)
+    days_to_plot = range(365)
 
     fig, ax = plt.subplots()
 
@@ -1004,7 +1001,7 @@ def plt_fuels_enduses_week(
     ax.legend(legend_entries)
 
     x_tick_pos = []
-    for day in range(model_yeardays_nrs):
+    for day in range(365):
         x_tick_pos.append(day * 24)
     plt.xticks(x_tick_pos, days_to_plot, color='black')
 

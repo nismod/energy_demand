@@ -2,7 +2,7 @@
 """
 import numpy as np
 
-def flat_shape(nr_of_days):
+def flat_shape(nr_of_days=365):
     """Create completely flat shape for peak and non-peak
 
     Arguments
@@ -38,14 +38,12 @@ class GenericFlatEnduse(object):
     ---------
     enduse_fuel : float
         Yearly total fuel
-    model_yeardays_nrs : int
-        Number of modelled yeardays
     """
-    def __init__(self, enduse_fuel, model_yeardays_nrs):
+    def __init__(self, enduse_fuel):
 
-        _, flat_shape_yh, _ = flat_shape(model_yeardays_nrs)
+        _, flat_shape_yh, _ = flat_shape()
 
         # Yh fuel shape per fueltype (non-peak)
-        self.fuel_yh = enduse_fuel[:, np.newaxis, np.newaxis] * flat_shape_yh[np.newaxis, :, :] * (model_yeardays_nrs/365.0)
+        self.fuel_yh = enduse_fuel[:, np.newaxis, np.newaxis] * flat_shape_yh[np.newaxis, :, :]
 
         self.flat_profile_crit = True

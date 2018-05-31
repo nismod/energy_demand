@@ -109,11 +109,6 @@ class Assumptions(object):
         # ============================================================
         #   Modelled day related factors
         # ============================================================
-        #
-        #       model_yeardays_nrs : int
-        #           Number of modelled yeardays (default=365)
-        #       model_yearhours_nrs : int
-        #           Number of modelled yearhours (default=8760)
         #        model_yeardays_date : dict
         #           Contains for the base year for each days
         #           the information wheter this is a working or holiday
@@ -125,9 +120,6 @@ class Assumptions(object):
         for yearday in self.model_yeardays:
             self.model_yeardays_date.append(
                 date_prop.yearday_to_date(base_yr, yearday))
-
-        self.model_yeardays_nrs = len(self.model_yeardays)
-        self.model_yearhours_nrs = len(self.model_yeardays) * 24
 
         # ============================================================
         #   Dwelling stock related assumptions

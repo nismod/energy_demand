@@ -2,7 +2,7 @@
 Changelog
 =========
 
-Version 0.1
+Version 0.X.X
 ===========
 
-- Starting with development
+- First actual model release

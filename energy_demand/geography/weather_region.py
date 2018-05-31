@@ -153,8 +153,7 @@ class WeatherRegion(object):
         # ==================================================================
 
         # Flat load profiles
-        flat_shape_yd, _, flat_shape_y_dh = generic_shapes.flat_shape(
-            assumptions.model_yeardays_nrs)
+        flat_shape_yd, _, flat_shape_y_dh = generic_shapes.flat_shape()
     
         # ==================================================================
         # Residential submodel load profiles
@@ -611,7 +610,7 @@ def get_fuel_shape_heating_hp_yh(tech_lp_y_dh, tech_stock, rs_hdd_cy, model_year
     tech_stock : object
         Technology stock
     rs_hdd_cy : array
-        Heating Degree Days (model_yeardays_nrs, 1)
+        Heating Degree Days
     model_yeardays : array
         Modelled year days
 
@@ -690,7 +689,7 @@ def get_shape_cooling_yh(tech_shape, cooling_shape):
 
     return shape_yd_cooling_tech
 
-def ss_get_sector_enduse_shape(tech_lps, heating_lp_yd, enduse, model_yeardays_nrs):
+def ss_get_sector_enduse_shape(tech_lps, heating_lp_yd, enduse):
     """Read generic shape for all technologies in a service sector enduse
 
     Arguments
@@ -702,8 +701,6 @@ def ss_get_sector_enduse_shape(tech_lps, heating_lp_yd, enduse, model_yeardays_n
         heat demand for every day)
     enduse : str
         Enduse where technology is used
-    model_yeardays_nrs : int
-        Number of modelled yeardays
 
     Returns
     -------
@@ -712,7 +709,7 @@ def ss_get_sector_enduse_shape(tech_lps, heating_lp_yd, enduse, model_yeardays_n
     shape_boilers_y_dh : array
         Shape of distribution of fuel within every day of a year (total sum == nr_of_days)
     """
-    shape_yh_generic_tech = np.zeros((model_yeardays_nrs, 24), dtype=float)
+    shape_yh_generic_tech = np.zeros((365, 24), dtype=float)
 
     if enduse not in tech_lps:
         pass

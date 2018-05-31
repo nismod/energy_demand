@@ -32,7 +32,6 @@ TODO: Related ed to houses & householdsize
 TODO: data loading, load multiple years for real elec data
 TODO: WHAT ABOU NON_RESIDENTIAL FLOOR AREA: FOR WHAT?
 TODO: Spatial diffusion: Cap largest 5% of values and set to 1
-TODO: REMOVE model_yeardays_nrs
 TODO :CHECK LOAD PRIFILE TECH TYPE NAMES
 TODO: shape_peak_yd_factor
 TODO: REMOVE ALL PEAK RELATED STUFF

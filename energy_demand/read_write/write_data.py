@@ -242,8 +242,6 @@ def write_simulation_inifile(path, enduses, assumptions, reg_nrs, regions):
     config['SIM_PARAM']['reg_nrs'] = str(reg_nrs)
     config['SIM_PARAM']['base_yr'] = str(assumptions.base_yr)
     config['SIM_PARAM']['simulated_yrs'] = str(assumptions.simulated_yrs)
-    config['SIM_PARAM']['model_yearhours_nrs'] = str(assumptions.model_yearhours_nrs)
-    config['SIM_PARAM']['model_yeardays_nrs'] = str(assumptions.model_yeardays_nrs)
 
     # ----------------------------
     # Other information to pass to plotting and summing function
