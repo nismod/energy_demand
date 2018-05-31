@@ -397,7 +397,12 @@ def load_paths(path):
 
     return paths
 
-def load_tech_profiles(tech_lp, paths, local_paths, plot_tech_lp=True):
+def load_tech_profiles(
+        tech_lp,
+        paths,
+        local_paths,
+        plot_tech_lp=True
+    ):
     """Load technology specific load profiles
 
     Arguments
@@ -901,33 +906,60 @@ def ss_read_shapes_enduse_techs(ss_shapes_dh, ss_shapes_yd):
 
     return ss_all_tech_shapes_dh, ss_all_tech_shapes_yd
 
-def load_LAC_geocodes_info(path_to_csv):
-    """FIGURE FUNCTION Import local area unit district codes
+def read_scenario_data(path_to_csv, regions):
+    """
+    """
+    data = {}
+    out_data = {}
 
-    Read csv file and create dictionary with 'geo_code'
+    with open(path_to_csv, 'r') as csvfile:
+        rows = csv.reader(csvfile, delimiter=',')
+        headings = next(rows) # Skip first row
+        for row in rows:
 
-    Note
-    -----
-    - no LAD without population must be included
-    - PROVIDED IN UNIT?? (KWH I guess)
+            region = str(row[read_data.get_position(headings, 'region')])
+            year = int(row[read_data.get_position(headings, 'year')])
+            value = float(row[read_data.get_position(headings, 'value')])
+            interval = int(row[read_data.get_position(headings, 'interval')])
+
+            try:
+                data[year][region] = value
+            except KeyError:
+                data[year] = {}
+                data[year][region] = value
+
+    return data
+    '''for year in data.keys():
+        reg_vals = []
+        for region in regions:
+            reg_vals.append(data[year][region])
+
+        out_data[year] = np.array(reg_vals)
+
+    return out_data'''
+
+def load_regions_localmodelrun(path_to_csv):
+    """Read in regions from csv file
+
+    Arguments
+    ---------
+    path_to_csv : str
+        PAth to csv file
+
+    Returns
+    -------
+    regions : list
+        Regions
     """
     with open(path_to_csv, 'r') as csvfile:
         rows = csv.reader(csvfile, delimiter=',')
         headings = next(rows) # Skip first row
-        data = {}
+        regions = []
 
         for row in rows:
-            values_line = {}
-            for number, value in enumerate(row[1:], 1):
-                try:
-                    values_line[headings[number]] = float(value)
-                except ValueError:
-                    values_line[headings[number]] = str(value)
+            regions.append(row[read_data.get_position(headings, 'region')])
 
-            # Add entry with geo_code
-            data[row[0]] = values_line
-
-    return data
+    return regions
 
 def read_employment_stats(path_to_csv):
     """Read in employment statistics per LAD.

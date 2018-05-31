@@ -23,27 +23,23 @@ Get correlation between regional GVA and (regional floor area/reg pop) of every 
 2. Step
 Calculate future regional floor area demand based on GVA and pop projection 
 info: fuels_yh is made multidmensional according to fueltype
-TODO: REMOVEP EAK FACTORS
+TODO: REMOVEP EAK FACTORS 
+TODO: REMOVEP EAK FACTORS 
 TODO: DISAGGREGATE SERVICE SECTOR HEATING DEMANDS WITH FLOOR AREA FOR SECTORS
-TODO: BECUASE OF HYBRID SUM SWITCHES +=
 TODO: remove tech_list
 TODO: Write all metadata of model run restuls to txt
 TODO: Related ed to houses & householdsize
 TODO: data loading, load multiple years for real elec data
 TODO: WHAT ABOU NON_RESIDENTIAL FLOOR AREA: FOR WHAT?
 TODO: Spatial diffusion: Cap largest 5% of values and set to 1
-TODO: CONTROL ALL PEAK RESULTS
 TODO: REMOVE model_yeardays_nrs
 TODO :CHECK LOAD PRIFILE TECH TYPE NAMES
 TODO: shape_peak_yd_factor
 TODO: REMOVE ALL PEAK RELATED STUFF
-TODO: REMOVE BUG THAT FOR HYDROGEN SOMEHOW 'NAN' values
-TODO: make that can be run locally
-TODO: REMOVE DOCU
-TODO: Make that directly regional demands can be loaded.
 """
 import os
 import sys
+import time
 import logging
 import datetime
 import numpy as np
@@ -138,19 +134,14 @@ def energy_demand_model(data, assumptions, fuel_in=0, fuel_in_elec=0):
     print("Diff hydrogen %:     " + str(round((np.sum(modelrun_obj.ed_fueltype_national_yh[data['lookups']['fueltypes']['hydrogen']])/ fuel_in_hydrogen), 4)))
     print("Diff biomass %:      " + str(round((np.sum(modelrun_obj.ed_fueltype_national_yh[data['lookups']['fueltypes']['biomass']])/ fuel_in_biomass), 4)))
     print("================================================")
-    a = np.sum(np.isnan(modelrun_obj.ed_fueltype_national_yh[data['lookups']['fueltypes']['hydrogen']]))
-    print(a)
-    print("fff")
-    print(fuel_in_hydrogen)
-    print(fuel_in_biomass)
-    for i in range(7):
-        print(np.sum(modelrun_obj.ed_fueltype_national_yh[i]))
     logging.info("...finished running energy demand model simulation")
     return modelrun_obj
 
 if __name__ == "__main__":
     """
     """
+
+    data = {}
     # Paths
     if len(sys.argv) != 2:
         print("Please provide a local data path:")
@@ -165,65 +156,78 @@ if __name__ == "__main__":
 
     # Initialise logger
     logger_setup.set_up_logger(
-        os.path.join(local_data_path, "logging_local_run.log"))
+        os.path.join(local_data_path, "..", "logging_local_run.log"))
 
     # Load data
-    data = {}
     data['criterias'] = {}
-    data['criterias']['mode_constrained'] = True                # Whether model is run in constrained mode or not
-    data['criterias']['plot_HDD_chart'] = False                 # Wheather HDD chart is plotted or not
-    data['criterias']['virtual_building_stock_criteria'] = True # Wheater model uses a virtual dwelling stock or not
-    data['criterias']['write_to_txt'] = True                    # Wheater results are written to txt files
-    data['criterias']['beyond_supply_outputs'] = False          # Wheater all results besides integraded smif run are calculated
-    data['criterias']['plot_tech_lp'] = True                    # Wheater all individual load profils are plotted
+
+    data['criterias']['mode_constrained'] = True                    # True: Technologies are defined in ED model and fuel is provided, False: Heat is delievered not per technologies
+    data['criterias']['virtual_building_stock_criteria'] = True     # True: Run virtual building stock model
+
+    fast_model_run = False
+    if fast_model_run == True:
+        data['criterias']['write_to_txt'] = False
+        data['criterias']['beyond_supply_outputs'] = False
+        data['criterias']['validation_criteria'] = False    # For validation, the mode_constrained must be True
+        data['criterias']['plot_tech_lp'] = False
+        data['criterias']['plot_crit'] = False
+        data['criterias']['crit_plot_enduse_lp'] = False
+        data['criterias']['plot_HDD_chart'] = False
+        data['criterias']['writeYAML'] = False
+    else:
+        data['criterias']['write_to_txt'] = True
+        data['criterias']['beyond_supply_outputs'] = True
+        data['criterias']['validation_criteria'] = True
+        data['criterias']['plot_tech_lp'] = False
+        data['criterias']['plot_crit'] = False
+        data['criterias']['crit_plot_enduse_lp'] = True
+        data['criterias']['plot_HDD_chart'] = False
+        data['criterias']['writeYAML'] = True #set to false
+    # ----------------------------
+    # Model running configurations
+    # ----------------------------
     simulated_yrs = [2015]
+
+    name_scenario_run = "_result_data_{}".format(str(time.ctime()).replace(":", "_").replace(" ", "_"))
 
     # Paths
     data['paths'] = data_loader.load_paths(path_main)
     data['local_paths'] = data_loader.load_local_paths(local_data_path)
 
-    result_path = os.path.dirname(__file__).split("energy_demand\\energy_demand")[0]
-    data['result_paths'] = data_loader.load_result_paths(os.path.join(result_path, '_result_data'))
+    result_path = os.path.join(local_data_path, "..", "results")
+    data['result_paths'] = data_loader.load_result_paths(os.path.join(result_path, name_scenario_run))
 
     data['lookups'] = lookup_tables.basic_lookups()
     data['enduses'], data['sectors'], data['fuels'] = data_loader.load_fuels(data['paths'], data['lookups'])
 
-    # local scrap
-    data['regions'] = data_loader.load_LAC_geocodes_info(
+    data['regions'] = data_loader.load_regions_localmodelrun(
         os.path.join(
-            local_data_path, 'region_definitions', 'same_as_scenario_data', 'infuse_dist_lyr_2011_saved.csv'))
+            local_data_path, 'region_definitions', 'regions_local_modelrun.csv'))
+    data['reg_nrs'] = len(data['regions'])
 
-    # GVA
-    gva_data = {}
-    for year in range(2015, 2101):
-        gva_data[year] = {}
-        for region_geocode in data['regions']:
-            gva_data[year][region_geocode] = 999
-    data['gva'] = gva_data
+    data['population'] = data_loader.read_scenario_data(
+        os.path.join(local_data_path, 'scenarios', 'uk_pop_high_migration_2015_2050.csv'), 
+            data['regions'])
 
-    # Population
-    pop_dummy = {}
+    data['gva'] = data_loader.read_scenario_data(
+        os.path.join(local_data_path, 'scenarios', 'gva_sven.csv'), 
+            data['regions'])
+
+    data['industry_gva'] = "TST"
+
+    #Dummy data
     pop_density = {}
-    for year in range(2015, 2101):
-        _data = {}
-        for reg_geocode in data['regions']:
-            _data[reg_geocode] = data['regions'][reg_geocode]['POP_JOIN']
-        pop_dummy[year] = _data
-
-    data['population'] = pop_dummy
-    
     data['reg_coord'] = {}
     for reg in data['regions']:
         data['reg_coord'][reg] = {'longitude': 52.58, 'latitude': -1.091}
         pop_density[reg] = 1
-    data['regions'] = list(data['regions'].keys())
     data['pop_density'] = pop_density
 
     # ------------------------------
     # Assumptions
     # ------------------------------
     # Parameters not defined within smif
-    data['assumptions']  = non_param_assumptions.Assumptions(
+    data['assumptions'] = non_param_assumptions.Assumptions(
         base_yr=2015,
         curr_yr=2015,
         simulated_yrs=simulated_yrs,
@@ -252,9 +256,8 @@ if __name__ == "__main__":
 
     data['weather_stations'], data['temp_data'] = data_loader.load_temp_data(data['local_paths'])
 
-    data['reg_nrs'] = len(data['regions'])
-
     # ------------------------------
+
     if data['criterias']['virtual_building_stock_criteria']:
         rs_floorarea, ss_floorarea, data['service_building_count'] = data_loader.floor_area_virtual_dw(
             data['regions'],
@@ -264,8 +267,6 @@ if __name__ == "__main__":
 
     # Lookup table to import industry sectoral gva
     lookup_tables.industrydemand_name_sic2007()
-
-    data['industry_gva'] = "TST"
 
     #Scenario data
     data['scenario_data'] = {
@@ -310,8 +311,6 @@ if __name__ == "__main__":
             data['fuel_disagg'],
             data['criterias']['mode_constrained'],
             data['assumptions'].enduse_space_heating)
-
-        a = datetime.datetime.now()
 
         # Main model run function
         modelrun_obj = energy_demand_model(
@@ -416,11 +415,10 @@ if __name__ == "__main__":
 
                 write_data.write_scenaric_population_data(
                     sim_yr,
-                    data['local_paths']['model_run_pop'],
+                    data['result_paths']['model_run_pop'],
                     pop_array_reg)
                 print("... Finished writing results to file")
 
-    b = datetime.datetime.now()
-    print("TOTAL TIME: " + str(b-a))
-
-    print("... Finished running Energy Demand Model")
+    print("-------------------------")
+    print("... Finished running HIRE")
+    print("-------------------------")
