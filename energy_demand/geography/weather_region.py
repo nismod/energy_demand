@@ -22,10 +22,11 @@ class WeatherRegion(object):
         Unique identifyer of weather region
     assumptions : dict
         Assumptions
-    TODO
+    technologies : list
+        All technology assumptions
     fueltypes : dict
         fueltypes
-    all_enduse : list
+    all_enduses : list
         All enduses
     temp_by, temp_ey : array
         Temperature data
@@ -48,8 +49,7 @@ class WeatherRegion(object):
             all_enduses,
             temp_by,
             tech_lp,
-            sectors,
-            criteria
+            sectors
         ):
         """Constructor of weather region
         """
@@ -151,10 +151,8 @@ class WeatherRegion(object):
         # ==================================================================
         # Load profiles
         # ==================================================================
-
-        # Flat load profiles
         flat_shape_yd, _, flat_shape_y_dh = generic_shapes.flat_shape()
-    
+
         # ==================================================================
         # Residential submodel load profiles
         # ==================================================================

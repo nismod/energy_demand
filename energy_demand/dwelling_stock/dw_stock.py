@@ -378,7 +378,7 @@ def get_dwtype_floor_area(dwtype_floorarea_by, dwtype_floorarea_future, base_yr,
 
                 y_distr[dwtype] = val_cy
 
-        dwtype_floor_area[curr_yr] = y_distr
+            dwtype_floor_area[curr_yr] = y_distr
 
     return dwtype_floor_area
 
@@ -432,7 +432,7 @@ def get_dwtype_distr(dwtype_distr_by, dwtype_distr_fy, base_yr, sim_period):
 
                 y_distr[dwtype] = val_cy
 
-        dwtype_distr[curr_yr] = y_distr
+            dwtype_distr[curr_yr] = y_distr
 
     # Test if distribution is 100%
     for year in dwtype_distr:

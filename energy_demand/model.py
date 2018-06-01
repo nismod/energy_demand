@@ -44,8 +44,7 @@ class EnergyDemandModel(object):
                 all_enduses=data['enduses'],
                 temp_by=data['temp_data'][weather_region],
                 tech_lp=data['tech_lp'],
-                sectors=data['sectors'],
-                criteria=data['criterias'])
+                sectors=data['sectors'])
 
         # ------------------------
         # Create Dwelling Stock
@@ -70,8 +69,8 @@ class EnergyDemandModel(object):
         aggr_results = initialise_result_container(
             data['lookups']['fueltypes_nr'],
             data['sectors'],
-            data['reg_nrs'],
-            assumptions.heating_technologies)
+            data['reg_nrs']) #,
+            #assumptions.heating_technologies)
 
         # ---------------------------------------------
         # Iterate over regions and Simulate
@@ -820,8 +819,10 @@ def aggregate_final_results(
                         fueltype_tech_int = technologies[heating_tech].fueltype_int
 
                         # Aggregate Submodel (sector) specific enduse for fueltype
-                        aggr_results['ed_techs_submodel_fueltype_regs_yh'][heating_tech][submodel_nr][reg_array_nr][fueltype_tech_int] += tech_fuel #TODO [fueltype_tech_int]
-
+                        try:
+                            aggr_results['ed_techs_submodel_fueltype_regs_yh'][heating_tech][submodel_nr][reg_array_nr][fueltype_tech_int] += tech_fuel
+                        except:
+                            aggr_results['ed_techs_submodel_fueltype_regs_yh'][heating_tech][submodel_nr][reg_array_nr][fueltype_tech_int] = tech_fuel
         # -------------
         # Summarise remaining fuel of other enduses
         # -------------
@@ -935,8 +936,8 @@ def aggregate_final_results(
 def initialise_result_container(
         fueltypes_nr,
         sectors,
-        reg_nrs,
-        heating_technologies
+        reg_nrs#,
+        #heating_technologies
     ):
     """Create container with empty dict or arrays
     as values in a dict. This is used to aggregate the
@@ -964,9 +965,9 @@ def initialise_result_container(
         (len(sectors.keys()), reg_nrs, fueltypes_nr, 365, 24), dtype=float)
 
     result_container['ed_techs_submodel_fueltype_regs_yh'] = {}
-    for heating_tech in heating_technologies:
-        result_container['ed_techs_submodel_fueltype_regs_yh'][heating_tech] = np.zeros(
-            (len(sectors.keys()), reg_nrs, fueltypes_nr, 365, 24), dtype=float)
+    #for heating_tech in heating_technologies:
+    #    result_container['ed_techs_submodel_fueltype_regs_yh'][heating_tech] = np.zeros(
+    #        (len(sectors.keys()), reg_nrs, fueltypes_nr, 365, 24), dtype=float)
 
     result_container['ed_fueltype_regs_yh'] = np.zeros(
         (fueltypes_nr, reg_nrs, 8760), dtype=float)

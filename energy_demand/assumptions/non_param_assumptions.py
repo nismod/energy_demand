@@ -103,9 +103,6 @@ class Assumptions(object):
         self.f_ss_weekend = 0.8                      # 0.75
         self.f_is_weekend = 0.45                      # 0.4
 
-        # Spatial calibration factor
-        #self.f_mixed_floorarea = 0.8                  # 0.5 #TODO
-
         # ============================================================
         #   Modelled day related factors
         # ============================================================
@@ -226,7 +223,7 @@ class Assumptions(object):
             'rs_cold': ['population'],
             'rs_wet': ['population'],
             'rs_consumer_electronics': ['population'],  #GVA TODO. As soon as GVA is avaiable, drive it with GVA
-            'rs_home_computing': ['population']}        #GVA 
+            'rs_home_computing': ['population']}        #GVA TODO
 
         # --Service Submodel (Table 5.5a)
         self.scenario_drivers['ss_submodule'] = {
@@ -473,7 +470,7 @@ class Assumptions(object):
 
         # Collect all heating technologies
         # TODO: MAYBE ADD IN TECH DOC ANOTHER LIST SPECIFYING ALL HEATING TECHs
-        self.heating_technologies = get_all_heating_techs(self.tech_list)
+        #self.heating_technologies = get_all_heating_techs(self.tech_list)
 
         # ============================================================
         # Enduse diffusion paramters

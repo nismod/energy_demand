@@ -40,7 +40,7 @@ def load_param_assump(paths=None, local_paths=None, assumptions=None, writeYAML=
         assumptions_dict['t_bases']['ss_t_heating_by'] = None
         assumptions_dict['t_bases']['ss_t_cooling_by'] = None
         assumptions_dict['t_bases']['is_t_heating_by'] = None
-        assumptions_dict['spatial_explicit_diffusion'] = 0 #TODO As soon as smif allows bool type parameters, implement this
+        assumptions_dict['spatial_explicit_diffusion'] = 0 #Note As soon as smif allows bool type parameters, implement this
         assumptions_dict['speed_con_max'] = 1
         assumptions_dict['flat_heat_pump_profile_both'] = 0 #FAlse
         assumptions_dict['flat_heat_pump_profile_only_water'] = 0 #FAlse

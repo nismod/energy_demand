@@ -68,7 +68,7 @@ def dummy_raw_weather_data(local_paths):
             8, 8, 8, 8, 9, 9, 9, 9, 12, 12, 12, 12, 16, 16, 16, 16, 10, 10, 10, 10, 7, 7, 7, 7]
 
     s_raw_weather_data.write_weather_data(
-        local_paths['dir_raw_weather_data'], 
+        local_paths['dir_raw_weather_data'],
         temp_data)
 
 def create_folders_to_file(path_to_file, attr_split):
