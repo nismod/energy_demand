@@ -1,7 +1,6 @@
 .. _readme:
 
-
-HIgh-Resolution Energy Demand model (HIRE)
+HIgh-Resolution Energy demand model (HIRE)
 ====================================
 .. image:: https://img.shields.io/badge/docs-latest-brightgreen.svg
     :target: http://ed.readthedocs.io/en/latest/?badge=latest
@@ -22,13 +21,6 @@ More information on the model can be found here
 
 - Eggimann et al. (2019): Modelling energy demand and supply
   within a system-of-systems approach. (working paper)
-
-
-Note: A previous energy demand model has been developped within
-`NISMOD <http://www.itrc.org.uk/nismod/#.WfCJg1tSxaQ>`_ by Pranab et al. 2014. 
-HIRE is an extensive further development into a high temporal and spatial 
-energy demand simulation model.
-
 
 1. Initialising and running the model (local)
 =============================================

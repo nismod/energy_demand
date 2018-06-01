@@ -38,8 +38,6 @@ def load_ini_param(path):
     regions = ast.literal_eval(config['REGIONS']['regions'])
 
     assumptions = {}
-    assumptions['model_yearhours_nrs'] = int(config['SIM_PARAM']['model_yearhours_nrs'])
-    assumptions['model_yeardays_nrs'] = int(config['SIM_PARAM']['model_yeardays_nrs'])
     assumptions['base_yr'] = int(config['SIM_PARAM']['base_yr'])
     assumptions['simulated_yrs'] = ast.literal_eval(config['SIM_PARAM']['simulated_yrs'])
 
@@ -76,11 +74,11 @@ def read_national_real_elec_data(path_to_csv):
     national_fuel_data = {}
     with open(path_to_csv, 'r') as csvfile:
         rows = csv.reader(csvfile, delimiter=',')
-        headings = next(rows) # Skip first row
+        headings = next(rows)
 
         for row in rows:
-            geocode = str.strip(row[2])                 # LA Code
-            tot_consumption_unclean = row[3].strip()    # Total consumption
+            geocode = str.strip(row[read_data.get_position(headings, 'LA Code')])
+            tot_consumption_unclean = row[read_data.get_position(headings, 'Total consumption')].strip()
             national_fuel_data[geocode] = float(tot_consumption_unclean.replace(",", ""))
 
     return national_fuel_data
@@ -114,8 +112,8 @@ def read_national_real_gas_data(path_to_csv):
         headings = next(rows) # Skip first row
 
         for row in rows:
-            geocode = str.strip(row[2])                 # 'LA Code'
-            tot_consumption_unclean = row[3].strip()    # 'Total consumption'
+            geocode = str.strip(row[read_data.get_position(headings, 'LA Code')])
+            tot_consumption_unclean = row[read_data.get_position(headings, 'Total consumption')].strip()
 
             if tot_consumption_unclean == '-':
                 total_consumption = 0 # No entry provided
@@ -130,6 +128,7 @@ def floor_area_virtual_dw(
         regions,
         all_sectors,
         local_paths,
+        population,
         base_yr,
         f_mixed_floorarea=0.5
     ):
@@ -149,7 +148,8 @@ def floor_area_virtual_dw(
         Base year
     f_mixed_floorarea : float
         PArameter to redistributed mixed enduse
-
+    regions_without_floorarea : float
+        Regions with missing floor area info
     Returns
     -------
     rs_floorarea : dict
@@ -157,8 +157,16 @@ def floor_area_virtual_dw(
     ss_floorarea : dict
         Service sector floor area
     """
+    # ------
+    # Get average floor area per perons
+    # Based on Roberts et al. (2011) , an average one bedroom home for 2 people has 46 m2.
+    # Roberts et al. (2011): The Case for Space: the size of England’s new homes.
+    # -----
+    avearge_floor_area_pp = 23 # We thus assume 23 m2 per person on average.
+
     # --------------------------------------------------
     # Floor area for residential buildings for base year
+    # from newcasle dataset
     # --------------------------------------------------
     resid_footprint, non_res_flootprint, service_building_count = read_data.read_floor_area_virtual_stock(
         local_paths['path_floor_area_virtual_stock_by'],
@@ -169,34 +177,37 @@ def floor_area_virtual_dw(
     # of existing datasets. This is done to replace the missing
     # floor area data of LADs with estimated floor areas
     # -----------------
+    rs_regions_without_floorarea = []
     rs_floorarea = defaultdict(dict)
     for region in regions:
         try:
             rs_floorarea[base_yr][region] = resid_footprint[region]
-        except:
+        except KeyError:
             logging.warning(
                 "No virtual residential floor area for region %s ", region)
 
-            #estimated_floor_area = average_pop
-            rs_floorarea[base_yr][region] = 1234567899999999
+            # Calculate average floor area
+            rs_floorarea[base_yr][region] = avearge_floor_area_pp * population[region]
+            rs_regions_without_floorarea.append(region)
 
     # --------------------------------------------------
     # Floor area for service sector buildings
-    # TODO SO FAR THE SAME FOR EVERY SECTOR
     # --------------------------------------------------
     ss_floorarea_sector_by = {}
+    ss_regions_without_floorarea = set([])
     ss_floorarea_sector_by[base_yr] = defaultdict(dict)
     for region in regions:
         for sector in all_sectors:
             try:
                 ss_floorarea_sector_by[base_yr][region][sector] = non_res_flootprint[region]
-            except:
+            except KeyError:
                 logging.warning("No virtual service floor area for region %s", region)
-                ss_floorarea_sector_by[base_yr][region][sector] = 1234567899999999
+                ss_floorarea_sector_by[base_yr][region][sector] = 0
+                ss_regions_without_floorarea.add(region)
 
-    return dict(rs_floorarea), dict(ss_floorarea_sector_by), service_building_count
+    return dict(rs_floorarea), dict(ss_floorarea_sector_by), service_building_count, rs_regions_without_floorarea, list(ss_regions_without_floorarea)
 
-def load_local_paths(path):
+def get_local_paths(path):
     """Create all local paths
 
     Arguments
@@ -262,7 +273,7 @@ def load_local_paths(path):
 
     return paths
 
-def load_result_paths(path):
+def get_result_paths(path):
     """Load all result paths
 
     Arguments
@@ -361,19 +372,9 @@ def load_paths(path):
         'path_shape_ss_cooling': os.path.join(
             path, '03-load_profiles', 'ss_submodel', 'shape_service_cooling.csv'),
         'lp_elec_storage_heating': os.path.join(
-            #path, '03-load_profiles', 'rs_submodel', 'lp_elec_storage_heating_HES.csv'), # Worst
-            #path, '03-load_profiles', 'rs_submodel', 'lp_elec_storage_heating_Bossmann.csv'), # Better TRY TODO
-            path, '03-load_profiles', 'rs_submodel', 'lp_elec_storage_heating_HESReport.csv'), # Best
-
-            # Combination of HES Report and Bossmann (50%, 50%)
-            #path, '03-load_profiles', 'rs_submodel', 'lp_elec_storage_heating_combined.csv'), # Best
-    
+            path, '03-load_profiles', 'rs_submodel', 'lp_elec_storage_heating_HESReport.csv'),
         'lp_elec_secondary_heating': os.path.join(
-            # different per daytype
             path, '03-load_profiles', 'rs_submodel', 'lp_elec_secondary_heating_HES.csv'),
-
-            # All the same
-            #path, '03-load_profiles', 'rs_submodel', 'lp_elec_secondary_heating_HES_all_same.csv'),
 
         # Census data
         'path_employment_statistics': os.path.join(
@@ -761,8 +762,6 @@ def rs_collect_shapes_from_txts(txt_path, model_yeardays):
             os.path.join(txt_path, str(enduse) + str("__") + str('shape_peak_dh') + str('.txt')))
         shape_non_peak_y_dh = read_data.read_np_array_from_txt(
             os.path.join(txt_path, str(enduse) + str("__") + str('shape_non_peak_y_dh') + str('.txt')))
-        shape_peak_yd_factor = float(read_data.read_np_array_from_txt(
-            os.path.join(txt_path, str(enduse) + str("__") + str('shape_peak_yd_factor') + str('.txt'))))
         shape_non_peak_yd = read_data.read_np_array_from_txt(
             os.path.join(txt_path, str(enduse) + str("__") + str('shape_non_peak_yd') + str('.txt')))
 
@@ -775,7 +774,6 @@ def rs_collect_shapes_from_txts(txt_path, model_yeardays):
             'shape_non_peak_y_dh': shape_non_peak_y_dh_selection}
 
         rs_shapes_yd[enduse] = {
-            'shape_peak_yd_factor': shape_peak_yd_factor,
             'shape_non_peak_yd': shape_non_peak_yd_selection}
 
     return rs_shapes_dh, rs_shapes_yd
@@ -822,10 +820,6 @@ def ss_collect_shapes_from_txts(txt_path, model_yeardays):
                 os.path.join(
                     txt_path,
                     str(joint_string_name) + str("__") + str('shape_non_peak_y_dh') + str('.txt')))
-            shape_peak_yd_factor = float(read_data.read_np_array_from_txt(
-                os.path.join(
-                    txt_path,
-                    str(joint_string_name) + str("__") + str('shape_peak_yd_factor') + str('.txt'))))
             shape_non_peak_yd = read_data.read_np_array_from_txt(
                 os.path.join(
                     txt_path,
@@ -842,7 +836,6 @@ def ss_collect_shapes_from_txts(txt_path, model_yeardays):
                 'shape_non_peak_y_dh': shape_non_peak_y_dh_selection}
 
             ss_shapes_yd[enduse][sector] = {
-                'shape_peak_yd_factor': shape_peak_yd_factor,
                 'shape_non_peak_yd': shape_non_peak_yd_selection}
 
     return dict(ss_shapes_dh), dict(ss_shapes_yd)
@@ -906,11 +899,10 @@ def ss_read_shapes_enduse_techs(ss_shapes_dh, ss_shapes_yd):
 
     return ss_all_tech_shapes_dh, ss_all_tech_shapes_yd
 
-def read_scenario_data(path_to_csv, regions):
+def read_scenario_data(path_to_csv):
     """
     """
     data = {}
-    out_data = {}
 
     with open(path_to_csv, 'r') as csvfile:
         rows = csv.reader(csvfile, delimiter=',')
@@ -920,7 +912,7 @@ def read_scenario_data(path_to_csv, regions):
             region = str(row[read_data.get_position(headings, 'region')])
             year = int(row[read_data.get_position(headings, 'year')])
             value = float(row[read_data.get_position(headings, 'value')])
-            interval = int(row[read_data.get_position(headings, 'interval')])
+            #interval = int(row[read_data.get_position(headings, 'interval')])
 
             try:
                 data[year][region] = value
@@ -929,14 +921,6 @@ def read_scenario_data(path_to_csv, regions):
                 data[year][region] = value
 
     return data
-    '''for year in data.keys():
-        reg_vals = []
-        for region in regions:
-            reg_vals.append(data[year][region])
-
-        out_data[year] = np.array(reg_vals)
-
-    return out_data'''
 
 def load_regions_localmodelrun(path_to_csv):
     """Read in regions from csv file

@@ -34,8 +34,6 @@ def read_raw_carbon_trust_data(folder_path):
         Load shape for every day (tot sum 365) ((365, 24))
     load_peak_shape_dh : array
         Peak loadshape for peak day ((24))
-    shape_peak_yd_factor : float
-        Peak load factor
     shape_non_peak_yd : array
         Yh load profile ((365))
 
@@ -197,15 +195,6 @@ def read_raw_carbon_trust_data(folder_path):
     # Calculate yearly sum
     yearly_demand = np.sum(year_data)
 
-    # Calculate shape_peak_yd_factor
-    max_demand_d = 0
-    for yearday, carbon_trust_d in enumerate(year_data):
-        daily_sum = np.sum(carbon_trust_d)
-        if daily_sum > max_demand_d:
-            max_demand_d = daily_sum
-
-    shape_peak_yd_factor = max_demand_d / yearly_demand
-
     # Create load_shape_dh
     load_shape_y_dh = np.zeros((365, 24), dtype=float)
     for day, dh_values in enumerate(year_data):
@@ -222,7 +211,7 @@ def read_raw_carbon_trust_data(folder_path):
 
     np.testing.assert_almost_equal(np.sum(shape_non_peak_yd), 1, decimal=2, err_msg="")
 
-    return load_shape_y_dh, load_peak_shape_dh, shape_peak_yd_factor, shape_non_peak_yd
+    return load_shape_y_dh, load_peak_shape_dh, shape_non_peak_yd
 
 def is_leap_year(year):
     """Determine whether a year is a leap year"""
@@ -321,7 +310,7 @@ def run(paths, local_paths, lookups):
                 folder_path = sector_folder_path_elec
 
             # Read in shape from carbon trust metering trial dataset
-            shape_non_peak_y_dh, load_peak_shape_dh, shape_peak_yd_factor, shape_non_peak_yd = read_raw_carbon_trust_data(
+            shape_non_peak_y_dh, load_peak_shape_dh, shape_non_peak_yd = read_raw_carbon_trust_data(
                 folder_path)
 
             # Write shapes to txt
@@ -332,7 +321,6 @@ def run(paths, local_paths, lookups):
                 local_paths['ss_load_profile_txt'],
                 load_peak_shape_dh,
                 shape_non_peak_y_dh,
-                shape_peak_yd_factor,
                 shape_non_peak_yd)
 
     # ---------------------

@@ -1,7 +1,6 @@
 """Read in model results and plot results
 """
 import os
-import logging
 from energy_demand.read_write import data_loader, read_data, write_data
 from energy_demand.basic import date_prop
 from energy_demand.plotting import plotting_results, result_mapping
@@ -27,7 +26,7 @@ def main(path_data_energy_demand, path_shapefile_input):
         "plot_differences_p": True,           # Spatial maps of percentage difference per fueltype over time
         "plot_total_demand_fueltype": False,  # Spatial maps of total demand per fueltype over time
         "plot_population": False,             # Spatial maps of population
-        "plot_load_factors": False,           # Spatial maps of load factor 
+        "plot_load_factors": False,           # Spatial maps of load factor
         "plot_load_factors_p": False,         # Spatial maps of load factor change
         "plot_abs_peak_h": False,             # Spatial maps of peak h demand
         "plot_diff_peak_h": True,             # Spatial maps of peak h difference (%)
@@ -42,7 +41,7 @@ def main(path_data_energy_demand, path_shapefile_input):
         "plot_radar" : True,
         "plot_radar_seasonal" : False,                      # Plot radar spider charts
         "plot_line_for_every_region_of_peak_demand" : True,
-        "plot_lad_cross_graphs" : True} 
+        "plot_lad_cross_graphs" : True}
 
     # Set up logger
     logger_setup.set_up_logger(
@@ -53,9 +52,9 @@ def main(path_data_energy_demand, path_shapefile_input):
     # Load necessary inputs for read in
     # ------------------
     data = {}
-    data['local_paths'] = data_loader.load_local_paths(
+    data['local_paths'] = data_loader.get_local_paths(
         path_data_energy_demand)
-    data['result_paths'] = data_loader.load_result_paths(
+    data['result_paths'] = data_loader.get_result_paths(
         os.path.join(path_data_energy_demand))
     data['lookups'] = lookup_tables.basic_lookups()
 

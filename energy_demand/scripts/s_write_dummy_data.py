@@ -68,7 +68,7 @@ def dummy_raw_weather_data(local_paths):
             8, 8, 8, 8, 9, 9, 9, 9, 12, 12, 12, 12, 16, 16, 16, 16, 10, 10, 10, 10, 7, 7, 7, 7]
 
     s_raw_weather_data.write_weather_data(
-        local_paths['dir_raw_weather_data'], 
+        local_paths['dir_raw_weather_data'],
         temp_data)
 
 def create_folders_to_file(path_to_file, attr_split):
@@ -105,7 +105,6 @@ def dummy_sectoral_load_profiles(local_paths, path_main):
             # Flat profiles
             load_peak_shape_dh = np.full((24), 1)
             shape_non_peak_y_dh = np.full((365, 24), 1/24)
-            shape_peak_yd_factor = 1.0
             shape_non_peak_yd = np.full((365), 1/365)
 
             write_data.create_txt_shapes(
@@ -113,7 +112,6 @@ def dummy_sectoral_load_profiles(local_paths, path_main):
                 local_paths['ss_load_profile_txt'],
                 load_peak_shape_dh,
                 shape_non_peak_y_dh,
-                shape_peak_yd_factor,
                 shape_non_peak_yd)
 
 def post_install_setup_minimum(args):
@@ -139,7 +137,7 @@ def post_install_setup_minimum(args):
     print("... running initialisation scripts with only publicly available data")
 
     # Load paths
-    local_paths = data_loader.load_local_paths(path_local_data)
+    local_paths = data_loader.get_local_paths(path_local_data)
 
     # Create folders to input data
     raw_folder = os.path.join(path_local_data, '_raw_data')

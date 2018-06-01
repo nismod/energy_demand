@@ -267,7 +267,7 @@ def read_in_results(path_runs, seasons, model_yeardays_daytype):
 
             fueltype_str = tech_related.get_fueltype_str(lookups['fueltypes'], fueltype_int)
 
-            # Calculate peak per fueltype for all regions (reg_ed_yh= np.array(fueltype, reg, yh)) TODO CHECK
+            # Calculate peak per fueltype for all regions (reg_ed_yh= np.array(fueltype, reg, yh))
             all_regs_yh = np.sum(reg_ed_yh, axis=0)    # sum regs
             peak_h = np.max(all_regs_yh)               # select max of 8760 h
             results_container['ed_peak_h'][year][fueltype_str] = peak_h
@@ -704,7 +704,7 @@ def read_fuel_switches(
             raise Exception(
                 "Input error: The fuel switches are > 1.0 for enduse {} and fueltype {}".format(
                     obj.enduse, obj.fueltype_replace))
-    
+
         if obj.switch_yr <= base_yr:
             raise Exception("Input error of fuel switch: switch_yr must be in the future")
 
@@ -1057,8 +1057,7 @@ def read_scenaric_population_data(result_path):
     """
     results = {}
 
-    all_txt_files_in_folder = os.listdir(
-        result_path)
+    all_txt_files_in_folder = os.listdir(result_path)
 
     # Iterate files
     for file_path in all_txt_files_in_folder:
@@ -1097,7 +1096,6 @@ def read_capacity_switch(path_to_csv, base_yr=2015):
         installed_capacity          [float] Installed total capacity in GWh
         sector                      [str]   Optional sector specific info where switch applies
                                             If field is empty the switch is across all sectors
-
     """
     service_switches = []
 
@@ -1107,7 +1105,6 @@ def read_capacity_switch(path_to_csv, base_yr=2015):
 
         for row in rows:
             try:
-
                 # Check if setor is defined
                 try:
                     sector = str(row[4])
@@ -1137,9 +1134,11 @@ def read_floor_area_virtual_stock(path_to_csv, f_mixed_floorarea=0.5):
     """Read in floor area from csv file for every LAD
     to generate virtual building stock.
 
+    This file is obainted from Newcastle
+
     Arguments
     ---------
-    path_floor_area : str
+    path_to_csv : str
         Path to csv file
     f_mixed_floorarea : float
         Factor to assign mixed floor area
@@ -1171,8 +1170,6 @@ def read_floor_area_virtual_stock(path_to_csv, f_mixed_floorarea=0.5):
     (11) Transport_and_Storage
     (12) Residential
     (13) Military
-
-    TODO: READ IN SECTOR SPECIFIC FLOOR AREA OR CALCLATE IT SOMEHOW
     """
     # Redistribute the mixed enduse
     p_mixed_no_resid = 1 - f_mixed_floorarea
@@ -1184,8 +1181,6 @@ def read_floor_area_virtual_stock(path_to_csv, f_mixed_floorarea=0.5):
     for i in range(1, 15):
         building_count_service[i] = {}
 
-    floor_area_placeholder = 1234567899999999 #TODO
-
     with open(path_to_csv, 'r') as csvfile:
         rows = csv.reader(csvfile, delimiter=',')
         headings = next(rows)
@@ -1193,26 +1188,23 @@ def read_floor_area_virtual_stock(path_to_csv, f_mixed_floorarea=0.5):
         for row in rows:
             geo_name = str.strip(row[get_position(headings, 'lad')])
 
-            if (row[get_position(headings, 'res_bld_floor_area')] == 'null') or (
-                row[get_position(headings, 'nonres_bld_floor_area')] == 'null') or (
-                    row[get_position(headings, 'mixeduse_bld_floor_area')] == 'null'):
-                    res_floorarea[geo_name] = floor_area_placeholder
-                    non_res_floorarea[geo_name] = floor_area_placeholder
-                    floorarea_mixed[geo_name] = floor_area_placeholder
+            if row[get_position(headings, 'res_bld_floor_area')] == 'null':
+                # Not data or faulty data
+                pass
             else:
-                if row[get_position(headings, 'res_bld_floor_area')] == 'null':
-                    res_floorarea[geo_name] = floor_area_placeholder
-                else:
-                    res_floorarea[geo_name] = float(row[get_position(headings, 'res_bld_floor_area')])
-                if row[get_position(headings, 'nonres_bld_floor_area')] == 'null':
-                    non_res_floorarea[geo_name] = floor_area_placeholder
-                else:
-                    non_res_floorarea[geo_name] = float(row[get_position(headings, 'nonres_bld_floor_area')])
+                res_floorarea[geo_name] = float(row[get_position(headings, 'res_bld_floor_area')])
 
-                if row[get_position(headings, 'mixeduse_bld_floor_area')] == 'null':
-                    floorarea_mixed[geo_name] = floor_area_placeholder
-                else:
-                    floorarea_mixed[geo_name] = float(row[get_position(headings, 'mixeduse_bld_floor_area')])
+            if row[get_position(headings, 'nonres_bld_floor_area')] == 'null':
+                # Not data or faulty data
+                pass
+            else:
+                non_res_floorarea[geo_name] = float(row[get_position(headings, 'nonres_bld_floor_area')])
+
+            if row[get_position(headings, 'mixeduse_bld_floor_area')] == 'null':
+                # Not data or faulty data
+                pass
+            else:
+                floorarea_mixed[geo_name] = float(row[get_position(headings, 'mixeduse_bld_floor_area')])
 
                 # Distribute mixed floor area
                 non_res_from_mixed = floorarea_mixed[geo_name] * p_mixed_no_resid
@@ -1222,7 +1214,9 @@ def read_floor_area_virtual_stock(path_to_csv, f_mixed_floorarea=0.5):
                 res_floorarea[geo_name] += res_from_mixed
                 non_res_floorarea[geo_name] += non_res_from_mixed
 
+            # ---------------------------------------
             # Read building count for service sector
+            # ---------------------------------------
             building_1 = float(row[get_position(headings, 'building_type_count_1')])
             building_2 = float(row[get_position(headings, 'building_type_count_2')])
             building_3 = float(row[get_position(headings, 'building_type_count_3')])
@@ -1253,11 +1247,11 @@ def read_floor_area_virtual_stock(path_to_csv, f_mixed_floorarea=0.5):
 
             # Create Other category and buildings
             building_count_service[14][geo_name] = int(
-                building_1 + building_2 + building_3 + 
-                building_4 + building_5 + building_6 + 
-                building_7 + building_8 + building_9 + 
-                building_10 + building_11 + building_12 + 
-                building_13) 
+                building_1 + building_2 + building_3 +
+                building_4 + building_5 + building_6 +
+                building_7 + building_8 + building_9 +
+                building_10 + building_11 + building_12 +
+                building_13)
 
     return res_floorarea, non_res_floorarea, building_count_service
 

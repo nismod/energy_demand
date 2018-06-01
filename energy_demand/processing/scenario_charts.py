@@ -79,7 +79,7 @@ def process_scenarios(path_to_scenarios, year_to_model=2015):
     # Generate plot with heat pump ranges
     # -------------------------------
     if heat_pump_range_plot:
-        #TODO WRITE THAT FROM SEVERAL FOLDERS CAN BE GENERATED (i.e. different scenario)
+
         plotting_multiple_scenarios.plot_heat_pump_chart(
             lookups,
             regions,

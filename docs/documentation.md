@@ -471,21 +471,16 @@ heat demand, which is directly provided from the demand model to the supply mode
 *Figure 7: Interaction*
 
 
-## 5.0 Model Parameters
-
-### 5.1 General model parameters
-
-
-## 12 Data sets
+## 4 Data sets
 
 This section provides an overview of all used datasets in HIRE and necessary data preparation.
 
-### 12.1 National Energy Statistics
+### 4.1 National Energy Statistics
 The base year final energy consumption of the UK in terms of fuels and technology shares for the residential, service and industry sectors is taken from the Department for Business, Energy and Industrial Strategy ([BEIS, 2016](https://www.gov.uk/government/collections/energy-consumption-in-the-uk)). National final energy data is provided for different fuelt types in the unit of ktoe (tonne of oil equivalents). All energy unit conversions are based on the unit converter by the International Energy Agency ([IEA, 2017](http://www.iea.org/statistics/resources/unitconverter)).
 
 Even though sub-national data for gas and electricity consumption are [available](https://www.gov.uk/government/uploads/system/uploads/attachment_data/file/541163/ECUK_2016.pdf) from BEIS, they do not provide the same level of differentiation with respect to distinguishing between different endues or sectors.
 
-### 12.2 Household Electricity Servey (DECC 2014)
+### 4.2 Household Electricity Servey (DECC 2014)
 The [Household Electricity Survey (HES)](https://www.gov.uk/government/collections/household-electricity-survey)
 by the Department of Energy & Climate Change (DECC 2014) is the most detailed monitoring
 of electricity use carried out in the UK. Electricity consumption was monitored
@@ -498,7 +493,7 @@ The load profiles for different residential enduses for
 different daytypes (weekend, working day) are taken from a [24 hour spreadsheet tool](https://www.gov.uk/government/publications/spreadsheet-tools-for-users).
 
 
-### 12.3 Carbon Trust advanced metering trial
+### 4.3 Carbon Trust advanced metering trial
 The [Carbon Trust (2007)](http://data.ukedc.rl.ac.uk/simplebrowse/edc/efficiency/residential/Buildings/AdvancedMeteringTrial_2006/) advanced metering trial dataset contains hourly electricity and gas demand measurements for different service (business) sectors from over 500 measurement sites broken down in sectors. The Carbon Trust data does not allow distinguishing between different end uses within each sector. According to the dominant fuel type of each end use,either aggregated gas or sector specific load profiles are therefore assigned. For ‘water heating’, ‘space heating’ and the ‘other_gas_enduse’, all gas measurements across all sectors are used, because the sample size was too small. For all other end uses, sector specific electricity load profiles are assigned. The provided sectors in the data trial do not fully correspond to the ECUK sectors (see Table 5) and where a sector is missing,the aggregated profiles across all sectors are used.
 
 <table align="center">
@@ -555,11 +550,10 @@ Data preparation of the raw input files was necessary:
 *	The data was cleaned from obviously wrong measurement points (containing very large minus values)
 *	missing measurement points are interpolated 
 
-
-### 12.4 Temperature data
+### 4.4 Temperature data
 To calculate regional daily hourly load heating profiles, hourly temperature data are used from the [UK Met Office (2015)](http://catalogue.ceda.ac.uk/uuid/220a65615218d5c9cc9e4785a3234bd0) and loaded for weather stations across the UK.
 
-### 12.5 Census data
+### 4.5 Census data
 Employment statistics from the census (Office for National Statistics 2011)
 are used to disaggregate industry related energy demands for different end uses and sectors.
 
@@ -617,32 +611,33 @@ The python scripts are stored in the following folders:
 
 Important single python scripts:
 
-main.py     - Function to run model locally
-enduse_func - Main enduse function
-model       - Main model function
+- **main.py**     - Function to run model locally
+- **enduse_func** - Main enduse function
+- **model**       - Main model function
 
 Within the code, different abbreviations are consistenly used
 across all modules.
 
-    s_:         Energy service
+    s:         Energy service
     rs:         Residential Submodel
     ss:         Service Submodel
-    ts:         Transportation Submodel
+    is:         Industry Submodel
 
-    bd:         Base demand
     by:         Base year
     cy:         Current year
     lp:         Load profile
     dw:         Dwelling
-    p:          Fraction, i.e. (100% = 1.0)
+    p:          Decimal (100% = 1.0)
     pp:         Per person
+    lu:         Look-up
+
     e:          Electricitiy
     g:          Gas
-    lu:         Look up
-
+  
     h:          Hour
     d:          Day
     y:          Year
+    yh:         8760 hours in a year
     yearday:    Day in a year ranging from 0 to 364
 
     hp:         Heat pump

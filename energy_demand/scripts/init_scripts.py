@@ -486,7 +486,17 @@ def global_to_reg_capacity_switch(
     """Conversion of global capacity switch installations
     to regional installation
 
-    TODO
+    Arguments
+    ---------
+    regions : list
+        Regions
+    global_capactiy_switch : float
+        Global switch
+    spatial_factors : dict
+        
+    Returns
+    -------
+
     """
     reg_capacity_switch = {}
     for reg in regions:

@@ -14,7 +14,7 @@ import numpy as np
     # Load data
     data = {}
     data['paths'] = data_loader.load_paths(path_main)
-    data['local_paths'] = data_loader.load_local_paths(path_main)
+    data['local_paths'] = data_loader.get_local_paths(path_main)
     data['lookups'] = lookup_tables.basic_lookups()
     data['enduses'], data['sectors'], data['fuels'] = data_loader.load_fuels(data['paths'], data['lookups'])
     
@@ -38,19 +38,6 @@ import numpy as np
     )
     assert weather_region_obj.weather_region_name == 'Bern'
 test_WeatherRegion()'''
-
-def test_get_shape_peak_yd_factor():
-
-    demand_yd = np.zeros((365))
-    for day in range(365):
-        demand_yd[day] = np.random.randint(0, 30)
-
-    result = weather_region.get_shape_peak_yd_factor(
-        demand_yd)
-
-    expected = (1 / np.sum(demand_yd)) * np.max(demand_yd)
-
-    assert round(result, 4) == round(expected, 4)
 
 def test_change_temp_climate():
 

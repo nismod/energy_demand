@@ -47,8 +47,8 @@ def post_install_setup(args):
 
     data = {}
     data['paths'] = data_loader.load_paths(path_main)
-    data['local_paths'] = data_loader.load_local_paths(local_data_path)
-    data['result_paths'] = data_loader.load_result_paths(path_results)
+    data['local_paths'] = data_loader.get_local_paths(local_data_path)
+    data['result_paths'] = data_loader.get_result_paths(path_results)
     data['lookups'] = lookup_tables.basic_lookups()
     data['enduses'], data['sectors'], data['fuels'] = data_loader.load_fuels(
         data['paths'], data['lookups'])

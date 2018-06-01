@@ -103,17 +103,9 @@ class Assumptions(object):
         self.f_ss_weekend = 0.8                      # 0.75
         self.f_is_weekend = 0.45                      # 0.4
 
-        # Spatial calibration factor
-        #self.f_mixed_floorarea = 0.8                  # 0.5 #TODO
-
         # ============================================================
         #   Modelled day related factors
         # ============================================================
-        #
-        #       model_yeardays_nrs : int
-        #           Number of modelled yeardays (default=365)
-        #       model_yearhours_nrs : int
-        #           Number of modelled yearhours (default=8760)
         #        model_yeardays_date : dict
         #           Contains for the base year for each days
         #           the information wheter this is a working or holiday
@@ -125,9 +117,6 @@ class Assumptions(object):
         for yearday in self.model_yeardays:
             self.model_yeardays_date.append(
                 date_prop.yearday_to_date(base_yr, yearday))
-
-        self.model_yeardays_nrs = len(self.model_yeardays)
-        self.model_yearhours_nrs = len(self.model_yeardays) * 24
 
         # ============================================================
         #   Dwelling stock related assumptions
@@ -225,6 +214,7 @@ class Assumptions(object):
         # ------------------------------------------------------------
         self.scenario_drivers = {}
 
+        # TODO: UPDATE DRIVER WITH GVA
         # --Residential SubModel
         self.scenario_drivers['rs_submodule'] = {
             'rs_space_heating': ['floorarea', 'hlc'], # Do not use HDD or pop because otherweise double count
@@ -233,8 +223,8 @@ class Assumptions(object):
             'rs_cooking': ['population'],
             'rs_cold': ['population'],
             'rs_wet': ['population'],
-            'rs_consumer_electronics': ['population'],  #GVA TODO. As soon as GVA is avaiable, drive it with GVA
-            'rs_home_computing': ['population']}        #GVA 
+            'rs_consumer_electronics': ['population'],
+            'rs_home_computing': ['population']}
 
         # --Service Submodel (Table 5.5a)
         self.scenario_drivers['ss_submodule'] = {
@@ -479,10 +469,6 @@ class Assumptions(object):
             self.installed_heat_pump_by,
             fueltypes)
 
-        # Collect all heating technologies
-        # TODO: MAYBE ADD IN TECH DOC ANOTHER LIST SPECIFYING ALL HEATING TECHs
-        self.heating_technologies = get_all_heating_techs(self.tech_list)
-
         # ============================================================
         # Enduse diffusion paramters
         # ============================================================
@@ -691,43 +677,6 @@ def update_technology_assumption(
         technologies, installed_heat_pump_ey)
 
     return technologies
-
-def get_all_heating_techs(tech_lists):
-    """Get all heating technologies from tech lists
-
-    Arguments
-    ----------
-    tech_lists : dict
-        Technologies as types
-
-    Returns
-    -------
-    heating_technologies : list
-        All heating technologies
-    """
-    #TODO: REMOVE
-    heating_technologies = []
-
-    for tech in tech_lists['heating_const']:
-        if tech != 'placeholder_tech':
-            heating_technologies.append(tech)
-    for tech in tech_lists['heating_non_const']:
-        if tech != 'placeholder_tech':
-            heating_technologies.append(tech)
-    for tech in tech_lists['tech_district_heating']:
-        if tech != 'placeholder_tech':
-            heating_technologies.append(tech)
-    for tech in tech_lists['secondary_heating_electricity']:
-        if tech != 'placeholder_tech':
-            heating_technologies.append(tech)
-    for tech in tech_lists['storage_heating_electricity']:
-        if tech != 'placeholder_tech':
-            heating_technologies.append(tech)
-    for tech in tech_lists['tech_CHP']:
-        if tech != 'placeholder_tech':
-            heating_technologies.append(tech)
-
-    return heating_technologies
 
 class DummyClass(object):
     """Assumptions

@@ -242,8 +242,6 @@ def write_simulation_inifile(path, enduses, assumptions, reg_nrs, regions):
     config['SIM_PARAM']['reg_nrs'] = str(reg_nrs)
     config['SIM_PARAM']['base_yr'] = str(assumptions.base_yr)
     config['SIM_PARAM']['simulated_yrs'] = str(assumptions.simulated_yrs)
-    config['SIM_PARAM']['model_yearhours_nrs'] = str(assumptions.model_yearhours_nrs)
-    config['SIM_PARAM']['model_yeardays_nrs'] = str(assumptions.model_yeardays_nrs)
 
     # ----------------------------
     # Other information to pass to plotting and summing function
@@ -519,7 +517,6 @@ def create_txt_shapes(
         path_txt_shapes,
         shape_peak_dh,
         shape_non_peak_y_dh,
-        shape_peak_yd_factor,
         shape_non_peak_yd
     ):
     """Function collecting functions to write out arrays
@@ -536,12 +533,6 @@ def create_txt_shapes(
             path_txt_shapes,
             str(end_use) + str("__") + str('shape_non_peak_y_dh') + str('.txt')),
         shape_non_peak_y_dh)
-
-    write_array_to_txt(
-        os.path.join(
-            path_txt_shapes,
-            str(end_use) + str("__") + str('shape_peak_yd_factor') + str('.txt')),
-        np.array([shape_peak_yd_factor]))
 
     write_array_to_txt(
         os.path.join(

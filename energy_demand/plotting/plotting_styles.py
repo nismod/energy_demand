@@ -109,7 +109,16 @@ def color_list():
 
 def get_colorbrewer_color(color_prop, color_palette, inverse=False):
     """
-    TODO
+    Get hex color from colorbrewer
+
+    Arguments
+    ----------
+    color_prop : str
+        Sequential or qualitative color criteria
+    color_palette : str
+        Name of colorbrewer palette
+    invers : default (False)
+        Invert color criteria
     """
     if color_prop == 'sequential':
         color_list = getattr(palettable.colorbrewer.sequential, color_palette).hex_colors
@@ -118,6 +127,8 @@ def get_colorbrewer_color(color_prop, color_palette, inverse=False):
 
     if inverse:
         color_list = color_list[::-1]
+    else:
+        pass
 
     return color_list
 

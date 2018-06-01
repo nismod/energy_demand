@@ -105,7 +105,6 @@ class Enduse(object):
             strategy_variables,
             fueltypes_nr,
             fueltypes,
-            model_yeardays_nrs,
             dw_stock=False,
             reg_scen_drivers=None,
             flat_profile_crit=False
@@ -218,7 +217,7 @@ class Enduse(object):
                 No switches can be implemented and only overall change of enduse.
                 """
                 if flat_profile_crit:
-                    self.fuel_y = self.fuel_y * model_yeardays_nrs / 365.0
+                    self.fuel_y = self.fuel_y
                 else:
                     self.fuel_yh = assign_lp_no_techs(
                         enduse,
@@ -317,7 +316,6 @@ class Enduse(object):
                         load_profiles,
                         fueltypes_nr,
                         fueltypes,
-                        model_yeardays_nrs,
                         mode_constrained)
 
                     # --------------------------------------
@@ -697,7 +695,6 @@ def calc_fuel_tech_yh(
         load_profiles,
         fueltypes_nr,
         fueltypes,
-        model_yeardays_nrs,
         mode_constrained
     ):
     """Iterate fuels for each technology and assign shape yd and yh shape
@@ -716,13 +713,11 @@ def calc_fuel_tech_yh(
         Fueltypes lookup
     mode_constrained : bool
         Mode criteria
-    model_yeardays_nrs : int
-        Number of modelled yeardays
 
     Return
     ------
     fuels_yh : array
-        Fueltype storing hourly fuel for every fueltype (fueltype, model_yeardays_nrs, 24)
+        Fueltype storing hourly fuel for every fueltype (fueltype, 365, 24)
     """
     if mode_constrained:
 
@@ -732,24 +727,18 @@ def calc_fuel_tech_yh(
             load_profile = load_profiles.get_lp(
                 enduse, sector, tech, 'shape_yh')
 
-            if model_yeardays_nrs != 365:
-                load_profile = lp.abs_to_rel(load_profile)
-
             fuels_yh[tech] = fuel_tech_y[tech] * load_profile
     else:
         # --
         # Unconstrained mode, i.e. not technolog specific.
         # Store according to fueltype and heat
         # --
-        fuels_yh = np.zeros((fueltypes_nr, model_yeardays_nrs, 24), dtype=float)
+        fuels_yh = np.zeros((fueltypes_nr, 365, 24), dtype=float)
 
         for tech in enduse_techs:
 
             load_profile = load_profiles.get_lp(
                 enduse, sector, tech, 'shape_yh')
-
-            if model_yeardays_nrs != 365:
-                load_profile = lp.abs_to_rel(load_profile)
 
             # If no fuel for this tech and not defined in enduse
             fuel_tech_yh = fuel_tech_y[tech] * load_profile
@@ -1094,6 +1083,8 @@ def apply_scenario_drivers(
     -------
     fuel_y : array
         Changed yearly fuel per fueltype
+    
+    #TODO :ADD OTHER driver
     """
     if reg_scen_drivers is None:
         reg_scen_drivers = {}
@@ -1131,13 +1122,10 @@ def apply_scenario_drivers(
             elif scenario_driver == 'population':
                 by_driver_data = population[base_yr][region]
                 cy_driver_data = population[curr_yr][region]
-            #TODO :ADD OTHER ENDSES
 
             if math.isnan(by_driver_data):
-                #logging.warning("INF ERROR")
                 by_driver_data = 1
             if math.isnan(cy_driver_data):
-                #logging.warning("INF ERROR")
                 cy_driver_data = 1
 
             # Multiply drivers
@@ -1182,7 +1170,7 @@ def apply_scenario_drivers(
         else:
             pass #enduse not define with scenario drivers
 
-    assert math.isnan(np.sum(fuel_y)) != 'nan' #SPEED ESTING
+    assert math.isnan(np.sum(fuel_y)) != 'nan'
 
     return fuel_y
 
@@ -1616,10 +1604,6 @@ def industry_enduse_changes(
     --------
     fuels : np.array
         Changed fuels depending on scenario
-
-    Info
-    ----
-    OLD MODEL TODO
 
     """
     factor = 1

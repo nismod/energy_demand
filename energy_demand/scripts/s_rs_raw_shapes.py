@@ -65,9 +65,6 @@ def get_hes_load_shapes(
 
     Returns
     -------
-    shape_peak_yd_factor : float
-        Peak day demand (Calculate factor which can be used to
-        multiply yearly demand to generate peak demand)
     shape_peak_yh : float
         Peak demand of each hours of peak day
 
@@ -119,9 +116,6 @@ def get_hes_load_shapes(
     # Shape of peak day (hourly values of peak day)
     shape_peak_dh = lp.abs_to_rel(peak_h_values)
 
-    # Factor to calculate daily peak demand from yearly demand
-    shape_peak_yd_factor = tot_peak_demand_d / tot_enduse_y
-
     # ---Calculate non-peak shapes
     shape_non_peak_yd = np.zeros((365), dtype=float)
     shape_non_peak_y_dh = np.zeros((365, 24), dtype=float)
@@ -132,7 +126,7 @@ def get_hes_load_shapes(
         shape_non_peak_yd[day] = (1.0 / tot_enduse_y) * np.sum(day_values)
         shape_non_peak_y_dh[day] = (1.0 / np.sum(day_values)) * day_values
 
-    return shape_peak_dh, shape_non_peak_y_dh, shape_peak_yd_factor, shape_non_peak_yd
+    return shape_peak_dh, shape_non_peak_y_dh, shape_non_peak_yd
 
 def assign_hes_data_to_year(nr_of_appliances, hes_data, base_yr):
     """Fill every base year day with correct data
@@ -277,7 +271,7 @@ def run(paths, local_paths, base_yr):
             if enduse == 'rs_water_heating':
 
                 # Generate HES load shapes
-                shape_peak_dh, shape_non_peak_y_dh, shape_peak_yd_factor, shape_non_peak_yd = get_hes_load_shapes(
+                shape_peak_dh, shape_non_peak_y_dh, shape_non_peak_yd = get_hes_load_shapes(
                     hes_appliances_matching,
                     year_raw_hes_values,
                     hes_y_peak,
@@ -291,13 +285,12 @@ def run(paths, local_paths, base_yr):
                     local_paths['rs_load_profile_txt'],
                     shape_peak_dh,
                     shape_non_peak_y_dh,
-                    shape_peak_yd_factor,
                     shape_non_peak_yd)
             else:
                 pass
         else:
             # Generate HES load shapes
-            shape_peak_dh, shape_non_peak_y_dh, shape_peak_yd_factor, shape_non_peak_yd = get_hes_load_shapes(
+            shape_peak_dh, shape_non_peak_y_dh, shape_non_peak_yd = get_hes_load_shapes(
                 hes_appliances_matching,
                 year_raw_hes_values,
                 hes_y_peak,
@@ -309,7 +302,6 @@ def run(paths, local_paths, base_yr):
                 local_paths['rs_load_profile_txt'],
                 shape_peak_dh,
                 shape_non_peak_y_dh,
-                shape_peak_yd_factor,
                 shape_non_peak_yd)
 
     logging.info("... finished script %s", os.path.basename(__file__))
