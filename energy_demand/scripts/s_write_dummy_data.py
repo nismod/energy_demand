@@ -105,7 +105,6 @@ def dummy_sectoral_load_profiles(local_paths, path_main):
             # Flat profiles
             load_peak_shape_dh = np.full((24), 1)
             shape_non_peak_y_dh = np.full((365, 24), 1/24)
-            shape_peak_yd_factor = 1.0
             shape_non_peak_yd = np.full((365), 1/365)
 
             write_data.create_txt_shapes(
@@ -113,7 +112,6 @@ def dummy_sectoral_load_profiles(local_paths, path_main):
                 local_paths['ss_load_profile_txt'],
                 load_peak_shape_dh,
                 shape_non_peak_y_dh,
-                shape_peak_yd_factor,
                 shape_non_peak_yd)
 
 def post_install_setup_minimum(args):

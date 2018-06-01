@@ -39,19 +39,6 @@ import numpy as np
     assert weather_region_obj.weather_region_name == 'Bern'
 test_WeatherRegion()'''
 
-def test_get_shape_peak_yd_factor():
-
-    demand_yd = np.zeros((365))
-    for day in range(365):
-        demand_yd[day] = np.random.randint(0, 30)
-
-    result = weather_region.get_shape_peak_yd_factor(
-        demand_yd)
-
-    expected = (1 / np.sum(demand_yd)) * np.max(demand_yd)
-
-    assert round(result, 4) == round(expected, 4)
-
 def test_change_temp_climate():
 
     temp_data = np.zeros((365, 24)) + 10

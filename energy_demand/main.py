@@ -3,11 +3,9 @@
 TODO: REMOVEP EAK FACTORS 
 TODO: DISAGGREGATE SERVICE SECTOR HEATING DEMANDS WITH FLOOR AREA FOR SECTORS
 TODO: Write all metadata of model run restuls to txt
-TODO: Related ed to houses & householdsize
-TODO: data loading, load multiple years for real elec data
-TODO: WHAT ABOU NON_RESIDENTIAL FLOOR AREA: FOR WHAT?
-TODO :CHECK LOAD PRIFILE TECH TYPE NAMES
-TODO: shape_peak_yd_factor
+Noe: Related ed to houses & householdsize
+Noe: WHAT ABOU NON_RESIDENTIAL FLOOR AREA: FOR WHAT?
+
 TODO: REMOVE ALL PEAK RELATED STUFF
 """
 import os

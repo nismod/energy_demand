@@ -517,7 +517,6 @@ def create_txt_shapes(
         path_txt_shapes,
         shape_peak_dh,
         shape_non_peak_y_dh,
-        shape_peak_yd_factor,
         shape_non_peak_yd
     ):
     """Function collecting functions to write out arrays
@@ -534,12 +533,6 @@ def create_txt_shapes(
             path_txt_shapes,
             str(end_use) + str("__") + str('shape_non_peak_y_dh') + str('.txt')),
         shape_non_peak_y_dh)
-
-    write_array_to_txt(
-        os.path.join(
-            path_txt_shapes,
-            str(end_use) + str("__") + str('shape_peak_yd_factor') + str('.txt')),
-        np.array([shape_peak_yd_factor]))
 
     write_array_to_txt(
         os.path.join(

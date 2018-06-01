@@ -16,8 +16,6 @@ def flat_shape(nr_of_days=365):
         Dh shape for peak day
     flat_shape_y_dh : array
         Shape non peak dh
-    shape_peak_yd_factor : float
-        Factor peak yd (is only passed through)
     flat_shape_yd : array
         Shape yd for non peak
     """

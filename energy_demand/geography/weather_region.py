@@ -569,35 +569,6 @@ class WeatherRegion(object):
                         model_yeardays=assumptions.model_yeardays,
                         sectors=[sector])
 
-def get_shape_peak_yd_factor(demand_yd):
-    """From yd shape calculate maximum relative yearly service demand
-    which is provided in a day
-
-    Arguments
-    ----------
-    demand_yd : shape
-        Demand for energy service for every day in year
-
-    Return
-    ------
-    max_factor_yd : float
-        yd maximum factor
-
-    Note
-    -----
-    If the shape is taken from heat and cooling demand the assumption is made that
-    HDD and CDD are directly proportional to fuel usage
-    """
-    # Total yearly demand
-    tot_demand_y = np.sum(demand_yd)
-
-    # Maximum daily demand
-    max_demand_d = np.max(demand_yd)
-
-    max_factor_yd = max_demand_d / tot_demand_y
-
-    return max_factor_yd
-
 def get_fuel_shape_heating_hp_yh(tech_lp_y_dh, tech_stock, rs_hdd_cy, model_yeardays):
     """Convert daily shapes to houly based on load for heatpump
 

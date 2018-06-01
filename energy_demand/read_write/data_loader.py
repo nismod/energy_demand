@@ -748,8 +748,6 @@ def rs_collect_shapes_from_txts(txt_path, model_yeardays):
             os.path.join(txt_path, str(enduse) + str("__") + str('shape_peak_dh') + str('.txt')))
         shape_non_peak_y_dh = read_data.read_np_array_from_txt(
             os.path.join(txt_path, str(enduse) + str("__") + str('shape_non_peak_y_dh') + str('.txt')))
-        shape_peak_yd_factor = float(read_data.read_np_array_from_txt(
-            os.path.join(txt_path, str(enduse) + str("__") + str('shape_peak_yd_factor') + str('.txt'))))
         shape_non_peak_yd = read_data.read_np_array_from_txt(
             os.path.join(txt_path, str(enduse) + str("__") + str('shape_non_peak_yd') + str('.txt')))
 
@@ -762,7 +760,6 @@ def rs_collect_shapes_from_txts(txt_path, model_yeardays):
             'shape_non_peak_y_dh': shape_non_peak_y_dh_selection}
 
         rs_shapes_yd[enduse] = {
-            'shape_peak_yd_factor': shape_peak_yd_factor,
             'shape_non_peak_yd': shape_non_peak_yd_selection}
 
     return rs_shapes_dh, rs_shapes_yd
@@ -809,10 +806,6 @@ def ss_collect_shapes_from_txts(txt_path, model_yeardays):
                 os.path.join(
                     txt_path,
                     str(joint_string_name) + str("__") + str('shape_non_peak_y_dh') + str('.txt')))
-            shape_peak_yd_factor = float(read_data.read_np_array_from_txt(
-                os.path.join(
-                    txt_path,
-                    str(joint_string_name) + str("__") + str('shape_peak_yd_factor') + str('.txt'))))
             shape_non_peak_yd = read_data.read_np_array_from_txt(
                 os.path.join(
                     txt_path,
@@ -829,7 +822,6 @@ def ss_collect_shapes_from_txts(txt_path, model_yeardays):
                 'shape_non_peak_y_dh': shape_non_peak_y_dh_selection}
 
             ss_shapes_yd[enduse][sector] = {
-                'shape_peak_yd_factor': shape_peak_yd_factor,
                 'shape_non_peak_yd': shape_non_peak_yd_selection}
 
     return dict(ss_shapes_dh), dict(ss_shapes_yd)
