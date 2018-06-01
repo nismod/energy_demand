@@ -128,6 +128,7 @@ def floor_area_virtual_dw(
         regions,
         all_sectors,
         local_paths,
+        population,
         base_yr,
         f_mixed_floorarea=0.5
     ):
@@ -147,16 +148,28 @@ def floor_area_virtual_dw(
         Base year
     f_mixed_floorarea : float
         PArameter to redistributed mixed enduse
-
+    regions_without_floorarea : float
+        Regions with missing floor area info
     Returns
     -------
     rs_floorarea : dict
         Residential floor area
     ss_floorarea : dict
         Service sector floor area
+    # TODO SO FAR THE SAME FOR EVERY SECTOR
     """
+    # ------
+    # Get average floor area per perons
+    # Based on Roberts et al. (2011) , an average one bedroom home for 2 people has 46 m2. 
+    # We thus assume 23m2 per person on average.
+    # 
+    # Roberts et al. (2011): The Case for Space: the size of England’s new homes. 
+    # -----
+    avearge_floor_area_pp = 23 #m2
+
     # --------------------------------------------------
     # Floor area for residential buildings for base year
+    # from newcasle dataset
     # --------------------------------------------------
     resid_footprint, non_res_flootprint, service_building_count = read_data.read_floor_area_virtual_stock(
         local_paths['path_floor_area_virtual_stock_by'],
@@ -167,31 +180,38 @@ def floor_area_virtual_dw(
     # of existing datasets. This is done to replace the missing
     # floor area data of LADs with estimated floor areas
     # -----------------
+    rs_regions_without_floorarea = []
     rs_floorarea = defaultdict(dict)
     for region in regions:
         try:
             rs_floorarea[base_yr][region] = resid_footprint[region]
-        except:
+        except KeyError:
             logging.warning(
                 "No virtual residential floor area for region %s ", region)
 
-            rs_floorarea[base_yr][region] = 1234567899999999
+            # Calculate average floor area
+            rs_floorarea[base_yr][region] = avearge_floor_area_pp * population[region]
+            rs_regions_without_floorarea.append(region)
 
     # --------------------------------------------------
     # Floor area for service sector buildings
-    # TODO SO FAR THE SAME FOR EVERY SECTOR
     # --------------------------------------------------
     ss_floorarea_sector_by = {}
+    ss_regions_without_floorarea = set([])
     ss_floorarea_sector_by[base_yr] = defaultdict(dict)
     for region in regions:
         for sector in all_sectors:
             try:
                 ss_floorarea_sector_by[base_yr][region][sector] = non_res_flootprint[region]
-            except:
+            except KeyError:
                 logging.warning("No virtual service floor area for region %s", region)
-                ss_floorarea_sector_by[base_yr][region][sector] = 1234567899999999
+                #ss_floorarea_sector_by[base_yr][region][sector] = 1234567899999999
+                
+                ss_floorarea_sector_by[base_yr][region][sector] = 0
 
-    return dict(rs_floorarea), dict(ss_floorarea_sector_by), service_building_count
+                ss_regions_without_floorarea.add(region)
+
+    return dict(rs_floorarea), dict(ss_floorarea_sector_by), service_building_count, rs_regions_without_floorarea, list(ss_regions_without_floorarea)
 
 def get_local_paths(path):
     """Create all local paths

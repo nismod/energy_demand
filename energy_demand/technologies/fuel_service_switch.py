@@ -287,23 +287,21 @@ def autocomplete_switches(
                             # Regional diffusion calculation
                             s_share_ey_regional = s_share_ey_global * f_diffusion[enduse][region]
 
-                            # if larger than max crit, set to 1 TODO
+                            # -------------------------------------
+                            # if larger than max crit, set to 1
+                            # -------------------------------------
                             max_crit = 1
                             if s_share_ey_regional > max_crit:
                                 s_share_ey_regional = max_crit
 
                             if s_tot_defined + s_share_ey_regional > 1.0:
 
-                                #TODO IMPROVE THAT ROUNDING 1 .. make nicer
                                 if round(s_tot_defined + s_share_ey_regional) > 1:
-                                    logging.warning("ERROR: MORE THAN ONE TECHNOLOG SWICHED WITH LARGER SHARE: ")
+                                    logging.warning("ERROR: MORE THAN ONE TECHNOLOG SWICHED WITH LARGER SHARE: ") #TODO
                                     logging.warning(" {}  {} {}".format(s_tot_defined, s_share_ey_regional, s_tot_defined + s_share_ey_regional))
                                     prnt(".")
                                 else:
                                     s_share_ey_regional = max_crit - s_share_ey_regional
-                            #logging.debug("A %s  %s", region, switch.technology_install)
-                            #logging.debug(s_share_ey_global)
-                            #logging.debug(s_share_ey_regional)
                         else:
                             s_share_ey_regional = switch.service_share_ey
 

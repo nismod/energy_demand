@@ -1083,6 +1083,8 @@ def apply_scenario_drivers(
     -------
     fuel_y : array
         Changed yearly fuel per fueltype
+    
+    #TODO :ADD OTHER driver
     """
     if reg_scen_drivers is None:
         reg_scen_drivers = {}
@@ -1120,13 +1122,10 @@ def apply_scenario_drivers(
             elif scenario_driver == 'population':
                 by_driver_data = population[base_yr][region]
                 cy_driver_data = population[curr_yr][region]
-            #TODO :ADD OTHER ENDSES
 
             if math.isnan(by_driver_data):
-                #logging.warning("INF ERROR")
                 by_driver_data = 1
             if math.isnan(cy_driver_data):
-                #logging.warning("INF ERROR")
                 cy_driver_data = 1
 
             # Multiply drivers
@@ -1171,7 +1170,7 @@ def apply_scenario_drivers(
         else:
             pass #enduse not define with scenario drivers
 
-    assert math.isnan(np.sum(fuel_y)) != 'nan' #SPEED ESTING
+    assert math.isnan(np.sum(fuel_y)) != 'nan'
 
     return fuel_y
 
@@ -1606,9 +1605,6 @@ def industry_enduse_changes(
     fuels : np.array
         Changed fuels depending on scenario
 
-    Info
-    ----
-    OLD MODEL TODO
     """
     factor = 1
 

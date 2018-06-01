@@ -51,7 +51,6 @@ def createNEWCASTLE_dwelling_stock(curr_yr, region, data, parameter_list):
 
             dwelling_obj = Dwelling(
                 curr_yr=curr_yr,
-                region=region,
                 coordinates=data['reg_coord'][region],
                 floorarea=floor_area_dwtype_age_class,
                 enduses=data['enduses']['rs_enduses'],
@@ -63,7 +62,6 @@ def createNEWCASTLE_dwelling_stock(curr_yr, region, data, parameter_list):
             dw_stock.append(dwelling_obj)
 
     dwelling_stock = DwellingStock(
-        region,
         dw_stock,
         data['enduses']['rs_enduses'])
 
@@ -164,15 +162,16 @@ class Dwelling(object):
                 # Iterate scenario driver and get attriute to multiply values
                 try:
                     for scenario_driver in scenario_drivers:
-                        scenario_driver_value *= getattr(self, scenario_driver) #: sum drivers
+
+                        # If scenario driver is set to zero, do not use this driver
+                        driver_value = getattr(self, scenario_driver) 
+                        if driver_value == 0:
+                            pass
+                        else:
+                            scenario_driver_value *= driver_value
                 except TypeError:
                     #logging.info("Scenario driver `%s` calculation not possible", scenario_driver)
                     pass
-
-                '''Dwelling.__setattr__(
-                    self,
-                    enduse,
-                    scenario_driver_value)'''
 
                 Dwelling.add_new_attribute(
                     self,
@@ -189,19 +188,16 @@ class Dwelling(object):
 class DwellingStock(object):
     """Class of the building stock in a region
     """
-    def __init__(self, region, dwellings, enduses):
+    def __init__(self, dwellings, enduses):
         """Returns a new building stock object for every `region`.
 
         Arguments
         ----------
-        region : float
-            Region of the dwelling
         dwellings : list
             List containing all dwelling objects
         enduses : list
             Enduses
         """
-        #self.region = region
         self.dwellings = dwellings
 
         # Calculate pop of dwelling stock
@@ -212,11 +208,6 @@ class DwellingStock(object):
 
             enduse_scenario_driver = self.get_scenario_driver(
                 enduse)
-
-            '''DwellingStock.__setattr__(
-                self,
-                enduse,
-                enduse_scenario_driver)'''
 
             DwellingStock.add_new_attribute(
                 self,
@@ -532,7 +523,6 @@ def ss_dw_stock(
 
     # Add regional base year dwelling to dwelling stock
     dwelling_stock = DwellingStock(
-        region,
         dw_stock,
         enduses)
 
@@ -659,7 +649,6 @@ def rs_dw_stock(
 
         # Create regional base year building stock
         dwelling_stock = DwellingStock(
-            region,
             dw_stock_base,
             enduses)
     else:
@@ -715,7 +704,6 @@ def rs_dw_stock(
 
         # Generate region and save it in dictionary (Add old and new buildings to stock)
         dwelling_stock = DwellingStock(
-            region,
             dw_stock_cy,
             enduses)
 

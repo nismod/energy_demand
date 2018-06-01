@@ -214,6 +214,7 @@ class Assumptions(object):
         # ------------------------------------------------------------
         self.scenario_drivers = {}
 
+        # TODO: UPDATE DRIVER WITH GVA
         # --Residential SubModel
         self.scenario_drivers['rs_submodule'] = {
             'rs_space_heating': ['floorarea', 'hlc'], # Do not use HDD or pop because otherweise double count
@@ -222,8 +223,8 @@ class Assumptions(object):
             'rs_cooking': ['population'],
             'rs_cold': ['population'],
             'rs_wet': ['population'],
-            'rs_consumer_electronics': ['population'],  #GVA TODO. As soon as GVA is avaiable, drive it with GVA
-            'rs_home_computing': ['population']}        #GVA TODO
+            'rs_consumer_electronics': ['population'],
+            'rs_home_computing': ['population']}
 
         # --Service Submodel (Table 5.5a)
         self.scenario_drivers['ss_submodule'] = {

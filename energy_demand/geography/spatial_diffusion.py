@@ -313,13 +313,14 @@ def calc_regional_services(
         for tech, service_tech in reg_enduse_tech_p_ey[region].items():
 
             # ----------------------------------
-            #MAYBE ADD CAPPING VALUE TODO
+            # Capping value in case larger than 1.0
             # ----------------------------------
             service_share = service_tech
 
             if service_share > capping_val:
                 reg_enduse_tech_p_ey[region][tech] = capping_val
-                logging.warning("CAPPING VALUE REACHED {}  {}  ".format(region, service_share))
+                logging.info("Maximum value is capped: {} {} {}".format(
+                    region, service_share, tech))
             else:
                 reg_enduse_tech_p_ey[region][tech] = service_share
 
@@ -332,7 +333,6 @@ def calc_spatially_diffusion_factors(
         low_congruence_crit,
         speed_con_max,
         p_outlier
-
     ):
     """
     Calculate spatial diffusion values

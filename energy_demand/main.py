@@ -1,12 +1,8 @@
 """Allows to run HIRE locally outside the SMIF framework
 
-TODO: REMOVEP EAK FACTORS 
-TODO: DISAGGREGATE SERVICE SECTOR HEATING DEMANDS WITH FLOOR AREA FOR SECTORS
-TODO: Write all metadata of model run restuls to txt
+Note: Write all metadata of model run restuls to txt
 Noe: Related ed to houses & householdsize
 Noe: WHAT ABOU NON_RESIDENTIAL FLOOR AREA: FOR WHAT?
-
-TODO: REMOVE ALL PEAK RELATED STUFF
 """
 import os
 import sys
@@ -319,14 +315,7 @@ if __name__ == "__main__":
 
             # Write unconstrained results
             if data['criterias']['write_to_txt']:
-                #TODO NOT USED SO FAR
-                '''write_data.write_supply_results(
-                    sim_yr,
-                    data['regions'],
-                    "supply_results",
-                    path_runs,
-                    supply_results_unconstrained,
-                    "supply_results")'''
+
                 write_data.write_supply_results(
                     sim_yr,
                     "result_tot_yh",

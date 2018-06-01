@@ -153,15 +153,11 @@ def ss_disaggregate(
         weather_stations)
 
     # ---------------------------------------------
-    # Get all regions with missing floor area data
+    # Get all regions with floor area data
     # ---------------------------------------------
-    regions_without_floorarea = get_regions_missing_floor_area_sector(
-        regions, scenario_data['floor_area']['ss_floorarea'], assumptions.base_yr)
     regions_with_floorarea = list(regions)
-    for reg in regions_without_floorarea:
+    for reg in assumptions.ss_regions_without_floorarea:
         regions_with_floorarea.remove(reg)
-
-    logging.info("Regions without floor area (serivce sector): %s", regions_without_floorarea)
 
     # ---------------------------------------
     # Overall disaggregation factors per enduse and sector
@@ -169,7 +165,7 @@ def ss_disaggregate(
     ss_fuel_disagg = {}
     ss_fuel_disagg_only_pop = ss_disaggr(
         all_regions=regions,
-        regions=regions_without_floorarea,
+        regions=assumptions.ss_regions_without_floorarea,
         sectors=sectors,
         enduses=enduses,
         all_sectors=all_sectors,
@@ -608,15 +604,11 @@ def rs_disaggregate(
         weather_stations)
 
     # ---------------------------------------
-    # Get all regions with missing floor area data
+    # Get all regions with  floor area data
     # ---------------------------------------
-    regions_without_floorarea = get_regions_missing_floor_area(
-        regions, scenario_data['floor_area']['rs_floorarea'], assumptions.base_yr)
     regions_with_floorarea = list(regions)
-    for reg in regions_without_floorarea:
+    for reg in assumptions.rs_regions_without_floorarea:
         regions_with_floorarea.remove(reg)
-
-    logging.info("Regions with no floor area (residential sector): %s", regions_without_floorarea)
 
     # ====================================
     # Disaggregate for region without floor
@@ -624,7 +616,7 @@ def rs_disaggregate(
     # ====================================
     rs_fuel_disagg_only_pop = rs_disaggr(
         all_regions=regions,
-        regions=regions_without_floorarea,
+        regions=assumptions.rs_regions_without_floorarea,
         base_yr=assumptions.base_yr,
         rs_hdd_individ_region=rs_hdd_individ_region,
         scenario_data=scenario_data,
@@ -857,37 +849,3 @@ def run(data):
 
     logging.debug("... finished script %s", os.path.basename(__file__))
     return
-
-def get_regions_missing_floor_area(regions, floor_area_data, base_yr): #, placeholder_no_floor_area):
-    """Get all regions where floorarea cannot be used for disaggregation
-    """
-    regions_no_floor_area_data = []
-
-    for region in regions:
-
-        # Floor Area across all sectors
-        reg_floor_area = floor_area_data[base_yr][region]
-
-        if reg_floor_area == 1234567899999999: #0.0001: #As dfined with 'null' in readigng in get_regions_missing_floor_area
-            regions_no_floor_area_data.append(region)
-
-    return regions_no_floor_area_data
-
-def get_regions_missing_floor_area_sector(regions, floor_area_data, base_yr):
-    """Get all regions where floorarea cannot be used for disaggregation
-    """
-    regions_no_floor_area_data = []
-
-    for region in regions:
-
-        # Floor Area across all sectors
-        reg_floor_area_sectors = floor_area_data[base_yr][region]
-
-        not_data = False
-        for sector_data in reg_floor_area_sectors.values():
-            if sector_data == 1234567899999999: #As dfined with 'null' in readigng in
-                not_data = True
-        if not_data:
-            regions_no_floor_area_data.append(region)
-
-    return regions_no_floor_area_data
