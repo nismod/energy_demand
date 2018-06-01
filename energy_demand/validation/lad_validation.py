@@ -241,7 +241,7 @@ def spatial_validation_lad_level(
     logging.info("comparison real: {}  modelled: {}".format(100, (100 / tot_sum_real_gas) * tot_sum_modelled_gas))
     #'''
     # ----------------------------------------------
-    # TODO Correct REAL Values that sum is the same
+    # Correct REAL Values that sum is the same
     # ----------------------------------------------
     data_inputlist = [
         (fuel_elec_residential_regs_yh, subnational_elec_residential),          # domestic
@@ -323,7 +323,7 @@ def spatial_validation_lad_level(
         os.path.join(result_paths['data_results_validation'], 'validation_spatial_residential_gas.pdf'),
         label_points=True,
         plotshow=plot_crit)
-    
+
     logging.info("... ================= Validaiton of non residential gas")
     spatial_validation(
         reg_coord,
@@ -361,7 +361,7 @@ def temporal_validation_lad(
     logging.info("... temporal validation")
 
     # -------------------------------------------
-    # Spatial validation after calculations TODO REMOVE SPATIAL
+    # Spatial validation after calculations
     # -------------------------------------------
     subnational_elec = data_loader.read_national_real_elec_data(
         paths['path_val_subnational_elec'])
@@ -580,9 +580,7 @@ def spatial_validation(
         try:
             real = result_dict['real_demand'][reg_geocode]
             modelled = result_dict['modelled_demand'][reg_geocode]
-            #diff_real_modelled_p.append((100 / real) * modelled)
             diff_real_modelled_p.append(abs(100 - ((100 / real) * modelled)))
-            #logging.info("Absolute difference in percentage {}".format(abs(100 - ((100 / real) * modelled)))) #TODO
             diff_real_modelled_abs.append(real - modelled)
         except KeyError:
             pass

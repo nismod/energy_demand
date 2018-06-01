@@ -312,7 +312,7 @@ def plot_heat_pump_chart(
     # -----
 
     # Criteria to plot maximum boundaries
-    plot_max_min_polygon = False #TODO
+    plot_max_min_polygon = False
     plot_all_regs = False
 
     # Set figure size

@@ -810,12 +810,11 @@ def create_geopanda_files(
                     if np.sum(results_container['results_every_year'][base_year][fueltype]) == 0:
                         continue
 
-                    # TODO Check if 'nan' entry or total sum is 0. (Remove as soon as nan error is removed)
-                    if np.isnan(np.sum(results_container['results_every_year'][base_year][fueltype])):
-                        logging.info("Error: Contains nan entry {} {}".format(year, fueltype))
-                        continue
-                    logging.info("============ {}  {}".format(fueltype, np.isnan(np.sum(results_container['results_every_year'][base_year][fueltype]))))
-                    logging.info(results_container['results_every_year'][base_year][fueltype])
+                    ##if np.isnan(np.sum(results_container['results_every_year'][base_year][fueltype])):
+                    #    logging.info("Error: Contains nan entry {} {}".format(year, fueltype))
+                    #    continue
+                    #logging.info("============ {}  {}".format(fueltype, np.isnan(np.sum(results_container['results_every_year'][base_year][fueltype]))))
+                    #logging.info(results_container['results_every_year'][base_year][fueltype])
                     fueltype_str = tech_related.get_fueltype_str(fueltypes, fueltype)
 
                     # Calculate peak h across all regions

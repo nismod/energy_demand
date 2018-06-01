@@ -267,7 +267,7 @@ def read_in_results(path_runs, seasons, model_yeardays_daytype):
 
             fueltype_str = tech_related.get_fueltype_str(lookups['fueltypes'], fueltype_int)
 
-            # Calculate peak per fueltype for all regions (reg_ed_yh= np.array(fueltype, reg, yh)) TODO CHECK
+            # Calculate peak per fueltype for all regions (reg_ed_yh= np.array(fueltype, reg, yh))
             all_regs_yh = np.sum(reg_ed_yh, axis=0)    # sum regs
             peak_h = np.max(all_regs_yh)               # select max of 8760 h
             results_container['ed_peak_h'][year][fueltype_str] = peak_h

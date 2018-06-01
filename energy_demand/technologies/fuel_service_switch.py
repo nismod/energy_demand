@@ -319,7 +319,7 @@ def autocomplete_switches(
                         enduse_switches.append(switch_new)
                         switch_yr = switch.switch_yr
 
-                        # Create switch TODO TODO SHIFTED ONE TAB CHECK 03.05.2018
+                        # Create switch
                         switches_new = create_switches_from_s_shares(
                             enduse=enduse,
                             s_tech_by_p=s_tech_by_p,

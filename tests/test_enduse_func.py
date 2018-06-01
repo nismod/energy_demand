@@ -29,8 +29,7 @@ def test_enduse():
         criterias='test',
         strategy_variables='test',
         fueltypes_nr='test',
-        fueltypes='test',
-        model_yeardays_nrs='test')
+        fueltypes='test')
 
     assert out.flat_profile_crit == True
 
@@ -621,8 +620,7 @@ def test_calc_fuel_tech_yh():
         load_profiles=lp_stock_obj,
         fueltypes_nr=2,
         fueltypes=fueltypes,
-        mode_constrained=False,
-        model_yeardays_nrs=365)
+        mode_constrained=False)
 
     assert results[1][3][0] == 3.0 / float(np.sum(range(365)) * 24) * 200
 
@@ -635,7 +633,6 @@ def test_calc_fuel_tech_yh():
         load_profiles=lp_stock_obj,
         fueltypes_nr=2,
         fueltypes=fueltypes,
-        model_yeardays_nrs=365,
         mode_constrained=True)
 
     assert results['techA'][3][0] == 3.0 / float(np.sum(range(365)) * 24) * 200

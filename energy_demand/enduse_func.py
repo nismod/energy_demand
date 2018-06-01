@@ -1609,7 +1609,6 @@ def industry_enduse_changes(
     Info
     ----
     OLD MODEL TODO
-
     """
     factor = 1
 

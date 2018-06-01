@@ -3,7 +3,7 @@
 import numpy as np
 from energy_demand.scripts import s_disaggregation
 from energy_demand.assumptions import non_param_assumptions
-'''
+#'''
 def test_rs_disaggregate():
     """testing
     """
@@ -23,9 +23,9 @@ def test_rs_disaggregate():
             'sig_midpoint': 0,
             'sig_steepness': 1,
             'yr_until_changed': 2020},
-        'strategy_variables': {'rs_t_base_heating_future_yr': {'scenario_value': 0}}}
+        'strategy_variables': {'rs_t_base_heating_future_yr': {'scenario_value': 15}}}
     assumptions = non_param_assumptions.DummyClass(assumptions)
-    assumptions.__setattr__('t_bases', non_param_assumptions.DummyClass({'rs_t_heating_by': 0}))
+    assumptions.__setattr__('t_bases', non_param_assumptions.DummyClass({'rs_t_heating_by': 15}))
 
     reg_coord = {
         'regA': {'longitude': 0,'latitude': 0},
@@ -68,15 +68,12 @@ def test_rs_disaggregate():
 
     assert result['regA']['rs_space_heating'] == national_fuel / 2
 
-test_rs_disaggregate() #TODO FIX
-'''
-#TODO TODO FIX
-'''def test_ss_disaggregate():
+def test_ss_disaggregate():
     """testing
     """
     regions = ['regA', 'regB']
     national_fuel = 100
-    raw_fuel_sectors_enduses = {'ss_space_heating': {'sectorA': national_fuel}}
+    raw_fuel_sectors_enduses = {'ss_space_heating': {'offices': national_fuel}}
 
     scenario_data = {
         'population': {2015: {'regA': 10, 'regB': 10}},
@@ -84,7 +81,7 @@ test_rs_disaggregate() #TODO FIX
             'ss_floorarea_newcastle': {
                 2015: {'regA': 10, 'regB': 10}},
             'ss_floorarea' :{
-                 2015: {'regA': {'sectorA': 100}, 'regB': {'sectorA': 100}}}
+                 2015: {'regA': {'offices': 100}, 'regB': {'offices': 100}}}
             },
         }
 
@@ -95,14 +92,17 @@ test_rs_disaggregate() #TODO FIX
             'sig_midpoint': 0,
             'sig_steepness': 1,
             'yr_until_changed': 2020},
-        'strategy_variables': {'ss_t_base_heating_future_yr': {'scenario_value': 0}, 'ss_t_base_cooling_future_yr': {'scenario_value': 0}}}
+        'strategy_variables': {
+            'ss_t_base_heating_future_yr': {'scenario_value': 15},
+            'ss_t_base_cooling_future_yr': {'scenario_value': 20}}}
 
     assumptions = non_param_assumptions.DummyClass(assumptions)
-    assumptions.__setattr__('t_bases', non_param_assumptions.DummyClass({'ss_t_heating_by': 0, 'ss_t_cooling_by': 0}))
+    assumptions.__setattr__('t_bases', non_param_assumptions.DummyClass(
+        {'ss_t_heating_by': 15, 'ss_t_cooling_by': 20}))
 
     reg_coord = {
-        'regA': {'longitude': 0,'latitude': 0},
-        'regB': {'longitude': 0,'latitude': 0}}
+        'regA': {'longitude': 0, 'latitude': 0},
+        'regB': {'longitude': 0, 'latitude': 0}}
 
     weather_stations = {
         'stationID_1': {'station_longitude': 1,'station_latitude': 1}}
@@ -110,10 +110,13 @@ test_rs_disaggregate() #TODO FIX
     temp_data = {'stationID_1': np.ones((365, 24)) + 10}
 
     enduses = ['ss_space_heating']
-    sectors = ['sectorA']
-    all_sectors = ['sectorA']
+    sectors = ['offices']
+    all_sectors = ['offices']
 
-    service_building_count = None
+    service_building_count = {}
+    service_building_count[9] = {}
+    service_building_count[9]['regA'] = 10
+    service_building_count[9]['regB'] = 10
 
     result = s_disaggregation.ss_disaggregate(
         raw_fuel_sectors_enduses,
@@ -131,8 +134,8 @@ test_rs_disaggregate() #TODO FIX
         crit_limited_disagg_pop=True,
         crit_full_disagg=False)
 
-    assert result['regA']['ss_space_heating']['sectorA'] == national_fuel / 2
-'''
+    assert result['regA']['ss_space_heating']['offices'] == national_fuel / 2
+test_ss_disaggregate()
 def test_is_disaggregate():
     """TESTING"""
     temp_data = {'stationID_1': np.ones((365, 24)) + 10}
@@ -209,5 +212,3 @@ def test_is_disaggregate():
     assert round(result['regA']['is_space_heating']['pharmaceuticals'], 3) == round(10.0/15.0 * 100,3) 
     assert result['regB']['is_space_heating']['mining'] == 100
     assert round(result['regB']['is_space_heating']['pharmaceuticals'], 3)  == round(5.0/15.0 * 100, 3)
-
-test_is_disaggregate()
