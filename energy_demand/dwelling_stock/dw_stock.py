@@ -302,9 +302,12 @@ def get_floorare_pp(
         # Floor area per person of base year
         floorarea_pp_by = floorarea / reg_pop_by
 
+    # Base year floor area
+    floor_area_pp[base_yr] = floorarea_pp_by
+
     for curr_yr in sim_period:
         if curr_yr == base_yr:
-            floor_area_pp[curr_yr] = floorarea_pp_by
+            pass
         else:
             # Change up to current year (linear)
             lin_diff_factor = diffusion_technologies.linear_diff(
@@ -349,10 +352,14 @@ def get_dwtype_floor_area(dwtype_floorarea_by, dwtype_floorarea_future, base_yr,
     """
     dwtype_floor_area = {}
 
+    # Base year
+    dwtype_floor_area[base_yr] = dwtype_floorarea_by
+
+    # Simulation years
     for curr_yr in sim_period:
 
         if curr_yr == base_yr:
-            y_distr = dwtype_floorarea_by
+            pass
         else:
             y_distr = {}
 
@@ -400,10 +407,13 @@ def get_dwtype_distr(dwtype_distr_by, dwtype_distr_fy, base_yr, sim_period):
     """
     dwtype_distr = {}
 
-    for curr_yr in sim_period:
+    # Base year
+    dwtype_distr[base_yr] = dwtype_distr_by
 
+    # Simulation years
+    for curr_yr in sim_period:
         if curr_yr == base_yr:
-            y_distr = dwtype_distr_by
+            pass
         else:
             y_distr = {}
 
