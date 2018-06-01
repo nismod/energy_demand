@@ -704,7 +704,7 @@ def read_fuel_switches(
             raise Exception(
                 "Input error: The fuel switches are > 1.0 for enduse {} and fueltype {}".format(
                     obj.enduse, obj.fueltype_replace))
-    
+
         if obj.switch_yr <= base_yr:
             raise Exception("Input error of fuel switch: switch_yr must be in the future")
 
@@ -1057,8 +1057,7 @@ def read_scenaric_population_data(result_path):
     """
     results = {}
 
-    all_txt_files_in_folder = os.listdir(
-        result_path)
+    all_txt_files_in_folder = os.listdir(result_path)
 
     # Iterate files
     for file_path in all_txt_files_in_folder:
@@ -1097,7 +1096,6 @@ def read_capacity_switch(path_to_csv, base_yr=2015):
         installed_capacity          [float] Installed total capacity in GWh
         sector                      [str]   Optional sector specific info where switch applies
                                             If field is empty the switch is across all sectors
-
     """
     service_switches = []
 
@@ -1107,7 +1105,6 @@ def read_capacity_switch(path_to_csv, base_yr=2015):
 
         for row in rows:
             try:
-
                 # Check if setor is defined
                 try:
                     sector = str(row[4])
@@ -1141,7 +1138,7 @@ def read_floor_area_virtual_stock(path_to_csv, f_mixed_floorarea=0.5):
 
     Arguments
     ---------
-    path_floor_area : str
+    path_to_csv : str
         Path to csv file
     f_mixed_floorarea : float
         Factor to assign mixed floor area

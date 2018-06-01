@@ -173,10 +173,10 @@ if __name__ == "__main__":
     data['reg_nrs'] = len(data['regions'])
 
     data['population'] = data_loader.read_scenario_data(
-        os.path.join(local_data_path, 'scenarios', 'uk_pop_high_migration_2015_2050.csv'), data['regions'])
+        os.path.join(local_data_path, 'scenarios', 'uk_pop_high_migration_2015_2050.csv'))
 
     data['gva'] = data_loader.read_scenario_data(
-        os.path.join(local_data_path, 'scenarios', 'gva_sven.csv'), data['regions'])
+        os.path.join(local_data_path, 'scenarios', 'gva_sven.csv'))
 
     data['industry_gva'] = "TST"
 

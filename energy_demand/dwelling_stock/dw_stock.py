@@ -5,7 +5,7 @@ import numpy as np
 
 from energy_demand.technologies import diffusion_technologies
 
-def createNEWCASTLE_dwelling_stock(curr_yr, region, data, parameter_list):
+'''def createNEWCASTLE_dwelling_stock(curr_yr, region, data, parameter_list):
     """Create dwelling stock based on input from
     building model from Newcastle
 
@@ -66,7 +66,7 @@ def createNEWCASTLE_dwelling_stock(curr_yr, region, data, parameter_list):
         data['enduses']['rs_enduses'])
 
     return dwelling_stock
-
+'''
 class Dwelling(object):
     """Dwelling or aggregated group of dwellings
 
@@ -164,7 +164,8 @@ class Dwelling(object):
                     for scenario_driver in scenario_drivers:
 
                         # If scenario driver is set to zero, do not use this driver
-                        driver_value = getattr(self, scenario_driver) 
+                        driver_value = getattr(self, scenario_driver)
+
                         if driver_value == 0:
                             pass
                         else:
@@ -179,7 +180,7 @@ class Dwelling(object):
                     scenario_driver_value)
 
             assert scenario_driver_value != 0
-    
+
     def add_new_attribute(self, name, value):
         """Add a new self asttribute to DwellingStock
         """
@@ -643,9 +644,7 @@ def rs_dw_stock(
             floorarea_p=floorarea_p[base_yr],
             floorarea_by=floorarea_by,
             dwtype_age_distr_by=assumptions.dwtype_age_distr[base_yr],
-            floorarea_pp=floorarea_pp_by,
-            tot_floorarea_cy=floorarea_by,
-            pop_by=population_by)
+            floorarea_pp=floorarea_pp_by)
 
         # Create regional base year building stock
         dwelling_stock = DwellingStock(
@@ -681,9 +680,7 @@ def rs_dw_stock(
             floorarea_p=floorarea_p[curr_yr],
             floorarea_by=remaining_area,
             dwtype_age_distr_by=assumptions.dwtype_age_distr[base_yr],
-            floorarea_pp=floorarea_pp_cy,
-            tot_floorarea_cy=remaining_area,
-            pop_by=population_by_existing)
+            floorarea_pp=floorarea_pp_cy)
 
         # Append buildings of new floor area to
         if new_floorarea_cy > 0:
@@ -765,9 +762,7 @@ def generate_dw_existing(
         floorarea_p,
         floorarea_by,
         dwtype_age_distr_by,
-        floorarea_pp,
-        tot_floorarea_cy,
-        pop_by
+        floorarea_pp
     ):
     """Generates dwellings according to age, floor area
     and distribution assumption
@@ -839,14 +834,6 @@ def generate_dw_existing(
 
             control_floorarea += dwtype_age_class_floorarea
             control_pop += pop_dwtype_age_class
-
-    #Testing
-    '''np.testing.assert_array_almost_equal(
-        tot_floorarea_cy,
-        control_floorarea,
-        decimal=3,
-        err_msg="ERROR: in dwelling stock {} ---  {}".format(tot_floorarea_cy, control_floorarea))
-    np.testing.assert_array_almost_equal(pop_by, control_pop, decimal=3, err_msg="Error NR XXX")'''
 
     return dw_stock_by
 

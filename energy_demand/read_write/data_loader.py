@@ -77,8 +77,8 @@ def read_national_real_elec_data(path_to_csv):
         headings = next(rows) # Skip first row
 
         for row in rows:
-            geocode = str.strip(row[2])                 # LA Code
-            tot_consumption_unclean = row[3].strip()    # Total consumption
+            geocode = str.strip(read_data.get_position(headings, 'LA Code'))
+            tot_consumption_unclean = row[read_data.get_position(headings, 'Total consumption')].strip()    # Total consumption
             national_fuel_data[geocode] = float(tot_consumption_unclean.replace(",", ""))
 
     return national_fuel_data
@@ -112,8 +112,8 @@ def read_national_real_gas_data(path_to_csv):
         headings = next(rows) # Skip first row
 
         for row in rows:
-            geocode = str.strip(row[2])                 # 'LA Code'
-            tot_consumption_unclean = row[3].strip()    # 'Total consumption'
+            geocode = str.strip(row[read_data.get_position(headings, 'LA Code')])
+            tot_consumption_unclean = row[read_data.get_position(headings, 'Total consumption')].strip()
 
             if tot_consumption_unclean == '-':
                 total_consumption = 0 # No entry provided
@@ -156,16 +156,13 @@ def floor_area_virtual_dw(
         Residential floor area
     ss_floorarea : dict
         Service sector floor area
-    # TODO SO FAR THE SAME FOR EVERY SECTOR
     """
     # ------
     # Get average floor area per perons
-    # Based on Roberts et al. (2011) , an average one bedroom home for 2 people has 46 m2. 
-    # We thus assume 23m2 per person on average.
-    # 
-    # Roberts et al. (2011): The Case for Space: the size of England’s new homes. 
+    # Based on Roberts et al. (2011) , an average one bedroom home for 2 people has 46 m2.
+    # Roberts et al. (2011): The Case for Space: the size of England’s new homes.
     # -----
-    avearge_floor_area_pp = 23 #m2
+    avearge_floor_area_pp = 23 # We thus assume 23 m2 per person on average.
 
     # --------------------------------------------------
     # Floor area for residential buildings for base year
@@ -205,10 +202,7 @@ def floor_area_virtual_dw(
                 ss_floorarea_sector_by[base_yr][region][sector] = non_res_flootprint[region]
             except KeyError:
                 logging.warning("No virtual service floor area for region %s", region)
-                #ss_floorarea_sector_by[base_yr][region][sector] = 1234567899999999
-                
                 ss_floorarea_sector_by[base_yr][region][sector] = 0
-
                 ss_regions_without_floorarea.add(region)
 
     return dict(rs_floorarea), dict(ss_floorarea_sector_by), service_building_count, rs_regions_without_floorarea, list(ss_regions_without_floorarea)
@@ -905,11 +899,10 @@ def ss_read_shapes_enduse_techs(ss_shapes_dh, ss_shapes_yd):
 
     return ss_all_tech_shapes_dh, ss_all_tech_shapes_yd
 
-def read_scenario_data(path_to_csv, regions):
+def read_scenario_data(path_to_csv):
     """
     """
     data = {}
-    out_data = {}
 
     with open(path_to_csv, 'r') as csvfile:
         rows = csv.reader(csvfile, delimiter=',')
@@ -919,7 +912,7 @@ def read_scenario_data(path_to_csv, regions):
             region = str(row[read_data.get_position(headings, 'region')])
             year = int(row[read_data.get_position(headings, 'year')])
             value = float(row[read_data.get_position(headings, 'value')])
-            interval = int(row[read_data.get_position(headings, 'interval')])
+            #interval = int(row[read_data.get_position(headings, 'interval')])
 
             try:
                 data[year][region] = value
@@ -928,14 +921,6 @@ def read_scenario_data(path_to_csv, regions):
                 data[year][region] = value
 
     return data
-    '''for year in data.keys():
-        reg_vals = []
-        for region in regions:
-            reg_vals.append(data[year][region])
-
-        out_data[year] = np.array(reg_vals)
-
-    return out_data'''
 
 def load_regions_localmodelrun(path_to_csv):
     """Read in regions from csv file

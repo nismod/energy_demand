@@ -251,7 +251,7 @@ def calc_regional_services(
     techs_affected_spatial_f : list
         List with technologies where spatial diffusion is affected
     capping_val : float
-        Maximum service share (1.0). This is needed in case 
+        Maximum service share (1.0). This is needed in case
         of spatial explicit diffusion modelling where the diffusion
         speed is very large and thus would lead to areas with
         largher shares than 1
@@ -538,26 +538,25 @@ def factor_improvements_single(
         logging.info("spatial_factor: f_reg_norm_abs")
         spatial_factor = f_reg_norm_abs
 
-
     # Sum fuel for all regions
     uk_enduse_fuel = sum(fuel_regs_enduse.values())
 
     test = 0
     for region in regions:
-    
+
         try:
             test += (reg_enduse_tech_p_ey[region] * np.sum(fuel_regs_enduse[region]))
             logging.info(
                 "FUEL FACTOR reg: {}  val: {}, fuel: {}  fuel: {} ".format(
                     region,
-                    round(reg_enduse_tech_p_ey[region],3),
+                    round(reg_enduse_tech_p_ey[region], 3),
                     round(uk_enduse_fuel, 3),
-                    round(np.sum(fuel_regs_enduse[region]),3)))
+                    round(np.sum(fuel_regs_enduse[region]), 3)))
         except:
             pass
 
         reg_enduse_tech_p_ey[region] = factor_uk * spatial_factor[region]
-        
+
         logging.info("spatial single factor reg: {}  val: {}".format(
             region,
             round(reg_enduse_tech_p_ey[region], 3)))
