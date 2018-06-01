@@ -2,7 +2,6 @@
 
 TODO: REMOVEP EAK FACTORS 
 TODO: DISAGGREGATE SERVICE SECTOR HEATING DEMANDS WITH FLOOR AREA FOR SECTORS
-TODO: remove tech_list
 TODO: Write all metadata of model run restuls to txt
 TODO: Related ed to houses & householdsize
 TODO: data loading, load multiple years for real elec data

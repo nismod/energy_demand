@@ -69,8 +69,7 @@ class EnergyDemandModel(object):
         aggr_results = initialise_result_container(
             data['lookups']['fueltypes_nr'],
             data['sectors'],
-            data['reg_nrs']) #,
-            #assumptions.heating_technologies)
+            data['reg_nrs'])
 
         # ---------------------------------------------
         # Iterate over regions and Simulate
@@ -936,8 +935,7 @@ def aggregate_final_results(
 def initialise_result_container(
         fueltypes_nr,
         sectors,
-        reg_nrs#,
-        #heating_technologies
+        reg_nrs
     ):
     """Create container with empty dict or arrays
     as values in a dict. This is used to aggregate the
@@ -951,8 +949,6 @@ def initialise_result_container(
         Sectors
     reg_nrs : int
         Number of regions
-    heating_technologies : list
-        Heating technologies
 
     Returns
     -------
@@ -965,9 +961,6 @@ def initialise_result_container(
         (len(sectors.keys()), reg_nrs, fueltypes_nr, 365, 24), dtype=float)
 
     result_container['ed_techs_submodel_fueltype_regs_yh'] = {}
-    #for heating_tech in heating_technologies:
-    #    result_container['ed_techs_submodel_fueltype_regs_yh'][heating_tech] = np.zeros(
-    #        (len(sectors.keys()), reg_nrs, fueltypes_nr, 365, 24), dtype=float)
 
     result_container['ed_fueltype_regs_yh'] = np.zeros(
         (fueltypes_nr, reg_nrs, 8760), dtype=float)

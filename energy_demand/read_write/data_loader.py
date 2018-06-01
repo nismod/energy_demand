@@ -175,7 +175,6 @@ def floor_area_virtual_dw(
             logging.warning(
                 "No virtual residential floor area for region %s ", region)
 
-            #estimated_floor_area = average_pop
             rs_floorarea[base_yr][region] = 1234567899999999
 
     # --------------------------------------------------
@@ -359,19 +358,9 @@ def load_paths(path):
         'path_shape_ss_cooling': os.path.join(
             path, '03-load_profiles', 'ss_submodel', 'shape_service_cooling.csv'),
         'lp_elec_storage_heating': os.path.join(
-            #path, '03-load_profiles', 'rs_submodel', 'lp_elec_storage_heating_HES.csv'), # Worst
-            #path, '03-load_profiles', 'rs_submodel', 'lp_elec_storage_heating_Bossmann.csv'), # Better TRY TODO
-            path, '03-load_profiles', 'rs_submodel', 'lp_elec_storage_heating_HESReport.csv'), # Best
-
-            # Combination of HES Report and Bossmann (50%, 50%)
-            #path, '03-load_profiles', 'rs_submodel', 'lp_elec_storage_heating_combined.csv'), # Best
-    
+            path, '03-load_profiles', 'rs_submodel', 'lp_elec_storage_heating_HESReport.csv'),
         'lp_elec_secondary_heating': os.path.join(
-            # different per daytype
             path, '03-load_profiles', 'rs_submodel', 'lp_elec_secondary_heating_HES.csv'),
-
-            # All the same
-            #path, '03-load_profiles', 'rs_submodel', 'lp_elec_secondary_heating_HES_all_same.csv'),
 
         # Census data
         'path_employment_statistics': os.path.join(

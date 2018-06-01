@@ -176,8 +176,6 @@ class LoadProfile(object):
             model_yeardays
         ):
         """Constructor
-
-        TODO Seperate YD AND YH ONLY HAVE y_dh and yd as input and calculate yh
         """
         self.unique_identifier = unique_identifier
         self.enduses = enduses

@@ -285,7 +285,9 @@ class WeatherRegion(object):
             self.rs_hdd_cy,
             assumptions.model_yeardays)
 
-        #TODO Info: Same load for space and water heating for HP
+        # ------------
+        # Set criteria wheter to use float load profile for heat pumps or not
+        # ------------
         if assumptions.strategy_variables['flat_heat_pump_profile_both']['scenario_value']:
             flat_space_heating = True
             flat_water_heating = True

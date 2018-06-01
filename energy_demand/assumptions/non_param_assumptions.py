@@ -468,10 +468,6 @@ class Assumptions(object):
             self.installed_heat_pump_by,
             fueltypes)
 
-        # Collect all heating technologies
-        # TODO: MAYBE ADD IN TECH DOC ANOTHER LIST SPECIFYING ALL HEATING TECHs
-        #self.heating_technologies = get_all_heating_techs(self.tech_list)
-
         # ============================================================
         # Enduse diffusion paramters
         # ============================================================
@@ -680,43 +676,6 @@ def update_technology_assumption(
         technologies, installed_heat_pump_ey)
 
     return technologies
-
-def get_all_heating_techs(tech_lists):
-    """Get all heating technologies from tech lists
-
-    Arguments
-    ----------
-    tech_lists : dict
-        Technologies as types
-
-    Returns
-    -------
-    heating_technologies : list
-        All heating technologies
-    """
-    #TODO: REMOVE
-    heating_technologies = []
-
-    for tech in tech_lists['heating_const']:
-        if tech != 'placeholder_tech':
-            heating_technologies.append(tech)
-    for tech in tech_lists['heating_non_const']:
-        if tech != 'placeholder_tech':
-            heating_technologies.append(tech)
-    for tech in tech_lists['tech_district_heating']:
-        if tech != 'placeholder_tech':
-            heating_technologies.append(tech)
-    for tech in tech_lists['secondary_heating_electricity']:
-        if tech != 'placeholder_tech':
-            heating_technologies.append(tech)
-    for tech in tech_lists['storage_heating_electricity']:
-        if tech != 'placeholder_tech':
-            heating_technologies.append(tech)
-    for tech in tech_lists['tech_CHP']:
-        if tech != 'placeholder_tech':
-            heating_technologies.append(tech)
-
-    return heating_technologies
 
 class DummyClass(object):
     """Assumptions

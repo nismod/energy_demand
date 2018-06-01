@@ -473,7 +473,7 @@ def plot_seasonal_lf(
             lower_bdoundary = []
 
             min_max_polygon = plotting_results.create_min_max_polygon_from_lines(lf_fueltypes_season)
-            #TODO GOOD
+
             '''for year_nr, lf_fueltype_reg in lf_fueltypes_season.items():
 
                 # Get min and max of all entries of year of all regions

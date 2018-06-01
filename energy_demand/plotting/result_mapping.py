@@ -360,13 +360,9 @@ def re_classification(
         pass
     elif min(bins) > 0:
         logging.info("TT")
-        #bins.insert(0, 0) #TODO
     else:
         bins.insert(len(bins), 0) # Add zero at the end
 
-    #logging.info("Newbin")
-    #logging.info(bins)
- 
     cmap = LinearSegmentedColormap.from_list(
         'mycmap',
         color_bin_match_list)
@@ -1107,25 +1103,20 @@ def create_geopanda_files(
 
                 # ----
                 # CAlculate classes for manual classification
-                # ----
+                # ----                
+                #logging.info("Min {}  Max {}".format(
+                #    min(list(data_to_plot.values())),
+                #     max(list(data_to_plot.values()))))
                 bins_increments = 10
 
                 bins = get_reasonable_bin_values(
                     data_to_plot=list(data_to_plot.values()),
                     increments=bins_increments)
 
-                #logging.info("Min {}  Max {}".format(
-                #    min(list(data_to_plot.values())),
-                #     max(list(data_to_plot.values()))))
-                #logging.info("FIRST BINS: " + str(bins))
-                #bins = [-4, -2, 0, 2, 4]
-                #bins = [-40, -30, -20, -10, 0, 10, 20, 30, 40]
-
                 color_list, color_prop, user_classification, color_zero = colors_plus_minus_map(
                     bins=bins,
                     color_prop='qualitative',
                     color_order=True)
-                #user_classification = True #NEW TODO
 
                 # Plot difference in % per fueltype of total fuel (y)
                 plot_lad_national(
