@@ -53,9 +53,9 @@ def main(path_data_energy_demand, path_shapefile_input):
     # Load necessary inputs for read in
     # ------------------
     data = {}
-    data['local_paths'] = data_loader.load_local_paths(
+    data['local_paths'] = data_loader.get_local_paths(
         path_data_energy_demand)
-    data['result_paths'] = data_loader.load_result_paths(
+    data['result_paths'] = data_loader.get_result_paths(
         os.path.join(path_data_energy_demand))
     data['lookups'] = lookup_tables.basic_lookups()
 

@@ -1,29 +1,5 @@
-""" Contains the function `energy_demand_model` used for running the energy demand model 
+"""Allows to run HIRE locally outside the SMIF framework
 
-    SMIF test
-    Information about the integration framework: http://smif.readthedocs.io/
-
-    Tools
-    Profiling:  https://jiffyclub.github.io/snakeviz/
-    python -m cProfile -o program.prof my_program.py
-    snakeviz program.prof
-    
-    Development checklist
-    https://nismod.github.io/docs/development-checklist.html
-    https://nismod.github.io/docs/
-    https://nismod.github.io/docs/smif-prerequisites.html#sector-modeller
-
-
-MEthod to derive GVA/POP SERVICE FLOOR AREAS
-
-1. Step
-Get correlation between regional GVA and (regional floor area/reg pop) of every sector of base year
--- Get this correlation for every region and build national correlation
-
-2. Step
-Calculate future regional floor area demand based on GVA and pop projection 
-info: fuels_yh is made multidmensional according to fueltype
-TODO: REMOVEP EAK FACTORS 
 TODO: REMOVEP EAK FACTORS 
 TODO: DISAGGREGATE SERVICE SECTOR HEATING DEMANDS WITH FLOOR AREA FOR SECTORS
 TODO: remove tech_list
@@ -31,7 +7,6 @@ TODO: Write all metadata of model run restuls to txt
 TODO: Related ed to houses & householdsize
 TODO: data loading, load multiple years for real elec data
 TODO: WHAT ABOU NON_RESIDENTIAL FLOOR AREA: FOR WHAT?
-TODO: Spatial diffusion: Cap largest 5% of values and set to 1
 TODO :CHECK LOAD PRIFILE TECH TYPE NAMES
 TODO: shape_peak_yd_factor
 TODO: REMOVE ALL PEAK RELATED STUFF
@@ -138,12 +113,11 @@ def energy_demand_model(data, assumptions, fuel_in=0, fuel_in_elec=0):
 if __name__ == "__main__":
     """
     """
-
     data = {}
+
     # Paths
     if len(sys.argv) != 2:
         print("Please provide a local data path:")
-        print("... Defaulting to C:/users/cenv0553/ED/data")
         local_data_path = os.path.abspath('C:/users/cenv0553/ED/data')
     else:
         local_data_path = sys.argv[1]
@@ -158,7 +132,6 @@ if __name__ == "__main__":
 
     # Load data
     data['criterias'] = {}
-
     data['criterias']['mode_constrained'] = True                    # True: Technologies are defined in ED model and fuel is provided, False: Heat is delievered not per technologies
     data['criterias']['virtual_building_stock_criteria'] = True     # True: Run virtual building stock model
 
@@ -181,35 +154,36 @@ if __name__ == "__main__":
         data['criterias']['crit_plot_enduse_lp'] = True
         data['criterias']['plot_HDD_chart'] = False
         data['criterias']['writeYAML'] = True #set to false
+
     # ----------------------------
     # Model running configurations
     # ----------------------------
     simulated_yrs = [2015]
 
+
+
+
     name_scenario_run = "_result_data_{}".format(str(time.ctime()).replace(":", "_").replace(" ", "_"))
 
     # Paths
     data['paths'] = data_loader.load_paths(path_main)
-    data['local_paths'] = data_loader.load_local_paths(local_data_path)
-
-    result_path = os.path.join(local_data_path, "..", "results")
-    data['result_paths'] = data_loader.load_result_paths(os.path.join(result_path, name_scenario_run))
+    data['local_paths'] = data_loader.get_local_paths(local_data_path)
+    data['result_paths'] = data_loader.get_result_paths(
+        os.path.join(os.path.join(local_data_path, "..", "results"), name_scenario_run))
 
     data['lookups'] = lookup_tables.basic_lookups()
     data['enduses'], data['sectors'], data['fuels'] = data_loader.load_fuels(data['paths'], data['lookups'])
 
     data['regions'] = data_loader.load_regions_localmodelrun(
-        os.path.join(
-            local_data_path, 'region_definitions', 'regions_local_modelrun.csv'))
+        os.path.join(local_data_path, 'region_definitions', 'regions_local_modelrun.csv'))
+
     data['reg_nrs'] = len(data['regions'])
 
     data['population'] = data_loader.read_scenario_data(
-        os.path.join(local_data_path, 'scenarios', 'uk_pop_high_migration_2015_2050.csv'), 
-            data['regions'])
+        os.path.join(local_data_path, 'scenarios', 'uk_pop_high_migration_2015_2050.csv'), data['regions'])
 
     data['gva'] = data_loader.read_scenario_data(
-        os.path.join(local_data_path, 'scenarios', 'gva_sven.csv'), 
-            data['regions'])
+        os.path.join(local_data_path, 'scenarios', 'gva_sven.csv'), data['regions'])
 
     data['industry_gva'] = "TST"
 

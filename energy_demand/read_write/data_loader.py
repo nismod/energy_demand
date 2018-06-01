@@ -194,7 +194,7 @@ def floor_area_virtual_dw(
 
     return dict(rs_floorarea), dict(ss_floorarea_sector_by), service_building_count
 
-def load_local_paths(path):
+def get_local_paths(path):
     """Create all local paths
 
     Arguments
@@ -260,7 +260,7 @@ def load_local_paths(path):
 
     return paths
 
-def load_result_paths(path):
+def get_result_paths(path):
     """Load all result paths
 
     Arguments

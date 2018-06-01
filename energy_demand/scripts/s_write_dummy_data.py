@@ -139,7 +139,7 @@ def post_install_setup_minimum(args):
     print("... running initialisation scripts with only publicly available data")
 
     # Load paths
-    local_paths = data_loader.load_local_paths(path_local_data)
+    local_paths = data_loader.get_local_paths(path_local_data)
 
     # Create folders to input data
     raw_folder = os.path.join(path_local_data, '_raw_data')

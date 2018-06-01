@@ -14,7 +14,7 @@ import numpy as np
     # Load data
     data = {}
     data['paths'] = data_loader.load_paths(path_main)
-    data['local_paths'] = data_loader.load_local_paths(path_main)
+    data['local_paths'] = data_loader.get_local_paths(path_main)
     data['lookups'] = lookup_tables.basic_lookups()
     data['enduses'], data['sectors'], data['fuels'] = data_loader.load_fuels(data['paths'], data['lookups'])
     
