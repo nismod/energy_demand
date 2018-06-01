@@ -74,11 +74,11 @@ def read_national_real_elec_data(path_to_csv):
     national_fuel_data = {}
     with open(path_to_csv, 'r') as csvfile:
         rows = csv.reader(csvfile, delimiter=',')
-        headings = next(rows) # Skip first row
+        headings = next(rows)
 
         for row in rows:
-            geocode = str.strip(read_data.get_position(headings, 'LA Code'))
-            tot_consumption_unclean = row[read_data.get_position(headings, 'Total consumption')].strip()    # Total consumption
+            geocode = str.strip(row[read_data.get_position(headings, 'LA Code')])
+            tot_consumption_unclean = row[read_data.get_position(headings, 'Total consumption')].strip()
             national_fuel_data[geocode] = float(tot_consumption_unclean.replace(",", ""))
 
     return national_fuel_data
