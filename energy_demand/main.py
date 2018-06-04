@@ -1,8 +1,4 @@
 """Allows to run HIRE locally outside the SMIF framework
-
-Note: Write all metadata of model run restuls to txt
-Noe: Related ed to houses & householdsize
-Noe: WHAT ABOU NON_RESIDENTIAL FLOOR AREA: FOR WHAT?
 """
 import os
 import sys
@@ -12,7 +8,7 @@ import numpy as np
 from energy_demand import model
 from energy_demand.basic import testing_functions as testing
 from energy_demand.basic import lookup_tables
-from energy_demand.basic import conversions
+
 from energy_demand.assumptions import non_param_assumptions
 from energy_demand.assumptions import param_assumptions
 from energy_demand.read_write import data_loader
@@ -42,66 +38,23 @@ def energy_demand_model(data, assumptions, fuel_in=0, fuel_in_elec=0):
     ----
     This function is executed in the wrapper
     """
-    modelrun_obj = model.EnergyDemandModel(
+    modelrun = model.EnergyDemandModel(
         regions=data['regions'],
         data=data,
         assumptions=assumptions)
 
     # Calculate base year demand
-    fuel_in, fuel_in_biomass, fuel_in_elec, fuel_in_gas, fuel_in_heat, fuel_in_hydrogen, fuel_in_solid_fuel, fuel_in_oil, tot_heating = testing.test_function_fuel_sum(
+    fuels_in = testing.test_function_fuel_sum(
         data,
         data['fuel_disagg'],
         data['criterias']['mode_constrained'],
         assumptions.enduse_space_heating)
 
-    print("================================================")
-    print("Simulation year:     " + str(modelrun_obj.curr_yr))
-    print("Number of regions    " + str(data['reg_nrs']))
-    print(" TOTAL KTOE:         " + str(conversions.gwh_to_ktoe(fuel_in)))
+    # Write model results
+    write_data.logg_info(modelrun, fuels_in, data)
 
-    print("-----------------")
-    print("[GWh] Total fuel input:    " + str(fuel_in))
-    print("[GWh] Total output:        " + str(np.sum(modelrun_obj.ed_fueltype_national_yh)))
-    print("[GWh] Total difference:    " + str(round((np.sum(modelrun_obj.ed_fueltype_national_yh) - fuel_in), 4)))
-    print("-----------")
-    print("[GWh] oil fuel in:         " + str(fuel_in_oil))
-    print("[GWh] oil fuel out:        " + str(np.sum(modelrun_obj.ed_fueltype_national_yh[data['lookups']['fueltypes']['oil']])))
-    print("[GWh] oil diff:            " + str(round(np.sum(modelrun_obj.ed_fueltype_national_yh[data['lookups']['fueltypes']['oil']]) - fuel_in_oil, 4)))
-    print("-----------")
-    print("[GWh] biomass fuel in:     " + str(fuel_in_biomass))
-    print("[GWh] biomass fuel out:    " + str(np.sum(modelrun_obj.ed_fueltype_national_yh[data['lookups']['fueltypes']['biomass']])))
-    print("[GWh] biomass diff:        " + str(round(np.sum(modelrun_obj.ed_fueltype_national_yh[data['lookups']['fueltypes']['biomass']]) - fuel_in_biomass, 4)))
-    print("-----------")
-    print("[GWh] solid_fuel fuel in:  " + str(fuel_in_solid_fuel))
-    print("[GWh] solid_fuel fuel out: " + str(np.sum(modelrun_obj.ed_fueltype_national_yh[data['lookups']['fueltypes']['solid_fuel']])))
-    print("[GWh] solid_fuel diff:     " + str(round(np.sum(modelrun_obj.ed_fueltype_national_yh[data['lookups']['fueltypes']['solid_fuel']]) - fuel_in_solid_fuel, 4)))
-    print("-----------")
-    print("[GWh] elec fuel in:        " + str(fuel_in_elec))
-    print("[GWh] elec fuel out:       " + str(np.sum(modelrun_obj.ed_fueltype_national_yh[data['lookups']['fueltypes']['electricity']])))
-    print("[GWh] ele fuel diff:       " + str(round(np.sum(modelrun_obj.ed_fueltype_national_yh[data['lookups']['fueltypes']['electricity']]) - fuel_in_elec, 4)))
-    print("-----------")
-    print("[GWh] gas fuel in:         " + str(fuel_in_gas))
-    print("[GWh] gas fuel out:        " + str(np.sum(modelrun_obj.ed_fueltype_national_yh[data['lookups']['fueltypes']['gas']])))
-    print("[GWh] gas diff:            " + str(round(np.sum(modelrun_obj.ed_fueltype_national_yh[data['lookups']['fueltypes']['gas']]) - fuel_in_gas, 4)))
-    print("-----------")
-    print("[GWh] hydro fuel in:       " + str(fuel_in_hydrogen))
-    print("[GWh] hydro fuel out:      " + str(np.sum(modelrun_obj.ed_fueltype_national_yh[data['lookups']['fueltypes']['hydrogen']])))
-    print("[GWh] hydro diff:          " + str(round(np.sum(modelrun_obj.ed_fueltype_national_yh[data['lookups']['fueltypes']['hydrogen']]) - fuel_in_hydrogen, 4)))
-    print("-----------")
-    print("TOTAL HEATING        " + str(tot_heating))
-    print("[GWh] heat fuel in:        " + str(fuel_in_heat))
-    print("[GWh] heat fuel out:       " + str(np.sum(modelrun_obj.ed_fueltype_national_yh[data['lookups']['fueltypes']['heat']])))
-    print("[GWh] heat diff:           " + str(round(np.sum(modelrun_obj.ed_fueltype_national_yh[data['lookups']['fueltypes']['heat']]) - fuel_in_heat, 4)))
-    print("-----------")
-    print("Diff elec %:         " + str(round((np.sum(modelrun_obj.ed_fueltype_national_yh[data['lookups']['fueltypes']['electricity']])/ fuel_in_elec), 4)))
-    print("Diff gas %:          " + str(round((np.sum(modelrun_obj.ed_fueltype_national_yh[data['lookups']['fueltypes']['gas']])/ fuel_in_gas), 4)))
-    print("Diff oil %:          " + str(round((np.sum(modelrun_obj.ed_fueltype_national_yh[data['lookups']['fueltypes']['oil']])/ fuel_in_oil), 4)))
-    print("Diff solid_fuel %:   " + str(round((np.sum(modelrun_obj.ed_fueltype_national_yh[data['lookups']['fueltypes']['solid_fuel']])/ fuel_in_solid_fuel), 4)))
-    print("Diff hydrogen %:     " + str(round((np.sum(modelrun_obj.ed_fueltype_national_yh[data['lookups']['fueltypes']['hydrogen']])/ fuel_in_hydrogen), 4)))
-    print("Diff biomass %:      " + str(round((np.sum(modelrun_obj.ed_fueltype_national_yh[data['lookups']['fueltypes']['biomass']])/ fuel_in_biomass), 4)))
-    print("================================================")
     logging.info("...finished running energy demand model simulation")
-    return modelrun_obj
+    return modelrun
 
 if __name__ == "__main__":
     """
@@ -152,10 +105,6 @@ if __name__ == "__main__":
     # Model running configurations
     # ----------------------------
     simulated_yrs = [2015]
-
-
-
-
     name_scenario_run = "_result_data_{}".format(str(time.ctime()).replace(":", "_").replace(" ", "_"))
 
     # Paths

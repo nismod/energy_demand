@@ -4,12 +4,10 @@ depending on scenaric assumptions."""
 import logging
 import math
 import numpy as np
-from energy_demand.profiles import load_profile as lp
 from energy_demand.profiles import load_factors as lf
 from energy_demand.technologies import diffusion_technologies
 from energy_demand.technologies import fuel_service_switch
 from energy_demand.technologies import tech_related
-from energy_demand.basic import lookup_tables
 
 class Enduse(object):
     """Enduse Class for all endueses in each SubModel
@@ -168,7 +166,6 @@ class Enduse(object):
 
             # Calculate new fuel demands after scenario drivers
             _fuel_new_y = apply_scenario_drivers(
-                submodel,
                 enduse,
                 sector,
                 self.fuel_y,
@@ -1041,7 +1038,6 @@ def apply_air_leakage(
         return service, service_techs
 
 def apply_scenario_drivers(
-        submodel,
         enduse,
         sector,
         fuel_y,
@@ -1150,7 +1146,6 @@ def apply_scenario_drivers(
             # Scenariodriver of dwelling stock base year and new stock
             by_driver = getattr(dw_stock[base_yr], enduse)
             cy_driver = getattr(dw_stock[curr_yr], enduse)
-            #assert by_driver != 'nan' and assert cy_driver != 'nan'
 
             # base year / current (checked)
             try:
@@ -1160,12 +1155,9 @@ def apply_scenario_drivers(
 
             # Check if float('nan')
             if math.isnan(factor_driver):
-                logging.warning("Something went wrong wtih scenario")
+                logging.warning("Something went wrong with scenario criver calculation")
                 factor_driver = 1
 
-            #logging.debug("... Scenario drivers: {} {} {}".format(by_driver, cy_driver, factor_driver))
-            if np.sum(np.isnan(fuel_y)) > 0:
-                logging.info("ERROR NAN")
             fuel_y = fuel_y * factor_driver
         else:
             pass #enduse not define with scenario drivers

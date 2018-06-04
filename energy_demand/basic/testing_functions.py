@@ -164,11 +164,7 @@ def test_function_fuel_sum(data, fuel_disagg, mode_constrained, space_heating_en
     fuel_in_heat = 0
     fuel_in_hydrogen = 0
     fuel_in_biomass = 0
-
-    fuel_heating_all_fueltypes = 0
-    fuel_heating_gas = 0
     tot_heating = 0
-    #mode_constrained = True #SCRAP
 
     for region in fuel_disagg['rs_fuel_disagg']:
         for enduse in fuel_disagg['rs_fuel_disagg'][region]:
@@ -177,7 +173,6 @@ def test_function_fuel_sum(data, fuel_disagg, mode_constrained, space_heating_en
 
             if mode_constrained == False and enduse in space_heating_enduses: #Exclude inputs for heating
                 tot_heating += np.sum(fuel_disagg['rs_fuel_disagg'][region][enduse])
-                #pass
             else:
                 fuel_in_elec += np.sum(fuel_disagg['rs_fuel_disagg'][region][enduse][data['lookups']['fueltypes']['electricity']])
                 fuel_in_gas += np.sum(fuel_disagg['rs_fuel_disagg'][region][enduse][data['lookups']['fueltypes']['gas']])
@@ -217,8 +212,19 @@ def test_function_fuel_sum(data, fuel_disagg, mode_constrained, space_heating_en
                     fuel_in_oil += np.sum(fuel_disagg['is_fuel_disagg'][region][enduse][sector][data['lookups']['fueltypes']['oil']])
                     fuel_in_solid_fuel += np.sum(fuel_disagg['is_fuel_disagg'][region][enduse][sector][data['lookups']['fueltypes']['solid_fuel']])
                     fuel_in_biomass += np.sum(fuel_disagg['is_fuel_disagg'][region][enduse][sector][data['lookups']['fueltypes']['biomass']])
-                
-    return fuel_in, fuel_in_biomass, fuel_in_elec, fuel_in_gas, fuel_in_heat, fuel_in_hydrogen, fuel_in_solid_fuel, fuel_in_oil, tot_heating
+
+    out_dict = {
+        "fuel_in": fuel_in,
+        "fuel_in_biomass": fuel_in_biomass,
+        "fuel_in_elec": fuel_in_elec,
+        "fuel_in_gas": fuel_in_gas,
+        "fuel_in_heat": fuel_in_heat,
+        "fuel_in_hydrogen": fuel_in_hydrogen,
+        "fuel_in_solid_fuel": fuel_in_solid_fuel,
+        "fuel_in_oil": fuel_in_oil,
+        "tot_heating": tot_heating}      
+
+    return out_dict
 
 def control_disaggregation(fuel_disagg, national_fuel, enduses, sectors=False):
     """Check if disaggregation is correct

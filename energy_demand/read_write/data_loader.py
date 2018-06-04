@@ -51,6 +51,25 @@ def load_ini_param(path):
 
     return enduses, assumptions, reg_nrs, regions
 
+def load_MOSA_pop(path_to_csv):
+    """
+
+    """
+    pop_data = defaultdict(dict)
+
+    with open(path_to_csv, 'r') as csvfile:
+        rows = csv.reader(csvfile, delimiter=',')
+        headings = next(rows)
+
+        for row in rows:
+            lad_code = str.strip(row[read_data.get_position(headings, 'Local authority code')])
+            MSOA_code = row[read_data.get_position(headings, 'MSOA Code')].strip()
+            pop = float(row[read_data.get_position(headings, 'Persons')].strip())
+
+            pop_data[lad_code][MSOA_code] = pop
+
+    return pop_data
+
 def read_national_real_elec_data(path_to_csv):
     """Read in national consumption from csv file. The unit
     in the original csv is in GWh per region per year.
