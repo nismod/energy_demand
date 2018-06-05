@@ -17,7 +17,7 @@ from energy_demand.read_write import write_data
 from energy_demand.read_write import read_data
 from energy_demand.basic import basic_functions
 
-def energy_demand_model(data, assumptions, fuel_in=0, fuel_in_elec=0):
+def energy_demand_model(data, assumptions):
     """Main function of energy demand model to calculate yearly demand
 
     Arguments
@@ -227,11 +227,7 @@ if __name__ == "__main__":
             data['assumptions'].enduse_space_heating)
 
         # Main model run function
-        modelrun_obj = energy_demand_model(
-            data,
-            data['assumptions'],
-            fuel_in,
-            fuel_in_elec)
+        modelrun_obj = energy_demand_model(data, data['assumptions'])
 
         # --------------------
         # Result unconstrained

@@ -5,6 +5,7 @@ import os
 from collections import defaultdict
 from energy_demand.read_write import data_loader
 from energy_demand.read_write import write_data
+from energy_demand.validation import map_LAD_2011_2015
 
 local_data_path = "C:/Users/cenv0553/ED/data/scenarios"
 path_to_csv_MSOA = os.path.join(local_data_path, "pop_MSOA_orig.csv")
@@ -14,14 +15,19 @@ path_out = os.path.join(local_data_path, 'uk_pop_high_migration_2015_2050_MSOA.c
 # Read 2011 MSOA population data
 population_2011 = data_loader.load_MOSA_pop(path_to_csv_MSOA)
 
+# Remap
+#for year 
+#pop_LAD_2015_2015 = map_LAD_2011_2015(pop_LAD_2015_2015)
+
 # Read 2015 - 2050 population data for LAD
 pop_LAD_2015_2015 = data_loader.read_scenario_data(path_to_csv_LAD)
+
 
 all_MSOA = []
 for lad, msoas in population_2011.items():
     all_MSOA += list(msoas.keys())
 
-msoa_pop_2011_2050 = defaultdict(staticmethod)
+msoa_pop_2011_2050 = defaultdict(dict)
 
 # Iterate MSOA
 for msoa in all_MSOA:
@@ -41,7 +47,7 @@ for msoa in all_MSOA:
         msoa_pop_2011 = population_2011[lad_match][msoa]
 
         # pop lad cy
-        lad_pop_cy = pop_LAD_2015_2015[year]
+        lad_pop_cy = pop_LAD_2015_2015[year][lad_match]
 
         # Get change in LAd projection and assume that
         # the same change for all MSOA of the corresponding LAD

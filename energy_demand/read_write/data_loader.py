@@ -64,7 +64,7 @@ def load_MOSA_pop(path_to_csv):
         for row in rows:
             lad_code = str.strip(row[read_data.get_position(headings, 'Local authority code')])
             MSOA_code = row[read_data.get_position(headings, 'MSOA Code')].strip()
-            pop = float(row[read_data.get_position(headings, 'Persons')].strip())
+            pop = float(row[read_data.get_position(headings, 'Persons')].strip().replace(",", ""))
 
             pop_data[lad_code][MSOA_code] = pop
 
