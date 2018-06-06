@@ -1,8 +1,6 @@
 """Assumptions provided as parameters to smif. This script can be run to write out all paramters as YAML
 """
-import os
 import copy
-import logging
 from energy_demand.read_write import write_data
 from energy_demand.basic import basic_functions
 from energy_demand.assumptions import non_param_assumptions
@@ -23,8 +21,6 @@ def load_param_assump(paths=None, local_paths=None, assumptions=None, writeYAML=
     data : dict
         Data dictionary with added ssumption dict
     """
-    logging.debug("... write assumptions to yaml file")
-
     strategy_variables = []
     strategy_vars = {}
 

@@ -1,16 +1,8 @@
 """The function `EnergyDemandModel` executes all the submodels of the energy demand model
-
-    Tools
-    # -------
-    Profiling:  https://jiffyclub.github.io/snakeviz/
-    python -m cProfile -o program.prof my_program.py
-    snakeviz program.prof
-
 """
 import logging
 from collections import defaultdict
 import numpy as np
-
 import energy_demand.enduse_func as endusefunctions
 from energy_demand.geography.region import Region
 from energy_demand.geography.weather_region import WeatherRegion
@@ -18,6 +10,7 @@ from energy_demand.dwelling_stock import dw_stock
 from energy_demand.basic import testing_functions
 from energy_demand.profiles import load_factors
 from energy_demand.charts import figure_HHD_gas_demand
+from energy_demand.profiles import generic_shapes
 
 class EnergyDemandModel(object):
     """ Main function of energy demand model. All submodels
@@ -260,9 +253,7 @@ def fuel_aggr(
     elif sum_crit == 'sum':
         return np.sum(input_array)
 
-def get_fuels_yh(
-        enduse_object,
-        attribute_to_get):
+def get_fuels_yh(enduse_object, attribute_to_get):
     """Get yh load profile and assign yh shape
     for enduses with flat load profiles
 
@@ -289,24 +280,42 @@ def get_fuels_yh(
         # Annual fuel
         fuels_reg_y = enduse_object.fuel_y
 
-        if attribute_to_get == 'fuel_peak_h':
-            shape_peak_h = 1 / 8760
-            fuels = fuels_reg_y * shape_peak_h
-        elif attribute_to_get == 'shape_non_peak_y_dh':
-            shape_non_peak_y_dh = np.full((365, 24), (1.0 / 24))
-            fuels = fuels_reg_y * shape_non_peak_y_dh
+        # Get flat load profile
+        flat_shape_yd, flat_shape_yh, flat_shape_y_dh = generic_shapes.flat_shape()
+    
+        #if attribute_to_get == 'fuel_peak_h':
+        #    shape_peak_h = 0.00011415525114155251 #1 / 8760
+        #    fuels = fuels_reg_y * shape_peak_h
+        if attribute_to_get == 'shape_non_peak_y_dh':
+            #shape_non_peak_y_dh = np.full((365, 24), 0.041666666666666664) #(1.0 / 24))
+            #fuels = fuels_reg_y * shape_non_peak_y_dh
+            fuels = fuels_reg_y * flat_shape_yh
         elif attribute_to_get == 'shape_non_peak_yd':
-            shape_non_peak_yd = np.ones((365), dtype=float) / 365
-            fuels = fuels_reg_y * shape_non_peak_yd
+            #shape_non_peak_yd = np.ones((365), dtype=float) / 365
+            #shape_non_peak_yd = np.full((365), 0.0027397260273972603) #1/ 365
+            #fuels = fuels_reg_y * shape_non_peak_yd
+            fuels = fuels_reg_y * flat_shape_yd
         elif attribute_to_get == 'fuel_yh' or attribute_to_get == 'techs_fuel_yh':
-            f_hour = 1 / 8760
+            f_hour = 0.00011415525114155251 #1 / 8760
             flat_shape = np.full((enduse_object.fuel_y.shape[0], 365, 24), f_hour, dtype=float)
-
             fuels = fuels_reg_y[:, np.newaxis, np.newaxis] * flat_shape
-        elif attribute_to_get == 'techs_fuel_peak_h':
-            fuels = 1 / 8760
+        #elif attribute_to_get == 'techs_fuel_peak_h':
+        #    fuels = 0.00011415525114155251 #1 / 8760
     else: #If not flat shape, use yh load profile of enduse
-        fuels = getattr(enduse_object, attribute_to_get)
+        #if attribute_to_get == 'fuel_peak_h':
+        #    fuels = enduse_object.fuel_peak_h
+        if attribute_to_get == 'shape_non_peak_y_dh':
+            fuels = enduse_object.shape_non_peak_y_dh
+        elif attribute_to_get == 'shape_non_peak_yd':
+            fuels = enduse_object.shape_non_peak_yd
+        elif attribute_to_get == 'fuel_yh':
+            fuels = enduse_object.fuel_yh
+        elif attribute_to_get == 'techs_fuel_yh':
+            fuels = enduse_object.techs_fuel_yh
+        #elif attribute_to_get == 'techs_fuel_peak_h':
+        #    fuels = enduse_object.techs_fuel_peak_h
+        else:
+            fuels = getattr(enduse_object, attribute_to_get)
 
     return fuels
 
@@ -337,8 +346,6 @@ def residential_submodel(
     submodule_list : list
         List with submodules
     """
-    logging.debug("... residential submodel start")
-
     if not sectors:
         sectors = [False]
     else:
@@ -416,7 +423,6 @@ def service_submodel(
     submodels : list
         List with submodels
     """
-    logging.debug("... service submodel start")
     submodels = []
 
     for sector in sectors:
@@ -494,7 +500,6 @@ def industry_submodel(
     submodules : list
         Submodule objects
     """
-    logging.debug("... industry submodel start")
     submodels = []
 
     for sector in sectors:
@@ -795,8 +800,6 @@ def aggregate_final_results(
     aggr_results : dict
         Contains all aggregated results
     """
-    logging.debug("... start summing for supply model")
-
     empty_input_array = np.zeros((fueltypes_nr, 365, 24), dtype=float)
 
     if mode_constrained:

@@ -1,4 +1,11 @@
 """Allows to run HIRE locally outside the SMIF framework
+
+
+    Tools
+    # -------
+    Profiling:  https://jiffyclub.github.io/snakeviz/
+    python -m cProfile -o program.prof my_program.py
+    snakeviz program.prof
 """
 import os
 import sys
@@ -17,7 +24,6 @@ from energy_demand.read_write import write_data
 from energy_demand.read_write import read_data
 from energy_demand.basic import basic_functions
 
-#TODO remove reg_load_factor_y
 #TOPDO :replace key error to test in list keys
 
 def energy_demand_model(data, assumptions):

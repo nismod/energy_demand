@@ -112,6 +112,7 @@ def disaggregate_base_demand(
         scenario_data,
         census_disagg=census_disagg)
 
+    logging.info("Finished disaggregation")
     return dict(rs_fuel_disagg), dict(ss_fuel_disagg), dict(is_fuel_disagg)
 
 def ss_disaggregate(
@@ -833,13 +834,12 @@ def write_disagg_fuel_sector(path_to_txt, data):
                         str.strip(enduse),
                         str.strip(sector),
                         str(int(fueltype)),
-                        str(float(fuel)) + '\n')
-                              )
+                        str(float(fuel)) + '\n'))
     file.close()
 
     return
 
-def run(data):
+'''def run(data):
     """Function run script
     """
     logging.debug("... start script %s", os.path.basename(__file__))
@@ -847,8 +847,6 @@ def run(data):
     # Disaggregation
     rs_fuel_disagg, ss_fuel_disagg, is_fuel_disagg = disaggregate_base_demand(
         data['regions'],
-        data['assumptions'].base_yr,
-        data['assumptions'].curr_yr,
         data['fuels'],
         data['scenario_data'],
         data['assumptions'],
@@ -870,5 +868,5 @@ def run(data):
         os.path.join(data['local_paths']['dir_disaggregated'], 'is_fuel_disagg.csv'),
         is_fuel_disagg)
 
-    logging.debug("... finished script %s", os.path.basename(__file__))
-    return
+    logging.info("... finished script %s", os.path.basename(__file__))
+    return'''

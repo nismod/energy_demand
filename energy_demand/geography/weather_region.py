@@ -2,7 +2,6 @@
 weather station and regional load profile and technology
 stocks are assigned."""
 import uuid
-import logging
 import numpy as np
 from energy_demand.technologies import technological_stock
 from energy_demand.profiles import load_profile
@@ -181,9 +180,6 @@ class WeatherRegion(object):
 
         # Calculate rs peak day
         rs_peak_day = enduse_func.get_peak_day(self.rs_hdd_cy)
-
-        logging.info(
-            "Regional specific peak day (rs_peak_day): %s", rs_peak_day)
 
         # ========
         # Enduse specific profiles

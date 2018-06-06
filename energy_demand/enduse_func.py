@@ -138,7 +138,7 @@ class Enduse(object):
                 assumptions.enduse_space_heating,
                 assumptions.ss_enduse_space_cooling)
             self.fuel_y = _fuel_new_y
-            logging.debug("... Fuel train B: " + str(np.sum(self.fuel_y)))
+            #logging.debug("... Fuel train B: " + str(np.sum(self.fuel_y)))
 
             # --Change fuel consumption based on smart meter induced general savings
             _fuel_new_y = apply_smart_metering(
@@ -149,7 +149,7 @@ class Enduse(object):
                 base_yr,
                 curr_yr)
             self.fuel_y = _fuel_new_y
-            logging.debug("... Fuel train C: " + str(np.sum(self.fuel_y)))
+            #logging.debug("... Fuel train C: " + str(np.sum(self.fuel_y)))
 
             # --Enduse specific fuel consumption change in %
             _fuel_new_y = apply_specific_change(
@@ -160,7 +160,7 @@ class Enduse(object):
                 base_yr,
                 curr_yr)
             self.fuel_y = _fuel_new_y
-            logging.debug("... Fuel train D: " + str(np.sum(self.fuel_y)))
+            #logging.debug("... Fuel train D: " + str(np.sum(self.fuel_y)))
 
             # Calculate new fuel demands after scenario drivers
             _fuel_new_y = apply_scenario_drivers(
@@ -176,7 +176,7 @@ class Enduse(object):
                 base_yr,
                 curr_yr)
             self.fuel_y = _fuel_new_y
-            logging.debug("... Fuel train E: " + str(np.sum(self.fuel_y)))
+            #logging.debug("... Fuel train E: " + str(np.sum(self.fuel_y)))
 
             # Apply cooling scenario variable
             _fuel_new_y = apply_cooling(
@@ -188,7 +188,7 @@ class Enduse(object):
                 base_yr,
                 curr_yr)
             self.fuel_y = _fuel_new_y
-            logging.debug("... Fuel train E1: " + str(np.sum(self.fuel_y)))
+            #logging.debug("... Fuel train E1: " + str(np.sum(self.fuel_y)))
 
             # Industry related change
             _fuel_new_y = industry_enduse_changes(
@@ -201,7 +201,7 @@ class Enduse(object):
                 enduse_overall_change['other_enduse_mode_info'],
                 assumptions)
             self.fuel_y = _fuel_new_y
-            logging.debug("... Fuel train E2: " + str(np.sum(self.fuel_y)))
+            #logging.debug("... Fuel train E2: " + str(np.sum(self.fuel_y)))
 
             # ----------------------------------
             # Hourly Disaggregation
@@ -289,7 +289,7 @@ class Enduse(object):
                     fueltypes_nr,
                     fueltypes,
                     mode_constrained)
-                logging.debug("... Fuel train H: " + str(np.sum(self.fuel_y)))
+                #logging.debug("... Fuel train H: " + str(np.sum(self.fuel_y)))
 
                 # Delete all technologies with no fuel assigned
                 for tech, fuel_tech in fuel_tech_y.items():
@@ -603,7 +603,7 @@ def get_peak_day(fuel_yh):
         Day with most fuel or service
     """
     if np.sum(fuel_yh) == 0:
-        logging.info("No peak can be found because no fuel assigned")
+        #logging.info("No peak can be found because no fuel assigned")
         # Return first entry of element (which is zero)
         return 0
     else:
@@ -633,7 +633,7 @@ def get_peak_day_single_fueltype(fuel_yh):
     fuel_yh_8760 = fuel_yh.reshape(8760)
 
     if np.sum(fuel_yh_8760) == 0:
-        logging.info("No peak can be found because no fuel assigned")
+        #logging.info("No peak can be found because no fuel assigned")
         # Return first entry of element (which is zero)
         return 0, 0
     else:
@@ -1460,18 +1460,7 @@ def calc_service_switch(
         base_yr,
         curr_yr)
 
-    '''if enduse == 'ss_space_heating' and curr_yr > 2015:
-        logging.info("crit_switch_happening " + str(crit_switch_happening))
-        logging.info("dd {} {}".format(enduse, sector))
-        logging.info(
-            "EGON  {} {} {}".format(
-                all_technologies,
-                curr_yr,
-                crit_switch_service
-            ))
-        prnt(":")'''
-
-    # ----------------------------------------
+    # ---------------------------------------
     # Calculate switch
     # ----------------------------------------
     if crit_switch_service:
@@ -1486,9 +1475,6 @@ def calc_service_switch(
             # Calculated service share per tech for cy with sigmoid parameters
             s_tech_cy_p = get_service_diffusion(
                 sig_param_tech[tech], curr_yr)
-
-            #if tech == 'heat_pumps_electricity':
-            #    logging.info("HEP SHARE: " + str(s_tech_cy_p))
 
             if s_tech_cy_p == 'identical':
                 switched_s_tech_y_cy[tech] = s_tech_y_cy[tech]
