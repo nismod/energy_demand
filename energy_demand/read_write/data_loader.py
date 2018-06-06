@@ -706,8 +706,6 @@ def load_temp_data(paths):
     temp_data : dict
         Temperatures
     """
-    print("==========")
-    print(paths['changed_weather_station_data'])
     weather_stations = read_weather_data.read_weather_station_script_data(
         paths['changed_weather_station_data'])
 
