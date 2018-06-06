@@ -1,7 +1,16 @@
 """TEsting functions
 """
 import numpy as np
-import logging
+
+def test_if_minus_value_in_array(arraytotest):
+    """Test if array has negative value
+    """
+    only_neg_elements = arraytotest[arraytotest < 0]
+
+    if len(only_neg_elements) > 0:
+        return True
+    else:
+        False
 
 def switch_testing(fuel_switches, service_switches, capacity_switches):
     """Test if swithes defined for same enduse
@@ -11,9 +20,9 @@ def switch_testing(fuel_switches, service_switches, capacity_switches):
     fuel_switches : list
         Switches
     service_switches : list
-        Switches 
+        Switches
     capacity_switches : list
-        Switches 
+        Switches
     """
     all_switches_incl_sectors = {}
 
@@ -30,7 +39,6 @@ def switch_testing(fuel_switches, service_switches, capacity_switches):
                     all_switches_incl_sectors[switch.enduse] = None
                 else:
                     all_switches_incl_sectors[switch.enduse].add(switch.sector)
-                #all_switches_incl_sectors[switch.enduse].add(switch.sector)
             else:
                 all_switches_incl_sectors[switch.enduse].add(switch.sector)
 
@@ -47,8 +55,6 @@ def switch_testing(fuel_switches, service_switches, capacity_switches):
                     all_switches_incl_sectors[switch.enduse] = None
                 else:
                     all_switches_incl_sectors[switch.enduse].add(switch.sector)
-
-                #all_switches_incl_sectors[switch.enduse].add(switch.sector)
             else:
                 all_switches_incl_sectors[switch.enduse].add(switch.sector)
 
@@ -222,7 +228,7 @@ def test_function_fuel_sum(data, fuel_disagg, mode_constrained, space_heating_en
         "fuel_in_hydrogen": fuel_in_hydrogen,
         "fuel_in_solid_fuel": fuel_in_solid_fuel,
         "fuel_in_oil": fuel_in_oil,
-        "tot_heating": tot_heating}      
+        "tot_heating": tot_heating}
 
     return out_dict
 

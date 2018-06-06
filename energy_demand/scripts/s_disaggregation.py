@@ -8,6 +8,19 @@ from energy_demand.profiles import hdd_cdd
 from energy_demand.basic import testing_functions
 from energy_demand.basic import lookup_tables
 
+def replace_msoa_reg_with_lad(region):
+    """Replace mosa with corresponding LAD
+    """
+    lu_lad_msoa = lookup_tables.lad_msoa_mapping()
+
+    for reg_lad, msoas_lad in lu_lad_msoa.items():
+        if region in list(msoas_lad):
+            #logging.info("Replaced msoa region %s with lad region %s", region, reg_lad)
+            region = reg_lad
+            break
+
+    return region
+
 def disaggregate_base_demand(
         regions,
         fuels,
@@ -99,6 +112,7 @@ def disaggregate_base_demand(
         scenario_data,
         census_disagg=census_disagg)
 
+    logging.info("Finished disaggregation")
     return dict(rs_fuel_disagg), dict(ss_fuel_disagg), dict(is_fuel_disagg)
 
 def ss_disaggregate(
@@ -279,8 +293,9 @@ def ss_disaggr(
             try:
                 nr_sector_cnt_building = lu_building_cnt[sector]
                 reg_sector_building_cnt = service_building_count[nr_sector_cnt_building][region]
+                tot_building_cnt[sector] += reg_sector_building_cnt
             except KeyError:
-                logging.info("no building cnt for region {}".format(region))
+                logging.info("No building cnt for region {}".format(region))
 
             # National disaggregation factors
             tot_floor_area[sector] += reg_floor_area
@@ -289,7 +304,6 @@ def ss_disaggr(
             tot_pop_hdd[sector] += reg_pop * reg_hdd
             tot_pop_cdd[sector] += reg_pop * reg_cdd
             tot_floor_area_cdd[sector] += reg_floor_area * reg_cdd
-            tot_building_cnt[sector] += reg_sector_building_cnt
 
     # ---------------------------------------
     # Disaggregate according to enduse
@@ -488,7 +502,12 @@ def is_disaggregate(
         for region in regions:
             is_hdd = is_hdd_individ_region[region]
 
-            for employment_sector, employment in employment_statistics[region].items():
+            # -------------------------------------------------------------------
+            # In case MSOA are provided as input, the corresponing LAD is searched
+            # -------------------------------------------------------------------
+            region_remapped = replace_msoa_reg_with_lad(region)
+
+            for employment_sector, employment in employment_statistics[region_remapped].items():
                 try:
                     tot_national_sector_employment[employment_sector] += employment
                     tot_national_sector_employment_hdd[employment_sector] += employment * is_hdd
@@ -526,7 +545,12 @@ def is_disaggregate(
                             reg_disagg_f = reg_pop / tot_pop
                             is_fuel_disagg[region][enduse][sector] = is_national_fuel[enduse][sector] * reg_disagg_f
                     else:
-                        reg_sector_employment = employment_statistics[region][matched_sector]
+                        # -------------------------------------------------------------------
+                        # In case MSOA are provided as input, the corresponing LAD is searched
+                        # -------------------------------------------------------------------
+                        region_remapped = replace_msoa_reg_with_lad(region)
+
+                        reg_sector_employment = employment_statistics[region_remapped][matched_sector]
 
                         if enduse == 'is_space_heating':
                             national_sector_employment_hdd = tot_national_sector_employment_hdd[matched_sector]
@@ -649,7 +673,7 @@ def rs_disaggregate(
 
     # -----------------
     # Check if total fuel is the same before and after aggregation
-    #------------------
+    #------------------ 
     testing_functions.control_disaggregation(
         rs_fuel_disagg, rs_national_fuel, enduses)
 
@@ -810,13 +834,12 @@ def write_disagg_fuel_sector(path_to_txt, data):
                         str.strip(enduse),
                         str.strip(sector),
                         str(int(fueltype)),
-                        str(float(fuel)) + '\n')
-                              )
+                        str(float(fuel)) + '\n'))
     file.close()
 
     return
 
-def run(data):
+'''def run(data):
     """Function run script
     """
     logging.debug("... start script %s", os.path.basename(__file__))
@@ -824,8 +847,6 @@ def run(data):
     # Disaggregation
     rs_fuel_disagg, ss_fuel_disagg, is_fuel_disagg = disaggregate_base_demand(
         data['regions'],
-        data['assumptions'].base_yr,
-        data['assumptions'].curr_yr,
         data['fuels'],
         data['scenario_data'],
         data['assumptions'],
@@ -847,5 +868,5 @@ def run(data):
         os.path.join(data['local_paths']['dir_disaggregated'], 'is_fuel_disagg.csv'),
         is_fuel_disagg)
 
-    logging.debug("... finished script %s", os.path.basename(__file__))
-    return
+    logging.info("... finished script %s", os.path.basename(__file__))
+    return'''

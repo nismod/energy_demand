@@ -1,6 +1,6 @@
 """Contains the `Enduse` Class. This is the most important class
 where the change in enduse specific energy demand is simulated
-depending on scenaric assumptions."""
+depending on scenaric assumptions"""
 import logging
 import math
 import numpy as np
@@ -8,6 +8,7 @@ from energy_demand.profiles import load_factors as lf
 from energy_demand.technologies import diffusion_technologies
 from energy_demand.technologies import fuel_service_switch
 from energy_demand.technologies import tech_related
+from energy_demand.basic import testing_functions
 
 class Enduse(object):
     """Enduse Class for all endueses in each SubModel
@@ -109,22 +110,19 @@ class Enduse(object):
         ):
         """Enduse class constructor
         """
-        #logging.info(" =====Enduse: {}  Sector:  {}".format(enduse, sector))
         self.region = region
         self.enduse = enduse
         self.fuel_y = fuel
         self.flat_profile_crit = flat_profile_crit
-
         self.techs_fuel_yh = None
-
+        
+        #If enduse has no fuel return empty shapes
         if np.sum(fuel) == 0:
-            #If enduse has no fuel return empty shapes
             self.flat_profile_crit = True
             self.fuel_y = fuel
             self.fuel_yh = 0
             self.enduse_techs = []
         else:
-
             # Get technologies of enduse
             self.enduse_techs = get_enduse_techs(fuel_fueltype_tech_p_by)
 
@@ -140,7 +138,7 @@ class Enduse(object):
                 assumptions.enduse_space_heating,
                 assumptions.ss_enduse_space_cooling)
             self.fuel_y = _fuel_new_y
-            logging.debug("... Fuel train B: " + str(np.sum(self.fuel_y)))
+            #logging.debug("... Fuel train B: " + str(np.sum(self.fuel_y)))
 
             # --Change fuel consumption based on smart meter induced general savings
             _fuel_new_y = apply_smart_metering(
@@ -151,7 +149,7 @@ class Enduse(object):
                 base_yr,
                 curr_yr)
             self.fuel_y = _fuel_new_y
-            logging.debug("... Fuel train C: " + str(np.sum(self.fuel_y)))
+            #logging.debug("... Fuel train C: " + str(np.sum(self.fuel_y)))
 
             # --Enduse specific fuel consumption change in %
             _fuel_new_y = apply_specific_change(
@@ -162,7 +160,7 @@ class Enduse(object):
                 base_yr,
                 curr_yr)
             self.fuel_y = _fuel_new_y
-            logging.debug("... Fuel train D: " + str(np.sum(self.fuel_y)))
+            #logging.debug("... Fuel train D: " + str(np.sum(self.fuel_y)))
 
             # Calculate new fuel demands after scenario drivers
             _fuel_new_y = apply_scenario_drivers(
@@ -178,7 +176,7 @@ class Enduse(object):
                 base_yr,
                 curr_yr)
             self.fuel_y = _fuel_new_y
-            logging.debug("... Fuel train E: " + str(np.sum(self.fuel_y)))
+            #logging.debug("... Fuel train E: " + str(np.sum(self.fuel_y)))
 
             # Apply cooling scenario variable
             _fuel_new_y = apply_cooling(
@@ -190,7 +188,7 @@ class Enduse(object):
                 base_yr,
                 curr_yr)
             self.fuel_y = _fuel_new_y
-            logging.debug("... Fuel train E1: " + str(np.sum(self.fuel_y)))
+            #logging.debug("... Fuel train E1: " + str(np.sum(self.fuel_y)))
 
             # Industry related change
             _fuel_new_y = industry_enduse_changes(
@@ -203,7 +201,7 @@ class Enduse(object):
                 enduse_overall_change['other_enduse_mode_info'],
                 assumptions)
             self.fuel_y = _fuel_new_y
-            logging.debug("... Fuel train E2: " + str(np.sum(self.fuel_y)))
+            #logging.debug("... Fuel train E2: " + str(np.sum(self.fuel_y)))
 
             # ----------------------------------
             # Hourly Disaggregation
@@ -291,7 +289,7 @@ class Enduse(object):
                     fueltypes_nr,
                     fueltypes,
                     mode_constrained)
-                logging.debug("... Fuel train H: " + str(np.sum(self.fuel_y)))
+                #logging.debug("... Fuel train H: " + str(np.sum(self.fuel_y)))
 
                 # Delete all technologies with no fuel assigned
                 for tech, fuel_tech in fuel_tech_y.items():
@@ -301,7 +299,6 @@ class Enduse(object):
                 # ------------------------------------------
                 # Assign load profiles
                 # ------------------------------------------
-                #logging.info("ENDUSE : {}   TECHS:  {}".format(enduse, self.enduse_techs))
                 if self.flat_profile_crit:
                     pass
                 else:
@@ -606,7 +603,7 @@ def get_peak_day(fuel_yh):
         Day with most fuel or service
     """
     if np.sum(fuel_yh) == 0:
-        logging.info("No peak can be found because no fuel assigned")
+        #logging.info("No peak can be found because no fuel assigned")
         # Return first entry of element (which is zero)
         return 0
     else:
@@ -636,7 +633,7 @@ def get_peak_day_single_fueltype(fuel_yh):
     fuel_yh_8760 = fuel_yh.reshape(8760)
 
     if np.sum(fuel_yh_8760) == 0:
-        logging.info("No peak can be found because no fuel assigned")
+        #logging.info("No peak can be found because no fuel assigned")
         # Return first entry of element (which is zero)
         return 0, 0
     else:
@@ -730,7 +727,7 @@ def calc_fuel_tech_yh(
         # Unconstrained mode, i.e. not technolog specific.
         # Store according to fueltype and heat
         # --
-        fuels_yh = np.zeros((fueltypes_nr, 365, 24), dtype=float)
+        fuels_yh = np.zeros((fueltypes_nr, 365, 24), dtype="float")
 
         for tech in enduse_techs:
 
@@ -741,6 +738,12 @@ def calc_fuel_tech_yh(
             fuel_tech_yh = fuel_tech_y[tech] * load_profile
 
             fuels_yh[fueltypes['heat']] += fuel_tech_yh
+
+        # ----------
+        # Testing if negative value
+        # ----------
+        if testing_functions.test_if_minus_value_in_array(fuels_yh):
+            raise Exception("Error: Negative entry")
 
     return fuels_yh
 
@@ -783,7 +786,7 @@ def service_to_fuel(
         - Fuel = Energy service / efficiency
     """
     fuel_tech_y = {}
-    fuel_y = np.zeros((fueltypes_nr), dtype=float)
+    fuel_y = np.zeros((fueltypes_nr), dtype="float")
 
     if mode_constrained:
         for tech, service in service_tech.items():
@@ -1457,18 +1460,7 @@ def calc_service_switch(
         base_yr,
         curr_yr)
 
-    '''if enduse == 'ss_space_heating' and curr_yr > 2015:
-        logging.info("crit_switch_happening " + str(crit_switch_happening))
-        logging.info("dd {} {}".format(enduse, sector))
-        logging.info(
-            "EGON  {} {} {}".format(
-                all_technologies,
-                curr_yr,
-                crit_switch_service
-            ))
-        prnt(":")'''
-
-    # ----------------------------------------
+    # ---------------------------------------
     # Calculate switch
     # ----------------------------------------
     if crit_switch_service:
@@ -1483,9 +1475,6 @@ def calc_service_switch(
             # Calculated service share per tech for cy with sigmoid parameters
             s_tech_cy_p = get_service_diffusion(
                 sig_param_tech[tech], curr_yr)
-
-            #if tech == 'heat_pumps_electricity':
-            #    logging.info("HEP SHARE: " + str(s_tech_cy_p))
 
             if s_tech_cy_p == 'identical':
                 switched_s_tech_y_cy[tech] = s_tech_y_cy[tech]

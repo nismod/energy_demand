@@ -117,8 +117,8 @@ def get_hes_load_shapes(
     shape_peak_dh = lp.abs_to_rel(peak_h_values)
 
     # ---Calculate non-peak shapes
-    shape_non_peak_yd = np.zeros((365), dtype=float)
-    shape_non_peak_y_dh = np.zeros((365, 24), dtype=float)
+    shape_non_peak_yd = np.zeros((365), dtype="float")
+    shape_non_peak_y_dh = np.zeros((365, 24), dtype="float")
 
     for day, day_values in enumerate(enduse_values):
         #day_values = year_raw_values[day, :, hes_app_id]
@@ -145,7 +145,7 @@ def assign_hes_data_to_year(nr_of_appliances, hes_data, base_yr):
     year_raw_values : array
         Energy data for every day in the base year for every appliances
     """
-    year_raw_values = np.zeros((365, 24, nr_of_appliances), dtype=float) #yeardays, houry, appliances
+    year_raw_values = np.zeros((365, 24, nr_of_appliances), dtype="float") #yeardays, houry, appliances
 
     # Create list with all dates of a whole year
     list_dates = date_prop.fullyear_dates(
@@ -204,9 +204,9 @@ def read_hes_data(paths_hes, nr_app_type_lu):
 
     hes_data = {}
     for day_type_str in day_type_lu.values():
-        hes_data[day_type_str] = np.zeros((12, 24, nr_app_type_lu), dtype=float)
+        hes_data[day_type_str] = np.zeros((12, 24, nr_app_type_lu), dtype="float")
 
-    hes_y_coldest = np.zeros((24, nr_app_type_lu), dtype=float)
+    hes_y_coldest = np.zeros((24, nr_app_type_lu), dtype="float")
 
     # Read in raw HES data from CSV
     raw_elec_data = read_csv(paths_hes)

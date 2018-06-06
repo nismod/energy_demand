@@ -337,6 +337,71 @@ def spatial_validation_lad_level(
 
     return
 
+def temporal_validation_msoa_lad(
+        ed_fueltype_national_yh,
+        ed_fueltype_regs_yh,
+        fueltypes,
+        result_paths,
+        paths,
+        regions,
+        reg_coord,
+        seasons,
+        model_yeardays_daytype,
+        plot_crit
+    ):
+    """Validate national hourly demand for yearls fuel
+    for all LADs. Test how the national disaggregation
+    works.
+
+    Info
+    -----
+    Because the floor area is only availabe for LADs from 2001,
+    the LADs are converted to 2015 LADs.
+    """
+    logging.info("... temporal validation")
+
+    # -------------------------------------------
+    # Electrictiy demands
+    # -------------------------------------------
+
+    # LAD level
+    subnational_elec_lad = data_loader.read_national_real_elec_data(
+        paths['path_val_subnational_elec'])
+
+    # MSOA level
+    subnational_elec_msoa = data_loader.read_elec_data_msoa(
+        paths['path_val_subnational_msoa_elec'])
+
+    # Create fueltype secific dict
+    fuel_elec_regs_yh = {}
+    for region_array_nr, region in enumerate(regions):
+        gwh_modelled = np.sum(ed_fueltype_regs_yh[fueltypes['electricity']][region_array_nr])
+        fuel_elec_regs_yh[region] = gwh_modelled
+
+    # Create fueltype secific dict
+    fuel_gas_regs_yh = {}
+    for region_array_nr, region in enumerate(regions):
+        gwh_modelled = np.sum(ed_fueltype_regs_yh[fueltypes['gas']][region_array_nr])
+        fuel_gas_regs_yh[region] = gwh_modelled
+
+    # ----------------------------------------
+    # Remap demands between 2011 and 2015 LADs
+    # ----------------------------------------
+    subnational_elec = map_LAD_2011_2015(subnational_elec_lad)
+    fuel_elec_regs_yh = map_LAD_2011_2015(fuel_elec_regs_yh)
+
+    spatial_validation(
+        reg_coord,
+        fuel_elec_regs_yh,
+        subnational_elec,
+        regions,
+        'elec',
+        os.path.join(result_paths['data_results_validation'], 'validation_spatial_elec_msoa_lad.pdf'),
+        label_points=False,
+        plotshow=plot_crit)
+
+    return
+
 def temporal_validation_lad(
         ed_fueltype_national_yh,
         ed_fueltype_regs_yh,
@@ -509,6 +574,7 @@ def temporal_validation_lad(
         elec_2015_indo[peak_day],
         ed_fueltype_national_yh[fueltypes['electricity']][peak_day],
         peak_day)
+
     # ---------------------------------------------------
     # Validate boxplots for every hour (temporal validation)
     # ---------------------------------------------------

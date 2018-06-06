@@ -40,14 +40,15 @@ class Assumptions(object):
             fueltypes=None,
             fueltypes_nr=None
         ):
-
+        """Constructor
+        """
         yr_until_changed_all_things = 2050
 
         # Simulation parameters
         self.base_yr = base_yr
         self.curr_yr = curr_yr
         self.simulated_yrs = simulated_yrs
-    
+
         # ============================================================
         # Spatially modelled variables
         #

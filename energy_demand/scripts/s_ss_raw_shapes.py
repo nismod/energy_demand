@@ -105,7 +105,7 @@ def read_raw_carbon_trust_data(folder_path):
                     if day > 365:
                         continue
 
-                    load_shape_dh = np.zeros((24), dtype=float)
+                    load_shape_dh = np.zeros((24), dtype="float")
 
                     row[1:] = map(float, row[1:]) # Convert all values except date into float values
                     daily_sum = sum(row[1:]) # Total daily sum
@@ -170,7 +170,7 @@ def read_raw_carbon_trust_data(folder_path):
     # Data processing
     # ---------------
     # --Average average maxium peak dh of every csv file
-    load_peak_average_dh = np.zeros((24), dtype=float)
+    load_peak_average_dh = np.zeros((24), dtype="float")
     for peak_shape_dh in dict_max_dh_shape.values():
         load_peak_average_dh += peak_shape_dh
     load_peak_shape_dh = load_peak_average_dh / len(dict_max_dh_shape)
@@ -196,14 +196,14 @@ def read_raw_carbon_trust_data(folder_path):
     yearly_demand = np.sum(year_data)
 
     # Create load_shape_dh
-    load_shape_y_dh = np.zeros((365, 24), dtype=float)
+    load_shape_y_dh = np.zeros((365, 24), dtype="float")
     for day, dh_values in enumerate(year_data):
         load_shape_y_dh[day] = load_profile.abs_to_rel(dh_values) # daily shape
 
     np.testing.assert_almost_equal(np.sum(load_shape_y_dh), 365, decimal=2, err_msg="")
 
     # Calculate shape_non_peak_yd
-    shape_non_peak_yd = np.zeros((365), dtype=float)
+    shape_non_peak_yd = np.zeros((365), dtype="float")
     for yearday, carbon_trust_d in enumerate(year_data):
         shape_non_peak_yd[yearday] = np.sum(carbon_trust_d)
 
@@ -227,7 +227,7 @@ def assign_data_to_year(carbon_trust_data, base_yr):
     base_yr : int
         Base Year
     """
-    shape_non_peak_y_dh = np.zeros((365, 24), dtype=float)
+    shape_non_peak_y_dh = np.zeros((365, 24), dtype="float")
 
     # Create list with all dates of a whole year
     list_dates = date_prop.fullyear_dates(
@@ -245,7 +245,7 @@ def assign_data_to_year(carbon_trust_data, base_yr):
 
         # Add values to yearly
         _data = np.array(list(_data.items()))
-        shape_non_peak_y_dh[yearday_python] = np.array(_data[:, 1], dtype=float)
+        shape_non_peak_y_dh[yearday_python] = np.array(_data[:, 1], dtype="float")
 
     return shape_non_peak_y_dh
 

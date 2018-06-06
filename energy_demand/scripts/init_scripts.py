@@ -546,7 +546,7 @@ def sum_across_all_submodels_regs(
 
     for region in regions:
 
-        tot_reg = np.zeros((fueltypes_nr))
+        tot_reg = np.zeros((fueltypes_nr), dtype="float")
 
         for submodel_fuel_disagg in submodels:
 
