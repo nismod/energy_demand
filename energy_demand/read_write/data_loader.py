@@ -45,7 +45,7 @@ def load_ini_param(path):
     # Other information
     # -----------------
     enduses = {}
-    enduses['rs_enduses'] = ast.literal_eval(config['ENDUSES']['rs_enduses']) #convert string lists to list
+    enduses['rs_enduses'] = ast.literal_eval(config['ENDUSES']['rs_enduses'])
     enduses['ss_enduses'] = ast.literal_eval(config['ENDUSES']['ss_enduses'])
     enduses['is_enduses'] = ast.literal_eval(config['ENDUSES']['is_enduses'])
 
@@ -53,7 +53,7 @@ def load_ini_param(path):
 
 def load_MOSA_pop(path_to_csv):
     """
-
+    Load MPSA population
     """
     pop_data = defaultdict(dict)
 
@@ -102,6 +102,38 @@ def read_national_real_elec_data(path_to_csv):
 
     return national_fuel_data
 
+def read_elec_data_msoa(path_to_csv):
+    """Read in msoa consumption from csv file. The unit
+    in the original csv is in kWh per region per year.
+
+    Arguments
+    ---------
+    path_to_csv : str
+        Path to csv file
+
+    Returns
+    -------
+    national_fuel_data : dict
+        geocode, total consumption
+
+    Info
+    -----
+    Source: https://www.gov.uk/government/statistical-data-sets
+    /regional-and-local-authority-electricity-
+    consumption-statistics-2005-to-2011
+    """
+    national_fuel_data = {}
+    with open(path_to_csv, 'r') as csvfile:
+        rows = csv.reader(csvfile, delimiter=',')
+        headings = next(rows)
+
+        for row in rows:
+            geocode = str.strip(row[read_data.get_position(headings, 'msoa_code')])
+            tot_consumption_unclean = row[read_data.get_position(headings, 'tot_conump_kWh')].strip()
+            national_fuel_data[geocode] = float(tot_consumption_unclean.replace(",", ""))
+
+    return national_fuel_data
+    
 def read_national_real_gas_data(path_to_csv):
     """Read in national consumption from csv file
 
@@ -406,6 +438,12 @@ def load_paths(path):
             path, '01-validation_datasets', '02_subnational_elec', 'data_2015_elec_domestic.csv'),
         'path_val_subnational_elec_non_residential': os.path.join(
             path, '01-validation_datasets', '02_subnational_elec', 'data_2015_elec_non_domestic.csv'),
+
+        'path_val_subnational_elec_msoa_residential': os.path.join(
+            path, '01-validation_datasets', '02_subnational_elec', 'MSOA_domestic_electricity_2015_cleaned.csv'),
+        'path_val_subnational_elec_msoa_non_residential': os.path.join(
+            path, '01-validation_datasets', '02_subnational_elec', 'MSOA_non_dom_electricity_2015_cleaned.csv'),
+  
         'path_val_subnational_gas': os.path.join(
             path, '01-validation_datasets', '03_subnational_gas', 'data_2015_gas.csv'),
         'path_val_subnational_gas_residential': os.path.join(

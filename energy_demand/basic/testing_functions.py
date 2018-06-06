@@ -1,7 +1,16 @@
 """TEsting functions
 """
 import numpy as np
-import logging
+
+def test_if_minus_value_in_array(arraytotest):
+    """Test if array has negative value
+    """
+    only_neg_elements = arraytotest[arraytotest < 0]
+
+    if len(only_neg_elements) > 0:
+        return True
+    else:
+        False
 
 def switch_testing(fuel_switches, service_switches, capacity_switches):
     """Test if swithes defined for same enduse

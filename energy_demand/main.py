@@ -177,6 +177,7 @@ if __name__ == "__main__":
             data['regions'],
             data['sectors']['all_sectors'],
             data['local_paths'],
+            data['population'][data['assumptions'].base_yr],
             data['assumptions'].base_yr)
 
     # Lookup table to import industry sectoral gva
@@ -235,7 +236,7 @@ if __name__ == "__main__":
         # Sum according to first element in array (sectors)
         # which aggregtes over the sectors
         # ---
-        supply_results_unconstrained = sum(modelrun_obj.ed_submodel_fueltype_regs_yh[:,])
+        supply_results_unconstrained = sum(modelrun_obj.results_unconstrained[:, ])
 
         # Write out all calculations which are not used for SMIF
         if data['criterias']['beyond_supply_outputs']:

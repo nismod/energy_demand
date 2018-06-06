@@ -54,16 +54,16 @@ def logg_info(modelrun, fuels_in, data):
     logging.info("[GWh] hydro diff:        %s", str(round(np.sum(modelrun.ed_fueltype_national_yh[data['lookups']['fueltypes']['hydrogen']]) - fuels_in["fuel_in_hydrogen"], 4)))
     logging.info("-----------")
     logging.info("TOTAL HEATING            %s", str(fuels_in["tot_heating"]))
-    logging.info("[GWh] heat output:       %s", str(fuels_in["fuel_in_heat"]))
+    logging.info("[GWh] heat input:        %s", str(fuels_in["fuel_in_heat"]))
     logging.info("[GWh] heat output:       %s", str(np.sum(modelrun.ed_fueltype_national_yh[data['lookups']['fueltypes']['heat']])))
     logging.info("[GWh] heat diff:         %s", str(round(np.sum(modelrun.ed_fueltype_national_yh[data['lookups']['fueltypes']['heat']]) - fuels_in["fuel_in_heat"], 4)))
     logging.info("-----------")
-    logging.info("Diff elec %:             %s", str(round((np.sum(modelrun.ed_fueltype_national_yh[data['lookups']['fueltypes']['electricity']])/ fuels_in["fuel_in_elec"]), 4)))
-    logging.info("Diff gas %:              %s", str(round((np.sum(modelrun.ed_fueltype_national_yh[data['lookups']['fueltypes']['gas']])/ fuels_in["fuel_in_gas"]), 4)))
-    logging.info("Diff oil %:              %s", str(round((np.sum(modelrun.ed_fueltype_national_yh[data['lookups']['fueltypes']['oil']])/ fuels_in["fuel_in_oil"]), 4)))
-    logging.info("Diff solid_fuel %:       %s", str(round((np.sum(modelrun.ed_fueltype_national_yh[data['lookups']['fueltypes']['solid_fuel']])/ fuels_in["fuel_in_solid_fuel"]), 4)))
-    logging.info("Diff hydrogen %:         %s", str(round((np.sum(modelrun.ed_fueltype_national_yh[data['lookups']['fueltypes']['hydrogen']])/ fuels_in["fuel_in_hydrogen"]), 4)))
-    logging.info("Diff biomass %:          %s", str(round((np.sum(modelrun.ed_fueltype_national_yh[data['lookups']['fueltypes']['biomass']])/ fuels_in["fuel_in_biomass"]), 4)))
+    logging.info("Diff elec p:             %s", str(round((np.sum(modelrun.ed_fueltype_national_yh[data['lookups']['fueltypes']['electricity']])/ fuels_in["fuel_in_elec"]), 4)))
+    logging.info("Diff gas p:              %s", str(round((np.sum(modelrun.ed_fueltype_national_yh[data['lookups']['fueltypes']['gas']])/ fuels_in["fuel_in_gas"]), 4)))
+    logging.info("Diff oil p:              %s", str(round((np.sum(modelrun.ed_fueltype_national_yh[data['lookups']['fueltypes']['oil']])/ fuels_in["fuel_in_oil"]), 4)))
+    logging.info("Diff solid_fuel p:       %s", str(round((np.sum(modelrun.ed_fueltype_national_yh[data['lookups']['fueltypes']['solid_fuel']])/ fuels_in["fuel_in_solid_fuel"]), 4)))
+    logging.info("Diff hydrogen p:         %s", str(round((np.sum(modelrun.ed_fueltype_national_yh[data['lookups']['fueltypes']['hydrogen']])/ fuels_in["fuel_in_hydrogen"]), 4)))
+    logging.info("Diff biomass p:          %s", str(round((np.sum(modelrun.ed_fueltype_national_yh[data['lookups']['fueltypes']['biomass']])/ fuels_in["fuel_in_biomass"]), 4)))
     logging.info("================================================")
     return
 
@@ -75,15 +75,12 @@ def write_array_to_txt(path_result, array):
     """
     np.savetxt(path_result, array, delimiter=',')
 
-def write_list_to_txt(path_result, list):
+def write_list_to_txt(path_result, list_out):
     """Write scenario population for a year to txt file
     """
-    file = open(path_result, "w") 
-
-    for entry in list:
+    file = open(path_result, "w")
+    for entry in list_out:
         file.write(entry + "\n")
-
-    return
 
 def write_scenaric_population_data(sim_yr, path_result, pop_y):
     """Write scenario population for a year to '.npy' file
@@ -176,14 +173,6 @@ def create_shp_results(data, results_container, paths, lookups, regions):
         field_names,
         csv_results)
 
-    # ------------------------------------
-    # Create shapefile with peak demand in gwh
-    # ------------------------------------
-    #
-
-    # ------------------------------------
-    # Create shapefile with
-    # ------------------------------------
     logging.info("... finished generating shapefiles")
 
 def dump(data, file_path):
@@ -306,7 +295,6 @@ def write_simulation_inifile(path, enduses, assumptions, reg_nrs, regions):
 
     with open(path_ini_file, 'w') as f:
         config.write(f)
-    pass
 
 def resilience_paper(
         path_result_folder,
@@ -321,7 +309,7 @@ def resilience_paper(
     """Restuls for risk paper
 
     results : array 
-        ed_submodel_fueltype_regs_yh (3, 391, 7, 365, 24)
+        results_unconstrained (3, 391, 7, 365, 24)
     Get maximum and minimum h electricity for eversy submodel
     for base year
     """
@@ -333,14 +321,12 @@ def resilience_paper(
     # Create file path
     path_to_txt = os.path.join(
         path_result_sub_folder,
-        "{}{}".format(
-            file_name,
-            ".csv"))
+        "{}{}".format(file_name,".csv"))
 
     # Write csv
     file = open(path_to_txt, "w")
 
-    file.write("{}, {}, {}".format( #{}, {}, {}, {}
+    file.write("{}, {}, {}".format(
         'lad_nr',
          #'submodel',
         'min_GW_elec',
@@ -594,7 +580,7 @@ def create_csv_file(path, rows):
     """
     #filewriter.writerow(['Spam', 'Lovely Spam', 'Wonderful Spam'])
     """
-    with open(path, 'w', newline='') as csvfile: #newline=None
+    with open(path, 'w', newline='') as csvfile:
 
         filewriter = csv.writer(
             csvfile,

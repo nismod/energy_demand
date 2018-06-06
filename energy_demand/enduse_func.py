@@ -1,6 +1,6 @@
 """Contains the `Enduse` Class. This is the most important class
 where the change in enduse specific energy demand is simulated
-depending on scenaric assumptions."""
+depending on scenaric assumptions"""
 import logging
 import math
 import numpy as np
@@ -8,6 +8,7 @@ from energy_demand.profiles import load_factors as lf
 from energy_demand.technologies import diffusion_technologies
 from energy_demand.technologies import fuel_service_switch
 from energy_demand.technologies import tech_related
+from energy_demand.basic import testing_functions
 
 class Enduse(object):
     """Enduse Class for all endueses in each SubModel
@@ -109,22 +110,19 @@ class Enduse(object):
         ):
         """Enduse class constructor
         """
-        #logging.info(" =====Enduse: {}  Sector:  {}".format(enduse, sector))
         self.region = region
         self.enduse = enduse
         self.fuel_y = fuel
         self.flat_profile_crit = flat_profile_crit
-
         self.techs_fuel_yh = None
-
+        
+        #If enduse has no fuel return empty shapes
         if np.sum(fuel) == 0:
-            #If enduse has no fuel return empty shapes
             self.flat_profile_crit = True
             self.fuel_y = fuel
             self.fuel_yh = 0
             self.enduse_techs = []
         else:
-
             # Get technologies of enduse
             self.enduse_techs = get_enduse_techs(fuel_fueltype_tech_p_by)
 
@@ -301,7 +299,6 @@ class Enduse(object):
                 # ------------------------------------------
                 # Assign load profiles
                 # ------------------------------------------
-                #logging.info("ENDUSE : {}   TECHS:  {}".format(enduse, self.enduse_techs))
                 if self.flat_profile_crit:
                     pass
                 else:
@@ -741,6 +738,12 @@ def calc_fuel_tech_yh(
             fuel_tech_yh = fuel_tech_y[tech] * load_profile
 
             fuels_yh[fueltypes['heat']] += fuel_tech_yh
+
+        # ----------
+        # Testing if negative value
+        # ----------
+        if testing_functions.test_if_minus_value_in_array(fuels_yh):
+            raise Exception("Error: Negative entry")
 
     return fuels_yh
 
