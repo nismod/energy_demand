@@ -46,23 +46,6 @@ def energy_demand_model(data, assumptions):
         data=data,
         assumptions=assumptions)
 
-    # ================
-    # SCRAP TODO
-    #_diff = modelrun.results_unconstrained - sum(modelrun.results_constrained.values())
-    # ================
-    results_constrained_reshaped = {}
-    for i, j in modelrun.results_constrained.items():
-        results_constrained_reshaped[i] = j.reshape(3, data['reg_nrs'], data['lookups']['fueltypes_nr'], 8760)
-    results_unconstrained_reshaped = modelrun.results_unconstrained.reshape(3, data['reg_nrs'], data['lookups']['fueltypes_nr'], 8760)
-
-    _diff = results_unconstrained_reshaped - sum(results_constrained_reshaped.values())
-
-    if testing_functions.test_if_minus_value_in_array(_diff):
-        raise Exception("Error: main.py")
-    else:
-        logging.info("all good in main.py.py")
-    # ================
-
     # Calculate base year demand
     fuels_in = testing_functions.test_function_fuel_sum(
         data,
@@ -70,25 +53,8 @@ def energy_demand_model(data, assumptions):
         data['criterias']['mode_constrained'],
         assumptions.enduse_space_heating)
 
-    # ================
-    # SCRAP TODO
-    # ================
-    results_constrained_reshaped = {}
-    for i, j in modelrun.results_constrained.items():
-        results_constrained_reshaped[i] = j.reshape(3, data['reg_nrs'], data['lookups']['fueltypes_nr'], 8760)
-    results_unconstrained_reshaped = modelrun.results_unconstrained.reshape(3, data['reg_nrs'], data['lookups']['fueltypes_nr'], 8760)
-
-    _diff = results_unconstrained_reshaped - sum(results_constrained_reshaped.values())
-
-    if testing_functions.test_if_minus_value_in_array(_diff):
-        raise Exception("Error: main.py")
-    else:
-        logging.info("II all good in main.py.py")
-    # ================
-
     # Log model results
     write_data.logg_info(modelrun, fuels_in, data)
-
     logging.info("...finished running energy demand model simulation")
     return modelrun
 

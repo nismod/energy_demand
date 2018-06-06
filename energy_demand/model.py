@@ -1,4 +1,11 @@
 """The function `EnergyDemandModel` executes all the submodels of the energy demand model
+
+    Tools
+    # -------
+    Profiling:  https://jiffyclub.github.io/snakeviz/
+    python -m cProfile -o program.prof my_program.py
+    snakeviz program.prof
+
 """
 import logging
 from collections import defaultdict
@@ -102,35 +109,6 @@ class EnergyDemandModel(object):
                 assumptions.enduse_space_heating,
                 data['technologies'],
                 data['criterias']['beyond_supply_outputs'])
-
-            # -----------
-            # SCRAP TODO
-            # -----------
-            '''results_constrained_reshaped = {}
-            for i, j in aggr_results['results_constrained'].items():
-                results_constrained_reshaped[i] = j.reshape(3, data['reg_nrs'], data['lookups']['fueltypes_nr'], 8760)
-            results_unconstrained_reshaped = aggr_results['results_unconstrained'].reshape(3, data['reg_nrs'], data['lookups']['fueltypes_nr'], 8760)
-
-            # TESTING
-            _diff = results_unconstrained_reshaped - sum(results_constrained_reshaped.values())
-            if testing_functions.test_if_minus_value_in_array(_diff):
-                raise Exception("Error: wwwwhy? inside")
-            else:
-                logging.info(" all good inside model.py")'''
-
-        # -----------
-        # SCRAP TODO
-        # -----------
-        results_constrained_reshaped = {}
-        for i, j in aggr_results['results_constrained'].items():
-            results_constrained_reshaped[i] = j.reshape(3, data['reg_nrs'], data['lookups']['fueltypes_nr'], 8760)
-        results_unconstrained_reshaped = aggr_results['results_unconstrained'].reshape(3, data['reg_nrs'], data['lookups']['fueltypes_nr'], 8760)
-
-        _diff = results_unconstrained_reshaped - sum(results_constrained_reshaped.values())
-        if testing_functions.test_if_minus_value_in_array(_diff):
-            raise Exception("Error: wwwwhy? outside")
-        else:
-            logging.info("all good outside model.py")
 
         # -------
     	# Set all keys of aggr_results as self.attributes (EnergyDemandModel)
@@ -855,9 +833,6 @@ def aggregate_final_results(
                             logging.info("Empty summing {}  {}  {}".format(heating_tech, submodel_nr, enduse_object.enduse))
                             aggr_results['results_constrained'][heating_tech] = np.zeros((len(all_submodels), reg_nrs, fueltypes_nr, 365, 24), dtype=float)
                             aggr_results['results_constrained'][heating_tech][submodel_nr][reg_array_nr][fueltype_tech_int] += tech_fuel
-                #else:
-                #    # Add nont heat related demand
-                #    results_constrained_non_heat[submodel_nr][reg_array_nr] += 
 
     # -------------
     # Summarise ed of Unconstrained mode (heat is provided)
@@ -875,13 +850,6 @@ def aggregate_final_results(
 
         # Add SubModel specific ed
         aggr_results['results_unconstrained'][submodel_nr][reg_array_nr] += submodel_ed_fueltype_regs_yh
-
-    # SCRAP
-    '''
-    _diff = aggr_results['results_unconstrained'] - sum(aggr_results['results_constrained'].values())
-
-    if testing_functions.test_if_minus_value_in_array(_diff):
-        raise Exception("Error: minus in idndivd")'''
 
     # -----------
     # Other summing for other purposes
@@ -977,18 +945,10 @@ def initialise_result_container(
     """
     result_container = {}
 
-    #ed_submodel_fueltype_regs_yh
     result_container['results_unconstrained'] = np.zeros(
         (len(sectors.keys()), reg_nrs, fueltypes_nr, 365, 24), dtype=float)
 
-    # ed_techs_submodel_fueltype_regs_yh
     result_container['results_constrained'] = {}
-    # np.zeros((len(sectors.keys()), reg_nrs, fueltypes_nr, 365, 24), dtype=float)
-    #for heating_tech in heating_techs:
-    #    result_container['results_constrained'][heating_tech] = np.zeros(
-    #        (len(sectors.keys()), reg_nrs, fueltypes_nr, 365, 24), dtype=float)
-    result_container['results_constrained_non_heat'] = np.zeros(
-        (fueltypes_nr, reg_nrs, 8760), dtype=float)
 
     result_container['ed_fueltype_regs_yh'] = np.zeros(
         (fueltypes_nr, reg_nrs, 8760), dtype=float)
