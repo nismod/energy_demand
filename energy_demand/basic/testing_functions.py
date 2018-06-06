@@ -20,9 +20,9 @@ def switch_testing(fuel_switches, service_switches, capacity_switches):
     fuel_switches : list
         Switches
     service_switches : list
-        Switches 
+        Switches
     capacity_switches : list
-        Switches 
+        Switches
     """
     all_switches_incl_sectors = {}
 
@@ -231,7 +231,7 @@ def test_function_fuel_sum(data, fuel_disagg, mode_constrained, space_heating_en
         "fuel_in_hydrogen": fuel_in_hydrogen,
         "fuel_in_solid_fuel": fuel_in_solid_fuel,
         "fuel_in_oil": fuel_in_oil,
-        "tot_heating": tot_heating}      
+        "tot_heating": tot_heating}
 
     return out_dict
 

@@ -6,7 +6,7 @@ import time
 import logging
 import numpy as np
 from energy_demand import model
-from energy_demand.basic import testing_functions as testing
+from energy_demand.basic import testing_functions
 from energy_demand.basic import lookup_tables
 
 from energy_demand.assumptions import non_param_assumptions
@@ -16,6 +16,9 @@ from energy_demand.basic import logger_setup
 from energy_demand.read_write import write_data
 from energy_demand.read_write import read_data
 from energy_demand.basic import basic_functions
+
+#TODO remove reg_load_factor_y
+#TOPDO :replace key error to test in list keys
 
 def energy_demand_model(data, assumptions):
     """Main function of energy demand model to calculate yearly demand
@@ -43,14 +46,47 @@ def energy_demand_model(data, assumptions):
         data=data,
         assumptions=assumptions)
 
+    # ================
+    # SCRAP TODO
+    #_diff = modelrun.results_unconstrained - sum(modelrun.results_constrained.values())
+    # ================
+    results_constrained_reshaped = {}
+    for i, j in modelrun.results_constrained.items():
+        results_constrained_reshaped[i] = j.reshape(3, data['reg_nrs'], data['lookups']['fueltypes_nr'], 8760)
+    results_unconstrained_reshaped = modelrun.results_unconstrained.reshape(3, data['reg_nrs'], data['lookups']['fueltypes_nr'], 8760)
+
+    _diff = results_unconstrained_reshaped - sum(results_constrained_reshaped.values())
+
+    if testing_functions.test_if_minus_value_in_array(_diff):
+        raise Exception("Error: main.py")
+    else:
+        logging.info("all good in main.py.py")
+    # ================
+
     # Calculate base year demand
-    fuels_in = testing.test_function_fuel_sum(
+    fuels_in = testing_functions.test_function_fuel_sum(
         data,
         data['fuel_disagg'],
         data['criterias']['mode_constrained'],
         assumptions.enduse_space_heating)
 
-    # Write model results
+    # ================
+    # SCRAP TODO
+    # ================
+    results_constrained_reshaped = {}
+    for i, j in modelrun.results_constrained.items():
+        results_constrained_reshaped[i] = j.reshape(3, data['reg_nrs'], data['lookups']['fueltypes_nr'], 8760)
+    results_unconstrained_reshaped = modelrun.results_unconstrained.reshape(3, data['reg_nrs'], data['lookups']['fueltypes_nr'], 8760)
+
+    _diff = results_unconstrained_reshaped - sum(results_constrained_reshaped.values())
+
+    if testing_functions.test_if_minus_value_in_array(_diff):
+        raise Exception("Error: main.py")
+    else:
+        logging.info("II all good in main.py.py")
+    # ================
+
+    # Log model results
     write_data.logg_info(modelrun, fuels_in, data)
 
     logging.info("...finished running energy demand model simulation")
@@ -173,13 +209,16 @@ if __name__ == "__main__":
     # ------------------------------
 
     if data['criterias']['virtual_building_stock_criteria']:
-        rs_floorarea, ss_floorarea, data['service_building_count'] = data_loader.floor_area_virtual_dw(
+        rs_floorarea, ss_floorarea, data['service_building_count'], rs_regions_without_floorarea, ss_regions_without_floorarea = data_loader.floor_area_virtual_dw(
             data['regions'],
             data['sectors']['all_sectors'],
             data['local_paths'],
             data['population'][data['assumptions'].base_yr],
             data['assumptions'].base_yr)
 
+        # Add all areas with no floor area data
+        data['assumptions'].update("rs_regions_without_floorarea", rs_regions_without_floorarea)
+        data['assumptions'].update("ss_regions_without_floorarea", ss_regions_without_floorarea)
     # Lookup table to import industry sectoral gva
     lookup_tables.industrydemand_name_sic2007()
 
@@ -221,7 +260,7 @@ if __name__ == "__main__":
         setattr(data['assumptions'], 'curr_yr', sim_yr)
 
         print("Simulation for year --------------:  " + str(sim_yr))
-        fuel_in, fuel_in_biomass, fuel_in_elec, fuel_in_gas, fuel_in_heat, fuel_in_hydro, fuel_in_solid_fuel, fuel_in_oil, tot_heating = testing.test_function_fuel_sum(
+        fuel_in, fuel_in_biomass, fuel_in_elec, fuel_in_gas, fuel_in_heat, fuel_in_hydro, fuel_in_solid_fuel, fuel_in_oil, tot_heating = testing_functions.test_function_fuel_sum(
             data,
             data['fuel_disagg'],
             data['criterias']['mode_constrained'],
@@ -259,69 +298,66 @@ if __name__ == "__main__":
             print("... Start writing results to file")
             path_runs = data['result_paths']['data_results_model_runs']
 
-            # Write unconstrained results
-            if data['criterias']['write_to_txt']:
+            write_data.write_supply_results(
+                sim_yr,
+                "result_tot_yh",
+                path_runs,
+                modelrun_obj.ed_fueltype_regs_yh,
+                "result_tot_submodels_fueltypes")
+            write_data.write_enduse_specific(
+                sim_yr,
+                path_runs,
+                out_enduse_specific,
+                "out_enduse_specific")
+            write_data.write_lf(
+                path_runs,
+                "result_reg_load_factor_y",
+                [sim_yr],
+                reg_load_factor_y,
+                'reg_load_factor_y')
+            write_data.write_lf(
+                path_runs,
+                "result_reg_load_factor_yd",
+                [sim_yr],
+                reg_load_factor_yd,
+                'reg_load_factor_yd')
+            write_data.write_lf(
+                path_runs,
+                "result_reg_load_factor_winter",
+                [sim_yr],
+                reg_load_factor_winter,
+                'reg_load_factor_winter')
+            write_data.write_lf(
+                path_runs,
+                "result_reg_load_factor_spring",
+                [sim_yr],
+                reg_load_factor_spring,
+                'reg_load_factor_spring')
+            write_data.write_lf(
+                path_runs,
+                "result_reg_load_factor_summer",
+                [sim_yr],
+                reg_load_factor_summer,
+                'reg_load_factor_summer')
+            write_data.write_lf(
+                path_runs,
+                "result_reg_load_factor_autumn",
+                [sim_yr],
+                reg_load_factor_autumn,
+                'reg_load_factor_autumn')
 
-                write_data.write_supply_results(
-                    sim_yr,
-                    "result_tot_yh",
-                    path_runs,
-                    modelrun_obj.ed_fueltype_regs_yh,
-                    "result_tot_submodels_fueltypes")
-                write_data.write_enduse_specific(
-                    sim_yr,
-                    path_runs,
-                    out_enduse_specific,
-                    "out_enduse_specific")
-                write_data.write_lf(
-                    path_runs,
-                    "result_reg_load_factor_y",
-                    [sim_yr],
-                    reg_load_factor_y,
-                    'reg_load_factor_y')
-                write_data.write_lf(
-                    path_runs,
-                    "result_reg_load_factor_yd",
-                    [sim_yr],
-                    reg_load_factor_yd,
-                    'reg_load_factor_yd')
-                write_data.write_lf(
-                    path_runs,
-                    "result_reg_load_factor_winter",
-                    [sim_yr],
-                    reg_load_factor_winter,
-                    'reg_load_factor_winter')
-                write_data.write_lf(
-                    path_runs,
-                    "result_reg_load_factor_spring",
-                    [sim_yr],
-                    reg_load_factor_spring,
-                    'reg_load_factor_spring')
-                write_data.write_lf(
-                    path_runs,
-                    "result_reg_load_factor_summer",
-                    [sim_yr],
-                    reg_load_factor_summer,
-                    'reg_load_factor_summer')
-                write_data.write_lf(
-                    path_runs,
-                    "result_reg_load_factor_autumn",
-                    [sim_yr],
-                    reg_load_factor_autumn,
-                    'reg_load_factor_autumn')
+            # -------------------------------------------
+            # Write population files of simulation year
+            # -------------------------------------------
+            pop_array_reg = np.zeros((len(data['regions'])))
+            for reg_array_nr, reg in enumerate(data['regions']):
+                pop_array_reg[reg_array_nr] = data['scenario_data']['population'][sim_yr][reg]
 
-                # -------------------------------------------
-                # Write population files of simulation year
-                # -------------------------------------------
-                pop_array_reg = np.zeros((len(data['regions'])))
-                for reg_array_nr, reg in enumerate(data['regions']):
-                    pop_array_reg[reg_array_nr] = data['scenario_data']['population'][sim_yr][reg]
-
-                write_data.write_scenaric_population_data(
-                    sim_yr,
-                    data['result_paths']['model_run_pop'],
-                    pop_array_reg)
-                print("... Finished writing results to file")
+            write_data.write_scenaric_population_data(
+                sim_yr,
+                data['result_paths']['model_run_pop'],
+                pop_array_reg)
+            print("... Finished writing results to file")
 
     print("-------------------------")
     print("... Finished running HIRE")

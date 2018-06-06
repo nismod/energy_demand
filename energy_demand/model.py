@@ -103,6 +103,35 @@ class EnergyDemandModel(object):
                 data['technologies'],
                 data['criterias']['beyond_supply_outputs'])
 
+            # -----------
+            # SCRAP TODO
+            # -----------
+            '''results_constrained_reshaped = {}
+            for i, j in aggr_results['results_constrained'].items():
+                results_constrained_reshaped[i] = j.reshape(3, data['reg_nrs'], data['lookups']['fueltypes_nr'], 8760)
+            results_unconstrained_reshaped = aggr_results['results_unconstrained'].reshape(3, data['reg_nrs'], data['lookups']['fueltypes_nr'], 8760)
+
+            # TESTING
+            _diff = results_unconstrained_reshaped - sum(results_constrained_reshaped.values())
+            if testing_functions.test_if_minus_value_in_array(_diff):
+                raise Exception("Error: wwwwhy? inside")
+            else:
+                logging.info(" all good inside model.py")'''
+
+        # -----------
+        # SCRAP TODO
+        # -----------
+        results_constrained_reshaped = {}
+        for i, j in aggr_results['results_constrained'].items():
+            results_constrained_reshaped[i] = j.reshape(3, data['reg_nrs'], data['lookups']['fueltypes_nr'], 8760)
+        results_unconstrained_reshaped = aggr_results['results_unconstrained'].reshape(3, data['reg_nrs'], data['lookups']['fueltypes_nr'], 8760)
+
+        _diff = results_unconstrained_reshaped - sum(results_constrained_reshaped.values())
+        if testing_functions.test_if_minus_value_in_array(_diff):
+            raise Exception("Error: wwwwhy? outside")
+        else:
+            logging.info("all good outside model.py")
+
         # -------
     	# Set all keys of aggr_results as self.attributes (EnergyDemandModel)
         # -------
@@ -800,7 +829,7 @@ def aggregate_final_results(
         for submodel_nr, submodel in enumerate(all_submodels):
             for enduse_object in submodel:
 
-                # Aggregate over heating technologies
+                # Aggregate only over heating technologies
                 if enduse_object.enduse in enduse_space_heating:
 
                     submodel_techs_fueltypes_yh = get_fuels_yh(
@@ -820,63 +849,39 @@ def aggregate_final_results(
                         fueltype_tech_int = technologies[heating_tech].fueltype_int
 
                         # Aggregate Submodel (sector) specific enduse for fueltype
-                        try:
+                        if heating_tech in aggr_results['results_constrained'].keys():
                             aggr_results['results_constrained'][heating_tech][submodel_nr][reg_array_nr][fueltype_tech_int] += tech_fuel
-                        except KeyError:
+                        else:
                             logging.info("Empty summing {}  {}  {}".format(heating_tech, submodel_nr, enduse_object.enduse))
-                            empty_container = np.zeros((len(all_submodels), reg_nrs, fueltypes_nr, 365, 24), dtype=float) #PPP
-                            aggr_results['results_constrained'][heating_tech] = empty_container
-                            aggr_results['results_constrained'][heating_tech][submodel_nr][reg_array_nr][fueltype_tech_int] = tech_fuel
+                            aggr_results['results_constrained'][heating_tech] = np.zeros((len(all_submodels), reg_nrs, fueltypes_nr, 365, 24), dtype=float)
+                            aggr_results['results_constrained'][heating_tech][submodel_nr][reg_array_nr][fueltype_tech_int] += tech_fuel
+                #else:
+                #    # Add nont heat related demand
+                #    results_constrained_non_heat[submodel_nr][reg_array_nr] += 
 
-        # -------------
-        # Aggregate total fuel (incl. heating)
-        # -------------
-        for submodel_nr, submodel in enumerate(all_submodels):
-            submodel_ed_fueltype_regs_yh = fuel_aggr(
-                [submodel],
-                'no_sum',
-                'fuel_yh',
-                'techs_fuel_yh',
-                technologies,
-                input_array=empty_input_array)
+    # -------------
+    # Summarise ed of Unconstrained mode (heat is provided)
+    # Aggregate total fuel (incl. heating)
+    # np.array(fueltypes, sectors, regions, timesteps)
+    # -------------
+    for submodel_nr, submodel in enumerate(all_submodels):
+        submodel_ed_fueltype_regs_yh = fuel_aggr(
+            [submodel],
+            'no_sum',
+            'fuel_yh',
+            'techs_fuel_yh',
+            technologies,
+            input_array=empty_input_array)
 
-            # Add SubModel specific ed
-            aggr_results['results_unconstrained'][submodel_nr][reg_array_nr] += submodel_ed_fueltype_regs_yh
+        # Add SubModel specific ed
+        aggr_results['results_unconstrained'][submodel_nr][reg_array_nr] += submodel_ed_fueltype_regs_yh
 
-        # SCRAP
-        _constr_tot = sum(aggr_results['results_constrained'].values())
-        _unconstr_tot = aggr_results['results_unconstrained']
-        _diff = _unconstr_tot - _constr_tot
+    # SCRAP
+    '''
+    _diff = aggr_results['results_unconstrained'] - sum(aggr_results['results_constrained'].values())
 
-        if testing_functions.test_if_minus_value_in_array(_diff):
-            raise Exception("Error: gggg")
-
-        #logging.info("__a____________________")
-        #logging.info(_c)
-        #logging.info(_a)
-        #logging.info(_b)
-        #if _c <= 0:
-        #    logging.info("ERROr")
-        #    prnt(":")
-    else:
-        # -------------
-        # Summarise ed of Unconstrained mode (heat is provided)
-        #
-        # np.array(fueltypes, sectors, regions, timesteps)
-        # -------------
-        # Sum across all fueltypes, sectors, regs and hours
-        for submodel_nr, submodel in enumerate(all_submodels):
-
-            submodel_ed_fueltype_regs_yh = fuel_aggr(
-                [submodel],
-                'no_sum',
-                'fuel_yh',
-                'techs_fuel_yh',
-                technologies,
-                input_array=empty_input_array)
-
-            # Add SubModel specific ed
-            aggr_results['results_unconstrained'][submodel_nr][reg_array_nr] += submodel_ed_fueltype_regs_yh
+    if testing_functions.test_if_minus_value_in_array(_diff):
+        raise Exception("Error: minus in idndivd")'''
 
     # -----------
     # Other summing for other purposes
@@ -979,6 +984,11 @@ def initialise_result_container(
     # ed_techs_submodel_fueltype_regs_yh
     result_container['results_constrained'] = {}
     # np.zeros((len(sectors.keys()), reg_nrs, fueltypes_nr, 365, 24), dtype=float)
+    #for heating_tech in heating_techs:
+    #    result_container['results_constrained'][heating_tech] = np.zeros(
+    #        (len(sectors.keys()), reg_nrs, fueltypes_nr, 365, 24), dtype=float)
+    result_container['results_constrained_non_heat'] = np.zeros(
+        (fueltypes_nr, reg_nrs, 8760), dtype=float)
 
     result_container['ed_fueltype_regs_yh'] = np.zeros(
         (fueltypes_nr, reg_nrs, 8760), dtype=float)
