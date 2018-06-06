@@ -72,6 +72,10 @@ if __name__ == "__main__":
     # Paths
     if len(sys.argv) != 2:
         print("Please provide a local data path:")
+        #local_data_path = os.path.abspath(
+        #    os.path.join(
+        #        os.path.dirname(__file__), "..", "..", "data"))
+
         local_data_path = os.path.abspath('C:/users/cenv0553/ED/data')
     else:
         local_data_path = sys.argv[1]
@@ -81,8 +85,8 @@ if __name__ == "__main__":
             os.path.dirname(__file__), '..', "energy_demand/config_data"))
 
     # Initialise logger
-    logger_setup.set_up_logger(
-        os.path.join(local_data_path, "..", "logging_local_run.log"))
+    #logger_setup.set_up_logger(os.path.join(local_data_path, "..", "logging_local_run.log"))
+    logger_setup.set_up_logger(os.path.join(local_data_path, "logging_local_run.log"))
 
     # Load data
     data['criterias'] = {}
