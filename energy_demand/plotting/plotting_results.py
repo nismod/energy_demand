@@ -4,14 +4,10 @@ import os
 import logging
 from collections import defaultdict
 import operator
-from math import pi
 import math
 import numpy as np
-import matplotlib.pyplot as plt
 import pandas as pd
-from matplotlib.ticker import MultipleLocator, FormatStrFormatter
 from scipy import stats
-
 from energy_demand import enduse_func
 from energy_demand.plotting import plotting_program
 from energy_demand.basic import basic_functions, conversions
@@ -20,6 +16,10 @@ from energy_demand.technologies import tech_related
 from energy_demand.profiles import load_factors
 from energy_demand.plotting import plotting_results
 from scipy.interpolate import interp1d
+import matplotlib
+import matplotlib.pyplot as plt
+from matplotlib.ticker import MultipleLocator, FormatStrFormatter
+matplotlib.use('Agg') # Used to make it work in linux
 
 def smooth_data(x_list, y_list, num=500, spider=False):
     """Smooth data
@@ -1997,7 +1997,7 @@ def plot_radar_plot(dh_profile, fig_name, plot_steps=30, plotshow=False):
     values += values[:1]
 
     # What will be the angle of each axis in the plot? (we divide the plot / number of variable)
-    angles = [n / float(N) * 2 * pi for n in range(N)]
+    angles = [n / float(N) * 2 * math.pi for n in range(N)]
     angles += angles[:1]
 
     # Initialise the spider plot
@@ -2155,7 +2155,7 @@ def plot_radar_plot_multiple_lines(
         values += values[:1]
 
         # What will be the angle of each axis in the plot? (we divide the plot / number of variable)
-        angles = [n / float(N) * 2 * pi for n in range(N)]
+        angles = [n / float(N) * 2 * math.pi for n in range(N)]
         angles += angles[:1]
 
         # Initialise the spider plot
