@@ -73,7 +73,7 @@ def effective_temps(temp_yh, nr_day_to_av):
         nr_day_to_av = 2: 0.865 ()
         nr_day_to_av = 3: 0.878
     """
-    effective_temp_yh = np.zeros((365, 24))
+    effective_temp_yh = np.zeros((365, 24), dtype="float")
 
     # Copy all border days
     for day in range(nr_day_to_av):

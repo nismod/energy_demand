@@ -727,7 +727,7 @@ def calc_fuel_tech_yh(
         # Unconstrained mode, i.e. not technolog specific.
         # Store according to fueltype and heat
         # --
-        fuels_yh = np.zeros((fueltypes_nr, 365, 24), dtype=float)
+        fuels_yh = np.zeros((fueltypes_nr, 365, 24), dtype="float")
 
         for tech in enduse_techs:
 
@@ -786,7 +786,7 @@ def service_to_fuel(
         - Fuel = Energy service / efficiency
     """
     fuel_tech_y = {}
-    fuel_y = np.zeros((fueltypes_nr), dtype=float)
+    fuel_y = np.zeros((fueltypes_nr), dtype="float")
 
     if mode_constrained:
         for tech, service in service_tech.items():

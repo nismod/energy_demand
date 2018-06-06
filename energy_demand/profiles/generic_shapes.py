@@ -19,12 +19,12 @@ def flat_shape(nr_of_days=365):
     flat_shape_yd : array
         Shape yd for non peak
     """
-    flat_shape_yd = np.ones((nr_of_days), dtype=float) / nr_of_days
+    flat_shape_yd = np.ones((nr_of_days), dtype="float") / nr_of_days
 
-    flat_shape_yh = np.full((nr_of_days, 24), 1/(nr_of_days * 24), dtype=float)
+    flat_shape_yh = np.full((nr_of_days, 24), 1/(nr_of_days * 24), dtype="float")
 
     # Flat shape, ever hour same amount
-    flat_shape_y_dh = np.full((nr_of_days, 24), (1.0/24), dtype=float)
+    flat_shape_y_dh = np.full((nr_of_days, 24), (1.0/24), dtype="float")
 
     return flat_shape_yd, flat_shape_yh, flat_shape_y_dh
 

@@ -28,7 +28,7 @@ def main(regions, weather_regions, data):
     # ----------------------------------
     # Read temp data and weather station
     # ----------------------------------
-    weighted_daily_hdd = np.zeros((365))
+    weighted_daily_hdd = np.zeros((365), dtype="float")
     #weighted_daily_hdd_pop = np.zeros((365))
 
     for region in regions:

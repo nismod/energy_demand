@@ -61,7 +61,7 @@ def dummy_raw_weather_data(local_paths):
         rows)'''
     temp_data = {}
 
-    temp_data['station_Nr_999'] = np.zeros((365, 24))
+    temp_data['station_Nr_999'] = np.zeros((365, 24), dtype="float")
 
     for i in range(365):
         temp_data['station_Nr_999'][i] = [

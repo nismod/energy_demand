@@ -4,7 +4,7 @@
     Tools
     # -------
     Profiling:  https://jiffyclub.github.io/snakeviz/
-    python -m cProfile -o program.prof my_program.py
+    python -m cProfile -o program.prof main.py
     snakeviz program.prof
 """
 import os
@@ -321,7 +321,7 @@ if __name__ == "__main__":
             # -------------------------------------------
             # Write population files of simulation year
             # -------------------------------------------
-            pop_array_reg = np.zeros((len(data['regions'])))
+            pop_array_reg = np.zeros((len(data['regions'])), dtype="float")
             for reg_array_nr, reg in enumerate(data['regions']):
                 pop_array_reg[reg_array_nr] = data['scenario_data']['population'][sim_yr][reg]
 

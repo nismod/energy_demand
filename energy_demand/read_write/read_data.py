@@ -494,7 +494,7 @@ def read_fuel_ss(path_to_csv, fueltypes_nr):
             for enduse in enduses:
                 fuels[enduse] = {}
                 for sector in sectors:
-                    fuels[enduse][sector] = np.zeros((fueltypes_nr), dtype=float)
+                    fuels[enduse][sector] = np.zeros((fueltypes_nr), dtype="float")
 
             for row in rows:
                 rows_list.append(row)
@@ -527,7 +527,7 @@ def read_load_shapes_tech(path_to_csv):
         headings = next(rows) # Skip first row
 
         for row in rows:
-            dh_shape = np.zeros((24), dtype=float)
+            dh_shape = np.zeros((24), dtype="float")
             for cnt, row_entry in enumerate(row[1:], 1):
                 dh_shape[int(headings[cnt])] = float(row_entry)
 
@@ -839,7 +839,7 @@ def read_fuel_rs(path_to_csv):
                 rows_list.append(row)
 
             for enduse in headings[1:]:
-                fuels[enduse] = np.zeros((len(rows_list)), dtype=float)
+                fuels[enduse] = np.zeros((len(rows_list)), dtype="float")
 
             for row in rows_list:
                 fueltype_str = row[0]
@@ -1001,7 +1001,7 @@ def read_fuel_is(path_to_csv, fueltypes_nr, fueltypes):
             for sector in sectors:
 
                 fuels[str(enduse)][str(sector)] = np.zeros(
-                    (fueltypes_nr), dtype=float)
+                    (fueltypes_nr), dtype="float")
 
         for row in rows_list:
             sector = row[0]

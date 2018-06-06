@@ -291,13 +291,13 @@ def get_fuels_yh(enduse_object, attribute_to_get):
             #fuels = fuels_reg_y * shape_non_peak_y_dh
             fuels = fuels_reg_y * flat_shape_yh
         elif attribute_to_get == 'shape_non_peak_yd':
-            #shape_non_peak_yd = np.ones((365), dtype=float) / 365
+            #shape_non_peak_yd = np.ones((365), dtype="float") / 365
             #shape_non_peak_yd = np.full((365), 0.0027397260273972603) #1/ 365
             #fuels = fuels_reg_y * shape_non_peak_yd
             fuels = fuels_reg_y * flat_shape_yd
         elif attribute_to_get == 'fuel_yh' or attribute_to_get == 'techs_fuel_yh':
             f_hour = 0.00011415525114155251 #1 / 8760
-            flat_shape = np.full((enduse_object.fuel_y.shape[0], 365, 24), f_hour, dtype=float)
+            flat_shape = np.full((enduse_object.fuel_y.shape[0], 365, 24), f_hour, dtype="float")
             fuels = fuels_reg_y[:, np.newaxis, np.newaxis] * flat_shape
         #elif attribute_to_get == 'techs_fuel_peak_h':
         #    fuels = 0.00011415525114155251 #1 / 8760
@@ -583,7 +583,7 @@ def aggr_fuel_regions_fueltype(
         Aggregated fuel per fueltype, yeardays, hours
     """
     input_array = np.zeros((
-        fueltypes_nr, 365, 24), dtype=float)
+        fueltypes_nr, 365, 24), dtype="float")
 
     fuel_region = fuel_aggr(
         submodels,
@@ -625,7 +625,7 @@ def sum_enduse_all_regions(
         for model_object in sector_model:
 
             if model_object.enduse not in enduse_dict:
-                enduse_dict[model_object.enduse] = np.zeros((fueltypes_nr, 365, 24))
+                enduse_dict[model_object.enduse] = np.zeros((fueltypes_nr, 365, 24), dtype="float")
 
             fuels = get_fuels_yh(
                 model_object,
@@ -800,7 +800,7 @@ def aggregate_final_results(
     aggr_results : dict
         Contains all aggregated results
     """
-    empty_input_array = np.zeros((fueltypes_nr, 365, 24), dtype=float)
+    empty_input_array = np.zeros((fueltypes_nr, 365, 24), dtype="float")
 
     if mode_constrained:
 
@@ -834,7 +834,7 @@ def aggregate_final_results(
                             aggr_results['results_constrained'][heating_tech][submodel_nr][reg_array_nr][fueltype_tech_int] += tech_fuel
                         else:
                             logging.info("Empty summing {}  {}  {}".format(heating_tech, submodel_nr, enduse_object.enduse))
-                            aggr_results['results_constrained'][heating_tech] = np.zeros((len(all_submodels), reg_nrs, fueltypes_nr, 365, 24), dtype=float)
+                            aggr_results['results_constrained'][heating_tech] = np.zeros((len(all_submodels), reg_nrs, fueltypes_nr, 365, 24), dtype="float")
                             aggr_results['results_constrained'][heating_tech][submodel_nr][reg_array_nr][fueltype_tech_int] += tech_fuel
 
     # -------------
@@ -949,37 +949,37 @@ def initialise_result_container(
     result_container = {}
 
     result_container['results_unconstrained'] = np.zeros(
-        (len(sectors.keys()), reg_nrs, fueltypes_nr, 365, 24), dtype=float)
+        (len(sectors.keys()), reg_nrs, fueltypes_nr, 365, 24), dtype="float")
 
     result_container['results_constrained'] = {}
 
     result_container['ed_fueltype_regs_yh'] = np.zeros(
-        (fueltypes_nr, reg_nrs, 8760), dtype=float)
+        (fueltypes_nr, reg_nrs, 8760), dtype="float")
 
     result_container['ed_fueltype_national_yh'] = np.zeros(
-        (fueltypes_nr, 365, 24), dtype=float)
+        (fueltypes_nr, 365, 24), dtype="float")
 
     result_container['tot_fuel_y_max_enduses'] = np.zeros(
-        (fueltypes_nr), dtype=float)
+        (fueltypes_nr), dtype="float")
 
     result_container['tot_fuel_y_enduse_specific_yh'] = {}
 
     result_container['reg_load_factor_y'] = np.zeros(
-        (fueltypes_nr, reg_nrs), dtype=float)
+        (fueltypes_nr, reg_nrs), dtype="float")
 
     result_container['reg_load_factor_yd'] = np.zeros(
-        (fueltypes_nr, reg_nrs, 365), dtype=float)
+        (fueltypes_nr, reg_nrs, 365), dtype="float")
 
     result_container['reg_seasons_lf'] = {
-        'summer' : np.zeros((fueltypes_nr, reg_nrs), dtype=float),
-        'spring': np.zeros((fueltypes_nr, reg_nrs), dtype=float),
-        'winter': np.zeros((fueltypes_nr, reg_nrs), dtype=float),
-        'autumn': np.zeros((fueltypes_nr, reg_nrs), dtype=float)}
+        'summer' : np.zeros((fueltypes_nr, reg_nrs), dtype="float"),
+        'spring': np.zeros((fueltypes_nr, reg_nrs), dtype="float"),
+        'winter': np.zeros((fueltypes_nr, reg_nrs), dtype="float"),
+        'autumn': np.zeros((fueltypes_nr, reg_nrs), dtype="float")}
 
     result_container['averaged_h'] = {
-        'summer' : np.zeros((fueltypes_nr, reg_nrs, 24), dtype=float),
-        'spring': np.zeros((fueltypes_nr, reg_nrs, 24), dtype=float),
-        'winter': np.zeros((fueltypes_nr, reg_nrs, 24), dtype=float),
-        'autumn': np.zeros((fueltypes_nr, reg_nrs, 24), dtype=float)}
+        'summer' : np.zeros((fueltypes_nr, reg_nrs, 24), dtype="float"),
+        'spring': np.zeros((fueltypes_nr, reg_nrs, 24), dtype="float"),
+        'winter': np.zeros((fueltypes_nr, reg_nrs, 24), dtype="float"),
+        'autumn': np.zeros((fueltypes_nr, reg_nrs, 24), dtype="float")}
 
     return result_container

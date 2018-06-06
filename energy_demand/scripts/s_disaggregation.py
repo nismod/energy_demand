@@ -673,7 +673,7 @@ def rs_disaggregate(
 
     # -----------------
     # Check if total fuel is the same before and after aggregation
-    #------------------
+    #------------------ 
     testing_functions.control_disaggregation(
         rs_fuel_disagg, rs_national_fuel, enduses)
 

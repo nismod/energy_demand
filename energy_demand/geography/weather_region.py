@@ -595,8 +595,8 @@ def get_fuel_shape_heating_hp_yh(tech_lp_y_dh, tech_stock, rs_hdd_cy, model_year
 
     -  See XY in documentation for source of heat pumps
     """
-    shape_yh_hp = np.zeros((365, 24), dtype=float)
-    shape_y_dh = np.zeros((365, 24), dtype=float)
+    shape_yh_hp = np.zeros((365, 24), dtype="float")
+    shape_y_dh = np.zeros((365, 24), dtype="float")
 
     tech_eff = tech_stock.get_tech_attr(
         'rs_space_heating',
@@ -676,7 +676,7 @@ def ss_get_sector_enduse_shape(tech_lps, heating_lp_yd, enduse):
     shape_boilers_y_dh : array
         Shape of distribution of fuel within every day of a year (total sum == nr_of_days)
     """
-    shape_yh_generic_tech = np.zeros((365, 24), dtype=float)
+    shape_yh_generic_tech = np.zeros((365, 24), dtype="float")
 
     if enduse not in tech_lps:
         pass
@@ -714,7 +714,7 @@ def change_temp_climate(
     temp_climate_change : dict
         Adapted temperatures for all weather stations depending on climate change assumptions
     """
-    temp_climate_change = np.zeros((365, 24), dtype=float)
+    temp_climate_change = np.zeros((365, 24), dtype="float")
 
     # Iterate every month
     for yearday_month, month_yeardays in yeardays_month_days.items():

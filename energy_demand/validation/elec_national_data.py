@@ -50,8 +50,8 @@ def read_raw_elec_2015(path_to_csv, year=2015):
     of generation based on National Grid
     operational generation metering
     """
-    elec_data_indo = np.zeros((365, 24), dtype=float)
-    elec_data_itsdo = np.zeros((365, 24), dtype=float)
+    elec_data_indo = np.zeros((365, 24), dtype="float")
+    elec_data_itsdo = np.zeros((365, 24), dtype="float")
 
     with open(path_to_csv, 'r') as csvfile:
         read_lines = csv.reader(csvfile, delimiter=',')
