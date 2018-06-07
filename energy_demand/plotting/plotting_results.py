@@ -311,7 +311,7 @@ def run_all_plot_functions(
     # ----------------
     if plot_crit['plot_week_h']:
         logging.debug("... plot a full week")
-        plt_fuels_enduses_week(
+        plt_fuels_enduses_week( #TODO FIX ERROR
             results_container['results_every_year'],
             lookups,
             2015,

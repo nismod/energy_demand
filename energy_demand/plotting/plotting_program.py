@@ -1,5 +1,7 @@
 import numpy as np
 import matplotlib.pyplot as plt
+import matplotlib
+matplotlib.use('Agg') # Used to make it work in linux
 import pylab
 from energy_demand.technologies import diffusion_technologies
 

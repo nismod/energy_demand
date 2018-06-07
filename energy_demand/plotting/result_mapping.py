@@ -9,6 +9,8 @@ import numpy as np
 import geopandas as gpd
 import pandas as pd
 import palettable
+import matplotlib
+matplotlib.use('Agg') # Used to make it work in linux
 import matplotlib.pyplot as plt
 import matplotlib.patches as mpatches
 from matplotlib.colors import LinearSegmentedColormap

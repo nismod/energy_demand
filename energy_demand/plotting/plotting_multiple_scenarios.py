@@ -5,7 +5,6 @@ import os
 import operator
 import collections
 import numpy as np
-import matplotlib.pyplot as plt
 from energy_demand.plotting import plotting_styles
 from energy_demand.plotting import plotting_program
 from energy_demand.basic import conversions
@@ -13,6 +12,9 @@ from energy_demand.plotting import plotting_results
 from energy_demand import enduse_func
 from energy_demand.profiles import load_factors
 from energy_demand.read_write import write_data
+import matplotlib
+import matplotlib.pyplot as plt
+matplotlib.use('Agg') # Used to make it work in linux
 
 def plot_heat_pump_chart_multiple(
         lookups,

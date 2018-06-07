@@ -35,7 +35,7 @@ def main(path_data_energy_demand, path_shapefile_input):
         "plot_y_all_enduses": True,
         "plot_fuels_enduses_y": True,
         "plot_lf": False,
-        "plot_week_h": True,
+        "plot_week_h": False, # True,
         "plot_h_peak_fueltypes": True,
         "plot_averaged_season_fueltype": True, # Compare for every season and daytype the daily loads
         "plot_radar" : True,
