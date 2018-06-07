@@ -7,8 +7,8 @@ from collections import defaultdict
 import numpy as np
 from energy_demand.basic import basic_functions, logger_setup
 from energy_demand.geography import spatial_diffusion
-from energy_demand.read_write import data_loader, read_data
-from energy_demand.scripts import (s_disaggregation, s_fuel_to_service, s_generate_sigmoid)
+from energy_demand.read_write import read_data
+from energy_demand.scripts import (s_fuel_to_service, s_generate_sigmoid)
 from energy_demand.technologies import fuel_service_switch
 from energy_demand.plotting import result_mapping
 

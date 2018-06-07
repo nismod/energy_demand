@@ -15,7 +15,6 @@ import numpy as np
 from energy_demand import model
 from energy_demand.basic import testing_functions
 from energy_demand.basic import lookup_tables
-
 from energy_demand.assumptions import non_param_assumptions
 from energy_demand.assumptions import param_assumptions
 from energy_demand.read_write import data_loader
@@ -23,7 +22,6 @@ from energy_demand.basic import logger_setup
 from energy_demand.read_write import write_data
 from energy_demand.read_write import read_data
 from energy_demand.basic import basic_functions
-
 #TOPDO :replace key error to test in list keys
 
 def energy_demand_model(data, assumptions):

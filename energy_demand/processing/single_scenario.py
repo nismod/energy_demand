@@ -65,6 +65,7 @@ def main(path_data_energy_demand, path_shapefile_input):
     basic_functions.del_previous_setup(data['result_paths']['data_results_shapefiles'])
     basic_functions.create_folder(data['result_paths']['data_results_PDF'])
     basic_functions.create_folder(data['result_paths']['data_results_shapefiles'])
+    basic_functions.create_folder(data['result_paths']['individual_enduse_lp'])
 
     # Simulation information is read in from .ini file for results
     data['enduses'], data['assumptions'], data['reg_nrs'], data['regions'] = data_loader.load_ini_param(

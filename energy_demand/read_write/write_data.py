@@ -23,6 +23,7 @@ def logg_info(modelrun, fuels_in, data):
     """
     logging.info("================================================")
     logging.info("Simulation year:         %s", str(modelrun.curr_yr))
+    logging.info("Nr of regions:           %s", str(data['reg_nrs']))
     logging.info("Total ktoe:              %s", str(conversions.gwh_to_ktoe(fuels_in["fuel_in"])))
     logging.info("-----------------")
     logging.info("[GWh] Total input:       %s", str(fuels_in["fuel_in"]))
@@ -65,10 +66,13 @@ def logg_info(modelrun, fuels_in, data):
     logging.info("Diff hydrogen p:         %s", str(round((np.sum(modelrun.ed_fueltype_national_yh[data['lookups']['fueltypes']['hydrogen']])/ fuels_in["fuel_in_hydrogen"]), 4)))
     logging.info("Diff biomass p:          %s", str(round((np.sum(modelrun.ed_fueltype_national_yh[data['lookups']['fueltypes']['biomass']])/ fuels_in["fuel_in_biomass"]), 4)))
     logging.info("================================================")
+
     return
 
 def tuple_representer(dumper, data):
-    return dumper.represent_scalar(tag=u'tag:yaml.org,2002:str', value='({}, {})'.format(data[0], data[1]))
+    return dumper.represent_scalar(
+        tag=u'tag:yaml.org,2002:str',
+        value='({}, {})'.format(data[0], data[1]))
 
 def write_array_to_txt(path_result, array):
     """Write scenario population for a year to txt file

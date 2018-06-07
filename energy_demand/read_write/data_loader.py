@@ -234,13 +234,12 @@ def floor_area_virtual_dw(
         try:
             rs_floorarea[base_yr][region] = resid_footprint[region]
         except KeyError:
-            logging.warning(
-                "No virtual residential floor area for region %s ", region)
+            print("No virtual residential floor area for region %s ", region)
 
             # Calculate average floor area
             rs_floorarea[base_yr][region] = avearge_floor_area_pp * population[region]
             rs_regions_without_floorarea.append(region)
-
+ 
     # --------------------------------------------------
     # Floor area for service sector buildings
     # --------------------------------------------------
@@ -351,7 +350,9 @@ def get_result_paths(path):
         'model_run_pop': os.path.join(
             path, 'model_run_pop'),
         'data_results_shapefiles': os.path.join(
-            path, 'spatial_results')}
+            path, 'spatial_results'),
+        'individual_enduse_lp': os.path.join(
+            path, 'individual_enduse_lp')}
 
     return paths
 

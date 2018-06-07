@@ -85,6 +85,7 @@ def run_all_plot_functions(
     """
 
     if plot_crit['plot_lad_cross_graphs']:
+
         # Plot cross graph where very region is a dot
         plot_cross_graphs(
             base_yr=2015,
@@ -217,7 +218,7 @@ def run_all_plot_functions(
         plt_stacked_enduse(
             assumptions['simulated_yrs'],
             results_container['results_enduse_every_year'],
-            rs_enduses_sorted, #enduses['rs_enduses'],
+            rs_enduses_sorted,
             rs_color_list,
             os.path.join(
                 result_paths['data_results_PDF'], "stacked_rs_country.pdf"))
@@ -226,7 +227,7 @@ def run_all_plot_functions(
         plt_stacked_enduse(
             assumptions['simulated_yrs'],
             results_container['results_enduse_every_year'],
-            ss_enduses_sorted, #enduses['ss_enduses'],
+            ss_enduses_sorted,
             ss_color_list,
             os.path.join(
                 result_paths['data_results_PDF'], "stacked_ss_country.pdf"))
@@ -235,7 +236,7 @@ def run_all_plot_functions(
         plt_stacked_enduse(
             assumptions['simulated_yrs'],
             results_container['results_enduse_every_year'],
-            is_enduses_sorted, #enduses['is_enduses'],
+            is_enduses_sorted,
             is_color_list,
             os.path.join(
                 result_paths['data_results_PDF'], "stacked_is_country_.pdf"))
@@ -311,11 +312,12 @@ def run_all_plot_functions(
     # ----------------
     if plot_crit['plot_week_h']:
         logging.debug("... plot a full week")
-        plt_fuels_enduses_week( #TODO FIX ERROR
-            results_container['results_every_year'],
-            lookups,
-            2015,
-            os.path.join(result_paths['data_results_PDF'], "tot_all_enduse03.pdf"))
+        plt_fuels_enduses_week(
+            results_resid=results_container['results_every_year'],
+            lookups=lookups,
+            nr_of_h_to_plot=range(7*24),
+            year_to_plot=2015,
+            fig_name=os.path.join(result_paths['data_results_PDF'], "tot_all_enduse03.pdf"))
 
     # ------------------------------------
     # Plot averaged per season and fueltype
@@ -707,7 +709,6 @@ def plt_stacked_enduse(
     y_value_arrays = []
     legend_entries = []
 
-    #for enduse_array_nr, enduse in enumerate(enduses_data):
     for enduse in enduses:
         legend_entries.append(enduse)
 
@@ -776,9 +777,9 @@ def plt_stacked_enduse(
 
     plt.xticks(major_ticks, major_ticks)
 
-    plt.ylim(ymax=500)
-    yticks = [100, 200, 300, 400, 500]
-    plt.yticks(yticks, yticks)
+    #plt.ylim(ymax=500) #TODO
+    #yticks = [100, 200, 300, 400, 500]
+    #plt.yticks(yticks, yticks)
     # -------
     # Labels
     # -------

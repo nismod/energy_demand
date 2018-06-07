@@ -138,7 +138,7 @@ class Enduse(object):
                 assumptions.enduse_space_heating,
                 assumptions.ss_enduse_space_cooling)
             self.fuel_y = _fuel_new_y
-            #logging.debug("... Fuel train B: " + str(np.sum(self.fuel_y)))
+            logging.debug("... Fuel train B: " + str(np.sum(self.fuel_y)))
 
             # --Change fuel consumption based on smart meter induced general savings
             _fuel_new_y = apply_smart_metering(
@@ -149,7 +149,7 @@ class Enduse(object):
                 base_yr,
                 curr_yr)
             self.fuel_y = _fuel_new_y
-            #logging.debug("... Fuel train C: " + str(np.sum(self.fuel_y)))
+            logging.debug("... Fuel train C: " + str(np.sum(self.fuel_y)))
 
             # --Enduse specific fuel consumption change in %
             _fuel_new_y = apply_specific_change(
@@ -160,7 +160,7 @@ class Enduse(object):
                 base_yr,
                 curr_yr)
             self.fuel_y = _fuel_new_y
-            #logging.debug("... Fuel train D: " + str(np.sum(self.fuel_y)))
+            logging.debug("... Fuel train D: " + str(np.sum(self.fuel_y)))
 
             # Calculate new fuel demands after scenario drivers
             _fuel_new_y = apply_scenario_drivers(
@@ -176,7 +176,7 @@ class Enduse(object):
                 base_yr,
                 curr_yr)
             self.fuel_y = _fuel_new_y
-            #logging.debug("... Fuel train E: " + str(np.sum(self.fuel_y)))
+            logging.debug("... Fuel train E: " + str(np.sum(self.fuel_y)))
 
             # Apply cooling scenario variable
             _fuel_new_y = apply_cooling(
@@ -188,7 +188,7 @@ class Enduse(object):
                 base_yr,
                 curr_yr)
             self.fuel_y = _fuel_new_y
-            #logging.debug("... Fuel train E1: " + str(np.sum(self.fuel_y)))
+            logging.debug("... Fuel train E1: " + str(np.sum(self.fuel_y)))
 
             # Industry related change
             _fuel_new_y = industry_enduse_changes(
@@ -201,7 +201,7 @@ class Enduse(object):
                 enduse_overall_change['other_enduse_mode_info'],
                 assumptions)
             self.fuel_y = _fuel_new_y
-            #logging.debug("... Fuel train E2: " + str(np.sum(self.fuel_y)))
+            logging.debug("... Fuel train E2: " + str(np.sum(self.fuel_y)))
 
             # ----------------------------------
             # Hourly Disaggregation
@@ -289,7 +289,7 @@ class Enduse(object):
                     fueltypes_nr,
                     fueltypes,
                     mode_constrained)
-                #logging.debug("... Fuel train H: " + str(np.sum(self.fuel_y)))
+                logging.debug("... Fuel train H: " + str(np.sum(self.fuel_y)))
 
                 # Delete all technologies with no fuel assigned
                 for tech, fuel_tech in fuel_tech_y.items():
@@ -1323,9 +1323,10 @@ def apply_smart_metering(
     - In the assumptions the maximum penetration and also the
         generally fuel savings for each enduse can be defined.
     """
-    try:
-
-        enduse_savings = strategy_variables['smart_meter_improvement_{}'.format(enduse)]['scenario_value']
+    key_name = 'smart_meter_improvement_{}'.format(enduse)
+    #try:
+    if key_name in strategy_variables.keys():
+        enduse_savings = strategy_variables[key_name]['scenario_value']
 
         # Sigmoid diffusion up to current year
         sigm_factor = diffusion_technologies.sigmoid_diffusion(
@@ -1349,10 +1350,9 @@ def apply_smart_metering(
         fuel_y = fuel_y - saved_fuel
 
         return fuel_y
-
-    except KeyError:
-        # not defined for this enduse
-        return fuel_y
+    else:
+    #except KeyError:
+        return fuel_y  # not defined for this enduse
 
 def convert_service_to_p(tot_s_y, s_fueltype_tech):
     """Calculate fraction of service for every technology
@@ -1525,10 +1525,12 @@ def apply_cooling(
         Fuel array (either changed fuel depending on cooling percentage)
         of identical array
     """
-    try:
+    key_name = "cooled_floorarea__{}".format(enduse)
 
+    if key_name in strategy_variables[key_name].keys():
+    #try:
         # Floor area share cooled in end year
-        cooled_floorearea_p_ey = cooled_floorarea_p_by + strategy_variables["cooled_floorarea__{}".format(enduse)]['scenario_value']
+        cooled_floorearea_p_ey = cooled_floorarea_p_by + strategy_variables[key_name]['scenario_value']
 
         # Fraction of heat recovered up to current year
         sig_diff_factor = diffusion_technologies.sigmoid_diffusion(
@@ -1549,8 +1551,8 @@ def apply_cooling(
         # Apply factor
         fuel_y = fuel_y * floorare_cooling_factor
         return fuel_y
-
-    except KeyError:
+    else:
+    #except KeyError:
         # no cooling defined for enduse
         return fuel_y
 

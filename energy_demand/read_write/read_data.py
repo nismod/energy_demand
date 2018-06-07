@@ -1290,3 +1290,22 @@ def read_np_array_from_txt(path_file_to_read):
     txt_array = np.loadtxt(path_file_to_read, delimiter=',')
 
     return txt_array
+
+def get_region_selection(path_to_csv):
+    """Read region names in a csv
+
+    Arguments
+    ----------
+    path_to_csv : str
+        Path to csv file
+    """
+    regions = []
+
+    with open(path_to_csv, 'r') as csvfile:
+        rows = csv.reader(csvfile, delimiter=',')
+        headings = next(rows) # Skip first row
+
+        for row in rows:
+            regions.append(row[0])
+
+    return regions
