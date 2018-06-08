@@ -213,7 +213,7 @@ def floor_area_virtual_dw(
     # Based on Roberts et al. (2011) , an average one bedroom home for 2 people has 46 m2.
     # Roberts et al. (2011): The Case for Space: the size of England’s new homes.
     # -----
-    avearge_floor_area_pp = 23 # We thus assume 23 m2 per person on average.
+    avearge_floor_area_pp = 23 # [m2] We thus assume 23 m2 per person on average.
 
     # --------------------------------------------------
     # Floor area for residential buildings for base year
@@ -239,7 +239,7 @@ def floor_area_virtual_dw(
             # Calculate average floor area
             rs_floorarea[base_yr][region] = avearge_floor_area_pp * population[region]
             rs_regions_without_floorarea.append(region)
- 
+
     # --------------------------------------------------
     # Floor area for service sector buildings
     # --------------------------------------------------

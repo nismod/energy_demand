@@ -138,8 +138,6 @@ def simulate_region(region, data, assumptions, weather_regions):
     XX_submodels : obj
         SubModel result object
     """
-    logging.debug("... Simulate region %s", region)
-
     region_obj = Region(
         name=region,
         longitude=data['reg_coord'][region]['longitude'],
@@ -685,7 +683,10 @@ def create_virtual_dwelling_stocks(regions, curr_yr, data):
     ss_dw_stock = defaultdict(dict)
     for region in regions:
 
-        # Dwelling stock of residential SubModel for base year
+        # -------------
+        # Residential dwelling stocks
+        # -------------
+        # Base year
         rs_dw_stock[region][data['assumptions'].base_yr] = dw_stock.rs_dw_stock(
             region,
             data['assumptions'],
@@ -699,19 +700,7 @@ def create_virtual_dwelling_stocks(regions, curr_yr, data):
             data['assumptions'].base_yr,
             data['criterias']['virtual_building_stock_criteria'])
 
-        # Dwelling stock of service SubModel for base year
-        ss_dw_stock[region][data['assumptions'].base_yr] = dw_stock.ss_dw_stock(
-            region,
-            data['enduses']['ss_enduses'],
-            data['sectors']['ss_sectors'],
-            data['scenario_data'],
-            data['reg_coord'],
-            data['assumptions'],
-            data['assumptions'].base_yr,
-            data['assumptions'].base_yr,
-            data['criterias']['virtual_building_stock_criteria'])
-
-        # Dwelling stock of residential SubModel for current year
+        # current year
         rs_dw_stock[region][curr_yr] = dw_stock.rs_dw_stock(
             region,
             data['assumptions'],
@@ -724,6 +713,27 @@ def create_virtual_dwelling_stocks(regions, curr_yr, data):
             curr_yr,
             data['assumptions'].base_yr,
             data['criterias']['virtual_building_stock_criteria'])
+
+        print("AAAAAAA " + str(curr_yr))
+        print(rs_dw_stock[region][2015].rs_space_heating)
+        print(rs_dw_stock[region][curr_yr].rs_space_heating)
+        #prnt(".")
+
+        # -------------
+        # Service dwelling stocks
+        # -------------
+        # base year
+        ss_dw_stock[region][data['assumptions'].base_yr] = dw_stock.ss_dw_stock(
+            region,
+            data['enduses']['ss_enduses'],
+            data['sectors']['ss_sectors'],
+            data['scenario_data'],
+            data['reg_coord'],
+            data['assumptions'],
+            data['assumptions'].base_yr,
+            data['assumptions'].base_yr,
+            data['criterias']['virtual_building_stock_criteria'])
+
 
         # Dwelling stock of service SubModel for current year
         ss_dw_stock[region][curr_yr] = dw_stock.ss_dw_stock(

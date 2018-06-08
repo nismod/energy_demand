@@ -440,10 +440,12 @@ def load_script_data(data):
     """
     init_cont, fuel_disagg = init_scripts.scenario_initalisation(
         data['paths']['path_main'],
+        data['fuel_disagg'],
         data)
 
     for key, value in init_cont.items():
         setattr(data['assumptions'], key, value)
+
     data['fuel_disagg'] = {}
     for key, value in fuel_disagg.items():
         data['fuel_disagg'][key] = value

@@ -289,28 +289,25 @@ def get_floorare_pp(
     floor_area_pp = {}
 
     if reg_pop_by == 0:
-        floorarea_pp_by = 0
+        floor_area_pp[base_yr] = 0
     else:
         # Floor area per person of base year
-        floorarea_pp_by = floorarea / reg_pop_by
+        floor_area_pp[base_yr] = floorarea / reg_pop_by
 
-    # Base year floor area
-    floor_area_pp[base_yr] = floorarea_pp_by
-
-    for curr_yr in sim_period:
-        if curr_yr == base_yr:
+    for year in sim_period:
+        if year == base_yr:
             pass
         else:
             # Change up to current year (linear)
             lin_diff_factor = diffusion_technologies.linear_diff(
                 base_yr,
-                curr_yr,
+                year,
                 1,
                 assump_final_diff_floorarea_pp,
                 yr_until_changed)
 
             # Floor area per person of simulation year
-            floor_area_pp[curr_yr] = floorarea_pp_by * lin_diff_factor
+            floor_area_pp[year] = floor_area_pp[base_yr] * lin_diff_factor
 
     return floor_area_pp
 
@@ -575,7 +572,7 @@ def rs_dw_stock(
           with more specific information from real building stock model
     """
     if virtual_building_stock_criteria:
-
+        ####print("GGGGGNUP {} {}".format(scenario_data['population'][base_yr][region], scenario_data['population'][curr_yr][region]))
         # Get changes in absolute floor area per dwelling type over time
         dwtype_floor_area = get_dwtype_floor_area(
             assumptions.dwtype_floorarea_by,
@@ -606,8 +603,10 @@ def rs_dw_stock(
             dwtype_distr)
 
         floorarea_by = scenario_data['floor_area']['rs_floorarea'][base_yr][region]
-        population_by = scenario_data['population'][base_yr][region]
 
+        population_by = scenario_data['population'][base_yr][region]
+        population_cy = scenario_data['population'][curr_yr][region]
+        print("SPACE SHU {} {}".format(population_by, population_cy))
         if population_by != 0:
             floorarea_pp_by = floorarea_by / population_by # [m2 / person]
         else:
@@ -615,11 +614,18 @@ def rs_dw_stock(
 
         # Calculate new necessary floor area  per person of current year
         floorarea_pp_cy = data_floorarea_pp[curr_yr]
-        population_cy = scenario_data['population'][curr_yr][region]
 
         # Calculate new floor area
         tot_floorarea_cy = floorarea_pp_cy * population_cy
 
+        print("floor area and pop {} {}  {}".format(region, base_yr, curr_yr))
+        print(data_floorarea_pp)
+        print("--")
+        print(population_cy)
+        print(population_by)
+        print("--")
+        print(tot_floorarea_cy)
+        print(floorarea_by)
     else:
         """
         #If floor_area is read in from model, this would be here
@@ -666,7 +672,12 @@ def rs_dw_stock(
         remaining_area = floorarea_by - demolished_area
 
         # In existing building stock fewer people are living, i.e. density changes
-        population_by_existing = floorarea_by / floorarea_pp_cy
+        #population_by_existing = floorarea_by / floorarea_pp_cy
+
+        logging.info("info {} {} {}".format(
+            floor_area_cy,
+            demolished_area,
+            remaining_area))
 
         # Generate stock for existing area
         dw_stock_cy = generate_dw_existing(

@@ -115,7 +115,7 @@ class Enduse(object):
         self.fuel_y = fuel
         self.flat_profile_crit = flat_profile_crit
         self.techs_fuel_yh = None
-        
+
         #If enduse has no fuel return empty shapes
         if np.sum(fuel) == 0:
             self.flat_profile_crit = True
@@ -123,6 +123,7 @@ class Enduse(object):
             self.fuel_yh = 0
             self.enduse_techs = []
         else:
+            logging.info("------INFO  {} {}  {}".format(self.enduse, region, curr_yr))
             # Get technologies of enduse
             self.enduse_techs = get_enduse_techs(fuel_fueltype_tech_p_by)
 
@@ -212,7 +213,8 @@ class Enduse(object):
                 No switches can be implemented and only overall change of enduse.
                 """
                 if flat_profile_crit:
-                    self.fuel_y = self.fuel_y
+                    #self.fuel_y = self.fuel_y
+                    pass
                 else:
                     self.fuel_yh = assign_lp_no_techs(
                         enduse,
@@ -377,53 +379,35 @@ def demand_management(
     fuel_yh : array
         Fuel of yh
     """
-    # ------------------------------
-    # Test if peak is shifted or not
-    # ------------------------------
-    try:
+    key_name = 'demand_management_improvement__{}'.format(enduse)
+
+    if key_name in strategy_variables.keys():
+
         # Get assumed load shift
-        param_name = 'demand_management_improvement__{}'.format(enduse)
-
-        if strategy_variables[param_name]['scenario_value'] == 0:
-
-            # no load management
-            peak_shift_crit = False
+        if strategy_variables[key_name]['scenario_value'] == 0:
+            pass # no load management
         else:
             # load management
-            peak_shift_crit = True
-    except KeyError:
+            # Calculate average for every day
+            if mode_constrained:
+                average_fuel_yd = np.average(fuel_yh, axis=1)
+            else:
+                average_fuel_yd = np.average(fuel_yh, axis=2)
 
-        # no load management
-        peak_shift_crit = False
+            # Calculate load factors (only inter_day load shifting as for now)
+            loadfactor_yd_cy = lf.calc_lf_d(
+                fuel_yh, average_fuel_yd, mode_constrained)
 
-    # ------------------------------
-    # If peak shifting implemented, calculate new lp
-    # ------------------------------
-    if peak_shift_crit:
+            # Calculate current year load factors
+            lf_improved_cy = calc_lf_improvement(
+                strategy_variables[key_name]['scenario_value'],
+                base_yr,
+                curr_yr,
+                loadfactor_yd_cy,
+                strategy_variables['demand_management_yr_until_changed']['scenario_value'])
 
-        # Calculate average for every day
-        if mode_constrained:
-            average_fuel_yd = np.average(fuel_yh, axis=1)
-        else:
-            average_fuel_yd = np.average(fuel_yh, axis=2)
-
-        # Calculate load factors (only inter_day load shifting as for now)
-        loadfactor_yd_cy = lf.calc_lf_d(
-            fuel_yh, average_fuel_yd, mode_constrained)
-
-        # Calculate current year load factors
-        lf_improved_cy = calc_lf_improvement(
-            strategy_variables[param_name]['scenario_value'],
-            base_yr,
-            curr_yr,
-            loadfactor_yd_cy,
-            strategy_variables['demand_management_yr_until_changed']['scenario_value'])
-
-        fuel_yh = lf.peak_shaving_max_min(
-            lf_improved_cy, average_fuel_yd, fuel_yh, mode_constrained)
-
-    else: # no peak shifting
-        pass
+            fuel_yh = lf.peak_shaving_max_min(
+                lf_improved_cy, average_fuel_yd, fuel_yh, mode_constrained)
 
     return fuel_yh
 
@@ -939,9 +923,12 @@ def apply_heat_recovery(
     ----
     A standard sigmoid diffusion is assumed from base year to end year
     """
-    try:
+    key_name = "heat_recoved__{}".format(enduse)
+
+    if key_name in strategy_variables.keys():
+
         # Fraction of heat recovered until end year
-        heat_recovered_p = strategy_variables["heat_recoved__{}".format(enduse)]['scenario_value']
+        heat_recovered_p = strategy_variables[key_name]['scenario_value']
 
         if heat_recovered_p == 0:
             return service, service_techs
@@ -965,7 +952,7 @@ def apply_heat_recovery(
             service_reduced = service * (1.0 - heat_recovered_p_cy)
 
             return service_reduced, service_reduced_techs
-    except KeyError:
+    else:
         # no recycling defined
         return service, service_techs
 
@@ -1007,9 +994,11 @@ def apply_air_leakage(
     ----
     A standard sigmoid diffusion is assumed from base year to end year
     """
-    try:
+    key_name = "air_leakage__{}".format(enduse)
+
+    if key_name in strategy_variables.keys():
         # Fraction of heat recovered until end year
-        air_leakage_improvement = strategy_variables["air_leakage__{}".format(enduse)]['scenario_value']
+        air_leakage_improvement = strategy_variables[key_name]['scenario_value']
 
         if air_leakage_improvement == 0:
             return service, service_techs
@@ -1037,7 +1026,7 @@ def apply_air_leakage(
             service_reduced = service * f_improvement
 
             return service_reduced, service_reduced_techs
-    except KeyError:
+    else:
         return service, service_techs
 
 def apply_scenario_drivers(
@@ -1136,8 +1125,11 @@ def apply_scenario_drivers(
         except ZeroDivisionError:
             factor_driver = 1
 
-        if math.isnan(factor_driver):
-            raise Exception("Error xcx")
+        logging.info(
+                "no dw factor_driver b: %s %s %s",
+                factor_driver,
+                by_driver,
+                cy_driver)
 
         fuel_y = fuel_y * factor_driver
     else:
@@ -1161,11 +1153,17 @@ def apply_scenario_drivers(
                 logging.warning("Something went wrong with scenario criver calculation")
                 factor_driver = 1
 
+            logging.warning(
+                "dw factor_driver a: %s %s %s",
+                factor_driver,
+                by_driver,
+                cy_driver)
+
             fuel_y = fuel_y * factor_driver
         else:
             pass #enduse not define with scenario drivers
 
-    assert math.isnan(np.sum(fuel_y)) != 'nan'
+    assert math.isnan(np.sum(fuel_y)) != 'nan' #TODO REMOVE
 
     return fuel_y
 
@@ -1324,7 +1322,7 @@ def apply_smart_metering(
         generally fuel savings for each enduse can be defined.
     """
     key_name = 'smart_meter_improvement_{}'.format(enduse)
-    #try:
+
     if key_name in strategy_variables.keys():
         enduse_savings = strategy_variables[key_name]['scenario_value']
 
@@ -1351,7 +1349,6 @@ def apply_smart_metering(
 
         return fuel_y
     else:
-    #except KeyError:
         return fuel_y  # not defined for this enduse
 
 def convert_service_to_p(tot_s_y, s_fueltype_tech):
@@ -1527,8 +1524,8 @@ def apply_cooling(
     """
     key_name = "cooled_floorarea__{}".format(enduse)
 
-    if key_name in strategy_variables[key_name].keys():
-    #try:
+    if key_name in strategy_variables.keys():
+
         # Floor area share cooled in end year
         cooled_floorearea_p_ey = cooled_floorarea_p_by + strategy_variables[key_name]['scenario_value']
 
@@ -1546,13 +1543,18 @@ def apply_cooling(
         cooled_floorarea_p_cy = cooled_floorarea_p_by + additional_floor_area_p
 
         # Calculate factor
-        floorare_cooling_factor = cooled_floorarea_p_cy / cooled_floorarea_p_by
+        floorarea_cooling_factor = cooled_floorarea_p_cy / cooled_floorarea_p_by
 
         # Apply factor
-        fuel_y = fuel_y * floorare_cooling_factor
+        fuel_y = fuel_y * floorarea_cooling_factor
+
+        logging.warning("Applying factor cooling %s %s %s",
+            cooled_floorarea_p_cy,
+            cooled_floorarea_p_by,
+            floorarea_cooling_factor)
+
         return fuel_y
     else:
-    #except KeyError:
         # no cooling defined for enduse
         return fuel_y
 

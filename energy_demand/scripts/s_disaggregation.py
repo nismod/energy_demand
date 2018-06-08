@@ -61,7 +61,7 @@ def disaggregate_demand(data):
         data['lookups']['fueltypes_nr'],
         data['regions'],
         [disagg['ss_fuel_disagg'], disagg['is_fuel_disagg']])
-    
+
     return disagg
 
 def replace_msoa_reg_with_lad(region):

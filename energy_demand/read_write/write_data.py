@@ -256,23 +256,14 @@ def write_yaml_param_complete(path_yaml, dict_to_dump):
     # Dump list
     dump(list_to_dump, path_yaml)
 
-def write_simulation_inifile(path, enduses, assumptions, reg_nrs, regions):
+def write_simulation_inifile(path, data):
     """Create .ini file with simulation parameters which ared
     used to read in correctly the simulation results
 
     Arguments
     ---------
-    path : str
-        Path to result foder
-    enduses : dict
-        Enduses
-    assumptions : dict
-        Assumptions
-    reg_nrs : int
-        Number of regions
-    regions : dict
-        Regions
-
+    data : dict
+        Data container
     """
     path_ini_file = os.path.join(
         path, 'model_run_sim_param.ini')
@@ -280,9 +271,9 @@ def write_simulation_inifile(path, enduses, assumptions, reg_nrs, regions):
     config = configparser.ConfigParser()
 
     config.add_section('SIM_PARAM')
-    config['SIM_PARAM']['reg_nrs'] = str(reg_nrs)
-    config['SIM_PARAM']['base_yr'] = str(assumptions.base_yr)
-    config['SIM_PARAM']['simulated_yrs'] = str(assumptions.simulated_yrs)
+    config['SIM_PARAM']['reg_nrs'] = str(data['reg_nrs'])
+    config['SIM_PARAM']['base_yr'] = str(data['assumptions'].base_yr)
+    config['SIM_PARAM']['simulated_yrs'] = str(data['assumptions'].simulated_yrs)
 
     # ----------------------------
     # Other information to pass to plotting and summing function
@@ -290,15 +281,15 @@ def write_simulation_inifile(path, enduses, assumptions, reg_nrs, regions):
     config.add_section('ENDUSES')
 
     #convert list to strings
-    config['ENDUSES']['rs_enduses'] = str(enduses['rs_enduses'])
-    config['ENDUSES']['ss_enduses'] = str(enduses['ss_enduses'])
-    config['ENDUSES']['is_enduses'] = str(enduses['is_enduses'])
+    config['ENDUSES']['rs_enduses'] = str(data['enduses']['rs_enduses'])
+    config['ENDUSES']['ss_enduses'] = str(data['enduses']['ss_enduses'])
+    config['ENDUSES']['is_enduses'] = str(data['enduses']['is_enduses'])
 
     config.add_section('REGIONS')
-    config['REGIONS']['regions'] = str(regions)
+    config['REGIONS']['regions'] = str(data['regions'])
 
-    with open(path_ini_file, 'w') as f:
-        config.write(f)
+    with open(path_ini_file, 'w') as write_info:
+        config.write(write_info)
 
 def resilience_paper(
         path_result_folder,

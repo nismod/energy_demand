@@ -39,7 +39,6 @@ def scenario_initalisation(path_data_ed, fuel_disagg, data=False):
     logging.info("... Start initialisation scripts")
 
     init_cont = defaultdict(dict)
-    
 
     logger_setup.set_up_logger(
         os.path.join(path_data_ed, "scenario_init.log"))
@@ -47,6 +46,9 @@ def scenario_initalisation(path_data_ed, fuel_disagg, data=False):
     # --------------------------------------------
     # Delete results from previous model runs and initialise folders
     # --------------------------------------------
+    print(data['local_paths'])
+    print(data['local_paths']['data_processed'])
+    print(data['local_paths']['path_post_installation_data'])
     basic_functions.del_previous_results(
         data['local_paths']['data_processed'],
         data['local_paths']['path_post_installation_data'])
