@@ -480,6 +480,11 @@ def temporal_validation_lad(
     elec_2015_indo, elec_2015_itsdo = elec_national_data.read_raw_elec_2015(
         paths['path_val_nat_elec_data'])
 
+    print(np.max(elec_2015_indo))
+    print(np.max(elec_2015_itsdo))
+    print(np.sum(elec_2015_indo))
+    print(np.sum(elec_2015_itsdo))
+
     f_diff_elec = np.sum(ed_fueltype_national_yh[fueltypes['electricity']]) / np.sum(elec_2015_indo)
     logging.info(
         "... ed diff modellend and real [p] %s: ", (1 - f_diff_elec) * 100)

@@ -7,9 +7,8 @@ from pkg_resources import resource_filename
 from argparse import ArgumentParser
 import logging
 from collections import defaultdict
-
 import energy_demand
-from energy_demand.main import energy_demand_model
+#from energy_demand.main import energy_demand_model
 from energy_demand.read_write import data_loader
 from energy_demand.assumptions import non_param_assumptions
 from energy_demand.assumptions import param_assumptions

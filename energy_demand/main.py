@@ -1,6 +1,5 @@
 """Allows to run HIRE locally outside the SMIF framework
 
-
     Tools
     # -------
     Profiling:  https://jiffyclub.github.io/snakeviz/
@@ -15,7 +14,6 @@ import numpy as np
 from energy_demand import model
 from energy_demand.basic import testing_functions
 from energy_demand.basic import lookup_tables
-
 from energy_demand.assumptions import non_param_assumptions
 from energy_demand.assumptions import param_assumptions
 from energy_demand.read_write import data_loader
@@ -23,10 +21,9 @@ from energy_demand.basic import logger_setup
 from energy_demand.read_write import write_data
 from energy_demand.read_write import read_data
 from energy_demand.basic import basic_functions
+from energy_demand.scripts import s_disaggregation
 
-#TOPDO :replace key error to test in list keys
-
-def energy_demand_model(data, assumptions):
+def energy_demand_model(regions, data, assumptions):
     """Main function of energy demand model to calculate yearly demand
 
     Arguments
@@ -48,7 +45,7 @@ def energy_demand_model(data, assumptions):
     This function is executed in the wrapper
     """
     modelrun = model.EnergyDemandModel(
-        regions=data['regions'],
+        regions=regions, #data['regions'],
         data=data,
         assumptions=assumptions)
 
@@ -211,6 +208,11 @@ if __name__ == "__main__":
     print("Info model run")
     print("Nr of Regions " + str(data['reg_nrs']))
 
+    # --------------------
+    # Disaggregate fuel
+    # --------------------
+    data['fuel_disagg'] = s_disaggregation.disaggregate_demand(data)
+
     # In order to load these data, the initialisation scripts need to be run
     print("... Load data from script calculations")
     data = read_data.load_script_data(data)
@@ -225,12 +227,7 @@ if __name__ == "__main__":
     basic_functions.create_folder(data['result_paths']['data_results_model_run_pop'])
 
     # Create .ini file with simulation information
-    write_data.write_simulation_inifile(
-        data['result_paths']['data_results'],
-        data['enduses'],
-        data['assumptions'],
-        data['reg_nrs'],
-        data['regions'])
+    write_data.write_simulation_inifile(data['result_paths']['data_results'], data)
 
     for sim_yr in data['assumptions'].simulated_yrs:
         setattr(data['assumptions'], 'curr_yr', sim_yr)

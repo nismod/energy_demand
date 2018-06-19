@@ -49,6 +49,8 @@ class Assumptions(object):
         self.curr_yr = curr_yr
         self.simulated_yrs = simulated_yrs
 
+        self.submodels_names = ['residential', 'service', 'industry']
+
         # ============================================================
         # Spatially modelled variables
         #
@@ -100,9 +102,9 @@ class Assumptions(object):
         # ------------------------------------------------------------
 
         # Temporal calibration factors
-        self.f_ss_cooling_weekend = 0.45              # 0.55
-        self.f_ss_weekend = 0.8                      # 0.75
-        self.f_is_weekend = 0.45                      # 0.4
+        self.f_ss_cooling_weekend = 0.45
+        self.f_ss_weekend = 0.8
+        self.f_is_weekend = 0.45
 
         # ============================================================
         #   Modelled day related factors
@@ -200,7 +202,7 @@ class Assumptions(object):
                 '2002': 0.05}}
 
         # ============================================================
-        #   Scenario drivers
+        #  Scenario drivers
         # ============================================================
         #
         #   For every enduse the relevant factors which affect enduse

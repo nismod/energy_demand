@@ -7,6 +7,62 @@ from collections import defaultdict
 from energy_demand.profiles import hdd_cdd
 from energy_demand.basic import testing_functions
 from energy_demand.basic import lookup_tables
+from energy_demand.read_write import data_loader
+from energy_demand.scripts import init_scripts
+
+def disaggregate_demand(data):
+    """Disaggregated demand
+    """
+    disagg = {}
+
+    # ===========================================
+    # I. Disaggregation
+    # ===========================================
+
+    # Load data for disaggregateion
+    data['scenario_data']['employment_stats'] = data_loader.read_employment_stats(
+        data['paths']['path_employment_statistics'])
+
+    # Disaggregate fuel for all regions
+    disagg['rs_fuel_disagg'], disagg['ss_fuel_disagg'], disagg['is_fuel_disagg'] = disaggregate_base_demand(
+        data['regions'],
+        data['fuels'],
+        data['scenario_data'],
+        data['assumptions'],
+        data['reg_coord'],
+        data['weather_stations'],
+        data['temp_data'],
+        data['sectors'],
+        data['sectors']['all_sectors'],
+        data['enduses'],
+        data['service_building_count'])
+
+    # Sum demand across all sectors for every region
+    disagg['ss_fuel_disagg_sum_all_sectors'] = init_scripts.sum_across_sectors_all_regs(
+        disagg['ss_fuel_disagg'])
+
+    disagg['is_aggr_fuel_sum_all_sectors'] = init_scripts.sum_across_sectors_all_regs(
+        disagg['is_fuel_disagg'])
+
+    # Sum demand across all submodels and sectors for every region
+    disagg['tot_disaggregated_regs'] = init_scripts.sum_across_all_submodels_regs(
+        data['lookups']['fueltypes_nr'],
+        data['regions'],
+        [disagg['rs_fuel_disagg'],
+        disagg['ss_fuel_disagg'],
+        disagg['is_fuel_disagg']])
+
+    disagg['tot_disaggregated_regs_residenital'] = init_scripts.sum_across_all_submodels_regs(
+        data['lookups']['fueltypes_nr'],
+        data['regions'],
+        [disagg['rs_fuel_disagg']])
+
+    disagg['tot_disaggregated_regs_non_residential'] = init_scripts.sum_across_all_submodels_regs(
+        data['lookups']['fueltypes_nr'],
+        data['regions'],
+        [disagg['ss_fuel_disagg'], disagg['is_fuel_disagg']])
+
+    return disagg
 
 def replace_msoa_reg_with_lad(region):
     """Replace mosa with corresponding LAD

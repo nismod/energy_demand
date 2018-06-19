@@ -438,15 +438,17 @@ def load_script_data(data):
     data : dict
         Data container
     """
-    init_cont, fuel_disagg = init_scripts.scenario_initalisation(
+    init_cont = init_scripts.scenario_initalisation(
         data['paths']['path_main'],
+        data['fuel_disagg'],
         data)
 
     for key, value in init_cont.items():
         setattr(data['assumptions'], key, value)
-    data['fuel_disagg'] = {}
-    for key, value in fuel_disagg.items():
-        data['fuel_disagg'][key] = value
+
+    #data['fuel_disagg'] = {}
+    #for key, value in fuel_disagg.items():
+    #    data['fuel_disagg'][key] = value
 
     return data
 
@@ -1290,3 +1292,22 @@ def read_np_array_from_txt(path_file_to_read):
     txt_array = np.loadtxt(path_file_to_read, delimiter=',')
 
     return txt_array
+
+def get_region_selection(path_to_csv):
+    """Read region names in a csv
+
+    Arguments
+    ----------
+    path_to_csv : str
+        Path to csv file
+    """
+    regions = []
+
+    with open(path_to_csv, 'r') as csvfile:
+        rows = csv.reader(csvfile, delimiter=',')
+        headings = next(rows) # Skip first row
+
+        for row in rows:
+            regions.append(row[0])
+
+    return regions

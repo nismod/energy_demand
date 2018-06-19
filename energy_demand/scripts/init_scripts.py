@@ -7,12 +7,12 @@ from collections import defaultdict
 import numpy as np
 from energy_demand.basic import basic_functions, logger_setup
 from energy_demand.geography import spatial_diffusion
-from energy_demand.read_write import data_loader, read_data
-from energy_demand.scripts import (s_disaggregation, s_fuel_to_service, s_generate_sigmoid)
+from energy_demand.read_write import read_data
+from energy_demand.scripts import (s_fuel_to_service, s_generate_sigmoid)
 from energy_demand.technologies import fuel_service_switch
 from energy_demand.plotting import result_mapping
 
-def scenario_initalisation(path_data_ed, data=False):
+def scenario_initalisation(path_data_ed, fuel_disagg, data=False):
     """Scripts which need to be run for every different scenario.
     Only needs to be executed once for each scenario (not for every
     simulation year).
@@ -39,7 +39,6 @@ def scenario_initalisation(path_data_ed, data=False):
     logging.info("... Start initialisation scripts")
 
     init_cont = defaultdict(dict)
-    fuel_disagg = {}
 
     logger_setup.set_up_logger(
         os.path.join(path_data_ed, "scenario_init.log"))
@@ -65,9 +64,10 @@ def scenario_initalisation(path_data_ed, data=False):
     for folder in folders_to_create:
         basic_functions.create_folder(folder)
 
-    # ===========================================
+    '''# ===========================================
     # I. Disaggregation
     # ===========================================
+    fuel_disagg = {}
 
     # Load data for disaggregateion
     data['scenario_data']['employment_stats'] = data_loader.read_employment_stats(
@@ -110,7 +110,7 @@ def scenario_initalisation(path_data_ed, data=False):
     fuel_disagg['tot_disaggregated_regs_non_residential'] = sum_across_all_submodels_regs(
         data['lookups']['fueltypes_nr'],
         data['regions'],
-        [fuel_disagg['ss_fuel_disagg'], fuel_disagg['is_fuel_disagg']])
+        [fuel_disagg['ss_fuel_disagg'], fuel_disagg['is_fuel_disagg']])'''
 
     # ---------------------------------------
     # Convert base year fuel input assumptions to energy service
@@ -149,8 +149,6 @@ def scenario_initalisation(path_data_ed, data=False):
             sector)
 
     # ===========================================
-    # SPATIAL CALCULATIONS factors
-    #
     # Calculate spatial diffusion factors
     # ===========================================
     if data['assumptions'].strategy_variables['spatial_explicit_diffusion']['scenario_value']:
@@ -476,7 +474,7 @@ def scenario_initalisation(path_data_ed, data=False):
         init_cont['regional_strategy_variables'] = dict(init_cont['regional_strategy_variables'])
 
     logging.info("... finished scenario initialisation")
-    return dict(init_cont), fuel_disagg
+    return dict(init_cont) #, fuel_disagg
 
 def global_to_reg_capacity_switch(
         regions,
@@ -853,8 +851,8 @@ def sig_param_calc_incl_fuel_switch(
                 break
 
             for reg in regions:
-                logging.info(
-                    "... ======calculating sigmoid parameters %s %s %s ",
+                logging.debug(
+                    "...Calculating sigmoid parameters %s %s %s ",
                     enduse, reg, s_tech_switched_p[reg]['heat_pumps_electricity'])
 
                 sig_param_tech[reg] = s_generate_sigmoid.tech_sigmoid_parameters(
@@ -879,7 +877,6 @@ def sig_param_calc_incl_fuel_switch(
                 l_values_sig,
                 s_tech_by_p,
                 s_tech_switched_p)
-        logging.info("... moving on")
     else:
         pass #no switches are defined
 

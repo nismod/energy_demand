@@ -19,6 +19,7 @@ def test_rs_disaggregate():
     assumptions = {
         'base_yr': 2015,
         'curr_yr': 2020,
+        'rs_regions_without_floorarea': [],
         'base_temp_diff_params': {
             'sig_midpoint': 0,
             'sig_steepness': 1,
@@ -88,6 +89,7 @@ def test_ss_disaggregate():
     assumptions = {
         'base_yr': 2015,
         'curr_yr': 2020,
+        'ss_regions_without_floorarea': [],
         'base_temp_diff_params': {
             'sig_midpoint': 0,
             'sig_steepness': 1,

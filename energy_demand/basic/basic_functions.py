@@ -1,7 +1,6 @@
 """Contains very basic functions
 """
 import os
-import logging
 import shutil
 import numpy as np
 
@@ -10,10 +9,11 @@ def dict_depth(dictionary):
     """
     if isinstance(dictionary, dict):
         return 1 + (max(map(dict_depth, dictionary.values())) if dictionary else 0)
+
     return 0
 
 def rmse(predictions, actual_values):
-    """Root-mean-square deviation or 
+    """Root-mean-square deviation or
     Root-mean-square-erro (RMSE) calculations
 
     Arguments
@@ -41,34 +41,6 @@ def rmse(predictions, actual_values):
     rmse = np.sqrt(((predictions - actual_values) ** 2).mean())
 
     return rmse
-
-'''def mape(predictions, actual_values):
-    """Mean absolute percentage error
-
-    Arguments
-    ----------
-    predictions : array
-        Model prediction (real value)
-    actual_values : array
-        Moodelled value
-    Returns
-    -------
-    mape : array
-        Mean absolute percentage error
-    """
-    mape = 100 / len(predictions) * np.sum((actual_values - predictions) / actual_values)
-
-    return mape
-
-def mean_percentage_error(predictions, actual_values):
-    """
-    
-    https://en.wikipedia.org/wiki/Mean_percentage_error
-    """
-    mpe = (100 / len(predictions)) * np.sum((actual_values - predictions) / actual_values)
-
-    return mpe'''
-
 
 def array_to_dict(result_array, regions):
     """Convert an array with regions to dict
@@ -141,6 +113,7 @@ def del_previous_results(path_folder, path_subfolder_keep):
         # Iterate folders in data folders
         for entry in all_files_and_folders:
             path_subfolder = os.path.join(path_folder, entry)
+
             # Do not deleted post installation files
             if path_subfolder != path_subfolder_keep:
                 shutil.rmtree(path_subfolder)
@@ -262,7 +235,7 @@ def remove_element_from_list(input_list, element):
         List with elements
     element : any
         Element to remove
-    
+
     Returns
     -------
     list_new : list

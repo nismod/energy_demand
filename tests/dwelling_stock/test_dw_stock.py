@@ -25,8 +25,8 @@ def test_get_tot_pop():
     dwellings = [classobject1, classobject1]
     dwellings2 = [classobject2, classobject2]
 
-    dw_stock_object = dw_stock.DwellingStock('bern', dwellings, ['heating'])
-    dw_stock_object2 = dw_stock.DwellingStock('bern', dwellings2, ['heating'])
+    dw_stock_object = dw_stock.DwellingStock(dwellings, ['heating'])
+    dw_stock_object2 = dw_stock.DwellingStock(dwellings2, ['heating'])
     
     expected = 4.4
     expected2 = None
@@ -51,7 +51,7 @@ def test_get_scenario_driver():
         population=2.2)
 
     dwellings = [classobject1, classobject1]
-    dw_stock_object = dw_stock.DwellingStock('bern', dwellings, ['heating'])
+    dw_stock_object = dw_stock.DwellingStock(dwellings, ['heating'])
 
     expected = 4.4
 
