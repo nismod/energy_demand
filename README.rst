@@ -17,10 +17,9 @@ University of Oxford <http://www.eci.ox.ac.uk>`_ within the
 EPSRC sponsored MISTRAL programme, as part of the `Infrastructure Transition
 Research Consortium <http://www.itrc.org.uk/>`_.
 
-More information on the model can be found here
+More information on the model can be found in Eggimann, Hall and Eyre (2018). Please use 
+this reference for citing HIRE.
 
-- Eggimann et al. (2019): Modelling energy demand and supply
-  within a system-of-systems approach. (working paper)
 
 1. Initialising and running the model (local)
 =============================================
