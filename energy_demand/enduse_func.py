@@ -123,7 +123,7 @@ class Enduse(object):
             self.fuel_yh = 0
             self.enduse_techs = []
         else:
-            logging.info("------INFO  {} {}  {}".format(self.enduse, region, curr_yr))
+            #logging.info("------INFO  {} {}  {}".format(self.enduse, region, curr_yr))
             # Get technologies of enduse
             self.enduse_techs = get_enduse_techs(fuel_fueltype_tech_p_by)
 
@@ -139,7 +139,7 @@ class Enduse(object):
                 assumptions.enduse_space_heating,
                 assumptions.ss_enduse_space_cooling)
             self.fuel_y = _fuel_new_y
-            logging.debug("... Fuel train B: " + str(np.sum(self.fuel_y)))
+            #logging.debug("... Fuel train B: " + str(np.sum(self.fuel_y)))
 
             # --Change fuel consumption based on smart meter induced general savings
             _fuel_new_y = apply_smart_metering(
@@ -150,7 +150,7 @@ class Enduse(object):
                 base_yr,
                 curr_yr)
             self.fuel_y = _fuel_new_y
-            logging.debug("... Fuel train C: " + str(np.sum(self.fuel_y)))
+            #logging.debug("... Fuel train C: " + str(np.sum(self.fuel_y)))
 
             # --Enduse specific fuel consumption change in %
             _fuel_new_y = apply_specific_change(
@@ -161,7 +161,7 @@ class Enduse(object):
                 base_yr,
                 curr_yr)
             self.fuel_y = _fuel_new_y
-            logging.debug("... Fuel train D: " + str(np.sum(self.fuel_y)))
+            #logging.debug("... Fuel train D: " + str(np.sum(self.fuel_y)))
 
             # Calculate new fuel demands after scenario drivers
             _fuel_new_y = apply_scenario_drivers(
@@ -177,7 +177,7 @@ class Enduse(object):
                 base_yr,
                 curr_yr)
             self.fuel_y = _fuel_new_y
-            logging.debug("... Fuel train E: " + str(np.sum(self.fuel_y)))
+            #logging.debug("... Fuel train E: " + str(np.sum(self.fuel_y)))
 
             # Apply cooling scenario variable
             _fuel_new_y = apply_cooling(
@@ -189,7 +189,7 @@ class Enduse(object):
                 base_yr,
                 curr_yr)
             self.fuel_y = _fuel_new_y
-            logging.debug("... Fuel train E1: " + str(np.sum(self.fuel_y)))
+            #logging.debug("... Fuel train E1: " + str(np.sum(self.fuel_y)))
 
             # Industry related change
             _fuel_new_y = industry_enduse_changes(
@@ -202,7 +202,7 @@ class Enduse(object):
                 enduse_overall_change['other_enduse_mode_info'],
                 assumptions)
             self.fuel_y = _fuel_new_y
-            logging.debug("... Fuel train E2: " + str(np.sum(self.fuel_y)))
+            #logging.debug("... Fuel train E2: " + str(np.sum(self.fuel_y)))
 
             # ----------------------------------
             # Hourly Disaggregation
@@ -291,7 +291,7 @@ class Enduse(object):
                     fueltypes_nr,
                     fueltypes,
                     mode_constrained)
-                logging.debug("... Fuel train H: " + str(np.sum(self.fuel_y)))
+                #logging.debug("... Fuel train H: " + str(np.sum(self.fuel_y)))
 
                 # Delete all technologies with no fuel assigned
                 for tech, fuel_tech in fuel_tech_y.items():
@@ -1125,11 +1125,11 @@ def apply_scenario_drivers(
         except ZeroDivisionError:
             factor_driver = 1
 
-        logging.info(
-                "no dw factor_driver b: %s %s %s",
-                factor_driver,
-                by_driver,
-                cy_driver)
+        #logging.info(
+        #    "no dw factor_driver b: %s %s %s",
+        #    factor_driver,
+        #    by_driver,
+        #    cy_driver)
 
         fuel_y = fuel_y * factor_driver
     else:
@@ -1152,12 +1152,6 @@ def apply_scenario_drivers(
             if math.isnan(factor_driver):
                 logging.warning("Something went wrong with scenario criver calculation")
                 factor_driver = 1
-
-            logging.warning(
-                "dw factor_driver a: %s %s %s",
-                factor_driver,
-                by_driver,
-                cy_driver)
 
             fuel_y = fuel_y * factor_driver
         else:
@@ -1547,11 +1541,6 @@ def apply_cooling(
 
         # Apply factor
         fuel_y = fuel_y * floorarea_cooling_factor
-
-        logging.warning("Applying factor cooling %s %s %s",
-            cooled_floorarea_p_cy,
-            cooled_floorarea_p_by,
-            floorarea_cooling_factor)
 
         return fuel_y
     else:

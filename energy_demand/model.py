@@ -55,7 +55,6 @@ class EnergyDemandModel(object):
             # Virtual dwelling stocks
             data['rs_dw_stock'], data['ss_dw_stock'] = create_virtual_dwelling_stocks(
                 regions, assumptions.curr_yr, data)
-
         else:
             # Create dwelling stock from imported data from newcastle
             data = create_dwelling_stock(
@@ -642,7 +641,13 @@ def sum_enduse_all_regions(
 
     return enduse_dict
 
-def averaged_season_hourly(averaged_h, fuel_region_yh, reg_array_nr, fueltypes, seasons):
+def averaged_season_hourly(
+        averaged_h,
+        fuel_region_yh,
+        reg_array_nr,
+        fueltypes,
+        seasons
+    ):
     """Calculate averaged hourly values for each season
 
     Arguments
@@ -681,8 +686,9 @@ def create_virtual_dwelling_stocks(regions, curr_yr, data):
     """
     rs_dw_stock = defaultdict(dict)
     ss_dw_stock = defaultdict(dict)
-    for region in regions:
 
+    for region in regions:
+        logging.info("Region " + str(region))
         # -------------
         # Residential dwelling stocks
         # -------------
@@ -714,11 +720,6 @@ def create_virtual_dwelling_stocks(regions, curr_yr, data):
             data['assumptions'].base_yr,
             data['criterias']['virtual_building_stock_criteria'])
 
-        print("AAAAAAA " + str(curr_yr))
-        print(rs_dw_stock[region][2015].rs_space_heating)
-        print(rs_dw_stock[region][curr_yr].rs_space_heating)
-        #prnt(".")
-
         # -------------
         # Service dwelling stocks
         # -------------
@@ -733,7 +734,6 @@ def create_virtual_dwelling_stocks(regions, curr_yr, data):
             data['assumptions'].base_yr,
             data['assumptions'].base_yr,
             data['criterias']['virtual_building_stock_criteria'])
-
 
         # Dwelling stock of service SubModel for current year
         ss_dw_stock[region][curr_yr] = dw_stock.ss_dw_stock(
@@ -843,7 +843,6 @@ def aggregate_final_results(
                         if heating_tech in aggr_results['results_constrained'].keys():
                             aggr_results['results_constrained'][heating_tech][submodel_nr][reg_array_nr][fueltype_tech_int] += tech_fuel
                         else:
-                            logging.info("Empty summing {}  {}  {}".format(heating_tech, submodel_nr, enduse_object.enduse))
                             aggr_results['results_constrained'][heating_tech] = np.zeros((len(all_submodels), reg_nrs, fueltypes_nr, 365, 24), dtype="float")
                             aggr_results['results_constrained'][heating_tech][submodel_nr][reg_array_nr][fueltype_tech_int] += tech_fuel
 

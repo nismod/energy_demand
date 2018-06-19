@@ -298,6 +298,7 @@ def get_floorare_pp(
         if year == base_yr:
             pass
         else:
+
             # Change up to current year (linear)
             lin_diff_factor = diffusion_technologies.linear_diff(
                 base_yr,
@@ -572,7 +573,7 @@ def rs_dw_stock(
           with more specific information from real building stock model
     """
     if virtual_building_stock_criteria:
-        ####print("GGGGGNUP {} {}".format(scenario_data['population'][base_yr][region], scenario_data['population'][curr_yr][region]))
+
         # Get changes in absolute floor area per dwelling type over time
         dwtype_floor_area = get_dwtype_floor_area(
             assumptions.dwtype_floorarea_by,
@@ -606,7 +607,7 @@ def rs_dw_stock(
 
         population_by = scenario_data['population'][base_yr][region]
         population_cy = scenario_data['population'][curr_yr][region]
-        print("SPACE SHU {} {}".format(population_by, population_cy))
+
         if population_by != 0:
             floorarea_pp_by = floorarea_by / population_by # [m2 / person]
         else:
@@ -617,15 +618,6 @@ def rs_dw_stock(
 
         # Calculate new floor area
         tot_floorarea_cy = floorarea_pp_cy * population_cy
-
-        print("floor area and pop {} {}  {}".format(region, base_yr, curr_yr))
-        print(data_floorarea_pp)
-        print("--")
-        print(population_cy)
-        print(population_by)
-        print("--")
-        print(tot_floorarea_cy)
-        print(floorarea_by)
     else:
         """
         #If floor_area is read in from model, this would be here
@@ -673,11 +665,10 @@ def rs_dw_stock(
 
         # In existing building stock fewer people are living, i.e. density changes
         #population_by_existing = floorarea_by / floorarea_pp_cy
-
-        logging.info("info {} {} {}".format(
-            floor_area_cy,
-            demolished_area,
-            remaining_area))
+        #logging.info("info {} {} {}".format(
+        #    floor_area_cy,
+        #    demolished_area,
+        #    remaining_area))
 
         # Generate stock for existing area
         dw_stock_cy = generate_dw_existing(
@@ -950,16 +941,16 @@ def get_hlc(dw_type, age):
     if dw_type is None or age is None:
         logging.debug("The HLC could not be calculated of a dwelling")
         return None
+    else:
+        # Dict with linear fits for all different dwelling types {dw_type: [slope, constant]}
+        linear_fits_hlc = {
+            'detached': [-0.0223, 48.292],
+            'semi_detached': [-0.0223, 48.251],
+            'terraced': [-0.0223, 48.063],
+            'flat': [-0.0223, 47.02],
+            'bungalow': [-0.0223, 48.261]}
 
-    # Dict with linear fits for all different dwelling types {dw_type: [slope, constant]}
-    linear_fits_hlc = {
-        'detached': [-0.0223, 48.292],
-        'semi_detached': [-0.0223, 48.251],
-        'terraced': [-0.0223, 48.063],
-        'flat': [-0.0223, 47.02],
-        'bungalow': [-0.0223, 48.261]}
+        # Get linearly fitted value
+        hlc = linear_fits_hlc[dw_type][0] * age + linear_fits_hlc[dw_type][1]
 
-    # Get linearly fitted value
-    hlc = linear_fits_hlc[dw_type][0] * age + linear_fits_hlc[dw_type][1]
-
-    return hlc
+        return hlc

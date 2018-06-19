@@ -48,7 +48,7 @@ def test_tech_sigmoid_paramters():
         2050, 1.0, result['boilerA']['midpoint'], result['boilerA']['steepness'])
 
     assert y_calculated >= (assump_fy - 0.02) and y_calculated <= assump_fy + 0.02
-test_tech_sigmoid_paramters()
+
 def test_calc_sigmoid_parameters():
     """Testing
     """
@@ -62,7 +62,6 @@ def test_calc_sigmoid_parameters():
         xdata,
         ydata)
 
-    #print("Plot graph: " + str(fit_parameter))
     '''
     #from energy_demand.plotting import plotting_program
     plotting_program.plotout_sigmoid_tech_diff(

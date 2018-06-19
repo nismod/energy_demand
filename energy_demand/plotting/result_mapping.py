@@ -516,7 +516,7 @@ def plot_lad_national(
                 color=color_zero)
     else:
         logging.info("not user classification")
-        print("tttttttt")
+
         # ----------------------------
         # Plot map with all value hues
         # -----------------------------

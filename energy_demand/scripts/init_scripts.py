@@ -46,9 +46,6 @@ def scenario_initalisation(path_data_ed, fuel_disagg, data=False):
     # --------------------------------------------
     # Delete results from previous model runs and initialise folders
     # --------------------------------------------
-    print(data['local_paths'])
-    print(data['local_paths']['data_processed'])
-    print(data['local_paths']['path_post_installation_data'])
     basic_functions.del_previous_results(
         data['local_paths']['data_processed'],
         data['local_paths']['path_post_installation_data'])
@@ -854,8 +851,8 @@ def sig_param_calc_incl_fuel_switch(
                 break
 
             for reg in regions:
-                logging.info(
-                    "... ======calculating sigmoid parameters %s %s %s ",
+                logging.debug(
+                    "...Calculating sigmoid parameters %s %s %s ",
                     enduse, reg, s_tech_switched_p[reg]['heat_pumps_electricity'])
 
                 sig_param_tech[reg] = s_generate_sigmoid.tech_sigmoid_parameters(
@@ -880,7 +877,6 @@ def sig_param_calc_incl_fuel_switch(
                 l_values_sig,
                 s_tech_by_p,
                 s_tech_switched_p)
-        logging.info("... moving on")
     else:
         pass #no switches are defined
 
