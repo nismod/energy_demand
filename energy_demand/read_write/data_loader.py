@@ -590,7 +590,6 @@ def load_data_profiles(
         local_paths,
         model_yeardays,
         model_yeardays_daytype,
-        plot_tech_lp
     ):
     """Collect load profiles from txt files
 
@@ -604,8 +603,6 @@ def load_data_profiles(
         Number of modelled yeardays
     model_yeardays_daytype : int
         Daytype of every modelled day
-    plot_tech_lp : bool
-        Criteria wheter to plot out individual load profiles of techs
     """
     tech_lp = {}
 
@@ -616,7 +613,7 @@ def load_data_profiles(
         tech_lp,
         paths,
         local_paths,
-        plot_tech_lp)
+        plot_tech_lp=False) # Plot individual load profiles
 
     # Load enduse load profiles
     tech_lp['rs_shapes_dh'], tech_lp['rs_shapes_yd'] = rs_collect_shapes_from_txts(

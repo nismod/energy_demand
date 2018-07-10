@@ -100,7 +100,7 @@ class EnergyDemandModel(object):
                 assumptions.seasons,
                 assumptions.enduse_space_heating,
                 data['technologies'],
-                data['criterias']['beyond_supply_outputs'])
+                data['criterias']['write_to_txt'])
 
         # -------
     	# Set all keys of aggr_results as self.attributes (EnergyDemandModel)
@@ -114,11 +114,10 @@ class EnergyDemandModel(object):
         testing_functions.test_region_selection(self.ed_fueltype_regs_yh)
 
         # ------------------------------
-        # Chart HDD * Pop vs actual gas demand
+        # Plot generation to correlate HDD and energy demand
         # ------------------------------
-        if data['criterias']['plot_HDD_chart']:
-            logging.info("plot figure HDD comparison")
-            figure_HHD_gas_demand.main(regions, weather_regions, data)
+        ## logging.info("plot figure HDD comparison")
+        ## figure_HHD_gas_demand.main(regions, weather_regions, data)
 
 def simulate_region(region, data, assumptions, weather_regions):
     """Run submodels for a single region
@@ -776,7 +775,7 @@ def aggregate_final_results(
         seasons,
         enduse_space_heating,
         technologies,
-        beyond_supply_outputs=True
+        write_to_txt=True
     ):
     """Aggregate results for a single region
 
@@ -801,7 +800,7 @@ def aggregate_final_results(
         All heating enduses
     technologies : dict
         Technologies
-    beyond_supply_outputs : bool
+    write_to_txt : bool
         Criteria whether additional results are aggregated
         for plotting purposes going beyond the SMIF framework
 
@@ -866,7 +865,7 @@ def aggregate_final_results(
     # -----------
     # Other summing for other purposes
     # -----------
-    if beyond_supply_outputs:
+    if write_to_txt:
 
         # Sum across all regions, all enduse and sectors sum_reg
         # [fueltype, region, fuel_yh], [fueltype, fuel_yh]

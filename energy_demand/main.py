@@ -5,17 +5,14 @@
     Profiling:  https://jiffyclub.github.io/snakeviz/
     python -m cProfile -o program.prof main.py
     snakeviz program.prof
-
-# Write sript to generate YAML files
 """
 import os
 import sys
 import time
 import logging
-import fiona
 import numpy as np
-from pprint import pprint
-from shapely.geometry import shape, mapping
+from energy_demand.basic import date_prop
+from energy_demand.plotting import plotting_results
 from energy_demand import model
 from energy_demand.basic import testing_functions
 from energy_demand.basic import lookup_tables
@@ -69,30 +66,6 @@ def energy_demand_model(regions, data, assumptions):
     logging.info("...finished running energy demand model simulation")
     return modelrun
 
-def get_region_names(path):
-    ''' Returns names of shapes within a shapefile
-    '''
-    with fiona.open(path, 'r') as source:
-        return [elem['properties']['name'] for elem in source]
-
-def get_region_centroids(path):
-    ''' Returns centroids of shapes within a shapefile
-    '''
-    with fiona.open(path, 'r') as source:
-        geoms = [elem for elem in source]
-
-    for geom in geoms:
-        my_shape = shape(geom['geometry'])
-        geom['geometry'] = mapping(my_shape.centroid)
-
-    return geoms
-
-def get_region_objects(path):
-    ''' Returns shape objects within a shapefile
-    '''
-    with fiona.open(path, 'r') as source:
-        return [elem for elem in source]
-
 if __name__ == "__main__":
     """
     """
@@ -101,10 +74,6 @@ if __name__ == "__main__":
     # Paths
     if len(sys.argv) != 2:
         print("Please provide a local data path:")
-        #local_data_path = os.path.abspath(
-        #    os.path.join(
-        #        os.path.dirname(__file__), "..", "..", "data"))
-
         local_data_path = os.path.abspath('data')
     else:
         local_data_path = sys.argv[1]
@@ -124,24 +93,22 @@ if __name__ == "__main__":
     fast_model_run = False
     if fast_model_run == True:
         data['criterias']['write_to_txt'] = False
-        data['criterias']['beyond_supply_outputs'] = False
         data['criterias']['validation_criteria'] = False    # For validation, the mode_constrained must be True
-        data['criterias']['plot_tech_lp'] = False
         data['criterias']['plot_crit'] = False
         data['criterias']['crit_plot_enduse_lp'] = False
-        data['criterias']['plot_HDD_chart'] = False
         data['criterias']['writeYAML_keynames'] = False
     else:
         data['criterias']['write_to_txt'] = True
-        data['criterias']['beyond_supply_outputs'] = True
         data['criterias']['validation_criteria'] = True
-        data['criterias']['plot_tech_lp'] = False
         data['criterias']['plot_crit'] = False
         data['criterias']['crit_plot_enduse_lp'] = True
-        data['criterias']['plot_HDD_chart'] = False
         data['criterias']['writeYAML_keynames'] = True
 
+    # -------------------
+    # Other configuration
+    # -------------------
     ONLY_REG_SELECTION = False
+    RESILIENCEPAPERPOUTPUT = True
 
     # ----------------------------
     # Model running configurations
@@ -161,10 +128,10 @@ if __name__ == "__main__":
     data['lookups'] = lookup_tables.basic_lookups()
     data['enduses'], data['sectors'], data['fuels'] = data_loader.load_fuels(data['paths'], data['lookups'])
 
-    data['regions'] = get_region_names(name_region_set)
+    data['regions'] = read_data.get_region_names(name_region_set)
     data['reg_nrs'] = len(data['regions'])
 
-    reg_centroids = get_region_centroids(name_region_set)
+    reg_centroids = read_data.get_region_centroids(name_region_set)
     data['reg_coord'] = basic_functions.get_long_lat_decimal_degrees(reg_centroids)
 
     data['population'] = data_loader.read_scenario_data(
@@ -192,7 +159,7 @@ if __name__ == "__main__":
     # -----------------------
     # Calculate population density for base year
     # -----------------------
-    region_objects = get_region_objects(name_region_set)
+    region_objects = read_data.get_region_objects(name_region_set)
     data['pop_density'] = {}
     for region in region_objects:
         region_name = region['properties']['name']
@@ -207,8 +174,7 @@ if __name__ == "__main__":
     data['tech_lp'] = data_loader.load_data_profiles(
         data['paths'], data['local_paths'],
         data['assumptions'].model_yeardays,
-        data['assumptions'].model_yeardays_daytype,
-        data['criterias']['plot_tech_lp'])
+        data['assumptions'].model_yeardays_daytype,)
 
     data['technologies'] = non_param_assumptions.update_technology_assumption(
         data['assumptions'].technologies,
@@ -261,7 +227,6 @@ if __name__ == "__main__":
     for key, value in init_cont.items():
         setattr(data['assumptions'], key, value)
 
-    
     # ------------------------------------------------
     # Spatial Validation
     # ------------------------------------------------
@@ -283,12 +248,9 @@ if __name__ == "__main__":
     # -------------------------------------
     if ONLY_REG_SELECTION:
         #region_selection = ['E02003237', 'E02003238']
-        from energy_demand.read_write import read_data
         region_selection = read_data.get_region_selection(
             os.path.join(data['local_paths']['local_path_datafolder'], "region_definitions", name_region_set_selection))
-        logging.info("Regions selection")
-        logging.info(region_selection)
-        logging.info(len(region_selection))
+
         data['reg_nrs'] = len(region_selection)
     else:
         region_selection = data['regions']
@@ -326,16 +288,20 @@ if __name__ == "__main__":
                 data['assumptions'].model_yeardays_daytype,
                 data['criterias']['plot_crit'])
 
-        # --------------------
-        # Result unconstrained
-        #
-        # Sum according to first element in array (sectors)
-        # which aggregtes over the sectors
-        # ---
-        #supply_results_unconstrained = sum(sim_obj.results_unconstrained[:, ])
-        
+        # -------------------------
+        # Write for resilience paper
+        # -------------------------
+        if RESILIENCEPAPERPOUTPUT and data['assumptions'].curr_yr == 2015:
+            write_data.resilience_paper(
+                data['result_paths']['data_results_model_runs'],
+                "resilience_paper",
+                "result_risk_paper",
+                sim_obj.results_unconstrained,
+                ['residential', 'service', 'industry'],
+                data['regions'],
+                data['lookups']['fueltypes'],
+                fueltype_str='electricity')
 
-        
         # --------------------------------------------------------
         # Reshape day and hours to yearhous (from (365, 24) to 8760)
         # --------------------------------------------------------
@@ -385,7 +351,7 @@ if __name__ == "__main__":
         # --------------------------
         # Write out all calculations
         # --------------------------
-        if data['criterias']['beyond_supply_outputs']:
+        if data['criterias']['write_to_txt']:
 
             ed_fueltype_regs_yh = sim_obj.ed_fueltype_regs_yh
             out_enduse_specific = sim_obj.tot_fuel_y_enduse_specific_yh
@@ -398,6 +364,23 @@ if __name__ == "__main__":
             reg_load_factor_spring = sim_obj.reg_seasons_lf['spring']
             reg_load_factor_summer = sim_obj.reg_seasons_lf['summer']
             reg_load_factor_autumn = sim_obj.reg_seasons_lf['autumn']
+
+            if data['criterias']['crit_plot_enduse_lp']:
+
+                # Maybe move to result folder in a later step
+                path_folder_lp = os.path.join(data['result_paths']['data_results'], 'individual_enduse_lp')
+                basic_functions.delete_folder(path_folder_lp)
+                basic_functions.create_folder(path_folder_lp)
+
+                winter_week, _, _, _ = date_prop.get_seasonal_weeks()
+
+                # Plot electricity
+                for enduse, ed_yh in sim_obj.tot_fuel_y_enduse_specific_yh.items():
+                    plotting_results.plot_enduse_yh(
+                        name_fig="individ__electricity_{}_{}".format(enduse, sim_yr),
+                        path_result=path_folder_lp,
+                        ed_yh=ed_yh[data['lookups']['fueltypes']['electricity']],
+                        days_to_plot=winter_week)
 
             # -------------------------------------------
             # Write annual results to txt files

@@ -5,6 +5,7 @@ and data to run the energy demand model.
 """
 import os
 import csv
+import fiona
 import logging
 from collections import defaultdict
 import numpy as np
@@ -12,6 +13,7 @@ from energy_demand.technologies import tech_related
 from energy_demand.profiles import load_profile
 from energy_demand.scripts import init_scripts
 from energy_demand.basic import lookup_tables
+from shapely.geometry import shape, mapping
 
 class TechnologyData(object):
     """Class to store technology related data
@@ -1283,9 +1285,33 @@ def get_region_selection(path_to_csv):
 
     with open(path_to_csv, 'r') as csvfile:
         rows = csv.reader(csvfile, delimiter=',')
-        headings = next(rows) # Skip first row
+        _headings = next(rows)
 
         for row in rows:
             regions.append(row[0])
 
     return regions
+
+def get_region_names(path):
+    ''' Returns names of shapes within a shapefile
+    '''
+    with fiona.open(path, 'r') as source:
+        return [elem['properties']['name'] for elem in source]
+
+def get_region_centroids(path):
+    ''' Returns centroids of shapes within a shapefile
+    '''
+    with fiona.open(path, 'r') as source:
+        geoms = [elem for elem in source]
+
+    for geom in geoms:
+        my_shape = shape(geom['geometry'])
+        geom['geometry'] = mapping(my_shape.centroid)
+
+    return geoms
+
+def get_region_objects(path):
+    ''' Returns shape objects within a shapefile
+    '''
+    with fiona.open(path, 'r') as source:
+        return [elem for elem in source]
