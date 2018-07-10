@@ -84,6 +84,12 @@ def get_region_centroids(path):
 
     return geoms
 
+def get_entry(path):
+    ''' Returns shape objects within a shapefile
+    '''
+    with fiona.open(path, 'r') as source:
+        return [shape(elem['geometry']) for elem in source]
+
 if __name__ == "__main__":
     """
     """
@@ -153,11 +159,6 @@ if __name__ == "__main__":
 
     data['regions'] = get_region_names(os.path.join(local_data_path, 'region_definitions', 'same_as_scenario_data', 'lad_2016_uk_simplified.shp'))
     reg_centroids = get_region_centroids(os.path.join(local_data_path, 'region_definitions', 'same_as_scenario_data', 'lad_2016_uk_simplified.shp'))
-
-    pprint(reg_centroids[0])
-    pprint(reg_centroids[10])
-
-    raise Exception
 
     data['reg_nrs'] = len(data['regions'])
 
