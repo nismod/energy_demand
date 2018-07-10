@@ -26,6 +26,7 @@ from energy_demand.read_write import read_data
 from energy_demand.basic import basic_functions
 from energy_demand.scripts import s_disaggregation
 from energy_demand.validation import lad_validation
+from energy_demand.scripts import init_scripts
 
 def energy_demand_model(regions, data, assumptions):
     """Main function of energy demand model to calculate yearly demand
@@ -88,7 +89,6 @@ def get_region_objects(path):
     '''
     with fiona.open(path, 'r') as source:
         return [elem for elem in source]
-    #    return [shape(elem['geometry']) for elem in source]
 
 if __name__ == "__main__":
     """
@@ -111,8 +111,7 @@ if __name__ == "__main__":
             os.path.dirname(__file__), '..', "energy_demand/config_data"))
 
     # Initialise logger
-    #logger_setup.set_up_logger(os.path.join(local_data_path, "..", "logging_local_run.log"))
-    # logger_setup.set_up_logger(os.path.join(local_data_path, "logging_local_run.log"))
+    logger_setup.set_up_logger(os.path.join(local_data_path, "logging_local_run.log"))
 
     # Load data
     data['criterias'] = {}
@@ -251,9 +250,15 @@ if __name__ == "__main__":
 
     # In order to load these data, the initialisation scripts need to be run
     print("... Load data from script calculations")
-    data = read_data.load_script_data(data)
+    init_cont = init_scripts.scenario_initalisation(
+        data['paths']['path_main'],
+        data['fuel_disagg'],
+        data)
 
+    for key, value in init_cont.items():
+        setattr(data['assumptions'], key, value)
 
+    
     # ------------------------------------------------
     # Spatial Validation
     # ------------------------------------------------
@@ -266,15 +271,6 @@ if __name__ == "__main__":
             data['regions'],
             data['reg_coord'],
             data['criterias']['plot_crit'])
-
-    #-------------------
-    # Folder cleaning
-    #--------------------
-    print("... delete previous model run results")
-    basic_functions.del_previous_setup(data['result_paths']['data_results'])
-    basic_functions.create_folder(data['result_paths']['data_results'])
-    basic_functions.create_folder(data['result_paths']['data_results_PDF'])
-    basic_functions.create_folder(data['result_paths']['data_results_model_run_pop'])
 
     # Create .ini file with simulation information
     write_data.write_simulation_inifile(data['result_paths']['data_results'], data)
@@ -306,6 +302,22 @@ if __name__ == "__main__":
 
         # Main model run function
         sim_obj = energy_demand_model(region_selection, data, data['assumptions'])
+
+        # ------------------------------------------------
+        # Temporal Validation
+        # ------------------------------------------------
+        if data['criterias']['validation_criteria'] == True and sim_yr == data['assumptions'].base_yr:
+            lad_validation.temporal_validation_lad(
+                sim_obj.ed_fueltype_national_yh,
+                sim_obj.ed_fueltype_regs_yh,
+                data['lookups']['fueltypes'],
+                data['result_paths'],
+                data['paths'],
+                region_selection,
+                data['reg_coord'],
+                data['assumptions'].seasons,
+                data['assumptions'].model_yeardays_daytype,
+                data['criterias']['plot_crit'])
 
         # --------------------
         # Result unconstrained

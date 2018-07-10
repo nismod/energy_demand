@@ -64,54 +64,6 @@ def scenario_initalisation(path_data_ed, fuel_disagg, data=False):
     for folder in folders_to_create:
         basic_functions.create_folder(folder)
 
-    '''# ===========================================
-    # I. Disaggregation
-    # ===========================================
-    fuel_disagg = {}
-
-    # Load data for disaggregateion
-    data['scenario_data']['employment_stats'] = data_loader.read_employment_stats(
-        data['paths']['path_employment_statistics'])
-
-    # Disaggregate fuel for all regions
-    fuel_disagg['rs_fuel_disagg'], fuel_disagg['ss_fuel_disagg'], fuel_disagg['is_fuel_disagg'] = s_disaggregation.disaggregate_base_demand(
-        data['regions'],
-        data['fuels'],
-        data['scenario_data'],
-        data['assumptions'],
-        data['reg_coord'],
-        data['weather_stations'],
-        data['temp_data'],
-        data['sectors'],
-        data['sectors']['all_sectors'],
-        data['enduses'],
-        data['service_building_count'])
-
-    # Sum demand across all sectors for every region
-    fuel_disagg['ss_fuel_disagg_sum_all_sectors'] = sum_across_sectors_all_regs(
-        fuel_disagg['ss_fuel_disagg'])
-
-    fuel_disagg['is_aggr_fuel_sum_all_sectors'] = sum_across_sectors_all_regs(
-        fuel_disagg['is_fuel_disagg'])
-
-    # Sum demand across all submodels and sectors for every region
-    fuel_disagg['tot_disaggregated_regs'] = sum_across_all_submodels_regs(
-        data['lookups']['fueltypes_nr'],
-        data['regions'],
-        [fuel_disagg['rs_fuel_disagg'],
-        fuel_disagg['ss_fuel_disagg'],
-        fuel_disagg['is_fuel_disagg']])
-
-    fuel_disagg['tot_disaggregated_regs_residenital'] = sum_across_all_submodels_regs(
-        data['lookups']['fueltypes_nr'],
-        data['regions'],
-        [fuel_disagg['rs_fuel_disagg']])
-
-    fuel_disagg['tot_disaggregated_regs_non_residential'] = sum_across_all_submodels_regs(
-        data['lookups']['fueltypes_nr'],
-        data['regions'],
-        [fuel_disagg['ss_fuel_disagg'], fuel_disagg['is_fuel_disagg']])'''
-
     # ---------------------------------------
     # Convert base year fuel input assumptions to energy service
     # ---------------------------------------
@@ -474,7 +426,7 @@ def scenario_initalisation(path_data_ed, fuel_disagg, data=False):
         init_cont['regional_strategy_variables'] = dict(init_cont['regional_strategy_variables'])
 
     logging.info("... finished scenario initialisation")
-    return dict(init_cont) #, fuel_disagg
+    return dict(init_cont)
 
 def global_to_reg_capacity_switch(
         regions,

@@ -269,7 +269,7 @@ def spatial_validation_lad_level(
         label_points=False,
         plotshow=plot_crit)
 
-    logging.info("... ================= Validation of electricity")
+    logging.info("... Validation of electricity")
     spatial_validation(
         reg_coord,
         fuel_elec_regs_yh,
@@ -280,7 +280,7 @@ def spatial_validation_lad_level(
         label_points=True,
         plotshow=plot_crit)
 
-    logging.info("... ================= Validation of residential electricity")
+    logging.info("... Validation of residential electricity")
     spatial_validation(
         reg_coord,
         fuel_elec_residential_regs_yh,
@@ -291,7 +291,7 @@ def spatial_validation_lad_level(
         label_points=True,
         plotshow=plot_crit)
 
-    logging.info("... ================= Validation of non-residential electricity")
+    logging.info("... Validation of non-residential electricity")
     spatial_validation(
         reg_coord,
         fuel_elec_non_residential_regs_yh,
@@ -302,7 +302,7 @@ def spatial_validation_lad_level(
         label_points=True,
         plotshow=plot_crit)
 
-    logging.info("... ================= Validation of gas")
+    logging.info("... Validation of gas")
     spatial_validation(
         reg_coord,
         fuel_gas_regs_yh,
@@ -313,7 +313,7 @@ def spatial_validation_lad_level(
         label_points=True,
         plotshow=plot_crit)
 
-    logging.info("... ================= Validaiton of residential gas")
+    logging.info("... Validation of residential gas")
     spatial_validation(
         reg_coord,
         fuel_gas_residential_regs_yh,
@@ -324,7 +324,7 @@ def spatial_validation_lad_level(
         label_points=True,
         plotshow=plot_crit)
 
-    logging.info("... ================= Validaiton of non residential gas")
+    logging.info("... Validation of non residential gas")
     spatial_validation(
         reg_coord,
         fuel_gas_non_residential_regs_yh,
