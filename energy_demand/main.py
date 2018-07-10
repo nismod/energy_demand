@@ -23,6 +23,8 @@ from energy_demand.read_write import read_data
 from energy_demand.basic import basic_functions
 from energy_demand.scripts import s_disaggregation
 
+import fiona
+
 def energy_demand_model(regions, data, assumptions):
     """Main function of energy demand model to calculate yearly demand
 
@@ -61,6 +63,14 @@ def energy_demand_model(regions, data, assumptions):
     logging.info("...finished running energy demand model simulation")
     return modelrun
 
+
+def get_region_names(path):
+    ''' Returns names of shapes within a shapefile
+    '''
+    with fiona.open(path, 'r') as source:
+        return [elem['properties']['name'] for elem in source]
+
+
 if __name__ == "__main__":
     """
     """
@@ -73,7 +83,7 @@ if __name__ == "__main__":
         #    os.path.join(
         #        os.path.dirname(__file__), "..", "..", "data"))
 
-        local_data_path = os.path.abspath('C:/users/cenv0553/ED/data')
+        local_data_path = os.path.abspath('data')
     else:
         local_data_path = sys.argv[1]
 
@@ -83,7 +93,7 @@ if __name__ == "__main__":
 
     # Initialise logger
     #logger_setup.set_up_logger(os.path.join(local_data_path, "..", "logging_local_run.log"))
-    logger_setup.set_up_logger(os.path.join(local_data_path, "logging_local_run.log"))
+    # logger_setup.set_up_logger(os.path.join(local_data_path, "logging_local_run.log"))
 
     # Load data
     data['criterias'] = {}
@@ -125,8 +135,12 @@ if __name__ == "__main__":
     data['lookups'] = lookup_tables.basic_lookups()
     data['enduses'], data['sectors'], data['fuels'] = data_loader.load_fuels(data['paths'], data['lookups'])
 
-    data['regions'] = data_loader.load_regions_localmodelrun(
-        os.path.join(local_data_path, 'region_definitions', 'regions_local_modelrun.csv'))
+    # data['regions'] = data_loader.load_regions_localmodelrun(
+    #     os.path.join(local_data_path, 'region_definitions', 'regions_local_modelrun.csv'))
+
+    data['regions'] = get_region_names(os.path.join(local_data_path, 'region_definitions', 'same_as_scenario_data', 'lad_2016_uk_simplified.shp'))
+    print(data['regions'])
+    raise Exception
 
     data['reg_nrs'] = len(data['regions'])
 
