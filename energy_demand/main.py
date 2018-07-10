@@ -24,6 +24,8 @@ from energy_demand.basic import basic_functions
 from energy_demand.scripts import s_disaggregation
 
 import fiona
+from pprint import pprint
+from shapely.geometry import shape, mapping
 
 def energy_demand_model(regions, data, assumptions):
     """Main function of energy demand model to calculate yearly demand
@@ -70,6 +72,17 @@ def get_region_names(path):
     with fiona.open(path, 'r') as source:
         return [elem['properties']['name'] for elem in source]
 
+def get_region_centroids(path):
+    ''' Returns centroids of shapes within a shapefile
+    '''
+    with fiona.open(path, 'r') as source:
+        geoms = [elem for elem in source]
+
+    for geom in geoms:
+        my_shape = shape(geom['geometry'])
+        geom['geometry'] = mapping(my_shape.centroid)
+
+    return geoms
 
 if __name__ == "__main__":
     """
@@ -139,7 +152,11 @@ if __name__ == "__main__":
     #     os.path.join(local_data_path, 'region_definitions', 'regions_local_modelrun.csv'))
 
     data['regions'] = get_region_names(os.path.join(local_data_path, 'region_definitions', 'same_as_scenario_data', 'lad_2016_uk_simplified.shp'))
-    print(data['regions'])
+    reg_centroids = get_region_centroids(os.path.join(local_data_path, 'region_definitions', 'same_as_scenario_data', 'lad_2016_uk_simplified.shp'))
+
+    pprint(reg_centroids[0])
+    pprint(reg_centroids[10])
+
     raise Exception
 
     data['reg_nrs'] = len(data['regions'])
