@@ -980,29 +980,6 @@ def read_scenario_data(path_to_csv):
 
     return data
 
-def load_regions_localmodelrun(path_to_csv):
-    """Read in regions from csv file
-
-    Arguments
-    ---------
-    path_to_csv : str
-        PAth to csv file
-
-    Returns
-    -------
-    regions : list
-        Regions
-    """
-    with open(path_to_csv, 'r') as csvfile:
-        rows = csv.reader(csvfile, delimiter=',')
-        headings = next(rows) # Skip first row
-        regions = []
-
-        for row in rows:
-            regions.append(row[read_data.get_position(headings, 'region')])
-
-    return regions
-
 def read_employment_stats(path_to_csv):
     """Read in employment statistics per LAD.
 

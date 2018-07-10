@@ -3,6 +3,45 @@
 import os
 import shutil
 import numpy as np
+from pyproj import Proj, transform
+
+def get_long_lat_decimal_degrees(reg_centroids):
+    """Project coordinates from shapefile to get
+    decimal degrees (from OSGB_1936_British_National_Grid to
+    WGS 84 projection).
+
+    Arguments
+    ---------
+    reg_centroids : dict
+        Centroid information read in from shapefile via smif
+
+    Return
+    -------
+    reg_coord : dict
+        Contains long and latidue for every region in decimal degrees
+
+    Info
+    ----
+    http://spatialreference.org/ref/epsg/wgs-84/
+    """
+    reg_coord = {}
+    for centroid in reg_centroids:
+
+        in_projection = Proj(init='epsg:27700') # OSGB_1936_British_National_Grid
+        put_projection = Proj(init='epsg:4326') # WGS 84 projection
+
+        # Convert to decimal degrees
+        long_dd, lat_dd = transform(
+            in_projection,
+            put_projection,
+            centroid['geometry']['coordinates'][0], #longitude
+            centroid['geometry']['coordinates'][1]) #latitude
+
+        reg_coord[centroid['properties']['name']] = {}
+        reg_coord[centroid['properties']['name']]['longitude'] = long_dd
+        reg_coord[centroid['properties']['name']]['latitude'] = lat_dd
+
+    return reg_coord
 
 def dict_depth(dictionary):
     """Get depth of nested dict

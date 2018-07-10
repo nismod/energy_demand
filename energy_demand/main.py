@@ -10,7 +10,10 @@ import os
 import sys
 import time
 import logging
+import fiona
 import numpy as np
+from pprint import pprint
+from shapely.geometry import shape, mapping
 from energy_demand import model
 from energy_demand.basic import testing_functions
 from energy_demand.basic import lookup_tables
@@ -22,10 +25,6 @@ from energy_demand.read_write import write_data
 from energy_demand.read_write import read_data
 from energy_demand.basic import basic_functions
 from energy_demand.scripts import s_disaggregation
-
-import fiona
-from pprint import pprint
-from shapely.geometry import shape, mapping
 
 def energy_demand_model(regions, data, assumptions):
     """Main function of energy demand model to calculate yearly demand
@@ -49,7 +48,7 @@ def energy_demand_model(regions, data, assumptions):
     This function is executed in the wrapper
     """
     modelrun = model.EnergyDemandModel(
-        regions=regions, #data['regions'],
+        regions=regions,
         data=data,
         assumptions=assumptions)
 
@@ -64,7 +63,6 @@ def energy_demand_model(regions, data, assumptions):
     write_data.logg_info(modelrun, fuels_in, data)
     logging.info("...finished running energy demand model simulation")
     return modelrun
-
 
 def get_region_names(path):
     ''' Returns names of shapes within a shapefile
@@ -84,11 +82,12 @@ def get_region_centroids(path):
 
     return geoms
 
-def get_entry(path):
+def get_region_objects(path):
     ''' Returns shape objects within a shapefile
     '''
     with fiona.open(path, 'r') as source:
-        return [shape(elem['geometry']) for elem in source]
+        return [elem for elem in source]
+    #    return [shape(elem['geometry']) for elem in source]
 
 if __name__ == "__main__":
     """
@@ -139,11 +138,16 @@ if __name__ == "__main__":
         data['criterias']['plot_HDD_chart'] = False
         data['criterias']['writeYAML'] = True #set to false
 
+    ONLY_REG_SELECTION = False
+
     # ----------------------------
     # Model running configurations
     # ----------------------------
+    user_defined_base_yr = 2015
     simulated_yrs = [2015]
     name_scenario_run = "_result_data_{}".format(str(time.ctime()).replace(":", "_").replace(" ", "_"))
+    name_region_set = "lad_2016_uk_simplified.shp"
+    name_region_set_selection = "msoa_regions_ed.csv"
 
     # Paths
     data['paths'] = data_loader.load_paths(path_main)
@@ -154,13 +158,11 @@ if __name__ == "__main__":
     data['lookups'] = lookup_tables.basic_lookups()
     data['enduses'], data['sectors'], data['fuels'] = data_loader.load_fuels(data['paths'], data['lookups'])
 
-    # data['regions'] = data_loader.load_regions_localmodelrun(
-    #     os.path.join(local_data_path, 'region_definitions', 'regions_local_modelrun.csv'))
-
-    data['regions'] = get_region_names(os.path.join(local_data_path, 'region_definitions', 'same_as_scenario_data', 'lad_2016_uk_simplified.shp'))
-    reg_centroids = get_region_centroids(os.path.join(local_data_path, 'region_definitions', 'same_as_scenario_data', 'lad_2016_uk_simplified.shp'))
-
+    data['regions'] = get_region_names(os.path.join(local_data_path, 'region_definitions', 'same_as_scenario_data', name_region_set))
     data['reg_nrs'] = len(data['regions'])
+
+    reg_centroids = get_region_centroids(os.path.join(local_data_path, 'region_definitions', 'same_as_scenario_data', name_region_set))
+    data['reg_coord'] = basic_functions.get_long_lat_decimal_degrees(reg_centroids)
 
     data['population'] = data_loader.read_scenario_data(
         os.path.join(local_data_path, 'scenarios', 'uk_pop_high_migration_2015_2050.csv'))
@@ -170,20 +172,12 @@ if __name__ == "__main__":
 
     data['industry_gva'] = "TST"
 
-    #Dummy data
-    pop_density = {}
-    data['reg_coord'] = {}
-    for reg in data['regions']:
-        data['reg_coord'][reg] = {'longitude': 52.58, 'latitude': -1.091}
-        pop_density[reg] = 1
-    data['pop_density'] = pop_density
-
     # ------------------------------
     # Assumptions
     # ------------------------------
     # Parameters not defined within smif
     data['assumptions'] = non_param_assumptions.Assumptions(
-        base_yr=2015,
+        base_yr=user_defined_base_yr,
         curr_yr=2015,
         simulated_yrs=simulated_yrs,
         paths=data['paths'],
@@ -191,6 +185,16 @@ if __name__ == "__main__":
         sectors=data['sectors'],
         fueltypes=data['lookups']['fueltypes'],
         fueltypes_nr=data['lookups']['fueltypes_nr'])
+
+    # -----------------------
+    # Calculate population density for base year
+    # -----------------------
+    region_objects = get_region_objects(os.path.join(local_data_path, 'region_definitions', 'same_as_scenario_data', name_region_set))
+    data['pop_density'] = {}
+    for region in region_objects:
+        region_name = region['properties']['name']
+        region_area = region['properties']['st_areasha']
+        data['pop_density'][region_name] = data['population'][data['assumptions'].base_yr][region_name] / region_area
 
     # Parameters defined within smif
     strategy_variables = param_assumptions.load_param_assump(
@@ -203,11 +207,10 @@ if __name__ == "__main__":
         data['assumptions'].model_yeardays_daytype,
         data['criterias']['plot_tech_lp'])
 
-    technologies = non_param_assumptions.update_technology_assumption(
+    data['technologies'] = non_param_assumptions.update_technology_assumption(
         data['assumptions'].technologies,
         data['assumptions'].strategy_variables['f_eff_achieved']['scenario_value'],
         data['assumptions'].strategy_variables['gshp_fraction_ey']['scenario_value'])
-    data['technologies'] = technologies
 
     data['weather_stations'], data['temp_data'] = data_loader.load_temp_data(data['local_paths'])
 
@@ -260,6 +263,21 @@ if __name__ == "__main__":
 
     # Create .ini file with simulation information
     write_data.write_simulation_inifile(data['result_paths']['data_results'], data)
+
+    # -------------------------------------
+    # Only selection of regions to simulate
+    # -------------------------------------
+    if ONLY_REG_SELECTION:
+        #region_selection = ['E02003237', 'E02003238']
+        from energy_demand.read_write import read_data
+        region_selection = read_data.get_region_selection(
+            os.path.join(data['local_paths']['local_path_datafolder'], "region_definitions", name_region_set_selection))
+        logging.info("Regions selection")
+        logging.info(region_selection)
+        logging.info(len(region_selection))
+        data['reg_nrs'] = len(region_selection)
+    else:
+        region_selection = data['regions']
 
     for sim_yr in data['assumptions'].simulated_yrs:
         setattr(data['assumptions'], 'curr_yr', sim_yr)
