@@ -90,7 +90,7 @@ def process_scenarios(path_to_scenarios, year_to_model=2015):
 
     # -------------------------------
     # Compare cross charts for different scenario
-    # IDeally only compare two scenario
+    # Ideally only compare two scenario
     # -------------------------------
     if plot_multiple_cross_charts:
         plotting_results.plot_cross_graphs_scenarios(

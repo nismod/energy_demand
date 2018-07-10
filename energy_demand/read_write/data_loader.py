@@ -286,7 +286,7 @@ def get_local_paths(path):
         'data_processed': os.path.join(
             path, '_processed_data'),
         'lad_shapefile': os.path.join(
-            path, '_raw_data', 'C_LAD_geography', 'same_as_pop_scenario', 'lad_2016_uk_simplified.shp'),
+            path, '_raw_data', 'C_LAD_geography', 'lad_2016_uk_simplified.shp'),
         'path_post_installation_data': os.path.join(
             path, '_processed_data', '_post_installation_data'),
         'data_processed_disaggregated': os.path.join(

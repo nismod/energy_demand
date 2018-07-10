@@ -138,7 +138,7 @@ def scenario_initalisation(path_data_ed, fuel_disagg, data=False):
             #diffusion_vals = f_reg_norm_abs['rs_space_heating']    # Absolute distribution (only for capacity installements)
 
             path_shapefile_input = os.path.abspath(
-                'C:/Users/cenv0553/ED/data/_raw_data/C_LAD_geography/same_as_pop_scenario/lad_2016_uk_simplified.shp')
+                'C:/Users/cenv0553/ED/data/_raw_data/C_LAD_geography/lad_2016_uk_simplified.shp')
 
             result_mapping.plot_spatial_mapping_example(
                 diffusion_vals=diffusion_vals,

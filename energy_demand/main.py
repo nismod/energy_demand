@@ -5,6 +5,8 @@
     Profiling:  https://jiffyclub.github.io/snakeviz/
     python -m cProfile -o program.prof main.py
     snakeviz program.prof
+
+# Write sript to generate YAML files
 """
 import os
 import sys
@@ -27,6 +29,7 @@ from energy_demand.basic import basic_functions
 from energy_demand.scripts import s_disaggregation
 from energy_demand.validation import lad_validation
 from energy_demand.scripts import init_scripts
+from energy_demand.basic import demand_supply_interaction
 
 def energy_demand_model(regions, data, assumptions):
     """Main function of energy demand model to calculate yearly demand
@@ -127,7 +130,7 @@ if __name__ == "__main__":
         data['criterias']['plot_crit'] = False
         data['criterias']['crit_plot_enduse_lp'] = False
         data['criterias']['plot_HDD_chart'] = False
-        data['criterias']['writeYAML'] = False
+        data['criterias']['writeYAML_keynames'] = False
     else:
         data['criterias']['write_to_txt'] = True
         data['criterias']['beyond_supply_outputs'] = True
@@ -136,7 +139,7 @@ if __name__ == "__main__":
         data['criterias']['plot_crit'] = False
         data['criterias']['crit_plot_enduse_lp'] = True
         data['criterias']['plot_HDD_chart'] = False
-        data['criterias']['writeYAML'] = True #set to false
+        data['criterias']['writeYAML_keynames'] = True
 
     ONLY_REG_SELECTION = False
 
@@ -144,9 +147,9 @@ if __name__ == "__main__":
     # Model running configurations
     # ----------------------------
     user_defined_base_yr = 2015
-    simulated_yrs = [2015]
+    simulated_yrs = [2015, 2050]
     name_scenario_run = "_result_local_data_{}".format(str(time.ctime()).replace(":", "_").replace(" ", "_"))
-    name_region_set = os.path.join(local_data_path, 'region_definitions', 'same_as_scenario_data', "lad_2016_uk_simplified.shp")
+    name_region_set = os.path.join(local_data_path, 'region_definitions', "lad_2016_uk_simplified.shp")
     name_region_set_selection = "msoa_regions_ed.csv"
 
     # Paths
@@ -291,6 +294,8 @@ if __name__ == "__main__":
         region_selection = data['regions']
 
     for sim_yr in data['assumptions'].simulated_yrs:
+
+        # Set current year
         setattr(data['assumptions'], 'curr_yr', sim_yr)
 
         print("Simulation for year --------------:  " + str(sim_yr))
@@ -300,7 +305,9 @@ if __name__ == "__main__":
             data['criterias']['mode_constrained'],
             data['assumptions'].enduse_space_heating)
 
+        # -----------------------
         # Main model run function
+        # -----------------------
         sim_obj = energy_demand_model(region_selection, data, data['assumptions'])
 
         # ------------------------------------------------
@@ -325,9 +332,59 @@ if __name__ == "__main__":
         # Sum according to first element in array (sectors)
         # which aggregtes over the sectors
         # ---
-        supply_results_unconstrained = sum(sim_obj.results_unconstrained[:, ])
+        #supply_results_unconstrained = sum(sim_obj.results_unconstrained[:, ])
+        
 
-        # Write out all calculations which are not used for SMIF
+        
+        # --------------------------------------------------------
+        # Reshape day and hours to yearhous (from (365, 24) to 8760)
+        # --------------------------------------------------------
+
+        # np.array with constrained demands for heating {constrained_techs: np.array(fueltype, sectors, region, periods)}
+        results_constrained_reshaped = {}
+
+        for heating_tech, submodel_techs in sim_obj.results_constrained.items():
+            results_constrained_reshaped[heating_tech] = submodel_techs.reshape(
+                len(data['assumptions'].submodels_names),
+                data['reg_nrs'],
+                data['lookups']['fueltypes_nr'],
+                8760)
+        results_constrained = results_constrained_reshaped
+
+        # np.array of all fueltypes(fueltype, sectors, region, periods)
+        results_unconstrained = sim_obj.results_unconstrained.reshape(
+            len(data['assumptions'].submodels_names),
+            data['reg_nrs'],
+            data['lookups']['fueltypes_nr'],
+            8760)
+
+        # ------------------------------------- 
+        # # Generate YAML file with keynames for `sector_model`
+        # -------------------------------------
+        if data['criterias']['writeYAML_keynames']:
+            if data['criterias']['mode_constrained']:
+
+                supply_results = demand_supply_interaction.constrained_results(
+                    results_constrained,
+                    results_unconstrained,
+                    data['assumptions'].submodels_names,
+                    data['lookups']['fueltypes'],
+                    data['technologies'])
+
+                write_data.write_yaml_output_keynames(
+                    data['local_paths']['yaml_parameters_keynames_constrained'], supply_results.keys())
+            else:
+                supply_results = demand_supply_interaction.unconstrained_results(
+                    results_unconstrained,
+                    data['assumptions'].submodels_names,
+                    data['lookups']['fueltypes'])
+
+                write_data.write_yaml_output_keynames(
+                    data['local_paths']['yaml_parameters_keynames_unconstrained'], supply_results.keys())
+
+        # --------------------------
+        # Write out all calculations
+        # --------------------------
         if data['criterias']['beyond_supply_outputs']:
 
             ed_fueltype_regs_yh = sim_obj.ed_fueltype_regs_yh

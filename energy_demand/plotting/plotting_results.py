@@ -14,7 +14,6 @@ from energy_demand.basic import basic_functions, conversions
 from energy_demand.plotting import plotting_styles
 from energy_demand.technologies import tech_related
 from energy_demand.profiles import load_factors
-from energy_demand.plotting import plotting_results
 from scipy.interpolate import interp1d
 import matplotlib
 import matplotlib.pyplot as plt
@@ -85,33 +84,40 @@ def run_all_plot_functions(
     """
 
     if plot_crit['plot_lad_cross_graphs']:
+        
+        # Set correct comparison year
+        comparison_year = 2050
 
-        # Plot cross graph where very region is a dot
-        plot_cross_graphs(
-            base_yr=2015,
-            comparison_year=2050,
-            regions=regions,
-            ed_year_fueltype_regs_yh=results_container['results_every_year'],
-            reg_load_factor_y=results_container['reg_load_factor_y'],
-            fueltype_int=lookups['fueltypes']['electricity'],
-            fueltype_str='electricity',
-            fig_name=os.path.join(
-                result_paths['data_results_PDF'], "comparions_LAD_cross_graph_electricity_by_cy.pdf"),
-            label_points=False,
-            plotshow=False)
+        try:
+            # Plot cross graph where very region is a dot
+            plot_cross_graphs(
+                base_yr=2015,
+                comparison_year=comparison_year,
+                regions=regions,
+                ed_year_fueltype_regs_yh=results_container['results_every_year'],
+                reg_load_factor_y=results_container['reg_load_factor_y'],
+                fueltype_int=lookups['fueltypes']['electricity'],
+                fueltype_str='electricity',
+                fig_name=os.path.join(
+                    result_paths['data_results_PDF'], "comparions_LAD_cross_graph_electricity_by_cy.pdf"),
+                label_points=False,
+                plotshow=False)
 
-        plot_cross_graphs(
-            base_yr=2015,
-            comparison_year=2050,
-            regions=regions,
-            ed_year_fueltype_regs_yh=results_container['results_every_year'],
-            reg_load_factor_y=results_container['reg_load_factor_y'],
-            fueltype_int=lookups['fueltypes']['gas'],
-            fueltype_str='gas',
-            fig_name=os.path.join(
-                result_paths['data_results_PDF'], "comparions_LAD_cross_graph_gas_by_cy.pdf"),
-            label_points=False,
-            plotshow=False)
+            plot_cross_graphs(
+                base_yr=2015,
+                comparison_year=comparison_year,
+                regions=regions,
+                ed_year_fueltype_regs_yh=results_container['results_every_year'],
+                reg_load_factor_y=results_container['reg_load_factor_y'],
+                fueltype_int=lookups['fueltypes']['gas'],
+                fueltype_str='gas',
+                fig_name=os.path.join(
+                    result_paths['data_results_PDF'], "comparions_LAD_cross_graph_gas_by_cy.pdf"),
+                label_points=False,
+                plotshow=False)
+        
+        except KeyError:
+            sys.exit("Check if correct comparison year is provided, i.e. really data exists for this year")
 
     # ----------
     # Plot LAD differences for first and last year
@@ -1176,7 +1182,6 @@ def plt_fuels_peak_h(results_every_year, lookups, path_plot_fig):
         plt.plot(
             years,
             y_init[fueltype],
-            #linestyle=linestyles[fueltype],
             linewidth=0.7)
 
     ax.legend(
@@ -2402,8 +2407,11 @@ def plot_cross_graphs(
             pass
 
     # Get load factor
+    result_dict['lf_cy'] = {}
+    result_dict['lf_by'] = {}
     for year, lf_fueltype_regs in reg_load_factor_y.items():
-
+        print("lf_fueltype_regs")
+        print(lf_fueltype_regs.shape)
         if year == base_yr:
             for reg_nr, reg_geocode in enumerate(regions):
                 result_dict['lf_by'][reg_geocode] = lf_fueltype_regs[fueltype_int][reg_nr]
