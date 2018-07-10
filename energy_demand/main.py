@@ -25,6 +25,7 @@ from energy_demand.read_write import write_data
 from energy_demand.read_write import read_data
 from energy_demand.basic import basic_functions
 from energy_demand.scripts import s_disaggregation
+from energy_demand.validation import lad_validation
 
 def energy_demand_model(regions, data, assumptions):
     """Main function of energy demand model to calculate yearly demand
@@ -145,8 +146,8 @@ if __name__ == "__main__":
     # ----------------------------
     user_defined_base_yr = 2015
     simulated_yrs = [2015]
-    name_scenario_run = "_result_data_{}".format(str(time.ctime()).replace(":", "_").replace(" ", "_"))
-    name_region_set = "lad_2016_uk_simplified.shp"
+    name_scenario_run = "_result_local_data_{}".format(str(time.ctime()).replace(":", "_").replace(" ", "_"))
+    name_region_set = os.path.join(local_data_path, 'region_definitions', 'same_as_scenario_data', "lad_2016_uk_simplified.shp")
     name_region_set_selection = "msoa_regions_ed.csv"
 
     # Paths
@@ -158,10 +159,10 @@ if __name__ == "__main__":
     data['lookups'] = lookup_tables.basic_lookups()
     data['enduses'], data['sectors'], data['fuels'] = data_loader.load_fuels(data['paths'], data['lookups'])
 
-    data['regions'] = get_region_names(os.path.join(local_data_path, 'region_definitions', 'same_as_scenario_data', name_region_set))
+    data['regions'] = get_region_names(name_region_set)
     data['reg_nrs'] = len(data['regions'])
 
-    reg_centroids = get_region_centroids(os.path.join(local_data_path, 'region_definitions', 'same_as_scenario_data', name_region_set))
+    reg_centroids = get_region_centroids(name_region_set)
     data['reg_coord'] = basic_functions.get_long_lat_decimal_degrees(reg_centroids)
 
     data['population'] = data_loader.read_scenario_data(
@@ -172,9 +173,9 @@ if __name__ == "__main__":
 
     data['industry_gva'] = "TST"
 
-    # ------------------------------
+    # -----------------------------
     # Assumptions
-    # ------------------------------
+    # -----------------------------
     # Parameters not defined within smif
     data['assumptions'] = non_param_assumptions.Assumptions(
         base_yr=user_defined_base_yr,
@@ -189,7 +190,7 @@ if __name__ == "__main__":
     # -----------------------
     # Calculate population density for base year
     # -----------------------
-    region_objects = get_region_objects(os.path.join(local_data_path, 'region_definitions', 'same_as_scenario_data', name_region_set))
+    region_objects = get_region_objects(name_region_set)
     data['pop_density'] = {}
     for region in region_objects:
         region_name = region['properties']['name']
@@ -252,6 +253,20 @@ if __name__ == "__main__":
     print("... Load data from script calculations")
     data = read_data.load_script_data(data)
 
+
+    # ------------------------------------------------
+    # Spatial Validation
+    # ------------------------------------------------
+    if data['criterias']['validation_criteria'] == True:
+        lad_validation.spatial_validation_lad_level(
+            data['fuel_disagg'],
+            data['lookups'],
+            data['result_paths'],
+            data['paths'],
+            data['regions'],
+            data['reg_coord'],
+            data['criterias']['plot_crit'])
+
     #-------------------
     # Folder cleaning
     #--------------------
@@ -290,7 +305,7 @@ if __name__ == "__main__":
             data['assumptions'].enduse_space_heating)
 
         # Main model run function
-        modelrun_obj = energy_demand_model(data, data['assumptions'])
+        sim_obj = energy_demand_model(region_selection, data, data['assumptions'])
 
         # --------------------
         # Result unconstrained
@@ -298,22 +313,22 @@ if __name__ == "__main__":
         # Sum according to first element in array (sectors)
         # which aggregtes over the sectors
         # ---
-        supply_results_unconstrained = sum(modelrun_obj.results_unconstrained[:, ])
+        supply_results_unconstrained = sum(sim_obj.results_unconstrained[:, ])
 
         # Write out all calculations which are not used for SMIF
         if data['criterias']['beyond_supply_outputs']:
 
-            ed_fueltype_regs_yh = modelrun_obj.ed_fueltype_regs_yh
-            out_enduse_specific = modelrun_obj.tot_fuel_y_enduse_specific_yh
-            tot_fuel_y_max_enduses = modelrun_obj.tot_fuel_y_max_enduses
-            ed_fueltype_national_yh = modelrun_obj.ed_fueltype_national_yh
+            ed_fueltype_regs_yh = sim_obj.ed_fueltype_regs_yh
+            out_enduse_specific = sim_obj.tot_fuel_y_enduse_specific_yh
+            tot_fuel_y_max_enduses = sim_obj.tot_fuel_y_max_enduses
+            ed_fueltype_national_yh = sim_obj.ed_fueltype_national_yh
 
-            reg_load_factor_y = modelrun_obj.reg_load_factor_y
-            reg_load_factor_yd = modelrun_obj.reg_load_factor_yd
-            reg_load_factor_winter = modelrun_obj.reg_seasons_lf['winter']
-            reg_load_factor_spring = modelrun_obj.reg_seasons_lf['spring']
-            reg_load_factor_summer = modelrun_obj.reg_seasons_lf['summer']
-            reg_load_factor_autumn = modelrun_obj.reg_seasons_lf['autumn']
+            reg_load_factor_y = sim_obj.reg_load_factor_y
+            reg_load_factor_yd = sim_obj.reg_load_factor_yd
+            reg_load_factor_winter = sim_obj.reg_seasons_lf['winter']
+            reg_load_factor_spring = sim_obj.reg_seasons_lf['spring']
+            reg_load_factor_summer = sim_obj.reg_seasons_lf['summer']
+            reg_load_factor_autumn = sim_obj.reg_seasons_lf['autumn']
 
             # -------------------------------------------
             # Write annual results to txt files
@@ -325,7 +340,7 @@ if __name__ == "__main__":
                 sim_yr,
                 "result_tot_yh",
                 path_runs,
-                modelrun_obj.ed_fueltype_regs_yh,
+                sim_obj.ed_fueltype_regs_yh,
                 "result_tot_submodels_fueltypes")
             write_data.write_enduse_specific(
                 sim_yr,
