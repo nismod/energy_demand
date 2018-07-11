@@ -8,7 +8,7 @@ from energy_demand.read_write import read_data
 def test_if_tech_defined(enduse_fueltypes_techs):
     """Test if a technology has been configured,
     i.e. a fuel share has been assgined to one of the
-    fueltpyes in `assumptions_fuel_shares`.
+    fueltpyes in `fuel_shares`.
 
     Arguments
     ---------

@@ -1,6 +1,5 @@
 """Script to disaggregate national data into regional data
 """
-import os
 import logging
 import copy
 from collections import defaultdict
@@ -206,7 +205,7 @@ def ss_disaggregate(
         regions,
         temp_data,
         assumptions.base_temp_diff_params,
-        assumptions.strategy_variables['ss_t_base_heating_future_yr']['scenario_value'],
+        assumptions.strategy_vars['ss_t_base_heating_future_yr']['scenario_value'],
         assumptions.t_bases.ss_t_heating_by,
         reg_coord,
         weather_stations)
@@ -217,7 +216,7 @@ def ss_disaggregate(
         regions,
         temp_data,
         assumptions.base_temp_diff_params,
-        assumptions.strategy_variables['ss_t_base_cooling_future_yr']['scenario_value'],
+        assumptions.strategy_vars['ss_t_base_cooling_future_yr']['scenario_value'],
         assumptions.t_bases.ss_t_cooling_by,
         reg_coord,
         weather_stations)
@@ -471,7 +470,7 @@ def is_disaggregate(
         regions,
         temp_data,
         assumptions.base_temp_diff_params,
-        assumptions.strategy_variables['is_t_base_heating_future_yr']['scenario_value'],
+        assumptions.strategy_vars['is_t_base_heating_future_yr']['scenario_value'],
         assumptions.t_bases.is_t_heating_by,
         reg_coord,
         weather_stations)
@@ -669,16 +668,13 @@ def rs_disaggregate(
     # ---------------------------------------
     # Calculate heating degree days for regions
     # ---------------------------------------
-    logging.info(
-        "Disaggregation: base_yr: %s current_yr: %s", assumptions.base_yr, assumptions.curr_yr)
-
     rs_hdd_individ_region = hdd_cdd.get_hdd_country(
         assumptions.base_yr,
         assumptions.curr_yr,
         regions,
         temp_data,
         assumptions.base_temp_diff_params,
-        assumptions.strategy_variables['rs_t_base_heating_future_yr']['scenario_value'],
+        assumptions.strategy_vars['rs_t_base_heating_future_yr']['scenario_value'],
         assumptions.t_bases.rs_t_heating_by,
         reg_coord,
         weather_stations)
@@ -894,35 +890,3 @@ def write_disagg_fuel_sector(path_to_txt, data):
     file.close()
 
     return
-
-'''def run(data):
-    """Function run script
-    """
-    logging.debug("... start script %s", os.path.basename(__file__))
-
-    # Disaggregation
-    rs_fuel_disagg, ss_fuel_disagg, is_fuel_disagg = disaggregate_base_demand(
-        data['regions'],
-        data['fuels'],
-        data['scenario_data'],
-        data['assumptions'],
-        data['reg_coord'],
-        data['weather_stations'],
-        data['temp_data'],
-        data['sectors'],
-        data['sectors']['all_sectors'],
-        data['enduses'])
-
-    #Write to csv file disaggregated demand
-    write_disagg_fuel(
-        os.path.join(data['local_paths']['dir_disaggregated'], 'rs_fuel_disagg.csv'),
-        rs_fuel_disagg)
-    write_disagg_fuel_sector(
-        os.path.join(data['local_paths']['dir_disaggregated'], 'ss_fuel_disagg.csv'),
-        ss_fuel_disagg)
-    write_disagg_fuel_sector(
-        os.path.join(data['local_paths']['dir_disaggregated'], 'is_fuel_disagg.csv'),
-        is_fuel_disagg)
-
-    logging.info("... finished script %s", os.path.basename(__file__))
-    return'''

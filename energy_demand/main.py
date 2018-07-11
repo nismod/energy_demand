@@ -20,8 +20,8 @@ from energy_demand.plotting import plotting_results
 from energy_demand import model
 from energy_demand.basic import testing_functions
 from energy_demand.basic import lookup_tables
-from energy_demand.assumptions import non_param_assumptions
-from energy_demand.assumptions import param_assumptions
+from energy_demand.assumptions import general_assumptions
+from energy_demand.assumptions import strategy_variables
 from energy_demand.read_write import data_loader
 from energy_demand.basic import logger_setup
 from energy_demand.read_write import write_data
@@ -113,7 +113,7 @@ if __name__ == "__main__":
     # -------------------
     RESILIENCEPAPERPOUTPUT = False                                      # Output data for resilience paper
 
-    data['criterias']['reg_selection'] = True
+    data['criterias']['reg_selection'] = False
     data['criterias']['reg_selection_csv_name'] = "msoa_regions_ed.csv" # CSV file stored in 'region' folder with simulated regions
     
     # --- Model running configurations
@@ -158,7 +158,7 @@ if __name__ == "__main__":
     # -----------------------------
     # Assumptions
     # -----------------------------
-    data['assumptions'] = non_param_assumptions.Assumptions(
+    data['assumptions'] = general_assumptions.Assumptions(
         base_yr=user_defined_base_yr,
         curr_yr=2015,
         simulated_yrs=simulated_yrs,
@@ -179,19 +179,19 @@ if __name__ == "__main__":
         data['pop_density'][region_name] = data['population'][data['assumptions'].base_yr][region_name] / region_area
 
     # Parameters defined within smif
-    strategy_variables = param_assumptions.load_param_assump(
+    strategy_vars = strategy_variables.load_param_assump(
         data['paths'], data['local_paths'], data['assumptions'])
-    data['assumptions'].update('strategy_variables', strategy_variables)
+    data['assumptions'].update('strategy_vars', strategy_vars)
 
     data['tech_lp'] = data_loader.load_data_profiles(
         data['paths'], data['local_paths'],
         data['assumptions'].model_yeardays,
         data['assumptions'].model_yeardays_daytype,)
 
-    data['technologies'] = non_param_assumptions.update_technology_assumption(
+    data['technologies'] = general_assumptions.update_technology_assumption(
         data['assumptions'].technologies,
-        data['assumptions'].strategy_variables['f_eff_achieved']['scenario_value'],
-        data['assumptions'].strategy_variables['gshp_fraction_ey']['scenario_value'])
+        data['assumptions'].strategy_vars['f_eff_achieved']['scenario_value'],
+        data['assumptions'].strategy_vars['gshp_fraction_ey']['scenario_value'])
 
     data['weather_stations'], data['temp_data'] = data_loader.load_temp_data(data['local_paths'])
 

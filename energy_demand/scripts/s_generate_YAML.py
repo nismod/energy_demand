@@ -2,8 +2,8 @@
 """
 import os
 import configparser
-from energy_demand.assumptions import non_param_assumptions
-from energy_demand.assumptions import param_assumptions
+from energy_demand.assumptions import general_assumptions
+from energy_demand.assumptions import strategy_variables
 from energy_demand.read_write import data_loader
 from energy_demand.basic import lookup_tables
 
@@ -37,7 +37,7 @@ data = {}
 data['lookups'] = lookup_tables.basic_lookups()
 data['enduses'], data['sectors'], data['fuels'] = data_loader.load_fuels(paths, data['lookups'])
 
-assumptions = non_param_assumptions.Assumptions(
+assumptions = general_assumptions.Assumptions(
     base_yr=user_defined_base_yr,
     curr_yr=2015,
     simulated_yrs=simulated_yrs,
@@ -48,7 +48,7 @@ assumptions = non_param_assumptions.Assumptions(
     fueltypes_nr=data['lookups']['fueltypes_nr'])
 
 # Write parameters to YAML file
-_ = param_assumptions.load_param_assump(
+_ = strategy_variables.load_param_assump(
     paths,
     local_paths,
     assumptions,

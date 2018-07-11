@@ -7,7 +7,7 @@ import os
 import logging
 from pkg_resources import Requirement
 from pkg_resources import resource_filename
-from energy_demand.assumptions import non_param_assumptions
+from energy_demand.assumptions import general_assumptions
 from energy_demand.scripts import s_raw_weather_data
 from energy_demand.scripts import s_rs_raw_shapes
 from energy_demand.scripts import s_ss_raw_shapes
@@ -48,7 +48,7 @@ def post_install_setup(args):
     data['enduses'], data['sectors'], data['fuels'] = data_loader.load_fuels(
         data['paths'], data['lookups'])
 
-    data['assumptions'] = non_param_assumptions.Assumptions(
+    data['assumptions'] = general_assumptions.Assumptions(
         base_yr=base_yr,
         paths=data['paths'],
         enduses=data['enduses'],

@@ -1,9 +1,9 @@
-"""Assumptions provided as parameters to smif. This script can be run to write out all paramters as YAML
+"""Strategy variable assumptions provided as parameters to smif
 """
 import copy
 from energy_demand.read_write import write_data
 from energy_demand.basic import basic_functions
-from energy_demand.assumptions import non_param_assumptions
+from energy_demand.assumptions import general_assumptions
 
 def load_param_assump(paths=None, local_paths=None, assumptions=None, writeYAML=False):
     """All assumptions of the energy demand model
@@ -41,9 +41,9 @@ def load_param_assump(paths=None, local_paths=None, assumptions=None, writeYAML=
         assumptions_dict['flat_heat_pump_profile_both'] = 0 #FAlse
         assumptions_dict['flat_heat_pump_profile_only_water'] = 0 #FAlse
 
-        assumptions = non_param_assumptions.DummyClass(assumptions_dict)
+        assumptions = general_assumptions.DummyClass(assumptions_dict)
 
-        setattr(assumptions, 't_bases', non_param_assumptions.DummyClass(assumptions_dict['t_bases']))
+        setattr(assumptions, 't_bases', general_assumptions.DummyClass(assumptions_dict['t_bases']))
     else:
 
         # ------------
@@ -55,7 +55,7 @@ def load_param_assump(paths=None, local_paths=None, assumptions=None, writeYAML=
     
         base_yr = 2015
         simulated_yrs = range(2015, 2050)
-        assumptions = non_param_assumptions.Assumptions(
+        assumptions = general_assumptions.Assumptions(
             base_yr=base_yr,
             curr_yr=base_yr,
             simulated_yrs=simulated_yrs,

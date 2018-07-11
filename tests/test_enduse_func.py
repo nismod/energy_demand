@@ -27,7 +27,7 @@ def test_enduse():
         sig_param_tech='test',
         enduse_overall_change='test',
         criterias='test',
-        strategy_variables='test',
+        strategy_vars='test',
         fueltypes_nr='test',
         fueltypes='test')
 
@@ -394,7 +394,7 @@ def test_apply_smart_metering():
         enduse='heating',
         fuel_y=100,
         sm_assump=sm_assump,
-        strategy_variables=sm_assump_strategy,
+        strategy_vars=sm_assump_strategy,
         base_yr=2015,
         curr_yr=2020)
 
@@ -534,7 +534,7 @@ def test_apply_heat_recovery():
 
     result, result_tech = enduse_func.apply_heat_recovery(
         enduse='heating',
-        strategy_variables={'heat_recoved__heating': {'scenario_value': 0.5}, 'heat_recovered_yr_until_changed': {'scenario_value': 2020}},
+        strategy_vars={'heat_recoved__heating': {'scenario_value': 0.5}, 'heat_recovered_yr_until_changed': {'scenario_value': 2020}},
         enduse_overall_change=other_enduse_mode_info,
         service=100,
         service_techs={'techA': 100},
@@ -653,7 +653,7 @@ def test_apply_specific_change():
         enduse='heating',
         fuel_y=fuel_y,
         enduse_overall_change=enduse_overall_change,
-        strategy_variables=enduse_overall_change_strategy,
+        strategy_vars=enduse_overall_change_strategy,
         base_yr=2015,
         curr_yr=2020)
 
@@ -719,7 +719,7 @@ def test_apply_cooling():
     other_enduse_mode_info['sigmoid']['sig_midpoint'] = 0
     other_enduse_mode_info['sigmoid']['sig_steepness'] = 1
 
-    strategy_variables = {
+    strategy_vars = {
         'cooled_floorarea_yr_until_changed': {'scenario_value': 2020},
         'cooled_floorarea__{}'.format('cooling_enduse'): {'scenario_value': 0.5}}
 
@@ -729,13 +729,13 @@ def test_apply_cooling():
     result = enduse_func.apply_cooling(
         enduse='cooling_enduse',
         fuel_y=fuel_y,
-        strategy_variables=strategy_variables,
+        strategy_vars=strategy_vars,
         cooled_floorarea_p_by=assump_cooling_floorarea,
         other_enduse_mode_info=other_enduse_mode_info,
         base_yr=2015,
         curr_yr=2020)
 
-    assert np.sum(result) == np.sum(fuel_y) * (1 + strategy_variables['cooled_floorarea__{}'.format('cooling_enduse')]['scenario_value'] / assump_cooling_floorarea)
+    assert np.sum(result) == np.sum(fuel_y) * (1 + strategy_vars['cooled_floorarea__{}'.format('cooling_enduse')]['scenario_value'] / assump_cooling_floorarea)
 
 def test_calc_service_switch():
     """Test

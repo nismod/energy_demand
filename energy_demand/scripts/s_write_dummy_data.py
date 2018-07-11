@@ -8,7 +8,7 @@ from energy_demand.read_write import write_data
 from energy_demand.read_write import data_loader
 from energy_demand.basic import basic_functions
 from energy_demand.scripts.s_rs_raw_shapes import run
-from energy_demand.assumptions import non_param_assumptions
+from energy_demand.assumptions import general_assumptions
 from energy_demand.scripts import s_raw_weather_data
 from energy_demand.basic import lookup_tables
 
@@ -163,7 +163,7 @@ def post_install_setup_minimum(args):
         data['paths'], data['lookups'])
 
     # Assumptions
-    data['assumptions'] = non_param_assumptions.Assumptions(
+    data['assumptions'] = general_assumptions.Assumptions(
         base_yr=base_yr,
         paths=data['paths'],
         enduses=data['enduses'],
