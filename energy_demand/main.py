@@ -7,6 +7,8 @@
     snakeviz program.prof
 
 #TODO Add constant population
+#TODO Write out function which writes out data for every graph
+#TODO Interface energy demand
 """
 import os
 import sys

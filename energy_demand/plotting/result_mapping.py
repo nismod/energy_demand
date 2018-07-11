@@ -715,7 +715,8 @@ def create_geopanda_files(
         fueltypes_nr,
         fueltypes,
         path_shapefile_input,
-        plot_crit_dict
+        plot_crit_dict,
+        base_yr
     ):
     """Create map related files (png) from results.
 
@@ -732,7 +733,7 @@ def create_geopanda_files(
     """
     logging.info("... create spatial maps of results")
 
-    base_year = 2015
+    #base_yr = 2015
     # --------
     # Read LAD shapefile and create geopanda
     # --------
@@ -803,27 +804,27 @@ def create_geopanda_files(
     # ======================================
     if plot_crit_dict['plot_diff_peak_h']:
         for year in results_container['results_every_year'].keys():
-            if year == base_year:
+            if year == base_yr:
                 pass
             else:
                 for fueltype in range(fueltypes_nr):
                     
                     # If total sum is zero, skip
-                    if np.sum(results_container['results_every_year'][base_year][fueltype]) == 0:
+                    if np.sum(results_container['results_every_year'][base_yr][fueltype]) == 0:
                         continue
 
-                    ##if np.isnan(np.sum(results_container['results_every_year'][base_year][fueltype])):
+                    ##if np.isnan(np.sum(results_container['results_every_year'][base_yr][fueltype])):
                     #    logging.info("Error: Contains nan entry {} {}".format(year, fueltype))
                     #    continue
-                    #logging.info("============ {}  {}".format(fueltype, np.isnan(np.sum(results_container['results_every_year'][base_year][fueltype]))))
-                    #logging.info(results_container['results_every_year'][base_year][fueltype])
+                    #logging.info("============ {}  {}".format(fueltype, np.isnan(np.sum(results_container['results_every_year'][base_yr][fueltype]))))
+                    #logging.info(results_container['results_every_year'][base_yr][fueltype])
                     fueltype_str = tech_related.get_fueltype_str(fueltypes, fueltype)
 
                     # Calculate peak h across all regions
                     field_name = 'peak_diff_p_peak_h_{}_{}'.format(year, fueltype_str)
 
                     # Get maxium demand of 8760h for every region for base year
-                    h_max_gwh_regs_by = np.max(results_container['results_every_year'][base_year][fueltype], axis=1)
+                    h_max_gwh_regs_by = np.max(results_container['results_every_year'][base_yr][fueltype], axis=1)
 
                     # Get maxium demand of 8760h for every region for current year
                     h_max_gwh_regs_cy = np.max(results_container['results_every_year'][year][fueltype], axis=1)
@@ -1063,14 +1064,14 @@ def create_geopanda_files(
             # ===============================================
             # Differences in percent per enduse and year (y)
             # ===============================================
-            if plot_crit_dict['plot_differences_p'] and year > base_year:
+            if plot_crit_dict['plot_differences_p'] and year > base_yr:
                 field_name = 'y_diff_p_{}-{}_{}'.format(
-                    base_year, year, fueltype_str)
+                    base_yr, year, fueltype_str)
                 #logging.info("===========field_name " + str(field_name))
 
                 # Calculate yearly sums
                 yearly_sum_gwh_by = np.sum(
-                    results_container['results_every_year'][base_year][fueltype],
+                    results_container['results_every_year'][base_yr][fueltype],
                     axis=1)
 
                 yearly_sum_gwh_cy = np.sum(

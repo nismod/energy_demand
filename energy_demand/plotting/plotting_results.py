@@ -78,20 +78,25 @@ def run_all_plot_functions(
         result_paths,
         assumptions,
         enduses,
-        plot_crit
+        plot_crit,
+        base_yr,
+        comparison_year
     ):
     """Summary function to plot all results
+
+    comparison_year : int
+        Year to generate comparison plots
     """
 
     if plot_crit['plot_lad_cross_graphs']:
         
         # Set correct comparison year
-        comparison_year = 2050
+        #comparison_year = 2050
 
         try:
             # Plot cross graph where very region is a dot
             plot_cross_graphs(
-                base_yr=2015,
+                base_yr=base_yr,
                 comparison_year=comparison_year,
                 regions=regions,
                 ed_year_fueltype_regs_yh=results_container['results_every_year'],
@@ -104,7 +109,7 @@ def run_all_plot_functions(
                 plotshow=False)
 
             plot_cross_graphs(
-                base_yr=2015,
+                base_yr=base_yr,
                 comparison_year=comparison_year,
                 regions=regions,
                 ed_year_fueltype_regs_yh=results_container['results_every_year'],
@@ -117,7 +122,7 @@ def run_all_plot_functions(
                 plotshow=False)
         
         except KeyError:
-            sys.exit("Check if correct comparison year is provided, i.e. really data exists for this year")
+            logging.info("Check if correct comparison year is provided, i.e. really data exists for this year")
 
     # ----------
     # Plot LAD differences for first and last year
@@ -329,7 +334,6 @@ def run_all_plot_functions(
     # Plot averaged per season and fueltype
     # ------------------------------------
     if plot_crit['plot_averaged_season_fueltype']:
-        base_year = 2015
         for year in results_container['av_season_daytype_cy'].keys():
             for fueltype_int in results_container['av_season_daytype_cy'][year].keys():
 
@@ -342,9 +346,9 @@ def run_all_plot_functions(
                         result_paths['data_results_PDF'],
                         'season_daytypes_by_cy_comparison__{}__{}.pdf'.format(year, fueltype_str)),
                     calc_av_lp_modelled=results_container['av_season_daytype_cy'][year][fueltype_int],  # current year
-                    calc_av_lp_real=results_container['av_season_daytype_cy'][base_year][fueltype_int], # base year
+                    calc_av_lp_real=results_container['av_season_daytype_cy'][base_yr][fueltype_int], # base year
                     calc_lp_modelled=results_container['season_daytype_cy'][year][fueltype_int],        # current year
-                    calc_lp_real=results_container['season_daytype_cy'][base_year][fueltype_int],       # base year
+                    calc_lp_real=results_container['season_daytype_cy'][base_yr][fueltype_int],       # base year
                     plot_peak=True,
                     plot_all_entries=False,
                     plot_max_min_polygon=True,

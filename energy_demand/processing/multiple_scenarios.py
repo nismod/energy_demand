@@ -3,7 +3,12 @@
 import os
 from energy_demand.processing import single_scenario
 
-def process_result_multi_scen(path_to_scenarios, path_shapefile_input):
+def process_result_multi_scen(
+        path_to_scenarios,
+        path_shapefile_input,
+        base_yr,
+        comparison_year
+    ):
     """Iterate the folders with scenario
     runs and generate PDF results of individual
     simulation runs
@@ -24,7 +29,9 @@ def process_result_multi_scen(path_to_scenarios, path_shapefile_input):
             # Execute script to generate PDF results
             single_scenario.main(
                 os.path.join(path_to_scenarios, scenario),
-                path_shapefile_input)
+                path_shapefile_input,
+                base_yr=base_yr,
+                comparison_year=comparison_year)
 
     return
 
@@ -32,7 +39,9 @@ def process_result_multi_scen(path_to_scenarios, path_shapefile_input):
 process_result_multi_scen(
     "C:/Users/cenv0553/ed/results/_multiple_TEST",
     #os.path.abspath('C:/Users/cenv0553/ED/data/region_definitions/lad_2016_uk_simplified.shp'))     # Used for LAD
-    os.path.abspath('C:/Users/cenv0553/ED/data/region_definitions/msoa_uk/msoa_lad_2015_uk.shp'))  # Used for MSOA
+    os.path.abspath('C:/Users/cenv0553/ED/data/region_definitions/msoa_uk/msoa_lad_2015_uk.shp'), # Used for MSOA 
+    base_yr=2016,
+    comparison_year=2022)
 
 '''process_result_multi_scen(
     #os.path.abspath("C:/Users/cenv0553/ED/_multiple_results_eff_factor_example"),
