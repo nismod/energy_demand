@@ -16,6 +16,7 @@ import matplotlib.patches as mpatches
 from matplotlib.colors import LinearSegmentedColormap
 from energy_demand.basic import basic_functions
 from energy_demand.technologies import tech_related
+from energy_demand.read_write import write_data
 
 def get_reasonable_bin_values(
         data_to_plot,
@@ -395,7 +396,7 @@ def plot_lad_national(
         file_type="pdf", #"png" pdf
         plotshow=False
     ):
-    """Create plot of LADs and store to map file (PDF)
+    """Create plot of LADs and store to map file (PDF) and csv file
 
     Arguments
     ---------
@@ -440,6 +441,21 @@ def plot_lad_national(
         https://stackoverflow.com/questions/41783090/plotting-a-choropleth
         -map-with-geopandas-using-a-user-defined-classification-s
     """
+    # ---------------------
+    # Write results to csv
+    # ---------------------
+    out_data_path = os.path.join(
+        result_path,
+        "{}_{}.{}".format(fig_name_part, field_to_plot, 'csv'))
+
+    write_data.write_result_txt(
+        out_data_path,
+        lad_geopanda_shp['name'],
+        lad_geopanda_shp[field_to_plot])
+
+    # ---------------------
+    # Create figure
+    # ---------------------
     fig_name = os.path.join(
         result_path,
         "{}_{}.{}".format(
@@ -479,7 +495,6 @@ def plot_lad_national(
         ###bins.append(max_value)
 
         ###logging.info("FINAL BIN " + str(bins))
-
         lad_geopanda_shp_reclass, cmap = user_defined_classification(
             bins,
             min_value,
@@ -520,13 +535,11 @@ def plot_lad_national(
         # ----------------------------
         # Plot map with all value hues
         # -----------------------------
-        #''' 
         # Creates hues values
         lad_geopanda_shp.plot(
             ax=axes,
             column=field_to_plot,
             legend=True)
-        #'''
         '''
         lad_geopanda_shp.plot(
             ax=axes,
@@ -597,6 +610,7 @@ def plot_lad_national(
     # Save figure
     plt.savefig(fig_name)
 
+    # Show figure
     if plotshow:
         plt.show()
     plt.close()
@@ -763,7 +777,6 @@ def create_geopanda_files(
 
                 data_to_plot = basic_functions.array_to_dict(h_max_gwh_regs, regions)
 
-                # 
                 # Both need to be lists
                 merge_data = {
                     str(field_name): list(data_to_plot.values()),
@@ -859,7 +872,7 @@ def create_geopanda_files(
                         color_zero='#ffffff',
                         color_palette='YlGnBu_7') #YlGnBu_9 #8a2be2 'PuBu_8'
    
-                    # Ploat
+                    # Plot
                     plot_lad_national(
                         lad_geopanda_shp=lad_geopanda_shp,
                         legend_unit="GWh",
@@ -1065,9 +1078,9 @@ def create_geopanda_files(
             # Differences in percent per enduse and year (y)
             # ===============================================
             if plot_crit_dict['plot_differences_p'] and year > base_yr:
+
                 field_name = 'y_diff_p_{}-{}_{}'.format(
                     base_yr, year, fueltype_str)
-                #logging.info("===========field_name " + str(field_name))
 
                 # Calculate yearly sums
                 yearly_sum_gwh_by = np.sum(

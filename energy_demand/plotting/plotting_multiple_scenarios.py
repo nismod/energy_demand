@@ -137,7 +137,7 @@ def plot_heat_pump_chart_multiple(
     for _percent_value, fuel_fueltype_yrs in result_dict[first_scenario].items():
         years = list(fuel_fueltype_yrs.keys())
         break
-    print("Years: " + str(years))
+
     for year in years:
 
         # ----------------

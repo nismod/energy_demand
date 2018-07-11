@@ -588,3 +588,32 @@ def create_csv_file(path, rows):
 
         for row in rows:
             filewriter.writerow(row)
+
+def write_result_txt(path, regions, values):
+    """Store values of spatial plot in csv file
+    """
+
+    '''with open(path, 'w', newline='') as csvfile:
+
+        filewriter = csv.writer(
+            csvfile,
+            delimiter=',')#,
+            #quotechar='|')
+        #filewriter = csv.writer(csvfile, delimiter='',
+        #                    quotechar='|', quoting=csv.QUOTE_MINIMAL)
+        # Write title
+        filewriter.writerow("Region, Value")
+
+        for region, value in zip(regions, values):
+            print("REGION " + str(region))
+            print("VLAUE " + str(value))
+            filewriter.writerow("{}, {}".format(region, value))'''
+    myData = [["region", "value"]]
+
+    for region, value in zip(regions, values):
+        myData.append([region, value])
+    
+    myFile = open(path, 'w', newline='')
+    with myFile:
+        writer = csv.writer(myFile)
+        writer.writerows(myData)
