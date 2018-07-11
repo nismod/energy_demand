@@ -95,7 +95,7 @@ def get_reasonable_bin_values(
     # Test that maximum 9 classes
     # ---
     if len(bins) > 8:
-        raise Exception("Too many bin classes defined")
+        raise Exception("Too many bin classes defined " + str(len(bins)))
 
     return bins
 
@@ -856,7 +856,7 @@ def create_geopanda_files(
                         color_prop='qualitative',
                         color_order=True,
                         color_zero='#ffffff',
-                        color_palette='YlGnBu_7') #YlGnBu_9 #8a2be2 'YlGnBu_9'  'PuBu_8'
+                        color_palette='YlGnBu_7') #YlGnBu_9 #8a2be2 'PuBu_8'
    
                     # Ploat
                     plot_lad_national(

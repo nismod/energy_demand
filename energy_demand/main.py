@@ -5,6 +5,8 @@
     Profiling:  https://jiffyclub.github.io/snakeviz/
     python -m cProfile -o program.prof main.py
     snakeviz program.prof
+
+#TODO Add constant population
 """
 import os
 import sys
@@ -92,13 +94,13 @@ if __name__ == "__main__":
 
     fast_model_run = False
     if fast_model_run == True:
-        data['criterias']['write_to_txt'] = False
+        data['criterias']['write_txt_additional_results'] = False
         data['criterias']['validation_criteria'] = False    # For validation, the mode_constrained must be True
         data['criterias']['plot_crit'] = False
         data['criterias']['crit_plot_enduse_lp'] = False
         data['criterias']['writeYAML_keynames'] = False
     else:
-        data['criterias']['write_to_txt'] = True
+        data['criterias']['write_txt_additional_results'] = True
         data['criterias']['validation_criteria'] = True
         data['criterias']['plot_crit'] = False
         data['criterias']['crit_plot_enduse_lp'] = True
@@ -107,19 +109,29 @@ if __name__ == "__main__":
     # -------------------
     # Other configuration
     # -------------------
-    ONLY_REG_SELECTION = False
-    RESILIENCEPAPERPOUTPUT = True
+    RESILIENCEPAPERPOUTPUT = False                                      # Output data for resilience paper
 
-    # ----------------------------
-    # Model running configurations
-    # ----------------------------
+    data['criterias']['reg_selection'] = True
+    data['criterias']['reg_selection_csv_name'] = "msoa_regions_ed.csv" # CSV file stored in 'region' folder with simulated regions
+    
+    # --- Model running configurations
     user_defined_base_yr = 2015
     simulated_yrs = [2015, 2050]
-    name_scenario_run = "_result_local_data_{}".format(str(time.ctime()).replace(":", "_").replace(" ", "_"))
-    name_region_set = os.path.join(local_data_path, 'region_definitions', "lad_2016_uk_simplified.shp")
-    name_region_set_selection = "msoa_regions_ed.csv"
 
+    # --- Region definition configuration
+    name_region_set = os.path.join(local_data_path, 'region_definitions', "lad_2016_uk_simplified.shp")        # LAD
+    name_population_dataset = os.path.join(local_data_path, 'scenarios', 'uk_pop_high_migration_2015_2050.csv')
+   
+    # MSOA model run
+    #name_region_set_selection = "msoa_regions_ed.csv"
+    #name_region_set = os.path.join(local_data_path, 'region_definitions', 'msoa_uk', "msoa_lad_2015_uk.shp")    # MSOA
+    #name_population_dataset = os.path.join(local_data_path, 'scenarios', 'uk_pop_high_migration_2015_2050.csv')
+
+    # -----
     # Paths
+    # -----
+    name_scenario_run = "_result_local_data_{}".format(str(time.ctime()).replace(":", "_").replace(" ", "_"))
+
     data['paths'] = data_loader.load_paths(path_main)
     data['local_paths'] = data_loader.get_local_paths(local_data_path)
     data['result_paths'] = data_loader.get_result_paths(
@@ -134,8 +146,7 @@ if __name__ == "__main__":
     reg_centroids = read_data.get_region_centroids(name_region_set)
     data['reg_coord'] = basic_functions.get_long_lat_decimal_degrees(reg_centroids)
 
-    data['population'] = data_loader.read_scenario_data(
-        os.path.join(local_data_path, 'scenarios', 'uk_pop_high_migration_2015_2050.csv'))
+    data['population'] = data_loader.read_scenario_data(name_population_dataset)
 
     data['gva'] = data_loader.read_scenario_data(
         os.path.join(local_data_path, 'scenarios', 'gva_sven.csv'))
@@ -145,7 +156,6 @@ if __name__ == "__main__":
     # -----------------------------
     # Assumptions
     # -----------------------------
-    # Parameters not defined within smif
     data['assumptions'] = non_param_assumptions.Assumptions(
         base_yr=user_defined_base_yr,
         curr_yr=2015,
@@ -183,8 +193,6 @@ if __name__ == "__main__":
 
     data['weather_stations'], data['temp_data'] = data_loader.load_temp_data(data['local_paths'])
 
-    # ------------------------------
-
     if data['criterias']['virtual_building_stock_criteria']:
         rs_floorarea, ss_floorarea, data['service_building_count'], rs_regions_without_floorarea, ss_regions_without_floorarea = data_loader.floor_area_virtual_dw(
             data['regions'],
@@ -196,6 +204,7 @@ if __name__ == "__main__":
         # Add all areas with no floor area data
         data['assumptions'].update("rs_regions_without_floorarea", rs_regions_without_floorarea)
         data['assumptions'].update("ss_regions_without_floorarea", ss_regions_without_floorarea)
+
     # Lookup table to import industry sectoral gva
     lookup_tables.industrydemand_name_sic2007()
 
@@ -218,7 +227,6 @@ if __name__ == "__main__":
     data['fuel_disagg'] = s_disaggregation.disaggregate_demand(data)
 
     # In order to load these data, the initialisation scripts need to be run
-    print("... Load data from script calculations")
     init_cont = init_scripts.scenario_initalisation(
         data['paths']['path_main'],
         data['fuel_disagg'],
@@ -240,20 +248,28 @@ if __name__ == "__main__":
             data['reg_coord'],
             data['criterias']['plot_crit'])
 
-    # Create .ini file with simulation information
-    write_data.write_simulation_inifile(data['result_paths']['data_results'], data)
-
-    # -------------------------------------
+    # -----------------------------------
     # Only selection of regions to simulate
     # -------------------------------------
-    if ONLY_REG_SELECTION:
-        #region_selection = ['E02003237', 'E02003238']
+    if data['criterias']['reg_selection']:
         region_selection = read_data.get_region_selection(
-            os.path.join(data['local_paths']['local_path_datafolder'], "region_definitions", name_region_set_selection))
+            os.path.join(
+                data['local_paths']['local_path_datafolder'],
+                "region_definitions",
+                data['criterias']['reg_selection_csv_name']))
+        #region_selection = ['E02003237', 'E02003238']
 
         data['reg_nrs'] = len(region_selection)
     else:
         region_selection = data['regions']
+
+    # -------------------------------------------
+    # Create .ini file with simulation information
+    # -------------------------------------------
+    write_data.write_simulation_inifile(
+        data['result_paths']['data_results'],
+        data,
+        region_selection)
 
     for sim_yr in data['assumptions'].simulated_yrs:
 
@@ -351,7 +367,7 @@ if __name__ == "__main__":
         # --------------------------
         # Write out all calculations
         # --------------------------
-        if data['criterias']['write_to_txt']:
+        if data['criterias']['write_txt_additional_results']:
 
             ed_fueltype_regs_yh = sim_obj.ed_fueltype_regs_yh
             out_enduse_specific = sim_obj.tot_fuel_y_enduse_specific_yh

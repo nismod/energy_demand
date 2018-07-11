@@ -9,7 +9,6 @@ from energy_demand.geography.weather_region import WeatherRegion
 from energy_demand.dwelling_stock import dw_stock
 from energy_demand.basic import testing_functions
 from energy_demand.profiles import load_factors
-from energy_demand.charts import figure_HHD_gas_demand
 from energy_demand.profiles import generic_shapes
 
 class EnergyDemandModel(object):
@@ -71,7 +70,7 @@ class EnergyDemandModel(object):
             data['reg_nrs'])
 
         # ---------------------------------------------
-        # Iterate over regions and Simulate
+        # Iterate over regions and simulate region
         # ---------------------------------------------
         for reg_array_nr, region in enumerate(regions):
             logging.info(
@@ -100,7 +99,7 @@ class EnergyDemandModel(object):
                 assumptions.seasons,
                 assumptions.enduse_space_heating,
                 data['technologies'],
-                data['criterias']['write_to_txt'])
+                data['criterias']['write_txt_additional_results'])
 
         # -------
     	# Set all keys of aggr_results as self.attributes (EnergyDemandModel)
@@ -109,14 +108,10 @@ class EnergyDemandModel(object):
             setattr(self, key_attribute_name, value)
 
         # ------------------------------
-        # TESTING
-        # ------------------------------
-        testing_functions.test_region_selection(self.ed_fueltype_regs_yh)
-
-        # ------------------------------
         # Plot generation to correlate HDD and energy demand
         # ------------------------------
         ## logging.info("plot figure HDD comparison")
+        ## from energy_demand.charts import figure_HHD_gas_demand
         ## figure_HHD_gas_demand.main(regions, weather_regions, data)
 
 def simulate_region(region, data, assumptions, weather_regions):
@@ -279,27 +274,15 @@ def get_fuels_yh(enduse_object, attribute_to_get):
         # Get flat load profile
         flat_shape_yd, flat_shape_yh, flat_shape_y_dh = generic_shapes.flat_shape()
     
-        #if attribute_to_get == 'fuel_peak_h':
-        #    shape_peak_h = 0.00011415525114155251 #1 / 8760
-        #    fuels = fuels_reg_y * shape_peak_h
         if attribute_to_get == 'shape_non_peak_y_dh':
-            #shape_non_peak_y_dh = np.full((365, 24), 0.041666666666666664) #(1.0 / 24))
-            #fuels = fuels_reg_y * shape_non_peak_y_dh
             fuels = fuels_reg_y * flat_shape_yh
         elif attribute_to_get == 'shape_non_peak_yd':
-            #shape_non_peak_yd = np.ones((365), dtype="float") / 365
-            #shape_non_peak_yd = np.full((365), 0.0027397260273972603) #1/ 365
-            #fuels = fuels_reg_y * shape_non_peak_yd
             fuels = fuels_reg_y * flat_shape_yd
         elif attribute_to_get == 'fuel_yh' or attribute_to_get == 'techs_fuel_yh':
             f_hour = 0.00011415525114155251 #1 / 8760
             flat_shape = np.full((enduse_object.fuel_y.shape[0], 365, 24), f_hour, dtype="float")
             fuels = fuels_reg_y[:, np.newaxis, np.newaxis] * flat_shape
-        #elif attribute_to_get == 'techs_fuel_peak_h':
-        #    fuels = 0.00011415525114155251 #1 / 8760
     else: #If not flat shape, use yh load profile of enduse
-        #if attribute_to_get == 'fuel_peak_h':
-        #    fuels = enduse_object.fuel_peak_h
         if attribute_to_get == 'shape_non_peak_y_dh':
             fuels = enduse_object.shape_non_peak_y_dh
         elif attribute_to_get == 'shape_non_peak_yd':
@@ -308,8 +291,6 @@ def get_fuels_yh(enduse_object, attribute_to_get):
             fuels = enduse_object.fuel_yh
         elif attribute_to_get == 'techs_fuel_yh':
             fuels = enduse_object.techs_fuel_yh
-        #elif attribute_to_get == 'techs_fuel_peak_h':
-        #    fuels = enduse_object.techs_fuel_peak_h
         else:
             fuels = getattr(enduse_object, attribute_to_get)
 
@@ -469,7 +450,6 @@ def industry_submodel(
         region,
         weather_region,
         scenario_data,
-        #non_regional_lp_stock,
         assumptions,
         lookups,
         criterias,
@@ -687,7 +667,7 @@ def create_virtual_dwelling_stocks(regions, curr_yr, data):
     ss_dw_stock = defaultdict(dict)
 
     for region in regions:
-        logging.info("Region " + str(region))
+
         # -------------
         # Residential dwelling stocks
         # -------------
@@ -775,7 +755,7 @@ def aggregate_final_results(
         seasons,
         enduse_space_heating,
         technologies,
-        write_to_txt=True
+        write_txt_additional_results=True
     ):
     """Aggregate results for a single region
 
@@ -800,7 +780,7 @@ def aggregate_final_results(
         All heating enduses
     technologies : dict
         Technologies
-    write_to_txt : bool
+    write_txt_additional_results : bool
         Criteria whether additional results are aggregated
         for plotting purposes going beyond the SMIF framework
 
@@ -865,7 +845,7 @@ def aggregate_final_results(
     # -----------
     # Other summing for other purposes
     # -----------
-    if write_to_txt:
+    if write_txt_additional_results:
 
         # Sum across all regions, all enduse and sectors sum_reg
         # [fueltype, region, fuel_yh], [fueltype, fuel_yh]

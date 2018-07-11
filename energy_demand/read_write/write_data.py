@@ -256,14 +256,18 @@ def write_yaml_param_complete(path_yaml, dict_to_dump):
     # Dump list
     dump(list_to_dump, path_yaml)
 
-def write_simulation_inifile(path, data):
+def write_simulation_inifile(path, data, simulated_regions):
     """Create .ini file with simulation parameters which ared
     used to read in correctly the simulation results
 
     Arguments
     ---------
+    paths: str
+        Path
     data : dict
         Data container
+    simulated_regions : list
+        Simulated regions
     """
     path_ini_file = os.path.join(
         path, 'model_run_sim_param.ini')
@@ -286,7 +290,7 @@ def write_simulation_inifile(path, data):
     config['ENDUSES']['is_enduses'] = str(data['enduses']['is_enduses'])
 
     config.add_section('REGIONS')
-    config['REGIONS']['regions'] = str(data['regions'])
+    config['REGIONS']['regions'] = str(simulated_regions)
 
     with open(path_ini_file, 'w') as write_info:
         config.write(write_info)

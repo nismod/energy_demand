@@ -28,17 +28,11 @@ def process_result_multi_scen(path_to_scenarios, path_shapefile_input):
 
     return
 
-# Execute rusult processing for every scenario
-#process_result_multi_scen("C:/Users/cenv0553/ed/results/scen_A", os.path.abspath('C:/Users/cenv0553/ED/data/region_definitions/lad_2016_uk_simplified.shp'))
-#process_result_multi_scen("C:/Users/cenv0553/ed/results/scen_B", os.path.abspath('C:/Users/cenv0553/ED/data/region_definitions/lad_2016_uk_simplified.shp'))
-#process_result_multi_scen("C:/Users/cenv0553/ed/results/scen_C", os.path.abspath('C:/Users/cenv0553/ED/data/region_definitions/lad_2016_uk_simplified.shp'))
-#process_result_multi_scen("C:/Users/cenv0553/ed/results/scen_D", os.path.abspath('C:/Users/cenv0553/ED/data/region_definitions/lad_2016_uk_simplified.shp'))
-
 # Use this to generate spatial plots
 process_result_multi_scen(
     "C:/Users/cenv0553/ed/results/_multiple_TEST",
-    os.path.abspath('C:/Users/cenv0553/ED/data/region_definitions/lad_2016_uk_simplified.shp'))
-    #os.path.abspath('C:/Users/cenv0553/ED/data/region_definitions/msoa_uk/msoa_lad_2015_uk.shp')) #Used for MSOA
+    #os.path.abspath('C:/Users/cenv0553/ED/data/region_definitions/lad_2016_uk_simplified.shp'))     # Used for LAD
+    os.path.abspath('C:/Users/cenv0553/ED/data/region_definitions/msoa_uk/msoa_lad_2015_uk.shp'))  # Used for MSOA
 
 '''process_result_multi_scen(
     #os.path.abspath("C:/Users/cenv0553/ED/_multiple_results_eff_factor_example"),

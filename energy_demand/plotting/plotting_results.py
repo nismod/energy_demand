@@ -783,7 +783,7 @@ def plt_stacked_enduse(
 
     plt.xticks(major_ticks, major_ticks)
 
-    #plt.ylim(ymax=500) #TODO
+    #plt.ylim(ymax=500)
     #yticks = [100, 200, 300, 400, 500]
     #plt.yticks(yticks, yticks)
     # -------
