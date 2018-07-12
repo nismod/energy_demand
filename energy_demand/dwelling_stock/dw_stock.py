@@ -469,7 +469,10 @@ def ss_dw_stock(
 
         # If virtual building stock, change floor area proportionally to population
         if virtual_building_stock_criteria:
-            pop_factor = scenario_data['population'][curr_yr][region] / scenario_data['population'][base_yr][region]
+            pop_by = scenario_data['population'][base_yr][region]
+            pop_cy = scenario_data['population'][curr_yr][region]
+
+            pop_factor = pop_cy / pop_by
             lin_diff_factor = pop_factor
             '''
             # Change in floor are for service submodel depending on sector
@@ -509,11 +512,14 @@ def ss_dw_stock(
         floorarea_sector_by = scenario_data['floor_area']['ss_floorarea'][base_yr][region][sector]
         floorarea_sector_cy = floorarea_sector_by * lin_diff_factor
 
+        if curr_yr == 2016:
+            print("ttsdf")
         # create dwelling objects
         dw_stock.append(
             Dwelling(
                 curr_yr=curr_yr,
                 coordinates=reg_coord[region],
+                population=pop_cy,
                 floorarea=floorarea_sector_cy,
                 enduses=enduses,
                 driver_assumptions=assumptions.scenario_drivers['ss_submodule'],
@@ -621,7 +627,7 @@ def rs_dw_stock(
     else:
         """
         #If floor_area is read in from model, this would be here
-
+        # NEeds to be implemented
         # NEWCASTLE
         """
         floorarea_by = scenario_data['floor_area']['rs_floorarea'][curr_yr][region]
@@ -665,10 +671,6 @@ def rs_dw_stock(
 
         # In existing building stock fewer people are living, i.e. density changes
         #population_by_existing = floorarea_by / floorarea_pp_cy
-        #logging.info("info {} {} {}".format(
-        #    floor_area_cy,
-        #    demolished_area,
-        #    remaining_area))
 
         # Generate stock for existing area
         dw_stock_cy = generate_dw_existing(
@@ -913,8 +915,13 @@ def generate_dw_new(
         control_pop += pop_dwtype_new_build_cy
 
     # Test if floor area and pop are the same
-    #assert round(new_floorarea_cy, 3) == round(control_floorarea, 3)
-    #assert round(new_floorarea_cy/floorarea_pp_cy, 3) == round(control_pop, 3)
+    logging.debug("CONTROL POP {}".format(control_pop))
+    logging.debug(round(new_floorarea_cy, 3))
+    logging.debug(round(control_floorarea, 3))
+    logging.debug(round(new_floorarea_cy/floorarea_pp_cy, 3))
+    assert round(new_floorarea_cy, 3) == round(control_floorarea, 3)
+    assert round(new_floorarea_cy/floorarea_pp_cy, 3) == round(control_pop, 3)
+
 
     return dw_stock_new_dw
 
@@ -939,7 +946,8 @@ def get_hlc(dw_type, age):
     https://www.gov.uk/government/collections/energy-consumption-in-the-uk
     """
     if dw_type is None or age is None:
-        logging.debug("The HLC could not be calculated of a dwelling")
+        logging.debug(
+            "The HLC could not be calculated of a dwelling age: {} dw_type: {}".format(dw_type, age))
         return None
     else:
         # Dict with linear fits for all different dwelling types {dw_type: [slope, constant]}

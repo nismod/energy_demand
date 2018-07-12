@@ -251,8 +251,8 @@ def floor_area_virtual_dw(
             try:
                 ss_floorarea_sector_by[base_yr][region][sector] = non_res_flootprint[region]
             except KeyError:
-                logging.warning("No virtual service floor area for region %s", region)
-                ss_floorarea_sector_by[base_yr][region][sector] = 0
+                #logging.debug("No virtual service floor area for region %s", region)
+                ss_floorarea_sector_by[base_yr][region][sector] = 0 # Set to zero if no floor area is available
                 ss_regions_without_floorarea.add(region)
 
     return dict(rs_floorarea), dict(ss_floorarea_sector_by), service_building_count, rs_regions_without_floorarea, list(ss_regions_without_floorarea)

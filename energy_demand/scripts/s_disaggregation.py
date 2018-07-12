@@ -303,11 +303,11 @@ def ss_disaggr(
     ss_fuel_disagg = {}
 
     # Total floor area for every enduse per sector
-    national_floorarea_by_sector = {}
+    '''national_floorarea_by_sector = {}
     for sector in sectors:
         national_floorarea_by_sector[sector] = 0
         for region in regions:
-            national_floorarea_by_sector[sector] += scenario_data['floor_area']['ss_floorarea'][base_yr][region][sector]
+            national_floorarea_by_sector[sector] += scenario_data['floor_area']['ss_floorarea'][base_yr][region][sector]'''
 
     tot_pop = 0
     tot_cdd = 0
@@ -350,7 +350,8 @@ def ss_disaggr(
                 reg_sector_building_cnt = service_building_count[nr_sector_cnt_building][region]
                 tot_building_cnt[sector] += reg_sector_building_cnt
             except KeyError:
-                logging.info("No building cnt for region {}".format(region))
+                #logging.debug("No building data for region {}".format(region))
+                pass
 
             # National disaggregation factors
             tot_floor_area[sector] += reg_floor_area

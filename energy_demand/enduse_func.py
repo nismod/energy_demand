@@ -123,13 +123,13 @@ class Enduse(object):
             self.fuel_yh = 0
             self.enduse_techs = []
         else:
-            #logging.info("------INFO  {} {}  {}".format(self.enduse, region, curr_yr))
+            logging.debug("------INFO  {} {}  {}".format(self.enduse, region, curr_yr))
             # Get technologies of enduse
             self.enduse_techs = get_enduse_techs(fuel_fueltype_tech_p_by)
 
-            # -------------------------------
-            # Cascade of calculations on a yearly scale
-            # --------------------------------
+            # -----------------------------
+            # Cascade of annual calculations
+            # -----------------------------
             # --Change fuel consumption based on climate change induced temperature differences
             _fuel_new_y = apply_climate_change(
                 enduse,
@@ -139,7 +139,7 @@ class Enduse(object):
                 assumptions.enduse_space_heating,
                 assumptions.ss_enduse_space_cooling)
             self.fuel_y = _fuel_new_y
-            logging.debug("... Fuel train B0: " + str(np.sum(self.fuel_y)))
+            #logging.debug("... Fuel train B0: " + str(np.sum(self.fuel_y)))
 
             # --Change fuel consumption based on smart meter induced general savings
             _fuel_new_y = apply_smart_metering(
@@ -150,7 +150,7 @@ class Enduse(object):
                 base_yr,
                 curr_yr)
             self.fuel_y = _fuel_new_y
-            logging.debug("... Fuel train C0: " + str(np.sum(self.fuel_y)))
+            #logging.debug("... Fuel train C0: " + str(np.sum(self.fuel_y)))
 
             # --Enduse specific fuel consumption change in %
             _fuel_new_y = apply_specific_change(
@@ -161,7 +161,7 @@ class Enduse(object):
                 base_yr,
                 curr_yr)
             self.fuel_y = _fuel_new_y
-            logging.debug("... Fuel train D0: " + str(np.sum(self.fuel_y)))
+            #logging.debug("... Fuel train D0: " + str(np.sum(self.fuel_y)))
 
             # Calculate new fuel demands after scenario drivers
             _fuel_new_y = apply_scenario_drivers(
@@ -177,7 +177,7 @@ class Enduse(object):
                 base_yr,
                 curr_yr)
             self.fuel_y = _fuel_new_y
-            logging.debug("... Fuel train E0: " + str(np.sum(self.fuel_y)))
+            #logging.debug("... Fuel train E0: " + str(np.sum(self.fuel_y)))
 
             # Apply cooling scenario variable
             _fuel_new_y = apply_cooling(
@@ -189,7 +189,7 @@ class Enduse(object):
                 base_yr,
                 curr_yr)
             self.fuel_y = _fuel_new_y
-            logging.debug("... Fuel train E1: " + str(np.sum(self.fuel_y)))
+            #logging.debug("... Fuel train E1: " + str(np.sum(self.fuel_y)))
 
             # Industry related change
             _fuel_new_y = industry_enduse_changes(
@@ -202,7 +202,7 @@ class Enduse(object):
                 enduse_overall_change['other_enduse_mode_info'],
                 assumptions)
             self.fuel_y = _fuel_new_y
-            logging.debug("... Fuel train E2: " + str(np.sum(self.fuel_y)))
+            #logging.debug("... Fuel train E2: " + str(np.sum(self.fuel_y)))
 
             # ----------------------------------
             # Hourly Disaggregation
@@ -241,7 +241,7 @@ class Enduse(object):
                     tech_stock,
                     fueltypes,
                     mode_constrained)
-
+                #logging.debug("Service A  " + str(np.sum(s_tot_y_cy)))
                 # ------------------------------------
                 # Reduction of service because of heat recovery
                 # ------------------------------------
@@ -253,7 +253,7 @@ class Enduse(object):
                     s_tech_y_by,
                     base_yr,
                     curr_yr)
-
+                #logging.debug("Service B  " + str(np.sum(s_tot_y_cy)))
                 # ------------------------------------
                 # Reduction of service because of improvement in air leakeage
                 # ------------------------------------
@@ -265,7 +265,7 @@ class Enduse(object):
                     s_tech_y_cy,
                     base_yr,
                     curr_yr)
-
+                #logging.debug("Service C  " + str(np.sum(s_tot_y_cy)))
                 # --------------------------------
                 # Switches
                 # Calculate services per technology for cy based on fitted parameters
@@ -279,7 +279,7 @@ class Enduse(object):
                     base_yr,
                     sector,
                     assumptions.crit_switch_happening)
-
+                #logging.debug("Service D  " + str(np.sum(s_tot_y_cy)))
                 # -------------------------------------------
                 # Convert annual service to fuel per fueltype
                 # -------------------------------------------
@@ -290,7 +290,7 @@ class Enduse(object):
                     fueltypes_nr,
                     fueltypes,
                     mode_constrained)
-                logging.debug("... Fuel train H0: " + str(np.sum(self.fuel_y)))
+                #logging.debug("... Fuel train H0: " + str(np.sum(self.fuel_y)))
 
                 # Delete all technologies with no fuel assigned
                 for tech, fuel_tech in fuel_tech_y.items():
@@ -786,6 +786,7 @@ def service_to_fuel(
             fuel_tech_y[tech] = fuel_tech
 
             fuel_y[fueltype_int] += fuel_tech
+            #logging.debug("S --> F: tech: {} eff: {} fuel: {} fuel {}".format(tech, tech_eff, fuel_y[fueltype_int], fuel_tech))
     else:
         for tech, fuel_tech in service_tech.items():
 
@@ -870,6 +871,8 @@ def fuel_to_service(
 
                 # Sum total yearly service
                 s_tot_y += s_tech #(y)
+
+                #logging.debug("F --> S: tech: {} eff: {} fuel: {} service {}".format(tech, tech_eff, fuel_y[fueltype_int], s_tech))
             else:
                 """Unconstrained version
                 efficiencies are not considered, because not technology
@@ -1149,10 +1152,16 @@ def apply_scenario_drivers(
 
             # Check if float('nan')
             if math.isnan(factor_driver):
-                logging.warning("Something went wrong with scenario criver calculation")
+                logging.warning("Something went wrong with scenario driver calculation")
                 factor_driver = 1
 
             fuel_y = fuel_y * factor_driver
+
+            logging.debug(
+                "Scenario driver: %s by: %s cy: %s",
+                factor_driver,
+                by_driver,
+                cy_driver)
         else:
             pass #enduse not define with scenario drivers
 
@@ -1537,11 +1546,6 @@ def apply_cooling(
 
         # Calculate factor
         floorarea_cooling_factor = cooled_floorarea_p_cy / cooled_floorarea_p_by
-
-        logging.debug(
-            "floorarea_cooling_factor: {}  {}  {} ".format(
-                floorarea_cooling_factor, cooled_floorarea_p_cy, cooled_floorarea_p_by))
-        logging.debug("why {} {}".format(strategy_vars[key_name]['scenario_value'], cooled_floorearea_p_ey))
 
         # Apply factor
         fuel_y = fuel_y * floorarea_cooling_factor

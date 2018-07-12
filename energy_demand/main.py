@@ -6,10 +6,10 @@
     python -m cProfile -o program.prof main.py
     snakeviz program.prof
 
-#TODO Add constant population
 #TODO Interface energy demand
 #TODO Make that congruence value map is better loaded from seperate file (e.g. populatio ndensity)
 #TODO Create own .py chart file for every chart
+#TODO Test if pop driver of stock model 
 """
 import os
 import sys

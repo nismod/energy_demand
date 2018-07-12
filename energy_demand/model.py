@@ -670,6 +670,7 @@ def create_virtual_dwelling_stocks(regions, curr_yr, data):
         # -------------
         # Residential dwelling stocks
         # -------------
+        logging.debug("Base year dwelling stock")
         # Base year
         rs_dw_stock[region][data['assumptions'].base_yr] = dw_stock.rs_dw_stock(
             region,
@@ -684,7 +685,8 @@ def create_virtual_dwelling_stocks(regions, curr_yr, data):
             data['assumptions'].base_yr,
             data['criterias']['virtual_building_stock_criteria'])
 
-        # current year
+        logging.debug("current year dwelling stock")
+        # Current year
         rs_dw_stock[region][curr_yr] = dw_stock.rs_dw_stock(
             region,
             data['assumptions'],
@@ -725,6 +727,24 @@ def create_virtual_dwelling_stocks(regions, curr_yr, data):
             data['assumptions'].base_yr,
             data['criterias']['virtual_building_stock_criteria'])
 
+        # TESTING
+        logging.info("coming home {} {}".format(data['assumptions'].base_yr, curr_yr))
+
+        _a = getattr(ss_dw_stock[region][data['assumptions'].base_yr], 'ss_space_heating')
+        _b = getattr(ss_dw_stock[region][curr_yr], 'ss_space_heating')
+
+        #if _a == 9:
+            #print("ttt")
+            #raise Exception
+        logging.debug("fac {}  fac {}  ".format(_a, _b))
+
+        _pop = ss_dw_stock[region][data['assumptions'].base_yr].population
+        _pop2 = ss_dw_stock[region][curr_yr].population
+        logging.debug("_pop {}  _pop2 {}  ".format(_pop, _pop2))
+        
+        _flor = ss_dw_stock[region][data['assumptions'].base_yr].ss_space_heating
+        _flor2 = ss_dw_stock[region][curr_yr].ss_space_heating
+        logging.debug("_floor {}  _ssfloor {}  ".format(_flor, _flor2))
     return dict(rs_dw_stock), dict(ss_dw_stock)
 
 def create_dwelling_stock(regions, curr_yr, data):
@@ -788,7 +808,8 @@ def aggregate_final_results(
     aggr_results : dict
         Contains all aggregated results
     """
-    empty_input_array = np.zeros((fueltypes_nr, 365, 24), dtype="float")
+    empty_input_array = np.zeros(
+        (fueltypes_nr, 365, 24), dtype="float")
 
     if mode_constrained:
 

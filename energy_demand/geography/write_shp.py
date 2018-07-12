@@ -1,9 +1,9 @@
 """Append result to shapefile
 """
-import logging
+'''import logging
 import shapefile
 
-'''def write_result_shapefile(lad_geometry_shp, out_shape, field_names, csv_results):
+def write_result_shapefile(lad_geometry_shp, out_shape, field_names, csv_results):
     """
     Join result attributes to LAD geography with
     pyhape library

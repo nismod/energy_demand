@@ -5,6 +5,27 @@ import shutil
 import numpy as np
 from pyproj import Proj, transform
 
+def assign_array_to_dict(array_in, regions):
+    """Convert array to dict with same order as region list
+
+    Input
+    -----
+    regions : list
+        List with specific order of regions
+    array_in : array
+        Data array with data like the order of the region list
+
+    Returns
+    -------
+    dict_out : dict
+        Dictionary of array_in
+    """
+    dict_out = {}
+    for r_idx, region in enumerate(regions):
+        dict_out[region] = array_in[r_idx, 0]
+
+    return dict_out
+
 def get_long_lat_decimal_degrees(reg_centroids):
     """Project coordinates from shapefile to get
     decimal degrees (from OSGB_1936_British_National_Grid to
