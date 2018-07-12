@@ -9,6 +9,7 @@
 #TODO Add constant population
 #TODO Interface energy demand
 #TODO Make that congruence value map is better loaded from seperate file (e.g. populatio ndensity)
+#TODO Create own .py chart file for every chart
 """
 import os
 import sys

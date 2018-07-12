@@ -22,7 +22,7 @@ def main(path_data_energy_demand, path_shapefile_input, base_yr, comparison_year
     print("Start processing")
 
     plot_crit_dict = {
-        "write_shapefiles": False,            # Write shapefiles #TODO CLEAN
+        #"write_shapefiles": False,            # Write shapefiles #TODO CLEAN
         "spatial_results": True,              # Spatial geopanda maps
 
         "plot_differences_p": True,           # Spatial maps of percentage difference per fueltype over time
@@ -123,15 +123,15 @@ def main(path_data_energy_demand, path_shapefile_input, base_yr, comparison_year
             base_yr=base_yr)
 
     # ----------------
-    # Write results to CSV files and merge with shapefile
+    # Write results to CSV files and merge with shapefile TODO: REMOVE
     # ----------------
-    if plot_crit_dict['write_shapefiles']:
+    '''if plot_crit_dict['write_shapefiles']:
         write_data.create_shp_results(
             data,
             results_container,
             data['local_paths'],
             data['lookups'],
-            data['regions'])
+            data['regions'])'''
 
     print("===================================")
     print("... finished reading and plotting results")

@@ -105,7 +105,7 @@ def write_scenaric_population_data(sim_yr, path_result, pop_y):
     np.save(path_file, pop_y)
     logging.info("... finished saving population")
 
-def create_shp_results(data, results_container, paths, lookups, regions):
+'''def create_shp_results(data, results_container, paths, lookups, regions):
     """Create csv file and merge with shape
 
     Arguments
@@ -177,7 +177,7 @@ def create_shp_results(data, results_container, paths, lookups, regions):
         field_names,
         csv_results)
 
-    logging.info("... finished generating shapefiles")
+    logging.info("... finished generating shapefiles")'''
 
 def dump(data, file_path):
     """Write plain data to a file as yaml
