@@ -1,7 +1,7 @@
 """
 """
 from energy_demand.geography import weather_region
-from energy_demand.assumptions import param_assumptions
+from energy_demand.assumptions import strategy_variables
 import numpy as np
 
 '''def test_WeatherRegion():

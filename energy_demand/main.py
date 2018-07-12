@@ -7,8 +7,8 @@
     snakeviz program.prof
 
 #TODO Add constant population
-#TODO Write out function which writes out data for every graph
 #TODO Interface energy demand
+#TODO Make that congruence value map is better loaded from seperate file (e.g. populatio ndensity)
 """
 import os
 import sys

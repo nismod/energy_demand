@@ -735,7 +735,7 @@ def test_apply_cooling():
         base_yr=2015,
         curr_yr=2020)
 
-    assert np.sum(result) == np.sum(fuel_y) * (1 + strategy_vars['cooled_floorarea__{}'.format('cooling_enduse')]['scenario_value'] / assump_cooling_floorarea)
+    assert np.sum(result) == np.sum(fuel_y) * strategy_vars['cooled_floorarea__{}'.format('cooling_enduse')]['scenario_value'] / assump_cooling_floorarea
 
 def test_calc_service_switch():
     """Test

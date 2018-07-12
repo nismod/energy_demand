@@ -274,7 +274,7 @@ class Assumptions(object):
 
         # See Abela et al. (2016)
         # Carbon Trust. (2012). Air conditioning. Maximising comfort, minimising energy consumption
-        self.cooled_ss_floorarea_by = 0.35
+        self.cooled_ss_floorarea_by = 0.35  # By: 0.35
 
         # ============================================================
         # Smart meter related base year assumptions

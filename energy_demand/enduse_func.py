@@ -1520,7 +1520,7 @@ def apply_cooling(
     if key_name in strategy_vars.keys():
 
         # Floor area share cooled in end year
-        cooled_floorearea_p_ey = cooled_floorarea_p_by + strategy_vars[key_name]['scenario_value']
+        cooled_floorearea_p_ey = strategy_vars[key_name]['scenario_value']
 
         # Fraction of heat recovered up to current year
         sig_diff_factor = diffusion_technologies.sigmoid_diffusion(
