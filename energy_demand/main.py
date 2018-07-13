@@ -9,7 +9,6 @@
 #TODO Interface energy demand
 #TODO Make that congruence value map is better loaded from seperate file (e.g. populatio ndensity)
 #TODO Create own .py chart file for every chart
-#TODO Test if pop driver of stock model 
 #TODO Import weather data loading and importing whole range of weather scenarios
 """
 import os
@@ -344,7 +343,7 @@ if __name__ == "__main__":
             data['lookups']['fueltypes_nr'],
             8760)
 
-        # ------------------------------------- 
+        # -------------------------------------
         # # Generate YAML file with keynames for `sector_model`
         # -------------------------------------
         if data['criterias']['writeYAML_keynames']:

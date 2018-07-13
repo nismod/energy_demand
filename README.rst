@@ -31,7 +31,7 @@ and activate it
 
     activate energy_demand
 
-In order to run HIRED, first the model needs to be set up (Section 1.1 or Section 1.1).
+In order to run HIRE, first the model needs to be set up (Section 1.1 or Section 1.1).
 
 1.1 Model Set-Up (with complete data)
 -------------------------------------
@@ -86,7 +86,7 @@ In order to run HIRED, first the model needs to be set up (Section 1.1 or Sectio
     ``energy_data_folder``.
 
 2. Running the model with smif
-========================
+================================================
 
 1. Set up the model as outlined in 1.1 'Model Set-Up'
 
@@ -103,3 +103,27 @@ In order to run HIRED, first the model needs to be set up (Section 1.1 or Sectio
     To change the logger level of an individual sector model with smif, type:
 
     ``smif -v run modelrun_id`` or ``smif -vv run modelrun_id``
+
+
+3. Generating plots based from simulation results
+================================================
+Every time a model gets run, the specific model simulation results
+are stored in the result folder named after the timestamp of the model execution.
+
+In order to generate plots of the results, the scripts in the 'processing'
+folder needs to be used. Proceed as follows:
+
+1. Select all generated result folders for which you want to generate plots.
+
+2. Copy them into an empty folder.
+
+3. Configure the 'energy_demand/processing/multiple_scenarios.py' file,
+   namely the arguments of the process_result_multi_scen() function,
+   and execute the function.
+
+   This generates all plots in the invidual result folders.
+
+   Note:
+   In the 'process_result_multi_scen' function all plots
+   which should be generated can be configured
+
