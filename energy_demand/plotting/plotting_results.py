@@ -322,7 +322,7 @@ def run_all_plot_functions(
     # Fuel week of base year
     # ----------------
     if plot_crit['plot_week_h']:
-        logging.debug("... plot a full week")
+        logging.info("... plot a full week")
         plt_fuels_enduses_week(
             results_resid=results_container['results_every_year'],
             lookups=lookups,

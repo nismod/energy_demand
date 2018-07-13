@@ -10,6 +10,7 @@
 #TODO Make that congruence value map is better loaded from seperate file (e.g. populatio ndensity)
 #TODO Create own .py chart file for every chart
 #TODO Test if pop driver of stock model 
+#TODO Import weather data loading and importing whole range of weather scenarios
 """
 import os
 import sys
@@ -116,7 +117,7 @@ if __name__ == "__main__":
 
     data['criterias']['reg_selection'] = False
     data['criterias']['reg_selection_csv_name'] = "msoa_regions_ed.csv" # CSV file stored in 'region' folder with simulated regions
-    
+
     # --- Model running configurations
     user_defined_base_yr = 2015
     simulated_yrs = [2015, 2050]

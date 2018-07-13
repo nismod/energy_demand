@@ -123,7 +123,7 @@ class Enduse(object):
             self.fuel_yh = 0
             self.enduse_techs = []
         else:
-            logging.debug("------INFO  {} {}  {}".format(self.enduse, region, curr_yr))
+            #logging.debug("------INFO  {} {}  {}".format(self.enduse, region, curr_yr))
             # Get technologies of enduse
             self.enduse_techs = get_enduse_techs(fuel_fueltype_tech_p_by)
 
@@ -1157,11 +1157,11 @@ def apply_scenario_drivers(
 
             fuel_y = fuel_y * factor_driver
 
-            logging.debug(
+            '''logging.debug(
                 "Scenario driver: %s by: %s cy: %s",
                 factor_driver,
                 by_driver,
-                cy_driver)
+                cy_driver)'''
         else:
             pass #enduse not define with scenario drivers
 

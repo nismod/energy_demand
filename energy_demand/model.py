@@ -660,7 +660,14 @@ def averaged_season_hourly(
 
 def create_virtual_dwelling_stocks(regions, curr_yr, data):
     """Create virtual dwelling stocks for residential
-    and service sector
+    and service sector.
+
+    If no floor area is avilable, calculate average floor
+    area with population information
+
+    Arguments
+    ---------
+
     """
     rs_dw_stock = defaultdict(dict)
     ss_dw_stock = defaultdict(dict)
@@ -670,7 +677,6 @@ def create_virtual_dwelling_stocks(regions, curr_yr, data):
         # -------------
         # Residential dwelling stocks
         # -------------
-        logging.debug("Base year dwelling stock")
         # Base year
         rs_dw_stock[region][data['assumptions'].base_yr] = dw_stock.rs_dw_stock(
             region,
@@ -685,7 +691,6 @@ def create_virtual_dwelling_stocks(regions, curr_yr, data):
             data['assumptions'].base_yr,
             data['criterias']['virtual_building_stock_criteria'])
 
-        logging.debug("current year dwelling stock")
         # Current year
         rs_dw_stock[region][curr_yr] = dw_stock.rs_dw_stock(
             region,
@@ -715,7 +720,7 @@ def create_virtual_dwelling_stocks(regions, curr_yr, data):
             data['assumptions'].base_yr,
             data['criterias']['virtual_building_stock_criteria'])
 
-        # Dwelling stock of service SubModel for current year
+        # current year
         ss_dw_stock[region][curr_yr] = dw_stock.ss_dw_stock(
             region,
             data['enduses']['ss_enduses'],
@@ -727,28 +732,12 @@ def create_virtual_dwelling_stocks(regions, curr_yr, data):
             data['assumptions'].base_yr,
             data['criterias']['virtual_building_stock_criteria'])
 
-        # TESTING
-        logging.info("coming home {} {}".format(data['assumptions'].base_yr, curr_yr))
-
-        _a = getattr(ss_dw_stock[region][data['assumptions'].base_yr], 'ss_space_heating')
-        _b = getattr(ss_dw_stock[region][curr_yr], 'ss_space_heating')
-
-        #if _a == 9:
-            #print("ttt")
-            #raise Exception
-        logging.debug("fac {}  fac {}  ".format(_a, _b))
-
-        _pop = ss_dw_stock[region][data['assumptions'].base_yr].population
-        _pop2 = ss_dw_stock[region][curr_yr].population
-        logging.debug("_pop {}  _pop2 {}  ".format(_pop, _pop2))
-        
-        _flor = ss_dw_stock[region][data['assumptions'].base_yr].ss_space_heating
-        _flor2 = ss_dw_stock[region][curr_yr].ss_space_heating
-        logging.debug("_floor {}  _ssfloor {}  ".format(_flor, _flor2))
     return dict(rs_dw_stock), dict(ss_dw_stock)
 
 def create_dwelling_stock(regions, curr_yr, data):
     """Create dwelling stock based on NEWCASTLE data
+
+    TODO: Implement
 
     Arguments
     ---------
