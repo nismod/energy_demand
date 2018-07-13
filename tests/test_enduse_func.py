@@ -23,7 +23,7 @@ def test_enduse():
         tech_stock='test',
         heating_factor_y='test',
         cooling_factor_y='test',
-        fuel_fueltype_tech_p_by='test',
+        fuel_tech_p_by='test',
         sig_param_tech='test',
         enduse_overall_change='test',
         criterias='test',
@@ -406,7 +406,7 @@ def test_fuel_to_service():
     enduse = 'heating'
     fuel_y = {0: 2000}
     enduse_techs = ['techA']
-    fuel_fueltype_tech_p_by = {0 : {'techA': 1.0}}
+    fuel_tech_p_by = {0 : {'techA': 1.0}}
 
     technologies = {'techA': read_data.TechnologyData()}
     technologies['techA'].fueltype_str = 'gas'
@@ -435,7 +435,7 @@ def test_fuel_to_service():
     tot_s_y, service_tech = enduse_func.fuel_to_service(
         enduse=enduse,
         fuel_y=fuel_y,
-        fuel_fueltype_tech_p_by=fuel_fueltype_tech_p_by,
+        fuel_tech_p_by=fuel_tech_p_by,
         tech_stock=tech_stock,
         fueltypes=fueltypes,
         mode_constrained=True)
@@ -443,7 +443,7 @@ def test_fuel_to_service():
     assert service_tech['techA'] == 1000
 
     # ---
-    fuel_fueltype_tech_p_by = {0: {}, 1 : {'techA': 1.0}} #'placeholder_tech': 1.0}}
+    fuel_tech_p_by = {0: {}, 1 : {'techA': 1.0}} #'placeholder_tech': 1.0}}
     fuel_y = {0: 0, 1: 2000}
     fuel_tech_p_by = {0 : {}, 1: {'techA': 1.0}}
     fueltypes = {'gas': 0, 'heat': 1}
@@ -465,7 +465,7 @@ def test_fuel_to_service():
     tot_s_y, service_tech = enduse_func.fuel_to_service(
         enduse=enduse,
         fuel_y=fuel_y,
-        fuel_fueltype_tech_p_by=fuel_fueltype_tech_p_by,
+        fuel_tech_p_by=fuel_tech_p_by,
         tech_stock=tech_stock,
         fueltypes=fueltypes,
         mode_constrained=False) #Difference

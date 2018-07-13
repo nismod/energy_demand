@@ -53,7 +53,7 @@ class Enduse(object):
         Distribution of fuel within year to days (yd) (directly correlates with HDD)
     cooling_factor_y : array
         Distribution of fuel within year to days (yd) (directly correlates with CDD)
-    fuel_fueltype_tech_p_by : dict
+    fuel_tech_p_by : dict
         Fuel tech assumtions in base year
     sig_param_tech : dict
         Sigmoid parameters
@@ -97,7 +97,7 @@ class Enduse(object):
             tech_stock,
             heating_factor_y,
             cooling_factor_y,
-            fuel_fueltype_tech_p_by,
+            fuel_tech_p_by,
             sig_param_tech,
             enduse_overall_change,
             criterias,
@@ -125,7 +125,7 @@ class Enduse(object):
         else:
             #logging.debug("------INFO  {} {}  {}".format(self.enduse, region, curr_yr))
             # Get technologies of enduse
-            self.enduse_techs = get_enduse_techs(fuel_fueltype_tech_p_by)
+            self.enduse_techs = get_enduse_techs(fuel_tech_p_by)
 
             # -----------------------------
             # Cascade of annual calculations
@@ -237,7 +237,7 @@ class Enduse(object):
                 s_tot_y_cy, s_tech_y_by = fuel_to_service(
                     enduse,
                     self.fuel_y,
-                    fuel_fueltype_tech_p_by,
+                    fuel_tech_p_by,
                     tech_stock,
                     fueltypes,
                     mode_constrained)
@@ -627,12 +627,12 @@ def get_peak_day_single_fueltype(fuel_yh):
 
         return int(peak_day_nr), peak_h
 
-def get_enduse_techs(fuel_fueltype_tech_p_by):
+def get_enduse_techs(fuel_tech_p_by):
     """Get all defined technologies of an enduse
 
     Arguments
     ----------
-    fuel_fueltype_tech_p_by : dict
+    fuel_tech_p_by : dict
         Percentage of fuel per enduse per technology
 
     Return
@@ -656,7 +656,7 @@ def get_enduse_techs(fuel_fueltype_tech_p_by):
     """
     enduse_techs = []
 
-    for tech_fueltype in fuel_fueltype_tech_p_by.values():
+    for tech_fueltype in fuel_tech_p_by.values():
         if 'placeholder_tech' in tech_fueltype.keys():
             return []
         else:
@@ -798,14 +798,14 @@ def service_to_fuel(
 def fuel_to_service(
         enduse,
         fuel_y,
-        fuel_fueltype_tech_p_by,
+        fuel_tech_p_by,
         tech_stock,
         fueltypes,
         mode_constrained
     ):
     """Converts fuel to energy service. Calculate energy service
     of each technology based on assumptions about base year fuel
-    shares of an enduse (`fuel_fueltype_tech_p_by`).
+    shares of an enduse (`fuel_tech_p_by`).
 
     Arguments
     ----------
@@ -813,7 +813,7 @@ def fuel_to_service(
         Enduse
     fuel_y : array
         Fuel per fueltype
-    fuel_fueltype_tech_p_by : dict
+    fuel_tech_p_by : dict
         Fuel composition of base year for every fueltype for each
         enduse (assumtions for national scale)
     tech_stock : object
@@ -845,7 +845,7 @@ def fuel_to_service(
     s_tot_y = 0
 
     # Calculate share of service
-    for fueltype_int, tech_list in fuel_fueltype_tech_p_by.items():
+    for fueltype_int, tech_list in fuel_tech_p_by.items():
 
         # Get technologies to iterate
         if tech_list == {} and fuel_y[fueltype_int] == 0:   # No technology or fuel defined

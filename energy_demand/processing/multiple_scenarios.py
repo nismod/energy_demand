@@ -40,8 +40,8 @@ process_result_multi_scen(
     "C:/Users/cenv0553/ed/results/_multiple_TEST",
     #os.path.abspath('C:/Users/cenv0553/ED/data/region_definitions/lad_2016_uk_simplified.shp'))     # Used for LAD
     os.path.abspath('C:/Users/cenv0553/ED/data/region_definitions/msoa_uk/msoa_lad_2015_uk.shp'), # Used for MSOA 
-    base_yr=2016,
-    comparison_year=2022)
+    base_yr=2015,
+    comparison_year=2024)
 
 '''process_result_multi_scen(
     #os.path.abspath("C:/Users/cenv0553/ED/_multiple_results_eff_factor_example"),

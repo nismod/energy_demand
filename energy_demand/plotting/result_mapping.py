@@ -1122,7 +1122,7 @@ def create_geopanda_files(
                 #logging.info("Min {}  Max {}".format(
                 #    min(list(data_to_plot.values())),
                 #     max(list(data_to_plot.values()))))
-                bins_increments = 10
+                bins_increments = 2 #10
 
                 bins = get_reasonable_bin_values(
                     data_to_plot=list(data_to_plot.values()),
