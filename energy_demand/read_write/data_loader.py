@@ -213,7 +213,8 @@ def floor_area_virtual_dw(
     # Based on Roberts et al. (2011) , an average one bedroom home for 2 people has 46 m2.
     # Roberts et al. (2011): The Case for Space: the size of England’s new homes.
     # -----
-    avearge_floor_area_pp = 23 # [m2] We thus assume 23 m2 per person on average.
+    rs_avearge_floor_area_pp = 23   # [m2] Assumed average residential area per person
+    ss_avearge_floor_area_pp = 23   # [m2] Assumed average service area per person
 
     # --------------------------------------------------
     # Floor area for residential buildings for base year
@@ -237,7 +238,7 @@ def floor_area_virtual_dw(
             print("No virtual residential floor area for region %s ", region)
 
             # Calculate average floor area
-            rs_floorarea[base_yr][region] = avearge_floor_area_pp * population[region]
+            rs_floorarea[base_yr][region] = rs_avearge_floor_area_pp * population[region]
             rs_regions_without_floorarea.append(region)
 
     # --------------------------------------------------
@@ -251,8 +252,14 @@ def floor_area_virtual_dw(
             try:
                 ss_floorarea_sector_by[base_yr][region][sector] = non_res_flootprint[region]
             except KeyError:
+
                 #logging.debug("No virtual service floor area for region %s", region)
-                ss_floorarea_sector_by[base_yr][region][sector] = 0 # Set to zero if no floor area is available
+
+                # Calculate average floor area if no data is available
+                ss_floor_area_cy = ss_avearge_floor_area_pp * population[region]
+
+                #ss_floorarea_sector_by[base_yr][region][sector] = 0 # Set to zero if no floor area is available
+                ss_floorarea_sector_by[base_yr][region][sector] = ss_floor_area_cy
                 ss_regions_without_floorarea.add(region)
 
     return dict(rs_floorarea), dict(ss_floorarea_sector_by), service_building_count, rs_regions_without_floorarea, list(ss_regions_without_floorarea)

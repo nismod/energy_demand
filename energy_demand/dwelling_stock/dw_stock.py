@@ -138,7 +138,7 @@ class Dwelling(object):
         self.calc_scenario_driver(driver_assumptions)
 
         # Testing
-        #assert floorarea != 0
+        assert floorarea != 0
 
     def calc_scenario_driver(self, driver_assumptions):
         """Sum scenario drivers per enduse and add as attribute
@@ -166,7 +166,9 @@ class Dwelling(object):
                         # If scenario driver is set to zero, do not use this driver
                         driver_value = getattr(self, scenario_driver)
 
+                        # Ignore zero driver values
                         if driver_value == 0:
+                            logging.debug("zero driver value")
                             pass
                         else:
                             scenario_driver_value *= driver_value
@@ -225,9 +227,6 @@ class DwellingStock(object):
         """
         sum_driver = 0
         for dwelling in self.dwellings:
-            logging.debug("dwell {}".format(sum_driver))
-            logging.debug(dwelling.__dict__)
-
             sum_driver += getattr(dwelling, enduse)
 
         return sum_driver
