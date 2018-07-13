@@ -20,10 +20,9 @@ Research Consortium <http://www.itrc.org.uk/>`_.
 More information on the model can be found in Eggimann, Hall and Eyre (2018). Please use 
 this reference for citing HIRE.
 
-
 1. Initialising and running the model (local)
 =============================================
-The recommended installation method is to use conda <http://conda.pydata.org/miniconda.html>`_,
+The recommended installation method is to use `conda <http://conda.pydata.org/miniconda.html>`_,
 which handles packages and virtual environments. First, create a conda environment
 
     conda create --name energy_demand python=3.6

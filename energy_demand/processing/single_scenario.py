@@ -7,7 +7,7 @@ from energy_demand.plotting import plotting_results, result_mapping
 from energy_demand.basic import logger_setup, basic_functions
 from energy_demand.basic import lookup_tables
 
-def main(path_data_energy_demand, path_shapefile_input):
+def main(path_data_energy_demand, path_shapefile_input, base_yr, comparison_year):
     """Read in all results and plot PDFs
 
     Arguments
@@ -16,15 +16,17 @@ def main(path_data_energy_demand, path_shapefile_input):
         Path to results
     path_shapefile_input : str
         Path to shapefile
+    comparison_year : int
+        Year to generate comparison plots
     """
     print("Start processing")
 
     plot_crit_dict = {
-        "write_shapefiles": False,          # Write shapefiles
-        "spatial_results": True,            # Spatial geopanda maps
+        #"write_shapefiles": False,            # Write shapefiles #TODO CLEAN
+        "spatial_results": True,              # Spatial geopanda maps
 
         "plot_differences_p": True,           # Spatial maps of percentage difference per fueltype over time
-        "plot_total_demand_fueltype": False,  # Spatial maps of total demand per fueltype over time
+        "plot_total_demand_fueltype": True, #False,  # Spatial maps of total demand per fueltype over time
         "plot_population": False,             # Spatial maps of population
         "plot_load_factors": False,           # Spatial maps of load factor
         "plot_load_factors_p": False,         # Spatial maps of load factor change
@@ -35,13 +37,13 @@ def main(path_data_energy_demand, path_shapefile_input):
         "plot_y_all_enduses": True,
         "plot_fuels_enduses_y": True,
         "plot_lf": False,
-        "plot_week_h": False, # True,
+        "plot_week_h": False,
         "plot_h_peak_fueltypes": True,
         "plot_averaged_season_fueltype": True, # Compare for every season and daytype the daily loads
-        "plot_radar" : True,
-        "plot_radar_seasonal" : False,                      # Plot radar spider charts
-        "plot_line_for_every_region_of_peak_demand" : True,
-        "plot_lad_cross_graphs" : True}
+        "plot_radar": True,
+        "plot_radar_seasonal": False,                      # Plot radar spider charts
+        "plot_line_for_every_region_of_peak_demand": True,
+        "plot_lad_cross_graphs": True}
 
     # Set up logger
     logger_setup.set_up_logger(
@@ -100,7 +102,9 @@ def main(path_data_energy_demand, path_shapefile_input):
         data['result_paths'],
         data['assumptions'],
         data['enduses'],
-        plot_crit=plot_crit_dict)
+        plot_crit=plot_crit_dict,
+        base_yr=base_yr,
+        comparison_year=comparison_year)
 
     # ------------------------------
     # Plotting spatial results
@@ -115,19 +119,19 @@ def main(path_data_energy_demand, path_shapefile_input):
             data['lookups']['fueltypes_nr'],
             data['lookups']['fueltypes'],
             path_shapefile_input,
-            plot_crit_dict)
+            plot_crit_dict,
+            base_yr=base_yr)
 
     # ----------------
-    # Write results to CSV files and merge with shapefile
+    # Write results to CSV files and merge with shapefile TODO: REMOVE
     # ----------------
-    if plot_crit_dict['write_shapefiles']:
+    '''if plot_crit_dict['write_shapefiles']:
         write_data.create_shp_results(
             data,
             results_container,
             data['local_paths'],
             data['lookups'],
-            data['regions'])
-
+            data['regions'])'''
 
     print("===================================")
     print("... finished reading and plotting results")

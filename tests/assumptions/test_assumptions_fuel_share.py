@@ -2,9 +2,9 @@
 """
 import os
 from energy_demand.basic import lookup_tables
-from energy_demand.assumptions import assumptions_fuel_shares
-from energy_demand.assumptions import non_param_assumptions
-from energy_demand.assumptions import param_assumptions
+from energy_demand.assumptions import fuel_shares
+from energy_demand.assumptions import general_assumptions
+from energy_demand.assumptions import strategy_variables
 from energy_demand.read_write import data_loader, read_data
 from pkg_resources import resource_filename
 from pkg_resources import Requirement
@@ -25,7 +25,7 @@ def test_assign_by_fuel_tech_p():
     #Load assumptions
     base_yr = 2015
 
-    data['assumptions'] = non_param_assumptions.Assumptions(
+    data['assumptions'] = general_assumptions.Assumptions(
         base_yr=base_yr,
         curr_yr=None,
         simulated_yrs=None,
@@ -35,9 +35,9 @@ def test_assign_by_fuel_tech_p():
         fueltypes=data['lookups']['fueltypes'],
         fueltypes_nr=data['lookups']['fueltypes_nr'])
 
-    param_assumptions.load_param_assump(data['paths'], data['local_paths'], data['assumptions'])
+    strategy_variables.load_param_assump(data['paths'], data['local_paths'], data['assumptions'])
 
-    rs_fuel_tech_p_by, ss_fuel_tech_p_by, is_fuel_tech_p_by  = assumptions_fuel_shares.assign_by_fuel_tech_p( 
+    rs_fuel_tech_p_by, ss_fuel_tech_p_by, is_fuel_tech_p_by = fuel_shares.assign_by_fuel_tech_p( 
         data['enduses'],
         data['sectors'],
         data['lookups']['fueltypes'],

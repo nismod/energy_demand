@@ -213,7 +213,8 @@ def floor_area_virtual_dw(
     # Based on Roberts et al. (2011) , an average one bedroom home for 2 people has 46 m2.
     # Roberts et al. (2011): The Case for Space: the size of England’s new homes.
     # -----
-    avearge_floor_area_pp = 23 # [m2] We thus assume 23 m2 per person on average.
+    rs_avearge_floor_area_pp = 23   # [m2] Assumed average residential area per person
+    ss_avearge_floor_area_pp = 23   # [m2] Assumed average service area per person
 
     # --------------------------------------------------
     # Floor area for residential buildings for base year
@@ -237,7 +238,7 @@ def floor_area_virtual_dw(
             print("No virtual residential floor area for region %s ", region)
 
             # Calculate average floor area
-            rs_floorarea[base_yr][region] = avearge_floor_area_pp * population[region]
+            rs_floorarea[base_yr][region] = rs_avearge_floor_area_pp * population[region]
             rs_regions_without_floorarea.append(region)
 
     # --------------------------------------------------
@@ -251,8 +252,14 @@ def floor_area_virtual_dw(
             try:
                 ss_floorarea_sector_by[base_yr][region][sector] = non_res_flootprint[region]
             except KeyError:
-                logging.warning("No virtual service floor area for region %s", region)
-                ss_floorarea_sector_by[base_yr][region][sector] = 0
+
+                #logging.debug("No virtual service floor area for region %s", region)
+
+                # Calculate average floor area if no data is available
+                ss_floor_area_cy = ss_avearge_floor_area_pp * population[region]
+
+                #ss_floorarea_sector_by[base_yr][region][sector] = 0 # Set to zero if no floor area is available
+                ss_floorarea_sector_by[base_yr][region][sector] = ss_floor_area_cy
                 ss_regions_without_floorarea.add(region)
 
     return dict(rs_floorarea), dict(ss_floorarea_sector_by), service_building_count, rs_regions_without_floorarea, list(ss_regions_without_floorarea)
@@ -286,7 +293,7 @@ def get_local_paths(path):
         'data_processed': os.path.join(
             path, '_processed_data'),
         'lad_shapefile': os.path.join(
-            path, '_raw_data', 'C_LAD_geography', 'same_as_pop_scenario', 'lad_2016_uk_simplified.shp'),
+            path, '_raw_data', 'C_LAD_geography', 'lad_2016_uk_simplified.shp'),
         'path_post_installation_data': os.path.join(
             path, '_processed_data', '_post_installation_data'),
         'data_processed_disaggregated': os.path.join(
@@ -590,7 +597,6 @@ def load_data_profiles(
         local_paths,
         model_yeardays,
         model_yeardays_daytype,
-        plot_tech_lp
     ):
     """Collect load profiles from txt files
 
@@ -604,8 +610,6 @@ def load_data_profiles(
         Number of modelled yeardays
     model_yeardays_daytype : int
         Daytype of every modelled day
-    plot_tech_lp : bool
-        Criteria wheter to plot out individual load profiles of techs
     """
     tech_lp = {}
 
@@ -616,7 +620,7 @@ def load_data_profiles(
         tech_lp,
         paths,
         local_paths,
-        plot_tech_lp)
+        plot_tech_lp=False) # Plot individual load profiles
 
     # Load enduse load profiles
     tech_lp['rs_shapes_dh'], tech_lp['rs_shapes_yd'] = rs_collect_shapes_from_txts(
@@ -979,29 +983,6 @@ def read_scenario_data(path_to_csv):
                 data[year][region] = value
 
     return data
-
-def load_regions_localmodelrun(path_to_csv):
-    """Read in regions from csv file
-
-    Arguments
-    ---------
-    path_to_csv : str
-        PAth to csv file
-
-    Returns
-    -------
-    regions : list
-        Regions
-    """
-    with open(path_to_csv, 'r') as csvfile:
-        rows = csv.reader(csvfile, delimiter=',')
-        headings = next(rows) # Skip first row
-        regions = []
-
-        for row in rows:
-            regions.append(row[read_data.get_position(headings, 'region')])
-
-    return regions
 
 def read_employment_stats(path_to_csv):
     """Read in employment statistics per LAD.

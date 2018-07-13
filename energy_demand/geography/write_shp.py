@@ -1,6 +1,6 @@
 """Append result to shapefile
 """
-import logging
+'''import logging
 import shapefile
 
 def write_result_shapefile(lad_geometry_shp, out_shape, field_names, csv_results):
@@ -95,4 +95,4 @@ def write_result_shapefile(lad_geometry_shp, out_shape, field_names, csv_results
     # Save as a new shapefile (or write over the old one)
     writer.save(out_shape)
     logging.info("... finished writing shp")
-    return
+    return'''

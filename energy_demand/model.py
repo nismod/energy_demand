@@ -7,9 +7,7 @@ import energy_demand.enduse_func as endusefunctions
 from energy_demand.geography.region import Region
 from energy_demand.geography.weather_region import WeatherRegion
 from energy_demand.dwelling_stock import dw_stock
-from energy_demand.basic import testing_functions
 from energy_demand.profiles import load_factors
-from energy_demand.charts import figure_HHD_gas_demand
 from energy_demand.profiles import generic_shapes
 
 class EnergyDemandModel(object):
@@ -71,7 +69,7 @@ class EnergyDemandModel(object):
             data['reg_nrs'])
 
         # ---------------------------------------------
-        # Iterate over regions and Simulate
+        # Iterate over regions and simulate region
         # ---------------------------------------------
         for reg_array_nr, region in enumerate(regions):
             logging.info(
@@ -100,7 +98,7 @@ class EnergyDemandModel(object):
                 assumptions.seasons,
                 assumptions.enduse_space_heating,
                 data['technologies'],
-                data['criterias']['beyond_supply_outputs'])
+                data['criterias']['write_txt_additional_results'])
 
         # -------
     	# Set all keys of aggr_results as self.attributes (EnergyDemandModel)
@@ -109,16 +107,11 @@ class EnergyDemandModel(object):
             setattr(self, key_attribute_name, value)
 
         # ------------------------------
-        # TESTING
+        # Plot generation to correlate HDD and energy demand
         # ------------------------------
-        testing_functions.test_region_selection(self.ed_fueltype_regs_yh)
-
-        # ------------------------------
-        # Chart HDD * Pop vs actual gas demand
-        # ------------------------------
-        if data['criterias']['plot_HDD_chart']:
-            logging.info("plot figure HDD comparison")
-            figure_HHD_gas_demand.main(regions, weather_regions, data)
+        ## logging.info("plot figure HDD comparison")
+        ## from energy_demand.charts import figure_HHD_gas_demand
+        ## figure_HHD_gas_demand.main(regions, weather_regions, data)
 
 def simulate_region(region, data, assumptions, weather_regions):
     """Run submodels for a single region
@@ -280,27 +273,15 @@ def get_fuels_yh(enduse_object, attribute_to_get):
         # Get flat load profile
         flat_shape_yd, flat_shape_yh, flat_shape_y_dh = generic_shapes.flat_shape()
     
-        #if attribute_to_get == 'fuel_peak_h':
-        #    shape_peak_h = 0.00011415525114155251 #1 / 8760
-        #    fuels = fuels_reg_y * shape_peak_h
         if attribute_to_get == 'shape_non_peak_y_dh':
-            #shape_non_peak_y_dh = np.full((365, 24), 0.041666666666666664) #(1.0 / 24))
-            #fuels = fuels_reg_y * shape_non_peak_y_dh
             fuels = fuels_reg_y * flat_shape_yh
         elif attribute_to_get == 'shape_non_peak_yd':
-            #shape_non_peak_yd = np.ones((365), dtype="float") / 365
-            #shape_non_peak_yd = np.full((365), 0.0027397260273972603) #1/ 365
-            #fuels = fuels_reg_y * shape_non_peak_yd
             fuels = fuels_reg_y * flat_shape_yd
         elif attribute_to_get == 'fuel_yh' or attribute_to_get == 'techs_fuel_yh':
             f_hour = 0.00011415525114155251 #1 / 8760
             flat_shape = np.full((enduse_object.fuel_y.shape[0], 365, 24), f_hour, dtype="float")
             fuels = fuels_reg_y[:, np.newaxis, np.newaxis] * flat_shape
-        #elif attribute_to_get == 'techs_fuel_peak_h':
-        #    fuels = 0.00011415525114155251 #1 / 8760
     else: #If not flat shape, use yh load profile of enduse
-        #if attribute_to_get == 'fuel_peak_h':
-        #    fuels = enduse_object.fuel_peak_h
         if attribute_to_get == 'shape_non_peak_y_dh':
             fuels = enduse_object.shape_non_peak_y_dh
         elif attribute_to_get == 'shape_non_peak_yd':
@@ -309,8 +290,6 @@ def get_fuels_yh(enduse_object, attribute_to_get):
             fuels = enduse_object.fuel_yh
         elif attribute_to_get == 'techs_fuel_yh':
             fuels = enduse_object.techs_fuel_yh
-        #elif attribute_to_get == 'techs_fuel_peak_h':
-        #    fuels = enduse_object.techs_fuel_peak_h
         else:
             fuels = getattr(enduse_object, attribute_to_get)
 
@@ -356,12 +335,12 @@ def residential_submodel(
             # ------------------------------------------------------
             # Configure and select correct Enduse() specific inputs
             # ------------------------------------------------------
-            if assumptions.strategy_variables['spatial_explicit_diffusion']['scenario_value']:
+            if assumptions.strategy_vars['spatial_explicit_diffusion']['scenario_value']:
                 sig_param_tech = assumptions.rs_sig_param_tech[enduse][region.name]
-                strategy_variables = assumptions.regional_strategy_variables[region.name]
+                strategy_vars = assumptions.regional_strategy_variables[region.name]
             else:
                 sig_param_tech = assumptions.rs_sig_param_tech[enduse]
-                strategy_variables = assumptions.strategy_variables
+                strategy_vars = assumptions.strategy_vars
 
             # ------------------------------------------------------
             # Create submodel
@@ -380,10 +359,10 @@ def residential_submodel(
                 tech_stock=weather_region.rs_tech_stock,
                 heating_factor_y=weather_region.f_heat_rs_y,
                 cooling_factor_y=weather_region.f_cooling_rs_y,
-                fuel_fueltype_tech_p_by=assumptions.rs_fuel_tech_p_by[enduse],
+                fuel_tech_p_by=assumptions.rs_fuel_tech_p_by[enduse],
                 sig_param_tech=sig_param_tech,
                 criterias=criterias,
-                strategy_variables=strategy_variables,
+                strategy_vars=strategy_vars,
                 fueltypes_nr=lookups['fueltypes_nr'],
                 fueltypes=lookups['fueltypes'],
                 enduse_overall_change=assumptions.enduse_overall_change,
@@ -428,12 +407,12 @@ def service_submodel(
             # ------------------------------------------------------
             # Configure and select correct Enduse() specific inputs
             # ------------------------------------------------------
-            if assumptions.strategy_variables['spatial_explicit_diffusion']['scenario_value']:
+            if assumptions.strategy_vars['spatial_explicit_diffusion']['scenario_value']:
                 sig_param_tech = assumptions.ss_sig_param_tech[enduse][sector][region.name]
-                strategy_variables = assumptions.regional_strategy_variables[region.name]
+                strategy_vars = assumptions.regional_strategy_variables[region.name]
             else:
                 sig_param_tech = assumptions.ss_sig_param_tech[enduse][sector]
-                strategy_variables = assumptions.strategy_variables
+                strategy_vars = assumptions.strategy_vars
 
             # ------------------------------------------------------
             # Create submodel
@@ -452,10 +431,10 @@ def service_submodel(
                 tech_stock=weather_region.ss_tech_stock,
                 heating_factor_y=weather_region.f_heat_ss_y,
                 cooling_factor_y=weather_region.f_cooling_ss_y,
-                fuel_fueltype_tech_p_by=assumptions.ss_fuel_tech_p_by[enduse][sector],
+                fuel_tech_p_by=assumptions.ss_fuel_tech_p_by[enduse][sector],
                 sig_param_tech=sig_param_tech,
                 criterias=criterias,
-                strategy_variables=strategy_variables,
+                strategy_vars=strategy_vars,
                 fueltypes_nr=lookups['fueltypes_nr'],
                 fueltypes=lookups['fueltypes'],
                 enduse_overall_change=assumptions.enduse_overall_change,
@@ -470,7 +449,6 @@ def industry_submodel(
         region,
         weather_region,
         scenario_data,
-        #non_regional_lp_stock,
         assumptions,
         lookups,
         criterias,
@@ -510,12 +488,12 @@ def industry_submodel(
             else:
                 flat_profile_crit = True
 
-            if assumptions.strategy_variables['spatial_explicit_diffusion']['scenario_value']:
+            if assumptions.strategy_vars['spatial_explicit_diffusion']['scenario_value']:
                 sig_param_tech = assumptions.is_sig_param_tech[enduse][sector][region.name]
-                strategy_variables = assumptions.regional_strategy_variables[region.name]
+                strategy_vars = assumptions.regional_strategy_variables[region.name]
             else:
                 sig_param_tech = assumptions.is_sig_param_tech[enduse][sector]
-                strategy_variables = assumptions.strategy_variables
+                strategy_vars = assumptions.strategy_vars
 
             # ------------------------------------------------------
             # Create submodel
@@ -534,11 +512,11 @@ def industry_submodel(
                 tech_stock=weather_region.is_tech_stock,
                 heating_factor_y=weather_region.f_heat_is_y,
                 cooling_factor_y=weather_region.f_cooling_is_y,
-                fuel_fueltype_tech_p_by=assumptions.is_fuel_tech_p_by[enduse][sector],
+                fuel_tech_p_by=assumptions.is_fuel_tech_p_by[enduse][sector],
                 sig_param_tech=sig_param_tech,
                 enduse_overall_change=assumptions.enduse_overall_change,
                 criterias=criterias,
-                strategy_variables=strategy_variables,
+                strategy_vars=strategy_vars,
                 fueltypes_nr=lookups['fueltypes_nr'],
                 fueltypes=lookups['fueltypes'],
                 reg_scen_drivers=assumptions.scenario_drivers['is_submodule'],
@@ -682,13 +660,20 @@ def averaged_season_hourly(
 
 def create_virtual_dwelling_stocks(regions, curr_yr, data):
     """Create virtual dwelling stocks for residential
-    and service sector
+    and service sector.
+
+    If no floor area is avilable, calculate average floor
+    area with population information
+
+    Arguments
+    ---------
+
     """
     rs_dw_stock = defaultdict(dict)
     ss_dw_stock = defaultdict(dict)
 
     for region in regions:
-        logging.info("Region " + str(region))
+
         # -------------
         # Residential dwelling stocks
         # -------------
@@ -706,7 +691,7 @@ def create_virtual_dwelling_stocks(regions, curr_yr, data):
             data['assumptions'].base_yr,
             data['criterias']['virtual_building_stock_criteria'])
 
-        # current year
+        # Current year
         rs_dw_stock[region][curr_yr] = dw_stock.rs_dw_stock(
             region,
             data['assumptions'],
@@ -735,7 +720,7 @@ def create_virtual_dwelling_stocks(regions, curr_yr, data):
             data['assumptions'].base_yr,
             data['criterias']['virtual_building_stock_criteria'])
 
-        # Dwelling stock of service SubModel for current year
+        # current year
         ss_dw_stock[region][curr_yr] = dw_stock.ss_dw_stock(
             region,
             data['enduses']['ss_enduses'],
@@ -751,6 +736,8 @@ def create_virtual_dwelling_stocks(regions, curr_yr, data):
 
 def create_dwelling_stock(regions, curr_yr, data):
     """Create dwelling stock based on NEWCASTLE data
+
+    TODO: Implement
 
     Arguments
     ---------
@@ -776,7 +763,7 @@ def aggregate_final_results(
         seasons,
         enduse_space_heating,
         technologies,
-        beyond_supply_outputs=True
+        write_txt_additional_results=True
     ):
     """Aggregate results for a single region
 
@@ -801,7 +788,7 @@ def aggregate_final_results(
         All heating enduses
     technologies : dict
         Technologies
-    beyond_supply_outputs : bool
+    write_txt_additional_results : bool
         Criteria whether additional results are aggregated
         for plotting purposes going beyond the SMIF framework
 
@@ -810,7 +797,8 @@ def aggregate_final_results(
     aggr_results : dict
         Contains all aggregated results
     """
-    empty_input_array = np.zeros((fueltypes_nr, 365, 24), dtype="float")
+    empty_input_array = np.zeros(
+        (fueltypes_nr, 365, 24), dtype="float")
 
     if mode_constrained:
 
@@ -866,7 +854,7 @@ def aggregate_final_results(
     # -----------
     # Other summing for other purposes
     # -----------
-    if beyond_supply_outputs:
+    if write_txt_additional_results:
 
         # Sum across all regions, all enduse and sectors sum_reg
         # [fueltype, region, fuel_yh], [fueltype, fuel_yh]

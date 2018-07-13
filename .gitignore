@@ -61,3 +61,4 @@ config_data/02-spatial_index/*
 config_data/05-dwelling_stock_related/*
 config_data/09-emission_factors/*
 config_data/*.yml
+data/*

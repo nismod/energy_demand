@@ -3,7 +3,7 @@
 from energy_demand.read_write import read_data
 from energy_demand.technologies import tech_related
 from energy_demand.basic import testing_functions, date_prop
-from energy_demand.assumptions import assumptions_fuel_shares
+from energy_demand.assumptions import fuel_shares
 from energy_demand.initalisations import helpers
 from energy_demand.profiles import hdd_cdd
 
@@ -72,7 +72,7 @@ class Assumptions(object):
         # --------
         # Demand management of heat pumps
         # --------
-        self.flat_heat_pump_profile_both = 0 # 0: FAlse, 1: True
+        self.flat_heat_pump_profile_both = 0        # 0: False, 1: True
         self.flat_heat_pump_profile_only_water = 0  # Only water
     
         # ============================================================
@@ -495,7 +495,7 @@ class Assumptions(object):
         # Provide for every fueltype of an enduse
         # the share of fuel which is used by technologies for thebase year
         # ============================================================
-        self.rs_fuel_tech_p_by, self.ss_fuel_tech_p_by, self.is_fuel_tech_p_by = assumptions_fuel_shares.assign_by_fuel_tech_p(
+        self.rs_fuel_tech_p_by, self.ss_fuel_tech_p_by, self.is_fuel_tech_p_by = fuel_shares.assign_by_fuel_tech_p(
             enduses,
             sectors,
             fueltypes,

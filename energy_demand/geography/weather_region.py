@@ -60,13 +60,13 @@ class WeatherRegion(object):
         temp_cy = change_temp_climate(
             temp_by,
             assumptions.yeardays_month_days,
-            assumptions.strategy_variables,
+            assumptions.strategy_vars,
             assumptions.base_yr,
             assumptions.curr_yr)
 
         # Change base temperatures depending on change in t_base
         rs_t_base_heating_cy = hdd_cdd.sigm_temp(
-            assumptions.strategy_variables['rs_t_base_heating_future_yr']['scenario_value'],
+            assumptions.strategy_vars['rs_t_base_heating_future_yr']['scenario_value'],
             assumptions.t_bases.rs_t_heating_by,
             assumptions.base_yr,
             assumptions.curr_yr,
@@ -77,26 +77,26 @@ class WeatherRegion(object):
             base_temp_diff_params)'''
 
         ss_t_base_heating_cy = hdd_cdd.sigm_temp(
-            assumptions.strategy_variables['ss_t_base_heating_future_yr']['scenario_value'],
+            assumptions.strategy_vars['ss_t_base_heating_future_yr']['scenario_value'],
             assumptions.t_bases.ss_t_heating_by,
             assumptions.base_yr,
             assumptions.curr_yr,
             assumptions.base_temp_diff_params)
         ss_t_base_cooling_cy = hdd_cdd.sigm_temp(
-            assumptions.strategy_variables['ss_t_base_cooling_future_yr']['scenario_value'],
+            assumptions.strategy_vars['ss_t_base_cooling_future_yr']['scenario_value'],
             assumptions.t_bases.ss_t_cooling_by,
             assumptions.base_yr,
             assumptions.curr_yr,
             assumptions.base_temp_diff_params)
 
         is_t_base_heating_cy = hdd_cdd.sigm_temp(
-            assumptions.strategy_variables['is_t_base_heating_future_yr']['scenario_value'],
+            assumptions.strategy_vars['is_t_base_heating_future_yr']['scenario_value'],
             assumptions.t_bases.is_t_heating_by,
             assumptions.base_yr,
             assumptions.curr_yr,
             assumptions.base_temp_diff_params)
         '''is_t_base_cooling_cy = hdd_cdd.sigm_temp(
-            assumptions.strategy_variables['is_t_base_cooling_future_yr']['scenario_value'],
+            assumptions.strategy_vars['is_t_base_cooling_future_yr']['scenario_value'],
             assumptions.t_bases.is_t_cooling_by,
             assumptions.base_yr,
             assumptions.curr_yr,
@@ -284,10 +284,10 @@ class WeatherRegion(object):
         # ------------
         # Set criteria wheter to use float load profile for heat pumps or not
         # ------------
-        if assumptions.strategy_variables['flat_heat_pump_profile_both']['scenario_value']:
+        if assumptions.strategy_vars['flat_heat_pump_profile_both']['scenario_value']:
             flat_space_heating = True
             flat_water_heating = True
-        elif assumptions.strategy_variables['flat_heat_pump_profile_only_water']['scenario_value']:
+        elif assumptions.strategy_vars['flat_heat_pump_profile_only_water']['scenario_value']:
             flat_space_heating = False
             flat_water_heating = True
         else:

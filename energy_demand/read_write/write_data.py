@@ -105,7 +105,7 @@ def write_scenaric_population_data(sim_yr, path_result, pop_y):
     np.save(path_file, pop_y)
     logging.info("... finished saving population")
 
-def create_shp_results(data, results_container, paths, lookups, regions):
+'''def create_shp_results(data, results_container, paths, lookups, regions):
     """Create csv file and merge with shape
 
     Arguments
@@ -177,7 +177,7 @@ def create_shp_results(data, results_container, paths, lookups, regions):
         field_names,
         csv_results)
 
-    logging.info("... finished generating shapefiles")
+    logging.info("... finished generating shapefiles")'''
 
 def dump(data, file_path):
     """Write plain data to a file as yaml
@@ -256,14 +256,18 @@ def write_yaml_param_complete(path_yaml, dict_to_dump):
     # Dump list
     dump(list_to_dump, path_yaml)
 
-def write_simulation_inifile(path, data):
+def write_simulation_inifile(path, data, simulated_regions):
     """Create .ini file with simulation parameters which ared
     used to read in correctly the simulation results
 
     Arguments
     ---------
+    paths: str
+        Path
     data : dict
         Data container
+    simulated_regions : list
+        Simulated regions
     """
     path_ini_file = os.path.join(
         path, 'model_run_sim_param.ini')
@@ -286,7 +290,7 @@ def write_simulation_inifile(path, data):
     config['ENDUSES']['is_enduses'] = str(data['enduses']['is_enduses'])
 
     config.add_section('REGIONS')
-    config['REGIONS']['regions'] = str(data['regions'])
+    config['REGIONS']['regions'] = str(simulated_regions)
 
     with open(path_ini_file, 'w') as write_info:
         config.write(write_info)
@@ -584,3 +588,32 @@ def create_csv_file(path, rows):
 
         for row in rows:
             filewriter.writerow(row)
+
+def write_result_txt(path, regions, values):
+    """Store values of spatial plot in csv file
+    """
+
+    '''with open(path, 'w', newline='') as csvfile:
+
+        filewriter = csv.writer(
+            csvfile,
+            delimiter=',')#,
+            #quotechar='|')
+        #filewriter = csv.writer(csvfile, delimiter='',
+        #                    quotechar='|', quoting=csv.QUOTE_MINIMAL)
+        # Write title
+        filewriter.writerow("Region, Value")
+
+        for region, value in zip(regions, values):
+            print("REGION " + str(region))
+            print("VLAUE " + str(value))
+            filewriter.writerow("{}, {}".format(region, value))'''
+    myData = [["region", "value"]]
+
+    for region, value in zip(regions, values):
+        myData.append([region, value])
+    
+    myFile = open(path, 'w', newline='')
+    with myFile:
+        writer = csv.writer(myFile)
+        writer.writerows(myData)

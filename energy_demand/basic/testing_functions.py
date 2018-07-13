@@ -106,26 +106,6 @@ def switch_testing(fuel_switches, service_switches, capacity_switches):
 
     return all_switches_incl_sectors
 
-def test_region_selection(ed_fueltype_regs_yh):
-    """function to see whether if only some days are selected
-    the sum makes sense
-    """
-    modelled_days = 1
-    hours_modelled = modelled_days * 24
-
-    _sum_day_selection = 0
-    for fuels in ed_fueltype_regs_yh:
-        for region_fuel in fuels:
-            _sum_day_selection += np.sum(region_fuel[: hours_modelled])
-            len_dict = region_fuel.shape[0]
-
-    _sum_all = 0
-    for fuels in ed_fueltype_regs_yh:
-        for region_fuel in fuels:
-            _sum_all += np.sum(region_fuel)
-
-    return
-
 def testing_fuel_tech_shares(fuel_tech_fueltype_p):
     """Test if assigned fuel share add up to 1 within each fueltype
 

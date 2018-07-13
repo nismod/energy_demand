@@ -1,5 +1,4 @@
-"""Base year fuel share additional_assump_vars,
-All fuel shares of the base year for the
+"""All fuel shares of the base year for the
 different technologies are defined in this file.
 """
 from energy_demand.initalisations import helpers
@@ -10,8 +9,6 @@ def assign_by_fuel_tech_p(enduses, sectors, fueltypes, fueltypes_nr):
 
     Arguments
     ----------
-    additional_assump_vars : dict
-        Assumptions
     enduses : dict
         Enduses
     sectors : dict
@@ -23,8 +20,12 @@ def assign_by_fuel_tech_p(enduses, sectors, fueltypes, fueltypes_nr):
 
     Returns
     -------
-    additional_assump_vars : dict
-        Asssumptions
+    rs_fuel_tech_p_by : dict
+        Residential fuel share percentages
+    ss_fuel_tech_p_by : dict
+        Service fuel share percentages
+    is_fuel_tech_p_by : dict
+        Industry fuel share percentages
 
     Note
     ----

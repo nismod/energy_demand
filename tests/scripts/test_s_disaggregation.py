@@ -2,7 +2,7 @@
 """
 import numpy as np
 from energy_demand.scripts import s_disaggregation
-from energy_demand.assumptions import non_param_assumptions
+from energy_demand.assumptions import general_assumptions
 #'''
 def test_rs_disaggregate():
     """testing
@@ -24,9 +24,9 @@ def test_rs_disaggregate():
             'sig_midpoint': 0,
             'sig_steepness': 1,
             'yr_until_changed': 2020},
-        'strategy_variables': {'rs_t_base_heating_future_yr': {'scenario_value': 15}}}
-    assumptions = non_param_assumptions.DummyClass(assumptions)
-    assumptions.__setattr__('t_bases', non_param_assumptions.DummyClass({'rs_t_heating_by': 15}))
+        'strategy_vars': {'rs_t_base_heating_future_yr': {'scenario_value': 15}}}
+    assumptions = general_assumptions.DummyClass(assumptions)
+    assumptions.__setattr__('t_bases', general_assumptions.DummyClass({'rs_t_heating_by': 15}))
 
     reg_coord = {
         'regA': {'longitude': 0,'latitude': 0},
@@ -94,12 +94,12 @@ def test_ss_disaggregate():
             'sig_midpoint': 0,
             'sig_steepness': 1,
             'yr_until_changed': 2020},
-        'strategy_variables': {
+        'strategy_vars': {
             'ss_t_base_heating_future_yr': {'scenario_value': 15},
             'ss_t_base_cooling_future_yr': {'scenario_value': 20}}}
 
-    assumptions = non_param_assumptions.DummyClass(assumptions)
-    assumptions.__setattr__('t_bases', non_param_assumptions.DummyClass(
+    assumptions = general_assumptions.DummyClass(assumptions)
+    assumptions.__setattr__('t_bases', general_assumptions.DummyClass(
         {'ss_t_heating_by': 15, 'ss_t_cooling_by': 20}))
 
     reg_coord = {
@@ -160,13 +160,13 @@ def test_is_disaggregate():
             'sig_midpoint': 0,
             'sig_steepness': 1,
             'yr_until_changed': 2020},
-        'strategy_variables': {
+        'strategy_vars': {
             'is_t_heating_by': {'scenario_value': 0},
             'is_t_base_heating_future_yr': {'scenario_value': 15},
             'is_t_base_cooling_future_yr': {'scenario_value': 15}}}
 
-    assumptions = non_param_assumptions.DummyClass(assumptions)
-    assumptions.__setattr__('t_bases', non_param_assumptions.DummyClass({'is_t_heating_by': 15, 'is_t_cooling_by': 15}))
+    assumptions = general_assumptions.DummyClass(assumptions)
+    assumptions.__setattr__('t_bases', general_assumptions.DummyClass({'is_t_heating_by': 15, 'is_t_cooling_by': 15}))
 
     regions = ['regA', 'regB']
     enduses = ['is_space_heating']

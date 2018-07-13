@@ -14,7 +14,6 @@ from energy_demand.basic import basic_functions, conversions
 from energy_demand.plotting import plotting_styles
 from energy_demand.technologies import tech_related
 from energy_demand.profiles import load_factors
-from energy_demand.plotting import plotting_results
 from scipy.interpolate import interp1d
 import matplotlib
 import matplotlib.pyplot as plt
@@ -79,39 +78,51 @@ def run_all_plot_functions(
         result_paths,
         assumptions,
         enduses,
-        plot_crit
+        plot_crit,
+        base_yr,
+        comparison_year
     ):
     """Summary function to plot all results
+
+    comparison_year : int
+        Year to generate comparison plots
     """
 
     if plot_crit['plot_lad_cross_graphs']:
+        
+        # Set correct comparison year
+        #comparison_year = 2050
 
-        # Plot cross graph where very region is a dot
-        plot_cross_graphs(
-            base_yr=2015,
-            comparison_year=2050,
-            regions=regions,
-            ed_year_fueltype_regs_yh=results_container['results_every_year'],
-            reg_load_factor_y=results_container['reg_load_factor_y'],
-            fueltype_int=lookups['fueltypes']['electricity'],
-            fueltype_str='electricity',
-            fig_name=os.path.join(
-                result_paths['data_results_PDF'], "comparions_LAD_cross_graph_electricity_by_cy.pdf"),
-            label_points=False,
-            plotshow=False)
+        try:
+            # Plot cross graph where very region is a dot
+            plot_cross_graphs(
+                base_yr=base_yr,
+                comparison_year=comparison_year,
+                regions=regions,
+                ed_year_fueltype_regs_yh=results_container['results_every_year'],
+                reg_load_factor_y=results_container['reg_load_factor_y'],
+                fueltype_int=lookups['fueltypes']['electricity'],
+                fueltype_str='electricity',
+                fig_name=os.path.join(
+                    result_paths['data_results_PDF'], "comparions_LAD_cross_graph_electricity_by_cy.pdf"),
+                label_points=False,
+                plotshow=False)
 
-        plot_cross_graphs(
-            base_yr=2015,
-            comparison_year=2050,
-            regions=regions,
-            ed_year_fueltype_regs_yh=results_container['results_every_year'],
-            reg_load_factor_y=results_container['reg_load_factor_y'],
-            fueltype_int=lookups['fueltypes']['gas'],
-            fueltype_str='gas',
-            fig_name=os.path.join(
-                result_paths['data_results_PDF'], "comparions_LAD_cross_graph_gas_by_cy.pdf"),
-            label_points=False,
-            plotshow=False)
+            plot_cross_graphs(
+                base_yr=base_yr,
+                comparison_year=comparison_year,
+                regions=regions,
+                ed_year_fueltype_regs_yh=results_container['results_every_year'],
+                reg_load_factor_y=results_container['reg_load_factor_y'],
+                fueltype_int=lookups['fueltypes']['gas'],
+                fueltype_str='gas',
+                fig_name=os.path.join(
+                    result_paths['data_results_PDF'], "comparions_LAD_cross_graph_gas_by_cy.pdf"),
+                label_points=False,
+                plotshow=False)
+        
+        except KeyError:
+            logging.info("Check if correct comparison year is provided, i.e. really data exists for this year")
 
     # ----------
     # Plot LAD differences for first and last year
@@ -311,7 +322,7 @@ def run_all_plot_functions(
     # Fuel week of base year
     # ----------------
     if plot_crit['plot_week_h']:
-        logging.debug("... plot a full week")
+        logging.info("... plot a full week")
         plt_fuels_enduses_week(
             results_resid=results_container['results_every_year'],
             lookups=lookups,
@@ -323,7 +334,6 @@ def run_all_plot_functions(
     # Plot averaged per season and fueltype
     # ------------------------------------
     if plot_crit['plot_averaged_season_fueltype']:
-        base_year = 2015
         for year in results_container['av_season_daytype_cy'].keys():
             for fueltype_int in results_container['av_season_daytype_cy'][year].keys():
 
@@ -336,9 +346,9 @@ def run_all_plot_functions(
                         result_paths['data_results_PDF'],
                         'season_daytypes_by_cy_comparison__{}__{}.pdf'.format(year, fueltype_str)),
                     calc_av_lp_modelled=results_container['av_season_daytype_cy'][year][fueltype_int],  # current year
-                    calc_av_lp_real=results_container['av_season_daytype_cy'][base_year][fueltype_int], # base year
+                    calc_av_lp_real=results_container['av_season_daytype_cy'][base_yr][fueltype_int], # base year
                     calc_lp_modelled=results_container['season_daytype_cy'][year][fueltype_int],        # current year
-                    calc_lp_real=results_container['season_daytype_cy'][base_year][fueltype_int],       # base year
+                    calc_lp_real=results_container['season_daytype_cy'][base_yr][fueltype_int],       # base year
                     plot_peak=True,
                     plot_all_entries=False,
                     plot_max_min_polygon=True,
@@ -777,7 +787,7 @@ def plt_stacked_enduse(
 
     plt.xticks(major_ticks, major_ticks)
 
-    #plt.ylim(ymax=500) #TODO
+    #plt.ylim(ymax=500)
     #yticks = [100, 200, 300, 400, 500]
     #plt.yticks(yticks, yticks)
     # -------
@@ -1176,7 +1186,6 @@ def plt_fuels_peak_h(results_every_year, lookups, path_plot_fig):
         plt.plot(
             years,
             y_init[fueltype],
-            #linestyle=linestyles[fueltype],
             linewidth=0.7)
 
     ax.legend(
@@ -2402,8 +2411,11 @@ def plot_cross_graphs(
             pass
 
     # Get load factor
+    result_dict['lf_cy'] = {}
+    result_dict['lf_by'] = {}
     for year, lf_fueltype_regs in reg_load_factor_y.items():
-
+        print("lf_fueltype_regs")
+        print(lf_fueltype_regs.shape)
         if year == base_yr:
             for reg_nr, reg_geocode in enumerate(regions):
                 result_dict['lf_by'][reg_geocode] = lf_fueltype_regs[fueltype_int][reg_nr]
