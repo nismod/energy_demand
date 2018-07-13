@@ -14,6 +14,7 @@ from energy_demand.basic import basic_functions, conversions
 from energy_demand.plotting import plotting_styles
 from energy_demand.technologies import tech_related
 from energy_demand.profiles import load_factors
+from energy_demand.plotting import plotting_results
 from scipy.interpolate import interp1d
 import matplotlib
 import matplotlib.pyplot as plt

@@ -112,7 +112,7 @@ if __name__ == "__main__":
     # -------------------
     # Other configuration
     # -------------------
-    RESILIENCEPAPERPOUTPUT = False                                      # Output data for resilience paper
+    RESILIENCEPAPERPOUTPUT = True                                      # Output data for resilience paper
 
     data['criterias']['reg_selection'] = False
     data['criterias']['reg_selection_csv_name'] = "msoa_regions_ed.csv" # CSV file stored in 'region' folder with simulated regions
@@ -123,12 +123,20 @@ if __name__ == "__main__":
 
     # --- Region definition configuration
     name_region_set = os.path.join(local_data_path, 'region_definitions', "lad_2016_uk_simplified.shp")        # LAD
-    name_population_dataset = os.path.join(local_data_path, 'scenarios', 'uk_pop_high_migration_2015_2050.csv')
-   
+    #name_population_dataset = os.path.join(local_data_path, 'scenarios', 'uk_pop_high_migration_2015_2050.csv')
+    name_population_dataset = os.path.join(local_data_path, 'scenarios', 'uk_pop_constant_2015_2050.csv')
     # MSOA model run
     #name_region_set_selection = "msoa_regions_ed.csv"
     #name_region_set = os.path.join(local_data_path, 'region_definitions', 'msoa_uk', "msoa_lad_2015_uk.shp")    # MSOA
     #name_population_dataset = os.path.join(local_data_path, 'scenarios', 'uk_pop_high_migration_2015_2050.csv')
+
+    # -------------------------------
+    # User defined strategy variables
+    # -------------------------------
+    user_defined_strategy_vars = {
+        'f_eff_achieved': 0,            # No efficiency improvements
+        'enduse_change__ss_fans': 0.5   # 50% improvement
+    }
 
     # -----
     # Paths
@@ -179,10 +187,14 @@ if __name__ == "__main__":
         region_area = region['properties']['st_areasha']
         data['pop_density'][region_name] = data['population'][data['assumptions'].base_yr][region_name] / region_area
 
-    # Parameters defined within smif
+    # Load standard strategy variable values
     strategy_vars = strategy_variables.load_param_assump(
         data['paths'], data['local_paths'], data['assumptions'])
     data['assumptions'].update('strategy_vars', strategy_vars)
+
+    # Update user defined strategy variables
+    for var_name, var_value in user_defined_strategy_vars.items():
+        data['assumptions'].update(var_name, var_value)
 
     data['tech_lp'] = data_loader.load_data_profiles(
         data['paths'], data['local_paths'],
@@ -307,14 +319,36 @@ if __name__ == "__main__":
                 data['assumptions'].model_yeardays_daytype,
                 data['criterias']['plot_crit'])
 
+
         # -------------------------
         # Write for resilience paper
         # -------------------------
-        if RESILIENCEPAPERPOUTPUT and data['assumptions'].curr_yr == 2015:
+        if RESILIENCEPAPERPOUTPUT: # and data['assumptions'].curr_yr == 2015:
+
+            print("dddddddd")
+            print(sim_obj.ed_fueltype_national_yh.shape)
+            print(sim_obj.results_unconstrained.shape)
+            a = sim_obj.ed_fueltype_national_yh[2].reshape(8760)
+            b1 = np.sum(sim_obj.results_unconstrained, axis=0)
+            b = np.sum(b1, axis=0)[2].reshape(8760)
+            print(a.shape)
+            print(np.max(a))
+            print(np.min(a))
+            print("--")
+            print(np.max(b))
+            print(np.min(b))
+            print("eecho")
+            print(np.sum(sim_obj.results_unconstrained))
+            print(np.sum(sim_obj.ed_fueltype_national_yh))
+
+            if np.sum(sim_obj.ed_fueltype_national_yh) != np.sum(sim_obj.results_unconstrained):
+                print("Should be the same")
+                raise Exception
+
             write_data.resilience_paper(
                 data['result_paths']['data_results_model_runs'],
                 "resilience_paper",
-                "result_risk_paper",
+                "result_risk_paper_{}_".format(sim_yr),
                 sim_obj.results_unconstrained,
                 ['residential', 'service', 'industry'],
                 data['regions'],

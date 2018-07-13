@@ -839,6 +839,7 @@ def aggregate_final_results(
     # Aggregate total fuel (incl. heating)
     # np.array(fueltypes, sectors, regions, timesteps)
     # -------------
+    _before = np.sum(aggr_results['results_unconstrained'])
     for submodel_nr, submodel in enumerate(all_submodels):
         submodel_ed_fueltype_regs_yh = fuel_aggr(
             [submodel],
@@ -847,9 +848,12 @@ def aggregate_final_results(
             'techs_fuel_yh',
             technologies,
             input_array=empty_input_array)
-
+        print("SECTOR SPZ {}  {}  {}".format(submodel_nr, np.sum(submodel_ed_fueltype_regs_yh), np.sum(empty_input_array)))
         # Add SubModel specific ed
         aggr_results['results_unconstrained'][submodel_nr][reg_array_nr] += submodel_ed_fueltype_regs_yh
+
+    _after = np.sum(aggr_results['results_unconstrained'])
+    _diff_result_unconstrained = _after - _before
 
     # -----------
     # Other summing for other purposes
@@ -866,6 +870,8 @@ def aggregate_final_results(
             all_submodels,
             technologies)
 
+        before = np.sum(aggr_results['ed_fueltype_national_yh'])
+
         aggr_results['ed_fueltype_national_yh'] = fuel_aggr(
             all_submodels,
             'no_sum',
@@ -874,6 +880,12 @@ def aggregate_final_results(
             technologies,
             input_array=aggr_results['ed_fueltype_national_yh'])
 
+        # TODO CHECK DIFF
+        after = np.sum(aggr_results['ed_fueltype_national_yh'])
+        _diff = after - before
+        print("Differen ed_fueltype_national_yh " + str(_diff))
+        print("Diff                             " + str(_diff_result_unconstrained))
+        raise Exception
         # Sum across all regions and provide specific enduse
         aggr_results['tot_fuel_y_enduse_specific_yh'] = sum_enduse_all_regions(
             aggr_results['tot_fuel_y_enduse_specific_yh'],

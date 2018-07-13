@@ -382,9 +382,48 @@ def resilience_paper(
     file.close()
 
     # ----------------------
+    # Write out statistics of aggregated national demand
+    # ----------------------
+    file_path_statistics = os.path.join(
+        path_result_sub_folder,
+        "{}{}".format(
+            'statistics',
+            ".csv"))
+
+    file = open(file_path_statistics, "w")
+    
+    file.write("{}, {}, {}".format(
+        "peak_h_national",
+        "trough_h_national",
+        "diff") + '\n')
+
+    # Aggregate all submodels
+    print("A " + str(results.shape))
+    national_aggregated_submodels = np.sum(results, axis=0)
+
+    # Aggregate over all regions
+    print("B " + str(national_aggregated_submodels.shape))
+    sum_all_regs = np.sum(national_aggregated_submodels, axis=0)
+    print("BC1 " + str(sum_all_regs.shape))
+    sum_all_regs_fueltype_8760 = sum_all_regs[fueltype_int].reshape(8760)
+    print("BC2 " + str(sum_all_regs_fueltype_8760.shape))
+    # National peak
+    peak_h_national = np.max(sum_all_regs_fueltype_8760)
+
+    # National trough
+    trough_h_national = np.min(sum_all_regs_fueltype_8760)
+
+    file.write("{}, {}, {}".format(
+        peak_h_national,
+        trough_h_national,
+        peak_h_national - trough_h_national) + '\n')
+    print("AA {}  {}".format(peak_h_national, trough_h_national))
+    raise Exception
+    file.close()
+
+    # ----------------------
     # Write out national average
     # ----------------------
-    # Create file  path
     path_to_txt_flat = os.path.join(
         path_result_sub_folder,
         "{}{}".format(
