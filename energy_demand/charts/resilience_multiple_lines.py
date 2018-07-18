@@ -3,8 +3,8 @@
 import csv
 import os
 from collections import defaultdict
-from energy_demand.plotting import plotting_styles
 import matplotlib.pyplot as plt
+from energy_demand.plotting import plotting_styles
 from energy_demand.plotting import plotting_results
 from energy_demand.plotting import plotting_program
 from energy_demand.read_write import write_data
@@ -30,6 +30,22 @@ def read_csv_max_min(path_to_csv):
 
     return out_dict
 
+def read_csv_average(path_to_csv):
+    """read average value from csv
+    """
+    out_dict = {}
+    with open(path_to_csv, 'r') as csvfile:
+        rows = csv.reader(csvfile, delimiter=',')
+        
+        for row in rows:
+            out_dict["name"] = row
+            break
+        for row in rows:
+            out_dict["average_value"] = row[0]
+            break
+
+    return out_dict
+
 def generate_min_max_resilience_plot(path_to_scenarios):
     # Iterate result folder
 
@@ -49,7 +65,7 @@ def generate_min_max_resilience_plot(path_to_scenarios):
             # Read in min and max day
             # ----
             path_fist_scenario = os.path.join(path_to_scenarios, scenario)
-            
+
             data_container[scenario] = defaultdict(dict)
 
             # Folders with Resilience min and max day
@@ -59,8 +75,15 @@ def generate_min_max_resilience_plot(path_to_scenarios):
 
             # Get all max day files
             for result_file in result_files:
+
                 if result_file.split("__")[0] != 'result_day':
-                    pass
+                    
+                    # Get average value from file
+                    if result_file == 'average_nr.csv':
+                        average_demands_dict = read_csv_average(os.path.join(result_folder, result_file))
+                        average_demands_by = float(average_demands_dict['average_value'])
+                    else:
+                        pass
                 else:
                     if result_file.split("__")[0] == 'result_day' and result_file.split("__")[1] == 'max':
                         dict_values = read_csv_max_min(os.path.join(result_folder, result_file))
@@ -75,6 +98,7 @@ def generate_min_max_resilience_plot(path_to_scenarios):
                         data_container[scenario][year]['min_values'] = dict_values['values_list']
                         data_container[scenario][year]['min_yearday'] = dict_values['yearday']
                         data_container[scenario][year]['min_date'] = dict_values['date']
+
     # ------------------
     # Calculate statistics
     # --------------------
@@ -86,6 +110,10 @@ def generate_min_max_resilience_plot(path_to_scenarios):
             round(max(data_container[scenario][year]['max_values']) - min(data_container[scenario][year]['min_values']), 2),
             data_container[scenario][year]['max_date'],
             data_container[scenario][year]['min_date']))
+
+    # Average demand of base year
+
+    flat_y_data = 24 * [average_demands_by]
 
     # ------------------
     # Write statiscs to txt
@@ -122,6 +150,9 @@ def generate_min_max_resilience_plot(path_to_scenarios):
         if counter == 1:
             x_data_smoothed, y_data_smoothed = plotting_results.smooth_data(x_data, scenario_data[2015]['max_values'], num=40000)
             plt.plot(x_data_smoothed, list(y_data_smoothed), color='black', label='{}__{}'.format(scenario, plot_yr))
+
+            # Add flat line
+            plt.plot(x_data, list(flat_y_data), color='grey', label='{}__{}'.format("flat", 2015))
 
     plt.tight_layout()
     plt.ylim(ymin=0, ymax=ymax)
@@ -169,6 +200,9 @@ def generate_min_max_resilience_plot(path_to_scenarios):
         if counter == 1:
             x_data_smoothed, y_data_smoothed = plotting_results.smooth_data(x_data, scenario_data[2015]['min_values'], num=40000)
             plt.plot(x_data_smoothed, list(y_data_smoothed), color='black', label='{}__{}'.format(scenario, plot_yr))
+
+            # Add flat line
+            plt.plot(x_data, list(flat_y_data), color='grey', label='{}__{}'.format("flat", 2015))
 
     plt.tight_layout()
     plt.ylim(ymin=0, ymax=ymax)

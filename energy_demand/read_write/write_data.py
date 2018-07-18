@@ -529,7 +529,7 @@ def resilience_paper(
     path_to_txt_flat = os.path.join(
         path_result_sub_folder,
         "{}{}".format(
-            'averge_nr',
+            'average_nr',
             ".csv"))
 
     file = open(path_to_txt_flat, "w")
