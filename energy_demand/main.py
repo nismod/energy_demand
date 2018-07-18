@@ -124,7 +124,7 @@ if __name__ == "__main__":
     # --- Region definition configuration
     name_region_set = os.path.join(local_data_path, 'region_definitions', "lad_2016_uk_simplified.shp")        # LAD
     #name_population_dataset = os.path.join(local_data_path, 'scenarios', 'uk_pop_high_migration_2015_2050.csv')
-    name_population_dataset = os.path.join(local_data_path, 'scenarios', 'uk_pop_constant_2015_2050.csv')
+    name_population_dataset = os.path.join(local_data_path, 'scenarios', 'uk_pop_constant_2015_2050.csv') # Constant scenario
     # MSOA model run
     #name_region_set_selection = "msoa_regions_ed.csv"
     #name_region_set = os.path.join(local_data_path, 'region_definitions', 'msoa_uk', "msoa_lad_2015_uk.shp")    # MSOA
@@ -134,8 +134,8 @@ if __name__ == "__main__":
     # User defined strategy variables
     # -------------------------------
     user_defined_strategy_vars = {
-        'f_eff_achieved': 0,            # No efficiency improvements
-        'enduse_change__ss_fans': 0.5   # 50% improvement
+        'f_eff_achieved': 0.5,            # Efficiency improvements
+        #'enduse_change__ss_fans': 0.5   # 50% improvement
     }
 
     # -----
@@ -194,7 +194,7 @@ if __name__ == "__main__":
 
     # Update user defined strategy variables
     for var_name, var_value in user_defined_strategy_vars.items():
-        data['assumptions'].update(var_name, var_value)
+        data['assumptions'].strategy_vars[var_name]['scenario_value'] = var_value
 
     data['tech_lp'] = data_loader.load_data_profiles(
         data['paths'], data['local_paths'],
@@ -325,27 +325,12 @@ if __name__ == "__main__":
         # -------------------------
         if RESILIENCEPAPERPOUTPUT: # and data['assumptions'].curr_yr == 2015:
 
-            print("dddddddd")
-            print(sim_obj.ed_fueltype_national_yh.shape)
-            print(sim_obj.results_unconstrained.shape)
-            a = sim_obj.ed_fueltype_national_yh[2].reshape(8760)
-            b1 = np.sum(sim_obj.results_unconstrained, axis=0)
-            b = np.sum(b1, axis=0)[2].reshape(8760)
-            print(a.shape)
-            print(np.max(a))
-            print(np.min(a))
-            print("--")
-            print(np.max(b))
-            print(np.min(b))
-            print("eecho")
-            print(np.sum(sim_obj.results_unconstrained))
-            print(np.sum(sim_obj.ed_fueltype_national_yh))
-
-            if np.sum(sim_obj.ed_fueltype_national_yh) != np.sum(sim_obj.results_unconstrained):
+            if round(np.sum(sim_obj.ed_fueltype_national_yh), 2)!= round(np.sum(sim_obj.results_unconstrained), 2):
                 print("Should be the same")
                 raise Exception
 
             write_data.resilience_paper(
+                sim_yr,
                 data['result_paths']['data_results_model_runs'],
                 "resilience_paper",
                 "result_risk_paper_{}_".format(sim_yr),
@@ -376,6 +361,13 @@ if __name__ == "__main__":
             data['reg_nrs'],
             data['lookups']['fueltypes_nr'],
             8760)
+
+        # Testing
+        if round(np.sum(sim_obj.ed_fueltype_national_yh), 2)!= round(np.sum(sim_obj.results_unconstrained), 2):
+            logging.warning("Should be the same {} {}".format(
+                round(np.sum(sim_obj.ed_fueltype_national_yh), 2),
+                round(np.sum(sim_obj.results_unconstrained), 2)))
+            raise Exception
 
         # -------------------------------------
         # # Generate YAML file with keynames for `sector_model`

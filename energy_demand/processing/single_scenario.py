@@ -25,8 +25,6 @@ def main(path_data_energy_demand, path_shapefile_input, plot_crit_dict, base_yr,
     """
     print("Start processing")
 
-
-
     # Set up logger
     logger_setup.set_up_logger(
         os.path.join(

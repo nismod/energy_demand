@@ -559,9 +559,6 @@ def aggr_fuel_regions_fueltype(
     fuel_region : dict
         Aggregated fuel per fueltype, yeardays, hours
     """
-    ##input_array = np.zeros((
-    ##    fueltypes_nr, 365, 24), dtype="float")
-
     fuel_region = fuel_aggr(
         submodels,
         'no_sum',
@@ -838,7 +835,6 @@ def aggregate_final_results(
     # Aggregate total fuel (incl. heating)
     # np.array(fueltypes, sectors, regions, timesteps)
     # -------------
-    _before = np.sum(aggr_results['results_unconstrained'])
     for submodel_nr, submodel in enumerate(all_submodels):
 
         submodel_ed_fueltype_regs_yh = fuel_aggr(
@@ -851,9 +847,6 @@ def aggregate_final_results(
 
         # Add SubModel specific ed
         aggr_results['results_unconstrained'][submodel_nr][reg_array_nr] += submodel_ed_fueltype_regs_yh
-
-    _after = np.sum(aggr_results['results_unconstrained'])
-    _diff_result_unconstrained = _after - _before
 
     # -----------
     # Other summing for other purposes
@@ -870,9 +863,6 @@ def aggregate_final_results(
             all_submodels,
             technologies)
 
-        before = np.sum(aggr_results['ed_fueltype_national_yh'])
-
-        #aggr_results['ed_fueltype_national_yh'] = fuel_aggr(
         ed_fueltype_yh_aggr = fuel_aggr(
             all_submodels,
             'no_sum',
@@ -882,12 +872,6 @@ def aggregate_final_results(
             shape_aggregation_array=aggr_results['ed_fueltype_national_yh'].shape)
         aggr_results['ed_fueltype_national_yh'] += ed_fueltype_yh_aggr
 
-        # TODO CHECK DIFF
-        after = np.sum(aggr_results['ed_fueltype_national_yh'])
-        _diff = after - before
-        print("Differen ed_fueltype_national_yh " + str(_diff))
-        print("Diff                             " + str(_diff_result_unconstrained))
-        #raise Exception
         # Sum across all regions and provide specific enduse
         aggr_results['tot_fuel_y_enduse_specific_yh'] = sum_enduse_all_regions(
             aggr_results['tot_fuel_y_enduse_specific_yh'],

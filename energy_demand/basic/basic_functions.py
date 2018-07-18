@@ -5,6 +5,11 @@ import shutil
 import numpy as np
 from pyproj import Proj, transform
 
+def round_down(num, divisor):
+    """Round down
+    """
+    return num - (num%divisor)
+
 def assign_array_to_dict(array_in, regions):
     """Convert array to dict with same order as region list
 

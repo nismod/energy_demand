@@ -10,6 +10,8 @@ from energy_demand.basic import basic_functions
 from energy_demand.geography import write_shp
 from energy_demand.technologies import tech_related
 from energy_demand.basic import conversions
+from energy_demand.plotting import plotting_results
+from energy_demand.basic import date_prop
 
 class ExplicitDumper(yaml.Dumper):
     """
@@ -66,6 +68,53 @@ def logg_info(modelrun, fuels_in, data):
     logging.info("Diff hydrogen p:         %s", str(round((np.sum(modelrun.ed_fueltype_national_yh[data['lookups']['fueltypes']['hydrogen']])/ fuels_in["fuel_in_hydrogen"]), 4)))
     logging.info("Diff biomass p:          %s", str(round((np.sum(modelrun.ed_fueltype_national_yh[data['lookups']['fueltypes']['biomass']])/ fuels_in["fuel_in_biomass"]), 4)))
     logging.info("================================================")
+
+
+    print("================================================")
+    print("Simulation year:         %s", str(modelrun.curr_yr))
+    print("Nr of regions:           %s", str(data['reg_nrs']))
+    print("Total ktoe:              %s", str(conversions.gwh_to_ktoe(fuels_in["fuel_in"])))
+    print("-----------------")
+    print("[GWh] Total input:       %s", str(fuels_in["fuel_in"]))
+    print("[GWh] Total output:      %s", str(np.sum(modelrun.ed_fueltype_national_yh)))
+    print("[GWh] Total difference:  %s", str(round((np.sum(modelrun.ed_fueltype_national_yh) - fuels_in["fuel_in"]), 4)))
+    print("-----------")
+    print("[GWh] oil input:         %s", str(fuels_in["fuel_in_oil"]))
+    print("[GWh] oil output:        %s", str(np.sum(modelrun.ed_fueltype_national_yh[data['lookups']['fueltypes']['oil']])))
+    print("[GWh] oil diff:          %s", str(round(np.sum(modelrun.ed_fueltype_national_yh[data['lookups']['fueltypes']['oil']]) - fuels_in["fuel_in_oil"], 4)))
+    print("-----------")
+    print("[GWh] biomass output:    %s", str(fuels_in["fuel_in_biomass"]))
+    print("[GWh] biomass output:    %s", str(np.sum(modelrun.ed_fueltype_national_yh[data['lookups']['fueltypes']['biomass']])))
+    print("[GWh] biomass diff:      %s", str(round(np.sum(modelrun.ed_fueltype_national_yh[data['lookups']['fueltypes']['biomass']]) - fuels_in["fuel_in_biomass"], 4)))
+    print("-----------")
+    print("[GWh] solid_fuel output: %s", str(fuels_in["fuel_in_solid_fuel"]))
+    print("[GWh] solid_fuel output: %s", str(np.sum(modelrun.ed_fueltype_national_yh[data['lookups']['fueltypes']['solid_fuel']])))
+    print("[GWh] solid_fuel diff:   %s", str(round(np.sum(modelrun.ed_fueltype_national_yh[data['lookups']['fueltypes']['solid_fuel']]) - fuels_in["fuel_in_solid_fuel"], 4)))
+    print("-----------")
+    print("[GWh] elec output:       %s", str(fuels_in["fuel_in_elec"]))
+    print("[GWh] elec output:       %s", str(np.sum(modelrun.ed_fueltype_national_yh[data['lookups']['fueltypes']['electricity']])))
+    print("[GWh] ele fuel diff:     %s", str(round(np.sum(modelrun.ed_fueltype_national_yh[data['lookups']['fueltypes']['electricity']]) - fuels_in["fuel_in_elec"], 4)))
+    print("-----------")
+    print("[GWh] gas output:        %s", str(fuels_in["fuel_in_gas"]))
+    print("[GWh] gas output:        %s", str(np.sum(modelrun.ed_fueltype_national_yh[data['lookups']['fueltypes']['gas']])))
+    print("[GWh] gas diff:          %s", str(round(np.sum(modelrun.ed_fueltype_national_yh[data['lookups']['fueltypes']['gas']]) - fuels_in["fuel_in_gas"], 4)))
+    print("-----------")
+    print("[GWh] hydro output:      %s", str(fuels_in["fuel_in_hydrogen"]))
+    print("[GWh] hydro output:      %s", str(np.sum(modelrun.ed_fueltype_national_yh[data['lookups']['fueltypes']['hydrogen']])))
+    print("[GWh] hydro diff:        %s", str(round(np.sum(modelrun.ed_fueltype_national_yh[data['lookups']['fueltypes']['hydrogen']]) - fuels_in["fuel_in_hydrogen"], 4)))
+    print("-----------")
+    print("TOTAL HEATING            %s", str(fuels_in["tot_heating"]))
+    print("[GWh] heat input:        %s", str(fuels_in["fuel_in_heat"]))
+    print("[GWh] heat output:       %s", str(np.sum(modelrun.ed_fueltype_national_yh[data['lookups']['fueltypes']['heat']])))
+    print("[GWh] heat diff:         %s", str(round(np.sum(modelrun.ed_fueltype_national_yh[data['lookups']['fueltypes']['heat']]) - fuels_in["fuel_in_heat"], 4)))
+    print("-----------")
+    print("Diff elec p:             %s", str(round((np.sum(modelrun.ed_fueltype_national_yh[data['lookups']['fueltypes']['electricity']])/ fuels_in["fuel_in_elec"]), 4)))
+    print("Diff gas p:              %s", str(round((np.sum(modelrun.ed_fueltype_national_yh[data['lookups']['fueltypes']['gas']])/ fuels_in["fuel_in_gas"]), 4)))
+    print("Diff oil p:              %s", str(round((np.sum(modelrun.ed_fueltype_national_yh[data['lookups']['fueltypes']['oil']])/ fuels_in["fuel_in_oil"]), 4)))
+    print("Diff solid_fuel p:       %s", str(round((np.sum(modelrun.ed_fueltype_national_yh[data['lookups']['fueltypes']['solid_fuel']])/ fuels_in["fuel_in_solid_fuel"]), 4)))
+    print("Diff hydrogen p:         %s", str(round((np.sum(modelrun.ed_fueltype_national_yh[data['lookups']['fueltypes']['hydrogen']])/ fuels_in["fuel_in_hydrogen"]), 4)))
+    print("Diff biomass p:          %s", str(round((np.sum(modelrun.ed_fueltype_national_yh[data['lookups']['fueltypes']['biomass']])/ fuels_in["fuel_in_biomass"]), 4)))
+    print("================================================")
 
     return
 
@@ -295,7 +344,21 @@ def write_simulation_inifile(path, data, simulated_regions):
     with open(path_ini_file, 'w') as write_info:
         config.write(write_info)
 
+def write_min_max_result_to_txt(file_path, values, yearday, yearday_date):
+    """
+    """
+    file = open(file_path, "w")
+    file.write("Yearday: {}".format(yearday) + '\n')
+    file.write("date " + str(yearday_date))
+    print("tt")
+    print(len(values))
+    for value in values:
+        file.write("{}".format(value) + '\n') #Write list to values
+    file.close()
+    return
+
 def resilience_paper(
+        sim_yr,
         path_result_folder,
         new_folder,
         file_name,
@@ -350,6 +413,7 @@ def resilience_paper(
             # Reshape
             reshape_8760h = results[submodel_nr][region_nr][fueltype_int].reshape(8760)
 
+            # Aggregate min and max
             min_GW_elec += np.min(reshape_8760h)
             max_GW_elec += np.max(reshape_8760h)
 
@@ -363,7 +427,8 @@ def resilience_paper(
             else:
                 industry_min_GW_elec = np.min(reshape_8760h)
                 industry_max_GW_elec = np.max(reshape_8760h)'''
-            
+
+        # Write to csv file
         file.write("{}, {}, {}".format(
             str.strip(region),
             float(min_GW_elec),
@@ -381,32 +446,30 @@ def resilience_paper(
 
     file.close()
 
-    # ----------------------
+    # ---------------------
     # Write out statistics of aggregated national demand
     # ----------------------
     file_path_statistics = os.path.join(
         path_result_sub_folder,
         "{}{}".format(
-            'statistics',
+            'statistics_{}'.format(sim_yr),
             ".csv"))
 
     file = open(file_path_statistics, "w")
-    
+
     file.write("{}, {}, {}".format(
         "peak_h_national",
         "trough_h_national",
         "diff") + '\n')
 
     # Aggregate all submodels
-    print("A " + str(results.shape))
     national_aggregated_submodels = np.sum(results, axis=0)
 
     # Aggregate over all regions
-    print("B " + str(national_aggregated_submodels.shape))
     sum_all_regs = np.sum(national_aggregated_submodels, axis=0)
-    print("BC1 " + str(sum_all_regs.shape))
+
     sum_all_regs_fueltype_8760 = sum_all_regs[fueltype_int].reshape(8760)
-    print("BC2 " + str(sum_all_regs_fueltype_8760.shape))
+
     # National peak
     peak_h_national = np.max(sum_all_regs_fueltype_8760)
 
@@ -417,9 +480,54 @@ def resilience_paper(
         peak_h_national,
         trough_h_national,
         peak_h_national - trough_h_national) + '\n')
-    print("AA {}  {}".format(peak_h_national, trough_h_national))
-    raise Exception
+
+    print("PEAAK {}  {}".format(peak_h_national, trough_h_national))
     file.close()
+
+    # --------------------
+    # Plot min and max day of national aggregated demand
+    # --------------------
+    max_day = int(basic_functions.round_down((np.argmax(sum_all_regs_fueltype_8760) / 24), 1))
+    min_day = int(basic_functions.round_down((np.argmin(sum_all_regs_fueltype_8760) / 24), 1))
+
+    max_day_date = date_prop.yearday_to_date(max_day, sim_yr)
+    min_day_date = date_prop.yearday_to_date(min_day, sim_yr)
+
+    max_day_values = list(sum_all_regs_fueltype_8760[max_day * 24:(max_day+1)*24])
+    min_day_values = list(sum_all_regs_fueltype_8760[min_day * 24:(min_day+1)*24])
+
+    # ---------------
+    # Plot as pdf
+    # ---------------
+    file_path_max_day = os.path.join(
+        path_result_sub_folder,
+        "{}{}".format(
+            'result_day__max__{}__'.format(sim_yr),
+            ".csv"))
+    file_path_min_day = os.path.join(
+        path_result_sub_folder,
+        "{}{}".format(
+            'result_day__min__{}__'.format(sim_yr),
+            ".csv"))
+
+    # Plot daily values
+    #plotting_results.plot_day_dh(
+    #    max_day_values, file_path_max_day, max_day, sim_yr)
+    #plotting_results.plot_day_dh(
+    #    min_day_values, file_path_min_day, min_day, sim_yr)
+
+    # Write out to files
+    write_min_max_result_to_txt(
+        file_path=file_path_max_day,
+        values=max_day_values,
+        yearday=max_day,
+        yearday_date=max_day_date)
+
+    write_min_max_result_to_txt(
+        file_path=file_path_min_day,
+        values=min_day_values,
+        yearday=min_day,
+        yearday_date=min_day_date)
 
     # ----------------------
     # Write out national average
@@ -442,7 +550,7 @@ def resilience_paper(
 
     file.write("{}".format(uk_av_gw_elec))
     file.close()
-    print("Finished writing out resilience .csv")
+    print("Finished writing out resilience csv files")
     return
 
 def write_lf(

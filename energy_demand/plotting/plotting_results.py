@@ -14,13 +14,28 @@ from energy_demand.basic import basic_functions, conversions
 from energy_demand.plotting import plotting_styles
 from energy_demand.technologies import tech_related
 from energy_demand.profiles import load_factors
-from energy_demand.plotting import plotting_results
 from scipy.interpolate import interp1d
 import matplotlib
 import matplotlib.pyplot as plt
 from matplotlib.ticker import MultipleLocator, FormatStrFormatter
 matplotlib.use('Agg') # Used to make it work in linux
 
+def plot_day_dh(data_dh_modelled, path_file_out, day, sim_yr):
+    """Pot daily result
+    """
+    x_values = range(24)
+    
+    plt.plot(x_values, list(data_dh_modelled), color='red', label='modelled')
+
+    plt.title("Daily profile of day: {} yr: {}".format(day, sim_yr))
+    plt.tight_layout()
+    plt.margins(x=0)
+    plt.show()
+
+    # Write out to file
+    file = open(path_file_out, "w")
+    file.write("{}".format(data_dh_modelled) + '\n')
+    
 def smooth_data(x_list, y_list, num=500, spider=False):
     """Smooth data
 
@@ -485,7 +500,7 @@ def plot_seasonal_lf(
             upper_boundary = []
             lower_bdoundary = []
 
-            min_max_polygon = plotting_results.create_min_max_polygon_from_lines(lf_fueltypes_season)
+            min_max_polygon = create_min_max_polygon_from_lines(lf_fueltypes_season)
 
             '''for year_nr, lf_fueltype_reg in lf_fueltypes_season.items():
 
@@ -644,7 +659,7 @@ def plot_lf_y(
         # create correct sorting to draw filled polygon
         min_max_polygon = order_polygon(upper_boundary, lower_bdoundary)'''
 
-        min_max_polygon = plotting_results.create_min_max_polygon_from_lines(reg_load_factor_y)
+        min_max_polygon = create_min_max_polygon_from_lines(reg_load_factor_y)
 
         polygon = plt.Polygon(
             min_max_polygon,
@@ -1345,7 +1360,7 @@ def plot_load_profile_dh_multiple(
 
                 # create correct sorting to draw filled polygon
                 min_max_polygon = order_polygon(upper_boundary, lower_bdoundary)
-                #min_max_polygon = plotting_results.create_min_max_polygon_from_lines(reg_load_factor_y)
+                #min_max_polygon = create_min_max_polygon_from_lines(reg_load_factor_y)
 
                 polygon = plt.Polygon(
                     min_max_polygon,
@@ -2208,7 +2223,7 @@ def plot_radar_plot_multiple_lines(
         plt.ylim(0, nr_of_plot_steps*plot_steps)
 
         # Smooth lines
-        angles_smoothed, values_smoothed = plotting_results.smooth_data(
+        angles_smoothed, values_smoothed = smooth_data(
             angles, values, spider=True)
 
         # Plot data

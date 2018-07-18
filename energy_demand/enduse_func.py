@@ -9,6 +9,7 @@ from energy_demand.technologies import diffusion_technologies
 from energy_demand.technologies import fuel_service_switch
 from energy_demand.technologies import tech_related
 from energy_demand.basic import testing_functions
+from energy_demand.basic import basic_functions
 
 class Enduse(object):
     """Enduse Class for all endueses in each SubModel
@@ -123,7 +124,7 @@ class Enduse(object):
             self.fuel_yh = 0
             self.enduse_techs = []
         else:
-            #logging.debug("------INFO  {} {}  {}".format(self.enduse, region, curr_yr))
+            #print("------INFO  {} {}  {}".format(self.enduse, region, curr_yr))
             # Get technologies of enduse
             self.enduse_techs = get_enduse_techs(fuel_tech_p_by)
 
@@ -537,11 +538,6 @@ def get_enduse_configuration(
 
     return mode_constrained
 
-def round_down(num, divisor):
-    """Round down
-    """
-    return num - (num%divisor)
-
 def get_peak_day_all_fueltypes(fuel_yh):
     """Iterate yh and get day containing the hour
     with the largest demand (across all fueltypes).
@@ -567,7 +563,7 @@ def get_peak_day_all_fueltypes(fuel_yh):
     else:
 
         # Get day with maximum hour
-        peak_day_nr = round_down(np.argmax(all_fueltypes_tot_h) / 24, 1)
+        peak_day_nr = basic_functions.round_down(np.argmax(all_fueltypes_tot_h) / 24, 1)
 
         return int(peak_day_nr)
 
@@ -621,7 +617,7 @@ def get_peak_day_single_fueltype(fuel_yh):
         return 0, 0
     else:
         # Sum fuel within every hour for every day and get day with maximum fuel
-        peak_day_nr = round_down(np.argmax(fuel_yh_8760) / 24, 1)
+        peak_day_nr = basic_functions.round_down(np.argmax(fuel_yh_8760) / 24, 1)
 
         peak_h = np.max(fuel_yh_8760)
 
