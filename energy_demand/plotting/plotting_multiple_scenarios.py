@@ -413,8 +413,7 @@ def plot_heat_pump_chart(
     plt.ylim(ymin=0)
     plt.ylim(ymax=80)
     #plt.ylim(ymax=1.2)
-    plt.xlim(xmin=0)
-    plt.xlim(xmax=60)
+    plt.xlim(xmin=0, xmax=60)
 
     # ------------
     # Plot legend

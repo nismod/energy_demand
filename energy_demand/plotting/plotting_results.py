@@ -20,22 +20,6 @@ import matplotlib.pyplot as plt
 from matplotlib.ticker import MultipleLocator, FormatStrFormatter
 matplotlib.use('Agg') # Used to make it work in linux
 
-def plot_day_dh(data_dh_modelled, path_file_out, day, sim_yr):
-    """Pot daily result
-    """
-    x_values = range(24)
-    
-    plt.plot(x_values, list(data_dh_modelled), color='red', label='modelled')
-
-    plt.title("Daily profile of day: {} yr: {}".format(day, sim_yr))
-    plt.tight_layout()
-    plt.margins(x=0)
-    plt.show()
-
-    # Write out to file
-    file = open(path_file_out, "w")
-    file.write("{}".format(data_dh_modelled) + '\n')
-    
 def smooth_data(x_list, y_list, num=500, spider=False):
     """Smooth data
 

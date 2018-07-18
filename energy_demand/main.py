@@ -134,7 +134,7 @@ if __name__ == "__main__":
     # User defined strategy variables
     # -------------------------------
     user_defined_strategy_vars = {
-        'f_eff_achieved': 0.5,            # Efficiency improvements
+        'f_eff_achieved': 0,            # Efficiency improvements
         #'enduse_change__ss_fans': 0.5   # 50% improvement
     }
 

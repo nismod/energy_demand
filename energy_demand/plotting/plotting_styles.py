@@ -72,6 +72,39 @@ def marker_list():
         "|",	# vline
     ]
     return markers
+def color_list_resilience():
+    """
+    """
+    color_list = [
+        #'darkturquoise',
+        #'orange',
+        'firebrick',
+        #'darkviolet',
+        #'khaki',
+        #'olive',
+        'darkseagreen',
+        #'darkcyan',
+        'indianred',
+        'darkblue',
+        'orchid',
+        'gainsboro',
+        'mediumseagreen',
+        'lightgray',
+        'mediumturquoise',
+        'lemonchiffon',
+        'cadetblue',
+        'lightyellow',
+        'lavenderblush',
+        'coral',
+        'purple',
+        'aqua',
+        'mediumslateblue',
+        'darkorange',
+        'mediumaquamarine',
+        'darksalmon',
+        'beige']
+
+    return color_list
 
 def color_list():
     """ List with colors

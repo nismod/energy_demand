@@ -12,6 +12,7 @@ from energy_demand.technologies import tech_related
 from energy_demand.basic import conversions
 from energy_demand.plotting import plotting_results
 from energy_demand.basic import date_prop
+from energy_demand.plotting import plotting_results
 
 class ExplicitDumper(yaml.Dumper):
     """
@@ -345,16 +346,15 @@ def write_simulation_inifile(path, data, simulated_regions):
         config.write(write_info)
 
 def write_min_max_result_to_txt(file_path, values, yearday, yearday_date):
-    """
+    """Write min and max values including data information to csv file
     """
     file = open(file_path, "w")
     file.write("Yearday: {}".format(yearday) + '\n')
-    file.write("date " + str(yearday_date))
-    print("tt")
-    print(len(values))
+    file.write("date " + str(yearday_date) + '\n')
     for value in values:
         file.write("{}".format(value) + '\n') #Write list to values
     file.close()
+
     return
 
 def resilience_paper(
@@ -490,8 +490,8 @@ def resilience_paper(
     max_day = int(basic_functions.round_down((np.argmax(sum_all_regs_fueltype_8760) / 24), 1))
     min_day = int(basic_functions.round_down((np.argmin(sum_all_regs_fueltype_8760) / 24), 1))
 
-    max_day_date = date_prop.yearday_to_date(max_day, sim_yr)
-    min_day_date = date_prop.yearday_to_date(min_day, sim_yr)
+    max_day_date = date_prop.yearday_to_date(sim_yr, max_day)
+    min_day_date = date_prop.yearday_to_date(sim_yr, min_day)
 
     max_day_values = list(sum_all_regs_fueltype_8760[max_day * 24:(max_day+1)*24])
     min_day_values = list(sum_all_regs_fueltype_8760[min_day * 24:(min_day+1)*24])
@@ -509,12 +509,6 @@ def resilience_paper(
         "{}{}".format(
             'result_day__min__{}__'.format(sim_yr),
             ".csv"))
-
-    # Plot daily values
-    #plotting_results.plot_day_dh(
-    #    max_day_values, file_path_max_day, max_day, sim_yr)
-    #plotting_results.plot_day_dh(
-    #    min_day_values, file_path_min_day, min_day, sim_yr)
 
     # Write out to files
     write_min_max_result_to_txt(
