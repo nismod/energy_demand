@@ -534,7 +534,7 @@ def resilience_paper(
         path_out_file = os.path.join(
             path_result_sub_folder,
             "{}{}".format(
-                'regs_hour_GW_{}'.format(hour),
+                'regs_hour_GW_{}_{}'.format(sim_yr, hour),
                 ".csv"))
 
         file = open(path_out_file, "w")

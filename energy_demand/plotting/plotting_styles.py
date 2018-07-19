@@ -72,6 +72,7 @@ def marker_list():
         "|",	# vline
     ]
     return markers
+
 def color_list_resilience():
     """
     """
@@ -86,17 +87,18 @@ def color_list_resilience():
         #'darkcyan',
         #'indianred',
         #'darkblue',
-        'orchid',
+        'forestgreen', #'purple',
+        'sandybrown',
         #'gainsboro',
         #'mediumseagreen',
         #'lightgray',
-        'mediumturquoise',
+        'tomato',
         #'lemonchiffon',
         #'cadetblue',
         #'lightyellow',
         #'lavenderblush',
         'coral',
-        'purple',
+        
         'aqua',
         'mediumslateblue',
         'darkorange',
