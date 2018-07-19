@@ -416,7 +416,7 @@ def resilience_paper(
             # Aggregate min and max
             min_GW_elec += np.min(reshape_8760h)
             max_GW_elec += np.max(reshape_8760h)
-
+ 
             # Min and max
             '''if submodel_nr == 0:
                 resid_min_GW_elec = np.min(reshape_8760h)
@@ -433,6 +433,9 @@ def resilience_paper(
             str.strip(region),
             float(min_GW_elec),
             float(max_GW_elec)) + '\n')
+
+        # Write every hour of min and max day
+        #TODO 
 
         '''file.write("{}, {}, {}, {}, {}, {}, {}".format(
             str.strip(region),
@@ -522,6 +525,37 @@ def resilience_paper(
         values=min_day_values,
         yearday=min_day,
         yearday_date=min_day_date)
+    
+    # ------------------------------------------------------------
+    # Write out for every region for max and min day houryl values
+    # ------------------------------------------------------------
+    for hour in range(24):
+
+        path_out_file = os.path.join(
+            path_result_sub_folder,
+            "{}{}".format(
+                'regs_hour_GW_{}'.format(hour),
+                ".csv"))
+
+        file = open(path_out_file, "w")
+
+        file.write("region, value_max_day, value_min_day\n")
+
+        for region_nr, region in enumerate(regions):
+
+            # Sum over all sumbodels
+            reg_total_max_day = 0
+            reg_total_min_day = 0
+            for submodel_nr, submodel in enumerate(submodels):
+                reg_total_max_day += results[submodel_nr][region_nr][fueltype_int][max_day]
+                reg_total_min_day += results[submodel_nr][region_nr][fueltype_int][min_day]
+
+            file.write("{}, {}, {}\n".format(
+                region,
+                reg_total_max_day[hour],
+                reg_total_min_day[hour]))
+
+        file.close()
 
     # ----------------------
     # Write out national average

@@ -14,7 +14,7 @@ def read_csv_max_min(path_to_csv):
     out_dict = {}
     with open(path_to_csv, 'r') as csvfile:
         rows = csv.reader(csvfile, delimiter=',')
-        
+
         for row in rows:
             out_dict["yearday"] = row
             break
@@ -54,7 +54,7 @@ def generate_min_max_resilience_plot(path_to_scenarios):
     scenarios = os.listdir(path_to_scenarios)
 
     data_container = {}
-    statistics_to_print = ["scenario \tmin \tmax \tdiff \tDate maximum day \tDate minimum day", "=============================", " "]
+    statistics_to_print = ["scenario \tmin \tmax \tdiff \tDate maximum day \tDate minimum day \tMax hour \tMin hour", "=============================", " "]
 
     for scenario in scenarios:
         if scenario == '__results_resilience':
@@ -92,27 +92,35 @@ def generate_min_max_resilience_plot(path_to_scenarios):
                         data_container[scenario][year]['max_yearday'] = dict_values['yearday']
                         data_container[scenario][year]['max_date'] = dict_values['date']
 
+                        # Get position in list (hour) of maximum value
+                        data_container[scenario][year]['max_h'] = dict_values['values_list'].index(max(dict_values['values_list']))
+
                     elif result_file.split("__")[0] == 'result_day' and result_file.split("__")[1] == 'min':
                         dict_values = read_csv_max_min(os.path.join(result_folder, result_file))
                         year = int(result_file.split("__")[2])
                         data_container[scenario][year]['min_values'] = dict_values['values_list']
                         data_container[scenario][year]['min_yearday'] = dict_values['yearday']
                         data_container[scenario][year]['min_date'] = dict_values['date']
+                        
+                        # Get position in list (hour) of min value
+                        data_container[scenario][year]['min_h'] = dict_values['values_list'].index(min(dict_values['values_list']))
 
     # ------------------
     # Calculate statistics
     # --------------------
     for scenario in data_container.keys():
-        statistics_to_print.append("{} \t{} \t{} \t{} \t{} \t{}".format(
+        statistics_to_print.append("{} \t{} \t{} \t{} \t{} \t{} \t{} \t{}".format(
             scenario,
             round(min(data_container[scenario][year]['min_values']), 2),
             round(max(data_container[scenario][year]['max_values']), 2),
             round(max(data_container[scenario][year]['max_values']) - min(data_container[scenario][year]['min_values']), 2),
             data_container[scenario][year]['max_date'],
-            data_container[scenario][year]['min_date']))
+            data_container[scenario][year]['min_date'],
+            data_container[scenario][year]['max_h'],
+            data_container[scenario][year]['min_h'],
+            ))
 
     # Average demand of base year
-
     flat_y_data = 24 * [average_demands_by]
 
     # ------------------
@@ -128,7 +136,8 @@ def generate_min_max_resilience_plot(path_to_scenarios):
     # Create maximum plot
     # ------------------------------------------------
     ymax = 60
-
+    line_width = 1.0
+    color_flat_line = 'red' #darkkhaki'
     fig_name = os.path.join(path_to_scenarios, "__results_resilience", "max_days.pdf")
 
     colors = plotting_styles.color_list_resilience()
@@ -137,22 +146,42 @@ def generate_min_max_resilience_plot(path_to_scenarios):
 
     for counter, (scenario, scenario_data) in enumerate(data_container.items()):
         x_data = range(24)
-
+    
         # Take last simluated year
         plot_yr = list(scenario_data.keys())[-1]
+
+        # Plot base year line
+        if counter == 0:
+            x_data_smoothed, y_data_smoothed = plotting_results.smooth_data(x_data, scenario_data[2015]['max_values'], num=40000)
+            plt.plot(
+                x_data_smoothed,
+                list(y_data_smoothed),
+                color='black',
+                linestyle='-',
+                linewidth=1.5,
+                label='{}__{}'.format(scenario, plot_yr))
+
+            # Add flat line
+            plt.plot(
+                x_data,
+                list(flat_y_data),
+                color=color_flat_line,
+                linestyle='--',
+                linewidth=0.5,
+                label='{}__{}'.format("flat", 2015))
+
+
         y_data = scenario_data[plot_yr]['max_values']
 
         # smooth line
         x_data_smoothed, y_data_smoothed = plotting_results.smooth_data(x_data, y_data, num=40000)
-        plt.plot(x_data_smoothed, list(y_data_smoothed), color=colors[counter], label='{}__{}'.format(scenario, plot_yr))
-
-        # Plot base year line
-        if counter == 1:
-            x_data_smoothed, y_data_smoothed = plotting_results.smooth_data(x_data, scenario_data[2015]['max_values'], num=40000)
-            plt.plot(x_data_smoothed, list(y_data_smoothed), color='black', label='{}__{}'.format(scenario, plot_yr))
-
-            # Add flat line
-            plt.plot(x_data, list(flat_y_data), color='grey', label='{}__{}'.format("flat", 2015))
+        plt.plot(
+            x_data_smoothed,
+            list(y_data_smoothed),
+            color=colors[counter],
+            linestyle='--',
+            linewidth=line_width,
+            label='{}__{}'.format(scenario, plot_yr))
 
     plt.tight_layout()
     plt.ylim(ymin=0, ymax=ymax)
@@ -172,7 +201,7 @@ def generate_min_max_resilience_plot(path_to_scenarios):
         ncol=2,
         prop={
             'family': 'arial',
-            'size': 6})
+            'size': 4})
 
     plt.savefig(fig_name)
 
@@ -190,19 +219,38 @@ def generate_min_max_resilience_plot(path_to_scenarios):
 
         # Take last simluated year
         plot_yr = list(scenario_data.keys())[-1]
+    
+        # Plot base year line
+        if counter == 0:
+            x_data_smoothed, y_data_smoothed = plotting_results.smooth_data(x_data, scenario_data[2015]['min_values'], num=40000)
+            plt.plot(
+                x_data_smoothed,
+                list(y_data_smoothed),
+                color='black',
+                linestyle='-',
+                linewidth=1.5,
+                label='{}__{}'.format(scenario, plot_yr))
+
+            # Add flat line
+            plt.plot(
+                x_data,
+                list(flat_y_data),
+                color=color_flat_line,
+                linestyle='--',
+                linewidth=0.5,
+                label='{}__{}'.format("flat", 2015))
+
         y_data = scenario_data[plot_yr]['min_values']
 
         # smooth line
         x_data_smoothed, y_data_smoothed = plotting_results.smooth_data(x_data, y_data, num=40000)
-        plt.plot(x_data_smoothed, list(y_data_smoothed), color=colors[counter], label='{}__{}'.format(scenario, plot_yr))
-
-        # Plot base year line
-        if counter == 1:
-            x_data_smoothed, y_data_smoothed = plotting_results.smooth_data(x_data, scenario_data[2015]['min_values'], num=40000)
-            plt.plot(x_data_smoothed, list(y_data_smoothed), color='black', label='{}__{}'.format(scenario, plot_yr))
-
-            # Add flat line
-            plt.plot(x_data, list(flat_y_data), color='grey', label='{}__{}'.format("flat", 2015))
+        plt.plot(
+            x_data_smoothed,
+            list(y_data_smoothed),
+            color=colors[counter],
+            linestyle='--',
+            linewidth=line_width,
+            label='{}__{}'.format(scenario, plot_yr))
 
     plt.tight_layout()
     plt.ylim(ymin=0, ymax=ymax)
@@ -222,7 +270,7 @@ def generate_min_max_resilience_plot(path_to_scenarios):
         ncol=2,
         prop={
             'family': 'arial',
-            'size': 6})
+            'size': 4})
 
     plt.savefig(fig_name)
 
