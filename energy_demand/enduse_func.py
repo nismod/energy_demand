@@ -68,6 +68,8 @@ class Enduse(object):
         Scenario drivers per enduse
     flat_profile_crit : bool,default=False
         Criteria of enduse has a flat shape or not
+    make_all_flat : bool
+        Crit to make everything flat #TODO NEW
 
     Note
     ----
@@ -107,7 +109,8 @@ class Enduse(object):
             fueltypes,
             dw_stock=False,
             reg_scen_drivers=None,
-            flat_profile_crit=False
+            flat_profile_crit=False,
+            make_all_flat=False
         ):
         """Enduse class constructor
         """
@@ -216,11 +219,23 @@ class Enduse(object):
                 if flat_profile_crit:
                     pass
                 else:
-                    self.fuel_yh = assign_lp_no_techs(
+                    #self.fuel_yh = assign_lp_no_techs(
+                    fuel_yh = assign_lp_no_techs(
                         enduse,
                         sector,
                         load_profiles,
-                        self.fuel_y)
+                        self.fuel_y,
+                        make_all_flat=make_all_flat)
+                    
+                    # TODO, TODO, TODO Add demand management for non-technology enduse
+                    self.fuel_yh = demand_management(
+                        enduse,
+                        base_yr,
+                        curr_yr,
+                        strategy_vars,
+                        fuel_yh,
+                        mode_constrained=False,
+                        make_all_flat=make_all_flat)
             else:
                 """If technologies are defined for an enduse
                 """
@@ -316,7 +331,7 @@ class Enduse(object):
 
                     # --------------------------------------
                     # Demand Management
-                    # ---------------------------------------
+                    # --------------------------------------
                     if mode_constrained:
                         self.techs_fuel_yh = {}
 
@@ -327,7 +342,8 @@ class Enduse(object):
                                 curr_yr,
                                 strategy_vars,
                                 fuel_yh[tech],
-                                mode_constrained=True)
+                                mode_constrained=True,
+                                make_all_flat=make_all_flat)
 
                         self.fuel_yh = None
                     else:
@@ -337,7 +353,8 @@ class Enduse(object):
                             curr_yr,
                             strategy_vars,
                             fuel_yh,
-                            mode_constrained=False)
+                            mode_constrained=False,
+                            make_all_flat=make_all_flat)
 
 def demand_management(
         enduse,
@@ -345,7 +362,8 @@ def demand_management(
         curr_yr,
         strategy_vars,
         fuel_yh,
-        mode_constrained
+        mode_constrained,
+        make_all_flat=False
     ):
     """Demand management. This function shifts peak per of this enduse
     depending on peak shifting factors. So far only inter day load shifting
@@ -373,6 +391,8 @@ def demand_management(
     mode_constrained : bool
         Running mode
         If mode_constrained, always only one technology imported
+    make_all_flat : bool
+        If true, all shapes are flat
 
     Returns
     -------
@@ -408,6 +428,22 @@ def demand_management(
 
             fuel_yh = lf.peak_shaving_max_min(
                 lf_improved_cy, average_fuel_yd, fuel_yh, mode_constrained)
+
+    # -------------------------------------------------
+    # Convert all load profiles into flat load profiles
+    # -------------------------------------------------
+    if make_all_flat:
+        if mode_constrained:
+            sum_fueltypes_days = np.sum(fuel_yh)                 #sum over all hours
+            average_fueltype = sum_fueltypes_days / 8760         # Average
+            fuel_yh_empty = np.ones((fuel_yh.shape))
+            fuel_yh = fuel_yh_empty * average_fueltype
+        else:
+            sum_fueltypes_days_h = np.sum(fuel_yh, 2)            #sum over all hours
+            sum_fueltypes_days = np.sum(sum_fueltypes_days_h, 1) #sum over all days
+            average_fueltype = sum_fueltypes_days / 8760         #Average per fueltype
+            fuel_yh_empty = np.ones((fuel_yh.shape))
+            fuel_yh = fuel_yh_empty * average_fueltype[:, np.newaxis, np.newaxis]
 
     return fuel_yh
 
@@ -456,7 +492,13 @@ def calc_lf_improvement(
 
     return lf_improved_cy
 
-def assign_lp_no_techs(enduse, sector, load_profiles, fuel_y):
+def assign_lp_no_techs(
+        enduse,
+        sector,
+        load_profiles,
+        fuel_y,
+        make_all_flat
+    ):
     """Assign load profiles for an enduse which has no technologies defined
 
     Arguments
@@ -480,6 +522,14 @@ def assign_lp_no_techs(enduse, sector, load_profiles, fuel_y):
         enduse, sector, 'placeholder_tech', 'shape_yh')
 
     fuel_yh = load_profile[:np.newaxis] * fuel_y[:, np.newaxis, np.newaxis]
+
+    # Convert all load profiles into flat load profiles
+    if make_all_flat:
+        sum_fueltypes_days_h = np.sum(fuel_yh, 2)            #sum over all hours
+        sum_fueltypes_days = np.sum(sum_fueltypes_days_h, 1) #sum over all days
+        average_fueltype = sum_fueltypes_days / 8760         #Average per fueltype
+        fuel_yh_empty = np.ones((fuel_yh.shape))
+        fuel_yh = fuel_yh_empty * average_fueltype[:, np.newaxis, np.newaxis]
 
     return fuel_yh
 

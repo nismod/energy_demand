@@ -133,6 +133,10 @@ def generate_min_max_resilience_plot(path_to_scenarios):
 
     # ------------------------------------------------
     # Create maximum plot
+    #
+    # Note: Midnight of the same day is inserted twice
+    #       in the first and last hour of a 25 hour day
+    #       to visually provide 24 hours of data
     # ------------------------------------------------
     ymax = 60
     line_width = 1.0
