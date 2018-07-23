@@ -229,7 +229,7 @@ class Assumptions(object):
             'rs_consumer_electronics': ['population'],
             'rs_home_computing': ['population']}
 
-        # --Service Submodel (Table 5.5a)
+        # --Service Submodel (Table 5.5a) TODO USE GVA AS DRIVER
         self.scenario_drivers['ss_submodule'] = {
             'ss_space_heating': ['floorarea'],
             'ss_water_heating': ['population'],

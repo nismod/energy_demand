@@ -124,12 +124,14 @@ if __name__ == "__main__":
     # --- Region definition configuration
     name_region_set = os.path.join(local_data_path, 'region_definitions', "lad_2016_uk_simplified.shp")        # LAD
     #name_population_dataset = os.path.join(local_data_path, 'scenarios', 'uk_pop_high_migration_2015_2050.csv')
-    name_population_dataset = os.path.join(local_data_path, 'scenarios', 'uk_pop_constant_2015_2050.csv') # Constant scenario
+    #name_population_dataset = os.path.join(local_data_path, 'scenarios', 'uk_pop_constant_2015_2050.csv') # Constant scenario
+    name_population_dataset = os.path.join(local_data_path, 'scenarios', 'population-economic-smif-csv-from-nismod-db', 'pop-a_econ-c_fuel-c/population__lad.csv') # Constant scenario
     # MSOA model run
     #name_region_set_selection = "msoa_regions_ed.csv"
     #name_region_set = os.path.join(local_data_path, 'region_definitions', 'msoa_uk', "msoa_lad_2015_uk.shp")    # MSOA
     #name_population_dataset = os.path.join(local_data_path, 'scenarios', 'uk_pop_high_migration_2015_2050.csv')
 
+    name_gva_dataset = os.path.join(local_data_path, 'scenarios', 'population-economic-smif-csv-from-nismod-db', 'pop-a_econ-c_fuel-c/gva_per_head__lad_sector.csv') # Constant scenario
     # -------------------------------
     # User defined strategy variables
     # -------------------------------
@@ -159,9 +161,13 @@ if __name__ == "__main__":
 
     data['population'] = data_loader.read_scenario_data(name_population_dataset)
 
-    data['gva'] = data_loader.read_scenario_data(
-        os.path.join(local_data_path, 'scenarios', 'gva_sven.csv'))
+    #data['gva'] = data_loader.read_scenario_data(
+    #    os.path.join(local_data_path, 'scenarios', 'gva_sven.csv'))
+    # Read GVA sector specific data
+    data['gva'] = data_loader.read_scenario_data_gva(name_gva_dataset, all_dummy_data=False)
 
+    # Read sector assignement lookup values
+    
     data['industry_gva'] = "TST"
 
     # -----------------------------

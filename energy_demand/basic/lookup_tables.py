@@ -4,7 +4,91 @@
 '''def get_sic_nr()
 
     lu_tabe = industrydemand_name_sic2007()'''
+def economic_sectors_regional_MISTRAL():
+    """
+    Reginal sector ID with description from
+    economic_sectors_regiona.csv of MISTRAl
+    population/economic simuations
 
+    match_int: Integer of GVA input
+    """
+    lookup_dict = {
+
+        # Industry sectors
+        # ---------------
+        'mining':	                        {'match_int': 2, 'description': "Mining & quarrying"},
+        'food_production':	                {'match_int': 3, 'description': "Food, drink & tobacco"},
+        'tobacco':                          {'match_int': 3, 'description': "Food, drink & tobacco"},
+        'textiles':	                        {'match_int': 4, 'description': "Textiles etc"},
+        'wood':	                            {'match_int': 5, 'description': "Wood & paper"},
+        'paper':	                        {'match_int': 5, 'description': "Wood & paper"},
+        'printing':	                        {'match_int': 6, 'description': "Printing & recording"},
+        'chemicals':	                    {'match_int': 8, 'description': "Chemicals, etc"},
+        'pharmaceuticals':	                {'match_int': 9, 'description': "Pharmaceuticals"},
+        'beverages':	                    {'match_int': 29, 'description': "Food & beverage services"},
+        'fabricated_metal_products':	    {'match_int': 11, 'description': "Metals & metal prods"},
+        'electrical_equipment':	            {'match_int': 12, 'description': "Electronics"},
+        'non_metallic_mineral_products':	{'match_int': 10, 'description': "Non-metallic min. prods."},
+        'motor_vehicles':	                {'match_int': 15, 'description': "Motor vehicles, etc"},
+        'machinery':	                    {'match_int': 14, 'description': "Machinery, etc"},
+        'waste_collection':	                {'match_int': 19, 'description': "Water, sewerage & waste"},
+        'water_collection_treatment':	    {'match_int': 19, 'description': "Water, sewerage & waste"},
+        'other_manufacturing':	{'match_int': 17, 'description': "Other manuf. & repair"},
+        
+        # Not classified industrial GVA
+        # -----------------------------
+        #wearing_appeal
+        #leather
+        #rubber_plastics
+        #basic_metals
+        #computer
+        #other_transport_equipment
+        #furniture
+
+        # Service sectors
+        # ---------------
+        'education':	{'match_int': 40, 'description': "Education"},
+        'health':	    {'match_int': 41, 'description': "Health"},
+        'hospitality':	{'match_int': 28, 'description': "Accomodation"},
+        'offices':	{'match_int': 35, 'description': "Head offices & manag. cons."},
+        'retail':	{'match_int': 23, 'description': "Retail trade"},
+        'storage':	{'match_int': 27, 'description': "Warehousing & postal"},
+
+        # Not classified industrial GVA
+        # -----------------------------
+        # emergency_services
+        # military
+        # community_arts_leisure
+
+        #'':	{'match_int': 7, 'description': "Coke & petroleum"},
+        #'':	{'match_int': 13, 'description': "Electrical equipment"},
+        #'':	{'match_int': 16, 'description': "Other trans. equipment"},
+        #'':	{'match_int': 18, 'description': "Electricity & gas"},
+        #'':	{'match_int': 20, 'description': "Construction"},
+        #'':	{'match_int': 21, 'description': "Motor vehicles trade"},
+        #'':	{'match_int': 22, 'description': "Wholesale trade"},
+        #'':	{'match_int': 24, 'description': "Land transport"},
+        #'':	{'match_int': 25, 'description': "Water transport"},
+        #'':	{'match_int': 26, 'description': "Air transport"},
+        #'':	{'match_int': 30, 'description': "Media"},
+        #'':	{'match_int': 31, 'description': "IT services"},
+        #'':	{'match_int': 32, 'description': "Financial & insurance"},
+        #'':	{'match_int': 33, 'description': "Real estate"},
+        #'':	{'match_int': 34, 'description': "Legal & accounting"},
+        #'':	{'match_int': 39, 'description': "PAD"},
+        #'':	{'match_int': 42, 'description': "Residential & social"},
+        #'':	{'match_int': 43, 'description': "Arts"},
+        #'':	{'match_int': 44, 'description': "Recreational services"},
+        #'':	{'match_int': 45, 'description': "Other services"},
+        #'':	{'match_int': 46, 'description': "Unallocated"},
+        #'':	{'match_int': 37, 'description': "Other professional services"},
+        #'':	{'match_int': 36, 'description': "Archit. & engin. services"},
+        #'':	{'match_int': 38, 'description': "Business support services"},
+        #'':	{'match_int': 1, 'description': "Agriculture etc"}
+    }
+
+
+    return lookup_dict
 
 def industrydemand_name_sic2007():
     """Lookup table of industry energy demands and SIC letter and number

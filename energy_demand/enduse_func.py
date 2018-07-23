@@ -219,15 +219,14 @@ class Enduse(object):
                 if flat_profile_crit:
                     pass
                 else:
-                    #self.fuel_yh = assign_lp_no_techs(
                     fuel_yh = assign_lp_no_techs(
                         enduse,
                         sector,
                         load_profiles,
                         self.fuel_y,
                         make_all_flat=make_all_flat)
-                    
-                    # TODO, TODO, TODO Add demand management for non-technology enduse
+
+                    # Demand management for non-technology enduse
                     self.fuel_yh = demand_management(
                         enduse,
                         base_yr,

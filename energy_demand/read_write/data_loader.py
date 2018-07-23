@@ -972,15 +972,66 @@ def read_scenario_data(path_to_csv):
         for row in rows:
 
             region = str(row[read_data.get_position(headings, 'region')])
-            year = int(row[read_data.get_position(headings, 'year')])
+            year = int(float(row[read_data.get_position(headings, 'year')]))
             value = float(row[read_data.get_position(headings, 'value')])
-            #interval = int(row[read_data.get_position(headings, 'interval')])
 
             try:
                 data[year][region] = value
             except KeyError:
                 data[year] = {}
                 data[year][region] = value
+
+    return data
+
+def read_scenario_data_gva(path_to_csv, all_dummy_data=False):
+    """Function to read in GVA locally
+
+    IF no value, provide with dummy value "1"
+
+    if all_dummy_data == True, then all is dummy data and
+    constant over time
+    """
+    data = {}
+
+    with open(path_to_csv, 'r') as csvfile:
+        rows = csv.reader(csvfile, delimiter=',')
+        headings = next(rows)
+        for row in rows:
+
+            # --------------
+            # All dummy data
+            # --------------
+            if all_dummy_data:
+                region = str(row[read_data.get_position(headings, 'region')])
+                for year_dummy in range(2015, 2051):
+
+                    for sector_dummy in range(1, 47):
+                        dummy_sector_value = 1
+
+                        try:
+                            data[year_dummy][region][sector_dummy] = dummy_sector_value
+                        except KeyError:
+                            data[year_dummy] = defaultdict(dict)
+                            data[year_dummy][region][sector_dummy] = dummy_sector_value
+
+            else:
+                if row[read_data.get_position(headings, 'year')] == '': #No data provided
+                    region = str(row[read_data.get_position(headings, 'region')])
+                    for year_dummy in range(2015, 2051):
+                        for sector_dummy in range(1, 47):
+                            dummy_sector_value = 1
+                            data[year_dummy][region][sector_dummy] = dummy_sector_value
+                else:
+                    region = str(row[read_data.get_position(headings, 'region')])
+                    year = int(float(row[read_data.get_position(headings, 'year')]))
+                    value = float(row[read_data.get_position(headings, 'value')])
+                    economic_sector__gor = float(row[read_data.get_position(headings, 'economic_sector__gor')])
+
+                try:
+                    data[year][region][economic_sector__gor] = value
+                except KeyError:
+                    data[year] = defaultdict(dict)
+                    data[year][region][economic_sector__gor] = value
 
     return data
 
