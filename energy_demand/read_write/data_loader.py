@@ -991,7 +991,7 @@ def read_scenario_data_gva(path_to_csv, all_dummy_data=False):
     if all_dummy_data == True, then all is dummy data and
     constant over time
     """
-    data = {}
+    out_dict = {}
 
     with open(path_to_csv, 'r') as csvfile:
         rows = csv.reader(csvfile, delimiter=',')
@@ -1009,10 +1009,10 @@ def read_scenario_data_gva(path_to_csv, all_dummy_data=False):
                         dummy_sector_value = 1
 
                         try:
-                            data[year_dummy][region][sector_dummy] = dummy_sector_value
+                            out_dict[year_dummy][region][sector_dummy] = dummy_sector_value
                         except KeyError:
-                            data[year_dummy] = defaultdict(dict)
-                            data[year_dummy][region][sector_dummy] = dummy_sector_value
+                            out_dict[year_dummy] = defaultdict(dict)
+                            out_dict[year_dummy][region][sector_dummy] = dummy_sector_value
 
             else:
                 if row[read_data.get_position(headings, 'year')] == '': #No data provided
@@ -1020,20 +1020,23 @@ def read_scenario_data_gva(path_to_csv, all_dummy_data=False):
                     for year_dummy in range(2015, 2051):
                         for sector_dummy in range(1, 47):
                             dummy_sector_value = 1
-                            data[year_dummy][region][sector_dummy] = dummy_sector_value
+                            out_dict[year_dummy][region][sector_dummy] = dummy_sector_value
                 else:
                     region = str(row[read_data.get_position(headings, 'region')])
                     year = int(float(row[read_data.get_position(headings, 'year')]))
                     value = float(row[read_data.get_position(headings, 'value')])
                     economic_sector__gor = float(row[read_data.get_position(headings, 'economic_sector__gor')])
-
                 try:
-                    data[year][region][economic_sector__gor] = value
+                    out_dict[year][region][economic_sector__gor] = value
                 except KeyError:
-                    data[year] = defaultdict(dict)
-                    data[year][region][economic_sector__gor] = value
+                    out_dict[year] = defaultdict(dict)
+                    out_dict[year][region][economic_sector__gor] = value
 
-    return data
+    # Convert to regular dict
+    for key, value in out_dict.items():
+        out_dict[key] = dict(value)
+
+    return out_dict
 
 def read_employment_stats(path_to_csv):
     """Read in employment statistics per LAD.

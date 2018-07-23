@@ -34,7 +34,7 @@ def economic_sectors_regional_MISTRAL():
         'waste_collection':	                {'match_int': 19, 'description': "Water, sewerage & waste"},
         'water_collection_treatment':	    {'match_int': 19, 'description': "Water, sewerage & waste"},
         'other_manufacturing':	{'match_int': 17, 'description': "Other manuf. & repair"},
-        
+
         # Not classified industrial GVA
         # -----------------------------
         #wearing_appeal
@@ -227,7 +227,6 @@ def basic_lookups():
     lookups['fueltypes_nr'] = int(len(lookups['fueltypes']))
 
     return lookups
-
 
 def lad_msoa_mapping():
     """Map between lad and msoa

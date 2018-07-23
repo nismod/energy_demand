@@ -10,6 +10,7 @@ from energy_demand.technologies import fuel_service_switch
 from energy_demand.technologies import tech_related
 from energy_demand.basic import testing_functions
 from energy_demand.basic import basic_functions
+from energy_demand.basic import lookup_tables
 
 class Enduse(object):
     """Enduse Class for all endueses in each SubModel
@@ -174,9 +175,9 @@ class Enduse(object):
                 self.fuel_y,
                 dw_stock,
                 region,
-                scenario_data['gva'],
+                scenario_data['gva_industry_service'],
+                scenario_data['gva_per_head'],
                 scenario_data['population'],
-                scenario_data['industry_gva'],
                 reg_scen_drivers,
                 base_yr,
                 curr_yr)
@@ -1082,9 +1083,9 @@ def apply_scenario_drivers(
         fuel_y,
         dw_stock,
         region,
-        gva,
+        gva_industry,
+        gva_per_head,
         population,
-        industry_gva,
         reg_scen_drivers,
         base_yr,
         curr_yr
@@ -1136,8 +1137,27 @@ def apply_scenario_drivers(
 
             # Get correct data depending on driver
             if scenario_driver == 'gva':
-                by_driver_data = gva[base_yr][region]
-                cy_driver_data = gva[curr_yr][region]
+                
+                # SCRAP REMOVE
+                #by_driver_data = 1
+                #cy_driver_data = 1
+
+                try:
+                    # Read sector assignement lookup values
+                    gva_sector_lu = lookup_tables.economic_sectors_regional_MISTRAL()
+                    gva_nr = gva_sector_lu[sector]['match_int']
+
+                    by_driver_data = gva_industry[base_yr][region][gva_nr]
+                    cy_driver_data = gva_industry[curr_yr][region][gva_nr]
+
+                except KeyError:
+                    logging.warning("No GVA data defined for enduse {}".format(enduse))
+                    #TODO: Use overall GVA for this case? Or pop?
+                    by_driver_data = gva_per_head[base_yr][region]
+                    cy_driver_data = gva_per_head[curr_yr][region]
+
+                #by_driver_data = gva[base_yr][region]
+                #cy_driver_data = gva[curr_yr][region]
 
                 '''if submodel == 'is_submodel':
 
@@ -1151,8 +1171,8 @@ def apply_scenario_drivers(
 
                     # Calculate overall GVA for all sectors TODO
 
-                    by_driver_data = gva[base_yr][region]
-                    cy_driver_data = gva[curr_yr][region]'''
+                    by_driver_data = gva_per_head[base_yr][region]
+                    cy_driver_data = gva_per_head[curr_yr][region]'''
 
             elif scenario_driver == 'population':
                 by_driver_data = population[base_yr][region]

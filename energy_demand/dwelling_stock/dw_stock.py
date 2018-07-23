@@ -2,6 +2,7 @@
 """
 import logging
 import numpy as np
+from energy_demand.basic import lookup_tables
 
 from energy_demand.technologies import diffusion_technologies
 
@@ -107,7 +108,7 @@ class Dwelling(object):
             population=None,
             age=None,
             dwtype=None,
-            sector_type=None,
+            sector=None,
             gva=None,
             #air_leakage_rate=1.0
         ):
@@ -121,8 +122,8 @@ class Dwelling(object):
         self.age = age
         self.population = population
         self.floorarea = floorarea
-        self.sector_type = sector_type
-        self.gva = gva
+        self.sector = sector
+        self.gva = gva #TODO IS THIS USED?
         #self.air_leakage_rate = air_leakage_rate
         #self.income = get_income_factor(income)?? MAYBE
         #self.household_size = get_household_factor(household_size)?? MAYBE
@@ -513,7 +514,17 @@ def ss_dw_stock(
         floorarea_sector_by = scenario_data['floor_area']['ss_floorarea'][base_yr][region][sector]
         floorarea_sector_cy = floorarea_sector_by * lin_diff_factor
 
-        # create dwelling objects
+        # TODO TODO TODO NEWLY ADDED
+        # Read sector assignement lookup values
+        try:
+            gva_sector_lu = lookup_tables.economic_sectors_regional_MISTRAL()
+            gva_nr = gva_sector_lu[sector]['match_int']
+            gva_dw_data = scenario_data['gva_industry_service'][curr_yr][region][gva_nr]
+        except KeyError:
+            logging.warning("No GVA dat")
+            gva_dw_data = 1
+
+        # Create dwelling objects
         dw_stock.append(
             Dwelling(
                 curr_yr=curr_yr,
@@ -522,8 +533,8 @@ def ss_dw_stock(
                 floorarea=floorarea_sector_cy,
                 enduses=enduses,
                 driver_assumptions=assumptions.scenario_drivers['ss_submodule'],
-                sector_type=sector,
-                gva=scenario_data['gva'][curr_yr][region]))
+                sector=sector,
+                gva=gva_dw_data))
 
     # Add regional base year dwelling to dwelling stock
     dwelling_stock = DwellingStock(
@@ -634,6 +645,13 @@ def rs_dw_stock(
 
     new_floorarea_cy = tot_floorarea_cy - floorarea_by
 
+    # TODO TODO TODO
+    try:
+        gva_dw_data = scenario_data['gva_per_head'][curr_yr][region]
+    except KeyError:
+        logging.warning("No GVA dat")
+        gva_dw_data = 1
+
     # Only calculate changing
     if curr_yr == base_yr:
         dw_stock_base = generate_dw_existing(
@@ -647,7 +665,8 @@ def rs_dw_stock(
             floorarea_p=floorarea_p[base_yr],
             floorarea_by=floorarea_by,
             dwtype_age_distr_by=assumptions.dwtype_age_distr[base_yr],
-            floorarea_pp=floorarea_pp_by)
+            floorarea_pp=floorarea_pp_by,
+            gva_dw_data=gva_dw_data)
 
         # Create regional base year building stock
         dwelling_stock = DwellingStock(
@@ -683,7 +702,8 @@ def rs_dw_stock(
             floorarea_p=floorarea_p[curr_yr],
             floorarea_by=remaining_area,
             dwtype_age_distr_by=assumptions.dwtype_age_distr[base_yr],
-            floorarea_pp=floorarea_pp_cy)
+            floorarea_pp=floorarea_pp_cy,
+            gva_dw_data=gva_dw_data)
 
         # Append buildings of new floor area to
         if new_floorarea_cy > 0:
@@ -698,7 +718,8 @@ def rs_dw_stock(
                 floorarea_p_by=floorarea_p[curr_yr],
                 floorarea_pp_cy=floorarea_pp_cy,
                 dw_stock_new_dw=dw_stock_cy,
-                new_floorarea_cy=new_floorarea_cy)
+                new_floorarea_cy=new_floorarea_cy,
+                gva_dw_data=gva_dw_data)
         else:
             pass # no new floor area is added
 
@@ -765,7 +786,8 @@ def generate_dw_existing(
         floorarea_p,
         floorarea_by,
         dwtype_age_distr_by,
-        floorarea_pp
+        floorarea_pp,
+        gva_dw_data
     ):
     """Generates dwellings according to age, floor area
     and distribution assumption
@@ -833,7 +855,7 @@ def generate_dw_existing(
                     population=pop_dwtype_age_class,
                     age=float(dwtype_age),
                     dwtype=dwtype_name,
-                    gva=scenario_data['gva'][curr_yr][region]))
+                    gva=gva_dw_data))
 
             control_floorarea += dwtype_age_class_floorarea
             control_pop += pop_dwtype_age_class
@@ -851,7 +873,8 @@ def generate_dw_new(
         floorarea_p_by,
         floorarea_pp_cy,
         dw_stock_new_dw,
-        new_floorarea_cy
+        new_floorarea_cy,
+        gva_dw_data
     ):
     """Generate dwelling objects for all new dwellings
 
@@ -908,7 +931,7 @@ def generate_dw_new(
                 population=pop_dwtype_new_build_cy,
                 age=curr_yr,
                 dwtype=dwtype_name,
-                gva=scenario_data['gva'][curr_yr][region]))
+                gva=gva_dw_data))
 
         control_floorarea += dw_type_new_floorarea
         control_pop += pop_dwtype_new_build_cy

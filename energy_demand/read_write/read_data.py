@@ -930,31 +930,31 @@ def read_fuel_is(path_to_csv, fueltypes_nr, fueltypes):
 
     SIC 2007    Name
     --------    ------
-    08	Other mining and quarrying
-    10	Manufacture of food products
-    11	Manufacture of beverages
-    12	Manufacture of tobacco products
-    13	Manufacture of textiles
-    14	Manufacture of wearing apparel
-    15	Manufacture of leather and related products
-    16	Manufacture of wood and of products of wood and cork, except furniture; manufacture of articles of straw and plaiting materials
-    17	Manufacture of paper and paper products
-    18	Printing and publishing of recorded media and other publishing activities
-    20	Manufacture of chemicals and chemical products
-    21	Manufacture of basic pharmaceutical products and pharmaceutical preparations
-    22	Manufacture of rubber and plastic products
-    23	Manufacture of other non-metallic mineral products
-    24	Manufacture of basic metals
-    25	Manufacture of fabricated metal products, except machinery and equipment
-    26	Manufacture of computer, electronic and optical products
-    27	Manufacture of electrical equipment
-    28	Manufacture of machinery and equipment n.e.c.
-    29	Manufacture of motor vehicles, trailers and semi-trailers
-    30	Manufacture of other transport equipment
-    31	Manufacture of furniture
-    32	Other manufacturing
-    36	Water collection, treatment and supply
-    38	Waste collection, treatment and disposal activities; materials recovery
+    08	        Other mining and quarrying
+    10	        Manufacture of food products
+    11	        Manufacture of beverages
+    12	        Manufacture of tobacco products
+    13	        Manufacture of textiles
+    14	        Manufacture of wearing apparel
+    15	        Manufacture of leather and related products
+    16	        Manufacture of wood and of products of wood and cork, except furniture; manufacture of articles of straw and plaiting materials
+    17	        Manufacture of paper and paper products
+    18	        Printing and publishing of recorded media and other publishing activities
+    20	        Manufacture of chemicals and chemical products
+    21	        Manufacture of basic pharmaceutical products and pharmaceutical preparations
+    22	        Manufacture of rubber and plastic products
+    23	        Manufacture of other non-metallic mineral products
+    24	        Manufacture of basic metals
+    25	        Manufacture of fabricated metal products, except machinery and equipment
+    26	        Manufacture of computer, electronic and optical products
+    27	        Manufacture of electrical equipment
+    28	        Manufacture of machinery and equipment n.e.c.
+    29	        Manufacture of motor vehicles, trailers and semi-trailers
+    30	        Manufacture of other transport equipment
+    31	        Manufacture of furniture
+    32	        Other manufacturing
+    36	        Water collection, treatment and supply
+    38	        Waste collection, treatment and disposal activities; materials recovery
     """
     rows_list = []
     fuels = {}
