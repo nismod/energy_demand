@@ -313,10 +313,13 @@ for folder_name in all_csv_folders:
                     # Generate sector specific CSV
                     new_df_selection.to_csv(file_path_sector_specific, index=False) #Index prevents writing index rows
 
-                # -----------------------------------------
-                # MSOA GVA calculations
-                # -----------------------------------------
-                '''if MSOA_calculations:
+            # -----------------------------------------
+            # MSOA GVA calculations
+            # -----------------------------------------
+            if MSOA_calculations:
+                if (filename_split[0] == "gva_per_head" and filename_split[1] == 'lad.csv'):
+                
+                    file_path = os.path.join(path_to_folder, folder_name, file_name)
 
                     lads = list(gp_file.loc[gp_file['year'] == 2015]['region'])
 
@@ -328,23 +331,24 @@ for folder_name in all_csv_folders:
                             corresponding_msoas = LAD_MSOA_lu[lad]
                         except KeyError:
                             # No match for northern ireland
-                            corresponding_msoas = lad
+                            corresponding_msoas = [lad]
 
-                        rows_msoa = gp_file.loc[gp_file['region'] == lad].values
+                        rows_msoa = gp_file.loc[gp_file['region'] == lad]
 
-                        for row_msoa in rows_msoa:
+                        for index, row_msoa in rows_msoa.iterrows():
                             for msoa_name in corresponding_msoas:
                                 new_row = {
                                     "region": msoa_name,
-                                    "year": row_msoa[1],
-                                    "value": row_msoa[2],
-                                    "interval": row_msoa[3]}
+                                    "year": row_msoa['year'],
+                                    "value": row_msoa['value'],
+                                    "interval": row_msoa['interval']}
                                 list_with_all_vals.append(new_row)
 
                     # Convert list to dataframe
                     msoaDF = pd.DataFrame(list_with_all_vals, columns=gp_file.columns)
-                    file_path_MSOA_out = os.path.join(folder_name, "{}_{}.csv".format(file_name[:-4], "MSOA"))
-                    msoaDF.to_csv(file_path_MSOA_out, index=False)'''
+                    file_path_MSOA_out = os.path.join(path_to_folder, folder_name, "{}_{}.csv".format(file_name[:-4], "MSOA"))
+
+                    msoaDF.to_csv(file_path_MSOA_out, index=False)
             else:
                 pass
     except:
