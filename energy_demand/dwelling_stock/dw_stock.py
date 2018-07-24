@@ -514,15 +514,14 @@ def ss_dw_stock(
         floorarea_sector_by = scenario_data['floor_area']['ss_floorarea'][base_yr][region][sector]
         floorarea_sector_cy = floorarea_sector_by * lin_diff_factor
 
-        # TODO TODO TODO NEWLY ADDED
-        # Read sector assignement lookup values
+        # GVA data
         try:
             gva_sector_lu = lookup_tables.economic_sectors_regional_MISTRAL()
             gva_nr = gva_sector_lu[sector]['match_int']
             gva_dw_data = scenario_data['gva_industry_service'][curr_yr][region][gva_nr]
         except KeyError:
-            logging.warning("No GVA dat")
-            gva_dw_data = 1
+            # If not sector specific GVA, use overal GVA per head
+            gva_dw_data = scenario_data['gva_per_head'][curr_yr][region]
 
         # Create dwelling objects
         dw_stock.append(
@@ -645,13 +644,6 @@ def rs_dw_stock(
 
     new_floorarea_cy = tot_floorarea_cy - floorarea_by
 
-    # TODO TODO TODO
-    try:
-        gva_dw_data = scenario_data['gva_per_head'][curr_yr][region]
-    except KeyError:
-        logging.warning("No GVA dat")
-        gva_dw_data = 1
-
     # Only calculate changing
     if curr_yr == base_yr:
         dw_stock_base = generate_dw_existing(
@@ -666,7 +658,7 @@ def rs_dw_stock(
             floorarea_by=floorarea_by,
             dwtype_age_distr_by=assumptions.dwtype_age_distr[base_yr],
             floorarea_pp=floorarea_pp_by,
-            gva_dw_data=gva_dw_data)
+            gva_dw_data=scenario_data['gva_per_head'][curr_yr][region])
 
         # Create regional base year building stock
         dwelling_stock = DwellingStock(
@@ -703,7 +695,7 @@ def rs_dw_stock(
             floorarea_by=remaining_area,
             dwtype_age_distr_by=assumptions.dwtype_age_distr[base_yr],
             floorarea_pp=floorarea_pp_cy,
-            gva_dw_data=gva_dw_data)
+            gva_dw_data=scenario_data['gva_per_head'][curr_yr][region])
 
         # Append buildings of new floor area to
         if new_floorarea_cy > 0:
@@ -719,7 +711,7 @@ def rs_dw_stock(
                 floorarea_pp_cy=floorarea_pp_cy,
                 dw_stock_new_dw=dw_stock_cy,
                 new_floorarea_cy=new_floorarea_cy,
-                gva_dw_data=gva_dw_data)
+                gva_dw_data=scenario_data['gva_per_head'][curr_yr][region])
         else:
             pass # no new floor area is added
 

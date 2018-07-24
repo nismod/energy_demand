@@ -17,6 +17,7 @@ import sys
 import time
 import logging
 import numpy as np
+from collections import defaultdict
 from energy_demand.basic import date_prop
 from energy_demand.plotting import plotting_results
 from energy_demand import model
@@ -126,15 +127,15 @@ if __name__ == "__main__":
     name_region_set = os.path.join(local_data_path, 'region_definitions', "lad_2016_uk_simplified.shp")        # LAD
     #name_population_dataset = os.path.join(local_data_path, 'scenarios', 'uk_pop_high_migration_2015_2050.csv')
     #name_population_dataset = os.path.join(local_data_path, 'scenarios', 'uk_pop_constant_2015_2050.csv') # Constant scenario
-    name_population_dataset = os.path.join(local_data_path, 'scenarios', 'MISTRAL_pop_gva/population-economic-smif-csv-from-nismod-db', 'pop-a_econ-c_fuel-c/population__lad.csv') # Constant scenario
+    name_population_dataset = os.path.join(local_data_path, 'scenarios', 'MISTRAL_pop_gva/data', 'pop-a_econ-c_fuel-c/population__lad.csv') # Constant scenario
     # MSOA model run
     #name_region_set_selection = "msoa_regions_ed.csv"
     #name_region_set = os.path.join(local_data_path, 'region_definitions', 'msoa_uk', "msoa_lad_2015_uk.shp")    # MSOA
     #name_population_dataset = os.path.join(local_data_path, 'scenarios', 'uk_pop_high_migration_2015_2050.csv')
 
     # GVA datasets
-    name_gva_dataset = os.path.join(local_data_path, 'scenarios', 'MISTRAL_pop_gva/population-economic-smif-csv-from-nismod-db', 'pop-a_econ-c_fuel-c/gva_per_head__lad_sector.csv') # Constant scenario
-    name_gva_dataset_per_head = os.path.join(local_data_path, 'scenarios', 'MISTRAL_pop_gva/population-economic-smif-csv-from-nismod-db', 'pop-a_econ-c_fuel-c/gva_per_head__lad.csv') # Constant scenario
+    name_gva_dataset = os.path.join(local_data_path, 'scenarios', 'MISTRAL_pop_gva/data', 'pop-a_econ-c_fuel-c/gva_per_head__lad_sector.csv') # Constant scenario
+    name_gva_dataset_per_head = os.path.join(local_data_path, 'scenarios', 'MISTRAL_pop_gva/data', 'pop-a_econ-c_fuel-c/gva_per_head__lad.csv') # Constant scenario
     # -------------------------------
     # User defined strategy variables
     # -------------------------------
@@ -147,12 +148,13 @@ if __name__ == "__main__":
     # Paths
     # -----
     name_scenario_run = "_result_local_data_{}".format(str(time.ctime()).replace(":", "_").replace(" ", "_"))
-
+    
     data['paths'] = data_loader.load_paths(path_main)
     data['local_paths'] = data_loader.get_local_paths(local_data_path)
     data['result_paths'] = data_loader.get_result_paths(
         os.path.join(os.path.join(local_data_path, "..", "results"), name_scenario_run))
 
+    data['scenario_data'] = defaultdict(dict)
     data['lookups'] = lookup_tables.basic_lookups()
     data['enduses'], data['sectors'], data['fuels'] = data_loader.load_fuels(data['paths'], data['lookups'])
 
@@ -162,11 +164,11 @@ if __name__ == "__main__":
     reg_centroids = read_data.get_region_centroids(name_region_set)
     data['reg_coord'] = basic_functions.get_long_lat_decimal_degrees(reg_centroids)
 
-    data['population'] = data_loader.read_scenario_data(name_population_dataset)
+    data['scenario_data']['population'] = data_loader.read_scenario_data(name_population_dataset)
 
     # Read GVA sector specific data
-    data['gva_industry_service'] = data_loader.read_scenario_data_gva(name_gva_dataset, all_dummy_data=False)
-    data['gva_per_head_lad'] = data_loader.read_scenario_data(name_gva_dataset_per_head)
+    data['scenario_data']['gva_industry_service'] = data_loader.read_scenario_data_gva(name_gva_dataset, all_dummy_data=False)
+    data['scenario_data']['gva_per_head_lad'] = data_loader.read_scenario_data(name_gva_dataset_per_head)
 
     # Read sector assignement lookup values
     data['gva_sector_lu'] = lookup_tables.economic_sectors_regional_MISTRAL()
@@ -192,7 +194,7 @@ if __name__ == "__main__":
     for region in region_objects:
         region_name = region['properties']['name']
         region_area = region['properties']['st_areasha']
-        data['pop_density'][region_name] = data['population'][data['assumptions'].base_yr][region_name] / region_area
+        data['pop_density'][region_name] = data['scenario_data']['population'][data['assumptions'].base_yr][region_name] / region_area
 
     # Load standard strategy variable values
     strategy_vars = strategy_variables.load_param_assump(
@@ -216,11 +218,11 @@ if __name__ == "__main__":
     data['weather_stations'], data['temp_data'] = data_loader.load_temp_data(data['local_paths'])
 
     if data['criterias']['virtual_building_stock_criteria']:
-        rs_floorarea, ss_floorarea, data['service_building_count'], rs_regions_without_floorarea, ss_regions_without_floorarea = data_loader.floor_area_virtual_dw(
+        data['scenario_data']['floor_area']['rs_floorarea'], data['scenario_data']['floor_area']['ss_floorarea'], data['service_building_count'], rs_regions_without_floorarea, ss_regions_without_floorarea = data_loader.floor_area_virtual_dw(
             data['regions'],
             data['sectors']['all_sectors'],
             data['local_paths'],
-            data['population'][data['assumptions'].base_yr],
+            data['scenario_data']['population'][data['assumptions'].base_yr],
             data['assumptions'].base_yr)
 
         # Add all areas with no floor area data
@@ -228,16 +230,7 @@ if __name__ == "__main__":
         data['assumptions'].update("ss_regions_without_floorarea", ss_regions_without_floorarea)
 
     # Lookup table to import industry sectoral gva
-    lookup_tables.industrydemand_name_sic2007()
-
-    #Scenario data
-    data['scenario_data'] = {
-        'gva': data['gva'],
-        'population': data['population'],
-        'industry_gva': data['industry_gva'],
-        'floor_area': {
-            'rs_floorarea': rs_floorarea,
-            'ss_floorarea': ss_floorarea}}
+    #lookup_tables.industrydemand_name_sic2007()
 
     print("Start Energy Demand Model with python version: " + str(sys.version))
     print("Info model run")

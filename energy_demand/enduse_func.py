@@ -1137,29 +1137,35 @@ def apply_scenario_drivers(
 
             # Get correct data depending on driver
             if scenario_driver == 'gva':
-                
-                #TODO WHAT IF SECTOR == NONE
-                try:
-                    # Read sector assignement lookup values
-                    gva_sector_lu = lookup_tables.economic_sectors_regional_MISTRAL()
-                    gva_nr = gva_sector_lu[sector]['match_int']
-
-                    by_driver_data = gva_industry[base_yr][region][gva_nr]
-                    cy_driver_data = gva_industry[curr_yr][region][gva_nr]
-
-                except KeyError:
-                    logging.warning("No GVA data defined for enduse {}".format(enduse))
-                    # Use overall GVA data if not provided for specific sector
+                if sector == None:
                     by_driver_data = gva_per_head[base_yr][region]
                     cy_driver_data = gva_per_head[curr_yr][region]
+                else:
+                    try:
+                        gva_sector_lu = lookup_tables.economic_sectors_regional_MISTRAL()
+                        gva_nr = gva_sector_lu[sector]['match_int']
+
+                        # Get sector specific GVA
+                        by_driver_data = gva_industry[base_yr][region][gva_nr]
+                        cy_driver_data = gva_industry[curr_yr][region][gva_nr]
+
+                    except KeyError:
+                        # No sector specific GVA data defined
+                        by_driver_data = gva_per_head[base_yr][region]
+                        cy_driver_data = gva_per_head[curr_yr][region]
 
             elif scenario_driver == 'population':
                 by_driver_data = population[base_yr][region]
                 cy_driver_data = population[curr_yr][region]
 
+
             if math.isnan(by_driver_data):
+                logging.warning("ERROR 1")
+                raise Exception
                 by_driver_data = 1
             if math.isnan(cy_driver_data):
+                logging.warning("ERROR 2")
+                raise Exception
                 cy_driver_data = 1
 
             # Multiply drivers
