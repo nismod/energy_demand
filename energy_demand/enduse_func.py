@@ -1138,10 +1138,7 @@ def apply_scenario_drivers(
             # Get correct data depending on driver
             if scenario_driver == 'gva':
                 
-                # SCRAP REMOVE
-                #by_driver_data = 1
-                #cy_driver_data = 1
-
+                #TODO WHAT IF SECTOR == NONE
                 try:
                     # Read sector assignement lookup values
                     gva_sector_lu = lookup_tables.economic_sectors_regional_MISTRAL()
@@ -1152,27 +1149,9 @@ def apply_scenario_drivers(
 
                 except KeyError:
                     logging.warning("No GVA data defined for enduse {}".format(enduse))
-                    #TODO: Use overall GVA for this case? Or pop?
+                    # Use overall GVA data if not provided for specific sector
                     by_driver_data = gva_per_head[base_yr][region]
                     cy_driver_data = gva_per_head[curr_yr][region]
-
-                #by_driver_data = gva[base_yr][region]
-                #cy_driver_data = gva[curr_yr][region]
-
-                '''if submodel == 'is_submodel':
-
-                    # Map enduse to SIC letter
-                    lu_industry_sic = lookup_tables.industrydemand_name_sic2007()
-                    sic_letter = lu_industry_sic[sector][sic_2007_letter]
-
-                    by_driver_data = industry_gva[base_yr][region][sic_lettersector]
-                    cy_driver_data = industry_gva[curr_yr][region][sic_letter]
-                else:
-
-                    # Calculate overall GVA for all sectors TODO
-
-                    by_driver_data = gva_per_head[base_yr][region]
-                    cy_driver_data = gva_per_head[curr_yr][region]'''
 
             elif scenario_driver == 'population':
                 by_driver_data = population[base_yr][region]

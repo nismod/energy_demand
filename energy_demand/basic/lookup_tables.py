@@ -33,7 +33,7 @@ def economic_sectors_regional_MISTRAL():
         'machinery':	                    {'match_int': 14, 'description': "Machinery, etc"},
         'waste_collection':	                {'match_int': 19, 'description': "Water, sewerage & waste"},
         'water_collection_treatment':	    {'match_int': 19, 'description': "Water, sewerage & waste"},
-        'other_manufacturing':	{'match_int': 17, 'description': "Other manuf. & repair"},
+        'other_manufacturing':	            {'match_int': 17, 'description': "Other manuf. & repair"},
 
         # Not classified industrial GVA
         # -----------------------------
@@ -47,12 +47,12 @@ def economic_sectors_regional_MISTRAL():
 
         # Service sectors
         # ---------------
-        'education':	{'match_int': 40, 'description': "Education"},
-        'health':	    {'match_int': 41, 'description': "Health"},
-        'hospitality':	{'match_int': 28, 'description': "Accomodation"},
-        'offices':	{'match_int': 35, 'description': "Head offices & manag. cons."},
-        'retail':	{'match_int': 23, 'description': "Retail trade"},
-        'storage':	{'match_int': 27, 'description': "Warehousing & postal"},
+        'education':	                    {'match_int': 40, 'description': "Education"},
+        'health':	                        {'match_int': 41, 'description': "Health"},
+        'hospitality':	                    {'match_int': 28, 'description': "Accomodation"},
+        'offices':	                        {'match_int': 35, 'description': "Head offices & manag. cons."},
+        'retail':	                        {'match_int': 23, 'description': "Retail trade"},
+        'storage':	                        {'match_int': 27, 'description': "Warehousing & postal"},
 
         # Not classified industrial GVA
         # -----------------------------
