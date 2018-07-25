@@ -11,6 +11,7 @@
 #TODO Create own .py chart file for every chart
 #TODO Import weather data loading and importing whole range of weather scenarios
 #TODO Replace geopanda csv loading
+#TODO MAKE that disaggregation only happens with one dataset which is impemendent of simulation dataset (Use ONS data)
 """
 import os
 import sys
@@ -56,6 +57,7 @@ def energy_demand_model(regions, data, assumptions):
     ----
     This function is executed in the wrapper
     """
+    logging.info("... Number of modelled regions: {}".format(len(regions)))
     modelrun = model.EnergyDemandModel(
         regions=regions,
         data=data,
@@ -70,7 +72,7 @@ def energy_demand_model(regions, data, assumptions):
 
     # Log model results
     write_data.logg_info(modelrun, fuels_in, data)
-    logging.info("...finished running energy demand model simulation")
+    logging.info("... finished running energy demand model simulation")
     return modelrun
 
 if __name__ == "__main__":
