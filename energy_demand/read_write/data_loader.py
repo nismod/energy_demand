@@ -280,6 +280,10 @@ def get_local_paths(path):
     paths = {
         'local_path_datafolder':
             path,
+        'path_population_data_for_disaggregation_LAD': os.path.join(
+            path, '_raw_data', 'J-population_disagg_by', 'uk_pop_principal_2015_2050.csv'), #ONS principal projection
+        'path_population_data_for_disaggregation_MSOA': os.path.join(
+            path, '_raw_data', 'J-population_disagg_by', 'uk_pop_principal_2015_2050_MSOA_lad.csv'), #ONS principal projection
         'folder_raw_carbon_trust': os.path.join(
             path, '_raw_data', "G_Carbon_Trust_advanced_metering_trial"),
         'folder_path_weater_data': os.path.join(

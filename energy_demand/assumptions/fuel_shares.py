@@ -61,7 +61,7 @@ def assign_by_fuel_tech_p(enduses, sectors, fueltypes, fueltypes_nr):
     rs_fuel_tech_p_by['rs_lighting'][fueltypes['electricity']] = {
         'standard_lighting_bulb': 0.04,
         'halogen': 0.56,
-        'fluorescent_strip_lightinging' : 0.07,
+        'fluorescent_strip_lighting' : 0.07,
         'energy_saving_lighting_bulb' : 0.32,
         'LED': 0.01}
 
@@ -196,6 +196,13 @@ def assign_by_fuel_tech_p(enduses, sectors, fueltypes, fueltypes_nr):
     # Service subModel
     # ===================
 
+    # TODO ss_lighting? Simplified based on Table 5.09 (Office lighting)
+    ss_fuel_tech_p_by['ss_lighting'][fueltypes['electricity']] = {
+        'halogen': 0.45,
+        'fluorescent_strip_lighting': 0.07,
+        'energy_saving_lighting_bulb': 0.47, #All different lighting next to halogen are summarised here ("non-halogen lighting")
+        'LED': 0.01}
+
     # ----------------
     # Service space heating (ss_space_heating)
     #  For ss_space heating the load profile is the same for all technologies
@@ -323,6 +330,9 @@ def assign_by_fuel_tech_p(enduses, sectors, fueltypes, fueltypes_nr):
     is_fuel_tech_p_by['is_high_temp_process']['basic_metals'][fueltypes['biomass']] = {
         'biomass_furnace': 1.0}
 
+    is_fuel_tech_p_by['is_high_temp_process']['basic_metals'][fueltypes['hydrogen']] = {
+        'hydrogen_furnace': 1.0}
+
     #-- non_metallic_mineral_products
     is_fuel_tech_p_by['is_high_temp_process']['non_metallic_mineral_products'][fueltypes['solid_fuel']] = {
         'dry_kiln_coal': 0.9,
@@ -338,5 +348,8 @@ def assign_by_fuel_tech_p(enduses, sectors, fueltypes, fueltypes_nr):
         'wet_kiln_electricity': 0.1}
     is_fuel_tech_p_by['is_high_temp_process']['non_metallic_mineral_products'][fueltypes['biomass']] = {
         'dry_kiln_biomass': 1.0}
+
+    is_fuel_tech_p_by['is_high_temp_process']['non_metallic_mineral_products'][fueltypes['hydrogen']] = {
+        'dry_kiln_hydrogen': 1.0}
 
     return rs_fuel_tech_p_by, ss_fuel_tech_p_by, is_fuel_tech_p_by

@@ -140,9 +140,11 @@ def get_nested_dict_key(nested_dict):
         Key of nested dict
     """
     all_nested_keys = []
-    for entry in nested_dict:
-        for value in nested_dict[entry].keys():
-            all_nested_keys.append(value)
+    #for entry in nested_dict:
+    #    for value in nested_dict[entry].keys():
+    #        all_nested_keys.append(value)
+    for values in nested_dict.values():
+        all_nested_keys += values.keys()
 
     return all_nested_keys
 

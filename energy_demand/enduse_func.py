@@ -158,6 +158,7 @@ class Enduse(object):
             #logging.debug("... Fuel train C0: " + str(np.sum(self.fuel_y)))
 
             # --Enduse specific fuel consumption change in %
+            #TODO ADD Sector specific change
             _fuel_new_y = apply_specific_change(
                 enduse,
                 self.fuel_y,
@@ -281,7 +282,11 @@ class Enduse(object):
                     s_tech_y_cy,
                     base_yr,
                     curr_yr)
-                #logging.debug("Service C  " + str(np.sum(s_tot_y_cy)))
+                '''if enduse == 'ss_lighting':
+                    print("fffffff")
+                    print(s_tech_y_cy)
+                    raise Exception
+                logging.debug("Service C  " + str(np.sum(s_tot_y_cy)))'''
                 # --------------------------------
                 # Switches
                 # Calculate services per technology for cy based on fitted parameters
@@ -1157,7 +1162,6 @@ def apply_scenario_drivers(
             elif scenario_driver == 'population':
                 by_driver_data = population[base_yr][region]
                 cy_driver_data = population[curr_yr][region]
-
 
             if math.isnan(by_driver_data):
                 logging.warning("ERROR 1")

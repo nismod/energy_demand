@@ -1,27 +1,22 @@
 """Script functions which are executed after
 model installation and after each scenario definition
 """
-import os
 import logging
 from collections import defaultdict
 import numpy as np
-from energy_demand.basic import basic_functions, logger_setup
+from energy_demand.basic import basic_functions
 from energy_demand.geography import spatial_diffusion
 from energy_demand.read_write import read_data
 from energy_demand.scripts import (s_fuel_to_service, s_generate_sigmoid)
 from energy_demand.technologies import fuel_service_switch
-from energy_demand.plotting import result_mapping
 
 def scenario_initalisation(path_data_ed, fuel_disagg, data=False):
     """Scripts which need to be run for every different scenario.
-    Only needs to be executed once for each scenario (not for every
-    simulation year).
+    Only needs to be executed once for each scenario.
 
     The following calculations are performed:
-
-        I.      Disaggregation of fuel for every region
-        II.     Switches calculations
-        III.    Spatial explicit diffusion modelling
+        I. Switches calculations
+        II. Spatial explicit diffusion modelling
 
     Arguments
     ----------
@@ -29,19 +24,10 @@ def scenario_initalisation(path_data_ed, fuel_disagg, data=False):
         Path to the energy demand data folder
     data : dict
         Data container
-
-    Info
-    -----
-        # Non spatiall differentiated modelling of
-    # technology diffusion (same diffusion pattern for
-    # the whole UK) or spatially differentiated (every region)
     """
     logging.info("... Start initialisation scripts")
 
     init_cont = defaultdict(dict)
-
-    logger_setup.set_up_logger(
-        os.path.join(path_data_ed, "scenario_init.log"))
 
     # --------------------------------------------
     # Delete results from previous model runs and initialise folders
@@ -65,10 +51,11 @@ def scenario_initalisation(path_data_ed, fuel_disagg, data=False):
         basic_functions.create_folder(folder)
 
     # ---------------------------------------
-    # Convert base year fuel input assumptions to energy service
+    # Convert base year fuel input
+    # assumptions to energy service
     # ---------------------------------------
 
-    # Residential
+    # Residential submodel
     rs_s_tech_by_p, _, rs_s_fueltype_by_p = s_fuel_to_service.get_s_fueltype_tech(
         data['enduses']['rs_enduses'],
         data['lookups']['fueltypes'],
@@ -76,7 +63,7 @@ def scenario_initalisation(path_data_ed, fuel_disagg, data=False):
         data['fuels']['rs_fuel_raw'],
         data['technologies'])
 
-    # Service
+    # Service submodel
     ss_s_tech_by_p = {}
     ss_s_fueltype_by_p = {}
     for sector in data['sectors']['ss_sectors']:
@@ -88,7 +75,7 @@ def scenario_initalisation(path_data_ed, fuel_disagg, data=False):
             data['technologies'],
             sector)
 
-    # Industry
+    # Industry submodel
     is_s_tech_by_p = {}
     is_s_fueltype_by_p = {}
     for sector in data['sectors']['is_sectors']:
@@ -109,7 +96,6 @@ def scenario_initalisation(path_data_ed, fuel_disagg, data=False):
         real_values = data['pop_density']
 
         # Speed to select
-        #speed_con_max = 2.5
         speed_con_max = data['assumptions'].strategy_vars['speed_con_max']['scenario_value']
 
         # Nr of min and max outliers to flatten
@@ -126,9 +112,10 @@ def scenario_initalisation(path_data_ed, fuel_disagg, data=False):
         # --------- ------------
         # Plot figure for paper
         # ---------------------
-        plot_fig_paper = False #FALSE PINGU
+        #TODO TODO
+        '''plot_fig_paper = False
         if plot_fig_paper:
-
+            from energy_demand.plotting import result_mapping
             # Global value to distribute
             global_value = 50
 
@@ -146,7 +133,7 @@ def scenario_initalisation(path_data_ed, fuel_disagg, data=False):
                 paths=data['result_paths'],
                 regions=data['regions'],
                 path_shapefile_input=path_shapefile_input,
-                plotshow=True)
+                plotshow=True)'''
     else:
         f_reg = False
         f_reg_norm = False
@@ -154,7 +141,7 @@ def scenario_initalisation(path_data_ed, fuel_disagg, data=False):
         init_cont['regional_strategy_variables'] = None
 
     # ===========================================
-    # II. Switches
+    # I. Switches
     # ===========================================
 
     # ========================================================================================
@@ -191,7 +178,6 @@ def scenario_initalisation(path_data_ed, fuel_disagg, data=False):
 
         for region in data['regions']:
 
-            # Residential
             rs_service_switches_incl_cap[region] = fuel_service_switch.capacity_switch(
                 reg_capacity_switches_rs[region],
                 data['technologies'],
@@ -216,7 +202,6 @@ def scenario_initalisation(path_data_ed, fuel_disagg, data=False):
                 data['assumptions'].is_fuel_tech_p_by,
                 data['assumptions'].base_yr)
     else: #Not spatial explicit
-
         rs_service_switches_incl_cap = fuel_service_switch.capacity_switch(
             data['assumptions'].rs_capacity_switches,
             data['technologies'],
@@ -370,7 +355,7 @@ def scenario_initalisation(path_data_ed, fuel_disagg, data=False):
                 regional_specific=data['assumptions'].strategy_vars['spatial_explicit_diffusion']['scenario_value'])
 
     # ===========================================
-    # III. Spatial explicit modelling of scenario variables
+    # II. Spatial explicit modelling of scenario variables
     #
     # From UK factors to regional specific factors
     # Convert strategy variables to regional variables
@@ -443,7 +428,7 @@ def global_to_reg_capacity_switch(
     global_capactiy_switch : float
         Global switch
     spatial_factors : dict
-        
+  
     Returns
     -------
 

@@ -11,14 +11,18 @@
 #TODO Create own .py chart file for every chart
 #TODO Import weather data loading and importing whole range of weather scenarios
 #TODO Replace geopanda csv loading
-#TODO MAKE that disaggregation only happens with one dataset which is impemendent of simulation dataset (Use ONS data)
+#TODO Take disaggregation completely out?
+#TODO Implement two step phasing (e.g. 2015-2030, 2030 - 2050)
+#TODO Test if technology type can be left empty in technology spreadsheet
+#TODO MAke f_eff_achieved enduse_specific
+#TODO Try to remove tech_type
 """
 import os
 import sys
 import time
 import logging
-import numpy as np
 from collections import defaultdict
+import numpy as np
 from energy_demand.basic import date_prop
 from energy_demand.plotting import plotting_results
 from energy_demand import model
@@ -120,6 +124,7 @@ if __name__ == "__main__":
 
     data['criterias']['reg_selection'] = False
     data['criterias']['reg_selection_csv_name'] = "msoa_regions_ed.csv" # CSV file stored in 'region' folder with simulated regions
+    data['criterias']['MSOA_crit'] = False
 
     # --- Model running configurations
     user_defined_base_yr = 2015
@@ -170,7 +175,7 @@ if __name__ == "__main__":
 
     # Read GVA sector specific data
     data['scenario_data']['gva_industry_service'] = data_loader.read_scenario_data_gva(name_gva_dataset, all_dummy_data=False)
-    data['scenario_data']['gva_per_head_lad'] = data_loader.read_scenario_data(name_gva_dataset_per_head)
+    data['scenario_data']['gva_per_head'] = data_loader.read_scenario_data(name_gva_dataset_per_head)
 
     # Read sector assignement lookup values
     data['gva_sector_lu'] = lookup_tables.economic_sectors_regional_MISTRAL()
@@ -237,6 +242,14 @@ if __name__ == "__main__":
     print("Start Energy Demand Model with python version: " + str(sys.version))
     print("Info model run")
     print("Nr of Regions " + str(data['reg_nrs']))
+
+    # Optain population data for disaggregation
+    if data['criterias']['MSOA_crit']:
+        name_population_dataset = data['local_paths']['path_population_data_for_disaggregation_MSOA']
+    else:
+        name_population_dataset = data['local_paths']['path_population_data_for_disaggregation_LAD']
+    data['pop_for_disag'] =  data_loader.read_scenario_data(name_population_dataset)
+
 
     # --------------------
     # Disaggregate fuel

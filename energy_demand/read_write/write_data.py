@@ -499,6 +499,57 @@ def resilience_paper(
     max_day_values = list(sum_all_regs_fueltype_8760[max_day * 24:(max_day+1)*24])
     min_day_values = list(sum_all_regs_fueltype_8760[min_day * 24:(min_day+1)*24])
 
+    # ---------------------
+    # TODO TO IMPROVE RESILIENCE NEW Plot share of submodel electricity demand per lad
+    # ---------------------
+    submodels = ['residential_min', 'service', 'industry']
+
+    '''
+    #results[submodel_nr][region_nr][fueltype_int].reshape(8760)
+    for hour in range(24):
+        list_to_write = [
+            ['{}, {}, {}, {}, {}, {}\n'.format(
+                'residential_min', 'residential_max','service_min', 'service_max', 'industry_min', 'industry_max')]
+        
+        for region_nr, region in enumerate(regions):
+            tot_sector_elec_max = 0
+            tot_sector_elec_min = 0
+            for submodel_nr, submodel in submodels.items():
+                submodel_demand = results[submodel_nr]
+                
+                # Total electrictiy of all sectors
+                tot_sector_elec_max += submodel_demand[region_nr][fueltype_int][max_day][hour]
+                tot_sector_elec_min += submodel_demand[region_nr][fueltype_int][min_day][hour]
+            
+            # Take only electricity
+            max_day_elec_fuel_24h = submodel_demand[region_nr][fueltype_int][max_day][hour]
+            min_day_elec_fuel_24h = submodel_demand[region_nr][fueltype_int][min_day][hour]
+
+            # Fraction per submodel
+            entry = []
+            for submodel_nr, submodel in submodels.items():
+                submodel_max_p = submodel_demand[region_nr][fueltype_int][max_day][hour] / tot_sector_elec_max
+                submodel_min_p = submodel_demand[region_nr][fueltype_int][min_day][hour] / tot_sector_elec_min
+                entry.append(submodel_min_p)
+                entry.append(submodel_max_p)
+           
+            entry_str = '{}, {}, {}, {}, {}, {}\n'.format(
+                entry[0], entry[1], entry[2], entry[3], entry[4], entry[5])
+            list_to_write.append(entry_str)
+        
+        # Write to file
+        path_out_file = os.path.join(
+            path_result_sub_folder,
+            "{}{}".format(
+                'submodel_p__year-{}__hour-{}'.format(sim_yr, hour),
+                ".csv"))
+        
+        file = open(path_out_file, "w")
+        for line in list_to_write:
+            file.write(line)
+        file.close()
+    '''
+
     # ---------------
     # Plot as pdf
     # ---------------

@@ -166,9 +166,7 @@ def create_tech_stock(
     for enduse in enduses:
         for technology in enduse_technologies[enduse]:
 
-            tech_type = technologies[technology].tech_type
-
-            if tech_type == 'placeholder_tech':
+            if technologies[technology].tech_type == 'placeholder_tech':
                 # This is placeholder technology a whole enduse
                 pass
             else:

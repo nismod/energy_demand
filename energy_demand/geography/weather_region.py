@@ -57,6 +57,7 @@ class WeatherRegion(object):
         # -----------------------------------
         # Calculate current year temperatures
         # -----------------------------------
+        # INFO: this could be removed if external weather generator is available
         temp_cy = change_temp_climate(
             temp_by,
             assumptions.yeardays_month_days,
@@ -259,7 +260,7 @@ class WeatherRegion(object):
             technologies=assumptions.tech_list['secondary_heating_electricity'],
             enduses=['rs_space_heating'],
             shape_yd=rs_fuel_shape_heating_yd,
-            shape_y_dh=rs_profile_elec_heater_y_dh, #tech_lp['rs_profile_elec_heater_y_dh'],
+            shape_y_dh=rs_profile_elec_heater_y_dh,
             model_yeardays=assumptions.model_yeardays)
 
         # ------Heat pump heating
@@ -456,7 +457,6 @@ class WeatherRegion(object):
             shape_yd=ss_fuel_shape_heating_yd_weighted,
             shape_y_dh=tech_lp['ss_all_tech_shapes_dh']['ss_space_heating']['shape_non_peak_y_dh'],
             model_yeardays=assumptions.model_yeardays)
-
 
         # --Add cooling technologies for service sector
         coolings_techs = assumptions.tech_list['cooling_const']

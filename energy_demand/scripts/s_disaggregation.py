@@ -22,8 +22,12 @@ def disaggregate_demand(data):
     data['scenario_data']['employment_stats'] = data_loader.read_employment_stats(
         data['paths']['path_employment_statistics'])
 
+    # Load population data for disaggregation
+    pop_base_year_for_disaggregation = data['pop_for_disag']
+
     # Disaggregate fuel for all regions
     disagg['rs_fuel_disagg'], disagg['ss_fuel_disagg'], disagg['is_fuel_disagg'] = disaggregate_base_demand(
+        pop_base_year_for_disaggregation,
         data['regions'],
         data['fuels'],
         data['scenario_data'],
@@ -77,6 +81,7 @@ def replace_msoa_reg_with_lad(region):
     return region
 
 def disaggregate_base_demand(
+        pop_base_year_for_disaggregation,
         regions,
         fuels,
         scenario_data,
@@ -127,6 +132,7 @@ def disaggregate_base_demand(
         regions,
         fuels['rs_fuel_raw'],
         scenario_data,
+        pop_base_year_for_disaggregation,
         assumptions,
         reg_coord,
         weather_stations,
@@ -142,6 +148,7 @@ def disaggregate_base_demand(
         service_building_count,
         assumptions,
         scenario_data,
+        pop_base_year_for_disaggregation,
         regions,
         reg_coord,
         temp_data,
@@ -165,6 +172,7 @@ def disaggregate_base_demand(
         sectors['is_sectors'],
         scenario_data['employment_stats'],
         scenario_data,
+        pop_base_year_for_disaggregation,
         census_disagg=census_disagg)
 
     logging.info("Finished disaggregation")
@@ -175,6 +183,7 @@ def ss_disaggregate(
         service_building_count,
         assumptions,
         scenario_data,
+        pop_base_year_for_disaggregation,
         regions,
         reg_coord,
         temp_data,
@@ -240,6 +249,7 @@ def ss_disaggregate(
         all_sectors=all_sectors,
         base_yr=assumptions.base_yr,
         scenario_data=scenario_data,
+        pop_base_year_for_disaggregation=pop_base_year_for_disaggregation,
         service_building_count=service_building_count,
         ss_hdd_individ_region=ss_hdd_individ_region,
         ss_cdd_individ_region=ss_cdd_individ_region,
@@ -265,6 +275,7 @@ def ss_disaggregate(
         all_sectors=all_sectors,
         base_yr=assumptions.base_yr,
         scenario_data=scenario_data,
+        pop_base_year_for_disaggregation=pop_base_year_for_disaggregation,
         service_building_count=service_building_count,
         ss_hdd_individ_region=ss_hdd_individ_region,
         ss_cdd_individ_region=ss_cdd_individ_region,
@@ -290,6 +301,7 @@ def ss_disaggr(
         all_sectors,
         base_yr,
         scenario_data,
+        pop_base_year_for_disaggregation,
         service_building_count,
         ss_hdd_individ_region,
         ss_cdd_individ_region,
@@ -335,7 +347,8 @@ def ss_disaggr(
     for region in all_regions:
         reg_hdd = ss_hdd_individ_region[region]
         reg_cdd = ss_cdd_individ_region[region]
-        reg_pop = scenario_data['population'][base_yr][region]
+        #reg_pop = scenario_data['population'][base_yr][region]
+        reg_pop = pop_base_year_for_disaggregation[base_yr][region]
         tot_pop += reg_pop
         tot_cdd += reg_cdd
         tot_hdd += reg_hdd
@@ -370,8 +383,8 @@ def ss_disaggr(
         # Regional factors
         reg_hdd = ss_hdd_individ_region[region]
         reg_cdd = ss_cdd_individ_region[region]
-        reg_pop = scenario_data['population'][base_yr][region]
-
+        #reg_pop = scenario_data['population'][base_yr][region]
+        reg_pop = pop_base_year_for_disaggregation[base_yr][region]
         p_pop = reg_pop / tot_pop
 
         for enduse in enduses:
@@ -436,6 +449,7 @@ def is_disaggregate(
         sectors,
         employment_statistics,
         scenario_data,
+        pop_base_year_for_disaggregation,
         census_disagg
     ):
     """Disaggregate industry related fuel for sector and enduses with
@@ -484,8 +498,11 @@ def is_disaggregate(
     tot_pop = 0
     tot_pop_hdd = 0
     for region in regions:
-        tot_pop_hdd += scenario_data['population'][assumptions.base_yr][region] * is_hdd_individ_region[region]
-        tot_pop += scenario_data['population'][assumptions.base_yr][region]
+        #tot_pop_hdd += scenario_data['population'][assumptions.base_yr][region] * is_hdd_individ_region[region]
+        tot_pop_hdd +=pop_base_year_for_disaggregation[assumptions.base_yr][region] * is_hdd_individ_region[region]
+        
+        #tot_pop += scenario_data['population'][assumptions.base_yr][region]
+        tot_pop += pop_base_year_for_disaggregation[assumptions.base_yr][region]
 
     if not census_disagg:
 
@@ -494,7 +511,8 @@ def is_disaggregate(
         # ---
         for region in regions:
             is_fuel_disagg[region] = {}
-            reg_pop = scenario_data['population'][assumptions.base_yr][region]
+            #reg_pop = scenario_data['population'][assumptions.base_yr][region]
+            reg_pop = pop_base_year_for_disaggregation[assumptions.base_yr][region]
 
             for enduse in enduses:
                 is_fuel_disagg[region][enduse] = {}
@@ -577,7 +595,8 @@ def is_disaggregate(
         for region in regions:
             is_fuel_disagg[region] = {}
 
-            reg_pop = scenario_data['population'][assumptions.base_yr][region]
+            #reg_pop = scenario_data['population'][assumptions.base_yr][region]
+            reg_pop = pop_base_year_for_disaggregation[assumptions.base_yr][region]
 
             # Iterate sector
             for enduse in enduses:
@@ -635,6 +654,7 @@ def rs_disaggregate(
         regions,
         rs_national_fuel,
         scenario_data,
+        pop_base_year_for_disaggregation,
         assumptions,
         reg_coord,
         weather_stations,
@@ -697,6 +717,7 @@ def rs_disaggregate(
         base_yr=assumptions.base_yr,
         rs_hdd_individ_region=rs_hdd_individ_region,
         scenario_data=scenario_data,
+        pop_base_year_for_disaggregation=pop_base_year_for_disaggregation,
         rs_national_fuel=rs_national_fuel,
         crit_limited_disagg_pop=False, #True, #False,
         crit_limited_disagg_pop_hdd=True, #True, #Set to true
@@ -718,6 +739,7 @@ def rs_disaggregate(
         base_yr=assumptions.base_yr,
         rs_hdd_individ_region=rs_hdd_individ_region,
         scenario_data=scenario_data,
+        pop_base_year_for_disaggregation=pop_base_year_for_disaggregation,
         rs_national_fuel=rs_national_fuel_remaining,
         crit_limited_disagg_pop=crit_limited_disagg_pop,
         crit_limited_disagg_pop_hdd=crit_limited_disagg_pop_hdd,
@@ -738,6 +760,7 @@ def rs_disaggr(
         base_yr,
         rs_hdd_individ_region,
         scenario_data,
+        pop_base_year_for_disaggregation,
         rs_national_fuel,
         crit_limited_disagg_pop,
         crit_limited_disagg_pop_hdd,
@@ -756,7 +779,8 @@ def rs_disaggr(
     for region in all_regions:
         reg_hdd = rs_hdd_individ_region[region]
         reg_floor_area = scenario_data['floor_area']['rs_floorarea'][base_yr][region]
-        reg_pop = scenario_data['population'][base_yr][region]
+        #reg_pop = scenario_data['population'][base_yr][region]
+        reg_pop = pop_base_year_for_disaggregation[base_yr][region]
 
         # National dissagregation factors
         total_hdd_floorarea += reg_hdd * reg_floor_area
@@ -772,7 +796,8 @@ def rs_disaggr(
         reg_hdd = rs_hdd_individ_region[region]
         reg_floor_area = scenario_data['floor_area']['rs_floorarea'][base_yr][region]
         reg_hdd_floor_area = reg_hdd * reg_floor_area
-        reg_pop = scenario_data['population'][base_yr][region]
+        #reg_pop = scenario_data['population'][base_yr][region]
+        reg_pop = pop_base_year_for_disaggregation[base_yr][region]
         reg_pop_hdd = reg_pop * reg_hdd
 
         p_pop = reg_pop / total_pop
@@ -852,8 +877,7 @@ def write_disagg_fuel_ts(path_to_txt, data):
     """
     file = open(path_to_txt, "w")
     file.write("{}, {}, {}".format(
-        'region', 'fueltypes', 'fuel') + '\n'
-              )
+        'region', 'fueltypes', 'fuel') + '\n')
 
     for region, fuels in data.items():
         for fueltype, fuel in enumerate(fuels):

@@ -7,12 +7,14 @@ from energy_demand.basic import lookup_tables
 from energy_demand.basic import basic_functions
 
 path_to_folder = "C://Users//cenv0553//ED//data//scenarios//MISTRAL_pop_gva//data"
-path_MSOA_baseline = "C://Users//cenv0553//ED//data//scenarios//MISTRAL_pop_gva//uk_pop_principal_2015_2050_MSOA_england.csv"
+path_MSOA_baseline = "C://Users//cenv0553//ED//data//scenarios//uk_pop_principal_2015_2050_MSOA_england.csv"
 sectors_to_generate = [2, 3, 4, 5, 6, 8, 9, 29, 11, 12, 10, 15, 14, 19, 17, 40, 41, 28, 35, 23, 27]
 
 # Get all folders with scenario run results (name of folder is scenario)
-all_csv_folders = os.listdir(path_to_folder)
-
+all_csv_folders_walk = os.walk(path_to_folder) #TODO CONVERT IN BASIC FUNCTION list_all_folders()
+for root, dirnames, filenames in all_csv_folders_walk:
+    all_csv_folders = dirnames
+    break
 # ---------------------------------------------------------------------------------------------------
 # Create scenario with CONSTANT (2015) population and constant GVA
 # ---------------------------------------------------------------------------------------------------
@@ -29,7 +31,7 @@ wroute_out_GVA = False
 LAD_MSOA_lu = lookup_tables.lad_msoa_mapping() # Lookup
 
 #Get a folder with entries
-'''for folder_name in all_csv_folders:
+for folder_name in all_csv_folders:
     if folder_name != 'constant_pop_gva':
         all_csv_folders = [folder_name]
         break
@@ -40,8 +42,6 @@ for folder_name in all_csv_folders:
         all_files = os.listdir(os.path.join(path_to_folder, folder_name))
 
         # Scale for every year according to this distribution
-
-
         for file_name in all_files:
             filename_split = file_name.split("__")
             
@@ -195,13 +195,16 @@ for folder_name in all_csv_folders:
             break
     except:
         pass
-'''
+
 # ---------------------------------------------------------------------------------------------------
 # Add interval and create individual GVA data
 # ---------------------------------------------------------------------------------------------------
 # Get all folders with scenario run results (name of folder is scenario)
-all_csv_folders = os.listdir(path_to_folder)
-print()
+all_csv_folders_walk = os.walk(path_to_folder)
+for root, dirnames, filenames in all_csv_folders_walk:
+    all_csv_folders = dirnames
+    break
+
 for folder_name in all_csv_folders:
     print("folder name: " + str(folder_name))
     try:
@@ -227,7 +230,7 @@ for folder_name in all_csv_folders:
 
                 # Save as file
                 gp_file.to_csv(file_path, index=False) #Index prevents writing index rows
-
+                
                 # ---  
                 # MSOA pop calculation
                 # ----
@@ -296,23 +299,23 @@ for folder_name in all_csv_folders:
                 file_path = os.path.join(path_to_folder, folder_name, file_name)
 
                 # READ csv file
-                gp_file = pd.read_csv(file_path)
+                gp_file_gva = pd.read_csv(file_path)
     
                 # Iterate sector
                 for sector_nr in sectors_to_generate:
 
                     # Create empty df
-                    new_df = pd.DataFrame(columns=gp_file.columns)
+                    new_df = pd.DataFrame(columns=gp_file_gva.columns)
 
                     # Select all entries where in 'economic_sector__gor' is sector
-                    new_df_selection = gp_file.loc[gp_file['economic_sector__gor'] == sector_nr]
+                    new_df_selection = gp_file_gva.loc[gp_file_gva['economic_sector__gor'] == sector_nr]
 
                     file_path_sector_specific = os.path.join(
                         path_to_folder, folder_name, "gva_per_head__lad_sector__{}.csv".format(sector_nr))
 
                     # Generate sector specific CSV
                     new_df_selection.to_csv(file_path_sector_specific, index=False) #Index prevents writing index rows
-
+            
             # -----------------------------------------
             # MSOA GVA calculations
             # -----------------------------------------

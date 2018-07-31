@@ -1,7 +1,5 @@
 """Script to convert fuel to energy service
 """
-import logging
-import warnings
 import numpy as np
 from energy_demand.technologies import tech_related
 from energy_demand.initalisations import helpers
@@ -144,9 +142,8 @@ def get_s_fueltype_tech(
     s_fueltype_by_p = init_nested_dict_zero(s_tech_by_p.keys(), range(len(fueltypes))) # Percentage of service per fueltype
 
     for enduse in enduses:
-
-        # Initialise
-
+        
+        # Depending if sector or not sector specific
         if not sector:
             fuel = fuels[enduse]
             selec_fuel_p_tech_by = fuel_p_tech_by[enduse]
@@ -167,18 +164,15 @@ def get_s_fueltype_tech(
                 # Fuel share based on defined shares within fueltype (share of fuel * total fuel)
                 fuel_tech = fuel_alltech_by * fuel_fueltype
 
-                # Get technology type
-                tech_type = technologies[tech].tech_type
-
                 # Get efficiency for base year
-                if tech_type == 'heat_pump':
+                if technologies[tech].tech_type == 'heat_pump':
                     eff_tech = tech_related.eff_heat_pump(
                         temp_diff=10,
                         efficiency_intersect=technologies[tech].eff_by)
                 else:
                     eff_tech = technologies[tech].eff_by
 
-                # Energy service of end use: Service == Fuel of technoloy * efficiency
+                # Energy service: Service == Fuel of technoloy * efficiency
                 s_fueltype_tech = fuel_tech * eff_tech
 
                 # Add energy service demand
