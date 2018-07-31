@@ -1,4 +1,7 @@
 """Script to add interval on GVA and population file
+
+Run script on 'data' folder in scenarios_not_extracted folder
+
 """
 import os
 import pandas as pd
@@ -6,15 +9,13 @@ import numpy as np
 from energy_demand.basic import lookup_tables
 from energy_demand.basic import basic_functions
 
-path_to_folder = "C://Users//cenv0553//ED//data//scenarios//MISTRAL_pop_gva//data"
+path_to_folder = "C://Users//cenv0553//ED//data//_scenarios//MISTRAL_pop_gva//data"
 path_MSOA_baseline = "C://Users//cenv0553//ED//data//scenarios//uk_pop_principal_2015_2050_MSOA_england.csv"
 sectors_to_generate = [2, 3, 4, 5, 6, 8, 9, 29, 11, 12, 10, 15, 14, 19, 17, 40, 41, 28, 35, 23, 27]
 
 # Get all folders with scenario run results (name of folder is scenario)
-all_csv_folders_walk = os.walk(path_to_folder) #TODO CONVERT IN BASIC FUNCTION list_all_folders()
-for root, dirnames, filenames in all_csv_folders_walk:
-    all_csv_folders = dirnames
-    break
+all_csv_folders, _ = basic_functions.get_all_folders_files(path_to_folder)
+
 # ---------------------------------------------------------------------------------------------------
 # Create scenario with CONSTANT (2015) population and constant GVA
 # ---------------------------------------------------------------------------------------------------

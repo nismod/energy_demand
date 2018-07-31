@@ -626,6 +626,7 @@ def get_peak_day(fuel_yh):
     """Iterate an array with entries and get
     entry nr with hightest value
 
+    TODO: NOT USED SO FAR
     Arguments
     ---------
     fuel_yh : array (hours)
