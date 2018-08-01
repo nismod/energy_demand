@@ -1,50 +1,33 @@
 """This file creates a .zip folder with all the necessary data files to run HIRE
+for a specific version
 """
 import os
 import zipfile
 #from energy_demand.basic import basic_functions
 
-'''def zipdir(path, ziph):
-    # ziph is zipfile handle
-    for root, dirs, files in os.walk(path):
-        for file in files:
-            ziph.write(os.path.join(root, file))
-
-if __name__ == '__main__':
-    zipf = zipfile.ZipFile('Python.zip', 'w', zipfile.ZIP_DEFLATED)
-    zipdir('tmp/', zipf)
-    zipf.close()
-
-def zipdir(path, ziph):
-    # ziph is zipfile handle
-    for root, dirs, files in os.walk(path):
-        for file in files:
-            ziph.write(os.path.join(root, file))
-'''
-def zipdir(path, ziph_handler):
+def zipdir(path, zip_handler):
     """Zip a whole directory
     """
-    # ziph is zipfile handle
     for root, dirs, files in os.walk(path):
         for file in files:
-            ziph_handler.write(
+            zip_handler.write(
                 os.path.join(root, file),
                 os.path.relpath(
                     os.path.join(root, file),
                     os.path.join(path, '..')))
-    return ziph_handler
+
+    return zip_handler
 
 def zipit(dir_list, zip_name):
     """Zip a list with directories
     """
-    ziph_handler = zipfile.ZipFile(zip_name, 'w', zipfile.ZIP_DEFLATED)
+    zip_handler = zipfile.ZipFile(zip_name, 'w', zipfile.ZIP_DEFLATED)
     for dir_to_zip in dir_list:
         print("... zipping folder: {}".format(dir))
-        ziph_handler = zipdir(dir_to_zip, ziph_handler)
-        #ziph_handler = zipdir(dir, ziph_handler)
+        zip_handler = zipdir(dir_to_zip, zip_handler)
 
     # Close zip
-    ziph_handler.close()
+    zip_handler.close()
 
 def package_data(version_name, data_folder_path):
     """
@@ -109,26 +92,25 @@ def package_data(version_name, data_folder_path):
         else:
             folder_path = os.path.join(data_folder_path, folder_name)
             folder_paths.append(folder_path)'''
+    # Zip minimal
+    zipit(
+        dir_list=paths_minimal,
+        zip_name=zip_name_minimum)
 
     # Zip full
     zipit(
         dir_list=paths_full,
         zip_name=zip_name_full)
 
-    # Zip minimal
-    zipit(
-        dir_list=paths_minimal,
-        zip_name=zip_name_full)
-
     # Append file
-    zip_handler_full = zipfile.ZipFile(os.path.join(data_folder_path, zip_name_full), "a")
     zip_handler_minimum = zipfile.ZipFile(os.path.join(data_folder_path, zip_name_minimum), "a")
+    zip_handler_full = zipfile.ZipFile(os.path.join(data_folder_path, zip_name_full), "a")
     
     for file_to_add in files_to_add:
         full_file_path = os.path.join(data_folder_path, 'units.txt')
         zip_handler_full.write(full_file_path, arcname=file_to_add)
         zip_handler_minimum.write(full_file_path, arcname=file_to_add)
-    
+
     zip_handler_full.close()
     zip_handler_minimum.close()
 
@@ -137,5 +119,5 @@ def package_data(version_name, data_folder_path):
 #if __name__ == '__main__':
 print("START")
 package_data(
-    version_name="v_test_",
+    version_name="v_045_1_in_progress",
     data_folder_path="C:/Users/cenv0553/ed/data")
