@@ -55,31 +55,35 @@ def package_data(version_name, data_folder_path):
     zip_name_full = os.path.join(data_folder_path, "{}_{}".format(version_name, "full.zip"))
     zip_name_minimum = os.path.join(data_folder_path, "{}_{}".format(version_name, "minimum.zip"))
 
+    # Files to folders
+    files_to_add = ['units.txt']
+
     # Zip minimum files
     _raw_folders_data_minimal = [
-        #'raw_data_minimal',
-        #'coefficients',
-        #'initial_conditions',
-        #'interval_definitions',
-        #'interventions',
-        'narratives']#,
-        #'planning',
-        #'scenarios',
-        #'strategies']
+        '_raw_data_minimal',
+        'coefficients',
+        'initial_conditions',
+        'interval_definitions',
+        'interventions',
+        'narratives',
+        'planning',
+        'region_definitions',
+        'scenarios_not_extracted',
+        'strategies']
 
     # Zip maximum files
     _raw_folders_data_full = [
-        #'scenarios_not_extracted']#,
-        #'raw_data',
-        #'coefficients',
-        #'initial_conditions',
-        #'interval_definitions',
-        #'interventions',
-        'narratives']#,
-        #'planning',
-        #'scenarios',
-        #'strategies']
-    
+        '_raw_data',
+        'coefficients',
+        'initial_conditions',
+        'interval_definitions',
+        'interventions',
+        'narratives',
+        'planning',
+        'region_definitions',
+        'scenarios_not_extracted',
+        'strategies']
+
     paths_minimal = []
     for folder in _raw_folders_data_minimal:
         path_folder = os.path.join(data_folder_path, folder) 
@@ -116,22 +120,17 @@ def package_data(version_name, data_folder_path):
         dir_list=paths_minimal,
         zip_name=zip_name_full)
 
-    # Add files to folder
-    files_to_add = [
-        'units.txt'
-    ]
-
-    zip_handler = zipfile.ZipFile(os.path.join(data_folder_path, zip_name_full), "a")
+    # Append file
+    zip_handler_full = zipfile.ZipFile(os.path.join(data_folder_path, zip_name_full), "a")
+    zip_handler_minimum = zipfile.ZipFile(os.path.join(data_folder_path, zip_name_minimum), "a")
+    
     for file_to_add in files_to_add:
         full_file_path = os.path.join(data_folder_path, 'units.txt')
-        zip_handler.write(full_file_path, arcname=file_to_add)
-    zip_handler.close()
-
-    zip_handler = zipfile.ZipFile(os.path.join(data_folder_path, zip_name_minimum), "a")
-    for file_to_add in files_to_add:  
-        full_file_path = os.path.join(data_folder_path, 'units.txt')
-        zip_handler.write(full_file_path, arcname=file_to_add)
-    zip_handler.close()
+        zip_handler_full.write(full_file_path, arcname=file_to_add)
+        zip_handler_minimum.write(full_file_path, arcname=file_to_add)
+    
+    zip_handler_full.close()
+    zip_handler_minimum.close()
 
     print("Finished packaging data for Version {}".format(version_name))
 

@@ -96,7 +96,7 @@ if __name__ == "__main__":
             os.path.dirname(__file__), '..', "energy_demand/config_data"))
 
     # Initialise logger
-    logger_setup.set_up_logger(os.path.join(local_data_path, "logging_local_run.log"))
+    #logger_setup.set_up_logger(os.path.join(local_data_path, "logging_local_run.log"))
 
     # Load data
     data['criterias'] = {}

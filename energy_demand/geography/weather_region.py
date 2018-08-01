@@ -179,6 +179,9 @@ class WeatherRegion(object):
             self.f_heat_rs_y = 1
             self.f_cooling_rs_y = 1
 
+        # Calculate rs peak day
+        rs_peak_day = enduse_func.get_peak_day(self.rs_hdd_cy)
+
         # ========
         # Enduse specific profiles
         # ========
@@ -196,6 +199,11 @@ class WeatherRegion(object):
 
                 # Remove heat pumps from rs_water_heating
                 tech_list = basic_functions.remove_element_from_list(tech_list, 'heat_pumps_electricity')
+
+                '''shape_y_dh = insert_peak_dh_shape(
+                    peak_day=rs_peak_day,
+                    shape_y_dh=tech_lp['rs_shapes_dh'][enduse]['shape_non_peak_y_dh'],
+                    shape_peak_dh=tech_lp['rs_shapes_dh'][enduse]['shape_peak_dh'])'''
 
                 self.rs_load_profiles.add_lp(
                     unique_identifier=uuid.uuid4(),
@@ -219,12 +227,17 @@ class WeatherRegion(object):
             model_yeardays=assumptions.model_yeardays)
 
         # ------Heating CHP
+        '''rs_profile_chp_y_dh = insert_peak_dh_shape(
+            peak_day=rs_peak_day,
+            shape_y_dh=tech_lp['rs_profile_chp_y_dh'],
+            shape_peak_dh=tech_lp['rs_lp_heating_CHP_dh']['peakday'])'''
+
         self.rs_load_profiles.add_lp(
             unique_identifier=uuid.uuid4(),
             technologies=assumptions.tech_list['tech_CHP'],
             enduses=['rs_space_heating'],
             shape_yd=rs_fuel_shape_heating_yd,
-            shape_y_dh=tech_lp['rs_profile_chp_y_dh'],
+            shape_y_dh=tech_lp['rs_profile_chp_y_dh'], #rs_profile_chp_y_dh
             model_yeardays=assumptions.model_yeardays)
 
         # ------Electric heating, storage heating (primary)
@@ -246,8 +259,13 @@ class WeatherRegion(object):
             model_yeardays=assumptions.model_yeardays)
 
         # ------Heat pump heating
+        '''rs_profile_hp_y_dh = insert_peak_dh_shape(
+            peak_day=rs_peak_day,
+            shape_y_dh=tech_lp['rs_profile_hp_y_dh'],
+            shape_peak_dh=tech_lp['rs_lp_heating_hp_dh']['peakday'])'''
+
         rs_fuel_shape_hp_yh, rs_hp_shape_yd = get_fuel_shape_heating_hp_yh(
-            tech_lp['rs_profile_hp_y_dh'],
+            tech_lp['rs_profile_hp_y_dh'], #rs_profile_hp_y_dh
             self.rs_tech_stock,
             self.rs_hdd_cy,
             assumptions.model_yeardays)
@@ -296,7 +314,7 @@ class WeatherRegion(object):
                 unique_identifier=uuid.uuid4(),
                 technologies=assumptions.tech_list['heating_non_const'],
                 enduses=['rs_space_heating'],
-                shape_y_dh=tech_lp['rs_profile_hp_y_dh'],
+                shape_y_dh=tech_lp['rs_profile_hp_y_dh'], #TODO: rs_profile_hp_y_dh
                 shape_yd=rs_hp_shape_yd,
                 shape_yh=rs_fuel_shape_hp_yh,
                 model_yeardays=assumptions.model_yeardays)
@@ -317,7 +335,7 @@ class WeatherRegion(object):
             technologies=assumptions.tech_list['tech_district_heating'],
             enduses=['rs_space_heating'],
             shape_yd=rs_fuel_shape_heating_yd,
-            shape_y_dh=tech_lp['rs_profile_chp_y_dh'],
+            shape_y_dh=tech_lp['rs_profile_chp_y_dh'], #TODO: rs_profile_hp_y_dh
             model_yeardays=assumptions.model_yeardays)
 
         # ==================================================================
@@ -392,7 +410,7 @@ class WeatherRegion(object):
             all_techs_ss_space_heating, 'heat_pumps_electricity')
 
         ss_fuel_shape_hp_yh, ss_hp_shape_yd = get_fuel_shape_heating_hp_yh(
-            tech_lp['rs_profile_hp_y_dh'],
+            tech_lp['rs_profile_hp_y_dh'], #TODO: rs_profile_hp_y_dh
             self.rs_tech_stock,
             ss_hdd_cy,
             assumptions.model_yeardays)
@@ -402,7 +420,7 @@ class WeatherRegion(object):
             technologies=assumptions.tech_list['heating_non_const'],
             enduses=['ss_space_heating', 'ss_water_heating'],
             sectors=sectors['ss_sectors'],
-            shape_y_dh=tech_lp['rs_profile_hp_y_dh'],
+            shape_y_dh=tech_lp['rs_profile_hp_y_dh'], #TODO: rs_profile_hp_y_dh
             shape_yd=ss_hp_shape_yd,
             shape_yh=ss_fuel_shape_hp_yh,
             model_yeardays=assumptions.model_yeardays)
@@ -709,3 +727,32 @@ def change_temp_climate(
         temp_climate_change[month_yeardays] = temp_data[month_yeardays] + lin_diff_factor
 
     return temp_climate_change
+
+def insert_peak_dh_shape(
+        peak_day,
+        shape_y_dh,
+        shape_peak_dh
+    ):
+    """Insert peak specific load profile of a technology
+    Arguments
+    ---------
+    peak_day : int
+        Peak day nr
+    shape_y_dh : array
+        Shape of technology for every day (total sum = 365)
+    tech_lp_tech : dict
+        Technolgy specific load profiles for different day types
+    Returns
+    -------
+    shape_y_dh_inserted : array
+        Array where on peak day the peak shape is inserted
+    """
+    shape_y_dh_inserted = np.copy(shape_y_dh)
+    #print(np.sum(shape_y_dh_inserted))
+
+    shape_y_dh_inserted[peak_day] = shape_peak_dh
+
+    #print(np.sum(shape_y_dh_inserted))
+    #assert np.sum(shape_y_dh_inserted) == 365.0
+
+    return shape_y_dh_inserted
