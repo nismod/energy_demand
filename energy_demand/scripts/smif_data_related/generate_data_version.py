@@ -11,8 +11,8 @@ def zipdir(path, zip_handler):
     for root, dirs, files in os.walk(path):
         for file in files:
             zip_handler.write(
-                os.path.join(root, file),
-                os.path.relpath(
+                filename=os.path.join(root, file),
+                arcname=os.path.relpath(
                     os.path.join(root, file),
                     os.path.join(path, '..')))
 
@@ -43,7 +43,6 @@ def package_data(version_name, data_folder_path):
 
     # Zip minimum files
     _raw_folders_data_minimal = [
-        '_raw_data_minimal',
         'coefficients',
         'initial_conditions',
         'interval_definitions',
@@ -69,7 +68,7 @@ def package_data(version_name, data_folder_path):
 
     paths_minimal = []
     for folder in _raw_folders_data_minimal:
-        path_folder = os.path.join(data_folder_path, folder) 
+        path_folder = os.path.join(data_folder_path, folder)
         paths_minimal.append(path_folder)
 
     paths_full = []
@@ -77,35 +76,42 @@ def package_data(version_name, data_folder_path):
         path_folder = os.path.join(data_folder_path, folder)
         paths_full.append(path_folder)
 
-    '''# Get all folders in data_folder_path
-    #all_folders, all_files = basic_functions.get_all_folders_files(data_folder_path)
-
-    # Folders to ignore
-    folders_not_to_copy = []
-
-    # All folders to zip
-    folder_paths = []
-
-    for folder_name in _raw_folders_data_full:
-        if folder_name in folders_not_to_copy:
-            pass
-        else:
-            folder_path = os.path.join(data_folder_path, folder_name)
-            folder_paths.append(folder_path)'''
     # Zip minimal
     zipit(
         dir_list=paths_minimal,
         zip_name=zip_name_minimum)
+
+    # Add renamed folder
+    folder_to_add = os.path.join(data_folder_path, '_raw_data_minimal')
+    renamed_folder = '_raw_data'
+
+    zip_handler_minimum = zipfile.ZipFile(os.path.join(data_folder_path, zip_name_minimum), "a")
+
+    for root, dirs, files in os.walk(folder_to_add):
+        for file in files:
+
+            # New path
+            inter_folderes = root.split("_raw_data_minimal\\")
+            new_path = os.path.join(renamed_folder, inter_folderes[1], file)
+
+            zip_handler_minimum.write(
+                filename=os.path.join(root, file),
+                arcname=new_path)
+
+    # Close zip
+    zip_handler_minimum.close()
 
     # Zip full
     zipit(
         dir_list=paths_full,
         zip_name=zip_name_full)
 
-    # Append file
+    # ------------
+    # Append individual files
+    # ------------
     zip_handler_minimum = zipfile.ZipFile(os.path.join(data_folder_path, zip_name_minimum), "a")
     zip_handler_full = zipfile.ZipFile(os.path.join(data_folder_path, zip_name_full), "a")
-    
+
     for file_to_add in files_to_add:
         full_file_path = os.path.join(data_folder_path, 'units.txt')
         zip_handler_full.write(full_file_path, arcname=file_to_add)
@@ -117,7 +123,7 @@ def package_data(version_name, data_folder_path):
     print("Finished packaging data for Version {}".format(version_name))
 
 #if __name__ == '__main__':
-print("START")
+
 package_data(
-    version_name="v_045_1_in_progress",
+    version_name="v_047_",
     data_folder_path="C:/Users/cenv0553/ed/data")

@@ -45,25 +45,7 @@ def load_param_assump(paths=None, local_paths=None, assumptions=None, writeYAML=
 
         setattr(assumptions, 't_bases', general_assumptions.DummyClass(assumptions_dict['t_bases']))
     else:
-
-        # ------------
-        # Load assumptions
-        # ------------
-        '''path_main = resource_filename(os.path.join("energy_demand", "config_data"))
-        paths = data_loader.load_paths(path_main)
-        lookups = lookup_tables.basic_lookups()
-    
-        base_yr = 2015
-        simulated_yrs = range(2015, 2050)
-        assumptions = general_assumptions.Assumptions(
-            base_yr=base_yr,
-            curr_yr=base_yr,
-            simulated_yrs=simulated_yrs,
-            paths=paths,
-            enduses=[],
-            sectors=[],
-            fueltypes=lookups['fueltypes'],
-            fueltypes_nr=lookups['fueltypes_nr'])'''
+        pass
 
     yr_until_changed_all_things = 2050
 
@@ -112,6 +94,7 @@ def load_param_assump(paths=None, local_paths=None, assumptions=None, writeYAML=
         "suggested_range": (0, 1),
         "default_value": assumptions.flat_heat_pump_profile_only_water,
         "units": 'bool'})
+
     # ----------------------
     # Heat pump technology mix
     # Source: Hannon 2015: Raising the temperature of the UK heat pump market: Learning lessons from Finland
