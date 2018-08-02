@@ -796,7 +796,6 @@ def create_geopanda_files(
                     color_order=True,
                     color_zero='#ffffff',
                     color_palette='YlGnBu_7') #YlGnBu_9 #8a2be2 'YlGnBu_9'  'PuBu_8'
-                #'''
 
                 # If user classified, defined bins
                 plot_lad_national(

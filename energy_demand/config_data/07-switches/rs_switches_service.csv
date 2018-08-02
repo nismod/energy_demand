@@ -1,3 +1,5 @@
 enduse,tech,service_share_ey,switch_yr,sector
 rs_lighting,LED,0.1,2030
 rs_lighting,energy_saving_lighting_bulb,0.5,2030
+rs_space_heating,heat_pumps_electricity,0.2,2050
+rs_water_heating,heat_pumps_electricity,0.2,2050

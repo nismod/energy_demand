@@ -160,6 +160,7 @@ class Enduse(object):
             # --Enduse specific fuel consumption change in %
             #TODO ADD Sector specific change
             _fuel_new_y = apply_specific_change(
+                region,
                 enduse,
                 self.fuel_y,
                 enduse_overall_change,
@@ -1225,6 +1226,7 @@ def apply_scenario_drivers(
     return fuel_y
 
 def apply_specific_change(
+        region,
         enduse,
         fuel_y,
         enduse_overall_change,
@@ -1293,8 +1295,14 @@ def apply_specific_change(
                 enduse_overall_change['other_enduse_mode_info']['sigmoid']['sig_midpoint'],
                 enduse_overall_change['other_enduse_mode_info']['sigmoid']['sig_steepness'])
             change_cy = diff_fuel_consump * sig_diff_factor
+        
+        # 
+        # Short version
+        # 
+        #change_cy = strategy_vars[parameter_name][region][curr_yr]
+        fuel_y = fuel_y * change_cy
 
-        return fuel_y * change_cy
+        return fuel_y
     else:
         return fuel_y
 

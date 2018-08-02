@@ -11,7 +11,8 @@ def generate_general_parameter(
         diffusion_choice,
         narratives
     ):
-    """
+    """Based on narrative input, calculate the parameter
+    value for every modelled year
     """
     entries = []
 
@@ -20,18 +21,18 @@ def generate_general_parameter(
     # ------------------
     for narrative in narratives:
 
-        # Paramter of narrative
+        # -- Paramters of narrative step
         base_yr = narrative['base_yr']
         end_yr = narrative['end_yr']
         region_value_by = narrative['region_value_by']
         region_value_ey = narrative['region_value_ey']
 
-        if not sig_midpoint:
+        if not narrative['sig_midpoint']:
             sig_midpoint = 0
-        if not sig_steepness:
+        if not narrative['sig_steepness']:
             sig_steepness = 1
 
-        # Calculate modelled years
+        # Modelled years
         modelled_yrs = range(base_yr, end_yr + 1, 1)
 
         # Iterate regions
@@ -66,13 +67,13 @@ def generate_general_parameter(
                 entry['region'] = region
                 entry['year'] = curr_yr
                 entry['value'] = change_cy
-                entry['interval'] = 1 #add line
+                #entry['interval'] = 1 #add line
 
                 # Append to dataframe
                 entries.append(entry)
 
      # Create dataframe to store values of parameter
-    col_names = ["region", "year", "value", "interval"]
+    col_names = ["region", "year", "value"]#, "interval"]
     my_df = pd.DataFrame(entries, columns=col_names)
     my_df.to_csv(path, index=False) #Index prevents writing index rows
 
@@ -122,7 +123,7 @@ def run(
             "end_yr": end_yr,
             "region_value_by": region_value_by,
             "region_value_ey": region_value_ey,
-            
+
             # Optional
             "sig_midpoint": None,
             "sig_steepness": None
@@ -138,6 +139,8 @@ def run(
         diffusion_choice='sigmoid',
         narratives=narratives)
 
+    print("---")
     print("Finished generating scenario values")
+    print("---")
 
 run("C://Users//cenv0553//ED//data//_temp_scenario_run_paramters")

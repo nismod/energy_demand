@@ -13,6 +13,7 @@ import numpy as np
 from energy_demand.technologies import tech_related
 from energy_demand.profiles import load_profile
 from energy_demand.basic import lookup_tables
+import pandas as pd
 
 class TechnologyData(object):
     """Class to store technology related data
@@ -1314,3 +1315,13 @@ def get_region_objects(path):
     '''
     with fiona.open(path, 'r') as source:
         return [elem for elem in source]
+
+def load_full_paramter_values(file_path):
+    """
+    """
+    # READ csv file
+    # "region", "year", "value", "interval"
+    gp_file = pd.read_csv(file_path)
+
+    return gp_file
+        

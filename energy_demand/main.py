@@ -19,6 +19,7 @@
 #TODO Write out full result. Then write function to aggregate accordingly
 #TODO replace create_csv_file by pandas
 """
+print("...start")
 import os
 import sys
 import time
@@ -41,6 +42,7 @@ from energy_demand.scripts import s_disaggregation
 from energy_demand.validation import lad_validation
 from energy_demand.scripts import init_scripts
 from energy_demand.basic import demand_supply_interaction
+from energy_demand.read_write import load_parameter_values
 
 def energy_demand_model(regions, data, assumptions):
     """Main function of energy demand model to calculate yearly demand
@@ -146,7 +148,7 @@ if __name__ == "__main__":
     # User defined strategy variables
     # -------------------------------
     user_defined_strategy_vars = {
-        'f_eff_achieved': 0,            # Efficiency improvements
+        'f_eff_achieved': 0            # Efficiency improvements
         #'flat_heat_pump_profile_both': 1 #Flat heat pump dsm
         #'enduse_change__ss_fans': 0.5   # 50% improvement
     }
@@ -178,6 +180,19 @@ if __name__ == "__main__":
 
     # Read sector assignement lookup values
     data['gva_sector_lu'] = lookup_tables.economic_sectors_regional_MISTRAL()
+
+
+    #-TODO REMOVE----------&&&&&&&&&&&&&&
+    parameter_names = ['test_param']
+    annual_values_parameters = load_parameter_values.load_full_parameters(
+        #temp_path=os.path.join(self.user_data['data']['data_path'], "_temp_scenario_run_parameters"),
+        temp_path=os.path.join("C:\\", "Users", "cenv0553", "ED", "data", "_temp_scenario_run_paramters"),
+        parameter_names=parameter_names)
+    for parameter_name in parameter_names:
+        data['assumptions'].strategy_vars[parameter_name] = annual_values_parameters[parameter_name]
+
+
+    #-----------&&&&&&&&&&&&&&
 
     # -----------------------------
     # Assumptions

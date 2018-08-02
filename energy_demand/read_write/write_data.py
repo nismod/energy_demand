@@ -12,7 +12,6 @@ from energy_demand.technologies import tech_related
 from energy_demand.basic import conversions
 from energy_demand.plotting import plotting_results
 from energy_demand.basic import date_prop
-from energy_demand.plotting import plotting_results
 
 class ExplicitDumper(yaml.Dumper):
     """
