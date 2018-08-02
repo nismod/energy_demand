@@ -5,6 +5,7 @@ import logging
 import numpy as np
 from energy_demand.basic import testing_functions
 from energy_demand.read_write import write_data
+import pandas as pd
 
 def constrained_results(
         results_constrained,
@@ -214,12 +215,9 @@ def write_national_results_amman(
     results_unconstrained : array
         (submodel, region, fueltype, periods)
     """
-    logging.info("... writing file for modassar")
-    path = os.path.join(path_folder, "file_AMMAN_{}_{}.csv".format(fueltype_str, year))
+    logging.info("... writing file for amman")
 
-    rows = []
-    header = "{},{},{}".format('region', 'day', 'demand_GWh')
-    rows.append(header)
+    path = os.path.join(path_folder, "file_AMMAN_{}_{}.csv".format(fueltype_str, year))
 
     # Sum across all sectors
     sum_across_submodels = results_unconstrained.sum(axis=0)
@@ -230,21 +228,22 @@ def write_national_results_amman(
     sum_across_regions_days = sum_across_submodels.reshape(nr_regs, nr_fueltypes, 365, 24)
 
     # Iterate over every hour in year
+    rows = []
     for region_nr, region in enumerate(regions):
         for day in range(365):
-            row = [region]
+            row = {'region': region}
 
             daysum = np.sum(sum_across_regions_days[region_nr][fuelype_nr][day])
-            row.append(int(day))
-            row.append(float(daysum))
+            row['day'] = day
+            row['demand_GWh'] = daysum
 
-            # Append entry
             rows.append(row)
 
-    # Write to csv
-    #array_to_write = np.asarray(rows)
-    #np.savetxt(path, array_to_write, delimiter=",", header=header, comments='')
-    write_data.create_csv_file(path, rows)
+    # Create dataframe
+    col_names = ['region', 'day', 'demand_GWh']
+    my_df = pd.DataFrame(rows, columns=col_names)
+
+    my_df.to_csv(path, index=False) #Index prevents writing index rows
 
 def write_national_results(
         path_folder,
@@ -256,34 +255,37 @@ def write_national_results(
     ):
     """Write national results of all fueltypes
 
-    Inputs
+    Input
     ------
     results_unconstrained : array
         (submodel, region, fueltype, periods)
     """
     logging.info("... writing file for modassar")
-    path = os.path.join(path_folder, "file_MODASSAR_{}_{}.csv".format(fueltype_str, year))
 
-    rows = []
-    header = "{},{},{},{},{}".format('year', 'hour', 'residential', 'service', 'industry')
+    path = os.path.join(path_folder, "file_MODASSAR_{}_{}.csv".format(fueltype_str, year))
 
     submodels = ['residential', 'service', 'industry']
 
     # Sum across all regions
     sum_across_regions = results_unconstrained.sum(axis=1)
 
+    rows = []
+
     # Iterate over every hour in year
     for hour in range(8760):
 
         # Start row
-        row = [year, hour]
+        row = {
+            'year': year,
+            'hour': hour}
 
-        for submodel in range(len(submodels)):
-            ed_submodel_h = sum_across_regions[submodel][fuelype_nr][hour]
-            row.append(ed_submodel_h)
+        for submodel_nr, submodel in enumerate(submodels):
+            ed_submodel_h = sum_across_regions[submodel_nr][fuelype_nr][hour]
+            row[submodel] = ed_submodel_h
 
         rows.append(row)
 
-    # Write to csv
-    array_to_write = np.asarray(rows)
-    np.savetxt(path, array_to_write, delimiter=",", header=header, comments='')
+    # Create dataframe
+    col_names = ['year', 'hour', 'residential', 'service', 'industry']
+    my_df = pd.DataFrame(rows, columns=col_names)
+    my_df.to_csv(path, index=False) #Index prevents writing index rows

@@ -818,22 +818,6 @@ def create_csv_file(path, rows):
 def write_result_txt(path, regions, values):
     """Store values of spatial plot in csv file
     """
-
-    '''with open(path, 'w', newline='') as csvfile:
-
-        filewriter = csv.writer(
-            csvfile,
-            delimiter=',')#,
-            #quotechar='|')
-        #filewriter = csv.writer(csvfile, delimiter='',
-        #                    quotechar='|', quoting=csv.QUOTE_MINIMAL)
-        # Write title
-        filewriter.writerow("Region, Value")
-
-        for region, value in zip(regions, values):
-            print("REGION " + str(region))
-            print("VLAUE " + str(value))
-            filewriter.writerow("{}, {}".format(region, value))'''
     myData = [["region", "value"]]
 
     for region, value in zip(regions, values):
@@ -843,15 +827,3 @@ def write_result_txt(path, regions, values):
     with myFile:
         writer = csv.writer(myFile)
         writer.writerows(myData)
-
-#def write_array(path, array_to_write, header):
-##    """Write array to csv file
-##    """
-#    np.savetxt(path, array_to_write, delimiter=",", header=header, comments='')
-
-def write_scenario_values(path, array_to_write):
-    """Write annual scenario values
-    """
-    header = "{}, {}, {}, {}".format("region", "year", "value", "interval")
-
-    np.savetxt(path, array_to_write, delimiter=",", header=header, comments='')

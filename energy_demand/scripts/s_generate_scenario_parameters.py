@@ -1,39 +1,46 @@
 """Generate scenario paramters for every year
 """
 import os
-import numpy as np
+import pandas as pd
 from energy_demand.basic import basic_functions
 from energy_demand.technologies import diffusion_technologies
-from energy_demand.read_write import write_data
 
 def generate_general_parameter(
+        path,
         regions,
         diffusion_choice,
         narratives
     ):
     """
     """
-    # Sigmoid settings
-    sig_midpoint = 0
-    sig_steepness = 1
+    entries = []
 
-    paramter_list = []
-
+    # ------------------
+    # Iterate narratives
+    # ------------------
     for narrative in narratives:
+
+        # Paramter of narrative
         base_yr = narrative['base_yr']
         end_yr = narrative['end_yr']
         region_value_by = narrative['region_value_by']
         region_value_ey = narrative['region_value_ey']
 
+        if not sig_midpoint:
+            sig_midpoint = 0
+        if not sig_steepness:
+            sig_steepness = 1
+
+        # Calculate modelled years
         modelled_yrs = range(base_yr, end_yr + 1, 1)
 
         # Iterate regions
         for region in regions:
-            
-            entry = []
+
             # Iterate every modelled year
             for curr_yr in modelled_yrs:
 
+                entry = {}
                 if diffusion_choice == 'linear':
                     lin_diff_factor = diffusion_technologies.linear_diff(
                         base_yr,
@@ -56,16 +63,18 @@ def generate_general_parameter(
                         sig_steepness)
                     change_cy = diff_value * sig_diff_factor
 
-                entry.append(region)
-                entry.append(curr_yr)
-                entry.append(change_cy)
-                entry.append("1")
+                entry['region'] = region
+                entry['year'] = curr_yr
+                entry['value'] = change_cy
+                entry['interval'] = 1 #add line
 
-                paramter_list.append(entry)
+                # Append to dataframe
+                entries.append(entry)
 
-        #array_to_write = np.asarray(paramter_list)
-    return paramter_list
-    #return array_to_write
+     # Create dataframe to store values of parameter
+    col_names = ["region", "year", "value", "interval"]
+    my_df = pd.DataFrame(entries, columns=col_names)
+    my_df.to_csv(path, index=False) #Index prevents writing index rows
 
 def run(
         path,
@@ -80,14 +89,14 @@ def run(
         Path to store all generated scenario values
     """
 
-    #
+    # --------------
     # Configuration
-    # 
+    # --------------
     modelled_yrs = range(base_yr, end_yr + 1, 1)
 
-    #
-    #
+    # --------------
     # 
+    # --------------
     regions = ['A', 'B']
 
 
@@ -112,20 +121,23 @@ def run(
             "base_yr": base_yr,
             "end_yr": end_yr,
             "region_value_by": region_value_by,
-            "region_value_ey": region_value_ey}
+            "region_value_ey": region_value_ey,
+            
+            # Optional
+            "sig_midpoint": None,
+            "sig_steepness": None
+            }
         ]
 
-    rows = generate_general_parameter(
+    # -------------------------------------------
+    # Calculate parameters and generate .csv file
+    # -------------------------------------------
+    generate_general_parameter(
+        path=os.path.join(path, "{}.csv".format(parameter_name)),
         regions=regions,
-        diffusion_choice='linear',
+        diffusion_choice='sigmoid',
         narratives=narratives)
-    #print(array_to_write)
-    write_data.create_csv_file(path, rows)
 
-    # Write out parameter
-    #write_data.write_scenario_values(
-    #    os.path.join(path, "{}.csv".format(parameter_name)),
-    #    array_to_write=array_to_write)
     print("Finished generating scenario values")
 
 run("C://Users//cenv0553//ED//data//_temp_scenario_run_paramters")
