@@ -843,3 +843,15 @@ def write_result_txt(path, regions, values):
     with myFile:
         writer = csv.writer(myFile)
         writer.writerows(myData)
+
+#def write_array(path, array_to_write, header):
+##    """Write array to csv file
+##    """
+#    np.savetxt(path, array_to_write, delimiter=",", header=header, comments='')
+
+def write_scenario_values(path, array_to_write):
+    """Write annual scenario values
+    """
+    header = "{}, {}, {}, {}".format("region", "year", "value", "interval")
+
+    np.savetxt(path, array_to_write, delimiter=",", header=header, comments='')

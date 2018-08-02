@@ -219,6 +219,7 @@ def write_national_results_amman(
 
     rows = []
     header = "{},{},{}".format('region', 'day', 'demand_GWh')
+    rows.append(header)
 
     # Sum across all sectors
     sum_across_submodels = results_unconstrained.sum(axis=0)
@@ -231,16 +232,19 @@ def write_national_results_amman(
     # Iterate over every hour in year
     for region_nr, region in enumerate(regions):
         for day in range(365):
-            row = []
+            row = [region]
 
             daysum = np.sum(sum_across_regions_days[region_nr][fuelype_nr][day])
-            row.append(day)
-            row.append(daysum)
+            row.append(int(day))
+            row.append(float(daysum))
+
+            # Append entry
             rows.append(row)
 
     # Write to csv
-    array_to_write = np.asarray(rows)
-    np.savetxt(path, array_to_write, delimiter=",", header=header, comments='')
+    #array_to_write = np.asarray(rows)
+    #np.savetxt(path, array_to_write, delimiter=",", header=header, comments='')
+    write_data.create_csv_file(path, rows)
 
 def write_national_results(
         path_folder,
