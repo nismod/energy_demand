@@ -1,7 +1,10 @@
 """Functions to configure energy demand outputs for supply model
 """
+import os
 import logging
+import numpy as np
 from energy_demand.basic import testing_functions
+from energy_demand.read_write import write_data
 
 def constrained_results(
         results_constrained,
@@ -195,3 +198,88 @@ def model_tech_simplification(tech):
             tech_newly_assigned, tech)
 
     return tech_newly_assigned
+
+def write_national_results_amman(
+        path_folder,
+        results_unconstrained,
+        regions,
+        fueltype_str,
+        fuelype_nr,
+        year
+    ):
+    """Write national results of all fueltypes
+
+    Inputs
+    ------
+    results_unconstrained : array
+        (submodel, region, fueltype, periods)
+    """
+    logging.info("... writing file for modassar")
+    path = os.path.join(path_folder, "file_AMMAN_{}_{}.csv".format(fueltype_str, year))
+
+    rows = []
+    header = "{},{},{}".format('region', 'day', 'demand_GWh')
+
+    # Sum across all sectors
+    sum_across_submodels = results_unconstrained.sum(axis=0)
+
+    # Change ot days
+    nr_regs = len(regions)
+    nr_fueltypes = sum_across_submodels.shape[1]
+    sum_across_regions_days = sum_across_submodels.reshape(nr_regs, nr_fueltypes, 365, 24)
+
+    # Iterate over every hour in year
+    for region_nr, region in enumerate(regions):
+        for day in range(365):
+            row = []
+
+            daysum = np.sum(sum_across_regions_days[region_nr][fuelype_nr][day])
+            row.append(day)
+            row.append(daysum)
+            rows.append(row)
+
+    # Write to csv
+    array_to_write = np.asarray(rows)
+    np.savetxt(path, array_to_write, delimiter=",", header=header, comments='')
+
+def write_national_results(
+        path_folder,
+        results_unconstrained,
+        fueltype_str,
+        fuelype_nr,
+        year,
+        write_regions=False
+    ):
+    """Write national results of all fueltypes
+
+    Inputs
+    ------
+    results_unconstrained : array
+        (submodel, region, fueltype, periods)
+    """
+    logging.info("... writing file for modassar")
+    path = os.path.join(path_folder, "file_MODASSAR_{}_{}.csv".format(fueltype_str, year))
+
+    rows = []
+    header = "{},{},{},{},{}".format('year', 'hour', 'residential', 'service', 'industry')
+
+    submodels = ['residential', 'service', 'industry']
+
+    # Sum across all regions
+    sum_across_regions = results_unconstrained.sum(axis=1)
+
+    # Iterate over every hour in year
+    for hour in range(8760):
+
+        # Start row
+        row = [year, hour]
+
+        for submodel in range(len(submodels)):
+            ed_submodel_h = sum_across_regions[submodel][fuelype_nr][hour]
+            row.append(ed_submodel_h)
+
+        rows.append(row)
+
+    # Write to csv
+    array_to_write = np.asarray(rows)
+    np.savetxt(path, array_to_write, delimiter=",", header=header, comments='')

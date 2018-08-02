@@ -35,12 +35,15 @@ def switch_testing(fuel_switches, service_switches, capacity_switches):
             if switch.enduse not in all_switches_incl_sectors:
                 all_switches_incl_sectors[switch.enduse] = set([])
 
-                if switch.sector == None:
+                if not switch.sector:
                     all_switches_incl_sectors[switch.enduse] = None
                 else:
                     all_switches_incl_sectors[switch.enduse].add(switch.sector)
             else:
-                all_switches_incl_sectors[switch.enduse].add(switch.sector)
+                if not switch.sector:
+                    pass
+                else:
+                    all_switches_incl_sectors[switch.enduse].add(switch.sector)
 
     enduses_service_switch = set([])
     for model_switch in service_switches:
@@ -51,12 +54,15 @@ def switch_testing(fuel_switches, service_switches, capacity_switches):
             if switch.enduse not in all_switches_incl_sectors:
                 all_switches_incl_sectors[switch.enduse] = set([])
                 
-                if switch.sector == None:
+                if not switch.sector:
                     all_switches_incl_sectors[switch.enduse] = None
                 else:
                     all_switches_incl_sectors[switch.enduse].add(switch.sector)
             else:
-                all_switches_incl_sectors[switch.enduse].add(switch.sector)
+                if not switch.sector:
+                    pass
+                else:
+                    all_switches_incl_sectors[switch.enduse].add(switch.sector)
 
     enduses_capacity_switch = set([])
     for model_switch in capacity_switches:
@@ -66,16 +72,17 @@ def switch_testing(fuel_switches, service_switches, capacity_switches):
             # Collect all enduses and affected sectors
             if switch.enduse not in all_switches_incl_sectors:
                 all_switches_incl_sectors[switch.enduse] = set([])
-                
-                if switch.sector == None:
+
+                if not switch.sector:
                     all_switches_incl_sectors[switch.enduse] = None
                 else:
                     all_switches_incl_sectors[switch.enduse].add(switch.sector)
-                
-                #all_switches_incl_sectors[switch.enduse].add(switch.sector)
 
             else:
-                all_switches_incl_sectors[switch.enduse].add(switch.sector)
+                if not switch.sector:
+                    pass
+                else:
+                    all_switches_incl_sectors[switch.enduse].add(switch.sector)
 
     enduses_fuel_switch = list(enduses_fuel_switch)
     enduses_service_switch = list(enduses_service_switch)
@@ -85,20 +92,17 @@ def switch_testing(fuel_switches, service_switches, capacity_switches):
     for enduse in enduses_fuel_switch:
         if enduse in enduses_service_switch or enduse in enduses_capacity_switch:
             raise Exception(
-                "Error: Enduse '%s' is defined in fuel switch and also in either service or capacity.",
-                enduse)
+                "Error: Enduse '%s' is defined in fuel switch and also in either service or capacity.", enduse)
 
     for enduse in enduses_service_switch:
         if enduse in enduses_fuel_switch or enduse in enduses_capacity_switch:
             raise Exception(
-                "Error: Enduse '%s' is defined in fuel switch and also in either service or capacity.",
-                enduse)
+                "Error: Enduse '%s' is defined in fuel switch and also in either service or capacity.", enduse)
 
     for enduse in enduses_capacity_switch:
         if enduse in enduses_fuel_switch or enduse in enduses_service_switch:
             raise Exception(
-                "Error: Enduse '%s' is defined in fuel switch and also in either service or capacity.",
-                enduse)
+                "Error: Enduse '%s' is defined in fuel switch and also in either service or capacity.", enduse)
 
     for enduse in all_switches_incl_sectors:
         if all_switches_incl_sectors[enduse] != None:

@@ -883,7 +883,8 @@ def plot_radar_plots_average_peak_day(
         fueltype_to_model,
         fueltypes,
         year_to_plot,
-        fig_name
+        fig_name,
+        base_yr=2015
     ):
     """Compare averaged dh profile overall regions for peak day
     for future year and base year
@@ -894,7 +895,6 @@ def plot_radar_plots_average_peak_day(
         fig_name, "spider_scenarios_{}.pdf".format(fueltype_to_model))
 
     fueltype_int = fueltypes[fueltype_to_model]
-    base_yr = 2015
 
     # ----------------
     # Create base year peak load profile
@@ -942,10 +942,10 @@ def plot_radar_plots_average_peak_day(
         aggregated_enduse_fueltype_cy = np.zeros((365, 24))
         aggregated_enduse_fueltype_by = np.zeros((365, 24))
 
-        for enduse in scenario_data[scenario]['results_enduse_every_year'][2050].keys():
+        for enduse in scenario_data[scenario]['results_enduse_every_year'][year_to_plot].keys():
             if enduse in enduses_to_agg:
                 aggregated_enduse_fueltype_by += scenario_data[scenario]['results_enduse_every_year'][2015][enduse][fueltype_int]
-                aggregated_enduse_fueltype_cy += scenario_data[scenario]['results_enduse_every_year'][2050][enduse][fueltype_int]
+                aggregated_enduse_fueltype_cy += scenario_data[scenario]['results_enduse_every_year'][year_to_plot][enduse][fueltype_int]
 
         # Total demand of selected enduses
         selected_enduses_peak_by = round(np.max(aggregated_enduse_fueltype_by), 1)

@@ -24,6 +24,8 @@ def process_scenarios(path_to_scenarios, year_to_model=2015):
     # -----------
     heat_pump_range_plot = False        # Plot of changing scenario values stored in scenario name
     plot_multiple_cross_charts = True   # Compare cross charts of different scenario
+    comparison_year = 2030
+    year_to_plot = 2030
 
     # Delete folder results if existing
     path_result_folder = os.path.join(
@@ -95,7 +97,7 @@ def process_scenarios(path_to_scenarios, year_to_model=2015):
     if plot_multiple_cross_charts:
         plotting_results.plot_cross_graphs_scenarios(
             base_yr=2015,
-            comparison_year=2050,
+            comparison_year=comparison_year,
             regions=regions,
             scenario_data=scenario_data,
             fueltype_int=lookups['fueltypes']['electricity'],
@@ -106,7 +108,7 @@ def process_scenarios(path_to_scenarios, year_to_model=2015):
 
         plotting_results.plot_cross_graphs_scenarios(
             base_yr=2015,
-            comparison_year=2050,
+            comparison_year=comparison_year,
             regions=regions,
             scenario_data=scenario_data,
             fueltype_int=lookups['fueltypes']['gas'],
@@ -144,7 +146,7 @@ def process_scenarios(path_to_scenarios, year_to_model=2015):
     # -------------------------------
     plotting_multiple_scenarios.plot_LAD_comparison_scenarios(
         scenario_data,
-        year_to_plot=2050,
+        year_to_plot=year_to_plot,
         fig_name=os.path.join(path_result_folder, "LAD_multiple.pdf"),
         plotshow=False)
 
@@ -155,14 +157,14 @@ def process_scenarios(path_to_scenarios, year_to_model=2015):
         scenario_data,
         fueltype_to_model='electricity',
         fueltypes=lookups['fueltypes'],
-        year_to_plot=2050,
+        year_to_plot=year_to_plot,
         fig_name=os.path.join(path_result_folder))
 
     plotting_multiple_scenarios.plot_radar_plots_average_peak_day(
         scenario_data,
         fueltype_to_model='gas',
         fueltypes=lookups['fueltypes'],
-        year_to_plot=2050,
+        year_to_plot=year_to_plot,
         fig_name=os.path.join(path_result_folder))
 
     # ----------------------

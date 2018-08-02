@@ -154,6 +154,8 @@ if population_script:
             rows.append([msoa, year, pop, 1])
 
     write_data.create_csv_file(path_out, rows)
+    #TODO REPLACE ABOVE BY
+    #np.savetxt(path_out, rows, delimiter=",", header="{}, {}, {}, {}".format("region", "year", "value", "interval"), comments='')
     print("Finished pop script")
 
 # ------------------------------------------------

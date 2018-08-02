@@ -798,9 +798,9 @@ def aggregate_final_results(
     """
     if mode_constrained:
 
-        # -------------
+        # -----------------------------------------------------------------
         # Aggregate fuel of constrained technologies for heating
-        # -------------
+        # -----------------------------------------------------------------
         for submodel_nr, submodel in enumerate(all_submodels):
             for enduse_object in submodel:
 
@@ -831,7 +831,7 @@ def aggregate_final_results(
                             aggr_results['results_constrained'][heating_tech][submodel_nr][reg_array_nr][fueltype_tech_int] += tech_fuel
 
     # -------------
-    # Summarise ed of Unconstrained mode (heat is provided)
+    # Summarise energy demand of Unconstrained mode (heat is provided)
     # Aggregate total fuel (incl. heating)
     # np.array(fueltypes, sectors, regions, timesteps)
     # -------------
@@ -848,9 +848,9 @@ def aggregate_final_results(
         # Add SubModel specific ed
         aggr_results['results_unconstrained'][submodel_nr][reg_array_nr] += submodel_ed_fueltype_regs_yh
 
-    # -----------
-    # Other summing for other purposes
-    # -----------
+    # --------------------------------------------
+    # Sum restuls for other purposes
+    # --------------------------------------------
     if write_txt_additional_results:
 
         # Sum across all regions, all enduse and sectors sum_reg

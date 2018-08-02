@@ -730,7 +730,7 @@ def write_enduse_specific(sim_yr, path_result, model_results, filename):
         path_result, "enduse_specific_results")
 
     for enduse, fuel in model_results.items():
-
+        logging.info("Enduse: {}  Total demand: {}".format(enduse, np.sum(fuel)))
         path_file = os.path.join(
             os.path.join(path_result, "enduse_specific_results"),
             "{}__{}__{}__{}".format(

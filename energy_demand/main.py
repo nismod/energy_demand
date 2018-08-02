@@ -16,6 +16,7 @@
 #TODO Test if technology type can be left empty in technology spreadsheet
 #TODO MAke f_eff_achieved enduse_specific
 #TODO Try to remove tech_type
+#TODO Write out full result. Then write function to aggregate accordingly
 """
 import os
 import sys
@@ -94,9 +95,6 @@ if __name__ == "__main__":
     path_main = os.path.abspath(
         os.path.join(
             os.path.dirname(__file__), '..', "energy_demand/config_data"))
-
-    # Initialise logger
-    #logger_setup.set_up_logger(os.path.join(local_data_path, "logging_local_run.log"))
 
     # Load data
     data['criterias'] = {}

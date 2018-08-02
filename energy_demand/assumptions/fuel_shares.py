@@ -61,8 +61,8 @@ def assign_by_fuel_tech_p(enduses, sectors, fueltypes, fueltypes_nr):
     rs_fuel_tech_p_by['rs_lighting'][fueltypes['electricity']] = {
         'standard_lighting_bulb': 0.04,
         'halogen': 0.56,
-        'fluorescent_strip_lighting' : 0.07,
-        'energy_saving_lighting_bulb' : 0.32,
+        'fluorescent_strip_lighting': 0.07,
+        'energy_saving_lighting_bulb': 0.32,
         'LED': 0.01}
 
     # ---------------

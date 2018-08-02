@@ -164,6 +164,7 @@ def create_switches_from_s_shares(
 
     # Calculate relative by proportion of not assigned technologies in base year
     tech_not_assigned_by_p = {}
+
     for tech in specified_tech_enduse_by[enduse]:
         if tech not in switch_technologies:
             tech_not_assigned_by_p[tech] = s_tech_by_p[enduse][tech]
