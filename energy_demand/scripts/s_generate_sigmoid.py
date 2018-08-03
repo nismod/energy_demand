@@ -412,8 +412,8 @@ def get_tech_installed(enduse, fuel_switches):
 def get_l_values(
         technologies,
         technologies_to_consider,
-        regions=False,
-        regional_specific=False
+        regions=False#,
+        #regional_specific=False
     ):
     """Get l values (Maximum shares of each technology)
     for all installed technologies
@@ -438,19 +438,20 @@ def get_l_values(
     """
     l_values_sig = defaultdict(dict)
 
-    if regional_specific:
+    #if regional_specific:
+    if 1 == 1:
         for reg in regions:
             if technologies_to_consider == []:
                 pass
             else:
                 for tech in technologies_to_consider:
                     l_values_sig[reg][tech] = technologies[tech].tech_max_share
-    else:
+    '''else:
         if technologies_to_consider == []:
             pass
         else:
             for tech in technologies_to_consider:
-                l_values_sig[tech] = technologies[tech].tech_max_share
+                l_values_sig[tech] = technologies[tech].tech_max_share'''
 
     return dict(l_values_sig)
 

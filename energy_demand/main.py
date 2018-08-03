@@ -183,13 +183,13 @@ if __name__ == "__main__":
 
 
     #-TODO REMOVE----------&&&&&&&&&&&&&&
-    parameter_names = ['test_param']
+    '''parameter_names = ['test_param']
     annual_values_parameters = load_parameter_values.load_full_parameters(
         #temp_path=os.path.join(self.user_data['data']['data_path'], "_temp_scenario_run_parameters"),
         temp_path=os.path.join("C:\\", "Users", "cenv0553", "ED", "data", "_temp_scenario_run_paramters"),
         parameter_names=parameter_names)
     for parameter_name in parameter_names:
-        data['assumptions'].strategy_vars[parameter_name] = annual_values_parameters[parameter_name]
+        data['assumptions'].strategy_vars[parameter_name] = annual_values_parameters[parameter_name]'''
 
 
     #-----------&&&&&&&&&&&&&&
@@ -272,7 +272,6 @@ if __name__ == "__main__":
 
     # In order to load these data, the initialisation scripts need to be run
     init_cont = init_scripts.scenario_initalisation(
-        data['paths']['path_main'],
         data['fuel_disagg'],
         data)
 

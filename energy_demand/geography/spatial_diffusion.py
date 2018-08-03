@@ -40,73 +40,78 @@ def spatial_diffusion_values(
     speed_con_min = 1               # Speed at val_con == 0
     speed_con_max = speed_con_max   # Speed at con_val == 1
 
-    # ----------------
-    # plot real values to check for outliers
-    # ----------------
-    #from energy_demand.plotting import plotting_program
-    #plotting_program.plot_xy(list(real_values.values()))
+    if speed_con_max == 1:
+        # TODO NEW
+        for region in regions:
+            diffusion_values[region] = 1 #100% congruence
+    else:
+        # ----------------
+        # plot real values to check for outliers
+        # ----------------
+        #from energy_demand.plotting import plotting_program
+        #plotting_program.plot_xy(list(real_values.values()))
 
-    # Select number of outliers to remove lower and higher extremes
-    nr_of_outliers = int(100 / len(regions) * p_outlier)
+        # Select number of outliers to remove lower and higher extremes
+        nr_of_outliers = int(100 / len(regions) * p_outlier)
 
-    sorted_vals = list(real_values.values())
-    sorted_vals.sort()
+        sorted_vals = list(real_values.values())
+        sorted_vals.sort()
 
-    # Get value of largest outlier
-    treshold_upper_real_value = sorted_vals[-nr_of_outliers]
-    treshold_lower_real_value = sorted_vals[nr_of_outliers]
+        # Get value of largest outlier
+        treshold_upper_real_value = sorted_vals[-nr_of_outliers]
+        treshold_lower_real_value = sorted_vals[nr_of_outliers]
 
-    for reg, val in real_values.items():
-        if val > treshold_upper_real_value:
-            real_values[reg] = treshold_upper_real_value
-        if val < treshold_lower_real_value:
-            real_values[reg] = treshold_lower_real_value
+        for reg, val in real_values.items():
+            if val > treshold_upper_real_value:
+                real_values[reg] = treshold_upper_real_value
+            if val < treshold_lower_real_value:
+                real_values[reg] = treshold_lower_real_value
 
-    # Plot after removing outliers
-    #plotting_program.plot_xy(list(real_values.values()))
+        # Plot after removing outliers
+        #plotting_program.plot_xy(list(real_values.values()))
 
-    # ----------------
-    # Congruence calculations
-    # -----------------
-    # Max congruence value
-    con_max = max(real_values.values())
+        # ----------------
+        # Congruence calculations
+        # -----------------
+        # Max congruence value
+        con_max = max(real_values.values())
 
-    for region in regions:
+        for region in regions:
 
-        # Multiply speed of diffusion of concept with concept congruence value
-        try:
-            real_value = real_values[region]
-        except KeyError:
-            real_value = np.average(real_values.values())
-            logging.warning("Set average real data for region %s", region)
+            # Multiply speed of diffusion of concept with concept congruence value
+            try:
+                real_value = real_values[region]
+            except KeyError:
+                real_value = np.average(real_values.values())
+                logging.warning("Set average real data for region %s", region)
 
-        # Calculate congruence value
-        congruence_value = real_value / con_max
+            # Calculate congruence value
+            congruence_value = real_value / con_max
 
-        # If the assignement is thoe other way round (lowest value has highest congruence value)
-        if low_congruence_crit:
-            congruence_value = 1 - congruence_value
-        else:
-            pass
+            # If the assignement is thoe other way round (lowest value has highest congruence value)
+            if low_congruence_crit:
+                congruence_value = 1 - congruence_value
+            else:
+                pass
 
-        # Calculate diffusion value
-        lower_concept_val = (1 - congruence_value) * speed_con_min
-        higher_concept_val = congruence_value * speed_con_max
+            # Calculate diffusion value
+            lower_concept_val = (1 - congruence_value) * speed_con_min
+            higher_concept_val = congruence_value * speed_con_max
 
-        diffusion_values[region] = lower_concept_val + higher_concept_val
+            diffusion_values[region] = lower_concept_val + higher_concept_val
 
-        '''logging.info(
-            "Reg: %s diffusion_value: %s real_value: %s",
-            region,
-            lower_concept_val + higher_concept_val,
-            real_value)'''
-    '''min_val = max(diffusion_values.values())
-    for i in diffusion_values:
-        if diffusion_values[i] == min_val:
-            min_reg = i
-    import logging
-    logging.info("print  {}  {}  ".format(min_reg, min_val))
-    prnt(":")'''
+            '''logging.info(
+                "Reg: %s diffusion_value: %s real_value: %s",
+                region,
+                lower_concept_val + higher_concept_val,
+                real_value)'''
+        '''min_val = max(diffusion_values.values())
+        for i in diffusion_values:
+            if diffusion_values[i] == min_val:
+                min_reg = i
+        import logging
+        logging.info("print  {}  {}  ".format(min_reg, min_val))
+        prnt(":")'''
     return diffusion_values
 
 def calc_diffusion_f(regions, f_reg, spatial_diff_values, fuels):
@@ -198,6 +203,7 @@ def calc_diffusion_f(regions, f_reg, spatial_diff_values, fuels):
 
             f_reg_norm[enduse] = {}
             for region, fuel_p in regions_fuel_p.items():
+                rounded_val = round(f_reg[region] / sum_p_f_all_regs, 6) #Nr of digits # TODO NEW
                 f_reg_norm[enduse][region] = f_reg[region] / sum_p_f_all_regs
 
         # ----------
@@ -533,7 +539,6 @@ def factor_improvements_single(
     if fuel_regs_enduse == {}:
         logging.info("spatial_factor: fuel_regs_enduse")
         spatial_factor = f_reg
-
     else:
         logging.info("spatial_factor: f_reg_norm_abs")
         spatial_factor = f_reg_norm_abs
