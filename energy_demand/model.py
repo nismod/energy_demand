@@ -334,19 +334,7 @@ def residential_submodel(
     for sector in sectors:
         for enduse in enduses:
 
-            # ------------------------------------------------------
-            # Configure and select correct Enduse() specific inputs
-            # ------------------------------------------------------
-            if assumptions.strategy_vars['spatial_explicit_diffusion']['scenario_value']:
-                sig_param_tech = assumptions.rs_sig_param_tech[enduse][region.name]
-                strategy_vars = assumptions.regional_strategy_variables[region.name]
-            else:
-                sig_param_tech = assumptions.rs_sig_param_tech[enduse]
-                strategy_vars = assumptions.strategy_vars
-
-            # ------------------------------------------------------
             # Create submodel
-            # ------------------------------------------------------
             submodel = endusefunctions.Enduse(
                 submodel='rs_submodel',
                 region=region.name,
@@ -362,9 +350,9 @@ def residential_submodel(
                 heating_factor_y=weather_region.f_heat_rs_y,
                 cooling_factor_y=weather_region.f_cooling_rs_y,
                 fuel_tech_p_by=assumptions.rs_fuel_tech_p_by[enduse],
-                sig_param_tech=sig_param_tech,
+                sig_param_tech= assumptions.rs_sig_param_tech[enduse][region.name],
                 criterias=criterias,
-                strategy_vars=strategy_vars,
+                strategy_vars=assumptions.regional_strategy_variables[region.name],
                 fueltypes_nr=lookups['fueltypes_nr'],
                 fueltypes=lookups['fueltypes'],
                 enduse_overall_change=assumptions.enduse_overall_change,
@@ -406,19 +394,7 @@ def service_submodel(
     for sector in sectors:
         for enduse in enduses:
 
-            # ------------------------------------------------------
-            # Configure and select correct Enduse() specific inputs
-            # ------------------------------------------------------
-            if assumptions.strategy_vars['spatial_explicit_diffusion']['scenario_value']:
-                sig_param_tech = assumptions.ss_sig_param_tech[enduse][sector][region.name]
-                strategy_vars = assumptions.regional_strategy_variables[region.name]
-            else:
-                sig_param_tech = assumptions.ss_sig_param_tech[enduse][sector]
-                strategy_vars = assumptions.strategy_vars
-
-            # ------------------------------------------------------
             # Create submodel
-            # ------------------------------------------------------
             submodel = endusefunctions.Enduse(
                 submodel='ss_submodel',
                 region=region.name,
@@ -434,9 +410,9 @@ def service_submodel(
                 heating_factor_y=weather_region.f_heat_ss_y,
                 cooling_factor_y=weather_region.f_cooling_ss_y,
                 fuel_tech_p_by=assumptions.ss_fuel_tech_p_by[enduse][sector],
-                sig_param_tech=sig_param_tech,
+                sig_param_tech=assumptions.ss_sig_param_tech[enduse][sector][region.name],
                 criterias=criterias,
-                strategy_vars=strategy_vars,
+                strategy_vars=assumptions.regional_strategy_variables[region.name],
                 fueltypes_nr=lookups['fueltypes_nr'],
                 fueltypes=lookups['fueltypes'],
                 enduse_overall_change=assumptions.enduse_overall_change,
@@ -490,13 +466,6 @@ def industry_submodel(
             else:
                 flat_profile_crit = True
 
-            if assumptions.strategy_vars['spatial_explicit_diffusion']['scenario_value']:
-                sig_param_tech = assumptions.is_sig_param_tech[enduse][sector][region.name]
-                strategy_vars = assumptions.regional_strategy_variables[region.name]
-            else:
-                sig_param_tech = assumptions.is_sig_param_tech[enduse][sector]
-                strategy_vars = assumptions.strategy_vars
-
             # ------------------------------------------------------
             # Create submodel
             # ------------------------------------------------------
@@ -515,10 +484,10 @@ def industry_submodel(
                 heating_factor_y=weather_region.f_heat_is_y,
                 cooling_factor_y=weather_region.f_cooling_is_y,
                 fuel_tech_p_by=assumptions.is_fuel_tech_p_by[enduse][sector],
-                sig_param_tech=sig_param_tech,
+                sig_param_tech=assumptions.is_sig_param_tech[enduse][sector][region.name],
                 enduse_overall_change=assumptions.enduse_overall_change,
                 criterias=criterias,
-                strategy_vars=strategy_vars,
+                strategy_vars=assumptions.regional_strategy_variables[region.name],
                 fueltypes_nr=lookups['fueltypes_nr'],
                 fueltypes=lookups['fueltypes'],
                 reg_scen_drivers=assumptions.scenario_drivers['is_submodule'],
