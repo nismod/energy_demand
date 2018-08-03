@@ -401,7 +401,7 @@ def calc_spatially_diffusion_factors(
 
     return f_reg, f_reg_norm, f_reg_norm_abs
 
-def spatially_differentiated_modelling(
+'''def spatially_differentiated_modelling(
         regions,
         fuel_disagg,
         rs_share_s_tech_ey_p,
@@ -484,7 +484,7 @@ def spatially_differentiated_modelling(
                 fuel_disagg['is_aggr_fuel_sum_all_sectors'],
                 techs_affected_spatial_f)
 
-    return rs_reg_share_s_tech_ey_p, ss_reg_share_s_tech_ey_p, is_reg_share_s_tech_ey_p
+    return rs_reg_share_s_tech_ey_p, ss_reg_share_s_tech_ey_p, is_reg_share_s_tech_ey_p'''
 
 def factor_improvements_single(
         factor_uk,

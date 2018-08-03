@@ -435,12 +435,12 @@ def get_l_values(
     """
     l_values_sig = defaultdict(dict)
 
-    for reg in regions:
+    for region in regions:
         if technologies_to_consider == []:
             pass
         else:
             for tech in technologies_to_consider:
-                l_values_sig[reg][tech] = technologies[tech].tech_max_share
+                l_values_sig[region][tech] = technologies[tech].tech_max_share
 
     return dict(l_values_sig)
 

@@ -36,7 +36,8 @@ def scenario_initalisation(fuel_disagg, data=False):
         data['local_paths']['data_processed'],
         data['local_paths']['path_post_installation_data'])
 
-    basic_functions.del_previous_setup(data['result_paths']['data_results'])
+    basic_functions.del_previous_setup(
+        data['result_paths']['data_results'])
 
     folders_to_create = [
         data['local_paths']['dir_services'],
@@ -92,25 +93,23 @@ def scenario_initalisation(fuel_disagg, data=False):
     # ===========================================
     if data['assumptions'].strategy_vars['spatial_explicit_diffusion']['scenario_value']:
 
-        # Real value to select
-        real_values = data['pop_density']
+        # Select real value
+        real_values = data['pop_density']       # Population density is selected as real values
 
-        # Speed to select
+        # Define diffusion speed
         speed_con_max = data['assumptions'].strategy_vars['speed_con_max']['scenario_value']
 
-        crit_all_the_same=False
+        # Criteria whether a spatially differentiated diffusion is applied depending on real_values
+        crit_all_the_same = False
     else:
 
         # Real value to select
         real_values = data['pop_density']
 
         # NEW If not spatial different, set speed_con_max to 1
-        speed_con_max = 1 #TODO NEW NEW
+        speed_con_max = 1 
 
-        # Criteria if spatial explicit modelling
-        data['assumptions'].strategy_vars['spatial_explicit_diffusion']['scenario_value'] = 1
-
-        # Criteria if still the same
+        # Define that the penetration levels are the same for every region
         crit_all_the_same = True
 
     # Nr of min and max outliers to flatten
@@ -124,10 +123,6 @@ def scenario_initalisation(fuel_disagg, data=False):
         speed_con_max=speed_con_max,
         p_outlier=p_outlier)
 
-    # --------- ------------
-    # Plot figure for paper
-    # ---------------------
-    #TODO TODO EGO
     '''plot_fig_paper = False
     if plot_fig_paper:
         from energy_demand.plotting import result_mapping
@@ -149,13 +144,6 @@ def scenario_initalisation(fuel_disagg, data=False):
             regions=data['regions'],
             path_shapefile_input=path_shapefile_input,
             plotshow=True)'''
-    
-    '''else:
-        # Uniform distribution values
-        f_reg = False
-        f_reg_norm = False
-        f_reg_norm_abs = False
-        init_cont['regional_strategy_variables'] = None'''
 
     # ===========================================
     # I. Switches
@@ -371,8 +359,6 @@ def scenario_initalisation(fuel_disagg, data=False):
                 logging.info(
                     "For scenario var %s no affected enduse is defined. Thus speed is used for diffusion",
                         var_name)
-            else:
-                pass
 
             # Get enduse specific fuel for each region
             fuels_reg = spatial_diffusion.get_enduse_regs(
@@ -669,40 +655,37 @@ def sig_param_calc_incl_fuel_switch(
         enduse_fuel_switches = fuel_service_switch.get_fuel_switches_enduse(
             fuel_switches, enduse)
 
+        # ONly calculate for one reg
+        any_region = regions[:1]
 
         l_values_sig = {}
         s_tech_switched_p = {}
 
         if crit_all_the_same:
-            #TODO ALL NEW
-            # ONly calculate for one reg
-            for reg in regions[:1]:
 
-                # Calculate service demand after fuel switches for each technology
-                s_tech_switched_p_values__all_reg = s_generate_sigmoid.calc_service_fuel_switched(
-                    enduse_fuel_switches,
-                    technologies,
-                    s_fueltype_by_p,
-                    s_tech_by_p,
-                    fuel_tech_p_by,
-                    'actual_switch')
+            # Calculate service demand after fuel switches for each technology
+            s_tech_switched_p_values__all_reg = s_generate_sigmoid.calc_service_fuel_switched(
+                enduse_fuel_switches,
+                technologies,
+                s_fueltype_by_p,
+                s_tech_by_p,
+                fuel_tech_p_by,
+                'actual_switch')
 
-                # Calculate L for every technology for sigmod diffusion
-                l_values_all_regs = s_generate_sigmoid.tech_l_sigmoid(
-                    s_tech_switched_p[reg],
-                    enduse_fuel_switches,
-                    technologies,
-                    s_tech_by_p.keys(),
-                    s_fueltype_by_p,
-                    s_tech_by_p,
-                    fuel_tech_p_by)
+            # Calculate L for every technology for sigmod diffusion
+            l_values_all_regs = s_generate_sigmoid.tech_l_sigmoid(
+                s_tech_switched_p[any_region],
+                enduse_fuel_switches,
+                technologies,
+                s_tech_by_p.keys(),
+                s_fueltype_by_p,
+                s_tech_by_p,
+                fuel_tech_p_by)
 
             for region in regions:
                 s_tech_switched_p[region] = s_tech_switched_p_values__all_reg
                 l_values_sig[region] = l_values_all_regs
         else:
-
-            # SHIFTED ONE IN TODO NEW
             for region in regions:
 
                 # Calculate service demand after fuel switches for each technology
@@ -744,42 +727,30 @@ def sig_param_calc_incl_fuel_switch(
         logging.info("---------- switches %s %s %s", enduse, crit_switch_service, crit_fuel_switch)
 
         # Calculates parameters for sigmoid diffusion of
-        # technologies which are switched to/installed. With
-        # `regional_specific` the assumption can be changed that
-        # the technology diffusion is the same over all the uk
+        # technologies which are switched to/installed.
         sig_param_tech = {}
 
-        # Get year of switches
-        for region in regions:
-            for switch in service_switches_out[region]:
-
-                if switch.enduse == enduse:
-                    yr_until_switched = switch.switch_yr
-                    break
-            break
+        # Get year of switches (TODO: IMRPOVE THAT IN NARRATIVE)
+        for switch in service_switches_out[any_region]:
+            if switch.enduse == enduse:
+                yr_until_switched = switch.switch_yr
+                break
 
         if crit_all_the_same:
-            #TODO ALL NEW
-            # ONly calculate for one reg
-            for reg in regions[:1]:
-                sig_param_tech_all_regs_value = s_generate_sigmoid.tech_sigmoid_parameters(
-                    yr_until_switched,
-                    base_yr,
-                    technologies,
-                    l_values_sig[reg],
-                    s_tech_by_p,
-                    s_tech_switched_p[reg])
-            
+
+            # Calculate for one region
+            sig_param_tech_all_regs_value = s_generate_sigmoid.tech_sigmoid_parameters(
+                yr_until_switched,
+                base_yr,
+                technologies,
+                l_values_sig[any_region],
+                s_tech_by_p,
+                s_tech_switched_p[any_region])
+
             for region in regions:
                 sig_param_tech[region] = sig_param_tech_all_regs_value
         else:
             for region in regions:
-                #logging.info("FF " + str(s_tech_switched_p[reg]['heat_pumps_electricity']))
-                #logging.info(s_tech_switched_p[reg])
-                '''logging.debug(
-                    "...Calculating sigmoid parameters %s %s %s ",
-                    enduse, reg, s_tech_switched_p[reg]['heat_pumps_electricity'])'''
-                #logging.info("ffff generating sigmoid")
                 sig_param_tech[region] = s_generate_sigmoid.tech_sigmoid_parameters(
                     yr_until_switched,
                     base_yr,

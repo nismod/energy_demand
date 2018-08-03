@@ -436,31 +436,33 @@ def test_get_sig_diffusion():
 
     tech_increased_service = ['boilerA']
 
-    sig_param = s_generate_sigmoid.get_l_values(
-        technologies,
-        tech_increased_service)
-
-    assert sig_param['boilerA'] == 1.0
-
-    # -----
-
-    tech_increased_service = ['boilerC']
-
-    sig_param = s_generate_sigmoid.get_l_values(
-        technologies,
-        tech_increased_service)
-
-    assert sig_param['boilerC'] == 0.999
-
-    # -----
-
-    tech_increased_service = ['boilerC']
     regions = ['regA']
+
+    sig_param = s_generate_sigmoid.get_l_values( 
+        technologies,
+        tech_increased_service,
+        regions)
+
+    assert sig_param['regA']['boilerA'] == 1.0
+
+    # -----
+
+    tech_increased_service = ['boilerC']
 
     sig_param = s_generate_sigmoid.get_l_values(
         technologies,
         tech_increased_service,
-        regions=regions,
-        regional_specific=True)
+        regions)
+
+    assert sig_param['regA']['boilerC'] == 0.999
+
+    # -----
+
+    tech_increased_service = ['boilerC']
+
+    sig_param = s_generate_sigmoid.get_l_values(
+        technologies,
+        tech_increased_service,
+        regions=regions)
 
     assert sig_param['regA']['boilerC'] == 0.999

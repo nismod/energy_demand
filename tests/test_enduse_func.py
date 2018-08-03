@@ -60,7 +60,8 @@ def test_assign_lp_no_techs():
         enduse="test_enduse",
         sector="test_sector",
         load_profiles=lp_stock_obj,
-        fuel_y=fuel_y)
+        fuel_y=fuel_y,
+        make_all_flat=False)
 
     assert np.sum(fuel_yh) == 100
 
@@ -650,6 +651,7 @@ def test_apply_specific_change():
 
     fuel_y = np.array([100])
     result = enduse_func.apply_specific_change(
+        region='regA',
         enduse='heating',
         fuel_y=fuel_y,
         enduse_overall_change=enduse_overall_change,

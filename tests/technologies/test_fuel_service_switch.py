@@ -5,8 +5,8 @@ from energy_demand.technologies import fuel_service_switch
 from energy_demand.read_write import read_data
 
 def test_get_fuel_switches_enduse():
-    
-    service_switches = [
+
+    service_switches = {'regA': [
         read_data.ServiceSwitch(
             enduse='heating',
             sector=None,
@@ -18,15 +18,15 @@ def test_get_fuel_switches_enduse():
             sector=None,
             technology_install='techB',
             service_share_ey=0.5,
-            switch_yr=2020)]
+            switch_yr=2020)]}
 
     out = fuel_service_switch.get_fuel_switches_enduse(
         switches=service_switches,
-        enduse='heating',
-        regional_specific=False)
-
-    for switch in out:
-        assert switch.enduse == 'heating'
+        enduse='heating')
+    
+    for reg, switches in out.items():
+        for switch in switches:
+            assert switch.enduse == 'heating'
 
     # --
     service_switches = {'regA': [
@@ -45,8 +45,7 @@ def test_get_fuel_switches_enduse():
 
     out = fuel_service_switch.get_fuel_switches_enduse(
         switches=service_switches,
-        enduse='heating',
-        regional_specific=True)
+        enduse='heating')
 
     for reg in out:
         for switch in out[reg]:
@@ -54,7 +53,7 @@ def test_get_fuel_switches_enduse():
 
 def test_switches_to_dict():
     """testing"""
-    service_switches = [
+    service_switches = {'regA': [
         read_data.ServiceSwitch(
             enduse='heating',
             sector=None,
@@ -66,13 +65,12 @@ def test_switches_to_dict():
             sector=None,
             technology_install='techB',
             service_share_ey=0.5,
-            switch_yr=2020)]
+            switch_yr=2020)]}
 
     out = fuel_service_switch.switches_to_dict(
-        service_switches=service_switches,
-        regional_specific=False)
+        service_switches=service_switches)
 
-    assert out == {'techA': 0.5, 'techB': 0.5}
+    assert out['regA'] == {'techA': 0.5, 'techB': 0.5}
 
 def test_get_switch_criteria():
     """testing
@@ -140,7 +138,7 @@ def test_create_switches_from_s_shares():
 
 def test_autocomplete_switches():
     """testing"""
-    service_switches = [read_data.ServiceSwitch(
+    service_switches =  [read_data.ServiceSwitch(
         enduse='heating',
         technology_install='techA',
         switch_yr=2050,
@@ -151,19 +149,20 @@ def test_autocomplete_switches():
         specified_tech_enduse_by={'heating': ['techA', 'techB', 'techC']},
         s_tech_by_p={'heating': {'techA': 0.2, 'techB': 0.4, 'techC': 0.4}},
         sector=False,
-        spatial_explicit_diffusion=False,
-        regions=False,
+        crit_all_the_same=True,
+        regions=['regA'],
         f_diffusion=False,
         techs_affected_spatial_f=False,
         service_switches_from_capacity=[])
 
-    for switch in out_2:
-        if switch.technology_install == 'techA':
-            assert switch.service_share_ey == 0.6
-        if switch.technology_install == 'techB':
-            assert switch.service_share_ey == 0.2
-        if switch.technology_install == 'techC':
-            assert switch.service_share_ey == 0.2
+    for reg in out_2:
+        for switch in out_2[reg]:
+            if switch.technology_install == 'techA':
+                assert switch.service_share_ey == 0.6
+            if switch.technology_install == 'techB':
+                assert switch.service_share_ey == 0.2
+            if switch.technology_install == 'techC':
+                assert switch.service_share_ey == 0.2
 
     # ---
     service_switches = [read_data.ServiceSwitch(
@@ -177,8 +176,8 @@ def test_autocomplete_switches():
         specified_tech_enduse_by={'heating': ['techA', 'techB', 'techC']},
         s_tech_by_p={'heating': {'techA': 0.2, 'techB': 0.4, 'techC': 0.4}},
         sector=False,
-        spatial_explicit_diffusion=True,
-        regions=['regA', 'regB'],
+        crit_all_the_same=True,
+        regions=['regA'],
         f_diffusion={'heating':{'regA':1.0, 'regB': 1.0}},
         techs_affected_spatial_f=['techA'],
         service_switches_from_capacity={'regA': [], 'regB': []})
@@ -191,7 +190,7 @@ def test_autocomplete_switches():
                 assert switch.service_share_ey == 0.2
             if switch.technology_install == 'techC':
                 assert switch.service_share_ey == 0.2
-
+test_autocomplete_switches()
 def test_create_service_switch():
     """testing
     """
@@ -405,13 +404,6 @@ def test_get_share_s_tech_ey():
         service_share_ey=0.3,
         switch_yr=2020)]
 
-    specified_tech_enduse_by = {'heating': ['techA', 'techB', 'techC']}
-
-    result = fuel_service_switch.get_share_s_tech_ey(
-        service_switches=service_switches,
-        specified_tech_enduse_by=specified_tech_enduse_by,
-        spatial_explicit_diffusion=False)
-
     # --
     service_switches = {'regA': [read_data.ServiceSwitch(
         enduse='heating',
@@ -424,7 +416,6 @@ def test_get_share_s_tech_ey():
 
     result = fuel_service_switch.get_share_s_tech_ey(
         service_switches=service_switches,
-        specified_tech_enduse_by=specified_tech_enduse_by,
-        spatial_explicit_diffusion=True)
+        specified_tech_enduse_by=specified_tech_enduse_by)
 
     assert result['heating']['regA']['techA'] == 0.3

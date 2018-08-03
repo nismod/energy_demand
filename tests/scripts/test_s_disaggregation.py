@@ -3,7 +3,7 @@
 import numpy as np
 from energy_demand.scripts import s_disaggregation
 from energy_demand.assumptions import general_assumptions
-#'''
+
 def test_rs_disaggregate():
     """testing
     """
@@ -38,30 +38,40 @@ def test_rs_disaggregate():
     temp_data = {'stationID_1': np.ones((365, 24)) + 10}
     enduses = ['rs_space_heating']
 
+    pop_for_disag = {
+        2015: {
+            'regA': 100,
+            'regB': 100},
+        2020: {
+            'regA': 100,
+            'regB': 100}} 
+
     result = s_disaggregation.rs_disaggregate(
-        regions,
-        rs_national_fuel,
-        scenario_data,
-        assumptions,
-        reg_coord,
-        weather_stations,
-        temp_data,
+        regions=regions,
+        rs_national_fuel=rs_national_fuel,
+        scenario_data=scenario_data,
+        pop_base_year_for_disaggregation=pop_for_disag,
+        assumptions=assumptions,
+        reg_coord=reg_coord,
+        weather_stations=weather_stations,
+        temp_data=temp_data,
         enduses=enduses,
         crit_limited_disagg_pop_hdd=True,
         crit_limited_disagg_pop=False,
         crit_full_disagg=False)
-
+    
     assert result['regA']['rs_space_heating'] == national_fuel / 2
 
     # -----
     result = s_disaggregation.rs_disaggregate(
-        regions,
-        rs_national_fuel,
-        scenario_data,
-        assumptions,
-        reg_coord,
-        weather_stations,
-        temp_data,
+        regions=regions,
+        rs_national_fuel=rs_national_fuel,
+        scenario_data=scenario_data,
+        pop_base_year_for_disaggregation=pop_for_disag,
+        assumptions=assumptions,
+        reg_coord=reg_coord,
+        weather_stations=weather_stations,
+        temp_data=temp_data,
         enduses=enduses,
         crit_limited_disagg_pop_hdd=False,
         crit_limited_disagg_pop=True,
@@ -120,24 +130,33 @@ def test_ss_disaggregate():
     service_building_count[9]['regA'] = 10
     service_building_count[9]['regB'] = 10
 
+    pop_for_disag = {
+        2015: {
+            'regA': 100,
+            'regB': 100},
+        2020: {
+            'regA': 100,
+            'regB': 100}}            
+
     result = s_disaggregation.ss_disaggregate(
-        raw_fuel_sectors_enduses,
-        service_building_count,
-        assumptions,
-        scenario_data,
-        regions,
-        reg_coord,
-        temp_data,
-        weather_stations,
-        enduses,
-        sectors,
-        all_sectors,
+        ss_national_fuel=raw_fuel_sectors_enduses,
+        service_building_count=service_building_count,
+        assumptions=assumptions,
+        scenario_data=scenario_data,
+        pop_base_year_for_disaggregation=pop_for_disag,
+        regions=regions,
+        reg_coord=reg_coord,
+        temp_data=temp_data,
+        weather_stations=weather_stations,
+        enduses=enduses,
+        sectors=sectors,
+        all_sectors=all_sectors,
         crit_limited_disagg_pop_hdd=False,
         crit_limited_disagg_pop=True,
         crit_full_disagg=False)
 
     assert result['regA']['ss_space_heating']['offices'] == national_fuel / 2
-test_ss_disaggregate()
+
 def test_is_disaggregate():
     """TESTING"""
     temp_data = {'stationID_1': np.ones((365, 24)) + 10}
@@ -176,10 +195,10 @@ def test_is_disaggregate():
         'regA': {'B': 0, 'M': 10}, #mining, pharmaceuticals
         'regB': {'B': 5, 'M': 5}}
 
-    scenario_data = {'population': {
+    pop_for_disag = {
         2015: {
             'regA': 10,
-            'regB': 10}}}
+            'regB': 10}}
 
     result = s_disaggregation.is_disaggregate(
         assumptions=assumptions,
@@ -191,7 +210,7 @@ def test_is_disaggregate():
         enduses=enduses,
         sectors=sectors,
         employment_statistics=employment_statistics,
-        scenario_data=scenario_data,
+        pop_base_year_for_disaggregation=pop_for_disag,
         census_disagg=False)
 
     assert result['regA']['is_space_heating']['mining'] == 50.0
@@ -207,7 +226,7 @@ def test_is_disaggregate():
         enduses=enduses,
         sectors=sectors,
         employment_statistics=employment_statistics,
-        scenario_data=scenario_data,
+        pop_base_year_for_disaggregation=pop_for_disag,
         census_disagg=True)
 
     assert result['regA']['is_space_heating']['mining'] == 0

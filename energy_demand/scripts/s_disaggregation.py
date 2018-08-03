@@ -172,7 +172,6 @@ def disaggregate_base_demand(
         enduses['is_enduses'],
         sectors['is_sectors'],
         scenario_data['employment_stats'],
-        scenario_data,
         pop_base_year_for_disaggregation,
         census_disagg=census_disagg)
 
@@ -449,7 +448,6 @@ def is_disaggregate(
         enduses,
         sectors,
         employment_statistics,
-        scenario_data,
         pop_base_year_for_disaggregation,
         census_disagg
     ):
@@ -468,8 +466,6 @@ def is_disaggregate(
         Sectors
     employment_statistics : dict
         Employment statistics
-    scenario_data : dict
-        Scenario data
     crit_limited_disagg_pop : bool
         Criteria which diassgregation method
     crit_full_disagg : bool
@@ -499,10 +495,7 @@ def is_disaggregate(
     tot_pop = 0
     tot_pop_hdd = 0
     for region in regions:
-        #tot_pop_hdd += scenario_data['population'][assumptions.base_yr][region] * is_hdd_individ_region[region]
         tot_pop_hdd +=pop_base_year_for_disaggregation[assumptions.base_yr][region] * is_hdd_individ_region[region]
-        
-        #tot_pop += scenario_data['population'][assumptions.base_yr][region]
         tot_pop += pop_base_year_for_disaggregation[assumptions.base_yr][region]
 
     if not census_disagg:
@@ -512,7 +505,7 @@ def is_disaggregate(
         # ---
         for region in regions:
             is_fuel_disagg[region] = {}
-            #reg_pop = scenario_data['population'][assumptions.base_yr][region]
+
             reg_pop = pop_base_year_for_disaggregation[assumptions.base_yr][region]
 
             for enduse in enduses:
