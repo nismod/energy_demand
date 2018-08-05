@@ -306,7 +306,7 @@ def write_yaml_param_complete(path_yaml, dict_to_dump):
     dump(list_to_dump, path_yaml)
 
 def write_simulation_inifile(path, data, simulated_regions):
-    """Create .ini file with simulation parameters which ared
+    """Create .ini file with simulation parameters which are
     used to read in correctly the simulation results
 
     Arguments
@@ -707,7 +707,7 @@ def write_supply_results(
 
     np.save(path_file, model_results)
 
-def write_enduse_specific(sim_yr, path_result, model_results, filename):
+def write_enduse_specific(sim_yr, path_result, tot_fuel_y_enduse_specific_yh, filename):
     """Write out enduse specific results for every hour and store to
     `.npy` file
 
@@ -717,7 +717,7 @@ def write_enduse_specific(sim_yr, path_result, model_results, filename):
         Simulation year
     path_result : str
         Path
-    model_results : dict
+    tot_fuel_y_enduse_specific_yh : dict
         Modelling results
     filename : str
         File name
@@ -728,8 +728,8 @@ def write_enduse_specific(sim_yr, path_result, model_results, filename):
     basic_functions.create_folder(
         path_result, "enduse_specific_results")
 
-    for enduse, fuel in model_results.items():
-        logging.info("Enduse: {}  Total demand: {}".format(enduse, np.sum(fuel)))
+    for enduse, fuel in tot_fuel_y_enduse_specific_yh.items():
+        logging.info("Enduse: %s  Total demand: %s ", enduse, np.sum(fuel))
         path_file = os.path.join(
             os.path.join(path_result, "enduse_specific_results"),
             "{}__{}__{}__{}".format(

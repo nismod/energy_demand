@@ -18,8 +18,8 @@ regional_specific, crit_all_the_same
 #TODO Try to remove tech_type
 #TODO Write out full result. Then write function to aggregate accordingly
 #TODO replace create_csv_file by pandas
+#TODO SIMple aggregation. Write out sectormodel, enduse, region, fueltypes.... --> Do all aggregation based on that
 """
-print("...start")
 import os
 import sys
 import time

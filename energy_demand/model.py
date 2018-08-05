@@ -543,7 +543,7 @@ def aggr_fuel_regions_fueltype(
     return aggregation_array, fuel_region
 
 def sum_enduse_all_regions(
-        input_dict,
+        aggr_dict,
         sector_models,
         technologies,
         fueltypes_nr
@@ -562,13 +562,11 @@ def sum_enduse_all_regions(
     enduse_dict : dict
         Summarise enduses across all regions
     """
-    enduse_dict = input_dict
-
     for sector_model in sector_models:
         for model_object in sector_model:
 
-            if model_object.enduse not in enduse_dict:
-                enduse_dict[model_object.enduse] = np.zeros((fueltypes_nr, 365, 24), dtype="float")
+            if model_object.enduse not in aggr_dict:
+                aggr_dict[model_object.enduse] = np.zeros((fueltypes_nr, 365, 24), dtype="float")
 
             fuels = get_fuels_yh(
                 model_object,
@@ -577,15 +575,13 @@ def sum_enduse_all_regions(
             if isinstance(fuels, dict):
                 for tech, fuel_tech in fuels.items():
                     tech_fueltype = technologies[tech].fueltype_int
-                    enduse_dict[model_object.enduse][tech_fueltype] += fuel_tech
+                    aggr_dict[model_object.enduse][tech_fueltype] += fuel_tech
             else:
-                # Fuel per technology
-                fuels = get_fuels_yh(
-                    model_object,
-                    'fuel_yh')
-                enduse_dict[model_object.enduse] += fuels
+                fuels = get_fuels_yh(model_object, 'fuel_yh')
 
-    return enduse_dict
+                aggr_dict[model_object.enduse] += fuels
+
+    return aggr_dict
 
 def averaged_season_hourly(
         averaged_h,
@@ -841,12 +837,13 @@ def aggregate_final_results(
             shape_aggregation_array=aggr_results['ed_fueltype_national_yh'].shape)
         aggr_results['ed_fueltype_national_yh'] += ed_fueltype_yh_aggr
 
-        # Sum across all regions and provide specific enduse
-        aggr_results['tot_fuel_y_enduse_specific_yh'] = sum_enduse_all_regions(
+        # Sum across enduses
+        new_tot_fuel_y_enduse_specific_yh = sum_enduse_all_regions(
             aggr_results['tot_fuel_y_enduse_specific_yh'],
             all_submodels,
             technologies,
             fueltypes_nr)
+        aggr_results['tot_fuel_y_enduse_specific_yh'] = new_tot_fuel_y_enduse_specific_yh
 
         # --------------------------------------
         # Calculate averaged hour profile per season

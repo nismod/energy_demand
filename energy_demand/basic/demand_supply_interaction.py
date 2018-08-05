@@ -3,6 +3,7 @@
 import os
 import logging
 import numpy as np
+from energy_demand.basic import date_prop
 from energy_demand.basic import testing_functions
 from energy_demand.read_write import write_data
 import pandas as pd
@@ -248,6 +249,7 @@ def write_national_results_amman(
 def write_national_results(
         path_folder,
         results_unconstrained,
+        enduse_specific_results,
         fueltype_str,
         fuelype_nr,
         year,
@@ -274,18 +276,42 @@ def write_national_results(
     # Iterate over every hour in year
     for hour in range(8760):
 
+        # Get day and hour
+        day_year, hour_day_year = date_prop.convert_h_to_day_year_and_h(hour)
+
         # Start row
         row = {
             'year': year,
             'hour': hour}
 
         for submodel_nr, submodel in enumerate(submodels):
+
+            # Total energy demand
             ed_submodel_h = sum_across_regions[submodel_nr][fuelype_nr][hour]
-            row[submodel] = ed_submodel_h
+
+            # Space heating related demand for sector
+            if submodel_nr == 0:
+                space_heating_demand = enduse_specific_results['rs_space_heating'][fuelype_nr][day_year][hour_day_year]
+            elif submodel_nr == 1:
+                space_heating_demand = enduse_specific_results['ss_space_heating'][fuelype_nr][day_year][hour_day_year]
+            else:
+                space_heating_demand = enduse_specific_results['is_space_heating'][fuelype_nr][day_year][hour_day_year]
+
+            ed_submodel_heating_h = space_heating_demand
+            str_name_heat = "{}_heat".format(submodel)
+            row[str_name_heat] = ed_submodel_heating_h
+
+            # Non-heating related demand
+            ed_submodel_non_heating_h = ed_submodel_h - space_heating_demand
+
+            str_name_non_heat = "{}_non_heat".format(submodel)
+            row[str_name_non_heat] = ed_submodel_non_heating_h
+
+            print("INFO  {}  {}  {}  {}".format(submodel_nr, ed_submodel_h, ed_submodel_non_heating_h, ed_submodel_heating_h))
 
         rows.append(row)
 
     # Create dataframe
-    col_names = ['year', 'hour', 'residential', 'service', 'industry']
+    col_names = ['year', 'hour', 'residential_non_heat', 'residential_heat', 'service_non_heat', 'service_heat', 'industry_non_heat', 'industry_heat']
     my_df = pd.DataFrame(rows, columns=col_names)
     my_df.to_csv(path, index=False) #Index prevents writing index rows

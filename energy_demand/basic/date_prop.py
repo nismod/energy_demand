@@ -4,8 +4,32 @@ time related functionality
 """
 from datetime import date
 from datetime import timedelta
-
+from energy_demand.basic import basic_functions
 import numpy as np
+
+def convert_h_to_day_year_and_h(hour):
+    """Convert a 8760 hour in a year
+    to the yearday and hour of that day
+
+    Input
+    -----
+    hour : int
+        Hour of 8760 hours in a year
+
+    Outputs
+    -------
+    day : int
+        Pthon day of a year (0 == 1 day)
+    day_h : int
+        Python hour of day (0 == 1 hour)
+    """
+    day = basic_functions.round_down(int(hour / 24), 1)
+
+    total_hours = day * 24
+
+    day_h = hour - total_hours
+
+    return day, day_h
 
 def get_seasonal_weeks():
     """

@@ -17,7 +17,7 @@ def get_all_folders_files(path_to_folder):
     -----
     path_to_folder : str
         Path to folder
-    
+
     Returns
     --------
     all_folders : list
