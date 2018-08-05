@@ -107,7 +107,7 @@ def scenario_initalisation(fuel_disagg, data=False):
         real_values = data['pop_density']
 
         # NEW If not spatial different, set speed_con_max to 1
-        speed_con_max = 1 
+        speed_con_max = 1
 
         # Define that the penetration levels are the same for every region
         crit_all_the_same = True
@@ -179,31 +179,32 @@ def scenario_initalisation(fuel_disagg, data=False):
     ss_service_switches_inlc_cap = {}
     is_service_switches_incl_cap = {}
 
-    for region in data['regions']:
+    rs_service_switches_incl_cap = fuel_service_switch.capacity_switch(
+        data['regions'],
+        reg_capacity_switches_rs,
+        data['technologies'],
+        data['assumptions'].enduse_overall_change['other_enduse_mode_info'],
+        data['fuels']['rs_fuel_raw'],
+        data['assumptions'].rs_fuel_tech_p_by,
+        data['assumptions'].base_yr)
 
-        rs_service_switches_incl_cap[region] = fuel_service_switch.capacity_switch(
-            reg_capacity_switches_rs[region],
-            data['technologies'],
-            data['assumptions'].enduse_overall_change['other_enduse_mode_info'],
-            data['fuels']['rs_fuel_raw'],
-            data['assumptions'].rs_fuel_tech_p_by,
-            data['assumptions'].base_yr)
+    ss_service_switches_inlc_cap = fuel_service_switch.capacity_switch(
+        data['regions'],
+        reg_capacity_switches_ss,
+        data['technologies'],
+        data['assumptions'].enduse_overall_change['other_enduse_mode_info'],
+        ss_aggr_sector_fuels,
+        data['assumptions'].ss_fuel_tech_p_by,
+        data['assumptions'].base_yr)
 
-        ss_service_switches_inlc_cap[region] = fuel_service_switch.capacity_switch(
-            reg_capacity_switches_ss[region],
-            data['technologies'],
-            data['assumptions'].enduse_overall_change['other_enduse_mode_info'],
-            ss_aggr_sector_fuels,
-            data['assumptions'].ss_fuel_tech_p_by,
-            data['assumptions'].base_yr)
-
-        is_service_switches_incl_cap[region] = fuel_service_switch.capacity_switch(
-            reg_capacity_switches_is[region],
-            data['technologies'],
-            data['assumptions'].enduse_overall_change['other_enduse_mode_info'],
-            is_aggr_sector_fuels,
-            data['assumptions'].is_fuel_tech_p_by,
-            data['assumptions'].base_yr)
+    is_service_switches_incl_cap = fuel_service_switch.capacity_switch(
+        data['regions'],
+        reg_capacity_switches_is,
+        data['technologies'],
+        data['assumptions'].enduse_overall_change['other_enduse_mode_info'],
+        is_aggr_sector_fuels,
+        data['assumptions'].is_fuel_tech_p_by,
+        data['assumptions'].base_yr)
 
     # ========================================================================================
     # Service switches
@@ -656,7 +657,7 @@ def sig_param_calc_incl_fuel_switch(
             fuel_switches, enduse)
 
         # ONly calculate for one reg
-        any_region = regions[:1]
+        any_region = regions[0]
 
         l_values_sig = {}
         s_tech_switched_p = {}
@@ -729,6 +730,9 @@ def sig_param_calc_incl_fuel_switch(
         # Calculates parameters for sigmoid diffusion of
         # technologies which are switched to/installed.
         sig_param_tech = {}
+
+        # ONly calculate for one reg
+        any_region = regions[0]
 
         # Get year of switches (TODO: IMRPOVE THAT IN NARRATIVE)
         for switch in service_switches_out[any_region]:

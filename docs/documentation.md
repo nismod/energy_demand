@@ -459,7 +459,7 @@ The main function of HIRE within the MISTRAL modelling framework is to provide e
 to the energy supply model developped within this framwork (see Figure 6).
 
 ![Image of model integration](../docs/documentation_images/Fig_XX_supply_demand_linkage.jpg)
-*Figure 6: Interaction*
+*Figure 6: Visualisation of System-of-system model integration*
 
 This can be achieved in two ways, either demands are provided
 for an optimised or constrained model mode. In the constrained mode, heat demand
@@ -468,7 +468,7 @@ For the unconstrained mode, the energy supply model assigns technologies to meet
 heat demand, which is directly provided from the demand model to the supply model (see Figure 7)
 
 ![Two modes](../docs/documentation_images/Fig_XX_constrained_optimised_modes.jpg)
-*Figure 7: Interaction*
+*Figure 7: Interaction of energy demand and supply model*
 
 
 ## 4 Data sets

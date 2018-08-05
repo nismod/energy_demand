@@ -350,7 +350,7 @@ def residential_submodel(
                 heating_factor_y=weather_region.f_heat_rs_y,
                 cooling_factor_y=weather_region.f_cooling_rs_y,
                 fuel_tech_p_by=assumptions.rs_fuel_tech_p_by[enduse],
-                sig_param_tech= assumptions.rs_sig_param_tech[enduse][region.name],
+                sig_param_tech=assumptions.rs_sig_param_tech[enduse][region.name],
                 criterias=criterias,
                 strategy_vars=assumptions.regional_strategy_variables[region.name],
                 fueltypes_nr=lookups['fueltypes_nr'],
