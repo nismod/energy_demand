@@ -105,7 +105,7 @@ class Enduse(object):
             sig_param_tech,
             enduse_overall_change,
             criterias,
-            strategy_vars,
+            strategy_vars,  #TODO MAKE strategy_vars either only in assumptions.strategy_vars
             fueltypes_nr,
             fueltypes,
             dw_stock=False,
@@ -1273,7 +1273,7 @@ def apply_specific_change(
     # Share of fuel consumption difference
     diff_fuel_consump = percent_ey - percent_by
     diffusion_choice = enduse_overall_change['other_enduse_mode_info']['diff_method']
-
+    print("===== {} {} {} ".format(enduse, percent_by, percent_ey))
     if diff_fuel_consump != 0: # If change in fuel consumption
 
         # Lineare diffusion up to cy
@@ -1295,16 +1295,32 @@ def apply_specific_change(
                 enduse_overall_change['other_enduse_mode_info']['sigmoid']['sig_midpoint'],
                 enduse_overall_change['other_enduse_mode_info']['sigmoid']['sig_steepness'])
             change_cy = diff_fuel_consump * sig_diff_factor
-        
-        # 
-        # Short version
-        # 
-        #change_cy = strategy_vars[parameter_name][region][curr_yr]
-        fuel_y = fuel_y * change_cy
 
         return fuel_y
     else:
         return fuel_y
+    '''
+
+    try:
+        parameter_name = strategy_vars['enduse_change__{}'.format(enduse)]['scenario_value']
+
+        logging.warning("____________________ " + str(strategy_vars[parameter_name]))
+        logging.warning(strategy_vars[parameter_name].keys())
+        # Get region specific annual parameter value
+        change_cy = strategy_vars[parameter_name]['annual_values'][curr_yr][region]
+
+        # Calculate new annual fuel
+        import pprint
+        logging.warning(pprint.pprint(strategy_vars[parameter_name]))
+        logging.warning(strategy_vars[parameter_name]['annual_values'].shape)
+        raise Exception
+        fuel_y = fuel_y * change_cy
+
+    except KeyError:
+        logging.debug(
+            "No annual parameters are provided for enduse %s", enduse)
+    '''
+    return fuel_y
 
 def apply_climate_change(
         enduse,

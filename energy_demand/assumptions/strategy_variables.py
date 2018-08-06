@@ -1,11 +1,94 @@
 """Strategy variable assumptions provided as parameters to smif
 """
 import copy
+import logging
 from energy_demand.read_write import write_data
 from energy_demand.basic import basic_functions
 from energy_demand.assumptions import general_assumptions
 
-def load_param_assump(paths=None, local_paths=None, assumptions=None, writeYAML=False):
+def load_smif_parameters(data_handle, strategy_variable_names, assumptions=False):
+    """Get all model parameters from smif (`parameters`) depending
+    on narrative. Create the dict `strategy_vars` and
+    add scenario value as well as affected enduses of
+    each variable.
+
+    Arguments
+    ---------
+    data_handle : dict
+        Data handler
+
+    Returns
+    -------
+    strategy_variables : dict
+        Updated strategy variables
+    """
+    strategy_vars = {}
+
+    # Iterate variables and assign new values
+    for name in strategy_variable_names:
+
+        # Get scenario value
+        try:
+            #smif mode
+            all_info_scenario_param = load_param_assump(assumptions=assumptions)
+
+            scenario_value = data_handle.get_parameter(name)
+        except:
+            #local running
+            # All information of all scenario parameters
+            all_info_scenario_param = load_param_assump()
+
+            scenario_value = data_handle[name]['default_value']
+
+        if scenario_value == 'True':
+            scenario_value = True
+        elif scenario_value == 'False':
+            scenario_value = False
+        else:
+            pass
+
+        logging.info(
+            "... loading smif parameter: %s value: %s", name, scenario_value)
+
+        # Get narrative
+        try:
+            narratives = all_info_scenario_param[name]['narratives']
+        except KeyError: # not narrative is defined
+
+            #Standard narrative TODO IMPROVE AND ADD IN TODO TODO NEW
+            yr_until_changed_all_things = 2050
+            standard_narrative = [
+                {
+                    'base_yr': 2015,
+                    'end_yr': yr_until_changed_all_things,
+                    'value_by': all_info_scenario_param[name]['default_value'],
+                    'value_ey': scenario_value,
+                    'diffusion_choice': 'linear',
+                    'sig_midpoint': 0,
+                    'sig_steepness': 1}
+                ]
+            narratives = standard_narrative
+
+        strategy_vars[name] = {
+
+            'scenario_value': scenario_value,
+
+            'default_value': all_info_scenario_param[name]['default_value'],
+
+            # Get affected enduses of this variable defined in `load_param_assump`
+            'affected_enduse': all_info_scenario_param[name]['affected_enduse'],
+
+            # Replace by external narrative telling
+            'narratives': narratives}
+
+    return strategy_vars
+
+def load_param_assump(
+        paths=None,
+        local_paths=None,
+        assumptions=None,
+        writeYAML=False
+    ):
     """All assumptions of the energy demand model
     are loaded and added to the data dictionary
 
@@ -26,16 +109,16 @@ def load_param_assump(paths=None, local_paths=None, assumptions=None, writeYAML=
 
     if not assumptions:
         assumptions_dict = {}
-        assumptions_dict['gshp_fraction'] = None
+        assumptions_dict['gshp_fraction'] = 0.1
         assumptions_dict['smart_meter_assump'] = {}
-        assumptions_dict['smart_meter_assump']['smart_meter_p_by'] = None
-        assumptions_dict['cooled_ss_floorarea_by'] = None
-        assumptions_dict['p_cold_rolling_steel_by'] = None
+        assumptions_dict['smart_meter_assump']['smart_meter_p_by'] = 0.1
+        assumptions_dict['cooled_ss_floorarea_by'] = 0.35
+        assumptions_dict['p_cold_rolling_steel_by'] = 0.2
         assumptions_dict['t_bases'] = {}
-        assumptions_dict['t_bases']['rs_t_heating_by'] = None
-        assumptions_dict['t_bases']['ss_t_heating_by'] = None
-        assumptions_dict['t_bases']['ss_t_cooling_by'] = None
-        assumptions_dict['t_bases']['is_t_heating_by'] = None
+        assumptions_dict['t_bases']['rs_t_heating_by'] = 15.5
+        assumptions_dict['t_bases']['ss_t_heating_by'] = 15.5
+        assumptions_dict['t_bases']['ss_t_cooling_by'] = 5
+        assumptions_dict['t_bases']['is_t_heating_by'] = 15.5
         assumptions_dict['spatial_explicit_diffusion'] = 0 #Note As soon as smif allows bool type parameters, implement this
         assumptions_dict['speed_con_max'] = 1
         assumptions_dict['flat_heat_pump_profile_both'] = 0 #FAlse
@@ -569,6 +652,18 @@ def load_param_assump(paths=None, local_paths=None, assumptions=None, writeYAML=
         'enduse_change__is_other': 0,
         'enduse_change__is_refrigeration': 0}
 
+    # Narratives
+    standard_narrative = [
+        {
+            'base_yr': 2015,
+            'end_yr': yr_until_changed_all_things,
+            'value_by': 0,
+            'value_ey': 0, #TODO REP:ACe
+            'diffusion_choice': 'linear',
+            'sig_midpoint': 0,
+            'sig_steepness': 1}
+    ]
+
     # Helper function to create description of parameters for all enduses
     for enduse_name, param_value in enduse_overall_change_enduses.items():
         strategy_variables.append({
@@ -578,7 +673,10 @@ def load_param_assump(paths=None, local_paths=None, assumptions=None, writeYAML=
             "suggested_range": (0, 1),
             "default_value": 0,
             "units": 'decimal',
-            'affected_enduse': [enduse_name.split("__")[1]]})
+            'affected_enduse': [enduse_name.split("__")[1]],
+
+            "narratives": standard_narrative})
+
         strategy_vars[enduse_name] = param_value
 
     # ============================================================
@@ -591,10 +689,10 @@ def load_param_assump(paths=None, local_paths=None, assumptions=None, writeYAML=
         "absolute_range": (0, 1),
         "description": "Fraction achieved of efficiency improvements",
         "suggested_range": (0, 1),
-        "default_value": 1.0,
+        "default_value": 0, # Default is no efficiency improvement
         "units": 'decimal'})
 
-    strategy_vars["f_eff_achieved"] = 1.0
+    strategy_vars["f_eff_achieved"] = 0
 
     # -----------------------
     # Create parameter file only with fully descried parameters

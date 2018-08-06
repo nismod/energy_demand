@@ -1,146 +1,93 @@
 """Generate scenario paramters for every year
 """
-import os
-import pandas as pd
-from energy_demand.basic import basic_functions
+import logging
+from collections import defaultdict
 from energy_demand.technologies import diffusion_technologies
 
-def generate_general_parameter(
-        path,
+def generate_annual_param_vals(
         regions,
-        diffusion_choice,
-        narratives
+        strategy_vars,
+        simulated_yrs
+    ):
+    """
+    Make that regional specific parameters
+
+    TODO: ONly regional different with one step so far
+    """
+    for parameter_name in strategy_vars.keys():
+        print("parameter_name " + str(parameter_name))
+        default_narratives = strategy_vars[parameter_name]['narratives']
+
+        regional_strategy_vary = defaultdict(dict)
+
+        regional_strategy_vary[parameter_name] = generate_general_parameter(
+            regions=regions,
+            narratives=default_narratives,
+            simulated_yrs=simulated_yrs)
+
+
+        strategy_vars[parameter_name]['regional_vars'] = dict(regional_strategy_vary)
+
+    return strategy_vars
+
+def generate_general_parameter(
+        regions,
+        narratives,
+        simulated_yrs
     ):
     """Based on narrative input, calculate the parameter
     value for every modelled year
     """
-    entries = []
+    container = defaultdict(dict)
 
-    # ------------------
     # Iterate narratives
-    # ------------------
     for narrative in narratives:
+        print("NARRATIVE " + str(narrative))
 
-        # -- Paramters of narrative step
-        base_yr = narrative['base_yr']
-        end_yr = narrative['end_yr']
-        region_value_by = narrative['region_value_by']
-        region_value_ey = narrative['region_value_ey']
-
+        # -- Regional paramters of narrative step
         if not narrative['sig_midpoint']:
             sig_midpoint = 0
         if not narrative['sig_steepness']:
             sig_steepness = 1
 
         # Modelled years
-        modelled_yrs = range(base_yr, end_yr + 1, 1)
+        narrative_yrs = range(narrative['base_yr'], narrative['end_yr'] + 1, 1)
 
         # Iterate regions
         for region in regions:
 
             # Iterate every modelled year
-            for curr_yr in modelled_yrs:
+            for curr_yr in narrative_yrs:
 
-                entry = {}
-                if diffusion_choice == 'linear':
-                    lin_diff_factor = diffusion_technologies.linear_diff(
-                        base_yr,
-                        curr_yr,
-                        region_value_by[region],
-                        region_value_ey[region],
-                        end_yr)
-                    change_cy = lin_diff_factor
+                if curr_yr in simulated_yrs:
 
-                # Sigmoid diffusion up to cy
-                elif diffusion_choice == 'sigmoid':
+                    if narrative['diffusion_choice'] == 'linear':
 
-                    diff_value = region_value_ey[region] - region_value_by[region]
+                        lin_diff_factor = diffusion_technologies.linear_diff(
+                            narrative['base_yr'],
+                            curr_yr,
+                            narrative['regional_vals_by'][region],
+                            narrative['regional_vals_ey'][region],
+                            narrative['end_yr'])
+                        change_cy = lin_diff_factor
 
-                    sig_diff_factor = diffusion_technologies.sigmoid_diffusion(
-                        base_yr,
-                        curr_yr,
-                        end_yr,
-                        sig_midpoint,
-                        sig_steepness)
-                    change_cy = diff_value * sig_diff_factor
+                    # Sigmoid diffusion up to cy
+                    elif narrative['diffusion_choice'] == 'sigmoid':
 
-                entry['region'] = region
-                entry['year'] = curr_yr
-                entry['value'] = change_cy
-                #entry['interval'] = 1 #add line
+                        diff_value = narrative['regional_vals_ey'][region] - narrative['regional_vals_by'][region]
 
-                # Append to dataframe
-                entries.append(entry)
+                        sig_diff_factor = diffusion_technologies.sigmoid_diffusion(
+                            narrative['base_yr'],
+                            curr_yr,
+                            narrative['end_yr'],
+                            sig_midpoint,
+                            sig_steepness)
+                        change_cy = diff_value * sig_diff_factor
 
-     # Create dataframe to store values of parameter
-    col_names = ["region", "year", "value"]#, "interval"]
-    my_df = pd.DataFrame(entries, columns=col_names)
-    my_df.to_csv(path, index=False) #Index prevents writing index rows
+                    container[region][curr_yr] = change_cy
 
-def run(
-        path,
-        base_yr=2015,
-        end_yr=2050
-    ):
-    """
-
-    Inputs
-    ------
-    path : str
-        Path to store all generated scenario values
-    """
-
-    # --------------
-    # Configuration
-    # --------------
-    modelled_yrs = range(base_yr, end_yr + 1, 1)
-
-    # --------------
-    # 
-    # --------------
-    regions = ['A', 'B']
-
-
-    # Create folder to store parameters
-    basic_functions.create_folder(path)
-
-    # ------------------------
-    # General change over time
-    # ------------------------
-    # Write value for every modelled year
-    parameter_name = "test_param"
-
-    # Dummy
-    region_value_by = {}
-    region_value_ey = {}
-    for region_nr, region in enumerate(regions):
-        region_value_by[region] = 1
-        region_value_ey[region] = 2
-
-    narratives = [
-        {
-            "base_yr": base_yr,
-            "end_yr": end_yr,
-            "region_value_by": region_value_by,
-            "region_value_ey": region_value_ey,
-
-            # Optional
-            "sig_midpoint": None,
-            "sig_steepness": None
-            }
-        ]
-
-    # -------------------------------------------
-    # Calculate parameters and generate .csv file
-    # -------------------------------------------
-    generate_general_parameter(
-        path=os.path.join(path, "{}.csv".format(parameter_name)),
-        regions=regions,
-        diffusion_choice='sigmoid',
-        narratives=narratives)
-
-    print("---")
-    print("Finished generating scenario values")
-    print("---")
-
-run("C://Users//cenv0553//ED//data//_temp_scenario_run_paramters")
+    return container
+    # Create dataframe to store values of parameter
+    ###col_names = ["region", "year", "value"]
+    ###my_df = pd.DataFrame(entries, columns=col_names)
+    ###my_df.to_csv(path, index=False) #Index prevents writing index rows

@@ -333,7 +333,7 @@ def residential_submodel(
 
     for sector in sectors:
         for enduse in enduses:
-
+            print(assumptions.strategy_vars.keys())
             # Create submodel
             submodel = endusefunctions.Enduse(
                 submodel='rs_submodel',
@@ -352,7 +352,7 @@ def residential_submodel(
                 fuel_tech_p_by=assumptions.rs_fuel_tech_p_by[enduse],
                 sig_param_tech=assumptions.rs_sig_param_tech[enduse][region.name],
                 criterias=criterias,
-                strategy_vars=assumptions.regional_strategy_variables[region.name],
+                strategy_vars=assumptions.strategy_vars[region.name],
                 fueltypes_nr=lookups['fueltypes_nr'],
                 fueltypes=lookups['fueltypes'],
                 enduse_overall_change=assumptions.enduse_overall_change,
@@ -412,7 +412,7 @@ def service_submodel(
                 fuel_tech_p_by=assumptions.ss_fuel_tech_p_by[enduse][sector],
                 sig_param_tech=assumptions.ss_sig_param_tech[enduse][sector][region.name],
                 criterias=criterias,
-                strategy_vars=assumptions.regional_strategy_variables[region.name],
+                strategy_vars=assumptions.strategy_vars[region.name],
                 fueltypes_nr=lookups['fueltypes_nr'],
                 fueltypes=lookups['fueltypes'],
                 enduse_overall_change=assumptions.enduse_overall_change,
@@ -487,7 +487,7 @@ def industry_submodel(
                 sig_param_tech=assumptions.is_sig_param_tech[enduse][sector][region.name],
                 enduse_overall_change=assumptions.enduse_overall_change,
                 criterias=criterias,
-                strategy_vars=assumptions.regional_strategy_variables[region.name],
+                strategy_vars=assumptions.strategy_vars[region.name],
                 fueltypes_nr=lookups['fueltypes_nr'],
                 fueltypes=lookups['fueltypes'],
                 reg_scen_drivers=assumptions.scenario_drivers['is_submodule'],

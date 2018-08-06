@@ -334,60 +334,94 @@ def scenario_initalisation(fuel_disagg, data=False):
                 sector=sector,
                 crit_all_the_same=crit_all_the_same)
 
-    # ===========================================
-    # II. Spatial explicit modelling of scenario variables
-    #
-    # From UK factors to regional specific factors
-    # Convert strategy variables to regional variables
-    # ===========================================
-    init_cont['regional_strategy_variables'] = defaultdict(dict)
+    # --------------------------
+    # Spatial explicit modelling
+    # --------------------------
+    regional_strategy_vars = spatial_explicit_modelling_strategy_vars(
+        data,
+        fuel_disagg,
+        f_reg,
+        f_reg_norm,
+        f_reg_norm_abs)
 
+    return dict(init_cont), regional_strategy_vars
+
+def spatial_explicit_modelling_strategy_vars(
+        data,
+        fuel_disagg,
+        f_reg,
+        f_reg_norm,
+        f_reg_norm_abs
+    ):
+    """
+     Spatial explicit modelling of scenario variables
+    
+     From UK factors to regional specific factors
+     Convert strategy variables to regional variables
+    """
     # Iterate strategy variables and calculate regional variable
     for var_name, strategy_var in data['assumptions'].strategy_vars.items():
-
         logging.info("Spatially explicit diffusion modelling %s", var_name)
 
-        # Check whether scenario varaible is regionally modelled
-        if var_name not in data['assumptions'].spatially_modelled_vars:
+        # Iterate narrative
+        narratives = strategy_var['narratives']
 
-            # Variable is not spatially modelled
-            for region in data['regions']:
-                init_cont['regional_strategy_variables'][region][var_name] = {
-                    'scenario_value': float(strategy_var['scenario_value']),
-                    'affected_enduse': data['assumptions'].strategy_vars[var_name]['affected_enduse']}
-        else:
-            if strategy_var['affected_enduse'] == []:
-                logging.info(
-                    "For scenario var %s no affected enduse is defined. Thus speed is used for diffusion",
-                        var_name)
+        new_narratives = []
 
-            # Get enduse specific fuel for each region
-            fuels_reg = spatial_diffusion.get_enduse_regs(
-                enduse=strategy_var['affected_enduse'],
-                fuels_disagg=[
-                    fuel_disagg['rs_fuel_disagg'],
-                    fuel_disagg['ss_fuel_disagg'],
-                    fuel_disagg['is_fuel_disagg']])
+        for narrative in narratives:
+            print("NARRAITVE  {}   {}".format(narrative, var_name))
+            regional_vars_by = {}
+            regional_vars_ey = {}
 
-            # Calculate regional specific strategy variables values
-            reg_specific_variables = spatial_diffusion.factor_improvements_single(
-                factor_uk=strategy_var['scenario_value'],
-                regions=data['regions'],
-                f_reg=f_reg,
-                f_reg_norm=f_reg_norm,
-                f_reg_norm_abs=f_reg_norm_abs,
-                fuel_regs_enduse=fuels_reg)
+            # Check whether scenario varaible is regionally modelled
+            if var_name not in data['assumptions'].spatially_modelled_vars:
 
-            # Add regional specific strategy variables values
-            for region in data['regions']:
-                init_cont['regional_strategy_variables'][region][var_name] = {
-                    'scenario_value': float(reg_specific_variables[region]),
-                    'affected_enduse': strategy_var['affected_enduse']}
+                # Variable is not spatially modelled
+                for region in data['regions']:
+                    regional_vars_ey[region] = float(narrative['value_ey'])
+                    regional_vars_by[region] = float(narrative['value_by'])
+            else:
+                if strategy_var['affected_enduse'] == []:
+                    logging.info(
+                        "For scenario var %s no affected enduse is defined. Thus speed is used for diffusion",
+                            var_name)
 
-    init_cont['regional_strategy_variables'] = dict(init_cont['regional_strategy_variables'])
+                # Get enduse specific fuel for each region
+                fuels_reg = spatial_diffusion.get_enduse_regs(
+                    enduse=strategy_var['affected_enduse'],
+                    fuels_disagg=[
+                        fuel_disagg['rs_fuel_disagg'],
+                        fuel_disagg['ss_fuel_disagg'],
+                        fuel_disagg['is_fuel_disagg']])
 
-    logging.info("... finished scenario initialisation")
-    return dict(init_cont)
+                # Calculate regional specific strategy variables values
+                reg_specific_variables_ey = spatial_diffusion.factor_improvements_single(
+                    factor_uk=narrative['value_ey'],
+                    regions=data['regions'],
+                    f_reg=f_reg,
+                    f_reg_norm=f_reg_norm,
+                    f_reg_norm_abs=f_reg_norm_abs,
+                    fuel_regs_enduse=fuels_reg)
+
+                reg_specific_variables_by = spatial_diffusion.factor_improvements_single(
+                    factor_uk=narrative['value_by'],
+                    regions=data['regions'],
+                    f_reg=f_reg,
+                    f_reg_norm=f_reg_norm,
+                    f_reg_norm_abs=f_reg_norm_abs,
+                    fuel_regs_enduse=fuels_reg)
+
+                # Add regional specific strategy variables values
+                for region in data['regions']:
+                    regional_vars_ey[region] = float(reg_specific_variables_ey[region])
+                    regional_vars_by[region] = float(reg_specific_variables_by[region])
+
+            narrative['regional_vals_by'] = regional_vars_by
+            narrative['regional_vals_ey'] = regional_vars_ey
+            new_narratives.append(narrative)
+
+        data['assumptions'].strategy_vars[var_name]['narratives'] = new_narratives
+    return data['assumptions'].strategy_vars
 
 def global_to_reg_capacity_switch(
         regions,

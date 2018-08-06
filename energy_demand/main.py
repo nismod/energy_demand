@@ -12,9 +12,9 @@ regional_specific, crit_all_the_same
 #TODO Import weather data loading and importing whole range of weather scenarios
 #TODO Replace geopanda csv loading
 #TODO Take disaggregation completely out?
-#TODO Implement two step phasing (e.g. 2015-2030, 2030 - 2050)
+
 #TODO Test if technology type can be left empty in technology spreadsheet
-#TODO MAke f_eff_achieved enduse_specific
+
 #TODO Try to remove tech_type
 #TODO Write out full result. Then write function to aggregate accordingly
 #TODO replace create_csv_file by pandas
@@ -43,6 +43,7 @@ from energy_demand.validation import lad_validation
 from energy_demand.scripts import init_scripts
 from energy_demand.basic import demand_supply_interaction
 from energy_demand.read_write import load_parameter_values
+from energy_demand.scripts import s_generate_scenario_parameters
 
 def energy_demand_model(regions, data, assumptions):
     """Main function of energy demand model to calculate yearly demand
@@ -181,19 +182,6 @@ if __name__ == "__main__":
     # Read sector assignement lookup values
     data['gva_sector_lu'] = lookup_tables.economic_sectors_regional_MISTRAL()
 
-
-    #-TODO REMOVE----------&&&&&&&&&&&&&&
-    '''parameter_names = ['test_param']
-    annual_values_parameters = load_parameter_values.load_full_parameters(
-        #temp_path=os.path.join(self.user_data['data']['data_path'], "_temp_scenario_run_parameters"),
-        temp_path=os.path.join("C:\\", "Users", "cenv0553", "ED", "data", "_temp_scenario_run_paramters"),
-        parameter_names=parameter_names)
-    for parameter_name in parameter_names:
-        data['assumptions'].strategy_vars[parameter_name] = annual_values_parameters[parameter_name]'''
-
-
-    #-----------&&&&&&&&&&&&&&
-
     # -----------------------------
     # Assumptions
     # -----------------------------
@@ -222,9 +210,21 @@ if __name__ == "__main__":
         data['paths'], data['local_paths'], data['assumptions'])
     data['assumptions'].update('strategy_vars', strategy_vars)
 
+    # -----------
+    # Load smif parameters (if run locally, the standard values are loaded)
+    # Add standard narrative
+    # -----------
+    strategy_vars = strategy_variables.load_smif_parameters(
+        data_handle=strategy_vars,
+        strategy_variable_names=strategy_vars.keys()    )
+    data['assumptions'].update('strategy_vars', strategy_vars)
+
+    # --------------
     # Update user defined strategy variables
+    # --------------
     for var_name, var_value in user_defined_strategy_vars.items():
         data['assumptions'].strategy_vars[var_name]['scenario_value'] = var_value
+
 
     data['tech_lp'] = data_loader.load_data_profiles(
         data['paths'], data['local_paths'],
@@ -271,12 +271,23 @@ if __name__ == "__main__":
     data['fuel_disagg'] = s_disaggregation.disaggregate_demand(data)
 
     # In order to load these data, the initialisation scripts need to be run
-    init_cont = init_scripts.scenario_initalisation(
+    init_cont, updated_strategy_vars  = init_scripts.scenario_initalisation(
         data['fuel_disagg'],
         data)
 
     for key, value in init_cont.items():
         setattr(data['assumptions'], key, value)
+
+    data['assumptions'].update('strategy_vars', updated_strategy_vars)
+
+    # ---------------------------
+    # Annual parameter generation (calculate parameter value for every year)
+    # ---------------------------
+    updated_strategy_vars = s_generate_scenario_parameters.generate_annual_param_vals(
+        data['regions'],
+        data['assumptions'].strategy_vars,
+        simulated_yrs)
+    data['assumptions'].update('strategy_vars', updated_strategy_vars)
 
     # ------------------------------------------------
     # Spatial Validation
@@ -315,11 +326,11 @@ if __name__ == "__main__":
         region_selection)
 
     for sim_yr in data['assumptions'].simulated_yrs:
+        print("Simulation for year --------------:  " + str(sim_yr))
 
         # Set current year
         setattr(data['assumptions'], 'curr_yr', sim_yr)
 
-        print("Simulation for year --------------:  " + str(sim_yr))
         fuel_in, fuel_in_biomass, fuel_in_elec, fuel_in_gas, fuel_in_heat, fuel_in_hydro, fuel_in_solid_fuel, fuel_in_oil, tot_heating = testing_functions.test_function_fuel_sum(
             data,
             data['fuel_disagg'],
@@ -347,11 +358,10 @@ if __name__ == "__main__":
                 data['assumptions'].model_yeardays_daytype,
                 data['criterias']['plot_crit'])
 
-
         # -------------------------
         # Write for resilience paper
         # -------------------------
-        if RESILIENCEPAPERPOUTPUT: # and data['assumptions'].curr_yr == 2015:
+        if RESILIENCEPAPERPOUTPUT:
 
             if round(np.sum(sim_obj.ed_fueltype_national_yh), 2)!= round(np.sum(sim_obj.results_unconstrained), 2):
                 print("Should be the same")

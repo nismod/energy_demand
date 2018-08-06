@@ -2,10 +2,10 @@
 Contains funtions related to handeling date and
 time related functionality
 """
+import numpy as np
 from datetime import date
 from datetime import timedelta
 from energy_demand.basic import basic_functions
-import numpy as np
 
 def convert_h_to_day_year_and_h(hour):
     """Convert a 8760 hour in a year
