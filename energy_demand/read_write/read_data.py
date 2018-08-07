@@ -422,13 +422,18 @@ def read_enduse_specific_results(path_to_folder):
     all_txt_files_in_folder = os.listdir(path_results)
 
     for file_path in all_txt_files_in_folder:
+
+        
         path_file_to_read = os.path.join(path_results, file_path)
         file_path_split = file_path.split("__")
 
-        enduse = file_path_split[1]
-        year = int(file_path_split[2])
+        if file_path_split[-1] == '.txt':
+            pass
+        else:
+            enduse = file_path_split[1]
+            year = int(file_path_split[2])
 
-        results[year][enduse] = np.load(path_file_to_read)
+            results[year][enduse] = np.load(path_file_to_read)
 
     return dict(results)
 
