@@ -23,7 +23,7 @@ def generate_annual_param_vals(
     container_non_reg_param = {}
 
     for parameter_name in strategy_vars.keys():
-        
+        logging.info("PAramter name: " + str(parameter_name))
         default_narratives = strategy_vars[parameter_name]['narratives']
 
         regional_strategy_vary, reg_specific_crit = generate_general_parameter(
@@ -54,7 +54,7 @@ def generate_general_parameter(
 
     # Iterate narratives
     for narrative in narratives:
-
+        logging.info("NARR  " + str(narrative))
         # -- Regional paramters of narrative step
         if not narrative['sig_midpoint']:
             sig_midpoint = 0

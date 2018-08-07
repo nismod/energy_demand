@@ -208,9 +208,9 @@ def ss_disaggregate(
     # ---------------------------------------
     # Calculate heating degree days for regions
     # ---------------------------------------
-    #t_base_cy = assumptions.non_regional_strategy_vars['ss_t_base_heating_future_yr'][assumptions.curr_yr]
+    t_base_cy = assumptions.non_regional_strategy_vars['ss_t_base_heating_future_yr'][assumptions.curr_yr]
     ss_hdd_individ_region = hdd_cdd.get_hdd_country(
-        #t_base_cy,
+        t_base_cy,
         assumptions.base_yr,
         assumptions.curr_yr,
         regions,
@@ -221,9 +221,9 @@ def ss_disaggregate(
         reg_coord,
         weather_stations)
 
-    #ss_cdd_cy = assumptions.non_regional_strategy_vars['ss_t_base_cooling_future_yr'][assumptions.curr_yr]
+    t_base_cooling_cy = assumptions.non_regional_strategy_vars['ss_t_base_cooling_future_yr'][assumptions.curr_yr]
     ss_cdd_individ_region = hdd_cdd.get_cdd_country(
-        #ss_cdd_cy
+        t_base_cooling_cy,
         assumptions.base_yr,
         assumptions.curr_yr,
         regions,
@@ -480,7 +480,9 @@ def is_disaggregate(
     is_fuel_disagg : dict
         reg, enduse, sector
     """
+    t_base_heating_cy = assumptions.non_regional_strategy_vars['is_t_base_heating_future_yr'][assumptions.curr_yr]
     is_hdd_individ_region = hdd_cdd.get_hdd_country(
+        t_base_heating_cy,
         assumptions.base_yr,
         assumptions.curr_yr,
         regions,
@@ -687,7 +689,9 @@ def rs_disaggregate(
     # ---------------------------------------
     # Calculate heating degree days for regions
     # ---------------------------------------
+    t_base_heating_cy = assumptions.non_regional_strategy_vars['rs_t_base_heating_future_yr'][assumptions.curr_yr]
     rs_hdd_individ_region = hdd_cdd.get_hdd_country(
+        t_base_heating_cy,
         assumptions.base_yr,
         assumptions.curr_yr,
         regions,

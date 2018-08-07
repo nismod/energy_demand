@@ -157,6 +157,7 @@ def calc_cdd(t_base_cooling, temp_yh, nr_day_to_av):
     return cdd_d
 
 def get_hdd_country(
+        t_base_heating_cy,
         base_yr,
         curr_yr,
         regions,
@@ -189,12 +190,13 @@ def get_hdd_country(
         temperatures = temp_data[closest_station_id]
 
         # Base temperature for base year
-        t_base_heating_cy = sigm_temp(
+        '''t_base_heating_cy = sigm_temp(
             t_base_fy,
             t_base_cy,
             base_yr,
             curr_yr,
-            diff_params)
+            diff_params)'''
+        #t_base_heating_cy = t_base_cy
 
         hdd_reg = calc_hdd(t_base_heating_cy, temperatures, nr_day_to_av=1)
 
@@ -203,6 +205,7 @@ def get_hdd_country(
     return hdd_regions
 
 def get_cdd_country(
+        t_base_cooling_cy,
         base_yr,
         curr_yr,
         regions,
@@ -246,14 +249,14 @@ def get_cdd_country(
         temperatures = temp_data[closest_station_id]
 
         # Base temperature for base year
-        t_base_heating_cy = sigm_temp(
+        '''t_base_cooling_cy = sigm_temp(
             t_base_fy,
             t_base_cy,
             base_yr,
             curr_yr,
-            diff_params)
+            diff_params)'''
 
-        cdd_reg = calc_cdd(t_base_heating_cy, temperatures, nr_day_to_av=1)
+        cdd_reg = calc_cdd(t_base_cooling_cy, temperatures, nr_day_to_av=1)
 
         cdd_regions[region] = np.sum(cdd_reg)
 

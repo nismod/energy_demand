@@ -167,7 +167,13 @@ def load_param_assump(
     yr_until_changed_all_things = 2050
 
     # Narratives
-
+    standard_narrative_not_regional = default_narrative(
+        end_yr=yr_until_changed_all_things,
+        value_by=0,
+        value_ey=0,
+        diffusion_choice='linear',
+        base_yr=assumptions.base_yr,
+        regional_specific=False)
 
     standard_narrative_regional = default_narrative(
         end_yr=yr_until_changed_all_things,
@@ -176,7 +182,7 @@ def load_param_assump(
         diffusion_choice='linear',
         base_yr=assumptions.base_yr,
         regional_specific=True)
-    
+
     # ------------------
     # Spatial explicit diffusion
     # ------------------
@@ -188,7 +194,8 @@ def load_param_assump(
         "description": "Criteria to define spatial or non spatial diffusion",
         "suggested_range": (0, 1),
         "default_value": assumptions.spatial_explicit_diffusion,
-        "units": 'years'})
+        "units": 'years',
+        "narratives": standard_narrative_not_regional})
 
     strategy_vars['speed_con_max'] = assumptions.speed_con_max
 
@@ -198,7 +205,8 @@ def load_param_assump(
         "description": "Maximum speed of penetration (for spatial explicit diffusion)",
         "suggested_range": (0, 99),
         "default_value": assumptions.speed_con_max,
-        "units": None})
+        "units": None,
+        "narratives": standard_narrative_not_regional})
 
     # -----------
     # Demand management of heat pumps
@@ -244,7 +252,6 @@ def load_param_assump(
         "suggested_range": (assumptions.gshp_fraction, 0.5),
         "default_value": assumptions.gshp_fraction,
         "units": 'decimal',
-
         "narratives": narrative_gshp_fraction_ey})
 
     # ============================================================
@@ -321,15 +328,13 @@ def load_param_assump(
     # =======================================
     strategy_vars['climate_change_temp_diff_yr_until_changed'] = yr_until_changed_all_things
 
-    strategy_variables.append(
-        {
+    strategy_variables.append({
             "name": "climate_change_temp_diff_yr_until_changed",
             "absolute_range": (2015, 2100),
             "description": "Year until climate temperature changes are fully realised",
             "suggested_range": (2030, 2100),
             "default_value": 2050,
-            "units": 'year'
-        })
+            "units": 'year'})
 
     temps = {
         'climate_change_temp_d__Jan': 0,
@@ -347,17 +352,13 @@ def load_param_assump(
 
     for month_python, _ in enumerate(temps):
         month_str = basic_functions.get_month_from_int(month_python + 1)
-        strategy_variables.append(
-            {
+        strategy_variables.append({
                 "name": "climate_change_temp_d__{}".format(month_str),
                 "absolute_range": (-0, 10),
                 "description": "Temperature change for month {}".format(month_str),
                 "suggested_range": (-5, 5),
                 "default_value": 0,
-                "units": '°C',
-
-                "regional_crit": False #TODO PINGU: CONTINUE THAT IF REGIONALCRIT; NO REGIONAL CALCUALTION TAKES PLACE
-            })
+                "units": '°C'})
 
     # Helper function to move temps one level down
     for enduse_name, value_param in temps.items():
@@ -466,15 +467,6 @@ def load_param_assump(
     # Reasonable assumption is between 0.03 and 0.01 (DECC 2015)
     # ============================================================
     # Narratives
-    standard_narrative = default_narrative(
-            end_yr=yr_until_changed_all_things,
-            value_by=0,
-            value_ey=0,
-            diffusion_choice='linear',
-            sig_midpoint=0,
-            sig_steepness=1,
-            base_yr=assumptions.base_yr)
-
     strategy_variables.append({
         "name": "smart_meter_improvement_p",
         "absolute_range": (0, 1),
@@ -482,8 +474,7 @@ def load_param_assump(
         "suggested_range": (0, 0.9),
         "default_value": assumptions.smart_meter_assump['smart_meter_p_by'],
         "units": 'decimal',
-        
-        "narratives": standard_narrative})
+        "narratives": standard_narrative_regional})
 
     strategy_variables.append({
         "name": "smart_meter_yr_until_changed",
@@ -553,13 +544,15 @@ def load_param_assump(
     # ============================================================
     # Cooling
     # ============================================================
+    #TODO TODO. where is cooled_floorarea__ss_cooling_humidification used?
     strategy_variables.append({
         "name": "cooled_floorarea__ss_cooling_humidification",
         "absolute_range": (0, 1),
         "description": "Change in cooling of floor area (service sector)",
         "suggested_range": (-1, 1),
         "default_value": assumptions.cooled_ss_floorarea_by,
-        "units": 'decimal'})
+        "units": 'decimal',
+        "narratives": standard_narrative_regional})
 
     # Change in cooling of floor area 
     strategy_vars['cooled_floorarea__ss_cooling_humidification'] = 0
