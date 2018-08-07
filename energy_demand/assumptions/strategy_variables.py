@@ -30,7 +30,8 @@ def load_smif_parameters(data_handle, strategy_variable_names, assumptions=False
         # Get scenario value
         try:
             #smif mode
-            all_info_scenario_param = load_param_assump(assumptions=assumptions)
+            all_info_scenario_param = load_param_assump(
+                assumptions=assumptions)
 
             scenario_value = data_handle.get_parameter(name)
         except:
@@ -56,8 +57,9 @@ def load_smif_parameters(data_handle, strategy_variable_names, assumptions=False
         # -----------------------------
         try:
             narratives = all_info_scenario_param[name]['narratives']
+            logging.info("For paramter '%s' a narrative has been defined", name)
         except KeyError: # not narrative is defined
-
+            logging.info("For paramter '%s' no narrative has been defined and the standard narrative is used", name)
             #Standard narrative TODO IMPROVE AND ADD IN TODO TODO NEW
             yr_until_changed_all_things = 2050
             standard_narrative = [
@@ -84,6 +86,7 @@ def load_smif_parameters(data_handle, strategy_variable_names, assumptions=False
             # Replace by external narrative telling
             'narratives': narratives}
 
+    #raise Exception
     return strategy_vars
 
 def load_param_assump(
@@ -302,7 +305,8 @@ def load_param_assump(
                 "description": "Temperature change for month {}".format(month_str),
                 "suggested_range": (-5, 5),
                 "default_value": 0,
-                "units": '°C'
+                "units": '°C',
+                "regional_crit": False #TODO PINGU: CONTINUE THAT IF REGIONALCRIT; NO REGIONAL CALCUALTION TAKES PLACE
             })
 
     # Helper function to move temps one level down

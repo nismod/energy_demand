@@ -61,7 +61,7 @@ class WeatherRegion(object):
         temp_cy = change_temp_climate(
             temp_by,
             assumptions.yeardays_month_days,
-            assumptions.strategy_vars,
+            assumptions.strategy_vars, #assumptions.regional_strategy_vars
             assumptions.base_yr,
             assumptions.curr_yr)
 
@@ -717,14 +717,19 @@ def change_temp_climate(
         param_name_month = "climate_change_temp_d__{}".format(month_str)
 
         # Calculate monthly change in temperature
+        #'''
         lin_diff_factor = diffusion_technologies.linear_diff(
             base_yr=base_yr,
             curr_yr=curr_yr,
             value_start=0,
             value_end=strategy_variables[param_name_month]['scenario_value'],
             yr_until_changed=strategy_variables['climate_change_temp_diff_yr_until_changed']['scenario_value'])
-
+        
         temp_climate_change[month_yeardays] = temp_data[month_yeardays] + lin_diff_factor
+        #'''
+
+        ##cy_temp = strategy_variables[param_name_month][curr_yr]
+        ##temp_climate_change[month_yeardays] = temp_data[month_yeardays] + cy_temp
 
     return temp_climate_change
 

@@ -428,12 +428,13 @@ def demand_management(
                 fuel_yh, average_fuel_yd, mode_constrained)
 
             # Calculate current year load factors
-            lf_improved_cy = calc_lf_improvement(
+            '''lf_improved_cy = calc_lf_improvement(
                 strategy_vars[key_name]['scenario_value'],
                 base_yr,
                 curr_yr,
                 loadfactor_yd_cy,
-                strategy_vars['demand_management_yr_until_changed']['scenario_value'])
+                strategy_vars['demand_management_yr_until_changed']['scenario_value'])'''
+            lf_improved_cy = strategy_vars[key_name][curr_yr]
 
             fuel_yh = lf.peak_shaving_max_min(
                 lf_improved_cy, average_fuel_yd, fuel_yh, mode_constrained)
@@ -1307,26 +1308,21 @@ def apply_specific_change(
     else:
         return fuel_y
     '''
-
     try:
-        parameter_name = strategy_vars['enduse_change__{}'.format(enduse)]['scenario_value']
-
+        #parameter_name = strategy_vars['enduse_change__{}'.format(enduse)]['scenario_value']
+        parameter_name = strategy_vars['enduse_change__{}'.format(enduse)][curr_yr]
         #logging.warning("____________________ " + str(strategy_vars[parameter_name]))
         #logging.warning(strategy_vars[parameter_name].keys())
         # Get region specific annual parameter value
         ##change_cy = strategy_vars[parameter_name]['annual_values'][curr_yr][region]
         change_cy = assumptions.regional_strategy_vars[parameter_name][curr_yr]
         # Calculate new annual fuel
-        import pprint
-        logging.warning(pprint.pprint(strategy_vars[parameter_name]))
-        logging.warning(strategy_vars[parameter_name]['annual_values'].shape)
-        raise Exception
         fuel_y = fuel_y * change_cy
 
     except KeyError:
         logging.debug(
             "No annual parameters are provided for enduse %s", enduse)
-    
+
     return fuel_y
 
 def apply_climate_change(
@@ -1414,10 +1410,10 @@ def apply_smart_metering(
 
     if key_name in strategy_vars.keys():
 
-        logging.info("-------------dd")
-        logging.info(strategy_vars[key_name])
-        logging.info("_____")
-        logging.info(strategy_vars['smart_meter_improvement_p'])
+        #logging.info("-------------dd")
+        #logging.info(strategy_vars[key_name])
+        #logging.info("_____")
+        #logging.info(strategy_vars['smart_meter_improvement_p'])
         ##enduse_savings = strategy_vars[key_name]['scenario_value']
         enduse_savings = sm_assump['savings_smart_meter'][key_name]
 
@@ -1434,8 +1430,7 @@ def apply_smart_metering(
 
         # Improvement of smart meter penetration
         #penetration_improvement = strategy_vars['smart_meter_improvement_p']['scenario_value']
-        import pprint
-        logging.info(pprint.pprint(strategy_vars))
+
         #logging.info(assumptions.regional_strategy_vars['smart_meter_improvement_p'])
         #penetration_cy = assumptions.regional_strategy_vars['smart_meter_improvement_p'][curr_yr]
         penetration_cy = strategy_vars['smart_meter_improvement_p'][curr_yr]
