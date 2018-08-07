@@ -32,7 +32,7 @@ from energy_demand import model
 from energy_demand.basic import testing_functions
 from energy_demand.basic import lookup_tables
 from energy_demand.assumptions import general_assumptions
-from energy_demand.assumptions import strategy_variables
+from energy_demand.assumptions import strategy_vars_def
 from energy_demand.read_write import data_loader
 from energy_demand.basic import logger_setup
 from energy_demand.read_write import write_data
@@ -206,7 +206,7 @@ if __name__ == "__main__":
         data['pop_density'][region_name] = data['scenario_data']['population'][data['assumptions'].base_yr][region_name] / region_area
 
     # Load standard strategy variable values
-    strategy_vars = strategy_variables.load_param_assump(
+    strategy_vars = strategy_vars_def.load_param_assump(
         data['paths'], data['local_paths'], data['assumptions'])
     data['assumptions'].update('strategy_vars', strategy_vars)
 
@@ -214,7 +214,7 @@ if __name__ == "__main__":
     # Load smif parameters (if run locally, the standard values are loaded)
     # Add standard narrative
     # -----------
-    strategy_vars = strategy_variables.load_smif_parameters(
+    strategy_vars = strategy_vars_def.load_smif_parameters(
         data_handle=strategy_vars,
         strategy_variable_names=strategy_vars.keys()    )
     data['assumptions'].update('strategy_vars', strategy_vars)

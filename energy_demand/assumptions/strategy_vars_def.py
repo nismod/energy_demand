@@ -6,6 +6,30 @@ from energy_demand.read_write import write_data
 from energy_demand.basic import basic_functions
 from energy_demand.assumptions import general_assumptions
 
+def default_narrative(
+        end_yr,
+        value_by,
+        value_ey,
+        diffusion_choice='linear',
+        sig_midpoint=0,
+        sig_steepness=1,
+        base_yr=2015
+    ):
+    """A single narrative
+    """
+    container = [
+        {
+            'base_yr': base_yr,
+            'end_yr': end_yr,
+            'value_by': value_by,
+            'value_ey': value_ey,
+            'diffusion_choice': diffusion_choice,
+            'sig_midpoint': sig_midpoint,
+            'sig_steepness': sig_steepness}
+        ]
+
+    return container
+
 def load_smif_parameters(data_handle, strategy_variable_names, assumptions=False):
     """Get all model parameters from smif (`parameters`) depending
     on narrative. Create the dict `strategy_vars` and
@@ -62,16 +86,13 @@ def load_smif_parameters(data_handle, strategy_variable_names, assumptions=False
             logging.info("For paramter '%s' no narrative has been defined and the standard narrative is used", name)
             #Standard narrative TODO IMPROVE AND ADD IN TODO TODO NEW
             yr_until_changed_all_things = 2050
-            standard_narrative = [
-                {
-                    'base_yr': 2015,
-                    'end_yr': yr_until_changed_all_things,
-                    'value_by': all_info_scenario_param[name]['default_value'],
-                    'value_ey': scenario_value,
-                    'diffusion_choice': 'linear',
-                    'sig_midpoint': 0,
-                    'sig_steepness': 1}
-                ]
+
+            standard_narrative = default_narrative(
+                end_yr=yr_until_changed_all_things,
+                value_by=all_info_scenario_param[name]['default_value'],
+                value_ey=scenario_value,
+                base_yr=2015)
+
             narratives = standard_narrative
 
         strategy_vars[name] = {
@@ -84,7 +105,10 @@ def load_smif_parameters(data_handle, strategy_variable_names, assumptions=False
             'affected_enduse': all_info_scenario_param[name]['affected_enduse'],
 
             # Replace by external narrative telling
-            'narratives': narratives}
+            'narratives': narratives
+            
+            #regional_crit
+            }
 
     #raise Exception
     return strategy_vars
@@ -306,6 +330,7 @@ def load_param_assump(
                 "suggested_range": (-5, 5),
                 "default_value": 0,
                 "units": '°C',
+
                 "regional_crit": False #TODO PINGU: CONTINUE THAT IF REGIONALCRIT; NO REGIONAL CALCUALTION TAKES PLACE
             })
 
@@ -675,16 +700,14 @@ def load_param_assump(
         'enduse_change__is_refrigeration': 0}
 
     # Narratives
-    standard_narrative = [
-        {
-            'base_yr': 2015,
-            'end_yr': yr_until_changed_all_things,
-            'value_by': 0,
-            'value_ey': 0, #TODO REP:ACe
-            'diffusion_choice': 'linear',
-            'sig_midpoint': 0,
-            'sig_steepness': 1}
-    ]
+    standard_narrative = default_narrative(
+            end_yr=yr_until_changed_all_things,
+            value_by=0,
+            value_ey=0,
+            diffusion_choice='linear',
+            sig_midpoint=0,
+            sig_steepness=1,
+            base_yr=2015)
 
     # Helper function to create description of parameters for all enduses
     for enduse_name, param_value in enduse_overall_change_enduses.items():

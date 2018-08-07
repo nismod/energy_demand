@@ -3,7 +3,7 @@
 import os
 import configparser
 from energy_demand.assumptions import general_assumptions
-from energy_demand.assumptions import strategy_variables
+from energy_demand.assumptions import strategy_vars_def
 from energy_demand.read_write import data_loader
 from energy_demand.basic import lookup_tables
 
@@ -48,7 +48,7 @@ assumptions = general_assumptions.Assumptions(
     fueltypes_nr=data['lookups']['fueltypes_nr'])
 
 # Write parameters to YAML file
-_ = strategy_variables.load_param_assump(
+_ = strategy_vars_def.load_param_assump(
     paths,
     local_paths,
     assumptions,

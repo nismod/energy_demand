@@ -1,7 +1,7 @@
 """
 """
 from energy_demand.geography import weather_region
-from energy_demand.assumptions import strategy_variables
+from energy_demand.assumptions import strategy_vars_def
 import numpy as np
 
 '''def test_WeatherRegion():
@@ -22,7 +22,7 @@ import numpy as np
     #Load assumptions
 
 
-    strategy_variables.load_param_assump(data['paths'], data['enduses'])
+    strategy_vars_def.load_param_assump(data['paths'], data['enduses'])
     data['assumptions'] = read_data.read_param_yaml(data['paths']['yaml_parameters'])
     data['tech_lp'] = data_loader.load_data_profiles(data['paths'], data['local_paths'], data['assumptions'])
 
