@@ -354,22 +354,20 @@ def spatial_explicit_modelling_strategy_vars(
         f_reg_norm_abs
     ):
     """
-     Spatial explicit modelling of scenario variables
+    Spatial explicit modelling of scenario variables
     
-     From UK factors to regional specific factors
-     Convert strategy variables to regional variables
+    From UK factors to regional specific factors
+    Convert strategy variables to regional variables
     """
     # Iterate strategy variables and calculate regional variable
     for var_name, strategy_var in data['assumptions'].strategy_vars.items():
         logging.info("Spatially explicit diffusion modelling %s", var_name)
 
-        # Iterate narrative
         narratives = strategy_var['narratives']
 
         new_narratives = []
-
         for narrative in narratives:
-            print("NARRAITVE  {}   {}".format(narrative, var_name))
+
             regional_vars_by = {}
             regional_vars_ey = {}
 

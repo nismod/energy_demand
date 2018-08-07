@@ -291,6 +291,41 @@ class Assumptions(object):
             'sig_midpoint': 0,
             'sig_steepness': 1}
 
+        self.smart_meter_assump['savings_smart_meter'] = {
+            # Residential
+            'smart_meter_improvement_rs_cold': 0.03,
+            'smart_meter_improvement_rs_cooking': 0.03,
+            'smart_meter_improvement_rs_lighting': 0.03,
+            'smart_meter_improvement_rs_wet': 0.03,
+            'smart_meter_improvement_rs_consumer_electronics': 0.03,
+            'smart_meter_improvement_rs_home_computing': 0.03,
+            'smart_meter_improvement_rs_space_heating': 0.03,
+
+            # Service
+            'smart_meter_improvement_ss_space_heating': 0.03,
+            'smart_meter_improvement_ss_water_heating': 0,
+            'smart_meter_improvement_ss_cooling_humidification': 0,
+            'smart_meter_improvement_ss_fans': 0,
+            'smart_meter_improvement_ss_lighting': 0,
+            'smart_meter_improvement_ss_catering': 0,
+            'smart_meter_improvement_ss_small_power': 0,
+            'smart_meter_improvement_ss_ICT_equipment': 0,
+            'smart_meter_improvement_ss_cooled_storage': 0,
+            'smart_meter_improvement_ss_other_gas': 0,
+            'smart_meter_improvement_ss_other_electricity': 0,
+
+            # Industry submodule
+            'smart_meter_improvement_is_high_temp_process': 0,
+            'smart_meter_improvement_is_low_temp_process': 0,
+            'smart_meter_improvement_is_drying_separation': 0,
+            'smart_meter_improvement_is_motors': 0,
+            'smart_meter_improvement_is_compressed_air': 0,
+            'smart_meter_improvement_is_lighting': 0,
+            'smart_meter_improvement_is_space_heating': 0.03,
+            'smart_meter_improvement_is_other': 0,
+            'smart_meter_improvement_is_refrigeration': 0}
+
+
         # ============================================================
         # Base temperature assumptions
         # ============================================================

@@ -14,21 +14,28 @@ def generate_annual_param_vals(
 
     TODO: ONly regional different with one step so far
     """
+    container_reg_param = defaultdict(dict)
+
     for parameter_name in strategy_vars.keys():
-        print("parameter_name " + str(parameter_name))
+        logging.info("parameter_name " + str(parameter_name))
         default_narratives = strategy_vars[parameter_name]['narratives']
 
-        regional_strategy_vary = defaultdict(dict)
+        #regional_strategy_vary = defaultdict(dict)
 
-        regional_strategy_vary[parameter_name] = generate_general_parameter(
+        #regional_strategy_vary[parameter_name] = generate_general_parameter(
+        regional_strategy_vary = generate_general_parameter(
             regions=regions,
             narratives=default_narratives,
             simulated_yrs=simulated_yrs)
 
+        #strategy_vars[parameter_name]['regional_vars'] = dict(regional_strategy_vary)
 
-        strategy_vars[parameter_name]['regional_vars'] = dict(regional_strategy_vary)
+        for region in regions:
+            #container_reg_param[region][parameter_name] = strategy_vars[parameter_name]['regional_vars'][region]
+            container_reg_param[region][parameter_name] = regional_strategy_vary[region]
 
-    return strategy_vars
+    return dict(container_reg_param)
+    #return strategy_vars
 
 def generate_general_parameter(
         regions,
@@ -42,7 +49,6 @@ def generate_general_parameter(
 
     # Iterate narratives
     for narrative in narratives:
-        print("NARRATIVE " + str(narrative))
 
         # -- Regional paramters of narrative step
         if not narrative['sig_midpoint']:

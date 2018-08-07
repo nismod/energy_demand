@@ -50,7 +50,10 @@ def load_smif_parameters(data_handle, strategy_variable_names, assumptions=False
         logging.info(
             "... loading smif parameter: %s value: %s", name, scenario_value)
 
-        # Get narrative
+        # -----------------------------
+        # Test if narrative is defined
+        # If yes, use the defined narrative, otherwise create standard narrative
+        # -----------------------------
         try:
             narratives = all_info_scenario_param[name]['narratives']
         except KeyError: # not narrative is defined
@@ -374,13 +377,27 @@ def load_param_assump(
     # https://www.gov.uk/government/publications/smart-metering-early-learning-project-and-small-scale-behaviour-trials
     # Reasonable assumption is between 0.03 and 0.01 (DECC 2015)
     # ============================================================
+    # Narratives
+    standard_narrative = [
+        {
+            'base_yr': 2015,
+            'end_yr': yr_until_changed_all_things,
+            'value_by': 0,
+            'value_ey': 0, #TODO REP:ACe
+            'diffusion_choice': 'linear',
+            'sig_midpoint': 0,
+            'sig_steepness': 1}
+    ]
+
     strategy_variables.append({
         "name": "smart_meter_improvement_p",
         "absolute_range": (0, 1),
         "description": "Improvement of smart meter penetration",
         "suggested_range": (0, 0.9),
         "default_value": assumptions.smart_meter_assump['smart_meter_p_by'],
-        "units": 'decimal'})
+        "units": 'decimal',
+        
+        "narratives": standard_narrative})
 
     strategy_variables.append({
         "name": "smart_meter_yr_until_changed",
@@ -398,6 +415,7 @@ def load_param_assump(
 
     # Long term smart meter induced general savings, purley as
     # a result of having a smart meter (e.g. 0.03 --> 3% savings)
+    #TODO REMOVE
     savings_smart_meter = {
 
         # Residential
