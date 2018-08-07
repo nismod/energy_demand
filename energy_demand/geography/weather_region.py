@@ -66,36 +66,39 @@ class WeatherRegion(object):
             assumptions.curr_yr)
 
         # Change base temperatures depending on change in t_base
-        rs_t_base_heating_cy = hdd_cdd.sigm_temp(
+        rs_t_base_heating_cy = assumptions.non_regional_strategy_vars['rs_t_base_heating_future_yr'][assumptions.curr_yr]
+        '''rs_t_base_heating_cy = hdd_cdd.sigm_temp(
             assumptions.strategy_vars['rs_t_base_heating_future_yr']['scenario_value'],
             assumptions.t_bases.rs_t_heating_by,
             assumptions.base_yr,
             assumptions.curr_yr,
-            assumptions.base_temp_diff_params)
+            assumptions.base_temp_diff_params)'''
         '''rs_t_base_cooling_cy = hdd_cdd.sigm_temp(
             strategy_variables['rs_t_base_cooling_future_yr']['scenario_value'],
             assumptions.t_bases.rs_t_cooling_by, base_yr, curr_yr,
             base_temp_diff_params)'''
 
-        ss_t_base_heating_cy = hdd_cdd.sigm_temp(
+        ss_t_base_heating_cy = assumptions.non_regional_strategy_vars['ss_t_base_heating_future_yr'][assumptions.curr_yr]
+        '''ss_t_base_heating_cy = hdd_cdd.sigm_temp(
             assumptions.strategy_vars['ss_t_base_heating_future_yr']['scenario_value'],
             assumptions.t_bases.ss_t_heating_by,
             assumptions.base_yr,
             assumptions.curr_yr,
-            assumptions.base_temp_diff_params)
-        ss_t_base_cooling_cy = hdd_cdd.sigm_temp(
+            assumptions.base_temp_diff_params)'''
+        ss_t_base_cooling_cy = assumptions.non_regional_strategy_vars['ss_t_base_cooling_future_yr'][assumptions.curr_yr]
+        '''ss_t_base_cooling_cy = hdd_cdd.sigm_temp(
             assumptions.strategy_vars['ss_t_base_cooling_future_yr']['scenario_value'],
             assumptions.t_bases.ss_t_cooling_by,
             assumptions.base_yr,
             assumptions.curr_yr,
-            assumptions.base_temp_diff_params)
-
-        is_t_base_heating_cy = hdd_cdd.sigm_temp(
+            assumptions.base_temp_diff_params)'''
+        is_t_base_heating_cy = assumptions.non_regional_strategy_vars['is_t_base_heating_future_yr'][assumptions.curr_yr]
+        '''is_t_base_heating_cy = hdd_cdd.sigm_temp(
             assumptions.strategy_vars['is_t_base_heating_future_yr']['scenario_value'],
             assumptions.t_bases.is_t_heating_by,
             assumptions.base_yr,
             assumptions.curr_yr,
-            assumptions.base_temp_diff_params)
+            assumptions.base_temp_diff_params)'''
         '''is_t_base_cooling_cy = hdd_cdd.sigm_temp(
             assumptions.strategy_vars['is_t_base_cooling_future_yr']['scenario_value'],
             assumptions.t_bases.is_t_cooling_by,
@@ -717,6 +720,7 @@ def change_temp_climate(
         param_name_month = "climate_change_temp_d__{}".format(month_str)
 
         # Calculate monthly change in temperature
+        #lin_diff_factor = assumptions.non_regional_strategy_vars['param_name_month']
         #'''
         lin_diff_factor = diffusion_technologies.linear_diff(
             base_yr=base_yr,

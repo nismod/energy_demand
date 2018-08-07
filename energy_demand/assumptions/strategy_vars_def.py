@@ -13,7 +13,8 @@ def default_narrative(
         diffusion_choice='linear',
         sig_midpoint=0,
         sig_steepness=1,
-        base_yr=2015
+        base_yr=2015,
+        regional_specific=True
     ):
     """A single narrative
     """
@@ -25,7 +26,8 @@ def default_narrative(
             'value_ey': value_ey,
             'diffusion_choice': diffusion_choice,
             'sig_midpoint': sig_midpoint,
-            'sig_steepness': sig_steepness}
+            'sig_steepness': sig_steepness,
+            'regional_specific': regional_specific}
         ]
 
     return container
@@ -53,6 +55,7 @@ def load_smif_parameters(data_handle, strategy_variable_names, assumptions=False
 
         # Get scenario value
         try:
+            logging.info("... smif mode")
             #smif mode
             all_info_scenario_param = load_param_assump(
                 assumptions=assumptions)
@@ -60,6 +63,7 @@ def load_smif_parameters(data_handle, strategy_variable_names, assumptions=False
             scenario_value = data_handle.get_parameter(name)
         except:
             #local running
+            logging.info("... local mode")
             # All information of all scenario parameters
             all_info_scenario_param = load_param_assump()
 
@@ -91,7 +95,8 @@ def load_smif_parameters(data_handle, strategy_variable_names, assumptions=False
                 end_yr=yr_until_changed_all_things,
                 value_by=all_info_scenario_param[name]['default_value'],
                 value_ey=scenario_value,
-                base_yr=2015)
+                base_yr=assumptions.base_yr,
+                regional_specific=True)
 
             narratives = standard_narrative
 
@@ -106,8 +111,6 @@ def load_smif_parameters(data_handle, strategy_variable_names, assumptions=False
 
             # Replace by external narrative telling
             'narratives': narratives
-            
-            #regional_crit
             }
 
     #raise Exception
@@ -138,6 +141,7 @@ def load_param_assump(
     strategy_vars = {}
 
     if not assumptions:
+        logging.info("DUMMY ASSUMPTIONS")
         assumptions_dict = {}
         assumptions_dict['gshp_fraction'] = 0.1
         assumptions_dict['smart_meter_assump'] = {}
@@ -162,6 +166,17 @@ def load_param_assump(
 
     yr_until_changed_all_things = 2050
 
+    # Narratives
+
+
+    standard_narrative_regional = default_narrative(
+        end_yr=yr_until_changed_all_things,
+        value_by=0,
+        value_ey=0,
+        diffusion_choice='linear',
+        base_yr=assumptions.base_yr,
+        regional_specific=True)
+    
     # ------------------
     # Spatial explicit diffusion
     # ------------------
@@ -214,13 +229,23 @@ def load_param_assump(
     # ----------------------
     strategy_vars['gshp_fraction_ey'] = assumptions.gshp_fraction
 
+    narrative_gshp_fraction_ey = default_narrative(
+        end_yr=yr_until_changed_all_things,
+        value_by=0.1,
+        value_ey=assumptions.gshp_fraction,
+        diffusion_choice='linear',
+        base_yr=assumptions.base_yr,
+        regional_specific=False)
+
     strategy_variables.append({
         "name": "gshp_fraction_ey",
         "absolute_range": (0, 1),
         "description": "Relative GSHP (%) to GSHP+ASHP",
         "suggested_range": (assumptions.gshp_fraction, 0.5),
         "default_value": assumptions.gshp_fraction,
-        "units": 'decimal'})
+        "units": 'decimal',
+
+        "narratives": narrative_gshp_fraction_ey})
 
     # ============================================================
     #  Demand management assumptions (daily demand shape)
@@ -342,16 +367,35 @@ def load_param_assump(
     # Base temperature assumptions for heating and cooling demand
     # The diffusion is asumed to be linear
     # ============================================================
+    # Future base year temperature
+    strategy_vars['rs_t_base_heating_future_yr'] = 15.5
+    narrative_rs_t_base_heating_future_yr = default_narrative(
+        end_yr=yr_until_changed_all_things,
+        value_by=assumptions.t_bases.rs_t_heating_by,
+        value_ey=strategy_vars['rs_t_base_heating_future_yr'],
+        diffusion_choice='linear',
+        base_yr=assumptions.base_yr,
+        regional_specific=False)
+
     strategy_variables.append({
         "name": "rs_t_base_heating_future_yr",
         "absolute_range": (0, 20),
         "description": "Base temperature assumption residential heating",
         "suggested_range": (13, 17),
         "default_value": assumptions.t_bases.rs_t_heating_by,
-        "units": '°C'})
+        "units": '°C',
+        "narratives": narrative_rs_t_base_heating_future_yr})
 
     # Future base year temperature
-    strategy_vars['rs_t_base_heating_future_yr'] = 15.5
+    strategy_vars['ss_t_base_heating_future_yr'] = 15.5
+
+    narrative_ss_t_base_heating_future_yr = default_narrative(
+        end_yr=yr_until_changed_all_things,
+        value_by=assumptions.t_bases.ss_t_heating_by,
+        value_ey=strategy_vars['ss_t_base_heating_future_yr'],
+        diffusion_choice='linear',
+        base_yr=assumptions.base_yr,
+        regional_specific=False)
 
     strategy_variables.append({
         "name": "ss_t_base_heating_future_yr",
@@ -359,10 +403,11 @@ def load_param_assump(
         "description": "Base temperature assumption service sector heating",
         "suggested_range": (13, 17),
         "default_value": assumptions.t_bases.ss_t_heating_by,
-        "units": '°C'})
+        "units": '°C',
+        "narratives": narrative_ss_t_base_heating_future_yr})
 
     # Future base year temperature
-    strategy_vars['ss_t_base_heating_future_yr'] = 15.5
+    strategy_vars['rs_t_base_cooling_future_yr'] = 5
 
     # Cooling base temperature
     '''strategy_variables.append({
@@ -372,9 +417,16 @@ def load_param_assump(
         "suggested_range": (13, 17),
         "default_value": assumptions.t_bases['rs_t_cooling_by'],
         "units": '°C'})'''
-
     # Future base year temperature
-    strategy_vars['rs_t_base_cooling_future_yr'] = 5
+    strategy_vars['ss_t_base_cooling_future_yr'] = 5
+
+    narrative_ss_t_base_cooling_future_yr = default_narrative(
+        end_yr=yr_until_changed_all_things,
+        value_by=assumptions.t_bases.ss_t_cooling_by,
+        value_ey=strategy_vars['ss_t_base_cooling_future_yr'],
+        diffusion_choice='linear',
+        base_yr=assumptions.base_yr,
+        regional_specific=False)
 
     strategy_variables.append({
         "name": "ss_t_base_cooling_future_yr",
@@ -382,10 +434,19 @@ def load_param_assump(
         "description": "Base temperature assumption service sector cooling",
         "suggested_range": (13, 17),
         "default_value": assumptions.t_bases.ss_t_cooling_by,
-        "units": '°C'})
+        "units": '°C',
+        "narratives": narrative_ss_t_base_cooling_future_yr})
 
     # Future base year temperature
-    strategy_vars['ss_t_base_cooling_future_yr'] = 5
+    strategy_vars['is_t_base_heating_future_yr'] = 15.5
+
+    narrative_is_t_base_heating_future_yr = default_narrative(
+        end_yr=yr_until_changed_all_things,
+        value_by=assumptions.t_bases.is_t_heating_by,
+        value_ey=strategy_vars['is_t_base_heating_future_yr'],
+        diffusion_choice='linear',
+        base_yr=assumptions.base_yr,
+        regional_specific=False)
 
     # Parameters info
     strategy_variables.append({
@@ -394,10 +455,8 @@ def load_param_assump(
         "description": "Base temperature assumption service sector heating",
         "suggested_range": (13, 17),
         "default_value": assumptions.t_bases.is_t_heating_by,
-        "units": '°C'})
-
-    # Future base year temperature
-    strategy_vars['is_t_base_heating_future_yr'] = 15.5
+        "units": '°C',
+        "narratives": narrative_is_t_base_heating_future_yr})
 
     # ============================================================
     # Smart meter assumptions (Residential)
@@ -407,16 +466,14 @@ def load_param_assump(
     # Reasonable assumption is between 0.03 and 0.01 (DECC 2015)
     # ============================================================
     # Narratives
-    standard_narrative = [
-        {
-            'base_yr': 2015,
-            'end_yr': yr_until_changed_all_things,
-            'value_by': 0,
-            'value_ey': 0, #TODO REP:ACe
-            'diffusion_choice': 'linear',
-            'sig_midpoint': 0,
-            'sig_steepness': 1}
-    ]
+    standard_narrative = default_narrative(
+            end_yr=yr_until_changed_all_things,
+            value_by=0,
+            value_ey=0,
+            diffusion_choice='linear',
+            sig_midpoint=0,
+            sig_steepness=1,
+            base_yr=assumptions.base_yr)
 
     strategy_variables.append({
         "name": "smart_meter_improvement_p",
@@ -701,13 +758,13 @@ def load_param_assump(
 
     # Narratives
     standard_narrative = default_narrative(
-            end_yr=yr_until_changed_all_things,
-            value_by=0,
-            value_ey=0,
-            diffusion_choice='linear',
-            sig_midpoint=0,
-            sig_steepness=1,
-            base_yr=2015)
+        end_yr=yr_until_changed_all_things,
+        value_by=0,
+        value_ey=0,
+        diffusion_choice='linear',
+        sig_midpoint=0,
+        sig_steepness=1,
+        base_yr=assumptions.base_yr)
 
     # Helper function to create description of parameters for all enduses
     for enduse_name, param_value in enduse_overall_change_enduses.items():
@@ -727,6 +784,15 @@ def load_param_assump(
     # ============================================================
     # Technologies & efficiencies
     # ============================================================
+    standard_narrative = default_narrative(
+        end_yr=yr_until_changed_all_things,
+        value_by=0,
+        value_ey=0,
+        diffusion_choice='linear',
+        sig_midpoint=0,
+        sig_steepness=1,
+        base_yr=assumptions.base_yr,
+        regional_specific=False)
 
     # --Assumption how much of technological efficiency is reached
     strategy_variables.append({
@@ -735,7 +801,8 @@ def load_param_assump(
         "description": "Fraction achieved of efficiency improvements",
         "suggested_range": (0, 1),
         "default_value": 0, # Default is no efficiency improvement
-        "units": 'decimal'})
+        "units": 'decimal',
+        "narratives": standard_narrative})
 
     strategy_vars["f_eff_achieved"] = 0
 
