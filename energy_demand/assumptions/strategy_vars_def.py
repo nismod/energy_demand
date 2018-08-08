@@ -84,11 +84,13 @@ def load_smif_parameters(data_handle, strategy_variable_names, assumptions=False
         # Test if narrative is defined
         # If yes, use the defined narrative, otherwise create standard narrative
         # -----------------------------
+        # TODO LOAD NARRATIVE FOR PARAMETER
         try:
             narratives = all_info_scenario_param[name]['narratives']
             logging.info("For paramter '%s' a narrative has been defined", name)
         except KeyError: # not narrative is defined
             logging.info("For paramter '%s' no narrative has been defined and the standard narrative is used", name)
+            #raise Exception
             #TODOE MOVE INTO strategy-vars_def
             #Standard narrative
             yr_until_changed_all_things = 2050
@@ -139,31 +141,6 @@ def load_param_assump(
     """
     strategy_variables = []
     strategy_vars = {}
-
-    '''if not assumptions:
-        logging.info("DUMMY ASSUMPTIONS")
-        assumptions_dict = {}
-        assumptions_dict['gshp_fraction'] = 0.1
-        assumptions_dict['base_yr'] = 2015
-        assumptions_dict['smart_meter_assump'] = {}
-        assumptions_dict['smart_meter_assump']['smart_meter_p_by'] = 0.1
-        assumptions_dict['cooled_ss_floorarea_by'] = 0.35
-        assumptions_dict['p_cold_rolling_steel_by'] = 0.2
-        assumptions_dict['t_bases'] = {}
-        assumptions_dict['t_bases']['rs_t_heating_by'] = 15.5
-        assumptions_dict['t_bases']['ss_t_heating_by'] = 15.5
-        assumptions_dict['t_bases']['ss_t_cooling_by'] = 5
-        assumptions_dict['t_bases']['is_t_heating_by'] = 15.5
-        assumptions_dict['spatial_explicit_diffusion'] = 0 #Note As soon as smif allows bool type parameters, implement this
-        assumptions_dict['speed_con_max'] = 1
-        assumptions_dict['flat_heat_pump_profile_both'] = 0 #FAlse
-        assumptions_dict['flat_heat_pump_profile_only_water'] = 0 #FAlse
-
-        assumptions = general_assumptions.DummyClass(assumptions_dict)
-
-        setattr(assumptions, 't_bases', general_assumptions.DummyClass(assumptions_dict['t_bases']))
-    else:
-        pass'''
 
     yr_until_changed_all_things = 2050
 
