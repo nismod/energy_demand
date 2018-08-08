@@ -208,9 +208,10 @@ def ss_disaggregate(
     # ---------------------------------------
     # Calculate heating degree days for regions
     # ---------------------------------------
-    t_base_cy = assumptions.non_regional_strategy_vars['ss_t_base_heating_future_yr'][assumptions.curr_yr]
+    #t_base_cy = assumptions.non_regional_strategy_vars['ss_t_base_heating_future_yr'][assumptions.curr_yr]
+    t_base_by = assumptions.t_bases.ss_t_heating_by
     ss_hdd_individ_region = hdd_cdd.get_hdd_country(
-        t_base_cy,
+        t_base_by, #t_base_cy,
         assumptions.base_yr,
         assumptions.curr_yr,
         regions,
@@ -221,9 +222,10 @@ def ss_disaggregate(
         reg_coord,
         weather_stations)
 
-    t_base_cooling_cy = assumptions.non_regional_strategy_vars['ss_t_base_cooling_future_yr'][assumptions.curr_yr]
+    #t_base_cooling_cy = assumptions.non_regional_strategy_vars['ss_t_base_cooling_future_yr'][assumptions.curr_yr]
+    t_base_cooling_by = assumptions.t_bases.ss_t_cooling_by
     ss_cdd_individ_region = hdd_cdd.get_cdd_country(
-        t_base_cooling_cy,
+        t_base_cooling_by, #t_base_cooling_cy,
         assumptions.base_yr,
         assumptions.curr_yr,
         regions,
@@ -480,9 +482,10 @@ def is_disaggregate(
     is_fuel_disagg : dict
         reg, enduse, sector
     """
-    t_base_heating_cy = assumptions.non_regional_strategy_vars['is_t_base_heating_future_yr'][assumptions.curr_yr]
+    #t_base_heating_cy = assumptions.non_regional_strategy_vars['is_t_base_heating_future_yr'][assumptions.curr_yr]
+    t_base_heating_by = assumptions.t_bases.is_t_heating_by
     is_hdd_individ_region = hdd_cdd.get_hdd_country(
-        t_base_heating_cy,
+        t_base_heating_by, #t_base_heating_cy,
         assumptions.base_yr,
         assumptions.curr_yr,
         regions,
@@ -689,9 +692,10 @@ def rs_disaggregate(
     # ---------------------------------------
     # Calculate heating degree days for regions
     # ---------------------------------------
-    t_base_heating_cy = assumptions.non_regional_strategy_vars['rs_t_base_heating_future_yr'][assumptions.curr_yr]
+    #t_base_heating_by = assumptions.non_regional_strategy_vars['rs_t_base_heating_future_yr'][assumptions.curr_yr]
+    t_base_heating_by = assumptions.t_bases.rs_t_heating_by
     rs_hdd_individ_region = hdd_cdd.get_hdd_country(
-        t_base_heating_cy,
+        t_base_heating_by,
         assumptions.base_yr,
         assumptions.curr_yr,
         regions,
