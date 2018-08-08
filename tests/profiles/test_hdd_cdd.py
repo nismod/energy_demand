@@ -107,13 +107,9 @@ def test_get_hdd_country():
     t_base_heating_base_yr = 15.5
 
     result = hdd_cdd.get_hdd_country(
-        base_yr,
         curr_yr,
         regions,
         temp_data,
-        base_temp_diff_params,
-        t_base_heating_future_yr,
-        t_base_heating_base_yr,
         reg_coord,
         weather_stations)
     
@@ -158,13 +154,9 @@ def test_get_cdd_country():
     t_base_heating_future_yr = 15.5
 
     result = hdd_cdd.get_cdd_country(
-        base_yr,
         curr_yr,
         regions,
         temp_data,
-        base_temp_diff_params,
-        t_base_heating_base_yr,
-        t_base_heating_future_yr,
         reg_coord,
         weather_stations)
 

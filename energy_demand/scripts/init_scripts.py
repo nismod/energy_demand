@@ -322,8 +322,9 @@ def scenario_initalisation(
     # ========================================================================================
 
     # Residential
+    rs_sig_param_tech = {}
     for enduse in data['enduses']['rs_enduses']:
-        init_cont['rs_sig_param_tech'][enduse] = sig_param_calc_incl_fuel_switch(
+        rs_sig_param_tech[enduse] = sig_param_calc_incl_fuel_switch(
             data['assumptions'].base_yr,
             data['assumptions'].crit_switch_happening,
             data['technologies'],
@@ -338,10 +339,11 @@ def scenario_initalisation(
             crit_all_the_same=crit_all_the_same)
 
     # Service
+    ss_sig_param_tech = {}
     for enduse in data['enduses']['ss_enduses']:
-        init_cont['ss_sig_param_tech'][enduse] = {}
+        ss_sig_param_tech[enduse] = {}
         for sector in data['sectors']['ss_sectors']:
-            init_cont['ss_sig_param_tech'][enduse][sector] = sig_param_calc_incl_fuel_switch(
+            ss_sig_param_tech[enduse][sector] = sig_param_calc_incl_fuel_switch(
                 data['assumptions'].base_yr,
                 data['assumptions'].crit_switch_happening,
                 data['technologies'],
@@ -357,10 +359,11 @@ def scenario_initalisation(
                 crit_all_the_same=crit_all_the_same)
 
     # Industry
+    is_sig_param_tech = {}
     for enduse in data['enduses']['is_enduses']:
-        init_cont['is_sig_param_tech'][enduse] = {}
+        is_sig_param_tech[enduse] = {}
         for sector in data['sectors']['is_sectors']:
-            init_cont['is_sig_param_tech'][enduse][sector] = sig_param_calc_incl_fuel_switch(
+            is_sig_param_tech[enduse][sector] = sig_param_calc_incl_fuel_switch(
                 data['assumptions'].base_yr,
                 data['assumptions'].crit_switch_happening,
                 data['technologies'],
@@ -375,18 +378,7 @@ def scenario_initalisation(
                 sector=sector,
                 crit_all_the_same=crit_all_the_same)
 
-    # --------------------------
-    # Spatial explicit modelling
-    # --------------------------
-    '''regional_strategy_vars = spatial_explicit_modelling_strategy_vars(
-        data['assumptions'],
-        data['regions'],
-        fuel_disagg,
-        f_reg,
-        f_reg_norm,
-        f_reg_norm_abs)'''
-
-    return dict(init_cont)#, regional_strategy_vars
+    return rs_sig_param_tech, ss_sig_param_tech, is_sig_param_tech
 
 def spatial_explicit_modelling_strategy_vars(
         assumptions,
@@ -398,9 +390,14 @@ def spatial_explicit_modelling_strategy_vars(
     ):
     """
     Spatial explicit modelling of scenario variables
-    
-    From UK factors to regional specific factors
+    based on narratives. From UK factors to regional specific factors
     Convert strategy variables to regional variables
+
+    Arguments
+    ---------
+    assumptions : dict
+    regions
+
     """
     # Iterate strategy variables and calculate regional variable
     for var_name, strategy_var in assumptions.strategy_vars.items():

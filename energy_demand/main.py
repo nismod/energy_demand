@@ -292,7 +292,8 @@ if __name__ == "__main__":
     # ------------------------------------------------
     # Initialise scenario
     # ------------------------------------------------
-    init_cont = scenario_initalisation(
+    init_cont = {}
+    init_cont['rs_sig_param_tech'], init_cont['ss_sig_param_tech'], init_cont['is_sig_param_tech'] = scenario_initalisation(
         data,
         f_reg,
         f_reg_norm,

@@ -160,7 +160,6 @@ class Enduse(object):
             # --Enduse specific fuel consumption change in %
             #TODO ADD Sector specific change
             _fuel_new_y = apply_specific_change(
-                assumptions,
                 enduse,
                 self.fuel_y,
                 strategy_vars,
@@ -1166,7 +1165,6 @@ def apply_scenario_drivers(
     return fuel_y
 
 def apply_specific_change(
-        assumptions,
         enduse,
         fuel_y,
         strategy_vars,
@@ -1199,18 +1197,18 @@ def apply_specific_change(
     fuel_y : array
         Yearly new fuels
     """
-    try:
-        parameter_name = strategy_vars['enduse_change__{}'.format(enduse)][curr_yr]
-  
-        # Get region specific annual parameter value
-        change_cy = assumptions.regional_strategy_vars[parameter_name][curr_yr]
+    #try:
+    parameter_name = 'enduse_change__{}'.format(enduse)
 
-        # Calculate new annual fuel
-        fuel_y = fuel_y * change_cy
+    # Get region specific annual parameter value
+    change_cy = strategy_vars[parameter_name][curr_yr]
 
-    except KeyError:
-        logging.debug(
-            "No annual parameters are provided for enduse %s", enduse)
+    # Calculate new annual fuel
+    fuel_y = fuel_y * (1 + change_cy)
+
+    #except KeyError:
+    #    logging.debug(
+    #        "No annual parameters are provided for enduse %s", enduse)
 
     return fuel_y
 
@@ -1293,14 +1291,15 @@ def apply_smart_metering(
     """
     key_name = 'smart_meter_improvement_{}'.format(enduse)
 
-    if key_name in strategy_vars.keys():
-
+    #if key_name in strategy_vars.keys():¨
+    try:
+        #TODO TODO SOMEHOW NOT WORKING
         #Enduse saving potentail of enduse of smart meter
         enduse_savings = sm_assump['savings_smart_meter'][key_name]
 
-
         # Smart meter penetration in current year (percentage of people having smart meters)
         penetration_cy = strategy_vars['smart_meter_improvement_p'][curr_yr]
+        ##penetration_cy = strategy_vars[key_name][curr_yr]
 
         # Smart meter penetration in base year (percentage of people having smart meters)
         penetration_by = sm_assump['smart_meter_p_by']
@@ -1310,7 +1309,8 @@ def apply_smart_metering(
         fuel_y = fuel_y - saved_fuel
 
         return fuel_y
-    else:
+    #else:
+    except KeyError:
         # not defined for this enduse
         return fuel_y
 

@@ -1,12 +1,15 @@
 """Generate scenario paramters for every year
 """
+import os
 from collections import defaultdict
+import pandas as pd
 from energy_demand.technologies import diffusion_technologies
 
 def generate_annual_param_vals(
         regions,
         strategy_vars,
-        simulated_yrs
+        simulated_yrs,
+        path=False
     ):
     """
     Calculate parameter values for every year based
@@ -16,7 +19,7 @@ def generate_annual_param_vals(
     -------
     regions : dict
         Regions
-    strategy_vars : dict
+    strategy_vars : dict4
         Strategy variable infirmation
     simulated_yrs : list
         Simulated years
@@ -34,10 +37,13 @@ def generate_annual_param_vals(
 
     for parameter_name in strategy_vars.keys():
 
+        path_file = os.path.join(path, "params_{}.{}".format(parameter_name, "csv"))
+
         regional_strategy_vary, reg_specific_crit = generate_general_parameter(
             regions=regions,
             narratives=strategy_vars[parameter_name]['narratives'],
-            simulated_yrs=simulated_yrs)
+            simulated_yrs=simulated_yrs,
+            path=path_file)
 
         if reg_specific_crit:
             for region in regions:
@@ -50,13 +56,15 @@ def generate_annual_param_vals(
 def generate_general_parameter(
         regions,
         narratives,
-        simulated_yrs
+        simulated_yrs,
+        path=False
     ):
     """Based on narrative input, calculate the parameter
     value for every modelled year
     """
     container = defaultdict(dict)
     reg_specific_crit = True
+    entries = []
 
     # Iterate narratives
     for narrative in narratives:
@@ -73,6 +81,7 @@ def generate_general_parameter(
         # If not regional specific parameter
         if not narrative['regional_specific']:
             reg_specific_crit = False
+
             # Iterate every modelled year
             for curr_yr in narrative_yrs:
 
@@ -137,8 +146,16 @@ def generate_general_parameter(
 
                         container[region][curr_yr] = change_cy
 
-    return container, reg_specific_crit
+                        entry = []
+                        entry.append(region)
+                        entry.append(curr_yr)
+                        entry.append(change_cy)
+                        entries.append(entry)
+
+    # Write out to txt files
     # Create dataframe to store values of parameter
-    ###col_names = ["region", "year", "value"]
-    ###my_df = pd.DataFrame(entries, columns=col_names)
-    ###my_df.to_csv(path, index=False) #Index prevents writing index rows
+    col_names = ["region", "year", "value"]
+    my_df = pd.DataFrame(entries, columns=col_names)
+    my_df.to_csv(path, index=False) #Index prevents writing index rows
+
+    return container, reg_specific_crit

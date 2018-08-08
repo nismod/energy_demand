@@ -286,10 +286,11 @@ def test_capacity_switch():
             enduse='heating',
             technology_install='techA',
             switch_yr=2050,
-            installed_capacity=200)
-    ]
+            installed_capacity=200)]
 
+    regions = ["regA"]
     result_service_switches = fuel_service_switch.capacity_switch(
+        regions=regions,
         capacity_switches=capacity_switches,
         technologies=technologies,
         other_enduse_mode_info=other_enduse_mode_info,
@@ -325,15 +326,16 @@ def test_capacity_switch():
             tech_type='tech_heating',
             tech_max_share=1.0)}
 
-    capacity_switches = [
+    capacity_switches = {"regA":[
         read_data.CapacitySwitch(
             enduse='heating',
             technology_install='techA',
             switch_yr=2050,
             installed_capacity=200)
-    ]
+    ]}
 
     result_service_switches = fuel_service_switch.capacity_switch(
+        regions=regions,
         capacity_switches=capacity_switches,
         technologies=technologies,
         other_enduse_mode_info=other_enduse_mode_info,

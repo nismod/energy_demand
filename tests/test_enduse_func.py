@@ -28,6 +28,7 @@ def test_enduse():
         enduse_overall_change='test',
         criterias='test',
         strategy_vars='test',
+        non_regional_strategy_vars='test',
         fueltypes_nr='test',
         fueltypes='test')
 
@@ -322,10 +323,7 @@ def test_convert_service_to_p():
 def test_calc_lf_improvement():
     """
     """
-    base_yr = 2010
-    curr_yr = 2015
-
-    lf_improvement_ey = 0.5
+    param_lf_improved_cy = 0.5
 
     #all factors must be smaller than one
     loadfactor_yd_cy = np.zeros((2, 2)) #to fueltypes, two days
@@ -333,14 +331,10 @@ def test_calc_lf_improvement():
     loadfactor_yd_cy[0][1] = 0.4
     loadfactor_yd_cy[1][0] = 0.1
     loadfactor_yd_cy[1][1] = 0.3
-    yr_until_change = 2020
 
     result = enduse_func.calc_lf_improvement(
-        lf_improvement_ey,
-        base_yr,
-        curr_yr,
-        loadfactor_yd_cy,
-        yr_until_change)
+        param_lf_improved_cy=param_lf_improved_cy,
+        loadfactor_yd_cy=loadfactor_yd_cy)
 
     expected = loadfactor_yd_cy + 0.25
 
@@ -348,11 +342,6 @@ def test_calc_lf_improvement():
     assert result[0][1] == expected[0][1]
     assert result[1][0] == expected[1][0]
     assert result[1][1] == expected[1][1]
-
-def test_Enduse():
-    """
-    """
-    pass
 
 def test_get_enduse_tech():
     """Testing
@@ -380,26 +369,22 @@ def test_get_enduse_tech():
 def test_apply_smart_metering():
     """Testing"""
 
-    sm_assump_strategy = {
-        'smart_meter_yr_until_changed': {'scenario_value': 2020},
-        'smart_meter_improvement_heating': {'scenario_value': 0.5}, #50% improvement
-        'smart_meter_improvement_p': {'scenario_value': 1.0}}
+    sm_assump = {
+        'smart_meter_p_by': 0,
+        'savings_smart_meter': {'smart_meter_improvement_heating' : 0.5}}
 
-    sm_assump = {}
-    sm_assump['smart_meter_diff_params'] = {}
-    sm_assump['smart_meter_diff_params']['sig_midpoint'] = 0
-    sm_assump['smart_meter_diff_params']['sig_steepness'] = 1
-    sm_assump['smart_meter_p_by'] = 0
+    strategy_vars = {}
+    strategy_vars['smart_meter_improvement_p'] = {2015: 0, 2020: 0.5} #50 is saved by smart meter
+
 
     result = enduse_func.apply_smart_metering(
         enduse='heating',
         fuel_y=100,
         sm_assump=sm_assump,
-        strategy_vars=sm_assump_strategy,
-        base_yr=2015,
+        strategy_vars=strategy_vars,
         curr_yr=2020)
 
-    assert result == 50
+    assert result == 25
 
 def test_fuel_to_service():
     """
@@ -535,11 +520,9 @@ def test_apply_heat_recovery():
 
     result, result_tech = enduse_func.apply_heat_recovery(
         enduse='heating',
-        strategy_vars={'heat_recoved__heating': {'scenario_value': 0.5}, 'heat_recovered_yr_until_changed': {'scenario_value': 2020}},
-        enduse_overall_change=other_enduse_mode_info,
+        strategy_vars={'heat_recoved__heating': {2015: 0, 2020: 0.5}},
         service=100,
         service_techs={'techA': 100},
-        base_yr=2015,
         curr_yr=2020)
 
     assert result == 50
@@ -641,9 +624,8 @@ def test_calc_fuel_tech_yh():
 def test_apply_specific_change():
     """testing
     """
-    enduse_overall_change_strategy = {
-        'enduse_change__heating': {'scenario_value': 2.0},
-        'enduse_specific_change_yr_until_changed': {'scenario_value': 2020}}
+    strategy_vars = {
+        'enduse_change__heating': {2015: 0, 2020: 2.0}}
 
     enduse_overall_change = {}
     enduse_overall_change['other_enduse_mode_info'] = {}
@@ -651,15 +633,12 @@ def test_apply_specific_change():
 
     fuel_y = np.array([100])
     result = enduse_func.apply_specific_change(
-        region='regA',
         enduse='heating',
         fuel_y=fuel_y,
-        enduse_overall_change=enduse_overall_change,
-        strategy_vars=enduse_overall_change_strategy,
-        base_yr=2015,
+        strategy_vars=strategy_vars,
         curr_yr=2020)
 
-    assert result == fuel_y * (1 + enduse_overall_change_strategy['enduse_change__heating']['scenario_value'])
+    assert result == fuel_y * (1 + strategy_vars['enduse_change__heating'][2020])
 
 def test_get_enduse_configuration():
     """Testing
@@ -722,8 +701,7 @@ def test_apply_cooling():
     other_enduse_mode_info['sigmoid']['sig_steepness'] = 1
 
     strategy_vars = {
-        'cooled_floorarea_yr_until_changed': {'scenario_value': 2020},
-        'cooled_floorarea__{}'.format('cooling_enduse'): {'scenario_value': 0.5}}
+        'cooled_floorarea__{}'.format('cooling_enduse'): {2015: 0, 2020: 0.5}}
 
     assump_cooling_floorarea = 0.25
     fuel_y = np.array([100])
@@ -733,11 +711,9 @@ def test_apply_cooling():
         fuel_y=fuel_y,
         strategy_vars=strategy_vars,
         cooled_floorarea_p_by=assump_cooling_floorarea,
-        other_enduse_mode_info=other_enduse_mode_info,
-        base_yr=2015,
         curr_yr=2020)
 
-    assert np.sum(result) == np.sum(fuel_y) * strategy_vars['cooled_floorarea__{}'.format('cooling_enduse')]['scenario_value'] / assump_cooling_floorarea
+    assert np.sum(result) == np.sum(fuel_y) * strategy_vars['cooled_floorarea__{}'.format('cooling_enduse')][2020] / assump_cooling_floorarea
 
 def test_calc_service_switch():
     """Test
