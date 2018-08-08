@@ -4,7 +4,6 @@ import copy
 import logging
 from energy_demand.read_write import write_data
 from energy_demand.basic import basic_functions
-from energy_demand.assumptions import general_assumptions
 
 def default_narrative(
         end_yr,
@@ -16,7 +15,11 @@ def default_narrative(
         base_yr=2015,
         regional_specific=True
     ):
-    """A single narrative
+    """Create a default single narrative with a single timestep
+
+    E.g. from value 0.2 in 2015 to value 0.5 in 2050
+
+    TODO EXPLAIN
     """
     container = [
         {
@@ -47,6 +50,7 @@ def load_smif_parameters(
     ---------
     data_handle : dict
         Data handler
+    TODO LEALIN
 
     Returns
     -------
@@ -59,15 +63,13 @@ def load_smif_parameters(
     for name in strategy_variable_names:
 
         # Get scenario value
-        if mode == 'smif':
+        if mode == 'smif': #smif mode
 
-            #smif mode
             all_info_scenario_param = load_param_assump(
                 assumptions=assumptions)
 
             scenario_value = data_handle.get_parameter(name)
-        else:
-            #local running
+        else: #local running
 
             # All information of all scenario parameters
             all_info_scenario_param = load_param_assump(
@@ -94,6 +96,7 @@ def load_smif_parameters(
         # Load narratives infos
         # -----------------
         yr_until_changed_all_things = 2050 #TODO MAKE GLOBAL
+
         regional_specific = all_info_scenario_param[name]['regional_specific']      # Criteria whether the same for all regions or not
         default_by_value = all_info_scenario_param[name]['default_value']           # Base year value
         diffusion_type = all_info_scenario_param[name]['diffusion_type']            # Sigmoid or linear
@@ -112,8 +115,6 @@ def load_smif_parameters(
         strategy_vars[name] = {
 
             'scenario_value': scenario_value,
-
-            'default_value': all_info_scenario_param[name]['default_value'], #TODO NECESSARY?
 
             # Get affected enduses of this variable defined in `load_param_assump`
             'affected_enduse': all_info_scenario_param[name]['affected_enduse'],
@@ -398,7 +399,7 @@ def load_param_assump(
     # ============================================================
     # Cooling
     # ============================================================
-    #TODO TODO. where is cooled_floorarea__ss_cooling_humidification used?
+    #TODO. where is cooled_floorarea__ss_cooling_humidification used?
     strategy_variables.append({
         "name": "cooled_floorarea__ss_cooling_humidification",
         "absolute_range": (0, 1),

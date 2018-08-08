@@ -1306,7 +1306,7 @@ def apply_smart_metering(
         penetration_by = sm_assump['smart_meter_p_by']
 
         saved_fuel = fuel_y * (penetration_cy - penetration_by) * enduse_savings
-        
+
         fuel_y = fuel_y - saved_fuel
 
         return fuel_y

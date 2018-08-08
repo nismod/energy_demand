@@ -240,61 +240,6 @@ def get_cdd_country(
 
     return cdd_regions
 
-def sigm_temp(
-        t_future_yr,
-        t_base_yr,
-        base_yr,
-        curr_yr,
-        t_diff_param
-    ):
-    """Calculate base temperature depending on sigmoid
-    diff and location
-    TODO: Not used anymore. Check if temperature change is calculated correctly with narratives
-    Arguments
-    ----------
-    t_future_yr : int
-        Future year
-    t_base_yr : float
-        Base year base temperature
-    base_yr : int
-        Base year
-    curr_yr : int
-        Current year
-    t_diff_param : dict
-        Sigmoid diffusion parameters
-
-    Return
-    ------
-    t_base_cy : float
-        Base temperature of current year
-
-    Note
-    ----
-    Depending on the base temperature in the base and end year
-    a sigmoid diffusion from the base temperature from the base year
-    to the end year is calculated
-
-    This allows to model changes e.g. in thermal confort
-    """
-    # Base temperature of end year minus base temp of base year
-    t_base_diff = t_future_yr - t_base_yr
-
-    # Sigmoid diffusion
-    t_base_frac = diffusion_technologies.sigmoid_diffusion(
-        base_yr,
-        curr_yr,
-        t_diff_param['yr_until_changed'],
-        t_diff_param['sig_midpoint'],
-        t_diff_param['sig_steepness'])
-
-    # Temp diff until current year
-    t_diff_cy = t_base_diff * t_base_frac
-
-    # Add temp change to base year temp
-    t_base_cy = t_base_yr + t_diff_cy
-
-    return t_base_cy
-
 def calc_reg_hdd(temperatures, t_base_heating, model_yeardays):
     """Calculate hdd for every day and daily
     yd shape of heating demand

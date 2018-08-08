@@ -12,9 +12,7 @@ regional_specific, crit_all_the_same
 #TODO Import weather data loading and importing whole range of weather scenarios
 #TODO Replace geopanda csv loading
 #TODO Take disaggregation completely out?
-
 #TODO Test if technology type can be left empty in technology spreadsheet
-
 #TODO Try to remove tech_type
 #TODO Write out full result. Then write function to aggregate accordingly
 #TODO replace create_csv_file by pandas
@@ -40,10 +38,12 @@ from energy_demand.read_write import read_data
 from energy_demand.basic import basic_functions
 from energy_demand.scripts import s_disaggregation
 from energy_demand.validation import lad_validation
-from energy_demand.scripts import init_scripts
 from energy_demand.basic import demand_supply_interaction
 from energy_demand.read_write import load_parameter_values
 from energy_demand.scripts import s_generate_scenario_parameters
+from energy_demand.scripts.init_scripts import scenario_initalisation
+from energy_demand.scripts.init_scripts import spatial_explicit_modelling_strategy_vars
+from energy_demand.scripts.init_scripts import create_spatial_diffusion_factors
 
 def energy_demand_model(regions, data, assumptions):
     """Main function of energy demand model to calculate yearly demand
@@ -126,7 +126,7 @@ if __name__ == "__main__":
     RESILIENCEPAPERPOUTPUT = True                                      # Output data for resilience paper
 
     # If the smif configuration files what to be written, set this to true. The program will abort after they are written to YAML files
-    data['criterias']['writeYAML'] = True
+    data['criterias']['writeYAML'] = False
 
     data['criterias']['reg_selection'] = False
     data['criterias']['reg_selection_csv_name'] = "msoa_regions_ed.csv" # CSV file stored in 'region' folder with simulated regions
@@ -279,15 +279,40 @@ if __name__ == "__main__":
     # --------------------
     data['fuel_disagg'] = s_disaggregation.disaggregate_demand(data)
 
-    # In order to load these data, the initialisation scripts need to be run
-    init_cont, updated_strategy_vars  = init_scripts.scenario_initalisation(
-        data['fuel_disagg'],
-        data)
+    # ------------------------------------------------
+    # Calculate spatial diffusion factors
+    # ------------------------------------------------
+    f_reg, f_reg_norm, f_reg_norm_abs, crit_all_the_same = create_spatial_diffusion_factors(
+        strategy_vars=data['assumptions'].strategy_vars,
+        fuel_disagg=data['fuel_disagg'],
+        regions=data['regions'],
+        real_values=data['pop_density'],
+        speed_con_max=strategy_vars['speed_con_max']['scenario_value']) #TODO LOAD REAL VALUES FROM DATA CSV
+
+    # ------------------------------------------------
+    # Initialise scenario
+    # ------------------------------------------------
+    init_cont = scenario_initalisation(
+        data,
+        f_reg,
+        f_reg_norm,
+        f_reg_norm_abs,
+        crit_all_the_same)
 
     for key, value in init_cont.items():
         setattr(data['assumptions'], key, value)
 
-    data['assumptions'].update('strategy_vars', updated_strategy_vars)
+    # --------------------------
+    # Spatial explicit modelling
+    # --------------------------
+    regional_strategy_vars = spatial_explicit_modelling_strategy_vars(
+        data['assumptions'],
+        data['regions'],
+        data['fuel_disagg'],
+        f_reg,
+        f_reg_norm,
+        f_reg_norm_abs)
+    data['assumptions'].update('strategy_vars', regional_strategy_vars)
 
     # ---------------------------
     # Annual parameter generation (calculate parameter value for every year)

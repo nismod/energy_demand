@@ -10,7 +10,46 @@ from energy_demand.read_write import read_data
 from energy_demand.scripts import (s_fuel_to_service, s_generate_sigmoid)
 from energy_demand.technologies import fuel_service_switch
 
-def scenario_initalisation(fuel_disagg, data=False):
+def create_spatial_diffusion_factors(strategy_vars, fuel_disagg, regions, real_values, speed_con_max, p_outlier=5):
+    """
+
+    p_outlier : float or int
+        Nr of min and max outliers to flatten
+
+    TODO. improve
+    """
+    if strategy_vars['spatial_explicit_diffusion']['scenario_value']:
+
+        # Define diffusion speed
+        speed_con_max = speed_con_max
+
+        # Criteria whether a spatially differentiated diffusion is applied depending on real_values
+        crit_all_the_same = False
+    else:
+
+        # NEW If not spatial different, set speed_con_max to 1
+        speed_con_max = 1
+
+        # Define that the penetration levels are the same for every region
+        crit_all_the_same = True
+
+    f_reg, f_reg_norm, f_reg_norm_abs = spatial_diffusion.calc_spatially_diffusion_factors(
+        regions=regions,
+        fuel_disagg=fuel_disagg,
+        real_values=real_values,
+        low_congruence_crit=True,
+        speed_con_max=speed_con_max,
+        p_outlier=p_outlier)
+
+    return f_reg, f_reg_norm, f_reg_norm_abs, crit_all_the_same
+
+def scenario_initalisation(
+        data,
+        f_reg,
+        f_reg_norm,
+        f_reg_norm_abs,
+        crit_all_the_same
+    ):
     """Scripts which need to be run for every different scenario.
     Only needs to be executed once for each scenario.
 
@@ -88,7 +127,7 @@ def scenario_initalisation(fuel_disagg, data=False):
             data['technologies'],
             sector)
 
-    # ===========================================
+    '''# ===========================================
     # Calculate spatial diffusion factors
     # ===========================================
     #if data['assumptions'].non_regional_strategy_vars['spatial_explicit_diffusion']:
@@ -123,7 +162,7 @@ def scenario_initalisation(fuel_disagg, data=False):
         real_values=real_values,
         low_congruence_crit=True,
         speed_con_max=speed_con_max,
-        p_outlier=p_outlier)
+        p_outlier=p_outlier)'''
 
     '''plot_fig_paper = False
     if plot_fig_paper:
@@ -339,15 +378,15 @@ def scenario_initalisation(fuel_disagg, data=False):
     # --------------------------
     # Spatial explicit modelling
     # --------------------------
-    regional_strategy_vars = spatial_explicit_modelling_strategy_vars(
+    '''regional_strategy_vars = spatial_explicit_modelling_strategy_vars(
         data['assumptions'],
         data['regions'],
         fuel_disagg,
         f_reg,
         f_reg_norm,
-        f_reg_norm_abs)
+        f_reg_norm_abs)'''
 
-    return dict(init_cont), regional_strategy_vars
+    return dict(init_cont)#, regional_strategy_vars
 
 def spatial_explicit_modelling_strategy_vars(
         assumptions,

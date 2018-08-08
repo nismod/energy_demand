@@ -377,7 +377,7 @@ class WeatherRegion(object):
             all_techs_ss_space_heating, 'heat_pumps_electricity')
 
         ss_fuel_shape_hp_yh, ss_hp_shape_yd = get_fuel_shape_heating_hp_yh(
-            tech_lp_y_dh=rs_profile_hp_y_dh, #tech_lp['rs_profile_hp_y_dh'], #TODO: rs_profile_hp_y_dh
+            tech_lp_y_dh=rs_profile_hp_y_dh, #tech_lp['rs_profile_hp_y_dh'],
             tech_stock=self.rs_tech_stock,
             rs_hdd_cy=ss_hdd_cy,
             model_yeardays=assumptions.model_yeardays)
@@ -387,7 +387,7 @@ class WeatherRegion(object):
             technologies=assumptions.tech_list['heating_non_const'],
             enduses=['ss_space_heating', 'ss_water_heating'],
             sectors=sectors['ss_sectors'],
-            shape_y_dh=rs_profile_hp_y_dh, #tech_lp['rs_profile_hp_y_dh'], #TODO: rs_profile_hp_y_dh
+            shape_y_dh=rs_profile_hp_y_dh, #tech_lp['rs_profile_hp_y_dh'],
             shape_yd=ss_hp_shape_yd,
             shape_yh=ss_fuel_shape_hp_yh,
             model_yeardays=assumptions.model_yeardays)

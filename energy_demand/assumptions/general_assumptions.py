@@ -296,7 +296,7 @@ class Assumptions(object):
         # DECC 2015: Smart Metering Early Learning Project: Synthesis report
         # https://www.gov.uk/government/publications/smart-metering-early-learning-project-and-small-scale-behaviour-trials
         # Reasonable assumption is between 0.03 and 0.01 (DECC 2015)
-
+        # TODO
         self.smart_meter_assump['savings_smart_meter'] = {
             # Residential
             'smart_meter_improvement_rs_cold': 0.03,

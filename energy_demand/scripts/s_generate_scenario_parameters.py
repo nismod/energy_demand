@@ -1,6 +1,5 @@
 """Generate scenario paramters for every year
 """
-import logging
 from collections import defaultdict
 from energy_demand.technologies import diffusion_technologies
 
@@ -10,28 +9,35 @@ def generate_annual_param_vals(
         simulated_yrs
     ):
     """
-    Make that regional specific parameters
+    Calculate parameter values for every year based
+    on defined narratives.
 
-    TODO: ONly regional different with one step so far
+    Inputs
+    -------
+    regions : dict
+        Regions
+    strategy_vars : dict
+        Strategy variable infirmation
+    simulated_yrs : list
+        Simulated years
+
     Returns
     -------
-
+    container_reg_param : dict
+        Values for all simulated years for every region (all parameters for which values
+        are provided for every region)
     container_non_reg_param : dict
-        Non regional annual values
+        Values for all simulated years (all the same for very region)
     """
     container_reg_param = defaultdict(dict)
     container_non_reg_param = {}
 
     for parameter_name in strategy_vars.keys():
-        logging.info("PAramter name: " + str(parameter_name))
-        narratives = strategy_vars[parameter_name]['narratives']
 
         regional_strategy_vary, reg_specific_crit = generate_general_parameter(
             regions=regions,
-            narratives=narratives,
+            narratives=strategy_vars[parameter_name]['narratives'],
             simulated_yrs=simulated_yrs)
-
-        logging.info("parameter_name {} {}".format(parameter_name, reg_specific_crit))
 
         if reg_specific_crit:
             for region in regions:
