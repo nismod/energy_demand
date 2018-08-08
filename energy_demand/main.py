@@ -125,6 +125,9 @@ if __name__ == "__main__":
     # -------------------
     RESILIENCEPAPERPOUTPUT = True                                      # Output data for resilience paper
 
+    # If the smif configuration files what to be written, set this to true. The program will abort after they are written to YAML files
+    data['criterias']['writeYAML'] = True
+
     data['criterias']['reg_selection'] = False
     data['criterias']['reg_selection_csv_name'] = "msoa_regions_ed.csv" # CSV file stored in 'region' folder with simulated regions
     data['criterias']['MSOA_crit'] = False
@@ -208,7 +211,10 @@ if __name__ == "__main__":
 
     # Load standard strategy variable values
     strategy_vars = strategy_vars_def.load_param_assump(
-        data['paths'], data['local_paths'], data['assumptions'])
+        data['paths'],
+        data['local_paths'],
+        data['assumptions'],
+        writeYAML=data['criterias']['writeYAML'])
     data['assumptions'].update('strategy_vars', strategy_vars)
 
     # -----------

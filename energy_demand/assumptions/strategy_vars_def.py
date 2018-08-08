@@ -99,7 +99,7 @@ def load_smif_parameters(
         diffusion_type = all_info_scenario_param[name]['diffusion_type']            # Sigmoid or linear
 
         # -----------------
-        # Create narratives
+        # Create narrative with only on story
         # -----------------
         created_narrative = default_narrative(
             end_yr=yr_until_changed_all_things,
@@ -108,8 +108,6 @@ def load_smif_parameters(
             diffusion_choice=diffusion_type,
             base_yr=assumptions.base_yr,
             regional_specific=regional_specific)
-        
-        narratives = created_narrative
 
         strategy_vars[name] = {
 
@@ -121,7 +119,7 @@ def load_smif_parameters(
             'affected_enduse': all_info_scenario_param[name]['affected_enduse'],
 
             # Replace by external narrative telling
-            'narratives': narratives}
+            'narratives': created_narrative}
 
     return strategy_vars
 
@@ -228,20 +226,6 @@ def load_param_assump(
     #
     #  Example: 0.2 --> Improvement in load factor until ey
     # ============================================================
-
-    # Year until ld if implemented
-    strategy_vars['demand_management_yr_until_changed'] = yr_until_changed_all_things
-
-    strategy_variables.append({
-        "name": "demand_management_yr_until_changed",
-        "absolute_range": (0, 20),
-        "description": "Year until demand management assumptions are fully realised",
-        "suggested_range": (2015, 2100),
-        "default_value": 2050,
-        "units": 'years',
-        'regional_specific': False,
-        'diffusion_type': 'linear'})
-
     enduses_demand_managent = {
 
         #Residential submodule
@@ -297,17 +281,6 @@ def load_param_assump(
     # Climate Change assumptions
     # Temperature changes for every month for future year
     # =======================================
-    strategy_vars['climate_change_temp_diff_yr_until_changed'] = yr_until_changed_all_things
-    #TODO REMOVE
-    strategy_variables.append({
-            "name": "climate_change_temp_diff_yr_until_changed",
-            "absolute_range": (2015, 2100),
-            "description": "Year until climate temperature changes are fully realised",
-            "suggested_range": (2030, 2100),
-            "default_value": 2050,
-            "units": 'year',
-            'regional_specific': False,
-            'diffusion_type': 'linear'})
 
     temps = {
         'climate_change_temp_d__Jan': 0,
@@ -418,75 +391,10 @@ def load_param_assump(
         'regional_specific': True,
         'diffusion_type': 'linear'})
 
-    strategy_variables.append({
-        "name": "smart_meter_yr_until_changed",
-        "absolute_range": (0, 1),
-        "description": "Year until smart meter assumption is implemented",
-        "suggested_range": (2015, 2100),
-        "default_value": 2050,
-        "units": 'year',
-        'regional_specific': False,
-        'diffusion_type': 'linear'})
-
     # Improvement of fraction of population for future year (base year = 0.1)
     strategy_vars['smart_meter_improvement_p'] = 0
 
-    # Year until change is implemented
-    strategy_vars['smart_meter_yr_until_changed'] = yr_until_changed_all_things
-
-    # Long term smart meter induced general savings, purley as
-    # a result of having a smart meter (e.g. 0.03 --> 3% savings)
-    #TODO TODO TODO REMOVE
-    savings_smart_meter = {
-
-        # Residential
-        'smart_meter_improvement_rs_cold': 0.03,
-        'smart_meter_improvement_rs_cooking': 0.03,
-        'smart_meter_improvement_rs_lighting': 0.03,
-        'smart_meter_improvement_rs_wet': 0.03,
-        'smart_meter_improvement_rs_consumer_electronics': 0.03,
-        'smart_meter_improvement_rs_home_computing': 0.03,
-        'smart_meter_improvement_rs_space_heating': 0.03,
-
-        # Service
-        'smart_meter_improvement_ss_space_heating': 0.03,
-        'smart_meter_improvement_ss_water_heating': 0,
-        'smart_meter_improvement_ss_cooling_humidification': 0,
-        'smart_meter_improvement_ss_fans': 0,
-        'smart_meter_improvement_ss_lighting': 0,
-        'smart_meter_improvement_ss_catering': 0,
-        'smart_meter_improvement_ss_small_power': 0,
-        'smart_meter_improvement_ss_ICT_equipment': 0,
-        'smart_meter_improvement_ss_cooled_storage': 0,
-        'smart_meter_improvement_ss_other_gas': 0,
-        'smart_meter_improvement_ss_other_electricity': 0,
-
-        # Industry submodule
-        'smart_meter_improvement_is_high_temp_process': 0,
-        'smart_meter_improvement_is_low_temp_process': 0,
-        'smart_meter_improvement_is_drying_separation': 0,
-        'smart_meter_improvement_is_motors': 0,
-        'smart_meter_improvement_is_compressed_air': 0,
-        'smart_meter_improvement_is_lighting': 0,
-        'smart_meter_improvement_is_space_heating': 0.03,
-        'smart_meter_improvement_is_other': 0,
-        'smart_meter_improvement_is_refrigeration': 0}
-
-    # Helper function to create description of parameters for all enduses
-    for enduse_name, param_value in savings_smart_meter.items():
-        strategy_variables.append({
-            "name": enduse_name,
-            "absolute_range": (0, 1),
-            "description": "Smart meter induced savings for enduse {}".format(enduse_name),
-            "suggested_range": (0, 1),
-            "default_value": 0,
-            "units": 'decimal',
-            "affected_enduse": [enduse_name.split("__"[1])],
-            'regional_specific': True,
-            'diffusion_type': 'linear'})
-
-        strategy_vars[enduse_name] = param_value
-
+    #TODO MAYBE ADD GENERAL SAVING FOR SMART METER
     # ============================================================
     # Cooling
     # ============================================================
@@ -501,21 +409,8 @@ def load_param_assump(
         'regional_specific': True,
         'diffusion_type': 'linear'})
 
-    # Change in cooling of floor area 
+    # Change in cooling of floor area
     strategy_vars['cooled_floorarea__ss_cooling_humidification'] = 0
-
-    strategy_variables.append({
-        "name": "cooled_floorarea_yr_until_changed",
-        "absolute_range": (0, 1),
-        "description": "Year until floor area is fully changed",
-        "suggested_range": (2015, 2100),
-        "default_value": 2050,
-        "units": 'year',
-        'regional_specific': True,
-        'diffusion_type': 'linear'})
-
-    # Year until floor area change is fully realised
-    strategy_vars['cooled_floorarea_yr_until_changed'] = yr_until_changed_all_things
 
     # Penetration of cooling devices
     # COLING_OENETRATION ()
@@ -525,19 +420,6 @@ def load_param_assump(
     # ============================================================
     # Industrial processes
     # ============================================================
-    strategy_vars['hot_cold_rolling_yr_until_changed'] = yr_until_changed_all_things
-
-    strategy_variables.append({
-        "name": "hot_cold_rolling_yr_until_changed",
-        "absolute_range": (0, 1),
-        "description": "Year until cold rolling steel manufacturing change is fully realised",
-        "suggested_range": (2015, 2100),
-        "default_value": 2050,
-        "units": 'year',
-        "affected_enduse": ['is_high_temp_process'],
-        'regional_specific': False,
-        'diffusion_type': 'linear'})
-
     strategy_variables.append({
         "name": "p_cold_rolling_steel",
         "absolute_range": (0, 1),
@@ -586,23 +468,10 @@ def load_param_assump(
         'regional_specific': True,
         'diffusion_type': 'linear'})
 
-    strategy_variables.append({
-        "name": "heat_recovered_yr_until_changed",
-        "absolute_range": (2015, 2100),
-        "description": "Year until heat recyling is full implemented",
-        "suggested_range": (2015, 2100),
-        "default_value": 2050,
-        "units": 'year',
-        'regional_specific': True,
-        'diffusion_type': 'linear'})
-
     # Heat recycling assumptions (e.g. 0.2 = 20% reduction)
     strategy_vars['heat_recoved__rs_space_heating'] = 0.0
     strategy_vars['heat_recoved__ss_space_heating'] = 0.0
     strategy_vars['heat_recoved__is_space_heating'] = 0.0
-
-    # Year until recycling is fully realised
-    strategy_vars['heat_recovered_yr_until_changed'] = yr_until_changed_all_things
 
     # ============================================================
     # Air leakage
@@ -640,23 +509,10 @@ def load_param_assump(
         'regional_specific': True,
         'diffusion_type': 'linear'})
 
-    strategy_variables.append({
-        "name": "air_leakage_yr_until_changed",
-        "absolute_range": (2015, 2100),
-        "description": "Year until heat air leakage improvement is full implemented",
-        "suggested_range": (2015, 2100),
-        "default_value": 2050,
-        "units": 'year',
-        'regional_specific': True,
-        'diffusion_type': 'linear'})
-
     # Heat recycling assumptions (e.g. 0.2 = 20% improvement and thus 20% reduction)
     strategy_vars['air_leakage__rs_space_heating'] = 0.0
     strategy_vars['air_leakage__ss_space_heating'] = 0.0
     strategy_vars['air_leakage__is_space_heating'] = 0.0
-
-    # Year until recycling is fully realised
-    strategy_vars['air_leakage_yr_until_changed'] = yr_until_changed_all_things
 
     # ---------------------------------------------------------
     # General change in fuel consumption for specific enduses
@@ -669,19 +525,6 @@ def load_param_assump(
     #   Change in fuel until the simulation end year (
     #   if no change set to 1, if e.g. 10% decrease change to 0.9)
     # -------------------------------------------------------
-    strategy_variables.append({
-        "name": "enduse_specific_change_yr_until_changed",
-        "absolute_range": (0, 1),
-        "description": "Year until change in enduse assumption is implemented",
-        "suggested_range": (2015, 2100),
-        "default_value": 2050,
-        "units": 'year',
-        'regional_specific': False,
-        'diffusion_type': 'linear'})
-
-    # Year until fuel consumption is reduced
-    strategy_vars['enduse_specific_change_yr_until_changed'] = yr_until_changed_all_things
-
     enduse_overall_change_enduses = {
 
         # Submodel Residential
@@ -780,6 +623,8 @@ def load_param_assump(
             write_data.write_yaml_param_scenario(
                 local_paths['yaml_parameters_scenario'],
                 strategy_vars)
+
+            raise Exception("The smif parameters are read and and the program is aborted.")
 
     # Convert to dict for loacl running purposes
     strategy_vars_out = {}

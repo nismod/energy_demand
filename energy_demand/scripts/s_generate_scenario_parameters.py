@@ -54,7 +54,7 @@ def generate_general_parameter(
 
     # Iterate narratives
     for narrative in narratives:
-        logging.info("NARR  " + str(narrative))
+
         # -- Regional paramters of narrative step
         if not narrative['sig_midpoint']:
             sig_midpoint = 0
@@ -65,7 +65,6 @@ def generate_general_parameter(
         narrative_yrs = range(narrative['base_yr'], narrative['end_yr'] + 1, 1)
 
         # If not regional specific parameter
-        #'''
         if not narrative['regional_specific']:
             reg_specific_crit = False
             # Iterate every modelled year
@@ -98,8 +97,7 @@ def generate_general_parameter(
 
                     container[curr_yr] = change_cy
         else:
-        #'''
-        #if 1 == 1:
+
             # Iterate regions
             for region in regions:
 
