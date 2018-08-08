@@ -56,55 +56,19 @@ class WeatherRegion(object):
 
         # -----------------------------------
         # Calculate current year temperatures
+        # # INFO: this could be removed if external weather generator is available
         # -----------------------------------
-        # INFO: this could be removed if external weather generator is available
         temp_cy = change_temp_climate(
+            assumptions.curr_yr,
             temp_by,
             assumptions.yeardays_month_days,
-            assumptions.strategy_vars, #assumptions.regional_strategy_vars
-            assumptions.base_yr,
-            assumptions.curr_yr)
+            assumptions.non_regional_strategy_vars)
 
-        # Change base temperatures depending on change in t_base
+        # Base temperatures of current year
         rs_t_base_heating_cy = assumptions.non_regional_strategy_vars['rs_t_base_heating_future_yr'][assumptions.curr_yr]
-        '''rs_t_base_heating_cy = hdd_cdd.sigm_temp(
-            assumptions.strategy_vars['rs_t_base_heating_future_yr']['scenario_value'],
-            assumptions.t_bases.rs_t_heating_by,
-            assumptions.base_yr,
-            assumptions.curr_yr,
-            assumptions.base_temp_diff_params)'''
-        '''rs_t_base_cooling_cy = hdd_cdd.sigm_temp(
-            strategy_variables['rs_t_base_cooling_future_yr']['scenario_value'],
-            assumptions.t_bases.rs_t_cooling_by, base_yr, curr_yr,
-            base_temp_diff_params)'''
-
         ss_t_base_heating_cy = assumptions.non_regional_strategy_vars['ss_t_base_heating_future_yr'][assumptions.curr_yr]
-        '''ss_t_base_heating_cy = hdd_cdd.sigm_temp(
-            assumptions.strategy_vars['ss_t_base_heating_future_yr']['scenario_value'],
-            assumptions.t_bases.ss_t_heating_by,
-            assumptions.base_yr,
-            assumptions.curr_yr,
-            assumptions.base_temp_diff_params)'''
         ss_t_base_cooling_cy = assumptions.non_regional_strategy_vars['ss_t_base_cooling_future_yr'][assumptions.curr_yr]
-        '''ss_t_base_cooling_cy = hdd_cdd.sigm_temp(
-            assumptions.strategy_vars['ss_t_base_cooling_future_yr']['scenario_value'],
-            assumptions.t_bases.ss_t_cooling_by,
-            assumptions.base_yr,
-            assumptions.curr_yr,
-            assumptions.base_temp_diff_params)'''
         is_t_base_heating_cy = assumptions.non_regional_strategy_vars['is_t_base_heating_future_yr'][assumptions.curr_yr]
-        '''is_t_base_heating_cy = hdd_cdd.sigm_temp(
-            assumptions.strategy_vars['is_t_base_heating_future_yr']['scenario_value'],
-            assumptions.t_bases.is_t_heating_by,
-            assumptions.base_yr,
-            assumptions.curr_yr,
-            assumptions.base_temp_diff_params)'''
-        '''is_t_base_cooling_cy = hdd_cdd.sigm_temp(
-            assumptions.strategy_vars['is_t_base_cooling_future_yr']['scenario_value'],
-            assumptions.t_bases.is_t_cooling_by,
-            assumptions.base_yr,
-            assumptions.curr_yr,
-            assumptions.base_temp_diff_params)'''
 
         # ==================================================================
         # Technology stocks
@@ -283,10 +247,10 @@ class WeatherRegion(object):
         # ------------
         # Set criteria wheter to use float load profile for heat pumps or not
         # ------------
-        if assumptions.strategy_vars['flat_heat_pump_profile_both']['scenario_value']:
+        if assumptions.non_regional_strategy_vars['flat_heat_pump_profile_both']:
             flat_space_heating = True
             flat_water_heating = True
-        elif assumptions.strategy_vars['flat_heat_pump_profile_only_water']['scenario_value']:
+        elif assumptions.non_regional_strategy_vars['flat_heat_pump_profile_only_water']:
             flat_space_heating = False
             flat_water_heating = True
         else:
@@ -685,11 +649,10 @@ def ss_get_sector_enduse_shape(tech_lps, heating_lp_yd, enduse):
     return shape_yh_generic_tech, shape_y_dh_generic_tech
 
 def change_temp_climate(
+        current_yr,
         temp_data,
         yeardays_month_days,
-        strategy_variables,
-        base_yr,
-        curr_yr
+        non_regional_strategy_variables,
     ):
     """Change temperature data for every year depending
     on simple climate change assumptions
@@ -702,10 +665,6 @@ def change_temp_climate(
         Month containing all yeardays
     strategy_variables : dict
         Assumption on temperature change
-    base_yr : int
-        Base year
-    curr_yr : int
-        Current year
 
     Returns
     -------
@@ -720,20 +679,10 @@ def change_temp_climate(
         param_name_month = "climate_change_temp_d__{}".format(month_str)
 
         # Calculate monthly change in temperature
-        #lin_diff_factor = assumptions.non_regional_strategy_vars['param_name_month']
-        #'''
-        lin_diff_factor = diffusion_technologies.linear_diff(
-            base_yr=base_yr,
-            curr_yr=curr_yr,
-            value_start=0,
-            value_end=strategy_variables[param_name_month]['scenario_value'],
-            yr_until_changed=strategy_variables['climate_change_temp_diff_yr_until_changed']['scenario_value'])
-        
-        temp_climate_change[month_yeardays] = temp_data[month_yeardays] + lin_diff_factor
-        #'''
+        change_temp_cy = non_regional_strategy_variables[param_name_month][current_yr]
 
-        ##cy_temp = strategy_variables[param_name_month][curr_yr]
-        ##temp_climate_change[month_yeardays] = temp_data[month_yeardays] + cy_temp
+        # Add change
+        temp_climate_change[month_yeardays] = temp_data[month_yeardays] + change_temp_cy
 
     return temp_climate_change
 

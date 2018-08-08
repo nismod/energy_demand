@@ -91,12 +91,14 @@ def scenario_initalisation(fuel_disagg, data=False):
     # ===========================================
     # Calculate spatial diffusion factors
     # ===========================================
+    #if data['assumptions'].non_regional_strategy_vars['spatial_explicit_diffusion']:
     if data['assumptions'].strategy_vars['spatial_explicit_diffusion']['scenario_value']:
 
         # Select real value
         real_values = data['pop_density']       # Population density is selected as real values
 
         # Define diffusion speed
+        #speed_con_max = data['assumptions'].non_regional_strategy_vars['speed_con_max']['scenario_value']
         speed_con_max = data['assumptions'].strategy_vars['speed_con_max']['scenario_value']
 
         # Criteria whether a spatially differentiated diffusion is applied depending on real_values

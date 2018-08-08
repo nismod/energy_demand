@@ -32,7 +32,7 @@ def default_narrative(
 
     return container
 
-def load_smif_parameters(data_handle, strategy_variable_names, assumptions=False):
+def load_smif_parameters(data_handle, strategy_variable_names, assumptions=False, mode='smif'):
     """Get all model parameters from smif (`parameters`) depending
     on narrative. Create the dict `strategy_vars` and
     add scenario value as well as affected enduses of
@@ -54,18 +54,19 @@ def load_smif_parameters(data_handle, strategy_variable_names, assumptions=False
     for name in strategy_variable_names:
 
         # Get scenario value
-        try:
-            logging.info("... smif mode")
+        if mode == 'smif':
+
             #smif mode
             all_info_scenario_param = load_param_assump(
                 assumptions=assumptions)
 
             scenario_value = data_handle.get_parameter(name)
-        except:
+        else:
             #local running
-            logging.info("... local mode")
+
             # All information of all scenario parameters
-            all_info_scenario_param = load_param_assump()
+            all_info_scenario_param = load_param_assump(
+                assumptions=assumptions)
 
             scenario_value = data_handle[name]['default_value']
 
@@ -88,7 +89,8 @@ def load_smif_parameters(data_handle, strategy_variable_names, assumptions=False
             logging.info("For paramter '%s' a narrative has been defined", name)
         except KeyError: # not narrative is defined
             logging.info("For paramter '%s' no narrative has been defined and the standard narrative is used", name)
-            #Standard narrative TODO IMPROVE AND ADD IN TODO TODO NEW
+            #TODOE MOVE INTO strategy-vars_def
+            #Standard narrative
             yr_until_changed_all_things = 2050
 
             standard_narrative = default_narrative(
@@ -110,10 +112,8 @@ def load_smif_parameters(data_handle, strategy_variable_names, assumptions=False
             'affected_enduse': all_info_scenario_param[name]['affected_enduse'],
 
             # Replace by external narrative telling
-            'narratives': narratives
-            }
+            'narratives': narratives}
 
-    #raise Exception
     return strategy_vars
 
 def load_param_assump(
@@ -140,10 +140,11 @@ def load_param_assump(
     strategy_variables = []
     strategy_vars = {}
 
-    if not assumptions:
+    '''if not assumptions:
         logging.info("DUMMY ASSUMPTIONS")
         assumptions_dict = {}
         assumptions_dict['gshp_fraction'] = 0.1
+        assumptions_dict['base_yr'] = 2015
         assumptions_dict['smart_meter_assump'] = {}
         assumptions_dict['smart_meter_assump']['smart_meter_p_by'] = 0.1
         assumptions_dict['cooled_ss_floorarea_by'] = 0.35
@@ -162,7 +163,7 @@ def load_param_assump(
 
         setattr(assumptions, 't_bases', general_assumptions.DummyClass(assumptions_dict['t_bases']))
     else:
-        pass
+        pass'''
 
     yr_until_changed_all_things = 2050
 
@@ -219,7 +220,8 @@ def load_param_assump(
         "description": "Heat pump profile flat or with actual data",
         "suggested_range": (0, 1),
         "default_value": assumptions.flat_heat_pump_profile_both,
-        "units": 'bool'})
+        "units": 'bool',
+        "narratives": standard_narrative_not_regional})
 
     strategy_vars['flat_heat_pump_profile_only_water'] = assumptions.flat_heat_pump_profile_only_water
 
@@ -229,7 +231,8 @@ def load_param_assump(
         "description": "Heat pump profile flat or with actual data only for water heating",
         "suggested_range": (0, 1),
         "default_value": assumptions.flat_heat_pump_profile_only_water,
-        "units": 'bool'})
+        "units": 'bool',
+        "narratives": standard_narrative_not_regional})
 
     # ----------------------
     # Heat pump technology mix
@@ -358,7 +361,8 @@ def load_param_assump(
                 "description": "Temperature change for month {}".format(month_str),
                 "suggested_range": (-5, 5),
                 "default_value": 0,
-                "units": '°C'})
+                "units": '°C',
+                "narratives": standard_narrative_not_regional})
 
     # Helper function to move temps one level down
     for enduse_name, value_param in temps.items():

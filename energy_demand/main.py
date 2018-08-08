@@ -66,7 +66,8 @@ def energy_demand_model(regions, data, assumptions):
     ----
     This function is executed in the wrapper
     """
-    logging.info("... Number of modelled regions: {}".format(len(regions)))
+    logging.info("... Number of modelled regions: %s", len(regions))
+
     modelrun = model.EnergyDemandModel(
         regions=regions,
         data=data,
@@ -216,7 +217,9 @@ if __name__ == "__main__":
     # -----------
     strategy_vars = strategy_vars_def.load_smif_parameters(
         data_handle=strategy_vars,
-        strategy_variable_names=strategy_vars.keys()    )
+        strategy_variable_names=strategy_vars.keys(),
+        assumptions=data['assumptions'],
+        mode='local')
     data['assumptions'].update('strategy_vars', strategy_vars)
 
     # --------------
@@ -283,12 +286,14 @@ if __name__ == "__main__":
     # ---------------------------
     # Annual parameter generation (calculate parameter value for every year)
     # ---------------------------
-    updated_strategy_vars = s_generate_scenario_parameters.generate_annual_param_vals(
+    regional_strategy_vars, non_regional_strategy_vars = s_generate_scenario_parameters.generate_annual_param_vals(
         data['regions'],
         data['assumptions'].strategy_vars,
         simulated_yrs)
-    data['assumptions'].update('strategy_vars', updated_strategy_vars)
 
+    data['assumptions'].update('regional_strategy_vars', regional_strategy_vars)
+    data['assumptions'].update('non_regional_strategy_vars', non_regional_strategy_vars)
+    
     # ------------------------------------------------
     # Spatial Validation
     # ------------------------------------------------

@@ -157,14 +157,9 @@ def calc_cdd(t_base_cooling, temp_yh, nr_day_to_av):
     return cdd_d
 
 def get_hdd_country(
-        t_base_heating_cy,
-        base_yr,
-        curr_yr,
+        t_base_heating,
         regions,
         temp_data,
-        diff_params,
-        t_base_fy,
-        t_base_cy,
         reg_coord,
         weather_stations
     ):
@@ -189,49 +184,37 @@ def get_hdd_country(
 
         temperatures = temp_data[closest_station_id]
 
-        # Base temperature for base year
-        '''t_base_heating_cy = sigm_temp(
-            t_base_fy,
-            t_base_cy,
-            base_yr,
-            curr_yr,
-            diff_params)'''
-        #t_base_heating_cy = t_base_cy
-
-        hdd_reg = calc_hdd(t_base_heating_cy, temperatures, nr_day_to_av=1)
+        hdd_reg = calc_hdd(
+            t_base_heating,
+            temperatures,
+            nr_day_to_av=1)
 
         hdd_regions[region] = np.sum(hdd_reg)
 
     return hdd_regions
 
 def get_cdd_country(
-        t_base_cooling_cy,
-        base_yr,
-        curr_yr,
+        t_base_cooling,
         regions,
         temp_data,
-        diff_params,
-        t_base_fy,
-        t_base_cy,
         reg_coord,
-        weather_stations):
+        weather_stations
+    ):
     """Calculate total number of cooling degree days in a
     region for the base year
 
     Arguments
     ----------
+    t_base_cooling : float
+        Base temperature assumption
     regions : dict
         Dictionary containing regions
     temp_data : array
         Temperature data
-    assumptions : dict
-        Assumptions
     reg_coord : dict
         Coordinates
     weather_stations : dict
         Weather stations
-    t_base_type : str
-        Type of base temperature
     """
     cdd_regions = {}
 
@@ -248,15 +231,10 @@ def get_cdd_country(
         # Temp data
         temperatures = temp_data[closest_station_id]
 
-        # Base temperature for base year
-        '''t_base_cooling_cy = sigm_temp(
-            t_base_fy,
-            t_base_cy,
-            base_yr,
-            curr_yr,
-            diff_params)'''
-
-        cdd_reg = calc_cdd(t_base_cooling_cy, temperatures, nr_day_to_av=1)
+        cdd_reg = calc_cdd(
+            t_base_cooling,
+            temperatures,
+            nr_day_to_av=1)
 
         cdd_regions[region] = np.sum(cdd_reg)
 
@@ -271,7 +249,7 @@ def sigm_temp(
     ):
     """Calculate base temperature depending on sigmoid
     diff and location
-
+    TODO: Not used anymore. Check if temperature change is calculated correctly with narratives
     Arguments
     ----------
     t_future_yr : int
