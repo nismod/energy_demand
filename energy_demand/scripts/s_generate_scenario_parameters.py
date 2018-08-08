@@ -24,11 +24,11 @@ def generate_annual_param_vals(
 
     for parameter_name in strategy_vars.keys():
         logging.info("PAramter name: " + str(parameter_name))
-        default_narratives = strategy_vars[parameter_name]['narratives']
+        narratives = strategy_vars[parameter_name]['narratives']
 
         regional_strategy_vary, reg_specific_crit = generate_general_parameter(
             regions=regions,
-            narratives=default_narratives,
+            narratives=narratives,
             simulated_yrs=simulated_yrs)
 
         logging.info("parameter_name {} {}".format(parameter_name, reg_specific_crit))

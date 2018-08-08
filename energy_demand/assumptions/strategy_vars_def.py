@@ -32,7 +32,12 @@ def default_narrative(
 
     return container
 
-def load_smif_parameters(data_handle, strategy_variable_names, assumptions=False, mode='smif'):
+def load_smif_parameters(
+        data_handle,
+        strategy_variable_names,
+        assumptions=False,
+        mode='smif'
+    ):
     """Get all model parameters from smif (`parameters`) depending
     on narrative. Create the dict `strategy_vars` and
     add scenario value as well as affected enduses of
@@ -81,34 +86,36 @@ def load_smif_parameters(data_handle, strategy_variable_names, assumptions=False
             "... loading smif parameter: %s value: %s", name, scenario_value)
 
         # -----------------------------
-        # Test if narrative is defined
-        # If yes, use the defined narrative, otherwise create standard narrative
+        # Load or generate narratives per parameter
         # -----------------------------
         # TODO LOAD NARRATIVE FOR PARAMETER
-        try:
-            narratives = all_info_scenario_param[name]['narratives']
-            logging.info("For paramter '%s' a narrative has been defined", name)
-        except KeyError: # not narrative is defined
-            logging.info("For paramter '%s' no narrative has been defined and the standard narrative is used", name)
-            #raise Exception
-            #TODOE MOVE INTO strategy-vars_def
-            #Standard narrative
-            yr_until_changed_all_things = 2050
 
-            standard_narrative = default_narrative(
-                end_yr=yr_until_changed_all_things,
-                value_by=all_info_scenario_param[name]['default_value'],
-                value_ey=scenario_value,
-                base_yr=assumptions.base_yr,
-                regional_specific=True)
+        # -----------------
+        # Load narratives infos
+        # -----------------
+        yr_until_changed_all_things = 2050 #TODO MAKE GLOBAL
+        regional_specific = all_info_scenario_param[name]['regional_specific']      # Criteria whether the same for all regions or not
+        default_by_value = all_info_scenario_param[name]['default_value']           # Base year value
+        diffusion_type = all_info_scenario_param[name]['diffusion_type']            # Sigmoid or linear
 
-            narratives = standard_narrative
+        # -----------------
+        # Create narratives
+        # -----------------
+        created_narrative = default_narrative(
+            end_yr=yr_until_changed_all_things,
+            value_by=default_by_value,
+            value_ey=scenario_value,
+            diffusion_choice=diffusion_type,
+            base_yr=assumptions.base_yr,
+            regional_specific=regional_specific)
+        
+        narratives = created_narrative
 
         strategy_vars[name] = {
 
             'scenario_value': scenario_value,
 
-            'default_value': all_info_scenario_param[name]['default_value'],
+            'default_value': all_info_scenario_param[name]['default_value'], #TODO NECESSARY?
 
             # Get affected enduses of this variable defined in `load_param_assump`
             'affected_enduse': all_info_scenario_param[name]['affected_enduse'],
@@ -142,24 +149,7 @@ def load_param_assump(
     strategy_variables = []
     strategy_vars = {}
 
-    yr_until_changed_all_things = 2050
-
-    # Narratives
-    standard_narrative_not_regional = default_narrative(
-        end_yr=yr_until_changed_all_things,
-        value_by=0,
-        value_ey=0,
-        diffusion_choice='linear',
-        base_yr=assumptions.base_yr,
-        regional_specific=False)
-
-    standard_narrative_regional = default_narrative(
-        end_yr=yr_until_changed_all_things,
-        value_by=0,
-        value_ey=0,
-        diffusion_choice='linear',
-        base_yr=assumptions.base_yr,
-        regional_specific=True)
+    yr_until_changed_all_things = 2050 #TODO
 
     # ------------------
     # Spatial explicit diffusion
@@ -173,7 +163,8 @@ def load_param_assump(
         "suggested_range": (0, 1),
         "default_value": assumptions.spatial_explicit_diffusion,
         "units": 'years',
-        "narratives": standard_narrative_not_regional})
+        'regional_specific': False,
+        'diffusion_type': 'linear'})
 
     strategy_vars['speed_con_max'] = assumptions.speed_con_max
 
@@ -184,7 +175,8 @@ def load_param_assump(
         "suggested_range": (0, 99),
         "default_value": assumptions.speed_con_max,
         "units": None,
-        "narratives": standard_narrative_not_regional})
+        'regional_specific': False,
+        'diffusion_type': 'linear'})
 
     # -----------
     # Demand management of heat pumps
@@ -198,7 +190,8 @@ def load_param_assump(
         "suggested_range": (0, 1),
         "default_value": assumptions.flat_heat_pump_profile_both,
         "units": 'bool',
-        "narratives": standard_narrative_not_regional})
+        'regional_specific': False,
+        'diffusion_type': 'linear'})
 
     strategy_vars['flat_heat_pump_profile_only_water'] = assumptions.flat_heat_pump_profile_only_water
 
@@ -209,21 +202,14 @@ def load_param_assump(
         "suggested_range": (0, 1),
         "default_value": assumptions.flat_heat_pump_profile_only_water,
         "units": 'bool',
-        "narratives": standard_narrative_not_regional})
+        'regional_specific': False,
+        'diffusion_type': 'linear'})
 
     # ----------------------
     # Heat pump technology mix
     # Source: Hannon 2015: Raising the temperature of the UK heat pump market: Learning lessons from Finland
     # ----------------------
     strategy_vars['gshp_fraction_ey'] = assumptions.gshp_fraction
-
-    narrative_gshp_fraction_ey = default_narrative(
-        end_yr=yr_until_changed_all_things,
-        value_by=0.1,
-        value_ey=assumptions.gshp_fraction,
-        diffusion_choice='linear',
-        base_yr=assumptions.base_yr,
-        regional_specific=False)
 
     strategy_variables.append({
         "name": "gshp_fraction_ey",
@@ -232,7 +218,8 @@ def load_param_assump(
         "suggested_range": (assumptions.gshp_fraction, 0.5),
         "default_value": assumptions.gshp_fraction,
         "units": 'decimal',
-        "narratives": narrative_gshp_fraction_ey})
+        'regional_specific': False,
+        'diffusion_type': 'linear'})
 
     # ============================================================
     #  Demand management assumptions (daily demand shape)
@@ -251,7 +238,9 @@ def load_param_assump(
         "description": "Year until demand management assumptions are fully realised",
         "suggested_range": (2015, 2100),
         "default_value": 2050,
-        "units": 'years'})
+        "units": 'years',
+        'regional_specific': False,
+        'diffusion_type': 'linear'})
 
     enduses_demand_managent = {
 
@@ -298,7 +287,9 @@ def load_param_assump(
             "suggested_range": (0, 1),
             "default_value": 0,
             "units": 'decimal',
-            'affected_enduse': [demand_name.split("__")[1]]})
+            'affected_enduse': [demand_name.split("__")[1]],
+            'regional_specific': True,
+            'diffusion_type': 'linear'})
 
         strategy_vars[demand_name] = scenario_value
 
@@ -307,14 +298,16 @@ def load_param_assump(
     # Temperature changes for every month for future year
     # =======================================
     strategy_vars['climate_change_temp_diff_yr_until_changed'] = yr_until_changed_all_things
-
+    #TODO REMOVE
     strategy_variables.append({
             "name": "climate_change_temp_diff_yr_until_changed",
             "absolute_range": (2015, 2100),
             "description": "Year until climate temperature changes are fully realised",
             "suggested_range": (2030, 2100),
             "default_value": 2050,
-            "units": 'year'})
+            "units": 'year',
+            'regional_specific': False,
+            'diffusion_type': 'linear'})
 
     temps = {
         'climate_change_temp_d__Jan': 0,
@@ -333,13 +326,14 @@ def load_param_assump(
     for month_python, _ in enumerate(temps):
         month_str = basic_functions.get_month_from_int(month_python + 1)
         strategy_variables.append({
-                "name": "climate_change_temp_d__{}".format(month_str),
-                "absolute_range": (-0, 10),
-                "description": "Temperature change for month {}".format(month_str),
-                "suggested_range": (-5, 5),
-                "default_value": 0,
-                "units": '°C',
-                "narratives": standard_narrative_not_regional})
+            "name": "climate_change_temp_d__{}".format(month_str),
+            "absolute_range": (-0, 10),
+            "description": "Temperature change for month {}".format(month_str),
+            "suggested_range": (-5, 5),
+            "default_value": 0,
+            "units": '°C',
+            'regional_specific': False,
+            'diffusion_type': 'linear'})
 
     # Helper function to move temps one level down
     for enduse_name, value_param in temps.items():
@@ -351,13 +345,6 @@ def load_param_assump(
     # ============================================================
     # Future base year temperature
     strategy_vars['rs_t_base_heating_future_yr'] = 15.5
-    narrative_rs_t_base_heating_future_yr = default_narrative(
-        end_yr=yr_until_changed_all_things,
-        value_by=assumptions.t_bases.rs_t_heating_by,
-        value_ey=strategy_vars['rs_t_base_heating_future_yr'],
-        diffusion_choice='linear',
-        base_yr=assumptions.base_yr,
-        regional_specific=False)
 
     strategy_variables.append({
         "name": "rs_t_base_heating_future_yr",
@@ -366,18 +353,11 @@ def load_param_assump(
         "suggested_range": (13, 17),
         "default_value": assumptions.t_bases.rs_t_heating_by,
         "units": '°C',
-        "narratives": narrative_rs_t_base_heating_future_yr})
+        'regional_specific': False,
+        'diffusion_type': 'linear'})
 
     # Future base year temperature
     strategy_vars['ss_t_base_heating_future_yr'] = 15.5
-
-    narrative_ss_t_base_heating_future_yr = default_narrative(
-        end_yr=yr_until_changed_all_things,
-        value_by=assumptions.t_bases.ss_t_heating_by,
-        value_ey=strategy_vars['ss_t_base_heating_future_yr'],
-        diffusion_choice='linear',
-        base_yr=assumptions.base_yr,
-        regional_specific=False)
 
     strategy_variables.append({
         "name": "ss_t_base_heating_future_yr",
@@ -386,29 +366,15 @@ def load_param_assump(
         "suggested_range": (13, 17),
         "default_value": assumptions.t_bases.ss_t_heating_by,
         "units": '°C',
-        "narratives": narrative_ss_t_base_heating_future_yr})
+        'regional_specific': False,
+        'diffusion_type': 'linear'})
 
     # Future base year temperature
     strategy_vars['rs_t_base_cooling_future_yr'] = 5
 
     # Cooling base temperature
-    '''strategy_variables.append({
-        "name": "rs_t_base_cooling_future_yr",
-        "absolute_range": (0, 25),
-        "description": "Base temperature assumption residential sector cooling",
-        "suggested_range": (13, 17),
-        "default_value": assumptions.t_bases['rs_t_cooling_by'],
-        "units": '°C'})'''
     # Future base year temperature
     strategy_vars['ss_t_base_cooling_future_yr'] = 5
-
-    narrative_ss_t_base_cooling_future_yr = default_narrative(
-        end_yr=yr_until_changed_all_things,
-        value_by=assumptions.t_bases.ss_t_cooling_by,
-        value_ey=strategy_vars['ss_t_base_cooling_future_yr'],
-        diffusion_choice='linear',
-        base_yr=assumptions.base_yr,
-        regional_specific=False)
 
     strategy_variables.append({
         "name": "ss_t_base_cooling_future_yr",
@@ -417,18 +383,11 @@ def load_param_assump(
         "suggested_range": (13, 17),
         "default_value": assumptions.t_bases.ss_t_cooling_by,
         "units": '°C',
-        "narratives": narrative_ss_t_base_cooling_future_yr})
+        'regional_specific': False,
+        'diffusion_type': 'linear'})
 
     # Future base year temperature
     strategy_vars['is_t_base_heating_future_yr'] = 15.5
-
-    narrative_is_t_base_heating_future_yr = default_narrative(
-        end_yr=yr_until_changed_all_things,
-        value_by=assumptions.t_bases.is_t_heating_by,
-        value_ey=strategy_vars['is_t_base_heating_future_yr'],
-        diffusion_choice='linear',
-        base_yr=assumptions.base_yr,
-        regional_specific=False)
 
     # Parameters info
     strategy_variables.append({
@@ -438,7 +397,8 @@ def load_param_assump(
         "suggested_range": (13, 17),
         "default_value": assumptions.t_bases.is_t_heating_by,
         "units": '°C',
-        "narratives": narrative_is_t_base_heating_future_yr})
+        'regional_specific': False,
+        'diffusion_type': 'linear'})
 
     # ============================================================
     # Smart meter assumptions (Residential)
@@ -455,7 +415,8 @@ def load_param_assump(
         "suggested_range": (0, 0.9),
         "default_value": assumptions.smart_meter_assump['smart_meter_p_by'],
         "units": 'decimal',
-        "narratives": standard_narrative_regional})
+        'regional_specific': True,
+        'diffusion_type': 'linear'})
 
     strategy_variables.append({
         "name": "smart_meter_yr_until_changed",
@@ -463,7 +424,9 @@ def load_param_assump(
         "description": "Year until smart meter assumption is implemented",
         "suggested_range": (2015, 2100),
         "default_value": 2050,
-        "units": 'year'})
+        "units": 'year',
+        'regional_specific': False,
+        'diffusion_type': 'linear'})
 
     # Improvement of fraction of population for future year (base year = 0.1)
     strategy_vars['smart_meter_improvement_p'] = 0
@@ -473,7 +436,7 @@ def load_param_assump(
 
     # Long term smart meter induced general savings, purley as
     # a result of having a smart meter (e.g. 0.03 --> 3% savings)
-    #TODO REMOVE
+    #TODO TODO TODO REMOVE
     savings_smart_meter = {
 
         # Residential
@@ -518,7 +481,9 @@ def load_param_assump(
             "suggested_range": (0, 1),
             "default_value": 0,
             "units": 'decimal',
-            "affected_enduse": [enduse_name.split("__"[1])]})
+            "affected_enduse": [enduse_name.split("__"[1])],
+            'regional_specific': True,
+            'diffusion_type': 'linear'})
 
         strategy_vars[enduse_name] = param_value
 
@@ -533,7 +498,8 @@ def load_param_assump(
         "suggested_range": (-1, 1),
         "default_value": assumptions.cooled_ss_floorarea_by,
         "units": 'decimal',
-        "narratives": standard_narrative_regional})
+        'regional_specific': True,
+        'diffusion_type': 'linear'})
 
     # Change in cooling of floor area 
     strategy_vars['cooled_floorarea__ss_cooling_humidification'] = 0
@@ -544,7 +510,9 @@ def load_param_assump(
         "description": "Year until floor area is fully changed",
         "suggested_range": (2015, 2100),
         "default_value": 2050,
-        "units": 'year'})
+        "units": 'year',
+        'regional_specific': True,
+        'diffusion_type': 'linear'})
 
     # Year until floor area change is fully realised
     strategy_vars['cooled_floorarea_yr_until_changed'] = yr_until_changed_all_things
@@ -566,7 +534,9 @@ def load_param_assump(
         "suggested_range": (2015, 2100),
         "default_value": 2050,
         "units": 'year',
-        "affected_enduse": ['is_high_temp_process']})
+        "affected_enduse": ['is_high_temp_process'],
+        'regional_specific': False,
+        'diffusion_type': 'linear'})
 
     strategy_variables.append({
         "name": "p_cold_rolling_steel",
@@ -574,7 +544,9 @@ def load_param_assump(
         "description": "Sectoral share of cold rolling in steel manufacturing)",
         "suggested_range": (0, 1),
         "default_value": assumptions.p_cold_rolling_steel_by,
-        "units": 'decimal'})
+        "units": 'decimal',
+        'regional_specific': True,
+        'diffusion_type': 'linear'})
 
     strategy_vars['p_cold_rolling_steel'] = assumptions.p_cold_rolling_steel_by
 
@@ -588,7 +560,9 @@ def load_param_assump(
         "suggested_range": (0, 1),
         "default_value": 0,
         "units": 'decimal',
-        'affected_enduse': ['rs_space_heating']})
+        'affected_enduse': ['rs_space_heating'],
+        'regional_specific': True,
+        'diffusion_type': 'linear'})
 
     strategy_variables.append({
         "name": "heat_recoved__ss_space_heating",
@@ -597,7 +571,9 @@ def load_param_assump(
         "suggested_range": (0, 1),
         "default_value": 0,
         "units": 'decimal',
-        'affected_enduse': ['ss_space_heating']})
+        'affected_enduse': ['ss_space_heating'],
+        'regional_specific': True,
+        'diffusion_type': 'linear'})
 
     strategy_variables.append({
         "name": "heat_recoved__is_space_heating",
@@ -606,7 +582,9 @@ def load_param_assump(
         "suggested_range": (0, 1),
         "default_value": 0,
         "units": 'decimal',
-        'affected_enduse': ['is_space_heating']})
+        'affected_enduse': ['is_space_heating'],
+        'regional_specific': True,
+        'diffusion_type': 'linear'})
 
     strategy_variables.append({
         "name": "heat_recovered_yr_until_changed",
@@ -614,7 +592,9 @@ def load_param_assump(
         "description": "Year until heat recyling is full implemented",
         "suggested_range": (2015, 2100),
         "default_value": 2050,
-        "units": 'year'})
+        "units": 'year',
+        'regional_specific': True,
+        'diffusion_type': 'linear'})
 
     # Heat recycling assumptions (e.g. 0.2 = 20% reduction)
     strategy_vars['heat_recoved__rs_space_heating'] = 0.0
@@ -634,7 +614,9 @@ def load_param_assump(
         "suggested_range": (0, 1),
         "default_value": 0,
         "units": 'decimal',
-        'affected_enduse': ['rs_space_heating']})
+        'affected_enduse': ['rs_space_heating'],
+        'regional_specific': True,
+        'diffusion_type': 'linear'})
 
     strategy_variables.append({
         "name": "air_leakage__ss_space_heating",
@@ -643,7 +625,9 @@ def load_param_assump(
         "suggested_range": (0, 1),
         "default_value": 0,
         "units": 'decimal',
-        'affected_enduse': ['ss_space_heating']})
+        'affected_enduse': ['ss_space_heating'],
+        'regional_specific': True,
+        'diffusion_type': 'linear'})
 
     strategy_variables.append({
         "name": "air_leakage__is_space_heating",
@@ -652,7 +636,9 @@ def load_param_assump(
         "suggested_range": (0, 1),
         "default_value": 0,
         "units": 'decimal',
-        "affected_enduse": ['is_space_heating']})
+        "affected_enduse": ['is_space_heating'],
+        'regional_specific': True,
+        'diffusion_type': 'linear'})
 
     strategy_variables.append({
         "name": "air_leakage_yr_until_changed",
@@ -660,7 +646,9 @@ def load_param_assump(
         "description": "Year until heat air leakage improvement is full implemented",
         "suggested_range": (2015, 2100),
         "default_value": 2050,
-        "units": 'year'})
+        "units": 'year',
+        'regional_specific': True,
+        'diffusion_type': 'linear'})
 
     # Heat recycling assumptions (e.g. 0.2 = 20% improvement and thus 20% reduction)
     strategy_vars['air_leakage__rs_space_heating'] = 0.0
@@ -687,7 +675,9 @@ def load_param_assump(
         "description": "Year until change in enduse assumption is implemented",
         "suggested_range": (2015, 2100),
         "default_value": 2050,
-        "units": 'year'})
+        "units": 'year',
+        'regional_specific': False,
+        'diffusion_type': 'linear'})
 
     # Year until fuel consumption is reduced
     strategy_vars['enduse_specific_change_yr_until_changed'] = yr_until_changed_all_things
@@ -730,16 +720,6 @@ def load_param_assump(
         'enduse_change__is_other': 0,
         'enduse_change__is_refrigeration': 0}
 
-    # Narratives
-    standard_narrative = default_narrative(
-        end_yr=yr_until_changed_all_things,
-        value_by=0,
-        value_ey=0,
-        diffusion_choice='linear',
-        sig_midpoint=0,
-        sig_steepness=1,
-        base_yr=assumptions.base_yr)
-
     # Helper function to create description of parameters for all enduses
     for enduse_name, param_value in enduse_overall_change_enduses.items():
         strategy_variables.append({
@@ -750,23 +730,14 @@ def load_param_assump(
             "default_value": 0,
             "units": 'decimal',
             'affected_enduse': [enduse_name.split("__")[1]],
-
-            "narratives": standard_narrative})
+            'regional_specific': True,
+            'diffusion_type': 'linear'})
 
         strategy_vars[enduse_name] = param_value
 
     # ============================================================
     # Technologies & efficiencies
     # ============================================================
-    standard_narrative = default_narrative(
-        end_yr=yr_until_changed_all_things,
-        value_by=0,
-        value_ey=0,
-        diffusion_choice='linear',
-        sig_midpoint=0,
-        sig_steepness=1,
-        base_yr=assumptions.base_yr,
-        regional_specific=False)
 
     # --Assumption how much of technological efficiency is reached
     strategy_variables.append({
@@ -776,7 +747,8 @@ def load_param_assump(
         "suggested_range": (0, 1),
         "default_value": 0, # Default is no efficiency improvement
         "units": 'decimal',
-        "narratives": standard_narrative})
+        'regional_specific': False,
+        'diffusion_type': 'linear'})
 
     strategy_vars["f_eff_achieved"] = 0
 
