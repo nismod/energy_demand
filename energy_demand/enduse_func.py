@@ -1197,18 +1197,19 @@ def apply_specific_change(
     fuel_y : array
         Yearly new fuels
     """
-    #try:
-    parameter_name = 'enduse_change__{}'.format(enduse)
+    try:
+        parameter_name = 'enduse_change__{}'.format(enduse)
 
-    # Get region specific annual parameter value
-    change_cy = strategy_vars[parameter_name][curr_yr]
+        # Get region specific annual parameter value
+        change_cy = strategy_vars[parameter_name][curr_yr]
 
-    # Calculate new annual fuel
-    fuel_y = fuel_y * (1 + change_cy)
+        # Calculate new annual fuel
+        fuel_y = fuel_y * (1 + change_cy)
 
-    #except KeyError:
-    #    logging.debug(
-    #        "No annual parameters are provided for enduse %s", enduse)
+    except KeyError:
+        logging.debug(
+            "No annual parameters are provided for enduse %s", enduse)
+        raise Exception
 
     return fuel_y
 
@@ -1291,27 +1292,27 @@ def apply_smart_metering(
     """
     key_name = 'smart_meter_improvement_{}'.format(enduse)
 
-    #if key_name in strategy_vars.keys():¨
     try:
-        #TODO TODO SOMEHOW NOT WORKING
-        #Enduse saving potentail of enduse of smart meter
+
+        # Enduse saving potentail of enduse of smart meter
         enduse_savings = sm_assump['savings_smart_meter'][key_name]
 
         # Smart meter penetration in current year (percentage of people having smart meters)
         penetration_cy = strategy_vars['smart_meter_improvement_p'][curr_yr]
-        ##penetration_cy = strategy_vars[key_name][curr_yr]
 
         # Smart meter penetration in base year (percentage of people having smart meters)
         penetration_by = sm_assump['smart_meter_p_by']
 
+        # Calculate fuel savings
         saved_fuel = fuel_y * (penetration_cy - penetration_by) * enduse_savings
 
+        # Substract fuel savings
         fuel_y = fuel_y - saved_fuel
 
         return fuel_y
-    #else:
-    except KeyError:
-        # not defined for this enduse
+    except:
+        raise Exception("smart mater improvements not defined for this enduse {}".format(enduse))
+        # smart mater improvements not defined for this enduse
         return fuel_y
 
 def convert_service_to_p(tot_s_y, s_fueltype_tech):
@@ -1481,8 +1482,7 @@ def apply_cooling(
     """
     key_name = "cooled_floorarea__{}".format(enduse)
 
-    if key_name in strategy_vars.keys():
-
+    try:
         # Floor area share cooled in current year
         cooled_floorarea_p_cy = strategy_vars[key_name][curr_yr]
 
@@ -1493,8 +1493,9 @@ def apply_cooling(
         fuel_y = fuel_y * floorarea_cooling_factor
 
         return fuel_y
-    else:
-        # no cooling defined for enduse
+
+    except KeyError:
+        logging.debug("no cooling defined for enduse")
         return fuel_y
 
 def industry_enduse_changes(
@@ -1528,7 +1529,7 @@ def industry_enduse_changes(
     --------
     fuels : np.array
         Changed fuels depending on scenario
-
+    TODO TODO IMPROVE MAKE GENERAL
     """
     factor = 1
 

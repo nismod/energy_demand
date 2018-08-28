@@ -287,50 +287,49 @@ class Assumptions(object):
         # ------------------------------------------------------------
         self.smart_meter_assump = {}
         self.smart_meter_assump['smart_meter_p_by'] = 0.1
-        self.smart_meter_assump['smart_meter_diff_params'] = {
-            'sig_midpoint': 0,
-            'sig_steepness': 1}
 
         # Long term smart meter induced general savings, purley as
         # a result of having a smart meter (e.g. 0.03 --> 3% savings)
         # DECC 2015: Smart Metering Early Learning Project: Synthesis report
         # https://www.gov.uk/government/publications/smart-metering-early-learning-project-and-small-scale-behaviour-trials
         # Reasonable assumption is between 0.03 and 0.01 (DECC 2015)
-        # TODO
-        self.smart_meter_assump['savings_smart_meter'] = {
-            # Residential
-            'smart_meter_improvement_rs_cold': 0.03,
-            'smart_meter_improvement_rs_cooking': 0.03,
-            'smart_meter_improvement_rs_lighting': 0.03,
-            'smart_meter_improvement_rs_wet': 0.03,
-            'smart_meter_improvement_rs_consumer_electronics': 0.03,
-            'smart_meter_improvement_rs_home_computing': 0.03,
-            'smart_meter_improvement_rs_space_heating': 0.03,
+        sm_savings = 0.03
 
+        self.smart_meter_assump['savings_smart_meter'] = {
+    
+            # Residential
+            'smart_meter_improvement_rs_cold': sm_savings,
+            'smart_meter_improvement_rs_cooking': sm_savings,
+            'smart_meter_improvement_rs_lighting': sm_savings,
+            'smart_meter_improvement_rs_wet': sm_savings,
+            'smart_meter_improvement_rs_consumer_electronics': sm_savings,
+            'smart_meter_improvement_rs_home_computing': sm_savings,
+            'smart_meter_improvement_rs_space_heating': sm_savings,
+            'smart_meter_improvement_rs_water_heating': sm_savings,
+    
             # Service
-            'smart_meter_improvement_ss_space_heating': 0.03,
-            'smart_meter_improvement_ss_water_heating': 0,
-            'smart_meter_improvement_ss_cooling_humidification': 0,
-            'smart_meter_improvement_ss_fans': 0,
-            'smart_meter_improvement_ss_lighting': 0,
-            'smart_meter_improvement_ss_catering': 0,
-            'smart_meter_improvement_ss_small_power': 0,
-            'smart_meter_improvement_ss_ICT_equipment': 0,
-            'smart_meter_improvement_ss_cooled_storage': 0,
-            'smart_meter_improvement_ss_other_gas': 0,
-            'smart_meter_improvement_ss_other_electricity': 0,
+            'smart_meter_improvement_ss_space_heating': sm_savings,
+            'smart_meter_improvement_ss_water_heating': sm_savings,
+            'smart_meter_improvement_ss_cooling_humidification': sm_savings,
+            'smart_meter_improvement_ss_fans': sm_savings,
+            'smart_meter_improvement_ss_lighting': sm_savings,
+            'smart_meter_improvement_ss_catering': sm_savings,
+            'smart_meter_improvement_ss_small_power': sm_savings,
+            'smart_meter_improvement_ss_ICT_equipment': sm_savings,
+            'smart_meter_improvement_ss_cooled_storage': sm_savings,
+            'smart_meter_improvement_ss_other_gas': sm_savings,
+            'smart_meter_improvement_ss_other_electricity': sm_savings,
 
             # Industry submodule
-            'smart_meter_improvement_is_high_temp_process': 0,
-            'smart_meter_improvement_is_low_temp_process': 0,
-            'smart_meter_improvement_is_drying_separation': 0,
-            'smart_meter_improvement_is_motors': 0,
-            'smart_meter_improvement_is_compressed_air': 0,
-            'smart_meter_improvement_is_lighting': 0,
-            'smart_meter_improvement_is_space_heating': 0.03,
-            'smart_meter_improvement_is_other': 0,
-            'smart_meter_improvement_is_refrigeration': 0}
-
+            'smart_meter_improvement_is_high_temp_process': sm_savings,
+            'smart_meter_improvement_is_low_temp_process': sm_savings,
+            'smart_meter_improvement_is_drying_separation': sm_savings,
+            'smart_meter_improvement_is_motors': sm_savings,
+            'smart_meter_improvement_is_compressed_air': sm_savings,
+            'smart_meter_improvement_is_lighting': sm_savings,
+            'smart_meter_improvement_is_space_heating': sm_savings,
+            'smart_meter_improvement_is_other': sm_savings,
+            'smart_meter_improvement_is_refrigeration': sm_savings}
 
         # ============================================================
         # Base temperature assumptions
@@ -365,11 +364,6 @@ class Assumptions(object):
         #self.t_bases['is_t_cooling_by'] = Not implemented
 
         self.t_bases = DummyClass(t_bases)
-
-        self.base_temp_diff_params = {
-            'sig_midpoint': 0,
-            'sig_steepness': 1,
-            'yr_until_changed': yr_until_changed_all_things}
 
         # ============================================================
         # Enduses lists affed by hdd/cdd
@@ -527,7 +521,7 @@ class Assumptions(object):
             'diff_method': 'linear',
             'sigmoid': {
                 'sig_midpoint': 0,
-                'sig_steepness': 1}}
+                'sig_steepness': 1}} #TODO TODO REPLACE
 
         # ============================================================
         # Fuel Stock Definition

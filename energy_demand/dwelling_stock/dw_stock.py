@@ -604,6 +604,7 @@ def rs_dw_stock(
             simulated_yrs)
 
         # Get floor area per person for every simulation year
+        #TODO MAKE PER YEAR
         data_floorarea_pp = get_floorare_pp(
             scenario_data['floor_area']['rs_floorarea'][base_yr][region],
             scenario_data['population'][base_yr][region],

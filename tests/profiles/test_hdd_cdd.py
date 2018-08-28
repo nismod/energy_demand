@@ -103,16 +103,15 @@ def test_get_hdd_country():
             'latitude': 57.02999742,
             'longitude': -4.4}}
 
-    t_base_heating_future_yr = 15.5
     t_base_heating_base_yr = 15.5
 
     result = hdd_cdd.get_hdd_country(
-        curr_yr,
+        t_base_heating_base_yr,
         regions,
         temp_data,
         reg_coord,
         weather_stations)
-    
+
     expected = {
         "reg_A": (15.5 - 12.0) * 8760 / 24,
         "reg_B": (15.5 - 12.0) * 8760 / 24}
@@ -123,10 +122,6 @@ def test_get_hdd_country():
 def test_get_cdd_country():
     """testing
     """
-
-    base_yr = 2015
-    curr_yr = 2020
-
     weather_stations = {
         "weater_station_A": {
             'station_latitude': 55.8695,
@@ -151,10 +146,9 @@ def test_get_cdd_country():
             'longitude': -4.4}}
 
     t_base_heating_base_yr = 15.5
-    t_base_heating_future_yr = 15.5
 
     result = hdd_cdd.get_cdd_country(
-        curr_yr,
+        t_base_heating_base_yr,
         regions,
         temp_data,
         reg_coord,

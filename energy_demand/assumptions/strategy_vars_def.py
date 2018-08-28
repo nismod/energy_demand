@@ -415,11 +415,9 @@ def load_param_assump(
     # Improvement of fraction of population for future year (base year = 0.1)
     strategy_vars['smart_meter_improvement_p'] = 0
 
-    #TODO MAYBE ADD GENERAL SAVING FOR SMART METER
     # ============================================================
     # Cooling
     # ============================================================
-    #TODO. where is cooled_floorarea__ss_cooling_humidification used?
     strategy_variables.append({
         "name": "cooled_floorarea__ss_cooling_humidification",
         "absolute_range": (0, 1),

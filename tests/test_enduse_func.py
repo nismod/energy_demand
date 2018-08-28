@@ -323,7 +323,7 @@ def test_convert_service_to_p():
 def test_calc_lf_improvement():
     """
     """
-    param_lf_improved_cy = 0.5
+    param_lf_improved_cy = 0.25
 
     #all factors must be smaller than one
     loadfactor_yd_cy = np.zeros((2, 2)) #to fueltypes, two days
@@ -370,12 +370,12 @@ def test_apply_smart_metering():
     """Testing"""
 
     sm_assump = {
-        'smart_meter_p_by': 0,
-        'savings_smart_meter': {'smart_meter_improvement_heating' : 0.5}}
+        'savings_smart_meter': {
+            'smart_meter_improvement_heating': 0.5}, #50 is saved by smart meter
+        'smart_meter_p_by': 0}
 
     strategy_vars = {}
-    strategy_vars['smart_meter_improvement_p'] = {2015: 0, 2020: 0.5} #50 is saved by smart meter
-
+    strategy_vars['smart_meter_improvement_p'] = {2015: 0, 2020: 0.5}
 
     result = enduse_func.apply_smart_metering(
         enduse='heating',
@@ -384,7 +384,7 @@ def test_apply_smart_metering():
         strategy_vars=strategy_vars,
         curr_yr=2020)
 
-    assert result == 25
+    assert result == 75
 
 def test_fuel_to_service():
     """
