@@ -23,6 +23,8 @@ def generate_annual_param_vals(
         Strategy variable infirmation
     simulated_yrs : list
         Simulated years
+    path : str
+        Path to local data
 
     Returns
     -------
@@ -36,7 +38,6 @@ def generate_annual_param_vals(
     container_non_reg_param = {}
 
     for parameter_name in strategy_vars.keys():
-
         path_file = os.path.join(path, "params_{}.{}".format(parameter_name, "csv"))
 
         regional_strategy_vary, reg_specific_crit = generate_general_parameter(
@@ -61,6 +62,18 @@ def generate_general_parameter(
     ):
     """Based on narrative input, calculate the parameter
     value for every modelled year
+
+    Arguments
+    ---------
+    regions : str
+
+    narratives : 
+
+    simulated_yrs : 
+
+    Returns
+    --------
+
     """
     container = defaultdict(dict)
     reg_specific_crit = True
@@ -153,9 +166,9 @@ def generate_general_parameter(
                         entries.append(entry)
 
     # Write out to txt files
-    # Create dataframe to store values of parameter
+    '''# Create dataframe to store values of parameter
     col_names = ["region", "year", "value"]
     my_df = pd.DataFrame(entries, columns=col_names)
-    my_df.to_csv(path, index=False) #Index prevents writing index rows
+    my_df.to_csv(path, index=False) #Index prevents writing index rows'''
 
     return container, reg_specific_crit

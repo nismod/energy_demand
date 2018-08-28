@@ -138,6 +138,7 @@ if __name__ == "__main__":
 
     # --- Region definition configuration
     name_region_set = os.path.join(local_data_path, 'region_definitions', "lad_2016_uk_simplified.shp")        # LAD
+
     #name_population_dataset = os.path.join(local_data_path, 'scenarios', 'uk_pop_high_migration_2015_2050.csv')
     #name_population_dataset = os.path.join(local_data_path, 'scenarios', 'uk_pop_constant_2015_2050.csv') # Constant scenario
     name_population_dataset = os.path.join(local_data_path, 'scenarios', 'MISTRAL_pop_gva/data', 'pop-a_econ-c_fuel-c/population__lad.csv') # Constant scenario
@@ -157,11 +158,12 @@ if __name__ == "__main__":
         #'flat_heat_pump_profile_both': 1 #Flat heat pump dsm
         #'enduse_change__ss_fans': 0.5   # 50% improvement
     }
+
     # -----
     # Paths
     # -----
     name_scenario_run = "_result_local_data_{}".format(str(time.ctime()).replace(":", "_").replace(" ", "_"))
-    
+
     data['paths'] = data_loader.load_paths(path_main)
     data['local_paths'] = data_loader.get_local_paths(local_data_path)
     data['result_paths'] = data_loader.get_result_paths(
@@ -315,13 +317,14 @@ if __name__ == "__main__":
         f_reg_norm_abs)
     data['assumptions'].update('strategy_vars', regional_strategy_vars)
 
-    # ---------------------------
+    # ------------------------------------------------------
     # Annual parameter generation (calculate parameter value for every year)
-    # ---------------------------
+    # ------------------------------------------------------
     regional_strategy_vars, non_regional_strategy_vars = s_generate_scenario_parameters.generate_annual_param_vals(
         data['regions'],
         data['assumptions'].strategy_vars,
-        simulated_yrs)
+        simulated_yrs,
+        path=local_data_path)
 
     data['assumptions'].update('regional_strategy_vars', regional_strategy_vars)
     data['assumptions'].update('non_regional_strategy_vars', non_regional_strategy_vars)

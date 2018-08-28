@@ -19,7 +19,29 @@ def default_narrative(
 
     E.g. from value 0.2 in 2015 to value 0.5 in 2050
 
-    TODO EXPLAIN
+    Arguments
+    ----------
+    end_yr : int
+        End year of narrative
+    value_by : float
+        Value of start year of narrative
+    value_ey : float
+        Value at end year of narrative
+    diffusion_choice : str, default='linear'
+        Wheter linear or sigmoid
+    sig_midpoint : float, default=0
+        Sigmoid midpoint
+    sig_steepness : float, default=1
+        Sigmoid steepness
+    base_yr : int
+        Base year
+    regional_specific : bool
+        If regional specific or not
+
+    Returns
+    -------
+    container : list
+        List with narrative
     """
     container = [
         {
@@ -50,31 +72,32 @@ def load_smif_parameters(
     ---------
     data_handle : dict
         Data handler
-    TODO LEALIN
+    strategy_variable_names : list
+        All strategy variable names
+    assumptions : obj
+        Assumptions
+    mode : str
+        Criteria to define in which mode this function is run
 
     Returns
     -------
     strategy_variables : dict
         Updated strategy variables
     """
+
+    # All information of all scenario parameters
+    all_info_scenario_param = load_param_assump(
+        assumptions=assumptions)
+
     strategy_vars = {}
 
     # Iterate variables and assign new values
     for name in strategy_variable_names:
 
         # Get scenario value
-        if mode == 'smif': #smif mode
-
-            all_info_scenario_param = load_param_assump(
-                assumptions=assumptions)
-
+        if mode == 'smif':  #smif mode
             scenario_value = data_handle.get_parameter(name)
         else: #local running
-
-            # All information of all scenario parameters
-            all_info_scenario_param = load_param_assump(
-                assumptions=assumptions)
-
             scenario_value = data_handle[name]['default_value']
 
         if scenario_value == 'True':
@@ -101,9 +124,9 @@ def load_smif_parameters(
         default_by_value = all_info_scenario_param[name]['default_value']           # Base year value
         diffusion_type = all_info_scenario_param[name]['diffusion_type']            # Sigmoid or linear
 
-        # -----------------
-        # Create narrative with only on story
-        # -----------------
+        # ----------------------------------
+        # Create narrative with only one story
+        # ----------------------------------
         created_narrative = default_narrative(
             end_yr=yr_until_changed_all_things,
             value_by=default_by_value,
@@ -147,8 +170,6 @@ def load_param_assump(
     """
     strategy_variables = []
     strategy_vars = {}
-
-    yr_until_changed_all_things = 2050 #TODO
 
     # ------------------
     # Spatial explicit diffusion
@@ -282,7 +303,6 @@ def load_param_assump(
     # Climate Change assumptions
     # Temperature changes for every month for future year
     # =======================================
-
     temps = {
         'climate_change_temp_d__Jan': 0,
         'climate_change_temp_d__Feb': 0,
