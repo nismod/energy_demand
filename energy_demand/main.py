@@ -328,7 +328,7 @@ if __name__ == "__main__":
 
     data['assumptions'].update('regional_strategy_vars', regional_strategy_vars)
     data['assumptions'].update('non_regional_strategy_vars', non_regional_strategy_vars)
-    
+
     # ------------------------------------------------
     # Spatial Validation
     # ------------------------------------------------

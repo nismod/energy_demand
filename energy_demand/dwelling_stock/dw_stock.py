@@ -260,8 +260,7 @@ def get_floorare_pp(
         reg_pop_by,
         base_yr,
         sim_period,
-        assump_final_diff_floorarea_pp,
-        yr_until_changed
+        assump_diff_floorarea_pp
     ):
     """Calculate future floor area per person depending
     on assumptions on final change and base year data
@@ -276,7 +275,7 @@ def get_floorare_pp(
         base year
     sim_period: list
         Simulation period
-    assump_final_diff_floorarea_pp : float
+    assump_diff_floorarea_pp : float
         Assumption of change in floor area up to end of simulation
 
     Returns
@@ -296,25 +295,21 @@ def get_floorare_pp(
         # Floor area per person of base year
         floor_area_pp[base_yr] = floorarea / reg_pop_by
 
-    for year in sim_period:
-        if year == base_yr:
+    for curr_yr in sim_period:
+        if curr_yr == base_yr:
             pass
         else:
-
-            # Change up to current year (linear)
-            lin_diff_factor = diffusion_technologies.linear_diff(
-                base_yr,
-                year,
-                1,
-                assump_final_diff_floorarea_pp,
-                yr_until_changed)
-
-            # Floor area per person of simulation year
-            floor_area_pp[year] = floor_area_pp[base_yr] * lin_diff_factor
+            # Floor area of current year = floor area of base year * change
+            floor_area_pp[curr_yr] = floor_area_pp[base_yr] * (1 + assump_diff_floorarea_pp[curr_yr])
 
     return floor_area_pp
 
-def get_dwtype_floor_area(dwtype_floorarea_by, dwtype_floorarea_future, base_yr, sim_period):
+def get_dwtype_floor_area(
+        dwtype_floorarea_by,
+        dwtype_floorarea_future,
+        base_yr,
+        sim_period
+    ):
     """Calculates the floor area per dwelling type for every year
 
     Arguments
@@ -374,7 +369,12 @@ def get_dwtype_floor_area(dwtype_floorarea_by, dwtype_floorarea_future, base_yr,
 
     return dwtype_floor_area
 
-def get_dwtype_distr(dwtype_distr_by, dwtype_distr_fy, base_yr, sim_period):
+def get_dwtype_distr(
+        dwtype_distr_by,
+        dwtype_distr_fy,
+        base_yr,
+        sim_period
+    ):
     """Calculates the annual distribution of dwelling types
     based on assumption of base and end year distribution
 
@@ -604,14 +604,12 @@ def rs_dw_stock(
             simulated_yrs)
 
         # Get floor area per person for every simulation year
-        #TODO MAKE PER YEAR
         data_floorarea_pp = get_floorare_pp(
             scenario_data['floor_area']['rs_floorarea'][base_yr][region],
             scenario_data['population'][base_yr][region],
             base_yr,
             simulated_yrs,
-            assumptions.assump_diff_floorarea_pp,
-            assumptions.assump_diff_floorarea_pp_yr_until_changed)
+            assumptions.non_regional_strategy_vars['assump_diff_floorarea_pp'])
 
         # Get fraction of total floorarea for every dwelling type
         floorarea_p = get_floorarea_dwtype_p(

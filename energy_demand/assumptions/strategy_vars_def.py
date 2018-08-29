@@ -614,6 +614,19 @@ def load_param_assump(
 
     strategy_vars["f_eff_achieved"] = 0
 
+    # ---------------------------------------
+    # Floor area per person change
+    # ---------------------------------------
+    strategy_variables.append({
+        "name": "assump_diff_floorarea_pp",
+        "absolute_range": (-1, 1),
+        "description": "Change in floor area per person (%, 1=100%)",
+        "suggested_range": (0, 1),
+        "default_value": 0,
+        "units": 'decimal',
+        'regional_specific': False,
+        'diffusion_type': 'linear'})
+
     # -----------------------
     # Create parameter file only with fully descried parameters
     # and write to yaml file
@@ -643,7 +656,7 @@ def load_param_assump(
                 local_paths['yaml_parameters_scenario'],
                 strategy_vars)
 
-            raise Exception("The smif parameters are read and and the program is aborted.")
+            raise Exception("The smif parameters are read and written to {}".format(local_paths['yaml_parameters_scenario']))
 
     # Convert to dict for loacl running purposes
     strategy_vars_out = {}

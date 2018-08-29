@@ -42,8 +42,6 @@ class Assumptions(object):
         ):
         """Constructor
         """
-        yr_until_changed_all_things = 2050
-
         # Simulation parameters
         self.base_yr = base_yr
         self.curr_yr = curr_yr
@@ -149,9 +147,7 @@ class Assumptions(object):
         #
         # https://www.gov.uk/government/statistics/english-housing-survey-2014-to-2015-housing-stock-report
         # ------------------------------------------------------------
-        self.assump_diff_floorarea_pp = 1.0
-
-        self.assump_diff_floorarea_pp_yr_until_changed = yr_until_changed_all_things
+        yr_until_changed_all_things = 2050
 
         self.dwtype_distr_by = {
             'semi_detached': 0.26,
