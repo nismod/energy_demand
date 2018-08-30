@@ -17,6 +17,7 @@ regional_specific, crit_all_the_same
 #TODO Write out full result. Then write function to aggregate accordingly
 #TODO replace create_csv_file by pandas
 #TODO SIMple aggregation. Write out sectormodel, enduse, region, fueltypes.... --> Do all aggregation based on that
+#- Make that fuel swtich can be made in any industry sector irrespective of technologies
 """
 import os
 import sys
@@ -159,9 +160,9 @@ if __name__ == "__main__":
         #'enduse_change__ss_fans': 0.5   # 50% improvement
     }
 
-    # -----
+    # --------------------
     # Paths
-    # -----
+    # --------------------
     name_scenario_run = "_result_local_data_{}".format(str(time.ctime()).replace(":", "_").replace(" ", "_"))
 
     data['paths'] = data_loader.load_paths(path_main)
@@ -219,10 +220,10 @@ if __name__ == "__main__":
         writeYAML=data['criterias']['writeYAML'])
     data['assumptions'].update('strategy_vars', strategy_vars)
 
-    # -----------
+    # -----------------------------------------------------------------------------
     # Load smif parameters (if run locally, the standard values are loaded)
     # Add standard narrative
-    # -----------
+    # -----------------------------------------------------------------------------
     strategy_vars = strategy_vars_def.load_smif_parameters(
         data_handle=strategy_vars,
         strategy_variable_names=strategy_vars.keys(),
@@ -230,13 +231,15 @@ if __name__ == "__main__":
         mode='local')
     data['assumptions'].update('strategy_vars', strategy_vars)
 
-    # --------------
+    # -----------------------------------------------------------------------------
     # Update user defined strategy variables
-    # --------------
+    # -----------------------------------------------------------------------------
     for var_name, var_value in user_defined_strategy_vars.items():
         data['assumptions'].strategy_vars[var_name]['scenario_value'] = var_value
 
-
+    # -----------------------------------------------------------------------------
+    # Load necessary data
+    # -------------------------------------------------------------------------------
     data['tech_lp'] = data_loader.load_data_profiles(
         data['paths'], data['local_paths'],
         data['assumptions'].model_yeardays,
@@ -261,9 +264,6 @@ if __name__ == "__main__":
         data['assumptions'].update("rs_regions_without_floorarea", rs_regions_without_floorarea)
         data['assumptions'].update("ss_regions_without_floorarea", ss_regions_without_floorarea)
 
-    # Lookup table to import industry sectoral gva
-    #lookup_tables.industrydemand_name_sic2007()
-
     print("Start Energy Demand Model with python version: " + str(sys.version))
     print("Info model run")
     print("Nr of Regions " + str(data['reg_nrs']))
@@ -275,15 +275,14 @@ if __name__ == "__main__":
         name_population_dataset = data['local_paths']['path_population_data_for_disaggregation_LAD']
     data['pop_for_disag'] =  data_loader.read_scenario_data(name_population_dataset)
 
-
-    # --------------------
-    # Disaggregate fuel
-    # --------------------
+    # ------------------------------------------------------------
+    # Disaggregate national energy demand to regional demands
+    # ------------------------------------------------------------
     data['fuel_disagg'] = s_disaggregation.disaggregate_demand(data)
 
-    # ------------------------------------------------
+    # ------------------------------------------------------------
     # Calculate spatial diffusion factors
-    # ------------------------------------------------
+    # ------------------------------------------------------------
     f_reg, f_reg_norm, f_reg_norm_abs, crit_all_the_same = create_spatial_diffusion_factors(
         strategy_vars=data['assumptions'].strategy_vars,
         fuel_disagg=data['fuel_disagg'],
@@ -305,9 +304,9 @@ if __name__ == "__main__":
     for key, value in init_cont.items():
         setattr(data['assumptions'], key, value)
 
-    # --------------------------
-    # Spatial explicit modelling
-    # --------------------------
+    # ------------------------------------------------
+    # Calculate parameter values for every region
+    # ------------------------------------------------
     regional_strategy_vars = spatial_explicit_modelling_strategy_vars(
         data['assumptions'],
         data['regions'],
@@ -317,9 +316,9 @@ if __name__ == "__main__":
         f_reg_norm_abs)
     data['assumptions'].update('strategy_vars', regional_strategy_vars)
 
-    # ------------------------------------------------------
-    # Annual parameter generation (calculate parameter value for every year)
-    # ------------------------------------------------------
+    # -----------------------------------------------------------------
+    # Calculate parameter values for every simulated year based on narratives
+    # -----------------------------------------------------------------
     regional_strategy_vars, non_regional_strategy_vars = s_generate_scenario_parameters.generate_annual_param_vals(
         data['regions'],
         data['assumptions'].strategy_vars,

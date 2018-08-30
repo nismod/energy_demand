@@ -2,7 +2,7 @@
 """
 import os
 from collections import defaultdict
-import pandas as pd
+#import pandas as pd
 from energy_demand.technologies import diffusion_technologies
 
 def generate_annual_param_vals(
@@ -38,13 +38,20 @@ def generate_annual_param_vals(
     container_non_reg_param = {}
 
     for parameter_name in strategy_vars.keys():
-        path_file = os.path.join(path, "params_{}.{}".format(parameter_name, "csv"))
 
-        regional_strategy_vary, reg_specific_crit = generate_general_parameter(
+        path_file = os.path.join(
+            path, "params_{}.{}".format(parameter_name, "csv"))
+
+        # Calculate annual parameter value 
+        regional_strategy_vary = generate_general_parameter(
             regions=regions,
             narratives=strategy_vars[parameter_name]['narratives'],
             simulated_yrs=simulated_yrs,
             path=path_file)
+
+        # Test if regional specific or not based on first narrative
+        for narrative in strategy_vars[parameter_name]['narratives'][:1]:
+            reg_specific_crit = narrative['regional_specific']
 
         if reg_specific_crit:
             for region in regions:
@@ -60,26 +67,29 @@ def generate_general_parameter(
         simulated_yrs,
         path=False
     ):
-    """Based on narrative input, calculate the parameter
-    value for every modelled year
+    """Based on narrative input, calculate
+    the parameter value for every modelled year
 
     Arguments
     ---------
-    regions : str
-
-    narratives : 
-
-    simulated_yrs : 
+    regions : list
+        Regions
+    narratives : List
+        List containing all narratives of how a model
+        parameter changes over time
+    simulated_yrs : list
+        Simulated years
 
     Returns
     --------
-
+    container : dict
+        All model paramters containing either:
+        - all values for each region and year
+        - all values for each region
     """
     container = defaultdict(dict)
-    reg_specific_crit = True
-    entries = []
+    #entries = []
 
-    # Iterate narratives
     for narrative in narratives:
 
         # -- Regional paramters of narrative step
@@ -91,11 +101,8 @@ def generate_general_parameter(
         # Modelled years
         narrative_yrs = range(narrative['base_yr'], narrative['end_yr'] + 1, 1)
 
-        # If not regional specific parameter
         if not narrative['regional_specific']:
-            reg_specific_crit = False
 
-            # Iterate every modelled year
             for curr_yr in narrative_yrs:
 
                 if curr_yr in simulated_yrs:
@@ -108,10 +115,10 @@ def generate_general_parameter(
                             narrative['regional_vals_by'],
                             narrative['regional_vals_ey'],
                             narrative['end_yr'])
+
                         change_cy = lin_diff_factor
 
-                    # Sigmoid diffusion up to cy
-                    elif narrative['diffusion_choice'] == 'sigmoid':
+                    elif narrative['diffusion_choice'] == 'sigmoid': # Sigmoid diffusion
 
                         diff_value = narrative['regional_vals_ey'] - narrative['regional_vals_by']
 
@@ -121,12 +128,11 @@ def generate_general_parameter(
                             narrative['end_yr'],
                             sig_midpoint,
                             sig_steepness)
+
                         change_cy = diff_value * sig_diff_factor
 
                     container[curr_yr] = change_cy
         else:
-
-            # Iterate regions
             for region in regions:
 
                 # Iterate every modelled year
@@ -142,9 +148,8 @@ def generate_general_parameter(
                                 narrative['regional_vals_by'][region],
                                 narrative['regional_vals_ey'][region],
                                 narrative['end_yr'])
-                            change_cy = lin_diff_factor
 
-                        # Sigmoid diffusion up to cy
+                            change_cy = lin_diff_factor
                         elif narrative['diffusion_choice'] == 'sigmoid':
 
                             diff_value = narrative['regional_vals_ey'][region] - narrative['regional_vals_by'][region]
@@ -155,20 +160,20 @@ def generate_general_parameter(
                                 narrative['end_yr'],
                                 sig_midpoint,
                                 sig_steepness)
+
                             change_cy = diff_value * sig_diff_factor
 
                         container[region][curr_yr] = change_cy
 
-                        entry = []
+                        '''entry = []
                         entry.append(region)
                         entry.append(curr_yr)
                         entry.append(change_cy)
-                        entries.append(entry)
+                        entries.append(entry)'''
 
     # Write out to txt files
     '''# Create dataframe to store values of parameter
     col_names = ["region", "year", "value"]
     my_df = pd.DataFrame(entries, columns=col_names)
     my_df.to_csv(path, index=False) #Index prevents writing index rows'''
-
-    return container, reg_specific_crit
+    return container

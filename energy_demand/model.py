@@ -356,7 +356,6 @@ def residential_submodel(
                 non_regional_strategy_vars=assumptions.non_regional_strategy_vars,
                 fueltypes_nr=lookups['fueltypes_nr'],
                 fueltypes=lookups['fueltypes'],
-                enduse_overall_change=assumptions.enduse_overall_change,
                 dw_stock=rs_dw_stock)
 
             submodels.append(submodel)
@@ -417,7 +416,6 @@ def service_submodel(
                 non_regional_strategy_vars=assumptions.non_regional_strategy_vars,
                 fueltypes_nr=lookups['fueltypes_nr'],
                 fueltypes=lookups['fueltypes'],
-                enduse_overall_change=assumptions.enduse_overall_change,
                 dw_stock=ss_dw_stock)
 
             # Add to list
@@ -487,7 +485,6 @@ def industry_submodel(
                 cooling_factor_y=weather_region.f_cooling_is_y,
                 fuel_tech_p_by=assumptions.is_fuel_tech_p_by[enduse][sector],
                 sig_param_tech=assumptions.is_sig_param_tech[enduse][sector][region.name],
-                enduse_overall_change=assumptions.enduse_overall_change,
                 criterias=criterias,
                 strategy_vars=assumptions.regional_strategy_vars[region.name],
                 non_regional_strategy_vars=assumptions.non_regional_strategy_vars,

@@ -11,6 +11,11 @@ from energy_demand.scripts import init_scripts
 
 def disaggregate_demand(data):
     """Disaggregated demand
+
+    Arguments
+    ----------
+    data : dict
+        Data
     #TODO EXTERNALISE
     """
     disagg = {}

@@ -59,8 +59,6 @@ class Enduse(object):
         Fuel tech assumtions in base year
     sig_param_tech : dict
         Sigmoid parameters
-    enduse_overall_change : dict
-        Assumptions related to overal change in endyear
     regional_lp_stock : object
         Load profile stock
     dw_stock : object,default=False
@@ -103,7 +101,6 @@ class Enduse(object):
             cooling_factor_y,
             fuel_tech_p_by,
             sig_param_tech,
-            enduse_overall_change,
             criterias,
             strategy_vars,
             non_regional_strategy_vars,
@@ -201,7 +198,6 @@ class Enduse(object):
                 curr_yr,
                 strategy_vars,
                 self.fuel_y,
-                enduse_overall_change['other_enduse_mode_info'],
                 assumptions)
             self.fuel_y = _fuel_new_y
             #logging.debug("... Fuel train E2: " + str(np.sum(self.fuel_y)))
@@ -597,7 +593,6 @@ def get_peak_day(fuel_yh):
     """Iterate an array with entries and get
     entry nr with hightest value
 
-    TODO: NOT USED SO FAR
     Arguments
     ---------
     fuel_yh : array (hours)
@@ -1505,7 +1500,6 @@ def industry_enduse_changes(
         curr_yr,
         strategy_vars,
         fuels,
-        other_enduse_mode_info,
         assumptions
     ):
     """This function changes the demand if the enduse

@@ -359,7 +359,6 @@ def capacity_switch(
         regions,
         capacity_switches,
         technologies,
-        other_enduse_mode_info,
         fuels,
         fuel_shares_enduse_by,
         base_yr
@@ -384,8 +383,6 @@ def capacity_switch(
         Capacity switches
     technologies : dict
         Technologies
-    other_enduse_mode_info : dict
-        Generic sigmoid diffusion information
     fuels : dict
         Fuels
     fuel_shares_enduse_by : dict
@@ -459,7 +456,6 @@ def capacity_switch(
                         switch,
                         enduse_capacity_switches,
                         technologies,
-                        other_enduse_mode_info,
                         fuel_shares,
                         base_yr,
                         fuel_to_use)
@@ -475,7 +471,6 @@ def create_service_switch(
         switch,
         enduse_capacity_switches,
         technologies,
-        other_enduse_mode_info,
         fuel_shares_enduse_by,
         base_yr,
         fuel_enduse_y
@@ -492,8 +487,6 @@ def create_service_switch(
         All capacity switches of an enduse (see warning)
     technologies : dict
         Technologies
-    other_enduse_mode_info : dict
-        OTher diffusion information
     fuel_shares_enduse_by : dict
         Fuel shares per enduse for base year
     base_yr : int
@@ -539,7 +532,6 @@ def create_service_switch(
                 technologies[tech].eff_by,
                 technologies[tech].eff_ey,
                 technologies[tech].year_eff_ey,
-                other_enduse_mode_info,
                 technologies[tech].eff_achieved,
                 technologies[tech].diff_method)
 
@@ -559,7 +551,6 @@ def create_service_switch(
             technologies[switch.technology_install].eff_by,
             technologies[switch.technology_install].eff_ey,
             technologies[switch.technology_install].year_eff_ey,
-            other_enduse_mode_info,
             technologies[switch.technology_install].eff_achieved,
             technologies[switch.technology_install].diff_method)
 

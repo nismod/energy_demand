@@ -84,7 +84,6 @@ def load_smif_parameters(
     strategy_variables : dict
         Updated strategy variables
     """
-
     # All information of all scenario parameters
     all_info_scenario_param = load_param_assump(
         assumptions=assumptions)

@@ -20,30 +20,23 @@ from energy_demand.read_write import read_data
 def test_calc_eff_cy():
     """Testing
     """
-    other_enduse_mode_info = {
-        'diff_method': 'linear'},
-
     out_value = tech_related.calc_eff_cy(
         base_yr=2015,
         curr_yr=2020,
         eff_by=1.0,
         eff_ey=2.0,
         yr_until_changed=2020,
-        other_enduse_mode_info=other_enduse_mode_info,
         f_eff_achieved=1.0,
         diff_method='linear')
 
     assert out_value == 2.0
 
-    other_enduse_mode_info = {'sigmoid': {'sig_midpoint': 0,'sig_steepness': 1}}
-
     out_value = tech_related.calc_eff_cy(
         base_yr=2015,
         curr_yr=2020,
         eff_by=1.0,
         eff_ey=2.0,
         yr_until_changed=2020,
-        other_enduse_mode_info=other_enduse_mode_info,
         f_eff_achieved=1.0,
         diff_method='sigmoid')
 

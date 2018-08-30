@@ -60,12 +60,6 @@ def test_get_s_fueltype_tech():
 
     fuel_p_tech_by = {'heating': {0: {'boilerA': 1.0}}}
 
-    other_enduse_mode_info = {
-        'diff_method': 'linear',
-        'sigmoid': {
-            'sig_midpoint': 0,
-            'sig_steepness': 1}}
-
     s_tech_by_p, s_fueltype_tech_by_p, s_fueltype_by_p = s_fuel_to_service.get_s_fueltype_tech(
        enduses=['heating'],
        fueltypes=fueltypes,
@@ -101,12 +95,6 @@ def test_get_s_fueltype_tech():
             fueltypes=fueltypes)}
 
     fuel_p_tech_by = {'heating': {0: {'boilerA': 0.5, 'boilerB': 0.5}}}
-
-    other_enduse_mode_info = {
-        'diff_method': 'linear',
-        'sigmoid': {
-            'sig_midpoint': 0,
-            'sig_steepness': 1}}
 
     s_tech_by_p, s_fueltype_tech_by_p, s_fueltype_by_p = s_fuel_to_service.get_s_fueltype_tech(
        enduses=['heating'],
@@ -156,12 +144,6 @@ def test_get_s_fueltype_tech():
             fueltypes=fueltypes)}
 
     fuel_p_tech_by = {'heating': {0: {'boilerA': 1.0}, 1: {'boilerB': 1.0}}}
-
-    other_enduse_mode_info = {
-        'diff_method': 'linear',
-        'sigmoid': {
-            'sig_midpoint': 0,
-            'sig_steepness': 1}}
 
     s_tech_by_p, s_fueltype_tech_by_p, s_fueltype_by_p = s_fuel_to_service.get_s_fueltype_tech(
        enduses=['heating'],

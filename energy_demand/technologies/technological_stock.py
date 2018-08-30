@@ -1,7 +1,6 @@
 """
 Functions related to the technological stock
 """
-import numpy as np
 from energy_demand.technologies import tech_related
 
 class TechStock(object):
@@ -13,7 +12,6 @@ class TechStock(object):
             self,
             name,
             technologies,
-            other_enduse_mode_info,
             base_yr,
             curr_yr,
             fueltypes,
@@ -32,8 +30,6 @@ class TechStock(object):
             Name of technology stock
         technologies : dict
             All technologies and their properties
-        other_enduse_mode_info : dict
-            Other diffusion information
         base_yr : int
             Base year
         curr_yr : int
@@ -63,7 +59,6 @@ class TechStock(object):
 
         self.stock_technologies = create_tech_stock(
             technologies,
-            other_enduse_mode_info,
             base_yr,
             curr_yr,
             fueltypes,
@@ -127,7 +122,6 @@ class TechStock(object):
 
 def create_tech_stock(
         technologies,
-        other_enduse_mode_info,
         base_yr,
         curr_yr,
         fueltypes,
@@ -144,8 +138,6 @@ def create_tech_stock(
     ----------
     technologies : dict
         All technology assumptions
-    other_enduse_mode_info : dict
-        Diffusion info
     lookups : dict
         Lookups
     temp_by : array
@@ -181,7 +173,6 @@ def create_tech_stock(
                     year_eff_ey=technologies[technology].year_eff_ey,
                     market_entry=technologies[technology].market_entry,
                     tech_max_share=technologies[technology].tech_max_share,
-                    other_enduse_mode_info=other_enduse_mode_info,
                     base_yr=base_yr,
                     curr_yr=curr_yr,
                     fueltypes=fueltypes,
@@ -236,8 +227,6 @@ class Technology(object):
         Year when technology comes on the market
     tech_max_share : float
         Maximum theoretical penetration of technology
-    other_enduse_mode_info : dict
-        Sigmoid diffusion informaiton
     base_yr : float
         Base year
     curr_yr : float
@@ -272,7 +261,6 @@ class Technology(object):
             year_eff_ey=None,
             market_entry=None,
             tech_max_share=None,
-            other_enduse_mode_info=None,
             base_yr=None,
             curr_yr=None,
             fueltypes=None,
@@ -311,7 +299,6 @@ class Technology(object):
                     eff_by,
                     eff_ey,
                     year_eff_ey,
-                    other_enduse_mode_info,
                     self.eff_achieved,
                     self.diff_method),
                 t_base_heating_cy)
@@ -323,7 +310,6 @@ class Technology(object):
                 eff_by,
                 eff_ey,
                 year_eff_ey,
-                other_enduse_mode_info,
                 self.eff_achieved,
                 self.diff_method)
 

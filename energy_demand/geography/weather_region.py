@@ -76,7 +76,6 @@ class WeatherRegion(object):
         self.rs_tech_stock = technological_stock.TechStock(
             'rs_tech_stock',
             technologies,
-            assumptions.enduse_overall_change['other_enduse_mode_info'],
             assumptions.base_yr,
             assumptions.curr_yr,
             fueltypes,
@@ -90,7 +89,6 @@ class WeatherRegion(object):
         self.ss_tech_stock = technological_stock.TechStock(
             'ss_tech_stock',
             technologies,
-            assumptions.enduse_overall_change['other_enduse_mode_info'],
             assumptions.base_yr,
             assumptions.curr_yr,
             fueltypes,
@@ -104,7 +102,6 @@ class WeatherRegion(object):
         self.is_tech_stock = technological_stock.TechStock(
             'is_tech_stock',
             technologies,
-            assumptions.enduse_overall_change['other_enduse_mode_info'],
             assumptions.base_yr,
             assumptions.curr_yr,
             fueltypes,

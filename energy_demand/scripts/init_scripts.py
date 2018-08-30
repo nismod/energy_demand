@@ -10,7 +10,14 @@ from energy_demand.read_write import read_data
 from energy_demand.scripts import (s_fuel_to_service, s_generate_sigmoid)
 from energy_demand.technologies import fuel_service_switch
 
-def create_spatial_diffusion_factors(strategy_vars, fuel_disagg, regions, real_values, speed_con_max, p_outlier=5):
+def create_spatial_diffusion_factors(
+        strategy_vars,
+        fuel_disagg,
+        regions,
+        real_values,
+        speed_con_max,
+        p_outlier=5
+    ):
     """
 
     p_outlier : float or int
@@ -224,7 +231,6 @@ def scenario_initalisation(
         data['regions'],
         reg_capacity_switches_rs,
         data['technologies'],
-        data['assumptions'].enduse_overall_change['other_enduse_mode_info'],
         data['fuels']['rs_fuel_raw'],
         data['assumptions'].rs_fuel_tech_p_by,
         data['assumptions'].base_yr)
@@ -233,7 +239,6 @@ def scenario_initalisation(
         data['regions'],
         reg_capacity_switches_ss,
         data['technologies'],
-        data['assumptions'].enduse_overall_change['other_enduse_mode_info'],
         ss_aggr_sector_fuels,
         data['assumptions'].ss_fuel_tech_p_by,
         data['assumptions'].base_yr)
@@ -242,7 +247,6 @@ def scenario_initalisation(
         data['regions'],
         reg_capacity_switches_is,
         data['technologies'],
-        data['assumptions'].enduse_overall_change['other_enduse_mode_info'],
         is_aggr_sector_fuels,
         data['assumptions'].is_fuel_tech_p_by,
         data['assumptions'].base_yr)

@@ -105,7 +105,11 @@ def insert_placholder_techs(
 
     return tech_p_by, all_specified_tech_enduse_by, technologies
 
-def calc_hp_eff(temp_yh, efficiency_intersect, t_base_heating):
+def calc_hp_eff(
+        temp_yh,
+        efficiency_intersect,
+        t_base_heating
+    ):
     """Calculate efficiency of heat pumps according to
     temperature difference.
 
@@ -344,7 +348,6 @@ def calc_eff_cy(
         eff_by,
         eff_ey,
         yr_until_changed,
-        other_enduse_mode_info,
         f_eff_achieved,
         diff_method
     ):
@@ -363,8 +366,6 @@ def calc_eff_cy(
         End year efficiency
     yr_until_changed : int
         Year for which the eff_ey is defined
-    other_enduse_mode_info : Dict
-        diffusion information
     f_eff_achieved : dict
         Efficiency achievement factor (how much of the efficiency is achieved)
     diff_method : str
@@ -400,8 +401,8 @@ def calc_eff_cy(
             base_yr,
             curr_yr,
             yr_until_changed,
-            other_enduse_mode_info['sigmoid']['sig_midpoint'],
-            other_enduse_mode_info['sigmoid']['sig_steepness'])
+            sig_midpoint=0,
+            sig_steepness=1)
 
         # Differencey in efficiency change
         max_eff_gain = diff_cy * (eff_ey - eff_by)

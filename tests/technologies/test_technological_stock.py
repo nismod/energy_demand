@@ -15,7 +15,6 @@ def test_Technology():
         eff_by=0.5,
         eff_ey=1.0,
         year_eff_ey=2020,
-        other_enduse_mode_info={'linear'},
         base_yr=2015,
         curr_yr=2020,
         fueltypes={'electricity': 2},
@@ -36,7 +35,6 @@ def test_Technology():
         eff_by=0.5,
         eff_ey=1.0,
         year_eff_ey=2020,
-        other_enduse_mode_info={'linear'},
         base_yr=2015,
         curr_yr=2020,
         fueltypes={'electricity': 2},
@@ -71,7 +69,6 @@ def test_TechStock():
     stock_obj = technological_stock.TechStock(
         name="name",
         technologies=all_technologies,
-        other_enduse_mode_info={'linear'},
         base_yr=base_yr,
         curr_yr=curr_yr,
         fueltypes={'electricity': 2},

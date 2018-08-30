@@ -190,7 +190,7 @@ def test_autocomplete_switches():
                 assert switch.service_share_ey == 0.2
             if switch.technology_install == 'techC':
                 assert switch.service_share_ey == 0.2
-test_autocomplete_switches()
+
 def test_create_service_switch():
     """testing
     """
@@ -234,7 +234,6 @@ def test_create_service_switch():
                 tech_type='tech_heating',
                 tech_max_share=1.0)
             },
-        'other_enduse_mode_info': {'diff_method': 'linear', 'sigmoid': {'sig_midpoint': 0,'sig_steepness': 1}},
         'rs_fuel_tech_p_by': {0: {'boiler_gas': 0.0}, 1: {'boiler_oil': 1.0}}
     }
 
@@ -249,7 +248,6 @@ def test_create_service_switch():
         capacity_switch,
         capacity_switches,
         assumptions['technologies'],
-        assumptions['other_enduse_mode_info'],
         assumptions['rs_fuel_tech_p_by'],
         base_yr,
         fuels)
@@ -264,12 +262,6 @@ def test_create_service_switch():
 def test_capacity_switch():
     """Testing
     """
-    other_enduse_mode_info = {
-        'diff_method': 'linear',
-        'sigmoid': {
-            'sig_midpoint': 0,
-            'sig_steepness': 1}}
-
     technologies = {'techA': read_data.TechnologyData(
         fueltype='oil',
         eff_by=1.0,
@@ -293,7 +285,6 @@ def test_capacity_switch():
         regions=regions,
         capacity_switches=capacity_switches,
         technologies=technologies,
-        other_enduse_mode_info=other_enduse_mode_info,
         fuels={'heating': {0: 100}},
         fuel_shares_enduse_by={'heating': {0: {'techA': 1.0}}},
         base_yr=2015)
@@ -338,7 +329,6 @@ def test_capacity_switch():
         regions=regions,
         capacity_switches=capacity_switches,
         technologies=technologies,
-        other_enduse_mode_info=other_enduse_mode_info,
         fuels={'heating': {0: 100}},
         fuel_shares_enduse_by={'heating': {0: {'techA': 0.5, 'techB': 0.5}}},
         base_yr=2015)
@@ -348,7 +338,7 @@ def test_capacity_switch():
             assert round(switch.service_share_ey, 3) == round((1 / (300)) * 250, 3)
         if switch.technology_install == 'techB':
             assert round(switch.service_share_ey, 3) == round((1 / (300)) * 50, 3)
-
+test_capacity_switch()
 def autocomplete_switches():
     """Testing
     """

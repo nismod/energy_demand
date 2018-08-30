@@ -389,8 +389,6 @@ class Assumptions(object):
         #
         #   Assumptions related to industrial enduses
         #
-        #   Overal changes in industry related enduse can be changed
-        #   in 'enduse_overall_change_enduses'
         #
         # ------------------------------------------------------------
 
@@ -500,24 +498,6 @@ class Assumptions(object):
             self.technologies,
             self.installed_heat_pump_by,
             fueltypes)
-
-        # ============================================================
-        # Enduse diffusion paramters
-        # ============================================================
-        #
-        #   Assumptions related to general diffusion
-        #
-        #   This parameters are used to specify e.g. diffusion of
-        #   an enduse which is not specified by technologies
-        #   or the diffusion of a policy of changing a parameter
-        #   over time.
-        # ------------------------------------------------------------
-        self.enduse_overall_change = {}
-        self.enduse_overall_change['other_enduse_mode_info'] = {
-            'diff_method': 'linear',
-            'sigmoid': {
-                'sig_midpoint': 0,
-                'sig_steepness': 1}} #TODO TODO REPLACE
 
         # ============================================================
         # Fuel Stock Definition

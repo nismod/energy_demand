@@ -25,7 +25,6 @@ def test_enduse():
         cooling_factor_y='test',
         fuel_tech_p_by='test',
         sig_param_tech='test',
-        enduse_overall_change='test',
         criterias='test',
         strategy_vars='test',
         non_regional_strategy_vars='test',
@@ -407,7 +406,6 @@ def test_fuel_to_service():
     tech_stock = technological_stock.TechStock(
         name="name",
         technologies=technologies,
-        other_enduse_mode_info={'linear'},
         base_yr=2015,
         curr_yr=2020,
         fueltypes=fueltypes,
@@ -437,7 +435,6 @@ def test_fuel_to_service():
     tech_stock = technological_stock.TechStock(
         name="name",
         technologies=technologies,
-        other_enduse_mode_info={'linear'},
         base_yr=2015,
         curr_yr=2020,
         fueltypes=fueltypes,
@@ -473,7 +470,6 @@ def test_service_to_fuel():
     tech_stock = technological_stock.TechStock(
         name="name",
         technologies=technologies,
-        other_enduse_mode_info={'linear'},
         base_yr=2015,
         curr_yr=2020,
         fueltypes=fueltypes,
@@ -512,11 +508,6 @@ def test_service_to_fuel():
 
 def test_apply_heat_recovery():
     """Testing"""
-    other_enduse_mode_info = {}
-    other_enduse_mode_info['other_enduse_mode_info'] = {}
-    other_enduse_mode_info['other_enduse_mode_info']['sigmoid'] = {}
-    other_enduse_mode_info['other_enduse_mode_info']['sigmoid']['sig_midpoint'] = 0
-    other_enduse_mode_info['other_enduse_mode_info']['sigmoid']['sig_steepness'] = 1
 
     result, result_tech = enduse_func.apply_heat_recovery(
         enduse='heating',
@@ -566,7 +557,6 @@ def test_calc_fuel_tech_yh():
     '''tech_stock = technological_stock.TechStock(
         name="name",
         technologies=technologies,
-        other_enduse_mode_info={'linear'},
         base_yr=2015,
         curr_yr=2020,
         fueltypes=fueltypes,
@@ -626,10 +616,6 @@ def test_apply_specific_change():
     """
     strategy_vars = {
         'enduse_change__heating': {2015: 0, 2020: 2.0}}
-
-    enduse_overall_change = {}
-    enduse_overall_change['other_enduse_mode_info'] = {}
-    enduse_overall_change['other_enduse_mode_info']['diff_method'] = 'linear'
 
     fuel_y = np.array([100])
     result = enduse_func.apply_specific_change(
@@ -695,11 +681,6 @@ def test_get_enduse_configuration():
 def test_apply_cooling():
     """testing
     """
-    other_enduse_mode_info = {}
-    other_enduse_mode_info['sigmoid'] = {}
-    other_enduse_mode_info['sigmoid']['sig_midpoint'] = 0
-    other_enduse_mode_info['sigmoid']['sig_steepness'] = 1
-
     strategy_vars = {
         'cooled_floorarea__{}'.format('cooling_enduse'): {2015: 0, 2020: 0.5}}
 
