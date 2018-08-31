@@ -62,7 +62,13 @@ def sigmoid_function(x_value, l_value, midpoint, steepness):
     """
     return l_value / (1 + np.exp(-steepness * ((x_value - 2000.0) - midpoint)))
 
-def sigmoid_diffusion(base_yr, curr_yr, end_yr, sig_midpoint, sig_steepness):
+def sigmoid_diffusion(
+        base_yr,
+        curr_yr,
+        end_yr,
+        sig_midpoint,
+        sig_steepness
+    ):
     """Calculates a sigmoid diffusion path of a lower to a higher value with
     assumed saturation at the end year
 

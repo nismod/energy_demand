@@ -130,15 +130,11 @@ def get_s_fueltype_tech(
     ------
     s_tech_by_p : dict
         Percentage of total energy service per technology for base year
-    s_fueltype_tech_by_p : dict
-        Percentage of energy service witin a fueltype for all
-        technologies with this fueltype for base year
     s_fueltype_by_p : dict
         Percentage of energy service per fueltype
     """
-    service = init_nested_dict_brackets(fuels, fueltypes.values())              # Energy service per technology for base year
-    s_tech_by_p = helpers.init_dict_brackets(fuels)                             # Percentage of total energy service per technology for base year
-    s_fueltype_tech_by_p = init_nested_dict_brackets(fuels, fueltypes.values()) # Percentage of service per technologies within the fueltypes
+    service = init_nested_dict_brackets(fuels, fueltypes.values()) # Energy service per technology for base year
+    s_tech_by_p = helpers.init_dict_brackets(fuels) # Percentage of total energy service per technology for base year
     s_fueltype_by_p = init_nested_dict_zero(s_tech_by_p.keys(), range(len(fueltypes))) # Percentage of service per fueltype
 
     for enduse in enduses:
@@ -184,10 +180,8 @@ def get_s_fueltype_tech(
             # Calculate percentage of service enduse within fueltype
             for tech in selec_fuel_p_tech_by[fueltype]:
                 if tot_s_fueltype == 0: # No fuel in this fueltype
-                    s_fueltype_tech_by_p[enduse][fueltype][tech] = 0
                     s_fueltype_by_p[enduse][fueltype] += 0
                 else:
-                    s_fueltype_tech_by_p[enduse][fueltype][tech] = service[enduse][fueltype][tech] / tot_s_fueltype
                     s_fueltype_by_p[enduse][fueltype] += service[enduse][fueltype][tech]
 
         # Calculate percentage of service of all technologies
@@ -219,4 +213,4 @@ def get_s_fueltype_tech(
     #warnings.filterwarnings('ignore') # Ignore warnings
     # Test if the energy service for all technologies is 100%
     # Test if within fueltype always 100 energy service
-    return s_tech_by_p, s_fueltype_tech_by_p, s_fueltype_by_p
+    return s_tech_by_p, s_fueltype_by_p

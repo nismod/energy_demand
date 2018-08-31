@@ -186,7 +186,6 @@ def create_switches_from_s_shares(
 
             service_switches_out.append(switch_new)
         else:
-
             # If assigned copy to final switches
             for switch_new in enduse_switches:
                 if switch_new.technology_install == tech:
@@ -194,7 +193,7 @@ def create_switches_from_s_shares(
                     # If no fuel demand, also no switch possible
                     if tot_share_not_assigned == 0:
                         switch_new.service_share_ey = 0
-                    
+
                     service_switches_out.append(switch_new)
 
     return service_switches_out
@@ -210,8 +209,8 @@ def autocomplete_switches(
         techs_affected_spatial_f=False,
         service_switches_from_capacity=[]
     ):
-    """Add not defined technologies in switches
-    and set correct future service share.
+    """Add not defined technologies in switches and set
+    correct future service share.
 
     If the defined service switches do not sum up to 100% service,
     the remaining service is distriputed proportionally
@@ -245,10 +244,10 @@ def autocomplete_switches(
 
         service_switches_out_value_all_regs = []
 
-
+        # -------------------------------------
+        # Calculations for every enduse switch
+        # -------------------------------------
         for enduse in enduses:
-
-            # Get all switches of this enduse
             enduse_switches = []
             s_tot_defined = 0
             switch_technologies = []
@@ -272,12 +271,10 @@ def autocomplete_switches(
                 switch_yr=switch_yr)
 
             service_switches_out_value_all_regs.extend(switches_new)
-            #service_switches_out_value_all_regs.extend(service_switches_from_capacity)
 
+        # For every region, set same switches
         for region in regions:
             service_switches_out[region] = service_switches_out_value_all_regs
-
-    # -------
     else:
         for region in regions:
             service_switches_out[region] = []
@@ -315,9 +312,11 @@ def autocomplete_switches(
                             if s_tot_defined + s_share_ey_regional > 1.0:
 
                                 if round(s_tot_defined + s_share_ey_regional) > 1:
-                                    logging.warning("ERROR: MORE THAN ONE TECHNOLOG SWICHED WITH LARGER SHARE: ") #TODO
-                                    logging.warning(" {}  {} {}".format(s_tot_defined, s_share_ey_regional, s_tot_defined + s_share_ey_regional))
-                                    prnt(".")
+    
+                                    logging.warning(
+                                        " {}  {} {}".format(s_tot_defined, s_share_ey_regional, s_tot_defined + s_share_ey_regional))
+                                    raise Exception(
+                                        "Error of regional parameter calcuation. More than one technology switched with larger share") 
                                 else:
                                     s_share_ey_regional = max_crit - s_share_ey_regional
                         else:

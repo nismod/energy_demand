@@ -48,6 +48,28 @@ def create_spatial_diffusion_factors(
         speed_con_max=speed_con_max,
         p_outlier=p_outlier)
 
+    '''plot_fig_paper = False
+    if plot_fig_paper:
+        from energy_demand.plotting import result_mapping
+        # Global value to distribute
+        global_value = 50
+
+        # Select spatial diffusion factor
+        #diffusion_vals = f_reg                                  # not weighted
+        diffusion_vals = f_reg_norm['ss_space_heating']         # Weighted with enduse
+        #diffusion_vals = f_reg_norm_abs['rs_space_heating']    # Absolute distribution (only for capacity installements)
+
+        path_shapefile_input = os.path.abspath(
+            'C:/Users/cenv0553/ED/data/_raw_data/C_LAD_geography/lad_2016_uk_simplified.shp')
+
+        result_mapping.plot_spatial_mapping_example(
+            diffusion_vals=diffusion_vals,
+            global_value=global_value,
+            paths=data['result_paths'],
+            regions=data['regions'],
+            path_shapefile_input=path_shapefile_input,
+            plotshow=True)'''
+
     return f_reg, f_reg_norm, f_reg_norm_abs, crit_all_the_same
 
 def scenario_initalisation(
@@ -71,10 +93,6 @@ def scenario_initalisation(
     data : dict
         Data container
     """
-    logging.info("... Start initialisation scripts")
-
-    init_cont = defaultdict(dict)
-
     # --------------------------------------------
     # Delete results from previous model runs and initialise folders
     # --------------------------------------------
@@ -98,12 +116,10 @@ def scenario_initalisation(
         basic_functions.create_folder(folder)
 
     # ---------------------------------------
-    # Convert base year fuel input
-    # assumptions to energy service
+    # Convert base year fuel input assumptions to energy service
     # ---------------------------------------
-
     # Residential submodel
-    rs_s_tech_by_p, _, rs_s_fueltype_by_p = s_fuel_to_service.get_s_fueltype_tech(
+    rs_s_tech_by_p,rs_s_fueltype_by_p = s_fuel_to_service.get_s_fueltype_tech(
         data['enduses']['rs_enduses'],
         data['lookups']['fueltypes'],
         data['assumptions'].rs_fuel_tech_p_by,
@@ -114,7 +130,7 @@ def scenario_initalisation(
     ss_s_tech_by_p = {}
     ss_s_fueltype_by_p = {}
     for sector in data['sectors']['ss_sectors']:
-        ss_s_tech_by_p[sector], _, ss_s_fueltype_by_p[sector] = s_fuel_to_service.get_s_fueltype_tech(
+        ss_s_tech_by_p[sector], ss_s_fueltype_by_p[sector] = s_fuel_to_service.get_s_fueltype_tech(
             data['enduses']['ss_enduses'],
             data['lookups']['fueltypes'],
             data['assumptions'].ss_fuel_tech_p_by,
@@ -126,72 +142,13 @@ def scenario_initalisation(
     is_s_tech_by_p = {}
     is_s_fueltype_by_p = {}
     for sector in data['sectors']['is_sectors']:
-        is_s_tech_by_p[sector], _, is_s_fueltype_by_p[sector] = s_fuel_to_service.get_s_fueltype_tech(
+        is_s_tech_by_p[sector], is_s_fueltype_by_p[sector] = s_fuel_to_service.get_s_fueltype_tech(
             data['enduses']['is_enduses'],
             data['lookups']['fueltypes'],
             data['assumptions'].is_fuel_tech_p_by,
             data['fuels']['is_fuel_raw'],
             data['technologies'],
             sector)
-
-    '''# ===========================================
-    # Calculate spatial diffusion factors
-    # ===========================================
-    #if data['assumptions'].non_regional_strategy_vars['spatial_explicit_diffusion']:
-    if data['assumptions'].strategy_vars['spatial_explicit_diffusion']['scenario_value']:
-
-        # Select real value
-        real_values = data['pop_density']       # Population density is selected as real values
-
-        # Define diffusion speed
-        #speed_con_max = data['assumptions'].non_regional_strategy_vars['speed_con_max']['scenario_value']
-        speed_con_max = data['assumptions'].strategy_vars['speed_con_max']['scenario_value']
-
-        # Criteria whether a spatially differentiated diffusion is applied depending on real_values
-        crit_all_the_same = False
-    else:
-
-        # Real value to select
-        real_values = data['pop_density']
-
-        # NEW If not spatial different, set speed_con_max to 1
-        speed_con_max = 1
-
-        # Define that the penetration levels are the same for every region
-        crit_all_the_same = True
-
-    # Nr of min and max outliers to flatten
-    p_outlier = 5
-
-    f_reg, f_reg_norm, f_reg_norm_abs = spatial_diffusion.calc_spatially_diffusion_factors(
-        regions=data['regions'],
-        fuel_disagg=fuel_disagg,
-        real_values=real_values,
-        low_congruence_crit=True,
-        speed_con_max=speed_con_max,
-        p_outlier=p_outlier)'''
-
-    '''plot_fig_paper = False
-    if plot_fig_paper:
-        from energy_demand.plotting import result_mapping
-        # Global value to distribute
-        global_value = 50
-
-        # Select spatial diffusion factor
-        #diffusion_vals = f_reg                                  # not weighted
-        diffusion_vals = f_reg_norm['ss_space_heating']         # Weighted with enduse
-        #diffusion_vals = f_reg_norm_abs['rs_space_heating']    # Absolute distribution (only for capacity installements)
-
-        path_shapefile_input = os.path.abspath(
-            'C:/Users/cenv0553/ED/data/_raw_data/C_LAD_geography/lad_2016_uk_simplified.shp')
-
-        result_mapping.plot_spatial_mapping_example(
-            diffusion_vals=diffusion_vals,
-            global_value=global_value,
-            paths=data['result_paths'],
-            regions=data['regions'],
-            path_shapefile_input=path_shapefile_input,
-            plotshow=True)'''
 
     # ===========================================
     # I. Switches
@@ -217,15 +174,11 @@ def scenario_initalisation(
 
     # Convert globally defined switches to regional switches
     reg_capacity_switches_rs = global_to_reg_capacity_switch(
-        data['regions'], data['assumptions'].rs_capacity_switches, f_diffusion)
+        data['regions'], data['assumptions'].rs_capacity_switches, f_diffusion=f_diffusion)
     reg_capacity_switches_ss = global_to_reg_capacity_switch(
-        data['regions'], data['assumptions'].ss_capacity_switches, f_diffusion)
+        data['regions'], data['assumptions'].ss_capacity_switches, f_diffusion=f_diffusion)
     reg_capacity_switches_is = global_to_reg_capacity_switch(
-        data['regions'], data['assumptions'].is_capacity_switches, f_diffusion)
-
-    rs_service_switches_incl_cap = {}
-    ss_service_switches_inlc_cap = {}
-    is_service_switches_incl_cap = {}
+        data['regions'], data['assumptions'].is_capacity_switches, f_diffusion=f_diffusion)
 
     rs_service_switches_incl_cap = fuel_service_switch.capacity_switch(
         data['regions'],
@@ -258,9 +211,7 @@ def scenario_initalisation(
     # service switches. Potential capacity switches are used as inputs.
     #
     # Autocomplement defined service switches with technologies not
-    # explicitly specified in switch on a global scale and distribute
-    # spatially.
-    # Autocomplete and regional diffusion levels calculations
+    # explicitly specified in switch on a global scale and distribute spatially.
     # ========================================================================================
 
     # Select spatial diffusion
@@ -470,7 +421,7 @@ def spatial_explicit_modelling_strategy_vars(
 def global_to_reg_capacity_switch(
         regions,
         global_capactiy_switch,
-        spatial_factors
+        f_diffusion
     ):
     """Conversion of global capacity switch installations
     to regional installation
@@ -481,11 +432,12 @@ def global_to_reg_capacity_switch(
         Regions
     global_capactiy_switch : float
         Global switch
-    spatial_factors : dict
+    f_diffusion : dict
 
     Returns
     -------
-
+    reg_capacity_switch : dict
+        Regional capacity switch
     """
     reg_capacity_switch = {}
     for reg in regions:
@@ -505,13 +457,12 @@ def global_to_reg_capacity_switch(
             if switch.enduse == enduse:
                 enduse_capacity_switches.append(switch)
 
-        test = 0
         for region in regions:
             for switch in enduse_capacity_switches:
 
                 global_capacity = switch.installed_capacity
-                regional_capacity = global_capacity  * spatial_factors[switch.enduse][region]
-                test += regional_capacity
+                regional_capacity = global_capacity  * f_diffusion[switch.enduse][region]
+
                 new_switch = read_data.CapacitySwitch(
                     enduse=switch.enduse,
                     technology_install=switch.technology_install,

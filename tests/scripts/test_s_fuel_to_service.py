@@ -60,7 +60,7 @@ def test_get_s_fueltype_tech():
 
     fuel_p_tech_by = {'heating': {0: {'boilerA': 1.0}}}
 
-    s_tech_by_p, s_fueltype_tech_by_p, s_fueltype_by_p = s_fuel_to_service.get_s_fueltype_tech(
+    s_tech_by_p, s_fueltype_by_p = s_fuel_to_service.get_s_fueltype_tech(
        enduses=['heating'],
        fueltypes=fueltypes,
        fuel_p_tech_by=fuel_p_tech_by,
@@ -68,7 +68,6 @@ def test_get_s_fueltype_tech():
        technologies=technologies)
 
     assert s_tech_by_p['heating']['boilerA'] == 1.0
-    assert s_fueltype_tech_by_p['heating'][0]['boilerA'] == 1.0
     assert s_fueltype_by_p['heating'][0] == 1.0
 
     # -------------------------------------
@@ -96,7 +95,7 @@ def test_get_s_fueltype_tech():
 
     fuel_p_tech_by = {'heating': {0: {'boilerA': 0.5, 'boilerB': 0.5}}}
 
-    s_tech_by_p, s_fueltype_tech_by_p, s_fueltype_by_p = s_fuel_to_service.get_s_fueltype_tech(
+    s_tech_by_p, s_fueltype_by_p = s_fuel_to_service.get_s_fueltype_tech(
        enduses=['heating'],
        fueltypes=fueltypes,
        fuel_p_tech_by=fuel_p_tech_by,
@@ -105,8 +104,6 @@ def test_get_s_fueltype_tech():
 
     assert s_tech_by_p['heating']['boilerA'] == 0.5
     assert s_tech_by_p['heating']['boilerB'] == 0.5
-    assert s_fueltype_tech_by_p['heating'][0]['boilerA'] == 0.5
-    assert s_fueltype_tech_by_p['heating'][0]['boilerB'] == 0.5
     assert s_fueltype_by_p['heating'][0] == 1.0
 
     # -------------------------------------
@@ -145,7 +142,7 @@ def test_get_s_fueltype_tech():
 
     fuel_p_tech_by = {'heating': {0: {'boilerA': 1.0}, 1: {'boilerB': 1.0}}}
 
-    s_tech_by_p, s_fueltype_tech_by_p, s_fueltype_by_p = s_fuel_to_service.get_s_fueltype_tech(
+    s_tech_by_p, s_fueltype_by_p = s_fuel_to_service.get_s_fueltype_tech(
        enduses=['heating'],
        fueltypes=fueltypes,
        fuel_p_tech_by=fuel_p_tech_by,
@@ -154,7 +151,5 @@ def test_get_s_fueltype_tech():
 
     assert s_tech_by_p['heating']['boilerA'] == 0.25
     assert s_tech_by_p['heating']['boilerB'] == 0.75
-    assert s_fueltype_tech_by_p['heating'][0]['boilerA'] == 1.0
-    assert s_fueltype_tech_by_p['heating'][1]['boilerB'] == 1.0
     assert s_fueltype_by_p['heating'][0] == 0.25
     assert s_fueltype_by_p['heating'][1] == 0.75

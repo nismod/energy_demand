@@ -103,7 +103,7 @@ def main(path_data_energy_demand, path_shapefile_input, plot_crit_dict, base_yr,
             base_yr=base_yr)
 
     # ----------------
-    # Write results to CSV files and merge with shapefile TODO: REMOVE
+    # Write results to CSV files and merge with shapefile
     # ----------------
     '''if plot_crit_dict['write_shapefiles']:
         write_data.create_shp_results(

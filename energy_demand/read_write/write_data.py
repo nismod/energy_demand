@@ -367,9 +367,11 @@ def resilience_paper(
         fueltypes,
         fueltype_str
     ):
-    """Restuls for risk paper
+    """Results for risk paper
 
-    results : array 
+    #TODO REMOVE
+
+    results : array
         results_unconstrained (3, 391, 7, 365, 24)
     Get maximum and minimum h electricity for eversy submodel
     for base year
@@ -434,8 +436,6 @@ def resilience_paper(
             float(max_GW_elec)) + '\n')
 
         # Write every hour of min and max day
-        #TODO 
-
         '''file.write("{}, {}, {}, {}, {}, {}, {}".format(
             str.strip(region),
             float(resid_min_GW_elec),
@@ -502,7 +502,6 @@ def resilience_paper(
     # TODO TO IMPROVE RESILIENCE NEW Plot share of submodel electricity demand per lad
     # ---------------------
     submodels = ['residential_min', 'service', 'industry']
-
     '''
     #results[submodel_nr][region_nr][fueltype_int].reshape(8760)
     for hour in range(24):

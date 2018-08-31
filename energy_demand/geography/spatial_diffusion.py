@@ -12,13 +12,7 @@ def spatial_diffusion_values(
         low_congruence_crit,
         p_outlier
     ):
-    """Load spatial diffusion values
-    "Create SDI from socio-economic data
-
-    This are the values which already incorporate different
-    speeds in diffusion and the congruence values
-
-    e.g. based on urban/rural population
+    """Generate spatial diffusion values from real data
 
     Arguments
     ---------
@@ -26,14 +20,22 @@ def spatial_diffusion_values(
         Regions
     p_outlier : float (percentage)
         Percentage of outliers which are capped at both
-        ends of the value spectrum
+        ends of the value spectrum of the real data
 
     Returns
     -------
     diffusion_values : dict
         Spatial diffusion values based on speed assumptions
+
+    Example
+    -------
+    This function calculates the values which already
+    incorporate different speeds in diffusion.
+
+    For example based on real values (e.g. population density)
+    congruence values are calculated. Then, the congruence
+    values are linked to diffusion speed differentes.
     """
-    # Diffusion values based on urban/rural
     diffusion_values = {}
 
     # Diffusion speed assumptions
@@ -41,7 +43,8 @@ def spatial_diffusion_values(
     speed_con_max = speed_con_max   # Speed at con_val == 1
 
     if speed_con_max == 1:
-        # TODO NEW
+
+        # No regional difference
         for region in regions:
             diffusion_values[region] = 1 #100% congruence
     else:
@@ -70,9 +73,9 @@ def spatial_diffusion_values(
         # Plot after removing outliers
         #plotting_program.plot_xy(list(real_values.values()))
 
-        # ----------------
+        # ---------------------------------
         # Congruence calculations
-        # -----------------
+        # ----------------------------------
         # Max congruence value
         con_max = max(real_values.values())
 
@@ -111,7 +114,7 @@ def spatial_diffusion_values(
                 min_reg = i
         import logging
         logging.info("print  {}  {}  ".format(min_reg, min_val))
-        prnt(":")'''
+        '''
     return diffusion_values
 
 def calc_diffusion_f(regions, f_reg, spatial_diff_values, fuels):

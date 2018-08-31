@@ -196,7 +196,7 @@ def assign_by_fuel_tech_p(enduses, sectors, fueltypes, fueltypes_nr):
     # Service subModel
     # ===================
 
-    # TODO ss_lighting? Simplified based on Table 5.09 (Office lighting)
+    # ss_lighting Simplified based on Table 5.09 (Office lighting)
     ss_fuel_tech_p_by['ss_lighting'][fueltypes['electricity']] = {
         'halogen': 0.45,
         'fluorescent_strip_lighting': 0.07,

@@ -351,7 +351,7 @@ class Assumptions(object):
         # ------------------------------------------------------------
         t_bases = {}
         t_bases['rs_t_heating_by'] = 15.5    #
-        #t_bases['rs_t_cooling_by'] = Not implemented #TODO
+        #t_bases['rs_t_cooling_by'] = Not implemented
 
         t_bases['ss_t_heating_by'] = 15.5    #
         t_bases['ss_t_cooling_by'] = 5       # Orig: 5

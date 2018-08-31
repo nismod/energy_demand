@@ -273,12 +273,12 @@ def test_capacity_switch():
         tech_type='tech_heating',
         tech_max_share=1.0)}
 
-    capacity_switches = [
+    capacity_switches ={"regA": [
         read_data.CapacitySwitch(
             enduse='heating',
             technology_install='techA',
             switch_yr=2050,
-            installed_capacity=200)]
+            installed_capacity=200)]}
 
     regions = ["regA"]
     result_service_switches = fuel_service_switch.capacity_switch(
@@ -289,9 +289,10 @@ def test_capacity_switch():
         fuel_shares_enduse_by={'heating': {0: {'techA': 1.0}}},
         base_yr=2015)
 
-    for switch in result_service_switches:
-        if switch.technology_install == 'techA':
-            assert switch.service_share_ey == 1.0
+    for region in regions:
+        for switch in result_service_switches[region]:
+            if switch.technology_install == 'techA':
+                assert switch.service_share_ey == 1.0
 
     #---------------
 
@@ -333,12 +334,13 @@ def test_capacity_switch():
         fuel_shares_enduse_by={'heating': {0: {'techA': 0.5, 'techB': 0.5}}},
         base_yr=2015)
 
-    for switch in result_service_switches:
-        if switch.technology_install == 'techA':
-            assert round(switch.service_share_ey, 3) == round((1 / (300)) * 250, 3)
-        if switch.technology_install == 'techB':
-            assert round(switch.service_share_ey, 3) == round((1 / (300)) * 50, 3)
-test_capacity_switch()
+    for region in regions:
+        for switch in result_service_switches[region]:
+            if switch.technology_install == 'techA':
+                assert round(switch.service_share_ey, 3) == round((1 / (300)) * 250, 3)
+            if switch.technology_install == 'techB':
+                assert round(switch.service_share_ey, 3) == round((1 / (300)) * 50, 3)
+
 def autocomplete_switches():
     """Testing
     """

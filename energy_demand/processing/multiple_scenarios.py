@@ -21,7 +21,6 @@ def process_result_multi_scen(
 
     # Chose which plots should be generated
     plot_crit_dict = {
-        #"write_shapefiles": False,            # Write shapefiles #TODO CLEAN
         "spatial_results": True,              # Spatial geopanda maps
 
         "plot_differences_p": True,           # Spatial maps of percentage difference per fueltype over time

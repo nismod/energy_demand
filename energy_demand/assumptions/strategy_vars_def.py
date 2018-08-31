@@ -109,16 +109,16 @@ def load_smif_parameters(
         logging.info(
             "... loading smif parameter: %s value: %s", name, scenario_value)
 
-        # -----------------------------
+        # ------------------------------------------
         # Load or generate narratives per parameter
-        # -----------------------------
+        # ------------------------------------------
+
         # TODO LOAD NARRATIVE FOR PARAMETER
 
         # -----------------
         # Load narratives infos
         # -----------------
         yr_until_changed_all_things = 2050 #TODO MAKE GLOBAL
-
         regional_specific = all_info_scenario_param[name]['regional_specific']      # Criteria whether the same for all regions or not
         default_by_value = all_info_scenario_param[name]['default_value']           # Base year value
         diffusion_type = all_info_scenario_param[name]['diffusion_type']            # Sigmoid or linear

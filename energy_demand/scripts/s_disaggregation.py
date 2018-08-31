@@ -16,7 +16,11 @@ def disaggregate_demand(data):
     ----------
     data : dict
         Data
-    #TODO EXTERNALISE
+
+    Returns
+    --------
+    disagg : dict
+        Disaggregated energy demand
     """
     disagg = {}
 

@@ -68,7 +68,7 @@ class Enduse(object):
     flat_profile_crit : bool,default=False
         Criteria of enduse has a flat shape or not
     make_all_flat : bool
-        Crit to make everything flat #TODO NEW
+        Crit to make everything flat
 
     Note
     ----
@@ -133,7 +133,6 @@ class Enduse(object):
             # -----------------------------
             # Cascade of annual calculations
             # -----------------------------
-            # --Change fuel consumption based on climate change induced temperature differences
             _fuel_new_y = apply_climate_change(
                 enduse,
                 self.fuel_y,
@@ -144,7 +143,6 @@ class Enduse(object):
             self.fuel_y = _fuel_new_y
             #logging.debug("... Fuel train B0: " + str(np.sum(self.fuel_y)))
 
-            # --Change fuel consumption based on smart meter induced general savings
             _fuel_new_y = apply_smart_metering(
                 enduse,
                 self.fuel_y,
@@ -154,8 +152,6 @@ class Enduse(object):
             self.fuel_y = _fuel_new_y
             #logging.debug("... Fuel train C0: " + str(np.sum(self.fuel_y)))
 
-            # --Enduse specific fuel consumption change in %
-            #TODO ADD Sector specific change
             _fuel_new_y = apply_specific_change(
                 enduse,
                 self.fuel_y,
@@ -164,7 +160,6 @@ class Enduse(object):
             self.fuel_y = _fuel_new_y
             #logging.debug("... Fuel train D0: " + str(np.sum(self.fuel_y)))
 
-            # Calculate new fuel demands after scenario drivers
             _fuel_new_y = apply_scenario_drivers(
                 enduse,
                 sector,
@@ -1031,21 +1026,25 @@ def apply_scenario_drivers(
         base_yr,
         curr_yr
     ):
-    """The fuel data for every end use are multiplied with respective
-    scenario drivers. If no dwelling specific scenario driver is found,
-    the identical fuel is returned.
+    """The fuel data for every end use are multiplied
+    with respective scenario drivers. This is either
+    done based on a dwelling stock or not.
 
     Arguments
     ----------
     enduse: str
         Enduse
+    sector : str
+        sector
     fuel_y : array
         Yearly fuel per fueltype
     dw_stock : object
         Dwelling stock
     region : str
         Region name
-    gva : dict
+    gva_industry : dict
+        GVA
+    gva_per_head : dict
         GVA
     population : dict
         Population
@@ -1063,16 +1062,13 @@ def apply_scenario_drivers(
     
     #TODO :ADD OTHER driver
     """
-    if reg_scen_drivers is None:
-        reg_scen_drivers = {}
-
     if not dw_stock:
         """Calculate non-dwelling related scenario drivers, if no dwelling stock
         Info: No dwelling stock is defined for this submodel
         """
         scenario_drivers = reg_scen_drivers[enduse]
 
-        by_driver, cy_driver = 1, 1 #not 0
+        by_driver, cy_driver = 1, 1
 
         for scenario_driver in scenario_drivers:
 
@@ -1099,29 +1095,19 @@ def apply_scenario_drivers(
                 by_driver_data = population[base_yr][region]
                 cy_driver_data = population[curr_yr][region]
 
-            if math.isnan(by_driver_data):
-                logging.warning("ERROR 1")
-                raise Exception
-                by_driver_data = 1
-            if math.isnan(cy_driver_data):
-                logging.warning("ERROR 2")
-                raise Exception
-                cy_driver_data = 1
-
             # Multiply drivers
             by_driver *= by_driver_data
             cy_driver *= cy_driver_data
+            
+            # Testing
+            if math.isnan(by_driver_data) or math.isnan(cy_driver_data):
+                raise Exception("Scenario driver error")
 
+        # Calculate scenario driver factor
         try:
-            factor_driver = cy_driver / by_driver # FROZEN (as in chapter 3.1.2 EQ E-2)
+            factor_driver = cy_driver / by_driver
         except ZeroDivisionError:
             factor_driver = 1
-
-        #logging.info(
-        #    "no dw factor_driver b: %s %s %s",
-        #    factor_driver,
-        #    by_driver,
-        #    cy_driver)
 
         fuel_y = fuel_y * factor_driver
     else:
@@ -1134,24 +1120,18 @@ def apply_scenario_drivers(
             by_driver = getattr(dw_stock[base_yr], enduse)
             cy_driver = getattr(dw_stock[curr_yr], enduse)
 
-            # base year / current (checked)
+            # Calculate scenario driver factor
             try:
                 factor_driver = cy_driver / by_driver
             except ZeroDivisionError:
                 factor_driver = 1
 
-            # Check if float('nan')
+            # Testing
             if math.isnan(factor_driver):
-                logging.warning("Something went wrong with scenario driver calculation")
-                factor_driver = 1
-
+                raise Exception("Scenario driver error")
+    
             fuel_y = fuel_y * factor_driver
 
-            '''logging.debug(
-                "Scenario driver: %s by: %s cy: %s",
-                factor_driver,
-                by_driver,
-                cy_driver)'''
         else:
             pass #enduse not define with scenario drivers
 
@@ -1172,9 +1152,6 @@ def apply_specific_change(
     Because for enduses where no technologies are defined, a linear
     diffusion is suggested to best represent multiple sigmoid efficiency
     improvements of individual technologies.
-
-    Either a sigmoid standard diffusion or linear diffusion can be
-    implemented. Linear is suggested.
 
     Arguments
     ----------
@@ -1218,7 +1195,8 @@ def apply_climate_change(
     ):
     """Change fuel demand for heat and cooling service
     depending on changes in HDD and CDD within a region
-    (e.g. climate change induced)
+    (e.g. climate change induced). Change fuel consumption based on
+    climate change induced temperature differences
 
     Arguments
     ----------
@@ -1260,7 +1238,8 @@ def apply_smart_metering(
         strategy_vars,
         curr_yr
     ):
-    """Calculate fuel savings depending on smart meter penetration
+    """Calculate fuel savings depending on smart meter penetration.
+    Change fuel consumption based on smart meter induced general savings.
 
     Arguments
     ----------
