@@ -28,10 +28,10 @@ def get_all_folders_files(path_to_folder):
     folders_walk = os.walk(path_to_folder)
     for root, dirnames, filenames in folders_walk:
         all_folders = list(dirnames)
-        all_files = list(filenames)
+        #all_files = list(filenames)
         break
 
-    return all_folders, filenames
+    return all_folders #, all_files
 
 def assign_array_to_dict(array_in, regions):
     """Convert array to dict with same order as region list

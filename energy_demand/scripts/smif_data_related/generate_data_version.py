@@ -2,8 +2,9 @@
 for a specific version
 """
 import os
+import sys
 import zipfile
-#from energy_demand.basic import basic_functions
+from energy_demand.basic import basic_functions
 
 def zipdir(path, zip_handler):
     """Zip a whole directory
@@ -29,17 +30,31 @@ def zipit(dir_list, zip_name):
     # Close zip
     zip_handler.close()
 
-def package_data(version_name, data_folder_path):
+def package_data(
+        version_name,
+        data_folder_path#="C:/Users/cenv0553/ed/data"
+    ):
     """
+    verions_name : str
+        Name of version
+    data_folder_path : str
+        Path to store packaged data
     """
     print("... start packaging data")
+
+    # Delete all processes files
+    path_folder = os.path.join(data_folder_path, "scenarios", "MISTRAL_pop_gva")
+    basic_functions.delete_folder(path_folder)
 
     # Names
     zip_name_full = os.path.join(data_folder_path, "{}_{}".format(version_name, "full.zip"))
     zip_name_minimum = os.path.join(data_folder_path, "{}_{}".format(version_name, "minimum.zip"))
 
     # Files to folders
-    files_to_add = ['units.txt']
+    files_to_add = [
+        'units.txt',
+        'population-economic-smif-csv-from-nismod-db.zip',
+        'population-economic-tables-nismod-db.zip']
 
     # Zip minimum files
     _raw_folders_data_minimal = [
@@ -50,7 +65,7 @@ def package_data(version_name, data_folder_path):
         'narratives',
         'planning',
         'region_definitions',
-        'scenarios_not_extracted',
+        'scenarios',
         'strategies']
 
     # Zip maximum files
@@ -63,7 +78,7 @@ def package_data(version_name, data_folder_path):
         'narratives',
         'planning',
         'region_definitions',
-        'scenarios_not_extracted',
+        'scenarios',
         'strategies']
 
     paths_minimal = []
@@ -122,8 +137,7 @@ def package_data(version_name, data_folder_path):
 
     print("Finished packaging data for Version {}".format(version_name))
 
-#if __name__ == '__main__':
 
-package_data(
-    version_name="v_047_",
-    data_folder_path="C:/Users/cenv0553/ed/data")
+if __name__ == '__main__':
+    # Map command line arguments to function arguments.
+    package_data(*sys.argv[1:])

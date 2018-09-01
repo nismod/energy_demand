@@ -5,6 +5,8 @@
     Profiling:  https://jiffyclub.github.io/snakeviz/
     python -m cProfile -o program.prof main.py
     snakeviz program.prof
+
+        sys.stdout.flush()
 regional_specific, crit_all_the_same
 #TODO Interface energy demand
 #TODO Make that congruence value map is better loaded from seperate file (e.g. populatio ndensity)
@@ -33,14 +35,12 @@ from energy_demand.basic import lookup_tables
 from energy_demand.assumptions import general_assumptions
 from energy_demand.assumptions import strategy_vars_def
 from energy_demand.read_write import data_loader
-from energy_demand.basic import logger_setup
 from energy_demand.read_write import write_data
 from energy_demand.read_write import read_data
 from energy_demand.basic import basic_functions
 from energy_demand.scripts import s_disaggregation
 from energy_demand.validation import lad_validation
 from energy_demand.basic import demand_supply_interaction
-from energy_demand.read_write import load_parameter_values
 from energy_demand.scripts import s_generate_scenario_parameters
 from energy_demand.scripts.init_scripts import scenario_initalisation
 from energy_demand.scripts.init_scripts import spatial_explicit_modelling_strategy_vars
@@ -142,15 +142,15 @@ if __name__ == "__main__":
 
     #name_population_dataset = os.path.join(local_data_path, 'scenarios', 'uk_pop_high_migration_2015_2050.csv')
     #name_population_dataset = os.path.join(local_data_path, 'scenarios', 'uk_pop_constant_2015_2050.csv') # Constant scenario
-    name_population_dataset = os.path.join(local_data_path, 'scenarios', 'MISTRAL_pop_gva/data', 'pop-a_econ-c_fuel-c/population__lad.csv') # Constant scenario
+    name_population_dataset = os.path.join(local_data_path, 'scenarios', 'MISTRAL_pop_gva', 'data', 'pop-a_econ-c_fuel-c/population__lad.csv') # Constant scenario
     # MSOA model run
     #name_region_set_selection = "msoa_regions_ed.csv"
     #name_region_set = os.path.join(local_data_path, 'region_definitions', 'msoa_uk', "msoa_lad_2015_uk.shp")    # MSOA
     #name_population_dataset = os.path.join(local_data_path, 'scenarios', 'uk_pop_high_migration_2015_2050.csv')
 
     # GVA datasets
-    name_gva_dataset = os.path.join(local_data_path, 'scenarios', 'MISTRAL_pop_gva/data', 'pop-a_econ-c_fuel-c/gva_per_head__lad_sector.csv') # Constant scenario
-    name_gva_dataset_per_head = os.path.join(local_data_path, 'scenarios', 'MISTRAL_pop_gva/data', 'pop-a_econ-c_fuel-c/gva_per_head__lad.csv') # Constant scenario
+    name_gva_dataset = os.path.join(local_data_path, 'scenarios', 'MISTRAL_pop_gva', 'data', 'pop-a_econ-c_fuel-c/gva_per_head__lad_sector.csv') # Constant scenario
+    name_gva_dataset_per_head = os.path.join(local_data_path, 'scenarios', 'MISTRAL_pop_gva', 'data', 'pop-a_econ-c_fuel-c/gva_per_head__lad.csv') # Constant scenario
     # -------------------------------
     # User defined strategy variables
     # -------------------------------

@@ -47,7 +47,7 @@ In order to run HIRE, first the model needs to be set up (Section 1.1 or Section
 3.  Navigate to the folder where the python code is saved. Open a command and type into
     a command line (in a virtual environment):
  
-    ``python setup.py develop`` or ``python setup.py install``
+    ``python setup.py develop``
 
 4.  Install HIRE from within the console with the command
 
@@ -71,7 +71,7 @@ In order to run HIRE, first the model needs to be set up (Section 1.1 or Section
 3.  Navigate to the folder where the python code is saved. Open a command and type into
     a command line (in a virtual environment):
 
-    ``python setup.py develop`` or ``python setup.py install``
+    ``python setup.py develop``
 
 4.  Install HIRE from within the console with the command
 
@@ -127,3 +127,13 @@ folder needs to be used. Proceed as follows:
    In the 'process_result_multi_scen' function all plots
    which should be generated can be configured
 
+
+4. Explanation of other scripts
+=============================================
+
+``scripts/smif_data_related/generate_data_version.py``: With the file an automatic packaging 
+of all necessary data to back up a new data version.
+
+``scripts/smif_data_related/script_data_preparation_MISTRAL_pop_gva.py``: This file generates 
+setor specific GVA data and popluation data (it is executed in the ``energy_demand setup`` command)
+    

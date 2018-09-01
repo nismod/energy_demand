@@ -2,7 +2,6 @@
 model installation and after each scenario definition
 """
 import logging
-from collections import defaultdict
 import numpy as np
 from energy_demand.basic import basic_functions
 from energy_demand.geography import spatial_diffusion

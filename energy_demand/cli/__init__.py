@@ -2,16 +2,12 @@
 """
 import os
 import sys
+from argparse import ArgumentParser
 from pkg_resources import Requirement
 from pkg_resources import resource_filename
-from argparse import ArgumentParser
-import logging
-from collections import defaultdict
 import energy_demand
-#from energy_demand.main import energy_demand_model
 from energy_demand.read_write import data_loader
 from energy_demand.assumptions import general_assumptions
-from energy_demand.assumptions import param_assumptions
 from energy_demand.scripts.s_post_installation import post_install_setup
 from energy_demand.scripts.s_write_dummy_data import post_install_setup_minimum
 from energy_demand.scripts.init_scripts import scenario_initalisation
@@ -32,7 +28,7 @@ def parse_arguments():
     parser = ArgumentParser(description='Command line tools for energy_demand')
     parser.add_argument('-V', '--version',
                         action='version',
-                        version="energy_demand " + energy_demand.__version__,
+                        version="energy_demand" + energy_demand.__version__,
                         help='show the current version of energy_demand')
 
     subparsers = parser.add_subparsers()
