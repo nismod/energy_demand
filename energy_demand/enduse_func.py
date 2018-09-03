@@ -215,7 +215,6 @@ class Enduse(object):
                     # Demand management for non-technology enduse
                     self.fuel_yh = demand_management(
                         enduse,
-                        base_yr,
                         curr_yr,
                         strategy_vars,
                         fuel_yh,
@@ -1398,14 +1397,12 @@ def calc_service_switch(
         service_all_techs = sum(s_tech_y_cy.values())
 
         for tech in all_technologies:
-            
-            print("A ----------{}  {} {}".format(sector, enduse, tech))
-            print(annual_tech_diff_params)
+
             # Ger service share per tech of cy of sigmoid parameter calculations
-            if sector: # If sector is defined
-                s_tech_cy_p = annual_tech_diff_params[sector][enduse][tech][curr_yr]
-            else:
+            if not sector: # If sector is defined
                 s_tech_cy_p = annual_tech_diff_params[enduse][tech][curr_yr]
+            else:
+                s_tech_cy_p = annual_tech_diff_params[sector][enduse][tech][curr_yr]
 
             if s_tech_cy_p == 'identical':
 
