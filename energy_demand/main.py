@@ -42,7 +42,7 @@ from energy_demand.scripts import s_disaggregation
 from energy_demand.validation import lad_validation
 from energy_demand.basic import demand_supply_interaction
 from energy_demand.scripts import s_generate_scenario_parameters
-from energy_demand.scripts.init_scripts import scenario_initalisation
+from energy_demand.scripts.init_scripts import switch_calculations
 from energy_demand.scripts.init_scripts import spatial_explicit_modelling_strategy_vars
 from energy_demand.scripts.init_scripts import create_spatial_diffusion_factors
 
@@ -190,6 +190,23 @@ if __name__ == "__main__":
     data['gva_sector_lu'] = lookup_tables.economic_sectors_regional_MISTRAL()
 
     # -----------------------------
+    # Create new folders
+    # -----------------------------
+    basic_functions.del_previous_setup(data['data']['result_paths']['data_results'])
+
+    folders_to_create = [
+        data['data']['local_paths']['dir_services'],
+        data['data']['local_paths']['path_sigmoid_data'],
+        data['data']['result_paths']['data_results'],
+        data['data']['result_paths']['data_results_PDF'],
+        data['data']['result_paths']['data_results_model_run_pop'],
+        data['data']['result_paths']['data_results_validation'],
+        data['data']['result_paths']['data_results_model_runs']]
+
+    for folder in folders_to_create:
+        basic_functions.create_folder(folder)
+
+    # -----------------------------
     # Assumptions
     # -----------------------------
     data['assumptions'] = general_assumptions.Assumptions(
@@ -293,16 +310,12 @@ if __name__ == "__main__":
     # ------------------------------------------------
     # Initialise scenario
     # ------------------------------------------------
-    init_cont = {}
-    init_cont['rs_sig_param_tech'], init_cont['ss_sig_param_tech'], init_cont['is_sig_param_tech'] = scenario_initalisation(
+    data['assumptions']['rs_sig_param_tech'], data['assumptions']['ss_sig_param_tech'], data['assumptions']['is_sig_param_tech'] = switch_calculations(
         data,
         f_reg,
         f_reg_norm,
         f_reg_norm_abs,
         crit_all_the_same)
-
-    for key, value in init_cont.items():
-        setattr(data['assumptions'], key, value)
 
     # ------------------------------------------------
     # Calculate parameter values for every region
@@ -324,7 +337,6 @@ if __name__ == "__main__":
         data['assumptions'].strategy_vars,
         simulated_yrs,
         path=local_data_path)
-
     data['assumptions'].update('regional_strategy_vars', regional_strategy_vars)
     data['assumptions'].update('non_regional_strategy_vars', non_regional_strategy_vars)
 

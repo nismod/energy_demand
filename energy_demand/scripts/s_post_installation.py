@@ -60,16 +60,21 @@ def post_install_setup(args):
     # Delete all previous data from previous model runs
     basic_functions.del_previous_setup(data['local_paths']['data_processed'])
     basic_functions.del_previous_setup(data['result_paths']['data_results'])
+    basic_functions.del_previous_setup(data['result_paths']['path_post_installation_data'])
 
     # Create folders and subfolder for data_processed
-    basic_functions.create_folder(data['local_paths']['data_processed'])
-    basic_functions.create_folder(data['local_paths']['path_post_installation_data'])
-    basic_functions.create_folder(data['local_paths']['dir_raw_weather_data'])
-    basic_functions.create_folder(data['local_paths']['dir_changed_weather_station_data'])
-    basic_functions.create_folder(data['local_paths']['load_profiles'])
-    basic_functions.create_folder(data['local_paths']['rs_load_profile_txt'])
-    basic_functions.create_folder(data['local_paths']['ss_load_profile_txt'])
-    basic_functions.create_folder(data['local_paths']['dir_disaggregated'])
+    folders_to_create = [
+        data['local_paths']['data_processed'],
+        data['local_paths']['path_post_installation_data'],
+        data['local_paths']['dir_raw_weather_data'],
+        data['local_paths']['dir_changed_weather_station_data'],
+        data['local_paths']['load_profiles'],
+        data['local_paths']['rs_load_profile_txt'],
+        data['local_paths']['ss_load_profile_txt'],
+        data['local_paths']['dir_disaggregated']]
+
+    for folder in folders_to_create:
+        basic_functions.create_folder(folder)
 
     print("... Read in residential submodel load profiles", flush=True)
     s_rs_raw_shapes.run(
@@ -86,7 +91,7 @@ def post_install_setup(args):
         data['paths'],
         data['local_paths'],
         data['lookups'])
-    
+
     # Input data preparation
     print("Generate additional data", flush=True)
 
@@ -103,7 +108,6 @@ def post_install_setup(args):
     #"uk_pop_principal_2015_2050_MSOA_england.csv"
     path_geography = os.path.join(local_data_path, "scenarios", "uk_pop_principal_2015_2050_MSOA_england.csv")
 
-    #MSOA: uk_pop_principal_2015_2050_MSOA_england.csv
     script_data_preparation_MISTRAL_pop_gva.run(
         path_to_folder=data_pop,
         path_MSOA_baseline=path_geography,

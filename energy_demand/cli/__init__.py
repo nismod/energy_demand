@@ -10,7 +10,7 @@ from energy_demand.read_write import data_loader
 from energy_demand.assumptions import general_assumptions
 from energy_demand.scripts.s_post_installation import post_install_setup
 from energy_demand.scripts.s_write_dummy_data import post_install_setup_minimum
-from energy_demand.scripts.init_scripts import scenario_initalisation
+from energy_demand.scripts.init_scripts import switch_calculations
 from energy_demand.read_write import read_data
 from energy_demand.dwelling_stock import dw_stock
 from energy_demand.plotting import plotting_results

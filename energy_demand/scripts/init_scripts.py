@@ -3,7 +3,6 @@ model installation and after each scenario definition
 """
 import logging
 import numpy as np
-from energy_demand.basic import basic_functions
 from energy_demand.geography import spatial_diffusion
 from energy_demand.read_write import read_data
 from energy_demand.scripts import (s_fuel_to_service, s_generate_sigmoid)
@@ -71,33 +70,37 @@ def create_spatial_diffusion_factors(
 
     return f_reg, f_reg_norm, f_reg_norm_abs, crit_all_the_same
 
-def scenario_initalisation(
+def switch_calculations(
         data,
         f_reg,
         f_reg_norm,
         f_reg_norm_abs,
         crit_all_the_same
     ):
-    """Scripts which need to be run for every different scenario.
-    Only needs to be executed once for each scenario.
-
-    The following calculations are performed:
-        I. Switches calculations
-        II. Spatial explicit diffusion modelling
+    """This function creates sigmoid diffusion values based
+    on defined switches
 
     Arguments
     ----------
-    path_data_ed : str
-        Path to the energy demand data folder
     data : dict
         Data container
+    f_reg, f_reg_norm, f_reg_norm_abs : str
+        Different spatial diffusion values
+    crit_all_the_same : dict
+        Criteria whether the diffusion is spatial explicit or not
+
+    Returns
+    -------
+    rs_sig_param_tech, ss_sig_param_tech, is_sig_param_tech : dict
+        Sigmoid diffusion parameters
     """
+    '''# --------------------------------------------
+    # Delete results from previous model runs
+    # and initialise folders
     # --------------------------------------------
-    # Delete results from previous model runs and initialise folders
-    # --------------------------------------------
-    basic_functions.del_previous_results(
-        data['local_paths']['data_processed'],
-        data['local_paths']['path_post_installation_data'])
+    #basic_functions.del_previous_results(
+    #    data['local_paths']['data_processed'],
+    #    data['local_paths']['path_post_installation_data'])
 
     basic_functions.del_previous_setup(
         data['result_paths']['data_results'])
@@ -112,7 +115,7 @@ def scenario_initalisation(
         data['result_paths']['data_results_model_runs']]
 
     for folder in folders_to_create:
-        basic_functions.create_folder(folder)
+        basic_functions.create_folder(folder)'''
 
     # ---------------------------------------
     # Convert base year fuel input assumptions to energy service
