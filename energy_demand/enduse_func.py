@@ -57,8 +57,6 @@ class Enduse(object):
         Distribution of fuel within year to days (yd) (directly correlates with CDD)
     fuel_tech_p_by : dict
         Fuel tech assumtions in base year
-    sig_param_tech : dict
-        Sigmoid parameters
     regional_lp_stock : object
         Load profile stock
     dw_stock : object,default=False
@@ -100,7 +98,6 @@ class Enduse(object):
             heating_factor_y,
             cooling_factor_y,
             fuel_tech_p_by,
-            sig_param_tech,
             criterias,
             strategy_vars,
             non_regional_strategy_vars,
@@ -268,13 +265,11 @@ class Enduse(object):
 
                 # --------------------------------
                 # Switches
-                # Calculate services per technology for cy based on fitted parameters
                 # --------------------------------
                 s_tech_y_cy = calc_service_switch(
                     enduse=enduse,
                     s_tech_y_cy=s_tech_y_cy,
                     all_technologies=self.enduse_techs,
-                    sig_param_tech=sig_param_tech,
                     curr_yr=curr_yr,
                     base_yr=base_yr,
                     sector=sector,
@@ -323,7 +318,6 @@ class Enduse(object):
                         for tech in fuel_yh:
                             self.techs_fuel_yh[tech] = demand_management(
                                 enduse,
-                                base_yr,
                                 curr_yr,
                                 strategy_vars,
                                 fuel_yh[tech],
@@ -334,7 +328,6 @@ class Enduse(object):
                     else:
                         self.fuel_yh = demand_management(
                             enduse,
-                            base_yr,
                             curr_yr,
                             strategy_vars,
                             fuel_yh,
@@ -343,7 +336,6 @@ class Enduse(object):
 
 def demand_management(
         enduse,
-        base_yr,
         curr_yr,
         strategy_vars,
         fuel_yh,
@@ -357,8 +349,6 @@ def demand_management(
     ----------
     enduse : str
         Enduse
-    base_yr : int
-        Base year
     curr_yr : int
         Current year
     strategy_vars : dict
@@ -1357,7 +1347,6 @@ def calc_service_switch(
         enduse,
         s_tech_y_cy,
         all_technologies,
-        sig_param_tech,
         curr_yr,
         base_yr,
         sector,
@@ -1373,14 +1362,15 @@ def calc_service_switch(
 
     Arguments
     ---------
+    TODO
     tot_s_yh_cy : array
         Hourly service of all technologies
     all_technologies : dict
         Technologies to iterate
-    sig_param_tech : dict
-        Sigmoid diffusion parameters
     curr_yr : int
         Current year
+    annual_tech_diff_params : dict
+        Sigmoid technology specific calculated annual diffusion values
 
     Returns
     -------
@@ -1408,18 +1398,17 @@ def calc_service_switch(
         service_all_techs = sum(s_tech_y_cy.values())
 
         for tech in all_technologies:
-
-            # Calculated service share per tech for cy with sigmoid parameters
-            s_tech_cy_p = get_service_diffusion(
-                sig_param_tech[tech], curr_yr)
-
-            # KAMEL
-            '''if sector:
+            
+            print("A ----------{}  {} {}".format(sector, enduse, tech))
+            print(annual_tech_diff_params)
+            # Ger service share per tech of cy of sigmoid parameter calculations
+            if sector: # If sector is defined
                 s_tech_cy_p = annual_tech_diff_params[sector][enduse][tech][curr_yr]
             else:
-                s_tech_cy_p = annual_tech_diff_params[enduse][tech][curr_yr]'''
+                s_tech_cy_p = annual_tech_diff_params[enduse][tech][curr_yr]
 
             if s_tech_cy_p == 'identical':
+
                 switched_s_tech_y_cy[tech] = s_tech_y_cy[tech]
             else:
                 switched_s_tech_y_cy[tech] = service_all_techs * s_tech_cy_p

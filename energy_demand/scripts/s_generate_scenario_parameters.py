@@ -12,7 +12,8 @@ def calc_annual_switch_params(
         ss_sig_param_tech,
         is_sig_param_tech
     ):
-    """
+    """Calculate annual diffusion parameters
+    for technologies based on sigmoid diffusion parameters
     """
     all_sim_yrs = range(2015, 2051)
 
@@ -33,9 +34,8 @@ def calc_annual_switch_params(
                     # Sigmoid parameters
                     sig_param = region_tech_vals[region][tech]
 
-                    # Iterate every year
                     for sim_yr in all_sim_yrs:
-
+                        # Calculate diffusion value
                         s_tech_p = enduse_func.get_service_diffusion(
                             sig_param, sim_yr)
 
@@ -62,8 +62,7 @@ def calc_annual_switch_params(
 
                             # Sigmoid parameters
                             sig_param = reg_vals[region][tech]
-
-                            # Iterate every year
+                            
                             for sim_yr in all_sim_yrs:
 
                                 s_tech_p = enduse_func.get_service_diffusion(

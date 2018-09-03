@@ -308,19 +308,6 @@ if __name__ == "__main__":
         speed_con_max=strategy_vars['speed_con_max']['scenario_value']) #TODO LOAD REAL VALUES FROM DATA CSV
 
     # ------------------------------------------------
-    # Initialise scenario
-    # ------------------------------------------------
-    rs_sig_param_tech, ss_sig_param_tech, is_sig_param_tech = switch_calculations(
-        data,
-        f_reg,
-        f_reg_norm,
-        f_reg_norm_abs,
-        crit_all_the_same)
-    data['assumptions'].update('rs_sig_param_tech', rs_sig_param_tech)
-    data['assumptions'].update('ss_sig_param_tech', ss_sig_param_tech)
-    data['assumptions'].update('is_sig_param_tech', is_sig_param_tech)
-
-    # ------------------------------------------------
     # Calculate parameter values for every region
     # ------------------------------------------------
     regional_strategy_vars = spatial_explicit_modelling_strategy_vars(
@@ -343,15 +330,26 @@ if __name__ == "__main__":
     data['assumptions'].update('regional_strategy_vars', regional_strategy_vars)
     data['assumptions'].update('non_regional_strategy_vars', non_regional_strategy_vars)
 
+    # ------------------------------------------------
+    # Calculate switches
+    # ------------------------------------------------
+    rs_sig_param_tech, ss_sig_param_tech, is_sig_param_tech = switch_calculations(
+        data,
+        f_reg,
+        f_reg_norm,
+        f_reg_norm_abs,
+        crit_all_the_same)
+
     # ---------------------------------
-    # Add annual parameters of switches KAMEL
+    # Add annual parameters of switches
     # ---------------------------------
-    annual_tech_diff_params = s_generate_scenario_parameters.calc_annual_switch_params(
+    regional_strategy_vars = s_generate_scenario_parameters.calc_annual_switch_params(
+        regional_strategy_vars,
         data['regions'],
         rs_sig_param_tech,
         ss_sig_param_tech,
         is_sig_param_tech)
-
+    data['assumptions'].update('regional_strategy_vars', regional_strategy_vars)
     # ------------------------------------------------
     # Spatial Validation
     # ------------------------------------------------

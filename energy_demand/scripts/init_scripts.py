@@ -309,7 +309,7 @@ def switch_calculations(
                 crit_all_the_same=crit_all_the_same)
 
     # ------------------
-    # Convert to annual values TODO
+    # Convert to annual values
     # ------------------
 
     return rs_sig_param_tech, ss_sig_param_tech, is_sig_param_tech
