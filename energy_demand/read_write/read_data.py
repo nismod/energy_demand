@@ -8,12 +8,12 @@ import csv
 import logging
 from collections import defaultdict
 import fiona
+import pandas as pd
 from shapely.geometry import shape, mapping
 import numpy as np
 from energy_demand.technologies import tech_related
 from energy_demand.profiles import load_profile
 from energy_demand.basic import lookup_tables
-import pandas as pd
 
 class TechnologyData(object):
     """Class to store technology related data
@@ -56,12 +56,11 @@ class TechnologyData(object):
             market_entry=2015,
             tech_type=None,
             tech_max_share=None,
-            description=None,
-            fueltypes=None
+            description=None
         ):
         self.name = name
         self.fueltype_str = fueltype
-        self.fueltype_int = tech_related.get_fueltype_int(fueltypes, fueltype)
+        self.fueltype_int = tech_related.get_fueltype_int(fueltype)
         self.eff_by = eff_by
         self.eff_ey = eff_ey
         self.year_eff_ey = year_eff_ey
@@ -525,7 +524,7 @@ def read_load_shapes_tech(path_to_csv):
 def service_switch(path_to_csv, technologies, base_yr=2015):
     """This function reads in service assumptions from csv file,
     tests whether the maximum defined switch is larger than
-    possible for a technology,
+    possible for a technology.
 
     Arguments
     ----------
@@ -559,28 +558,22 @@ def service_switch(path_to_csv, technologies, base_yr=2015):
     """
     service_switches = []
 
-    with open(path_to_csv, 'r') as csvfile:
-        rows = csv.reader(csvfile, delimiter=',')
-        headings = next(rows) # Skip first row
+    # Read switches
+    raw_csv_file = pd.read_csv(path_to_csv)
 
-        for row in rows:
-            try:
-                # Check if setor is defined
-                try:
-                    sector = str(row[get_position(headings, 'sector')])
-                except IndexError:
-                    sector = ''
+    # Replace NaN with " " values
+    raw_csv_file = raw_csv_file.fillna("")
 
-                service_switches.append(
-                    ServiceSwitch(
-                        enduse=str(row[get_position(headings, 'enduse')]),
-                        technology_install=str(row[get_position(headings, 'tech')]),
-                        service_share_ey=float(row[get_position(headings, 'service_share_ey')]),
-                        switch_yr=float(row[get_position(headings, 'switch_yr')]),
-                        sector=sector))
+    # Iterate rows
+    for index, row in raw_csv_file.iterrows():
 
-            except (KeyError, ValueError):
-                raise Exception("Check if provided data is complete (no empty csv entries)")
+        service_switches.append(
+            ServiceSwitch(
+                enduse=str(row['enduse']),
+                technology_install=str(row['tech']),
+                service_share_ey=float(row['service_share_ey']),
+                switch_yr=float(row['switch_yr']),
+                sector=str(row['sector'])))
 
     # Test if more service is provided as input than possible to maximum switch
     for entry in service_switches:
@@ -637,28 +630,22 @@ def read_fuel_switches(
     """
     fuel_switches = []
 
-    with open(path_to_csv, 'r') as csvfile:
-        rows = csv.reader(csvfile, delimiter=',')
-        headings = next(rows)
+    # Read switches
+    raw_csv_file = pd.read_csv(path_to_csv)
 
-        for row in rows:
-            try:
-                try:
-                    sector = str(row[get_position(headings, 'sector')])
-                except IndexError:
-                    sector = ''
+    # Replace NaN with " " values
+    raw_csv_file = raw_csv_file.fillna("")
 
-                fuel_switches.append(
-                    FuelSwitch(
-                        enduse=str(row[get_position(headings, 'enduse')]),
-                        fueltype_replace=fueltypes[str(row[get_position(headings, 'fueltype_replace')])],
-                        technology_install=str(row[get_position(headings, 'technology_install')]),
-                        switch_yr=float(row[get_position(headings, 'switch_yr')]),
-                        fuel_share_switched_ey=float(row[get_position(headings, 'fuel_share_switched_ey')]),
-                        sector=sector))
-
-            except (KeyError, ValueError):
-                raise Exception("Check if provided data is complete (no emptly csv entries)")
+    # Iterate rows
+    for index, row in raw_csv_file.iterrows():
+        fuel_switches.append(
+            FuelSwitch(
+                enduse=str(row['enduse']),
+                fueltype_replace=fueltypes[str(row['fueltype_replace'])],
+                technology_install=str(row['technology_install']),
+                switch_yr=float(row['switch_yr']),
+                fuel_share_switched_ey=float(row['fuel_share_switched_ey']),
+                sector=str(row['sector'])))
 
     # -------
     # Testing
@@ -751,35 +738,30 @@ def read_technologies(path_to_csv, fueltypes):
     dict_technologies = {}
     dict_tech_lists = {}
 
-    with open(path_to_csv, 'r') as csvfile:
-        rows = csv.reader(csvfile, delimiter=',')
-        headings = next(rows)
+    # Read csv
+    raw_csv_file = pd.read_csv(path_to_csv)
 
-        for row in rows:
-            technology = str(row[get_position(headings, 'technology')])
-            tech_type = str.strip(row[get_position(headings, 'technology type')])
+    # Replace NaN with " " values
+    raw_csv_file = raw_csv_file.fillna("")
 
-            try:
-                dict_technologies[technology] = TechnologyData(
-                    name=str(technology),
-                    fueltype=str(row[get_position(headings, 'fueltype')]),
-                    eff_by=float(row[get_position(headings, 'efficiency in base year')]),
-                    eff_ey=float(row[get_position(headings, 'efficiency in future year')]),
-                    year_eff_ey=float(row[get_position(headings, 'year when efficiency is fully realised')]),
-                    eff_achieved=1.0, # Set to one as default
-                    diff_method=str(row[get_position(headings, 'diffusion method (sigmoid or linear)')]),
-                    market_entry=float(row[get_position(headings, 'market_entry')]),
-                    tech_type=tech_type,
-                    tech_max_share=float(str.strip(row[get_position(headings, 'maximum theoretical service share of technology')])),
-                    description=str(row[get_position(headings, 'description')]),
-                    fueltypes=fueltypes)
-                try:
-                    dict_tech_lists[tech_type].append(technology)
-                except KeyError:
-                    dict_tech_lists[tech_type] = [technology]
-            except Exception as e:
-                logging.error(
-                    "Error technology table (e.g. empty field): %s %s", e, row)
+    # Iterate rows
+    for index, row in raw_csv_file.iterrows():
+        dict_technologies[str(row['technology'])] = TechnologyData(
+            name=str(row['technology']),
+            fueltype=str(row['fueltype']),
+            eff_by=float(row['efficiency in base year']),
+            eff_ey=float(row['efficiency in future year']),
+            year_eff_ey=float(row['year when efficiency is fully realised']),
+            eff_achieved=1.0, # Set to one as default
+            diff_method=str(row['diffusion method (sigmoid or linear)']),
+            market_entry=float(row['market_entry']),
+            tech_type=str(row['technology type']),
+            tech_max_share=float(row['maximum theoretical service share of technology']),
+            description=str(row['description']))
+        try:
+            dict_tech_lists[row['technology type']].append(row['technology'])
+        except KeyError:
+            dict_tech_lists[row['technology type']] = [row['technology']]
 
     # Add placeholder technology to all tech_lists
     for tech_list in dict_tech_lists.values():
@@ -811,43 +793,27 @@ def read_fuel_rs(path_to_csv):
     the first row is the fuel_ID
     The header is the sub_key
     """
-    lookups = lookup_tables.basic_lookups()
-    fueltypes_lu = lookups['fueltypes']
+    fuels = {}
 
-    try:
-        rows_list = []
-        fuels = {}
+    # Read csv
+    raw_csv_file = pd.read_csv(path_to_csv)
 
-        with open(path_to_csv, 'r') as csvfile:
-            rows = csv.reader(csvfile, delimiter=',')
-            headings = next(rows) # Skip first row
+    # Replace NaN with " " values
+    raw_csv_file = raw_csv_file.fillna(0)
 
-            for row in rows:
-                rows_list.append(row)
+    # Enduses
+    enduses = list(raw_csv_file.columns[1:].values) #skip fuel_id
 
-            for enduse in headings[1:]:
-                fuels[enduse] = np.zeros((len(rows_list)), dtype="float")
+    # Replace str fueltypes with int fueltypes
+    raw_csv_file['fuel_id'] = raw_csv_file['fuel_id'].apply(tech_related.get_fueltype_int)
 
-            for row in rows_list:
-                fueltype_str = row[0]
-                fueltype_int = fueltypes_lu[fueltype_str]
-
-                cnt = 1 #skip first
-                for fuel in row[1:]:
-                    enduse = headings[cnt]
-                    fuels[enduse][fueltype_int] = float(fuel)
-                    cnt += 1
-    except (KeyError, ValueError):
-        raise Exception(
-            "Check if empty cells in the csv files for enduse '{}".format(
-                enduse))
-
-    # Create list with all rs enduses
-    enduses = fuels.keys()
+    # Iterate columns and convert to array
+    for enduse in raw_csv_file.columns[1:]: # skip for column
+        fuels[enduse] = raw_csv_file[enduse].values
 
     return fuels, list(enduses)
 
-def read_fuel_is(path_to_csv, fueltypes_nr, fueltypes):
+def read_fuel_is(path_to_csv, fueltypes_nr):
     """This function reads in base_data_CSV all fuel types
 
     Arguments
@@ -856,8 +822,6 @@ def read_fuel_is(path_to_csv, fueltypes_nr, fueltypes):
         Path to csv file
     fueltypes_nr : int
         Number of fueltypes
-    fueltypes : dict
-        Fueltypes
 
     Returns
     -------
@@ -965,6 +929,16 @@ def read_fuel_is(path_to_csv, fueltypes_nr, fueltypes):
     rows_list = []
     fuels = {}
 
+    '''# Read csv
+    raw_csv_file = pd.read_csv(path_to_csv)
+
+    # Replace NaN with " " values
+    raw_csv_file = raw_csv_file.fillna(0)
+
+    # Enduses
+    enduses = list(raw_csv_file.columns.values)'''
+
+
     with open(path_to_csv, 'r') as csvfile:
         rows = csv.reader(csvfile, delimiter=',')
         headings = next(rows)
@@ -997,7 +971,7 @@ def read_fuel_is(path_to_csv, fueltypes_nr, fueltypes):
                 if entry != '':
                     enduse = str(headings[position])
                     fueltype = _secondline[position]
-                    fueltype_int = tech_related.get_fueltype_int(fueltypes, fueltype)
+                    fueltype_int = tech_related.get_fueltype_int(fueltype)
                     fuels[enduse][sector][fueltype_int] += float(row[position])
 
     return fuels, list(sectors), list(enduses)
@@ -1086,29 +1060,24 @@ def read_capacity_switch(path_to_csv, base_yr=2015):
     """
     service_switches = []
 
-    with open(path_to_csv, 'r') as csvfile:
-        rows = csv.reader(csvfile, delimiter=',')
-        _headings = next(rows)
 
-        for row in rows:
-            try:
-                # Check if setor is defined
-                try:
-                    sector = str(row[4])
-                except IndexError:
-                    sector = ''
+    # Read switches
+    raw_csv_file = pd.read_csv(path_to_csv)
 
-                service_switches.append(
-                    CapacitySwitch(
-                        enduse=str(row[0].strip()),
-                        technology_install=str(row[1].strip()),
-                        switch_yr=float(row[2].strip()),
-                        installed_capacity=float(row[3].strip()),
-                        sector=sector))
+    # Replace NaN with " " values
+    raw_csv_file = raw_csv_file.fillna("")
 
-            except (KeyError, ValueError):
-                raise Exception(
-                    "Error in loading capacity switch: Check empty csv entries (except for optional sector field)")
+    # Iterate rows
+    for index, row in raw_csv_file.iterrows():
+
+        service_switches.append(
+            CapacitySwitch(
+                enduse=str(row['enduse']),
+                technology_install=str(row['technology_install']),
+                switch_yr=float(row['swich_yr']),
+                installed_capacity=float(row['installed_capacity']),
+                sector=str(row['sector'])
+                ))
 
     # Testing
     for obj in service_switches:

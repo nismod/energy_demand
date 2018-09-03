@@ -4,6 +4,7 @@ import logging
 import numpy as np
 from energy_demand.technologies import diffusion_technologies as diffusion
 from energy_demand.read_write import read_data
+from energy_demand.basic import lookup_tables
 
 def test_if_tech_defined(enduse_fueltypes_techs):
     """Test if a technology has been configured,
@@ -204,18 +205,18 @@ def get_fueltype_str(fueltype_lu, fueltype_nr):
     fueltype_in_string : str
         Fueltype string
     """
+    fueltype_lu = lookup_tables.basic_lookups()['fueltypes']
+
     for fueltype_str in fueltype_lu:
         if fueltype_lu[fueltype_str] == fueltype_nr:
             return fueltype_str
 
-def get_fueltype_int(fueltypes, fueltype_string):
+def get_fueltype_int(fueltype_str):
     """Read from dict the fueltype string based on fueltype KeyError
 
     Arguments
     ---------
-    fueltype : dict
-        Fueltype lookup dictionary
-    fueltype_string : int
+    fueltype_str : int
         Key which is to be found in lookup dict
 
     Returns
@@ -223,10 +224,12 @@ def get_fueltype_int(fueltypes, fueltype_string):
     fueltype_in_string : str
         Fueltype string
     """
-    if fueltypes is None:
+    fueltype_lu = lookup_tables.basic_lookups()['fueltypes']
+
+    if not fueltype_str:
         return None
     else:
-        return fueltypes[fueltype_string]
+        return fueltype_lu[fueltype_str]
 
 def calc_av_heat_pump_eff_ey(technologies, heat_pump_assump):
     """Calculate end year average efficiency of
@@ -335,8 +338,7 @@ def generate_heat_pump_from_split(technologies, heat_pump_assump, fueltypes):
             diff_method='linear',
             market_entry=market_entry_lowest,
             tech_type='heating_non_const',
-            tech_max_share=tech_max_share,
-            fueltypes=fueltypes)
+            tech_max_share=tech_max_share)
 
         heat_pumps.append(name_av_hp)
 

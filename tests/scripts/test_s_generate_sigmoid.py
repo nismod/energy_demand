@@ -141,8 +141,7 @@ def test_calc_service_fuel_switched():
             year_eff_ey=2015,
             eff_achieved=1.0,
             diff_method='linear',
-            market_entry=1990,
-            fueltypes=fueltype_lookup),
+            market_entry=1990),
         'boilerB': read_data.TechnologyData(
             fueltype='electricity',
             eff_by=0.5,
@@ -150,8 +149,7 @@ def test_calc_service_fuel_switched():
             year_eff_ey=2015,
             eff_achieved=1.0,
             diff_method='linear',
-            market_entry=1990,
-            fueltypes=fueltype_lookup),
+            market_entry=1990),
         'boilerC': read_data.TechnologyData(
             fueltype='gas',
             eff_by=0.5,
@@ -159,8 +157,7 @@ def test_calc_service_fuel_switched():
             year_eff_ey=2015,
             eff_achieved=1.0,
             diff_method='linear',
-            market_entry=1990,
-            fueltypes=fueltype_lookup)}
+            market_entry=1990)}
 
     enduse = 'heating'
 
@@ -169,7 +166,7 @@ def test_calc_service_fuel_switched():
             enduse='heating',
             technology_install='boilerB',
             switch_yr=2020,
-            fueltype_replace=tech_related.get_fueltype_int(fueltype_lookup, 'gas'),
+            fueltype_replace=tech_related.get_fueltype_int('gas'),
             fuel_share_switched_ey=1.0
         )]
 
@@ -195,7 +192,7 @@ def test_calc_service_fuel_switched():
             enduse='heating',
             technology_install='boilerB',
             switch_yr=3050,
-            fueltype_replace=tech_related.get_fueltype_int(fueltype_lookup, 'gas'),
+            fueltype_replace=tech_related.get_fueltype_int('gas'),
             fuel_share_switched_ey=0.5
         )]
 
@@ -221,7 +218,7 @@ def test_calc_service_fuel_switched():
             enduse='heating',
             technology_install='boilerB',
             switch_yr=3050,
-            fueltype_replace=tech_related.get_fueltype_int(fueltype_lookup, 'gas'),
+            fueltype_replace=tech_related.get_fueltype_int('gas'),
             fuel_share_switched_ey=0.5
         )]
 
@@ -247,7 +244,7 @@ def test_calc_service_fuel_switched():
             enduse='heating',
             technology_install='boilerB',
             switch_yr=3050,
-            fueltype_replace=tech_related.get_fueltype_int(fueltype_lookup, 'gas'),
+            fueltype_replace=tech_related.get_fueltype_int('gas'),
             fuel_share_switched_ey=0.5
         )]
 
@@ -289,8 +286,7 @@ def test_tech_l_sigmoid():
             eff_achieved=1.0,
             diff_method='linear',
             market_entry=1990,
-            tech_max_share=1.0,
-            fueltypes=fueltype_lookup),
+            tech_max_share=1.0),
 
         'boilerB': read_data.TechnologyData(
             fueltype='electricity',
@@ -300,8 +296,7 @@ def test_tech_l_sigmoid():
             eff_achieved=1.0,
             diff_method='linear',
             market_entry=1990,
-            tech_max_share=1.0,
-            fueltypes=fueltype_lookup)
+            tech_max_share=1.0)
         }
 
     fuel_switches = [
@@ -309,7 +304,7 @@ def test_tech_l_sigmoid():
             enduse='heating',
             technology_install='boilerB',
             switch_yr=2020,
-            fueltype_replace=tech_related.get_fueltype_int(fueltype_lookup, 'gas'),
+            fueltype_replace=tech_related.get_fueltype_int('gas'),
             fuel_share_switched_ey=1.0
         )]
 
@@ -348,8 +343,7 @@ def test_tech_l_sigmoid():
             eff_achieved=1.0,
             diff_method='linear',
             market_entry=1990,
-            tech_max_share=1.0,
-            fueltypes=fueltype_lookup),
+            tech_max_share=1.0),
 
         'boilerB': read_data.TechnologyData(
             fueltype='electricity',
@@ -359,8 +353,7 @@ def test_tech_l_sigmoid():
             eff_achieved=1.0,
             diff_method='linear',
             market_entry=1990,
-            tech_max_share=0.8,
-            fueltypes=fueltype_lookup)
+            tech_max_share=0.8)
         }
 
     fuel_switches = [
@@ -368,7 +361,7 @@ def test_tech_l_sigmoid():
             enduse='heating',
             technology_install='boilerB',
             switch_yr=2020,
-            fueltype_replace=tech_related.get_fueltype_int(fueltype_lookup, 'gas'),
+            fueltype_replace=tech_related.get_fueltype_int('gas'),
             fuel_share_switched_ey=0.5 #info lower than max
         )]
 
@@ -411,8 +404,7 @@ def test_get_sig_diffusion():
             eff_achieved=1.0,
             diff_method='linear',
             market_entry=1990,
-            tech_max_share=1.0,
-            fueltypes=fueltype_lookup),
+            tech_max_share=1.0),
         'boilerC': read_data.TechnologyData(
             fueltype='gas',
             eff_by=0.5,
@@ -421,8 +413,7 @@ def test_get_sig_diffusion():
             eff_achieved=1.0,
             diff_method='linear',
             market_entry=1990,
-            tech_max_share=0.999,
-            fueltypes=fueltype_lookup),
+            tech_max_share=0.999),
         'boilerB': read_data.TechnologyData(
             fueltype='electricity',
             eff_by=0.5,
@@ -431,8 +422,7 @@ def test_get_sig_diffusion():
             eff_achieved=1.0,
             diff_method='linear',
             market_entry=1990,
-            tech_max_share=1.0,
-            fueltypes=fueltype_lookup)}
+            tech_max_share=1.0)}
 
     tech_increased_service = ['boilerA']
 

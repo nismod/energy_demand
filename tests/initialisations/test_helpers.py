@@ -36,8 +36,7 @@ def test_set_same_eff_all_tech():
             eff_achieved=1.0,
             diff_method='linear',
             market_entry=1990,
-            tech_max_share=1.0,
-            fueltypes={'gas': 1})}
+            tech_max_share=1.0)}
 
     techs_eff = helpers.set_same_eff_all_tech(
         technologies=technologies,

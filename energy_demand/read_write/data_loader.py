@@ -762,7 +762,7 @@ def load_fuels(paths, lookups):
 
     # Industry fuel
     is_fuel_raw, sectors['is_sectors'], enduses['is_enduses'] = read_data.read_fuel_is(
-        paths['is_fuel_raw'], lookups['fueltypes_nr'], lookups['fueltypes'])
+        paths['is_fuel_raw'], lookups['fueltypes_nr'])
 
     # Iterate enduses per sudModel and flatten list
     enduses['all_enduses'] = []
@@ -770,6 +770,7 @@ def load_fuels(paths, lookups):
         enduses['all_enduses'] += enduse
 
     # Convert units
+    print("A " + str(rs_fuel_raw_data_enduses))
     fuels['rs_fuel_raw'] = conversions.convert_fueltypes_ktoe_gwh(
         rs_fuel_raw_data_enduses)
     fuels['ss_fuel_raw'] = conversions.convert_fueltypes_sectors_ktoe_gwh(

@@ -55,8 +55,7 @@ def test_get_s_fueltype_tech():
             eff_achieved=1.0,
             diff_method='linear',
             market_entry=1990,
-            tech_max_share=1.0,
-            fueltypes=fueltypes)}
+            tech_max_share=1.0)}
 
     fuel_p_tech_by = {'heating': {0: {'boilerA': 1.0}}}
 
@@ -80,8 +79,7 @@ def test_get_s_fueltype_tech():
             eff_achieved=1.0,
             diff_method='linear',
             market_entry=1990,
-            tech_max_share=1.0,
-            fueltypes=fueltypes),
+            tech_max_share=1.0),
         'boilerB': read_data.TechnologyData(
             fueltype='gas',
             eff_by=0.5,
@@ -90,8 +88,7 @@ def test_get_s_fueltype_tech():
             eff_achieved=1.0,
             diff_method='linear',
             market_entry=1990,
-            tech_max_share=1.0,
-            fueltypes=fueltypes)}
+            tech_max_share=1.0)}
 
     fuel_p_tech_by = {'heating': {0: {'boilerA': 0.5, 'boilerB': 0.5}}}
 
@@ -127,8 +124,7 @@ def test_get_s_fueltype_tech():
             eff_achieved=1.0,
             diff_method='linear',
             market_entry=1990,
-            tech_max_share=1.0,
-            fueltypes=fueltypes),
+            tech_max_share=1.0),
         'boilerB': read_data.TechnologyData(
             fueltype='electricity',
             eff_by=0.5,
@@ -137,8 +133,7 @@ def test_get_s_fueltype_tech():
             eff_achieved=1.0,
             diff_method='linear',
             market_entry=1990,
-            tech_max_share=1.0,
-            fueltypes=fueltypes)}
+            tech_max_share=1.0)}
 
     fuel_p_tech_by = {'heating': {0: {'boilerA': 1.0}, 1: {'boilerB': 1.0}}}
 

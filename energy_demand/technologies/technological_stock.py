@@ -276,7 +276,7 @@ class Technology(object):
         self.tech_type = tech_type
         self.description = description
         self.fueltype_str = fueltype_str
-        self.fueltype_int = tech_related.get_fueltype_int(fueltypes, fueltype_str)
+        self.fueltype_int = tech_related.get_fueltype_int(fueltype_str)
         self.eff_achieved = eff_achieved
         self.diff_method = diff_method
         self.market_entry = market_entry

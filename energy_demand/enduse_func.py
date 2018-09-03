@@ -1399,16 +1399,16 @@ def calc_service_switch(
         for tech in all_technologies:
 
             # Ger service share per tech of cy of sigmoid parameter calculations
+
             if not sector: # If sector is defined
-                s_tech_cy_p = annual_tech_diff_params[enduse][tech][curr_yr]
+                p_s_tech_cy = annual_tech_diff_params[enduse][tech][curr_yr]
             else:
-                s_tech_cy_p = annual_tech_diff_params[sector][enduse][tech][curr_yr]
+                p_s_tech_cy = annual_tech_diff_params[enduse][sector][tech][curr_yr]
 
-            if s_tech_cy_p == 'identical':
-
+            if p_s_tech_cy == 'identical':
                 switched_s_tech_y_cy[tech] = s_tech_y_cy[tech]
             else:
-                switched_s_tech_y_cy[tech] = service_all_techs * s_tech_cy_p
+                switched_s_tech_y_cy[tech] = service_all_techs * p_s_tech_cy
 
             assert switched_s_tech_y_cy[tech] >= 0
 

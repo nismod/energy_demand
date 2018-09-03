@@ -36,11 +36,11 @@ def calc_annual_switch_params(
 
                     for sim_yr in all_sim_yrs:
                         # Calculate diffusion value
-                        s_tech_p = enduse_func.get_service_diffusion(
+                        p_s_tech = enduse_func.get_service_diffusion(
                             sig_param, sim_yr)
 
                         # What about linear?? TODO??
-                        annual_tech_diff_params[region][enduse][tech][sim_yr] = s_tech_p
+                        annual_tech_diff_params[region][enduse][tech][sim_yr] = p_s_tech
             else:
                 annual_tech_diff_params[region][enduse] = []
 
@@ -51,11 +51,11 @@ def calc_annual_switch_params(
         # ------------------------
         for submodel in [ss_sig_param_tech, is_sig_param_tech]:
 
-            for sector, enduse_region_tech_vals in submodel.items():
-                annual_tech_diff_params[region][sector] = {}
+            for enduse, sector_region_tech_vals in submodel.items():
+                annual_tech_diff_params[region][enduse] = {}
 
-                for enduse, reg_vals in enduse_region_tech_vals.items():
-                    annual_tech_diff_params[region][sector][enduse] = defaultdict(dict)
+                for sector, reg_vals in sector_region_tech_vals.items():
+                    annual_tech_diff_params[region][enduse][sector] = defaultdict(dict)
 
                     if reg_vals[region] != []:
                         for tech in reg_vals[region].keys():
@@ -65,15 +65,15 @@ def calc_annual_switch_params(
                             
                             for sim_yr in all_sim_yrs:
 
-                                s_tech_p = enduse_func.get_service_diffusion(
+                                p_s_tech = enduse_func.get_service_diffusion(
                                     sig_param, sim_yr)
 
                                 # What about linear?? TODO??
-                                annual_tech_diff_params[region][sector][enduse][tech][sim_yr] = s_tech_p
+                                annual_tech_diff_params[region][enduse][sector][tech][sim_yr] = p_s_tech
                     else:
-                        annual_tech_diff_params[region][sector][enduse] = []
+                        annual_tech_diff_params[region][enduse][sector] = []
 
-                    dict(annual_tech_diff_params[region][sector][enduse])
+                    dict(annual_tech_diff_params[region][enduse][sector])
 
         # Add to regional_strategy_vars
         regional_strategy_vars[region]['annual_tech_diff_params'] = annual_tech_diff_params[region]

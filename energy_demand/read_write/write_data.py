@@ -401,8 +401,7 @@ def resilience_paper(
         #'indus_min_GW_elec',
         #'indus_max_GW_elec') + '\n')
 
-    fueltype_int = tech_related.get_fueltype_int(
-        fueltypes, fueltype_str)
+    fueltype_int = tech_related.get_fueltype_int(fueltype_str)
 
     for region_nr, region in enumerate(regions):
 

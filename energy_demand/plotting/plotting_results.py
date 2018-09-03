@@ -1156,7 +1156,7 @@ def plt_fuels_peak_h(results_every_year, lookups, path_plot_fig):
     y_init = np.zeros((lookups['fueltypes_nr'], nr_y_to_plot))
 
     for fueltype_str, fueltype in lookups['fueltypes'].items():
-        fueltype_int = tech_related.get_fueltype_int(lookups['fueltypes'], fueltype_str)
+        fueltype_int = tech_related.get_fueltype_int(fueltype_str)
 
         # Legend
         legend_entries.append(fueltype_str)

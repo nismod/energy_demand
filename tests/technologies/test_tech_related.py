@@ -96,7 +96,7 @@ def test_get_fueltype_int():
     expected = 1
 
     # call function
-    out_value = tech_related.get_fueltype_int(fueltypes, in_value)
+    out_value = tech_related.get_fueltype_int(in_value)
 
     assert out_value == expected
 
