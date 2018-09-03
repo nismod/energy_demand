@@ -271,14 +271,15 @@ class Enduse(object):
                 # Calculate services per technology for cy based on fitted parameters
                 # --------------------------------
                 s_tech_y_cy = calc_service_switch(
-                    enduse,
-                    s_tech_y_cy,
-                    self.enduse_techs,
-                    sig_param_tech,
-                    curr_yr,
-                    base_yr,
-                    sector,
-                    assumptions.crit_switch_happening)
+                    enduse=enduse,
+                    s_tech_y_cy=s_tech_y_cy,
+                    all_technologies=self.enduse_techs,
+                    sig_param_tech=sig_param_tech,
+                    curr_yr=curr_yr,
+                    base_yr=base_yr,
+                    sector=sector,
+                    annual_tech_diff_params=strategy_vars['annual_tech_diff_params'],
+                    crit_switch_happening=assumptions.crit_switch_happening)
                 #logging.debug("Service D  " + str(np.sum(s_tot_y_cy)))
                 # -------------------------------------------
                 # Convert annual service to fuel per fueltype
@@ -1360,6 +1361,7 @@ def calc_service_switch(
         curr_yr,
         base_yr,
         sector,
+        annual_tech_diff_params,
         crit_switch_happening
     ):
     """Apply change in service depending on defined service switches.
@@ -1412,7 +1414,10 @@ def calc_service_switch(
                 sig_param_tech[tech], curr_yr)
 
             # KAMEL
-            #s_tech_cy_p = strategy_vars[tech][curr_yr]
+            '''if sector:
+                s_tech_cy_p = annual_tech_diff_params[sector][enduse][tech][curr_yr]
+            else:
+                s_tech_cy_p = annual_tech_diff_params[enduse][tech][curr_yr]'''
 
             if s_tech_cy_p == 'identical':
                 switched_s_tech_y_cy[tech] = s_tech_y_cy[tech]

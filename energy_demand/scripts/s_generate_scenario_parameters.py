@@ -3,36 +3,83 @@
 import os
 from collections import defaultdict
 from energy_demand.technologies import diffusion_technologies
+from energy_demand import enduse_func
 
 def calc_annual_switch_params(
-    reg_strategy_vars,
-    rs_sig_param_tech,
-    ss_sig_param_tech,
-    is_sig_param_tech):
+        regional_strategy_vars,
+        regions,
+        rs_sig_param_tech,
+        ss_sig_param_tech,
+        is_sig_param_tech
+    ):
     """
     """
-    '''annual_tech_diff_params = {}
+    all_sim_yrs = range(2015, 2051)
 
-    for enduse, region_tech_vals in rs_sig_param_tech.items():
+    annual_tech_diff_params = {}
 
-        for region in region_tech_vals.keys():
+    for region in regions:
+        annual_tech_diff_params[region] = {}
 
-            for tech in region_tech_vals[region].keys():
-                # Sigmoid diffusion values
-                midpoint = region_tech_vals[tech]['midpoint']
-                steepness = region_tech_vals[tech]['steepness']
-                l_parameter = region_tech_vals[tech]['l_parameter']
+        # ------------------------
+        # Submodel without sectors
+        # ------------------------
+        for enduse, region_tech_vals in rs_sig_param_tech.items():
+            annual_tech_diff_params[region][enduse] = defaultdict(dict)
 
-                # Iterate every year
-                for sim_yr in range(2015, 2051):
+            if region_tech_vals[region] != []:
+                for tech in region_tech_vals[region].keys():
 
-                    if midpoint = 'linear':
+                    # Sigmoid parameters
+                    sig_param = region_tech_vals[region][tech]
 
+                    # Iterate every year
+                    for sim_yr in all_sim_yrs:
+
+                        s_tech_p = enduse_func.get_service_diffusion(
+                            sig_param, sim_yr)
+
+                        # What about linear?? TODO??
+                        annual_tech_diff_params[region][enduse][tech][sim_yr] = s_tech_p
+            else:
+                annual_tech_diff_params[region][enduse] = []
+
+            dict(annual_tech_diff_params[region][enduse])
+
+        # ------------------------
+        # Submodels with sector
+        # ------------------------
+        for submodel in [ss_sig_param_tech, is_sig_param_tech]:
+
+            for sector, enduse_region_tech_vals in submodel.items():
+                annual_tech_diff_params[region][sector] = {}
+
+                for enduse, reg_vals in enduse_region_tech_vals.items():
+                    annual_tech_diff_params[region][sector][enduse] = defaultdict(dict)
+
+                    if reg_vals[region] != []:
+                        for tech in reg_vals[region].keys():
+
+                            # Sigmoid parameters
+                            sig_param = reg_vals[region][tech]
+
+                            # Iterate every year
+                            for sim_yr in all_sim_yrs:
+
+                                s_tech_p = enduse_func.get_service_diffusion(
+                                    sig_param, sim_yr)
+
+                                # What about linear?? TODO??
+                                annual_tech_diff_params[region][sector][enduse][tech][sim_yr] = s_tech_p
                     else:
-                        annual_tech_diff_params[region][enduse][tech][sim_yr] = 
-   
-    reg_strategy_vars["annual_tech_diff_params"] = annual_tech_diff_params'''
-    return reg_strategy_vars
+                        annual_tech_diff_params[region][sector][enduse] = []
+
+                    dict(annual_tech_diff_params[region][sector][enduse])
+
+        # Add to regional_strategy_vars
+        regional_strategy_vars[region]['annual_tech_diff_params'] = annual_tech_diff_params[region]
+
+    return regional_strategy_vars
 
 def generate_annual_param_vals(
         regions,

@@ -343,6 +343,15 @@ if __name__ == "__main__":
     data['assumptions'].update('regional_strategy_vars', regional_strategy_vars)
     data['assumptions'].update('non_regional_strategy_vars', non_regional_strategy_vars)
 
+    # ---------------------------------
+    # Add annual parameters of switches KAMEL
+    # ---------------------------------
+    annual_tech_diff_params = s_generate_scenario_parameters.calc_annual_switch_params(
+        data['regions'],
+        rs_sig_param_tech,
+        ss_sig_param_tech,
+        is_sig_param_tech)
+
     # ------------------------------------------------
     # Spatial Validation
     # ------------------------------------------------
