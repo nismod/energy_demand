@@ -94,29 +94,6 @@ def switch_calculations(
     rs_sig_param_tech, ss_sig_param_tech, is_sig_param_tech : dict
         Sigmoid diffusion parameters
     """
-    '''# --------------------------------------------
-    # Delete results from previous model runs
-    # and initialise folders
-    # --------------------------------------------
-    #basic_functions.del_previous_results(
-    #    data['local_paths']['data_processed'],
-    #    data['local_paths']['path_post_installation_data'])
-
-    basic_functions.del_previous_setup(
-        data['result_paths']['data_results'])
-
-    folders_to_create = [
-        data['local_paths']['dir_services'],
-        data['local_paths']['path_sigmoid_data'],
-        data['result_paths']['data_results'],
-        data['result_paths']['data_results_PDF'],
-        data['result_paths']['data_results_model_run_pop'],
-        data['result_paths']['data_results_validation'],
-        data['result_paths']['data_results_model_runs']]
-
-    for folder in folders_to_create:
-        basic_functions.create_folder(folder)'''
-
     # ---------------------------------------
     # Convert base year fuel input assumptions to energy service
     # ---------------------------------------
@@ -152,15 +129,23 @@ def switch_calculations(
             data['technologies'],
             sector)
 
-    # ===========================================
-    # I. Switches
-    # ===========================================
-
     # ========================================================================================
     # Capacity switches
     #
     # Calculate service shares considering potential capacity installations
     # ========================================================================================
+
+    # Convert globally defined switches to regional switches
+    f_diffusion = f_reg_norm_abs #TODO EXPLAIN # Select diffusion value
+
+    reg_capacity_switches_rs = global_to_reg_capacity_switch(
+        data['regions'], data['assumptions'].rs_capacity_switches, f_diffusion=f_diffusion)
+    reg_capacity_switches_ss = global_to_reg_capacity_switch(
+        data['regions'], data['assumptions'].ss_capacity_switches, f_diffusion=f_diffusion)
+    reg_capacity_switches_is = global_to_reg_capacity_switch(
+        data['regions'], data['assumptions'].is_capacity_switches, f_diffusion=f_diffusion)
+    
+    # sum across sectors
     ss_aggr_sector_fuels = s_fuel_to_service.sum_fuel_enduse_sectors(
         data['fuels']['ss_fuel_raw'],
         data['enduses']['ss_enduses'])
@@ -169,19 +154,7 @@ def switch_calculations(
         data['fuels']['is_fuel_raw'],
         data['enduses']['is_enduses'])
 
-    # ----------------------
-    # Select diffusion value
-    # ----------------------
-    f_diffusion = f_reg_norm_abs #TODO EXPLAIN
-
-    # Convert globally defined switches to regional switches
-    reg_capacity_switches_rs = global_to_reg_capacity_switch(
-        data['regions'], data['assumptions'].rs_capacity_switches, f_diffusion=f_diffusion)
-    reg_capacity_switches_ss = global_to_reg_capacity_switch(
-        data['regions'], data['assumptions'].ss_capacity_switches, f_diffusion=f_diffusion)
-    reg_capacity_switches_is = global_to_reg_capacity_switch(
-        data['regions'], data['assumptions'].is_capacity_switches, f_diffusion=f_diffusion)
-
+    # Capacity switches
     rs_service_switches_incl_cap = fuel_service_switch.capacity_switch(
         data['regions'],
         reg_capacity_switches_rs,
@@ -334,6 +307,10 @@ def switch_calculations(
                 regions=data['regions'],
                 sector=sector,
                 crit_all_the_same=crit_all_the_same)
+
+    # ------------------
+    # Convert to annual values TODO
+    # ------------------
 
     return rs_sig_param_tech, ss_sig_param_tech, is_sig_param_tech
 
@@ -645,12 +622,11 @@ def sig_param_calc_incl_fuel_switch(
     # ------------------------------------------
     sig_param_tech = {}
     service_switches_out = {}
-
     for region in regions:
         sig_param_tech[region] = []
         service_switches_out[region] = service_switches_enduse[region]
 
-    # Test if swithc is defined
+    # Test if switch is defined
     crit_switch_service = fuel_service_switch.get_switch_criteria(
         enduse,
         sector,
@@ -667,12 +643,10 @@ def sig_param_calc_incl_fuel_switch(
         # Calculate only from service switch
         s_tech_switched_p = share_s_tech_ey_p
 
-        all_techs = s_tech_by_p.keys()
-
         # Calculate sigmoid diffusion parameters
         l_values_sig = s_generate_sigmoid.get_l_values(
-            technologies,
-            all_techs,
+            technologies=technologies,
+            technologies_to_consider=s_tech_by_p.keys(),
             regions=regions)
 
     # ------------------------------------------
@@ -687,7 +661,7 @@ def sig_param_calc_incl_fuel_switch(
         enduse_fuel_switches = fuel_service_switch.get_fuel_switches_enduse(
             fuel_switches, enduse)
 
-        # ONly calculate for one reg
+        # Only calculate for one reg
         any_region = regions[0]
 
         l_values_sig = {}

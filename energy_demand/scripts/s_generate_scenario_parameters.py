@@ -2,8 +2,37 @@
 """
 import os
 from collections import defaultdict
-#import pandas as pd
 from energy_demand.technologies import diffusion_technologies
+
+def calc_annual_switch_params(
+    reg_strategy_vars,
+    rs_sig_param_tech,
+    ss_sig_param_tech,
+    is_sig_param_tech):
+    """
+    """
+    '''annual_tech_diff_params = {}
+
+    for enduse, region_tech_vals in rs_sig_param_tech.items():
+
+        for region in region_tech_vals.keys():
+
+            for tech in region_tech_vals[region].keys():
+                # Sigmoid diffusion values
+                midpoint = region_tech_vals[tech]['midpoint']
+                steepness = region_tech_vals[tech]['steepness']
+                l_parameter = region_tech_vals[tech]['l_parameter']
+
+                # Iterate every year
+                for sim_yr in range(2015, 2051):
+
+                    if midpoint = 'linear':
+
+                    else:
+                        annual_tech_diff_params[region][enduse][tech][sim_yr] = 
+   
+    reg_strategy_vars["annual_tech_diff_params"] = annual_tech_diff_params'''
+    return reg_strategy_vars
 
 def generate_annual_param_vals(
         regions,

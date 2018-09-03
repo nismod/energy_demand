@@ -60,7 +60,7 @@ def post_install_setup(args):
     # Delete all previous data from previous model runs
     basic_functions.del_previous_setup(data['local_paths']['data_processed'])
     basic_functions.del_previous_setup(data['result_paths']['data_results'])
-    basic_functions.del_previous_setup(data['result_paths']['path_post_installation_data'])
+    basic_functions.del_previous_setup(data['local_paths']['path_post_installation_data'])
 
     # Create folders and subfolder for data_processed
     folders_to_create = [
@@ -104,8 +104,6 @@ def post_install_setup(args):
 
     # Complete gva and pop data for every sector
     data_pop = os.path.join(local_data_path, "scenarios", "MISTRAL_pop_gva", "data")
-
-    #"uk_pop_principal_2015_2050_MSOA_england.csv"
     path_geography = os.path.join(local_data_path, "scenarios", "uk_pop_principal_2015_2050_MSOA_england.csv")
 
     script_data_preparation_MISTRAL_pop_gva.run(

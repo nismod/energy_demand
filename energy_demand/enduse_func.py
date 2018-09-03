@@ -1411,6 +1411,9 @@ def calc_service_switch(
             s_tech_cy_p = get_service_diffusion(
                 sig_param_tech[tech], curr_yr)
 
+            # KAMEL
+            #s_tech_cy_p = strategy_vars[tech][curr_yr]
+
             if s_tech_cy_p == 'identical':
                 switched_s_tech_y_cy[tech] = s_tech_y_cy[tech]
             else:

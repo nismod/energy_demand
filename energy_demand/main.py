@@ -192,16 +192,16 @@ if __name__ == "__main__":
     # -----------------------------
     # Create new folders
     # -----------------------------
-    basic_functions.del_previous_setup(data['data']['result_paths']['data_results'])
+    basic_functions.del_previous_setup(data['result_paths']['data_results'])
 
     folders_to_create = [
-        data['data']['local_paths']['dir_services'],
-        data['data']['local_paths']['path_sigmoid_data'],
-        data['data']['result_paths']['data_results'],
-        data['data']['result_paths']['data_results_PDF'],
-        data['data']['result_paths']['data_results_model_run_pop'],
-        data['data']['result_paths']['data_results_validation'],
-        data['data']['result_paths']['data_results_model_runs']]
+        data['local_paths']['dir_services'],
+        data['local_paths']['path_sigmoid_data'],
+        data['result_paths']['data_results'],
+        data['result_paths']['data_results_PDF'],
+        data['result_paths']['data_results_model_run_pop'],
+        data['result_paths']['data_results_validation'],
+        data['result_paths']['data_results_model_runs']]
 
     for folder in folders_to_create:
         basic_functions.create_folder(folder)
@@ -310,12 +310,15 @@ if __name__ == "__main__":
     # ------------------------------------------------
     # Initialise scenario
     # ------------------------------------------------
-    data['assumptions']['rs_sig_param_tech'], data['assumptions']['ss_sig_param_tech'], data['assumptions']['is_sig_param_tech'] = switch_calculations(
+    rs_sig_param_tech, ss_sig_param_tech, is_sig_param_tech = switch_calculations(
         data,
         f_reg,
         f_reg_norm,
         f_reg_norm_abs,
         crit_all_the_same)
+    data['assumptions'].update('rs_sig_param_tech', rs_sig_param_tech)
+    data['assumptions'].update('ss_sig_param_tech', ss_sig_param_tech)
+    data['assumptions'].update('is_sig_param_tech', is_sig_param_tech)
 
     # ------------------------------------------------
     # Calculate parameter values for every region
