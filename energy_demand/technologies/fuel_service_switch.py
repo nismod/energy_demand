@@ -119,29 +119,12 @@ def get_share_s_tech_ey(
                     #enduse_tech_ey_p[enduse][region][switch.technology_install] = switch.service_share_ey
 
         # Add all other enduses for which no switch is defined
-        #for enduse in specified_tech_enduse_by:
-        #    if enduse not in enduse_tech_ey_p:
-        #        enduse_tech_ey_p[enduse] = {}
-        #        for i in service_switches.keys(): #Regions
-        #            enduse_tech_ey_p[enduse][i] = {}
+        for enduse in specified_tech_enduse_by:
+            if enduse not in enduse_tech_ey_p_per_narrative_yr:
+                enduse_tech_ey_p_per_narrative_yr[enduse] = {}
+                for region in service_switches.keys():
+                    enduse_tech_ey_p_per_narrative_yr[enduse][region] = {}
 
-    '''print("ddddddddd")
-    for enduse in enduse_tech_ey_p_per_narrative_yr.keys():
-        if enduse == 'ss_space_heating':
-            print("ENDUSES " + str(enduse_tech_ey_p_per_narrative_yr.keys()))
-            for reg in enduse_tech_ey_p_per_narrative_yr[enduse]:
-                for yr in enduse_tech_ey_p_per_narrative_yr[enduse][reg]:
-                    print("Years " + str(enduse_tech_ey_p_per_narrative_yr[enduse][reg].keys()))
-                    print("--- " + str(enduse))
-                    import pprint
-                    print(pprint.pprint(enduse_tech_ey_p_per_narrative_yr[enduse][reg]))
-                    raise Exception'''
-
-    #print(enduse_tech_ey_p_per_narrative_yr)
-    #print("---------")
-    #print(enduse_tech_ey_p)
-    #raise Exception
-    #return dict(enduse_tech_ey_p)
     return dict(enduse_tech_ey_p_per_narrative_yr)
 
 def create_switches_from_s_shares(
@@ -648,7 +631,7 @@ def create_service_switch(
 
     return service_switches_enduse
 
-def get_fuel_switches_enduse(switches, enduse, generic=False):
+def get_fuel_switches_enduse(switches, enduse, generic=False, crit_switch_yr=False):
     """Get all fuel switches of a specific enduse
 
     Arguments
@@ -666,27 +649,43 @@ def get_fuel_switches_enduse(switches, enduse, generic=False):
     enduse_switches = {}
     for reg in switches:
         enduse_switches[reg] = []
-        for fuel_switch in switches[reg]:
+        for switch in switches[reg]:
+            sector = switch.sector
+            switch_yr = switch.switch_yr
 
-            sector = fuel_switch.sector
-            #if fuel_switch.enduse == enduse:
-            #    enduse_switches[reg].append(fuel_switch)
-                
             if not generic:
                 if not sector: # no sector is defined
-                    if fuel_switch.enduse == enduse:
-                        enduse_switches[reg].append(fuel_switch)
+                    if not crit_switch_yr:
+                        if switch.enduse == enduse:
+                            enduse_switches[reg].append(switch)
+                    else:
+                        if switch.enduse == enduse and switch.switch_yr == switch_yr:
+                            enduse_switches[reg].append(switch)    
+
                 else:
-                    if fuel_switch.enduse == enduse and fuel_switch.sector == sector:
-                        enduse_switches[reg].append(fuel_switch)
+                    if not crit_switch_yr:
+                        if switch.enduse == enduse and switch.sector == sector:
+                            enduse_switches[reg].append(switch)
+                    else:
+                        if switch.enduse == enduse and switch.sector == sector and switch_yr == switch_yr:
+                            enduse_switches[reg].append(switch)
             else:
                 # Select generic switch
                 if not sector:
-                    if fuel_switch.enduse == enduse and not fuel_switch.technology_install:
-                        enduse_switches[reg].append(fuel_switch)
+                    if not crit_switch_yr:
+                        if switch.enduse == enduse and not switch.technology_install:
+                            enduse_switches[reg].append(switch)
+                    else:
+                        if switch.enduse == enduse and not switch.technology_install and switch_yr == switch_yr:
+                            enduse_switches[reg].append(switch)
                 else:
-                    if fuel_switch.enduse == enduse and fuel_switch.sector == sector and not fuel_switch.technology_install:
-                        enduse_switches[reg].append(fuel_switch)
+                    if not crit_switch_yr:
+                        if switch.enduse == enduse and switch.sector == sector and not switch.technology_install:
+                            enduse_switches[reg].append(switch)
+                    else:
+                        if switch.enduse == enduse and switch.sector == sector and not switch.technology_install and switch_yr == switch_yr:
+                            enduse_switches[reg].append(switch)
+
     return enduse_switches
 
 def switches_to_dict(service_switches):
