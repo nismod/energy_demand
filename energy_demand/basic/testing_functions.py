@@ -53,7 +53,7 @@ def switch_testing(fuel_switches, service_switches, capacity_switches):
             # Collect all enduses and affected sectors
             if switch.enduse not in all_switches_incl_sectors:
                 all_switches_incl_sectors[switch.enduse] = set([])
-                
+
                 if not switch.sector:
                     all_switches_incl_sectors[switch.enduse] = None
                 else:
@@ -108,9 +108,6 @@ def switch_testing(fuel_switches, service_switches, capacity_switches):
         if all_switches_incl_sectors[enduse] != None:
             all_switches_incl_sectors[enduse] = list(all_switches_incl_sectors[enduse])
 
-    import pprint
-    print(pprint.pprint(all_switches_incl_sectors))
-    raise E
     return all_switches_incl_sectors
 
 def testing_fuel_tech_shares(fuel_tech_fueltype_p):

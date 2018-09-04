@@ -113,10 +113,12 @@ class CapacitySwitch(object):
         self.technology_install = technology_install
         self.switch_yr = switch_yr
         self.installed_capacity = installed_capacity
-        if math.isnan(sector):
-            sector = None
-        elif not sector:
-            pass
+        if not sector:
+            self.sector = None
+        elif isinstance(sector, str):
+            self.sector = sector
+        elif math.isnan(sector):
+            self.sector = None
         else:
             self.sector = sector
 
@@ -165,10 +167,12 @@ class FuelSwitch(object):
         self.technology_install = technology_install
         self.switch_yr = switch_yr
         self.fuel_share_switched_ey = fuel_share_switched_ey
-        if math.isnan(sector):
+        if not sector:
             self.sector = None
-        elif not sector:
-            pass
+        elif isinstance(sector, str):
+            self.sector = sector
+        elif math.isnan(sector):
+            self.sector = None
         else:
             self.sector = sector
 
@@ -215,10 +219,12 @@ class ServiceSwitch(object):
         self.technology_install = technology_install
         self.service_share_ey = service_share_ey
         self.switch_yr = switch_yr
-        if math.isnan(sector):
-            sector = None
-        elif not sector:
-            pass
+        if not sector:
+            self.sector = None
+        elif isinstance(sector, str):
+            self.sector = sector
+        elif math.isnan(sector):
+            self.sector = None
         else:
             self.sector = sector
 
@@ -569,7 +575,7 @@ def service_switch(path_to_csv, technologies, base_yr=2015):
     # Read switches
     raw_csv_file = pd.read_csv(path_to_csv)
 
-    for index, row in raw_csv_file.iterrows():
+    for _index, row in raw_csv_file.iterrows():
 
         service_switches.append(
             ServiceSwitch(

@@ -12,12 +12,9 @@ regional_specific, crit_all_the_same
 #TODO Make that congruence value map is better loaded from seperate file (e.g. populatio ndensity)
 #TODO Create own .py chart file for every chart
 #TODO Import weather data loading and importing whole range of weather scenarios
-#TODO Replace geopanda csv loading
-#TODO Take disaggregation completely out?
 #TODO Test if technology type can be left empty in technology spreadsheet
 #TODO Try to remove tech_type
 #TODO Write out full result. Then write function to aggregate accordingly
-#TODO replace create_csv_file by pandas
 #TODO SIMple aggregation. Write out sectormodel, enduse, region, fueltypes.... --> Do all aggregation based on that
 #- Make that fuel swtich can be made in any industry sector irrespective of technologies
 """
