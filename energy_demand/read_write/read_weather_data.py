@@ -1,10 +1,9 @@
 """Loading weather data (temp)
 """
 import os
-import csv
-import logging
 from collections import defaultdict
 import numpy as np
+import pandas as pd
 
 def read_weather_station_script_data(path_to_csv):
     """Read in weather stations from script data
@@ -21,23 +20,12 @@ def read_weather_station_script_data(path_to_csv):
     """
     temp_stations = defaultdict(dict)
 
-    with open(path_to_csv, 'r') as csvfile:
-        read_lines = csv.reader(csvfile, delimiter=',')
-        _headings = next(read_lines) # Skip headers
+    raw_csv_file = pd.read_csv(path_to_csv)
 
-        for row in read_lines:
-            station_id = str(row[0])
-            latitude = float(row[1])
-            longitude = float(row[2])
-
-            temp_stations[station_id]['station_latitude'] = latitude
-            temp_stations[station_id]['station_longitude'] = longitude
-
-            # Plot weather stations
-            logging.debug("Station name: %s,  Longitude: %s, Latitude: %s",
-                station_id,
-                longitude,
-                latitude)
+    for index, row in raw_csv_file.iterrows():
+        station_id = int(row['station_id'])
+        temp_stations[station_id]['station_latitude'] = float(row['station_latitude'])
+        temp_stations[station_id]['station_longitude'] = float(row['station_longitude'])
 
     return dict(temp_stations)
 
@@ -60,7 +48,7 @@ def read_weather_data_script_data(path_to_csv):
     for file_path in all_txt_files_in_folder:
         path_file_to_read = os.path.join(path_to_csv, file_path)
         file_path_split = file_path.split("__")
-        station_id = str(file_path_split[1])
+        station_id = int(file_path_split[1])
         temp_data[station_id] = np.loadtxt(path_file_to_read, delimiter=',')
 
     return temp_data

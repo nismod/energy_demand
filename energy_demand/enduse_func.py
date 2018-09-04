@@ -4,6 +4,7 @@ depending on scenaric assumptions"""
 import logging
 import math
 import numpy as np
+
 from energy_demand.profiles import load_factors as lf
 from energy_demand.technologies import diffusion_technologies
 from energy_demand.technologies import fuel_service_switch
@@ -29,8 +30,6 @@ class Enduse(object):
 
     Arguments
     ----------
-    submodel : str
-        Submodel
     region : str
         Region name
     scenario_data : dict
@@ -84,7 +83,6 @@ class Enduse(object):
     """
     def __init__(
             self,
-            submodel,
             region,
             scenario_data,
             assumptions,
@@ -100,7 +98,6 @@ class Enduse(object):
             fuel_tech_p_by,
             criterias,
             strategy_vars,
-            non_regional_strategy_vars,
             fueltypes_nr,
             fueltypes,
             dw_stock=False,
@@ -194,6 +191,15 @@ class Enduse(object):
             self.fuel_y = _fuel_new_y
             #logging.debug("... Fuel train E2: " + str(np.sum(self.fuel_y)))
 
+            # Generic fuel switch of an enduse
+            _fuel_new_y = generic_fuel_switch(
+                enduse,
+                sector,
+                curr_yr,
+                strategy_vars,
+                self.fuel_y)
+
+            self.fuel_y = _fuel_new_y
             # ----------------------------------
             # Hourly Disaggregation
             # ----------------------------------
@@ -1049,7 +1055,7 @@ def apply_scenario_drivers(
     -------
     fuel_y : array
         Changed yearly fuel per fueltype
-    
+
     #TODO :ADD OTHER driver
     """
     if not dw_stock:
@@ -1088,7 +1094,7 @@ def apply_scenario_drivers(
             # Multiply drivers
             by_driver *= by_driver_data
             cy_driver *= cy_driver_data
-            
+    
             # Testing
             if math.isnan(by_driver_data) or math.isnan(cy_driver_data):
                 raise Exception("Scenario driver error")
@@ -1119,7 +1125,7 @@ def apply_scenario_drivers(
             # Testing
             if math.isnan(factor_driver):
                 raise Exception("Scenario driver error")
-    
+
             fuel_y = fuel_y * factor_driver
 
         else:
@@ -1465,6 +1471,59 @@ def apply_cooling(
     except KeyError:
         logging.debug("no cooling defined for enduse")
         return fuel_y
+
+def generic_fuel_switch(
+        enduse,
+        sector,
+        curr_yr,
+        strategy_vars,
+        fuel_y
+    ):
+    """Generic fuel switch in an enduse (e.g. replacing a fraction
+    of a fuel with another fueltype
+    """
+
+    '''# Fraction of fuel to replace
+
+    # Assume no efficiencies for this
+    total_service_of_enduse = np.sum(fuels)
+
+    # Get generic fuel switches
+    generic_fuel_switches = []
+
+    # Criteria "General"
+    switches = fuel_service_switch.get_fuel_switches_enduse(
+        fuel_switches,
+        enduse,
+        generic=True)
+
+    if switches != []:
+
+        # Replace fuel
+        for switch in switches:
+            fueltype_old = switch.fueltype_replace
+            switch_yr = switch.switch_yr
+            fuel_share_switched_ey = switch.fuel_share_switched_ey
+            sector = switch.sector
+            fuel_new = switch.technology_install
+
+            #Share in current year TODO
+            fuel_share_switched_cy
+
+        # If sector specific do across sectors
+        # Substract
+        fuel_minus = fuels[fueltype_replace] * (1 - fuel_share_switched_cy)
+        fuels[fueltype_old] -= fuel_minus
+
+        # Add
+        fuels[fuel_new] += fuel_minus
+
+        # Replace fueltype
+        fuels_out = fuels
+    else:
+        fuels_out = fuels'''
+
+    return fuel_y
 
 def industry_enduse_changes(
         enduse,

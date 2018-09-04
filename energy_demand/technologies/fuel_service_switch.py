@@ -189,7 +189,7 @@ def create_switches_from_s_shares(
             # If assigned copy to final switches
             for switch_new in enduse_switches:
                 if switch_new.technology_install == tech:
-                    
+
                     # If no fuel demand, also no switch possible
                     if tot_share_not_assigned == 0:
                         switch_new.service_share_ey = 0
@@ -552,7 +552,7 @@ def create_service_switch(
             technologies[switch.technology_install].year_eff_ey,
             technologies[switch.technology_install].eff_achieved,
             technologies[switch.technology_install].diff_method)
-
+        # KAMEL ITERATE YEARS
         # Convert installed capacity to service
         installed_capacity_ey = switch.installed_capacity * eff_ey
 
@@ -583,7 +583,7 @@ def create_service_switch(
 
     return service_switches_enduse
 
-def get_fuel_switches_enduse(switches, enduse):
+def get_fuel_switches_enduse(switches, enduse, generic=False):
     """Get all fuel switches of a specific enduse
 
     Arguments
@@ -602,9 +602,26 @@ def get_fuel_switches_enduse(switches, enduse):
     for reg in switches:
         enduse_switches[reg] = []
         for fuel_switch in switches[reg]:
-            if fuel_switch.enduse == enduse:
-                enduse_switches[reg].append(fuel_switch)
 
+            sector = fuel_switch.sector
+            #if fuel_switch.enduse == enduse:
+            #    enduse_switches[reg].append(fuel_switch)
+                
+            if not generic:
+                if not sector: # no sector is defined
+                    if fuel_switch.enduse == enduse:
+                        enduse_switches[reg].append(fuel_switch)
+                else:
+                    if fuel_switch.enduse == enduse and fuel_switch.sector == sector:
+                        enduse_switches[reg].append(fuel_switch)
+            else:
+                # Select generic switch
+                if not sector:
+                    if fuel_switch.enduse == enduse and not fuel_switch.technology_install:
+                        enduse_switches[reg].append(fuel_switch)
+                else:
+                    if fuel_switch.enduse == enduse and fuel_switch.sector == sector and not fuel_switch.technology_install:
+                        enduse_switches[reg].append(fuel_switch)
     return enduse_switches
 
 def switches_to_dict(service_switches):

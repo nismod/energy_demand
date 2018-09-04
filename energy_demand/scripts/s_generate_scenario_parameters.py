@@ -62,7 +62,7 @@ def calc_annual_switch_params(
 
                             # Sigmoid parameters
                             sig_param = reg_vals[region][tech]
-                            
+
                             for sim_yr in all_sim_yrs:
 
                                 p_s_tech = enduse_func.get_service_diffusion(
@@ -117,7 +117,7 @@ def generate_annual_param_vals(
         path_file = os.path.join(
             path, "params_{}.{}".format(parameter_name, "csv"))
 
-        # Calculate annual parameter value 
+        # Calculate annual parameter value
         regional_strategy_vary = generate_general_parameter(
             regions=regions,
             narratives=strategy_vars[parameter_name]['narratives'],
@@ -163,7 +163,6 @@ def generate_general_parameter(
         - all values for each region
     """
     container = defaultdict(dict)
-    #entries = []
 
     for narrative in narratives:
 

@@ -231,7 +231,7 @@ def run(
                     # -------
                     # Drop all rows with alls NaN entries#TODO NEW
                     # -------
-                    ##gp_file = gp_file[np.isfinite(gp_file['value'])]
+                    gp_file = gp_file[np.isfinite(gp_file['value'])]
 
                     # Convert years to integer values
                     gp_file['year'] = gp_file['year'].astype(int)

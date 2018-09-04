@@ -112,9 +112,8 @@ class CapacitySwitch(object):
         self.technology_install = technology_install
         self.switch_yr = switch_yr
         self.installed_capacity = installed_capacity
-
-        if sector == '':
-            self.sector = None # Not sector defined
+        if sector == np.NaN:
+            sector = None
         else:
             self.sector = sector
 
@@ -208,9 +207,8 @@ class ServiceSwitch(object):
         self.technology_install = technology_install
         self.service_share_ey = service_share_ey
         self.switch_yr = switch_yr
-
-        if sector == '':
-            self.sector = None # Not sector defined
+        if sector == np.NaN:
+            sector = None
         else:
             self.sector = sector
 
@@ -564,7 +562,6 @@ def service_switch(path_to_csv, technologies, base_yr=2015):
     # Replace NaN with " " values
     raw_csv_file = raw_csv_file.fillna("")
 
-    # Iterate rows
     for index, row in raw_csv_file.iterrows():
 
         service_switches.append(
@@ -634,7 +631,7 @@ def read_fuel_switches(
     raw_csv_file = pd.read_csv(path_to_csv)
 
     # Replace NaN with " " values
-    raw_csv_file = raw_csv_file.fillna("")
+    #raw_csv_file = raw_csv_file.fillna(NaN)
 
     # Iterate rows
     for index, row in raw_csv_file.iterrows():
@@ -693,7 +690,7 @@ def read_fuel_switches(
 
     return fuel_switches
 
-def read_technologies(path_to_csv, fueltypes):
+def read_technologies(path_to_csv):
     """Read in technology definition csv file. Append
     for every technology type a 'placeholder_tech'.
 
@@ -741,10 +738,6 @@ def read_technologies(path_to_csv, fueltypes):
     # Read csv
     raw_csv_file = pd.read_csv(path_to_csv)
 
-    # Replace NaN with " " values
-    raw_csv_file = raw_csv_file.fillna("")
-
-    # Iterate rows
     for index, row in raw_csv_file.iterrows():
         dict_technologies[str(row['technology'])] = TechnologyData(
             name=str(row['technology']),
@@ -1064,8 +1057,9 @@ def read_capacity_switch(path_to_csv, base_yr=2015):
     # Read switches
     raw_csv_file = pd.read_csv(path_to_csv)
 
-    # Replace NaN with " " values
-    raw_csv_file = raw_csv_file.fillna("")
+    # Replace NaN with None values if not defined in switch
+    #raw_csv_file = raw_csv_file.fillna(NaN)
+
 
     # Iterate rows
     for index, row in raw_csv_file.iterrows():
@@ -1076,8 +1070,7 @@ def read_capacity_switch(path_to_csv, base_yr=2015):
                 technology_install=str(row['technology_install']),
                 switch_yr=float(row['swich_yr']),
                 installed_capacity=float(row['installed_capacity']),
-                sector=str(row['sector'])
-                ))
+                sector=str(row['sector'])))
 
     # Testing
     for obj in service_switches:

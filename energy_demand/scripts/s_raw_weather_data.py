@@ -272,9 +272,10 @@ def write_weather_stations(path_to_txt, weather_station):
         Weater station data
     """
     file = open(path_to_txt, "w")
-    file.write("{}, {}, {}".format('station_id', 'station_latitude', 'station_longitude') + '\n')
+    file.write("{},{},{}".format('station_id', 'station_latitude', 'station_longitude') + '\n')
+
     for station_id in weather_station:
-        file.write("{}, {}, {}".format(
+        file.write("{},{},{}".format(
             station_id, weather_station[station_id]['station_latitude'],
             weather_station[station_id]['station_longitude'])  + '\n')
     file.close()

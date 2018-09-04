@@ -273,8 +273,8 @@ def get_fuels_yh(enduse_object, attribute_to_get):
         fuels_reg_y = enduse_object.fuel_y
 
         # Get flat load profile
-        flat_shape_yd, flat_shape_yh, flat_shape_y_dh = generic_shapes.flat_shape()
-    
+        flat_shape_yd, flat_shape_yh, _ = generic_shapes.flat_shape()
+
         if attribute_to_get == 'shape_non_peak_y_dh':
             fuels = fuels_reg_y * flat_shape_yh
         elif attribute_to_get == 'shape_non_peak_yd':
@@ -336,7 +336,6 @@ def residential_submodel(
 
             # Create submodel
             submodel = endusefunctions.Enduse(
-                submodel='rs_submodel',
                 region=region.name,
                 scenario_data=scenario_data,
                 assumptions=assumptions,
@@ -352,7 +351,7 @@ def residential_submodel(
                 fuel_tech_p_by=assumptions.rs_fuel_tech_p_by[enduse],
                 criterias=criterias,
                 strategy_vars=assumptions.regional_strategy_vars[region.name],
-                non_regional_strategy_vars=assumptions.non_regional_strategy_vars,
+                #non_regional_strategy_vars=assumptions.non_regional_strategy_vars,
                 fueltypes_nr=lookups['fueltypes_nr'],
                 fueltypes=lookups['fueltypes'],
                 dw_stock=rs_dw_stock)
@@ -395,7 +394,6 @@ def service_submodel(
 
             # Create submodel
             submodel = endusefunctions.Enduse(
-                submodel='ss_submodel',
                 region=region.name,
                 scenario_data=scenario_data,
                 assumptions=assumptions,
@@ -411,7 +409,7 @@ def service_submodel(
                 fuel_tech_p_by=assumptions.ss_fuel_tech_p_by[enduse][sector],
                 criterias=criterias,
                 strategy_vars=assumptions.regional_strategy_vars[region.name],
-                non_regional_strategy_vars=assumptions.non_regional_strategy_vars,
+                #non_regional_strategy_vars=assumptions.non_regional_strategy_vars,
                 fueltypes_nr=lookups['fueltypes_nr'],
                 fueltypes=lookups['fueltypes'],
                 dw_stock=ss_dw_stock)
@@ -468,7 +466,6 @@ def industry_submodel(
             # Create submodel
             # ------------------------------------------------------
             submodel = endusefunctions.Enduse(
-                submodel='is_submodel',
                 region=region.name,
                 scenario_data=scenario_data,
                 assumptions=assumptions,
@@ -484,7 +481,7 @@ def industry_submodel(
                 fuel_tech_p_by=assumptions.is_fuel_tech_p_by[enduse][sector],
                 criterias=criterias,
                 strategy_vars=assumptions.regional_strategy_vars[region.name],
-                non_regional_strategy_vars=assumptions.non_regional_strategy_vars,
+                #non_regional_strategy_vars=assumptions.non_regional_strategy_vars,
                 fueltypes_nr=lookups['fueltypes_nr'],
                 fueltypes=lookups['fueltypes'],
                 reg_scen_drivers=assumptions.scenario_drivers['is_submodule'],

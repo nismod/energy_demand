@@ -302,8 +302,6 @@ def get_local_paths(path):
             path, '_processed_data', '_post_installation_data'),
         'data_processed_disaggregated': os.path.join(
             path, '_processed_data', '_post_installation_data', 'disaggregated'),
-        'path_sigmoid_data': os.path.join(
-            path, '_processed_data', 'sigmoid_data'),
         'dir_changed_weather_station_data': os.path.join(
             path, '_processed_data', '_post_installation_data', 'weather_station_data'),
         'changed_weather_station_data': os.path.join(
@@ -318,9 +316,6 @@ def get_local_paths(path):
             path, '_processed_data', '_post_installation_data', 'load_profiles', 'rs_submodel'),
         'ss_load_profile_txt': os.path.join(
             path, '_processed_data', '_post_installation_data', 'load_profiles', 'ss_submodel'),
-        'dir_services': os.path.join(
-            path, '_processed_data', 'services'),
-
         'yaml_parameters': os.path.join(
             path, '..', 'config', 'yaml_parameters.yml'),
         'yaml_parameters_constrained': os.path.join(

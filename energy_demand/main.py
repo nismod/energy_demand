@@ -195,8 +195,6 @@ if __name__ == "__main__":
     basic_functions.del_previous_setup(data['result_paths']['data_results'])
 
     folders_to_create = [
-        data['local_paths']['dir_services'],
-        data['local_paths']['path_sigmoid_data'],
         data['result_paths']['data_results'],
         data['result_paths']['data_results_PDF'],
         data['result_paths']['data_results_model_run_pop'],

@@ -488,7 +488,7 @@ class Assumptions(object):
 
         # Load defined technologies
         self.technologies, self.tech_list = read_data.read_technologies(
-            paths['path_technologies'], fueltypes)
+            paths['path_technologies'])
 
         self.installed_heat_pump_by = tech_related.generate_ashp_gshp_split(
             self.gshp_fraction)
