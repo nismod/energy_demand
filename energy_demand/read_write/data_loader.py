@@ -380,39 +380,39 @@ def load_paths(path):
 
         # Path to all technologies
         'path_technologies': os.path.join(
-            path, '08-technologies', 'technology_definition.csv'),
+            path, '05-technologies', 'technology_definition.csv'),
 
         # Fuel switches
         'rs_path_fuel_switches': os.path.join(
-            path, '07-switches', 'rs_switches_fuel.csv'),
+            path, '06-switches', 'rs_switches_fuel.csv'),
         'ss_path_fuel_switches': os.path.join(
-            path, '07-switches', 'ss_switches_fuel.csv'),
+            path, '06-switches', 'ss_switches_fuel.csv'),
         'is_path_fuel_switches': os.path.join(
-            path, '07-switches', 'is_switches_fuel.csv'),
+            path, '06-switches', 'is_switches_fuel.csv'),
 
         # Path to service switches
         'rs_path_service_switch': os.path.join(
-            path, '07-switches', 'rs_switches_service.csv'),
+            path, '06-switches', 'rs_switches_service.csv'),
         'ss_path_service_switch': os.path.join(
-            path, '07-switches', 'ss_switches_service.csv'),
+            path, '06-switches', 'ss_switches_service.csv'),
         'is_path_industry_switch': os.path.join(
-            path, '07-switches', 'is_switches_service.csv'),
+            path, '06-switches', 'is_switches_service.csv'),
 
         # Path to capacity installations
         'rs_path_capacity_installation': os.path.join(
-            path, '07-switches', 'rs_capacity_installations.csv'),
+            path, '06-switches', 'rs_capacity_installations.csv'),
         'ss_path_capacity_installation': os.path.join(
-            path, '07-switches', 'ss_capacity_installations.csv'),
+            path, '06-switches', 'ss_capacity_installations.csv'),
         'is_path_capacity_installation': os.path.join(
-            path, '07-switches', 'is_capacity_installations.csv'),
+            path, '06-switches', 'is_capacity_installations.csv'),
 
         # Paths to fuel raw data
         'rs_fuel_raw': os.path.join(
-            path, '06-fuels', 'rs_fuel.csv'),
+            path, '02-fuel_base_year', 'rs_fuel.csv'),
         'ss_fuel_raw': os.path.join(
-            path, '06-fuels', 'ss_fuel.csv'),
+            path, '02-fuel_base_year', 'ss_fuel.csv'),
         'is_fuel_raw': os.path.join(
-            path, '06-fuels', 'is_fuel.csv'),
+            path, '02-fuel_base_year', 'is_fuel.csv'),
 
         # Load profiles
         'lp_rs': os.path.join(
@@ -450,7 +450,7 @@ def load_paths(path):
             path, '01-validation_datasets', '02_subnational_elec', 'MSOA_domestic_electricity_2015_cleaned.csv'),
         'path_val_subnational_elec_msoa_non_residential': os.path.join(
             path, '01-validation_datasets', '02_subnational_elec', 'MSOA_non_dom_electricity_2015_cleaned.csv'),
-  
+
         'path_val_subnational_gas': os.path.join(
             path, '01-validation_datasets', '03_subnational_gas', 'data_2015_gas.csv'),
         'path_val_subnational_gas_residential': os.path.join(

@@ -452,7 +452,7 @@ def get_l_values(
 
 def tech_sigmoid_parameters(
         yr_until_switched,
-        base_yr, #switch_yr_from
+        switch_yr_start,
         technologies,
         l_values,
         s_tech_by_p,
@@ -484,8 +484,8 @@ def tech_sigmoid_parameters(
     ----------
     yr_until_switched : int
         Year until switch is fully realised
-    base_yr : int
-        base year
+    switch_yr_start : int
+        Start year of story in narrative
     technologies : dict
         technologies
     l_values : dict
@@ -530,11 +530,11 @@ def tech_sigmoid_parameters(
             # Test whether technology has the market entry before or after base year,
             # If afterwards, set very small number in market entry year
             # --------
-            if technologies[tech].market_entry > base_yr:
+            if technologies[tech].market_entry > switch_yr_start:
                 point_x_by = technologies[tech].market_entry
                 point_y_by = fit_assump_init
             else:
-                point_x_by = base_yr           # Base year
+                point_x_by = switch_yr_start           # Base year
                 point_y_by = s_tech_by_p[tech] # Base year service share
 
                 # If the base year is the market entry year use a very small number
@@ -630,7 +630,7 @@ def tech_sigmoid_parameters(
                         The sigmoid diffusion may fail if the fitting does not work
                         because the points to fit are too similar.
                         """
-                        logging.warning(" ff{}  {} ".format(yr_until_switched, base_yr))
+                        logging.warning(" ff{}  {} ".format(yr_until_switched, switch_yr_start))
                         logging.warning(
                             "Instead of sigmoid a linear approximation is used %s %s %s %s", s_tech_by_p[tech], tech, xdata, ydata)
                         sig_params[tech]['midpoint'] = 'linear'

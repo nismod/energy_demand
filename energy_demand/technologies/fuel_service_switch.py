@@ -68,12 +68,11 @@ def sum_fuel_across_sectors(fuels):
         return fuels
 
 def get_share_s_tech_ey(
-        defined_temporal_narrative_points,
         service_switches,
         specified_tech_enduse_by
     ):
     """Get fraction of service for each technology
-    defined in a switch for the future year
+    defined in a switch for every narrative year
 
     Arguments
     ---------
@@ -87,41 +86,30 @@ def get_share_s_tech_ey(
     enduse_tech_ey_p : dict
         Enduse, share per technology in ey
     """
-    enduse_tech_ey_p_per_narrative_yr = defaultdict(dict)
+    narrative_yrs_enduse_tech_ey_p = defaultdict(dict)
 
-    # KAMEL
-    # --> Read how many narrative points for every switch (e.g. 2030, 2050)
-    # --> Calculate enduse tech_ey_p for every narrative temporal point
+    # Calculate enduse tech_ey_p for every narrative temporal point
     for region, switches in service_switches.items():
 
-        # INITIALISE
-        enduses = []
-        for switch in switches:
-            if switch.enduse not in enduses:
-                enduses.append(switch.enduse)
-
-        for enduse in enduses:
-            enduse_tech_ey_p_per_narrative_yr[enduse][region] = defaultdict(dict)
+        # Get all enduses defined in switches
+        enduses = get_all_enduses_of_switches(switches)
 
         # Iterate all endusese and assign all lines
         for enduse in enduses:
+            narrative_yrs_enduse_tech_ey_p[enduse][region] = defaultdict(dict)
 
             for switch in switches:
                 if switch.enduse == enduse:
-
-                    # KAMEL
-                    narrative_yr = switch.switch_yr
-
-                    enduse_tech_ey_p_per_narrative_yr[enduse][region][narrative_yr][switch.technology_install] = switch.service_share_ey
+                    narrative_yrs_enduse_tech_ey_p[enduse][region][switch.switch_yr][switch.technology_install] = switch.service_share_ey
 
     # Add all other enduses for which no switch is defined
     for enduse in specified_tech_enduse_by:
-        if enduse not in enduse_tech_ey_p_per_narrative_yr:
-            enduse_tech_ey_p_per_narrative_yr[enduse] = {}
+        if enduse not in narrative_yrs_enduse_tech_ey_p:
+            narrative_yrs_enduse_tech_ey_p[enduse] = {}
             for region in service_switches.keys():
-                enduse_tech_ey_p_per_narrative_yr[enduse][region] = {}
+                narrative_yrs_enduse_tech_ey_p[enduse][region] = {}
 
-    return dict(enduse_tech_ey_p_per_narrative_yr)
+    return dict(narrative_yrs_enduse_tech_ey_p)
 
 def create_switches_from_s_shares(
         enduse,
@@ -243,7 +231,7 @@ def get_all_enduses_of_switches(switches):
     return enduses
 
 def autocomplete_switches(
-        defined_temporal_narrative_points,
+        narrative_timesteps,
         service_switches,
         specified_tech_enduse_by,
         s_tech_by_p,
@@ -398,7 +386,6 @@ def autocomplete_switches(
 
     # Calculate fraction of service for each technology
     reg_share_s_tech_ey_p = get_share_s_tech_ey(
-        defined_temporal_narrative_points,
         service_switches_out,
         specified_tech_enduse_by)
 
@@ -596,7 +583,7 @@ def create_service_switch(
             technologies[switch.technology_install].year_eff_ey,
             technologies[switch.technology_install].eff_achieved,
             technologies[switch.technology_install].diff_method)
-        # KAMEL ITERATE YEARS
+        # TODO KAMEL ITERATE YEARS
         # Convert installed capacity to service
         installed_capacity_ey = switch.installed_capacity * eff_ey
 

@@ -143,8 +143,10 @@ def test_autocomplete_switches():
         technology_install='techA',
         switch_yr=2050,
         service_share_ey=0.6)]
+    defined_temporal_narrative_points = [2050]
 
     out_1, out_2 = fuel_service_switch.autocomplete_switches(
+        defined_temporal_narrative_points=defined_temporal_narrative_points,
         service_switches=service_switches,
         specified_tech_enduse_by={'heating': ['techA', 'techB', 'techC']},
         s_tech_by_p={'heating': {'techA': 0.2, 'techB': 0.4, 'techC': 0.4}},
@@ -172,6 +174,7 @@ def test_autocomplete_switches():
         service_share_ey=0.6)]
 
     out_1, out_2 = fuel_service_switch.autocomplete_switches(
+        defined_temporal_narrative_points=defined_temporal_narrative_points,
         service_switches=service_switches,
         specified_tech_enduse_by={'heating': ['techA', 'techB', 'techC']},
         s_tech_by_p={'heating': {'techA': 0.2, 'techB': 0.4, 'techC': 0.4}},
@@ -408,8 +411,10 @@ def test_get_share_s_tech_ey():
 
     specified_tech_enduse_by = {'regA': {'heating': ['techA', 'techB', 'techC']}}
 
+    defined_temporal_narrative_points = [2020]
     result = fuel_service_switch.get_share_s_tech_ey(
+        defined_temporal_narrative_points=defined_temporal_narrative_points,
         service_switches=service_switches,
         specified_tech_enduse_by=specified_tech_enduse_by)
 
-    assert result['heating']['regA']['techA'] == 0.3
+    assert result[2020]['heating']['regA']['techA'] == 0.3

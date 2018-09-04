@@ -5,23 +5,50 @@ from collections import defaultdict
 from energy_demand.technologies import diffusion_technologies
 from energy_demand import enduse_func
 
-def get_correct_narrative_timestep(sim_yr, narrative_timesteps):
-    """KAMEL
+def get_correct_narrative_timestep(
+        sim_yr,
+        narrative_timesteps
+    ):
+    """Based on simulated year select the correct
+    narrative timestep, i.e. the year which is
+    to be used from the narrative
+
+    Arguments
+    ---------
+    sim_yr : int
+        Simulation year
+    narrative_timesteps : list
+        All defined timesteps in narrative
+
+    Returns
+    -------
+    timestep : int
+        Narrative timestep to use for calculation
+
+    Example
+    -------
+    If we have a two-step narrative such as:
+        year: 2015 - 2030, 2030 - 2050
+
+    for the sim_yr 2020, the calculated values for
+    2030 would need to be used. For the year 2031,
+    the values 2050 would need to be used.
     """
     # Sort timesteps
     narrative_timesteps.sort()
 
+    # Get corresponding narrative timestep
     if len(narrative_timesteps) == 1:
-        correct_yr = narrative_timesteps[0]
+        timestep = narrative_timesteps[0]
     else:
         for year_narrative in narrative_timesteps:
 
             if sim_yr <= year_narrative:
-                correct_yr = year_narrative
+                timestep = year_narrative
             else:
                 pass
 
-    return correct_yr
+    return timestep
 
 def calc_annual_switch_params(
         simulated_yrs,
