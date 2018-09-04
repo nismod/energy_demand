@@ -329,7 +329,7 @@ if __name__ == "__main__":
     data['assumptions'].update('non_regional_strategy_vars', non_regional_strategy_vars)
 
     # ------------------------------------------------
-    # Calculate switches
+    # Calculate switches #WHIS IS SPACE HEATING RS NOT SHOWN?
     # ------------------------------------------------
     rs_sig_param_tech, ss_sig_param_tech, is_sig_param_tech = switch_calculations(
         data,
@@ -342,6 +342,7 @@ if __name__ == "__main__":
     # Add annual parameters of switches
     # ---------------------------------
     regional_strategy_vars = s_generate_scenario_parameters.calc_annual_switch_params(
+        simulated_yrs,
         regional_strategy_vars,
         data['regions'],
         rs_sig_param_tech,

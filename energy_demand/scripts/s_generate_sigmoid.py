@@ -398,6 +398,8 @@ def get_tech_installed(enduse, fuel_switches):
     ------
     installed_tech : list
         List with all technologies where a fuel share is switched to
+    crit_fuel_switch : bool
+        Criteria wheter swich is defined or not
     """
     # Add technology list for every enduse with affected switches
     installed_tech = set([])
@@ -406,7 +408,12 @@ def get_tech_installed(enduse, fuel_switches):
         if switch.enduse == enduse:
             installed_tech.add(switch.technology_install)
 
-    return list(installed_tech)
+    if len(list(installed_tech)) > 0:
+        crit_fuel_switch = True
+    else:
+        crit_fuel_switch = False
+
+    return list(installed_tech), crit_fuel_switch
 
 def get_l_values(
         technologies,

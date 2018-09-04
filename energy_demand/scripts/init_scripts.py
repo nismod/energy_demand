@@ -353,7 +353,12 @@ def switch_calculations(
     # ------------------
     # Convert to annual values
     # ------------------
-
+    '''regional_strategy_vars = s_generate_scenario_parameters.calc_annual_switch_params(
+        regional_strategy_vars,
+        data['regions'],
+        rs_sig_param_tech,
+        ss_sig_param_tech,
+        is_sig_param_tech)'''
     return rs_sig_param_tech, ss_sig_param_tech, is_sig_param_tech
 
 def spatial_explicit_modelling_strategy_vars(
@@ -646,13 +651,8 @@ def sig_param_calc_incl_fuel_switch(
     # Test if fuel switch is defined for enduse
     # Get affected technologies in fuel switch
     # ----------------------------------------
-    tech_switch_affected = s_generate_sigmoid.get_tech_installed(
+    _, crit_fuel_switch = s_generate_sigmoid.get_tech_installed(
         enduse, fuel_switches)
-
-    if len(tech_switch_affected) > 0:
-        crit_fuel_switch = True
-    else:
-        crit_fuel_switch = False
 
     # ------------------------------------------
     # Test if service switch is defined for enduse
@@ -666,17 +666,14 @@ def sig_param_calc_incl_fuel_switch(
     sig_param_tech = {}
     service_switches_out = {}
     for region in regions:
-        sig_param_tech[region] = []
+        #sig_param_tech[region] = []
         service_switches_out[region] = service_switches_enduse[region]
 
     # Test if switch is defined
     crit_switch_service = fuel_service_switch.get_switch_criteria(
-        enduse,
-        sector,
-        crit_switch_happening)
-
-    #sig_param_tech = {}
-
+        enduse, sector, crit_switch_happening)
+    if enduse == 'ss_space_heating':
+        logging.info("Aff {} {}  ".format(crit_switch_service, crit_fuel_switch))
     if not crit_switch_service and not crit_fuel_switch:
         pass # no switches defined
     else:
@@ -808,13 +805,13 @@ def sig_param_calc_incl_fuel_switch(
                     s_tech_by_p,
                     s_tech_switched_p[any_region][switch_yr])
 
-                print("ddd " + str(switch_yr))
-                print("ABB " + str(sig_param_tech_all_regs_value))
+                #print("ddd " + str(switch_yr))
+                #print("ABB " + str(sig_param_tech_all_regs_value))
                 for region in regions:
                     sig_param_tech[switch_yr][region] = sig_param_tech_all_regs_value
             else:
                 for region in regions:
-                    sig_param_tech[region] = s_generate_sigmoid.tech_sigmoid_parameters(
+                    sig_param_tech[switch_yr][region] = s_generate_sigmoid.tech_sigmoid_parameters(
                         switch_yr,
                         base_yr,
                         technologies,

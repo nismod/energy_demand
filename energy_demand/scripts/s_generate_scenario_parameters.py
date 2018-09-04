@@ -5,7 +5,24 @@ from collections import defaultdict
 from energy_demand.technologies import diffusion_technologies
 from energy_demand import enduse_func
 
+def get_correct_narrative_timestep(sim_yr, narrative_timesteps):
+    """
+    """
+    print(" sdf {}  {}".format(sim_yr, narrative_timesteps))
+    if len(narrative_timesteps) == 1:
+        correct_yr = narrative_timesteps[0]
+    else:
+        for year_narrative in narrative_timesteps:
+
+            if sim_yr <= year_narrative:
+                correct_yr = year_narrative
+            else:
+                pass
+
+    return correct_yr
+
 def calc_annual_switch_params(
+        simulated_yrs,
         regional_strategy_vars,
         regions,
         rs_sig_param_tech,
@@ -15,8 +32,6 @@ def calc_annual_switch_params(
     """Calculate annual diffusion parameters
     for technologies based on sigmoid diffusion parameters
     """
-    all_sim_yrs = range(2015, 2051)
-
     annual_tech_diff_params = {}
 
     for region in regions:
@@ -28,13 +43,19 @@ def calc_annual_switch_params(
         for enduse, region_tech_vals in rs_sig_param_tech.items():
             annual_tech_diff_params[region][enduse] = defaultdict(dict)
 
-            if region_tech_vals[region] != []:
-                for tech in region_tech_vals[region].keys():
+            if region_tech_vals != {}:
 
-                    # Sigmoid parameters
-                    sig_param = region_tech_vals[region][tech]
+                for sim_yr in simulated_yrs:
 
-                    for sim_yr in all_sim_yrs:
+                    narrative_timesteps = list(rs_sig_param_tech[enduse].keys())
+                    correct_narrative_timestep = get_correct_narrative_timestep(
+                        sim_yr=sim_yr, narrative_timesteps=narrative_timesteps)
+
+                    for tech in region_tech_vals[correct_narrative_timestep][region].keys():
+
+                        # Sigmoid parameters
+                        sig_param = region_tech_vals[correct_narrative_timestep][region][tech]
+
                         # Calculate diffusion value
                         p_s_tech = enduse_func.get_service_diffusion(
                             sig_param, sim_yr)
@@ -52,18 +73,27 @@ def calc_annual_switch_params(
         for submodel in [ss_sig_param_tech, is_sig_param_tech]:
 
             for enduse, sector_region_tech_vals in submodel.items():
+
                 annual_tech_diff_params[region][enduse] = {}
 
                 for sector, reg_vals in sector_region_tech_vals.items():
-                    annual_tech_diff_params[region][enduse][sector] = defaultdict(dict)
 
-                    if reg_vals[region] != []:
-                        for tech in reg_vals[region].keys():
+                    if reg_vals != {}:
+                        annual_tech_diff_params[region][enduse][sector] = defaultdict(dict)
+                        print("AA " + str(reg_vals.keys()))
+                        print("regio " + str(region))
 
-                            # Sigmoid parameters
-                            sig_param = reg_vals[region][tech]
+                        for sim_yr in simulated_yrs:
 
-                            for sim_yr in all_sim_yrs:
+                            narrative_timesteps = list(submodel[enduse][sector].keys())
+
+                            correct_narrative_timestep = get_correct_narrative_timestep(
+                                sim_yr=sim_yr, narrative_timesteps=narrative_timesteps)
+
+                            for tech in reg_vals[correct_narrative_timestep][region].keys():
+
+                                # Sigmoid parameters
+                                sig_param = reg_vals[correct_narrative_timestep][region][tech]
 
                                 p_s_tech = enduse_func.get_service_diffusion(
                                     sig_param, sim_yr)
@@ -72,8 +102,6 @@ def calc_annual_switch_params(
                                 annual_tech_diff_params[region][enduse][sector][tech][sim_yr] = p_s_tech
                     else:
                         annual_tech_diff_params[region][enduse][sector] = []
-
-                    dict(annual_tech_diff_params[region][enduse][sector])
 
         # Add to regional_strategy_vars
         regional_strategy_vars[region]['annual_tech_diff_params'] = annual_tech_diff_params[region]
