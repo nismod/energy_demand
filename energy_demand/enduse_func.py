@@ -1409,8 +1409,6 @@ def calc_service_switch(
             # Ger service share per tech of cy of sigmoid parameter calculations
 
             if not sector: # If sector is defined
-                print("WHY {} {} {}".format(tech, enduse, curr_yr))
-                print("AAA " + str(annual_tech_diff_params))
                 p_s_tech_cy = annual_tech_diff_params[enduse][tech][curr_yr]
             else:
                 p_s_tech_cy = annual_tech_diff_params[enduse][sector][tech][curr_yr]

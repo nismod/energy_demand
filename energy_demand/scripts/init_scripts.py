@@ -3,10 +3,12 @@ model installation and after each scenario definition
 """
 import logging
 import numpy as np
+
 from energy_demand.geography import spatial_diffusion
 from energy_demand.read_write import read_data
 from energy_demand.scripts import (s_fuel_to_service, s_generate_sigmoid)
 from energy_demand.technologies import fuel_service_switch
+from energy_demand.scripts import s_generate_scenario_parameters
 
 def get_all_temporal_narrative_points(switches):
     """Read from all switches all defined years of switches
@@ -91,6 +93,7 @@ def create_spatial_diffusion_factors(
     return f_reg, f_reg_norm, f_reg_norm_abs, crit_all_the_same
 
 def switch_calculations(
+        simulated_yrs,
         data,
         f_reg,
         f_reg_norm,
@@ -111,7 +114,7 @@ def switch_calculations(
 
     Returns
     -------
-    rs_sig_param_tech, ss_sig_param_tech, is_sig_param_tech : dict
+    TODO : dict
         Sigmoid diffusion parameters
     """
     # ---------------------------------------
@@ -353,13 +356,14 @@ def switch_calculations(
     # ------------------
     # Convert to annual values
     # ------------------
-    '''regional_strategy_vars = s_generate_scenario_parameters.calc_annual_switch_params(
-        regional_strategy_vars,
+    annual_tech_diff_params = s_generate_scenario_parameters.calc_annual_switch_params(
+        simulated_yrs,
         data['regions'],
         rs_sig_param_tech,
         ss_sig_param_tech,
-        is_sig_param_tech)'''
-    return rs_sig_param_tech, ss_sig_param_tech, is_sig_param_tech
+        is_sig_param_tech)
+
+    return annual_tech_diff_params
 
 def spatial_explicit_modelling_strategy_vars(
         assumptions,

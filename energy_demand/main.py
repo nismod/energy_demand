@@ -331,24 +331,18 @@ if __name__ == "__main__":
     # ------------------------------------------------
     # Calculate switches #WHIS IS SPACE HEATING RS NOT SHOWN?
     # ------------------------------------------------
-    rs_sig_param_tech, ss_sig_param_tech, is_sig_param_tech = switch_calculations(
+    annual_tech_diff_params = switch_calculations(
+        simulated_yrs,
         data,
         f_reg,
         f_reg_norm,
         f_reg_norm_abs,
         crit_all_the_same)
 
-    # ---------------------------------
-    # Add annual parameters of switches
-    # ---------------------------------
-    regional_strategy_vars = s_generate_scenario_parameters.calc_annual_switch_params(
-        simulated_yrs,
-        regional_strategy_vars,
-        data['regions'],
-        rs_sig_param_tech,
-        ss_sig_param_tech,
-        is_sig_param_tech)
+    for region in data['regions']:
+        regional_strategy_vars[region]['annual_tech_diff_params'] = annual_tech_diff_params[region]
     data['assumptions'].update('regional_strategy_vars', regional_strategy_vars)
+
     # ------------------------------------------------
     # Spatial Validation
     # ------------------------------------------------

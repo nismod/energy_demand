@@ -23,7 +23,6 @@ def get_correct_narrative_timestep(sim_yr, narrative_timesteps):
 
 def calc_annual_switch_params(
         simulated_yrs,
-        regional_strategy_vars,
         regions,
         rs_sig_param_tech,
         ss_sig_param_tech,
@@ -80,8 +79,6 @@ def calc_annual_switch_params(
 
                     if reg_vals != {}:
                         annual_tech_diff_params[region][enduse][sector] = defaultdict(dict)
-                        print("AA " + str(reg_vals.keys()))
-                        print("regio " + str(region))
 
                         for sim_yr in simulated_yrs:
 
@@ -103,10 +100,7 @@ def calc_annual_switch_params(
                     else:
                         annual_tech_diff_params[region][enduse][sector] = []
 
-        # Add to regional_strategy_vars
-        regional_strategy_vars[region]['annual_tech_diff_params'] = annual_tech_diff_params[region]
-
-    return regional_strategy_vars
+    return annual_tech_diff_params
 
 def generate_annual_param_vals(
         regions,
