@@ -77,7 +77,7 @@ process_result_multi_scen(
     base_yr=2015,
 
     # Provide year to generate comparison plots (provide e.g. latest simulation year)
-    comparison_year=2025)
+    comparison_year=2050)
 
 '''process_result_multi_scen(
     #os.path.abspath("C:/Users/cenv0553/ED/_multiple_results_eff_factor_example"),

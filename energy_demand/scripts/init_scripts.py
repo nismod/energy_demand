@@ -13,6 +13,8 @@ from energy_demand.scripts import s_generate_scenario_parameters
 def get_all_temporal_narrative_points(switches):
     """Read from all switches all defined years of switches
     from narrative
+
+    KAMEL
     """
     enduse_narrative_yrs = {}
 
@@ -27,6 +29,9 @@ def get_all_temporal_narrative_points(switches):
 
         # Convert to list
         enduse_narrative_yrs[enduse] = list(enduse_narrative_yrs[enduse])
+
+        # Sort
+        enduse_narrative_yrs[enduse].sort()
 
     return enduse_narrative_yrs
 
@@ -687,7 +692,7 @@ def sig_param_calc_incl_fuel_switch(
 
         # Years of narrative
         switch_yrs = enduse_switch_yrs[enduse]
-
+        logging.warning("AA ++++++++++ " + str(switch_yrs))
         # KAMEL Iterate over switch year
         for switch_yr_cnt, switch_yr in enumerate(switch_yrs):
 

@@ -6,9 +6,11 @@ from energy_demand.technologies import diffusion_technologies
 from energy_demand import enduse_func
 
 def get_correct_narrative_timestep(sim_yr, narrative_timesteps):
+    """KAMEL
     """
-    """
-    print(" sdf {}  {}".format(sim_yr, narrative_timesteps))
+    # Sort timesteps
+    narrative_timesteps.sort()
+
     if len(narrative_timesteps) == 1:
         correct_yr = narrative_timesteps[0]
     else:

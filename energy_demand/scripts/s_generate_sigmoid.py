@@ -452,7 +452,7 @@ def get_l_values(
 
 def tech_sigmoid_parameters(
         yr_until_switched,
-        base_yr,
+        base_yr, #switch_yr_from
         technologies,
         l_values,
         s_tech_by_p,
@@ -630,6 +630,7 @@ def tech_sigmoid_parameters(
                         The sigmoid diffusion may fail if the fitting does not work
                         because the points to fit are too similar.
                         """
+                        logging.warning(" ff{}  {} ".format(yr_until_switched, base_yr))
                         logging.warning(
                             "Instead of sigmoid a linear approximation is used %s %s %s %s", s_tech_by_p[tech], tech, xdata, ydata)
                         sig_params[tech]['midpoint'] = 'linear'

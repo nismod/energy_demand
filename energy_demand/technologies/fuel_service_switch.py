@@ -87,7 +87,6 @@ def get_share_s_tech_ey(
     enduse_tech_ey_p : dict
         Enduse, share per technology in ey
     """
-    #enduse_tech_ey_p = defaultdict(dict)
     enduse_tech_ey_p_per_narrative_yr = defaultdict(dict)
 
     # KAMEL
@@ -100,7 +99,6 @@ def get_share_s_tech_ey(
         for switch in switches:
             if switch.enduse not in enduses:
                 enduses.append(switch.enduse)
-                #enduse_tech_ey_p[switch.enduse][region] = {}
 
         for enduse in enduses:
             enduse_tech_ey_p_per_narrative_yr[enduse][region] = defaultdict(dict)
@@ -116,14 +114,12 @@ def get_share_s_tech_ey(
 
                     enduse_tech_ey_p_per_narrative_yr[enduse][region][narrative_yr][switch.technology_install] = switch.service_share_ey
 
-                    #enduse_tech_ey_p[enduse][region][switch.technology_install] = switch.service_share_ey
-
-        # Add all other enduses for which no switch is defined
-        for enduse in specified_tech_enduse_by:
-            if enduse not in enduse_tech_ey_p_per_narrative_yr:
-                enduse_tech_ey_p_per_narrative_yr[enduse] = {}
-                for region in service_switches.keys():
-                    enduse_tech_ey_p_per_narrative_yr[enduse][region] = {}
+    # Add all other enduses for which no switch is defined
+    for enduse in specified_tech_enduse_by:
+        if enduse not in enduse_tech_ey_p_per_narrative_yr:
+            enduse_tech_ey_p_per_narrative_yr[enduse] = {}
+            for region in service_switches.keys():
+                enduse_tech_ey_p_per_narrative_yr[enduse][region] = {}
 
     return dict(enduse_tech_ey_p_per_narrative_yr)
 
