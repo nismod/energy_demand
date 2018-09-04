@@ -331,8 +331,7 @@ def calc_service_fuel_switched(
         # ----------------
         # Service substraction
         # ----------------
-        # Iterate technologies which are replaced for this fueltype and substract
-        # service demand proportionally
+        # Iterate technologies which are replaced for this fueltype and substract service demand proportionally
 
         # Technologies with lower demands
         technologies_replaced = list(fuel_tech_p_by[tech_replace_fueltype].keys())

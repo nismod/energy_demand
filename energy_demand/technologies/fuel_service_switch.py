@@ -77,6 +77,9 @@ def get_share_s_tech_ey(
     """
     enduse_tech_ey_p = defaultdict(dict)
 
+    # KAMEL
+    # --> Read how many narrative points for every switch (e.g. 2030, 2050)
+    # --> Calculate enduse tech_ey_p for every narrative temporal point
     for region, switches in service_switches.items():
 
         enduses = []
@@ -164,6 +167,7 @@ def create_switches_from_s_shares(
         if tech not in switch_technologies:
 
             if s_tot_defined == 1.0:
+                # All technologies are fully defined
                 switch_new = read_data.ServiceSwitch(
                     enduse=enduse,
                     sector=sector,
@@ -174,7 +178,7 @@ def create_switches_from_s_shares(
                 # Calculate not defined share in switches
                 s_not_assigned = 1 - s_tot_defined
 
-                # Reduce share proportionally
+                # Reduce not assigned share proportionally
                 tech_ey_p = tech_not_assigned_by_p[tech] * s_not_assigned
 
                 switch_new = read_data.ServiceSwitch(
@@ -258,12 +262,8 @@ def autocomplete_switches(
     service_switches_out = {}
 
     if crit_all_the_same:
+        updated_switches = []
 
-        service_switches_out_value_all_regs = []
-
-        # -------------------------------------
-        # Calculations for every enduse switch
-        # -------------------------------------
         for enduse in switch_enduses:
             enduse_switches = []
             s_tot_defined = 0
@@ -287,11 +287,11 @@ def autocomplete_switches(
                 sector=sector,
                 switch_yr=switch_yr)
 
-            service_switches_out_value_all_regs.extend(switches_new)
+            updated_switches.extend(switches_new)
 
         # For every region, set same switches
         for region in regions:
-            service_switches_out[region] = service_switches_out_value_all_regs
+            service_switches_out[region] = updated_switches
     else:
         for region in regions:
             service_switches_out[region] = []

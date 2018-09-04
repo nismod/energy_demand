@@ -184,13 +184,14 @@ def switch_calculations(
     # service switches. Potential capacity switches are used as inputs.
     #
     # Autocomplement defined service switches with technologies not
-    # explicitly specified in switch on a global scale and distribute spatially.
+    # explicitly specified in switch on a global scale and distribute spatially
+    # in oder that all technologies match up to 100% service share
     # ========================================================================================
 
     # Select spatial diffusion
     f_diffusion = f_reg_norm
 
-    # Residential
+    # Residential     KAMEL TODO: NO CHANGE NECESSARY..just for every ear updates correctly, rs_share_s_tech_ey_p for every timesteps
     rs_share_s_tech_ey_p, rs_switches_autocompleted = fuel_service_switch.autocomplete_switches(
         data['assumptions'].rs_service_switches,
         data['assumptions'].rs_specified_tech_enduse_by,
@@ -641,6 +642,8 @@ def sig_param_calc_incl_fuel_switch(
         # Calculate only from service switch
         s_tech_switched_p = share_s_tech_ey_p
 
+        # KAMEL: HERE it would need to be also for every temporal narrative point
+
         # Calculate sigmoid diffusion parameters
         l_values_sig = s_generate_sigmoid.get_l_values(
             technologies=technologies,
@@ -650,7 +653,7 @@ def sig_param_calc_incl_fuel_switch(
     # ------------------------------------------
     # FUEL switch
     # ------------------------------------------
-    if crit_fuel_switch:
+    elif crit_fuel_switch:
         """
         Calculate future service share after fuel switches
         and calculte sigmoid diffusion paramters.
@@ -668,7 +671,7 @@ def sig_param_calc_incl_fuel_switch(
         if crit_all_the_same:
 
             # Calculate service demand after fuel switches for each technology
-            s_tech_switched_p_values__all_reg = s_generate_sigmoid.calc_service_fuel_switched(
+            s_tech_switched_p_values_all_regs = s_generate_sigmoid.calc_service_fuel_switched(
                 enduse_fuel_switches,
                 technologies,
                 s_fueltype_by_p,
@@ -687,7 +690,7 @@ def sig_param_calc_incl_fuel_switch(
                 fuel_tech_p_by)
 
             for region in regions:
-                s_tech_switched_p[region] = s_tech_switched_p_values__all_reg
+                s_tech_switched_p[region] = s_tech_switched_p_values_all_regs
                 l_values_sig[region] = l_values_all_regs
         else:
             for region in regions:
@@ -723,18 +726,21 @@ def sig_param_calc_incl_fuel_switch(
             s_tech_switched_p=s_tech_switched_p,
             regions=regions)
 
-        # Calculate only from fuel switch
-        share_s_tech_ey_p = fuel_service_switch.switches_to_dict(
-            service_switches_out)
+        # Calculate only from fuel switch TODO NOT USED?
+        #share_s_tech_ey_p = fuel_service_switch.switches_to_dict(
+        #    service_switches_out)
 
+    # -----------------------------------------------
+    # Calculates parameters for sigmoid diffusion of
+    # technologies which are switched to/installed.
+    # -----------------------------------------------
     if crit_switch_service or crit_fuel_switch:
-        logging.info("---------- switches %s %s %s", enduse, crit_switch_service, crit_fuel_switch)
+        logging.debug(
+            "---------- switches %s %s %s", enduse, crit_switch_service, crit_fuel_switch)
 
-        # Calculates parameters for sigmoid diffusion of
-        # technologies which are switched to/installed.
         sig_param_tech = {}
 
-        # ONly calculate for one reg
+        # Only calculate for one reg
         any_region = regions[0]
 
         # Get year of switches (TODO: IMRPOVE THAT IN NARRATIVE)
@@ -744,7 +750,8 @@ def sig_param_calc_incl_fuel_switch(
                 break
 
         if crit_all_the_same:
-
+            
+            # KAMEL s_tech_by_p needs to be for specific narrative point
             # Calculate for one region
             sig_param_tech_all_regs_value = s_generate_sigmoid.tech_sigmoid_parameters(
                 yr_until_switched,
