@@ -551,7 +551,7 @@ class Assumptions(object):
                 self.rs_capacity_switches,
                 self.ss_capacity_switches, 
                 self.is_capacity_switches])
-  
+    
         # ========================================
         # General other assumptions
         # ========================================

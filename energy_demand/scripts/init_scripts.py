@@ -119,6 +119,8 @@ def switch_calculations(
 
     Arguments
     ----------
+    simulated_yrs : list
+        Simulated years
     data : dict
         Data container
     f_reg, f_reg_norm, f_reg_norm_abs : str
@@ -128,14 +130,9 @@ def switch_calculations(
 
     Returns
     -------
-    TODO : dict
-        Sigmoid diffusion parameters
+    annual_tech_diff_params : dict
+        All values for every simluation year for every technology
     """
-    # Get all defined narrative timesteps
-    rs_narrative_timesteps = get_all_narrative_timesteps(data['assumptions'].rs_service_switches)
-    ss_narrative_timesteps = get_all_narrative_timesteps(data['assumptions'].ss_service_switches)
-    is_narrative_timesteps = get_all_narrative_timesteps(data['assumptions'].is_service_switches)
-
     # ---------------------------------------
     # Convert base year fuel input assumptions to energy service
     # for residential, service and industry submodel
@@ -228,6 +225,11 @@ def switch_calculations(
         data['assumptions'].is_fuel_tech_p_by,
         data['assumptions'].base_yr)
 
+    # Get all defined narrative timesteps
+    rs_narrative_timesteps_service_switch = get_all_narrative_timesteps(data['assumptions'].rs_service_switches)
+    ss_narrative_timesteps_service_switch = get_all_narrative_timesteps(data['assumptions'].ss_service_switches)
+    is_narrative_timesteps_service_switch = get_all_narrative_timesteps(data['assumptions'].is_service_switches)
+
     # ======================================================================================
     # Service switches
     #
@@ -244,7 +246,7 @@ def switch_calculations(
 
     # Residential
     rs_share_s_tech_ey_p, rs_switches_autocompleted = fuel_service_switch.autocomplete_switches(
-        rs_narrative_timesteps,
+        rs_narrative_timesteps_service_switch,
         data['assumptions'].rs_service_switches,
         data['assumptions'].rs_specified_tech_enduse_by,
         rs_s_tech_by_p,
@@ -264,7 +266,7 @@ def switch_calculations(
             sector, data['assumptions'].ss_service_switches)
 
         ss_share_s_tech_ey_p[sector], ss_switches_autocompleted[sector] = fuel_service_switch.autocomplete_switches(
-            ss_narrative_timesteps,
+            ss_narrative_timesteps_service_switch,
             sector_switches,
             data['assumptions'].ss_specified_tech_enduse_by,
             ss_s_tech_by_p[sector],
@@ -286,7 +288,7 @@ def switch_calculations(
             sector, data['assumptions'].is_service_switches)
 
         is_share_s_tech_ey_p[sector], is_switches_autocompleted[sector] = fuel_service_switch.autocomplete_switches(
-            is_narrative_timesteps,
+            is_narrative_timesteps_service_switch,
             sector_switches,
             data['assumptions'].is_specified_tech_enduse_by,
             is_s_tech_by_p[sector],
@@ -303,13 +305,17 @@ def switch_calculations(
     # Calculate sigmoid diffusion considering fuel switches
     # and service switches. As inputs, service (and thus also capacity switches) are used
     # ========================================================================================
+    # Get all defined narrative timesteps
+    rs_narrative_timesteps_fuel_switch = get_all_narrative_timesteps(data['assumptions'].rs_fuel_switches)
+    ss_narrative_timesteps_fuel_switch = get_all_narrative_timesteps(data['assumptions'].ss_fuel_switches)
+    is_narrative_timesteps_fuel_switch = get_all_narrative_timesteps(data['assumptions'].is_fuel_switches)
 
     # Residential
     rs_sig_param_tech = {}
     for enduse in data['enduses']['rs_enduses']:
 
         rs_sig_param_tech[enduse] = sig_param_calc_incl_fuel_switch(
-            rs_narrative_timesteps,
+            rs_narrative_timesteps_fuel_switch,
             data['assumptions'].base_yr,
             data['assumptions'].crit_switch_happening,
             data['technologies'],
@@ -329,7 +335,7 @@ def switch_calculations(
         ss_sig_param_tech[enduse] = {}
         for sector in data['sectors']['ss_sectors']:
             ss_sig_param_tech[enduse][sector] = sig_param_calc_incl_fuel_switch(
-                ss_narrative_timesteps,
+                ss_narrative_timesteps_fuel_switch,
                 data['assumptions'].base_yr,
                 data['assumptions'].crit_switch_happening,
                 data['technologies'],
@@ -350,7 +356,7 @@ def switch_calculations(
         is_sig_param_tech[enduse] = {}
         for sector in data['sectors']['is_sectors']:
             is_sig_param_tech[enduse][sector] = sig_param_calc_incl_fuel_switch(
-                is_narrative_timesteps,
+                is_narrative_timesteps_fuel_switch,
                 data['assumptions'].base_yr,
                 data['assumptions'].crit_switch_happening,
                 data['technologies'],
@@ -366,7 +372,8 @@ def switch_calculations(
                 crit_all_the_same=crit_all_the_same)
 
     # ------------------
-    # Convert to annual values
+    # Calculate annual values based on calculated sigmoid parameters
+    # for every simulation year
     # ------------------
     annual_tech_diff_params = s_generate_scenario_parameters.calc_annual_switch_params(
         simulated_yrs,
@@ -690,15 +697,15 @@ def sig_param_calc_incl_fuel_switch(
     # Test if switch is defined
     crit_switch_service = fuel_service_switch.get_switch_criteria(
         enduse, sector, crit_switch_happening)
-    if enduse == 'ss_space_heating':
-        logging.info("Aff {} {}  ".format(crit_switch_service, crit_fuel_switch))
+    
+    print("AA {} {} {} ".format(enduse, crit_fuel_switch, crit_switch_service))
     if not crit_switch_service and not crit_fuel_switch:
         pass # no switches defined
     else:
 
         # Only calculate for one reg
         any_region = regions[0]
-
+        print("narrative_timesteps " + str(narrative_timesteps))
         # Years of narrative
         switch_yrs = narrative_timesteps[enduse]
 

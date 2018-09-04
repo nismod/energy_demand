@@ -31,12 +31,9 @@ def get_switch_criteria(
     else:
         if enduse in crit_switch_happening:
 
-            # If None, then swithc is true across all sectors or sector == None
+            # If None, then switch is true across all sectors or sector == None
             if not crit_switch_happening[enduse] or not sector:
                  crit_switch_service = True
-
-            #if not sector:
-            #    crit_switch_service = True
             else:
                 if sector in crit_switch_happening[enduse]:
                     crit_switch_service = True

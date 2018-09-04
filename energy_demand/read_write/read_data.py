@@ -5,6 +5,7 @@ and data to run the energy demand model.
 """
 import os
 import csv
+import math
 import logging
 from collections import defaultdict
 import fiona
@@ -112,8 +113,10 @@ class CapacitySwitch(object):
         self.technology_install = technology_install
         self.switch_yr = switch_yr
         self.installed_capacity = installed_capacity
-        if sector == np.NaN:
+        if math.isnan(sector):
             sector = None
+        elif not sector:
+            pass
         else:
             self.sector = sector
 
@@ -153,29 +156,21 @@ class FuelSwitch(object):
             technology_install=None,
             switch_yr=None,
             fuel_share_switched_ey=None,
-            sector=None,
-            start_yr=np.NaN,
-            end_yr=np.NaN,
-            value_start_yr=np.NaN,
-            value_end_yr=np.NaN
+            sector=None
         ):
         """Constructor
         """
         self.enduse = enduse
-
-        if sector == np.Nan:
-            self.sector = None
-        else:
-            self.sector = sector
         self.fueltype_replace = fueltype_replace
         self.technology_install = technology_install
         self.switch_yr = switch_yr
         self.fuel_share_switched_ey = fuel_share_switched_ey
-
-        self.start_yr = start_yr
-        self.end_yr = end_yr
-        self.value_start_yr = value_start_yr
-        self.value_end_yr = value_end_yr
+        if math.isnan(sector):
+            self.sector = None
+        elif not sector:
+            pass
+        else:
+            self.sector = sector
 
     def update(self, name, value):
         """Update  switch
@@ -220,8 +215,10 @@ class ServiceSwitch(object):
         self.technology_install = technology_install
         self.service_share_ey = service_share_ey
         self.switch_yr = switch_yr
-        if sector == np.NaN:
+        if math.isnan(sector):
             sector = None
+        elif not sector:
+            pass
         else:
             self.sector = sector
 
@@ -572,9 +569,6 @@ def service_switch(path_to_csv, technologies, base_yr=2015):
     # Read switches
     raw_csv_file = pd.read_csv(path_to_csv)
 
-    # Replace NaN with " " values
-    raw_csv_file = raw_csv_file.fillna("")
-
     for index, row in raw_csv_file.iterrows():
 
         service_switches.append(
@@ -583,7 +577,7 @@ def service_switch(path_to_csv, technologies, base_yr=2015):
                 technology_install=str(row['tech']),
                 service_share_ey=float(row['service_share_ey']),
                 switch_yr=float(row['switch_yr']),
-                sector=str(row['sector'])))
+                sector=row['sector']))
 
     # Test if more service is provided as input than possible to maximum switch
     for entry in service_switches:
@@ -651,7 +645,7 @@ def read_fuel_switches(
                 technology_install=str(row['technology_install']),
                 switch_yr=float(row['switch_yr']),
                 fuel_share_switched_ey=float(row['fuel_share_switched_ey']),
-                sector=str(row['sector'])))
+                sector=row['sector']))
 
     # -------
     # Testing
@@ -1062,13 +1056,8 @@ def read_capacity_switch(path_to_csv, base_yr=2015):
     """
     service_switches = []
 
-
     # Read switches
     raw_csv_file = pd.read_csv(path_to_csv)
-
-    # Replace NaN with None values if not defined in switch
-    #raw_csv_file = raw_csv_file.fillna(NaN)
-
 
     # Iterate rows
     for index, row in raw_csv_file.iterrows():
@@ -1079,7 +1068,7 @@ def read_capacity_switch(path_to_csv, base_yr=2015):
                 technology_install=str(row['technology_install']),
                 switch_yr=float(row['swich_yr']),
                 installed_capacity=float(row['installed_capacity']),
-                sector=str(row['sector'])))
+                sector=row['sector']))
 
     # Testing
     for obj in service_switches:
