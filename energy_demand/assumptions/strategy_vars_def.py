@@ -52,7 +52,8 @@ def default_narrative(
             'diffusion_choice': diffusion_choice,
             'sig_midpoint': sig_midpoint,
             'sig_steepness': sig_steepness,
-            'regional_specific': regional_specific}
+            'regional_specific': regional_specific
+        }
         ]
 
     return container
@@ -556,7 +557,7 @@ def load_param_assump(
         'enduse_change__rs_home_computing': 0,
 
         # Submodel Service (Table 5.5a)
-        # same % improvements from baseline for all sectors
+        # same % improvements from baseline over all sectors
         'enduse_change__ss_space_heating': 0,
         'enduse_change__ss_water_heating': 0,
         'enduse_change__ss_cooling_humidification': 0,
@@ -570,7 +571,7 @@ def load_param_assump(
         'enduse_change__ss_other_electricity': 0,
 
         # Submodel Industry
-        # same % improvements from baseline for all sectors
+        # same % improvements from baseline over all sectors
         'enduse_change__is_high_temp_process': 0,
         'enduse_change__is_low_temp_process': 0,
         'enduse_change__is_drying_separation': 0,

@@ -153,16 +153,29 @@ class FuelSwitch(object):
             technology_install=None,
             switch_yr=None,
             fuel_share_switched_ey=None,
-            sector=None
+            sector=None,
+            start_yr=np.NaN,
+            end_yr=np.NaN,
+            value_start_yr=np.NaN,
+            value_end_yr=np.NaN
         ):
         """Constructor
         """
         self.enduse = enduse
-        self.sector = sector
+
+        if sector == np.Nan:
+            self.sector = None
+        else:
+            self.sector = sector
         self.fueltype_replace = fueltype_replace
         self.technology_install = technology_install
         self.switch_yr = switch_yr
         self.fuel_share_switched_ey = fuel_share_switched_ey
+
+        self.start_yr = start_yr
+        self.end_yr = end_yr
+        self.value_start_yr = value_start_yr
+        self.value_end_yr = value_end_yr
 
     def update(self, name, value):
         """Update  switch
@@ -630,10 +643,6 @@ def read_fuel_switches(
     # Read switches
     raw_csv_file = pd.read_csv(path_to_csv)
 
-    # Replace NaN with " " values
-    #raw_csv_file = raw_csv_file.fillna(NaN)
-
-    # Iterate rows
     for index, row in raw_csv_file.iterrows():
         fuel_switches.append(
             FuelSwitch(

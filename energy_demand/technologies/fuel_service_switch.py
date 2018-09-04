@@ -198,6 +198,26 @@ def create_switches_from_s_shares(
 
     return service_switches_out
 
+def get_all_enduses_of_switches(switches):
+    '''Read all endueses of defined switches
+
+    Arguments
+    ---------
+    switches : list
+        Defined switches
+
+    Returns
+    -------
+    enduses : list
+        All enduses defined in switches
+    '''
+    enduses = set([])
+    for switch in switches:
+        enduses.add(switch.enduse)
+    enduses = list(enduses)
+
+    return enduses
+
 def autocomplete_switches(
         service_switches,
         specified_tech_enduse_by,
@@ -233,10 +253,7 @@ def autocomplete_switches(
         Added services switches which now in total sum up to 100%
     """
     # Get all enduses defined in switches
-    enduses = set([])
-    for switch in service_switches:
-        enduses.add(switch.enduse)
-    enduses = list(enduses)
+    switch_enduses = get_all_enduses_of_switches(service_switches)
 
     service_switches_out = {}
 
@@ -247,7 +264,7 @@ def autocomplete_switches(
         # -------------------------------------
         # Calculations for every enduse switch
         # -------------------------------------
-        for enduse in enduses:
+        for enduse in switch_enduses:
             enduse_switches = []
             s_tot_defined = 0
             switch_technologies = []
@@ -283,7 +300,7 @@ def autocomplete_switches(
             service_switches_out[region].extend(
                 service_switches_from_capacity[region])
 
-            for enduse in enduses:
+            for enduse in switch_enduses:
 
                 # Get all switches of this enduse
                 enduse_switches = []
@@ -403,10 +420,7 @@ def capacity_switch(
 
     for region in regions:
         # Get all affected enduses of capacity switches
-        switch_enduses = set([])
-        for switch in capacity_switches[region]:
-            switch_enduses.add(switch.enduse)
-        switch_enduses = list(switch_enduses)
+        switch_enduses = get_all_enduses_of_switches(capacity_switches[region])
 
         if switch_enduses == []:
             service_switches[region] = [] # not capacity switch defined
@@ -417,12 +431,9 @@ def capacity_switch(
             for enduse in switch_enduses:
 
                 # Get all capacity switches related to this enduse
-                enduse_capacity_switches = []
-                for switch in capacity_switches[region]:
-                    if switch.enduse == enduse:
-                        enduse_capacity_switches.append(switch)
+                enduse_capacity_switches = get_fuel_switches_enduse(
+                    capacity_switches[region], enduse)
 
-                # Iterate capacity switches
                 for switch in enduse_capacity_switches:
 
                     if switch.sector is None:

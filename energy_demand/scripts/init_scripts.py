@@ -96,16 +96,15 @@ def switch_calculations(
     """
     # ---------------------------------------
     # Convert base year fuel input assumptions to energy service
+    # for residential, service and industry submodel
     # ---------------------------------------
-    # Residential submodel
-    rs_s_tech_by_p,rs_s_fueltype_by_p = s_fuel_to_service.get_s_fueltype_tech(
+    rs_s_tech_by_p, rs_s_fueltype_by_p = s_fuel_to_service.get_s_fueltype_tech(
         data['enduses']['rs_enduses'],
         data['lookups']['fueltypes'],
         data['assumptions'].rs_fuel_tech_p_by,
         data['fuels']['rs_fuel_raw'],
         data['technologies'])
 
-    # Service submodel
     ss_s_tech_by_p = {}
     ss_s_fueltype_by_p = {}
     for sector in data['sectors']['ss_sectors']:
@@ -117,7 +116,6 @@ def switch_calculations(
             data['technologies'],
             sector)
 
-    # Industry submodel
     is_s_tech_by_p = {}
     is_s_fueltype_by_p = {}
     for sector in data['sectors']['is_sectors']:

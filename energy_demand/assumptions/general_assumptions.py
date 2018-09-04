@@ -42,7 +42,6 @@ class Assumptions(object):
         ):
         """Constructor
         """
-        # Simulation parameters
         self.base_yr = base_yr
         self.curr_yr = curr_yr
         self.simulated_yrs = simulated_yrs
@@ -444,35 +443,11 @@ class Assumptions(object):
         # *****************
         # technologies: Dry & wet kilns
         # TODO
-        # ----------------
-        # Efficiency of motors
-        # ----------------
-        #is_motors_eff_change = 0
+        
+        # -------------
+        # Overall efficiency improvement
+        # -------------
 
-        # ----------------
-        # Efficiency of others
-        # ----------------
-        #is_others_eff_change = 0
-
-        # ----------------
-        # Efficiency of others
-        # ----------------
-        #is_refrigeration_eff_change = 0
-
-        # ----------------
-        # Efficiency of is_compressed_air
-        # ----------------
-        #is_compressed_air_eff_change =
-
-        # ----------------
-        # Efficiency of is_drying_separation
-        # ----------------
-        #is_drying_separation_eff_change = 
-
-        # ----------------
-        # Efficiency of is_low_temp_process
-        # ----------------
-        #is_low_temp_process_eff_change = 
 
         # ============================================================
         # Assumption related to heat pump technologies
