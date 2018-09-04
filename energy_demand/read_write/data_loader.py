@@ -765,7 +765,6 @@ def load_fuels(paths, lookups):
         enduses['all_enduses'] += enduse
 
     # Convert units
-    print("A " + str(rs_fuel_raw_data_enduses))
     fuels['rs_fuel_raw'] = conversions.convert_fueltypes_ktoe_gwh(
         rs_fuel_raw_data_enduses)
     fuels['ss_fuel_raw'] = conversions.convert_fueltypes_sectors_ktoe_gwh(

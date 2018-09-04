@@ -6,6 +6,17 @@ from energy_demand.technologies import tech_related
 from energy_demand.read_write import read_data
 from energy_demand.basic import basic_functions
 
+def get_all_narrative_points(switches, enduse):
+    """Get all narrative points of an enduse
+    """
+    temporal_narrative_points = set([])
+    for switch in switches:
+        if switch.enduse == enduse:
+            temporal_narrative_points.add(switch.switch_yr)
+
+    list_temporal_narrative_points = list(temporal_narrative_points)
+    return list_temporal_narrative_points
+
 def get_switch_criteria(
         enduse,
         sector,
@@ -57,6 +68,7 @@ def sum_fuel_across_sectors(fuels):
         return fuels
 
 def get_share_s_tech_ey(
+        defined_temporal_narrative_points, #KAMEL
         service_switches,
         specified_tech_enduse_by
     ):
@@ -77,21 +89,35 @@ def get_share_s_tech_ey(
     """
     enduse_tech_ey_p = defaultdict(dict)
 
+    enduse_tech_ey_p_per_narrative_yr = defaultdict(dict)
+
+
     # KAMEL
     # --> Read how many narrative points for every switch (e.g. 2030, 2050)
     # --> Calculate enduse tech_ey_p for every narrative temporal point
     for region, switches in service_switches.items():
 
+        # INITIALISE
         enduses = []
         for switch in switches:
             if switch.enduse not in enduses:
                 enduses.append(switch.enduse)
                 enduse_tech_ey_p[switch.enduse][region] = {}
 
+        for enduse in enduses:
+            enduse_tech_ey_p_per_narrative_yr[enduse][region] = defaultdict(dict)
+
         # Iterate all endusese and assign all lines
         for enduse in enduses:
+
             for switch in switches:
                 if switch.enduse == enduse:
+
+                    # KAMEL
+                    narrative_yr = switch.switch_yr
+
+                    enduse_tech_ey_p_per_narrative_yr[enduse][region][narrative_yr][switch.technology_install] = switch.service_share_ey
+
                     enduse_tech_ey_p[enduse][region][switch.technology_install] = switch.service_share_ey
 
         # Add all other enduses for which no switch is defined
@@ -223,6 +249,7 @@ def get_all_enduses_of_switches(switches):
     return enduses
 
 def autocomplete_switches(
+        defined_temporal_narrative_points,
         service_switches,
         specified_tech_enduse_by,
         s_tech_by_p,
@@ -265,29 +292,35 @@ def autocomplete_switches(
         updated_switches = []
 
         for enduse in switch_enduses:
-            enduse_switches = []
-            s_tot_defined = 0
-            switch_technologies = []
 
-            for switch in service_switches:
-                if switch.enduse == enduse:
-                    s_tot_defined += switch.service_share_ey
-                    switch_technologies.append(switch.technology_install)
-                    enduse_switches.append(switch)
-                    switch_yr = switch.switch_yr
+            # Get all narrative year
+            temporal_narrative_points = get_all_narrative_points(service_switches, enduse=enduse)
 
-            # Calculate relative by proportion of not assigned technologies
-            switches_new = create_switches_from_s_shares(
-                enduse=enduse,
-                s_tech_by_p=s_tech_by_p,
-                switch_technologies=switch_technologies,
-                specified_tech_enduse_by=specified_tech_enduse_by,
-                enduse_switches=enduse_switches,
-                s_tot_defined=s_tot_defined,
-                sector=sector,
-                switch_yr=switch_yr)
+            # Execut function for yvery narrative year
+            for switch_yr in temporal_narrative_points:
 
-            updated_switches.extend(switches_new)
+                enduse_switches = []
+                s_tot_defined = 0
+                switch_technologies = []
+
+                for switch in service_switches:
+                    if switch.enduse == enduse and switch.switch_yr == switch_yr:
+                        s_tot_defined += switch.service_share_ey
+                        switch_technologies.append(switch.technology_install)
+                        enduse_switches.append(switch)
+
+                # Calculate relative by proportion of not assigned technologies
+                switches_new = create_switches_from_s_shares(
+                    enduse=enduse,
+                    s_tech_by_p=s_tech_by_p,
+                    switch_technologies=switch_technologies,
+                    specified_tech_enduse_by=specified_tech_enduse_by,
+                    enduse_switches=enduse_switches,
+                    s_tot_defined=s_tot_defined,
+                    sector=sector,
+                    switch_yr=switch_yr)
+
+                updated_switches.extend(switches_new)
 
         # For every region, set same switches
         for region in regions:
@@ -302,70 +335,76 @@ def autocomplete_switches(
 
             for enduse in switch_enduses:
 
-                # Get all switches of this enduse
-                enduse_switches = []
-                s_tot_defined = 0
-                switch_technologies = []
+                # Get all narrative year 
+                temporal_narrative_points = get_all_narrative_points(service_switches, enduse=enduse)
 
-                for switch in service_switches:
-                    if switch.enduse == enduse:
+                # Execut function for yvery narrative year
+                for switch_yr in temporal_narrative_points:
+        
+                    # Get all switches of this enduse
+                    enduse_switches = []
+                    s_tot_defined = 0
+                    switch_technologies = []
 
-                        # Global share of technology diffusion
-                        s_share_ey_global = switch.service_share_ey
+                    for switch in service_switches:
+                        if switch.enduse == enduse and switch.switch_yr == switch_yr:
 
-                        # If technology is affected by spatial exlicit diffusion
-                        if switch.technology_install in techs_affected_spatial_f:
+                            # Global share of technology diffusion
+                            s_share_ey_global = switch.service_share_ey
 
-                            # Regional diffusion calculation
-                            s_share_ey_regional = s_share_ey_global * f_diffusion[enduse][region]
+                            # If technology is affected by spatial exlicit diffusion
+                            if switch.technology_install in techs_affected_spatial_f:
 
-                            # -------------------------------------
-                            # if larger than max crit, set to 1
-                            # -------------------------------------
-                            max_crit = 1
-                            if s_share_ey_regional > max_crit:
-                                s_share_ey_regional = max_crit
+                                # Regional diffusion calculation
+                                s_share_ey_regional = s_share_ey_global * f_diffusion[enduse][region]
 
-                            if s_tot_defined + s_share_ey_regional > 1.0:
+                                # -------------------------------------
+                                # if larger than max crit, set to 1
+                                # -------------------------------------
+                                max_crit = 1
+                                if s_share_ey_regional > max_crit:
+                                    s_share_ey_regional = max_crit
 
-                                if round(s_tot_defined + s_share_ey_regional) > 1:
-    
-                                    logging.warning(
-                                        " {}  {} {}".format(s_tot_defined, s_share_ey_regional, s_tot_defined + s_share_ey_regional))
-                                    raise Exception(
-                                        "Error of regional parameter calcuation. More than one technology switched with larger share") 
-                                else:
-                                    s_share_ey_regional = max_crit - s_share_ey_regional
-                        else:
-                            s_share_ey_regional = switch.service_share_ey
+                                if s_tot_defined + s_share_ey_regional > 1.0:
 
-                        switch_new = read_data.ServiceSwitch(
-                            enduse=switch.enduse,
-                            sector=switch.sector,
-                            technology_install=switch.technology_install,
-                            service_share_ey=s_share_ey_regional,
-                            switch_yr=switch.switch_yr)
-    
-                        s_tot_defined += s_share_ey_regional
-                        switch_technologies.append(switch.technology_install)
-                        enduse_switches.append(switch_new)
-                        switch_yr = switch.switch_yr
+                                    if round(s_tot_defined + s_share_ey_regional) > 1:
+        
+                                        logging.warning(
+                                            " {}  {} {}".format(s_tot_defined, s_share_ey_regional, s_tot_defined + s_share_ey_regional))
+                                        raise Exception(
+                                            "Error of regional parameter calcuation. More than one technology switched with larger share") 
+                                    else:
+                                        s_share_ey_regional = max_crit - s_share_ey_regional
+                            else:
+                                s_share_ey_regional = switch.service_share_ey
 
-                        # Create switch
-                        switches_new = create_switches_from_s_shares(
-                            enduse=enduse,
-                            s_tech_by_p=s_tech_by_p,
-                            switch_technologies=switch_technologies,
-                            specified_tech_enduse_by=specified_tech_enduse_by,
-                            enduse_switches=enduse_switches,
-                            s_tot_defined=s_tot_defined,
-                            sector=sector,
-                            switch_yr=switch_yr)
+                            switch_new = read_data.ServiceSwitch(
+                                enduse=switch.enduse,
+                                sector=switch.sector,
+                                technology_install=switch.technology_install,
+                                service_share_ey=s_share_ey_regional,
+                                switch_yr=switch.switch_yr)
 
-                        service_switches_out[region].extend(switches_new)
+                            s_tot_defined += s_share_ey_regional
+                            switch_technologies.append(switch.technology_install)
+                            enduse_switches.append(switch_new)
+
+                            # Create switch
+                            switches_new = create_switches_from_s_shares(
+                                enduse=enduse,
+                                s_tech_by_p=s_tech_by_p,
+                                switch_technologies=switch_technologies,
+                                specified_tech_enduse_by=specified_tech_enduse_by,
+                                enduse_switches=enduse_switches,
+                                s_tot_defined=s_tot_defined,
+                                sector=sector,
+                                switch_yr=switch_yr)
+
+                            service_switches_out[region].extend(switches_new)
 
     # Calculate fraction of service for each technology
     reg_share_s_tech_ey_p = get_share_s_tech_ey(
+        defined_temporal_narrative_points,
         service_switches_out,
         specified_tech_enduse_by)
 

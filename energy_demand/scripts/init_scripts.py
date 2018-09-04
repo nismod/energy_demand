@@ -8,6 +8,26 @@ from energy_demand.read_write import read_data
 from energy_demand.scripts import (s_fuel_to_service, s_generate_sigmoid)
 from energy_demand.technologies import fuel_service_switch
 
+def get_all_temporal_narrative_points(switches):
+    """Read from all switches all defined years of switches
+    from narrative
+    """
+    enduse_narrative_yrs = {}
+
+    enduses = fuel_service_switch.get_all_enduses_of_switches(switches)
+
+    for enduse in enduses:
+        enduse_narrative_yrs[enduse] = set([])
+
+        for switch in switches:
+            if switch.enduse == enduse:
+                enduse_narrative_yrs[enduse].add(switch.switch_yr)
+
+        # Convert to list
+        enduse_narrative_yrs[enduse] = list(enduse_narrative_yrs[enduse])
+
+    return enduse_narrative_yrs
+
 def create_spatial_diffusion_factors(
         strategy_vars,
         fuel_disagg,
@@ -98,6 +118,7 @@ def switch_calculations(
     # Convert base year fuel input assumptions to energy service
     # for residential, service and industry submodel
     # ---------------------------------------
+    # KAMEL MAKE SERVICE SHARES FOR EVERY TIME POINT
     rs_s_tech_by_p, rs_s_fueltype_by_p = s_fuel_to_service.get_s_fueltype_tech(
         data['enduses']['rs_enduses'],
         data['lookups']['fueltypes'],
@@ -126,6 +147,14 @@ def switch_calculations(
             data['fuels']['is_fuel_raw'],
             data['technologies'],
             sector)
+
+    # KAMEL ADD TO NARATIVE TEMPORAL POINTS
+    rs_service_share_narrative_yrs = {}
+    rs_service_share_narrative_yrs[data['assumptions'].base_yr] = rs_s_tech_by_p
+    ss_service_share_narrative_yrs = {}
+    ss_service_share_narrative_yrs[data['assumptions'].base_yr] = ss_s_tech_by_p
+    is_service_share_narrative_yrs = {}
+    is_service_share_narrative_yrs[data['assumptions'].base_yr] = is_s_tech_by_p
 
     # ========================================================================================
     # Capacity switches
@@ -177,6 +206,13 @@ def switch_calculations(
         data['assumptions'].is_fuel_tech_p_by,
         data['assumptions'].base_yr)
 
+    # ----
+    # Read out all narrative years defined in switches KAMEL
+    # ----
+    rs_defined_temporal_narrative_points = get_all_temporal_narrative_points(data['assumptions'].rs_service_switches)
+    ss_defined_temporal_narrative_points = get_all_temporal_narrative_points(data['assumptions'].ss_service_switches)
+    is_defined_temporal_narrative_points = get_all_temporal_narrative_points(data['assumptions'].is_service_switches)
+
     # ========================================================================================
     # Service switches
     #
@@ -193,6 +229,7 @@ def switch_calculations(
 
     # Residential     KAMEL TODO: NO CHANGE NECESSARY..just for every ear updates correctly, rs_share_s_tech_ey_p for every timesteps
     rs_share_s_tech_ey_p, rs_switches_autocompleted = fuel_service_switch.autocomplete_switches(
+        rs_defined_temporal_narrative_points,
         data['assumptions'].rs_service_switches,
         data['assumptions'].rs_specified_tech_enduse_by,
         rs_s_tech_by_p,
@@ -212,6 +249,7 @@ def switch_calculations(
             sector, data['assumptions'].ss_service_switches)
 
         ss_share_s_tech_ey_p[sector], ss_switches_autocompleted[sector] = fuel_service_switch.autocomplete_switches(
+            ss_defined_temporal_narrative_points,
             sector_switches,
             data['assumptions'].ss_specified_tech_enduse_by,
             ss_s_tech_by_p[sector],
@@ -221,6 +259,7 @@ def switch_calculations(
             f_diffusion=f_diffusion,
             techs_affected_spatial_f=data['assumptions'].techs_affected_spatial_f,
             service_switches_from_capacity=ss_service_switches_inlc_cap)
+
 
     # Industry
     is_switches_autocompleted = {}
@@ -233,6 +272,7 @@ def switch_calculations(
             sector, data['assumptions'].is_service_switches)
 
         is_share_s_tech_ey_p[sector], is_switches_autocompleted[sector] = fuel_service_switch.autocomplete_switches(
+            is_defined_temporal_narrative_points,
             sector_switches,
             data['assumptions'].is_specified_tech_enduse_by,
             is_s_tech_by_p[sector],
@@ -243,6 +283,7 @@ def switch_calculations(
             techs_affected_spatial_f=data['assumptions'].techs_affected_spatial_f,
             service_switches_from_capacity=is_service_switches_incl_cap)
 
+    raise Exception
     # ========================================================================================
     # Fuel switches
     #
