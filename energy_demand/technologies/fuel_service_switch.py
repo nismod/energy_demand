@@ -68,7 +68,7 @@ def sum_fuel_across_sectors(fuels):
         return fuels
 
 def get_share_s_tech_ey(
-        defined_temporal_narrative_points, #KAMEL
+        defined_temporal_narrative_points,
         service_switches,
         specified_tech_enduse_by
     ):
@@ -87,10 +87,8 @@ def get_share_s_tech_ey(
     enduse_tech_ey_p : dict
         Enduse, share per technology in ey
     """
-    enduse_tech_ey_p = defaultdict(dict)
-
+    #enduse_tech_ey_p = defaultdict(dict)
     enduse_tech_ey_p_per_narrative_yr = defaultdict(dict)
-
 
     # KAMEL
     # --> Read how many narrative points for every switch (e.g. 2030, 2050)
@@ -102,7 +100,7 @@ def get_share_s_tech_ey(
         for switch in switches:
             if switch.enduse not in enduses:
                 enduses.append(switch.enduse)
-                enduse_tech_ey_p[switch.enduse][region] = {}
+                #enduse_tech_ey_p[switch.enduse][region] = {}
 
         for enduse in enduses:
             enduse_tech_ey_p_per_narrative_yr[enduse][region] = defaultdict(dict)
@@ -118,16 +116,33 @@ def get_share_s_tech_ey(
 
                     enduse_tech_ey_p_per_narrative_yr[enduse][region][narrative_yr][switch.technology_install] = switch.service_share_ey
 
-                    enduse_tech_ey_p[enduse][region][switch.technology_install] = switch.service_share_ey
+                    #enduse_tech_ey_p[enduse][region][switch.technology_install] = switch.service_share_ey
 
         # Add all other enduses for which no switch is defined
-        for enduse in specified_tech_enduse_by:
-            if enduse not in enduse_tech_ey_p:
-                enduse_tech_ey_p[enduse] = {}
-                for i in service_switches.keys(): #Regions
-                    enduse_tech_ey_p[enduse][i] = {}
+        #for enduse in specified_tech_enduse_by:
+        #    if enduse not in enduse_tech_ey_p:
+        #        enduse_tech_ey_p[enduse] = {}
+        #        for i in service_switches.keys(): #Regions
+        #            enduse_tech_ey_p[enduse][i] = {}
 
-    return dict(enduse_tech_ey_p)
+    '''print("ddddddddd")
+    for enduse in enduse_tech_ey_p_per_narrative_yr.keys():
+        if enduse == 'ss_space_heating':
+            print("ENDUSES " + str(enduse_tech_ey_p_per_narrative_yr.keys()))
+            for reg in enduse_tech_ey_p_per_narrative_yr[enduse]:
+                for yr in enduse_tech_ey_p_per_narrative_yr[enduse][reg]:
+                    print("Years " + str(enduse_tech_ey_p_per_narrative_yr[enduse][reg].keys()))
+                    print("--- " + str(enduse))
+                    import pprint
+                    print(pprint.pprint(enduse_tech_ey_p_per_narrative_yr[enduse][reg]))
+                    raise Exception'''
+
+    #print(enduse_tech_ey_p_per_narrative_yr)
+    #print("---------")
+    #print(enduse_tech_ey_p)
+    #raise Exception
+    #return dict(enduse_tech_ey_p)
+    return dict(enduse_tech_ey_p_per_narrative_yr)
 
 def create_switches_from_s_shares(
         enduse,

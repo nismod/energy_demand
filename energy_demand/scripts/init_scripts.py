@@ -260,7 +260,6 @@ def switch_calculations(
             techs_affected_spatial_f=data['assumptions'].techs_affected_spatial_f,
             service_switches_from_capacity=ss_service_switches_inlc_cap)
 
-
     # Industry
     is_switches_autocompleted = {}
     is_share_s_tech_ey_p = {}
@@ -283,7 +282,6 @@ def switch_calculations(
             techs_affected_spatial_f=data['assumptions'].techs_affected_spatial_f,
             service_switches_from_capacity=is_service_switches_incl_cap)
 
-    raise Exception
     # ========================================================================================
     # Fuel switches
     #
@@ -639,6 +637,9 @@ def sig_param_calc_incl_fuel_switch(
     service_switches_out : list
         Service switches
     """
+    print("HERE")
+    print(service_switches)
+    raise Exception
     # ----------------------------------------
     # Test if fuel switch is defined for enduse
     # Get affected technologies in fuel switch
@@ -652,7 +653,7 @@ def sig_param_calc_incl_fuel_switch(
         crit_fuel_switch = False
 
     # ------------------------------------------
-    # Test if service swich is defined for enduse
+    # Test if service switch is defined for enduse
     # ------------------------------------------
     service_switches_enduse = fuel_service_switch.get_fuel_switches_enduse(
         service_switches, enduse)
@@ -760,7 +761,7 @@ def sig_param_calc_incl_fuel_switch(
             yr_until_switched = fuelswitch.switch_yr
             break
 
-        # Convert serivce shares to service switches
+        # Convert service shares to service switches
         service_switches_out = convert_sharesdict_to_service_switches(
             yr_until_switched=yr_until_switched,
             enduse=enduse,
