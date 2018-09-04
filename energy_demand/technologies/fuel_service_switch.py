@@ -432,6 +432,7 @@ def capacity_switch(
     Warning
     -------
     Capacity switches overwrite existing service switches
+    #TODO MAKE YEAR SPECIFIC
     """
     service_switches = {}
 
@@ -611,7 +612,12 @@ def create_service_switch(
 
     return service_switches_enduse
 
-def get_fuel_switches_enduse(switches, enduse, generic=False, crit_switch_yr=False):
+def get_fuel_switches_enduse(
+        switches,
+        enduse,
+        generic=False,
+        crit_switch_yr=False
+    ):
     """Get all fuel switches of a specific enduse
 
     Arguments

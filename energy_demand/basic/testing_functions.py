@@ -26,7 +26,7 @@ def switch_testing(fuel_switches, service_switches, capacity_switches):
     """
     all_switches_incl_sectors = {}
 
-    enduses_fuel_switch = set([])
+    '''enduses_fuel_switch = set([])
     for model_switch in fuel_switches:
         for switch in model_switch:
             enduses_fuel_switch.add(switch.enduse)
@@ -43,7 +43,7 @@ def switch_testing(fuel_switches, service_switches, capacity_switches):
                 if not switch.sector:
                     pass
                 else:
-                    all_switches_incl_sectors[switch.enduse].add(switch.sector)
+                    all_switches_incl_sectors[switch.enduse].add(switch.sector)'''
 
     enduses_service_switch = set([])
     for model_switch in service_switches:
@@ -77,32 +77,31 @@ def switch_testing(fuel_switches, service_switches, capacity_switches):
                     all_switches_incl_sectors[switch.enduse] = None
                 else:
                     all_switches_incl_sectors[switch.enduse].add(switch.sector)
-
             else:
                 if not switch.sector:
                     pass
                 else:
                     all_switches_incl_sectors[switch.enduse].add(switch.sector)
 
-    enduses_fuel_switch = list(enduses_fuel_switch)
+    #enduses_fuel_switch = list(enduses_fuel_switch)
     enduses_service_switch = list(enduses_service_switch)
     enduses_capacity_switch = list(enduses_capacity_switch)
 
     # Test if same enduses in any list
-    for enduse in enduses_fuel_switch:
-        if enduse in enduses_service_switch or enduse in enduses_capacity_switch:
-            raise Exception(
-                "Error: Enduse '%s' is defined in fuel switch and also in either service or capacity.", enduse)
+    #for enduse in enduses_fuel_switch:
+    #    if enduse in enduses_service_switch or enduse in enduses_capacity_switch:
+    #        raise Exception(
+    #            "Error: Enduse '%s' is defined in fuel switch and also in either service or capacity.", enduse)
 
-    for enduse in enduses_service_switch:
-        if enduse in enduses_fuel_switch or enduse in enduses_capacity_switch:
-            raise Exception(
-                "Error: Enduse '%s' is defined in fuel switch and also in either service or capacity.", enduse)
+    #for enduse in enduses_service_switch:
+    #    if enduse in enduses_fuel_switch or enduse in enduses_capacity_switch:
+    #        raise Exception(
+    #            "Error: Enduse '%s' is defined in fuel switch and also in either service or capacity.", enduse)
 
-    for enduse in enduses_capacity_switch:
-        if enduse in enduses_fuel_switch or enduse in enduses_service_switch:
-            raise Exception(
-                "Error: Enduse '%s' is defined in fuel switch and also in either service or capacity.", enduse)
+    #for enduse in enduses_capacity_switch:
+    #    if enduse in enduses_fuel_switch or enduse in enduses_service_switch:
+    #        raise Exception(
+    #            "Error: Enduse '%s' is defined in fuel switch and also in either service or capacity.", enduse)
 
     for enduse in all_switches_incl_sectors:
         if all_switches_incl_sectors[enduse] != None:

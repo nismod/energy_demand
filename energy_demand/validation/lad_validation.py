@@ -694,7 +694,7 @@ def spatial_validation(
         y_modelled_demand.append(
             result_dict['modelled_demand'][geocode_lad])
 
-        logging.info(
+        logging.debug(
             "validation %s LAD %s: real: %s modelled: %s  modelled percentage: %s (%sp diff)",
             fueltype_str,
             geocode_lad,
@@ -919,7 +919,7 @@ def spatial_validation_multiple(
             y_modelled_demand.append(
                 result_dict['modelled_demand'][geocode_lad])
 
-            logging.info(
+            logging.debug(
                 "validation %s LAD %s: real: %s modelled: %s  modelled percentage: %s (%sp diff)",
                 fueltype_str,
                 geocode_lad,

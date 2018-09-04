@@ -545,10 +545,10 @@ class Assumptions(object):
 
         # Testing
         self.crit_switch_happening = testing_functions.switch_testing(
-            fuel_switches = [self.rs_fuel_switches, self.ss_fuel_switches, self.is_fuel_switches],
-            service_switches = [self.rs_service_switches, self.ss_service_switches, self.is_service_switches],
-            capacity_switches = [self.rs_capacity_switches, self.ss_capacity_switches, self.is_capacity_switches])
-    
+            fuel_switches=[self.rs_fuel_switches, self.ss_fuel_switches, self.is_fuel_switches],
+            service_switches=[self.rs_service_switches, self.ss_service_switches, self.is_service_switches],
+            capacity_switches=[self.rs_capacity_switches, self.ss_capacity_switches, self.is_capacity_switches])
+
         # ========================================
         # General other assumptions
         # ========================================
