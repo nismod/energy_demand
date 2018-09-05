@@ -120,7 +120,7 @@ class Enduse(object):
             self.fuel_yh = 0
             self.enduse_techs = []
         else:
-            #print("------INFO  {} {}  {}".format(self.enduse, region, curr_yr))
+            logging.debug("------INFO  {} {}  {}".format(self.enduse, region, curr_yr))
             # Get technologies of enduse
             self.enduse_techs = get_enduse_techs(fuel_tech_p_by)
 
@@ -135,7 +135,7 @@ class Enduse(object):
                 assumptions.enduse_space_heating,
                 assumptions.ss_enduse_space_cooling)
             self.fuel_y = _fuel_new_y
-            #logging.debug("... Fuel train B0: " + str(np.sum(self.fuel_y)))
+            logging.debug("... Fuel train B0: " + str(np.sum(self.fuel_y)))
 
             _fuel_new_y = apply_smart_metering(
                 enduse,
@@ -144,7 +144,7 @@ class Enduse(object):
                 strategy_vars,
                 curr_yr)
             self.fuel_y = _fuel_new_y
-            #logging.debug("... Fuel train C0: " + str(np.sum(self.fuel_y)))
+            logging.debug("... Fuel train C0: " + str(np.sum(self.fuel_y)))
 
             _fuel_new_y = apply_specific_change(
                 enduse,
@@ -152,7 +152,7 @@ class Enduse(object):
                 strategy_vars,
                 curr_yr)
             self.fuel_y = _fuel_new_y
-            #logging.debug("... Fuel train D0: " + str(np.sum(self.fuel_y)))
+            logging.debug("... Fuel train D0: " + str(np.sum(self.fuel_y)))
 
             _fuel_new_y = apply_scenario_drivers(
                 enduse,
@@ -167,7 +167,7 @@ class Enduse(object):
                 base_yr,
                 curr_yr)
             self.fuel_y = _fuel_new_y
-            #logging.debug("... Fuel train E0: " + str(np.sum(self.fuel_y)))
+            logging.debug("... Fuel train E0: " + str(np.sum(self.fuel_y)))
 
             # Apply cooling scenario variable
             _fuel_new_y = apply_cooling(
@@ -177,7 +177,7 @@ class Enduse(object):
                 assumptions.cooled_ss_floorarea_by,
                 curr_yr)
             self.fuel_y = _fuel_new_y
-            #logging.debug("... Fuel train E1: " + str(np.sum(self.fuel_y)))
+            logging.debug("... Fuel train E1: " + str(np.sum(self.fuel_y)))
 
             # Industry related change
             _fuel_new_y = industry_enduse_changes(
@@ -189,7 +189,7 @@ class Enduse(object):
                 self.fuel_y,
                 assumptions)
             self.fuel_y = _fuel_new_y
-            #logging.debug("... Fuel train E2: " + str(np.sum(self.fuel_y)))
+            logging.debug("... Fuel train E2: " + str(np.sum(self.fuel_y)))
 
             # Generic fuel switch of an enduse
             _fuel_new_y = generic_fuel_switch(
@@ -291,7 +291,7 @@ class Enduse(object):
                     fueltypes_nr,
                     fueltypes,
                     mode_constrained)
-                #logging.debug("... Fuel train H0: " + str(np.sum(self.fuel_y)))
+                logging.debug("... Fuel train H0: " + str(np.sum(self.fuel_y)))
 
                 # Delete all technologies with no fuel assigned
                 for tech, fuel_tech in fuel_tech_y.items():

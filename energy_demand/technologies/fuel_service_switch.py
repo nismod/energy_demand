@@ -582,7 +582,6 @@ def create_service_switch(
         # increased (installed) technologies
         # -------------------------------------------
         for switch in capacity_switches:
-
             eff_cy = tech_related.calc_eff_cy(
                 base_yr,
                 switch.switch_yr,

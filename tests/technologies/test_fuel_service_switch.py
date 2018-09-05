@@ -23,7 +23,7 @@ def test_get_fuel_switches_enduse():
     out = fuel_service_switch.get_switches_of_enduse(
         switches=service_switches,
         enduse='heating')
-    
+
     for reg, switches in out.items():
         for switch in switches:
             assert switch.enduse == 'heating'
@@ -143,7 +143,7 @@ def test_autocomplete_switches():
         technology_install='techA',
         switch_yr=2050,
         service_share_ey=0.6)]
-    defined_temporal_narrative_points = [2050]
+    defined_temporal_narrative_points = {'heating': [2050]}
 
     out_1, out_2 = fuel_service_switch.autocomplete_switches(
         service_switches=service_switches,
@@ -154,7 +154,7 @@ def test_autocomplete_switches():
         regions=['regA'],
         f_diffusion=False,
         techs_affected_spatial_f=False,
-        service_switches_from_capacity=[])
+        service_switches_from_capacity={'regA':[]})
 
     for reg in out_2:
         for switch in out_2[reg]:
@@ -197,14 +197,13 @@ def test_create_service_switch():
     """
     installed_capacity = 100
 
-    enduses = ['heating']
+    enduse = 'heating'
 
     capacity_switches = [read_data.CapacitySwitch(
         enduse='heating',
         technology_install='boiler_gas',
         switch_yr=2020,
-        installed_capacity=installed_capacity
-        )]
+        installed_capacity=installed_capacity)]
 
     capacity_switch = read_data.CapacitySwitch(
         enduse='heating',
@@ -240,13 +239,13 @@ def test_create_service_switch():
 
     base_yr = 2015
 
-    fuels =  {0: 0, 1: 10} #array originally
+    fuels = {0: 0, 1: 10} #array originally
     sector = None
-    narrative_timesteps = {'heating': [2020]}
+    narrative_timesteps = [2020]
 
     results = fuel_service_switch.create_service_switch(
         narrative_timesteps,
-        enduses,
+        enduse,
         sector,
         capacity_switch,
         capacity_switches,

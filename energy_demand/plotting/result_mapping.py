@@ -858,8 +858,7 @@ def create_geopanda_files(
                         merge_data,
                         unique_merge_id)
 
-                    #bins = [0.2, 0.4, 0.6, 0.8, 1.0, 1.2]
-                    bins_increments = 10
+                    bins_increments = 20 #10
                     bins = get_reasonable_bin_values(
                         data_to_plot=list(data_to_plot.values()),
                         increments=bins_increments)
