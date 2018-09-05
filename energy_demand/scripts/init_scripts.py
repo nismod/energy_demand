@@ -137,7 +137,7 @@ def switch_calculations(
     """
     # ---------------------------------------
     # Convert base year fuel input assumptions to energy service
-    # for residential, service and industry submodel
+    # for every submodule (residential, service and industry)
     # ---------------------------------------
     rs_s_tech_by_p, rs_s_fueltype_by_p = s_fuel_to_service.get_s_fueltype_tech(
         data['enduses']['rs_enduses'],
@@ -175,7 +175,7 @@ def switch_calculations(
     # ========================================================================================
 
     # Convert globally defined switches to regional switches
-    f_diffusion = f_reg_norm_abs #TODO EXPLAIN # Select diffusion value
+    f_diffusion = f_reg_norm_abs #TODO EXPLAIN # Select diffusion value 
 
     reg_capacity_switches_rs = global_to_reg_capacity_switch(
         data['regions'], data['assumptions'].rs_capacity_switches, f_diffusion=f_diffusion)
@@ -242,7 +242,6 @@ def switch_calculations(
 
     # Residential
     rs_share_s_tech_ey_p, rs_switches_autocompleted = fuel_service_switch.autocomplete_switches(
-        rs_narrative_timesteps,
         data['assumptions'].rs_service_switches,
         data['assumptions'].rs_specified_tech_enduse_by,
         rs_s_tech_by_p,
@@ -262,7 +261,6 @@ def switch_calculations(
             sector, data['assumptions'].ss_service_switches)
 
         ss_share_s_tech_ey_p[sector], ss_switches_autocompleted[sector] = fuel_service_switch.autocomplete_switches(
-            ss_narrative_timesteps,
             sector_switches,
             data['assumptions'].ss_specified_tech_enduse_by,
             ss_s_tech_by_p[sector],
@@ -284,7 +282,6 @@ def switch_calculations(
             sector, data['assumptions'].is_service_switches)
 
         is_share_s_tech_ey_p[sector], is_switches_autocompleted[sector] = fuel_service_switch.autocomplete_switches(
-            is_narrative_timesteps,
             sector_switches,
             data['assumptions'].is_specified_tech_enduse_by,
             is_s_tech_by_p[sector],
@@ -480,24 +477,20 @@ def global_to_reg_capacity_switch(
         Regional capacity switch
     """
     reg_capacity_switch = {}
-    for reg in regions:
-        reg_capacity_switch[reg] = []
 
     # Get all affected enduses of capacity switches
-    switch_enduses = set([])
-    for switch in global_capactiy_switch:
-        switch_enduses.add(switch.enduse)
-    switch_enduses = list(switch_enduses)
+    switch_enduses = fuel_service_switch.get_all_enduses_of_switches(
+        global_capactiy_switch)
 
-    for enduse in switch_enduses:
+    for region in regions:
+        reg_capacity_switch[region] = []
 
-        # Get all capacity switches related to this enduse
-        enduse_capacity_switches = []
-        for switch in global_capactiy_switch:
-            if switch.enduse == enduse:
-                enduse_capacity_switches.append(switch)
+        for enduse in switch_enduses:
 
-        for region in regions:
+            # Get all capacity switches related to this enduse
+            enduse_capacity_switches = fuel_service_switch.get_switches_of_enduse(
+                global_capactiy_switch, enduse)
+
             for switch in enduse_capacity_switches:
 
                 global_capacity = switch.installed_capacity
@@ -510,7 +503,7 @@ def global_to_reg_capacity_switch(
                     installed_capacity=regional_capacity,
                     sector=switch.sector)
 
-            reg_capacity_switch[region].append(new_switch)
+                reg_capacity_switch[region].append(new_switch)
 
     return reg_capacity_switch
 
@@ -674,7 +667,7 @@ def sig_param_calc_incl_fuel_switch(
     # ------------------------------------------
     # Test if service switch is defined for enduse
     # ------------------------------------------
-    service_switches_enduse = fuel_service_switch.get_fuel_switches_enduse(
+    service_switches_enduse = fuel_service_switch.get_switches_of_enduse(
         service_switches, enduse)
 
     # ------------------------------------------
@@ -735,11 +728,9 @@ def sig_param_calc_incl_fuel_switch(
                 and calculte sigmoid diffusion paramters.
                 """
 
-                # Get fuel switches of enduse (do not use get_fuel_switches_enduse)
-                enduse_fuel_switches = []
-                for switch in fuel_switches:
-                    if switch.enduse == enduse and switch.switch_yr == switch_yr:
-                        enduse_fuel_switches.append(switch)
+                # Get fuel switches of enduse and switch_yr
+                enduse_fuel_switches = fuel_service_switch.get_switches_of_enduse(
+                    fuel_switches, enduse, switch_yr)
 
                 if crit_all_the_same:
 

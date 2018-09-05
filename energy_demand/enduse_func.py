@@ -1494,7 +1494,7 @@ def generic_fuel_switch(
     generic_fuel_switches = []
 
     # Criteria "General"
-    switches = fuel_service_switch.get_fuel_switches_enduse(
+    switches = fuel_service_switch.get_switches_of_enduse(
         fuel_switches,
         enduse,
         generic=True)

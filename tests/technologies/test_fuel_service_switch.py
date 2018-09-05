@@ -20,7 +20,7 @@ def test_get_fuel_switches_enduse():
             service_share_ey=0.5,
             switch_yr=2020)]}
 
-    out = fuel_service_switch.get_fuel_switches_enduse(
+    out = fuel_service_switch.get_switches_of_enduse(
         switches=service_switches,
         enduse='heating')
     
@@ -43,7 +43,7 @@ def test_get_fuel_switches_enduse():
             service_share_ey=0.5,
             switch_yr=2020)]}
 
-    out = fuel_service_switch.get_fuel_switches_enduse(
+    out = fuel_service_switch.get_switches_of_enduse(
         switches=service_switches,
         enduse='heating')
 

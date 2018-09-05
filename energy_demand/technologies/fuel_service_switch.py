@@ -8,6 +8,8 @@ from energy_demand.basic import basic_functions
 
 def get_all_narrative_points(switches, enduse):
     """Get all narrative points of an enduse
+
+    TODO KAMEL
     """
     temporal_narrative_points = set([])
     for switch in switches:
@@ -228,7 +230,6 @@ def get_all_enduses_of_switches(switches):
     return enduses
 
 def autocomplete_switches(
-        narrative_timesteps,
         service_switches,
         specified_tech_enduse_by,
         s_tech_by_p,
@@ -441,15 +442,15 @@ def capacity_switch(
         switch_enduses = get_all_enduses_of_switches(capacity_switches[region])
 
         if switch_enduses == []:
-            service_switches[region] = [] # not capacity switch defined
+            service_switches[region] = [] # no capacity switch defined
         else:
-            # List to store service switches
+
             service_switches[region] = []
 
             for enduse in switch_enduses:
 
                 # Get all capacity switches related to this enduse
-                enduse_capacity_switches = get_fuel_switches_enduse(
+                enduse_capacity_switches = get_switches_of_enduse(
                     capacity_switches[region], enduse)
 
                 for switch in enduse_capacity_switches:
@@ -477,7 +478,7 @@ def capacity_switch(
                         fuel_to_use = fuels[enduse]
                         sector = switch.sector
 
-                    # Calculate service switches
+                    # Convert capacity swithes to service switches
                     enduse_service_switches = create_service_switch(
                         enduse,
                         sector,
@@ -612,11 +613,11 @@ def create_service_switch(
 
     return service_switches_enduse
 
-def get_fuel_switches_enduse(
+def get_switches_of_enduse(
         switches,
         enduse,
-        generic=False,
-        crit_switch_yr=False
+        year=False,
+        crit_region=True
     ):
     """Get all fuel switches of a specific enduse
 
@@ -632,45 +633,27 @@ def get_fuel_switches_enduse(
     enduse_switches : list
         All switches of a specific enduse
     """
-    enduse_switches = {}
-    for reg in switches:
-        enduse_switches[reg] = []
-        for switch in switches[reg]:
-            sector = switch.sector
-            switch_yr = switch.switch_yr
+    if crit_region:
+        enduse_switches = {}
+        for reg in switches:
+            enduse_switches[reg] = []
+            for switch in switches[reg]:
 
-            if not generic:
-                if not sector: # no sector is defined
-                    if not crit_switch_yr:
-                        if switch.enduse == enduse:
-                            enduse_switches[reg].append(switch)
-                    else:
-                        if switch.enduse == enduse and switch.switch_yr == switch_yr:
-                            enduse_switches[reg].append(switch)    
-
+                if not year:
+                    if switch.enduse == enduse:
+                        enduse_switches[reg].append(switch)
                 else:
-                    if not crit_switch_yr:
-                        if switch.enduse == enduse and switch.sector == sector:
-                            enduse_switches[reg].append(switch)
-                    else:
-                        if switch.enduse == enduse and switch.sector == sector and switch_yr == switch_yr:
-                            enduse_switches[reg].append(switch)
+                    if switch.enduse == enduse and switch.year == year:
+                        enduse_switches[reg].append(switch)
+    else:
+        enduse_switches = []
+        for switch in switches:
+            if not year:
+                if switch.enduse == enduse:
+                    enduse_switches.append(switch)
             else:
-                # Select generic switch
-                if not sector:
-                    if not crit_switch_yr:
-                        if switch.enduse == enduse and not switch.technology_install:
-                            enduse_switches[reg].append(switch)
-                    else:
-                        if switch.enduse == enduse and not switch.technology_install and switch_yr == switch_yr:
-                            enduse_switches[reg].append(switch)
-                else:
-                    if not crit_switch_yr:
-                        if switch.enduse == enduse and switch.sector == sector and not switch.technology_install:
-                            enduse_switches[reg].append(switch)
-                    else:
-                        if switch.enduse == enduse and switch.sector == sector and not switch.technology_install and switch_yr == switch_yr:
-                            enduse_switches[reg].append(switch)
+                if switch.enduse == enduse and switch.year == year:
+                        enduse_switches.append(switch)
 
     return enduse_switches
 
