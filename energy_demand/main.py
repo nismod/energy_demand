@@ -20,7 +20,7 @@ regional_specific, crit_all_the_same
 # Combine all switches of end_use_submodel #TODO
 # Make generic fuel switch
 # Mage generic enduse change in csv file as variable
-"""
+5"""
 import os
 import sys
 import time
@@ -84,6 +84,7 @@ def energy_demand_model(regions, data, assumptions):
     # Log model results
     write_data.logg_info(modelrun, fuels_in, data)
     logging.info("... finished running energy demand model simulation")
+
     return modelrun
 
 if __name__ == "__main__":

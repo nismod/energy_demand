@@ -49,8 +49,7 @@ class Assumptions(object):
         self.submodels_names = [
             'residential',
             'service',
-            'industry'
-            ]
+            'industry']
 
         # ============================================================
         # Spatially modelled variables

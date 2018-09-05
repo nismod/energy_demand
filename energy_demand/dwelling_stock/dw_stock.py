@@ -1,6 +1,5 @@
 """Virtual Dwelling Generator - Generates a virtual dwelling stock
 """
-import logging
 import numpy as np
 from energy_demand.basic import lookup_tables
 

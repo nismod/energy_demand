@@ -122,7 +122,7 @@ class Enduse(object):
             self.fuel_yh = 0
             self.enduse_techs = []
         else:
-            logging.info("------INFO  {} {} {}  {}".format(self.enduse, sector, region, curr_yr))
+            #logging.info("------INFO  {} {} {}  {}".format(self.enduse, sector, region, curr_yr))
             # Get technologies of enduse
             self.enduse_techs = get_enduse_techs(fuel_tech_p_by)
 
@@ -299,8 +299,7 @@ class Enduse(object):
                 for tech, fuel_tech in fuel_tech_y.items():
                     if np.sum(fuel_tech) == 0:
                         self.enduse_techs.remove(tech)
-                if enduse == 'rs_space_heating':
-                    print("ggg")
+
                 # ------------------------------------------
                 # Assign load profiles
                 # ------------------------------------------
@@ -1086,7 +1085,7 @@ def apply_scenario_drivers(
 
                     except KeyError:
                         # No sector specific GVA data defined
-                        logging.info("No gva data found for sector {} ".format(sector))
+                        logging.debug("No gva data found for sector {} ".format(sector))
                         by_driver_data = gva_per_head[base_yr][region]
                         cy_driver_data = gva_per_head[curr_yr][region]
 

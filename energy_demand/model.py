@@ -70,7 +70,7 @@ class EnergyDemandModel(object):
         # --------------------
         aggr_results = initialise_result_container(
             data['lookups']['fueltypes_nr'],
-            data['sectors'],
+            data['assumptions'].submodels_names,
             data['reg_nrs'])
 
         # ---------------------------------------------
@@ -83,7 +83,6 @@ class EnergyDemandModel(object):
                 assumptions.curr_yr,
                 round((100/data['reg_nrs'])*reg_array_nr, 2))
 
-            #reg_rs_submodel, reg_ss_submodel, reg_is_submodel = simulate_region(
             all_submodel_objs = simulate_region(
                 region, data, assumptions, weather_regions)
 
@@ -91,13 +90,12 @@ class EnergyDemandModel(object):
             reg_rs_submodel = get_all_submodels(all_submodel_objs, 'residential')
             reg_ss_submodel = get_all_submodels(all_submodel_objs, 'service')
             reg_is_submodel = get_all_submodels(all_submodel_objs, 'industry')
-            logging.warning("A____________________")
-            logging.warning(len(reg_rs_submodel))
-            logging.warning(len(reg_ss_submodel))
-            logging.warning(len(reg_is_submodel))
+
             # Store submodel results
             all_submodels = [reg_rs_submodel, reg_ss_submodel, reg_is_submodel]
 
+            if len(all_submodels) != 3:
+                raise Exception("EEE")
             # ---------------------------------------------
             # Aggregate results
             # ---------------------------------------------
@@ -202,7 +200,7 @@ def simulate_region(region, data, assumptions, weather_regions):
                     dw_stock = data['dw_stocks'][submodel_name][region_obj.name]
 
                 # ---------------
-                # Create submodel for region and enduse#TODO ADD SUBMODEL NAME
+                # Create submodel for region and enduse
                 # ---------------
                 submodel_obj = endusefunctions.Enduse(
                     submodel_name=submodel_name,
@@ -331,7 +329,7 @@ def get_fuels_yh(enduse_object, attribute_to_get):
             flat_shape = np.full((enduse_object.fuel_y.shape[0], 365, 24), f_hour, dtype="float")
             fuels = fuels_reg_y[:, np.newaxis, np.newaxis] * flat_shape
     else: #If not flat shape, use yh load profile of enduse
-        if attribute_to_get == 'shape_non_peak_y_dh':
+        '''if attribute_to_get == 'shape_non_peak_y_dh':
             fuels = enduse_object.shape_non_peak_y_dh
         elif attribute_to_get == 'shape_non_peak_yd':
             fuels = enduse_object.shape_non_peak_yd
@@ -340,7 +338,8 @@ def get_fuels_yh(enduse_object, attribute_to_get):
         elif attribute_to_get == 'techs_fuel_yh':
             fuels = enduse_object.techs_fuel_yh
         else:
-            fuels = getattr(enduse_object, attribute_to_get)
+            fuels = getattr(enduse_object, attribute_to_get)'''
+        fuels = getattr(enduse_object, attribute_to_get)
 
     return fuels
 
@@ -661,6 +660,8 @@ def aggregate_final_results(
         # Add SubModel specific ed
         aggr_results['results_unconstrained'][submodel_nr][reg_array_nr] += submodel_ed_fueltype_regs_yh
 
+        if len(aggr_results['results_unconstrained']) > 3:
+            raise Exception("WHAT IS THAT???")
     # --------------------------------------------
     # Sum restuls for other purposes
     # --------------------------------------------
@@ -734,7 +735,7 @@ def aggregate_final_results(
 
 def initialise_result_container(
         fueltypes_nr,
-        sectors,
+        submodels,
         reg_nrs
     ):
     """Create container with empty dict or arrays
@@ -758,7 +759,7 @@ def initialise_result_container(
     result_container = {}
 
     result_container['results_unconstrained'] = np.zeros(
-        (len(sectors.keys()), reg_nrs, fueltypes_nr, 365, 24), dtype="float")
+        (len(submodels), reg_nrs, fueltypes_nr, 365, 24), dtype="float")
 
     result_container['results_constrained'] = {}
 
