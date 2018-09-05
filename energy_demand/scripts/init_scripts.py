@@ -693,21 +693,16 @@ def sig_param_calc_incl_fuel_switch(
     # Test if switch is defined
     crit_switch_service = fuel_service_switch.get_switch_criteria(
         enduse, sector, crit_switch_happening)
-    
-    print("AA {} {} {} ".format(enduse, crit_fuel_switch, crit_switch_service))
-    if crit_switch_service and crit_fuel_switch:
-        raise Exception("Both defined")
+ 
     if not crit_switch_service and not crit_fuel_switch:
         pass # no switches defined
+    elif:
+        raise Exception("Error: a fuel and service switch is defined at the same time %s", enduse)
     else:
-
-        #service_switches_out = {}
-        #for region in regions:
-         #   service_switches_out[region] = service_switches_enduse[region]
 
         # Only calculate for one reg
         any_region = regions[0]
-        print("narrative_timesteps " + str(narrative_timesteps))
+
         # Years of narrative
         switch_yrs = narrative_timesteps[enduse]
 
