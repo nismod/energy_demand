@@ -17,6 +17,7 @@ regional_specific, crit_all_the_same
 #TODO Write out full result. Then write function to aggregate accordingly
 #TODO SIMple aggregation. Write out sectormodel, enduse, region, fueltypes.... --> Do all aggregation based on that
 #- Make that fuel swtich can be made in any industry sector irrespective of technologies
+# Combine all switches of end_use_submodel #TODO
 """
 import os
 import sys
@@ -180,7 +181,7 @@ if __name__ == "__main__":
     data['scenario_data']['population'] = data_loader.read_scenario_data(name_population_dataset)
 
     # Read GVA sector specific data
-    data['scenario_data']['gva_industry_service'] = data_loader.read_scenario_data_gva(name_gva_dataset, all_dummy_data=False)
+    data['scenario_data']['gva_industry'] = data_loader.read_scenario_data_gva(name_gva_dataset, all_dummy_data=False)
     data['scenario_data']['gva_per_head'] = data_loader.read_scenario_data(name_gva_dataset_per_head)
 
     # Read sector assignement lookup values

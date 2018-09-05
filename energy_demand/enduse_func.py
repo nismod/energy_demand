@@ -120,7 +120,7 @@ class Enduse(object):
             self.fuel_yh = 0
             self.enduse_techs = []
         else:
-            logging.debug("------INFO  {} {}  {}".format(self.enduse, region, curr_yr))
+            #logging.info("------INFO  {} {} {}  {}".format(self.enduse, sector, region, curr_yr))
             # Get technologies of enduse
             self.enduse_techs = get_enduse_techs(fuel_tech_p_by)
 
@@ -135,11 +135,7 @@ class Enduse(object):
                 assumptions.enduse_space_heating,
                 assumptions.ss_enduse_space_cooling)
             self.fuel_y = _fuel_new_y
-            logging.debug("... Fuel train B0: " + str(np.sum(self.fuel_y)))
-
-            if enduse == 'is_other':
-                logging.debug("_____________________{}  {}".format(str(curr_yr), sector))
-                logging.debug("... Fuel train B0: " + str(np.sum(self.fuel_y)))
+            logging.debug("FUEL TRAIN B0: " + str(np.sum(self.fuel_y)))
 
             _fuel_new_y = apply_smart_metering(
                 enduse,
@@ -148,7 +144,7 @@ class Enduse(object):
                 strategy_vars,
                 curr_yr)
             self.fuel_y = _fuel_new_y
-            logging.debug("... Fuel train C0: " + str(np.sum(self.fuel_y)))
+            logging.debug("FUEL TRAIN C0: " + str(np.sum(self.fuel_y)))
 
             _fuel_new_y = apply_specific_change(
                 enduse,
@@ -156,22 +152,22 @@ class Enduse(object):
                 strategy_vars,
                 curr_yr)
             self.fuel_y = _fuel_new_y
-            logging.debug("... Fuel train D0: " + str(np.sum(self.fuel_y)))
+            logging.debug("FUEL TRAIN D0: " + str(np.sum(self.fuel_y)))
 
             _fuel_new_y = apply_scenario_drivers(
-                enduse,
-                sector,
-                self.fuel_y,
-                dw_stock,
-                region,
-                scenario_data['gva_industry_service'],
-                scenario_data['gva_per_head'],
-                scenario_data['population'],
-                reg_scen_drivers,
-                base_yr,
-                curr_yr)
+                enduse=enduse,
+                sector=sector,
+                fuel_y=self.fuel_y,
+                dw_stock=dw_stock,
+                region=region,
+                gva_industry=scenario_data['gva_industry'],
+                gva_per_head=scenario_data['gva_per_head'],
+                population=scenario_data['population'],
+                reg_scen_drivers=reg_scen_drivers,
+                base_yr=base_yr,
+                curr_yr=curr_yr)
             self.fuel_y = _fuel_new_y
-            logging.debug("... Fuel train E0: " + str(np.sum(self.fuel_y)))
+            logging.debug("FUEL TRAIN E0: " + str(np.sum(self.fuel_y)))
 
             # Apply cooling scenario variable
             _fuel_new_y = apply_cooling(
@@ -181,7 +177,7 @@ class Enduse(object):
                 assumptions.cooled_ss_floorarea_by,
                 curr_yr)
             self.fuel_y = _fuel_new_y
-            logging.debug("... Fuel train E1: " + str(np.sum(self.fuel_y)))
+            logging.debug("FUEL TRAIN E1: " + str(np.sum(self.fuel_y)))
 
             # Industry related change
             _fuel_new_y = industry_enduse_changes(
@@ -193,7 +189,7 @@ class Enduse(object):
                 self.fuel_y,
                 assumptions)
             self.fuel_y = _fuel_new_y
-            logging.debug("... Fuel train E2: " + str(np.sum(self.fuel_y)))
+            logging.debug("FUEL TRAIN E2: " + str(np.sum(self.fuel_y)))
 
             # Generic fuel switch of an enduse
             _fuel_new_y = generic_fuel_switch(
@@ -295,7 +291,7 @@ class Enduse(object):
                     fueltypes_nr,
                     fueltypes,
                     mode_constrained)
-                logging.debug("... Fuel train H0: " + str(np.sum(self.fuel_y)))
+                logging.debug("H0: " + str(np.sum(self.fuel_y)))
 
                 # Delete all technologies with no fuel assigned
                 for tech, fuel_tech in fuel_tech_y.items():
@@ -1062,9 +1058,8 @@ def apply_scenario_drivers(
 
     #TODO :ADD OTHER driver
     """
-    if not dw_stock:
-        """Calculate non-dwelling related scenario drivers, if no dwelling stock
-        Info: No dwelling stock is defined for this submodel
+    if not dw_stock: # No dwelling stock is available
+        """Calculate non-dwelling related scenario drivers
         """
         scenario_drivers = reg_scen_drivers[enduse]
 
@@ -1074,20 +1069,21 @@ def apply_scenario_drivers(
 
             # Get correct data depending on driver
             if scenario_driver == 'gva':
-                if sector == None:
+                if not sector:
                     by_driver_data = gva_per_head[base_yr][region]
                     cy_driver_data = gva_per_head[curr_yr][region]
                 else:
                     try:
                         gva_sector_lu = lookup_tables.economic_sectors_regional_MISTRAL()
-                        gva_nr = gva_sector_lu[sector]['match_int']
+                        gva_sector_nr = gva_sector_lu[sector]['match_int']
 
                         # Get sector specific GVA
-                        by_driver_data = gva_industry[base_yr][region][gva_nr]
-                        cy_driver_data = gva_industry[curr_yr][region][gva_nr]
+                        by_driver_data = gva_industry[base_yr][gva_sector_nr][region]
+                        cy_driver_data = gva_industry[curr_yr][gva_sector_nr][region]
 
                     except KeyError:
                         # No sector specific GVA data defined
+                        logging.info("No gva data found for sector {} ".format(sector))
                         by_driver_data = gva_per_head[base_yr][region]
                         cy_driver_data = gva_per_head[curr_yr][region]
 
@@ -1098,7 +1094,7 @@ def apply_scenario_drivers(
             # Multiply drivers
             by_driver *= by_driver_data
             cy_driver *= cy_driver_data
-    
+
             # Testing
             if math.isnan(by_driver_data) or math.isnan(cy_driver_data):
                 raise Exception("Scenario driver error")
@@ -1134,8 +1130,6 @@ def apply_scenario_drivers(
 
         else:
             pass #enduse not define with scenario drivers
-
-    assert math.isnan(np.sum(fuel_y)) != 'nan' #TODO REMOVE
 
     return fuel_y
 

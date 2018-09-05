@@ -518,7 +518,7 @@ def ss_dw_stock(
         try:
             gva_sector_lu = lookup_tables.economic_sectors_regional_MISTRAL()
             gva_nr = gva_sector_lu[sector]['match_int']
-            gva_dw_data = scenario_data['gva_industry_service'][curr_yr][region][gva_nr]
+            gva_dw_data = scenario_data['gva_industry'][curr_yr][region][gva_nr]
         except KeyError:
             # If not sector specific GVA, use overal GVA per head
             gva_dw_data = scenario_data['gva_per_head'][curr_yr][region]

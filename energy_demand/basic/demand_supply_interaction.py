@@ -307,8 +307,6 @@ def write_national_results(
             str_name_non_heat = "{}_non_heat".format(submodel)
             row[str_name_non_heat] = ed_submodel_non_heating_h
 
-            #print("INFO  {}  {}  {}  {}".format(submodel_nr, ed_submodel_h, ed_submodel_non_heating_h, ed_submodel_heating_h))
-
         rows.append(row)
 
     # Create dataframe

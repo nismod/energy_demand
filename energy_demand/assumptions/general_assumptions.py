@@ -479,6 +479,7 @@ class Assumptions(object):
         # Provide for every fueltype of an enduse
         # the share of fuel which is used by technologies for thebase year
         # ============================================================
+        # SNAKE: SUM ALL IN ONE
         self.rs_fuel_tech_p_by, self.ss_fuel_tech_p_by, self.is_fuel_tech_p_by = fuel_shares.assign_by_fuel_tech_p(
             enduses,
             sectors,

@@ -229,10 +229,6 @@ def switch_calculations(
         data['assumptions'].is_fuel_tech_p_by,
         data['assumptions'].base_yr)
 
-    # Update narrative of service
-    #ss_narrative_timesteps = get_all_narrative_timesteps(
-    #    [ss_service_switches_inlc_cap, data['assumptions'].ss_fuel_switches, data['assumptions'].ss_capacity_switches])
-
     # ======================================================================================
     # Service switches
     #
@@ -308,7 +304,6 @@ def switch_calculations(
     # Residential
     rs_sig_param_tech = {}
     for enduse in data['enduses']['rs_enduses']:
-
         rs_sig_param_tech[enduse] = sig_param_calc_incl_fuel_switch(
             rs_narrative_timesteps,
             data['assumptions'].base_yr,

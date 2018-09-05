@@ -234,7 +234,8 @@ def run_all_plot_functions(
             rs_enduses_sorted,
             rs_color_list,
             os.path.join(
-                result_paths['data_results_PDF'], "stacked_rs_country.pdf"))
+                result_paths['data_results_PDF'], "stacked_rs_country.pdf"),
+            plot_legend=True)
 
         # Service
         plt_stacked_enduse(
@@ -243,7 +244,8 @@ def run_all_plot_functions(
             ss_enduses_sorted,
             ss_color_list,
             os.path.join(
-                result_paths['data_results_PDF'], "stacked_ss_country.pdf"))
+                result_paths['data_results_PDF'], "stacked_ss_country.pdf"),
+            plot_legend=True)
 
         # Industry
         plt_stacked_enduse(
@@ -252,7 +254,8 @@ def run_all_plot_functions(
             is_enduses_sorted,
             is_color_list,
             os.path.join(
-                result_paths['data_results_PDF'], "stacked_is_country_.pdf"))
+                result_paths['data_results_PDF'], "stacked_is_country_.pdf"),
+            plot_legend=True)
 
     # ------------------------------
     # Plot annual demand for enduses for all submodels
@@ -692,7 +695,8 @@ def plt_stacked_enduse(
         results_enduse_every_year,
         enduses,
         color_list,
-        fig_name
+        fig_name,
+        plot_legend=True
     ):
     """Plots stacked energy demand
 
@@ -713,7 +717,7 @@ def plt_stacked_enduse(
         -   Not possible to plot single year
 
     https://matplotlib.org/examples/pylab_examples/stackplot_demo.html
-    """ 
+    """
     nr_of_modelled_years = len(years_simulated)
 
     x_data = np.array(years_simulated)
@@ -745,8 +749,13 @@ def plt_stacked_enduse(
         # Add array with values for every year to list
         y_value_arrays.append(y_values_enduse_yrs)
 
-    # Smooth line
-    x_data_smoothed, y_value_arrays_smoothed = plotting_results.smooth_data(x_data, y_value_arrays, num=40000)
+    # Try smoothing line
+    try:
+        x_data_smoothed, y_value_arrays_smoothed = plotting_results.smooth_data(
+            x_data, y_value_arrays, num=40000)
+    except:
+        x_data_smoothed = x_data
+        y_value_arrays_smoothed = y_value_arrays
 
     # Convert to stacked
     y_stacked = np.row_stack((y_value_arrays_smoothed))
@@ -768,7 +777,6 @@ def plt_stacked_enduse(
         alpha=0.8,
         colors=color_stackplots)
 
-    plot_legend=False
     if plot_legend:
         plt.legend(
             legend_entries,
@@ -803,6 +811,8 @@ def plt_stacked_enduse(
     #plt.title("ED whole UK", fontsize=10)
 
     # Tight layout
+    fig.tight_layout()
+
     plt.margins(x=0)
     plt.savefig(fig_name)
     plt.close()
