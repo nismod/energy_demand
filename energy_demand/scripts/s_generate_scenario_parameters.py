@@ -34,19 +34,25 @@ def get_correct_narrative_timestep(
     2030 would need to be used. For the year 2031,
     the values 2050 would need to be used.
     """
-    # Sort timesteps
     narrative_timesteps.sort()
 
     # Get corresponding narrative timestep
     if len(narrative_timesteps) == 1:
         timestep = narrative_timesteps[0]
     else:
-        for year_narrative in narrative_timesteps:
 
-            if sim_yr <= year_narrative:
-                timestep = year_narrative
-            else:
-                pass
+        # Test if current year is larger than any narrative_timestep
+        # and use last defined timestep if this is true. Otherwise
+        # get correct timestep from narrative_timesteps
+        if sim_yr > narrative_timesteps[-1]:
+            timestep = narrative_timesteps[-1]
+        else:
+            for year_narrative in narrative_timesteps:
+
+                if sim_yr <= year_narrative:
+                    timestep = year_narrative
+                else:
+                    pass
 
     return timestep
 
@@ -76,6 +82,7 @@ def calc_annual_switch_params(
                 for sim_yr in simulated_yrs:
 
                     narrative_timesteps = list(rs_sig_param_tech[enduse].keys())
+                    print("BBB {} {} {}".format(enduse, sim_yr, narrative_timesteps))
                     correct_narrative_timestep = get_correct_narrative_timestep(
                         sim_yr=sim_yr, narrative_timesteps=narrative_timesteps)
 

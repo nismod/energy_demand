@@ -93,7 +93,6 @@ def get_share_s_tech_ey(
         # Get all enduses defined in switches
         enduses = get_all_enduses_of_switches(switches)
 
-        # Iterate all endusese and assign all lines
         for enduse in enduses:
             narrative_yrs_enduse_tech_ey_p[enduse][region] = defaultdict(dict)
 
@@ -263,6 +262,7 @@ def autocomplete_switches(
     service_switches_out : list
         Added services switches which now in total sum up to 100%
     """
+
     # Get all enduses defined in switches
     switch_enduses = get_all_enduses_of_switches(service_switches)
 
@@ -304,23 +304,29 @@ def autocomplete_switches(
 
         # For every region, set same switches
         for region in regions:
+            
+            # Append regional other capacity switches
+            #service_switches_out[region].extend(
+            #    service_switches_from_capacity[region])
+
             service_switches_out[region] = updated_switches
     else:
         for region in regions:
             service_switches_out[region] = []
 
             # Append regional other capacity switches
-            service_switches_out[region].extend(
-                service_switches_from_capacity[region])
+            #service_switches_out[region].extend(
+            #    service_switches_from_capacity[region])
 
             for enduse in switch_enduses:
 
-                # Get all narrative year 
-                temporal_narrative_points = get_all_narrative_points(service_switches, enduse=enduse)
+                # Get all narrative year
+                temporal_narrative_points = get_all_narrative_points(
+                    service_switches, enduse=enduse)
 
                 # Execut function for yvery narrative year
                 for switch_yr in temporal_narrative_points:
-        
+
                     # Get all switches of this enduse
                     enduse_switches = []
                     s_tot_defined = 0
@@ -382,6 +388,11 @@ def autocomplete_switches(
 
                             service_switches_out[region].extend(switches_new)
 
+    # Append service switches which were generated from capacity switches
+    for region in regions:
+        service_switches_out[region].extend(
+            service_switches_from_capacity[region])
+
     # Calculate fraction of service for each technology
     reg_share_s_tech_ey_p = get_share_s_tech_ey(
         service_switches_out,
@@ -390,6 +401,7 @@ def autocomplete_switches(
     return reg_share_s_tech_ey_p, service_switches_out
 
 def capacity_switch(
+        narrative_timesteps,
         regions,
         capacity_switches,
         technologies,
@@ -429,29 +441,25 @@ def capacity_switch(
     service_switches : dict
         Updated service switches containing converted
         capacity switches to service switches
-
-    Warning
-    -------
-    Capacity switches overwrite existing service switches
-    #TODO MAKE YEAR SPECIFIC
     """
     service_switches = {}
 
     for region in regions:
+
         # Get all affected enduses of capacity switches
-        switch_enduses = get_all_enduses_of_switches(capacity_switches[region])
+        switch_enduses = get_all_enduses_of_switches(
+            capacity_switches[region])
 
         if switch_enduses == []:
             service_switches[region] = [] # no capacity switch defined
         else:
-
             service_switches[region] = []
 
             for enduse in switch_enduses:
 
                 # Get all capacity switches related to this enduse
                 enduse_capacity_switches = get_switches_of_enduse(
-                    capacity_switches[region], enduse)
+                    capacity_switches[region], enduse, crit_region=False)
 
                 for switch in enduse_capacity_switches:
 
@@ -480,6 +488,7 @@ def capacity_switch(
 
                     # Convert capacity swithes to service switches
                     enduse_service_switches = create_service_switch(
+                        narrative_timesteps[enduse],
                         enduse,
                         sector,
                         switch,
@@ -495,6 +504,7 @@ def capacity_switch(
     return service_switches
 
 def create_service_switch(
+        narrative_timesteps,
         enduse,
         sector,
         switch,
@@ -508,6 +518,8 @@ def create_service_switch(
 
     Arguments
     ---------
+    narrative_timesteps : list
+        Narrative timesteps
     enduse : dict
         Enduse
     switch : obj
@@ -534,82 +546,78 @@ def create_service_switch(
         2.  Convert installed capacity to service of ey and add service
         3.  Calculate percentage of service for ey
         4.  Write out as service switch
-
-    Warning
-    -------
-        -   The year until the switch happens must be the same for all switches
     """
-    # ------------
-    # Calculate year until switch happens
-    # -----------
-    for switch in enduse_capacity_switches:
-        switch_yr = switch.switch_yr
-        continue
+    service_switches_enduse = []
 
-    # ---------------------------------------------
-    # Calculate service per technology for end year
-    # ---------------------------------------------
-    service_enduse_tech = {}
+    for switch_yr in narrative_timesteps:
 
-    for fueltype, tech_fuel_shares in fuel_shares_enduse_by.items():
-        for tech, fuel_share_by in tech_fuel_shares.items():
+        # Get switches of narrative timestep
+        capacity_switches = get_switches_of_enduse(
+            enduse_capacity_switches, enduse, year=switch_yr, crit_region=False)
 
-            # Efficiency of year when capacity is fully installed
-            eff_ey = tech_related.calc_eff_cy(
+        # ---------------------------------------------
+        # Calculate service per technology for switch_yr
+        # ---------------------------------------------
+        service_enduse_tech = {}
+
+        for fueltype, tech_fuel_shares in fuel_shares_enduse_by.items():
+            for tech, fuel_share_by in tech_fuel_shares.items():
+
+                # Efficiency of year when capacity is fully installed
+                eff_cy = tech_related.calc_eff_cy(
+                    base_yr,
+                    switch.switch_yr,
+                    technologies[tech].eff_by,
+                    technologies[tech].eff_ey,
+                    technologies[tech].year_eff_ey,
+                    technologies[tech].eff_achieved,
+                    technologies[tech].diff_method)
+
+                # Convert to service (fuel * fuelshare * eff)
+                s_tech_ey_y = fuel_enduse_y[fueltype] * fuel_share_by * eff_cy
+                service_enduse_tech[tech] = s_tech_ey_y
+
+        # -------------------------------------------
+        # Calculate service of installed capacity of
+        # increased (installed) technologies
+        # -------------------------------------------
+        for switch in capacity_switches:
+
+            eff_cy = tech_related.calc_eff_cy(
                 base_yr,
                 switch.switch_yr,
-                technologies[tech].eff_by,
-                technologies[tech].eff_ey,
-                technologies[tech].year_eff_ey,
-                technologies[tech].eff_achieved,
-                technologies[tech].diff_method)
+                technologies[switch.technology_install].eff_by,
+                technologies[switch.technology_install].eff_ey,
+                technologies[switch.technology_install].year_eff_ey,
+                technologies[switch.technology_install].eff_achieved,
+                technologies[switch.technology_install].diff_method)
 
-            # Convert to service (fuel * fuelshare * eff)
-            s_tech_ey_y = fuel_enduse_y[fueltype] * fuel_share_by * eff_ey
-            service_enduse_tech[tech] = s_tech_ey_y
+            # Convert installed capacity to service
+            installed_capacity_ey = switch.installed_capacity * eff_cy
 
-    # -------------------------------------------
-    # Calculate service of installed capacity of increased
-    # (installed) technologies
-    # -------------------------------------------
-    for switch in enduse_capacity_switches:
+            # Add capacity
+            service_enduse_tech[switch.technology_install] += installed_capacity_ey
 
-        eff_ey = tech_related.calc_eff_cy(
-            base_yr,
-            switch.switch_yr,
-            technologies[switch.technology_install].eff_by,
-            technologies[switch.technology_install].eff_ey,
-            technologies[switch.technology_install].year_eff_ey,
-            technologies[switch.technology_install].eff_achieved,
-            technologies[switch.technology_install].diff_method)
-        # TODO KAMEL ITERATE YEARS
-        # Convert installed capacity to service
-        installed_capacity_ey = switch.installed_capacity * eff_ey
+        # -------------------------------------------
+        # Calculate service in % per enduse
+        # -------------------------------------------
+        tot_s = sum(service_enduse_tech.values())
+        for tech, service_tech in service_enduse_tech.items():
+            service_enduse_tech[tech] = service_tech / tot_s
 
-        # Add capacity
-        service_enduse_tech[switch.technology_install] += installed_capacity_ey
+        # -------------------------------------------
+        # Add to switch of technology_install
+        # -------------------------------------------
+        for tech, s_tech_p in service_enduse_tech.items():
 
-    # -------------------------------------------
-    # Calculate service in % per enduse
-    # -------------------------------------------
-    tot_s = sum(service_enduse_tech.values())
-    for tech, service_tech in service_enduse_tech.items():
-        service_enduse_tech[tech] = service_tech / tot_s
+            service_switch = read_data.ServiceSwitch(
+                enduse=enduse,
+                sector=sector,
+                technology_install=tech,
+                service_share_ey=s_tech_p,
+                switch_yr=switch_yr)
 
-    # -------------------------------------------
-    # Add to switch of technology_install
-    # -------------------------------------------
-    service_switches_enduse = []
-    for tech, s_tech_p in service_enduse_tech.items():
-
-        service_switch = read_data.ServiceSwitch(
-            enduse=enduse,
-            sector=sector,
-            technology_install=tech,
-            service_share_ey=s_tech_p,
-            switch_yr=switch_yr)
-
-        service_switches_enduse.append(service_switch)
+            service_switches_enduse.append(service_switch)
 
     return service_switches_enduse
 
@@ -643,7 +651,7 @@ def get_switches_of_enduse(
                     if switch.enduse == enduse:
                         enduse_switches[reg].append(switch)
                 else:
-                    if switch.enduse == enduse and switch.year == year:
+                    if switch.enduse == enduse and switch.switch_yr == year:
                         enduse_switches[reg].append(switch)
     else:
         enduse_switches = []
@@ -652,8 +660,8 @@ def get_switches_of_enduse(
                 if switch.enduse == enduse:
                     enduse_switches.append(switch)
             else:
-                if switch.enduse == enduse and switch.year == year:
-                        enduse_switches.append(switch)
+                if switch.enduse == enduse and switch.switch_yr == year:
+                    enduse_switches.append(switch)
 
     return enduse_switches
 

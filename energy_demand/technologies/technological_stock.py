@@ -159,7 +159,6 @@ def create_tech_stock(
         for technology in enduse_technologies[enduse]:
 
             if technologies[technology].tech_type == 'placeholder_tech':
-                # This is placeholder technology a whole enduse
                 pass
             else:
                 tech_obj = Technology(
@@ -175,7 +174,6 @@ def create_tech_stock(
                     tech_max_share=technologies[technology].tech_max_share,
                     base_yr=base_yr,
                     curr_yr=curr_yr,
-                    fueltypes=fueltypes,
                     temp_by=temp_by,
                     temp_cy=temp_cy,
                     t_base_heating_by=t_base_heating_by,
@@ -195,8 +193,7 @@ def create_tech_stock(
             tech_obj = Technology(
                 name=placeholder_technology,
                 tech_type='placeholder_tech',
-                fueltype_str=fueltype_str,
-                fueltypes=fueltypes)
+                fueltype_str=fueltype_str)
 
             stock_technologies[(placeholder_technology, enduse)] = tech_obj
 
@@ -263,7 +260,6 @@ class Technology(object):
             tech_max_share=None,
             base_yr=None,
             curr_yr=None,
-            fueltypes=None,
             temp_by=None,
             temp_cy=None,
             t_base_heating_by=None,

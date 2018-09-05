@@ -168,6 +168,14 @@ def switch_calculations(
             data['technologies'],
             sector)
 
+    # Get all defined narrative timesteps
+    rs_narrative_timesteps = get_all_narrative_timesteps(
+        [data['assumptions'].rs_service_switches, data['assumptions'].rs_fuel_switches, data['assumptions'].rs_capacity_switches])
+    ss_narrative_timesteps = get_all_narrative_timesteps(
+        [data['assumptions'].ss_service_switches, data['assumptions'].ss_fuel_switches, data['assumptions'].ss_capacity_switches])
+    is_narrative_timesteps = get_all_narrative_timesteps(
+        [data['assumptions'].is_service_switches, data['assumptions'].is_fuel_switches, data['assumptions'].is_capacity_switches])
+
     # ========================================================================================
     # Capacity switches
     #
@@ -195,6 +203,7 @@ def switch_calculations(
 
     # Capacity switches
     rs_service_switches_incl_cap = fuel_service_switch.capacity_switch(
+        rs_narrative_timesteps,
         data['regions'],
         reg_capacity_switches_rs,
         data['technologies'],
@@ -203,6 +212,7 @@ def switch_calculations(
         data['assumptions'].base_yr)
 
     ss_service_switches_inlc_cap = fuel_service_switch.capacity_switch(
+        ss_narrative_timesteps,
         data['regions'],
         reg_capacity_switches_ss,
         data['technologies'],
@@ -211,6 +221,7 @@ def switch_calculations(
         data['assumptions'].base_yr)
 
     is_service_switches_incl_cap = fuel_service_switch.capacity_switch(
+        is_narrative_timesteps,
         data['regions'],
         reg_capacity_switches_is,
         data['technologies'],
@@ -218,13 +229,9 @@ def switch_calculations(
         data['assumptions'].is_fuel_tech_p_by,
         data['assumptions'].base_yr)
 
-    # Get all defined narrative timesteps
-    rs_narrative_timesteps = get_all_narrative_timesteps(
-        [data['assumptions'].rs_service_switches, data['assumptions'].rs_fuel_switches, data['assumptions'].rs_capacity_switches])
-    ss_narrative_timesteps = get_all_narrative_timesteps(
-        [data['assumptions'].ss_service_switches, data['assumptions'].ss_fuel_switches, data['assumptions'].ss_capacity_switches])
-    is_narrative_timesteps = get_all_narrative_timesteps(
-        [data['assumptions'].is_service_switches, data['assumptions'].is_fuel_switches, data['assumptions'].is_capacity_switches])
+    # Update narrative of service
+    #ss_narrative_timesteps = get_all_narrative_timesteps(
+    #    [ss_service_switches_inlc_cap, data['assumptions'].ss_fuel_switches, data['assumptions'].ss_capacity_switches])
 
     # ======================================================================================
     # Service switches
@@ -250,7 +257,7 @@ def switch_calculations(
         f_diffusion=f_diffusion,
         techs_affected_spatial_f=data['assumptions'].techs_affected_spatial_f,
         service_switches_from_capacity=rs_service_switches_incl_cap)
-
+    
     # Service
     ss_switches_autocompleted = {}
     ss_share_s_tech_ey_p = {}
@@ -489,7 +496,7 @@ def global_to_reg_capacity_switch(
 
             # Get all capacity switches related to this enduse
             enduse_capacity_switches = fuel_service_switch.get_switches_of_enduse(
-                global_capactiy_switch, enduse)
+                global_capactiy_switch, enduse, crit_region=False)
 
             for switch in enduse_capacity_switches:
 
@@ -706,7 +713,9 @@ def sig_param_calc_incl_fuel_switch(
 
                 # Calculate only from service switch
                 s_tech_switched_p = share_s_tech_ey_p
-
+                #import pprint
+                #print(pprint.pprint(s_tech_switched_p))
+                #raise Exception
                 # Calculate sigmoid diffusion parameters
                 l_values_sig = s_generate_sigmoid.get_l_values(
                     technologies=technologies,
@@ -718,6 +727,8 @@ def sig_param_calc_incl_fuel_switch(
                 l_values_sig = {}
             else:
                 s_tech_switched_p = defaultdict(dict)
+    
+            logging.debug("Switch criteria: Service switch: %s, fuel switch: %s", crit_switch_service, crit_fuel_switch)
 
             # ------------------------------------------
             # FUEL switch
@@ -789,7 +800,7 @@ def sig_param_calc_incl_fuel_switch(
             # Calculates parameters for sigmoid diffusion of
             # technologies which are switched to/installed.
             # -----------------------------------------------
-            logging.debug(
+            logging.info(
                 "---------- switches %s %s %s", enduse, crit_switch_service, crit_fuel_switch)
 
             if crit_all_the_same:
