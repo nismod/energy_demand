@@ -301,7 +301,7 @@ def switch_calculations(
     # Calculate sigmoid diffusion considering fuel switches
     # and service switches. As inputs, service (and thus also capacity switches) are used
     # ========================================================================================
-    # Residential
+    # Residential SNAKE II
     rs_sig_param_tech = {}
     for enduse in data['enduses']['rs_enduses']:
         rs_sig_param_tech[enduse] = sig_param_calc_incl_fuel_switch(
@@ -312,10 +312,10 @@ def switch_calculations(
             enduse=enduse,
             fuel_switches=data['assumptions'].rs_fuel_switches,
             service_switches=rs_switches_autocompleted,
-            s_tech_by_p=rs_s_tech_by_p[enduse],
-            s_fueltype_by_p=rs_s_fueltype_by_p[enduse],
-            share_s_tech_ey_p=rs_share_s_tech_ey_p[enduse],
-            fuel_tech_p_by=data['assumptions'].rs_fuel_tech_p_by[enduse],
+            s_tech_by_p=rs_s_tech_by_p[enduse], #DOABLE
+            s_fueltype_by_p=rs_s_fueltype_by_p[enduse], #DOABLE
+            share_s_tech_ey_p=rs_share_s_tech_ey_p[enduse], #MORE DIFFICULT
+            fuel_tech_p_by=data['assumptions'].rs_fuel_tech_p_by[enduse], #DOABLE
             regions=data['regions'],
             crit_all_the_same=crit_all_the_same)
 
