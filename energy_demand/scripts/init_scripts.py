@@ -168,14 +168,6 @@ def switch_calculations(
             data['technologies'],
             sector)
 
-    rs_service_share_narrative_yrs = {}
-    ss_service_share_narrative_yrs = {}
-    is_service_share_narrative_yrs = {}
-
-    rs_service_share_narrative_yrs[data['assumptions'].base_yr] = rs_s_tech_by_p
-    ss_service_share_narrative_yrs[data['assumptions'].base_yr] = ss_s_tech_by_p
-    is_service_share_narrative_yrs[data['assumptions'].base_yr] = is_s_tech_by_p
-
     # ========================================================================================
     # Capacity switches
     #
@@ -693,10 +685,10 @@ def sig_param_calc_incl_fuel_switch(
     # Test if switch is defined
     crit_switch_service = fuel_service_switch.get_switch_criteria(
         enduse, sector, crit_switch_happening)
- 
+
     if not crit_switch_service and not crit_fuel_switch:
         pass # no switches defined
-    elif:
+    elif crit_switch_service and crit_fuel_switch:
         raise Exception("Error: a fuel and service switch is defined at the same time %s", enduse)
     else:
 

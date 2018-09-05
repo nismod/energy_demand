@@ -322,11 +322,9 @@ if __name__ == "__main__":
         data['assumptions'].strategy_vars,
         simulated_yrs,
         path=local_data_path)
-    data['assumptions'].update('regional_strategy_vars', regional_strategy_vars)
-    data['assumptions'].update('non_regional_strategy_vars', non_regional_strategy_vars)
 
     # ------------------------------------------------
-    # Calculate switches #WHIS IS SPACE HEATING RS NOT SHOWN?
+    # Calculate switches
     # ------------------------------------------------
     annual_tech_diff_params = switch_calculations(
         simulated_yrs,
@@ -337,9 +335,11 @@ if __name__ == "__main__":
         crit_all_the_same)
 
     for region in data['regions']:
-        regional_strategy_vars[region]['annual_tech_diff_params'] = annual_tech_diff_params[region]
-    data['assumptions'].update('regional_strategy_vars', regional_strategy_vars)
+        data['assumptions'].regional_strategy_vars[region]['annual_tech_diff_params'] = annual_tech_diff_params[region]
 
+    # Strategy variables
+    data['assumptions'].update('regional_strategy_vars', regional_strategy_vars)
+    data['assumptions'].update('non_regional_strategy_vars', non_regional_strategy_vars)
     # ------------------------------------------------
     # Spatial Validation
     # ------------------------------------------------
