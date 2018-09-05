@@ -216,12 +216,15 @@ def test_service_switch():
             'l_parameter': l_value},
         }
 
+    annual_tech_diff_params = {
+        'curr_yr': 0.5
+    }
     result = enduse_func.calc_service_switch(
         enduse='test_enduse',
         s_tech_y_cy=tot_s_yh_cy,
         all_technologies=all_technologies,
-        sig_param_tech=sig_param_tech,
         curr_yr=curr_yr,
+        annual_tech_diff_params=annual_tech_diff_params,
         base_yr=base_yr,
         sector='test_sector',
         crit_switch_happening=crit_switch_happening)
@@ -283,7 +286,6 @@ def test_service_switch():
         enduse='test_enduse',
         s_tech_y_cy=tot_s_yh_cy,
         all_technologies=all_technologies,
-        sig_param_tech=sig_param_tech,
         curr_yr=curr_yr,
         base_yr=base_yr,
         sector='test_sector',
@@ -724,14 +726,18 @@ def test_calc_service_switch():
     curr_yr = 2050
     base_yr = 2015
 
+    annual_tech_diff_params = {
+        'curr_yr': 0.5
+    }
+
     crit_switch_happening = {'test_enduse': ['test_sector']}
     result = enduse_func.calc_service_switch(
         enduse='test_enduse',
         s_tech_y_cy=s_tech_y_cy,
         all_technologies=tech_increase_service,
-        sig_param_tech=sig_param_tech,
         curr_yr=curr_yr,
         base_yr=base_yr,
+        annual_tech_diff_params=annual_tech_diff_params,
         sector='test_sector',
         crit_switch_happening=crit_switch_happening)
 

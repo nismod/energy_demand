@@ -150,8 +150,7 @@ class Enduse(object):
                 enduse,
                 self.fuel_y,
                 strategy_vars,
-                curr_yr,
-                sector)
+                curr_yr)
             self.fuel_y = _fuel_new_y
             #logging.debug("... Fuel train D0: " + str(np.sum(self.fuel_y)))
 
@@ -1140,8 +1139,7 @@ def apply_specific_change(
         enduse,
         fuel_y,
         strategy_vars,
-        curr_yr,
-        sector
+        curr_yr
     ):
     """Calculates fuel based on assumed overall enduse specific
     fuel consumption changes.

@@ -23,7 +23,7 @@ def test_tech_sigmoid_paramters():
     assump_fy = 1.0
     result = s_generate_sigmoid.tech_sigmoid_parameters(
         yr_until_switched=2050,
-        base_yr=2010,
+        switch_yr_start=2010,
         technologies=technologies,
         l_values={'boilerA': 1.0, 'boilerB': 1.0},
         s_tech_by_p={'boilerA': 0.5, 'boilerB': 0.5},
@@ -38,7 +38,7 @@ def test_tech_sigmoid_paramters():
     assump_fy = 1.0
     result = s_generate_sigmoid.tech_sigmoid_parameters(
         yr_until_switched=2050,
-        base_yr=2010,
+        switch_yr_start=2010,
         technologies=technologies,
         l_values={'boilerA': 1.0, 'boilerB': 1.0},
         s_tech_by_p={'boilerA': 0.5, 'boilerB': 0.5},

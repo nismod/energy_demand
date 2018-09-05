@@ -9,15 +9,28 @@ from energy_demand.basic import basic_functions
 def get_all_narrative_points(switches, enduse):
     """Get all narrative points of an enduse
 
-    TODO KAMEL
+    Arguments
+    ---------
+    switches : list
+        All switches
+    enduse : str
+        Enduse
+
+    Returns
+    -------
+    list_temporal_narrative_points : list
+        All sorted defined timesteps from narrative
     """
     temporal_narrative_points = set([])
+
     for switch in switches:
         if switch.enduse == enduse:
             temporal_narrative_points.add(switch.switch_yr)
 
-    list_temporal_narrative_points = list(temporal_narrative_points)
-    return list_temporal_narrative_points
+    # sort
+    list(temporal_narrative_points).sort()
+    #list_temporal_narrative_points = list(temporal_narrative_points)
+    return temporal_narrative_points
 
 def get_switch_criteria(
         enduse,
@@ -35,7 +48,7 @@ def get_switch_criteria(
 
             # If None, then switch is true across all sectors or sector == None
             if not crit_switch_happening[enduse] or not sector:
-                 crit_switch_service = True
+                crit_switch_service = True
             else:
                 if sector in crit_switch_happening[enduse]:
                     crit_switch_service = True
@@ -262,21 +275,23 @@ def autocomplete_switches(
     service_switches_out : list
         Added services switches which now in total sum up to 100%
     """
-
-    # Get all enduses defined in switches
-    switch_enduses = get_all_enduses_of_switches(service_switches)
-
+    # Append service switches which were generated from capacity switches
     service_switches_out = {}
+
+    for region in regions:
+        service_switches_out[region] = service_switches_from_capacity[region]
+
+    switch_enduses = get_all_enduses_of_switches(service_switches)
 
     if crit_all_the_same:
         updated_switches = []
 
         for enduse in switch_enduses:
 
-            # Get all narrative year
+            # Get all narrative years
             temporal_narrative_points = get_all_narrative_points(service_switches, enduse=enduse)
 
-            # Execut function for yvery narrative year
+            # Execut function for every narrative year
             for switch_yr in temporal_narrative_points:
 
                 enduse_switches = []
@@ -304,19 +319,9 @@ def autocomplete_switches(
 
         # For every region, set same switches
         for region in regions:
-            
-            # Append regional other capacity switches
-            #service_switches_out[region].extend(
-            #    service_switches_from_capacity[region])
-
-            service_switches_out[region] = updated_switches
+            service_switches_out[region].extend(updated_switches)
     else:
         for region in regions:
-            service_switches_out[region] = []
-
-            # Append regional other capacity switches
-            #service_switches_out[region].extend(
-            #    service_switches_from_capacity[region])
 
             for enduse in switch_enduses:
 
@@ -354,9 +359,9 @@ def autocomplete_switches(
                                 if s_tot_defined + s_share_ey_regional > 1.0:
 
                                     if round(s_tot_defined + s_share_ey_regional) > 1:
-        
+                                        # TODO
                                         logging.warning(
-                                            " {}  {} {}".format(s_tot_defined, s_share_ey_regional, s_tot_defined + s_share_ey_regional))
+                                            "{}  {} {}".format(s_tot_defined, s_share_ey_regional, s_tot_defined + s_share_ey_regional))
                                         raise Exception(
                                             "Error of regional parameter calcuation. More than one technology switched with larger share") 
                                     else:
@@ -387,11 +392,6 @@ def autocomplete_switches(
                                 switch_yr=switch_yr)
 
                             service_switches_out[region].extend(switches_new)
-
-    # Append service switches which were generated from capacity switches
-    for region in regions:
-        service_switches_out[region].extend(
-            service_switches_from_capacity[region])
 
     # Calculate fraction of service for each technology
     reg_share_s_tech_ey_p = get_share_s_tech_ey(

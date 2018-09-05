@@ -146,7 +146,6 @@ def test_autocomplete_switches():
     defined_temporal_narrative_points = [2050]
 
     out_1, out_2 = fuel_service_switch.autocomplete_switches(
-        defined_temporal_narrative_points=defined_temporal_narrative_points,
         service_switches=service_switches,
         specified_tech_enduse_by={'heating': ['techA', 'techB', 'techC']},
         s_tech_by_p={'heating': {'techA': 0.2, 'techB': 0.4, 'techC': 0.4}},
@@ -174,7 +173,6 @@ def test_autocomplete_switches():
         service_share_ey=0.6)]
 
     out_1, out_2 = fuel_service_switch.autocomplete_switches(
-        defined_temporal_narrative_points=defined_temporal_narrative_points,
         service_switches=service_switches,
         specified_tech_enduse_by={'heating': ['techA', 'techB', 'techC']},
         s_tech_by_p={'heating': {'techA': 0.2, 'techB': 0.4, 'techC': 0.4}},
@@ -244,8 +242,10 @@ def test_create_service_switch():
 
     fuels =  {0: 0, 1: 10} #array originally
     sector = None
+    narrative_timesteps = {'heating': [2020]}
 
     results = fuel_service_switch.create_service_switch(
+        narrative_timesteps,
         enduses,
         sector,
         capacity_switch,
@@ -283,8 +283,10 @@ def test_capacity_switch():
             switch_yr=2050,
             installed_capacity=200)]}
 
+    narrative_timesteps = {'heating': [2050]}
     regions = ["regA"]
     result_service_switches = fuel_service_switch.capacity_switch(
+        narrative_timesteps=narrative_timesteps,
         regions=regions,
         capacity_switches=capacity_switches,
         technologies=technologies,
@@ -330,6 +332,7 @@ def test_capacity_switch():
     ]}
 
     result_service_switches = fuel_service_switch.capacity_switch(
+        narrative_timesteps=narrative_timesteps,
         regions=regions,
         capacity_switches=capacity_switches,
         technologies=technologies,
@@ -343,7 +346,7 @@ def test_capacity_switch():
                 assert round(switch.service_share_ey, 3) == round((1 / (300)) * 250, 3)
             if switch.technology_install == 'techB':
                 assert round(switch.service_share_ey, 3) == round((1 / (300)) * 50, 3)
-
+test_capacity_switch()
 def autocomplete_switches():
     """Testing
     """
@@ -411,10 +414,9 @@ def test_get_share_s_tech_ey():
 
     specified_tech_enduse_by = {'regA': {'heating': ['techA', 'techB', 'techC']}}
 
-    defined_temporal_narrative_points = [2020]
+    defined_temporal_narrative_points = [2020] 
     result = fuel_service_switch.get_share_s_tech_ey(
-        defined_temporal_narrative_points=defined_temporal_narrative_points,
         service_switches=service_switches,
         specified_tech_enduse_by=specified_tech_enduse_by)
 
-    assert result[2020]['heating']['regA']['techA'] == 0.3
+    assert result['heating']['regA'][2020]['techA'] == 0.3

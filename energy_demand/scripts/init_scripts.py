@@ -257,7 +257,7 @@ def switch_calculations(
         f_diffusion=f_diffusion,
         techs_affected_spatial_f=data['assumptions'].techs_affected_spatial_f,
         service_switches_from_capacity=rs_service_switches_incl_cap)
-    
+
     # Service
     ss_switches_autocompleted = {}
     ss_share_s_tech_ey_p = {}
@@ -568,49 +568,6 @@ def sum_across_sectors_all_regs(fuel_disagg_reg):
 
     return fuel_aggregated
 
-def convert_sharesdict_to_service_switches(
-        yr_until_switched,
-        enduse,
-        s_tech_switched_p,
-        regions=False
-    ):
-    """Convert service of technologies to service switches.
-
-    Arguments
-    ---------
-    yr_until_switched : int
-        Year until switch happens
-    enduse : str
-        Enduse
-    s_tech_switched_p : dict
-        Fraction of total service of technologies after switch
-    regions : dict, default=False
-        All regions
-
-    Returns
-    -------
-    service_switches_after_fuel_switch : dict
-        Changed services witches including fuel switches
-    """
-    new_service_switches = {}
-
-    for reg in regions:
-        new_service_switches[reg] = []
-
-        for tech, s_tech_p in s_tech_switched_p[reg].items():
-            if tech == 'placeholder_tech':
-                pass
-            else:
-                switch_new = read_data.ServiceSwitch(
-                    enduse=enduse,
-                    technology_install=tech,
-                    service_share_ey=s_tech_p,
-                    switch_yr=yr_until_switched)
-
-                new_service_switches[reg].append(switch_new)
-
-    return new_service_switches
-
 def sig_param_calc_incl_fuel_switch(
         narrative_timesteps,
         base_yr,
@@ -713,16 +670,13 @@ def sig_param_calc_incl_fuel_switch(
 
                 # Calculate only from service switch
                 s_tech_switched_p = share_s_tech_ey_p
-                #import pprint
-                #print(pprint.pprint(s_tech_switched_p))
-                #raise Exception
+
                 # Calculate sigmoid diffusion parameters
                 l_values_sig = s_generate_sigmoid.get_l_values(
                     technologies=technologies,
                     technologies_to_consider=s_tech_by_p.keys(),
                     regions=regions)
             elif crit_fuel_switch:
-                # DOO NEW MAKE EVERY REGION THE FUEL SWTICHES
                 s_tech_switched_p = defaultdict(dict)
                 l_values_sig = {}
             else:
@@ -756,7 +710,7 @@ def sig_param_calc_incl_fuel_switch(
 
                     # Calculate L for every technology for sigmod diffusion
                     l_values_all_regs = s_generate_sigmoid.tech_l_sigmoid(
-                        s_tech_switched_p_values_all_regs, #TODO NEW #s_tech_switched_p[any_region],
+                        s_tech_switched_p_values_all_regs,
                         enduse_fuel_switches,
                         technologies,
                         s_tech_by_p.keys(),
@@ -789,19 +743,11 @@ def sig_param_calc_incl_fuel_switch(
                             s_tech_by_p,
                             fuel_tech_p_by)
 
-                # Convert service shares to service switches #TODO REALLY REMOVE
-                '''service_switches_out = convert_sharesdict_to_service_switches(
-                    yr_until_switched=switch_yr,
-                    enduse=enduse,
-                    s_tech_switched_p=s_tech_switched_p,
-                    regions=regions)'''
-
             # -----------------------------------------------
             # Calculates parameters for sigmoid diffusion of
             # technologies which are switched to/installed.
             # -----------------------------------------------
-            logging.info(
-                "---------- switches %s %s %s", enduse, crit_switch_service, crit_fuel_switch)
+            logging.debug("---------- switches %s %s %s", enduse, crit_switch_service, crit_fuel_switch)
 
             if crit_all_the_same:
 
@@ -810,8 +756,8 @@ def sig_param_calc_incl_fuel_switch(
                 # -------------------------
                 if switch_yr_cnt == 0: 
                     switch_yr_start = base_yr
-                else:
-                    switch_yr_start = switch_yrs[switch_yr_cnt - 1] # IF more than one switch_yr, then take previous year
+                else: # If more than one switch_yr, then take previous year
+                    switch_yr_start = switch_yrs[switch_yr_cnt - 1]
 
                 # Calculate for one region
                 sig_param_tech_all_regs_value = s_generate_sigmoid.tech_sigmoid_parameters(
@@ -846,8 +792,7 @@ def get_sector_switches(sector_to_match, service_switches):
     for switch in service_switches:
         if switch.sector == sector_to_match:
             switches.add(switch)
-        # Not defined specifically for sectors and add all
-        elif not switch.sector:
+        elif not switch.sector: # Not defined specifically for sectors and add all
             switches.add(switch)
         else:
             pass
