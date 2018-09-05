@@ -18,6 +18,8 @@ from scipy.interpolate import interp1d
 import matplotlib
 import matplotlib.pyplot as plt
 from matplotlib.ticker import MultipleLocator, FormatStrFormatter
+from energy_demand.plotting import plotting_results
+
 matplotlib.use('Agg') # Used to make it work in linux
 
 def smooth_data(x_list, y_list, num=500, spider=False):
@@ -711,7 +713,7 @@ def plt_stacked_enduse(
         -   Not possible to plot single year
 
     https://matplotlib.org/examples/pylab_examples/stackplot_demo.html
-    """
+    """ 
     nr_of_modelled_years = len(years_simulated)
 
     x_data = np.array(years_simulated)
@@ -743,8 +745,11 @@ def plt_stacked_enduse(
         # Add array with values for every year to list
         y_value_arrays.append(y_values_enduse_yrs)
 
+    # Smooth line
+    x_data_smoothed, y_value_arrays_smoothed = plotting_results.smooth_data(x_data, y_value_arrays, num=40000)
+
     # Convert to stacked
-    y_stacked = np.row_stack((y_value_arrays))
+    y_stacked = np.row_stack((y_value_arrays_smoothed))
 
     # Set figure size
     fig = plt.figure(
@@ -758,7 +763,7 @@ def plt_stacked_enduse(
     color_stackplots = color_list[:len(enduses)]
 
     ax.stackplot(
-        x_data,
+        x_data_smoothed,
         y_stacked,
         alpha=0.8,
         colors=color_stackplots)
@@ -798,9 +803,7 @@ def plt_stacked_enduse(
     #plt.title("ED whole UK", fontsize=10)
 
     # Tight layout
-    #plt.tight_layout()
     plt.margins(x=0)
-
     plt.savefig(fig_name)
     plt.close()
 

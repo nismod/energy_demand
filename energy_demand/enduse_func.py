@@ -137,6 +137,10 @@ class Enduse(object):
             self.fuel_y = _fuel_new_y
             logging.debug("... Fuel train B0: " + str(np.sum(self.fuel_y)))
 
+            if enduse == 'is_other':
+                logging.debug("_____________________{}  {}".format(str(curr_yr), sector))
+                logging.debug("... Fuel train B0: " + str(np.sum(self.fuel_y)))
+
             _fuel_new_y = apply_smart_metering(
                 enduse,
                 self.fuel_y,
@@ -1469,7 +1473,7 @@ def apply_cooling(
         return fuel_y
 
     except KeyError:
-        logging.debug("no cooling defined for enduse")
+        #logging.debug("no cooling defined for enduse")
         return fuel_y
 
 def generic_fuel_switch(
