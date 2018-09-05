@@ -87,7 +87,6 @@ def economic_sectors_regional_MISTRAL():
         #'':	{'match_int': 1, 'description': "Agriculture etc"}
     }
 
-
     return lookup_dict
 
 def industrydemand_name_sic2007():

@@ -18,6 +18,8 @@ regional_specific, crit_all_the_same
 #TODO SIMple aggregation. Write out sectormodel, enduse, region, fueltypes.... --> Do all aggregation based on that
 #- Make that fuel swtich can be made in any industry sector irrespective of technologies
 # Combine all switches of end_use_submodel #TODO
+# Make generic fuel switch
+# Mage generic enduse change in csv file as variable
 """
 import os
 import sys
@@ -313,7 +315,7 @@ if __name__ == "__main__":
         f_reg,
         f_reg_norm,
         f_reg_norm_abs)
-    data['assumptions'].update('strategy_vars', regional_strategy_vars)
+    data['assumptions'].update('strategy_vars', regional_strategy_vars) #SWITCH PARMATERS
 
     # -----------------------------------------------------------------
     # Calculate parameter values for every simulated year based on narratives
@@ -336,7 +338,7 @@ if __name__ == "__main__":
         crit_all_the_same)
 
     for region in data['regions']:
-        data['assumptions'].regional_strategy_vars[region]['annual_tech_diff_params'] = annual_tech_diff_params[region]
+        regional_strategy_vars[region]['annual_tech_diff_params'] = annual_tech_diff_params[region]
 
     # Strategy variables
     data['assumptions'].update('regional_strategy_vars', regional_strategy_vars)

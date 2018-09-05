@@ -2,8 +2,8 @@
 model installation and after each scenario definition
 """
 import logging
-import numpy as np
 from collections import defaultdict
+import numpy as np
 
 from energy_demand.geography import spatial_diffusion
 from energy_demand.read_write import read_data
@@ -777,14 +777,27 @@ def sig_param_calc_incl_fuel_switch(
 
     return sig_param_tech
 
-def get_sector_switches(sector_to_match, service_switches):
+def get_sector_switches(sector_to_match, switches):
     """Get all switches of a sector if the switches are
     defined specifically for a sector. If the switches are
     not specifically for a sector, return all switches
+
+    Arguments
+    ----------
+    sector_to_match : int
+        Sector to find switches
+    switches : list
+        Switches
+
+    Returns
+    -------
+    switches : list
+        Switches of sector
     """
     # Get all sectors for this enduse
     switches = set([])
-    for switch in service_switches:
+
+    for switch in switches:
         if switch.sector == sector_to_match:
             switches.add(switch)
         elif not switch.sector: # Not defined specifically for sectors and add all

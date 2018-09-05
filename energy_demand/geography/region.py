@@ -42,10 +42,15 @@ class Region(object):
         self.longitude = longitude
         self.latitude = latitude
 
-        # Fuels
-        self.rs_enduses_fuel = rs_fuel_disagg
-        self.ss_enduses_sectors_fuels = ss_fuel_disagg
-        self.is_enduses_sectors_fuels = is_fuel_disagg
+        # Fuels SNAKE
+        self.fuels = {
+            'residential': rs_fuel_disagg,
+            'service': ss_fuel_disagg,
+            'industry': is_fuel_disagg
+        }
+        #self.rs_enduses_fuel = rs_fuel_disagg
+        #self.ss_enduses_sectors_fuels = ss_fuel_disagg
+        #self.is_enduses_sectors_fuels = is_fuel_disagg
 
         # Get closest weather station
         self.closest_weather_region_id = weather_station_location.get_closest_station(

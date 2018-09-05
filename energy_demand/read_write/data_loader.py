@@ -784,6 +784,18 @@ def load_fuels(paths, lookups):
         'storage',
         'other']
 
+    # SNAKE SIMPLILFY
+    sectors['sectors'] = {
+        'residential': [False], # no sectors
+        'service': sectors['ss_sectors'],
+        'industry': sectors['is_sectors']
+    }
+    # SNAKE SIMPLILFY
+    enduses['enduses'] = {
+        'residential': enduses['rs_enduses'],
+        'service': enduses['ss_enduses'],
+        'industry': enduses['is_enduses'] 
+    }
     return enduses, sectors, fuels
 
 def rs_collect_shapes_from_txts(txt_path, model_yeardays):

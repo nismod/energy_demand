@@ -531,7 +531,7 @@ def ss_dw_stock(
                 population=pop_cy,
                 floorarea=floorarea_sector_cy,
                 enduses=enduses,
-                driver_assumptions=assumptions.scenario_drivers['ss_submodule'],
+                driver_assumptions=assumptions.scenario_drivers,
                 sector=sector,
                 gva=gva_dw_data))
 

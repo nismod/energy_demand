@@ -46,7 +46,11 @@ class Assumptions(object):
         self.curr_yr = curr_yr
         self.simulated_yrs = simulated_yrs
 
-        self.submodels_names = ['residential', 'service', 'industry']
+        self.submodels_names = [
+            'residential',
+            'service',
+            'industry'
+            ]
 
         # ============================================================
         # Spatially modelled variables
@@ -212,7 +216,7 @@ class Assumptions(object):
 
         # TODO: UPDATE DRIVER WITH GVA
         # --Residential SubModel
-        self.scenario_drivers['rs_submodule'] = {
+        self.scenario_drivers = {
             'rs_space_heating': ['floorarea', 'hlc'], # Do not use HDD or pop because otherweise double count
             'rs_water_heating': ['population'],
             'rs_lighting': ['population', 'floorarea'],
@@ -220,10 +224,9 @@ class Assumptions(object):
             'rs_cold': ['population'],
             'rs_wet': ['population'],
             'rs_consumer_electronics': ['population', 'gva'],
-            'rs_home_computing': ['population']}
+            'rs_home_computing': ['population'],
 
-        # --Service Submodel (Table 5.5a) TODO USE GVA AS DRIVER
-        self.scenario_drivers['ss_submodule'] = {
+            # --Service Submodel (Table 5.5a) TODO USE GVA AS DRIVER
             'ss_space_heating': ['floorarea'],
             'ss_water_heating': ['population'],
             'ss_lighting': ['floorarea'],
@@ -234,10 +237,9 @@ class Assumptions(object):
             'ss_small_power': ['population'],
             'ss_cooled_storage': ['population'],
             'ss_other_gas': ['population'],
-            'ss_other_electricity': ['population']}
+            'ss_other_electricity': ['population'],
 
-        # --Industry Submodel
-        self.scenario_drivers['is_submodule'] = {
+            # Industry submodule
             'is_high_temp_process': ['gva'],
             'is_low_temp_process': ['gva'],
             'is_drying_separation': ['gva'],
@@ -291,7 +293,7 @@ class Assumptions(object):
         sm_savings = 0.03
 
         self.smart_meter_assump['savings_smart_meter'] = {
-    
+
             # Residential
             'smart_meter_improvement_rs_cold': sm_savings,
             'smart_meter_improvement_rs_cooking': sm_savings,
@@ -479,24 +481,29 @@ class Assumptions(object):
         # Provide for every fueltype of an enduse
         # the share of fuel which is used by technologies for thebase year
         # ============================================================
-        # SNAKE: SUM ALL IN ONE
-        self.rs_fuel_tech_p_by, self.ss_fuel_tech_p_by, self.is_fuel_tech_p_by = fuel_shares.assign_by_fuel_tech_p(
+        # SNAKE ALLE IN ONE
+        rs_fuel_tech_p_by, ss_fuel_tech_p_by, is_fuel_tech_p_by = fuel_shares.assign_by_fuel_tech_p(
             enduses,
             sectors,
             fueltypes,
             fueltypes_nr)
+        
+        self.fuel_tech_p_by = {
+            'residential': rs_fuel_tech_p_by,
+            'service': ss_fuel_tech_p_by,
+            'industry': is_fuel_tech_p_by}
 
         # ========================================
         # Get technologies of an enduse
         # ========================================
         self.rs_specified_tech_enduse_by = helpers.get_def_techs(
-            self.rs_fuel_tech_p_by, sector_crit=False)
+            rs_fuel_tech_p_by, sector_crit=False)
 
         self.ss_specified_tech_enduse_by = helpers.get_def_techs(
-            self.ss_fuel_tech_p_by, sector_crit=True)
+            ss_fuel_tech_p_by, sector_crit=True)
 
         self.is_specified_tech_enduse_by = helpers.get_def_techs(
-            self.is_fuel_tech_p_by, sector_crit=True)
+            is_fuel_tech_p_by, sector_crit=True)
 
         rs_specified_tech_enduse_by_new = helpers.add_undef_techs(
             self.heat_pumps,
@@ -563,19 +570,19 @@ class Assumptions(object):
         # ========================================
         self.rs_fuel_tech_p_by, self.rs_specified_tech_enduse_by, self.technologies = tech_related.insert_placholder_techs(
             self.technologies,
-            self.rs_fuel_tech_p_by,
+            rs_fuel_tech_p_by,
             self.rs_specified_tech_enduse_by,
             sector_crit=False)
 
         self.ss_fuel_tech_p_by, self.ss_specified_tech_enduse_by, self.technologies = tech_related.insert_placholder_techs(
             self.technologies,
-            self.ss_fuel_tech_p_by,
+            ss_fuel_tech_p_by,
             self.ss_specified_tech_enduse_by,
             sector_crit=True)
 
         self.is_fuel_tech_p_by, self.is_specified_tech_enduse_by, self.technologies = tech_related.insert_placholder_techs(
             self.technologies,
-            self.is_fuel_tech_p_by,
+            is_fuel_tech_p_by,
             self.is_specified_tech_enduse_by,
             sector_crit=True)
 

@@ -83,6 +83,7 @@ class Enduse(object):
     """
     def __init__(
             self,
+            submodel_name,
             region,
             scenario_data,
             assumptions,
@@ -107,6 +108,7 @@ class Enduse(object):
         ):
         """Enduse class constructor
         """
+        self.submodel_name = submodel_name
         self.region = region
         self.enduse = enduse
         self.fuel_y = fuel
@@ -120,7 +122,7 @@ class Enduse(object):
             self.fuel_yh = 0
             self.enduse_techs = []
         else:
-            #logging.info("------INFO  {} {} {}  {}".format(self.enduse, sector, region, curr_yr))
+            logging.info("------INFO  {} {} {}  {}".format(self.enduse, sector, region, curr_yr))
             # Get technologies of enduse
             self.enduse_techs = get_enduse_techs(fuel_tech_p_by)
 
@@ -297,7 +299,8 @@ class Enduse(object):
                 for tech, fuel_tech in fuel_tech_y.items():
                     if np.sum(fuel_tech) == 0:
                         self.enduse_techs.remove(tech)
-
+                if enduse == 'rs_space_heating':
+                    print("ggg")
                 # ------------------------------------------
                 # Assign load profiles
                 # ------------------------------------------
@@ -1261,7 +1264,6 @@ def apply_smart_metering(
     key_name = 'smart_meter_improvement_{}'.format(enduse)
 
     try:
-
         # Enduse saving potentail of enduse of smart meter
         enduse_savings = sm_assump['savings_smart_meter'][key_name]
 
