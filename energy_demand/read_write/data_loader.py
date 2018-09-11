@@ -382,29 +382,13 @@ def load_paths(path):
         'path_technologies': os.path.join(
             path, '05-technologies', 'technology_definition.csv'),
 
-        # Fuel switches
-        'rs_path_fuel_switches': os.path.join(
-            path, '06-switches', 'rs_switches_fuel.csv'),
-        'ss_path_fuel_switches': os.path.join(
-            path, '06-switches', 'ss_switches_fuel.csv'),
-        'is_path_fuel_switches': os.path.join(
-            path, '06-switches', 'is_switches_fuel.csv'),
-
-        # Path to service switches
-        'rs_path_service_switch': os.path.join(
-            path, '06-switches', 'rs_switches_service.csv'),
-        'ss_path_service_switch': os.path.join(
-            path, '06-switches', 'ss_switches_service.csv'),
-        'is_path_industry_switch': os.path.join(
-            path, '06-switches', 'is_switches_service.csv'),
-
-        # Path to capacity installations
-        'rs_path_capacity_installation': os.path.join(
-            path, '06-switches', 'rs_capacity_installations.csv'),
-        'ss_path_capacity_installation': os.path.join(
-            path, '06-switches', 'ss_capacity_installations.csv'),
-        'is_path_capacity_installation': os.path.join(
-            path, '06-switches', 'is_capacity_installations.csv'),
+        # Switches
+        'path_fuel_switches': os.path.join(
+            path, '06-switches', 'switches_fuel.csv'),
+        'path_service_switch': os.path.join(
+            path, '06-switches', 'switches_service.csv'),
+        'path_capacity_installation': os.path.join(
+            path, '06-switches', 'switches_capacity.csv'),
 
         # Paths to fuel raw data
         'rs_fuel_raw': os.path.join(
@@ -784,18 +768,40 @@ def load_fuels(paths, lookups):
         'storage',
         'other']
 
+    # SNAKE SIMPLIFY
+    fuels['fuels'] = {
+        'residential': fuels['rs_fuel_raw'],
+        'service': fuels['ss_fuel_raw'],
+        'industry': fuels['is_fuel_raw']}
+
     # SNAKE SIMPLILFY
     sectors['sectors'] = {
         'residential': [False], # no sectors
         'service': sectors['ss_sectors'],
-        'industry': sectors['is_sectors']
-    }
+        'industry': sectors['is_sectors']}
+
     # SNAKE SIMPLILFY
     enduses['enduses'] = {
         'residential': enduses['rs_enduses'],
         'service': enduses['ss_enduses'],
-        'industry': enduses['is_enduses'] 
-    }
+        'industry': enduses['is_enduses']}
+
+    # SNAKE SIMLPLIFY
+    # Aggregate across sectors
+    fuels['aggr_sector_fuels'] = {}
+    for submodel in enduses['enduses'].keys():
+
+        for enduse in enduses['enduses'][submodel]:
+
+            # IF sector
+            try:
+                sum_across_sectors = sum(fuels['fuels'][submodel][enduse].values())
+            except:
+                logging.warning("NO SECTOR TO AGGREGATE SNAKE") #NO SECTOR
+                sum_across_sectors = fuels['fuels'][submodel][enduse]
+
+            fuels['aggr_sector_fuels'][enduse] = sum_across_sectors
+
     return enduses, sectors, fuels
 
 def rs_collect_shapes_from_txts(txt_path, model_yeardays):

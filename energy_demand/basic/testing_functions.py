@@ -118,12 +118,31 @@ def testing_fuel_tech_shares(fuel_tech_fueltype_p):
         Fueltype fraction of technologies
     """
     for enduse in fuel_tech_fueltype_p:
-        for fueltype in fuel_tech_fueltype_p[enduse]:
-            if fuel_tech_fueltype_p[enduse][fueltype] != {}:
-                if round(sum(fuel_tech_fueltype_p[enduse][fueltype].values()), 3) != 1.0:
-                    raise Exception(
-                        "The fuel shares assumptions are wrong for enduse {} and fueltype {} SUM: {}".format(
-                            enduse, fueltype, sum(fuel_tech_fueltype_p[enduse][fueltype].values())))
+
+        _keys = list(fuel_tech_fueltype_p[enduse].keys())
+
+        if _keys[0] != 0: #SNAKE IMPROVE TEST IF SECTOR
+            sector_crit = True
+        else:
+            sector_crit = False
+        
+        if sector_crit:
+            for sector in fuel_tech_fueltype_p[enduse]:
+                for fueltype in fuel_tech_fueltype_p[enduse][sector]:
+                    if fuel_tech_fueltype_p[enduse][sector][fueltype] != {}:
+                        if round(sum(fuel_tech_fueltype_p[enduse][sector][fueltype].values()), 3) != 1.0:
+                            raise Exception(
+                                "The fuel shares assumptions are wrong for enduse {} and fueltype {} SUM: {}".format(
+                                    enduse, fueltype, sum(fuel_tech_fueltype_p[enduse][sector][fueltype].values())))
+
+
+        else:
+            for fueltype in fuel_tech_fueltype_p[enduse]:
+                if fuel_tech_fueltype_p[enduse][fueltype] != {}:
+                    if round(sum(fuel_tech_fueltype_p[enduse][fueltype].values()), 3) != 1.0:
+                        raise Exception(
+                            "The fuel shares assumptions are wrong for enduse {} and fueltype {} SUM: {}".format(
+                                enduse, fueltype, sum(fuel_tech_fueltype_p[enduse][fueltype].values())))
 
 def testing_tech_defined(technologies, all_tech_enduse):
     """Test if all technologies are defined for assigned fuels

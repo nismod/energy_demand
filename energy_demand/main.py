@@ -19,14 +19,14 @@ regional_specific, crit_all_the_same
 #- Make that fuel swtich can be made in any industry sector irrespective of technologies
 # Combine all switches of end_use_submodel #TODO
 # Make generic fuel switch
-# Mage generic enduse change in csv file as variable
-5"""
+# Mage generic enduse change in csv file as variable"""
 import os
 import sys
 import time
 import logging
 from collections import defaultdict
 import numpy as np
+
 from energy_demand.basic import date_prop
 from energy_demand.plotting import plotting_results
 from energy_demand import model
@@ -167,6 +167,7 @@ if __name__ == "__main__":
     name_scenario_run = "_result_local_data_{}".format(str(time.ctime()).replace(":", "_").replace(" ", "_"))
 
     data['paths'] = data_loader.load_paths(path_main)
+
     data['local_paths'] = data_loader.get_local_paths(local_data_path)
     data['result_paths'] = data_loader.get_result_paths(
         os.path.join(os.path.join(local_data_path, "..", "results"), name_scenario_run))

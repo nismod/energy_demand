@@ -2,7 +2,7 @@
 """
 from collections import defaultdict
 
-def copy_fractions_all_sectors(fuel_tech_p_by, sectors):
+def copy_fractions_all_sectors(fuel_tech_p_by, sectors, affected_enduses):
     """Copy all defined fractions for an enduse to all setors
 
     Arguments
@@ -15,7 +15,7 @@ def copy_fractions_all_sectors(fuel_tech_p_by, sectors):
 
     Returns
     -------
-    out_dict : dict
+    out_dict : dict TODO UPDATE
         Fuel shares for all sectors
         {enduse: {sector: {fueltype: {tech: {share}}}}}
     """
@@ -23,9 +23,13 @@ def copy_fractions_all_sectors(fuel_tech_p_by, sectors):
 
     for sector in sectors:
         for enduse, techs in fuel_tech_p_by.items():
-            out_dict[enduse][sector] = techs
 
-    return dict(out_dict)
+            if enduse in affected_enduses:
+                out_dict[enduse][sector] = techs
+            else:
+                out_dict[enduse] = techs
+
+    return out_dict
 
 def init_fuel_tech_p_by(all_enduses_with_fuels, fueltypes_nr):
     """Helper function to define stocks for all enduse and fueltype
@@ -92,7 +96,7 @@ def add_undef_techs(heat_pumps, all_specified_tech_enduse, enduse):
 
     return all_specified_tech_enduse
 
-def get_def_techs(fuel_tech_p_by, sector_crit):
+def get_def_techs(fuel_tech_p_by):
     """Collect all technologies across all
     fueltypes for each endues
 
@@ -110,16 +114,16 @@ def get_def_techs(fuel_tech_p_by, sector_crit):
     """
     all_defined_tech_service_ey = {}
 
-    if sector_crit:
-        for enduse in fuel_tech_p_by:
+
+    for enduse in fuel_tech_p_by:
+
+        if list(fuel_tech_p_by[enduse].keys())[0] != 0: #no sectors SNAKE
             for sector in fuel_tech_p_by[enduse]:
                 all_defined_tech_service_ey[enduse] = []
                 for fueltype in fuel_tech_p_by[enduse][sector]:
                     for i in list(fuel_tech_p_by[enduse][sector][fueltype].keys()):
                         all_defined_tech_service_ey[enduse].append(i)
-
-    else:
-        for enduse in fuel_tech_p_by:
+        else:
             all_defined_tech_service_ey[enduse] = []
             for fueltype in fuel_tech_p_by[enduse]:
                 all_defined_tech_service_ey[enduse].extend(fuel_tech_p_by[enduse][fueltype])

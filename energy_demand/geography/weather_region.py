@@ -84,7 +84,7 @@ class WeatherRegion(object):
             assumptions.t_bases.rs_t_heating_by,
             all_enduses['rs_enduses'],
             rs_t_base_heating_cy,
-            assumptions.rs_specified_tech_enduse_by)
+            assumptions.specified_tech_enduse_by) #assumptions.rs_specified_tech_enduse_by)
 
         ss_tech_stock = technological_stock.TechStock(
             'ss_tech_stock',
@@ -97,7 +97,7 @@ class WeatherRegion(object):
             assumptions.t_bases.ss_t_heating_by,
             all_enduses['ss_enduses'],
             ss_t_base_heating_cy,
-            assumptions.ss_specified_tech_enduse_by)
+            assumptions.specified_tech_enduse_by) #assumptions.ss_specified_tech_enduse_by)
 
         is_tech_stock = technological_stock.TechStock(
             'is_tech_stock',
@@ -110,7 +110,7 @@ class WeatherRegion(object):
             assumptions.t_bases.is_t_heating_by,
             all_enduses['is_enduses'],
             ss_t_base_heating_cy,
-            assumptions.is_specified_tech_enduse_by)
+            assumptions.specified_tech_enduse_by) #assumptions.is_specified_tech_enduse_by)
         
         self.tech_stock = {
             'residential': rs_tech_stock,
@@ -164,7 +164,8 @@ class WeatherRegion(object):
 
                 # Get all technologies of enduse
                 tech_list = helpers.get_nested_dict_key(
-                    assumptions.rs_fuel_tech_p_by[enduse])
+                    #assumptions.rs_fuel_tech_p_by[enduse])
+                    assumptions.fuel_tech_p_by[enduse]) #SNAKE
 
                 # Remove heat pumps from rs_water_heating
                 tech_list = basic_functions.remove_element_from_list(tech_list, 'heat_pumps_electricity')
@@ -344,7 +345,8 @@ class WeatherRegion(object):
 
                     # Get technologies with assigned fuel shares
                     tech_list = helpers.get_nested_dict_key(
-                        assumptions.ss_fuel_tech_p_by[enduse][sector])
+                        #assumptions.ss_fuel_tech_p_by[enduse][sector])
+                        assumptions.fuel_tech_p_by[enduse][sector]) #SNAKE
 
                     # Apply correction factor for weekend_effect
                     shape_non_peak_yd_weighted = load_profile.abs_to_rel(
@@ -515,7 +517,8 @@ class WeatherRegion(object):
                 for sector in sectors['is_sectors']:
 
                     tech_list = helpers.get_nested_dict_key(
-                        assumptions.is_fuel_tech_p_by[enduse][sector])
+                        #assumptions.is_fuel_tech_p_by[enduse][sector])
+                        assumptions.fuel_tech_p_by[enduse][sector]) #SNAKE
 
                     load_profiles.add_lp(
                         unique_identifier=uuid.uuid4(),

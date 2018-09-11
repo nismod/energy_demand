@@ -189,10 +189,10 @@ def simulate_region(region, data, assumptions, weather_regions):
 
                 if sector:
                     fuel = region_obj.fuels[submodel_name][enduse][sector]
-                    fuel_tech_p_by = assumptions.fuel_tech_p_by[submodel_name][enduse][sector]
+                    fuel_tech_p_by = assumptions.fuel_tech_p_by[enduse][sector]
                 else:
                     fuel = region_obj.fuels[submodel_name][enduse]
-                    fuel_tech_p_by = assumptions.fuel_tech_p_by[submodel_name][enduse]
+                    fuel_tech_p_by = assumptions.fuel_tech_p_by[enduse]
                 
                 if not data['dw_stocks'][submodel_name]:
                     dw_stock = False
