@@ -131,7 +131,7 @@ def generate_min_max_resilience_plot(path_to_scenarios):
     # Print maximum hour value for every peak day of scenario
     # --------------------
     peak_day_values_to_print = []
-    
+
     cnt = 0
     for scenario in data_container.keys():
         peak_day_values_to_print.append(" ")

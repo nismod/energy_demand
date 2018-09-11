@@ -126,14 +126,14 @@ class EnergyDemandModel(object):
         ## figure_HHD_gas_demand.main(regions, weather_regions, data)
 
 def get_all_submodels(submodels, submodel_name):
-    """
+    """TODO
     """
     specific_submodels = []
 
     for submodel in submodels:
         if submodel.submodel_name == submodel_name:
             specific_submodels.append(submodel)
-    
+
     return specific_submodels
 
 def simulate_region(region, data, assumptions, weather_regions):
