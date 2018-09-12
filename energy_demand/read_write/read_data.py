@@ -666,13 +666,7 @@ def read_fuel_switches(
                 "Input error: The share of switched fuel must be > 0. Delete {} from input".format(
                     obj.technology_install))
 
-        #tot_share_fueltype_switched = 0
-
         for obj_iter in fuel_switches:
-
-            # Sum total switched share SNAKE
-            #if obj.enduse == obj_iter.enduse and obj.fueltype_replace == obj_iter.fueltype_replace:
-            #    tot_share_fueltype_switched += obj_iter.fuel_share_switched_ey
 
             # Test if lager than maximum defined technology diffusion (L)
             if obj_iter.fuel_share_switched_ey > technologies[obj_iter.technology_install].tech_max_share:
@@ -690,7 +684,7 @@ def read_fuel_switches(
 
     # Test whether defined enduse exist
     for obj in fuel_switches:
-        if obj.enduse in enduses['ss_enduses'] or obj.enduse in enduses['rs_enduses'] or obj.enduse in enduses['is_enduses']:
+        if obj.enduse in enduses['service'] or obj.enduse in enduses['residential'] or obj.enduse in enduses['industry']:
             pass
         else:
             raise Exception(
@@ -1066,7 +1060,7 @@ def read_capacity_switch(path_to_csv, base_yr=2015):
     raw_csv_file = pd.read_csv(path_to_csv)
 
     # Iterate rows
-    for index, row in raw_csv_file.iterrows():
+    for _, row in raw_csv_file.iterrows():
 
         service_switches.append(
             CapacitySwitch(

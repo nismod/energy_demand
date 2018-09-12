@@ -36,7 +36,7 @@ def disaggregate_demand(data):
     pop_base_year_for_disaggregation = data['pop_for_disag']
 
     # Disaggregate fuel for all regions
-    disagg['rs_fuel_disagg'], disagg['ss_fuel_disagg'], disagg['is_fuel_disagg'] = disaggregate_base_demand(
+    disagg['residential'], disagg['service'], disagg['industry'] = disaggregate_base_demand(
         pop_base_year_for_disaggregation,
         data['regions'],
         data['fuels'],
@@ -52,28 +52,28 @@ def disaggregate_demand(data):
 
     # Sum demand across all sectors for every region
     disagg['ss_fuel_disagg_sum_all_sectors'] = init_scripts.sum_across_sectors_all_regs(
-        disagg['ss_fuel_disagg'])
+        disagg['service'])
 
     disagg['is_aggr_fuel_sum_all_sectors'] = init_scripts.sum_across_sectors_all_regs(
-        disagg['is_fuel_disagg'])
+        disagg['industry'])
 
     # Sum demand across all submodels and sectors for every region
     disagg['tot_disaggregated_regs'] = init_scripts.sum_across_all_submodels_regs(
         data['lookups']['fueltypes_nr'],
         data['regions'],
-        [disagg['rs_fuel_disagg'],
-        disagg['ss_fuel_disagg'],
-        disagg['is_fuel_disagg']])
+        [disagg['residential'],
+        disagg['service'],
+        disagg['industry']])
 
     disagg['tot_disaggregated_regs_residenital'] = init_scripts.sum_across_all_submodels_regs(
         data['lookups']['fueltypes_nr'],
         data['regions'],
-        [disagg['rs_fuel_disagg']])
+        [disagg['residential']])
 
     disagg['tot_disaggregated_regs_non_residential'] = init_scripts.sum_across_all_submodels_regs(
         data['lookups']['fueltypes_nr'],
         data['regions'],
-        [disagg['ss_fuel_disagg'], disagg['is_fuel_disagg']])
+        [disagg['service'], disagg['industry']])
 
     return disagg
 
@@ -147,7 +147,7 @@ def disaggregate_base_demand(
         reg_coord,
         weather_stations,
         temp_data,
-        enduses['rs_enduses'],
+        enduses['residential'],
         crit_limited_disagg_pop_hdd,
         crit_limited_disagg_pop,
         crit_full_disagg)
@@ -163,8 +163,8 @@ def disaggregate_base_demand(
         reg_coord,
         temp_data,
         weather_stations,
-        enduses['ss_enduses'],
-        sectors['ss_sectors'],
+        enduses['service'],
+        sectors['service'],
         all_sectors,
         crit_limited_disagg_pop_hdd,
         crit_limited_disagg_pop,
@@ -178,8 +178,8 @@ def disaggregate_base_demand(
         weather_stations,
         fuels['is_fuel_raw'],
         regions,
-        enduses['is_enduses'],
-        sectors['is_sectors'],
+        enduses['industry'],
+        sectors['industry'],
         scenario_data['employment_stats'],
         pop_base_year_for_disaggregation,
         census_disagg=census_disagg)

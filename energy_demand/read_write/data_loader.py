@@ -45,9 +45,9 @@ def load_ini_param(path):
     # Other information
     # -----------------
     enduses = {}
-    enduses['rs_enduses'] = ast.literal_eval(config['ENDUSES']['rs_enduses'])
-    enduses['ss_enduses'] = ast.literal_eval(config['ENDUSES']['ss_enduses'])
-    enduses['is_enduses'] = ast.literal_eval(config['ENDUSES']['is_enduses'])
+    enduses['residential'] = ast.literal_eval(config['ENDUSES']['residential'])
+    enduses['service'] = ast.literal_eval(config['ENDUSES']['service'])
+    enduses['industry'] = ast.literal_eval(config['ENDUSES']['industry'])
 
     return enduses, assumptions, reg_nrs, regions
 
@@ -702,7 +702,7 @@ def load_temp_data(paths):
 
     return weather_stations, temp_data
 
-def load_fuels(paths, lookups):
+def load_fuels(submodels_names, paths, lookups):
     """Load in ECUK fuel data, enduses and sectors
 
     Sources:
@@ -712,6 +712,8 @@ def load_fuels(paths, lookups):
 
     Arguments
     ---------
+    submodels_names : list
+        Submodel names
     paths : dict
         Paths container
     lookups : dict
@@ -730,17 +732,29 @@ def load_fuels(paths, lookups):
     sectors = {}
     fuels = {}
 
+    # -------------------------------
+    # submodel_names[0]: Residential
+    # -------------------------------
+
     # Residential Sector
-    rs_fuel_raw_data_enduses, enduses['rs_enduses'] = read_data.read_fuel_rs(
+    rs_fuel_raw_data_enduses, enduses[submodels_names[0]] = read_data.read_fuel_rs(
         paths['rs_fuel_raw'])
 
+    # -------------------------------
+    # submodel_names[1]: Service
+    # -------------------------------
+
     # Service Sector
-    ss_fuel_raw, sectors['ss_sectors'], enduses['ss_enduses'] = read_data.read_fuel_ss(
+    ss_fuel_raw, sectors[submodels_names[1]], enduses[submodels_names[1]] = read_data.read_fuel_ss(
         paths['ss_fuel_raw'],
         lookups['fueltypes_nr'])
 
+    # -------------------------------
+    # submodel_names[2]: Industry
+    # -------------------------------
+
     # Industry fuel
-    is_fuel_raw, sectors['is_sectors'], enduses['is_enduses'] = read_data.read_fuel_is(
+    is_fuel_raw, sectors[submodels_names[2]], enduses[submodels_names[2]] = read_data.read_fuel_is(
         paths['is_fuel_raw'], lookups['fueltypes_nr'])
 
     # Iterate enduses per sudModel and flatten list
@@ -776,22 +790,21 @@ def load_fuels(paths, lookups):
 
     # SNAKE SIMPLILFY
     sectors['sectors'] = {
-        'residential': [None], # no sectors #not False
-        'service': sectors['ss_sectors'],
-        'industry': sectors['is_sectors']}
+        'residential': [None], # no sectors
+        'service': sectors['service'],
+        'industry': sectors['industry']}
 
     # SNAKE SIMPLILFY
     enduses['enduses'] = {
-        'residential': enduses['rs_enduses'],
-        'service': enduses['ss_enduses'],
-        'industry': enduses['is_enduses']}
+        'residential': enduses['residential'],
+        'service': enduses['service'],
+        'industry': enduses['industry']}
 
-    # SNAKE
+    # Assign for every enduse the corresponding sectors
     sectors['enduse_sector_match'] = defaultdict(dict)
     for submodel_name in ['residential', 'service', 'industry']:
         for enduse in enduses['enduses'][submodel_name]:
             sectors['enduse_sector_match'][enduse ] = sectors['sectors'][submodel_name]
-
 
     # SNAKE SIMLPLIFY
     # Aggregate across sectors

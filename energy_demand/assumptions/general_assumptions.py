@@ -31,6 +31,7 @@ class Assumptions(object):
     """
     def __init__(
             self,
+            submodels_names=None,
             base_yr=None,
             curr_yr=None,
             simulated_yrs=None,
@@ -42,14 +43,10 @@ class Assumptions(object):
         ):
         """Constructor
         """
+        self.submodels_names = submodels_names
         self.base_yr = base_yr
         self.curr_yr = curr_yr
         self.simulated_yrs = simulated_yrs
-
-        self.submodels_names = [
-            'residential',
-            'service',
-            'industry']
 
         # ============================================================
         # Spatially modelled variables

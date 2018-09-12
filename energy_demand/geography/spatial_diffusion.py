@@ -400,7 +400,7 @@ def calc_spatially_diffusion_factors(
         regions,
         f_reg,
         spatial_diff_values,
-        [fuel_disagg['rs_fuel_disagg'], fuel_disagg['ss_fuel_disagg'], fuel_disagg['is_fuel_disagg']])
+        [fuel_disagg['residential'], fuel_disagg['service'], fuel_disagg['industry']])
 
     return f_reg, f_reg_norm, f_reg_norm_abs
 
@@ -460,7 +460,7 @@ def calc_spatially_diffusion_factors(
             uk_techs_service_p,
             regions,
             spatial_diffusion_factor,
-            fuel_disagg['rs_fuel_disagg'],
+            fuel_disagg['residential'],
             techs_affected_spatial_f)
 
     ss_reg_share_s_tech_ey_p = {}

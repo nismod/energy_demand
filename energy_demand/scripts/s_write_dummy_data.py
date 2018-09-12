@@ -97,8 +97,8 @@ def dummy_sectoral_load_profiles(local_paths, path_main):
 
     dict_enduses, dict_sectors, dict_fuels = data_loader.load_fuels(paths, lu)
 
-    for enduse in dict_enduses['ss_enduses']:
-        for sector in dict_sectors['ss_sectors']:
+    for enduse in dict_enduses['service']:
+        for sector in dict_sectors['service']:
 
             joint_string_name = str(sector) + "__" + str(enduse)
 

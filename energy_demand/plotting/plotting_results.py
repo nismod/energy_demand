@@ -266,9 +266,9 @@ def run_all_plot_functions(
             lookups,
             assumptions['simulated_yrs'],
             results_container['results_enduse_every_year'],
-            enduses['rs_enduses'],
-            enduses['ss_enduses'],
-            enduses['is_enduses'],
+            enduses['residential'],
+            enduses['service'],
+            enduses['industry'],
             os.path.join(result_paths['data_results_PDF'],
             "stacked_all_enduses_country.pdf"))
 

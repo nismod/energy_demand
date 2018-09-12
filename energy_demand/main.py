@@ -212,6 +212,7 @@ if __name__ == "__main__":
     # Assumptions
     # -----------------------------
     data['assumptions'] = general_assumptions.Assumptions(
+        submodels_names=data['lookups']['submodels_names'],
         base_yr=user_defined_base_yr,
         curr_yr=2015,
         simulated_yrs=simulated_yrs,

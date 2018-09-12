@@ -189,6 +189,12 @@ def basic_lookups():
     """
     lookups = {}
 
+    # Specify all submodels
+    lookups['submodels_names'] = [
+        'residential',
+        'service',
+        'industry']
+
     # Assign BESI categories to merged AddressPoint dataset
     lookups['building_cnt_lu'] = {
         "commercial_General": 1,

@@ -94,8 +94,6 @@ class EnergyDemandModel(object):
             # Store submodel results
             all_submodels = [reg_rs_submodel, reg_ss_submodel, reg_is_submodel]
 
-            if len(all_submodels) != 3:
-                raise Exception("EEE")
             # ---------------------------------------------
             # Aggregate results
             # ---------------------------------------------
@@ -136,6 +134,31 @@ def get_all_submodels(submodels, submodel_name):
 
     return specific_submodels
 
+def get_disaggregated_fuel_of_reg(submodel_names, fuel_disagg, region):
+    """Get disaggregated region for every submodel
+    for a specific region
+
+    Arguments
+    -------
+    submodel_names : dict
+        Name of all submodels
+    fuel_disagg : dict
+        Fuel per submodel for all regions
+    region : str
+        Region
+
+    Returns
+    -------
+    region_fuel_disagg : dict
+        Disaggregated fuel for a specific region
+    """
+    region_fuel_disagg = {}
+
+    for submodel_name in submodel_names:
+        region_fuel_disagg[submodel_name] = fuel_disagg[submodel_name][region]
+
+    return region_fuel_disagg
+
 def simulate_region(region, data, assumptions, weather_regions):
     """Run submodels for a single region
 
@@ -153,24 +176,24 @@ def simulate_region(region, data, assumptions, weather_regions):
     submodel_objs : obj
         SubModel result object
     """
+    submodel_names = assumptions.submodels_names
+
+    # Get region specific disaggregated fuel
+    region_fuel_disagg = get_disaggregated_fuel_of_reg(
+        submodel_names, data['fuel_disagg'], region)
+
     region_obj = Region(
         name=region,
         longitude=data['reg_coord'][region]['longitude'],
         latitude=data['reg_coord'][region]['latitude'],
-        rs_fuel_disagg=data['fuel_disagg']['rs_fuel_disagg'][region],
-        ss_fuel_disagg=data['fuel_disagg']['ss_fuel_disagg'][region],
-        is_fuel_disagg=data['fuel_disagg']['is_fuel_disagg'][region], #SNAKE
+        region_fuel_disagg=region_fuel_disagg,
         weather_stations=data['weather_stations'])
 
     # Closest weather region object
     weather_region_obj = weather_regions[region_obj.closest_weather_region_id]
 
-    # All submodels
-    submodel_names = assumptions.submodels_names
-
     submodel_objs = []
 
-    # Iterate submodels
     for submodel_name in submodel_names:
 
         # Iterate sectors in submodel
@@ -494,7 +517,7 @@ def create_virtual_dwelling_stocks(regions, curr_yr, data):
             data['scenario_data'],
             data['assumptions'].simulated_yrs,
             data['lookups']['dwtype'],
-            data['enduses']['rs_enduses'],
+            data['enduses']['residential'],
             data['reg_coord'],
             data['assumptions'].scenario_drivers,
             data['assumptions'].base_yr,
@@ -508,7 +531,7 @@ def create_virtual_dwelling_stocks(regions, curr_yr, data):
             data['scenario_data'],
             data['assumptions'].simulated_yrs,
             data['lookups']['dwtype'],
-            data['enduses']['rs_enduses'],
+            data['enduses']['residential'],
             data['reg_coord'],
             data['assumptions'].scenario_drivers,
             curr_yr,
@@ -521,8 +544,8 @@ def create_virtual_dwelling_stocks(regions, curr_yr, data):
         # base year
         ss_dw_stock[region][data['assumptions'].base_yr] = dw_stock.ss_dw_stock(
             region,
-            data['enduses']['ss_enduses'],
-            data['sectors']['ss_sectors'],
+            data['enduses']['service'],
+            data['sectors']['service'],
             data['scenario_data'],
             data['reg_coord'],
             data['assumptions'],
@@ -533,8 +556,8 @@ def create_virtual_dwelling_stocks(regions, curr_yr, data):
         # current year
         ss_dw_stock[region][curr_yr] = dw_stock.ss_dw_stock(
             region,
-            data['enduses']['ss_enduses'],
-            data['sectors']['ss_sectors'],
+            data['enduses']['service'],
+            data['sectors']['service'],
             data['scenario_data'],
             data['reg_coord'],
             data['assumptions'],

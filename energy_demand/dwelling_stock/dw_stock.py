@@ -53,7 +53,7 @@ from energy_demand.technologies import diffusion_technologies
                 curr_yr=curr_yr,
                 coordinates=data['reg_coord'][region],
                 floorarea=floor_area_dwtype_age_class,
-                enduses=data['enduses']['rs_enduses'],
+                enduses=data['enduses']['residential'],
                 driver_assumptions=data['assumptions'].scenario_drivers['rs_submodule'],
                 population=pop_dwtype_age_class,
                 age=age_class,
@@ -63,7 +63,7 @@ from energy_demand.technologies import diffusion_technologies
 
     dwelling_stock = DwellingStock(
         dw_stock,
-        data['enduses']['rs_enduses'])
+        data['enduses']['residential'])
 
     return dwelling_stock
 '''

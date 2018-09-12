@@ -13,12 +13,8 @@ class Region(object):
         Longitude coordinate
     latitude : float
         Latitude coordinate
-    rs_fuel_disagg : dict
+    fuel_disagg : dict
         Nested dict by region, enduse => np.array, single dimension for fuel type
-    ss_fuel_disagg : dict
-        Nested dict by region, sector, enduse => np.array, single dimension for fuel type
-    is_fuel_disagg : dict
-        Nested dict by region, sector, enduse => np.array, single dimension for fuel type
     weather_regions : dict
         Weather regions
 
@@ -31,9 +27,7 @@ class Region(object):
             name,
             longitude,
             latitude,
-            rs_fuel_disagg,
-            ss_fuel_disagg,
-            is_fuel_disagg,
+            region_fuel_disagg,
             weather_stations
         ):
         """Constructor
@@ -41,13 +35,7 @@ class Region(object):
         self.name = name
         self.longitude = longitude
         self.latitude = latitude
-
-        # Fuels SNAKE
-        self.fuels = {
-            'residential': rs_fuel_disagg,
-            'service': ss_fuel_disagg,
-            'industry': is_fuel_disagg
-        }
+        self.fuels = region_fuel_disagg
 
         # Get closest weather station
         self.closest_weather_region_id = weather_station_location.get_closest_station(

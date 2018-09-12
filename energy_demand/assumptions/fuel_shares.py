@@ -48,15 +48,15 @@ def assign_by_fuel_tech_p(enduses, sectors, fueltypes, fueltypes_nr):
     fuel_tech_p_by = defaultdict(dict)
     
     _fuel_tech_p_by = helpers.init_fuel_tech_p_by(
-        enduses['rs_enduses'], fueltypes_nr)
+        enduses['residential'], fueltypes_nr)
     fuel_tech_p_by.update(_fuel_tech_p_by)
     
     _fuel_tech_p_by = helpers.init_fuel_tech_p_by(
-        enduses['ss_enduses'], fueltypes_nr)
+        enduses['service'], fueltypes_nr)
     fuel_tech_p_by.update(_fuel_tech_p_by)
     
     _fuel_tech_p_by = helpers.init_fuel_tech_p_by(
-        enduses['is_enduses'], fueltypes_nr)
+        enduses['industry'], fueltypes_nr)
     fuel_tech_p_by.update(_fuel_tech_p_by)
 
     # ====================
@@ -285,8 +285,8 @@ def assign_by_fuel_tech_p(enduses, sectors, fueltypes, fueltypes_nr):
     # Helper: Transfer all defined shares for every enduse to every sector #TODO SNAKE IMPROVE
     fuel_tech_p_by = helpers.copy_fractions_all_sectors(
         fuel_tech_p_by,
-        sectors['ss_sectors'],
-        affected_enduses=enduses['ss_enduses'])
+        sectors['service'],
+        affected_enduses=enduses['service'])
 
     # ===================
     # Industry subModel  - Fuel shares of technologies in enduse
@@ -323,8 +323,8 @@ def assign_by_fuel_tech_p(enduses, sectors, fueltypes, fueltypes_nr):
     # Helper: Transfer all defined shares for every enduse to every sector
     fuel_tech_p_by = helpers.copy_fractions_all_sectors(
         fuel_tech_p_by,
-        sectors['is_sectors'],
-        affected_enduses=enduses['is_enduses'])
+        sectors['industry'],
+        affected_enduses=enduses['industry'])
 
     # ----------------
     # Industrial High temporal processes (is_high_temp_process)

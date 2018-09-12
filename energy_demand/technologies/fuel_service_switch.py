@@ -115,13 +115,6 @@ def get_share_s_tech_ey(
                 if switch.enduse == enduse:
                     narrative_yrs_enduse_tech_ey_p[enduse][region][switch.switch_yr][switch.technology_install] = switch.service_share_ey
 
-    # Add all other enduses for which no switch is defined
-    '''for enduse in specified_tech_enduse_by:
-        if enduse not in narrative_yrs_enduse_tech_ey_p:
-            narrative_yrs_enduse_tech_ey_p[enduse] = {}
-            for region in service_switches.keys():
-                narrative_yrs_enduse_tech_ey_p[enduse][region] = {}''' #TODO
-
     return dict(narrative_yrs_enduse_tech_ey_p)
 
 def create_switches_from_s_shares(
@@ -171,8 +164,7 @@ def create_switches_from_s_shares(
 
     for tech in specified_tech_enduse_by[enduse]:
         if tech not in switch_technologies:
-            #tech_not_assigned_by_p[tech] = s_tech_by_p[enduse][tech]
-            tech_not_assigned_by_p[tech] = s_tech_by_p[sector][enduse][tech] #SNAKE
+            tech_not_assigned_by_p[tech] = s_tech_by_p[sector][enduse][tech]
 
     # Normalise: convert to percentage
     tot_share_not_assigned = sum(tech_not_assigned_by_p.values())
@@ -312,10 +304,11 @@ def autocomplete_switches(
     
     # All enduses
     switch_enduses = set(switch_enduses + switch_enduses_capacity_switches)
-    print("============ " + str(switch_enduses))
+
     for enduse in switch_enduses:
-        print("ENDUSE " + str(enduse_sector_match[enduse]))
-        for sector in enduse_sector_match[enduse]: #Iterate all sectors of submodel TODO REPLACE SNAKE
+
+        #Iterate all sectors of enduse
+        for sector in enduse_sector_match[enduse]:
 
             switches_enduse = init_scripts.get_sector__enduse_switches(
                 sector, enduse, service_switches)
@@ -439,7 +432,7 @@ def autocomplete_switches(
                 service_switches_out[sector],
                 specified_tech_enduse_by)
 
-    return reg_share_s_tech_ey_p #, service_switches_out
+    return reg_share_s_tech_ey_p
 
 def capacity_switch(
         narrative_timesteps,

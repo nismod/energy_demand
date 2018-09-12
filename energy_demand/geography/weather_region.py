@@ -82,7 +82,7 @@ class WeatherRegion(object):
             temp_by,
             temp_cy,
             assumptions.t_bases.rs_t_heating_by,
-            all_enduses['rs_enduses'],
+            all_enduses['residential'],
             rs_t_base_heating_cy,
             assumptions.specified_tech_enduse_by) #assumptions.rs_specified_tech_enduse_by)
 
@@ -95,7 +95,7 @@ class WeatherRegion(object):
             temp_by,
             temp_cy,
             assumptions.t_bases.ss_t_heating_by,
-            all_enduses['ss_enduses'],
+            all_enduses['service'],
             ss_t_base_heating_cy,
             assumptions.specified_tech_enduse_by) #assumptions.ss_specified_tech_enduse_by)
 
@@ -108,7 +108,7 @@ class WeatherRegion(object):
             temp_by,
             temp_cy,
             assumptions.t_bases.is_t_heating_by,
-            all_enduses['is_enduses'],
+            all_enduses['industry'],
             ss_t_base_heating_cy,
             assumptions.specified_tech_enduse_by) #assumptions.is_specified_tech_enduse_by)
         
@@ -155,7 +155,7 @@ class WeatherRegion(object):
         # Enduse specific profiles
         # ========
         # -- Apply enduse sepcific shapes for enduses with not technologies with own defined shapes
-        for enduse in all_enduses['rs_enduses']:
+        for enduse in all_enduses['residential']:
 
             # Enduses where technology specific load profiles are defined for yh
             if enduse in ['rs_space_heating']:
@@ -164,8 +164,7 @@ class WeatherRegion(object):
 
                 # Get all technologies of enduse
                 tech_list = helpers.get_nested_dict_key(
-                    #assumptions.rs_fuel_tech_p_by[enduse])
-                    assumptions.fuel_tech_p_by[enduse]) #SNAKE
+                    assumptions.fuel_tech_p_by[enduse])
 
                 # Remove heat pumps from rs_water_heating
                 tech_list = basic_functions.remove_element_from_list(tech_list, 'heat_pumps_electricity')
@@ -335,13 +334,13 @@ class WeatherRegion(object):
         # Enduse specific profiles
         # ========
         # - Assign to each enduse the carbon fuel trust dataset
-        for enduse in all_enduses['ss_enduses']:
+        for enduse in all_enduses['service']:
 
             # Skip temperature dependent end uses (regional) because load profile in regional load profile stock
             if enduse in assumptions.enduse_space_heating or enduse in assumptions.ss_enduse_space_cooling:
                 pass
             else:
-                for sector in sectors['ss_sectors']:
+                for sector in sectors['service']:
 
                     # Get technologies with assigned fuel shares
                     tech_list = helpers.get_nested_dict_key(
@@ -388,7 +387,7 @@ class WeatherRegion(object):
             unique_identifier=uuid.uuid4(),
             technologies=assumptions.tech_list['heating_non_const'],
             enduses=['ss_space_heating', 'ss_water_heating'],
-            sectors=sectors['ss_sectors'],
+            sectors=sectors['service'],
             shape_y_dh=rs_profile_hp_y_dh, #tech_lp['rs_profile_hp_y_dh'],
             shape_yd=ss_hp_shape_yd,
             shape_yh=ss_fuel_shape_hp_yh,
@@ -404,7 +403,7 @@ class WeatherRegion(object):
             unique_identifier=uuid.uuid4(),
             technologies=assumptions.tech_list['secondary_heating_electricity'],
             enduses=['ss_space_heating'],
-            sectors=sectors['ss_sectors'],
+            sectors=sectors['service'],
             shape_yd=ss_fuel_shape_heating_yd_weighted,
             shape_y_dh=tech_lp['rs_profile_elec_heater_y_dh'],
             model_yeardays=assumptions.model_yeardays)
@@ -417,7 +416,7 @@ class WeatherRegion(object):
             unique_identifier=uuid.uuid4(),
             technologies=all_techs_ss_space_heating,
             enduses=['ss_space_heating'],
-            sectors=sectors['ss_sectors'],
+            sectors=sectors['service'],
             shape_yd=ss_fuel_shape_heating_yd_weighted,
             shape_y_dh=tech_lp['ss_all_tech_shapes_dh']['ss_space_heating']['shape_non_peak_y_dh'],
             model_yeardays=assumptions.model_yeardays)
@@ -426,7 +425,7 @@ class WeatherRegion(object):
         coolings_techs = assumptions.tech_list['cooling_const']
 
         for cooling_enduse in assumptions.ss_enduse_space_cooling:
-            for sector in sectors['ss_sectors']:
+            for sector in sectors['service']:
 
                 # Apply correction factor for weekend_effect 'cdd_weekend_cfactors'
                 ss_lp_cooling_yd_weighted = load_profile.abs_to_rel(
@@ -488,7 +487,7 @@ class WeatherRegion(object):
             unique_identifier=uuid.uuid4(),
             technologies=assumptions.tech_list['secondary_heating_electricity'],
             enduses=['is_space_heating'],
-            sectors=sectors['is_sectors'],
+            sectors=sectors['industry'],
             shape_yd=is_fuel_shape_heating_yd_weighted,
             shape_y_dh=tech_lp['rs_profile_elec_heater_y_dh'],
             model_yeardays=assumptions.model_yeardays)
@@ -498,7 +497,7 @@ class WeatherRegion(object):
             unique_identifier=uuid.uuid4(),
             technologies=all_techs_is_space_heating,
             enduses=['is_space_heating'],
-            sectors=sectors['is_sectors'],
+            sectors=sectors['industry'],
             shape_yd=is_fuel_shape_heating_yd_weighted,
             shape_y_dh=flat_shape_y_dh, # tech_lp['ss_all_tech_shapes_dh']['ss_space_heating']['shape_non_peak_y_dh]
             model_yeardays=assumptions.model_yeardays)
@@ -510,11 +509,11 @@ class WeatherRegion(object):
         # ========
         # Enduse specific profiles
         # ========
-        for enduse in all_enduses['is_enduses']:
+        for enduse in all_enduses['industry']:
             if enduse == "is_space_heating":
                 pass # Do not create non regional stock because temp dependent
             else:
-                for sector in sectors['is_sectors']:
+                for sector in sectors['industry']:
 
                     tech_list = helpers.get_nested_dict_key(
                         #assumptions.is_fuel_tech_p_by[enduse][sector])

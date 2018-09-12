@@ -326,9 +326,9 @@ def spatial_explicit_modelling_strategy_vars(
                     fuels_reg = spatial_diffusion.get_enduse_regs(
                         enduse=strategy_var['affected_enduse'],
                         fuels_disagg=[
-                            fuel_disagg['rs_fuel_disagg'],
-                            fuel_disagg['ss_fuel_disagg'],
-                            fuel_disagg['is_fuel_disagg']])
+                            fuel_disagg['residential'],
+                            fuel_disagg['service'],
+                            fuel_disagg['industry']])
 
                     # Calculate regional specific strategy variables values
                     reg_specific_variables_ey = spatial_diffusion.factor_improvements_single(
@@ -526,17 +526,14 @@ def sig_param_calc_incl_fuel_switch(
         sig_param_tech = {}
     else:
 
-        # Neyl added SNAKE (vorher ganz am anfang)
         if not sector:
             fuel_tech_p_by = fuel_tech_p_by
         else:
             fuel_tech_p_by = fuel_tech_p_by[sector]
 
         if share_s_tech_ey_p == {}:
-            print("fmmmmmmmmm")
             pass
         else:
-            print("why error {}  {}".format(sector, enduse))
             share_s_tech_ey_p = share_s_tech_ey_p[sector][enduse]
 
         # ----------------------------------------
@@ -545,12 +542,6 @@ def sig_param_calc_incl_fuel_switch(
         # ----------------------------------------
         _, crit_fuel_switch = s_generate_sigmoid.get_tech_installed(
             enduse, fuel_switches)
-
-        # ------------------------------------------
-        # Test if service switch is defined for enduse
-        # ------------------------------------------ TODO WHY IS THIS REMOVED?
-        #service_switches_enduse = fuel_service_switch.get_switches_of_enduse(
-        #    service_switches, enduse)
 
         # ------------------------------------------
         # Initialisations
@@ -585,7 +576,7 @@ def sig_param_calc_incl_fuel_switch(
                 # switches and the diffusion parameters
                 # ------------------------------------------
                 if crit_switch_service:
-                    print("+++++++++ SERVICE SWITCH")
+
                     # Calculate only from service switch
                     s_tech_switched_p = share_s_tech_ey_p
 
@@ -612,10 +603,9 @@ def sig_param_calc_incl_fuel_switch(
                     Calculate future service share after fuel switches
                     and calculte sigmoid diffusion paramters.
                     """
-                    print("+++++++++ FUEL SWITCH")
                     # Get fuel switches of enduse and switch_yr
                     enduse_fuel_switches = fuel_service_switch.get_switches_of_enduse(
-                        fuel_switches, enduse, switch_yr, crit_region=False) #NEW TODO crit_region=False
+                        fuel_switches, enduse, switch_yr, crit_region=False)
 
                     if crit_all_the_same:
 
@@ -667,8 +657,7 @@ def sig_param_calc_incl_fuel_switch(
                 # Calculates parameters for sigmoid diffusion of
                 # technologies which are switched to/installed.
                 # -----------------------------------------------
-                print("---------- switches %s %s %s", enduse, crit_switch_service, crit_fuel_switch)
-
+                #logging.debug("---------- switches %s %s %s", enduse, crit_switch_service, crit_fuel_switch)
                 if crit_all_the_same:
 
                     # -------------------------
