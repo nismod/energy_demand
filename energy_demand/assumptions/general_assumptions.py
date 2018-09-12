@@ -449,7 +449,6 @@ class Assumptions(object):
         # Overall efficiency improvement
         # -------------
 
-
         # ============================================================
         # Assumption related to heat pump technologies
         # ============================================================
@@ -480,7 +479,6 @@ class Assumptions(object):
         # Provide for every fueltype of an enduse
         # the share of fuel which is used by technologies for thebase year
         # ============================================================
-        # SNAKE ALLE IN ONE
         self.fuel_tech_p_by = fuel_shares.assign_by_fuel_tech_p(
             enduses,
             sectors,
@@ -490,36 +488,9 @@ class Assumptions(object):
         # ========================================
         # Get technologies of an enduse
         # ========================================
-        '''self.rs_specified_tech_enduse_by = helpers.get_def_techs(
-            rs_fuel_tech_p_by, sector_crit=False)
-
-        self.ss_specified_tech_enduse_by = helpers.get_def_techs(
-            ss_fuel_tech_p_by, sector_crit=True)
-
-        self.is_specified_tech_enduse_by = helpers.get_def_techs(
-            is_fuel_tech_p_by, sector_crit=True)'''
-        # SNAKE
         self.specified_tech_enduse_by = helpers.get_def_techs(
             self.fuel_tech_p_by)
-        
-        '''rs_specified_tech_enduse_by_new = helpers.add_undef_techs(
-            self.heat_pumps,
-            self.rs_specified_tech_enduse_by,
-            'rs_space_heating')
-        self.rs_specified_tech_enduse_by = rs_specified_tech_enduse_by_new
 
-        ss_specified_tech_enduse_by_new = helpers.add_undef_techs(
-            self.heat_pumps,
-            self.ss_specified_tech_enduse_by,
-            'ss_space_heating')
-        self.ss_specified_tech_enduse_by = ss_specified_tech_enduse_by_new
-
-        is_specified_tech_enduse_by_new = helpers.add_undef_techs(
-            self.heat_pumps,
-            self.is_specified_tech_enduse_by,
-            'is_space_heating')
-        self.is_specified_tech_enduse_by = is_specified_tech_enduse_by_new'''
-        
         specified_tech_enduse_by_new = helpers.add_undef_techs(
             self.heat_pumps,
             self.specified_tech_enduse_by,
@@ -538,24 +509,12 @@ class Assumptions(object):
             'is_space_heating')
         self.specified_tech_enduse_by = specified_tech_enduse_by_new
 
-
-        #SNAKE SIMPLIFY
-        '''self.specified_tech_enduse_by = {}
-        for submodel_data in [self.rs_specified_tech_enduse_by, self.ss_specified_tech_enduse_by, self.is_specified_tech_enduse_by]:
-            for enduse, enduse_techs in submodel_data.items():
-                self.specified_tech_enduse_by[enduse] = enduse_techs
-        self.specified_tech_enduse_by = {}'''
-
-        #for enduse, enduse_techs in specified_tech_enduse_by.items():
-        #    self.specified_tech_enduse_by[enduse] = enduse_techs
-    
         # ============================================================
         # Read in switches
         # ============================================================
-
         self.fuel_switches = read_data.read_fuel_switches(
             paths['path_fuel_switches'], enduses, fueltypes, self.technologies)
-    
+
         self.service_switches = read_data.service_switch(
             paths['path_service_switch'], self.technologies)
 
@@ -579,23 +538,6 @@ class Assumptions(object):
         # ========================================
         # Helper functions
         # ========================================
-        '''self.rs_fuel_tech_p_by, self.rs_specified_tech_enduse_by, self.technologies = tech_related.insert_placholder_techs(
-            self.technologies,
-            rs_fuel_tech_p_by,
-            self.rs_specified_tech_enduse_by,
-            sector_crit=False)
-
-        self.ss_fuel_tech_p_by, self.ss_specified_tech_enduse_by, self.technologies = tech_related.insert_placholder_techs(
-            self.technologies,
-            ss_fuel_tech_p_by,
-            self.ss_specified_tech_enduse_by,
-            sector_crit=True)
-
-        self.is_fuel_tech_p_by, self.is_specified_tech_enduse_by, self.technologies = tech_related.insert_placholder_techs(
-            self.technologies,
-            is_fuel_tech_p_by,
-            self.is_specified_tech_enduse_by,
-            sector_crit=True)'''
         self.fuel_tech_p_by, self.specified_tech_enduse_by, self.technologies = tech_related.insert_placholder_techs(
             self.technologies,
             self.fuel_tech_p_by,
@@ -622,12 +564,6 @@ class Assumptions(object):
         testing_functions.testing_fuel_tech_shares(
             self.fuel_tech_p_by)
 
-        '''testing_functions.testing_tech_defined(
-            self.technologies, self.rs_specified_tech_enduse_by)
-        testing_functions.testing_tech_defined(
-            self.technologies, self.ss_specified_tech_enduse_by)
-        testing_functions.testing_tech_defined(
-            self.technologies, self.is_specified_tech_enduse_by)'''
         testing_functions.testing_tech_defined(
             self.technologies, self.specified_tech_enduse_by)
 

@@ -221,8 +221,16 @@ def switch_calculations(
     # Calculate sigmoid diffusion considering fuel switches
     # and service switches. As inputs, service (and thus also capacity switches) are used
     # ========================================================================================
+
+    # Add all defined narrative timesteps
+    narrative_timesteps_fuel_switches = get_all_narrative_timesteps(data['assumptions'].fuel_switches)
+    narrative_timesteps.update(narrative_timesteps_fuel_switches)
+    print("dddddddddd")
+    print(switches_autocompleted)
+    print(share_s_tech_ey_p)
+    print(narrative_timesteps)
     sig_param_tech = defaultdict(dict)
-    for submodel in data['assumptions'].submodels_names: #SNAKE
+    for submodel in data['assumptions'].submodels_names: #SNAKE REMOVE
         for enduse in data['enduses']['enduses'][submodel]:
             for sector in data['sectors']['sectors'][submodel]:
 
@@ -233,10 +241,10 @@ def switch_calculations(
                     data['technologies'],
                     enduse=enduse,
                     fuel_switches=data['assumptions'].fuel_switches,
-                    service_switches=switches_autocompleted[sector],
+                    #service_switches=switches_autocompleted[sector], #SNAKE
                     s_tech_by_p=s_tech_by_p[sector][enduse],
                     s_fueltype_by_p=s_fueltype_by_p[sector][enduse],
-                    share_s_tech_ey_p=share_s_tech_ey_p[sector][enduse],
+                    share_s_tech_ey_p=share_s_tech_ey_p,#,[sector][enduse],
                     fuel_tech_p_by=data['assumptions'].fuel_tech_p_by[enduse],
                     regions=data['regions'],
                     sector=sector,
@@ -449,7 +457,7 @@ def sig_param_calc_incl_fuel_switch(
         technologies,
         enduse,
         fuel_switches,
-        service_switches,
+        #service_switches,
         s_tech_by_p,
         s_fueltype_by_p,
         share_s_tech_ey_p,
@@ -495,119 +503,106 @@ def sig_param_calc_incl_fuel_switch(
         Service switches
     TODO
     """
+    # TODO TODO NEW
     if not sector:
         fuel_tech_p_by = fuel_tech_p_by
     else:
         fuel_tech_p_by = fuel_tech_p_by[sector]
-
-    # ----------------------------------------
-    # Test if fuel switch is defined for enduse
-    # Get affected technologies in fuel switch
-    # ----------------------------------------
-    _, crit_fuel_switch = s_generate_sigmoid.get_tech_installed(
-        enduse, fuel_switches)
-
-    # ------------------------------------------
-    # Test if service switch is defined for enduse
-    # ------------------------------------------
-    service_switches_enduse = fuel_service_switch.get_switches_of_enduse(
-        service_switches, enduse)
-
-    # ------------------------------------------
-    # Initialisations
-    # ------------------------------------------
-    sig_param_tech = {}
-
-    # Test if switch is defined
-    crit_switch_service = fuel_service_switch.get_switch_criteria(
-        enduse, sector, crit_switch_happening)
-
-    if not crit_switch_service and not crit_fuel_switch:
-        pass # no switches defined
-    elif crit_switch_service and crit_fuel_switch:
-        raise Exception("Error: a fuel and service switch is defined at the same time %s", enduse)
-    else:
-
-        # Only calculate for one reg
-        any_region = regions[0]
-
-        # Years of narrative
-        switch_yrs = narrative_timesteps[enduse]
-
-        # Iterate over years defined in narrative
-        for switch_yr_cnt, switch_yr in enumerate(switch_yrs):
-
-            sig_param_tech[switch_yr] = {}
-
-            # ------------------------------------------
-            # SERVICE switch
-            #
-            # Calculate service shares considering service
-            # switches and the diffusion parameters
-            # ------------------------------------------
-            if crit_switch_service:
-
-                # Calculate only from service switch
-                s_tech_switched_p = share_s_tech_ey_p
-
-                # Calculate sigmoid diffusion parameters
-                l_values_sig = s_generate_sigmoid.get_l_values(
-                    technologies=technologies,
-                    technologies_to_consider=s_tech_by_p.keys(),
-                    regions=regions)
-            elif crit_fuel_switch:
-                s_tech_switched_p = defaultdict(dict)
-                l_values_sig = {}
-            else:
-                s_tech_switched_p = defaultdict(dict)
     
-            logging.debug(
-                "Switch criteria: Service switch: %s, fuel switch: %s",
-                crit_switch_service, crit_fuel_switch)
+    if share_s_tech_ey_p == {}:
+        pass
+    else:
+        share_s_tech_ey_p = share_s_tech_ey_p[sector][enduse]
+    
+    #print("  ") #SNAKE
+    #print("AAA {} {}".format(enduse, sector))
+    #print(s_tech_by_p)
+    if sum(s_tech_by_p.values()) == 0: # no fuel is defined for enduse
+        #print("no fuel is defined for enduse `{}` and sector `{}`".format(enduse, sector))
+        sig_param_tech = {}
+    else:
+        # ----------------------------------------
+        # Test if fuel switch is defined for enduse
+        # Get affected technologies in fuel switch
+        # ----------------------------------------
+        _, crit_fuel_switch = s_generate_sigmoid.get_tech_installed(
+            enduse, fuel_switches)
 
-            # ------------------------------------------
-            # FUEL switch
-            # ------------------------------------------
-            if crit_fuel_switch:
-                """
-                Calculate future service share after fuel switches
-                and calculte sigmoid diffusion paramters.
-                """
+        # ------------------------------------------
+        # Test if service switch is defined for enduse
+        # ------------------------------------------ TODO WHY IS THIS REMOVED?
+        #service_switches_enduse = fuel_service_switch.get_switches_of_enduse(
+        #    service_switches, enduse)
 
-                # Get fuel switches of enduse and switch_yr
-                enduse_fuel_switches = fuel_service_switch.get_switches_of_enduse(
-                    fuel_switches, enduse, switch_yr)
+        # ------------------------------------------
+        # Initialisations
+        # ------------------------------------------
+        sig_param_tech = {}
 
-                if crit_all_the_same:
+        # Test if switch is defined
+        crit_switch_service = fuel_service_switch.get_switch_criteria(
+            enduse, sector, crit_switch_happening)
 
-                    
-                    # Calculate service demand after fuel switches for each technology
-                    s_tech_switched_p_values_all_regs = s_generate_sigmoid.calc_service_fuel_switched(
-                        enduse_fuel_switches,
-                        technologies,
-                        s_fueltype_by_p,
-                        s_tech_by_p,
-                        fuel_tech_p_by,
-                        'actual_switch')
+        if not crit_switch_service and not crit_fuel_switch:
+            pass # no switches defined
+        elif crit_switch_service and crit_fuel_switch:
+            raise Exception("Error: a fuel and service switch is defined at the same time %s", enduse)
+        else:
 
-                    # Calculate L for every technology for sigmod diffusion
-                    l_values_all_regs = s_generate_sigmoid.tech_l_sigmoid(
-                        s_tech_switched_p_values_all_regs,
-                        enduse_fuel_switches,
-                        technologies,
-                        s_tech_by_p.keys(),
-                        s_fueltype_by_p,
-                        s_tech_by_p,
-                        fuel_tech_p_by)
+            # Only calculate for one reg
+            any_region = regions[0]
 
-                    for region in regions:
-                        s_tech_switched_p[region][switch_yr] = s_tech_switched_p_values_all_regs
-                        l_values_sig[region] = l_values_all_regs
+            # Years of narrative
+            switch_yrs = narrative_timesteps[enduse]
+
+            # Iterate over years defined in narrative
+            for switch_yr_cnt, switch_yr in enumerate(switch_yrs):
+
+                sig_param_tech[switch_yr] = {}
+
+                # ------------------------------------------
+                # SERVICE switch
+                #
+                # Calculate service shares considering service
+                # switches and the diffusion parameters
+                # ------------------------------------------
+                if crit_switch_service:
+
+                    # Calculate only from service switch
+                    s_tech_switched_p = share_s_tech_ey_p
+
+                    # Calculate sigmoid diffusion parameters
+                    l_values_sig = s_generate_sigmoid.get_l_values(
+                        technologies=technologies,
+                        technologies_to_consider=s_tech_by_p.keys(),
+                        regions=regions)
+                elif crit_fuel_switch:
+                    s_tech_switched_p = defaultdict(dict)
+                    l_values_sig = {}
                 else:
-                    for region in regions:
+                    s_tech_switched_p = defaultdict(dict)
+
+                logging.debug(
+                    "Switch criteria: Service switch: %s, fuel switch: %s",
+                    crit_switch_service, crit_fuel_switch)
+
+                # ------------------------------------------
+                # FUEL switch
+                # ------------------------------------------
+                if crit_fuel_switch:
+                    """
+                    Calculate future service share after fuel switches
+                    and calculte sigmoid diffusion paramters.
+                    """
+
+                    # Get fuel switches of enduse and switch_yr
+                    enduse_fuel_switches = fuel_service_switch.get_switches_of_enduse(
+                        fuel_switches, enduse, switch_yr, crit_region=False) #NEW TODO crit_region=False
+
+                    if crit_all_the_same:
 
                         # Calculate service demand after fuel switches for each technology
-                        s_tech_switched_p[region][switch_yr] = s_generate_sigmoid.calc_service_fuel_switched(
+                        s_tech_switched_p_values_all_regs = s_generate_sigmoid.calc_service_fuel_switched(
                             enduse_fuel_switches,
                             technologies,
                             s_fueltype_by_p,
@@ -616,8 +611,8 @@ def sig_param_calc_incl_fuel_switch(
                             'actual_switch')
 
                         # Calculate L for every technology for sigmod diffusion
-                        l_values_sig[region] = s_generate_sigmoid.tech_l_sigmoid(
-                            s_tech_switched_p[region][switch_yr],
+                        l_values_all_regs = s_generate_sigmoid.tech_l_sigmoid(
+                            s_tech_switched_p_values_all_regs,
                             enduse_fuel_switches,
                             technologies,
                             s_tech_by_p.keys(),
@@ -625,42 +620,67 @@ def sig_param_calc_incl_fuel_switch(
                             s_tech_by_p,
                             fuel_tech_p_by)
 
-            # -----------------------------------------------
-            # Calculates parameters for sigmoid diffusion of
-            # technologies which are switched to/installed.
-            # -----------------------------------------------
-            logging.debug("---------- switches %s %s %s", enduse, crit_switch_service, crit_fuel_switch)
+                        for region in regions:
+                            s_tech_switched_p[region][switch_yr] = s_tech_switched_p_values_all_regs
+                            l_values_sig[region] = l_values_all_regs
+                    else:
+                        for region in regions:
 
-            if crit_all_the_same:
+                            # Calculate service demand after fuel switches for each technology
+                            s_tech_switched_p[region][switch_yr] = s_generate_sigmoid.calc_service_fuel_switched(
+                                enduse_fuel_switches,
+                                technologies,
+                                s_fueltype_by_p,
+                                s_tech_by_p,
+                                fuel_tech_p_by,
+                                'actual_switch')
 
-                # -------------------------
-                # Get starting year of narrative story
-                # -------------------------
-                if switch_yr_cnt == 0: 
-                    switch_yr_start = base_yr
-                else: # If more than one switch_yr, then take previous year
-                    switch_yr_start = switch_yrs[switch_yr_cnt - 1]
+                            # Calculate L for every technology for sigmod diffusion
+                            l_values_sig[region] = s_generate_sigmoid.tech_l_sigmoid(
+                                s_tech_switched_p[region][switch_yr],
+                                enduse_fuel_switches,
+                                technologies,
+                                s_tech_by_p.keys(),
+                                s_fueltype_by_p,
+                                s_tech_by_p,
+                                fuel_tech_p_by)
 
-                # Calculate for one region
-                sig_param_tech_all_regs_value = s_generate_sigmoid.tech_sigmoid_parameters(
-                    switch_yr,
-                    switch_yr_start,
-                    technologies,
-                    l_values_sig[any_region],
-                    s_tech_by_p,
-                    s_tech_switched_p[any_region][switch_yr])
+                # -----------------------------------------------
+                # Calculates parameters for sigmoid diffusion of
+                # technologies which are switched to/installed.
+                # -----------------------------------------------
+                print("---------- switches %s %s %s", enduse, crit_switch_service, crit_fuel_switch)
 
-                for region in regions:
-                    sig_param_tech[switch_yr][region] = sig_param_tech_all_regs_value
-            else:
-                for region in regions:
-                    sig_param_tech[switch_yr][region] = s_generate_sigmoid.tech_sigmoid_parameters(
+                if crit_all_the_same:
+
+                    # -------------------------
+                    # Get starting year of narrative story
+                    # -------------------------
+                    if switch_yr_cnt == 0: 
+                        switch_yr_start = base_yr
+                    else: # If more than one switch_yr, then take previous year
+                        switch_yr_start = switch_yrs[switch_yr_cnt - 1]
+
+                    # Calculate for one region
+                    sig_param_tech_all_regs_value = s_generate_sigmoid.tech_sigmoid_parameters(
                         switch_yr,
                         switch_yr_start,
                         technologies,
-                        l_values_sig[region],
+                        l_values_sig[any_region],
                         s_tech_by_p,
-                        s_tech_switched_p[region][switch_yr])
+                        s_tech_switched_p[any_region][switch_yr])
+
+                    for region in regions:
+                        sig_param_tech[switch_yr][region] = sig_param_tech_all_regs_value
+                else:
+                    for region in regions:
+                        sig_param_tech[switch_yr][region] = s_generate_sigmoid.tech_sigmoid_parameters(
+                            switch_yr,
+                            switch_yr_start,
+                            technologies,
+                            l_values_sig[region],
+                            s_tech_by_p,
+                            s_tech_switched_p[region][switch_yr])
 
     return sig_param_tech
 

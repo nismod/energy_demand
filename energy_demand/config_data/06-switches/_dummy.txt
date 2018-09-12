@@ -13,12 +13,10 @@ rs_space_heating,gas,boiler_hydrogen,2050,0.99
 
 rs_lighting, ...
 
-# Service
-ss_space_heating,gas,heat_pumps_electricity,2050,0.9,
 
-# Industry
+ss_space_heating,gas,heat_pumps_electricity,2050,0.9
 is_space_heating,gas,heat_pumps_electricity,2050,0.9
-is_high_temp_process,dry_kiln_biomass,0.9,2050,non_metallic_mineral_products
+is_high_temp_process,gas,dry_kiln_biomass,2050,0.9,non_metallic_mineral_products
 
 ==============
 Service switches
@@ -42,6 +40,7 @@ is_high_temp_process,SNG_furnace,1.0,2050,basic_metals
 --> -SECTOR SPECIFIC
 is_high_temp_process,SNG_furnace,0.5,2050,basic_metals
 is_high_temp_process,dry_kiln_biomass,0.5,2050,non_metallic_mineral_products
+
 ==============
 Capacity switches
 ==============
@@ -55,3 +54,6 @@ ss_space_heating,boiler_gas,2015,1000
 # Industry
 
 
+ss_space_heating,gas,heat_pumps_electricity,2050,0.9
+is_space_heating,gas,heat_pumps_electricity,2050,0.9
+is_high_temp_process,gas,dry_kiln_biomass,2050,0.9,non_metallic_mineral_products
