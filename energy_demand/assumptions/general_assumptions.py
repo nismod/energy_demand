@@ -521,7 +521,6 @@ class Assumptions(object):
         self.capacity_switches = read_data.read_capacity_switch(
             paths['path_capacity_installation'])
 
-        # Testing
         self.crit_switch_happening = testing_functions.switch_testing(
             fuel_switches=self.fuel_switches,
             service_switches=self.service_switches,

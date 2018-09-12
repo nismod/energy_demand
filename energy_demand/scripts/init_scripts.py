@@ -166,8 +166,11 @@ def switch_calculations(
                 data['technologies'],
                 sector)
 
-    # Get all defined narrative timesteps
-    narrative_timesteps = get_all_narrative_timesteps(data['assumptions'].service_switches)
+    # Get all defined narrative timesteps of all switch types
+    narrative_timesteps = {}
+    narrative_timesteps.update(get_all_narrative_timesteps(data['assumptions'].service_switches))
+    narrative_timesteps.update(get_all_narrative_timesteps(data['assumptions'].fuel_switches))
+    narrative_timesteps.update(get_all_narrative_timesteps(data['assumptions'].capacity_switches))
 
     # ========================================================================================
     # Capacity switches
@@ -188,8 +191,9 @@ def switch_calculations(
         data['technologies'],
         data['fuels']['aggr_sector_fuels'],
         data['assumptions'].fuel_tech_p_by,
-        data['assumptions'].base_yr)
+        data['assumptions'].base_yr) 
 
+    print("--------finished capacity switches")
     # ======================================================================================
     # Service switches
     #
@@ -204,7 +208,8 @@ def switch_calculations(
     # Select spatial diffusion
     f_diffusion = f_reg_norm
 
-    share_s_tech_ey_p, switches_autocompleted = fuel_service_switch.autocomplete_switches(
+    #share_s_tech_ey_p, switches_autocompleted = fuel_service_switch.autocomplete_switches(
+    share_s_tech_ey_p = fuel_service_switch.autocomplete_switches(
         data['assumptions'].service_switches,
         data['assumptions'].specified_tech_enduse_by,
         s_tech_by_p,
@@ -214,6 +219,7 @@ def switch_calculations(
         f_diffusion=f_diffusion,
         techs_affected_spatial_f=data['assumptions'].techs_affected_spatial_f,
         service_switches_from_capacity=service_switches_incl_cap)
+    print("--------finished service switches")
 
     # ========================================================================================
     # Fuel switches
@@ -221,19 +227,29 @@ def switch_calculations(
     # Calculate sigmoid diffusion considering fuel switches
     # and service switches. As inputs, service (and thus also capacity switches) are used
     # ========================================================================================
-
-    # Add all defined narrative timesteps
-    narrative_timesteps_fuel_switches = get_all_narrative_timesteps(data['assumptions'].fuel_switches)
-    narrative_timesteps.update(narrative_timesteps_fuel_switches)
-    print("dddddddddd")
-    print(switches_autocompleted)
-    print(share_s_tech_ey_p)
-    print(narrative_timesteps)
     sig_param_tech = defaultdict(dict)
+
+    # Get all enduses to iterate:
+    #affected_enduses = set()
+    #affected_sectors = []
+    #
+    #for sector, enduses_data in share_s_tech_ey_p.items():
+    #    affected_sectors.append(sector)
+    #    for enduse in enduses_data.keys():
+    #        affected_enduses.add(enduse)
+
+    #affected_enduses_fuel_switches = fuel_service_switch.get_all_enduses_of_switches(data['assumptions'].fuel_switches)
+    ## for enduse in affected_enduses_fuel_switches:
+    #    affected_enduses.add(enduse)
+    #affected_enduses = list(affected_enduses)
+
+    #for sector in affected_sectors:
     for submodel in data['assumptions'].submodels_names: #SNAKE REMOVE
         for enduse in data['enduses']['enduses'][submodel]:
             for sector in data['sectors']['sectors'][submodel]:
-
+                
+                print("FFF {}  {}  {}".format(submodel, enduse, sector))
+                #print(share_s_tech_ey_p[sector][enduse])
                 sig_param_tech[enduse][sector] = sig_param_calc_incl_fuel_switch(
                     narrative_timesteps,
                     data['assumptions'].base_yr,
@@ -503,24 +519,26 @@ def sig_param_calc_incl_fuel_switch(
         Service switches
     TODO
     """
-    # TODO TODO NEW
-    if not sector:
-        fuel_tech_p_by = fuel_tech_p_by
-    else:
-        fuel_tech_p_by = fuel_tech_p_by[sector]
-    
-    if share_s_tech_ey_p == {}:
-        pass
-    else:
-        share_s_tech_ey_p = share_s_tech_ey_p[sector][enduse]
-    
-    #print("  ") #SNAKE
-    #print("AAA {} {}".format(enduse, sector))
-    #print(s_tech_by_p)
     if sum(s_tech_by_p.values()) == 0: # no fuel is defined for enduse
         #print("no fuel is defined for enduse `{}` and sector `{}`".format(enduse, sector))
         sig_param_tech = {}
+    elif sector not in list(share_s_tech_ey_p.keys()) or enduse not in list(share_s_tech_ey_p[sector].keys()):
+        sig_param_tech = {}
     else:
+
+        # Neyl added SNAKE (vorher ganz am anfang)
+        if not sector:
+            fuel_tech_p_by = fuel_tech_p_by
+        else:
+            fuel_tech_p_by = fuel_tech_p_by[sector]
+
+        if share_s_tech_ey_p == {}:
+            print("fmmmmmmmmm")
+            pass
+        else:
+            print("why error {}  {}".format(sector, enduse))
+            share_s_tech_ey_p = share_s_tech_ey_p[sector][enduse]
+
         # ----------------------------------------
         # Test if fuel switch is defined for enduse
         # Get affected technologies in fuel switch
@@ -567,7 +585,7 @@ def sig_param_calc_incl_fuel_switch(
                 # switches and the diffusion parameters
                 # ------------------------------------------
                 if crit_switch_service:
-
+                    print("+++++++++ SERVICE SWITCH")
                     # Calculate only from service switch
                     s_tech_switched_p = share_s_tech_ey_p
 
@@ -582,7 +600,7 @@ def sig_param_calc_incl_fuel_switch(
                 else:
                     s_tech_switched_p = defaultdict(dict)
 
-                logging.debug(
+                print(
                     "Switch criteria: Service switch: %s, fuel switch: %s",
                     crit_switch_service, crit_fuel_switch)
 
@@ -594,7 +612,7 @@ def sig_param_calc_incl_fuel_switch(
                     Calculate future service share after fuel switches
                     and calculte sigmoid diffusion paramters.
                     """
-
+                    print("+++++++++ FUEL SWITCH")
                     # Get fuel switches of enduse and switch_yr
                     enduse_fuel_switches = fuel_service_switch.get_switches_of_enduse(
                         fuel_switches, enduse, switch_yr, crit_region=False) #NEW TODO crit_region=False

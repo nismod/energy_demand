@@ -116,11 +116,11 @@ def get_share_s_tech_ey(
                     narrative_yrs_enduse_tech_ey_p[enduse][region][switch.switch_yr][switch.technology_install] = switch.service_share_ey
 
     # Add all other enduses for which no switch is defined
-    for enduse in specified_tech_enduse_by:
+    '''for enduse in specified_tech_enduse_by:
         if enduse not in narrative_yrs_enduse_tech_ey_p:
             narrative_yrs_enduse_tech_ey_p[enduse] = {}
             for region in service_switches.keys():
-                narrative_yrs_enduse_tech_ey_p[enduse][region] = {}
+                narrative_yrs_enduse_tech_ey_p[enduse][region] = {}''' #TODO
 
     return dict(narrative_yrs_enduse_tech_ey_p)
 
@@ -303,16 +303,27 @@ def autocomplete_switches(
     reg_share_s_tech_ey_p = {}
     service_switches_out = {}
 
+    # Enduses form direct switches
     switch_enduses = get_all_enduses_of_switches(service_switches)
 
+    # Enduses from capacity witches
+    any_region = list(service_switches_from_capacity.keys())[0]
+    switch_enduses_capacity_switches = get_all_enduses_of_switches(service_switches_from_capacity[any_region])
+    
+    # All enduses
+    switch_enduses = set(switch_enduses + switch_enduses_capacity_switches)
+    print("============ " + str(switch_enduses))
     for enduse in switch_enduses:
-
+        print("ENDUSE " + str(enduse_sector_match[enduse]))
         for sector in enduse_sector_match[enduse]: #Iterate all sectors of submodel TODO REPLACE SNAKE
-            
-            switches_enduse = init_scripts.get_sector__enduse_switches(
-                sector, enduse, service_switches)  
 
-            # Append service switches which were generated from capacity switches
+            switches_enduse = init_scripts.get_sector__enduse_switches(
+                sector, enduse, service_switches)
+
+            # -----------------------------------------
+            #  Append service switches which were
+            #  generated from capacity switches
+            # -----------------------------------------
             service_switches_out[sector] = {}
             for region in regions:
                 service_switches_out[sector][region] = service_switches_from_capacity[region]
@@ -339,7 +350,7 @@ def autocomplete_switches(
                     # Calculate relative by proportion of not assigned technologies
                     switches_new = create_switches_from_s_shares(
                         enduse=enduse,
-                        s_tech_by_p=s_tech_by_p, #[sector], #s_tech_by_p,
+                        s_tech_by_p=s_tech_by_p,
                         switch_technologies=switch_technologies,
                         specified_tech_enduse_by=specified_tech_enduse_by,
                         enduse_switches=enduse_switches,
@@ -428,7 +439,7 @@ def autocomplete_switches(
                 service_switches_out[sector],
                 specified_tech_enduse_by)
 
-    return reg_share_s_tech_ey_p, service_switches_out
+    return reg_share_s_tech_ey_p #, service_switches_out
 
 def capacity_switch(
         narrative_timesteps,
@@ -493,28 +504,28 @@ def capacity_switch(
 
                 for switch in enduse_capacity_switches:
 
-                    if switch.sector is None:
+                    sector = switch.sector
+                    fuel_to_use = fuels[enduse]
+                    #print("FUEL TO USE " + str(fuel_to_use))
 
-                        # Check depth of dict
-                        depth_dict = basic_functions.dict_depth(
-                            fuel_shares_enduse_by)
+                    # Check depth of dict #TODO replace with functio CHECK FOR SECTOR
+                    depth_dict = basic_functions.dict_depth(
+                        fuel_shares_enduse_by[enduse])
+                    # Check if enduse has sectors
+                    # Capacity switch is not sector specific
 
-                        if depth_dict == 3:
-                            # Fuel share are only given per enduses
-                            fuel_shares = fuel_shares_enduse_by[enduse]
-                            fuel_to_use = fuels[enduse]
-                            sector = switch.sector
-                        elif depth_dict == 4:
-                            # Fuel shares are provide per enduse and sectors
-                            any_sector = list(fuel_shares_enduse_by[enduse].keys())[0]
-                            fuel_shares = fuel_shares_enduse_by[enduse][any_sector]
-                            fuel_to_use = sum_fuel_across_sectors(fuels[enduse])
-                            sector = None
-                    else:
-                        # Get fuel share specifically for the enduse and sector
-                        fuel_shares = fuel_shares_enduse_by[enduse][switch.sector]
-                        fuel_to_use = fuels[enduse]
-                        sector = switch.sector
+                    #print("DICT DEPTH {} {}".format(enduse, depth_dict))
+                    if depth_dict == 2:
+                        #print("--------a")
+                        # Fuel share are only given per enduses
+                        fuel_shares = fuel_shares_enduse_by[enduse]
+                        #fuel_to_use = fuels[enduse]
+                    elif depth_dict == 3:
+                        #print("--------b")
+                        # Fuel shares are provide per enduse and sectors
+                        any_sector = list(fuel_shares_enduse_by[enduse].keys())[0]
+                        fuel_shares = fuel_shares_enduse_by[enduse][any_sector]
+                        #fuel_to_use = sum_fuel_across_sectors(fuels[enduse])
 
                     # Convert capacity swithes to service switches
                     enduse_service_switches = create_service_switch(
