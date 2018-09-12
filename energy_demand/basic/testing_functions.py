@@ -44,44 +44,44 @@ def switch_testing(fuel_switches, service_switches, capacity_switches):
                     pass
                 else:
                     all_switches_incl_sectors[switch.enduse].add(switch.sector)'''
-
+    # SNAKE
     enduses_service_switch = set([])
-    for model_switch in service_switches:
-        for switch in model_switch:
-            enduses_service_switch.add(switch.enduse)
 
-            # Collect all enduses and affected sectors
-            if switch.enduse not in all_switches_incl_sectors:
-                all_switches_incl_sectors[switch.enduse] = set([])
+    for switch in service_switches:
+        enduses_service_switch.add(switch.enduse)
 
-                if not switch.sector:
-                    all_switches_incl_sectors[switch.enduse] = None
-                else:
-                    all_switches_incl_sectors[switch.enduse].add(switch.sector)
+        # Collect all enduses and affected sectors
+        if switch.enduse not in all_switches_incl_sectors:
+            all_switches_incl_sectors[switch.enduse] = set([])
+
+            if not switch.sector:
+                all_switches_incl_sectors[switch.enduse] = None
             else:
-                if not switch.sector:
-                    pass
-                else:
-                    all_switches_incl_sectors[switch.enduse].add(switch.sector)
+                all_switches_incl_sectors[switch.enduse].add(switch.sector)
+        else:
+            if not switch.sector:
+                pass
+            else:
+                all_switches_incl_sectors[switch.enduse].add(switch.sector)
 
     enduses_capacity_switch = set([])
-    for model_switch in capacity_switches:
-        for switch in model_switch:
-            enduses_capacity_switch.add(switch.enduse)
 
-            # Collect all enduses and affected sectors
-            if switch.enduse not in all_switches_incl_sectors:
-                all_switches_incl_sectors[switch.enduse] = set([])
+    for switch in capacity_switches:
+        enduses_capacity_switch.add(switch.enduse)
 
-                if not switch.sector:
-                    all_switches_incl_sectors[switch.enduse] = None
-                else:
-                    all_switches_incl_sectors[switch.enduse].add(switch.sector)
+        # Collect all enduses and affected sectors
+        if switch.enduse not in all_switches_incl_sectors:
+            all_switches_incl_sectors[switch.enduse] = set([])
+
+            if not switch.sector:
+                all_switches_incl_sectors[switch.enduse] = None
             else:
-                if not switch.sector:
-                    pass
-                else:
-                    all_switches_incl_sectors[switch.enduse].add(switch.sector)
+                all_switches_incl_sectors[switch.enduse].add(switch.sector)
+        else:
+            if not switch.sector:
+                pass
+            else:
+                all_switches_incl_sectors[switch.enduse].add(switch.sector)
 
     #enduses_fuel_switch = list(enduses_fuel_switch)
     enduses_service_switch = list(enduses_service_switch)

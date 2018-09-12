@@ -277,7 +277,6 @@ def autocomplete_switches(
     """
     # Append service switches which were generated from capacity switches
     service_switches_out = {}
-
     for region in regions:
         service_switches_out[region] = service_switches_from_capacity[region]
 
@@ -287,7 +286,8 @@ def autocomplete_switches(
         updated_switches = []
 
         for enduse in switch_enduses:
-
+            print("ENDD " + str(enduse))
+            print(s_tech_by_p.keys())
             # Get all narrative years
             temporal_narrative_points = get_all_narrative_points(service_switches, enduse=enduse)
 

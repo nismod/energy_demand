@@ -62,7 +62,7 @@ def calc_annual_switch_params(
         sig_param_tech
         #rs_sig_param_tech,
         #ss_sig_param_tech,
-        #is_sig_param_tech
+        #is_sig_param_tech #snake
     ):
     """Calculate annual diffusion parameters
     for technologies based on sigmoid diffusion parameters

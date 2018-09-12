@@ -295,7 +295,6 @@ def assign_by_fuel_tech_p(enduses, sectors, fueltypes, fueltypes_nr):
     # ----------------
     # Industrial space heating (is_space_heating)
     # ----------------
-    print(fuel_tech_p_by)
     fuel_tech_p_by['is_space_heating'][fueltypes['solid_fuel']] = {
         'boiler_solid_fuel': 1.0}
 

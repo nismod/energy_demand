@@ -28,9 +28,10 @@ def get_all_narrative_timesteps(switches_list):
     """
     narrative_timesteps = {}
 
-    for switches in switches_list:
+    '''for switches in switches_list:
         enduses = fuel_service_switch.get_all_enduses_of_switches(switches)
 
+        enduses = fuel_service_switch.get_all_enduses_of_switches(switches_list)
         for enduse in enduses:
             narrative_timesteps[enduse] = set([])
 
@@ -42,7 +43,21 @@ def get_all_narrative_timesteps(switches_list):
             narrative_timesteps[enduse] = list(narrative_timesteps[enduse])
 
             # Sort
-            narrative_timesteps[enduse].sort()
+            narrative_timesteps[enduse].sort()'''
+    # SNAKE
+    enduses = fuel_service_switch.get_all_enduses_of_switches(switches_list)
+    for enduse in enduses:
+        narrative_timesteps[enduse] = set([])
+
+        for switch in switches_list:
+            if switch.enduse == enduse:
+                narrative_timesteps[enduse].add(switch.switch_yr)
+
+        # Convert to list
+        narrative_timesteps[enduse] = list(narrative_timesteps[enduse])
+
+        # Sort
+        narrative_timesteps[enduse].sort()
 
     return narrative_timesteps
 
@@ -185,12 +200,6 @@ def switch_calculations(
                 sector)
 
     # Get all defined narrative timesteps
-    '''rs_narrative_timesteps = get_all_narrative_timesteps(
-        [data['assumptions'].rs_service_switches, data['assumptions'].rs_fuel_switches, data['assumptions'].rs_capacity_switches])
-    ss_narrative_timesteps = get_all_narrative_timesteps(
-        [data['assumptions'].ss_service_switches, data['assumptions'].ss_fuel_switches, data['assumptions'].ss_capacity_switches])
-    is_narrative_timesteps = get_all_narrative_timesteps(
-        [data['assumptions'].is_service_switches, data['assumptions'].is_fuel_switches, data['assumptions'].is_capacity_switches])'''
     narrative_timesteps = get_all_narrative_timesteps(data['assumptions'].service_switches)
 
     # ========================================================================================
@@ -329,9 +338,13 @@ def switch_calculations(
         for sector in data['sectors']['sectors'][submodel]:
 
             # Get all switches of a sector
+            #print("AA " + str(data['assumptions'].service_switches))
             sector_switches = get_sector_switches(
                 sector, data['assumptions'].service_switches)
 
+            #print("BB " + str(sector_switches))
+            print("SUBMODEL " + str(submodel))
+            print("sector " + str(sector))
             share_s_tech_ey_p[sector], switches_autocompleted[sector] = fuel_service_switch.autocomplete_switches(
                 sector_switches,
                 data['assumptions'].specified_tech_enduse_by, #is_specified_tech_enduse_by,
@@ -408,7 +421,6 @@ def switch_calculations(
                 regions=data['regions'],
                 sector=sector,
                 crit_all_the_same=crit_all_the_same)'''
-
     sig_param_tech = {}
     for submodel in data['assumptions'].submodels_names:
 
@@ -439,10 +451,7 @@ def switch_calculations(
     annual_tech_diff_params = s_generate_scenario_parameters.calc_annual_switch_params(
         simulated_yrs,
         data['regions'],
-        sig_param_tech) #
-        #rs_sig_param_tech,
-        #ss_sig_param_tech,
-        #is_sig_param_tech)
+        sig_param_tech)
 
     return annual_tech_diff_params
 
@@ -749,7 +758,9 @@ def sig_param_calc_incl_fuel_switch(
             else:
                 s_tech_switched_p = defaultdict(dict)
     
-            logging.debug("Switch criteria: Service switch: %s, fuel switch: %s", crit_switch_service, crit_fuel_switch)
+            logging.debug(
+                "Switch criteria: Service switch: %s, fuel switch: %s",
+                crit_switch_service, crit_fuel_switch)
 
             # ------------------------------------------
             # FUEL switch
@@ -827,6 +838,9 @@ def sig_param_calc_incl_fuel_switch(
                     switch_yr_start = switch_yrs[switch_yr_cnt - 1]
 
                 # Calculate for one region
+                print("dsdddddddddd")
+
+                print(s_tech_switched_p)
                 sig_param_tech_all_regs_value = s_generate_sigmoid.tech_sigmoid_parameters(
                     switch_yr,
                     switch_yr_start,
@@ -867,14 +881,20 @@ def get_sector_switches(sector_to_match, switches):
         Switches of sector
     """
     # Get all sectors for this enduse
-    switches = set([])
+    switches_out = set([])
 
     for switch in switches:
+
+        # If sector is None
+        '''if not switch.sector and not sector_to_match:
+            switches.add(switch)
+        else:'''
+
         if switch.sector == sector_to_match:
-            switches.add(switch)
+            switches_out.add(switch)
         elif not switch.sector: # Not defined specifically for sectors and add all
-            switches.add(switch)
+            switches_out.add(switch)
         else:
             pass
 
-    return list(switches)
+    return list(switches_out)

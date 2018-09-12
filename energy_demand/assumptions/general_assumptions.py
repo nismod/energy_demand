@@ -600,7 +600,6 @@ class Assumptions(object):
             self.technologies,
             self.fuel_tech_p_by,
             self.specified_tech_enduse_by)
-            #sector_crit=True)
 
         # ========================================
         # Calculations with assumptions

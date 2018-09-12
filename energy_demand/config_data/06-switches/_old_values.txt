@@ -36,3 +36,12 @@ ss_water_heating,heat_pumps_electricity,0.2,2050
 is_switches_service
 ------------------
 is_space_heating,heat_pumps_electricity,0.2,2050
+
+# --------
+# all in one
+# ---------
+rs_space_heating,heat_pumps_electricity,0.2,2050
+rs_water_heating,heat_pumps_electricity,0.2,2050
+ss_space_heating,heat_pumps_electricity,0.2,2050
+ss_water_heating,heat_pumps_electricity,0.2,2050
+is_space_heating,heat_pumps_electricity,0.2,2050

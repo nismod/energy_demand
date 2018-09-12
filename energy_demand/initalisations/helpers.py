@@ -114,7 +114,6 @@ def get_def_techs(fuel_tech_p_by):
     """
     all_defined_tech_service_ey = {}
 
-
     for enduse in fuel_tech_p_by:
 
         if list(fuel_tech_p_by[enduse].keys())[0] != 0: #no sectors SNAKE
