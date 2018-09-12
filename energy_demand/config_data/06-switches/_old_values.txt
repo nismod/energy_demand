@@ -67,6 +67,6 @@ is_high_temp_process,gas,dry_kiln_biomass,2050,0.9,non_metallic_mineral_products
 rs_space_heating,boiler_gas,2050,1000
 ss_space_heating,boiler_gas,2015,1000
 
-ss_space_heating,gas,heat_pumps_electricity,2050,0.9
-is_space_heating,gas,heat_pumps_electricity,2050,0.9
-is_high_temp_process,gas,dry_kiln_biomass,2050,0.9,non_metallic_mineral_products
+ss_space_heating,heat_pumps_electricity,2050,0.9
+is_space_heating,heat_pumps_electricity,2050,0.9
+is_high_temp_process,dry_kiln_biomass,2050,0.9,non_metallic_mineral_products
