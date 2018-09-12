@@ -18,6 +18,7 @@ regional_specific, crit_all_the_same
 #TODO SIMple aggregation. Write out sectormodel, enduse, region, fueltypes.... --> Do all aggregation based on that
 #- Make that fuel swtich can be made in any industry sector irrespective of technologies
 # Combine all switches of end_use_submodel #TODO
+TODO : test if sector as function
 # Make generic fuel switch
 # Mage generic enduse change in csv file as variable"""
 import os

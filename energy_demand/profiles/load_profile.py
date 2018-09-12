@@ -45,7 +45,7 @@ class LoadProfileStock(object):
             Sectors for which the profile applies
         """
         if not sectors:
-            sectors = [False]
+            sectors = [None]
         else:
             pass
 

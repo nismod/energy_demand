@@ -151,7 +151,8 @@ def calc_annual_switch_params(
 
                     for sim_yr in simulated_yrs:
 
-                        narrative_timesteps = list(enduse[sector].keys())
+                        #narrative_timesteps = list(enduse[sector].keys())
+                        narrative_timesteps = list(sector_region_tech_vals[sector].keys())
 
                         correct_narrative_timestep = get_correct_narrative_timestep(
                             sim_yr=sim_yr, narrative_timesteps=narrative_timesteps)

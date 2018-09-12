@@ -776,7 +776,7 @@ def load_fuels(paths, lookups):
 
     # SNAKE SIMPLILFY
     sectors['sectors'] = {
-        'residential': [False], # no sectors
+        'residential': [None], # no sectors #not False
         'service': sectors['ss_sectors'],
         'industry': sectors['is_sectors']}
 
@@ -785,6 +785,13 @@ def load_fuels(paths, lookups):
         'residential': enduses['rs_enduses'],
         'service': enduses['ss_enduses'],
         'industry': enduses['is_enduses']}
+
+    # SNAKE
+    sectors['enduse_sector_match'] = defaultdict(dict)
+    for submodel_name in ['residential', 'service', 'industry']:
+        for enduse in enduses['enduses'][submodel_name]:
+            sectors['enduse_sector_match'][enduse ] = sectors['sectors'][submodel_name]
+
 
     # SNAKE SIMLPLIFY
     # Aggregate across sectors
