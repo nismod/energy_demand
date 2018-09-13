@@ -4,6 +4,7 @@ model installation and after each scenario definition
 import logging
 from collections import defaultdict
 import numpy as np
+import time
 
 from energy_demand.geography import spatial_diffusion
 from energy_demand.read_write import read_data
@@ -212,7 +213,7 @@ def switch_calculations(
     for submodel in data['assumptions'].submodels_names:
         for enduse in data['enduses'][submodel]:
             for sector in data['sectors'][submodel]:
-
+                print("============= Calculating Sigmoid {}  {}".format(enduse, sector), flush=True)
                 sig_param_tech[enduse][sector] = sig_param_calc_incl_fuel_switch(
                     narrative_timesteps,
                     data['assumptions'].base_yr,
@@ -640,10 +641,11 @@ def sig_param_calc_incl_fuel_switch(
                     for region in regions:
                         sig_param_tech[switch_yr][region] = sig_param_tech_all_regs_value
                 else:
-                    logging.info("... calc region specific parameters of `{}` for year `{}` sector: {}".format(
-                        enduse, switch_yr, sector))
-
+                    #logging.debug("... calc region specific parameters of `{}` for year `{}` sector: {}".format(enduse, switch_yr, sector))
+                    #print("STARTING REGIONS ", flush=True)
+                    start = time.time()
                     for region in regions:
+                        #print("REGION " + str(region), flush=True)
                         sig_param_tech[switch_yr][region] = s_generate_sigmoid.tech_sigmoid_parameters(
                             switch_yr,
                             switch_yr_start,
@@ -651,6 +653,9 @@ def sig_param_calc_incl_fuel_switch(
                             l_values_sig[region],
                             s_tech_by_p,
                             s_tech_switched_p[region][switch_yr])
+                    end = time.time()
+                    #print("FINISHED REGIONS", flush=True)
+                    print("USED TIME: " + str(end - start), flush=True)
 
     return sig_param_tech
 

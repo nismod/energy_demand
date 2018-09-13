@@ -6,18 +6,18 @@ fraction at the model end year
 """
 import logging
 from collections import defaultdict
-import math
 import numpy as np
 from scipy.optimize import curve_fit
 from energy_demand.technologies import diffusion_technologies
-from energy_demand.plotting import plotting_program
+#from energy_demand.plotting import plotting_program
 
 def calc_sigmoid_parameters(
         l_value,
         xdata,
         ydata,
         fit_assump_init=0.001,
-        error_range=0.00002
+        error_range=0.00002,
+        number_of_iterations=1000
     ):
     """Calculate sigmoid parameters. Check if fitting is good enough.
 
@@ -41,7 +41,7 @@ def calc_sigmoid_parameters(
     Note
     -------
         `error_range` can be changed if the plotting is weird. If you increase
-        chances are however hiigher that the fitting does not work anymore.
+        chances are however higher that the fitting does not work anymore.
 
     Returns
     ------
@@ -52,13 +52,11 @@ def calc_sigmoid_parameters(
     # Generate possible starting parameters for fit
     # ---------------------------------------------
     start_param_list = [
-        0.0, 1.0, 0.0001, 0.001, 0.01,
-        0.05, 0.1, 0.15, 0.2, 0.25, 0.3, 0.35,
-        0.4, 0.45, 0.5, 0.55, 0.6, 0.65,
-        10, 20, 30, 40, 50, 60, 70, 80,
-        90, 100.0, 200.0, 400.0, 500.0, 1000, 10000]
-
-    assert l_value >= ydata[0]
+        0.0, 1.0, 0.0001, 0.001, 0.01] #,
+        #0.05, 0.1, 0.15, 0.2, 0.25, 0.3, 0.35,
+        #0.4, 0.45, 0.5, 0.55, 0.6, 0.65,
+        #10, 20, 30, 40, 50, 60, 70, 80,
+        #90, 100.0, 200.0, 400.0, 500.0, 1000, 10000]
 
     # ---------------------------------------------
     # Fit
@@ -96,7 +94,7 @@ def calc_sigmoid_parameters(
                 xdata,
                 ydata,
                 start_parameters,
-                number_of_iterations=1000)
+                number_of_iterations=number_of_iterations)
 
             # Test if start paramters are identical to fitting parameters
             if (crit_plus_minus == 'plus' and fit_parameter[1] < 0) or (
@@ -137,7 +135,7 @@ def calc_sigmoid_parameters(
                         cnt += 1
                     else:
                         successfull = True
-                        
+
                         '''logging.info(
                             ".... fitting successfull %s %s %s", fit_measure_p_ey, fit_measure_p_by, fit_parameter)
                         plotting_program.plotout_sigmoid_tech_diff(
@@ -512,8 +510,9 @@ def tech_sigmoid_parameters(
                                 differences in percentual service demand.
     """
     rounding_accuracy = 4       # Criteria how much difference in % can be rounded
-    linear_approx_crit = 0.001  # Criteria of difference in decimal from which on linear approximation is used
-    error_range = 0.0002        # Error how close the fit must be
+    linear_approx_crit = 0.001   # Criteria to simplify with linear approximation if difference is smaller (decimal) # 0.001
+    error_range = 0.0002        # Error how close the fit must be                                                   # 0.0002
+    number_of_iterations = 100  # Number of iterations of sigmoid fitting algorithm                                 # 1000
 
     # Technologies to apply calculation
     installed_techs = s_tech_switched_p.keys()
@@ -525,7 +524,7 @@ def tech_sigmoid_parameters(
         pass
     else:
         for tech in installed_techs:
-
+            #print("TECH " + str(tech)) #, flush=True)
             # --------
             # Test whether technology has the market entry before or after base year,
             # If afterwards, set very small number in market entry year
@@ -534,7 +533,7 @@ def tech_sigmoid_parameters(
                 point_x_by = technologies[tech].market_entry
                 point_y_by = fit_assump_init
             else:
-                point_x_by = switch_yr_start           # Base year
+                point_x_by = switch_yr_start   # Base year
                 point_y_by = s_tech_by_p[tech] # Base year service share
 
                 # If the base year is the market entry year use a very small number
@@ -570,12 +569,13 @@ def tech_sigmoid_parameters(
 
             # Test if end year share is larger than technological maximum
             # Test wheter maximum diffusion is larger than simulated end year share
-            if math.isnan(ydata[1]):
-                pass
-            else:
-                assert ydata[1] <= l_values[tech] + linear_approx_crit
+            #if math.isnan(ydata[1]):
+            #    pass
+            #else:
+                #assert ydata[1] <= l_values[tech] + linear_approx_crit
+            assert ydata[1] <= l_values[tech] + linear_approx_crit
 
-            # If no change in by to ey but not zero (lineare change)
+            # If no change in by to ey but not zero (linear change)
             if (round(point_y_by, rounding_accuracy) == round(point_y_ey, rounding_accuracy)) and (
                     point_y_ey != fit_assump_init) and (
                         point_y_by != fit_assump_init):
@@ -595,7 +595,6 @@ def tech_sigmoid_parameters(
 
                     # If difference is smaller than a certain share, approximate with linear
                     if abs(ydata[1] - ydata[0]) < linear_approx_crit:
-
                         #logging.info("Linear approximation...")
                         sig_params[tech]['midpoint'] = 'linear'
                         sig_params[tech]['steepness'] = 'linear'
@@ -603,19 +602,21 @@ def tech_sigmoid_parameters(
 
                     try:
                         # Parameter fitting
+                        ##print("----start fitting" ) #, flush=True)
                         fit_parameter = calc_sigmoid_parameters(
                             l_values[tech],
                             xdata,
                             ydata,
                             fit_assump_init=fit_assump_init,
-                            error_range=error_range)
+                            error_range=error_range,
+                            number_of_iterations=number_of_iterations)
 
-                        sig_params[tech]['midpoint'] = fit_parameter[0]  # midpoint (x0)
-                        sig_params[tech]['steepness'] = fit_parameter[1] # Steepnes (k)
+                        sig_params[tech]['midpoint'] = fit_parameter[0]
+                        sig_params[tech]['steepness'] = fit_parameter[1]
                         sig_params[tech]['l_parameter'] = l_values[tech] # maximum p
-                        #logging.debug("... successfull fitting")
+                        ##print("-------------successfull fitting") #, flush=True)
 
-                        if plot_sigmoid_diffusion:
+                        '''if plot_sigmoid_diffusion:
                             plotting_program.plotout_sigmoid_tech_diff(
                                 l_values[tech],
                                 tech,
@@ -623,14 +624,16 @@ def tech_sigmoid_parameters(
                                 ydata,
                                 fit_parameter,
                                 plot_crit=True,
-                                close_window_crit=True)
+                                close_window_crit=True)'''
                     except:
                         """If sigmoid fitting failed, implement linear diffusion
 
                         The sigmoid diffusion may fail if the fitting does not work
-                        because the points to fit are too similar.
+                        because the points to fit are too similar. This could be 
+                        improved by increasing the number of iterations 'number_of_iterations'
+                        at higher computation costs
                         """
-                        logging.warning("Instead of sigmoid a linear approximation is used %s %s %s %s", s_tech_by_p[tech], tech, xdata, ydata)
+                        #logging.warning("Instead of sigmoid a linear approximation is used %s %s %s", tech, xdata, ydata)
                         sig_params[tech]['midpoint'] = 'linear'
                         sig_params[tech]['steepness'] = 'linear'
                         sig_params[tech]['l_parameter'] = 'linear'
