@@ -630,9 +630,7 @@ def tech_sigmoid_parameters(
                         The sigmoid diffusion may fail if the fitting does not work
                         because the points to fit are too similar.
                         """
-                        logging.warning(" ff{}  {} ".format(yr_until_switched, switch_yr_start))
-                        logging.warning(
-                            "Instead of sigmoid a linear approximation is used %s %s %s %s", s_tech_by_p[tech], tech, xdata, ydata)
+                        logging.warning("Instead of sigmoid a linear approximation is used %s %s %s %s", s_tech_by_p[tech], tech, xdata, ydata)
                         sig_params[tech]['midpoint'] = 'linear'
                         sig_params[tech]['steepness'] = 'linear'
                         sig_params[tech]['l_parameter'] = 'linear'

@@ -19,20 +19,18 @@ def get_all_narrative_points(switches, enduse):
 
     Returns
     -------
-    list_temporal_narrative_points : list
+    switch_yrs : list
         All sorted defined timesteps from narrative
     """
-    temporal_narrative_points = set([])
+    switch_yrs = set([])
 
     for switch in switches:
-        print(switch)
         if switch.enduse == enduse:
-            temporal_narrative_points.add(switch.switch_yr)
+            switch_yrs.add(switch.switch_yr)
 
-    # sort
-    list(temporal_narrative_points).sort()
+    list(switch_yrs).sort()
 
-    return temporal_narrative_points
+    return switch_yrs
 
 def get_switch_criteria(
         enduse,
@@ -308,7 +306,18 @@ def autocomplete_switches(
         Specified technologies of an enduse
     s_tech_by_p : dict
         Share of service of technology in base year
-    TODO: SIMPLIFY
+    enduses : list
+        Enduses
+    sectors : list
+        Sectors
+    crit_all_the_same : bool
+        Criteria wheter regionally specific or not
+    regions : list
+        Regions
+    f_diffusion : 
+    techs_affected_spatial_f
+    service_switches_from_capacity : list, default=[]
+        Service switches stemming from capacity switches
     Returns
     -------
     reg_share_s_tech_ey_p : dict
@@ -324,17 +333,20 @@ def autocomplete_switches(
 
     # Enduses from capacity witches
     any_region = list(service_switches_from_capacity.keys())[0]
-    switch_enduses_capacity_switches = get_all_enduses_of_switches(service_switches_from_capacity[any_region])
+    switch_enduses_capacity_switches = get_all_enduses_of_switches(
+        service_switches_from_capacity[any_region])
 
     # All enduses
     switch_enduses = set(switch_enduses + switch_enduses_capacity_switches)
 
+    # Iterate enduses
     for enduse in switch_enduses:
+        logging.info("... calculating service switches: {} crit_all_the_same: {}".format(enduse, crit_all_the_same))
 
-        # Get all sectors of enduse
         sectors_of_enduse = get_sectors_of_enduse(
             enduse, enduses, sectors)
 
+        # Iterate sectors of enduse
         for sector in sectors_of_enduse:
 
             switches_enduse = init_scripts.get_sector__enduse_switches(
@@ -352,10 +364,11 @@ def autocomplete_switches(
                 updated_switches = []
 
                 # Get all narrative years
-                temporal_narrative_points = get_all_narrative_points(switches_enduse, enduse=enduse)
+                switch_yrs = get_all_narrative_points(
+                    switches_enduse, enduse=enduse)
 
                 # Execut function for every narrative year
-                for switch_yr in temporal_narrative_points:
+                for switch_yr in switch_yrs:
 
                     enduse_switches = []
                     s_tot_defined = 0
@@ -385,13 +398,13 @@ def autocomplete_switches(
                     service_switches_out[sector][region].extend(updated_switches)
             else:
                 for region in regions:
-    
+
                     # Get all narrative year
-                    temporal_narrative_points = get_all_narrative_points(
+                    switch_yrs = get_all_narrative_points(
                         service_switches, enduse=enduse)
 
                     # Execut function for yvery narrative year
-                    for switch_yr in temporal_narrative_points:
+                    for switch_yr in switch_yrs:
 
                         # Get all switches of this enduse
                         enduse_switches = []
@@ -444,7 +457,7 @@ def autocomplete_switches(
                                 # Create switch
                                 switches_new = create_switches_from_s_shares(
                                     enduse=enduse,
-                                    s_tech_by_p=s_tech_by_p, #[sector], #s_tech_by_p,
+                                    s_tech_by_p=s_tech_by_p,
                                     switch_technologies=switch_technologies,
                                     specified_tech_enduse_by=specified_tech_enduse_by,
                                     enduse_switches=enduse_switches,
@@ -475,7 +488,7 @@ def capacity_switch(
     Service switch are calculated based on the assumed
     capacity installation (in absolute GW) of technologies.
     Assumptions on capacities are defined in the
-    CSV file `xx_capacity_switch.csv`
+    CSV file `switches_capacity.csv`
 
     Note
     -----
@@ -486,6 +499,10 @@ def capacity_switch(
         --> It is only a switch)
     Arguments
     ---------
+    narrative_timesteps : dict
+        List with narrative timestep for every enduse
+    regions : list
+        Regions
     capacity_switches : list
         Capacity switches
     technologies : dict
@@ -528,10 +545,8 @@ def capacity_switch(
 
                     # Check if enduse has sectors
                     if not sector_info_crit:
-                        # Fuel share are only given for the enduse
                         fuel_shares = fuel_shares_enduse_by[enduse]
                     else:
-                        # Fuel shares are provide per enduse and sectors
                         any_sector = list(fuel_shares_enduse_by[enduse].keys())[0]
                         fuel_shares = fuel_shares_enduse_by[enduse][any_sector]
 

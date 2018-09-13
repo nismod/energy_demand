@@ -51,12 +51,12 @@ def round_down(num, divisor):
     """
     return num - (num%divisor)
 
-def get_all_folders_files(path_to_folder):
+def get_all_folders_files(path):
     """Return all folders and file names in a list
 
     Input
     -----
-    path_to_folder : str
+    path : str
         Path to folder
 
     Returns
@@ -66,7 +66,7 @@ def get_all_folders_files(path_to_folder):
     filenames : list
         All file names in a list
     """
-    folders_walk = os.walk(path_to_folder)
+    folders_walk = os.walk(path)
     for root, dirnames, filenames in folders_walk:
         all_folders = list(dirnames)
         #all_files = list(filenames)

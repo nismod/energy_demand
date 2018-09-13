@@ -235,7 +235,7 @@ def floor_area_virtual_dw(
         try:
             rs_floorarea[base_yr][region] = resid_footprint[region]
         except KeyError:
-            print("No virtual residential floor area for region %s ", region)
+            ##print("No virtual residential floor area for region %s ", region)
 
             # Calculate average floor area
             rs_floorarea[base_yr][region] = rs_avearge_floor_area_pp * population[region]

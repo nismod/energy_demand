@@ -677,9 +677,6 @@ def rs_dw_stock(
 
         remaining_area = floorarea_by - demolished_area
 
-        # In existing building stock fewer people are living, i.e. density changes
-        #population_by_existing = floorarea_by / floorarea_pp_cy
-
         # Generate stock for existing area
         dw_stock_cy = generate_dw_existing(
             driver_assumptions=driver_assumptions,

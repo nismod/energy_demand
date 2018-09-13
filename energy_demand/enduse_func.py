@@ -1319,8 +1319,10 @@ def convert_service_to_p(tot_s_y, s_fueltype_tech):
     return s_tech_p
 
 def get_service_diffusion(sig_param_tech, curr_yr):
-    """Calculate energy service fraction of technologies with increased service
-    for current year based on sigmoid diffusion
+    """Calculate energy service fraction of technologies
+    with increased service for current year based
+    on sigmoid diffusion or linear diffusion according
+    to provided sig_param_tech
 
     Arguments
     ----------

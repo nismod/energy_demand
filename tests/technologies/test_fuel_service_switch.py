@@ -145,12 +145,16 @@ def test_autocomplete_switches():
         service_share_ey=0.6)]
     defined_temporal_narrative_points = {'heating': [2050]}
 
+    enduses = {'submodelA': ['heating']}
+    sectors = {'submodelA': [None]}
+
     out_1, out_2 = fuel_service_switch.autocomplete_switches(
         service_switches=service_switches,
         specified_tech_enduse_by={'heating': ['techA', 'techB', 'techC']},
         s_tech_by_p={'heating': {'techA': 0.2, 'techB': 0.4, 'techC': 0.4}},
-        sector=False,
         crit_all_the_same=True,
+        enduses=enduses,
+        sectors=sectors,
         regions=['regA'],
         f_diffusion=False,
         techs_affected_spatial_f=False,
@@ -176,8 +180,9 @@ def test_autocomplete_switches():
         service_switches=service_switches,
         specified_tech_enduse_by={'heating': ['techA', 'techB', 'techC']},
         s_tech_by_p={'heating': {'techA': 0.2, 'techB': 0.4, 'techC': 0.4}},
-        sector=False,
         crit_all_the_same=True,
+        enduses=enduses,
+        sectors=sectors,
         regions=['regA'],
         f_diffusion={'heating':{'regA':1.0, 'regB': 1.0}},
         techs_affected_spatial_f=['techA'],

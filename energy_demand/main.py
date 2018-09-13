@@ -177,7 +177,8 @@ if __name__ == "__main__":
 
     data['scenario_data'] = defaultdict(dict)
     data['lookups'] = lookup_tables.basic_lookups()
-    data['enduses'], data['sectors'], data['fuels'] = data_loader.load_fuels(data['paths'], data['lookups'])
+    data['enduses'], data['sectors'], data['fuels'] = data_loader.load_fuels(
+        data['lookups']['submodels_names'], data['paths'], data['lookups'])
 
     data['regions'] = read_data.get_region_names(name_region_set)
     data['reg_nrs'] = len(data['regions'])
