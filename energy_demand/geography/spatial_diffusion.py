@@ -206,7 +206,6 @@ def calc_diffusion_f(regions, f_reg, spatial_diff_values, fuels):
 
             f_reg_norm[enduse] = {}
             for region, fuel_p in regions_fuel_p.items():
-                rounded_val = round(f_reg[region] / sum_p_f_all_regs, 6) #Nr of digits # TODO NEW
                 f_reg_norm[enduse][region] = f_reg[region] / sum_p_f_all_regs
 
         # ----------
@@ -400,7 +399,7 @@ def calc_spatially_diffusion_factors(
         regions,
         f_reg,
         spatial_diff_values,
-        [fuel_disagg['rs_fuel_disagg'], fuel_disagg['ss_fuel_disagg'], fuel_disagg['is_fuel_disagg']])
+        [fuel_disagg['residential'], fuel_disagg['service'], fuel_disagg['industry']])
 
     return f_reg, f_reg_norm, f_reg_norm_abs
 
@@ -460,7 +459,7 @@ def calc_spatially_diffusion_factors(
             uk_techs_service_p,
             regions,
             spatial_diffusion_factor,
-            fuel_disagg['rs_fuel_disagg'],
+            fuel_disagg['residential'],
             techs_affected_spatial_f)
 
     ss_reg_share_s_tech_ey_p = {}

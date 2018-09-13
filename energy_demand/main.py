@@ -18,13 +18,18 @@ regional_specific, crit_all_the_same
 #TODO SIMple aggregation. Write out sectormodel, enduse, region, fueltypes.... --> Do all aggregation based on that
 #- Make that fuel swtich can be made in any industry sector irrespective of technologies
 # Combine all switches of end_use_submodel #TODO
-"""
+TODO MORE GENERIC FUEL INPUT OPTION
+TODO : test if sector as function
+TODO: MAKE THE SWITCHES CAN ONLY BE ENDUSE SPECIFIC AND NOT SECTOR SPECIFIC
+# Make generic fuel switch
+# Mage generic enduse change in csv file as variable"""
 import os
 import sys
 import time
 import logging
 from collections import defaultdict
 import numpy as np
+
 from energy_demand.basic import date_prop
 from energy_demand.plotting import plotting_results
 from energy_demand import model
@@ -82,6 +87,7 @@ def energy_demand_model(regions, data, assumptions):
     # Log model results
     write_data.logg_info(modelrun, fuels_in, data)
     logging.info("... finished running energy demand model simulation")
+
     return modelrun
 
 if __name__ == "__main__":
@@ -149,6 +155,7 @@ if __name__ == "__main__":
     # GVA datasets
     name_gva_dataset = os.path.join(local_data_path, 'scenarios', 'MISTRAL_pop_gva', 'data', 'pop-a_econ-c_fuel-c/gva_per_head__lad_sector.csv') # Constant scenario
     name_gva_dataset_per_head = os.path.join(local_data_path, 'scenarios', 'MISTRAL_pop_gva', 'data', 'pop-a_econ-c_fuel-c/gva_per_head__lad.csv') # Constant scenario
+
     # -------------------------------
     # User defined strategy variables
     # -------------------------------
@@ -164,13 +171,15 @@ if __name__ == "__main__":
     name_scenario_run = "_result_local_data_{}".format(str(time.ctime()).replace(":", "_").replace(" ", "_"))
 
     data['paths'] = data_loader.load_paths(path_main)
+
     data['local_paths'] = data_loader.get_local_paths(local_data_path)
     data['result_paths'] = data_loader.get_result_paths(
         os.path.join(os.path.join(local_data_path, "..", "results"), name_scenario_run))
 
     data['scenario_data'] = defaultdict(dict)
     data['lookups'] = lookup_tables.basic_lookups()
-    data['enduses'], data['sectors'], data['fuels'] = data_loader.load_fuels(data['paths'], data['lookups'])
+    data['enduses'], data['sectors'], data['fuels'] = data_loader.load_fuels(
+        data['lookups']['submodels_names'], data['paths'], data['lookups'])
 
     data['regions'] = read_data.get_region_names(name_region_set)
     data['reg_nrs'] = len(data['regions'])
@@ -206,6 +215,7 @@ if __name__ == "__main__":
     # Assumptions
     # -----------------------------
     data['assumptions'] = general_assumptions.Assumptions(
+        submodels_names=data['lookups']['submodels_names'],
         base_yr=user_defined_base_yr,
         curr_yr=2015,
         simulated_yrs=simulated_yrs,
@@ -268,7 +278,7 @@ if __name__ == "__main__":
     if data['criterias']['virtual_building_stock_criteria']:
         data['scenario_data']['floor_area']['rs_floorarea'], data['scenario_data']['floor_area']['ss_floorarea'], data['service_building_count'], rs_regions_without_floorarea, ss_regions_without_floorarea = data_loader.floor_area_virtual_dw(
             data['regions'],
-            data['sectors']['all_sectors'],
+            data['sectors'],
             data['local_paths'],
             data['scenario_data']['population'][data['assumptions'].base_yr],
             data['assumptions'].base_yr)
@@ -313,7 +323,7 @@ if __name__ == "__main__":
         f_reg,
         f_reg_norm,
         f_reg_norm_abs)
-    data['assumptions'].update('strategy_vars', regional_strategy_vars)
+    data['assumptions'].update('strategy_vars', regional_strategy_vars) #SWITCH PARMATERS
 
     # -----------------------------------------------------------------
     # Calculate parameter values for every simulated year based on narratives
@@ -336,7 +346,7 @@ if __name__ == "__main__":
         crit_all_the_same)
 
     for region in data['regions']:
-        data['assumptions'].regional_strategy_vars[region]['annual_tech_diff_params'] = annual_tech_diff_params[region]
+        regional_strategy_vars[region]['annual_tech_diff_params'] = annual_tech_diff_params[region]
 
     # Strategy variables
     data['assumptions'].update('regional_strategy_vars', regional_strategy_vars)

@@ -31,7 +31,7 @@ import numpy as np
         sim_param=data['sim_param'],
         assumptions=data['assumptions'],
         lookups=data['lookups'],
-        all_enduses=['heating', 'cooking'],
+        enduses=['heating', 'cooking'],
         temp_by=np.zeros((365, 24)),
         tech_lp=data['tech_lp'],
         sectors=["sec_A"]

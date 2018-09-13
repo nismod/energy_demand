@@ -87,7 +87,6 @@ def economic_sectors_regional_MISTRAL():
         #'':	{'match_int': 1, 'description': "Agriculture etc"}
     }
 
-
     return lookup_dict
 
 def industrydemand_name_sic2007():
@@ -189,6 +188,12 @@ def basic_lookups():
         Lookup information
     """
     lookups = {}
+
+    # Specify all submodels
+    lookups['submodels_names'] = [
+        'residential',
+        'service',
+        'industry']
 
     # Assign BESI categories to merged AddressPoint dataset
     lookups['building_cnt_lu'] = {

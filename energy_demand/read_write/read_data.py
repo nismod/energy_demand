@@ -666,31 +666,25 @@ def read_fuel_switches(
                 "Input error: The share of switched fuel must be > 0. Delete {} from input".format(
                     obj.technology_install))
 
-        tot_share_fueltype_switched = 0
-
         for obj_iter in fuel_switches:
-
-            # Sum total switched share
-            if obj.enduse == obj_iter.enduse and obj.fueltype_replace == obj_iter.fueltype_replace:
-                tot_share_fueltype_switched += obj_iter.fuel_share_switched_ey
 
             # Test if lager than maximum defined technology diffusion (L)
             if obj_iter.fuel_share_switched_ey > technologies[obj_iter.technology_install].tech_max_share:
                 raise Exception(
-                    "Input error: more service provided for tech '{}' in enduse '{}' than max possible".format(
+                    "Configuration Error: More service provided for tech '{}' in enduse '{}' than max possible".format(
                         obj_iter.enduse, obj_iter.technology_install))
 
-        if tot_share_fueltype_switched > 1.0:
-            raise Exception(
-                "Input error: The fuel switches are > 1.0 for enduse {} and fueltype {}".format(
-                    obj.enduse, obj.fueltype_replace))
+            if obj_iter.fuel_share_switched_ey > 1.0:
+                raise Exception(
+                    "Configuration Error: The fuel switches are > 1.0 for enduse {} and fueltype {}".format(
+                        obj.enduse, obj.fueltype_replace))
 
         if obj.switch_yr <= base_yr:
-            raise Exception("Input error of fuel switch: switch_yr must be in the future")
+            raise Exception("Configuration Error of fuel switch: switch_yr must be in the future")
 
     # Test whether defined enduse exist
     for obj in fuel_switches:
-        if obj.enduse in enduses['ss_enduses'] or obj.enduse in enduses['rs_enduses'] or obj.enduse in enduses['is_enduses']:
+        if obj.enduse in enduses['service'] or obj.enduse in enduses['residential'] or obj.enduse in enduses['industry']:
             pass
         else:
             raise Exception(
@@ -813,7 +807,9 @@ def read_fuel_rs(path_to_csv):
     for enduse in raw_csv_file.columns[1:]: # skip for column
         fuels[enduse] = raw_csv_file[enduse].values
 
-    return fuels, list(enduses)
+    sectors = [None]
+
+    return fuels, sectors, list(enduses)
 
 def read_fuel_is(path_to_csv, fueltypes_nr):
     """This function reads in base_data_CSV all fuel types
@@ -1066,7 +1062,7 @@ def read_capacity_switch(path_to_csv, base_yr=2015):
     raw_csv_file = pd.read_csv(path_to_csv)
 
     # Iterate rows
-    for index, row in raw_csv_file.iterrows():
+    for _, row in raw_csv_file.iterrows():
 
         service_switches.append(
             CapacitySwitch(

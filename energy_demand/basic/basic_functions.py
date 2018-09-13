@@ -5,17 +5,58 @@ import shutil
 import numpy as np
 from pyproj import Proj, transform
 
+def dict_depth(dictionary):
+    """Get depth of nested dict
+    """
+    if isinstance(dictionary, dict):
+        return 1 + (max(map(dict_depth, dictionary.values())) if dictionary else 0)
+
+    return 0
+
+def test_if_sector(dict_to_test, fuel_as_array=False):
+    """Test if a dictionary contains also sector information
+
+    Arguments
+    ---------
+    dict_to_test : dict
+        Dict with info to test
+
+    Returns
+    -------
+    crit_sector_data : bool
+        Criteria wheter nested or not
+
+    Example
+    -------
+    {0: 23, 1: 3434}} --> False
+    {'sector': {0: 23, 1: 3434}} --> True
+    """
+    get_dict_depth = dict_depth(dict_to_test)
+
+    if fuel_as_array: # if given as array, one level less
+        if get_dict_depth == 1:
+            crit_sector_data = False
+        elif get_dict_depth == 2:
+            crit_sector_data = True
+    else:
+        if get_dict_depth == 2:
+            crit_sector_data = False
+        elif get_dict_depth == 3:
+            crit_sector_data = True
+
+    return crit_sector_data
+
 def round_down(num, divisor):
     """Round down
     """
     return num - (num%divisor)
 
-def get_all_folders_files(path_to_folder):
+def get_all_folders_files(path):
     """Return all folders and file names in a list
 
     Input
     -----
-    path_to_folder : str
+    path : str
         Path to folder
 
     Returns
@@ -25,7 +66,7 @@ def get_all_folders_files(path_to_folder):
     filenames : list
         All file names in a list
     """
-    folders_walk = os.walk(path_to_folder)
+    folders_walk = os.walk(path)
     for root, dirnames, filenames in folders_walk:
         all_folders = list(dirnames)
         #all_files = list(filenames)
@@ -92,13 +133,6 @@ def get_long_lat_decimal_degrees(reg_centroids):
 
     return reg_coord
 
-def dict_depth(dictionary):
-    """Get depth of nested dict
-    """
-    if isinstance(dictionary, dict):
-        return 1 + (max(map(dict_depth, dictionary.values())) if dictionary else 0)
-
-    return 0
 
 def rmse(predictions, actual_values):
     """Root-mean-square deviation or

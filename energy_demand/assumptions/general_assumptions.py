@@ -31,6 +31,7 @@ class Assumptions(object):
     """
     def __init__(
             self,
+            submodels_names=None,
             base_yr=None,
             curr_yr=None,
             simulated_yrs=None,
@@ -42,11 +43,10 @@ class Assumptions(object):
         ):
         """Constructor
         """
+        self.submodels_names = submodels_names
         self.base_yr = base_yr
         self.curr_yr = curr_yr
         self.simulated_yrs = simulated_yrs
-
-        self.submodels_names = ['residential', 'service', 'industry']
 
         # ============================================================
         # Spatially modelled variables
@@ -55,7 +55,7 @@ class Assumptions(object):
         # or technologies having a spatial explicit diffusion need
         # to be defined.
         # ============================================================
-        self.spatial_explicit_diffusion = 0 #0: False, 1: True
+        self.spatial_explicit_diffusion = 0 #0: False, 1: True TODO
 
         # Define all variables which are affected by regional diffusion
         self.spatially_modelled_vars = [] # ['smart_meter_improvement_p']
@@ -64,7 +64,7 @@ class Assumptions(object):
         self.techs_affected_spatial_f = ['heat_pumps_electricity']
 
         # Max penetration speed
-        self.speed_con_max = 1 # 1: uniform distribution >1: regional differences
+        self.speed_con_max = 1.5 # 1: uniform distribution >1: regional differences
 
         # --------
         # Demand management of heat pumps
@@ -212,7 +212,7 @@ class Assumptions(object):
 
         # TODO: UPDATE DRIVER WITH GVA
         # --Residential SubModel
-        self.scenario_drivers['rs_submodule'] = {
+        self.scenario_drivers = {
             'rs_space_heating': ['floorarea', 'hlc'], # Do not use HDD or pop because otherweise double count
             'rs_water_heating': ['population'],
             'rs_lighting': ['population', 'floorarea'],
@@ -220,10 +220,9 @@ class Assumptions(object):
             'rs_cold': ['population'],
             'rs_wet': ['population'],
             'rs_consumer_electronics': ['population', 'gva'],
-            'rs_home_computing': ['population']}
+            'rs_home_computing': ['population'],
 
-        # --Service Submodel (Table 5.5a) TODO USE GVA AS DRIVER
-        self.scenario_drivers['ss_submodule'] = {
+            # --Service Submodel (Table 5.5a) TODO USE GVA AS DRIVER
             'ss_space_heating': ['floorarea'],
             'ss_water_heating': ['population'],
             'ss_lighting': ['floorarea'],
@@ -234,10 +233,9 @@ class Assumptions(object):
             'ss_small_power': ['population'],
             'ss_cooled_storage': ['population'],
             'ss_other_gas': ['population'],
-            'ss_other_electricity': ['population']}
+            'ss_other_electricity': ['population'],
 
-        # --Industry Submodel
-        self.scenario_drivers['is_submodule'] = {
+            # Industry submodule
             'is_high_temp_process': ['gva'],
             'is_low_temp_process': ['gva'],
             'is_drying_separation': ['gva'],
@@ -291,7 +289,7 @@ class Assumptions(object):
         sm_savings = 0.03
 
         self.smart_meter_assump['savings_smart_meter'] = {
-    
+
             # Residential
             'smart_meter_improvement_rs_cold': sm_savings,
             'smart_meter_improvement_rs_cooking': sm_savings,
@@ -448,7 +446,6 @@ class Assumptions(object):
         # Overall efficiency improvement
         # -------------
 
-
         # ============================================================
         # Assumption related to heat pump technologies
         # ============================================================
@@ -479,8 +476,7 @@ class Assumptions(object):
         # Provide for every fueltype of an enduse
         # the share of fuel which is used by technologies for thebase year
         # ============================================================
-        # SNAKE: SUM ALL IN ONE
-        self.rs_fuel_tech_p_by, self.ss_fuel_tech_p_by, self.is_fuel_tech_p_by = fuel_shares.assign_by_fuel_tech_p(
+        self.fuel_tech_p_by = fuel_shares.assign_by_fuel_tech_p(
             enduses,
             sectors,
             fueltypes,
@@ -489,66 +485,43 @@ class Assumptions(object):
         # ========================================
         # Get technologies of an enduse
         # ========================================
-        self.rs_specified_tech_enduse_by = helpers.get_def_techs(
-            self.rs_fuel_tech_p_by, sector_crit=False)
+        self.specified_tech_enduse_by = helpers.get_def_techs(
+            self.fuel_tech_p_by)
 
-        self.ss_specified_tech_enduse_by = helpers.get_def_techs(
-            self.ss_fuel_tech_p_by, sector_crit=True)
-
-        self.is_specified_tech_enduse_by = helpers.get_def_techs(
-            self.is_fuel_tech_p_by, sector_crit=True)
-
-        rs_specified_tech_enduse_by_new = helpers.add_undef_techs(
+        specified_tech_enduse_by_new = helpers.add_undef_techs(
             self.heat_pumps,
-            self.rs_specified_tech_enduse_by,
+            self.specified_tech_enduse_by,
             'rs_space_heating')
-        self.rs_specified_tech_enduse_by = rs_specified_tech_enduse_by_new
+        self.specified_tech_enduse_by = specified_tech_enduse_by_new
 
-        ss_specified_tech_enduse_by_new = helpers.add_undef_techs(
+        specified_tech_enduse_by_new = helpers.add_undef_techs(
             self.heat_pumps,
-            self.ss_specified_tech_enduse_by,
+            self.specified_tech_enduse_by,
             'ss_space_heating')
-        self.ss_specified_tech_enduse_by = ss_specified_tech_enduse_by_new
+        self.specified_tech_enduse_by = specified_tech_enduse_by_new
 
-        is_specified_tech_enduse_by_new = helpers.add_undef_techs(
+        specified_tech_enduse_by_new = helpers.add_undef_techs(
             self.heat_pumps,
-            self.is_specified_tech_enduse_by,
+            self.specified_tech_enduse_by,
             'is_space_heating')
-        self.is_specified_tech_enduse_by = is_specified_tech_enduse_by_new
+        self.specified_tech_enduse_by = specified_tech_enduse_by_new
 
         # ============================================================
         # Read in switches
         # ============================================================
+        self.fuel_switches = read_data.read_fuel_switches(
+            paths['path_fuel_switches'], enduses, fueltypes, self.technologies)
 
-        # Read in scenaric fuel switches
-        self.rs_fuel_switches = read_data.read_fuel_switches(
-            paths['rs_path_fuel_switches'], enduses, fueltypes, self.technologies)
-        self.ss_fuel_switches = read_data.read_fuel_switches(
-            paths['ss_path_fuel_switches'], enduses, fueltypes, self.technologies)
-        self.is_fuel_switches = read_data.read_fuel_switches(
-            paths['is_path_fuel_switches'], enduses, fueltypes, self.technologies)
+        self.service_switches = read_data.service_switch(
+            paths['path_service_switch'], self.technologies)
 
-        # Read in scenaric service switches
-        self.rs_service_switches = read_data.service_switch(
-            paths['rs_path_service_switch'], self.technologies)
-        self.ss_service_switches = read_data.service_switch(
-            paths['ss_path_service_switch'], self.technologies)
-        self.is_service_switches = read_data.service_switch(
-            paths['is_path_industry_switch'], self.technologies)
+        self.capacity_switches = read_data.read_capacity_switch(
+            paths['path_capacity_installation'])
 
-        # Read in scenaric capacity switches
-        self.rs_capacity_switches = read_data.read_capacity_switch(
-            paths['rs_path_capacity_installation'])
-        self.ss_capacity_switches = read_data.read_capacity_switch(
-            paths['ss_path_capacity_installation'])
-        self.is_capacity_switches = read_data.read_capacity_switch(
-            paths['is_path_capacity_installation'])
-
-        # Testing
         self.crit_switch_happening = testing_functions.switch_testing(
-            fuel_switches=[self.rs_fuel_switches, self.ss_fuel_switches, self.is_fuel_switches],
-            service_switches=[self.rs_service_switches, self.ss_service_switches, self.is_service_switches],
-            capacity_switches=[self.rs_capacity_switches, self.ss_capacity_switches, self.is_capacity_switches])
+            fuel_switches=self.fuel_switches,
+            service_switches=self.service_switches,
+            capacity_switches=self.capacity_switches)
 
         # ========================================
         # General other assumptions
@@ -561,23 +534,10 @@ class Assumptions(object):
         # ========================================
         # Helper functions
         # ========================================
-        self.rs_fuel_tech_p_by, self.rs_specified_tech_enduse_by, self.technologies = tech_related.insert_placholder_techs(
+        self.fuel_tech_p_by, self.specified_tech_enduse_by, self.technologies = tech_related.insert_placholder_techs(
             self.technologies,
-            self.rs_fuel_tech_p_by,
-            self.rs_specified_tech_enduse_by,
-            sector_crit=False)
-
-        self.ss_fuel_tech_p_by, self.ss_specified_tech_enduse_by, self.technologies = tech_related.insert_placholder_techs(
-            self.technologies,
-            self.ss_fuel_tech_p_by,
-            self.ss_specified_tech_enduse_by,
-            sector_crit=True)
-
-        self.is_fuel_tech_p_by, self.is_specified_tech_enduse_by, self.technologies = tech_related.insert_placholder_techs(
-            self.technologies,
-            self.is_fuel_tech_p_by,
-            self.is_specified_tech_enduse_by,
-            sector_crit=True)
+            self.fuel_tech_p_by,
+            self.specified_tech_enduse_by)
 
         # ========================================
         # Calculations with assumptions
@@ -598,20 +558,10 @@ class Assumptions(object):
         # Testing
         # ========================================
         testing_functions.testing_fuel_tech_shares(
-            self.rs_fuel_tech_p_by)
-        for enduse in self.ss_fuel_tech_p_by:
-            testing_functions.testing_fuel_tech_shares(
-                self.ss_fuel_tech_p_by[enduse])
-        for enduse in self.is_fuel_tech_p_by:
-            testing_functions.testing_fuel_tech_shares(
-                self.is_fuel_tech_p_by[enduse])
+            self.fuel_tech_p_by)
 
         testing_functions.testing_tech_defined(
-            self.technologies, self.rs_specified_tech_enduse_by)
-        testing_functions.testing_tech_defined(
-            self.technologies, self.ss_specified_tech_enduse_by)
-        testing_functions.testing_tech_defined(
-            self.technologies, self.is_specified_tech_enduse_by)
+            self.technologies, self.specified_tech_enduse_by)
 
     def update(self, name, value):
         """Update assumptions

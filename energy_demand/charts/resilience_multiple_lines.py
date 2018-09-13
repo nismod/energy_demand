@@ -53,6 +53,12 @@ def generate_min_max_resilience_plot(path_to_scenarios):
     # Get all folders with scenario run results (name of folder is scenario)
     scenarios = os.listdir(path_to_scenarios)
 
+
+    # NOTE: the average scenario needs to be labelled 'av' and must not be at first position
+    if scenarios[0] == 'av':
+        del scenarios[0]
+        scenarios.append('av')
+
     data_container = {}
     statistics_to_print = ["scenario \tmin \tmax \tdiff \tDate maximum day \tDate minimum day \tMax hour \tMin hour", "=============================", " "]
 
@@ -60,7 +66,8 @@ def generate_min_max_resilience_plot(path_to_scenarios):
         if scenario == '__results_resilience':
             pass
         else:
-
+            print("Scenario: " + str(scenario))
+            print("-------------------------")
             # ----
             # Read in min and max day
             # ----
@@ -75,7 +82,8 @@ def generate_min_max_resilience_plot(path_to_scenarios):
 
             # Get all max day files
             for result_file in result_files:
-
+                print("result_file name: " + str(result_file.split("__")[0]))
+                
                 if result_file.split("__")[0] != 'result_day':
                     
                     # Get average value from file
@@ -119,9 +127,29 @@ def generate_min_max_resilience_plot(path_to_scenarios):
             data_container[scenario][year]['max_h'],
             data_container[scenario][year]['min_h']))
 
-    # Average demand of base year
-    flat_y_data = 25 * [average_demands_by]
+    # ------------------
+    # Print maximum hour value for every peak day of scenario
+    # --------------------
+    peak_day_values_to_print = []
 
+    cnt = 0
+    for scenario in data_container.keys():
+        peak_day_values_to_print.append(" ")
+        peak_day_values_to_print.append("======================")
+        peak_day_values_to_print.append("{}".format(scenario))
+        peak_day_values_to_print.append("======================")
+        peak_day_values_to_print.append(str(data_container[scenario][year]['max_values']))
+        #for hour in range(24):
+        #    peak_day_values_to_print.append("hour: {},  value: {}".format(
+        #        hour,
+        #        data_container[scenario][year]['max_values'][hour]))
+        if cnt == 0:
+            peak_day_values_to_print.append(" ")
+            peak_day_values_to_print.append("======================")
+            peak_day_values_to_print.append("current")
+            peak_day_values_to_print.append("======================")
+            peak_day_values_to_print.append(str(data_container[scenario][2015]['max_values']))
+            cnt += 1
     # ------------------
     # Write statiscs to txt
     # --------------------
@@ -130,6 +158,13 @@ def generate_min_max_resilience_plot(path_to_scenarios):
     write_data.write_list_to_txt(
         os.path.join(path_to_scenarios, "__results_resilience", "statistics.txt"),
         statistics_to_print)
+
+    write_data.write_list_to_txt(
+        os.path.join(path_to_scenarios, "__results_resilience", "values_peak_day_scenario.txt"),
+        peak_day_values_to_print)
+
+    # Average demand of base year
+    flat_y_data = 25 * [average_demands_by]
 
     # ------------------------------------------------
     # Create maximum plot
@@ -140,14 +175,13 @@ def generate_min_max_resilience_plot(path_to_scenarios):
     # ------------------------------------------------
     ymax = 60
     line_width = 1.0
-    color_flat_line = 'red' #darkkhaki'
+    color_flat_line = 'blue' #darkkhaki'
     x_data = range(25)
 
     fig_name = os.path.join(path_to_scenarios, "__results_resilience", "min_max_days.pdf")
 
     colors = plotting_styles.color_list_resilience()
-    fig = plt.figure(
-        figsize=plotting_program.cm2inch(8, 8)) #width, height
+    fig = plt.figure(figsize=plotting_program.cm2inch(8, 8)) #width, height
 
     for counter, (scenario, scenario_data) in enumerate(data_container.items()):
 
@@ -159,7 +193,7 @@ def generate_min_max_resilience_plot(path_to_scenarios):
 
             # Plot current year maximum day plot
             day_24h = [scenario_data[2015]['max_values'][-1]] + scenario_data[2015]['max_values']
-            #x_data_smoothed, y_data_smoothed = plotting_results.smooth_data(x_data, scenario_data[2015]['max_values'], num=40000)
+
             x_data_smoothed, y_data_smoothed = plotting_results.smooth_data(x_data, day_24h, num=40000)
             plt.plot(
                 x_data_smoothed,
@@ -172,7 +206,7 @@ def generate_min_max_resilience_plot(path_to_scenarios):
             # Plot current year minimum day plot 
             day_24h = [scenario_data[2015]['min_values'][-1]] + scenario_data[2015]['min_values']
             x_data_smoothed, y_data_smoothed = plotting_results.smooth_data(x_data, day_24h, num=40000)
-            #x_data_smoothed, y_data_smoothed = plotting_results.smooth_data(x_data, scenario_data[2015]['min_values'], num=40000)
+
             plt.plot(
                 x_data_smoothed,
                 list(y_data_smoothed),
@@ -187,16 +221,16 @@ def generate_min_max_resilience_plot(path_to_scenarios):
                 list(flat_y_data),
                 color=color_flat_line,
                 linestyle='--',
-                linewidth=0.5,
+                linewidth=line_width,
                 label='{}__{}'.format("flat", 2015))
-
+            
         y_data_max = scenario_data[plot_yr]['max_values']
         y_data_min = scenario_data[plot_yr]['min_values']
 
         # Maximum day line
         day_24h = [y_data_max[-1]] + y_data_max
         x_data_smoothed, y_data_smoothed = plotting_results.smooth_data(x_data, day_24h, num=40000)
-        #x_data_smoothed, y_data_smoothed = plotting_results.smooth_data(x_data, y_data_max, num=40000)
+
         plt.plot(
             x_data_smoothed,
             list(y_data_smoothed),
@@ -208,7 +242,7 @@ def generate_min_max_resilience_plot(path_to_scenarios):
         # Minimum day line
         day_24h = [y_data_min[-1]] + y_data_min
         x_data_smoothed, y_data_smoothed = plotting_results.smooth_data(x_data, day_24h, num=40000)
-        #x_data_smoothed, y_data_smoothed = plotting_results.smooth_data(x_data, y_data_min, num=40000)
+
         plt.plot(
             x_data_smoothed,
             list(y_data_smoothed),

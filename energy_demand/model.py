@@ -3,6 +3,7 @@
 import logging
 from collections import defaultdict
 import numpy as np
+
 import energy_demand.enduse_func as endusefunctions
 from energy_demand.geography.region import Region
 from energy_demand.geography.weather_region import WeatherRegion
@@ -27,6 +28,7 @@ class EnergyDemandModel(object):
         """Constructor
         """
         logging.info("... start main energy demand function")
+
         self.curr_yr = assumptions.curr_yr
 
         # ----------------------------
@@ -39,7 +41,7 @@ class EnergyDemandModel(object):
                 assumptions=assumptions,
                 technologies=data['technologies'],
                 fueltypes=data['lookups']['fueltypes'],
-                all_enduses=data['enduses'],
+                enduses=data['enduses'],
                 temp_by=data['temp_data'][weather_region],
                 tech_lp=data['tech_lp'],
                 sectors=data['sectors'])
@@ -47,25 +49,28 @@ class EnergyDemandModel(object):
         # ------------------------
         # Create Dwelling Stock
         # ------------------------
-        logging.info("... Generate dwelling stocks")
         if data['criterias']['virtual_building_stock_criteria']:
+            logging.info("... Generate virtual dwelling stocks")
 
             # Virtual dwelling stocks
-            data['rs_dw_stock'], data['ss_dw_stock'] = create_virtual_dwelling_stocks(
+            rs_dw_stock, ss_dw_stock = create_virtual_dwelling_stocks(
                 regions, assumptions.curr_yr, data)
+
+            data['dw_stocks'] = {
+                data['lookups']['submodels_names'][0]: rs_dw_stock,
+                data['lookups']['submodels_names'][1]: ss_dw_stock,
+                data['lookups']['submodels_names'][2]: None}
         else:
             # Create dwelling stock from imported data from newcastle
             data = create_dwelling_stock(
                 regions, assumptions.curr_yr, data)
-
-        logging.info("... finished generating dwelling stock")
 
         # --------------------
         # Initialise result container to aggregate results
         # --------------------
         aggr_results = initialise_result_container(
             data['lookups']['fueltypes_nr'],
-            data['sectors'],
+            data['assumptions'].submodels_names,
             data['reg_nrs'])
 
         # ---------------------------------------------
@@ -78,11 +83,14 @@ class EnergyDemandModel(object):
                 assumptions.curr_yr,
                 round((100/data['reg_nrs'])*reg_array_nr, 2))
 
-            reg_rs_submodel, reg_ss_submodel, reg_is_submodel = simulate_region(
+            all_submodel_objs = simulate_region(
                 region, data, assumptions, weather_regions)
 
-            # Store submodel results
-            all_submodels = [reg_rs_submodel, reg_ss_submodel, reg_is_submodel]
+            # Collect all submodels with respect to submodel names
+            all_submodels = []
+            for submodel in data['lookups']['submodels_names']:
+                submodels = get_all_submodels(all_submodel_objs, submodel)
+                all_submodels.append(submodels)
 
             # ---------------------------------------------
             # Aggregate results
@@ -113,6 +121,55 @@ class EnergyDemandModel(object):
         ## from energy_demand.charts import figure_HHD_gas_demand
         ## figure_HHD_gas_demand.main(regions, weather_regions, data)
 
+def get_all_submodels(submodels, submodel_name):
+    """Collect all submodel objects for a
+    specific submodel name
+
+    Arguments
+    ---------
+    submodels : list
+        All calculated model objects
+    submodel_name : str
+        Name of submodels to collect
+
+    Returns
+    -------
+    specific_submodels : list
+        Contains all submodels
+    """
+    specific_submodels = []
+
+    for submodel in submodels:
+        if submodel.submodel_name == submodel_name:
+            specific_submodels.append(submodel)
+
+    return specific_submodels
+
+def get_disaggregated_fuel_of_reg(submodel_names, fuel_disagg, region):
+    """Get disaggregated region for every submodel
+    for a specific region
+
+    Arguments
+    -------
+    submodel_names : dict
+        Name of all submodels
+    fuel_disagg : dict
+        Fuel per submodel for all regions
+    region : str
+        Region
+
+    Returns
+    -------
+    region_fuel_disagg : dict
+        Disaggregated fuel for a specific region
+    """
+    region_fuel_disagg = {}
+
+    for submodel_name in submodel_names:
+        region_fuel_disagg[submodel_name] = fuel_disagg[submodel_name][region]
+
+    return region_fuel_disagg
+
 def simulate_region(region, data, assumptions, weather_regions):
     """Run submodels for a single region
 
@@ -127,62 +184,85 @@ def simulate_region(region, data, assumptions, weather_regions):
 
     Returns
     -------
-    XX_submodels : obj
+    submodel_objs : obj
         SubModel result object
     """
+    submodel_names = assumptions.submodels_names
+
+    # Get region specific disaggregated fuel
+    region_fuel_disagg = get_disaggregated_fuel_of_reg(
+        submodel_names, data['fuel_disagg'], region)
+
     region_obj = Region(
         name=region,
         longitude=data['reg_coord'][region]['longitude'],
         latitude=data['reg_coord'][region]['latitude'],
-        rs_fuel_disagg=data['fuel_disagg']['rs_fuel_disagg'][region],
-        ss_fuel_disagg=data['fuel_disagg']['ss_fuel_disagg'][region],
-        is_fuel_disagg=data['fuel_disagg']['is_fuel_disagg'][region],
+        region_fuel_disagg=region_fuel_disagg,
         weather_stations=data['weather_stations'])
 
     # Closest weather region object
     weather_region_obj = weather_regions[region_obj.closest_weather_region_id]
 
-    # --------------------
-    # Residential SubModel
-    # --------------------
-    rs_submodel = residential_submodel(
-        region_obj,
-        weather_region_obj,
-        data['scenario_data'],
-        data['rs_dw_stock'][region],
-        assumptions,
-        data['lookups'],
-        data['criterias'],
-        data['enduses']['rs_enduses'])
+    submodel_objs = []
 
-    # --------------------
-    # Service SubModel
-    # --------------------
-    ss_submodel = service_submodel(
-        region_obj,
-        weather_region_obj,
-        data['scenario_data'],
-        data['ss_dw_stock'][region],
-        assumptions,
-        data['lookups'],
-        data['criterias'],
-        data['enduses']['ss_enduses'],
-        data['sectors']['ss_sectors'])
+    # Iterate overall submodels
+    for submodel_name in submodel_names:
 
-    # --------------------
-    # Industry SubModel
-    # --------------------
-    is_submodel = industry_submodel(
-        region_obj,
-        weather_region_obj,
-        data['scenario_data'],
-        assumptions,
-        data['lookups'],
-        data['criterias'],
-        data['enduses']['is_enduses'],
-        data['sectors']['is_sectors'])
+        # Iterate overall sectors in submodel
+        for sector in data['sectors'][submodel_name]:
 
-    return rs_submodel, ss_submodel, is_submodel
+            # Iterate overall enduses and sectors in submodel
+            for enduse in data['enduses'][submodel_name]:
+
+                # ------------------------------------------------------
+                # Configure and select correct Enduse specific inputs
+                # ------------------------------------------------------
+                if submodel_name == 'industry' and enduse != "is_space_heating":
+                    flat_profile_crit = True
+                else:
+                    flat_profile_crit = False
+
+                if sector:
+                    fuel = region_obj.fuels[submodel_name][enduse][sector]
+                    fuel_tech_p_by = assumptions.fuel_tech_p_by[enduse][sector]
+                else:
+                    fuel = region_obj.fuels[submodel_name][enduse]
+                    fuel_tech_p_by = assumptions.fuel_tech_p_by[enduse]
+                
+                if not data['dw_stocks'][submodel_name]:
+                    dw_stock = False
+                else:
+                    dw_stock = data['dw_stocks'][submodel_name][region_obj.name]
+
+                # ---------------
+                # Create submodel for region and enduse
+                # ---------------
+                submodel_obj = endusefunctions.Enduse(
+                    submodel_name=submodel_name,
+                    region=region_obj.name,
+                    scenario_data=data['scenario_data'],
+                    assumptions=assumptions,
+                    load_profiles=weather_region_obj.load_profiles,
+                    base_yr=assumptions.base_yr,
+                    curr_yr=assumptions.curr_yr,
+                    enduse=enduse,
+                    sector=sector,
+                    fuel=fuel,
+                    tech_stock=weather_region_obj.tech_stock[submodel_name],
+                    heating_factor_y=weather_region_obj.f_heat[submodel_name],
+                    cooling_factor_y=weather_region_obj.f_colling[submodel_name],
+                    fuel_tech_p_by=fuel_tech_p_by,
+                    criterias=data['criterias'],
+                    strategy_vars=assumptions.regional_strategy_vars[region_obj.name],
+                    fueltypes_nr=data['lookups']['fueltypes_nr'],
+                    fueltypes=data['lookups']['fueltypes'],
+                    dw_stock=dw_stock,
+                    reg_scen_drivers=assumptions.scenario_drivers,
+                    flat_profile_crit=flat_profile_crit)
+
+                submodel_objs.append(submodel_obj)
+
+    return submodel_objs
 
 def fuel_aggr(
         sector_models,
@@ -284,7 +364,7 @@ def get_fuels_yh(enduse_object, attribute_to_get):
             flat_shape = np.full((enduse_object.fuel_y.shape[0], 365, 24), f_hour, dtype="float")
             fuels = fuels_reg_y[:, np.newaxis, np.newaxis] * flat_shape
     else: #If not flat shape, use yh load profile of enduse
-        if attribute_to_get == 'shape_non_peak_y_dh':
+        '''if attribute_to_get == 'shape_non_peak_y_dh':
             fuels = enduse_object.shape_non_peak_y_dh
         elif attribute_to_get == 'shape_non_peak_yd':
             fuels = enduse_object.shape_non_peak_yd
@@ -293,203 +373,10 @@ def get_fuels_yh(enduse_object, attribute_to_get):
         elif attribute_to_get == 'techs_fuel_yh':
             fuels = enduse_object.techs_fuel_yh
         else:
-            fuels = getattr(enduse_object, attribute_to_get)
+            fuels = getattr(enduse_object, attribute_to_get)'''
+        fuels = getattr(enduse_object, attribute_to_get)
 
     return fuels
-
-def residential_submodel(
-        region,
-        weather_region,
-        scenario_data,
-        rs_dw_stock,
-        assumptions,
-        lookups,
-        criterias,
-        enduses,
-        sectors=False
-    ):
-    """Create the residential submodules (per enduse and region) and add them to list
-    data['lookups']
-    Arguments
-    ----------
-    data : dict
-        Data container
-    enduses : list
-        All residential enduses
-    sectors : list, default=False
-        Sectors
-
-    Returns
-    -------
-    submodule_list : list
-        List with submodules
-    """
-    if not sectors:
-        sectors = [False]
-    else:
-        pass
-
-    submodels = []
-
-    for sector in sectors:
-        for enduse in enduses:
-
-            # Create submodel
-            submodel = endusefunctions.Enduse(
-                region=region.name,
-                scenario_data=scenario_data,
-                assumptions=assumptions,
-                load_profiles=weather_region.rs_load_profiles,
-                base_yr=assumptions.base_yr,
-                curr_yr=assumptions.curr_yr,
-                enduse=enduse,
-                sector=sector,
-                fuel=region.rs_enduses_fuel[enduse],
-                tech_stock=weather_region.rs_tech_stock,
-                heating_factor_y=weather_region.f_heat_rs_y,
-                cooling_factor_y=weather_region.f_cooling_rs_y,
-                fuel_tech_p_by=assumptions.rs_fuel_tech_p_by[enduse],
-                criterias=criterias,
-                strategy_vars=assumptions.regional_strategy_vars[region.name],
-                #non_regional_strategy_vars=assumptions.non_regional_strategy_vars,
-                fueltypes_nr=lookups['fueltypes_nr'],
-                fueltypes=lookups['fueltypes'],
-                dw_stock=rs_dw_stock)
-
-            submodels.append(submodel)
-
-    return submodels
-
-def service_submodel(
-        region,
-        weather_region,
-        scenario_data,
-        ss_dw_stock,
-        assumptions,
-        lookups,
-        criterias,
-        enduses,
-        sectors
-    ):
-    """Create the service submodules per enduse, sector and region and add to list
-
-    Arguments
-    ----------
-    data : dict
-        Data container
-    enduses : list
-        All residential enduses
-    sectors : list
-        Service sectors
-
-    Returns
-    -------
-    submodels : list
-        List with submodels
-    """
-    submodels = []
-
-    for sector in sectors:
-        for enduse in enduses:
-
-            # Create submodel
-            submodel = endusefunctions.Enduse(
-                region=region.name,
-                scenario_data=scenario_data,
-                assumptions=assumptions,
-                load_profiles=weather_region.ss_load_profiles,
-                base_yr=assumptions.base_yr,
-                curr_yr=assumptions.curr_yr,
-                enduse=enduse,
-                sector=sector,
-                fuel=region.ss_enduses_sectors_fuels[enduse][sector],
-                tech_stock=weather_region.ss_tech_stock,
-                heating_factor_y=weather_region.f_heat_ss_y,
-                cooling_factor_y=weather_region.f_cooling_ss_y,
-                fuel_tech_p_by=assumptions.ss_fuel_tech_p_by[enduse][sector],
-                criterias=criterias,
-                strategy_vars=assumptions.regional_strategy_vars[region.name],
-                #non_regional_strategy_vars=assumptions.non_regional_strategy_vars,
-                fueltypes_nr=lookups['fueltypes_nr'],
-                fueltypes=lookups['fueltypes'],
-                dw_stock=ss_dw_stock)
-
-            # Add to list
-            submodels.append(submodel)
-
-    return submodels
-
-def industry_submodel(
-        region,
-        weather_region,
-        scenario_data,
-        assumptions,
-        lookups,
-        criterias,
-        enduses,
-        sectors
-    ):
-    """Industry subsector model
-
-    A flat load profile is assumed except for is_space_heating
-
-    Arguments
-    ----------
-    region : int
-        Region
-    data : dict
-        Data containter
-    enduses : list
-        Enduses of industry submodel
-    sectors : list
-        Sectors of industry submodel
-
-    Return
-    ------
-    submodules : list
-        Submodule objects
-    """
-    submodels = []
-
-    for sector in sectors:
-        for enduse in enduses:
-
-            # ------------------------------------------------------
-            # Configure and select correct Enduse() specific inputs
-            # ------------------------------------------------------
-            if enduse == "is_space_heating":
-                flat_profile_crit = False
-            else:
-                flat_profile_crit = True
-
-            # ------------------------------------------------------
-            # Create submodel
-            # ------------------------------------------------------
-            submodel = endusefunctions.Enduse(
-                region=region.name,
-                scenario_data=scenario_data,
-                assumptions=assumptions,
-                load_profiles=weather_region.is_load_profiles,
-                base_yr=assumptions.base_yr,
-                curr_yr=assumptions.curr_yr,
-                enduse=enduse,
-                sector=sector,
-                fuel=region.is_enduses_sectors_fuels[enduse][sector],
-                tech_stock=weather_region.is_tech_stock,
-                heating_factor_y=weather_region.f_heat_is_y,
-                cooling_factor_y=weather_region.f_cooling_is_y,
-                fuel_tech_p_by=assumptions.is_fuel_tech_p_by[enduse][sector],
-                criterias=criterias,
-                strategy_vars=assumptions.regional_strategy_vars[region.name],
-                #non_regional_strategy_vars=assumptions.non_regional_strategy_vars,
-                fueltypes_nr=lookups['fueltypes_nr'],
-                fueltypes=lookups['fueltypes'],
-                reg_scen_drivers=assumptions.scenario_drivers['is_submodule'],
-                flat_profile_crit=flat_profile_crit)
-
-            submodels.append(submodel)
-
-    return submodels
 
 def aggr_fuel_regions_fueltype(
         aggregation_array,
@@ -642,9 +529,9 @@ def create_virtual_dwelling_stocks(regions, curr_yr, data):
             data['scenario_data'],
             data['assumptions'].simulated_yrs,
             data['lookups']['dwtype'],
-            data['enduses']['rs_enduses'],
+            data['enduses']['residential'],
             data['reg_coord'],
-            data['assumptions'].scenario_drivers['rs_submodule'],
+            data['assumptions'].scenario_drivers,
             data['assumptions'].base_yr,
             data['assumptions'].base_yr,
             data['criterias']['virtual_building_stock_criteria'])
@@ -656,9 +543,9 @@ def create_virtual_dwelling_stocks(regions, curr_yr, data):
             data['scenario_data'],
             data['assumptions'].simulated_yrs,
             data['lookups']['dwtype'],
-            data['enduses']['rs_enduses'],
+            data['enduses']['residential'],
             data['reg_coord'],
-            data['assumptions'].scenario_drivers['rs_submodule'],
+            data['assumptions'].scenario_drivers,
             curr_yr,
             data['assumptions'].base_yr,
             data['criterias']['virtual_building_stock_criteria'])
@@ -669,8 +556,8 @@ def create_virtual_dwelling_stocks(regions, curr_yr, data):
         # base year
         ss_dw_stock[region][data['assumptions'].base_yr] = dw_stock.ss_dw_stock(
             region,
-            data['enduses']['ss_enduses'],
-            data['sectors']['ss_sectors'],
+            data['enduses']['service'],
+            data['sectors']['service'],
             data['scenario_data'],
             data['reg_coord'],
             data['assumptions'],
@@ -681,8 +568,8 @@ def create_virtual_dwelling_stocks(regions, curr_yr, data):
         # current year
         ss_dw_stock[region][curr_yr] = dw_stock.ss_dw_stock(
             region,
-            data['enduses']['ss_enduses'],
-            data['sectors']['ss_sectors'],
+            data['enduses']['service'],
+            data['sectors']['service'],
             data['scenario_data'],
             data['reg_coord'],
             data['assumptions'],
@@ -761,6 +648,7 @@ def aggregate_final_results(
         # Aggregate fuel of constrained technologies for heating
         # -----------------------------------------------------------------
         for submodel_nr, submodel in enumerate(all_submodels):
+
             for enduse_object in submodel:
 
                 # Aggregate only over heating technologies
@@ -807,6 +695,8 @@ def aggregate_final_results(
         # Add SubModel specific ed
         aggr_results['results_unconstrained'][submodel_nr][reg_array_nr] += submodel_ed_fueltype_regs_yh
 
+        if len(aggr_results['results_unconstrained']) > 3:
+            raise Exception("WHAT IS THAT???")
     # --------------------------------------------
     # Sum restuls for other purposes
     # --------------------------------------------
@@ -880,7 +770,7 @@ def aggregate_final_results(
 
 def initialise_result_container(
         fueltypes_nr,
-        sectors,
+        submodels,
         reg_nrs
     ):
     """Create container with empty dict or arrays
@@ -904,7 +794,7 @@ def initialise_result_container(
     result_container = {}
 
     result_container['results_unconstrained'] = np.zeros(
-        (len(sectors.keys()), reg_nrs, fueltypes_nr, 365, 24), dtype="float")
+        (len(submodels), reg_nrs, fueltypes_nr, 365, 24), dtype="float")
 
     result_container['results_constrained'] = {}
 

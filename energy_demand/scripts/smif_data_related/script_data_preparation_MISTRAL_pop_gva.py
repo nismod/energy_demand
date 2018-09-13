@@ -229,7 +229,7 @@ def run(
                     gp_file['interval'] = 1
 
                     # -------
-                    # Drop all rows with alls NaN entries#TODO NEW
+                    # Drop all rows with alls NaN entries
                     # -------
                     gp_file = gp_file[np.isfinite(gp_file['value'])]
 

@@ -638,7 +638,7 @@ def spatial_validation(
                         result_dict['modelled_demand'][reg_geocode] = subnational_modelled[reg_geocode]
 
                 except KeyError:
-                    logging.warning(
+                    logging.debug(
                         "Sub-national spatial validation: No fuel for region %s", reg_geocode)
 
     # --------------------
@@ -866,7 +866,7 @@ def spatial_validation_multiple(
                             result_dict['real_demand'][reg_geocode] = subnational_real[reg_geocode]
                             result_dict['modelled_demand'][reg_geocode] = subnational_modelled[reg_geocode]
                     except KeyError:
-                        logging.warning(
+                        logging.debug(
                             "Sub-national spatial validation: No fuel for region %s", reg_geocode)
 
         # --------------------

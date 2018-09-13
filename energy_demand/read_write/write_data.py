@@ -335,9 +335,9 @@ def write_simulation_inifile(path, data, simulated_regions):
     config.add_section('ENDUSES')
 
     #convert list to strings
-    config['ENDUSES']['rs_enduses'] = str(data['enduses']['rs_enduses'])
-    config['ENDUSES']['ss_enduses'] = str(data['enduses']['ss_enduses'])
-    config['ENDUSES']['is_enduses'] = str(data['enduses']['is_enduses'])
+    config['ENDUSES']['residential'] = str(data['enduses']['residential'])
+    config['ENDUSES']['service'] = str(data['enduses']['service'])
+    config['ENDUSES']['industry'] = str(data['enduses']['industry'])
 
     config.add_section('REGIONS')
     config['REGIONS']['regions'] = str(simulated_regions)

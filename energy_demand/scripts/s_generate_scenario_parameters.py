@@ -59,82 +59,58 @@ def get_correct_narrative_timestep(
 def calc_annual_switch_params(
         simulated_yrs,
         regions,
-        rs_sig_param_tech,
-        ss_sig_param_tech,
-        is_sig_param_tech
+        sig_param_tech
     ):
     """Calculate annual diffusion parameters
     for technologies based on sigmoid diffusion parameters
+
+    Arguments
+    ---------
+    simulated_yrs : list
+        Simulated years
+    regions : list
+        Regions
+    sig_param_tech : dict
+        Sigmoid parameters per submodel
+
+    Returns
+    -------
     """
     annual_tech_diff_params = {}
 
+    # Iterate regions
     for region in regions:
         annual_tech_diff_params[region] = {}
 
-        # ------------------------
-        # Submodel without sectors
-        # ------------------------
-        for enduse, region_tech_vals in rs_sig_param_tech.items():
-            annual_tech_diff_params[region][enduse] = defaultdict(dict)
+        # Iterate enduses
+        for enduse, sector_region_tech_vals in sig_param_tech.items():
+            annual_tech_diff_params[region][enduse] = {}
 
-            if region_tech_vals != {}:
+            # Iterate sectors
+            for sector, reg_vals in sector_region_tech_vals.items():
 
-                for sim_yr in simulated_yrs:
+                if reg_vals != {}:
+                    annual_tech_diff_params[region][enduse][sector] = defaultdict(dict)
 
-                    narrative_timesteps = list(rs_sig_param_tech[enduse].keys())
+                    # Iterate simulation years
+                    for sim_yr in simulated_yrs:
 
-                    correct_narrative_timestep = get_correct_narrative_timestep(
-                        sim_yr=sim_yr, narrative_timesteps=narrative_timesteps)
+                        narrative_timesteps = list(sector_region_tech_vals[sector].keys())
 
-                    for tech in region_tech_vals[correct_narrative_timestep][region].keys():
+                        correct_narrative_timestep = get_correct_narrative_timestep(
+                            sim_yr=sim_yr, narrative_timesteps=narrative_timesteps)
 
-                        # Sigmoid parameters
-                        sig_param = region_tech_vals[correct_narrative_timestep][region][tech]
+                        for tech in reg_vals[correct_narrative_timestep][region].keys():
 
-                        # Calculate diffusion value
-                        p_s_tech = enduse_func.get_service_diffusion(
-                            sig_param, sim_yr)
+                            # Sigmoid parameters
+                            param = reg_vals[correct_narrative_timestep][region][tech]
 
-                        # What about linear?? TODO??
-                        annual_tech_diff_params[region][enduse][tech][sim_yr] = p_s_tech
-            else:
-                annual_tech_diff_params[region][enduse] = []
+                            p_s_tech = enduse_func.get_service_diffusion(
+                                param, sim_yr)
 
-            dict(annual_tech_diff_params[region][enduse])
-
-        # ------------------------
-        # Submodels with sector
-        # ------------------------
-        for submodel in [ss_sig_param_tech, is_sig_param_tech]:
-
-            for enduse, sector_region_tech_vals in submodel.items():
-
-                annual_tech_diff_params[region][enduse] = {}
-
-                for sector, reg_vals in sector_region_tech_vals.items():
-
-                    if reg_vals != {}:
-                        annual_tech_diff_params[region][enduse][sector] = defaultdict(dict)
-
-                        for sim_yr in simulated_yrs:
-
-                            narrative_timesteps = list(submodel[enduse][sector].keys())
-
-                            correct_narrative_timestep = get_correct_narrative_timestep(
-                                sim_yr=sim_yr, narrative_timesteps=narrative_timesteps)
-
-                            for tech in reg_vals[correct_narrative_timestep][region].keys():
-
-                                # Sigmoid parameters
-                                sig_param = reg_vals[correct_narrative_timestep][region][tech]
-
-                                p_s_tech = enduse_func.get_service_diffusion(
-                                    sig_param, sim_yr)
-
-                                # What about linear?? TODO??
-                                annual_tech_diff_params[region][enduse][sector][tech][sim_yr] = p_s_tech
-                    else:
-                        annual_tech_diff_params[region][enduse][sector] = []
+                            annual_tech_diff_params[region][enduse][sector][tech][sim_yr] = p_s_tech
+                else:
+                    annual_tech_diff_params[region][enduse][sector] = []
 
     return annual_tech_diff_params
 

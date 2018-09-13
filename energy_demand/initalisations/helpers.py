@@ -1,9 +1,15 @@
 """Short diverse helper functions
 """
 from collections import defaultdict
+from energy_demand.basic import basic_functions
 
-def copy_fractions_all_sectors(fuel_tech_p_by, sectors):
-    """Copy all defined fractions for an enduse to all setors
+def copy_fractions_all_sectors(
+        fuel_tech_p_by,
+        sectors,
+        affected_enduses
+    ):
+    """Copy all defined fractions
+    for an enduse to all setors
 
     Arguments
     ---------
@@ -12,20 +18,26 @@ def copy_fractions_all_sectors(fuel_tech_p_by, sectors):
     sectors : list
         All sectors with this induse where the identical
         shares want to be transferred
+    affected_enduses : list
+        Enduses for which the values should be copied
 
     Returns
     -------
     out_dict : dict
         Fuel shares for all sectors
-        {enduse: {sector: {fueltype: {tech: {share}}}}}
+        i.e. {enduse: {sector: {fueltype: {tech: {share}}}}}
     """
     out_dict = defaultdict(dict)
 
     for sector in sectors:
         for enduse, techs in fuel_tech_p_by.items():
-            out_dict[enduse][sector] = techs
 
-    return dict(out_dict)
+            if enduse in affected_enduses:
+                out_dict[enduse][sector] = techs
+            else:
+                out_dict[enduse] = techs
+
+    return out_dict
 
 def init_fuel_tech_p_by(all_enduses_with_fuels, fueltypes_nr):
     """Helper function to define stocks for all enduse and fueltype
@@ -92,7 +104,7 @@ def add_undef_techs(heat_pumps, all_specified_tech_enduse, enduse):
 
     return all_specified_tech_enduse
 
-def get_def_techs(fuel_tech_p_by, sector_crit):
+def get_def_techs(fuel_tech_p_by):
     """Collect all technologies across all
     fueltypes for each endues
 
@@ -110,16 +122,18 @@ def get_def_techs(fuel_tech_p_by, sector_crit):
     """
     all_defined_tech_service_ey = {}
 
-    if sector_crit:
-        for enduse in fuel_tech_p_by:
+    for enduse in fuel_tech_p_by:
+
+        sector_crit = basic_functions.test_if_sector(
+            fuel_tech_p_by[enduse])
+
+        if sector_crit:
             for sector in fuel_tech_p_by[enduse]:
                 all_defined_tech_service_ey[enduse] = []
                 for fueltype in fuel_tech_p_by[enduse][sector]:
                     for i in list(fuel_tech_p_by[enduse][sector][fueltype].keys()):
                         all_defined_tech_service_ey[enduse].append(i)
-
-    else:
-        for enduse in fuel_tech_p_by:
+        else:
             all_defined_tech_service_ey[enduse] = []
             for fueltype in fuel_tech_p_by[enduse]:
                 all_defined_tech_service_ey[enduse].extend(fuel_tech_p_by[enduse][fueltype])
@@ -140,9 +154,7 @@ def get_nested_dict_key(nested_dict):
         Key of nested dict
     """
     all_nested_keys = []
-    #for entry in nested_dict:
-    #    for value in nested_dict[entry].keys():
-    #        all_nested_keys.append(value)
+
     for values in nested_dict.values():
         all_nested_keys += values.keys()
 

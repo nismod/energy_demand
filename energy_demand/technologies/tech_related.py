@@ -36,8 +36,7 @@ def test_if_tech_defined(enduse_fueltypes_techs):
 def insert_placholder_techs(
         technologies,
         tech_p_by,
-        all_specified_tech_enduse_by,
-        sector_crit=False
+        all_specified_tech_enduse_by
     ):
     """If no technology is defined for a fueltype in an enduse add
     a dumppy technology. This is necessary because the model needs
@@ -61,9 +60,11 @@ def insert_placholder_techs(
     technologies : dict
         Technologies
     """
-    if sector_crit is True:
 
-        for end_use, enduse_fueltypes_techs in tech_p_by.items():
+    for end_use, enduse_fueltypes_techs in tech_p_by.items():
+
+        if list(enduse_fueltypes_techs.keys())[0] != 0:
+
             for sector in enduse_fueltypes_techs:
 
                 # Test if a technology is defined in any fueltype
@@ -79,8 +80,7 @@ def insert_placholder_techs(
                     all_specified_tech_enduse_by[end_use].append("placeholder_tech")
                 else:
                     pass
-    else:
-        for end_use, enduse_fueltypes_techs in tech_p_by.items():
+        else:
 
             # Test if a technology is defined in any fueltype
             c_tech_defined = test_if_tech_defined(enduse_fueltypes_techs)

@@ -1,6 +1,5 @@
 """Virtual Dwelling Generator - Generates a virtual dwelling stock
 """
-import logging
 import numpy as np
 from energy_demand.basic import lookup_tables
 
@@ -54,7 +53,7 @@ from energy_demand.technologies import diffusion_technologies
                 curr_yr=curr_yr,
                 coordinates=data['reg_coord'][region],
                 floorarea=floor_area_dwtype_age_class,
-                enduses=data['enduses']['rs_enduses'],
+                enduses=data['enduses']['residential'],
                 driver_assumptions=data['assumptions'].scenario_drivers['rs_submodule'],
                 population=pop_dwtype_age_class,
                 age=age_class,
@@ -64,7 +63,7 @@ from energy_demand.technologies import diffusion_technologies
 
     dwelling_stock = DwellingStock(
         dw_stock,
-        data['enduses']['rs_enduses'])
+        data['enduses']['residential'])
 
     return dwelling_stock
 '''
@@ -531,7 +530,7 @@ def ss_dw_stock(
                 population=pop_cy,
                 floorarea=floorarea_sector_cy,
                 enduses=enduses,
-                driver_assumptions=assumptions.scenario_drivers['ss_submodule'],
+                driver_assumptions=assumptions.scenario_drivers,
                 sector=sector,
                 gva=gva_dw_data))
 
@@ -677,9 +676,6 @@ def rs_dw_stock(
             demolished_area = floorarea_by - floor_area_cy
 
         remaining_area = floorarea_by - demolished_area
-
-        # In existing building stock fewer people are living, i.e. density changes
-        #population_by_existing = floorarea_by / floorarea_pp_cy
 
         # Generate stock for existing area
         dw_stock_cy = generate_dw_existing(

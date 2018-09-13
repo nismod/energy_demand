@@ -45,9 +45,9 @@ def load_ini_param(path):
     # Other information
     # -----------------
     enduses = {}
-    enduses['rs_enduses'] = ast.literal_eval(config['ENDUSES']['rs_enduses'])
-    enduses['ss_enduses'] = ast.literal_eval(config['ENDUSES']['ss_enduses'])
-    enduses['is_enduses'] = ast.literal_eval(config['ENDUSES']['is_enduses'])
+    enduses['residential'] = ast.literal_eval(config['ENDUSES']['residential'])
+    enduses['service'] = ast.literal_eval(config['ENDUSES']['service'])
+    enduses['industry'] = ast.literal_eval(config['ENDUSES']['industry'])
 
     return enduses, assumptions, reg_nrs, regions
 
@@ -177,7 +177,7 @@ def read_national_real_gas_data(path_to_csv):
 
 def floor_area_virtual_dw(
         regions,
-        all_sectors,
+        sectors,
         local_paths,
         population,
         base_yr,
@@ -191,7 +191,7 @@ def floor_area_virtual_dw(
     ---------
     regions : dict
         Regions
-    all_sectors : dict
+    sectors : dict
         All sectors
     local_paths : dict
         Paths
@@ -235,7 +235,7 @@ def floor_area_virtual_dw(
         try:
             rs_floorarea[base_yr][region] = resid_footprint[region]
         except KeyError:
-            print("No virtual residential floor area for region %s ", region)
+            ##print("No virtual residential floor area for region %s ", region)
 
             # Calculate average floor area
             rs_floorarea[base_yr][region] = rs_avearge_floor_area_pp * population[region]
@@ -248,7 +248,7 @@ def floor_area_virtual_dw(
     ss_regions_without_floorarea = set([])
     ss_floorarea_sector_by[base_yr] = defaultdict(dict)
     for region in regions:
-        for sector in all_sectors:
+        for sector in sectors['service']:
             try:
                 ss_floorarea_sector_by[base_yr][region][sector] = non_res_flootprint[region]
             except KeyError:
@@ -382,29 +382,13 @@ def load_paths(path):
         'path_technologies': os.path.join(
             path, '05-technologies', 'technology_definition.csv'),
 
-        # Fuel switches
-        'rs_path_fuel_switches': os.path.join(
-            path, '06-switches', 'rs_switches_fuel.csv'),
-        'ss_path_fuel_switches': os.path.join(
-            path, '06-switches', 'ss_switches_fuel.csv'),
-        'is_path_fuel_switches': os.path.join(
-            path, '06-switches', 'is_switches_fuel.csv'),
-
-        # Path to service switches
-        'rs_path_service_switch': os.path.join(
-            path, '06-switches', 'rs_switches_service.csv'),
-        'ss_path_service_switch': os.path.join(
-            path, '06-switches', 'ss_switches_service.csv'),
-        'is_path_industry_switch': os.path.join(
-            path, '06-switches', 'is_switches_service.csv'),
-
-        # Path to capacity installations
-        'rs_path_capacity_installation': os.path.join(
-            path, '06-switches', 'rs_capacity_installations.csv'),
-        'ss_path_capacity_installation': os.path.join(
-            path, '06-switches', 'ss_capacity_installations.csv'),
-        'is_path_capacity_installation': os.path.join(
-            path, '06-switches', 'is_capacity_installations.csv'),
+        # Switches
+        'path_fuel_switches': os.path.join(
+            path, '06-switches', 'switches_fuel.csv'),
+        'path_service_switch': os.path.join(
+            path, '06-switches', 'switches_service.csv'),
+        'path_capacity_installation': os.path.join(
+            path, '06-switches', 'switches_capacity.csv'),
 
         # Paths to fuel raw data
         'rs_fuel_raw': os.path.join(
@@ -445,12 +429,10 @@ def load_paths(path):
             path, '01-validation_datasets', '02_subnational_elec', 'data_2015_elec_domestic.csv'),
         'path_val_subnational_elec_non_residential': os.path.join(
             path, '01-validation_datasets', '02_subnational_elec', 'data_2015_elec_non_domestic.csv'),
-
         'path_val_subnational_elec_msoa_residential': os.path.join(
             path, '01-validation_datasets', '02_subnational_elec', 'MSOA_domestic_electricity_2015_cleaned.csv'),
         'path_val_subnational_elec_msoa_non_residential': os.path.join(
             path, '01-validation_datasets', '02_subnational_elec', 'MSOA_non_dom_electricity_2015_cleaned.csv'),
-
         'path_val_subnational_gas': os.path.join(
             path, '01-validation_datasets', '03_subnational_gas', 'data_2015_gas.csv'),
         'path_val_subnational_gas_residential': os.path.join(
@@ -718,7 +700,7 @@ def load_temp_data(paths):
 
     return weather_stations, temp_data
 
-def load_fuels(paths, lookups):
+def load_fuels(submodels_names, paths, lookups):
     """Load in ECUK fuel data, enduses and sectors
 
     Sources:
@@ -728,6 +710,8 @@ def load_fuels(paths, lookups):
 
     Arguments
     ---------
+    submodels_names : list
+        Submodel names
     paths : dict
         Paths container
     lookups : dict
@@ -742,47 +726,47 @@ def load_fuels(paths, lookups):
     fuels : dict
         yearly fuels for every submodel
     """
-    enduses = {}
-    sectors = {}
-    fuels = {}
+    enduses, sectors, fuels = {}, {}, {}
 
-    # Residential Sector
-    rs_fuel_raw_data_enduses, enduses['rs_enduses'] = read_data.read_fuel_rs(
+    # -------------------------------
+    # submodels_names[0]: Residential SubmodelSubmodel
+    # -------------------------------
+    rs_fuel_raw, sectors[submodels_names[0]], enduses[submodels_names[0]] = read_data.read_fuel_rs(
         paths['rs_fuel_raw'])
 
-    # Service Sector
-    ss_fuel_raw, sectors['ss_sectors'], enduses['ss_enduses'] = read_data.read_fuel_ss(
-        paths['ss_fuel_raw'],
-        lookups['fueltypes_nr'])
+    # -------------------------------
+    # submodels_names[1]: Service Submodel
+    # -------------------------------
+    ss_fuel_raw, sectors[submodels_names[1]], enduses[submodels_names[1]] = read_data.read_fuel_ss(
+        paths['ss_fuel_raw'], lookups['fueltypes_nr'])
 
-    # Industry fuel
-    is_fuel_raw, sectors['is_sectors'], enduses['is_enduses'] = read_data.read_fuel_is(
+    # -------------------------------
+    # submodels_names[2]: Industry
+    # -------------------------------
+    is_fuel_raw, sectors[submodels_names[2]], enduses[submodels_names[2]] = read_data.read_fuel_is(
         paths['is_fuel_raw'], lookups['fueltypes_nr'])
 
-    # Iterate enduses per sudModel and flatten list
-    enduses['all_enduses'] = []
-    for enduse in enduses.values():
-        enduses['all_enduses'] += enduse
-
-    # Convert units
-    fuels['rs_fuel_raw'] = conversions.convert_fueltypes_ktoe_gwh(
-        rs_fuel_raw_data_enduses)
-    fuels['ss_fuel_raw'] = conversions.convert_fueltypes_sectors_ktoe_gwh(
+    # Convert energy input units
+    fuels['residential'] = conversions.convert_fueltypes_ktoe_gwh(
+        rs_fuel_raw)
+    fuels['service'] = conversions.convert_fueltypes_sectors_ktoe_gwh(
         ss_fuel_raw)
-    fuels['is_fuel_raw'] = conversions.convert_fueltypes_sectors_ktoe_gwh(
+    fuels['industry'] = conversions.convert_fueltypes_sectors_ktoe_gwh(
         is_fuel_raw)
 
-    sectors['all_sectors'] = [
-        'community_arts_leisure',
-        'education',
-        'emergency_services',
-        'health',
-        'hospitality',
-        'military',
-        'offices',
-        'retail',
-        'storage',
-        'other']
+    # Aggregate fuel across sectors
+    fuels['aggr_sector_fuels'] = {}
+    for submodel in enduses:
+
+        sector_fuel_crit = basic_functions.test_if_sector(
+            fuels[submodel], fuel_as_array=True)
+
+        for enduse in enduses[submodel]:
+
+            if sector_fuel_crit:
+                fuels['aggr_sector_fuels'][enduse] = sum(fuels[submodel][enduse].values())
+            else:
+                fuels['aggr_sector_fuels'][enduse] = fuels[submodel][enduse]
 
     return enduses, sectors, fuels
 
