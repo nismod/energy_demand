@@ -20,6 +20,7 @@ regional_specific, crit_all_the_same
 # Combine all switches of end_use_submodel #TODO
 TODO MORE GENERIC FUEL INPUT OPTION
 TODO : test if sector as function
+TODO: MAKE THE SWITCHES CAN ONLY BE ENDUSE SPECIFIC AND NOT SECTOR SPECIFIC
 # Make generic fuel switch
 # Mage generic enduse change in csv file as variable"""
 import os

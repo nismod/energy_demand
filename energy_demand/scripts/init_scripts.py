@@ -208,7 +208,7 @@ def switch_calculations(
     # and service switches. As inputs, service (and thus also capacity switches) are used
     # ========================================================================================
     sig_param_tech = defaultdict(dict)
-
+    #TODO ONLY ITERATE ONES WHICH MATTER
     for submodel in data['assumptions'].submodels_names:
         for enduse in data['enduses'][submodel]:
             for sector in data['sectors'][submodel]:
@@ -227,6 +227,7 @@ def switch_calculations(
                     regions=data['regions'],
                     sector=sector,
                     crit_all_the_same=crit_all_the_same)
+    sig_param_tech = dict(sig_param_tech)
 
     # ------------------
     # Calculate annual values based on calculated
@@ -639,7 +640,9 @@ def sig_param_calc_incl_fuel_switch(
                     for region in regions:
                         sig_param_tech[switch_yr][region] = sig_param_tech_all_regs_value
                 else:
-                    logging.info("... calc region specific parameters of `{}` for year `{}`".format(enduse, switch_yr))
+                    logging.info("... calc region specific parameters of `{}` for year `{}` sector: {}".format(
+                        enduse, switch_yr, sector))
+
                     for region in regions:
                         sig_param_tech[switch_yr][region] = s_generate_sigmoid.tech_sigmoid_parameters(
                             switch_yr,

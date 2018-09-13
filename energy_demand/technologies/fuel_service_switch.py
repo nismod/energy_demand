@@ -315,7 +315,9 @@ def autocomplete_switches(
     regions : list
         Regions
     f_diffusion : 
-    techs_affected_spatial_f
+        
+    techs_affected_spatial_f : 
+
     service_switches_from_capacity : list, default=[]
         Service switches stemming from capacity switches
     Returns
