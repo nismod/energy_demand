@@ -137,7 +137,7 @@ class Enduse(object):
                 assumptions.enduse_space_heating,
                 assumptions.ss_enduse_space_cooling)
             self.fuel_y = _fuel_new_y
-            logging.debug("FUEL TRAIN B0: " + str(np.sum(self.fuel_y)))
+            #logging.debug("FUEL TRAIN B0: " + str(np.sum(self.fuel_y)))
 
             _fuel_new_y = apply_smart_metering(
                 enduse,
@@ -146,7 +146,7 @@ class Enduse(object):
                 strategy_vars,
                 curr_yr)
             self.fuel_y = _fuel_new_y
-            logging.debug("FUEL TRAIN C0: " + str(np.sum(self.fuel_y)))
+            #logging.debug("FUEL TRAIN C0: " + str(np.sum(self.fuel_y)))
 
             _fuel_new_y = apply_specific_change(
                 enduse,
@@ -154,7 +154,7 @@ class Enduse(object):
                 strategy_vars,
                 curr_yr)
             self.fuel_y = _fuel_new_y
-            logging.debug("FUEL TRAIN D0: " + str(np.sum(self.fuel_y)))
+            #logging.debug("FUEL TRAIN D0: " + str(np.sum(self.fuel_y)))
 
             _fuel_new_y = apply_scenario_drivers(
                 enduse=enduse,
@@ -169,7 +169,7 @@ class Enduse(object):
                 base_yr=base_yr,
                 curr_yr=curr_yr)
             self.fuel_y = _fuel_new_y
-            logging.debug("FUEL TRAIN E0: " + str(np.sum(self.fuel_y)))
+            #logging.debug("FUEL TRAIN E0: " + str(np.sum(self.fuel_y)))
 
             # Apply cooling scenario variable
             _fuel_new_y = apply_cooling(
@@ -179,7 +179,7 @@ class Enduse(object):
                 assumptions.cooled_ss_floorarea_by,
                 curr_yr)
             self.fuel_y = _fuel_new_y
-            logging.debug("FUEL TRAIN E1: " + str(np.sum(self.fuel_y)))
+            #logging.debug("FUEL TRAIN E1: " + str(np.sum(self.fuel_y)))
 
             # Industry related change
             _fuel_new_y = industry_enduse_changes(
@@ -191,7 +191,7 @@ class Enduse(object):
                 self.fuel_y,
                 assumptions)
             self.fuel_y = _fuel_new_y
-            logging.debug("FUEL TRAIN E2: " + str(np.sum(self.fuel_y)))
+            #logging.debug("FUEL TRAIN E2: " + str(np.sum(self.fuel_y)))
 
             # Generic fuel switch of an enduse
             _fuel_new_y = generic_fuel_switch(
@@ -1361,22 +1361,28 @@ def calc_service_switch(
     ):
     """Apply change in service depending on defined service switches.
 
-    The service which is fulfilled by new technologies as defined
-    in the service switches is substracted of the replaced
-    technologies proportionally to the base year distribution
-    of these technologies.
+    The service which is newly fulfilled by new technologies (as defined
+    in the service switches) is substracted of the replaced
+    technologies proportionally to their base year contribution.
 
     Arguments
     ---------
-    TODO
-    tot_s_yh_cy : array
-        Hourly service of all technologies
+    enduse : str
+        Enduse
+    s_tech_y_cy : dict
+        Service per technology
     all_technologies : dict
         Technologies to iterate
     curr_yr : int
         Current year
+    base_yr : int
+        Base year
+    sector : str
+        Sector
     annual_tech_diff_params : dict
         Sigmoid technology specific calculated annual diffusion values
+    crit_switch_happening : bool
+        Criteria wheter switch is defined or not
 
     Returns
     -------
@@ -1405,7 +1411,7 @@ def calc_service_switch(
 
         for tech in all_technologies:
 
-            # Ger service share per tech of cy of sigmoid parameter calculations
+            # Get service share per tech of cy of sigmoid parameter calculations
             p_s_tech_cy = annual_tech_diff_params[enduse][sector][tech][curr_yr]
 
             if p_s_tech_cy == 'identical':

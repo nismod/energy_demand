@@ -122,7 +122,7 @@ def test_create_switches_from_s_shares():
 
     out = fuel_service_switch.create_switches_from_s_shares(
         enduse='heating',
-        s_tech_by_p={'heating': {'techA': 0.2, 'techB': 0.8}},
+        s_tech_by_p={None: {'heating': {'techA': 0.2, 'techB': 0.8}}},
         switch_technologies=['techA'],
         specified_tech_enduse_by={'heating': ['techA', 'techB']},
         enduse_switches=enduse_switches,
@@ -160,9 +160,9 @@ def test_autocomplete_switches():
         techs_affected_spatial_f=False,
         service_switches_from_capacity={'regA':[]})
 
-    assert out[None]['heating']['regA'][2050]['techA'] = 0.6
-    assert out[None]['heating']['regA'][2050]['techC'] = 0.2
-    assert out[None]['heating']['regA'][2050]['techA'] = 0.2
+    assert out[None]['heating']['regA'][2050]['techA'] == 0.6
+    assert out[None]['heating']['regA'][2050]['techB'] == 0.2
+    assert out[None]['heating']['regA'][2050]['techC'] == 0.2
 
     # ---
     service_switches = [read_data.ServiceSwitch(
@@ -183,9 +183,9 @@ def test_autocomplete_switches():
         techs_affected_spatial_f=['techA'],
         service_switches_from_capacity={'regA': [], 'regB': []})
 
-    assert out[None]['heating']['regA'][2050]['techA'] = 0.6
-    assert out[None]['heating']['regA'][2050]['techC'] = 0.2
-    assert out[None]['heating']['regA'][2050]['techA'] = 0.2
+    assert out[None]['heating']['regA'][2050]['techA'] == 0.6
+    assert out[None]['heating']['regA'][2050]['techB'] == 0.2
+    assert out[None]['heating']['regA'][2050]['techC'] == 0.2
 
 def test_create_service_switch():
     """testing

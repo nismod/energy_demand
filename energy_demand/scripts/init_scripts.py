@@ -1,17 +1,15 @@
-"""Script functions which are executed after
-model installation and after each scenario definition
+"""Model initiallisation scripts
 """
 import logging
 from collections import defaultdict
-import numpy as np
 import time
+import numpy as np
 
 from energy_demand.geography import spatial_diffusion
 from energy_demand.read_write import read_data
 from energy_demand.scripts import (s_fuel_to_service, s_generate_sigmoid)
 from energy_demand.technologies import fuel_service_switch
 from energy_demand.scripts import s_generate_scenario_parameters
-from energy_demand.basic import basic_functions
 
 def get_all_narrative_timesteps(switches_list):
     """Read all defined narrative timesteps
@@ -51,14 +49,35 @@ def create_spatial_diffusion_factors(
         regions,
         real_values,
         speed_con_max,
-        p_outlier=5
+        p_outlier=5.0
     ):
     """
-
-    p_outlier : float or int
-        Nr of min and max outliers to flatten
-
-    TODO. improve
+    Arguments
+    -------
+    strategy_vars : dict
+        Streategy variables
+    fuel_disagg : dict
+        Disaggregated fuel
+    regions : list
+        Regions
+    real_values : dict
+        Real values
+    speed_con_max : float
+        Maximum diffusion criteria
+    p_outlier : float, default=5.0
+        Percentage of outliers which are removed from top and bottom
+        (Nr of min and max outliers to flatten)
+    
+    Returns
+    -------
+    f_reg : dict
+        Spatial diffusion factor
+    f_reg_norm : dict
+        Spatial diffusion factor
+    f_reg_norm_abs : dict
+        Spatial diffusion factor
+    crit_all_the_same : bool
+        Criteria whether regional specific parameters or not
     """
     if strategy_vars['spatial_explicit_diffusion']['scenario_value']:
 
@@ -209,11 +228,11 @@ def switch_calculations(
     # and service switches. As inputs, service (and thus also capacity switches) are used
     # ========================================================================================
     sig_param_tech = defaultdict(dict)
-    #TODO ONLY ITERATE ONES WHICH MATTER
+
     for submodel in data['assumptions'].submodels_names:
         for enduse in data['enduses'][submodel]:
             for sector in data['sectors'][submodel]:
-                print("============= Calculating Sigmoid {}  {}".format(enduse, sector), flush=True)
+
                 sig_param_tech[enduse][sector] = sig_param_calc_incl_fuel_switch(
                     narrative_timesteps,
                     data['assumptions'].base_yr,
@@ -228,7 +247,6 @@ def switch_calculations(
                     regions=data['regions'],
                     sector=sector,
                     crit_all_the_same=crit_all_the_same)
-    sig_param_tech = dict(sig_param_tech)
 
     # ------------------
     # Calculate annual values based on calculated
@@ -237,7 +255,7 @@ def switch_calculations(
     annual_tech_diff_params = s_generate_scenario_parameters.calc_annual_switch_params(
         simulated_yrs,
         data['regions'],
-        sig_param_tech)
+        dict(sig_param_tech))
 
     return annual_tech_diff_params
 
@@ -446,7 +464,7 @@ def sig_param_calc_incl_fuel_switch(
         crit_all_the_same=True
     ):
     """Calculate sigmoid diffusion paramaters considering
-    fuel or service switches. Test if service switch and
+    fuel and service switches. Test if service switch and
     fuel switch are defined simultaneously (raise error if true).
 
     Arguments
@@ -455,6 +473,8 @@ def sig_param_calc_incl_fuel_switch(
         All defined narrative years
     base_yr : int
         Base year
+    crit_switch_happening : dict
+        Wheter switch is defined or not per enduse
     technologies : dict
         technologies
     enduse : str
@@ -469,8 +489,12 @@ def sig_param_calc_incl_fuel_switch(
         Service share per technology for end year
     fuel_tech_p_by : dict
         Fuel share per technology in base year
-    regions : dict
+    regions : list
         Regions
+    sector : str
+        Sector
+    crit_all_the_same : bool,default=True
+        Criteria wheter regional specific parameter calculations
 
     Returns
     -------
@@ -478,7 +502,6 @@ def sig_param_calc_incl_fuel_switch(
         Sigmoid parameters for all affected technologies
     service_switches_out : list
         Service switches
-    TODO
     """
     if sum(s_tech_by_p.values()) == 0: # no fuel is defined for enduse
         #logging.info("no fuel is defined for enduse `{}` and sector `{}`".format(enduse, sector))
@@ -641,8 +664,8 @@ def sig_param_calc_incl_fuel_switch(
                     for region in regions:
                         sig_param_tech[switch_yr][region] = sig_param_tech_all_regs_value
                 else:
-                    #logging.debug("... calc region specific parameters of `{}` for year `{}` sector: {}".format(enduse, switch_yr, sector))
-                    #print("STARTING REGIONS ", flush=True)
+                    logging.info("... calc region specific parameters of `{}` for year `{}` sector: {}".format(enduse, switch_yr, sector))
+
                     start = time.time()
                     for region in regions:
                         #print("REGION " + str(region), flush=True)
@@ -654,8 +677,8 @@ def sig_param_calc_incl_fuel_switch(
                             s_tech_by_p,
                             s_tech_switched_p[region][switch_yr])
                     end = time.time()
-                    #print("FINISHED REGIONS", flush=True)
-                    print("USED TIME: " + str(end - start), flush=True)
+
+                    print("Time use for sigmoid parameter calaulations (reduce number of iteraitons for speedup): " + str(end - start), flush=True)
 
     return sig_param_tech
 

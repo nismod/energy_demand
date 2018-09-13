@@ -206,7 +206,6 @@ def calc_diffusion_f(regions, f_reg, spatial_diff_values, fuels):
 
             f_reg_norm[enduse] = {}
             for region, fuel_p in regions_fuel_p.items():
-                rounded_val = round(f_reg[region] / sum_p_f_all_regs, 6) #Nr of digits # TODO NEW
                 f_reg_norm[enduse][region] = f_reg[region] / sum_p_f_all_regs
 
         # ----------

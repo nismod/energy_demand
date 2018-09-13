@@ -33,11 +33,11 @@ def disaggregate_demand(data):
         data['paths']['path_employment_statistics'])
 
     # Load population data for disaggregation
-    pop_base_year_for_disaggregation = data['pop_for_disag']
+    pop_for_disagg = data['pop_for_disag']
 
     # Disaggregate fuel for all regions
     disagg['residential'], disagg['service'], disagg['industry'] = disaggregate_base_demand(
-        pop_base_year_for_disaggregation,
+        pop_for_disagg,
         data['regions'],
         data['fuels'],
         data['scenario_data'],
@@ -90,7 +90,7 @@ def replace_msoa_reg_with_lad(region):
     return region
 
 def disaggregate_base_demand(
-        pop_base_year_for_disaggregation,
+        pop_for_disagg,
         regions,
         fuels,
         scenario_data,
@@ -109,18 +109,27 @@ def disaggregate_base_demand(
 
     Arguments
     ----------
-    regions : dict
+    pop_for_disagg : dict
+        Population of years
+    regions : list
         Regions
-    fuels
-    scenario_data
-    assumptions
-    reg_coord
-    weather_stations
-    temp_data
-    sectors TODO
-    enduses
-    service_building_count : dict
-        Nr of buildings for service sector
+    fuels : dict
+        Fuels
+    scenario_data : dict
+        Scenario data
+    assumptions : obj
+        Assumptions
+    reg_coord : dict
+        Region coordinates
+    weather_stations : dict
+        Weather stations
+    temp_data : dict
+        Temperature data
+    sectors : dict
+        Sectors per submodel
+    enduses : dict
+        Enduses per submodel
+    service_building_count :
 
     Returns
     -------
@@ -139,7 +148,7 @@ def disaggregate_base_demand(
         regions,
         fuels['residential'],
         scenario_data,
-        pop_base_year_for_disaggregation,
+        pop_for_disagg,
         assumptions,
         reg_coord,
         weather_stations,
@@ -155,7 +164,7 @@ def disaggregate_base_demand(
         service_building_count,
         assumptions,
         scenario_data,
-        pop_base_year_for_disaggregation,
+        pop_for_disagg,
         regions,
         reg_coord,
         temp_data,
@@ -177,7 +186,7 @@ def disaggregate_base_demand(
         enduses['industry'],
         sectors['industry'],
         scenario_data['employment_stats'],
-        pop_base_year_for_disaggregation,
+        pop_for_disagg,
         census_disagg=census_disagg)
 
     logging.info("Finished disaggregation")
@@ -188,7 +197,7 @@ def ss_disaggregate(
         service_building_count,
         assumptions,
         scenario_data,
-        pop_base_year_for_disaggregation,
+        pop_for_disagg,
         regions,
         reg_coord,
         temp_data,
@@ -244,7 +253,7 @@ def ss_disaggregate(
         enduses=enduses,
         base_yr=assumptions.base_yr,
         scenario_data=scenario_data,
-        pop_base_year_for_disaggregation=pop_base_year_for_disaggregation,
+        pop_for_disagg=pop_for_disagg,
         service_building_count=service_building_count,
         ss_hdd_individ_region=ss_hdd_individ_region,
         ss_cdd_individ_region=ss_cdd_individ_region,
@@ -269,7 +278,7 @@ def ss_disaggregate(
         enduses=enduses,
         base_yr=assumptions.base_yr,
         scenario_data=scenario_data,
-        pop_base_year_for_disaggregation=pop_base_year_for_disaggregation,
+        pop_for_disagg=pop_for_disagg,
         service_building_count=service_building_count,
         ss_hdd_individ_region=ss_hdd_individ_region,
         ss_cdd_individ_region=ss_cdd_individ_region,
@@ -294,7 +303,7 @@ def ss_disaggr(
         enduses,
         base_yr,
         scenario_data,
-        pop_base_year_for_disaggregation,
+        pop_for_disagg,
         service_building_count,
         ss_hdd_individ_region,
         ss_cdd_individ_region,
@@ -341,7 +350,7 @@ def ss_disaggr(
         reg_hdd = ss_hdd_individ_region[region]
         reg_cdd = ss_cdd_individ_region[region]
         #reg_pop = scenario_data['population'][base_yr][region]
-        reg_pop = pop_base_year_for_disaggregation[base_yr][region]
+        reg_pop = pop_for_disagg[base_yr][region]
         tot_pop += reg_pop
         tot_cdd += reg_cdd
         tot_hdd += reg_hdd
@@ -377,7 +386,7 @@ def ss_disaggr(
         reg_hdd = ss_hdd_individ_region[region]
         reg_cdd = ss_cdd_individ_region[region]
         #reg_pop = scenario_data['population'][base_yr][region]
-        reg_pop = pop_base_year_for_disaggregation[base_yr][region]
+        reg_pop = pop_for_disagg[base_yr][region]
         p_pop = reg_pop / tot_pop
 
         for enduse in enduses:
@@ -441,7 +450,7 @@ def is_disaggregate(
         enduses,
         sectors,
         employment_statistics,
-        pop_base_year_for_disaggregation,
+        pop_for_disagg,
         census_disagg
     ):
     """Disaggregate industry related fuel for sector and enduses with
@@ -483,8 +492,8 @@ def is_disaggregate(
     tot_pop = 0
     tot_pop_hdd = 0
     for region in regions:
-        tot_pop_hdd +=pop_base_year_for_disaggregation[assumptions.base_yr][region] * is_hdd_individ_region[region]
-        tot_pop += pop_base_year_for_disaggregation[assumptions.base_yr][region]
+        tot_pop_hdd +=pop_for_disagg[assumptions.base_yr][region] * is_hdd_individ_region[region]
+        tot_pop += pop_for_disagg[assumptions.base_yr][region]
 
     if not census_disagg:
 
@@ -494,7 +503,7 @@ def is_disaggregate(
         for region in regions:
             is_fuel_disagg[region] = {}
 
-            reg_pop = pop_base_year_for_disaggregation[assumptions.base_yr][region]
+            reg_pop = pop_for_disagg[assumptions.base_yr][region]
 
             for enduse in enduses:
                 is_fuel_disagg[region][enduse] = {}
@@ -578,7 +587,7 @@ def is_disaggregate(
             is_fuel_disagg[region] = {}
 
             #reg_pop = scenario_data['population'][assumptions.base_yr][region]
-            reg_pop = pop_base_year_for_disaggregation[assumptions.base_yr][region]
+            reg_pop = pop_for_disagg[assumptions.base_yr][region]
 
             # Iterate sector
             for enduse in enduses:
@@ -636,7 +645,7 @@ def rs_disaggregate(
         regions,
         rs_national_fuel,
         scenario_data,
-        pop_base_year_for_disaggregation,
+        pop_for_disagg,
         assumptions,
         reg_coord,
         weather_stations,
@@ -695,7 +704,7 @@ def rs_disaggregate(
         base_yr=assumptions.base_yr,
         rs_hdd_individ_region=rs_hdd_individ_region,
         scenario_data=scenario_data,
-        pop_base_year_for_disaggregation=pop_base_year_for_disaggregation,
+        pop_for_disagg=pop_for_disagg,
         rs_national_fuel=rs_national_fuel,
         crit_limited_disagg_pop=False, #True, #False,
         crit_limited_disagg_pop_hdd=True, #True, #Set to true
@@ -717,7 +726,7 @@ def rs_disaggregate(
         base_yr=assumptions.base_yr,
         rs_hdd_individ_region=rs_hdd_individ_region,
         scenario_data=scenario_data,
-        pop_base_year_for_disaggregation=pop_base_year_for_disaggregation,
+        pop_for_disagg=pop_for_disagg,
         rs_national_fuel=rs_national_fuel_remaining,
         crit_limited_disagg_pop=crit_limited_disagg_pop,
         crit_limited_disagg_pop_hdd=crit_limited_disagg_pop_hdd,
@@ -738,7 +747,7 @@ def rs_disaggr(
         base_yr,
         rs_hdd_individ_region,
         scenario_data,
-        pop_base_year_for_disaggregation,
+        pop_for_disagg,
         rs_national_fuel,
         crit_limited_disagg_pop,
         crit_limited_disagg_pop_hdd,
@@ -758,7 +767,7 @@ def rs_disaggr(
         reg_hdd = rs_hdd_individ_region[region]
         reg_floor_area = scenario_data['floor_area']['rs_floorarea'][base_yr][region]
         #reg_pop = scenario_data['population'][base_yr][region]
-        reg_pop = pop_base_year_for_disaggregation[base_yr][region]
+        reg_pop = pop_for_disagg[base_yr][region]
 
         # National dissagregation factors
         total_hdd_floorarea += reg_hdd * reg_floor_area
@@ -775,7 +784,7 @@ def rs_disaggr(
         reg_floor_area = scenario_data['floor_area']['rs_floorarea'][base_yr][region]
         reg_hdd_floor_area = reg_hdd * reg_floor_area
         #reg_pop = scenario_data['population'][base_yr][region]
-        reg_pop = pop_base_year_for_disaggregation[base_yr][region]
+        reg_pop = pop_for_disagg[base_yr][region]
         reg_pop_hdd = reg_pop * reg_hdd
 
         p_pop = reg_pop / total_pop

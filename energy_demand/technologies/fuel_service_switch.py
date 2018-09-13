@@ -692,7 +692,8 @@ def get_switches_of_enduse(
         year=False,
         crit_region=True
     ):
-    """Get all fuel switches of a specific enduse
+    """Get all fuel switches of a specific enduse and
+    year (optional)
 
     Arguments
     ----------
@@ -700,6 +701,10 @@ def get_switches_of_enduse(
         Switches
     enduse : str
         Enduse
+    year : int,default=False
+        Year
+    crit_region : bool, default=True
+        Criteria whether region specific switches
 
     Returns
     -------

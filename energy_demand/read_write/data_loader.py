@@ -729,19 +729,19 @@ def load_fuels(submodels_names, paths, lookups):
     enduses, sectors, fuels = {}, {}, {}
 
     # -------------------------------
-    # submodel_names[0]: Residential SubmodelSubmodel
+    # submodels_names[0]: Residential SubmodelSubmodel
     # -------------------------------
     rs_fuel_raw, sectors[submodels_names[0]], enduses[submodels_names[0]] = read_data.read_fuel_rs(
         paths['rs_fuel_raw'])
 
     # -------------------------------
-    # submodel_names[1]: Service Submodel
+    # submodels_names[1]: Service Submodel
     # -------------------------------
     ss_fuel_raw, sectors[submodels_names[1]], enduses[submodels_names[1]] = read_data.read_fuel_ss(
         paths['ss_fuel_raw'], lookups['fueltypes_nr'])
 
     # -------------------------------
-    # submodel_names[2]: Industry
+    # submodels_names[2]: Industry
     # -------------------------------
     is_fuel_raw, sectors[submodels_names[2]], enduses[submodels_names[2]] = read_data.read_fuel_is(
         paths['is_fuel_raw'], lookups['fueltypes_nr'])

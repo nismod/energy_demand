@@ -50,7 +50,7 @@ def test_rs_disaggregate():
         regions=regions,
         rs_national_fuel=rs_national_fuel,
         scenario_data=scenario_data,
-        pop_base_year_for_disaggregation=pop_for_disag,
+        pop_for_disagg=pop_for_disag,
         assumptions=assumptions,
         reg_coord=reg_coord,
         weather_stations=weather_stations,
@@ -67,7 +67,7 @@ def test_rs_disaggregate():
         regions=regions,
         rs_national_fuel=rs_national_fuel,
         scenario_data=scenario_data,
-        pop_base_year_for_disaggregation=pop_for_disag,
+        pop_for_disagg=pop_for_disag,
         assumptions=assumptions,
         reg_coord=reg_coord,
         weather_stations=weather_stations,
@@ -142,7 +142,7 @@ def test_ss_disaggregate():
         service_building_count=service_building_count,
         assumptions=assumptions,
         scenario_data=scenario_data,
-        pop_base_year_for_disaggregation=pop_for_disag,
+        pop_for_disagg=pop_for_disag,
         regions=regions,
         reg_coord=reg_coord,
         temp_data=temp_data,
@@ -208,7 +208,7 @@ def test_is_disaggregate():
         enduses=enduses,
         sectors=sectors,
         employment_statistics=employment_statistics,
-        pop_base_year_for_disaggregation=pop_for_disag,
+        pop_for_disagg=pop_for_disag,
         census_disagg=False)
 
     assert result['regA']['is_space_heating']['mining'] == 50.0
@@ -224,7 +224,7 @@ def test_is_disaggregate():
         enduses=enduses,
         sectors=sectors,
         employment_statistics=employment_statistics,
-        pop_base_year_for_disaggregation=pop_for_disag,
+        pop_for_disagg=pop_for_disag,
         census_disagg=True)
 
     assert result['regA']['is_space_heating']['mining'] == 0

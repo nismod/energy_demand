@@ -3,8 +3,13 @@
 from collections import defaultdict
 from energy_demand.basic import basic_functions
 
-def copy_fractions_all_sectors(fuel_tech_p_by, sectors, affected_enduses):
-    """Copy all defined fractions for an enduse to all setors
+def copy_fractions_all_sectors(
+        fuel_tech_p_by,
+        sectors,
+        affected_enduses
+    ):
+    """Copy all defined fractions
+    for an enduse to all setors
 
     Arguments
     ---------
@@ -13,12 +18,14 @@ def copy_fractions_all_sectors(fuel_tech_p_by, sectors, affected_enduses):
     sectors : list
         All sectors with this induse where the identical
         shares want to be transferred
+    affected_enduses : list
+        Enduses for which the values should be copied
 
     Returns
     -------
-    out_dict : dict TODO UPDATE
+    out_dict : dict
         Fuel shares for all sectors
-        {enduse: {sector: {fueltype: {tech: {share}}}}}
+        i.e. {enduse: {sector: {fueltype: {tech: {share}}}}}
     """
     out_dict = defaultdict(dict)
 

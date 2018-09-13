@@ -3,6 +3,7 @@
 import logging
 from collections import defaultdict
 import numpy as np
+
 import energy_demand.enduse_func as endusefunctions
 from energy_demand.geography.region import Region
 from energy_demand.geography.weather_region import WeatherRegion
@@ -27,6 +28,7 @@ class EnergyDemandModel(object):
         """Constructor
         """
         logging.info("... start main energy demand function")
+
         self.curr_yr = assumptions.curr_yr
 
         # ----------------------------
@@ -47,23 +49,21 @@ class EnergyDemandModel(object):
         # ------------------------
         # Create Dwelling Stock
         # ------------------------
-        logging.info("... Generate dwelling stocks")
         if data['criterias']['virtual_building_stock_criteria']:
+            logging.info("... Generate virtual dwelling stocks")
 
             # Virtual dwelling stocks
             rs_dw_stock, ss_dw_stock = create_virtual_dwelling_stocks(
                 regions, assumptions.curr_yr, data)
 
             data['dw_stocks'] = {
-                'residential': rs_dw_stock,
-                'service': ss_dw_stock,
-                'industry': None}
+                data['lookups']['submodels_names'][0]: rs_dw_stock,
+                data['lookups']['submodels_names'][1]: ss_dw_stock,
+                data['lookups']['submodels_names'][2]: None}
         else:
             # Create dwelling stock from imported data from newcastle
             data = create_dwelling_stock(
                 regions, assumptions.curr_yr, data)
-
-        logging.info("... finished generating dwelling stock")
 
         # --------------------
         # Initialise result container to aggregate results
@@ -86,13 +86,11 @@ class EnergyDemandModel(object):
             all_submodel_objs = simulate_region(
                 region, data, assumptions, weather_regions)
 
-            # Get specific submodels
-            reg_rs_submodel = get_all_submodels(all_submodel_objs, 'residential')
-            reg_ss_submodel = get_all_submodels(all_submodel_objs, 'service')
-            reg_is_submodel = get_all_submodels(all_submodel_objs, 'industry')
-
-            # Store submodel results
-            all_submodels = [reg_rs_submodel, reg_ss_submodel, reg_is_submodel]
+            # Collect all submodels with respect to submodel names
+            all_submodels = []
+            for submodel in data['lookups']['submodels_names']:
+                submodels = get_all_submodels(all_submodel_objs, submodel)
+                all_submodels.append(submodels)
 
             # ---------------------------------------------
             # Aggregate results
@@ -124,7 +122,20 @@ class EnergyDemandModel(object):
         ## figure_HHD_gas_demand.main(regions, weather_regions, data)
 
 def get_all_submodels(submodels, submodel_name):
-    """TODO
+    """Collect all submodel objects for a
+    specific submodel name
+
+    Arguments
+    ---------
+    submodels : list
+        All calculated model objects
+    submodel_name : str
+        Name of submodels to collect
+
+    Returns
+    -------
+    specific_submodels : list
+        Contains all submodels
     """
     specific_submodels = []
 

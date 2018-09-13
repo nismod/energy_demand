@@ -12,13 +12,16 @@ from pkg_resources import Requirement
 def test_load_non_param_assump():
     """
     """
-    path_main = resource_filename(Requirement.parse("energy_demand"), os.path.join("energy_demand", "config_data"))
+    path_main = resource_filename(
+        Requirement.parse("energy_demand"), os.path.join("energy_demand", "config_data"))
 
     # Load data
     data = {}
     paths = data_loader.load_paths(path_main)
     lu = lookup_tables.basic_lookups()
-    enduses, sectors, _ = data_loader.load_fuels(paths, lu)
+
+    enduses, sectors, _ = data_loader.load_fuels(
+        lu['submodels_names'], paths, lu)
 
     general_assumptions.Assumptions(
         base_yr=2015,
@@ -33,13 +36,14 @@ def test_load_non_param_assump():
 def test_load_param_assump():
     """
     """
-    path_main = resource_filename(Requirement.parse("energy_demand"), os.path.join("energy_demand", "config_data"))
+    path_main = resource_filename(
+        Requirement.parse("energy_demand"), os.path.join("energy_demand", "config_data"))
 
     # Load data
     data = {}
     data['paths'] = data_loader.load_paths(path_main)
     data['lookups'] = lookup_tables.basic_lookups()
-    data['enduses'], data['sectors'], data['fuels'] = data_loader.load_fuels(data['paths'], data['lookups'])
+    data['enduses'], data['sectors'], data['fuels'] = data_loader.load_fuels(data['lookups']['submodels_names'], data['paths'], data['lookups'])
 
     sim_param_expected = {}
     sim_param_expected['base_yr'] = 2015

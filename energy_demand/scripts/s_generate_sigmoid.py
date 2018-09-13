@@ -510,7 +510,7 @@ def tech_sigmoid_parameters(
                                 differences in percentual service demand.
     """
     rounding_accuracy = 4       # Criteria how much difference in % can be rounded
-    linear_approx_crit = 0.001   # Criteria to simplify with linear approximation if difference is smaller (decimal) # 0.001
+    linear_approx_crit = 0.001  # Criteria to simplify with linear approximation if difference is smaller (decimal) # 0.001
     error_range = 0.0002        # Error how close the fit must be                                                   # 0.0002
     number_of_iterations = 100  # Number of iterations of sigmoid fitting algorithm                                 # 1000
 
@@ -524,7 +524,7 @@ def tech_sigmoid_parameters(
         pass
     else:
         for tech in installed_techs:
-            #print("TECH " + str(tech)) #, flush=True)
+
             # --------
             # Test whether technology has the market entry before or after base year,
             # If afterwards, set very small number in market entry year
@@ -567,13 +567,8 @@ def tech_sigmoid_parameters(
                 point_y_ey,
                 linear_approx_crit)'''
 
-            # Test if end year share is larger than technological maximum
             # Test wheter maximum diffusion is larger than simulated end year share
-            #if math.isnan(ydata[1]):
-            #    pass
-            #else:
-                #assert ydata[1] <= l_values[tech] + linear_approx_crit
-            assert ydata[1] <= l_values[tech] + linear_approx_crit
+            ## assert ydata[1] <= l_values[tech] + linear_approx_crit
 
             # If no change in by to ey but not zero (linear change)
             if (round(point_y_by, rounding_accuracy) == round(point_y_ey, rounding_accuracy)) and (
@@ -614,7 +609,6 @@ def tech_sigmoid_parameters(
                         sig_params[tech]['midpoint'] = fit_parameter[0]
                         sig_params[tech]['steepness'] = fit_parameter[1]
                         sig_params[tech]['l_parameter'] = l_values[tech] # maximum p
-                        ##print("-------------successfull fitting") #, flush=True)
 
                         '''if plot_sigmoid_diffusion:
                             plotting_program.plotout_sigmoid_tech_diff(

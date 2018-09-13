@@ -10,6 +10,7 @@ from energy_demand.profiles import load_profile
 def test_enduse():
     """testing"""
     out = enduse_func.Enduse(
+        submodel_name ='test_name',
         region='test',
         scenario_data='test',
         assumptions='test',
