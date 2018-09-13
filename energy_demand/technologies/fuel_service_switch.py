@@ -513,8 +513,7 @@ def capacity_switch(
             capacity_switches[region])
 
         if switch_enduses == []:
-            pass
-             # no capacity switch defined
+            pass # no capacity switch defined
         else:
             for enduse in switch_enduses:
 
@@ -523,10 +522,6 @@ def capacity_switch(
                     capacity_switches[region], enduse, crit_region=False)
 
                 for switch in enduse_capacity_switches:
-
-                    # Check depth of dict #TODO replace with functio CHECK FOR SECTOR
-                    #depth_dict = basic_functions.dict_depth(
-                    #    fuel_shares_enduse_by[enduse])
 
                     sector_info_crit = basic_functions.test_if_sector(
                         fuel_shares_enduse_by[enduse])

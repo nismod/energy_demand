@@ -1,6 +1,7 @@
 """TEsting functions
 """
 import numpy as np
+from energy_demand.basic import basic_functions
 
 def test_if_minus_value_in_array(arraytotest):
     """Test if array has negative value
@@ -83,13 +84,9 @@ def testing_fuel_tech_shares(fuel_tech_fueltype_p):
     """
     for enduse in fuel_tech_fueltype_p:
 
-        _keys = list(fuel_tech_fueltype_p[enduse].keys())
+        sector_crit = basic_functions.test_if_sector(
+            fuel_tech_fueltype_p[enduse])
 
-        if _keys[0] != 0: #SNAKE IMPROVE TEST IF SECTOR
-            sector_crit = True
-        else:
-            sector_crit = False
-        
         if sector_crit:
             for sector in fuel_tech_fueltype_p[enduse]:
                 for fueltype in fuel_tech_fueltype_p[enduse][sector]:

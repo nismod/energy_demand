@@ -1,6 +1,7 @@
 """Short diverse helper functions
 """
 from collections import defaultdict
+from energy_demand.basic import basic_functions
 
 def copy_fractions_all_sectors(fuel_tech_p_by, sectors, affected_enduses):
     """Copy all defined fractions for an enduse to all setors
@@ -116,7 +117,10 @@ def get_def_techs(fuel_tech_p_by):
 
     for enduse in fuel_tech_p_by:
 
-        if list(fuel_tech_p_by[enduse].keys())[0] != 0: #no sectors SNAKE
+        sector_crit = basic_functions.test_if_sector(
+            fuel_tech_p_by[enduse])
+
+        if sector_crit:
             for sector in fuel_tech_p_by[enduse]:
                 all_defined_tech_service_ey[enduse] = []
                 for fueltype in fuel_tech_p_by[enduse][sector]:
@@ -143,9 +147,7 @@ def get_nested_dict_key(nested_dict):
         Key of nested dict
     """
     all_nested_keys = []
-    #for entry in nested_dict:
-    #    for value in nested_dict[entry].keys():
-    #        all_nested_keys.append(value)
+
     for values in nested_dict.values():
         all_nested_keys += values.keys()
 

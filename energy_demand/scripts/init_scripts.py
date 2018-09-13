@@ -221,10 +221,9 @@ def switch_calculations(
                     data['technologies'],
                     enduse=enduse,
                     fuel_switches=data['assumptions'].fuel_switches,
-                    #service_switches=switches_autocompleted[sector], #SNAKE
                     s_tech_by_p=s_tech_by_p[sector][enduse],
                     s_fueltype_by_p=s_fueltype_by_p[sector][enduse],
-                    share_s_tech_ey_p=share_s_tech_ey_p,#,[sector][enduse],
+                    share_s_tech_ey_p=share_s_tech_ey_p,
                     fuel_tech_p_by=data['assumptions'].fuel_tech_p_by[enduse],
                     regions=data['regions'],
                     sector=sector,

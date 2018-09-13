@@ -194,12 +194,13 @@ def simulate_region(region, data, assumptions, weather_regions):
 
     submodel_objs = []
 
+    # Iterate overall submodels
     for submodel_name in submodel_names:
 
-        # Iterate sectors in submodel
-        for sector in data['sectors'][submodel_name]: #SNAKE SIMPLIFY
+        # Iterate overall sectors in submodel
+        for sector in data['sectors'][submodel_name]:
 
-            # Iterate enduses in submodel
+            # Iterate overall enduses and sectors in submodel
             for enduse in data['enduses'][submodel_name]:
 
                 # ------------------------------------------------------
