@@ -98,8 +98,6 @@ def testing_fuel_tech_shares(fuel_tech_fueltype_p):
                             raise Exception(
                                 "The fuel shares assumptions are wrong for enduse {} and fueltype {} SUM: {}".format(
                                     enduse, fueltype, sum(fuel_tech_fueltype_p[enduse][sector][fueltype].values())))
-
-
         else:
             for fueltype in fuel_tech_fueltype_p[enduse]:
                 if fuel_tech_fueltype_p[enduse][fueltype] != {}:

@@ -44,9 +44,8 @@ def assign_by_fuel_tech_p(enduses, sectors, fueltypes, fueltypes_nr):
 
     -   Not defined fueltypes will be assigned placholder technologies
     """
-    # SNAKE IMPROVE
     fuel_tech_p_by = defaultdict(dict)
-    
+
     _fuel_tech_p_by = helpers.init_fuel_tech_p_by(
         enduses['residential'], fueltypes_nr)
     fuel_tech_p_by.update(_fuel_tech_p_by)
@@ -282,7 +281,7 @@ def assign_by_fuel_tech_p(enduses, sectors, fueltypes, fueltypes_nr):
         'central_air_conditioner_oil': 0.64,
         'decentral_air_conditioner_oil': 0.36}
 
-    # Helper: Transfer all defined shares for every enduse to every sector #TODO SNAKE IMPROVE
+    # Helper: Transfer all defined shares for every enduse to every sector
     fuel_tech_p_by = helpers.copy_fractions_all_sectors(
         fuel_tech_p_by,
         sectors['service'],

@@ -123,7 +123,6 @@ def test_ss_disaggregate():
 
     enduses = ['ss_space_heating']
     sectors = ['offices']
-    all_sectors = ['offices']
 
     service_building_count = {}
     service_building_count[9] = {}
@@ -150,7 +149,6 @@ def test_ss_disaggregate():
         weather_stations=weather_stations,
         enduses=enduses,
         sectors=sectors,
-        all_sectors=all_sectors,
         crit_limited_disagg_pop_hdd=False,
         crit_limited_disagg_pop=True,
         crit_full_disagg=False)

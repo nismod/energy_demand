@@ -65,7 +65,7 @@ is_high_temp_process,gas,dry_kiln_biomass,2050,0.9,non_metallic_mineral_products
 # all in one capacity switches
 # ------------------------------------
 rs_space_heating,boiler_gas,2050,1000
-ss_space_heating,boiler_gas,2015,1000
+ss_space_heating,boiler_gas,2025,1000
 
 ss_space_heating,heat_pumps_electricity,2050,0.9
 is_space_heating,heat_pumps_electricity,2050,0.9

@@ -28,24 +28,8 @@ def get_all_narrative_timesteps(switches_list):
     """
     narrative_timesteps = {}
 
-    '''for switches in switches_list:
-        enduses = fuel_service_switch.get_all_enduses_of_switches(switches)
-
-        enduses = fuel_service_switch.get_all_enduses_of_switches(switches_list)
-        for enduse in enduses:
-            narrative_timesteps[enduse] = set([])
-
-            for switch in switches:
-                if switch.enduse == enduse:
-                    narrative_timesteps[enduse].add(switch.switch_yr)
-
-            # Convert to list
-            narrative_timesteps[enduse] = list(narrative_timesteps[enduse])
-
-            # Sort
-            narrative_timesteps[enduse].sort()'''
-    # SNAKE
-    enduses = fuel_service_switch.get_all_enduses_of_switches(switches_list)
+    enduses = fuel_service_switch.get_all_enduses_of_switches(
+        switches_list)
 
     for enduse in enduses:
         narrative_timesteps[enduse] = set([])
@@ -54,10 +38,7 @@ def get_all_narrative_timesteps(switches_list):
             if switch.enduse == enduse:
                 narrative_timesteps[enduse].add(switch.switch_yr)
 
-        # Convert to list
         narrative_timesteps[enduse] = list(narrative_timesteps[enduse])
-
-        # Sort
         narrative_timesteps[enduse].sort()
 
     return narrative_timesteps
@@ -157,12 +138,12 @@ def switch_calculations(
     s_tech_by_p = {}
     s_fueltype_by_p = {}
     for submodel in data['assumptions'].submodels_names:
-        for sector in data['sectors']['sectors'][submodel]:
+        for sector in data['sectors'][submodel]:
             s_tech_by_p[sector], s_fueltype_by_p[sector] = s_fuel_to_service.get_s_fueltype_tech(
-                data['enduses']['enduses'][submodel],
+                data['enduses'][submodel],
                 data['lookups']['fueltypes'],
                 data['assumptions'].fuel_tech_p_by,
-                data['fuels']['fuels'][submodel],
+                data['fuels'][submodel],
                 data['technologies'],
                 sector)
 
@@ -208,12 +189,12 @@ def switch_calculations(
     # Select spatial diffusion
     f_diffusion = f_reg_norm
 
-    #share_s_tech_ey_p, switches_autocompleted = fuel_service_switch.autocomplete_switches(
     share_s_tech_ey_p = fuel_service_switch.autocomplete_switches(
         data['assumptions'].service_switches,
         data['assumptions'].specified_tech_enduse_by,
         s_tech_by_p,
-        data['sectors']['enduse_sector_match'],
+        data['enduses'],
+        data['sectors'],
         crit_all_the_same=crit_all_the_same,
         regions=data['regions'],
         f_diffusion=f_diffusion,
@@ -229,27 +210,10 @@ def switch_calculations(
     # ========================================================================================
     sig_param_tech = defaultdict(dict)
 
-    # Get all enduses to iterate:
-    #affected_enduses = set()
-    #affected_sectors = []
-    #
-    #for sector, enduses_data in share_s_tech_ey_p.items():
-    #    affected_sectors.append(sector)
-    #    for enduse in enduses_data.keys():
-    #        affected_enduses.add(enduse)
-
-    #affected_enduses_fuel_switches = fuel_service_switch.get_all_enduses_of_switches(data['assumptions'].fuel_switches)
-    ## for enduse in affected_enduses_fuel_switches:
-    #    affected_enduses.add(enduse)
-    #affected_enduses = list(affected_enduses)
-
-    #for sector in affected_sectors:
     for submodel in data['assumptions'].submodels_names: #SNAKE REMOVE
-        for enduse in data['enduses']['enduses'][submodel]:
-            for sector in data['sectors']['sectors'][submodel]:
-                
-                print("FFF {}  {}  {}".format(submodel, enduse, sector))
-                #print(share_s_tech_ey_p[sector][enduse])
+        for enduse in data['enduses'][submodel]:
+            for sector in data['sectors'][submodel]:
+
                 sig_param_tech[enduse][sector] = sig_param_calc_incl_fuel_switch(
                     narrative_timesteps,
                     data['assumptions'].base_yr,

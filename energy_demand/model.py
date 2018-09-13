@@ -39,7 +39,7 @@ class EnergyDemandModel(object):
                 assumptions=assumptions,
                 technologies=data['technologies'],
                 fueltypes=data['lookups']['fueltypes'],
-                all_enduses=data['enduses'],
+                enduses=data['enduses'],
                 temp_by=data['temp_data'][weather_region],
                 tech_lp=data['tech_lp'],
                 sectors=data['sectors'])
@@ -197,10 +197,10 @@ def simulate_region(region, data, assumptions, weather_regions):
     for submodel_name in submodel_names:
 
         # Iterate sectors in submodel
-        for sector in data['sectors']['sectors'][submodel_name]: #SNAKE SIMPLIFY
+        for sector in data['sectors'][submodel_name]: #SNAKE SIMPLIFY
 
             # Iterate enduses in submodel
-            for enduse in data['enduses']['enduses'][submodel_name]:
+            for enduse in data['enduses'][submodel_name]:
 
                 # ------------------------------------------------------
                 # Configure and select correct Enduse specific inputs

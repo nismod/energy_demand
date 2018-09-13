@@ -154,6 +154,7 @@ if __name__ == "__main__":
     # GVA datasets
     name_gva_dataset = os.path.join(local_data_path, 'scenarios', 'MISTRAL_pop_gva', 'data', 'pop-a_econ-c_fuel-c/gva_per_head__lad_sector.csv') # Constant scenario
     name_gva_dataset_per_head = os.path.join(local_data_path, 'scenarios', 'MISTRAL_pop_gva', 'data', 'pop-a_econ-c_fuel-c/gva_per_head__lad.csv') # Constant scenario
+
     # -------------------------------
     # User defined strategy variables
     # -------------------------------
@@ -275,7 +276,7 @@ if __name__ == "__main__":
     if data['criterias']['virtual_building_stock_criteria']:
         data['scenario_data']['floor_area']['rs_floorarea'], data['scenario_data']['floor_area']['ss_floorarea'], data['service_building_count'], rs_regions_without_floorarea, ss_regions_without_floorarea = data_loader.floor_area_virtual_dw(
             data['regions'],
-            data['sectors']['all_sectors'],
+            data['sectors'],
             data['local_paths'],
             data['scenario_data']['population'][data['assumptions'].base_yr],
             data['assumptions'].base_yr)

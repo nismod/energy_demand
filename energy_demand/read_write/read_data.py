@@ -807,7 +807,9 @@ def read_fuel_rs(path_to_csv):
     for enduse in raw_csv_file.columns[1:]: # skip for column
         fuels[enduse] = raw_csv_file[enduse].values
 
-    return fuels, list(enduses)
+    sectors = [None]
+
+    return fuels, sectors, list(enduses)
 
 def read_fuel_is(path_to_csv, fueltypes_nr):
     """This function reads in base_data_CSV all fuel types

@@ -177,7 +177,7 @@ def read_national_real_gas_data(path_to_csv):
 
 def floor_area_virtual_dw(
         regions,
-        all_sectors,
+        sectors,
         local_paths,
         population,
         base_yr,
@@ -191,7 +191,7 @@ def floor_area_virtual_dw(
     ---------
     regions : dict
         Regions
-    all_sectors : dict
+    sectors : dict
         All sectors
     local_paths : dict
         Paths
@@ -248,7 +248,7 @@ def floor_area_virtual_dw(
     ss_regions_without_floorarea = set([])
     ss_floorarea_sector_by[base_yr] = defaultdict(dict)
     for region in regions:
-        for sector in all_sectors:
+        for sector in sectors['service']:
             try:
                 ss_floorarea_sector_by[base_yr][region][sector] = non_res_flootprint[region]
             except KeyError:
@@ -429,12 +429,10 @@ def load_paths(path):
             path, '01-validation_datasets', '02_subnational_elec', 'data_2015_elec_domestic.csv'),
         'path_val_subnational_elec_non_residential': os.path.join(
             path, '01-validation_datasets', '02_subnational_elec', 'data_2015_elec_non_domestic.csv'),
-
         'path_val_subnational_elec_msoa_residential': os.path.join(
             path, '01-validation_datasets', '02_subnational_elec', 'MSOA_domestic_electricity_2015_cleaned.csv'),
         'path_val_subnational_elec_msoa_non_residential': os.path.join(
             path, '01-validation_datasets', '02_subnational_elec', 'MSOA_non_dom_electricity_2015_cleaned.csv'),
-
         'path_val_subnational_gas': os.path.join(
             path, '01-validation_datasets', '03_subnational_gas', 'data_2015_gas.csv'),
         'path_val_subnational_gas_residential': os.path.join(
@@ -728,99 +726,47 @@ def load_fuels(submodels_names, paths, lookups):
     fuels : dict
         yearly fuels for every submodel
     """
-    enduses = {}
-    sectors = {}
-    fuels = {}
+    enduses, sectors, fuels = {}, {}, {}
 
     # -------------------------------
-    # submodel_names[0]: Residential
+    # submodel_names[0]: Residential SubmodelSubmodel
     # -------------------------------
-
-    # Residential Sector
-    rs_fuel_raw_data_enduses, enduses[submodels_names[0]] = read_data.read_fuel_rs(
+    rs_fuel_raw, sectors[submodels_names[0]], enduses[submodels_names[0]] = read_data.read_fuel_rs(
         paths['rs_fuel_raw'])
 
     # -------------------------------
-    # submodel_names[1]: Service
+    # submodel_names[1]: Service Submodel
     # -------------------------------
-
-    # Service Sector
     ss_fuel_raw, sectors[submodels_names[1]], enduses[submodels_names[1]] = read_data.read_fuel_ss(
-        paths['ss_fuel_raw'],
-        lookups['fueltypes_nr'])
+        paths['ss_fuel_raw'], lookups['fueltypes_nr'])
 
     # -------------------------------
     # submodel_names[2]: Industry
     # -------------------------------
-
-    # Industry fuel
     is_fuel_raw, sectors[submodels_names[2]], enduses[submodels_names[2]] = read_data.read_fuel_is(
         paths['is_fuel_raw'], lookups['fueltypes_nr'])
 
-    # Iterate enduses per sudModel and flatten list
-    enduses['all_enduses'] = []
-    for enduse in enduses.values():
-        enduses['all_enduses'] += enduse
-
-    # Convert units
-    fuels['rs_fuel_raw'] = conversions.convert_fueltypes_ktoe_gwh(
-        rs_fuel_raw_data_enduses)
-    fuels['ss_fuel_raw'] = conversions.convert_fueltypes_sectors_ktoe_gwh(
+    # Convert energy input units
+    fuels['residential'] = conversions.convert_fueltypes_ktoe_gwh(
+        rs_fuel_raw)
+    fuels['service'] = conversions.convert_fueltypes_sectors_ktoe_gwh(
         ss_fuel_raw)
-    fuels['is_fuel_raw'] = conversions.convert_fueltypes_sectors_ktoe_gwh(
+    fuels['industry'] = conversions.convert_fueltypes_sectors_ktoe_gwh(
         is_fuel_raw)
 
-    sectors['all_sectors'] = [
-        'community_arts_leisure',
-        'education',
-        'emergency_services',
-        'health',
-        'hospitality',
-        'military',
-        'offices',
-        'retail',
-        'storage',
-        'other']
-
-    # SNAKE SIMPLIFY
-    fuels['fuels'] = {
-        'residential': fuels['rs_fuel_raw'],
-        'service': fuels['ss_fuel_raw'],
-        'industry': fuels['is_fuel_raw']}
-
-    # SNAKE SIMPLILFY
-    sectors['sectors'] = {
-        'residential': [None], # no sectors
-        'service': sectors['service'],
-        'industry': sectors['industry']}
-
-    # SNAKE SIMPLILFY
-    enduses['enduses'] = {
-        'residential': enduses['residential'],
-        'service': enduses['service'],
-        'industry': enduses['industry']}
-
-    # Assign for every enduse the corresponding sectors
-    sectors['enduse_sector_match'] = defaultdict(dict)
-    for submodel_name in ['residential', 'service', 'industry']:
-        for enduse in enduses['enduses'][submodel_name]:
-            sectors['enduse_sector_match'][enduse ] = sectors['sectors'][submodel_name]
-
-    # SNAKE SIMLPLIFY
-    # Aggregate across sectors
+    # Aggregate fuel across sectors
     fuels['aggr_sector_fuels'] = {}
-    for submodel in enduses['enduses'].keys():
+    for submodel in enduses:
 
-        for enduse in enduses['enduses'][submodel]:
+        sector_fuel_crit = basic_functions.test_if_sector(
+            fuels[submodel], fuel_as_array=True)
 
-            # IF sector
-            try:
-                sum_across_sectors = sum(fuels['fuels'][submodel][enduse].values())
-            except:
-                logging.warning("NO SECTOR TO AGGREGATE SNAKE") #NO SECTOR
-                sum_across_sectors = fuels['fuels'][submodel][enduse]
+        for enduse in enduses[submodel]:
 
-            fuels['aggr_sector_fuels'][enduse] = sum_across_sectors
+            if sector_fuel_crit:
+                fuels['aggr_sector_fuels'][enduse] = sum(fuels[submodel][enduse].values())
+            else:
+                fuels['aggr_sector_fuels'][enduse] = fuels[submodel][enduse]
 
     return enduses, sectors, fuels
 
