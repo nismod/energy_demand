@@ -12,6 +12,7 @@ import fiona
 import pandas as pd
 from shapely.geometry import shape, mapping
 import numpy as np
+
 from energy_demand.technologies import tech_related
 from energy_demand.profiles import load_profile
 from energy_demand.basic import lookup_tables

@@ -146,27 +146,27 @@ def generate_annual_param_vals(
     container_reg_param = defaultdict(dict)
     container_non_reg_param = {}
 
-    for parameter_name in strategy_vars.keys():
-
-        path_file = os.path.join(
-            path, "params_{}.{}".format(parameter_name, "csv"))
+    for var_name in strategy_vars.keys():
+        
+        # SNAKE
+        # TODO: ITerate sub-parameter in var_name
 
         # Calculate annual parameter value
         regional_strategy_vary = generate_general_parameter(
             regions=regions,
-            narratives=strategy_vars[parameter_name]['narratives'],
-            simulated_yrs=simulated_yrs,
-            path=path_file)
+            narratives=strategy_vars[var_name]['narratives'],
+            simulated_yrs=simulated_yrs)#,
+            #path=os.path.join(path, "params_{}.{}".format(var_name, "csv")))
 
         # Test if regional specific or not based on first narrative
-        for narrative in strategy_vars[parameter_name]['narratives'][:1]:
+        for narrative in strategy_vars[var_name]['narratives'][:1]:
             reg_specific_crit = narrative['regional_specific']
 
         if reg_specific_crit:
             for region in regions:
-                container_reg_param[region][parameter_name] = regional_strategy_vary[region]
+                container_reg_param[region][var_name] = regional_strategy_vary[region]
         else:
-            container_non_reg_param[parameter_name] = regional_strategy_vary
+            container_non_reg_param[var_name] = regional_strategy_vary
 
     return dict(container_reg_param), dict(container_non_reg_param)
 

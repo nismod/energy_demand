@@ -4,59 +4,7 @@ import copy
 import logging
 from energy_demand.read_write import write_data
 from energy_demand.basic import basic_functions
-
-def default_narrative(
-        end_yr,
-        value_by,
-        value_ey,
-        diffusion_choice='linear',
-        sig_midpoint=0,
-        sig_steepness=1,
-        base_yr=2015,
-        regional_specific=True
-    ):
-    """Create a default single narrative with a single timestep
-
-    E.g. from value 0.2 in 2015 to value 0.5 in 2050
-
-    Arguments
-    ----------
-    end_yr : int
-        End year of narrative
-    value_by : float
-        Value of start year of narrative
-    value_ey : float
-        Value at end year of narrative
-    diffusion_choice : str, default='linear'
-        Wheter linear or sigmoid
-    sig_midpoint : float, default=0
-        Sigmoid midpoint
-    sig_steepness : float, default=1
-        Sigmoid steepness
-    base_yr : int
-        Base year
-    regional_specific : bool
-        If regional specific or not
-
-    Returns
-    -------
-    container : list
-        List with narrative
-    """
-    container = [
-        {
-            'base_yr': base_yr,
-            'end_yr': end_yr,
-            'value_by': value_by,
-            'value_ey': value_ey,
-            'diffusion_choice': diffusion_choice,
-            'sig_midpoint': sig_midpoint,
-            'sig_steepness': sig_steepness,
-            'regional_specific': regional_specific
-        }
-        ]
-
-    return container
+from energy_demand.read_write import narrative_related
 
 def load_smif_parameters(
         data_handle,
@@ -86,7 +34,7 @@ def load_smif_parameters(
         Updated strategy variables
     """
     # All information of all scenario parameters
-    all_info_scenario_param = load_param_assump(
+    all_info_scenario_param, _MULTI_VAR = load_param_assump(
         assumptions=assumptions)
 
     strategy_vars = {}
@@ -127,7 +75,7 @@ def load_smif_parameters(
         # ----------------------------------
         # Create narrative with only one story
         # ----------------------------------
-        created_narrative = default_narrative(
+        created_narrative = narrative_related.default_narrative(
             end_yr=yr_until_changed_all_things,
             value_by=default_by_value,
             value_ey=scenario_value,
@@ -145,7 +93,17 @@ def load_smif_parameters(
             # Replace by external narrative telling
             'narratives': created_narrative}
 
-    return strategy_vars
+    # ---
+    # NEW MULTI SNAKE
+    # ---
+    multi_strategy_vars = {}
+    for var_name in _MULTI_VAR:
+        multi_strategy_vars[var_name] = {
+
+            'multi_scenario_values': _MULTI_VAR[var_name]
+        }
+
+    return strategy_vars, multi_strategy_vars
 
 def load_param_assump(
         paths=None,
@@ -298,6 +256,9 @@ def load_param_assump(
             'diffusion_type': 'linear'})
 
         strategy_vars[demand_name] = scenario_value
+
+    # TEST MULTIDIMENSIONATL
+    strategy_vars['enduse_overall_change_enduses'] = {"rs_space_heating" : [{"tt"}]}
 
     # =======================================
     # Climate Change assumptions
@@ -680,7 +641,7 @@ def load_param_assump(
         affected_enduse = get_affected_enduse(strategy_variables, var_name)
         strategy_vars_out[var['name']]['affected_enduse'] = affected_enduse
 
-    return dict(strategy_vars_out)
+    return dict(strategy_vars_out), strategy_vars
 
 def get_affected_enduse(strategy_variables, name):
     """Get all defined affected enduses of a scenario variable

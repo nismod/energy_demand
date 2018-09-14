@@ -7,10 +7,42 @@ import configparser
 import ast
 from collections import defaultdict
 import numpy as np
+import pandas as pd
+
 from energy_demand.read_write import read_data, read_weather_data
 from energy_demand.basic import conversions
 from energy_demand.plotting import plotting_results
 from energy_demand.basic import basic_functions
+from energy_demand.read_write import narrative_related
+
+def load_strategy_vars_from_csv(path_to_folder_with_csv, simulation_base_yr):
+    """Load all strategy variables from file
+
+    TODO
+    """
+    strategy_vars_as_narratives = {}
+
+    # Iterate csv files with variable names in folder
+    all_csv_in_folder = os.listdir(path_to_folder_with_csv)
+
+    for file_name in all_csv_in_folder:
+
+        path_to_file = os.path.join(path_to_folder_with_csv, file_name)
+
+        # Read csv file
+        raw_file_content = pd.read_csv(path_to_file)
+
+        # Crate narratives from file content TODO
+        parameter_narratives = narrative_related.create_narratives(
+            raw_file_content, simulation_base_yr)
+
+        # Strategy variable name
+        var_name = file_name[:-4] #remove "".csv"
+
+        # Add to dict
+        strategy_vars_as_narratives[var_name] = parameter_narratives
+
+    return strategy_vars_as_narratives
 
 def load_ini_param(path):
     """Load simulation parameter run information
@@ -377,6 +409,11 @@ def load_paths(path):
     """
     paths = {
         'path_main': path,
+
+        # Path to strategy vars
+        'path_folder_strategy_vars': os.path.join(
+            path, '00-streategy_vars'),
+
 
         # Path to all technologies
         'path_technologies': os.path.join(
@@ -747,12 +784,9 @@ def load_fuels(submodels_names, paths, lookups):
         paths['is_fuel_raw'], lookups['fueltypes_nr'])
 
     # Convert energy input units
-    fuels['residential'] = conversions.convert_fueltypes_ktoe_gwh(
-        rs_fuel_raw)
-    fuels['service'] = conversions.convert_fueltypes_sectors_ktoe_gwh(
-        ss_fuel_raw)
-    fuels['industry'] = conversions.convert_fueltypes_sectors_ktoe_gwh(
-        is_fuel_raw)
+    fuels[submodels_names[0]] = conversions.convert_fueltypes_ktoe_gwh(rs_fuel_raw)
+    fuels[submodels_names[1]] = conversions.convert_fueltypes_sectors_ktoe_gwh(ss_fuel_raw)
+    fuels[submodels_names[2]] = conversions.convert_fueltypes_sectors_ktoe_gwh(is_fuel_raw)
 
     # Aggregate fuel across sectors
     fuels['aggr_sector_fuels'] = {}
