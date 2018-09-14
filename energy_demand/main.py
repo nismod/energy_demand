@@ -293,7 +293,7 @@ if __name__ == "__main__":
     data['technologies'] = general_assumptions.update_technology_assumption(
         data['assumptions'].technologies,
         data['assumptions'].strategy_vars['f_eff_achieved'], #['scenario_value'], #SNAKE
-        data['assumptions'].strategy_vars['gshp_fraction_ey']) #['scenario_value'])
+        data['assumptions'].strategy_vars['gshp_fraction_ey']) #['scenario_value']) #TODO REALLY REMOVE
 
     data['weather_stations'], data['temp_data'] = data_loader.load_temp_data(data['local_paths'])
 
@@ -419,6 +419,15 @@ if __name__ == "__main__":
 
         # Set current year
         setattr(data['assumptions'], 'curr_yr', sim_yr)
+
+        print(data['assumptions'].strategy_vars['f_eff_achieved'])
+        print("fff")
+        #TODO UPDATE TECHNOLOGIES NEW NTEW
+        data['technologies'] = general_assumptions.update_technology_assumption(
+            data['assumptions'].technologies,
+            narrative_f_eff_achieved=data['assumptions'].non_regional_strategy_vars['f_eff_achieved'][sim_yr], # Non regional value
+            narrative_gshp_fraction_ey=data['assumptions'].non_regional_strategy_vars['gshp_fraction_ey'][sim_yr],
+            crit_narrative_input=False) #['scenario_value']) #TODO REALLY REMOVE
 
         fuel_in, fuel_in_biomass, fuel_in_elec, fuel_in_gas, fuel_in_heat, fuel_in_hydro, fuel_in_solid_fuel, fuel_in_oil, tot_heating = testing_functions.test_function_fuel_sum(
             data,

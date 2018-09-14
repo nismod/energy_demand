@@ -40,7 +40,7 @@ def load_smif_parameters(
         assumptions=assumptions)
 
     strategy_vars = {}
-
+    #SNAKE
     # Iterate smif variables and assign new values
     '''for name in strategy_variable_names:
 
@@ -87,6 +87,7 @@ def load_smif_parameters(
             # Replace by external narrative telling
             'narratives': created_narrative}
     '''
+
     # ------------------------------------------------------------
     # Create default narratives for every simulation parameter
     # ------------------------------------------------------------
@@ -98,7 +99,15 @@ def load_smif_parameters(
             # Get scenario value
             if mode == 'smif':  #smif mode
                 #TODO IMPLEMENT
-                scenario_value = data_handle.get_parameter(var_name)
+                try:
+                    scenario_value = data_handle.get_parameter(var_name)
+                except:
+                    logging.warning("IMPORTANT WARNING: The paramter `%s` could not be loaded from smif ", var_name)
+
+                    # ------------------------------------
+                    #TODO
+                    # This needs to be fixed by directly loading multiple paramters from SMIF
+                    scenario_value = var_entries['single_dimension_var']['default_value']
             else: #local running
                 scenario_value = var_entries['single_dimension_var']['default_value']
 
@@ -127,7 +136,16 @@ def load_smif_parameters(
 
                 # Get scenario value
                 if mode == 'smif':  #smif mode
-                    scenario_value = data_handle.get_parameter(sub_var_name)
+                    try:
+                        scenario_value = data_handle.get_parameter(sub_var_name)
+                    except:
+                        logging.warning("IMPORTANT WARNING: The paramter `%s` could not be loaded from smif ", var_name)
+
+                        # ------------------------------------
+                        #TODO
+                        # This needs to be fixed by directly loading multiple paramters from SMIF
+                        scenario_value = sub_var_entries['default_value']
+
                 else: #local running
                     scenario_value = sub_var_entries['default_value']
                 if scenario_value == 'True':

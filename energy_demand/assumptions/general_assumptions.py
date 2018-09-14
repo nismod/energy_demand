@@ -579,7 +579,8 @@ class Assumptions(object):
 def update_technology_assumption(
         technologies,
         narrative_f_eff_achieved,
-        narrative_gshp_fraction_ey
+        narrative_gshp_fraction_ey,
+        crit_narrative_input=True
     ):
     """Updates technology related properties based on
     scenario assumptions. Calculate average efficiency of
@@ -595,14 +596,20 @@ def update_technology_assumption(
         Factor achieved
     gshp_fraction_ey : float
         Mix of GSHP and GSHP
+    crit_narrative_input : bool
+        Criteria wheter inputs are single values or a narrative
 
     Note
     ----
     This needs to be run everytime an assumption is changed
     """
-    # Read from narrative the value
-    f_eff_achieved = narrative_related.read_from_narrative(narrative_f_eff_achieved) 
-    gshp_fraction_ey = narrative_related.read_from_narrative(narrative_gshp_fraction_ey) 
+    if crit_narrative_input:
+        # Read from narrative the value
+        f_eff_achieved = narrative_related.read_from_narrative(narrative_f_eff_achieved) 
+        gshp_fraction_ey = narrative_related.read_from_narrative(narrative_gshp_fraction_ey)
+    else:
+        f_eff_achieved = narrative_f_eff_achieved
+        gshp_fraction_ey = narrative_gshp_fraction_ey
 
     # Assign same achieved efficiency factor for all technologies
     technologies = helpers.set_same_eff_all_tech(
