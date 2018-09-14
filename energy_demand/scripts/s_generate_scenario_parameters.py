@@ -4,6 +4,7 @@ import os
 from collections import defaultdict
 from energy_demand.technologies import diffusion_technologies
 from energy_demand import enduse_func
+from energy_demand.read_write import narrative_related
 
 def get_correct_narrative_timestep(
         sim_yr,
@@ -143,31 +144,64 @@ def generate_annual_param_vals(
     container_non_reg_param : dict
         Values for all simulated years (all the same for very region)
     """
-    container_reg_param = defaultdict(dict)
-    container_non_reg_param = {}
+    container_reg_param = {}
+    container_non_reg_param = defaultdict(dict)
 
-    for var_name in strategy_vars.keys():
+    for region in regions:
+        container_reg_param[region] = defaultdict(dict)
+
+    for var_name, strategy_vars_values in strategy_vars.items():
         
         # SNAKE
         # TODO: ITerate sub-parameter in var_name
+        #regional_strategy_vary_dict = {}
+        # for sub_param in strategy_vars[var_name]:
+        #   REPLACE
+        #   regional_strategy_vary_dict[sub_param] = regional_strategy_vary
 
-        # Calculate annual parameter value
-        regional_strategy_vary = generate_general_parameter(
-            regions=regions,
-            narratives=strategy_vars[var_name]['narratives'],
-            simulated_yrs=simulated_yrs)#,
-            #path=os.path.join(path, "params_{}.{}".format(var_name, "csv")))
+        crit_multi_dim_var = narrative_related.check_if_multidimensional_var(strategy_vars_values)
 
-        # Test if regional specific or not based on first narrative
-        for narrative in strategy_vars[var_name]['narratives'][:1]:
-            reg_specific_crit = narrative['regional_specific']
+        if not crit_multi_dim_var:
+        
+            # Calculate annual parameter value
+            regional_strategy_vary = generate_general_parameter(
+                regions=regions,
+                narratives=strategy_vars_values, #['narratives'],
+                simulated_yrs=simulated_yrs)#,
+                #path=os.path.join(path, "params_{}.{}".format(var_name, "csv")))
 
-        if reg_specific_crit:
-            for region in regions:
-                container_reg_param[region][var_name] = regional_strategy_vary[region]
+            # Test if regional specific or not based on first narrative
+            #for narrative in strategy_vars_values['narratives'][:1]:
+            for narrative in strategy_vars_values[:1]:
+                reg_specific_crit = narrative['regional_specific']
+
+            if reg_specific_crit:
+                for region in regions:
+                    container_reg_param[region][var_name] = regional_strategy_vary[region]
+            else:
+                container_non_reg_param[var_name] = regional_strategy_vary
         else:
-            container_non_reg_param[var_name] = regional_strategy_vary
+            for sub_var_name in strategy_vars_values:
+        
+                # Calculate annual parameter value
+                regional_strategy_vary = generate_general_parameter(
+                    regions=regions,
+                    narratives=strategy_vars_values[sub_var_name], #['narratives'],
+                    simulated_yrs=simulated_yrs)#,
+                    #path=os.path.join(path, "params_{}.{}".format(var_name, "csv")))
 
+                # Test if regional specific or not based on first narrative
+                for narrative in strategy_vars_values[sub_var_name][:1]:
+                    reg_specific_crit = narrative['regional_specific']
+
+                if reg_specific_crit:
+                    for region in regions:
+                        container_reg_param[region][var_name][sub_var_name] = regional_strategy_vary[region]
+                    
+                    container_reg_param[region][var_name] = dict(container_reg_param[region][var_name]) #convert to dict
+                else:
+                    container_non_reg_param[var_name][sub_var_name] = regional_strategy_vary
+            
     return dict(container_reg_param), dict(container_non_reg_param)
 
 def generate_general_parameter(

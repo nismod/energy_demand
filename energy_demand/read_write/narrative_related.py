@@ -1,5 +1,33 @@
 """Functions handling the narratives
 """
+def check_if_multidimensional_var(strategy_var):
+    """Check if narratives or dict with narratives (multidimensional parameter)
+    TODO
+    """
+    if type(strategy_var) == list:
+        multidimensional_var = False
+    elif type(strategy_var) == dict:
+        multidimensional_var = True
+    else:
+        pass
+    
+    return multidimensional_var
+
+
+def read_from_narrative(narratives):
+    """Read from narratives the value
+    of the last narrative
+
+    """
+    last_year = 0
+    for narrative in narratives:
+
+        if narrative['end_yr'] > last_year:
+            last_value = narrative['value_ey']
+            last_year = narrative['end_yr']
+
+    return last_value
+
 def default_narrative(
         end_yr,
         value_by,

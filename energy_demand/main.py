@@ -193,7 +193,7 @@ if __name__ == "__main__":
     data['scenario_data']['gva_industry'] = data_loader.read_scenario_data_gva(name_gva_dataset, all_dummy_data=False)
     data['scenario_data']['gva_per_head'] = data_loader.read_scenario_data(name_gva_dataset_per_head)
 
-    # Read sector assignement lookup values
+    # Read sector assignement lookup values TODO MOVE ELSEWHERE
     data['gva_sector_lu'] = lookup_tables.economic_sectors_regional_MISTRAL()
 
     # -----------------------------
@@ -236,9 +236,10 @@ if __name__ == "__main__":
         data['pop_density'][region_name] = data['scenario_data']['population'][data['assumptions'].base_yr][region_name] / region_area
 
     # -----------------------------------------------------------------------------
-    # Load standard strategy variable values
+    # Load standard strategy variable values from .py file
+    # Containing full information
     # -----------------------------------------------------------------------------
-    strategy_vars, _MULTI_VAR = strategy_vars_def.load_param_assump(
+    strategy_vars = strategy_vars_def.load_param_assump(
         data['paths'],
         data['local_paths'],
         data['assumptions'],
@@ -246,35 +247,40 @@ if __name__ == "__main__":
     data['assumptions'].update('strategy_vars', strategy_vars)
 
     # -----------------------------------------------------------------------------
-    # Load smif parameters (if run locally, the standard values are loaded) and add standard narrative
+    # Load standard smif parameters and generate standard single timestep narrative for year 2050
+    # TODO MAYBE LOAD FROM SMIF
     # -----------------------------------------------------------------------------
-    strategy_vars, _MULTI_VAR_NEW = strategy_vars_def.load_smif_parameters(
+    strategy_vars = strategy_vars_def.load_smif_parameters(
         data_handle=strategy_vars,
         strategy_variable_names=strategy_vars.keys(),
         assumptions=data['assumptions'],
         mode='local')
-    data['assumptions'].update('strategy_vars', strategy_vars)
 
-    # ------------------------------------------
+    # -----------------------------------------
     # NEW MULTI SNAKE User defines stragey variable from csv files
+    # TODO WHAT ABOUT AFFECTED ENDUSE?
     # -----------------------------------------
     _multi_dim_strategy_vars = data_loader.load_strategy_vars_from_csv(
         path_to_folder_with_csv=data['paths']['path_folder_strategy_vars'],
         simulation_base_yr=data['assumptions'].base_yr)
 
-
     # --------------------------------------------------------
-    # NEW Replace STANDARD NARRATIVES with user defined narratives
+    # Replace STANDARD NARRATIVES with USER DEFINED narratives from .csv files
     # --------------------------------------------------------
     for new_var, new_var_vals in _multi_dim_strategy_vars.items():
-        _MULTI_VAR_NEW[new_var] = new_var_vals
-
+        strategy_vars[new_var] = new_var_vals
+    
+    # NEW ADDED AFFECTED ENDUSES (as not defined in csv files)
+    strategy_vars_out = strategy_vars_def.add_affected_enduse(
+        strategy_vars, narrative_crit=True)
+    data['assumptions'].update('strategy_vars', strategy_vars_out)
 
     # -----------------------------------------------------------------------------
     # Update user defined strategy variables
+    # TODO NOT NECESSARY ANYMORE I THINK
     # -----------------------------------------------------------------------------
-    for var_name, var_value in user_defined_strategy_vars.items():
-        data['assumptions'].strategy_vars[var_name]['scenario_value'] = var_value
+    #    for var_name, var_value in user_defined_strategy_vars.items():
+    #       data['assumptions'].strategy_vars[var_name]['scenario_value'] = var_value
 
     # -----------------------------------------------------------------------------
     # Load necessary data
@@ -286,8 +292,8 @@ if __name__ == "__main__":
 
     data['technologies'] = general_assumptions.update_technology_assumption(
         data['assumptions'].technologies,
-        data['assumptions'].strategy_vars['f_eff_achieved']['scenario_value'],
-        data['assumptions'].strategy_vars['gshp_fraction_ey']['scenario_value'])
+        data['assumptions'].strategy_vars['f_eff_achieved'], #['scenario_value'], #SNAKE
+        data['assumptions'].strategy_vars['gshp_fraction_ey']) #['scenario_value'])
 
     data['weather_stations'], data['temp_data'] = data_loader.load_temp_data(data['local_paths'])
 
@@ -303,9 +309,9 @@ if __name__ == "__main__":
         data['assumptions'].update("rs_regions_without_floorarea", rs_regions_without_floorarea)
         data['assumptions'].update("ss_regions_without_floorarea", ss_regions_without_floorarea)
 
-    print("Start Energy Demand Model with python version: " + str(sys.version))
-    print("Info model run")
-    print("Nr of Regions " + str(data['reg_nrs']))
+    print("Start Energy Demand Model with python version: " + str(sys.version), flush=True)
+    print("-----------------------------------------------", flush=True)
+    print("Number of Regions                        " + str(data['reg_nrs']), flush=True)
 
     # Optain population data for disaggregation
     if data['criterias']['MSOA_crit']:
@@ -323,12 +329,13 @@ if __name__ == "__main__":
     # Calculate spatial diffusion factors
     # ------------------------------------------------------------
     f_reg, f_reg_norm, f_reg_norm_abs, crit_all_the_same = create_spatial_diffusion_factors(
-        spatial_explicit_diffusion=data['assumptions'].strategy_vars['spatial_explicit_diffusion']['scenario_value'],
+        narrative_spatial_explicit_diffusion=data['assumptions'].strategy_vars['spatial_explicit_diffusion'], #['scenario_value'],
         fuel_disagg=data['fuel_disagg'],
         regions=data['regions'],
         real_values=data['pop_density'],
-        speed_con_max=strategy_vars['speed_con_max']['scenario_value']) #TODO TODO TODO LOAD REAL VALUES FROM DATA CSV
+        narrative_speed_con_max=data['assumptions'].strategy_vars['speed_con_max']) #['scenario_value']) #TODO TODO TODO LOAD REAL VALUES FROM DATA CSV
 
+    print("Criteria all regions the same:           " + str(crit_all_the_same), flush=True)
     # ------------------------------------------------
     # Calculate parameter values for every region
     # ------------------------------------------------
@@ -345,6 +352,7 @@ if __name__ == "__main__":
     # -----------------------------------------------------------------
     # Calculate parameter values for every simulated year based on narratives
     # -----------------------------------------------------------------
+    print("... starting calculating values for every year", flush=True)
     regional_strategy_vars, non_regional_strategy_vars = s_generate_scenario_parameters.generate_annual_param_vals(
         data['regions'],
         data['assumptions'].strategy_vars,
@@ -354,6 +362,7 @@ if __name__ == "__main__":
     # ------------------------------------------------
     # Calculate switches
     # ------------------------------------------------
+    print("... starting calculating switches", flush=True)
     annual_tech_diff_params = switch_calculations(
         simulated_yrs,
         data,
@@ -406,7 +415,7 @@ if __name__ == "__main__":
         region_selection)
 
     for sim_yr in data['assumptions'].simulated_yrs:
-        print("Simulation for year --------------:  " + str(sim_yr))
+        print("Simulation for year --------------:  " + str(sim_yr), flush=True)
 
         # Set current year
         setattr(data['assumptions'], 'curr_yr', sim_yr)

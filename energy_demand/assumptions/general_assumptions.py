@@ -6,6 +6,7 @@ from energy_demand.basic import testing_functions, date_prop
 from energy_demand.assumptions import fuel_shares
 from energy_demand.initalisations import helpers
 from energy_demand.profiles import hdd_cdd
+from energy_demand.read_write import narrative_related
 
 class Assumptions(object):
     """Assumptions of energy demand model
@@ -577,8 +578,8 @@ class Assumptions(object):
 
 def update_technology_assumption(
         technologies,
-        f_eff_achieved,
-        gshp_fraction_ey
+        narrative_f_eff_achieved,
+        narrative_gshp_fraction_ey
     ):
     """Updates technology related properties based on
     scenario assumptions. Calculate average efficiency of
@@ -599,6 +600,10 @@ def update_technology_assumption(
     ----
     This needs to be run everytime an assumption is changed
     """
+    # Read from narrative the value
+    f_eff_achieved = narrative_related.read_from_narrative(narrative_f_eff_achieved) 
+    gshp_fraction_ey = narrative_related.read_from_narrative(narrative_gshp_fraction_ey) 
+
     # Assign same achieved efficiency factor for all technologies
     technologies = helpers.set_same_eff_all_tech(
         technologies,
