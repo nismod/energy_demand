@@ -1,8 +1,26 @@
 """Functions handling the narratives
 """
+def check_multidimensional_var(var):
+    """Check if nested dict or not
+
+
+    """
+    print("A " + str(var))
+    #if type(var) == list:
+    #    single_dimension = True
+    #else:
+    try:
+        for entry in var:
+            var[entry].keys()
+        single_dimension = False
+    except AttributeError:
+        single_dimension = True
+    
+    return single_dimension
+
 def check_if_multidimensional_var(strategy_var):
     """Check if narratives or dict with narratives (multidimensional parameter)
-    TODO
+    TODO REMOVE AND REPLACE WITH check_multidimensional_var
     """
     if type(strategy_var) == list:
         multidimensional_var = False

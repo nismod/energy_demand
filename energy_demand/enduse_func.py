@@ -1167,11 +1167,7 @@ def apply_specific_change(
     """
     'enduse_overall_change_enduses'
     try:
-        '''parameter_name = 'enduse_change__{}'.format(enduse)
-        
-        # Get region specific annual parameter value
-        change_cy = strategy_vars[parameter_name][curr_yr]
-        '''
+
         change_cy = strategy_vars['enduse_overall_change_enduses'][enduse][curr_yr]
 
         # Calculate new annual fuel
@@ -1180,6 +1176,10 @@ def apply_specific_change(
     except KeyError:
         logging.debug(
             "No annual parameters are provided for enduse %s", enduse)
+        print("ENDUSE " + str(enduse))
+        print("curr_yr " + str(curr_yr))
+        import pprint
+        print(pprint.pprint(strategy_vars))
         raise Exception
 
     return fuel_y

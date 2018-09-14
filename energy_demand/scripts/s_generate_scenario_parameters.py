@@ -168,12 +168,11 @@ def generate_annual_param_vals(
             # Calculate annual parameter value
             regional_strategy_vary = generate_general_parameter(
                 regions=regions,
-                narratives=strategy_vars_values, #['narratives'],
+                narratives=strategy_vars_values,
                 simulated_yrs=simulated_yrs)#,
                 #path=os.path.join(path, "params_{}.{}".format(var_name, "csv")))
 
             # Test if regional specific or not based on first narrative
-            #for narrative in strategy_vars_values['narratives'][:1]:
             for narrative in strategy_vars_values[:1]:
                 reg_specific_crit = narrative['regional_specific']
 
@@ -188,7 +187,7 @@ def generate_annual_param_vals(
                 # Calculate annual parameter value
                 regional_strategy_vary = generate_general_parameter(
                     regions=regions,
-                    narratives=strategy_vars_values[sub_var_name], #['narratives'],
+                    narratives=strategy_vars_values[sub_var_name],
                     simulated_yrs=simulated_yrs)#,
                     #path=os.path.join(path, "params_{}.{}".format(var_name, "csv")))
 

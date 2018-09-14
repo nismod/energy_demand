@@ -266,11 +266,17 @@ if __name__ == "__main__":
         simulation_base_yr=data['assumptions'].base_yr)
 
     # --------------------------------------------------------
-    # Replace STANDARD NARRATIVES with USER DEFINED narratives from .csv files
+    # Replace standard narratives with user defined narratives from .csv files
     # --------------------------------------------------------
     for new_var, new_var_vals in _multi_dim_strategy_vars.items():
-        strategy_vars[new_var] = new_var_vals
-    
+
+        # Test if multidimensional varible
+        if new_var_vals is dict:
+            for sub_var_name, sub_var in new_var_vals.items():
+                strategy_vars[new_var][sub_var_name] = sub_var
+        else:
+            strategy_vars[new_var] = new_var_vals
+
     # NEW ADDED AFFECTED ENDUSES (as not defined in csv files)
     strategy_vars_out = strategy_vars_def.add_affected_enduse(
         strategy_vars, narrative_crit=True)

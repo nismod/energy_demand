@@ -151,12 +151,10 @@ def load_param_assump(
     """
     strategy_vars = defaultdict(dict)
 
-    single_dimension_var = 'single_dimension_var'
-
     # ------------------
     # Spatial explicit diffusion
     # ------------------
-    strategy_vars['spatial_explicit_diffusion'][single_dimension_var] = {
+    strategy_vars['spatial_explicit_diffusion']['single_dimension_var'] = {
         "name": "spatial_explicit_diffusion",
         "absolute_range": (0, 1),
         "description": "Criteria to define spatial or non spatial diffusion",
@@ -166,7 +164,7 @@ def load_param_assump(
         'regional_specific': False,
         'diffusion_type': 'linear'}
 
-    strategy_vars['speed_con_max'][single_dimension_var] = {
+    strategy_vars['speed_con_max']['single_dimension_var'] = {
         "name": "speed_con_max",
         "absolute_range": (0, 99),
         "description": "Maximum speed of penetration (for spatial explicit diffusion)",
@@ -179,7 +177,7 @@ def load_param_assump(
     # -----------
     # Demand management of heat pumps
     # -----------
-    strategy_vars['flat_heat_pump_profile_both'][single_dimension_var] = {
+    strategy_vars['flat_heat_pump_profile_both']['single_dimension_var'] = {
         "name": "flat_heat_pump_profile_both",
         "absolute_range": (0, 1),
         "description": "Heat pump profile flat or with actual data",
@@ -189,7 +187,7 @@ def load_param_assump(
         'regional_specific': False,
         'diffusion_type': 'linear'}
 
-    strategy_vars['flat_heat_pump_profile_only_water'][single_dimension_var] = {
+    strategy_vars['flat_heat_pump_profile_only_water']['single_dimension_var'] = {
         "name": "flat_heat_pump_profile_only_water",
         "absolute_range": (0, 1),
         "description": "Heat pump profile flat or with actual data only for water heating",
@@ -203,7 +201,7 @@ def load_param_assump(
     # Heat pump technology mix
     # Source: Hannon 2015: Raising the temperature of the UK heat pump market: Learning lessons from Finland
     # ----------------------
-    strategy_vars['gshp_fraction_ey'][single_dimension_var] = {
+    strategy_vars['gshp_fraction_ey']['single_dimension_var'] = {
         "name": "gshp_fraction_ey",
         "absolute_range": (0, 1),
         "description": "Relative GSHP (%) to GSHP+ASHP",
@@ -258,7 +256,7 @@ def load_param_assump(
 
     # Helper function to create description of parameters for all enduses
     for demand_name, scenario_value in enduses_demand_managent.items():
-        strategy_vars[demand_name][single_dimension_var] = {
+        strategy_vars[demand_name]['single_dimension_var'] = {
             "name": demand_name,
             "absolute_range": (0, 1),
             "description": "reduction in load factor for enduse {}".format(demand_name),
@@ -290,7 +288,7 @@ def load_param_assump(
     for month_python, _ in enumerate(temps):
         month_str = basic_functions.get_month_from_int(month_python + 1)
         name = "climate_change_temp_d__{}".format(month_str)
-        strategy_vars[name][single_dimension_var] = {
+        strategy_vars[name]['single_dimension_var'] = {
             "name": name,
             "absolute_range": (-0, 10),
             "description": "Temperature change for month {}".format(month_str),
@@ -304,7 +302,7 @@ def load_param_assump(
     # Base temperature assumptions for heating and cooling demand
     # The diffusion is asumed to be linear
     # ============================================================
-    strategy_vars['rs_t_base_heating_future_yr'][single_dimension_var] = {
+    strategy_vars['rs_t_base_heating_future_yr']['single_dimension_var'] = {
         "name": "rs_t_base_heating_future_yr",
         "absolute_range": (0, 20),
         "description": "Base temperature assumption residential heating",
@@ -315,7 +313,7 @@ def load_param_assump(
         'diffusion_type': 'linear'}
 
     # Future base year temperature
-    strategy_vars['ss_t_base_heating_future_yr'][single_dimension_var] = {
+    strategy_vars['ss_t_base_heating_future_yr']['single_dimension_var'] = {
         "name": "ss_t_base_heating_future_yr",
         "absolute_range": (0, 20),
         "description": "Base temperature assumption service sector heating",
@@ -327,7 +325,7 @@ def load_param_assump(
 
     # Cooling base temperature
     # Future base year temperature
-    strategy_vars['ss_t_base_cooling_future_yr'][single_dimension_var] = {
+    strategy_vars['ss_t_base_cooling_future_yr']['single_dimension_var'] = {
         "name": "ss_t_base_cooling_future_yr",
         "absolute_range": (0, 25),
         "description": "Base temperature assumption service sector cooling",
@@ -338,7 +336,7 @@ def load_param_assump(
         'diffusion_type': 'linear'}
 
     # Future base year temperature
-    strategy_vars['is_t_base_heating_future_yr'][single_dimension_var] = {
+    strategy_vars['is_t_base_heating_future_yr']['single_dimension_var'] = {
         "name": "is_t_base_heating_future_yr",
         "absolute_range": (0, 20),
         "description": "Base temperature assumption service sector heating",
@@ -355,7 +353,7 @@ def load_param_assump(
     # https://www.gov.uk/government/publications/smart-metering-early-learning-project-and-small-scale-behaviour-trials
     # Reasonable assumption is between 0.03 and 0.01 (DECC 2015)
     # ============================================================
-    strategy_vars['smart_meter_improvement_p'][single_dimension_var] = {
+    strategy_vars['smart_meter_improvement_p']['single_dimension_var'] = {
         "name": "smart_meter_improvement_p",
         "absolute_range": (0, 1),
         "description": "Improvement of smart meter penetration",
@@ -368,7 +366,7 @@ def load_param_assump(
     # ============================================================
     # Cooling
     # ============================================================
-    strategy_vars['cooled_floorarea__ss_cooling_humidification'][single_dimension_var] = {
+    strategy_vars['cooled_floorarea__ss_cooling_humidification']['single_dimension_var'] = {
         "name": "cooled_floorarea__ss_cooling_humidification",
         "absolute_range": (0, 1),
         "description": "Change in cooling of floor area (service sector)",
@@ -381,7 +379,7 @@ def load_param_assump(
     # ============================================================
     # Industrial processes
     # ============================================================
-    strategy_vars['p_cold_rolling_steel'][single_dimension_var] = {
+    strategy_vars['p_cold_rolling_steel']['single_dimension_var'] = {
         "name": "p_cold_rolling_steel",
         "absolute_range": (0, 1),
         "description": "Sectoral share of cold rolling in steel manufacturing)",
@@ -394,7 +392,7 @@ def load_param_assump(
     # ============================================================
     # Heat recycling & reuse
     # ============================================================
-    strategy_vars['heat_recoved__rs_space_heating'][single_dimension_var] = {
+    strategy_vars['heat_recoved__rs_space_heating']['single_dimension_var'] = {
         "name": "heat_recoved__rs_space_heating",
         "absolute_range": (0, 1),
         "description": "Reduction in heat because of heat recovery and recycling (residential sector)",
@@ -405,7 +403,7 @@ def load_param_assump(
         'regional_specific': True,
         'diffusion_type': 'linear'}
 
-    strategy_vars['heat_recoved__ss_space_heating'][single_dimension_var] = {
+    strategy_vars['heat_recoved__ss_space_heating']['single_dimension_var'] = {
         "name": "heat_recoved__ss_space_heating",
         "absolute_range": (0, 1),
         "description": "Reduction in heat because of heat recovery and recycling (service sector)",
@@ -416,7 +414,7 @@ def load_param_assump(
         'regional_specific': True,
         'diffusion_type': 'linear'}
 
-    strategy_vars['heat_recoved__is_space_heating'][single_dimension_var] = {
+    strategy_vars['heat_recoved__is_space_heating']['single_dimension_var'] = {
         "name": "heat_recoved__is_space_heating",
         "absolute_range": (0, 1),
         "description": "Reduction in heat because of heat recovery and recycling (industry sector)",
@@ -430,7 +428,7 @@ def load_param_assump(
     # ============================================================
     # Air leakage
     # ============================================================
-    strategy_vars['air_leakage__rs_space_heating'][single_dimension_var] = {
+    strategy_vars['air_leakage__rs_space_heating']['single_dimension_var'] = {
         "name": "air_leakage__rs_space_heating",
         "absolute_range": (0, 1),
         "description": "Reduction in heat because of air leakage improvement (residential sector)",
@@ -441,7 +439,7 @@ def load_param_assump(
         'regional_specific': True,
         'diffusion_type': 'linear'}
 
-    strategy_vars['air_leakage__ss_space_heating'][single_dimension_var] = {
+    strategy_vars['air_leakage__ss_space_heating']['single_dimension_var'] = {
         "name": "air_leakage__ss_space_heating",
         "absolute_range": (0, 1),
         "description": "Reduction in heat because of of air leakage improvementservice sector)",
@@ -452,7 +450,7 @@ def load_param_assump(
         'regional_specific': True,
         'diffusion_type': 'linear'}
 
-    strategy_vars['air_leakage__is_space_heating'][single_dimension_var] = {
+    strategy_vars['air_leakage__is_space_heating']['single_dimension_var'] = {
         "name": "air_leakage__is_space_heating",
         "absolute_range": (0, 1),
         "description": "Reduction in heat because of air leakage improvement (industry sector)",
@@ -514,7 +512,7 @@ def load_param_assump(
 
     # Helper function to create description of parameters for all enduses
     for enduse_name, param_value in enduse_overall_change_enduses.items():
-        strategy_vars[enduse_name][single_dimension_var] = {
+        strategy_vars[enduse_name]['single_dimension_var'] = {
             "name": enduse_name,
             "absolute_range": (-1, 1),
             "description": "Enduse specific change {}".format(enduse_name),
@@ -530,7 +528,7 @@ def load_param_assump(
     # ============================================================
 
     # --Assumption how much of technological efficiency is reached
-    strategy_vars["f_eff_achieved"][single_dimension_var] = {
+    strategy_vars["f_eff_achieved"]['single_dimension_var'] = {
         "name": "f_eff_achieved",
         "absolute_range": (0, 1),
         "description": "Fraction achieved of efficiency improvements",
@@ -543,7 +541,7 @@ def load_param_assump(
     # --------------------------------------
     # Floor area per person change
     # ---------------------------------------
-    strategy_vars["assump_diff_floorarea_pp"][single_dimension_var] = {
+    strategy_vars["assump_diff_floorarea_pp"]['single_dimension_var'] = {
         "name": "assump_diff_floorarea_pp",
         "absolute_range": (-1, 1),
         "description": "Change in floor area per person (%, 1=100%)",
