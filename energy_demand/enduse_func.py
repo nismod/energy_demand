@@ -1165,11 +1165,14 @@ def apply_specific_change(
     fuel_y : array
         Yearly new fuels
     """
+    'enduse_overall_change_enduses'
     try:
-        parameter_name = 'enduse_change__{}'.format(enduse)
-
+        '''parameter_name = 'enduse_change__{}'.format(enduse)
+        
         # Get region specific annual parameter value
         change_cy = strategy_vars[parameter_name][curr_yr]
+        '''
+        change_cy = strategy_vars['enduse_overall_change_enduses'][enduse][curr_yr]
 
         # Calculate new annual fuel
         fuel_y = fuel_y * (1 + change_cy)

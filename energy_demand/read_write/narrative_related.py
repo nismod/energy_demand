@@ -13,7 +13,6 @@ def check_if_multidimensional_var(strategy_var):
     
     return multidimensional_var
 
-
 def read_from_narrative(narratives):
     """Read from narratives the value
     of the last narrative
@@ -102,15 +101,25 @@ def create_narratives(raw_csv_file, simulation_base_yr):
         end_yr = int(row['end_yr'])
         value_ey = float(row['value_ey'])
         diffusion_choice = str(row['diffusion_choice'])
-        sig_midpoint = float(row['sig_midpoint'])
-        sig_steepness = float(row['sig_steepness'])
         
-        if str(row['regional_specific']) == 'True':
-            regional_specific = True #bool(1)
-        else:
-            regional_specific = False #bool(0)
+        try:
+            sig_midpoint = float(row['sig_midpoint'])
+        except KeyError:
+            sig_midpoint = 0 # default value
+        
+        try:
+            sig_steepness = float(row['sig_steepness'])
+        except:
+            sig_steepness = 1
 
+        try:
+            if str(row['regional_specific']) == 'True':
+                regional_specific = True #bool(1)
+            else:
+                regional_specific = False #bool(0)
 
+        except KeyError:
+            regional_specific = True
 
         # Additional
         # affected_enduse

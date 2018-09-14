@@ -152,6 +152,8 @@ def generate_annual_param_vals(
 
     for var_name, strategy_vars_values in strategy_vars.items():
         
+        #if var_name == 'enduse_overall_change_enduses':
+        #    print("..")
         # SNAKE
         # TODO: ITerate sub-parameter in var_name
         #regional_strategy_vary_dict = {}
@@ -202,6 +204,7 @@ def generate_annual_param_vals(
                 else:
                     container_non_reg_param[var_name][sub_var_name] = regional_strategy_vary
             
+   # return dict(container_reg_param), dict(container_non_reg_param)
     return dict(container_reg_param), dict(container_non_reg_param)
 
 def generate_general_parameter(

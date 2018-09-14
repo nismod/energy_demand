@@ -501,40 +501,40 @@ def load_param_assump(
     enduse_overall_change_enduses = {
 
         # Submodel Residential
-        'enduse_change__rs_space_heating': 0,
-        'enduse_change__rs_water_heating': 0,
-        'enduse_change__rs_lighting': 0,
-        'enduse_change__rs_cooking': 0,
-        'enduse_change__rs_cold': 0,
-        'enduse_change__rs_wet': 0,
-        'enduse_change__rs_consumer_electronics': 0,
-        'enduse_change__rs_home_computing': 0,
+        'rs_space_heating': 0,
+        'rs_water_heating': 0,
+        'rs_lighting': 0,
+        'rs_cooking': 0,
+        'rs_cold': 0,
+        'rs_wet': 0,
+        'rs_consumer_electronics': 0,
+        'rs_home_computing': 0,
 
         # Submodel Service (Table 5.5a)
         # same % improvements from baseline over all sectors
-        'enduse_change__ss_space_heating': 0,
-        'enduse_change__ss_water_heating': 0,
-        'enduse_change__ss_cooling_humidification': 0,
-        'enduse_change__ss_fans': 0,
-        'enduse_change__ss_lighting': 0,
-        'enduse_change__ss_catering': 0,
-        'enduse_change__ss_small_power': 0,
-        'enduse_change__ss_ICT_equipment': 0,
-        'enduse_change__ss_cooled_storage': 0,
-        'enduse_change__ss_other_gas': 0,
-        'enduse_change__ss_other_electricity': 0,
+        'ss_space_heating': 0,
+        'ss_water_heating': 0,
+        'ss_cooling_humidification': 0,
+        'ss_fans': 0,
+        'ss_lighting': 0,
+        'ss_catering': 0,
+        'ss_small_power': 0,
+        'ss_ICT_equipment': 0,
+        'ss_cooled_storage': 0,
+        'ss_other_gas': 0,
+        'ss_other_electricity': 0,
 
         # Submodel Industry
         # same % improvements from baseline over all sectors
-        'enduse_change__is_high_temp_process': 0,
-        'enduse_change__is_low_temp_process': 0,
-        'enduse_change__is_drying_separation': 0,
-        'enduse_change__is_motors': 0,
-        'enduse_change__is_compressed_air': 0,
-        'enduse_change__is_lighting': 0,
-        'enduse_change__is_space_heating': 0,
-        'enduse_change__is_other': 0,
-        'enduse_change__is_refrigeration': 0}
+        'is_high_temp_process': 0,
+        'is_low_temp_process': 0,
+        'is_drying_separation': 0,
+        'is_motors': 0,
+        'is_compressed_air': 0,
+        'is_lighting': 0,
+        'is_space_heating': 0,
+        'is_other': 0,
+        'is_refrigeration': 0}
 
     # Helper function to create description of parameters for all enduses
     for enduse_name, param_value in enduse_overall_change_enduses.items():
@@ -545,35 +545,9 @@ def load_param_assump(
             "suggested_range": (0, 1),
             "default_value": 0,
             "units": 'decimal',
-            'affected_enduse': [enduse_name.split("__")[1]],
+            'affected_enduse': [enduse_name],
             'regional_specific': True,
             'diffusion_type': 'linear'}
-
-    # MULTIDIMENSION
-    strategy_vars['enduse_overall_change_enduses'] = {
-
-        # Submodel Residential
-        'rs_space_heating': {
-            "name": 'rs_space_heating',
-            "absolute_range": (-1, 1),
-            "description": "Enduse specific change {}".format('rs_space_heating'),
-            "suggested_range": (0, 1),
-            "default_value": 0,
-            "units": 'decimal',
-            'affected_enduse': ['rs_space_heating'],
-            'regional_specific': True,
-            'diffusion_type': 'linear'},
-        'rs_water_heating': {
-            "name": 'rs_water_heating',
-            "absolute_range": (-1, 1),
-            "description": "Enduse specific change {}".format('rs_water_heating'),
-            "suggested_range": (0, 1),
-            "default_value": 0,
-            "units": 'decimal',
-            'affected_enduse': ['rs_water_heating'],
-            'regional_specific': True,
-            'diffusion_type': 'linear'} #TODO ADD ALL OTHER END USES
-    }
 
     # ============================================================
     # Technologies & efficiencies
