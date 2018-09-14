@@ -1,23 +1,20 @@
 """Strategy variable assumptions provided as parameters to smif
 """
-import copy
 import logging
 from collections import defaultdict
 
-from energy_demand.read_write import write_data
 from energy_demand.basic import basic_functions
 from energy_demand.read_write import narrative_related
 
 def load_smif_parameters(
         data_handle,
-        strategy_variable_names,
         assumptions=False,
         mode='smif'
     ):
-    """Get all model parameters from smif (`parameters`) depending
-    on narrative. Create the dict `strategy_vars` and
-    add scenario value as well as affected enduses of
-    each variable.
+    """Get all model parameters from smifself.
+    Create the dict `strategy_vars` and store
+    all strategy variables (single and multidimensional/nested)
+    and their standard narrative (single timestep).
 
     Arguments
     ---------
@@ -34,71 +31,32 @@ def load_smif_parameters(
     -------
     strategy_vars : dict
         Updated strategy variables
+
+    Example
+    --------
+    The strategy variables are stored as follows:
+    {'param_name_single_dim': {standard_narrative},
+    'param_multi_single_dim': {
+        'sub_param_name1': {standard_narrative},
+        'sub_param_name2': {standard_narrative}, 
+    }}
     """
-    # All information of all scenario parameters
+    strategy_vars = defaultdict(dict)
+
+    # Load all standard variables of parameters
     default_streategy_vars = load_param_assump(
         assumptions=assumptions)
 
-    strategy_vars = {}
-    #SNAKE
-    # Iterate smif variables and assign new values
-    '''for name in strategy_variable_names:
-
-        # Get scenario value
-        if mode == 'smif':  #smif mode
-            #TODO MAKE THAT MULTIDIMENSIONL PARAMETERS (NARRATIVES) CAN BE LOADED
-            scenario_value = data_handle.get_parameter(name)
-        else: #local running
-            scenario_value = data_handle[name]['default_value']
-
-        if scenario_value == 'True':
-            scenario_value = True
-        elif scenario_value == 'False':
-            scenario_value = False
-        else:
-            pass
-
-        logging.info(
-            "... loading smif parameter: %s value: %s", name, scenario_value)
-
-        # ------------------------------------------
-        # Load or generate narratives per parameter
-        # ------------------------------------------
-        # TODO LOAD NARRATIVE FOR PARAMETER
-
-        # ----------------------------------
-        # Create default narrative with only one story
-        # ----------------------------------
-        created_narrative = narrative_related.default_narrative(
-            end_yr=2050,                                                            #TODO MAKE GLOBAL
-            value_by=default_streategy_vars[name]['default_value'],                # Base year value,
-            value_ey=scenario_value,
-            diffusion_choice=default_streategy_vars[name]['diffusion_type'],       # Sigmoid or linear,
-            base_yr=assumptions.base_yr,
-            regional_specific=default_streategy_vars[name]['regional_specific']),   # Criteria whether the same for all regions or not
-
-        strategy_vars[name] = {
-
-            'scenario_value': scenario_value,
-
-            # Get affected enduses of this variable defined in `load_param_assump`
-            'affected_enduse': default_streategy_vars[name]['affected_enduse'],
-
-            # Replace by external narrative telling
-            'narratives': created_narrative}
-    '''
-
     # ------------------------------------------------------------
-    # Create default narratives for every simulation parameter
+    # Create default narrative for every simulation parameter
     # ------------------------------------------------------------
-    strategy_vars = defaultdict(dict)
     for var_name, var_entries in default_streategy_vars.items():
 
         if 'single_dimension_var' in var_entries:
 
             # Get scenario value
             if mode == 'smif':  #smif mode
-                #TODO IMPLEMENT
+
                 try:
                     scenario_value = data_handle.get_parameter(var_name)
                 except:
@@ -117,10 +75,10 @@ def load_smif_parameters(
                 scenario_value = False
             else:
                 pass
-                
-            # Create default narrative with only one story
+
+            # Create default narrative with only one timestep from simulation base year to simulation end year
             created_narrative = narrative_related.default_narrative(
-                end_yr=2050,                                                    # TODO MAKE GLOBAL
+                end_yr=assumptions.simulation_end_yr,
                 value_by=var_entries['single_dimension_var']['default_value'],                # Base year value,
                 value_ey=scenario_value,
                 diffusion_choice=var_entries['single_dimension_var']['diffusion_type'],       # Sigmoid or linear,
@@ -157,7 +115,7 @@ def load_smif_parameters(
 
                 # Narrative
                 created_narrative = narrative_related.default_narrative(
-                    end_yr=2050,                                                    # TODO MAKE GLOBAL
+                    end_yr=assumptions.simulation_end_yr,
                     value_by=sub_var_entries['default_value'],                # Base year value,
                     value_ey=scenario_value,
                     diffusion_choice=sub_var_entries['diffusion_type'],       # Sigmoid or linear,
@@ -168,7 +126,7 @@ def load_smif_parameters(
                     'multi_scenario_values': created_narrative
                 }
 
-    return strategy_vars #, multi_strategy_vars
+    return strategy_vars
 
 def load_param_assump(
         paths=None,

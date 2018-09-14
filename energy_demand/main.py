@@ -139,7 +139,8 @@ if __name__ == "__main__":
 
     # --- Model running configurations
     user_defined_base_yr = 2015
-    simulated_yrs = [2015, 2050]
+    user_defined_simulation_end_yr = 2050
+    simulated_yrs = [user_defined_base_yr, user_defined_simulation_end_yr]
 
     # --- Region definition configuration
     name_region_set = os.path.join(local_data_path, 'region_definitions', "lad_2016_uk_simplified.shp")        # LAD
@@ -217,6 +218,7 @@ if __name__ == "__main__":
     data['assumptions'] = general_assumptions.Assumptions(
         submodels_names=data['lookups']['submodels_names'],
         base_yr=user_defined_base_yr,
+        simulation_end_yr=user_defined_simulation_end_yr,
         curr_yr=2015,
         simulated_yrs=simulated_yrs,
         paths=data['paths'],
@@ -252,7 +254,6 @@ if __name__ == "__main__":
     # -----------------------------------------------------------------------------
     strategy_vars = strategy_vars_def.load_smif_parameters(
         data_handle=strategy_vars,
-        strategy_variable_names=strategy_vars.keys(),
         assumptions=data['assumptions'],
         mode='local')
 
@@ -420,8 +421,6 @@ if __name__ == "__main__":
         # Set current year
         setattr(data['assumptions'], 'curr_yr', sim_yr)
 
-        print(data['assumptions'].strategy_vars['f_eff_achieved'])
-        print("fff")
         #TODO UPDATE TECHNOLOGIES NEW NTEW
         data['technologies'] = general_assumptions.update_technology_assumption(
             data['assumptions'].technologies,
