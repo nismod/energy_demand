@@ -79,7 +79,6 @@ def calc_annual_switch_params(
     """
     annual_tech_diff_params = {}
 
-    # Iterate regions
     for region in regions:
         annual_tech_diff_params[region] = {}
 

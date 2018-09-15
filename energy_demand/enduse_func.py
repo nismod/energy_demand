@@ -193,7 +193,7 @@ class Enduse(object):
             self.fuel_y = _fuel_new_y
             #logging.debug("FUEL TRAIN E2: " + str(np.sum(self.fuel_y)))
 
-            # Generic fuel switch of an enduse
+            # Generic fuel switch of an enduse #TODO
             _fuel_new_y = generic_fuel_switch(
                 enduse,
                 sector,
@@ -1162,7 +1162,7 @@ def apply_specific_change(
         Yearly new fuels
     """
     try:
-        change_cy = strategy_vars['enduse_overall_change_enduses'][enduse][curr_yr]
+        change_cy = strategy_vars['generic_enduse_change'][enduse][curr_yr]
 
         # Calculate new annual fuel
         fuel_y = fuel_y * (1 + change_cy)
@@ -1252,29 +1252,22 @@ def apply_smart_metering(
     - In the assumptions the maximum penetration and also the
         generally fuel savings for each enduse can be defined.
     """
-    key_name = 'smart_meter_improvement_{}'.format(enduse)
+    # Enduse saving potentail of enduse of smart meter
+    enduse_savings = sm_assump['savings_smart_meter'][enduse]
 
-    try:
-        # Enduse saving potentail of enduse of smart meter
-        enduse_savings = sm_assump['savings_smart_meter'][key_name]
+    # Smart meter penetration in current year (percentage of people having smart meters)
+    penetration_cy = strategy_vars['smart_meter_improvement_p'][curr_yr]
 
-        # Smart meter penetration in current year (percentage of people having smart meters)
-        penetration_cy = strategy_vars['smart_meter_improvement_p'][curr_yr]
+    # Smart meter penetration in base year (percentage of people having smart meters)
+    penetration_by = sm_assump['smart_meter_p_by']
 
-        # Smart meter penetration in base year (percentage of people having smart meters)
-        penetration_by = sm_assump['smart_meter_p_by']
+    # Calculate fuel savings
+    saved_fuel = fuel_y * (penetration_cy - penetration_by) * enduse_savings
 
-        # Calculate fuel savings
-        saved_fuel = fuel_y * (penetration_cy - penetration_by) * enduse_savings
+    # Substract fuel savings
+    fuel_y = fuel_y - saved_fuel
 
-        # Substract fuel savings
-        fuel_y = fuel_y - saved_fuel
-
-        return fuel_y
-    except:
-        raise Exception("smart mater improvements not defined for this enduse {}".format(enduse))
-        # smart mater improvements not defined for this enduse
-        return fuel_y
+    return fuel_y
 
 def convert_service_to_p(tot_s_y, s_fueltype_tech):
     """Calculate fraction of service for every technology

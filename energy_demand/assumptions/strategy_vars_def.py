@@ -459,7 +459,7 @@ def load_param_assump(
     #   Change in fuel until the simulation end year (
     #   if no change set to 1, if e.g. 10% decrease change to 0.9)
     # -------------------------------------------------------
-    enduse_overall_change_enduses = {
+    generic_enduse_change = {
 
         # Submodel Residential
         'rs_space_heating': 0,
@@ -498,8 +498,8 @@ def load_param_assump(
         'is_refrigeration': 0}
 
     # Helper function to create description of parameters for all enduses
-    for enduse_name, param_value in enduse_overall_change_enduses.items():
-        strategy_vars['enduse_overall_change_enduses'][enduse_name] = {
+    for enduse_name, param_value in generic_enduse_change.items():
+        strategy_vars['generic_enduse_change'][enduse_name] = {
             "name": enduse_name,
             "absolute_range": (-1, 1),
             "description": "Enduse specific change {}".format(enduse_name),
