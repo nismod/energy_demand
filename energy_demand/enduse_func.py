@@ -1165,7 +1165,6 @@ def apply_specific_change(
     fuel_y : array
         Yearly new fuels
     """
-    'enduse_overall_change_enduses'
     try:
         change_cy = strategy_vars['enduse_overall_change_enduses'][enduse][curr_yr]
 

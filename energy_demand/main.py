@@ -158,15 +158,6 @@ if __name__ == "__main__":
     name_gva_dataset = os.path.join(local_data_path, 'scenarios', 'MISTRAL_pop_gva', 'data', 'pop-a_econ-c_fuel-c/gva_per_head__lad_sector.csv') # Constant scenario
     name_gva_dataset_per_head = os.path.join(local_data_path, 'scenarios', 'MISTRAL_pop_gva', 'data', 'pop-a_econ-c_fuel-c/gva_per_head__lad.csv') # Constant scenario
 
-    # -------------------------------
-    # User defined strategy variables
-    # -------------------------------
-    user_defined_strategy_vars = {
-        'f_eff_achieved': 0            # Efficiency improvements
-        #'flat_heat_pump_profile_both': 1 #Flat heat pump dsm
-        #'enduse_change__ss_fans': 0.5   # 50% improvement
-    }
-
     # --------------------
     # Paths
     # --------------------
@@ -242,27 +233,22 @@ if __name__ == "__main__":
     # Load standard strategy variable values from .py file
     # Containing full information
     # -----------------------------------------------------------------------------
-    strategy_vars = strategy_vars_def.load_param_assump(
+    default_streategy_vars = strategy_vars_def.load_param_assump(
         data['paths'],
         data['local_paths'],
         data['assumptions'],
         writeYAML=data['criterias']['writeYAML'])
-    data['assumptions'].update('strategy_vars', strategy_vars)
+    #data['assumptions'].update('strategy_vars', strategy_vars)
 
-    # -----------------------------------------------------------------------------
-    # Alternative update user defined strategy variables
-    # -----------------------------------------------------------------------------
-    for var_name, var_value in user_defined_strategy_vars.items():
-       strategy_vars[var_name]['scenario_value'] = var_value
-       
+
     # -----------------------------------------------------------------------------
     # Load standard smif parameters and generate standard single timestep
     # narrative for year 2050 TODO IMPELEMENT THAT CAN BE LOADED FROM SMIF
     # -----------------------------------------------------------------------------
     strategy_vars = strategy_vars_def.load_smif_parameters(
-        data_handle=strategy_vars,
+        data_handle=default_streategy_vars,
         assumptions=data['assumptions'],
-        default_streategy_vars=strategy_vars,
+        default_streategy_vars=default_streategy_vars,
         mode='local')
 
     # -----------------------------------------
@@ -270,6 +256,7 @@ if __name__ == "__main__":
     # TODO WHAT ABOUT AFFECTED ENDUSE?
     # -----------------------------------------
     _multi_dim_strategy_vars = data_loader.load_strategy_vars_from_csv(
+        default_strategy_var=default_streategy_vars,
         path_to_folder_with_csv=data['paths']['path_folder_strategy_vars'],
         simulation_base_yr=data['assumptions'].base_yr)
 

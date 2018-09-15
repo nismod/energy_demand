@@ -152,8 +152,7 @@ def generate_annual_param_vals(
 
     for var_name, strategy_vars_values in strategy_vars.items():
 
-        crit_multi_dim_var = narrative_related.check_if_multidimensional_var(
-            strategy_vars_values) #TODO
+        crit_multi_dim_var = narrative_related.check_if_multidimensional_var(strategy_vars_values) #TODO
 
         if not crit_multi_dim_var:
 
@@ -189,7 +188,7 @@ def generate_annual_param_vals(
                     for region in regions:
                         container_reg_param[region][var_name][sub_var_name] = regional_strategy_vary[region]
 
-                    container_reg_param[region][var_name] = dict(container_reg_param[region][var_name])
+                    container_reg_param[region][var_name] = dict(container_reg_param[region][var_name]) #convert to dict
                 else:
                     container_non_reg_param[var_name][sub_var_name] = regional_strategy_vary
 

@@ -104,7 +104,7 @@ def default_narrative(
 
     return default_narrative
 
-def create_narratives(raw_file_content, simulation_base_yr):
+def create_narratives(raw_file_content, simulation_base_yr, default_streategy_vars):
     """Create multidimensional narratives
 
     Arguments
@@ -173,7 +173,13 @@ def create_narratives(raw_file_content, simulation_base_yr):
             else:
                 regional_specific = False #bool(0)
         except KeyError:
-            regional_specific = True
+
+            # Read from original configuration whether this variable
+            # is regionally specific or not
+            if crit_single_dim_param:
+                regional_specific = default_streategy_vars['regional_specific']
+            else:
+                regional_specific = default_streategy_vars[sub_param_name]['regional_specific']
 
         switch = {
             'default_by': default_by,
@@ -207,7 +213,7 @@ def create_narratives(raw_file_content, simulation_base_yr):
         for narrative in narratives:
             all_yrs.append(narrative['end_yr'])
 
-        # Sort
+
         all_yrs.sort()
 
         # Iterate years

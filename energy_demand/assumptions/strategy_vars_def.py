@@ -66,7 +66,6 @@ def load_smif_parameters(
                     # This needs to be fixed by directly loading multiple paramters from SMIF
                     scenario_value = var_entries['default_value']
             else: #local running
-                #scenario_value = var_entries['default_value']
                 scenario_value = var_entries['scenario_value']
 
             # Create default narrative with only one timestep from simulation base year to simulation end year
@@ -499,7 +498,7 @@ def load_param_assump(
 
     # Helper function to create description of parameters for all enduses
     for enduse_name, param_value in enduse_overall_change_enduses.items():
-        strategy_vars[enduse_name] = {
+        strategy_vars['enduse_overall_change_enduses'][enduse_name] = {
             "name": enduse_name,
             "absolute_range": (-1, 1),
             "description": "Enduse specific change {}".format(enduse_name),
@@ -593,14 +592,14 @@ def autocomplete_strategy_vars(strategy_vars, narrative_crit=False):
                 strategy_vars_out[var_name] = var_entries
 
                 # If no 'affected_enduse' defined, add empty list of affected enduses
-                strategy_vars_out[var_name]['scenario_value'] = var_entries['default_value'] #scenario_value
+                strategy_vars_out[var_name]['scenario_value'] = var_entries['default_value']
                 if 'affected_enduse' not in var_entries:
                     strategy_vars_out[var_name]['affected_enduse'] = []
             else:
                 for sub_var_name, sub_var_entries in var_entries.items():
                     strategy_vars_out[var_name][sub_var_name] = sub_var_entries
 
-                    strategy_vars_out[var_name][sub_var_name]['scenario_value'] = var_entries['default_value'] #scenario_value
+                    strategy_vars_out[var_name][sub_var_name]['scenario_value'] = sub_var_entries['default_value']
     
                     # If no 'affected_enduse' defined, add empty list of affected enduses
                     if 'affected_enduse' not in sub_var_entries:
@@ -640,7 +639,7 @@ def autocomplete_strategy_vars(strategy_vars, narrative_crit=False):
 
                     strategy_vars_out[var_name][sub_var_name] = updated_narratives
 
-    return strategy_vars_out
+    return dict(strategy_vars_out)
 
 def get_affected_enduse(strategy_vars, name):
     """Get all defined affected enduses of a scenario variable
