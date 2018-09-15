@@ -152,10 +152,9 @@ def generate_annual_param_vals(
 
     for var_name, strategy_vars_values in strategy_vars.items():
 
-        crit_multi_dim_var = narrative_related.check_if_multidimensional_var(strategy_vars_values) #TODO
+        single_dim_var = narrative_related.get_crit_single_dim_var(strategy_vars_values)
 
-        if not crit_multi_dim_var:
-
+        if single_dim_var:
             # Calculate annual parameter value
             regional_strategy_vary = generate_general_parameter(
                 regions=regions,

@@ -2,10 +2,18 @@
 """
 import math
 
-def check_multidimensional_var(var):
+def get_crit_single_dim_var(var):
     """Check if nested dict or not
 
+    Arguments
+    ---------
+    var : dict
+        Dictionary to test wheter single or multidimensional parameter
 
+    Returns
+    -------
+    single_dimension : bool
+        True: Single dimension, False: Multidimensional parameter
     """
     if type(var) is list:
         single_dimension = True
@@ -23,19 +31,6 @@ def check_multidimensional_var(var):
             single_dimension = True
 
     return single_dimension
-
-def check_if_multidimensional_var(strategy_var):
-    """Check if narratives or dict with narratives (multidimensional parameter)
-    TODO REMOVE AND REPLACE WITH check_multidimensional_var
-    """
-    if type(strategy_var) == list:
-        multidimensional_var = False
-    elif type(strategy_var) == dict:
-        multidimensional_var = True
-    else:
-        pass
-
-    return multidimensional_var
 
 def read_from_narrative(narratives):
     """Read from narratives the value

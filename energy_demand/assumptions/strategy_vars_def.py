@@ -51,7 +51,7 @@ def load_smif_parameters(
     # ------------------------------------------------------------
     for var_name, var_entries in default_streategy_vars.items():
 
-        crit_single_dim = narrative_related.check_multidimensional_var(var_entries)
+        crit_single_dim = narrative_related.get_crit_single_dim_var(var_entries)
 
         if crit_single_dim:
 
@@ -259,29 +259,28 @@ def load_param_assump(
     # Climate Change assumptions
     # Temperature changes for every month for future year
     # =======================================
-    temps = {
-        'climate_change_temp_d__Jan': 0,
-        'climate_change_temp_d__Feb': 0,
-        'climate_change_temp_d__Mar': 0,
-        'climate_change_temp_d__Apr': 0,
-        'climate_change_temp_d__May': 0,
-        'climate_change_temp_d__Jun': 0,
-        'climate_change_temp_d__Jul': 0,
-        'climate_change_temp_d__Aug': 0,
-        'climate_change_temp_d__Sep': 0,
-        'climate_change_temp_d__Oct': 0,
-        'climate_change_temp_d__Nov': 0,
-        'climate_change_temp_d__Dec': 0}
+    temp_diff_assumptions = {
+        'Jan': 0,
+        'Feb': 0,
+        'Mar': 0,
+        'Apr': 0,
+        'May': 0,
+        'Jun': 0,
+        'Jul': 0,
+        'Aug': 0,
+        'Sep': 0,
+        'Oct': 0,
+        'Nov': 0,
+        'Dec': 0}
 
-    for month_python, _ in enumerate(temps):
-        month_str = basic_functions.get_month_from_int(month_python + 1)
-        name = "climate_change_temp_d__{}".format(month_str)
-        strategy_vars[name] = {
-            "name": name,
+    for month_python, default_value in temp_diff_assumptions.items():
+
+        strategy_vars['climate_change_temp_d'][month_python] = {
+            "name": month_python,
             "absolute_range": (-0, 10),
-            "description": "Temperature change for month {}".format(month_str),
+            "description": "Temperature change for month {}".format(month_python),
             "suggested_range": (-5, 5),
-            "default_value": 0,
+            "default_value": default_value,
             "units": '°C',
             'regional_specific': False,
             'diffusion_type': 'linear'}
@@ -505,7 +504,7 @@ def load_param_assump(
             "absolute_range": (-1, 1),
             "description": "Enduse specific change {}".format(enduse_name),
             "suggested_range": (0, 1),
-            "default_value": 0,
+            "default_value": param_value,
             "units": 'decimal',
             'affected_enduse': [enduse_name],
             'affected_sector': [],
@@ -588,7 +587,7 @@ def autocomplete_strategy_vars(strategy_vars, narrative_crit=False):
 
         for var_name, var_entries in strategy_vars.items():
 
-            crit_single_dim = narrative_related.check_multidimensional_var(var_entries)
+            crit_single_dim = narrative_related.get_crit_single_dim_var(var_entries)
 
             if crit_single_dim:
 
@@ -613,7 +612,7 @@ def autocomplete_strategy_vars(strategy_vars, narrative_crit=False):
 
         for var_name, var_entries in strategy_vars.items():
 
-            crit_single_dim = narrative_related.check_multidimensional_var(var_entries)
+            crit_single_dim = narrative_related.get_crit_single_dim_var(var_entries)
 
             if crit_single_dim:
 

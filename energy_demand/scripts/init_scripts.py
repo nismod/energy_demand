@@ -291,9 +291,9 @@ def spatial_explicit_modelling_strategy_vars(
     for var_name, strategy_var in strategy_vars.items():
         logging.info("...Spatially explicit diffusion modelling %s", var_name)
 
-        crit_multi_dim_var = narrative_related.check_if_multidimensional_var(strategy_var)
+        single_dim_var = narrative_related.get_crit_single_dim_var(strategy_var)
 
-        if not crit_multi_dim_var:
+        if single_dim_var:
             new_narratives = create_regional_narratives(
                 var_name,
                 strategy_var,

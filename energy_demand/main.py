@@ -265,7 +265,7 @@ if __name__ == "__main__":
     for new_var, new_var_vals in _multi_dim_strategy_vars.items():
 
         # Test if multidimensional varible
-        crit_single_dim = narrative_related.check_multidimensional_var(
+        crit_single_dim = narrative_related.get_crit_single_dim_var(
             new_var_vals)
 
         if crit_single_dim:

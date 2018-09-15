@@ -689,11 +689,11 @@ def change_temp_climate(
 
     # Iterate every month
     for yearday_month, month_yeardays in yeardays_month_days.items():
+
         month_str = basic_functions.get_month_from_int(yearday_month + 1)
-        param_name_month = "climate_change_temp_d__{}".format(month_str)
 
         # Calculate monthly change in temperature
-        change_temp_cy = non_regional_strategy_variables[param_name_month][current_yr]
+        change_temp_cy = non_regional_strategy_variables["climate_change_temp_d"][month_str][current_yr]
 
         # Add change
         temp_climate_change[month_yeardays] = temp_data[month_yeardays] + change_temp_cy
