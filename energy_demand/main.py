@@ -432,7 +432,7 @@ if __name__ == "__main__":
             data['assumptions'].technologies,
             narrative_f_eff_achieved=data['assumptions'].non_regional_strategy_vars['f_eff_achieved'][sim_yr], # Non regional value
             narrative_gshp_fraction_ey=data['assumptions'].non_regional_strategy_vars['gshp_fraction_ey'][sim_yr],
-            crit_narrative_input=False) #['scenario_value']) #TODO REALLY REMOVE
+            crit_narrative_input=False) #TODO REALLY REMOVE
 
         fuel_in, fuel_in_biomass, fuel_in_elec, fuel_in_gas, fuel_in_heat, fuel_in_hydro, fuel_in_solid_fuel, fuel_in_oil, tot_heating = testing_functions.test_function_fuel_sum(
             data,
@@ -443,7 +443,10 @@ if __name__ == "__main__":
         # -----------------------
         # Main model run function
         # -----------------------
-        sim_obj = energy_demand_model(region_selection, data, data['assumptions'])
+        sim_obj = energy_demand_model(
+            region_selection,
+            data,
+            data['assumptions'])
 
         # ------------------------------------------------
         # Temporal Validation

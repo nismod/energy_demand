@@ -7,17 +7,21 @@ def check_multidimensional_var(var):
 
 
     """
-    print("A " + str(var))
-    #if type(var) == list:
-    #    single_dimension = True
-    #else:
-    try:
-        for entry in var:
-            var[entry].keys()
-        single_dimension = False
-    except AttributeError:
+    if type(var) is list:
         single_dimension = True
-    
+    else:
+        try:
+            for entry in var:
+                # If list is in ndested dict, then multidimensional
+                if type(var[entry]) is list:
+                    single_dimension = False
+                else:
+                    # IF no keys, then fail and thus single dimensional
+                    var[entry].keys()
+            single_dimension = False
+        except AttributeError:
+            single_dimension = True
+
     return single_dimension
 
 def check_if_multidimensional_var(strategy_var):
@@ -30,7 +34,7 @@ def check_if_multidimensional_var(strategy_var):
         multidimensional_var = True
     else:
         pass
-    
+
     return multidimensional_var
 
 def read_from_narrative(narratives):
