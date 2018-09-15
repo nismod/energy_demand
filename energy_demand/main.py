@@ -8,19 +8,18 @@
 
         sys.stdout.flush()
 regional_specific, crit_all_the_same
-#TODO Interface energy demand
+# After smif upgrade:
+#   TODO: make that automatically the parameters can be generated to be copied into smif format
+
 #TODO Make that congruence value map is better loaded from seperate file (e.g. populatio ndensity)
 #TODO Create own .py chart file for every chart
 #TODO Import weather data loading and importing whole range of weather scenarios
-#TODO Test if technology type can be left empty in technology spreadsheet
-#TODO Try to remove tech_type
+#TODO Test if technology type can be left empty in technology spreadsheet, Try to remove tech_type
 #TODO Write out full result. Then write function to aggregate accordingly
 #TODO SIMple aggregation. Write out sectormodel, enduse, region, fueltypes.... --> Do all aggregation based on that
 #- Make that fuel swtich can be made in any industry sector irrespective of technologies
-TODO : test if sector as function
 # Make generic fuel switch
-# Mage generic enduse change in csv file as variable
-# 
+
 # MAKE SIMLPLE TABLE FOR READING IN FUELS
 # """
 import os

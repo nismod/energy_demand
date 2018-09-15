@@ -381,35 +381,31 @@ def demand_management(
     fuel_yh : array
         Fuel of yh
     """
-    key_name = 'demand_management_improvement__{}'.format(enduse)
-
-    if key_name in strategy_vars.keys():
-
-        # Get assumed load shift
-        if strategy_vars[key_name][curr_yr] == 0:
-            pass # no load management
+    # Get assumed load shift
+    if strategy_vars['demand_management_improvement'][enduse][curr_yr] == 0:
+        pass # no load management
+    else:
+        # load management
+        # Calculate average for every day
+        if mode_constrained:
+            average_fuel_yd = np.average(fuel_yh, axis=1)
         else:
-            # load management
-            # Calculate average for every day
-            if mode_constrained:
-                average_fuel_yd = np.average(fuel_yh, axis=1)
-            else:
-                average_fuel_yd = np.average(fuel_yh, axis=2)
+            average_fuel_yd = np.average(fuel_yh, axis=2)
 
-            # Calculate load factors (only inter_day load shifting as for now)
-            loadfactor_yd_cy = lf.calc_lf_d(
-                fuel_yh, average_fuel_yd, mode_constrained)
+        # Calculate load factors (only inter_day load shifting as for now)
+        loadfactor_yd_cy = lf.calc_lf_d(
+            fuel_yh, average_fuel_yd, mode_constrained)
 
-            # Load factor improvement parameter in current year
-            param_lf_improved_cy = strategy_vars[key_name][curr_yr]
+        # Load factor improvement parameter in current year
+        param_lf_improved_cy = strategy_vars['demand_management_improvement'][enduse][curr_yr]
 
-            # Calculate current year load factors
-            lf_improved_cy = calc_lf_improvement(
-                param_lf_improved_cy,
-                loadfactor_yd_cy,)
+        # Calculate current year load factors
+        lf_improved_cy = calc_lf_improvement(
+            param_lf_improved_cy,
+            loadfactor_yd_cy,)
 
-            fuel_yh = lf.peak_shaving_max_min(
-                lf_improved_cy, average_fuel_yd, fuel_yh, mode_constrained)
+        fuel_yh = lf.peak_shaving_max_min(
+            lf_improved_cy, average_fuel_yd, fuel_yh, mode_constrained)
 
     # -------------------------------------------------
     # Convert all load profiles into flat load profiles

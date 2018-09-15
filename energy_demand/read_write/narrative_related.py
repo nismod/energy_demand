@@ -174,8 +174,8 @@ def create_narratives(raw_file_content, simulation_base_yr, default_streategy_va
                 regional_specific = False #bool(0)
         except KeyError:
 
-            # Read from original configuration whether this variable
-            # is regionally specific or not
+            # Read from original configuration whether
+            #  this variable is regionally specific or not
             if crit_single_dim_param:
                 regional_specific = default_streategy_vars['regional_specific']
             else:

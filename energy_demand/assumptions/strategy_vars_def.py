@@ -1,8 +1,10 @@
 """Strategy variable assumptions provided as parameters to smif
 """
+import copy
 import logging
 from collections import defaultdict
 
+from energy_demand.read_write import write_data
 from energy_demand.basic import basic_functions
 from energy_demand.read_write import narrative_related
 
@@ -207,49 +209,49 @@ def load_param_assump(
     enduses_demand_managent = {
 
         #Residential submodule
-        'demand_management_improvement__rs_space_heating': 0,
-        'demand_management_improvement__rs_water_heating': 0,
-        'demand_management_improvement__rs_lighting': 0,
-        'demand_management_improvement__rs_cooking': 0,
-        'demand_management_improvement__rs_cold': 0,
-        'demand_management_improvement__rs_wet': 0,
-        'demand_management_improvement__rs_consumer_electronics': 0,
-        'demand_management_improvement__rs_home_computing': 0,
+        'rs_space_heating': 0,
+        'rs_water_heating': 0,
+        'rs_lighting': 0,
+        'rs_cooking': 0,
+        'rs_cold': 0,
+        'rs_wet': 0,
+        'rs_consumer_electronics': 0,
+        'rs_home_computing': 0,
 
         # Submodel Service (Table 5.5a)
-        'demand_management_improvement__ss_space_heating': 0,
-        'demand_management_improvement__ss_water_heating': 0,
-        'demand_management_improvement__ss_cooling_humidification': 0,
-        'demand_management_improvement__ss_fans': 0,
-        'demand_management_improvement__ss_lighting': 0,
-        'demand_management_improvement__ss_catering': 0,
-        'demand_management_improvement__ss_small_power': 0,
-        'demand_management_improvement__ss_ICT_equipment': 0,
-        'demand_management_improvement__ss_cooled_storage': 0,
-        'demand_management_improvement__ss_other_gas': 0,
-        'demand_management_improvement__ss_other_electricity': 0,
+        'ss_space_heating': 0,
+        'ss_water_heating': 0,
+        'ss_cooling_humidification': 0,
+        'ss_fans': 0,
+        'ss_lighting': 0,
+        'ss_catering': 0,
+        'ss_small_power': 0,
+        'ss_ICT_equipment': 0,
+        'ss_cooled_storage': 0,
+        'ss_other_gas': 0,
+        'ss_other_electricity': 0,
 
         # Industry submodule
-        'demand_management_improvement__is_high_temp_process': 0,
-        'demand_management_improvement__is_low_temp_process': 0,
-        'demand_management_improvement__is_drying_separation': 0,
-        'demand_management_improvement__is_motors': 0,
-        'demand_management_improvement__is_compressed_air': 0,
-        'demand_management_improvement__is_lighting': 0,
-        'demand_management_improvement__is_space_heating': 0,
-        'demand_management_improvement__is_other': 0,
-        'demand_management_improvement__is_refrigeration': 0}
+        'is_high_temp_process': 0,
+        'is_low_temp_process': 0,
+        'is_drying_separation': 0,
+        'is_motors': 0,
+        'is_compressed_air': 0,
+        'is_lighting': 0,
+        'is_space_heating': 0,
+        'is_other': 0,
+        'is_refrigeration': 0}
 
     # Helper function to create description of parameters for all enduses
     for demand_name, scenario_value in enduses_demand_managent.items():
-        strategy_vars[demand_name] = {
+        strategy_vars['demand_management_improvement'][demand_name] = {
             "name": demand_name,
             "absolute_range": (0, 1),
             "description": "reduction in load factor for enduse {}".format(demand_name),
             "suggested_range": (0, 1),
-            "default_value": 0,
+            "default_value": scenario_value,
             "units": 'decimal',
-            'affected_enduse': [demand_name.split("__")[1]],
+            'affected_enduse': [demand_name],
             'regional_specific': True,
             'diffusion_type': 'linear'}
 
@@ -538,12 +540,14 @@ def load_param_assump(
         'regional_specific': False,
         'diffusion_type': 'linear'}
 
-    '''
+    strategy_vars_out = autocomplete_strategy_vars(strategy_vars)
+
     # -----------------------
-    # Create parameter file only with fully descried parameters and write to yaml file
-    # TODO UPDATE TODO TODO
+    # Create parameter file only with 
+    # fully descried parameters and write to yaml file
+    #TODO Needs updating after SMIF upgrade
     # -----------------------
-    if not paths:
+    '''if not paths:
         pass
     else:
         strategy_vars_write = copy.copy(strategy_vars)
@@ -556,6 +560,7 @@ def load_param_assump(
                 pass
 
         if writeYAML:
+
             # Delete existing files
             basic_functions.del_file(local_paths['yaml_parameters_constrained'])
             basic_functions.del_file(local_paths['yaml_parameters_scenario'])
@@ -568,10 +573,8 @@ def load_param_assump(
                 local_paths['yaml_parameters_scenario'],
                 strategy_vars)
 
-            raise Exception("The smif parameters are read and written to {}".format(local_paths['yaml_parameters_scenario']))
-    '''
-
-    strategy_vars_out = autocomplete_strategy_vars(strategy_vars)
+            raise Exception(
+                "The smif parameters are read and written to {}".format(local_paths['yaml_parameters_scenario']))'''
 
     return dict(strategy_vars_out)
 
