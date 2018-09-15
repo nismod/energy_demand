@@ -1,4 +1,4 @@
-enduse,default_by,end_yr,value_ey,diffusion_choice,sig_midpoint,sig_steepness,affected_sector
+sub_param_name,default_by,end_yr,value_ey,diffusion_choiceW,affected_sector
 rs_space_heating,0,2020,0.2,linear
 rs_space_heating,0,2030,0.3,linear
 rs_space_heating,0,2040,0.4,linear

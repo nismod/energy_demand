@@ -252,7 +252,6 @@ if __name__ == "__main__":
     # -----------------------------------------------------------------------------
     # Alternative update user defined strategy variables
     # -----------------------------------------------------------------------------
-    print(strategy_vars)
     for var_name, var_value in user_defined_strategy_vars.items():
        strategy_vars[var_name]['scenario_value'] = var_value
        

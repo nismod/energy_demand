@@ -104,45 +104,63 @@ def default_narrative(
 
     return default_narrative
 
-def create_narratives(raw_csv_file, simulation_base_yr):
+def create_narratives(raw_file_content, simulation_base_yr):
     """Create multidimensional narratives
 
     Arguments
     ---------
-    base_yr : int
+    raw_file_content : panda
+        Data of read csv file
+    simulation_base_yr : int
         Model base year of simulation
-    """
 
+    TODO: enduse,base_yr,value_by,end_yr,value_ey,diffusion_choice,sig_midpoint,sig_steepness,regional_specific
+
+    Outputs
+    -------
+
+    """
     parameter_narratives = {}
 
-    for _index, row in raw_csv_file.iterrows():
+    # Test if single or multidimensional parameters
+    try:
+        for _index, row in raw_file_content.iterrows():
+            sub_param_name = str(row['sub_param_name'])
+            crit_single_dim_param = False
+    except KeyError: #sub_param_name is not provided as header argument in csv
+        crit_single_dim_param = True
 
-        # Properties enduse,base_yr,value_by,end_yr,value_ey,diffusion_choice,sig_midpoint,sig_steepness,regional_specific
-        enduse = str(row['enduse'])
-        default_by = float(row['default_by'])
-        #base_yr = int(row['base_yr'])
-        #value_by = float(row['value_by'])
+    # ----------------------------------------------
+    # Create single or multi dimensional narratives
+    # ----------------------------------------------
+    for _index, row in raw_file_content.iterrows():
+
+        # IF only single dimension parameter, add dummy mutliparameter name
+        if crit_single_dim_param:
+            sub_param_name = 'dummy_single_param'
+        else:
+            # Sub_parameter_name is only provided for multidimensional parameters
+            sub_param_name = str(row['sub_param_name'])
+
+        default_by = float(row['default_by'])   # Name 
         end_yr = int(row['end_yr'])
         value_ey = float(row['value_ey'])
-        diffusion_choice = str(row['diffusion_choice'])
-        
-        '''# Replacy if any entry is 'True' or 'False' with True or False
-        if scenario_value == 'True':
-            scenario_value = True
-        elif scenario_value == 'False':
-            scenario_value = False
-        else:
-            pass'''
+
         try:
-            if math.isnan(row['sig_midpoint']): # Left empty in csv file
+            diffusion_choice = str(row['diffusion_choice'])
+        except KeyError:
+            diffusion_choice = 'linear'
+
+        try:
+            if math.isnan(row['sig_midpoint']):
                 sig_midpoint = 0 # default value
             else:
                 sig_midpoint = float(row['sig_midpoint'])
         except KeyError:
             sig_midpoint = 0 # default value
-        
+
         try:
-            if math.isnan(row['sig_steepness']): # Left empty in csv file
+            if math.isnan(row['sig_steepness']):
                 sig_steepness = 1 # default value
             else:
                 sig_steepness = float(row['sig_steepness'])
@@ -157,11 +175,6 @@ def create_narratives(raw_csv_file, simulation_base_yr):
         except KeyError:
             regional_specific = True
 
-        # Additional
-        # affected_enduse
-        # sector?
-
-        # Switch
         switch = {
             'default_by': default_by,
             'base_yr': None,
@@ -174,20 +187,20 @@ def create_narratives(raw_csv_file, simulation_base_yr):
             'regional_specific': regional_specific}
 
         # Append switch to correct variable
-        if enduse in parameter_narratives.keys():
-            parameter_narratives[enduse].append(switch)
+        if sub_param_name in parameter_narratives.keys():
+            parameter_narratives[sub_param_name].append(switch)
         else:
-            parameter_narratives[enduse] = [switch]
-    
+            parameter_narratives[sub_param_name] = [switch]
+
     # ----------------------
-    # Autocomplete switches in order that from all end_yrs a complete 
-    # narrative is generated
+    # Autocomplete switches in order that from all
+    # end_yrs a complete narrative is generated
     # ----------------------
     autocompleted_parameter_narratives = {}
 
-    for enduse, narratives in parameter_narratives.items():
+    for sub_param_name, narratives in parameter_narratives.items():
 
-        autocompleted_parameter_narratives[enduse] = []
+        autocompleted_parameter_narratives[sub_param_name] = []
 
         # Get all years of narratives
         all_yrs = []
@@ -225,9 +238,14 @@ def create_narratives(raw_csv_file, simulation_base_yr):
                 # previous value
                 previous_yr = narrative['end_yr']
                 previous_value = narrative['value_ey']
-            
+
             del yr_narrative['default_by']
 
-            autocompleted_parameter_narratives[enduse].append(yr_narrative)
+            autocompleted_parameter_narratives[sub_param_name].append(yr_narrative)
 
+    # IF only single dimension parameter, remove dummy mutliparameter name
+    if crit_single_dim_param:
+        autocompleted_parameter_narratives = autocompleted_parameter_narratives['dummy_single_param']
+    else:
+        pass
     return autocompleted_parameter_narratives

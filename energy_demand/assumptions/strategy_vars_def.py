@@ -44,10 +44,6 @@ def load_smif_parameters(
     """
     strategy_vars = defaultdict(dict)
 
-    # Load all standard variables of parameters
-    #default_streategy_vars = load_param_assump(
-    #    assumptions=assumptions)
-
     # ------------------------------------------------------------
     # Create default narrative for every simulation parameter
     # ------------------------------------------------------------

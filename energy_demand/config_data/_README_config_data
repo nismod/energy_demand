@@ -1,0 +1,12 @@
+The following inputs are necessary to manually define a parameters
+
+sub_param_name   : str      Name of sub_parameter (only used for multidimensional parameters)
+
+default_by       : float    Default value of parameter in base year
+
+end_yr           : float    Value in start year of narrative
+
+value_ey         : float    Value in end year of narrative
+
+diffusion_choice : str      Sigmoid or linear needs to be provided. If specific sigmoid input parameters want to be added, create new fields
+                            sig_midpoint,sig_steepness and add values
