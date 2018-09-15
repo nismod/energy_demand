@@ -256,9 +256,9 @@ def generate_general_parameter(
             # Years which narrative covers
             narrative_yrs = range(narrative['base_yr'], narrative['end_yr'] + 1, 1)
 
-            if not narrative['regional_specific']:
+            if curr_yr in narrative_yrs:
 
-                if curr_yr in narrative_yrs:
+                if not narrative['regional_specific']:
 
                     if narrative['diffusion_choice'] == 'linear':
 
@@ -285,8 +285,7 @@ def generate_general_parameter(
                         change_cy = diff_value * sig_diff_factor
 
                     container[sim_yr] = change_cy
-            else:
-                if curr_yr in narrative_yrs:
+                else:
                     for region in regions:
 
                         if narrative['diffusion_choice'] == 'linear':
@@ -300,7 +299,7 @@ def generate_general_parameter(
 
                             change_cy = lin_diff_factor
 
-                        elif narrative['diffusion_choice'] == 'sigmoid': # Sigmoid diffusion
+                        elif narrative['diffusion_choice'] == 'sigmoid':
 
                             diff_value = narrative['regional_vals_ey'] - narrative['regional_vals_by']
 

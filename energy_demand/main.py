@@ -365,7 +365,7 @@ if __name__ == "__main__":
         data['assumptions'].strategy_vars,
         simulated_yrs,
         path=local_data_path)
-    print("A")
+
     # ------------------------------------------------
     # Calculate switches
     # ------------------------------------------------
