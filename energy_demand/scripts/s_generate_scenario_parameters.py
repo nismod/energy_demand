@@ -151,18 +151,9 @@ def generate_annual_param_vals(
         container_reg_param[region] = defaultdict(dict)
 
     for var_name, strategy_vars_values in strategy_vars.items():
-        
-        #if var_name == 'enduse_overall_change_enduses':
-        #    print("..")
-        # SNAKE
-        # TODO: ITerate sub-parameter in var_name
-        #regional_strategy_vary_dict = {}
-        # for sub_param in strategy_vars[var_name]:
-        #   REPLACE
-        #   regional_strategy_vary_dict[sub_param] = regional_strategy_vary
-        if var_name == 'enduse_overall_change_enduses':
-            print("AA")
-        crit_multi_dim_var = narrative_related.check_if_multidimensional_var(strategy_vars_values) #TODO
+
+        crit_multi_dim_var = narrative_related.check_if_multidimensional_var(
+            strategy_vars_values) #TODO
 
         if not crit_multi_dim_var:
 
@@ -198,7 +189,7 @@ def generate_annual_param_vals(
                     for region in regions:
                         container_reg_param[region][var_name][sub_var_name] = regional_strategy_vary[region]
 
-                    container_reg_param[region][var_name] = dict(container_reg_param[region][var_name]) #convert to dict
+                    container_reg_param[region][var_name] = dict(container_reg_param[region][var_name])
                 else:
                     container_non_reg_param[var_name][sub_var_name] = regional_strategy_vary
 

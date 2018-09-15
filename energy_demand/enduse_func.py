@@ -1175,11 +1175,6 @@ def apply_specific_change(
     except KeyError:
         logging.debug(
             "No annual parameters are provided for enduse %s", enduse)
-        print("ENDUSE " + str(enduse))
-        print("curr_yr " + str(curr_yr))
-        import pprint
-        print(pprint.pprint(strategy_vars))
-        raise Exception
 
     return fuel_y
 

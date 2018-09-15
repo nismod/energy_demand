@@ -68,7 +68,7 @@ def create_spatial_diffusion_factors(
     p_outlier : float, default=5.0
         Percentage of outliers which are removed from top and bottom
         (Nr of min and max outliers to flatten)
-    
+
     Returns
     -------
     f_reg : dict
@@ -80,7 +80,9 @@ def create_spatial_diffusion_factors(
     crit_all_the_same : bool
         Criteria whether regional specific parameters or not
     """
-    spatial_explicit_diffusion = narrative_related.read_from_narrative(narrative_spatial_explicit_diffusion) #SNAKE
+    spatial_explicit_diffusion = narrative_related.read_from_narrative(
+        narrative_spatial_explicit_diffusion) #SNAKE
+
     speed_con_max = narrative_related.read_from_narrative(narrative_speed_con_max)
 
     if spatial_explicit_diffusion:

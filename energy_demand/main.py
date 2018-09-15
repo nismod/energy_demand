@@ -48,6 +48,7 @@ from energy_demand.scripts import s_generate_scenario_parameters
 from energy_demand.scripts.init_scripts import switch_calculations
 from energy_demand.scripts.init_scripts import spatial_explicit_modelling_strategy_vars
 from energy_demand.scripts.init_scripts import create_spatial_diffusion_factors
+from energy_demand.read_write import narrative_related
 
 def energy_demand_model(regions, data, assumptions):
     """Main function of energy demand model to calculate yearly demand
@@ -249,12 +250,20 @@ if __name__ == "__main__":
     data['assumptions'].update('strategy_vars', strategy_vars)
 
     # -----------------------------------------------------------------------------
+    # Alternative update user defined strategy variables
+    # -----------------------------------------------------------------------------
+    print(strategy_vars)
+    for var_name, var_value in user_defined_strategy_vars.items():
+       strategy_vars[var_name]['scenario_value'] = var_value
+       
+    # -----------------------------------------------------------------------------
     # Load standard smif parameters and generate standard single timestep
     # narrative for year 2050 TODO IMPELEMENT THAT CAN BE LOADED FROM SMIF
     # -----------------------------------------------------------------------------
     strategy_vars = strategy_vars_def.load_smif_parameters(
         data_handle=strategy_vars,
         assumptions=data['assumptions'],
+        default_streategy_vars=strategy_vars,
         mode='local')
 
     # -----------------------------------------
@@ -270,24 +279,20 @@ if __name__ == "__main__":
     # --------------------------------------------------------
     for new_var, new_var_vals in _multi_dim_strategy_vars.items():
 
-        # Test if multidimensional varible TODO
-        if new_var_vals is dict:
+        # Test if multidimensional varible
+        crit_single_dim = narrative_related.check_multidimensional_var(
+            new_var_vals)
+
+        if crit_single_dim:
+            strategy_vars[new_var] = new_var_vals
+        else: #multidimensional
             for sub_var_name, sub_var in new_var_vals.items():
                 strategy_vars[new_var][sub_var_name] = sub_var
-        else:
-            strategy_vars[new_var] = new_var_vals
 
     # Replace strategy variables not defined in csv files)
-    strategy_vars_out = strategy_vars_def.add_affected_enduse(
+    strategy_vars_out = strategy_vars_def.autocomplete_strategy_vars(
         strategy_vars, narrative_crit=True)
     data['assumptions'].update('strategy_vars', strategy_vars_out)
-
-    # -----------------------------------------------------------------------------
-    # Update user defined strategy variables
-    # TODO NOT NECESSARY ANYMORE I THINK
-    # -----------------------------------------------------------------------------
-    #    for var_name, var_value in user_defined_strategy_vars.items():
-    #       data['assumptions'].strategy_vars[var_name]['scenario_value'] = var_value
 
     # -----------------------------------------------------------------------------
     # Load necessary data

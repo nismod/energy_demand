@@ -9,6 +9,7 @@ from energy_demand.read_write import narrative_related
 def load_smif_parameters(
         data_handle,
         assumptions=False,
+        default_streategy_vars=False,
         mode='smif'
     ):
     """Get all model parameters from smifself.
@@ -44,8 +45,8 @@ def load_smif_parameters(
     strategy_vars = defaultdict(dict)
 
     # Load all standard variables of parameters
-    default_streategy_vars = load_param_assump(
-        assumptions=assumptions)
+    #default_streategy_vars = load_param_assump(
+    #    assumptions=assumptions)
 
     # ------------------------------------------------------------
     # Create default narrative for every simulation parameter
@@ -69,14 +70,8 @@ def load_smif_parameters(
                     # This needs to be fixed by directly loading multiple paramters from SMIF
                     scenario_value = var_entries['default_value']
             else: #local running
-                scenario_value = var_entries['default_value']
-
-            '''if scenario_value == 'True': #TODO PUT ELSEHWERE
-                scenario_value = True
-            elif scenario_value == 'False':
-                scenario_value = False
-            else:
-                pass'''
+                #scenario_value = var_entries['default_value']
+                scenario_value = var_entries['scenario_value']
 
             # Create default narrative with only one timestep from simulation base year to simulation end year
             created_narrative = narrative_related.default_narrative(
@@ -89,9 +84,12 @@ def load_smif_parameters(
 
             strategy_vars[var_name] = created_narrative
 
+            #strategy_vars[var_name]['affected_sector'] = var_entries['affected_sector'] #NEW SECTOR SPECIFIC
+            #strategy_vars[var_name]['affected_enduse'] = var_entries['affected_enduse'] #NEW SECTOR SPECIFIC
+
         else:
 
-            # STANDARD NARRATIVE FOR MULTIPLE VALUE
+            # Standard narrative for multidimensional narrative
             for sub_var_name, sub_var_entries in var_entries.items():
 
                 # Get scenario value
@@ -104,16 +102,8 @@ def load_smif_parameters(
                         # ------------------------------------
                         #TODO
                         # This needs to be fixed by directly loading multiple paramters from SMIF
-                        scenario_value = sub_var_entries['default_value']
-
-                '''else: #local running
-                    scenario_value = sub_var_entries['default_value']
-                if scenario_value == 'True':
-                    scenario_value = True
-                elif scenario_value == 'False':
-                    scenario_value = False
-                else:
-                    pass'''
+                        #scenario_value = sub_var_entries['default_value']
+                        scenario_value = sub_var_entries['scenario_value']
 
                 # Narrative
                 created_narrative = narrative_related.default_narrative(
@@ -124,9 +114,8 @@ def load_smif_parameters(
                     base_yr=assumptions.base_yr,
                     regional_specific=sub_var_entries['regional_specific'])   # Criteria whether the same for all regions or not
 
-                strategy_vars[var_name][sub_var_name] = {
-                    'multi_scenario_values': created_narrative
-                }
+                strategy_vars[var_name][sub_var_name] = created_narrative #{'multi_scenario_values': created_narrative}
+                #strategy_vars[var_name][sub_var_name] =['affected_sector'] = var_entries['affected_sector'] #NEW SECTOR SPECIFIC
 
     return strategy_vars
 
@@ -522,6 +511,7 @@ def load_param_assump(
             "default_value": 0,
             "units": 'decimal',
             'affected_enduse': [enduse_name],
+            'affected_sector': [],
             'regional_specific': True,
             'diffusion_type': 'linear'}
 
@@ -586,13 +576,13 @@ def load_param_assump(
             raise Exception("The smif parameters are read and written to {}".format(local_paths['yaml_parameters_scenario']))
     '''
 
-    strategy_vars_out = add_affected_enduse(strategy_vars)
+    strategy_vars_out = autocomplete_strategy_vars(strategy_vars)
 
     return dict(strategy_vars_out)
 
-def add_affected_enduse(strategy_vars, narrative_crit=False):
+def autocomplete_strategy_vars(strategy_vars, narrative_crit=False):
     """TODO
-
+    Autocomplete all narratives with 'affected_enduse'
     """
     if not narrative_crit:
         # --strategy_vars-- Convert to dict for loacl running purposes
@@ -606,40 +596,21 @@ def add_affected_enduse(strategy_vars, narrative_crit=False):
 
                 strategy_vars_out[var_name] = var_entries
 
-                if var_entries['default_value'] == 'True' or var_entries['default_value'] is True:
-                    scenario_value = True
-                elif var_entries['default_value'] == 'False' or var_entries['default_value'] is False:
-                    scenario_value = False
-                elif var_entries['default_value'] == 'None' or var_entries['default_value'] is None:
-                    scenario_value = None
-                else:
-                    scenario_value = float(var_entries['default_value'])
-
                 # If no 'affected_enduse' defined, add empty list of affected enduses
-                strategy_vars_out[var_name]['scenario_value'] = scenario_value
+                strategy_vars_out[var_name]['scenario_value'] = var_entries['default_value'] #scenario_value
                 if 'affected_enduse' not in var_entries:
                     strategy_vars_out[var_name]['affected_enduse'] = []
             else:
                 for sub_var_name, sub_var_entries in var_entries.items():
                     strategy_vars_out[var_name][sub_var_name] = sub_var_entries
 
-                    if sub_var_entries['default_value'] == 'True' or sub_var_entries['default_value'] is True:
-                        scenario_value = True
-                    elif sub_var_entries['default_value'] == 'False' or sub_var_entries['default_value'] is False:
-                        scenario_value = False
-                    elif sub_var_entries['default_value'] == 'None' or sub_var_entries['default_value'] is None:
-                        scenario_value = None
-                    else:
-                        scenario_value = float(sub_var_entries['default_value'])
-
-                    strategy_vars_out[var_name][sub_var_name]['scenario_value'] = scenario_value
-
+                    strategy_vars_out[var_name][sub_var_name]['scenario_value'] = var_entries['default_value'] #scenario_value
+    
                     # If no 'affected_enduse' defined, add empty list of affected enduses
                     if 'affected_enduse' not in sub_var_entries:
                         strategy_vars_out[var_name][sub_var_name]['affected_enduse'] = []
     else:
         # Same but narratives which need to be iterated
-        # --strategy_vars-- Convert to dict for loacl running purposes
         strategy_vars_out = defaultdict(dict)
 
         for var_name, var_entries in strategy_vars.items():
@@ -649,8 +620,7 @@ def add_affected_enduse(strategy_vars, narrative_crit=False):
             if crit_single_dim:
 
                 updated_narratives = []
-                narratives = var_entries
-                for narrative in narratives:
+                for narrative in var_entries:
 
                     # If no 'affected_enduse' defined, add empty list of affected enduses
                     if 'affected_enduse' not in narrative:
