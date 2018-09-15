@@ -1167,7 +1167,6 @@ def apply_specific_change(
     """
     'enduse_overall_change_enduses'
     try:
-
         change_cy = strategy_vars['enduse_overall_change_enduses'][enduse][curr_yr]
 
         # Calculate new annual fuel

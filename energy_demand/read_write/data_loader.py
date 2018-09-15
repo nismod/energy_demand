@@ -18,7 +18,17 @@ from energy_demand.read_write import narrative_related
 def load_strategy_vars_from_csv(path_to_folder_with_csv, simulation_base_yr):
     """Load all strategy variables from file
 
-    TODO
+    Arguments
+    ---------
+    path_to_folder_with_csv : str
+        Path to folder with all user defined parameters
+    simulation_base_yr : int
+        Simulation base year
+
+    Returns
+    -------
+    strategy_vars_as_narratives : dict
+        Single or multidimensional parameters with fully autocompleted narratives
     """
     strategy_vars_as_narratives = {}
 
@@ -28,16 +38,14 @@ def load_strategy_vars_from_csv(path_to_folder_with_csv, simulation_base_yr):
     for file_name in all_csv_in_folder:
 
         path_to_file = os.path.join(path_to_folder_with_csv, file_name)
-
-        # Read csv file
         raw_file_content = pd.read_csv(path_to_file)
 
-        # Crate narratives from file content TODO
+        # Crate narratives from file content
         parameter_narratives = narrative_related.create_narratives(
             raw_file_content, simulation_base_yr)
 
         # Strategy variable name
-        var_name = file_name[:-4] #remove "".csv"
+        var_name = file_name[:-4] #remove ".csv"
 
         # Add to dict
         strategy_vars_as_narratives[var_name] = parameter_narratives

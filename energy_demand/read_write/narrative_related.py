@@ -1,5 +1,7 @@
 """Functions handling the narratives
 """
+import math
+
 def check_multidimensional_var(var):
     """Check if nested dict or not
 
@@ -120,22 +122,34 @@ def create_narratives(raw_csv_file, simulation_base_yr):
         value_ey = float(row['value_ey'])
         diffusion_choice = str(row['diffusion_choice'])
         
+        '''# Replacy if any entry is 'True' or 'False' with True or False
+        if scenario_value == 'True':
+            scenario_value = True
+        elif scenario_value == 'False':
+            scenario_value = False
+        else:
+            pass'''
         try:
-            sig_midpoint = float(row['sig_midpoint'])
+            if math.isnan(row['sig_midpoint']): # Left empty in csv file
+                sig_midpoint = 0 # default value
+            else:
+                sig_midpoint = float(row['sig_midpoint'])
         except KeyError:
             sig_midpoint = 0 # default value
         
         try:
-            sig_steepness = float(row['sig_steepness'])
-        except:
-            sig_steepness = 1
+            if math.isnan(row['sig_steepness']): # Left empty in csv file
+                sig_steepness = 1 # default value
+            else:
+                sig_steepness = float(row['sig_steepness'])
+        except KeyError:
+            sig_steepness = 1 # default value
 
         try:
             if str(row['regional_specific']) == 'True':
                 regional_specific = True #bool(1)
             else:
                 regional_specific = False #bool(0)
-
         except KeyError:
             regional_specific = True
 

@@ -38,7 +38,7 @@ def load_smif_parameters(
     {'param_name_single_dim': {standard_narrative},
     'param_multi_single_dim': {
         'sub_param_name1': {standard_narrative},
-        'sub_param_name2': {standard_narrative}, 
+        'sub_param_name2': {standard_narrative},
     }}
     """
     strategy_vars = defaultdict(dict)
@@ -60,7 +60,7 @@ def load_smif_parameters(
                 try:
                     scenario_value = data_handle.get_parameter(var_name)
                 except:
-                    logging.warning("IMPORTANT WARNING: The paramter `%s` could not be loaded from smif ", var_name)
+                    logging.warning("IMPORTANT WARNING: Pparamter could not be loaded from smif: `%s`", var_name)
 
                     # ------------------------------------
                     #TODO
@@ -69,12 +69,12 @@ def load_smif_parameters(
             else: #local running
                 scenario_value = var_entries['single_dimension_var']['default_value']
 
-            if scenario_value == 'True':
+            '''if scenario_value == 'True': #TODO PUT ELSEHWERE
                 scenario_value = True
             elif scenario_value == 'False':
                 scenario_value = False
             else:
-                pass
+                pass'''
 
             # Create default narrative with only one timestep from simulation base year to simulation end year
             created_narrative = narrative_related.default_narrative(
@@ -104,14 +104,14 @@ def load_smif_parameters(
                         # This needs to be fixed by directly loading multiple paramters from SMIF
                         scenario_value = sub_var_entries['default_value']
 
-                else: #local running
+                '''else: #local running
                     scenario_value = sub_var_entries['default_value']
                 if scenario_value == 'True':
                     scenario_value = True
                 elif scenario_value == 'False':
                     scenario_value = False
                 else:
-                    pass
+                    pass'''
 
                 # Narrative
                 created_narrative = narrative_related.default_narrative(
