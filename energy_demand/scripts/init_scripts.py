@@ -285,7 +285,7 @@ def spatial_explicit_modelling_strategy_vars(
     regions
 
     """
-    regional_strategy_vars = {}
+    regional_vars = {}
 
     # Iterate strategy variables and calculate regional variable
     for var_name, strategy_var in strategy_vars.items():
@@ -303,9 +303,9 @@ def spatial_explicit_modelling_strategy_vars(
                 f_reg,
                 f_reg_norm,
                 f_reg_norm_abs)
-            regional_strategy_vars[var_name] = new_narratives
+            regional_vars[var_name] = new_narratives
         else:
-            regional_strategy_vars[var_name] = {}
+            regional_vars[var_name] = {}
 
             for sub_var_name, sub_strategy_var in strategy_var.items():
 
@@ -319,9 +319,9 @@ def spatial_explicit_modelling_strategy_vars(
                     f_reg_norm,
                     f_reg_norm_abs)
 
-                regional_strategy_vars[var_name][sub_var_name] = new_narratives
+                regional_vars[var_name][sub_var_name] = new_narratives
 
-    return regional_strategy_vars
+    return regional_vars
 
 def create_regional_narratives(
         var_name,

@@ -608,7 +608,7 @@ def rs_dw_stock(
             scenario_data['population'][base_yr][region],
             base_yr,
             simulated_yrs,
-            assumptions.non_regional_strategy_vars['assump_diff_floorarea_pp'])
+            assumptions.non_regional_vars['assump_diff_floorarea_pp'])
 
         # Get fraction of total floorarea for every dwelling type
         floorarea_p = get_floorarea_dwtype_p(

@@ -41,27 +41,33 @@ def load_user_defined_vars(
     # Iterate csv files with variable names in folder
     all_csv_in_folder = os.listdir(path_to_folder_with_csv)
 
+    # Files to ignore in this folder
+    files_to_ignores = [
+        'switches_capacity.csv', 'switches_fuel.csv', 'switches_service.csv', '_README_config_data.txt']
     for file_name in all_csv_in_folder:
 
-        # Strategy variable name
-        var_name = file_name[:-4] #remove ".csv"
+        if file_name in files_to_ignores:
+            pass
+        else:
+            # Strategy variable name
+            var_name = file_name[:-4] #remove ".csv"
 
-        path_to_file = os.path.join(path_to_folder_with_csv, file_name)
-        raw_file_content = pd.read_csv(path_to_file)
+            path_to_file = os.path.join(path_to_folder_with_csv, file_name)
+            raw_file_content = pd.read_csv(path_to_file)
 
-        # -----------------------------------
-        # Crate narratives from file content
-        # -----------------------------------
-        parameter_narratives = narrative_related.create_narratives(
-            raw_file_content,
-            simulation_base_yr,
-            default_strategy_var[var_name])
+            # -----------------------------------
+            # Crate narratives from file content
+            # -----------------------------------
+            parameter_narratives = narrative_related.create_narratives(
+                raw_file_content,
+                simulation_base_yr,
+                default_strategy_var[var_name])
 
-        # Add to dict
-        try:
-            strategy_vars_as_narratives[var_name] = parameter_narratives
-        except KeyError:
-            raise Exception("The .csv name `%s` does not correspond to a defined parameter name", var_name) 
+            # Add to dict
+            try:
+                strategy_vars_as_narratives[var_name] = parameter_narratives
+            except KeyError:
+                raise Exception("The .csv name `%s` does not correspond to a defined parameter name", var_name) 
 
     return strategy_vars_as_narratives
 
@@ -435,18 +441,17 @@ def load_paths(path):
         'path_folder_strategy_vars': os.path.join(
             path, '00-streategy_vars'),
 
+        # Switches
+        'path_fuel_switches': os.path.join(
+            path, '00-streategy_vars', 'switches_fuel.csv'),
+        'path_service_switch': os.path.join(
+            path, '00-streategy_vars', 'switches_service.csv'),
+        'path_capacity_installation': os.path.join(
+            path, '00-streategy_vars', 'switches_capacity.csv'),
 
         # Path to all technologies
         'path_technologies': os.path.join(
             path, '05-technologies', 'technology_definition.csv'),
-
-        # Switches
-        'path_fuel_switches': os.path.join(
-            path, '06-switches', 'switches_fuel.csv'),
-        'path_service_switch': os.path.join(
-            path, '06-switches', 'switches_service.csv'),
-        'path_capacity_installation': os.path.join(
-            path, '06-switches', 'switches_capacity.csv'),
 
         # Paths to fuel raw data
         'rs_fuel_raw': os.path.join(

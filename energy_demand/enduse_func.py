@@ -122,7 +122,7 @@ class Enduse(object):
             self.fuel_yh = 0
             self.enduse_techs = []
         else:
-            #logging.info("------INFO  {} {} {}  {}".format(self.enduse, sector, region, curr_yr))
+            logging.info("------INFO  {} {} {}  {}".format(self.enduse, sector, region, curr_yr))
             # Get technologies of enduse
             self.enduse_techs = get_enduse_techs(fuel_tech_p_by)
 
@@ -137,7 +137,7 @@ class Enduse(object):
                 assumptions.enduse_space_heating,
                 assumptions.ss_enduse_space_cooling)
             self.fuel_y = _fuel_new_y
-            #logging.debug("FUEL TRAIN B0: " + str(np.sum(self.fuel_y)))
+            logging.debug("FUEL TRAIN B0: " + str(np.sum(self.fuel_y)))
 
             _fuel_new_y = apply_smart_metering(
                 enduse,
@@ -146,7 +146,7 @@ class Enduse(object):
                 strategy_vars,
                 curr_yr)
             self.fuel_y = _fuel_new_y
-            #logging.debug("FUEL TRAIN C0: " + str(np.sum(self.fuel_y)))
+            logging.debug("FUEL TRAIN C0: " + str(np.sum(self.fuel_y)))
 
             _fuel_new_y = apply_enduse_sector_specific_change(
                 enduse,
@@ -155,7 +155,7 @@ class Enduse(object):
                 strategy_vars,
                 curr_yr)
             self.fuel_y = _fuel_new_y
-            #logging.debug("FUEL TRAIN D0: " + str(np.sum(self.fuel_y)))
+            logging.debug("FUEL TRAIN D0: " + str(np.sum(self.fuel_y)))
 
             _fuel_new_y = apply_scenario_drivers(
                 enduse=enduse,
@@ -170,7 +170,7 @@ class Enduse(object):
                 base_yr=base_yr,
                 curr_yr=curr_yr)
             self.fuel_y = _fuel_new_y
-            #logging.debug("FUEL TRAIN E0: " + str(np.sum(self.fuel_y)))
+            logging.debug("FUEL TRAIN E0: " + str(np.sum(self.fuel_y)))
 
             # Apply cooling scenario variable
             _fuel_new_y = apply_cooling(
@@ -180,7 +180,7 @@ class Enduse(object):
                 assumptions.cooled_ss_floorarea_by,
                 curr_yr)
             self.fuel_y = _fuel_new_y
-            #logging.debug("FUEL TRAIN E1: " + str(np.sum(self.fuel_y)))
+            logging.debug("FUEL TRAIN E1: " + str(np.sum(self.fuel_y)))
 
             # Industry related change
             _fuel_new_y = industry_enduse_changes(
@@ -192,7 +192,7 @@ class Enduse(object):
                 self.fuel_y,
                 assumptions)
             self.fuel_y = _fuel_new_y
-            #logging.debug("FUEL TRAIN E2: " + str(np.sum(self.fuel_y)))
+            logging.debug("FUEL TRAIN E2: " + str(np.sum(self.fuel_y)))
 
             # Generic fuel switch of an enduse and sector
             _fuel_new_y = generic_fuel_switch(
@@ -930,12 +930,10 @@ def apply_heat_recovery(
     ----
     A standard sigmoid diffusion is assumed from base year to end year
     """
-    key_name = "heat_recoved__{}".format(enduse)
-
-    if key_name in strategy_vars.keys():
+    try:
 
         # Fraction of heat recovered in current year
-        heat_recovered_p_cy = strategy_vars[key_name][curr_yr]
+        heat_recovered_p_cy = strategy_vars['heat_recovered'][enduse][curr_yr]
 
         if heat_recovered_p_cy == 0:
             return service, service_techs
@@ -949,7 +947,9 @@ def apply_heat_recovery(
             service_reduced = service * (1.0 - heat_recovered_p_cy)
 
             return service_reduced, service_reduced_techs
-    else:
+
+    except KeyError:
+
         # no recycling defined
         return service, service_techs
 
@@ -985,12 +985,9 @@ def apply_air_leakage(
     ----
     A standard sigmoid diffusion is assumed from base year to end year
     """
-    key_name = "air_leakage__{}".format(enduse)
-
-    if key_name in strategy_vars.keys():
-
+    try:
         # Fraction of heat recovered in current year
-        air_leakage_improvement_cy = strategy_vars[key_name][curr_yr]
+        air_leakage_improvement_cy = strategy_vars['air_leakage'][enduse][curr_yr]
 
         if air_leakage_improvement_cy == 0:
             return service, service_techs
@@ -1008,7 +1005,7 @@ def apply_air_leakage(
             service_reduced = service * f_improvement
 
             return service_reduced, service_reduced_techs
-    else:
+    except KeyError:
         return service, service_techs
 
 def apply_scenario_drivers(
@@ -1129,7 +1126,6 @@ def apply_scenario_drivers(
                 raise Exception("Scenario driver error")
 
             fuel_y = fuel_y * factor_driver
-
         else:
             pass #enduse not define with scenario drivers
 
@@ -1462,11 +1458,9 @@ def apply_cooling(
         Fuel array (either changed fuel depending on cooling percentage)
         of identical array
     """
-    key_name = "cooled_floorarea__{}".format(enduse)
-
     try:
         # Floor area share cooled in current year
-        cooled_floorarea_p_cy = strategy_vars[key_name][curr_yr]
+        cooled_floorarea_p_cy = strategy_vars['cooled_floorarea'][enduse][curr_yr]
 
         # Calculate factor
         floorarea_cooling_factor = cooled_floorarea_p_cy / cooled_floorarea_p_by
@@ -1586,25 +1580,15 @@ def industry_enduse_changes(
         '''
         Theoretical maximal potential for every sector
         --> improvement in % of every sector?
-
-
         '''
         pass
-    elif enduse == 'is_high_temp_process':
-
-
-        if sector == 'basic_metals':
+    elif enduse == 'is_high_temp_process' and sector == 'basic_metals':
 
             # Calculate factor depending on fraction of hot and cold steel rolling process
             factor = hot_cold_process(
                 curr_yr,
                 strategy_vars,
                 assumptions)
-
-        #elif sector == 'non_metallic_mineral_products':
-
-        #    # Calculate factor depending on cement processes
-
     else:
         pass
 

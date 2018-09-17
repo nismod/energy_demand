@@ -365,16 +365,20 @@ def load_param_assump(
     # ============================================================
     # Cooling
     # ============================================================
-    strategy_vars['cooled_floorarea__ss_cooling_humidification'] = {
-        "name": "cooled_floorarea__ss_cooling_humidification",
-        "absolute_range": (0, 1),
-        "description": "Change in cooling of floor area (service sector)",
-        "suggested_range": (-1, 1),
-        "default_value": assumptions.cooled_ss_floorarea_by,
-        "units": 'decimal',
-        'affected_sector': True,
-        'regional_specific': True,
-        'diffusion_type': 'linear'}
+    cooled_floorarea = {
+        'ss_cooling_humidification': assumptions.cooled_ss_floorarea_by}
+
+    for sub_param_name, sub_param_value in cooled_floorarea.items():
+        strategy_vars['cooled_floorarea'][sub_param_name] = {
+            "name": sub_param_name,
+            "absolute_range": (0, 1),
+            "description": "Change in cooling of floor area (service sector)",
+            "suggested_range": (-1, 1),
+            "default_value": sub_param_value,
+            "units": 'decimal',
+            'affected_sector': True,
+            'regional_specific': True,
+            'diffusion_type': 'linear'}
 
     # ============================================================
     # Industrial processes
@@ -393,80 +397,45 @@ def load_param_assump(
     # ============================================================
     # Heat recycling & reuse
     # ============================================================
-    strategy_vars['heat_recoved__rs_space_heating'] = {
-        "name": "heat_recoved__rs_space_heating",
-        "absolute_range": (0, 1),
-        "description": "Reduction in heat because of heat recovery and recycling (residential sector)",
-        "suggested_range": (0, 1),
-        "default_value": 0,
-        "units": 'decimal',
-        'affected_sector': True,
-        'affected_enduse': ['rs_space_heating'],
-        'regional_specific': True,
-        'diffusion_type': 'linear'}
+    heat_recovered = {
+        'rs_space_heating': 0,
+        'ss_space_heating': 0,
+        'is_space_heating': 0}
 
-    strategy_vars['heat_recoved__ss_space_heating'] = {
-        "name": "heat_recoved__ss_space_heating",
-        "absolute_range": (0, 1),
-        "description": "Reduction in heat because of heat recovery and recycling (service sector)",
-        "suggested_range": (0, 1),
-        "default_value": 0,
-        "units": 'decimal',
-        'affected_sector': True,
-        'affected_enduse': ['ss_space_heating'],
-        'regional_specific': True,
-        'diffusion_type': 'linear'}
-
-    strategy_vars['heat_recoved__is_space_heating'] = {
-        "name": "heat_recoved__is_space_heating",
-        "absolute_range": (0, 1),
-        "description": "Reduction in heat because of heat recovery and recycling (industry sector)",
-        "suggested_range": (0, 1),
-        "default_value": 0,
-        "units": 'decimal',
-        'affected_sector': True,
-        'affected_enduse': ['is_space_heating'],
-        'regional_specific': True,
-        'diffusion_type': 'linear'}
+    for sub_param_name, sub_param_value in heat_recovered.items():
+        strategy_vars['heat_recovered'][sub_param_name] = {
+            "name": sub_param_name,
+            "absolute_range": (0, 1),
+            "description": "Reduction in heat because of heat recovery and recycling",
+            "suggested_range": (0, 1),
+            "default_value": sub_param_value,
+            "units": 'decimal',
+            'affected_sector': True,
+            'affected_enduse': [sub_param_name],
+            'regional_specific': True,
+            'diffusion_type': 'linear'}
 
     # ============================================================
     # Air leakage
-    # ============================================================
-    strategy_vars['air_leakage__rs_space_heating'] = {
-        "name": "air_leakage__rs_space_heating",
-        "absolute_range": (0, 1),
-        "description": "Reduction in heat because of air leakage improvement (residential sector)",
-        "suggested_range": (0, 1),
-        "default_value": 0,
-        "units": 'decimal',
-        'affected_sector': True,
-        'affected_enduse': ['rs_space_heating'],
-        'regional_specific': True,
-        'diffusion_type': 'linear'}
+    # ============================================================    
+    air_leakage = {
+        'rs_space_heating': 0,
+        'ss_space_heating': 0,
+        'is_space_heating': 0}
 
-    strategy_vars['air_leakage__ss_space_heating'] = {
-        "name": "air_leakage__ss_space_heating",
-        "absolute_range": (0, 1),
-        "description": "Reduction in heat because of of air leakage improvementservice sector)",
-        "suggested_range": (0, 1),
-        "default_value": 0,
-        "units": 'decimal',
-        'affected_sector': True,
-        'affected_enduse': ['ss_space_heating'],
-        'regional_specific': True,
-        'diffusion_type': 'linear'}
+    for sub_param_name, sub_param_value in air_leakage.items():
 
-    strategy_vars['air_leakage__is_space_heating'] = {
-        "name": "air_leakage__is_space_heating",
-        "absolute_range": (0, 1),
-        "description": "Reduction in heat because of air leakage improvement (industry sector)",
-        "suggested_range": (0, 1),
-        "default_value": 0,
-        "units": 'decimal',
-        'affected_sector': True,
-        "affected_enduse": ['is_space_heating'],
-        'regional_specific': True,
-        'diffusion_type': 'linear'}
+        strategy_vars['air_leakage'][sub_param_name] = {
+            "name": sub_param_name,
+            "absolute_range": (0, 1),
+            "description": "Reduction in heat because of air leakage improvement (residential sector)",
+            "suggested_range": (0, 1),
+            "default_value": sub_param_value,
+            "units": 'decimal',
+            'affected_sector': True,
+            'affected_enduse': [sub_param_name],
+            'regional_specific': True,
+            'diffusion_type': 'linear'}
 
     # ---------------------------------------------------------
     # General change in fuel consumption for specific enduses

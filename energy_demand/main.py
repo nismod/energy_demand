@@ -1,7 +1,6 @@
 """Allows to run HIRE locally outside the SMIF framework
 # After smif upgrade:
 #   TODO: make that automatically the parameters can be generated to be copied into smif format
-
 #TODO Make that congruence value map is better loaded from seperate file (e.g. populatio ndensity)
 #TODO Create own .py chart file for every chart
 #TODO Import weather data loading and importing whole range of weather scenarios
@@ -319,7 +318,7 @@ if __name__ == "__main__":
     # ------------------------------------------------
     # Calculate parameter values for every region
     # ------------------------------------------------
-    regional_strategy_vars = spatial_explicit_modelling_strategy_vars(
+    regional_vars = spatial_explicit_modelling_strategy_vars(
         data['assumptions'].strategy_vars,
         data['assumptions'].spatially_modelled_vars,
         data['regions'],
@@ -327,14 +326,14 @@ if __name__ == "__main__":
         f_reg,
         f_reg_norm,
         f_reg_norm_abs)
-    data['assumptions'].update('strategy_vars', regional_strategy_vars)
+    data['assumptions'].update('strategy_vars', regional_vars)
 
     # -----------------------------------------------------------------
     # Calculate parameter values for every simulated year based on narratives
     # and add also general information containter for every parameter
     # -----------------------------------------------------------------
     print("... starting calculating values for every year", flush=True)
-    regional_strategy_vars, non_regional_strategy_vars = s_scenario_param.generate_annual_param_vals(
+    regional_vars, non_regional_vars = s_scenario_param.generate_annual_param_vals(
         data['regions'],
         data['assumptions'].strategy_vars,
         simulated_yrs,
@@ -352,10 +351,10 @@ if __name__ == "__main__":
         f_reg_norm_abs,
         crit_all_the_same)
     for region in data['regions']:
-        regional_strategy_vars[region]['annual_tech_diff_params'] = annual_tech_diff_params[region]
+        regional_vars[region]['annual_tech_diff_params'] = annual_tech_diff_params[region]
 
-    data['assumptions'].update('regional_strategy_vars', regional_strategy_vars)
-    data['assumptions'].update('non_regional_strategy_vars', non_regional_strategy_vars)
+    data['assumptions'].update('regional_vars', regional_vars)
+    data['assumptions'].update('non_regional_vars', non_regional_vars)
 
     # ------------------------------------------------
     # Spatial Validation
@@ -401,8 +400,8 @@ if __name__ == "__main__":
 
         data['technologies'] = general_assumptions.update_technology_assumption(
             data['assumptions'].technologies,
-            narrative_f_eff_achieved=data['assumptions'].non_regional_strategy_vars['f_eff_achieved'][sim_yr],
-            narrative_gshp_fraction_ey=data['assumptions'].non_regional_strategy_vars['gshp_fraction_ey'][sim_yr],
+            narrative_f_eff_achieved=data['assumptions'].non_regional_vars['f_eff_achieved'][sim_yr],
+            narrative_gshp_fraction_ey=data['assumptions'].non_regional_vars['gshp_fraction_ey'][sim_yr],
             crit_narrative_input=False)
 
         fuel_in, fuel_in_biomass, fuel_in_elec, fuel_in_gas, fuel_in_heat, fuel_in_hydro, fuel_in_solid_fuel, fuel_in_oil, tot_heating = testing_functions.test_function_fuel_sum(
