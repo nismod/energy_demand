@@ -122,7 +122,9 @@ def generate_annual_param_vals(
     ):
     """
     Calculate parameter values for every year based
-    on defined narratives.
+    on defined narratives and also add a generic
+    container of other information necessary
+    for parameter.
 
     Inputs
     -------
@@ -143,17 +145,33 @@ def generate_annual_param_vals(
     container_non_reg_param : dict
         Values for all simulated years (all the same for very region)
     """
-    container_reg_param = {}
-    container_non_reg_param = defaultdict(dict)
+    reg_param = {}
+    non_reg_param = defaultdict(dict)
 
     for region in regions:
-        container_reg_param[region] = defaultdict(dict)
+        reg_param[region] = defaultdict(dict)
 
     for var_name, strategy_vars_values in strategy_vars.items():
 
-        single_dim_var = narrative_related.get_crit_single_dim_var(strategy_vars_values)
+        single_dim_var = narrative_related.get_crit_single_dim_var(
+            strategy_vars_values)
 
         if single_dim_var:
+
+            # Generic container of parameter
+            try:
+                affected_enduse = strategy_vars_values[0]['affected_enduse']
+            except:
+                affected_enduse = [] # all sectors
+            try:
+                affected_sector = strategy_vars_values[0]['affected_sector']
+            except:
+                affected_sector = True # all sectors
+
+            parameter_container_info = {
+                'affected_enduse': affected_enduse,
+                'affected_sector': affected_sector}
+
             # Calculate annual parameter value
             regional_strategy_vary = generate_general_parameter(
                 regions=regions,
@@ -166,11 +184,27 @@ def generate_annual_param_vals(
 
             if reg_specific_crit:
                 for region in regions:
-                    container_reg_param[region][var_name] = regional_strategy_vary[region]
+                    reg_param[region][var_name] = regional_strategy_vary[region]
+                    reg_param[region][var_name]['parameter_container_info'] = parameter_container_info
             else:
-                container_non_reg_param[var_name] = regional_strategy_vary
+                non_reg_param[var_name] = regional_strategy_vary
+                non_reg_param[var_name]['parameter_container_info'] = parameter_container_info
         else:
             for sub_var_name in strategy_vars_values:
+
+                # Generic container of parameter
+                try:
+                    affected_enduse = strategy_vars_values[sub_var_name][0]['affected_enduse']
+                except:
+                    affected_enduse = [] # all sectors
+                try:
+                    affected_sector = strategy_vars_values[sub_var_name][0]['affected_sector']
+                except:
+                    affected_sector = True # all sectors
+
+                parameter_container_info = {
+                    'affected_enduse': affected_enduse,
+                    'affected_sector': affected_sector}
 
                 # Calculate annual parameter value
                 regional_strategy_vary = generate_general_parameter(
@@ -184,13 +218,14 @@ def generate_annual_param_vals(
 
                 if reg_specific_crit:
                     for region in regions:
-                        container_reg_param[region][var_name][sub_var_name] = regional_strategy_vary[region]
-
-                    container_reg_param[region][var_name] = dict(container_reg_param[region][var_name]) #convert to dict
+                        reg_param[region][var_name][sub_var_name] = regional_strategy_vary[region]
+                        reg_param[region][var_name][sub_var_name] = dict(reg_param[region][var_name][sub_var_name])
+                        reg_param[region][var_name][sub_var_name]['parameter_container_info'] = parameter_container_info
                 else:
-                    container_non_reg_param[var_name][sub_var_name] = regional_strategy_vary
+                    non_reg_param[var_name][sub_var_name] = regional_strategy_vary
+                    non_reg_param[var_name][sub_var_name]['parameter_container_info'] = parameter_container_info
 
-    return dict(container_reg_param), dict(container_non_reg_param)
+    return dict(reg_param), dict(non_reg_param)
 
 def generate_general_parameter(
         regions,

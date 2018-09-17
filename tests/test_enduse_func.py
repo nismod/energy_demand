@@ -247,7 +247,7 @@ def test_apply_smart_metering():
 
     sm_assump = {
         'savings_smart_meter': {
-            'smart_meter_improvement_heating': 0.5}, #50 is saved by smart meter
+            'heating': 0.5}, #50 is saved by smart meter
         'smart_meter_p_by': 0}
 
     strategy_vars = {}
@@ -496,6 +496,7 @@ def test_apply_specific_change():
 
     fuel_y = np.array([100])
     result = enduse_func.apply_specific_change(
+        sector=True,
         enduse='heating',
         fuel_y=fuel_y,
         strategy_vars=strategy_vars,

@@ -1,6 +1,7 @@
 """Functions handling the narratives
 """
 import math
+import numpy as np
 
 def get_crit_single_dim_var(var):
     """Check if nested dict or not
@@ -23,9 +24,11 @@ def get_crit_single_dim_var(var):
                 # If list is in ndested dict, then multidimensional
                 if type(var[entry]) is list:
                     single_dimension = False
+                    break
                 else:
                     # IF no keys, then fail and thus single dimensional
                     var[entry].keys()
+
             single_dimension = False
         except AttributeError:
             single_dimension = True
@@ -100,7 +103,9 @@ def default_narrative(
     return default_narrative
 
 def create_narratives(raw_file_content, simulation_base_yr, default_streategy_vars):
-    """Create multidimensional narratives
+    """Create multidimensional narratives. Check if each
+    necessary input is defedin in csv file and otherwise
+    replace with standard values
 
     Arguments
     ---------
@@ -109,11 +114,10 @@ def create_narratives(raw_file_content, simulation_base_yr, default_streategy_va
     simulation_base_yr : int
         Model base year of simulation
 
-    TODO: enduse,base_yr,value_by,end_yr,value_ey,diffusion_choice,sig_midpoint,sig_steepness,regional_specific
-
     Outputs
     -------
-
+    autocompleted_parameter_narratives : dict
+        Parameters
     """
     parameter_narratives = {}
 
@@ -122,6 +126,7 @@ def create_narratives(raw_file_content, simulation_base_yr, default_streategy_va
         for _index, row in raw_file_content.iterrows():
             sub_param_name = str(row['sub_param_name'])
             crit_single_dim_param = False
+            break
     except KeyError: #sub_param_name is not provided as header argument in csv
         crit_single_dim_param = True
 
@@ -137,9 +142,19 @@ def create_narratives(raw_file_content, simulation_base_yr, default_streategy_va
             # Sub_parameter_name is only provided for multidimensional parameters
             sub_param_name = str(row['sub_param_name'])
 
-        default_by = float(row['default_by'])   # Name 
+        default_by = float(row['default_by'])
         end_yr = int(row['end_yr'])
         value_ey = float(row['value_ey'])
+
+        try:
+            affected_sector = row['sector']
+
+            if type(affected_sector) is str:
+                affected_sector = affected_sector
+            else:
+                affected_sector = True # replace nan value with True
+        except KeyError:
+            affected_sector = True
 
         try:
             diffusion_choice = str(row['diffusion_choice'])
@@ -185,7 +200,8 @@ def create_narratives(raw_file_content, simulation_base_yr, default_streategy_va
             'diffusion_choice': diffusion_choice,
             'sig_midpoint': sig_midpoint,
             'sig_steepness': sig_steepness,
-            'regional_specific': regional_specific}
+            'regional_specific': regional_specific,
+            'affected_sector': affected_sector}
 
         # Append switch to correct variable
         if sub_param_name in parameter_narratives.keys():

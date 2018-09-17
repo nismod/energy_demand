@@ -81,7 +81,7 @@ def create_spatial_diffusion_factors(
         Criteria whether regional specific parameters or not
     """
     spatial_explicit_diffusion = narrative_related.read_from_narrative(
-        narrative_spatial_explicit_diffusion) #SNAKE
+        narrative_spatial_explicit_diffusion)
 
     speed_con_max = narrative_related.read_from_narrative(narrative_speed_con_max)
 

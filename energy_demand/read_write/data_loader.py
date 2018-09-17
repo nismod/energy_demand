@@ -15,7 +15,7 @@ from energy_demand.plotting import plotting_results
 from energy_demand.basic import basic_functions
 from energy_demand.read_write import narrative_related
 
-def load_strategy_vars_from_csv(
+def load_user_defined_vars(
         default_strategy_var,
         path_to_folder_with_csv,
         simulation_base_yr
@@ -56,7 +56,10 @@ def load_strategy_vars_from_csv(
             default_strategy_var[var_name])
 
         # Add to dict
-        strategy_vars_as_narratives[var_name] = parameter_narratives
+        try:
+            strategy_vars_as_narratives[var_name] = parameter_narratives
+        except KeyError:
+            raise Exception("The .csv name `%s` does not correspond to a defined parameter name", var_name) 
 
     return strategy_vars_as_narratives
 

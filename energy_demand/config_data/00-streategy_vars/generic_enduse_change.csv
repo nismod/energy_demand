@@ -1,4 +1,4 @@
-sub_param_name,default_by,end_yr,value_ey,diffusion_choiceW,affected_sector
+sub_param_name,default_by,end_yr,value_ey,diffusion_choice,sector
 rs_space_heating,0,2020,0.2,linear
 rs_space_heating,0,2030,0.3,linear
 rs_space_heating,0,2040,0.4,linear
@@ -14,7 +14,7 @@ ss_water_heating,0,2050,0,linear
 ss_cooling_humidification,0,2050,0,linear
 ss_fans,0,2050,0,linear
 ss_lighting,0,2050,0,linear
-ss_catering,0,2050,0,linear
+ss_catering,0,2050,0.5,linear
 ss_small_power,0,2050,0,linear
 ss_ICT_equipment,0,2050,0,linear
 ss_cooled_storage,0,2050,0,linear

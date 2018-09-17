@@ -150,6 +150,7 @@ class Enduse(object):
 
             _fuel_new_y = apply_specific_change(
                 enduse,
+                sector,
                 self.fuel_y,
                 strategy_vars,
                 curr_yr)
@@ -1133,6 +1134,7 @@ def apply_scenario_drivers(
 
 def apply_specific_change(
         enduse,
+        sector,
         fuel_y,
         strategy_vars,
         curr_yr
@@ -1149,6 +1151,8 @@ def apply_specific_change(
     ----------
     enduse : str
         Enduse
+    sector : str
+        Sector
     fuel_y : array
         Yearly fuel per fueltype
     strategy_vars : dict
@@ -1164,8 +1168,20 @@ def apply_specific_change(
     try:
         change_cy = strategy_vars['generic_enduse_change'][enduse][curr_yr]
 
-        # Calculate new annual fuel
-        fuel_y = fuel_y * (1 + change_cy)
+        # Get affected sectors
+        affected_sector = strategy_vars['generic_enduse_change'][enduse]['parameter_container_info']['affected_sector']
+
+        # if Sector is None, then so sectors are defined for this enduse
+        if not sector:
+            # Calculate new annual fuel
+            fuel_y = fuel_y * (1 + change_cy)
+        else:
+            if affected_sector or affected_sector == sector: # Setor crit is True, meaning that true for all sectors
+
+                # Calculate new annual fuel
+                fuel_y = fuel_y * (1 + change_cy)
+            else:
+                pass
 
     except KeyError:
         logging.debug(

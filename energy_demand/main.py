@@ -1,13 +1,4 @@
 """Allows to run HIRE locally outside the SMIF framework
-
-    Tools
-    # -------
-    Profiling:  https://jiffyclub.github.io/snakeviz/
-    python -m cProfile -o program.prof main.py
-    snakeviz program.prof
-
-        sys.stdout.flush()
-regional_specific, crit_all_the_same
 # After smif upgrade:
 #   TODO: make that automatically the parameters can be generated to be copied into smif format
 
@@ -19,7 +10,6 @@ regional_specific, crit_all_the_same
 #TODO SIMple aggregation. Write out sectormodel, enduse, region, fueltypes.... --> Do all aggregation based on that
 #- Make that fuel swtich can be made in any industry sector irrespective of technologies
 # Make generic fuel switch
-
 # MAKE SIMLPLE TABLE FOR READING IN FUELS
 # """
 import os
@@ -132,7 +122,6 @@ if __name__ == "__main__":
 
     # If the smif configuration files what to be written, set this to true. The program will abort after they are written to YAML files
     data['criterias']['writeYAML'] = False
-
     data['criterias']['reg_selection'] = False
     data['criterias']['reg_selection_csv_name'] = "msoa_regions_ed.csv" # CSV file stored in 'region' folder with simulated regions
     data['criterias']['MSOA_crit'] = False
@@ -237,8 +226,6 @@ if __name__ == "__main__":
         data['local_paths'],
         data['assumptions'],
         writeYAML=data['criterias']['writeYAML'])
-    #data['assumptions'].update('strategy_vars', strategy_vars)
-
 
     # -----------------------------------------------------------------------------
     # Load standard smif parameters and generate standard single timestep
@@ -254,15 +241,12 @@ if __name__ == "__main__":
     # User defines stragey variable from csv files
     # TODO WHAT ABOUT AFFECTED ENDUSE?
     # -----------------------------------------
-    _multi_dim_strategy_vars = data_loader.load_strategy_vars_from_csv(
+    _user_defined_vars = data_loader.load_user_defined_vars(
         default_strategy_var=default_streategy_vars,
         path_to_folder_with_csv=data['paths']['path_folder_strategy_vars'],
         simulation_base_yr=data['assumptions'].base_yr)
 
-    # --------------------------------------------------------
-    # Replace standard narratives with user defined narratives from .csv files
-    # --------------------------------------------------------
-    for new_var, new_var_vals in _multi_dim_strategy_vars.items():
+    for new_var, new_var_vals in _user_defined_vars.items():
 
         # Test if multidimensional varible
         crit_single_dim = narrative_related.get_crit_single_dim_var(
@@ -270,7 +254,7 @@ if __name__ == "__main__":
 
         if crit_single_dim:
             strategy_vars[new_var] = new_var_vals
-        else: #multidimensional
+        else:
             for sub_var_name, sub_var in new_var_vals.items():
                 strategy_vars[new_var][sub_var_name] = sub_var
 
@@ -348,6 +332,7 @@ if __name__ == "__main__":
 
     # -----------------------------------------------------------------
     # Calculate parameter values for every simulated year based on narratives
+    # and add also general information containter for every parameter
     # -----------------------------------------------------------------
     print("... starting calculating values for every year", flush=True)
     regional_strategy_vars, non_regional_strategy_vars = s_generate_scenario_parameters.generate_annual_param_vals(
@@ -367,11 +352,9 @@ if __name__ == "__main__":
         f_reg_norm,
         f_reg_norm_abs,
         crit_all_the_same)
-
     for region in data['regions']:
         regional_strategy_vars[region]['annual_tech_diff_params'] = annual_tech_diff_params[region]
 
-    # Strategy variables
     data['assumptions'].update('regional_strategy_vars', regional_strategy_vars)
     data['assumptions'].update('non_regional_strategy_vars', non_regional_strategy_vars)
 
@@ -417,12 +400,11 @@ if __name__ == "__main__":
         # Set current year
         setattr(data['assumptions'], 'curr_yr', sim_yr)
 
-        #TODO UPDATE TECHNOLOGIES NEW NTEW
         data['technologies'] = general_assumptions.update_technology_assumption(
             data['assumptions'].technologies,
-            narrative_f_eff_achieved=data['assumptions'].non_regional_strategy_vars['f_eff_achieved'][sim_yr], # Non regional value
+            narrative_f_eff_achieved=data['assumptions'].non_regional_strategy_vars['f_eff_achieved'][sim_yr],
             narrative_gshp_fraction_ey=data['assumptions'].non_regional_strategy_vars['gshp_fraction_ey'][sim_yr],
-            crit_narrative_input=False) #TODO REALLY REMOVE
+            crit_narrative_input=False)
 
         fuel_in, fuel_in_biomass, fuel_in_elec, fuel_in_gas, fuel_in_heat, fuel_in_hydro, fuel_in_solid_fuel, fuel_in_oil, tot_heating = testing_functions.test_function_fuel_sum(
             data,
