@@ -34,7 +34,7 @@ from energy_demand.basic import basic_functions
 from energy_demand.scripts import s_disaggregation
 from energy_demand.validation import lad_validation
 from energy_demand.basic import demand_supply_interaction
-from energy_demand.scripts import s_generate_scenario_parameters
+from energy_demand.scripts import s_scenario_param
 from energy_demand.scripts.init_scripts import switch_calculations
 from energy_demand.scripts.init_scripts import spatial_explicit_modelling_strategy_vars
 from energy_demand.scripts.init_scripts import create_spatial_diffusion_factors
@@ -335,7 +335,7 @@ if __name__ == "__main__":
     # and add also general information containter for every parameter
     # -----------------------------------------------------------------
     print("... starting calculating values for every year", flush=True)
-    regional_strategy_vars, non_regional_strategy_vars = s_generate_scenario_parameters.generate_annual_param_vals(
+    regional_strategy_vars, non_regional_strategy_vars = s_scenario_param.generate_annual_param_vals(
         data['regions'],
         data['assumptions'].strategy_vars,
         simulated_yrs,

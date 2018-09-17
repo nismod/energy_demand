@@ -1,9 +1,59 @@
 """Functions handling the narratives
 """
 import math
-import numpy as np
 
-from energy_demand.scripts import init_scripts
+def get_all_sectors_of_narratives(narratives):
+    """Get all defined sectors of all narratives
+
+    ARguments
+    --------
+    narratives : list
+        All defined narratives
+
+    Returns
+    -------
+    all_sectors : list
+        All sectors
+    """
+    all_sectors = set()
+    for narrative in narratives:
+        all_sectors.add(narrative['affected_sector'])
+    all_sectors = list(all_sectors)
+
+    return all_sectors
+
+def get_sector_narrative(sector_to_match, switches):
+    """Get all switches of a sector if the switches are
+    defined specifically for a sector. If the switches are
+    not specifically for a sector, return all switches
+
+    Arguments
+    ----------
+    sector_to_match : int
+        Sector to find switches
+    switches : list
+        Switches
+
+    Returns
+    -------
+    switches : list
+        Switches of sector
+    """
+    if sector_to_match is True:
+        return switches
+    else:
+        switches_out = []
+
+        for switch in switches:
+
+            if switch['affected_sector'] == sector_to_match:
+                switches_out.append(switch)
+            elif not switch['affected_sector']: # Not defined specifically for sectors and append all
+                switches_out.append(switch)
+            else:
+                pass
+
+        return switches_out
 
 def get_crit_single_dim_var(var):
     """Check if nested dict or not
@@ -122,7 +172,7 @@ def create_narratives(
 
     Outputs
     -------
-    autocompleted_parameter_narratives : dict
+    autocomplet_param_narr : dict
         Parameters
     """
     parameter_narratives = {}
@@ -233,11 +283,11 @@ def create_narratives(
     # Autocomplete switches in order that from all
     # end_yrs a complete narrative is generated
     # ----------------------
-    autocompleted_parameter_narratives = {}
+    autocomplet_param_narr = {}
 
     for sub_param_name, narratives in parameter_narratives.items():
 
-        autocompleted_parameter_narratives[sub_param_name] = []
+        autocomplet_param_narr[sub_param_name] = []
 
         # Get all years of narratives
         all_sectors = set()
@@ -250,7 +300,7 @@ def create_narratives(
             if sector is True:
                 switches_to_create_narrative = narratives
             else:
-                switches_to_create_narrative = init_scripts.get_sector_narrative(sector,
+                switches_to_create_narrative = get_sector_narrative(sector,
                     narratives)
 
             # Get all years of switches_to_create_narrative
@@ -290,11 +340,11 @@ def create_narratives(
 
                 del yr_narrative['default_by']
 
-                autocompleted_parameter_narratives[sub_param_name].append(yr_narrative)
+                autocomplet_param_narr[sub_param_name].append(yr_narrative)
 
     # IF only single dimension parameter, remove dummy mutliparameter name
     if crit_single_dim_param:
-        autocompleted_parameter_narratives = autocompleted_parameter_narratives['dummy_single_param']
+        autocomplet_param_narr = autocomplet_param_narr['dummy_single_param']
     else:
         pass
-    return autocompleted_parameter_narratives
+    return autocomplet_param_narr

@@ -9,7 +9,7 @@ from energy_demand.geography import spatial_diffusion
 from energy_demand.read_write import read_data
 from energy_demand.scripts import (s_fuel_to_service, s_generate_sigmoid)
 from energy_demand.technologies import fuel_service_switch
-from energy_demand.scripts import s_generate_scenario_parameters
+from energy_demand.scripts import s_scenario_param
 from energy_demand.read_write import narrative_related
 
 def get_all_narrative_timesteps(switches_list):
@@ -258,7 +258,7 @@ def switch_calculations(
     # Calculate annual values based on calculated
     # parameters for every simulation year
     # ------------------
-    annual_tech_diff_params = s_generate_scenario_parameters.calc_annual_switch_params(
+    annual_tech_diff_params = s_scenario_param.calc_annual_switch_params(
         simulated_yrs,
         data['regions'],
         dict(sig_param_tech))
@@ -736,36 +736,6 @@ def sig_param_calc_incl_fuel_switch(
                     print("Time use for sigmoid parameter calaulations (reduce number of iteraitons for speedup): " + str(end - start), flush=True)
 
     return sig_param_tech
-
-def get_sector_narrative(sector_to_match, switches):
-    """Get all switches of a sector if the switches are
-    defined specifically for a sector. If the switches are
-    not specifically for a sector, return all switches
-
-    Arguments
-    ----------
-    sector_to_match : int
-        Sector to find switches
-    switches : list
-        Switches
-
-    Returns
-    -------
-    switches : list
-        Switches of sector
-    """
-    switches_out = []
-
-    for switch in switches:
-
-        if switch['affected_sector'] == sector_to_match:
-            switches_out.append(switch)
-        elif not switch['affected_sector']: # Not defined specifically for sectors and append all
-            switches_out.append(switch)
-        else:
-            pass
-
-    return switches_out
 
 def get_sector__enduse_switches(sector_to_match, enduse_to_match, switches):
     """Get all switches of a sector if the switches are
