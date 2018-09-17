@@ -9,7 +9,6 @@
 #TODO Write out full result. Then write function to aggregate accordingly
 #TODO SIMple aggregation. Write out sectormodel, enduse, region, fueltypes.... --> Do all aggregation based on that
 #- Make that fuel swtich can be made in any industry sector irrespective of technologies
-# Make generic fuel switch
 # MAKE SIMLPLE TABLE FOR READING IN FUELS
 TODO Replace affected_sector by sector
 # """

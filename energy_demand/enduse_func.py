@@ -1485,13 +1485,33 @@ def generic_fuel_switch(
     ):
     """Generic fuel switch in an enduse (e.g. replacing a fraction
     of a fuel with another fueltype
+
+    Arguments
+    ---------
+    enduse : str
+        Enduse
+    sector : str
+        Sector
+    curr_yr : str
+        Current year of simulation
+    strategy_vars : str
+        Strategy variables
+    fuel_y : str
+        Fuel of specific enduse and sector
+
+    Returns
+    -------
+    fuel_y : array
+        Annual fuel demand per fueltype
     """
+    # If defautl value, no switch is implemented
     if strategy_vars['generic_fuel_switch'][enduse][curr_yr] != 0:
 
-        # Get affected sectors
+        # Get affected sectors of fuel switch
         affected_sector = strategy_vars['generic_fuel_switch'][enduse]['param_info']['affected_sector']
 
-        if sector or sector in affected_sector:
+        # If fuel switch is across all sectors or currently the correct sector is simulated
+        if sector is True or sector in affected_sector:
 
             # Get fueltype to switch (old)
             fueltype_replace_str = strategy_vars['generic_fuel_switch'][enduse]['param_info']['fueltype_replace']
@@ -1504,33 +1524,12 @@ def generic_fuel_switch(
             # Value of current year
             fuel_share_switched_cy = strategy_vars['generic_fuel_switch'][enduse][curr_yr]
 
-            if enduse == 'is_high_temp_process':
-                print("-----------")
-                print(affected_sector)
-                print(curr_yr)
-                print(enduse)
-                print(sector)
-                print(fuel_y[fueltype_replace_int])
-                print(fuel_y[fueltype_new_int])
-                print(fuel_share_switched_cy)
-
-
-            # If sector specific do across sectors
             # Substract
             fuel_minus = fuel_y[fueltype_replace_int] * (1 - fuel_share_switched_cy)
             fuel_y[fueltype_replace_int] -= fuel_minus
 
             # Add
             fuel_y[fueltype_new_int] += fuel_minus
-
-            if enduse == 'is_high_temp_process':
-                print("------")
-                print(fuel_y[fueltype_replace_int])
-                print(fuel_y[fueltype_new_int])
-                print(fuel_y[fueltype_replace_int])
-                print(fuel_y[fueltype_new_int])
-                print(fuel_minus)
-                raise Exception
 
         else: # not affected sector
             pass
