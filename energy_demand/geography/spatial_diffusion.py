@@ -620,13 +620,10 @@ def get_enduse_regs(
     """
     fuels_enduse = {}
 
-    if enduse == []:
-        pass
-    else:
-        for fuel_submodel in fuels_disagg:
-            for reg, enduse_fuels in fuel_submodel.items():
-                for enduse_to_match, fuels_regs in enduse_fuels.items():
-                    if enduse == enduse_to_match:
-                        fuels_enduse[reg] = fuels_regs
+    for fuel_submodel in fuels_disagg:
+        for reg, enduse_fuels in fuel_submodel.items():
+            for enduse_to_match, fuels_regs in enduse_fuels.items():
+                if enduse == enduse_to_match:
+                    fuels_enduse[reg] = fuels_regs
 
     return fuels_enduse

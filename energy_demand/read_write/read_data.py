@@ -12,6 +12,7 @@ import fiona
 import pandas as pd
 from shapely.geometry import shape, mapping
 import numpy as np
+
 from energy_demand.technologies import tech_related
 from energy_demand.profiles import load_profile
 from energy_demand.basic import lookup_tables
@@ -572,28 +573,32 @@ def service_switch(path_to_csv, technologies, base_yr=2015):
     """
     service_switches = []
 
-    # Read switches
-    raw_csv_file = pd.read_csv(path_to_csv)
+    if os.path.isfile(path_to_csv):
 
-    for _index, row in raw_csv_file.iterrows():
+        # Read switches
+        raw_csv_file = pd.read_csv(path_to_csv)
 
-        service_switches.append(
-            ServiceSwitch(
-                enduse=str(row['enduse']),
-                technology_install=str(row['tech']),
-                service_share_ey=float(row['service_share_ey']),
-                switch_yr=float(row['switch_yr']),
-                sector=row['sector']))
+        for _index, row in raw_csv_file.iterrows():
 
-    # Test if more service is provided as input than possible to maximum switch
-    for entry in service_switches:
-        if entry.service_share_ey > technologies[entry.technology_install].tech_max_share:
-            raise Exception(
-                "Input error: more service provided for tech '{}' in enduse '{}' than max possible".format(
-                    entry.enduse, entry.technology_install))
+            service_switches.append(
+                ServiceSwitch(
+                    enduse=str(row['enduse']),
+                    technology_install=str(row['tech']),
+                    service_share_ey=float(row['service_share_ey']),
+                    switch_yr=float(row['switch_yr']),
+                    sector=row['sector']))
 
-        if entry.switch_yr <= base_yr:
-            raise Exception("Input error service switch: switch_yr must be in the future")
+        # Test if more service is provided as input than possible to maximum switch
+        for entry in service_switches:
+            if entry.service_share_ey > technologies[entry.technology_install].tech_max_share:
+                raise Exception(
+                    "Input error: more service provided for tech '{}' in enduse '{}' than max possible".format(
+                        entry.enduse, entry.technology_install))
+
+            if entry.switch_yr <= base_yr:
+                raise Exception("Input error service switch: switch_yr must be in the future")
+    else:
+        pass
 
     return service_switches
 
@@ -640,56 +645,59 @@ def read_fuel_switches(
     """
     fuel_switches = []
 
-    # Read switches
-    raw_csv_file = pd.read_csv(path_to_csv)
+    if os.path.isfile(path_to_csv):
+        # Read switches
+        raw_csv_file = pd.read_csv(path_to_csv)
 
-    for index, row in raw_csv_file.iterrows():
-        fuel_switches.append(
-            FuelSwitch(
-                enduse=str(row['enduse']),
-                fueltype_replace=fueltypes[str(row['fueltype_replace'])],
-                technology_install=str(row['technology_install']),
-                switch_yr=float(row['switch_yr']),
-                fuel_share_switched_ey=float(row['fuel_share_switched_ey']),
-                sector=row['sector']))
+        for index, row in raw_csv_file.iterrows():
+            fuel_switches.append(
+                FuelSwitch(
+                    enduse=str(row['enduse']),
+                    fueltype_replace=fueltypes[str(row['fueltype_replace'])],
+                    technology_install=str(row['technology_install']),
+                    switch_yr=float(row['switch_yr']),
+                    fuel_share_switched_ey=float(row['fuel_share_switched_ey']),
+                    sector=row['sector']))
 
-    # -------
-    # Testing
-    #
-    # Test if more than 100% per fueltype is switched or more than
-    # than theoretically possible per technology
-    # --------
-    # Testing wheter the provided inputs make sense
-    for obj in fuel_switches:
-        if obj.fuel_share_switched_ey == 0:
-            raise Exception(
-                "Input error: The share of switched fuel must be > 0. Delete {} from input".format(
-                    obj.technology_install))
-
-        for obj_iter in fuel_switches:
-
-            # Test if lager than maximum defined technology diffusion (L)
-            if obj_iter.fuel_share_switched_ey > technologies[obj_iter.technology_install].tech_max_share:
+        # -------
+        # Testing
+        #
+        # Test if more than 100% per fueltype is switched or more than
+        # than theoretically possible per technology
+        # --------
+        # Testing wheter the provided inputs make sense
+        for obj in fuel_switches:
+            if obj.fuel_share_switched_ey == 0:
                 raise Exception(
-                    "Configuration Error: More service provided for tech '{}' in enduse '{}' than max possible".format(
-                        obj_iter.enduse, obj_iter.technology_install))
+                    "Input error: The share of switched fuel must be > 0. Delete {} from input".format(
+                        obj.technology_install))
 
-            if obj_iter.fuel_share_switched_ey > 1.0:
+            for obj_iter in fuel_switches:
+
+                # Test if lager than maximum defined technology diffusion (L)
+                if obj_iter.fuel_share_switched_ey > technologies[obj_iter.technology_install].tech_max_share:
+                    raise Exception(
+                        "Configuration Error: More service provided for tech '{}' in enduse '{}' than max possible".format(
+                            obj_iter.enduse, obj_iter.technology_install))
+
+                if obj_iter.fuel_share_switched_ey > 1.0:
+                    raise Exception(
+                        "Configuration Error: The fuel switches are > 1.0 for enduse {} and fueltype {}".format(
+                            obj.enduse, obj.fueltype_replace))
+
+            if obj.switch_yr <= base_yr:
+                raise Exception("Configuration Error of fuel switch: switch_yr must be in the future")
+
+        # Test whether defined enduse exist
+        for obj in fuel_switches:
+            if obj.enduse in enduses['service'] or obj.enduse in enduses['residential'] or obj.enduse in enduses['industry']:
+                pass
+            else:
                 raise Exception(
-                    "Configuration Error: The fuel switches are > 1.0 for enduse {} and fueltype {}".format(
-                        obj.enduse, obj.fueltype_replace))
-
-        if obj.switch_yr <= base_yr:
-            raise Exception("Configuration Error of fuel switch: switch_yr must be in the future")
-
-    # Test whether defined enduse exist
-    for obj in fuel_switches:
-        if obj.enduse in enduses['service'] or obj.enduse in enduses['residential'] or obj.enduse in enduses['industry']:
-            pass
-        else:
-            raise Exception(
-                "Input Error: The defined enduse '{}' to switch fuel from is not defined...".format(
-                    obj.enduse))
+                    "Input Error: The defined enduse '{}' to switch fuel from is not defined...".format(
+                        obj.enduse))
+    else:
+        pass
 
     return fuel_switches
 
@@ -1058,25 +1066,29 @@ def read_capacity_switch(path_to_csv, base_yr=2015):
     """
     service_switches = []
 
-    # Read switches
-    raw_csv_file = pd.read_csv(path_to_csv)
+    if os.path.isfile(path_to_csv):
 
-    # Iterate rows
-    for _, row in raw_csv_file.iterrows():
+        # Read switches
+        raw_csv_file = pd.read_csv(path_to_csv)
 
-        service_switches.append(
-            CapacitySwitch(
-                enduse=str(row['enduse']),
-                technology_install=str(row['technology_install']),
-                switch_yr=float(row['swich_yr']),
-                installed_capacity=float(row['installed_capacity']),
-                sector=row['sector']))
+        # Iterate rows
+        for _, row in raw_csv_file.iterrows():
 
-    # Testing
-    for obj in service_switches:
-        if obj.switch_yr <= base_yr:
-            raise Exception("Input Error capacity switch: switch_yr must be in the future")
+            service_switches.append(
+                CapacitySwitch(
+                    enduse=str(row['enduse']),
+                    technology_install=str(row['technology_install']),
+                    switch_yr=float(row['swich_yr']),
+                    installed_capacity=float(row['installed_capacity']),
+                    sector=row['sector']))
 
+        # Testing
+        for obj in service_switches:
+            if obj.switch_yr <= base_yr:
+                raise Exception("Input Error capacity switch: switch_yr must be in the future")
+
+    else:
+        pass
     return service_switches
 
 def read_floor_area_virtual_stock(path_to_csv, f_mixed_floorarea=0.5):

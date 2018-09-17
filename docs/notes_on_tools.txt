@@ -1,0 +1,7 @@
+    Tools
+    # -------
+    Profiling:  https://jiffyclub.github.io/snakeviz/
+    python -m cProfile -o program.prof main.py
+    snakeviz program.prof
+
+    

@@ -59,19 +59,19 @@ def test_change_temp_climate():
         10: [304, 305, 306, 307, 308, 309, 310, 311, 312, 313, 314, 315, 316, 317, 318, 319, 320, 321, 322, 323, 324, 325, 326, 327, 328, 329, 330, 331, 332, 333],
         11: [334, 335, 336, 337, 338, 339, 340, 341, 342, 343, 344, 345, 346, 347, 348, 349, 350, 351, 352, 353, 354, 355, 356, 357, 358, 359, 360, 361, 362, 363, 364]}
 
-    strategy_vars = {
-        'climate_change_temp_d__Jan': {2015: 0, 2020: 2}, # January (can be plus or minus)
-        'climate_change_temp_d__Feb': {2015: 0, 2020: 3}, # February
-        'climate_change_temp_d__Mar': {2015: 0, 2020: 0}, # March
-        'climate_change_temp_d__Apr': {2015: 0, 2020: 0}, # April
-        'climate_change_temp_d__May': {2015: 0, 2020: 0}, # May
-        'climate_change_temp_d__Jun': {2015: 0, 2020: 0}, # June
-        'climate_change_temp_d__Jul': {2015: 0, 2020: 0}, # July
-        'climate_change_temp_d__Aug': {2015: 0, 2020: 0}, # August
-        'climate_change_temp_d__Sep': {2015: 0, 2020: 0}, # September
-        'climate_change_temp_d__Oct': {2015: 0, 2020: 0}, # October
-        'climate_change_temp_d__Nov': {2015: 0, 2020: 0}, # November
-        'climate_change_temp_d__Dec': {2015: 0, 2020: 0}}
+    strategy_vars = {'climate_change_temp_d': {
+        'Jan': {2015: 0, 2020: 2}, # January (can be plus or minus)
+        'Feb': {2015: 0, 2020: 3}, # February
+        'Mar': {2015: 0, 2020: 0}, # March
+        'Apr': {2015: 0, 2020: 0}, # April
+        'May': {2015: 0, 2020: 0}, # May
+        'Jun': {2015: 0, 2020: 0}, # June
+        'Jul': {2015: 0, 2020: 0}, # July
+        'Aug': {2015: 0, 2020: 0}, # August
+        'Sep': {2015: 0, 2020: 0}, # September
+        'Oct': {2015: 0, 2020: 0}, # October
+        'Nov': {2015: 0, 2020: 0}, # November
+        'Dec': {2015: 0, 2020: 0}}}
 
     curr_yr = 2020
 

@@ -6,6 +6,7 @@ from energy_demand.basic import testing_functions, date_prop
 from energy_demand.assumptions import fuel_shares
 from energy_demand.initalisations import helpers
 from energy_demand.profiles import hdd_cdd
+from energy_demand.read_write import narrative_related
 
 class Assumptions(object):
     """Assumptions of energy demand model
@@ -33,6 +34,7 @@ class Assumptions(object):
             self,
             submodels_names=None,
             base_yr=None,
+            simulation_end_yr=None,
             curr_yr=None,
             simulated_yrs=None,
             paths=None,
@@ -45,6 +47,7 @@ class Assumptions(object):
         """
         self.submodels_names = submodels_names
         self.base_yr = base_yr
+        self.simulation_end_yr = simulation_end_yr
         self.curr_yr = curr_yr
         self.simulated_yrs = simulated_yrs
 
@@ -291,38 +294,38 @@ class Assumptions(object):
         self.smart_meter_assump['savings_smart_meter'] = {
 
             # Residential
-            'smart_meter_improvement_rs_cold': sm_savings,
-            'smart_meter_improvement_rs_cooking': sm_savings,
-            'smart_meter_improvement_rs_lighting': sm_savings,
-            'smart_meter_improvement_rs_wet': sm_savings,
-            'smart_meter_improvement_rs_consumer_electronics': sm_savings,
-            'smart_meter_improvement_rs_home_computing': sm_savings,
-            'smart_meter_improvement_rs_space_heating': sm_savings,
-            'smart_meter_improvement_rs_water_heating': sm_savings,
-    
+            'rs_cold': sm_savings,
+            'rs_cooking': sm_savings,
+            'rs_lighting': sm_savings,
+            'rs_wet': sm_savings,
+            'rs_consumer_electronics': sm_savings,
+            'rs_home_computing': sm_savings,
+            'rs_space_heating': sm_savings,
+            'rs_water_heating': sm_savings,
+
             # Service
-            'smart_meter_improvement_ss_space_heating': sm_savings,
-            'smart_meter_improvement_ss_water_heating': sm_savings,
-            'smart_meter_improvement_ss_cooling_humidification': sm_savings,
-            'smart_meter_improvement_ss_fans': sm_savings,
-            'smart_meter_improvement_ss_lighting': sm_savings,
-            'smart_meter_improvement_ss_catering': sm_savings,
-            'smart_meter_improvement_ss_small_power': sm_savings,
-            'smart_meter_improvement_ss_ICT_equipment': sm_savings,
-            'smart_meter_improvement_ss_cooled_storage': sm_savings,
-            'smart_meter_improvement_ss_other_gas': sm_savings,
-            'smart_meter_improvement_ss_other_electricity': sm_savings,
+            'ss_space_heating': sm_savings,
+            'ss_water_heating': sm_savings,
+            'ss_cooling_humidification': sm_savings,
+            'ss_fans': sm_savings,
+            'ss_lighting': sm_savings,
+            'ss_catering': sm_savings,
+            'ss_small_power': sm_savings,
+            'ss_ICT_equipment': sm_savings,
+            'ss_cooled_storage': sm_savings,
+            'ss_other_gas': sm_savings,
+            'ss_other_electricity': sm_savings,
 
             # Industry submodule
-            'smart_meter_improvement_is_high_temp_process': sm_savings,
-            'smart_meter_improvement_is_low_temp_process': sm_savings,
-            'smart_meter_improvement_is_drying_separation': sm_savings,
-            'smart_meter_improvement_is_motors': sm_savings,
-            'smart_meter_improvement_is_compressed_air': sm_savings,
-            'smart_meter_improvement_is_lighting': sm_savings,
-            'smart_meter_improvement_is_space_heating': sm_savings,
-            'smart_meter_improvement_is_other': sm_savings,
-            'smart_meter_improvement_is_refrigeration': sm_savings}
+            'is_high_temp_process': sm_savings,
+            'is_low_temp_process': sm_savings,
+            'is_drying_separation': sm_savings,
+            'is_motors': sm_savings,
+            'is_compressed_air': sm_savings,
+            'is_lighting': sm_savings,
+            'is_space_heating': sm_savings,
+            'is_other': sm_savings,
+            'is_refrigeration': sm_savings}
 
         # ============================================================
         # Base temperature assumptions
@@ -367,9 +370,6 @@ class Assumptions(object):
         #
         #   enduse_space_heating : list
         #       All enduses for which hdd are used for yd calculations
-        #   enduse_rs_space_cooling : list
-        #       All residential enduses for which cdd are used for
-        #       yd calculations
         #   ss_enduse_space_cooling : list
         #       All service submodel enduses for which cdd are used for
         #       yd calculations
@@ -377,7 +377,6 @@ class Assumptions(object):
         self.enduse_space_heating = [
             'rs_space_heating', 'ss_space_heating', 'is_space_heating']
 
-        self.enduse_rs_space_cooling = []
         self.ss_enduse_space_cooling = ['ss_cooling_humidification']
 
         # ============================================================
@@ -577,8 +576,9 @@ class Assumptions(object):
 
 def update_technology_assumption(
         technologies,
-        f_eff_achieved,
-        gshp_fraction_ey
+        narrative_f_eff_achieved,
+        narrative_gshp_fraction_ey,
+        crit_narrative_input=True
     ):
     """Updates technology related properties based on
     scenario assumptions. Calculate average efficiency of
@@ -594,11 +594,21 @@ def update_technology_assumption(
         Factor achieved
     gshp_fraction_ey : float
         Mix of GSHP and GSHP
+    crit_narrative_input : bool
+        Criteria wheter inputs are single values or a narrative
 
     Note
     ----
     This needs to be run everytime an assumption is changed
     """
+    if crit_narrative_input:
+        # Read from narrative the value
+        f_eff_achieved = narrative_related.read_from_narrative(narrative_f_eff_achieved) 
+        gshp_fraction_ey = narrative_related.read_from_narrative(narrative_gshp_fraction_ey)
+    else:
+        f_eff_achieved = narrative_f_eff_achieved
+        gshp_fraction_ey = narrative_gshp_fraction_ey
+
     # Assign same achieved efficiency factor for all technologies
     technologies = helpers.set_same_eff_all_tech(
         technologies,

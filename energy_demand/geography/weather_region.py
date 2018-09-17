@@ -62,13 +62,13 @@ class WeatherRegion(object):
             assumptions.curr_yr,
             temp_by,
             assumptions.yeardays_month_days,
-            assumptions.non_regional_strategy_vars)
+            assumptions.non_regional_vars)
 
         # Base temperatures of current year
-        rs_t_base_heating_cy = assumptions.non_regional_strategy_vars['rs_t_base_heating_future_yr'][assumptions.curr_yr]
-        ss_t_base_heating_cy = assumptions.non_regional_strategy_vars['ss_t_base_heating_future_yr'][assumptions.curr_yr]
-        ss_t_base_cooling_cy = assumptions.non_regional_strategy_vars['ss_t_base_cooling_future_yr'][assumptions.curr_yr]
-        is_t_base_heating_cy = assumptions.non_regional_strategy_vars['is_t_base_heating_future_yr'][assumptions.curr_yr]
+        rs_t_base_heating_cy = assumptions.non_regional_vars['rs_t_base_heating_future_yr'][assumptions.curr_yr]
+        ss_t_base_heating_cy = assumptions.non_regional_vars['ss_t_base_heating_future_yr'][assumptions.curr_yr]
+        ss_t_base_cooling_cy = assumptions.non_regional_vars['ss_t_base_cooling_future_yr'][assumptions.curr_yr]
+        is_t_base_heating_cy = assumptions.non_regional_vars['is_t_base_heating_future_yr'][assumptions.curr_yr]
 
         # ==================================================================
         # Technology stocks
@@ -249,10 +249,10 @@ class WeatherRegion(object):
         # ------------
         # Set criteria wheter to use float load profile for heat pumps or not
         # ------------
-        if assumptions.non_regional_strategy_vars['flat_heat_pump_profile_both']:
+        if assumptions.non_regional_vars['flat_heat_pump_profile_both']:
             flat_space_heating = True
             flat_water_heating = True
-        elif assumptions.non_regional_strategy_vars['flat_heat_pump_profile_only_water']:
+        elif assumptions.non_regional_vars['flat_heat_pump_profile_only_water']:
             flat_space_heating = False
             flat_water_heating = True
         else:
@@ -689,11 +689,11 @@ def change_temp_climate(
 
     # Iterate every month
     for yearday_month, month_yeardays in yeardays_month_days.items():
+
         month_str = basic_functions.get_month_from_int(yearday_month + 1)
-        param_name_month = "climate_change_temp_d__{}".format(month_str)
 
         # Calculate monthly change in temperature
-        change_temp_cy = non_regional_strategy_variables[param_name_month][current_yr]
+        change_temp_cy = non_regional_strategy_variables["climate_change_temp_d"][month_str][current_yr]
 
         # Add change
         temp_climate_change[month_yeardays] = temp_data[month_yeardays] + change_temp_cy

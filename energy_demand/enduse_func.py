@@ -122,7 +122,7 @@ class Enduse(object):
             self.fuel_yh = 0
             self.enduse_techs = []
         else:
-            #logging.info("------INFO  {} {} {}  {}".format(self.enduse, sector, region, curr_yr))
+            logging.info("------INFO  {} {} {}  {}".format(self.enduse, sector, region, curr_yr))
             # Get technologies of enduse
             self.enduse_techs = get_enduse_techs(fuel_tech_p_by)
 
@@ -137,7 +137,7 @@ class Enduse(object):
                 assumptions.enduse_space_heating,
                 assumptions.ss_enduse_space_cooling)
             self.fuel_y = _fuel_new_y
-            #logging.debug("FUEL TRAIN B0: " + str(np.sum(self.fuel_y)))
+            logging.debug("FUEL TRAIN B0: " + str(np.sum(self.fuel_y)))
 
             _fuel_new_y = apply_smart_metering(
                 enduse,
@@ -146,15 +146,16 @@ class Enduse(object):
                 strategy_vars,
                 curr_yr)
             self.fuel_y = _fuel_new_y
-            #logging.debug("FUEL TRAIN C0: " + str(np.sum(self.fuel_y)))
+            logging.debug("FUEL TRAIN C0: " + str(np.sum(self.fuel_y)))
 
-            _fuel_new_y = apply_specific_change(
+            _fuel_new_y = apply_enduse_sector_specific_change(
                 enduse,
+                sector,
                 self.fuel_y,
                 strategy_vars,
                 curr_yr)
             self.fuel_y = _fuel_new_y
-            #logging.debug("FUEL TRAIN D0: " + str(np.sum(self.fuel_y)))
+            logging.debug("FUEL TRAIN D0: " + str(np.sum(self.fuel_y)))
 
             _fuel_new_y = apply_scenario_drivers(
                 enduse=enduse,
@@ -169,7 +170,7 @@ class Enduse(object):
                 base_yr=base_yr,
                 curr_yr=curr_yr)
             self.fuel_y = _fuel_new_y
-            #logging.debug("FUEL TRAIN E0: " + str(np.sum(self.fuel_y)))
+            logging.debug("FUEL TRAIN E0: " + str(np.sum(self.fuel_y)))
 
             # Apply cooling scenario variable
             _fuel_new_y = apply_cooling(
@@ -179,7 +180,7 @@ class Enduse(object):
                 assumptions.cooled_ss_floorarea_by,
                 curr_yr)
             self.fuel_y = _fuel_new_y
-            #logging.debug("FUEL TRAIN E1: " + str(np.sum(self.fuel_y)))
+            logging.debug("FUEL TRAIN E1: " + str(np.sum(self.fuel_y)))
 
             # Industry related change
             _fuel_new_y = industry_enduse_changes(
@@ -191,17 +192,17 @@ class Enduse(object):
                 self.fuel_y,
                 assumptions)
             self.fuel_y = _fuel_new_y
-            #logging.debug("FUEL TRAIN E2: " + str(np.sum(self.fuel_y)))
+            logging.debug("FUEL TRAIN E2: " + str(np.sum(self.fuel_y)))
 
-            # Generic fuel switch of an enduse
+            # Generic fuel switch of an enduse and sector
             _fuel_new_y = generic_fuel_switch(
                 enduse,
                 sector,
                 curr_yr,
                 strategy_vars,
                 self.fuel_y)
-
             self.fuel_y = _fuel_new_y
+
             # ----------------------------------
             # Hourly Disaggregation
             # ----------------------------------
@@ -293,7 +294,7 @@ class Enduse(object):
                     fueltypes_nr,
                     fueltypes,
                     mode_constrained)
-                logging.debug("H0: " + str(np.sum(self.fuel_y)))
+                #logging.debug("H0: " + str(np.sum(self.fuel_y)))
 
                 # Delete all technologies with no fuel assigned
                 for tech, fuel_tech in fuel_tech_y.items():
@@ -381,35 +382,34 @@ def demand_management(
     fuel_yh : array
         Fuel of yh
     """
-    key_name = 'demand_management_improvement__{}'.format(enduse)
-
-    if key_name in strategy_vars.keys():
-
-        # Get assumed load shift
-        if strategy_vars[key_name][curr_yr] == 0:
-            pass # no load management
+    # Get assumed load shift
+    if strategy_vars['demand_management_improvement'][enduse][curr_yr] == 0:
+        pass # no load management
+    else:
+        # load management
+        # Calculate average for every day
+        if mode_constrained:
+            average_fuel_yd = np.average(fuel_yh, axis=1)
         else:
-            # load management
-            # Calculate average for every day
-            if mode_constrained:
-                average_fuel_yd = np.average(fuel_yh, axis=1)
-            else:
-                average_fuel_yd = np.average(fuel_yh, axis=2)
+            average_fuel_yd = np.average(fuel_yh, axis=2)
 
-            # Calculate load factors (only inter_day load shifting as for now)
-            loadfactor_yd_cy = lf.calc_lf_d(
-                fuel_yh, average_fuel_yd, mode_constrained)
+        # Calculate load factors (only inter_day load shifting as for now)
+        loadfactor_yd_cy = lf.calc_lf_d(
+            fuel_yh, average_fuel_yd, mode_constrained)
 
-            # Load factor improvement parameter in current year
-            param_lf_improved_cy = strategy_vars[key_name][curr_yr]
+        # Load factor improvement parameter in current year
+        param_lf_improved_cy = strategy_vars['demand_management_improvement'][enduse][curr_yr]
 
-            # Calculate current year load factors
-            lf_improved_cy = calc_lf_improvement(
-                param_lf_improved_cy,
-                loadfactor_yd_cy,)
+        # Calculate current year load factors
+        lf_improved_cy = calc_lf_improvement(
+            param_lf_improved_cy,
+            loadfactor_yd_cy,)
 
-            fuel_yh = lf.peak_shaving_max_min(
-                lf_improved_cy, average_fuel_yd, fuel_yh, mode_constrained)
+        fuel_yh = lf.peak_shaving_max_min(
+            lf_improved_cy,
+            average_fuel_yd,
+            fuel_yh,
+            mode_constrained)
 
     # -------------------------------------------------
     # Convert all load profiles into flat load profiles
@@ -930,12 +930,10 @@ def apply_heat_recovery(
     ----
     A standard sigmoid diffusion is assumed from base year to end year
     """
-    key_name = "heat_recoved__{}".format(enduse)
-
-    if key_name in strategy_vars.keys():
+    try:
 
         # Fraction of heat recovered in current year
-        heat_recovered_p_cy = strategy_vars[key_name][curr_yr]
+        heat_recovered_p_cy = strategy_vars['heat_recovered'][enduse][curr_yr]
 
         if heat_recovered_p_cy == 0:
             return service, service_techs
@@ -949,7 +947,9 @@ def apply_heat_recovery(
             service_reduced = service * (1.0 - heat_recovered_p_cy)
 
             return service_reduced, service_reduced_techs
-    else:
+
+    except KeyError:
+
         # no recycling defined
         return service, service_techs
 
@@ -985,12 +985,9 @@ def apply_air_leakage(
     ----
     A standard sigmoid diffusion is assumed from base year to end year
     """
-    key_name = "air_leakage__{}".format(enduse)
-
-    if key_name in strategy_vars.keys():
-
+    try:
         # Fraction of heat recovered in current year
-        air_leakage_improvement_cy = strategy_vars[key_name][curr_yr]
+        air_leakage_improvement_cy = strategy_vars['air_leakage'][enduse][curr_yr]
 
         if air_leakage_improvement_cy == 0:
             return service, service_techs
@@ -1008,7 +1005,7 @@ def apply_air_leakage(
             service_reduced = service * f_improvement
 
             return service_reduced, service_reduced_techs
-    else:
+    except KeyError:
         return service, service_techs
 
 def apply_scenario_drivers(
@@ -1129,14 +1126,14 @@ def apply_scenario_drivers(
                 raise Exception("Scenario driver error")
 
             fuel_y = fuel_y * factor_driver
-
         else:
             pass #enduse not define with scenario drivers
 
     return fuel_y
 
-def apply_specific_change(
+def apply_enduse_sector_specific_change(
         enduse,
+        sector,
         fuel_y,
         strategy_vars,
         curr_yr
@@ -1153,6 +1150,8 @@ def apply_specific_change(
     ----------
     enduse : str
         Enduse
+    sector : str
+        Sector
     fuel_y : array
         Yearly fuel per fueltype
     strategy_vars : dict
@@ -1166,18 +1165,26 @@ def apply_specific_change(
         Yearly new fuels
     """
     try:
-        parameter_name = 'enduse_change__{}'.format(enduse)
+        change_cy = strategy_vars['generic_enduse_change'][enduse][curr_yr]
 
-        # Get region specific annual parameter value
-        change_cy = strategy_vars[parameter_name][curr_yr]
+        # Get affected sectors
+        affected_sector = strategy_vars['generic_enduse_change'][enduse]['param_info']['affected_sector']
 
-        # Calculate new annual fuel
-        fuel_y = fuel_y * (1 + change_cy)
+        # if Sector is None, then so sectors are defined for this enduse
+        if not sector:
+            # Calculate new annual fuel
+            fuel_y = fuel_y * (1 + change_cy)
+        else:
+            if affected_sector or affected_sector == sector: # Setor crit is True, meaning that true for all sectors
+
+                # Calculate new annual fuel
+                fuel_y = fuel_y * (1 + change_cy)
+            else:
+                pass
 
     except KeyError:
         logging.debug(
             "No annual parameters are provided for enduse %s", enduse)
-        raise Exception
 
     return fuel_y
 
@@ -1260,29 +1267,22 @@ def apply_smart_metering(
     - In the assumptions the maximum penetration and also the
         generally fuel savings for each enduse can be defined.
     """
-    key_name = 'smart_meter_improvement_{}'.format(enduse)
+    # Enduse saving potentail of enduse of smart meter
+    enduse_savings = sm_assump['savings_smart_meter'][enduse]
 
-    try:
-        # Enduse saving potentail of enduse of smart meter
-        enduse_savings = sm_assump['savings_smart_meter'][key_name]
+    # Smart meter penetration in current year (percentage of people having smart meters)
+    penetration_cy = strategy_vars['smart_meter_improvement_p'][curr_yr]
 
-        # Smart meter penetration in current year (percentage of people having smart meters)
-        penetration_cy = strategy_vars['smart_meter_improvement_p'][curr_yr]
+    # Smart meter penetration in base year (percentage of people having smart meters)
+    penetration_by = sm_assump['smart_meter_p_by']
 
-        # Smart meter penetration in base year (percentage of people having smart meters)
-        penetration_by = sm_assump['smart_meter_p_by']
+    # Calculate fuel savings
+    saved_fuel = fuel_y * (penetration_cy - penetration_by) * enduse_savings
 
-        # Calculate fuel savings
-        saved_fuel = fuel_y * (penetration_cy - penetration_by) * enduse_savings
+    # Substract fuel savings
+    fuel_y = fuel_y - saved_fuel
 
-        # Substract fuel savings
-        fuel_y = fuel_y - saved_fuel
-
-        return fuel_y
-    except:
-        raise Exception("smart mater improvements not defined for this enduse {}".format(enduse))
-        # smart mater improvements not defined for this enduse
-        return fuel_y
+    return fuel_y
 
 def convert_service_to_p(tot_s_y, s_fueltype_tech):
     """Calculate fraction of service for every technology
@@ -1438,6 +1438,7 @@ def apply_cooling(
     It is aassumption a linear correlation between the
     percentage of cooled floor space (area) and energy demand.
 
+    #TODO MAKE MULTIDIMENSIONAL ARGUMENT
     Arguments
     ---------
     enduse : str
@@ -1457,11 +1458,9 @@ def apply_cooling(
         Fuel array (either changed fuel depending on cooling percentage)
         of identical array
     """
-    key_name = "cooled_floorarea__{}".format(enduse)
-
     try:
         # Floor area share cooled in current year
-        cooled_floorarea_p_cy = strategy_vars[key_name][curr_yr]
+        cooled_floorarea_p_cy = strategy_vars['cooled_floorarea'][enduse][curr_yr]
 
         # Calculate factor
         floorarea_cooling_factor = cooled_floorarea_p_cy / cooled_floorarea_p_by
@@ -1483,48 +1482,57 @@ def generic_fuel_switch(
         fuel_y
     ):
     """Generic fuel switch in an enduse (e.g. replacing a fraction
-    of a fuel with another fueltype
+    of a fuel with another fueltype)
+
+    Arguments
+    ---------
+    enduse : str
+        Enduse
+    sector : str
+        Sector
+    curr_yr : str
+        Current year of simulation
+    strategy_vars : str
+        Strategy variables
+    fuel_y : str
+        Fuel of specific enduse and sector
+
+    Returns
+    -------
+    fuel_y : array
+        Annual fuel demand per fueltype
     """
+    # If defautl value, no switch is implemented
+    if strategy_vars['generic_fuel_switch'][enduse][curr_yr] != 0:
 
-    '''# Fraction of fuel to replace
+        # Get affected sectors of fuel switch
+        affected_sector = strategy_vars['generic_fuel_switch'][enduse]['param_info']['affected_sector']
 
-    # Assume no efficiencies for this
-    total_service_of_enduse = np.sum(fuels)
+        # If fuel switch is across all sectors or currently the correct sector is simulated
+        if sector is True or sector in affected_sector:
 
-    # Get generic fuel switches
-    generic_fuel_switches = []
+            # Get fueltype to switch (old)
+            fueltype_replace_str = strategy_vars['generic_fuel_switch'][enduse]['param_info']['fueltype_replace']
+            fueltype_replace_int = tech_related.get_fueltype_int(fueltype_replace_str)
 
-    # Criteria "General"
-    switches = fuel_service_switch.get_switches_of_enduse(
-        fuel_switches,
-        enduse,
-        generic=True)
+            # Get fueltype to switch to (new)
+            fueltype_new_str = strategy_vars['generic_fuel_switch'][enduse]['param_info']['fueltype_new']
+            fueltype_new_int = tech_related.get_fueltype_int(fueltype_new_str)
 
-    if switches != []:
+            # Value of current year
+            fuel_share_switched_cy = strategy_vars['generic_fuel_switch'][enduse][curr_yr]
 
-        # Replace fuel
-        for switch in switches:
-            fueltype_old = switch.fueltype_replace
-            switch_yr = switch.switch_yr
-            fuel_share_switched_ey = switch.fuel_share_switched_ey
-            sector = switch.sector
-            fuel_new = switch.technology_install
+            # Substract
+            fuel_minus = fuel_y[fueltype_replace_int] * (1 - fuel_share_switched_cy)
+            fuel_y[fueltype_replace_int] -= fuel_minus
 
-            #Share in current year TODO
-            fuel_share_switched_cy
+            # Add
+            fuel_y[fueltype_new_int] += fuel_minus
 
-        # If sector specific do across sectors
-        # Substract
-        fuel_minus = fuels[fueltype_replace] * (1 - fuel_share_switched_cy)
-        fuels[fueltype_old] -= fuel_minus
-
-        # Add
-        fuels[fuel_new] += fuel_minus
-
-        # Replace fueltype
-        fuels_out = fuels
-    else:
-        fuels_out = fuels'''
+        else: # not affected sector
+            pass
+    else: # default value
+        pass
 
     return fuel_y
 
@@ -1572,25 +1580,15 @@ def industry_enduse_changes(
         '''
         Theoretical maximal potential for every sector
         --> improvement in % of every sector?
-
-
         '''
         pass
-    elif enduse == 'is_high_temp_process':
-
-
-        if sector == 'basic_metals':
+    elif enduse == 'is_high_temp_process' and sector == 'basic_metals':
 
             # Calculate factor depending on fraction of hot and cold steel rolling process
             factor = hot_cold_process(
                 curr_yr,
                 strategy_vars,
                 assumptions)
-
-        #elif sector == 'non_metallic_mineral_products':
-
-        #    # Calculate factor depending on cement processes
-
     else:
         pass
 

@@ -82,6 +82,11 @@ class EnergyDemandModel(object):
                 region,
                 assumptions.curr_yr,
                 round((100/data['reg_nrs'])*reg_array_nr, 2))
+            print(
+                "... Simulate region %s, year %s, (%s)",
+                region,
+                assumptions.curr_yr,
+                round((100/data['reg_nrs'])*reg_array_nr, 2), flush=True)
 
             all_submodel_objs = simulate_region(
                 region, data, assumptions, weather_regions)
@@ -253,7 +258,7 @@ def simulate_region(region, data, assumptions, weather_regions):
                     cooling_factor_y=weather_region_obj.f_colling[submodel_name],
                     fuel_tech_p_by=fuel_tech_p_by,
                     criterias=data['criterias'],
-                    strategy_vars=assumptions.regional_strategy_vars[region_obj.name],
+                    strategy_vars=assumptions.regional_vars[region_obj.name],
                     fueltypes_nr=data['lookups']['fueltypes_nr'],
                     fueltypes=data['lookups']['fueltypes'],
                     dw_stock=dw_stock,

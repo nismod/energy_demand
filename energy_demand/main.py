@@ -1,28 +1,16 @@
 """Allows to run HIRE locally outside the SMIF framework
-
-    Tools
-    # -------
-    Profiling:  https://jiffyclub.github.io/snakeviz/
-    python -m cProfile -o program.prof main.py
-    snakeviz program.prof
-
-        sys.stdout.flush()
-regional_specific, crit_all_the_same
-#TODO Interface energy demand
+# After smif upgrade:
+#   TODO: make that automatically the parameters can be generated to be copied into smif format
 #TODO Make that congruence value map is better loaded from seperate file (e.g. populatio ndensity)
 #TODO Create own .py chart file for every chart
 #TODO Import weather data loading and importing whole range of weather scenarios
-#TODO Test if technology type can be left empty in technology spreadsheet
-#TODO Try to remove tech_type
+#TODO Test if technology type can be left empty in technology spreadsheet, Try to remove tech_type
 #TODO Write out full result. Then write function to aggregate accordingly
 #TODO SIMple aggregation. Write out sectormodel, enduse, region, fueltypes.... --> Do all aggregation based on that
 #- Make that fuel swtich can be made in any industry sector irrespective of technologies
-# Combine all switches of end_use_submodel #TODO
-TODO MORE GENERIC FUEL INPUT OPTION
-TODO : test if sector as function
-TODO: MAKE THE SWITCHES CAN ONLY BE ENDUSE SPECIFIC AND NOT SECTOR SPECIFIC
-# Make generic fuel switch
-# Mage generic enduse change in csv file as variable"""
+# MAKE SIMLPLE TABLE FOR READING IN FUELS
+TODO Replace affected_sector by sector
+# """
 import os
 import sys
 import time
@@ -44,10 +32,11 @@ from energy_demand.basic import basic_functions
 from energy_demand.scripts import s_disaggregation
 from energy_demand.validation import lad_validation
 from energy_demand.basic import demand_supply_interaction
-from energy_demand.scripts import s_generate_scenario_parameters
+from energy_demand.scripts import s_scenario_param
 from energy_demand.scripts.init_scripts import switch_calculations
 from energy_demand.scripts.init_scripts import spatial_explicit_modelling_strategy_vars
 from energy_demand.scripts.init_scripts import create_spatial_diffusion_factors
+from energy_demand.read_write import narrative_related
 
 def energy_demand_model(regions, data, assumptions):
     """Main function of energy demand model to calculate yearly demand
@@ -132,14 +121,14 @@ if __name__ == "__main__":
 
     # If the smif configuration files what to be written, set this to true. The program will abort after they are written to YAML files
     data['criterias']['writeYAML'] = False
-
     data['criterias']['reg_selection'] = False
     data['criterias']['reg_selection_csv_name'] = "msoa_regions_ed.csv" # CSV file stored in 'region' folder with simulated regions
     data['criterias']['MSOA_crit'] = False
 
     # --- Model running configurations
     user_defined_base_yr = 2015
-    simulated_yrs = [2015, 2050]
+    user_defined_simulation_end_yr = 2050
+    simulated_yrs = [user_defined_base_yr, user_defined_simulation_end_yr]
 
     # --- Region definition configuration
     name_region_set = os.path.join(local_data_path, 'region_definitions', "lad_2016_uk_simplified.shp")        # LAD
@@ -155,15 +144,6 @@ if __name__ == "__main__":
     # GVA datasets
     name_gva_dataset = os.path.join(local_data_path, 'scenarios', 'MISTRAL_pop_gva', 'data', 'pop-a_econ-c_fuel-c/gva_per_head__lad_sector.csv') # Constant scenario
     name_gva_dataset_per_head = os.path.join(local_data_path, 'scenarios', 'MISTRAL_pop_gva', 'data', 'pop-a_econ-c_fuel-c/gva_per_head__lad.csv') # Constant scenario
-
-    # -------------------------------
-    # User defined strategy variables
-    # -------------------------------
-    user_defined_strategy_vars = {
-        'f_eff_achieved': 0            # Efficiency improvements
-        #'flat_heat_pump_profile_both': 1 #Flat heat pump dsm
-        #'enduse_change__ss_fans': 0.5   # 50% improvement
-    }
 
     # --------------------
     # Paths
@@ -193,7 +173,7 @@ if __name__ == "__main__":
     data['scenario_data']['gva_industry'] = data_loader.read_scenario_data_gva(name_gva_dataset, all_dummy_data=False)
     data['scenario_data']['gva_per_head'] = data_loader.read_scenario_data(name_gva_dataset_per_head)
 
-    # Read sector assignement lookup values
+    # Read sector assignement lookup values TODO MOVE ELSEWHERE
     data['gva_sector_lu'] = lookup_tables.economic_sectors_regional_MISTRAL()
 
     # -----------------------------
@@ -217,6 +197,7 @@ if __name__ == "__main__":
     data['assumptions'] = general_assumptions.Assumptions(
         submodels_names=data['lookups']['submodels_names'],
         base_yr=user_defined_base_yr,
+        simulation_end_yr=user_defined_simulation_end_yr,
         curr_yr=2015,
         simulated_yrs=simulated_yrs,
         paths=data['paths'],
@@ -225,9 +206,9 @@ if __name__ == "__main__":
         fueltypes=data['lookups']['fueltypes'],
         fueltypes_nr=data['lookups']['fueltypes_nr'])
 
-    # -----------------------
+    # -----------------------------------------------------------------------------
     # Calculate population density for base year
-    # -----------------------
+    # -----------------------------------------------------------------------------
     region_objects = read_data.get_region_objects(name_region_set)
     data['pop_density'] = {}
     for region in region_objects:
@@ -235,30 +216,50 @@ if __name__ == "__main__":
         region_area = region['properties']['st_areasha']
         data['pop_density'][region_name] = data['scenario_data']['population'][data['assumptions'].base_yr][region_name] / region_area
 
-    # Load standard strategy variable values
-    strategy_vars = strategy_vars_def.load_param_assump(
+    # -----------------------------------------------------------------------------
+    # Load standard strategy variable values from .py file
+    # Containing full information
+    # -----------------------------------------------------------------------------
+    default_streategy_vars = strategy_vars_def.load_param_assump(
         data['paths'],
         data['local_paths'],
         data['assumptions'],
         writeYAML=data['criterias']['writeYAML'])
-    data['assumptions'].update('strategy_vars', strategy_vars)
 
     # -----------------------------------------------------------------------------
-    # Load smif parameters (if run locally, the standard values are loaded)
-    # Add standard narrative
+    # Load standard smif parameters and generate standard single timestep
+    # narrative for year 2050 TODO IMPELEMENT THAT CAN BE LOADED FROM SMIF
     # -----------------------------------------------------------------------------
     strategy_vars = strategy_vars_def.load_smif_parameters(
-        data_handle=strategy_vars,
-        strategy_variable_names=strategy_vars.keys(),
+        data_handle=default_streategy_vars,
         assumptions=data['assumptions'],
+        default_streategy_vars=default_streategy_vars,
         mode='local')
-    data['assumptions'].update('strategy_vars', strategy_vars)
 
-    # -----------------------------------------------------------------------------
-    # Update user defined strategy variables
-    # -----------------------------------------------------------------------------
-    for var_name, var_value in user_defined_strategy_vars.items():
-        data['assumptions'].strategy_vars[var_name]['scenario_value'] = var_value
+    # -----------------------------------------
+    # User defines stragey variable from csv files
+    # -----------------------------------------
+    _user_defined_vars = data_loader.load_user_defined_vars(
+        default_strategy_var=default_streategy_vars,
+        path_to_folder_with_csv=data['paths']['path_folder_strategy_vars'],
+        simulation_base_yr=data['assumptions'].base_yr)
+
+    for new_var, new_var_vals in _user_defined_vars.items():
+
+        # Test if multidimensional varible
+        crit_single_dim = narrative_related.get_crit_single_dim_var(
+            new_var_vals)
+
+        if crit_single_dim:
+            strategy_vars[new_var] = new_var_vals
+        else:
+            for sub_var_name, sub_var in new_var_vals.items():
+                strategy_vars[new_var][sub_var_name] = sub_var
+
+    # Replace strategy variables not defined in csv files)
+    strategy_vars_out = strategy_vars_def.autocomplete_strategy_vars(
+        strategy_vars, narrative_crit=True)
+    data['assumptions'].update('strategy_vars', strategy_vars_out)
 
     # -----------------------------------------------------------------------------
     # Load necessary data
@@ -270,8 +271,8 @@ if __name__ == "__main__":
 
     data['technologies'] = general_assumptions.update_technology_assumption(
         data['assumptions'].technologies,
-        data['assumptions'].strategy_vars['f_eff_achieved']['scenario_value'],
-        data['assumptions'].strategy_vars['gshp_fraction_ey']['scenario_value'])
+        data['assumptions'].strategy_vars['f_eff_achieved'],
+        data['assumptions'].strategy_vars['gshp_fraction_ey'])
 
     data['weather_stations'], data['temp_data'] = data_loader.load_temp_data(data['local_paths'])
 
@@ -287,9 +288,9 @@ if __name__ == "__main__":
         data['assumptions'].update("rs_regions_without_floorarea", rs_regions_without_floorarea)
         data['assumptions'].update("ss_regions_without_floorarea", ss_regions_without_floorarea)
 
-    print("Start Energy Demand Model with python version: " + str(sys.version))
-    print("Info model run")
-    print("Nr of Regions " + str(data['reg_nrs']))
+    print("Start Energy Demand Model with python version: " + str(sys.version), flush=True)
+    print("-----------------------------------------------", flush=True)
+    print("Number of Regions                        " + str(data['reg_nrs']), flush=True)
 
     # Optain population data for disaggregation
     if data['criterias']['MSOA_crit']:
@@ -307,28 +308,32 @@ if __name__ == "__main__":
     # Calculate spatial diffusion factors
     # ------------------------------------------------------------
     f_reg, f_reg_norm, f_reg_norm_abs, crit_all_the_same = create_spatial_diffusion_factors(
-        strategy_vars=data['assumptions'].strategy_vars,
+        narrative_spatial_explicit_diffusion=data['assumptions'].strategy_vars['spatial_explicit_diffusion'],
         fuel_disagg=data['fuel_disagg'],
         regions=data['regions'],
         real_values=data['pop_density'],
-        speed_con_max=strategy_vars['speed_con_max']['scenario_value']) #TODO LOAD REAL VALUES FROM DATA CSV
+        narrative_speed_con_max=data['assumptions'].strategy_vars['speed_con_max']) #TODO TODO TODO LOAD REAL VALUES FROM DATA CSV
 
+    print("Criteria all regions the same:           " + str(crit_all_the_same), flush=True)
     # ------------------------------------------------
     # Calculate parameter values for every region
     # ------------------------------------------------
-    regional_strategy_vars = spatial_explicit_modelling_strategy_vars(
-        data['assumptions'],
+    regional_vars = spatial_explicit_modelling_strategy_vars(
+        data['assumptions'].strategy_vars,
+        data['assumptions'].spatially_modelled_vars,
         data['regions'],
         data['fuel_disagg'],
         f_reg,
         f_reg_norm,
         f_reg_norm_abs)
-    data['assumptions'].update('strategy_vars', regional_strategy_vars) #SWITCH PARMATERS
+    data['assumptions'].update('strategy_vars', regional_vars)
 
     # -----------------------------------------------------------------
     # Calculate parameter values for every simulated year based on narratives
+    # and add also general information containter for every parameter
     # -----------------------------------------------------------------
-    regional_strategy_vars, non_regional_strategy_vars = s_generate_scenario_parameters.generate_annual_param_vals(
+    print("... starting calculating values for every year", flush=True)
+    regional_vars, non_regional_vars = s_scenario_param.generate_annual_param_vals(
         data['regions'],
         data['assumptions'].strategy_vars,
         simulated_yrs,
@@ -337,6 +342,7 @@ if __name__ == "__main__":
     # ------------------------------------------------
     # Calculate switches
     # ------------------------------------------------
+    print("... starting calculating switches", flush=True)
     annual_tech_diff_params = switch_calculations(
         simulated_yrs,
         data,
@@ -344,13 +350,12 @@ if __name__ == "__main__":
         f_reg_norm,
         f_reg_norm_abs,
         crit_all_the_same)
-
     for region in data['regions']:
-        regional_strategy_vars[region]['annual_tech_diff_params'] = annual_tech_diff_params[region]
+        regional_vars[region]['annual_tech_diff_params'] = annual_tech_diff_params[region]
 
-    # Strategy variables
-    data['assumptions'].update('regional_strategy_vars', regional_strategy_vars)
-    data['assumptions'].update('non_regional_strategy_vars', non_regional_strategy_vars)
+    data['assumptions'].update('regional_vars', regional_vars)
+    data['assumptions'].update('non_regional_vars', non_regional_vars)
+
     # ------------------------------------------------
     # Spatial Validation
     # ------------------------------------------------
@@ -388,10 +393,16 @@ if __name__ == "__main__":
         region_selection)
 
     for sim_yr in data['assumptions'].simulated_yrs:
-        print("Simulation for year --------------:  " + str(sim_yr))
+        print("Simulation for year --------------:  " + str(sim_yr), flush=True)
 
         # Set current year
         setattr(data['assumptions'], 'curr_yr', sim_yr)
+
+        data['technologies'] = general_assumptions.update_technology_assumption(
+            data['assumptions'].technologies,
+            narrative_f_eff_achieved=data['assumptions'].non_regional_vars['f_eff_achieved'][sim_yr],
+            narrative_gshp_fraction_ey=data['assumptions'].non_regional_vars['gshp_fraction_ey'][sim_yr],
+            crit_narrative_input=False)
 
         fuel_in, fuel_in_biomass, fuel_in_elec, fuel_in_gas, fuel_in_heat, fuel_in_hydro, fuel_in_solid_fuel, fuel_in_oil, tot_heating = testing_functions.test_function_fuel_sum(
             data,
@@ -402,7 +413,10 @@ if __name__ == "__main__":
         # -----------------------
         # Main model run function
         # -----------------------
-        sim_obj = energy_demand_model(region_selection, data, data['assumptions'])
+        sim_obj = energy_demand_model(
+            region_selection,
+            data,
+            data['assumptions'])
 
         # ------------------------------------------------
         # Temporal Validation

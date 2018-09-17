@@ -48,7 +48,7 @@ assumptions = general_assumptions.Assumptions(
     fueltypes_nr=data['lookups']['fueltypes_nr'])
 
 # Write parameters to YAML file
-_ = strategy_vars_def.load_param_assump(
+_, _ = strategy_vars_def.load_param_assump(
     paths,
     local_paths,
     assumptions,

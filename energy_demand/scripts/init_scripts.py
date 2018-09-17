@@ -9,7 +9,8 @@ from energy_demand.geography import spatial_diffusion
 from energy_demand.read_write import read_data
 from energy_demand.scripts import (s_fuel_to_service, s_generate_sigmoid)
 from energy_demand.technologies import fuel_service_switch
-from energy_demand.scripts import s_generate_scenario_parameters
+from energy_demand.scripts import s_scenario_param
+from energy_demand.read_write import narrative_related
 
 def get_all_narrative_timesteps(switches_list):
     """Read all defined narrative timesteps
@@ -44,18 +45,18 @@ def get_all_narrative_timesteps(switches_list):
     return narrative_timesteps
 
 def create_spatial_diffusion_factors(
-        strategy_vars,
+        narrative_spatial_explicit_diffusion,
         fuel_disagg,
         regions,
         real_values,
-        speed_con_max,
+        narrative_speed_con_max,
         p_outlier=5.0
     ):
     """
     Arguments
     -------
-    strategy_vars : dict
-        Streategy variables
+    spatial_explicit_diffusion : bool
+        If regional specific or not
     fuel_disagg : dict
         Disaggregated fuel
     regions : list
@@ -67,7 +68,7 @@ def create_spatial_diffusion_factors(
     p_outlier : float, default=5.0
         Percentage of outliers which are removed from top and bottom
         (Nr of min and max outliers to flatten)
-    
+
     Returns
     -------
     f_reg : dict
@@ -79,7 +80,12 @@ def create_spatial_diffusion_factors(
     crit_all_the_same : bool
         Criteria whether regional specific parameters or not
     """
-    if strategy_vars['spatial_explicit_diffusion']['scenario_value']:
+    spatial_explicit_diffusion = narrative_related.read_from_narrative(
+        narrative_spatial_explicit_diffusion)
+
+    speed_con_max = narrative_related.read_from_narrative(narrative_speed_con_max)
+
+    if spatial_explicit_diffusion:
 
         # Define diffusion speed
         speed_con_max = speed_con_max
@@ -252,7 +258,7 @@ def switch_calculations(
     # Calculate annual values based on calculated
     # parameters for every simulation year
     # ------------------
-    annual_tech_diff_params = s_generate_scenario_parameters.calc_annual_switch_params(
+    annual_tech_diff_params = s_scenario_param.calc_annual_switch_params(
         simulated_yrs,
         data['regions'],
         dict(sig_param_tech))
@@ -260,7 +266,8 @@ def switch_calculations(
     return annual_tech_diff_params
 
 def spatial_explicit_modelling_strategy_vars(
-        assumptions,
+        strategy_vars,
+        spatially_modelled_vars,
         regions,
         fuel_disagg,
         f_reg,
@@ -278,69 +285,117 @@ def spatial_explicit_modelling_strategy_vars(
     regions
 
     """
-    # Iterate strategy variables and calculate regional variable
-    for var_name, strategy_var in assumptions.strategy_vars.items():
-        logging.info("Spatially explicit diffusion modelling %s", var_name)
+    regional_vars = {}
 
-        new_narratives = []
-        for narrative in strategy_var['narratives']:
+    # Iterate strategy variables and calculate regional variable
+    for var_name, strategy_var in strategy_vars.items():
+        logging.info("...Spatially explicit diffusion modelling %s", var_name)
+
+        single_dim_var = narrative_related.get_crit_single_dim_var(strategy_var)
+
+        if single_dim_var:
+            new_narratives = create_regional_narratives(
+                var_name,
+                strategy_var,
+                spatially_modelled_vars,
+                regions,
+                fuel_disagg,
+                f_reg,
+                f_reg_norm,
+                f_reg_norm_abs)
+            regional_vars[var_name] = new_narratives
+        else:
+            regional_vars[var_name] = {}
+
+            for sub_var_name, sub_strategy_var in strategy_var.items():
+
+                new_narratives = create_regional_narratives(
+                    sub_var_name,
+                    sub_strategy_var,
+                    spatially_modelled_vars,
+                    regions,
+                    fuel_disagg,
+                    f_reg,
+                    f_reg_norm,
+                    f_reg_norm_abs)
+
+                regional_vars[var_name][sub_var_name] = new_narratives
+
+    return regional_vars
+
+def create_regional_narratives(
+        var_name,
+        strategy_vars,
+        spatially_modelled_vars,
+        regions,
+        fuel_disagg,
+        f_reg,
+        f_reg_norm,
+        f_reg_norm_abs
+    ):
+
+    new_narratives = []
+    for narrative in strategy_vars:
+
+        if not narrative['regional_specific']:
+            narrative['regional_vals_ey'] = narrative['value_ey']
+            narrative['regional_vals_by'] = narrative['value_by']
+            new_narratives.append(narrative)
+        else:
             regional_vars_by = {}
             regional_vars_ey = {}
-            if not narrative['regional_specific']:
-                narrative['regional_vals_ey'] = narrative['value_ey']
-                narrative['regional_vals_by'] = narrative['value_by']
-                new_narratives.append(narrative)
+
+            # Check whether scenario varaible is regionally modelled
+            if var_name not in spatially_modelled_vars:
+
+                # Variable is not spatially modelled
+                for region in regions:
+                    regional_vars_ey[region] = float(narrative['value_ey'])
+                    regional_vars_by[region] = float(narrative['value_by'])
             else:
-                # Check whether scenario varaible is regionally modelled
-                if var_name not in assumptions.spatially_modelled_vars:
-
-                    # Variable is not spatially modelled
-                    for region in regions:
-                        regional_vars_ey[region] = float(narrative['value_ey'])
-                        regional_vars_by[region] = float(narrative['value_by'])
+                if narrative['affected_enduse'] == []:
+                    logging.info(
+                        "For scenario var %s no affected enduse is defined. Thus speed is used for diffusion",
+                            var_name)
+                    fuels_reg = {}
                 else:
-                    if strategy_var['affected_enduse'] == []:
-                        logging.info(
-                            "For scenario var %s no affected enduse is defined. Thus speed is used for diffusion",
-                                var_name)
-
                     # Get enduse specific fuel for each region
                     fuels_reg = spatial_diffusion.get_enduse_regs(
-                        enduse=strategy_var['affected_enduse'],
+                        enduse=narrative['affected_enduse'],
                         fuels_disagg=[
                             fuel_disagg['residential'],
                             fuel_disagg['service'],
                             fuel_disagg['industry']])
 
-                    # Calculate regional specific strategy variables values
-                    reg_specific_variables_ey = spatial_diffusion.factor_improvements_single(
-                        factor_uk=narrative['value_ey'],
-                        regions=regions,
-                        f_reg=f_reg,
-                        f_reg_norm=f_reg_norm,
-                        f_reg_norm_abs=f_reg_norm_abs,
-                        fuel_regs_enduse=fuels_reg)
+                # Calculate regional specific strategy variables values for base year
+                reg_specific_variables_by = spatial_diffusion.factor_improvements_single(
+                    factor_uk=narrative['value_by'],
+                    regions=regions,
+                    f_reg=f_reg,
+                    f_reg_norm=f_reg_norm,
+                    f_reg_norm_abs=f_reg_norm_abs,
+                    fuel_regs_enduse=fuels_reg)
 
-                    reg_specific_variables_by = spatial_diffusion.factor_improvements_single(
-                        factor_uk=narrative['value_by'],
-                        regions=regions,
-                        f_reg=f_reg,
-                        f_reg_norm=f_reg_norm,
-                        f_reg_norm_abs=f_reg_norm_abs,
-                        fuel_regs_enduse=fuels_reg)
+                # Calculate regional specific strategy variables values for end year
+                reg_specific_variables_ey = spatial_diffusion.factor_improvements_single(
+                    factor_uk=narrative['value_ey'],
+                    regions=regions,
+                    f_reg=f_reg,
+                    f_reg_norm=f_reg_norm,
+                    f_reg_norm_abs=f_reg_norm_abs,
+                    fuel_regs_enduse=fuels_reg)
 
-                    # Add regional specific strategy variables values
-                    for region in regions:
-                        regional_vars_ey[region] = float(reg_specific_variables_ey[region])
-                        regional_vars_by[region] = float(reg_specific_variables_by[region])
+                # Add regional specific strategy variables values
+                for region in regions:
+                    regional_vars_ey[region] = float(reg_specific_variables_ey[region])
+                    regional_vars_by[region] = float(reg_specific_variables_by[region])
 
-                narrative['regional_vals_by'] = regional_vars_by
-                narrative['regional_vals_ey'] = regional_vars_ey
-                new_narratives.append(narrative)
+            narrative['regional_vals_by'] = regional_vars_by
+            narrative['regional_vals_ey'] = regional_vars_ey
 
-        assumptions.strategy_vars[var_name]['narratives'] = new_narratives
+            new_narratives.append(narrative)
 
-    return assumptions.strategy_vars
+    return new_narratives
 
 def global_to_reg_capacity_switch(
         regions,
@@ -681,42 +736,6 @@ def sig_param_calc_incl_fuel_switch(
                     print("Time use for sigmoid parameter calaulations (reduce number of iteraitons for speedup): " + str(end - start), flush=True)
 
     return sig_param_tech
-
-def get_sector_switches(sector_to_match, switches):
-    """Get all switches of a sector if the switches are
-    defined specifically for a sector. If the switches are
-    not specifically for a sector, return all switches
-
-    Arguments
-    ----------
-    sector_to_match : int
-        Sector to find switches
-    switches : list
-        Switches
-
-    Returns
-    -------
-    switches : list
-        Switches of sector
-    """
-    # Get all sectors for this enduse
-    switches_out = set([])
-
-    for switch in switches:
-
-        # If sector is None
-        '''if not switch.sector and not sector_to_match:
-            switches.add(switch)
-        else:'''
-
-        if switch.sector == sector_to_match:
-            switches_out.add(switch)
-        elif not switch.sector: # Not defined specifically for sectors and add all
-            switches_out.add(switch)
-        else:
-            pass
-
-    return list(switches_out)
 
 def get_sector__enduse_switches(sector_to_match, enduse_to_match, switches):
     """Get all switches of a sector if the switches are
