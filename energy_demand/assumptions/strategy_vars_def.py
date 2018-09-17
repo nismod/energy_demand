@@ -135,6 +135,45 @@ def load_param_assump(
     """
     strategy_vars = defaultdict(dict)
 
+    # All end uses
+    default_enduses = {
+
+        # Submodel Residential
+        'rs_space_heating': 0,
+        'rs_water_heating': 0,
+        'rs_lighting': 0,
+        'rs_cooking': 0,
+        'rs_cold': 0,
+        'rs_wet': 0,
+        'rs_consumer_electronics': 0,
+        'rs_home_computing': 0,
+
+        # Submodel Service (Table 5.5a)
+        # same % improvements from baseline over all sectors
+        'ss_space_heating': 0,
+        'ss_water_heating': 0,
+        'ss_cooling_humidification': 0,
+        'ss_fans': 0,
+        'ss_lighting': 0,
+        'ss_catering': 0,
+        'ss_small_power': 0,
+        'ss_ICT_equipment': 0,
+        'ss_cooled_storage': 0,
+        'ss_other_gas': 0,
+        'ss_other_electricity': 0,
+
+        # Submodel Industry
+        # same % improvements from baseline over all sectors
+        'is_high_temp_process': 0,
+        'is_low_temp_process': 0,
+        'is_drying_separation': 0,
+        'is_motors': 0,
+        'is_compressed_air': 0,
+        'is_lighting': 0,
+        'is_space_heating': 0,
+        'is_other': 0,
+        'is_refrigeration': 0}
+
     # ------------------
     # Spatial explicit diffusion
     # ------------------
@@ -207,44 +246,9 @@ def load_param_assump(
     #
     #  Example: 0.2 --> Improvement in load factor until ey
     # ============================================================
-    enduses_demand_managent = {
-
-        #Residential submodule
-        'rs_space_heating': 0,
-        'rs_water_heating': 0,
-        'rs_lighting': 0,
-        'rs_cooking': 0,
-        'rs_cold': 0,
-        'rs_wet': 0,
-        'rs_consumer_electronics': 0,
-        'rs_home_computing': 0,
-
-        # Submodel Service (Table 5.5a)
-        'ss_space_heating': 0,
-        'ss_water_heating': 0,
-        'ss_cooling_humidification': 0,
-        'ss_fans': 0,
-        'ss_lighting': 0,
-        'ss_catering': 0,
-        'ss_small_power': 0,
-        'ss_ICT_equipment': 0,
-        'ss_cooled_storage': 0,
-        'ss_other_gas': 0,
-        'ss_other_electricity': 0,
-
-        # Industry submodule
-        'is_high_temp_process': 0,
-        'is_low_temp_process': 0,
-        'is_drying_separation': 0,
-        'is_motors': 0,
-        'is_compressed_air': 0,
-        'is_lighting': 0,
-        'is_space_heating': 0,
-        'is_other': 0,
-        'is_refrigeration': 0}
 
     # Helper function to create description of parameters for all enduses
-    for demand_name, scenario_value in enduses_demand_managent.items():
+    for demand_name, scenario_value in default_enduses.items():
         strategy_vars['demand_management_improvement'][demand_name] = {
             "name": demand_name,
             "absolute_range": (0, 1),
@@ -475,46 +479,9 @@ def load_param_assump(
     #   Change in fuel until the simulation end year (
     #   if no change set to 1, if e.g. 10% decrease change to 0.9)
     # -------------------------------------------------------
-    generic_enduse_change = {
-
-        # Submodel Residential
-        'rs_space_heating': 0,
-        'rs_water_heating': 0,
-        'rs_lighting': 0,
-        'rs_cooking': 0,
-        'rs_cold': 0,
-        'rs_wet': 0,
-        'rs_consumer_electronics': 0,
-        'rs_home_computing': 0,
-
-        # Submodel Service (Table 5.5a)
-        # same % improvements from baseline over all sectors
-        'ss_space_heating': 0,
-        'ss_water_heating': 0,
-        'ss_cooling_humidification': 0,
-        'ss_fans': 0,
-        'ss_lighting': 0,
-        'ss_catering': 0,
-        'ss_small_power': 0,
-        'ss_ICT_equipment': 0,
-        'ss_cooled_storage': 0,
-        'ss_other_gas': 0,
-        'ss_other_electricity': 0,
-
-        # Submodel Industry
-        # same % improvements from baseline over all sectors
-        'is_high_temp_process': 0,
-        'is_low_temp_process': 0,
-        'is_drying_separation': 0,
-        'is_motors': 0,
-        'is_compressed_air': 0,
-        'is_lighting': 0,
-        'is_space_heating': 0,
-        'is_other': 0,
-        'is_refrigeration': 0}
 
     # Helper function to create description of parameters for all enduses
-    for enduse_name, param_value in generic_enduse_change.items():
+    for enduse_name, param_value in default_enduses.items():
         strategy_vars['generic_enduse_change'][enduse_name] = {
             "name": enduse_name,
             "absolute_range": (-1, 1),
@@ -558,7 +525,25 @@ def load_param_assump(
         'regional_specific': False,
         'diffusion_type': 'linear'}
 
-    strategy_vars_out = autocomplete_strategy_vars(strategy_vars)
+    # -----------------------
+    # Generic enduse and sector specific fuel switches
+    # -----------------------
+    #enduse,fueltype_replace,technology_install,switch_yr,fuel_share_switched_ey,sector
+    for enduse, param_value in default_enduses.items():
+        strategy_vars["generic_fuel_switch"][enduse] = {
+            "name": "generic_fuel_switch",
+            "absolute_range": (-1, 1),
+            "description": "Generic fuel switches to switch fuel in any enduse and sector",
+            "suggested_range": (0, 1), #TODO UPDATE
+            "default_value": param_value,
+            "units": 'decimal',
+            'affected_sector': True,
+            'regional_specific': True,
+            'diffusion_type': 'linear'}
+
+
+    #TODO LOAD OTHER SWITHCES HERE AS WELL
+
 
     # -----------------------
     # Create parameter file only with 
@@ -594,6 +579,9 @@ def load_param_assump(
             raise Exception(
                 "The smif parameters are read and written to {}".format(local_paths['yaml_parameters_scenario']))'''
 
+    # Autocomplete
+    strategy_vars_out = autocomplete_strategy_vars(strategy_vars)
+    
     return dict(strategy_vars_out)
 
 def autocomplete_strategy_vars(strategy_vars, narrative_crit=False):
@@ -620,7 +608,7 @@ def autocomplete_strategy_vars(strategy_vars, narrative_crit=False):
                     strategy_vars_out[var_name][sub_var_name] = sub_var_entries
 
                     strategy_vars_out[var_name][sub_var_name]['scenario_value'] = sub_var_entries['default_value']
-    
+
                     # If no 'affected_enduse' defined, add empty list of affected enduses
                     if 'affected_enduse' not in sub_var_entries:
                         strategy_vars_out[var_name][sub_var_name]['affected_enduse'] = []

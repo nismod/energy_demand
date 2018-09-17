@@ -158,19 +158,27 @@ def generate_annual_param_vals(
 
         if single_dim_var:
 
+            # Additional dictionary passed along with every
+            # variable containing additional information
+            param_info = {}
+
             # Generic container of parameter
             try:
-                affected_enduse = strategy_vars_values[0]['affected_enduse']
-            except:
-                affected_enduse = [] # all sectors
+                param_info['affected_enduse'] = strategy_vars_values[0]['affected_enduse']
+            except KeyError:
+                param_info['affected_enduse'] = [] # all sectors
             try:
-                affected_sector = strategy_vars_values[0]['affected_sector']
-            except:
-                affected_sector = True # all sectors
-
-            parameter_container_info = {
-                'affected_enduse': affected_enduse,
-                'affected_sector': affected_sector}
+                param_info['affected_sector'] = strategy_vars_values[0]['affected_sector']
+            except KeyError:
+                param_info['affected_sector'] = True # all sectors
+            try:
+                param_info['fueltype_replace'] = strategy_vars_values[0]['fueltype_replace']
+            except KeyError:
+                pass
+            try:
+                param_info['fueltype_new'] = strategy_vars_values[0]['fueltype_new']
+            except KeyError:
+                pass
 
             # Calculate annual parameter value
             regional_strategy_vary = generate_general_parameter(
@@ -185,45 +193,49 @@ def generate_annual_param_vals(
             if reg_specific_crit:
                 for region in regions:
                     reg_param[region][var_name] = regional_strategy_vary[region]
-                    reg_param[region][var_name]['parameter_container_info'] = parameter_container_info
+                    reg_param[region][var_name]['param_info'] = param_info
             else:
                 non_reg_param[var_name] = regional_strategy_vary
-                non_reg_param[var_name]['parameter_container_info'] = parameter_container_info
+                non_reg_param[var_name]['param_info'] = param_info
         else:
-            for sub_var_name in strategy_vars_values:
+            for sub_var_name, sub_var_values in strategy_vars_values.items():
 
                 # Generic container of parameter
                 try:
-                    affected_enduse = strategy_vars_values[sub_var_name][0]['affected_enduse']
-                except:
-                    affected_enduse = [] # all sectors
+                    param_info['affected_enduse'] = sub_var_values[0]['affected_enduse']
+                except KeyError:
+                    param_info['affected_enduse'] = [] # all sectors
                 try:
-                    affected_sector = strategy_vars_values[sub_var_name][0]['affected_sector']
-                except:
-                    affected_sector = True # all sectors
-
-                parameter_container_info = {
-                    'affected_enduse': affected_enduse,
-                    'affected_sector': affected_sector}
+                    param_info['affected_sector'] = sub_var_values[0]['affected_sector']
+                except KeyError:
+                    param_info['affected_sector'] = True # all sectors
+                try:
+                    param_info['fueltype_replace'] = sub_var_values[0]['fueltype_replace']
+                except KeyError:
+                    pass
+                try:
+                    param_info['fueltype_new'] = sub_var_values[0]['fueltype_new']
+                except KeyError:
+                    pass
 
                 # Calculate annual parameter value
                 regional_strategy_vary = generate_general_parameter(
                     regions=regions,
-                    narratives=strategy_vars_values[sub_var_name],
+                    narratives=sub_var_values,
                     simulated_yrs=simulated_yrs)
 
                 # Test if regional specific or not based on first narrative
-                for narrative in strategy_vars_values[sub_var_name][:1]:
+                for narrative in sub_var_values[:1]:
                     reg_specific_crit = narrative['regional_specific']
 
                 if reg_specific_crit:
                     for region in regions:
                         reg_param[region][var_name][sub_var_name] = regional_strategy_vary[region]
                         reg_param[region][var_name][sub_var_name] = dict(reg_param[region][var_name][sub_var_name])
-                        reg_param[region][var_name][sub_var_name]['parameter_container_info'] = parameter_container_info
+                        reg_param[region][var_name][sub_var_name]['param_info'] = param_info
                 else:
                     non_reg_param[var_name][sub_var_name] = regional_strategy_vary
-                    non_reg_param[var_name][sub_var_name]['parameter_container_info'] = parameter_container_info
+                    non_reg_param[var_name][sub_var_name]['param_info'] = param_info
 
     return dict(reg_param), dict(non_reg_param)
 

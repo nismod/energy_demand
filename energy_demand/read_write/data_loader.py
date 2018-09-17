@@ -49,7 +49,9 @@ def load_user_defined_vars(
         path_to_file = os.path.join(path_to_folder_with_csv, file_name)
         raw_file_content = pd.read_csv(path_to_file)
 
+        # -----------------------------------
         # Crate narratives from file content
+        # -----------------------------------
         parameter_narratives = narrative_related.create_narratives(
             raw_file_content,
             simulation_base_yr,

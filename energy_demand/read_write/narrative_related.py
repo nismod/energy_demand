@@ -3,6 +3,8 @@
 import math
 import numpy as np
 
+from energy_demand.scripts import init_scripts
+
 def get_crit_single_dim_var(var):
     """Check if nested dict or not
 
@@ -102,7 +104,11 @@ def default_narrative(
 
     return default_narrative
 
-def create_narratives(raw_file_content, simulation_base_yr, default_streategy_vars):
+def create_narratives(
+        raw_file_content,
+        simulation_base_yr,
+        default_streategy_vars
+    ):
     """Create multidimensional narratives. Check if each
     necessary input is defedin in csv file and otherwise
     replace with standard values
@@ -135,6 +141,8 @@ def create_narratives(raw_file_content, simulation_base_yr, default_streategy_va
     # ----------------------------------------------
     for _index, row in raw_file_content.iterrows():
 
+        narrative = {}
+
         # IF only single dimension parameter, add dummy mutliparameter name
         if crit_single_dim_param:
             sub_param_name = 'dummy_single_param'
@@ -142,72 +150,84 @@ def create_narratives(raw_file_content, simulation_base_yr, default_streategy_va
             # Sub_parameter_name is only provided for multidimensional parameters
             sub_param_name = str(row['sub_param_name'])
 
-        default_by = float(row['default_by'])
-        end_yr = int(row['end_yr'])
-        value_ey = float(row['value_ey'])
-
+        try:
+            narrative['default_by'] = float(row['default_by'])
+        except KeyError:
+            pass
+        try:
+            narrative['base_yr'] = None
+        except KeyError:
+            pass
+        try:
+            narrative['end_yr'] = int(row['end_yr'])
+        except KeyError:
+            pass
+        try:
+            narrative['value_by'] = None
+        except KeyError:
+            pass
+        try:
+            narrative['value_ey'] = float(row['value_ey'])
+        except KeyError:
+            pass
+        try:
+            narrative['fueltype_replace'] = str(row['fueltype_replace'])
+        except KeyError:
+            pass
+        try:
+            narrative['fueltype_new'] = str(row['fueltype_new'])
+        except KeyError:
+            pass
         try:
             affected_sector = row['sector']
 
             if type(affected_sector) is str:
-                affected_sector = affected_sector
+                narrative['affected_sector'] = affected_sector
             else:
-                affected_sector = True # replace nan value with True
+                narrative['affected_sector'] = True # replace nan value with True
         except KeyError:
-            affected_sector = True
+            narrative['affected_sector'] = True
 
         try:
-            diffusion_choice = str(row['diffusion_choice'])
+            narrative['diffusion_choice'] = str(row['diffusion_choice'])
         except KeyError:
-            diffusion_choice = 'linear'
+            narrative['diffusion_choice'] = 'linear'
 
         try:
             if math.isnan(row['sig_midpoint']):
-                sig_midpoint = 0 # default value
+                narrative['sig_midpoint'] = 0 # default value
             else:
-                sig_midpoint = float(row['sig_midpoint'])
+                narrative['sig_midpoint'] = float(row['sig_midpoint'])
         except KeyError:
-            sig_midpoint = 0 # default value
+            narrative['sig_midpoint'] = 0 # default value
 
         try:
             if math.isnan(row['sig_steepness']):
-                sig_steepness = 1 # default value
+                narrative['sig_steepness'] = 1 # default value
             else:
-                sig_steepness = float(row['sig_steepness'])
+                narrative['sig_steepness'] = float(row['sig_steepness'])
         except KeyError:
-            sig_steepness = 1 # default value
+            narrative['sig_steepness'] = 1 # default value
 
         try:
             if str(row['regional_specific']) == 'True':
-                regional_specific = True #bool(1)
+                narrative['regional_specific'] = True #bool(1)
             else:
-                regional_specific = False #bool(0)
+                narrative['regional_specific'] = False #bool(0)
         except KeyError:
 
             # Read from original configuration whether
             #  this variable is regionally specific or not
             if crit_single_dim_param:
-                regional_specific = default_streategy_vars['regional_specific']
+                narrative['regional_specific'] = default_streategy_vars['regional_specific']
             else:
-                regional_specific = default_streategy_vars[sub_param_name]['regional_specific']
+                narrative['regional_specific'] = default_streategy_vars[sub_param_name]['regional_specific']
 
-        switch = {
-            'default_by': default_by,
-            'base_yr': None,
-            'end_yr': end_yr,
-            'value_by': None,
-            'value_ey': value_ey,
-            'diffusion_choice': diffusion_choice,
-            'sig_midpoint': sig_midpoint,
-            'sig_steepness': sig_steepness,
-            'regional_specific': regional_specific,
-            'affected_sector': affected_sector}
-
-        # Append switch to correct variable
+        # Append narrative to correct variable
         if sub_param_name in parameter_narratives.keys():
-            parameter_narratives[sub_param_name].append(switch)
+            parameter_narratives[sub_param_name].append(narrative)
         else:
-            parameter_narratives[sub_param_name] = [switch]
+            parameter_narratives[sub_param_name] = [narrative]
 
     # ----------------------
     # Autocomplete switches in order that from all
@@ -220,45 +240,57 @@ def create_narratives(raw_file_content, simulation_base_yr, default_streategy_va
         autocompleted_parameter_narratives[sub_param_name] = []
 
         # Get all years of narratives
-        all_yrs = []
+        all_sectors = set()
         for narrative in narratives:
-            all_yrs.append(narrative['end_yr'])
+            all_sectors.add(narrative['affected_sector'])
+        all_sectors = list(all_sectors)
 
+        for sector in all_sectors:
 
-        all_yrs.sort()
-
-        # Iterate years
-        for year_cnt, year in enumerate(all_yrs):
-
-            # Get correct narative
-            for narrative in narratives:
-                if narrative['end_yr'] == year:
-                    yr_narrative = narrative
-                    break
-
-            # Add missing entries to switch
-            if year_cnt == 0:
-
-                # Update
-                yr_narrative['base_yr'] = simulation_base_yr
-                yr_narrative['value_by'] = narrative['default_by']
-
-                # previous value
-                previous_yr = narrative['end_yr']
-                previous_value = narrative['value_ey']
+            if sector is True:
+                switches_to_create_narrative = narratives
             else:
+                switches_to_create_narrative = init_scripts.get_sector_narrative(sector,
+                    narratives)
 
-                # Update
-                yr_narrative['base_yr'] = previous_yr
-                yr_narrative['value_by'] = previous_value
+            # Get all years of switches_to_create_narrative
+            all_yrs = []
+            for narrative in switches_to_create_narrative:
+                all_yrs.append(narrative['end_yr'])
 
-                # previous value
-                previous_yr = narrative['end_yr']
-                previous_value = narrative['value_ey']
+            all_yrs.sort()
 
-            del yr_narrative['default_by']
+            for year_cnt, year in enumerate(all_yrs):
 
-            autocompleted_parameter_narratives[sub_param_name].append(yr_narrative)
+                # Get correct narative
+                for narrative in switches_to_create_narrative:
+                    if narrative['end_yr'] == year:
+                        yr_narrative = narrative
+                        break
+
+                # Add missing entries to narrative
+                if year_cnt == 0:
+
+                    # Update
+                    yr_narrative['base_yr'] = simulation_base_yr
+                    yr_narrative['value_by'] = narrative['default_by']
+
+                    # previous value
+                    previous_yr = narrative['end_yr']
+                    previous_value = narrative['value_ey']
+                else:
+
+                    # Update
+                    yr_narrative['base_yr'] = previous_yr
+                    yr_narrative['value_by'] = previous_value
+
+                    # previous value
+                    previous_yr = narrative['end_yr']
+                    previous_value = narrative['value_ey']
+
+                del yr_narrative['default_by']
+
+                autocompleted_parameter_narratives[sub_param_name].append(yr_narrative)
 
     # IF only single dimension parameter, remove dummy mutliparameter name
     if crit_single_dim_param:

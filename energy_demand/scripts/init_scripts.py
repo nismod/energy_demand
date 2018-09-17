@@ -737,7 +737,7 @@ def sig_param_calc_incl_fuel_switch(
 
     return sig_param_tech
 
-def get_sector_switches(sector_to_match, switches):
+def get_sector_narrative(sector_to_match, switches):
     """Get all switches of a sector if the switches are
     defined specifically for a sector. If the switches are
     not specifically for a sector, return all switches
@@ -754,24 +754,18 @@ def get_sector_switches(sector_to_match, switches):
     switches : list
         Switches of sector
     """
-    # Get all sectors for this enduse
-    switches_out = set([])
+    switches_out = []
 
     for switch in switches:
 
-        # If sector is None
-        '''if not switch.sector and not sector_to_match:
-            switches.add(switch)
-        else:'''
-
-        if switch.sector == sector_to_match:
-            switches_out.add(switch)
-        elif not switch.sector: # Not defined specifically for sectors and add all
-            switches_out.add(switch)
+        if switch['affected_sector'] == sector_to_match:
+            switches_out.append(switch)
+        elif not switch['affected_sector']: # Not defined specifically for sectors and append all
+            switches_out.append(switch)
         else:
             pass
 
-    return list(switches_out)
+    return switches_out
 
 def get_sector__enduse_switches(sector_to_match, enduse_to_match, switches):
     """Get all switches of a sector if the switches are

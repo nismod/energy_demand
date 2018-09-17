@@ -148,7 +148,7 @@ class Enduse(object):
             self.fuel_y = _fuel_new_y
             #logging.debug("FUEL TRAIN C0: " + str(np.sum(self.fuel_y)))
 
-            _fuel_new_y = apply_specific_change(
+            _fuel_new_y = apply_enduse_sector_specific_change(
                 enduse,
                 sector,
                 self.fuel_y,
@@ -194,14 +194,13 @@ class Enduse(object):
             self.fuel_y = _fuel_new_y
             #logging.debug("FUEL TRAIN E2: " + str(np.sum(self.fuel_y)))
 
-            # Generic fuel switch of an enduse #TODO
+            # Generic fuel switch of an enduse
             _fuel_new_y = generic_fuel_switch(
                 enduse,
                 sector,
                 curr_yr,
                 strategy_vars,
                 self.fuel_y)
-
             self.fuel_y = _fuel_new_y
             # ----------------------------------
             # Hourly Disaggregation
@@ -1132,7 +1131,7 @@ def apply_scenario_drivers(
 
     return fuel_y
 
-def apply_specific_change(
+def apply_enduse_sector_specific_change(
         enduse,
         sector,
         fuel_y,
@@ -1169,7 +1168,7 @@ def apply_specific_change(
         change_cy = strategy_vars['generic_enduse_change'][enduse][curr_yr]
 
         # Get affected sectors
-        affected_sector = strategy_vars['generic_enduse_change'][enduse]['parameter_container_info']['affected_sector']
+        affected_sector = strategy_vars['generic_enduse_change'][enduse]['param_info']['affected_sector']
 
         # if Sector is None, then so sectors are defined for this enduse
         if not sector:
@@ -1439,6 +1438,7 @@ def apply_cooling(
     It is aassumption a linear correlation between the
     percentage of cooled floor space (area) and energy demand.
 
+    #TODO MAKE MULTIDIMENSIONAL ARGUMENT
     Arguments
     ---------
     enduse : str
@@ -1486,46 +1486,54 @@ def generic_fuel_switch(
     """Generic fuel switch in an enduse (e.g. replacing a fraction
     of a fuel with another fueltype
     """
+    if strategy_vars['generic_fuel_switch'][enduse][curr_yr] != 0:
 
-    '''# Fraction of fuel to replace
+        # Get affected sectors
+        affected_sector = strategy_vars['generic_fuel_switch'][enduse]['param_info']['affected_sector']
 
-    # Assume no efficiencies for this
-    total_service_of_enduse = np.sum(fuels)
+        if sector or sector in affected_sector:
 
-    # Get generic fuel switches
-    generic_fuel_switches = []
+            # Get fueltype to switch (old)
+            fueltype_replace_str = strategy_vars['generic_fuel_switch'][enduse]['param_info']['fueltype_replace']
+            fueltype_replace_int = tech_related.get_fueltype_int(fueltype_replace_str)
 
-    # Criteria "General"
-    switches = fuel_service_switch.get_switches_of_enduse(
-        fuel_switches,
-        enduse,
-        generic=True)
+            # Get fueltype to switch to (new)
+            fueltype_new_str = strategy_vars['generic_fuel_switch'][enduse]['param_info']['fueltype_new']
+            fueltype_new_int = tech_related.get_fueltype_int(fueltype_new_str)
 
-    if switches != []:
+            # Value of current year
+            fuel_share_switched_cy = strategy_vars['generic_fuel_switch'][enduse][curr_yr]
 
-        # Replace fuel
-        for switch in switches:
-            fueltype_old = switch.fueltype_replace
-            switch_yr = switch.switch_yr
-            fuel_share_switched_ey = switch.fuel_share_switched_ey
-            sector = switch.sector
-            fuel_new = switch.technology_install
+            if enduse == 'is_high_temp_process':
+                print("-----------")
+                print(affected_sector)
+                print(curr_yr)
+                print(enduse)
+                print(sector)
+                print(fuel_y[fueltype_replace_int])
+                print(fuel_y[fueltype_new_int])
+                print(fuel_share_switched_cy)
 
-            #Share in current year TODO
-            fuel_share_switched_cy
 
-        # If sector specific do across sectors
-        # Substract
-        fuel_minus = fuels[fueltype_replace] * (1 - fuel_share_switched_cy)
-        fuels[fueltype_old] -= fuel_minus
+            # If sector specific do across sectors
+            # Substract
+            fuel_minus = fuel_y[fueltype_replace_int] * (1 - fuel_share_switched_cy)
+            fuel_y[fueltype_replace_int] -= fuel_minus
 
-        # Add
-        fuels[fuel_new] += fuel_minus
+            # Add
+            fuel_y[fueltype_new_int] += fuel_minus
 
-        # Replace fueltype
-        fuels_out = fuels
-    else:
-        fuels_out = fuels'''
+            if enduse == 'is_high_temp_process':
+                print("------")
+                print(fuel_y[fueltype_replace_int])
+                print(fuel_y[fueltype_new_int])
+                print(fuel_y[fueltype_replace_int])
+                print(fuel_y[fueltype_new_int])
+                print(fuel_minus)
+                raise Exception
+
+        else: # not affected sector
+            pass
 
     return fuel_y
 

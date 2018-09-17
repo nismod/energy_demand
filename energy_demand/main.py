@@ -11,6 +11,7 @@
 #- Make that fuel swtich can be made in any industry sector irrespective of technologies
 # Make generic fuel switch
 # MAKE SIMLPLE TABLE FOR READING IN FUELS
+TODO Replace affected_sector by sector
 # """
 import os
 import sys
@@ -239,7 +240,6 @@ if __name__ == "__main__":
 
     # -----------------------------------------
     # User defines stragey variable from csv files
-    # TODO WHAT ABOUT AFFECTED ENDUSE?
     # -----------------------------------------
     _user_defined_vars = data_loader.load_user_defined_vars(
         default_strategy_var=default_streategy_vars,
