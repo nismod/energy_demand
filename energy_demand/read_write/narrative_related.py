@@ -88,13 +88,21 @@ def get_crit_single_dim_var(var):
     return single_dimension
 
 def read_from_narrative(narratives):
-    """Read from narratives the value
-    of the last narrative
+    """Read from narratives the defined
+    value for the last defined timestep
 
+    Arguments
+    ---------
+    narratives : lives
+        Narratives
+
+    Returns
+    -------
+    last_value : float
+        Value of last defined timestep narrative
     """
     last_year = 0
     for narrative in narratives:
-
         if narrative['end_yr'] > last_year:
             last_value = narrative['value_ey']
             last_year = narrative['end_yr']
@@ -139,18 +147,15 @@ def default_narrative(
     container : list
         List with narrative
     """
-    default_narrative = [
-        {
-            'base_yr': base_yr,
-            'end_yr': end_yr,
-            'value_by': value_by,
-            'value_ey': value_ey,
-            'diffusion_choice': diffusion_choice,
-            'sig_midpoint': sig_midpoint,
-            'sig_steepness': sig_steepness,
-            'regional_specific': regional_specific
-        }
-    ]
+    default_narrative = [{
+        'base_yr': base_yr,
+        'end_yr': end_yr,
+        'value_by': value_by,
+        'value_ey': value_ey,
+        'diffusion_choice': diffusion_choice,
+        'sig_midpoint': sig_midpoint,
+        'sig_steepness': sig_steepness,
+        'regional_specific': regional_specific}]
 
     return default_narrative
 
@@ -169,6 +174,8 @@ def create_narratives(
         Data of read csv file
     simulation_base_yr : int
         Model base year of simulation
+    default_streategy_vars : dict
+        Default parameter definition
 
     Outputs
     -------
@@ -300,8 +307,8 @@ def create_narratives(
             if sector is True:
                 switches_to_create_narrative = narratives
             else:
-                switches_to_create_narrative = get_sector_narrative(sector,
-                    narratives)
+                switches_to_create_narrative = get_sector_narrative(
+                    sector, narratives)
 
             # Get all years of switches_to_create_narrative
             all_yrs = []
@@ -338,11 +345,9 @@ def create_narratives(
                     previous_yr = narrative['end_yr']
                     previous_value = narrative['value_ey']
 
-                del yr_narrative['default_by']
-
                 autocomplet_param_narr[sub_param_name].append(yr_narrative)
 
-    # IF only single dimension parameter, remove dummy mutliparameter name
+    # If only single dimension parameter, remove dummy mutliparameter name
     if crit_single_dim_param:
         autocomplet_param_narr = autocomplet_param_narr['dummy_single_param']
     else:

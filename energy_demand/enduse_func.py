@@ -194,7 +194,7 @@ class Enduse(object):
             self.fuel_y = _fuel_new_y
             #logging.debug("FUEL TRAIN E2: " + str(np.sum(self.fuel_y)))
 
-            # Generic fuel switch of an enduse
+            # Generic fuel switch of an enduse and sector
             _fuel_new_y = generic_fuel_switch(
                 enduse,
                 sector,
@@ -202,6 +202,7 @@ class Enduse(object):
                 strategy_vars,
                 self.fuel_y)
             self.fuel_y = _fuel_new_y
+
             # ----------------------------------
             # Hourly Disaggregation
             # ----------------------------------
@@ -293,7 +294,7 @@ class Enduse(object):
                     fueltypes_nr,
                     fueltypes,
                     mode_constrained)
-                logging.debug("H0: " + str(np.sum(self.fuel_y)))
+                #logging.debug("H0: " + str(np.sum(self.fuel_y)))
 
                 # Delete all technologies with no fuel assigned
                 for tech, fuel_tech in fuel_tech_y.items():
@@ -405,7 +406,10 @@ def demand_management(
             loadfactor_yd_cy,)
 
         fuel_yh = lf.peak_shaving_max_min(
-            lf_improved_cy, average_fuel_yd, fuel_yh, mode_constrained)
+            lf_improved_cy,
+            average_fuel_yd,
+            fuel_yh,
+            mode_constrained)
 
     # -------------------------------------------------
     # Convert all load profiles into flat load profiles
@@ -1484,7 +1488,7 @@ def generic_fuel_switch(
         fuel_y
     ):
     """Generic fuel switch in an enduse (e.g. replacing a fraction
-    of a fuel with another fueltype
+    of a fuel with another fueltype)
 
     Arguments
     ---------
@@ -1533,6 +1537,8 @@ def generic_fuel_switch(
 
         else: # not affected sector
             pass
+    else: # default value
+        pass
 
     return fuel_y
 
