@@ -395,7 +395,7 @@ def test_apply_heat_recovery():
 
     assert result == 50
     assert result_tech == {'techA': 50}
-test_apply_heat_recovery()
+
 def test_apply_climate_chante():
     """Testing"""
 
