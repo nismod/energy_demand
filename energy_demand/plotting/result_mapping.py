@@ -10,13 +10,14 @@ import geopandas as gpd
 import pandas as pd
 import palettable
 import matplotlib
-matplotlib.use('Agg') # Used to make it work in linux
 import matplotlib.pyplot as plt
 import matplotlib.patches as mpatches
 from matplotlib.colors import LinearSegmentedColormap
 from energy_demand.basic import basic_functions
 from energy_demand.technologies import tech_related
 from energy_demand.read_write import write_data
+
+#matplotlib.use('Agg') # Used to make it work in linux
 
 def get_reasonable_bin_values(
         data_to_plot,

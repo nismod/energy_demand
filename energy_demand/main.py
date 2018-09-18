@@ -1,15 +1,20 @@
 """Allows to run HIRE locally outside the SMIF framework
 # After smif upgrade:
 #   TODO: make that automatically the parameters can be generated to be copied into smif format
+
 #TODO Make that congruence value map is better loaded from seperate file (e.g. populatio ndensity)
-#TODO Create own .py chart file for every chart
+
 #TODO Import weather data loading and importing whole range of weather scenarios
+
 #TODO Test if technology type can be left empty in technology spreadsheet, Try to remove tech_type
+
 #TODO Write out full result. Then write function to aggregate accordingly
 #TODO SIMple aggregation. Write out sectormodel, enduse, region, fueltypes.... --> Do all aggregation based on that
 #- Make that fuel swtich can be made in any industry sector irrespective of technologies
 # MAKE SIMLPLE TABLE FOR READING IN FUELS
-TODO Replace affected_sector by sector
+
+# Improve plotting and make every plot own script
+
 # """
 import os
 import sys
@@ -159,7 +164,7 @@ if __name__ == "__main__":
     data['scenario_data'] = defaultdict(dict)
     data['lookups'] = lookup_tables.basic_lookups()
     data['enduses'], data['sectors'], data['fuels'] = data_loader.load_fuels(
-        data['lookups']['submodels_names'], data['paths'], data['lookups'])
+        data['lookups']['submodels_names'], data['paths'], data['lookups']['fueltypes_nr'])
 
     data['regions'] = read_data.get_region_names(name_region_set)
     data['reg_nrs'] = len(data['regions'])

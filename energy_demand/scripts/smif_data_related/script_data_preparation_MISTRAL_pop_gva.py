@@ -18,8 +18,6 @@ def run(
     path_MSOA_baseline : str
         Path to MSOA file with correct geography in csv
     """
-    print("... start script")
-
     # Sectors
     sectors_to_generate = [2, 3, 4, 5, 6, 8, 9, 29, 11, 12, 10, 15, 14, 19, 17, 40, 41, 28, 35, 23, 27]
 
@@ -40,7 +38,6 @@ def run(
     # Get folder with standard scenario to get data for constant scenario
     for folder_name in ['pop-baseline16_econ-c16_fuel-c16']:
 
-            #try:
             all_files = os.listdir(os.path.join(path_to_folder, folder_name))
 
             # Scale for every year according to this distribution
@@ -208,8 +205,8 @@ def run(
         break
 
     for folder_name in all_csv_folders:
-            print("folder name: " + str(folder_name))
-        #try:
+            print("folder name: " + str(folder_name), flush=True)
+
             all_files = os.listdir(os.path.join(path_to_folder, folder_name))
 
             for file_name in all_files:
@@ -220,7 +217,6 @@ def run(
                         filename_split[0] == "gva_per_head" and filename_split[1] == 'lad.csv'):
 
                     file_path = os.path.join(path_to_folder, folder_name, file_name)
-                    print("Change file: " + str(file_path))
 
                     # Read csv file
                     gp_file = pd.read_csv(file_path)
@@ -329,12 +325,11 @@ def run(
                 # -----------------------------------------
                 if MSOA_calculations:
                     if (filename_split[0] == "gva_per_head" and filename_split[1] == 'lad.csv'):
-                    
-                        file_path = os.path.join(path_to_folder, folder_name, file_name)
-
-                        lads = list(gp_file.loc[gp_file['year'] == 2015]['region'])
-
+                        
                         list_with_all_vals = []
+
+                        file_path = os.path.join(path_to_folder, folder_name, file_name)
+                        lads = list(gp_file.loc[gp_file['year'] == 2015]['region'])
 
                         for lad in lads:
 

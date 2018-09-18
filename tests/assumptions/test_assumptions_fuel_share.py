@@ -5,7 +5,7 @@ from energy_demand.basic import lookup_tables
 from energy_demand.assumptions import fuel_shares
 from energy_demand.assumptions import general_assumptions
 from energy_demand.assumptions import strategy_vars_def
-from energy_demand.read_write import data_loader, read_data
+from energy_demand.read_write import data_loader
 from pkg_resources import resource_filename
 from pkg_resources import Requirement
 
@@ -20,7 +20,7 @@ def test_assign_by_fuel_tech_p():
     data['paths'] = data_loader.load_paths(path_main)
     data['lookups'] = lookup_tables.basic_lookups()
     data['enduses'], data['sectors'], data['fuels'] = data_loader.load_fuels(
-        data['lookups']['submodels_names'], data['paths'], data['lookups'])
+        data['lookups']['submodels_names'], data['paths'], data['lookups']['fueltypes_nr'])
 
     data['local_paths'] = data_loader.get_local_paths(path_main)
 

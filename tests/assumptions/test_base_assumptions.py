@@ -21,7 +21,7 @@ def test_load_non_param_assump():
     lu = lookup_tables.basic_lookups()
 
     enduses, sectors, _ = data_loader.load_fuels(
-        lu['submodels_names'], paths, lu)
+        lu['submodels_names'], paths, lu['fueltypes_nr'])
 
     general_assumptions.Assumptions(
         base_yr=2015,
@@ -43,7 +43,8 @@ def test_load_param_assump():
     data = {}
     data['paths'] = data_loader.load_paths(path_main)
     data['lookups'] = lookup_tables.basic_lookups()
-    data['enduses'], data['sectors'], data['fuels'] = data_loader.load_fuels(data['lookups']['submodels_names'], data['paths'], data['lookups'])
+    data['enduses'], data['sectors'], data['fuels'] = data_loader.load_fuels(
+        data['lookups']['submodels_names'], data['paths'], data['lookups']['fueltypes_nr'])
 
     sim_param_expected = {}
     sim_param_expected['base_yr'] = 2015

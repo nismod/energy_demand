@@ -763,7 +763,7 @@ def load_temp_data(paths):
 
     return weather_stations, temp_data
 
-def load_fuels(submodels_names, paths, lookups):
+def load_fuels(submodels_names, paths, fueltypes_nr):
     """Load in ECUK fuel data, enduses and sectors
 
     Sources:
@@ -777,7 +777,7 @@ def load_fuels(submodels_names, paths, lookups):
         Submodel names
     paths : dict
         Paths container
-    lookups : dict
+    fueltypes_nr : dict
         Lookups
 
     Returns
@@ -801,13 +801,13 @@ def load_fuels(submodels_names, paths, lookups):
     # submodels_names[1]: Service Submodel
     # -------------------------------
     ss_fuel_raw, sectors[submodels_names[1]], enduses[submodels_names[1]] = read_data.read_fuel_ss(
-        paths['ss_fuel_raw'], lookups['fueltypes_nr'])
+        paths['ss_fuel_raw'], fueltypes_nr)
 
     # -------------------------------
     # submodels_names[2]: Industry
     # -------------------------------
     is_fuel_raw, sectors[submodels_names[2]], enduses[submodels_names[2]] = read_data.read_fuel_is(
-        paths['is_fuel_raw'], lookups['fueltypes_nr'])
+        paths['is_fuel_raw'], fueltypes_nr)
 
     # Convert energy input units
     fuels[submodels_names[0]] = conversions.convert_fueltypes_ktoe_gwh(rs_fuel_raw)

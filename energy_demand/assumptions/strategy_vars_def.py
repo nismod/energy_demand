@@ -184,7 +184,7 @@ def load_param_assump(
         "suggested_range": (0, 1),
         "default_value": assumptions.spatial_explicit_diffusion,
         "units": 'years',
-        'affected_sector': True,
+        "sector": True,
         'regional_specific': False,
         'diffusion_type': 'linear'}
 
@@ -195,7 +195,7 @@ def load_param_assump(
         "suggested_range": (0, 99),
         "default_value": assumptions.speed_con_max,
         "units": None,
-        'affected_sector': True,
+        "sector": True,
         'regional_specific': False,
         'diffusion_type': 'linear'}
 
@@ -209,7 +209,7 @@ def load_param_assump(
         "suggested_range": (0, 1),
         "default_value": assumptions.flat_heat_pump_profile_both,
         "units": 'bool',
-        'affected_sector': True,
+        "sector": True,
         'regional_specific': False,
         'diffusion_type': 'linear'}
 
@@ -220,7 +220,7 @@ def load_param_assump(
         "suggested_range": (0, 1),
         "default_value": assumptions.flat_heat_pump_profile_only_water,
         "units": 'bool',
-        'affected_sector': True,
+        "sector": True,
         'regional_specific': False,
         'diffusion_type': 'linear'}
 
@@ -235,7 +235,7 @@ def load_param_assump(
         "suggested_range": (assumptions.gshp_fraction, 0.5),
         "default_value": assumptions.gshp_fraction,
         "units": 'decimal',
-        'affected_sector': True,
+        "sector": True,
         'regional_specific': False,
         'diffusion_type': 'linear'}
 
@@ -256,8 +256,8 @@ def load_param_assump(
             "suggested_range": (0, 1),
             "default_value": scenario_value,
             "units": 'decimal',
-            'affected_sector': True,
-            'affected_enduse': [demand_name],
+            "sector": True,
+            "enduse": [demand_name],
             'regional_specific': True,
             'diffusion_type': 'linear'}
 
@@ -288,7 +288,7 @@ def load_param_assump(
             "suggested_range": (-5, 5),
             "default_value": default_value,
             "units": '°C',
-            'affected_sector': True,
+            "sector": True,
             'regional_specific': False,
             'diffusion_type': 'linear'}
 
@@ -303,7 +303,7 @@ def load_param_assump(
         "suggested_range": (13, 17),
         "default_value": assumptions.t_bases.rs_t_heating_by, #15.5
         "units": '°C',
-        'affected_sector': True,
+        "sector": True,
         'regional_specific': False,
         'diffusion_type': 'linear'}
 
@@ -315,7 +315,7 @@ def load_param_assump(
         "suggested_range": (13, 17),
         "default_value": assumptions.t_bases.ss_t_heating_by, #15.5
         "units": '°C',
-        'affected_sector': True,
+        "sector": True,
         'regional_specific': False,
         'diffusion_type': 'linear'}
 
@@ -328,7 +328,7 @@ def load_param_assump(
         "suggested_range": (13, 17),
         "default_value": assumptions.t_bases.ss_t_cooling_by, #5
         "units": '°C',
-        'affected_sector': True,
+        "sector": True,
         'regional_specific': False,
         'diffusion_type': 'linear'}
 
@@ -340,7 +340,7 @@ def load_param_assump(
         "suggested_range": (13, 17),
         "default_value": assumptions.t_bases.is_t_heating_by, #15.5
         "units": '°C',
-        'affected_sector': True,
+        "sector": True,
         'regional_specific': False,
         'diffusion_type': 'linear'}
 
@@ -358,7 +358,7 @@ def load_param_assump(
         "suggested_range": (0, 0.9),
         "default_value": assumptions.smart_meter_assump['smart_meter_p_by'],
         "units": 'decimal',
-        'affected_sector': True,
+        "sector": True,
         'regional_specific': True,
         'diffusion_type': 'linear'}
 
@@ -376,7 +376,7 @@ def load_param_assump(
             "suggested_range": (-1, 1),
             "default_value": sub_param_value,
             "units": 'decimal',
-            'affected_sector': True,
+            "sector": True,
             'regional_specific': True,
             'diffusion_type': 'linear'}
 
@@ -390,7 +390,7 @@ def load_param_assump(
         "suggested_range": (0, 1),
         "default_value": assumptions.p_cold_rolling_steel_by,
         "units": 'decimal',
-        'affected_sector': True,
+        "sector": True,
         'regional_specific': True,
         'diffusion_type': 'linear'}
 
@@ -410,8 +410,8 @@ def load_param_assump(
             "suggested_range": (0, 1),
             "default_value": sub_param_value,
             "units": 'decimal',
-            'affected_sector': True,
-            'affected_enduse': [sub_param_name],
+            "sector": True,
+            "enduse": [sub_param_name],
             'regional_specific': True,
             'diffusion_type': 'linear'}
 
@@ -432,8 +432,8 @@ def load_param_assump(
             "suggested_range": (0, 1),
             "default_value": sub_param_value,
             "units": 'decimal',
-            'affected_sector': True,
-            'affected_enduse': [sub_param_name],
+            "sector": True,
+            "enduse": [sub_param_name],
             'regional_specific': True,
             'diffusion_type': 'linear'}
 
@@ -458,9 +458,9 @@ def load_param_assump(
             "suggested_range": (0, 1),
             "default_value": param_value,
             "units": 'decimal',
-            'affected_sector': True,
-            'affected_enduse': [enduse_name],
-            'affected_sector': [],
+            "sector": True,
+            "enduse": [enduse_name],
+            "sector": [],
             'regional_specific': True,
             'diffusion_type': 'linear'}
 
@@ -476,7 +476,7 @@ def load_param_assump(
         "suggested_range": (0, 1),
         "default_value": 0, # Default is no efficiency improvement
         "units": 'decimal',
-        'affected_sector': True,
+        "sector": True,
         'regional_specific': False,
         'diffusion_type': 'linear'}
 
@@ -490,7 +490,7 @@ def load_param_assump(
         "suggested_range": (0, 1),
         "default_value": 0,
         "units": 'decimal',
-        'affected_sector': True,
+        "sector": True,
         'regional_specific': False,
         'diffusion_type': 'linear'}
 
@@ -506,7 +506,7 @@ def load_param_assump(
             "suggested_range": (0, 1), #TODO UPDATE
             "default_value": param_value,
             "units": 'decimal',
-            'affected_sector': True,
+            "sector": True,
             'regional_specific': True,
             'diffusion_type': 'linear'}
 
@@ -527,7 +527,7 @@ def load_param_assump(
         # Delete affected_enduse
         for var in strategy_vars_write:
             try:
-                del var['affected_enduse']
+                del var['enduse']
             except KeyError:
                 pass
 
@@ -555,7 +555,7 @@ def load_param_assump(
 
 def autocomplete_strategy_vars(strategy_vars, narrative_crit=False):
     """TODO
-    Autocomplete all narratives with 'affected_enduse'
+    Autocomplete all narratives with 'enduse'
     """
     if not narrative_crit:
         # --strategy_vars-- Convert to dict for loacl running purposes
@@ -568,21 +568,21 @@ def autocomplete_strategy_vars(strategy_vars, narrative_crit=False):
             if crit_single_dim:
                 strategy_vars_out[var_name] = var_entries
 
-                # If no 'affected_enduse' defined, add empty list of affected enduses
+                # If no 'enduse' defined, add empty list of affected enduses
                 strategy_vars_out[var_name]['scenario_value'] = var_entries['default_value']
-                if 'affected_enduse' not in var_entries:
-                    strategy_vars_out[var_name]['affected_enduse'] = []
+                if 'enduse' not in var_entries:
+                    strategy_vars_out[var_name]['enduse'] = []
             else:
                 for sub_var_name, sub_var_entries in var_entries.items():
                     strategy_vars_out[var_name][sub_var_name] = sub_var_entries
 
                     strategy_vars_out[var_name][sub_var_name]['scenario_value'] = sub_var_entries['default_value']
 
-                    # If no 'affected_enduse' defined, add empty list of affected enduses
-                    if 'affected_enduse' not in sub_var_entries:
-                        strategy_vars_out[var_name][sub_var_name]['affected_enduse'] = []
-                    if 'affected_sector' not in sub_var_entries:
-                        strategy_vars_out[var_name][sub_var_name]['affected_sector'] = True # All sector
+                    # If no 'enduse' defined, add empty list of affected enduses
+                    if 'enduse' not in sub_var_entries:
+                        strategy_vars_out[var_name][sub_var_name]['enduse'] = []
+                    if 'sector' not in sub_var_entries:
+                        strategy_vars_out[var_name][sub_var_name]['sector'] = True # All sector
     else:
         # Same but narratives which need to be iterated
         strategy_vars_out = defaultdict(dict)
@@ -595,11 +595,11 @@ def autocomplete_strategy_vars(strategy_vars, narrative_crit=False):
                 updated_narratives = []
                 for narrative in var_entries:
 
-                    # If no 'affected_enduse' defined, add empty list of affected enduses
-                    if 'affected_enduse' not in narrative:
-                        narrative['affected_enduse'] = []
-                    if 'affected_sector' not in narrative:
-                        narrative['affected_sector'] = True # All sector
+                    # If no 'enduse' defined, add empty list of affected enduses
+                    if 'enduse' not in narrative:
+                        narrative['enduse'] = []
+                    if 'sector' not in narrative:
+                        narrative['sector'] = True # All sector
                     updated_narratives.append(narrative)
 
                 strategy_vars_out[var_name] = updated_narratives
@@ -610,11 +610,11 @@ def autocomplete_strategy_vars(strategy_vars, narrative_crit=False):
                     updated_narratives = []
                     for narrative in sub_var_entries:
 
-                        # If no 'affected_enduse' defined, add empty list of affected enduses
-                        if 'affected_enduse' not in narrative:
-                            narrative['affected_enduse'] = []
-                        if 'affected_sector' not in narrative:
-                            narrative['affected_sector'] = True # All sector
+                        # If no 'enduse' defined, add empty list of affected enduses
+                        if 'enduse' not in narrative:
+                            narrative['enduse'] = []
+                        if 'sector' not in narrative:
+                            narrative['sector'] = True # All sector
                         updated_narratives.append(narrative)
 
                     strategy_vars_out[var_name][sub_var_name] = updated_narratives
@@ -639,7 +639,7 @@ def get_affected_enduse(strategy_vars, name):
     try:
         for var in strategy_vars:
             if var['name'] == name:
-                enduses = var['affected_enduse']
+                enduses = var['enduse']
 
                 return enduses
     except KeyError:
