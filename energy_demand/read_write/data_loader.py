@@ -43,7 +43,11 @@ def load_user_defined_vars(
 
     # Files to ignore in this folder
     files_to_ignores = [
-        'switches_capacity.csv', 'switches_fuel.csv', 'switches_service.csv', '_README_config_data.txt']
+        'switches_capacity.csv',
+        'switches_fuel.csv',
+        'switches_service.csv',
+        '_README_config_data.txt']
+
     for file_name in all_csv_in_folder:
 
         if file_name in files_to_ignores:

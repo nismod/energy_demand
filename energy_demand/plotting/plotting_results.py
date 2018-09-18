@@ -18,8 +18,6 @@ from scipy.interpolate import interp1d
 import matplotlib
 import matplotlib.pyplot as plt
 from matplotlib.ticker import MultipleLocator, FormatStrFormatter
-from energy_demand.plotting import plotting_results
-
 #matplotlib.use('Agg') # Used to make it work in linux
 
 def smooth_data(x_list, y_list, num=500, spider=False):

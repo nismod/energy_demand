@@ -7,7 +7,13 @@ from energy_demand.plotting import plotting_results, result_mapping
 from energy_demand.basic import logger_setup, basic_functions
 from energy_demand.basic import lookup_tables
 
-def main(path_data_energy_demand, path_shapefile_input, plot_crit_dict, base_yr, comparison_year):
+def main(
+        path_data_energy_demand,
+        path_shapefile_input,
+        plot_crit_dict,
+        base_yr,
+        comparison_year
+    ):
     """Read in all results and plot PDFs
 
     Arguments
@@ -23,7 +29,7 @@ def main(path_data_energy_demand, path_shapefile_input, plot_crit_dict, base_yr,
     comparison_year : int
         Year to generate comparison plots
     """
-    print("Start processing")
+    print("...Start creating plots")
 
     # Set up logger
     logger_setup.set_up_logger(
@@ -101,17 +107,6 @@ def main(path_data_energy_demand, path_shapefile_input, plot_crit_dict, base_yr,
             path_shapefile_input,
             plot_crit_dict,
             base_yr=base_yr)
-
-    # ----------------
-    # Write results to CSV files and merge with shapefile
-    # ----------------
-    '''if plot_crit_dict['write_shapefiles']:
-        write_data.create_shp_results(
-            data,
-            results_container,
-            data['local_paths'],
-            data['lookups'],
-            data['regions'])'''
 
     print("===================================")
     print("... finished reading and plotting results")

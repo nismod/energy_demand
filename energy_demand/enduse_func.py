@@ -232,9 +232,8 @@ class Enduse(object):
             else:
                 """If technologies are defined for an enduse
                 """
-                # ----
+
                 # Get enduse specific configurations
-                # ----
                 mode_constrained = get_enduse_configuration(
                     criterias['mode_constrained'],
                     enduse,
@@ -386,7 +385,7 @@ def demand_management(
     if strategy_vars['demand_management_improvement'][enduse][curr_yr] == 0:
         pass # no load management
     else:
-        # load management
+
         # Calculate average for every day
         if mode_constrained:
             average_fuel_yd = np.average(fuel_yh, axis=1)
