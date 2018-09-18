@@ -35,7 +35,10 @@ local_paths = data_loader.get_local_paths(
 
 data = {}
 data['lookups'] = lookup_tables.basic_lookups()
-data['enduses'], data['sectors'], data['fuels'] = data_loader.load_fuels(paths, data['lookups'])
+data['enduses'], data['sectors'], data['fuels'] = data_loader.load_fuels(
+    data['lookups']['submodels_names'],
+    paths,
+    data['lookups']['fueltypes_nr'])
 
 assumptions = general_assumptions.Assumptions(
     base_yr=user_defined_base_yr,

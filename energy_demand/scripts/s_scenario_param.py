@@ -166,13 +166,13 @@ def generate_annual_param_vals(
 
             # Generic container of parameter
             try:
-                param_info['affected_enduse'] = strategy_vars_values[0]['affected_enduse']
+                param_info['enduse'] = strategy_vars_values[0]['enduse']
             except KeyError:
-                param_info['affected_enduse'] = [] # all sectors
+                param_info['enduse'] = [] # all sectors
             try:
-                param_info['affected_sector'] = strategy_vars_values[0]['affected_sector']
+                param_info['sector'] = strategy_vars_values[0]['sector']
             except KeyError:
-                param_info['affected_sector'] = True # all sectors
+                param_info['sector'] = True # all sectors
             try:
                 param_info['fueltype_replace'] = strategy_vars_values[0]['fueltype_replace']
             except KeyError:
@@ -214,13 +214,13 @@ def generate_annual_param_vals(
                     
                     # Generic container of parameter
                     try:
-                        param_info['affected_enduse'] = get_sector_narrative[0]['affected_enduse']
+                        param_info['enduse'] = get_sector_narrative[0]['enduse']
                     except KeyError:
-                        param_info['affected_enduse'] = [] # all sectors
+                        param_info['enduse'] = [] # all sectors
                     try:
-                        param_info['affected_sector'] = get_sector_narrative[0]['affected_sector']
+                        param_info['sector'] = get_sector_narrative[0]['sector']
                     except KeyError:
-                        param_info['affected_sector'] = True # all sectors
+                        param_info['sector'] = True # all sectors
                     try:
                         param_info['fueltype_replace'] = get_sector_narrative[0]['fueltype_replace']
                     except KeyError:

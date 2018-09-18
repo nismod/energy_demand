@@ -395,7 +395,7 @@ def test_apply_heat_recovery():
 
     assert result == 50
     assert result_tech == {'techA': 50}
-test_apply_heat_recovery()
+
 def test_apply_climate_chante():
     """Testing"""
 
@@ -493,7 +493,7 @@ def test_apply_enduse_sector_specific_change():
     """
     strategy_vars = {'generic_enduse_change': {'heating': {2015: 0, 2020: 2.0}}}
     strategy_vars['generic_enduse_change']['heating']['param_info'] = {}
-    strategy_vars['generic_enduse_change']['heating']['param_info']['affected_sector'] = 'heating'
+    strategy_vars['generic_enduse_change']['heating']['param_info']['sector'] = 'heating'
 
     fuel_y = np.array([100])
     result = enduse_func.apply_enduse_sector_specific_change(

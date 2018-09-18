@@ -14,7 +14,8 @@ from energy_demand.profiles import load_factors
 from energy_demand.read_write import write_data
 import matplotlib
 import matplotlib.pyplot as plt
-matplotlib.use('Agg') # Used to make it work in linux
+
+#matplotlib.use('Agg') # Used to make it work in linux
 
 def plot_heat_pump_chart_multiple(
         lookups,

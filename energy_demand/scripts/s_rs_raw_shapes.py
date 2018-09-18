@@ -259,7 +259,7 @@ def run(paths, local_paths, base_yr):
         hes_data,
         int(base_yr))
 
-    _, rs_enduses = read_data.read_fuel_rs(
+    rs_enduses, _, _= read_data.read_fuel_rs(
         paths['rs_fuel_raw'])
 
     # Load shape for all enduses

@@ -1,13 +1,14 @@
 """Generate plots for multiple scenarios
 """
 import os
+import sys
 from energy_demand.processing import single_scenario
 
 def process_result_multi_scen(
-        path_to_scenarios,
-        path_shapefile_input,
-        base_yr,
-        comparison_year
+        path_to_scenarios="C:/Users/cenv0553/ed/results/_multiple_TEST",
+        path_shapefile_input="C:/Users/cenv0553/ED/data/region_definitions/msoa_uk/msoa_lad_2015_uk.shp",
+        base_yr=2015,
+        comparison_year=2050
     ):
     """Iterate the folders with scenario
     runs and generate PDF results of individual
@@ -19,6 +20,7 @@ def process_result_multi_scen(
         Path to folders with stored results
     """
 
+    raise Exception("dddd " + str(comparison_year))
     # Chose which plots should be generated
     plot_crit_dict = {
         "spatial_results": True,              # Spatial geopanda maps
@@ -61,10 +63,15 @@ def process_result_multi_scen(
 
     return
 
+if __name__ == '__main__':
+    # Map command line arguments to function arguments.
+    process_result_multi_scen(*sys.argv[1:])
+
+
 # -------------------------------------
 # Function to generate plots based on simulation results stored in a folder
 # -------------------------------------
-process_result_multi_scen(
+'''process_result_multi_scen(
 
     # Provide path to folder where results are stored (from step 3.2 in the readme file)
     "C:/Users/cenv0553/ed/results/_multiple_TEST",         
@@ -77,7 +84,7 @@ process_result_multi_scen(
     base_yr=2015,
 
     # Provide year to generate comparison plots (provide e.g. latest simulation year)
-    comparison_year=2050)
+    comparison_year=2050)'''
 
 '''process_result_multi_scen(
     #os.path.abspath("C:/Users/cenv0553/ED/_multiple_results_eff_factor_example"),

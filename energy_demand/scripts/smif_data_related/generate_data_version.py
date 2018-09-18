@@ -40,7 +40,7 @@ def package_data(
     data_folder_path : str
         Path to store packaged data
     """
-    print("... start packaging data")
+    print("... start packaging data version: {}".format(version_name), flush=True)
 
     # Delete all processes files
     path_folder = os.path.join(data_folder_path, "scenarios", "MISTRAL_pop_gva")

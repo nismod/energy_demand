@@ -17,7 +17,7 @@ def get_all_sectors_of_narratives(narratives):
     """
     all_sectors = set()
     for narrative in narratives:
-        all_sectors.add(narrative['affected_sector'])
+        all_sectors.add(narrative['sector'])
     all_sectors = list(all_sectors)
 
     return all_sectors
@@ -46,9 +46,9 @@ def get_sector_narrative(sector_to_match, switches):
 
         for switch in switches:
 
-            if switch['affected_sector'] == sector_to_match:
+            if switch['sector'] == sector_to_match:
                 switches_out.append(switch)
-            elif not switch['affected_sector']: # Not defined specifically for sectors and append all
+            elif not switch['sector']: # Not defined specifically for sectors and append all
                 switches_out.append(switch)
             else:
                 pass
@@ -239,11 +239,11 @@ def create_narratives(
             affected_sector = row['sector']
 
             if type(affected_sector) is str:
-                narrative['affected_sector'] = affected_sector
+                narrative['sector'] = affected_sector
             else:
-                narrative['affected_sector'] = True # replace nan value with True
+                narrative['sector'] = True # replace nan value with True
         except KeyError:
-            narrative['affected_sector'] = True
+            narrative['sector'] = True
 
         try:
             narrative['diffusion_choice'] = str(row['diffusion_choice'])
@@ -299,7 +299,7 @@ def create_narratives(
         # Get all years of narratives
         all_sectors = set()
         for narrative in narratives:
-            all_sectors.add(narrative['affected_sector'])
+            all_sectors.add(narrative['sector'])
         all_sectors = list(all_sectors)
 
         for sector in all_sectors:

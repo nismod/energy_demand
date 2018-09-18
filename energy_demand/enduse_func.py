@@ -1168,7 +1168,7 @@ def apply_enduse_sector_specific_change(
         change_cy = strategy_vars['generic_enduse_change'][enduse][curr_yr]
 
         # Get affected sectors
-        affected_sector = strategy_vars['generic_enduse_change'][enduse]['param_info']['affected_sector']
+        affected_sector = strategy_vars['generic_enduse_change'][enduse]['param_info']['sector']
 
         # if Sector is None, then so sectors are defined for this enduse
         if not sector:
@@ -1506,7 +1506,7 @@ def generic_fuel_switch(
     if strategy_vars['generic_fuel_switch'][enduse][curr_yr] != 0:
 
         # Get affected sectors of fuel switch
-        affected_sector = strategy_vars['generic_fuel_switch'][enduse]['param_info']['affected_sector']
+        affected_sector = strategy_vars['generic_fuel_switch'][enduse]['param_info']['sector']
 
         # If fuel switch is across all sectors or currently the correct sector is simulated
         if sector is True or sector in affected_sector:

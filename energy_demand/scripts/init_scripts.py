@@ -353,7 +353,7 @@ def create_regional_narratives(
                     regional_vars_ey[region] = float(narrative['value_ey'])
                     regional_vars_by[region] = float(narrative['value_by'])
             else:
-                if narrative['affected_enduse'] == []:
+                if narrative['enduse'] == []:
                     logging.info(
                         "For scenario var %s no affected enduse is defined. Thus speed is used for diffusion",
                             var_name)
@@ -361,7 +361,7 @@ def create_regional_narratives(
                 else:
                     # Get enduse specific fuel for each region
                     fuels_reg = spatial_diffusion.get_enduse_regs(
-                        enduse=narrative['affected_enduse'],
+                        enduse=narrative['enduse'],
                         fuels_disagg=[
                             fuel_disagg['residential'],
                             fuel_disagg['service'],

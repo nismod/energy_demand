@@ -95,7 +95,7 @@ def dummy_sectoral_load_profiles(local_paths, path_main):
     paths = data_loader.load_paths(path_main)
     lu = lookup_tables.basic_lookups()
 
-    dict_enduses, dict_sectors, dict_fuels = data_loader.load_fuels(paths, lu)
+    dict_enduses, dict_sectors, dict_fuels = data_loader.load_fuels(lu['submodels_names'], paths, lu)
 
     for enduse in dict_enduses['service']:
         for sector in dict_sectors['service']:
@@ -160,7 +160,7 @@ def post_install_setup_minimum(args):
     data['paths'] = data_loader.load_paths(path_energy_demand)
     data['lookups'] = lookup_tables.basic_lookups()
     data['enduses'], data['sectors'], data['fuels'] = data_loader.load_fuels(
-        data['paths'], data['lookups'])
+        data['lookups']['submodels_names'], data['paths'], data['lookups']['fueltypes_nr'])
 
     # Assumptions
     data['assumptions'] = general_assumptions.Assumptions(

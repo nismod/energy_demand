@@ -47,7 +47,9 @@ def post_install_setup(args):
     data['result_paths'] = data_loader.get_result_paths(path_results)
     data['lookups'] = lookup_tables.basic_lookups()
     data['enduses'], data['sectors'], data['fuels'] = data_loader.load_fuels(
-        data['paths'], data['lookups'])
+        submodels_names=data['lookups']['submodels_names'],
+        paths=data['paths'],
+        fueltypes_nr=data['lookups']['fueltypes_nr'])
 
     data['assumptions'] = general_assumptions.Assumptions(
         base_yr=base_yr,
