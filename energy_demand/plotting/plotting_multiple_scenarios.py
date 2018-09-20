@@ -1,20 +1,20 @@
 """
 This file containes functions to plot multiple scenarios in a folder
 """
+import math
 import os
 import operator
 import collections
 import numpy as np
+import matplotlib.pyplot as plt
+
 from energy_demand.plotting import plotting_styles
-from energy_demand.plotting import plotting_program
+from energy_demand.plotting import basic_plot_functions
 from energy_demand.basic import conversions
 from energy_demand.plotting import plotting_results
 from energy_demand import enduse_func
 from energy_demand.profiles import load_factors
 from energy_demand.read_write import write_data
-import matplotlib
-import matplotlib.pyplot as plt
-
 #matplotlib.use('Agg') # Used to make it work in linux
 
 def plot_heat_pump_chart_multiple(
@@ -110,7 +110,7 @@ def plot_heat_pump_chart_multiple(
     plot_all_regs = False
 
     # Set figure size
-    fig = plt.figure(figsize=plotting_program.cm2inch(9, 8))
+    fig = plt.figure(figsize=basic_plot_functions.cm2inch(9, 8))
     ax = fig.add_subplot(1, 1, 1)
 
     # -----------------
@@ -319,7 +319,7 @@ def plot_heat_pump_chart(
     plot_all_regs = False
 
     # Set figure size
-    fig = plt.figure(figsize=plotting_program.cm2inch(16, 8))
+    fig = plt.figure(figsize=basic_plot_functions.cm2inch(16, 8))
     ax = fig.add_subplot(1, 1, 1)
 
     # -----------------
@@ -456,7 +456,7 @@ def plot_tot_y_peak_hour(
     ):
     """Plot fueltype specific peak h of all regions
     """
-    plt.figure(figsize=plotting_program.cm2inch(14, 8))
+    plt.figure(figsize=basic_plot_functions.cm2inch(14, 8))
 
     # -----------------
     # Axis
@@ -543,7 +543,7 @@ def plot_reg_y_over_time(
     scenario for all regions
     """
     # Set figure size
-    plt.figure(figsize=plotting_program.cm2inch(14, 8))
+    plt.figure(figsize=basic_plot_functions.cm2inch(14, 8))
 
     y_scenario = {}
 
@@ -659,7 +659,7 @@ def plot_tot_fueltype_y_over_time(
 
     # Set figure size
     fig = plt.figure(
-        figsize=plotting_program.cm2inch(9, 8))
+        figsize=basic_plot_functions.cm2inch(9, 8))
 
     ax = fig.add_subplot(1, 1, 1)
 
@@ -797,7 +797,7 @@ def plot_tot_y_over_time(
     scenario for all regions
     """
     # Set figure size
-    plt.figure(figsize=plotting_program.cm2inch(14, 8))
+    plt.figure(figsize=basic_plot_functions.cm2inch(14, 8))
 
     y_scenario = {}
 
@@ -992,7 +992,7 @@ def plot_radar_plots_average_peak_day(
     # --------------------------
     # Plot figure
     # --------------------------
-    plotting_results.plot_radar_plot_multiple_lines(
+    plot_radar_plot_multiple_lines(
         individ_radars_to_plot_dh,
         name_spider_plot,
         plot_steps=50,
@@ -1060,7 +1060,7 @@ def plot_LAD_comparison_scenarios(
     # Plot
     # -------------------------------------
     fig = plt.figure(
-        figsize=plotting_program.cm2inch(9, 8))
+        figsize=basic_plot_functions.cm2inch(9, 8))
 
     ax = fig.add_subplot(1, 1, 1)
 
@@ -1174,3 +1174,193 @@ def plot_LAD_comparison_scenarios(
         plt.show()
     else:
         plt.close()
+
+def plot_radar_plot_multiple_lines(
+        dh_profiles,
+        fig_name,
+        plot_steps,
+        scenario_names,
+        plotshow=False,
+        lf_y_by=None,
+        lf_y_cy=None,
+        list_diff_max_h=None
+    ):
+    """Plot daily load profile on a radar plot
+
+    Arguments
+    ---------
+    dh_profile : list
+        Dh values to plot
+    fig_name : str
+        Path to save figure
+
+    SOURCE: https://python-graph-gallery.com/390-basic-radar-chart/
+    """
+    fig = plt.figure(
+        figsize=basic_plot_functions.cm2inch(9, 14))
+
+    # Get maximum demand of all lines
+    max_entry = 0
+    for line_entries in dh_profiles:
+        max_in_line = max(line_entries)
+        if max_in_line > max_entry:
+            max_entry = max_in_line
+
+    max_demand = round(max_entry, -1) + 10 # Round to nearest 10 plus add 10
+
+    nr_of_plot_steps = int(max_demand / plot_steps) + 1
+
+    axis_plots_inner = []
+    axis_plots_innter_position = []
+
+    # --------------------
+    # Ciruclar axis
+    # --------------------
+    for i in range(nr_of_plot_steps):
+        axis_plots_inner.append(plot_steps*i)
+        axis_plots_innter_position.append(str(plot_steps*i))
+
+    # Minor ticks
+    minor_tick_interval = plot_steps / 2
+    minor_ticks = []
+    for i in range(nr_of_plot_steps * 2):
+        minor_ticks.append(minor_tick_interval * i)
+
+    # ----
+    # Select color scheme
+    # ----
+
+    # Colors with scenarios
+    #color_scenarios = plotting_styles.color_list_scenarios() #Color scheme Fig 13
+
+    # Colors for plotting Fig. 13
+    color_scenarios = plotting_styles.color_list_selection_dm() # Color scheme Fig 13
+
+    color_lines = ['black'] + color_scenarios
+    years = ['2015', '2050']
+    linewidth_list = [1.0, 0.7]
+    linestyle_list = ['-', '--']
+    scenario_names.insert(0, "any")
+
+    # Iterate lines
+    cnt = -1
+    for dh_profile in dh_profiles:
+
+        if cnt >= 0:
+            cnt_year = 1
+        else:
+            cnt_year = 0
+        cnt += 1
+
+        # Line properties
+        color_line = color_lines[cnt]
+        year_line = years[cnt_year]
+
+        data = {'dh_profile': ['testname']}
+
+        # Key: Label outer circle
+        for hour in range(24):
+            data[hour] = dh_profile[hour]
+
+        # Set data
+        df = pd.DataFrame(data)
+
+        # number of variable
+        categories = list(df)[1:]
+        N = len(categories)
+
+        # We are going to plot the first line of the data frame.
+        # But we need to repeat the first value to close the circular graph:
+        values = df.loc[0].drop('dh_profile').values.flatten().tolist()
+        values += values[:1]
+
+        # What will be the angle of each axis in the plot? (we divide the plot / number of variable)
+        angles = [n / float(N) * 2 * math.pi for n in range(N)]
+        angles += angles[:1]
+
+        # Initialise the spider plot
+        ax = plt.subplot(111, polar=True)
+
+        # Change axis properties
+        ax.yaxis.grid(color='grey', linestyle=':', linewidth=0.4)
+        ax.xaxis.grid(color='lightgrey', linestyle=':', linewidth=0.4)
+
+        # Change to clockwise cirection
+        ax.set_theta_direction(-1)
+
+        # Set first hour on top
+        ax.set_theta_zero_location("N")
+
+        # Draw one axe per variable + add labels labels yet (numbers)
+        plt.xticks(
+            angles[:-1],
+            categories,
+            color='black',
+            size=8)
+
+        # Draw ylabels (numbers)
+        ax.set_rlabel_position(0)
+
+        # Working alternative
+        plt.yticks(
+            axis_plots_inner,
+            axis_plots_innter_position,
+            color="black",
+            size=8)
+
+        #ax.set_yticks(axis_plots_inner, minor=False)
+        #ax.tick_params(axis='y', pad=35) 
+        #ax.set_yticks(minor_ticks, minor=True) #Somehow not working
+
+        # Set limit to size
+        plt.ylim(0, max_demand)
+        plt.ylim(0, nr_of_plot_steps*plot_steps)
+
+        # Smooth lines
+        angles_smoothed, values_smoothed = basic_plot_functions.smooth_data(
+            angles, values, spider=True)
+
+        # Plot data
+        ax.plot(
+            angles_smoothed,
+            values_smoothed,
+            color=color_line,
+            linestyle=linestyle_list[cnt_year],
+            linewidth=linewidth_list[cnt_year],
+            label="{} {}".format(year_line, scenario_names[cnt]))
+
+        # Radar area
+        ax.fill(
+            angles_smoothed,
+            values_smoothed,
+            color_line,
+            alpha=0.05)
+
+    # ------------
+    # Write outs
+    # ------------
+    font_additional_info = plotting_styles.font_info(size=4)
+
+    for cnt, entry in enumerate(list_diff_max_h):
+        plt.text(
+            0.15,
+            0 + cnt/50,
+            entry,
+            fontdict=font_additional_info,
+            transform=plt.gcf().transFigure)
+
+    # ------------
+    # Legend
+    # ------------
+    plt.legend(
+        ncol=1,
+        bbox_to_anchor=(0.2, -0.1),
+        prop={'size': 4},
+        frameon=False)
+
+    plt.savefig(fig_name)
+
+    if plotshow:
+        plt.show()
+
+    plt.close()

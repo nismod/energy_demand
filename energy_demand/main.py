@@ -2,19 +2,14 @@
 # After smif upgrade:
 #   TODO: make that automatically the parameters can be generated to be copied into smif format
 
-#TODO Make that congruence value map is better loaded from seperate file (e.g. populatio ndensity)
-
-#TODO Import weather data loading and importing whole range of weather scenarios
+# Import weather data loading and importing whole range of weather scenarios
 
 #TODO Test if technology type can be left empty in technology spreadsheet, Try to remove tech_type
 
 #TODO Write out full result. Then write function to aggregate accordingly
 #TODO SIMple aggregation. Write out sectormodel, enduse, region, fueltypes.... --> Do all aggregation based on that
-#- Make that fuel swtich can be made in any industry sector irrespective of technologies
 # MAKE SIMLPLE TABLE FOR READING IN FUELS
-
-# Improve plotting and make every plot own script
-
+# Improve plotting and processing
 # """
 import os
 import sys
@@ -24,7 +19,6 @@ from collections import defaultdict
 import numpy as np
 
 from energy_demand.basic import date_prop
-from energy_demand.plotting import plotting_results
 from energy_demand import model
 from energy_demand.basic import testing_functions
 from energy_demand.basic import lookup_tables
@@ -38,10 +32,10 @@ from energy_demand.scripts import s_disaggregation
 from energy_demand.validation import lad_validation
 from energy_demand.basic import demand_supply_interaction
 from energy_demand.scripts import s_scenario_param
-from energy_demand.scripts.init_scripts import switch_calculations
-from energy_demand.scripts.init_scripts import spatial_explicit_modelling_strategy_vars
-from energy_demand.scripts.init_scripts import create_spatial_diffusion_factors
+from energy_demand.scripts import init_scripts
+
 from energy_demand.read_write import narrative_related
+from energy_demand.plotting import fig_enduse_yh
 
 def energy_demand_model(regions, data, assumptions):
     """Main function of energy demand model to calculate yearly demand
@@ -178,9 +172,6 @@ if __name__ == "__main__":
     data['scenario_data']['gva_industry'] = data_loader.read_scenario_data_gva(name_gva_dataset, all_dummy_data=False)
     data['scenario_data']['gva_per_head'] = data_loader.read_scenario_data(name_gva_dataset_per_head)
 
-    # Read sector assignement lookup values TODO MOVE ELSEWHERE
-    data['gva_sector_lu'] = lookup_tables.economic_sectors_regional_MISTRAL()
-
     # -----------------------------
     # Create new folders
     # -----------------------------
@@ -252,7 +243,7 @@ if __name__ == "__main__":
     for new_var, new_var_vals in _user_defined_vars.items():
 
         # Test if multidimensional varible
-        crit_single_dim = narrative_related.get_crit_single_dim_var(
+        crit_single_dim = narrative_related.crit_dim_var(
             new_var_vals)
 
         if crit_single_dim:
@@ -297,7 +288,7 @@ if __name__ == "__main__":
     print("-----------------------------------------------", flush=True)
     print("Number of Regions                        " + str(data['reg_nrs']), flush=True)
 
-    # Optain population data for disaggregation
+    # Obtain population data for disaggregation
     if data['criterias']['MSOA_crit']:
         name_population_dataset = data['local_paths']['path_population_data_for_disaggregation_MSOA']
     else:
@@ -312,18 +303,20 @@ if __name__ == "__main__":
     # ------------------------------------------------------------
     # Calculate spatial diffusion factors
     # ------------------------------------------------------------
-    f_reg, f_reg_norm, f_reg_norm_abs, crit_all_the_same = create_spatial_diffusion_factors(
+    real_values = data['pop_density']
+    f_reg, f_reg_norm, f_reg_norm_abs, crit_all_the_same = init_scripts.create_spatial_diffusion_factors(
         narrative_spatial_explicit_diffusion=data['assumptions'].strategy_vars['spatial_explicit_diffusion'],
         fuel_disagg=data['fuel_disagg'],
         regions=data['regions'],
-        real_values=data['pop_density'],
-        narrative_speed_con_max=data['assumptions'].strategy_vars['speed_con_max']) #TODO TODO TODO LOAD REAL VALUES FROM DATA CSV
+        real_values=real_values,
+        narrative_speed_con_max=data['assumptions'].strategy_vars['speed_con_max'])
 
     print("Criteria all regions the same:           " + str(crit_all_the_same), flush=True)
+
     # ------------------------------------------------
     # Calculate parameter values for every region
     # ------------------------------------------------
-    regional_vars = spatial_explicit_modelling_strategy_vars(
+    regional_vars = init_scripts.spatial_explicit_modelling_strategy_vars(
         data['assumptions'].strategy_vars,
         data['assumptions'].spatially_modelled_vars,
         data['regions'],
@@ -348,7 +341,7 @@ if __name__ == "__main__":
     # Calculate switches
     # ------------------------------------------------
     print("... starting calculating switches", flush=True)
-    annual_tech_diff_params = switch_calculations(
+    annual_tech_diff_params = init_scripts.switch_calculations(
         simulated_yrs,
         data,
         f_reg,
@@ -540,7 +533,7 @@ if __name__ == "__main__":
 
                 # Plot electricity
                 for enduse, ed_yh in sim_obj.tot_fuel_y_enduse_specific_yh.items():
-                    plotting_results.plot_enduse_yh(
+                    fig_enduse_yh.run(
                         name_fig="individ__electricity_{}_{}".format(enduse, sim_yr),
                         path_result=path_folder_lp,
                         ed_yh=ed_yh[data['lookups']['fueltypes']['electricity']],

@@ -9,6 +9,8 @@ from energy_demand.plotting import plotting_results
 from energy_demand.basic import lookup_tables
 from energy_demand.read_write import data_loader
 
+from energy_demand.plotting import fig_cross_graphs
+
 def process_scenarios(path_to_scenarios, year_to_model=2015):
     """Iterate folder with scenario results and plot charts
 
@@ -36,7 +38,7 @@ def process_scenarios(path_to_scenarios, year_to_model=2015):
     seasons = date_prop.get_season(
         year_to_model=year_to_model)
 
-    model_yeardays_daytype, _, _ = date_prop.get_model_yeardays_daytype(
+    model_yeardays_daytype, _, _ = date_prop.get_yeardays_daytype(
         year_to_model=year_to_model)
 
     lookups = lookup_tables.basic_lookups()
@@ -95,7 +97,7 @@ def process_scenarios(path_to_scenarios, year_to_model=2015):
     # Ideally only compare two scenario
     # -------------------------------
     if plot_multiple_cross_charts:
-        plotting_results.plot_cross_graphs_scenarios(
+        fig_cross_graphs.plot_cross_graphs_scenarios(
             base_yr=2015,
             comparison_year=comparison_year,
             regions=regions,
@@ -106,7 +108,7 @@ def process_scenarios(path_to_scenarios, year_to_model=2015):
             label_points=False,
             plotshow=False)
 
-        plotting_results.plot_cross_graphs_scenarios(
+        fig_cross_graphs.plot_cross_graphs_scenarios(
             base_yr=2015,
             comparison_year=comparison_year,
             regions=regions,

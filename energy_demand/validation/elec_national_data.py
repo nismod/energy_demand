@@ -8,7 +8,7 @@ import matplotlib.pyplot as plt
 import matplotlib.mlab as mlab
 from energy_demand.basic import date_prop
 from energy_demand.basic import conversions
-from energy_demand.plotting import plotting_program
+from energy_demand.plotting import basic_plot_functions
 from energy_demand.plotting import plotting_results
 from energy_demand.basic import basic_functions
 from energy_demand.plotting import plotting_styles
@@ -167,10 +167,10 @@ def compare_results(
     # Plot figure
     # ----------
     fig = plt.figure(
-        figsize=plotting_program.cm2inch(22, 8)) #width, height
+        figsize=basic_plot_functions.cm2inch(22, 8)) #width, height
 
     # smooth line
-    x_data_smoothed, y_real_indo_factored_smoothed = plotting_results.smooth_data(x_data, y_real_indo_factored, num=40000)
+    x_data_smoothed, y_real_indo_factored_smoothed = basic_plot_functions.smooth_data(x_data, y_real_indo_factored, num=40000)
 
     # plot points
     plt.plot(
@@ -183,7 +183,7 @@ def compare_results(
         color='black')
 
     # smooth line
-    x_data_smoothed, y_calculated_list_smoothed = plotting_results.smooth_data(x_data, y_calculated_list, num=40000)
+    x_data_smoothed, y_calculated_list_smoothed = basic_plot_functions.smooth_data(x_data, y_calculated_list, num=40000)
 
     plt.plot(
         x_data_smoothed,
@@ -261,10 +261,10 @@ def compare_peak(
     # Compare values
     # -------------------------------
     fig = plt.figure(
-        figsize=plotting_program.cm2inch(8, 8))
+        figsize=basic_plot_functions.cm2inch(8, 8))
 
     # smooth line
-    x_smoothed, y_modelled_peak_dh_smoothed = plotting_results.smooth_data(range(24), modelled_peak_dh, num=500)
+    x_smoothed, y_modelled_peak_dh_smoothed = basic_plot_functions.smooth_data(range(24), modelled_peak_dh, num=500)
 
     plt.plot(
         x_smoothed,
@@ -274,7 +274,7 @@ def compare_peak(
         linewidth=0.5,
         label='model')
 
-    x_smoothed, validation_elec_2015_peak_smoothed = plotting_results.smooth_data(range(24), validation_elec_2015_peak, num=500)
+    x_smoothed, validation_elec_2015_peak_smoothed = basic_plot_functions.smooth_data(range(24), validation_elec_2015_peak, num=500)
 
     plt.plot(
         x_smoothed,

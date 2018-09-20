@@ -36,10 +36,10 @@ def test_get_season():
     assert result['winter'][0] == 334 #2018 regular year, first of june julianday - 1 for python
     assert result['spring'][0] == 59 #2018 regular year, first of june julianday - 1 for python
 
-def test_get_model_yeardays_daytype():
+def test_get_yeardays_daytype():
     """testing
     """
-    model_yeardays_daytype, yeardays_month, yeardays_month_days = date_prop.get_model_yeardays_daytype(
+    model_yeardays_daytype, yeardays_month, yeardays_month_days = date_prop.get_yeardays_daytype(
         year_to_model=2018)
 
     assert model_yeardays_daytype[0] == 'workday'

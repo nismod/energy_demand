@@ -9,14 +9,12 @@ import numpy as np
 import geopandas as gpd
 import pandas as pd
 import palettable
-import matplotlib
 import matplotlib.pyplot as plt
 import matplotlib.patches as mpatches
 from matplotlib.colors import LinearSegmentedColormap
 from energy_demand.basic import basic_functions
 from energy_demand.technologies import tech_related
 from energy_demand.read_write import write_data
-
 #matplotlib.use('Agg') # Used to make it work in linux
 
 def get_reasonable_bin_values(
@@ -149,10 +147,6 @@ def user_defined_classification(
         color_list = color_list
 
     # Shorten color list
-    logging.info("BEFfd ")
-    logging.info(color_list)
-
- 
     if min(bins) > 0:
         #bins.append(999)
         #color_list = color_list[:len(bins)]

@@ -81,7 +81,7 @@ def init_dict_brackets(first_level_keys):
 
     return one_level_dict
 
-def add_undef_techs(heat_pumps, all_specified_tech_enduse, enduse):
+def add_undef_techs(heat_pumps, all_specified_tech_enduse, enduses):
     """Add technology to dict
 
     Arguments
@@ -90,17 +90,18 @@ def add_undef_techs(heat_pumps, all_specified_tech_enduse, enduse):
         List with heat pumps
     all_specified_tech_enduse_by : dict
         Technologey per enduse
-    enduse : str
-        Enduse
+    enduses : list
+        Enduses
 
     Return
     -------
     all_specified_tech_enduse : dict
         Specified techs per enduse
     """
-    for heat_pump in heat_pumps:
-        if heat_pump not in all_specified_tech_enduse[enduse]:
-            all_specified_tech_enduse[enduse].append(heat_pump)
+    for enduse in enduses:
+        for heat_pump in heat_pumps:
+            if heat_pump not in all_specified_tech_enduse[enduse]:
+                all_specified_tech_enduse[enduse].append(heat_pump)
 
     return all_specified_tech_enduse
 
