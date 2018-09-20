@@ -12,6 +12,9 @@ HIgh-Resolution Energy demand model (HIRE)
 .. image:: https://coveralls.io/repos/github/nismod/energy_demand/badge.svg?branch=master
     :target: https://coveralls.io/github/nismod/energy_demand?branch=master
 
+.. image:: https://zenodo.org/badge/72533183.svg
+   :target: https://zenodo.org/badge/latestdoi/72533183
+
 **HIRE** was written in Python (Python>=3.6) and developed at the `Environmental Change Institute,
 University of Oxford <http://www.eci.ox.ac.uk>`_ within the
 EPSRC sponsored MISTRAL programme, as part of the `Infrastructure Transition
