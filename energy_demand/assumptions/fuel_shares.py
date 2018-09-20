@@ -332,16 +332,12 @@ def assign_by_fuel_tech_p(enduses, sectors, fueltypes, fueltypes_nr):
     #-- basic_metals (sector)
     fuel_tech_p_by['is_high_temp_process']['basic_metals'][fueltypes['solid_fuel']] = {
         'basic_oxygen_furnace': 1.0}
-
     fuel_tech_p_by['is_high_temp_process']['basic_metals'][fueltypes['electricity']] = {
         'electric_arc_furnace': 1.0}
-
     fuel_tech_p_by['is_high_temp_process']['basic_metals'][fueltypes['gas']] = {
         'SNG_furnace': 1.0}
-
     fuel_tech_p_by['is_high_temp_process']['basic_metals'][fueltypes['biomass']] = {
         'biomass_furnace': 1.0}
-
     fuel_tech_p_by['is_high_temp_process']['basic_metals'][fueltypes['hydrogen']] = {
         'hydrogen_furnace': 1.0}
 
@@ -360,7 +356,6 @@ def assign_by_fuel_tech_p(enduses, sectors, fueltypes, fueltypes_nr):
         'wet_kiln_electricity': 0.1}
     fuel_tech_p_by['is_high_temp_process']['non_metallic_mineral_products'][fueltypes['biomass']] = {
         'dry_kiln_biomass': 1.0}
-
     fuel_tech_p_by['is_high_temp_process']['non_metallic_mineral_products'][fueltypes['hydrogen']] = {
         'dry_kiln_hydrogen': 1.0}
 

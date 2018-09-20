@@ -58,7 +58,7 @@ def get_seasonal_weeks():
 
     return winter_week, spring_week, summer_week, autumn_week
 
-def get_model_yeardays_daytype(year_to_model):
+def get_yeardays_daytype(year_to_model):
     """For yearday, daytype and date related
     properties
 

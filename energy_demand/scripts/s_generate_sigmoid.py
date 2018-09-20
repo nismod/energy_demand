@@ -9,7 +9,7 @@ from collections import defaultdict
 import numpy as np
 from scipy.optimize import curve_fit
 from energy_demand.technologies import diffusion_technologies
-#from energy_demand.plotting import plotting_program
+#from energy_demand.plotting import basic_plot_functions
 
 def calc_sigmoid_parameters(
         l_value,
@@ -138,7 +138,7 @@ def calc_sigmoid_parameters(
 
                         '''logging.info(
                             ".... fitting successfull %s %s %s", fit_measure_p_ey, fit_measure_p_by, fit_parameter)
-                        plotting_program.plotout_sigmoid_tech_diff(
+                        basic_plot_functions.plotout_sigmoid_tech_diff(
                             l_value,
                             "FINISHED FITTING",
                             xdata,
@@ -611,7 +611,7 @@ def tech_sigmoid_parameters(
                         sig_params[tech]['l_parameter'] = l_values[tech] # maximum p
 
                         '''if plot_sigmoid_diffusion:
-                            plotting_program.plotout_sigmoid_tech_diff(
+                            basic_plot_functions.plotout_sigmoid_tech_diff(
                                 l_values[tech],
                                 tech,
                                 xdata,

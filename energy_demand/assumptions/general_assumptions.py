@@ -58,7 +58,7 @@ class Assumptions(object):
         # or technologies having a spatial explicit diffusion need
         # to be defined.
         # ============================================================
-        self.spatial_explicit_diffusion = 0 #0: False, 1: True TODO
+        self.spatial_explicit_diffusion = 1 #0: False, 1: True TODO
 
         # Define all variables which are affected by regional diffusion
         self.spatially_modelled_vars = [] # ['smart_meter_improvement_p']
@@ -211,11 +211,9 @@ class Assumptions(object):
         #       scenario_drivers : dict
         #           Scenario drivers per enduse
         # ------------------------------------------------------------
-        self.scenario_drivers = {}
-
-        # TODO: UPDATE DRIVER WITH GVA
-        # --Residential SubModel
         self.scenario_drivers = {
+    
+            # --Residential
             'rs_space_heating': ['floorarea', 'hlc'], # Do not use HDD or pop because otherweise double count
             'rs_water_heating': ['population'],
             'rs_lighting': ['population', 'floorarea'],
@@ -225,7 +223,7 @@ class Assumptions(object):
             'rs_consumer_electronics': ['population', 'gva'],
             'rs_home_computing': ['population'],
 
-            # --Service Submodel (Table 5.5a) TODO USE GVA AS DRIVER
+            # --Service
             'ss_space_heating': ['floorarea'],
             'ss_water_heating': ['population'],
             'ss_lighting': ['floorarea'],
@@ -238,7 +236,7 @@ class Assumptions(object):
             'ss_other_gas': ['population'],
             'ss_other_electricity': ['population'],
 
-            # Industry submodule
+            # Industry
             'is_high_temp_process': ['gva'],
             'is_low_temp_process': ['gva'],
             'is_drying_separation': ['gva'],
@@ -289,43 +287,41 @@ class Assumptions(object):
         # DECC 2015: Smart Metering Early Learning Project: Synthesis report
         # https://www.gov.uk/government/publications/smart-metering-early-learning-project-and-small-scale-behaviour-trials
         # Reasonable assumption is between 0.03 and 0.01 (DECC 2015)
-        sm_savings = 0.03
-
         self.smart_meter_assump['savings_smart_meter'] = {
 
             # Residential
-            'rs_cold': sm_savings,
-            'rs_cooking': sm_savings,
-            'rs_lighting': sm_savings,
-            'rs_wet': sm_savings,
-            'rs_consumer_electronics': sm_savings,
-            'rs_home_computing': sm_savings,
-            'rs_space_heating': sm_savings,
-            'rs_water_heating': sm_savings,
+            'rs_cold': 0.03,
+            'rs_cooking': 0.03,
+            'rs_lighting': 0.03,
+            'rs_wet': 0.03,
+            'rs_consumer_electronics': 0.03,
+            'rs_home_computing': 0.03,
+            'rs_space_heating': 0.03,
+            'rs_water_heating': 0.03,
 
             # Service
-            'ss_space_heating': sm_savings,
-            'ss_water_heating': sm_savings,
-            'ss_cooling_humidification': sm_savings,
-            'ss_fans': sm_savings,
-            'ss_lighting': sm_savings,
-            'ss_catering': sm_savings,
-            'ss_small_power': sm_savings,
-            'ss_ICT_equipment': sm_savings,
-            'ss_cooled_storage': sm_savings,
-            'ss_other_gas': sm_savings,
-            'ss_other_electricity': sm_savings,
+            'ss_space_heating': 0.03,
+            'ss_water_heating': 0.03,
+            'ss_cooling_humidification': 0.03,
+            'ss_fans': 0.03,
+            'ss_lighting': 0.03,
+            'ss_catering': 0.03,
+            'ss_small_power': 0.03,
+            'ss_ICT_equipment': 0.03,
+            'ss_cooled_storage': 0.03,
+            'ss_other_gas': 0.03,
+            'ss_other_electricity': 0.03,
 
             # Industry submodule
-            'is_high_temp_process': sm_savings,
-            'is_low_temp_process': sm_savings,
-            'is_drying_separation': sm_savings,
-            'is_motors': sm_savings,
-            'is_compressed_air': sm_savings,
-            'is_lighting': sm_savings,
-            'is_space_heating': sm_savings,
-            'is_other': sm_savings,
-            'is_refrigeration': sm_savings}
+            'is_high_temp_process': 0.03,
+            'is_low_temp_process': 0.03,
+            'is_drying_separation': 0.03,
+            'is_motors': 0.03,
+            'is_compressed_air': 0.03,
+            'is_lighting': 0.03,
+            'is_space_heating': 0.03,
+            'is_other': 0.03,
+            'is_refrigeration': 0.03}
 
         # ============================================================
         # Base temperature assumptions
@@ -349,15 +345,11 @@ class Assumptions(object):
         #   parameter, the energy demand assignement over the days
         #   in a year is improved.
         # ------------------------------------------------------------
-        t_bases = {}
-        t_bases['rs_t_heating_by'] = 15.5    #
-        #t_bases['rs_t_cooling_by'] = Not implemented
-
-        t_bases['ss_t_heating_by'] = 15.5    #
-        t_bases['ss_t_cooling_by'] = 5       # Orig: 5
-
-        t_bases['is_t_heating_by'] = 15.5    #
-        #self.t_bases['is_t_cooling_by'] = Not implemented
+        t_bases = {
+            'rs_t_heating_by': 15.5,
+            'ss_t_heating_by': 15.5,
+            'ss_t_cooling_by': 5,
+            'is_t_heating_by': 15.5}
 
         self.t_bases = DummyClass(t_bases)
 
@@ -380,70 +372,24 @@ class Assumptions(object):
         self.ss_enduse_space_cooling = ['ss_cooling_humidification']
 
         # ============================================================
-        # Industry submodel related parameters
+        # Industry related
+        #
+        # High temperature processing (high_temp_ process) dominates
+        # energy consumption in the iron and steel
+        #
+        # ---- Steel production - Enduse: is_high_temp_process, Sector: basic_metals
+        # With industry service switch, the future shares of 'is_temp_high_process'
+        # in sector 'basic_metals' can be set for 'basic_oxygen_furnace',
+        # 'electric_arc_furnace', and 'SNG_furnace' can be specified
+        #
+        # ---- Cement production - Enduse: is_high_temp_process, Sector: non_metallic_mineral_products
+        # Dry kilns, semidry kilns can be set
         # ============================================================
-        #
-        #   Assumptions related to industrial enduses
-        #
-        #
-        # ------------------------------------------------------------
-
-        # --------------------------------------------
-        # heating
-        # -------------------------------------------- 
-        # --> No scenario drivers but driven by switches
-
-        # --------------------------------------------
-        # lighting
-        #
-        # No individual technologies are defined. Only
-        # overall efficiency increase can be implemented
-        #--------------------------------------------
-
-        # --------------------------------------------
-        # high_temp_ process
-        #
-        #       High temperature processing dominates energy consumption in the iron and steel,
-        #       non-ferrous metal, bricks, cement, glass and potteries industries. This includes
-        #          - coke ovens
-        #          - blast furnaces and other furnaces
-        #          - kilns and
-        #          - glass tanks.
-        # High consumption in Chemicals, Non_metallic mineral products, paper, food_production
-        # Fuel use ratio - electric arc furnace over blast furnace steel making in cement sector
-        # BAT - iron & steel - continous/Ingot casting 	Sectoral share - continuous %
-        # --------------------------------------------
 
         # Share of cold rolling in steel manufacturing
-        # *****************
         self.p_cold_rolling_steel_by = 0.2      # Estimated  based on https://aceroplatea.es/docs/EuropeanSteelFigures_2015.pdf
         self.eff_cold_rolling_process = 1.8     # 80% more efficient than hot rolling Fruehan et al. (2002)
         self.eff_hot_rolling_process = 1.0      # 100% assumed efficiency
-
-        # Steel production - Enduse: is_high_temp_process, Sector: basic_metals
-        # *****************
-        # With industry service switch, the future shares
-        # in 'basic_oxygen_furnace', 'electric_arc_furnace', and 'SNG_furnace'
-        # can be specified
-
-        #scrap-based production: electric arc furnace 
-        #direct reduction process: natrual gas based, electric arc furnace
-        #BF-BOF (blast furnace - basix oxgen furnace)
-        #       Example service switch: 
-        #           is_high_temp_process,SNG_furnace,1.0,2050,basic_metals
-
-        # Cement production - Enduse: is_high_temp_process, Sector: non_metallic_mineral_products
-        # *****************
-        # technologies: Dry kilns, semidry kilns
-
-        # CHEMICALs - Enduse: is_high_temp_process, Sector: CHEMICALS
-        # *****************
-        # technologies: Dry & wet kilns
-        # TODO
-        
-        # -------------
-        # Overall efficiency improvement
-        # -------------
 
         # ============================================================
         # Assumption related to heat pump technologies
@@ -472,8 +418,8 @@ class Assumptions(object):
 
         # ============================================================
         # Fuel Stock Definition
-        # Provide for every fueltype of an enduse
-        # the share of fuel which is used by technologies for thebase year
+        # Provide for every fueltype of an enduse the share of fuel
+        # which is used by technologies in the base year
         # ============================================================
         self.fuel_tech_p_by = fuel_shares.assign_by_fuel_tech_p(
             enduses,
@@ -487,23 +433,11 @@ class Assumptions(object):
         self.specified_tech_enduse_by = helpers.get_def_techs(
             self.fuel_tech_p_by)
 
-        specified_tech_enduse_by_new = helpers.add_undef_techs(
+        _specified_tech_enduse_by = helpers.add_undef_techs(
             self.heat_pumps,
             self.specified_tech_enduse_by,
-            'rs_space_heating')
-        self.specified_tech_enduse_by = specified_tech_enduse_by_new
-
-        specified_tech_enduse_by_new = helpers.add_undef_techs(
-            self.heat_pumps,
-            self.specified_tech_enduse_by,
-            'ss_space_heating')
-        self.specified_tech_enduse_by = specified_tech_enduse_by_new
-
-        specified_tech_enduse_by_new = helpers.add_undef_techs(
-            self.heat_pumps,
-            self.specified_tech_enduse_by,
-            'is_space_heating')
-        self.specified_tech_enduse_by = specified_tech_enduse_by_new
+            self.enduse_space_heating)
+        self.specified_tech_enduse_by = _specified_tech_enduse_by
 
         # ============================================================
         # Read in switches
@@ -527,7 +461,7 @@ class Assumptions(object):
         # ========================================
         self.seasons = date_prop.get_season(year_to_model=base_yr)
 
-        self.model_yeardays_daytype, self.yeardays_month, self.yeardays_month_days = date_prop.get_model_yeardays_daytype(
+        self.model_yeardays_daytype, self.yeardays_month, self.yeardays_month_days = date_prop.get_yeardays_daytype(
             year_to_model=base_yr)
 
         # ========================================

@@ -7,15 +7,16 @@ import copy
 import numpy as np
 import matplotlib.pyplot as plt
 from scipy import stats
-from energy_demand.plotting import plotting_program
-from energy_demand.plotting import plotting_results
+
+from energy_demand import enduse_func
+from energy_demand.profiles import load_profile
+from energy_demand.basic import basic_functions
 from energy_demand.validation import elec_national_data
 from energy_demand.read_write import data_loader
 from energy_demand.basic import date_prop
-from energy_demand import enduse_func
-from energy_demand.profiles import load_profile
+from energy_demand.plotting import fig_load_profile_dh_multiple
+from energy_demand.plotting import basic_plot_functions
 from energy_demand.plotting import plotting_styles
-from energy_demand.basic import basic_functions
 
 def map_LAD_2011_2015(lad_data):
     """Map LAD 2015 values to LAD 2011.
@@ -515,7 +516,7 @@ def temporal_validation_lad(
         model_yeardays_daytype)
 
     # Plot average daily loads
-    plotting_results.plot_load_profile_dh_multiple(
+    fig_load_profile_dh_multiple.run(
         path_fig_folder=result_paths['data_results_validation'],
         path_plot_fig=os.path.join(
             result_paths['data_results_validation'],
@@ -675,7 +676,7 @@ def spatial_validation(
     # Plot
     # -------------------------------------
     fig = plt.figure(
-        figsize=plotting_program.cm2inch(9, 8)) #width, height (9, 8)
+        figsize=basic_plot_functions.cm2inch(9, 8)) #width, height (9, 8)
 
     ax = fig.add_subplot(1, 1, 1)
 
@@ -838,7 +839,7 @@ def spatial_validation_multiple(
     # Plot
     # -------------------------------------
     fig = plt.figure(
-        figsize=plotting_program.cm2inch(9, 8)) #width, height
+        figsize=basic_plot_functions.cm2inch(9, 8)) #width, height
 
     ax = fig.add_subplot(1, 1, 1)
 

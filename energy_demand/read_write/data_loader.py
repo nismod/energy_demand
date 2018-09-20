@@ -11,7 +11,7 @@ import pandas as pd
 
 from energy_demand.read_write import read_data, read_weather_data
 from energy_demand.basic import conversions
-from energy_demand.plotting import plotting_results
+from energy_demand.plotting import fig_lp
 from energy_demand.basic import basic_functions
 from energy_demand.read_write import narrative_related
 
@@ -36,9 +36,6 @@ def load_user_defined_vars(
     strategy_vars_as_narratives : dict
         Single or multidimensional parameters with fully autocompleted narratives
     """
-    strategy_vars_as_narratives = {}
-
-    # Iterate csv files with variable names in folder
     all_csv_in_folder = os.listdir(path_to_folder_with_csv)
 
     # Files to ignore in this folder
@@ -48,13 +45,20 @@ def load_user_defined_vars(
         'switches_service.csv',
         '_README_config_data.txt']
 
-    for file_name in all_csv_in_folder:
+    strategy_vars_as_narratives = {}
 
+    for file_name in all_csv_in_folder:
+        logging.info("... loading user defined variable '%s'", file_name[:-4])
         if file_name in files_to_ignores:
             pass
         else:
             # Strategy variable name
             var_name = file_name[:-4] #remove ".csv"
+
+            try:
+                _ = default_strategy_var[var_name]
+            except KeyError:
+                raise Exception("The user defined variable '%s' is not defined in model", var_name)
 
             path_to_file = os.path.join(path_to_folder_with_csv, file_name)
             raw_file_content = pd.read_csv(path_to_file)
@@ -67,11 +71,7 @@ def load_user_defined_vars(
                 simulation_base_yr,
                 default_strategy_var[var_name])
 
-            # Add to dict
-            try:
-                strategy_vars_as_narratives[var_name] = parameter_narratives
-            except KeyError:
-                raise Exception("The .csv name `%s` does not correspond to a defined parameter name", var_name) 
+            strategy_vars_as_narratives[var_name] = parameter_narratives
 
     return strategy_vars_as_narratives
 
@@ -569,71 +569,71 @@ def load_tech_profiles(
         basic_functions.create_folder(path_folder_lp)
 
         # Boiler
-        plotting_results.plot_lp_dh(
+        fig_lp.plot_lp_dh(
             tech_lp['rs_lp_heating_boilers_dh']['workday'] * 100,
             path_folder_lp,
             "{}".format("heating_boilers_workday"))
-        plotting_results.plot_lp_dh(
+        fig_lp.plot_lp_dh(
             tech_lp['rs_lp_heating_boilers_dh']['holiday'] * 100,
             path_folder_lp,
             "{}".format("heating_boilers_holiday"))
-        plotting_results.plot_lp_dh(
+        fig_lp.plot_lp_dh(
             tech_lp['rs_lp_heating_boilers_dh']['peakday'] * 100,
             path_folder_lp,
             "{}".format("heating_boilers_peakday"))
 
         # CHP
-        plotting_results.plot_lp_dh(
+        fig_lp.plot_lp_dh(
             tech_lp['rs_lp_heating_hp_dh']['workday'] * 100,
             path_folder_lp,
             "{}".format("heatpump_workday"))
-        plotting_results.plot_lp_dh(
+        fig_lp.plot_lp_dh(
             tech_lp['rs_lp_heating_hp_dh']['holiday'] * 100,
             path_folder_lp,
             "{}".format("heatpump_holiday"))
-        plotting_results.plot_lp_dh(
+        fig_lp.plot_lp_dh(
             tech_lp['rs_lp_heating_hp_dh']['peakday'] * 100,
             path_folder_lp,
             "{}".format("heatpump_peakday"))
 
         # HP
-        plotting_results.plot_lp_dh(
+        fig_lp.plot_lp_dh(
             tech_lp['rs_lp_heating_CHP_dh']['workday'] * 100,
             path_folder_lp,
             "{}".format("heating_CHP_workday"))
-        plotting_results.plot_lp_dh(
+        fig_lp.plot_lp_dh(
             tech_lp['rs_lp_heating_CHP_dh']['holiday'] * 100,
             path_folder_lp,
             "{}".format("heating_CHP_holiday"))
-        plotting_results.plot_lp_dh(
+        fig_lp.plot_lp_dh(
             tech_lp['rs_lp_heating_CHP_dh']['peakday'] * 100,
             path_folder_lp,
             "{}".format("heating_CHP_peakday"))
 
         # Stroage heating
-        plotting_results.plot_lp_dh(
+        fig_lp.plot_lp_dh(
             tech_lp['rs_lp_storage_heating_dh']['workday'] * 100,
             path_folder_lp,
             "{}".format("storage_heating_workday"))
-        plotting_results.plot_lp_dh(
+        fig_lp.plot_lp_dh(
             tech_lp['rs_lp_storage_heating_dh']['holiday'] * 100,
             path_folder_lp,
             "{}".format("storage_heating_holiday"))
-        plotting_results.plot_lp_dh(
+        fig_lp.plot_lp_dh(
             tech_lp['rs_lp_storage_heating_dh']['peakday'] * 100,
             path_folder_lp,
             "{}".format("storage_heating_peakday"))
 
         # Direct electric heating
-        plotting_results.plot_lp_dh(
+        fig_lp.plot_lp_dh(
             tech_lp['rs_lp_second_heating_dh']['workday'] * 100,
             path_folder_lp,
             "{}".format("secondary_heating_workday"))
-        plotting_results.plot_lp_dh(
+        fig_lp.plot_lp_dh(
             tech_lp['rs_lp_second_heating_dh']['holiday'] * 100,
             path_folder_lp,
             "{}".format("secondary_heating_holiday"))
-        plotting_results.plot_lp_dh(
+        fig_lp.plot_lp_dh(
             tech_lp['rs_lp_second_heating_dh']['peakday'] * 100,
             path_folder_lp,
             "{}".format("secondary_heating_peakday"))

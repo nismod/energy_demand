@@ -155,7 +155,7 @@ def generate_annual_param_vals(
     for var_name, strategy_vars_values in strategy_vars.items():
         if var_name == 'generic_fuel_switch':
             print("..")
-        single_dim_var = narrative_related.get_crit_single_dim_var(
+        single_dim_var = narrative_related.crit_dim_var(
             strategy_vars_values)
 
         if single_dim_var:

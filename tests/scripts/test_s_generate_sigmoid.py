@@ -63,8 +63,8 @@ def test_calc_sigmoid_parameters():
         ydata)
 
     '''
-    #from energy_demand.plotting import plotting_program
-    plotting_program.plotout_sigmoid_tech_diff(
+    #from energy_demand.plotting import basic_plot_functions
+    basic_plot_functions.plotout_sigmoid_tech_diff(
         l_value,
         "testtech",
         "test_enduse",

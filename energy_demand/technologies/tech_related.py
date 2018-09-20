@@ -441,12 +441,10 @@ def generate_ashp_gshp_split(gshp_fraction):
     installed_heat_pump_by = {
         'hydrogen': {
             'heat_pump_ASHP_hydrogen': ashp_fraction,
-            'heat_pump_GSHP_hydrogen': gshp_fraction
-            },
+            'heat_pump_GSHP_hydrogen': gshp_fraction},
         'electricity': {
             'heat_pump_ASHP_electricity': ashp_fraction,
-            'heat_pump_GSHP_electricity': gshp_fraction
-            }
+            'heat_pump_GSHP_electricity': gshp_fraction}
     }
 
     return installed_heat_pump_by

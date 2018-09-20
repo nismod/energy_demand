@@ -14,7 +14,7 @@ def load_smif_parameters(
         default_streategy_vars=False,
         mode='smif'
     ):
-    """Get all model parameters from smifself.
+    """Get all model parameters from smif.
     Create the dict `strategy_vars` and store
     all strategy variables (single and multidimensional/nested)
     and their standard narrative (single timestep).
@@ -51,7 +51,7 @@ def load_smif_parameters(
     # ------------------------------------------------------------
     for var_name, var_entries in default_streategy_vars.items():
 
-        crit_single_dim = narrative_related.get_crit_single_dim_var(var_entries)
+        crit_single_dim = narrative_related.crit_dim_var(var_entries)
 
         if crit_single_dim:
 
@@ -249,7 +249,7 @@ def load_param_assump(
 
     # Helper function to create description of parameters for all enduses
     for demand_name, scenario_value in default_enduses.items():
-        strategy_vars['demand_management_improvement'][demand_name] = {
+        strategy_vars['dm_improvement'][demand_name] = {
             "name": demand_name,
             "absolute_range": (0, 1),
             "description": "reduction in load factor for enduse {}".format(demand_name),
@@ -417,7 +417,7 @@ def load_param_assump(
 
     # ============================================================
     # Air leakage
-    # ============================================================    
+    # ============================================================
     air_leakage = {
         'rs_space_heating': 0,
         'ss_space_heating': 0,
@@ -497,7 +497,6 @@ def load_param_assump(
     # -----------------------
     # Generic enduse and sector specific fuel switches
     # -----------------------
-    #enduse,fueltype_replace,technology_install,switch_yr,fuel_share_switched_ey,sector
     for enduse, param_value in default_enduses.items():
         strategy_vars["generic_fuel_switch"][enduse] = {
             "name": "generic_fuel_switch",
@@ -509,10 +508,6 @@ def load_param_assump(
             "sector": True,
             'regional_specific': True,
             'diffusion_type': 'linear'}
-
-
-    #TODO LOAD OTHER SWITHCES HERE AS WELL
-
 
     # -----------------------
     # Create parameter file only with 
@@ -550,46 +545,57 @@ def load_param_assump(
 
     # Autocomplete
     strategy_vars_out = autocomplete_strategy_vars(strategy_vars)
-    
+
     return dict(strategy_vars_out)
 
 def autocomplete_strategy_vars(strategy_vars, narrative_crit=False):
-    """TODO
-    Autocomplete all narratives with 'enduse'
+    """Autocomplete all narratives or strategy variables with
+    and 'enduse' or 'sector' in case they are not defined.
+
+    Arguments
+    ----------
+    strategy_vars
+
+    Returns
+    -------
+    narrative_crit : bool
+        Criteria wheter inputs are a narrative or not
     """
     if not narrative_crit:
         # --strategy_vars-- Convert to dict for loacl running purposes
-        strategy_vars_out = defaultdict(dict)
+        out_dict = defaultdict(dict)
 
         for var_name, var_entries in strategy_vars.items():
 
-            crit_single_dim = narrative_related.get_crit_single_dim_var(var_entries)
+            crit_single_dim = narrative_related.crit_dim_var(var_entries)
 
             if crit_single_dim:
-                strategy_vars_out[var_name] = var_entries
+                out_dict[var_name] = var_entries
 
                 # If no 'enduse' defined, add empty list of affected enduses
-                strategy_vars_out[var_name]['scenario_value'] = var_entries['default_value']
+                out_dict[var_name]['scenario_value'] = var_entries['default_value']
                 if 'enduse' not in var_entries:
-                    strategy_vars_out[var_name]['enduse'] = []
+                    out_dict[var_name]['enduse'] = []
+                if 'sector' not in var_entries:
+                    out_dict[var_name]['enduse'] = True  # All sector
             else:
                 for sub_var_name, sub_var_entries in var_entries.items():
-                    strategy_vars_out[var_name][sub_var_name] = sub_var_entries
+                    out_dict[var_name][sub_var_name] = sub_var_entries
 
-                    strategy_vars_out[var_name][sub_var_name]['scenario_value'] = sub_var_entries['default_value']
+                    out_dict[var_name][sub_var_name]['scenario_value'] = sub_var_entries['default_value']
 
                     # If no 'enduse' defined, add empty list of affected enduses
                     if 'enduse' not in sub_var_entries:
-                        strategy_vars_out[var_name][sub_var_name]['enduse'] = []
+                        out_dict[var_name][sub_var_name]['enduse'] = []
                     if 'sector' not in sub_var_entries:
-                        strategy_vars_out[var_name][sub_var_name]['sector'] = True # All sector
+                        out_dict[var_name][sub_var_name]['sector'] = True # All sector
     else:
         # Same but narratives which need to be iterated
-        strategy_vars_out = defaultdict(dict)
+        out_dict = defaultdict(dict)
 
         for var_name, var_entries in strategy_vars.items():
 
-            crit_single_dim = narrative_related.get_crit_single_dim_var(var_entries)
+            crit_single_dim = narrative_related.crit_dim_var(var_entries)
 
             if crit_single_dim:
                 updated_narratives = []
@@ -602,7 +608,7 @@ def autocomplete_strategy_vars(strategy_vars, narrative_crit=False):
                         narrative['sector'] = True # All sector
                     updated_narratives.append(narrative)
 
-                strategy_vars_out[var_name] = updated_narratives
+                out_dict[var_name] = updated_narratives
 
             else:
                 for sub_var_name, sub_var_entries in var_entries.items():
@@ -617,9 +623,9 @@ def autocomplete_strategy_vars(strategy_vars, narrative_crit=False):
                             narrative['sector'] = True # All sector
                         updated_narratives.append(narrative)
 
-                    strategy_vars_out[var_name][sub_var_name] = updated_narratives
+                    out_dict[var_name][sub_var_name] = updated_narratives
 
-    return dict(strategy_vars_out)
+    return dict(out_dict)
 
 def get_affected_enduse(strategy_vars, name):
     """Get all defined affected enduses of a scenario variable
@@ -642,8 +648,7 @@ def get_affected_enduse(strategy_vars, name):
                 enduses = var['enduse']
 
                 return enduses
-    except KeyError:
-        # Not affected enduses defined
+    except KeyError: # Not affected enduses defined
         enduses = []
 
         return enduses

@@ -12,7 +12,7 @@ import logging
 import numpy as np
 from scipy import stats
 import matplotlib.pyplot as plt
-from energy_demand.plotting import plotting_program
+from energy_demand.plotting import basic_plot_functions
 from energy_demand.geography.weather_station_location import get_closest_station
 from energy_demand.plotting import plotting_styles
 
@@ -824,7 +824,7 @@ def main(regions, weather_regions, data):
     logging.warning("Nr of days:    " + str(len(weighted_daily_hdd)))
 
     # Set figure size in cm
-    plt.figure(figsize=plotting_program.cm2inch(8, 8))
+    plt.figure(figsize=basic_plot_functions.cm2inch(8, 8))
     
     # ----------------
     # PLoty daily GWh (Points are days)

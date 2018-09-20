@@ -55,7 +55,7 @@ def get_sector_narrative(sector_to_match, switches):
 
         return switches_out
 
-def get_crit_single_dim_var(var):
+def crit_dim_var(var):
     """Check if nested dict or not
 
     Arguments
@@ -197,7 +197,7 @@ def create_narratives(
     # Create single or multi dimensional narratives
     # ----------------------------------------------
     for _index, row in raw_file_content.iterrows():
-
+        print("ROW " + str(row))
         narrative = {}
 
         # IF only single dimension parameter, add dummy mutliparameter name

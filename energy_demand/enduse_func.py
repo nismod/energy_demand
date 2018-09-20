@@ -186,7 +186,6 @@ class Enduse(object):
             _fuel_new_y = industry_enduse_changes(
                 enduse,
                 sector,
-                base_yr,
                 curr_yr,
                 strategy_vars,
                 self.fuel_y,
@@ -207,10 +206,10 @@ class Enduse(object):
             # Hourly Disaggregation
             # ----------------------------------
             if self.enduse_techs == []:
-                """If no technologies are defined for an enduse, the load profiles
-                are read from dummy shape, which show the load profiles of the whole enduse.
-                No switches can be implemented and only overall change of enduse.
-                """
+                # If no technologies are defined for an enduse, the load profiles
+                # are read from dummy shape, which show the load profiles of the whole enduse.
+                # No switches can be implemented and only overall change of enduse
+
                 if flat_profile_crit:
                     pass
                 else:
@@ -230,8 +229,7 @@ class Enduse(object):
                         mode_constrained=False,
                         make_all_flat=make_all_flat)
             else:
-                """If technologies are defined for an enduse
-                """
+                #If technologies are defined for an enduse
 
                 # Get enduse specific configurations
                 mode_constrained = get_enduse_configuration(
@@ -249,7 +247,7 @@ class Enduse(object):
                     tech_stock,
                     fueltypes,
                     mode_constrained)
-                #logging.debug("Service A  " + str(np.sum(s_tot_y_cy)))
+
                 # ------------------------------------
                 # Reduction of service because of heat recovery
                 # ------------------------------------
@@ -259,7 +257,7 @@ class Enduse(object):
                     s_tot_y_cy,
                     s_tech_y_by,
                     curr_yr)
-                #logging.debug("Service B  " + str(np.sum(s_tot_y_cy)))
+
                 # ------------------------------------
                 # Reduction of service because of improvement in air leakeage
                 # ------------------------------------
@@ -273,7 +271,7 @@ class Enduse(object):
                 # --------------------------------
                 # Switches
                 # --------------------------------
-                s_tech_y_cy = calc_service_switch(
+                s_tech_y_cy = apply_service_switch(
                     enduse=enduse,
                     s_tech_y_cy=s_tech_y_cy,
                     all_technologies=self.enduse_techs,
@@ -282,7 +280,7 @@ class Enduse(object):
                     sector=sector,
                     annual_tech_diff_params=strategy_vars['annual_tech_diff_params'],
                     crit_switch_happening=assumptions.crit_switch_happening)
-                #logging.debug("Service D  " + str(np.sum(s_tot_y_cy)))
+
                 # -------------------------------------------
                 # Convert annual service to fuel per fueltype
                 # -------------------------------------------
@@ -293,7 +291,6 @@ class Enduse(object):
                     fueltypes_nr,
                     fueltypes,
                     mode_constrained)
-                #logging.debug("H0: " + str(np.sum(self.fuel_y)))
 
                 # Delete all technologies with no fuel assigned
                 for tech, fuel_tech in fuel_tech_y.items():
@@ -382,7 +379,7 @@ def demand_management(
         Fuel of yh
     """
     # Get assumed load shift
-    if strategy_vars['demand_management_improvement'][enduse][curr_yr] == 0:
+    if strategy_vars['dm_improvement'][enduse][curr_yr] == 0:
         pass # no load management
     else:
 
@@ -397,7 +394,7 @@ def demand_management(
             fuel_yh, average_fuel_yd, mode_constrained)
 
         # Load factor improvement parameter in current year
-        param_lf_improved_cy = strategy_vars['demand_management_improvement'][enduse][curr_yr]
+        param_lf_improved_cy = strategy_vars['dm_improvement'][enduse][curr_yr]
 
         # Calculate current year load factors
         lf_improved_cy = calc_lf_improvement(
@@ -1348,7 +1345,7 @@ def get_service_diffusion(sig_param_tech, curr_yr):
 
     return s_tech_p
 
-def calc_service_switch(
+def apply_service_switch(
         enduse,
         s_tech_y_cy,
         all_technologies,
@@ -1538,7 +1535,6 @@ def generic_fuel_switch(
 def industry_enduse_changes(
         enduse,
         sector,
-        base_yr,
         curr_yr,
         strategy_vars,
         fuels,
@@ -1565,35 +1561,21 @@ def industry_enduse_changes(
     --------
     fuels : np.array
         Changed fuels depending on scenario
-    TODO TODO IMPROVE MAKE GENERAL
     """
-    factor = 1
+    if enduse == 'is_high_temp_process' and sector == 'basic_metals':
 
-    if enduse == "is_low_temp_process":
+        # Calculate factor depending on fraction
+        # of hot and cold steel rolling process
+        factor = hot_cold_process(
+            curr_yr,
+            strategy_vars,
+            assumptions)
 
-        # Diffusion of policy
-        #cy_factor = by_value / cy_value / by_value
-        #Multiply fuels
-        #fuels = fuels * cy_factor
+        fuels_out = fuels * factor
 
-        '''
-        Theoretical maximal potential for every sector
-        --> improvement in % of every sector?
-        '''
-        pass
-    elif enduse == 'is_high_temp_process' and sector == 'basic_metals':
-
-            # Calculate factor depending on fraction of hot and cold steel rolling process
-            factor = hot_cold_process(
-                curr_yr,
-                strategy_vars,
-                assumptions)
+        return fuels_out
     else:
-        pass
-
-    fuels_out = fuels * factor
-
-    return fuels_out
+        return fuels
 
 def hot_cold_process(
         curr_yr,
@@ -1626,13 +1608,11 @@ def hot_cold_process(
     p_cold_rolling_by = assumptions.p_cold_rolling_steel_by
     p_hot_rolling_by = 1.0 - p_cold_rolling_by
 
-    # Fraction of cold rolling in current year
+    # Current year fractions
     p_cold_rolling_cy = strategy_vars['p_cold_rolling_steel'][curr_yr]
-
-    # Fraction fo hot rolling in current year
     p_hot_rolling_cy = 1 - p_cold_rolling_cy
 
-    # Calculate factor
+    # Efficiencies of processes
     eff_cold = assumptions.eff_cold_rolling_process
     eff_hot = assumptions.eff_hot_rolling_process
 

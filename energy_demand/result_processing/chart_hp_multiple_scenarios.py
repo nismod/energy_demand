@@ -32,7 +32,7 @@ def process_scenarios(path_to_scenarios, year_to_model=2015):
     seasons = date_prop.get_season(
         year_to_model=year_to_model)
 
-    model_yeardays_daytype, _, _ = date_prop.get_model_yeardays_daytype(
+    model_yeardays_daytype, _, _ = date_prop.get_yeardays_daytype(
         year_to_model=year_to_model)
 
     lookups = lookup_tables.basic_lookups()
