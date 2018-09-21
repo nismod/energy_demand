@@ -29,36 +29,7 @@ def dummy_raw_weather_data(local_paths):
     """Write dummy temperature for a single weather station
     """
     create_folders_to_file(local_paths['dir_raw_weather_data'], "_processed_data")
-    '''
-    from datetime import date
-    from energy_demand.basic import date_prop
 
-    create_folders_to_file(local_paths['folder_path_weater_data'], "_raw_data")
-
-    list_dates = date_prop.fullyear_dates(
-        start=date(2015, 1, 1),
-        end=date(2015, 12, 31))
-
-    rows = [] #[['headers']*40]
-    for date_day in list_dates:
-
-        year = date_day.year
-        day = date_day.day
-        month = date_day.month
-
-        empty_list = ['empty']*40
-
-        day_temp = [8,8,8,8, 9,9,9,9, 12,12,12,12, 16,16,16,16, 10,10,10,10, 7,7,7,7]
-
-        for hour in range(24):
-            empty_list[0] = str('{}/{}/{} 00:00'.format(day, month, year))
-            empty_list[15] = str('station_Nr_999')
-            empty_list[35] = str('{}'.format(day_temp[hour]))  # air temp
-            rows.append(empty_list)
-
-    write_data.create_csv_file(
-        os.path.join(local_paths['folder_path_weater_data']),
-        rows)'''
     temp_data = {}
 
     temp_data['station_Nr_999'] = np.zeros((365, 24), dtype="float")

@@ -76,7 +76,7 @@ def read_raw_carbon_trust_data(folder_path):
     nr_of_line_entries = 0
     dict_max_dh_shape = {}
 
-    # Itreateu folder with csv files
+    # Itreatu folder with csv files
     for path_csv_file in all_csv_in_folder:
         path_csv_file = os.path.join(folder_path, path_csv_file)
 

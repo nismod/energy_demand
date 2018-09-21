@@ -3,10 +3,11 @@
 import os
 import re
 import csv
-from datetime import date
 import collections
-import numpy as np
 import logging
+import numpy as np
+
+from energy_demand.basic import date_prop
 
 def read_weather_data_raw(path_to_csv, placeholder_value=999):
     """Read in raw weather data
@@ -59,7 +60,7 @@ def read_weather_data_raw(path_to_csv, placeholder_value=999):
                 air_temp = float(row[35])
 
             # Get yearday
-            yearday = date_to_yearday(year, month, day)
+            yearday = date_prop.date_to_yearday(year, month, day)
 
             # Add weather station if not already added to dict
             if station_id not in temp_stations:
@@ -70,27 +71,6 @@ def read_weather_data_raw(path_to_csv, placeholder_value=999):
             temp_stations[station_id][yearday][hour] = air_temp
 
     return temp_stations
-
-def date_to_yearday(year, month, day):
-    """Gets the yearday (julian year day) of a year minus one to correct because of python iteration
-
-    Arguments
-    ----------
-    date_base_yr : int
-        Year
-    date_base_yr : int
-        Month
-    day : int
-        Day
-
-    Example
-    -------
-    5. January 2015 --> Day nr 5 in year --> -1 because of python --> Out: 4
-    """
-    date_y = date(year, month, day)
-    yearday = date_y.timetuple().tm_yday - 1 #: correct because of python iterations
-
-    return yearday
 
 def clean_weather_data_raw(all_temp_stations, stations_outside_UK, placeholder_value=999):
     """Relace missing data measurement points and
@@ -248,14 +228,14 @@ def write_weather_data(path_to_txt, weather_data):
     """
     logging.info("... start write_weather_data")
 
-    for station_id in weather_data:
+    for station_id, station_temps in weather_data:
         file_name = os.path.join(
             path_to_txt,
             "tempdata__{}__{}".format(str(station_id), ".txt"))
 
         np.savetxt(
             file_name,
-            weather_data[station_id],
+            station_temps,
             delimiter=',')
 
     logging.info("... finished write_weather_data")
@@ -317,6 +297,5 @@ def run(local_paths):
         local_paths['dir_raw_weather_data'],
         temp_data)
 
-    logging.info("... finished script %s", os.path.basename(__file__))
     print("... finished script %s", os.path.basename(__file__))
     return
