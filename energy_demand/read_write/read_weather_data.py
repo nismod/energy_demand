@@ -3,7 +3,7 @@
 import os
 import numpy as np
 
-def read_weather_data_script_data(path_to_csv, temp_year_scenario): #TODO NECESSARy?
+def read_weather_data_script_data(path_to_csv, temp_year_scenario):
     """Read in weather data from script data
 
     Arguments

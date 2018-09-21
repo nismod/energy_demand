@@ -25,7 +25,7 @@ def nan_helper(y):
     """
     return np.isnan(y), lambda z: z.nonzero()[0]
 
-def run(path_files, path_out_files, write_to_csv=True):
+def run(path_files, path_out_files, crit_missing_values=100):
     """Iterate weather data from MIDAS and
     generate annual hourly temperatre data files
     for every weather station by interpolating missing values
@@ -58,7 +58,7 @@ def run(path_files, path_out_files, write_to_csv=True):
     print("... starting to clean original weather files")
     # Number of missing values until weather station quality
     # is considered as not good enough and ignored
-    crit_missing_values = 100
+    #crit_missing_values = 100
 
     # Stations which are outisde of the uk and are ignored
     stations_outside_UK = [
@@ -139,11 +139,12 @@ def run(path_files, path_out_files, write_to_csv=True):
 
         for station in list(temp_stations.keys()):
 
-            nans, x= nan_helper(temp_stations[station])
+            nans, x = nan_helper(temp_stations[station])
             nr_of_nans = list(nans).count(True)
 
             if nr_of_nans > crit_missing_values:
-                print("Info - ignored station for year: {}  {} nr_of_nans: {}".format(station, year, nr_of_nans))
+                print("Info - ignored station for year: {}  {} nr_of_nans: {}".format(station, year, nr_of_nans), flush=True)
+                pass
             else:
 
                 # Interpolate missing np.nan values
@@ -163,23 +164,29 @@ def run(path_files, path_out_files, write_to_csv=True):
                 temp_stations_cleaned_reshaped[station] = interpolated_values_reshaped
 
         # Write temperature data out to csv file
-        if write_to_csv:
-            for station_name, temp_values in temp_stations_cleaned_reshaped.items():
+        for station_name, temp_values in temp_stations_cleaned_reshaped.items():
 
-                file_name = "{}__{}.{}".format(year, station_name, "txt")
+            file_name = "{}__{}.{}".format(year, station_name, "txt")
 
-                path_out = os.path.join(path_out_files, file_name)
+            path_out = os.path.join(path_out_files, file_name)
 
-                np.savetxt(
-                    path_out,
-                    temp_values,
-                    delimiter=",")
+            np.savetxt(
+                path_out,
+                temp_values,
+                delimiter=",")
+        
+        print("--Number of stations '{}' with crit_missing_values '{}'  " + str(
+            len(list(temp_stations_cleaned_reshaped.keys()))),
+            crit_missing_values)
 
     print("... finished cleaning weather data")
 
 # -------------
 #run("//linux-filestore.ouce.ox.ac.uk/mistral/nismod/data/energy_demand/H-Met_office_weather_data/_complete_meteo_data_all_yrs",
 #   "//linux-filestore.ouce.ox.ac.uk/mistral/nismod/data/energy_demand/H-Met_office_weather_data/_complete_meteo_data_all_yrs_cleaned")
+run("//linux-filestore.ouce.ox.ac.uk/mistral/nismod/data/energy_demand/H-Met_office_weather_data/_year_selection",
+   "//linux-filestore.ouce.ox.ac.uk/mistral/nismod/data/energy_demand/H-Met_office_weather_data/_year_selection_cleaned",
+   crit_missing_values=0) #1: 219, 0: 161
 
 #run(path_files= "C:/Users/cenv0553/ED/data/_raw_data/_test_raw_weather_data",
 #    path_out_files ="C:/Users/cenv0553/ED/data/_raw_data/_test_raw_weather_data_cleaned")

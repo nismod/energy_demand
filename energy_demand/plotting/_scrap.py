@@ -1,49 +1,34 @@
-import numpy as np
-import matplotlib.pyplot as plt
 import pandas as pd
-from energy_demand.plotting import validation_enduses
+import geopandas
+from shapely.geometry import Point
+import matplotlib.pyplot as plt
+
+df = pd.DataFrame(
+    {'City': ['Buenos Aires', 'Brasilia', 'Santiago', 'Bogota', 'Caracas'],
+     'Country': ['Argentina', 'Brazil', 'Chile', 'Colombia', 'Venezuela'],
+     'Latitude': [-34.58, -15.78, -33.45, 4.60, 10.48],
+     'Longitude': [-58.66, -47.91, -70.66, -74.08, -66.86]})
+
+df['Coordinates'] = list(zip(df.Longitude, df.Latitude))
 
 
-rows = [{'year': 2015,
-    'hour': 0,
-    'residential_non_heat': 10,
-    'residential_heat': 30,
-    'service_non_heat': 40,
-    'service_heat': 50,
-    'industry_non_heat': 60,
-    'industry_heat': 70},
-    {'year': 2015,
-    'hour': 1,
-    'residential_non_heat': 23,
-    'residential_heat': 32,
-    'service_non_heat': 43,
-    'service_heat': 54,
-    'industry_non_heat': 63,
-    'industry_heat': 40},
-    {'year': 2015,
-    'hour': 2,
-    'residential_non_heat': 63,
-    'residential_heat': 62,
-    'service_non_heat': 63,
-    'service_heat': 64,
-    'industry_non_heat': 63,
-    'industry_heat': 60},
-    ]
+df['Coordinates'] = df['Coordinates'].apply(Point)
 
-col_names = [
-    'year',
-    'hour',
-    'residential_non_heat',
-    'residential_heat',
-    'service_non_heat',
-    'service_heat',
-    'industry_non_heat',
-    'industry_heat']
+gdf = geopandas.GeoDataFrame(df, geometry='Coordinates')
 
-my_df = pd.DataFrame(rows, columns=col_names)
+world = geopandas.read_file(geopandas.datasets.get_path('naturalearth_lowres'))
 
-validation_enduses.plot_dataframe_function(
-    my_df,
-    'hour',
-    ['residential_non_heat', 'residential_heat'],
-    'line')
+
+# We restrict to South America.
+#ax = world[world.continent == 'South America'].plot(
+#    color='white', edgecolor='black')
+ax = world[world.name == "United Kingdom"].plot(
+    color='white', edgecolor='black')
+#uk =  world[world.name == "United Kingdom"]
+
+# We can now plot our GeoDataFrame.
+gdf.plot(ax=ax, color='red')
+
+plt.show()
+
+print("aa")

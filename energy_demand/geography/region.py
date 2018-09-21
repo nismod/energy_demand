@@ -39,6 +39,6 @@ class Region(object):
 
         # Get closest weather station
         self.closest_weather_region_id = weather_station_location.get_closest_station(
-            longitude,
-            latitude,
-            weather_stations)
+            latitude_reg=latitude,
+            longitude_reg=longitude,
+            weather_stations=weather_stations)

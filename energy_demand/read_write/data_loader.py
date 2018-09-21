@@ -8,12 +8,45 @@ import ast
 from collections import defaultdict
 import numpy as np
 import pandas as pd
+import geopandas
+from shapely.geometry import Point
+import matplotlib.pyplot as plt
 
 from energy_demand.read_write import read_data, read_weather_data
 from energy_demand.basic import conversions
 from energy_demand.plotting import fig_lp
 from energy_demand.basic import basic_functions
 from energy_demand.read_write import narrative_related
+
+def create_panda_map(stations_as_dict):
+    """Plot the spatial disribution of the weather stations
+
+    https://geopandas.readthedocs.io/en/latest/gallery/create_geopandas_from_pandas.html
+
+    df = pd.DataFrame(
+        {'src_id': [...],
+        'station_longitude': [...],
+        'station_latitude': [...]})
+    """
+    # Convert dict to dataframe
+    df = pd.DataFrame.from_dict(stations_as_dict, orient='index')
+
+    df['Coordinates'] = list(zip(df.station_longitude, df.station_latitude))
+    df['Coordinates'] = df['Coordinates'].apply(Point)
+
+    gdf = geopandas.GeoDataFrame(df, geometry='Coordinates')
+
+    world = geopandas.read_file(geopandas.datasets.get_path('naturalearth_lowres'))
+
+    # We restrict to UK
+    ax = world[world.name == "United Kingdom"].plot(
+        color='white', edgecolor='black')
+
+    # We can now plot our GeoDataFrame.
+    gdf.plot(ax=ax, color='red')
+    # TODO SAVE fIG
+    plt.show()
+
 
 def read_weather_stations_raw(path_to_csv):
     """Read in weather stations from csv file
@@ -380,6 +413,8 @@ def get_local_paths(path):
             path, '_raw_data', "G_Carbon_Trust_advanced_metering_trial"),
         'folder_path_weater_stations': os.path.join(
             path, '_raw_data', 'A-temperature_data', 'cleaned_weather_stations.csv'),
+        #'folder_path_weater_stations': os.path.join(
+        #    path, '_raw_data', 'A-temperature_data', '_RECOVERY','excel_list_station_details.csv'), #TODO
         'path_floor_area_virtual_stock_by': os.path.join(
             path, '_raw_data', 'K-floor_area', 'floor_area_LAD_latest.csv'),
         'path_assumptions_db': os.path.join(
@@ -788,6 +823,14 @@ def load_temp_data(local_paths, temp_year_scenario):
     temp_data : dict
         Temperatures
     """
+    original_station_selection = [
+        971, 1198, 14093, 1450, 660, 1431, 17101, 1067, 889, 18912, 605, 1395, 455, 1272, 24089,
+        1346, 595, 393, 24090, 17091, 386, 1393, 24103, 17097, 1383, 593, 1378, 676, 24275, 56904,
+        358, 725, 56937, 940, 711, 367, 18923, 842, 23417, 1319, 1575, 56370, 622, 57254, 48, 1190,
+        888, 17314, 91249, 346, 13343, 18929, 466, 56907, 847, 18930, 1215, 61948, 709, 1352, 4911,
+        56906, 862, 855, 1226, 634, 657]
+    logging.info("NUMBER OF STATIONS ORIG " + str(len(original_station_selection)))
+    # NOTE: ORIGINAL NUR MIT 31 STATIONEN
     weather_stations = read_weather_stations_raw(
         local_paths['folder_path_weater_stations'])
 
@@ -799,18 +842,44 @@ def load_temp_data(local_paths, temp_year_scenario):
     # weather station defined and copy only these weather stations
     # for which there are data available
     # ----------------------------------------------------
+    temp_data_short = {}
+
+    all_weater_stations = list(weather_stations.keys())
+    all_weater_stations.sort() # Sort weathers tations
+    logging.info("ANZAL TOTAL " + str(len(all_weater_stations)))
+    nr_of_stations = 150
+
+    #for nr, station in enumerate(temp_data):
+    cnt = 0
+    for station in all_weater_stations:
+
+        if cnt >= nr_of_stations:
+        #if station not in original_station_selection: #ORIGINAL CONSTELLATION
+            pass
+        else:
+            try:
+                temp_data_short[station] = temp_data[station]
+                cnt += 1
+            except:
+                logging.info("no data for weather station " + str(station))
+
     weather_stations_with_data = {}
-    for station_id in temp_data.keys():
+    for station_id in temp_data_short.keys():
         try:
             weather_stations_with_data[station_id] = weather_stations[station_id]
         except:
-            raise Exception("Station is not defined for weather data {}: ".format(station_id))
+            #raise Exception("Station is not defined for weather data {}: ".format(station_id))
+            logging.info("Station is not defined for weather data {}: ".format(station_id))
+            del temp_data_short[station_id] # Remove data
 
     logging.info(
-        "Info: Number of weather stations: {} year: {}".format(
-            len(temp_data), temp_year_scenario))
+        "Info: Number of weather stations: {} year: Number of temp data: {}, year: {}".format(
+            len(weather_stations_with_data), len(temp_data_short), temp_year_scenario))
+    
+    # Plot weather stations
+    create_panda_map(weather_stations_with_data)
 
-    return weather_stations_with_data, temp_data
+    return weather_stations_with_data, temp_data_short
 
 def load_fuels(submodels_names, paths, fueltypes_nr):
     """Load in ECUK fuel data, enduses and sectors

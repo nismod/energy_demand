@@ -12,8 +12,9 @@ import logging
 import numpy as np
 from scipy import stats
 import matplotlib.pyplot as plt
+
 from energy_demand.plotting import basic_plot_functions
-from energy_demand.geography.weather_station_location import get_closest_station
+from energy_demand.geography import weather_station_location
 from energy_demand.plotting import plotting_styles
 
 def main(regions, weather_regions, data):
@@ -33,10 +34,17 @@ def main(regions, weather_regions, data):
     for region in regions:
 
         # Get closest weather station to `Region`
-        closest_weather_station = get_closest_station(
+        closest_weather_station = weather_station_location.get_closest_station(
+            latitude_reg=data['reg_coord'][region]['latitude'],
+            longitude_reg=data['reg_coord'][region]['longitude'],
+            weather_stations=data['weather_stations'])
+
+        logging.info("closest_station: {}  cor: {} {}  cor_station: {} {}".format(
+            region,
             data['reg_coord'][region]['longitude'],
             data['reg_coord'][region]['latitude'],
-            data['weather_stations'])
+            closest_weather_station,
+            data['weather_stations'][closest_weather_station]))
 
         closest_weather_region = weather_regions[closest_weather_station]
 
