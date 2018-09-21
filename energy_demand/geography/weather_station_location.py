@@ -48,6 +48,7 @@ def get_closest_station(longitude_reg, latitude_reg, weather_stations):
     closest_dist = 99999999999
 
     for station_id in weather_stations:
+        
         dist_to_station = calc_distance_two_points(
             longitude_reg,
             latitude_reg,

@@ -158,6 +158,10 @@ def get_month_from_yeraday(year, yearday):
 
     return python_month
 
+def is_leap_year(year):
+    """Determine whether a year is a leap year"""
+    return year % 4 == 0 and (year % 100 != 0 or year % 400 == 0)
+
 def date_to_yearday(year, month, day):
     """Gets the yearday (julian year day) of a year minus one to correct because of python iteration
 

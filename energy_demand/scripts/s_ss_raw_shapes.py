@@ -115,7 +115,7 @@ def read_raw_carbon_trust_data(folder_path):
                     year = int(row[0].split("/")[2])
 
                     # Redefine yearday to another year and skip 28. of Feb.
-                    if is_leap_year(int(year)) is True:
+                    if date_prop.is_leap_year(int(year)) is True:
                         year = year + 1 # Shift whole dataset to another year
                         if month == 2 and day == 29:
                             continue #skip leap day
@@ -212,10 +212,6 @@ def read_raw_carbon_trust_data(folder_path):
     np.testing.assert_almost_equal(np.sum(shape_non_peak_yd), 1, decimal=2, err_msg="")
 
     return load_shape_y_dh, load_peak_shape_dh, shape_non_peak_yd
-
-def is_leap_year(year):
-    """Determine whether a year is a leap year"""
-    return year % 4 == 0 and (year % 100 != 0 or year % 400 == 0)
 
 def assign_data_to_year(carbon_trust_data, base_yr):
     """Fill every base year day with correct data

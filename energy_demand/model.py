@@ -3,6 +3,7 @@
 import logging
 from collections import defaultdict
 import numpy as np
+import pandas as pd
 
 import energy_demand.enduse_func as endusefunctions
 from energy_demand.geography.region import Region
@@ -10,6 +11,8 @@ from energy_demand.geography.weather_region import WeatherRegion
 from energy_demand.dwelling_stock import dw_stock
 from energy_demand.profiles import load_factors
 from energy_demand.profiles import generic_shapes
+from energy_demand.plotting import validation_enduses
+from energy_demand.technologies import tech_related
 
 class EnergyDemandModel(object):
     """ Main function of energy demand model. All submodels
@@ -82,16 +85,12 @@ class EnergyDemandModel(object):
                 region,
                 assumptions.curr_yr,
                 round((100/data['reg_nrs'])*reg_array_nr, 2))
-            print(
-                "... Simulate region %s, year %s, (%s)",
-                region,
-                assumptions.curr_yr,
-                round((100/data['reg_nrs'])*reg_array_nr, 2), flush=True)
 
             all_submodel_objs = simulate_region(
                 region, data, assumptions, weather_regions)
 
-            # Collect all submodels with respect to submodel names
+            # Collect all submodels with respect to submodel names and store in list
+            # e.g. [[all_residential-submodels], [all_service_submodels]...]
             all_submodels = []
             for submodel in data['lookups']['submodels_names']:
                 submodels = get_all_submodels(all_submodel_objs, submodel)
@@ -108,11 +107,12 @@ class EnergyDemandModel(object):
                 data['criterias']['mode_constrained'],
                 data['lookups']['fueltypes'],
                 data['lookups']['fueltypes_nr'],
+                data['lookups']['submodels_names'],
                 assumptions.seasons,
                 assumptions.enduse_space_heating,
                 data['technologies'],
                 data['criterias']['write_txt_additional_results'])
-
+            
         # -------
     	# Set all keys of aggr_results as self.attributes (EnergyDemandModel)
         # -------
@@ -369,16 +369,6 @@ def get_fuels_yh(enduse_object, attribute_to_get):
             flat_shape = np.full((enduse_object.fuel_y.shape[0], 365, 24), f_hour, dtype="float")
             fuels = fuels_reg_y[:, np.newaxis, np.newaxis] * flat_shape
     else: #If not flat shape, use yh load profile of enduse
-        '''if attribute_to_get == 'shape_non_peak_y_dh':
-            fuels = enduse_object.shape_non_peak_y_dh
-        elif attribute_to_get == 'shape_non_peak_yd':
-            fuels = enduse_object.shape_non_peak_yd
-        elif attribute_to_get == 'fuel_yh':
-            fuels = enduse_object.fuel_yh
-        elif attribute_to_get == 'techs_fuel_yh':
-            fuels = enduse_object.techs_fuel_yh
-        else:
-            fuels = getattr(enduse_object, attribute_to_get)'''
         fuels = getattr(enduse_object, attribute_to_get)
 
     return fuels
@@ -610,6 +600,7 @@ def aggregate_final_results(
         mode_constrained,
         fueltypes,
         fueltypes_nr,
+        submodels_names,
         seasons,
         enduse_space_heating,
         technologies,
@@ -653,7 +644,6 @@ def aggregate_final_results(
         # Aggregate fuel of constrained technologies for heating
         # -----------------------------------------------------------------
         for submodel_nr, submodel in enumerate(all_submodels):
-
             for enduse_object in submodel:
 
                 # Aggregate only over heating technologies
@@ -669,11 +659,8 @@ def aggregate_final_results(
                     # Iterate technologies and get fuel per technology
                     for heating_tech in heating_techs:
 
-                        # Fuel of technology
-                        tech_fuel = submodel_techs_fueltypes_yh[heating_tech]
-
-                        # Fueltype of technology
-                        fueltype_tech_int = technologies[heating_tech].fueltype_int
+                        tech_fuel = submodel_techs_fueltypes_yh[heating_tech]       # Fuel of technology
+                        fueltype_tech_int = technologies[heating_tech].fueltype_int # Fueltype of technology
 
                         # Aggregate Submodel (sector) specific enduse for fueltype
                         if heating_tech in aggr_results['results_constrained'].keys():
@@ -700,8 +687,6 @@ def aggregate_final_results(
         # Add SubModel specific ed
         aggr_results['results_unconstrained'][submodel_nr][reg_array_nr] += submodel_ed_fueltype_regs_yh
 
-        if len(aggr_results['results_unconstrained']) > 3:
-            raise Exception("WHAT IS THAT???")
     # --------------------------------------------
     # Sum restuls for other purposes
     # --------------------------------------------
@@ -770,6 +755,56 @@ def aggregate_final_results(
 
             for season, lf_season in load_factor_seasons.items():
                 aggr_results['reg_seasons_lf'][season][fueltype_nr][reg_array_nr] = lf_season[fueltype_nr]
+
+
+
+
+
+
+    # -----------------------------
+    # Validation plot
+    # -----------------------------
+    '''fueltype_to_plot = 'gas'
+    fueltype_to_plot_str = tech_related.get_fueltype_int(fueltype_to_plot)
+
+    if mode_constrained:
+
+        dt_to_plot = pd.DataFrame()
+
+        _total_heating = np.zeros((fueltypes_nr, 365, 24))
+        for sector_nr, sector in enumerate(submodels_names):
+            
+            # Heating
+            all_heating_techs_per_sector = np.zeros((fueltypes_nr, 365, 24))
+            for heating_tech, submodel_data in aggr_results['results_constrained'].items():
+
+                # Fueltype of technology
+                fueltype_tech_int = technologies[heating_tech].fueltype_int
+                
+                if fueltype_tech_int == fueltype_to_plot_str:
+                    all_heating_techs_per_sector += submodel_data[sector_nr][reg_array_nr][fueltype_tech_int]
+                    _total_heating += submodel_data[sector_nr][reg_array_nr][fueltype_tech_int]
+     
+            col_name = '{}_heat'.format(sector)
+            
+            dt_to_plot[col_name] = list(all_heating_techs_per_sector[fueltype_to_plot_str].reshape(8760))
+    
+            # Non heating
+            col_name = '{}_non_heat'.format(sector)
+            try:
+                dt_to_plot[col_name] += list(aggr_results['results_unconstrained'][submodel_nr][reg_array_nr][fueltype_to_plot_str].reshape(8760))
+            except KeyError:
+                 dt_to_plot[col_name] = list(aggr_results['results_unconstrained'][submodel_nr][reg_array_nr][fueltype_to_plot_str].reshape(8760))
+
+        # Total heating
+        dt_to_plot['_total_heating'] = list(_total_heating[fueltype_to_plot_str].reshape(8760))
+
+    # Plot
+    validation_enduses.plot_dataframe_function(
+        dt_to_plot,
+        x_column_name=dt_to_plot.index.values, # set index as x values
+        y_column_names=list(dt_to_plot.columns.values),
+        plot_kind='line')'''
 
     return aggr_results
 

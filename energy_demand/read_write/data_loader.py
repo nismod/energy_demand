@@ -15,6 +15,35 @@ from energy_demand.plotting import fig_lp
 from energy_demand.basic import basic_functions
 from energy_demand.read_write import narrative_related
 
+def read_weather_stations_raw(path_to_csv):
+    """Read in weather stations from csv file
+
+    Parameter
+    ---------
+    path_to_csv : string
+        Path to csv with stored weater station data
+
+    Returns:
+    --------
+    weather_stations : dict
+        Contains coordinates and station_id of weather stations
+
+    Note
+    ----
+    Downloaded from MetOffice
+    http://archive.ceda.ac.uk/cgi-bin/midas_stations/search_by_name.cgi.py?name=&minyear=&maxyear=&current=n&db=midas_stations&orderby=id (21-09-2018)
+    """
+    df_stations = pd.read_csv(path_to_csv)
+
+    weather_stations = {}
+
+    for _, row in df_stations.iterrows():
+        weather_stations[int(row['src_id'])] = {
+            'station_latitude' : float(row['Latitude']),
+            'station_longitude': float(row['Longitude'])}
+
+    return weather_stations
+
 def load_user_defined_vars(
         default_strategy_var,
         path_to_folder_with_csv,
@@ -349,10 +378,8 @@ def get_local_paths(path):
             path, '_raw_data', 'J-population_disagg_by', 'uk_pop_principal_2015_2050_MSOA_lad.csv'), #ONS principal projection
         'folder_raw_carbon_trust': os.path.join(
             path, '_raw_data', "G_Carbon_Trust_advanced_metering_trial"),
-        'folder_path_weater_data': os.path.join(
-            path, '_raw_data', 'H-Met_office_weather_data', 'midas_wxhrly_201501-201512.csv'),
         'folder_path_weater_stations': os.path.join(
-            path, '_raw_data', 'H-Met_office_weather_data', 'excel_list_station_details.csv'),
+            path, '_raw_data', 'A-temperature_data', 'cleaned_weather_stations.csv'),
         'path_floor_area_virtual_stock_by': os.path.join(
             path, '_raw_data', 'K-floor_area', 'floor_area_LAD_latest.csv'),
         'path_assumptions_db': os.path.join(
@@ -369,8 +396,8 @@ def get_local_paths(path):
             path, '_processed_data', '_post_installation_data', 'weather_station_data'),
         'changed_weather_station_data': os.path.join(
             path, '_processed_data', '_post_installation_data', 'weather_station_data', 'weather_stations.csv'),
-        'dir_raw_weather_data': os.path.join(
-            path, '_processed_data', '_post_installation_data', 'raw_weather_data'),
+        'weather_data': os.path.join(
+            path, '_raw_data', 'A-temperature_data', 'cleaned_weather_stations_data'),
         'load_profiles': os.path.join(
             path, '_processed_data', '_post_installation_data', 'load_profiles'),
         'dir_disaggregated': os.path.join(
@@ -744,13 +771,15 @@ def get_shape_every_day(tech_lp, model_yeardays_daytype):
 
     return load_profile_y_dh
 
-def load_temp_data(paths):
+def load_temp_data(local_paths, temp_year_scenario):
     """Read in cleaned temperature and weather station data
 
     Arguments
     ----------
-    paths : dict
-        Local paths
+    local_paths : dict
+        Local local_paths
+    temp_year_scenario : int
+        Year to use temperatures
 
     Returns
     -------
@@ -759,13 +788,29 @@ def load_temp_data(paths):
     temp_data : dict
         Temperatures
     """
-    weather_stations = read_weather_data.read_weather_station_script_data(
-        paths['changed_weather_station_data'])
+    weather_stations = read_weather_stations_raw(
+        local_paths['folder_path_weater_stations'])
 
     temp_data = read_weather_data.read_weather_data_script_data(
-        paths['dir_raw_weather_data'])
+        local_paths['weather_data'], temp_year_scenario)
 
-    return weather_stations, temp_data
+    # ----------------------------------------------------
+    # Try if for every temperature data there is a
+    # weather station defined and copy only these weather stations
+    # for which there are data available
+    # ----------------------------------------------------
+    weather_stations_with_data = {}
+    for station_id in temp_data.keys():
+        try:
+            weather_stations_with_data[station_id] = weather_stations[station_id]
+        except:
+            raise Exception("Station is not defined for weather data {}: ".format(station_id))
+
+    logging.info(
+        "Info: Number of weather stations: {} year: {}".format(
+            len(temp_data), temp_year_scenario))
+
+    return weather_stations_with_data, temp_data
 
 def load_fuels(submodels_names, paths, fueltypes_nr):
     """Load in ECUK fuel data, enduses and sectors

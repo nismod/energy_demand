@@ -10,6 +10,8 @@
 #TODO SIMple aggregation. Write out sectormodel, enduse, region, fueltypes.... --> Do all aggregation based on that
 # MAKE SIMLPLE TABLE FOR READING IN FUELS
 # Improve plotting and processing
+
+# Update dummy data creation of minimum scenario
 # """
 import os
 import sys
@@ -128,6 +130,8 @@ if __name__ == "__main__":
     user_defined_base_yr = 2015
     user_defined_simulation_end_yr = 2050
     simulated_yrs = [user_defined_base_yr, user_defined_simulation_end_yr]
+
+    temp_year_scenario = 2015   # TEmperature year
 
     # --- Region definition configuration
     name_region_set = os.path.join(local_data_path, 'region_definitions', "lad_2016_uk_simplified.shp")        # LAD
@@ -270,7 +274,9 @@ if __name__ == "__main__":
         data['assumptions'].strategy_vars['f_eff_achieved'],
         data['assumptions'].strategy_vars['gshp_fraction_ey'])
 
-    data['weather_stations'], data['temp_data'] = data_loader.load_temp_data(data['local_paths'])
+    data['weather_stations'], data['temp_data'] = data_loader.load_temp_data(
+        data['local_paths'],
+        temp_year_scenario=temp_year_scenario)
 
     if data['criterias']['virtual_building_stock_criteria']:
         data['scenario_data']['floor_area']['rs_floorarea'], data['scenario_data']['floor_area']['ss_floorarea'], data['service_building_count'], rs_regions_without_floorarea, ss_regions_without_floorarea = data_loader.floor_area_virtual_dw(

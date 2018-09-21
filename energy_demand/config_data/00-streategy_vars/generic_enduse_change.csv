@@ -1,0 +1,4 @@
+sub_param_name,default_by,end_yr,value_ey,diffusion_choice,sector
+rs_space_heating,0,2050,-0.2,linear
+ss_lighting,0,2050,-0.2,linear
+is_lighting,0,2050,-0.2,linear

@@ -197,7 +197,7 @@ def create_narratives(
     # Create single or multi dimensional narratives
     # ----------------------------------------------
     for _index, row in raw_file_content.iterrows():
-        print("ROW " + str(row))
+
         narrative = {}
 
         # IF only single dimension parameter, add dummy mutliparameter name

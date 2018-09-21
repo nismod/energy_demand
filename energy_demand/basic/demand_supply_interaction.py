@@ -3,15 +3,16 @@
 import os
 import logging
 import numpy as np
+import pandas as pd
+
 from energy_demand.basic import date_prop
 from energy_demand.basic import testing_functions
-from energy_demand.read_write import write_data
-import pandas as pd
+from energy_demand.plotting import validation_enduses
 
 def constrained_results(
         results_constrained,
         results_unconstrained,
-        supply_sectors,
+        submodels_names,
         fueltypes,
         technologies
     ):
@@ -37,7 +38,7 @@ def constrained_results(
     results_unconstrained : array
         Restuls of unconstrained mode
         np.array((sector, regions, fueltype, timestep))
-    supply_sectors : list
+    submodels_names : list
         Names of sectors fur supply model
     fueltypes : dict
         Fueltype lookup
@@ -66,14 +67,12 @@ def constrained_results(
     # --------------------------------
     # Substract constrained fuel from nonconstrained (total) fuel
     non_heating_ed = results_unconstrained - sum(results_constrained.values())
-    #if testing_functions.test_if_minus_value_in_array(non_heating_ed):
-    #    raise Exception("ERror b with non_heating_ed")
 
     # ----------------------------------------
     # Add all constrained results (technology specific results)
     # Aggregate according to submodel, fueltype, technology, region, timestep
     # ----------------------------------------
-    for submodel_nr, submodel in enumerate(supply_sectors):
+    for submodel_nr, submodel in enumerate(submodels_names):
         for tech, fuel_tech in results_constrained.items():
 
             # ----
@@ -97,7 +96,7 @@ def constrained_results(
     # ---------------------------------
     # Add non_heating for all fueltypes
     # ---------------------------------
-    for submodel_nr, submodel in enumerate(supply_sectors):
+    for submodel_nr, submodel in enumerate(submodels_names):
         for fueltype_str, fueltype_int in fueltypes.items():
 
             if fueltype_str == 'heat':
@@ -122,7 +121,7 @@ def constrained_results(
 
 def unconstrained_results(
         results_unconstrained,
-        supply_sectors,
+        submodels_names,
         fueltypes
     ):
     """Prepare results for energy supply model for
@@ -144,7 +143,7 @@ def unconstrained_results(
     results_unconstrained : array
         Results of unconstrained mode
         np.array((sector, regions, fueltype, timestep))
-    supply_sectors : list
+    submodels_names : list
         Names of sectors for supply model
     fueltypes : dict
         Fueltype lookup
@@ -157,7 +156,7 @@ def unconstrained_results(
     """
     supply_results = {}
 
-    for submodel_nr, submodel in enumerate(supply_sectors):
+    for submodel_nr, submodel in enumerate(submodels_names):
         for fueltype_str, fueltype_int in fueltypes.items():
 
             # Generate key name (must be defined in `sector_models`)
@@ -253,7 +252,8 @@ def write_national_results(
         fueltype_str,
         fuelype_nr,
         year,
-        write_regions=False
+        write_regions=False,
+        submodels_names=['residential', 'service', 'industry']
     ):
     """Write national results of all fueltypes
 
@@ -266,25 +266,18 @@ def write_national_results(
 
     path = os.path.join(path_folder, "file_MODASSAR_{}_{}.csv".format(fueltype_str, year))
 
-    submodels = ['residential', 'service', 'industry']
-
     # Sum across all regions
     sum_across_regions = results_unconstrained.sum(axis=1)
 
     rows = []
-
-    # Iterate over every hour in year
     for hour in range(8760):
 
         # Get day and hour
         day_year, hour_day_year = date_prop.convert_h_to_day_year_and_h(hour)
 
-        # Start row
-        row = {
-            'year': year,
-            'hour': hour}
+        row = {'year': year, 'hour': hour}
 
-        for submodel_nr, submodel in enumerate(submodels):
+        for submodel_nr, submodel in enumerate(submodels_names):
 
             # Total energy demand
             ed_submodel_h = sum_across_regions[submodel_nr][fuelype_nr][hour]
@@ -305,11 +298,28 @@ def write_national_results(
             ed_submodel_non_heating_h = ed_submodel_h - space_heating_demand
 
             str_name_non_heat = "{}_non_heat".format(submodel)
+
             row[str_name_non_heat] = ed_submodel_non_heating_h
 
         rows.append(row)
 
     # Create dataframe
-    col_names = ['year', 'hour', 'residential_non_heat', 'residential_heat', 'service_non_heat', 'service_heat', 'industry_non_heat', 'industry_heat']
+    col_names = [
+        'year',
+        'hour',
+        'residential_non_heat',
+        'residential_heat',
+        'service_non_heat',
+        'service_heat',
+        'industry_non_heat',
+        'industry_heat']
+
     my_df = pd.DataFrame(rows, columns=col_names)
     my_df.to_csv(path, index=False) #Index prevents writing index rows
+
+    # Plot national results
+    '''validation_enduses.plot_dataframe_function(
+        my_df,
+        x_column_name='hour',
+        y_column_names=['residential_non_heat', 'service_non_heat', 'industry_non_heat'],
+        plot_kind='line')'''
