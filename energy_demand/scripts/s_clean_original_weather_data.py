@@ -3,6 +3,7 @@
 import os
 import csv
 import numpy as np
+import collections
 
 from energy_demand.basic import date_prop
 from energy_demand.basic import basic_functions
@@ -25,7 +26,13 @@ def nan_helper(y):
     """
     return np.isnan(y), lambda z: z.nonzero()[0]
 
-def run(path_files, path_out_files, crit_missing_values=100):
+def run(
+        path_files,
+        path_out_files,
+        crit_missing_values=100,
+        crit_nr_of_zeros=500,
+        nr_daily_zeros=10
+    ):
     """Iterate weather data from MIDAS and
     generate annual hourly temperatre data files
     for every weather station by interpolating missing values
@@ -50,6 +57,16 @@ def run(path_files, path_out_files, crit_missing_values=100):
         Path to folder with original weather data files
     path_out_files : str
         Path to folder where the cleaned data are stored
+
+    crit_missing_values : int
+        Criteria of how many missing values there mus bet until
+        a weather station is discarded
+    crit_nr_of_zeros : int
+        Criteria of how many zeros there must be per year until
+        weather station is discarde
+    nr_daily_zeros : int
+        How many zero values there can be maxmum in a day in the
+        year until the station is discarded
 
     Note
     -----
@@ -132,21 +149,46 @@ def run(path_files, path_out_files, crit_missing_values=100):
 
                     temp_stations[station_id][year_hour] = air_temp
 
-        # ---------------------
+        # ------------------------------------------
         # Interpolate missing values (np.nan)
-        # ---------------------
+        # ------------------------------------------
         temp_stations_cleaned_reshaped = {}
 
         for station in list(temp_stations.keys()):
 
+            # ------------------------
+            # Number of empty  values
+            # ------------------------
             nans, x = nan_helper(temp_stations[station])
             nr_of_nans = list(nans).count(True)
 
-            if nr_of_nans > crit_missing_values:
-                print("Info - ignored station for year: {}  {} nr_of_nans: {}".format(station, year, nr_of_nans), flush=True)
-                pass
-            else:
+            # ------------------------
+            # nr of zeros
+            # ------------------------
+            try:
+                nr_of_zeros = collections.Counter(temp_stations[station])[0]
+            except KeyboardInterrupt:
+                nr_of_zeros = 0
 
+            # ------------------------
+            # Test wheter maximum number of values in a day is true or not
+            # ------------------------
+            cnt_daily_zeros = collections.Counter(temp_stations[station])[0]
+            if cnt_daily_zeros > nr_daily_zeros:
+                crit_daily_zeros = True
+            else:
+                crit_daily_zeros = False
+
+            if nr_of_nans > crit_missing_values or nr_of_zeros > crit_nr_of_zeros or crit_daily_zeros :
+                print(
+                    "Crit_daily_zeros: {} nr_of_nans: {} nr_of_zeros: {} Ignored station: {} {}".format(
+                        crit_daily_zeros,
+                        nr_of_nans,
+                        nr_of_zeros,
+                        station,
+                        year,
+                        ), flush=True)
+            else:
                 # Interpolate missing np.nan values
                 temp_stations[station][nans] = np.interp(
                     x(nans),
@@ -174,10 +216,7 @@ def run(path_files, path_out_files, crit_missing_values=100):
                 path_out,
                 temp_values,
                 delimiter=",")
-        
-        print("--Number of stations '{}' with crit_missing_values '{}'  " + str(
-            len(list(temp_stations_cleaned_reshaped.keys()))),
-            crit_missing_values)
+        print("--Number of stations '{}'".format(len(list(temp_stations_cleaned_reshaped.keys()))))
 
     print("... finished cleaning weather data")
 
@@ -186,7 +225,14 @@ def run(path_files, path_out_files, crit_missing_values=100):
 #   "//linux-filestore.ouce.ox.ac.uk/mistral/nismod/data/energy_demand/H-Met_office_weather_data/_complete_meteo_data_all_yrs_cleaned")
 run("//linux-filestore.ouce.ox.ac.uk/mistral/nismod/data/energy_demand/H-Met_office_weather_data/_year_selection",
    "//linux-filestore.ouce.ox.ac.uk/mistral/nismod/data/energy_demand/H-Met_office_weather_data/_year_selection_cleaned",
-   crit_missing_values=0) #1: 219, 0: 161
+   crit_missing_values=40,
+   crit_nr_of_zeros=500,
+   nr_daily_zeros=20
+   )
 
-#run(path_files= "C:/Users/cenv0553/ED/data/_raw_data/_test_raw_weather_data",
-#    path_out_files ="C:/Users/cenv0553/ED/data/_raw_data/_test_raw_weather_data_cleaned")
+#run("C:/Users/cenv0553/ED/data/_raw_data/_test_raw_weather_data",
+#    "C:/Users/cenv0553/ED/data/_raw_data/_test_raw_weather_data_cleaned",
+    rit_missing_values=40,
+    crit_nr_of_zeros=500,
+    nr_daily_zeros=20
+# )

@@ -82,8 +82,8 @@ def test_get_hdd_country():
 
     weather_stations = {
         "weater_station_A": {
-            'station_latitude': 55.8695,
-            'station_longitude': -4.4}}
+            'latitude': 55.8695,
+            'longitude': -4.4}}
 
     regions = ['reg_A', 'reg_B']
 
@@ -124,8 +124,8 @@ def test_get_cdd_country():
     """
     weather_stations = {
         "weater_station_A": {
-            'station_latitude': 55.8695,
-            'station_longitude': -4.4}}
+            'latitude': 55.8695,
+            'longitude': -4.4}}
 
     regions = ['reg_A', 'reg_B']
 

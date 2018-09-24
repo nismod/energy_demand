@@ -2,16 +2,11 @@
 # After smif upgrade:
 #   TODO: make that automatically the parameters can be generated to be copied into smif format
 
-# Import weather data loading and importing whole range of weather scenarios
-
 #TODO Test if technology type can be left empty in technology spreadsheet, Try to remove tech_type
-
 #TODO Write out full result. Then write function to aggregate accordingly
 #TODO SIMple aggregation. Write out sectormodel, enduse, region, fueltypes.... --> Do all aggregation based on that
 # MAKE SIMLPLE TABLE FOR READING IN FUELS
 # Improve plotting and processing
-
-# Update dummy data creation of minimum scenario
 # """
 import os
 import sys
@@ -168,8 +163,10 @@ if __name__ == "__main__":
     data['reg_nrs'] = len(data['regions'])
 
     reg_centroids = read_data.get_region_centroids(name_region_set)
-    data['reg_coord'] = basic_functions.get_long_lat_decimal_degrees(reg_centroids)
 
+    data['reg_coord'] = basic_functions.get_long_lat_decimal_degrees(reg_centroids)
+    #data_loader.create_panda_map(data['reg_coord'], "tt") #print lat long
+    
     data['scenario_data']['population'] = data_loader.read_scenario_data(name_population_dataset)
 
     # Read GVA sector specific data
@@ -276,6 +273,7 @@ if __name__ == "__main__":
 
     data['weather_stations'], data['temp_data'] = data_loader.load_temp_data(
         data['local_paths'],
+        data['result_paths'],
         temp_year_scenario=temp_year_scenario)
 
     if data['criterias']['virtual_building_stock_criteria']:

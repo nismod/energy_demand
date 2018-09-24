@@ -20,6 +20,7 @@ from energy_demand.plotting import plotting_styles
 def main(regions, weather_regions, data):
     """Plot weighted HDD (HDD per Region & region pop)
     with national gas demand
+
     Note
     ----
     Comparison with national demand is not perfect
@@ -32,6 +33,8 @@ def main(regions, weather_regions, data):
     weighted_daily_hdd = np.zeros((365), dtype="float")
 
     for region in regions:
+        print("COORDINATE TO FIND: lat: {} long: {}".format(
+            data['reg_coord'][region]['latitude'], data['reg_coord'][region]['longitude']))
 
         # Get closest weather station to `Region`
         closest_weather_station = weather_station_location.get_closest_station(

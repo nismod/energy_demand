@@ -33,7 +33,7 @@ def test_rs_disaggregate():
         'regB': {'longitude': 0,'latitude': 0}}
 
     weather_stations = {
-        'stationID_1': {'station_longitude': 1,'station_latitude': 1}}
+        'stationID_1': {'longitude': 1,'latitude': 1}}
 
     temp_data = {'stationID_1': np.ones((365, 24)) + 10}
     enduses = ['rs_space_heating']
@@ -117,7 +117,7 @@ def test_ss_disaggregate():
         'regB': {'longitude': 0, 'latitude': 0}}
 
     weather_stations = {
-        'stationID_1': {'station_longitude': 1,'station_latitude': 1}}
+        'stationID_1': {'longitude': 1,'latitude': 1}}
 
     temp_data = {'stationID_1': np.ones((365, 24)) + 10}
 
@@ -163,7 +163,7 @@ def test_is_disaggregate():
         'regB': {'longitude': 0, 'latitude': 0}}
 
     weather_stations = {
-        'stationID_1': {'station_longitude': 1,'station_latitude': 1}}
+        'stationID_1': {'longitude': 1,'latitude': 1}}
 
     national_fuel = 100
     raw_fuel_sectors_enduses = {'is_space_heating': {
