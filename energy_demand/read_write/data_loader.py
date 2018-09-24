@@ -871,15 +871,6 @@ def load_temp_data(local_paths, result_paths, temp_year_scenario):
     weather_stations = read_weather_stations_raw(
         local_paths['folder_path_weater_stations'])
 
-    # Select original weather stations #TODO REMOVE
-    '''original_station_selection = [
-        971, 1198, 14093, 1450, 660, 1431, 17101, 1067, 889, 18912, 605, 1395, 455, 1272, 24089,
-        1346, 595, 393, 24090, 17091, 386, 1393, 24103, 17097, 1383, 593, 1378, 676, 24275, 56904,
-        358, 725, 56937, 940, 711, 367, 18923, 842, 23417, 1319, 1575, 56370, 622, 57254, 48, 1190,
-        888, 17314, 91249, 346, 13343, 18929, 466, 56907, 847, 18930, 1215, 61948, 709, 1352, 4911,
-        56906, 862, 855, 1226, 634, 657]
-    #all_weater_stations = original_station_selection'''
-
     temp_data = read_weather_data.read_weather_data_script_data(
         local_paths['weather_data'], temp_year_scenario)
 

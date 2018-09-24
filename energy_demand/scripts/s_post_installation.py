@@ -9,7 +9,6 @@ import zipfile
 from pkg_resources import Requirement
 from pkg_resources import resource_filename
 from energy_demand.assumptions import general_assumptions
-from energy_demand.scripts import s_raw_weather_data
 from energy_demand.scripts import s_rs_raw_shapes
 from energy_demand.scripts import s_ss_raw_shapes
 from energy_demand.read_write import data_loader
