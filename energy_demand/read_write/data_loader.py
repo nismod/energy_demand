@@ -9,7 +9,6 @@ from collections import defaultdict
 import numpy as np
 import pandas as pd
 import geopandas
-import shapefile
 from shapely.geometry import Point
 import matplotlib.pyplot as plt
 
@@ -472,10 +471,6 @@ def get_local_paths(path):
             path, '_processed_data', '_post_installation_data'),
         'data_processed_disaggregated': os.path.join(
             path, '_processed_data', '_post_installation_data', 'disaggregated'),
-        'dir_changed_weather_station_data': os.path.join(
-            path, '_processed_data', '_post_installation_data', 'weather_station_data'),
-        'changed_weather_station_data': os.path.join(
-            path, '_processed_data', '_post_installation_data', 'weather_station_data', 'weather_stations.csv'),
         'weather_data': os.path.join(
             path, '_raw_data', 'A-temperature_data', 'cleaned_weather_stations_data'),
         'load_profiles': os.path.join(

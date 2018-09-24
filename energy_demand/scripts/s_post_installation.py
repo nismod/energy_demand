@@ -67,7 +67,6 @@ def post_install_setup(args):
     folders_to_create = [
         data['local_paths']['data_processed'],
         data['local_paths']['path_post_installation_data'],
-        data['local_paths']['dir_changed_weather_station_data'],
         data['local_paths']['load_profiles'],
         data['local_paths']['rs_load_profile_txt'],
         data['local_paths']['ss_load_profile_txt'],

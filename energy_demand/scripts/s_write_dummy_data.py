@@ -11,19 +11,6 @@ from energy_demand.scripts.s_rs_raw_shapes import run
 from energy_demand.assumptions import general_assumptions
 from energy_demand.basic import lookup_tables
 
-def dummy_raw_weather_station(local_paths):
-    """Write dummy weater station for a single weather station
-    """
-    create_folders_to_file(local_paths['folder_path_weater_stations'], "_raw_data")
-
-    rows = [
-        ['headers', 'headers', 'headers'],
-        ['station_Nr_999', '50.035', '-5.20803']]
-
-    write_data.create_csv_file(
-        local_paths['changed_weather_station_data'],
-        rows)
-
 def create_folders_to_file(path_to_file, attr_split):
     """
     """
@@ -41,14 +28,23 @@ def create_folders_to_file(path_to_file, attr_split):
         basic_functions.create_folder(path_curr_folder)
 
 def dummy_sectoral_load_profiles(local_paths, path_main):
+    """Create dummy sectoral load profiles
+
+    Arguments
+    ---------
+    local_paths : dict
+        Paths
+    path_main : str
+        Main path
     """
-    """
-    create_folders_to_file(os.path.join(local_paths['ss_load_profile_txt'], "dumm"), "_processed_data")
+    create_folders_to_file(
+        os.path.join(local_paths['ss_load_profile_txt'], "dumm"), "_processed_data")
 
     paths = data_loader.load_paths(path_main)
-    lu = lookup_tables.basic_lookups()
+    lookups = lookup_tables.basic_lookups()
 
-    dict_enduses, dict_sectors, dict_fuels = data_loader.load_fuels(lu['submodels_names'], paths, lu)
+    dict_enduses, dict_sectors, dict_fuels = data_loader.load_fuels(
+        lookups['submodels_names'], paths, lookups['fueltypes_nr'])
 
     for enduse in dict_enduses['service']:
         for sector in dict_sectors['service']:
@@ -99,7 +95,6 @@ def post_install_setup_minimum(args):
     basic_functions.create_folder(raw_folder)
     basic_functions.create_folder(processed_folder)
     basic_functions.create_folder(local_paths['path_post_installation_data'])
-    basic_functions.create_folder(local_paths['dir_changed_weather_station_data'])
     basic_functions.create_folder(local_paths['load_profiles'])
     basic_functions.create_folder(local_paths['rs_load_profile_txt'])
     basic_functions.create_folder(local_paths['ss_load_profile_txt'])
@@ -131,18 +126,9 @@ def post_install_setup_minimum(args):
     # ==========================================
 
     # --------
-    # Generate dummy weather stations
-    # --------
-    dummy_raw_weather_station(local_paths)
-
-    # --------
-    # Generate dummy temperatures
-    # --------
-    dummy_raw_weather_data(local_paths)
-
-    # --------
     # Dummy service sector load profiles
     # --------
-    dummy_sectoral_load_profiles(local_paths, path_energy_demand)
+    dummy_sectoral_load_profiles(
+        local_paths, path_energy_demand)
 
     print("Successfully finished post installation setup with open source data")
