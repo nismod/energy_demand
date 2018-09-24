@@ -9,7 +9,6 @@ import zipfile
 from pkg_resources import Requirement
 from pkg_resources import resource_filename
 from energy_demand.assumptions import general_assumptions
-from energy_demand.scripts import s_raw_weather_data
 from energy_demand.scripts import s_rs_raw_shapes
 from energy_demand.scripts import s_ss_raw_shapes
 from energy_demand.read_write import data_loader
@@ -38,7 +37,7 @@ def post_install_setup(args):
     path_results = resource_filename(Requirement.parse("energy_demand"), "results")
     local_data_path = args.local_data
 
-    # Load data
+    # Define base year
     base_yr = 2015
 
     data = {}
@@ -68,8 +67,6 @@ def post_install_setup(args):
     folders_to_create = [
         data['local_paths']['data_processed'],
         data['local_paths']['path_post_installation_data'],
-        data['local_paths']['dir_raw_weather_data'],
-        data['local_paths']['dir_changed_weather_station_data'],
         data['local_paths']['load_profiles'],
         data['local_paths']['rs_load_profile_txt'],
         data['local_paths']['ss_load_profile_txt'],
@@ -83,10 +80,6 @@ def post_install_setup(args):
         data['paths'],
         data['local_paths'],
         base_yr)
-
-    print("... Read in temperature data from raw files", flush=True)
-    s_raw_weather_data.run(
-        data['local_paths'])
 
     print("... Read in service submodel load profiles", flush=True)
     s_ss_raw_shapes.run(

@@ -2,10 +2,7 @@
 # After smif upgrade:
 #   TODO: make that automatically the parameters can be generated to be copied into smif format
 
-# Import weather data loading and importing whole range of weather scenarios
-
 #TODO Test if technology type can be left empty in technology spreadsheet, Try to remove tech_type
-
 #TODO Write out full result. Then write function to aggregate accordingly
 #TODO SIMple aggregation. Write out sectormodel, enduse, region, fueltypes.... --> Do all aggregation based on that
 # MAKE SIMLPLE TABLE FOR READING IN FUELS
@@ -129,6 +126,8 @@ if __name__ == "__main__":
     user_defined_simulation_end_yr = 2050
     simulated_yrs = [user_defined_base_yr, user_defined_simulation_end_yr]
 
+    temp_year_scenario = 2015   # TEmperature year
+
     # --- Region definition configuration
     name_region_set = os.path.join(local_data_path, 'region_definitions', "lad_2016_uk_simplified.shp")        # LAD
 
@@ -164,8 +163,10 @@ if __name__ == "__main__":
     data['reg_nrs'] = len(data['regions'])
 
     reg_centroids = read_data.get_region_centroids(name_region_set)
-    data['reg_coord'] = basic_functions.get_long_lat_decimal_degrees(reg_centroids)
 
+    data['reg_coord'] = basic_functions.get_long_lat_decimal_degrees(reg_centroids)
+    #data_loader.create_panda_map(data['reg_coord'], "tt") #print lat long
+    
     data['scenario_data']['population'] = data_loader.read_scenario_data(name_population_dataset)
 
     # Read GVA sector specific data
@@ -270,7 +271,10 @@ if __name__ == "__main__":
         data['assumptions'].strategy_vars['f_eff_achieved'],
         data['assumptions'].strategy_vars['gshp_fraction_ey'])
 
-    data['weather_stations'], data['temp_data'] = data_loader.load_temp_data(data['local_paths'])
+    data['weather_stations'], data['temp_data'] = data_loader.load_temp_data(
+        data['local_paths'],
+        data['result_paths'],
+        temp_year_scenario=temp_year_scenario)
 
     if data['criterias']['virtual_building_stock_criteria']:
         data['scenario_data']['floor_area']['rs_floorarea'], data['scenario_data']['floor_area']['ss_floorarea'], data['service_building_count'], rs_regions_without_floorarea, ss_regions_without_floorarea = data_loader.floor_area_virtual_dw(

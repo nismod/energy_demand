@@ -39,6 +39,13 @@ class Region(object):
 
         # Get closest weather station
         self.closest_weather_region_id = weather_station_location.get_closest_station(
-            longitude,
-            latitude,
-            weather_stations)
+            latitude_reg=latitude,
+            longitude_reg=longitude,
+            weather_stations=weather_stations)
+
+        # Visual testing purposes
+        #from energy_demand.read_write import data_loader
+        #data_loader.print_closest_and_region(
+        #    weather_stations,
+        #    {name: {'latitude': latitude, 'longitude': longitude}},
+        #    {self.closest_weather_region_id: weather_stations[self.closest_weather_region_id]})

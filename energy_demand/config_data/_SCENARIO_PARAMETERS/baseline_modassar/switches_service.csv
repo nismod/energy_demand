@@ -1,0 +1,9 @@
+enduse,tech,service_share_ey,switch_yr,sector
+rs_space_heating,heat_pumps_electricity,0.1,2050  
+rs_water_heating,heat_pumps_electricity,0.1,2050
+ss_space_heating,heat_pumps_electricity,0.1,2050
+ss_water_heating,heat_pumps_electricity,0.1,2050
+is_space_heating,heat_pumps_electricity,0.1,2050
+is_space_heating,heat_pumps_electricity,0.1,2050
+rs_lighting,LED,0.1,2030
+rs_lighting,energy_saving_lighting_bulb,0.5,2030

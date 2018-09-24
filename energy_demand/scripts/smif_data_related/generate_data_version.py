@@ -139,5 +139,11 @@ def package_data(
 
 
 if __name__ == '__main__':
+    """Provide version name and path to data folder
+
+    E.g.:
+
+    python ../generate_data_version.py v_6_1 C:/path_to_data
+    """
     # Map command line arguments to function arguments.
     package_data(*sys.argv[1:])

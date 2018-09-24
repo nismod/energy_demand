@@ -47,7 +47,6 @@ def plt_regions_peak_h(
 
                     # Add peak hour
                     data_over_years[reg_nr].append(peak_fueltyp_h)
-                    #_scrap += np.sum(peak_fueltyp_h)
     
             y_init = data_over_years
 

@@ -8,12 +8,118 @@ import ast
 from collections import defaultdict
 import numpy as np
 import pandas as pd
+import geopandas
+from shapely.geometry import Point
+import matplotlib.pyplot as plt
 
 from energy_demand.read_write import read_data, read_weather_data
 from energy_demand.basic import conversions
 from energy_demand.plotting import fig_lp
 from energy_demand.basic import basic_functions
 from energy_demand.read_write import narrative_related
+
+def print_closest_and_region(stations_as_dict, region_to_plot, closest_region):
+    """Function used to test if the closest weather region is assigned
+    """
+
+    world = geopandas.read_file(geopandas.datasets.get_path('naturalearth_lowres'))
+    ax = world[world.name == "United Kingdom"].plot(
+        color='white', edgecolor='black')
+
+    # Plot all weather stations
+    df = pd.DataFrame.from_dict(stations_as_dict, orient='index')
+    df['Coordinates'] = list(zip(df.longitude, df.latitude))
+    df['Coordinates'] = df['Coordinates'].apply(Point)
+    gdf = geopandas.GeoDataFrame(df, geometry='Coordinates')
+    gdf.plot(ax=ax, color='blue')
+
+    # Plot region coordinate
+    df2 = pd.DataFrame.from_dict(region_to_plot, orient='index')
+    df2['Coordinates'] = list(zip(df2.longitude, df2.latitude))
+    df2['Coordinates'] = df2['Coordinates'].apply(Point)
+    gdf_region = geopandas.GeoDataFrame(df2, geometry='Coordinates')
+    gdf_region.plot(ax=ax, color='red')
+
+    # PLot closest weather station
+    df3 = pd.DataFrame.from_dict(closest_region, orient='index')
+    df3['Coordinates'] = list(zip(df3.longitude, df3.latitude))
+    df3['Coordinates'] = df3['Coordinates'].apply(Point)
+    gdf_closest = geopandas.GeoDataFrame(df3, geometry='Coordinates')
+    gdf_closest.plot(ax=ax, color='green')
+
+    plt.legend()
+
+    plt.show()
+
+def create_panda_map(stations_as_dict, fig_path, path_shapefile=False):
+    """Plot the spatial disribution of the weather stations
+
+    https://geopandas.readthedocs.io/en/latest/gallery/create_geopandas_from_pandas.html
+
+    df = pd.DataFrame(
+        {'src_id': [...],
+        'longitude': [...],
+        'latitude': [...]})
+    """
+    # Convert dict to dataframe
+    df = pd.DataFrame.from_dict(stations_as_dict, orient='index')
+
+    df['Coordinates'] = list(zip(df.longitude, df.latitude))
+    df['Coordinates'] = df['Coordinates'].apply(Point)
+
+    if path_shapefile is False:
+        world = geopandas.read_file(geopandas.datasets.get_path('naturalearth_lowres'))
+        ax = world[world.name == "United Kingdom"].plot(
+            color='white', edgecolor='black')
+    else:
+        # Load uk shapefile
+        uk_shapefile = geopandas.read_file(path_shapefile)
+
+        # Assign correct projection
+        crs = {'init': 'epsg:27700'} #27700 == OSGB_1936_British_National_Grid
+        uk_gdf = geopandas.GeoDataFrame(uk_shapefile, crs=crs)
+
+        # Transform
+        uk_gdf = uk_gdf.to_crs({'init' :'epsg:4326'})
+
+        # Plot
+        ax = uk_gdf.plot(color='white', edgecolor='black')
+
+    # print coordinates
+    crs = {'init': 'epsg:4326'}
+    gdf = geopandas.GeoDataFrame(df, geometry='Coordinates') # crs=crs,
+    gdf.plot(ax=ax, color='red')
+
+    plt.savefig(fig_path)
+
+def read_weather_stations_raw(path_to_csv):
+    """Read in weather stations from csv file
+
+    Parameter
+    ---------
+    path_to_csv : string
+        Path to csv with stored weater station data
+
+    Returns:
+    --------
+    weather_stations : dict
+        Contains coordinates and station_id of weather stations
+
+    Note
+    ----
+    Downloaded from MetOffice
+    http://archive.ceda.ac.uk/cgi-bin/midas_stations/search_by_name.cgi.py?name=&minyear=&maxyear=&current=n&db=midas_stations&orderby=id (21-09-2018)
+    """
+    df_stations = pd.read_csv(path_to_csv)
+
+    weather_stations = {}
+
+    for _, row in df_stations.iterrows():
+        weather_stations[int(row['src_id'])] = {
+            'latitude' : float(row['Latitude']),
+            'longitude': float(row['Longitude'])}
+
+    return weather_stations
 
 def load_user_defined_vars(
         default_strategy_var,
@@ -349,10 +455,10 @@ def get_local_paths(path):
             path, '_raw_data', 'J-population_disagg_by', 'uk_pop_principal_2015_2050_MSOA_lad.csv'), #ONS principal projection
         'folder_raw_carbon_trust': os.path.join(
             path, '_raw_data', "G_Carbon_Trust_advanced_metering_trial"),
-        'folder_path_weater_data': os.path.join(
-            path, '_raw_data', 'H-Met_office_weather_data', 'midas_wxhrly_201501-201512.csv'),
         'folder_path_weater_stations': os.path.join(
-            path, '_raw_data', 'H-Met_office_weather_data', 'excel_list_station_details.csv'),
+            path, '_raw_data', 'A-temperature_data', 'cleaned_weather_stations.csv'),
+        #'folder_path_weater_stations': os.path.join(
+        #    path, '_raw_data', 'A-temperature_data', '_RECOVERY','excel_list_station_details.csv'), #TODO
         'path_floor_area_virtual_stock_by': os.path.join(
             path, '_raw_data', 'K-floor_area', 'floor_area_LAD_latest.csv'),
         'path_assumptions_db': os.path.join(
@@ -360,17 +466,13 @@ def get_local_paths(path):
         'data_processed': os.path.join(
             path, '_processed_data'),
         'lad_shapefile': os.path.join(
-            path, '_raw_data', 'C_LAD_geography', 'lad_2016_uk_simplified.shp'),
+            path, '_raw_data', 'C_LAD_geography', 'same_as_pop_scenario', 'lad_2016_uk_simplified.shp'),
         'path_post_installation_data': os.path.join(
             path, '_processed_data', '_post_installation_data'),
         'data_processed_disaggregated': os.path.join(
             path, '_processed_data', '_post_installation_data', 'disaggregated'),
-        'dir_changed_weather_station_data': os.path.join(
-            path, '_processed_data', '_post_installation_data', 'weather_station_data'),
-        'changed_weather_station_data': os.path.join(
-            path, '_processed_data', '_post_installation_data', 'weather_station_data', 'weather_stations.csv'),
-        'dir_raw_weather_data': os.path.join(
-            path, '_processed_data', '_post_installation_data', 'raw_weather_data'),
+        'weather_data': os.path.join(
+            path, '_raw_data', 'A-temperature_data', 'cleaned_weather_stations_data'),
         'load_profiles': os.path.join(
             path, '_processed_data', '_post_installation_data', 'load_profiles'),
         'dir_disaggregated': os.path.join(
@@ -744,13 +846,15 @@ def get_shape_every_day(tech_lp, model_yeardays_daytype):
 
     return load_profile_y_dh
 
-def load_temp_data(paths):
+def load_temp_data(local_paths, result_paths, temp_year_scenario):
     """Read in cleaned temperature and weather station data
 
     Arguments
     ----------
-    paths : dict
-        Local paths
+    local_paths : dict
+        Local local_paths
+    temp_year_scenario : int
+        Year to use temperatures
 
     Returns
     -------
@@ -759,13 +863,43 @@ def load_temp_data(paths):
     temp_data : dict
         Temperatures
     """
-    weather_stations = read_weather_data.read_weather_station_script_data(
-        paths['changed_weather_station_data'])
+    weather_stations = read_weather_stations_raw(
+        local_paths['folder_path_weater_stations'])
 
     temp_data = read_weather_data.read_weather_data_script_data(
-        paths['dir_raw_weather_data'])
+        local_paths['weather_data'], temp_year_scenario)
 
-    return weather_stations, temp_data
+    # ----------------------------------------------------
+    # Try if for every temperature data there is a
+    # weather station defined and copy only these weather stations
+    # for which there are data available
+    # ----------------------------------------------------
+    temp_data_short = {}
+
+    for station in weather_stations:
+        try:
+            temp_data_short[station] = temp_data[station]
+        except:
+            logging.debug("no data for weather station " + str(station))
+
+    weather_stations_with_data = {}
+    for station_id in temp_data_short.keys():
+        try:
+            weather_stations_with_data[station_id] = weather_stations[station_id]
+        except:
+            del temp_data_short[station_id]
+
+    logging.info(
+        "Info: Number of weather stations: {} year: Number of temp data: {}, year: {}".format(
+            len(weather_stations_with_data), len(temp_data_short), temp_year_scenario))
+
+    # Plot weather stations
+    create_panda_map(
+        weather_stations_with_data,
+        os.path.join(result_paths['data_results_validation'], 'weather_station_distribution.pdf'),
+        path_shapefile=local_paths['lad_shapefile'])
+
+    return weather_stations_with_data, temp_data_short
 
 def load_fuels(submodels_names, paths, fueltypes_nr):
     """Load in ECUK fuel data, enduses and sectors

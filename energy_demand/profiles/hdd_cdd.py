@@ -178,8 +178,8 @@ def get_hdd_country(
 
         # Get closest weather station and temperatures
         closest_station_id = weather_station.get_closest_station(
-            reg_coord[region]['longitude'],
             reg_coord[region]['latitude'],
+            reg_coord[region]['longitude'],
             weather_stations)
 
         temperatures = temp_data[closest_station_id]
@@ -219,13 +219,11 @@ def get_cdd_country(
     cdd_regions = {}
 
     for region in regions:
-        longitude = reg_coord[region]['longitude']
-        latitude = reg_coord[region]['latitude']
 
         # Get closest weather station and temperatures
         closest_station_id = weather_station.get_closest_station(
-            longitude,
-            latitude,
+            reg_coord[region]['latitude'],
+            reg_coord[region]['longitude'],
             weather_stations)
 
         # Temp data

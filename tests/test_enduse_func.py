@@ -107,7 +107,7 @@ def test_get_peak_day():
 
     assert result == expected
 
-def test_service_switch():
+def test_apply_service_switch():
     """Test
     """
     share_boilerA_cy = 0.2
@@ -133,7 +133,7 @@ def test_service_switch():
 
     crit_switch_happening = {'test_enduse': ['test_sector']}
 
-    result = enduse_func.calc_service_switch(
+    result = enduse_func.apply_service_switch(
         enduse='test_enduse',
         s_tech_y_cy=tot_s_yh_cy,
         all_technologies=all_technologies,
@@ -163,7 +163,7 @@ def test_service_switch():
             }
         }}
 
-    result = enduse_func.calc_service_switch(
+    result = enduse_func.apply_service_switch(
         enduse='test_enduse',
         s_tech_y_cy=tot_s_yh_cy,
         all_technologies=all_technologies,

@@ -65,7 +65,6 @@ def run_all_plot_functions(
                     result_paths['data_results_PDF'], "comparions_LAD_cross_graph_gas_by_cy.pdf"),
                 label_points=False,
                 plotshow=False)
-        
         except KeyError:
             logging.info("Check if correct comparison year is provided, i.e. really data exists for this year")
 

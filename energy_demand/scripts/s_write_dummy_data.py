@@ -9,67 +9,7 @@ from energy_demand.read_write import data_loader
 from energy_demand.basic import basic_functions
 from energy_demand.scripts.s_rs_raw_shapes import run
 from energy_demand.assumptions import general_assumptions
-from energy_demand.scripts import s_raw_weather_data
 from energy_demand.basic import lookup_tables
-
-def dummy_raw_weather_station(local_paths):
-    """Write dummy weater station for a single weather station
-    """
-    create_folders_to_file(local_paths['folder_path_weater_stations'], "_raw_data")
-
-    rows = [
-        ['headers', 'headers', 'headers'],
-        ['station_Nr_999', '50.035', '-5.20803']]
-
-    write_data.create_csv_file(
-        local_paths['changed_weather_station_data'],
-        rows)
-
-def dummy_raw_weather_data(local_paths):
-    """Write dummy temperature for a single weather station
-    """
-    create_folders_to_file(local_paths['dir_raw_weather_data'], "_processed_data")
-    '''
-    from datetime import date
-    from energy_demand.basic import date_prop
-
-    create_folders_to_file(local_paths['folder_path_weater_data'], "_raw_data")
-
-    list_dates = date_prop.fullyear_dates(
-        start=date(2015, 1, 1),
-        end=date(2015, 12, 31))
-
-    rows = [] #[['headers']*40]
-    for date_day in list_dates:
-
-        year = date_day.year
-        day = date_day.day
-        month = date_day.month
-
-        empty_list = ['empty']*40
-
-        day_temp = [8,8,8,8, 9,9,9,9, 12,12,12,12, 16,16,16,16, 10,10,10,10, 7,7,7,7]
-
-        for hour in range(24):
-            empty_list[0] = str('{}/{}/{} 00:00'.format(day, month, year))
-            empty_list[15] = str('station_Nr_999')
-            empty_list[35] = str('{}'.format(day_temp[hour]))  # air temp
-            rows.append(empty_list)
-
-    write_data.create_csv_file(
-        os.path.join(local_paths['folder_path_weater_data']),
-        rows)'''
-    temp_data = {}
-
-    temp_data['station_Nr_999'] = np.zeros((365, 24), dtype="float")
-
-    for i in range(365):
-        temp_data['station_Nr_999'][i] = [
-            8, 8, 8, 8, 9, 9, 9, 9, 12, 12, 12, 12, 16, 16, 16, 16, 10, 10, 10, 10, 7, 7, 7, 7]
-
-    s_raw_weather_data.write_weather_data(
-        local_paths['dir_raw_weather_data'],
-        temp_data)
 
 def create_folders_to_file(path_to_file, attr_split):
     """
@@ -88,14 +28,23 @@ def create_folders_to_file(path_to_file, attr_split):
         basic_functions.create_folder(path_curr_folder)
 
 def dummy_sectoral_load_profiles(local_paths, path_main):
+    """Create dummy sectoral load profiles
+
+    Arguments
+    ---------
+    local_paths : dict
+        Paths
+    path_main : str
+        Main path
     """
-    """
-    create_folders_to_file(os.path.join(local_paths['ss_load_profile_txt'], "dumm"), "_processed_data")
+    create_folders_to_file(
+        os.path.join(local_paths['ss_load_profile_txt'], "dumm"), "_processed_data")
 
     paths = data_loader.load_paths(path_main)
-    lu = lookup_tables.basic_lookups()
+    lookups = lookup_tables.basic_lookups()
 
-    dict_enduses, dict_sectors, dict_fuels = data_loader.load_fuels(lu['submodels_names'], paths, lu)
+    dict_enduses, dict_sectors, dict_fuels = data_loader.load_fuels(
+        lookups['submodels_names'], paths, lookups['fueltypes_nr'])
 
     for enduse in dict_enduses['service']:
         for sector in dict_sectors['service']:
@@ -146,8 +95,6 @@ def post_install_setup_minimum(args):
     basic_functions.create_folder(raw_folder)
     basic_functions.create_folder(processed_folder)
     basic_functions.create_folder(local_paths['path_post_installation_data'])
-    basic_functions.create_folder(local_paths['dir_raw_weather_data'])
-    basic_functions.create_folder(local_paths['dir_changed_weather_station_data'])
     basic_functions.create_folder(local_paths['load_profiles'])
     basic_functions.create_folder(local_paths['rs_load_profile_txt'])
     basic_functions.create_folder(local_paths['ss_load_profile_txt'])
@@ -179,18 +126,9 @@ def post_install_setup_minimum(args):
     # ==========================================
 
     # --------
-    # Generate dummy weather stations
-    # --------
-    dummy_raw_weather_station(local_paths)
-
-    # --------
-    # Generate dummy temperatures
-    # --------
-    dummy_raw_weather_data(local_paths)
-
-    # --------
     # Dummy service sector load profiles
     # --------
-    dummy_sectoral_load_profiles(local_paths, path_energy_demand)
+    dummy_sectoral_load_profiles(
+        local_paths, path_energy_demand)
 
     print("Successfully finished post installation setup with open source data")
