@@ -846,15 +846,15 @@ def get_shape_every_day(tech_lp, model_yeardays_daytype):
 
     return load_profile_y_dh
 
-def load_temp_data(local_paths, result_paths, temp_year_scenario):
+def load_temp_data(local_paths, temp_year_scenario, save_fig=False):
     """Read in cleaned temperature and weather station data
 
     Arguments
     ----------
     local_paths : dict
         Local local_paths
-    temp_year_scenario : int
-        Year to use temperatures
+    temp_year_scenario : list
+        Years to use temperatures
 
     Returns
     -------
@@ -863,43 +863,48 @@ def load_temp_data(local_paths, result_paths, temp_year_scenario):
     temp_data : dict
         Temperatures
     """
-    weather_stations = read_weather_stations_raw(
-        local_paths['folder_path_weater_stations'])
+    temp_data_short = defaultdict(dict)
+    weather_stations_with_data = defaultdict(dict)
 
-    temp_data = read_weather_data.read_weather_data_script_data(
-        local_paths['weather_data'], temp_year_scenario)
+    for year in temp_year_scenario:
 
-    # ----------------------------------------------------
-    # Try if for every temperature data there is a
-    # weather station defined and copy only these weather stations
-    # for which there are data available
-    # ----------------------------------------------------
-    temp_data_short = {}
+        weather_stations = read_weather_stations_raw(
+            local_paths['folder_path_weater_stations'])
 
-    for station in weather_stations:
-        try:
-            temp_data_short[station] = temp_data[station]
-        except:
-            logging.debug("no data for weather station " + str(station))
+        temp_data = read_weather_data.read_weather_data_script_data(
+            local_paths['weather_data'], year)
 
-    weather_stations_with_data = {}
-    for station_id in temp_data_short.keys():
-        try:
-            weather_stations_with_data[station_id] = weather_stations[station_id]
-        except:
-            del temp_data_short[station_id]
+        for station in weather_stations:
+            try:
+                temp_data_short[year][station] = temp_data[station]
+            except:
+                logging.debug("no data for weather station " + str(station))
 
-    logging.info(
-        "Info: Number of weather stations: {} year: Number of temp data: {}, year: {}".format(
-            len(weather_stations_with_data), len(temp_data_short), temp_year_scenario))
+        for station_id in temp_data_short[year].keys():
+            try:
+                weather_stations_with_data[year][station_id] = weather_stations[station_id]
+            except:
+                del temp_data_short[year][station_id]
 
-    # Plot weather stations
-    create_panda_map(
-        weather_stations_with_data,
-        os.path.join(result_paths['data_results_validation'], 'weather_station_distribution.pdf'),
-        path_shapefile=local_paths['lad_shapefile'])
+        logging.info(
+            "Info: Number of weather stations: {} year: Number of temp data: {}, year: {}".format(
+                len(weather_stations_with_data), len(temp_data_short[year]), temp_year_scenario))
 
-    return weather_stations_with_data, temp_data_short
+        if not save_fig:
+            pass
+        else:
+            create_panda_map(
+                weather_stations_with_data[year],
+                os.path.join(save_fig, 'weather_station_distribution_{}.pdf'.format(year)),
+                path_shapefile=local_paths['lad_shapefile'])
+        
+            # print coordinates
+            #for station in weather_stations_with_data:
+            #    print("{}, {}".format(
+            #        weather_stations_with_data[station]['latitude'],
+            #        weather_stations_with_data[station]['longitude']))
+        
+    return dict(weather_stations_with_data), dict(temp_data_short)
 
 def load_fuels(submodels_names, paths, fueltypes_nr):
     """Load in ECUK fuel data, enduses and sectors

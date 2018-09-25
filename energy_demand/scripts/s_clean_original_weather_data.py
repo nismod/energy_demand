@@ -221,18 +221,15 @@ def run(
     print("... finished cleaning weather data")
 
 # -------------
-#run("//linux-filestore.ouce.ox.ac.uk/mistral/nismod/data/energy_demand/H-Met_office_weather_data/_complete_meteo_data_all_yrs",
-#   "//linux-filestore.ouce.ox.ac.uk/mistral/nismod/data/energy_demand/H-Met_office_weather_data/_complete_meteo_data_all_yrs_cleaned")
+'''run(
+    "//linux-filestore.ouce.ox.ac.uk/mistral/nismod/data/energy_demand/H-Met_office_weather_data/_complete_meteo_data_all_yrs",
+    "//linux-filestore.ouce.ox.ac.uk/mistral/nismod/data/energy_demand/H-Met_office_weather_data/_complete_meteo_data_all_yrs_cleaned",
+    crit_missing_values=40,
+    crit_nr_of_zeros=500,
+    nr_daily_zeros=20)'''
+
 run("//linux-filestore.ouce.ox.ac.uk/mistral/nismod/data/energy_demand/H-Met_office_weather_data/_year_selection",
    "//linux-filestore.ouce.ox.ac.uk/mistral/nismod/data/energy_demand/H-Met_office_weather_data/_year_selection_cleaned",
    crit_missing_values=40,
    crit_nr_of_zeros=500,
-   nr_daily_zeros=20
-   )
-
-#run("C:/Users/cenv0553/ED/data/_raw_data/_test_raw_weather_data",
-#    "C:/Users/cenv0553/ED/data/_raw_data/_test_raw_weather_data_cleaned",
-    rit_missing_values=40,
-    crit_nr_of_zeros=500,
-    nr_daily_zeros=20
-# )
+   nr_daily_zeros=20)

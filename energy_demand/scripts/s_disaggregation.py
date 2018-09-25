@@ -27,6 +27,7 @@ def disaggregate_demand(data):
     # ===========================================
     # I. Disaggregation
     # ===========================================
+    base_yr = data['assumptions'].base_yr
 
     # Load data for disaggregateion
     data['scenario_data']['employment_stats'] = data_loader.read_employment_stats(
@@ -43,8 +44,8 @@ def disaggregate_demand(data):
         data['scenario_data'],
         data['assumptions'],
         data['reg_coord'],
-        data['weather_stations'],
-        data['temp_data'],
+        data['weather_stations'][base_yr],  # Base year data used to disaggregate demand
+        data['temp_data'][base_yr],         # Base year data used to disaggregate demand
         data['sectors'],
         data['enduses'],
         data['service_building_count'])

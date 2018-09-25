@@ -12,7 +12,6 @@ from energy_demand.dwelling_stock import dw_stock
 from energy_demand.profiles import load_factors
 from energy_demand.profiles import generic_shapes
 from energy_demand.plotting import validation_enduses
-from energy_demand.technologies import tech_related
 
 class EnergyDemandModel(object):
     """ Main function of energy demand model. All submodels
@@ -26,8 +25,10 @@ class EnergyDemandModel(object):
         Main data container
     assumptions : obj
         Assumptions and calculations based on assumptions
+    weather_yr : int
+        Year of temperature
     """
-    def __init__(self, regions, data, assumptions):
+    def __init__(self, regions, data, assumptions, weather_yr):
         """Constructor
         """
         logging.info("... start main energy demand function")
@@ -38,14 +39,14 @@ class EnergyDemandModel(object):
         # Create Weather Regions
         # ----------------------------
         weather_regions = {}
-        for weather_region in data['weather_stations']:
+        for weather_region in data['weather_stations'][weather_yr]:
             weather_regions[weather_region] = WeatherRegion(
                 name=weather_region,
                 assumptions=assumptions,
                 technologies=data['technologies'],
                 fueltypes=data['lookups']['fueltypes'],
                 enduses=data['enduses'],
-                temp_by=data['temp_data'][weather_region],
+                temp_by=data['temp_data'][weather_yr][weather_region],
                 tech_lp=data['tech_lp'],
                 sectors=data['sectors'])
 
@@ -87,7 +88,7 @@ class EnergyDemandModel(object):
                 round((100/data['reg_nrs'])*reg_array_nr, 2))
 
             all_submodel_objs = simulate_region(
-                region, data, assumptions, weather_regions)
+                region, data, assumptions, weather_regions, weather_yr)
 
             # Collect all submodels with respect to submodel names and store in list
             # e.g. [[all_residential-submodels], [all_service_submodels]...]
@@ -175,7 +176,7 @@ def get_disaggregated_fuel_of_reg(submodel_names, fuel_disagg, region):
 
     return region_fuel_disagg
 
-def simulate_region(region, data, assumptions, weather_regions):
+def simulate_region(region, data, assumptions, weather_regions, weather_yr):
     """Run submodels for a single region
 
     Arguments
@@ -186,6 +187,8 @@ def simulate_region(region, data, assumptions, weather_regions):
         Data container
     weather_regions : oject
         Weather regions
+    weather_yr : int
+        Weather yr
 
     Returns
     -------
@@ -203,7 +206,7 @@ def simulate_region(region, data, assumptions, weather_regions):
         longitude=data['reg_coord'][region]['longitude'],
         latitude=data['reg_coord'][region]['latitude'],
         region_fuel_disagg=region_fuel_disagg,
-        weather_stations=data['weather_stations'])
+        weather_stations=data['weather_stations'][weather_yr])
 
     # Closest weather region object
     weather_region_obj = weather_regions[region_obj.closest_weather_region_id]
@@ -233,7 +236,7 @@ def simulate_region(region, data, assumptions, weather_regions):
                 else:
                     fuel = region_obj.fuels[submodel_name][enduse]
                     fuel_tech_p_by = assumptions.fuel_tech_p_by[enduse]
-                
+
                 if not data['dw_stocks'][submodel_name]:
                     dw_stock = False
                 else:

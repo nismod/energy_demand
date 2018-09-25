@@ -119,7 +119,6 @@ def generate_annual_param_vals(
         regions,
         strategy_vars,
         simulated_yrs,
-        path=False
     ):
     """
     Calculate parameter values for every year based
@@ -135,8 +134,6 @@ def generate_annual_param_vals(
         Strategy variable infirmation
     simulated_yrs : list
         Simulated years
-    path : str
-        Path to local data
 
     Returns
     -------

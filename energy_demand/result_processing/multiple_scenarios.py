@@ -54,7 +54,6 @@ def process_result_multi_scen(
             pass
         else:
 
-            # Execute script to generate PDF results
             single_scenario.main(
                 os.path.join(path_to_folder_with_scenarios, scenario),
                 path_shapefile_input,
