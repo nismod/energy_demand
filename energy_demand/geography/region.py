@@ -1,5 +1,7 @@
 """Region Class
 """
+import numpy as np
+
 from energy_demand.geography import weather_station_location
 
 class Region(object):
@@ -15,8 +17,14 @@ class Region(object):
         Latitude coordinate
     fuel_disagg : dict
         Nested dict by region, enduse => np.array, single dimension for fuel type
-    weather_regions : dict
-        Weather regions
+    weather_stations : dict
+        Weather stations of current weather year
+    weather_stations_by : dict
+        Weather stations of base weather year
+    weather_reg_cy : dict
+        Weather station region objects of current weather year
+    weather_reg_by : dict
+        Weather station region objects of current weather year
 
     Note
     ----
@@ -28,7 +36,8 @@ class Region(object):
             longitude,
             latitude,
             region_fuel_disagg,
-            weather_stations
+            weather_reg_cy,
+            weather_reg_by
         ):
         """Constructor
         """
@@ -38,14 +47,49 @@ class Region(object):
         self.fuels = region_fuel_disagg
 
         # Get closest weather station
-        self.closest_weather_region_id = weather_station_location.get_closest_station(
+        self.closest_weather_reg = weather_station_location.get_closest_station(
             latitude_reg=latitude,
             longitude_reg=longitude,
-            weather_stations=weather_stations)
+            weather_stations=weather_reg_cy)
+
+        # Get closest weather station of weather base year
+        closest_weather_by_id = weather_station_location.get_closest_station(
+            latitude_reg=latitude,
+            longitude_reg=longitude,
+            weather_stations=weather_reg_by)
+
+        # =================
+        # Calculate Weather Correction factor in relation to base year
+        #
+        # Because the number of HDD and CDD may be different for different
+        # weather years, a linear relationship between energy demand
+        # related to heating and cooling is assumed and a weather
+        # correction factor is calculated based on HDD and CDD calculations
+        # for the weather base year and the actual weather data depending
+        # on the closest weather region
+        # =================
+
+        # Climate correction factor (hdd)
+        f_climate_hdd_rs = np.sum(
+            weather_reg_cy[self.closest_weather_reg].rs_hdd_by) / np.sum(weather_reg_by[closest_weather_by_id].rs_hdd_by)
+        f_climate_hdd_ss = np.sum(
+            weather_reg_cy[self.closest_weather_reg].ss_hdd_by) / np.sum(weather_reg_by[closest_weather_by_id].ss_hdd_by)
+        f_climate_hdd_is = np.sum(
+            weather_reg_cy[self.closest_weather_reg].is_hdd_by) / np.sum(weather_reg_by[closest_weather_by_id].is_hdd_by)
+
+        # Climate correction factor (cdd)
+        f_climate_cdd_ss = np.sum(
+            weather_reg_cy[self.closest_weather_reg].ss_cdd_by) / np.sum(weather_reg_by[closest_weather_by_id].ss_cdd_by)
+        #f_climate_cdd_is = np.sum(weather_reg_cy[self.closest_weather_reg].is_cdd_by) / np.sum(weather_reg_by[closest_weather_by_id].is_cdd_by)
+
+        self.f_weather_correction = {
+            'residential': {'hdd': f_climate_hdd_rs, 'cdd': None},
+            'service': {'hdd': f_climate_hdd_ss, 'cdd': f_climate_cdd_ss},
+            'industry': {'hdd': f_climate_hdd_is, 'cdd': None}}
 
         # Visual testing purposes
         #from energy_demand.read_write import data_loader
         #data_loader.print_closest_and_region(
         #    weather_stations,
         #    {name: {'latitude': latitude, 'longitude': longitude}},
-        #    {self.closest_weather_region_id: weather_stations[self.closest_weather_region_id]})
+        #    {self.closest_weather_reg: weather_stations[self.closest_weather_reg]})

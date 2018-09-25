@@ -42,6 +42,8 @@ class WeatherRegion(object):
     def __init__(
             self,
             name,
+            latitude,
+            longitude,
             assumptions,
             technologies,
             fueltypes,
@@ -53,10 +55,10 @@ class WeatherRegion(object):
         """Constructor of weather region
         """
         self.name = name
-
+        self.longitude = longitude
+        self.latitude = latitude
         # -----------------------------------
         # Calculate current year temperatures
-        # # INFO: this could be removed if external weather generator is available
         # -----------------------------------
         temp_cy = change_temp_climate(
             assumptions.curr_yr,
@@ -84,7 +86,7 @@ class WeatherRegion(object):
             assumptions.t_bases.rs_t_heating_by,
             enduses['residential'],
             rs_t_base_heating_cy,
-            assumptions.specified_tech_enduse_by) #assumptions.rs_specified_tech_enduse_by)
+            assumptions.specified_tech_enduse_by)
 
         ss_tech_stock = technological_stock.TechStock(
             'ss_tech_stock',
@@ -97,7 +99,7 @@ class WeatherRegion(object):
             assumptions.t_bases.ss_t_heating_by,
             enduses['service'],
             ss_t_base_heating_cy,
-            assumptions.specified_tech_enduse_by) #assumptions.ss_specified_tech_enduse_by)
+            assumptions.specified_tech_enduse_by)
 
         is_tech_stock = technological_stock.TechStock(
             'is_tech_stock',
@@ -110,28 +112,30 @@ class WeatherRegion(object):
             assumptions.t_bases.is_t_heating_by,
             enduses['industry'],
             ss_t_base_heating_cy,
-            assumptions.specified_tech_enduse_by) #assumptions.is_specified_tech_enduse_by)
-        
+            assumptions.specified_tech_enduse_by)
+
         self.tech_stock = {
             'residential': rs_tech_stock,
             'service': ss_tech_stock,
-            'industry': is_tech_stock
-        }
+            'industry': is_tech_stock}
+
         # ==================================================================
         # Load profiles
         # ==================================================================
         flat_shape_yd, _, flat_shape_y_dh = generic_shapes.flat_shape()
-       
+
         # ==================================================================
         # Residential submodel load profiles
         # ==================================================================
         load_profiles = load_profile.LoadProfileStock("load_profiles")
 
-        # --------Calculate HDD/CDD
+        # --------Calculate HDD/CDD of used weather year
         self.rs_hdd_by, _ = hdd_cdd.calc_reg_hdd(
             temp_by, assumptions.t_bases.rs_t_heating_by, assumptions.model_yeardays)
         self.rs_hdd_cy, rs_fuel_shape_heating_yd = hdd_cdd.calc_reg_hdd(
             temp_cy, rs_t_base_heating_cy, assumptions.model_yeardays)
+
+        # --------Calculate HDD/CDD of base year weather year
         #self.rs_cdd_by, _ = hdd_cdd.calc_reg_cdd(
         #    temp_by, assumptions.t_bases.rs_t_cooling_by, assumptions.model_yeardays)
         #self.rs_cdd_cy, rs_fuel_shape_cooling_yd = hdd_cdd.calc_reg_cdd(
@@ -311,21 +315,24 @@ class WeatherRegion(object):
         # Service Submodel load profiles
         # ==================================================================
         # --------HDD/CDD
-        ss_hdd_by, _ = hdd_cdd.calc_reg_hdd(
+        # current weather_yr
+        self.ss_hdd_by, _ = hdd_cdd.calc_reg_hdd(
             temp_by, assumptions.t_bases.ss_t_heating_by, assumptions.model_yeardays)
+
         ss_hdd_cy, ss_fuel_shape_heating_yd = hdd_cdd.calc_reg_hdd(
             temp_cy, ss_t_base_heating_cy, assumptions.model_yeardays)
 
-        ss_cdd_by, _ = hdd_cdd.calc_reg_cdd(
+        self.ss_cdd_by, _ = hdd_cdd.calc_reg_cdd(
             temp_by, assumptions.t_bases.ss_t_cooling_by, assumptions.model_yeardays)
+
         ss_cdd_cy, ss_lp_cooling_yd = hdd_cdd.calc_reg_cdd(
             temp_cy, ss_t_base_cooling_cy, assumptions.model_yeardays)
 
         try:
             f_heat_ss_y = np.nan_to_num(
-                1.0 / float(np.sum(ss_hdd_by))) * np.sum(ss_hdd_cy)
+                1.0 / float(np.sum(self.ss_hdd_by))) * np.sum(ss_hdd_cy)
             f_cooling_ss_y = np.nan_to_num(
-                1.0 / float(np.sum(ss_cdd_by))) * np.sum(ss_cdd_cy)
+                1.0 / float(np.sum(self.ss_cdd_by))) * np.sum(ss_cdd_cy)
         except ZeroDivisionError:
             f_heat_ss_y = 1
             f_cooling_ss_y = 1
@@ -444,8 +451,10 @@ class WeatherRegion(object):
         # ==================================================================
 
         # --------HDD/CDD
-        is_hdd_by, _ = hdd_cdd.calc_reg_hdd(
+        # Current weather_yr
+        self.is_hdd_by, _ = hdd_cdd.calc_reg_hdd(
             temp_by, assumptions.t_bases.is_t_heating_by, assumptions.model_yeardays)
+
         #is_cdd_by, _ = hdd_cdd.calc_reg_cdd(
         #    temp_by, assumptions.t_bases.is_t_cooling_by, assumptions.model_yeardays)
 
@@ -456,7 +465,7 @@ class WeatherRegion(object):
         #    temp_cy, ss_t_base_cooling_cy, assumptions.model_yeardays)
 
         try:
-            f_heat_is_y = np.nan_to_num(1.0 / float(np.sum(is_hdd_by))) * np.sum(is_hdd_cy)
+            f_heat_is_y = np.nan_to_num(1.0 / float(np.sum(self.is_hdd_by))) * np.sum(is_hdd_cy)
             #self.f_cooling_is_y = np.nan_to_num(1.0 / float(np.sum(is_cdd_by))) * np.sum(is_cdd_cy)
             f_cooling_is_y = 1
         except ZeroDivisionError:
@@ -687,7 +696,6 @@ def change_temp_climate(
     """
     temp_climate_change = np.zeros((365, 24), dtype="float")
 
-    # Iterate every month
     for yearday_month, month_yeardays in yeardays_month_days.items():
 
         month_str = basic_functions.get_month_from_int(yearday_month + 1)

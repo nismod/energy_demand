@@ -876,7 +876,13 @@ def load_temp_data(local_paths, temp_year_scenario, save_fig=False):
 
         for station in weather_stations:
             try:
-                temp_data_short[year][station] = temp_data[station]
+                _ = temp_data[station]
+
+                # Remove all non-uk stations
+                if weather_stations[station]['longitude'] > 2 or weather_stations[station]['longitude'] < -8.5:
+                    pass
+                else:
+                    temp_data_short[year][station] = temp_data[station]
             except:
                 logging.debug("no data for weather station " + str(station))
 

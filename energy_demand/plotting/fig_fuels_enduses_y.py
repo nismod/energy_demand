@@ -69,9 +69,13 @@ def run(results, lookups, fig_name, plotshow=False):
 
     for fueltype_str, fuel_fueltype_yrs in y_values_fueltype.items():
 
-        smooth_x_line_data, smooth_y_line_data = basic_plot_functions.smooth_line(
-            np.array(list(fuel_fueltype_yrs.keys())),
-            np.array(list(fuel_fueltype_yrs.values())))
+        if len(np.array(list(fuel_fueltype_yrs.values()))) > 2:
+            smooth_x_line_data, smooth_y_line_data = basic_plot_functions.smooth_line(
+                np.array(list(fuel_fueltype_yrs.keys())),
+                np.array(list(fuel_fueltype_yrs.values())))
+        else:
+            smooth_x_line_data = list(fuel_fueltype_yrs.keys())
+            smooth_y_line_data = list(fuel_fueltype_yrs.values())
 
         plt.plot(
             smooth_x_line_data,     # years

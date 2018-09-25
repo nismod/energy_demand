@@ -19,6 +19,7 @@ def test_enduse():
         curr_yr='test',
         enduse='test',
         sector='test',
+        f_weather_correction={},
         fuel=np.zeros((7, 0)),
         tech_stock='test',
         heating_factor_y='test',
@@ -396,25 +397,27 @@ def test_apply_heat_recovery():
     assert result == 50
     assert result_tech == {'techA': 50}
 
-def test_apply_climate_chante():
+def test_apply_weather_correction():
     """Testing"""
 
-    result = enduse_func.apply_climate_change(
+    result = enduse_func.apply_weather_correction(
         enduse='heating',
         fuel_y=200,
         cooling_factor_y=1.5,
         heating_factor_y=1.5,
         enduse_space_heating=['heating'],
-        enduse_space_cooling=['cooling'])
+        enduse_space_cooling=['cooling'],
+        f_weather_correction={'hdd': 1, 'ccd': 1})
 
     assert result == 300
-    result = enduse_func.apply_climate_change(
+    result = enduse_func.apply_weather_correction(
         enduse='cooling',
         fuel_y=200,
         cooling_factor_y=1.5,
         heating_factor_y=1.5,
         enduse_space_heating=['heating'],
-        enduse_space_cooling=['cooling'])
+        enduse_space_cooling=['cooling'],
+        f_weather_correction={'hdd': 1, 'ccd': 1})
 
     assert result == 300
 

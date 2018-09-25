@@ -2,11 +2,24 @@
 """
 import os
 import csv
-import numpy as np
 import collections
+import numpy as np
 
 from energy_demand.basic import date_prop
 from energy_demand.basic import basic_functions
+
+def count_sequence_of_zeros(sequence):
+    cnt = 0
+    max_cnt_zeros = 0
+    for hour_val in sequence:
+        if hour_val == 0:
+            cnt += 1
+        else:
+            if cnt > max_cnt_zeros:
+                max_cnt_zeros = cnt
+            cnt = 0 #reset to zero again
+    
+    return max_cnt_zeros
 
 def nan_helper(y):
     """Helper to handle indices and logical indices of NaNs.
@@ -73,9 +86,6 @@ def run(
         - In case of a leap year the 29 of February is ignored
     """
     print("... starting to clean original weather files")
-    # Number of missing values until weather station quality
-    # is considered as not good enough and ignored
-    #crit_missing_values = 100
 
     # Stations which are outisde of the uk and are ignored
     stations_outside_UK = [
@@ -170,24 +180,18 @@ def run(
             except KeyboardInterrupt:
                 nr_of_zeros = 0
 
-            # ------------------------
-            # Test wheter maximum number of values in a day is true or not
-            # ------------------------
-            cnt_daily_zeros = collections.Counter(temp_stations[station])[0]
-            if cnt_daily_zeros > nr_daily_zeros:
-                crit_daily_zeros = True
-            else:
-                crit_daily_zeros = False
+            # --
+            # Count number of zeros which follow
+            # --
+            max_cnt_zeros = count_sequence_of_zeros(temp_stations[station])
 
-            if nr_of_nans > crit_missing_values or nr_of_zeros > crit_nr_of_zeros or crit_daily_zeros :
-                print(
-                    "Crit_daily_zeros: {} nr_of_nans: {} nr_of_zeros: {} Ignored station: {} {}".format(
-                        crit_daily_zeros,
+            if nr_of_nans > crit_missing_values or nr_of_zeros > crit_nr_of_zeros or max_cnt_zeros > nr_daily_zeros:
+                print("Zeros in sequence: {} nr_of_nans: {} nr_of_zeros: {} Ignored station: {} {}".format(
+                        max_cnt_zeros,
                         nr_of_nans,
                         nr_of_zeros,
                         station,
-                        year,
-                        ), flush=True)
+                        year), flush=True)
             else:
                 # Interpolate missing np.nan values
                 temp_stations[station][nans] = np.interp(

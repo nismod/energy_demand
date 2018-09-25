@@ -53,7 +53,6 @@ def process_result_multi_scen(
         if scenario == '__results_multiple_scenarios':
             pass
         else:
-
             single_scenario.main(
                 os.path.join(path_to_folder_with_scenarios, scenario),
                 path_shapefile_input,

@@ -7,6 +7,12 @@
 #TODO SIMple aggregation. Write out sectormodel, enduse, region, fueltypes.... --> Do all aggregation based on that
 # MAKE SIMLPLE TABLE FOR READING IN FUELS
 # Improve plotting and processing
+
+
+    Note
+    ----
+    Always execute from root folder. (e.g. energy_demand/energy_demand/main.py)
+
 # """
 import os
 import sys
@@ -34,7 +40,7 @@ from energy_demand.scripts import init_scripts
 from energy_demand.read_write import narrative_related
 from energy_demand.plotting import fig_enduse_yh
 
-def energy_demand_model(regions, data, assumptions, weather_yr):
+def energy_demand_model(regions, data, assumptions, weather_yr, weather_by):
     """Main function of energy demand model to calculate yearly demand
 
     Arguments
@@ -67,7 +73,8 @@ def energy_demand_model(regions, data, assumptions, weather_yr):
         regions=regions,
         data=data,
         assumptions=assumptions,
-        weather_yr=weather_yr)
+        weather_yr=weather_yr,
+        weather_by=weather_by)
 
     # Calculate base year demand
     fuels_in = testing_functions.test_function_fuel_sum(
@@ -130,6 +137,7 @@ if __name__ == "__main__":
 
     # --- Model running configurations
     user_defined_base_yr = 2015
+    user_defined_weather_by = 2015
     user_defined_simulation_end_yr = 2050
     simulated_yrs = [user_defined_base_yr, user_defined_simulation_end_yr]
 
@@ -159,9 +167,12 @@ if __name__ == "__main__":
 
     data['local_paths'] = data_loader.get_local_paths(local_data_path)
 
-    path_new_scenario = os.path.join(os.path.join(local_data_path, "..", "results"), name_scenario_run)
+    path_new_scenario = os.path.abspath(
+        os.path.join(os.path.dirname(local_data_path), "results", name_scenario_run))
+
     data['path_new_scenario'] = path_new_scenario
     data['result_paths'] = data_loader.get_result_paths(path_new_scenario)
+
     basic_functions.create_folder(path_new_scenario)
 
     data['scenario_data'] = defaultdict(dict)
@@ -199,6 +210,7 @@ if __name__ == "__main__":
     data['assumptions'] = general_assumptions.Assumptions(
         submodels_names=data['lookups']['submodels_names'],
         base_yr=user_defined_base_yr,
+        weather_by=user_defined_weather_by,
         simulation_end_yr=user_defined_simulation_end_yr,
         curr_yr=2015,
         simulated_yrs=simulated_yrs,
@@ -399,13 +411,18 @@ if __name__ == "__main__":
         data,
         region_selection)
 
+    # Write population data to file
+    for sim_yr in data['assumptions'].simulated_yrs:
+        write_data.write_scenaric_population_data(
+            sim_yr,
+            os.path.join(data['path_new_scenario'], 'model_run_pop'),
+            data['scenario_data']['population'][sim_yr])
+
     # -----------------------
     # Main model run function
     # -----------------------
-    weather_yr = temp_year_scenario[0]
-
-    # Simulation for weather year specific data
     for weather_yr in temp_year_scenario:
+        print("... weather year: " + str(weather_yr), flush=True)
 
         for sim_yr in data['assumptions'].simulated_yrs:
             print("Simulation for year --------------:  " + str(sim_yr), flush=True)
@@ -416,35 +433,18 @@ if __name__ == "__main__":
             # --------------------------------------
             # Update result_paths and create folders
             # --------------------------------------
-            print("BB " + str(local_data_path))
-            path_folder_weather_yr = os.path.join(
-                os.path.join(local_data_path, "results"),
-                name_scenario_run,
-                str(weather_yr))
+            path_folder_weather_yr = os.path.join(data['path_new_scenario'], str(weather_yr))
 
             data['result_paths'] = data_loader.get_result_paths(path_folder_weather_yr)
 
-            basic_functions.create_folder(path_folder_weather_yr)
-
             folders_to_create = [
+                path_folder_weather_yr,
                 data['result_paths']['data_results'],
                 data['result_paths']['data_results_PDF'],
                 data['result_paths']['data_results_validation'],
                 data['result_paths']['data_results_model_runs']]
             for folder in folders_to_create:
                 basic_functions.create_folder(folder)
-    
-            # -------------------------------------------
-            # Write population files of simulation year
-            # -------------------------------------------
-            pop_array_reg = np.zeros((len(data['regions'])), dtype="float")
-            for reg_array_nr, reg in enumerate(data['regions']):
-                pop_array_reg[reg_array_nr] = data['scenario_data']['population'][sim_yr][reg]
-
-            write_data.write_scenaric_population_data(
-                sim_yr,
-                os.path.join(data['path_new_scenario'], 'model_run_pop'),
-                pop_array_reg)
 
             data['technologies'] = general_assumptions.update_technology_assumption(
                 data['assumptions'].technologies,
@@ -465,7 +465,8 @@ if __name__ == "__main__":
                 region_selection,
                 data,
                 data['assumptions'],
-                weather_yr=weather_yr)
+                weather_yr=weather_yr,
+                weather_by=data['assumptions'].user_defined_weather_by)
 
             # ------------------------------------------------
             # Temporal Validation

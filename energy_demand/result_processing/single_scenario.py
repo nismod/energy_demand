@@ -81,8 +81,9 @@ def main(
 
         # Read scenario data
         data['scenario_data'] = {}
+
         data['scenario_data']['population'] = read_data.read_scenaric_population_data(
-            data['result_paths']['model_run_pop'])
+            os.path.join(path_data_energy_demand, 'model_run_pop'))
 
         # --------------------------------------------
         # Reading in results from different model runs
@@ -112,7 +113,6 @@ def main(
         # Plotting spatial results
         # ------------------------------
         if plot_crit_dict['spatial_results']:
-            print("plotting geopandas")
             result_mapping.create_geopanda_files(
                 data,
                 results_container,
