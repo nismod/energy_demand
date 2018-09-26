@@ -4,7 +4,7 @@ import os
 import numpy as np
 from collections import defaultdict
 
-def read_weather_data_script_data(path_to_csv, temp_year_scenario):
+def read_weather_data_script_data(path_to_csv, weather_yrs_scenario):
     """Read in weather data from script data
 
     Arguments
@@ -27,7 +27,7 @@ def read_weather_data_script_data(path_to_csv, temp_year_scenario):
         year = int(file_path.split("__")[0])
         station_id = int(file_path.split("__")[1][:-4]) #remove .txt
 
-        if year == temp_year_scenario:
+        if year == weather_yrs_scenario:
             temp_data[station_id] = np.loadtxt(path_file_to_read, delimiter=',')
         else:
             pass

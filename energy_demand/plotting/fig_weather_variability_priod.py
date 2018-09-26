@@ -10,8 +10,7 @@ from energy_demand.plotting import basic_plot_functions
 
 def sum_all_enduses_fueltype(
         data_enduses,
-        fueltype_str=False,
-        period_d=False
+        fueltype_str=False
     ):
     """Sum across all enduses and fueltypes
 
@@ -97,6 +96,7 @@ def run(
     df_q_05 = df_q_05.T
 
     fig = plt.figure() #(figsize = cm2inch(10,10))
+
     ax = fig.add_subplot(111)
 
 
@@ -132,91 +132,11 @@ def run(
         label="uncertainty band")
 
     plt.legend(
-        #legend_entries,
         prop={
             'family':'arial',
             'size': 10},
         loc='best',
-        #ncol=2,
-        #loc='upper center',
-        #bbox_to_anchor=(0.5, -0.1),
         frameon=False,
         shadow=True)
 
     plt.show()
-
-    '''#x_data = np.array(years_simulated)
-    # Add every values 
-    y_value_arrays = []
-    legend_entries = []
-
-    # Try smoothing line
-    try:
-        x_data_smoothed, y_value_arrays_smoothed = basic_plot_functions.smooth_data(
-            x_data, y_value_arrays, num=40000)
-    except:
-        x_data_smoothed = x_data
-        y_value_arrays_smoothed = y_value_arrays
-
-
-    '''
-
-    '''# Convert to stacked
-    y_stacked = np.row_stack((y_value_arrays_smoothed))
-
-    # Set figure size
-    fig = plt.figure(
-        figsize=basic_plot_functions.cm2inch(8, 8))
-
-    ax = fig.add_subplot(1, 1, 1)
-
-    # ----------
-    # Stack plot
-    # ----------
-    color_stackplots = color_list[:len(enduses)]
-
-    ax.stackplot(
-        x_data_smoothed,
-        y_stacked,
-        alpha=0.8,
-        colors=color_stackplots)
-
-    if plot_legend:
-        plt.legend(
-            legend_entries,
-            prop={
-                'family':'arial',
-                'size': 5},
-            ncol=2,
-            loc='upper center',
-            bbox_to_anchor=(0.5, -0.1),
-            frameon=False,
-            shadow=True)
-
-    # -------
-    # Axis
-    # -------
-    year_interval = 10
-    major_ticks = np.arange(
-        years_simulated[0],
-        years_simulated[-1] + year_interval,
-        year_interval)
-
-    plt.xticks(major_ticks, major_ticks)
-
-    #plt.ylim(ymax=500)
-    #yticks = [100, 200, 300, 400, 500]
-    #plt.yticks(yticks, yticks)
-    # -------
-    # Labels
-    # -------
-    plt.ylabel("TWh", fontsize=10)
-    plt.xlabel("Year", fontsize=10)
-    #plt.title("ED whole UK", fontsize=10)
-
-    # Tight layout
-    fig.tight_layout()
-
-    plt.margins(x=0)
-    plt.savefig(fig_name)
-    plt.close()'''

@@ -9,6 +9,7 @@ from energy_demand.plotting import plotting_results, result_mapping
 from energy_demand.basic import logger_setup, basic_functions
 from energy_demand.basic import lookup_tables
 from energy_demand.plotting import fig_weather_variability_priod
+from energy_demand.plotting import fig_total_demand_peak
 
 def main(
         path_data_energy_demand,
@@ -55,12 +56,8 @@ def main(
         weather_yr_container = defaultdict(dict)
 
         data = {}
-        #data['local_paths'] = data_loader.get_local_paths(path_data_energy_demand_weather_yr)
-        #data['result_paths'] = data_loader.get_result_paths(os.path.join(path_data_energy_demand_weather_yr))
         data['lookups'] = lookup_tables.basic_lookups()
-
         path_out_plots = os.path.join(path_data_energy_demand, "PDF_weather_varability")
-
         basic_functions.del_previous_setup(path_out_plots)
         basic_functions.create_folder(path_out_plots)
 
@@ -71,33 +68,47 @@ def main(
         data['assumptions']['seasons'] = date_prop.get_season(year_to_model=2015)
         data['assumptions']['model_yeardays_daytype'], data['assumptions']['yeardays_month'], data['assumptions']['yeardays_month_days'] = date_prop.get_yeardays_daytype(year_to_model=2015)
 
+        # --------------------------------------------
+        # Reading in results from different weather_yrs and aggregate
+        # --------------------------------------------
         for weather_yr in weather_yrs:
 
-            path_data_energy_demand_weather_yr = os.path.join(path_data_energy_demand, str(weather_yr))
-
-            # --------------------------------------------
-            # Reading in results from different model runs
-            # --------------------------------------------
             results_container = read_data.read_in_results(
-                os.path.join(path_data_energy_demand_weather_yr, 'model_run_results_txt'),
+                os.path.join(path_data_energy_demand, str(weather_yr), 'model_run_results_txt'),
                 data['assumptions']['seasons'],
                 data['assumptions']['model_yeardays_daytype'])
 
             # Store data in weather container
-            aggregated_data_enduses = fig_weather_variability_priod.sum_all_enduses_fueltype(
+            tot_fueltype_h = fig_weather_variability_priod.sum_all_enduses_fueltype(
                 results_container['results_enduse_every_year'])
 
-            weather_yr_container['tot_enduses'][weather_yr] = aggregated_data_enduses
+            weather_yr_container['tot_fueltype_h'][weather_yr] = tot_fueltype_h
+
+        # --------------------------------------------
+        # Plots
+        # --------------------------------------------
+        # plot over time total demand and peak
+        fig_total_demand_peak.run(
+            data_input=weather_yr_container['tot_fueltype_h'],
+            fueltype_str='electricity',
+            fig_name=os.path.join(
+                path_out_plots, "tot_fueltype_h.pdf"))
+
 
         # plot over period of time across all weather scenario
         fig_weather_variability_priod.run(
-            data_input=weather_yr_container['tot_enduses'],
+            data_input=weather_yr_container['tot_fueltype_h'],
             fueltype_str='electricity',
             simulation_yr_to_plot=2015, # Simulation year to plot
-            #period_h=list(range(100,200)), #period to plot
             period_h=list(range(200,500)), #period to plot
             fig_name=os.path.join(
                 path_out_plots, "weather_var_period.pdf"))
+
+
+
+
+
+
     else:
         pass
 

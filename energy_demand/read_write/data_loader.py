@@ -844,14 +844,14 @@ def get_shape_every_day(tech_lp, model_yeardays_daytype):
 
     return load_profile_y_dh
 
-def load_temp_data(local_paths, temp_year_scenario, save_fig=False):
+def load_temp_data(local_paths, weather_yrs_scenario, save_fig=False):
     """Read in cleaned temperature and weather station data
 
     Arguments
     ----------
     local_paths : dict
         Local local_paths
-    temp_year_scenario : list
+    weather_yrs_scenario : list
         Years to use temperatures
 
     Returns
@@ -864,7 +864,7 @@ def load_temp_data(local_paths, temp_year_scenario, save_fig=False):
     temp_data_short = defaultdict(dict)
     weather_stations_with_data = defaultdict(dict)
 
-    for year in temp_year_scenario:
+    for year in weather_yrs_scenario:
 
         weather_stations = read_weather_stations_raw(
             local_paths['folder_path_weater_stations'])
@@ -892,7 +892,7 @@ def load_temp_data(local_paths, temp_year_scenario, save_fig=False):
 
         logging.info(
             "Info: Number of weather stations: {} year: Number of temp data: {}, year: {}".format(
-                len(weather_stations_with_data), len(temp_data_short[year]), temp_year_scenario))
+                len(weather_stations_with_data), len(temp_data_short[year]), weather_yrs_scenario))
 
         if not save_fig:
             pass

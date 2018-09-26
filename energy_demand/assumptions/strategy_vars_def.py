@@ -95,6 +95,8 @@ def load_smif_parameters(
                         # This needs to be fixed by directly loading multiple paramters from SMIF
                         #scenario_value = sub_var_entries['default_value']
                         scenario_value = sub_var_entries['scenario_value']
+                else: #local running
+                    scenario_value = sub_var_entries['scenario_value']
 
                 # Narrative
                 created_narrative = narrative_related.default_narrative(

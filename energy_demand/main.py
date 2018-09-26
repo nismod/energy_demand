@@ -142,7 +142,7 @@ if __name__ == "__main__":
     user_defined_weather_by = 2015
     user_defined_simulation_end_yr = 2050                                   # Used to create standard narrative
     simulated_yrs = [user_defined_base_yr, user_defined_simulation_end_yr]
-    temp_year_scenario = [2015]                                             # Temperature year
+    weather_yrs_scenario = [2015]                                             # Temperature year
 
     # --- Region definition configuration
     name_region_set = os.path.join(local_data_path, 'region_definitions', "lad_2016_uk_simplified.shp")        # LAD
@@ -321,7 +321,7 @@ if __name__ == "__main__":
     # Load weather temperature
     data['weather_stations'], data['temp_data'] = data_loader.load_temp_data(
         data['local_paths'],
-        temp_year_scenario=temp_year_scenario,
+        weather_yrs_scenario=weather_yrs_scenario,
         save_fig=path_new_scenario)
 
     # ------------------------------------------------------------
@@ -428,7 +428,7 @@ if __name__ == "__main__":
     # -----------------------
     # Main model run function
     # -----------------------
-    for weather_yr in temp_year_scenario:
+    for weather_yr in weather_yrs_scenario:
         print("... weather year: " + str(weather_yr), flush=True)
 
         for sim_yr in data['assumptions'].simulated_yrs:
