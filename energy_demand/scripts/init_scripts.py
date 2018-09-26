@@ -320,9 +320,7 @@ def spatial_explicit_modelling_strategy_vars(
                             f_reg,
                             f_reg_norm,
                             f_reg_norm_abs)
-                        print("ddd " + str(sub_var_name))
-                        print(" {}  {} ".format(sub_var_name, sector))
-                        print(regional_vars[var_name][sub_var_name])
+
                         regional_vars[var_name][sub_var_name][sector] = new_narratives
                 else:
                     new_narratives = create_regional_narratives(

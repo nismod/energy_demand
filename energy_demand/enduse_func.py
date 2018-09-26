@@ -1532,6 +1532,7 @@ def generic_fuel_switch(
         Annual fuel demand per fueltype
     """
     # If defautl value, no switch is implemented
+
     if strategy_vars['generic_fuel_switch'][enduse][curr_yr] != 0:
 
         # Get affected sectors of fuel switch
