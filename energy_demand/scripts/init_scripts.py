@@ -187,7 +187,7 @@ def switch_calculations(
     # ========================================================================================
 
     # Convert globally defined switches to regional switches
-    f_diffusion = f_reg_norm_abs #TODO EXPLAIN # Select diffusion value
+    f_diffusion = f_reg_norm_abs # Select diffusion value
 
     reg_capacity_switches = global_to_reg_capacity_switch(
         data['regions'], data['assumptions'].capacity_switches, f_diffusion=f_diffusion)

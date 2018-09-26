@@ -1,19 +1,21 @@
 """Allows to run HIRE locally outside the SMIF framework
 # After smif upgrade:
-#   TODO: make that automatically the parameters can be generated to be copied into smif format
+#   make that automatically the parameters can be generated to be copied into smif format
+# REMOVE RESILIENCE CODE
+# REMOVE HDD CODE PLOTTING
 
 #TODO Test if technology type can be left empty in technology spreadsheet, Try to remove tech_type
 #TODO Write out full result. Then write function to aggregate accordingly
 #TODO SIMple aggregation. Write out sectormodel, enduse, region, fueltypes.... --> Do all aggregation based on that
 # MAKE SIMLPLE TABLE FOR READING IN FUELS
-# Improve plotting and processing
+# Improve plotting and processing (e.g. saisonal plots)
 
+# Weather station cleaning: Replace days with missing values
 
     Note
     ----
     Always execute from root folder. (e.g. energy_demand/energy_demand/main.py)
-
-# """
+"""
 import os
 import sys
 import time
@@ -36,7 +38,7 @@ from energy_demand.validation import lad_validation
 from energy_demand.basic import demand_supply_interaction
 from energy_demand.scripts import s_scenario_param
 from energy_demand.scripts import init_scripts
-
+from energy_demand.basic import logger_setup
 from energy_demand.read_write import narrative_related
 from energy_demand.plotting import fig_enduse_yh
 
@@ -138,10 +140,9 @@ if __name__ == "__main__":
     # --- Model running configurations
     user_defined_base_yr = 2015
     user_defined_weather_by = 2015
-    user_defined_simulation_end_yr = 2050
+    user_defined_simulation_end_yr = 2050                                   # Used to create standard narrative
     simulated_yrs = [user_defined_base_yr, user_defined_simulation_end_yr]
-
-    temp_year_scenario = [2015]   # TEmperature year
+    temp_year_scenario = [2015]                                             # Temperature year
 
     # --- Region definition configuration
     name_region_set = os.path.join(local_data_path, 'region_definitions', "lad_2016_uk_simplified.shp")        # LAD
@@ -174,7 +175,13 @@ if __name__ == "__main__":
     data['result_paths'] = data_loader.get_result_paths(path_new_scenario)
 
     basic_functions.create_folder(path_new_scenario)
-
+    logger_setup.set_up_logger(
+        os.path.join(
+            path_new_scenario, "plotting.log"))
+    
+    # --------------
+    # Load data
+    # --------------
     data['scenario_data'] = defaultdict(dict)
     data['lookups'] = lookup_tables.basic_lookups()
     data['enduses'], data['sectors'], data['fuels'] = data_loader.load_fuels(
@@ -466,7 +473,7 @@ if __name__ == "__main__":
                 data,
                 data['assumptions'],
                 weather_yr=weather_yr,
-                weather_by=data['assumptions'].user_defined_weather_by)
+                weather_by=data['assumptions'].weather_by)
 
             # ------------------------------------------------
             # Temporal Validation

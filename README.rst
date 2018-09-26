@@ -134,9 +134,10 @@ folder needs to be used. Proceed as follows:
 4. Explanation of other scripts
 =============================================
 
-``scripts/smif_data_related/generate_data_version.py``: With the file an automatic packaging 
-of all necessary data to back up a new data version.
+- *scripts/smif_data_related/generate_data_version.py*: With the file an automatic packaging 
+  of all necessary data to back up a new data version.
 
-``scripts/smif_data_related/script_data_preparation_MISTRAL_pop_gva.py``: This file generates 
-setor specific GVA data and popluation data (it is executed in the ``energy_demand setup`` command)
-    
+- *scripts/smif_data_related/script_data_preparation_MISTRAL_pop_gva.py*: This file generates 
+  setor specific GVA data and popluation data (it is executed in the ``energy_demand setup`` command)
+
+- *scripts/s_clean_original_weather_data.py*: This script cleand original weather input data

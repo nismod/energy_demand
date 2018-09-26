@@ -407,7 +407,7 @@ def test_apply_weather_correction():
         heating_factor_y=1.5,
         enduse_space_heating=['heating'],
         enduse_space_cooling=['cooling'],
-        f_weather_correction={'hdd': 1, 'ccd': 1})
+        f_weather_correction={'hdd': 1, 'cdd': 1})
 
     assert result == 300
     result = enduse_func.apply_weather_correction(
@@ -417,7 +417,7 @@ def test_apply_weather_correction():
         heating_factor_y=1.5,
         enduse_space_heating=['heating'],
         enduse_space_cooling=['cooling'],
-        f_weather_correction={'hdd': 1, 'ccd': 1})
+        f_weather_correction={'hdd': 1, 'cdd': 1})
 
     assert result == 300
 

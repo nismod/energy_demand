@@ -108,8 +108,7 @@ class Dwelling(object):
             age=None,
             dwtype=None,
             sector=None,
-            gva=None,
-            #air_leakage_rate=1.0
+            gva=None
         ):
         """Constructor of Dwelling Class
         """
@@ -122,14 +121,7 @@ class Dwelling(object):
         self.population = population
         self.floorarea = floorarea
         self.sector = sector
-        self.gva = gva #TODO IS THIS USED?
-        #self.air_leakage_rate = air_leakage_rate
-        #self.income = get_income_factor(income)?? MAYBE
-        #self.household_size = get_household_factor(household_size)?? MAYBE
-
-        # FACTORS
-        # HOW MUCH MORE ENERGY e.g. certain dwelling type uses
-        #self.ed_dw_type_factor =
+        self.gva = gva
 
         #: Calculate heat loss coefficient with age and dwelling type if possible
         self.hlc = get_hlc(dwtype, age)

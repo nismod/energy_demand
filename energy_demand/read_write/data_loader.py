@@ -457,8 +457,6 @@ def get_local_paths(path):
             path, '_raw_data', "G_Carbon_Trust_advanced_metering_trial"),
         'folder_path_weater_stations': os.path.join(
             path, '_raw_data', 'A-temperature_data', 'cleaned_weather_stations.csv'),
-        #'folder_path_weater_stations': os.path.join(
-        #    path, '_raw_data', 'A-temperature_data', '_RECOVERY','excel_list_station_details.csv'), #TODO
         'path_floor_area_virtual_stock_by': os.path.join(
             path, '_raw_data', 'K-floor_area', 'floor_area_LAD_latest.csv'),
         'path_assumptions_db': os.path.join(

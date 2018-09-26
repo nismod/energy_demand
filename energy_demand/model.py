@@ -39,7 +39,7 @@ class EnergyDemandModel(object):
         # Create Weather Regions
         # ----------------------------
 
-        # current weather year
+        # current weather_yr
         weather_regions_weather_cy = {}
         for weather_region in data['weather_stations'][weather_yr]:
             weather_regions_weather_cy[weather_region] = WeatherRegion(
@@ -54,7 +54,7 @@ class EnergyDemandModel(object):
                 tech_lp=data['tech_lp'],
                 sectors=data['sectors'])
 
-        # base weather year
+        # base weather_yr
         weather_regions_weather_by = {}
         for weather_region in data['weather_stations'][weather_by]:
             weather_regions_weather_by[weather_region] = WeatherRegion(

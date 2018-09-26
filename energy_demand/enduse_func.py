@@ -1052,8 +1052,6 @@ def apply_scenario_drivers(
     -------
     fuel_y : array
         Changed yearly fuel per fueltype
-
-    #TODO :ADD OTHER driver
     """
     if not dw_stock: # No dwelling stock is available
         """Calculate non-dwelling related scenario drivers
@@ -1163,6 +1161,11 @@ def apply_enduse_sector_specific_change(
         Yearly new fuels
     """
     try:
+
+        #is_other,0,2050,0,linear,mining
+        if enduse == 'is_other' and curr_yr > 2015:
+            logging.info("ZEBRA {}  {}".format(enduse, sector))
+
         change_cy = strategy_vars['generic_enduse_change'][enduse][curr_yr]
 
         # Get affected sectors
@@ -1170,11 +1173,14 @@ def apply_enduse_sector_specific_change(
 
         # if Sector is None, then so sectors are defined for this enduse
         if not sector:
+            if enduse == 'is_other' and curr_yr > 2015:
+                logging.info("LOI " + str(change_cy))
             # Calculate new annual fuel
             fuel_y = fuel_y * (1 + change_cy)
         else:
             if affected_sector or affected_sector == sector: # Setor crit is True, meaning that true for all sectors
-
+                if enduse == 'is_other' and curr_yr > 2015:
+                    logging.info("LOII" + str(change_cy))
                 # Calculate new annual fuel
                 fuel_y = fuel_y * (1 + change_cy)
             else:
@@ -1182,7 +1188,7 @@ def apply_enduse_sector_specific_change(
 
     except KeyError:
         logging.debug(
-            "No annual parameters are provided for enduse %s", enduse)
+            "No annual parameters are provided for enduse %s %s", enduse, sector)
 
     return fuel_y
 
@@ -1214,6 +1220,10 @@ def apply_weather_correction(
         Enduses defined as space heating
     enduse_space_cooling : list
         Enduses defined as space cooling
+    f_weather_correction : dict
+        Correction factors to calculate hdd and cdd
+        related extra demands in case a different
+        weather than the simulation base year is used
 
     Return
     ------
@@ -1444,7 +1454,6 @@ def apply_cooling(
     It is aassumption a linear correlation between the
     percentage of cooled floor space (area) and energy demand.
 
-    #TODO MAKE MULTIDIMENSIONAL ARGUMENT
     Arguments
     ---------
     enduse : str

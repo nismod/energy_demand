@@ -185,13 +185,18 @@ def run(
             # --
             max_cnt_zeros = count_sequence_of_zeros(temp_stations[station])
 
+            # ----------------
+            # Possibility to do
+            # ----------------
+            # TODO: Replace day with zeros (missing values) with temperatuer data of previous day
+
             if nr_of_nans > crit_missing_values or nr_of_zeros > crit_nr_of_zeros or max_cnt_zeros > nr_daily_zeros:
                 print("Zeros in sequence: {} nr_of_nans: {} nr_of_zeros: {} Ignored station: {} {}".format(
-                        max_cnt_zeros,
-                        nr_of_nans,
-                        nr_of_zeros,
-                        station,
-                        year), flush=True)
+                    max_cnt_zeros,
+                    nr_of_nans,
+                    nr_of_zeros,
+                    station,
+                    year), flush=True)
             else:
                 # Interpolate missing np.nan values
                 temp_stations[station][nans] = np.interp(

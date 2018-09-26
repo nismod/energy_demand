@@ -1,11 +1,8 @@
 """Strategy variable assumptions provided as parameters to smif
 """
-import copy
 import logging
 from collections import defaultdict
 
-from energy_demand.read_write import write_data
-from energy_demand.basic import basic_functions
 from energy_demand.read_write import narrative_related
 
 def load_smif_parameters(

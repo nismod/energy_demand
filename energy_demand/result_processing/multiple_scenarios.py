@@ -33,7 +33,6 @@ def process_result_multi_scen(
         "plot_load_factors_p": True,         # Spatial maps of load factor change
         "plot_abs_peak_h": True,             # Spatial maps of peak h demand
         "plot_diff_peak_h": True,             # Spatial maps of peak h difference (%)
-
         "plot_stacked_enduses": True,
         "plot_y_all_enduses": True,
         "plot_fuels_enduses_y": True,
@@ -44,7 +43,11 @@ def process_result_multi_scen(
         "plot_radar": True,
         "plot_radar_seasonal": True,                      # Plot radar spider charts
         "plot_line_for_every_region_of_peak_demand": True,
-        "plot_lad_cross_graphs": True}
+        "plot_lad_cross_graphs": True,
+        
+        "plot_weather_day_year": True   #plot for a period (e.g. day) the hourly profile of all weather plots
+        
+        }
 
     # Get all folders with scenario run results (name of folder is scenario)
     scenarios = os.listdir(path_to_folder_with_scenarios)
@@ -59,6 +62,7 @@ def process_result_multi_scen(
                 plot_crit_dict,
                 base_yr=base_yr,
                 comparison_year=comparison_year)
+            
 
     return
 
