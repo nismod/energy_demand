@@ -1162,7 +1162,6 @@ def apply_enduse_sector_specific_change(
     """
     try:
 
-        #is_other,0,2050,0,linear,mining
         if enduse == 'is_other' and curr_yr > 2015:
             logging.info("ZEBRA {}  {}".format(enduse, sector))
 
@@ -1172,8 +1171,7 @@ def apply_enduse_sector_specific_change(
             logging.info("  why: {}  {}".format(sector, str(change_cy)))
         # Get affected sectors
         affected_sector = strategy_vars['generic_enduse_change'][enduse]['param_info']['sector']
-        if enduse == 'is_other' and curr_yr > 2015:
-            logging.info("AAAA " + str(affected_sector))
+
         # if Sector is None, then so sectors are defined for this enduse
         if not sector:
             if enduse == 'is_other' and curr_yr > 2015:
@@ -1181,7 +1179,9 @@ def apply_enduse_sector_specific_change(
             # Calculate new annual fuel
             fuel_y = fuel_y * (1 + change_cy)
         else:
-            if affected_sector or affected_sector == sector: # Setor crit is True, meaning that true for all sectors
+            if enduse == 'is_other' and curr_yr > 2015:
+                logging.info("AAAA {}  {}".format(affected_sector, sector))
+            if affected_sector is True or affected_sector == sector: # Setor crit is True, meaning that true for all sectors
                 if enduse == 'is_other' and curr_yr > 2015:
                     logging.info("sector (B)" + str(change_cy))
                 # Calculate new annual fuel

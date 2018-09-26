@@ -47,7 +47,6 @@ def load_smif_parameters(
     # Create default narrative for every simulation parameter
     # ------------------------------------------------------------
     for var_name, var_entries in default_streategy_vars.items():
-
         crit_single_dim = narrative_related.crit_dim_var(var_entries)
 
         if crit_single_dim:
@@ -68,16 +67,13 @@ def load_smif_parameters(
                 scenario_value = var_entries['scenario_value']
 
             # Create default narrative with only one timestep from simulation base year to simulation end year
-            created_narrative = narrative_related.default_narrative(
+            strategy_vars[var_name] = narrative_related.default_narrative(
                 end_yr=assumptions.simulation_end_yr,
                 value_by=var_entries['default_value'],                # Base year value,
                 value_ey=scenario_value,
                 diffusion_choice=var_entries['diffusion_type'],       # Sigmoid or linear,
                 base_yr=assumptions.base_yr,
                 regional_specific=var_entries['regional_specific'])   # Criteria whether the same for all regions or not
-
-            strategy_vars[var_name] = created_narrative
-
         else:
 
             # Standard narrative for multidimensional narrative
@@ -99,15 +95,13 @@ def load_smif_parameters(
                     scenario_value = sub_var_entries['scenario_value']
 
                 # Narrative
-                created_narrative = narrative_related.default_narrative(
+                strategy_vars[var_name][sub_var_name] = narrative_related.default_narrative(
                     end_yr=assumptions.simulation_end_yr,
                     value_by=sub_var_entries['default_value'],                # Base year value,
                     value_ey=scenario_value,
                     diffusion_choice=sub_var_entries['diffusion_type'],       # Sigmoid or linear,
                     base_yr=assumptions.base_yr,
                     regional_specific=sub_var_entries['regional_specific'])   # Criteria whether the same for all regions or not
-
-                strategy_vars[var_name][sub_var_name] = created_narrative 
 
     return strategy_vars
 
