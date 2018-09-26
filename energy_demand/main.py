@@ -262,20 +262,27 @@ if __name__ == "__main__":
     # -----------------------------------------
     _user_defined_vars = data_loader.load_user_defined_vars(
         default_strategy_var=default_streategy_vars,
-        path_to_folder_with_csv=data['paths']['path_folder_strategy_vars'],
+        path_csv=data['paths']['path_strategy_vars'],
         simulation_base_yr=data['assumptions'].base_yr)
 
     for new_var, new_var_vals in _user_defined_vars.items():
 
-        # Test if multidimensional varible
         crit_single_dim = narrative_related.crit_dim_var(
             new_var_vals)
 
         if crit_single_dim:
             strategy_vars[new_var] = new_var_vals
         else:
-            for sub_var_name, sub_var in new_var_vals.items():
-                strategy_vars[new_var][sub_var_name] = sub_var
+            strategy_vars[new_var] = defaultdict(dict)
+            for sub_var_name, sector_sub_var in new_var_vals.items():
+
+                if type(sector_sub_var) is dict:
+                    for sector, sub_var in sector_sub_var.items():
+                        strategy_vars[new_var][sub_var_name][sector] = sub_var
+                else:
+                    strategy_vars[new_var][sub_var_name] = sector_sub_var
+
+            strategy_vars[new_var] = dict(strategy_vars[new_var])
 
     # Replace strategy variables not defined in csv files)
     strategy_vars_out = strategy_vars_def.autocomplete_strategy_vars(

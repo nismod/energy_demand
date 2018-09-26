@@ -305,21 +305,39 @@ def spatial_explicit_modelling_strategy_vars(
                 f_reg_norm_abs)
             regional_vars[var_name] = new_narratives
         else:
-            regional_vars[var_name] = {}
+            regional_vars[var_name] = {} #defaultdict(dict)
 
-            for sub_var_name, sub_strategy_var in strategy_var.items():
+            for sub_var_name, sector_sub_strategy_var in strategy_var.items():
+                regional_vars[var_name][sub_var_name] = {}
+                if type(sector_sub_strategy_var) is dict: # sectors defined
+                    for sector, sub_strategy_var in sector_sub_strategy_var.items():
+                        new_narratives = create_regional_narratives(
+                            sub_var_name,
+                            sub_strategy_var,
+                            spatially_modelled_vars,
+                            regions,
+                            fuel_disagg,
+                            f_reg,
+                            f_reg_norm,
+                            f_reg_norm_abs)
+                        print("ddd " + str(sub_var_name))
+                        print(" {}  {} ".format(sub_var_name, sector))
+                        print(regional_vars[var_name][sub_var_name])
+                        regional_vars[var_name][sub_var_name][sector] = new_narratives
+                else:
+                    new_narratives = create_regional_narratives(
+                        sub_var_name,
+                        sector_sub_strategy_var,
+                        spatially_modelled_vars,
+                        regions,
+                        fuel_disagg,
+                        f_reg,
+                        f_reg_norm,
+                        f_reg_norm_abs)
 
-                new_narratives = create_regional_narratives(
-                    sub_var_name,
-                    sub_strategy_var,
-                    spatially_modelled_vars,
-                    regions,
-                    fuel_disagg,
-                    f_reg,
-                    f_reg_norm,
-                    f_reg_norm_abs)
+                    regional_vars[var_name][sub_var_name] = new_narratives
 
-                regional_vars[var_name][sub_var_name] = new_narratives
+                regional_vars[var_name] = dict(regional_vars[var_name])
 
     return regional_vars
 
@@ -333,7 +351,8 @@ def create_regional_narratives(
         f_reg_norm,
         f_reg_norm_abs
     ):
-
+    """TODO
+    """
     new_narratives = []
     for narrative in strategy_vars:
 

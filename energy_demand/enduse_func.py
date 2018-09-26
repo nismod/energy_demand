@@ -1161,10 +1161,21 @@ def apply_enduse_sector_specific_change(
         Yearly new fuels
     """
     try:
+        
+        '''try:
+            change_cy = strategy_vars['generic_enduse_change'][enduse][curr_yr]
+        except:
+            pass
+        try:
+            change_cy = strategy_vars['generic_enduse_change'][enduse][curr_yr][sector]
+        except:
+            pass # no values for this sector'''
 
+        
         if enduse == 'is_other' and curr_yr > 2015:
             logging.info("ZEBRA {}  {}".format(enduse, sector))
 
+        #TODO MAKE SECTOR SPECIFIC....
         change_cy = strategy_vars['generic_enduse_change'][enduse][curr_yr]
 
         if enduse == 'is_other' and curr_yr > 2015:

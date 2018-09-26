@@ -150,8 +150,7 @@ def generate_annual_param_vals(
         reg_param[region] = defaultdict(dict)
 
     for var_name, strategy_vars_values in strategy_vars.items():
-        if var_name == 'generic_fuel_switch':
-            print("..")
+
         single_dim_var = narrative_related.crit_dim_var(
             strategy_vars_values)
 
@@ -197,17 +196,21 @@ def generate_annual_param_vals(
                 non_reg_param[var_name] = regional_strategy_vary
                 non_reg_param[var_name]['param_info'] = param_info
         else:
-            for sub_var_name, sub_var_values in strategy_vars_values.items():
+            for sub_var_name, sector_sub_var_values in strategy_vars_values.items():
 
+                if type(sector_sub_var_values) is dict:
+                    for sector, sub_var_values in sector_sub_var_values.items():
+                        
+                else:
                 param_info = {}
 
                 all_sectors = narrative_related.get_all_sectors_of_narratives(
-                    sub_var_values)
+                    sector_sub_var_values)
 
                 for sector in all_sectors:
 
                     get_sector_narrative = narrative_related.get_sector_narrative(
-                        sector, sub_var_values)
+                        sector, sector_sub_var_values)
                     
                     # Generic container of parameter
                     try:

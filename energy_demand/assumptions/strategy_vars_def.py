@@ -559,7 +559,7 @@ def autocomplete_strategy_vars(strategy_vars, narrative_crit=False):
         out_dict = defaultdict(dict)
 
         for var_name, var_entries in strategy_vars.items():
-
+            print("VAR NAME " + str(var_name))
             crit_single_dim = narrative_related.crit_dim_var(var_entries)
 
             if crit_single_dim:
@@ -570,7 +570,7 @@ def autocomplete_strategy_vars(strategy_vars, narrative_crit=False):
                 if 'enduse' not in var_entries:
                     out_dict[var_name]['enduse'] = []
                 if 'sector' not in var_entries:
-                    out_dict[var_name]['enduse'] = True  # All sector
+                    out_dict[var_name]['sector'] = True  # All sector
             else:
                 for sub_var_name, sub_var_entries in var_entries.items():
                     out_dict[var_name][sub_var_name] = sub_var_entries
@@ -584,10 +584,11 @@ def autocomplete_strategy_vars(strategy_vars, narrative_crit=False):
                         out_dict[var_name][sub_var_name]['sector'] = True # All sector
     else:
         # Same but narratives which need to be iterated
-        out_dict = defaultdict(dict)
+        out_dict = {}
 
         for var_name, var_entries in strategy_vars.items():
-
+            out_dict[var_name] = defaultdict(dict)
+    
             crit_single_dim = narrative_related.crit_dim_var(var_entries)
 
             if crit_single_dim:
@@ -598,26 +599,46 @@ def autocomplete_strategy_vars(strategy_vars, narrative_crit=False):
                     if 'enduse' not in narrative:
                         narrative['enduse'] = []
                     if 'sector' not in narrative:
-                        narrative['sector'] = True # All sector
+                        ###narrative['sector'] = True # All sector
+                        narrative['sector'] = 'dummy_sector' # All sector
                     updated_narratives.append(narrative)
 
                 out_dict[var_name] = updated_narratives
 
             else:
-                for sub_var_name, sub_var_entries in var_entries.items():
+                print("____{}".format(var_name))
 
-                    updated_narratives = []
-                    for narrative in sub_var_entries:
+                for sub_var_name, sector_sub_var_entries in var_entries.items():
 
-                        # If no 'enduse' defined, add empty list of affected enduses
-                        if 'enduse' not in narrative:
-                            narrative['enduse'] = []
-                        if 'sector' not in narrative:
-                            narrative['sector'] = True # All sector
-                        updated_narratives.append(narrative)
+                    if type(sector_sub_var_entries) is dict: # If sectors are defined
+                        for sector, sub_var_entries in sector_sub_var_entries.items():
+                            updated_narratives = []
+                            for narrative in sub_var_entries:
 
-                    out_dict[var_name][sub_var_name] = updated_narratives
+                                # If no 'enduse' defined, add empty list of affected enduses
+                                if 'enduse' not in narrative:
+                                    narrative['enduse'] = []
+                                if 'sector' not in narrative:
+                                    narrative['sector'] = sector # All sector
+                                updated_narratives.append(narrative)
 
+                            out_dict[var_name][sub_var_name][sector] = updated_narratives
+
+                    else: # no sectors defined
+                        updated_narratives = []
+                        print("sector_sub_var_entries")
+                        print(sector_sub_var_entries)
+                        for narrative in sector_sub_var_entries:
+
+                            # If no 'enduse' defined, add empty list of affected enduses
+                            if 'enduse' not in narrative:
+                                narrative['enduse'] = []
+                            #if 'sector' not in narrative:
+                                ###narrative['sector'] = True # All sector
+                                #narrative['sector'] = 'dummy_sector' # All sector
+                            updated_narratives.append(narrative)
+
+                        out_dict[var_name][sub_var_name] = updated_narratives
     return dict(out_dict)
 
 def get_affected_enduse(strategy_vars, name):

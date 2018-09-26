@@ -123,7 +123,7 @@ def read_weather_stations_raw(path_to_csv):
 
 def load_user_defined_vars(
         default_strategy_var,
-        path_to_folder_with_csv,
+        path_csv,
         simulation_base_yr
     ):
     """Load all strategy variables from file
@@ -132,7 +132,7 @@ def load_user_defined_vars(
     ---------
     default_strategy_var : dict
         default strategy var
-    path_to_folder_with_csv : str
+    path_csv : str
         Path to folder with all user defined parameters
     simulation_base_yr : int
         Simulation base year
@@ -142,7 +142,7 @@ def load_user_defined_vars(
     strategy_vars_as_narratives : dict
         Single or multidimensional parameters with fully autocompleted narratives
     """
-    all_csv_in_folder = os.listdir(path_to_folder_with_csv)
+    all_csv_in_folder = os.listdir(path_csv)
 
     # Files to ignore in this folder
     files_to_ignores = [
@@ -166,7 +166,7 @@ def load_user_defined_vars(
             except KeyError:
                 raise Exception("The user defined variable '%s' is not defined in model", var_name)
 
-            path_to_file = os.path.join(path_to_folder_with_csv, file_name)
+            path_to_file = os.path.join(path_csv, file_name)
             raw_file_content = pd.read_csv(path_to_file)
 
             # -----------------------------------
@@ -542,7 +542,7 @@ def load_paths(path):
         'path_main': path,
 
         # Path to strategy vars
-        'path_folder_strategy_vars': os.path.join(
+        'path_strategy_vars': os.path.join(
             path, '00-streategy_vars'),
 
         # Switches
