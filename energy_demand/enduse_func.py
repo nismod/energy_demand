@@ -1517,38 +1517,51 @@ def generic_fuel_switch(
     fuel_y : array
         Annual fuel demand per fueltype
     """
-    #TODO ALSO SECTOR SPECIFIC
-    # If default value, no switch is implemented
-    if strategy_vars['generic_fuel_switch'][enduse][curr_yr] != 0:
+    switch_defined = False
 
-        # Get affected sectors of fuel switch
-        affected_sector = strategy_vars['generic_fuel_switch'][enduse]['param_info']['sector']
+    try:
+        # Test if switch is defined for sector
+        fuel_switch = strategy_vars['generic_fuel_switch'][enduse][sector]
+        switch_defined = True
+    except KeyError:
 
-        # If fuel switch is across all sectors or currently the correct sector is simulated
-        if sector is True or sector in affected_sector:
+        # Try if non sector specific switch is defined
+        try:
+            key_of_switch = list(strategy_vars['generic_fuel_switch'][enduse].keys())
+            # Test wheter switches for sectors are provided
+            # if param_info is a key, then no sectors
+            if 'param_info' in key_of_switch: #one switch
+                fuel_switch = strategy_vars['generic_fuel_switch'][enduse]
+                switch_defined = True
+            else:
+                # Switch is not defined for this sector
+                switch_defined = False
+        except KeyError:
+            pass
+
+    if switch_defined is True:
+        if fuel_switch[curr_yr] != 0:
 
             # Get fueltype to switch (old)
-            fueltype_replace_str = strategy_vars['generic_fuel_switch'][enduse]['param_info']['fueltype_replace']
+            fueltype_replace_str = fuel_switch['param_info']['fueltype_replace']
             fueltype_replace_int = tech_related.get_fueltype_int(fueltype_replace_str)
 
             # Get fueltype to switch to (new)
-            fueltype_new_str = strategy_vars['generic_fuel_switch'][enduse]['param_info']['fueltype_new']
+            fueltype_new_str = fuel_switch['param_info']['fueltype_new']
             fueltype_new_int = tech_related.get_fueltype_int(fueltype_new_str)
 
             # Value of current year
-            fuel_share_switched_cy = strategy_vars['generic_fuel_switch'][enduse][curr_yr]
+            fuel_share_switched_cy = fuel_switch[curr_yr]
 
-            # Substract
+            # Substract fuel
             fuel_minus = fuel_y[fueltype_replace_int] * (1 - fuel_share_switched_cy)
             fuel_y[fueltype_replace_int] -= fuel_minus
 
-            # Add
+            # Add fuel
             fuel_y[fueltype_new_int] += fuel_minus
-
-        else: # not affected sector
+        else:
+            # no fuel switch defined
             pass
-    else: # default value
-        pass
 
     return fuel_y
 

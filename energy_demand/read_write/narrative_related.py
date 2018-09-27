@@ -207,7 +207,6 @@ def create_narratives(
         else:
             # Sub_parameter_name is only provided for multidimensional parameters
             sub_param_name = str(row['sub_param_name'])
-
         try:
             sector = row['sector']
 

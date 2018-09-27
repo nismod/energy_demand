@@ -435,7 +435,7 @@ def autocomplete_switches(
                                     if s_tot_defined + s_share_ey_regional > 1.0:
 
                                         if round(s_tot_defined + s_share_ey_regional) > 1:
-                                            # TODO
+                                            # TODO TODO TODO
                                             logging.warning(
                                                 "{}  {} {}".format(s_tot_defined, s_share_ey_regional, s_tot_defined + s_share_ey_regional))
                                             raise Exception(

@@ -443,16 +443,16 @@ def load_param_assump(
     # -------------------------------------------------------
 
     # Helper function to create description of parameters for all enduses
-    for enduse_name, param_value in default_enduses.items():
-        strategy_vars['generic_enduse_change'][enduse_name] = {
-            "name": enduse_name,
+    for enduse, param_value in default_enduses.items():
+        strategy_vars['generic_enduse_change'][enduse] = {
+            "name": enduse,
             "absolute_range": (-1, 1),
-            "description": "Enduse specific change {}".format(enduse_name),
+            "description": "Enduse specific change {}".format(enduse),
             "suggested_range": (0, 1),
             "default_value": param_value,
             "units": 'decimal',
             "sector": True,
-            "enduse": [enduse_name],
+            "enduse": [enduse],
             "sector": [],
             'regional_specific': True,
             'diffusion_type': 'linear'}
@@ -495,15 +495,16 @@ def load_param_assump(
             "name": "generic_fuel_switch",
             "absolute_range": (-1, 1),
             "description": "Generic fuel switches to switch fuel in any enduse and sector",
-            "suggested_range": (0, 1), #TODO UPDATE
+            "suggested_range": (0, 1),
             "default_value": param_value,
             "units": 'decimal',
+            "enduse": enduse,
             "sector": True,
             'regional_specific': True,
             'diffusion_type': 'linear'}
 
     # -----------------------
-    # Create parameter file only with 
+    # Create parameter file only with
     # fully descried parameters and write to yaml file
     #TODO Needs updating after SMIF upgrade
     # -----------------------
@@ -538,6 +539,9 @@ def load_param_assump(
 
     # Autocomplete
     strategy_vars_out = autocomplete_strategy_vars(strategy_vars)
+
+    # User defined variables
+    ##strategy_vars_out["generic_fuel_switch"] = {}
 
     return dict(strategy_vars_out)
 
@@ -626,9 +630,8 @@ def autocomplete_strategy_vars(strategy_vars, narrative_crit=False):
                         updated_narratives = []
                         for narrative in sector_sub_var_entries:
 
-                            # If no 'enduse' defined, add empty list of affected enduses
                             if 'enduse' not in narrative:
-                                narrative['enduse'] = []
+                                narrative['enduse'] = [sub_var_name] #TODO USED??
                             updated_narratives.append(narrative)
 
                         out_dict[var_name][sub_var_name] = updated_narratives

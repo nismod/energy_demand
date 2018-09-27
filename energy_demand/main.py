@@ -248,8 +248,7 @@ if __name__ == "__main__":
         writeYAML=data['criterias']['writeYAML'])
 
     # -----------------------------------------------------------------------------
-    # Load standard smif parameters and generate standard single timestep
-    # narrative for year 2050 TODO IMPELEMENT THAT CAN BE LOADED FROM SMIF
+    # Load standard smif parameters and generate standard single timestep narrative for year 2050
     # -----------------------------------------------------------------------------
     strategy_vars = strategy_vars_def.load_smif_parameters(
         data_handle=default_streategy_vars,

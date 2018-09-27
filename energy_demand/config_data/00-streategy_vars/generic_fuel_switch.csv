@@ -1,5 +1,3 @@
-sub_param_name,default_by,fueltype_replace,fueltype_new,end_yr,value_ey,sector
-is_high_temp_process,0,gas,electricity,2020,0.3,mining
-is_high_temp_process,0,gas,electricity,2040,0.4,mining
-is_high_temp_process,0,gas,electricity,2020,0.3,food_production
-is_high_temp_process,0,gas,electricity,2040,0.4,food_production
+sub_param_name,default_by,fueltype_replace,fueltype_new,end_yr,value_ey
+is_high_temp_process,0,gas,electricity,2020,0.3
+is_high_temp_process,0,gas,electricity,2040,0.4

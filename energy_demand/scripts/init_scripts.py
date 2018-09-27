@@ -276,14 +276,21 @@ def spatial_explicit_modelling_strategy_vars(
     ):
     """
     Spatial explicit modelling of scenario variables
-    based on narratives. From UK factors to regional specific factors
-    Convert strategy variables to regional variables
+    based on narratives. Convert strategy variables
+    (e.g. country level) to regional variables.
 
     Arguments
     ---------
-    assumptions : dict
-    regions
-
+    strategy_vars : dict
+        All non_spatial strategy variables
+    spatially_modelled_vars : dict
+        All spatial variables
+    regions : dict
+        Regions
+    fuel_disagg : dict
+        Disaggregated fuel
+    f_reg, f_reg_norm, f_reg_norm_abs : dict
+        Spatial factors
     """
     regional_vars = {}
 
@@ -294,7 +301,7 @@ def spatial_explicit_modelling_strategy_vars(
         single_dim_var = narrative_related.crit_dim_var(strategy_var)
 
         if single_dim_var:
-            new_narratives = create_regional_narratives(
+            regional_vars[var_name] = get_regional_narrative(
                 var_name,
                 strategy_var,
                 spatially_modelled_vars,
@@ -303,15 +310,14 @@ def spatial_explicit_modelling_strategy_vars(
                 f_reg,
                 f_reg_norm,
                 f_reg_norm_abs)
-            regional_vars[var_name] = new_narratives
         else:
-            regional_vars[var_name] = {} #defaultdict(dict)
+            regional_vars[var_name] = {}
 
             for sub_var_name, sector_sub_strategy_var in strategy_var.items():
                 regional_vars[var_name][sub_var_name] = {}
                 if type(sector_sub_strategy_var) is dict: # sectors defined
                     for sector, sub_strategy_var in sector_sub_strategy_var.items():
-                        new_narratives = create_regional_narratives(
+                        regional_vars[var_name][sub_var_name][sector] = get_regional_narrative(
                             sub_var_name,
                             sub_strategy_var,
                             spatially_modelled_vars,
@@ -320,10 +326,8 @@ def spatial_explicit_modelling_strategy_vars(
                             f_reg,
                             f_reg_norm,
                             f_reg_norm_abs)
-
-                        regional_vars[var_name][sub_var_name][sector] = new_narratives
                 else:
-                    new_narratives = create_regional_narratives(
+                    regional_vars[var_name][sub_var_name] = get_regional_narrative(
                         sub_var_name,
                         sector_sub_strategy_var,
                         spatially_modelled_vars,
@@ -333,13 +337,11 @@ def spatial_explicit_modelling_strategy_vars(
                         f_reg_norm,
                         f_reg_norm_abs)
 
-                    regional_vars[var_name][sub_var_name] = new_narratives
-
                 regional_vars[var_name] = dict(regional_vars[var_name])
 
     return regional_vars
 
-def create_regional_narratives(
+def get_regional_narrative(
         var_name,
         strategy_vars,
         spatially_modelled_vars,
@@ -349,7 +351,29 @@ def create_regional_narratives(
         f_reg_norm,
         f_reg_norm_abs
     ):
-    """TODO
+    """Spatial explicit modelling of scenario variable
+    based on narratives. Convert strategy variables 
+    (e.g. country level) to regional variables.
+
+    Arguments
+    ---------
+    var_name : str
+        Variable name
+    strategy_vars : dict
+        All non_spatial strategy variables
+    spatially_modelled_vars : dict
+        All spatial variables
+    regions : dict
+        Regions
+    fuel_disagg : dict
+        Disaggregated fuel
+    f_reg, f_reg_norm, f_reg_norm_abs : dict
+        Spatial factors
+
+    Returns
+    ------
+    new_narratives : list
+        Created narratives
     """
     new_narratives = []
     for narrative in strategy_vars:
@@ -362,7 +386,7 @@ def create_regional_narratives(
             regional_vars_by = {}
             regional_vars_ey = {}
 
-            # Check whether scenario varaible is regionally modelled
+            # Check whether scenario variable is regionally modelled
             if var_name not in spatially_modelled_vars:
 
                 # Variable is not spatially modelled
@@ -372,8 +396,8 @@ def create_regional_narratives(
             else:
                 if narrative['enduse'] == []:
                     logging.info(
-                        "For scenario var %s no affected enduse is defined. Thus speed is used for diffusion",
-                            var_name)
+                        "For variable %s no affected enduse is defined. Thus speed is used for diffusion modelling",
+                        var_name)
                     fuels_reg = {}
                 else:
                     # Get enduse specific fuel for each region
