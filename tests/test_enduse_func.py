@@ -491,7 +491,7 @@ def test_calc_fuel_tech_yh():
 
     assert results['techA'][3][0] == 3.0 / float(np.sum(range(365)) * 24) * 200
 
-def test_apply_enduse_sector_specific_change():
+def test_generic_demand_change():
     """testing
     """
     strategy_vars = {'generic_enduse_change': {'heating': {2015: 0, 2020: 2.0}}}
@@ -499,7 +499,7 @@ def test_apply_enduse_sector_specific_change():
     strategy_vars['generic_enduse_change']['heating']['param_info']['sector'] = 'heating'
 
     fuel_y = np.array([100])
-    result = enduse_func.apply_enduse_sector_specific_change(
+    result = enduse_func.generic_demand_change(
         sector=True,
         enduse='heating',
         fuel_y=fuel_y,

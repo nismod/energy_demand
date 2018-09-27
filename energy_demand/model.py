@@ -101,9 +101,10 @@ class EnergyDemandModel(object):
         # ---------------------------------------------
         for reg_array_nr, region in enumerate(regions):
             logging.info(
-                "... Simulate region %s, year %s, (%s)",
+                "... Simulate region %s, year %s, weather_yr: %s, p: (%s)",
                 region,
                 assumptions.curr_yr,
+                weather_yr,
                 round((100/data['reg_nrs'])*reg_array_nr, 2))
 
             all_submodel_objs = simulate_region(

@@ -150,7 +150,7 @@ class Enduse(object):
             self.fuel_y = _fuel_new_y
             #logging.debug("FUEL TRAIN C0: " + str(np.sum(self.fuel_y)))
 
-            _fuel_new_y = apply_enduse_sector_specific_change(
+            _fuel_new_y = generic_demand_change(
                 enduse,
                 sector,
                 self.fuel_y,
@@ -211,7 +211,6 @@ class Enduse(object):
                 # If no technologies are defined for an enduse, the load profiles
                 # are read from dummy shape, which show the load profiles of the whole enduse.
                 # No switches can be implemented and only overall change of enduse
-
                 if flat_profile_crit:
                     pass
                 else:
@@ -1127,7 +1126,7 @@ def apply_scenario_drivers(
 
     return fuel_y
 
-def apply_enduse_sector_specific_change(
+def generic_demand_change(
         enduse,
         sector,
         fuel_y,
@@ -1517,25 +1516,23 @@ def generic_fuel_switch(
     fuel_y : array
         Annual fuel demand per fueltype
     """
-    switch_defined = False
-
     try:
         # Test if switch is defined for sector
         fuel_switch = strategy_vars['generic_fuel_switch'][enduse][sector]
         switch_defined = True
     except KeyError:
+        switch_defined = False
 
-        # Try if non sector specific switch is defined
+        # Test is not a switch for the whole enduse (across every sector) is defined
         try:
             key_of_switch = list(strategy_vars['generic_fuel_switch'][enduse].keys())
+
             # Test wheter switches for sectors are provided
-            # if param_info is a key, then no sectors
             if 'param_info' in key_of_switch: #one switch
                 fuel_switch = strategy_vars['generic_fuel_switch'][enduse]
                 switch_defined = True
             else:
-                # Switch is not defined for this sector
-                switch_defined = False
+                pass # Switch is not defined for this sector
         except KeyError:
             pass
 

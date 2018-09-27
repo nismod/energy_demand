@@ -8,6 +8,7 @@
 #TODO Write out full result. Then write function to aggregate accordingly
 #TODO SIMple aggregation. Write out sectormodel, enduse, region, fueltypes.... --> Do all aggregation based on that
 # MAKE SIMLPLE TABLE FOR READING IN FUELS
+# correction factors on LAD level disaggregation? (load non-residential demand)
 # Improve plotting and processing (e.g. saisonal plots)
 
 # Weather station cleaning: Replace days with missing values
@@ -141,8 +142,8 @@ if __name__ == "__main__":
     user_defined_base_yr = 2015
     user_defined_weather_by = 2015
     user_defined_simulation_end_yr = 2050                                   # Used to create standard narrative
-    simulated_yrs = [user_defined_base_yr, user_defined_simulation_end_yr]
-    weather_yrs_scenario = [2015]                                             # Temperature year
+    simulated_yrs = [user_defined_base_yr, 2030, user_defined_simulation_end_yr]
+    weather_yrs_scenario = [2015, 1962]                                             # Temperature years
 
     # --- Region definition configuration
     name_region_set = os.path.join(local_data_path, 'region_definitions', "lad_2016_uk_simplified.shp")        # LAD

@@ -99,7 +99,6 @@ def run(
 
     ax = fig.add_subplot(111)
 
-
     # 2015 weather year
     data_2015 = data_weather_yr[2015][fueltype_int].reshape(8760)[period_h]
 
@@ -140,3 +139,4 @@ def run(
         shadow=True)
 
     plt.show()
+    

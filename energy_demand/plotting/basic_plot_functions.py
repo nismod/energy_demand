@@ -30,6 +30,9 @@ def smooth_data(x_list, y_list, num=500, spider=False):
         Criteria whether spider plot or not
     # https://docs.scipy.org/doc/scipy/reference/tutorial/interpolate.html
 
+    Note:
+    ------
+    - needs at least 4 entries in lists
     """
     if spider:
 

@@ -1,5 +1,5 @@
 """Function to generate plots based on simulation results stored in a folder
-"""
+5"""
 import os
 import sys
 
@@ -46,7 +46,6 @@ def process_result_multi_scen(
         "plot_lad_cross_graphs": True,
         
         "plot_weather_day_year": True   #plot for a period (e.g. day) the hourly profile of all weather plots
-        
         }
 
     # Get all folders with scenario run results (name of folder is scenario)
@@ -62,7 +61,6 @@ def process_result_multi_scen(
                 plot_crit_dict,
                 base_yr=base_yr,
                 comparison_year=comparison_year)
-            
 
     return
 

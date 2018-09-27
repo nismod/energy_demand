@@ -46,7 +46,6 @@ def main(
         except ValueError:
             pass
 
-
     # ------------------------------
     # Plotting weather variability results
     # ------------------------------
