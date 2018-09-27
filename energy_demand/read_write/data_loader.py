@@ -121,6 +121,43 @@ def read_weather_stations_raw(path_to_csv):
 
     return weather_stations
 
+def replace_variable(_user_defined_vars, strategy_vars):
+    """Replace default strategy variables with user
+    defined variables
+
+    Arguments
+    ----------
+    _user_defined_vars : dict
+        User defined strategy variables
+    strategy_vars : dict
+        Default strategy variables
+
+    Returns
+    -------
+    strategy_vars : dict
+        Updated strategy variables with user defined inputs
+    """
+    for new_var, new_var_vals in _user_defined_vars.items():
+
+        crit_single_dim = narrative_related.crit_dim_var(
+            new_var_vals)
+
+        if crit_single_dim:
+            strategy_vars[new_var] = new_var_vals
+        else:
+            for sub_var_name, sector_sub_var in new_var_vals.items():
+
+                if type(sector_sub_var) is dict:
+                    strategy_vars[new_var][sub_var_name] = {}
+                    for sector, sub_var in sector_sub_var.items():
+                        strategy_vars[new_var][sub_var_name][sector] = sub_var
+                else:
+                    strategy_vars[new_var][sub_var_name] = sector_sub_var
+
+            strategy_vars[new_var] = dict(strategy_vars[new_var])
+
+    return strategy_vars
+
 def load_user_defined_vars(
         default_strategy_var,
         path_csv,

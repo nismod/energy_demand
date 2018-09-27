@@ -265,24 +265,7 @@ if __name__ == "__main__":
         path_csv=data['paths']['path_strategy_vars'],
         simulation_base_yr=data['assumptions'].base_yr)
 
-    for new_var, new_var_vals in _user_defined_vars.items():
-
-        crit_single_dim = narrative_related.crit_dim_var(
-            new_var_vals)
-
-        if crit_single_dim:
-            strategy_vars[new_var] = new_var_vals
-        else:
-            strategy_vars[new_var] = defaultdict(dict)
-            for sub_var_name, sector_sub_var in new_var_vals.items():
-
-                if type(sector_sub_var) is dict:
-                    for sector, sub_var in sector_sub_var.items():
-                        strategy_vars[new_var][sub_var_name][sector] = sub_var
-                else:
-                    strategy_vars[new_var][sub_var_name] = sector_sub_var
-
-            strategy_vars[new_var] = dict(strategy_vars[new_var])
+    strategy_vars = data_loader.replace_variable(_user_defined_vars, strategy_vars)
 
     # Replace strategy variables not defined in csv files)
     strategy_vars_out = strategy_vars_def.autocomplete_strategy_vars(
@@ -334,7 +317,7 @@ if __name__ == "__main__":
     # ------------------------------------------------------------
     # Disaggregate national energy demand to regional demands
     # ------------------------------------------------------------
-    data['fuel_disagg'] = s_disaggregation.disaggregate_demand(data)
+    data['fuel_disagg'] = s_disaggregation.disaggr_demand(data)
 
     # ------------------------------------------------------------
     # Calculate spatial diffusion factors

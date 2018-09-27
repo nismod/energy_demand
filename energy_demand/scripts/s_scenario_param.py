@@ -1,6 +1,5 @@
 """Generate scenario paramters for every year
 """
-import os
 from collections import defaultdict
 
 from energy_demand.technologies import diffusion_technologies
@@ -144,17 +143,17 @@ def generate_annual_param_vals(
         Values for all simulated years (all the same for very region)
     """
     reg_param = {}
-    non_reg_param = defaultdict(dict)
-
     for region in regions:
-        reg_param[region] = defaultdict(dict)
+        reg_param[region] = {}
+    non_reg_param = {}
 
     for var_name, strategy_vars_values in strategy_vars.items():
 
         # Initalisation
         for region in regions:
             reg_param[region][var_name] = {}
-            
+        non_reg_param[var_name] = {}
+
         single_dim_var = narrative_related.crit_dim_var(
             strategy_vars_values)
 
@@ -170,7 +169,6 @@ def generate_annual_param_vals(
             try:
                 param_info['sector'] = strategy_vars_values[0]['sector']
             except KeyError:
-                #param_info['sector'] = True # all sectors
                 pass
             try:
                 param_info['fueltype_replace'] = strategy_vars_values[0]['fueltype_replace']
@@ -210,19 +208,18 @@ def generate_annual_param_vals(
                     for sector, sub_var_values in sector_sub_var_values.items():
 
                         # Initialisation
-                        reg_param[region][var_name][sub_var_name][sector] = {}
-                        non_reg_param[var_name][sub_var_name][sector] = {}
+                        #reg_param[region][var_name][sub_var_name][sector] = {}
+                        #non_reg_param[var_name][sub_var_name][sector] = {}
 
                         param_info = {}
                         try:
                             param_info['enduse'] = sub_var_values[0]['enduse']
                         except KeyError:
                             param_info['enduse'] = [] # all sectors
-                        #try:
-                        #    param_info['sector'] = sub_var_values[0]['sector']
-                        #except KeyError:
-                        #    #param_info['sector'] = True # all sectors
-                        #    pass
+                        try:
+                            param_info['sector'] = sub_var_values[0]['sector']
+                        except KeyError:
+                            pass
                         try:
                             param_info['fueltype_replace'] = sub_var_values[0]['fueltype_replace']
                         except KeyError:
@@ -245,7 +242,7 @@ def generate_annual_param_vals(
                         if reg_specific_crit:
                             for region in regions:
                                 reg_param[region][var_name][sub_var_name][sector] = regional_strategy_vary[region]
-                                reg_param[region][var_name][sub_var_name][sector] = dict(reg_param[region][var_name][sub_var_name])
+                                reg_param[region][var_name][sub_var_name][sector] = dict(reg_param[region][var_name][sub_var_name][sector])
                                 reg_param[region][var_name][sub_var_name][sector]['param_info'] = param_info
                         else:
                             non_reg_param[var_name][sub_var_name][sector] = regional_strategy_vary
@@ -259,11 +256,10 @@ def generate_annual_param_vals(
                         param_info['enduse'] = sector_sub_var_values[0]['enduse']
                     except KeyError:
                         param_info['enduse'] = [] # all sectors
-                    #try:
-                    #    param_info['sector'] = sector_sub_var_values[0]['sector']
-                    #except KeyError:
-                    #    #param_info['sector'] = True # all sectors
-                    #    pass TODO
+                    try:
+                        param_info['sector'] = sector_sub_var_values[0]['sector']
+                    except KeyError:
+                        pass
                     try:
                         param_info['fueltype_replace'] = sector_sub_var_values[0]['fueltype_replace']
                     except KeyError:

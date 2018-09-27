@@ -9,7 +9,7 @@ from energy_demand.basic import lookup_tables
 from energy_demand.read_write import data_loader
 from energy_demand.scripts import init_scripts
 
-def disaggregate_demand(data):
+def disaggr_demand(data):
     """Disaggregated demand
 
     Arguments

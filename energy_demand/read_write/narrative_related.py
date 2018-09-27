@@ -281,11 +281,8 @@ def create_narratives(
                 narrative['regional_specific'] = default_streategy_vars[sub_param_name]['regional_specific']
 
         # Append narrative to correct variable
-
-        #try: #sector defined
         sector = narrative['sector']
-        #except KeyError: #no sector defined
-        #    sector = 'dummy_sector'
+
         try:     
             parameter_narratives[sub_param_name][sector].append(narrative)
         except KeyError:

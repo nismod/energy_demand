@@ -1134,7 +1134,7 @@ def apply_enduse_sector_specific_change(
         strategy_vars,
         curr_yr
     ):
-    """Calculates fuel based on assumed overall enduse specific
+    """Calculates fuel based on assumed overall enduse or enduse/sector specific
     fuel consumption changes.
 
     The changes are assumed across all fueltypes.
@@ -1147,7 +1147,7 @@ def apply_enduse_sector_specific_change(
     enduse : str
         Enduse
     sector : str
-        Sector
+        Sector. If True, then the change is valid for all sectors. if None, then no sector is defined for enduse.
     fuel_y : array
         Yearly fuel per fueltype
     strategy_vars : dict
@@ -1160,49 +1160,35 @@ def apply_enduse_sector_specific_change(
     fuel_y : array
         Yearly new fuels
     """
-    try:
-        
-        '''try:
+    change_enduse = False
+
+    # True for all sectors or no sector defined
+    if sector is True or sector is None:
+        try:
             change_cy = strategy_vars['generic_enduse_change'][enduse][curr_yr]
-        except:
+            change_enduse = True
+        except KeyError: #no sector enduse is defined
+            pass
+    else:
+        try:
+            # Generic enduse change is defined sector specific
+            change_cy = strategy_vars['generic_enduse_change'][enduse][sector][curr_yr]
+            change_enduse = True
+        except (KeyError, TypeError):
             pass
         try:
-            change_cy = strategy_vars['generic_enduse_change'][enduse][curr_yr][sector]
-        except:
-            pass # no values for this sector'''
+            # Generic enduse change is not defined sector specific
+            change_cy = strategy_vars['generic_enduse_change'][enduse][curr_yr]
 
-        
-        if enduse == 'is_other' and curr_yr > 2015:
-            logging.info("ZEBRA {}  {}".format(enduse, sector))
+            change_enduse = True
+        except (KeyError, TypeError):
+            pass
 
-        #TODO MAKE SECTOR SPECIFIC....
-        change_cy = strategy_vars['generic_enduse_change'][enduse][curr_yr]
-
-        if enduse == 'is_other' and curr_yr > 2015:
-            logging.info("  why: {}  {}".format(sector, str(change_cy)))
-        # Get affected sectors
-        affected_sector = strategy_vars['generic_enduse_change'][enduse]['param_info']['sector']
-
-        # if Sector is None, then so sectors are defined for this enduse
-        if not sector:
-            if enduse == 'is_other' and curr_yr > 2015:
-                logging.info("no sector (A) " + str(change_cy))
-            # Calculate new annual fuel
-            fuel_y = fuel_y * (1 + change_cy)
-        else:
-            if enduse == 'is_other' and curr_yr > 2015:
-                logging.info("AAAA {}  {}".format(affected_sector, sector))
-            if affected_sector is True or affected_sector == sector: # Setor crit is True, meaning that true for all sectors
-                if enduse == 'is_other' and curr_yr > 2015:
-                    logging.info("sector (B)" + str(change_cy))
-                # Calculate new annual fuel
-                fuel_y = fuel_y * (1 + change_cy)
-            else:
-                pass
-
-    except KeyError:
-        logging.debug(
-            "No annual parameters are provided for enduse %s %s", enduse, sector)
+    if change_enduse is True and change_cy != 0:
+        fuel_y = fuel_y * (1 + change_cy)
+    else:
+        #logging.debug("No annual parameters are provided for enduse %s %s", enduse, sector)
+        pass
 
     return fuel_y
 
@@ -1531,8 +1517,8 @@ def generic_fuel_switch(
     fuel_y : array
         Annual fuel demand per fueltype
     """
-    # If defautl value, no switch is implemented
-
+    #TODO ALSO SECTOR SPECIFIC
+    # If default value, no switch is implemented
     if strategy_vars['generic_fuel_switch'][enduse][curr_yr] != 0:
 
         # Get affected sectors of fuel switch
