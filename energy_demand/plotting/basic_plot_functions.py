@@ -19,54 +19,93 @@ def cm2inch(*tupl):
     else:
         return tuple(i/inch for i in tupl)
 
-def smooth_data(x_list, y_list, num=500, spider=False):
+def simple_smooth(x_list, y_list, num=500, spider=False, interpol_kind='quadratic'):
+
+    nr_x_values = len(x_list)
+    min_x_val = min(x_list)
+    max_x_val = max(x_list)
+
+    x_values = np.linspace(min_x_val, max_x_val, num=nr_x_values, endpoint=True)
+
+    f2 = interp1d(x_values, y_list, kind=interpol_kind)
+
+    smoothed_data_x = np.linspace(
+        min_x_val,
+        max_x_val,
+        num=num,
+        endpoint=True)
+
+    smoothed_data_y = f2(smoothed_data_x)
+
+    return smoothed_data_x, smoothed_data_y
+
+def smooth_data(
+        x_list,
+        y_list,
+        num=500,
+        spider=False,
+        interpol_kind='quadratic'
+    ):
     """Smooth data
 
     x_list : list
         List with x values
     y_list : list
         List with y values
+    num : int
+        New number of interpolation points
     spider : bool
         Criteria whether spider plot or not
-    # https://docs.scipy.org/doc/scipy/reference/tutorial/interpolate.html
+
+    
 
     Note:
     ------
     - needs at least 4 entries in lists
+    - https://docs.scipy.org/doc/scipy/reference/tutorial/interpolate.html
+
     """
+
     if spider:
 
-        nr_x_values = len(x_list)
         min_x_val = min(x_list)
         max_x_val = math.pi * 2 #max is tow pi
 
-        x_values = np.linspace(min_x_val, max_x_val, num=nr_x_values, endpoint=True)
+        x_values = np.linspace(
+            min_x_val,
+            max_x_val,
+            num=len(x_list),
+            endpoint=True)
 
-        f2 = interp1d(x_values, y_list, kind='quadratic') #quadratic cubic
+        f2 = interp1d(
+            x_values,
+            y_list,
+            kind='quadratic') #quadratic cubic
 
-        smoothed_data_x = np.linspace(
+        x_smooth = np.linspace(
             min_x_val,
             max_x_val,
             num=num,
             endpoint=True)
+
+        #y_smooth = f2(x_smooth)
+
     else:
-        nr_x_values = len(x_list)
-        min_x_val = min(x_list)
-        max_x_val = max(x_list)
+        # Smooth x data
+        x_smooth = np.linspace(
+            min(x_list),
+            max(x_list),
+            num=num)
 
-        x_values = np.linspace(min_x_val, max_x_val, num=nr_x_values, endpoint=True)
+        f2 = interp1d(
+            x_list,
+            y_list,
+            kind=interpol_kind)
 
-        f2 = interp1d(x_values, y_list, kind='cubic')
+    # smooth
+    y_smooth = f2(x_smooth)
 
-        smoothed_data_x = np.linspace(
-            min_x_val,
-            max_x_val,
-            num=num,
-            endpoint=True)
-
-    smoothed_data_y = f2(smoothed_data_x)
-
-    return smoothed_data_x, smoothed_data_y
+    return x_smooth, y_smooth
 
 def smooth_line(
         input_x_line_data,
@@ -78,6 +117,9 @@ def smooth_line(
     nr_line_points : int
         represents number of points to make between input_line_data.min and T.max
     """
+    input_x_line_data = np.array(input_x_line_data)
+    input_y_line_data = np.array(input_y_line_data)
+
     smooth_x_line_data = np.linspace(
         input_x_line_data.min(),
         input_x_line_data.max(),

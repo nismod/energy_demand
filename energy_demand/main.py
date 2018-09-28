@@ -10,7 +10,7 @@
 # MAKE SIMLPLE TABLE FOR READING IN FUELS
 # correction factors on LAD level disaggregation? (load non-residential demand)
 # Improve plotting and processing (e.g. saisonal plots)
-
+# test if smoothing and plots
 # Weather station cleaning: Replace days with missing values
 
     Note

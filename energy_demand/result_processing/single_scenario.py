@@ -6,13 +6,13 @@ from collections import defaultdict
 from energy_demand.read_write import data_loader, read_data
 from energy_demand.basic import date_prop
 from energy_demand.plotting import plotting_results, result_mapping
-from energy_demand.basic import logger_setup, basic_functions
+from energy_demand.basic import basic_functions
 from energy_demand.basic import lookup_tables
 from energy_demand.plotting import fig_weather_variability_priod
 from energy_demand.plotting import fig_total_demand_peak
 
 def main(
-        path_data_energy_demand,
+        path_data_ed,
         path_shapefile_input,
         plot_crit_dict,
         base_yr,
@@ -22,7 +22,7 @@ def main(
 
     Arguments
     ----------
-    path_data_energy_demand : str
+    path_data_ed : str
         Path to results
     path_shapefile_input : str
         Path to shapefile
@@ -34,9 +34,12 @@ def main(
         Year to generate comparison plots
     """
     print("...Start creating plots")
+    data = {}
 
+    # ------------------------------------------------------------
     # Get all yealy results
-    all_result_folders = os.listdir(path_data_energy_demand)
+    # ------------------------------------------------------------
+    all_result_folders = os.listdir(path_data_ed)
 
     weather_yrs = []
     for result_folder in all_result_folders:
@@ -46,22 +49,21 @@ def main(
         except ValueError:
             pass
 
-    # ------------------------------
+    # ------------------------------------------------------------
     # Plotting weather variability results
-    # ------------------------------
+    # ------------------------------------------------------------
     if plot_crit_dict['plot_weather_day_year']:
 
         # Container to store all data of weather years
         weather_yr_container = defaultdict(dict)
 
-        data = {}
         data['lookups'] = lookup_tables.basic_lookups()
-        path_out_plots = os.path.join(path_data_energy_demand, "PDF_weather_varability")
+        path_out_plots = os.path.join(path_data_ed, "PDF_weather_varability")
         basic_functions.del_previous_setup(path_out_plots)
         basic_functions.create_folder(path_out_plots)
 
         data['enduses'], data['assumptions'], data['reg_nrs'], data['regions'] = data_loader.load_ini_param(
-            os.path.join(path_data_energy_demand))
+            os.path.join(path_data_ed))
 
         # Other information is read in
         data['assumptions']['seasons'] = date_prop.get_season(year_to_model=2015)
@@ -73,7 +75,7 @@ def main(
         for weather_yr in weather_yrs:
 
             results_container = read_data.read_in_results(
-                os.path.join(path_data_energy_demand, str(weather_yr), 'model_run_results_txt'),
+                os.path.join(path_data_ed, str(weather_yr), 'model_run_results_txt'),
                 data['assumptions']['seasons'],
                 data['assumptions']['model_yeardays_daytype'])
 
@@ -84,14 +86,15 @@ def main(
             weather_yr_container['tot_fueltype_h'][weather_yr] = tot_fueltype_h
 
         # --------------------------------------------
-        # Plots
+        # Plot peak demand and total demand per fueltype
         # --------------------------------------------
-        # plot over time total demand and peak
-        fig_total_demand_peak.run(
-            data_input=weather_yr_container['tot_fueltype_h'],
-            fueltype_str='electricity',
-            fig_name=os.path.join(
-                path_out_plots, "tot_fueltype_h.pdf"))
+        for fueltype_str in data['lookups']['fueltypes'].keys():
+            # plot over time total demand and peak
+            fig_total_demand_peak.run(
+                data_input=weather_yr_container['tot_fueltype_h'],
+                fueltype_str=fueltype_str,
+                fig_name=os.path.join(
+                    path_out_plots, "tot_{}_h.pdf".format(fueltype_str)))
 
 
         # plot over period of time across all weather scenario
@@ -102,36 +105,28 @@ def main(
             period_h=list(range(200,500)), #period to plot
             fig_name=os.path.join(
                 path_out_plots, "weather_var_period.pdf"))
-
-
-
-
-
-
     else:
         pass
 
-    # Execute script to generate PDF results
+    # ------------------------------------------------------------
+    # Calculate results for every weather year
+    # ------------------------------------------------------------
     for weather_yr in weather_yrs:
 
-        path_data_energy_demand_weather_yr = os.path.join(path_data_energy_demand, str(weather_yr))
+        path_data_weather_yr = os.path.join(path_data_ed, str(weather_yr))
 
-        # Set up logger
-        #logger_setup.set_up_logger(
-        #    os.path.join(
-        #        path_data_energy_demand_weather_yr, "plotting.log"))
         # Simulation information is read in from .ini file for results
         data['enduses'], data['assumptions'], data['reg_nrs'], data['regions'] = data_loader.load_ini_param(
-            os.path.join(path_data_energy_demand))
+            os.path.join(path_data_ed))
 
         # ------------------
         # Load necessary inputs for read in
         # ------------------
         data = {}
         data['local_paths'] = data_loader.get_local_paths(
-            path_data_energy_demand_weather_yr)
+            path_data_weather_yr)
         data['result_paths'] = data_loader.get_result_paths(
-            os.path.join(path_data_energy_demand_weather_yr))
+            os.path.join(path_data_weather_yr))
         data['lookups'] = lookup_tables.basic_lookups()
 
         # ---------------
@@ -145,17 +140,15 @@ def main(
 
         # Simulation information is read in from .ini file for results
         data['enduses'], data['assumptions'], data['reg_nrs'], data['regions'] = data_loader.load_ini_param(
-            os.path.join(path_data_energy_demand))
+            os.path.join(path_data_ed))
 
         # Other information is read in
         data['assumptions']['seasons'] = date_prop.get_season(year_to_model=2015)
         data['assumptions']['model_yeardays_daytype'], data['assumptions']['yeardays_month'], data['assumptions']['yeardays_month_days'] = date_prop.get_yeardays_daytype(year_to_model=2015)
 
-        # Read scenario data
         data['scenario_data'] = {}
-
         data['scenario_data']['population'] = read_data.read_scenaric_population_data(
-            os.path.join(path_data_energy_demand, 'model_run_pop'))
+            os.path.join(path_data_ed, 'model_run_pop'))
 
         # --------------------------------------------
         # Reading in results from different model runs

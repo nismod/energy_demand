@@ -608,6 +608,7 @@ def plot_lad_national(
     # Show figure
     if plotshow:
         plt.show()
+
     plt.close()
 
 def merge_data_to_shp(shp_gdp, merge_data, unique_merge_id):

@@ -56,8 +56,6 @@ def process_scenarios(path_to_scenarios, year_to_model=2015):
     # -------------------------------
     scenario_data = {}
     for scenario in scenarios:
-
-        # Add scenario name to folder
         scenario_data[scenario] = {}
 
         path_to_result_files = os.path.join(
