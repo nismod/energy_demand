@@ -48,7 +48,6 @@ def marker_list():
         "o",	# circle
         ",",	# pixel
         "P",	# plus (filled)
-        
         "x",	# x
         "v",	# triangle_down
         "^",	# triangle_up
@@ -61,52 +60,14 @@ def marker_list():
         "8",	# octagon
         "s",	# square
         "p",	# pentagon
-
         "h",	# hexagon1
         "H",	# hexagon2
-       
-       
         "X",	# x (filled)
         "D",	# diamond
         "d",	# thin_diamond
         "|",	# vline
     ]
     return markers
-
-def color_list_resilience():
-    """
-    """
-    color_list = [
-        #'darkturquoise',
-        #'orange',
-        #'firebrick',
-        #'darkviolet',
-        #'khaki',
-        #'olive',
-        #'darkseagreen',
-        #'darkcyan',
-        #'indianred',
-        #'darkblue',
-        'tomato',
-        #'gainsboro',
-        #'mediumseagreen',
-        #'lightgray',
-        'forestgreen', #'purple',
-        'sandybrown',
-        #'lemonchiffon',
-        #'cadetblue',
-        #'lightyellow',
-        #'lavenderblush',
-        'coral',
-        
-        'aqua',
-        'mediumslateblue',
-        'darkorange',
-        'mediumaquamarine',
-        'darksalmon',
-        'beige']
-
-    return color_list
 
 def color_list():
     """ List with colors

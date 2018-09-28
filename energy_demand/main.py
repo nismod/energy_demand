@@ -1,7 +1,6 @@
 """Allows to run HIRE locally outside the SMIF framework
 # After smif upgrade:
 #   make that automatically the parameters can be generated to be copied into smif format
-# REMOVE RESILIENCE CODE
 # REMOVE HDD CODE PLOTTING
 
 #TODO Test if technology type can be left empty in technology spreadsheet, Try to remove tech_type
@@ -10,7 +9,6 @@
 # MAKE SIMLPLE TABLE FOR READING IN FUELS
 # correction factors on LAD level disaggregation? (load non-residential demand)
 # Improve plotting and processing (e.g. saisonal plots)
-# test if smoothing and plots
 # Weather station cleaning: Replace days with missing values
 
     Note
@@ -42,6 +40,7 @@ from energy_demand.scripts import init_scripts
 from energy_demand.basic import logger_setup
 from energy_demand.read_write import narrative_related
 from energy_demand.plotting import fig_enduse_yh
+from energy_demand.charts import resilience_project
 
 def energy_demand_model(regions, data, assumptions, weather_yr, weather_by):
     """Main function of energy demand model to calculate yearly demand
@@ -490,7 +489,7 @@ if __name__ == "__main__":
                     print("Should be the same")
                     raise Exception
 
-                write_data.resilience_paper(
+                resilience_project.resilience_paper(
                     sim_yr,
                     data['result_paths']['data_results_model_runs'],
                     "resilience_paper",

@@ -89,13 +89,12 @@ def main(
         # Plot peak demand and total demand per fueltype
         # --------------------------------------------
         for fueltype_str in data['lookups']['fueltypes'].keys():
-            # plot over time total demand and peak
+
             fig_total_demand_peak.run(
                 data_input=weather_yr_container['tot_fueltype_h'],
                 fueltype_str=fueltype_str,
                 fig_name=os.path.join(
                     path_out_plots, "tot_{}_h.pdf".format(fueltype_str)))
-
 
         # plot over period of time across all weather scenario
         fig_weather_variability_priod.run(
