@@ -27,27 +27,26 @@ def main(regions, weather_regions, data):
     because not all electricity use depends on hdd
     """
     base_yr = 2015
+
     # ----------------------------------
     # Read temp data and weather station
     # ----------------------------------
     weighted_daily_hdd = np.zeros((365), dtype="float")
 
     for region in regions:
-        print("COORDINATE TO FIND: lat: {} long: {}".format(
-            data['reg_coord'][region]['latitude'], data['reg_coord'][region]['longitude']))
 
         # Get closest weather station to `Region`
         closest_weather_station = weather_station_location.get_closest_station(
             latitude_reg=data['reg_coord'][region]['latitude'],
             longitude_reg=data['reg_coord'][region]['longitude'],
-            weather_stations=data['weather_stations'])
+            weather_stations=data['weather_stations'][base_yr])
 
         logging.info("closest_station: {}  cor: {} {}  cor_station: {} {}".format(
             region,
             data['reg_coord'][region]['longitude'],
             data['reg_coord'][region]['latitude'],
             closest_weather_station,
-            data['weather_stations'][closest_weather_station]))
+            data['weather_stations'][base_yr][closest_weather_station]))
 
         closest_weather_region = weather_regions[closest_weather_station]
 

@@ -120,7 +120,6 @@ def get_long_lat_decimal_degrees(reg_centroids):
         in_projection = Proj(init='epsg:27700') # OSGB_1936_British_National_Grid
         put_projection = Proj(init='epsg:4326') # WGS 84 projection
 
-        #TODO TODO TEST
         # Convert to decimal degrees
         long_dd, lat_dd = transform(
             in_projection,

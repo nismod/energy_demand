@@ -1,13 +1,292 @@
-"""Plot min and max days from reading in multiple days of different scenario
+"""All code releated to resilience project
+
+Execute script:
+    Plot min and max days from reading in multiple days of different scenario
 """
-import csv
 import os
+import csv
+import numpy as np
 from collections import defaultdict
 import matplotlib.pyplot as plt
-from energy_demand.plotting import plotting_styles
+
+from energy_demand.basic import date_prop
+from energy_demand.basic import basic_functions
+from energy_demand.technologies import tech_related
 from energy_demand.plotting import basic_plot_functions
 from energy_demand.read_write import write_data
-from energy_demand.basic import basic_functions
+
+def resilience_paper(
+        sim_yr,
+        path_result_folder,
+        new_folder,
+        file_name,
+        results,
+        submodels,
+        regions,
+        fueltypes,
+        fueltype_str
+    ):
+    """Results for risk paper
+
+    #TODO REMOVE
+
+    results : array
+        results_unconstrained (3, 391, 7, 365, 24)
+    Get maximum and minimum h electricity for eversy submodel
+    for base year
+    """
+    path_result_sub_folder = os.path.join(
+        path_result_folder, new_folder)
+
+    basic_functions.create_folder(path_result_sub_folder)
+
+    # Create file path
+    path_to_txt = os.path.join(
+        path_result_sub_folder,
+        "{}{}".format(file_name,".csv"))
+
+    # Write csv
+    file = open(path_to_txt, "w")
+
+    file.write("{}, {}, {}".format(
+        'lad_nr',
+         #'submodel',
+        'min_GW_elec',
+        'max_GW_elec') + '\n')
+        #'resid_min_GW_elec',
+        #'resid_max_GW_elec',
+        #'servi_min_GW_elec',
+        #'servi_max_GW_elec',
+        #'indus_min_GW_elec',
+        #'indus_max_GW_elec') + '\n')
+
+    fueltype_int = tech_related.get_fueltype_int(fueltype_str)
+
+    for region_nr, region in enumerate(regions):
+
+        min_GW_elec = 0
+        max_GW_elec = 0
+
+        for submodel_nr, submodel in enumerate(submodels):
+
+            # Reshape
+            reshape_8760h = results[submodel_nr][region_nr][fueltype_int].reshape(8760)
+
+            # Aggregate min and max
+            min_GW_elec += np.min(reshape_8760h)
+            max_GW_elec += np.max(reshape_8760h)
+ 
+            # Min and max
+            '''if submodel_nr == 0:
+                resid_min_GW_elec = np.min(reshape_8760h)
+                resid_max_GW_elec = np.max(reshape_8760h)
+            elif submodel_nr == 1:
+                service_min_GW_elec = np.min(reshape_8760h)
+                service_max_GW_elec = np.max(reshape_8760h)
+            else:
+                industry_min_GW_elec = np.min(reshape_8760h)
+                industry_max_GW_elec = np.max(reshape_8760h)'''
+
+        # Write to csv file
+        file.write("{}, {}, {}".format(
+            str.strip(region),
+            float(min_GW_elec),
+            float(max_GW_elec)) + '\n')
+
+        # Write every hour of min and max day
+        '''file.write("{}, {}, {}, {}, {}, {}, {}".format(
+            str.strip(region),
+            float(resid_min_GW_elec),
+            float(resid_max_GW_elec),
+            float(service_min_GW_elec),
+            float(service_max_GW_elec),
+            float(industry_min_GW_elec),
+            float(industry_max_GW_elec)
+            ) + '\n')'''
+
+    file.close()
+
+    # ---------------------
+    # Write out statistics of aggregated national demand
+    # ----------------------
+    file_path_statistics = os.path.join(
+        path_result_sub_folder,
+        "{}{}".format(
+            'statistics_{}'.format(sim_yr),
+            ".csv"))
+
+    file = open(file_path_statistics, "w")
+
+    file.write("{}, {}, {}".format(
+        "peak_h_national",
+        "trough_h_national",
+        "diff") + '\n')
+
+    # Aggregate all submodels
+    national_aggregated_submodels = np.sum(results, axis=0)
+
+    # Aggregate over all regions
+    sum_all_regs = np.sum(national_aggregated_submodels, axis=0)
+
+    sum_all_regs_fueltype_8760 = sum_all_regs[fueltype_int].reshape(8760)
+
+    # National peak
+    peak_h_national = np.max(sum_all_regs_fueltype_8760)
+
+    # National trough
+    trough_h_national = np.min(sum_all_regs_fueltype_8760)
+
+    file.write("{}, {}, {}".format(
+        peak_h_national,
+        trough_h_national,
+        peak_h_national - trough_h_national) + '\n')
+
+    print("PEAAK {}  {}".format(peak_h_national, trough_h_national))
+    file.close()
+
+    # --------------------
+    # Plot min and max day of national aggregated demand
+    # --------------------
+    max_day = int(basic_functions.round_down((np.argmax(sum_all_regs_fueltype_8760) / 24), 1))
+    min_day = int(basic_functions.round_down((np.argmin(sum_all_regs_fueltype_8760) / 24), 1))
+
+    max_day_date = date_prop.yearday_to_date(sim_yr, max_day)
+    min_day_date = date_prop.yearday_to_date(sim_yr, min_day)
+
+    max_day_values = list(sum_all_regs_fueltype_8760[max_day * 24:(max_day+1)*24])
+    min_day_values = list(sum_all_regs_fueltype_8760[min_day * 24:(min_day+1)*24])
+
+    # ---------------------
+    # TODO TO IMPROVE RESILIENCE NEW Plot share of submodel electricity demand per lad
+    # ---------------------
+    submodels = ['residential_min', 'service', 'industry']
+    '''
+    #results[submodel_nr][region_nr][fueltype_int].reshape(8760)
+    for hour in range(24):
+        list_to_write = [
+            ['{}, {}, {}, {}, {}, {}\n'.format(
+                'residential_min', 'residential_max','service_min', 'service_max', 'industry_min', 'industry_max')]
+        
+        for region_nr, region in enumerate(regions):
+            tot_sector_elec_max = 0
+            tot_sector_elec_min = 0
+            for submodel_nr, submodel in submodels.items():
+                submodel_demand = results[submodel_nr]
+                
+                # Total electrictiy of all sectors
+                tot_sector_elec_max += submodel_demand[region_nr][fueltype_int][max_day][hour]
+                tot_sector_elec_min += submodel_demand[region_nr][fueltype_int][min_day][hour]
+            
+            # Take only electricity
+            max_day_elec_fuel_24h = submodel_demand[region_nr][fueltype_int][max_day][hour]
+            min_day_elec_fuel_24h = submodel_demand[region_nr][fueltype_int][min_day][hour]
+
+            # Fraction per submodel
+            entry = []
+            for submodel_nr, submodel in submodels.items():
+                submodel_max_p = submodel_demand[region_nr][fueltype_int][max_day][hour] / tot_sector_elec_max
+                submodel_min_p = submodel_demand[region_nr][fueltype_int][min_day][hour] / tot_sector_elec_min
+                entry.append(submodel_min_p)
+                entry.append(submodel_max_p)
+           
+            entry_str = '{}, {}, {}, {}, {}, {}\n'.format(
+                entry[0], entry[1], entry[2], entry[3], entry[4], entry[5])
+            list_to_write.append(entry_str)
+        
+        # Write to file
+        path_out_file = os.path.join(
+            path_result_sub_folder,
+            "{}{}".format(
+                'submodel_p__year-{}__hour-{}'.format(sim_yr, hour),
+                ".csv"))
+        
+        file = open(path_out_file, "w")
+        for line in list_to_write:
+            file.write(line)
+        file.close()
+    '''
+
+    # ---------------
+    # Plot as pdf
+    # ---------------
+    file_path_max_day = os.path.join(
+        path_result_sub_folder,
+        "{}{}".format(
+            'result_day__max__{}__'.format(sim_yr),
+            ".csv"))
+    file_path_min_day = os.path.join(
+        path_result_sub_folder,
+        "{}{}".format(
+            'result_day__min__{}__'.format(sim_yr),
+            ".csv"))
+
+    # Write out to files
+    write_min_max_result_to_txt(
+        file_path=file_path_max_day,
+        values=max_day_values,
+        yearday=max_day,
+        yearday_date=max_day_date)
+
+    write_min_max_result_to_txt(
+        file_path=file_path_min_day,
+        values=min_day_values,
+        yearday=min_day,
+        yearday_date=min_day_date)
+    
+    # ------------------------------------------------------------
+    # Write out for every region for max and min day houryl values
+    # ------------------------------------------------------------
+    for hour in range(24):
+
+        path_out_file = os.path.join(
+            path_result_sub_folder,
+            "{}{}".format(
+                'regs_hour_GW_{}_{}'.format(sim_yr, hour),
+                ".csv"))
+
+        file = open(path_out_file, "w")
+
+        file.write("region, value_max_day, value_min_day\n")
+
+        for region_nr, region in enumerate(regions):
+
+            # Sum over all sumbodels
+            reg_total_max_day = 0
+            reg_total_min_day = 0
+            for submodel_nr, submodel in enumerate(submodels):
+                reg_total_max_day += results[submodel_nr][region_nr][fueltype_int][max_day]
+                reg_total_min_day += results[submodel_nr][region_nr][fueltype_int][min_day]
+
+            file.write("{}, {}, {}\n".format(
+                region,
+                reg_total_max_day[hour],
+                reg_total_min_day[hour]))
+
+        file.close()
+
+    # ----------------------
+    # Write out national average
+    # ----------------------
+    path_to_txt_flat = os.path.join(
+        path_result_sub_folder,
+        "{}{}".format(
+            'average_nr',
+            ".csv"))
+
+    file = open(path_to_txt_flat, "w")
+    file.write("{}".format(
+        'average_GW_UK') + '\n')
+
+    uk_av_gw_elec = 0
+    for submodel_nr, submodel in enumerate(submodels):
+        for region_nr, region in enumerate(regions):
+            reshape_8760h = results[submodel_nr][region_nr][fueltype_int].reshape(8760)
+            uk_av_gw_elec += np.average(reshape_8760h)
+
+    file.write("{}".format(uk_av_gw_elec))
+    file.close()
+    print("Finished writing out resilience csv files")
+    return
 
 def read_csv_max_min(path_to_csv):
     out_dict = {}
@@ -35,7 +314,7 @@ def read_csv_average(path_to_csv):
     out_dict = {}
     with open(path_to_csv, 'r') as csvfile:
         rows = csv.reader(csvfile, delimiter=',')
-        
+
         for row in rows:
             out_dict["name"] = row
             break
@@ -177,26 +456,15 @@ def generate_min_max_resilience_plot(path_to_scenarios):
     # ------------------------------------------------
     ymax = 60
     line_width = 1.0
-    #x_data = range(25)
     x_data = range(24)
 
     fig_name = os.path.join(path_to_scenarios, "__results_resilience", "min_max_days.pdf")
-
-    colors = plotting_styles.color_list_resilience()
 
     colors = [
         '#d7191c',
         '#2c7bb6',
         '#fdae61',
         '#abd9e9']
-
-    '''colors = [
-        '#a6611a',
-        '#dfc27d',
-        '#80cdc1',
-        '#018571'
-        ]'''
-
 
     fig = plt.figure(figsize=basic_plot_functions.cm2inch(8, 8)) #width, height
 

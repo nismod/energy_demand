@@ -36,10 +36,8 @@ def run(
     """
     fig = plt.figure(
         figsize=basic_plot_functions.cm2inch(14, 25))
-    
-    ax = fig.add_subplot(
-        nrows=4,
-        ncols=2)
+
+    ax = fig.add_subplot(nrows=4, ncols=2)
 
     plot_nr = 0
     row = -1
@@ -232,8 +230,6 @@ def run(
                 round(std_dev_abs, 2),
                 fontdict=font_additional_info))
             plt.title(title_info, loc='left', fontdict=font_additional_info)
-            #plt.ylabel("hours")
-            #plt.ylabel("average electricity [GW]")
 
     # ------------
     # Plot legend
@@ -358,14 +354,25 @@ def plot_radar_plot(
         linestyle='--',
         linewidth=0.5)
 
+    # plot data points
+    '''ax.scatter(angles, values, color="blue", s=10)'''
+
+    '''line_zeros = np.zeros(len(angles_smoothed))
+    ax.fill_between(
+        angles_smoothed, #zero coordinates
+        line_zeros, # line 1
+        values_smoothed, # line 2
+        color='blue',
+        alpha=0.1)'''
+
+    # Fill below
     ax.fill(
-        angles,
-        values,
+        angles_smoothed, #angles,
+        values_smoothed, #values,
         'blue', #b
         alpha=0.1)
 
     # Save fig
-    print("fig_name: " + str(fig_name))
     plt.savefig(fig_name)
 
     if plotshow:

@@ -12,7 +12,6 @@ from energy_demand.dwelling_stock import dw_stock
 from energy_demand.profiles import load_factors
 from energy_demand.profiles import generic_shapes
 from energy_demand.plotting import validation_enduses
-from energy_demand.technologies import tech_related
 
 class EnergyDemandModel(object):
     """ Main function of energy demand model. All submodels
@@ -26,8 +25,10 @@ class EnergyDemandModel(object):
         Main data container
     assumptions : obj
         Assumptions and calculations based on assumptions
+    weather_yr : int
+        Year of temperature
     """
-    def __init__(self, regions, data, assumptions):
+    def __init__(self, regions, data, assumptions, weather_yr, weather_by):
         """Constructor
         """
         logging.info("... start main energy demand function")
@@ -37,15 +38,34 @@ class EnergyDemandModel(object):
         # ----------------------------
         # Create Weather Regions
         # ----------------------------
-        weather_regions = {}
-        for weather_region in data['weather_stations']:
-            weather_regions[weather_region] = WeatherRegion(
+
+        # current weather_yr
+        weather_regions_weather_cy = {}
+        for weather_region in data['weather_stations'][weather_yr]:
+            weather_regions_weather_cy[weather_region] = WeatherRegion(
                 name=weather_region,
+                latitude=data['weather_stations'][weather_yr][weather_region]['latitude'],
+                longitude=data['weather_stations'][weather_yr][weather_region]['longitude'],
                 assumptions=assumptions,
                 technologies=data['technologies'],
                 fueltypes=data['lookups']['fueltypes'],
                 enduses=data['enduses'],
-                temp_by=data['temp_data'][weather_region],
+                temp_by=data['temp_data'][weather_yr][weather_region],
+                tech_lp=data['tech_lp'],
+                sectors=data['sectors'])
+
+        # base weather_yr
+        weather_regions_weather_by = {}
+        for weather_region in data['weather_stations'][weather_by]:
+            weather_regions_weather_by[weather_region] = WeatherRegion(
+                name=weather_region,
+                latitude=data['weather_stations'][weather_by][weather_region]['latitude'],
+                longitude=data['weather_stations'][weather_by][weather_region]['longitude'],
+                assumptions=assumptions,
+                technologies=data['technologies'],
+                fueltypes=data['lookups']['fueltypes'],
+                enduses=data['enduses'],
+                temp_by=data['temp_data'][weather_by][weather_region],
                 tech_lp=data['tech_lp'],
                 sectors=data['sectors'])
 
@@ -81,13 +101,20 @@ class EnergyDemandModel(object):
         # ---------------------------------------------
         for reg_array_nr, region in enumerate(regions):
             logging.info(
-                "... Simulate region %s, year %s, (%s)",
+                "... Simulate region %s, year %s, weather_yr: %s, p: (%s)",
                 region,
                 assumptions.curr_yr,
+                weather_yr,
                 round((100/data['reg_nrs'])*reg_array_nr, 2))
 
             all_submodel_objs = simulate_region(
-                region, data, assumptions, weather_regions)
+                region,
+                data,
+                assumptions,
+                weather_regions_weather_cy,
+                weather_regions_weather_by,
+                weather_yr,
+                weather_by)
 
             # Collect all submodels with respect to submodel names and store in list
             # e.g. [[all_residential-submodels], [all_service_submodels]...]
@@ -175,7 +202,15 @@ def get_disaggregated_fuel_of_reg(submodel_names, fuel_disagg, region):
 
     return region_fuel_disagg
 
-def simulate_region(region, data, assumptions, weather_regions):
+def simulate_region(
+        region,
+        data,
+        assumptions,
+        weather_regions_weather_cy,
+        weather_regions_weather_by,
+        weather_yr,
+        weather_by
+    ):
     """Run submodels for a single region
 
     Arguments
@@ -184,8 +219,12 @@ def simulate_region(region, data, assumptions, weather_regions):
         Region name
     data : dict
         Data container
-    weather_regions : oject
-        Weather regions
+    weather_regions_weather_cy : obj
+        Weather regions pf current weather year
+    weather_regions_weather_by : obj
+        Weather regions of weather base year
+    weather_yr : int
+        Weather yr
 
     Returns
     -------
@@ -203,10 +242,11 @@ def simulate_region(region, data, assumptions, weather_regions):
         longitude=data['reg_coord'][region]['longitude'],
         latitude=data['reg_coord'][region]['latitude'],
         region_fuel_disagg=region_fuel_disagg,
-        weather_stations=data['weather_stations'])
+        weather_reg_cy=weather_regions_weather_cy,
+        weather_reg_by=weather_regions_weather_by)
 
     # Closest weather region object
-    weather_region_obj = weather_regions[region_obj.closest_weather_region_id]
+    weather_region_obj = weather_regions_weather_cy[region_obj.closest_weather_reg]
 
     submodel_objs = []
 
@@ -233,7 +273,7 @@ def simulate_region(region, data, assumptions, weather_regions):
                 else:
                     fuel = region_obj.fuels[submodel_name][enduse]
                     fuel_tech_p_by = assumptions.fuel_tech_p_by[enduse]
-                
+
                 if not data['dw_stocks'][submodel_name]:
                     dw_stock = False
                 else:
@@ -248,6 +288,7 @@ def simulate_region(region, data, assumptions, weather_regions):
                     scenario_data=data['scenario_data'],
                     assumptions=assumptions,
                     load_profiles=weather_region_obj.load_profiles,
+                    f_weather_correction=region_obj.f_weather_correction[submodel_name],
                     base_yr=assumptions.base_yr,
                     curr_yr=assumptions.curr_yr,
                     enduse=enduse,

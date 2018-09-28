@@ -54,11 +54,19 @@ def get_closest_station(
     closest_dist = 99999999999
 
     for station_id in weather_stations:
+
+        try:
+            lat_to = weather_stations[station_id].latitude
+            long_to = weather_stations[station_id].longitude
+        except AttributeError:
+            lat_to = weather_stations[station_id]["latitude"]
+            long_to = weather_stations[station_id]["longitude"]
+
         dist_to_station = calc_distance_two_points(
             lat_from=latitude_reg,
             long_from=longitude_reg,
-            lat_to=weather_stations[station_id]['latitude'],
-            long_to=weather_stations[station_id]['longitude'])
+            lat_to=lat_to,
+            long_to=long_to)
 
         if dist_to_station < closest_dist:
             closest_dist = dist_to_station

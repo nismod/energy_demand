@@ -34,6 +34,7 @@ class Assumptions(object):
             self,
             submodels_names=None,
             base_yr=None,
+            weather_by=None,
             simulation_end_yr=None,
             curr_yr=None,
             simulated_yrs=None,
@@ -47,6 +48,7 @@ class Assumptions(object):
         """
         self.submodels_names = submodels_names
         self.base_yr = base_yr
+        self.weather_by = weather_by
         self.simulation_end_yr = simulation_end_yr
         self.curr_yr = curr_yr
         self.simulated_yrs = simulated_yrs

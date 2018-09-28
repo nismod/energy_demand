@@ -121,9 +121,46 @@ def read_weather_stations_raw(path_to_csv):
 
     return weather_stations
 
+def replace_variable(_user_defined_vars, strategy_vars):
+    """Replace default strategy variables with user
+    defined variables
+
+    Arguments
+    ----------
+    _user_defined_vars : dict
+        User defined strategy variables
+    strategy_vars : dict
+        Default strategy variables
+
+    Returns
+    -------
+    strategy_vars : dict
+        Updated strategy variables with user defined inputs
+    """
+    for new_var, new_var_vals in _user_defined_vars.items():
+
+        crit_single_dim = narrative_related.crit_dim_var(
+            new_var_vals)
+
+        if crit_single_dim:
+            strategy_vars[new_var] = new_var_vals
+        else:
+            for sub_var_name, sector_sub_var in new_var_vals.items():
+
+                if type(sector_sub_var) is dict:
+                    strategy_vars[new_var][sub_var_name] = {}
+                    for sector, sub_var in sector_sub_var.items():
+                        strategy_vars[new_var][sub_var_name][sector] = sub_var
+                else:
+                    strategy_vars[new_var][sub_var_name] = sector_sub_var
+
+            strategy_vars[new_var] = dict(strategy_vars[new_var])
+
+    return strategy_vars
+
 def load_user_defined_vars(
         default_strategy_var,
-        path_to_folder_with_csv,
+        path_csv,
         simulation_base_yr
     ):
     """Load all strategy variables from file
@@ -132,7 +169,7 @@ def load_user_defined_vars(
     ---------
     default_strategy_var : dict
         default strategy var
-    path_to_folder_with_csv : str
+    path_csv : str
         Path to folder with all user defined parameters
     simulation_base_yr : int
         Simulation base year
@@ -142,7 +179,7 @@ def load_user_defined_vars(
     strategy_vars_as_narratives : dict
         Single or multidimensional parameters with fully autocompleted narratives
     """
-    all_csv_in_folder = os.listdir(path_to_folder_with_csv)
+    all_csv_in_folder = os.listdir(path_csv)
 
     # Files to ignore in this folder
     files_to_ignores = [
@@ -166,7 +203,7 @@ def load_user_defined_vars(
             except KeyError:
                 raise Exception("The user defined variable '%s' is not defined in model", var_name)
 
-            path_to_file = os.path.join(path_to_folder_with_csv, file_name)
+            path_to_file = os.path.join(path_csv, file_name)
             raw_file_content = pd.read_csv(path_to_file)
 
             # -----------------------------------
@@ -457,8 +494,6 @@ def get_local_paths(path):
             path, '_raw_data', "G_Carbon_Trust_advanced_metering_trial"),
         'folder_path_weater_stations': os.path.join(
             path, '_raw_data', 'A-temperature_data', 'cleaned_weather_stations.csv'),
-        #'folder_path_weater_stations': os.path.join(
-        #    path, '_raw_data', 'A-temperature_data', '_RECOVERY','excel_list_station_details.csv'), #TODO
         'path_floor_area_virtual_stock_by': os.path.join(
             path, '_raw_data', 'K-floor_area', 'floor_area_LAD_latest.csv'),
         'path_assumptions_db': os.path.join(
@@ -544,7 +579,7 @@ def load_paths(path):
         'path_main': path,
 
         # Path to strategy vars
-        'path_folder_strategy_vars': os.path.join(
+        'path_strategy_vars': os.path.join(
             path, '00-streategy_vars'),
 
         # Switches
@@ -846,15 +881,15 @@ def get_shape_every_day(tech_lp, model_yeardays_daytype):
 
     return load_profile_y_dh
 
-def load_temp_data(local_paths, result_paths, temp_year_scenario):
+def load_temp_data(local_paths, weather_yrs_scenario, save_fig=False):
     """Read in cleaned temperature and weather station data
 
     Arguments
     ----------
     local_paths : dict
         Local local_paths
-    temp_year_scenario : int
-        Year to use temperatures
+    weather_yrs_scenario : list
+        Years to use temperatures
 
     Returns
     -------
@@ -863,43 +898,54 @@ def load_temp_data(local_paths, result_paths, temp_year_scenario):
     temp_data : dict
         Temperatures
     """
-    weather_stations = read_weather_stations_raw(
-        local_paths['folder_path_weater_stations'])
+    temp_data_short = defaultdict(dict)
+    weather_stations_with_data = defaultdict(dict)
 
-    temp_data = read_weather_data.read_weather_data_script_data(
-        local_paths['weather_data'], temp_year_scenario)
+    for year in weather_yrs_scenario:
 
-    # ----------------------------------------------------
-    # Try if for every temperature data there is a
-    # weather station defined and copy only these weather stations
-    # for which there are data available
-    # ----------------------------------------------------
-    temp_data_short = {}
+        weather_stations = read_weather_stations_raw(
+            local_paths['folder_path_weater_stations'])
 
-    for station in weather_stations:
-        try:
-            temp_data_short[station] = temp_data[station]
-        except:
-            logging.debug("no data for weather station " + str(station))
+        temp_data = read_weather_data.read_weather_data_script_data(
+            local_paths['weather_data'], year)
 
-    weather_stations_with_data = {}
-    for station_id in temp_data_short.keys():
-        try:
-            weather_stations_with_data[station_id] = weather_stations[station_id]
-        except:
-            del temp_data_short[station_id]
+        for station in weather_stations:
+            try:
+                _ = temp_data[station]
 
-    logging.info(
-        "Info: Number of weather stations: {} year: Number of temp data: {}, year: {}".format(
-            len(weather_stations_with_data), len(temp_data_short), temp_year_scenario))
+                # Remove all non-uk stations
+                if weather_stations[station]['longitude'] > 2 or weather_stations[station]['longitude'] < -8.5:
+                    pass
+                else:
+                    temp_data_short[year][station] = temp_data[station]
+            except:
+                logging.debug("no data for weather station " + str(station))
 
-    # Plot weather stations
-    create_panda_map(
-        weather_stations_with_data,
-        os.path.join(result_paths['data_results_validation'], 'weather_station_distribution.pdf'),
-        path_shapefile=local_paths['lad_shapefile'])
+        for station_id in temp_data_short[year].keys():
+            try:
+                weather_stations_with_data[year][station_id] = weather_stations[station_id]
+            except:
+                del temp_data_short[year][station_id]
 
-    return weather_stations_with_data, temp_data_short
+        logging.info(
+            "Info: Number of weather stations: {} year: Number of temp data: {}, year: {}".format(
+                len(weather_stations_with_data), len(temp_data_short[year]), weather_yrs_scenario))
+
+        if not save_fig:
+            pass
+        else:
+            create_panda_map(
+                weather_stations_with_data[year],
+                os.path.join(save_fig, 'weather_station_distribution_{}.pdf'.format(year)),
+                path_shapefile=local_paths['lad_shapefile'])
+        
+            # print coordinates
+            #for station in weather_stations_with_data:
+            #    print("{}, {}".format(
+            #        weather_stations_with_data[station]['latitude'],
+            #        weather_stations_with_data[station]['longitude']))
+        
+    return dict(weather_stations_with_data), dict(temp_data_short)
 
 def load_fuels(submodels_names, paths, fueltypes_nr):
     """Load in ECUK fuel data, enduses and sectors

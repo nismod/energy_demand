@@ -88,6 +88,7 @@ class Enduse(object):
             scenario_data,
             assumptions,
             load_profiles,
+            f_weather_correction,
             base_yr,
             curr_yr,
             enduse,
@@ -129,13 +130,14 @@ class Enduse(object):
             # -----------------------------
             # Cascade of annual calculations
             # -----------------------------
-            _fuel_new_y = apply_climate_change(
+            _fuel_new_y = apply_weather_correction(
                 enduse,
                 self.fuel_y,
                 cooling_factor_y,
                 heating_factor_y,
                 assumptions.enduse_space_heating,
-                assumptions.ss_enduse_space_cooling)
+                assumptions.ss_enduse_space_cooling,
+                f_weather_correction)
             self.fuel_y = _fuel_new_y
             #logging.debug("FUEL TRAIN B0: " + str(np.sum(self.fuel_y)))
 
@@ -148,7 +150,7 @@ class Enduse(object):
             self.fuel_y = _fuel_new_y
             #logging.debug("FUEL TRAIN C0: " + str(np.sum(self.fuel_y)))
 
-            _fuel_new_y = apply_enduse_sector_specific_change(
+            _fuel_new_y = generic_demand_change(
                 enduse,
                 sector,
                 self.fuel_y,
@@ -209,7 +211,6 @@ class Enduse(object):
                 # If no technologies are defined for an enduse, the load profiles
                 # are read from dummy shape, which show the load profiles of the whole enduse.
                 # No switches can be implemented and only overall change of enduse
-
                 if flat_profile_crit:
                     pass
                 else:
@@ -1050,8 +1051,6 @@ def apply_scenario_drivers(
     -------
     fuel_y : array
         Changed yearly fuel per fueltype
-
-    #TODO :ADD OTHER driver
     """
     if not dw_stock: # No dwelling stock is available
         """Calculate non-dwelling related scenario drivers
@@ -1127,14 +1126,14 @@ def apply_scenario_drivers(
 
     return fuel_y
 
-def apply_enduse_sector_specific_change(
+def generic_demand_change(
         enduse,
         sector,
         fuel_y,
         strategy_vars,
         curr_yr
     ):
-    """Calculates fuel based on assumed overall enduse specific
+    """Calculates fuel based on assumed overall enduse or enduse/sector specific
     fuel consumption changes.
 
     The changes are assumed across all fueltypes.
@@ -1147,7 +1146,7 @@ def apply_enduse_sector_specific_change(
     enduse : str
         Enduse
     sector : str
-        Sector
+        Sector. If True, then the change is valid for all sectors. if None, then no sector is defined for enduse.
     fuel_y : array
         Yearly fuel per fueltype
     strategy_vars : dict
@@ -1160,37 +1159,46 @@ def apply_enduse_sector_specific_change(
     fuel_y : array
         Yearly new fuels
     """
-    try:
-        change_cy = strategy_vars['generic_enduse_change'][enduse][curr_yr]
+    change_enduse = False
 
-        # Get affected sectors
-        affected_sector = strategy_vars['generic_enduse_change'][enduse]['param_info']['sector']
+    # True for all sectors or no sector defined
+    if sector is True or sector is None:
+        try:
+            change_cy = strategy_vars['generic_enduse_change'][enduse][curr_yr]
+            change_enduse = True
+        except KeyError: #no sector enduse is defined
+            pass
+    else:
+        try:
+            # Generic enduse change is defined sector specific
+            change_cy = strategy_vars['generic_enduse_change'][enduse][sector][curr_yr]
+            change_enduse = True
+        except (KeyError, TypeError):
+            pass
+        try:
+            # Generic enduse change is not defined sector specific
+            change_cy = strategy_vars['generic_enduse_change'][enduse][curr_yr]
 
-        # if Sector is None, then so sectors are defined for this enduse
-        if not sector:
-            # Calculate new annual fuel
-            fuel_y = fuel_y * (1 + change_cy)
-        else:
-            if affected_sector or affected_sector == sector: # Setor crit is True, meaning that true for all sectors
+            change_enduse = True
+        except (KeyError, TypeError):
+            pass
 
-                # Calculate new annual fuel
-                fuel_y = fuel_y * (1 + change_cy)
-            else:
-                pass
-
-    except KeyError:
-        logging.debug(
-            "No annual parameters are provided for enduse %s", enduse)
+    if change_enduse is True and change_cy != 0:
+        fuel_y = fuel_y * (1 + change_cy)
+    else:
+        #logging.debug("No annual parameters are provided for enduse %s %s", enduse, sector)
+        pass
 
     return fuel_y
 
-def apply_climate_change(
+def apply_weather_correction(
         enduse,
         fuel_y,
         cooling_factor_y,
         heating_factor_y,
         enduse_space_heating,
-        enduse_space_cooling
+        enduse_space_cooling,
+        f_weather_correction
     ):
     """Change fuel demand for heat and cooling service
     depending on changes in HDD and CDD within a region
@@ -1211,6 +1219,10 @@ def apply_climate_change(
         Enduses defined as space heating
     enduse_space_cooling : list
         Enduses defined as space cooling
+    f_weather_correction : dict
+        Correction factors to calculate hdd and cdd
+        related extra demands in case a different
+        weather than the simulation base year is used
 
     Return
     ------
@@ -1224,8 +1236,15 @@ def apply_climate_change(
         directly with HDD or CDD.
     """
     if enduse in enduse_space_heating:
+
+        # Apply correction factor for different weather year
+        fuel_y = fuel_y * f_weather_correction['hdd']
+
+        # Apply correction factor for change in climate
         fuel_y = fuel_y * heating_factor_y
+
     elif enduse in enduse_space_cooling:
+        fuel_y = fuel_y * f_weather_correction['cdd']
         fuel_y = fuel_y * cooling_factor_y
 
     return fuel_y
@@ -1434,7 +1453,6 @@ def apply_cooling(
     It is aassumption a linear correlation between the
     percentage of cooled floor space (area) and energy demand.
 
-    #TODO MAKE MULTIDIMENSIONAL ARGUMENT
     Arguments
     ---------
     enduse : str
@@ -1498,37 +1516,49 @@ def generic_fuel_switch(
     fuel_y : array
         Annual fuel demand per fueltype
     """
-    # If defautl value, no switch is implemented
-    if strategy_vars['generic_fuel_switch'][enduse][curr_yr] != 0:
+    try:
+        # Test if switch is defined for sector
+        fuel_switch = strategy_vars['generic_fuel_switch'][enduse][sector]
+        switch_defined = True
+    except KeyError:
+        switch_defined = False
 
-        # Get affected sectors of fuel switch
-        affected_sector = strategy_vars['generic_fuel_switch'][enduse]['param_info']['sector']
+        # Test is not a switch for the whole enduse (across every sector) is defined
+        try:
+            key_of_switch = list(strategy_vars['generic_fuel_switch'][enduse].keys())
 
-        # If fuel switch is across all sectors or currently the correct sector is simulated
-        if sector is True or sector in affected_sector:
+            # Test wheter switches for sectors are provided
+            if 'param_info' in key_of_switch: #one switch
+                fuel_switch = strategy_vars['generic_fuel_switch'][enduse]
+                switch_defined = True
+            else:
+                pass # Switch is not defined for this sector
+        except KeyError:
+            pass
+
+    if switch_defined is True:
+        if fuel_switch[curr_yr] != 0:
 
             # Get fueltype to switch (old)
-            fueltype_replace_str = strategy_vars['generic_fuel_switch'][enduse]['param_info']['fueltype_replace']
+            fueltype_replace_str = fuel_switch['param_info']['fueltype_replace']
             fueltype_replace_int = tech_related.get_fueltype_int(fueltype_replace_str)
 
             # Get fueltype to switch to (new)
-            fueltype_new_str = strategy_vars['generic_fuel_switch'][enduse]['param_info']['fueltype_new']
+            fueltype_new_str = fuel_switch['param_info']['fueltype_new']
             fueltype_new_int = tech_related.get_fueltype_int(fueltype_new_str)
 
             # Value of current year
-            fuel_share_switched_cy = strategy_vars['generic_fuel_switch'][enduse][curr_yr]
+            fuel_share_switched_cy = fuel_switch[curr_yr]
 
-            # Substract
+            # Substract fuel
             fuel_minus = fuel_y[fueltype_replace_int] * (1 - fuel_share_switched_cy)
             fuel_y[fueltype_replace_int] -= fuel_minus
 
-            # Add
+            # Add fuel
             fuel_y[fueltype_new_int] += fuel_minus
-
-        else: # not affected sector
+        else:
+            # no fuel switch defined
             pass
-    else: # default value
-        pass
 
     return fuel_y
 

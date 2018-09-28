@@ -16,6 +16,8 @@ from energy_demand.plotting import fig_lf
 from energy_demand.plotting import fig_fuels_enduses_week
 from energy_demand.plotting import fig_load_profile_dh_multiple
 from energy_demand.plotting import fig_fuels_peak_h
+from energy_demand.plotting import fig_weather_variability_priod
+
 #matplotlib.use('Agg') # Used to make it work in linux179
 
 def run_all_plot_functions(
@@ -35,7 +37,6 @@ def run_all_plot_functions(
     comparison_year : int
         Year to generate comparison plots
     """
-
     if plot_crit['plot_lad_cross_graphs']:
 
         try:

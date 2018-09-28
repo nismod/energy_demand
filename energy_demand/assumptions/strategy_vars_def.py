@@ -1,11 +1,8 @@
 """Strategy variable assumptions provided as parameters to smif
 """
-import copy
 import logging
 from collections import defaultdict
 
-from energy_demand.read_write import write_data
-from energy_demand.basic import basic_functions
 from energy_demand.read_write import narrative_related
 
 def load_smif_parameters(
@@ -50,7 +47,6 @@ def load_smif_parameters(
     # Create default narrative for every simulation parameter
     # ------------------------------------------------------------
     for var_name, var_entries in default_streategy_vars.items():
-
         crit_single_dim = narrative_related.crit_dim_var(var_entries)
 
         if crit_single_dim:
@@ -71,16 +67,13 @@ def load_smif_parameters(
                 scenario_value = var_entries['scenario_value']
 
             # Create default narrative with only one timestep from simulation base year to simulation end year
-            created_narrative = narrative_related.default_narrative(
+            strategy_vars[var_name] = narrative_related.default_narrative(
                 end_yr=assumptions.simulation_end_yr,
                 value_by=var_entries['default_value'],                # Base year value,
                 value_ey=scenario_value,
                 diffusion_choice=var_entries['diffusion_type'],       # Sigmoid or linear,
                 base_yr=assumptions.base_yr,
                 regional_specific=var_entries['regional_specific'])   # Criteria whether the same for all regions or not
-
-            strategy_vars[var_name] = created_narrative
-
         else:
 
             # Standard narrative for multidimensional narrative
@@ -98,17 +91,17 @@ def load_smif_parameters(
                         # This needs to be fixed by directly loading multiple paramters from SMIF
                         #scenario_value = sub_var_entries['default_value']
                         scenario_value = sub_var_entries['scenario_value']
+                else: #local running
+                    scenario_value = sub_var_entries['scenario_value']
 
                 # Narrative
-                created_narrative = narrative_related.default_narrative(
+                strategy_vars[var_name][sub_var_name] = narrative_related.default_narrative(
                     end_yr=assumptions.simulation_end_yr,
                     value_by=sub_var_entries['default_value'],                # Base year value,
                     value_ey=scenario_value,
                     diffusion_choice=sub_var_entries['diffusion_type'],       # Sigmoid or linear,
                     base_yr=assumptions.base_yr,
                     regional_specific=sub_var_entries['regional_specific'])   # Criteria whether the same for all regions or not
-
-                strategy_vars[var_name][sub_var_name] = created_narrative 
 
     return strategy_vars
 
@@ -450,16 +443,16 @@ def load_param_assump(
     # -------------------------------------------------------
 
     # Helper function to create description of parameters for all enduses
-    for enduse_name, param_value in default_enduses.items():
-        strategy_vars['generic_enduse_change'][enduse_name] = {
-            "name": enduse_name,
+    for enduse, param_value in default_enduses.items():
+        strategy_vars['generic_enduse_change'][enduse] = {
+            "name": enduse,
             "absolute_range": (-1, 1),
-            "description": "Enduse specific change {}".format(enduse_name),
+            "description": "Enduse specific change {}".format(enduse),
             "suggested_range": (0, 1),
             "default_value": param_value,
             "units": 'decimal',
             "sector": True,
-            "enduse": [enduse_name],
+            "enduse": [enduse],
             "sector": [],
             'regional_specific': True,
             'diffusion_type': 'linear'}
@@ -502,15 +495,16 @@ def load_param_assump(
             "name": "generic_fuel_switch",
             "absolute_range": (-1, 1),
             "description": "Generic fuel switches to switch fuel in any enduse and sector",
-            "suggested_range": (0, 1), #TODO UPDATE
+            "suggested_range": (0, 1),
             "default_value": param_value,
             "units": 'decimal',
+            "enduse": enduse,
             "sector": True,
             'regional_specific': True,
             'diffusion_type': 'linear'}
 
     # -----------------------
-    # Create parameter file only with 
+    # Create parameter file only with
     # fully descried parameters and write to yaml file
     #TODO Needs updating after SMIF upgrade
     # -----------------------
@@ -546,6 +540,9 @@ def load_param_assump(
     # Autocomplete
     strategy_vars_out = autocomplete_strategy_vars(strategy_vars)
 
+    # User defined variables
+    ##strategy_vars_out["generic_fuel_switch"] = {}
+
     return dict(strategy_vars_out)
 
 def autocomplete_strategy_vars(strategy_vars, narrative_crit=False):
@@ -562,7 +559,6 @@ def autocomplete_strategy_vars(strategy_vars, narrative_crit=False):
         Criteria wheter inputs are a narrative or not
     """
     if not narrative_crit:
-        # --strategy_vars-- Convert to dict for loacl running purposes
         out_dict = defaultdict(dict)
 
         for var_name, var_entries in strategy_vars.items():
@@ -577,7 +573,7 @@ def autocomplete_strategy_vars(strategy_vars, narrative_crit=False):
                 if 'enduse' not in var_entries:
                     out_dict[var_name]['enduse'] = []
                 if 'sector' not in var_entries:
-                    out_dict[var_name]['enduse'] = True  # All sector
+                    out_dict[var_name]['sector'] = True  # All sector
             else:
                 for sub_var_name, sub_var_entries in var_entries.items():
                     out_dict[var_name][sub_var_name] = sub_var_entries
@@ -591,9 +587,10 @@ def autocomplete_strategy_vars(strategy_vars, narrative_crit=False):
                         out_dict[var_name][sub_var_name]['sector'] = True # All sector
     else:
         # Same but narratives which need to be iterated
-        out_dict = defaultdict(dict)
+        out_dict = {}
 
         for var_name, var_entries in strategy_vars.items():
+            out_dict[var_name] = defaultdict(dict)
 
             crit_single_dim = narrative_related.crit_dim_var(var_entries)
 
@@ -605,25 +602,39 @@ def autocomplete_strategy_vars(strategy_vars, narrative_crit=False):
                     if 'enduse' not in narrative:
                         narrative['enduse'] = []
                     if 'sector' not in narrative:
-                        narrative['sector'] = True # All sector
+                        narrative['sector'] = 'dummy_sector' # All sector
                     updated_narratives.append(narrative)
 
                 out_dict[var_name] = updated_narratives
 
             else:
-                for sub_var_name, sub_var_entries in var_entries.items():
+                logging.info("   ...user defined variable: %s", var_name)
 
-                    updated_narratives = []
-                    for narrative in sub_var_entries:
+                for sub_var_name, sector_sub_var_entries in var_entries.items():
 
-                        # If no 'enduse' defined, add empty list of affected enduses
-                        if 'enduse' not in narrative:
-                            narrative['enduse'] = []
-                        if 'sector' not in narrative:
-                            narrative['sector'] = True # All sector
-                        updated_narratives.append(narrative)
+                    if type(sector_sub_var_entries) is dict: # If sectors are defined
+                        for sector, sub_var_entries in sector_sub_var_entries.items():
+                            updated_narratives = []
+                            for narrative in sub_var_entries:
 
-                    out_dict[var_name][sub_var_name] = updated_narratives
+                                # If no 'enduse' defined, add empty list of affected enduses
+                                if 'enduse' not in narrative:
+                                    narrative['enduse'] = []
+                                if 'sector' not in narrative:
+                                    narrative['sector'] = sector
+                                updated_narratives.append(narrative)
+
+                            out_dict[var_name][sub_var_name][sector] = updated_narratives
+
+                    else: # no sectors defined
+                        updated_narratives = []
+                        for narrative in sector_sub_var_entries:
+
+                            if 'enduse' not in narrative:
+                                narrative['enduse'] = [sub_var_name] #TODO USED??
+                            updated_narratives.append(narrative)
+
+                        out_dict[var_name][sub_var_name] = updated_narratives
 
     return dict(out_dict)
 

@@ -1,6 +1,7 @@
 """Functions handling the narratives
 """
 import math
+from collections import defaultdict
 
 def get_all_sectors_of_narratives(narratives):
     """Get all defined sectors of all narratives
@@ -68,7 +69,7 @@ def crit_dim_var(var):
     single_dimension : bool
         True: Single dimension, False: Multidimensional parameter
     """
-    if type(var) is list:
+    if type(var) is list:# or 'dummy_sector':
         single_dimension = True
     else:
         try:
@@ -182,7 +183,7 @@ def create_narratives(
     autocomplet_param_narr : dict
         Parameters
     """
-    parameter_narratives = {}
+    parameter_narratives = defaultdict(dict)
 
     # Test if single or multidimensional parameters
     try:
@@ -206,7 +207,15 @@ def create_narratives(
         else:
             # Sub_parameter_name is only provided for multidimensional parameters
             sub_param_name = str(row['sub_param_name'])
+        try:
+            sector = row['sector']
 
+            if type(sector) is str:
+                narrative['sector'] = sector
+            else:
+                narrative['sector'] = 'dummy_sector'
+        except KeyError:
+            narrative['sector'] = 'dummy_sector'
         try:
             narrative['default_by'] = float(row['default_by'])
         except KeyError:
@@ -235,16 +244,6 @@ def create_narratives(
             narrative['fueltype_new'] = str(row['fueltype_new'])
         except KeyError:
             pass
-        try:
-            affected_sector = row['sector']
-
-            if type(affected_sector) is str:
-                narrative['sector'] = affected_sector
-            else:
-                narrative['sector'] = True # replace nan value with True
-        except KeyError:
-            narrative['sector'] = True
-
         try:
             narrative['diffusion_choice'] = str(row['diffusion_choice'])
         except KeyError:
@@ -281,34 +280,28 @@ def create_narratives(
                 narrative['regional_specific'] = default_streategy_vars[sub_param_name]['regional_specific']
 
         # Append narrative to correct variable
-        if sub_param_name in parameter_narratives.keys():
-            parameter_narratives[sub_param_name].append(narrative)
-        else:
-            parameter_narratives[sub_param_name] = [narrative]
+        sector = narrative['sector']
+
+        try:     
+            parameter_narratives[sub_param_name][sector].append(narrative)
+        except KeyError:
+            parameter_narratives[sub_param_name][sector] = [narrative]
+
+    parameter_narratives = dict(parameter_narratives)
 
     # ----------------------
     # Autocomplete switches in order that from all
     # end_yrs a complete narrative is generated
     # ----------------------
-    autocomplet_param_narr = {}
+    autocomplet_param_narr = defaultdict(dict)
 
-    for sub_param_name, narratives in parameter_narratives.items():
+    for sub_param_name, narratives_sector in parameter_narratives.items():
 
-        autocomplet_param_narr[sub_param_name] = []
+        for sector, narratives in narratives_sector.items():
 
-        # Get all years of narratives
-        all_sectors = set()
-        for narrative in narratives:
-            all_sectors.add(narrative['sector'])
-        all_sectors = list(all_sectors)
+            autocomplet_param_narr[sub_param_name][sector] = []
 
-        for sector in all_sectors:
-
-            if sector is True:
-                switches_to_create_narrative = narratives
-            else:
-                switches_to_create_narrative = get_sector_narrative(
-                    sector, narratives)
+            switches_to_create_narrative = get_sector_narrative(sector, narratives)
 
             # Get all years of switches_to_create_narrative
             all_yrs = []
@@ -345,7 +338,19 @@ def create_narratives(
                     previous_yr = narrative['end_yr']
                     previous_value = narrative['value_ey']
 
-                autocomplet_param_narr[sub_param_name].append(yr_narrative)
+                autocomplet_param_narr[sub_param_name][sector].append(yr_narrative)
+
+    # Remove all dummy sector
+    autocomplet_param_narr_new = defaultdict(dict)
+
+    for param_name, sector_data in autocomplet_param_narr.items():
+        for sector, data in sector_data.items():
+            if sector == 'dummy_sector':
+                autocomplet_param_narr_new[param_name] = data
+            else:
+                autocomplet_param_narr_new[param_name][sector] = data
+
+    autocomplet_param_narr = dict(autocomplet_param_narr_new)
 
     # If only single dimension parameter, remove dummy mutliparameter name
     if crit_single_dim_param:
