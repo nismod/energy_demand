@@ -20,6 +20,9 @@ def test_load_non_param_assump():
     paths = data_loader.load_paths(path_main)
     lu = lookup_tables.basic_lookups()
 
+    data['local_paths'] = data_loader.get_local_paths(path_main)
+
+
     enduses, sectors, _ = data_loader.load_fuels(
         lu['submodels_names'], paths, lu['fueltypes_nr'])
 
