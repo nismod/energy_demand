@@ -45,6 +45,7 @@ assumptions = general_assumptions.Assumptions(
     curr_yr=2015,
     simulated_yrs=simulated_yrs,
     paths=paths,
+    local_paths=local_paths,
     enduses=data['enduses'],
     sectors=data['sectors'],
     fueltypes=data['lookups']['fueltypes'],

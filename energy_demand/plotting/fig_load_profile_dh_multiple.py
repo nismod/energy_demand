@@ -275,18 +275,17 @@ def plot_radar_plot(
     # Get maximum demand
     max_entry = np.array(dh_profile).max()
     max_demand = round(max_entry, -1) + 10 # Round to nearest 10 plus add 10
-    max_demand = 120 #SCRAP
+    max_demand = 120
 
     nr_of_plot_steps = int(max_demand / plot_steps) + 1
 
     axis_plots_inner = []
     axis_plots_innter_position = []
 
-    # Innter ciruclar axis
+    # Inner ciruclar axis
     for i in range(nr_of_plot_steps):
         axis_plots_inner.append(plot_steps*i)
         axis_plots_innter_position.append(str(plot_steps*i))
-
 
     data = {'dh_profile': ['testname']}
 
@@ -300,12 +299,17 @@ def plot_radar_plot(
 
     # number of variable
     categories=list(df)[1:]
+
     N = len(categories)
 
     # We are going to plot the first line of the data frame.
     # But we need to repeat the first value to close the circular graph:
     values=df.loc[0].drop('dh_profile').values.flatten().tolist()
-    values += values[:1]
+
+    # Because 0 entry in list is 01:00 time, a value needs to be
+    # added for the midnight hour. We therefore add the last entry
+    # also to the first position (24:00 value).
+    values.insert(0, values[23])
 
     # What will be the angle of each axis in the plot? (we divide the plot / number of variable)
     angles = [n / float(N) * 2 * math.pi for n in range(N)]

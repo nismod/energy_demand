@@ -347,7 +347,7 @@ def demand_management(
         mode_constrained,
         make_all_flat=False
     ):
-    """Demand management. This function shifts peak per of this enduse
+    """This function shifts peak per of this enduse
     depending on peak shifting factors. So far only inter day load shifting
 
     Arguments
@@ -379,10 +379,15 @@ def demand_management(
     fuel_yh : array
         Fuel of yh
     """
+
     # Get assumed load shift
     if strategy_vars['dm_improvement'][enduse][curr_yr] == 0:
         pass # no load management
     else:
+        
+        if enduse == "ss_small_power":
+            logging.info("____________")
+            logging.info(strategy_vars['dm_improvement'][enduse][curr_yr])
 
         # Calculate average for every day
         if mode_constrained:
@@ -407,6 +412,12 @@ def demand_management(
             average_fuel_yd,
             fuel_yh,
             mode_constrained)
+
+        if enduse == "ss_small_power":
+            logging.info(strategy_vars['dm_improvement'][enduse][curr_yr])
+            logging.info(fuel_yh[0])
+            logging.info(fuel_yh[0])
+            raise Exception #TODO TODO TODO TODO REMOVE
 
     # -------------------------------------------------
     # Convert all load profiles into flat load profiles

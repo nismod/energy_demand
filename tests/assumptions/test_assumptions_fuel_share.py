@@ -32,6 +32,7 @@ def test_assign_by_fuel_tech_p():
         curr_yr=None,
         simulated_yrs=None,
         paths=data['paths'],
+        local_paths=data['local_paths'],
         enduses=data['enduses'],
         sectors=data['sectors'],
         fueltypes=data['lookups']['fueltypes'],

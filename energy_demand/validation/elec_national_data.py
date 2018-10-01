@@ -170,7 +170,8 @@ def compare_results(
         figsize=basic_plot_functions.cm2inch(22, 8)) #width, height
 
     # smooth line
-    x_data_smoothed, y_real_indo_factored_smoothed = basic_plot_functions.smooth_data(x_data, y_real_indo_factored, num=40000)
+    x_data_smoothed, y_real_indo_factored_smoothed = basic_plot_functions.smooth_data(
+        x_data, y_real_indo_factored, num=40000)
 
     # plot points
     plt.plot(
@@ -183,7 +184,8 @@ def compare_results(
         color='black')
 
     # smooth line
-    x_data_smoothed, y_calculated_list_smoothed = basic_plot_functions.smooth_data(x_data, y_calculated_list, num=40000)
+    x_data_smoothed, y_calculated_list_smoothed = basic_plot_functions.smooth_data(
+        x_data, y_calculated_list, num=40000)
 
     plt.plot(
         x_data_smoothed,
@@ -199,9 +201,9 @@ def compare_results(
     plt.margins(x=0)
     plt.axis('tight')
 
-    # -------------------
+    # --------------------------------------
     # Label x axis in dates
-    # -------------------
+    # --------------------------------------
     major_ticks_days, major_ticks_labels = get_date_strings(
         days_to_plot,
         daystep=1)
@@ -238,7 +240,7 @@ def compare_results(
 def compare_peak(
         name_fig,
         path_result,
-        validation_elec_2015_peak,
+        real_elec_2015_peak,
         modelled_peak_dh,
         peak_day
     ):
@@ -250,7 +252,7 @@ def compare_peak(
         Name of figure
     local_paths : dict
         Paths
-    validation_elec_2015_peak : array
+    real_elec_2015_peak : array
         Real data of peak day
     modelled_peak_dh : array
         Modelled peak day
@@ -274,21 +276,23 @@ def compare_peak(
         linewidth=0.5,
         label='model')
 
-    x_smoothed, validation_elec_2015_peak_smoothed = basic_plot_functions.smooth_data(range(24), validation_elec_2015_peak, num=500)
+    x_smoothed, real_elec_2015_peak_smoothed = basic_plot_functions.smooth_data(
+        range(24), real_elec_2015_peak, num=500)
 
     plt.plot(
         x_smoothed,
-        validation_elec_2015_peak_smoothed,
+        real_elec_2015_peak_smoothed,
         color='black',
         linestyle='-',
         linewidth=0.5,
         label='validation')
 
+    #raise Exception
     # Calculate hourly differences in %
-    diff_p_h = np.round((100 / validation_elec_2015_peak) * modelled_peak_dh, 1)
+    diff_p_h = np.round((100 / real_elec_2015_peak) * modelled_peak_dh, 1)
 
     # Calculate maximum difference
-    max_h_real = np.max(validation_elec_2015_peak)
+    max_h_real = np.max(real_elec_2015_peak)
     max_h_modelled = np.max(modelled_peak_dh)
 
     max_h_diff = round((100 / max_h_real) * max_h_modelled, 2)
@@ -297,7 +301,10 @@ def compare_peak(
     # Y-axis ticks
     plt.xlim(0, 23)
     plt.yticks(range(0, 60, 10))
-    plt.xticks(range(0, 24, 4))
+
+    # because position 0 in list is 01:00, the labelling starts with 1
+    x_ticks = [1, 6, 12, 18, 24] #range(1, 24, 4)
+    plt.xticks(x_ticks)
 
     # Legend
     plt.legend(frameon=False)
@@ -436,7 +443,9 @@ def get_date_strings(days_to_plot, daystep):
     for day in days_to_plot:
         str_date = str(date_prop.yearday_to_date(2015, day))
         str_date_short = str_date[5:]
-        yearhour = cnt * 24
+
+        # Because 0 posit in hour list is 01:00, substract minus one hour
+        yearhour = (cnt * 24) - 1
 
         if daystep == cnt_daystep:
 

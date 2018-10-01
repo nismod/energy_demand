@@ -39,6 +39,7 @@ class Assumptions(object):
             curr_yr=None,
             simulated_yrs=None,
             paths=None,
+            local_paths=None,
             enduses=None,
             sectors=None,
             fueltypes=None,
@@ -445,13 +446,13 @@ class Assumptions(object):
         # Read in switches
         # ============================================================
         self.fuel_switches = read_data.read_fuel_switches(
-            paths['path_fuel_switches'], enduses, fueltypes, self.technologies)
+            local_paths['path_fuel_switches'], enduses, fueltypes, self.technologies)
 
         self.service_switches = read_data.service_switch(
-            paths['path_service_switch'], self.technologies)
+            local_paths['path_service_switch'], self.technologies)
 
         self.capacity_switches = read_data.read_capacity_switch(
-            paths['path_capacity_installation'])
+            local_paths['path_capacity_installation'])
 
         self.crit_switch_happening = testing_functions.switch_testing(
             fuel_switches=self.fuel_switches,
