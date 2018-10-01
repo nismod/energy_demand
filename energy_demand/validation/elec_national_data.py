@@ -6,10 +6,10 @@ import numpy as np
 from scipy import stats
 import matplotlib.pyplot as plt
 import matplotlib.mlab as mlab
+
 from energy_demand.basic import date_prop
 from energy_demand.basic import conversions
 from energy_demand.plotting import basic_plot_functions
-from energy_demand.plotting import plotting_results
 from energy_demand.basic import basic_functions
 from energy_demand.plotting import plotting_styles
 
@@ -303,10 +303,8 @@ def compare_peak(
     plt.yticks(range(0, 60, 10))
 
     # because position 0 in list is 01:00, the labelling starts with 1
-    x_ticks = [1, 6, 12, 18, 24] #range(1, 24, 4)
-    plt.xticks(x_ticks)
+    plt.xticks([0, 5, 11, 17, 23], [1, 6, 12, 18, 24]) #ticks, labels
 
-    # Legend
     plt.legend(frameon=False)
 
     # Labelling
@@ -320,7 +318,6 @@ def compare_peak(
         5, #position
         5, #position
         diff_p_h,
-        #horizontalalignment='center',
         fontdict={
             'family': 'arial',
             'color': 'black',
@@ -371,7 +368,7 @@ def compare_results_hour_boxplots(
 
     ax.boxplot(diff_values)
 
-    plt.xticks(range(1, 25), range(24))
+    plt.xticks(range(1, 25), range(24)) #TODO CHECK
 
     plt.xlabel("hour")
     plt.ylabel("Modelled electricity difference (real-modelled) [%]")
@@ -434,9 +431,23 @@ def plot_residual_histogram(values, path_result, name_fig):
 
 def get_date_strings(days_to_plot, daystep):
     """Calculate date and position for range input of yeardays
+
+    Arguments
+    ---------
+    days_to_plot : list
+        List with yeardays to plot
+    daystep : int
+        Intervall of days to assign label
+
+    Return
+    -------
+    ticks_position : list
+        Hourly ticks position
+    major_ticks_labels : list
+        Ticks labels
     """
-    major_ticks_days = []
-    major_ticks_labels = []
+    ticks_position, ticks_labels = [], []
+
     cnt = 0
     cnt_daystep = 1
 
@@ -448,16 +459,13 @@ def get_date_strings(days_to_plot, daystep):
         yearhour = (cnt * 24) - 1
 
         if daystep == cnt_daystep:
+            ticks_labels.append(str_date_short)
+            ticks_position.append(yearhour)
 
-            # Label
-            major_ticks_labels.append(str_date_short)
-
-            # Position
-            major_ticks_days.append(yearhour)
             cnt_daystep = 1
             cnt += 1
         else:
             cnt_daystep += 1
             cnt += 1
 
-    return major_ticks_days, major_ticks_labels
+    return ticks_position, ticks_labels
