@@ -486,6 +486,19 @@ def get_local_paths(path):
     paths = {
         'local_path_datafolder':
             path,
+    
+        # Path to strategy vars
+        'path_strategy_vars': os.path.join(
+            path, '00_user_defined_variables'),
+
+        # User defined switchs
+        'path_fuel_switches': os.path.join(
+            path, '00_user_defined_variables', 'switches_fuel.csv'),
+        'path_service_switch': os.path.join(
+            path, '00_user_defined_variables', 'switches_service.csv'),
+        'path_capacity_installation': os.path.join(
+            path, '00_user_defined_variables', 'switches_capacity.csv'),
+
         'path_population_data_for_disaggregation_LAD': os.path.join(
             path, '_raw_data', 'J-population_disagg_by', 'uk_pop_principal_2015_2050.csv'), #ONS principal projection
         'path_population_data_for_disaggregation_MSOA': os.path.join(
@@ -577,18 +590,6 @@ def load_paths(path):
     """
     paths = {
         'path_main': path,
-
-        # Path to strategy vars
-        'path_strategy_vars': os.path.join(
-            path, '00-streategy_vars'),
-
-        # Switches
-        'path_fuel_switches': os.path.join(
-            path, '00-streategy_vars', 'switches_fuel.csv'),
-        'path_service_switch': os.path.join(
-            path, '00-streategy_vars', 'switches_service.csv'),
-        'path_capacity_installation': os.path.join(
-            path, '00-streategy_vars', 'switches_capacity.csv'),
 
         # Path to all technologies
         'path_technologies': os.path.join(

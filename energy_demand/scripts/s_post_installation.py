@@ -53,6 +53,7 @@ def post_install_setup(args):
     data['assumptions'] = general_assumptions.Assumptions(
         base_yr=base_yr,
         paths=data['paths'],
+        local_paths=data['local_paths'],
         enduses=data['enduses'],
         sectors=data['sectors'],
         fueltypes=data['lookups']['fueltypes'],
