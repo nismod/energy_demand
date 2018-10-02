@@ -15,9 +15,6 @@ def sum_all_enduses_fueltype(
     """Sum across all enduses and fueltypes
 
     """
-
-    fueltype_int = tech_related.get_fueltype_int(fueltype_str)
-
     y_values_enduse_yrs = {}
     for year in data_enduses.keys():
         for enduse in data_enduses[year].keys():

@@ -51,7 +51,7 @@ def print_closest_and_region(stations_as_dict, region_to_plot, closest_region):
 
     plt.show()
 
-def create_panda_map(stations_as_dict, fig_path, path_shapefile=False):
+def create_weather_station_map(stations_as_dict, fig_path, path_shapefile=False):
     """Plot the spatial disribution of the weather stations
 
     https://geopandas.readthedocs.io/en/latest/gallery/create_geopandas_from_pandas.html
@@ -935,7 +935,7 @@ def load_temp_data(local_paths, weather_yrs_scenario, save_fig=False):
         if not save_fig:
             pass
         else:
-            create_panda_map(
+            create_weather_station_map(
                 weather_stations_with_data[year],
                 os.path.join(save_fig, 'weather_station_distribution_{}.pdf'.format(year)),
                 path_shapefile=local_paths['lad_shapefile'])

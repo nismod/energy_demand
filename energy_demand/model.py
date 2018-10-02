@@ -28,7 +28,15 @@ class EnergyDemandModel(object):
     weather_yr : int
         Year of temperature
     """
-    def __init__(self, regions, data, assumptions, weather_yr, weather_by):
+    def __init__(
+            self,
+            regions,
+            data,
+            assumptions,
+            weather_stations,
+            weather_yr,
+            weather_by
+        ):
         """Constructor
         """
         logging.info("... start main energy demand function")
@@ -38,14 +46,14 @@ class EnergyDemandModel(object):
         # ----------------------------
         # Create Weather Regions
         # ----------------------------
-
         # current weather_yr
         weather_regions_weather_cy = {}
-        for weather_region in data['weather_stations'][weather_yr]:
+
+        for weather_region in weather_stations[weather_yr]:
             weather_regions_weather_cy[weather_region] = WeatherRegion(
                 name=weather_region,
-                latitude=data['weather_stations'][weather_yr][weather_region]['latitude'],
-                longitude=data['weather_stations'][weather_yr][weather_region]['longitude'],
+                latitude=weather_stations[weather_yr][weather_region]['latitude'],
+                longitude=weather_stations[weather_yr][weather_region]['longitude'],
                 assumptions=assumptions,
                 technologies=data['technologies'],
                 fueltypes=data['lookups']['fueltypes'],
@@ -56,11 +64,11 @@ class EnergyDemandModel(object):
 
         # base weather_yr
         weather_regions_weather_by = {}
-        for weather_region in data['weather_stations'][weather_by]:
+        for weather_region in weather_stations[weather_by]:
             weather_regions_weather_by[weather_region] = WeatherRegion(
                 name=weather_region,
-                latitude=data['weather_stations'][weather_by][weather_region]['latitude'],
-                longitude=data['weather_stations'][weather_by][weather_region]['longitude'],
+                latitude=weather_stations[weather_by][weather_region]['latitude'],
+                longitude=weather_stations[weather_by][weather_region]['longitude'],
                 assumptions=assumptions,
                 technologies=data['technologies'],
                 fueltypes=data['lookups']['fueltypes'],

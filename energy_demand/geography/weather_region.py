@@ -736,3 +736,40 @@ def insert_peak_dh_shape(
     #assert np.sum(shape_y_dh_inserted) == 365.0
 
     return shape_y_dh_inserted
+
+def get_weather_station_selection(
+        all_weather_stations,
+        counter,
+        weather_yr,
+        weather_by
+    ):
+    """Select weather stations based on
+    position in list
+
+    Arguments
+    --------
+    counter : int
+        Count to get weather station nr
+    """
+    all_stations_of_weather_yr = list(all_weather_stations[weather_yr].keys())
+
+    # Add base year
+    all_weather_stations_out = {}
+
+    # Sort
+    all_stations_of_weather_yr.sort()
+
+    try:
+        # Select station according ot position in list
+        station_id = all_stations_of_weather_yr[counter]
+
+        all_weather_stations_out[weather_yr] = {station_id: all_weather_stations[weather_yr][station_id]}
+        continue_calculation = True
+    except:
+        # Not enough stations to select position in list
+        continue_calculation = False
+        station_id = False
+        all_weather_stations_out[weather_yr] = []
+        print("... no weather station found")
+
+    return all_weather_stations_out, continue_calculation, station_id

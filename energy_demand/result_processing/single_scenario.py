@@ -2,6 +2,7 @@
 """
 import os
 from collections import defaultdict
+import numpy as np
 
 from energy_demand.read_write import data_loader, read_data
 from energy_demand.basic import date_prop
@@ -10,6 +11,9 @@ from energy_demand.basic import basic_functions
 from energy_demand.basic import lookup_tables
 from energy_demand.plotting import fig_weather_variability_priod
 from energy_demand.plotting import fig_total_demand_peak
+from energy_demand.plotting import fig_spatial_local_regional
+from energy_demand.validation import elec_national_data
+from energy_demand.technologies import tech_related
 
 def main(
         path_data_ed,
@@ -35,45 +39,145 @@ def main(
     """
     print("...Start creating plots")
     data = {}
-
-    # ------------------------------------------------------------
-    # Get all yealy results
-    # ------------------------------------------------------------
+    
+    # ---------------------------------------------------------
+    # Iterate folders and read out all weather years and stations
+    # ---------------------------------------------------------
     all_result_folders = os.listdir(path_data_ed)
-
+    paths_folders_result = []
     weather_yrs = []
+    weather_station_per_y = {}
+
     for result_folder in all_result_folders:
         try:
-            weather_yr = int(result_folder)
+
+            split_path_name = result_folder.split("__")
+
+            weather_yr = int(split_path_name[0])
             weather_yrs.append(weather_yr)
+
+            try:
+                weather_station = int(split_path_name[1])
+            except:
+                weather_station = "all_station"
+
+            try:
+                weather_station_per_y[weather_yr].append(weather_station)
+            except:
+                weather_station_per_y[weather_yr] = [weather_station]
+
+            # Collect all paths to simulation result folders
+            paths_folders_result.append(
+                os.path.join(path_data_ed, result_folder))
+
         except ValueError:
             pass
 
-    # ------------------------------------------------------------
-    # Plotting weather variability results
-    # ------------------------------------------------------------
+    # -----------
+    # Used across different plots
+    # -----------
+    data['lookups'] = lookup_tables.basic_lookups()
+
+    data['enduses'], data['assumptions'], data['reg_nrs'], data['regions'] = data_loader.load_ini_param(
+        os.path.join(path_data_ed))
+
+    data['assumptions']['seasons'] = date_prop.get_season(year_to_model=2015)
+    data['assumptions']['model_yeardays_daytype'], data['assumptions']['yeardays_month'], data['assumptions']['yeardays_month_days'] = date_prop.get_yeardays_daytype(year_to_model=2015)
+
+    path_out_plots = os.path.abspath(os.path.join(path_data_ed, '..', '_results_PDF_figs'))
+    basic_functions.del_previous_setup(path_out_plots)
+    basic_functions.create_folder(path_out_plots)
+
+    # ####################################################################
+    # Create plot with regional and non-regional plotsto for second paper
+    # Plot specific figure
+    # ####################################################################
+    if plot_crit_dict['plot_figII_specific']:
+
+        # Specify paths
+        path_val_elec_2015 = os.path.join(
+            "C:/Users/cenv0553/ed/energy_demand/energy_demand/config_data",
+            '01-validation_datasets', '01_national_elec_2015', 'elec_demand_2015.csv')
+
+        path_non_regional_elec_2015 = os.path.abspath(os.path.join(path_data_ed, '..',  "_FigII_non_regional_2015"))
+
+        data_container = defaultdict(dict)
+
+        # Reading in results from different weather_yrs and aggregate
+        for weather_yr in weather_yrs:
+
+            station_tot_fueltype_h = {}
+
+            for weather_station in weather_station_per_y[weather_yr]:
+
+                path_with_txt = os.path.join(
+                    path_data_ed, "{}__{}".format(weather_yr, weather_station), 'model_run_results_txt')
+
+                results_container = read_data.read_in_results(
+                    path_with_txt,
+                    data['assumptions']['seasons'],
+                    data['assumptions']['model_yeardays_daytype'])
+
+                # Store data in weather container
+                tot_fueltype_h = fig_weather_variability_priod.sum_all_enduses_fueltype(
+                    results_container['results_enduse_every_year'])
+
+                station_tot_fueltype_h[weather_station] = tot_fueltype_h
+
+            data_container['tot_fueltype_h'][weather_yr] = station_tot_fueltype_h
+
+        #---Collect non regional 2015 elec data
+        year_non_regional = 2015 
+        path_with_txt = os.path.join(
+            path_non_regional_elec_2015,
+            "{}__{}".format(str(weather_yr), "all_stations"),
+            'model_run_results_txt')
+        print("AA " + str(path_with_txt))
+        demand_year_non_regional = read_data.read_in_results(
+            path_with_txt,
+            data['assumptions']['seasons'],
+            data['assumptions']['model_yeardays_daytype'])
+
+        # Store data in weather container
+        tot_fueltype_h = fig_weather_variability_priod.sum_all_enduses_fueltype(
+            demand_year_non_regional['results_enduse_every_year'])
+        fueltype_int = tech_related.get_fueltype_int('electricity')
+
+        non_regional_elec_2015 = tot_fueltype_h[year_non_regional][fueltype_int]
+
+        # ---Collect real electricity data of year 2015
+        elec_2015_indo, _ = elec_national_data.read_raw_elec_2015(
+            path_val_elec_2015)
+
+        # Factor data as total sum is not identical
+        f_diff_elec = np.sum(non_regional_elec_2015) / np.sum(elec_2015_indo)
+        elec_factored_yh = f_diff_elec * elec_2015_indo
+
+        # ---Plot figure
+        fig_spatial_local_regional.run(
+            data_input=data_container['tot_fueltype_h'],
+            weather_yr=2015,
+            fueltype_str='electricity',
+            simulation_yr_to_plot=2015, # Simulation year to plot
+            period_h=list(range(0,8760)), #period to plot
+            validation_elec_2015=elec_factored_yh,
+            non_regional_elec_2015=non_regional_elec_2015,
+            fig_name=os.path.join(path_out_plots, "fig_paper_II.pdf"))
+    else:
+        pass
+
+    ####################################################################
+    # Plotting weather variability results for all weather stations
+    ####################################################################
     if plot_crit_dict['plot_weather_day_year']:
 
         # Container to store all data of weather years
         weather_yr_container = defaultdict(dict)
 
-        data['lookups'] = lookup_tables.basic_lookups()
-        path_out_plots = os.path.join(path_data_ed, "PDF_weather_varability")
-        basic_functions.del_previous_setup(path_out_plots)
-        basic_functions.create_folder(path_out_plots)
-
-        data['enduses'], data['assumptions'], data['reg_nrs'], data['regions'] = data_loader.load_ini_param(
-            os.path.join(path_data_ed))
-
-        # Other information is read in
-        data['assumptions']['seasons'] = date_prop.get_season(year_to_model=2015)
-        data['assumptions']['model_yeardays_daytype'], data['assumptions']['yeardays_month'], data['assumptions']['yeardays_month_days'] = date_prop.get_yeardays_daytype(year_to_model=2015)
-
         # --------------------------------------------
         # Reading in results from different weather_yrs and aggregate
         # --------------------------------------------
         for weather_yr in weather_yrs:
-
             results_container = read_data.read_in_results(
                 os.path.join(path_data_ed, str(weather_yr), 'model_run_results_txt'),
                 data['assumptions']['seasons'],
@@ -98,7 +202,7 @@ def main(
 
         # plot over period of time across all weather scenario
         fig_weather_variability_priod.run(
-            data_input=weather_yr_container['tot_fueltype_h'],
+            data_input=weather_yr_container['tot_fueltype_h'][weather_yr],
             fueltype_str='electricity',
             simulation_yr_to_plot=2015, # Simulation year to plot
             period_h=list(range(200,500)), #period to plot
@@ -107,12 +211,10 @@ def main(
     else:
         pass
 
-    # ------------------------------------------------------------
+    ####################################################################
     # Calculate results for every weather year
-    # ------------------------------------------------------------
-    for weather_yr in weather_yrs:
-
-        path_data_weather_yr = os.path.join(path_data_ed, str(weather_yr))
+    ####################################################################
+    for path_result_folder in paths_folders_result:
 
         # Simulation information is read in from .ini file for results
         data['enduses'], data['assumptions'], data['reg_nrs'], data['regions'] = data_loader.load_ini_param(
@@ -123,9 +225,9 @@ def main(
         # ------------------
         data = {}
         data['local_paths'] = data_loader.get_local_paths(
-            path_data_weather_yr)
+            path_result_folder)
         data['result_paths'] = data_loader.get_result_paths(
-            os.path.join(path_data_weather_yr))
+            os.path.join(path_result_folder))
         data['lookups'] = lookup_tables.basic_lookups()
 
         # ---------------
