@@ -49,8 +49,6 @@ def get_reasonable_bin_values(
             min_class = increments
 
         # Bin with classes
-        #logging.info("vv {}  {}".format(max_val, min_val))
-        #logging.info("pos {}  {} {}".format(min_class, max_class, increments))
         bins = list(range(int(min_class), int(max_class), int(increments)))
     else:
         logging.info("Neg")
@@ -148,18 +146,9 @@ def user_defined_classification(
 
     # Shorten color list
     if min(bins) > 0:
-        #bins.append(999)
-        #color_list = color_list[:len(bins)]
         color_list = color_list[:len(bins)+1]
     else:
         color_list = color_list
-
-
-    logging.info(" ")
-    logging.info("BEFORE RECLASSIFICAOTN")
-    logging.info("---")
-    logging.info(bins)
-    logging.info(color_list)
 
     # ------------------------------------------------------
     # Reclassify
@@ -330,9 +319,6 @@ def re_classification(
     color_list_copy = copy.copy(color_list)
     bin_labels_copy = copy.copy(bin_labels)
 
-    #logging.info("KUH " + str(color_zero))
-    #logging.info(color_list_copy)
-    #logging.info(bin_labels_copy)
     # Add zero color in color list if a min_plus map
     if color_zero != False:
         insert_pos = 1
@@ -342,17 +328,11 @@ def re_classification(
         bin_labels_copy.insert(insert_pos, float(placeholder_zero_color))
     else:
         pass
-    #logging.info("KUH 2")
-    #logging.info(color_list_copy)
-    #logging.info(bin_labels_copy)
 
     # Create the custom color map
     color_bin_match_list = []
     for lbl, color in zip(bin_labels_copy, color_list_copy):
         color_bin_match_list.append((lbl, color))
-    ##logging.info("color_bin_match_list: " + str(color_bin_match_list))
-    ##logging.info(bins)
-    ##logging.info(bin_labels_copy)
 
     if 0 in bins:
         pass
@@ -366,7 +346,6 @@ def re_classification(
         color_bin_match_list)
 
     #logging.info("cmap " + str(cmap))
-
     # Reclassify
     lad_geopanda_shp['reclassified'] = lad_geopanda_shp[field_to_plot].apply(
         func=bin_mapping,
@@ -474,7 +453,6 @@ def plot_lad_national(
     # Own classification (work around)
     # -----------------------------
     if user_classification:
-        logging.info("User classification")
 
         # Color to assing zero values
         placeholder_zero_color = 0.00001
@@ -487,7 +465,6 @@ def plot_lad_national(
         # Add maximum value
         logging.info(" {} {}".format(min_value, max_value))
         logging.info("FINAL BIN before" + str(bins))
-        ###bins.append(max_value)
 
         ###logging.info("FINAL BIN " + str(bins))
         lad_geopanda_shp_reclass, cmap = user_defined_classification(
@@ -717,7 +694,7 @@ def plot_spatial_mapping_example(
 
     return
 
-def create_geopanda_files(
+def spatial_maps(
         data,
         results_container,
         path_data_results_shapefiles,
@@ -728,7 +705,7 @@ def create_geopanda_files(
         plot_crit_dict,
         base_yr
     ):
-    """Create map related files (png) from results.
+    """Create map related files from results
 
     Arguments
     ---------
@@ -743,7 +720,6 @@ def create_geopanda_files(
     """
     logging.info("... create spatial maps of results")
 
-    #base_yr = 2015
     # --------
     # Read LAD shapefile and create geopanda
     # --------
@@ -765,7 +741,6 @@ def create_geopanda_files(
 
                 # Calculate peak h across all regions
                 field_name = 'peak_abs_h_{}_{}'.format(year, fueltype_str)
-
 
                 # Get maxium demand of 8760h for every region
                 h_max_gwh_regs = np.max(results_container['results_every_year'][year][fueltype], axis=1)
@@ -866,7 +841,6 @@ def create_geopanda_files(
                         color_zero='#ffffff',
                         color_palette='YlGnBu_7') #YlGnBu_9 #8a2be2 'PuBu_8'
    
-                    # Plot
                     plot_lad_national(
                         lad_geopanda_shp=lad_geopanda_shp,
                         legend_unit="GWh",

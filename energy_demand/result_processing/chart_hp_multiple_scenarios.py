@@ -69,7 +69,7 @@ def process_scenarios(path_to_scenarios, year_to_model=2015):
                 'model_run_results_txt')
 
             scenario_data[scenario_hp][scenario] = read_data.read_in_results(
-                path_runs=path_to_result_files,
+                path_result=path_to_result_files,
                 seasons=seasons,
                 model_yeardays_daytype=model_yeardays_daytype)
 

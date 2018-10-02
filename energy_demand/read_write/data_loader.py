@@ -49,9 +49,11 @@ def print_closest_and_region(stations_as_dict, region_to_plot, closest_region):
 
     plt.legend()
 
-    plt.show()
-
-def create_weather_station_map(stations_as_dict, fig_path, path_shapefile=False):
+def create_weather_station_map(
+        stations_as_dict,
+        fig_path,
+        path_shapefile=False
+    ):
     """Plot the spatial disribution of the weather stations
 
     https://geopandas.readthedocs.io/en/latest/gallery/create_geopandas_from_pandas.html

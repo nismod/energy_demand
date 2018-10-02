@@ -139,35 +139,14 @@ def run(
     slope, intercept, r_value2, p_value, std_err = stats.linregress(
         validation_2015,
         mean_all_single_runs)
+
     print("R_Value_all_stations: " + str(r_value))
     print("R_Value_single_stations: " + str(r_value2))
-    plt.title("R_value: all stations: {} mean_single_weather_stations: {} ".format(
-        round(r_value, 2),
-        round(r_value2, 2))
-    # Calculate absolute differences
-    '''y_diff_abs_all_stations = list(abs(validation_2015 - all_weather_stations_2015))
-    y_diff_abs_single_stations = list(abs(validation_2015 - mean_all_single_runs))
 
-    # Calculate difference in percent
-    y_diff_p_all_stations = list((100 / validation_2015) * all_weather_stations_2015 - 100)
-    y_diff_p_single_stations  = list((100 / validation_2015) * mean_all_single_runs - 100)
-
-    # Statistics calculations
-    standard_dev_real_modelled_all_stations = np.std(y_diff_p_all_stations)       # Differences in %
-    standard_dev_real_modelled_abs_all_stations = np.std(y_diff_abs_all_stations) # Absolute differences 
-    
-    standard_dev_real_modelled_single_stations = np.std(y_diff_p_single_stations)       # Differences in %
-    standard_dev_real_modelled_abs_single_stations = np.std(y_diff_abs_single_stations) # Absolute differences 
-
-    print("ALL: Standard deviation given as percentage: " + str(standard_dev_real_modelled_all_stations ))
-    print("ALL: Standard deviation given as GW:         " + str(standard_dev_real_modelled_abs_all_stations ))
-    print("SINGLE: Standard deviation given as percentage: " + str(standard_dev_real_modelled_single_stations ))
-    print("SINGLE: Standard deviation given as GW:         " + str(standard_dev_real_modelled_abs_single_stations ))
-    plt.title("to all_station: {}  {} {}  {}".format(
-        round(standard_dev_real_modelled_all_stations, 2),
-        round(standard_dev_real_modelled_abs_all_stations, 2),
-        round(standard_dev_real_modelled_single_stations, 2),
-        round(standard_dev_real_modelled_abs_single_stations, 2)))'''
+    plt.title(
+        "R_value: all stations: {} mean_single_weather_stations: {}".format(
+            round(r_value, 2),
+            round(r_value2, 2)))
 
     plt.plot(
         period_h_smoothed,

@@ -14,6 +14,7 @@ from energy_demand.plotting import fig_total_demand_peak
 from energy_demand.plotting import fig_spatial_local_regional
 from energy_demand.validation import elec_national_data
 from energy_demand.technologies import tech_related
+from energy_demand.plotting import fig_p2_weather_var
 
 def main(
         path_data_ed,
@@ -39,7 +40,7 @@ def main(
     """
     print("...Start creating plots")
     data = {}
-    
+
     # ---------------------------------------------------------
     # Iterate folders and read out all weather years and stations
     # ---------------------------------------------------------
@@ -50,7 +51,6 @@ def main(
 
     for result_folder in all_result_folders:
         try:
-
             split_path_name = result_folder.split("__")
 
             weather_yr = int(split_path_name[0])
@@ -90,7 +90,6 @@ def main(
 
     # ####################################################################
     # Create plot with regional and non-regional plotsto for second paper
-    # Plot specific figure
     # ####################################################################
     if plot_crit_dict['plot_figII_specific']:
 
@@ -101,9 +100,8 @@ def main(
 
         path_non_regional_elec_2015 = os.path.abspath(os.path.join(path_data_ed, '..',  "_FigII_non_regional_2015"))
 
-        data_container = defaultdict(dict)
-
         # Reading in results from different weather_yrs and aggregate
+        data_container = defaultdict(dict)
         for weather_yr in weather_yrs:
 
             station_tot_fueltype_h = {}
@@ -132,7 +130,7 @@ def main(
             path_non_regional_elec_2015,
             "{}__{}".format(str(weather_yr), "all_stations"),
             'model_run_results_txt')
-        print("AA " + str(path_with_txt))
+
         demand_year_non_regional = read_data.read_in_results(
             path_with_txt,
             data['assumptions']['seasons'],
@@ -163,31 +161,32 @@ def main(
             validation_elec_2015=elec_factored_yh,
             non_regional_elec_2015=non_regional_elec_2015,
             fig_name=os.path.join(path_out_plots, "fig_paper_II.pdf"))
-    else:
-        pass
 
     ####################################################################
-    # Plotting weather variability results for all weather stations
+    # Plotting weather variability results for all weather stations (Fig 2b)
     ####################################################################
+
+    # --------------------------------------------
+    # Reading in results from different weather_yrs and aggregate
+    # --------------------------------------------
+    weather_yr_container = defaultdict(dict)
+
+    for weather_yr in weather_yrs:
+        results_container = read_data.read_in_results(
+            os.path.join(
+                path_data_ed, "{}__{}".format(str(weather_yr), "all_stations"),
+                'model_run_results_txt'),
+            data['assumptions']['seasons'],
+            data['assumptions']['model_yeardays_daytype'])
+
+        # Store data in weather container
+        tot_fueltype_yh = fig_weather_variability_priod.sum_all_enduses_fueltype(
+            results_container['results_enduse_every_year'])
+
+        weather_yr_container['tot_fueltype_yh'][weather_yr] = tot_fueltype_yh
+        weather_yr_container['results_enduse_every_year'][weather_yr] = results_container['results_every_year']
+
     if plot_crit_dict['plot_weather_day_year']:
-
-        # Container to store all data of weather years
-        weather_yr_container = defaultdict(dict)
-
-        # --------------------------------------------
-        # Reading in results from different weather_yrs and aggregate
-        # --------------------------------------------
-        for weather_yr in weather_yrs:
-            results_container = read_data.read_in_results(
-                os.path.join(path_data_ed, str(weather_yr), 'model_run_results_txt'),
-                data['assumptions']['seasons'],
-                data['assumptions']['model_yeardays_daytype'])
-
-            # Store data in weather container
-            tot_fueltype_h = fig_weather_variability_priod.sum_all_enduses_fueltype(
-                results_container['results_enduse_every_year'])
-
-            weather_yr_container['tot_fueltype_h'][weather_yr] = tot_fueltype_h
 
         # --------------------------------------------
         # Plot peak demand and total demand per fueltype
@@ -195,21 +194,32 @@ def main(
         for fueltype_str in data['lookups']['fueltypes'].keys():
 
             fig_total_demand_peak.run(
-                data_input=weather_yr_container['tot_fueltype_h'],
+                data_input=weather_yr_container['tot_fueltype_yh'],
                 fueltype_str=fueltype_str,
                 fig_name=os.path.join(
                     path_out_plots, "tot_{}_h.pdf".format(fueltype_str)))
 
         # plot over period of time across all weather scenario
         fig_weather_variability_priod.run(
-            data_input=weather_yr_container['tot_fueltype_h'][weather_yr],
+            data_input=weather_yr_container['tot_fueltype_yh'][weather_yr],
             fueltype_str='electricity',
             simulation_yr_to_plot=2015, # Simulation year to plot
             period_h=list(range(200,500)), #period to plot
             fig_name=os.path.join(
                 path_out_plots, "weather_var_period.pdf"))
-    else:
-        pass
+
+    # ####################################################################
+    # Plot for paper II, specific figure
+    # ####################################################################
+    if plot_crit_dict['plot_figIIb_specific']:
+
+        fig_p2_weather_var.run(
+            data_input=weather_yr_container['results_enduse_every_year'],
+            regions=data['regions'],
+            simulation_yr_to_plot=2015, # Simulation year to plot
+            fueltype_str='electricity',
+            path_shapefile=path_shapefile_input,
+            fig_name=os.path.join(path_out_plots, "fig_paper_IIb_weather_var_map.pdf"))
 
     ####################################################################
     # Calculate results for every weather year
@@ -278,7 +288,7 @@ def main(
         # Plotting spatial results
         # ------------------------------
         if plot_crit_dict['spatial_results']:
-            result_mapping.create_geopanda_files(
+            result_mapping.spatial_maps(
                 data,
                 results_container,
                 data['result_paths']['data_results_shapefiles'],

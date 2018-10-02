@@ -44,11 +44,13 @@ def process_result_multi_scen(
         "plot_radar_seasonal": True,                      # Plot radar spider charts
         "plot_line_for_every_region_of_peak_demand": True,
         "plot_lad_cross_graphs": True,
-    
-        "plot_weather_day_year": True,   #plot for a period (e.g. day) the hourly profile of all weather plots
+
+        # NEW
+        "plot_weather_day_year": False,   #plot for a period (e.g. day) the hourly profile of all weather plots
 
         # Specific figures
-        "plot_figII_specific": True #
+        "plot_figII_specific": False, #
+        "plot_figIIb_specific": True #
         }
 
     # Get all folders with scenario run results (name of folder is scenario)

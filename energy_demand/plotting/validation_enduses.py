@@ -44,7 +44,7 @@ def plot_dataframe_function(
     
     plt.axis('tight')
 
-    plt.show()
+    #plt.show()
 
     print("finished plotting")
 

@@ -221,13 +221,13 @@ def resilience_paper(
             ".csv"))
 
     # Write out to files
-    write_min_max_result_to_txt(
+    write_data.write_min_max_result_to_txt(
         file_path=file_path_max_day,
         values=max_day_values,
         yearday=max_day,
         yearday_date=max_day_date)
 
-    write_min_max_result_to_txt(
+    write_data.write_min_max_result_to_txt(
         file_path=file_path_min_day,
         values=min_day_values,
         yearday=min_day,
@@ -634,5 +634,5 @@ def generate_min_max_resilience_plot(path_to_scenarios):
     print("---------------------------------")
 
 # Execute script
-generate_min_max_resilience_plot(
-    path_to_scenarios="C://Users//cenv0553//ED//results//_resilience_paper_results")
+#generate_min_max_resilience_plot(
+#    path_to_scenarios="C://Users//cenv0553//ED//results//_resilience_paper_results")

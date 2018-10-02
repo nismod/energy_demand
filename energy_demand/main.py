@@ -151,7 +151,7 @@ if __name__ == "__main__":
     user_defined_simulation_end_yr = 2050                                   # Used to create standard narrative
     simulated_yrs = [user_defined_base_yr, 2030, user_defined_simulation_end_yr]
     weather_yrs_scenario = [2015, 1962]                                             # Temperature years
-    weather_station_count_nr = range(0)        # Number of model runs with different weather stations (default = 0 and all stations are used)
+    weather_station_count_nr = []        # Number of model runs with different weather stations (default = 0 and all stations are used)
 
     # --- Region definition configuration
     name_region_set = os.path.join(local_data_path, 'region_definitions', "lad_2016_uk_simplified.shp")        # LAD
@@ -435,12 +435,12 @@ if __name__ == "__main__":
         # ---------------------------------------------
         if weather_station_count_nr == []:
             single_weather_station_crit = False
-            weather_stations_cnt = 1  # use one to itearte over al
+            weather_stations_cnt = range(1)  # use one to itearte over al
         else:
             single_weather_station_crit = True
             weather_stations_cnt = weather_station_count_nr
 
-        for counter in weather_station_count_nr:
+        for counter in weather_stations_cnt:
 
             if single_weather_station_crit:
 
