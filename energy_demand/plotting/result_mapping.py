@@ -1231,7 +1231,7 @@ def colors_plus_minus_map(
             nr_of_cat_pos = int(len(bins))
             for i in range(nr_of_cat_pos + 1): #add one to get class up to zero
                 color_list.append(color_list_neg[i])
-            
+
             color_list.insert(0, color_zero) # Add 0 color
         else:
             nr_of_cat_neg = 0
@@ -1244,7 +1244,7 @@ def colors_plus_minus_map(
                     nr_of_cat_pos += 1
                 else:
                     pass
-    
+
             for i in range(nr_of_cat_neg + 1): #add one to get class before first bin
                 color_list.append(color_list_neg[i])
 
