@@ -10,7 +10,7 @@
 # correction factors on LAD level disaggregation? (load non-residential demand)
 # Improve plotting and processing (e.g. saisonal plots)
 # Weather station cleaning: Replace days with missing values
-
+#TODO IMROVE PLOTTING (second round of geopanda classification)
     Note
     ----
     Always execute from root folder. (e.g. energy_demand/energy_demand/main.py)

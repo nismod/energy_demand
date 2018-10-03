@@ -17,6 +17,35 @@ from energy_demand.technologies import tech_related
 from energy_demand.read_write import write_data
 #matplotlib.use('Agg') # Used to make it work in linux
 
+def get_reasonable_bin_values_II(
+        data_to_plot,
+        nr_of_intervals
+    ):
+    """Get reasonable bins for 0....max value
+    """
+    def round_down(num, divisor):
+        return num - (num%divisor)
+
+    max_val = float(max(data_to_plot))
+    min_val = float(min(data_to_plot))
+
+    bin_width = max_val / nr_of_intervals
+
+    '''if len(str(bin_width)) > 4:
+        bin_width = round_down(bin_width, divisor=1000)
+    elif len(str(bin_width)) > 3:
+        bin_width = round_down(bin_width, divisor=100)
+    elif len(str(bin_width)) > 2:
+        bin_width = round_down(bin_width, divisor=10)
+    elif len(str(bin_width)) > 1:
+        bin_width = round_down(bin_width, divisor=1)
+    else:
+        pass'''
+
+    bins = [bin_width * i for i in range(nr_of_intervals)]
+
+    return bins
+
 def get_reasonable_bin_values(
         data_to_plot,
         increments=10
@@ -164,7 +193,8 @@ def user_defined_classification(
     # ------------------------------------------------------
     # Legend and legend labels
     # ------------------------------------------------------
-    logging.info("bins fff")
+    legend_handles = get_legend_handles(bins, color_list, color_zero, min_value, max_value)
+    '''logging.info("bins fff")
     logging.info(bins)
     logging.info(color_list)
 
@@ -222,6 +252,7 @@ def user_defined_classification(
             label=str(label_patch))
 
         legend_handles.append(patch)
+    '''
 
     plt.legend(
         handles=legend_handles,
@@ -232,6 +263,70 @@ def user_defined_classification(
         frameon=False)
 
     return reclass_lad_geopanda_shp, cmap
+
+def get_legend_handles(bins, color_list, color_zero, min_value, max_value):
+    """
+    """
+    print("bins fff")
+    print(bins)
+    print(color_list)
+
+    legend_handles = []
+    small_number = 0.01 # Small number for plotting corrrect charts
+
+    if max(bins) >= 0:
+        bins.append(999) # Append dummy last element for last class
+    else:
+        pass
+
+    for bin_nr, bin_entry in enumerate(bins):
+        if bin_nr == 0: #first bin entry
+
+            if bin_entry < 0:
+                label_patch = "> {} (min {})".format(bin_entry, min_value)
+
+                if min_value > bin_entry:
+                    print("Classification boundry is not clever for low values")
+            else:
+                label_patch = "< {} (min {})".format(bin_entry, min_value)
+        elif bin_nr == len(bins)- 1: # -1 means that last bin entry
+            ###label_patch = "> {} (max {})".format(bins[-2], max_value)
+            label_patch = "> {} (max {})".format(bins[-2], max_value)
+
+            if max_value < bin_entry:
+                print("Classification boundry is not clever for low values")
+        else:
+            # ----------------------------
+            # Add zero label if it exists
+            # ----------------------------
+            if bins[bin_nr - 1] == 0:
+                patch = mpatches.Patch(
+                    color=color_zero,
+                    label=str("0"))
+                legend_handles.append(patch)
+            else:
+                pass
+
+            # ----------------------------
+            # Other other labels
+            # ----------------------------
+            if bin_entry < 0:
+                label_patch = "{}  ―  {}".format(bins[bin_nr - 1], bin_entry - small_number)
+            else:
+                if bins[bin_nr - 1] == 0:
+                    label_patch = "{}  ―  {}".format(bins[bin_nr - 1] + small_number, bin_entry - small_number)
+                else:
+                    label_patch = "{}  ―  {}".format(bins[bin_nr - 1], bin_entry - small_number)
+
+        logging.info("------label_patch: {}  {}  {}  {}".format(label_patch, bin_entry, bins, color_list))
+
+        patch = mpatches.Patch(
+            color=color_list[bin_nr],
+            label=str(label_patch))
+
+        legend_handles.append(patch)
+
+    return legend_handles
 
 def bin_mapping(
         value_to_classify,

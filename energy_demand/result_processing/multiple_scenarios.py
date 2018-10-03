@@ -46,11 +46,11 @@ def process_result_multi_scen(
         "plot_lad_cross_graphs": True,
 
         # NEW
-        "plot_weather_day_year": False,   #plot for a period (e.g. day) the hourly profile of all weather plots
+        #"plot_weather_day_year": False,   #plot for a period (e.g. day) the hourly profile of all weather plots
 
         # Specific figures
-        "plot_figII_specific": False, #
-        "plot_figIIb_specific": True #
+        #"plot_figII_specific": False, #
+        #"plot_spatial_weather_var_peak": True #
         }
 
     # Get all folders with scenario run results (name of folder is scenario)

@@ -36,21 +36,12 @@ def run(
         fueltype_str,
         fig_name
     ):
-    """Plots stacked energy demand
+    """
 
     https://stackoverflow.com/questions/18313322/plotting-quantiles-median-and-spread-using-scipy-and-matplotlib
 
     https://pandas.pydata.org/pandas-docs/stable/generated/pandas.DataFrame.quantile.html
 
-    # Create 10 columns with 100 rows of random data
-    rd = np.random.randn(100, 10)
-    # Calculate the quantiles column wise
-    quantiles = mstats.mquantiles(rd, axis=0)
-    # Plot it
-    labels = ['25%', '50%', '75%']
-    for i, q in enumerate(quantiles):
-        plt.plot(q, label=labels[i])
-    plt.legend()
     """
     # Select period and fueltype
     fueltype_int = tech_related.get_fueltype_int(fueltype_str)
@@ -72,7 +63,6 @@ def run(
         data_input_fueltype = data_weather_yr[simulation_yr_to_plot][fueltype_int]     # Select fueltype
         data_input_reshape = data_input_fueltype.reshape(8760)  # reshape
         data_input_selection_hrs = data_input_reshape[period_h] # select period
-
         weather_yrs_data.append(data_input_selection_hrs)
 
     weather_yrs_data = np.array(weather_yrs_data)

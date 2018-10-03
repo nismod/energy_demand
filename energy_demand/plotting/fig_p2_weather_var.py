@@ -11,23 +11,23 @@ import matplotlib.pyplot as plt
 from collections import defaultdict
 from matplotlib.colors import Normalize
 
+from energy_demand.plotting import result_mapping
 from energy_demand.technologies import tech_related
 from energy_demand.plotting import basic_plot_functions
 
 def run(
         data_input,
         regions,
-        fueltype_str,
         simulation_yr_to_plot,
+        population,
+        fueltype_str,
         path_shapefile,
         fig_name
     ):
     """
     """
-    # Select period and fueltype
     fueltype_int = tech_related.get_fueltype_int(fueltype_str)
 
-    columns = range(8760)
     # -----------------------------------------------------------
     # Iterate overall weather_yrs and store data in dataframe
     # (columns = timestep, rows: value of year)
@@ -49,18 +49,26 @@ def run(
             except (KeyError, AttributeError):
                 weather_yrs_data[region_name] = [regions_fuel[region_nr]]
 
-    regional_statistics_columns = ['name', 'mean_peak_h', 'diff_av_max'] #'std', 'diff_av_max']
+    regional_statistics_columns = [
+        'name',
+        'mean_peak_h',
+        'diff_av_max',
+        'mean_peak_h_pp',
+        'diff_av_max_pp']
+
     df_stats = pd.DataFrame(columns=regional_statistics_columns)
 
     for region_name, region_data in weather_yrs_data.items():
 
         # Convert regional data to dataframe
         region_data_array = np.array(region_data)
-        df = pd.DataFrame(region_data_array, columns=columns)
+        df = pd.DataFrame(
+            region_data_array,
+            columns=range(8760))
 
         # Calculate regional statistics
         mean = df.mean(axis=0)
-        #std =  df.std(axis=0) #8760
+
         max_entry = df.max(axis=0) #maximum entry for every hour
         min_entry = df.min(axis=0) #maximum entry for every hour
 
@@ -72,22 +80,47 @@ def run(
         diff_av_max = max_entry[hour_nr_max] - mean[hour_nr_max]
         mean_peak_h = mean[hour_nr_max]
 
+        # Convert GW to KW
+        diff_av_max = diff_av_max * 1000000 #GW to KW
+        mean_peak_h = mean_peak_h * 1000000 #GW to KW
+
         # Weight with population
+        for region_nr, n in enumerate(regions):
+            if region_name == n:
+                nr_of_reg = region_nr
+                break
+        pop = population[nr_of_reg]
+
+        diff_av_max_pp = diff_av_max / pop
+        mean_peak_h_pp = mean_peak_h / pop
 
         line_entry = [[
             str(region_name),
             mean_peak_h,
-            #std,
-            diff_av_max]]
+            diff_av_max,
+            mean_peak_h_pp,
+            diff_av_max_pp]]
 
-        line_df = pd.DataFrame(line_entry, columns=regional_statistics_columns)
+        line_df = pd.DataFrame(
+            line_entry, columns=regional_statistics_columns)
+    
         df_stats = df_stats.append(line_df)
 
     print("tt") #TODO IMPROVE
+    #print(df_stats['diff_av_max'])
+    #print("---------")
+    print(df_stats['diff_av_max'].max())
+    print(df_stats['mean_peak_h'].max())
+    print("-")
+    print(df_stats['diff_av_max_pp'].max())
+    print(df_stats['diff_av_max_pp'].min())
+    print("-")
+    print(df_stats['mean_peak_h_pp'].max())
+    print(df_stats['mean_peak_h_pp'].min())
     # ---------------
     # Create spatial maps
     # http://darribas.org/gds15/content/labs/lab_03.html
-    #http://nbviewer.jupyter.org/gist/jorisvandenbossche/57d392c085901eb4981054402b37b6b1
+    # http://nbviewer.jupyter.org/gist/jorisvandenbossche/57d392c085901eb4981054402b37b6b1
     # ---------------
     # Load uk shapefile
     uk_shapefile = gpd.read_file(path_shapefile)
@@ -105,33 +138,60 @@ def run(
 
     # Assign bin colors according to defined cmap and whether
     # plot with min_max values or only min/max values
-    uk_gdf = user_defined_bin_classification(
+    #bin_values = [0, 0.0025, 0.005, 0.0075, 0.01]
+    #bin_values = [0, 0.02, 0.04, 0.06, 0.08, 0.1] #list(np.arange(0.0, 1.0, 0.1))
+
+    # Field to plot
+    field_to_plot = "diff_av_max_pp" # Difference between average and peak per person in KWh
+    #field_to_plot = "diff_av_max"    # Difference between average and peak
+    nr_of_intervals = 6
+
+    bin_values = result_mapping.get_reasonable_bin_values_II(
+        data_to_plot=list(uk_gdf[field_to_plot]),
+        nr_of_intervals=nr_of_intervals)
+    print(float(uk_gdf[field_to_plot].max()))
+    print("BINS " + str(bin_values))
+
+    uk_gdf, cmap_rgb_colors, color_zero, min_value, max_value = user_defined_bin_classification(
         uk_gdf,
-        "diff_av_max",
-        bin_values=[0, 0.01])
-    
-    uk_gdf.plot(ax=ax, facecolor=uk_gdf['bin_color'], edgecolor='black')
-    plt.show()
+        field_to_plot, 
+        bin_values=bin_values)
+
+    # plot with face color attribute
+    uk_gdf.plot(ax=ax, facecolor=uk_gdf['bin_color'], edgecolor='black', linewidth=0.5)
+
     #shp_gdp_merged.plot(column='diff_av_max', scheme='QUANTILES', k=5, cmap='OrRd', linewidth=0.1)
     #ax = uk_gdf.plot(column='diff_av_max', scheme='QUANTILES', k=5, cmap='OrRd', linewidth=0.1)
-    
-
     #uk_gdf[uk_gdf['name'] == 'E06000024'].plot(ax=ax, facecolor='green', edgecolor='black')
     #uk_gdf[uk_gdf['diff_av_max'] < 0.01].plot(ax=ax, facecolor='blue', edgecolor='black')
 
+    # Get legend patches TODO IMPROVE
+    # TODO IMRPVE: MAKE CORRECT ONE FOR NEW PROCESSING
+    legend_handles = result_mapping.get_legend_handles(
+        bin_values[1:-1],
+        cmap_rgb_colors,
+        color_zero,
+        min_value,
+        max_value)
 
-    #plt.show()
-    raise Exception
     plt.legend(
-        prop={
-            'family':'arial',
-            'size': 10},
-        loc='best',
-        frameon=False,
-        shadow=True)
+        handles=legend_handles,
+        title="tittel_elgend",
+        prop={'size': 8},
+        loc='upper center',
+        bbox_to_anchor=(0.5, -0.05),
+        frameon=False)
 
+    # PLot bins on plot
+    plt.text(
+        0,
+        -20,
+        bin_values[:-1], #leave away maximum value
+        fontsize=8)
+
+    plt.tight_layout()
     plt.show()
-
+    raise Exception
     plt.savefig(fig_name)
     plt.close()
 
@@ -209,18 +269,18 @@ def user_defined_bin_classification(
 
     """
     # Check if largest value is large than last bin
-    max_real_value = input_df[field_name].max()
-    min_real_value = input_df[field_name].min()
+    max_real_value = float(input_df[field_name].max())
+    min_real_value = float(input_df[field_name].min())
 
     if max_real_value > 0 and min_real_value < 0:
         min_max_plot = True
     else:
         min_max_plot = False
-    # Get correct colors
+
     if not min_max_plot:
 
-        # IF only minus values
-        if max_real_value > 0: #only min values
+        # If only minus values
+        if max_real_value < 0: #only min values
             if min_real_value > bin_values[0]:
                 # add "higher as bin"
                 bin_values.insert(0, min_real_value)
@@ -231,7 +291,7 @@ def user_defined_bin_classification(
             # Sequential: 'Greys', 'Purples', 'Blues', 'Greens', 'Oranges', 'Reds','YlOrBr', 'YlOrRd', 'OrRd', 'PuRd', 'RdPu', 'BuPu', 'GnBu', 'PuBu', 'YlGnBu', 'PuBuGn', 'BuGn', 'YlGn'
             cmap, cmap_rgb_colors = norm_cmap(
                 bin_values[:1], #Remove 0 bin from colors
-                cmap='YlOrBr')
+                cmap='Purples') #'YlOrBr'
 
         else: #only positive values
             if max_real_value > bin_values[-1]:
@@ -243,11 +303,12 @@ def user_defined_bin_classification(
             # Sequential: 'Greys', 'Purples', 'Blues', 'Greens', 'Oranges', 'Reds','YlOrBr', 'YlOrRd', 'OrRd', 'PuRd', 'RdPu', 'BuPu', 'GnBu', 'PuBu', 'YlGnBu', 'PuBuGn', 'BuGn', 'YlGn'
             cmap, cmap_rgb_colors = norm_cmap(
                 bin_values[1:], #Remove 0 bin from colors
-                cmap='YlOrBr')
+                cmap='Purples') #'YlOrBr'
 
         # e.g. [0, 3, 6] --> generates (0, 3], and (3, 6] bin
         input_df['bin_color'] = pd.cut(input_df[field_name], bin_values, right=True, labels=cmap_rgb_colors)
 
+        color_zero = 'grey' # default
     else:
 
         if max_real_value < bin_values[-1]:
@@ -298,7 +359,7 @@ def user_defined_bin_classification(
         input_df = minus_dataframe.append(zero_dataframe)
         input_df = input_df.append(plus_dataframe)
 
-    return input_df
+    return input_df, cmap_rgb_colors, color_zero, min_real_value, max_real_value
     '''ax = input_df.plot()
 
     # Calculate color values
