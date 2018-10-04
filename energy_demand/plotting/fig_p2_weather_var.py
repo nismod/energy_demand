@@ -54,7 +54,9 @@ def run(
         'mean_peak_h',
         'diff_av_max',
         'mean_peak_h_pp',
-        'diff_av_max_pp']
+        'diff_av_max_pp',
+        'std_dev_average_every_h',
+        'std_dev_peak_h_norm_pop']
 
     df_stats = pd.DataFrame(columns=regional_statistics_columns)
 
@@ -68,6 +70,14 @@ def run(
 
         # Calculate regional statistics
         mean = df.mean(axis=0)
+        std_dev = df.std(axis=0) #standard deviation across every hour
+
+        # Get maximum per colum
+        #max_every_h = df.max()
+        #colum_max_h = max_every_h.argmax() #get colum (respesctively hour) of maximum value
+
+        # Average standard deviation across every hour
+        std_dev_average_every_h = np.std(list(std_dev))
 
         max_entry = df.max(axis=0) #maximum entry for every hour
         min_entry = df.min(axis=0) #maximum entry for every hour
@@ -75,6 +85,9 @@ def run(
         # Get hour number with maximum demand
         hour_nr_max = max_entry.argmax()
         hour_nr_min = min_entry.argmin()
+
+        # standard deviation of peak hour
+        std_dev_peak_h = std_dev[hour_nr_max]
 
         # Difference between average and max
         diff_av_max = max_entry[hour_nr_max] - mean[hour_nr_max]
@@ -91,6 +104,10 @@ def run(
                 break
         pop = population[nr_of_reg]
 
+        # Divide standard deviation of peak hour by population
+        # which gives measure of weather variability in peak hour
+        std_dev_peak_h_norm_pop = std_dev_peak_h / pop
+
         diff_av_max_pp = diff_av_max / pop
         mean_peak_h_pp = mean_peak_h / pop
 
@@ -99,7 +116,9 @@ def run(
             mean_peak_h,
             diff_av_max,
             mean_peak_h_pp,
-            diff_av_max_pp]]
+            diff_av_max_pp,
+            std_dev_average_every_h,
+            std_dev_peak_h_norm_pop]]
 
         line_df = pd.DataFrame(
             line_entry, columns=regional_statistics_columns)
@@ -111,6 +130,7 @@ def run(
     #print("---------")
     print(df_stats['diff_av_max'].max())
     print(df_stats['mean_peak_h'].max())
+    print(df_stats['std_dev_peak_h_norm_pop'].max())
     print("-")
     print(df_stats['diff_av_max_pp'].max())
     print(df_stats['diff_av_max_pp'].min())
@@ -144,6 +164,8 @@ def run(
     # Field to plot
     field_to_plot = "diff_av_max_pp" # Difference between average and peak per person in KWh
     #field_to_plot = "diff_av_max"    # Difference between average and peak
+    field_to_plot = 'std_dev_peak_h_norm_pop'
+
     nr_of_intervals = 6
 
     bin_values = result_mapping.get_reasonable_bin_values_II(

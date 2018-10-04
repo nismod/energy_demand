@@ -1,59 +1,59 @@
-technology,fueltype,efficiency in base year,efficiency in future year,year when efficiency is fully realised,diffusion method (sigmoid or linear),market_entry,technology type,maximum theoretical service share of technology,description,TTTT
-halogen,electricity,0.04,0.07,2050,linear,2010,lighting,1,,lighting
-standard_lighting_bulb,electricity,0.03,0.04,2050,linear,2010,lighting,1,,lighting
-fluorescent_strip_lighting,electricity,0.14,0.21,2050,linear,2010,lighting,1,,lighting
-energy_saving_lighting_bulb,electricity,0.22,0.3,2050,linear,2010,lighting,1,,lighting
-LED,electricity,0.22,0.44,2050,linear,2010,lighting,1,,lighting
-washing_machine,electricity,0.61,0.61,2050,linear,2010,wet,1,NOTE: Check: 1.5,wet
-tumble_dryer,electricity,0.77,7.7,2050,linear,2010,wet,1,,wet
-dishwasher,electricity,0.69,2.3,2050,linear,2010,wet,1,,wet
-washer_dryer,electricity,0.61,3.07,2050,linear,2010,wet,1,,wet
-hob_gas,gas,0.4,0.5,2050,linear,2010,cooking,1,,cooking
-hob_electricity,electricity,0.6,0.7,2050,linear,2010,cooking,1,,cooking
-hob_induction_electricity,electricity,0.75,0.9,2050,linear,2010,cooking,1,,cooking
-hob_hydrogen,hydrogen,0.4,0.5,2050,linear,2010,cooking,1,,cooking
-hob_biomass,biomass,0.4,0.5,2050,linear,2010,cooking,1,,cooking
-chest_freezer,electricity,0.54,2.71,2050,linear,2010,cold,1,,cold
-fridge_freezer,electricity,0.48,2.71,2050,linear,2010,cold,1,NOTE: Check: 1.5,cold
-refrigerator,electricity,0.48,2.71,2050,linear,2010,cold,1,NOTE: Check: 1.5,cold
-upright_freezer,electricity,0.5,2.71,2050,linear,2010,cold,1,NOTE: Check: 1.5,cold
-boiler_solid_fuel,solid_fuel,0.6,0.7,2050,linear,2010,heating_const,1,,heating_const
-boiler_gas,gas,0.65,0.94,2050,linear,2010,heating_const,0.89,,heating_const
-boiler_electricity,electricity,0.99,0.99,2050,linear,2010,heating_const,1,,heating_const
-boiler_oil,oil,0.7,0.94,2050,linear,2010,heating_const,1,,heating_const
-boiler_biomass,biomass,0.6,0.95,2050,linear,2010,heating_const,1,,heating_const
-boiler_hydrogen,hydrogen,0.85,0.95,2050,linear,2010,heating_const,0.89,,heating_const
-boiler_condensing_gas,gas,0.85,0.95,2050,linear,2010,heating_const,1,,heating_const
-boiler_condensing_oil,oil,0.85,0.95,2050,linear,2010,heating_const,1,,heating_const
-stirling_micro_CHP_gas,gas,0.8,0.95,2050,linear,2010,tech_CHP,0.89,overall efficiency,tech_CHP
-fuel_cell_hydrogen,hydrogen,0.85,0.95,2050,linear,2010,tech_CHP,0.89,,tech_CHP
-storage_heater_electricity,electricity,0.99,0.99,2050,linear,2010,storage_heating_electricity,1,,storage_heating_electricity
-secondary_heater_electricity,electricity,0.99,0.99,2050,linear,2010,secondary_heating_electricity,1,,secondary_heating_electricity
-heat_pump_ASHP_electricity,electricity,3.6,4,2050,linear,2010,heating_non_const,1,,heating_non_const
-heat_pump_GSHP_electricity,electricity,4.9,5.4,2050,linear,2010,heating_non_const,1,,heating_non_const
-heat_pump_ASHP_hydrogen,hydrogen,3.6,4,2050,linear,2010,heating_non_const,0.89,,heating_non_const
-heat_pump_GSHP_hydrogen,hydrogen,4.9,5.4,2050,linear,2010,heating_non_const,0.89,,heating_non_const
-central_air_conditioner_electricity,electricity,0.5,1,2050,linear,2010,cooling_const,1,,cooling_const
-decentral_air_conditioner_electricity,electricity,0.5,1,2050,linear,2010,cooling_const,1,,cooling_const
-central_air_conditioner_oil,oil,0.5,0.5,2050,linear,2010,cooling_const,1,,cooling_const
-decentral_air_conditioner_oil,oil,0.5,0.5,2050,linear,2010,cooling_const,1,,cooling_const
-central_air_conditioner_gas,gas,0.5,0.5,2050,linear,2010,cooling_const,0.89,,cooling_const
-decentral_air_conditioner_gas,gas,0.5,0.5,2050,linear,2010,cooling_const,0.89,,cooling_const
-district_heating_CHP_gas,gas,0.45,0.45,2050,linear,2010,tech_CHP,0.2,thermal efficiency,tech_CHP
-district_heating_electricity,electricity,1,1,2050,linear,2010,tech_district_heating,0.2,,tech_district_heating
-district_heating_biomass,biomass,0.6,0.6,2050,linear,2010,tech_district_heating,0.2,,tech_district_heating
-district_heating_fuel_cell,hydrogen,0.85,0.85,2050,linear,2010,tech_district_heating,0.2,,tech_district_heating
-basic_oxygen_furnace,solid_fuel,1,1,2050,linear,2010,steel_production,1,,steel_production
-electric_arc_furnace,electricity,6.1,6.1,2050,linear,2010,steel_production,1,assumed no technology imporvement,steel_production
-SNG_furnace,gas,1,1,2050,linear,2020,steel_production,1,assumed no technology imporvement,steel_production
-biomass_furnace,biomass,1,1,2050,linear,2020,steel_production,1,assumed no technology imporvement,steel_production
-dry_kiln_coal,solid_fuel,1.8,1.8,2050,linear,2010,cement_production,1,assumed no technology imporvement,cement_production
-dry_kiln_oil,oil,1.8,1.8,2050,linear,2010,cement_production,1,assumed no technology imporvement,cement_production
-dry_kiln_gas,gas,1.8,1.8,2050,linear,2010,cement_production,1,assumed no technology imporvement,cement_production
-dry_kiln_electricity,electricity,1.8,1.8,2050,linear,2010,cement_production,1,assumed no technology imporvement,cement_production
-dry_kiln_biomass,biomass,1.8,1.8,2050,linear,2010,cement_production,1,assumed no technology imporvement,cement_production
-dry_kiln_hydrogen,hydrogen,1.8,1.8,2050,linear,2010,cement_production,1,assumed no technology imporvement,cement_production
-wet_kiln_coal,solid_fuel,1,1,2050,linear,2010,cement_production,1,assumed no technology imporvement,cement_production
-wet_kiln_oil,oil,1,1,2050,linear,2010,cement_production,1,assumed no technology imporvement,cement_production
-wet_kiln_gas,gas,1,1,2050,linear,2010,cement_production,1,assumed no technology imporvement,cement_production
-wet_kiln_electricity,electricity,1,1,2050,linear,2010,cement_production,1,assumed no technology imporvement,cement_production
+technology,fueltype,efficiency in base year,efficiency in future year,year when efficiency is fully realised,diffusion method (sigmoid or linear),market_entry,technology type,maximum theoretical service share of technology,description
+standard_lighting_bulb,electricity,0.029,0.034,2050,linear,2000,lighting,1,
+halogen,electricity,0.037,0.073,2050,linear,2000,lighting,1,
+energy_saving_lighting_bulb,electricity,0.220,0.293,2050,linear,2000,lighting,1,
+fluorescent_strip_lighting,electricity,0.146,0.220,2050,linear,2000,lighting,1,
+LED,electricity,0.220,0.439,2050,linear,2000,lighting,1,
+washing_machine,electricity,1.000,1.334,2050,linear,2000,wet,1,
+tumble_dryer,electricity,1.000,3.076,2050,linear,2000,wet,1,
+dishwasher,electricity,1.000,1.367,2050,linear,2000,wet,1,
+washer_dryer,electricity,1.000,1.334,2050,linear,2000,wet,1,
+hob_gas,gas,0.400,0.500,2050,linear,2000,cooking,1,
+hob_electricity,electricity,0.600,0.700,2050,linear,2000,cooking,1,
+hob_induction_electricity,electricity,0.750,0.900,2050,linear,2000,cooking,1,
+hob_hydrogen,hydrogen,0.400,0.500,2050,linear,2000,cooking,1,
+hob_biomass,biomass,0.400,0.500,2050,linear,2000,cooking,1,
+chest_freezer,electricity,1.000,2.709,2050,linear,2000,cold,1,
+fridge_freezer,electricity,1.000,2.405,2050,linear,2000,cold,1,
+refrigerator,electricity,1.000,2.408,2050,linear,2000,cold,1,
+upright_freezer,electricity,1.000,2.500,2050,linear,2000,cold,1,
+central_air_conditioner_electricity,electricity,1.000,2.000,2050,linear,2000,cooling_const,1,
+decentral_air_conditioner_electricity,electricity,1.000,2.000,2050,linear,2000,cooling_const,1,
+central_air_conditioner_oil,oil,1.000,2.000,2050,linear,2000,cooling_const,1,
+decentral_air_conditioner_oil,oil,1.000,2.000,2050,linear,2000,cooling_const,1,
+central_air_conditioner_gas,gas,1.000,2.000,2050,linear,2000,cooling_const,0.89,
+decentral_air_conditioner_gas,gas,1.000,2.000,2050,linear,2000,cooling_const,0.89,
+boiler_solid_fuel,solid_fuel,0.600,0.700,2050,linear,2000,heating_const,1,
+boiler_gas,gas,0.650,0.940,2050,linear,2000,heating_const,0.89,
+boiler_electricity,electricity,0.990,0.990,2050,linear,2000,heating_const,1,
+boiler_oil,oil,0.700,0.940,2050,linear,2000,heating_const,1,
+boiler_biomass,biomass,0.600,0.950,2050,linear,2000,heating_const,1,
+boiler_hydrogen,hydrogen,0.850,0.950,2050,linear,2000,heating_const,0.89,
+boiler_condensing_gas,gas,0.850,0.950,2050,linear,2000,heating_const,1,
+boiler_condensing_oil,oil,0.850,0.950,2050,linear,2000,heating_const,1,
+stirling_micro_CHP_gas,gas,0.800,0.950,2050,linear,2000,tech_CHP,0.89,
+fuel_cell_hydrogen,hydrogen,0.850,0.950,2050,linear,2000,tech_CHP,0.89,
+storage_heater_electricity,electricity,0.990,0.990,2050,linear,2000,storage_heating_electricity,1,
+secondary_heater_electricity,electricity,0.990,0.990,2050,linear,2000,secondary_heating_electricity,1,
+heat_pump_ASHP_electricity,electricity,3.600,4.000,2050,linear,2000,heating_non_const,1,
+heat_pump_GSHP_electricity,electricity,4.900,5.400,2050,linear,2000,heating_non_const,1,
+heat_pump_ASHP_hydrogen,hydrogen,3.600,4.000,2050,linear,2000,heating_non_const,0.89,
+heat_pump_GSHP_hydrogen,hydrogen,4.900,5.400,2050,linear,2000,heating_non_const,0.89,
+district_heating_CHP_gas,gas,0.450,0.450,2050,linear,2000,tech_CHP,0.2,thermal efficiency
+district_heating_electricity,electricity,1.000,1.000,2050,linear,2000,tech_district_heating,0.2,
+district_heating_biomass,biomass,0.600,0.600,2050,linear,2000,tech_district_heating,0.2,
+district_heating_fuel_cell,hydrogen,0.850,0.850,2050,linear,2000,tech_district_heating,0.2,
+basic_oxygen_furnace,solid_fuel,1,1,2050,linear,2010,steel_production,1,assumed no technology imporvement
+electric_arc_furnace,electricity,6.1,6.1,2050,linear,2010,steel_production,1,assumed no technology imporvement
+SNG_furnace,gas,1,1,2050,linear,2020,steel_production,1,assumed no technology imporvement
+biomass_furnace,biomass,1,1,2050,linear,2020,steel_production,1,assumed no technology imporvement
+dry_kiln_coal,solid_fuel,1.8,1.8,2050,linear,2010,cement_production,1,assumed no technology imporvement
+dry_kiln_oil,oil,1.8,1.8,2050,linear,2010,cement_production,1,assumed no technology imporvement
+dry_kiln_gas,gas,1.8,1.8,2050,linear,2010,cement_production,1,assumed no technology imporvement
+dry_kiln_electricity,electricity,1.8,1.8,2050,linear,2010,cement_production,1,assumed no technology imporvement
+dry_kiln_biomass,biomass,1.8,1.8,2050,linear,2010,cement_production,1,assumed no technology imporvement
+dry_kiln_hydrogen,hydrogen,1.8,1.8,2050,linear,2010,cement_production,1,assumed no technology imporvement
+wet_kiln_coal,solid_fuel,1,1,2050,linear,2010,cement_production,1,assumed no technology imporvement
+wet_kiln_oil,oil,1,1,2050,linear,2010,cement_production,1,assumed no technology imporvement
+wet_kiln_gas,gas,1,1,2050,linear,2010,cement_production,1,assumed no technology imporvement
+wet_kiln_electricity,electricity,1,1,2050,linear,2010,cement_production,1,assumed no technology imporvement

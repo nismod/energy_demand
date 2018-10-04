@@ -3,10 +3,9 @@
 import os
 import sys
 
-from energy_demand.result_processing import single_scenario
 from energy_demand.plotting import plots_paper_II
 
-def process_result_multi_scen(
+def paper_II_plots(
         path_to_folder_with_scenarios="C:/Users/cenv0553/ed/results/_multiple_TEST",
         path_shapefile_input="C:/Users/cenv0553/ED/data/region_definitions/lad_2016_uk_simplified.shp"
     ):
@@ -33,8 +32,10 @@ def process_result_multi_scen(
         # Plot spatial distribution of differences in
         # variability of demand by weather variability
         # normed by population
-        "plot_spatial_weather_var_peak": True
-        }
+        "plot_spatial_weather_var_peak": False,
+
+        # Plot scenario years sorted with weather variability
+        "plot_scenarios_sorted": True}
 
     # Get all folders with scenario run results (name of folder is scenario)
     scenarios = os.listdir(path_to_folder_with_scenarios)
@@ -56,4 +57,4 @@ def process_result_multi_scen(
 
 if __name__ == '__main__':
     # Map command line arguments to function arguments.
-    process_result_multi_scen(*sys.argv[1:])
+    paper_II_plots(*sys.argv[1:])

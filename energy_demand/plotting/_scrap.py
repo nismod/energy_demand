@@ -17,8 +17,14 @@ from energy_demand.plotting import basic_plot_functions
 from energy_demand.plotting import fig_p2_weather_var
 
 uk_gdf = pd.DataFrame(np.array(
-    [[-5, 1], [-3, 10], [0, 100], [3, 100], [5, 100]]),
-                      columns=['diff_av_max', 'b'])
+    [
+        [-5, 1],
+        [-3, 10],
+        [0, 100],
+        [3, 100],
+        [5, 100]]),
+
+    columns=['diff_av_max', 'b'])
 
 uk_gdf = fig_p2_weather_var.user_defined_bin_classification(
     uk_gdf,

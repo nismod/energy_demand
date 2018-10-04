@@ -15,6 +15,7 @@ from energy_demand.plotting import fig_spatial_local_regional
 from energy_demand.validation import elec_national_data
 from energy_demand.technologies import tech_related
 from energy_demand.plotting import fig_p2_weather_var
+from energy_demand.plotting import fig_p2_annual_hours_sorted
 
 def main(
         path_data_ed,
@@ -73,7 +74,7 @@ def main(
 
     population_data = read_data.read_scenaric_population_data(
         os.path.join(path_data_ed, 'model_run_pop'))
-
+    
     # ####################################################################
     # Create plot with regional and non-regional plots for second paper
     # Compare hdd calculations and disaggregation of regional and local
@@ -192,7 +193,7 @@ def main(
 
         # plot over period of time across all weather scenario
         fig_weather_variability_priod.run(
-            data_input=weather_yr_container['tot_fueltype_yh'], #[weather_yr],
+            data_input=weather_yr_container['tot_fueltype_yh'],
             fueltype_str='electricity',
             simulation_yr_to_plot=2015, # Simulation year to plot
             period_h=list(range(200,500)), #period to plot
@@ -213,3 +214,16 @@ def main(
             path_shapefile=path_shapefile_input,
             fig_name=os.path.join(path_out_plots, "fig_paper_IIb_weather_var_map.pdf"))
     
+    # ####################################################################
+    # Create plot with regional and non-regional plots for second paper
+    # Compare hdd calculations and disaggregation of regional and local
+    # ####################################################################
+    if plot_crit_dict['plot_scenarios_sorted']:
+
+        fig_p2_annual_hours_sorted.run(
+            data_input=weather_yr_container['results_enduse_every_year'],
+            regions=data['regions'],
+            simulation_yrs_to_plot=[2015], # Simulation year to plot
+            fueltype_str='electricity',
+            path_shapefile=path_shapefile_input,
+            fig_name=os.path.join(path_out_plots, "fig_paper_IIb_weather_var_map.pdf"))
