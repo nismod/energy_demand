@@ -3,13 +3,16 @@
 import logging
 import copy
 from collections import defaultdict
+import numpy as np
+
 from energy_demand.profiles import hdd_cdd
 from energy_demand.basic import testing_functions
 from energy_demand.basic import lookup_tables
 from energy_demand.read_write import data_loader
 from energy_demand.scripts import init_scripts
+from energy_demand.technologies import tech_related
 
-def disaggr_demand(data):
+def disaggr_demand(data, spatial_calibration=False):
     """Disaggregated demand
 
     Arguments
@@ -21,6 +24,9 @@ def disaggr_demand(data):
     --------
     disagg : dict
         Disaggregated energy demand
+    spatial_calibration : bool
+        Criteria wheter base year data should be used to
+        calibrate spatial disaggregation (non-residential demand)
     """
     disagg = {}
 
@@ -49,6 +55,105 @@ def disaggr_demand(data):
         data['sectors'],
         data['enduses'],
         data['service_building_count'])
+
+    if spatial_calibration:
+        '''The spatial disaggregation of non-residential demand
+        can be calibrated for gas and electricity based on actual
+        measured demand data
+
+        Note: All other fueltypes are not skaled
+        '''
+        validation_residential = True       # Calibrate residential demands
+        validation_non_residential = True   # Calibrate non residential demands
+
+        # Non-residential electricity regional demands of base year for electrictiy and gas
+        fueltype_elec = tech_related.get_fueltype_int('electricity')
+        fueltype_gas = tech_related.get_fueltype_int('gas')
+
+        if validation_non_residential:
+
+            valid_non_resid_elec = data_loader.read_national_real_elec_data(
+                data['paths']['val_subnational_elec_non_residential'])
+
+            valid_non_resid_gas= data_loader.read_national_real_elec_data(
+                data['paths']['val_subnational_gas_non_residential'])
+
+            # Calculate and apply regional calibration factor
+            for region in data['regions']:
+
+                # Total modeleld non_residential
+                service_demand_elec = 0
+                service_demand_gas = 0
+                for enduse_data in disagg['service'][region].values():
+                    for sector_data in enduse_data.values():
+                        service_demand_elec += np.sum(sector_data[fueltype_elec])
+                        service_demand_gas += np.sum(sector_data[fueltype_gas])
+
+                industry_demand_elec = 0
+                industry_demand_gas = 0
+                for enduse_data in disagg['industry'][region].values():
+                    for sector_data in enduse_data.values():
+                        industry_demand_elec += np.sum(sector_data[fueltype_elec])
+                        industry_demand_gas += np.sum(sector_data[fueltype_gas])
+
+                modelled_elec = service_demand_elec + industry_demand_elec
+                modelled_gas = service_demand_gas + industry_demand_gas
+
+                # Calculate calibration factor
+                try:
+                    real_elec = valid_non_resid_elec[region]
+                    f_spatial_calibration_elec = real_elec / modelled_elec
+                    real_gas = valid_non_resid_gas[region]
+                    f_spatial_calibration_gas = real_gas / modelled_gas
+                except KeyError:
+                    # No real data available
+                    f_spatial_calibration_elec = 1
+                    f_spatial_calibration_gas = 1
+
+                # Apply calibration factor to spatial disaggregation
+                for enduse in disagg['service'][region].keys():
+                    for sector in disagg['service'][region][enduse]:
+                        disagg['service'][region][enduse][sector][fueltype_elec] *= f_spatial_calibration_elec
+                        disagg['service'][region][enduse][sector][fueltype_gas] *= f_spatial_calibration_gas
+                for enduse in disagg['industry'][region].keys():
+                    for sector in disagg['industry'][region][enduse]:
+                        disagg['industry'][region][enduse][sector][fueltype_elec] *= f_spatial_calibration_elec
+                        disagg['industry'][region][enduse][sector][fueltype_gas] *= f_spatial_calibration_gas
+
+        if validation_residential:
+
+            valid_resid_elec = data_loader.read_national_real_elec_data(
+                data['paths']['val_subnational_elec_residential'])
+            valid_resid_gas = data_loader.read_national_real_elec_data(
+                data['paths']['val_subnational_gas_residential'])
+
+            # Calculate and apply regional calibration factor
+            for region in data['regions']:
+
+                # Total modeleld residential
+                modelled_elec = 0
+                modelled_gas = 0
+                for enduse_data in disagg['residential'][region].values():
+                    modelled_elec += np.sum(enduse_data[fueltype_elec])
+                    modelled_gas += np.sum(enduse_data[fueltype_gas])
+
+                # Calculate calibration factor
+                try:
+                    real_elec = valid_resid_elec[region]
+                    f_spatial_calibration_elec = real_elec / modelled_elec
+                    real_gas = valid_resid_gas[region]
+                    f_spatial_calibration_gas = real_gas / modelled_gas
+                except KeyError:
+                    # No real data available
+                    f_spatial_calibration_elec = 1
+                    f_spatial_calibration_gas = 1
+
+                # Apply calibration factor to spatial disaggregation
+                for enduse in disagg['residential'][region].keys():
+                    disagg['residential'][region][enduse][fueltype_elec] *= f_spatial_calibration_elec
+                    disagg['residential'][region][enduse][fueltype_gas] *= f_spatial_calibration_gas
+    else:
+        pass
 
     # Sum demand across all sectors for every region
     disagg['ss_fuel_disagg_sum_all_sectors'] = init_scripts.sum_across_sectors_all_regs(
@@ -493,7 +598,7 @@ def is_disaggregate(
     tot_pop = 0
     tot_pop_hdd = 0
     for region in regions:
-        tot_pop_hdd +=pop_for_disagg[assumptions.base_yr][region] * is_hdd_individ_region[region]
+        tot_pop_hdd += pop_for_disagg[assumptions.base_yr][region] * is_hdd_individ_region[region]
         tot_pop += pop_for_disagg[assumptions.base_yr][region]
 
     if not census_disagg:

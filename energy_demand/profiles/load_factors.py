@@ -121,12 +121,9 @@ def calc_lf_y(fuel_yh):
 
     Note
     -----
-        LECTRICAL AND PRODUCTION LOAD FACTORS
-        ## WRONG Load factor = average load / maximum load in given time period
-        Load factor = energy consumption (kWH) / peak demand (kW) * meausred hours
-        https://en.wikipedia.org/wiki/Load_factor_(electrical)
-
-        https://circuitglobe.com/load-factor.html
+    Load factor = average load / peak load
+    https://en.wikipedia.org/wiki/Load_factor_(electrical)
+    https://circuitglobe.com/load-factor.html
     """
     if fuel_yh.shape[1] == 365:
         fuel_yh_8760 = fuel_yh.reshape(fuel_yh.shape[0], 8760)
@@ -141,7 +138,8 @@ def calc_lf_y(fuel_yh):
 
     # Caclualte yearly load factor for every fueltype
     with np.errstate(divide='ignore', invalid='ignore'):
-        load_factor_y = tot_load_y / (max_load_h * 8760)
+        load_factor_y = (tot_load_y / 8760) / max_load_h
+
     load_factor_y[np.isnan(load_factor_y)] = 0
 
     return load_factor_y * 100

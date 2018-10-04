@@ -119,6 +119,7 @@ if __name__ == "__main__":
     data['criterias'] = {}
     data['criterias']['mode_constrained'] = True                    # True: Technologies are defined in ED model and fuel is provided, False: Heat is delievered not per technologies
     data['criterias']['virtual_building_stock_criteria'] = True     # True: Run virtual building stock model
+    data['criterias']['spatial_calibration'] = False
 
     fast_model_run = False
     if fast_model_run == True:
@@ -326,7 +327,8 @@ if __name__ == "__main__":
     # ------------------------------------------------------------
     # Disaggregate national energy demand to regional demands
     # ------------------------------------------------------------
-    data['fuel_disagg'] = s_disaggregation.disaggr_demand(data)
+    data['fuel_disagg'] = s_disaggregation.disaggr_demand(
+        data, spatial_calibration=data['criterias']['spatial_calibration'])
 
     # ------------------------------------------------------------
     # Calculate spatial diffusion factors

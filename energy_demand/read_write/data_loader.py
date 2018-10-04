@@ -306,7 +306,11 @@ def read_national_real_elec_data(path_to_csv):
         for row in rows:
             geocode = str.strip(row[read_data.get_position(headings, 'LA Code')])
             tot_consumption_unclean = row[read_data.get_position(headings, 'Total consumption')].strip()
-            national_fuel_data[geocode] = float(tot_consumption_unclean.replace(",", ""))
+            try:
+                national_fuel_data[geocode] = float(tot_consumption_unclean.replace(",", ""))
+            except:
+                # no data provided
+                logging.debug("No validation data available for region %s", geocode)
 
     return national_fuel_data
 
@@ -518,19 +522,15 @@ def get_local_paths(path):
         'lad_shapefile': os.path.join(
             path, '_raw_data', 'C_LAD_geography', 'same_as_pop_scenario', 'lad_2016_uk_simplified.shp'),
         'path_post_installation_data': os.path.join(
-            path, '_processed_data', '_post_installation_data'),
-        'data_processed_disaggregated': os.path.join(
-            path, '_processed_data', '_post_installation_data', 'disaggregated'),
+            path, '_processed_data'),
         'weather_data': os.path.join(
             path, '_raw_data', 'A-temperature_data', 'cleaned_weather_stations_data'),
         'load_profiles': os.path.join(
-            path, '_processed_data', '_post_installation_data', 'load_profiles'),
-        'dir_disaggregated': os.path.join(
-            path, '_processed_data', '_post_installation_data', 'disaggregated'),
+            path, '_processed_data', 'load_profiles'),
         'rs_load_profile_txt': os.path.join(
-            path, '_processed_data', '_post_installation_data', 'load_profiles', 'rs_submodel'),
+            path, '_processed_data', 'load_profiles', 'rs_submodel'),
         'ss_load_profile_txt': os.path.join(
-            path, '_processed_data', '_post_installation_data', 'load_profiles', 'ss_submodel'),
+            path, '_processed_data', 'load_profiles', 'ss_submodel'),
         'yaml_parameters': os.path.join(
             path, '..', 'config', 'yaml_parameters.yml'),
         'yaml_parameters_constrained': os.path.join(
@@ -630,23 +630,23 @@ def load_paths(path):
             path, '04-census_data', 'LAD_census_data.csv'),
 
         # Validation datasets
-        'path_val_subnational_elec': os.path.join(
+        'val_subnational_elec': os.path.join(
             path, '01-validation_datasets', '02_subnational_elec', 'data_2015_elec.csv'),
-        'path_val_subnational_elec_residential': os.path.join(
+        'val_subnational_elec_residential': os.path.join(
             path, '01-validation_datasets', '02_subnational_elec', 'data_2015_elec_domestic.csv'),
-        'path_val_subnational_elec_non_residential': os.path.join(
+        'val_subnational_elec_non_residential': os.path.join(
             path, '01-validation_datasets', '02_subnational_elec', 'data_2015_elec_non_domestic.csv'),
-        'path_val_subnational_elec_msoa_residential': os.path.join(
+        'val_subnational_elec_msoa_residential': os.path.join(
             path, '01-validation_datasets', '02_subnational_elec', 'MSOA_domestic_electricity_2015_cleaned.csv'),
-        'path_val_subnational_elec_msoa_non_residential': os.path.join(
+        'val_subnational_elec_msoa_non_residential': os.path.join(
             path, '01-validation_datasets', '02_subnational_elec', 'MSOA_non_dom_electricity_2015_cleaned.csv'),
-        'path_val_subnational_gas': os.path.join(
+        'val_subnational_gas': os.path.join(
             path, '01-validation_datasets', '03_subnational_gas', 'data_2015_gas.csv'),
-        'path_val_subnational_gas_residential': os.path.join(
+        'val_subnational_gas_residential': os.path.join(
             path, '01-validation_datasets', '03_subnational_gas', 'data_2015_gas_domestic.csv'),
-        'path_val_subnational_gas_non_residential': os.path.join(
+        'val_subnational_gas_non_residential': os.path.join(
             path, '01-validation_datasets', '03_subnational_gas', 'data_2015_gas_non_domestic.csv'),
-        'path_val_nat_elec_data': os.path.join(
+        'val_nat_elec_data': os.path.join(
             path, '01-validation_datasets', '01_national_elec_2015', 'elec_demand_2015.csv')}
 
     return paths

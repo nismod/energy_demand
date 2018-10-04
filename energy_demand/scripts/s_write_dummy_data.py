@@ -98,7 +98,6 @@ def post_install_setup_minimum(args):
     basic_functions.create_folder(local_paths['load_profiles'])
     basic_functions.create_folder(local_paths['rs_load_profile_txt'])
     basic_functions.create_folder(local_paths['ss_load_profile_txt'])
-    basic_functions.create_folder(local_paths['dir_disaggregated'])
 
     # Load data
     base_yr = 2015

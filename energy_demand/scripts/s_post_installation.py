@@ -70,8 +70,7 @@ def post_install_setup(args):
         data['local_paths']['path_post_installation_data'],
         data['local_paths']['load_profiles'],
         data['local_paths']['rs_load_profile_txt'],
-        data['local_paths']['ss_load_profile_txt'],
-        data['local_paths']['dir_disaggregated']]
+        data['local_paths']['ss_load_profile_txt']]
 
     for folder in folders_to_create:
         basic_functions.create_folder(folder)

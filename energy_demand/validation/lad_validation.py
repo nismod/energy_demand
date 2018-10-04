@@ -133,17 +133,17 @@ def spatial_validation_lad_level(
     # Spatial validation
     # -------------------------------------------
     subnational_elec = data_loader.read_national_real_elec_data(
-        paths['path_val_subnational_elec'])
+        paths['val_subnational_elec'])
     subnational_elec_residential = data_loader.read_national_real_elec_data(
-        paths['path_val_subnational_elec_residential'])
+        paths['val_subnational_elec_residential'])
     subnational_elec_non_residential = data_loader.read_national_real_elec_data(
-        paths['path_val_subnational_elec_non_residential'])
+        paths['val_subnational_elec_non_residential'])
     subnational_gas = data_loader.read_national_real_gas_data(
-        paths['path_val_subnational_gas'])
+        paths['val_subnational_gas'])
     subnational_gas_residential = data_loader.read_national_real_gas_data(
-        paths['path_val_subnational_gas_residential'])
+        paths['val_subnational_gas_residential'])
     subnational_gas_non_residential = data_loader.read_national_real_gas_data(
-        paths['path_val_subnational_gas_non_residential'])
+        paths['val_subnational_gas_non_residential'])
     logging.info("compare total II {}  {}".format(
         sum(subnational_gas.values()), sum(subnational_gas_residential.values())))
 
@@ -359,11 +359,11 @@ def temporal_validation_msoa_lad(
 
     # LAD level
     subnational_elec_lad = data_loader.read_national_real_elec_data(
-        paths['path_val_subnational_elec'])
+        paths['val_subnational_elec'])
 
     # MSOA level
     subnational_elec_msoa = data_loader.read_elec_data_msoa(
-        paths['path_val_subnational_msoa_elec'])
+        paths['val_subnational_msoa_elec'])
 
     # Create fueltype secific dict
     fuel_elec_regs_yh = {}
@@ -420,9 +420,9 @@ def spatio_temporal_val(
     # Spatial validation after calculations
     # -------------------------------------------
     subnational_elec = data_loader.read_national_real_elec_data(
-        paths['path_val_subnational_elec'])
+        paths['val_subnational_elec'])
     subnational_gas = data_loader.read_national_real_gas_data(
-        paths['path_val_subnational_gas'])
+        paths['val_subnational_gas'])
 
     # Create fueltype secific dict
     fuel_elec_regs_yh = {}
@@ -469,7 +469,7 @@ def spatio_temporal_val(
     # -------------------------------------------
     # Read validation data
     elec_2015_indo, elec_2015_itsdo = elec_national_data.read_raw_elec_2015(
-        paths['path_val_nat_elec_data'])
+        paths['val_nat_elec_data'])
 
     f_diff_elec = np.sum(ed_fueltype_national_yh[fueltypes['electricity']]) / np.sum(elec_2015_indo)
     #logging.debug("... ed diff modellend and real [p] %s: ", (1 - f_diff_elec) * 100)
