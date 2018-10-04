@@ -1,5 +1,5 @@
 """Function to generate plots based on simulation results stored in a folder
-5"""
+"""
 import os
 import sys
 
@@ -43,16 +43,18 @@ def process_result_multi_scen(
         "plot_radar": True,
         "plot_radar_seasonal": True,                      # Plot radar spider charts
         "plot_line_for_every_region_of_peak_demand": True,
-        "plot_lad_cross_graphs": True,
-        
-        "plot_weather_day_year": True   #plot for a period (e.g. day) the hourly profile of all weather plots
-        }
+        "plot_lad_cross_graphs": True}
 
     # Get all folders with scenario run results (name of folder is scenario)
     scenarios = os.listdir(path_to_folder_with_scenarios)
 
+    scenario_names_ignored = [
+        '__results_multiple_scenarios',
+        '_FigII_non_regional_2015',
+        '_results_PDF_figs']
+
     for scenario in scenarios:
-        if scenario == '__results_multiple_scenarios':
+        if scenario in scenario_names_ignored:
             pass
         else:
             single_scenario.main(
@@ -61,7 +63,6 @@ def process_result_multi_scen(
                 plot_crit_dict,
                 base_yr=base_yr,
                 comparison_year=comparison_year)
-
     return
 
 if __name__ == '__main__':

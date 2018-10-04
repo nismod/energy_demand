@@ -379,15 +379,19 @@ def demand_management(
     fuel_yh : array
         Fuel of yh
     """
-
+    '''if enduse == "ss_small_power" and curr_yr > 2015:
+        print("______fdf______")
+        print(strategy_vars['dm_improvement'][enduse][curr_yr])
+        raise Exception'''
     # Get assumed load shift
     if strategy_vars['dm_improvement'][enduse][curr_yr] == 0:
         pass # no load management
     else:
         
-        if enduse == "ss_small_power":
-            logging.info("____________")
-            logging.info(strategy_vars['dm_improvement'][enduse][curr_yr])
+        '''if enduse == "ss_small_power":
+            print("____________")
+            print(strategy_vars['dm_improvement'][enduse][curr_yr])
+            print(np.max(fuel_yh[2][10]))'''
 
         # Calculate average for every day
         if mode_constrained:
@@ -413,11 +417,10 @@ def demand_management(
             fuel_yh,
             mode_constrained)
 
-        if enduse == "ss_small_power":
-            logging.info(strategy_vars['dm_improvement'][enduse][curr_yr])
-            logging.info(fuel_yh[0])
-            logging.info(fuel_yh[0])
-            raise Exception #TODO TODO TODO TODO REMOVE
+        '''if enduse == "ss_small_power":
+            print(strategy_vars['dm_improvement'][enduse][curr_yr])
+            print(np.max(fuel_yh[2][10]))
+            raise Exception #TODO TODO TODO TODO REMOVE'''
 
     # -------------------------------------------------
     # Convert all load profiles into flat load profiles

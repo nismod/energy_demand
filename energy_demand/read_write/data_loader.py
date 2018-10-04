@@ -8,7 +8,7 @@ import ast
 from collections import defaultdict
 import numpy as np
 import pandas as pd
-import geopandas
+import geopandas as gpd
 from shapely.geometry import Point
 import matplotlib.pyplot as plt
 
@@ -22,7 +22,7 @@ def print_closest_and_region(stations_as_dict, region_to_plot, closest_region):
     """Function used to test if the closest weather region is assigned
     """
 
-    world = geopandas.read_file(geopandas.datasets.get_path('naturalearth_lowres'))
+    world = gpd.read_file(gpd.datasets.get_path('naturalearth_lowres'))
     ax = world[world.name == "United Kingdom"].plot(
         color='white', edgecolor='black')
 
@@ -30,28 +30,30 @@ def print_closest_and_region(stations_as_dict, region_to_plot, closest_region):
     df = pd.DataFrame.from_dict(stations_as_dict, orient='index')
     df['Coordinates'] = list(zip(df.longitude, df.latitude))
     df['Coordinates'] = df['Coordinates'].apply(Point)
-    gdf = geopandas.GeoDataFrame(df, geometry='Coordinates')
+    gdf = gpd.GeoDataFrame(df, geometry='Coordinates')
     gdf.plot(ax=ax, color='blue')
 
     # Plot region coordinate
     df2 = pd.DataFrame.from_dict(region_to_plot, orient='index')
     df2['Coordinates'] = list(zip(df2.longitude, df2.latitude))
     df2['Coordinates'] = df2['Coordinates'].apply(Point)
-    gdf_region = geopandas.GeoDataFrame(df2, geometry='Coordinates')
+    gdf_region = gpd.GeoDataFrame(df2, geometry='Coordinates')
     gdf_region.plot(ax=ax, color='red')
 
     # PLot closest weather station
     df3 = pd.DataFrame.from_dict(closest_region, orient='index')
     df3['Coordinates'] = list(zip(df3.longitude, df3.latitude))
     df3['Coordinates'] = df3['Coordinates'].apply(Point)
-    gdf_closest = geopandas.GeoDataFrame(df3, geometry='Coordinates')
+    gdf_closest = gpd.GeoDataFrame(df3, geometry='Coordinates')
     gdf_closest.plot(ax=ax, color='green')
 
     plt.legend()
 
-    plt.show()
-
-def create_panda_map(stations_as_dict, fig_path, path_shapefile=False):
+def create_weather_station_map(
+        stations_as_dict,
+        fig_path,
+        path_shapefile=False
+    ):
     """Plot the spatial disribution of the weather stations
 
     https://geopandas.readthedocs.io/en/latest/gallery/create_geopandas_from_pandas.html
@@ -68,16 +70,16 @@ def create_panda_map(stations_as_dict, fig_path, path_shapefile=False):
     df['Coordinates'] = df['Coordinates'].apply(Point)
 
     if path_shapefile is False:
-        world = geopandas.read_file(geopandas.datasets.get_path('naturalearth_lowres'))
+        world = gpd.read_file(gpd.datasets.get_path('naturalearth_lowres'))
         ax = world[world.name == "United Kingdom"].plot(
             color='white', edgecolor='black')
     else:
         # Load uk shapefile
-        uk_shapefile = geopandas.read_file(path_shapefile)
+        uk_shapefile = gpd.read_file(path_shapefile)
 
         # Assign correct projection
         crs = {'init': 'epsg:27700'} #27700 == OSGB_1936_British_National_Grid
-        uk_gdf = geopandas.GeoDataFrame(uk_shapefile, crs=crs)
+        uk_gdf = gpd.GeoDataFrame(uk_shapefile, crs=crs)
 
         # Transform
         uk_gdf = uk_gdf.to_crs({'init' :'epsg:4326'})
@@ -87,7 +89,7 @@ def create_panda_map(stations_as_dict, fig_path, path_shapefile=False):
 
     # print coordinates
     crs = {'init': 'epsg:4326'}
-    gdf = geopandas.GeoDataFrame(df, geometry='Coordinates') # crs=crs,
+    gdf = gpd.GeoDataFrame(df, geometry='Coordinates') # crs=crs,
     gdf.plot(ax=ax, color='red')
 
     plt.savefig(fig_path)
@@ -304,7 +306,11 @@ def read_national_real_elec_data(path_to_csv):
         for row in rows:
             geocode = str.strip(row[read_data.get_position(headings, 'LA Code')])
             tot_consumption_unclean = row[read_data.get_position(headings, 'Total consumption')].strip()
-            national_fuel_data[geocode] = float(tot_consumption_unclean.replace(",", ""))
+            try:
+                national_fuel_data[geocode] = float(tot_consumption_unclean.replace(",", ""))
+            except:
+                # no data provided
+                logging.debug("No validation data available for region %s", geocode)
 
     return national_fuel_data
 
@@ -516,19 +522,15 @@ def get_local_paths(path):
         'lad_shapefile': os.path.join(
             path, '_raw_data', 'C_LAD_geography', 'same_as_pop_scenario', 'lad_2016_uk_simplified.shp'),
         'path_post_installation_data': os.path.join(
-            path, '_processed_data', '_post_installation_data'),
-        'data_processed_disaggregated': os.path.join(
-            path, '_processed_data', '_post_installation_data', 'disaggregated'),
+            path, '_processed_data'),
         'weather_data': os.path.join(
             path, '_raw_data', 'A-temperature_data', 'cleaned_weather_stations_data'),
         'load_profiles': os.path.join(
-            path, '_processed_data', '_post_installation_data', 'load_profiles'),
-        'dir_disaggregated': os.path.join(
-            path, '_processed_data', '_post_installation_data', 'disaggregated'),
+            path, '_processed_data', 'load_profiles'),
         'rs_load_profile_txt': os.path.join(
-            path, '_processed_data', '_post_installation_data', 'load_profiles', 'rs_submodel'),
+            path, '_processed_data', 'load_profiles', 'rs_submodel'),
         'ss_load_profile_txt': os.path.join(
-            path, '_processed_data', '_post_installation_data', 'load_profiles', 'ss_submodel'),
+            path, '_processed_data', 'load_profiles', 'ss_submodel'),
         'yaml_parameters': os.path.join(
             path, '..', 'config', 'yaml_parameters.yml'),
         'yaml_parameters_constrained': os.path.join(
@@ -628,23 +630,23 @@ def load_paths(path):
             path, '04-census_data', 'LAD_census_data.csv'),
 
         # Validation datasets
-        'path_val_subnational_elec': os.path.join(
+        'val_subnational_elec': os.path.join(
             path, '01-validation_datasets', '02_subnational_elec', 'data_2015_elec.csv'),
-        'path_val_subnational_elec_residential': os.path.join(
+        'val_subnational_elec_residential': os.path.join(
             path, '01-validation_datasets', '02_subnational_elec', 'data_2015_elec_domestic.csv'),
-        'path_val_subnational_elec_non_residential': os.path.join(
+        'val_subnational_elec_non_residential': os.path.join(
             path, '01-validation_datasets', '02_subnational_elec', 'data_2015_elec_non_domestic.csv'),
-        'path_val_subnational_elec_msoa_residential': os.path.join(
+        'val_subnational_elec_msoa_residential': os.path.join(
             path, '01-validation_datasets', '02_subnational_elec', 'MSOA_domestic_electricity_2015_cleaned.csv'),
-        'path_val_subnational_elec_msoa_non_residential': os.path.join(
+        'val_subnational_elec_msoa_non_residential': os.path.join(
             path, '01-validation_datasets', '02_subnational_elec', 'MSOA_non_dom_electricity_2015_cleaned.csv'),
-        'path_val_subnational_gas': os.path.join(
+        'val_subnational_gas': os.path.join(
             path, '01-validation_datasets', '03_subnational_gas', 'data_2015_gas.csv'),
-        'path_val_subnational_gas_residential': os.path.join(
+        'val_subnational_gas_residential': os.path.join(
             path, '01-validation_datasets', '03_subnational_gas', 'data_2015_gas_domestic.csv'),
-        'path_val_subnational_gas_non_residential': os.path.join(
+        'val_subnational_gas_non_residential': os.path.join(
             path, '01-validation_datasets', '03_subnational_gas', 'data_2015_gas_non_domestic.csv'),
-        'path_val_nat_elec_data': os.path.join(
+        'val_nat_elec_data': os.path.join(
             path, '01-validation_datasets', '01_national_elec_2015', 'elec_demand_2015.csv')}
 
     return paths
@@ -935,7 +937,7 @@ def load_temp_data(local_paths, weather_yrs_scenario, save_fig=False):
         if not save_fig:
             pass
         else:
-            create_panda_map(
+            create_weather_station_map(
                 weather_stations_with_data[year],
                 os.path.join(save_fig, 'weather_station_distribution_{}.pdf'.format(year)),
                 path_shapefile=local_paths['lad_shapefile'])

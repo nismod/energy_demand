@@ -58,8 +58,6 @@ def temporal_validation(
         result_paths,
         ed_fueltype_yh,
         elec_factored_yh,
-        elec_2015_indo,
-        elec_2015_itsdo,
         plot_criteria
     ):
     """National hourly electricity data is validated with
@@ -75,8 +73,6 @@ def temporal_validation(
         Paths
     ed_fueltype_yh : array
         Fuel type specific yh energy demand
-    elec_2015_indo
-    elec_2015_itsdo
     plot_criteria : bool
         Criteria to show plots or not
     """
@@ -87,8 +83,6 @@ def temporal_validation(
     elec_national_data.compare_results(
         'validation_temporal_electricity_8760h.pdf',
         result_paths['data_results_validation'],
-        elec_2015_indo,
-        elec_2015_itsdo,
         elec_factored_yh,
         ed_fueltype_yh,
         'all_submodels',
@@ -109,8 +103,6 @@ def temporal_validation(
     elec_national_data.compare_results(
         'validation_temporal_electricity_weeks_selection.pdf',
         result_paths['data_results_validation'],
-        elec_2015_indo,
-        elec_2015_itsdo,
         elec_factored_yh,
         ed_fueltype_yh,
         'all_submodels',
@@ -141,17 +133,17 @@ def spatial_validation_lad_level(
     # Spatial validation
     # -------------------------------------------
     subnational_elec = data_loader.read_national_real_elec_data(
-        paths['path_val_subnational_elec'])
+        paths['val_subnational_elec'])
     subnational_elec_residential = data_loader.read_national_real_elec_data(
-        paths['path_val_subnational_elec_residential'])
+        paths['val_subnational_elec_residential'])
     subnational_elec_non_residential = data_loader.read_national_real_elec_data(
-        paths['path_val_subnational_elec_non_residential'])
+        paths['val_subnational_elec_non_residential'])
     subnational_gas = data_loader.read_national_real_gas_data(
-        paths['path_val_subnational_gas'])
+        paths['val_subnational_gas'])
     subnational_gas_residential = data_loader.read_national_real_gas_data(
-        paths['path_val_subnational_gas_residential'])
+        paths['val_subnational_gas_residential'])
     subnational_gas_non_residential = data_loader.read_national_real_gas_data(
-        paths['path_val_subnational_gas_non_residential'])
+        paths['val_subnational_gas_non_residential'])
     logging.info("compare total II {}  {}".format(
         sum(subnational_gas.values()), sum(subnational_gas_residential.values())))
 
@@ -367,11 +359,11 @@ def temporal_validation_msoa_lad(
 
     # LAD level
     subnational_elec_lad = data_loader.read_national_real_elec_data(
-        paths['path_val_subnational_elec'])
+        paths['val_subnational_elec'])
 
     # MSOA level
     subnational_elec_msoa = data_loader.read_elec_data_msoa(
-        paths['path_val_subnational_msoa_elec'])
+        paths['val_subnational_msoa_elec'])
 
     # Create fueltype secific dict
     fuel_elec_regs_yh = {}
@@ -403,7 +395,7 @@ def temporal_validation_msoa_lad(
 
     return
 
-def temporal_validation_lad(
+def spatio_temporal_val(
         ed_fueltype_national_yh,
         ed_fueltype_regs_yh,
         fueltypes,
@@ -415,9 +407,7 @@ def temporal_validation_lad(
         model_yeardays_daytype,
         plot_crit
     ):
-    """Validate national hourly demand for yearls fuel
-    for all LADs. Test how the national disaggregation
-    works.
+    """Validate spatial and temporal energy demands
 
     Info
     -----
@@ -430,9 +420,9 @@ def temporal_validation_lad(
     # Spatial validation after calculations
     # -------------------------------------------
     subnational_elec = data_loader.read_national_real_elec_data(
-        paths['path_val_subnational_elec'])
+        paths['val_subnational_elec'])
     subnational_gas = data_loader.read_national_real_gas_data(
-        paths['path_val_subnational_gas'])
+        paths['val_subnational_gas'])
 
     # Create fueltype secific dict
     fuel_elec_regs_yh = {}
@@ -479,16 +469,10 @@ def temporal_validation_lad(
     # -------------------------------------------
     # Read validation data
     elec_2015_indo, elec_2015_itsdo = elec_national_data.read_raw_elec_2015(
-        paths['path_val_nat_elec_data'])
-
-    #print(np.max(elec_2015_indo))
-    #print(np.max(elec_2015_itsdo))
-    #print(np.sum(elec_2015_indo))
-    #print(np.sum(elec_2015_itsdo))
+        paths['val_nat_elec_data'])
 
     f_diff_elec = np.sum(ed_fueltype_national_yh[fueltypes['electricity']]) / np.sum(elec_2015_indo)
-    logging.info(
-        "... ed diff modellend and real [p] %s: ", (1 - f_diff_elec) * 100)
+    #logging.debug("... ed diff modellend and real [p] %s: ", (1 - f_diff_elec) * 100)
 
     elec_factored_yh = f_diff_elec * elec_2015_indo
 
@@ -496,8 +480,6 @@ def temporal_validation_lad(
         result_paths,
         ed_fueltype_national_yh[fueltypes['electricity']],
         elec_factored_yh,
-        elec_2015_indo,
-        elec_2015_itsdo,
         plot_crit)
 
     # ---------------------------------------------------

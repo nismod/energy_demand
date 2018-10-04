@@ -17,6 +17,35 @@ from energy_demand.technologies import tech_related
 from energy_demand.read_write import write_data
 #matplotlib.use('Agg') # Used to make it work in linux
 
+def get_reasonable_bin_values_II(
+        data_to_plot,
+        nr_of_intervals
+    ):
+    """Get reasonable bins for 0....max value
+    """
+    def round_down(num, divisor):
+        return num - (num%divisor)
+
+    max_val = float(max(data_to_plot))
+    min_val = float(min(data_to_plot))
+
+    bin_width = max_val / nr_of_intervals
+
+    '''if len(str(bin_width)) > 4:
+        bin_width = round_down(bin_width, divisor=1000)
+    elif len(str(bin_width)) > 3:
+        bin_width = round_down(bin_width, divisor=100)
+    elif len(str(bin_width)) > 2:
+        bin_width = round_down(bin_width, divisor=10)
+    elif len(str(bin_width)) > 1:
+        bin_width = round_down(bin_width, divisor=1)
+    else:
+        pass'''
+
+    bins = [bin_width * i for i in range(nr_of_intervals)]
+
+    return bins
+
 def get_reasonable_bin_values(
         data_to_plot,
         increments=10
@@ -49,8 +78,6 @@ def get_reasonable_bin_values(
             min_class = increments
 
         # Bin with classes
-        #logging.info("vv {}  {}".format(max_val, min_val))
-        #logging.info("pos {}  {} {}".format(min_class, max_class, increments))
         bins = list(range(int(min_class), int(max_class), int(increments)))
     else:
         logging.info("Neg")
@@ -148,18 +175,9 @@ def user_defined_classification(
 
     # Shorten color list
     if min(bins) > 0:
-        #bins.append(999)
-        #color_list = color_list[:len(bins)]
         color_list = color_list[:len(bins)+1]
     else:
         color_list = color_list
-
-
-    logging.info(" ")
-    logging.info("BEFORE RECLASSIFICAOTN")
-    logging.info("---")
-    logging.info(bins)
-    logging.info(color_list)
 
     # ------------------------------------------------------
     # Reclassify
@@ -175,7 +193,8 @@ def user_defined_classification(
     # ------------------------------------------------------
     # Legend and legend labels
     # ------------------------------------------------------
-    logging.info("bins fff")
+    legend_handles = get_legend_handles(bins, color_list, color_zero, min_value, max_value)
+    '''logging.info("bins fff")
     logging.info(bins)
     logging.info(color_list)
 
@@ -233,6 +252,7 @@ def user_defined_classification(
             label=str(label_patch))
 
         legend_handles.append(patch)
+    '''
 
     plt.legend(
         handles=legend_handles,
@@ -243,6 +263,70 @@ def user_defined_classification(
         frameon=False)
 
     return reclass_lad_geopanda_shp, cmap
+
+def get_legend_handles(bins, color_list, color_zero, min_value, max_value):
+    """
+    """
+    print("bins fff")
+    print(bins)
+    print(color_list)
+
+    legend_handles = []
+    small_number = 0.01 # Small number for plotting corrrect charts
+
+    if max(bins) >= 0:
+        bins.append(999) # Append dummy last element for last class
+    else:
+        pass
+
+    for bin_nr, bin_entry in enumerate(bins):
+        if bin_nr == 0: #first bin entry
+
+            if bin_entry < 0:
+                label_patch = "> {} (min {})".format(bin_entry, min_value)
+
+                if min_value > bin_entry:
+                    print("Classification boundry is not clever for low values")
+            else:
+                label_patch = "< {} (min {})".format(bin_entry, min_value)
+        elif bin_nr == len(bins)- 1: # -1 means that last bin entry
+            ###label_patch = "> {} (max {})".format(bins[-2], max_value)
+            label_patch = "> {} (max {})".format(bins[-2], max_value)
+
+            if max_value < bin_entry:
+                print("Classification boundry is not clever for low values")
+        else:
+            # ----------------------------
+            # Add zero label if it exists
+            # ----------------------------
+            if bins[bin_nr - 1] == 0:
+                patch = mpatches.Patch(
+                    color=color_zero,
+                    label=str("0"))
+                legend_handles.append(patch)
+            else:
+                pass
+
+            # ----------------------------
+            # Other other labels
+            # ----------------------------
+            if bin_entry < 0:
+                label_patch = "{}  ―  {}".format(bins[bin_nr - 1], bin_entry - small_number)
+            else:
+                if bins[bin_nr - 1] == 0:
+                    label_patch = "{}  ―  {}".format(bins[bin_nr - 1] + small_number, bin_entry - small_number)
+                else:
+                    label_patch = "{}  ―  {}".format(bins[bin_nr - 1], bin_entry - small_number)
+
+        logging.info("------label_patch: {}  {}  {}  {}".format(label_patch, bin_entry, bins, color_list))
+
+        patch = mpatches.Patch(
+            color=color_list[bin_nr],
+            label=str(label_patch))
+
+        legend_handles.append(patch)
+
+    return legend_handles
 
 def bin_mapping(
         value_to_classify,
@@ -330,9 +414,6 @@ def re_classification(
     color_list_copy = copy.copy(color_list)
     bin_labels_copy = copy.copy(bin_labels)
 
-    #logging.info("KUH " + str(color_zero))
-    #logging.info(color_list_copy)
-    #logging.info(bin_labels_copy)
     # Add zero color in color list if a min_plus map
     if color_zero != False:
         insert_pos = 1
@@ -342,17 +423,11 @@ def re_classification(
         bin_labels_copy.insert(insert_pos, float(placeholder_zero_color))
     else:
         pass
-    #logging.info("KUH 2")
-    #logging.info(color_list_copy)
-    #logging.info(bin_labels_copy)
 
     # Create the custom color map
     color_bin_match_list = []
     for lbl, color in zip(bin_labels_copy, color_list_copy):
         color_bin_match_list.append((lbl, color))
-    ##logging.info("color_bin_match_list: " + str(color_bin_match_list))
-    ##logging.info(bins)
-    ##logging.info(bin_labels_copy)
 
     if 0 in bins:
         pass
@@ -366,7 +441,6 @@ def re_classification(
         color_bin_match_list)
 
     #logging.info("cmap " + str(cmap))
-
     # Reclassify
     lad_geopanda_shp['reclassified'] = lad_geopanda_shp[field_to_plot].apply(
         func=bin_mapping,
@@ -474,7 +548,6 @@ def plot_lad_national(
     # Own classification (work around)
     # -----------------------------
     if user_classification:
-        logging.info("User classification")
 
         # Color to assing zero values
         placeholder_zero_color = 0.00001
@@ -487,7 +560,6 @@ def plot_lad_national(
         # Add maximum value
         logging.info(" {} {}".format(min_value, max_value))
         logging.info("FINAL BIN before" + str(bins))
-        ###bins.append(max_value)
 
         ###logging.info("FINAL BIN " + str(bins))
         lad_geopanda_shp_reclass, cmap = user_defined_classification(
@@ -717,7 +789,7 @@ def plot_spatial_mapping_example(
 
     return
 
-def create_geopanda_files(
+def spatial_maps(
         data,
         results_container,
         path_data_results_shapefiles,
@@ -728,7 +800,7 @@ def create_geopanda_files(
         plot_crit_dict,
         base_yr
     ):
-    """Create map related files (png) from results.
+    """Create map related files from results
 
     Arguments
     ---------
@@ -743,7 +815,6 @@ def create_geopanda_files(
     """
     logging.info("... create spatial maps of results")
 
-    #base_yr = 2015
     # --------
     # Read LAD shapefile and create geopanda
     # --------
@@ -765,7 +836,6 @@ def create_geopanda_files(
 
                 # Calculate peak h across all regions
                 field_name = 'peak_abs_h_{}_{}'.format(year, fueltype_str)
-
 
                 # Get maxium demand of 8760h for every region
                 h_max_gwh_regs = np.max(results_container['results_every_year'][year][fueltype], axis=1)
@@ -866,7 +936,6 @@ def create_geopanda_files(
                         color_zero='#ffffff',
                         color_palette='YlGnBu_7') #YlGnBu_9 #8a2be2 'PuBu_8'
    
-                    # Plot
                     plot_lad_national(
                         lad_geopanda_shp=lad_geopanda_shp,
                         legend_unit="GWh",
@@ -1257,7 +1326,7 @@ def colors_plus_minus_map(
             nr_of_cat_pos = int(len(bins))
             for i in range(nr_of_cat_pos + 1): #add one to get class up to zero
                 color_list.append(color_list_neg[i])
-            
+
             color_list.insert(0, color_zero) # Add 0 color
         else:
             nr_of_cat_neg = 0
@@ -1270,7 +1339,7 @@ def colors_plus_minus_map(
                     nr_of_cat_pos += 1
                 else:
                     pass
-    
+
             for i in range(nr_of_cat_neg + 1): #add one to get class before first bin
                 color_list.append(color_list_neg[i])
 

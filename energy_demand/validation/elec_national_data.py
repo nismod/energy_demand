@@ -94,8 +94,6 @@ def read_raw_elec_2015(path_to_csv, year=2015):
 def compare_results(
         name_fig,
         path_result,
-        y_real_array_indo,
-        y_real_array_itsdo,
         y_factored_indo,
         y_calculated_array,
         title_left,
@@ -196,7 +194,6 @@ def compare_results(
         fillstyle='full',
         color='blue')
 
-    #plt.grid(True)
     plt.xlim([0, 8760])
     plt.margins(x=0)
     plt.axis('tight')
