@@ -72,10 +72,10 @@ def disaggr_demand(data, spatial_calibration=False):
 
         if validation_non_residential:
 
-            valid_non_resid_elec = data_loader.read_national_real_elec_data(
+            valid_non_resid_elec = data_loader.read_lad_demands(
                 data['paths']['val_subnational_elec_non_residential'])
 
-            valid_non_resid_gas= data_loader.read_national_real_elec_data(
+            valid_non_resid_gas = data_loader.read_lad_demands(
                 data['paths']['val_subnational_gas_non_residential'])
 
             # Calculate and apply regional calibration factor
@@ -101,13 +101,13 @@ def disaggr_demand(data, spatial_calibration=False):
 
                 # Calculate calibration factor
                 try:
-                    real_elec = valid_non_resid_elec[region]
-                    f_spatial_calibration_elec = real_elec / modelled_elec
-                    real_gas = valid_non_resid_gas[region]
-                    f_spatial_calibration_gas = real_gas / modelled_gas
-                except KeyError:
-                    # No real data available
+                    f_spatial_calibration_elec = valid_non_resid_elec[region] / modelled_elec
+                except KeyError: # No real data available
                     f_spatial_calibration_elec = 1
+
+                try:
+                    f_spatial_calibration_gas = valid_non_resid_gas[region] / modelled_gas
+                except KeyError: # No real data available
                     f_spatial_calibration_gas = 1
 
                 # Apply calibration factor to spatial disaggregation
@@ -122,9 +122,9 @@ def disaggr_demand(data, spatial_calibration=False):
 
         if validation_residential:
 
-            valid_resid_elec = data_loader.read_national_real_elec_data(
+            valid_resid_elec = data_loader.read_lad_demands(
                 data['paths']['val_subnational_elec_residential'])
-            valid_resid_gas = data_loader.read_national_real_elec_data(
+            valid_resid_gas = data_loader.read_lad_demands(
                 data['paths']['val_subnational_gas_residential'])
 
             # Calculate and apply regional calibration factor
@@ -166,9 +166,7 @@ def disaggr_demand(data, spatial_calibration=False):
     disagg['tot_disaggregated_regs'] = init_scripts.sum_across_all_submodels_regs(
         data['lookups']['fueltypes_nr'],
         data['regions'],
-        [disagg['residential'],
-        disagg['service'],
-        disagg['industry']])
+        [disagg['residential'], disagg['service'], disagg['industry']])
 
     disagg['tot_disaggregated_regs_residenital'] = init_scripts.sum_across_all_submodels_regs(
         data['lookups']['fueltypes_nr'],
@@ -295,7 +293,7 @@ def disaggregate_base_demand(
         pop_for_disagg,
         census_disagg=census_disagg)
 
-    logging.info("Finished disaggregation")
+    logging.debug("Finished disaggregation")
     return dict(rs_fuel_disagg), dict(ss_fuel_disagg), dict(is_fuel_disagg)
 
 def ss_disaggregate(
@@ -421,14 +419,6 @@ def ss_disaggr(
     """Disaggregating
     """
     ss_fuel_disagg = {}
-
-    # Total floor area for every enduse per sector
-    '''national_floorarea_by_sector = {}
-    for sector in sectors:
-        national_floorarea_by_sector[sector] = 0
-        for region in regions:
-            national_floorarea_by_sector[sector] += scenario_data['floor_area']['ss_floorarea'][base_yr][region][sector]'''
-
     tot_pop = 0
     tot_cdd = 0
     tot_hdd = 0
@@ -455,7 +445,6 @@ def ss_disaggr(
     for region in all_regions:
         reg_hdd = ss_hdd_individ_region[region]
         reg_cdd = ss_cdd_individ_region[region]
-        #reg_pop = scenario_data['population'][base_yr][region]
         reg_pop = pop_for_disagg[base_yr][region]
         tot_pop += reg_pop
         tot_cdd += reg_cdd
@@ -491,7 +480,6 @@ def ss_disaggr(
         # Regional factors
         reg_hdd = ss_hdd_individ_region[region]
         reg_cdd = ss_cdd_individ_region[region]
-        #reg_pop = scenario_data['population'][base_yr][region]
         reg_pop = pop_for_disagg[base_yr][region]
         p_pop = reg_pop / tot_pop
 
@@ -590,7 +578,6 @@ def is_disaggregate(
         temp_data=temp_data,
         reg_coord=reg_coord,
         weather_stations=weather_stations)
-    logging.debug("... disaggregate industry demand")
 
     is_fuel_disagg = {}
 
@@ -691,11 +678,8 @@ def is_disaggregate(
         # --------------------------------------------------
         for region in regions:
             is_fuel_disagg[region] = {}
-
-            #reg_pop = scenario_data['population'][assumptions.base_yr][region]
             reg_pop = pop_for_disagg[assumptions.base_yr][region]
 
-            # Iterate sector
             for enduse in enduses:
                 is_fuel_disagg[region][enduse] = {}
 
@@ -839,9 +823,7 @@ def rs_disaggregate(
         crit_full_disagg=crit_full_disagg)
     rs_fuel_disagg.update(rs_fuel_disagg_full_data)
 
-    # -----------------
     # Check if total fuel is the same before and after aggregation
-    #------------------ 
     testing_functions.control_disaggregation(
         rs_fuel_disagg, rs_national_fuel, enduses)
 
@@ -872,7 +854,6 @@ def rs_disaggr(
     for region in all_regions:
         reg_hdd = rs_hdd_individ_region[region]
         reg_floor_area = scenario_data['floor_area']['rs_floorarea'][base_yr][region]
-        #reg_pop = scenario_data['population'][base_yr][region]
         reg_pop = pop_for_disagg[base_yr][region]
 
         # National dissagregation factors
@@ -889,7 +870,6 @@ def rs_disaggr(
         reg_hdd = rs_hdd_individ_region[region]
         reg_floor_area = scenario_data['floor_area']['rs_floorarea'][base_yr][region]
         reg_hdd_floor_area = reg_hdd * reg_floor_area
-        #reg_pop = scenario_data['population'][base_yr][region]
         reg_pop = pop_for_disagg[base_yr][region]
         reg_pop_hdd = reg_pop * reg_hdd
 

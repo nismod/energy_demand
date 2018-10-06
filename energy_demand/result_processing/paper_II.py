@@ -3,10 +3,10 @@
 import os
 import sys
 
-from energy_demand.plotting import plots_paper_II
+from energy_demand.plotting import figs_p2
 
 def paper_II_plots(
-        path_to_folder_with_scenarios="C:/Users/cenv0553/ed/results/_multiple_TEST",
+        path_to_folder_with_scenarios="C:/Users/cenv0553/ed/results/_multiple_TEST_two_scenarios",
         path_shapefile_input="C:/Users/cenv0553/ED/data/region_definitions/lad_2016_uk_simplified.shp"
     ):
     """Iterate the folders with scenario
@@ -49,10 +49,39 @@ def paper_II_plots(
         if scenario in scenario_names_ignored:
             pass
         else:
-            plots_paper_II.main(
+
+            # -----------
+            # plot where spatio-temporal comparison between national and regional
+            # -----------
+            path_regional_calculations = "C:/Users/cenv0553/ed/results/_for_FIG2a/_regional_calculations"
+            path_rolling_elec_demand = os.path.join(
+                "C:/Users/cenv0553/ed/energy_demand/energy_demand/config_data",
+                '01-validation_datasets', '01_national_elec_2015', 'elec_demand_2015.csv')
+            path_temporal_elec_validation = os.path.join(
+                "C:/Users/cenv0553/ed/energy_demand/energy_demand/config_data",
+                '01-validation_datasets', '02_subnational_elec', 'data_2015_elec_domestic.csv')
+            path_temporal_gas_validation = os.path.join(
+                "C:/Users/cenv0553/ed/energy_demand/energy_demand/config_data",
+                '01-validation_datasets', '03_subnational_gas', 'data_2015_gas_domestic.csv')
+            path_non_regional_elec_2015 = os.path.abspath(
+                os.path.join(path_regional_calculations, '..', "_non_regional_calculations_2015"))
+    
+            # Plot figure national an regional validation comparison
+            figs_p2.plot_fig_spatio_temporal_validation(
+                path_regional_calculations=path_regional_calculations,
+                path_rolling_elec_demand=path_rolling_elec_demand,
+                path_temporal_elec_validation=path_temporal_elec_validation,
+                path_temporal_gas_validation=path_temporal_gas_validation,
+                path_non_regional_elec_2015=path_non_regional_elec_2015)
+
+            # -----------
+            # Other plots
+            # -----------
+            figs_p2.main(
                 os.path.join(path_to_folder_with_scenarios, scenario),
                 path_shapefile_input,
                 plot_crit_dict)
+
     return
 
 if __name__ == '__main__':

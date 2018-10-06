@@ -201,9 +201,7 @@ if __name__ == "__main__":
     data['reg_nrs'] = len(data['regions'])
 
     reg_centroids = read_data.get_region_centroids(name_region_set)
-
     data['reg_coord'] = basic_functions.get_long_lat_decimal_degrees(reg_centroids)
-    
     data['scenario_data']['population'] = data_loader.read_scenario_data(name_population_dataset)
 
     # Read GVA sector specific data
@@ -515,7 +513,6 @@ if __name__ == "__main__":
                             data['result_paths'],
                             data['paths'],
                             region_selection,
-                            data['reg_coord'],
                             data['assumptions'].seasons,
                             data['assumptions'].model_yeardays_daytype,
                             data['criterias']['plot_crit'])
