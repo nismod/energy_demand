@@ -1,20 +1,12 @@
 """Read in model results and plot results
 """
 import os
-from collections import defaultdict
-import numpy as np
 
 from energy_demand.read_write import data_loader, read_data
 from energy_demand.basic import date_prop
 from energy_demand.plotting import plotting_results, result_mapping
 from energy_demand.basic import basic_functions
 from energy_demand.basic import lookup_tables
-from energy_demand.plotting import fig_weather_variability_priod
-from energy_demand.plotting import fig_total_demand_peak
-from energy_demand.plotting import fig_spatial_local_regional
-from energy_demand.validation import elec_national_data
-from energy_demand.technologies import tech_related
-from energy_demand.plotting import fig_p2_weather_var
 
 def main(
         path_data_ed,
@@ -44,13 +36,17 @@ def main(
     # ---------------------------------------------------------
     # Iterate folders and read out all weather years and stations
     # ---------------------------------------------------------
+    to_ignores = [
+        'model_run_pop',
+        'model_run_sim_param.ini']
+
     all_result_folders = os.listdir(path_data_ed)
     paths_folders_result = []
 
     for result_folder in all_result_folders:
-
-        paths_folders_result.append(
-            os.path.join(path_data_ed, result_folder))
+        if result_folder not in to_ignores:
+            paths_folders_result.append(
+                os.path.join(path_data_ed, result_folder))
 
     ####################################################################
     # Calculate results for every weather year
@@ -79,7 +75,7 @@ def main(
         basic_functions.create_folder(data['result_paths']['data_results_PDF'])
         basic_functions.create_folder(data['result_paths']['data_results_shapefiles'])
         basic_functions.create_folder(data['result_paths']['individual_enduse_lp'])
-
+    
         # Simulation information is read in from .ini file for results
         data['enduses'], data['assumptions'], data['reg_nrs'], data['regions'] = data_loader.load_ini_param(
             os.path.join(path_data_ed))
@@ -89,6 +85,8 @@ def main(
         data['assumptions']['model_yeardays_daytype'], data['assumptions']['yeardays_month'], data['assumptions']['yeardays_month_days'] = date_prop.get_yeardays_daytype(year_to_model=2015)
 
         data['scenario_data'] = {}
+
+        print("AAAAAAAA " + str(path_data_ed))
         data['scenario_data']['population'] = read_data.read_scenaric_population_data(
             os.path.join(path_data_ed, 'model_run_pop'))
 

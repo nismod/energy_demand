@@ -63,14 +63,14 @@ def disaggr_demand(data, spatial_calibration=False):
 
         Note: All other fueltypes are not skaled
         '''
-        validation_residential = True       # Calibrate residential demands
-        validation_non_residential = True   # Calibrate non residential demands
+        calibrate_residential = True       # Calibrate residential demands
+        calibrate_non_residential = True   # Calibrate non residential demands
 
         # Non-residential electricity regional demands of base year for electrictiy and gas
         fueltype_elec = tech_related.get_fueltype_int('electricity')
         fueltype_gas = tech_related.get_fueltype_int('gas')
 
-        if validation_non_residential:
+        if calibrate_non_residential:
 
             valid_non_resid_elec = data_loader.read_lad_demands(
                 data['paths']['val_subnational_elec_non_residential'])
@@ -120,7 +120,7 @@ def disaggr_demand(data, spatial_calibration=False):
                         disagg['industry'][region][enduse][sector][fueltype_elec] *= f_spatial_calibration_elec
                         disagg['industry'][region][enduse][sector][fueltype_gas] *= f_spatial_calibration_gas
 
-        if validation_residential:
+        if calibrate_residential:
 
             valid_resid_elec = data_loader.read_lad_demands(
                 data['paths']['val_subnational_elec_residential'])

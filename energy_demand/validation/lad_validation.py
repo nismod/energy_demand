@@ -158,23 +158,12 @@ def spatial_validation_lad_level(
 
     # Create fueltype secific dict
     for region in regions:
-        gwh_modelled_elec = disaggregated_fuel['tot_disaggregated_regs'][region][lookups['fueltypes']['electricity']]
-        fuel_elec_regs_yh[region] = gwh_modelled_elec
-
-        gwh_modelled_elec_residential = disaggregated_fuel['tot_disaggregated_regs_residenital'][region][lookups['fueltypes']['electricity']]
-        fuel_elec_residential_regs_yh[region] = gwh_modelled_elec_residential
-
-        gwh_modelled_elec_non_residential = disaggregated_fuel['tot_disaggregated_regs_non_residential'][region][lookups['fueltypes']['electricity']]
-        fuel_elec_non_residential_regs_yh[region] = gwh_modelled_elec_non_residential
-        
-        gwh_modelled_gas = disaggregated_fuel['tot_disaggregated_regs'][region][lookups['fueltypes']['gas']]
-        fuel_gas_regs_yh[region] = gwh_modelled_gas
-
-        gwh_modelled_gas_residential = disaggregated_fuel['tot_disaggregated_regs_residenital'][region][lookups['fueltypes']['gas']]
-        fuel_gas_residential_regs_yh[region] = gwh_modelled_gas_residential
-        
-        gwh_modelled_gas_non_residential = disaggregated_fuel['tot_disaggregated_regs_non_residential'][region][lookups['fueltypes']['gas']]
-        fuel_gas_non_residential_regs_yh[region] = gwh_modelled_gas_non_residential
+        fuel_elec_regs_yh[region] = disaggregated_fuel['tot_disaggregated_regs'][region][lookups['fueltypes']['electricity']]
+        fuel_elec_residential_regs_yh[region] = disaggregated_fuel['tot_disaggregated_regs_residenital'][region][lookups['fueltypes']['electricity']]
+        fuel_elec_non_residential_regs_yh[region] = disaggregated_fuel['tot_disaggregated_regs_non_residential'][region][lookups['fueltypes']['electricity']]    
+        fuel_gas_regs_yh[region] = disaggregated_fuel['tot_disaggregated_regs'][region][lookups['fueltypes']['gas']]
+        fuel_gas_residential_regs_yh[region] = disaggregated_fuel['tot_disaggregated_regs_residenital'][region][lookups['fueltypes']['gas']]
+        fuel_gas_non_residential_regs_yh[region] = disaggregated_fuel['tot_disaggregated_regs_non_residential'][region][lookups['fueltypes']['gas']]
 
     # ----------------------------------------
     # Remap demands between 2011 and 2015 LADs
@@ -187,7 +176,6 @@ def spatial_validation_lad_level(
     subnational_gas_residential = map_LAD_2011_2015(subnational_gas_residential)
     subnational_gas_non_residential = map_LAD_2011_2015(subnational_gas_non_residential)
 
-
     fuel_elec_regs_yh = map_LAD_2011_2015(fuel_elec_regs_yh)
     fuel_elec_residential_regs_yh = map_LAD_2011_2015(fuel_elec_residential_regs_yh)
     fuel_elec_non_residential_regs_yh = map_LAD_2011_2015(fuel_elec_non_residential_regs_yh)
@@ -199,50 +187,7 @@ def spatial_validation_lad_level(
     logging.info("compare total {}  {}".format(
         sum(fuel_gas_residential_regs_yh.values()), sum(fuel_gas_regs_yh.values())))
 
-    # ---------------------
-    # Compare total sums and apply correction factor
-    # ---------------------
-    '''
-    # Total sum modelled
-    tot_sum_modelled_elec = sum(fuel_elec_regs_yh.values())
-    tot_sum_modelled_resid_elec = sum(fuel_elec_residential_regs_yh.values())
-    tot_sum_modelled_gas = sum(fuel_gas_regs_yh.values())
-
-    # Total sum real
-    tot_sum_real_elec = sum(subnational_elec.values())
-    tot_sum_real_resid_elec = sum(subnational_elec_residential.values())
-
-    logging.info("Spatial electricity validation: modelled: {}  real: {}".format(tot_sum_modelled_elec, tot_sum_real_elec))
-    logging.info("comparison real: {}  modelled: {}".format(100, (100 / tot_sum_real_elec) * tot_sum_modelled_elec))
-    tot_sum_real_gas = sum(subnational_gas.values())
-    logging.info("Spatial gas validation: modelled: {}  real: {}".format(tot_sum_modelled_gas, tot_sum_real_gas))
-    logging.info("comparison real: {}  modelled: {}".format(100, (100 / tot_sum_real_gas) * tot_sum_modelled_gas))
-    
-    # Calculate correction factor
-    correction_factor_elec = tot_sum_modelled_elec / tot_sum_real_elec
-    correction_factor_resid_elec = tot_sum_modelled_resid_elec / tot_sum_real_resid_elec
-    correction_factor_gas = tot_sum_modelled_gas/ tot_sum_real_gas
-    logging.info("-------------CORRECIOTN FATOR {}  {}".format(correction_factor_elec, correction_factor_gas))
-    
-    for reg in subnational_elec:
-        subnational_elec[reg] *= correction_factor_elec
-
-    for reg in subnational_elec_residential:
-        subnational_elec_residential[reg] *= correction_factor_resid_elec
-
-    for reg in subnational_gas:
-        subnational_gas[reg] *= correction_factor_gas
-
-    tot_sum_real_elec = sum(subnational_elec.values())
-    tot_sum_real_gas = sum(subnational_gas.values())
-    logging.info("Spatial electricity validation: modelled: {}  real: {}".format(tot_sum_modelled_elec, tot_sum_real_elec))
-    logging.info("comparison real: {}  modelled: {}".format(100, (100 / tot_sum_real_elec) * tot_sum_modelled_elec))
-    tot_sum_modelled_gas = sum(fuel_gas_regs_yh.values())
-    tot_sum_real_gas = sum(subnational_gas.values())
-    logging.info("Spatial validation: modelled: {}  real: {}".format(tot_sum_modelled_gas, tot_sum_real_gas))
-    logging.info("comparison real: {}  modelled: {}".format(100, (100 / tot_sum_real_gas) * tot_sum_modelled_gas))
-    #'''
-    # ----------------------------------------------
+    # --------------------------------------------
     # Correct REAL Values that sum is the same
     # ----------------------------------------------
     data_inputlist = [

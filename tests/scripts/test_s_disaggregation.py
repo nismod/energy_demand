@@ -24,7 +24,7 @@ def test_rs_disaggregate():
             'sig_midpoint': 0,
             'sig_steepness': 1,
             'yr_until_changed': 2020},
-        'strategy_vars': {'rs_t_base_heating_future_yr': {'scenario_value': 15}}}
+        'strategy_vars': {'rs_t_base_heating': {'scenario_value': 15}}}
     assumptions = general_assumptions.DummyClass(assumptions)
     assumptions.__setattr__('t_bases', general_assumptions.DummyClass({'rs_t_heating_by': 15}))
 
@@ -105,8 +105,8 @@ def test_ss_disaggregate():
             'sig_steepness': 1,
             'yr_until_changed': 2020},
         'strategy_vars': {
-            'ss_t_base_heating_future_yr': {'scenario_value': 15},
-            'ss_t_base_cooling_future_yr': {'scenario_value': 20}}}
+            'ss_t_base_heating': {'scenario_value': 15},
+            'ss_t_base_cooling': {'scenario_value': 20}}}
 
     assumptions = general_assumptions.DummyClass(assumptions)
     assumptions.__setattr__('t_bases', general_assumptions.DummyClass(
@@ -179,7 +179,7 @@ def test_is_disaggregate():
             'yr_until_changed': 2020},
         'strategy_vars': {
             'is_t_heating_by': {'scenario_value': 0},
-            'is_t_base_heating_future_yr': {'scenario_value': 15},
+            'is_t_base_heating': {'scenario_value': 15},
             'is_t_base_cooling_future_yr': {'scenario_value': 15}}}
 
     assumptions = general_assumptions.DummyClass(assumptions)

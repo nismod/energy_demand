@@ -289,8 +289,8 @@ def load_param_assump(
     # Base temperature assumptions for heating and cooling demand
     # The diffusion is asumed to be linear
     # ============================================================
-    strategy_vars['rs_t_base_heating_future_yr'] = {
-        "name": "rs_t_base_heating_future_yr",
+    strategy_vars['rs_t_base_heating'] = {
+        "name": "rs_t_base_heating",
         "absolute_range": (0, 20),
         "description": "Base temperature assumption residential heating",
         "suggested_range": (13, 17),
@@ -301,8 +301,8 @@ def load_param_assump(
         'diffusion_type': 'linear'}
 
     # Future base year temperature
-    strategy_vars['ss_t_base_heating_future_yr'] = {
-        "name": "ss_t_base_heating_future_yr",
+    strategy_vars['ss_t_base_heating'] = {
+        "name": "ss_t_base_heating",
         "absolute_range": (0, 20),
         "description": "Base temperature assumption service sector heating",
         "suggested_range": (13, 17),
@@ -314,8 +314,8 @@ def load_param_assump(
 
     # Cooling base temperature
     # Future base year temperature
-    strategy_vars['ss_t_base_cooling_future_yr'] = {
-        "name": "ss_t_base_cooling_future_yr",
+    strategy_vars['ss_t_base_cooling'] = {
+        "name": "ss_t_base_cooling",
         "absolute_range": (0, 25),
         "description": "Base temperature assumption service sector cooling",
         "suggested_range": (13, 17),
@@ -326,8 +326,8 @@ def load_param_assump(
         'diffusion_type': 'linear'}
 
     # Future base year temperature
-    strategy_vars['is_t_base_heating_future_yr'] = {
-        "name": "is_t_base_heating_future_yr",
+    strategy_vars['is_t_base_heating'] = {
+        "name": "is_t_base_heating",
         "absolute_range": (0, 20),
         "description": "Base temperature assumption service sector heating",
         "suggested_range": (13, 17),

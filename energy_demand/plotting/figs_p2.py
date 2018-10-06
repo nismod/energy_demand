@@ -165,14 +165,14 @@ def plot_fig_spatio_temporal_validation(
     # ---------------------------------------------------------
     all_result_folders = os.listdir(path_regional_calculations)
     paths_folders_result = []
-    weather_yrs = []
+    weather_yrs = set([])
     weather_station_per_y = {}
 
     for result_folder in all_result_folders:
         try:
             split_path_name = result_folder.split("__")
             weather_yr = int(split_path_name[0])
-            weather_yrs.append(weather_yr)
+            weather_yrs.add(weather_yr)
 
             try:
                 weather_station = int(split_path_name[1])
@@ -189,6 +189,7 @@ def plot_fig_spatio_temporal_validation(
                 os.path.join(path_regional_calculations, result_folder))
         except ValueError:
             pass
+    weather_yrs = list(weather_yrs)
 
     # -----------
     # Used across different plots
@@ -203,6 +204,7 @@ def plot_fig_spatio_temporal_validation(
     basic_functions.create_folder(path_out_plots)
 
     # Reading in results from different weather_yrs and aggregate
+    # National calculation per weather station
     data_container = defaultdict(dict)
     for weather_yr in weather_yrs:
         station_tot_fueltype_h = {}
@@ -224,6 +226,7 @@ def plot_fig_spatio_temporal_validation(
         data_container['tot_fueltype_h'][weather_yr] = station_tot_fueltype_h
 
     #---Collect non regional 2015 elec data
+    # Calculated with all regional weather stations
     year_non_regional = 2015 
     path_with_txt = os.path.join(
         path_non_regional_elec_2015,
@@ -254,7 +257,8 @@ def plot_fig_spatio_temporal_validation(
     # Temporal validation
     # Compare regional and non regional and actual demand over time
     # -------------------
-    fig_spatial_local_regional.run(
+    #TODO OK
+    '''fig_spatial_local_regional.run(
         data_input=data_container['tot_fueltype_h'],
         weather_yr=2015,
         fueltype_str='electricity',
@@ -263,14 +267,19 @@ def plot_fig_spatio_temporal_validation(
         validation_elec_2015=elec_factored_yh,
         non_regional_elec_2015=non_regional_elec_2015,
         fig_name=os.path.join(path_out_plots, "fig_paper_II.pdf"),
-        plot_show=True)
+        plot_show=True)'''
 
     # -------------------
     # Spatial validation (not with maps)
-    # -------------------
-    weather_station_yr = 2015
+    # -------------------   
+    # non_regional: All weather station, spatially disaggregated TODO Give BETTER NAMES
+    # regional: Only one weather station for whole countr but still data for every region
+
+    weather_yr = 2015
     fig_p2_spatial_val.run(
-        ed_fueltype_regs_yh=non_regional_elec_2015,
+        weather_yr=weather_yr,
+        demand_year_non_regional=demand_year_non_regional['results_enduse_every_year'][weather_yr],
+        demand_year_regional=data_container['tot_fueltype_h'][weather_yr],
         fueltypes=data['lookups']['fueltypes'],
         fig_path=os.path.join(path_out_plots, "fig_p2_SPATIAL.pdf"),
         path_temporal_elec_validation=path_temporal_elec_validation,

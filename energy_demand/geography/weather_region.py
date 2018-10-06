@@ -67,10 +67,10 @@ class WeatherRegion(object):
             assumptions.non_regional_vars)
 
         # Base temperatures of current year
-        rs_t_base_heating_cy = assumptions.non_regional_vars['rs_t_base_heating_future_yr'][assumptions.curr_yr]
-        ss_t_base_heating_cy = assumptions.non_regional_vars['ss_t_base_heating_future_yr'][assumptions.curr_yr]
-        ss_t_base_cooling_cy = assumptions.non_regional_vars['ss_t_base_cooling_future_yr'][assumptions.curr_yr]
-        is_t_base_heating_cy = assumptions.non_regional_vars['is_t_base_heating_future_yr'][assumptions.curr_yr]
+        rs_t_base_heating_cy = assumptions.non_regional_vars['rs_t_base_heating'][assumptions.curr_yr]
+        ss_t_base_heating_cy = assumptions.non_regional_vars['ss_t_base_heating'][assumptions.curr_yr]
+        ss_t_base_cooling_cy = assumptions.non_regional_vars['ss_t_base_cooling'][assumptions.curr_yr]
+        is_t_base_heating_cy = assumptions.non_regional_vars['is_t_base_heating'][assumptions.curr_yr]
 
         # ==================================================================
         # Technology stocks

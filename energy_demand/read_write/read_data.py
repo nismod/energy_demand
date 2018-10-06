@@ -261,11 +261,13 @@ def read_in_results(path_result, seasons, model_yeardays_daytype):
     results_container = {}
 
     # -------------
-    # Fuels
+    # Read in demands
     # -------------
+    # National demand per enduse for every year
     results_container['results_enduse_every_year'] = read_enduse_specific_results(
         path_result)
 
+    #
     results_container['results_every_year'] = read_results_yh(path_result)
 
     # -----------------
@@ -1024,9 +1026,11 @@ def read_scenaric_population_data(result_path):
 
     all_txt_files_in_folder = os.listdir(result_path)
 
-    # Iterate files
     for file_path in all_txt_files_in_folder:
+        
         path_file_to_read = os.path.join(result_path, file_path)
+        print("path_file_to_read PAHT " + str(path_file_to_read))
+        print(file_path)
         file_path_split = file_path.split("__")
         year = int(file_path_split[1])
 

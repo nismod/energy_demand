@@ -1,24 +1,20 @@
-import os
+"""
+"""
 import operator
 import logging
-import copy
 import numpy as np
 import matplotlib.pyplot as plt
 from scipy import stats
 
-from energy_demand import enduse_func
-from energy_demand.profiles import load_profile
-from energy_demand.basic import basic_functions
-from energy_demand.validation import elec_national_data
 from energy_demand.read_write import data_loader
-from energy_demand.basic import date_prop
-from energy_demand.plotting import fig_load_profile_dh_multiple
 from energy_demand.plotting import basic_plot_functions
 from energy_demand.plotting import plotting_styles
 from energy_demand.validation import lad_validation
 
 def run(
-        ed_fueltype_regs_yh,
+        weather_yr,
+        demand_year_non_regional,
+        demand_year_regional,
         fueltypes,
         fig_path,
         path_temporal_elec_validation,
@@ -38,36 +34,40 @@ def run(
     ######################################
     # Data preparation
     ######################################
-    subnational_elec = data_loader.read_lad_demands(
-        path_temporal_elec_validation)
-    subnational_gas = data_loader.read_lad_demands(
-        path_temporal_gas_validation)
+    subnational_elec = data_loader.read_lad_demands(path_temporal_elec_validation) # Read only domestic heating
+    subnational_gas = data_loader.read_lad_demands(path_temporal_gas_validation)   ## Read only domestic heating TODO??
 
     # ----------------------------------------
     # Remap demands between 2011 and 2015 LADs
     # ----------------------------------------
     subnational_elec = lad_validation.map_LAD_2011_2015(subnational_elec)
     subnational_gas = lad_validation.map_LAD_2011_2015(subnational_gas)
-    fuel_elec_regs_yh = lad_validation.map_LAD_2011_2015(fuel_elec_regs_yh)
-    fuel_gas_regs_yh = lad_validation.map_LAD_2011_2015(fuel_gas_regs_yh)
 
-    # Create fueltype secific dict
-    fuel_elec_regs_yh = {}
+    # Create fueltype secific dict electricity
+    fuel_elec_regs_yh_non_regional = {}
     for region_array_nr, region in enumerate(regions):
-        gwh_modelled = np.sum(ed_fueltype_regs_yh[fueltypes['electricity']][region_array_nr])
-        fuel_elec_regs_yh[region] = gwh_modelled
+        gwh_modelled_tot = 0
 
-    # Create fueltype secific dict
-    fuel_gas_regs_yh = {}
+        for enduse in ['rs_space_heating']:
+            gwh_modelled_tot += np.sum(demand_year_non_regional[enduse][fueltypes['electricity']][region_array_nr])
+        fuel_elec_regs_yh_non_regional[region] = gwh_modelled_tot
+
+    # Create fueltype secific dict for gas
+    '''fuel_gas_regs_yh = {}
     for region_array_nr, region in enumerate(regions):
-        gwh_modelled = np.sum(ed_fueltype_regs_yh[fueltypes['gas']][region_array_nr])
-        fuel_gas_regs_yh[region] = gwh_modelled
-        
+        gwh_modelled_tot = np.sum(demand_year_non_regional[fueltypes['gas']][region_array_nr])
+        fuel_gas_regs_yh[region] = gwh_modelled_tot'''
+
+    fuel_elec_regs_yh_non_regional = lad_validation.map_LAD_2011_2015(fuel_elec_regs_yh_non_regional)
+    #fuel_gas_regs_yh = lad_validation.map_LAD_2011_2015(fuel_gas_regs_yh)
+
     ######################################
     # Plotting
     ######################################
     plot_spatial_validation(
-        fuel_elec_regs_yh,
+        weather_yr,
+        fuel_elec_regs_yh_non_regional,
+        demand_year_regional,
         subnational_elec,
         regions,
         'elec',
@@ -76,7 +76,9 @@ def run(
         plotshow=plot_crit)
 
 def plot_spatial_validation(
-        subnational_modelled,
+        weather_yr,
+        non_regional_modelled,
+        regional_modelled,
         subnational_real,
         regions,
         fueltype_str,
@@ -87,21 +89,27 @@ def plot_spatial_validation(
     result_dict = {}
     result_dict['real_demand'] = {}
     result_dict['modelled_demand'] = {}
+    result_dict['modelled_demand_regional'] = {}
 
     # -------------------------------------------
     # Match ECUK sub-regional demand with geocode
     # -------------------------------------------
     for region in regions:
         try:
-            # Test wheter data is provided for LAD or owtherwise ignore
-            if subnational_real[region] == 0:
-                pass
-            else:
-                # --Sub Regional Electricity demand (as GWh)
-                result_dict['real_demand'][region] = subnational_real[region]
-                result_dict['modelled_demand'][region] = subnational_modelled[region]
+            # --Sub Regional Electricity demand (as GWh)
+            result_dict['real_demand'][region] = subnational_real[region]
+            result_dict['modelled_demand'][region] = non_regional_modelled[region]
         except KeyError:
             logging.debug("Sub-national spatial validation: No fuel for region %s", region)
+
+        # Do this for every weather station data
+        '''for weather_station in regional_modelled:
+            result_dict['modelled_demand_regional'][weather_station] = {}
+            try:
+                _reg_demand = regional_modelled[weather_station][weather_yr][region]
+                result_dict['modelled_demand_regional'][weather_station][region] = _reg_demand
+            except KeyError:
+                pass'''
 
     # --------------------
     # Calculate statistics
@@ -136,20 +144,21 @@ def plot_spatial_validation(
     # -------------------------------------
     # Plot
     # -------------------------------------
-    fig = plt.figure(figsize=basic_plot_functions.cm2inch(9, 8)) #width, height (9, 8)
+    fig = plt.figure(figsize=basic_plot_functions.cm2inch(9, 8))
     ax = fig.add_subplot(1, 1, 1)
     x_values = np.arange(0, len(sorted_dict_real), 1)
     y_real_demand = []
     y_modelled_demand = []
+    #y_modelled_demand_non_regional = []
     labels = []
+
     for sorted_region in sorted_dict_real:
         geocode_lad = sorted_region[0]
-        y_real_demand.append(
-            result_dict['real_demand'][geocode_lad])
-        y_modelled_demand.append(
-            result_dict['modelled_demand'][geocode_lad])
-
-        logging.debug(
+        y_real_demand.append(result_dict['real_demand'][geocode_lad])
+        y_modelled_demand.append(result_dict['modelled_demand'][geocode_lad])
+        #y_modelled_demand_non_regional.append(
+        #    result_dict['modelled_demand_regional'][geocode_lad]) 
+        print(
             "validation %s LAD %s: real: %s modelled: %s  modelled percentage: %s (%sp diff)",
             fueltype_str,
             geocode_lad,
@@ -206,6 +215,22 @@ def plot_spatial_validation(
         color='black',
         label='model')
 
+    # Regional demands
+    '''plt.plot(
+        x_values,
+        y_modelled_demand_non_regional,
+        marker='o',
+        linestyle='None',
+        markersize=1.6,
+        alpha=0.6,
+        markerfacecolor='white',
+        fillstyle='none',
+        markeredgewidth=0.5,
+        markeredgecolor='orange',
+        color='black',
+        label='model')'''
+    
+
     # Limit
     plt.ylim(ymin=0)
 
@@ -258,3 +283,5 @@ def plot_spatial_validation(
         plt.show()
     else:
         plt.close()
+    
+    raise Exception("WHAT HAPPEND")

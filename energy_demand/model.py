@@ -761,12 +761,12 @@ def aggregate_final_results(
         aggr_results['ed_fueltype_national_yh'] += ed_fueltype_yh_aggr
 
         # Sum across enduses
-        new_tot_fuel_y_enduse_specific_yh = sum_enduse_all_regions(
+        _tot_fuel_y_enduse_specific_yh = sum_enduse_all_regions(
             aggr_results['tot_fuel_y_enduse_specific_yh'],
             all_submodels,
             technologies,
             fueltypes_nr)
-        aggr_results['tot_fuel_y_enduse_specific_yh'] = new_tot_fuel_y_enduse_specific_yh
+        aggr_results['tot_fuel_y_enduse_specific_yh'] = _tot_fuel_y_enduse_specific_yh
 
         # --------------------------------------
         # Calculate averaged hour profile per season

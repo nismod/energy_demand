@@ -2,7 +2,7 @@
 # After smif upgrade:
 #   make that automatically the parameters can be generated to be copied into smif format
 # REMOVE HDD CODE PLOTTING
-
+#TODO Revisit the writing out of np. files...(most complete: enduse, region, fueltype, hours)
 #TODO Test if technology type can be left empty in technology spreadsheet, Try to remove tech_type
 #TODO Write out full result. Then write function to aggregate accordingly
 #TODO SIMple aggregation. Write out sectormodel, enduse, region, fueltypes.... --> Do all aggregation based on that

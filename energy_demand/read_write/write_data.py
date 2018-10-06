@@ -399,6 +399,20 @@ def write_enduse_specific(
 
         np.save(path_file, fuel)
 
+        #  Write enduse and region speicif #TODO NEW TODO NEW
+        # ---------------------------------------------------
+        print(fuel.shape)
+        raise Exception("FFF")
+        '''path_file = os.path.join(
+            os.path.join(path_result, "enduse_specific_results"),
+            "{}__{}__{}__{}".format(
+                filename,
+                enduse,
+                sim_yr,
+                "_region_sepcific_JEFF.npy"))
+
+        np.save(path_file, fuel)'''
+
         statistics_to_print.append("{}\t\t\t\t{}".format(
             enduse, np.sum(fuel)))
 

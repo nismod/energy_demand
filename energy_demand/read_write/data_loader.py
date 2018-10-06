@@ -95,17 +95,19 @@ def create_weather_station_map(
 
     plt.savefig(fig_path)
 
+     # ---------------------------------
     # Save coordinates as file
-    station_infos = ["name, latitue, longitude\n"]
-    path_txt = path_shapefile[:-4] + ".txt"
+    # ---------------------------------
+    station_infos = ["name, latitue, longitude"]
+    fig_path = fig_path[:-4] + ".txt"
     for station in stations_as_dict:
-        station_info = "{}, {}, {}\n".format(
+        station_info = "{}, {}, {}".format(
             station,
             stations_as_dict[station]['latitude'],
             stations_as_dict[station]['longitude'])
         station_infos.append(station_info)
 
-    write_data.write_list_to_txt(path_txt, station_infos)
+    write_data.write_list_to_txt(fig_path, station_infos)
 
 def read_weather_stations_raw(path_to_csv):
     """Read in weather stations from csv file
