@@ -385,7 +385,6 @@ def read_results_yh(path_to_folder):
 
     all_txt_files_in_folder = os.listdir(path_to_folder)
 
-    # Iterate files in folder
     for file_path in all_txt_files_in_folder:
         try:
             path_file_to_read = os.path.join(path_to_folder, file_path)
@@ -1305,4 +1304,3 @@ def load_full_paramter_values(file_path):
     gp_file = pd.read_csv(file_path)
 
     return gp_file
-        

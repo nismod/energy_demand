@@ -86,7 +86,6 @@ def main(
 
         data['scenario_data'] = {}
 
-        print("AAAAAAAA " + str(path_data_ed))
         data['scenario_data']['population'] = read_data.read_scenaric_population_data(
             os.path.join(path_data_ed, 'model_run_pop'))
 

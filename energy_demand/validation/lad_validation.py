@@ -604,7 +604,6 @@ def spatial_validation(
 
     labels = []
     for sorted_region in sorted_dict_real:
-
         geocode_lad = sorted_region[0]
 
         y_real_demand.append(result_dict['real_demand'][geocode_lad])
@@ -621,9 +620,6 @@ def spatial_validation(
 
         labels.append(geocode_lad)
 
-    print("BB")
-    print(len(y_real_demand))
-    print(len(y_modelled_demand))
     # Calculate r_squared
     _slope, _intercept, r_value, _p_value, _std_err = stats.linregress(
         y_real_demand,
@@ -872,11 +868,6 @@ def spatial_validation_multiple(
             color=color_list[cnt_color],
             markeredgecolor=color_list[cnt_color],
             label='actual')
-
-        print("AA ")
-        print(len(x_values))
-        print(len(y_real_demand))
-        print(len(y_modelled_demand))
 
         plt.plot(
             x_values,

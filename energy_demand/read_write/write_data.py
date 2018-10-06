@@ -356,6 +356,62 @@ def write_supply_results(
 
     np.save(path_file, model_results)
 
+def write_full_results(
+        sim_yr,
+        path_result,
+        full_results,
+        filename
+    ):
+    """Write out enduse specific results for every hour and store to
+    `.npy` file
+
+    Arguments
+    -----------
+    sim_yr : int
+        Simulation year
+    path_result : str
+        Path
+    full_results : dict
+        Modelling results per submodel, enduse, region, fueltype, 8760h
+    filename : str
+        File name
+    """
+    statistics_to_print = ["{}\t \t \t \t{}".format(
+        "Enduse", "total_annual_GWh")]
+
+    # Create folder for model simulation year
+    basic_functions.create_folder(path_result)
+
+    basic_functions.create_folder(
+        path_result, "full_results")
+
+    for sector_nr in full_results:
+
+        for enduse, fuel in full_results[sector_nr].items():
+
+            path_file = os.path.join(
+                os.path.join(path_result, "full_results"),
+                "{}__{}__{}__{}__{}".format(
+                    filename,
+                    enduse,
+                    sim_yr,
+                    sector_nr,
+                    ".npy"))
+
+            np.save(path_file, fuel)
+
+            statistics_to_print.append("{}\t\t\t\t{}".format(
+                enduse, np.sum(fuel)))
+
+    # Create statistic files with sum of all end uses
+    path_file = os.path.join(
+        os.path.join(path_result, "full_results"),
+        "{}__{}__{}".format("statistics_end_uses", sim_yr, ".txt"))
+
+    write_list_to_txt(
+        path_file,
+        statistics_to_print)
+
 def write_enduse_specific(
         sim_yr,
         path_result,
@@ -398,20 +454,6 @@ def write_enduse_specific(
                 ".npy"))
 
         np.save(path_file, fuel)
-
-        #  Write enduse and region speicif #TODO NEW TODO NEW
-        # ---------------------------------------------------
-        print(fuel.shape)
-        raise Exception("FFF")
-        '''path_file = os.path.join(
-            os.path.join(path_result, "enduse_specific_results"),
-            "{}__{}__{}__{}".format(
-                filename,
-                enduse,
-                sim_yr,
-                "_region_sepcific_JEFF.npy"))
-
-        np.save(path_file, fuel)'''
 
         statistics_to_print.append("{}\t\t\t\t{}".format(
             enduse, np.sum(fuel)))
