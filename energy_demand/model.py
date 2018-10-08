@@ -453,69 +453,6 @@ def aggr_complete_result(
 
     return full_result_aggr
 
-def aggregate_from_full_results(
-        aggregated_container,
-        full_sim_data,
-        time_resolution,
-        per_region,
-        per_sector,
-        per_enduse,
-        reg_array_nr=False
-    ):
-    """Function to read from full simulation data
-    specific demands
-
-    Argument
-    --------
-    full_sim_data : dict
-         Modelling results per submodel, enduse, region, fueltype, 8760h
-    time_resolution : str
-        Either 'annual', 'hourly', '360_24_h', '8760_h'
-    """ 
-    # Aggregate demand
-    for submodel_nr in full_sim_data:
-        for enduse in full_sim_data[submodel_nr]:
-
-            # Get full data
-            reg_fueltype_8760h = full_sim_data[submodel_nr][enduse]
-
-            # Test if reshaping and annual or hourly
-            if time_resolution == 'annual':
-                demand = np.sum(reg_fueltype_8760h)
-            elif time_resolution == '8760_h':
-                demand = reg_fueltype_8760h
-            elif time_resolution == '365_24':
-                demand = time_resolution.reshape(365, 24)
-            else:
-                raise Exception("Provide either 'annual' or 'hourly' or '365_24'")
-
-            # Aggregat according to criteria
-            if per_sector:
-                if per_region:
-                    if per_enduse:
-                        pass
-                    else:
-                        pass
-                else:
-                    if per_enduse:
-                        pass
-                    else:
-                        pass
-            else:
-                if per_region:
-                    if per_enduse:
-                        pass
-                    else:
-                        for fueltype_nr, fueltype_demand in enumerate(demand):
-                            aggregated_container[fueltype_nr][reg_array_nr] += fueltype_demand
-                else:
-                    if per_enduse:
-                        pass
-                    else:
-                        aggregated_container += demand
-
-    return aggregated_container
-
 def aggr_fuel_regions_fueltype(
         aggregation_array,
         fueltypes_nr,
@@ -841,24 +778,6 @@ def aggregate_final_results(
             all_submodels,
             technologies)
 
-        #TODO Aggregate from full results aggregate_from_full_results
-        '''fuel_region_yh_NEU = aggregate_from_full_results(
-            aggr_results['ed_fueltype_regs_yh'],
-            aggr_results['ed_submodel_enduse_fueltype_regs_yh'],
-            time_resolution='8760_h',
-            per_region=True,
-            per_sector=False,
-            per_enduse=False,
-            reg_array_nr=reg_array_nr)'''
-        '''aggr_results['ed_fueltype_national_yh'], RETURN = aggregate_from_full_results(
-            aggr_results['ed_fueltype_national_yh'],
-            aggr_results['ed_submodel_enduse_fueltype_regs_yh'],
-            time_resolution='8760_h',
-            per_region=False,
-            per_sector=False,
-            per_enduse=False)
-        fuel_region_yh = RETURN'''
-        # NEW   -------------------------
         # Sum across all regions, all enduse and sectors sum_reg TODO: REPLACE
         # [fueltype, region, fuel_yh], [fueltype, fuel_yh]
         aggr_results['ed_fueltype_regs_yh'], fuel_region_yh = aggr_fuel_regions_fueltype(
@@ -869,14 +788,14 @@ def aggregate_final_results(
             all_submodels,
             technologies)
 
-        ed_fueltype_yh_aggr = fuel_aggr(
+        ed_fueltype_yh_aggr = fuel_aggr(  #TODO: REPLACE
             all_submodels,
             'no_sum',
             'fuel_yh',          # unconstrained
             'techs_fuel_yh',    # constrained
             technologies,
             shape_aggregation_array=aggr_results['ed_fueltype_national_yh'].shape)
-        aggr_results['ed_fueltype_national_yh'] += ed_fueltype_yh_aggr #TODO: REPLACE
+        aggr_results['ed_fueltype_national_yh'] += ed_fueltype_yh_aggr
 
         # Sum across enduses TODO: REPLACE
         _tot_fuel_y_enduse_specific_yh = sum_enduse_all_regions(
