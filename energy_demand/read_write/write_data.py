@@ -349,10 +349,7 @@ def write_supply_results(
 
     path_file = os.path.join(
         path_result_sub_folder,
-        "{}__{}__{}".format(
-            file_name,
-            sim_yr,
-            ".npy"))
+        "{}__{}__{}".format(file_name, sim_yr, ".npy"))
 
     np.save(path_file, model_results)
 
