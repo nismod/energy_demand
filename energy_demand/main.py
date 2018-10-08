@@ -14,6 +14,8 @@
     Note
     ----
     Always execute from root folder. (e.g. energy_demand/energy_demand/main.py)
+
+# TEST NON CONSTRAINED MODE
 """
 import os
 import sys
@@ -88,10 +90,7 @@ def energy_demand_model(
 
     # Calculate base year demand
     fuels_in = testing_functions.test_function_fuel_sum(
-        data,
-        data['fuel_disagg'],
-        data['criterias']['mode_constrained'],
-        assumptions.enduse_space_heating)
+        data, data['fuel_disagg'], data['criterias']['mode_constrained'], assumptions.enduse_space_heating)
 
     # Log model results
     write_data.logg_info(modelrun, fuels_in, data)
@@ -175,19 +174,14 @@ if __name__ == "__main__":
     name_scenario_run = "_result_local_data_{}".format(str(time.ctime()).replace(":", "_").replace(" ", "_"))
 
     data['paths'] = data_loader.load_paths(path_main)
-
     data['local_paths'] = data_loader.get_local_paths(local_data_path)
 
-    path_new_scenario = os.path.abspath(
-        os.path.join(os.path.dirname(local_data_path), "results", name_scenario_run))
-
+    path_new_scenario = os.path.abspath(os.path.join(os.path.dirname(local_data_path), "results", name_scenario_run))
     data['path_new_scenario'] = path_new_scenario
     data['result_paths'] = data_loader.get_result_paths(path_new_scenario)
 
     basic_functions.create_folder(path_new_scenario)
-    logger_setup.set_up_logger(
-        os.path.join(
-            path_new_scenario, "plotting.log"))
+    logger_setup.set_up_logger(os.path.join(path_new_scenario, "plotting.log"))
     
     # --------------
     # Load data
@@ -443,7 +437,6 @@ if __name__ == "__main__":
         for counter in weather_stations_cnt:
 
             if single_weather_station_crit:
-
                 weather_stations, continue_calculation, station_id = weather_region.get_weather_station_selection(
                     data['weather_stations'],
                     counter=counter,
@@ -484,12 +477,6 @@ if __name__ == "__main__":
                         narrative_f_eff_achieved=data['assumptions'].non_regional_vars['f_eff_achieved'][sim_yr],
                         narrative_gshp_fraction_ey=data['assumptions'].non_regional_vars['gshp_fraction_ey'][sim_yr],
                         crit_narrative_input=False)
-
-                    fuel_in, fuel_in_biomass, fuel_in_elec, fuel_in_gas, fuel_in_heat, fuel_in_hydro, fuel_in_solid_fuel, fuel_in_oil, tot_heating = testing_functions.test_function_fuel_sum(
-                        data,
-                        data['fuel_disagg'],
-                        data['criterias']['mode_constrained'],
-                        data['assumptions'].enduse_space_heating)
 
                     # ------------------------------------------
                     # Run model
@@ -537,36 +524,6 @@ if __name__ == "__main__":
                             data['lookups']['fueltypes'],
                             fueltype_str='electricity')
 
-                    # --------------------------------------------------------
-                    # Reshape day and hours to yearhous (from (365, 24) to 8760)
-                    # --------------------------------------------------------
-
-                    # np.array with constrained demands for heating
-                    # {constrained_techs: np.array(fueltype, sectors, region, periods)}
-                    results_constrained_reshaped = {}
-
-                    for heating_tech, submodel_techs in sim_obj.results_constrained.items():
-                        results_constrained_reshaped[heating_tech] = submodel_techs.reshape(
-                            len(data['assumptions'].submodels_names),
-                            data['reg_nrs'],
-                            data['lookups']['fueltypes_nr'],
-                            8760)
-                    results_constrained = results_constrained_reshaped
-
-                    # np.array of all fueltypes(fueltype, sectors, region, periods)
-                    results_unconstrained = sim_obj.results_unconstrained.reshape(
-                        len(data['assumptions'].submodels_names),
-                        data['reg_nrs'],
-                        data['lookups']['fueltypes_nr'],
-                        8760)
-
-                    # Testing
-                    if round(np.sum(sim_obj.ed_fueltype_national_yh), 2)!= round(np.sum(sim_obj.results_unconstrained), 2):
-                        logging.warning("Should be the same {} {}".format(
-                            round(np.sum(sim_obj.ed_fueltype_national_yh), 2),
-                            round(np.sum(sim_obj.results_unconstrained), 2)))
-                        raise Exception
-
                     # -------------------------------------
                     # # Generate YAML file with keynames for `sector_model`
                     # -------------------------------------
@@ -574,8 +531,8 @@ if __name__ == "__main__":
                         if data['criterias']['mode_constrained']:
 
                             supply_results = demand_supply_interaction.constrained_results(
-                                results_constrained,
-                                results_unconstrained,
+                                sim_obj.results_constrained,
+                                sim_obj.results_unconstrained,
                                 data['assumptions'].submodels_names,
                                 data['lookups']['fueltypes'],
                                 data['technologies'])
@@ -584,7 +541,7 @@ if __name__ == "__main__":
                                 data['local_paths']['yaml_parameters_keynames_constrained'], supply_results.keys())
                         else:
                             supply_results = demand_supply_interaction.unconstrained_results(
-                                results_unconstrained,
+                                sim_obj.results_unconstrained,
                                 data['assumptions'].submodels_names,
                                 data['lookups']['fueltypes'])
 

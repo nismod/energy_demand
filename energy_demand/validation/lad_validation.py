@@ -7,6 +7,7 @@ import copy
 import numpy as np
 import matplotlib.pyplot as plt
 from scipy import stats
+import logging
 
 from energy_demand import enduse_func
 from energy_demand.profiles import load_profile
@@ -373,14 +374,12 @@ def spatio_temporal_val(
     # Create fueltype secific dict
     fuel_elec_regs_yh = {}
     for region_array_nr, region in enumerate(regions):
-        gwh_modelled = np.sum(ed_fueltype_regs_yh[fueltypes['electricity']][region_array_nr])
-        fuel_elec_regs_yh[region] = gwh_modelled
+        fuel_elec_regs_yh[region] = np.sum(ed_fueltype_regs_yh[fueltypes['electricity']][region_array_nr])
 
     # Create fueltype secific dict
     fuel_gas_regs_yh = {}
     for region_array_nr, region in enumerate(regions):
-        gwh_modelled = np.sum(ed_fueltype_regs_yh[fueltypes['gas']][region_array_nr])
-        fuel_gas_regs_yh[region] = gwh_modelled
+        fuel_gas_regs_yh[region] = np.sum(ed_fueltype_regs_yh[fueltypes['gas']][region_array_nr])
 
     # ----------------------------------------
     # Remap demands between 2011 and 2015 LADs
@@ -416,9 +415,14 @@ def spatio_temporal_val(
         paths['val_nat_elec_data'])
 
     f_diff_elec = np.sum(ed_fueltype_national_yh[fueltypes['electricity']]) / np.sum(elec_2015_indo)
-    #logging.debug("... ed diff modellend and real [p] %s: ", (1 - f_diff_elec) * 100)
+    logging.info("... ed diff modellend and real [p] %s: ", (1 - f_diff_elec) * 100)
 
     elec_factored_yh = f_diff_elec * elec_2015_indo
+
+    logging.info(elec_2015_indo.shape)
+    logging.info(ed_fueltype_national_yh[fueltypes['electricity']])
+    logging.info("noppp " + str(np.sum(elec_factored_yh)))
+    logging.info("dd    " + str(ed_fueltype_national_yh[fueltypes['electricity']]))
 
     temporal_validation(
         result_paths,

@@ -118,9 +118,16 @@ def compare_results(
     y_calculated_list = []
     y_diff_p = []
     y_diff_abs = []
-
+    print("AAA")
+    print(np.sum(y_calculated_array))
+    print(y_calculated_array)
+    print(y_calculated_array)
     for day in days_to_plot:
         for hour in range(24):
+            print("fff")
+            print(day)
+            print(hour)
+            print(y_calculated_array.shape)
             y_calculated_list.append(y_calculated_array[day][hour])
             y_real_indo_factored.append(y_factored_indo[day][hour])
 
