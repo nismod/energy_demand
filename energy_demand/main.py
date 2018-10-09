@@ -26,6 +26,7 @@ from collections import defaultdict
 import numpy as np
 
 from energy_demand.basic import basic_functions
+from energy_demand.charts import resilience_project
 from energy_demand.basic import date_prop
 from energy_demand import model
 from energy_demand.basic import testing_functions
@@ -43,7 +44,6 @@ from energy_demand.scripts import init_scripts
 from energy_demand.basic import logger_setup
 from energy_demand.plotting import fig_enduse_yh
 from energy_demand.geography import weather_region
-from energy_demand.charts import resilience_project
 
 def energy_demand_model(
         regions,
@@ -151,8 +151,11 @@ if __name__ == "__main__":
     
     if len(sys.argv) > 1: #user defined arguments are provide
         weather_yrs_scenario = [2015]
-        weather_yrs_scenario.append(sys.argv[1])        # Weather year
-        weather_station_count_nr = sys.argv[2]          # Weather station cnt
+        weather_yrs_scenario.append(int(sys.argv[1]))        # Weather year
+        try:
+            weather_station_count_nr = sys.argv[2]          # Weather station cnt
+        except:
+            weather_station_count_nr = []
     else:
         weather_yrs_scenario = [2015]                   # Default weather year
         weather_station_count_nr = []                   # Default weather year
@@ -161,9 +164,6 @@ if __name__ == "__main__":
     print("-------------------------------------")
     print("weather_yrs_scenario:        " + str(weather_yrs_scenario))
     print("weather_station_count_nr:    " + str(weather_station_count_nr))
-    
-    weather_yrs_scenario = [2015]#, 1962]                                             # Temperature years
-    weather_station_count_nr = []        # Number of model runs with different weather stations (default = 0 and all stations are used)
 
     # --- Region definition configuration
     name_region_set = os.path.join(local_data_path, 'region_definitions', "lad_2016_uk_simplified.shp")        # LAD
@@ -183,7 +183,7 @@ if __name__ == "__main__":
     # --------------------
     # Paths
     # --------------------
-    name_scenario_run = "_result_local_data_{}".format(str(time.ctime()).replace(":", "_").replace(" ", "_"))
+    name_scenario_run = "_result_local_{}".format(str(time.ctime()).replace(":", "_").replace(" ", "_"))
 
     data['paths'] = data_loader.load_paths(path_main)
     data['local_paths'] = data_loader.get_local_paths(local_data_path)

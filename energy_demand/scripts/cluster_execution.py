@@ -14,11 +14,16 @@ def my_function(simulation_number):
     #bash_command = "smif -v run ed_constrained_pop-baseline16_econ-c16_fuel-c16"
     #os.system(bash_command)
 
-    weather_yrs = [1961, 1962]
+    all_weather_stations = True
 
-    weather_yr = [simulation_number]
+    weather_yrs = [1961, 1962, 1963]
 
-    weather_station_cnt = [] #All stationssimulation_number
+    weather_yr = weather_yrs[simulation_number]
+
+    if all_weather_stations:
+        weather_station_cnt = [] #All stationssimulation_number
+    else:
+        weather_station_cnt = simulation_number
 
     # Run energy demand main.py
     bash_command = "python energy_demand/energy_demand/main.py {} {}".format(weather_yr, weather_station_cnt)
