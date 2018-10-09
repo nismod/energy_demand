@@ -38,13 +38,18 @@ def main(
     # ---------------------------------------------------------
     to_ignores = [
         'model_run_pop',
-        'model_run_sim_param.ini']
+        'PDF_validation']
+
+    endings_to_ignore = [
+        '.pdf',
+        '.txt',
+        '.ini']
 
     all_result_folders = os.listdir(path_data_ed)
     paths_folders_result = []
 
     for result_folder in all_result_folders:
-        if result_folder not in to_ignores:
+        if result_folder not in to_ignores and result_folder[-4:] not in endings_to_ignore:
             paths_folders_result.append(
                 os.path.join(path_data_ed, result_folder))
 
@@ -52,9 +57,10 @@ def main(
     # Calculate results for every weather year
     ####################################################################
     for path_result_folder in paths_folders_result:
-
+        
+        print("-----------------------")
         print("path_result_folder: " + str(path_result_folder))
-
+        print("-----------------------")
         # Simulation information is read in from .ini file for results
         data['enduses'], data['assumptions'], data['reg_nrs'], data['regions'] = data_loader.load_ini_param(
             os.path.join(path_data_ed))
@@ -72,6 +78,7 @@ def main(
         # ---------------
         # Folder cleaning
         # ---------------
+        print("A " + str(data['result_paths']['data_results_PDF']))
         basic_functions.del_previous_setup(data['result_paths']['data_results_PDF'])
         basic_functions.del_previous_setup(data['result_paths']['data_results_shapefiles'])
         basic_functions.create_folder(data['result_paths']['data_results_PDF'])

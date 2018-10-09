@@ -28,6 +28,7 @@ def test_assign_by_fuel_tech_p():
     base_yr = 2015
 
     data['assumptions'] = general_assumptions.Assumptions(
+        submodels_names=['a']
         base_yr=base_yr,
         curr_yr=None,
         simulated_yrs=None,

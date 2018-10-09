@@ -267,7 +267,6 @@ def read_in_results(path_result, seasons, model_yeardays_daytype):
     results_container['results_enduse_every_year'] = read_enduse_specific_results(
         path_result)
 
-    #
     results_container['results_every_year'] = read_results_yh(path_result)
 
     # -----------------

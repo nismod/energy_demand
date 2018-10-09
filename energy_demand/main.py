@@ -42,8 +42,8 @@ from energy_demand.scripts import s_scenario_param
 from energy_demand.scripts import init_scripts
 from energy_demand.basic import logger_setup
 from energy_demand.plotting import fig_enduse_yh
-from energy_demand.charts import resilience_project
 from energy_demand.geography import weather_region
+from energy_demand.charts import resilience_project
 
 def energy_demand_model(
         regions,
@@ -103,12 +103,8 @@ if __name__ == "__main__":
     """
     data = {}
 
-    # Paths
-    if len(sys.argv) != 2:
-        print("Please provide a local data path:")
-        local_data_path = os.path.abspath('data')
-    else:
-        local_data_path = sys.argv[1]
+    # Local path
+    local_data_path = os.path.abspath('data')
 
     path_main = os.path.abspath(
         os.path.join(
@@ -137,7 +133,7 @@ if __name__ == "__main__":
     # -------------------
     # Other configuration
     # -------------------
-    RESILIENCEPAPERPOUTPUT = True                                      # Output data for resilience paper
+    RESILIENCEPAPERPOUTPUT = True     # Output data for resilience paper
 
     # If the smif configuration files what to be written, set this to true. The program will abort after they are written to YAML files
     data['criterias']['writeYAML'] = False
@@ -148,8 +144,24 @@ if __name__ == "__main__":
     # --- Model running configurations
     user_defined_base_yr = 2015
     user_defined_weather_by = 2015
-    user_defined_simulation_end_yr = 2050                                   # Used to create standard narrative
-    simulated_yrs = [user_defined_base_yr, user_defined_simulation_end_yr] #2030, 
+    user_defined_simulation_end_yr = 2050  # Used to create standard narrative
+
+    # Simulated yrs
+    simulated_yrs = [user_defined_base_yr, user_defined_simulation_end_yr]
+    
+    if len(sys.argv) > 1: #user defined arguments are provide
+        weather_yrs_scenario = [2015]
+        weather_yrs_scenario.append(sys.argv[1])        # Weather year
+        weather_station_count_nr = sys.argv[2]          # Weather station cnt
+    else:
+        weather_yrs_scenario = [2015]                   # Default weather year
+        weather_station_count_nr = []                   # Default weather year
+
+    print("Information")
+    print("-------------------------------------")
+    print("weather_yrs_scenario:        " + str(weather_yrs_scenario))
+    print("weather_station_count_nr:    " + str(weather_station_count_nr))
+    
     weather_yrs_scenario = [2015]#, 1962]                                             # Temperature years
     weather_station_count_nr = []        # Number of model runs with different weather stations (default = 0 and all stations are used)
 

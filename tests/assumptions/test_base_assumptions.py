@@ -27,6 +27,7 @@ def test_load_non_param_assump():
         lu['submodels_names'], paths, lu['fueltypes_nr'])
 
     general_assumptions.Assumptions(
+        submodels_names=["a", "b"],
         base_yr=2015,
         curr_yr=None,
         simulated_yrs=None,

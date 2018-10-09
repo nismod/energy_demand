@@ -7,23 +7,33 @@ from multiprocessing import Pool, cpu_count
 #import any other packages 
 import numpy as np
 
-
 def my_function(simulation_number):  
     print('simulation_number ' + str(simulation_number))
 
     # Run smif
-    bashCommand = "smif -v run ed_constrained_pop-baseline16_econ-c16_fuel-c16"
-    os.system(bashCommand)
+    #bash_command = "smif -v run ed_constrained_pop-baseline16_econ-c16_fuel-c16"
+    #os.system(bash_command)
+
+    weather_yrs = [1961, 1962]
+
+    weather_yr = [simulation_number]
+
+    weather_station_cnt = [] #All stationssimulation_number
+
+    # Run energy demand main.py
+    bash_command = "python energy_demand/energy_demand/main.py {} {}".format(weather_yr, weather_station_cnt)
+    os.system(bash_command)
 
     return 
 
-simulation_list = [1, 2] #,3,4,5,6,7,8,9,10]
+# WEather years
+simulation_number = [1, 2] #,3,4,5,6,7,8,9,10]
 
 if __name__ == "__main__":
     with Pool(int(cpu_count()/2)) as pool:
         pool.map(
             my_function,
-            simulation_list,
+            simulation_number,
             chunksize=10)
 
 '''
