@@ -48,6 +48,7 @@ class Assumptions(object):
         """Constructor
         """
         self.submodels_names = submodels_names
+        self.nr_of_submodels = len(submodels_names)
         self.base_yr = base_yr
         self.weather_by = weather_by
         self.simulation_end_yr = simulation_end_yr

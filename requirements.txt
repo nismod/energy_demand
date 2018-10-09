@@ -12,3 +12,4 @@ geopandas
 pysal
 palettable
 imageio
+pympler #memory debugger

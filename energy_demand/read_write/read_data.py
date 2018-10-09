@@ -261,8 +261,9 @@ def read_in_results(path_result, seasons, model_yeardays_daytype):
     results_container = {}
 
     # -------------
-    # Fuels
+    # Read in demands
     # -------------
+    # National demand per enduse for every year
     results_container['results_enduse_every_year'] = read_enduse_specific_results(
         path_result)
 
@@ -297,7 +298,7 @@ def read_in_results(path_result, seasons, model_yeardays_daytype):
     results_container['reg_load_factor_yd'] = read_lf_y(
         os.path.join(path_result, "result_reg_load_factor_yd"))
 
-    results_container['load_factor_seasons'] = {}
+    '''results_container['load_factor_seasons'] = {}
     results_container['load_factor_seasons']['winter'] = read_lf_y(
         os.path.join(path_result, "result_reg_load_factor_winter"))
     results_container['load_factor_seasons']['spring'] = read_lf_y(
@@ -305,7 +306,7 @@ def read_in_results(path_result, seasons, model_yeardays_daytype):
     results_container['load_factor_seasons']['summer'] = read_lf_y(
         os.path.join(path_result, "result_reg_load_factor_summer"))
     results_container['load_factor_seasons']['autumn'] = read_lf_y(
-        os.path.join(path_result, "result_reg_load_factor_autumn"))
+        os.path.join(path_result, "result_reg_load_factor_autumn"))'''
 
     # -------------
     # Post-calculations
@@ -383,7 +384,6 @@ def read_results_yh(path_to_folder):
 
     all_txt_files_in_folder = os.listdir(path_to_folder)
 
-    # Iterate files in folder
     for file_path in all_txt_files_in_folder:
         try:
             path_file_to_read = os.path.join(path_to_folder, file_path)
@@ -1024,7 +1024,6 @@ def read_scenaric_population_data(result_path):
 
     all_txt_files_in_folder = os.listdir(result_path)
 
-    # Iterate files
     for file_path in all_txt_files_in_folder:
         path_file_to_read = os.path.join(result_path, file_path)
         file_path_split = file_path.split("__")
@@ -1301,4 +1300,3 @@ def load_full_paramter_values(file_path):
     gp_file = pd.read_csv(file_path)
 
     return gp_file
-        

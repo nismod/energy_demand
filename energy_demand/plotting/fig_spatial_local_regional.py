@@ -17,7 +17,8 @@ def run(
         period_h,
         validation_elec_2015,
         non_regional_elec_2015,
-        fig_name
+        fig_name,
+        plot_show=False
     ):
     """
     """
@@ -164,7 +165,10 @@ def run(
         frameon=False,
         shadow=True)
 
-    plt.show()
+    if plot_show:
+        plt.show()
+    else:
+        pass
 
     plt.savefig(fig_name)
     plt.close()

@@ -12,6 +12,7 @@ import geopandas as gpd
 from shapely.geometry import Point
 import matplotlib.pyplot as plt
 
+from energy_demand.read_write import write_data
 from energy_demand.read_write import read_data, read_weather_data
 from energy_demand.basic import conversions
 from energy_demand.plotting import fig_lp
@@ -93,6 +94,20 @@ def create_weather_station_map(
     gdf.plot(ax=ax, color='red')
 
     plt.savefig(fig_path)
+
+     # ---------------------------------
+    # Save coordinates as file
+    # ---------------------------------
+    station_infos = ["name, latitue, longitude"]
+    fig_path = fig_path[:-4] + ".txt"
+    for station in stations_as_dict:
+        station_info = "{}, {}, {}".format(
+            station,
+            stations_as_dict[station]['latitude'],
+            stations_as_dict[station]['longitude'])
+        station_infos.append(station_info)
+
+    write_data.write_list_to_txt(fig_path, station_infos)
 
 def read_weather_stations_raw(path_to_csv):
     """Read in weather stations from csv file
@@ -278,7 +293,7 @@ def load_MOSA_pop(path_to_csv):
 
     return pop_data
 
-def read_national_real_elec_data(path_to_csv):
+def read_lad_demands(path_to_csv):
     """Read in national consumption from csv file. The unit
     in the original csv is in GWh per region per year.
 
@@ -292,9 +307,12 @@ def read_national_real_elec_data(path_to_csv):
     national_fuel_data : dict
         geocode, total consumption
 
-    Info
+    Source
     -----
-    Source: https://www.gov.uk/government/statistical-data-sets
+    https://www.gov.uk/government/statistical-data-sets
+    /regional-and-local-authority-gas-
+    consumption-statistics-2005-to-2011
+    https://www.gov.uk/government/statistical-data-sets
     /regional-and-local-authority-electricity-
     consumption-statistics-2005-to-2011
     """
@@ -306,11 +324,15 @@ def read_national_real_elec_data(path_to_csv):
         for row in rows:
             geocode = str.strip(row[read_data.get_position(headings, 'LA Code')])
             tot_consumption_unclean = row[read_data.get_position(headings, 'Total consumption')].strip()
-            try:
-                national_fuel_data[geocode] = float(tot_consumption_unclean.replace(",", ""))
-            except:
-                # no data provided
-                logging.debug("No validation data available for region %s", geocode)
+
+            if tot_consumption_unclean == '-':
+                pass
+            else:
+                try:
+                    national_fuel_data[geocode] = float(tot_consumption_unclean.replace(",", ""))
+                except:
+                    # no data provided
+                    logging.debug("No validation data available for region %s", geocode)
 
     return national_fuel_data
 
@@ -343,47 +365,6 @@ def read_elec_data_msoa(path_to_csv):
             geocode = str.strip(row[read_data.get_position(headings, 'msoa_code')])
             tot_consumption_unclean = row[read_data.get_position(headings, 'tot_conump_kWh')].strip()
             national_fuel_data[geocode] = float(tot_consumption_unclean.replace(",", ""))
-
-    return national_fuel_data
-    
-def read_national_real_gas_data(path_to_csv):
-    """Read in national consumption from csv file
-
-    Arguments
-    ---------
-    path_to_csv : str
-        Path to csv file
-
-    Returns
-    -------
-    national_fuel_data : dict
-        geocode, total consumption
-
-    Info
-    -----
-        -   Source: https://www.gov.uk/government/statistical-data-sets
-            /gas-sales-and-numbers-of-customers-by-region-and-local-authority
-
-        -   units are provided as GWh
-
-        -   If for a LAD no information is provided,
-            the energy demand is set to zero.
-    """
-    national_fuel_data = {}
-    with open(path_to_csv, 'r') as csvfile:
-        rows = csv.reader(csvfile, delimiter=',')
-        headings = next(rows) # Skip first row
-
-        for row in rows:
-            geocode = str.strip(row[read_data.get_position(headings, 'LA Code')])
-            tot_consumption_unclean = row[read_data.get_position(headings, 'Total consumption')].strip()
-
-            if tot_consumption_unclean == '-':
-                total_consumption = 0 # No entry provided
-            else:
-                total_consumption = float(tot_consumption_unclean.replace(",", ""))
-
-            national_fuel_data[geocode] = total_consumption
 
     return national_fuel_data
 
@@ -469,8 +450,6 @@ def floor_area_virtual_dw(
 
                 # Calculate average floor area if no data is available
                 ss_floor_area_cy = ss_avearge_floor_area_pp * population[region]
-
-                #ss_floorarea_sector_by[base_yr][region][sector] = 0 # Set to zero if no floor area is available
                 ss_floorarea_sector_by[base_yr][region][sector] = ss_floor_area_cy
                 ss_regions_without_floorarea.add(region)
 
@@ -941,13 +920,7 @@ def load_temp_data(local_paths, weather_yrs_scenario, save_fig=False):
                 weather_stations_with_data[year],
                 os.path.join(save_fig, 'weather_station_distribution_{}.pdf'.format(year)),
                 path_shapefile=local_paths['lad_shapefile'])
-        
-            # print coordinates
-            #for station in weather_stations_with_data:
-            #    print("{}, {}".format(
-            #        weather_stations_with_data[station]['latitude'],
-            #        weather_stations_with_data[station]['longitude']))
-        
+
     return dict(weather_stations_with_data), dict(temp_data_short)
 
 def load_fuels(submodels_names, paths, fueltypes_nr):

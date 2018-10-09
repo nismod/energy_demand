@@ -1,6 +1,7 @@
 """
 """
 import os
+import numpy as np
 import matplotlib.pyplot as plt
 from energy_demand.plotting import basic_plot_functions
 
@@ -13,15 +14,16 @@ def run(
     ):
     """Plot individual enduse
     """
+    ed_yh_365 = np.copy(ed_yh.reshape(365, 24))
+
     nr_of_h_to_plot = len(days_to_plot) * 24
 
     x_data = range(nr_of_h_to_plot)
 
     y_calculated = []
-
     for day in days_to_plot:
         for hour in range(24):
-            y_calculated.append(ed_yh[day][hour])
+            y_calculated.append(ed_yh_365[day][hour])
 
     # ----------
     # Plot figure
