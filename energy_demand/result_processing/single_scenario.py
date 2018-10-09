@@ -53,6 +53,8 @@ def main(
     ####################################################################
     for path_result_folder in paths_folders_result:
 
+        print("path_result_folder: " + str(path_result_folder))
+
         # Simulation information is read in from .ini file for results
         data['enduses'], data['assumptions'], data['reg_nrs'], data['regions'] = data_loader.load_ini_param(
             os.path.join(path_data_ed))
@@ -88,7 +90,7 @@ def main(
 
         data['scenario_data']['population'] = read_data.read_scenaric_population_data(
             os.path.join(path_data_ed, 'model_run_pop'))
-
+        
         # --------------------------------------------
         # Reading in results from different model runs
         # --------------------------------------------

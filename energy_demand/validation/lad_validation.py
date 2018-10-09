@@ -419,11 +419,6 @@ def spatio_temporal_val(
 
     elec_factored_yh = f_diff_elec * elec_2015_indo
 
-    logging.info(elec_2015_indo.shape)
-    logging.info(ed_fueltype_national_yh[fueltypes['electricity']])
-    logging.info("noppp " + str(np.sum(elec_factored_yh)))
-    logging.info("dd    " + str(ed_fueltype_national_yh[fueltypes['electricity']]))
-
     temporal_validation(
         result_paths,
         ed_fueltype_national_yh[fueltypes['electricity']],

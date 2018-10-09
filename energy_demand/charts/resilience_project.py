@@ -254,8 +254,12 @@ def resilience_paper(
             reg_total_max_day = 0
             reg_total_min_day = 0
             for submodel_nr, submodel in enumerate(submodels):
-                reg_total_max_day += results[submodel_nr][region_nr][fueltype_int][max_day]
-                reg_total_min_day += results[submodel_nr][region_nr][fueltype_int][min_day]
+                
+
+                daily_values = results[submodel_nr][region_nr][fueltype_int].reshape(365, 24)
+
+                reg_total_max_day += daily_values[max_day]
+                reg_total_min_day += daily_values[min_day]
 
             file.write("{}, {}, {}\n".format(
                 region,

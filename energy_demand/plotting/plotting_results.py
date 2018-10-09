@@ -237,14 +237,14 @@ def run_all_plot_functions(
     # ------------------------------------
     if plot_crit['plot_lf'] :
         for fueltype_str, fueltype_int in lookups['fueltypes'].items():
-            fig_lf.plot_seasonal_lf(
+            '''fig_lf.plot_seasonal_lf(
                 fueltype_int,
                 fueltype_str,
                 results_container['load_factor_seasons'],
                 reg_nrs,
                 os.path.join(
                     result_paths['data_results_PDF'],
-                    'lf_seasonal_{}.pdf'.format(fueltype_str)))
+                    'lf_seasonal_{}.pdf'.format(fueltype_str)))'''
 
             '''fig_lf.plot_lf_y(
                 fueltype_int,

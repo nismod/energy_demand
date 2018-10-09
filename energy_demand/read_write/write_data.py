@@ -20,98 +20,51 @@ class ExplicitDumper(yaml.Dumper):
 def logg_info(modelrun, fuels_in, data):
     """Logg information
     """
-    logging.info("================================================================================================================================================")
+    logging.info("=====================================================")
     logging.info("Simulation year:         %s", str(modelrun.curr_yr))
     logging.info("Nr of regions:           %s", str(data['reg_nrs']))
     logging.info("Total ktoe:              %s", str(conversions.gwh_to_ktoe(fuels_in["fuel_in"])))
-    logging.info("------------------------------------------------------------------------------------------------------------------------------------")
+    logging.info("-----------------------------------------------------")
     logging.info("[GWh] Total input:       %s", str(fuels_in["fuel_in"]))
     logging.info("[GWh] Total output:      %s", str(np.sum(modelrun.ed_fueltype_national_yh)))
     logging.info("[GWh] Total difference:  %s", str(round((np.sum(modelrun.ed_fueltype_national_yh) - fuels_in["fuel_in"]), 4)))
-    logging.info("------------------------------------------------------------------------------------------------------------------------------------")
+    logging.info("-----------------------------------------------------")
     logging.info("[GWh] oil input:         %s", str(fuels_in["fuel_in_oil"]))
     logging.info("[GWh] oil output:        %s", str(np.sum(modelrun.ed_fueltype_national_yh[data['lookups']['fueltypes']['oil']])))
     logging.info("[GWh] oil diff:          %s", str(round(np.sum(modelrun.ed_fueltype_national_yh[data['lookups']['fueltypes']['oil']]) - fuels_in["fuel_in_oil"], 4)))
-    logging.info("------------------------------------------------------------------------------------------------------------------------------------")
+    logging.info("-----------------------------------------------------")
     logging.info("[GWh] biomass output:    %s", str(fuels_in["fuel_in_biomass"]))
     logging.info("[GWh] biomass output:    %s", str(np.sum(modelrun.ed_fueltype_national_yh[data['lookups']['fueltypes']['biomass']])))
     logging.info("[GWh] biomass diff:      %s", str(round(np.sum(modelrun.ed_fueltype_national_yh[data['lookups']['fueltypes']['biomass']]) - fuels_in["fuel_in_biomass"], 4)))
-    logging.info("------------------------------------------------------------------------------------------------------------------------------------")
+    logging.info("-----------------------------------------------------")
     logging.info("[GWh] solid_fuel output: %s", str(fuels_in["fuel_in_solid_fuel"]))
     logging.info("[GWh] solid_fuel output: %s", str(np.sum(modelrun.ed_fueltype_national_yh[data['lookups']['fueltypes']['solid_fuel']])))
     logging.info("[GWh] solid_fuel diff:   %s", str(round(np.sum(modelrun.ed_fueltype_national_yh[data['lookups']['fueltypes']['solid_fuel']]) - fuels_in["fuel_in_solid_fuel"], 4)))
-    logging.info("------------------------------------------------------------------------------------------------------------------------------------")
+    logging.info("-----------------------------------------------------")
     logging.info("[GWh] elec output:       %s", str(fuels_in["fuel_in_elec"]))
     logging.info("[GWh] elec output:       %s", str(np.sum(modelrun.ed_fueltype_national_yh[data['lookups']['fueltypes']['electricity']])))
     logging.info("[GWh] ele fuel diff:     %s", str(round(np.sum(modelrun.ed_fueltype_national_yh[data['lookups']['fueltypes']['electricity']]) - fuels_in["fuel_in_elec"], 4)))
-    logging.info("------------------------------------------------------------------------------------------------------------------------------------")
+    logging.info("-----------------------------------------------------")
     logging.info("[GWh] gas output:        %s", str(fuels_in["fuel_in_gas"]))
     logging.info("[GWh] gas output:        %s", str(np.sum(modelrun.ed_fueltype_national_yh[data['lookups']['fueltypes']['gas']])))
     logging.info("[GWh] gas diff:          %s", str(round(np.sum(modelrun.ed_fueltype_national_yh[data['lookups']['fueltypes']['gas']]) - fuels_in["fuel_in_gas"], 4)))
-    logging.info("------------------------------------------------------------------------------------------------------------------------------------")
+    logging.info("-----------------------------------------------------")
     logging.info("[GWh] hydro output:      %s", str(fuels_in["fuel_in_hydrogen"]))
     logging.info("[GWh] hydro output:      %s", str(np.sum(modelrun.ed_fueltype_national_yh[data['lookups']['fueltypes']['hydrogen']])))
     logging.info("[GWh] hydro diff:        %s", str(round(np.sum(modelrun.ed_fueltype_national_yh[data['lookups']['fueltypes']['hydrogen']]) - fuels_in["fuel_in_hydrogen"], 4)))
-    logging.info("------------------------------------------------------------------------------------------------------------------------------------")
+    logging.info("-----------------------------------------------------")
     logging.info("TOTAL HEATING            %s", str(fuels_in["tot_heating"]))
     logging.info("[GWh] heat input:        %s", str(fuels_in["fuel_in_heat"]))
     logging.info("[GWh] heat output:       %s", str(np.sum(modelrun.ed_fueltype_national_yh[data['lookups']['fueltypes']['heat']])))
     logging.info("[GWh] heat diff:         %s", str(round(np.sum(modelrun.ed_fueltype_national_yh[data['lookups']['fueltypes']['heat']]) - fuels_in["fuel_in_heat"], 4)))
-    logging.info("------------------------------------------------------------------------------------------------------------------------------------")
+    logging.info("-----------------------------------------------------")
     logging.info("Diff elec p:             %s", str(round((np.sum(modelrun.ed_fueltype_national_yh[data['lookups']['fueltypes']['electricity']])/ fuels_in["fuel_in_elec"]), 4)))
     logging.info("Diff gas p:              %s", str(round((np.sum(modelrun.ed_fueltype_national_yh[data['lookups']['fueltypes']['gas']])/ fuels_in["fuel_in_gas"]), 4)))
     logging.info("Diff oil p:              %s", str(round((np.sum(modelrun.ed_fueltype_national_yh[data['lookups']['fueltypes']['oil']])/ fuels_in["fuel_in_oil"]), 4)))
     logging.info("Diff solid_fuel p:       %s", str(round((np.sum(modelrun.ed_fueltype_national_yh[data['lookups']['fueltypes']['solid_fuel']])/ fuels_in["fuel_in_solid_fuel"]), 4)))
     logging.info("Diff hydrogen p:         %s", str(round((np.sum(modelrun.ed_fueltype_national_yh[data['lookups']['fueltypes']['hydrogen']])/ fuels_in["fuel_in_hydrogen"]), 4)))
     logging.info("Diff biomass p:          %s", str(round((np.sum(modelrun.ed_fueltype_national_yh[data['lookups']['fueltypes']['biomass']])/ fuels_in["fuel_in_biomass"]), 4)))
-    logging.info("================================================================================================================================================", flush=True)
-
-
-    print("================================================================================================================================================", flush=True)
-    print("Simulation year:         %s", str(modelrun.curr_yr), flush=True)
-    print("Nr of regions:           %s", str(data['reg_nrs']), flush=True)
-    print("Total ktoe:              %s", str(conversions.gwh_to_ktoe(fuels_in["fuel_in"]), flush=True))
-    print("------------------------------------------------------------------------------------------------------------------------------------", flush=True)
-    print("[GWh] Total input:       %s", str(fuels_in["fuel_in"]), flush=True)
-    print("[GWh] Total output:      %s", str(np.sum(modelrun.ed_fueltype_national_yh)), flush=True)
-    print("[GWh] Total difference:  %s", str(round((np.sum(modelrun.ed_fueltype_national_yh) - fuels_in["fuel_in"]), 4)), flush=True)
-    print("------------------------------------------------------------------------------------------------------------------------------------", flush=True)
-    print("[GWh] oil input:         %s", str(fuels_in["fuel_in_oil"]), flush=True)
-    print("[GWh] oil output:        %s", str(np.sum(modelrun.ed_fueltype_national_yh[data['lookups']['fueltypes']['oil']])), flush=True)
-    print("[GWh] oil diff:          %s", str(round(np.sum(modelrun.ed_fueltype_national_yh[data['lookups']['fueltypes']['oil']]) - fuels_in["fuel_in_oil"], 4)), flush=True)
-    print("------------------------------------------------------------------------------------------------------------------------------------", flush=True)
-    print("[GWh] biomass output:    %s", str(fuels_in["fuel_in_biomass"]), flush=True)
-    print("[GWh] biomass output:    %s", str(np.sum(modelrun.ed_fueltype_national_yh[data['lookups']['fueltypes']['biomass']]), flush=True))
-    print("[GWh] biomass diff:      %s", str(round(np.sum(modelrun.ed_fueltype_national_yh[data['lookups']['fueltypes']['biomass']]) - fuels_in["fuel_in_biomass"], 4)), flush=True)
-    print("------------------------------------------------------------------------------------------------------------------------------------")
-    print("[GWh] solid_fuel output: %s", str(fuels_in["fuel_in_solid_fuel"]), flush=True)
-    print("[GWh] solid_fuel output: %s", str(np.sum(modelrun.ed_fueltype_national_yh[data['lookups']['fueltypes']['solid_fuel']])), flush=True)
-    print("[GWh] solid_fuel diff:   %s", str(round(np.sum(modelrun.ed_fueltype_national_yh[data['lookups']['fueltypes']['solid_fuel']]) - fuels_in["fuel_in_solid_fuel"], 4)), flush=True)
-    print("------------------------------------------------------------------------------------------------------------------------------------", flush=True)
-    print("[GWh] elec output:       %s", str(fuels_in["fuel_in_elec"]), flush=True)
-    print("[GWh] elec output:       %s", str(np.sum(modelrun.ed_fueltype_national_yh[data['lookups']['fueltypes']['electricity']])), flush=True)
-    print("[GWh] ele fuel diff:     %s", str(round(np.sum(modelrun.ed_fueltype_national_yh[data['lookups']['fueltypes']['electricity']]) - fuels_in["fuel_in_elec"], 4)), flush=True)
-    print("------------------------------------------------------------------------------------------------------------------------------------", flush=True)
-    print("[GWh] gas output:        %s", str(fuels_in["fuel_in_gas"]), flush=True)
-    print("[GWh] gas output:        %s", str(np.sum(modelrun.ed_fueltype_national_yh[data['lookups']['fueltypes']['gas']])), flush=True)
-    print("[GWh] gas diff:          %s", str(round(np.sum(modelrun.ed_fueltype_national_yh[data['lookups']['fueltypes']['gas']]) - fuels_in["fuel_in_gas"], 4)), flush=True)
-    print("------------------------------------------------------------------------------------------------------------------------------------")
-    print("[GWh] hydro output:      %s", str(fuels_in["fuel_in_hydrogen"]), flush=True)
-    print("[GWh] hydro output:      %s", str(np.sum(modelrun.ed_fueltype_national_yh[data['lookups']['fueltypes']['hydrogen']])), flush=True)
-    print("[GWh] hydro diff:        %s", str(round(np.sum(modelrun.ed_fueltype_national_yh[data['lookups']['fueltypes']['hydrogen']]) - fuels_in["fuel_in_hydrogen"], 4)), flush=True)
-    print("------------------------------------------------------------------------------------------------------------------------------------", flush=True)
-    print("TOTAL HEATING            %s", str(fuels_in["tot_heating"]), flush=True)
-    print("[GWh] heat input:        %s", str(fuels_in["fuel_in_heat"]), flush=True)
-    print("[GWh] heat output:       %s", str(np.sum(modelrun.ed_fueltype_national_yh[data['lookups']['fueltypes']['heat']])), flush=True)
-    print("[GWh] heat diff:         %s", str(round(np.sum(modelrun.ed_fueltype_national_yh[data['lookups']['fueltypes']['heat']]) - fuels_in["fuel_in_heat"], 4)), flush=True)
-    print("------------------------------------------------------------------------------------------------------------------------------------", flush=True)
-    print("Diff elec p:             %s", str(round((np.sum(modelrun.ed_fueltype_national_yh[data['lookups']['fueltypes']['electricity']]) / fuels_in["fuel_in_elec"]), 4)), flush=True)
-    print("Diff gas p:              %s", str(round((np.sum(modelrun.ed_fueltype_national_yh[data['lookups']['fueltypes']['gas']]) / fuels_in["fuel_in_gas"]), 4)), flush=True)
-    print("Diff oil p:              %s", str(round((np.sum(modelrun.ed_fueltype_national_yh[data['lookups']['fueltypes']['oil']]) / fuels_in["fuel_in_oil"]), 4)), flush=True)
-    print("Diff solid_fuel p:       %s", str(round((np.sum(modelrun.ed_fueltype_national_yh[data['lookups']['fueltypes']['solid_fuel']]) / fuels_in["fuel_in_solid_fuel"]), 4)), flush=True)
-    print("Diff hydrogen p:         %s", str(round((np.sum(modelrun.ed_fueltype_national_yh[data['lookups']['fueltypes']['hydrogen']])/ fuels_in["fuel_in_hydrogen"]), 4)), flush=True)
-    print("Diff biomass p:          %s", str(round((np.sum(modelrun.ed_fueltype_national_yh[data['lookups']['fueltypes']['biomass']])/ fuels_in["fuel_in_biomass"]), 4)), flush=True)
-    print("================================================================================================================================================", flush=True)
+    logging.info("=====================================================")
 
 def tuple_representer(dumper, data):
     return dumper.represent_scalar(
@@ -139,7 +92,7 @@ def write_scenaric_population_data(sim_yr, path_result, pop_y):
         Simulation year
     path_result : str
         Path to resulting folder
-    pop_y : array
+    pop_y : array or list
         Population of simulation year
     """
     path_file = os.path.join(
@@ -147,7 +100,9 @@ def write_scenaric_population_data(sim_yr, path_result, pop_y):
         "pop__{}__{}".format(sim_yr, ".npy"))
 
     np.save(path_file, pop_y)
-    logging.info("... finished saving population")
+    assert type(pop_y) != dict #test that not a dict
+
+    logging.debug("... finished saving population")
 
 def dump(data, file_path):
     """Write plain data to a file as yaml
@@ -433,7 +388,7 @@ def write_enduse_specific(
         path_result, "enduse_specific_results")
 
     for enduse, fuel in tot_fuel_y_enduse_specific_yh.items():
-        logging.info("Endus specific: %s  Total demand: %s ", enduse, np.sum(fuel))
+        logging.info("   ... Enduse specific writing to file: %s  Total demand: %s ", enduse, np.sum(fuel))
 
         path_file = os.path.join(
             os.path.join(path_result, "enduse_specific_results"),

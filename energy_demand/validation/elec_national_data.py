@@ -118,24 +118,23 @@ def compare_results(
     y_calculated_list = []
     y_diff_p = []
     y_diff_abs = []
-    print("AAA")
-    print(np.sum(y_calculated_array))
-    print(y_calculated_array)
-    print(y_calculated_array)
+
     for day in days_to_plot:
         for hour in range(24):
-            print("fff")
-            print(day)
-            print(hour)
-            print(y_calculated_array.shape)
             y_calculated_list.append(y_calculated_array[day][hour])
             y_real_indo_factored.append(y_factored_indo[day][hour])
 
             # Calculate absolute differences
-            y_diff_abs.append(abs(y_factored_indo[day][hour] - y_calculated_array[day][hour]))
+            abs_diff = abs(y_factored_indo[day][hour] - y_calculated_array[day][hour])
+            y_diff_abs.append(abs_diff)
 
             # Calculate difference in percent
-            y_diff_p.append((100 / y_factored_indo[day][hour]) * y_calculated_array[day][hour] - 100)
+            if abs_diff == 0:
+                p_diff = 0
+            else:
+                p_diff = (100 / y_factored_indo[day][hour]) * y_calculated_array[day][hour] - 100
+
+            y_diff_p.append(p_diff)
 
     # -------------
     # RMSE
@@ -171,8 +170,7 @@ def compare_results(
     # ----------
     # Plot figure
     # ----------
-    fig = plt.figure(
-        figsize=basic_plot_functions.cm2inch(22, 8)) #width, height
+    fig = plt.figure(figsize=basic_plot_functions.cm2inch(22, 8))
 
     # smooth line
     x_data_smoothed, y_real_indo_factored_smoothed = basic_plot_functions.smooth_data(

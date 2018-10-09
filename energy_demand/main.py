@@ -11,10 +11,11 @@
 # Improve plotting and processing (e.g. saisonal plots)
 # Weather station cleaning: Replace days with missing values
 #TODO IMROVE PLOTTING (second round of geopanda classification)
-    Note
+#     Note
     ----
     Always execute from root folder. (e.g. energy_demand/energy_demand/main.py)
 
+# Fix regional plots
 # TEST NON CONSTRAINED MODE
 """
 import os
@@ -94,7 +95,6 @@ def energy_demand_model(
 
     # Log model results
     write_data.logg_info(modelrun, fuels_in, data)
-    logging.info("... finished running energy demand model simulation")
 
     return modelrun
 
@@ -149,8 +149,8 @@ if __name__ == "__main__":
     user_defined_base_yr = 2015
     user_defined_weather_by = 2015
     user_defined_simulation_end_yr = 2050                                   # Used to create standard narrative
-    simulated_yrs = [user_defined_base_yr, 2030, user_defined_simulation_end_yr]
-    weather_yrs_scenario = [2015, 1962]                                             # Temperature years
+    simulated_yrs = [user_defined_base_yr, user_defined_simulation_end_yr] #2030, 
+    weather_yrs_scenario = [2015]#, 1962]                                             # Temperature years
     weather_station_count_nr = []        # Number of model runs with different weather stations (default = 0 and all stations are used)
 
     # --- Region definition configuration
@@ -182,17 +182,17 @@ if __name__ == "__main__":
 
     basic_functions.create_folder(path_new_scenario)
     logger_setup.set_up_logger(os.path.join(path_new_scenario, "plotting.log"))
-    
-    # --------------
+
+    # ----------------------------------------------------------------------
     # Load data
-    # --------------
+    # ----------------------------------------------------------------------
     data['scenario_data'] = defaultdict(dict)
     data['lookups'] = lookup_tables.basic_lookups()
     data['enduses'], data['sectors'], data['fuels'] = data_loader.load_fuels(
         data['lookups']['submodels_names'], data['paths'], data['lookups']['fueltypes_nr'])
 
     data['regions'] = read_data.get_region_names(name_region_set)
-    data['reg_nrs'] = len(data['regions'])
+    data['reg_nrs'] = len(data['regions']) #TODO MOVE TO ASSUMPTIONS
 
     reg_centroids = read_data.get_region_centroids(name_region_set)
     data['reg_coord'] = basic_functions.get_long_lat_decimal_degrees(reg_centroids)
@@ -202,9 +202,9 @@ if __name__ == "__main__":
     data['scenario_data']['gva_industry'] = data_loader.read_scenario_data_gva(name_gva_dataset, all_dummy_data=False)
     data['scenario_data']['gva_per_head'] = data_loader.read_scenario_data(name_gva_dataset_per_head)
 
-    # -----------------------------
+    # -----------------------------------------------------------------------
     # Create new folders
-    # -----------------------------
+    # -----------------------------------------------------------------------
     basic_functions.del_previous_setup(data['result_paths']['data_results'])
 
     folders_to_create = [
@@ -416,14 +416,14 @@ if __name__ == "__main__":
         write_data.write_scenaric_population_data(
             sim_yr,
             os.path.join(data['path_new_scenario'], 'model_run_pop'),
-            data['scenario_data']['population'][sim_yr])
+            list(data['scenario_data']['population'][sim_yr].values()))
 
     # -----------------------
     # Main model run function
     # -----------------------
     for weather_yr in weather_yrs_scenario:
         print("... weather year: " + str(weather_yr), flush=True)
-        
+ 
         # ---------------------------------------------
         # Make selection of weather stations and data
         # ---------------------------------------------
@@ -451,7 +451,7 @@ if __name__ == "__main__":
             if continue_calculation:
 
                 for sim_yr in data['assumptions'].simulated_yrs:
-                    print("Simulation for year --------------:  " + str(sim_yr), flush=True)
+                    print("Loal simulation for year:  " + str(sim_yr), flush=True)
 
                     # Set current year
                     setattr(data['assumptions'], 'curr_yr', sim_yr)
@@ -509,9 +509,10 @@ if __name__ == "__main__":
                     # -------------------------
                     if RESILIENCEPAPERPOUTPUT:
 
-                        if round(np.sum(sim_obj.ed_fueltype_national_yh), 2)!= round(np.sum(sim_obj.results_unconstrained), 2):
-                            print("Should be the same")
-                            raise Exception
+                        if round(np.sum(sim_obj.ed_fueltype_national_yh), 2) != round(np.sum(sim_obj.results_unconstrained), 2):
+                            print(round(np.sum(sim_obj.ed_fueltype_national_yh), 2))
+                            print(round(np.sum(sim_obj.results_unconstrained), 2))
+                            raise Exception("Should be the same")
 
                         resilience_project.resilience_paper(
                             sim_yr,
@@ -599,7 +600,7 @@ if __name__ == "__main__":
                             [sim_yr],
                             sim_obj.reg_load_factor_yd,
                             'reg_load_factor_yd')
-                        write_data.write_lf(
+                        '''write_data.write_lf(
                             path_runs,
                             "result_reg_load_factor_winter",
                             [sim_yr],
@@ -622,9 +623,12 @@ if __name__ == "__main__":
                             "result_reg_load_factor_autumn",
                             [sim_yr],
                             sim_obj.reg_seasons_lf['autumn'],
-                            'reg_load_factor_autumn')
+                            'reg_load_factor_autumn')'''
 
                         print("... Finished writing results to file")
+
+                    #remove garbage
+                    del sim_obj
 
     print("-------------------------")
     print("... Finished running HIRE")

@@ -53,12 +53,12 @@ def constrained_results(
 
     Note
     -----
-        -   For the fuel demand for CHP plants, the co-generated electricity
-            is not included in the demand model. Additional electricity supply
-            generated from CHP plants need to be calculated in the supply
-            model based on the fuel demand for CHP.
-            For CHP efficiency therefore not the overall efficiency is used
-            but only the thermal efficiency
+    For the fuel demand for CHP plants, the co-generated electricity
+    is not included in the demand model. Additional electricity supply
+    generated from CHP plants need to be calculated in the supply
+    model based on the fuel demand for CHP.
+    For CHP efficiency therefore not the overall efficiency is used
+    but only the thermal efficiency
     """
     supply_results = {}
 
@@ -83,15 +83,9 @@ def constrained_results(
             fueltype_str = technologies[tech].fueltype_str
             fueltype_int = technologies[tech].fueltype_int
 
-            # Generate key name (must be defined in `sector_models`)
             key_name = "{}_{}_{}".format(submodel, fueltype_str, tech_simplified)
 
-            if key_name in supply_results.keys():
-                # Add fuel for all regions for specific fueltype
-                supply_results[key_name] += fuel_tech[submodel_nr][:, fueltype_int, :]
-            else:
-                # Add fuel for all regions for specific fueltype
-                supply_results[key_name] = fuel_tech[submodel_nr][:, fueltype_int, :]
+            supply_results[key_name] = fuel_tech[submodel_nr][:, fueltype_int, :]
 
     # ---------------------------------
     # Add non_heating for all fueltypes
@@ -102,7 +96,6 @@ def constrained_results(
             if fueltype_str == 'heat':
                 pass #Do not add non_heating demand for fueltype heat
             else:
-                # Generate key name (must be defined in `sector_models`)
                 key_name = "{}_{}_{}".format(
                     submodel, fueltype_str, "non_heating")
 
@@ -112,9 +105,9 @@ def constrained_results(
     # --------------------------------------------
     # Check whether any entry is smaller than zero
     # --------------------------------------------
-    for _, values in supply_results.items():
+    for key_name, values in supply_results.items():
         if testing_functions.test_if_minus_value_in_array(values):
-            raise Exception("Error d: Negative entry in results")
+            raise Exception("Error d: Negative entry in results " + str(key_name))
 
     logging.info("... Prepared results for energy supply model in constrained mode")
     return supply_results

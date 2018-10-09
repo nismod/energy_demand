@@ -80,7 +80,7 @@ def get_reasonable_bin_values(
         # Bin with classes
         bins = list(range(int(min_class), int(max_class), int(increments)))
     else:
-        logging.info("Neg")
+        logging.info("Neg", flush=True)
         #lager negative values
 
         # must be of uneven length containing zero
@@ -122,7 +122,9 @@ def get_reasonable_bin_values(
     # Test that maximum 9 classes
     # ---
     if len(bins) > 8:
-        raise Exception("Too many bin classes defined " + str(len(bins)))
+        print("Nr of bins: " + str(len(bins)))
+        print(bins)
+        raise Exception("Too many bin classes defined" + str(len(bins)))
 
     return bins
 
@@ -910,10 +912,15 @@ def spatial_maps(
 
                     # Calculate difference in decimal
                     diff_p_h_max_regs = ((100 / h_max_gwh_regs_by) * h_max_gwh_regs_cy) - 100
+                    
+                    #import pprint
+                    #pprint.pprint(diff_p_h_max_regs)
+                    print("soi")
+
+                    #pprint.pprint(np.max(h_max_gwh_regs_by))
 
                     data_to_plot = basic_functions.array_to_dict(diff_p_h_max_regs, regions)
 
-                    # Both need to be lists
                     merge_data = {
                         str(field_name): list(data_to_plot.values()),
                         str(unique_merge_id): list(regions)}
@@ -924,7 +931,7 @@ def spatial_maps(
                         merge_data,
                         unique_merge_id)
 
-                    bins_increments = 20 #10
+                    bins_increments = 50 #10
                     bins = get_reasonable_bin_values(
                         data_to_plot=list(data_to_plot.values()),
                         increments=bins_increments)
@@ -1068,8 +1075,11 @@ def spatial_maps(
             field_name = 'pop_{}'.format(year)
 
             # Both need to be lists
+            pop_data = data['scenario_data']['population'][year]
+
             merge_data = {
-                str(field_name): data['scenario_data']['population'][year].flatten().tolist(),
+                #str(field_name): data['scenario_data']['population'][year].flatten().tolist(),
+                str(field_name): list(data['scenario_data']['population'][year]),
                 str(unique_merge_id): list(regions)}
 
             # Merge to shapefile
@@ -1185,7 +1195,7 @@ def spatial_maps(
                 #logging.info("Min {}  Max {}".format(
                 #    min(list(data_to_plot.values())),
                 #     max(list(data_to_plot.values()))))
-                bins_increments = 10 #MAYBE NEEDS TO BE ADOPTED
+                bins_increments = 20 #MAYBE NEEDS TO BE ADOPTED #TODO
 
                 bins = get_reasonable_bin_values(
                     data_to_plot=list(data_to_plot.values()),
