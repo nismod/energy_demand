@@ -587,6 +587,12 @@ if __name__ == "__main__":
             print("... Start writing results to file")
             path_runs = data['result_paths']['data_results_model_runs']
 
+            write_data.write_residential_tot_demands(
+                sim_yr,
+                path_runs,
+                sim_obj.ed_residnetial_tot_reg_yh,
+                "ed_residnetial_tot_reg_yh")
+
             write_data.write_supply_results(
                 sim_yr,
                 "result_tot_yh",

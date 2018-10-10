@@ -182,10 +182,6 @@ def run(
         ax = uk_gdf.plot(
             figsize=basic_plot_functions.cm2inch(25, 20))
 
-        # Field to plot
-        #field_to_plot = "std_deviation_p_demand_peak_h"
-        #field_to_plot = "std_deviation_abs_demand_peak_h"
-
         nr_of_intervals = 6
 
         bin_values = result_mapping.get_reasonable_bin_values_II(

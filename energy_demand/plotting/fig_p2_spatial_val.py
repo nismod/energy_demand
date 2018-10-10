@@ -231,7 +231,6 @@ def plot_spatial_validation(
         markeredgecolor='orange',
         color='black',
         label='model')'''
-    
 
     # Limit
     plt.ylim(ymin=0)

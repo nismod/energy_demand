@@ -135,9 +135,16 @@ def read_weather_stations_raw(path_to_csv):
     weather_stations = {}
 
     for _, row in df_stations.iterrows():
-        weather_stations[int(row['src_id'])] = {
-            'latitude' : float(row['Latitude']),
-            'longitude': float(row['Longitude'])}
+
+        # Filter out not fitting weather stations
+        if float(row['Longitude']) < -8:
+            pass
+        elif float(row['Latitude']) < 50:
+            pass
+        else:
+            weather_stations[int(row['src_id'])] = {
+                'latitude' : float(row['Latitude']),
+                'longitude': float(row['Longitude'])}
 
     return weather_stations
 

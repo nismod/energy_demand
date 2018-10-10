@@ -6,6 +6,7 @@ import sys
 from energy_demand.basic import basic_functions
 from energy_demand.plotting import figs_p2
 from energy_demand.plotting import fig_spatial_distribution_of_peak
+from energy_demand.plotting import fig_p2_spatial_weather_map
 
 def paper_II_plots(
         #path_to_folder_with_scenarios="C:/Users/cenv0553/ed/results/_multiple_TEST_two_scenarios",
@@ -67,6 +68,14 @@ def paper_II_plots(
     # Plot weather station availability map
     ####################################################################
 
+    path_to_weather_data = "C:/Users/cenv0553/ED/data/_raw_data/A-temperature_data/cleaned_weather_stations_data"
+    folder_path_weater_stations = "C:/Users/cenv0553/ED/data/_raw_data/A-temperature_data/cleaned_weather_stations.csv"
+    fig_path = "C:/Users/cenv0553/ed/results/_Fig2_multiple_2015_weather_stations/weather_station_maps.pdf"
+    fig_p2_spatial_weather_map.run(
+        path_to_weather_data,
+        folder_path_weater_stations,
+        path_shapefile=path_shapefile_input,
+        fig_path=fig_path)
 
     ####################################################################
     # Plot regional vs national spatio-temporal validation

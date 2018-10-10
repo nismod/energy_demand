@@ -11,6 +11,7 @@ import pandas as pd
 import palettable
 import matplotlib.pyplot as plt
 import matplotlib.patches as mpatches
+from matplotlib.patches import Circle  
 from matplotlib.colors import LinearSegmentedColormap
 from energy_demand.basic import basic_functions
 from energy_demand.technologies import tech_related
@@ -269,10 +270,6 @@ def user_defined_classification(
 def get_legend_handles(bins, color_list, color_zero, min_value, max_value):
     """
     """
-    print("bins fff")
-    print(bins)
-    print(color_list)
-
     legend_handles = []
     small_number = 0.0001 # Small number for plotting corrrect charts
 
@@ -304,6 +301,7 @@ def get_legend_handles(bins, color_list, color_zero, min_value, max_value):
                 patch = mpatches.Patch(
                     color=color_zero,
                     label=str("0"))
+
                 legend_handles.append(patch)
             else:
                 pass
@@ -329,7 +327,7 @@ def get_legend_handles(bins, color_list, color_zero, min_value, max_value):
 
     return legend_handles
 
-def add_simple_legend(bins, color_list, color_zero):
+def add_simple_legend(bins, color_list, color_zero, patch_form='rectangle'):
     """Add legend without giving the intervals
     """
     legend_handles = []
@@ -347,21 +345,26 @@ def add_simple_legend(bins, color_list, color_zero):
         else:
             label = str(bin_value)
 
-        #if cnt == 0 and bin_value == 0: #ignore first element if zero
-        #    pass
-        #else:
-        if 1 == 1:
-            if bin_value == 0:
-                color = color_zero
-            else:
-                color = color_list[bin_nr]
-                bin_nr += 1
+        if bin_value == 0:
+            color = color_zero
+        else:
+            color = color_list[bin_nr]
+            bin_nr += 1
 
+        if patch_form == 'rectangle':
             patch = mpatches.Patch(
                 color=color,
                 label=label)
+        elif patch_form == 'circle':
+            patch = Circle(
+                xy=(0,0),
+                radius=1,
+                color=color,
+                label=label)
+        else:
+            raise Exception("wrong patch_form")
 
-            legend_handles.append(patch)
+        legend_handles.append(patch)
 
     return legend_handles
 
