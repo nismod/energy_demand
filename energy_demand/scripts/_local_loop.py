@@ -1,46 +1,50 @@
+"""Script to run batch commands
+"""
 import os
 import subprocess
-
-# Import multi processing tools
 from multiprocessing import Pool, cpu_count
 
-#import any other packages 
-import numpy as np
+from energy_demand.read_write import read_weather_data
 
 def my_function(simulation_number):  
     print('simulation_number ' + str(simulation_number))
 
-    all_weather_stations = True
+    all_weather_stations = False
 
-    '''weather_yrs = [
-        1961,1962, 1963, 1965, 1966, 1967, 1969, 1970, 1971,
-            1973, 1974, 1975, 1977, 1978, 1979, 1981,
-            1983, 1985, 1986, 1987, 
-            1989, 1990, 1991, 1993,
-            1994, 1995, 1997, 1998, 1999, 2001, 2002, 2003,
-            2005, 2006,2007, 2009, 2010, 2011, 2013, 2014]'''
-        
-    weather_yrs = range(1960, 2016)
+    same_weather_yr = True
+    defined_weather_yr = 2015
 
-    weather_yr = weather_yrs[simulation_number]
+    # --------------------------
+    # Get all weather yrs with data (maybe read existing years from data folder)
+    # and select weather yr
+    # --------------------------
+    path_to_weather_data = "C:/Users/cenv0553/ED/data/_raw_data/A-temperature_data/cleaned_weather_stations_data"
+    weather_yrs = read_weather_data.get_all_weather_yrs(path_to_weather_data)
 
+    if same_weather_yr:
+        weather_yr = defined_weather_yr
+    else:
+        weather_yr = weather_yrs[simulation_number]
+
+    # --------------------------
+    # Select weather station
+    # --------------------------
     if all_weather_stations:
         weather_station_cnt = [] #All stationssimulation_number
     else:
         weather_station_cnt = simulation_number
 
     # Run energy demand main.py
-    bash_command1 = "cd C:/Users/cenv0553/ed"
+    os.system("cd C:/Users/cenv0553/ed")
+    os.system("python energy_demand/energy_demand/main.py {} {}".format(weather_yr, weather_station_cnt))
 
-    bash_command = "python energy_demand/energy_demand/main.py {}".format(weather_yr)
-
-    os.system(bash_command)
     print("======================")
     print("Finished model run simulation: weather_yr: {} weather_station_cnt: {}".format(weather_yr, weather_station_cnt))
     print("======================")
 
 # ===============================
-simulation_number = range(40)
+#simulation_number = range(40)
+simulation_number = range(2)
 
 for i in simulation_number:
     my_function(i)

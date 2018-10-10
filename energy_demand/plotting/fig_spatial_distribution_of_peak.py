@@ -29,13 +29,12 @@ def run(
     """
     """
     weather_yrs = []
+    calculated_yrs_paths = []
 
-    all_calculated_yrs_paths = []
     for scenario in scenarios:
 
         path_scenario = os.path.join(path_to_folder_with_scenarios, scenario)
         all_result_folders = os.listdir(path_scenario)
-        calculated_yrs_paths = []
 
         for result_folder in all_result_folders:
             try:
@@ -47,28 +46,11 @@ def run(
                 #    weather_station = int(split_path_name[1])
                 #except:
                 #    weather_station = "all_station"
-                
                 tupyle_yr_path = (weather_yr, os.path.join(path_scenario))
                 calculated_yrs_paths.append(tupyle_yr_path)
 
             except ValueError:
                 pass
-
-        # delete 2015 if more than two becuase only base year for every calcuatio
-        only_weather_yr_paths = []
-        if len(calculated_yrs_paths) == 2:
-
-            for weather_yr, path in calculated_yrs_paths:
-                if weather_yr == 2015:
-                    pass
-                else:
-                    only_weather_yr_paths.append((weather_yr, path))
-        else:
-            only_weather_yr_paths = calculated_yrs_paths
-
-        # Add only weather yr not 2015
-        for entry in only_weather_yr_paths:
-            all_calculated_yrs_paths.append(entry)
 
     for simulation_yr in simulation_yrs:
         # -----------
@@ -78,13 +60,13 @@ def run(
         #Fueltype to consider
         fueltype_str = 'electricity'
         fueltype_int = tech_related.get_fueltype_int(fueltype_str)
-        
+
         #results_container['ed_weatheryr_fueltype_regs_yh']
         container = {}
         container['abs_demand_in_peak_h'] = {}
         container['p_demand_in_peak_h'] = {}
         
-        for weather_yr, path_data_ed in all_calculated_yrs_paths:
+        for weather_yr, path_data_ed in calculated_yrs_paths:
             print("... prepare data {} {}".format(weather_yr, path_data_ed))
 
             path_to_weather_yr = os.path.join(path_data_ed, str(weather_yr))

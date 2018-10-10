@@ -49,6 +49,8 @@ class EnergyDemandModel(object):
         # ----------------------------
         # Create Weather Regions
         # ----------------------------
+        print("KOK")
+        print(weather_stations)
         # current weather_yr
         weather_regions_weather_cy = {}
         for weather_region in weather_stations[weather_yr]:

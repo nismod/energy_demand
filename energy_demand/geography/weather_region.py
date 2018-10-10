@@ -740,8 +740,7 @@ def insert_peak_dh_shape(
 def get_weather_station_selection(
         all_weather_stations,
         counter,
-        weather_yr,
-        weather_by
+        weather_yr
     ):
     """Select weather stations based on
     position in list
@@ -753,9 +752,6 @@ def get_weather_station_selection(
     """
     all_stations_of_weather_yr = list(all_weather_stations[weather_yr].keys())
 
-    # Add base year
-    all_weather_stations_out = {}
-
     # Sort
     all_stations_of_weather_yr.sort()
 
@@ -763,13 +759,11 @@ def get_weather_station_selection(
         # Select station according ot position in list
         station_id = all_stations_of_weather_yr[counter]
 
-        all_weather_stations_out[weather_yr] = {station_id: all_weather_stations[weather_yr][station_id]}
-        continue_calculation = True
+        all_weather_stations_out = {station_id: all_weather_stations[weather_yr][station_id]}
     except:
         # Not enough stations to select position in list
-        continue_calculation = False
         station_id = False
-        all_weather_stations_out[weather_yr] = []
+        all_weather_stations_out = []
         print("... no weather station found")
 
-    return all_weather_stations_out, continue_calculation, station_id
+    return all_weather_stations_out, station_id

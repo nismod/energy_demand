@@ -4,6 +4,20 @@ import os
 import numpy as np
 from collections import defaultdict
 
+def get_all_weather_yrs(path_to_csvs):
+    """Get all weather yrs
+    TODO
+    """
+    weather_yrs = set([])
+
+    all_txt_files_in_folder = os.listdir(path_to_csvs)
+
+    for file_path in all_txt_files_in_folder:
+        year = int(file_path.split("__")[0])
+        weather_yrs.add(year)
+
+    return list(weather_yrs)
+
 def read_weather_data_script_data(path_to_csv, weather_yrs_scenario):
     """Read in weather data from script data
 

@@ -64,50 +64,53 @@ def create_weather_station_map(
         'longitude': [...],
         'latitude': [...]})
     """
-    # Convert dict to dataframe
-    df = pd.DataFrame.from_dict(stations_as_dict, orient='index')
-
-    df['Coordinates'] = list(zip(df.longitude, df.latitude))
-    df['Coordinates'] = df['Coordinates'].apply(Point)
-
-    if path_shapefile is False:
-        world = gpd.read_file(gpd.datasets.get_path('naturalearth_lowres'))
-        ax = world[world.name == "United Kingdom"].plot(
-            color='white', edgecolor='black')
+    if stations_as_dict == {}:
+        print("No stations available to plot")
     else:
-        # Load uk shapefile
-        uk_shapefile = gpd.read_file(path_shapefile)
+        # Convert dict to dataframe
+        df = pd.DataFrame.from_dict(stations_as_dict, orient='index')
 
-        # Assign correct projection
-        crs = {'init': 'epsg:27700'} #27700 == OSGB_1936_British_National_Grid
-        uk_gdf = gpd.GeoDataFrame(uk_shapefile, crs=crs)
+        df['Coordinates'] = list(zip(df.longitude, df.latitude))
+        df['Coordinates'] = df['Coordinates'].apply(Point)
 
-        # Transform
-        uk_gdf = uk_gdf.to_crs({'init' :'epsg:4326'})
+        if path_shapefile is False:
+            world = gpd.read_file(gpd.datasets.get_path('naturalearth_lowres'))
+            ax = world[world.name == "United Kingdom"].plot(
+                color='white', edgecolor='black')
+        else:
+            # Load uk shapefile
+            uk_shapefile = gpd.read_file(path_shapefile)
 
-        # Plot
-        ax = uk_gdf.plot(color='white', edgecolor='black')
+            # Assign correct projection
+            crs = {'init': 'epsg:27700'} #27700 == OSGB_1936_British_National_Grid
+            uk_gdf = gpd.GeoDataFrame(uk_shapefile, crs=crs)
 
-    # print coordinates
-    crs = {'init': 'epsg:4326'}
-    gdf = gpd.GeoDataFrame(df, geometry='Coordinates') # crs=crs,
-    gdf.plot(ax=ax, color='red')
+            # Transform
+            uk_gdf = uk_gdf.to_crs({'init' :'epsg:4326'})
 
-    plt.savefig(fig_path)
+            # Plot
+            ax = uk_gdf.plot(color='white', edgecolor='black')
 
-     # ---------------------------------
-    # Save coordinates as file
-    # ---------------------------------
-    station_infos = ["name, latitue, longitude"]
-    fig_path = fig_path[:-4] + ".txt"
-    for station in stations_as_dict:
-        station_info = "{}, {}, {}".format(
-            station,
-            stations_as_dict[station]['latitude'],
-            stations_as_dict[station]['longitude'])
-        station_infos.append(station_info)
+        # print coordinates
+        crs = {'init': 'epsg:4326'}
+        gdf = gpd.GeoDataFrame(df, geometry='Coordinates') # crs=crs,
+        gdf.plot(ax=ax, color='red')
 
-    write_data.write_list_to_txt(fig_path, station_infos)
+        plt.savefig(fig_path)
+
+        # ---------------------------------
+        # Save coordinates as file
+        # ---------------------------------
+        station_infos = ["name, latitue, longitude"]
+        fig_path = fig_path[:-4] + ".txt"
+        for station in stations_as_dict:
+            station_info = "{}, {}, {}".format(
+                station,
+                stations_as_dict[station]['latitude'],
+                stations_as_dict[station]['longitude'])
+            station_infos.append(station_info)
+
+        write_data.write_list_to_txt(fig_path, station_infos)
 
 def read_weather_stations_raw(path_to_csv):
     """Read in weather stations from csv file
@@ -870,7 +873,7 @@ def load_temp_data(local_paths, weather_yrs_scenario, save_fig=False):
     ----------
     local_paths : dict
         Local local_paths
-    weather_yrs_scenario : list
+    weather_yr_scenario : list
         Years to use temperatures
 
     Returns
@@ -883,13 +886,12 @@ def load_temp_data(local_paths, weather_yrs_scenario, save_fig=False):
     temp_data_short = defaultdict(dict)
     weather_stations_with_data = defaultdict(dict)
 
-    for year in weather_yrs_scenario:
+    weather_stations = read_weather_stations_raw(
+        local_paths['folder_path_weater_stations'])
 
-        weather_stations = read_weather_stations_raw(
-            local_paths['folder_path_weater_stations'])
-
+    for weather_yr_scenario in weather_yrs_scenario:
         temp_data = read_weather_data.read_weather_data_script_data(
-            local_paths['weather_data'], year)
+            local_paths['weather_data'], weather_yr_scenario)
 
         for station in weather_stations:
             try:
@@ -899,27 +901,19 @@ def load_temp_data(local_paths, weather_yrs_scenario, save_fig=False):
                 if weather_stations[station]['longitude'] > 2 or weather_stations[station]['longitude'] < -8.5:
                     pass
                 else:
-                    temp_data_short[year][station] = temp_data[station]
+                    temp_data_short[weather_yr_scenario][station] = temp_data[station]
             except:
                 logging.debug("no data for weather station " + str(station))
 
-        for station_id in temp_data_short[year].keys():
+        for station_id in temp_data_short[weather_yr_scenario].keys():
             try:
-                weather_stations_with_data[year][station_id] = weather_stations[station_id]
+                weather_stations_with_data[weather_yr_scenario][station_id] = weather_stations[station_id]
             except:
-                del temp_data_short[year][station_id]
+                del temp_data_short[weather_yr_scenario][station_id]
 
         logging.info(
-            "Info: Number of weather stations: {} year: Number of temp data: {}, year: {}".format(
-                len(weather_stations_with_data), len(temp_data_short[year]), weather_yrs_scenario))
-
-        if not save_fig:
-            pass
-        else:
-            create_weather_station_map(
-                weather_stations_with_data[year],
-                os.path.join(save_fig, 'weather_station_distribution_{}.pdf'.format(year)),
-                path_shapefile=local_paths['lad_shapefile'])
+            "Info: Number of weather stations: {} weather_yr_scenario: Number of temp data: {}, weather_yr_scenario: {}".format(
+                len(weather_stations_with_data), len(temp_data_short[weather_yr_scenario]), weather_yr_scenario))
 
     return dict(weather_stations_with_data), dict(temp_data_short)
 

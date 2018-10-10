@@ -171,7 +171,7 @@ def run(
     bin_values = result_mapping.get_reasonable_bin_values_II(
         data_to_plot=list(uk_gdf[field_to_plot]),
         nr_of_intervals=nr_of_intervals)
-    print(float(uk_gdf[field_to_plot].max()))
+    print(float(uk_gdf[field_to_plot]))
     print("BINS " + str(bin_values))
 
     uk_gdf, cmap_rgb_colors, color_zero, min_value, max_value = user_defined_bin_classification(
