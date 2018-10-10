@@ -69,6 +69,38 @@ def paper_II_plots(
 
 
     ####################################################################
+    # Plot regional vs national spatio-temporal validation
+    ####################################################################
+    path_regional_calculations = "C:/Users/cenv0553/ed/results/_Fig2_multiple_2015_weather_stations/_regional_calculations"
+    path_non_regional_elec_2015 = os.path.abspath(
+        os.path.join(path_regional_calculations, '..', "_all_stations_wy_2015"))
+    path_rolling_elec_demand = os.path.join(
+        "C:/Users/cenv0553/ed/energy_demand/energy_demand/config_data",
+        '01-validation_datasets', '01_national_elec_2015', 'elec_demand_2015.csv')
+    path_temporal_elec_validation = os.path.join(
+        "C:/Users/cenv0553/ed/energy_demand/energy_demand/config_data",
+        '01-validation_datasets', '02_subnational_elec', 'data_2015_elec.csv') #_domestic.csv')
+    path_temporal_gas_validation = os.path.join(
+        "C:/Users/cenv0553/ed/energy_demand/energy_demand/config_data",
+        '01-validation_datasets', '03_subnational_gas', 'data_2015_gas.csv') #_domestic.csv')
+    path_results = os.path.abspath(
+        os.path.join(path_regional_calculations, '..'))
+    path_out_plots = os.path.join(path_results, '_results_PDF_figs')
+    basic_functions.del_previous_setup(path_out_plots)
+    basic_functions.create_folder(path_out_plots)
+
+    # Plot figure national an regional validation comparison
+    figs_p2.plot_fig_spatio_temporal_validation(
+        path_regional_calculations=path_regional_calculations,
+        path_rolling_elec_demand=path_rolling_elec_demand,
+        path_temporal_elec_validation=path_temporal_elec_validation,
+        path_temporal_gas_validation=path_temporal_gas_validation,
+        path_non_regional_elec_2015=path_non_regional_elec_2015,
+        path_out_plots=path_out_plots)
+
+    raise Exception
+    
+    ####################################################################
     # Plot spatial distribution of variability depending on weather year
     # Plot the variability of the contribution of regional peak demand
     # to national peak demand
@@ -90,29 +122,6 @@ def paper_II_plots(
             field_to_plot=field_to_plot,
             fig_path=path_out_plots)
 
-    ####################################################################
-    # Plot regional vs national spatio-temporal validation
-    ####################################################################
-    '''path_regional_calculations = "C:/Users/cenv0553/ed/results/_for_FIG2a/_regional_calculations"
-    path_rolling_elec_demand = os.path.join(
-        "C:/Users/cenv0553/ed/energy_demand/energy_demand/config_data",
-        '01-validation_datasets', '01_national_elec_2015', 'elec_demand_2015.csv')
-    path_temporal_elec_validation = os.path.join(
-        "C:/Users/cenv0553/ed/energy_demand/energy_demand/config_data",
-        '01-validation_datasets', '02_subnational_elec', 'data_2015_elec_domestic.csv')
-    path_temporal_gas_validation = os.path.join(
-        "C:/Users/cenv0553/ed/energy_demand/energy_demand/config_data",
-        '01-validation_datasets', '03_subnational_gas', 'data_2015_gas_domestic.csv')
-    path_non_regional_elec_2015 = os.path.abspath(
-        os.path.join(path_regional_calculations, '..', "_non_regional_calculations_2015"))'''
-
-    # Plot figure national an regional validation comparison
-    '''figs_p2.plot_fig_spatio_temporal_validation(
-        path_regional_calculations=path_regional_calculations,
-        path_rolling_elec_demand=path_rolling_elec_demand,
-        path_temporal_elec_validation=path_temporal_elec_validation,
-        path_temporal_gas_validation=path_temporal_gas_validation,
-            path_non_regional_elec_2015=path_non_regional_elec_2015)'''
 
     ####################################################################
     # 

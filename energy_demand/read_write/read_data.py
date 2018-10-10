@@ -298,8 +298,6 @@ def read_in_results(path_result, seasons, model_yeardays_daytype):
     results_container['reg_load_factor_yd'] = read_lf_y(
         os.path.join(path_result, "result_reg_load_factor_yd"))
 
-
-
     # -------------
     # Post-calculations
     # -------------

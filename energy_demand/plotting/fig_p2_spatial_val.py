@@ -29,6 +29,7 @@ def run(
     Because the floor area is only availabe for LADs from 2001,
     the LADs are converted to 2015 LADs.
     """
+    year_to_valideate = 2015
     logging.info("... temporal validation")
 
     ######################################
@@ -46,10 +47,11 @@ def run(
     # Create fueltype secific dict electricity
     fuel_elec_regs_yh_non_regional = {}
     for region_array_nr, region in enumerate(regions):
-        gwh_modelled_tot = 0
-
-        for enduse in ['rs_space_heating']:
-            gwh_modelled_tot += np.sum(demand_year_non_regional[enduse][fueltypes['electricity']][region_array_nr])
+        gwh_modelled_tot = np.sum(demand_year_non_regional[year_to_valideate][fueltypes['electricity']][region_array_nr])
+        #gwh_modelled_tot = 0
+        #for enduse in demand_year_non_regional: #['rs_space_heating']:
+        #    print("a " + str(demand_year_non_regional[enduse].shape))
+        #    gwh_modelled_tot += np.sum(demand_year_non_regional[enduse][fueltypes['electricity']]) #[region_array_nr])
         fuel_elec_regs_yh_non_regional[region] = gwh_modelled_tot
 
     # Create fueltype secific dict for gas

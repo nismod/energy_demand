@@ -441,13 +441,13 @@ if __name__ == "__main__":
     weather_stations = {}
     if weather_station_count_nr != []:
         for year in [user_defined_base_yr, weather_yr]:
-            weather_stations[year], id_name = weather_region.get_weather_station_selection(
+            weather_stations[year], wheather_station_id = weather_region.get_weather_station_selection(
                 data['weather_stations'],
                 counter=weather_station_count_nr,
                 weather_yr=weather_yr)
 
             if year == weather_yr:
-                simulation_name = str(weather_yr) + "__" + str(id_name)
+                simulation_name = str(weather_yr) + "__" + str(wheather_station_id)
     else:
         for year in [user_defined_base_yr, weather_yr]:
             weather_stations[year] = data['weather_stations'][year]
@@ -469,7 +469,7 @@ if __name__ == "__main__":
         # --------------------------------------
         # Update result_paths and create folders
         # --------------------------------------
-        path_folder_weather_yr = os.path.join(data['path_new_scenario'], str(weather_yr))
+        path_folder_weather_yr = os.path.join(data['path_new_scenario'], str(simulation_name))
 
         data['result_paths'] = data_loader.get_result_paths(path_folder_weather_yr)
 
