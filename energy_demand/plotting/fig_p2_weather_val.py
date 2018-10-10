@@ -270,7 +270,7 @@ def user_defined_bin_classification(
         bin_values,
     ):
     """Classify values according to bins
-    and plot
+
 
     Arguments
     ---------

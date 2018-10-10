@@ -274,7 +274,7 @@ def get_legend_handles(bins, color_list, color_zero, min_value, max_value):
     print(color_list)
 
     legend_handles = []
-    small_number = 0.01 # Small number for plotting corrrect charts
+    small_number = 0.0001 # Small number for plotting corrrect charts
 
     if max(bins) >= 0:
         bins.append(999) # Append dummy last element for last class
@@ -292,7 +292,6 @@ def get_legend_handles(bins, color_list, color_zero, min_value, max_value):
             else:
                 label_patch = "< {} (min {})".format(bin_entry, min_value)
         elif bin_nr == len(bins)- 1: # -1 means that last bin entry
-            ###label_patch = "> {} (max {})".format(bins[-2], max_value)
             label_patch = "> {} (max {})".format(bins[-2], max_value)
 
             if max_value < bin_entry:
@@ -327,6 +326,42 @@ def get_legend_handles(bins, color_list, color_zero, min_value, max_value):
             label=str(label_patch))
 
         legend_handles.append(patch)
+
+    return legend_handles
+
+def add_simple_legend(bins, color_list, color_zero):
+    """Add legend without giving the intervals
+    """
+    legend_handles = []
+
+    bin_nr = 0
+    for cnt, bin_value in enumerate(bins):
+
+        if cnt == 0: # first entry
+            if bin_value == 0:
+                label = str(bin_value)
+            else:
+                label = str("< {}".format(bins[cnt + 1]))
+        elif cnt == len(bins) - 1: #last entry
+            label = str("> {}".format(bins[cnt - 1]))
+        else:
+            label = str(bin_value)
+
+        #if cnt == 0 and bin_value == 0: #ignore first element if zero
+        #    pass
+        #else:
+        if 1 == 1:
+            if bin_value == 0:
+                color = color_zero
+            else:
+                color = color_list[bin_nr]
+                bin_nr += 1
+
+            patch = mpatches.Patch(
+                color=color,
+                label=label)
+
+            legend_handles.append(patch)
 
     return legend_handles
 

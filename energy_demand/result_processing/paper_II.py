@@ -67,7 +67,7 @@ def paper_II_plots(
     # Plot spatial distribution of variability depending on weather year
     ####################################################################
     if plot_crit_dict['plot_spatial_distribution_of_peak']:
-        
+
         # Select field to plot
         field_to_plot = "std_deviation_p_demand_peak_h"
         #field_to_plot = "std_deviation_abs_demand_peak_h"
@@ -76,10 +76,9 @@ def paper_II_plots(
             only_scenarios,
             path_to_folder_with_scenarios,
             path_shapefile_input,
-            simulation_yr=2015,
+            simulation_yrs=[2015, 2050],
             field_to_plot=field_to_plot,
             fig_path=path_out_plots)
-
 
     for scenario in only_scenarios:
         # -----------

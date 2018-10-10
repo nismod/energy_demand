@@ -127,7 +127,7 @@ if __name__ == "__main__":
         data['criterias']['write_txt_additional_results'] = True
         data['criterias']['validation_criteria'] = True
         data['criterias']['plot_crit'] = False
-        data['criterias']['crit_plot_enduse_lp'] = True
+        data['criterias']['crit_plot_enduse_lp'] = False
         data['criterias']['writeYAML_keynames'] = True
 
     # -------------------
