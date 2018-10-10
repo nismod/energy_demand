@@ -45,7 +45,7 @@ def run_all_plot_functions(
                 base_yr=base_yr,
                 comparison_year=comparison_year,
                 regions=regions,
-                ed_year_fueltype_regs_yh=results_container['results_every_year'],
+                ed_year_fueltype_regs_yh=results_container['ed_weatheryr_fueltype_regs_yh'],
                 reg_load_factor_y=results_container['reg_load_factor_y'],
                 fueltype_int=lookups['fueltypes']['electricity'],
                 fueltype_str='electricity',
@@ -58,7 +58,7 @@ def run_all_plot_functions(
                 base_yr=base_yr,
                 comparison_year=comparison_year,
                 regions=regions,
-                ed_year_fueltype_regs_yh=results_container['results_every_year'],
+                ed_year_fueltype_regs_yh=results_container['ed_weatheryr_fueltype_regs_yh'],
                 reg_load_factor_y=results_container['reg_load_factor_y'],
                 fueltype_int=lookups['fueltypes']['gas'],
                 fueltype_str='gas',
@@ -77,7 +77,7 @@ def run_all_plot_functions(
             base_yr=2015,
             comparison_year=2050,
             regions=regions,
-            ed_year_fueltype_regs_yh=results_container['results_every_year'],
+            ed_year_fueltype_regs_yh=results_container['ed_weatheryr_fueltype_regs_yh'],
             fueltype_int=lookups['fueltypes']['electricity'],
             fueltype_str='electricity',
             fig_name=os.path.join(
@@ -91,7 +91,7 @@ def run_all_plot_functions(
             base_yr=2015,
             comparison_year=2050,
             regions=regions,
-            ed_year_fueltype_regs_yh=results_container['results_every_year'],
+            ed_year_fueltype_regs_yh=results_container['ed_weatheryr_fueltype_regs_yh'],
             fueltype_int=lookups['fueltypes']['electricity'],
             fueltype_str='electricity',
             fig_name=os.path.join(
@@ -108,7 +108,7 @@ def run_all_plot_functions(
     if plot_crit['plot_line_for_every_region_of_peak_demand']:
         logging.info("... plot fuel per fueltype for every region over annual teimsteps")
         fig_one_fueltype_multiple_regions_peak_h.plt_regions_peak_h(
-            results_container['results_every_year'],
+            results_container['ed_weatheryr_fueltype_regs_yh'],
             lookups,
             regions,
             os.path.join(
@@ -120,7 +120,7 @@ def run_all_plot_functions(
 
         #... Plot total fuel (y) per fueltype as line chart"
         fig_fuels_enduses_y.run(
-            results_container['results_every_year'],
+            results_container['ed_weatheryr_fueltype_regs_yh'],
             lookups,
             os.path.join(
                 result_paths['data_results_PDF'],
@@ -221,7 +221,7 @@ def run_all_plot_functions(
         logging.info("... plot fuel per fueltype for whole country over annual timesteps")
         #... Plot total fuel (y) per fueltype as line chart"
         fig_fuels_enduses_y.run(
-            results_container['results_every_year'],
+            results_container['ed_weatheryr_fueltype_regs_yh'],
             lookups,
             os.path.join(
                 result_paths['data_results_PDF'],
@@ -269,7 +269,7 @@ def run_all_plot_functions(
     # ----------------
     if plot_crit['plot_week_h']:
         fig_fuels_enduses_week.run(
-            results_resid=results_container['results_every_year'],
+            results_resid=results_container['ed_weatheryr_fueltype_regs_yh'],
             lookups=lookups,
             hours_to_plot=range(7*24),
             year_to_plot=2015,
@@ -309,7 +309,7 @@ def run_all_plot_functions(
     if plot_crit['plot_h_peak_fueltypes']:
 
         fig_fuels_peak_h.run(
-            results_container['results_every_year'],
+            results_container['ed_weatheryr_fueltype_regs_yh'],
             lookups,
             os.path.join(
                 result_paths['data_results_PDF'],

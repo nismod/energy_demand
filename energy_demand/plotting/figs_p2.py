@@ -19,6 +19,7 @@ from energy_demand.plotting import fig_p2_spatial_val
 def main(
         path_data_ed,
         path_shapefile_input,
+        path_out_plots,
         plot_crit_dict):
     """Figure II plots
     """
@@ -30,18 +31,16 @@ def main(
     paths_folders_result = []
     weather_yrs = []
     weather_station_per_y = {}
-
+    all_calculated_yrs_paths = []
     for result_folder in all_result_folders:
         try:
             split_path_name = result_folder.split("__")
             weather_yr = int(split_path_name[0])
             weather_yrs.append(weather_yr)
-
             try:
                 weather_station = int(split_path_name[1])
             except:
                 weather_station = "all_station"
-
             try:
                 weather_station_per_y[weather_yr].append(weather_station)
             except:
@@ -50,6 +49,9 @@ def main(
             # Collect all paths to simulation result folders
             paths_folders_result.append(
                 os.path.join(path_data_ed, result_folder))
+            
+            tupyle_yr_path = (weather_yr, os.path.join(path_data_ed, result_folder))
+            all_calculated_yrs_paths.append(tupyle_yr_path)
 
         except ValueError:
             pass
@@ -66,11 +68,6 @@ def main(
     data['assumptions']['seasons'] = date_prop.get_season(year_to_model=2015)
     data['assumptions']['model_yeardays_daytype'], data['assumptions']['yeardays_month'], data['assumptions']['yeardays_month_days'] = date_prop.get_yeardays_daytype(year_to_model=2015)
 
-    path_out_plots = os.path.abspath(
-        os.path.join(path_data_ed, '..', '_results_PDF_figs'))
-    basic_functions.del_previous_setup(path_out_plots)
-    basic_functions.create_folder(path_out_plots)
-
     population_data = read_data.read_scenaric_population_data(
         os.path.join(path_data_ed, 'model_run_pop'))
 
@@ -80,11 +77,9 @@ def main(
     ####################################################################
     weather_yr_container = defaultdict(dict)
 
-    for weather_yr in weather_yrs:
+    for weather_yr, result_folder in all_calculated_yrs_paths:
         results_container = read_data.read_in_results(
-            os.path.join(
-                path_data_ed, "{}__{}".format(str(weather_yr), "all_stations"),
-                'model_run_results_txt'),
+            os.path.join(result_folder, 'model_run_results_txt'),
             data['assumptions']['seasons'],
             data['assumptions']['model_yeardays_daytype'])
 
@@ -93,7 +88,7 @@ def main(
             results_container['results_enduse_every_year'])
 
         weather_yr_container['tot_fueltype_yh'][weather_yr] = tot_fueltype_yh
-        weather_yr_container['results_enduse_every_year'][weather_yr] = results_container['results_every_year']
+        weather_yr_container['results_enduse_every_year'][weather_yr] = results_container['ed_weatheryr_fueltype_regs_yh']
 
     # ####################################################################
     # Plot demand over time and peak over time (for modassar paper)
@@ -178,7 +173,6 @@ def plot_fig_spatio_temporal_validation(
                 weather_station = int(split_path_name[1])
             except:
                 weather_station = "all_station"
-
             try:
                 weather_station_per_y[weather_yr].append(weather_station)
             except:
@@ -199,9 +193,6 @@ def plot_fig_spatio_temporal_validation(
     data['enduses'], data['assumptions'], data['reg_nrs'], data['regions'] = data_loader.load_ini_param(os.path.join(path_regional_calculations))
     data['assumptions']['seasons'] = date_prop.get_season(year_to_model=2015)
     data['assumptions']['model_yeardays_daytype'], data['assumptions']['yeardays_month'], data['assumptions']['yeardays_month_days'] = date_prop.get_yeardays_daytype(year_to_model=2015)
-    path_out_plots = os.path.abspath(os.path.join(path_regional_calculations, '..', '_results_PDF_figs'))
-    basic_functions.del_previous_setup(path_out_plots)
-    basic_functions.create_folder(path_out_plots)
 
     # Reading in results from different weather_yrs and aggregate
     # National calculation per weather station

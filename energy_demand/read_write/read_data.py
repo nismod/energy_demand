@@ -267,7 +267,7 @@ def read_in_results(path_result, seasons, model_yeardays_daytype):
     results_container['results_enduse_every_year'] = read_enduse_specific_results(
         path_result)
 
-    results_container['results_every_year'] = read_results_yh(path_result)
+    results_container['ed_weatheryr_fueltype_regs_yh'] = read_results_yh(path_result)
 
     # -----------------
     # Peak calculations
@@ -275,20 +275,20 @@ def read_in_results(path_result, seasons, model_yeardays_daytype):
     results_container['ed_peak_h'] = {}
     results_container['ed_peak_regs_h'] = {}
 
-    for year, year_yh in results_container['results_every_year'].items():
+    for year, ed_fueltype_reg_yh in results_container['ed_weatheryr_fueltype_regs_yh'].items():
 
         results_container['ed_peak_h'][year] = {}
         results_container['ed_peak_regs_h'][year] = {}
 
-        for fueltype_int, reg_ed_yh in enumerate(year_yh):
+        for fueltype_int, ed_reg_yh in enumerate(ed_fueltype_reg_yh):
 
             fueltype_str = tech_related.get_fueltype_str(lookups['fueltypes'], fueltype_int)
 
-            # Calculate peak per fueltype for all regions (reg_ed_yh= np.array(fueltype, reg, yh))
-            all_regs_yh = np.sum(reg_ed_yh, axis=0)    # sum regs
+            # Calculate peak per fueltype for all regions (ed_reg_yh= np.array(fueltype, reg, yh))
+            all_regs_yh = np.sum(ed_reg_yh, axis=0)    # sum regs
             peak_h = np.max(all_regs_yh)               # select max of 8760 h
             results_container['ed_peak_h'][year][fueltype_str] = peak_h
-            results_container['ed_peak_regs_h'][year][fueltype_str] = np.max(reg_ed_yh, axis=1)
+            results_container['ed_peak_regs_h'][year][fueltype_str] = np.max(ed_reg_yh, axis=1)
 
     # -------------
     # Load factors
@@ -297,6 +297,17 @@ def read_in_results(path_result, seasons, model_yeardays_daytype):
         os.path.join(path_result, "result_reg_load_factor_y"))
     results_container['reg_load_factor_yd'] = read_lf_y(
         os.path.join(path_result, "result_reg_load_factor_yd"))
+
+
+
+    # -------------
+    # Post-calculations
+    # -------------
+    # Calculate average per season and fueltype for every fueltype
+    results_container['av_season_daytype_cy'], results_container['season_daytype_cy'] = calc_av_per_season_fueltype(
+        results_container['ed_weatheryr_fueltype_regs_yh'],
+        seasons,
+        model_yeardays_daytype)
 
     '''results_container['load_factor_seasons'] = {}
     results_container['load_factor_seasons']['winter'] = read_lf_y(
@@ -308,14 +319,6 @@ def read_in_results(path_result, seasons, model_yeardays_daytype):
     results_container['load_factor_seasons']['autumn'] = read_lf_y(
         os.path.join(path_result, "result_reg_load_factor_autumn"))'''
 
-    # -------------
-    # Post-calculations
-    # -------------
-    # Calculate average per season and fueltype for every fueltype
-    results_container['av_season_daytype_cy'], results_container['season_daytype_cy'] = calc_av_per_season_fueltype(
-        results_container['results_every_year'],
-        seasons,
-        model_yeardays_daytype)
 
     logging.info("... Reading in results finished")
     return results_container

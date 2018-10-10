@@ -439,6 +439,7 @@ if __name__ == "__main__":
         # ---------------------------------------------
         # Make selection of weather stations and data
         # ---------------------------------------------
+
         if weather_station_count_nr == []:
             single_weather_station_crit = False
             weather_stations_cnt = range(1)  # use one to itearte over al
