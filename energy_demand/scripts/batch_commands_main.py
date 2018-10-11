@@ -44,7 +44,7 @@ def my_function(simulation_number):
 
 # ===============================
 #simulation_number = range(40)
-simulation_number = range(5, 10)
+simulation_number = range(2,4)
 
 for i in simulation_number:
     my_function(i)

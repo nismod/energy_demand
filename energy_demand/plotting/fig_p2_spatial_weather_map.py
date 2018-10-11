@@ -1,6 +1,7 @@
 
 """
 """
+import os
 from collections import defaultdict
 import numpy as np
 import pandas as pd
@@ -119,6 +120,5 @@ def run(
         loc='center left', bbox_to_anchor=(1, 0.5),
         frameon=False)
 
-    plt.show()
+    os.remove(fig_path)
     plt.savefig(fig_path)
-    raise Exception("HHH")

@@ -260,14 +260,19 @@ def read_in_results(path_result, seasons, model_yeardays_daytype):
 
     results_container = {}
 
-    # -------------
     # Read in demands
-    # -------------
-    # National demand per enduse for every year
     results_container['results_enduse_every_year'] = read_enduse_specific_results(
         path_result)
 
-    results_container['ed_weatheryr_fueltype_regs_yh'] = read_results_yh(path_result)
+    results_container['ed_weatheryr_fueltype_regs_yh'] = read_results_yh(
+        path_result, 'result_tot_yh')
+
+    # Read in residential demands
+    try:
+        results_container['residential_results'] = read_results_yh(
+        path_result, 'residential_results')
+    except:
+        results_container['residential_results'] = {}
 
     # -----------------
     # Peak calculations
@@ -276,12 +281,10 @@ def read_in_results(path_result, seasons, model_yeardays_daytype):
     results_container['ed_peak_regs_h'] = {}
 
     for year, ed_fueltype_reg_yh in results_container['ed_weatheryr_fueltype_regs_yh'].items():
-
         results_container['ed_peak_h'][year] = {}
         results_container['ed_peak_regs_h'][year] = {}
 
         for fueltype_int, ed_reg_yh in enumerate(ed_fueltype_reg_yh):
-
             fueltype_str = tech_related.get_fueltype_str(lookups['fueltypes'], fueltype_int)
 
             # Calculate peak per fueltype for all regions (ed_reg_yh= np.array(fueltype, reg, yh))
@@ -316,7 +319,6 @@ def read_in_results(path_result, seasons, model_yeardays_daytype):
         os.path.join(path_result, "result_reg_load_factor_summer"))
     results_container['load_factor_seasons']['autumn'] = read_lf_y(
         os.path.join(path_result, "result_reg_load_factor_autumn"))'''
-
 
     logging.info("... Reading in results finished")
     return results_container
@@ -362,7 +364,7 @@ def calc_av_per_season_fueltype(results_every_year, seasons, model_yeardays_dayt
 
     return dict(av_season_daytype_cy), dict(season_daytype_cy)
 
-def read_results_yh(path_to_folder):
+def read_results_yh(path_to_folder, name_of_folder):
     """Read results
 
     Arguments
@@ -381,7 +383,7 @@ def read_results_yh(path_to_folder):
     """
     results = {}
 
-    path_to_folder = os.path.join(path_to_folder, 'result_tot_yh')
+    path_to_folder = os.path.join(path_to_folder, name_of_folder)
 
     all_txt_files_in_folder = os.listdir(path_to_folder)
 

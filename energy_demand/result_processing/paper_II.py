@@ -67,7 +67,6 @@ def paper_II_plots(
     ####################################################################
     # Plot weather station availability map
     ####################################################################
-
     path_to_weather_data = "C:/Users/cenv0553/ED/data/_raw_data/A-temperature_data/cleaned_weather_stations_data"
     folder_path_weater_stations = "C:/Users/cenv0553/ED/data/_raw_data/A-temperature_data/cleaned_weather_stations.csv"
     fig_path = "C:/Users/cenv0553/ed/results/_Fig2_multiple_2015_weather_stations/weather_station_maps.pdf"
@@ -108,7 +107,7 @@ def paper_II_plots(
         path_out_plots=path_out_plots)
 
     raise Exception
-    
+
     ####################################################################
     # Plot spatial distribution of variability depending on weather year
     # Plot the variability of the contribution of regional peak demand
@@ -130,7 +129,6 @@ def paper_II_plots(
             simulation_yrs=simulation_yrs,
             field_to_plot=field_to_plot,
             fig_path=path_out_plots)
-
 
     ####################################################################
     # 

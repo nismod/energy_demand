@@ -6,7 +6,6 @@ import numpy as np
 
 from energy_demand.read_write import data_loader, read_data
 from energy_demand.basic import date_prop
-from energy_demand.basic import basic_functions
 from energy_demand.basic import lookup_tables
 from energy_demand.plotting import fig_weather_variability_priod
 from energy_demand.plotting import fig_total_demand_peak
@@ -210,7 +209,7 @@ def plot_fig_spatio_temporal_validation(
 
     #---Collect non regional 2015 elec data
     # Calculated with all regional weather stations
-    year_non_regional = 2015 
+    year_non_regional = 2015
     path_with_txt = os.path.join(
         path_non_regional_elec_2015,
         "{}__{}".format(str(year_non_regional), "all_stations"),

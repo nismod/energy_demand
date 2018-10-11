@@ -363,7 +363,6 @@ def write_residential_tot_demands(
         tot_fuel_y_enduse_specific_yh,
         filename
     ):
-    # Create folder for model simulation year
     basic_functions.create_folder(path_result)
     basic_functions.create_folder(path_result, "residential_results")
 
