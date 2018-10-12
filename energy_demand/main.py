@@ -467,7 +467,7 @@ if __name__ == "__main__":
     # Main model run function
     # -----------------------
     for sim_yr in data['assumptions'].simulated_yrs:
-        print("Loal simulation for year:  " + str(sim_yr), flush=True)
+        print("Local simulation for year:  " + str(sim_yr), flush=True)
 
         # Set current year
         setattr(data['assumptions'], 'curr_yr', sim_yr)

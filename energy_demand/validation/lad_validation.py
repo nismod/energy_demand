@@ -789,7 +789,15 @@ def spatial_validation_multiple(
         y_real_demand = []
         y_modelled_demand = []
 
-        for reg_geocode in regions:
+        # -----------------
+        # Sort results according to size
+        # -----------------
+        sorted_dict_real = sorted(
+            result_dict['real_demand'].items(),
+            key=operator.itemgetter(1))
+    
+        #for reg_geocode in regions:
+        for reg_geocode, _ in sorted_dict_real:
             # Test if real and modelled data are both available
             try:
                 real = result_dict['real_demand'][reg_geocode]
@@ -811,12 +819,7 @@ def spatial_validation_multiple(
         std_dev_p = np.std(diff_real_modelled_p)        # Given as percent
         std_dev_abs = np.std(diff_real_modelled_abs)    # Given as energy unit
 
-        # -----------------
-        # Sort results according to size
-        # -----------------
-        sorted_dict_real = sorted(
-            result_dict['real_demand'].items(),
-            key=operator.itemgetter(1))
+
 
         x_values = np.arange(0, len(y_real_demand), 1)
 

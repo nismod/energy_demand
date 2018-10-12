@@ -161,7 +161,6 @@ def plot_fig_spatio_temporal_validation(
     weather_yr_station_tot_fueltype_yh = defaultdict(dict)
     residential_results = defaultdict(dict)
     for scenario_folder in all_result_folders:
-        print("Scenario folder: " + str(scenario_folder))
         result_folders = os.listdir(os.path.join(path_regional_calculations, scenario_folder))
         for result_folder in result_folders:
             try:
@@ -236,7 +235,10 @@ def plot_fig_spatio_temporal_validation(
     # Compare regional and non regional and actual demand over time
     # *****************************************************************
     simulation_yr_to_plot = 2015
-    period_to_plot = list(range(0, 8760))
+    period_to_plot = list(range(0, 8760)) #TODO PLANE
+    winter_week, _, _, _ = date_prop.get_seasonal_weeks()
+    period_to_plot = winter_week
+
     fig_p2_temporal_validation.run(
         data_input=data_container['tot_fueltype_yh'],
         weather_yr=2015,

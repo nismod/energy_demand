@@ -10,11 +10,8 @@ from energy_demand.read_write import data_loader, read_data
 from energy_demand.basic import date_prop
 from energy_demand.basic import basic_functions
 from energy_demand.basic import lookup_tables
-from energy_demand.basic import basic_functions
-from energy_demand.basic import conversions
 from energy_demand.technologies import tech_related
 from energy_demand.plotting import basic_plot_functions
-from energy_demand.read_write import write_data
 from energy_demand.plotting import result_mapping
 from energy_demand.plotting import fig_p2_weather_val
 
@@ -86,11 +83,8 @@ def run(
             # Calculate hour with national peak demand
             # This may be different depending on the weather yr
             # ---------------------------------------------------
-            print("sstr")
-            print(results_container['ed_fueltype_regs_yh'][simulation_yr][fueltype_int].shape)
             sum_all_regs_fueltype_8760 = np.sum(results_container['ed_fueltype_regs_yh'][simulation_yr][fueltype_int], axis=0) # Sum for every hour
-            print("sum_all_regs_fueltype_8760")
-            print(sum_all_regs_fueltype_8760.shape)
+
             max_day = int(basic_functions.round_down((np.argmax(sum_all_regs_fueltype_8760) / 24), 1))
             max_h = np.argmax(sum_all_regs_fueltype_8760)
 

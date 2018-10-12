@@ -23,6 +23,7 @@ def my_function(simulation_number):
     weather_yrs = list(weather_yrs_stations.keys())
     print("all weather yrs:         " + str(weather_yrs))
     print("Total nr of stations:    " + str(len(weather_yrs)))
+
     if same_weather_yr:
         weather_yr = defined_weather_yr
     else:
