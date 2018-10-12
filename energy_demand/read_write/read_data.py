@@ -259,67 +259,91 @@ def read_in_results(path_result, seasons, model_yeardays_daytype):
     lookups = lookup_tables.basic_lookups()
 
     results_container = {}
-
+    
+    # -----------------
     # Read in demands
-    results_container['results_enduse_every_year'] = read_enduse_specific_results(
-        path_result)
-
-    results_container['ed_weatheryr_fueltype_regs_yh'] = read_results_yh(
-        path_result, 'result_tot_yh')
-
+    # -----------------
+    try:
+        results_container['results_enduse_every_year'] = read_enduse_specific_results(
+            path_result)
+    except:
+        pass
+    try:
+        results_container['ed_fueltype_regs_yh'] = read_results_yh(
+            path_result, 'ed_fueltype_regs_yh')
+    except:
+        pass
     # Read in residential demands
     try:
         results_container['residential_results'] = read_results_yh(
         path_result, 'residential_results')
     except:
-        results_container['residential_results'] = {}
+        pass
+
+    # Calculate total demand per fueltype for every hour
+    try: #TODO IMPROVE: READ IN NR OF FUELTYPES DIRECTLY
+        #Initialise
+        tot_fueltype_yh = {}
+        for year in results_container['ed_fueltype_regs_yh']:
+            nr_of_fueltypes = results_container['ed_fueltype_regs_yh'][year].shape[0]
+            tot_fueltype_yh[year] = np.zeros((nr_of_fueltypes, 8760))
+
+        for year, ed_regs_yh in results_container['ed_fueltype_regs_yh'].items():
+            fuel_yh = np.sum(ed_regs_yh, axis=1) #Sum across all regions
+            tot_fueltype_yh[year] += fuel_yh
+
+        results_container['tot_fueltype_yh'] = tot_fueltype_yh
+    except:
+        pass
 
     # -----------------
     # Peak calculations
     # -----------------
-    results_container['ed_peak_h'] = {}
-    results_container['ed_peak_regs_h'] = {}
+    try:
+        results_container['ed_peak_h'] = {}
+        results_container['ed_peak_regs_h'] = {}
 
-    for year, ed_fueltype_reg_yh in results_container['ed_weatheryr_fueltype_regs_yh'].items():
-        results_container['ed_peak_h'][year] = {}
-        results_container['ed_peak_regs_h'][year] = {}
+        for year, ed_fueltype_reg_yh in results_container['ed_fueltype_regs_yh'].items():
+            results_container['ed_peak_h'][year] = {}
+            results_container['ed_peak_regs_h'][year] = {}
 
-        for fueltype_int, ed_reg_yh in enumerate(ed_fueltype_reg_yh):
-            fueltype_str = tech_related.get_fueltype_str(lookups['fueltypes'], fueltype_int)
+            for fueltype_int, ed_reg_yh in enumerate(ed_fueltype_reg_yh):
+                fueltype_str = tech_related.get_fueltype_str(lookups['fueltypes'], fueltype_int)
 
-            # Calculate peak per fueltype for all regions (ed_reg_yh= np.array(fueltype, reg, yh))
-            all_regs_yh = np.sum(ed_reg_yh, axis=0)    # sum regs
-            peak_h = np.max(all_regs_yh)               # select max of 8760 h
-            results_container['ed_peak_h'][year][fueltype_str] = peak_h
-            results_container['ed_peak_regs_h'][year][fueltype_str] = np.max(ed_reg_yh, axis=1)
+                # Calculate peak per fueltype for all regions (ed_reg_yh= np.array(fueltype, reg, yh))
+                all_regs_yh = np.sum(ed_reg_yh, axis=0)    # sum regs
+                peak_h = np.max(all_regs_yh)               # select max of 8760 h
+                results_container['ed_peak_h'][year][fueltype_str] = peak_h
+                results_container['ed_peak_regs_h'][year][fueltype_str] = np.max(ed_reg_yh, axis=1)
 
-    # -------------
-    # Load factors
-    # -------------
-    results_container['reg_load_factor_y'] = read_lf_y(
-        os.path.join(path_result, "result_reg_load_factor_y"))
-    results_container['reg_load_factor_yd'] = read_lf_y(
-        os.path.join(path_result, "result_reg_load_factor_yd"))
+        # -------------
+        # Load factors
+        # -------------
+        results_container['reg_load_factor_y'] = read_lf_y(
+            os.path.join(path_result, "result_reg_load_factor_y"))
+        results_container['reg_load_factor_yd'] = read_lf_y(
+            os.path.join(path_result, "result_reg_load_factor_yd"))
 
-    # -------------
-    # Post-calculations
-    # -------------
-    # Calculate average per season and fueltype for every fueltype
-    results_container['av_season_daytype_cy'], results_container['season_daytype_cy'] = calc_av_per_season_fueltype(
-        results_container['ed_weatheryr_fueltype_regs_yh'],
-        seasons,
-        model_yeardays_daytype)
+        # -------------
+        # Post-calculations
+        # -------------
+        # Calculate average per season and fueltype for every fueltype
+        results_container['av_season_daytype_cy'], results_container['season_daytype_cy'] = calc_av_per_season_fueltype(
+            results_container['ed_fueltype_regs_yh'],
+            seasons,
+            model_yeardays_daytype)
 
-    '''results_container['load_factor_seasons'] = {}
-    results_container['load_factor_seasons']['winter'] = read_lf_y(
-        os.path.join(path_result, "result_reg_load_factor_winter"))
-    results_container['load_factor_seasons']['spring'] = read_lf_y(
-        os.path.join(path_result, "result_reg_load_factor_spring"))
-    results_container['load_factor_seasons']['summer'] = read_lf_y(
-        os.path.join(path_result, "result_reg_load_factor_summer"))
-    results_container['load_factor_seasons']['autumn'] = read_lf_y(
-        os.path.join(path_result, "result_reg_load_factor_autumn"))'''
-
+        '''results_container['load_factor_seasons'] = {}
+        results_container['load_factor_seasons']['winter'] = read_lf_y(
+            os.path.join(path_result, "result_reg_load_factor_winter"))
+        results_container['load_factor_seasons']['spring'] = read_lf_y(
+            os.path.join(path_result, "result_reg_load_factor_spring"))
+        results_container['load_factor_seasons']['summer'] = read_lf_y(
+            os.path.join(path_result, "result_reg_load_factor_summer"))
+        results_container['load_factor_seasons']['autumn'] = read_lf_y(
+            os.path.join(path_result, "result_reg_load_factor_autumn"))'''
+    except:
+        pass
     logging.info("... Reading in results finished")
     return results_container
 

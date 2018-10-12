@@ -274,12 +274,11 @@ def user_defined_bin_classification(
     ):
     """Classify values according to bins
 
-
     Arguments
     ---------
     input_df : dataframe
         Dataframe to plot
-    
+
     higher_as_bin : int
         Bin value of > than last bin
     cmap_sequential : str
@@ -321,9 +320,9 @@ def user_defined_bin_classification(
                 raise Exception("The minimum user defined bin smaller is larger than minimum existing value")
 
             if not cmap_sequential:
-                cmap, cmap_rgb_colors = norm_cmap(bin_values[:1],cmap='Purples') #'YlOrBr'
+                cmap, cmap_rgb_colors = norm_cmap(bin_values[:1], cmap='Purples') #'YlOrBr'
             else:
-                cmap, cmap_rgb_colors = norm_cmap(bin_values[:1],cmap=cmap_sequential) #'YlOrBr'
+                cmap, cmap_rgb_colors = norm_cmap(bin_values[:1], cmap=cmap_sequential) #'YlOrBr'
 
         else: #only positive values
             if max_real_value > bin_values[-1]:

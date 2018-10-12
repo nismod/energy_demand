@@ -19,7 +19,7 @@ def my_function(simulation_number):
     # and select weather yr
     # --------------------------
     path_to_weather_data = "C:/Users/cenv0553/ED/data/_raw_data/A-temperature_data/cleaned_weather_stations_data"
-    weather_yrs = read_weather_data.get_all_weather_yrs(path_to_weather_data)
+    weather_yrs = read_weather_data.get_all_station_per_weather_yr(path_to_weather_data, min_nr_of_stations=30)
 
     if same_weather_yr:
         weather_yr = defined_weather_yr
@@ -44,7 +44,7 @@ def my_function(simulation_number):
 
 # ===============================
 #simulation_number = range(40)
-simulation_number = range(2,4)
+simulation_number = range(0, 10)
 
 for i in simulation_number:
     my_function(i)

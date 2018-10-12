@@ -41,11 +41,6 @@ def run(
                 split_path_name = result_folder.split("__")
                 weather_yr = int(split_path_name[0])
                 weather_yrs.append(weather_yr)
-
-                #try:
-                #    weather_station = int(split_path_name[1])
-                #except:
-                #    weather_station = "all_station"
                 tupyle_yr_path = (weather_yr, os.path.join(path_scenario))
                 calculated_yrs_paths.append(tupyle_yr_path)
 
@@ -61,7 +56,7 @@ def run(
         fueltype_str = 'electricity'
         fueltype_int = tech_related.get_fueltype_int(fueltype_str)
 
-        #results_container['ed_weatheryr_fueltype_regs_yh']
+        #results_container['ed_fueltype_regs_yh']
         container = {}
         container['abs_demand_in_peak_h'] = {}
         container['p_demand_in_peak_h'] = {}
@@ -91,7 +86,7 @@ def run(
             # Calculate hour with national peak demand
             # This may be different depending on the weather yr
             # ---------------------------------------------------
-            sum_all_regs_fueltype_8760 = np.sum(results_container['ed_weatheryr_fueltype_regs_yh'][simulation_yr][fueltype_int], axis=0) # Sum for every hour
+            sum_all_regs_fueltype_8760 = np.sum(results_container['ed_fueltype_regs_yh'][simulation_yr][fueltype_int], axis=0) # Sum for every hour
             print("sum_all_regs_fueltype_8760")
             print(sum_all_regs_fueltype_8760.shape)
             max_day = int(basic_functions.round_down((np.argmax(sum_all_regs_fueltype_8760) / 24), 1))
@@ -106,7 +101,7 @@ def run(
             # ------------------------------------------------------
 
             # Demand in peak h
-            demand_in_peak_h = results_container['ed_weatheryr_fueltype_regs_yh'][simulation_yr][fueltype_int][:, max_h]
+            demand_in_peak_h = results_container['ed_fueltype_regs_yh'][simulation_yr][fueltype_int][:, max_h]
 
             # Relative fraction of regional demand in relation to peak
             p_demand_in_peak_h = (demand_in_peak_h / national_peak_GW ) * 100 # given as percent

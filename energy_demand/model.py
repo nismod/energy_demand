@@ -197,10 +197,12 @@ def aggregate_across_all_regs(
 
         if submodel == 0:
             for enduse in aggr_results['ed_submodel_enduse_fueltype_regs_yh'][submodel]:
-                array_init += np.sum(aggr_results['ed_submodel_enduse_fueltype_regs_yh'][submodel][enduse][:, ])
+
+                # Sum across all hours in a year
+                array_init += np.sum(aggr_results['ed_submodel_enduse_fueltype_regs_yh'][submodel][enduse], axis=2)
         else:
             pass
-    aggr_results['ed_residnetial_tot_reg_yh'] = array_init
+    aggr_results['ed_residential_tot_reg_y'] = array_init
 
     # ----------------------------------------------------
     # Aggregate: [fueltype, region, fuel_yh_8760]

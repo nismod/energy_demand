@@ -192,7 +192,7 @@ if __name__ == "__main__":
     data['result_paths'] = data_loader.get_result_paths(path_new_scenario)
 
     basic_functions.create_folder(path_new_scenario)
-    logger_setup.set_up_logger(os.path.join(path_new_scenario, "plotting.log"))
+    ## TODO INCLUDElogger_setup.set_up_logger(os.path.join(path_new_scenario, "plotting.log"))
 
     # ----------------------------------------------------------------------
     # Load data
@@ -321,11 +321,40 @@ if __name__ == "__main__":
         name_population_dataset = data['local_paths']['path_population_data_for_disaggregation_LAD']
     data['pop_for_disag'] =  data_loader.read_scenario_data(name_population_dataset)
 
-    # Load weather temperature for base year and weather yr
+    # ---------------------------------------------
+    # Make selection of weather stations and data
+    # ---------------------------------------------
+    # Load all temperature and weather station data
     data['weather_stations'], data['temp_data'] = data_loader.load_temp_data(
         data['local_paths'],
         weather_yrs_scenario=[user_defined_base_yr, weather_yr_scenario],
         save_fig=path_new_scenario)
+
+    # Get only selection
+    weather_stations = {}
+    if weather_station_count_nr != []:
+        for year in [user_defined_base_yr, weather_yr_scenario]:
+            weather_stations[year], wheather_station_id = weather_region.get_weather_station_selection(
+                data['weather_stations'],
+                counter=weather_station_count_nr,
+                weather_yr=weather_yr_scenario)
+
+            if year == weather_yr_scenario:
+                simulation_name = str(weather_yr_scenario) + "__" + str(wheather_station_id)
+    else:
+        for year in [user_defined_base_yr, weather_yr_scenario]:
+            weather_stations[year] = data['weather_stations'][year]
+            if year == weather_yr_scenario:
+                simulation_name = str(weather_yr_scenario) + "__" + "all_stations"
+
+    # Replace weather station with selection
+    data['weather_stations'] = weather_stations
+
+    # Plot map with weather station
+    data_loader.create_weather_station_map(
+        weather_stations[weather_yr_scenario],
+        os.path.join(data['path_new_scenario'], 'weatherst_distr_weathyr_{}.pdf'.format(weather_yr_scenario)),
+        path_shapefile=data['local_paths']['lad_shapefile'])
 
     # ------------------------------------------------------------
     # Disaggregate national energy demand to regional demands
@@ -432,34 +461,6 @@ if __name__ == "__main__":
     # -----------------------
     # Main model run function
     # -----------------------
-    weather_yr = weather_yr_scenario
-    print("... weather year: " + str(weather_yr), flush=True)
-
-    # ---------------------------------------------
-    # Make selection of weather stations and data
-    # ---------------------------------------------
-    weather_stations = {}
-    if weather_station_count_nr != []:
-        for year in [user_defined_base_yr, weather_yr]:
-            weather_stations[year], wheather_station_id = weather_region.get_weather_station_selection(
-                data['weather_stations'],
-                counter=weather_station_count_nr,
-                weather_yr=weather_yr)
-
-            if year == weather_yr:
-                simulation_name = str(weather_yr) + "__" + str(wheather_station_id)
-    else:
-        for year in [user_defined_base_yr, weather_yr]:
-            weather_stations[year] = data['weather_stations'][year]
-            if year == weather_yr:
-                simulation_name = str(weather_yr) + "__" + "all_stations"
-
-    # Plot map with weather station
-    data_loader.create_weather_station_map(
-        weather_stations[weather_yr],
-        os.path.join(data['path_new_scenario'], 'weatherst_distr_weathyr_{}.pdf'.format(weather_yr_scenario)),
-        path_shapefile=data['local_paths']['lad_shapefile'])
-
     for sim_yr in data['assumptions'].simulated_yrs:
         print("Loal simulation for year:  " + str(sim_yr), flush=True)
 
@@ -496,7 +497,7 @@ if __name__ == "__main__":
             data,
             data['assumptions'],
             weather_stations,
-            weather_yr=weather_yr,
+            weather_yr=weather_yr_scenario,
             weather_by=data['assumptions'].weather_by)
 
         # ------------------------------------------------
@@ -570,7 +571,6 @@ if __name__ == "__main__":
                 path_folder_lp = os.path.join(data['result_paths']['data_results'], 'individual_enduse_lp')
                 basic_functions.delete_folder(path_folder_lp)
                 basic_functions.create_folder(path_folder_lp)
-
                 winter_week, _, _, _ = date_prop.get_seasonal_weeks()
 
                 # Plot electricity
@@ -587,35 +587,55 @@ if __name__ == "__main__":
             print("... Start writing results to file")
             path_runs = data['result_paths']['data_results_model_runs']
 
-            write_data.write_residential_tot_demands(
-                sim_yr,
-                path_runs,
-                sim_obj.ed_residnetial_tot_reg_yh,
-                "ed_residnetial_tot_reg_yh")
+            #
+            plot_only_selection = False
+            if plot_only_selection:
+                # PLot only residential total regional annual demand and
+                # region_fueltype_reg_yh_8760
+                
+                write_data.write_residential_tot_demands(
+                    sim_yr,
+                    path_runs,
+                    sim_obj.ed_residential_tot_reg_y,
+                    "ed_residential_tot_reg_y")
+                write_data.write_supply_results(
+                    sim_yr,
+                    "ed_fueltype_regs_yh",
+                    path_runs,
+                    sim_obj.ed_fueltype_regs_yh,
+                    "result_tot_submodels_fueltypes")
+            else:
 
-            write_data.write_supply_results(
-                sim_yr,
-                "result_tot_yh",
-                path_runs,
-                sim_obj.ed_fueltype_regs_yh,
-                "result_tot_submodels_fueltypes")
-            write_data.write_enduse_specific(
-                sim_yr,
-                path_runs,
-                sim_obj.tot_fuel_y_enduse_specific_yh,
-                "out_enduse_specific")
-            write_data.write_lf(
-                path_runs,
-                "result_reg_load_factor_y",
-                [sim_yr],
-                sim_obj.reg_load_factor_y,
-                'reg_load_factor_y')
-            write_data.write_lf(
-                path_runs,
-                "result_reg_load_factor_yd",
-                [sim_yr],
-                sim_obj.reg_load_factor_yd,
-                'reg_load_factor_yd')
+
+                write_data.write_residential_tot_demands(
+                    sim_yr,
+                    path_runs,
+                    sim_obj.ed_residential_tot_reg_y,
+                    "ed_residential_tot_reg_y")
+
+                write_data.write_supply_results(
+                    sim_yr,
+                    "ed_fueltype_regs_yh",
+                    path_runs,
+                    sim_obj.ed_fueltype_regs_yh,
+                    "result_tot_submodels_fueltypes")
+                write_data.write_enduse_specific(
+                    sim_yr,
+                    path_runs,
+                    sim_obj.tot_fuel_y_enduse_specific_yh,
+                    "out_enduse_specific")
+                write_data.write_lf(
+                    path_runs,
+                    "result_reg_load_factor_y",
+                    [sim_yr],
+                    sim_obj.reg_load_factor_y,
+                    'reg_load_factor_y')
+                write_data.write_lf(
+                    path_runs,
+                    "result_reg_load_factor_yd",
+                    [sim_yr],
+                    sim_obj.reg_load_factor_yd,
+                    'reg_load_factor_yd')
             '''write_data.write_lf(
                 path_runs,
                 "result_reg_load_factor_winter",

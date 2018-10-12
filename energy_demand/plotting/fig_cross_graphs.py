@@ -245,7 +245,7 @@ def plot_cross_graphs_scenarios(
     # -------------------------------------------$
     all_scenarios = list(scenario_data.keys())
     first_scenario = all_scenarios[0]
-    ed_year_fueltype_regs_yh = scenario_data[first_scenario]['ed_weatheryr_fueltype_regs_yh']
+    ed_year_fueltype_regs_yh = scenario_data[first_scenario]['ed_fueltype_regs_yh']
 
     for year, fuels in ed_year_fueltype_regs_yh.items():
 
@@ -270,7 +270,7 @@ def plot_cross_graphs_scenarios(
         result_dict['demand_cy'][scenario] = {}
         result_dict['peak_h_demand_cy'][scenario] = {}
 
-        for year, fuels in data['ed_weatheryr_fueltype_regs_yh'].items():
+        for year, fuels in data['ed_fueltype_regs_yh'].items():
             if year == comparison_year:
                 for reg_nr, reg_geocode in enumerate(regions):
                     result_dict['demand_cy'][scenario][reg_geocode] = np.sum(fuels[fueltype_int][reg_nr])

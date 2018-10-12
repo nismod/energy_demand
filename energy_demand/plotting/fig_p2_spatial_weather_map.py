@@ -119,6 +119,8 @@ def run(
         prop={'size': 8},
         loc='center left', bbox_to_anchor=(1, 0.5),
         frameon=False)
-
-    os.remove(fig_path)
+    try:
+        os.remove(fig_path)
+    except:
+        pass
     plt.savefig(fig_path)

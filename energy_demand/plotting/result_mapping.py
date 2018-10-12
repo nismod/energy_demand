@@ -32,17 +32,6 @@ def get_reasonable_bin_values_II(
 
     bin_width = max_val / nr_of_intervals
 
-    '''if len(str(bin_width)) > 4:
-        bin_width = round_down(bin_width, divisor=1000)
-    elif len(str(bin_width)) > 3:
-        bin_width = round_down(bin_width, divisor=100)
-    elif len(str(bin_width)) > 2:
-        bin_width = round_down(bin_width, divisor=10)
-    elif len(str(bin_width)) > 1:
-        bin_width = round_down(bin_width, divisor=1)
-    else:
-        pass'''
-
     bins = [bin_width * i for i in range(nr_of_intervals)]
 
     return bins
@@ -869,7 +858,7 @@ def spatial_maps(
     # Peak max h all enduses (abs)
     # ======================================
     if plot_crit_dict['plot_abs_peak_h']:
-        for year in results_container['ed_weatheryr_fueltype_regs_yh'].keys():
+        for year in results_container['ed_fueltype_regs_yh'].keys():
             for fueltype in range(fueltypes_nr):
 
                 fueltype_str = tech_related.get_fueltype_str(fueltypes, fueltype)
@@ -878,7 +867,7 @@ def spatial_maps(
                 field_name = 'peak_abs_h_{}_{}'.format(year, fueltype_str)
 
                 # Get maxium demand of 8760h for every region
-                h_max_gwh_regs = np.max(results_container['ed_weatheryr_fueltype_regs_yh'][year][fueltype], axis=1)
+                h_max_gwh_regs = np.max(results_container['ed_fueltype_regs_yh'][year][fueltype], axis=1)
                 print("TOTAL peak fuel across all regs {} {} ".format(np.sum(h_max_gwh_regs), fueltype_str))
 
                 data_to_plot = basic_functions.array_to_dict(h_max_gwh_regs, regions)
@@ -921,31 +910,31 @@ def spatial_maps(
     # Peak max h all enduses (diff p)
     # ======================================
     if plot_crit_dict['plot_diff_peak_h']:
-        for year in results_container['ed_weatheryr_fueltype_regs_yh'].keys():
+        for year in results_container['ed_fueltype_regs_yh'].keys():
             if year == base_yr:
                 pass
             else:
                 for fueltype in range(fueltypes_nr):
                     
                     # If total sum is zero, skip
-                    if np.sum(results_container['ed_weatheryr_fueltype_regs_yh'][base_yr][fueltype]) == 0:
+                    if np.sum(results_container['ed_fueltype_regs_yh'][base_yr][fueltype]) == 0:
                         continue
 
-                    ##if np.isnan(np.sum(results_container['ed_weatheryr_fueltype_regs_yh'][base_yr][fueltype])):
+                    ##if np.isnan(np.sum(results_container['ed_fueltype_regs_yh'][base_yr][fueltype])):
                     #    logging.info("Error: Contains nan entry {} {}".format(year, fueltype))
                     #    continue
-                    #logging.info("============ {}  {}".format(fueltype, np.isnan(np.sum(results_container['ed_weatheryr_fueltype_regs_yh'][base_yr][fueltype]))))
-                    #logging.info(results_container['ed_weatheryr_fueltype_regs_yh'][base_yr][fueltype])
+                    #logging.info("============ {}  {}".format(fueltype, np.isnan(np.sum(results_container['ed_fueltype_regs_yh'][base_yr][fueltype]))))
+                    #logging.info(results_container['ed_fueltype_regs_yh'][base_yr][fueltype])
                     fueltype_str = tech_related.get_fueltype_str(fueltypes, fueltype)
 
                     # Calculate peak h across all regions
                     field_name = 'peak_diff_p_peak_h_{}_{}'.format(year, fueltype_str)
 
                     # Get maxium demand of 8760h for every region for base year
-                    h_max_gwh_regs_by = np.max(results_container['ed_weatheryr_fueltype_regs_yh'][base_yr][fueltype], axis=1)
+                    h_max_gwh_regs_by = np.max(results_container['ed_fueltype_regs_yh'][base_yr][fueltype], axis=1)
 
                     # Get maxium demand of 8760h for every region for current year
-                    h_max_gwh_regs_cy = np.max(results_container['ed_weatheryr_fueltype_regs_yh'][year][fueltype], axis=1)
+                    h_max_gwh_regs_cy = np.max(results_container['ed_fueltype_regs_yh'][year][fueltype], axis=1)
                     print("TOTAL peak fuel across all regs {} {} ".format(np.sum(h_max_gwh_regs_cy), fueltype_str))
 
                     # Calculate difference in decimal
@@ -1108,7 +1097,7 @@ def spatial_maps(
     # Population
     # ======================================
     if plot_crit_dict['plot_population']:
-        for year in results_container['ed_weatheryr_fueltype_regs_yh'].keys():
+        for year in results_container['ed_fueltype_regs_yh'].keys():
 
             field_name = 'pop_{}'.format(year)
 
@@ -1143,7 +1132,7 @@ def spatial_maps(
     # ======================================
     # Total fuel (y) all enduses
     # ======================================
-    for year in results_container['ed_weatheryr_fueltype_regs_yh'].keys():
+    for year in results_container['ed_fueltype_regs_yh'].keys():
         for fueltype in range(fueltypes_nr):
 
             fueltype_str = tech_related.get_fueltype_str(fueltypes, fueltype)
@@ -1158,7 +1147,7 @@ def spatial_maps(
 
                 # Calculate yearly sum across all regions
                 yearly_sum_gwh = np.sum(
-                    results_container['ed_weatheryr_fueltype_regs_yh'][year][fueltype],
+                    results_container['ed_fueltype_regs_yh'][year][fueltype],
                     axis=1)
 
                 data_to_plot = basic_functions.array_to_dict(yearly_sum_gwh, regions)
@@ -1195,11 +1184,11 @@ def spatial_maps(
 
                 # Calculate yearly sums
                 yearly_sum_gwh_by = np.sum(
-                    results_container['ed_weatheryr_fueltype_regs_yh'][base_yr][fueltype],
+                    results_container['ed_fueltype_regs_yh'][base_yr][fueltype],
                     axis=1)
 
                 yearly_sum_gwh_cy = np.sum(
-                    results_container['ed_weatheryr_fueltype_regs_yh'][year][fueltype],
+                    results_container['ed_fueltype_regs_yh'][year][fueltype],
                     axis=1)
 
                 # Calculate percentual difference

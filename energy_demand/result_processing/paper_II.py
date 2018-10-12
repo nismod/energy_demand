@@ -2,7 +2,7 @@
 """
 import os
 import sys
-
+ 
 from energy_demand.basic import basic_functions
 from energy_demand.plotting import figs_p2
 from energy_demand.plotting import fig_spatial_distribution_of_peak
@@ -26,9 +26,8 @@ def paper_II_plots(
     # Chose which plots should be generated
     plot_crit_dict = {
 
-        # Spatial map of distribution of peak and contribution in 
-        # terms of overall variability
-        "plot_spatial_distribution_of_peak" : True,
+        # Spatial map of distribution of peak and contribution in terms of overall variability
+        "plot_spatial_distribution_of_peak": True,
 
         # Needs to have weatehryr_stationid files in folder
         "plot_national_regional_hdd_disaggregation": False,
@@ -43,7 +42,10 @@ def paper_II_plots(
         "plot_spatial_weather_var_peak": False,
 
         # Plot scenario years sorted with weather variability
-        "plot_scenarios_sorted": True}
+        "plot_scenarios_sorted": True,
+        
+        #Plot weather map
+        'weather_map': False}
 
     # Get all folders with scenario run results (name of folder is scenario)
     scenarios = os.listdir(path_to_folder_with_scenarios)
@@ -67,14 +69,15 @@ def paper_II_plots(
     ####################################################################
     # Plot weather station availability map
     ####################################################################
-    path_to_weather_data = "C:/Users/cenv0553/ED/data/_raw_data/A-temperature_data/cleaned_weather_stations_data"
-    folder_path_weater_stations = "C:/Users/cenv0553/ED/data/_raw_data/A-temperature_data/cleaned_weather_stations.csv"
-    fig_path = "C:/Users/cenv0553/ed/results/_Fig2_multiple_2015_weather_stations/weather_station_maps.pdf"
-    fig_p2_spatial_weather_map.run(
-        path_to_weather_data,
-        folder_path_weater_stations,
-        path_shapefile=path_shapefile_input,
-        fig_path=fig_path)
+    if plot_crit_dict['weather_map']:
+        path_to_weather_data = "C:/Users/cenv0553/ED/data/_raw_data/A-temperature_data/cleaned_weather_stations_data"
+        folder_path_weater_stations = "C:/Users/cenv0553/ED/data/_raw_data/A-temperature_data/cleaned_weather_stations.csv"
+        fig_path = "C:/Users/cenv0553/ed/results/_Fig2_multiple_2015_weather_stations/weather_station_maps.pdf"
+        fig_p2_spatial_weather_map.run(
+            path_to_weather_data,
+            folder_path_weater_stations,
+            path_shapefile=path_shapefile_input,
+            fig_path=fig_path)
 
     ####################################################################
     # Plot regional vs national spatio-temporal validation
@@ -87,12 +90,11 @@ def paper_II_plots(
         '01-validation_datasets', '01_national_elec_2015', 'elec_demand_2015.csv')
     path_temporal_elec_validation = os.path.join(
         "C:/Users/cenv0553/ed/energy_demand/energy_demand/config_data",
-        '01-validation_datasets', '02_subnational_elec', 'data_2015_elec.csv') #_domestic.csv')
+        '01-validation_datasets', '02_subnational_elec', 'data_2015_elec_domestic.csv')
     path_temporal_gas_validation = os.path.join(
         "C:/Users/cenv0553/ed/energy_demand/energy_demand/config_data",
-        '01-validation_datasets', '03_subnational_gas', 'data_2015_gas.csv') #_domestic.csv')
-    path_results = os.path.abspath(
-        os.path.join(path_regional_calculations, '..'))
+        '01-validation_datasets', '03_subnational_gas', 'data_2015_gas_domestic.csv')
+    path_results = os.path.abspath(os.path.join(path_regional_calculations, '..'))
     path_out_plots = os.path.join(path_results, '_results_PDF_figs')
     basic_functions.del_previous_setup(path_out_plots)
     basic_functions.create_folder(path_out_plots)

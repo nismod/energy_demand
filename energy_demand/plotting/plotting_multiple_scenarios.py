@@ -550,7 +550,7 @@ def plot_reg_y_over_time(
     for scenario_name, scen_data in scenario_data.items():
 
         data_years_regs = {}
-        for year, fueltype_reg_time in scen_data['ed_weatheryr_fueltype_regs_yh'].items():
+        for year, fueltype_reg_time in scen_data['ed_fueltype_regs_yh'].items():
             data_years_regs[year] = {}
 
             for _fueltype, regions_fuel in enumerate(fueltype_reg_time):
@@ -669,7 +669,7 @@ def plot_tot_fueltype_y_over_time(
 
         # Read out fueltype specific max h load
         data_years = {}
-        for year, fueltype_reg_time in scen_data['ed_weatheryr_fueltype_regs_yh'].items():
+        for year, fueltype_reg_time in scen_data['ed_fueltype_regs_yh'].items():
 
             # Sum all regions
             tot_gwh_fueltype_yh = np.sum(fueltype_reg_time, axis=1)
@@ -805,7 +805,7 @@ def plot_tot_y_over_time(
 
         # Read out fueltype specific max h load
         data_years = {}
-        for year, fueltype_reg_time in scen_data['ed_weatheryr_fueltype_regs_yh'].items():
+        for year, fueltype_reg_time in scen_data['ed_fueltype_regs_yh'].items():
 
             # Sum all regions and fueltypes
             tot_gwh_fueltype_y = np.sum(fueltype_reg_time)
@@ -912,8 +912,8 @@ def plot_radar_plots_average_peak_day(
         # ------------------------
         # Future year load profile
         # ------------------------
-        all_regs_fueltypes_yh_by = np.sum(scenario_data[scenario]['ed_weatheryr_fueltype_regs_yh'][base_yr], axis=1)
-        all_regs_fueltypes_yh_cy = np.sum(scenario_data[scenario]['ed_weatheryr_fueltype_regs_yh'][year_to_plot], axis=1)
+        all_regs_fueltypes_yh_by = np.sum(scenario_data[scenario]['ed_fueltype_regs_yh'][base_yr], axis=1)
+        all_regs_fueltypes_yh_cy = np.sum(scenario_data[scenario]['ed_fueltype_regs_yh'][year_to_plot], axis=1)
 
         # ---------------------------
         # Calculate load factors
@@ -1034,7 +1034,7 @@ def plot_LAD_comparison_scenarios(
     # Sort regions according to size
     # -----------------
     regions = {}
-    for fueltype, fuels_regs in enumerate(scenario_data[first_scenario]['ed_weatheryr_fueltype_regs_yh'][2015]):
+    for fueltype, fuels_regs in enumerate(scenario_data[first_scenario]['ed_fueltype_regs_yh'][2015]):
 
         for region_array_nr, fuel_reg in enumerate(fuels_regs):
             try:
@@ -1096,12 +1096,12 @@ def plot_LAD_comparison_scenarios(
         sorted_year_data = []
         for reg_array_nr in sorted_regions_nrs:
             tot_fuel_across_fueltypes = 0
-            for fueltype, fuel_regs in enumerate(fuel_data['ed_weatheryr_fueltype_regs_yh'][year_to_plot]):
+            for fueltype, fuel_regs in enumerate(fuel_data['ed_fueltype_regs_yh'][year_to_plot]):
                 tot_fuel_across_fueltypes += np.sum(fuel_regs[reg_array_nr])
 
             sorted_year_data.append(tot_fuel_across_fueltypes)
 
-        tot_fuel_all_reg = np.sum(fuel_data['ed_weatheryr_fueltype_regs_yh'][year_to_plot])
+        tot_fuel_all_reg = np.sum(fuel_data['ed_fueltype_regs_yh'][year_to_plot])
         print("TOTAL FUEL in GWH " + str(tot_fuel_all_reg))
 
         # Calculate total annual demand
