@@ -64,7 +64,7 @@ def run(
         for weather_yr, path_data_ed in calculated_yrs_paths:
             print("... prepare data {} {}".format(weather_yr, path_data_ed))
 
-            path_to_weather_yr = os.path.join(path_data_ed, str(weather_yr))
+            path_to_weather_yr = os.path.join(path_data_ed, "{}__{}".format(weather_yr, 'all_stations'))
 
             data = {}
             data['lookups'] = lookup_tables.basic_lookups()
@@ -86,6 +86,8 @@ def run(
             # Calculate hour with national peak demand
             # This may be different depending on the weather yr
             # ---------------------------------------------------
+            print("sstr")
+            print(results_container['ed_fueltype_regs_yh'][simulation_yr][fueltype_int].shape)
             sum_all_regs_fueltype_8760 = np.sum(results_container['ed_fueltype_regs_yh'][simulation_yr][fueltype_int], axis=0) # Sum for every hour
             print("sum_all_regs_fueltype_8760")
             print(sum_all_regs_fueltype_8760.shape)

@@ -269,6 +269,7 @@ def read_in_results(path_result, seasons, model_yeardays_daytype):
     except:
         pass
     try:
+        print("path_result " + str(path_result))
         results_container['ed_fueltype_regs_yh'] = read_results_yh(
             path_result, 'ed_fueltype_regs_yh')
     except:

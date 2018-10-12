@@ -39,12 +39,9 @@ def disaggr_demand(data, spatial_calibration=False):
     data['scenario_data']['employment_stats'] = data_loader.read_employment_stats(
         data['paths']['path_employment_statistics'])
 
-    # Load population data for disaggregation
-    pop_for_disagg = data['pop_for_disag']
-
     # Disaggregate fuel for all regions
     disagg['residential'], disagg['service'], disagg['industry'] = disaggregate_base_demand(
-        pop_for_disagg,
+        data['pop_for_disag'],
         data['regions'],
         data['fuels'],
         data['scenario_data'],
@@ -63,7 +60,7 @@ def disaggr_demand(data, spatial_calibration=False):
 
         Note: All other fueltypes are not skaled
         '''
-        calibrate_residential = True       # Calibrate residential demands
+        calibrate_residential = False       # Calibrate residential demands
         calibrate_non_residential = True   # Calibrate non residential demands
 
         # Non-residential electricity regional demands of base year for electrictiy and gas
@@ -788,7 +785,7 @@ def rs_disaggregate(
     # Disaggregate for region without floor
     # area by population and hdd (set crit_full_disagg as False)
     # ====================================
-    rs_fuel_disagg_only_pop = rs_disaggr(
+    rs_fuel_regions = rs_disaggr(
         all_regions=regions,
         regions=assumptions.rs_regions_without_floorarea,
         base_yr=assumptions.base_yr,
@@ -799,7 +796,7 @@ def rs_disaggregate(
         crit_limited_disagg_pop=False, #True, #False,
         crit_limited_disagg_pop_hdd=True, #True, #Set to true
         crit_full_disagg=False)
-    rs_fuel_disagg.update(rs_fuel_disagg_only_pop)
+    rs_fuel_disagg.update(rs_fuel_regions)
 
     # Substract fuel for regions where only population was used for disaggregation from total
     rs_national_fuel_remaining = copy.deepcopy(rs_national_fuel)

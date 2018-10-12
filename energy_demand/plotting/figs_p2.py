@@ -143,7 +143,8 @@ def plot_fig_spatio_temporal_validation(
         path_temporal_elec_validation,
         path_temporal_gas_validation,
         path_non_regional_elec_2015,
-        path_out_plots
+        path_out_plots,
+        plot_show=False
     ):
     """
     Create plot with regional and non-regional plots for second paper
@@ -245,11 +246,11 @@ def plot_fig_spatio_temporal_validation(
         validation_elec_2015=elec_factored_yh,
         non_regional_elec_2015=non_regional_elec_2015,
         fig_name=os.path.join(path_out_plots, "temporal_validation.pdf"),
-        plot_show=False)
+        plot_show=plot_show)
 
     # -------------------
     # Spatial validation (not with maps)
-    # -------------------   
+    # -------------------
     # non_regional: All weather station, spatially disaggregated TODO Give BETTER NAMES
     # regional: Only one weather station for whole countr but still data for every region
     weather_yr = 2015
@@ -262,7 +263,7 @@ def plot_fig_spatio_temporal_validation(
         path_temporal_elec_validation=path_temporal_elec_validation,
         path_temporal_gas_validation=path_temporal_gas_validation,
         regions=data['regions'],
-        plot_crit=True)
+        plot_crit=plot_show)
 
     # -------------------
     # Spatial validation (plot regional maps)

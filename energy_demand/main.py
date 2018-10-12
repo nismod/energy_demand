@@ -331,28 +331,33 @@ if __name__ == "__main__":
         save_fig=path_new_scenario)
 
     # Get only selection
-    weather_stations = {}
+    weather_stations_selection = {}
+    temp_data_selection = defaultdict(dict)
     if weather_station_count_nr != []:
         for year in [user_defined_base_yr, weather_yr_scenario]:
-            weather_stations[year], wheather_station_id = weather_region.get_weather_station_selection(
+            weather_stations_selection[year], wheather_station_id = weather_region.get_weather_station_selection(
                 data['weather_stations'],
                 counter=weather_station_count_nr,
                 weather_yr=weather_yr_scenario)
+            
+            temp_data_selection[year][wheather_station_id] = data['temp_data'][year][wheather_station_id]
 
             if year == weather_yr_scenario:
                 simulation_name = str(weather_yr_scenario) + "__" + str(wheather_station_id)
     else:
         for year in [user_defined_base_yr, weather_yr_scenario]:
-            weather_stations[year] = data['weather_stations'][year]
+            weather_stations_selection[year] = data['weather_stations'][year]
+            temp_data_selection[year] = data['temp_data'][year]
             if year == weather_yr_scenario:
                 simulation_name = str(weather_yr_scenario) + "__" + "all_stations"
 
     # Replace weather station with selection
-    data['weather_stations'] = weather_stations
+    data['weather_stations'] = weather_stations_selection
+    data['temp_data'] = dict(temp_data_selection)
 
     # Plot map with weather station
     data_loader.create_weather_station_map(
-        weather_stations[weather_yr_scenario],
+        data['weather_stations'][weather_yr_scenario],
         os.path.join(data['path_new_scenario'], 'weatherst_distr_weathyr_{}.pdf'.format(weather_yr_scenario)),
         path_shapefile=data['local_paths']['lad_shapefile'])
 
@@ -496,7 +501,7 @@ if __name__ == "__main__":
             region_selection,
             data,
             data['assumptions'],
-            weather_stations,
+            data['weather_stations'],
             weather_yr=weather_yr_scenario,
             weather_by=data['assumptions'].weather_by)
 
@@ -584,10 +589,9 @@ if __name__ == "__main__":
             # -------------------------------------------
             # Write annual results to txt files
             # -------------------------------------------
-            print("... Start writing results to file")
             path_runs = data['result_paths']['data_results_model_runs']
 
-            #
+            print("... Start writing results to file: " + str(path_runs))
             plot_only_selection = False
             if plot_only_selection:
                 # PLot only residential total regional annual demand and
@@ -605,14 +609,11 @@ if __name__ == "__main__":
                     sim_obj.ed_fueltype_regs_yh,
                     "result_tot_submodels_fueltypes")
             else:
-
-
                 write_data.write_residential_tot_demands(
                     sim_yr,
                     path_runs,
                     sim_obj.ed_residential_tot_reg_y,
                     "ed_residential_tot_reg_y")
-
                 write_data.write_supply_results(
                     sim_yr,
                     "ed_fueltype_regs_yh",

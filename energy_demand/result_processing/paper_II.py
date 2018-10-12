@@ -2,7 +2,7 @@
 """
 import os
 import sys
- 
+
 from energy_demand.basic import basic_functions
 from energy_demand.plotting import figs_p2
 from energy_demand.plotting import fig_spatial_distribution_of_peak
@@ -10,7 +10,7 @@ from energy_demand.plotting import fig_p2_spatial_weather_map
 
 def paper_II_plots(
         #path_to_folder_with_scenarios="C:/Users/cenv0553/ed/results/_multiple_TEST_two_scenarios",
-        path_to_folder_with_scenarios="C:/Users/cenv0553/ed/results/_multiple_TWO",
+        path_to_folder_with_scenarios="C:/Users/cenv0553/ed/results/_Fig2_multiple_all_yrs_all_stations",
         path_shapefile_input="C:/Users/cenv0553/ED/data/region_definitions/lad_2016_uk_simplified.shp"
     ):
     """Iterate the folders with scenario
@@ -108,14 +108,13 @@ def paper_II_plots(
         path_non_regional_elec_2015=path_non_regional_elec_2015,
         path_out_plots=path_out_plots)
 
-    raise Exception
-
     ####################################################################
     # Plot spatial distribution of variability depending on weather year
     # Plot the variability of the contribution of regional peak demand
     # to national peak demand
     ####################################################################
     if plot_crit_dict['plot_spatial_distribution_of_peak']:
+
 
         # Select simulation years
         simulation_yrs = [2015, 2050]
@@ -130,8 +129,9 @@ def paper_II_plots(
             path_shapefile_input,
             simulation_yrs=simulation_yrs,
             field_to_plot=field_to_plot,
-            fig_path=path_out_plots)
+            fig_path=os.path.join(path_to_folder_with_scenarios, '_results_PDF_figs'))
 
+    raise Exception ("SSSSSSSSSSSS")
     ####################################################################
     # 
     ####################################################################

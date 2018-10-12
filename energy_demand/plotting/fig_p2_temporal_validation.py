@@ -169,6 +169,5 @@ def run(
         plt.show()
     else:
         pass
-
     plt.savefig(fig_name)
     plt.close()

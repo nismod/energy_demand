@@ -9,9 +9,9 @@ from energy_demand.read_write import read_weather_data
 def my_function(simulation_number):  
     print('simulation_number ' + str(simulation_number))
 
-    all_weather_stations = False
+    all_weather_stations = True
 
-    same_weather_yr = True
+    same_weather_yr = False
     defined_weather_yr = 2015
 
     # --------------------------
@@ -19,8 +19,10 @@ def my_function(simulation_number):
     # and select weather yr
     # --------------------------
     path_to_weather_data = "C:/Users/cenv0553/ED/data/_raw_data/A-temperature_data/cleaned_weather_stations_data"
-    weather_yrs = read_weather_data.get_all_station_per_weather_yr(path_to_weather_data, min_nr_of_stations=30)
-
+    weather_yrs_stations = read_weather_data.get_all_station_per_weather_yr(path_to_weather_data, min_nr_of_stations=30)
+    weather_yrs = list(weather_yrs_stations.keys())
+    print("all weather yrs:         " + str(weather_yrs))
+    print("Total nr of stations:    " + str(len(weather_yrs)))
     if same_weather_yr:
         weather_yr = defined_weather_yr
     else:
