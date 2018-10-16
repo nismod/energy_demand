@@ -102,4 +102,3 @@ def plt_regions_peak_h(
     # Save fig
     fig.savefig(path_plot_fig)
     plt.close()
-

@@ -171,7 +171,7 @@ def run(
     bin_values = result_mapping.get_reasonable_bin_values_II(
         data_to_plot=list(uk_gdf[field_to_plot]),
         nr_of_intervals=nr_of_intervals)
-    print(float(uk_gdf[field_to_plot].max()))
+    print(float(uk_gdf[field_to_plot]))
     print("BINS " + str(bin_values))
 
     uk_gdf, cmap_rgb_colors, color_zero, min_value, max_value = user_defined_bin_classification(
@@ -268,18 +268,27 @@ def user_defined_bin_classification(
         input_df,
         field_name,
         bin_values,
+        cmap_diverging=None,
+        cmap_sequential=None
+
     ):
     """Classify values according to bins
-    and plot
 
     Arguments
     ---------
     input_df : dataframe
         Dataframe to plot
-    
+
     higher_as_bin : int
         Bin value of > than last bin
-    
+    cmap_sequential : str
+        'Greys', 'Purples', 'Blues', 'Greens', 'Oranges', 'Reds','YlOrBr',
+        'YlOrRd', 'OrRd', 'PuRd', 'RdPu', 'BuPu', 'GnBu', 'PuBu', 'YlGnBu',
+        'PuBuGn', 'BuGn', 'YlGn'
+    cmap_diverging : str
+        'PiYG', 'PRGn', 'BrBG', 'PuOr', 'RdGy', 'RdBu', 'RdYlBu', 'RdYlGn',
+        'Spectral', 'coolwarm', 'bwr', 'seismic'
+
     Info
     -----
     Include 0 in min_max_plot == False
@@ -310,10 +319,10 @@ def user_defined_bin_classification(
                 crit_append_val = False
                 raise Exception("The minimum user defined bin smaller is larger than minimum existing value")
 
-            # Sequential: 'Greys', 'Purples', 'Blues', 'Greens', 'Oranges', 'Reds','YlOrBr', 'YlOrRd', 'OrRd', 'PuRd', 'RdPu', 'BuPu', 'GnBu', 'PuBu', 'YlGnBu', 'PuBuGn', 'BuGn', 'YlGn'
-            cmap, cmap_rgb_colors = norm_cmap(
-                bin_values[:1], #Remove 0 bin from colors
-                cmap='Purples') #'YlOrBr'
+            if not cmap_sequential:
+                cmap, cmap_rgb_colors = norm_cmap(bin_values[:1], cmap='Purples') #'YlOrBr'
+            else:
+                cmap, cmap_rgb_colors = norm_cmap(bin_values[:1], cmap=cmap_sequential) #'YlOrBr'
 
         else: #only positive values
             if max_real_value > bin_values[-1]:
@@ -321,11 +330,10 @@ def user_defined_bin_classification(
                 bin_values.append(max_real_value)
             elif bin_values[-1] > max_real_value:
                 raise Exception("The maximum user defined bin value is larger than maximum value")
-
-            # Sequential: 'Greys', 'Purples', 'Blues', 'Greens', 'Oranges', 'Reds','YlOrBr', 'YlOrRd', 'OrRd', 'PuRd', 'RdPu', 'BuPu', 'GnBu', 'PuBu', 'YlGnBu', 'PuBuGn', 'BuGn', 'YlGn'
-            cmap, cmap_rgb_colors = norm_cmap(
-                bin_values[1:], #Remove 0 bin from colors
-                cmap='Purples') #'YlOrBr'
+            if not cmap_sequential:
+                cmap, cmap_rgb_colors = norm_cmap(bin_values[1:], cmap='Purples')
+            else:
+                cmap, cmap_rgb_colors = norm_cmap(bin_values[1:], cmap=cmap_sequential)
 
         # e.g. [0, 3, 6] --> generates (0, 3], and (3, 6] bin
         input_df['bin_color'] = pd.cut(input_df[field_name], bin_values, right=True, labels=cmap_rgb_colors)
@@ -344,8 +352,10 @@ def user_defined_bin_classification(
         bin_values.append(max_real_value)
         bin_values.insert(0, min_real_value)
 
-        # Diverging: 'PiYG', 'PRGn', 'BrBG', 'PuOr', 'RdGy', 'RdBu', 'RdYlBu', 'RdYlGn', 'Spectral', 'coolwarm', 'bwr', 'seismic'
-        cmap, cmap_rgb_colors = norm_cmap(bin_values, cmap='coolwarm')
+        if not cmap_diverging:
+            cmap, cmap_rgb_colors = norm_cmap(bin_values, cmap='coolwarm')
+        else:
+            cmap, cmap_rgb_colors = norm_cmap(bin_values, cmap=cmap_diverging)
 
         # Reclassify zero value
         positive_bin_colors = []

@@ -108,8 +108,8 @@ class EnergyDemandModel(object):
 
             logging.info("... Simulate: region %s, simulation year: %s, weather_yr: %s, percent: (%s)",
                 region, assumptions.curr_yr, weather_yr, round((100/data['reg_nrs'])*reg_array_nr, 2))
-            print("... Simulate: region {}, simulation year: {}, weather_yr: {}, percent: ({})".format(
-                region, assumptions.curr_yr, weather_yr, round((100/data['reg_nrs'])*reg_array_nr, 2)), flush=True)
+            #rint("... Simulate: region {}, simulation year: {}, weather_yr: {}, percent: ({})".format(
+            #2    region, assumptions.curr_yr, weather_yr, round((100/data['reg_nrs'])*reg_array_nr, 2)), flush=True)
 
             all_submodels = simulate_region(
                 region,
@@ -131,37 +131,7 @@ class EnergyDemandModel(object):
                 assumptions.enduse_space_heating,
                 data['technologies'])
 
-            #logging.info("Size " + str(getsizeof(all_submodels)))
             del all_submodels
-            '''aggr_results = initialise_result_container(
-                data['lookups']['fueltypes_nr'],
-                data['reg_nrs'],
-                submodels_enduses=data['enduses'])
-
-            if reg_array_nr == 0:
-                sum1 = summary.summarize(muppy.get_objects())
-            if reg_array_nr == 1:
-                sum2 = summary.summarize(muppy.get_objects())
-                diff = summary.get_diff(sum1, sum2)
-                print(summary.print_(diff))
-                
-
-                all_objects = muppy.get_objects()
-                print(all_objects)
-                for i in all_objects:
-                    root = i
-                    break
-                ib = refbrowser.InteractiveBrowser(root)
-                ib.main()
-                
-                raise Exception'''
-            
-            #if reg_array_nr == 1:
-            #    break
-            #sum1 = summary.summarize(muppy.get_objects())
-            #sum2 = summary.summarize(muppy.get_objects())
-            #diff = summary.get_diff(sum1, sum2)
-            # print(summary.print_(diff))
 
         # ------------------------------
         # Plot generation to correlate HDD and energy demand
@@ -219,6 +189,20 @@ def aggregate_across_all_regs(
     technologies : dict
         Technologies per enduse
     """
+    # -----------------------------
+    # Aggregate residential demand [fueltype, region]
+    # -----------------------------
+    array_init = np.zeros((fueltypes_nr, reg_nrs)) #Annual
+    for submodel in aggr_results['ed_submodel_enduse_fueltype_regs_yh']:
+
+        if submodel == 0:
+            for enduse in aggr_results['ed_submodel_enduse_fueltype_regs_yh'][submodel]:
+
+                # Sum across all hours in a year
+                array_init += np.sum(aggr_results['ed_submodel_enduse_fueltype_regs_yh'][submodel][enduse], axis=2)
+        else:
+            pass
+    aggr_results['ed_residential_tot_reg_y'] = array_init
 
     # ----------------------------------------------------
     # Aggregate: [fueltype, region, fuel_yh_8760]

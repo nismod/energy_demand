@@ -1096,13 +1096,13 @@ def apply_scenario_drivers(
                         by_driver_data = gva_per_head[base_yr][region]
                         cy_driver_data = gva_per_head[curr_yr][region]
 
-                    logging.info("gva  {}   {}".format(by_driver_data, cy_driver_data))
+                    #logging.info("gva  {}   {}".format(by_driver_data, cy_driver_data))
 
             elif scenario_driver == 'population':
                 by_driver_data = population[base_yr][region]
                 cy_driver_data = population[curr_yr][region]
 
-                logging.info("pop  {}   {}".format(population[base_yr][region], population[curr_yr][region]))
+                #logging.info("pop  {}   {}".format(population[base_yr][region], population[curr_yr][region]))
 
             # Multiply drivers
             by_driver *= by_driver_data
@@ -1118,15 +1118,9 @@ def apply_scenario_drivers(
         except ZeroDivisionError:
             factor_driver = 1
 
-        logging.info("  eda  {}   {}  {} {}".format(
-            scenario_drivers,
-            factor_driver,
-            by_driver_data,
-            cy_driver_data
+        #logging.info("  eda  {}   {}  {} {}".format(
+        #    scenario_drivers, factor_driver, by_driver_data, cy_driver_data))
 
-        ))
-        
-        
         fuel_y = fuel_y * factor_driver
     else:
         """Scenario driver calculation based on dwelling stock

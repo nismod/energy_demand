@@ -357,6 +357,24 @@ def write_full_results(
         path_file,
         statistics_to_print)
 
+def write_residential_tot_demands(
+        sim_yr,
+        path_result,
+        tot_fuel_y_enduse_specific_yh,
+        filename
+    ):
+    basic_functions.create_folder(path_result)
+    basic_functions.create_folder(path_result, "residential_results")
+
+    path_file = os.path.join(
+        os.path.join(path_result, "residential_results"),
+        "{}__{}__{}".format(
+            filename,
+            sim_yr,
+            ".npy"))
+
+    np.save(path_file, tot_fuel_y_enduse_specific_yh)
+
 def write_enduse_specific(
         sim_yr,
         path_result,

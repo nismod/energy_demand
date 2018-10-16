@@ -2,9 +2,10 @@
 Contains funtions related to handeling date and
 time related functionality
 """
-import numpy as np
 from datetime import date
 from datetime import timedelta
+import numpy as np
+
 from energy_demand.basic import basic_functions
 
 def convert_h_to_day_year_and_h(hour):
@@ -31,6 +32,26 @@ def convert_h_to_day_year_and_h(hour):
 
     return day, day_h
 
+def get_8760_hrs_from_yeardays(yeardays):
+    """Get from yeadays all yearhours
+
+    Arguments
+    ---------
+    yeardays : list
+        Listh with year days (0 - 364)
+
+    Returns
+    ---------
+    year_hrs : list
+        All year hours (0 - 8759)
+    """
+    year_hrs = []
+    for day in yeardays:
+        hrs = list(range((day * 24), ((day + 1) * 24)))
+        year_hrs += hrs
+
+    return year_hrs
+
 def get_seasonal_weeks():
     """
     """
@@ -46,7 +67,6 @@ def get_seasonal_weeks():
     autumn_week = list(range(
         date_prop.date_to_yearday(year_to_model, 10, 12),
         date_prop.date_to_yearday(year_to_model, 10, 26))) #Oct'''
-
     winter_week = list(range(
         date_to_yearday(2015, 1, 12), date_to_yearday(2015, 1, 19))) #Jan
     spring_week = list(range(

@@ -419,6 +419,9 @@ def spatio_temporal_val(
 
     elec_factored_yh = f_diff_elec * elec_2015_indo
 
+    logging.info("EKOLOGIT")
+    logging.info(elec_factored_yh[18])
+
     temporal_validation(
         result_paths,
         ed_fueltype_national_yh[fueltypes['electricity']],
@@ -471,9 +474,11 @@ def spatio_temporal_val(
 
     # Peak across all fueltypes WARNING: Fueltype specific
     peak_day_all_fueltypes = enduse_func.get_peak_day_all_fueltypes(ed_fueltype_national_yh)
+    logging.info("Peak day 'peak_day_all_fueltypes': " + str(peak_day_all_fueltypes))
 
     fueltype = fueltypes['electricity']
     peak_day_electricity, _ = enduse_func.get_peak_day_single_fueltype(ed_fueltype_national_yh[fueltype])
+    logging.info("Peak day 'peak_day_electricity': " + str(peak_day_electricity))
 
     elec_national_data.compare_peak(
         "validation_peak_elec_day_all_fueltypes.pdf",
@@ -494,7 +499,7 @@ def spatio_temporal_val(
     elec_national_data.compare_peak(
         "validation_elec_peak_day_{}.pdf".format(peak_day),
         result_paths['data_results_validation'],
-        elec_2015_indo[peak_day],
+        elec_factored_yh[peak_day],
         ed_fueltype_national_yh[fueltypes['electricity']][peak_day],
         peak_day)
 
@@ -502,9 +507,20 @@ def spatio_temporal_val(
     elec_national_data.compare_peak(
         "validation_elec_peak_day_{}.pdf".format(peak_day),
         result_paths['data_results_validation'],
-        elec_2015_indo[peak_day],
+        elec_factored_yh[peak_day],
         ed_fueltype_national_yh[fueltypes['electricity']][peak_day],
         peak_day)
+
+    peak_day_real_electricity, _ = enduse_func.get_peak_day_single_fueltype(elec_2015_indo)
+    logging.info("Peak day 'peak_day_electricity': " + str(peak_day_real_electricity))
+
+    #raise Exception
+    elec_national_data.compare_peak(
+        "validation_elec_peak_day_{}.pdf".format(peak_day_real_electricity),
+        result_paths['data_results_validation'],
+        elec_factored_yh[peak_day],
+        ed_fueltype_national_yh[fueltypes['electricity']][peak_day_real_electricity],
+        peak_day_real_electricity)
 
     # ---------------------------------------------------
     # Validate boxplots for every hour (temporal validation)
@@ -789,7 +805,15 @@ def spatial_validation_multiple(
         y_real_demand = []
         y_modelled_demand = []
 
-        for reg_geocode in regions:
+        # -----------------
+        # Sort results according to size
+        # -----------------
+        sorted_dict_real = sorted(
+            result_dict['real_demand'].items(),
+            key=operator.itemgetter(1))
+    
+        #for reg_geocode in regions:
+        for reg_geocode, _ in sorted_dict_real:
             # Test if real and modelled data are both available
             try:
                 real = result_dict['real_demand'][reg_geocode]
@@ -811,12 +835,7 @@ def spatial_validation_multiple(
         std_dev_p = np.std(diff_real_modelled_p)        # Given as percent
         std_dev_abs = np.std(diff_real_modelled_abs)    # Given as energy unit
 
-        # -----------------
-        # Sort results according to size
-        # -----------------
-        sorted_dict_real = sorted(
-            result_dict['real_demand'].items(),
-            key=operator.itemgetter(1))
+
 
         x_values = np.arange(0, len(y_real_demand), 1)
 

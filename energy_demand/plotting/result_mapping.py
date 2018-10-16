@@ -11,6 +11,7 @@ import pandas as pd
 import palettable
 import matplotlib.pyplot as plt
 import matplotlib.patches as mpatches
+from matplotlib.patches import Circle  
 from matplotlib.colors import LinearSegmentedColormap
 from energy_demand.basic import basic_functions
 from energy_demand.technologies import tech_related
@@ -30,17 +31,6 @@ def get_reasonable_bin_values_II(
     min_val = float(min(data_to_plot))
 
     bin_width = max_val / nr_of_intervals
-
-    '''if len(str(bin_width)) > 4:
-        bin_width = round_down(bin_width, divisor=1000)
-    elif len(str(bin_width)) > 3:
-        bin_width = round_down(bin_width, divisor=100)
-    elif len(str(bin_width)) > 2:
-        bin_width = round_down(bin_width, divisor=10)
-    elif len(str(bin_width)) > 1:
-        bin_width = round_down(bin_width, divisor=1)
-    else:
-        pass'''
 
     bins = [bin_width * i for i in range(nr_of_intervals)]
 
@@ -269,12 +259,8 @@ def user_defined_classification(
 def get_legend_handles(bins, color_list, color_zero, min_value, max_value):
     """
     """
-    print("bins fff")
-    print(bins)
-    print(color_list)
-
     legend_handles = []
-    small_number = 0.01 # Small number for plotting corrrect charts
+    small_number = 0.0001 # Small number for plotting corrrect charts
 
     if max(bins) >= 0:
         bins.append(999) # Append dummy last element for last class
@@ -292,7 +278,6 @@ def get_legend_handles(bins, color_list, color_zero, min_value, max_value):
             else:
                 label_patch = "< {} (min {})".format(bin_entry, min_value)
         elif bin_nr == len(bins)- 1: # -1 means that last bin entry
-            ###label_patch = "> {} (max {})".format(bins[-2], max_value)
             label_patch = "> {} (max {})".format(bins[-2], max_value)
 
             if max_value < bin_entry:
@@ -305,6 +290,7 @@ def get_legend_handles(bins, color_list, color_zero, min_value, max_value):
                 patch = mpatches.Patch(
                     color=color_zero,
                     label=str("0"))
+
                 legend_handles.append(patch)
             else:
                 pass
@@ -325,6 +311,47 @@ def get_legend_handles(bins, color_list, color_zero, min_value, max_value):
         patch = mpatches.Patch(
             color=color_list[bin_nr],
             label=str(label_patch))
+
+        legend_handles.append(patch)
+
+    return legend_handles
+
+def add_simple_legend(bins, color_list, color_zero, patch_form='rectangle'):
+    """Add legend without giving the intervals
+    """
+    legend_handles = []
+
+    bin_nr = 0
+    for cnt, bin_value in enumerate(bins):
+
+        if cnt == 0: # first entry
+            if bin_value == 0:
+                label = str(bin_value)
+            else:
+                label = str("< {}".format(bins[cnt + 1]))
+        elif cnt == len(bins) - 1: #last entry
+            label = str("> {}".format(bins[cnt - 1]))
+        else:
+            label = str(bin_value)
+
+        if bin_value == 0:
+            color = color_zero
+        else:
+            color = color_list[bin_nr]
+            bin_nr += 1
+
+        if patch_form == 'rectangle':
+            patch = mpatches.Patch(
+                color=color,
+                label=label)
+        elif patch_form == 'circle':
+            patch = Circle(
+                xy=(0,0),
+                radius=1,
+                color=color,
+                label=label)
+        else:
+            raise Exception("wrong patch_form")
 
         legend_handles.append(patch)
 
@@ -831,7 +858,7 @@ def spatial_maps(
     # Peak max h all enduses (abs)
     # ======================================
     if plot_crit_dict['plot_abs_peak_h']:
-        for year in results_container['results_every_year'].keys():
+        for year in results_container['ed_fueltype_regs_yh'].keys():
             for fueltype in range(fueltypes_nr):
 
                 fueltype_str = tech_related.get_fueltype_str(fueltypes, fueltype)
@@ -840,7 +867,7 @@ def spatial_maps(
                 field_name = 'peak_abs_h_{}_{}'.format(year, fueltype_str)
 
                 # Get maxium demand of 8760h for every region
-                h_max_gwh_regs = np.max(results_container['results_every_year'][year][fueltype], axis=1)
+                h_max_gwh_regs = np.max(results_container['ed_fueltype_regs_yh'][year][fueltype], axis=1)
                 print("TOTAL peak fuel across all regs {} {} ".format(np.sum(h_max_gwh_regs), fueltype_str))
 
                 data_to_plot = basic_functions.array_to_dict(h_max_gwh_regs, regions)
@@ -883,31 +910,31 @@ def spatial_maps(
     # Peak max h all enduses (diff p)
     # ======================================
     if plot_crit_dict['plot_diff_peak_h']:
-        for year in results_container['results_every_year'].keys():
+        for year in results_container['ed_fueltype_regs_yh'].keys():
             if year == base_yr:
                 pass
             else:
                 for fueltype in range(fueltypes_nr):
                     
                     # If total sum is zero, skip
-                    if np.sum(results_container['results_every_year'][base_yr][fueltype]) == 0:
+                    if np.sum(results_container['ed_fueltype_regs_yh'][base_yr][fueltype]) == 0:
                         continue
 
-                    ##if np.isnan(np.sum(results_container['results_every_year'][base_yr][fueltype])):
+                    ##if np.isnan(np.sum(results_container['ed_fueltype_regs_yh'][base_yr][fueltype])):
                     #    logging.info("Error: Contains nan entry {} {}".format(year, fueltype))
                     #    continue
-                    #logging.info("============ {}  {}".format(fueltype, np.isnan(np.sum(results_container['results_every_year'][base_yr][fueltype]))))
-                    #logging.info(results_container['results_every_year'][base_yr][fueltype])
+                    #logging.info("============ {}  {}".format(fueltype, np.isnan(np.sum(results_container['ed_fueltype_regs_yh'][base_yr][fueltype]))))
+                    #logging.info(results_container['ed_fueltype_regs_yh'][base_yr][fueltype])
                     fueltype_str = tech_related.get_fueltype_str(fueltypes, fueltype)
 
                     # Calculate peak h across all regions
                     field_name = 'peak_diff_p_peak_h_{}_{}'.format(year, fueltype_str)
 
                     # Get maxium demand of 8760h for every region for base year
-                    h_max_gwh_regs_by = np.max(results_container['results_every_year'][base_yr][fueltype], axis=1)
+                    h_max_gwh_regs_by = np.max(results_container['ed_fueltype_regs_yh'][base_yr][fueltype], axis=1)
 
                     # Get maxium demand of 8760h for every region for current year
-                    h_max_gwh_regs_cy = np.max(results_container['results_every_year'][year][fueltype], axis=1)
+                    h_max_gwh_regs_cy = np.max(results_container['ed_fueltype_regs_yh'][year][fueltype], axis=1)
                     print("TOTAL peak fuel across all regs {} {} ".format(np.sum(h_max_gwh_regs_cy), fueltype_str))
 
                     # Calculate difference in decimal
@@ -1070,7 +1097,7 @@ def spatial_maps(
     # Population
     # ======================================
     if plot_crit_dict['plot_population']:
-        for year in results_container['results_every_year'].keys():
+        for year in results_container['ed_fueltype_regs_yh'].keys():
 
             field_name = 'pop_{}'.format(year)
 
@@ -1105,7 +1132,7 @@ def spatial_maps(
     # ======================================
     # Total fuel (y) all enduses
     # ======================================
-    for year in results_container['results_every_year'].keys():
+    for year in results_container['ed_fueltype_regs_yh'].keys():
         for fueltype in range(fueltypes_nr):
 
             fueltype_str = tech_related.get_fueltype_str(fueltypes, fueltype)
@@ -1120,7 +1147,7 @@ def spatial_maps(
 
                 # Calculate yearly sum across all regions
                 yearly_sum_gwh = np.sum(
-                    results_container['results_every_year'][year][fueltype],
+                    results_container['ed_fueltype_regs_yh'][year][fueltype],
                     axis=1)
 
                 data_to_plot = basic_functions.array_to_dict(yearly_sum_gwh, regions)
@@ -1157,11 +1184,11 @@ def spatial_maps(
 
                 # Calculate yearly sums
                 yearly_sum_gwh_by = np.sum(
-                    results_container['results_every_year'][base_yr][fueltype],
+                    results_container['ed_fueltype_regs_yh'][base_yr][fueltype],
                     axis=1)
 
                 yearly_sum_gwh_cy = np.sum(
-                    results_container['results_every_year'][year][fueltype],
+                    results_container['ed_fueltype_regs_yh'][year][fueltype],
                     axis=1)
 
                 # Calculate percentual difference
