@@ -32,6 +32,26 @@ def convert_h_to_day_year_and_h(hour):
 
     return day, day_h
 
+def get_8760_hrs_from_yeardays(yeardays):
+    """Get from yeadays all yearhours
+
+    Arguments
+    ---------
+    yeardays : list
+        Listh with year days (0 - 364)
+
+    Returns
+    ---------
+    year_hrs : list
+        All year hours (0 - 8759)
+    """
+    year_hrs = []
+    for day in yeardays:
+        hrs = list(range((day * 24), ((day + 1) * 24)))
+        year_hrs += hrs
+
+    return year_hrs
+
 def get_seasonal_weeks():
     """
     """

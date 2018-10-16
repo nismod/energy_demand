@@ -115,7 +115,6 @@ def paper_II_plots(
     ####################################################################
     if plot_crit_dict['plot_spatial_distribution_of_peak']:
 
-
         # Select simulation years
         simulation_yrs = [2015, 2050]
 
@@ -123,7 +122,7 @@ def paper_II_plots(
         field_to_plot = "std_deviation_p_demand_peak_h"
         #field_to_plot = "std_deviation_abs_demand_peak_h"
 
-        fig_spatial_distribution_of_peak.run(
+        fig_spatial_distribution_of_peak.run_fig_spatial_distribution_of_peak(
             only_scenarios,
             path_to_folder_with_scenarios,
             path_shapefile_input,
@@ -131,35 +130,13 @@ def paper_II_plots(
             field_to_plot=field_to_plot,
             fig_path=os.path.join(path_to_folder_with_scenarios, '_results_PDF_figs'))
 
-    raise Exception ("SSSSSSSSSSSS")
+    print("Finihsed")
+    raise Exception("Finished")
+
     ####################################################################
-    # 
+    # left overs
     ####################################################################
     for scenario in only_scenarios:
-
-        # -----------
-        # plot where spatio-temporal comparison between national and regional
-        # -----------
-        path_regional_calculations = "C:/Users/cenv0553/ed/results/_for_FIG2a/_regional_calculations"
-        path_rolling_elec_demand = os.path.join(
-            "C:/Users/cenv0553/ed/energy_demand/energy_demand/config_data",
-            '01-validation_datasets', '01_national_elec_2015', 'elec_demand_2015.csv')
-        path_temporal_elec_validation = os.path.join(
-            "C:/Users/cenv0553/ed/energy_demand/energy_demand/config_data",
-            '01-validation_datasets', '02_subnational_elec', 'data_2015_elec_domestic.csv')
-        path_temporal_gas_validation = os.path.join(
-            "C:/Users/cenv0553/ed/energy_demand/energy_demand/config_data",
-            '01-validation_datasets', '03_subnational_gas', 'data_2015_gas_domestic.csv')
-        path_non_regional_elec_2015 = os.path.abspath(
-            os.path.join(path_regional_calculations, '..', "_non_regional_calculations_2015"))
-
-        # Plot figure national an regional validation comparison
-        '''figs_p2.plot_fig_spatio_temporal_validation(
-            path_regional_calculations=path_regional_calculations,
-            path_rolling_elec_demand=path_rolling_elec_demand,
-            path_temporal_elec_validation=path_temporal_elec_validation,
-            path_temporal_gas_validation=path_temporal_gas_validation,
-            path_non_regional_elec_2015=path_non_regional_elec_2015)'''
 
         # -----------
         # Other plots
@@ -169,6 +146,31 @@ def paper_II_plots(
             path_shapefile_input,
             path_out_plots,
             plot_crit_dict)
+
+    # ####################################################################
+    # Plot demand over time and peak over time (for modassar paper)
+    # ####################################################################
+    '''if plot_crit_dict['plot_weather_day_year']:
+
+        # --------------------------------------------
+        # Plot peak demand and total demand per fueltype
+        # --------------------------------------------
+        for fueltype_str in data['lookups']['fueltypes'].keys():
+
+            fig_total_demand_peak.run(
+                data_input=weather_yr_container['tot_fueltype_yh'],
+                fueltype_str=fueltype_str,
+                fig_name=os.path.join(
+                    path_out_plots, "tot_{}_h.pdf".format(fueltype_str)))
+
+        # plot over period of time across all weather scenario
+        fig_weather_variability_priod.run(
+            data_input=weather_yr_container['tot_fueltype_yh'],
+            fueltype_str='electricity',
+            simulation_yr_to_plot=2015, # Simulation year to plot
+            period_h=list(range(200,500)), #period to plot
+            fig_name=os.path.join(
+                path_out_plots, "weather_var_period.pdf"))'''
 
     return
 

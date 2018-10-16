@@ -261,6 +261,7 @@ def compare_peak(
     """
     logging.debug("...compare elec peak results")
 
+    real_elec_peak = np.copy(real_elec_2015_peak)
     # -------------------------------
     # Compare values
     # -------------------------------
@@ -278,12 +279,12 @@ def compare_peak(
         linewidth=0.5,
         label='model')
 
-    x_smoothed, real_elec_2015_peak_smoothed = basic_plot_functions.smooth_data(
-        range(24), real_elec_2015_peak, num=500)
+    x_smoothed, real_elec_peak_smoothed = basic_plot_functions.smooth_data(
+        range(24), real_elec_peak, num=500)
 
     plt.plot(
         x_smoothed,
-        real_elec_2015_peak_smoothed,
+        real_elec_peak_smoothed,
         color='black',
         linestyle='-',
         linewidth=0.5,
@@ -291,10 +292,10 @@ def compare_peak(
 
     #raise Exception
     # Calculate hourly differences in %
-    diff_p_h = np.round((100 / real_elec_2015_peak) * modelled_peak_dh, 1)
+    diff_p_h = np.round((100 / real_elec_peak) * modelled_peak_dh, 1)
 
     # Calculate maximum difference
-    max_h_real = np.max(real_elec_2015_peak)
+    max_h_real = np.max(real_elec_peak)
     max_h_modelled = np.max(modelled_peak_dh)
 
     max_h_diff = round((100 / max_h_real) * max_h_modelled, 2)

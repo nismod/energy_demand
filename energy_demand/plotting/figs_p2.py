@@ -14,6 +14,7 @@ from energy_demand.validation import elec_national_data
 from energy_demand.technologies import tech_related
 from energy_demand.plotting import fig_p2_annual_hours_sorted
 from energy_demand.plotting import fig_p2_spatial_val
+from energy_demand import enduse_func
 
 def main(
         path_data_ed,
@@ -84,32 +85,7 @@ def main(
         weather_yr_container['tot_fueltype_yh'][weather_yr] = results_container['tot_fueltype_yh'] #tot_fueltype_yh
         weather_yr_container['results_enduse_every_year'][weather_yr] = results_container['ed_fueltype_regs_yh']
 
-    # ####################################################################
-    # Plot demand over time and peak over time (for modassar paper)
-    # ####################################################################
-    if plot_crit_dict['plot_weather_day_year']:
-
-        # --------------------------------------------
-        # Plot peak demand and total demand per fueltype
-        # --------------------------------------------
-        for fueltype_str in data['lookups']['fueltypes'].keys():
-
-            fig_total_demand_peak.run(
-                data_input=weather_yr_container['tot_fueltype_yh'],
-                fueltype_str=fueltype_str,
-                fig_name=os.path.join(
-                    path_out_plots, "tot_{}_h.pdf".format(fueltype_str)))
-
-        # plot over period of time across all weather scenario
-        fig_weather_variability_priod.run(
-            data_input=weather_yr_container['tot_fueltype_yh'],
-            fueltype_str='electricity',
-            simulation_yr_to_plot=2015, # Simulation year to plot
-            period_h=list(range(200,500)), #period to plot
-            fig_name=os.path.join(
-                path_out_plots, "weather_var_period.pdf"))
-
-    # ####################################################################
+    '''# ####################################################################
     # Spatial maps of weather variability
     # ####################################################################
     if plot_crit_dict['plot_spatial_weather_var_peak']:
@@ -121,7 +97,7 @@ def main(
             population=population_data[2015],
             fueltype_str='electricity',
             path_shapefile=path_shapefile_input,
-            fig_name=os.path.join(path_out_plots, "fig_paper_IIb_weather_var_map.pdf"))
+            fig_name=os.path.join(path_out_plots, "fig_paper_IIb_weather_var_map.pdf"))'''
     
     # ####################################################################
     # Create plot with regional and non-regional plots for second paper
@@ -235,19 +211,46 @@ def plot_fig_spatio_temporal_validation(
     # Compare regional and non regional and actual demand over time
     # *****************************************************************
     simulation_yr_to_plot = 2015
-    period_to_plot = list(range(0, 8760)) #TODO PLANE
-    winter_week, _, _, _ = date_prop.get_seasonal_weeks()
-    period_to_plot = winter_week
 
-    fig_p2_temporal_validation.run(
+    winter_week, spring_week, summer_week, autumn_week = date_prop.get_seasonal_weeks()
+
+    # Peak day
+    peak_day, _ = enduse_func.get_peak_day_single_fueltype(elec_factored_yh)
+
+    # Convert days to hours
+    period_to_plot = list(range(0, 400))
+    period_to_plot = date_prop.get_8760_hrs_from_yeardays(winter_week)
+    period_to_plot = date_prop.get_8760_hrs_from_yeardays([peak_day])
+    period_to_plot_winter = date_prop.get_8760_hrs_from_yeardays(winter_week)
+    period_to_plot_spring = date_prop.get_8760_hrs_from_yeardays(spring_week)
+
+    fig_p2_temporal_validation.run_fig_p2_temporal_validation(
         data_input=data_container['tot_fueltype_yh'],
         weather_yr=2015,
         fueltype_str='electricity',
         simulation_yr_to_plot=simulation_yr_to_plot, # Simulation year to plot
-        period_h=period_to_plot, #period to plot
+        period_h=period_to_plot,
         validation_elec_2015=elec_factored_yh,
         non_regional_elec_2015=non_regional_elec_2015,
-        fig_name=os.path.join(path_out_plots, "temporal_validation.pdf"),
+        fig_name=os.path.join(path_out_plots, "temporal_validation_elec.pdf"),
+        titel="yearday: {}".format(peak_day),
+        y_lim_val=55,
+        plot_validation=False,
+        plot_show=plot_show)
+    
+    fueltype_gas = tech_related.get_fueltype_int('gas')
+    fig_p2_temporal_validation.run_fig_p2_temporal_validation(
+        data_input=data_container['tot_fueltype_yh'],
+        weather_yr=2015,
+        fueltype_str='gas',
+        simulation_yr_to_plot=simulation_yr_to_plot, # Simulation year to plot
+        period_h=period_to_plot,
+        validation_elec_2015=None,
+        non_regional_elec_2015=tot_fueltype_yh[year_non_regional][fueltype_gas],
+        fig_name=os.path.join(path_out_plots, "temporal_validation_gas.pdf"),
+        titel="yearday: {}".format(peak_day),
+        y_lim_val=250,
+        plot_validation=False,
         plot_show=plot_show)
 
     # -------------------
@@ -261,7 +264,7 @@ def plot_fig_spatio_temporal_validation(
         demand_year_non_regional=demand_year_non_regional['residential_results'][weather_yr],
         demand_year_regional=data_container['residential_results'][weather_yr],
         fueltypes=data['lookups']['fueltypes'],
-        fig_path=os.path.join(path_out_plots, "spatial_validation.pdf"),
+        fig_path=path_out_plots,
         path_temporal_elec_validation=path_temporal_elec_validation,
         path_temporal_gas_validation=path_temporal_gas_validation,
         regions=data['regions'],

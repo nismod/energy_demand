@@ -9,9 +9,9 @@ from energy_demand.read_write import read_weather_data
 def my_function(simulation_number):  
     print('simulation_number ' + str(simulation_number))
 
-    all_weather_stations = True
+    all_weather_stations = False
 
-    same_weather_yr = False
+    same_weather_yr = True
     defined_weather_yr = 2015
 
     # --------------------------
@@ -47,7 +47,7 @@ def my_function(simulation_number):
 
 # ===============================
 #simulation_number = range(40)
-simulation_number = range(0, 10)
+simulation_number = range(0, 200)
 
 for i in simulation_number:
     my_function(i)

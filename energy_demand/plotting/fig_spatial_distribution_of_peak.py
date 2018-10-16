@@ -15,7 +15,7 @@ from energy_demand.plotting import basic_plot_functions
 from energy_demand.plotting import result_mapping
 from energy_demand.plotting import fig_p2_weather_val
 
-def run(
+def run_fig_spatial_distribution_of_peak(
         scenarios,
         path_to_folder_with_scenarios,
         path_shapefile,
@@ -48,12 +48,9 @@ def run(
         # -----------
         # Used across different plots
         # -----------
-
-        #Fueltype to consider
         fueltype_str = 'electricity'
         fueltype_int = tech_related.get_fueltype_int(fueltype_str)
 
-        #results_container['ed_fueltype_regs_yh']
         container = {}
         container['abs_demand_in_peak_h'] = {}
         container['p_demand_in_peak_h'] = {}
@@ -68,8 +65,6 @@ def run(
             data['enduses'], data['assumptions'], reg_nrs, regions = data_loader.load_ini_param(os.path.join(path_data_ed))
             data['assumptions']['seasons'] = date_prop.get_season(year_to_model=2015)
             data['assumptions']['model_yeardays_daytype'], data['assumptions']['yeardays_month'], data['assumptions']['yeardays_month_days'] = date_prop.get_yeardays_daytype(year_to_model=2015)
-
-            path_out_plots = os.path.abspath(os.path.join(path_data_ed, '..', '_results_PDF_figs'))
 
             # Population 
             population_data = read_data.read_scenaric_population_data(os.path.join(path_data_ed, 'model_run_pop'))

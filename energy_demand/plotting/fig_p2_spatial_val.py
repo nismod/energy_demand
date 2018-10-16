@@ -1,5 +1,6 @@
 """
 """
+import os
 import operator
 import logging
 import numpy as np
@@ -71,11 +72,11 @@ def run(
         subnational_elec,
         regions,
         'electricity',
-        fig_path=fig_path,
+        fig_path=os.path.join(fig_path, "spatial_validation_electricity.pdf"),
         label_points=False,
         plotshow=plot_crit)
 
-    # Gas TODO
+    # Gas
     plot_spatial_validation(
         simulation_yr_to_plot,
         fuel_gas_regs_yh,
@@ -83,7 +84,7 @@ def run(
         subnational_gas,
         regions,
         'gas',
-        fig_path=fig_path,
+        fig_path=os.path.join(fig_path, "spatial_validation_gas.pdf"),
         label_points=False,
         plotshow=plot_crit)
 
@@ -244,7 +245,6 @@ def plot_spatial_validation(
     for region_vals in y_modelled_demands_non_regional:
         station_vals.append(region_vals[station_nr])
 
-
     plt.plot(
         x_values,
         station_vals,
@@ -377,7 +377,7 @@ def plot_spatial_validation(
     # Tight layout
     plt.margins(x=0)
     plt.tight_layout()
-    #plt.savefig(fig_name)
+    plt.savefig(fig_path)
 
     if plotshow:
         plt.show()
