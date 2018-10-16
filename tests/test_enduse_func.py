@@ -252,7 +252,7 @@ def test_apply_smart_metering():
         'smart_meter_p_by': 0}
 
     strategy_vars = {}
-    strategy_vars['smart_meter_improvement_p'] = {2015: 0, 2020: 0.5}
+    strategy_vars['smart_meter_p'] = {2015: 0, 2020: 0.5}
 
     result = enduse_func.apply_smart_metering(
         enduse='heating',

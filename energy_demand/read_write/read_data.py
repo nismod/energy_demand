@@ -277,7 +277,7 @@ def read_in_results(path_result, seasons, model_yeardays_daytype):
     # Read in residential demands
     try:
         results_container['residential_results'] = read_results_yh(
-        path_result, 'residential_results')
+            path_result, 'residential_results')
     except:
         pass
 

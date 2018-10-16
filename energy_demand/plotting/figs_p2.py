@@ -62,7 +62,7 @@ def main(
     data = {}
     data['lookups'] = lookup_tables.basic_lookups()
 
-    data['enduses'], data['assumptions'], data['reg_nrs'], data['regions'] = data_loader.load_ini_param(
+    data['enduses'], data['assumptions'], data['regions'] = data_loader.load_ini_param(
         os.path.join(path_data_ed))
 
     data['assumptions']['seasons'] = date_prop.get_season(year_to_model=2015)
@@ -153,7 +153,7 @@ def plot_fig_spatio_temporal_validation(
 
                 data = {}
                 data['lookups'] = lookup_tables.basic_lookups()
-                data['enduses'], data['assumptions'], data['reg_nrs'], data['regions'] = data_loader.load_ini_param(
+                data['enduses'], data['assumptions'], data['regions'] = data_loader.load_ini_param(
                     os.path.join(path_regional_calculations, all_result_folders[0])) # last result folder
                 data['assumptions']['seasons'] = date_prop.get_season(year_to_model=2015)
                 data['assumptions']['model_yeardays_daytype'], data['assumptions']['yeardays_month'], data['assumptions']['yeardays_month_days'] = date_prop.get_yeardays_daytype(year_to_model=2015)

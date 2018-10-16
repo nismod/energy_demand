@@ -6,6 +6,7 @@ import matplotlib.pyplot as plt
 
 from energy_demand.profiles import load_factors
 from energy_demand.plotting import basic_plot_functions
+from energy_demand.plotting import plotting_styles
 
 def plot_cross_graphs(
         base_yr,

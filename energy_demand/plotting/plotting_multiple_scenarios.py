@@ -7,6 +7,7 @@ import operator
 import collections
 import numpy as np
 import matplotlib.pyplot as plt
+import pandas as pd
 
 from energy_demand.plotting import plotting_styles
 from energy_demand.plotting import basic_plot_functions
@@ -940,8 +941,8 @@ def plot_radar_plots_average_peak_day(
             'ss_water_heating',
             'is_space_heating']
 
-        aggregated_enduse_fueltype_cy = np.zeros((365, 24))
-        aggregated_enduse_fueltype_by = np.zeros((365, 24))
+        aggregated_enduse_fueltype_cy = np.zeros((8760))
+        aggregated_enduse_fueltype_by = np.zeros((8760))
 
         for enduse in scenario_data[scenario]['results_enduse_every_year'][year_to_plot].keys():
             if enduse in enduses_to_agg:

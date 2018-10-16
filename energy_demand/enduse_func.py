@@ -1308,7 +1308,7 @@ def apply_smart_metering(
     enduse_savings = sm_assump['savings_smart_meter'][enduse]
 
     # Smart meter penetration in current year (percentage of people having smart meters)
-    penetration_cy = strategy_vars['smart_meter_improvement_p'][curr_yr]
+    penetration_cy = strategy_vars['smart_meter_p'][curr_yr]
 
     # Smart meter penetration in base year (percentage of people having smart meters)
     penetration_by = sm_assump['smart_meter_p_by']

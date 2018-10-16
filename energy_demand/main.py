@@ -192,7 +192,7 @@ if __name__ == "__main__":
     data['result_paths'] = data_loader.get_result_paths(path_new_scenario)
 
     basic_functions.create_folder(path_new_scenario)
-    ## TODO INCLUDElogger_setup.set_up_logger(os.path.join(path_new_scenario, "plotting.log"))
+    #logger_setup.set_up_logger(os.path.join(path_new_scenario, "plotting.log"))
 
     # ----------------------------------------------------------------------
     # Load data
@@ -203,7 +203,6 @@ if __name__ == "__main__":
         data['lookups']['submodels_names'], data['paths'], data['lookups']['fueltypes_nr'])
 
     data['regions'] = read_data.get_region_names(name_region_set)
-    data['reg_nrs'] = len(data['regions']) #TODO MOVE TO ASSUMPTIONS
 
     reg_centroids = read_data.get_region_centroids(name_region_set)
     data['reg_coord'] = basic_functions.get_long_lat_decimal_degrees(reg_centroids)
@@ -238,6 +237,7 @@ if __name__ == "__main__":
         local_paths=data['local_paths'],
         enduses=data['enduses'],
         sectors=data['sectors'],
+        reg_nrs=len(data['regions']),
         fueltypes=data['lookups']['fueltypes'],
         fueltypes_nr=data['lookups']['fueltypes_nr'])
 
@@ -312,7 +312,7 @@ if __name__ == "__main__":
 
     print("Start Energy Demand Model with python version: " + str(sys.version), flush=True)
     print("-----------------------------------------------", flush=True)
-    print("Number of Regions                        " + str(data['reg_nrs']), flush=True)
+    print("Number of Regions                        " + str(data['assumptions'].reg_nrs), flush=True)
 
     # Obtain population data for disaggregation
     if data['criterias']['MSOA_crit']:
@@ -444,7 +444,7 @@ if __name__ == "__main__":
                 data['criterias']['reg_selection_csv_name']))
         #region_selection = ['E02003237', 'E02003238']
 
-        data['reg_nrs'] = len(region_selection)
+        setattr(data['assumptions'], 'reg_nrs', len(region_selection))
     else:
         region_selection = data['regions']
 

@@ -62,7 +62,7 @@ def main(
         print("path_result_folder: " + str(path_result_folder))
         print("-----------------------")
         # Simulation information is read in from .ini file for results
-        data['enduses'], data['assumptions'], data['reg_nrs'], data['regions'] = data_loader.load_ini_param(
+        data['enduses'], data['assumptions'], data['regions'] = data_loader.load_ini_param(
             os.path.join(path_data_ed))
 
         # ------------------
@@ -86,7 +86,7 @@ def main(
         basic_functions.create_folder(data['result_paths']['individual_enduse_lp'])
     
         # Simulation information is read in from .ini file for results
-        data['enduses'], data['assumptions'], data['reg_nrs'], data['regions'] = data_loader.load_ini_param(
+        data['enduses'], data['assumptions'], data['regions'] = data_loader.load_ini_param(
             os.path.join(path_data_ed))
 
         # Other information is read in
@@ -97,7 +97,7 @@ def main(
 
         data['scenario_data']['population'] = read_data.read_scenaric_population_data(
             os.path.join(path_data_ed, 'model_run_pop'))
-        
+
         # --------------------------------------------
         # Reading in results from different model runs
         # --------------------------------------------
@@ -111,7 +111,7 @@ def main(
         # ------------------------------
         plotting_results.run_all_plot_functions(
             results_container,
-            data['reg_nrs'],
+            data['assumptions']['reg_nrs'],
             data['regions'],
             data['lookups'],
             data['result_paths'],

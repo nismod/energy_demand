@@ -26,14 +26,15 @@ def process_scenarios(path_to_scenarios, year_to_model=2015):
     # -----------
     heat_pump_range_plot = False        # Plot of changing scenario values stored in scenario name
     plot_multiple_cross_charts = True   # Compare cross charts of different scenario
-    comparison_year = 2030
-    year_to_plot = 2030
+    comparison_year = 2050
+    year_to_plot = 2050
 
     # Delete folder results if existing
     path_result_folder = os.path.join(
         path_to_scenarios, "__results_multiple_scenarios")
 
     basic_functions.delete_folder(path_result_folder)
+
 
     seasons = date_prop.get_season(
         year_to_model=year_to_model)
@@ -48,7 +49,7 @@ def process_scenarios(path_to_scenarios, year_to_model=2015):
 
     # Simulation information is read in from .ini file for results
     path_fist_scenario = os.path.join(path_to_scenarios, scenarios[0])
-    enduses, assumptions, reg_nrs, regions = data_loader.load_ini_param(
+    enduses, assumptions, regions = data_loader.load_ini_param(
         path_fist_scenario)
 
     # -------------------------------
@@ -58,24 +59,29 @@ def process_scenarios(path_to_scenarios, year_to_model=2015):
     for scenario in scenarios:
         scenario_data[scenario] = {}
 
-        path_to_result_files = os.path.join(
-            path_to_scenarios,
-            scenario,
-            'model_run_results_txt')
+        all_stations = os.listdir(
+            os.path.join(path_to_scenarios, scenario))
 
-        scenario_data[scenario] = read_data.read_in_results(
-            path_result=path_to_result_files,
-            seasons=seasons,
-            model_yeardays_daytype=model_yeardays_daytype)
+        _to_igore = ['model_run_pop', 'PDF_validation', 'model_run_sim_param.ini']
 
-    # -----------------------
-    # Generate result folder
-    # -----------------------
+        for station in all_stations:
+            if station not in _to_igore:
+
+                path_to_result_files = os.path.join(
+                    path_to_scenarios,
+                    scenario,
+                    station,
+                    'model_run_results_txt')
+
+                scenario_data[scenario] = read_data.read_in_results(
+                    path_result=path_to_result_files,
+                    seasons=seasons,
+                    model_yeardays_daytype=model_yeardays_daytype)
+            else:
+                pass
+
+    # Create result folder
     basic_functions.create_folder(path_result_folder)
-
-    # ------------
-    # Create plots
-    # ------------
 
     # -------------------------------
     # Generate plot with heat pump ranges

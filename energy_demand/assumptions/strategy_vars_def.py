@@ -338,17 +338,13 @@ def load_param_assump(
         'diffusion_type': 'linear'}
 
     # ============================================================
-    # Smart meter assumptions (Residential)
-    #
-    # DECC 2015: Smart Metering Early Learning Project: Synthesis report
-    # https://www.gov.uk/government/publications/smart-metering-early-learning-project-and-small-scale-behaviour-trials
-    # Reasonable assumption is between 0.03 and 0.01 (DECC 2015)
+    # Smart meter penetration
     # ============================================================
-    strategy_vars['smart_meter_improvement_p'] = {
-        "name": "smart_meter_improvement_p",
+    strategy_vars['smart_meter_p'] = {
+        "name": "smart_meter_p",
         "absolute_range": (0, 1),
         "description": "Improvement of smart meter penetration",
-        "suggested_range": (0, 0.9),
+        "suggested_range": (0, 1.0),
         "default_value": assumptions.smart_meter_assump['smart_meter_p_by'],
         "units": 'decimal',
         "sector": True,

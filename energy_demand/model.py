@@ -98,7 +98,7 @@ class EnergyDemandModel(object):
         # Initialise result container to aggregate results
         aggr_results = initialise_result_container(
             data['lookups']['fueltypes_nr'],
-            data['reg_nrs'],
+            assumptions.reg_nrs,
             submodels_enduses=data['enduses'])
 
         # -------------------------------------------
@@ -107,7 +107,7 @@ class EnergyDemandModel(object):
         for reg_array_nr, region in enumerate(regions):
 
             logging.info("... Simulate: region %s, simulation year: %s, weather_yr: %s, percent: (%s)",
-                region, assumptions.curr_yr, weather_yr, round((100/data['reg_nrs'])*reg_array_nr, 2))
+                region, assumptions.curr_yr, weather_yr, round((100/assumptions.reg_nrs)*reg_array_nr, 2))
             #rint("... Simulate: region {}, simulation year: {}, weather_yr: {}, percent: ({})".format(
             #2    region, assumptions.curr_yr, weather_yr, round((100/data['reg_nrs'])*reg_array_nr, 2)), flush=True)
 
@@ -122,7 +122,7 @@ class EnergyDemandModel(object):
             # Aggregate results specifically over regions
             # ---------------------------------------------
             aggr_results = aggregate_results_constrained(
-                data['reg_nrs'],
+                assumptions.reg_nrs,
                 aggr_results,
                 reg_array_nr,
                 all_submodels,
@@ -147,7 +147,7 @@ class EnergyDemandModel(object):
             aggr_results,
             data['lookups']['fueltypes_nr'],
             data['lookups']['fueltypes'],
-            data['reg_nrs'],
+            data['assumptions'].reg_nrs,
             data['enduses'],
             data['assumptions'],
             data['criterias'],

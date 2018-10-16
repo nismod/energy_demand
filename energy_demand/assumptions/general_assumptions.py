@@ -42,6 +42,7 @@ class Assumptions(object):
             local_paths=None,
             enduses=None,
             sectors=None,
+            reg_nrs=None,
             fueltypes=None,
             fueltypes_nr=None
         ):
@@ -51,6 +52,7 @@ class Assumptions(object):
         self.nr_of_submodels = len(submodels_names)
         self.base_yr = base_yr
         self.weather_by = weather_by
+        self.reg_nrs = reg_nrs
         self.simulation_end_yr = simulation_end_yr
         self.curr_yr = curr_yr
         self.simulated_yrs = simulated_yrs
@@ -65,7 +67,7 @@ class Assumptions(object):
         self.spatial_explicit_diffusion = 0 #0: False, 1: True TODO
 
         # Define all variables which are affected by regional diffusion
-        self.spatially_modelled_vars = [] # ['smart_meter_improvement_p']
+        self.spatially_modelled_vars = [] # ['smart_meter_p']
 
         # Define technologies which are affected by spatial explicit diffusion
         self.techs_affected_spatial_f = ['heat_pumps_electricity']
@@ -111,9 +113,9 @@ class Assumptions(object):
         # ============================================================
         #   Modelled day related factors
         # ============================================================
-        #        model_yeardays_date : dict
-        #           Contains for the base year for each days
-        #           the information wheter this is a working or holiday
+        #   model_yeardays_date : dict
+        #     Contains for the base year for each days
+        #     the information wheter this is a working or holiday
         # ------------------------------------------------------------
         self.model_yeardays = list(range(365))
 
@@ -216,7 +218,7 @@ class Assumptions(object):
         #           Scenario drivers per enduse
         # ------------------------------------------------------------
         self.scenario_drivers = {
-    
+
             # --Residential
             'rs_space_heating': ['floorarea', 'hlc'], # Do not use HDD or pop because otherweise double count
             'rs_water_heating': ['population'],
@@ -280,11 +282,13 @@ class Assumptions(object):
         #
         #   smart_meter_p_by : int
         #       The percentage of households with smart meters in by
-        #   smart_meter_diff_params : dict
-        #       Sigmoid diffusion parameter of smater meters
         # ------------------------------------------------------------
         self.smart_meter_assump = {}
-        self.smart_meter_assump['smart_meter_p_by'] = 0.1
+
+        # Currently in 2017 8.6 mio smart meter installed of 27.2 mio households --> 31.6%
+        # https://assets.publishing.service.gov.uk/government/uploads/system/uploads/attachment_data/file/671930/Smart_Meters_2017_update.pdf)
+        # In 2015, 5.8 % percent of all househods had one: https://assets.publishing.service.gov.uk/government/uploads/system/uploads/attachment_data/file/533060/2016_Q1_Smart_Meters_Report.pdf 
+        self.smart_meter_assump['smart_meter_p_by'] = 0.05
 
         # Long term smart meter induced general savings, purley as
         # a result of having a smart meter (e.g. 0.03 --> 3% savings)
@@ -337,8 +341,6 @@ class Assumptions(object):
         #       Residential submodel base temp of heating of base year
         #   rs_t_cooling_by : int
         #       Residential submodel base temp of cooling of base year
-        #   base_temp_diff_params : dict
-        #       Sigmoid temperature diffusion parameters
         #   ...
         #
         #   Note
