@@ -73,10 +73,10 @@ class Assumptions(object):
         self.techs_affected_spatial_f = ['heat_pumps_electricity']
 
         # Max penetration speed
-        self.speed_con_max = 1.5 # 1: uniform distribution >1: regional differences
+        self.speed_con_max = 1 #1.5 # 1: uniform distribution >1: regional differences
 
         # ----------------------------------------
-        # Demand management of heat pumps
+        # Flat load profile of heat pumps (TODO REMOVE eventually)
         # ----------------------------------------
         self.flat_heat_pump_profile_both = 0        # 0: False, 1: True
         self.flat_heat_pump_profile_only_water = 0  # Only water
@@ -165,7 +165,6 @@ class Assumptions(object):
             'bungalow': 0.088}
 
         self.dwtype_distr_fy = {
-
             'yr_until_changed': yr_until_changed_all_things,
 
             'semi_detached': 0.26,
@@ -182,7 +181,6 @@ class Assumptions(object):
             'bungalow': 77}
 
         self.dwtype_floorarea_fy = {
-
             'yr_until_changed': yr_until_changed_all_things,
 
             'semi_detached': 96,
@@ -266,8 +264,7 @@ class Assumptions(object):
         #   https://www.bre.co.uk/filelibrary/pdf/projects/aircon-energy-use/StudyOnEnergyUseByAirConditioningFinalReport.pdf
         # ------------------------------------------------------------
 
-        # See Abela et al. (2016)
-        # Carbon Trust. (2012). Air conditioning. Maximising comfort, minimising energy consumption
+        # See Abela et al. (2016) & Carbon Trust. (2012). Air conditioning. Maximising comfort, minimising energy consumption
         self.cooled_ss_floorarea_by = 0.35
 
         # ============================================================
@@ -366,11 +363,12 @@ class Assumptions(object):
         #       yd calculations
         # ------------------------------------------------------------
         self.enduse_space_heating = [
-            'rs_space_heating', 'ss_space_heating', 'is_space_heating']
+            'rs_space_heating',
+            'ss_space_heating',
+            'is_space_heating']
 
         self.ss_enduse_space_cooling = [
-            'ss_cooling_humidification',
-            'ss_fans']
+            'ss_cooling_humidification']
 
         # ============================================================
         # Industry related
@@ -388,9 +386,9 @@ class Assumptions(object):
         # ============================================================
 
         # Share of cold rolling in steel manufacturing
-        self.p_cold_rolling_steel_by = 0.2      # Estimated  based on https://aceroplatea.es/docs/EuropeanSteelFigures_2015.pdf
-        self.eff_cold_rolling_process = 1.8     # 80% more efficient than hot rolling Fruehan et al. (2002)
-        self.eff_hot_rolling_process = 1.0      # 100% assumed efficiency
+        self.p_cold_rolling_steel_by = 0.2   # Estimated based on https://aceroplatea.es/docs/EuropeanSteelFigures_2015.pdf
+        self.eff_cold_rolling_process = 1.8  # 80% more efficient than hot rolling Fruehan et al. (2002)
+        self.eff_hot_rolling_process = 1.0   # 100% assumed efficiency
 
         # ============================================================
         # Assumption related to heat pump technologies
@@ -440,6 +438,9 @@ class Assumptions(object):
             self.enduse_space_heating)
         self.specified_tech_enduse_by = _specified_tech_enduse_by
 
+        import pprint
+        print(pprint.pprint(self.specified_tech_enduse_by))
+        raise Exception("ff")
         # ============================================================
         # Read in switches
         # ============================================================
@@ -457,11 +458,12 @@ class Assumptions(object):
             service_switches=self.service_switches,
             capacity_switches=self.capacity_switches)
 
+        #TODO Write function to test if all defined technologies are defined
+
         # ========================================
-        # General other assumptions
+        # General other info
         # ========================================
         self.seasons = date_prop.get_season(year_to_model=base_yr)
-
         self.model_yeardays_daytype, self.yeardays_month, self.yeardays_month_days = date_prop.get_yeardays_daytype(
             year_to_model=base_yr)
 

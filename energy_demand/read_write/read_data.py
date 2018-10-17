@@ -495,6 +495,10 @@ def read_fuel_ss(path_to_csv, fueltypes_nr):
         Service sectors
     enduses : list
         Service enduses
+    
+    Info of categories
+    ------------------
+    https://assets.publishing.service.gov.uk/government/uploads/system/uploads/attachment_data/file/565748/BEES_overarching_report_FINAL.pdf
     """
     lookups = lookup_tables.basic_lookups()
     fueltypes_lu = lookups['fueltypes']
@@ -772,7 +776,6 @@ def read_technologies(path_to_csv):
     dict_technologies = {}
     dict_tech_lists = {}
 
-    # Read csv
     raw_csv_file = pd.read_csv(path_to_csv)
 
     for index, row in raw_csv_file.iterrows():

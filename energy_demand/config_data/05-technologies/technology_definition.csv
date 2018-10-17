@@ -47,6 +47,7 @@ basic_oxygen_furnace,solid_fuel,1,1,2050,linear,2010,steel_production,1,assumed 
 electric_arc_furnace,electricity,6.1,6.1,2050,linear,2010,steel_production,1,assumed no technology imporvement
 SNG_furnace,gas,1,1,2050,linear,2020,steel_production,1,assumed no technology imporvement
 biomass_furnace,biomass,1,1,2050,linear,2020,steel_production,1,assumed no technology imporvement
+hydrogen_furnace,hydrogen,1,1,2050,linear,2020,steel_production,1,assumed no technology imporvement
 dry_kiln_coal,solid_fuel,1.8,1.8,2050,linear,2010,cement_production,1,assumed no technology imporvement
 dry_kiln_oil,oil,1.8,1.8,2050,linear,2010,cement_production,1,assumed no technology imporvement
 dry_kiln_gas,gas,1.8,1.8,2050,linear,2010,cement_production,1,assumed no technology imporvement

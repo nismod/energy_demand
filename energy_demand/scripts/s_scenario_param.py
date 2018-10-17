@@ -365,6 +365,8 @@ def generate_general_parameter(
                                 narrative['sig_steepness']) # Same sigmoid for all regions
 
                             change_cy = diff_value * sig_diff_factor
+                        else:
+                            raise Exception("Wrong defined diffusion_choice (linear or sigmoid): {}".format(narrative['diffusion_choice']))
 
                         container[region][sim_yr] = change_cy
 

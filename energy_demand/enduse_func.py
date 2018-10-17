@@ -123,7 +123,7 @@ class Enduse(object):
             self.fuel_yh = 0
             self.enduse_techs = []
         else:
-            logging.info("------INFO  {} {} {}  {}".format(self.enduse, sector, region, curr_yr))
+            #logging.info("------INFO  {} {} {}  {}".format(self.enduse, sector, region, curr_yr))
 
             # Get technologies of enduse
             self.enduse_techs = get_enduse_techs(fuel_tech_p_by)
@@ -1436,6 +1436,15 @@ def apply_service_switch(
         base_yr,
         curr_yr)
 
+    if enduse == 'is_high_temp_process' and sector == 'basic_metals':
+        import pprint
+        print("_____df__")
+        print(enduse)
+        print(sector)
+        pprint.pprint(print(annual_tech_diff_params[enduse]['non_metallic_mineral_products']))
+        print("-------")
+        pprint.pprint(print(annual_tech_diff_params[enduse]['basic_metals']))
+        raise Exception
     # ---------------------------------------
     # Calculate switch
     # ----------------------------------------

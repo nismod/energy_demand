@@ -28,14 +28,15 @@ def copy_fractions_all_sectors(
         i.e. {enduse: {sector: {fueltype: {tech: {share}}}}}
     """
     out_dict = defaultdict(dict)
-
     for sector in sectors:
         for enduse, techs in fuel_tech_p_by.items():
-
             if enduse in affected_enduses:
-                out_dict[enduse][sector] = techs
+                out_dict[enduse][sector] = dict(techs) #dict necessary somehow
+                ##out_dict[enduse][sector] = techs #dict necessary somehow #TODO TODO TODO
             else:
-                out_dict[enduse] = techs
+                out_dict[enduse] = dict(techs)
+                ##out_dict[enduse] = techs
+    out_dict = dict(out_dict)
 
     return out_dict
 
@@ -56,8 +57,10 @@ def init_fuel_tech_p_by(all_enduses_with_fuels, fueltypes_nr):
     """
     fuel_tech_p_by = {}
 
+    fueltpe_dicts= dict.fromkeys(range(fueltypes_nr), {})
+
     for enduse in all_enduses_with_fuels:
-        fuel_tech_p_by[enduse] = dict.fromkeys(range(fueltypes_nr), {})
+        fuel_tech_p_by[enduse] = dict(fueltpe_dicts)
 
     return fuel_tech_p_by
 

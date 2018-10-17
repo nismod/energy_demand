@@ -352,7 +352,7 @@ def get_regional_narrative(
         f_reg_norm_abs
     ):
     """Spatial explicit modelling of scenario variable
-    based on narratives. Convert strategy variables 
+    based on narratives. Convert strategy variables
     (e.g. country level) to regional variables.
 
     Arguments

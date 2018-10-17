@@ -128,7 +128,6 @@ def load_param_assump(
     """
     strategy_vars = defaultdict(dict)
 
-    # All end uses
     default_enduses = {
 
         # Submodel Residential
@@ -273,7 +272,6 @@ def load_param_assump(
         'Dec': 0}
 
     for month_python, default_value in temp_diff_assumptions.items():
-
         strategy_vars['climate_change_temp_d'][month_python] = {
             "name": month_python,
             "absolute_range": (-0, 10),
@@ -294,7 +292,7 @@ def load_param_assump(
         "absolute_range": (0, 20),
         "description": "Base temperature assumption residential heating",
         "suggested_range": (13, 17),
-        "default_value": assumptions.t_bases.rs_t_heating_by, #15.5
+        "default_value": assumptions.t_bases.rs_t_heating_by,
         "units": '°C',
         "sector": True,
         'regional_specific': False,
@@ -306,7 +304,7 @@ def load_param_assump(
         "absolute_range": (0, 20),
         "description": "Base temperature assumption service sector heating",
         "suggested_range": (13, 17),
-        "default_value": assumptions.t_bases.ss_t_heating_by, #15.5
+        "default_value": assumptions.t_bases.ss_t_heating_by,
         "units": '°C',
         "sector": True,
         'regional_specific': False,
@@ -319,7 +317,7 @@ def load_param_assump(
         "absolute_range": (0, 25),
         "description": "Base temperature assumption service sector cooling",
         "suggested_range": (13, 17),
-        "default_value": assumptions.t_bases.ss_t_cooling_by, #5
+        "default_value": assumptions.t_bases.ss_t_cooling_by,
         "units": '°C',
         "sector": True,
         'regional_specific': False,
@@ -331,7 +329,7 @@ def load_param_assump(
         "absolute_range": (0, 20),
         "description": "Base temperature assumption service sector heating",
         "suggested_range": (13, 17),
-        "default_value": assumptions.t_bases.is_t_heating_by, #15.5
+        "default_value": assumptions.t_bases.is_t_heating_by,
         "units": '°C',
         "sector": True,
         'regional_specific': False,
@@ -414,7 +412,6 @@ def load_param_assump(
         'is_space_heating': 0}
 
     for sub_param_name, sub_param_value in air_leakage.items():
-
         strategy_vars['air_leakage'][sub_param_name] = {
             "name": sub_param_name,
             "absolute_range": (0, 1),

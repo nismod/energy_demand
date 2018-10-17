@@ -274,14 +274,11 @@ if __name__ == "__main__":
     _user_defined_vars = data_loader.load_user_defined_vars(
         default_strategy_var=default_streategy_vars,
         path_csv=data['local_paths']['path_strategy_vars'],
-        simulation_base_yr=data['assumptions'].base_yr)
-    print("VORHER")
-    import pprint
-    pprint.pprint(strategy_vars['cooled_floorarea'])
+        simulation_base_yr=data['assumptions'].base_yr,
+        simulation_end_yr=data['assumptions'].simulation_end_yr)
+
     strategy_vars = data_loader.replace_variable(_user_defined_vars, strategy_vars)
-    print("NACHER")
-    pprint.pprint(strategy_vars['cooled_floorarea'])
-    #raise Exception
+
     # Replace strategy variables not defined in csv files)
     strategy_vars_out = strategy_vars_def.autocomplete_strategy_vars(
         strategy_vars, narrative_crit=True)

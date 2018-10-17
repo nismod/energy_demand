@@ -156,7 +156,7 @@ def get_s_fueltype_tech(
 
             # Iterate technologies to calculate share of energy service depending on fuel and efficiencies
             for tech, fuel_alltech_by in selec_fuel_p_tech_by[fueltype].items():
-               
+
                 # Fuel share based on defined shares within fueltype (share of fuel * total fuel)
                 fuel_tech = fuel_alltech_by * fuel_fueltype
 

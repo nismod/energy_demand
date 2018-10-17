@@ -188,7 +188,8 @@ def replace_variable(_user_defined_vars, strategy_vars):
 def load_user_defined_vars(
         default_strategy_var,
         path_csv,
-        simulation_base_yr
+        simulation_base_yr,
+        simulation_end_yr
     ):
     """Load all strategy variables from file
 
@@ -239,6 +240,7 @@ def load_user_defined_vars(
             parameter_narratives = narrative_related.create_narratives(
                 raw_file_content,
                 simulation_base_yr,
+                simulation_end_yr,
                 default_strategy_var[var_name])
 
             strategy_vars_as_narratives[var_name] = parameter_narratives

@@ -163,6 +163,7 @@ def default_narrative(
 def create_narratives(
         raw_file_content,
         simulation_base_yr,
+        simulation_end_yr,
         default_streategy_vars
     ):
     """Create multidimensional narratives. Check if each
@@ -198,7 +199,6 @@ def create_narratives(
     # Create single or multi dimensional narratives
     # ----------------------------------------------
     for _index, row in raw_file_content.iterrows():
-
         narrative = {}
 
         # IF only single dimension parameter, add dummy mutliparameter name
@@ -227,7 +227,8 @@ def create_narratives(
         try:
             narrative['end_yr'] = int(row['end_yr'])
         except KeyError:
-            pass
+            # If no defined end year, use simulation end year
+            narrative['end_yr'] = simulation_end_yr
         try:
             narrative['value_by'] = None
         except KeyError:
@@ -312,7 +313,7 @@ def create_narratives(
 
             for year_cnt, year in enumerate(all_yrs):
 
-                # Get correct narative
+                # Get correct narrative
                 for narrative in switches_to_create_narrative:
                     if narrative['end_yr'] == year:
                         yr_narrative = narrative
