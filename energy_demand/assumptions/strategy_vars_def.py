@@ -355,7 +355,8 @@ def load_param_assump(
     # Cooling
     # ============================================================
     cooled_floorarea = {
-        'ss_cooling_humidification': assumptions.cooled_ss_floorarea_by}
+        'ss_cooling_humidification': assumptions.cooled_ss_floorarea_by,
+        'ss_fans': assumptions.cooled_ss_floorarea_by}
 
     for sub_param_name, sub_param_value in cooled_floorarea.items():
         strategy_vars['cooled_floorarea'][sub_param_name] = {

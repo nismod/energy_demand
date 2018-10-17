@@ -2,7 +2,6 @@
 # After smif upgrade:
 #   make that automatically the parameters can be generated to be copied into smif format
 # REMOVE HDD CODE PLOTTING
-#TODO Revisit the writing out of np. files...(most complete: enduse, region, fueltype, hours)
 #TODO Test if technology type can be left empty in technology spreadsheet, Try to remove tech_type
 #TODO Write out full result. Then write function to aggregate accordingly
 #TODO SIMple aggregation. Write out sectormodel, enduse, region, fueltypes.... --> Do all aggregation based on that
@@ -11,12 +10,11 @@
 # Improve plotting and processing (e.g. saisonal plots)
 # Weather station cleaning: Replace days with missing values
 #TODO IMROVE PLOTTING (second round of geopanda classification)
-#     Note
-    ----
-    Always execute from root folder. (e.g. energy_demand/energy_demand/main.py)
-
-# Fix regional plots
+# # Fix regional plots
 # TEST NON CONSTRAINED MODE
+#   Note
+    ----
+    Always execute from root folder. (e.g. energy_demand/energy_demand/main.py
 """
 import os
 import sys
@@ -277,9 +275,13 @@ if __name__ == "__main__":
         default_strategy_var=default_streategy_vars,
         path_csv=data['local_paths']['path_strategy_vars'],
         simulation_base_yr=data['assumptions'].base_yr)
-
+    print("VORHER")
+    import pprint
+    pprint.pprint(strategy_vars['cooled_floorarea'])
     strategy_vars = data_loader.replace_variable(_user_defined_vars, strategy_vars)
-
+    print("NACHER")
+    pprint.pprint(strategy_vars['cooled_floorarea'])
+    #raise Exception
     # Replace strategy variables not defined in csv files)
     strategy_vars_out = strategy_vars_def.autocomplete_strategy_vars(
         strategy_vars, narrative_crit=True)

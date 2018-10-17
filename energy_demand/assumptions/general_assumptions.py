@@ -75,9 +75,9 @@ class Assumptions(object):
         # Max penetration speed
         self.speed_con_max = 1.5 # 1: uniform distribution >1: regional differences
 
-        # --------
+        # ----------------------------------------
         # Demand management of heat pumps
-        # --------
+        # ----------------------------------------
         self.flat_heat_pump_profile_both = 0        # 0: False, 1: True
         self.flat_heat_pump_profile_only_water = 0  # Only water
     
@@ -214,8 +214,8 @@ class Assumptions(object):
         #           effects will be overestimates (i.e. no multi-
         #           collinearity are considered).
         #
-        #       scenario_drivers : dict
-        #           Scenario drivers per enduse
+        #   scenario_drivers : dict
+        #     Scenario drivers per enduse
         # ------------------------------------------------------------
         self.scenario_drivers = {
 
@@ -256,9 +256,6 @@ class Assumptions(object):
         # ============================================================
         #   Cooling related assumptions
         # ============================================================
-        #
-        #   Parameters related to cooling enduses are defined here.
-        #
         #   assump_cooling_floorarea : int
         #       The percentage of cooled floor space in the base year
         #
@@ -266,8 +263,7 @@ class Assumptions(object):
         #   ----------
         #   Abela, A. et al. (2016). Study on Energy Use by Air
         #   Conditioning. Bre, (June), 31. Retrieved from
-        #   https://www.bre.co.uk/filelibrary/pdf/projects/aircon-energy-use
-        #   /StudyOnEnergyUseByAirConditioningFinalReport.pdf
+        #   https://www.bre.co.uk/filelibrary/pdf/projects/aircon-energy-use/StudyOnEnergyUseByAirConditioningFinalReport.pdf
         # ------------------------------------------------------------
 
         # See Abela et al. (2016)
@@ -277,9 +273,6 @@ class Assumptions(object):
         # ============================================================
         # Smart meter related base year assumptions
         # ============================================================
-        #
-        #   Parameters related to smart metering
-        #
         #   smart_meter_p_by : int
         #       The percentage of households with smart meters in by
         # ------------------------------------------------------------
@@ -375,7 +368,9 @@ class Assumptions(object):
         self.enduse_space_heating = [
             'rs_space_heating', 'ss_space_heating', 'is_space_heating']
 
-        self.ss_enduse_space_cooling = ['ss_cooling_humidification']
+        self.ss_enduse_space_cooling = [
+            'ss_cooling_humidification',
+            'ss_fans']
 
         # ============================================================
         # Industry related
