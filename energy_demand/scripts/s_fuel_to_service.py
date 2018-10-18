@@ -204,9 +204,8 @@ def get_s_fueltype_tech(
         # Convert service per enduse
         for fueltype in s_fueltype_by_p[enduse][sector]:
             with np.errstate(divide='ignore'):
-
-                #s_fueltype_by_p[enduse][fueltype] = s_fueltype_by_p[enduse][fueltype] / total_s #TODO
                 s_fueltype_by_p[enduse][sector][fueltype] = s_fueltype_by_p[enduse][sector][fueltype] / total_s
+
     #warnings.filterwarnings('ignore') # Ignore warnings
     # Test if the energy service for all technologies is 100%
     # Test if within fueltype always 100 energy service

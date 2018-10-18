@@ -1438,20 +1438,10 @@ def apply_service_switch(
         base_yr,
         curr_yr)
 
-    if enduse == 'is_high_temp_process' and sector == 'basic_metals':
-        import pprint
-        print("_____df__")
-        print(enduse)
-        print(sector)
-        pprint.pprint(print(annual_tech_diff_params[enduse]['non_metallic_mineral_products']))
-        print("------k-")
-        pprint.pprint(print(annual_tech_diff_params[enduse]['basic_metals']))
-        #raise Exception
     # ---------------------------------------
     # Calculate switch
     # ----------------------------------------
     if crit_switch_service:
-
         switched_s_tech_y_cy = {}
 
         # Service of all technologies

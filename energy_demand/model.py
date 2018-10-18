@@ -4,9 +4,9 @@ import logging
 from collections import defaultdict
 import numpy as np
 from sys import getsizeof
-from pympler import summary
-from pympler import muppy
-from pympler import refbrowser
+#from pympler import summary
+#from pympler import muppy
+#from pympler import refbrowser
 
 import energy_demand.enduse_func as endusefunctions
 from energy_demand.geography.region import Region
@@ -42,16 +42,12 @@ class EnergyDemandModel(object):
         ):
         """Constructor
         """
-        logging.info("... start main energy demand function")
-
         self.curr_yr = assumptions.curr_yr
 
         # ----------------------------
         # Create Weather Regions
         # ----------------------------
-        print("... generating weather regions", flush=True)
-
-        # current weather_yr
+        print("... generating current weather regions", flush=True)
         weather_regions_weather_cy = {}
         for weather_region in weather_stations[weather_yr]:
             weather_regions_weather_cy[weather_region] = WeatherRegion(
@@ -66,7 +62,7 @@ class EnergyDemandModel(object):
                 tech_lp=data['tech_lp'],
                 sectors=data['sectors'])
 
-        # base weather_yr
+        print("... generating base year weather regions", flush=True)
         weather_regions_weather_by = {}
         for weather_region in weather_stations[weather_by]:
             weather_regions_weather_by[weather_region] = WeatherRegion(
