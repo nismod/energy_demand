@@ -311,14 +311,10 @@ def generate_general_parameter(
             curr_yr = sim_yr
 
         for narrative in narratives:
-
-            # Years which narrative covers
-            narrative_yrs = range(narrative['base_yr'], narrative['end_yr'] + 1, 1)
+            narrative_yrs = range(narrative['base_yr'], narrative['end_yr'] + 1, 1) # Years which narrative covers
 
             if curr_yr in narrative_yrs:
-
                 if not narrative['regional_specific']:
-
                     if narrative['diffusion_choice'] == 'linear':
 
                         change_cy = diffusion_technologies.linear_diff(
@@ -331,43 +327,35 @@ def generate_general_parameter(
                     elif narrative['diffusion_choice'] == 'sigmoid':
 
                         diff_value = narrative['regional_vals_ey'] - narrative['regional_vals_by']
-
                         sig_diff_factor = diffusion_technologies.sigmoid_diffusion(
                             narrative['base_yr'],
                             curr_yr,
                             narrative['end_yr'],
                             narrative['sig_midpoint'],
                             narrative['sig_steepness'])
-
-                        change_cy = diff_value * sig_diff_factor
+                        change_cy = narrative['regional_vals_by'] + (diff_value * sig_diff_factor)
 
                     container[sim_yr] = change_cy
                 else:
                     for region in regions:
 
                         if narrative['diffusion_choice'] == 'linear':
-
                             change_cy = diffusion_technologies.linear_diff(
                                 narrative['base_yr'],
                                 curr_yr,
                                 narrative['regional_vals_by'][region],
                                 narrative['regional_vals_ey'][region],
                                 narrative['end_yr'])
-
                         elif narrative['diffusion_choice'] == 'sigmoid':
                             diff_value = narrative['regional_vals_ey'][region] - narrative['regional_vals_by'][region]
-
                             sig_diff_factor = diffusion_technologies.sigmoid_diffusion(
                                 narrative['base_yr'],
                                 curr_yr,
                                 narrative['end_yr'],
                                 narrative['sig_midpoint'],  # Same sigmoid for all regions
                                 narrative['sig_steepness']) # Same sigmoid for all regions
-
-                            change_cy = diff_value * sig_diff_factor
-                        else:
-                            raise Exception("Wrong defined diffusion_choice (linear or sigmoid): {}".format(narrative['diffusion_choice']))
+                            change_cy = narrative['regional_vals_by'][region] + (diff_value * sig_diff_factor)
 
                         container[region][sim_yr] = change_cy
 
-    return container
+    return dict(container)

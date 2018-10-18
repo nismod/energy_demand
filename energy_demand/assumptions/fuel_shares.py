@@ -1,9 +1,6 @@
 """All fuel shares of the base year for the
 different technologies are defined in this file.
 """
-import pprint
-from collections import defaultdict
-
 from energy_demand.initalisations import helpers
 
 def assign_by_fuel_tech_p(

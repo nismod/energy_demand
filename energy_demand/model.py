@@ -482,7 +482,7 @@ def simulate_region(
     for submodel in data['lookups']['submodels_names']:
         submodels = get_all_submodels(submodel_objs, submodel)
         all_submodels.append(submodels)
-      
+   
     # remove garbage
     del region_obj
     del weather_region_obj
@@ -635,48 +635,6 @@ def aggr_complete_result(
                     full_result_aggr[submodel_nr][model_object.enduse][fueltype_nr][reg_array_nr] += fuels_8760
 
     return full_result_aggr
-
-#TODO IS THIS USED?
-def sum_enduse_all_regions(
-        aggr_dict,
-        sector_models,
-        technologies,
-        fueltypes_nr
-    ):
-    """Summarise an enduse attribute across all regions
-
-    Arguments
-    ----------
-    attribute_to_get : string
-        Enduse attribute to summarise
-    sector_models : List
-        List with sector models
-
-    Return
-    ------
-    enduse_dict : dict
-        Summarise enduses across all regions
-    """
-    for sector_model in sector_models:
-        for model_object in sector_model:
-
-            if model_object.enduse not in aggr_dict:
-                aggr_dict[model_object.enduse] = np.zeros((fueltypes_nr, 365, 24), dtype="float")
-
-            fuels = get_fuels_yh(
-                model_object,
-                'techs_fuel_yh')
-
-            if isinstance(fuels, dict):
-                for tech, fuel_tech in fuels.items():
-                    tech_fueltype = technologies[tech].fueltype_int
-                    aggr_dict[model_object.enduse][tech_fueltype] += fuel_tech
-            else:
-                fuels = get_fuels_yh(model_object, 'fuel_yh')
-
-                aggr_dict[model_object.enduse] += fuels
-
-    return aggr_dict
 
 def averaged_season_hourly(
         fueltype_region_yh,

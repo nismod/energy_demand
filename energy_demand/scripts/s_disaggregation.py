@@ -290,7 +290,6 @@ def disaggregate_base_demand(
         pop_for_disagg,
         census_disagg=census_disagg)
 
-    logging.debug("Finished disaggregation")
     return dict(rs_fuel_disagg), dict(ss_fuel_disagg), dict(is_fuel_disagg)
 
 def ss_disaggregate(
