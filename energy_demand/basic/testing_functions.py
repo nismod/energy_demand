@@ -133,21 +133,21 @@ def test_function_fuel_sum(data, fuel_disagg, mode_constrained, space_heating_en
     fuel_in_hydrogen = 0
     fuel_in_biomass = 0
     tot_heating = 0
-
+    dummy_sector = None
     for region in fuel_disagg['residential']:
         for enduse in fuel_disagg['residential'][region]:
-            fuel_in += np.sum(fuel_disagg['residential'][region][enduse])
-            fuel_in_heat += np.sum(fuel_disagg['residential'][region][enduse][data['lookups']['fueltypes']['heat']])
+            fuel_in += np.sum(fuel_disagg['residential'][region][enduse][dummy_sector])
+            fuel_in_heat += np.sum(fuel_disagg['residential'][region][enduse][dummy_sector][data['lookups']['fueltypes']['heat']])
 
             if mode_constrained == False and enduse in space_heating_enduses: #Exclude inputs for heating
-                tot_heating += np.sum(fuel_disagg['residential'][region][enduse])
+                tot_heating += np.sum(fuel_disagg['residential'][region][enduse][dummy_sector])
             else:
-                fuel_in_elec += np.sum(fuel_disagg['residential'][region][enduse][data['lookups']['fueltypes']['electricity']])
-                fuel_in_gas += np.sum(fuel_disagg['residential'][region][enduse][data['lookups']['fueltypes']['gas']])
-                fuel_in_hydrogen += np.sum(fuel_disagg['residential'][region][enduse][data['lookups']['fueltypes']['hydrogen']])
-                fuel_in_oil += np.sum(fuel_disagg['residential'][region][enduse][data['lookups']['fueltypes']['oil']])
-                fuel_in_solid_fuel += np.sum(fuel_disagg['residential'][region][enduse][data['lookups']['fueltypes']['solid_fuel']])
-                fuel_in_biomass += np.sum(fuel_disagg['residential'][region][enduse][data['lookups']['fueltypes']['biomass']])
+                fuel_in_elec += np.sum(fuel_disagg['residential'][region][enduse][dummy_sector][data['lookups']['fueltypes']['electricity']])
+                fuel_in_gas += np.sum(fuel_disagg['residential'][region][enduse][dummy_sector][data['lookups']['fueltypes']['gas']])
+                fuel_in_hydrogen += np.sum(fuel_disagg['residential'][region][enduse][dummy_sector][data['lookups']['fueltypes']['hydrogen']])
+                fuel_in_oil += np.sum(fuel_disagg['residential'][region][enduse][dummy_sector][data['lookups']['fueltypes']['oil']])
+                fuel_in_solid_fuel += np.sum(fuel_disagg['residential'][region][enduse][dummy_sector][data['lookups']['fueltypes']['solid_fuel']])
+                fuel_in_biomass += np.sum(fuel_disagg['residential'][region][enduse][dummy_sector][data['lookups']['fueltypes']['biomass']])
 
     for region in fuel_disagg['service']:
         for enduse in fuel_disagg['service'][region]:
@@ -194,7 +194,7 @@ def test_function_fuel_sum(data, fuel_disagg, mode_constrained, space_heating_en
 
     return out_dict
 
-def control_disaggregation(fuel_disagg, national_fuel, enduses, sectors=False):
+def control_disaggregation(fuel_disagg, national_fuel, enduses, sectors):
     """Check if disaggregation is correct
 
     Arguments
@@ -210,33 +210,18 @@ def control_disaggregation(fuel_disagg, national_fuel, enduses, sectors=False):
     """
     control_sum_disagg, control_sum_national = 0, 0
 
-    if not sectors:
-        for reg in fuel_disagg:
-            for enduse in fuel_disagg[reg]:
-                control_sum_disagg += np.sum(fuel_disagg[reg][enduse])
+    for reg in fuel_disagg:
+        for enduse in fuel_disagg[reg]:
+            for sector in fuel_disagg[reg][enduse]:
+                control_sum_disagg += np.sum(fuel_disagg[reg][enduse][sector])
 
+    for sector in sectors:
         for enduse in enduses:
-            control_sum_national += np.sum(national_fuel[enduse])
+            control_sum_national += np.sum(national_fuel[enduse][sector])
 
-        #The loaded floor area must correspond to provided fuel sectors numers
-        np.testing.assert_almost_equal(
-            control_sum_disagg,
-            control_sum_national,
-            decimal=2, err_msg="disagregation error ss {} {}".format(
-                control_sum_disagg, control_sum_national))
-    else:
-        for reg in fuel_disagg:
-            for enduse in fuel_disagg[reg]:
-                for sector in fuel_disagg[reg][enduse]:
-                    control_sum_disagg += np.sum(fuel_disagg[reg][enduse][sector])
-
-        for sector in sectors:
-            for enduse in enduses:
-                control_sum_national += np.sum(national_fuel[enduse][sector])
-
-        #The loaded floor area must correspond to provided fuel sectors numers
-        np.testing.assert_almost_equal(
-            control_sum_disagg,
-            control_sum_national,
-            decimal=2, err_msg="disagregation error ss {} {}".format(
-                control_sum_disagg, control_sum_national))
+    #The loaded floor area must correspond to provided fuel sectors numers
+    np.testing.assert_almost_equal(
+        control_sum_disagg,
+        control_sum_national,
+        decimal=2, err_msg="disagregation error ss {} {}".format(
+            control_sum_disagg, control_sum_national))

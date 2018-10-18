@@ -263,21 +263,38 @@ def run(paths, local_paths, base_yr):
         paths['rs_fuel_raw'])
 
     # Load shape for all enduses
-    for enduse in rs_enduses:
+    for dummy_sector in rs_enduses:
+        for enduse in rs_enduses[dummy_sector]:
+            if enduse not in hes_appliances_matching:
 
-        if enduse not in hes_appliances_matching:
+                # Merge shapes of water heating and shower
+                if enduse == 'rs_water_heating':
 
-            # Merge shapes of water heating and shower
-            if enduse == 'rs_water_heating':
+                    # Generate HES load shapes
+                    shape_peak_dh, shape_non_peak_y_dh, shape_non_peak_yd = get_hes_load_shapes(
+                        hes_appliances_matching,
+                        year_raw_hes_values,
+                        hes_y_peak,
+                        enduse,
+                        single_enduse=False,
+                        enduses=['rs_water_heating_showers', 'rs_water_heating_water_heating'])
 
+                    # Write txt files
+                    write_data.create_txt_shapes(
+                        enduse,
+                        local_paths['rs_load_profile_txt'],
+                        shape_peak_dh,
+                        shape_non_peak_y_dh,
+                        shape_non_peak_yd)
+                else:
+                    pass
+            else:
                 # Generate HES load shapes
                 shape_peak_dh, shape_non_peak_y_dh, shape_non_peak_yd = get_hes_load_shapes(
                     hes_appliances_matching,
                     year_raw_hes_values,
                     hes_y_peak,
-                    enduse,
-                    single_enduse=False,
-                    enduses=['rs_water_heating_showers', 'rs_water_heating_water_heating'])
+                    enduse)
 
                 # Write txt files
                 write_data.create_txt_shapes(
@@ -286,23 +303,6 @@ def run(paths, local_paths, base_yr):
                     shape_peak_dh,
                     shape_non_peak_y_dh,
                     shape_non_peak_yd)
-            else:
-                pass
-        else:
-            # Generate HES load shapes
-            shape_peak_dh, shape_non_peak_y_dh, shape_non_peak_yd = get_hes_load_shapes(
-                hes_appliances_matching,
-                year_raw_hes_values,
-                hes_y_peak,
-                enduse)
-
-            # Write txt files
-            write_data.create_txt_shapes(
-                enduse,
-                local_paths['rs_load_profile_txt'],
-                shape_peak_dh,
-                shape_non_peak_y_dh,
-                shape_non_peak_yd)
 
     logging.info("... finished script %s", os.path.basename(__file__))
     return

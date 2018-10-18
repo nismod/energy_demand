@@ -742,14 +742,6 @@ def sig_param_calc_incl_fuel_switch(
                     logging.info("... calc parameters of `{}` for year `{}`".format(enduse, switch_yr))
 
                     # Calculate for one region
-                    print("------------------")
-                    print("AA " + str(enduse))
-                    print(sector)
-                    print("------------------")
-                    print(s_tech_by_p)
-                    print("-asdf")
-                    print(s_tech_switched_p[any_region][switch_yr])
-
                     sig_param_tech_all_regs_value = s_generate_sigmoid.tech_sigmoid_parameters(
                         switch_yr,
                         switch_yr_start,

@@ -49,6 +49,8 @@ class EnergyDemandModel(object):
         # ----------------------------
         # Create Weather Regions
         # ----------------------------
+        print("... generating weather regions", flush=True)
+
         # current weather_yr
         weather_regions_weather_cy = {}
         for weather_region in weather_stations[weather_yr]:
@@ -82,6 +84,7 @@ class EnergyDemandModel(object):
         # ------------------------
         # Create Dwelling Stock
         # ------------------------
+        print("...generating dwelling stocks", flush=True)
         if data['criterias']['virtual_building_stock_criteria']:
             rs_dw_stock, ss_dw_stock = create_virtual_dwelling_stocks(
                 regions, assumptions.curr_yr, data)
@@ -108,8 +111,8 @@ class EnergyDemandModel(object):
 
             logging.info("... Simulate: region %s, simulation year: %s, weather_yr: %s, percent: (%s)",
                 region, assumptions.curr_yr, weather_yr, round((100/assumptions.reg_nrs)*reg_array_nr, 2))
-            #rint("... Simulate: region {}, simulation year: {}, weather_yr: {}, percent: ({})".format(
-            #2    region, assumptions.curr_yr, weather_yr, round((100/data['reg_nrs'])*reg_array_nr, 2)), flush=True)
+            print("... Simulate: region {}, simulation year: {}, weather_yr: {}, percent: ({})".format(
+                region, assumptions.curr_yr, weather_yr, round((100/assumptions.reg_nrs)*reg_array_nr, 2)), flush=True)
 
             all_submodels = simulate_region(
                 region,
@@ -443,15 +446,6 @@ def simulate_region(
                 else:
                     flat_profile_crit = False
 
-                if sector:
-                    fuel = region_obj.fuels[submodel_name][enduse][sector]
-                    #fuel_tech_p_by = assumptions.fuel_tech_p_by[enduse][sector]
-                else:
-                    fuel = region_obj.fuels[submodel_name][enduse]
-                    #fuel_tech_p_by = assumptions.fuel_tech_p_by[enduse]
-                
-                fuel_tech_p_by = assumptions.fuel_tech_p_by[enduse][sector] #NEW
-
                 if not data['dw_stocks'][submodel_name]:
                     dw_stock = False
                 else:
@@ -471,11 +465,11 @@ def simulate_region(
                     curr_yr=assumptions.curr_yr,
                     enduse=enduse,
                     sector=sector,
-                    fuel=fuel,
+                    fuel=region_obj.fuels[submodel_name][enduse][sector],
                     tech_stock=weather_region_obj.tech_stock[submodel_name],
                     heating_factor_y=weather_region_obj.f_heat[submodel_name],
                     cooling_factor_y=weather_region_obj.f_colling[submodel_name],
-                    fuel_tech_p_by=fuel_tech_p_by,
+                    fuel_tech_p_by=assumptions.fuel_tech_p_by[enduse][sector],
                     criterias=data['criterias'],
                     strategy_vars=assumptions.regional_vars[region_obj.name],
                     fueltypes_nr=data['lookups']['fueltypes_nr'],

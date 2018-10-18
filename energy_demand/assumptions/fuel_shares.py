@@ -148,7 +148,7 @@ def assign_by_fuel_tech_p(
     fuel_tech_p_by['rs_space_heating'][fueltypes['oil']] = {
         'boiler_condensing_oil': 0.6,
         'boiler_oil': 0.4}
-    print("B " + str(type(fuel_tech_p_by)))
+
     # ---
     # According to table 3.19, 59.7% (43.5% + 14.3%) have some form of condensing boiler.
 

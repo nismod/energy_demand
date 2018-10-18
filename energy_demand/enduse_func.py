@@ -1444,7 +1444,7 @@ def apply_service_switch(
         print(enduse)
         print(sector)
         pprint.pprint(print(annual_tech_diff_params[enduse]['non_metallic_mineral_products']))
-        print("-------")
+        print("------k-")
         pprint.pprint(print(annual_tech_diff_params[enduse]['basic_metals']))
         #raise Exception
     # ---------------------------------------

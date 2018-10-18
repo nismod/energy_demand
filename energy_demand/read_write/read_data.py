@@ -826,6 +826,9 @@ def read_fuel_rs(path_to_csv):
     the first row is the fuel_ID
     The header is the sub_key
     """
+    dummy_sector = None
+    sectors = [dummy_sector]
+
     fuels = {}
 
     # Read csv
@@ -842,9 +845,8 @@ def read_fuel_rs(path_to_csv):
 
     # Iterate columns and convert to array
     for enduse in raw_csv_file.columns[1:]: # skip for column
-        fuels[enduse] = raw_csv_file[enduse].values
-
-    sectors = [None]
+        fuels[enduse] = {}
+        fuels[enduse][dummy_sector] = raw_csv_file[enduse].values
 
     return fuels, sectors, list(enduses)
 

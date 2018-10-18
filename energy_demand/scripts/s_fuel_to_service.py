@@ -141,10 +141,7 @@ def get_s_fueltype_tech(
     for enduse in enduses:
 
         # Depending if sector or not sector specific
-        if sector is None:
-            fuel = fuels[enduse]
-        else:
-            fuel = fuels[enduse][sector]
+        fuel = fuels[enduse][sector]
 
         for fueltype, fuel_fueltype in enumerate(fuel):
             tot_s_fueltype = 0

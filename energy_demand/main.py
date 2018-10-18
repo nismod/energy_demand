@@ -596,7 +596,6 @@ if __name__ == "__main__":
             if plot_only_selection:
                 # PLot only residential total regional annual demand and
                 # region_fueltype_reg_yh_8760
-                
                 write_data.write_residential_tot_demands(
                     sim_yr,
                     path_runs,

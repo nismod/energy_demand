@@ -159,7 +159,6 @@ def create_switches_from_s_shares(
 
     for tech in specified_tech_enduse_by[enduse][sector]:
         if tech not in switch_technologies:
-            print("Aaa {}  {}  {}".format(sector, enduse, tech))
             tech_not_assigned_by_p[tech] = s_tech_by_p[sector][enduse][tech]
 
     # Normalise: convert to percentage
