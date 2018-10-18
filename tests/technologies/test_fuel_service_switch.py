@@ -122,9 +122,9 @@ def test_create_switches_from_s_shares():
 
     out = fuel_service_switch.create_switches_from_s_shares(
         enduse='heating',
-        s_tech_by_p={None: {'heating': {'techA': 0.2, 'techB': 0.8}}},
+        s_tech_by_p= {None:{'heating': {'techA': 0.2, 'techB': 0.8}}},
         switch_technologies=['techA'],
-        specified_tech_enduse_by={'heating': ['techA', 'techB']},
+        specified_tech_enduse_by={'heating': {None:  ['techA', 'techB']}},
         enduse_switches=enduse_switches,
         s_tot_defined=0.6,
         sector=None,
@@ -150,7 +150,7 @@ def test_autocomplete_switches():
 
     out = fuel_service_switch.autocomplete_switches(
         service_switches=service_switches,
-        specified_tech_enduse_by={'heating': ['techA', 'techB', 'techC']},
+        specified_tech_enduse_by={'heating': {None: ['techA', 'techB', 'techC']}},
         s_tech_by_p={None: {'heating': {'techA': 0.2, 'techB': 0.4, 'techC': 0.4}}},
         crit_all_the_same=True,
         enduses=enduses,
@@ -173,8 +173,8 @@ def test_autocomplete_switches():
 
     out = fuel_service_switch.autocomplete_switches(
         service_switches=service_switches,
-        specified_tech_enduse_by={'heating': ['techA', 'techB', 'techC']},
-        s_tech_by_p={None: {'heating': {'techA': 0.2, 'techB': 0.4, 'techC': 0.4}}},
+        specified_tech_enduse_by={'heating': {None: ['techA', 'techB', 'techC']}},
+        s_tech_by_p= {None: {'heating': {'techA': 0.2, 'techB': 0.4, 'techC': 0.4}}},
         crit_all_the_same=True,
         enduses=enduses,
         sectors=sectors,
@@ -398,7 +398,6 @@ def test_get_share_s_tech_ey():
         service_share_ey=0.3,
         switch_yr=2020)]
 
-    # --
     service_switches = {'regA': [read_data.ServiceSwitch(
         enduse='heating',
         sector=None,
@@ -406,11 +405,8 @@ def test_get_share_s_tech_ey():
         service_share_ey=0.3,
         switch_yr=2020)]}
 
-    specified_tech_enduse_by = {'regA': {'heating': ['techA', 'techB', 'techC']}}
-
     defined_temporal_narrative_points = [2020] 
     result = fuel_service_switch.get_share_s_tech_ey(
-        service_switches=service_switches,
-        specified_tech_enduse_by=specified_tech_enduse_by)
+        service_switches=service_switches)
 
     assert result['heating']['regA'][2020]['techA'] == 0.3

@@ -140,7 +140,7 @@ class Enduse(object):
                 assumptions.ss_enduse_space_cooling,
                 f_weather_correction)
             self.fuel_y = _fuel_new_y
-            logging.info("FUEL TRAIN B0: " + str(np.sum(self.fuel_y)))
+            #logging.info("FUEL TRAIN B0: " + str(np.sum(self.fuel_y)))
 
             _fuel_new_y = apply_smart_metering(
                 enduse,
@@ -149,7 +149,7 @@ class Enduse(object):
                 strategy_vars,
                 curr_yr)
             self.fuel_y = _fuel_new_y
-            logging.info("FUEL TRAIN C0: " + str(np.sum(self.fuel_y)))
+            #logging.info("FUEL TRAIN C0: " + str(np.sum(self.fuel_y)))
 
             _fuel_new_y = generic_demand_change(
                 enduse,
@@ -158,7 +158,7 @@ class Enduse(object):
                 strategy_vars,
                 curr_yr)
             self.fuel_y = _fuel_new_y
-            logging.info("FUEL TRAIN D0: " + str(np.sum(self.fuel_y)))
+            #logging.info("FUEL TRAIN D0: " + str(np.sum(self.fuel_y)))
 
             _fuel_new_y = apply_scenario_drivers(
                 enduse=enduse,
@@ -173,7 +173,7 @@ class Enduse(object):
                 base_yr=base_yr,
                 curr_yr=curr_yr)
             self.fuel_y = _fuel_new_y
-            logging.info("FUEL TRAIN E0: " + str(np.sum(self.fuel_y)))
+            #logging.info("FUEL TRAIN E0: " + str(np.sum(self.fuel_y)))
 
             # Apply cooling scenario variable
             _fuel_new_y = apply_cooling(
@@ -183,7 +183,7 @@ class Enduse(object):
                 assumptions.cooled_ss_floorarea_by,
                 curr_yr)
             self.fuel_y = _fuel_new_y
-            logging.info("FUEL TRAIN E1: " + str(np.sum(self.fuel_y)))
+            #logging.info("FUEL TRAIN E1: " + str(np.sum(self.fuel_y)))
 
             # Industry related change
             _fuel_new_y = industry_enduse_changes(
@@ -194,7 +194,7 @@ class Enduse(object):
                 self.fuel_y,
                 assumptions)
             self.fuel_y = _fuel_new_y
-            logging.info("FUEL TRAIN E2: " + str(np.sum(self.fuel_y)))
+            #logging.info("FUEL TRAIN E2: " + str(np.sum(self.fuel_y)))
 
             # Generic fuel switch of an enduse and sector
             _fuel_new_y = generic_fuel_switch(
@@ -419,11 +419,6 @@ def demand_management(
             average_fuel_yd,
             fuel_yh,
             mode_constrained)
-
-        '''if enduse == "ss_small_power":
-            print(strategy_vars['dm_improvement'][enduse][curr_yr])
-            print(np.max(fuel_yh[2][10]))
-            raise Exception #TODO TODO TODO TODO REMOVE'''
 
     # -------------------------------------------------
     # Convert all load profiles into flat load profiles
@@ -1504,13 +1499,10 @@ def apply_cooling(
 
         # Apply factor
         fuel_y = fuel_y * floorarea_cooling_factor
-
-        return fuel_y
-
     except KeyError:
-        logging.info("no cooling defined for enduse {} {}".format(enduse, np.sum(fuel_y)))
-        print("WHAT HAPPEND")
-        return fuel_y
+        pass
+
+    return fuel_y
 
 def generic_fuel_switch(
         enduse,

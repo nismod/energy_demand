@@ -12,7 +12,6 @@
 #TODO IMROVE PLOTTING (second round of geopanda classification)
 # # Fix regional plots
 # TEST NON CONSTRAINED MODE
-#TODO MAKE FUEL SPECIFIC for SECTOR
 #   Note
     ----
     Always execute from root folder. (e.g. energy_demand/energy_demand/main.py

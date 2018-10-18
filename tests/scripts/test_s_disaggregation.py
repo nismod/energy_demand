@@ -7,10 +7,11 @@ from energy_demand.assumptions import general_assumptions
 def test_rs_disaggregate():
     """testing
     """
+    dummy_sector = None
     regions = ['regA', 'regB']
 
     national_fuel = 100
-    rs_national_fuel = {'rs_space_heating': national_fuel}
+    rs_national_fuel = {'rs_space_heating': {dummy_sector: national_fuel}}
 
     scenario_data = {
         'population': {2015: {'regA': 10, 'regB': 10}},
@@ -58,11 +59,11 @@ def test_rs_disaggregate():
         enduses=enduses,
         crit_limited_disagg_pop_hdd=True,
         crit_limited_disagg_pop=False,
-        crit_full_disagg=False)
+        crit_full_disagg=False,
+        dummy_sector=dummy_sector)
     
-    assert result['regA']['rs_space_heating'] == national_fuel / 2
+    assert result['regA']['rs_space_heating'][None] == national_fuel / 2
 
-    # -----
     result = s_disaggregation.rs_disaggregate(
         regions=regions,
         rs_national_fuel=rs_national_fuel,
@@ -75,9 +76,10 @@ def test_rs_disaggregate():
         enduses=enduses,
         crit_limited_disagg_pop_hdd=False,
         crit_limited_disagg_pop=True,
-        crit_full_disagg=False)
+        crit_full_disagg=False,
+        dummy_sector=dummy_sector)
 
-    assert result['regA']['rs_space_heating'] == national_fuel / 2
+    assert result['regA']['rs_space_heating'][None] == national_fuel / 2
 
 def test_ss_disaggregate():
     """testing

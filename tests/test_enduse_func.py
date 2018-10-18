@@ -267,10 +267,10 @@ def test_fuel_to_service():
     """
     """
     enduse = 'heating'
+    sector = 'sectorA'
     fuel_y = {0: 2000}
-    enduse_techs = ['techA']
-    fuel_tech_p_by = {0 : {'techA': 1.0}}
 
+    fuel_tech_p_by = {0 : {'techA': 1.0}}
     technologies = {'techA': read_data.TechnologyData()}
     technologies['techA'].fueltype_str = 'gas'
     technologies['techA'].eff_achieved = 1.0
@@ -292,10 +292,11 @@ def test_fuel_to_service():
         t_base_heating_by=15.5,
         potential_enduses=['heating'],
         t_base_heating_cy=15.5,
-        enduse_technologies={'heating': ['techA']})
+        enduse_technologies={'heating': {'sectorA': ['techA']}})
 
     tot_s_y, service_tech = enduse_func.fuel_to_service(
         enduse=enduse,
+        sector=sector,
         fuel_y=fuel_y,
         fuel_tech_p_by=fuel_tech_p_by,
         tech_stock=tech_stock,
@@ -305,9 +306,8 @@ def test_fuel_to_service():
     assert service_tech['techA'] == 1000
 
     # ---
-    fuel_tech_p_by = {0: {}, 1 : {'techA': 1.0}} #'placeholder_tech': 1.0}}
     fuel_y = {0: 0, 1: 2000}
-    fuel_tech_p_by = {0 : {}, 1: {'techA': 1.0}}
+    fuel_tech_p_by =  { 0 : {}, 1: {'techA': 1.0}}
     fueltypes = {'gas': 0, 'heat': 1}
 
     tech_stock = technological_stock.TechStock(
@@ -321,10 +321,11 @@ def test_fuel_to_service():
         t_base_heating_by=15.5,
         potential_enduses=['heating'],
         t_base_heating_cy=15.5,
-        enduse_technologies={'heating': ['techA']})
+        enduse_technologies= {'heating': {'sectorA': ['techA']}})
 
     tot_s_y, service_tech = enduse_func.fuel_to_service(
         enduse=enduse,
+        sector=sector,
         fuel_y=fuel_y,
         fuel_tech_p_by=fuel_tech_p_by,
         tech_stock=tech_stock,
@@ -356,10 +357,11 @@ def test_service_to_fuel():
         t_base_heating_by=15.5,
         potential_enduses=['heating'],
         t_base_heating_cy=15.5,
-        enduse_technologies={'heating': ['techA']})
+        enduse_technologies={'heating': {'sectorA': ['techA']}})
 
     fuel_y, fuel_per_tech = enduse_func.service_to_fuel(
         "heating",
+        'sectorA',
         {'techA': 100},
         tech_stock,
         len(fueltypes),
@@ -375,6 +377,7 @@ def test_service_to_fuel():
 
     fuel_y, fuel_per_tech = enduse_func.service_to_fuel(
         "heating",
+        'sectorA',
         {'techA': 100},
         tech_stock,
         len(fueltypes),

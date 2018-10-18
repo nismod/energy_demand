@@ -625,7 +625,7 @@ def autocomplete_strategy_vars(strategy_vars, narrative_crit=False):
                         for narrative in sector_sub_var_entries:
 
                             if 'enduse' not in narrative:
-                                narrative['enduse'] = [sub_var_name] #TODO USED??
+                                narrative['enduse'] = [sub_var_name]
                             updated_narratives.append(narrative)
 
                         out_dict[var_name][sub_var_name] = updated_narratives

@@ -75,7 +75,7 @@ def test_TechStock():
         t_base_heating_by=15.5,
         potential_enduses=['heating'],
         t_base_heating_cy=15.5,
-        enduse_technologies={'heating': ['boilerA']})
+        enduse_technologies={'heating': {'sectorA': ['boilerA']}})
 
     assert stock_obj.name == "name"
-    assert stock_obj.get_tech_attr('heating', 'boilerA', 'eff_by') == 1.0
+    assert stock_obj.get_tech_attr('heating', 'sectorA', 'boilerA', 'eff_by') == 1.0

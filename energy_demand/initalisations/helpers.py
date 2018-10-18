@@ -31,11 +31,9 @@ def copy_fractions_all_sectors(
     for sector in sectors:
         for enduse, techs in fuel_tech_p_by.items():
             if enduse in affected_enduses:
-                out_dict[enduse][sector] = dict(techs) #dict necessary somehow
-                ##out_dict[enduse][sector] = techs #dict necessary somehow #TODO TODO TODO
+                out_dict[enduse][sector] = dict(techs) #dict necessary
             else:
                 out_dict[enduse] = dict(techs)
-                ##out_dict[enduse] = techs
     out_dict = dict(out_dict)
 
     return out_dict
@@ -128,9 +126,6 @@ def get_def_techs(fuel_tech_p_by):
     all_defined_tech_service_ey = {}
 
     for enduse in fuel_tech_p_by:
-
-        #all_defined_tech_service_ey[enduse] = [] #TODO REMOGE STUFF
-        #all_defined_tech_service_ey[enduse] = set()
         all_defined_tech_service_ey[enduse] = {}
 
         sector_crit = basic_functions.test_if_sector(
@@ -141,17 +136,13 @@ def get_def_techs(fuel_tech_p_by):
                 all_defined_tech_service_ey[enduse][sector] = set()
                 for fueltype in fuel_tech_p_by[enduse][sector]:
                     for tech in list(fuel_tech_p_by[enduse][sector][fueltype].keys()):
-                        #all_defined_tech_service_ey[enduse].append(tech)
                         all_defined_tech_service_ey[enduse][sector].add(tech)
                 all_defined_tech_service_ey[enduse][sector] = list(all_defined_tech_service_ey[enduse][sector]) 
         else:
             all_defined_tech_service_ey[enduse][None] = set()
-
             for fueltype in fuel_tech_p_by[enduse]:
-                #all_defined_tech_service_ey[enduse].extend(fuel_tech_p_by[enduse][fueltype])
                 for tech in fuel_tech_p_by[enduse][fueltype]:
                     all_defined_tech_service_ey[enduse][None].add(tech)
-
             all_defined_tech_service_ey[enduse][None] = list(all_defined_tech_service_ey[enduse][None])
 
     return all_defined_tech_service_ey

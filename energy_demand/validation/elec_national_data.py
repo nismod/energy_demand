@@ -371,7 +371,7 @@ def compare_results_hour_boxplots(
 
     ax.boxplot(diff_values)
 
-    plt.xticks(range(1, 25), range(24)) #TODO CHECK
+    plt.xticks(range(1, 25), range(24))
 
     plt.xlabel("hour")
     plt.ylabel("Modelled electricity difference (real-modelled) [%]")
