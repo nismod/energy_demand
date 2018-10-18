@@ -114,11 +114,12 @@ def testing_tech_defined(technologies, all_tech_enduse):
         All technologies per enduse with assigned fuel shares
     """
     for enduse in all_tech_enduse:
-        for tech in all_tech_enduse[enduse]:
-            if tech not in technologies:
-                raise Exception(
-                    "Error: '{}' is not defined in technology_definition.csv".format(
-                        tech))
+        for sector in all_tech_enduse[enduse]:
+            for tech in all_tech_enduse[enduse][sector]:
+                if tech not in technologies:
+                    raise Exception(
+                        "Error: '{}' is not defined in technology_definition.csv".format(
+                            tech))
 
 def test_function_fuel_sum(data, fuel_disagg, mode_constrained, space_heating_enduses):
     """ Sum raw disaggregated fuel data

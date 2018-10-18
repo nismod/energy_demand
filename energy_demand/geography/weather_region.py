@@ -128,6 +128,7 @@ class WeatherRegion(object):
         # Residential submodel load profiles
         # ==================================================================
         load_profiles = load_profile.LoadProfileStock("load_profiles")
+        dummy_sector = None
 
         # --------Calculate HDD/CDD of used weather year
         self.rs_hdd_by, _ = hdd_cdd.calc_reg_hdd(
@@ -160,15 +161,14 @@ class WeatherRegion(object):
         # ========
         # -- Apply enduse sepcific shapes for enduses with not technologies with own defined shapes
         for enduse in enduses['residential']:
-
+            dummy_sector = None
             # Enduses where technology specific load profiles are defined for yh
             if enduse in ['rs_space_heating']:
                 pass
             else:
-
                 # Get all technologies of enduse
                 tech_list = helpers.get_nested_dict_key(
-                    assumptions.fuel_tech_p_by[enduse])
+                    assumptions.fuel_tech_p_by[enduse][dummy_sector])
 
                 # Remove heat pumps from rs_water_heating
                 tech_list = basic_functions.remove_element_from_list(tech_list, 'heat_pumps_electricity')
@@ -184,12 +184,12 @@ class WeatherRegion(object):
                     enduses=[enduse],
                     shape_yd=tech_lp['rs_shapes_yd'][enduse]['shape_non_peak_yd'],
                     shape_y_dh=shape_y_dh, #tech_lp['rs_shapes_dh'][enduse]['shape_non_peak_y_dh'],
+                    sectors=[dummy_sector],
                     model_yeardays=assumptions.model_yeardays)
 
         # ==========
         # Technology specific profiles for residential heating
         # ===========
-
         # ------Heating boiler
         load_profiles.add_lp(
             unique_identifier=uuid.uuid4(),
@@ -197,6 +197,7 @@ class WeatherRegion(object):
             enduses=['rs_space_heating'],
             shape_yd=rs_fuel_shape_heating_yd,
             shape_y_dh=tech_lp['rs_profile_boilers_y_dh'],
+            sectors=[dummy_sector],
             model_yeardays=assumptions.model_yeardays)
 
         # ------Heating CHP
@@ -211,6 +212,7 @@ class WeatherRegion(object):
             enduses=['rs_space_heating'],
             shape_yd=rs_fuel_shape_heating_yd,
             shape_y_dh=rs_profile_chp_y_dh, #tech_lp['rs_profile_chp_y_dh']
+            sectors=[dummy_sector],
             model_yeardays=assumptions.model_yeardays)
 
         # ------Electric heating, storage heating (primary)
@@ -220,6 +222,7 @@ class WeatherRegion(object):
             enduses=['rs_space_heating'],
             shape_yd=rs_fuel_shape_heating_yd,
             shape_y_dh=tech_lp['rs_profile_storage_heater_y_dh'],
+            sectors=[dummy_sector],
             model_yeardays=assumptions.model_yeardays)
 
         # ------Electric heating secondary (direct elec heating)
@@ -229,6 +232,7 @@ class WeatherRegion(object):
             enduses=['rs_space_heating'],
             shape_yd=rs_fuel_shape_heating_yd,
             shape_y_dh=tech_lp['rs_profile_elec_heater_y_dh'],
+            sectors=[dummy_sector],
             model_yeardays=assumptions.model_yeardays)
 
         # ------Heat pump heating
@@ -272,6 +276,7 @@ class WeatherRegion(object):
                 shape_y_dh=flat_shape_y_dh,
                 shape_yd=rs_hp_shape_yd,
                 shape_yh=flat_rs_fuel_shape_hp_yh,
+                sectors=[dummy_sector],
                 model_yeardays=assumptions.model_yeardays)
         elif flat_water_heating and not flat_space_heating:
             # Flat load profiles for water heating
@@ -282,6 +287,7 @@ class WeatherRegion(object):
                 shape_y_dh=flat_shape_y_dh,
                 shape_yd=rs_hp_shape_yd,
                 shape_yh=flat_rs_fuel_shape_hp_yh,
+                sectors=[dummy_sector],
                 model_yeardays=assumptions.model_yeardays)
             load_profiles.add_lp(
                 unique_identifier=uuid.uuid4(),
@@ -290,6 +296,7 @@ class WeatherRegion(object):
                 shape_y_dh=rs_profile_hp_y_dh, #tech_lp['rs_profile_hp_y_dh'],
                 shape_yd=rs_hp_shape_yd,
                 shape_yh=rs_fuel_shape_hp_yh,
+                sectors=[dummy_sector],
                 model_yeardays=assumptions.model_yeardays)
         else:
             # No flat load profile
@@ -300,6 +307,7 @@ class WeatherRegion(object):
                 shape_y_dh=tech_lp['rs_profile_hp_y_dh'],
                 shape_yd=rs_hp_shape_yd,
                 shape_yh=rs_fuel_shape_hp_yh,
+                sectors=[dummy_sector],
                 model_yeardays=assumptions.model_yeardays)
 
         # ------District_heating_electricity. Assumption made that same curve as CHP
@@ -309,6 +317,7 @@ class WeatherRegion(object):
             enduses=['rs_space_heating'],
             shape_yd=rs_fuel_shape_heating_yd,
             shape_y_dh=rs_profile_hp_y_dh, #tech_lp['rs_profile_chp_y_dh'],
+            sectors=[dummy_sector],
             model_yeardays=assumptions.model_yeardays)
 
         # ==================================================================
@@ -585,6 +594,7 @@ def get_fuel_shape_heating_hp_yh(tech_lp_y_dh, tech_stock, rs_hdd_cy, model_year
 
     tech_eff = tech_stock.get_tech_attr(
         'rs_space_heating',
+        None,
         'heat_pumps_electricity',
         'eff_cy')
 

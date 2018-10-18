@@ -420,17 +420,17 @@ class Assumptions(object):
         # Provide for every fueltype of an enduse the share of fuel
         # which is used by technologies in the base year
         # ============================================================
-        self.fuel_tech_p_by = fuel_shares.assign_by_fuel_tech_p(
+        fuel_tech_p_by = fuel_shares.assign_by_fuel_tech_p(
             enduses,
             sectors,
             fueltypes,
             fueltypes_nr)
 
         # ========================================
-        # Get technologies of an enduse
+        # Get technologies of an enduse and sector
         # ========================================
         self.specified_tech_enduse_by = helpers.get_def_techs(
-            self.fuel_tech_p_by)
+            fuel_tech_p_by)
 
         _specified_tech_enduse_by = helpers.add_undef_techs(
             self.heat_pumps,
@@ -469,7 +469,7 @@ class Assumptions(object):
         # ========================================
         self.fuel_tech_p_by, self.specified_tech_enduse_by, self.technologies = tech_related.insert_placholder_techs(
             self.technologies,
-            self.fuel_tech_p_by,
+            fuel_tech_p_by,
             self.specified_tech_enduse_by)
 
         # ========================================

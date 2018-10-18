@@ -84,29 +84,30 @@ def init_dict_brackets(first_level_keys):
 
     return one_level_dict
 
-def add_undef_techs(heat_pumps, all_specified_tech_enduse, enduses):
+def add_undef_techs(heat_pumps, specified_tech_enduse, enduses):
     """Add technology to dict
 
     Arguments
     ----------
     heat_pumps : list
         List with heat pumps
-    all_specified_tech_enduse_by : dict
+    specified_tech_enduse_by : dict
         Technologey per enduse
     enduses : list
         Enduses
 
     Return
     -------
-    all_specified_tech_enduse : dict
+    specified_tech_enduse : dict
         Specified techs per enduse
     """
     for enduse in enduses:
         for heat_pump in heat_pumps:
-            if heat_pump not in all_specified_tech_enduse[enduse]:
-                all_specified_tech_enduse[enduse].append(heat_pump)
+            for sector in specified_tech_enduse[enduse]:
+                if heat_pump not in specified_tech_enduse[enduse][sector]:
+                    specified_tech_enduse[enduse][sector].append(heat_pump)
 
-    return all_specified_tech_enduse
+    return specified_tech_enduse
 
 def get_def_techs(fuel_tech_p_by):
     """Collect all technologies across all
@@ -129,24 +130,29 @@ def get_def_techs(fuel_tech_p_by):
     for enduse in fuel_tech_p_by:
 
         #all_defined_tech_service_ey[enduse] = [] #TODO REMOGE STUFF
-        all_defined_tech_service_ey[enduse] = set()
+        #all_defined_tech_service_ey[enduse] = set()
+        all_defined_tech_service_ey[enduse] = {}
 
         sector_crit = basic_functions.test_if_sector(
             fuel_tech_p_by[enduse])
 
         if sector_crit:
             for sector in fuel_tech_p_by[enduse]:
+                all_defined_tech_service_ey[enduse][sector] = set()
                 for fueltype in fuel_tech_p_by[enduse][sector]:
                     for tech in list(fuel_tech_p_by[enduse][sector][fueltype].keys()):
                         #all_defined_tech_service_ey[enduse].append(tech)
-                        all_defined_tech_service_ey[enduse].add(tech)
+                        all_defined_tech_service_ey[enduse][sector].add(tech)
+                all_defined_tech_service_ey[enduse][sector] = list(all_defined_tech_service_ey[enduse][sector]) 
         else:
+            all_defined_tech_service_ey[enduse][None] = set()
+
             for fueltype in fuel_tech_p_by[enduse]:
                 #all_defined_tech_service_ey[enduse].extend(fuel_tech_p_by[enduse][fueltype])
                 for tech in fuel_tech_p_by[enduse][fueltype]:
-                    all_defined_tech_service_ey[enduse].add(tech)
+                    all_defined_tech_service_ey[enduse][None].add(tech)
 
-        all_defined_tech_service_ey[enduse] = list(all_defined_tech_service_ey[enduse] )
+            all_defined_tech_service_ey[enduse][None] = list(all_defined_tech_service_ey[enduse][None])
 
     return all_defined_tech_service_ey
 

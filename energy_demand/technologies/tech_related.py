@@ -36,7 +36,7 @@ def test_if_tech_defined(enduse_fueltypes_techs):
 def insert_placholder_techs(
         technologies,
         tech_p_by,
-        all_specified_tech_enduse_by
+        specified_tech_enduse_by
     ):
     """If no technology is defined for a fueltype in an enduse add
     a dumppy technology. This is necessary because the model needs
@@ -48,24 +48,25 @@ def insert_placholder_techs(
         Technologies
     tech_p_by : dict
         Fuel assignement of technologies in base year
-    all_specified_tech_enduse_by : dict
+    specified_tech_enduse_by : dict
         Technologies per enduse
 
     Returns
     -------
     tech_p_by : dict
         Fuel assignement of technologies in base year
-    all_specified_tech_enduse_by : dict
+    specified_tech_enduse_by : dict
         Technologies per enduse
     technologies : dict
         Technologies
     """
-
-    for end_use, enduse_fueltypes_techs in tech_p_by.items():
-
+    out_tech_p_by = {}
+    for enduse, enduse_fueltypes_techs in tech_p_by.items():
+        out_tech_p_by[enduse] = {}
         if list(enduse_fueltypes_techs.keys())[0] != 0:
 
             for sector in enduse_fueltypes_techs:
+                out_tech_p_by[enduse][sector] = {}
 
                 # Test if a technology is defined in any fueltype
                 c_tech_defined = test_if_tech_defined(enduse_fueltypes_techs[sector])
@@ -75,25 +76,25 @@ def insert_placholder_techs(
                         if enduse_fueltypes_techs[sector][fueltype] == {}:
 
                             # Assign total fuel demand to dummy technology
-                            tech_p_by[end_use][sector][fueltype] = {"placeholder_tech": 1.0}
+                            out_tech_p_by[enduse][sector][fueltype] = {"placeholder_tech": 1.0}
 
-                    all_specified_tech_enduse_by[end_use].append("placeholder_tech")
+                    specified_tech_enduse_by[enduse][sector].append("placeholder_tech")
                 else:
-                    pass
+                    out_tech_p_by[enduse][sector] = enduse_fueltypes_techs[sector]
         else:
+            # If no sector is defined, add a dummy None setor
+            dummy_sector = None
 
-            # Test if a technology is defined in any fueltype
+            out_tech_p_by[enduse][dummy_sector] = {}
             c_tech_defined = test_if_tech_defined(enduse_fueltypes_techs)
-
             if not c_tech_defined:
                 for fueltype in enduse_fueltypes_techs:
                     if enduse_fueltypes_techs[fueltype] == {}:
-                        # Assign total fuel demand to dummy technology
-                        tech_p_by[end_use][fueltype] = {"placeholder_tech": 1.0}
+                        out_tech_p_by[enduse][dummy_sector][fueltype] = {"placeholder_tech": 1.0}
 
-                all_specified_tech_enduse_by[end_use].append("placeholder_tech")
+                specified_tech_enduse_by[enduse][dummy_sector].append("placeholder_tech")
             else:
-                pass
+                out_tech_p_by[enduse][dummy_sector] = enduse_fueltypes_techs
 
     # Insert placeholder technology
     technologies['placeholder_tech'] = read_data.TechnologyData(
@@ -104,7 +105,7 @@ def insert_placholder_techs(
         diff_method='linear',
         tech_type='placeholder_tech')
 
-    return tech_p_by, all_specified_tech_enduse_by, technologies
+    return out_tech_p_by, specified_tech_enduse_by, technologies
 
 def calc_hp_eff(
         temp_yh,

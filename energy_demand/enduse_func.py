@@ -244,6 +244,7 @@ class Enduse(object):
                 # ------------------------------------
                 s_tot_y_cy, s_tech_y_by = fuel_to_service(
                     enduse,
+                    sector,
                     self.fuel_y,
                     fuel_tech_p_by,
                     tech_stock,
@@ -288,6 +289,7 @@ class Enduse(object):
                 # -------------------------------------------
                 self.fuel_y, fuel_tech_y = service_to_fuel(
                     enduse,
+                    sector,
                     s_tech_y_cy,
                     tech_stock,
                     fueltypes_nr,
@@ -720,7 +722,6 @@ def calc_fuel_tech_yh(
         Fueltype storing hourly fuel for every fueltype (fueltype, 365, 24)
     """
     if mode_constrained:
-
         fuels_yh = {}
         for tech in enduse_techs:
 
@@ -755,6 +756,7 @@ def calc_fuel_tech_yh(
 
 def service_to_fuel(
         enduse,
+        sector,
         service_tech,
         tech_stock,
         fueltypes_nr,
@@ -798,9 +800,9 @@ def service_to_fuel(
         for tech, service in service_tech.items():
 
             tech_eff = tech_stock.get_tech_attr(
-                enduse, tech, 'eff_cy')
+                enduse, sector, tech, 'eff_cy')
             fueltype_int = tech_stock.get_tech_attr(
-                enduse, tech, 'fueltype_int')
+                enduse, sector, tech, 'fueltype_int')
 
             # Convert to fuel
             fuel_tech = service / tech_eff
@@ -820,6 +822,7 @@ def service_to_fuel(
 
 def fuel_to_service(
         enduse,
+        sector,
         fuel_y,
         fuel_tech_p_by,
         tech_stock,
@@ -885,7 +888,7 @@ def fuel_to_service(
             if mode_constrained:
                 """Constrained version
                 """
-                tech_eff = tech_stock.get_tech_attr(enduse, tech, 'eff_by')
+                tech_eff = tech_stock.get_tech_attr(enduse, sector, tech, 'eff_by')
 
                 # Get fuel share and convert fuel to service per technology
                 s_tech = fuel_y[fueltype_int] * fuel_share * tech_eff
@@ -1443,7 +1446,7 @@ def apply_service_switch(
         pprint.pprint(print(annual_tech_diff_params[enduse]['non_metallic_mineral_products']))
         print("-------")
         pprint.pprint(print(annual_tech_diff_params[enduse]['basic_metals']))
-        raise Exception
+        #raise Exception
     # ---------------------------------------
     # Calculate switch
     # ----------------------------------------

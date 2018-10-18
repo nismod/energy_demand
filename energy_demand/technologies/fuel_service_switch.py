@@ -81,7 +81,6 @@ def sum_fuel_across_sectors(fuels):
 
 def get_share_s_tech_ey(
         service_switches,
-        specified_tech_enduse_by
     ):
     """Get fraction of service for each technology
     defined in a switch for every narrative year
@@ -90,8 +89,6 @@ def get_share_s_tech_ey(
     ---------
     service_switches : list
         Service switches
-    specified_tech_enduse_by : list
-        Technologies defined per enduse for base year
 
     Return
     ------
@@ -160,7 +157,7 @@ def create_switches_from_s_shares(
     # Calculate relative by proportion of not assigned technologies in base year
     tech_not_assigned_by_p = {}
 
-    for tech in specified_tech_enduse_by[enduse]:
+    for tech in specified_tech_enduse_by[enduse][sector]:
         if tech not in switch_technologies:
             print("Aaa {}  {}  {}".format(sector, enduse, tech))
             tech_not_assigned_by_p[tech] = s_tech_by_p[sector][enduse][tech]
@@ -175,7 +172,7 @@ def create_switches_from_s_shares(
             tech_not_assigned_by_p[tech] = share_by / tot_share_not_assigned
 
     # Get all defined technologies in base year
-    for tech in specified_tech_enduse_by[enduse]:
+    for tech in specified_tech_enduse_by[enduse][sector]:
 
         if tech not in switch_technologies:
 
@@ -470,8 +467,7 @@ def autocomplete_switches(
 
             # Calculate fraction of service for each technology
             reg_share_s_tech_ey_p[sector] = get_share_s_tech_ey(
-                service_switches_out[sector],
-                specified_tech_enduse_by)
+                service_switches_out[sector])
 
     return reg_share_s_tech_ey_p
 
