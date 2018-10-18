@@ -943,7 +943,6 @@ def apply_heat_recovery(
     A standard sigmoid diffusion is assumed from base year to end year
     """
     try:
-
         # Fraction of heat recovered in current year
         heat_recovered_p_cy = strategy_vars['heat_recovered'][enduse][curr_yr]
 

@@ -162,6 +162,7 @@ def create_switches_from_s_shares(
 
     for tech in specified_tech_enduse_by[enduse]:
         if tech not in switch_technologies:
+            print("Aaa {}  {}  {}".format(sector, enduse, tech))
             tech_not_assigned_by_p[tech] = s_tech_by_p[sector][enduse][tech]
 
     # Normalise: convert to percentage
@@ -341,7 +342,7 @@ def autocomplete_switches(
 
     # Iterate enduses
     for enduse in switch_enduses:
-        logging.info("... calculating service switches: {} crit_all_the_same: {}".format(enduse, crit_all_the_same))
+        print("... calculating service switches: {} crit_all_the_same: {}".format(enduse, crit_all_the_same))
 
         sectors_of_enduse = get_sectors_of_enduse(
             enduse, enduses, sectors)

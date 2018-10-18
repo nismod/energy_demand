@@ -438,9 +438,6 @@ class Assumptions(object):
             self.enduse_space_heating)
         self.specified_tech_enduse_by = _specified_tech_enduse_by
 
-        import pprint
-        print(pprint.pprint(self.specified_tech_enduse_by))
-        raise Exception("ff")
         # ============================================================
         # Read in switches
         # ============================================================

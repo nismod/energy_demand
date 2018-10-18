@@ -128,19 +128,25 @@ def get_def_techs(fuel_tech_p_by):
 
     for enduse in fuel_tech_p_by:
 
+        #all_defined_tech_service_ey[enduse] = [] #TODO REMOGE STUFF
+        all_defined_tech_service_ey[enduse] = set()
+
         sector_crit = basic_functions.test_if_sector(
             fuel_tech_p_by[enduse])
 
         if sector_crit:
             for sector in fuel_tech_p_by[enduse]:
-                all_defined_tech_service_ey[enduse] = []
                 for fueltype in fuel_tech_p_by[enduse][sector]:
-                    for i in list(fuel_tech_p_by[enduse][sector][fueltype].keys()):
-                        all_defined_tech_service_ey[enduse].append(i)
+                    for tech in list(fuel_tech_p_by[enduse][sector][fueltype].keys()):
+                        #all_defined_tech_service_ey[enduse].append(tech)
+                        all_defined_tech_service_ey[enduse].add(tech)
         else:
-            all_defined_tech_service_ey[enduse] = []
             for fueltype in fuel_tech_p_by[enduse]:
-                all_defined_tech_service_ey[enduse].extend(fuel_tech_p_by[enduse][fueltype])
+                #all_defined_tech_service_ey[enduse].extend(fuel_tech_p_by[enduse][fueltype])
+                for tech in fuel_tech_p_by[enduse][fueltype]:
+                    all_defined_tech_service_ey[enduse].add(tech)
+
+        all_defined_tech_service_ey[enduse] = list(all_defined_tech_service_ey[enduse] )
 
     return all_defined_tech_service_ey
 

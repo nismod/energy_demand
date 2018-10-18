@@ -45,8 +45,8 @@ district_heating_biomass,biomass,0.6,0.6,2050,linear,2000,tech_district_heating,
 district_heating_fuel_cell,hydrogen,0.85,0.85,2050,linear,2000,tech_district_heating,0.2,
 basic_oxygen_furnace,solid_fuel,1,1,2050,linear,2010,steel_production,1,assumed no technology imporvement
 electric_arc_furnace,electricity,6.1,6.1,2050,linear,2010,steel_production,1,assumed no technology imporvement
-SNG_furnace,gas,1,1,2050,linear,2020,steel_production,1,assumed no technology imporvement
-biomass_furnace,biomass,1,1,2050,linear,2020,steel_production,1,assumed no technology imporvement
+SNG_furnace,gas,1,1,2050,linear,2010,steel_production,1,assumed no technology imporvement
+biomass_furnace,biomass,1,1,2050,linear,2010,steel_production,1,assumed no technology imporvement
 hydrogen_furnace,hydrogen,1,1,2050,linear,2020,steel_production,1,assumed no technology imporvement
 dry_kiln_coal,solid_fuel,1.8,1.8,2050,linear,2010,cement_production,1,assumed no technology imporvement
 dry_kiln_oil,oil,1.8,1.8,2050,linear,2010,cement_production,1,assumed no technology imporvement

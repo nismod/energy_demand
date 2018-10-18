@@ -339,11 +339,6 @@ def assign_by_fuel_tech_p(
     #-- basic_metals (sector)
     fuel_tech_p_by['is_high_temp_process']['basic_metals'][fueltypes['solid_fuel']] = {
         'basic_oxygen_furnace': 1.0}
-
-    #print("____b___________")
-    #print(pprint.pprint(fuel_tech_p_by['is_high_temp_process']))
-    #raise Exception
-
     fuel_tech_p_by['is_high_temp_process']['basic_metals'][fueltypes['electricity']] = {
         'electric_arc_furnace': 1.0}
     fuel_tech_p_by['is_high_temp_process']['basic_metals'][fueltypes['gas']] = {
