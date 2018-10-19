@@ -179,7 +179,6 @@ def switch_calculations(
     narrative_timesteps.update(get_all_narrative_timesteps(data['assumptions'].service_switches))
     narrative_timesteps.update(get_all_narrative_timesteps(data['assumptions'].fuel_switches))
     narrative_timesteps.update(get_all_narrative_timesteps(data['assumptions'].capacity_switches))
-
     # ========================================================================================
     # Capacity switches
     #
@@ -249,13 +248,12 @@ def switch_calculations(
                     s_tech_by_p=s_tech_by_p[sector][enduse],
                     s_fueltype_by_p=s_fueltype_by_p[sector][enduse],
                     share_s_tech_ey_p=share_s_tech_ey_p,
-                    fuel_tech_p_by=data['assumptions'].fuel_tech_p_by[enduse][sector], #nEW][],]
+                    fuel_tech_p_by=data['assumptions'].fuel_tech_p_by[enduse][sector],
                     regions=data['regions'],
                     crit_all_the_same=crit_all_the_same)
 
     # ------------------
-    # Calculate annual values based on calculated
-    # parameters for every simulation year
+    # Calculate annual values based on calculated parameters for every simulation year
     # ------------------
     annual_tech_diff_params = s_scenario_param.calc_annual_switch_params(
         simulated_yrs,

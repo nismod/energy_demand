@@ -199,7 +199,10 @@ def get_s_fueltype_tech(
                     if technology == 'placeholder_tech' and s_p_tech == 0:
                         pass
                     else:
-                        s_tech_by_p[enduse][technology] = s_p_tech
+                        try:
+                            s_tech_by_p[enduse][technology] += s_p_tech
+                        except:
+                            s_tech_by_p[enduse][technology] = s_p_tech
 
         # Convert service per enduse
         for fueltype in s_fueltype_by_p[enduse][sector]:
@@ -208,5 +211,10 @@ def get_s_fueltype_tech(
 
     #warnings.filterwarnings('ignore') # Ignore warnings
     # Test if the energy service for all technologies is 100%
-    # Test if within fueltype always 100 energy service
+    # Test if within fueltype always 100 energy service 
+    for enduse, s_p_techs in s_tech_by_p.items():
+        sum_enduse = sum(s_p_techs.values())
+        if round(sum_enduse, 2) != 0: # if total is zero, no demand provided
+            assert round(sum_enduse, 2) == 1.0
+
     return s_tech_by_p, s_fueltype_by_p

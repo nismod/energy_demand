@@ -239,6 +239,9 @@ class Enduse(object):
                     enduse,
                     assumptions.enduse_space_heating)
 
+                if sector == 'basic_metals' and enduse == 'is_high_temp_process':
+                    print("AAA")
+
                 # ------------------------------------
                 # Calculate regional energy service
                 # ------------------------------------
@@ -1432,12 +1435,12 @@ def apply_service_switch(
         crit_switch_happening,
         base_yr,
         curr_yr)
+    
+    '''if enduse == 'is_space_heating':
+        print("_______BB___________ {}  {} {}".format(curr_yr, enduse, sector))
 
-    if sector == 'basic_metals' and enduse == 'is_high_temp_process':
-        logging.info("_______BB___________ {}  {} ".format(curr_yr, enduse))
-        logging.info(sector)
-        logging.info(s_tech_y_cy)
-        raise Exception
+        print(annual_tech_diff_params[enduse][sector])
+        raise Exception'''
 
     # ---------------------------------------
     # Calculate switch

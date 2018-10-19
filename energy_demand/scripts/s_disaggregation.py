@@ -61,7 +61,7 @@ def disaggr_demand(data, spatial_calibration=False):
         Note: All other fueltypes are not skaled
         '''
         calibrate_residential = False       # Calibrate residential demands
-        calibrate_non_residential = True   # Calibrate non residential demands
+        calibrate_non_residential = True    # Calibrate non residential demands
 
         # Non-residential electricity regional demands of base year for electrictiy and gas
         fueltype_elec = tech_related.get_fueltype_int('electricity')
