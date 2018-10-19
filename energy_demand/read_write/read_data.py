@@ -277,7 +277,7 @@ def read_in_results(path_result, seasons, model_yeardays_daytype):
     # Read in residential demands
     try:
         results_container['residential_results'] = read_results_yh(
-        path_result, 'residential_results')
+            path_result, 'residential_results')
     except:
         pass
 
@@ -495,6 +495,10 @@ def read_fuel_ss(path_to_csv, fueltypes_nr):
         Service sectors
     enduses : list
         Service enduses
+    
+    Info of categories
+    ------------------
+    https://assets.publishing.service.gov.uk/government/uploads/system/uploads/attachment_data/file/565748/BEES_overarching_report_FINAL.pdf
     """
     lookups = lookup_tables.basic_lookups()
     fueltypes_lu = lookups['fueltypes']
@@ -772,7 +776,6 @@ def read_technologies(path_to_csv):
     dict_technologies = {}
     dict_tech_lists = {}
 
-    # Read csv
     raw_csv_file = pd.read_csv(path_to_csv)
 
     for index, row in raw_csv_file.iterrows():
@@ -823,6 +826,9 @@ def read_fuel_rs(path_to_csv):
     the first row is the fuel_ID
     The header is the sub_key
     """
+    dummy_sector = None
+    sectors = [dummy_sector]
+
     fuels = {}
 
     # Read csv
@@ -839,9 +845,8 @@ def read_fuel_rs(path_to_csv):
 
     # Iterate columns and convert to array
     for enduse in raw_csv_file.columns[1:]: # skip for column
-        fuels[enduse] = raw_csv_file[enduse].values
-
-    sectors = [None]
+        fuels[enduse] = {}
+        fuels[enduse][dummy_sector] = raw_csv_file[enduse].values
 
     return fuels, sectors, list(enduses)
 

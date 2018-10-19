@@ -22,7 +22,7 @@ def logg_info(modelrun, fuels_in, data):
     """
     logging.info("=====================================================")
     logging.info("Simulation year:         %s", str(modelrun.curr_yr))
-    logging.info("Nr of regions:           %s", str(data['reg_nrs']))
+    logging.info("Nr of regions:           %s", str(data['assumptions'].reg_nrs))
     logging.info("Total ktoe:              %s", str(conversions.gwh_to_ktoe(fuels_in["fuel_in"])))
     logging.info("-----------------------------------------------------")
     logging.info("[GWh] Total input:       %s", str(fuels_in["fuel_in"]))
@@ -191,6 +191,7 @@ def write_simulation_inifile(path, data, simulated_regions):
         Path
     data : dict
         Data container
+
     simulated_regions : list
         Simulated regions
     """
@@ -200,7 +201,7 @@ def write_simulation_inifile(path, data, simulated_regions):
     config = configparser.ConfigParser()
 
     config.add_section('SIM_PARAM')
-    config['SIM_PARAM']['reg_nrs'] = str(data['reg_nrs'])
+    config['SIM_PARAM']['reg_nrs'] = str(data['assumptions'].reg_nrs)
     config['SIM_PARAM']['base_yr'] = str(data['assumptions'].base_yr)
     config['SIM_PARAM']['simulated_yrs'] = str(data['assumptions'].simulated_yrs)
 

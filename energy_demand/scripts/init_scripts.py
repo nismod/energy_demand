@@ -179,7 +179,6 @@ def switch_calculations(
     narrative_timesteps.update(get_all_narrative_timesteps(data['assumptions'].service_switches))
     narrative_timesteps.update(get_all_narrative_timesteps(data['assumptions'].fuel_switches))
     narrative_timesteps.update(get_all_narrative_timesteps(data['assumptions'].capacity_switches))
-
     # ========================================================================================
     # Capacity switches
     #
@@ -238,25 +237,23 @@ def switch_calculations(
     for submodel in data['assumptions'].submodels_names:
         for enduse in data['enduses'][submodel]:
             for sector in data['sectors'][submodel]:
-
                 sig_param_tech[enduse][sector] = sig_param_calc_incl_fuel_switch(
                     narrative_timesteps,
                     data['assumptions'].base_yr,
                     data['assumptions'].crit_switch_happening,
                     data['technologies'],
                     enduse=enduse,
+                    sector=sector,
                     fuel_switches=data['assumptions'].fuel_switches,
                     s_tech_by_p=s_tech_by_p[sector][enduse],
                     s_fueltype_by_p=s_fueltype_by_p[sector][enduse],
                     share_s_tech_ey_p=share_s_tech_ey_p,
-                    fuel_tech_p_by=data['assumptions'].fuel_tech_p_by[enduse],
+                    fuel_tech_p_by=data['assumptions'].fuel_tech_p_by[enduse][sector],
                     regions=data['regions'],
-                    sector=sector,
                     crit_all_the_same=crit_all_the_same)
 
     # ------------------
-    # Calculate annual values based on calculated
-    # parameters for every simulation year
+    # Calculate annual values based on calculated parameters for every simulation year
     # ------------------
     annual_tech_diff_params = s_scenario_param.calc_annual_switch_params(
         simulated_yrs,
@@ -352,7 +349,7 @@ def get_regional_narrative(
         f_reg_norm_abs
     ):
     """Spatial explicit modelling of scenario variable
-    based on narratives. Convert strategy variables 
+    based on narratives. Convert strategy variables
     (e.g. country level) to regional variables.
 
     Arguments
@@ -550,13 +547,13 @@ def sig_param_calc_incl_fuel_switch(
         crit_switch_happening,
         technologies,
         enduse,
+        sector,
         fuel_switches,
         s_tech_by_p,
         s_fueltype_by_p,
         share_s_tech_ey_p,
         fuel_tech_p_by,
         regions=False,
-        sector=False,
         crit_all_the_same=True
     ):
     """Calculate sigmoid diffusion paramaters considering
@@ -603,12 +600,6 @@ def sig_param_calc_incl_fuel_switch(
         #logging.info("no fuel is defined for enduse `{}` and sector `{}`".format(enduse, sector))
         sig_param_tech = {}
     else:
-
-        if not sector:
-            fuel_tech_p_by = fuel_tech_p_by
-        else:
-            fuel_tech_p_by = fuel_tech_p_by[sector]
-
         if share_s_tech_ey_p == {}:
             pass
         else:

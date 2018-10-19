@@ -24,7 +24,7 @@ class LoadProfileStock(object):
             shape_yd,
             shape_y_dh,
             model_yeardays,
-            sectors=False,
+            sectors,
             shape_yh=False
         ):
         """Add load profile to stock
@@ -38,17 +38,12 @@ class LoadProfileStock(object):
         enduses : list
             Enduses for which the profile applies
         shape_y_dh : array
-            
+
         shape_yh : array
             Shape yh (from year to hour)
         sectors : list, default=False
             Sectors for which the profile applies
         """
-        if not sectors:
-            sectors = [None]
-        else:
-            pass
-
         self.load_profiles[unique_identifier] = LoadProfile(
             enduses,
             unique_identifier,
@@ -86,21 +81,21 @@ class LoadProfileStock(object):
         ------
         Load profile attribute
         """
-        #try:
         # Get key from lookup dict
         position_in_dict = self.dict_tuple_keys[(enduse, sector, technology)]
 
         # Get correct object
         load_profile_obj = self.load_profiles[position_in_dict]
 
-        '''except KeyError:
-            raise Exception(
-                "Please define load profile for '{}' '{}' '{}'".format(
-                    technology, enduse, sector))'''
-
         return getattr(load_profile_obj, shape)
 
-def generate_key_lu_dict(dict_tuple_keys, unique_identifier, enduses, sectors, technologies):
+def generate_key_lu_dict(
+        dict_tuple_keys,
+        unique_identifier,
+        enduses,
+        sectors,
+        technologies
+    ):
     """Generate look_up keys to position in 'load_profiles'
 
     Arguments

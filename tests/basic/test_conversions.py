@@ -47,23 +47,6 @@ def test_mw_to_gwhh():
 
     assert out_value == expected
 
-def test_convert_fueltypes_ktoe_GWh():
-    """Testing function
-    """
-    in_value = {'enduse': np.zeros((2))}
-    in_value['enduse'][0] = 10
-    in_value['enduse'][1] = 20
-
-    expected = {'enduse': np.zeros((2))}
-    expected['enduse'][0] = 10 * 11.6300000
-    expected['enduse'][1] = 20 * 11.6300000
-
-    # call function
-    out_value = conversions.convert_fueltypes_ktoe_gwh(in_value)
-
-    np.testing.assert_array_almost_equal(out_value['enduse'][0], expected['enduse'][0])
-    np.testing.assert_array_almost_equal(out_value['enduse'][1], expected['enduse'][1])
-
 def test_convert_fueltypes_sectors_ktoe_gwh():
     """Testing function
     """

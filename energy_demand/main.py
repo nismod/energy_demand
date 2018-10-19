@@ -2,7 +2,6 @@
 # After smif upgrade:
 #   make that automatically the parameters can be generated to be copied into smif format
 # REMOVE HDD CODE PLOTTING
-#TODO Revisit the writing out of np. files...(most complete: enduse, region, fueltype, hours)
 #TODO Test if technology type can be left empty in technology spreadsheet, Try to remove tech_type
 #TODO Write out full result. Then write function to aggregate accordingly
 #TODO SIMple aggregation. Write out sectormodel, enduse, region, fueltypes.... --> Do all aggregation based on that
@@ -11,12 +10,11 @@
 # Improve plotting and processing (e.g. saisonal plots)
 # Weather station cleaning: Replace days with missing values
 #TODO IMROVE PLOTTING (second round of geopanda classification)
-#     Note
-    ----
-    Always execute from root folder. (e.g. energy_demand/energy_demand/main.py)
-
-# Fix regional plots
+# # Fix regional plots
 # TEST NON CONSTRAINED MODE
+#   Note
+    ----
+    Always execute from root folder. (e.g. energy_demand/energy_demand/main.py
 """
 import os
 import sys
@@ -156,7 +154,7 @@ if __name__ == "__main__":
         except:
             weather_station_count_nr = []
     else:
-        weather_yr_scenario = 2015                   # Default weather year
+        weather_yr_scenario = 2013 #TODO                   # Default weather year
         weather_station_count_nr = []                   # Default weather year
 
     print("Information")
@@ -192,7 +190,7 @@ if __name__ == "__main__":
     data['result_paths'] = data_loader.get_result_paths(path_new_scenario)
 
     basic_functions.create_folder(path_new_scenario)
-    ## TODO INCLUDElogger_setup.set_up_logger(os.path.join(path_new_scenario, "plotting.log"))
+    #logger_setup.set_up_logger(os.path.join(path_new_scenario, "plotting.log"))
 
     # ----------------------------------------------------------------------
     # Load data
@@ -203,7 +201,6 @@ if __name__ == "__main__":
         data['lookups']['submodels_names'], data['paths'], data['lookups']['fueltypes_nr'])
 
     data['regions'] = read_data.get_region_names(name_region_set)
-    data['reg_nrs'] = len(data['regions']) #TODO MOVE TO ASSUMPTIONS
 
     reg_centroids = read_data.get_region_centroids(name_region_set)
     data['reg_coord'] = basic_functions.get_long_lat_decimal_degrees(reg_centroids)
@@ -238,6 +235,7 @@ if __name__ == "__main__":
         local_paths=data['local_paths'],
         enduses=data['enduses'],
         sectors=data['sectors'],
+        reg_nrs=len(data['regions']),
         fueltypes=data['lookups']['fueltypes'],
         fueltypes_nr=data['lookups']['fueltypes_nr'])
 
@@ -276,7 +274,8 @@ if __name__ == "__main__":
     _user_defined_vars = data_loader.load_user_defined_vars(
         default_strategy_var=default_streategy_vars,
         path_csv=data['local_paths']['path_strategy_vars'],
-        simulation_base_yr=data['assumptions'].base_yr)
+        simulation_base_yr=data['assumptions'].base_yr,
+        simulation_end_yr=data['assumptions'].simulation_end_yr)
 
     strategy_vars = data_loader.replace_variable(_user_defined_vars, strategy_vars)
 
@@ -312,7 +311,7 @@ if __name__ == "__main__":
 
     print("Start Energy Demand Model with python version: " + str(sys.version), flush=True)
     print("-----------------------------------------------", flush=True)
-    print("Number of Regions                        " + str(data['reg_nrs']), flush=True)
+    print("Number of Regions                        " + str(data['assumptions'].reg_nrs), flush=True)
 
     # Obtain population data for disaggregation
     if data['criterias']['MSOA_crit']:
@@ -339,7 +338,6 @@ if __name__ == "__main__":
                 data['weather_stations'],
                 counter=weather_station_count_nr,
                 weather_yr=weather_yr_scenario)
-            
             temp_data_selection[year][wheather_station_id] = data['temp_data'][year][wheather_station_id]
 
             if year == weather_yr_scenario:
@@ -419,7 +417,6 @@ if __name__ == "__main__":
 
     data['assumptions'].update('regional_vars', regional_vars)
     data['assumptions'].update('non_regional_vars', non_regional_vars)
-
     # ------------------------------------------------
     # Spatial Validation
     # ------------------------------------------------
@@ -444,7 +441,7 @@ if __name__ == "__main__":
                 data['criterias']['reg_selection_csv_name']))
         #region_selection = ['E02003237', 'E02003238']
 
-        data['reg_nrs'] = len(region_selection)
+        setattr(data['assumptions'], 'reg_nrs', len(region_selection))
     else:
         region_selection = data['regions']
 
@@ -596,7 +593,6 @@ if __name__ == "__main__":
             if plot_only_selection:
                 # PLot only residential total regional annual demand and
                 # region_fueltype_reg_yh_8760
-                
                 write_data.write_residential_tot_demands(
                     sim_yr,
                     path_runs,

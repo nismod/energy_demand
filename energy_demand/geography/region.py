@@ -70,16 +70,12 @@ class Region(object):
         # =================
 
         # Climate correction factor (hdd)
-        f_climate_hdd_rs = np.sum(
-            weather_reg_cy[self.closest_weather_reg].rs_hdd_by) / np.sum(weather_reg_by[closest_weather_by_id].rs_hdd_by)
-        f_climate_hdd_ss = np.sum(
-            weather_reg_cy[self.closest_weather_reg].ss_hdd_by) / np.sum(weather_reg_by[closest_weather_by_id].ss_hdd_by)
-        f_climate_hdd_is = np.sum(
-            weather_reg_cy[self.closest_weather_reg].is_hdd_by) / np.sum(weather_reg_by[closest_weather_by_id].is_hdd_by)
+        f_climate_hdd_rs = np.sum(weather_reg_cy[self.closest_weather_reg].rs_hdd_by) / np.sum(weather_reg_by[closest_weather_by_id].rs_hdd_by)
+        f_climate_hdd_ss = np.sum(weather_reg_cy[self.closest_weather_reg].ss_hdd_by) / np.sum(weather_reg_by[closest_weather_by_id].ss_hdd_by)
+        f_climate_hdd_is = np.sum(weather_reg_cy[self.closest_weather_reg].is_hdd_by) / np.sum(weather_reg_by[closest_weather_by_id].is_hdd_by)
 
         # Climate correction factor (cdd)
-        f_climate_cdd_ss = np.sum(
-            weather_reg_cy[self.closest_weather_reg].ss_cdd_by) / np.sum(weather_reg_by[closest_weather_by_id].ss_cdd_by)
+        f_climate_cdd_ss = np.sum(weather_reg_cy[self.closest_weather_reg].ss_cdd_by) / np.sum(weather_reg_by[closest_weather_by_id].ss_cdd_by)
         #f_climate_cdd_is = np.sum(weather_reg_cy[self.closest_weather_reg].is_cdd_by) / np.sum(weather_reg_by[closest_weather_by_id].is_cdd_by)
 
         self.f_weather_correction = {

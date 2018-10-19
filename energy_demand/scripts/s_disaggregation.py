@@ -61,7 +61,7 @@ def disaggr_demand(data, spatial_calibration=False):
         Note: All other fueltypes are not skaled
         '''
         calibrate_residential = False       # Calibrate residential demands
-        calibrate_non_residential = True   # Calibrate non residential demands
+        calibrate_non_residential = True    # Calibrate non residential demands
 
         # Non-residential electricity regional demands of base year for electrictiy and gas
         fueltype_elec = tech_related.get_fueltype_int('electricity')
@@ -290,7 +290,6 @@ def disaggregate_base_demand(
         pop_for_disagg,
         census_disagg=census_disagg)
 
-    logging.debug("Finished disaggregation")
     return dict(rs_fuel_disagg), dict(ss_fuel_disagg), dict(is_fuel_disagg)
 
 def ss_disaggregate(
@@ -740,7 +739,8 @@ def rs_disaggregate(
         enduses,
         crit_limited_disagg_pop_hdd,
         crit_limited_disagg_pop,
-        crit_full_disagg
+        crit_full_disagg,
+        dummy_sector=None
     ):
     """Disaggregate residential fuel demand
 
@@ -762,8 +762,8 @@ def rs_disaggregate(
     to enduse (see Documentation)
     """
     logging.debug("... disagreggate residential demand")
+    
     rs_fuel_disagg = {}
-
     # ---------------------------------------
     # Calculate heating degree days for regions
     # ---------------------------------------
@@ -795,14 +795,15 @@ def rs_disaggregate(
         rs_national_fuel=rs_national_fuel,
         crit_limited_disagg_pop=False, #True, #False,
         crit_limited_disagg_pop_hdd=True, #True, #Set to true
-        crit_full_disagg=False)
+        crit_full_disagg=False,
+        dummy_sector=dummy_sector)
     rs_fuel_disagg.update(rs_fuel_regions)
 
     # Substract fuel for regions where only population was used for disaggregation from total
     rs_national_fuel_remaining = copy.deepcopy(rs_national_fuel)
     for enduse in rs_national_fuel:
         for reg in rs_fuel_disagg:
-            rs_national_fuel_remaining[enduse] -= rs_fuel_disagg[reg][enduse]
+            rs_national_fuel_remaining[enduse][dummy_sector] -= rs_fuel_disagg[reg][enduse][dummy_sector]
 
     # ====================================
     # Disaggregate for region with floor area
@@ -817,12 +818,13 @@ def rs_disaggregate(
         rs_national_fuel=rs_national_fuel_remaining,
         crit_limited_disagg_pop=crit_limited_disagg_pop,
         crit_limited_disagg_pop_hdd=crit_limited_disagg_pop_hdd,
-        crit_full_disagg=crit_full_disagg)
+        crit_full_disagg=crit_full_disagg,
+        dummy_sector=dummy_sector)
     rs_fuel_disagg.update(rs_fuel_disagg_full_data)
 
     # Check if total fuel is the same before and after aggregation
     testing_functions.control_disaggregation(
-        rs_fuel_disagg, rs_national_fuel, enduses)
+        rs_fuel_disagg, rs_national_fuel, enduses, [dummy_sector])
 
     return rs_fuel_disagg
 
@@ -836,11 +838,12 @@ def rs_disaggr(
         rs_national_fuel,
         crit_limited_disagg_pop,
         crit_limited_disagg_pop_hdd,
-        crit_full_disagg
+        crit_full_disagg,
+        dummy_sector
     ):
     """Disaggregate residential enduses
     """
-    fuel_disagg = defaultdict(dict)
+    fuel_disagg = {}
 
     total_pop = 0
     total_hdd_floorarea = 0
@@ -864,6 +867,7 @@ def rs_disaggr(
     # Disaggregate according to enduse
     # ---------------------------------------
     for region in regions:
+        fuel_disagg[region] = {}
         reg_hdd = rs_hdd_individ_region[region]
         reg_floor_area = scenario_data['floor_area']['rs_floorarea'][base_yr][region]
         reg_hdd_floor_area = reg_hdd * reg_floor_area
@@ -875,6 +879,7 @@ def rs_disaggr(
 
         # Disaggregate fuel depending on end_use
         for enduse in rs_national_fuel:
+            fuel_disagg[region][enduse] = {}
             if crit_limited_disagg_pop and not crit_limited_disagg_pop_hdd and not crit_full_disagg:
 
                 # ----------------------------------
@@ -905,7 +910,7 @@ def rs_disaggr(
                     reg_diasg_factor = p_pop
 
             # Disaggregate
-            fuel_disagg[region][enduse] = rs_national_fuel[enduse] * reg_diasg_factor
+            fuel_disagg[region][enduse][dummy_sector] = rs_national_fuel[enduse][dummy_sector] * reg_diasg_factor
 
     return dict(fuel_disagg)
 

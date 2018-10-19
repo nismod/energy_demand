@@ -592,11 +592,10 @@ def factor_improvements_single(
     # Replace
     reg_enduse_tech_p_ey = reg_enduse_tech_p_ey_capped
 
-    logging.warning("FAKTOR UK :" + str(factor_uk))
-    logging.warning("Lost demand: " + str(demand_lost))
-    logging.warning("TESTDUM a " + str(test))
-    logging.warning("TESTDUM b " + str(uk_enduse_fuel * factor_uk))
-
+    #logging.warning("FAKTOR UK :" + str(factor_uk))
+    #logging.warning("Lost demand: " + str(demand_lost))
+    #logging.warning("TESTDUM a " + str(test))
+    #logging.warning("TESTDUM b " + str(uk_enduse_fuel * factor_uk))
     return reg_enduse_tech_p_ey
 
 def get_enduse_regs(

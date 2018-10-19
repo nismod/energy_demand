@@ -42,6 +42,7 @@ class Assumptions(object):
             local_paths=None,
             enduses=None,
             sectors=None,
+            reg_nrs=None,
             fueltypes=None,
             fueltypes_nr=None
         ):
@@ -51,6 +52,7 @@ class Assumptions(object):
         self.nr_of_submodels = len(submodels_names)
         self.base_yr = base_yr
         self.weather_by = weather_by
+        self.reg_nrs = reg_nrs
         self.simulation_end_yr = simulation_end_yr
         self.curr_yr = curr_yr
         self.simulated_yrs = simulated_yrs
@@ -65,17 +67,17 @@ class Assumptions(object):
         self.spatial_explicit_diffusion = 0 #0: False, 1: True TODO
 
         # Define all variables which are affected by regional diffusion
-        self.spatially_modelled_vars = [] # ['smart_meter_improvement_p']
+        self.spatially_modelled_vars = [] # ['smart_meter_p']
 
         # Define technologies which are affected by spatial explicit diffusion
         self.techs_affected_spatial_f = ['heat_pumps_electricity']
 
         # Max penetration speed
-        self.speed_con_max = 1.5 # 1: uniform distribution >1: regional differences
+        self.speed_con_max = 1 #1.5 # 1: uniform distribution >1: regional differences
 
-        # --------
-        # Demand management of heat pumps
-        # --------
+        # ----------------------------------------
+        # Flat load profile of heat pumps (TODO REMOVE eventually)
+        # ----------------------------------------
         self.flat_heat_pump_profile_both = 0        # 0: False, 1: True
         self.flat_heat_pump_profile_only_water = 0  # Only water
     
@@ -111,9 +113,9 @@ class Assumptions(object):
         # ============================================================
         #   Modelled day related factors
         # ============================================================
-        #        model_yeardays_date : dict
-        #           Contains for the base year for each days
-        #           the information wheter this is a working or holiday
+        #   model_yeardays_date : dict
+        #     Contains for the base year for each days
+        #     the information wheter this is a working or holiday
         # ------------------------------------------------------------
         self.model_yeardays = list(range(365))
 
@@ -163,7 +165,6 @@ class Assumptions(object):
             'bungalow': 0.088}
 
         self.dwtype_distr_fy = {
-
             'yr_until_changed': yr_until_changed_all_things,
 
             'semi_detached': 0.26,
@@ -180,7 +181,6 @@ class Assumptions(object):
             'bungalow': 77}
 
         self.dwtype_floorarea_fy = {
-
             'yr_until_changed': yr_until_changed_all_things,
 
             'semi_detached': 96,
@@ -212,11 +212,11 @@ class Assumptions(object):
         #           effects will be overestimates (i.e. no multi-
         #           collinearity are considered).
         #
-        #       scenario_drivers : dict
-        #           Scenario drivers per enduse
+        #   scenario_drivers : dict
+        #     Scenario drivers per enduse
         # ------------------------------------------------------------
         self.scenario_drivers = {
-    
+
             # --Residential
             'rs_space_heating': ['floorarea', 'hlc'], # Do not use HDD or pop because otherweise double count
             'rs_water_heating': ['population'],
@@ -254,9 +254,6 @@ class Assumptions(object):
         # ============================================================
         #   Cooling related assumptions
         # ============================================================
-        #
-        #   Parameters related to cooling enduses are defined here.
-        #
         #   assump_cooling_floorarea : int
         #       The percentage of cooled floor space in the base year
         #
@@ -264,27 +261,24 @@ class Assumptions(object):
         #   ----------
         #   Abela, A. et al. (2016). Study on Energy Use by Air
         #   Conditioning. Bre, (June), 31. Retrieved from
-        #   https://www.bre.co.uk/filelibrary/pdf/projects/aircon-energy-use
-        #   /StudyOnEnergyUseByAirConditioningFinalReport.pdf
+        #   https://www.bre.co.uk/filelibrary/pdf/projects/aircon-energy-use/StudyOnEnergyUseByAirConditioningFinalReport.pdf
         # ------------------------------------------------------------
 
-        # See Abela et al. (2016)
-        # Carbon Trust. (2012). Air conditioning. Maximising comfort, minimising energy consumption
+        # See Abela et al. (2016) & Carbon Trust. (2012). Air conditioning. Maximising comfort, minimising energy consumption
         self.cooled_ss_floorarea_by = 0.35
 
         # ============================================================
         # Smart meter related base year assumptions
         # ============================================================
-        #
-        #   Parameters related to smart metering
-        #
         #   smart_meter_p_by : int
         #       The percentage of households with smart meters in by
-        #   smart_meter_diff_params : dict
-        #       Sigmoid diffusion parameter of smater meters
         # ------------------------------------------------------------
         self.smart_meter_assump = {}
-        self.smart_meter_assump['smart_meter_p_by'] = 0.1
+
+        # Currently in 2017 8.6 mio smart meter installed of 27.2 mio households --> 31.6%
+        # https://assets.publishing.service.gov.uk/government/uploads/system/uploads/attachment_data/file/671930/Smart_Meters_2017_update.pdf)
+        # In 2015, 5.8 % percent of all househods had one: https://assets.publishing.service.gov.uk/government/uploads/system/uploads/attachment_data/file/533060/2016_Q1_Smart_Meters_Report.pdf 
+        self.smart_meter_assump['smart_meter_p_by'] = 0.05
 
         # Long term smart meter induced general savings, purley as
         # a result of having a smart meter (e.g. 0.03 --> 3% savings)
@@ -337,8 +331,6 @@ class Assumptions(object):
         #       Residential submodel base temp of heating of base year
         #   rs_t_cooling_by : int
         #       Residential submodel base temp of cooling of base year
-        #   base_temp_diff_params : dict
-        #       Sigmoid temperature diffusion parameters
         #   ...
         #
         #   Note
@@ -371,9 +363,12 @@ class Assumptions(object):
         #       yd calculations
         # ------------------------------------------------------------
         self.enduse_space_heating = [
-            'rs_space_heating', 'ss_space_heating', 'is_space_heating']
+            'rs_space_heating',
+            'ss_space_heating',
+            'is_space_heating']
 
-        self.ss_enduse_space_cooling = ['ss_cooling_humidification']
+        self.ss_enduse_space_cooling = [
+            'ss_cooling_humidification']
 
         # ============================================================
         # Industry related
@@ -391,9 +386,9 @@ class Assumptions(object):
         # ============================================================
 
         # Share of cold rolling in steel manufacturing
-        self.p_cold_rolling_steel_by = 0.2      # Estimated  based on https://aceroplatea.es/docs/EuropeanSteelFigures_2015.pdf
-        self.eff_cold_rolling_process = 1.8     # 80% more efficient than hot rolling Fruehan et al. (2002)
-        self.eff_hot_rolling_process = 1.0      # 100% assumed efficiency
+        self.p_cold_rolling_steel_by = 0.2   # Estimated based on https://aceroplatea.es/docs/EuropeanSteelFigures_2015.pdf
+        self.eff_cold_rolling_process = 1.8  # 80% more efficient than hot rolling Fruehan et al. (2002)
+        self.eff_hot_rolling_process = 1.0   # 100% assumed efficiency
 
         # ============================================================
         # Assumption related to heat pump technologies
@@ -425,17 +420,17 @@ class Assumptions(object):
         # Provide for every fueltype of an enduse the share of fuel
         # which is used by technologies in the base year
         # ============================================================
-        self.fuel_tech_p_by = fuel_shares.assign_by_fuel_tech_p(
+        fuel_tech_p_by = fuel_shares.assign_by_fuel_tech_p(
             enduses,
             sectors,
             fueltypes,
             fueltypes_nr)
 
         # ========================================
-        # Get technologies of an enduse
+        # Get technologies of an enduse and sector
         # ========================================
         self.specified_tech_enduse_by = helpers.get_def_techs(
-            self.fuel_tech_p_by)
+            fuel_tech_p_by)
 
         _specified_tech_enduse_by = helpers.add_undef_techs(
             self.heat_pumps,
@@ -460,11 +455,12 @@ class Assumptions(object):
             service_switches=self.service_switches,
             capacity_switches=self.capacity_switches)
 
+        #TODO Write function to test if all defined technologies are defined
+
         # ========================================
-        # General other assumptions
+        # General other info
         # ========================================
         self.seasons = date_prop.get_season(year_to_model=base_yr)
-
         self.model_yeardays_daytype, self.yeardays_month, self.yeardays_month_days = date_prop.get_yeardays_daytype(
             year_to_model=base_yr)
 
@@ -473,7 +469,7 @@ class Assumptions(object):
         # ========================================
         self.fuel_tech_p_by, self.specified_tech_enduse_by, self.technologies = tech_related.insert_placholder_techs(
             self.technologies,
-            self.fuel_tech_p_by,
+            fuel_tech_p_by,
             self.specified_tech_enduse_by)
 
         # ========================================

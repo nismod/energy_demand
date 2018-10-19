@@ -1,10 +1,14 @@
 """All fuel shares of the base year for the
 different technologies are defined in this file.
 """
-from collections import defaultdict
 from energy_demand.initalisations import helpers
 
-def assign_by_fuel_tech_p(enduses, sectors, fueltypes, fueltypes_nr):
+def assign_by_fuel_tech_p(
+        enduses,
+        sectors,
+        fueltypes,
+        fueltypes_nr
+    ):
     """Assigning fuel share per enduse for different technologies
     for the base year.
 
@@ -23,10 +27,6 @@ def assign_by_fuel_tech_p(enduses, sectors, fueltypes, fueltypes_nr):
     -------
     fuel_tech_p_by : dict
         Residential fuel share percentages
-    fuel_tech_p_by : dict
-        Service fuel share percentages
-    fuel_tech_p_by : dict
-        Industry fuel share percentages
 
     Note
     ----
@@ -44,16 +44,16 @@ def assign_by_fuel_tech_p(enduses, sectors, fueltypes, fueltypes_nr):
 
     -   Not defined fueltypes will be assigned placholder technologies
     """
-    fuel_tech_p_by = defaultdict(dict)
+    fuel_tech_p_by = {}
 
     _fuel_tech_p_by = helpers.init_fuel_tech_p_by(
         enduses['residential'], fueltypes_nr)
     fuel_tech_p_by.update(_fuel_tech_p_by)
-    
+
     _fuel_tech_p_by = helpers.init_fuel_tech_p_by(
         enduses['service'], fueltypes_nr)
     fuel_tech_p_by.update(_fuel_tech_p_by)
-    
+
     _fuel_tech_p_by = helpers.init_fuel_tech_p_by(
         enduses['industry'], fueltypes_nr)
     fuel_tech_p_by.update(_fuel_tech_p_by)
@@ -322,8 +322,12 @@ def assign_by_fuel_tech_p(enduses, sectors, fueltypes, fueltypes_nr):
     # Helper: Transfer all defined shares for every enduse to every sector
     fuel_tech_p_by = helpers.copy_fractions_all_sectors(
         fuel_tech_p_by,
-        sectors['industry'],
+        sectors=sectors['industry'],
         affected_enduses=enduses['industry'])
+
+
+    #print("_________a______")
+    #print(pprint.pprint(fuel_tech_p_by['is_high_temp_process']))
 
     # ----------------
     # Industrial High temporal processes (is_high_temp_process)
@@ -340,7 +344,9 @@ def assign_by_fuel_tech_p(enduses, sectors, fueltypes, fueltypes_nr):
         'biomass_furnace': 1.0}
     fuel_tech_p_by['is_high_temp_process']['basic_metals'][fueltypes['hydrogen']] = {
         'hydrogen_furnace': 1.0}
-
+    fuel_tech_p_by['is_high_temp_process']['basic_metals'][fueltypes['oil']] = {
+        'oil_furnace': 1.0}
+    
     #-- non_metallic_mineral_products
     fuel_tech_p_by['is_high_temp_process']['non_metallic_mineral_products'][fueltypes['solid_fuel']] = {
         'dry_kiln_coal': 0.9,
@@ -359,4 +365,4 @@ def assign_by_fuel_tech_p(enduses, sectors, fueltypes, fueltypes_nr):
     fuel_tech_p_by['is_high_temp_process']['non_metallic_mineral_products'][fueltypes['hydrogen']] = {
         'dry_kiln_hydrogen': 1.0}
 
-    return fuel_tech_p_by
+    return dict(fuel_tech_p_by)

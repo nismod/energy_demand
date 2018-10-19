@@ -69,7 +69,7 @@ class TechStock(object):
             potential_enduses,
             enduse_technologies)
 
-    def get_tech(self, name, enduse):
+    def get_tech(self, name, enduse, sector):
         """Get technology of technology stock
 
         Arguments
@@ -78,10 +78,12 @@ class TechStock(object):
             Name of technology to get
         enduse : str
             Enduse of technology
+        sector : str
+            Sector of technology
         """
-        return self.stock_technologies[(name, enduse)]
+        return self.stock_technologies[(name, enduse, sector)]
 
-    def get_tech_attr(self, enduse, name, attribute_to_get):
+    def get_tech_attr(self, enduse, sector, name, attribute_to_get):
         """Get a technology attribute from a technology
         object stored in a list
 
@@ -99,7 +101,7 @@ class TechStock(object):
         tech_attribute : attribute
             Technology attribute
         """
-        tech_object = self.stock_technologies[(name, enduse)]
+        tech_object = self.stock_technologies[(name, enduse, sector)]
 
         attribute_value = getattr(tech_object, attribute_to_get)
 
@@ -156,46 +158,47 @@ def create_tech_stock(
     stock_technologies = {}
 
     for enduse in enduses:
-        for technology in enduse_technologies[enduse]:
+        for sector in enduse_technologies[enduse]:
+            for technology in enduse_technologies[enduse][sector]:
 
-            if technologies[technology].tech_type == 'placeholder_tech':
-                pass
-            else:
+                if technologies[technology].tech_type == 'placeholder_tech':
+                    pass
+                else:
+                    tech_obj = Technology(
+                        name=technology,
+                        tech_type=technologies[technology].tech_type,
+                        fueltype_str=technologies[technology].fueltype_str,
+                        eff_achieved=technologies[technology].eff_achieved,
+                        diff_method=technologies[technology].diff_method,
+                        eff_by=technologies[technology].eff_by,
+                        eff_ey=technologies[technology].eff_ey,
+                        year_eff_ey=technologies[technology].year_eff_ey,
+                        market_entry=technologies[technology].market_entry,
+                        tech_max_share=technologies[technology].tech_max_share,
+                        base_yr=base_yr,
+                        curr_yr=curr_yr,
+                        temp_by=temp_by,
+                        temp_cy=temp_cy,
+                        t_base_heating_by=t_base_heating_by,
+                        t_base_heating_cy=t_base_heating_cy,
+                        description=technologies[technology].description)
+
+                    stock_technologies[(technology, enduse, sector)] = tech_obj
+
+            # ----------------------------------------------------------------
+            # Add for every enduse placeholder technologies for every fueltype
+            # ----------------------------------------------------------------
+            for fueltype_str in fueltypes:
+
+                placeholder_technology = 'placeholder_tech__{}'.format(fueltype_str)
+
+                # Placeholder technology
                 tech_obj = Technology(
-                    name=technology,
-                    tech_type=technologies[technology].tech_type,
-                    fueltype_str=technologies[technology].fueltype_str,
-                    eff_achieved=technologies[technology].eff_achieved,
-                    diff_method=technologies[technology].diff_method,
-                    eff_by=technologies[technology].eff_by,
-                    eff_ey=technologies[technology].eff_ey,
-                    year_eff_ey=technologies[technology].year_eff_ey,
-                    market_entry=technologies[technology].market_entry,
-                    tech_max_share=technologies[technology].tech_max_share,
-                    base_yr=base_yr,
-                    curr_yr=curr_yr,
-                    temp_by=temp_by,
-                    temp_cy=temp_cy,
-                    t_base_heating_by=t_base_heating_by,
-                    t_base_heating_cy=t_base_heating_cy,
-                    description=technologies[technology].description)
+                    name=placeholder_technology,
+                    tech_type='placeholder_tech',
+                    fueltype_str=fueltype_str)
 
-                stock_technologies[(technology, enduse)] = tech_obj
-
-        # ----------------------------------------------------------------
-        # Add for every enduse placeholder technologies for every fueltype
-        # ----------------------------------------------------------------
-        for fueltype_str in fueltypes:
-
-            placeholder_technology = 'placeholder_tech__{}'.format(fueltype_str)
-
-            # Placeholder technology
-            tech_obj = Technology(
-                name=placeholder_technology,
-                tech_type='placeholder_tech',
-                fueltype_str=fueltype_str)
-
-            stock_technologies[(placeholder_technology, enduse)] = tech_obj
+                stock_technologies[(placeholder_technology, enduse, sector)] = tech_obj
 
     return stock_technologies
 

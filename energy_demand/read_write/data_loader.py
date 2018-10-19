@@ -188,7 +188,8 @@ def replace_variable(_user_defined_vars, strategy_vars):
 def load_user_defined_vars(
         default_strategy_var,
         path_csv,
-        simulation_base_yr
+        simulation_base_yr,
+        simulation_end_yr
     ):
     """Load all strategy variables from file
 
@@ -239,6 +240,7 @@ def load_user_defined_vars(
             parameter_narratives = narrative_related.create_narratives(
                 raw_file_content,
                 simulation_base_yr,
+                simulation_end_yr,
                 default_strategy_var[var_name])
 
             strategy_vars_as_narratives[var_name] = parameter_narratives
@@ -267,10 +269,10 @@ def load_ini_param(path):
     config = configparser.ConfigParser()
     config.read(os.path.join(path, 'model_run_sim_param.ini'))
 
-    reg_nrs = int(config['SIM_PARAM']['reg_nrs'])
     regions = ast.literal_eval(config['REGIONS']['regions'])
 
     assumptions = {}
+    assumptions['reg_nrs'] = int(config['SIM_PARAM']['reg_nrs'])
     assumptions['base_yr'] = int(config['SIM_PARAM']['base_yr'])
     assumptions['simulated_yrs'] = ast.literal_eval(config['SIM_PARAM']['simulated_yrs'])
 
@@ -282,7 +284,7 @@ def load_ini_param(path):
     enduses['service'] = ast.literal_eval(config['ENDUSES']['service'])
     enduses['industry'] = ast.literal_eval(config['ENDUSES']['industry'])
 
-    return enduses, assumptions, reg_nrs, regions
+    return enduses, assumptions, regions
 
 def load_MOSA_pop(path_to_csv):
     """
@@ -971,23 +973,15 @@ def load_fuels(submodels_names, paths, fueltypes_nr):
         paths['is_fuel_raw'], fueltypes_nr)
 
     # Convert energy input units
-    fuels[submodels_names[0]] = conversions.convert_fueltypes_ktoe_gwh(rs_fuel_raw)
+    fuels[submodels_names[0]] = conversions.convert_fueltypes_sectors_ktoe_gwh(rs_fuel_raw)
     fuels[submodels_names[1]] = conversions.convert_fueltypes_sectors_ktoe_gwh(ss_fuel_raw)
     fuels[submodels_names[2]] = conversions.convert_fueltypes_sectors_ktoe_gwh(is_fuel_raw)
 
     # Aggregate fuel across sectors
     fuels['aggr_sector_fuels'] = {}
     for submodel in enduses:
-
-        sector_fuel_crit = basic_functions.test_if_sector(
-            fuels[submodel], fuel_as_array=True)
-
         for enduse in enduses[submodel]:
-
-            if sector_fuel_crit:
-                fuels['aggr_sector_fuels'][enduse] = sum(fuels[submodel][enduse].values())
-            else:
-                fuels['aggr_sector_fuels'][enduse] = fuels[submodel][enduse]
+            fuels['aggr_sector_fuels'][enduse] = sum(fuels[submodel][enduse].values())
 
     return enduses, sectors, fuels
 

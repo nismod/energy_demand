@@ -52,9 +52,10 @@ def run_fig_spatial_distribution_of_peak(
         fueltype_int = tech_related.get_fueltype_int(fueltype_str)
 
         container = {}
+        container['demand_in_peak_h_per_pp'] = {}
         container['abs_demand_in_peak_h'] = {}
         container['p_demand_in_peak_h'] = {}
-        
+
         for weather_yr, path_data_ed in calculated_yrs_paths:
             print("... prepare data {} {}".format(weather_yr, path_data_ed))
 
@@ -62,7 +63,7 @@ def run_fig_spatial_distribution_of_peak(
 
             data = {}
             data['lookups'] = lookup_tables.basic_lookups()
-            data['enduses'], data['assumptions'], reg_nrs, regions = data_loader.load_ini_param(os.path.join(path_data_ed))
+            data['enduses'], data['assumptions'], regions = data_loader.load_ini_param(os.path.join(path_data_ed))
             data['assumptions']['seasons'] = date_prop.get_season(year_to_model=2015)
             data['assumptions']['model_yeardays_daytype'], data['assumptions']['yeardays_month'], data['assumptions']['yeardays_month_days'] = date_prop.get_yeardays_daytype(year_to_model=2015)
 
@@ -86,7 +87,6 @@ def run_fig_spatial_distribution_of_peak(
             # Calculate the national peak demand in GW
             national_peak_GW = np.max(sum_all_regs_fueltype_8760)
 
-            # #################################
             # ------------------------------------------------------
             # Calculate the contribution of the regional peak demand
             # ------------------------------------------------------
@@ -94,12 +94,14 @@ def run_fig_spatial_distribution_of_peak(
             # Demand in peak h
             demand_in_peak_h = results_container['ed_fueltype_regs_yh'][simulation_yr][fueltype_int][:, max_h]
 
+            demand_in_peak_h_per_pp = demand_in_peak_h / population_data[simulation_yr]
+    
             # Relative fraction of regional demand in relation to peak
             p_demand_in_peak_h = (demand_in_peak_h / national_peak_GW ) * 100 # given as percent
-
+            
+            container['demand_in_peak_h_per_pp'][weather_yr] = demand_in_peak_h_per_pp
             container['abs_demand_in_peak_h'][weather_yr] = demand_in_peak_h #* 1000000 # Convert to KWh
             container['p_demand_in_peak_h'][weather_yr] = p_demand_in_peak_h
-
             #TODO share in residential heating?
 
         # --------------
@@ -110,6 +112,7 @@ def run_fig_spatial_distribution_of_peak(
         # weather yr2
         # --------------
         # Convert regional data to dataframe
+        demand_in_peak_h_per_pp = np.array(list(container['demand_in_peak_h_per_pp'].values()))
         abs_demand_peak_h = np.array(list(container['abs_demand_in_peak_h'].values()))
         p_demand_peak_h = np.array(list(container['p_demand_in_peak_h'].values()))
 
@@ -124,6 +127,11 @@ def run_fig_spatial_distribution_of_peak(
             p_demand_peak_h,
             columns=regions,
             index=list(container['p_demand_in_peak_h'].keys()))
+        
+        df_demand_in_peak_h_per_pp = pd.DataFrame(
+            demand_in_peak_h_per_pp,
+            columns=regions,
+            index=list(container['demand_in_peak_h_per_pp'].keys()))
 
         for index, row in df_p_peak_demand.iterrows():
             print("Weather yr: {} Total p: {}".format(index, np.sum(row)))
@@ -132,13 +140,14 @@ def run_fig_spatial_distribution_of_peak(
         # ----------------------------
         # Calculate standard deviation
         # ----------------------------
+        std_deviation_df_demand_in_peak_h_per_pp = df_demand_in_peak_h_per_pp.std()
         std_deviation_abs_demand_peak_h = df_abs_peak_demand.std()
         std_deviation_p_demand_peak_h = df_p_peak_demand.std()
 
         # --------------------
         # Create map
         # --------------------
-        regional_statistics_columns = ['name', 'std_deviation_p_demand_peak_h', 'std_deviation_abs_demand_peak_h']
+        regional_statistics_columns = ['name', 'std_deviation_p_demand_peak_h', 'std_deviation_abs_demand_peak_h', 'std_deviation_df_demand_in_peak_h_per_pp']
 
         df_stats = pd.DataFrame(columns=regional_statistics_columns)
 
@@ -148,7 +157,9 @@ def run_fig_spatial_distribution_of_peak(
             line_entry = [[
                 region_name,
                 std_deviation_p_demand_peak_h[region_name],
-                std_deviation_abs_demand_peak_h[region_name]]]
+                std_deviation_abs_demand_peak_h[region_name],
+                std_deviation_df_demand_in_peak_h_per_pp[region_name]
+                ]]
 
             line_df = pd.DataFrame(line_entry, columns=regional_statistics_columns)
             df_stats = df_stats.append(line_df)
@@ -174,7 +185,7 @@ def run_fig_spatial_distribution_of_peak(
             data_to_plot=list(uk_gdf[field_to_plot]),
             nr_of_intervals=nr_of_intervals)
         # Maual bins
-        bin_values = [0, 0.005, 0.01, 0.015, 0.02, 0.025, 0.03]
+        #bin_values = [0, 0.005, 0.01, 0.015, 0.02, 0.025, 0.03]
         print(float(uk_gdf[field_to_plot].max()))
         print("BINS " + str(bin_values))
 

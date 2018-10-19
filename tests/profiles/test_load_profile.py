@@ -70,7 +70,7 @@ def test_LoadProfileStock():
         shape_y_dh=np.zeros((365)),
         shape_yd=np.zeros((365)),
         shape_yh=np.zeros((365, 24)),
-        sectors=False,
+        sectors=[False],
         model_yeardays=model_yeardays)
 
     result = result_obj.stock_enduses
@@ -97,12 +97,6 @@ def test_LoadProfileStock():
 
     # test get_lp()
     np.testing.assert_array_equal(np.zeros((365, 24)), result_obj.get_lp('cooking', 'sectorA', 'placeholder_tech', 'shape_yh'))
-
-    # test get_shape_peak_dh()
-    '''_var = result_obj.get_lp('cooking', 'sectorA', 'placeholder_tech', 'shape_peak_dh')
-    np.testing.assert_array_equal(
-        _var, 
-        result_obj.get_shape_peak_dh('cooking', 'sectorA', 'placeholder_tech'))'''
 
 def test_generate_key_lu_dict():
     """

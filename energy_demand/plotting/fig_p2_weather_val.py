@@ -125,7 +125,6 @@ def run(
     
         df_stats = df_stats.append(line_df)
 
-    print("tt") #TODO IMPROVE
     #print(df_stats['diff_av_max'])
     #print("---------")
     print(df_stats['diff_av_max'].max())

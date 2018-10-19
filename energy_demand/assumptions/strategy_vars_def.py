@@ -128,7 +128,6 @@ def load_param_assump(
     """
     strategy_vars = defaultdict(dict)
 
-    # All end uses
     default_enduses = {
 
         # Submodel Residential
@@ -273,7 +272,6 @@ def load_param_assump(
         'Dec': 0}
 
     for month_python, default_value in temp_diff_assumptions.items():
-
         strategy_vars['climate_change_temp_d'][month_python] = {
             "name": month_python,
             "absolute_range": (-0, 10),
@@ -294,7 +292,7 @@ def load_param_assump(
         "absolute_range": (0, 20),
         "description": "Base temperature assumption residential heating",
         "suggested_range": (13, 17),
-        "default_value": assumptions.t_bases.rs_t_heating_by, #15.5
+        "default_value": assumptions.t_bases.rs_t_heating_by,
         "units": '°C',
         "sector": True,
         'regional_specific': False,
@@ -306,7 +304,7 @@ def load_param_assump(
         "absolute_range": (0, 20),
         "description": "Base temperature assumption service sector heating",
         "suggested_range": (13, 17),
-        "default_value": assumptions.t_bases.ss_t_heating_by, #15.5
+        "default_value": assumptions.t_bases.ss_t_heating_by,
         "units": '°C',
         "sector": True,
         'regional_specific': False,
@@ -319,7 +317,7 @@ def load_param_assump(
         "absolute_range": (0, 25),
         "description": "Base temperature assumption service sector cooling",
         "suggested_range": (13, 17),
-        "default_value": assumptions.t_bases.ss_t_cooling_by, #5
+        "default_value": assumptions.t_bases.ss_t_cooling_by,
         "units": '°C',
         "sector": True,
         'regional_specific': False,
@@ -331,24 +329,20 @@ def load_param_assump(
         "absolute_range": (0, 20),
         "description": "Base temperature assumption service sector heating",
         "suggested_range": (13, 17),
-        "default_value": assumptions.t_bases.is_t_heating_by, #15.5
+        "default_value": assumptions.t_bases.is_t_heating_by,
         "units": '°C',
         "sector": True,
         'regional_specific': False,
         'diffusion_type': 'linear'}
 
     # ============================================================
-    # Smart meter assumptions (Residential)
-    #
-    # DECC 2015: Smart Metering Early Learning Project: Synthesis report
-    # https://www.gov.uk/government/publications/smart-metering-early-learning-project-and-small-scale-behaviour-trials
-    # Reasonable assumption is between 0.03 and 0.01 (DECC 2015)
+    # Smart meter penetration
     # ============================================================
-    strategy_vars['smart_meter_improvement_p'] = {
-        "name": "smart_meter_improvement_p",
+    strategy_vars['smart_meter_p'] = {
+        "name": "smart_meter_p",
         "absolute_range": (0, 1),
         "description": "Improvement of smart meter penetration",
-        "suggested_range": (0, 0.9),
+        "suggested_range": (0, 1.0),
         "default_value": assumptions.smart_meter_assump['smart_meter_p_by'],
         "units": 'decimal',
         "sector": True,
@@ -359,7 +353,8 @@ def load_param_assump(
     # Cooling
     # ============================================================
     cooled_floorarea = {
-        'ss_cooling_humidification': assumptions.cooled_ss_floorarea_by}
+        'ss_cooling_humidification': assumptions.cooled_ss_floorarea_by,
+        'ss_fans': assumptions.cooled_ss_floorarea_by}
 
     for sub_param_name, sub_param_value in cooled_floorarea.items():
         strategy_vars['cooled_floorarea'][sub_param_name] = {
@@ -393,7 +388,10 @@ def load_param_assump(
     heat_recovered = {
         'rs_space_heating': 0,
         'ss_space_heating': 0,
-        'is_space_heating': 0}
+        'is_space_heating': 0,
+        'rs_water_heating': 0,
+        'ss_water_heating': 0
+        }
 
     for sub_param_name, sub_param_value in heat_recovered.items():
         strategy_vars['heat_recovered'][sub_param_name] = {
@@ -417,7 +415,6 @@ def load_param_assump(
         'is_space_heating': 0}
 
     for sub_param_name, sub_param_value in air_leakage.items():
-
         strategy_vars['air_leakage'][sub_param_name] = {
             "name": sub_param_name,
             "absolute_range": (0, 1),
@@ -631,7 +628,7 @@ def autocomplete_strategy_vars(strategy_vars, narrative_crit=False):
                         for narrative in sector_sub_var_entries:
 
                             if 'enduse' not in narrative:
-                                narrative['enduse'] = [sub_var_name] #TODO USED??
+                                narrative['enduse'] = [sub_var_name]
                             updated_narratives.append(narrative)
 
                         out_dict[var_name][sub_var_name] = updated_narratives

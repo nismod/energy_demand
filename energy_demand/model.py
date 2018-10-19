@@ -4,9 +4,9 @@ import logging
 from collections import defaultdict
 import numpy as np
 from sys import getsizeof
-from pympler import summary
-from pympler import muppy
-from pympler import refbrowser
+#from pympler import summary
+#from pympler import muppy
+#from pympler import refbrowser
 
 import energy_demand.enduse_func as endusefunctions
 from energy_demand.geography.region import Region
@@ -42,14 +42,12 @@ class EnergyDemandModel(object):
         ):
         """Constructor
         """
-        logging.info("... start main energy demand function")
-
         self.curr_yr = assumptions.curr_yr
 
         # ----------------------------
         # Create Weather Regions
         # ----------------------------
-        # current weather_yr
+        print("... generating current weather regions", flush=True)
         weather_regions_weather_cy = {}
         for weather_region in weather_stations[weather_yr]:
             weather_regions_weather_cy[weather_region] = WeatherRegion(
@@ -64,7 +62,7 @@ class EnergyDemandModel(object):
                 tech_lp=data['tech_lp'],
                 sectors=data['sectors'])
 
-        # base weather_yr
+        print("... generating base year weather regions", flush=True)
         weather_regions_weather_by = {}
         for weather_region in weather_stations[weather_by]:
             weather_regions_weather_by[weather_region] = WeatherRegion(
@@ -82,6 +80,7 @@ class EnergyDemandModel(object):
         # ------------------------
         # Create Dwelling Stock
         # ------------------------
+        print("...generating dwelling stocks", flush=True)
         if data['criterias']['virtual_building_stock_criteria']:
             rs_dw_stock, ss_dw_stock = create_virtual_dwelling_stocks(
                 regions, assumptions.curr_yr, data)
@@ -98,7 +97,7 @@ class EnergyDemandModel(object):
         # Initialise result container to aggregate results
         aggr_results = initialise_result_container(
             data['lookups']['fueltypes_nr'],
-            data['reg_nrs'],
+            assumptions.reg_nrs,
             submodels_enduses=data['enduses'])
 
         # -------------------------------------------
@@ -107,9 +106,7 @@ class EnergyDemandModel(object):
         for reg_array_nr, region in enumerate(regions):
 
             logging.info("... Simulate: region %s, simulation year: %s, weather_yr: %s, percent: (%s)",
-                region, assumptions.curr_yr, weather_yr, round((100/data['reg_nrs'])*reg_array_nr, 2))
-            #rint("... Simulate: region {}, simulation year: {}, weather_yr: {}, percent: ({})".format(
-            #2    region, assumptions.curr_yr, weather_yr, round((100/data['reg_nrs'])*reg_array_nr, 2)), flush=True)
+                region, assumptions.curr_yr, weather_yr, round((100/assumptions.reg_nrs)*reg_array_nr, 2))
 
             all_submodels = simulate_region(
                 region,
@@ -122,7 +119,7 @@ class EnergyDemandModel(object):
             # Aggregate results specifically over regions
             # ---------------------------------------------
             aggr_results = aggregate_results_constrained(
-                data['reg_nrs'],
+                assumptions.reg_nrs,
                 aggr_results,
                 reg_array_nr,
                 all_submodels,
@@ -147,7 +144,7 @@ class EnergyDemandModel(object):
             aggr_results,
             data['lookups']['fueltypes_nr'],
             data['lookups']['fueltypes'],
-            data['reg_nrs'],
+            data['assumptions'].reg_nrs,
             data['enduses'],
             data['assumptions'],
             data['criterias'],
@@ -443,13 +440,6 @@ def simulate_region(
                 else:
                     flat_profile_crit = False
 
-                if sector:
-                    fuel = region_obj.fuels[submodel_name][enduse][sector]
-                    fuel_tech_p_by = assumptions.fuel_tech_p_by[enduse][sector]
-                else:
-                    fuel = region_obj.fuels[submodel_name][enduse]
-                    fuel_tech_p_by = assumptions.fuel_tech_p_by[enduse]
-
                 if not data['dw_stocks'][submodel_name]:
                     dw_stock = False
                 else:
@@ -469,11 +459,11 @@ def simulate_region(
                     curr_yr=assumptions.curr_yr,
                     enduse=enduse,
                     sector=sector,
-                    fuel=fuel,
+                    fuel=region_obj.fuels[submodel_name][enduse][sector],
                     tech_stock=weather_region_obj.tech_stock[submodel_name],
                     heating_factor_y=weather_region_obj.f_heat[submodel_name],
                     cooling_factor_y=weather_region_obj.f_colling[submodel_name],
-                    fuel_tech_p_by=fuel_tech_p_by,
+                    fuel_tech_p_by=assumptions.fuel_tech_p_by[enduse][sector],
                     criterias=data['criterias'],
                     strategy_vars=assumptions.regional_vars[region_obj.name],
                     fueltypes_nr=data['lookups']['fueltypes_nr'],
@@ -490,7 +480,7 @@ def simulate_region(
     for submodel in data['lookups']['submodels_names']:
         submodels = get_all_submodels(submodel_objs, submodel)
         all_submodels.append(submodels)
-      
+   
     # remove garbage
     del region_obj
     del weather_region_obj
@@ -643,48 +633,6 @@ def aggr_complete_result(
                     full_result_aggr[submodel_nr][model_object.enduse][fueltype_nr][reg_array_nr] += fuels_8760
 
     return full_result_aggr
-
-#TODO IS THIS USED?
-def sum_enduse_all_regions(
-        aggr_dict,
-        sector_models,
-        technologies,
-        fueltypes_nr
-    ):
-    """Summarise an enduse attribute across all regions
-
-    Arguments
-    ----------
-    attribute_to_get : string
-        Enduse attribute to summarise
-    sector_models : List
-        List with sector models
-
-    Return
-    ------
-    enduse_dict : dict
-        Summarise enduses across all regions
-    """
-    for sector_model in sector_models:
-        for model_object in sector_model:
-
-            if model_object.enduse not in aggr_dict:
-                aggr_dict[model_object.enduse] = np.zeros((fueltypes_nr, 365, 24), dtype="float")
-
-            fuels = get_fuels_yh(
-                model_object,
-                'techs_fuel_yh')
-
-            if isinstance(fuels, dict):
-                for tech, fuel_tech in fuels.items():
-                    tech_fueltype = technologies[tech].fueltype_int
-                    aggr_dict[model_object.enduse][tech_fueltype] += fuel_tech
-            else:
-                fuels = get_fuels_yh(model_object, 'fuel_yh')
-
-                aggr_dict[model_object.enduse] += fuels
-
-    return aggr_dict
 
 def averaged_season_hourly(
         fueltype_region_yh,
