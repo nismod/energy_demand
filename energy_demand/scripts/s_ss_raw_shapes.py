@@ -252,7 +252,8 @@ def run(paths, local_paths, lookups):
     _, ss_sectors, ss_enduses = read_data.read_fuel_ss(
         paths['ss_fuel_raw'],
         lookups['fueltypes_nr'])
-
+    print("AA")
+    print(ss_sectors)
     # Iterate sectors and read in shape
     for sector in ss_sectors:
 
@@ -319,10 +320,5 @@ def run(paths, local_paths, lookups):
                 shape_non_peak_y_dh,
                 shape_non_peak_yd)
 
-    # ---------------------
-    # Compare Jan and Jul
-    # ---------------------
-    #ss_read_data.compare_jan_jul(main_dict_dayyear_absolute)
     print("... finished script %s", os.path.basename(__file__))
-
     return

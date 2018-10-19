@@ -247,8 +247,7 @@ def run(paths, local_paths, base_yr):
         'NOT_USED_unkown_3': 9,
         'rs_water_heating_showers': 10}
 
-    # HES data -- Generate generic load profiles
-    # for all electricity appliances from HES data
+    # HES data -- Generate generic load profiles for all electricity appliances from HES data
     hes_data, hes_y_peak = read_hes_data(
         paths['lp_rs'],
         len(hes_appliances_matching))
@@ -259,12 +258,12 @@ def run(paths, local_paths, base_yr):
         hes_data,
         int(base_yr))
 
-    rs_enduses, _, _= read_data.read_fuel_rs(
+    rs_enduses, _, _ = read_data.read_fuel_rs(
         paths['rs_fuel_raw'])
 
     # Load shape for all enduses
-    for dummy_sector in rs_enduses:
-        for enduse in rs_enduses[dummy_sector]:
+    for enduse in rs_enduses:
+        for dummy_sector in rs_enduses[enduse]:
             if enduse not in hes_appliances_matching:
 
                 # Merge shapes of water heating and shower

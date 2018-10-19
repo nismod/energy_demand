@@ -63,7 +63,7 @@ def post_install_setup(args):
     basic_functions.del_previous_setup(data['local_paths']['data_processed'])
     basic_functions.del_previous_setup(data['result_paths']['data_results'])
     basic_functions.del_previous_setup(data['local_paths']['path_post_installation_data'])
-
+    
     # Create folders and subfolder for data_processed
     folders_to_create = [
         data['local_paths']['data_processed'],
