@@ -388,7 +388,10 @@ def load_param_assump(
     heat_recovered = {
         'rs_space_heating': 0,
         'ss_space_heating': 0,
-        'is_space_heating': 0}
+        'is_space_heating': 0,
+        'rs_water_heating': 0,
+        'ss_water_heating': 0
+        }
 
     for sub_param_name, sub_param_value in heat_recovered.items():
         strategy_vars['heat_recovered'][sub_param_name] = {

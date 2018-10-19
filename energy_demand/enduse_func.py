@@ -385,20 +385,10 @@ def demand_management(
     fuel_yh : array
         Fuel of yh
     """
-    '''if enduse == "ss_small_power" and curr_yr > 2015:
-        print("______fdf______")
-        print(strategy_vars['dm_improvement'][enduse][curr_yr])
-        raise Exception'''
     # Get assumed load shift
     if strategy_vars['dm_improvement'][enduse][curr_yr] == 0:
         pass # no load management
     else:
-        
-        '''if enduse == "ss_small_power":
-            print("____________")
-            print(strategy_vars['dm_improvement'][enduse][curr_yr])
-            print(np.max(fuel_yh[2][10]))'''
-
         # Calculate average for every day
         if mode_constrained:
             average_fuel_yd = np.average(fuel_yh, axis=1)

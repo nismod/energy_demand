@@ -249,7 +249,6 @@ def create_narratives(
             narrative['diffusion_choice'] = str(row['diffusion_choice'])
         except KeyError:
             narrative['diffusion_choice'] = 'linear'
-
         try:
             if math.isnan(row['sig_midpoint']):
                 narrative['sig_midpoint'] = 0 # default value
@@ -257,7 +256,6 @@ def create_narratives(
                 narrative['sig_midpoint'] = float(row['sig_midpoint'])
         except KeyError:
             narrative['sig_midpoint'] = 0 # default value
-
         try:
             if math.isnan(row['sig_steepness']):
                 narrative['sig_steepness'] = 1 # default value
@@ -265,14 +263,12 @@ def create_narratives(
                 narrative['sig_steepness'] = float(row['sig_steepness'])
         except KeyError:
             narrative['sig_steepness'] = 1 # default value
-
         try:
             if str(row['regional_specific']) == 'True':
                 narrative['regional_specific'] = True #bool(1)
             else:
                 narrative['regional_specific'] = False #bool(0)
         except KeyError:
-
             # Read from original configuration whether
             #  this variable is regionally specific or not
             if crit_single_dim_param:
@@ -282,7 +278,6 @@ def create_narratives(
 
         # Append narrative to correct variable
         sector = narrative['sector']
-
         try:     
             parameter_narratives[sub_param_name][sector].append(narrative)
         except KeyError:
@@ -297,9 +292,7 @@ def create_narratives(
     autocomplet_param_narr = defaultdict(dict)
 
     for sub_param_name, narratives_sector in parameter_narratives.items():
-
         for sector, narratives in narratives_sector.items():
-
             autocomplet_param_narr[sub_param_name][sector] = []
 
             switches_to_create_narrative = get_sector_narrative(sector, narratives)
@@ -312,8 +305,6 @@ def create_narratives(
             all_yrs.sort()
 
             for year_cnt, year in enumerate(all_yrs):
-
-                # Get correct narrative
                 for narrative in switches_to_create_narrative:
                     if narrative['end_yr'] == year:
                         yr_narrative = narrative
@@ -321,7 +312,6 @@ def create_narratives(
 
                 # Add missing entries to narrative
                 if year_cnt == 0:
-
                     # Update
                     yr_narrative['base_yr'] = simulation_base_yr
                     yr_narrative['value_by'] = narrative['default_by']
@@ -330,7 +320,6 @@ def create_narratives(
                     previous_yr = narrative['end_yr']
                     previous_value = narrative['value_ey']
                 else:
-
                     # Update
                     yr_narrative['base_yr'] = previous_yr
                     yr_narrative['value_by'] = previous_value

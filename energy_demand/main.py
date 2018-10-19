@@ -154,7 +154,7 @@ if __name__ == "__main__":
         except:
             weather_station_count_nr = []
     else:
-        weather_yr_scenario = 2015                   # Default weather year
+        weather_yr_scenario = 2013 #TODO                   # Default weather year
         weather_station_count_nr = []                   # Default weather year
 
     print("Information")
@@ -338,7 +338,6 @@ if __name__ == "__main__":
                 data['weather_stations'],
                 counter=weather_station_count_nr,
                 weather_yr=weather_yr_scenario)
-            
             temp_data_selection[year][wheather_station_id] = data['temp_data'][year][wheather_station_id]
 
             if year == weather_yr_scenario:
@@ -418,7 +417,6 @@ if __name__ == "__main__":
 
     data['assumptions'].update('regional_vars', regional_vars)
     data['assumptions'].update('non_regional_vars', non_regional_vars)
-
     # ------------------------------------------------
     # Spatial Validation
     # ------------------------------------------------
