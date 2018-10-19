@@ -4,6 +4,7 @@ for a specific version
 import os
 import sys
 import zipfile
+
 from energy_demand.basic import basic_functions
 
 def zipdir(path, zip_handler):
@@ -40,7 +41,7 @@ def package_data(
     data_folder_path : str
         Path to store packaged data
     """
-    print("... start packaging data version: {}".format(version_name), flush=True)
+    print("... start packaging data version: {}".format(version_name))
 
     # Delete all processes files
     path_folder = os.path.join(data_folder_path, "scenarios", "MISTRAL_pop_gva")

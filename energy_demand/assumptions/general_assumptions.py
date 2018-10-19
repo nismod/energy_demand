@@ -49,13 +49,17 @@ class Assumptions(object):
         """Constructor
         """
         self.submodels_names = submodels_names
-        self.nr_of_submodels = len(submodels_names)
         self.base_yr = base_yr
         self.weather_by = weather_by
         self.reg_nrs = reg_nrs
         self.simulation_end_yr = simulation_end_yr
         self.curr_yr = curr_yr
         self.simulated_yrs = simulated_yrs
+
+        if not submodels_names:
+            self.nr_of_submodels = 0
+        else:
+            self.nr_of_submodels = len(submodels_names)
 
         # ============================================================
         # Spatially modelled variables
