@@ -119,7 +119,8 @@ def paper_II_plots(
         simulation_yrs = [2015, 2050]
 
         # Select field to plot
-        field_to_plot = "std_deviation_p_demand_peak_h"
+        field_to_plot = "std_deviation_df_demand_in_peak_h_per_pp"
+        #field_to_plot = "std_deviation_p_demand_peak_h"
         #field_to_plot = "std_deviation_abs_demand_peak_h"
 
         fig_spatial_distribution_of_peak.run_fig_spatial_distribution_of_peak(

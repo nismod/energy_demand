@@ -107,8 +107,6 @@ class EnergyDemandModel(object):
 
             logging.info("... Simulate: region %s, simulation year: %s, weather_yr: %s, percent: (%s)",
                 region, assumptions.curr_yr, weather_yr, round((100/assumptions.reg_nrs)*reg_array_nr, 2))
-            print("... Simulate: region {}, simulation year: {}, weather_yr: {}, percent: ({})".format(
-                region, assumptions.curr_yr, weather_yr, round((100/assumptions.reg_nrs)*reg_array_nr, 2)), flush=True)
 
             all_submodels = simulate_region(
                 region,
