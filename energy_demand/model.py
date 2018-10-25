@@ -1,5 +1,6 @@
 """The function `EnergyDemandModel` executes all the submodels of the energy demand model
 """
+import gc
 import logging
 from collections import defaultdict
 import numpy as np
@@ -129,6 +130,7 @@ class EnergyDemandModel(object):
                 data['technologies'])
 
             del all_submodels
+            gc.collect(0)
 
         # ------------------------------
         # Plot generation to correlate HDD and energy demand

@@ -10,7 +10,8 @@ from energy_demand.plotting import fig_p2_spatial_weather_map
 
 def paper_II_plots(
         #path_to_folder_with_scenarios="C:/Users/cenv0553/ed/results/_multiple_TEST_two_scenarios",
-        path_to_folder_with_scenarios="C:/Users/cenv0553/ed/results/_Fig2_multiple_all_yrs_all_stations",
+        #path_to_folder_with_scenarios="C:/Users/cenv0553/ed/results/_Fig2_multiple_all_yrs_all_stations",
+        path_to_folder_with_scenarios="/soge-home/staff/cenv0553/ED/results",
         path_shapefile_input="C:/Users/cenv0553/ED/data/region_definitions/lad_2016_uk_simplified.shp"
     ):
     """Iterate the folders with scenario
@@ -22,7 +23,6 @@ def paper_II_plots(
     path_to_folder_with_scenarios : str
         Path to folders with stored results
     """
-
     # Chose which plots should be generated
     plot_crit_dict = {
 

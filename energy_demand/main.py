@@ -11,6 +11,7 @@
 # Weather station cleaning: Replace days with missing values
 #TODO IMROVE PLOTTING (second round of geopanda classification)
 # # Fix regional plots
+# Potentially add enduses in array
 # TEST NON CONSTRAINED MODE
 #   Note
     ----
@@ -113,6 +114,7 @@ if __name__ == "__main__":
     data['criterias']['mode_constrained'] = True                    # True: Technologies are defined in ED model and fuel is provided, False: Heat is delievered not per technologies
     data['criterias']['virtual_building_stock_criteria'] = True     # True: Run virtual building stock model
     data['criterias']['spatial_calibration'] = False
+    data['criterias']['cluster_calc'] = False
 
     fast_model_run = False
     if fast_model_run == True:
@@ -131,7 +133,7 @@ if __name__ == "__main__":
     # -------------------
     # Other configuration
     # -------------------
-    RESILIENCEPAPERPOUTPUT = True     # Output data for resilience paper
+    RESILIENCEPAPERPOUTPUT = False     # Output data for resilience paper
 
     # If the smif configuration files what to be written, set this to true. The program will abort after they are written to YAML files
     data['criterias']['writeYAML'] = False
@@ -165,17 +167,18 @@ if __name__ == "__main__":
     # --- Region definition configuration
     name_region_set = os.path.join(local_data_path, 'region_definitions', "lad_2016_uk_simplified.shp")        # LAD
 
+    local_scenario = 'pop-a_econ-c_fuel-c'
     #name_population_dataset = os.path.join(local_data_path, 'scenarios', 'uk_pop_high_migration_2015_2050.csv')
     #name_population_dataset = os.path.join(local_data_path, 'scenarios', 'uk_pop_constant_2015_2050.csv') # Constant scenario
-    name_population_dataset = os.path.join(local_data_path, 'scenarios', 'MISTRAL_pop_gva', 'data', 'pop-a_econ-c_fuel-c/population__lad.csv') # Constant scenario
+    name_population_dataset = os.path.join(local_data_path, 'scenarios', 'MISTRAL_pop_gva', 'data', '{}/population__lad.csv'.format(local_scenario)) # Constant scenario
     # MSOA model run
     #name_region_set_selection = "msoa_regions_ed.csv"
     #name_region_set = os.path.join(local_data_path, 'region_definitions', 'msoa_uk', "msoa_lad_2015_uk.shp")    # MSOA
     #name_population_dataset = os.path.join(local_data_path, 'scenarios', 'uk_pop_high_migration_2015_2050.csv')
 
     # GVA datasets
-    name_gva_dataset = os.path.join(local_data_path, 'scenarios', 'MISTRAL_pop_gva', 'data', 'pop-a_econ-c_fuel-c/gva_per_head__lad_sector.csv') # Constant scenario
-    name_gva_dataset_per_head = os.path.join(local_data_path, 'scenarios', 'MISTRAL_pop_gva', 'data', 'pop-a_econ-c_fuel-c/gva_per_head__lad.csv') # Constant scenario
+    name_gva_dataset = os.path.join(local_data_path, 'scenarios', 'MISTRAL_pop_gva', 'data', '{}/gva_per_head__lad_sector.csv'.format(local_scenario))
+    name_gva_dataset_per_head = os.path.join(local_data_path, 'scenarios', 'MISTRAL_pop_gva', 'data', '{}/gva_per_head__lad.csv'.format(local_scenario))
 
     # --------------------
     # Paths
@@ -309,9 +312,9 @@ if __name__ == "__main__":
         data['assumptions'].update("rs_regions_without_floorarea", rs_regions_without_floorarea)
         data['assumptions'].update("ss_regions_without_floorarea", ss_regions_without_floorarea)
 
-    print("Start Energy Demand Model with python version: " + str(sys.version), flush=True)
-    print("-----------------------------------------------", flush=True)
-    print("Number of Regions                        " + str(data['assumptions'].reg_nrs), flush=True)
+    print("Start Energy Demand Model with python version: " + str(sys.version))
+    print("-----------------------------------------------")
+    print("Number of Regions                        " + str(data['assumptions'].reg_nrs))
 
     # Obtain population data for disaggregation
     if data['criterias']['MSOA_crit']:
@@ -354,10 +357,11 @@ if __name__ == "__main__":
     data['temp_data'] = dict(temp_data_selection)
 
     # Plot map with weather station
-    data_loader.create_weather_station_map(
-        data['weather_stations'][weather_yr_scenario],
-        os.path.join(data['path_new_scenario'], 'weatherst_distr_weathyr_{}.pdf'.format(weather_yr_scenario)),
-        path_shapefile=data['local_paths']['lad_shapefile'])
+    if data['criterias']['cluster_calc'] != True:
+        data_loader.create_weather_station_map(
+            data['weather_stations'][weather_yr_scenario],
+            os.path.join(data['path_new_scenario'], 'weatherst_distr_weathyr_{}.pdf'.format(weather_yr_scenario)),
+            path_shapefile=data['local_paths']['lad_shapefile'])
 
     # ------------------------------------------------------------
     # Disaggregate national energy demand to regional demands
@@ -376,7 +380,7 @@ if __name__ == "__main__":
         real_values=real_values,
         narrative_speed_con_max=data['assumptions'].strategy_vars['speed_con_max'])
 
-    print("Criteria all regions the same:           " + str(crit_all_the_same), flush=True)
+    print("Criteria all regions the same:           " + str(crit_all_the_same))
 
     # ------------------------------------------------
     # Calculate parameter values for every region
@@ -395,7 +399,7 @@ if __name__ == "__main__":
     # Calculate parameter values for every simulated year based on narratives
     # and add also general information containter for every parameter
     # -----------------------------------------------------------------
-    print("... starting calculating values for every year", flush=True)
+    print("... starting calculating values for every year")
     regional_vars, non_regional_vars = s_scenario_param.generate_annual_param_vals(
         data['regions'],
         data['assumptions'].strategy_vars,
@@ -404,7 +408,7 @@ if __name__ == "__main__":
     # ------------------------------------------------
     # Calculate switches
     # ------------------------------------------------
-    print("... starting calculating switches", flush=True)
+    print("... starting calculating switches")
     annual_tech_diff_params = init_scripts.switch_calculations(
         simulated_yrs,
         data,
@@ -420,7 +424,7 @@ if __name__ == "__main__":
     # ------------------------------------------------
     # Spatial Validation
     # ------------------------------------------------
-    if data['criterias']['validation_criteria'] == True:
+    if data['criterias']['validation_criteria'] == True and data['criterias']['cluster_calc'] != True:
         lad_validation.spatial_validation_lad_level(
             data['fuel_disagg'],
             data['lookups'],
@@ -464,7 +468,7 @@ if __name__ == "__main__":
     # Main model run function
     # -----------------------
     for sim_yr in data['assumptions'].simulated_yrs:
-        print("Local simulation for year:  " + str(sim_yr), flush=True)
+        print("Local simulation for year:  " + str(sim_yr))
 
         # Set current year
         setattr(data['assumptions'], 'curr_yr', sim_yr)
@@ -505,7 +509,7 @@ if __name__ == "__main__":
         # ------------------------------------------------
         # Temporal Validation
         # ------------------------------------------------
-        if data['criterias']['validation_criteria'] == True and sim_yr == data['assumptions'].base_yr:
+        if (data['criterias']['validation_criteria'] == True and sim_yr == data['assumptions'].base_yr) and data['criterias']['cluster_calc'] != True:
             lad_validation.spatio_temporal_val(
                 sim_obj.ed_fueltype_national_yh,
                 sim_obj.ed_fueltype_regs_yh,
