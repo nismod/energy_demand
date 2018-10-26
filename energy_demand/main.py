@@ -156,7 +156,7 @@ if __name__ == "__main__":
         except:
             weather_station_count_nr = []
     else:
-        weather_yr_scenario = 2013 #TODO                   # Default weather year
+        weather_yr_scenario = 2015                      # Default weather year
         weather_station_count_nr = []                   # Default weather year
 
     print("Information")
@@ -200,7 +200,7 @@ if __name__ == "__main__":
     # ----------------------------------------------------------------------
     data['scenario_data'] = defaultdict(dict)
     data['lookups'] = lookup_tables.basic_lookups()
-    data['enduses'], data['sectors'], data['fuels'] = data_loader.load_fuels(
+    data['enduses'], data['sectors'], data['fuels'], lookup_enduses = data_loader.load_fuels(
         data['lookups']['submodels_names'], data['paths'], data['lookups']['fueltypes_nr'])
 
     data['regions'] = read_data.get_region_names(name_region_set)
@@ -229,6 +229,7 @@ if __name__ == "__main__":
     # -----------------------------
     data['assumptions'] = general_assumptions.Assumptions(
         submodels_names=data['lookups']['submodels_names'],
+        lookup_enduses=lookup_enduses,
         base_yr=user_defined_base_yr,
         weather_by=user_defined_weather_by,
         simulation_end_yr=user_defined_simulation_end_yr,

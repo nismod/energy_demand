@@ -5,9 +5,6 @@ import logging
 from collections import defaultdict
 import numpy as np
 from sys import getsizeof
-#from pympler import summary
-#from pympler import muppy
-#from pympler import refbrowser
 
 import energy_demand.enduse_func as endusefunctions
 from energy_demand.geography.region import Region
@@ -99,6 +96,7 @@ class EnergyDemandModel(object):
         aggr_results = initialise_result_container(
             data['lookups']['fueltypes_nr'],
             assumptions.reg_nrs,
+            assumptions.lookup_enduses,
             submodels_enduses=data['enduses'])
 
         # -------------------------------------------
@@ -121,6 +119,7 @@ class EnergyDemandModel(object):
             # ---------------------------------------------
             aggr_results = aggregate_results_constrained(
                 assumptions.reg_nrs,
+                assumptions.lookup_enduses,
                 aggr_results,
                 reg_array_nr,
                 all_submodels,
@@ -129,8 +128,8 @@ class EnergyDemandModel(object):
                 assumptions.enduse_space_heating,
                 data['technologies'])
 
-            del all_submodels
-            gc.collect(0)
+            #del all_submodels
+            #gc.collect(0)
 
         # ------------------------------
         # Plot generation to correlate HDD and energy demand
@@ -145,6 +144,7 @@ class EnergyDemandModel(object):
         aggr_results = aggregate_across_all_regs(
             aggr_results,
             data['lookups']['fueltypes_nr'],
+            data['assumptions'].lookup_enduses,
             data['lookups']['fueltypes'],
             data['assumptions'].reg_nrs,
             data['enduses'],
@@ -159,6 +159,7 @@ class EnergyDemandModel(object):
 def aggregate_across_all_regs(
         aggr_results,
         fueltypes_nr,
+        lookup_enduses,
         fueltypes,
         reg_nrs,
         enduses,
@@ -197,7 +198,10 @@ def aggregate_across_all_regs(
         if submodel == 0:
             for enduse in aggr_results['ed_submodel_enduse_fueltype_regs_yh'][submodel]:
 
+                #enduse_array_nr = lookup_enduses[enduse]
+                
                 # Sum across all hours in a year
+                ##array_init += np.sum(aggr_results['ed_submodel_enduse_fueltype_regs_yh'][submodel][enduse_array_nr], axis=2)
                 array_init += np.sum(aggr_results['ed_submodel_enduse_fueltype_regs_yh'][submodel][enduse], axis=2)
         else:
             pass
@@ -208,6 +212,7 @@ def aggregate_across_all_regs(
     # ----------------------------------------------------
     array_init = np.zeros((fueltypes_nr, reg_nrs, 8760))
     aggr_results['ed_fueltype_regs_yh'] = aggregate_from_full_results(
+        assumptions.lookup_enduses,
         array_init,
         aggr_results['ed_submodel_enduse_fueltype_regs_yh'],
         time_resolution='8760_h',
@@ -220,6 +225,7 @@ def aggregate_across_all_regs(
     # ----------------------------------------------------
     array_init = np.zeros((fueltypes_nr, 365, 24))
     aggr_results['ed_fueltype_national_yh'] = aggregate_from_full_results(
+        assumptions.lookup_enduses,
         array_init,
         aggr_results['ed_submodel_enduse_fueltype_regs_yh'],
         time_resolution='365_24',
@@ -235,6 +241,7 @@ def aggregate_across_all_regs(
         for enduse in enduses[submodel]:
             array_init[enduse] = np.zeros((fueltypes_nr, 8760))
     aggr_results['tot_fuel_y_enduse_specific_yh'] = aggregate_from_full_results(
+        assumptions.lookup_enduses,
         array_init,
         aggr_results['ed_submodel_enduse_fueltype_regs_yh'],
         time_resolution='8760_h',
@@ -484,9 +491,9 @@ def simulate_region(
         all_submodels.append(submodels)
    
     # remove garbage
-    del region_obj
-    del weather_region_obj
-    del region_fuel_disagg
+    #del region_obj
+    #del weather_region_obj
+    #del region_fuel_disagg
 
     return all_submodels
 
@@ -596,6 +603,7 @@ def get_fuels_yh(enduse_object, attribute_to_get):
 
 def aggr_complete_result(
         full_result_aggr,
+        lookup_enduses,
         reg_array_nr,
         sector_models,
         technologies
@@ -622,6 +630,10 @@ def aggr_complete_result(
         for model_object in sector_model:
             fuels = get_fuels_yh(model_object, 'techs_fuel_yh')
 
+            # NEW
+            ##enduse_array_nr = lookup_enduses[model_object.enduse]
+            ##full_result_aggr[submodel_nr][enduse_array_nr][fueltype_nr][reg_array_nr] += fuels_8760
+
             if isinstance(fuels, dict):
                 for tech, fuel_tech in fuels.items():
                     tech_fueltype = technologies[tech].fueltype_int
@@ -631,7 +643,8 @@ def aggr_complete_result(
 
                 # Iterate over fueltype and add to region
                 fueltype_yh_8760 = fueltype_yh_365_24.reshape(fueltype_yh_365_24.shape[0], 8760)
-                for fueltype_nr, fuels_8760 in enumerate(fueltype_yh_8760):
+
+                for fueltype_nr, fuels_8760 in enumerate(fueltype_yh_8760): #TODO NECESSARY??
                     full_result_aggr[submodel_nr][model_object.enduse][fueltype_nr][reg_array_nr] += fuels_8760
 
     return full_result_aggr
@@ -815,13 +828,16 @@ def aggregate_result_unconstrained(
 
     for submodel_nr, (_, submodel_enduses) in enumerate(submodels_enduses.items()):
         for enduse in submodel_enduses:
+
+            #enduse_array_nr = enduse_lookup[enduse]
             for fueltype_nr in range(fueltypes_nr):
                 for region_nr in range(reg_nrs):
+                    ##constrained_array[submodel_nr][region_nr][fueltype_nr] += ed_submodel_enduse_fueltype_regs_yh[submodel_nr][enduse_array_nr][fueltype_nr][region_nr]
                     constrained_array[submodel_nr][region_nr][fueltype_nr] += ed_submodel_enduse_fueltype_regs_yh[submodel_nr][enduse][fueltype_nr][region_nr]
 
     return constrained_array
 
-def aggregate_result_constrained(
+'''def aggregate_result_constrained(
         tot_fuel_y_enduse_specific_yh,
         submodels_enduses,
         fueltypes_nr,
@@ -861,10 +877,11 @@ def aggregate_result_constrained(
                         results_constrained[heating_tech] = np.zeros((len(all_submodels), reg_nrs, fueltypes_nr, 365, 24), dtype="float")
                         results_constrained[heating_tech][submodel_nr][reg_array_nr][fueltype_tech_int] += tech_fuel
 
-    return results_constrained
+    return results_constrained'''
 
 def aggregate_results_constrained(
         reg_nrs,
+        lookup_enduses,
         aggr_results,
         reg_array_nr,
         all_submodels,
@@ -907,6 +924,7 @@ def aggregate_results_constrained(
     """
     aggr_results['ed_submodel_enduse_fueltype_regs_yh'] = aggr_complete_result(
         aggr_results['ed_submodel_enduse_fueltype_regs_yh'],
+        lookup_enduses,
         reg_array_nr,
         all_submodels,
         technologies)
@@ -947,6 +965,7 @@ def aggregate_results_constrained(
 def initialise_result_container(
         fueltypes_nr,
         reg_nrs,
+        lookup_enduses,
         submodels_enduses
     ):
     """Create container with empty dict or arrays
@@ -959,6 +978,8 @@ def initialise_result_container(
         Number of fueltypes
     sectors : list
         Sectors
+    lookup_enduses : dict
+        Lookup of enduses of array position
     reg_nrs : int
         Number of regions
 
@@ -976,10 +997,19 @@ def initialise_result_container(
         for enduse in submodels_enduses[submodel]:
             container['ed_submodel_enduse_fueltype_regs_yh'][submodel_nr][enduse] = np.zeros((
                 fueltypes_nr, reg_nrs, 8760), dtype="float")
+    
+    '''# NEW
+    container['ed_submodel_enduse_fueltype_regs_yh'] = np.zeros((
+        len(submodels_enduses),
+        len(lookup_enduses),
+        fueltypes_nr,
+        reg_nrs,
+        8760), dtype="float")'''
 
     return container
 
 def aggregate_from_full_results(
+        enduse_lookup,
         aggregated_container,
         full_sim_data,
         time_resolution,
@@ -1000,7 +1030,8 @@ def aggregate_from_full_results(
     """
     for submodel_nr in full_sim_data:
         for enduse in full_sim_data[submodel_nr]:
-
+            
+            #enduse_array_nr = enduse_lookup[enduse]
             # Get full data
             reg_fueltype_8760h = np.copy(full_sim_data[submodel_nr][enduse])
 
@@ -1033,6 +1064,7 @@ def aggregate_from_full_results(
                 if per_region:
                     if per_enduse:
                         aggregated_container[enduse] += demand
+                        ##aggregated_container[enduse_array_nr] += demand
                     else:
                         aggregated_container += demand
                 else:
@@ -1041,6 +1073,7 @@ def aggregate_from_full_results(
 
                     if per_enduse:
                         aggregated_container[enduse] += demand
+                        ##aggregated_container[enduse_array_nr] += demand
                     else:
                         aggregated_container += demand
 

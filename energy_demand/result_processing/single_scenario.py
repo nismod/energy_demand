@@ -78,7 +78,6 @@ def main(
         # ---------------
         # Folder cleaning
         # ---------------
-        print("A " + str(data['result_paths']['data_results_PDF']))
         basic_functions.del_previous_setup(data['result_paths']['data_results_PDF'])
         basic_functions.del_previous_setup(data['result_paths']['data_results_shapefiles'])
         basic_functions.create_folder(data['result_paths']['data_results_PDF'])

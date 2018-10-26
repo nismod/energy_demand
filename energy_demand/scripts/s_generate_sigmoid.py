@@ -515,9 +515,7 @@ def tech_sigmoid_parameters(
     number_of_iterations = 100  # Number of iterations of sigmoid fitting algorithm                                 # 1000
 
     # Technologies to apply calculation
-    ##installed_techs = s_tech_switched_p.keys()
-    installed_techs = s_tech_by_p.keys() #NEW
-
+    installed_techs = s_tech_by_p.keys()
     sig_params = defaultdict(dict)
 
     # Fitting criteria where the calculated sigmoid slope and midpoint can be provided limits

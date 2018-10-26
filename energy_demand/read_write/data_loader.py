@@ -953,6 +953,7 @@ def load_fuels(submodels_names, paths, fueltypes_nr):
         yearly fuels for every submodel
     """
     enduses, sectors, fuels = {}, {}, {}
+    enduses_lookup = {}
 
     # -------------------------------
     # submodels_names[0]: Residential SubmodelSubmodel
@@ -983,7 +984,12 @@ def load_fuels(submodels_names, paths, fueltypes_nr):
         for enduse in enduses[submodel]:
             fuels['aggr_sector_fuels'][enduse] = sum(fuels[submodel][enduse].values())
 
-    return enduses, sectors, fuels
+    cnt = 0
+    for submodel in enduses:
+        for enduse in enduses[submodel]:
+            enduses_lookup[enduse] = cnt
+
+    return enduses, sectors, fuels, enduses_lookup
 
 def rs_collect_shapes_from_txts(txt_path, model_yeardays):
     """All pre-processed load shapes are read in from .txt files

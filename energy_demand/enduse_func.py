@@ -1231,7 +1231,7 @@ def apply_weather_correction(
     f_weather_correction : dict
         Correction factors to calculate hdd and cdd
         related extra demands in case a different
-        weather than the simulation base year is used
+        weather station is used
 
     Return
     ------
@@ -1247,9 +1247,10 @@ def apply_weather_correction(
     if enduse in enduse_space_heating:
 
         # Apply correction factor for different weather year
+        # which has different wheather stations and associated temperatures
         fuel_y = fuel_y * f_weather_correction['hdd']
 
-        # Apply correction factor for change in climate
+        # Apply correction factor for change in climate over simulation period
         fuel_y = fuel_y * heating_factor_y
 
     elif enduse in enduse_space_cooling:
