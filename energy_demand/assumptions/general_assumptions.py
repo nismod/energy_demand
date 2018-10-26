@@ -34,6 +34,7 @@ class Assumptions(object):
             self,
             submodels_names=None,
             lookup_enduses=None,
+            lookup_sector_enduses=None,
             base_yr=None,
             weather_by=None,
             simulation_end_yr=None,
@@ -51,6 +52,7 @@ class Assumptions(object):
         """
         self.submodels_names = submodels_names
         self.lookup_enduses = lookup_enduses
+        self.lookup_sector_enduses = lookup_sector_enduses
         self.base_yr = base_yr
         self.weather_by = weather_by
         self.reg_nrs = reg_nrs

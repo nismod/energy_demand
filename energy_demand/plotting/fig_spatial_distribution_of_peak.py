@@ -32,7 +32,6 @@ def run_fig_spatial_distribution_of_peak(
     fueltype_int = tech_related.get_fueltype_int(fueltype_str)
 
     for scenario in scenarios:
-
         path_scenario = os.path.join(path_to_folder_with_scenarios, scenario)
         all_result_folders = os.listdir(path_scenario)
 
@@ -43,12 +42,10 @@ def run_fig_spatial_distribution_of_peak(
                 weather_yrs.append(weather_yr)
                 tupyle_yr_path = (weather_yr, os.path.join(path_scenario))
                 calculated_yrs_paths.append(tupyle_yr_path)
-
             except ValueError:
                 pass
 
     for simulation_yr in simulation_yrs:
-
         container = {}
         container['abs_demand_in_peak_h_pp'] = {}
         container['abs_demand_in_peak_h'] = {}
@@ -105,6 +102,13 @@ def run_fig_spatial_distribution_of_peak(
             # Relative fraction of regional demand in relation to peak
             container['p_demand_in_peak_h'][weather_yr] = (demand_in_peak_h / national_peak_GW ) * 100 # given as percent
 
+            print("=================================")
+            print("{}  {}  {}  {}".format(
+                simulation_yr,
+                weather_yr,
+                np.sum(ele_regions_8760),
+                national_peak_GW))
+
         # --------------
         # Create dataframe with all weather yrs calculatiosn for every region
             
@@ -134,6 +138,11 @@ def run_fig_spatial_distribution_of_peak(
             columns=regions,
             index=list(container['abs_demand_in_peak_h_pp'].keys()))
 
+        # Absolute peak value - mean
+        max_peak_h_across_weather_yrs = df_abs_peak_demand.max()
+        average_across_weather_yrs = df_abs_peak_demand.mean()
+        diff_peak_h_minus_mean = max_peak_h_across_weather_yrs - average_across_weather_yrs
+
         for index, row in df_p_peak_demand.iterrows():
             print("Weather yr: {} Total p: {}".format(index, np.sum(row)))
             assert round(np.sum(row), 4) == 100.0
@@ -141,11 +150,14 @@ def run_fig_spatial_distribution_of_peak(
         # ----------------------------
         # Calculate standard deviation
         # ----------------------------
-        print("A ")
-        print(df_abs_demand_in_peak_h_pp)
         std_deviation_df_abs_demand_in_peak_h_pp = df_abs_demand_in_peak_h_pp.std()
         std_deviation_abs_demand_peak_h = df_abs_peak_demand.std()
         std_deviation_p_demand_peak_h = df_p_peak_demand.std()
+
+        print("=========")
+        print("National stats")
+        print("=========")
+        print("Sum of std of absolut peak demand:  " + str(np.sum(std_deviation_abs_demand_peak_h)))
 
         # --------------------
         # Create map
@@ -154,7 +166,8 @@ def run_fig_spatial_distribution_of_peak(
             'name',
             'std_deviation_p_demand_peak_h',
             'std_deviation_abs_demand_peak_h',
-            'std_deviation_df_abs_demand_in_peak_h_pp']
+            'std_deviation_df_abs_demand_in_peak_h_pp',
+            'diff_peak_h_minus_mean']
 
         df_stats = pd.DataFrame(columns=regional_statistics_columns)
 
@@ -165,7 +178,8 @@ def run_fig_spatial_distribution_of_peak(
                 region_name,
                 std_deviation_p_demand_peak_h[region_name],
                 std_deviation_abs_demand_peak_h[region_name],
-                std_deviation_df_abs_demand_in_peak_h_pp[region_name]
+                std_deviation_df_abs_demand_in_peak_h_pp[region_name],
+                diff_peak_h_minus_mean[region_name],
                 ]]
 
             line_df = pd.DataFrame(line_entry, columns=regional_statistics_columns)

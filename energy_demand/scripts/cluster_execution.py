@@ -12,6 +12,7 @@ from energy_demand.read_write import read_weather_data
 def my_function(simulation_number):  
     print('simulation_number ' + str(simulation_number))
 
+    run_name = '_low'
     all_weather_stations = False
 
     same_weather_yr = True
@@ -49,7 +50,7 @@ def my_function(simulation_number):
         #os.system(bash_command)
         pass
     else:
-        bash_command = "python energy_demand/energy_demand/main.py {} {}".format(weather_yr, weather_station_cnt)
+        bash_command = "python energy_demand/energy_demand/main.py {} {} {}".format(run_name, weather_yr, weather_station_cnt)
         os.system(bash_command)
     return 
 

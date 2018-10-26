@@ -50,6 +50,28 @@ def paper_II_plots(
         "plot_scenarios_sorted": True,
         }
 
+
+    ####################################################################
+    # Plot scenarios 
+    ####################################################################
+    from energy_demand.plotting import fig_p2_total_demand_national_scenarios
+    simulation_yrs = [2015, 2050]
+
+    scenario_result_paths = [
+        "C:/Users/cenv0553/ed/results/_scenario_low_elec",
+        "C:/Users/cenv0553/ed/results/_scenario_high_elec"]
+    
+    # Create result folder
+    path_out_plots = os.path.join("C:/Users/cenv0553/ed/results/_results_nationalFIGS")
+    basic_functions.del_previous_setup(path_out_plots)
+    basic_functions.create_folder(path_out_plots)
+    
+    fig_p2_total_demand_national_scenarios.total_demand_national_scenarios(
+        scenario_result_paths,
+        simulation_yrs=simulation_yrs,
+        fueltype_str='electricity',
+        path_out_plots=os.path.join(path_out_plots, "PDF_national_scenarios.pdf"))
+
     ####################################################################
     # Plot weather station availability map
     ####################################################################
@@ -123,7 +145,8 @@ def paper_II_plots(
 
         # Select simulation years
         simulation_yrs = [2015, 2050]
-        unit = 'kW' # 'GW'
+        unit = 'kW' #'GW'
+
         # Plot standard deviation of demand per person in peak hour
         fig_spatial_distribution_of_peak.run_fig_spatial_distribution_of_peak(
             only_scenarios,
@@ -153,9 +176,20 @@ def paper_II_plots(
             field_to_plot='std_deviation_abs_demand_peak_h',
             unit=unit,
             fig_path=path_out_plots)
-        
+
+        # Plot maximum peak hour - mean peak hour demand
+        fig_spatial_distribution_of_peak.run_fig_spatial_distribution_of_peak(
+            only_scenarios,
+            scenario_path_all_stations_single_weather_yr,
+            path_shapefile_input,
+            simulation_yrs=simulation_yrs,
+            field_to_plot='diff_peak_h_minus_mean',
+            unit='GW',
+            fig_path=path_out_plots)
+
         print("... plotted variability maps")
 
+    
     print("Finihsed")
     raise Exception("Finished")
 

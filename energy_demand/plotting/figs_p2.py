@@ -85,20 +85,6 @@ def main(
         weather_yr_container['tot_fueltype_yh'][weather_yr] = results_container['tot_fueltype_yh'] #tot_fueltype_yh
         weather_yr_container['results_enduse_every_year'][weather_yr] = results_container['ed_fueltype_regs_yh']
 
-    '''# ####################################################################
-    # Spatial maps of weather variability
-    # ####################################################################
-    if plot_crit_dict['plot_spatial_weather_var_peak']:
-        # Plot maps of spatial variabioly related to heating use
-        fig_weather_variability_priod.run(
-            data_input=weather_yr_container['results_enduse_every_year'],
-            regions=data['regions'],
-            simulation_yr_to_plot=2015, # Simulation year to plot
-            population=population_data[2015],
-            fueltype_str='electricity',
-            path_shapefile=path_shapefile_input,
-            fig_name=os.path.join(path_out_plots, "fig_paper_IIb_weather_var_map.pdf"))'''
-    
     # ####################################################################
     # Create plot with regional and non-regional plots for second paper
     # Compare hdd calculations and disaggregation of regional and local
