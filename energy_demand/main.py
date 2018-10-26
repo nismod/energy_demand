@@ -156,7 +156,7 @@ if __name__ == "__main__":
         except:
             weather_station_count_nr = []
     else:
-        weather_yr_scenario = 2015                      # Default weather year
+        weather_yr_scenario = 2013                      # Default weather year
         weather_station_count_nr = []                   # Default weather year
 
     print("Information")
@@ -664,9 +664,6 @@ if __name__ == "__main__":
                 'reg_load_factor_autumn')'''
 
             print("... Finished writing results to file")
-
-        #remove garbage
-        del sim_obj
 
     print("-------------------------")
     print("... Finished running HIRE")

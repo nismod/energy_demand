@@ -45,7 +45,7 @@ class EnergyDemandModel(object):
         # ----------------------------
         # Create Weather Regions
         # ----------------------------
-        print("... generating current weather regions", flush=True)
+        print("... generating cy weather regions", flush=True)
         weather_regions_weather_cy = {}
         for weather_region in weather_stations[weather_yr]:
             weather_regions_weather_cy[weather_region] = WeatherRegion(
@@ -60,7 +60,7 @@ class EnergyDemandModel(object):
                 tech_lp=data['tech_lp'],
                 sectors=data['sectors'])
 
-        print("... generating base year weather regions", flush=True)
+        print("... generating by weather regions", flush=True)
         weather_regions_weather_by = {}
         for weather_region in weather_stations[weather_by]:
             weather_regions_weather_by[weather_region] = WeatherRegion(
@@ -78,7 +78,7 @@ class EnergyDemandModel(object):
         # ------------------------
         # Create Dwelling Stock
         # ------------------------
-        print("...generating dwelling stocks", flush=True)
+        print("... generating cy dwelling stocks", flush=True)
         if data['criterias']['virtual_building_stock_criteria']:
             rs_dw_stock, ss_dw_stock = create_virtual_dwelling_stocks(
                 regions, assumptions.curr_yr, data)
@@ -102,10 +102,13 @@ class EnergyDemandModel(object):
         # -------------------------------------------
         # Simulate regions
         # -------------------------------------------
+        print("... generating by dwelling stocks", flush=True)
         for reg_array_nr, region in enumerate(regions):
 
             logging.info("... Simulate: region %s, simulation year: %s, weather_yr: %s, percent: (%s)",
                 region, assumptions.curr_yr, weather_yr, round((100/assumptions.reg_nrs)*reg_array_nr, 2))
+            print("... Simulate: region %s, simulation year: %s, weather_yr: %s, percent: (%s)",
+                region, assumptions.curr_yr, weather_yr, round((100/assumptions.reg_nrs)*reg_array_nr, 2), flush=True)
 
             all_submodels = simulate_region(
                 region,
@@ -127,9 +130,6 @@ class EnergyDemandModel(object):
                 data['lookups']['fueltypes_nr'],
                 assumptions.enduse_space_heating,
                 data['technologies'])
-
-            #del all_submodels
-            #gc.collect(0)
 
         # ------------------------------
         # Plot generation to correlate HDD and energy demand
@@ -629,8 +629,6 @@ def aggr_complete_result(
     for submodel_nr, sector_model in enumerate(sector_models):
         for model_object in sector_model:
             fuels = get_fuels_yh(model_object, 'techs_fuel_yh')
-
-            # NEW
             ##enduse_array_nr = lookup_enduses[model_object.enduse]
             ##full_result_aggr[submodel_nr][enduse_array_nr][fueltype_nr][reg_array_nr] += fuels_8760
 
@@ -644,7 +642,7 @@ def aggr_complete_result(
                 # Iterate over fueltype and add to region
                 fueltype_yh_8760 = fueltype_yh_365_24.reshape(fueltype_yh_365_24.shape[0], 8760)
 
-                for fueltype_nr, fuels_8760 in enumerate(fueltype_yh_8760): #TODO NECESSARY??
+                for fueltype_nr, fuels_8760 in enumerate(fueltype_yh_8760):
                     full_result_aggr[submodel_nr][model_object.enduse][fueltype_nr][reg_array_nr] += fuels_8760
 
     return full_result_aggr
@@ -836,48 +834,6 @@ def aggregate_result_unconstrained(
                     constrained_array[submodel_nr][region_nr][fueltype_nr] += ed_submodel_enduse_fueltype_regs_yh[submodel_nr][enduse][fueltype_nr][region_nr]
 
     return constrained_array
-
-'''def aggregate_result_constrained(
-        tot_fuel_y_enduse_specific_yh,
-        submodels_enduses,
-        fueltypes_nr,
-        enduse_space_heating,
-        technologies
-    ):
-    """SCRAP NOT USED
-    """
-    results_constrained = {}
-
-    # -----------------------------------------------------------------
-    # Aggregate fuel of constrained technologies for heating
-    # -----------------------------------------------------------------
-    for submodel_nr, submodel_enduses in enumerate(submodels_enduses):
-        for enduse in submodel_enduses:
-
-            # Aggregate only over heating technologies
-            if enduse in enduse_space_heating:
-
-                submodel_techs_fueltypes_yh = get_fuels_yh(
-                    enduse_object,
-                    'techs_fuel_yh')
-
-                # All used heating technologies
-                heating_techs = enduse_object.enduse_techs
-
-                # Iterate technologies and get fuel per technology
-                for heating_tech in heating_techs:
-
-                    tech_fuel = submodel_techs_fueltypes_yh[heating_tech]       # Fuel of technology
-                    fueltype_tech_int = technologies[heating_tech].fueltype_int # Fueltype of technology
-
-                    # Aggregate Submodel (sector) specific enduse for fueltype
-                    if heating_tech in results_constrained.keys():
-                        results_constrained[heating_tech][submodel_nr][reg_array_nr][fueltype_tech_int] += tech_fuel
-                    else:
-                        results_constrained[heating_tech] = np.zeros((len(all_submodels), reg_nrs, fueltypes_nr, 365, 24), dtype="float")
-                        results_constrained[heating_tech][submodel_nr][reg_array_nr][fueltype_tech_int] += tech_fuel
-
-    return results_constrained'''
 
 def aggregate_results_constrained(
         reg_nrs,
