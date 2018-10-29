@@ -19,7 +19,7 @@ def test_assign_by_fuel_tech_p():
     data = {}
     data['paths'] = data_loader.load_paths(path_main)
     data['lookups'] = lookup_tables.basic_lookups()
-    data['enduses'], data['sectors'], data['fuels'] = data_loader.load_fuels(
+    data['enduses'], data['sectors'], data['fuels'], _, _ = data_loader.load_fuels(
         data['lookups']['submodels_names'], data['paths'], data['lookups']['fueltypes_nr'])
 
     data['local_paths'] = data_loader.get_local_paths(path_main)

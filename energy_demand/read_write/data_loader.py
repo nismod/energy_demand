@@ -942,6 +942,10 @@ def load_fuels(submodels_names, paths, fueltypes_nr):
         Paths container
     fueltypes_nr : dict
         Lookups
+    enduses_lookup : dict
+        Lookup with array number of enduse
+    lookup_sector_enduses : dict
+        Lookup with sectors and corresponding enduses
 
     Returns
     -------

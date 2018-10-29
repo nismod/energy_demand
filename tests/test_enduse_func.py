@@ -390,9 +390,10 @@ def test_service_to_fuel():
 def test_apply_heat_recovery():
     """Testing"""
 
+    heat_recovered = {'heating': {2015: 0, 2020: 0.5}}
     result, result_tech = enduse_func.apply_heat_recovery(
         enduse='heating',
-        strategy_vars={'heat_recovered': {'heating': {2015: 0, 2020: 0.5}}},
+        heat_recovered=heat_recovered,
         service=100,
         service_techs={'techA': 100},
         curr_yr=2020)
@@ -497,19 +498,19 @@ def test_calc_fuel_tech_yh():
 def test_generic_demand_change():
     """testing
     """
-    strategy_vars = {'generic_enduse_change': {'heating': {2015: 0, 2020: 2.0}}}
-    strategy_vars['generic_enduse_change']['heating']['param_info'] = {}
-    strategy_vars['generic_enduse_change']['heating']['param_info']['sector'] = 'heating'
+    generic_enduse_change = {'heating': {2015: 0, 2020: 2.0}}
+    generic_enduse_change['heating']['param_info'] = {}
+    generic_enduse_change['heating']['param_info']['sector'] = 'heating'
 
     fuel_y = np.array([100])
     result = enduse_func.generic_demand_change(
         sector=True,
         enduse='heating',
         fuel_y=fuel_y,
-        strategy_vars=strategy_vars,
+        generic_enduse_change=generic_enduse_change,
         curr_yr=2020)
 
-    assert result == fuel_y * (1 + strategy_vars['generic_enduse_change']['heating'][2020])
+    assert result == fuel_y * (1 + generic_enduse_change['heating'][2020])
 
 def test_get_enduse_configuration():
     """Testing
@@ -566,7 +567,7 @@ def test_get_enduse_configuration():
 def test_apply_cooling():
     """testing
     """
-    strategy_vars = {'cooled_floorarea': {'cooling_enduse': {2015: 0, 2020: 0.5}}}
+    cooled_floorarea = {'cooling_enduse': {2015: 0, 2020: 0.5}}
 
     assump_cooling_floorarea = 0.25
     fuel_y = np.array([100])
@@ -574,8 +575,8 @@ def test_apply_cooling():
     result = enduse_func.apply_cooling(
         enduse='cooling_enduse',
         fuel_y=fuel_y,
-        strategy_vars=strategy_vars,
+        cooled_floorarea=cooled_floorarea,
         cooled_floorarea_p_by=assump_cooling_floorarea,
         curr_yr=2020)
 
-    assert np.sum(result) == np.sum(fuel_y) * strategy_vars['cooled_floorarea']['cooling_enduse'][2020] / assump_cooling_floorarea
+    assert np.sum(result) == np.sum(fuel_y) * cooled_floorarea['cooling_enduse'][2020] / assump_cooling_floorarea
