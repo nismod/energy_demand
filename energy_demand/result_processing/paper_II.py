@@ -7,6 +7,7 @@ from energy_demand.basic import basic_functions
 from energy_demand.plotting import figs_p2
 from energy_demand.plotting import fig_spatial_distribution_of_peak
 from energy_demand.plotting import fig_p2_spatial_weather_map
+from energy_demand.plotting import fig_p2_total_demand_national_scenarios
 
 def paper_II_plots(
         #/soge-home/staff/cenv0553/ED
@@ -24,6 +25,10 @@ def paper_II_plots(
     """
     # Chose which plots should be generated
     plot_crit_dict = {
+
+
+        # Scenario plots
+        'scenario_plots': False, #True,
 
         #Plot weather map
         'weather_map': False, #True,
@@ -54,23 +59,26 @@ def paper_II_plots(
     ####################################################################
     # Plot scenarios 
     ####################################################################
-    from energy_demand.plotting import fig_p2_total_demand_national_scenarios
-    simulation_yrs = [2015, 2050]
+    if plot_crit_dict['scenario_plots']:
+        simulation_yrs = [2015, 2020, 2030, 2040, 2050]
+        simulation_yrs = [2015, 2050]
 
-    scenario_result_paths = [
-        "C:/Users/cenv0553/ed/results/_scenario_low_elec",
-        "C:/Users/cenv0553/ed/results/_scenario_high_elec"]
-    
-    # Create result folder
-    path_out_plots = os.path.join("C:/Users/cenv0553/ed/results/_results_nationalFIGS")
-    basic_functions.del_previous_setup(path_out_plots)
-    basic_functions.create_folder(path_out_plots)
-    
-    fig_p2_total_demand_national_scenarios.total_demand_national_scenarios(
-        scenario_result_paths,
-        simulation_yrs=simulation_yrs,
-        fueltype_str='electricity',
-        path_out_plots=os.path.join(path_out_plots, "PDF_national_scenarios.pdf"))
+        scenario_result_paths = [
+            "C:/Users/cenv0553/ed/results/_scenario_low_elec",
+            "C:/Users/cenv0553/ed/results/_scenario_high_elec"]
+        
+        scenario_result_paths = ["C:/Users/cenv0553/ed/results/_Fig2_multiple_all_yrs_all_stations"]
+        
+        # Create result folder
+        path_out_plots = os.path.join("C:/Users/cenv0553/ed/results/_results_nationalFIGS")
+        basic_functions.del_previous_setup(path_out_plots)
+        basic_functions.create_folder(path_out_plots)
+        
+        fig_p2_total_demand_national_scenarios.total_demand_national_scenarios(
+            scenario_result_paths,
+            simulation_yrs=simulation_yrs,
+            fueltype_str='electricity',
+            path_out_plots=os.path.join(path_out_plots, "PDF_national_scenarios.pdf"))
 
     ####################################################################
     # Plot weather station availability map

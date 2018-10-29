@@ -43,6 +43,9 @@ def my_function(simulation_number):
     else:
         weather_station_cnt = simulation_number
 
+    # Make run name_specifiv
+    run_name = "{}_{}".format(run_name, simulation_number)
+
     # Run energy demand main.py
     if run_smif:
         # Run smif
@@ -55,14 +58,14 @@ def my_function(simulation_number):
     return 
 
 # WEather years
-simulation_number = [1, 2] #,3,4,5,6,7,8,9,10]
+simulation_number = range(10)
 
 if __name__ == "__main__":
     with Pool(int(cpu_count()/2)) as pool:
         pool.map(
             my_function,
             simulation_number,
-            chunksize=10)
+            chunksize=1)
 
 '''
 for i in range(2):

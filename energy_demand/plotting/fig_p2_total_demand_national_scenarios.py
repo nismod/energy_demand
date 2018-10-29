@@ -96,8 +96,8 @@ def total_demand_national_scenarios(
     # ------------------------------------------------------------------------------------------
     # Create plot
     # ------------------------------------------------------------------------------------------
-    print("create plot")
-    print(dict_scenarios_weather_yrs['_scenario_high_elec'][2015])
+    print("....create plot")
+
     weather_yr_to_plot = 1979 #TODO
 
     color_list = ['red', 'green', 'orange', '#37AB65', '#C0E4FF', '#3DF735', '#AD6D70', '#EC2504', '#8C0B90', '#27B502', '#7C60A8', '#CF95D7', '#F6CC1D']
@@ -121,7 +121,7 @@ def total_demand_national_scenarios(
         line_entries_tot_h = []
 
         for scenario_name in scenarios:
-
+            print("-- {}  {}".format(scenario_name, simulation_yr))
             # Calculate entires over year
             df_weather_yrs = dict_scenarios_weather_yrs[scenario_name][simulation_yr]
 
@@ -181,9 +181,12 @@ def total_demand_national_scenarios(
     # ------------
     plt.legend(
         ncol=1,
-        bbox_to_anchor=(0.2, -0.1),
+        bbox_to_anchor=(0.5, 0., 0.5, 0.5), #bbox_to_anchor=(0.2, -0.1),
         prop={'size': 8},
         frameon=False)
+
+    plt.ylabel("GW")
+    plt.xlabel("year")
 
     # Tight layout
     plt.tight_layout()
