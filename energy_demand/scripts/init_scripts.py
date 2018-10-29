@@ -676,8 +676,7 @@ def sig_param_calc_incl_fuel_switch(
                         fuel_switches, enduse, switch_yr, crit_region=False)
 
                     if crit_all_the_same:
-                        logging.info("... calculating fuel switches (not regional specific): {}".format(enduse))
-
+                        logging.debug("... calculating fuel switches (not regional specific): {}".format(enduse))
                         # Calculate service demand after fuel switches for each technology
                         s_tech_switched_p_values_all_regs = s_generate_sigmoid.calc_service_fuel_switched(
                             enduse_fuel_switches,
@@ -700,6 +699,8 @@ def sig_param_calc_incl_fuel_switch(
                         for region in regions:
                             s_tech_switched_p[region][switch_yr] = s_tech_switched_p_values_all_regs
                             l_values_sig[region] = l_values_all_regs
+
+                        s_tech_switched_p = dict(s_tech_switched_p)
                     else:
                         logging.info("... calculating fuel switches (regional specific): {}".format(enduse))
                         for region in regions:
@@ -723,6 +724,8 @@ def sig_param_calc_incl_fuel_switch(
                                 s_tech_by_p,
                                 fuel_tech_p_by)
 
+                        s_tech_switched_p = dict(s_tech_switched_p)
+
                 # -------------------------
                 # Get starting year of narrative story
                 # -------------------------
@@ -737,8 +740,7 @@ def sig_param_calc_incl_fuel_switch(
                 # -----------------------------------------------
                 #logging.debug("---------- switches %s %s %s", enduse, crit_switch_service, crit_fuel_switch)
                 if crit_all_the_same:
-                    logging.info("... calc parameters of `{}` for year `{}`".format(enduse, switch_yr))
-
+                    logging.info("... calc parameters of `{}` for year `{}`  {}".format(enduse, switch_yr, sector))
                     # Calculate for one region
                     sig_param_tech_all_regs_value = s_generate_sigmoid.tech_sigmoid_parameters(
                         switch_yr,
@@ -764,7 +766,6 @@ def sig_param_calc_incl_fuel_switch(
                             s_tech_by_p,
                             s_tech_switched_p[region][switch_yr])
                     end = time.time()
-
                     print("Time use for sigmoid parameter calaulations (reduce number of iteraitons for speedup): " + str(end - start), flush=True)
 
     return sig_param_tech

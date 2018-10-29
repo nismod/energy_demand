@@ -150,13 +150,16 @@ if __name__ == "__main__":
     simulated_yrs = [user_defined_base_yr, user_defined_simulation_end_yr]
     
     if len(sys.argv) > 1: #user defined arguments are provide
-        weather_yr_scenario = int(sys.argv[1])        # Weather year
+
+        scenario_name = str(sys.argv[1])
+        weather_yr_scenario = int(sys.argv[2])        # Weather year
         try:
-            weather_station_count_nr = int(sys.argv[2])       # Weather station cnt
+            weather_station_count_nr = int(sys.argv[3])       # Weather station cnt
         except:
             weather_station_count_nr = []
     else:
-        weather_yr_scenario = 2013 #TODO                   # Default weather year
+        scenario_name = "_run_"
+        weather_yr_scenario = 2013                      # Default weather year
         weather_station_count_nr = []                   # Default weather year
 
     print("Information")
@@ -183,7 +186,7 @@ if __name__ == "__main__":
     # --------------------
     # Paths
     # --------------------
-    name_scenario_run = "_result_local_{}".format(str(time.ctime()).replace(":", "_").replace(" ", "_"))
+    name_scenario_run = "{}_result_local_{}".format(scenario_name, str(time.ctime()).replace(":", "_").replace(" ", "_"))
 
     data['paths'] = data_loader.load_paths(path_main)
     data['local_paths'] = data_loader.get_local_paths(local_data_path)
@@ -200,7 +203,7 @@ if __name__ == "__main__":
     # ----------------------------------------------------------------------
     data['scenario_data'] = defaultdict(dict)
     data['lookups'] = lookup_tables.basic_lookups()
-    data['enduses'], data['sectors'], data['fuels'] = data_loader.load_fuels(
+    data['enduses'], data['sectors'], data['fuels'], lookup_enduses, lookup_sector_enduses = data_loader.load_fuels(
         data['lookups']['submodels_names'], data['paths'], data['lookups']['fueltypes_nr'])
 
     data['regions'] = read_data.get_region_names(name_region_set)
@@ -229,6 +232,8 @@ if __name__ == "__main__":
     # -----------------------------
     data['assumptions'] = general_assumptions.Assumptions(
         submodels_names=data['lookups']['submodels_names'],
+        lookup_enduses=lookup_enduses,
+        lookup_sector_enduses=lookup_sector_enduses,
         base_yr=user_defined_base_yr,
         weather_by=user_defined_weather_by,
         simulation_end_yr=user_defined_simulation_end_yr,
@@ -663,9 +668,6 @@ if __name__ == "__main__":
                 'reg_load_factor_autumn')'''
 
             print("... Finished writing results to file")
-
-        #remove garbage
-        del sim_obj
 
     print("-------------------------")
     print("... Finished running HIRE")

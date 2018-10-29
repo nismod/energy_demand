@@ -12,12 +12,13 @@ from energy_demand.read_write import read_weather_data
 def my_function(simulation_number):  
     print('simulation_number ' + str(simulation_number))
 
+    run_name = '_low'
     all_weather_stations = False
 
     same_weather_yr = True
     defined_weather_yr = 2015
 
-    run_smif = False
+    run_smif = False 
 
     # --------------------------
     # Get all weather yrs with data (maybe read existing years from data folder)
@@ -42,6 +43,9 @@ def my_function(simulation_number):
     else:
         weather_station_cnt = simulation_number
 
+    # Make run name_specifiv
+    run_name = "{}_{}".format(run_name, simulation_number)
+
     # Run energy demand main.py
     if run_smif:
         # Run smif
@@ -49,19 +53,19 @@ def my_function(simulation_number):
         #os.system(bash_command)
         pass
     else:
-        bash_command = "python energy_demand/energy_demand/main.py {} {}".format(weather_yr, weather_station_cnt)
+        bash_command = "python energy_demand/energy_demand/main.py {} {} {}".format(run_name, weather_yr, weather_station_cnt)
         os.system(bash_command)
     return 
 
 # WEather years
-simulation_number = [1, 2] #,3,4,5,6,7,8,9,10]
+simulation_number = range(10)
 
 if __name__ == "__main__":
     with Pool(int(cpu_count()/2)) as pool:
         pool.map(
             my_function,
             simulation_number,
-            chunksize=10)
+            chunksize=1)
 
 '''
 for i in range(2):
