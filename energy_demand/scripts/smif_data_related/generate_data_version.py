@@ -58,9 +58,7 @@ def package_data(
         'interval_definitions',
         '00_user_defined_variables',
         'interventions',
-        'narratives',
         'planning',
-        'region_definitions',
         'strategies']
 
     # Zip maximum files
@@ -97,20 +95,27 @@ def package_data(
     # Add folder _raw_data_minimal' and rename it
     # -------------------------------------------
     folders_to_add = (
-        (os.path.join(data_folder_path, '_raw_data_minimal'), '_raw_data'),
-        (os.path.join(data_folder_path, '_scenarios_minimal'), '_scenarios'),
-        (os.path.join(data_folder_path, '_region_definition_minimum'), '_region_definition'),
-        (os.path.join(data_folder_path, '_narratives_ninimum'), '_narratives_'))
+        ('_raw_data_minimal', '_raw_data'),
+        ('scenarios_minimal', 'scenarios'),
+        ('region_definition_minimal', 'region_definition'),
+        ('narratives_minimal', 'narratives'))
 
     zip_handler_minimum = zipfile.ZipFile(os.path.join(data_folder_path, zip_name_minimum), "a")
 
-    for folder_to_add, renamed_folder in folders_to_add:
+    for folder_name_to_add, renamed_folder in folders_to_add:
+        folder_to_add = os.path.join(data_folder_path, folder_name_to_add)
+
         for root, dirs, files in os.walk(folder_to_add):
             for file in files:
 
                 # New path
-                inter_folderes = root.split("_raw_data_minimal\\")
-                new_path = os.path.join(renamed_folder, inter_folderes[1], file)
+                root_renamed = root.replace(folder_name_to_add, renamed_folder)
+
+                # Get rid of local paths
+                root_renamed_without_local_path = root_renamed.split(data_folder_path)[1]
+
+                new_path = os.path.join(root_renamed_without_local_path, file)
+                print("new_path" + str(new_path))
 
                 zip_handler_minimum.write(
                     filename=os.path.join(root, file),
@@ -156,4 +161,5 @@ if __name__ == '__main__':
     python ../generate_data_version.py v_6_1 C:/path_to_data
     """
     # Map command line arguments to function arguments.
-    package_data(*sys.argv[1:])
+    #package_data(*sys.argv[1:])
+    package_data('v_0700', 'C:/Users/cenv0553/ED/data')
