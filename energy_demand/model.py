@@ -980,6 +980,8 @@ def initialise_result_container(
             container['ed_submodel_enduse_fueltype_regs_yh'][submodel_nr][enduse] = np.zeros((
                 fueltypes_nr, reg_nrs, 8760), dtype="float")
     '''
+    print("AA")
+    print(lookup_enduses)
     #'''
     # NEW
     container['ed_submodel_enduse_fueltype_regs_yh'] = np.zeros((

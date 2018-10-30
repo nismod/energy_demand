@@ -23,7 +23,19 @@ Research Consortium <http://www.itrc.org.uk/>`_.
 More information on the model can be found in Eggimann, Hall and Eyre (2018). Please use 
 this reference for citing HIRE.
 
-1. Initialising and running the model (local)
+1. Download input data
+=============================================
+Most data for running HIRE are freely available online. However,
+for certain input data it is necessary to request access (for more information
+on all necessary input datasets see `here <https://ed.readthedocs.io/en/latest/documentation.html#data-sets>`_)
+
+All necessary input data to run HIRE can be downloaded (`here <https://LINKD TOTO>`_), where
+for the restricted datasets a dummy input dataset is available.
+
+For data inquires, plese contact sven.eggimann@ouce.ox.ac.uk or `the consortium <https://www.itrc.org.uk/contact-us/>`_).
+Also check whether data area available `here <https://www.nismod.ac.uk>`_).
+
+2. Initialising and running the model (local)
 =============================================
 The recommended installation method is to use `conda <http://conda.pydata.org/miniconda.html>`_,
 which handles packages and virtual environments. First, create a conda environment
@@ -36,14 +48,14 @@ and activate it
 
 In order to run HIRE, first the model needs to be set up (Section 1.1 or Section 1.1).
 
-1.1 Model Set-Up (with complete data)
+2.1 Model Set-Up (with complete data)
 -------------------------------------
 
 1.  Add all necessary data into a local directory such as ``path/to/energy_data_folder`` and
     download the energy_demand python code.
 
     Note: Because some data is not open source, the full data needs to be optained
-    from the consortium. However, the model can be run with dummy data (see Section 1.2)
+    from the consortium. However, the model can be run with dummy data (see Section 1)
 
 2.  Update the paths in the ``wrapperconfig.ini`` file in the config folder
 
@@ -63,7 +75,7 @@ In order to run HIRE, first the model needs to be set up (Section 1.1 or Section
     ``energy_data_folder``.
 
 
-1.2 Alternative Model Set-Up (with restricted data)
+2.2 Alternative Model Set-Up (with restricted dummy data)
 ---------------------------------------------
 
 1.  Add the minimum data requirements into a local directory as ``path/to/energy_data_folder`` and
@@ -88,7 +100,7 @@ In order to run HIRE, first the model needs to be set up (Section 1.1 or Section
     Note: The ``minimal_setup`` command generates new folders in the 
     ``energy_data_folder``.
 
-2. Running the model with smif
+3. Running HIRE with smif
 ================================================
 
 1. Set up the model as outlined in 1.1 'Model Set-Up'
@@ -107,8 +119,7 @@ In order to run HIRE, first the model needs to be set up (Section 1.1 or Section
 
     ``smif -v run modelrun_id`` or ``smif -vv run modelrun_id``
 
-
-3. Generating plots based from simulation results
+4. Generating plots based from simulation results
 ================================================
 Every time a model gets run, the specific model simulation results
 are stored in the result folder named after the timestamp of the model execution.
@@ -131,7 +142,7 @@ folder needs to be used. Proceed as follows:
    which should be generated can be configured
 
 
-4. Explanation of other scripts
+5. Explanation of other scripts
 =============================================
 
 - *scripts/smif_data_related/generate_data_version.py*: With the file an automatic packaging 

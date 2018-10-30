@@ -113,8 +113,8 @@ if __name__ == "__main__":
     data['criterias'] = {}
     data['criterias']['mode_constrained'] = True                    # True: Technologies are defined in ED model and fuel is provided, False: Heat is delievered not per technologies
     data['criterias']['virtual_building_stock_criteria'] = True     # True: Run virtual building stock model
-    data['criterias']['spatial_calibration'] = False
-    data['criterias']['cluster_calc'] = False
+    data['criterias']['spatial_calibration'] = False                # True: Spatial calibration
+    data['criterias']['cluster_calc'] = False                       # True: If run on a linux cluster
 
     fast_model_run = False
     if fast_model_run == True:
@@ -168,16 +168,11 @@ if __name__ == "__main__":
     print("weather_station_count_nr:    " + str(weather_station_count_nr))
 
     # --- Region definition configuration
-    name_region_set = os.path.join(local_data_path, 'region_definitions', "lad_2016_uk_simplified.shp")        # LAD
+    name_region_set = os.path.join(local_data_path, 'region_definitions', "lad_2016_uk_simplified.shp") # LAD
 
-    local_scenario = 'pop-a_econ-c_fuel-c'
-    #name_population_dataset = os.path.join(local_data_path, 'scenarios', 'uk_pop_high_migration_2015_2050.csv')
-    #name_population_dataset = os.path.join(local_data_path, 'scenarios', 'uk_pop_constant_2015_2050.csv') # Constant scenario
+    local_scenario = 'dummy_scenario' #'pop-a_econ-c_fuel-c'
+
     name_population_dataset = os.path.join(local_data_path, 'scenarios', 'MISTRAL_pop_gva', 'data', '{}/population__lad.csv'.format(local_scenario)) # Constant scenario
-    # MSOA model run
-    #name_region_set_selection = "msoa_regions_ed.csv"
-    #name_region_set = os.path.join(local_data_path, 'region_definitions', 'msoa_uk', "msoa_lad_2015_uk.shp")    # MSOA
-    #name_population_dataset = os.path.join(local_data_path, 'scenarios', 'uk_pop_high_migration_2015_2050.csv')
 
     # GVA datasets
     name_gva_dataset = os.path.join(local_data_path, 'scenarios', 'MISTRAL_pop_gva', 'data', '{}/gva_per_head__lad_sector.csv'.format(local_scenario))

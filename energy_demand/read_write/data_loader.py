@@ -495,7 +495,6 @@ def get_local_paths(path):
             path, '00_user_defined_variables', 'switches_service.csv'),
         'path_capacity_installation': os.path.join(
             path, '00_user_defined_variables', 'switches_capacity.csv'),
-
         'path_population_data_for_disaggregation_LAD': os.path.join(
             path, '_raw_data', 'J-population_disagg_by', 'uk_pop_principal_2015_2050.csv'), #ONS principal projection
         'path_population_data_for_disaggregation_MSOA': os.path.join(
