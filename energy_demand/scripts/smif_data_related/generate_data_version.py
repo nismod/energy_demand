@@ -51,11 +51,6 @@ def package_data(
     zip_name_full = os.path.join(data_folder_path, "{}_{}".format(version_name, "full.zip"))
     zip_name_minimum = os.path.join(data_folder_path, "{}_{}".format(version_name, "minimum.zip"))
 
-    # Files to folders
-    files_to_add_full = [
-        'population-economic-smif-csv-from-nismod-db.zip',
-        'population-economic-tables-nismod-db.zip']
-
     # Zip minimum files
     _raw_folders_data_minimal = [
         'coefficients',
@@ -103,12 +98,13 @@ def package_data(
     # -------------------------------------------
     folders_to_add = (
         (os.path.join(data_folder_path, '_raw_data_minimal'), '_raw_data'),
-        (os.path.join(data_folder_path, '_scenarios_minimal'), '_scenarios'))
-    
+        (os.path.join(data_folder_path, '_scenarios_minimal'), '_scenarios'),
+        (os.path.join(data_folder_path, '_region_definition_minimum'), '_region_definition'),
+        (os.path.join(data_folder_path, '_narratives_ninimum'), '_narratives_'))
+
     zip_handler_minimum = zipfile.ZipFile(os.path.join(data_folder_path, zip_name_minimum), "a")
 
     for folder_to_add, renamed_folder in folders_to_add:
-
         for root, dirs, files in os.walk(folder_to_add):
             for file in files:
 
@@ -134,20 +130,23 @@ def package_data(
     zip_handler_minimum = zipfile.ZipFile(os.path.join(data_folder_path, zip_name_minimum), "a")
     zip_handler_full = zipfile.ZipFile(os.path.join(data_folder_path, zip_name_full), "a")
 
-    # Add units
+    # Add units file
     full_file_path = os.path.join(data_folder_path, 'units.txt')
     zip_handler_full.write(full_file_path, arcname='units.txt')
     zip_handler_minimum.write(full_file_path, arcname='units.txt')
 
+    # Add other files to full data
+    files_to_add_full = [
+        'population-economic-smif-csv-from-nismod-db.zip']
+
     for file_to_add in files_to_add_full:
-        full_file_path = os.path.join(data_folder_path, files_to_add_full)
+        full_file_path = os.path.join(data_folder_path, file_to_add)
         zip_handler_full.write(full_file_path, arcname=file_to_add)
 
     zip_handler_full.close()
     zip_handler_minimum.close()
 
     print("Finished packaging data for Version {}".format(version_name))
-
 
 if __name__ == '__main__':
     """Provide version name and path to data folder

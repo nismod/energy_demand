@@ -954,6 +954,10 @@ def load_fuels(submodels_names, paths, fueltypes_nr):
         Sectors for every submodel
     fuels : dict
         yearly fuels for every submodel
+    enduses_lookup : dict
+        Lookup of end uses
+    lookup_sector_enduses : dict
+        Sector enduse lookup
     """
     enduses, sectors, fuels = {}, {}, {}
     enduses_lookup = {}
