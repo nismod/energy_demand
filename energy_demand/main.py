@@ -3,15 +3,7 @@
 #   make that automatically the parameters can be generated to be copied into smif format
 # REMOVE HDD CODE PLOTTING
 #TODO Test if technology type can be left empty in technology spreadsheet, Try to remove tech_type
-#TODO Write out full result. Then write function to aggregate accordingly
-#TODO SIMple aggregation. Write out sectormodel, enduse, region, fueltypes.... --> Do all aggregation based on that
-# MAKE SIMLPLE TABLE FOR READING IN FUELS
-# correction factors on LAD level disaggregation? (load non-residential demand)
-# Improve plotting and processing (e.g. saisonal plots)
-# Weather station cleaning: Replace days with missing values
-#TODO IMROVE PLOTTING (second round of geopanda classification)
-# # Fix regional plots
-# Potentially add enduses in array
+#TODO ADD HEAT SOLD
 # TEST NON CONSTRAINED MODE
 #   Note
     ----
@@ -159,7 +151,7 @@ if __name__ == "__main__":
             weather_station_count_nr = []
     else:
         scenario_name = "_run_"
-        weather_yr_scenario = 2013                      # Default weather year
+        weather_yr_scenario = 2015                      # Default weather year
         weather_station_count_nr = []                   # Default weather year
 
     print("Information")
@@ -171,6 +163,7 @@ if __name__ == "__main__":
     name_region_set = os.path.join(local_data_path, 'region_definitions', "lad_2016_uk_simplified.shp") # LAD
 
     local_scenario = 'dummy_scenario' #'pop-a_econ-c_fuel-c'
+    #local_scenario = 'pop-a_econ-c_fuel-c' #'pop-a_econ-c_fuel-c'
 
     name_population_dataset = os.path.join(local_data_path, 'scenarios', 'MISTRAL_pop_gva', 'data', '{}/population__lad.csv'.format(local_scenario)) # Constant scenario
 

@@ -526,6 +526,12 @@ def ss_disaggr(
 
                         reg_diasg_factor = p_reg_sector_building_cnt
 
+                # If reg_diasg_factor, replace by population disaggregation
+                if np.isnan(reg_diasg_factor):
+                    reg_diasg_factor = p_pop
+                else:
+                    pass
+
                 ss_fuel_disagg[region][enduse][sector] = ss_national_fuel[enduse][sector] * reg_diasg_factor
 
     return dict(ss_fuel_disagg)
@@ -715,6 +721,12 @@ def is_disaggregate(
                             except ZeroDivisionError:
                                 reg_disagg_f = 0 #No employment for this sector for this region
 
+                        # If nan, use population
+                        if np.isnan(reg_disagg_f):
+                            reg_disagg_f = reg_pop / tot_pop
+                        else:
+                            pass
+
                         # Disaggregated national fuel
                         is_fuel_disagg[region][enduse][sector] = is_national_fuel[enduse][sector] * reg_disagg_f
 
@@ -762,7 +774,7 @@ def rs_disaggregate(
     to enduse (see Documentation)
     """
     logging.debug("... disagreggate residential demand")
-    
+
     rs_fuel_disagg = {}
     # ---------------------------------------
     # Calculate heating degree days for regions
@@ -908,6 +920,11 @@ def rs_disaggr(
                     reg_diasg_factor = p_floor_area
                 else:
                     reg_diasg_factor = p_pop
+
+            if np.isnan(reg_diasg_factor):
+                reg_diasg_factor = p_pop
+            else:
+                pass
 
             # Disaggregate
             fuel_disagg[region][enduse][dummy_sector] = rs_national_fuel[enduse][dummy_sector] * reg_diasg_factor

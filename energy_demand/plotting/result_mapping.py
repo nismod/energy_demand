@@ -1138,7 +1138,7 @@ def spatial_maps(
             fueltype_str = tech_related.get_fueltype_str(fueltypes, fueltype)
 
             if plot_crit_dict['plot_total_demand_fueltype']:
-                logging.info(" progress.. {}".format(fueltype))
+                print(" progress.. {}".format(fueltype))
 
                 # ---------
                 # Sum per enduse and year (y)
@@ -1222,7 +1222,7 @@ def spatial_maps(
                 #logging.info("Min {}  Max {}".format(
                 #    min(list(data_to_plot.values())),
                 #     max(list(data_to_plot.values()))))
-                bins_increments = 20 #MAYBE NEEDS TO BE ADOPTED #TODO
+                bins_increments = 30 #MAYBE NEEDS TO BE ADOPTED #TODO
 
                 bins = get_reasonable_bin_values(
                     data_to_plot=list(data_to_plot.values()),

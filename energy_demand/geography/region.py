@@ -70,13 +70,36 @@ class Region(object):
         # =================
 
         # Climate correction factor (hdd)
-        f_climate_hdd_rs = np.sum(weather_reg_cy[self.closest_weather_reg].rs_hdd_by) / np.sum(weather_reg_by[closest_weather_by_id].rs_hdd_by)
-        f_climate_hdd_ss = np.sum(weather_reg_cy[self.closest_weather_reg].ss_hdd_by) / np.sum(weather_reg_by[closest_weather_by_id].ss_hdd_by)
-        f_climate_hdd_is = np.sum(weather_reg_cy[self.closest_weather_reg].is_hdd_by) / np.sum(weather_reg_by[closest_weather_by_id].is_hdd_by)
+
+        # Residential
+        factor = np.sum(weather_reg_cy[self.closest_weather_reg].rs_hdd_by) / np.sum(weather_reg_by[closest_weather_by_id].rs_hdd_by)
+        if np.isnan(factor):
+            f_climate_hdd_rs = 1
+        else:
+            f_climate_hdd_rs = factor
+
+        # Service
+        factor = np.sum(weather_reg_cy[self.closest_weather_reg].ss_hdd_by) / np.sum(weather_reg_by[closest_weather_by_id].ss_hdd_by)
+        if np.isnan(factor):
+            f_climate_hdd_ss = 1
+        else:
+            f_climate_hdd_ss = factor
+
+        # Industry
+        factor = np.sum(weather_reg_cy[self.closest_weather_reg].is_hdd_by) / np.sum(weather_reg_by[closest_weather_by_id].is_hdd_by)
+
+        if np.isnan(factor):
+            f_climate_hdd_is = 1
+        else:
+            f_climate_hdd_is = factor
 
         # Climate correction factor (cdd)
-        f_climate_cdd_ss = np.sum(weather_reg_cy[self.closest_weather_reg].ss_cdd_by) / np.sum(weather_reg_by[closest_weather_by_id].ss_cdd_by)
+        factor = np.sum(weather_reg_cy[self.closest_weather_reg].ss_cdd_by) / np.sum(weather_reg_by[closest_weather_by_id].ss_cdd_by)
         #f_climate_cdd_is = np.sum(weather_reg_cy[self.closest_weather_reg].is_cdd_by) / np.sum(weather_reg_by[closest_weather_by_id].is_cdd_by)
+        if np.isnan(factor):
+            f_climate_cdd_ss = 1
+        else:
+            f_climate_cdd_ss = factor
 
         self.f_weather_correction = {
             'residential': {'hdd': f_climate_hdd_rs, 'cdd': None},

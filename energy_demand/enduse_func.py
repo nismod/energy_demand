@@ -123,7 +123,8 @@ class Enduse(object):
             self.fuel_yh = 0
             self.enduse_techs = []
         else:
-            #logging.info("------INFO  {} {} {}  {}".format(self.enduse, sector, region, curr_yr))
+            #print("------INFO  {} {} {}  {}".format(self.enduse, sector, region, curr_yr))
+            #print("FUEL TRAIN A0: " + str(np.sum(self.fuel_y)))
 
             # Get technologies of enduse
             self.enduse_techs = get_enduse_techs(fuel_tech_p_by)
@@ -140,7 +141,7 @@ class Enduse(object):
                 assumptions.ss_enduse_space_cooling,
                 f_weather_correction)
             self.fuel_y = _fuel_new_y
-            #logging.info("FUEL TRAIN B0: " + str(np.sum(self.fuel_y)))
+            #print("FUEL TRAIN B0: " + str(np.sum(self.fuel_y)))
 
             _fuel_new_y = apply_smart_metering(
                 enduse,
@@ -149,7 +150,7 @@ class Enduse(object):
                 strategy_vars,
                 curr_yr)
             self.fuel_y = _fuel_new_y
-            #logging.info("FUEL TRAIN C0: " + str(np.sum(self.fuel_y)))
+            #print("FUEL TRAIN C0: " + str(np.sum(self.fuel_y)))
 
             _fuel_new_y = generic_demand_change(
                 enduse,
@@ -158,7 +159,7 @@ class Enduse(object):
                 strategy_vars['generic_enduse_change'],
                 curr_yr)
             self.fuel_y = _fuel_new_y
-            #logging.info("FUEL TRAIN D0: " + str(np.sum(self.fuel_y)))
+            #print("FUEL TRAIN D0: " + str(np.sum(self.fuel_y)))
 
             _fuel_new_y = apply_scenario_drivers(
                 enduse=enduse,
@@ -173,7 +174,7 @@ class Enduse(object):
                 base_yr=base_yr,
                 curr_yr=curr_yr)
             self.fuel_y = _fuel_new_y
-            #logging.info("FUEL TRAIN E0: " + str(np.sum(self.fuel_y)))
+            #print("FUEL TRAIN E0: " + str(np.sum(self.fuel_y)))
 
             # Apply cooling scenario variable
             _fuel_new_y = apply_cooling(
@@ -183,7 +184,7 @@ class Enduse(object):
                 assumptions.cooled_ss_floorarea_by,
                 curr_yr)
             self.fuel_y = _fuel_new_y
-            #logging.info("FUEL TRAIN E1: " + str(np.sum(self.fuel_y)))
+            #print("FUEL TRAIN E1: " + str(np.sum(self.fuel_y)))
 
             # Industry related change
             _fuel_new_y = industry_enduse_changes(
@@ -194,7 +195,7 @@ class Enduse(object):
                 self.fuel_y,
                 assumptions)
             self.fuel_y = _fuel_new_y
-            #logging.info("FUEL TRAIN E2: " + str(np.sum(self.fuel_y)))
+            #print("FUEL TRAIN E2: " + str(np.sum(self.fuel_y)))
 
             # Generic fuel switch of an enduse and sector
             _fuel_new_y = generic_fuel_switch(
@@ -215,12 +216,15 @@ class Enduse(object):
                 if flat_profile_crit:
                     pass
                 else:
+     
                     fuel_yh = assign_lp_no_techs(
                         enduse,
                         sector,
                         load_profiles,
                         self.fuel_y,
                         make_all_flat=make_all_flat)
+
+                    #print("FUEL TRAIN X " + str(np.sum(fuel_yh)))
 
                     # Demand management for non-technology enduse
                     self.fuel_yh = demand_management(
@@ -230,6 +234,7 @@ class Enduse(object):
                         fuel_yh,
                         mode_constrained=False,
                         make_all_flat=make_all_flat)
+                    #print("FUEL TRAIN Y" + str(np.sum(fuel_yh)))
             else:
                 #If technologies are defined for an enduse
 
@@ -351,7 +356,8 @@ def demand_management(
         make_all_flat=False
     ):
     """This function shifts peak per of this enduse
-    depending on peak shifting factors. So far only inter day load shifting
+    depending on peak shifting factors.
+    So far only inter day load shifting
 
     Arguments
     ----------
@@ -636,6 +642,38 @@ def get_peak_day_single_fueltype(fuel_yh):
         peak_h = np.max(fuel_yh_8760)
 
         return int(peak_day_nr), peak_h
+
+def get_trough_day_single_fueltype(fuel_yh):
+    """Iterate yh and get day with lowest fuel for a single fueltype
+    The day with most fuel is considered to
+    be the peak day. Over the simulation period,
+    the peak day may change date in a year.
+
+    Arguments
+    ---------
+    fuel_yh : array (365, 24) or array (8760)
+        Fuel for every yh (yh)
+
+    Return
+    ------
+    trough_day_nr : int
+        Day with most fuel or service
+    trough_h : float
+        Peak hour value
+    """
+    fuel_yh_8760 = fuel_yh.reshape(8760)
+
+    if np.sum(fuel_yh_8760) == 0:
+        #logging.info("No peak can be found because no fuel assigned")
+        # Return first entry of element (which is zero)
+        return 0, 0
+    else:
+        # Sum fuel within every hour for every day and get day with maximum fuel
+        trough_day_nr = basic_functions.round_down(np.argmin(fuel_yh_8760) / 24, 1)
+
+        trough_h = np.min(fuel_yh_8760)
+
+        return int(trough_day_nr), trough_h
 
 def get_enduse_techs(fuel_tech_p_by):
     """Get all defined technologies of an enduse
@@ -1437,7 +1475,13 @@ def apply_service_switch(
 
             # Get service share per tech of cy of sigmoid parameter calculations
             p_s_tech_cy = annual_tech_diff_params[enduse][sector][tech][curr_yr]
+            print("_______ {}  {} {}  {} {}".format(curr_yr, enduse, sector, tech, p_s_tech_cy)) #TODO REMOVE
 
+            if enduse == 'is_space_heating' and sector == 'chemicals':
+
+                print("================")
+                print(annual_tech_diff_params[enduse])
+                raise Exception("FF")
             if p_s_tech_cy == 'identical':
                 switched_s_tech_y_cy[tech] = s_tech_y_cy[tech]
             else:

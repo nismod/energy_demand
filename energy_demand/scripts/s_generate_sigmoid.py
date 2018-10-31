@@ -4,7 +4,6 @@ This script calculates the three parameters of a sigmoid diffusion
 for every technology which is diffused and has a larger service
 fraction at the model end year
 """
-import logging
 from collections import defaultdict
 import numpy as np
 from scipy.optimize import curve_fit
@@ -52,11 +51,7 @@ def calc_sigmoid_parameters(
     # Generate possible starting parameters for fit
     # ---------------------------------------------
     start_param_list = [
-        0.0, 1.0, 0.0001, 0.001, 0.01] #,
-        #0.05, 0.1, 0.15, 0.2, 0.25, 0.3, 0.35,
-        #0.4, 0.45, 0.5, 0.55, 0.6, 0.65,
-        #10, 20, 30, 40, 50, 60, 70, 80,
-        #90, 100.0, 200.0, 400.0, 500.0, 1000, 10000]
+        0.0, 1.0, 0.0001, 0.001, 0.01]
 
     # ---------------------------------------------
     # Fit
@@ -455,7 +450,7 @@ def tech_sigmoid_parameters(
         l_values,
         s_tech_by_p,
         s_tech_switched_p,
-        fit_assump_init=0.001,
+        fit_assump_init=0.001, #TODO FOUND ERROR
         plot_sigmoid_diffusion=False
     ):
     """Calculate sigmoid diffusion parameters based on energy service

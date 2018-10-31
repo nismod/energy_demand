@@ -29,7 +29,7 @@ Most data for running HIRE are freely available online. However,
 for certain input data it is necessary to request access (for more information
 on all necessary input datasets see `here <https://ed.readthedocs.io/en/latest/documentation.html#data-sets>`_)
 
-All necessary input data to run HIRE can be downloaded (`here <https://LINKD TOTO>`_), where
+All necessary input data to run HIRE can be downloaded (`here <http://dx.doi.org/10.17632/wc8pxynv7b.1>`_), where
 for the restricted datasets a dummy input dataset is available.
 
 For data inquires, plese contact sven.eggimann@ouce.ox.ac.uk or `the consortium <https://www.itrc.org.uk/contact-us/>`_).

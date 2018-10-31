@@ -97,7 +97,7 @@ def package_data(
     folders_to_add = (
         ('_raw_data_minimal', '_raw_data'),
         ('scenarios_minimal', 'scenarios'),
-        ('region_definition_minimal', 'region_definition'),
+        ('region_definitions_minimal', 'region_definitions'),
         ('narratives_minimal', 'narratives'))
 
     zip_handler_minimum = zipfile.ZipFile(os.path.join(data_folder_path, zip_name_minimum), "a")

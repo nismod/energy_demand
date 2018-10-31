@@ -26,7 +26,7 @@ def calc_lf_y(fuel_yh):
     Note
     -----
         LECTRICAL AND PRODUCTION LOAD FACTORS
-        ## WRONG Load factor = average load / maximum load in given time period
+        ## Load factor = average load / maximum load in given time period
         Load factor = average load / peak load    # * meausred hours
         https://en.wikipedia.org/wiki/Load_factor_(electrical)
 

@@ -419,9 +419,6 @@ def spatio_temporal_val(
 
     elec_factored_yh = f_diff_elec * elec_2015_indo
 
-    logging.info("EKOLOGIT")
-    logging.info(elec_factored_yh[18])
-
     temporal_validation(
         result_paths,
         ed_fueltype_national_yh[fueltypes['electricity']],
