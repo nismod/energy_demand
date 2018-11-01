@@ -1402,11 +1402,9 @@ def get_service_diffusion(param_tech, curr_yr):
     if param_tech['l_parameter'] is None:
         s_tech_p = 0
     elif param_tech['l_parameter'] == 'linear':
-        #s_tech_p = 'identical' #TODO
 
         # Calcuate linear diffusion
         s_tech_p = param_tech['linear_slope'] * curr_yr + param_tech['linear_y_intercept']
-
     else:
         # Calculate sigmoid diffusion
         s_tech_p = diffusion_technologies.sigmoid_function(
@@ -1415,7 +1413,7 @@ def get_service_diffusion(param_tech, curr_yr):
             param_tech['midpoint'],
             param_tech['steepness'])
 
-    # becuase of rounding error may be minus #TODO NEW
+    # becuase of rounding error may be minus
     if s_tech_p < 0:
         assert s_tech_p < 0.0001 # Trow error if not rounding error. Something else went wrong
         s_tech_p = 0
@@ -1485,21 +1483,8 @@ def apply_service_switch(
 
             # Get service share per tech of cy of sigmoid parameter calculations
             p_s_tech_cy = annual_tech_diff_params[enduse][sector][tech][curr_yr]
-            print("_______ {}  {} {}  {} {} {}".format(curr_yr, enduse, sector, tech, p_s_tech_cy, service_all_techs)) #TODO REMOVE
-            print(annual_tech_diff_params[enduse][sector][tech])
-            '''if enduse == 'is_space_heating' and sector == 'chemicals':
-
-                print("================")
-                print(annual_tech_diff_params[enduse])
-                raise Exception("FF")'''
-            #if p_s_tech_cy == 'identical':
-            #    switched_s_tech_y_cy[tech] = s_tech_y_cy[tech]
-            #else:
-            #    switched_s_tech_y_cy[tech] = service_all_techs * p_s_tech_cy
             switched_s_tech_y_cy[tech] = service_all_techs * p_s_tech_cy
-
-            assert switched_s_tech_y_cy[tech] >= 0
-
+            #assert switched_s_tech_y_cy[tech] >= 0
         return switched_s_tech_y_cy
     else:
         return s_tech_y_cy

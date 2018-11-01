@@ -2,7 +2,6 @@
 """
 import logging
 from collections import defaultdict
-import time
 import numpy as np
 
 from energy_demand.geography import spatial_diffusion
@@ -237,12 +236,7 @@ def switch_calculations(
     for submodel in data['assumptions'].submodels_names:
         for enduse in data['enduses'][submodel]:
             for sector in data['sectors'][submodel]:
-                print("AABU {}  {}".format(sector, enduse))
 
-                #if sector == 'electrical_equipment' and enduse == 'is_space_heating':
-                #if sector == 'chemicals' and enduse == 'is_space_heating':
-                #    print(share_s_tech_ey_p[sector][enduse][data['regions'][0]])
-                #    raise Exception("FFd")
                 diffusion_param_tech[enduse][sector] = sig_param_calc_incl_fuel_switch(
                     narrative_timesteps,
                     data['assumptions'].base_yr,
@@ -266,11 +260,6 @@ def switch_calculations(
         data['regions'],
         dict(diffusion_param_tech))
 
-
-    print("AA")
-    print(annual_tech_diff_params[data['regions'][0]]['is_space_heating']['electrical_equipment']['heat_pumps_electricity'][2015])
-    print(annual_tech_diff_params[data['regions'][0]]['is_space_heating']['electrical_equipment']['heat_pumps_electricity'][2050])
-    #raise Exception("FFF")
     return annual_tech_diff_params
 
 def spatial_explicit_modelling_strategy_vars(
@@ -678,10 +667,8 @@ def sig_param_calc_incl_fuel_switch(
                 # Fuel switch
                 # ------------------------------------------
                 if crit_fuel_switch:
-                    """
-                    Calculate future service share after fuel switches
-                    and calculte sigmoid diffusion paramters.
-                    """
+                    """Calculate future service share after fuel switches
+                    and calculte sigmoid diffusion paramters."""
                     # Get fuel switches of enduse and switch_yr
                     enduse_fuel_switches = fuel_service_switch.get_switches_of_enduse(
                         fuel_switches, enduse, switch_yr, crit_region=False)
@@ -766,7 +753,6 @@ def sig_param_calc_incl_fuel_switch(
                 else:
                     logging.info("... calc region specific parameters of `{}` for year `{}` sector: {}".format(enduse, switch_yr, sector))
 
-                    #start = time.time()
                     for region in regions:
                         sig_param_tech[switch_yr][region] = s_generate_sigmoid.tech_sigmoid_parameters(
                             switch_yr,
@@ -775,12 +761,14 @@ def sig_param_calc_incl_fuel_switch(
                             l_values_sig[region],
                             s_tech_by_p,
                             s_tech_switched_p[region][switch_yr])
-                    #end = time.time()
-                    #print("Time use for sigmoid parameter calaulations (reduce number of iteraitons for speedup): " + str(end - start), flush=True)
 
     return sig_param_tech
 
-def get_sector__enduse_switches(sector_to_match, enduse_to_match, switches):
+def get_sector__enduse_switches(
+        sector_to_match,
+        enduse_to_match,
+        switches
+    ):
     """Get all switches of a sector if the switches are
     defined specifically for a sector. If the switches are
     not specifically for a sector, return all switches
@@ -801,12 +789,6 @@ def get_sector__enduse_switches(sector_to_match, enduse_to_match, switches):
     switches_out = set([])
 
     for switch in switches:
-
-        # If sector is None
-        '''if not switch.sector and not sector_to_match:
-            switches.add(switch)
-        else:'''
-
         if switch.sector == sector_to_match and switch.enduse == enduse_to_match:
             switches_out.add(switch)
         elif not switch.sector and switch.enduse == enduse_to_match: # Not defined specifically for sectors and add all

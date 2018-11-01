@@ -588,7 +588,6 @@ def tech_sigmoid_parameters(
                 _a = (sig_params[tech]['linear_slope'] * 2050 + sig_params[tech]['linear_y_intercept'])
                 if _a < 0:
                     assert _a < 0.0001
-                
             else:
                 # Test if no increase or decrease or if no future potential share
                 if (point_y_by == fit_assump_init and point_y_ey == fit_assump_init) or (
@@ -608,11 +607,10 @@ def tech_sigmoid_parameters(
                         # Calculate linear slope and linear y-intercept (with two data points)
                         sig_params[tech]['linear_slope'] = calc_m(xdata[0], xdata[1], ydata[0], ydata[1])
                         sig_params[tech]['linear_y_intercept'] = calc_c(sig_params[tech]['linear_slope'], xdata[0], ydata[0])
-                        
+
                         _a = (sig_params[tech]['linear_slope'] * 2050 + sig_params[tech]['linear_y_intercept'])
                         if _a < 0:
                             assert _a < 0.0001
-
                     try:
                         # Parameter fitting
                         ##print("----start fitting" ) #, flush=True)
@@ -651,13 +649,10 @@ def tech_sigmoid_parameters(
                         sig_params[tech]['l_parameter'] = 'linear'
 
                         # Calculate linear slope and linear y-intercept (with two data points)
-                        m = calc_m(xdata[0], xdata[1], ydata[0], ydata[1])
-                        intercept =  calc_c(m, xdata[0], ydata[0])
-                        sig_params[tech]['linear_slope'] = m
-                        sig_params[tech]['linear_y_intercept'] = intercept
+                        sig_params[tech]['linear_slope'] = calc_m(xdata[0], xdata[1], ydata[0], ydata[1])
+                        sig_params[tech]['linear_y_intercept'] = calc_c(sig_params[tech]['linear_slope'], xdata[0], ydata[0])
 
-                        #_a = (sig_params[tech]['linear_slope'] * 2050 + sig_params[tech]['linear_y_intercept'])
-                        _a = (m * 2050 + intercept)
+                        _a = (sig_params[tech]['linear_slope'] * 2050 + sig_params[tech]['linear_y_intercept'])
                         if _a < 0:
                             assert _a < 0.0001
      

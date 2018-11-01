@@ -83,17 +83,14 @@ def calc_annual_switch_params(
     for region in regions:
         annual_tech_diff_params[region] = {}
 
-        # Iterate enduses
         for enduse, sector_region_tech_vals in diffusion_param_tech.items():
             annual_tech_diff_params[region][enduse] = {}
 
-            # Iterate sectors
             for sector, reg_vals in sector_region_tech_vals.items():
 
                 if reg_vals != {}:
                     annual_tech_diff_params[region][enduse][sector] = defaultdict(dict)
 
-                    # Iterate simulation years
                     for sim_yr in simulated_yrs:
 
                         narrative_timesteps = list(sector_region_tech_vals[sector].keys())
@@ -107,8 +104,6 @@ def calc_annual_switch_params(
                             p_s_tech = enduse_func.get_service_diffusion(
                                 param, sim_yr)
 
-                            print("fdff {}  {}  {} {} {}".format(sim_yr, enduse, sector, tech, p_s_tech))
-                            print(param)
                             assert p_s_tech >= 0 #Check if minus
 
                             annual_tech_diff_params[region][enduse][sector][tech][sim_yr] = p_s_tech
