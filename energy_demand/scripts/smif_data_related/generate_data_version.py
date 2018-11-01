@@ -161,5 +161,5 @@ if __name__ == '__main__':
     python ../generate_data_version.py v_6_1 C:/path_to_data
     """
     # Map command line arguments to function arguments.
-    #package_data(*sys.argv[1:])
-    package_data('v_0700', 'C:/Users/cenv0553/ED/data')
+    package_data(*sys.argv[1:])
+    #package_data('v_0700', 'C:/Users/cenv0553/ED/data')
