@@ -9,7 +9,7 @@ from energy_demand.read_write import data_loader
 from pkg_resources import resource_filename
 from pkg_resources import Requirement
 
-def test_assign_by_fuel_tech_p():
+'''def test_assign_by_fuel_tech_p():
     """
     """
     path_main = resource_filename(
@@ -46,3 +46,4 @@ def test_assign_by_fuel_tech_p():
         data['sectors'],
         data['lookups']['fueltypes'],
         data['lookups']['fueltypes_nr'])
+'''
