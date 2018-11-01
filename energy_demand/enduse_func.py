@@ -1477,11 +1477,11 @@ def apply_service_switch(
             p_s_tech_cy = annual_tech_diff_params[enduse][sector][tech][curr_yr]
             print("_______ {}  {} {}  {} {}".format(curr_yr, enduse, sector, tech, p_s_tech_cy)) #TODO REMOVE
 
-            if enduse == 'is_space_heating' and sector == 'chemicals':
+            '''if enduse == 'is_space_heating' and sector == 'chemicals':
 
                 print("================")
                 print(annual_tech_diff_params[enduse])
-                raise Exception("FF")
+                raise Exception("FF")'''
             if p_s_tech_cy == 'identical':
                 switched_s_tech_y_cy[tech] = s_tech_y_cy[tech]
             else:

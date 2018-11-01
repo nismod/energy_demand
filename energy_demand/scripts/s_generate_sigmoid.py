@@ -538,7 +538,7 @@ def tech_sigmoid_parameters(
             point_x_ey = yr_until_switched
             point_y_ey = s_tech_switched_p[tech]
 
-            # If future share is zero, entry small value
+            # If future share is zero, entry small value #TODO: INSERT AGIAN
             if point_y_ey == 0:
                 point_y_ey = fit_assump_init
             elif point_y_ey == 1.0:
