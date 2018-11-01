@@ -163,7 +163,7 @@ if __name__ == "__main__":
     name_region_set = os.path.join(local_data_path, 'region_definitions', "lad_2016_uk_simplified.shp") # LAD
 
     local_scenario = 'dummy_scenario' #'pop-a_econ-c_fuel-c'
-    #local_scenario = 'pop-a_econ-c_fuel-c' #'pop-a_econ-c_fuel-c'
+    local_scenario = 'pop-a_econ-c_fuel-c' #'pop-a_econ-c_fuel-c'
 
     name_population_dataset = os.path.join(local_data_path, 'scenarios', 'MISTRAL_pop_gva', 'data', '{}/population__lad.csv'.format(local_scenario)) # Constant scenario
 
@@ -234,6 +234,11 @@ if __name__ == "__main__":
         reg_nrs=len(data['regions']),
         fueltypes=data['lookups']['fueltypes'],
         fueltypes_nr=data['lookups']['fueltypes_nr'])
+
+    # SCRAP REMOVE
+    setattr(data['assumptions'], 'flat_heat_pump_profile_both', 0)
+    setattr(data['assumptions'], 'flat_heat_pump_profile_only_water', 0)
+
 
     # -----------------------------------------------------------------------------
     # Calculate population density for base year

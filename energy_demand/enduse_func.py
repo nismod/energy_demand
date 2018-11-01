@@ -1381,15 +1381,15 @@ def convert_service_to_p(tot_s_y, s_fueltype_tech):
 
     return s_tech_p
 
-def get_service_diffusion(sig_param_tech, curr_yr):
+def get_service_diffusion(param_tech, curr_yr):
     """Calculate energy service fraction of technologies
     with increased service for current year based
     on sigmoid diffusion or linear diffusion according
-    to provided sig_param_tech
+    to provided param_tech
 
     Arguments
     ----------
-    sig_param_tech : dict
+    param_tech : dict
         Sigmoid diffusion parameters per technology
     curr_yr : dict
         Current year
@@ -1399,16 +1399,26 @@ def get_service_diffusion(sig_param_tech, curr_yr):
     s_tech_p : dict
         Share of service per technology of current year
     """
-    if sig_param_tech['l_parameter'] is None:
+    if param_tech['l_parameter'] is None:
         s_tech_p = 0
-    elif sig_param_tech['l_parameter'] == 'linear':
-        s_tech_p = 'identical'
+    elif param_tech['l_parameter'] == 'linear':
+        #s_tech_p = 'identical' #TODO
+
+        # Calcuate linear diffusion
+        s_tech_p = param_tech['linear_slope'] * curr_yr + param_tech['linear_y_intercept']
+
     else:
+        # Calculate sigmoid diffusion
         s_tech_p = diffusion_technologies.sigmoid_function(
             curr_yr,
-            sig_param_tech['l_parameter'],
-            sig_param_tech['midpoint'],
-            sig_param_tech['steepness'])
+            param_tech['l_parameter'],
+            param_tech['midpoint'],
+            param_tech['steepness'])
+
+    # becuase of rounding error may be minus #TODO NEW
+    if s_tech_p < 0:
+        assert s_tech_p < 0.0001 # Trow error if not rounding error. Something else went wrong
+        s_tech_p = 0
 
     return s_tech_p
 
@@ -1475,17 +1485,18 @@ def apply_service_switch(
 
             # Get service share per tech of cy of sigmoid parameter calculations
             p_s_tech_cy = annual_tech_diff_params[enduse][sector][tech][curr_yr]
-            print("_______ {}  {} {}  {} {}".format(curr_yr, enduse, sector, tech, p_s_tech_cy)) #TODO REMOVE
-
+            print("_______ {}  {} {}  {} {} {}".format(curr_yr, enduse, sector, tech, p_s_tech_cy, service_all_techs)) #TODO REMOVE
+            print(annual_tech_diff_params[enduse][sector][tech])
             '''if enduse == 'is_space_heating' and sector == 'chemicals':
 
                 print("================")
                 print(annual_tech_diff_params[enduse])
                 raise Exception("FF")'''
-            if p_s_tech_cy == 'identical':
-                switched_s_tech_y_cy[tech] = s_tech_y_cy[tech]
-            else:
-                switched_s_tech_y_cy[tech] = service_all_techs * p_s_tech_cy
+            #if p_s_tech_cy == 'identical':
+            #    switched_s_tech_y_cy[tech] = s_tech_y_cy[tech]
+            #else:
+            #    switched_s_tech_y_cy[tech] = service_all_techs * p_s_tech_cy
+            switched_s_tech_y_cy[tech] = service_all_techs * p_s_tech_cy
 
             assert switched_s_tech_y_cy[tech] >= 0
 

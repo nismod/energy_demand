@@ -163,51 +163,57 @@ def create_switches_from_s_shares(
 
     # Normalise: convert to percentage
     tot_share_not_assigned = sum(tech_not_assigned_by_p.values())
-    for tech, share_by in tech_not_assigned_by_p.items():
+    
+    # TODO NEW NEW: IF NOT FUEL IS ASSIGNED; LEAVE SWITCHES AS THEY ARE KAMEL
+    print("KAMEL")
+    if tot_share_not_assigned == 0:
+        service_switches_out = enduse_switches
+    else:
+        for tech, share_by in tech_not_assigned_by_p.items():
 
-        if tot_share_not_assigned == 0:
-            tech_not_assigned_by_p[tech] = 0
-        else:
-            tech_not_assigned_by_p[tech] = share_by / tot_share_not_assigned
-
-    # Get all defined technologies in base year
-    for tech in specified_tech_enduse_by[enduse][sector]:
-
-        if tech not in switch_technologies:
-
-            if s_tot_defined == 1.0:
-                # All technologies are fully defined
-                switch_new = read_data.ServiceSwitch(
-                    enduse=enduse,
-                    sector=sector,
-                    technology_install=tech,
-                    service_share_ey=0,
-                    switch_yr=switch_yr)
+            if tot_share_not_assigned == 0:
+                tech_not_assigned_by_p[tech] = 0
             else:
-                # Calculate not defined share in switches
-                s_not_assigned = 1 - s_tot_defined
+                tech_not_assigned_by_p[tech] = share_by / tot_share_not_assigned
 
-                # Reduce not assigned share proportionally
-                tech_ey_p = tech_not_assigned_by_p[tech] * s_not_assigned
+        # Get all defined technologies in base year
+        for tech in specified_tech_enduse_by[enduse][sector]:
 
-                switch_new = read_data.ServiceSwitch(
-                    enduse=enduse,
-                    sector=sector,
-                    technology_install=tech,
-                    service_share_ey=tech_ey_p,
-                    switch_yr=switch_yr)
+            if tech not in switch_technologies:
 
-            service_switches_out.append(switch_new)
-        else:
-            # If assigned copy to final switches
-            for switch_new in enduse_switches:
-                if switch_new.technology_install == tech:
+                if s_tot_defined == 1.0:
+                    # All technologies are fully defined
+                    switch_new = read_data.ServiceSwitch(
+                        enduse=enduse,
+                        sector=sector,
+                        technology_install=tech,
+                        service_share_ey=0,
+                        switch_yr=switch_yr)
+                else:
+                    # Calculate not defined share in switches
+                    s_not_assigned = 1 - s_tot_defined
 
-                    # If no fuel demand, also no switch possible
-                    if tot_share_not_assigned == 0:
-                        switch_new.service_share_ey = 0
+                    # Reduce not assigned share proportionally #TODO HWAT IF ZERO
+                    tech_ey_p = tech_not_assigned_by_p[tech] * s_not_assigned
 
-                    service_switches_out.append(switch_new)
+                    switch_new = read_data.ServiceSwitch(
+                        enduse=enduse,
+                        sector=sector,
+                        technology_install=tech,
+                        service_share_ey=tech_ey_p,
+                        switch_yr=switch_yr)
+
+                service_switches_out.append(switch_new)
+            else:
+                # If assigned copy to final switches
+                for switch_new in enduse_switches:
+                    if switch_new.technology_install == tech:
+
+                        # If no fuel demand, also no switch possible
+                        if tot_share_not_assigned == 0:
+                            switch_new.service_share_ey = 0
+
+                        service_switches_out.append(switch_new)
 
     return service_switches_out
 

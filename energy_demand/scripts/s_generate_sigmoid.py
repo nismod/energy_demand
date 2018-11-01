@@ -50,8 +50,7 @@ def calc_sigmoid_parameters(
     # ---------------------------------------------
     # Generate possible starting parameters for fit
     # ---------------------------------------------
-    start_param_list = [
-        0.0, 1.0, 0.0001, 0.001, 0.01]
+    start_param_list = [0.0, 1.0, 0.0001, 0.001, 0.01]
 
     # ---------------------------------------------
     # Fit
@@ -65,7 +64,7 @@ def calc_sigmoid_parameters(
                 round(start_param_list[cnt], 3)]
 
             # ------------------------------------------------
-            # Test if parameter[1] shoudl be minus or positive
+            # Test if parameter[1] should be minus or positive
             # ------------------------------------------------
             if ydata[0] < ydata[1]: # end point has higher value
                 crit_plus_minus = 'plus'
@@ -504,10 +503,18 @@ def tech_sigmoid_parameters(
                                 rounding error, there might be very small
                                 differences in percentual service demand.
     """
+    def calc_m(x1, x2, y1, y2):
+        m = (y1-y2) / (x1 - x2)
+        return m
+
+    def calc_c(m, x1, y1):
+        c = y1 - (m * x1)
+        return c
+
     rounding_accuracy = 4       # Criteria how much difference in % can be rounded
-    linear_approx_crit = 0.001  # Criteria to simplify with linear approximation if difference is smaller (decimal) # 0.001
-    error_range = 0.0002        # Error how close the fit must be                                                   # 0.0002
-    number_of_iterations = 100  # Number of iterations of sigmoid fitting algorithm                                 # 1000
+    linear_approx_crit = 0.001  # Criteria to simplify with linear approximation if difference is smaller (decimal)
+    error_range = 0.0002        # Error how close the fit must be
+    number_of_iterations = 100  # Number of iterations of sigmoid fitting algorithm
 
     # Technologies to apply calculation
     installed_techs = s_tech_by_p.keys()
@@ -549,7 +556,7 @@ def tech_sigmoid_parameters(
             # Data of the two points
             xdata = np.array([point_x_by, point_x_ey])
             ydata = np.array([point_y_by, point_y_ey])
-
+            #print("FFF {}  {} {}".format(tech, xdata, ydata))
             '''logging.info(
                 "... create sigmoid diffusion %s - %s - %s - %s - l_val: %s - %s - %s lval: %s",
                 tech,
@@ -573,6 +580,15 @@ def tech_sigmoid_parameters(
                 sig_params[tech]['midpoint'] = 'linear'
                 sig_params[tech]['steepness'] = 'linear'
                 sig_params[tech]['l_parameter'] = 'linear'
+                
+                # Calculate linear slope and linear y-intercept (with two data points)
+                sig_params[tech]['linear_slope'] = calc_m(xdata[0], xdata[1], ydata[0], ydata[1])
+                sig_params[tech]['linear_y_intercept'] = calc_c(sig_params[tech]['linear_slope'], xdata[0], ydata[0])
+
+                _a = (sig_params[tech]['linear_slope'] * 2050 + sig_params[tech]['linear_y_intercept'])
+                if _a < 0:
+                    assert _a < 0.0001
+                
             else:
                 # Test if no increase or decrease or if no future potential share
                 if (point_y_by == fit_assump_init and point_y_ey == fit_assump_init) or (
@@ -588,6 +604,14 @@ def tech_sigmoid_parameters(
                         sig_params[tech]['midpoint'] = 'linear'
                         sig_params[tech]['steepness'] = 'linear'
                         sig_params[tech]['l_parameter'] = 'linear'
+
+                        # Calculate linear slope and linear y-intercept (with two data points)
+                        sig_params[tech]['linear_slope'] = calc_m(xdata[0], xdata[1], ydata[0], ydata[1])
+                        sig_params[tech]['linear_y_intercept'] = calc_c(sig_params[tech]['linear_slope'], xdata[0], ydata[0])
+                        
+                        _a = (sig_params[tech]['linear_slope'] * 2050 + sig_params[tech]['linear_y_intercept'])
+                        if _a < 0:
+                            assert _a < 0.0001
 
                     try:
                         # Parameter fitting
@@ -626,4 +650,15 @@ def tech_sigmoid_parameters(
                         sig_params[tech]['steepness'] = 'linear'
                         sig_params[tech]['l_parameter'] = 'linear'
 
+                        # Calculate linear slope and linear y-intercept (with two data points)
+                        m = calc_m(xdata[0], xdata[1], ydata[0], ydata[1])
+                        intercept =  calc_c(m, xdata[0], ydata[0])
+                        sig_params[tech]['linear_slope'] = m
+                        sig_params[tech]['linear_y_intercept'] = intercept
+
+                        #_a = (sig_params[tech]['linear_slope'] * 2050 + sig_params[tech]['linear_y_intercept'])
+                        _a = (m * 2050 + intercept)
+                        if _a < 0:
+                            assert _a < 0.0001
+     
     return dict(sig_params)

@@ -325,10 +325,6 @@ def assign_by_fuel_tech_p(
         sectors=sectors['industry'],
         affected_enduses=enduses['industry'])
 
-
-    #print("_________a______")
-    #print(pprint.pprint(fuel_tech_p_by['is_high_temp_process']))
-
     # ----------------
     # Industrial High temporal processes (is_high_temp_process)
     # ----------------

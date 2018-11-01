@@ -232,12 +232,18 @@ def switch_calculations(
     # Calculate sigmoid diffusion considering fuel switches
     # and service switches. As inputs, service (and thus also capacity switches) are used
     # ========================================================================================
-    sig_param_tech = defaultdict(dict)
+    diffusion_param_tech = defaultdict(dict)
 
     for submodel in data['assumptions'].submodels_names:
         for enduse in data['enduses'][submodel]:
             for sector in data['sectors'][submodel]:
-                sig_param_tech[enduse][sector] = sig_param_calc_incl_fuel_switch(
+                print("AABU {}  {}".format(sector, enduse))
+
+                #if sector == 'electrical_equipment' and enduse == 'is_space_heating':
+                #if sector == 'chemicals' and enduse == 'is_space_heating':
+                #    print(share_s_tech_ey_p[sector][enduse][data['regions'][0]])
+                #    raise Exception("FFd")
+                diffusion_param_tech[enduse][sector] = sig_param_calc_incl_fuel_switch(
                     narrative_timesteps,
                     data['assumptions'].base_yr,
                     data['assumptions'].crit_switch_happening,
@@ -258,8 +264,13 @@ def switch_calculations(
     annual_tech_diff_params = s_scenario_param.calc_annual_switch_params(
         simulated_yrs,
         data['regions'],
-        dict(sig_param_tech))
+        dict(diffusion_param_tech))
 
+
+    print("AA")
+    print(annual_tech_diff_params[data['regions'][0]]['is_space_heating']['electrical_equipment']['heat_pumps_electricity'][2015])
+    print(annual_tech_diff_params[data['regions'][0]]['is_space_heating']['electrical_equipment']['heat_pumps_electricity'][2050])
+    #raise Exception("FFF")
     return annual_tech_diff_params
 
 def spatial_explicit_modelling_strategy_vars(
@@ -755,9 +766,8 @@ def sig_param_calc_incl_fuel_switch(
                 else:
                     logging.info("... calc region specific parameters of `{}` for year `{}` sector: {}".format(enduse, switch_yr, sector))
 
-                    start = time.time()
+                    #start = time.time()
                     for region in regions:
-                        #print("REGION " + str(region), flush=True)
                         sig_param_tech[switch_yr][region] = s_generate_sigmoid.tech_sigmoid_parameters(
                             switch_yr,
                             switch_yr_start,
@@ -765,8 +775,8 @@ def sig_param_calc_incl_fuel_switch(
                             l_values_sig[region],
                             s_tech_by_p,
                             s_tech_switched_p[region][switch_yr])
-                    end = time.time()
-                    print("Time use for sigmoid parameter calaulations (reduce number of iteraitons for speedup): " + str(end - start), flush=True)
+                    #end = time.time()
+                    #print("Time use for sigmoid parameter calaulations (reduce number of iteraitons for speedup): " + str(end - start), flush=True)
 
     return sig_param_tech
 
