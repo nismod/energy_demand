@@ -6,7 +6,8 @@ import sys
 from energy_demand.result_processing import single_scenario
 
 def process_result_multi_scen(
-        path_to_folder_with_scenarios="C:/Users/cenv0553/ed/results/_multiple_TEST",
+        #path_to_folder_with_scenarios="C:/Users/cenv0553/ed/results/_multiple_TEST",
+        path_to_folder_with_scenarios="C:/Users/cenv0553/ed/results/_SCENARIOS_NEW_PAPERI",
         #path_shapefile_input="C:/Users/cenv0553/ED/data/region_definitions/msoa_uk/msoa_lad_2015_uk.shp",
         path_shapefile_input="C:/Users/cenv0553/ED/data/region_definitions/lad_2016_uk_simplified.shp",
         base_yr=2015,

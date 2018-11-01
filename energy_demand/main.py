@@ -3,15 +3,7 @@
 #   make that automatically the parameters can be generated to be copied into smif format
 # REMOVE HDD CODE PLOTTING
 #TODO Test if technology type can be left empty in technology spreadsheet, Try to remove tech_type
-#TODO Write out full result. Then write function to aggregate accordingly
-#TODO SIMple aggregation. Write out sectormodel, enduse, region, fueltypes.... --> Do all aggregation based on that
-# MAKE SIMLPLE TABLE FOR READING IN FUELS
-# correction factors on LAD level disaggregation? (load non-residential demand)
-# Improve plotting and processing (e.g. saisonal plots)
-# Weather station cleaning: Replace days with missing values
-#TODO IMROVE PLOTTING (second round of geopanda classification)
-# # Fix regional plots
-# Potentially add enduses in array
+#TODO ADD HEAT SOLD
 # TEST NON CONSTRAINED MODE
 #   Note
     ----
@@ -113,8 +105,8 @@ if __name__ == "__main__":
     data['criterias'] = {}
     data['criterias']['mode_constrained'] = True                    # True: Technologies are defined in ED model and fuel is provided, False: Heat is delievered not per technologies
     data['criterias']['virtual_building_stock_criteria'] = True     # True: Run virtual building stock model
-    data['criterias']['spatial_calibration'] = False
-    data['criterias']['cluster_calc'] = False
+    data['criterias']['spatial_calibration'] = False                # True: Spatial calibration
+    data['criterias']['cluster_calc'] = False                       # True: If run on a linux cluster
 
     fast_model_run = False
     if fast_model_run == True:
@@ -159,7 +151,7 @@ if __name__ == "__main__":
             weather_station_count_nr = []
     else:
         scenario_name = "_run_"
-        weather_yr_scenario = 2013                      # Default weather year
+        weather_yr_scenario = 2015                      # Default weather year
         weather_station_count_nr = []                   # Default weather year
 
     print("Information")
@@ -168,16 +160,12 @@ if __name__ == "__main__":
     print("weather_station_count_nr:    " + str(weather_station_count_nr))
 
     # --- Region definition configuration
-    name_region_set = os.path.join(local_data_path, 'region_definitions', "lad_2016_uk_simplified.shp")        # LAD
+    name_region_set = os.path.join(local_data_path, 'region_definitions', "lad_2016_uk_simplified.shp") # LAD
 
-    local_scenario = 'pop-a_econ-c_fuel-c'
-    #name_population_dataset = os.path.join(local_data_path, 'scenarios', 'uk_pop_high_migration_2015_2050.csv')
-    #name_population_dataset = os.path.join(local_data_path, 'scenarios', 'uk_pop_constant_2015_2050.csv') # Constant scenario
+    local_scenario = 'dummy_scenario' #'pop-a_econ-c_fuel-c'
+    local_scenario = 'pop-a_econ-c_fuel-c' #'pop-a_econ-c_fuel-c'
+
     name_population_dataset = os.path.join(local_data_path, 'scenarios', 'MISTRAL_pop_gva', 'data', '{}/population__lad.csv'.format(local_scenario)) # Constant scenario
-    # MSOA model run
-    #name_region_set_selection = "msoa_regions_ed.csv"
-    #name_region_set = os.path.join(local_data_path, 'region_definitions', 'msoa_uk', "msoa_lad_2015_uk.shp")    # MSOA
-    #name_population_dataset = os.path.join(local_data_path, 'scenarios', 'uk_pop_high_migration_2015_2050.csv')
 
     # GVA datasets
     name_gva_dataset = os.path.join(local_data_path, 'scenarios', 'MISTRAL_pop_gva', 'data', '{}/gva_per_head__lad_sector.csv'.format(local_scenario))
@@ -246,6 +234,11 @@ if __name__ == "__main__":
         reg_nrs=len(data['regions']),
         fueltypes=data['lookups']['fueltypes'],
         fueltypes_nr=data['lookups']['fueltypes_nr'])
+
+    # SCRAP REMOVE
+    setattr(data['assumptions'], 'flat_heat_pump_profile_both', 0)
+    setattr(data['assumptions'], 'flat_heat_pump_profile_only_water', 0)
+
 
     # -----------------------------------------------------------------------------
     # Calculate population density for base year

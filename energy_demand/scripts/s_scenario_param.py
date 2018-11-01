@@ -61,7 +61,7 @@ def get_correct_narrative_timestep(
 def calc_annual_switch_params(
         simulated_yrs,
         regions,
-        sig_param_tech
+        diffusion_param_tech
     ):
     """Calculate annual diffusion parameters
     for technologies based on sigmoid diffusion parameters
@@ -72,8 +72,8 @@ def calc_annual_switch_params(
         Simulated years
     regions : list
         Regions
-    sig_param_tech : dict
-        Sigmoid parameters per submodel
+    diffusion_param_tech : dict
+        Diffusion parameters per submodel
 
     Returns
     -------
@@ -83,31 +83,28 @@ def calc_annual_switch_params(
     for region in regions:
         annual_tech_diff_params[region] = {}
 
-        # Iterate enduses
-        for enduse, sector_region_tech_vals in sig_param_tech.items():
+        for enduse, sector_region_tech_vals in diffusion_param_tech.items():
             annual_tech_diff_params[region][enduse] = {}
 
-            # Iterate sectors
             for sector, reg_vals in sector_region_tech_vals.items():
 
                 if reg_vals != {}:
                     annual_tech_diff_params[region][enduse][sector] = defaultdict(dict)
 
-                    # Iterate simulation years
                     for sim_yr in simulated_yrs:
 
                         narrative_timesteps = list(sector_region_tech_vals[sector].keys())
-
                         correct_narrative_timestep = get_correct_narrative_timestep(
                             sim_yr=sim_yr, narrative_timesteps=narrative_timesteps)
 
+                        # Calculate parameter for year with diffusion parameter
                         for tech in reg_vals[correct_narrative_timestep][region].keys():
 
-                            # Sigmoid parameters
                             param = reg_vals[correct_narrative_timestep][region][tech]
-
                             p_s_tech = enduse_func.get_service_diffusion(
                                 param, sim_yr)
+
+                            assert p_s_tech >= 0 #Check if minus
 
                             annual_tech_diff_params[region][enduse][sector][tech][sim_yr] = p_s_tech
                 else:

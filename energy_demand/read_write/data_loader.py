@@ -495,7 +495,6 @@ def get_local_paths(path):
             path, '00_user_defined_variables', 'switches_service.csv'),
         'path_capacity_installation': os.path.join(
             path, '00_user_defined_variables', 'switches_capacity.csv'),
-
         'path_population_data_for_disaggregation_LAD': os.path.join(
             path, '_raw_data', 'J-population_disagg_by', 'uk_pop_principal_2015_2050.csv'), #ONS principal projection
         'path_population_data_for_disaggregation_MSOA': os.path.join(
@@ -955,6 +954,10 @@ def load_fuels(submodels_names, paths, fueltypes_nr):
         Sectors for every submodel
     fuels : dict
         yearly fuels for every submodel
+    enduses_lookup : dict
+        Lookup of end uses
+    lookup_sector_enduses : dict
+        Sector enduse lookup
     """
     enduses, sectors, fuels = {}, {}, {}
     enduses_lookup = {}

@@ -893,16 +893,14 @@ def plot_radar_plots_average_peak_day(
 
     MAYBE: SO FAR ONLY FOR ONE SCENARIO
     """
-    name_spider_plot = os.path.join(
-        fig_name, "spider_scenarios_{}.pdf".format(fueltype_to_model))
-
     fueltype_int = fueltypes[fueltype_to_model]
 
     # ----------------
     # Create base year peak load profile
     # Aggregate load profiles of all regions
     # -----------------
-    individ_radars_to_plot_dh = []
+    peak_winter_individ_radars_to_plot_dh = []
+    trough_summer_individ_radars_to_plot_dh = []
     load_factor_fueltype_y_cy = []
     results_txt = []
 
@@ -923,6 +921,10 @@ def plot_radar_plots_average_peak_day(
             all_regs_fueltypes_yh_by[fueltype_int])
         peak_day_nr_cy, cy_max_h = enduse_func.get_peak_day_single_fueltype(
             all_regs_fueltypes_yh_cy[fueltype_int])
+
+        # Minimum trough day
+        trough_day_nr_cy, by_min_h = enduse_func.get_trough_day_single_fueltype(
+            all_regs_fueltypes_yh_by[fueltype_int])
 
         scen_load_factor_fueltype_y_by = load_factors.calc_lf_y(all_regs_fueltypes_yh_by)
         load_factor_fueltype_y_by = round(scen_load_factor_fueltype_y_by[fueltype_int], fueltype_int)
@@ -976,26 +978,52 @@ def plot_radar_plots_average_peak_day(
         # Plot dh for peak day for base year
         # ----------------------------------
         if scenario_cnt == 0:
-            individ_radars_to_plot_dh.append(list(all_regs_fueltypes_yh_by[fueltype_int][peak_day_nr_by]))
+            peak_winter_individ_radars_to_plot_dh.append(list(all_regs_fueltypes_yh_by[fueltype_int][peak_day_nr_by]))
+            trough_summer_individ_radars_to_plot_dh.append(list(all_regs_fueltypes_yh_by[fueltype_int][trough_day_nr_cy]))
         else:
             pass
 
-        # Add current year
-        individ_radars_to_plot_dh.append(list(all_regs_fueltypes_yh_cy[fueltype_int][peak_day_nr_cy]))
+        # Add current year maximum winter peak day
+        peak_winter_individ_radars_to_plot_dh.append(list(all_regs_fueltypes_yh_cy[fueltype_int][peak_day_nr_cy]))
 
+        # Add current year minimum summer trough day
+        trough_summer_individ_radars_to_plot_dh.append(list(all_regs_fueltypes_yh_cy[fueltype_int][trough_day_nr_cy]))
+    
     # --------------------------
     # Save model results to txt
     # --------------------------
+    name_spider_plot_peak = os.path.join(
+        fig_name, "spider_scenarios_{}.pdf".format(fueltype_to_model))
+
     write_data.write_list_to_txt(
-        os.path.join(fig_name, name_spider_plot[:-3] + "txt"),
+        os.path.join(fig_name, name_spider_plot_peak[:-3] + "txt"),
         results_txt)
 
+    name_spider_plot_trough = os.path.join(
+        fig_name, "spider_scenarios_min_summer{}.pdf".format(fueltype_to_model))
+
+    write_data.write_list_to_txt(
+        os.path.join(fig_name, name_spider_plot_trough[:-3] + "txt"),
+        results_txt)
     # --------------------------
     # Plot figure
     # --------------------------
+
+    # PEAK WINTER DAY PLOTS
     plot_radar_plot_multiple_lines(
-        individ_radars_to_plot_dh,
-        name_spider_plot,
+        peak_winter_individ_radars_to_plot_dh,
+        name_spider_plot_peak,
+        plot_steps=50,
+        scenario_names=list(scenario_data.keys()),
+        plotshow=False,
+        lf_y_by=[],
+        lf_y_cy=[],
+        list_diff_max_h=results_txt)
+
+    # TROUGH Summer DAY PLOTS
+    plot_radar_plot_multiple_lines(
+        trough_summer_individ_radars_to_plot_dh,
+        name_spider_plot_trough,
         plot_steps=50,
         scenario_names=list(scenario_data.keys()),
         plotshow=False,

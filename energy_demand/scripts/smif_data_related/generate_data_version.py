@@ -51,24 +51,14 @@ def package_data(
     zip_name_full = os.path.join(data_folder_path, "{}_{}".format(version_name, "full.zip"))
     zip_name_minimum = os.path.join(data_folder_path, "{}_{}".format(version_name, "minimum.zip"))
 
-    # Files to folders
-    files_to_add = [
-        'units.txt',
-        'population-economic-smif-csv-from-nismod-db.zip',
-        'population-economic-tables-nismod-db.zip']
-
     # Zip minimum files
     _raw_folders_data_minimal = [
         'coefficients',
         'initial_conditions',
         'interval_definitions',
         '00_user_defined_variables',
-        '00_user_defined_variables_SCENARIO',
         'interventions',
-        'narratives',
         'planning',
-        'region_definitions',
-        'scenarios',
         'strategies']
 
     # Zip maximum files
@@ -101,22 +91,35 @@ def package_data(
         dir_list=paths_minimal,
         zip_name=zip_name_minimum)
 
-    # Add renamed folder
-    folder_to_add = os.path.join(data_folder_path, '_raw_data_minimal')
-    renamed_folder = '_raw_data'
+    # -------------------------------------------
+    # Add folder _raw_data_minimal' and rename it
+    # -------------------------------------------
+    folders_to_add = (
+        ('_raw_data_minimal', '_raw_data'),
+        ('scenarios_minimal', 'scenarios'),
+        ('region_definitions_minimal', 'region_definitions'),
+        ('narratives_minimal', 'narratives'))
 
     zip_handler_minimum = zipfile.ZipFile(os.path.join(data_folder_path, zip_name_minimum), "a")
 
-    for root, dirs, files in os.walk(folder_to_add):
-        for file in files:
+    for folder_name_to_add, renamed_folder in folders_to_add:
+        folder_to_add = os.path.join(data_folder_path, folder_name_to_add)
 
-            # New path
-            inter_folderes = root.split("_raw_data_minimal\\")
-            new_path = os.path.join(renamed_folder, inter_folderes[1], file)
+        for root, dirs, files in os.walk(folder_to_add):
+            for file in files:
 
-            zip_handler_minimum.write(
-                filename=os.path.join(root, file),
-                arcname=new_path)
+                # New path
+                root_renamed = root.replace(folder_name_to_add, renamed_folder)
+
+                # Get rid of local paths
+                root_renamed_without_local_path = root_renamed.split(data_folder_path)[1]
+
+                new_path = os.path.join(root_renamed_without_local_path, file)
+                print("new_path" + str(new_path))
+
+                zip_handler_minimum.write(
+                    filename=os.path.join(root, file),
+                    arcname=new_path)
 
     # Close zip
     zip_handler_minimum.close()
@@ -132,16 +135,23 @@ def package_data(
     zip_handler_minimum = zipfile.ZipFile(os.path.join(data_folder_path, zip_name_minimum), "a")
     zip_handler_full = zipfile.ZipFile(os.path.join(data_folder_path, zip_name_full), "a")
 
-    for file_to_add in files_to_add:
-        full_file_path = os.path.join(data_folder_path, 'units.txt')
+    # Add units file
+    full_file_path = os.path.join(data_folder_path, 'units.txt')
+    zip_handler_full.write(full_file_path, arcname='units.txt')
+    zip_handler_minimum.write(full_file_path, arcname='units.txt')
+
+    # Add other files to full data
+    files_to_add_full = [
+        'population-economic-smif-csv-from-nismod-db.zip']
+
+    for file_to_add in files_to_add_full:
+        full_file_path = os.path.join(data_folder_path, file_to_add)
         zip_handler_full.write(full_file_path, arcname=file_to_add)
-        zip_handler_minimum.write(full_file_path, arcname=file_to_add)
 
     zip_handler_full.close()
     zip_handler_minimum.close()
 
     print("Finished packaging data for Version {}".format(version_name))
-
 
 if __name__ == '__main__':
     """Provide version name and path to data folder
@@ -151,4 +161,5 @@ if __name__ == '__main__':
     python ../generate_data_version.py v_6_1 C:/path_to_data
     """
     # Map command line arguments to function arguments.
-    package_data(*sys.argv[1:])
+    #package_data(*sys.argv[1:])
+    package_data('v_0700', 'C:/Users/cenv0553/ED/data')

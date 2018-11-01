@@ -257,10 +257,13 @@ class WeatherRegion(object):
         # ------------
         # Set criteria wheter to use float load profile for heat pumps or not
         # ------------
-        if assumptions.non_regional_vars['flat_heat_pump_profile_both']:
+
+        #if assumptions.non_regional_vars['flat_heat_pump_profile_both']:
+        if assumptions.flat_heat_pump_profile_both:
             flat_space_heating = True
             flat_water_heating = True
-        elif assumptions.non_regional_vars['flat_heat_pump_profile_only_water']:
+        #elif assumptions.non_regional_vars['flat_heat_pump_profile_only_water']:
+        elif assumptions.flat_heat_pump_profile_only_water:
             flat_space_heating = False
             flat_water_heating = True
         else:

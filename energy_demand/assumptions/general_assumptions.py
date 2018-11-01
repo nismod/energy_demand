@@ -86,8 +86,8 @@ class Assumptions(object):
         # ----------------------------------------
         # Flat load profile of heat pumps (TODO REMOVE eventually)
         # ----------------------------------------
-        self.flat_heat_pump_profile_both = 0        # 0: False, 1: True
-        self.flat_heat_pump_profile_only_water = 0  # Only water
+        #self.flat_heat_pump_profile_both = 0        # 0: False, 1: True
+        #self.flat_heat_pump_profile_only_water = 0  # Only water
     
         # ============================================================
         # Model calibration factors

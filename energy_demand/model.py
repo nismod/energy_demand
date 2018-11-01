@@ -95,8 +95,7 @@ class EnergyDemandModel(object):
         aggr_results = initialise_result_container(
             data['lookups']['fueltypes_nr'],
             assumptions.reg_nrs,
-            assumptions.lookup_enduses,
-            submodels_enduses=data['enduses'])
+            assumptions.lookup_enduses)
 
         # -------------------------------------------
         # Simulate regions
@@ -946,8 +945,7 @@ def aggregate_results_constrained(
 def initialise_result_container(
         fueltypes_nr,
         reg_nrs,
-        lookup_enduses,
-        submodels_enduses
+        lookup_enduses
     ):
     """Create container with empty dict or arrays
     as values in a dict. This is used to aggregate the
@@ -972,22 +970,11 @@ def initialise_result_container(
     container = {}
     container['results_constrained'] = {}
 
-    '''
-    container['ed_submodel_enduse_fueltype_regs_yh'] = {}
-    for submodel_nr, submodel in enumerate(submodels_enduses):
-        container['ed_submodel_enduse_fueltype_regs_yh'][submodel_nr] = {}
-        for enduse in submodels_enduses[submodel]:
-            container['ed_submodel_enduse_fueltype_regs_yh'][submodel_nr][enduse] = np.zeros((
-                fueltypes_nr, reg_nrs, 8760), dtype="float")
-    '''
-    #'''
-    # NEW
     container['ed_submodel_enduse_fueltype_regs_yh'] = np.zeros((
         len(lookup_enduses),
         fueltypes_nr,
         reg_nrs,
         8760), dtype="float")
-    #'''
 
     return container
 

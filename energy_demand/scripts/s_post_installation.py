@@ -45,7 +45,7 @@ def post_install_setup(args):
     data['local_paths'] = data_loader.get_local_paths(local_data_path)
     data['result_paths'] = data_loader.get_result_paths(path_results)
     data['lookups'] = lookup_tables.basic_lookups()
-    data['enduses'], data['sectors'], data['fuels'] = data_loader.load_fuels(
+    data['enduses'], data['sectors'], data['fuels'], _, _, = data_loader.load_fuels(
         submodels_names=data['lookups']['submodels_names'],
         paths=data['paths'],
         fueltypes_nr=data['lookups']['fueltypes_nr'])
@@ -63,7 +63,7 @@ def post_install_setup(args):
     basic_functions.del_previous_setup(data['local_paths']['data_processed'])
     basic_functions.del_previous_setup(data['result_paths']['data_results'])
     basic_functions.del_previous_setup(data['local_paths']['path_post_installation_data'])
-    
+
     # Create folders and subfolder for data_processed
     folders_to_create = [
         data['local_paths']['data_processed'],
