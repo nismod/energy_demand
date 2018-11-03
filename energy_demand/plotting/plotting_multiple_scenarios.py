@@ -16,6 +16,7 @@ from energy_demand.plotting import plotting_results
 from energy_demand import enduse_func
 from energy_demand.profiles import load_factors
 from energy_demand.read_write import write_data
+from energy_demand.basic import date_prop
 #matplotlib.use('Agg') # Used to make it work in linux
 
 def plot_heat_pump_chart_multiple(
@@ -919,8 +920,15 @@ def plot_radar_plots_average_peak_day(
         # ---------------------------
         peak_day_nr_by, by_max_h = enduse_func.get_peak_day_single_fueltype(
             all_regs_fueltypes_yh_by[fueltype_int])
+        test_peak_day = enduse_func.get_peak_day_all_fueltypes(all_regs_fueltypes_yh_by)
         peak_day_nr_cy, cy_max_h = enduse_func.get_peak_day_single_fueltype(
             all_regs_fueltypes_yh_cy[fueltype_int])
+
+        # Add info on peak days
+        results_txt.append("Peak day  {}:   {}: test: {}".format(
+            date_prop.yearday_to_date(2015, peak_day_nr_by), 
+            date_prop.yearday_to_date(2015, peak_day_nr_cy),
+            date_prop.yearday_to_date(2015, test_peak_day)))
 
         # Minimum trough day
         trough_day_nr_cy, by_min_h = enduse_func.get_trough_day_single_fueltype(

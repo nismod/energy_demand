@@ -324,10 +324,7 @@ def plot_cross_graphs_scenarios(
     all_y_values = []
 
     for scenario_nr, scenario in enumerate(all_scenarios):
-
         labels = []
-
-        #Base year
         x_values, y_values = [], []
 
         for reg_nr, reg_geocode in enumerate(regions):
@@ -348,6 +345,10 @@ def plot_cross_graphs_scenarios(
             #y_values.append(tot_demand_p)
             y_values.append(demand_peak_h_p)
 
+            print("ADDING {} {} {}".format(reg_nr, round(lf_change_p, 3), round(demand_peak_h_p, 3)))
+
+            if demand_peak_h_p > 200:
+                print("tt")
             labels.append(reg_geocode)
 
         # Add average
@@ -367,6 +368,10 @@ def plot_cross_graphs_scenarios(
         color = color_list[scenario_nr]
         marker = marker_list[scenario_nr]
 
+        print("---")
+        print(x_values)
+        print("--")
+        print(y_values)
         alpha_value = 0.6
         marker_size = 7
         ax.scatter(

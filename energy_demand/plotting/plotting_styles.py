@@ -280,8 +280,16 @@ def color_list_scenarios():
         '#F0027F', #pink
         '#FFFF99'  #yello
         ]
-
-    '''# Set3_12
+    
+    color_list_selection = [
+        '#556b2f', #green
+        '#83c17e', #lighggreen
+        '#3b6db0', # blue
+        '#f8bf87', #brown
+        
+        ]
+    '''
+    # Set3_12
     color_list_selection = [
         'darkolivegreen',
         'blue',

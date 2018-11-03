@@ -5,6 +5,14 @@
 #TODO Test if technology type can be left empty in technology spreadsheet, Try to remove tech_type
 #TODO ADD HEAT SOLD
 # TEST NON CONSTRAINED MODE
+#
+#
+#import yaml
+#with open ("C:/Users/cenv0553/ed/dump_WILL.yaml", "w") as file:
+#    yaml.dump(strategy_vars, file) 
+#
+#raise Exception
+
 #   Note
     ----
     Always execute from root folder. (e.g. energy_demand/energy_demand/main.py
