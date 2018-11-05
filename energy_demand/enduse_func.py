@@ -637,7 +637,7 @@ def get_peak_day_single_fueltype(fuel_yh):
         return 0, 0
     else:
         # Sum fuel within every hour for every day and get day with maximum fuel
-        peak_day_nr = basic_functions.round_down(np.argmax(fuel_yh_8760) / 24, 1)
+        peak_day_nr = int(basic_functions.round_down(np.argmax(fuel_yh_8760) / 24, 1))
 
         peak_h = np.max(fuel_yh_8760)
 
@@ -669,11 +669,12 @@ def get_trough_day_single_fueltype(fuel_yh):
         return 0, 0
     else:
         # Sum fuel within every hour for every day and get day with maximum fuel
-        trough_day_nr = basic_functions.round_down(np.argmin(fuel_yh_8760) / 24, 1)
+        trough_day_nr = int(basic_functions.round_down(np.argmin(fuel_yh_8760) / 24, 1))
 
-        trough_h = np.min(fuel_yh_8760)
+        fuel_yh_365_24 = fuel_yh_8760.reshape(365, 24)
+        trough_peak_h = np.max(fuel_yh_365_24[trough_day_nr])
 
-        return int(trough_day_nr), trough_h
+        return int(trough_day_nr), trough_peak_h
 
 def get_enduse_techs(fuel_tech_p_by):
     """Get all defined technologies of an enduse
@@ -751,6 +752,12 @@ def calc_fuel_tech_yh(
             load_profile = load_profiles.get_lp(
                 enduse, sector, tech, 'shape_yh')
 
+            if enduse == 'rs_space_heating' and tech == 'heat_pumps_electricity':
+                print("=============")
+                print(load_profile[0])
+                print(load_profile[2])
+                print(fuel_tech_y[tech])
+                raise Exception
             fuels_yh[tech] = fuel_tech_y[tech] * load_profile
     else:
         # --
@@ -1475,7 +1482,7 @@ def apply_service_switch(
     # ----------------------------------------
     if crit_switch_service:
         switched_s_tech_y_cy = {}
-
+    
         # Service of all technologies
         service_all_techs = sum(s_tech_y_cy.values())
 
@@ -1483,6 +1490,7 @@ def apply_service_switch(
 
             # Get service share per tech of cy of sigmoid parameter calculations
             p_s_tech_cy = annual_tech_diff_params[enduse][sector][tech][curr_yr]
+            ##print("----------------FFF  {}  {}  {}".format(p_s_tech_cy, tech, enduse))
             switched_s_tech_y_cy[tech] = service_all_techs * p_s_tech_cy
             #assert switched_s_tech_y_cy[tech] >= 0
         return switched_s_tech_y_cy

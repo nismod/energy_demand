@@ -5,7 +5,6 @@ from energy_demand.read_write import read_data
 from energy_demand.basic import date_prop
 from energy_demand.plotting import plotting_multiple_scenarios
 from energy_demand.basic import basic_functions
-from energy_demand.plotting import plotting_results
 from energy_demand.basic import lookup_tables
 from energy_demand.read_write import data_loader
 
@@ -191,12 +190,15 @@ def process_scenarios(path_to_scenarios, year_to_model=2015):
 
 # Generate plots across all scenarios
 
-#process_scenarios(os.path.abspath("C:/Users/cenv0553/ed/results/scen_A"))
+process_scenarios(os.path.abspath("C:/Users/cenv0553/ed/results/scen_A"))
+#process_scenarios(os.path.abspath("C:/Users/cenv0553/ed/results/_OLD_scen_A"))
+
 #process_scenarios(os.path.abspath("C:/Users/cenv0553/ed/results/scen_B"))
 #process_scenarios(os.path.abspath("C:/Users/cenv0553/ed/results/scen_C"))
 #process_scenarios(os.path.abspath("C:/Users/cenv0553/ed/results/scen_D"))
-#process_scenarios(os.path.abspath("C:/Users/cenv0553/ed/results/Fig_08_09"))
-process_scenarios(os.path.abspath("C:/Users/cenv0553/ed/results/Fig_11"))
-#process_scenarios(os.path.abspath("C:/Users/cenv0553/ed/results/Fig_13"))  # Color scheme Fig 13
+#process_scenarios(os.path.abspath("C:/Users/cenv0553/ed/results/Fig_11"))
 
+
+##process_scenarios(os.path.abspath("C:/Users/cenv0553/ed/results/Fig_08_09"))
+#process_scenarios(os.path.abspath("C:/Users/cenv0553/ed/results/Fig_13"))  # Color scheme Fig 13
 #process_scenarios(os.path.abspath("C:/Users/cenv0553/ed/results/_multiple_TEST"))

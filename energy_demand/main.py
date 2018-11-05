@@ -247,7 +247,6 @@ if __name__ == "__main__":
     setattr(data['assumptions'], 'flat_heat_pump_profile_both', 0)
     setattr(data['assumptions'], 'flat_heat_pump_profile_only_water', 0)
 
-
     # -----------------------------------------------------------------------------
     # Calculate population density for base year
     # -----------------------------------------------------------------------------

@@ -907,7 +907,7 @@ def plot_radar_plots_average_peak_day(
 
     for scenario_cnt, scenario in enumerate(scenario_data):
 
-        print("-------Scenario: {} {}".format(scenario, fueltype_to_model))
+        print("-------Scenario: '{}' '{}'".format(scenario, fueltype_to_model))
 
         # ------------------------
         # Future year load profile
@@ -920,25 +920,44 @@ def plot_radar_plots_average_peak_day(
         # ---------------------------
         peak_day_nr_by, by_max_h = enduse_func.get_peak_day_single_fueltype(
             all_regs_fueltypes_yh_by[fueltype_int])
-        test_peak_day = enduse_func.get_peak_day_all_fueltypes(all_regs_fueltypes_yh_by)
+        test_peak_day_by = enduse_func.get_peak_day_all_fueltypes(all_regs_fueltypes_yh_by)
         peak_day_nr_cy, cy_max_h = enduse_func.get_peak_day_single_fueltype(
             all_regs_fueltypes_yh_cy[fueltype_int])
+        test_peak_day_cy = enduse_func.get_peak_day_all_fueltypes(all_regs_fueltypes_yh_cy)
 
-        # Add info on peak days
-        results_txt.append("Peak day  {}:   {}: test: {}".format(
-            date_prop.yearday_to_date(2015, peak_day_nr_by), 
-            date_prop.yearday_to_date(2015, peak_day_nr_cy),
-            date_prop.yearday_to_date(2015, test_peak_day)))
+        #peak_day_nr_cy = 32
+
+        _ = all_regs_fueltypes_yh_cy[fueltype_int].reshape(365,24)
+        print(_[peak_day_nr_cy])
+        print(np.max(_[peak_day_nr_cy]))
+        print(cy_max_h)
+
+        print("-----{}  {}".format(scenario, peak_day_nr_cy))
+        print(_[peak_day_nr_cy])
+        print("EGON")
 
         # Minimum trough day
-        trough_day_nr_cy, by_min_h = enduse_func.get_trough_day_single_fueltype(
+        trough_day_nr_by, by_max_h_trough = enduse_func.get_trough_day_single_fueltype(
             all_regs_fueltypes_yh_by[fueltype_int])
+
+        trough_day_nr_cy, cy_max_h_trough = enduse_func.get_trough_day_single_fueltype(
+            all_regs_fueltypes_yh_cy[fueltype_int])
 
         scen_load_factor_fueltype_y_by = load_factors.calc_lf_y(all_regs_fueltypes_yh_by)
         load_factor_fueltype_y_by = round(scen_load_factor_fueltype_y_by[fueltype_int], fueltype_int)
 
         scen_load_factor_fueltype_y_cy = load_factors.calc_lf_y(all_regs_fueltypes_yh_cy)
         load_factor_fueltype_y_cy.append(round(scen_load_factor_fueltype_y_cy[fueltype_int], fueltype_int))
+
+        # Add info on peak days #by2: {} 
+        results_txt.append("p_day: {} by1: {} cy1: {}: cy2: {} trough_by: {} trough_cy: {}".format(
+            peak_day_nr_cy,
+            date_prop.yearday_to_date(2015, peak_day_nr_by), 
+            date_prop.yearday_to_date(2015, peak_day_nr_cy),
+            #date_prop.yearday_to_date(2015, test_peak_day_by),
+            date_prop.yearday_to_date(2015, test_peak_day_cy),
+            date_prop.yearday_to_date(2015, trough_day_nr_by),
+            date_prop.yearday_to_date(2015, trough_day_nr_cy)))
 
         # ------------------------
         # Restult calculations
@@ -958,10 +977,14 @@ def plot_radar_plots_average_peak_day(
             if enduse in enduses_to_agg:
                 aggregated_enduse_fueltype_by += scenario_data[scenario]['results_enduse_every_year'][2015][enduse][fueltype_int]
                 aggregated_enduse_fueltype_cy += scenario_data[scenario]['results_enduse_every_year'][year_to_plot][enduse][fueltype_int]
+        aggregated_enduse_fueltype_by_8760 = aggregated_enduse_fueltype_by.reshape(365, 24)
+        aggregated_enduse_fueltype_cy_8760 = aggregated_enduse_fueltype_cy.reshape(365, 24)
 
         # Total demand of selected enduses
-        selected_enduses_peak_by = round(np.max(aggregated_enduse_fueltype_by), 1)
-        selected_enduses_peak_cy = round(np.max(aggregated_enduse_fueltype_cy[peak_day_nr_cy]), 1)
+        selected_enduses_peak_by = round(np.max(aggregated_enduse_fueltype_by_8760[peak_day_nr_by]), 1)
+        selected_enduses_peak_cy = round(np.max(aggregated_enduse_fueltype_cy_8760[peak_day_nr_cy]), 1)
+        selected_enduses_min_by = round(np.max(aggregated_enduse_fueltype_by_8760[trough_day_nr_by]), 1)
+        selected_enduses_min_cy = round(np.max(aggregated_enduse_fueltype_cy_8760[trough_day_nr_cy]), 1)
 
         # Calculate change in peak
         all_regs_fueltypes_yh_by = all_regs_fueltypes_yh_by.reshape(all_regs_fueltypes_yh_by.shape[0], 365, 24)
@@ -969,15 +992,20 @@ def plot_radar_plots_average_peak_day(
 
         diff_max_h = round(((100 / by_max_h) * cy_max_h) - 100, 1)
 
-        txt = "peak_h_by: {} peak_h_cy: {} diff_p: {}, peak_h_selected_enduses_by: {} peak_h_selected_enduses_cy: {} scenario: {}".format(
+        txt = "peak_h_by: {} peak_h_cy: {} winter_heating_by: {} winter_heating_cy: {} trough_by: {} trough_cy: {} summer_heating_by: {} summer_heating_cy: {} {}".format(
             round(by_max_h, 1),
             round(cy_max_h, 1),
-            round(diff_max_h, 1),
             selected_enduses_peak_by,
             selected_enduses_peak_cy,
+            round(by_max_h_trough, 1),
+            round(cy_max_h_trough, 1),
+            selected_enduses_min_by,
+            selected_enduses_min_cy,
             scenario)
-
+    
         results_txt.append(txt)
+        results_txt.append("----------")
+        #results_txt.append("trough:day: " + str(all_regs_fueltypes_yh_by[fueltype_int][trough_day_nr_by]))
 
         print("Calculation of diff in peak: {} {} {} {}".format(
             scenario, round(diff_max_h, 1), round(by_max_h, 1), round(cy_max_h, 1)))
@@ -1013,6 +1041,7 @@ def plot_radar_plots_average_peak_day(
     write_data.write_list_to_txt(
         os.path.join(fig_name, name_spider_plot_trough[:-3] + "txt"),
         results_txt)
+
     # --------------------------
     # Plot figure
     # --------------------------
@@ -1272,8 +1301,12 @@ def plot_radar_plot_multiple_lines(
 
     # Colors for plotting Fig. 13
     color_scenarios = plotting_styles.color_list_selection_dm() # Color scheme Fig 13
+    
+    # Color sheme multiple scenarios
+    #color_scenarios = ['orange', 'darkred',  '#3b2c85', '#85cfcb'] #Lines for Fig 12
 
     color_lines = ['black'] + color_scenarios
+    #color_lines = color_scenarios
     years = ['2015', '2050']
     linewidth_list = [1.0, 0.7]
     linestyle_list = ['-', '--']
@@ -1383,6 +1416,7 @@ def plot_radar_plot_multiple_lines(
             0.15,
             0 + cnt/50,
             entry,
+            fontsize=2,
             fontdict=font_additional_info,
             transform=plt.gcf().transFigure)
 
