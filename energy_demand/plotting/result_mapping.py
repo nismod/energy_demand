@@ -57,8 +57,8 @@ def get_reasonable_bin_values(
         # Round down and add one class for larger values
         nr_classes = round_down(classes, increments) + 1
 
-        if nr_classes > 9:
-            raise Exception("Nr of classes is too big")
+        #if nr_classes > 9:
+        #    raise Exception("Nr of classes is too big")
 
         # Classes
         min_class = round_down(min_val, increments)                              # Minimum class
@@ -885,7 +885,7 @@ def spatial_maps(
 
                 # Get maxium demand of 8760h for every region
                 h_max_gwh_regs = np.max(results_container['ed_fueltype_regs_yh'][year][fueltype], axis=1)
-                print("TOTAL peak fuel across all regs {} {} ".format(np.sum(h_max_gwh_regs), fueltype_str))
+                #print("TOTAL peak fuel across all regs {} {} ".format(np.sum(h_max_gwh_regs), fueltype_str))
 
                 data_to_plot = basic_functions.array_to_dict(h_max_gwh_regs, regions)
 
@@ -955,7 +955,7 @@ def spatial_maps(
 
                     # Get maxium demand of 8760h for every region for current year
                     h_max_gwh_regs_cy = np.max(results_container['ed_fueltype_regs_yh'][year][fueltype], axis=1)
-                    print("TOTAL peak fuel across all regs {} {} ".format(np.sum(h_max_gwh_regs_cy), fueltype_str))
+                    #print("TOTAL peak fuel across all regs {} {} ".format(np.sum(h_max_gwh_regs_cy), fueltype_str))
 
                     # Calculate difference in decimal
                     diff_p_h_max_regs = ((100 / h_max_gwh_regs_by) * h_max_gwh_regs_cy) - 100
@@ -1319,8 +1319,8 @@ def colors_plus_minus_map(
         return [], color_prop, False, False
 
     elif min(bins) < 0:
-        logging.info("negative bins" + str(bins))
-        print("negative bins" + str(bins))
+        #logging.info("negative bins" + str(bins))
+        #print("negative bins" + str(bins))
         #if len(bins) > 10:
         #    raise Exception("Too many bins defined: Change interval criteria")
         #if len(bins) == 10 or len(bins) == 9: # add extra color to reach 10 colors
