@@ -1425,7 +1425,7 @@ def plot_radar_plot_multiple_lines(
     # ------------
     plt.legend(
         ncol=1,
-        bbox_to_anchor=(0.2, -0.1),
+        bbox_to_anchor=(0.3, -0.05),
         prop={'size': 4},
         frameon=False)
 
