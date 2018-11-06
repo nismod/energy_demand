@@ -752,12 +752,12 @@ def calc_fuel_tech_yh(
             load_profile = load_profiles.get_lp(
                 enduse, sector, tech, 'shape_yh')
 
-            if enduse == 'rs_space_heating' and tech == 'heat_pumps_electricity':
-                print("=============")
-                print(load_profile[0])
-                print(load_profile[2])
-                print(fuel_tech_y[tech])
-                raise Exception
+            #if enduse == 'rs_space_heating' and tech == 'heat_pumps_electricity':
+            #    print("=============")
+            #    print(load_profile[0])
+            #    print(load_profile[2])
+            #    print(fuel_tech_y[tech])
+            #    raise Exception
             fuels_yh[tech] = fuel_tech_y[tech] * load_profile
     else:
         # --

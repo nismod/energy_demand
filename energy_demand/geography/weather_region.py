@@ -275,7 +275,7 @@ class WeatherRegion(object):
             load_profiles.add_lp(
                 unique_identifier=uuid.uuid4(),
                 technologies=assumptions.tech_list['heating_non_const'],
-                enduses=['rs_space_heating', 'rs_water_heating'],
+                enduses=['rs_space_heating', 'rs_water_heating'], #'ss_water_heating', 'ss_space_heating'
                 shape_y_dh=flat_shape_y_dh,
                 shape_yd=rs_hp_shape_yd,
                 shape_yh=flat_rs_fuel_shape_hp_yh,
@@ -286,7 +286,7 @@ class WeatherRegion(object):
             load_profiles.add_lp(
                 unique_identifier=uuid.uuid4(),
                 technologies=assumptions.tech_list['heating_non_const'],
-                enduses=['rs_water_heating'],
+                enduses=['rs_water_heating'], #pss_water_heating
                 shape_y_dh=flat_shape_y_dh,
                 shape_yd=rs_hp_shape_yd,
                 shape_yh=flat_rs_fuel_shape_hp_yh,

@@ -60,7 +60,10 @@ def process_scenarios(path_to_scenarios, year_to_model=2015):
         all_stations = os.listdir(
             os.path.join(path_to_scenarios, scenario))
 
-        _to_igore = ['model_run_pop', 'PDF_validation', 'model_run_sim_param.ini']
+        _to_igore = [
+            'infoparam.txt',
+            'model_run_pop',
+            'PDF_validation', 'model_run_sim_param.ini']
 
         for station in all_stations:
             if station not in _to_igore:
