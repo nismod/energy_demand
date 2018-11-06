@@ -253,7 +253,7 @@ class WeatherRegion(object):
             tech_stock=rs_tech_stock,
             rs_hdd_cy=self.rs_hdd_cy,
             model_yeardays=assumptions.model_yeardays)
-
+        
         # ------------
         # Set criteria wheter to use float load profile for heat pumps or not
         # ------------
@@ -401,7 +401,7 @@ class WeatherRegion(object):
             rs_hdd_cy=ss_hdd_cy,
             model_yeardays=assumptions.model_yeardays)
 
-        load_profiles.add_lp(
+        '''load_profiles.add_lp(
             unique_identifier=uuid.uuid4(),
             technologies=assumptions.tech_list['heating_non_const'],
             enduses=['ss_space_heating', 'ss_water_heating'],
@@ -409,7 +409,51 @@ class WeatherRegion(object):
             shape_y_dh=rs_profile_hp_y_dh, #tech_lp['rs_profile_hp_y_dh'],
             shape_yd=ss_hp_shape_yd,
             shape_yh=ss_fuel_shape_hp_yh,
-            model_yeardays=assumptions.model_yeardays)
+            model_yeardays=assumptions.model_yeardays)'''
+        # NEW
+        if flat_water_heating and flat_space_heating:
+
+            load_profiles.add_lp(
+                unique_identifier=uuid.uuid4(),
+                technologies=assumptions.tech_list['heating_non_const'],
+                enduses=['ss_space_heating', 'ss_water_heating'],
+                sectors=sectors['service'],
+                shape_y_dh=flat_rs_fuel_shape_hp_yh,
+                shape_yd=ss_hp_shape_yd,
+                shape_yh=ss_fuel_shape_hp_yh,
+                model_yeardays=assumptions.model_yeardays)
+        
+        elif flat_water_heating and not flat_space_heating:
+
+            load_profiles.add_lp(
+                unique_identifier=uuid.uuid4(),
+                technologies=assumptions.tech_list['heating_non_const'],
+                enduses=['ss_water_heating'],
+                sectors=sectors['service'],
+                shape_y_dh=flat_rs_fuel_shape_hp_yh,
+                shape_yd=ss_hp_shape_yd,
+                shape_yh=ss_fuel_shape_hp_yh,
+                model_yeardays=assumptions.model_yeardays)
+
+            load_profiles.add_lp(
+                unique_identifier=uuid.uuid4(),
+                technologies=assumptions.tech_list['heating_non_const'],
+                enduses=['ss_space_heating'],
+                sectors=sectors['service'],
+                shape_y_dh=rs_profile_hp_y_dh,
+                shape_yd=ss_hp_shape_yd,
+                shape_yh=ss_fuel_shape_hp_yh,
+                model_yeardays=assumptions.model_yeardays)
+        else:
+            load_profiles.add_lp(
+                unique_identifier=uuid.uuid4(),
+                technologies=assumptions.tech_list['heating_non_const'],
+                enduses=['ss_space_heating', 'ss_water_heating'],
+                sectors=sectors['service'],
+                shape_y_dh=rs_profile_hp_y_dh, #tech_lp['rs_profile_hp_y_dh'],
+                shape_yd=ss_hp_shape_yd,
+                shape_yh=ss_fuel_shape_hp_yh,
+                model_yeardays=assumptions.model_yeardays)
 
         # ---secondary_heater_electricity Info: The residential direct heating load profile is used
         all_techs_ss_space_heating = basic_functions.remove_element_from_list(
