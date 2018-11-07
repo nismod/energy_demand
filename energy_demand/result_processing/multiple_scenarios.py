@@ -7,7 +7,8 @@ from energy_demand.result_processing import single_scenario
 
 def process_result_multi_scen(
         #path_to_folder_with_scenarios="C:/Users/cenv0553/ed/results/_multiple_TEST",
-        path_to_folder_with_scenarios="C:/Users/cenv0553/ed/results/_SCENARIOS_NEW_PAPERI",
+        path_to_folder_with_scenarios="C:/Users/cenv0553/ed/results/Fig_11",
+        #path_to_folder_with_scenarios="C:/Users/cenv0553/ed/results/scenario_A", #scenario a charts
         #path_shapefile_input="C:/Users/cenv0553/ED/data/region_definitions/msoa_uk/msoa_lad_2015_uk.shp",
         path_shapefile_input="C:/Users/cenv0553/ED/data/region_definitions/lad_2016_uk_simplified.shp",
         base_yr=2015,
@@ -55,6 +56,7 @@ def process_result_multi_scen(
         '_results_PDF_figs']
 
     for scenario in scenarios:
+        print("... scenario: " + str(scenario))
         if scenario in scenario_names_ignored:
             pass
         else:

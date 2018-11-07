@@ -5,6 +5,14 @@
 #TODO Test if technology type can be left empty in technology spreadsheet, Try to remove tech_type
 #TODO ADD HEAT SOLD
 # TEST NON CONSTRAINED MODE
+#
+#
+#import yaml
+#with open ("C:/Users/cenv0553/ed/dump_WILL.yaml", "w") as file:
+#    yaml.dump(strategy_vars, file) 
+#
+#raise Exception
+
 #   Note
     ----
     Always execute from root folder. (e.g. energy_demand/energy_demand/main.py
@@ -14,10 +22,8 @@ import sys
 import time
 import logging
 from collections import defaultdict
-import numpy as np
 
 from energy_demand.basic import basic_functions
-from energy_demand.charts import resilience_project
 from energy_demand.basic import date_prop
 from energy_demand import model
 from energy_demand.basic import testing_functions
@@ -32,7 +38,6 @@ from energy_demand.validation import lad_validation
 from energy_demand.basic import demand_supply_interaction
 from energy_demand.scripts import s_scenario_param
 from energy_demand.scripts import init_scripts
-from energy_demand.basic import logger_setup
 from energy_demand.plotting import fig_enduse_yh
 from energy_demand.geography import weather_region
 
@@ -125,8 +130,6 @@ if __name__ == "__main__":
     # -------------------
     # Other configuration
     # -------------------
-    RESILIENCEPAPERPOUTPUT = False     # Output data for resilience paper
-
     # If the smif configuration files what to be written, set this to true. The program will abort after they are written to YAML files
     data['criterias']['writeYAML'] = False
     data['criterias']['reg_selection'] = False
@@ -160,10 +163,9 @@ if __name__ == "__main__":
     print("weather_station_count_nr:    " + str(weather_station_count_nr))
 
     # --- Region definition configuration
-    name_region_set = os.path.join(local_data_path, 'region_definitions', "lad_2016_uk_simplified.shp") # LAD
+    name_region_set = os.path.join(local_data_path, 'region_definitions', "lad_2016_uk_simplified.shp")
 
-    local_scenario = 'dummy_scenario' #'pop-a_econ-c_fuel-c'
-    local_scenario = 'pop-a_econ-c_fuel-c' #'pop-a_econ-c_fuel-c'
+    local_scenario = 'dummy_scenario'
 
     name_population_dataset = os.path.join(local_data_path, 'scenarios', 'MISTRAL_pop_gva', 'data', '{}/population__lad.csv'.format(local_scenario)) # Constant scenario
 
@@ -235,10 +237,9 @@ if __name__ == "__main__":
         fueltypes=data['lookups']['fueltypes'],
         fueltypes_nr=data['lookups']['fueltypes_nr'])
 
-    # SCRAP REMOVE
+    # TODO IMPROVE
     setattr(data['assumptions'], 'flat_heat_pump_profile_both', 0)
     setattr(data['assumptions'], 'flat_heat_pump_profile_only_water', 0)
-
 
     # -----------------------------------------------------------------------------
     # Calculate population density for base year
@@ -519,27 +520,6 @@ if __name__ == "__main__":
                 data['assumptions'].model_yeardays_daytype,
                 data['criterias']['plot_crit'])
 
-        # -------------------------
-        # Write for resilience paper
-        # -------------------------
-        if RESILIENCEPAPERPOUTPUT:
-
-            if round(np.sum(sim_obj.ed_fueltype_national_yh), 2) != round(np.sum(sim_obj.results_unconstrained), 2):
-                print(round(np.sum(sim_obj.ed_fueltype_national_yh), 2))
-                print(round(np.sum(sim_obj.results_unconstrained), 2))
-                raise Exception("Should be the same")
-
-            resilience_project.resilience_paper(
-                sim_yr,
-                data['result_paths']['data_results_model_runs'],
-                "resilience_paper",
-                "result_risk_paper_{}_".format(sim_yr),
-                sim_obj.results_unconstrained,
-                ['residential', 'service', 'industry'],
-                data['regions'],
-                data['lookups']['fueltypes'],
-                fueltype_str='electricity')
-
         # -------------------------------------
         # # Generate YAML file with keynames for `sector_model`
         # -------------------------------------
@@ -594,7 +574,6 @@ if __name__ == "__main__":
             plot_only_selection = False
             if plot_only_selection:
                 # PLot only residential total regional annual demand and
-                # region_fueltype_reg_yh_8760
                 write_data.write_residential_tot_demands(
                     sim_yr,
                     path_runs,
@@ -635,30 +614,6 @@ if __name__ == "__main__":
                     [sim_yr],
                     sim_obj.reg_load_factor_yd,
                     'reg_load_factor_yd')
-            '''write_data.write_lf(
-                path_runs,
-                "result_reg_load_factor_winter",
-                [sim_yr],
-                sim_obj.reg_seasons_lf['winter'],
-                'reg_load_factor_winter')
-            write_data.write_lf(
-                path_runs,
-                "result_reg_load_factor_spring",
-                [sim_yr],
-                sim_obj.reg_seasons_lf['spring'],
-                'reg_load_factor_spring')
-            write_data.write_lf(
-                path_runs,
-                "result_reg_load_factor_summer",
-                [sim_yr],
-                sim_obj.reg_seasons_lf['summer'],
-                'reg_load_factor_summer')
-            write_data.write_lf(
-                path_runs,
-                "result_reg_load_factor_autumn",
-                [sim_yr],
-                sim_obj.reg_seasons_lf['autumn'],
-                'reg_load_factor_autumn')'''
 
             print("... Finished writing results to file")
 

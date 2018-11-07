@@ -11,7 +11,7 @@ import pandas as pd
 import palettable
 import matplotlib.pyplot as plt
 import matplotlib.patches as mpatches
-from matplotlib.patches import Circle  
+from matplotlib.patches import Circle
 from matplotlib.colors import LinearSegmentedColormap
 from energy_demand.basic import basic_functions
 from energy_demand.technologies import tech_related
@@ -57,8 +57,8 @@ def get_reasonable_bin_values(
         # Round down and add one class for larger values
         nr_classes = round_down(classes, increments) + 1
 
-        if nr_classes > 9:
-            raise Exception("Nr of classes is too big")
+        #if nr_classes > 9:
+        #    raise Exception("Nr of classes is too big")
 
         # Classes
         min_class = round_down(min_val, increments)                              # Minimum class
@@ -69,6 +69,15 @@ def get_reasonable_bin_values(
 
         # Bin with classes
         bins = list(range(int(min_class), int(max_class), int(increments)))
+
+        # ---
+        # Test that maximum 9 classes
+        # ---
+        if len(bins) > 8:
+            print("Nr of bins: " + str(len(bins)))
+            print(bins)
+            raise Exception("Too many bin classes defined" + str(len(bins)))
+
     else:
         logging.info("Neg", flush=True)
         #lager negative values
@@ -108,13 +117,13 @@ def get_reasonable_bin_values(
 
         bins = neg_classes + [0] + pos_classes
 
-    # ---
-    # Test that maximum 9 classes
-    # ---
-    if len(bins) > 8:
-        print("Nr of bins: " + str(len(bins)))
-        print(bins)
-        raise Exception("Too many bin classes defined" + str(len(bins)))
+        # ---
+        # Test that maximum 9 classes
+        # ---
+        if len(bins) > 16:
+            print("Nr of bins: " + str(len(bins)))
+            print(bins)
+            raise Exception("Too many bin classes defined" + str(len(bins)))
 
     return bins
 
@@ -274,14 +283,16 @@ def get_legend_handles(bins, color_list, color_zero, min_value, max_value):
                 label_patch = "> {} (min {})".format(bin_entry, min_value)
 
                 if min_value > bin_entry:
-                    print("Classification boundry is not clever for low values")
+                    #print("Classification boundry is not clever for low values")
+                    pass
             else:
                 label_patch = "< {} (min {})".format(bin_entry, min_value)
         elif bin_nr == len(bins)- 1: # -1 means that last bin entry
             label_patch = "> {} (max {})".format(bins[-2], max_value)
 
             if max_value < bin_entry:
-                print("Classification boundry is not clever for low values")
+                #print("Classification boundry is not clever for low values")
+                pass
         else:
             # ----------------------------
             # Add zero label if it exists
@@ -854,21 +865,27 @@ def spatial_maps(
     # Attribute merge unique Key
     unique_merge_id = 'name' #'geo_code'
 
+    fueltype_str_to_create_maps = [
+        'electricity'] #,
+        #'gas']
+
     # ======================================
     # Peak max h all enduses (abs)
     # ======================================
     if plot_crit_dict['plot_abs_peak_h']:
         for year in results_container['ed_fueltype_regs_yh'].keys():
-            for fueltype in range(fueltypes_nr):
+            #for fueltype in range(fueltypes_nr):
+            for fueltype_str in fueltype_str_to_create_maps:
 
-                fueltype_str = tech_related.get_fueltype_str(fueltypes, fueltype)
-
+                #fueltype_str = tech_related.get_fueltype_str(fueltypes, fueltype)
+                fueltype = tech_related.get_fueltype_int(fueltype_str)
+    
                 # Calculate peak h across all regions
                 field_name = 'peak_abs_h_{}_{}'.format(year, fueltype_str)
 
                 # Get maxium demand of 8760h for every region
                 h_max_gwh_regs = np.max(results_container['ed_fueltype_regs_yh'][year][fueltype], axis=1)
-                print("TOTAL peak fuel across all regs {} {} ".format(np.sum(h_max_gwh_regs), fueltype_str))
+                #print("TOTAL peak fuel across all regs {} {} ".format(np.sum(h_max_gwh_regs), fueltype_str))
 
                 data_to_plot = basic_functions.array_to_dict(h_max_gwh_regs, regions)
 
@@ -914,8 +931,12 @@ def spatial_maps(
             if year == base_yr:
                 pass
             else:
-                for fueltype in range(fueltypes_nr):
-                    
+                #for fueltype in range(fueltypes_nr):
+                for fueltype_str in fueltype_str_to_create_maps:
+
+                    #fueltype_str = tech_related.get_fueltype_str(fueltypes, fueltype)
+                    fueltype = tech_related.get_fueltype_int(fueltype_str)
+
                     # If total sum is zero, skip
                     if np.sum(results_container['ed_fueltype_regs_yh'][base_yr][fueltype]) == 0:
                         continue
@@ -925,7 +946,6 @@ def spatial_maps(
                     #    continue
                     #logging.info("============ {}  {}".format(fueltype, np.isnan(np.sum(results_container['ed_fueltype_regs_yh'][base_yr][fueltype]))))
                     #logging.info(results_container['ed_fueltype_regs_yh'][base_yr][fueltype])
-                    fueltype_str = tech_related.get_fueltype_str(fueltypes, fueltype)
 
                     # Calculate peak h across all regions
                     field_name = 'peak_diff_p_peak_h_{}_{}'.format(year, fueltype_str)
@@ -935,16 +955,10 @@ def spatial_maps(
 
                     # Get maxium demand of 8760h for every region for current year
                     h_max_gwh_regs_cy = np.max(results_container['ed_fueltype_regs_yh'][year][fueltype], axis=1)
-                    print("TOTAL peak fuel across all regs {} {} ".format(np.sum(h_max_gwh_regs_cy), fueltype_str))
+                    #print("TOTAL peak fuel across all regs {} {} ".format(np.sum(h_max_gwh_regs_cy), fueltype_str))
 
                     # Calculate difference in decimal
                     diff_p_h_max_regs = ((100 / h_max_gwh_regs_by) * h_max_gwh_regs_cy) - 100
-                    
-                    #import pprint
-                    #pprint.pprint(diff_p_h_max_regs)
-                    print("soi")
-
-                    #pprint.pprint(np.max(h_max_gwh_regs_by))
 
                     data_to_plot = basic_functions.array_to_dict(diff_p_h_max_regs, regions)
 
@@ -958,10 +972,12 @@ def spatial_maps(
                         merge_data,
                         unique_merge_id)
 
-                    bins_increments = 50 #10
+                    '''bins_increments = 25 #10 KAMEL
                     bins = get_reasonable_bin_values(
                         data_to_plot=list(data_to_plot.values()),
-                        increments=bins_increments)
+                        increments=bins_increments)'''
+                    #bins = [10, 20, 40, 80, 160, 320, 640]
+                    bins = [-160, -320, -640, -80, -40, -20, -10 ,0, 10, 20, 40, 80, 160, 320, 640]
 
                     color_list, color_prop, user_classification, color_zero = colors_plus_minus_map(
                         bins=bins,
@@ -988,9 +1004,11 @@ def spatial_maps(
     # ======================================
     if plot_crit_dict['plot_load_factors']:
         for year in results_container['reg_load_factor_y'].keys():
-            for fueltype in range(fueltypes_nr):
+            #for fueltype in range(fueltypes_nr):
+            for fueltype_str in fueltype_str_to_create_maps:
+                #fueltype_str = tech_related.get_fueltype_str(fueltypes, fueltype)
+                fueltype = tech_related.get_fueltype_int(fueltype_str)
 
-                fueltype_str = tech_related.get_fueltype_str(fueltypes, fueltype)
                 field_name = 'lf_{}_{}'.format(year, fueltype_str)
 
                 results = basic_functions.array_to_dict(
@@ -1040,10 +1058,12 @@ def spatial_maps(
         final_yr = simulated_yrs[-1]
         base_yr = simulated_yrs[0]
 
-        for fueltype in range(fueltypes_nr):
-            logging.info("progress.. {}".format(fueltype))
-            fueltype_str = tech_related.get_fueltype_str(fueltypes, fueltype)
-            field_name = 'lf_diff_{}-{}_{}_'.format(base_yr, final_yr, fueltype_str)
+        #for fueltype in range(fueltypes_nr):
+        for fueltype_str in fueltype_str_to_create_maps:
+            fueltype = tech_related.get_fueltype_int(fueltype_str)
+            #fueltype_str = tech_related.get_fueltype_str(fueltypes, fueltype)
+
+            field_name = 'lf_diff_{}-{}_{}'.format(base_yr, final_yr, fueltype_str)
 
             lf_end_yr = basic_functions.array_to_dict(
                 results_container['reg_load_factor_y'][final_yr][fueltype],
@@ -1133,12 +1153,12 @@ def spatial_maps(
     # Total fuel (y) all enduses
     # ======================================
     for year in results_container['ed_fueltype_regs_yh'].keys():
-        for fueltype in range(fueltypes_nr):
-
-            fueltype_str = tech_related.get_fueltype_str(fueltypes, fueltype)
+        #for fueltype in range(fueltypes_nr):
+        for fueltype_str in fueltype_str_to_create_maps:
+            fueltype = tech_related.get_fueltype_int(fueltype_str)
+            #fueltype_str = tech_related.get_fueltype_str(fueltypes, fueltype)
 
             if plot_crit_dict['plot_total_demand_fueltype']:
-                print(" progress.. {}".format(fueltype))
 
                 # ---------
                 # Sum per enduse and year (y)
@@ -1219,14 +1239,12 @@ def spatial_maps(
                 # ----
                 # CAlculate classes for manual classification
                 # ----                
-                #logging.info("Min {}  Max {}".format(
-                #    min(list(data_to_plot.values())),
-                #     max(list(data_to_plot.values()))))
-                bins_increments = 30 #MAYBE NEEDS TO BE ADOPTED #TODO
-
+                '''bins_increments = 25 #MAYBE NEEDS TO BE ADOPTED #TODO KAMEL
                 bins = get_reasonable_bin_values(
                     data_to_plot=list(data_to_plot.values()),
-                    increments=bins_increments)
+                    increments=bins_increments)'''
+                #bins = [10, 20, 40, 80, 160, 320, 640]
+                bins = [-160, -320, -640, -80, -40, -20, -10 ,0, 10, 20, 40, 80, 160, 320, 640]
 
                 color_list, color_prop, user_classification, color_zero = colors_plus_minus_map(
                     bins=bins,
@@ -1301,12 +1319,12 @@ def colors_plus_minus_map(
         return [], color_prop, False, False
 
     elif min(bins) < 0:
-        logging.info("negative bins" + str(bins))
-
-        if len(bins) > 10:
-            raise Exception("Too many bins defined: Change interval criteria")
-        if len(bins) == 10 or len(bins) == 9: # add extra color to reach 10 colors
-
+        #logging.info("negative bins" + str(bins))
+        #print("negative bins" + str(bins))
+        #if len(bins) > 10:
+        #    raise Exception("Too many bins defined: Change interval criteria")
+        #if len(bins) == 10 or len(bins) == 9: # add extra color to reach 10 colors
+        if 1== 1:
             if color_order:
                 color_list_pos = getattr(palettable.colorbrewer.sequential, 'Reds_9').hex_colors
                 color_list_pos.append('#330808')
@@ -1386,7 +1404,7 @@ def colors_plus_minus_map(
         return color_list, 'user_defined', True, color_zero
 
     elif min(bins) > 0:
-        print("positive bins " + str(bins))
+
         color_list = []
 
         if len(bins) == 10 or len(bins) == 9: # add extra color to reach 10 colors

@@ -259,7 +259,7 @@ def read_in_results(path_result, seasons, model_yeardays_daytype):
     lookups = lookup_tables.basic_lookups()
 
     results_container = {}
-    
+
     # -----------------
     # Read in demands
     # -----------------

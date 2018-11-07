@@ -262,6 +262,13 @@ def color_list_selection_dm():
         'indianred',
         'darkblue']
 
+    color_list_selection = [
+        '#83c17e', #lighggreen
+        '#556b2f', #green
+        '#3b6db0', # blue
+        '#f8bf87', #brown
+    ]
+
     return color_list_selection
 
 def color_list_scenarios():
@@ -280,8 +287,15 @@ def color_list_scenarios():
         '#F0027F', #pink
         '#FFFF99'  #yello
         ]
-
-    '''# Set3_12
+    
+    color_list_selection = [
+        '#83c17e', #lighggreen
+        '#556b2f', #green
+        '#3b6db0', # blue
+        '#f8bf87', #brown
+    ]
+    '''
+    # Set3_12
     color_list_selection = [
         'darkolivegreen',
         'blue',

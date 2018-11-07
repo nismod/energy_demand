@@ -318,16 +318,14 @@ def plot_cross_graphs_scenarios(
     ax = fig.add_subplot(1, 1, 1)
 
     color_list = plotting_styles.color_list_scenarios()
+
     marker_list = plotting_styles.marker_list()
 
     all_x_values = []
     all_y_values = []
 
     for scenario_nr, scenario in enumerate(all_scenarios):
-
         labels = []
-
-        #Base year
         x_values, y_values = [], []
 
         for reg_nr, reg_geocode in enumerate(regions):
@@ -347,6 +345,8 @@ def plot_cross_graphs_scenarios(
             x_values.append(lf_change_p)
             #y_values.append(tot_demand_p)
             y_values.append(demand_peak_h_p)
+
+            #print("ADDING {} {} {}".format(reg_nr, round(lf_change_p, 3), round(demand_peak_h_p, 3)))
 
             labels.append(reg_geocode)
 
