@@ -253,7 +253,7 @@ class WeatherRegion(object):
             tech_stock=rs_tech_stock,
             rs_hdd_cy=self.rs_hdd_cy,
             model_yeardays=assumptions.model_yeardays)
-        
+
         # ------------
         # Set criteria wheter to use float load profile for heat pumps or not
         # ------------
@@ -307,7 +307,7 @@ class WeatherRegion(object):
                 unique_identifier=uuid.uuid4(),
                 technologies=assumptions.tech_list['heating_non_const'],
                 enduses=['rs_space_heating', 'rs_water_heating'],
-                shape_y_dh=tech_lp['rs_profile_hp_y_dh'],
+                shape_y_dh=rs_profile_hp_y_dh, #tech_lp['rs_profile_hp_y_dh'],
                 shape_yd=rs_hp_shape_yd,
                 shape_yh=rs_fuel_shape_hp_yh,
                 sectors=[dummy_sector],

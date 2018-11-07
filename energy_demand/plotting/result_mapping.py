@@ -866,19 +866,19 @@ def spatial_maps(
     unique_merge_id = 'name' #'geo_code'
 
     fueltype_str_to_create_maps = [
-        tech_related.get_fueltype_str(fueltypes, 'electricity'),
-        tech_related.get_fueltype_str(fueltypes, 'gas')]
+        'electricity'] #,
+        #'gas']
 
     # ======================================
     # Peak max h all enduses (abs)
     # ======================================
     if plot_crit_dict['plot_abs_peak_h']:
         for year in results_container['ed_fueltype_regs_yh'].keys():
-            for fueltype in range(fueltypes_nr):
-            #for fueltype_str in fueltype_str_to_create_maps:
+            #for fueltype in range(fueltypes_nr):
+            for fueltype_str in fueltype_str_to_create_maps:
 
-                fueltype_str = tech_related.get_fueltype_str(fueltypes, fueltype)
-                #fueltype = tech_related.get_fueltype_int(fueltype_str)
+                #fueltype_str = tech_related.get_fueltype_str(fueltypes, fueltype)
+                fueltype = tech_related.get_fueltype_int(fueltype_str)
     
                 # Calculate peak h across all regions
                 field_name = 'peak_abs_h_{}_{}'.format(year, fueltype_str)
@@ -931,11 +931,11 @@ def spatial_maps(
             if year == base_yr:
                 pass
             else:
-                for fueltype in range(fueltypes_nr):
-                #for fueltype_str in fueltype_str_to_create_maps:
+                #for fueltype in range(fueltypes_nr):
+                for fueltype_str in fueltype_str_to_create_maps:
 
-                    fueltype_str = tech_related.get_fueltype_str(fueltypes, fueltype)
-                    #fueltype = tech_related.get_fueltype_int(fueltype_str)
+                    #fueltype_str = tech_related.get_fueltype_str(fueltypes, fueltype)
+                    fueltype = tech_related.get_fueltype_int(fueltype_str)
 
                     # If total sum is zero, skip
                     if np.sum(results_container['ed_fueltype_regs_yh'][base_yr][fueltype]) == 0:
@@ -972,10 +972,12 @@ def spatial_maps(
                         merge_data,
                         unique_merge_id)
 
-                    bins_increments = 50 #10
+                    '''bins_increments = 25 #10 KAMEL
                     bins = get_reasonable_bin_values(
                         data_to_plot=list(data_to_plot.values()),
-                        increments=bins_increments)
+                        increments=bins_increments)'''
+                    #bins = [10, 20, 40, 80, 160, 320, 640]
+                    bins = [-160, -320, -640, -80, -40, -20, -10 ,0, 10, 20, 40, 80, 160, 320, 640]
 
                     color_list, color_prop, user_classification, color_zero = colors_plus_minus_map(
                         bins=bins,
@@ -1002,10 +1004,10 @@ def spatial_maps(
     # ======================================
     if plot_crit_dict['plot_load_factors']:
         for year in results_container['reg_load_factor_y'].keys():
-            for fueltype in range(fueltypes_nr):
-            #for fueltype_str in fueltype_str_to_create_maps:
-                fueltype_str = tech_related.get_fueltype_str(fueltypes, fueltype)
-                #fueltype = tech_related.get_fueltype_int(fueltype_str)
+            #for fueltype in range(fueltypes_nr):
+            for fueltype_str in fueltype_str_to_create_maps:
+                #fueltype_str = tech_related.get_fueltype_str(fueltypes, fueltype)
+                fueltype = tech_related.get_fueltype_int(fueltype_str)
 
                 field_name = 'lf_{}_{}'.format(year, fueltype_str)
 
@@ -1056,10 +1058,10 @@ def spatial_maps(
         final_yr = simulated_yrs[-1]
         base_yr = simulated_yrs[0]
 
-        for fueltype in range(fueltypes_nr):
-            #for fueltype_str in fueltype_str_to_create_maps:
-            #fueltype = tech_related.get_fueltype_int(fueltype_str)
-            fueltype_str = tech_related.get_fueltype_str(fueltypes, fueltype)
+        #for fueltype in range(fueltypes_nr):
+        for fueltype_str in fueltype_str_to_create_maps:
+            fueltype = tech_related.get_fueltype_int(fueltype_str)
+            #fueltype_str = tech_related.get_fueltype_str(fueltypes, fueltype)
 
             field_name = 'lf_diff_{}-{}_{}'.format(base_yr, final_yr, fueltype_str)
 
@@ -1151,10 +1153,10 @@ def spatial_maps(
     # Total fuel (y) all enduses
     # ======================================
     for year in results_container['ed_fueltype_regs_yh'].keys():
-        for fueltype in range(fueltypes_nr):
-        #for fueltype_str in fueltype_str_to_create_maps:
-            #fueltype = tech_related.get_fueltype_int(fueltype_str)
-            fueltype_str = tech_related.get_fueltype_str(fueltypes, fueltype)
+        #for fueltype in range(fueltypes_nr):
+        for fueltype_str in fueltype_str_to_create_maps:
+            fueltype = tech_related.get_fueltype_int(fueltype_str)
+            #fueltype_str = tech_related.get_fueltype_str(fueltypes, fueltype)
 
             if plot_crit_dict['plot_total_demand_fueltype']:
 
@@ -1237,14 +1239,12 @@ def spatial_maps(
                 # ----
                 # CAlculate classes for manual classification
                 # ----                
-                #logging.info("Min {}  Max {}".format(
-                #    min(list(data_to_plot.values())),
-                #     max(list(data_to_plot.values()))))
-                bins_increments = 10 #MAYBE NEEDS TO BE ADOPTED #TODO KAMEL
-
+                '''bins_increments = 25 #MAYBE NEEDS TO BE ADOPTED #TODO KAMEL
                 bins = get_reasonable_bin_values(
                     data_to_plot=list(data_to_plot.values()),
-                    increments=bins_increments)
+                    increments=bins_increments)'''
+                #bins = [10, 20, 40, 80, 160, 320, 640]
+                bins = [-160, -320, -640, -80, -40, -20, -10 ,0, 10, 20, 40, 80, 160, 320, 640]
 
                 color_list, color_prop, user_classification, color_zero = colors_plus_minus_map(
                     bins=bins,

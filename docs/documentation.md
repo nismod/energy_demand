@@ -553,13 +553,14 @@ Data preparation of the raw input files was necessary:
 ### 4.4 Temperature data
 To calculate regional daily hourly load heating profiles, hourly temperature data are used from the [UK Met Office (2015)](http://catalogue.ceda.ac.uk/uuid/220a65615218d5c9cc9e4785a3234bd0) and loaded for weather stations across the UK.
 
+- The station ID can be retreived [here](http://badc.nerc.ac.uk/cgi-bin/midas_stations/search_by_name.cgi.py?name=&minyear=&maxyear=)
+- Metadatda of raw data can be found [here](http://artefacts.ceda.ac.uk/badc_datadocs/ukmo-midas/WH_Table.html)
+
 ### 4.5 Census data
 Employment statistics from the census (Office for National Statistics 2011)
 are used to disaggregate industry related energy demands for different end uses and sectors.
 
 - The data download link can be found [here](http://catalogue.ceda.ac.uk/uuid/916ac4bbc46f7685ae9a5e10451bae7c)
-- The station ID can be retreived [here](http://badc.nerc.ac.uk/cgi-bin/midas_stations/search_by_name.cgi.py?name=&minyear=&maxyear=)
-- Metadatda of raw data can be found [here](http://artefacts.ceda.ac.uk/badc_datadocs/ukmo-midas/WH_Table.html)
 
 ## Literature
 

@@ -225,8 +225,8 @@ def get_fueltype_int(fueltype_str):
     fueltype_in_string : str
         Fueltype string
     """
-    fueltype_lu = lookup_tables.basic_lookups()['fueltypes']
-
+    lookups = lookup_tables.basic_lookups()
+    fueltype_lu = lookups['fueltypes']
     if not fueltype_str:
         return None
     else:
