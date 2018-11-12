@@ -1,17 +1,11 @@
 """Allows to run HIRE locally outside the SMIF framework
 # After smif upgrade:
 #   make that automatically the parameters can be generated to be copied into smif format
-# REMOVE HDD CODE PLOTTING
 #TODO Test if technology type can be left empty in technology spreadsheet, Try to remove tech_type
 #TODO ADD HEAT SOLD
 # TEST NON CONSTRAINED MODE
-#
-#
-#import yaml
 #with open ("C:/Users/cenv0553/ed/dump_WILL.yaml", "w") as file:
 #    yaml.dump(strategy_vars, file) 
-#
-#raise Exception
 
 #   Note
     ----
@@ -236,10 +230,6 @@ if __name__ == "__main__":
         reg_nrs=len(data['regions']),
         fueltypes=data['lookups']['fueltypes'],
         fueltypes_nr=data['lookups']['fueltypes_nr'])
-
-    # TODO IMPROVE
-    setattr(data['assumptions'], 'flat_heat_pump_profile_both', 0)
-    setattr(data['assumptions'], 'flat_heat_pump_profile_only_water', 0)
 
     # -----------------------------------------------------------------------------
     # Calculate population density for base year

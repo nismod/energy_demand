@@ -191,31 +191,6 @@ def load_param_assump(
         'regional_specific': False,
         'diffusion_type': 'linear'}
 
-    # -----------
-    # Demand management of heat pumps
-    # -----------
-    strategy_vars['flat_heat_pump_profile_both'] = {
-        "name": "flat_heat_pump_profile_both",
-        "absolute_range": (0, 1),
-        "description": "Heat pump profile flat or with actual data",
-        "suggested_range": (0, 1),
-        "default_value": assumptions.flat_heat_pump_profile_both,
-        "units": 'bool',
-        "sector": True,
-        'regional_specific': False,
-        'diffusion_type': 'linear'}
-
-    strategy_vars['flat_heat_pump_profile_only_water'] = {
-        "name": "flat_heat_pump_profile_only_water",
-        "absolute_range": (0, 1),
-        "description": "Heat pump profile flat or with actual data only for water heating",
-        "suggested_range": (0, 1),
-        "default_value": assumptions.flat_heat_pump_profile_only_water,
-        "units": 'bool',
-        "sector": True,
-        'regional_specific': False,
-        'diffusion_type': 'linear'}
-
     # ----------------------
     # Heat pump technology mix
     # Source: Hannon 2015: Raising the temperature of the UK heat pump market: Learning lessons from Finland
@@ -390,8 +365,7 @@ def load_param_assump(
         'ss_space_heating': 0,
         'is_space_heating': 0,
         'rs_water_heating': 0,
-        'ss_water_heating': 0
-        }
+        'ss_water_heating': 0}
 
     for sub_param_name, sub_param_value in heat_recovered.items():
         strategy_vars['heat_recovered'][sub_param_name] = {

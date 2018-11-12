@@ -4,6 +4,7 @@ import logging
 from collections import defaultdict
 import numpy as np
 
+from energy_demand.basic import lookup_tables
 from energy_demand.geography import spatial_diffusion
 from energy_demand.read_write import read_data
 from energy_demand.scripts import (s_fuel_to_service, s_generate_sigmoid)
@@ -488,12 +489,12 @@ def global_to_reg_capacity_switch(
     return reg_capacity_switch
 
 def sum_across_all_submodels_regs(
-        fueltypes_nr,
         regions,
         submodels
     ):
     """Calculate total sum of fuel per region
     """
+    fueltypes_nr = lookup_tables.basic_lookups()['fueltypes_nr']
     fuel_aggregated_regs = {}
 
     for region in regions:

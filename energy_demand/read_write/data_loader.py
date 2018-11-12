@@ -12,6 +12,7 @@ import geopandas as gpd
 from shapely.geometry import Point
 import matplotlib.pyplot as plt
 
+from energy_demand.basic import lookup_tables
 from energy_demand.read_write import write_data
 from energy_demand.read_write import read_data, read_weather_data
 from energy_demand.basic import conversions
@@ -925,7 +926,7 @@ def load_temp_data(local_paths, weather_yrs_scenario, save_fig=False):
 
     return dict(weather_stations_with_data), dict(temp_data_short)
 
-def load_fuels(submodels_names, paths, fueltypes_nr):
+def load_fuels(paths):
     """Load in ECUK fuel data, enduses and sectors
 
     Sources:
@@ -935,16 +936,8 @@ def load_fuels(submodels_names, paths, fueltypes_nr):
 
     Arguments
     ---------
-    submodels_names : list
-        Submodel names
     paths : dict
         Paths container
-    fueltypes_nr : dict
-        Lookups
-    enduses_lookup : dict
-        Lookup with array number of enduse
-    lookup_sector_enduses : dict
-        Lookup with sectors and corresponding enduses
 
     Returns
     -------
@@ -959,6 +952,9 @@ def load_fuels(submodels_names, paths, fueltypes_nr):
     lookup_sector_enduses : dict
         Sector enduse lookup
     """
+    submodels_names = lookup_tables.basic_lookups()['submodels_names']
+    fueltypes_nr = lookup_tables.basic_lookups()['fueltypes_nr']
+
     enduses, sectors, fuels = {}, {}, {}
     enduses_lookup = {}
 

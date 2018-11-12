@@ -7,6 +7,7 @@ from energy_demand.assumptions import fuel_shares
 from energy_demand.initalisations import helpers
 from energy_demand.profiles import hdd_cdd
 from energy_demand.read_write import narrative_related
+from energy_demand.basic import lookup_tables
 
 class Assumptions(object):
     """Assumptions of energy demand model
@@ -32,9 +33,8 @@ class Assumptions(object):
     """
     def __init__(
             self,
-            submodels_names=None,
-            lookup_enduses=None,
-            lookup_sector_enduses=None,
+            lookup_enduses,
+            lookup_sector_enduses,
             base_yr=None,
             weather_by=None,
             simulation_end_yr=None,
@@ -44,26 +44,24 @@ class Assumptions(object):
             local_paths=None,
             enduses=None,
             sectors=None,
-            reg_nrs=None,
-            fueltypes=None,
-            fueltypes_nr=None
+            reg_nrs=None
         ):
         """Constructor
         """
-        self.submodels_names = submodels_names
-        self.lookup_enduses = lookup_enduses
-        self.lookup_sector_enduses = lookup_sector_enduses
+        self.lookup_enduses=lookup_enduses,
+        self.lookup_sector_enduses=lookup_sector_enduses
+
+        self.submodels_names = lookup_tables.basic_lookups()['submodels_names']
+        self.nr_of_submodels = len(self.submodels_names)
+        self.fueltypes = lookup_tables.basic_lookups()['fueltypes']
+        self.fueltypes_nr = lookup_tables.basic_lookups()['fueltypes_nr']
+
         self.base_yr = base_yr
         self.weather_by = weather_by
         self.reg_nrs = reg_nrs
         self.simulation_end_yr = simulation_end_yr
         self.curr_yr = curr_yr
         self.simulated_yrs = simulated_yrs
-
-        if not submodels_names:
-            self.nr_of_submodels = 0
-        else:
-            self.nr_of_submodels = len(submodels_names)
 
         # ============================================================
         # Spatially modelled variables
@@ -72,7 +70,7 @@ class Assumptions(object):
         # or technologies having a spatial explicit diffusion need
         # to be defined.
         # ============================================================
-        self.spatial_explicit_diffusion = 0 #0: False, 1: True TODO
+        self.spatial_explicit_diffusion = 0 #0: False, 1: True
 
         # Define all variables which are affected by regional diffusion
         self.spatially_modelled_vars = [] # ['smart_meter_p']
@@ -83,12 +81,6 @@ class Assumptions(object):
         # Max penetration speed
         self.speed_con_max = 1 #1.5 # 1: uniform distribution >1: regional differences
 
-        # ----------------------------------------
-        # Flat load profile of heat pumps (TODO REMOVE eventually)
-        # ----------------------------------------
-        #self.flat_heat_pump_profile_both = 0        # 0: False, 1: True
-        #self.flat_heat_pump_profile_only_water = 0  # Only water
-    
         # ============================================================
         # Model calibration factors
         # ============================================================
@@ -421,18 +413,21 @@ class Assumptions(object):
         self.technologies, self.tech_list['heating_non_const'], self.heat_pumps = tech_related.generate_heat_pump_from_split(
             self.technologies,
             self.installed_heat_pump_by,
-            fueltypes)
+            self.fueltypes)
 
         # ============================================================
         # Fuel Stock Definition
         # Provide for every fueltype of an enduse the share of fuel
         # which is used by technologies in the base year
-        # ============================================================
+        # ============================================================$
+        import logging
+        logging.info("A" )
+        logging.info(enduses)
         fuel_tech_p_by = fuel_shares.assign_by_fuel_tech_p(
             enduses,
             sectors,
-            fueltypes,
-            fueltypes_nr)
+            self.fueltypes,
+            self.fueltypes_nr)
 
         # ========================================
         # Get technologies of an enduse and sector
@@ -450,7 +445,7 @@ class Assumptions(object):
         # Read in switches
         # ============================================================
         self.fuel_switches = read_data.read_fuel_switches(
-            local_paths['path_fuel_switches'], enduses, fueltypes, self.technologies)
+            local_paths['path_fuel_switches'], enduses, self.fueltypes, self.technologies)
 
         self.service_switches = read_data.service_switch(
             local_paths['path_service_switch'], self.technologies)
@@ -462,8 +457,6 @@ class Assumptions(object):
             fuel_switches=self.fuel_switches,
             service_switches=self.service_switches,
             capacity_switches=self.capacity_switches)
-
-        #TODO Write function to test if all defined technologies are defined
 
         # ========================================
         # General other info

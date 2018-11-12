@@ -11,7 +11,6 @@ from energy_demand.dwelling_stock import dw_stock
 from energy_demand.profiles import load_factors
 from energy_demand.profiles import generic_shapes
 from energy_demand.basic import demand_supply_interaction
-from energy_demand.basic import basic_functions
 
 class EnergyDemandModel(object):
     """ Main function of energy demand model. All submodels
@@ -93,7 +92,7 @@ class EnergyDemandModel(object):
 
         # Initialise result container to aggregate results
         aggr_results = initialise_result_container(
-            data['lookups']['fueltypes_nr'],
+            assumptions.fueltypes_nr,
             assumptions.reg_nrs,
             assumptions.lookup_enduses)
 
@@ -125,23 +124,16 @@ class EnergyDemandModel(object):
                 reg_array_nr,
                 all_submodels,
                 data['criterias']['mode_constrained'],
-                data['lookups']['fueltypes_nr'],
+                assumptions.fueltypes_nr,
                 assumptions.enduse_space_heating,
                 data['technologies'])
-
-        # ------------------------------
-        # Plot generation to correlate HDD and energy demand
-        # ------------------------------
-        ## logging.info("plot figure HDD comparison")
-        ## from energy_demand.charts import figure_HHD_gas_demand
-        ## figure_HHD_gas_demand.main(regions, weather_regions, data)
 
         # ---------------------------------------------------
         # Aggregate results for all regions
         # ---------------------------------------------------
         aggr_results = aggregate_across_all_regs(
             aggr_results,
-            data['lookups']['fueltypes_nr'],
+            assumptions.fueltypes_nr,
             data['assumptions'].lookup_enduses,
             data['lookups']['fueltypes'],
             data['assumptions'].reg_nrs,
@@ -483,8 +475,8 @@ def simulate_region(
                     fuel_tech_p_by=assumptions.fuel_tech_p_by[enduse][sector],
                     criterias=data['criterias'],
                     strategy_vars=assumptions.regional_vars[region_obj.name],
-                    fueltypes_nr=data['lookups']['fueltypes_nr'],
-                    fueltypes=data['lookups']['fueltypes'],
+                    fueltypes_nr=assumptions.fueltypes_nr,
+                    fueltypes=assumptions.fueltypes,
                     dw_stock=dw_stock,
                     reg_scen_drivers=assumptions.scenario_drivers,
                     flat_profile_crit=flat_profile_crit)
