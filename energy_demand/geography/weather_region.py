@@ -61,11 +61,7 @@ class WeatherRegion(object):
         # -----------------------------------
         # Calculate current year temperatures
         # -----------------------------------
-        temp_cy = change_temp_climate(
-            assumptions.curr_yr,
-            temp_by,
-            assumptions.yeardays_month_days,
-            assumptions.non_regional_vars)
+        temp_cy = temp_by
 
         # Base temperatures of current year
         rs_t_base_heating_cy = assumptions.non_regional_vars['rs_t_base_heating'][assumptions.curr_yr]
@@ -635,43 +631,6 @@ def ss_get_sector_enduse_shape(tech_lps, heating_lp_yd, enduse):
         shape_yh_generic_tech = heating_lp_yd[:, np.newaxis] * shape_y_dh_generic_tech
 
     return shape_yh_generic_tech, shape_y_dh_generic_tech
-
-def change_temp_climate(
-        current_yr,
-        temp_data,
-        yeardays_month_days,
-        non_regional_strategy_variables,
-    ):
-    """Change temperature data for every year depending
-    on simple climate change assumptions
-
-    Arguments
-    ---------
-    temp_data : dict
-        Data
-    yeardays_month_days : dict
-        Month containing all yeardays
-    strategy_variables : dict
-        Assumption on temperature change
-
-    Returns
-    -------
-    temp_climate_change : dict
-        Adapted temperatures for all weather stations depending on climate change assumptions
-    """
-    temp_climate_change = np.zeros((365, 24), dtype="float")
-
-    for yearday_month, month_yeardays in yeardays_month_days.items():
-
-        month_str = basic_functions.get_month_from_int(yearday_month + 1)
-
-        # Calculate monthly change in temperature
-        change_temp_cy = non_regional_strategy_variables["climate_change_temp_d"][month_str][current_yr]
-
-        # Add change
-        temp_climate_change[month_yeardays] = temp_data[month_yeardays] + change_temp_cy
-
-    return temp_climate_change
 
 def insert_peak_dh_shape(
         peak_day,

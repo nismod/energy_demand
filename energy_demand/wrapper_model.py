@@ -20,14 +20,32 @@ from energy_demand.technologies import tech_related
 from energy_demand.scripts import s_scenario_param
 from energy_demand.geography import weather_region
 
-def write_yaml(data_to_dump, file_path):
-    yaml = YAML()
-    yaml.dump(data_to_dump, file_path)
-
 def read_yaml(file_path):
-    yaml = YAML() #typ='safe')   # default, if not specfied, is 'rt' (round-trip)
-    yaml.load(file_path)
-    return yaml
+    """Parse yaml config file into plain data (lists, dicts and simple values)
+
+    Parameters
+    ----------
+    file_path : str
+        The path of the configuration file to parse
+    """
+    with open(file_path, 'r') as file_handle:
+        return YAML(typ='unsafe').load(file_handle)
+
+def write_yaml(data, file_path):
+    """Write plain data to a file as yaml
+
+    Parameters
+    ----------
+    data
+        Data to write (should be lists, dicts and simple values)
+    file_path : str
+        The path of the configuration file to write
+    """
+    with open(file_path, 'w') as file_handle:
+        yaml = YAML(typ='unsafe')
+        yaml.default_flow_style = False
+        yaml.allow_unicode = True
+        return yaml.dump(data, file_handle)
 
 '''def write_jason(data_to_dump, file_path):
     with open(file_path, 'w') as outfile:
@@ -80,21 +98,19 @@ def load_general_data(
 
     return general_data
 
-def before_simulation(
-        simulation_yrs,
+def load_data_before_simulation(
+        data,
         general_data,
+        simulation_yrs,
         config,
         name_scenario,
         path_new_scenario,
         curr_yr,
         pop_array_by_new,
         gva_array_by_new,
-        pop_density,
         gva_data
     ):
-    """
-    """
-    data = defaultdict(dict)
+
     # ---------
     # Configuration
     # -----------
@@ -124,7 +140,7 @@ def before_simulation(
     # Region related info
     # -----------------------------
     data['regions'] = general_data['regions']
-    data['reg_coord'] = general_data['reg_cord']
+    data['reg_coord'] = general_data['reg_coord']
 
     # ------------------------------------------------
     # Load Inputs
@@ -159,13 +175,8 @@ def before_simulation(
         data['assumptions'].model_yeardays_daytype)
 
     # ------------------------------------------------
-    # Load base year scenario data
+    # SCENARIO DATA
     # ------------------------------------------------
-    data['scenario_data'] = defaultdict(dict)
-
-    if curr_yr != data['assumptions'].base_yr:
-        raise Exception("The first defined year in model config does not correspond to the hardcoded base year")
-
     data['scenario_data']['population'][data['assumptions'].base_yr] = pop_array_by_new
     data['scenario_data']['gva_per_head'][data['assumptions'].base_yr] = gva_array_by_new
 
@@ -178,6 +189,7 @@ def before_simulation(
     else:
         name_population_dataset = data['local_paths']['path_population_data_for_disaggregation_LAD']
     data['pop_for_disag'] =  data_loader.read_scenario_data(name_population_dataset)
+
 
     # ------------------------------------------------
     # Load building related data
@@ -200,7 +212,7 @@ def before_simulation(
         #rs_floorarea = defaultdict(dict)
         #ss_floorarea = defaultdict(dict)
         pass
-
+    
     # Load all standard variables of parameters
     default_streategy_vars = strategy_vars_def.load_param_assump(
         assumptions=data['assumptions'])
@@ -276,9 +288,6 @@ def before_simulation(
     data['weather_stations'] = weather_stations_selection
     data['temp_data'] = temp_data_selection
 
-
-    #######################
-
     # Plot map with weather station
     if general_data['criterias']['cluster_calc'] != True:
         data_loader.create_weather_station_map(
@@ -286,10 +295,39 @@ def before_simulation(
             os.path.join(data['result_path'], 'weatherst_distr_weathyr_{}.pdf'.format( weather_yr_scenario)),
             path_shapefile=data['local_paths']['lad_shapefile'])
 
+    return data
+
+def before_simulation(
+        data,
+        simulation_yrs,
+        general_data,
+        pop_density
+    ):
+    """
+    """
+    '''# ------------------------------------------------
+    # Load base year scenario data
+    # ------------------------------------------------
+    if curr_yr != data['assumptions'].base_yr:
+        raise Exception("The first defined year in model config does not correspond to the hardcoded base year")
+
+    data['scenario_data']['population'][data['assumptions'].base_yr] = pop_array_by_new
+    data['scenario_data']['gva_per_head'][data['assumptions'].base_yr] = gva_array_by_new
+
+    # Load sector specific GVA data, if available
+    data['scenario_data']['gva_industry'][data['assumptions'].base_yr] = gva_data
+
+    # Obtain population data for disaggregation
+    if general_data['criterias']['MSOA_crit']:
+        name_population_dataset = data['local_paths']['path_population_data_for_disaggregation_MSOA']
+    else:
+        name_population_dataset = data['local_paths']['path_population_data_for_disaggregation_LAD']
+    data['pop_for_disag'] =  data_loader.read_scenario_data(name_population_dataset)'''
+
     # ------------------------------------------------
     # Disaggregate national energy demand to regional demands
     # ------------------------------------------------
-    data['fuel_disagg'] = s_disaggregation.disaggr_demand(
+    fuel_disagg = s_disaggregation.disaggr_demand(
         data,
         spatial_calibration=general_data['criterias']['spatial_calibration'])
 
@@ -301,13 +339,11 @@ def before_simulation(
     # this needs to be replaced by any other values which are loaded from
     # a csv file in the form of: {{region_name: value}}
     # ------------------------------------------------
-    real_values = pop_density
-
     f_reg, f_reg_norm, f_reg_norm_abs, crit_all_the_same = init_scripts.create_spatial_diffusion_factors(
         narrative_spatial_explicit_diffusion=data['assumptions'].strategy_vars['spatial_explicit_diffusion'],
-        fuel_disagg=data['fuel_disagg'],
+        fuel_disagg=fuel_disagg,
         regions=general_data['regions'],
-        real_values=real_values,
+        real_values=pop_density,
         narrative_speed_con_max=data['assumptions'].strategy_vars['speed_con_max'])
 
     # ------------------------------------------------
@@ -317,7 +353,7 @@ def before_simulation(
         data['assumptions'].strategy_vars,
         data['assumptions'].spatially_modelled_vars,
         general_data['regions'],
-        data['fuel_disagg'],
+        fuel_disagg,
         f_reg,
         f_reg_norm,
         f_reg_norm_abs)
@@ -344,16 +380,14 @@ def before_simulation(
         f_reg_norm_abs,
         crit_all_the_same)
 
-    # Add to regional_vars
     for region in general_data['regions']:
         regional_vars[region]['annual_tech_diff_params'] = annual_tech_diff_params[region]
 
-    return regional_vars, non_regional_vars, data
+    return regional_vars, non_regional_vars, fuel_disagg
 
 def load_data(
         data,
         curr_yr,
-        data_handle,
         general_data,
         path_new_scenario,
         name_scenario
@@ -370,42 +404,17 @@ def load_data(
         narrative_gshp_fraction_ey=data['assumptions'].non_regional_vars['gshp_fraction_ey'][curr_yr],
         crit_narrative_input=False)
 
-    # --------------------------------------------
-    # Load scenario data for current year
-    # --------------------------------------------
-    pop_array_cy = data_handle.get_data('population')   # of simulation year
-    gva_array_cy = data_handle.get_data('gva_per_head') # of simulation year
-
-    data['scenario_data']['population'][curr_yr] = basic_functions.assign_array_to_dict(
-        pop_array_cy, data['regions'])
-    data['scenario_data']['gva_per_head'][curr_yr] = basic_functions.assign_array_to_dict(
-        gva_array_cy, data['regions'])
-
-    # Write population data to file
-    write_data.write_scenaric_population_data(
-        data_handle.current_timestep,
-        os.path.join(path_new_scenario, 'model_run_pop'),
-        pop_array_cy[:, 0])
-
-    # Sector specific GVA data
-    data['scenario_data']['gva_industry'][curr_yr] = load_gva_sector(
-            data_handle=data_handle,
-            regions=data['regions'],
-            sectors_to_load=[2, 3, 4, 5, 6, 8, 9, 29, 11, 12, 10, 15, 14, 19, 17, 40, 41, 28, 35, 23, 27],
-            MSOA_crit=False,
-            simulate=False)
-
     # ------------------------------------------------
     # Spatial Validation
     # ------------------------------------------------
     if (general_data['criterias']['validation_criteria'] == True) and (
-        data_handle.current_timestep == data['assumptions'].base_yr) and (
+        curr_yr == data['assumptions'].base_yr) and (
             general_data['criterias']['cluster_calc'] != True):
         lad_validation.spatial_validation_lad_level(
             data['fuel_disagg'],
             general_data['result_paths'],
             data['paths'],
-            data['regions'],
+            general_data['regions'],
             data['reg_coord'],
             plot_crit=False)
 
@@ -421,7 +430,7 @@ def load_data(
         #region_selection = ['E02003237', 'E02003238']
         setattr(data['assumptions'], 'reg_nrs', len(region_selection))
     else:
-        region_selection = data['regions']
+        region_selection = general_data['regions']
 
     # Create .ini file with simulation parameter
     write_data.write_simulation_inifile(
@@ -453,7 +462,7 @@ def write_user_defined_results(
         result_paths,
         sim_obj,
         data,
-        data_handle,
+        curr_yr,
         region_selection
     ):
     """
@@ -469,22 +478,22 @@ def write_user_defined_results(
         ##    sim_obj.ed_submodel_enduse_fueltype_regs_yh, #TODO CHANGED FORMAT
         ##    "out_enduse_specific")
         write_data.write_supply_results(
-            data_handle.current_timestep,
+            curr_yr,
             "ed_fueltype_regs_yh",
             result_paths['data_results_model_runs'],
             sim_obj.ed_fueltype_regs_yh,
             "result_tot_submodels_fueltypes")
         write_data.write_enduse_specific(
-            data_handle.current_timestep,
+            curr_yr,
             result_paths['data_results_model_runs'],
             sim_obj.tot_fuel_y_enduse_specific_yh,
             "out_enduse_specific")
         write_data.write_lf(
             result_paths['data_results_model_runs'], "result_reg_load_factor_y",
-            [data_handle.current_timestep], sim_obj.reg_load_factor_y, 'reg_load_factor_y')
+            [curr_yr], sim_obj.reg_load_factor_y, 'reg_load_factor_y')
         write_data.write_lf(
             result_paths['data_results_model_runs'], "result_reg_load_factor_yd",
-            [data_handle.current_timestep], sim_obj.reg_load_factor_yd, 'reg_load_factor_yd')
+            [curr_yr], sim_obj.reg_load_factor_yd, 'reg_load_factor_yd')
 
     # ----------------------------------------------------------------------------------------
     # Write out national demand for every fueltype (used for first sending of demand data)
@@ -498,7 +507,7 @@ def write_user_defined_results(
             enduse_specific_results=sim_obj.tot_fuel_y_enduse_specific_yh,
             fueltype_str='gas',
             fuelype_nr=tech_related.get_fueltype_int('gas'),
-            year=data_handle.current_timestep,
+            year=curr_yr,
             submodels_names=data['assumptions'].submodels_names)
 
         # Write out elec
@@ -508,14 +517,14 @@ def write_user_defined_results(
             enduse_specific_results=sim_obj.tot_fuel_y_enduse_specific_yh,
             fueltype_str='electricity',
             fuelype_nr=tech_related.get_fueltype_int('electricity'),
-            year=data_handle.current_timestep,
+            year=curr_yr,
             submodels_names=data['assumptions'].submodels_names)
 
     # ------------------------------------------------
     # Temporal Validation
     # ------------------------------------------------
     if (criterias['validation_criteria'] == True) and (
-        data_handle.current_timestep == data['assumptions'].base_yr) and (
+        curr_yr == data['assumptions'].base_yr) and (
            ['cluster_calc'] != True):
         lad_validation.spatio_temporal_val(
             sim_obj.ed_fueltype_national_yh,
