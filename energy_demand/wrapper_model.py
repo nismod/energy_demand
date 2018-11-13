@@ -125,8 +125,8 @@ def before_simulation(
     # -----------------------------
     # Region related info
     # -----------------------------
-    #self.user_data['data']['regions'] = general_data['regions']
-    #self.user_data['data']['reg_coord'] = general_data['reg_cord']
+    self.user_data['data']['regions'] = general_data['regions']
+    self.user_data['data']['reg_coord'] = general_data['reg_cord']
 
     # ------------------------------------------------
     # Load Inputs
@@ -202,6 +202,11 @@ def before_simulation(
         #rs_floorarea = defaultdict(dict)
         #ss_floorarea = defaultdict(dict)
         pass
+
+    # ----------------------------------------------
+    # Calculate population density for base year
+    # ----------------------------------------------
+    self.user_data['data']['pop_density'] = pop_density
 
     # Load all standard variables of parameters
     default_streategy_vars = strategy_vars_def.load_param_assump(
@@ -301,7 +306,7 @@ def before_simulation(
     # this needs to be replaced by any other values which are loaded from
     # a csv file in the form of: {{region_name: value}}
     # ------------------------------------------------
-    real_values = pop_density
+    real_values = self.user_data['data']['pop_density']
 
     f_reg, f_reg_norm, f_reg_norm_abs, crit_all_the_same = init_scripts.create_spatial_diffusion_factors(
         narrative_spatial_explicit_diffusion=self.user_data['data']['assumptions'].strategy_vars['spatial_explicit_diffusion'],
