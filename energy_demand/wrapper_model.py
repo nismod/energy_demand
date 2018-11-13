@@ -2,7 +2,6 @@
 """
 import os
 import logging
-from collections import defaultdict
 from pkg_resources import Requirement, resource_filename
 from ruamel.yaml import YAML
 
@@ -47,60 +46,29 @@ def write_yaml(data, file_path):
         yaml.allow_unicode = True
         return yaml.dump(data, file_handle)
 
-'''def write_jason(data_to_dump, file_path):
-    with open(file_path, 'w') as outfile:
-        json.dump(data_to_dump, outfile)
-
-def read_jason(file_path):
-    with open(file_path) as json_file:
-        data = json.load(json_file)
-    return data'''
-
-def load_general_data(
-        regions,
-        name_scenario,
-        result_path
+def load_config_info(
     ):
     """
     """
-    general_data = {}
-    general_data['criterias'] = {}
-    general_data['criterias']['mode_constrained'] = True                      # True: Technologies are defined in ED model and fuel is provided, False: Heat is delievered not per technologies
-    general_data['criterias']['virtual_building_stock_criteria'] = True       # True: Run virtual building stock model
-    general_data['criterias']['validation_criteria'] = True                   # Validation is performed
+    criterias = {}
+    criterias['mode_constrained'] = True                      # True: Technologies are defined in ED model and fuel is provided, False: Heat is delievered not per technologies
+    criterias['virtual_building_stock_criteria'] = True       # True: Run virtual building stock model
+    criterias['validation_criteria'] = True                   # Validation is performed
 
-    general_data['criterias']['write_txt_additional_results'] = True          # Additional results are written to file
-    general_data['criterias']['write_out_national'] = False                   # National rseults for modassar
+    criterias['write_txt_additional_results'] = True          # Additional results are written to file
+    criterias['write_out_national'] = False                   # National rseults for modassar
 
     # Configuration if simulated regions is not the same as shapefile regions
-    general_data['criterias']['reg_selection'] = False
-    general_data['criterias']['MSOA_crit'] = False
-    general_data['criterias']['reg_selection_csv_name'] = "msoa_regions_ed.csv" # CSV file stored in 'region' folder with simulated regions
-    general_data['criterias']['spatial_calibration'] = False
-    general_data['criterias']['cluster_calc'] = False
+    criterias['reg_selection'] = False
+    criterias['MSOA_crit'] = False
+    criterias['reg_selection_csv_name'] = "msoa_regions_ed.csv" # CSV file stored in 'region' folder with simulated regions
+    criterias['spatial_calibration'] = False
+    criterias['cluster_calc'] = False
 
-    general_data['regions'] = regions
-    general_data['name_scenario_run'] = name_scenario
-
-    path_new_scenario = os.path.join(result_path, name_scenario)
-    general_data['path_new_scenario'] = path_new_scenario
-    general_data['result_paths'] = data_loader.get_result_paths(path_new_scenario)
-
-    # Delete previous model results
-    basic_functions.del_previous_setup(general_data['result_paths']['data_results'])
-    basic_functions.create_folder(path_new_scenario)
-
-    folders_to_create = [
-        general_data['result_paths']['data_results_model_run_pop'],
-        general_data['result_paths']['data_results_validation']]
-    for folder in folders_to_create:
-        basic_functions.create_folder(folder)
-
-    return general_data
+    return criterias
 
 def load_data_before_simulation(
         data,
-        general_data,
         simulation_yrs,
         config,
         name_scenario,
@@ -110,13 +78,13 @@ def load_data_before_simulation(
         gva_array_by_new,
         gva_data
     ):
-
     # ---------
     # Configuration
     # -----------
-    weather_yr_scenario = int(config['CONFIG']['weather_yr_scenario'])        # Default only run for base year
-    data['weather_station_count_nr'] = []                                             # Default value is '[]' to use all stations
-
+    base_yr = int(config['CONFIG']['base_yr'])
+    weather_yr_scenario = int(config['CONFIG']['weather_yr_scenario']) # Default only run for base year
+    
+    data['weather_station_count_nr'] = [] # Default value is '[]' to use all stations
     data['data_path'] = os.path.normpath(config['PATHS']['path_local_data'])
     data['processed_path'] = os.path.normpath(config['PATHS']['path_processed_data'])
     data['result_path'] = os.path.normpath(config['PATHS']['path_result_data'])
@@ -136,12 +104,6 @@ def load_data_before_simulation(
         '03_paperI_scenarios',
         name_scenario)
 
-    # -----------------------------
-    # Region related info
-    # -----------------------------
-    data['regions'] = general_data['regions']
-    data['reg_coord'] = general_data['reg_coord']
-
     # ------------------------------------------------
     # Load Inputs
     # ------------------------------------------------
@@ -154,7 +116,7 @@ def load_data_before_simulation(
     data['assumptions'] = general_assumptions.Assumptions(
         lookup_enduses=lookup_enduses,
         lookup_sector_enduses=lookup_sector_enduses,
-        base_yr=int(config['CONFIG']['base_yr']),
+        base_yr=base_yr,
         weather_by=int(config['CONFIG']['user_defined_weather_by']),
         simulation_end_yr=int(config['CONFIG']['user_defined_simulation_end_yr']),
         curr_yr=curr_yr,
@@ -163,7 +125,75 @@ def load_data_before_simulation(
         local_paths=data['local_paths'],
         enduses=data['enduses'],
         sectors=data['sectors'],
-        reg_nrs=len(general_data['regions']))
+        reg_nrs=len(data['regions']))
+
+    # Load all temperature and weather station data
+    data['weather_stations'], data['temp_data'] = data_loader.load_temp_data(
+        data['local_paths'],
+        weather_yrs_scenario=[base_yr, weather_yr_scenario],
+        save_fig=path_new_scenario)
+
+    # --------------------------------------------
+    # Make selection of weather stations and data
+    # --------------------------------------------
+    weather_stations_selection = {}
+    temp_data_selection = {}
+    if data['weather_station_count_nr'] != []:
+        for year in [data['assumptions'].base_yr, weather_yr_scenario]:
+            weather_stations_selection[year], station_id = weather_region.get_weather_station_selection(
+                data['weather_stations'],
+                counter=data['weather_station_count_nr'],
+                weather_yr = weather_yr_scenario)
+            temp_data_selection[year] = data['temp_data'][year][station_id]
+
+            if year == weather_yr_scenario:
+                data['simulation_name'] = str(weather_yr_scenario) + "__" + str(station_id)
+    else:
+        for year in [data['assumptions'].base_yr,  weather_yr_scenario]:
+            weather_stations_selection[year] = data['weather_stations'][year]
+            temp_data_selection[year] = data['temp_data'][year]
+
+            if year == weather_yr_scenario:
+                data['simulation_name'] = str(weather_yr_scenario) + "__" + "all_stations"
+
+    # Replace weather station with selection
+    data['weather_stations'] = weather_stations_selection
+    data['temp_data'] = temp_data_selection
+
+    # ------------------------------------------
+    # Make selection of regions to model
+    # ------------------------------------------
+    if data['criterias']['reg_selection']:
+        
+        region_selection = read_data.get_region_selection(
+            os.path.join(data['local_paths']['local_path_datafolder'],
+            "region_definitions",
+            data['criterias']['reg_selection_csv_name']))
+        #region_selection = ['E02003237', 'E02003238']
+        setattr(data['assumptions'], 'reg_nrs', len(region_selection))
+    else:
+        region_selection = data['regions']
+
+    # Create .ini file with simulation parameter
+    write_data.write_simulation_inifile(
+        path_new_scenario, data, region_selection)
+
+    # -------------------------------------------
+    # Weather year specific initialisations
+    # -------------------------------------------
+    path_folder_weather_yr = os.path.join(
+        os.path.join(data['result_path'], name_scenario, data['simulation_name']))
+
+    data['result_paths'] = data_loader.get_result_paths(path_folder_weather_yr)
+
+    folders_to_create = [
+        path_folder_weather_yr,
+        data['result_paths']['data_results'],
+        data['result_paths']['data_results_PDF'],
+        data['result_paths']['data_results_validation'],
+        data['result_paths']['data_results_model_runs']]
+    for folder in folders_to_create:
+        basic_functions.create_folder(folder)
 
     # ------------------------------------------------
     # Load load profiles of technologies
@@ -184,19 +214,18 @@ def load_data_before_simulation(
     data['scenario_data']['gva_industry'][data['assumptions'].base_yr] = gva_data
 
     # Obtain population data for disaggregation
-    if general_data['criterias']['MSOA_crit']:
+    if data['criterias']['MSOA_crit']:
         name_population_dataset = data['local_paths']['path_population_data_for_disaggregation_MSOA']
     else:
         name_population_dataset = data['local_paths']['path_population_data_for_disaggregation_LAD']
     data['pop_for_disag'] =  data_loader.read_scenario_data(name_population_dataset)
 
-
     # ------------------------------------------------
     # Load building related data
     # ------------------------------------------------
-    if general_data['criterias']['virtual_building_stock_criteria']:
+    if data['criterias']['virtual_building_stock_criteria']:
         data['scenario_data']['floor_area']['rs_floorarea'], data['scenario_data']['floor_area']['ss_floorarea'], data['service_building_count'], rs_regions_without_floorarea, ss_regions_without_floorarea = data_loader.floor_area_virtual_dw(
-            general_data['regions'],
+            data['regions'],
             data['sectors'],
             data['local_paths'],
             data['scenario_data']['population'][data['assumptions'].base_yr],
@@ -212,7 +241,7 @@ def load_data_before_simulation(
         #rs_floorarea = defaultdict(dict)
         #ss_floorarea = defaultdict(dict)
         pass
-    
+
     # Load all standard variables of parameters
     default_streategy_vars = strategy_vars_def.load_param_assump(
         assumptions=data['assumptions'])
@@ -253,83 +282,23 @@ def load_data_before_simulation(
         data['assumptions'].technologies,
         data['assumptions'].strategy_vars['f_eff_achieved'],
         data['assumptions'].strategy_vars['gshp_fraction_ey'])
-    data['technologies'].update(technologies)
-
-    # Load all temperature and weather station data
-    data['weather_stations'], data['temp_data'] = data_loader.load_temp_data(
-        data['local_paths'],
-        weather_yrs_scenario=[data['assumptions'].base_yr, weather_yr_scenario],
-        save_fig=path_new_scenario)
-
-    # --------------------------------------------
-    # Make selection of weather stations and data
-    # --------------------------------------------
-    weather_stations_selection = {}
-    temp_data_selection = {}
-    if data['weather_station_count_nr'] != []:
-        for year in [data['assumptions'].base_yr, weather_yr_scenario]:
-            weather_stations_selection[year], station_id = weather_region.get_weather_station_selection(
-                data['weather_stations'],
-                counter=data['weather_station_count_nr'],
-                weather_yr = weather_yr_scenario)
-            temp_data_selection[year] = data['temp_data'][year][station_id]
-
-            if year ==  weather_yr_scenario:
-                data['simulation_name'] = str( weather_yr_scenario) + "__" + str(station_id)
-    else:
-        for year in [data['assumptions'].base_yr,  weather_yr_scenario]:
-            weather_stations_selection[year] = data['weather_stations'][year]
-            temp_data_selection[year] = data['temp_data'][year]
-
-            if year == weather_yr_scenario:
-                data['simulation_name'] = str(weather_yr_scenario) + "__" + "all_stations"
-
-    # Replace weather station with selection
-    data['weather_stations'] = weather_stations_selection
-    data['temp_data'] = temp_data_selection
-
-    # Plot map with weather station
-    if general_data['criterias']['cluster_calc'] != True:
-        data_loader.create_weather_station_map(
-            data['weather_stations'][weather_yr_scenario],
-            os.path.join(data['result_path'], 'weatherst_distr_weathyr_{}.pdf'.format( weather_yr_scenario)),
-            path_shapefile=data['local_paths']['lad_shapefile'])
+    data['assumptions'].technologies.update(technologies)
 
     return data
 
 def before_simulation(
         data,
         simulation_yrs,
-        general_data,
         pop_density
     ):
     """
     """
-    '''# ------------------------------------------------
-    # Load base year scenario data
-    # ------------------------------------------------
-    if curr_yr != data['assumptions'].base_yr:
-        raise Exception("The first defined year in model config does not correspond to the hardcoded base year")
-
-    data['scenario_data']['population'][data['assumptions'].base_yr] = pop_array_by_new
-    data['scenario_data']['gva_per_head'][data['assumptions'].base_yr] = gva_array_by_new
-
-    # Load sector specific GVA data, if available
-    data['scenario_data']['gva_industry'][data['assumptions'].base_yr] = gva_data
-
-    # Obtain population data for disaggregation
-    if general_data['criterias']['MSOA_crit']:
-        name_population_dataset = data['local_paths']['path_population_data_for_disaggregation_MSOA']
-    else:
-        name_population_dataset = data['local_paths']['path_population_data_for_disaggregation_LAD']
-    data['pop_for_disag'] =  data_loader.read_scenario_data(name_population_dataset)'''
-
     # ------------------------------------------------
     # Disaggregate national energy demand to regional demands
     # ------------------------------------------------
     fuel_disagg = s_disaggregation.disaggr_demand(
         data,
-        spatial_calibration=general_data['criterias']['spatial_calibration'])
+        spatial_calibration=data['criterias']['spatial_calibration'])
 
     # ------------------------------------------------
     # Calculate spatial diffusion factors
@@ -342,7 +311,7 @@ def before_simulation(
     f_reg, f_reg_norm, f_reg_norm_abs, crit_all_the_same = init_scripts.create_spatial_diffusion_factors(
         narrative_spatial_explicit_diffusion=data['assumptions'].strategy_vars['spatial_explicit_diffusion'],
         fuel_disagg=fuel_disagg,
-        regions=general_data['regions'],
+        regions=data['regions'],
         real_values=pop_density,
         narrative_speed_con_max=data['assumptions'].strategy_vars['speed_con_max'])
 
@@ -352,7 +321,7 @@ def before_simulation(
     regional_vars = init_scripts.spatial_explicit_modelling_strategy_vars(
         data['assumptions'].strategy_vars,
         data['assumptions'].spatially_modelled_vars,
-        general_data['regions'],
+        data['regions'],
         fuel_disagg,
         f_reg,
         f_reg_norm,
@@ -365,7 +334,7 @@ def before_simulation(
     # technologies diffused by switches.
     # ------------------------------------------------
     regional_vars, non_regional_vars = s_scenario_param.generate_annual_param_vals(
-        general_data['regions'],
+        data['regions'],
         data['assumptions'].strategy_vars,
         simulation_yrs)
 
@@ -380,82 +349,10 @@ def before_simulation(
         f_reg_norm_abs,
         crit_all_the_same)
 
-    for region in general_data['regions']:
+    for region in data['regions']:
         regional_vars[region]['annual_tech_diff_params'] = annual_tech_diff_params[region]
 
     return regional_vars, non_regional_vars, fuel_disagg
-
-def load_data(
-        data,
-        curr_yr,
-        general_data,
-        path_new_scenario,
-        name_scenario
-    ):
-    """
-    """
-    # Set current year
-    data['assumptions'].update('curr_yr', curr_yr)
-
-    # Update technological efficiencies for specific year according to narrative
-    data['technologies'] = general_assumptions.update_technology_assumption(
-        technologies=data['assumptions'].technologies,
-        narrative_f_eff_achieved=data['assumptions'].non_regional_vars['f_eff_achieved'][curr_yr],
-        narrative_gshp_fraction_ey=data['assumptions'].non_regional_vars['gshp_fraction_ey'][curr_yr],
-        crit_narrative_input=False)
-
-    # ------------------------------------------------
-    # Spatial Validation
-    # ------------------------------------------------
-    if (general_data['criterias']['validation_criteria'] == True) and (
-        curr_yr == data['assumptions'].base_yr) and (
-            general_data['criterias']['cluster_calc'] != True):
-        lad_validation.spatial_validation_lad_level(
-            data['fuel_disagg'],
-            general_data['result_paths'],
-            data['paths'],
-            general_data['regions'],
-            data['reg_coord'],
-            plot_crit=False)
-
-    # ------------------------------------------
-    # Make selection of regions to model
-    # ------------------------------------------
-    if general_data['criterias']['reg_selection']:
-        
-        region_selection = read_data.get_region_selection(
-            os.path.join(data['local_paths']['local_path_datafolder'],
-            "region_definitions",
-            general_data['criterias']['reg_selection_csv_name']))
-        #region_selection = ['E02003237', 'E02003238']
-        setattr(data['assumptions'], 'reg_nrs', len(region_selection))
-    else:
-        region_selection = general_data['regions']
-
-    # Create .ini file with simulation parameter
-    write_data.write_simulation_inifile(
-        path_new_scenario, data, region_selection)
-
-    # -------------------------------------------
-    # Weather year specific initialisations
-    # -------------------------------------------
-    path_folder_weather_yr = os.path.join(
-        os.path.join(data['result_path'],
-        name_scenario,
-        data['simulation_name']))
-
-    data['result_paths'] = data_loader.get_result_paths(path_folder_weather_yr)
-
-    folders_to_create = [
-        path_folder_weather_yr,
-        general_data['result_paths']['data_results'],
-        general_data['result_paths']['data_results_PDF'],
-        general_data['result_paths']['data_results_validation'],
-        general_data['result_paths']['data_results_model_runs']]
-    for folder in folders_to_create:
-        basic_functions.create_folder(folder)
-
-    return region_selection, data
 
 def write_user_defined_results(
         criterias,
@@ -536,6 +433,8 @@ def write_user_defined_results(
             data['assumptions'].model_yeardays_daytype,
             plot_crit=False)
 
+
+
 def load_gva_sector(
         data_handle,
         regions,
@@ -581,3 +480,31 @@ def load_gva_sector(
                 raise Exception("Could not load data %s", 'gva_per_head_sector__{}'.format(gva_sector_nr))
 
     return sector_data
+
+def plots(
+        data,
+        curr_yr,
+        fuel_disagg, 
+        config
+    ):
+    """
+    """
+    # Spatial validation
+    if (data['criterias']['validation_criteria'] == True) and (
+        curr_yr == data['assumptions'].base_yr) and (
+            data['criterias']['cluster_calc'] != True):
+        lad_validation.spatial_validation_lad_level(
+            fuel_disagg,
+            data['result_paths'],
+            data['paths'],
+            data['regions'],
+            data['reg_coord'],
+            plot_crit=False)
+
+    # Plot map with weather station
+    if data['criterias']['cluster_calc'] != True:
+        data_loader.create_weather_station_map(
+            data['weather_stations'][int(config['CONFIG']['weather_yr_scenario'])],
+            os.path.join(data['result_path'], 'weatherst_distr_weathyr_{}.pdf'.format(int(config['CONFIG']['weather_yr_scenario']))),
+            path_shapefile=data['local_paths']['lad_shapefile'])
+    pass

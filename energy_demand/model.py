@@ -53,7 +53,7 @@ class EnergyDemandModel(object):
                 latitude=weather_stations[weather_yr][weather_region]['latitude'],
                 longitude=weather_stations[weather_yr][weather_region]['longitude'],
                 assumptions=assumptions,
-                technologies=data['technologies'],
+                technologies=assumptions.technologies, #data['technologies'],
                 enduses=data['enduses'],
                 temp_by=data['temp_data'][weather_yr][weather_region],
                 tech_lp=data['tech_lp'],
@@ -67,7 +67,7 @@ class EnergyDemandModel(object):
                 latitude=weather_stations[weather_by][weather_region]['latitude'],
                 longitude=weather_stations[weather_by][weather_region]['longitude'],
                 assumptions=assumptions,
-                technologies=data['technologies'],
+                technologies=assumptions.technologies, #data['technologies'],
                 enduses=data['enduses'],
                 temp_by=data['temp_data'][weather_by][weather_region],
                 tech_lp=data['tech_lp'],
@@ -129,7 +129,7 @@ class EnergyDemandModel(object):
                 criterias['mode_constrained'],
                 assumptions.fueltypes_nr,
                 assumptions.enduse_space_heating,
-                data['technologies'])
+                assumptions.technologies) #data['technologies'])
 
         # ---------------------------------------------------
         # Aggregate results for all regions
@@ -142,7 +142,7 @@ class EnergyDemandModel(object):
             data['enduses'],
             data['assumptions'],
             criterias,
-            data['technologies'])
+            assumptions.technologies) #data['technologies'])
 
         # Set all keys of aggr_results as self.attributes
         for key_attribute_name, value in aggr_results.items():

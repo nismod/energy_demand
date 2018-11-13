@@ -170,7 +170,7 @@ def switch_calculations(
                 data['enduses'][submodel],
                 data['assumptions'].fuel_tech_p_by,
                 data['fuels'][submodel],
-                data['technologies'],
+                data['assumptions'].technologies, #data['technologies'],
                 sector)
 
     # Get all defined narrative timesteps of all switch types
@@ -194,7 +194,7 @@ def switch_calculations(
         narrative_timesteps,
         data['regions'],
         reg_capacity_switches,
-        data['technologies'],
+        data['assumptions'].technologies, #data['technologies'],
         data['fuels']['aggr_sector_fuels'],
         data['assumptions'].fuel_tech_p_by,
         data['assumptions'].base_yr)
@@ -241,7 +241,7 @@ def switch_calculations(
                     narrative_timesteps,
                     data['assumptions'].base_yr,
                     data['assumptions'].crit_switch_happening,
-                    data['technologies'],
+                    data['assumptions'].technologies,
                     enduse=enduse,
                     sector=sector,
                     fuel_switches=data['assumptions'].fuel_switches,

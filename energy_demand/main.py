@@ -229,6 +229,18 @@ if __name__ == "__main__":
         sectors=data['sectors'],
         reg_nrs=len(data['regions']))
 
+    # TODO ADD £BELOW
+    '''
+    data['assumptions'].update('curr_yr', curr_yr)
+
+    # Update technological efficiencies for specific year according to narrative
+    data['technologies'] = general_assumptions.update_technology_assumption(
+        technologies=data['assumptions'].technologies,
+        narrative_f_eff_achieved=data['assumptions'].non_regional_vars['f_eff_achieved'][curr_yr],
+        narrative_gshp_fraction_ey=data['assumptions'].non_regional_vars['gshp_fraction_ey'][curr_yr],
+        crit_narrative_input=False)
+    '''
+
     # -----------------------------------------------------------------------------
     # Calculate population density for base year
     # -----------------------------------------------------------------------------
@@ -282,10 +294,11 @@ if __name__ == "__main__":
         data['assumptions'].model_yeardays,
         data['assumptions'].model_yeardays_daytype,)
 
-    data['technologies'] = general_assumptions.update_technology_assumption(
+    technologies = general_assumptions.update_technology_assumption(
         data['assumptions'].technologies,
         data['assumptions'].strategy_vars['f_eff_achieved'],
         data['assumptions'].strategy_vars['gshp_fraction_ey'])
+    data['assumptions'].technologies.update(technologies)
 
     if criterias['virtual_building_stock_criteria']:
         data['scenario_data']['floor_area']['rs_floorarea'], data['scenario_data']['floor_area']['ss_floorarea'], data['service_building_count'], rs_regions_without_floorarea, ss_regions_without_floorarea = data_loader.floor_area_virtual_dw(
@@ -475,11 +488,12 @@ if __name__ == "__main__":
         for folder in folders_to_create:
             basic_functions.create_folder(folder)
 
-        data['technologies'] = general_assumptions.update_technology_assumption(
+        technologies = general_assumptions.update_technology_assumption(
             data['assumptions'].technologies,
             narrative_f_eff_achieved=data['assumptions'].non_regional_vars['f_eff_achieved'][sim_yr],
             narrative_gshp_fraction_ey=data['assumptions'].non_regional_vars['gshp_fraction_ey'][sim_yr],
             crit_narrative_input=False)
+        data['assumptions'].technologies.update(technologies)
 
         # ------------------------------------------
         # Run model
@@ -517,7 +531,7 @@ if __name__ == "__main__":
                     sim_obj.results_constrained,
                     sim_obj.results_unconstrained,
                     data['assumptions'].submodels_names,
-                    data['technologies'])
+                    data['assumptions'].technologies) #data['technologies'])
 
                 write_data.write_yaml_output_keynames(
                     data['local_paths']['yaml_parameters_keynames_constrained'], supply_results.keys())
