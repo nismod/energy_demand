@@ -24,7 +24,7 @@ config.read(os.path.join(path_config, 'wrapperconfig.ini'))
 # --------
 # Other configuration
 # --------
-user_defined_base_yr = 2015
+base_yr = 2015
 simulated_yrs = [2015, 2050]
 
 paths = data_loader.load_paths(path_main)
@@ -34,11 +34,9 @@ local_paths = data_loader.get_local_paths(
     data_path)
 
 data = {}
-data['lookups'] = lookup_tables.basic_lookups()
+
 data['enduses'], data['sectors'], data['fuels'] = data_loader.load_fuels(
-    data['lookups']['submodels_names'],
-    paths,
-    data['lookups']['fueltypes_nr'])
+    paths)
 
 assumptions = general_assumptions.Assumptions(
     base_yr=user_defined_base_yr,
@@ -47,9 +45,7 @@ assumptions = general_assumptions.Assumptions(
     paths=paths,
     local_paths=local_paths,
     enduses=data['enduses'],
-    sectors=data['sectors'],
-    fueltypes=data['lookups']['fueltypes'],
-    fueltypes_nr=data['lookups']['fueltypes_nr'])
+    sectors=data['sectors'])
 
 # Write parameters to YAML file
 _, _ = strategy_vars_def.load_param_assump(

@@ -38,6 +38,7 @@ from energy_demand.geography import weather_region
 def energy_demand_model(
         regions,
         data,
+        criterias,
         assumptions,
         weather_stations,
         weather_yr,
@@ -74,6 +75,7 @@ def energy_demand_model(
     modelrun = model.EnergyDemandModel(
         regions=regions,
         data=data,
+        criterias=criterias,
         assumptions=assumptions,
         weather_stations=weather_stations,
         weather_yr=weather_yr,
@@ -81,7 +83,7 @@ def energy_demand_model(
 
     # Calculate base year demand
     fuels_in = testing_functions.test_function_fuel_sum(
-        data, data['fuel_disagg'], data['criterias']['mode_constrained'], assumptions.enduse_space_heating)
+        data, data['fuel_disagg'], criterias['mode_constrained'], assumptions.enduse_space_heating)
 
     # Log model results
     write_data.logg_info(modelrun, fuels_in, data)
@@ -101,42 +103,42 @@ if __name__ == "__main__":
             os.path.dirname(__file__), '..', "energy_demand/config_data"))
 
     # Load data
-    data['criterias'] = {}
-    data['criterias']['mode_constrained'] = True                    # True: Technologies are defined in ED model and fuel is provided, False: Heat is delievered not per technologies
-    data['criterias']['virtual_building_stock_criteria'] = True     # True: Run virtual building stock model
-    data['criterias']['spatial_calibration'] = False                # True: Spatial calibration
-    data['criterias']['cluster_calc'] = False                       # True: If run on a linux cluster
+    criterias = {}
+    criterias['mode_constrained'] = True                    # True: Technologies are defined in ED model and fuel is provided, False: Heat is delievered not per technologies
+    criterias['virtual_building_stock_criteria'] = True     # True: Run virtual building stock model
+    criterias['spatial_calibration'] = False                # True: Spatial calibration
+    criterias['cluster_calc'] = False                       # True: If run on a linux cluster
 
     fast_model_run = False
     if fast_model_run == True:
-        data['criterias']['write_txt_additional_results'] = False
-        data['criterias']['validation_criteria'] = False    # For validation, the mode_constrained must be True
-        data['criterias']['plot_crit'] = False
-        data['criterias']['crit_plot_enduse_lp'] = False
-        data['criterias']['writeYAML_keynames'] = False
+        criterias['write_txt_additional_results'] = False
+        criterias['validation_criteria'] = False    # For validation, the mode_constrained must be True
+        criterias['plot_crit'] = False
+        criterias['crit_plot_enduse_lp'] = False
+        criterias['writeYAML_keynames'] = False
     else:
-        data['criterias']['write_txt_additional_results'] = True
-        data['criterias']['validation_criteria'] = True
-        data['criterias']['plot_crit'] = False
-        data['criterias']['crit_plot_enduse_lp'] = False
-        data['criterias']['writeYAML_keynames'] = True
+        criterias['write_txt_additional_results'] = True
+        criterias['validation_criteria'] = True
+        criterias['plot_crit'] = False
+        criterias['crit_plot_enduse_lp'] = False
+        criterias['writeYAML_keynames'] = True
 
     # -------------------
     # Other configuration
     # -------------------
     # If the smif configuration files what to be written, set this to true. The program will abort after they are written to YAML files
-    data['criterias']['writeYAML'] = False
-    data['criterias']['reg_selection'] = False
-    data['criterias']['reg_selection_csv_name'] = "msoa_regions_ed.csv" # CSV file stored in 'region' folder with simulated regions
-    data['criterias']['MSOA_crit'] = False
+    criterias['writeYAML'] = False
+    criterias['reg_selection'] = False
+    criterias['reg_selection_csv_name'] = "msoa_regions_ed.csv" # CSV file stored in 'region' folder with simulated regions
+    criterias['MSOA_crit'] = False
 
     # --- Model running configurations
-    user_defined_base_yr = 2015
+    base_yr = 2015
     user_defined_weather_by = 2015
     user_defined_simulation_end_yr = 2050  # Used to create standard narrative
 
     # Simulated yrs
-    simulated_yrs = [user_defined_base_yr, user_defined_simulation_end_yr]
+    simulated_yrs = [base_yr, user_defined_simulation_end_yr]
     
     if len(sys.argv) > 1: #user defined arguments are provide
 
@@ -186,9 +188,8 @@ if __name__ == "__main__":
     # Load data
     # ----------------------------------------------------------------------
     data['scenario_data'] = defaultdict(dict)
-    data['lookups'] = lookup_tables.basic_lookups()
-    data['enduses'], data['sectors'], data['fuels'], lookup_enduses, lookup_sector_enduses = data_loader.load_fuels(
-        data['lookups']['submodels_names'], data['paths'], data['lookups']['fueltypes_nr'])
+
+    data['enduses'], data['sectors'], data['fuels'], lookup_enduses, lookup_sector_enduses = data_loader.load_fuels(data['paths'])
 
     data['regions'] = read_data.get_region_names(name_region_set)
 
@@ -215,10 +216,9 @@ if __name__ == "__main__":
     # Assumptions
     # -----------------------------
     data['assumptions'] = general_assumptions.Assumptions(
-        submodels_names=data['lookups']['submodels_names'],
         lookup_enduses=lookup_enduses,
         lookup_sector_enduses=lookup_sector_enduses,
-        base_yr=user_defined_base_yr,
+        base_yr=base_yr,
         weather_by=user_defined_weather_by,
         simulation_end_yr=user_defined_simulation_end_yr,
         curr_yr=2015,
@@ -227,9 +227,7 @@ if __name__ == "__main__":
         local_paths=data['local_paths'],
         enduses=data['enduses'],
         sectors=data['sectors'],
-        reg_nrs=len(data['regions']),
-        fueltypes=data['lookups']['fueltypes'],
-        fueltypes_nr=data['lookups']['fueltypes_nr'])
+        reg_nrs=len(data['regions']))
 
     # -----------------------------------------------------------------------------
     # Calculate population density for base year
@@ -249,7 +247,7 @@ if __name__ == "__main__":
         data['paths'],
         data['local_paths'],
         data['assumptions'],
-        writeYAML=data['criterias']['writeYAML'])
+        writeYAML=criterias['writeYAML'])
 
     # -----------------------------------------------------------------------------
     # Load standard smif parameters and generate standard single timestep narrative for year 2050
@@ -289,7 +287,7 @@ if __name__ == "__main__":
         data['assumptions'].strategy_vars['f_eff_achieved'],
         data['assumptions'].strategy_vars['gshp_fraction_ey'])
 
-    if data['criterias']['virtual_building_stock_criteria']:
+    if criterias['virtual_building_stock_criteria']:
         data['scenario_data']['floor_area']['rs_floorarea'], data['scenario_data']['floor_area']['ss_floorarea'], data['service_building_count'], rs_regions_without_floorarea, ss_regions_without_floorarea = data_loader.floor_area_virtual_dw(
             data['regions'],
             data['sectors'],
@@ -306,7 +304,7 @@ if __name__ == "__main__":
     print("Number of Regions                        " + str(data['assumptions'].reg_nrs))
 
     # Obtain population data for disaggregation
-    if data['criterias']['MSOA_crit']:
+    if criterias['MSOA_crit']:
         name_population_dataset = data['local_paths']['path_population_data_for_disaggregation_MSOA']
     else:
         name_population_dataset = data['local_paths']['path_population_data_for_disaggregation_LAD']
@@ -318,14 +316,14 @@ if __name__ == "__main__":
     # Load all temperature and weather station data
     data['weather_stations'], data['temp_data'] = data_loader.load_temp_data(
         data['local_paths'],
-        weather_yrs_scenario=[user_defined_base_yr, weather_yr_scenario],
+        weather_yrs_scenario=[base_yr, weather_yr_scenario],
         save_fig=path_new_scenario)
 
     # Get only selection
     weather_stations_selection = {}
     temp_data_selection = defaultdict(dict)
     if weather_station_count_nr != []:
-        for year in [user_defined_base_yr, weather_yr_scenario]:
+        for year in [base_yr, weather_yr_scenario]:
             weather_stations_selection[year], wheather_station_id = weather_region.get_weather_station_selection(
                 data['weather_stations'],
                 counter=weather_station_count_nr,
@@ -335,7 +333,7 @@ if __name__ == "__main__":
             if year == weather_yr_scenario:
                 simulation_name = str(weather_yr_scenario) + "__" + str(wheather_station_id)
     else:
-        for year in [user_defined_base_yr, weather_yr_scenario]:
+        for year in [base_yr, weather_yr_scenario]:
             weather_stations_selection[year] = data['weather_stations'][year]
             temp_data_selection[year] = data['temp_data'][year]
             if year == weather_yr_scenario:
@@ -346,7 +344,7 @@ if __name__ == "__main__":
     data['temp_data'] = dict(temp_data_selection)
 
     # Plot map with weather station
-    if data['criterias']['cluster_calc'] != True:
+    if criterias['cluster_calc'] != True:
         data_loader.create_weather_station_map(
             data['weather_stations'][weather_yr_scenario],
             os.path.join(data['path_new_scenario'], 'weatherst_distr_weathyr_{}.pdf'.format(weather_yr_scenario)),
@@ -356,7 +354,7 @@ if __name__ == "__main__":
     # Disaggregate national energy demand to regional demands
     # ------------------------------------------------------------
     data['fuel_disagg'] = s_disaggregation.disaggr_demand(
-        data, spatial_calibration=data['criterias']['spatial_calibration'])
+        data, spatial_calibration=criterias['spatial_calibration'])
 
     # ------------------------------------------------------------
     # Calculate spatial diffusion factors
@@ -413,25 +411,24 @@ if __name__ == "__main__":
     # ------------------------------------------------
     # Spatial Validation
     # ------------------------------------------------
-    if data['criterias']['validation_criteria'] == True and data['criterias']['cluster_calc'] != True:
+    if criterias['validation_criteria'] == True and criterias['cluster_calc'] != True:
         lad_validation.spatial_validation_lad_level(
             data['fuel_disagg'],
-            data['lookups'],
             data['result_paths'],
             data['paths'],
             data['regions'],
             data['reg_coord'],
-            data['criterias']['plot_crit'])
+            criterias['plot_crit'])
 
     # -----------------------------------
     # Only selection of regions to simulate
     # -------------------------------------
-    if data['criterias']['reg_selection']:
+    if criterias['reg_selection']:
         region_selection = read_data.get_region_selection(
             os.path.join(
                 data['local_paths']['local_path_datafolder'],
                 "region_definitions",
-                data['criterias']['reg_selection_csv_name']))
+                criterias['reg_selection_csv_name']))
         #region_selection = ['E02003237', 'E02003238']
 
         setattr(data['assumptions'], 'reg_nrs', len(region_selection))
@@ -490,6 +487,7 @@ if __name__ == "__main__":
         sim_obj = energy_demand_model(
             region_selection,
             data,
+            criterias,
             data['assumptions'],
             data['weather_stations'],
             weather_yr=weather_yr_scenario,
@@ -498,29 +496,27 @@ if __name__ == "__main__":
         # ------------------------------------------------
         # Temporal Validation
         # ------------------------------------------------
-        if (data['criterias']['validation_criteria'] == True and sim_yr == data['assumptions'].base_yr) and data['criterias']['cluster_calc'] != True:
+        if (criterias['validation_criteria'] == True and sim_yr == data['assumptions'].base_yr) and criterias['cluster_calc'] != True:
             lad_validation.spatio_temporal_val(
                 sim_obj.ed_fueltype_national_yh,
                 sim_obj.ed_fueltype_regs_yh,
-                data['lookups']['fueltypes'],
                 data['result_paths'],
                 data['paths'],
                 region_selection,
                 data['assumptions'].seasons,
                 data['assumptions'].model_yeardays_daytype,
-                data['criterias']['plot_crit'])
+                criterias['plot_crit'])
 
         # -------------------------------------
         # # Generate YAML file with keynames for `sector_model`
         # -------------------------------------
-        if data['criterias']['writeYAML_keynames']:
-            if data['criterias']['mode_constrained']:
+        if criterias['writeYAML_keynames']:
+            if criterias['mode_constrained']:
 
                 supply_results = demand_supply_interaction.constrained_results(
                     sim_obj.results_constrained,
                     sim_obj.results_unconstrained,
                     data['assumptions'].submodels_names,
-                    data['lookups']['fueltypes'],
                     data['technologies'])
 
                 write_data.write_yaml_output_keynames(
@@ -528,8 +524,7 @@ if __name__ == "__main__":
             else:
                 supply_results = demand_supply_interaction.unconstrained_results(
                     sim_obj.results_unconstrained,
-                    data['assumptions'].submodels_names,
-                    data['lookups']['fueltypes'])
+                    data['assumptions'].submodels_names)
 
                 write_data.write_yaml_output_keynames(
                     data['local_paths']['yaml_parameters_keynames_unconstrained'], supply_results.keys())
@@ -537,9 +532,9 @@ if __name__ == "__main__":
         # --------------------------
         # Write out all calculations
         # --------------------------
-        if data['criterias']['write_txt_additional_results']:
+        if criterias['write_txt_additional_results']:
 
-            if data['criterias']['crit_plot_enduse_lp']:
+            if criterias['crit_plot_enduse_lp']:
 
                 # Maybe move to result folder in a later step
                 path_folder_lp = os.path.join(data['result_paths']['data_results'], 'individual_enduse_lp')
@@ -548,11 +543,12 @@ if __name__ == "__main__":
                 winter_week, _, _, _ = date_prop.get_seasonal_weeks()
 
                 # Plot electricity
+                fueltype_int_elec = lookup_tables.basic_lookups()['fueltypes']['electricity']
                 for enduse, ed_yh in sim_obj.tot_fuel_y_enduse_specific_yh.items():
                     fig_enduse_yh.run(
                         name_fig="individ__electricity_{}_{}".format(enduse, sim_yr),
                         path_result=path_folder_lp,
-                        ed_yh=ed_yh[data['lookups']['fueltypes']['electricity']],
+                        ed_yh=ed_yh[fueltype_int_elec],
                         days_to_plot=winter_week)
 
             # -------------------------------------------

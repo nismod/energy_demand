@@ -168,7 +168,6 @@ def switch_calculations(
         for sector in data['sectors'][submodel]:
             s_tech_by_p[sector], s_fueltype_by_p[sector] = s_fuel_to_service.get_s_fueltype_tech(
                 data['enduses'][submodel],
-                data['lookups']['fueltypes'],
                 data['assumptions'].fuel_tech_p_by,
                 data['fuels'][submodel],
                 data['technologies'],

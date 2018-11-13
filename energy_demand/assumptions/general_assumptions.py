@@ -33,8 +33,8 @@ class Assumptions(object):
     """
     def __init__(
             self,
-            lookup_enduses,
-            lookup_sector_enduses,
+            lookup_enduses=None,
+            lookup_sector_enduses=None,
             base_yr=None,
             weather_by=None,
             simulation_end_yr=None,
@@ -48,8 +48,8 @@ class Assumptions(object):
         ):
         """Constructor
         """
-        self.lookup_enduses=lookup_enduses,
-        self.lookup_sector_enduses=lookup_sector_enduses
+        self.lookup_enduses = lookup_enduses
+        self.lookup_sector_enduses = lookup_sector_enduses
 
         self.submodels_names = lookup_tables.basic_lookups()['submodels_names']
         self.nr_of_submodels = len(self.submodels_names)
@@ -420,9 +420,6 @@ class Assumptions(object):
         # Provide for every fueltype of an enduse the share of fuel
         # which is used by technologies in the base year
         # ============================================================$
-        import logging
-        logging.info("A" )
-        logging.info(enduses)
         fuel_tech_p_by = fuel_shares.assign_by_fuel_tech_p(
             enduses,
             sectors,

@@ -1,7 +1,9 @@
 """TEsting functions
 """
 import numpy as np
+
 from energy_demand.basic import basic_functions
+from energy_demand.basic import lookup_tables
 
 def test_if_minus_value_in_array(arraytotest):
     """Test if array has negative value
@@ -121,9 +123,15 @@ def testing_tech_defined(technologies, all_tech_enduse):
                         "Error: '{}' is not defined in technology_definition.csv".format(
                             tech))
 
-def test_function_fuel_sum(data, fuel_disagg, mode_constrained, space_heating_enduses):
+def test_function_fuel_sum(
+    data,
+        fuel_disagg,
+        mode_constrained,
+        space_heating_enduses
+    ):
     """ Sum raw disaggregated fuel data
     """
+    lookups = lookup_tables.basic_lookups()
     fuel_in = 0
     fuel_in_solid_fuel = 0
     fuel_in_gas = 0
@@ -137,49 +145,49 @@ def test_function_fuel_sum(data, fuel_disagg, mode_constrained, space_heating_en
     for region in fuel_disagg['residential']:
         for enduse in fuel_disagg['residential'][region]:
             fuel_in += np.sum(fuel_disagg['residential'][region][enduse][dummy_sector])
-            fuel_in_heat += np.sum(fuel_disagg['residential'][region][enduse][dummy_sector][data['lookups']['fueltypes']['heat']])
+            fuel_in_heat += np.sum(fuel_disagg['residential'][region][enduse][dummy_sector][lookups['fueltypes']['heat']])
 
             if mode_constrained == False and enduse in space_heating_enduses: #Exclude inputs for heating
                 tot_heating += np.sum(fuel_disagg['residential'][region][enduse][dummy_sector])
             else:
-                fuel_in_elec += np.sum(fuel_disagg['residential'][region][enduse][dummy_sector][data['lookups']['fueltypes']['electricity']])
-                fuel_in_gas += np.sum(fuel_disagg['residential'][region][enduse][dummy_sector][data['lookups']['fueltypes']['gas']])
-                fuel_in_hydrogen += np.sum(fuel_disagg['residential'][region][enduse][dummy_sector][data['lookups']['fueltypes']['hydrogen']])
-                fuel_in_oil += np.sum(fuel_disagg['residential'][region][enduse][dummy_sector][data['lookups']['fueltypes']['oil']])
-                fuel_in_solid_fuel += np.sum(fuel_disagg['residential'][region][enduse][dummy_sector][data['lookups']['fueltypes']['solid_fuel']])
-                fuel_in_biomass += np.sum(fuel_disagg['residential'][region][enduse][dummy_sector][data['lookups']['fueltypes']['biomass']])
+                fuel_in_elec += np.sum(fuel_disagg['residential'][region][enduse][dummy_sector][lookups['fueltypes']['electricity']])
+                fuel_in_gas += np.sum(fuel_disagg['residential'][region][enduse][dummy_sector][lookups['fueltypes']['gas']])
+                fuel_in_hydrogen += np.sum(fuel_disagg['residential'][region][enduse][dummy_sector][lookups['fueltypes']['hydrogen']])
+                fuel_in_oil += np.sum(fuel_disagg['residential'][region][enduse][dummy_sector][lookups['fueltypes']['oil']])
+                fuel_in_solid_fuel += np.sum(fuel_disagg['residential'][region][enduse][dummy_sector][lookups['fueltypes']['solid_fuel']])
+                fuel_in_biomass += np.sum(fuel_disagg['residential'][region][enduse][dummy_sector][lookups['fueltypes']['biomass']])
 
     for region in fuel_disagg['service']:
         for enduse in fuel_disagg['service'][region]:
             for sector in fuel_disagg['service'][region][enduse]:
                 fuel_in += np.sum(fuel_disagg['service'][region][enduse][sector])
-                fuel_in_heat += np.sum(fuel_disagg['service'][region][enduse][sector][data['lookups']['fueltypes']['heat']])
+                fuel_in_heat += np.sum(fuel_disagg['service'][region][enduse][sector][lookups['fueltypes']['heat']])
 
                 if mode_constrained == False and enduse in space_heating_enduses:
                     tot_heating += np.sum(fuel_disagg['service'][region][enduse][sector])
                 else:
-                    fuel_in_elec += np.sum(fuel_disagg['service'][region][enduse][sector][data['lookups']['fueltypes']['electricity']])
-                    fuel_in_gas += np.sum(fuel_disagg['service'][region][enduse][sector][data['lookups']['fueltypes']['gas']])
-                    fuel_in_hydrogen += np.sum(fuel_disagg['service'][region][enduse][sector][data['lookups']['fueltypes']['hydrogen']])
-                    fuel_in_oil += np.sum(fuel_disagg['service'][region][enduse][sector][data['lookups']['fueltypes']['oil']])
-                    fuel_in_solid_fuel += np.sum(fuel_disagg['service'][region][enduse][sector][data['lookups']['fueltypes']['solid_fuel']])
-                    fuel_in_biomass += np.sum(fuel_disagg['service'][region][enduse][sector][data['lookups']['fueltypes']['biomass']])
+                    fuel_in_elec += np.sum(fuel_disagg['service'][region][enduse][sector][lookups['fueltypes']['electricity']])
+                    fuel_in_gas += np.sum(fuel_disagg['service'][region][enduse][sector][lookups['fueltypes']['gas']])
+                    fuel_in_hydrogen += np.sum(fuel_disagg['service'][region][enduse][sector][lookups['fueltypes']['hydrogen']])
+                    fuel_in_oil += np.sum(fuel_disagg['service'][region][enduse][sector][lookups['fueltypes']['oil']])
+                    fuel_in_solid_fuel += np.sum(fuel_disagg['service'][region][enduse][sector][lookups['fueltypes']['solid_fuel']])
+                    fuel_in_biomass += np.sum(fuel_disagg['service'][region][enduse][sector][lookups['fueltypes']['biomass']])
                 
     for region in fuel_disagg['industry']:
         for enduse in fuel_disagg['industry'][region]:
             for sector in fuel_disagg['industry'][region][enduse]:
                 fuel_in += np.sum(fuel_disagg['industry'][region][enduse][sector])
-                fuel_in_heat += np.sum(fuel_disagg['industry'][region][enduse][sector][data['lookups']['fueltypes']['heat']])
+                fuel_in_heat += np.sum(fuel_disagg['industry'][region][enduse][sector][lookups['fueltypes']['heat']])
 
                 if mode_constrained == False and enduse in space_heating_enduses:
                     tot_heating += np.sum(fuel_disagg['industry'][region][enduse][sector])
                 else:
-                    fuel_in_elec += np.sum(fuel_disagg['industry'][region][enduse][sector][data['lookups']['fueltypes']['electricity']])
-                    fuel_in_gas += np.sum(fuel_disagg['industry'][region][enduse][sector][data['lookups']['fueltypes']['gas']])
-                    fuel_in_hydrogen += np.sum(fuel_disagg['industry'][region][enduse][sector][data['lookups']['fueltypes']['hydrogen']])
-                    fuel_in_oil += np.sum(fuel_disagg['industry'][region][enduse][sector][data['lookups']['fueltypes']['oil']])
-                    fuel_in_solid_fuel += np.sum(fuel_disagg['industry'][region][enduse][sector][data['lookups']['fueltypes']['solid_fuel']])
-                    fuel_in_biomass += np.sum(fuel_disagg['industry'][region][enduse][sector][data['lookups']['fueltypes']['biomass']])
+                    fuel_in_elec += np.sum(fuel_disagg['industry'][region][enduse][sector][lookups['fueltypes']['electricity']])
+                    fuel_in_gas += np.sum(fuel_disagg['industry'][region][enduse][sector][lookups['fueltypes']['gas']])
+                    fuel_in_hydrogen += np.sum(fuel_disagg['industry'][region][enduse][sector][lookups['fueltypes']['hydrogen']])
+                    fuel_in_oil += np.sum(fuel_disagg['industry'][region][enduse][sector][lookups['fueltypes']['oil']])
+                    fuel_in_solid_fuel += np.sum(fuel_disagg['industry'][region][enduse][sector][lookups['fueltypes']['solid_fuel']])
+                    fuel_in_biomass += np.sum(fuel_disagg['industry'][region][enduse][sector][lookups['fueltypes']['biomass']])
 
     out_dict = {
         "fuel_in": fuel_in,

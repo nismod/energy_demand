@@ -8,12 +8,12 @@ import pandas as pd
 from energy_demand.basic import date_prop
 from energy_demand.basic import testing_functions
 from energy_demand.plotting import validation_enduses
+from energy_demand.basic import lookup_tables
 
 def constrained_results(
         results_constrained,
         results_unconstrained,
         submodels_names,
-        fueltypes,
         technologies
     ):
     """Prepare results for energy supply model for
@@ -40,8 +40,6 @@ def constrained_results(
         np.array((sector, regions, fueltype, timestep))
     submodels_names : list
         Names of sectors fur supply model
-    fueltypes : dict
-        Fueltype lookup
     technologies : dict
         Technologies
 
@@ -61,6 +59,7 @@ def constrained_results(
     but only the thermal efficiency
     """
     supply_results = {}
+    fueltypes = lookup_tables.basic_lookups()['fueltypes']
 
     #--------------------------------
     # Gett all non heating related enduse
@@ -114,8 +113,7 @@ def constrained_results(
 
 def unconstrained_results(
         results_unconstrained,
-        submodels_names,
-        fueltypes
+        submodels_names
     ):
     """Prepare results for energy supply model for
     unconstrained model running mode (heat is provided).
@@ -138,8 +136,6 @@ def unconstrained_results(
         np.array((sector, regions, fueltype, timestep))
     submodels_names : list
         Names of sectors for supply model
-    fueltypes : dict
-        Fueltype lookup
 
     Returns
     -------
@@ -148,6 +144,7 @@ def unconstrained_results(
         {submodel_fueltype: np.array((region, intervals))}
     """
     supply_results = {}
+    fueltypes = lookup_tables.basic_lookups()['fueltypes']
 
     for submodel_nr, submodel in enumerate(submodels_names):
         for fueltype_str, fueltype_int in fueltypes.items():

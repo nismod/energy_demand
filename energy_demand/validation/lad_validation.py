@@ -7,11 +7,10 @@ import copy
 import numpy as np
 import matplotlib.pyplot as plt
 from scipy import stats
-import logging
 
+from energy_demand.basic import lookup_tables
 from energy_demand import enduse_func
 from energy_demand.profiles import load_profile
-from energy_demand.basic import basic_functions
 from energy_demand.validation import elec_national_data
 from energy_demand.read_write import data_loader
 from energy_demand.basic import date_prop
@@ -123,7 +122,6 @@ def temporal_validation(
 
 def spatial_validation_lad_level(
         disaggregated_fuel,
-        lookups,
         result_paths,
         paths,
         regions,
@@ -139,6 +137,7 @@ def spatial_validation_lad_level(
     fuel_elec_residential_regs_yh = {}
     fuel_elec_non_residential_regs_yh = {}
 
+    lookups =  lookup_tables.basic_lookups()
     # -------------------------------------------
     # Spatial validation
     # -------------------------------------------
@@ -346,7 +345,6 @@ def temporal_validation_msoa_lad(
 def spatio_temporal_val(
         ed_fueltype_national_yh,
         ed_fueltype_regs_yh,
-        fueltypes,
         result_paths,
         paths,
         regions,
@@ -363,6 +361,7 @@ def spatio_temporal_val(
     """
     logging.info("... temporal validation")
 
+    fueltypes =  lookup_tables.basic_lookups()['fueltypes']
     # -------------------------------------------
     # Spatial validation after calculations
     # -------------------------------------------

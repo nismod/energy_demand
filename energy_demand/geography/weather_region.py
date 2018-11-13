@@ -11,6 +11,7 @@ from energy_demand.basic import basic_functions
 from energy_demand import enduse_func
 from energy_demand.initalisations import helpers
 from energy_demand.profiles import generic_shapes
+from energy_demand.basic import lookup_tables
 
 class WeatherRegion(object):
     """WeaterRegion
@@ -23,8 +24,6 @@ class WeatherRegion(object):
         Assumptions
     technologies : list
         All technology assumptions
-    fueltypes : dict
-        fueltypes
     enduses : list
         All enduses
     temp_by, temp_ey : array
@@ -46,7 +45,6 @@ class WeatherRegion(object):
             longitude,
             assumptions,
             technologies,
-            fueltypes,
             enduses,
             temp_by,
             tech_lp,
@@ -57,6 +55,9 @@ class WeatherRegion(object):
         self.name = name
         self.longitude = longitude
         self.latitude = latitude
+
+        fueltypes = lookup_tables.basic_lookups()['fueltypes']
+
         # -----------------------------------
         # Calculate current year temperatures
         # -----------------------------------
