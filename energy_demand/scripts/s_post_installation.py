@@ -5,9 +5,10 @@ Script function which are executed after model installation and
 """
 import os
 import zipfile
-
+import configparser
 from pkg_resources import Requirement
 from pkg_resources import resource_filename
+
 from energy_demand.assumptions import general_assumptions
 from energy_demand.scripts import s_rs_raw_shapes
 from energy_demand.scripts import s_ss_raw_shapes
@@ -34,30 +35,36 @@ def post_install_setup(args):
         Requirement.parse("energy_demand"),
         os.path.join("energy_demand", "config_data"))
 
+    path_config_file = os.path.abspath(
+        os.path.join(
+            os.path.dirname(__file__), '..', '..', '..', 'config', 'wrapperconfig.ini'))
+
     path_results = resource_filename(Requirement.parse("energy_demand"), "results")
     local_data_path = args.local_data
 
-    # Define base year
-    base_yr = 2015
+    config = configparser.ConfigParser()
+    config.read(path_config_file)
+
+    base_yr = config.getint('CONFIG', 'base_yr')
 
     data = {}
     data['paths'] = data_loader.load_paths(path_main)
     data['local_paths'] = data_loader.get_local_paths(local_data_path)
     data['result_paths'] = data_loader.get_result_paths(path_results)
     data['lookups'] = lookup_tables.basic_lookups()
-    data['enduses'], data['sectors'], data['fuels'], _, _, = data_loader.load_fuels(
-        submodels_names=data['lookups']['submodels_names'],
-        paths=data['paths'],
-        fueltypes_nr=data['lookups']['fueltypes_nr'])
+    data['enduses'], data['sectors'], data['fuels'], lookup_enduses, lookup_sector_enduses = data_loader.load_fuels(
+        paths=data['paths'])
 
     data['assumptions'] = general_assumptions.Assumptions(
+        lookup_enduses=lookup_enduses,
+        lookup_sector_enduses=lookup_sector_enduses,
         base_yr=base_yr,
+        #weather_by=config.getint('CONFIG', 'user_defined_weather_by'),
+        #simulation_end_yr=config.getint('CONFIG', 'user_defined_simulation_end_yr'),
         paths=data['paths'],
         local_paths=data['local_paths'],
         enduses=data['enduses'],
-        sectors=data['sectors'],
-        fueltypes=data['lookups']['fueltypes'],
-        fueltypes_nr=data['lookups']['fueltypes_nr'])
+        sectors=data['sectors'])
 
     # Delete all previous data from previous model runs
     basic_functions.del_previous_setup(data['local_paths']['data_processed'])

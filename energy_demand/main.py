@@ -15,6 +15,7 @@ import os
 import sys
 import time
 import logging
+import configparser
 from collections import defaultdict
 
 from energy_demand.basic import basic_functions
@@ -132,6 +133,13 @@ if __name__ == "__main__":
     criterias['reg_selection_csv_name'] = "msoa_regions_ed.csv" # CSV file stored in 'region' folder with simulated regions
     criterias['MSOA_crit'] = False
 
+    data['config'] = criterias
+    #config = configparser.ConfigParser()
+    #a = os.path.dirname(__file__)
+    #print("A " + str(os.path.dirname(__file__)))
+    #raise Exception
+    #config.read(os.path.join(os.path.dirname(__file__), 'wrapperconfig.ini'))
+    
     # --- Model running configurations
     base_yr = 2015
     user_defined_weather_by = 2015
@@ -161,7 +169,7 @@ if __name__ == "__main__":
     # --- Region definition configuration
     name_region_set = os.path.join(local_data_path, 'region_definitions', "lad_2016_uk_simplified.shp")
 
-    local_scenario = 'dummy_scenario'
+    local_scenario = 'pop-a_econ-c_fuel-c' #'dummy_scenario'
 
     name_population_dataset = os.path.join(local_data_path, 'scenarios', 'MISTRAL_pop_gva', 'data', '{}/population__lad.csv'.format(local_scenario)) # Constant scenario
 
@@ -265,7 +273,6 @@ if __name__ == "__main__":
     # Load standard smif parameters and generate standard single timestep narrative for year 2050
     # -----------------------------------------------------------------------------
     strategy_vars = strategy_vars_def.load_smif_parameters(
-        data_handle=default_streategy_vars,
         assumptions=data['assumptions'],
         default_streategy_vars=default_streategy_vars,
         mode='local')
@@ -531,7 +538,7 @@ if __name__ == "__main__":
                     sim_obj.results_constrained,
                     sim_obj.results_unconstrained,
                     data['assumptions'].submodels_names,
-                    data['assumptions'].technologies) #data['technologies'])
+                    data['assumptions'].technologies)
 
                 write_data.write_yaml_output_keynames(
                     data['local_paths']['yaml_parameters_keynames_constrained'], supply_results.keys())

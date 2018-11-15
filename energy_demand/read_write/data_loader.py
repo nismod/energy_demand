@@ -484,7 +484,7 @@ def get_local_paths(path):
     paths = {
         'local_path_datafolder':
             path,
-    
+
         # Path to strategy vars
         'path_strategy_vars': os.path.join(
             path, '00_user_defined_variables'),

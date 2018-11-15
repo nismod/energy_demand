@@ -252,11 +252,9 @@ def run(paths, local_paths, lookups):
     _, ss_sectors, ss_enduses = read_data.read_fuel_ss(
         paths['ss_fuel_raw'],
         lookups['fueltypes_nr'])
-    print("AA")
-    print(ss_sectors)
+
     # Iterate sectors and read in shape
     for sector in ss_sectors:
-
         # Match electricity shapes for every sector
         # to correct folder with load profiles
         if sector == 'community_arts_leisure':

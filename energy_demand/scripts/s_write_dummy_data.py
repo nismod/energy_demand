@@ -4,6 +4,8 @@ import os
 import numpy as np
 from pkg_resources import Requirement
 from pkg_resources import resource_filename
+import configparser
+
 from energy_demand.read_write import write_data
 from energy_demand.read_write import data_loader
 from energy_demand.basic import basic_functions
@@ -43,8 +45,7 @@ def dummy_sectoral_load_profiles(local_paths, path_main):
     paths = data_loader.load_paths(path_main)
     lookups = lookup_tables.basic_lookups()
 
-    dict_enduses, dict_sectors, _, _, _ = data_loader.load_fuels(
-        lookups['submodels_names'], paths, lookups['fueltypes_nr'])
+    dict_enduses, dict_sectors, _, _, _ = data_loader.load_fuels(paths)
 
     for enduse in dict_enduses['service']:
         for sector in dict_sectors['service']:
@@ -80,6 +81,13 @@ def post_install_setup_minimum(args):
 
     path_local_data = args.local_data
 
+    path_config_file = os.path.abspath(
+        os.path.join(
+            os.path.dirname(__file__), '..', '..', '..', 'config', 'wrapperconfig.ini'))
+
+    config = configparser.ConfigParser()
+    config.read(path_config_file)
+
     # ==========================================
     # Post installation setup witout access to non publicy available data
     # ==========================================
@@ -106,20 +114,19 @@ def post_install_setup_minimum(args):
     data['paths'] = data_loader.load_paths(path_energy_demand)
 
     data['lookups'] = lookup_tables.basic_lookups()
-    data['enduses'], data['sectors'], data['fuels'], lookup_enduses, lookup_sector_enduses= data_loader.load_fuels(
-        data['lookups']['submodels_names'], data['paths'], data['lookups']['fueltypes_nr'])
+    data['enduses'], data['sectors'], data['fuels'], lookup_enduses, lookup_sector_enduses = data_loader.load_fuels(data['paths'])
 
     # Assumptions
     data['assumptions'] = general_assumptions.Assumptions(
-        base_yr=base_yr,
         lookup_enduses=lookup_enduses,
         lookup_sector_enduses=lookup_sector_enduses,
+        base_yr=base_yr,
+        weather_by=config.getint('CONFIG', 'user_defined_weather_by'),
+        simulation_end_yr=config.getint('CONFIG', 'user_defined_simulation_end_yr'),
         paths=data['paths'],
         local_paths=local_paths,
         enduses=data['enduses'],
-        sectors=data['sectors'],
-        fueltypes=data['lookups']['fueltypes'],
-        fueltypes_nr=data['lookups']['fueltypes_nr'])
+        sectors=data['sectors'])
 
     # Read in residential submodel shapes
     run(data['paths'], local_paths, base_yr)
