@@ -50,7 +50,6 @@ def load_data_before_simulation(
         data,
         simulation_yrs,
         config,
-        path_new_scenario,
         curr_yr,
         pop_array_by_new,
         gva_array_by_new,
@@ -61,7 +60,8 @@ def load_data_before_simulation(
     # -----------
     base_yr = config['CONFIG']['base_yr']
     weather_yr_scenario = config['CONFIG']['weather_yr_scenario']
-    name_scenario = config['name_scenario_run']
+    name_scenario = data['name_scenario_run']
+    path_new_scenario = data['path_new_scenario']
 
     data['weather_station_count_nr'] = [] # Default value is '[]' to use all stations
     data['data_path'] = os.path.normpath(config['PATHS']['path_local_data'])

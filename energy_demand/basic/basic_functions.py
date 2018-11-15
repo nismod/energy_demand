@@ -34,6 +34,15 @@ def convert_config_to_correct_type(config):
     out_dict['CRITERIA']['spatial_calibration'] = config.getboolean('CRITERIA', 'spatial_calibration')
     out_dict['CRITERIA']['cluster_calc'] = config.getboolean('CRITERIA', 'cluster_calc')
 
+    out_dict['CRITERIA']['mode_constrained'] = config.getboolean('CRITERIA', 'mode_constrained')
+    out_dict['CRITERIA']['virtual_building_stock_criteria'] = config.getboolean('CRITERIA', 'virtual_building_stock_criteria')
+    out_dict['CRITERIA']['spatial_calibration'] = config.getboolean('CRITERIA', 'spatial_calibration')
+    out_dict['CRITERIA']['write_txt_additional_results'] = config.getboolean('CRITERIA', 'write_txt_additional_results')
+    out_dict['CRITERIA']['validation_criteria'] = config.getboolean('CRITERIA', 'validation_criteria')
+    out_dict['CRITERIA']['plot_crit'] = config.getboolean('CRITERIA', 'plot_crit')
+    out_dict['CRITERIA']['crit_plot_enduse_lp'] = config.getboolean('CRITERIA', 'crit_plot_enduse_lp')
+    out_dict['CRITERIA']['writeYAML_keynames'] = config.getboolean('CRITERIA', 'writeYAML_keynames')
+
     return dict(out_dict)
 
 def dict_depth(dictionary):

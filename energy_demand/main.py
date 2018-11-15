@@ -133,8 +133,13 @@ if __name__ == "__main__":
     criterias['reg_selection_csv_name'] = "msoa_regions_ed.csv" # CSV file stored in 'region' folder with simulated regions
     criterias['MSOA_crit'] = False
 
-    config = criterias
-    
+    # Get configuration
+    config = configparser.ConfigParser()
+    path_config = os.path.abspath(os.path.join(
+            os.path.dirname(__file__), '..', '..', "config", 'wrapperconfig.ini'))
+    config.read(path_config)
+    config = basic_functions.convert_config_to_correct_type(config)
+
     # --- Model running configurations
     base_yr = 2015
     user_defined_weather_by = 2015
@@ -262,7 +267,7 @@ if __name__ == "__main__":
         data['paths'],
         data['local_paths'],
         data['assumptions'],
-        writeYAML=criterias['writeYAML'])
+        writeYAML=config['CRITERIA']['writeYAML'])
 
     # -----------------------------------------------------------------------------
     # Load standard smif parameters and generate standard single timestep narrative for year 2050
@@ -302,7 +307,7 @@ if __name__ == "__main__":
         data['assumptions'].strategy_vars['gshp_fraction_ey'])
     data['assumptions'].technologies.update(technologies)
 
-    if criterias['virtual_building_stock_criteria']:
+    if config['CRITERIA']['virtual_building_stock_criteria']:
         data['scenario_data']['floor_area']['rs_floorarea'], data['scenario_data']['floor_area']['ss_floorarea'], data['service_building_count'], rs_regions_without_floorarea, ss_regions_without_floorarea = data_loader.floor_area_virtual_dw(
             data['regions'],
             data['sectors'],
@@ -317,13 +322,9 @@ if __name__ == "__main__":
     print("Start Energy Demand Model with python version: " + str(sys.version))
     print("-----------------------------------------------")
     print("Number of Regions                        " + str(data['assumptions'].reg_nrs))
-    print(data['regions'])
-    print(len(data['regions']))
-    print("---")
-    data['scenario_data']['floor_area']['rs_floorarea'][2015]['E02003237']
-    raise Exception
+
     # Obtain population data for disaggregation
-    if criterias['MSOA_crit']:
+    if config['CRITERIA']['MSOA_crit']:
         name_population_dataset = data['local_paths']['path_population_data_for_disaggregation_MSOA']
     else:
         name_population_dataset = data['local_paths']['path_population_data_for_disaggregation_LAD']
@@ -363,7 +364,7 @@ if __name__ == "__main__":
     data['temp_data'] = dict(temp_data_selection)
 
     # Plot map with weather station
-    if criterias['cluster_calc'] != True:
+    if config['CRITERIA']['cluster_calc'] != True:
         data_loader.create_weather_station_map(
             data['weather_stations'][weather_yr_scenario],
             os.path.join(data['path_new_scenario'], 'weatherst_distr_weathyr_{}.pdf'.format(weather_yr_scenario)),
@@ -373,7 +374,7 @@ if __name__ == "__main__":
     # Disaggregate national energy demand to regional demands
     # ------------------------------------------------------------
     data['fuel_disagg'] = s_disaggregation.disaggr_demand(
-        data, spatial_calibration=criterias['spatial_calibration'])
+        data, spatial_calibration=config['CRITERIA']['spatial_calibration'])
 
     # ------------------------------------------------------------
     # Calculate spatial diffusion factors
@@ -430,24 +431,24 @@ if __name__ == "__main__":
     # ------------------------------------------------
     # Spatial Validation
     # ------------------------------------------------
-    if criterias['validation_criteria'] == True and criterias['cluster_calc'] != True:
+    if config['CRITERIA']['validation_criteria'] == True and config['CRITERIA']['cluster_calc'] != True:
         lad_validation.spatial_validation_lad_level(
             data['fuel_disagg'],
             data['result_paths'],
             data['paths'],
             data['regions'],
             data['reg_coord'],
-            criterias['plot_crit'])
+            config['CRITERIA']['plot_crit'])
 
     # -----------------------------------
     # Only selection of regions to simulate
     # -------------------------------------
-    if criterias['reg_selection']:
+    if config['CRITERIA']['reg_selection']:
         region_selection = read_data.get_region_selection(
             os.path.join(
                 data['local_paths']['local_path_datafolder'],
                 "region_definitions",
-                criterias['reg_selection_csv_name']))
+                config['CRITERIA']['reg_selection_csv_name']))
         #region_selection = ['E02003237', 'E02003238']
 
         setattr(data['assumptions'], 'reg_nrs', len(region_selection))
@@ -507,7 +508,7 @@ if __name__ == "__main__":
         sim_obj = energy_demand_model(
             region_selection,
             data,
-            criterias,
+            config['CRITERIA'],
             data['assumptions'],
             data['weather_stations'],
             weather_yr=weather_yr_scenario,
@@ -516,7 +517,7 @@ if __name__ == "__main__":
         # ------------------------------------------------
         # Temporal Validation
         # ------------------------------------------------
-        if (criterias['validation_criteria'] == True and sim_yr == data['assumptions'].base_yr) and criterias['cluster_calc'] != True:
+        if (config['CRITERIA']['validation_criteria'] == True and sim_yr == data['assumptions'].base_yr) and config['CRITERIA']['cluster_calc'] != True:
             lad_validation.spatio_temporal_val(
                 sim_obj.ed_fueltype_national_yh,
                 sim_obj.ed_fueltype_regs_yh,
@@ -525,13 +526,13 @@ if __name__ == "__main__":
                 region_selection,
                 data['assumptions'].seasons,
                 data['assumptions'].model_yeardays_daytype,
-                criterias['plot_crit'])
+                config['CRITERIA']['plot_crit'])
 
         # -------------------------------------
         # # Generate YAML file with keynames for `sector_model`
         # -------------------------------------
-        if criterias['writeYAML_keynames']:
-            if criterias['mode_constrained']:
+        if config['CRITERIA']['writeYAML_keynames']:
+            if config['CRITERIA']['mode_constrained']:
 
                 supply_results = demand_supply_interaction.constrained_results(
                     sim_obj.results_constrained,
@@ -552,9 +553,9 @@ if __name__ == "__main__":
         # --------------------------
         # Write out all calculations
         # --------------------------
-        if criterias['write_txt_additional_results']:
+        if config['CRITERIA']['write_txt_additional_results']:
 
-            if criterias['crit_plot_enduse_lp']:
+            if config['CRITERIA']['crit_plot_enduse_lp']:
 
                 # Maybe move to result folder in a later step
                 path_folder_lp = os.path.join(data['result_paths']['data_results'], 'individual_enduse_lp')
