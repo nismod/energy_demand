@@ -9,11 +9,11 @@ import configparser
 from pkg_resources import Requirement
 from pkg_resources import resource_filename
 
+from energy_demand.basic import basic_functions
 from energy_demand.assumptions import general_assumptions
 from energy_demand.scripts import s_rs_raw_shapes
 from energy_demand.scripts import s_ss_raw_shapes
 from energy_demand.read_write import data_loader
-from energy_demand.basic import basic_functions
 from energy_demand.basic import lookup_tables
 from energy_demand.scripts.smif_data_related import script_data_preparation_MISTRAL_pop_gva
 
@@ -44,8 +44,9 @@ def post_install_setup(args):
 
     config = configparser.ConfigParser()
     config.read(path_config_file)
+    config = basic_functions.convert_config_to_correct_type(config)
 
-    base_yr = config.getint('CONFIG', 'base_yr')
+    base_yr = config['CONFIG']['base_yr']
 
     data = {}
     data['paths'] = data_loader.load_paths(path_main)
@@ -59,8 +60,6 @@ def post_install_setup(args):
         lookup_enduses=lookup_enduses,
         lookup_sector_enduses=lookup_sector_enduses,
         base_yr=base_yr,
-        #weather_by=config.getint('CONFIG', 'user_defined_weather_by'),
-        #simulation_end_yr=config.getint('CONFIG', 'user_defined_simulation_end_yr'),
         paths=data['paths'],
         local_paths=data['local_paths'],
         enduses=data['enduses'],

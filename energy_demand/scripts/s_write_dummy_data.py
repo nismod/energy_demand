@@ -43,7 +43,6 @@ def dummy_sectoral_load_profiles(local_paths, path_main):
         os.path.join(local_paths['ss_load_profile_txt'], "dumm"), "_processed_data")
 
     paths = data_loader.load_paths(path_main)
-    lookups = lookup_tables.basic_lookups()
 
     dict_enduses, dict_sectors, _, _, _ = data_loader.load_fuels(paths)
 
@@ -85,8 +84,10 @@ def post_install_setup_minimum(args):
         os.path.join(
             os.path.dirname(__file__), '..', '..', '..', 'config', 'wrapperconfig.ini'))
 
+    # Get config in dict and get correct type
     config = configparser.ConfigParser()
     config.read(path_config_file)
+    config = basic_functions.convert_config_to_correct_type(config)
 
     # ==========================================
     # Post installation setup witout access to non publicy available data
@@ -121,8 +122,8 @@ def post_install_setup_minimum(args):
         lookup_enduses=lookup_enduses,
         lookup_sector_enduses=lookup_sector_enduses,
         base_yr=base_yr,
-        weather_by=config.getint('CONFIG', 'user_defined_weather_by'),
-        simulation_end_yr=config.getint('CONFIG', 'user_defined_simulation_end_yr'),
+        weather_by=config['CONFIG']['user_defined_weather_by'],
+        simulation_end_yr=config['CONFIG']['user_defined_simulation_end_yr'],
         paths=data['paths'],
         local_paths=local_paths,
         enduses=data['enduses'],

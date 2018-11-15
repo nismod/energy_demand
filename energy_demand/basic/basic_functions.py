@@ -2,8 +2,39 @@
 """
 import os
 import shutil
+from collections import defaultdict
 import numpy as np
 from pyproj import Proj, transform
+
+def convert_config_to_correct_type(config):
+    """Convert config types into correct types
+    """
+    out_dict = defaultdict(dict)
+
+    # Paths
+    out_dict['PATHS']['path_local_data'] = config.get('PATHS', 'path_local_data')
+    out_dict['PATHS']['path_processed_data'] = config.get('PATHS', 'path_processed_data')
+    out_dict['PATHS']['path_result_data'] = config.get('PATHS', 'path_result_data')
+
+    # Config
+    out_dict['CONFIG']['base_yr'] = config.getint('CONFIG', 'base_yr')
+    out_dict['CONFIG']['weather_yr_scenario'] = config.getint('CONFIG', 'weather_yr_scenario')
+    out_dict['CONFIG']['user_defined_simulation_end_yr'] = config.getint('CONFIG', 'user_defined_simulation_end_yr')
+    out_dict['CONFIG']['user_defined_weather_by'] = config.getint('CONFIG', 'user_defined_weather_by')
+
+    # Criteria
+    out_dict['CRITERIA']['mode_constrained'] = config.getboolean('CRITERIA', 'mode_constrained')
+    out_dict['CRITERIA']['virtual_building_stock_criteria'] = config.getboolean('CRITERIA', 'virtual_building_stock_criteria')
+    out_dict['CRITERIA']['validation_criteria'] = config.getboolean('CRITERIA', 'validation_criteria')
+    out_dict['CRITERIA']['write_txt_additional_results'] = config.getboolean('CRITERIA', 'write_txt_additional_results')
+    out_dict['CRITERIA']['write_out_national'] = config.getboolean('CRITERIA', 'write_out_national')
+    out_dict['CRITERIA']['reg_selection'] = config.getboolean('CRITERIA', 'reg_selection')
+    out_dict['CRITERIA']['MSOA_crit'] = config.getboolean('CRITERIA', 'MSOA_crit')
+    out_dict['CRITERIA']['reg_selection_csv_name'] = config.get('CRITERIA', 'reg_selection_csv_name')
+    out_dict['CRITERIA']['spatial_calibration'] = config.getboolean('CRITERIA', 'spatial_calibration')
+    out_dict['CRITERIA']['cluster_calc'] = config.getboolean('CRITERIA', 'cluster_calc')
+
+    return dict(out_dict)
 
 def dict_depth(dictionary):
     """Get depth of nested dict

@@ -133,12 +133,7 @@ if __name__ == "__main__":
     criterias['reg_selection_csv_name'] = "msoa_regions_ed.csv" # CSV file stored in 'region' folder with simulated regions
     criterias['MSOA_crit'] = False
 
-    data['config'] = criterias
-    #config = configparser.ConfigParser()
-    #a = os.path.dirname(__file__)
-    #print("A " + str(os.path.dirname(__file__)))
-    #raise Exception
-    #config.read(os.path.join(os.path.dirname(__file__), 'wrapperconfig.ini'))
+    config = criterias
     
     # --- Model running configurations
     base_yr = 2015
@@ -147,7 +142,7 @@ if __name__ == "__main__":
 
     # Simulated yrs
     simulated_yrs = [base_yr, user_defined_simulation_end_yr]
-    
+
     if len(sys.argv) > 1: #user defined arguments are provide
 
         scenario_name = str(sys.argv[1])
@@ -322,7 +317,11 @@ if __name__ == "__main__":
     print("Start Energy Demand Model with python version: " + str(sys.version))
     print("-----------------------------------------------")
     print("Number of Regions                        " + str(data['assumptions'].reg_nrs))
-
+    print(data['regions'])
+    print(len(data['regions']))
+    print("---")
+    data['scenario_data']['floor_area']['rs_floorarea'][2015]['E02003237']
+    raise Exception
     # Obtain population data for disaggregation
     if criterias['MSOA_crit']:
         name_population_dataset = data['local_paths']['path_population_data_for_disaggregation_MSOA']

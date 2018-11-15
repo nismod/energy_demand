@@ -53,7 +53,7 @@ class EnergyDemandModel(object):
                 latitude=weather_stations[weather_yr][weather_region]['latitude'],
                 longitude=weather_stations[weather_yr][weather_region]['longitude'],
                 assumptions=assumptions,
-                technologies=assumptions.technologies, #data['technologies'],
+                technologies=assumptions.technologies,
                 enduses=data['enduses'],
                 temp_by=data['temp_data'][weather_yr][weather_region],
                 tech_lp=data['tech_lp'],
@@ -67,7 +67,7 @@ class EnergyDemandModel(object):
                 latitude=weather_stations[weather_by][weather_region]['latitude'],
                 longitude=weather_stations[weather_by][weather_region]['longitude'],
                 assumptions=assumptions,
-                technologies=assumptions.technologies, #data['technologies'],
+                technologies=assumptions.technologies,
                 enduses=data['enduses'],
                 temp_by=data['temp_data'][weather_by][weather_region],
                 tech_lp=data['tech_lp'],
@@ -129,7 +129,7 @@ class EnergyDemandModel(object):
                 criterias['mode_constrained'],
                 assumptions.fueltypes_nr,
                 assumptions.enduse_space_heating,
-                assumptions.technologies) #data['technologies'])
+                assumptions.technologies)
 
         # ---------------------------------------------------
         # Aggregate results for all regions
@@ -137,12 +137,11 @@ class EnergyDemandModel(object):
         aggr_results = aggregate_across_all_regs(
             aggr_results,
             assumptions.fueltypes_nr,
-            data['assumptions'].lookup_enduses,
             data['assumptions'].reg_nrs,
             data['enduses'],
             data['assumptions'],
             criterias,
-            assumptions.technologies) #data['technologies'])
+            assumptions.technologies)
 
         # Set all keys of aggr_results as self.attributes
         for key_attribute_name, value in aggr_results.items():
@@ -151,7 +150,6 @@ class EnergyDemandModel(object):
 def aggregate_across_all_regs(
         aggr_results,
         fueltypes_nr,
-        lookup_enduses,
         reg_nrs,
         enduses,
         assumptions,
@@ -274,7 +272,6 @@ def aggregate_across_all_regs(
     aggr_results['results_unconstrained'] = aggregate_result_unconstrained(
         assumptions.nr_of_submodels,
         assumptions.lookup_sector_enduses,
-        enduses,
         aggr_results['ed_submodel_enduse_fueltype_regs_yh'],
         fueltypes_nr,
         reg_nrs)
@@ -789,7 +786,6 @@ def create_dwelling_stock(regions, curr_yr, data):
 def aggregate_result_unconstrained(
         nr_of_submodels,
         lookup_sector_enduses,
-        submodels_enduses,
         ed_submodel_enduse_fueltype_regs_yh,
         fueltypes_nr,
         reg_nrs
@@ -809,7 +805,7 @@ def aggregate_result_unconstrained(
         Number of fueltypes
     reg_nrs : int
         Number of regions
-    
+
     Returns
     --------
     constrained_array : array
@@ -821,17 +817,8 @@ def aggregate_result_unconstrained(
         fueltypes_nr,
         8760), dtype="float")
 
-    '''for submodel_nr, (_, submodel_enduses) in enumerate(submodels_enduses.items()):
-        for enduse in submodel_enduses:
-
-            #enduse_array_nr = enduse_lookup[enduse]
-            for fueltype_nr in range(fueltypes_nr):
-                for region_nr in range(reg_nrs):
-                    constrained_array[submodel_nr][region_nr][fueltype_nr] += ed_submodel_enduse_fueltype_regs_yh[submodel_nr][enduse_array_nr][fueltype_nr][region_nr]
-    '''
     for submodel_nr, enduse_array_nrs in lookup_sector_enduses.items():
         for enduse_array_nr in enduse_array_nrs:
-
             for fueltype_nr in range(fueltypes_nr):
                 for region_nr in range(reg_nrs):
                     constrained_array[submodel_nr][region_nr][fueltype_nr] += ed_submodel_enduse_fueltype_regs_yh[enduse_array_nr][fueltype_nr][region_nr]
