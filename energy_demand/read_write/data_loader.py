@@ -892,6 +892,17 @@ def load_temp_data(local_paths, weather_yrs_scenario, save_fig=False):
     temp_data : dict
         Temperatures
     """
+
+    '''
+    # Get path to weather_yr
+
+    # Get all station_ids with coordinates
+
+
+    # Get all min, max weather data
+    '''
+
+
     temp_data_short = defaultdict(dict)
     weather_stations_with_data = defaultdict(dict)
 
