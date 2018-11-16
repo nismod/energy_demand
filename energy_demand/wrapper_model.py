@@ -188,8 +188,6 @@ def load_data_before_simulation(
     # ------------------------------------------------
     data['scenario_data']['population'][data['assumptions'].base_yr] = pop_array_by_new
     data['scenario_data']['gva_per_head'][data['assumptions'].base_yr] = gva_array_by_new
-
-    # Load sector specific GVA data, if available
     data['scenario_data']['gva_industry'][data['assumptions'].base_yr] = gva_data
 
     # Obtain population data for disaggregation

@@ -94,8 +94,6 @@ def energy_demand_model(
 if __name__ == "__main__":
     """
     """
-
-
     # Paths
     local_data_path = os.path.abspath('data')
     path_main = os.path.abspath(
@@ -206,18 +204,6 @@ if __name__ == "__main__":
         enduses=data['enduses'],
         sectors=data['sectors'],
         reg_nrs=len(data['regions']))
-
-    # TODO ADD £BELOW
-    '''
-    data['assumptions'].update('curr_yr', curr_yr)
-
-    # Update technological efficiencies for specific year according to narrative
-    data['technologies'] = general_assumptions.update_technology_assumption(
-        technologies=data['assumptions'].technologies,
-        narrative_f_eff_achieved=data['assumptions'].non_regional_vars['f_eff_achieved'][curr_yr],
-        narrative_gshp_fraction_ey=data['assumptions'].non_regional_vars['gshp_fraction_ey'][curr_yr],
-        crit_narrative_input=False)
-    '''
 
     # -----------------------------------------------------------------------------
     # Calculate population density for base year
