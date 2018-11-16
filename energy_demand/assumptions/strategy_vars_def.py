@@ -6,7 +6,7 @@ from collections import defaultdict
 from energy_demand.read_write import narrative_related
 
 def load_smif_parameters(
-        data_handle,
+        #data_handle,
         assumptions=False,
         default_streategy_vars=False,
         mode='smif'
@@ -54,9 +54,9 @@ def load_smif_parameters(
             # Get scenario value
             if mode == 'smif':  #smif mode
 
-                try:
-                    scenario_value = data_handle.get_parameter(var_name)
-                except:
+                #try:
+                    #scenario_value = data_handle.get_parameter(var_name)
+                #except:
                     logging.warning("IMPORTANT WARNING: Pparamter could not be loaded from smif: `%s`", var_name)
 
                     # ------------------------------------
@@ -187,31 +187,6 @@ def load_param_assump(
         "suggested_range": (0, 99),
         "default_value": assumptions.speed_con_max,
         "units": None,
-        "sector": True,
-        'regional_specific': False,
-        'diffusion_type': 'linear'}
-
-    # -----------
-    # Demand management of heat pumps
-    # -----------
-    strategy_vars['flat_heat_pump_profile_both'] = {
-        "name": "flat_heat_pump_profile_both",
-        "absolute_range": (0, 1),
-        "description": "Heat pump profile flat or with actual data",
-        "suggested_range": (0, 1),
-        "default_value": assumptions.flat_heat_pump_profile_both,
-        "units": 'bool',
-        "sector": True,
-        'regional_specific': False,
-        'diffusion_type': 'linear'}
-
-    strategy_vars['flat_heat_pump_profile_only_water'] = {
-        "name": "flat_heat_pump_profile_only_water",
-        "absolute_range": (0, 1),
-        "description": "Heat pump profile flat or with actual data only for water heating",
-        "suggested_range": (0, 1),
-        "default_value": assumptions.flat_heat_pump_profile_only_water,
-        "units": 'bool',
         "sector": True,
         'regional_specific': False,
         'diffusion_type': 'linear'}
@@ -390,8 +365,7 @@ def load_param_assump(
         'ss_space_heating': 0,
         'is_space_heating': 0,
         'rs_water_heating': 0,
-        'ss_water_heating': 0
-        }
+        'ss_water_heating': 0}
 
     for sub_param_name, sub_param_value in heat_recovered.items():
         strategy_vars['heat_recovered'][sub_param_name] = {
@@ -500,45 +474,7 @@ def load_param_assump(
             'regional_specific': True,
             'diffusion_type': 'linear'}
 
-    # -----------------------
-    # Create parameter file only with
-    # fully descried parameters and write to yaml file
-    #TODO Needs updating after SMIF upgrade
-    # -----------------------
-    '''if not paths:
-        pass
-    else:
-        strategy_vars_write = copy.copy(strategy_vars)
-
-        # Delete affected_enduse
-        for var in strategy_vars_write:
-            try:
-                del var['enduse']
-            except KeyError:
-                pass
-
-        if writeYAML:
-
-            # Delete existing files
-            basic_functions.del_file(local_paths['yaml_parameters_constrained'])
-            basic_functions.del_file(local_paths['yaml_parameters_scenario'])
-
-            # Write new files
-            write_data.write_yaml_param_complete(
-                local_paths['yaml_parameters_constrained'],
-                strategy_vars_write)
-            write_data.write_yaml_param_scenario(
-                local_paths['yaml_parameters_scenario'],
-                strategy_vars)
-
-            raise Exception(
-                "The smif parameters are read and written to {}".format(local_paths['yaml_parameters_scenario']))'''
-
-    # Autocomplete
     strategy_vars_out = autocomplete_strategy_vars(strategy_vars)
-
-    # User defined variables
-    ##strategy_vars_out["generic_fuel_switch"] = {}
 
     return dict(strategy_vars_out)
 

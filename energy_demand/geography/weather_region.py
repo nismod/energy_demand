@@ -11,6 +11,7 @@ from energy_demand.basic import basic_functions
 from energy_demand import enduse_func
 from energy_demand.initalisations import helpers
 from energy_demand.profiles import generic_shapes
+from energy_demand.basic import lookup_tables
 
 class WeatherRegion(object):
     """WeaterRegion
@@ -23,8 +24,6 @@ class WeatherRegion(object):
         Assumptions
     technologies : list
         All technology assumptions
-    fueltypes : dict
-        fueltypes
     enduses : list
         All enduses
     temp_by, temp_ey : array
@@ -46,7 +45,6 @@ class WeatherRegion(object):
             longitude,
             assumptions,
             technologies,
-            fueltypes,
             enduses,
             temp_by,
             tech_lp,
@@ -57,14 +55,13 @@ class WeatherRegion(object):
         self.name = name
         self.longitude = longitude
         self.latitude = latitude
+
+        fueltypes = lookup_tables.basic_lookups()['fueltypes']
+
         # -----------------------------------
         # Calculate current year temperatures
         # -----------------------------------
-        temp_cy = change_temp_climate(
-            assumptions.curr_yr,
-            temp_by,
-            assumptions.yeardays_month_days,
-            assumptions.non_regional_vars)
+        temp_cy = temp_by
 
         # Base temperatures of current year
         rs_t_base_heating_cy = assumptions.non_regional_vars['rs_t_base_heating'][assumptions.curr_yr]
@@ -183,7 +180,7 @@ class WeatherRegion(object):
                     technologies=tech_list,
                     enduses=[enduse],
                     shape_yd=tech_lp['rs_shapes_yd'][enduse]['shape_non_peak_yd'],
-                    shape_y_dh=shape_y_dh, #tech_lp['rs_shapes_dh'][enduse]['shape_non_peak_y_dh'],
+                    shape_y_dh=shape_y_dh,
                     sectors=[dummy_sector],
                     model_yeardays=assumptions.model_yeardays)
 
@@ -211,7 +208,7 @@ class WeatherRegion(object):
             technologies=assumptions.tech_list['tech_CHP'],
             enduses=['rs_space_heating'],
             shape_yd=rs_fuel_shape_heating_yd,
-            shape_y_dh=rs_profile_chp_y_dh, #tech_lp['rs_profile_chp_y_dh']
+            shape_y_dh=rs_profile_chp_y_dh,
             sectors=[dummy_sector],
             model_yeardays=assumptions.model_yeardays)
 
@@ -242,7 +239,7 @@ class WeatherRegion(object):
             shape_peak_dh=tech_lp['rs_lp_heating_hp_dh']['peakday'])
 
         rs_fuel_shape_hp_yh, rs_hp_shape_yd = get_fuel_shape_heating_hp_yh(
-            tech_lp_y_dh=rs_profile_hp_y_dh, #tech_lp['rs_profile_hp_y_dh'], #
+            tech_lp_y_dh=rs_profile_hp_y_dh,
             tech_stock=rs_tech_stock,
             rs_hdd_cy=self.rs_hdd_cy,
             model_yeardays=assumptions.model_yeardays)
@@ -254,64 +251,15 @@ class WeatherRegion(object):
             rs_hdd_cy=self.rs_hdd_cy,
             model_yeardays=assumptions.model_yeardays)
 
-        # ------------
-        # Set criteria wheter to use float load profile for heat pumps or not
-        # ------------
-
-        #if assumptions.non_regional_vars['flat_heat_pump_profile_both']:
-        if assumptions.flat_heat_pump_profile_both:
-            flat_space_heating = True
-            flat_water_heating = True
-        #elif assumptions.non_regional_vars['flat_heat_pump_profile_only_water']:
-        elif assumptions.flat_heat_pump_profile_only_water:
-            flat_space_heating = False
-            flat_water_heating = True
-        else:
-            flat_space_heating = False
-            flat_water_heating = False
-
-        if flat_water_heating and flat_space_heating:
-            # Flat load profiles for water and space heating
-            load_profiles.add_lp(
-                unique_identifier=uuid.uuid4(),
-                technologies=assumptions.tech_list['heating_non_const'],
-                enduses=['rs_space_heating', 'rs_water_heating'], #'ss_water_heating', 'ss_space_heating'
-                shape_y_dh=flat_shape_y_dh,
-                shape_yd=rs_hp_shape_yd,
-                shape_yh=flat_rs_fuel_shape_hp_yh,
-                sectors=[dummy_sector],
-                model_yeardays=assumptions.model_yeardays)
-        elif flat_water_heating and not flat_space_heating:
-            # Flat load profiles for water heating
-            load_profiles.add_lp(
-                unique_identifier=uuid.uuid4(),
-                technologies=assumptions.tech_list['heating_non_const'],
-                enduses=['rs_water_heating'], #pss_water_heating
-                shape_y_dh=flat_shape_y_dh,
-                shape_yd=rs_hp_shape_yd,
-                shape_yh=flat_rs_fuel_shape_hp_yh,
-                sectors=[dummy_sector],
-                model_yeardays=assumptions.model_yeardays)
-            load_profiles.add_lp(
-                unique_identifier=uuid.uuid4(),
-                technologies=assumptions.tech_list['heating_non_const'],
-                enduses=['rs_space_heating'],
-                shape_y_dh=rs_profile_hp_y_dh, #tech_lp['rs_profile_hp_y_dh'],
-                shape_yd=rs_hp_shape_yd,
-                shape_yh=rs_fuel_shape_hp_yh,
-                sectors=[dummy_sector],
-                model_yeardays=assumptions.model_yeardays)
-        else:
-            # No flat load profile
-            load_profiles.add_lp(
-                unique_identifier=uuid.uuid4(),
-                technologies=assumptions.tech_list['heating_non_const'],
-                enduses=['rs_space_heating', 'rs_water_heating'],
-                shape_y_dh=rs_profile_hp_y_dh, #tech_lp['rs_profile_hp_y_dh'],
-                shape_yd=rs_hp_shape_yd,
-                shape_yh=rs_fuel_shape_hp_yh,
-                sectors=[dummy_sector],
-                model_yeardays=assumptions.model_yeardays)
+        load_profiles.add_lp(
+            unique_identifier=uuid.uuid4(),
+            technologies=assumptions.tech_list['heating_non_const'],
+            enduses=['rs_space_heating', 'rs_water_heating'],
+            shape_y_dh=rs_profile_hp_y_dh,
+            shape_yd=rs_hp_shape_yd,
+            shape_yh=rs_fuel_shape_hp_yh,
+            sectors=[dummy_sector],
+            model_yeardays=assumptions.model_yeardays)
 
         # ------District_heating_electricity. Assumption made that same curve as CHP
         load_profiles.add_lp(
@@ -319,7 +267,7 @@ class WeatherRegion(object):
             technologies=assumptions.tech_list['tech_district_heating'],
             enduses=['rs_space_heating'],
             shape_yd=rs_fuel_shape_heating_yd,
-            shape_y_dh=rs_profile_hp_y_dh, #tech_lp['rs_profile_chp_y_dh'],
+            shape_y_dh=rs_profile_hp_y_dh,
             sectors=[dummy_sector],
             model_yeardays=assumptions.model_yeardays)
 
@@ -396,64 +344,20 @@ class WeatherRegion(object):
             all_techs_ss_space_heating, 'heat_pumps_electricity')
 
         ss_fuel_shape_hp_yh, ss_hp_shape_yd = get_fuel_shape_heating_hp_yh(
-            tech_lp_y_dh=rs_profile_hp_y_dh, #tech_lp['rs_profile_hp_y_dh'],
+            tech_lp_y_dh=rs_profile_hp_y_dh,
             tech_stock=rs_tech_stock,
             rs_hdd_cy=ss_hdd_cy,
             model_yeardays=assumptions.model_yeardays)
 
-        '''load_profiles.add_lp(
+        load_profiles.add_lp(
             unique_identifier=uuid.uuid4(),
             technologies=assumptions.tech_list['heating_non_const'],
             enduses=['ss_space_heating', 'ss_water_heating'],
             sectors=sectors['service'],
-            shape_y_dh=rs_profile_hp_y_dh, #tech_lp['rs_profile_hp_y_dh'],
+            shape_y_dh=rs_profile_hp_y_dh,
             shape_yd=ss_hp_shape_yd,
             shape_yh=ss_fuel_shape_hp_yh,
-            model_yeardays=assumptions.model_yeardays)'''
-        # NEW
-        if flat_water_heating and flat_space_heating:
-
-            load_profiles.add_lp(
-                unique_identifier=uuid.uuid4(),
-                technologies=assumptions.tech_list['heating_non_const'],
-                enduses=['ss_space_heating', 'ss_water_heating'],
-                sectors=sectors['service'],
-                shape_y_dh=flat_rs_fuel_shape_hp_yh,
-                shape_yd=ss_hp_shape_yd,
-                shape_yh=ss_fuel_shape_hp_yh,
-                model_yeardays=assumptions.model_yeardays)
-        
-        elif flat_water_heating and not flat_space_heating:
-
-            load_profiles.add_lp(
-                unique_identifier=uuid.uuid4(),
-                technologies=assumptions.tech_list['heating_non_const'],
-                enduses=['ss_water_heating'],
-                sectors=sectors['service'],
-                shape_y_dh=flat_rs_fuel_shape_hp_yh,
-                shape_yd=ss_hp_shape_yd,
-                shape_yh=ss_fuel_shape_hp_yh,
-                model_yeardays=assumptions.model_yeardays)
-
-            load_profiles.add_lp(
-                unique_identifier=uuid.uuid4(),
-                technologies=assumptions.tech_list['heating_non_const'],
-                enduses=['ss_space_heating'],
-                sectors=sectors['service'],
-                shape_y_dh=rs_profile_hp_y_dh,
-                shape_yd=ss_hp_shape_yd,
-                shape_yh=ss_fuel_shape_hp_yh,
-                model_yeardays=assumptions.model_yeardays)
-        else:
-            load_profiles.add_lp(
-                unique_identifier=uuid.uuid4(),
-                technologies=assumptions.tech_list['heating_non_const'],
-                enduses=['ss_space_heating', 'ss_water_heating'],
-                sectors=sectors['service'],
-                shape_y_dh=rs_profile_hp_y_dh, #tech_lp['rs_profile_hp_y_dh'],
-                shape_yd=ss_hp_shape_yd,
-                shape_yh=ss_fuel_shape_hp_yh,
-                model_yeardays=assumptions.model_yeardays)
+            model_yeardays=assumptions.model_yeardays)
 
         # ---secondary_heater_electricity Info: The residential direct heating load profile is used
         all_techs_ss_space_heating = basic_functions.remove_element_from_list(
@@ -727,43 +631,6 @@ def ss_get_sector_enduse_shape(tech_lps, heating_lp_yd, enduse):
         shape_yh_generic_tech = heating_lp_yd[:, np.newaxis] * shape_y_dh_generic_tech
 
     return shape_yh_generic_tech, shape_y_dh_generic_tech
-
-def change_temp_climate(
-        current_yr,
-        temp_data,
-        yeardays_month_days,
-        non_regional_strategy_variables,
-    ):
-    """Change temperature data for every year depending
-    on simple climate change assumptions
-
-    Arguments
-    ---------
-    temp_data : dict
-        Data
-    yeardays_month_days : dict
-        Month containing all yeardays
-    strategy_variables : dict
-        Assumption on temperature change
-
-    Returns
-    -------
-    temp_climate_change : dict
-        Adapted temperatures for all weather stations depending on climate change assumptions
-    """
-    temp_climate_change = np.zeros((365, 24), dtype="float")
-
-    for yearday_month, month_yeardays in yeardays_month_days.items():
-
-        month_str = basic_functions.get_month_from_int(yearday_month + 1)
-
-        # Calculate monthly change in temperature
-        change_temp_cy = non_regional_strategy_variables["climate_change_temp_d"][month_str][current_yr]
-
-        # Add change
-        temp_climate_change[month_yeardays] = temp_data[month_yeardays] + change_temp_cy
-
-    return temp_climate_change
 
 def insert_peak_dh_shape(
         peak_day,

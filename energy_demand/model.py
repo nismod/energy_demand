@@ -4,6 +4,7 @@ import logging
 from collections import defaultdict
 import numpy as np
 
+from energy_demand.basic import lookup_tables
 import energy_demand.enduse_func as endusefunctions
 from energy_demand.geography.region import Region
 from energy_demand.geography.weather_region import WeatherRegion
@@ -11,7 +12,6 @@ from energy_demand.dwelling_stock import dw_stock
 from energy_demand.profiles import load_factors
 from energy_demand.profiles import generic_shapes
 from energy_demand.basic import demand_supply_interaction
-from energy_demand.basic import basic_functions
 
 class EnergyDemandModel(object):
     """ Main function of energy demand model. All submodels
@@ -32,6 +32,7 @@ class EnergyDemandModel(object):
             self,
             regions,
             data,
+            criterias,
             assumptions,
             weather_stations,
             weather_yr,
@@ -52,8 +53,7 @@ class EnergyDemandModel(object):
                 latitude=weather_stations[weather_yr][weather_region]['latitude'],
                 longitude=weather_stations[weather_yr][weather_region]['longitude'],
                 assumptions=assumptions,
-                technologies=data['technologies'],
-                fueltypes=data['lookups']['fueltypes'],
+                technologies=assumptions.technologies,
                 enduses=data['enduses'],
                 temp_by=data['temp_data'][weather_yr][weather_region],
                 tech_lp=data['tech_lp'],
@@ -67,8 +67,7 @@ class EnergyDemandModel(object):
                 latitude=weather_stations[weather_by][weather_region]['latitude'],
                 longitude=weather_stations[weather_by][weather_region]['longitude'],
                 assumptions=assumptions,
-                technologies=data['technologies'],
-                fueltypes=data['lookups']['fueltypes'],
+                technologies=assumptions.technologies,
                 enduses=data['enduses'],
                 temp_by=data['temp_data'][weather_by][weather_region],
                 tech_lp=data['tech_lp'],
@@ -78,14 +77,16 @@ class EnergyDemandModel(object):
         # Create Dwelling Stock
         # ------------------------
         print("... generating cy dwelling stocks", flush=True)
-        if data['criterias']['virtual_building_stock_criteria']:
+        lookups = lookup_tables.basic_lookups()
+
+        if criterias['virtual_building_stock_criteria']:
             rs_dw_stock, ss_dw_stock = create_virtual_dwelling_stocks(
-                regions, assumptions.curr_yr, data)
+                regions, assumptions.curr_yr, data, criterias)
 
             data['dw_stocks'] = {
-                data['lookups']['submodels_names'][0]: rs_dw_stock,
-                data['lookups']['submodels_names'][1]: ss_dw_stock,
-                data['lookups']['submodels_names'][2]: None}
+                lookups['submodels_names'][0]: rs_dw_stock,
+                lookups['submodels_names'][1]: ss_dw_stock,
+                lookups['submodels_names'][2]: None}
         else:
             # Create dwelling stock from imported data from newcastle
             data = create_dwelling_stock(
@@ -93,7 +94,7 @@ class EnergyDemandModel(object):
 
         # Initialise result container to aggregate results
         aggr_results = initialise_result_container(
-            data['lookups']['fueltypes_nr'],
+            assumptions.fueltypes_nr,
             assumptions.reg_nrs,
             assumptions.lookup_enduses)
 
@@ -111,6 +112,7 @@ class EnergyDemandModel(object):
             all_submodels = simulate_region(
                 region,
                 data,
+                criterias,
                 assumptions,
                 weather_regions_weather_cy,
                 weather_regions_weather_by)
@@ -124,31 +126,22 @@ class EnergyDemandModel(object):
                 aggr_results,
                 reg_array_nr,
                 all_submodels,
-                data['criterias']['mode_constrained'],
-                data['lookups']['fueltypes_nr'],
+                criterias['mode_constrained'],
+                assumptions.fueltypes_nr,
                 assumptions.enduse_space_heating,
-                data['technologies'])
-
-        # ------------------------------
-        # Plot generation to correlate HDD and energy demand
-        # ------------------------------
-        ## logging.info("plot figure HDD comparison")
-        ## from energy_demand.charts import figure_HHD_gas_demand
-        ## figure_HHD_gas_demand.main(regions, weather_regions, data)
+                assumptions.technologies)
 
         # ---------------------------------------------------
         # Aggregate results for all regions
         # ---------------------------------------------------
         aggr_results = aggregate_across_all_regs(
             aggr_results,
-            data['lookups']['fueltypes_nr'],
-            data['assumptions'].lookup_enduses,
-            data['lookups']['fueltypes'],
+            assumptions.fueltypes_nr,
             data['assumptions'].reg_nrs,
             data['enduses'],
             data['assumptions'],
-            data['criterias'],
-            data['technologies'])
+            criterias,
+            assumptions.technologies)
 
         # Set all keys of aggr_results as self.attributes
         for key_attribute_name, value in aggr_results.items():
@@ -157,8 +150,6 @@ class EnergyDemandModel(object):
 def aggregate_across_all_regs(
         aggr_results,
         fueltypes_nr,
-        lookup_enduses,
-        fueltypes,
         reg_nrs,
         enduses,
         assumptions,
@@ -174,8 +165,6 @@ def aggregate_across_all_regs(
         Aggregation container
     fueltypes_nr : int
         Number of fueltypes
-    fueltypes : dict
-        Fueltypes
     reg_nrs : int
         Number of regions
     enduses : dict
@@ -203,6 +192,7 @@ def aggregate_across_all_regs(
         else:
             pass
     '''
+    fueltypes = lookup_tables.basic_lookups()['fueltypes']
     submodel_nr = 0
     array_init = np.zeros((fueltypes_nr, reg_nrs))
 
@@ -269,7 +259,6 @@ def aggregate_across_all_regs(
     # ----------------------------------------------------
     # Regional load factor calculations
     # ----------------------------------------------------
-    #aggr_results['reg_seasons_lf'], aggr_results['reg_load_factor_y'], aggr_results['reg_load_factor_yd'] = aggregate_load_factors(
     aggr_results['reg_load_factor_y'], aggr_results['reg_load_factor_yd'] = aggregate_load_factors(
         aggr_results['ed_fueltype_regs_yh'],
         fueltypes_nr,
@@ -283,7 +272,6 @@ def aggregate_across_all_regs(
     aggr_results['results_unconstrained'] = aggregate_result_unconstrained(
         assumptions.nr_of_submodels,
         assumptions.lookup_sector_enduses,
-        enduses,
         aggr_results['ed_submodel_enduse_fueltype_regs_yh'],
         fueltypes_nr,
         reg_nrs)
@@ -296,13 +284,11 @@ def aggregate_across_all_regs(
             aggr_results['results_constrained'],
             aggr_results['results_unconstrained'],
             assumptions.submodels_names,
-            fueltypes,
             technologies)
     else:
         aggr_results['supply_results'] = demand_supply_interaction.unconstrained_results(
             aggr_results['results_unconstrained'],
-            assumptions.submodels_names,
-            fueltypes)
+            assumptions.submodels_names)
 
     return aggr_results
 
@@ -399,6 +385,7 @@ def get_disaggregated_fuel_of_reg(submodel_names, fuel_disagg, region):
 def simulate_region(
         region,
         data,
+        criterias,
         assumptions,
         weather_regions_weather_cy,
         weather_regions_weather_by
@@ -481,10 +468,10 @@ def simulate_region(
                     heating_factor_y=weather_region_obj.f_heat[submodel_name],
                     cooling_factor_y=weather_region_obj.f_colling[submodel_name],
                     fuel_tech_p_by=assumptions.fuel_tech_p_by[enduse][sector],
-                    criterias=data['criterias'],
+                    criterias=criterias,
                     strategy_vars=assumptions.regional_vars[region_obj.name],
-                    fueltypes_nr=data['lookups']['fueltypes_nr'],
-                    fueltypes=data['lookups']['fueltypes'],
+                    fueltypes_nr=assumptions.fueltypes_nr,
+                    fueltypes=assumptions.fueltypes,
                     dw_stock=dw_stock,
                     reg_scen_drivers=assumptions.scenario_drivers,
                     flat_profile_crit=flat_profile_crit)
@@ -494,14 +481,10 @@ def simulate_region(
     # Collect all submodels with respect to submodel names and store in list
     # e.g. [[all_residential-submodels], [all_service_submodels]...]
     all_submodels = []
-    for submodel in data['lookups']['submodels_names']:
+    submodels = lookup_tables.basic_lookups()['submodels_names']
+    for submodel in submodels:
         submodels = get_all_submodels(submodel_objs, submodel)
         all_submodels.append(submodels)
-   
-    # remove garbage
-    #del region_obj
-    #del weather_region_obj
-    #del region_fuel_disagg
 
     return all_submodels
 
@@ -640,17 +623,9 @@ def aggr_complete_result(
 
             enduse_array_nr = lookup_enduses[model_object.enduse]
 
-
-
             if isinstance(fuels, dict):
                 for tech, fuel_tech in fuels.items():
                     tech_fueltype = technologies[tech].fueltype_int
-
-                    #print("dd")
-                    #print(full_result_aggr.shape)
-                    #print(fuel_tech.shape)
-
-                    ##full_result_aggr[submodel_nr][model_object.enduse][tech_fueltype][reg_array_nr] += fuel_tech.reshape(8760)
                     full_result_aggr[enduse_array_nr][tech_fueltype][reg_array_nr] += fuel_tech.reshape(8760)
             else:
                 fueltype_yh_365_24 = get_fuels_yh(model_object, 'fuel_yh')
@@ -659,7 +634,6 @@ def aggr_complete_result(
                 fueltype_yh_8760 = fueltype_yh_365_24.reshape(fueltype_yh_365_24.shape[0], 8760)
 
                 for fueltype_nr, fuels_8760 in enumerate(fueltype_yh_8760):
-                    ##full_result_aggr[submodel_nr][model_object.enduse][fueltype_nr][reg_array_nr] += fuels_8760
                     full_result_aggr[enduse_array_nr][fueltype_nr][reg_array_nr] += fuels_8760
 
     return full_result_aggr
@@ -713,7 +687,7 @@ def averaged_season_hourly(
 
     return averaged_h
 
-def create_virtual_dwelling_stocks(regions, curr_yr, data):
+def create_virtual_dwelling_stocks(regions, curr_yr, data, criterias):
     """Create virtual dwelling stocks for residential
     and service sector.
 
@@ -732,19 +706,21 @@ def create_virtual_dwelling_stocks(regions, curr_yr, data):
         # -------------
         # Residential dwelling stocks
         # -------------
+        dwtype = lookup_tables.basic_lookups()['dwtype']
+
         # Base year
         rs_dw_stock[region][data['assumptions'].base_yr] = dw_stock.rs_dw_stock(
             region,
             data['assumptions'],
             data['scenario_data'],
             data['assumptions'].simulated_yrs,
-            data['lookups']['dwtype'],
+            dwtype,
             data['enduses']['residential'],
             data['reg_coord'],
             data['assumptions'].scenario_drivers,
             data['assumptions'].base_yr,
             data['assumptions'].base_yr,
-            data['criterias']['virtual_building_stock_criteria'])
+            criterias['virtual_building_stock_criteria'])
 
         # Current year
         rs_dw_stock[region][curr_yr] = dw_stock.rs_dw_stock(
@@ -752,13 +728,13 @@ def create_virtual_dwelling_stocks(regions, curr_yr, data):
             data['assumptions'],
             data['scenario_data'],
             data['assumptions'].simulated_yrs,
-            data['lookups']['dwtype'],
+            dwtype,
             data['enduses']['residential'],
             data['reg_coord'],
             data['assumptions'].scenario_drivers,
             curr_yr,
             data['assumptions'].base_yr,
-            data['criterias']['virtual_building_stock_criteria'])
+            criterias['virtual_building_stock_criteria'])
 
         # -------------
         # Service dwelling stocks
@@ -773,7 +749,7 @@ def create_virtual_dwelling_stocks(regions, curr_yr, data):
             data['assumptions'],
             data['assumptions'].base_yr,
             data['assumptions'].base_yr,
-            data['criterias']['virtual_building_stock_criteria'])
+            criterias['virtual_building_stock_criteria'])
 
         # current year
         ss_dw_stock[region][curr_yr] = dw_stock.ss_dw_stock(
@@ -785,7 +761,7 @@ def create_virtual_dwelling_stocks(regions, curr_yr, data):
             data['assumptions'],
             curr_yr,
             data['assumptions'].base_yr,
-            data['criterias']['virtual_building_stock_criteria'])
+            criterias['virtual_building_stock_criteria'])
 
     return dict(rs_dw_stock), dict(ss_dw_stock)
 
@@ -810,7 +786,6 @@ def create_dwelling_stock(regions, curr_yr, data):
 def aggregate_result_unconstrained(
         nr_of_submodels,
         lookup_sector_enduses,
-        submodels_enduses,
         ed_submodel_enduse_fueltype_regs_yh,
         fueltypes_nr,
         reg_nrs
@@ -830,7 +805,7 @@ def aggregate_result_unconstrained(
         Number of fueltypes
     reg_nrs : int
         Number of regions
-    
+
     Returns
     --------
     constrained_array : array
@@ -842,17 +817,8 @@ def aggregate_result_unconstrained(
         fueltypes_nr,
         8760), dtype="float")
 
-    '''for submodel_nr, (_, submodel_enduses) in enumerate(submodels_enduses.items()):
-        for enduse in submodel_enduses:
-
-            #enduse_array_nr = enduse_lookup[enduse]
-            for fueltype_nr in range(fueltypes_nr):
-                for region_nr in range(reg_nrs):
-                    constrained_array[submodel_nr][region_nr][fueltype_nr] += ed_submodel_enduse_fueltype_regs_yh[submodel_nr][enduse_array_nr][fueltype_nr][region_nr]
-    '''
     for submodel_nr, enduse_array_nrs in lookup_sector_enduses.items():
         for enduse_array_nr in enduse_array_nrs:
-
             for fueltype_nr in range(fueltypes_nr):
                 for region_nr in range(reg_nrs):
                     constrained_array[submodel_nr][region_nr][fueltype_nr] += ed_submodel_enduse_fueltype_regs_yh[enduse_array_nr][fueltype_nr][region_nr]

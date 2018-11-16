@@ -161,17 +161,14 @@ def disaggr_demand(data, spatial_calibration=False):
 
     # Sum demand across all submodels and sectors for every region
     disagg['tot_disaggregated_regs'] = init_scripts.sum_across_all_submodels_regs(
-        data['lookups']['fueltypes_nr'],
         data['regions'],
         [disagg['residential'], disagg['service'], disagg['industry']])
 
     disagg['tot_disaggregated_regs_residenital'] = init_scripts.sum_across_all_submodels_regs(
-        data['lookups']['fueltypes_nr'],
         data['regions'],
         [disagg['residential']])
 
     disagg['tot_disaggregated_regs_non_residential'] = init_scripts.sum_across_all_submodels_regs(
-        data['lookups']['fueltypes_nr'],
         data['regions'],
         [disagg['service'], disagg['industry']])
 

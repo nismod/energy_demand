@@ -1,9 +1,11 @@
 """Script to convert fuel to energy service
 """
 import numpy as np
+from collections import defaultdict
+
+from energy_demand.basic import lookup_tables
 from energy_demand.technologies import tech_related
 from energy_demand.initalisations import helpers
-from collections import defaultdict
 
 def init_nested_dict_brackets(first_level_keys, second_level_keys):
     """Initialise a nested dictionary with two levels
@@ -99,7 +101,6 @@ def sum_fuel_enduse_sectors(data_enduses, enduses):
 
 def get_s_fueltype_tech(
         enduses,
-        fueltypes,
         fuel_p_tech_by,
         fuels,
         technologies,
@@ -118,8 +119,6 @@ def get_s_fueltype_tech(
     ----------
     enduses : dict
         Enduses
-    fueltypes : dict
-        Fueltypes
     fuel_p_tech_by : dict
         Assumed fraction of fuel for each technology within a fueltype
     fuels : array
@@ -134,6 +133,8 @@ def get_s_fueltype_tech(
     s_fueltype_by_p : dict
         Percentage of energy service per fueltype
     """
+    fueltypes =  lookup_tables.basic_lookups()['fueltypes']
+
     service = init_nested_dict_brackets(fuels, fueltypes.values()) # Energy service per technology for base year
     s_tech_by_p = helpers.init_dict_brackets(fuels) # Percentage of total energy service per technology for base year
     s_fueltype_by_p = init_nested_dict_zero(sector, s_tech_by_p.keys(), range(len(fueltypes))) # Percentage of service per fueltype

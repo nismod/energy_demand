@@ -189,11 +189,20 @@ def basic_lookups():
     """
     lookups = {}
 
-    # Specify all submodels
     lookups['submodels_names'] = [
-        'residential',
-        'service',
-        'industry']
+            'residential',
+            'service',
+            'industry']
+
+    lookups['fueltypes'] = {
+        'solid_fuel': 0,
+        'gas': 1,
+        'electricity': 2,
+        'oil': 3,
+        'biomass': 4,
+        'hydrogen': 5,
+        'heat': 6}
+    lookups['fueltypes_nr'] = int(len(lookups['fueltypes']))
 
     # Assign BESI categories to merged AddressPoint dataset
     lookups['building_cnt_lu'] = {
@@ -219,17 +228,6 @@ def basic_lookups():
         2: 'terraced',
         3: 'flat',
         4: 'bungalow'}
-
-    lookups['fueltypes'] = {
-        'solid_fuel': 0,
-        'gas': 1,
-        'electricity': 2,
-        'oil': 3,
-        'biomass': 4,
-        'hydrogen': 5,
-        'heat': 6}
-
-    lookups['fueltypes_nr'] = int(len(lookups['fueltypes']))
 
     return lookups
 
