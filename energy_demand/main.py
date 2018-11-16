@@ -94,56 +94,26 @@ def energy_demand_model(
 if __name__ == "__main__":
     """
     """
-    data = {}
 
-    # Local path
+
+    # Paths
     local_data_path = os.path.abspath('data')
-
     path_main = os.path.abspath(
         os.path.join(
             os.path.dirname(__file__), '..', "energy_demand/config_data"))
-
-    # Load data
-    criterias = {}
-    criterias['mode_constrained'] = True                    # True: Technologies are defined in ED model and fuel is provided, False: Heat is delievered not per technologies
-    criterias['virtual_building_stock_criteria'] = True     # True: Run virtual building stock model
-    criterias['spatial_calibration'] = False                # True: Spatial calibration
-    criterias['cluster_calc'] = False                       # True: If run on a linux cluster
-
-    fast_model_run = False
-    if fast_model_run == True:
-        criterias['write_txt_additional_results'] = False
-        criterias['validation_criteria'] = False    # For validation, the mode_constrained must be True
-        criterias['plot_crit'] = False
-        criterias['crit_plot_enduse_lp'] = False
-        criterias['writeYAML_keynames'] = False
-    else:
-        criterias['write_txt_additional_results'] = True
-        criterias['validation_criteria'] = True
-        criterias['plot_crit'] = False
-        criterias['crit_plot_enduse_lp'] = False
-        criterias['writeYAML_keynames'] = True
-
-    # -------------------
-    # Other configuration
-    # -------------------
-    # If the smif configuration files what to be written, set this to true. The program will abort after they are written to YAML files
-    criterias['writeYAML'] = False
-    criterias['reg_selection'] = False
-    criterias['reg_selection_csv_name'] = "msoa_regions_ed.csv" # CSV file stored in 'region' folder with simulated regions
-    criterias['MSOA_crit'] = False
+    path_config = os.path.abspath(os.path.join(
+            os.path.dirname(__file__), '..', 'local_run_config_file.ini'))
 
     # Get configuration
     config = configparser.ConfigParser()
-    path_config = os.path.abspath(os.path.join(
-            os.path.dirname(__file__), '..', '..', "config", 'wrapperconfig.ini'))
     config.read(path_config)
     config = basic_functions.convert_config_to_correct_type(config)
 
     # --- Model running configurations
-    base_yr = 2015
-    user_defined_weather_by = 2015
-    user_defined_simulation_end_yr = 2050  # Used to create standard narrative
+    data = {}
+    base_yr = config['CONFIG']['base_yr']
+    user_defined_weather_by = config['CONFIG']['user_defined_weather_by']
+    user_defined_simulation_end_yr = config['CONFIG']['user_defined_simulation_end_yr']
 
     # Simulated yrs
     simulated_yrs = [base_yr, user_defined_simulation_end_yr]

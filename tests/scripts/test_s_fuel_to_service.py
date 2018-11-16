@@ -62,7 +62,6 @@ def test_get_s_fueltype_tech():
 
     s_tech_by_p, s_fueltype_by_p = s_fuel_to_service.get_s_fueltype_tech(
        enduses=['heating'],
-       fueltypes=fueltypes,
        fuel_p_tech_by=fuel_p_tech_by,
        fuels={'heating': {'sectorA': np.array([100])}},
        technologies=technologies,
@@ -96,7 +95,6 @@ def test_get_s_fueltype_tech():
 
     s_tech_by_p, s_fueltype_by_p = s_fuel_to_service.get_s_fueltype_tech(
        enduses=['heating'],
-       fueltypes=fueltypes,
        fuel_p_tech_by=fuel_p_tech_by,
        fuels={'heating': {'sectorA': np.array([100])}}, # 0 == gas
        technologies=technologies,
@@ -142,7 +140,6 @@ def test_get_s_fueltype_tech():
 
     s_tech_by_p, s_fueltype_by_p = s_fuel_to_service.get_s_fueltype_tech(
        enduses=['heating'],
-       fueltypes=fueltypes,
        fuel_p_tech_by=fuel_p_tech_by,
        fuels={'heating': {'sectorA': np.array([100, 300])}}, # tripple elec than gas
        technologies=technologies,

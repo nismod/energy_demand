@@ -43,7 +43,6 @@ df_min['tasmin'] = df_min['tasmin'].apply(pytemperature.k2c)
 
 # Add evenly distributed days
 # Copy every sithieth day over the year and duplicate it. Do this five times --> get from 360 to 365 days
-
 min_vals = []
 max_vals = []
 longs = []
@@ -81,9 +80,19 @@ for index, row in df_min.iterrows():
     day_cnt += 1
 
 station_id_positions = []
-cnt = 0
-for min_val, max_val in (min_vals, max_vals):
 
+print("A")
+#print(min_vals)
+#print(max_vals)
+print(len(min_vals))
+print(len(max_vals))
+
+nr_of_entries = len(min_vals)
+cnt = 0
+for i in range(nr_of_entries):
+    print("o " + str(i))
+    min_val = max_vals[cnt] 
+    max_val = min_vals[cnt] 
     lon = longs[cnt]
     lat = lats[cnt]
 
@@ -107,7 +116,7 @@ for min_val, max_val in (min_vals, max_vals):
 # Write station 
 def create_csv_file(path, rows):
     """
-    #filewriter.writerow(['Spam', 'Lovely Spam', 'Wonderful Spam'])
+
     """
     with open(path, 'w', newline='') as csvfile:
 
@@ -120,8 +129,6 @@ def create_csv_file(path, rows):
             filewriter.writerow(row)
             
 create_csv_file(out_path_station_names,station_id_positions)
-
-
 
 
 

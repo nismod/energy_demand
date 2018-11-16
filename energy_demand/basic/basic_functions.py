@@ -42,6 +42,7 @@ def convert_config_to_correct_type(config):
     out_dict['CRITERIA']['plot_crit'] = config.getboolean('CRITERIA', 'plot_crit')
     out_dict['CRITERIA']['crit_plot_enduse_lp'] = config.getboolean('CRITERIA', 'crit_plot_enduse_lp')
     out_dict['CRITERIA']['writeYAML_keynames'] = config.getboolean('CRITERIA', 'writeYAML_keynames')
+    out_dict['CRITERIA']['writeYAML'] = config.getboolean('CRITERIA', 'writeYAML')
 
     return dict(out_dict)
 
