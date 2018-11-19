@@ -61,6 +61,7 @@ def load_data_before_simulation(
     base_yr = config['CONFIG']['base_yr']
     weather_yr_scenario = config['CONFIG']['weather_yr_scenario']
     name_scenario = data['name_scenario_run']
+
     path_new_scenario = data['path_new_scenario']
 
     data['weather_station_count_nr'] = [] # Default value is '[]' to use all stations
@@ -109,6 +110,7 @@ def load_data_before_simulation(
     # Load all temperature and weather station data
     data['weather_stations'], data['temp_data'] = data_loader.load_temp_data(
         data['local_paths'],
+        sim_yrs=simulation_yrs,
         weather_yrs_scenario=[base_yr, weather_yr_scenario],
         save_fig=path_new_scenario)
 

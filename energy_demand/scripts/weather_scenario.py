@@ -13,6 +13,7 @@ import csv
 import pandas as pd
 import pytemperature
 import xarray as xr
+import numpy as np
 
 def get_temp_data_from_nc(path_nc_file, attribute_to_keep):
     """Open c file, convert it into dataframe,
@@ -20,7 +21,7 @@ def get_temp_data_from_nc(path_nc_file, attribute_to_keep):
     """
     # Open as xarray
     x_array_data = xr.open_dataset(path_nc_file)
-    
+
     # Convert to dataframe
     df = x_array_data.to_dataframe()
 
@@ -86,40 +87,91 @@ def extend_360_day_to_365(df, attribute):
 
     return out_list
 
-def write_wether_data():
+def write_wether_data(list_max, data_list):
     """Write weather data to array
     """
-    #station_coordinates = 
-    #station_dat = 
+    station_coordinates = {}
 
-    nr_of_entries = len(min_vals)
+    assert not len(list_max) % 365 #Check if dividable by 365
+    nr_stations = int(len(list_max) / 365)
+    print("Nr of stations:" + str(nr_stations))
+
+    stations_data = np.zeros((nr_stations, 365))
+    station_data = np.zeros((365))
+
+    station_id_cnt = 0
     cnt = 0
-    for i in range(nr_of_entries):
-        print("o " + str(i))
-        min_val = max_vals[cnt] 
-        max_val = min_vals[cnt] 
-        lon = longs[cnt]
-        lat = lats[cnt]
-
-        if cnt == 0:
-            station_name = "station_{}_{}.csv".format(lon, lat)
-            station = pd.DataFrame(columns=list('tasmax', 'tasmin'))
-            path_station = "C:/_scrap/{}".format(station_name)
-
-        station_row = pd.DataFrame([[lon, lat, min_val, max_val]], columns=list( 'tasmax', 'tasmin'))
-
-        station.append(station_row)
+    for data_entry in data_list:
+        print("data_entry" + str(data_entry))
+        print(cnt)
+        station_data[cnt] = data_entry
 
         if cnt == 364:
-            # Write station
-            station.to_csv(station, path_station)
-            station_id_positions.append([station_name, lon, lat])
-            cnt = 0
-        
-        cnt +=1
-    
-    return station_coordinates, station_data
+            # Data of weather station
+            stations_data[station_id_cnt] = station_data
 
+            # Weather station metadata
+            station_lon = data_entry['lon']
+            station_lat = data_entry['lat']
+
+            station_id = "station_id_{}".format(station_id_cnt)
+            station_coordinates[station_id] = {
+                'longitude':station_lat,
+                'latitude': station_lon}
+
+            # Reset
+            station_data = np.zeros((365))
+            station_id_cnt += 1
+            cnt = 0
+
+    return station_coordinates, stations_data
+
+def get_meterological_equation_case(t_min, t_max, t_base):
+    """Get Case number to calculate hdd with Meteorological Office
+    equations
+    """
+    d_base_min = t_base - t_min
+    d_base_max = d_base_max - t_base
+
+    # Condition i
+    if t_max <= t_base:
+        return 1
+    elif (t_min < t_base) and ((t_max - t_base) < (t_base - t_min)):
+        return 2
+    elif (t_max > t_base) and ((t_max - t_base) > (t_base - t_min)):
+        return 3
+    elif t_min >= t_base:
+        return 4
+    else:
+        raise Exception("Error in calculating methorological office equation case")
+
+def calc_met_equation_hdd(case, t_max, t_min, t_base):
+    """
+    """
+    if case == 1:
+        hdd = t_base - 0.5 * (t_max + t_min)
+    elif case == 2:
+        hdd = 0.5 * (t_base - t_min) - 0.25 * (t_max - t_base)
+    elif case == 3:
+        hdd = 0,25 * (t_base - t_min)
+    else:
+        hdd = 0
+    return hdd
+
+def calc_HDD_from_min_max(t_min, t_max, base_temp):
+    """Calculate hdd for every day and weather station
+
+    The Meteorological Office equations
+
+
+    """
+    hdd_array = np.zeros((365))
+
+    # Calculate hdd
+    for yearday in range(365):
+        case_met_equation = get_meterological_equation_case(t_min, t_max, base_temp)
+
+    return hdd_array
 
 path_tasmax = "C:/_WEATHERDATA/nf-2020/2020/m00m/daily/WAH_m00m_tasmax_daily_g2_2020.nc"
 path_tasmin = "C:/_WEATHERDATA/nf-2020/2020/m00m/daily/WAH_m00m_tasmin_daily_g2_2020.nc"
@@ -140,11 +192,30 @@ list_max = extend_360_day_to_365(df_max, 'tasmax')
 list_min = extend_360_day_to_365(df_min, 'tasmin')
 
 # Write out single weather stations as numpy array
+station_coordinates, stations_t_max = write_wether_data(list_max, list_max)
+station_coordinates, stations_t_min = write_wether_data(list_max, list_min)
 
 # Write out coordinates of weather data to csv
+print("---")
+print(len(stations_t_max))
+print(len(stations_t_min))
 
+# Convert weather station data to HDD days
+for station_nr in enumerate(station_coordinates):
 
+    t_min = stations_t_min[station_nr]
+    t_max = stations_t_max[station_nr]
 
+    case_nr = get_meterological_equation_case(
+        t_min,
+        t_max,
+        t_base)
+
+    hdd = calc_met_equation_hdd(
+        case_nr,
+        t_min,
+        t_max)
+    
 
 
 raise Exception("ff")

@@ -114,7 +114,7 @@ if __name__ == "__main__":
     user_defined_simulation_end_yr = config['CONFIG']['user_defined_simulation_end_yr']
 
     # Simulated yrs
-    simulated_yrs = [base_yr, user_defined_simulation_end_yr]
+    sim_yrs = [base_yr, user_defined_simulation_end_yr]
 
     if len(sys.argv) > 1: #user defined arguments are provide
 
@@ -198,7 +198,7 @@ if __name__ == "__main__":
         weather_by=user_defined_weather_by,
         simulation_end_yr=user_defined_simulation_end_yr,
         curr_yr=2015,
-        simulated_yrs=simulated_yrs,
+        sim_yrs=sim_yrs,
         paths=data['paths'],
         local_paths=data['local_paths'],
         enduses=data['enduses'],
@@ -292,6 +292,7 @@ if __name__ == "__main__":
     # Load all temperature and weather station data
     data['weather_stations'], data['temp_data'] = data_loader.load_temp_data(
         data['local_paths'],
+        sim_yrs=sim_yrs,
         weather_yrs_scenario=[base_yr, weather_yr_scenario],
         save_fig=path_new_scenario)
 
@@ -366,14 +367,14 @@ if __name__ == "__main__":
     regional_vars, non_regional_vars = s_scenario_param.generate_annual_param_vals(
         data['regions'],
         data['assumptions'].strategy_vars,
-        simulated_yrs)
+        sim_yrs)
 
     # ------------------------------------------------
     # Calculate switches
     # ------------------------------------------------
     print("... starting calculating switches")
     annual_tech_diff_params = init_scripts.switch_calculations(
-        simulated_yrs,
+        sim_yrs,
         data,
         f_reg,
         f_reg_norm,
@@ -420,7 +421,7 @@ if __name__ == "__main__":
         region_selection)
 
     # Write population data to file
-    for sim_yr in data['assumptions'].simulated_yrs:
+    for sim_yr in data['assumptions'].sim_yrs:
         write_data.write_scenaric_population_data(
             sim_yr,
             os.path.join(data['path_new_scenario'], 'model_run_pop'),
@@ -429,7 +430,7 @@ if __name__ == "__main__":
     # -----------------------
     # Main model run function
     # -----------------------
-    for sim_yr in data['assumptions'].simulated_yrs:
+    for sim_yr in data['assumptions'].sim_yrs:
         print("Local simulation for year:  " + str(sim_yr))
 
         # Set current year

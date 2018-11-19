@@ -875,7 +875,12 @@ def get_shape_every_day(tech_lp, model_yeardays_daytype):
 
     return load_profile_y_dh
 
-def load_temp_data(local_paths, weather_yrs_scenario, save_fig=False):
+def load_temp_data(
+        local_paths,
+        sim_yrs,
+        weather_yrs_scenario,
+        save_fig=False
+    ):
     """Read in cleaned temperature and weather station data
 
     Arguments
@@ -894,7 +899,9 @@ def load_temp_data(local_paths, weather_yrs_scenario, save_fig=False):
     """
 
     '''
-    # Get path to weather_yr
+    # Get path to weather scenario
+
+
 
     # Get all station_ids with coordinates
 
