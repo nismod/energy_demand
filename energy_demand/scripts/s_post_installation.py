@@ -114,3 +114,17 @@ def post_install_setup(args):
 
     print("... successfully finished setup")
     return
+
+
+# SCRAP REMOVE
+local_data_path = "C:/Users/cenv0553/ed/data"
+# Complete gva and pop data for every sector
+data_pop = os.path.join(local_data_path, "scenarios", "MISTRAL_pop_gva_TEST", "data")
+path_geography = os.path.join(local_data_path, "scenarios", "uk_pop_principal_2015_2050_MSOA_england.csv")
+
+script_data_preparation_MISTRAL_pop_gva.run(
+    path_to_folder=data_pop,
+    path_MSOA_baseline=path_geography,
+    MSOA_calculations=False)
+
+print("... successfully finished setup")
