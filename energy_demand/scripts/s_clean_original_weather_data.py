@@ -4,6 +4,7 @@ import os
 import csv
 import collections
 import numpy as np
+from collections import defaultdict
 
 from energy_demand.basic import date_prop
 from energy_demand.basic import basic_functions
@@ -44,7 +45,8 @@ def run(
         path_out_files,
         crit_missing_values=100,
         crit_nr_of_zeros=500,
-        nr_daily_zeros=10
+        nr_daily_zeros=10,
+        crit_min_max=False
     ):
     """Iterate weather data from MIDAS and
     generate annual hourly temperatre data files
@@ -117,12 +119,12 @@ def run(
         path_to_csv = os.path.join(path_files, file_name)
 
         temp_stations = {}
+        temp_stations_min_max = defaultdict(dict)
 
         with open(path_to_csv, 'r') as csvfile:
             read_lines = csv.reader(csvfile, delimiter=',')
 
             for row in read_lines:
-
                 date_measurement = row[0].split(" ")
                 year = int(date_measurement[0].split("-")[0])
                 month = int(date_measurement[0].split("-")[1])
@@ -151,11 +153,24 @@ def run(
                     else:
                         air_temp = float(row[35])
 
+                    if station_id == 1585:
+                        print("tt")
                     # Add weather station if not already added to dict
                     if station_id not in temp_stations:
+                        if crit_min_max:
+                            temp_stations_min_max[station_id]['t_min'] = np.zeros((365), dtype="float")
+                            temp_stations_min_max[station_id]['t_max'] = np.zeros((365), dtype="float")
+                            temp_stations_min_max[station_id]['t_min'][yearday] = air_temp
+                            temp_stations_min_max[station_id]['t_max'][yearday] = air_temp
+
                         temp_stations[station_id] = np.zeros((8760), dtype="float")
-                    else:
-                        pass
+
+                    if crit_min_max:
+                        # Update min and max daily temperature
+                        if air_temp < temp_stations_min_max[station_id]['t_min'][yearday]:
+                            temp_stations_min_max[station_id]['t_min'][yearday] = air_temp
+                        if air_temp > temp_stations_min_max[station_id]['t_max'][yearday]:
+                            temp_stations_min_max[station_id]['t_max'][yearday] = air_temp
 
                     temp_stations[station_id][year_hour] = air_temp
 
@@ -165,7 +180,7 @@ def run(
         temp_stations_cleaned_reshaped = {}
 
         for station in list(temp_stations.keys()):
-
+            print("...interpolating data for station {}".format(station), flush=True)
             # ------------------------
             # Number of empty  values
             # ------------------------
@@ -192,6 +207,11 @@ def run(
                     nr_of_zeros,
                     station,
                     year), flush=True)
+
+                if crit_min_max:
+                    print("-----------")
+                    print(temp_stations_min_max.keys())
+                    del temp_stations_min_max[station_id]
             else:
                 # Interpolate missing np.nan values
                 temp_stations[station][nans] = np.interp(
@@ -211,22 +231,37 @@ def run(
 
         # Write temperature data out to csv file
         for station_name, temp_values in temp_stations_cleaned_reshaped.items():
+            print("... writing station {}".format(station_name), flush=True)
+            if crit_min_max:
+                min_file_name = "{}__{}_t_min.{}".format(year, station_name, "txt")
+                max_file_name = "{}__{}_t_max.{}".format(year, station_name, "txt")
+                path_out_t_min = os.path.join(path_out_files, min_file_name)
+                path_out_t_max = os.path.join(path_out_files, max_file_name)
 
-            file_name = "{}__{}.{}".format(year, station_name, "txt")
+                np.save(
+                    path_out_t_min,
+                    temp_stations_min_max[station_name]['t_min'])
 
-            path_out = os.path.join(path_out_files, file_name)
+                np.save(
+                    path_out_t_max,
+                    temp_stations_min_max[station_name]['t_max'])
+            else:
+                file_name = "{}__{}.{}".format(year, station_name, "txt")
+                path_out = os.path.join(path_out_files, file_name)
 
-            np.savetxt(
-                path_out,
-                temp_values,
-                delimiter=",")
+                np.savetxt(
+                    path_out,
+                    temp_values,
+                    delimiter=",")
+
         print("--Number of stations '{}'".format(len(list(temp_stations_cleaned_reshaped.keys()))))
 
     print("... finished cleaning weather data")
 
 run(
-    path_files="//linux-filestore.ouce.ox.ac.uk/mistral/nismod/data/energy_demand/H-Met_office_weather_data/_complete_meteo_data_all_yrs",
-    path_out_files="//linux-filestore.ouce.ox.ac.uk/mistral/nismod/data/energy_demand/H-Met_office_weather_data/_complete_meteo_data_all_yrs_cleaned",
+    path_files="//linux-filestore.ouce.ox.ac.uk/mistral/nismod/data/energy_demand/H-Met_office_weather_data/_meteo_data_2015",
+    path_out_files="//linux-filestore.ouce.ox.ac.uk/mistral/nismod/data/energy_demand/H-Met_office_weather_data/_complete_meteo_data_all_yrs_cleaned_min_max",
     crit_missing_values=40,
     crit_nr_of_zeros=500,
-    nr_daily_zeros=20)
+    nr_daily_zeros=20,
+    crit_min_max=True)

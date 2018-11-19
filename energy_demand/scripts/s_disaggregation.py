@@ -12,7 +12,7 @@ from energy_demand.read_write import data_loader
 from energy_demand.scripts import init_scripts
 from energy_demand.technologies import tech_related
 
-def disaggr_demand(data, spatial_calibration=False):
+def disaggr_demand(data, crit_temp_min_max, spatial_calibration=False):
     """Disaggregated demand
 
     Arguments
@@ -51,7 +51,8 @@ def disaggr_demand(data, spatial_calibration=False):
         data['temp_data'][base_yr],         # Base year data used to disaggregate demand
         data['sectors'],
         data['enduses'],
-        data['service_building_count'])
+        data['service_building_count'],
+        crit_temp_min_max)
 
     if spatial_calibration:
         '''The spatial disaggregation of non-residential demand
@@ -198,7 +199,8 @@ def disaggregate_base_demand(
         temp_data,
         sectors,
         enduses,
-        service_building_count
+        service_building_count,
+        crit_temp_min_max
     ):
     """This function disaggregates fuel demand based on
     region specific parameters for the base year. The residential,
@@ -254,7 +256,8 @@ def disaggregate_base_demand(
         enduses['residential'],
         crit_limited_disagg_pop_hdd,
         crit_limited_disagg_pop,
-        crit_full_disagg)
+        crit_full_disagg,
+        crit_temp_min_max)
 
     # Service
     ss_fuel_disagg = ss_disaggregate(
@@ -271,7 +274,8 @@ def disaggregate_base_demand(
         sectors['service'],
         crit_limited_disagg_pop_hdd,
         crit_limited_disagg_pop,
-        crit_full_disagg)
+        crit_full_disagg,
+        crit_temp_min_max)
 
     # Industry
     is_fuel_disagg = is_disaggregate(
@@ -285,7 +289,8 @@ def disaggregate_base_demand(
         sectors['industry'],
         scenario_data['employment_stats'],
         pop_for_disagg,
-        census_disagg=census_disagg)
+        census_disagg=census_disagg,
+        crit_temp_min_max=crit_temp_min_max)
 
     return dict(rs_fuel_disagg), dict(ss_fuel_disagg), dict(is_fuel_disagg)
 
@@ -303,7 +308,8 @@ def ss_disaggregate(
         sectors,
         crit_limited_disagg_pop_hdd,
         crit_limited_disagg_pop,
-        crit_full_disagg
+        crit_full_disagg,
+        crit_temp_min_max
     ):
     """Disaggregate fuel for service submodel (per enduse and sector)
 
@@ -323,7 +329,8 @@ def ss_disaggregate(
         regions=regions,
         temp_data=temp_data,
         reg_coord=reg_coord,
-        weather_stations=weather_stations)
+        weather_stations=weather_stations,
+        crit_temp_min_max=crit_temp_min_max)
 
     ss_cdd_individ_region = hdd_cdd.get_cdd_country(
         t_base_cooling=assumptions.t_bases.ss_t_cooling_by,
@@ -544,7 +551,8 @@ def is_disaggregate(
         sectors,
         employment_statistics,
         pop_for_disagg,
-        census_disagg
+        census_disagg,
+        crit_temp_min_max
     ):
     """Disaggregate industry related fuel for sector and enduses with
     employment statistics
@@ -576,7 +584,8 @@ def is_disaggregate(
         regions=regions,
         temp_data=temp_data,
         reg_coord=reg_coord,
-        weather_stations=weather_stations)
+        weather_stations=weather_stations,
+        crit_temp_min_max=crit_temp_min_max)
 
     is_fuel_disagg = {}
 
@@ -749,6 +758,7 @@ def rs_disaggregate(
         crit_limited_disagg_pop_hdd,
         crit_limited_disagg_pop,
         crit_full_disagg,
+        crit_temp_min_max,
         dummy_sector=None
     ):
     """Disaggregate residential fuel demand
@@ -781,7 +791,8 @@ def rs_disaggregate(
         regions=regions,
         temp_data=temp_data,
         reg_coord=reg_coord,
-        weather_stations=weather_stations)
+        weather_stations=weather_stations,
+        crit_temp_min_max=crit_temp_min_max)
 
     # ---------------------------------------
     # Get all regions with  floor area data

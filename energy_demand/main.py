@@ -101,7 +101,7 @@ if __name__ == "__main__":
             os.path.dirname(__file__), '..', "energy_demand/config_data"))
     path_config = os.path.abspath(os.path.join(
             os.path.dirname(__file__), '..', 'local_run_config_file.ini'))
-
+    print("A " + str(path_config))
     # Get configuration
     config = configparser.ConfigParser()
     config.read(path_config)
@@ -331,7 +331,9 @@ if __name__ == "__main__":
     # Disaggregate national energy demand to regional demands
     # ------------------------------------------------------------
     data['fuel_disagg'] = s_disaggregation.disaggr_demand(
-        data, spatial_calibration=config['CRITERIA']['spatial_calibration'])
+        data,
+        crit_temp_min_max=config['CRITERIA']['crit_temp_min_max'],
+        spatial_calibration=config['CRITERIA']['spatial_calibration'])
 
     # ------------------------------------------------------------
     # Calculate spatial diffusion factors

@@ -190,13 +190,15 @@ def weather_dat_prepare(data_path, result_path):
     """
     """
     # All folders
-    all_files = os.listdir(path)
+   ''' all_files = os.listdir(path)
     folder_names = []
     for i in all_files:
         try:
             folder_names.append(int(i)) #get years
         except:
             pass
+    '''
+    folder_names = range(2023, 2049)
     print("folder_name " + str(folder_names))
 
     # Create reulst folders

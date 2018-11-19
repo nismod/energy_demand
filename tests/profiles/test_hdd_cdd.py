@@ -45,7 +45,7 @@ def test_calc_hdd():
         for hour in range(24):
             temp_yh[day][hour] = np.random.randint(-4, 30)
 
-    result = hdd_cdd.calc_hdd(t_base, temp_yh, nr_day_to_av=0)
+    result = hdd_cdd.calc_hdd(t_base, temp_yh, nr_day_to_av=0,crit_temp_min_max=True)
 
     temp_yh[temp_yh > t_base] = t_base
 

@@ -4,14 +4,6 @@ import os
 from collections import defaultdict
 import numpy as np
 
-'''final_files = read_weather_station_temp(
-    path_files=path_out_files,
-    years_to_load=[1966, 1987])
-print("======================================")
-print("Stations in all year")
-print(final_files.keys())
-print(len(list(final_files.keys())))'''
-
 def read_weather_station_temp(path_files, years_to_load=[]):
     """Get temperature values. Based on the defined
     years of which the temperature should be loaded,

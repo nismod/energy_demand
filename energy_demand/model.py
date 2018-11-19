@@ -57,7 +57,8 @@ class EnergyDemandModel(object):
                 enduses=data['enduses'],
                 temp_by=data['temp_data'][weather_yr][weather_region],
                 tech_lp=data['tech_lp'],
-                sectors=data['sectors'])
+                sectors=data['sectors'],
+                crit_temp_min_max=criterias['crit_temp_min_max'])
 
         print("... generating by weather regions", flush=True)
         weather_regions_weather_by = {}
@@ -71,7 +72,8 @@ class EnergyDemandModel(object):
                 enduses=data['enduses'],
                 temp_by=data['temp_data'][weather_by][weather_region],
                 tech_lp=data['tech_lp'],
-                sectors=data['sectors'])
+                sectors=data['sectors'],
+                crit_temp_min_max=criterias['crit_temp_min_max'])
 
         # ------------------------
         # Create Dwelling Stock

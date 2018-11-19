@@ -48,7 +48,8 @@ class WeatherRegion(object):
             enduses,
             temp_by,
             tech_lp,
-            sectors
+            sectors,
+            crit_temp_min_max
         ):
         """Constructor of weather region
         """
@@ -129,9 +130,9 @@ class WeatherRegion(object):
 
         # --------Calculate HDD/CDD of used weather year
         self.rs_hdd_by, _ = hdd_cdd.calc_reg_hdd(
-            temp_by, assumptions.t_bases.rs_t_heating_by, assumptions.model_yeardays)
+            temp_by, assumptions.t_bases.rs_t_heating_by, assumptions.model_yeardays, crit_temp_min_max)
         self.rs_hdd_cy, rs_fuel_shape_heating_yd = hdd_cdd.calc_reg_hdd(
-            temp_cy, rs_t_base_heating_cy, assumptions.model_yeardays)
+            temp_cy, rs_t_base_heating_cy, assumptions.model_yeardays, crit_temp_min_max)
 
         # --------Calculate HDD/CDD of base year weather year
         #self.rs_cdd_by, _ = hdd_cdd.calc_reg_cdd(
@@ -277,16 +278,16 @@ class WeatherRegion(object):
         # --------HDD/CDD
         # current weather_yr
         self.ss_hdd_by, _ = hdd_cdd.calc_reg_hdd(
-            temp_by, assumptions.t_bases.ss_t_heating_by, assumptions.model_yeardays)
+            temp_by, assumptions.t_bases.ss_t_heating_by, assumptions.model_yeardays, crit_temp_min_max)
 
         ss_hdd_cy, ss_fuel_shape_heating_yd = hdd_cdd.calc_reg_hdd(
-            temp_cy, ss_t_base_heating_cy, assumptions.model_yeardays)
+            temp_cy, ss_t_base_heating_cy, assumptions.model_yeardays, crit_temp_min_max)
 
         self.ss_cdd_by, _ = hdd_cdd.calc_reg_cdd(
-            temp_by, assumptions.t_bases.ss_t_cooling_by, assumptions.model_yeardays)
+            temp_by, assumptions.t_bases.ss_t_cooling_by, assumptions.model_yeardays, crit_temp_min_max)
 
         ss_cdd_cy, ss_lp_cooling_yd = hdd_cdd.calc_reg_cdd(
-            temp_cy, ss_t_base_cooling_cy, assumptions.model_yeardays)
+            temp_cy, ss_t_base_cooling_cy, assumptions.model_yeardays, crit_temp_min_max)
 
         try:
             f_heat_ss_y = np.nan_to_num(
@@ -413,14 +414,14 @@ class WeatherRegion(object):
         # --------HDD/CDD
         # Current weather_yr
         self.is_hdd_by, _ = hdd_cdd.calc_reg_hdd(
-            temp_by, assumptions.t_bases.is_t_heating_by, assumptions.model_yeardays)
+            temp_by, assumptions.t_bases.is_t_heating_by, assumptions.model_yeardays, crit_temp_min_max)
 
         #is_cdd_by, _ = hdd_cdd.calc_reg_cdd(
         #    temp_by, assumptions.t_bases.is_t_cooling_by, assumptions.model_yeardays)
 
         # Take same base temperature as for service sector
         is_hdd_cy, is_fuel_shape_heating_yd = hdd_cdd.calc_reg_hdd(
-            temp_cy, is_t_base_heating_cy, assumptions.model_yeardays)
+            temp_cy, is_t_base_heating_cy, assumptions.model_yeardays, crit_temp_min_max)
         #is_cdd_cy, _ = hdd_cdd.calc_reg_cdd(
         #    temp_cy, ss_t_base_cooling_cy, assumptions.model_yeardays)
 

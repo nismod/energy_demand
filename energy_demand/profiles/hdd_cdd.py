@@ -5,7 +5,7 @@ from energy_demand.geography import weather_station_location as weather_station
 from energy_demand.technologies import diffusion_technologies
 from energy_demand.profiles import load_profile
 
-def calc_hdd(t_base, temp_yh, nr_day_to_av):
+def calc_hdd(t_base, temp_yh, nr_day_to_av, crit_temp_min_max):
     """Calculate effective temperatures and
     heating Degree Days for every day in a year
 
@@ -15,6 +15,8 @@ def calc_hdd(t_base, temp_yh, nr_day_to_av):
         Base temperature
     temp_yh : array
         Array containing daily temperatures for each day (shape nr_of_days, 24)
+    crit_temp_min_max : bool
+        Criteria whether hourly or daily temperature input
 
     Returns
     -------
@@ -29,8 +31,6 @@ def calc_hdd(t_base, temp_yh, nr_day_to_av):
     # ---------------------------------------------
     # Average temperature with previous day(s) information
     # ---------------------------------------------
-    crit_temp_min_max = False
-
     if not crit_temp_min_max:
 
         # Calculate effective temperatures
@@ -44,9 +44,23 @@ def calc_hdd(t_base, temp_yh, nr_day_to_av):
         hdd_d = np.sum(temp_diff, axis=1)
 
     else:
-        pass
-        '''# Calculate effective temperatures
-        t_min_eff = effective_temps_min_max(
+        #pass
+        # <<<<<< REMOVE
+        
+        # Calculate effective temperatures
+        temp_yh = effective_temps(
+            temp_yh,
+            nr_day_to_av=nr_day_to_av)
+
+        # Calculate heating degree days
+        temp_diff = (t_base - temp_yh) / 24
+        temp_diff[temp_diff < 0] = 0
+        hdd_d = np.sum(temp_diff, axis=1)
+
+         # <<<<<< REMOVE
+
+        # Calculate effective temperatures
+        '''t_min_eff = effective_temps_min_max(
             t_min,
             nr_day_to_av=nr_day_to_av)
         
@@ -55,8 +69,7 @@ def calc_hdd(t_base, temp_yh, nr_day_to_av):
             nr_day_to_av=nr_day_to_av)
 
         # Calculate heating degree days
-        hdd_d = calc_hdd_min_max(t_min_eff, t_max_eff, t_base)
-        '''
+        hdd_d = calc_hdd_min_max(t_min_eff, t_max_eff, t_base)'''
 
     return hdd_d
 
@@ -202,7 +215,8 @@ def get_hdd_country(
         regions,
         temp_data,
         reg_coord,
-        weather_stations
+        weather_stations,
+        crit_temp_min_max
     ):
     """Calculate total number of heating degree days in a region for the base year
 
@@ -228,7 +242,8 @@ def get_hdd_country(
         hdd_reg = calc_hdd(
             t_base_heating,
             temperatures,
-            nr_day_to_av=1)
+            nr_day_to_av=1,
+            crit_temp_min_max=crit_temp_min_max)
 
         hdd_regions[region] = np.sum(hdd_reg)
 
@@ -279,7 +294,7 @@ def get_cdd_country(
 
     return cdd_regions
 
-def calc_reg_hdd(temperatures, t_base_heating, model_yeardays):
+def calc_reg_hdd(temperatures, t_base_heating, model_yeardays, crit_temp_min_max):
     """Calculate hdd for every day and daily
     yd shape of heating demand
 
@@ -313,7 +328,11 @@ def calc_reg_hdd(temperatures, t_base_heating, model_yeardays):
     - The diffusion is assumed to be sigmoid
     """
     # Temperatures of full year
-    hdd_d = calc_hdd(t_base_heating, temperatures, nr_day_to_av=1)
+    hdd_d = calc_hdd(
+        t_base_heating,
+        temperatures,
+        nr_day_to_av=1,
+        crit_temp_min_max=crit_temp_min_max)
 
     shape_hdd_d = load_profile.abs_to_rel(hdd_d)
 
@@ -322,7 +341,12 @@ def calc_reg_hdd(temperatures, t_base_heating, model_yeardays):
 
     return hdd_d, shape_hdd_d_selection
 
-def calc_reg_cdd(temperatures, t_base_cooling, model_yeardays):
+def calc_reg_cdd(
+        temperatures,
+        t_base_cooling,
+        model_yeardays,
+        crit_temp_min_max=False
+    ):
     """Calculate CDD for every day and daily yd shape of cooling demand
 
     Arguments
@@ -348,17 +372,34 @@ def calc_reg_cdd(temperatures, t_base_cooling, model_yeardays):
     - The Cooling Degree Days are calculated based on assumptions of
       the base temperature of the current year.
     """
-    cdd_d = calc_cdd(t_base_cooling, temperatures, nr_day_to_av=1)
-    shape_cdd_d = load_profile.abs_to_rel(cdd_d)
+    if not crit_temp_min_max:
+        cdd_d = calc_cdd(t_base_cooling, temperatures, nr_day_to_av=1)
+        shape_cdd_d = load_profile.abs_to_rel(cdd_d)
 
-    # Select only modelled yeardays
-    shape_cdd_d_selection = shape_cdd_d[[model_yeardays]]
-    cdd_d_selection = cdd_d[[model_yeardays]]
+        # Select only modelled yeardays
+        shape_cdd_d_selection = shape_cdd_d[[model_yeardays]]
+        cdd_d_selection = cdd_d[[model_yeardays]]
 
-    # If no calc_provide flat curve
-    if np.sum(cdd_d_selection) == 0:
-        shape_cdd_d_selection = np.full(
-            (len(model_yeardays)),
-            1 / len(model_yeardays))
+        # If no calc_provide flat curve
+        if np.sum(cdd_d_selection) == 0:
+            shape_cdd_d_selection = np.full(
+                (len(model_yeardays)),
+                1 / len(model_yeardays))
+    else:
+
+        #TODO <<<<<<<<<<<<<<<<<<<IMPROVE
+        cdd_d = calc_cdd(t_base_cooling, temperatures, nr_day_to_av=1)
+        shape_cdd_d = load_profile.abs_to_rel(cdd_d)
+
+        # Select only modelled yeardays
+        shape_cdd_d_selection = shape_cdd_d[[model_yeardays]]
+        cdd_d_selection = cdd_d[[model_yeardays]]
+
+        # If no calc_provide flat curve
+        if np.sum(cdd_d_selection) == 0:
+            shape_cdd_d_selection = np.full(
+                (len(model_yeardays)),
+                1 / len(model_yeardays))
+        #TODO <<<<<<<<<<<<<<<<<<<IMPROVE
 
     return cdd_d_selection, shape_cdd_d_selection
