@@ -60,8 +60,8 @@ def paper_II_plots(
     # Plot scenarios 
     ####################################################################
     if plot_crit_dict['scenario_plots']:
-        simulation_yrs = [2015, 2020, 2030, 2040, 2050]
-        simulation_yrs = [2015, 2050]
+        sim_yrs = [2015, 2020, 2030, 2040, 2050]
+        sim_yrs = [2015, 2050]
 
         scenario_result_paths = [
             "C:/Users/cenv0553/ed/results/_scenario_low_elec",
@@ -76,7 +76,7 @@ def paper_II_plots(
         
         fig_p2_total_demand_national_scenarios.total_demand_national_scenarios(
             scenario_result_paths,
-            simulation_yrs=simulation_yrs,
+            sim_yrs=sim_yrs,
             fueltype_str='electricity',
             path_out_plots=os.path.join(path_out_plots, "PDF_national_scenarios.pdf"))
 
@@ -152,7 +152,7 @@ def paper_II_plots(
                 only_scenarios.append(scenario)
 
         # Select simulation years
-        simulation_yrs = [2015, 2050]
+        sim_yrs = [2015, 2050]
         unit = 'kW' #'GW'
 
         # Plot standard deviation of demand per person in peak hour
@@ -160,7 +160,7 @@ def paper_II_plots(
             only_scenarios,
             scenario_path_all_stations_single_weather_yr,
             path_shapefile_input,
-            simulation_yrs=simulation_yrs,
+            sim_yrs=sim_yrs,
             field_to_plot="std_deviation_df_abs_demand_in_peak_h_pp",
             unit=unit,
             fig_path=path_out_plots)
@@ -170,7 +170,7 @@ def paper_II_plots(
             only_scenarios,
             scenario_path_all_stations_single_weather_yr,
             path_shapefile_input,
-            simulation_yrs=simulation_yrs,
+            sim_yrs=sim_yrs,
             field_to_plot='std_deviation_p_demand_peak_h',
             unit='percent',
             fig_path=path_out_plots)
@@ -180,7 +180,7 @@ def paper_II_plots(
             only_scenarios,
             scenario_path_all_stations_single_weather_yr,
             path_shapefile_input,
-            simulation_yrs=simulation_yrs,
+            sim_yrs=sim_yrs,
             field_to_plot='std_deviation_abs_demand_peak_h',
             unit=unit,
             fig_path=path_out_plots)
@@ -190,7 +190,7 @@ def paper_II_plots(
             only_scenarios,
             scenario_path_all_stations_single_weather_yr,
             path_shapefile_input,
-            simulation_yrs=simulation_yrs,
+            sim_yrs=sim_yrs,
             field_to_plot='diff_peak_h_minus_mean',
             unit='GW',
             fig_path=path_out_plots)

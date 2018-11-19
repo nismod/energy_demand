@@ -19,7 +19,7 @@ def run_fig_spatial_distribution_of_peak(
         scenarios,
         path_to_folder_with_scenarios,
         path_shapefile,
-        simulation_yrs,
+        sim_yrs,
         field_to_plot,
         unit,
         fig_path,
@@ -45,7 +45,7 @@ def run_fig_spatial_distribution_of_peak(
             except ValueError:
                 pass
 
-    for simulation_yr in simulation_yrs:
+    for simulation_yr in sim_yrs:
         container = {}
         container['abs_demand_in_peak_h_pp'] = {}
         container['abs_demand_in_peak_h'] = {}

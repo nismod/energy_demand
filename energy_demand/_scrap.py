@@ -38,19 +38,3 @@ print("--------")
 print(data_to_dump)
 print("===================" )
 print(b)
-'''
-def write_yaml(data_to_dump, file_path):
-    #yaml = YAML()
-    #yaml.dump(data_to_dump, file_path, default_flow_style=False)
-    with open(file_path, 'w') as outfile:
-        yaml.dump(data_to_dump, outfile, default_flow_style=False)
-write_yaml(data_to_dump, path)
-
-def read_yaml(file_path):
-    #yaml = YAML() #typ='safe')   # default, if not specfied, is 'rt' (round-trip)
-    yaml.load(file_path)
-    return yaml
-
-ff = read_yaml(path)
-
-print(ff[1])'''

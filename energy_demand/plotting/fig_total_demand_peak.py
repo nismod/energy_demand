@@ -40,9 +40,9 @@ def run(
 
         total_demands = []
         peak_demands = []
-        simulation_yrs = []
+        sim_yrs = []
         for sim_yr in data_weather_yr.keys():
-            simulation_yrs.append(sim_yr)
+            sim_yrs.append(sim_yr)
             data_input_fueltype = data_weather_yr[sim_yr][fueltype_int]     # Select fueltype
 
             # sum total annual demand and convert gwh to twh
@@ -58,7 +58,7 @@ def run(
         weather_yrs_total_demand.append(total_demands)
         weather_yrs_peak_demand.append(peak_demands)
 
-    columns = simulation_yrs
+    columns = sim_yrs
 
     # Convert to array
     weather_yrs_total_demand = np.array(weather_yrs_total_demand)

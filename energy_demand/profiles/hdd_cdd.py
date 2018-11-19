@@ -29,18 +29,60 @@ def calc_hdd(t_base, temp_yh, nr_day_to_av):
     # ---------------------------------------------
     # Average temperature with previous day(s) information
     # ---------------------------------------------
-    temp_yh = effective_temps(
-        temp_yh,
-        nr_day_to_av=nr_day_to_av)
+    crit_temp_min_max = False
 
-    # ------------------------------
-    # Calculate heating degree days
-    # ------------------------------
-    temp_diff = (t_base - temp_yh) / 24
-    temp_diff[temp_diff < 0] = 0
-    hdd_d = np.sum(temp_diff, axis=1)
+    if not crit_temp_min_max:
+
+        # Calculate effective temperatures
+        temp_yh = effective_temps(
+            temp_yh,
+            nr_day_to_av=nr_day_to_av)
+
+        # Calculate heating degree days
+        temp_diff = (t_base - temp_yh) / 24
+        temp_diff[temp_diff < 0] = 0
+        hdd_d = np.sum(temp_diff, axis=1)
+
+    else:
+        pass
+        '''# Calculate effective temperatures
+        t_min_eff = effective_temps_min_max(
+            t_min,
+            nr_day_to_av=nr_day_to_av)
+        
+        t_max_eff = effective_temps_min_max(
+            t_max,
+            nr_day_to_av=nr_day_to_av)
+
+        # Calculate heating degree days
+        hdd_d = calc_hdd_min_max(t_min_eff, t_max_eff, t_base)
+        '''
 
     return hdd_d
+
+def effective_temps_min_max(temp_365, nr_day_to_av):
+    """
+    #TODO NEW NEW
+    """
+    effective_temp_yh = np.zeros((365), dtype="float")
+
+    # Copy all border days
+    for day in range(nr_day_to_av):
+        effective_temp_yh[day] = temp_365[day]
+
+    # Iterate days in a year
+    for day in range(365)[nr_day_to_av:]: #Skip first dates in January
+
+        # Add todays temperature and previous effective temps
+        tot_temp = temp_365[day]
+
+        # Add effective temperature of previous day(s)
+        for i in range(nr_day_to_av):
+            tot_temp = tot_temp + effective_temp_yh[day - (i+1)] #not +=
+
+        effective_temp_yh[day] = tot_temp / (nr_day_to_av + 1)
+
+    return effective_temp_yh
 
 def effective_temps(temp_yh, nr_day_to_av):
     """Calculate effective temperatures
@@ -90,7 +132,6 @@ def effective_temps(temp_yh, nr_day_to_av):
             tot_temp = tot_temp + effective_temp_yh[day - (i+1)] #not +=
 
         effective_temp_yh[day] = tot_temp / (nr_day_to_av + 1)
-
 
     return effective_temp_yh
 

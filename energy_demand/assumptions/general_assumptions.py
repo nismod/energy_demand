@@ -18,7 +18,7 @@ class Assumptions(object):
         Base year
     curr_yr : int, default=None
         Current year
-    simulated_yrs : list, default=None
+    sim_yrs : list, default=None
         Simulated years
     paths : dict, default=None
         Paths
@@ -39,7 +39,7 @@ class Assumptions(object):
             weather_by=None,
             simulation_end_yr=None,
             curr_yr=None,
-            simulated_yrs=None,
+            sim_yrs=None,
             paths=None,
             local_paths=None,
             enduses=None,
@@ -61,7 +61,7 @@ class Assumptions(object):
         self.reg_nrs = reg_nrs
         self.simulation_end_yr = simulation_end_yr
         self.curr_yr = curr_yr
-        self.simulated_yrs = simulated_yrs
+        self.sim_yrs = sim_yrs
 
         # ============================================================
         # Spatially modelled variables

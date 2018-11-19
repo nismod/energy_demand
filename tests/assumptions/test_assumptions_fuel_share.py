@@ -31,7 +31,7 @@ from pkg_resources import Requirement
         submodels_names=['a'],
         base_yr=base_yr,
         curr_yr=None,
-        simulated_yrs=None,
+        sim_yrs=None,
         paths=data['paths'],
         local_paths=data['local_paths'],
         enduses=data['enduses'],

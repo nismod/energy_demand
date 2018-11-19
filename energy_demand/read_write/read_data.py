@@ -12,10 +12,22 @@ import fiona
 import pandas as pd
 from shapely.geometry import shape, mapping
 import numpy as np
+from ruamel.yaml import YAML
 
 from energy_demand.technologies import tech_related
 from energy_demand.profiles import load_profile
 from energy_demand.basic import lookup_tables
+
+def read_yaml(file_path):
+    """Parse yaml config file into plain data (lists, dicts and simple values)
+
+    Parameters
+    ----------
+    file_path : str
+        The path of the configuration file to parse
+    """
+    with open(file_path, 'r') as file_handle:
+        return YAML(typ='unsafe').load(file_handle)
 
 class TechnologyData(object):
     """Class to store technology related data

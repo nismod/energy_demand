@@ -18,7 +18,7 @@ from energy_demand.plotting import basic_plot_functions
 def run(
         data_input,
         regions,
-        simulation_yrs_to_plot,
+        _to_plot,
         fueltype_str,
         path_shapefile,
         fig_name

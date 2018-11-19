@@ -133,7 +133,7 @@ def create_spatial_diffusion_factors(
     return f_reg, f_reg_norm, f_reg_norm_abs, crit_all_the_same
 
 def switch_calculations(
-        simulated_yrs,
+        sim_yrs,
         data,
         f_reg,
         f_reg_norm,
@@ -145,7 +145,7 @@ def switch_calculations(
 
     Arguments
     ----------
-    simulated_yrs : list
+    sim_yrs : list
         Simulated years
     data : dict
         Data container
@@ -256,7 +256,7 @@ def switch_calculations(
     # Calculate annual values based on calculated parameters for every simulation year
     # ------------------
     annual_tech_diff_params = s_scenario_param.calc_annual_switch_params(
-        simulated_yrs,
+        sim_yrs,
         data['regions'],
         dict(diffusion_param_tech))
 

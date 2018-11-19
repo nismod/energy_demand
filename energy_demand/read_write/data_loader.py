@@ -275,7 +275,7 @@ def load_ini_param(path):
     assumptions = {}
     assumptions['reg_nrs'] = int(config['SIM_PARAM']['reg_nrs'])
     assumptions['base_yr'] = int(config['SIM_PARAM']['base_yr'])
-    assumptions['simulated_yrs'] = ast.literal_eval(config['SIM_PARAM']['simulated_yrs'])
+    assumptions['sim_yrs'] = ast.literal_eval(config['SIM_PARAM']['sim_yrs'])
 
     # -----------------
     # Other information
@@ -895,18 +895,36 @@ def load_temp_data(
     weather_stations : dict
         Weather stations
     temp_data : dict
-        Temperatures
+        Temperaturesv
+    
+    t_yrs_stations : dict
+        Temperatures {sim_yr: {stations:  {t_min: np.array(365), t_max: np.array(365)}}}
     """
 
     '''
-    # Get path to weather scenario
+    t_yrs_stations = {}
+    # Get weather scenario and simulation yrs
 
+    t_yrs_stations = defaultdict(dict)
 
+    for sim_yr in sim_yrs:
+        
+        # Load temperatures and stations
+        path_t_min = "weather_scenario/year/t_daily_min.csv"
+        path_t_max = "weather_scenario/year/t_daily_max.csv"
+        stations = "weather_scenario/year/stations.csv"
+        
+        stations_t_min = #read_csv(path_t_min)
+        stations_t_max = #read_csv(path_t_max)
 
-    # Get all station_ids with coordinates
+        # Convert weather station data to HDD days
+        for station_nr, station_id in enumerate(stations):
 
-
-    # Get all min, max weather data
+            t_yrs_stations[sim_yr][station_id] = {
+                't_min': stations_t_min[station_nr],
+                't_max': stations_t_max[station_nr]}
+    
+    return dict(t_yrs_stations)
     '''
 
 

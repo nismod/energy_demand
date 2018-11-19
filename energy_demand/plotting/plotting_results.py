@@ -171,7 +171,7 @@ def run_all_plot_functions(
 
         # Residential
         fig_stacked_enduse.run(
-            assumptions['simulated_yrs'],
+            assumptions['sim_yrs'],
             results_container['results_enduse_every_year'],
             rs_enduses_sorted,
             rs_color_list,
@@ -181,7 +181,7 @@ def run_all_plot_functions(
 
         # Service
         fig_stacked_enduse.run(
-            assumptions['simulated_yrs'],
+            assumptions['sim_yrs'],
             results_container['results_enduse_every_year'],
             ss_enduses_sorted,
             ss_color_list,
@@ -191,7 +191,7 @@ def run_all_plot_functions(
 
         # Industry
         fig_stacked_enduse.run(
-            assumptions['simulated_yrs'],
+            assumptions['sim_yrs'],
             results_container['results_enduse_every_year'],
             is_enduses_sorted,
             is_color_list,
@@ -206,7 +206,7 @@ def run_all_plot_functions(
 
         fig_stacked_enduse_sectors.run(
             lookups,
-            assumptions['simulated_yrs'],
+            assumptions['sim_yrs'],
             results_container['results_enduse_every_year'],
             enduses['residential'],
             enduses['service'],

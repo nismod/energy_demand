@@ -19,36 +19,9 @@ from energy_demand.technologies import tech_related
 from energy_demand.scripts import s_scenario_param
 from energy_demand.geography import weather_region
 
-def read_yaml(file_path):
-    """Parse yaml config file into plain data (lists, dicts and simple values)
-
-    Parameters
-    ----------
-    file_path : str
-        The path of the configuration file to parse
-    """
-    with open(file_path, 'r') as file_handle:
-        return YAML(typ='unsafe').load(file_handle)
-
-def write_yaml(data, file_path):
-    """Write plain data to a file as yaml
-
-    Parameters
-    ----------
-    data
-        Data to write (should be lists, dicts and simple values)
-    file_path : str
-        The path of the configuration file to write
-    """
-    with open(file_path, 'w') as file_handle:
-        yaml = YAML(typ='unsafe')
-        yaml.default_flow_style = False
-        yaml.allow_unicode = True
-        return yaml.dump(data, file_handle)
-
 def load_data_before_simulation(
         data,
-        simulation_yrs,
+        sim_yrs,
         config,
         curr_yr,
         pop_array_by_new,
@@ -100,7 +73,7 @@ def load_data_before_simulation(
         weather_by=config['CONFIG']['user_defined_weather_by'],
         simulation_end_yr=config['CONFIG']['user_defined_simulation_end_yr'],
         curr_yr=curr_yr,
-        simulated_yrs=simulation_yrs,
+        sim_yrs=sim_yrs,
         paths=data['paths'],
         local_paths=data['local_paths'],
         enduses=data['enduses'],
@@ -110,7 +83,7 @@ def load_data_before_simulation(
     # Load all temperature and weather station data
     data['weather_stations'], data['temp_data'] = data_loader.load_temp_data(
         data['local_paths'],
-        sim_yrs=simulation_yrs,
+        sim_yrs=sim_yrs,
         weather_yrs_scenario=[base_yr, weather_yr_scenario],
         save_fig=path_new_scenario)
 
@@ -268,7 +241,7 @@ def load_data_before_simulation(
 def before_simulation(
         data,
         config,
-        simulation_yrs,
+        sim_yrs,
         pop_density
     ):
     """
@@ -316,13 +289,13 @@ def before_simulation(
     regional_vars, non_regional_vars = s_scenario_param.generate_annual_param_vals(
         data['regions'],
         data['assumptions'].strategy_vars,
-        simulation_yrs)
+        sim_yrs)
 
     # ------------------------------------------------
     # Switches calculations
     # ------------------------------------------------
     annual_tech_diff_params = init_scripts.switch_calculations(
-        simulation_yrs,
+        sim_yrs,
         data,
         f_reg,
         f_reg_norm,

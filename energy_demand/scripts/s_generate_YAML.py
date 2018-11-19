@@ -25,7 +25,7 @@ config.read(os.path.join(path_config, 'wrapperconfig.ini'))
 # Other configuration
 # --------
 base_yr = 2015
-simulated_yrs = [2015, 2050]
+sim_yrs = [2015, 2050]
 
 paths = data_loader.load_paths(path_main)
 data_path = os.path.normpath(config['PATHS']['path_local_data'])
@@ -41,7 +41,7 @@ data['enduses'], data['sectors'], data['fuels'] = data_loader.load_fuels(
 assumptions = general_assumptions.Assumptions(
     base_yr=user_defined_base_yr,
     curr_yr=2015,
-    simulated_yrs=simulated_yrs,
+    sim_yrs=sim_yrs,
     paths=paths,
     local_paths=local_paths,
     enduses=data['enduses'],

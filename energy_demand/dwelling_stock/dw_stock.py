@@ -476,7 +476,7 @@ def rs_dw_stock(
         region,
         assumptions,
         scenario_data,
-        simulated_yrs,
+        sim_yrs,
         dwelling_types,
         enduses,
         reg_coord,
@@ -524,21 +524,21 @@ def rs_dw_stock(
             assumptions.dwtype_floorarea_by,
             assumptions.dwtype_floorarea_fy,
             base_yr,
-            simulated_yrs)
+            sim_yrs)
 
         # Get distribution of dwelling types of all simulation years
         dwtype_distr = get_dwtype_distr(
             assumptions.dwtype_distr_by,
             assumptions.dwtype_distr_fy,
             base_yr,
-            simulated_yrs)
+            sim_yrs)
 
         # Get floor area per person for every simulation year
         data_floorarea_pp = get_floorare_pp(
             scenario_data['floor_area']['rs_floorarea'][base_yr][region],
             scenario_data['population'][base_yr][region],
             base_yr,
-            simulated_yrs,
+            sim_yrs,
             assumptions.non_regional_vars['assump_diff_floorarea_pp'])
 
         # Get fraction of total floorarea for every dwelling type

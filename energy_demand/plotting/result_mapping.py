@@ -1053,10 +1053,10 @@ def spatial_maps(
     # Load factors (difference p)
     # ======================================
     if plot_crit_dict['plot_load_factors_p']:
-        simulated_yrs = list(results_container['reg_load_factor_y'].keys())
+        sim_yrs = list(results_container['reg_load_factor_y'].keys())
 
-        final_yr = simulated_yrs[-1]
-        base_yr = simulated_yrs[0]
+        final_yr = sim_yrs[-1]
+        base_yr = sim_yrs[0]
 
         #for fueltype in range(fueltypes_nr):
         for fueltype_str in fueltype_str_to_create_maps:

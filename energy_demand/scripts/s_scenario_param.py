@@ -59,7 +59,7 @@ def get_correct_narrative_timestep(
     return timestep
 
 def calc_annual_switch_params(
-        simulated_yrs,
+        sim_yrs,
         regions,
         diffusion_param_tech
     ):
@@ -68,7 +68,7 @@ def calc_annual_switch_params(
 
     Arguments
     ---------
-    simulated_yrs : list
+    sim_yrs : list
         Simulated years
     regions : list
         Regions
@@ -91,7 +91,7 @@ def calc_annual_switch_params(
                 if reg_vals != {}:
                     annual_tech_diff_params[region][enduse][sector] = defaultdict(dict)
 
-                    for sim_yr in simulated_yrs:
+                    for sim_yr in sim_yrs:
 
                         narrative_timesteps = list(sector_region_tech_vals[sector].keys())
                         correct_narrative_timestep = get_correct_narrative_timestep(
@@ -115,7 +115,7 @@ def calc_annual_switch_params(
 def generate_annual_param_vals(
         regions,
         strategy_vars,
-        simulated_yrs,
+        sim_yrs,
     ):
     """
     Calculate parameter values for every year based
@@ -129,7 +129,7 @@ def generate_annual_param_vals(
         Regions
     strategy_vars : dict4
         Strategy variable infirmation
-    simulated_yrs : list
+    sim_yrs : list
         Simulated years
 
     Returns
@@ -173,7 +173,7 @@ def generate_annual_param_vals(
             regional_strategy_vary = generate_general_parameter(
                 regions=regions,
                 narratives=strategy_vars_values,
-                simulated_yrs=simulated_yrs)
+                sim_yrs=sim_yrs)
 
             # Test if regional specific or not based on first narrative
             for narrative in strategy_vars_values[:1]:
@@ -211,7 +211,7 @@ def generate_annual_param_vals(
                         regional_strategy_vary = generate_general_parameter(
                             regions=regions,
                             narratives=sub_var_values,
-                            simulated_yrs=simulated_yrs)
+                            sim_yrs=sim_yrs)
 
                         # Test if regional specific or not based on first narrative
                         for narrative in sub_var_values[:1]:
@@ -243,7 +243,7 @@ def generate_annual_param_vals(
                     regional_strategy_vary = generate_general_parameter(
                         regions=regions,
                         narratives=sector_sub_var_values,
-                        simulated_yrs=simulated_yrs)
+                        sim_yrs=sim_yrs)
 
                     # Test if regional specific or not based on first narrative
                     for narrative in sector_sub_var_values[:1]:
@@ -263,7 +263,7 @@ def generate_annual_param_vals(
 def generate_general_parameter(
         regions,
         narratives,
-        simulated_yrs
+        sim_yrs
     ):
     """Based on narrative input, calculate
     the parameter value for every modelled year
@@ -275,7 +275,7 @@ def generate_general_parameter(
     narratives : List
         List containing all narratives of how a model
         parameter changes over time
-    simulated_yrs : list
+    sim_yrs : list
         Simulated years
 
     Returns
@@ -296,7 +296,7 @@ def generate_general_parameter(
         if narrative['end_yr'] > latest_narrative_timestep:
             latest_narrative_timestep = narrative['end_yr']
 
-    for sim_yr in simulated_yrs:
+    for sim_yr in sim_yrs:
 
         # -----------------------------------------------
         # Set curry_yr to largest year defined narrative if

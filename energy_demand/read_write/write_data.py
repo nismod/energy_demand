@@ -6,10 +6,27 @@ import configparser
 import csv
 import yaml
 import numpy as np
+from ruamel.yaml import YAML
 
 from energy_demand.basic import lookup_tables
 from energy_demand.basic import basic_functions
 from energy_demand.basic import conversions
+
+def write_yaml(data, file_path):
+    """Write plain data to a file as yaml
+
+    Parameters
+    ----------
+    data
+        Data to write (should be lists, dicts and simple values)
+    file_path : str
+        The path of the configuration file to write
+    """
+    with open(file_path, 'w') as file_handle:
+        yaml = YAML(typ='unsafe')
+        yaml.default_flow_style = False
+        yaml.allow_unicode = True
+        return yaml.dump(data, file_handle)
 
 class ExplicitDumper(yaml.Dumper):
     """
@@ -205,7 +222,7 @@ def write_simulation_inifile(path, data, simulated_regions):
     config.add_section('SIM_PARAM')
     config['SIM_PARAM']['reg_nrs'] = str(data['assumptions'].reg_nrs)
     config['SIM_PARAM']['base_yr'] = str(data['assumptions'].base_yr)
-    config['SIM_PARAM']['simulated_yrs'] = str(data['assumptions'].simulated_yrs)
+    config['SIM_PARAM']['sim_yrs'] = str(data['assumptions'].sim_yrs)
 
     # ----------------------------
     # Other information to pass to plotting and summing function

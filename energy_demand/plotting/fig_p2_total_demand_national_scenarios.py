@@ -15,7 +15,7 @@ from energy_demand.plotting import fig_p2_weather_val
 
 def total_demand_national_scenarios(
         scenario_result_paths,
-        simulation_yrs,
+        sim_yrs,
         fueltype_str,
         path_out_plots
     ):
@@ -52,7 +52,7 @@ def total_demand_national_scenarios(
                     except:
                         pass
 
-        for simulation_yr in simulation_yrs:
+        for simulation_yr in sim_yrs:
             dict_scenarios_weather_yrs[scenario_name][simulation_yr] = pd.DataFrame(columns=columns)
             for weather_yr, path_to_weather_yr in weather_yrs:
             
@@ -114,7 +114,7 @@ def total_demand_national_scenarios(
     df_q_95_scenarios = pd.DataFrame(columns=scenarios)
     df_q_05_scenarios = pd.DataFrame(columns=scenarios)
 
-    for simulation_yr in simulation_yrs:
+    for simulation_yr in sim_yrs:
 
         line_entries_95 = []
         line_entries_05 = []
@@ -136,9 +136,9 @@ def total_demand_national_scenarios(
 
         # Try to smooth lines
         try:
-            simulation_yrs_smoothed, line_entries_tot_h_smoothed = basic_plot_functions.smooth_data(simulation_yrs, line_entries_tot_h, num=40000)
+            sim_yrs_smoothed, line_entries_tot_h_smoothed = basic_plot_functions.smooth_data(sim_yrs, line_entries_tot_h, num=40000)
         except:
-            simulation_yrs_smoothed = simulation_yrs
+            sim_yrs_smoothed = sim_yrs
             line_entries_tot_h_smoothed = line_entries_tot_h
 
 
@@ -150,9 +150,9 @@ def total_demand_national_scenarios(
     # ----
     # Set simulation year as index
     # ----
-    df_total_demand_2015 = df_total_demand_2015.set_index([simulation_yrs_smoothed])
-    df_q_95_scenarios = df_q_95_scenarios.set_index([simulation_yrs])
-    df_q_05_scenarios = df_q_05_scenarios.set_index([simulation_yrs])
+    df_total_demand_2015 = df_total_demand_2015.set_index([sim_yrs_smoothed])
+    df_q_95_scenarios = df_q_95_scenarios.set_index([sim_yrs])
+    df_q_05_scenarios = df_q_05_scenarios.set_index([sim_yrs])
 
 
     # plot lines
@@ -169,7 +169,7 @@ def total_demand_national_scenarios(
         # Uncertainty range
         # -----------------
         plt.fill_between(
-            simulation_yrs, #x
+            sim_yrs, #x
             df_q_95_scenarios[scenario],  #y1
             df_q_05_scenarios[scenario],  #y2
             alpha=0.15,
@@ -228,7 +228,7 @@ def total_demand_national_scenarios(
     # ---------------
     if len(nr_weather_yrs) > 2:
         try:
-            simulation_yrs_smoothed, tot_demand_twh_2015_smoothed = basic_plot_functions.smooth_data(columns, tot_demand_twh_2015, num=40000)
+            sim_yrs_smoothed, tot_demand_twh_2015_smoothed = basic_plot_functions.smooth_data(columns, tot_demand_twh_2015, num=40000)
             period_h_smoothed, df_total_demand_q_95_smoothed = basic_plot_functions.smooth_data(list(columns), df_total_demand_q_95, num=40000)
             period_h_smoothed, df_total_demand_q_05_smoothed = basic_plot_functions.smooth_data(columns, df_total_demand_q_05, num=40000)
             period_h_smoothed, df_peak_q_95_smoothed = basic_plot_functions.smooth_data(list(columns), df_peak_q_95, num=40000)
