@@ -107,11 +107,6 @@ def write_wether_data(data_list):
         if cnt == 364:
 
             # 365 day data for weather station
-            print("f")
-            print(stations_data.shape)
-            print("-")
-            print(station_data.shape)
-            print(station_id_cnt)
             stations_data[station_id_cnt] = station_data
 
             # Weather station metadata
@@ -253,7 +248,7 @@ def weather_dat_prepare(data_path, result_path):
             np.save(os.path.join(path_realization, "t_min.npy"), stations_t_min)
             np.save(os.path.join(path_realization, "t_max.npy"), stations_t_max)
 
-            write_data.write_yaml(os.path.join(path_realization, "stations.yml"), station_coordinates)
+            write_data.write_yaml(station_coordinates, os.path.join(path_realization, "stations.yml"), )
 
     print("... finished cleaning weather data")
     raise Exception
