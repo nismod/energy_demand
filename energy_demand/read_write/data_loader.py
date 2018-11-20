@@ -879,6 +879,7 @@ def load_temp_data(
         local_paths,
         sim_yrs,
         weather_yrs_scenario,
+        crit_temp_min_max=False,
         save_fig=False
     ):
     """Read in cleaned temperature and weather station data
@@ -900,67 +901,72 @@ def load_temp_data(
     t_yrs_stations : dict
         Temperatures {sim_yr: {stations:  {t_min: np.array(365), t_max: np.array(365)}}}
     """
-
-    '''
-    t_yrs_stations = {}
-    # Get weather scenario and simulation yrs
-
-    t_yrs_stations = defaultdict(dict)
-
-    for sim_yr in sim_yrs:
-        
-        # Load temperatures and stations
-        path_t_min = "weather_scenario/year/t_daily_min.csv"
-        path_t_max = "weather_scenario/year/t_daily_max.csv"
-        stations = "weather_scenario/year/stations.csv"
-        
-        stations_t_min = #read_csv(path_t_min)
-        stations_t_max = #read_csv(path_t_max)
-
-        # Convert weather station data to HDD days
-        for station_nr, station_id in enumerate(stations):
-
-            t_yrs_stations[sim_yr][station_id] = {
-                't_min': stations_t_min[station_nr],
-                't_max': stations_t_max[station_nr]}
-    
-    return dict(t_yrs_stations)
-    '''
-
-
     temp_data_short = defaultdict(dict)
     weather_stations_with_data = defaultdict(dict)
 
-    weather_stations = read_weather_stations_raw(
-        local_paths['folder_path_weater_stations'])
+    if crit_temp_min_max:
+    
+        # Get weather scenario and simulation yrs
+        t_yrs_stations = defaultdict(dict)
 
-    for weather_yr_scenario in weather_yrs_scenario:
-        temp_data = read_weather_data.read_weather_data_script_data(
-            local_paths['weather_data'], weather_yr_scenario)
+        for sim_yr in sim_yrs:
 
-        for station in weather_stations:
-            try:
-                _ = temp_data[station]
+            # Load temperatures and stations
+            dummy_year = 2020 #TODO REMOVE TODO TODO # MAKE GET DATA
+            abbrev_real = 'm00d' #TODO GET FROM SWTICHING TOGETHER FILE
+            path_weather_data = "X:/nismod/data/energy_demand/J-MARIUS_data/_weather_data_cleaned"
 
-                # Remove all non-uk stations
-                if weather_stations[station]['longitude'] > 2 or weather_stations[station]['longitude'] < -8.5:
-                    pass
-                else:
-                    temp_data_short[weather_yr_scenario][station] = temp_data[station]
-            except:
-                logging.debug("no data for weather station " + str(station))
+            path_t_min = os.path.join(path_weather_data, str(dummy_year), abbrev_real, "t_min.npy")
+            path_t_max = os.path.join(path_weather_data, str(dummy_year), abbrev_real, "t_max.npy")
+            path_stations = os.path.join(path_weather_data, str(dummy_year), abbrev_real, "stations.yml")
 
-        for station_id in temp_data_short[weather_yr_scenario].keys():
-            try:
-                weather_stations_with_data[weather_yr_scenario][station_id] = weather_stations[station_id]
-            except:
-                del temp_data_short[weather_yr_scenario][station_id]
+            stations_t_min = np.load(path_t_min)
+            stations_t_max = np.load(path_t_max)
+            #stations = read_data.read_yaml(path_stations)
+            stations = df.read_csv(path_stations)
 
-        logging.info(
-            "Info: Number of weather stations: {} weather_yr_scenario: Number of temp data: {}, weather_yr_scenario: {}".format(
-                len(weather_stations_with_data), len(temp_data_short[weather_yr_scenario]), weather_yr_scenario))
+            weather_stations_with_data[dummy_year] = stations
 
-    return dict(weather_stations_with_data), dict(temp_data_short)
+            # Convert weather station data to HDD days
+            for station_nr, station_id in enumerate(stations):
+
+                temp_data_short[sim_yr][station_id] = {
+                    't_min': stations_t_min[station_nr],
+                    't_max': stations_t_max[station_nr]}
+
+        return dict(weather_stations_with_data), dict(temp_data_short)
+
+    else:
+        weather_stations = read_weather_stations_raw(
+            local_paths['folder_path_weater_stations'])
+
+        for weather_yr_scenario in weather_yrs_scenario:
+            temp_data = read_weather_data.read_weather_data_script_data(
+                local_paths['weather_data'], weather_yr_scenario)
+
+            for station in weather_stations:
+                try:
+                    _ = temp_data[station]
+
+                    # Remove all non-uk stations
+                    if weather_stations[station]['longitude'] > 2 or weather_stations[station]['longitude'] < -8.5:
+                        pass
+                    else:
+                        temp_data_short[weather_yr_scenario][station] = temp_data[station]
+                except:
+                    logging.debug("no data for weather station " + str(station))
+
+            for station_id in temp_data_short[weather_yr_scenario].keys():
+                try:
+                    weather_stations_with_data[weather_yr_scenario][station_id] = weather_stations[station_id]
+                except:
+                    del temp_data_short[weather_yr_scenario][station_id]
+
+            logging.info(
+                "Info: Number of weather stations: {} weather_yr_scenario: Number of temp data: {}, weather_yr_scenario: {}".format(
+                    len(weather_stations_with_data), len(temp_data_short[weather_yr_scenario]), weather_yr_scenario))
+
+        return dict(weather_stations_with_data), dict(temp_data_short)
 
 def load_fuels(paths):
     """Load in ECUK fuel data, enduses and sectors

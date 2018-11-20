@@ -80,11 +80,12 @@ def load_data_before_simulation(
         sectors=data['sectors'],
         reg_nrs=len(data['regions']))
 
-    # Load all temperature and weather station data
+    # Load all temperature and weather station data TODO LOAD FROM WRAPPER
     data['weather_stations'], data['temp_data'] = data_loader.load_temp_data(
         data['local_paths'],
         sim_yrs=sim_yrs,
         weather_yrs_scenario=[base_yr, weather_yr_scenario],
+        crit_temp_min_max=config['CRITERIA']['crit_temp_min_max'],
         save_fig=path_new_scenario)
 
     # --------------------------------------------
@@ -251,6 +252,7 @@ def before_simulation(
     # ------------------------------------------------
     fuel_disagg = s_disaggregation.disaggr_demand(
         data,
+        config['CRITERIA']['crit_temp_min_max'],
         spatial_calibration=config['CRITERIA']['spatial_calibration'])
 
     # ------------------------------------------------

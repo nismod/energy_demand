@@ -16,6 +16,7 @@ import os
 import pytemperature
 import xarray as xr
 import numpy as np
+import pandas as pd
 
 from energy_demand.basic import basic_functions
 from energy_demand.read_write import write_data
@@ -90,7 +91,7 @@ def write_wether_data(data_list):
     data_list : list
         [[lat, long, yearday365, value]]
     """
-    station_coordinates = {}
+    station_coordinates = []
 
     assert not len(data_list) % 365 #Check if dividable by 365
     nr_stations = int(len(data_list) / 365)
@@ -114,9 +115,10 @@ def write_wether_data(data_list):
             station_lat = row[0]
 
             station_id = "station_id_{}".format(station_id_cnt)
-            station_coordinates[station_id] = {
+            '''station_coordinates[station_id] = {
                 'longitude':station_lat,
-                'latitude': station_lon}
+                'latitude': station_lon}'''
+            station_coordinates.append([station_id, station_lat, station_lon]) #ID, latitude, longitude
 
             # Reset
             station_data = np.zeros((365))
@@ -190,7 +192,8 @@ def weather_dat_prepare(data_path, result_path):
     """
     """
     # All folders
-   ''' all_files = os.listdir(path)
+    '''
+    all_files = os.listdir(path)
     folder_names = []
     for i in all_files:
         try:
@@ -198,7 +201,7 @@ def weather_dat_prepare(data_path, result_path):
         except:
             pass
     '''
-    folder_names = range(2023, 2049)
+    folder_names = range(2020, 2037)
     print("folder_name " + str(folder_names))
 
     # Create reulst folders
@@ -250,7 +253,11 @@ def weather_dat_prepare(data_path, result_path):
             np.save(os.path.join(path_realization, "t_min.npy"), stations_t_min)
             np.save(os.path.join(path_realization, "t_max.npy"), stations_t_max)
 
-            write_data.write_yaml(station_coordinates, os.path.join(path_realization, "stations.yml"), )
+            #write_data.write_yaml(station_coordinates, os.path.join(path_realization, "stations.yml"))
+            columns = ['station_id', 'latitude', 'longitude']
+
+            df = pd.DataFrame(station_coordinates, columns=columns)
+            df.to_csv(os.path.join(path_realization, "stations.csv"), index=False)
 
     print("... finished cleaning weather data")
     raise Exception

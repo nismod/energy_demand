@@ -88,6 +88,7 @@ def run(
         - In case of a leap year the 29 of February is ignored
     """
     print("... starting to clean original weather files")
+    all_values = []
 
     # Stations which are outisde of the uk and are ignored
     stations_outside_UK = [
@@ -174,6 +175,11 @@ def run(
 
                     temp_stations[station_id][year_hour] = air_temp
 
+        # Write out single file
+        #all_values
+
+
+
         # ------------------------------------------
         # Interpolate missing values (np.nan)
         # ------------------------------------------
@@ -207,11 +213,6 @@ def run(
                     nr_of_zeros,
                     station,
                     year), flush=True)
-
-                if crit_min_max:
-                    print("-----------")
-                    print(temp_stations_min_max.keys())
-                    del temp_stations_min_max[station_id]
             else:
                 # Interpolate missing np.nan values
                 temp_stations[station][nans] = np.interp(
