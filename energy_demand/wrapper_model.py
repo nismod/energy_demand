@@ -205,7 +205,8 @@ def load_data_before_simulation(
     # -----------------------------------------------------------------------------
     strategy_vars = strategy_vars_def.load_smif_parameters(
         assumptions=data['assumptions'],
-        default_streategy_vars=default_streategy_vars)
+        default_streategy_vars=default_streategy_vars,
+        mode='local') #TODO
 
     # <<<<<<<<<<<<<<<<<<<<<<<<<<<
     #'''

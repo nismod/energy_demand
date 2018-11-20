@@ -198,7 +198,7 @@ def load_param_assump(
         "name": "gshp_fraction_ey",
         "absolute_range": (0, 1),
         "description": "Relative GSHP (%) to GSHP+ASHP",
-        "suggested_range": (assumptions.gshp_fraction, 0.5),
+        "suggested_range": "", #(assumptions.gshp_fraction, 0.5),
         "default_value": assumptions.gshp_fraction,
         "units": 'decimal',
         "sector": True,
@@ -227,7 +227,7 @@ def load_param_assump(
             'regional_specific': True,
             'diffusion_type': 'linear'}
 
-    # =======================================
+    '''# =======================================
     # Climate Change assumptions
     # Temperature changes for every month for future year
     # =======================================
@@ -255,7 +255,7 @@ def load_param_assump(
             "units": '°C',
             "sector": True,
             'regional_specific': False,
-            'diffusion_type': 'linear'}
+            'diffusion_type': 'linear'}'''
 
     # ============================================================
     # Base temperature assumptions for heating and cooling demand
