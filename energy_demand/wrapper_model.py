@@ -3,7 +3,6 @@
 import os
 import logging
 from pkg_resources import Requirement, resource_filename
-from ruamel.yaml import YAML
 
 from energy_demand.read_write import data_loader
 from energy_demand.basic import basic_functions
@@ -86,7 +85,7 @@ def load_data_before_simulation(
         sim_yrs=sim_yrs,
         weather_yrs_scenario=[base_yr, weather_yr_scenario],
         crit_temp_min_max=config['CRITERIA']['crit_temp_min_max'],
-        save_fig=path_new_scenario)
+        save_fig=path_new_scenario) 
 
     # --------------------------------------------
     # Make selection of weather stations and data

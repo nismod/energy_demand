@@ -13,7 +13,7 @@ def create_annual_weather_file(
     write csv file
     
     """
-    columns = ['timestep', 'station_id',  'weather_inst',  'yearday', 't_min', 't_max',]
+
 
     # Read files
     path_stations = os.path.join(path, "{}_stations.csv".format(year))
@@ -32,14 +32,23 @@ def create_annual_weather_file(
             out_csv.append([year, station_id, weather_scenario_name, yearday, t_min_station[yearday], t_max_station[yearday]])
 
     out_csv_array = np.array(out_csv)
+    return out_csv_array
+
+def collect_multi_year_weather():
+    
+    weather_scenario_name = "all_scenarios"
+    path = "X:/nismod/data/energy_demand/H-Met_office_weather_data/_complete_meteo_data_all_yrs_cleaned_min_max"
+    path_out_stations = "X:/nismod/data/energy_demand/H-Met_office_weather_data/_complete_meteo_data_all_yrs_cleaned_min_max/_{}.csv".format(weather_scenario_name)
+
+    out_csv_array = create_annual_weather_file(
+        path,
+        path_out_stations,
+        year=2015,
+        weather_scenario_name=weather_scenario_name)
+        
+    columns = ['timestep', 'station_id',  'weather_inst',  'yearday', 't_min', 't_max',]
     df = pd.DataFrame(out_csv_array, columns=columns)
     df.to_csv(path_out_stations, index=False)
 
-path = "X:/nismod/data/energy_demand/H-Met_office_weather_data/_complete_meteo_data_all_yrs_cleaned_min_max"
-path_out_stations = "X:/nismod/data/energy_demand/H-Met_office_weather_data/_complete_meteo_data_all_yrs_cleaned_min_max/_NEWFILE.csv"
 
-create_annual_weather_file(
-    path,
-    path_out_stations,
-    year=2015,
-    weather_scenario_name="all_scenarios")
+collect_multi_year_weather()

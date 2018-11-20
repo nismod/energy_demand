@@ -144,8 +144,8 @@ def read_weather_stations_raw(path_to_csv):
             pass
         else:
             weather_stations[int(row['src_id'])] = {
-                'latitude' : float(row['Latitude']),
-                'longitude': float(row['Longitude'])}
+                'latitude' : float(row['Latitude']), #TODO CHANGE TO 'ltatitude
+                'longitude': float(row['Longitude'])} #TODO CHANGE TO 'ltatitude
 
     return weather_stations
 
@@ -938,7 +938,7 @@ def load_temp_data(
 
     else:
         weather_stations = read_weather_stations_raw(
-            local_paths['folder_path_weater_stations'])
+            local_paths['folder_path_weater_stations']) 
 
         for weather_yr_scenario in weather_yrs_scenario:
             temp_data = read_weather_data.read_weather_data_script_data(

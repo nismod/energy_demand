@@ -201,7 +201,7 @@ def weather_dat_prepare(data_path, result_path):
         except:
             pass
     '''
-    folder_names = range(2027, 2028) #, 2037)
+    folder_names = range(2020, 2037)
     print("folder_name " + str(folder_names))
 
     # Create reulst folders
@@ -221,6 +221,7 @@ def weather_dat_prepare(data_path, result_path):
 
         for realization_name in realization_names:
             print("... processing {}  {}".format(str(year), str(realization_name)), flush=True)
+
             # Create folder
             path_realization = os.path.join(path_year, realization_name)
             basic_functions.create_folder(path_realization)
@@ -260,8 +261,6 @@ def weather_dat_prepare(data_path, result_path):
             df.to_csv(os.path.join(path_realization, "stations.csv"), index=False)
 
     print("... finished cleaning weather data")
-    raise Exception
-    return
 
 weather_dat_prepare(path, result_path)
 
