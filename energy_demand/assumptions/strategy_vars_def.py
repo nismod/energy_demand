@@ -54,9 +54,9 @@ def load_smif_parameters(
             # Get scenario value
             if mode == 'smif':  #smif mode
 
-                #try:
-                    #scenario_value = data_handle.get_parameter(var_name)
-                #except:
+                try:
+                    scenario_value = data_handle.get_parameter(var_name)
+                except:
                     logging.warning("IMPORTANT WARNING: Pparamter could not be loaded from smif: `%s`", var_name)
 
                     # ------------------------------------
@@ -89,7 +89,6 @@ def load_smif_parameters(
                         # ------------------------------------
                         #TODO
                         # This needs to be fixed by directly loading multiple paramters from SMIF
-                        #scenario_value = sub_var_entries['default_value']
                         scenario_value = sub_var_entries['scenario_value']
                 else: #local running
                     scenario_value = sub_var_entries['scenario_value']

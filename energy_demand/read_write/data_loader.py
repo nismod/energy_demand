@@ -923,7 +923,7 @@ def load_temp_data(
             stations_t_min = np.load(path_t_min)
             stations_t_max = np.load(path_t_max)
             #stations = read_data.read_yaml(path_stations)
-            stations = df.read_csv(path_stations)
+            stations = pd.read_csv(path_stations)
 
             weather_stations_with_data[dummy_year] = stations
 

@@ -3,8 +3,9 @@
 import os
 import csv
 import collections
-import numpy as np
 from collections import defaultdict
+import numpy as np
+import pandas as pd
 
 from energy_demand.basic import date_prop
 from energy_demand.basic import basic_functions
@@ -19,7 +20,7 @@ def count_sequence_of_zeros(sequence):
             if cnt > max_cnt_zeros:
                 max_cnt_zeros = cnt
             cnt = 0 #reset to zero again
-    
+
     return max_cnt_zeros
 
 def nan_helper(y):
@@ -88,7 +89,6 @@ def run(
         - In case of a leap year the 29 of February is ignored
     """
     print("... starting to clean original weather files")
-    all_values = []
 
     # Stations which are outisde of the uk and are ignored
     stations_outside_UK = [
@@ -114,11 +114,9 @@ def run(
 
     # Annual temperature file
     for file_name in all_annual_raw_files:
-        print(" ")
         print("... reading csv file: " + str(file_name), flush=True)
-        print(" ")
-        path_to_csv = os.path.join(path_files, file_name)
 
+        path_to_csv = os.path.join(path_files, file_name)
         temp_stations = {}
         temp_stations_min_max = defaultdict(dict)
 
@@ -154,8 +152,6 @@ def run(
                     else:
                         air_temp = float(row[35])
 
-                    if station_id == 1585:
-                        print("tt")
                     # Add weather station if not already added to dict
                     if station_id not in temp_stations:
                         if crit_min_max:
@@ -175,8 +171,28 @@ def run(
 
                     temp_stations[station_id][year_hour] = air_temp
 
+        # --------------------
         # Write out single file
-        #all_values
+        # --------------------
+        path_out_stations = os.path.join(path_out_files, 'stations.csv')
+        path_out_t_min = os.path.join(path_out_files, "t_min.npy")
+        path_out_t_max = os.path.join(path_out_files, "t_max.npy")
+
+        # Write out weather stations sorting of data
+        temp_station_names = list(temp_stations.keys())
+        
+        df = pd.DataFrame(temp_station_names, columns=['station_id'])
+        df.to_csv(os.path.join(path_out_stations, "stations.csv"), index=False)
+
+        # Write to numpy
+        stations_t_min = list(i['t_min'] for i in temp_stations_min_min.values())
+        stations_t_max = list(i['t_max'] for i in temp_stations_min_max.values())
+        stations_t_min = np.array(stations_t_min)
+        stations_t_max = np.array(stations_t_max)
+
+        print(stations_t_min.shape)
+        np.save(path_out_t_min, stations_t_min)
+        np.save(path_out_t_max, stations_t_max)
 
 
 
@@ -259,6 +275,7 @@ def run(
 
     print("... finished cleaning weather data")
 
+'''
 run(
     path_files="//linux-filestore.ouce.ox.ac.uk/mistral/nismod/data/energy_demand/H-Met_office_weather_data/_meteo_data_2015",
     path_out_files="//linux-filestore.ouce.ox.ac.uk/mistral/nismod/data/energy_demand/H-Met_office_weather_data/_complete_meteo_data_all_yrs_cleaned_min_max",
@@ -266,3 +283,4 @@ run(
     crit_nr_of_zeros=500,
     nr_daily_zeros=20,
     crit_min_max=True)
+'''

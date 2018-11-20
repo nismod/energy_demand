@@ -207,6 +207,8 @@ def load_data_before_simulation(
         assumptions=data['assumptions'],
         default_streategy_vars=default_streategy_vars)
 
+    # <<<<<<<<<<<<<<<<<<<<<<<<<<<
+    #'''
     # -----------------------------------------
     # Read user defined stragey variable from csv files
     # TODO with smif update: Needs to be read in by SMIF and passed on directly to here
@@ -224,7 +226,8 @@ def load_data_before_simulation(
     # --------------------------------------------------------
     strategy_vars = data_loader.replace_variable(
         _user_defined_vars, strategy_vars)
-
+    #'''
+    # <<<<<<<<<<<<<<<<<<<<<<<<<<<
     strategy_vars_out = strategy_vars_def.autocomplete_strategy_vars(
         strategy_vars, narrative_crit=True)
 
