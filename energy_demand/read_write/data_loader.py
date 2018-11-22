@@ -20,6 +20,38 @@ from energy_demand.plotting import fig_lp
 from energy_demand.basic import basic_functions
 from energy_demand.read_write import narrative_related
 
+def load_smif_narrative_data(
+        default_strategy_var,
+        narrative_variables,
+        loaded_narrative_data,
+        simulation_base_yr,
+        simulation_end_yr
+    ):
+    """load scenario smif narratives
+    """
+    strategy_vars_as_narratives = {}
+    for narrative_variable in narrative_variables:
+        try:
+            _ = default_strategy_var[narrative_variable]
+        except KeyError:
+            raise Exception("The user defined variable '%s' is not defined in model", narrative_variable)
+
+        # Get narrative data # raw file content (i.e. from wrapper)
+        narrative_data = loaded_narrative_data[narrative_variable]
+        
+        # -----------------------------------
+        # Crate narratives from file content
+        # -----------------------------------
+        parameter_narratives = narrative_related.create_narratives(
+            narrative_data,
+            simulation_base_yr,
+            simulation_end_yr,
+            default_strategy_var[narrative_variable])
+
+        strategy_vars_as_narratives[narrative_variable] = parameter_narratives
+
+    return strategy_vars_as_narratives
+
 def print_closest_and_region(stations_as_dict, region_to_plot, closest_region):
     """Function used to test if the closest weather region is assigned
     """

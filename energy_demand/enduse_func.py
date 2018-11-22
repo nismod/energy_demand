@@ -206,6 +206,9 @@ class Enduse(object):
                 self.fuel_y)
             self.fuel_y = _fuel_new_y
 
+            # TODO TEST IF MINUS FALUE
+            assert not testing_functions.test_if_minus_value_in_array(self.fuel_y)
+    
             # ----------------------------------
             # Hourly Disaggregation
             # ----------------------------------
@@ -216,7 +219,6 @@ class Enduse(object):
                 if flat_profile_crit:
                     pass
                 else:
-     
                     fuel_yh = assign_lp_no_techs(
                         enduse,
                         sector,
@@ -225,7 +227,6 @@ class Enduse(object):
                         make_all_flat=make_all_flat)
 
                     #print("FUEL TRAIN X " + str(np.sum(fuel_yh)))
-
                     # Demand management for non-technology enduse
                     self.fuel_yh = demand_management(
                         enduse,
@@ -235,6 +236,10 @@ class Enduse(object):
                         mode_constrained=False,
                         make_all_flat=make_all_flat)
                     #print("FUEL TRAIN Y" + str(np.sum(fuel_yh)))
+                
+                    # TODO TEST IF MINUS FALUE
+                    assert not testing_functions.test_if_minus_value_in_array(self.fuel_yh)
+
             else:
                 #If technologies are defined for an enduse
 
@@ -338,6 +343,12 @@ class Enduse(object):
                                 make_all_flat=make_all_flat)
 
                         self.fuel_yh = None
+                        
+                        # TODO TEST IF MINUS FALUE
+                        for i in self.techs_fuel_yh:
+                            ###print("=== df === {}  {}".format(i, testing_functions.test_if_minus_value_in_array(self.techs_fuel_yh[i])))
+                            assert not testing_functions.test_if_minus_value_in_array(self.techs_fuel_yh[i])
+
                     else:
                         self.fuel_yh = demand_management(
                             enduse,
@@ -346,6 +357,11 @@ class Enduse(object):
                             fuel_yh,
                             mode_constrained=False,
                             make_all_flat=make_all_flat)
+
+                        # TODO TEST IF MINUS FALUE
+                        for i in self.fuel_yh:
+                            print("-- {}  {}".format(i, testing_functions.test_if_minus_value_in_array(self.fuel_yh[i])))
+                            assert not testing_functions.test_if_minus_value_in_array(self.fuel_yh[i])
 
 def demand_management(
         enduse,
@@ -751,14 +767,19 @@ def calc_fuel_tech_yh(
 
             load_profile = load_profiles.get_lp(
                 enduse, sector, tech, 'shape_yh')
-
-            #if enduse == 'rs_space_heating' and tech == 'heat_pumps_electricity':
-            #    print("=============")
-            #    print(load_profile[0])
-            #    print(load_profile[2])
-            #    print(fuel_tech_y[tech])
-            #    raise Exception
+            
+            ####print("=s============ {} {}".format(tech, fuel_tech_y[tech]))
+            assert np.sum(fuel_tech_y[tech]) >= 0
+            assert not testing_functions.test_if_minus_value_in_array(load_profile)
             fuels_yh[tech] = fuel_tech_y[tech] * load_profile
+            assert not testing_functions.test_if_minus_value_in_array(fuels_yh[tech])
+
+            # ----------
+            # Testing if negative value
+            # ----------
+            #if testing_functions.test_if_minus_value_in_array(fuels_yh):
+            #   raise Exception("Error: Negative entry")
+
     else:
         # --
         # Unconstrained mode, i.e. not technolog specific.
@@ -770,6 +791,11 @@ def calc_fuel_tech_yh(
 
             load_profile = load_profiles.get_lp(
                 enduse, sector, tech, 'shape_yh')
+
+            print("==========d=== {} {}".format(tech, fuel_tech_y[tech]))
+            print("f " + str(load_profile[load_profile < 0]))
+            assert np.sum(fuel_tech_y[tech]) > 0
+            assert not testing_functions.test_if_minus_value_in_array(load_profile)
 
             # If no fuel for this tech and not defined in enduse
             fuel_tech_yh = fuel_tech_y[tech] * load_profile
@@ -1124,7 +1150,7 @@ def apply_scenario_drivers(
 
                     except KeyError:
                         # No sector specific GVA data defined
-                        logging.debug("No gva data found for sector {} ".format(sector))
+                        logging.debug("No gva data found for sector {} {} ".format(sector, curr_yr))
                         by_driver_data = gva_per_head[base_yr][region]
                         cy_driver_data = gva_per_head[curr_yr][region]
 

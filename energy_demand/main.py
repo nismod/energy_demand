@@ -6,7 +6,7 @@
 # TEST NON CONSTRAINED MODE
 #with open ("C:/Users/cenv0553/ed/dump_WILL.yaml", "w") as file:
 #    yaml.dump(strategy_vars, file) 
-
+# Pre initialisation
 #   Note
     ----
     Always execute from root folder. (e.g. energy_demand/energy_demand/main.py
@@ -158,7 +158,6 @@ if __name__ == "__main__":
     data['result_paths'] = data_loader.get_result_paths(path_new_scenario)
 
     basic_functions.create_folder(path_new_scenario)
-    #logger_setup.set_up_logger(os.path.join(path_new_scenario, "plotting.log"))
 
     # ----------------------------------------------------------------------
     # Load data
@@ -200,7 +199,6 @@ if __name__ == "__main__":
         curr_yr=2015,
         sim_yrs=sim_yrs,
         paths=data['paths'],
-        local_paths=data['local_paths'],
         enduses=data['enduses'],
         sectors=data['sectors'],
         reg_nrs=len(data['regions']))
@@ -218,19 +216,31 @@ if __name__ == "__main__":
     # -----------------------------------------------------------------------------
     # Load standard strategy variable values from .py file
     # Containing full information
-    # -----------------------------------------------------------------------------
-    default_streategy_vars = strategy_vars_def.load_param_assump(
-        data['paths'],
-        data['local_paths'],
-        data['assumptions'],
-        writeYAML=config['CRITERIA']['writeYAML'])
+    # -----------------------------------------------------------------------------        
+    default_streategy_vars = strategy_vars_def.load_param_assump(default_values=True)
+    '''
+        {
+        'spatial_explicit_diffusion': data['assumptions'].spatial_explicit_diffusion,
+        'speed_con_max': data['assumptions'].speed_con_max,
+        'gshp_fraction': data['assumptions'].gshp_fraction,
+        'rs_t_heating_by': data['assumptions'].t_bases.rs_t_heating_by,
+        'ss_t_heating_by': data['assumptions'].t_bases.ss_t_heating_by,
+        'ss_t_cooling_by': data['assumptions'].t_bases.ss_t_cooling_by,
+        'is_t_heating_by': data['assumptions'].t_bases.is_t_heating_by,
+        'smart_meter_p_by': data['assumptions'].smart_meter_assump['smart_meter_p_by'],
+        'cooled_ss_floorarea_by': data['assumptions'].cooled_ss_floorarea_by,
+        'p_cold_rolling_steel_by': data['assumptions'].p_cold_rolling_steel_by
+        }
+    )'''
 
     # -----------------------------------------------------------------------------
     # Load standard smif parameters and generate standard single timestep narrative for year 2050
     # -----------------------------------------------------------------------------
     strategy_vars = strategy_vars_def.load_smif_parameters(
-        assumptions=data['assumptions'],
+        scenario_values={},
         default_streategy_vars=default_streategy_vars,
+        end_yr=2050,
+        base_yr=base_yr,
         mode='local')
 
     # -----------------------------------------
@@ -382,7 +392,10 @@ if __name__ == "__main__":
         f_reg,
         f_reg_norm,
         f_reg_norm_abs,
-        crit_all_the_same)
+        crit_all_the_same,
+        data['assumptions'].service_switches,
+        data['assumptions'].fuel_switches,
+        data['assumptions'].capacity_switches)
     for region in data['regions']:
         regional_vars[region]['annual_tech_diff_params'] = annual_tech_diff_params[region]
 

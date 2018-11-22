@@ -201,7 +201,8 @@ def weather_dat_prepare(data_path, result_path):
         except:
             pass
     '''
-    folder_names = range(2020, 2037)
+    folder_names = range(2020, 2049)
+    folder_names = [2020, 2025, 2030, 2035, 2040, 2045, 2049]
     print("folder_name " + str(folder_names))
 
     # Create reulst folders

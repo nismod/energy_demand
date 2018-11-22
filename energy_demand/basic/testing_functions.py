@@ -13,7 +13,7 @@ def test_if_minus_value_in_array(arraytotest):
     if len(only_neg_elements) > 0:
         return True
     else:
-        False
+        return False
 
 def switch_testing(fuel_switches, service_switches, capacity_switches):
     """Test if swithes defined for same enduse

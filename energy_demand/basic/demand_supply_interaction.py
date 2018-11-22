@@ -7,7 +7,6 @@ import pandas as pd
 
 from energy_demand.basic import date_prop
 from energy_demand.basic import testing_functions
-from energy_demand.plotting import validation_enduses
 from energy_demand.basic import lookup_tables
 
 def constrained_results(
@@ -62,10 +61,45 @@ def constrained_results(
     fueltypes = lookup_tables.basic_lookups()['fueltypes']
 
     #--------------------------------
-    # Gett all non heating related enduse
+    # Get all non heating related enduse
     # --------------------------------
     # Substract constrained fuel from nonconstrained (total) fuel
     non_heating_ed = results_unconstrained - sum(results_constrained.values())
+
+    logging.info(results_unconstrained[results_unconstrained < 0])
+    assert not testing_functions.test_if_minus_value_in_array(results_unconstrained)
+
+
+    for tech in results_constrained:
+        print("zzzzz {} {} {}".format(
+            tech, np.sum(results_constrained[tech]), testing_functions.test_if_minus_value_in_array(results_constrained[tech])))
+        assert not testing_functions.test_if_minus_value_in_array(results_constrained[tech])
+
+    # Check whether any entry is smaller than zero
+    # --------------------------------------------
+    logging.info("==============================df")
+    logging.info(np.sum(non_heating_ed[0]))
+    logging.info(np.sum(non_heating_ed[1]))
+    logging.info(np.sum(non_heating_ed[2]))
+    for i in range(7):
+        logging.info("fueltype {}  {}".format(i, len(non_heating_ed[0][0][i][non_heating_ed[0][0][i] < 0])))
+        logging.info(np.sum(non_heating_ed[0][0][i]))
+    logging.info("******")
+    logging.info(results_unconstrained.shape)
+    logging.info(sum(results_constrained.values()).shape)
+    logging.info(str(non_heating_ed.shape))
+    logging.info("******")
+    logging.info(np.sum(results_unconstrained))
+    logging.info(np.sum(sum(results_constrained.values())))
+    logging.info(np.sum(sum(non_heating_ed)))
+    logging.info("***fff***")
+    logging.info(testing_functions.test_if_minus_value_in_array(non_heating_ed))
+    logging.info(non_heating_ed[non_heating_ed < 0])
+    logging.info(len(non_heating_ed[non_heating_ed < 0]))
+    logging.info(np.sum(non_heating_ed[non_heating_ed < 0]))
+    logging.info("===")
+
+    logging.info(testing_functions.test_if_minus_value_in_array(non_heating_ed))
 
     # ----------------------------------------
     # Add all constrained results (technology specific results)
@@ -86,6 +120,8 @@ def constrained_results(
 
             supply_results[key_name] = fuel_tech[submodel_nr][:, fueltype_int, :]
 
+            print("ADDING CONTRAINSED {}  {} ".format(tech, str(np.sum(fuel_tech[submodel_nr][:, fueltype_int, :]))))
+
     # ---------------------------------
     # Add non_heating for all fueltypes
     # ---------------------------------
@@ -95,8 +131,7 @@ def constrained_results(
             if fueltype_str == 'heat':
                 pass #Do not add non_heating demand for fueltype heat
             else:
-                key_name = "{}_{}_{}".format(
-                    submodel, fueltype_str, "non_heating")
+                key_name = "{}_{}_{}".format(submodel, fueltype_str, "non_heating")
 
                 # Add fuel for all regions for specific fueltype
                 supply_results[key_name] = non_heating_ed[submodel_nr][:, fueltype_int, :]
@@ -106,6 +141,7 @@ def constrained_results(
     # --------------------------------------------
     for key_name, values in supply_results.items():
         if testing_functions.test_if_minus_value_in_array(values):
+            logging.info("info: {}  {}".format(values, np.sum(values)))
             raise Exception("Error d: Negative entry in results " + str(key_name))
 
     logging.info("... Prepared results for energy supply model in constrained mode")

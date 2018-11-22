@@ -21,7 +21,7 @@ def run(
     """
     sectors_to_generate = [2, 3, 4, 5, 6, 8, 9, 29, 11, 12, 10, 15, 14, 19, 17, 40, 41, 28, 35, 23, 27]
     geography_name = "lad_uk_2016"
-    
+
     # Get all folders with scenario run results
     all_csv_folders = basic_functions.get_all_folders_files(path_to_folder)
 
@@ -65,7 +65,7 @@ def run(
                     gp_file_selection_2015 = gp_file.loc[gp_file['year'] == 2015] #Data of 2015
 
                     list_with_all_vals = []
-                    for year in range(base_yr, end_yr):
+                    for year in range(base_yr, end_yr + 1):
                         gp_file_selection_yr = gp_file_selection_2015
                         gp_file_selection_yr['year'] = year
                         list_with_all_vals += gp_file_selection_yr.values.tolist()
@@ -150,7 +150,7 @@ def run(
                     gp_file_selection_2015 = gp_file.loc[gp_file['year'] == 2015] #Data of 2015
 
                     list_with_all_vals = []
-                    for year in range(base_yr, end_yr):
+                    for year in range(base_yr, end_yr + 1):
                         gp_file_selection_yr = gp_file_selection_2015
                         gp_file_selection_yr['year'] = year
                         list_with_all_vals += gp_file_selection_yr.values.tolist()
@@ -229,7 +229,7 @@ def run(
                 gp_file = gp_file[np.isfinite(gp_file['value'])]
 
                 # Select all entries with matching years
-                gp_file = gp_file.loc[gp_file['year'].isin(range(base_yr, end_yr))]
+                gp_file = gp_file.loc[gp_file['year'].isin(range(base_yr, end_yr + 1))]
 
                 # Rename columns
                 gp_file = gp_file.rename(index=str, columns={"year": "timestep"})
@@ -313,9 +313,10 @@ def run(
 
                 # Select all entries with matching sectors
                 df = df.loc[df['sector'].isin(sectors_to_generate)]
-    
+                print("fff")
+                print(df.columns)
                 # Select all entries with matching years
-                df = df.loc[df['timestep'].isin(range(base_yr, end_yr))]
+                df = df.loc[df['timestep'].isin(range(base_yr, end_yr + 1))]
 
                 # Reorder columns
                 df = df[columns]

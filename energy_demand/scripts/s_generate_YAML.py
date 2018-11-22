@@ -43,16 +43,12 @@ assumptions = general_assumptions.Assumptions(
     curr_yr=2015,
     sim_yrs=sim_yrs,
     paths=paths,
-    local_paths=local_paths,
     enduses=data['enduses'],
     sectors=data['sectors'])
 
 # Write parameters to YAML file
 _, _ = strategy_vars_def.load_param_assump(
-    paths,
-    local_paths,
-    assumptions,
-    writeYAML=True)
+    assumptions)
 
 print("==========")
 print("Finishged generating YAML file with scenario parameters")

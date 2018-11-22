@@ -33,7 +33,6 @@ from pkg_resources import Requirement
         curr_yr=None,
         sim_yrs=None,
         paths=data['paths'],
-        local_paths=data['local_paths'],
         enduses=data['enduses'],
         sectors=data['sectors'],
         fueltypes=data['lookups']['fueltypes'],

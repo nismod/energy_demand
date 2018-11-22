@@ -41,7 +41,6 @@ class Assumptions(object):
             curr_yr=None,
             sim_yrs=None,
             paths=None,
-            local_paths=None,
             enduses=None,
             sectors=None,
             reg_nrs=None
@@ -311,15 +310,15 @@ class Assumptions(object):
             'ss_other_electricity': 0.03,
 
             # Industry submodule
-            'is_high_temp_process': 0.03,
-            'is_low_temp_process': 0.03,
-            'is_drying_separation': 0.03,
-            'is_motors': 0.03,
-            'is_compressed_air': 0.03,
-            'is_lighting': 0.03,
-            'is_space_heating': 0.03,
-            'is_other': 0.03,
-            'is_refrigeration': 0.03}
+            'is_high_temp_process': 0,
+            'is_low_temp_process': 0,
+            'is_drying_separation': 0,
+            'is_motors': 0,
+            'is_compressed_air': 0,
+            'is_lighting': 0,
+            'is_space_heating': 0,
+            'is_other': 0,
+            'is_refrigeration': 0}
 
         # ============================================================
         # Base temperature assumptions
@@ -403,8 +402,7 @@ class Assumptions(object):
         self.gshp_fraction = 0.1
 
         # Load defined technologies
-        self.technologies, self.tech_list = read_data.read_technologies(
-            paths['path_technologies'])
+        self.technologies, self.tech_list = read_data.read_technologies(paths['path_technologies'])
 
         self.installed_heat_pump_by = tech_related.generate_ashp_gshp_split(
             self.gshp_fraction)
@@ -437,23 +435,6 @@ class Assumptions(object):
             self.specified_tech_enduse_by,
             self.enduse_space_heating)
         self.specified_tech_enduse_by = _specified_tech_enduse_by
-
-        # ============================================================
-        # Read in switches
-        # ============================================================
-        self.fuel_switches = read_data.read_fuel_switches(
-            local_paths['path_fuel_switches'], enduses, self.fueltypes, self.technologies)
-
-        self.service_switches = read_data.service_switch(
-            local_paths['path_service_switch'], self.technologies)
-
-        self.capacity_switches = read_data.read_capacity_switch(
-            local_paths['path_capacity_installation'])
-
-        self.crit_switch_happening = testing_functions.switch_testing(
-            fuel_switches=self.fuel_switches,
-            service_switches=self.service_switches,
-            capacity_switches=self.capacity_switches)
 
         # ========================================
         # General other info
