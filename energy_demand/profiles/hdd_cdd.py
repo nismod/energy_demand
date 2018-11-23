@@ -5,19 +5,44 @@ from energy_demand.geography import weather_station_location as weather_station
 from energy_demand.technologies import diffusion_technologies
 from energy_demand.profiles import load_profile
 
-def calc_hdd_min_max(t_min, t_max):
+def calc_cdd_min_max(t_min, t_max, t_base):
+
+    cdd_365 = np.zeros((365))
+    for day in range(365):
+        case_nr = get_meterological_equation_case_cdd(
+            t_min[day],
+            t_max[day],
+            t_base)
+
+        cdd = calc_met_equation_cdd(
+            case_nr,
+            t_min[day],
+            t_max[day],
+            t_base)
+
+        cdd_365[day] = cdd
+
+    return cdd
+
+def calc_hdd_min_max(t_min, t_max, t_base):
     """Calculate daily hdd
     """
-    case_nr = get_meterological_equation_case(
-        t_min,
-        t_max,
-        t_base)
+    hdd_365 = np.zeros((365))
+    for day in range(365):
 
-    hdd = calc_met_equation_hdd(
-        case_nr,
-        t_min,
-        t_max)
-    
+        case_nr = get_meterological_equation_case_hdd(
+            t_min[day],
+            t_max[day],
+            t_base)
+
+        hdd = calc_met_equation_hdd(
+            case_nr,
+            t_min[day],
+            t_max[day],
+            t_base)
+        
+        hdd_365[day] = hdd
+
     return hdd
 
 def calc_met_equation_hdd(case, t_max, t_min, t_base):
@@ -28,12 +53,25 @@ def calc_met_equation_hdd(case, t_max, t_min, t_base):
     elif case == 2:
         hdd = 0.5 * (t_base - t_min) - 0.25 * (t_max - t_base)
     elif case == 3:
-        hdd = 0,25 * (t_base - t_min)
+        hdd = 0.25 * (t_base - t_min)
     else:
         hdd = 0
     return hdd
 
-def get_meterological_equation_case(t_min, t_max, t_base):
+def calc_met_equation_cdd(case, t_max, t_min, t_base):
+    """
+    """
+    if case == 1:
+        cdd = 0.5 * (t_max + t_min) - t_base
+    elif case == 2:
+        cdd = 0.5 * (t_max - t_base) - 0.25 * (t_base - t_min)
+    elif case == 3:
+        cdd = 0.25 * (t_max - t_base)
+    else:
+        cdd = 0
+    return cdd
+
+def get_meterological_equation_case_hdd(t_min, t_max, t_base):
     """Get Case number to calculate hdd with Meteorological Office
     equations
     """
@@ -44,6 +82,21 @@ def get_meterological_equation_case(t_min, t_max, t_base):
     elif (t_max > t_base) and ((t_max - t_base) > (t_base - t_min)):
         return 3
     elif t_min >= t_base:
+        return 4
+    else:
+        raise Exception("Error in calculating methorological office equation case")
+
+def get_meterological_equation_case_cdd(t_min, t_max, t_base):
+    """Get Case number to calculate cdd with Meteorological Office
+    equations
+    """
+    if t_max >= t_base:
+        return 1
+    elif (t_max > t_base) and ((t_max - t_base) > (t_base - t_min)):
+        return 2
+    elif (t_min < t_base) and ((t_max - t_base) < (t_base - t_min)):
+        return 3
+    elif t_max <= t_base:
         return 4
     else:
         raise Exception("Error in calculating methorological office equation case")
@@ -87,18 +140,18 @@ def calc_hdd(t_base, temp_yh, nr_day_to_av, crit_temp_min_max):
         hdd_d = np.sum(temp_diff, axis=1)
 
     else:
-        pass
         # Calculate effective temperatures
-        '''t_min_eff = effective_temps_min_max(
-            t_min,
+        t_min_eff = effective_temps_min_max(
+            temp_yh['t_min'],
             nr_day_to_av=nr_day_to_av)
-        
+
         t_max_eff = effective_temps_min_max(
-            t_max,
+            temp_yh['t_max'],
             nr_day_to_av=nr_day_to_av)
 
         # Calculate heating degree days
-        hdd_d = calc_hdd_min_max(t_min_eff, t_max_eff, t_base)'''
+        hdd_d = calc_hdd_min_max(
+            t_min_eff, t_max_eff, t_base)
 
     return hdd_d
 
@@ -204,7 +257,7 @@ def calc_weekend_corr_f(model_yeardays_daytype, wkend_factor):
 
     return cdd_weekend_f
 
-def calc_cdd(t_base_cooling, temp_yh, nr_day_to_av):
+def calc_cdd(t_base_cooling, temp_yh, nr_day_to_av, crit_temp_min_max=False):
     """Calculate cooling degree days
 
     Arguments
@@ -226,16 +279,31 @@ def calc_cdd(t_base_cooling, temp_yh, nr_day_to_av):
     - For more info see Formual 2.1: Degree-days: theory and application
       https://www.designingbuildings.co.uk/wiki/Cooling_degree_days
     """
-    # ---------------------------------------------
-    # Average temperature with previous day(s) information
-    # ---------------------------------------------
-    temp_yh = effective_temps(
-        temp_yh,
-        nr_day_to_av)
+    if not crit_temp_min_max:
+        # ---------------------------------------------
+        # Average temperature with previous day(s) information
+        # ---------------------------------------------
+        temp_yh = effective_temps(
+            temp_yh,
+            nr_day_to_av)
 
-    temp_diff = (temp_yh - t_base_cooling) / 24
-    temp_diff[temp_diff < 0] = 0
-    cdd_d = np.sum(temp_diff, axis=1)
+        temp_diff = (temp_yh - t_base_cooling) / 24
+        temp_diff[temp_diff < 0] = 0
+        cdd_d = np.sum(temp_diff, axis=1)
+
+    else:
+
+        # Calculate effective temperatures
+        t_min_eff = effective_temps_min_max(
+            temp_yh['t_min'],
+            nr_day_to_av=nr_day_to_av)
+
+        t_max_eff = effective_temps_min_max(
+            temp_yh['t_max'],
+            nr_day_to_av=nr_day_to_av)
+
+        # Calculate heating degree days
+        cdd_d = calc_cdd_min_max(t_min_eff, t_max_eff, t_base_cooling)
 
     return cdd_d
 
@@ -283,7 +351,8 @@ def get_cdd_country(
         regions,
         temp_data,
         reg_coord,
-        weather_stations
+        weather_stations,
+        crit_temp_min_max
     ):
     """Calculate total number of cooling degree days in a
     region for the base year
@@ -317,13 +386,19 @@ def get_cdd_country(
         cdd_reg = calc_cdd(
             t_base_cooling,
             temperatures,
-            nr_day_to_av=1)
+            nr_day_to_av=1,
+            crit_temp_min_max=crit_temp_min_max)
 
         cdd_regions[region] = np.sum(cdd_reg)
 
     return cdd_regions
 
-def calc_reg_hdd(temperatures, t_base_heating, model_yeardays, crit_temp_min_max):
+def calc_reg_hdd(
+        temperatures,
+        t_base_heating,
+        model_yeardays,
+        crit_temp_min_max
+    ):
     """Calculate hdd for every day and daily
     yd shape of heating demand
 
@@ -402,7 +477,12 @@ def calc_reg_cdd(
       the base temperature of the current year.
     """
     if not crit_temp_min_max:
-        cdd_d = calc_cdd(t_base_cooling, temperatures, nr_day_to_av=1)
+        cdd_d = calc_cdd(
+            t_base_cooling,
+            temperatures,
+            nr_day_to_av=1,
+            crit_temp_min_max=crit_temp_min_max)
+
         shape_cdd_d = load_profile.abs_to_rel(cdd_d)
 
         # Select only modelled yeardays
@@ -415,9 +495,12 @@ def calc_reg_cdd(
                 (len(model_yeardays)),
                 1 / len(model_yeardays))
     else:
+        cdd_d = calc_cdd(
+            t_base_cooling,
+            temperatures,
+            nr_day_to_av=1,
+            crit_temp_min_max=crit_temp_min_max)
 
-        #TODO <<<<<<<<<<<<<<<<<<<IMPROVE
-        cdd_d = calc_cdd(t_base_cooling, temperatures, nr_day_to_av=1)
         shape_cdd_d = load_profile.abs_to_rel(cdd_d)
 
         # Select only modelled yeardays
@@ -429,6 +512,5 @@ def calc_reg_cdd(
             shape_cdd_d_selection = np.full(
                 (len(model_yeardays)),
                 1 / len(model_yeardays))
-        #TODO <<<<<<<<<<<<<<<<<<<IMPROVE
 
     return cdd_d_selection, shape_cdd_d_selection

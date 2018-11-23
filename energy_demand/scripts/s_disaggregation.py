@@ -337,7 +337,8 @@ def ss_disaggregate(
         regions=regions,
         temp_data=temp_data,
         reg_coord=reg_coord,
-        weather_stations=weather_stations)
+        weather_stations=weather_stations,
+        crit_temp_min_max=crit_temp_min_max)
 
     # ---------------------------------------------
     # Get all regions with floor area data

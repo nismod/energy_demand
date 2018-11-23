@@ -883,13 +883,13 @@ def aggregate_results_constrained(
     aggr_results : dict
         Contains all aggregated results
     """
-    logging.info("START unconstrained: {} constrained: {}".format(
+    '''logging.info("START unconstrained: {} constrained: {}".format(
         np.sum(aggr_results['ed_submodel_enduse_fueltype_regs_yh']),
         np.sum(sum(aggr_results['results_constrained'].values()))))
     print("--------")
     print(lookup_enduses)
     print("----asdf----")
-    print(assumptions.lookup_sector_enduses)
+    print(assumptions.lookup_sector_enduses)'''
     aggr_results['ed_submodel_enduse_fueltype_regs_yh'] = aggr_complete_result(
         aggr_results['ed_submodel_enduse_fueltype_regs_yh'],
         lookup_enduses,

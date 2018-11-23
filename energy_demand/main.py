@@ -310,7 +310,7 @@ if __name__ == "__main__":
         data['local_paths'],
         sim_yrs=sim_yrs,
         weather_yrs_scenario=[base_yr, weather_yr_scenario],
-        crit_temp_min_max=False, #config['CRITERIA']['crit_temp_min_max'],
+        crit_temp_min_max=config['CRITERIA']['crit_temp_min_max'],
         save_fig=path_new_scenario)
 
 

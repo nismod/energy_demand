@@ -2,7 +2,6 @@
 """
 import os
 import csv
-import collections
 from collections import defaultdict
 import logging
 import numpy as np
@@ -163,8 +162,14 @@ def run(
                         if crit_min_max:
                             temp_stations_min_max[station_id]['t_min'] = np.zeros((365), dtype="float")
                             temp_stations_min_max[station_id]['t_max'] = np.zeros((365), dtype="float")
-                            temp_stations_min_max[station_id]['t_min'][yearday] = air_temp
-                            temp_stations_min_max[station_id]['t_max'][yearday] = air_temp
+                            temp_stations[station_id] = []
+                    else:
+                        pass
+
+                    if yearday not in temp_stations[station_id]:
+                        temp_stations_min_max[station_id]['t_min'][yearday] = air_temp
+                        temp_stations_min_max[station_id]['t_max'][yearday] = air_temp
+                        temp_stations[station_id].append(yearday)
 
                     if crit_min_max:
                         # Update min and max daily temperature
@@ -199,11 +204,10 @@ def run(
         for station_name in stations:
             out_list.append([station_name, weather_stations[station_name]['latitude'], weather_stations[station_name]['longitude']])
 
+        # Write
         df = pd.DataFrame(np.array(out_list), columns=['station_id', 'latitude', 'longitude'])
         df.to_csv(path_out_stations, index=False)
 
-        # Write to numpy
-        print(temp_stations_min_max.values())
         stations_t_min = list(i['t_min'] for i in temp_stations_min_max.values())
         stations_t_max = list(i['t_max'] for i in temp_stations_min_max.values())
         stations_t_min = np.array(stations_t_min)

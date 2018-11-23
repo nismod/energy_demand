@@ -949,20 +949,21 @@ def load_temp_data(
             #path_weather_data = "X:/nismod/data/energy_demand/J-MARIUS_data/_weather_data_cleaned"
             path_weather_data = "X:/nismod/data/energy_demand/H-Met_office_weather_data/_complete_meteo_data_all_yrs_cleaned_min_max"
             # NEW TEMP DATA
+
             #path_2015_weather_data =  "C:/Users/cenv0553/ED/data/_raw_data/A-temperature_data/t_min_t_max/weather_temps_2015.csv"
             #t_min_max = pd.read_csv(path_2015_weather_data)
     
             #path_t_min = os.path.join(path_weather_data, str(dummy_year), abbrev_real, "t_min.npy")
             #path_t_max = os.path.join(path_weather_data, str(dummy_year), abbrev_real, "t_max.npy")
-            path_t_min = os.path.join(path_weather_data, "2015_t_min.npy")
-            path_t_max = os.path.join(path_weather_data, "2015_t_max.npy")
-            stations_t_min = np.load(path_t_min)
-            stations_t_max = np.load(path_t_max)
+            stations_t_min = np.load(os.path.join(path_weather_data, "2015_t_min.npy")) #MAKE CSV AND THEN DF LOAD
+            stations_t_max = np.load(os.path.join(path_weather_data, "2015_t_max.npy"))
 
             #path_stations = os.path.join(path_weather_data, str(dummy_year), abbrev_real, "stations.yml")
             path_stations = os.path.join(path_weather_data, "2015_stations.csv")
-            #stations = read_data.read_yaml(path_stations)
+
             stations = pd.read_csv(path_stations)
+            stations = stations.set_index(('station_id'))
+            stations = stations.to_dict('index')
 
             weather_stations_with_data[sim_yr] = stations
 
@@ -972,6 +973,8 @@ def load_temp_data(
                 temp_data_short[sim_yr][station_id] = {
                     't_min': stations_t_min[station_nr],
                     't_max': stations_t_max[station_nr]}
+            
+            #print("STATIOS " + str(stations.keys()))
 
         return dict(weather_stations_with_data), dict(temp_data_short)
 
