@@ -906,8 +906,7 @@ def load_temp_data(
         local_paths,
         sim_yrs,
         weather_yrs_scenario,
-        crit_temp_min_max=False,
-        save_fig=False
+        crit_temp_min_max=False
     ):
     """Read in cleaned temperature and weather station data
 

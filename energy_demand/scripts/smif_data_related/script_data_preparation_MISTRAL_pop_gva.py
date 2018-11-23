@@ -11,7 +11,8 @@ from energy_demand.basic import basic_functions
 def run(
         path_to_folder,
         path_MSOA_baseline,
-        MSOA_calculations=False
+        MSOA_calculations=False,
+        geography_name='region'
     ):
     """
     path_to_folder : str
@@ -20,7 +21,6 @@ def run(
         Path to MSOA file with correct geography in csv
     """
     sectors_to_generate = [2, 3, 4, 5, 6, 8, 9, 29, 11, 12, 10, 15, 14, 19, 17, 40, 41, 28, 35, 23, 27]
-    geography_name = "lad_uk_2016"
 
     # Get all folders with scenario run results
     all_csv_folders = basic_functions.get_all_folders_files(path_to_folder)
@@ -233,7 +233,7 @@ def run(
 
                 # Rename columns
                 gp_file = gp_file.rename(index=str, columns={"year": "timestep"})
-                gp_file = gp_file.rename(index=str, columns={"region": geography_name})
+                ##gp_file = gp_file.rename(index=str, columns={"region": geography_name})
 
                 gp_file.to_csv(file_path, index=False)
     
@@ -281,8 +281,8 @@ def run(
                                 new_row = {
                                     'region': msoa_name,
                                     "timestep": row_lad['year'],
-                                    "value": pop_MSOA_ONS_scaled}#,
-                                    #"interval": row_lad['interval']}
+                                    "value": pop_MSOA_ONS_scaled}
+
                                 list_with_all_vals.append(new_row)
 
                         msoaDF = pd.DataFrame(list_with_all_vals, columns=gp_file.columns)

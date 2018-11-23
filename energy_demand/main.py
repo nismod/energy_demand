@@ -10,6 +10,7 @@
 #TODO LOCAL NARRATIVES FOLDER LOADING
 TODO REMOVE test_if_minus_value_in_array
 #TODO REMOVE weather_yr_scenario
+TODO: CHANGE 'latitude' : float(row['Latitude']),
 
 # TEST NON CONSTRAINED MODE
 # Pre initialisation
@@ -297,15 +298,13 @@ if __name__ == "__main__":
 
     # ---------------------------------------------
     # Make selection of weather stations and data
-    # ---------------------------------------------
     # Load all temperature and weather station data
-    print("A crit_temp_min_max" + str(config['CRITERIA']['crit_temp_min_max']))
+    # ---------------------------------------------
     data['weather_stations'], data['temp_data'] = data_loader.load_temp_data(
         data['local_paths'],
         sim_yrs=sim_yrs,
         weather_yrs_scenario=[base_yr, weather_yr_scenario],
-        crit_temp_min_max=config['CRITERIA']['crit_temp_min_max'],
-        save_fig=path_new_scenario)
+        crit_temp_min_max=config['CRITERIA']['crit_temp_min_max'])
 
     # Get only selection
     weather_stations_selection = {}

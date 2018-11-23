@@ -44,8 +44,6 @@ def load_data_before_simulation(
     data['local_paths'] = data_loader.get_local_paths(
         data['data_path'])
 
-
-
     # ------------------------------------------------
     # Load Inputs
     # ------------------------------------------------
