@@ -281,13 +281,13 @@ def aggregate_across_all_regs(
         reg_nrs)
 
     # TESGIN TODO
-    logging.info("____________zulu__________________")
+    '''logging.info("____________zulu__________________")
     logging.info(aggr_results['results_unconstrained'].shape)
     logging.info(sum(aggr_results['results_constrained'].values()).shape)
     from energy_demand.basic import testing_functions
     _ = aggr_results['results_unconstrained'] - sum(aggr_results['results_constrained'].values())
     logging.info(_[_ < 0])
-    assert not testing_functions.test_if_minus_value_in_array(_)
+    assert not testing_functions.test_if_minus_value_in_array(_)'''
 
 
     # ----------------------------------------------------
@@ -897,10 +897,10 @@ def aggregate_results_constrained(
         all_submodels,
         technologies)
 
-    _only_heating_full = aggr_results['ed_submodel_enduse_fueltype_regs_yh'][17][0] + aggr_results['ed_submodel_enduse_fueltype_regs_yh'][5][0]  + aggr_results['ed_submodel_enduse_fueltype_regs_yh'][22][0] 
-    print("only space heating full " + str(np.sum(_only_heating_full))[reg_array_nr])
+    '''_only_heating_full = aggr_results['ed_submodel_enduse_fueltype_regs_yh'][17][0] + aggr_results['ed_submodel_enduse_fueltype_regs_yh'][5][0]  + aggr_results['ed_submodel_enduse_fueltype_regs_yh'][22][0] 
+    print("only space heating full " + str(np.sum(_only_heating_full.shape)))
     print(_only_heating_full.shape)
-    print(_only_heating_full[reg_array_nr][:10])
+    print(_only_heating_full[reg_array_nr][:10])'''
     
     if mode_constrained:
 
@@ -914,8 +914,7 @@ def aggregate_results_constrained(
                 if enduse_object.enduse in enduse_space_heating:
 
                     submodel_techs_fueltypes_yh = get_fuels_yh(
-                        enduse_object,
-                        'techs_fuel_yh')
+                        enduse_object, 'techs_fuel_yh')
 
                     # All used heating technologies
                     heating_techs = enduse_object.enduse_techs
@@ -934,36 +933,40 @@ def aggregate_results_constrained(
                             aggr_results['results_constrained'][heating_tech][submodel_nr][reg_array_nr][fueltype_tech_int] += tech_fuel.reshape(8760)
     
     # Only space heating submodel region
-    only_space_heating_full = sum(aggr_results['results_constrained'].values())
-    print("only space heating" + str(only_space_heating_full.shape))
-    all_submodel_fuels = only_space_heating_full[0][reg_array_nr][0] + only_space_heating_full[1][reg_array_nr][0] + only_space_heating_full[2][reg_array_nr][0]
-    print(all_submodel_fuels[:10])
+    #only_space_heating_full = sum(aggr_results['results_constrained'].values())
+    #print("only space heating" + str(only_space_heating_full.shape))
+    #all_submodel_fuels = only_space_heating_full[0][reg_array_nr][0] + only_space_heating_full[1][reg_array_nr][0] + only_space_heating_full[2][reg_array_nr][0]
+    #print(all_submodel_fuels[:10])
 
     #TODO TESTING--------
-    __results_unconstrained = aggregate_result_unconstrained(
+    '''__results_unconstrained = aggregate_result_unconstrained(
         assumptions.nr_of_submodels,
         assumptions.lookup_sector_enduses,
         aggr_results['ed_submodel_enduse_fueltype_regs_yh'],
         fueltypes_nr,
-        reg_nrs)
-    logging.info("=========================== REGIONAL MINUS SUBSTRACTION")
-    logging.info(mode_constrained)
-    logging.info(aggr_results['ed_submodel_enduse_fueltype_regs_yh'].shape)
-    logging.info(__results_unconstrained.shape)
-    logging.info(sum(aggr_results['results_constrained'].values()).shape)
-    logging.info("..")
-    logging.info(np.sum(aggr_results['ed_submodel_enduse_fueltype_regs_yh']))
-    logging.info(np.sum(__results_unconstrained))
-    logging.info(np.sum(sum(aggr_results['results_constrained'].values())))
-    logging.info("_____________________")
-    #import pprint
+        reg_nrs)'''
+    
+    '''print("=========================== REGIONAL MINUS SUBSTRACTION")
+    print(mode_constrained)
+    print(aggr_results['ed_submodel_enduse_fueltype_regs_yh'].shape)
+    print(__results_unconstrained.shape)
+    print(sum(aggr_results['results_constrained'].values()).shape)
+    print("..")
+    print(np.sum(aggr_results['ed_submodel_enduse_fueltype_regs_yh']))
+    print(np.sum(__results_unconstrained))
+    print(np.sum(sum(aggr_results['results_constrained'].values())))
+    print("_____________________")'''
+
+
+    '''#import pprint
     for submodel_nr, submodel_data in enumerate(__results_unconstrained):
         for fueltype_nr, fueltype_data in enumerate(submodel_data[reg_array_nr]):
+            print("....." + str(fueltype_data.shape))
+            #print(sum(aggr_results['results_constrained'].values()))
             _ssum = fueltype_data - sum(aggr_results['results_constrained'].values())[submodel_nr][reg_array_nr][fueltype_nr]
-            logging.info(".....")
 
-            #logging.info(pprint.pprint(_))
-            logging.info("egg {} {}".format(
+            #print(pprint.pprint(_))
+            print("egg {} {}".format(
                 np.sum(__results_unconstrained[0][reg_array_nr][0]), np.sum(sum(aggr_results['results_constrained'].values())[0][reg_array_nr][0])))
             
             logging.info(
@@ -977,12 +980,11 @@ def aggregate_results_constrained(
                     np.sum(sum(aggr_results['results_constrained'].values())[submodel_nr][reg_array_nr][fueltype_nr])))
             
             assert not testing_functions.test_if_minus_value_in_array(_ssum)
-
-
-    diff_ = __results_unconstrained - sum(aggr_results['results_constrained'].values())
+    '''
+    '''diff_ = __results_unconstrained - sum(aggr_results['results_constrained'].values())
     logging.info(diff_[diff_ < 0])
     logging.info("TOTAL SUM " + str(np.sum(diff_[diff_ < 0])))
-    assert not testing_functions.test_if_minus_value_in_array(diff_)
+    assert not testing_functions.test_if_minus_value_in_array(diff_)'''
 
     return aggr_results
 
@@ -1015,10 +1017,7 @@ def initialise_result_container(
     container['results_constrained'] = {}
 
     container['ed_submodel_enduse_fueltype_regs_yh'] = np.zeros((
-        len(lookup_enduses),
-        fueltypes_nr,
-        reg_nrs,
-        8760), dtype="float")
+        len(lookup_enduses), fueltypes_nr, reg_nrs, 8760), dtype="float")
 
     return container
 
@@ -1037,8 +1036,6 @@ def get_enduse_from_array_nr(enduse_array_yr_to_get, lookup_enduse):
     enduse_str_to_get : str
         Enduse string name
     """
-    # Get enduse str
-
     for enduse_str, enduse_arry_nr in lookup_enduse.items():
         if enduse_arry_nr == enduse_array_yr_to_get:
             enduse_str_to_get = enduse_str
@@ -1067,9 +1064,6 @@ def aggregate_from_full_results(
         Either 'annual', 'hourly', '360_24_h', '8760_h'
     """
     for enduse_array_yr, reg_fueltype_8760h in enumerate(full_sim_data):
-
-            # Get full data
-            #reg_fueltype_8760h = np.copy(full_sim_data[submodel_nr][enduse])
 
             # Test if reshaping and annual or hourly
             if time_resolution == 'annual':
@@ -1113,53 +1107,5 @@ def aggregate_from_full_results(
                         aggregated_container[enduse_str] += demand
                     else:
                         aggregated_container += demand
-    '''
-    for submodel_nr in full_sim_data:
-        for enduse in full_sim_data[submodel_nr]:
-            
-            #enduse_array_nr = enduse_lookup[enduse]
-            # Get full data
-            reg_fueltype_8760h = np.copy(full_sim_data[submodel_nr][enduse])
-
-            # Test if reshaping and annual or hourly
-            if time_resolution == 'annual':
-                demand = np.sum(reg_fueltype_8760h, axis=2) # Sum all hours
-            elif time_resolution == '8760_h':
-                demand = reg_fueltype_8760h
-            elif time_resolution == '365_24':
-                demand = reg_fueltype_8760h.reshape(
-                    reg_fueltype_8760h.shape[0],
-                    reg_fueltype_8760h.shape[1],
-                    365, 24)
-            else:
-                raise Exception("Provide either 'annual' or 'hourly' or '365_24'")
-
-            # Aggregate according to criteria
-            if per_sector:
-                if per_region:
-                    if per_enduse:
-                        pass
-                    else:
-                        pass
-                else:
-                    if per_enduse:
-                        pass
-                    else:
-                        pass
-            else:
-                if per_region:
-                    if per_enduse:
-                        aggregated_container[enduse] += demand
-                    else:
-                        aggregated_container += demand
-                else:
-                    # Sum across all regions
-                    demand = np.sum(demand, axis=1)
-
-                    if per_enduse:
-                        aggregated_container[enduse] += demand
-                    else:
-                        aggregated_container += demand
-    '''
 
     return aggregated_container

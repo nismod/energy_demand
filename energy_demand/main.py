@@ -3,9 +3,14 @@
 #   make that automatically the parameters can be generated to be copied into smif format
 #TODO Test if technology type can be left empty in technology spreadsheet, Try to remove tech_type
 #TODO ADD HEAT SOLD
+#TODO BASE YEAR IN PARAMETERS??
+#TODO GENERATE WEATHER VARIABLES
+#TODO SETUP RENEWAL
+#TODO NON HEATING
+#TODO LOCAL NARRATIVES FOLDER LOADING
+TODO REMOVE test_if_minus_value_in_array
+
 # TEST NON CONSTRAINED MODE
-#with open ("C:/Users/cenv0553/ed/dump_WILL.yaml", "w") as file:
-#    yaml.dump(strategy_vars, file) 
 # Pre initialisation
 #   Note
     ----
@@ -101,7 +106,8 @@ if __name__ == "__main__":
             os.path.dirname(__file__), '..', "energy_demand/config_data"))
     path_config = os.path.abspath(os.path.join(
             os.path.dirname(__file__), '..', 'local_run_config_file.ini'))
-    print("A " + str(path_config))
+    print("Configuration path: " + str(path_config))
+
     # Get configuration
     config = configparser.ConfigParser()
     config.read(path_config)
@@ -237,7 +243,7 @@ if __name__ == "__main__":
     # Load standard smif parameters and generate standard single timestep narrative for year 2050
     # -----------------------------------------------------------------------------
     strategy_vars = strategy_vars_def.load_smif_parameters(
-        scenario_values={},
+        narrative_values={},
         default_streategy_vars=default_streategy_vars,
         end_yr=2050,
         base_yr=base_yr,
@@ -304,8 +310,9 @@ if __name__ == "__main__":
         data['local_paths'],
         sim_yrs=sim_yrs,
         weather_yrs_scenario=[base_yr, weather_yr_scenario],
-        crit_temp_min_max=config['CRITERIA']['crit_temp_min_max'],
+        crit_temp_min_max=False, #config['CRITERIA']['crit_temp_min_max'],
         save_fig=path_new_scenario)
+
 
     # Get only selection
     weather_stations_selection = {}
@@ -332,11 +339,11 @@ if __name__ == "__main__":
     data['temp_data'] = dict(temp_data_selection)
 
     # Plot map with weather station
-    if config['CRITERIA']['cluster_calc'] != True:
+    '''if config['CRITERIA']['cluster_calc'] != True:
         data_loader.create_weather_station_map(
             data['weather_stations'][weather_yr_scenario],
             os.path.join(data['path_new_scenario'], 'weatherst_distr_weathyr_{}.pdf'.format(weather_yr_scenario)),
-            path_shapefile=data['local_paths']['lad_shapefile'])
+            path_shapefile=data['local_paths']['lad_shapefile'])'''
 
     # ------------------------------------------------------------
     # Disaggregate national energy demand to regional demands
@@ -385,6 +392,16 @@ if __name__ == "__main__":
     # ------------------------------------------------
     # Calculate switches
     # ------------------------------------------------
+    service_switches = read_data.service_switch(data['local_paths']['path_service_switch'], data['assumptions'].technologies)
+    fuel_switches = read_data.read_fuel_switches(data['local_paths']['path_fuel_switches'], data['enduses'], data['assumptions'].fueltypes, data['assumptions'].technologies)
+    capacity_switches = read_data.read_capacity_switch(data['local_paths']['path_capacity_installation'])
+
+    crit_switch_happening = testing_functions.switch_testing(
+        fuel_switches=fuel_switches,
+        service_switches=service_switches,
+        capacity_switches=capacity_switches)
+    data['assumptions'].update('crit_switch_happening', crit_switch_happening)
+
     print("... starting calculating switches")
     annual_tech_diff_params = init_scripts.switch_calculations(
         sim_yrs,
@@ -393,14 +410,15 @@ if __name__ == "__main__":
         f_reg_norm,
         f_reg_norm_abs,
         crit_all_the_same,
-        data['assumptions'].service_switches,
-        data['assumptions'].fuel_switches,
-        data['assumptions'].capacity_switches)
+        service_switches,
+        fuel_switches,
+        capacity_switches)
     for region in data['regions']:
         regional_vars[region]['annual_tech_diff_params'] = annual_tech_diff_params[region]
 
     data['assumptions'].update('regional_vars', regional_vars)
     data['assumptions'].update('non_regional_vars', non_regional_vars)
+
     # ------------------------------------------------
     # Spatial Validation
     # ------------------------------------------------
@@ -504,24 +522,24 @@ if __name__ == "__main__":
         # -------------------------------------
         # # Generate YAML file with keynames for `sector_model`
         # -------------------------------------
-        if config['CRITERIA']['writeYAML_keynames']:
-            if config['CRITERIA']['mode_constrained']:
+        #if config['CRITERIA']['writeYAML_keynames']:
+        if config['CRITERIA']['mode_constrained']:
 
-                supply_results = demand_supply_interaction.constrained_results(
-                    sim_obj.results_constrained,
-                    sim_obj.results_unconstrained,
-                    data['assumptions'].submodels_names,
-                    data['assumptions'].technologies)
+            supply_results = demand_supply_interaction.constrained_results(
+                sim_obj.results_constrained,
+                sim_obj.results_unconstrained,
+                data['assumptions'].submodels_names,
+                data['assumptions'].technologies)
 
-                write_data.write_yaml_output_keynames(
-                    data['local_paths']['yaml_parameters_keynames_constrained'], supply_results.keys())
-            else:
-                supply_results = demand_supply_interaction.unconstrained_results(
-                    sim_obj.results_unconstrained,
-                    data['assumptions'].submodels_names)
+            #write_data.write_yaml_output_keynames(
+            #    data['local_paths']['yaml_parameters_keynames_constrained'], supply_results.keys())
+        else:
+            supply_results = demand_supply_interaction.unconstrained_results(
+                sim_obj.results_unconstrained,
+                data['assumptions'].submodels_names)
 
-                write_data.write_yaml_output_keynames(
-                    data['local_paths']['yaml_parameters_keynames_unconstrained'], supply_results.keys())
+            #write_data.write_yaml_output_keynames(
+            #    data['local_paths']['yaml_parameters_keynames_unconstrained'], supply_results.keys())
 
         # --------------------------
         # Write out all calculations

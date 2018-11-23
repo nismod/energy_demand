@@ -128,33 +128,8 @@ def write_wether_data(data_list):
 
     return station_coordinates, stations_data
 
-def get_meterological_equation_case(t_min, t_max, t_base):
-    """Get Case number to calculate hdd with Meteorological Office
-    equations
-    """
-    if t_max <= t_base:
-        return 1
-    elif (t_min < t_base) and ((t_max - t_base) < (t_base - t_min)):
-        return 2
-    elif (t_max > t_base) and ((t_max - t_base) > (t_base - t_min)):
-        return 3
-    elif t_min >= t_base:
-        return 4
-    else:
-        raise Exception("Error in calculating methorological office equation case")
 
-def calc_met_equation_hdd(case, t_max, t_min, t_base):
-    """
-    """
-    if case == 1:
-        hdd = t_base - 0.5 * (t_max + t_min)
-    elif case == 2:
-        hdd = 0.5 * (t_base - t_min) - 0.25 * (t_max - t_base)
-    elif case == 3:
-        hdd = 0,25 * (t_base - t_min)
-    else:
-        hdd = 0
-    return hdd
+
 
 def calc_HDD_from_min_max(t_min, t_max, base_temp):
     """Calculate hdd for every day and weather station
@@ -171,20 +146,7 @@ def calc_HDD_from_min_max(t_min, t_max, base_temp):
 
     return hdd_array
 
-def calc_hdd_min_max(t_min, t_max):
-    """Calculate daily hdd
-    """
-    case_nr = get_meterological_equation_case(
-        t_min,
-        t_max,
-        t_base)
 
-    hdd = calc_met_equation_hdd(
-        case_nr,
-        t_min,
-        t_max)
-    
-    return hdd
 
 
 # Load stiching table to create weather scenario

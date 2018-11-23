@@ -5,6 +5,49 @@ from energy_demand.geography import weather_station_location as weather_station
 from energy_demand.technologies import diffusion_technologies
 from energy_demand.profiles import load_profile
 
+def calc_hdd_min_max(t_min, t_max):
+    """Calculate daily hdd
+    """
+    case_nr = get_meterological_equation_case(
+        t_min,
+        t_max,
+        t_base)
+
+    hdd = calc_met_equation_hdd(
+        case_nr,
+        t_min,
+        t_max)
+    
+    return hdd
+
+def calc_met_equation_hdd(case, t_max, t_min, t_base):
+    """
+    """
+    if case == 1:
+        hdd = t_base - 0.5 * (t_max + t_min)
+    elif case == 2:
+        hdd = 0.5 * (t_base - t_min) - 0.25 * (t_max - t_base)
+    elif case == 3:
+        hdd = 0,25 * (t_base - t_min)
+    else:
+        hdd = 0
+    return hdd
+
+def get_meterological_equation_case(t_min, t_max, t_base):
+    """Get Case number to calculate hdd with Meteorological Office
+    equations
+    """
+    if t_max <= t_base:
+        return 1
+    elif (t_min < t_base) and ((t_max - t_base) < (t_base - t_min)):
+        return 2
+    elif (t_max > t_base) and ((t_max - t_base) > (t_base - t_min)):
+        return 3
+    elif t_min >= t_base:
+        return 4
+    else:
+        raise Exception("Error in calculating methorological office equation case")
+
 def calc_hdd(t_base, temp_yh, nr_day_to_av, crit_temp_min_max):
     """Calculate effective temperatures and
     heating Degree Days for every day in a year
@@ -44,21 +87,7 @@ def calc_hdd(t_base, temp_yh, nr_day_to_av, crit_temp_min_max):
         hdd_d = np.sum(temp_diff, axis=1)
 
     else:
-        #pass
-        # <<<<<< REMOVE
-        
-        # Calculate effective temperatures
-        temp_yh = effective_temps(
-            temp_yh,
-            nr_day_to_av=nr_day_to_av)
-
-        # Calculate heating degree days
-        temp_diff = (t_base - temp_yh) / 24
-        temp_diff[temp_diff < 0] = 0
-        hdd_d = np.sum(temp_diff, axis=1)
-
-         # <<<<<< REMOVE
-
+        pass
         # Calculate effective temperatures
         '''t_min_eff = effective_temps_min_max(
             t_min,

@@ -44,12 +44,7 @@ def load_data_before_simulation(
     data['local_paths'] = data_loader.get_local_paths(
         data['data_path'])
 
-    # TODO REMOVE
-    user_defined_config_path = os.path.join(
-        config['PATHS']['path_local_data'],
-        '00_user_defined_variables_SCENARIO',
-        '03_paperI_scenarios',
-        name_scenario)
+
 
     # ------------------------------------------------
     # Load Inputs
@@ -212,6 +207,13 @@ def load_data_before_simulation(
     # TODO with smif update: Needs to be read in by SMIF and passed on directly to here
     #TODO TODO TODO TODO TODO
     # -----------------------------------------
+    # TODO REMOVE
+    user_defined_config_path = os.path.join(
+        config['PATHS']['path_local_data'],
+        '00_user_defined_variables_SCENARIO',
+        '03_paperI_scenarios',
+        name_scenario)
+
     _user_defined_vars = data_loader.load_user_defined_vars(
         default_strategy_var=default_streategy_vars,
         path_csv=user_defined_config_path,

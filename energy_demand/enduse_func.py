@@ -207,7 +207,7 @@ class Enduse(object):
             self.fuel_y = _fuel_new_y
 
             # TODO TEST IF MINUS FALUE
-            assert not testing_functions.test_if_minus_value_in_array(self.fuel_y)
+            #assert not testing_functions.test_if_minus_value_in_array(self.fuel_y)
     
             # ----------------------------------
             # Hourly Disaggregation
@@ -238,7 +238,7 @@ class Enduse(object):
                     #print("FUEL TRAIN Y" + str(np.sum(fuel_yh)))
                 
                     # TODO TEST IF MINUS FALUE
-                    assert not testing_functions.test_if_minus_value_in_array(self.fuel_yh)
+                    #assert not testing_functions.test_if_minus_value_in_array(self.fuel_yh)
 
             else:
                 #If technologies are defined for an enduse
@@ -345,9 +345,9 @@ class Enduse(object):
                         self.fuel_yh = None
                         
                         # TODO TEST IF MINUS FALUE
-                        for i in self.techs_fuel_yh:
+                        #for i in self.techs_fuel_yh:
                             ###print("=== df === {}  {}".format(i, testing_functions.test_if_minus_value_in_array(self.techs_fuel_yh[i])))
-                            assert not testing_functions.test_if_minus_value_in_array(self.techs_fuel_yh[i])
+                        #    assert not testing_functions.test_if_minus_value_in_array(self.techs_fuel_yh[i])
 
                     else:
                         self.fuel_yh = demand_management(
@@ -359,9 +359,7 @@ class Enduse(object):
                             make_all_flat=make_all_flat)
 
                         # TODO TEST IF MINUS FALUE
-                        for i in self.fuel_yh:
-                            print("-- {}  {}".format(i, testing_functions.test_if_minus_value_in_array(self.fuel_yh[i])))
-                            assert not testing_functions.test_if_minus_value_in_array(self.fuel_yh[i])
+                        #assert not testing_functions.test_if_minus_value_in_array(self.fuel_yh)
 
 def demand_management(
         enduse,
@@ -769,10 +767,10 @@ def calc_fuel_tech_yh(
                 enduse, sector, tech, 'shape_yh')
             
             ####print("=s============ {} {}".format(tech, fuel_tech_y[tech]))
-            assert np.sum(fuel_tech_y[tech]) >= 0
-            assert not testing_functions.test_if_minus_value_in_array(load_profile)
+            #assert np.sum(fuel_tech_y[tech]) >= 0
+            #assert not testing_functions.test_if_minus_value_in_array(load_profile)
             fuels_yh[tech] = fuel_tech_y[tech] * load_profile
-            assert not testing_functions.test_if_minus_value_in_array(fuels_yh[tech])
+            #assert not testing_functions.test_if_minus_value_in_array(fuels_yh[tech])
 
             # ----------
             # Testing if negative value
@@ -792,10 +790,9 @@ def calc_fuel_tech_yh(
             load_profile = load_profiles.get_lp(
                 enduse, sector, tech, 'shape_yh')
 
-            print("==========d=== {} {}".format(tech, fuel_tech_y[tech]))
-            print("f " + str(load_profile[load_profile < 0]))
-            assert np.sum(fuel_tech_y[tech]) > 0
-            assert not testing_functions.test_if_minus_value_in_array(load_profile)
+            #print("==========d=== {} {}".format(tech, fuel_tech_y[tech]))
+            #assert np.sum(fuel_tech_y[tech]) > 0
+            #assert not testing_functions.test_if_minus_value_in_array(load_profile)
 
             # If no fuel for this tech and not defined in enduse
             fuel_tech_yh = fuel_tech_y[tech] * load_profile
@@ -805,8 +802,8 @@ def calc_fuel_tech_yh(
         # ----------
         # Testing if negative value
         # ----------
-        if testing_functions.test_if_minus_value_in_array(fuels_yh):
-            raise Exception("Error: Negative entry")
+        #if testing_functions.test_if_minus_value_in_array(fuels_yh):
+        #    raise Exception("Error: Negative entry")
 
     return fuels_yh
 
@@ -1508,17 +1505,14 @@ def apply_service_switch(
     # ----------------------------------------
     if crit_switch_service:
         switched_s_tech_y_cy = {}
-    
+
         # Service of all technologies
         service_all_techs = sum(s_tech_y_cy.values())
 
         for tech in all_technologies:
-
             # Get service share per tech of cy of sigmoid parameter calculations
             p_s_tech_cy = annual_tech_diff_params[enduse][sector][tech][curr_yr]
-            ##print("----------------FFF  {}  {}  {}".format(p_s_tech_cy, tech, enduse))
             switched_s_tech_y_cy[tech] = service_all_techs * p_s_tech_cy
-            #assert switched_s_tech_y_cy[tech] >= 0
         return switched_s_tech_y_cy
     else:
         return s_tech_y_cy

@@ -313,8 +313,7 @@ def run(
 
                 # Select all entries with matching sectors
                 df = df.loc[df['sector'].isin(sectors_to_generate)]
-                print("fff")
-                print(df.columns)
+
                 # Select all entries with matching years
                 df = df.loc[df['timestep'].isin(range(base_yr, end_yr + 1))]
 
@@ -350,8 +349,7 @@ def run(
                                 new_row = {
                                     "region": msoa_name,
                                     "timestep": row_msoa['year'],
-                                    "value": row_msoa['value']}#,
-                                    #"interval": row_msoa['interval']}
+                                    "value": row_msoa['value']}
                                 list_with_all_vals.append(new_row)
 
                     # Convert list to dataframe
