@@ -6,23 +6,28 @@ from energy_demand.technologies import diffusion_technologies
 from energy_demand.profiles import load_profile
 
 def calc_cdd_min_max(t_min, t_max, t_base):
-
+    """
+    """
     cdd_365 = np.zeros((365))
     for day in range(365):
+
+        t_min_day = t_min[day]
+        t_max_day = t_max[day]
+
         case_nr = get_meterological_equation_case_cdd(
-            t_min[day],
-            t_max[day],
+            t_min_day,
+            t_max_day,
             t_base)
 
         cdd = calc_met_equation_cdd(
             case_nr,
-            t_min[day],
-            t_max[day],
+            t_min_day,
+            t_max_day,
             t_base)
 
         cdd_365[day] = cdd
 
-    return cdd
+    return cdd_365
 
 def calc_hdd_min_max(t_min, t_max, t_base):
     """Calculate daily hdd
@@ -30,20 +35,23 @@ def calc_hdd_min_max(t_min, t_max, t_base):
     hdd_365 = np.zeros((365))
     for day in range(365):
 
+        t_min_day = t_min[day]
+        t_max_day = t_max[day]
+
         case_nr = get_meterological_equation_case_hdd(
-            t_min[day],
-            t_max[day],
+            t_min_day,
+            t_max_day,
             t_base)
 
         hdd = calc_met_equation_hdd(
             case_nr,
-            t_min[day],
-            t_max[day],
+            t_min_day,
+            t_max_day,
             t_base)
-        
+
         hdd_365[day] = hdd
 
-    return hdd
+    return hdd_365
 
 def calc_met_equation_hdd(case, t_max, t_min, t_base):
     """
@@ -84,7 +92,8 @@ def get_meterological_equation_case_hdd(t_min, t_max, t_base):
     elif t_min >= t_base:
         return 4
     else:
-        raise Exception("Error in calculating methorological office equation case")
+        raise Exception(
+            "Error in calculating methorological office equation case {}  {} {} ".format(t_max, t_min, t_base))
 
 def get_meterological_equation_case_cdd(t_min, t_max, t_base):
     """Get Case number to calculate cdd with Meteorological Office
@@ -101,7 +110,12 @@ def get_meterological_equation_case_cdd(t_min, t_max, t_base):
     else:
         raise Exception("Error in calculating methorological office equation case")
 
-def calc_hdd(t_base, temp_yh, nr_day_to_av, crit_temp_min_max):
+def calc_hdd(
+        t_base,
+        temp_yh,
+        nr_day_to_av,
+        crit_temp_min_max
+    ):
     """Calculate effective temperatures and
     heating Degree Days for every day in a year
 
@@ -431,7 +445,6 @@ def calc_reg_hdd(
 
     - The diffusion is assumed to be sigmoid
     """
-    # Temperatures of full year
     hdd_d = calc_hdd(
         t_base_heating,
         temperatures,

@@ -46,9 +46,6 @@ def run(
         path_files,
         path_out_files,
         path_weather_stations,
-        crit_missing_values=100,
-        crit_nr_of_zeros=500,
-        nr_daily_zeros=10,
         crit_min_max=False
     ):
     """Iterate weather data from MIDAS and
@@ -166,17 +163,40 @@ def run(
                     else:
                         pass
 
-                    if yearday not in temp_stations[station_id]:
-                        temp_stations_min_max[station_id]['t_min'][yearday] = air_temp
-                        temp_stations_min_max[station_id]['t_max'][yearday] = air_temp
-                        temp_stations[station_id].append(yearday)
+                    if air_temp is not placeholder_value:
 
-                    if crit_min_max:
-                        # Update min and max daily temperature
-                        if air_temp < temp_stations_min_max[station_id]['t_min'][yearday]:
+                        if yearday not in temp_stations[station_id]:
                             temp_stations_min_max[station_id]['t_min'][yearday] = air_temp
-                        if air_temp > temp_stations_min_max[station_id]['t_max'][yearday]:
                             temp_stations_min_max[station_id]['t_max'][yearday] = air_temp
+                            temp_stations[station_id].append(yearday)
+
+                        if crit_min_max:
+                            # Update min and max daily temperature
+                            if air_temp < temp_stations_min_max[station_id]['t_min'][yearday]:
+                                temp_stations_min_max[station_id]['t_min'][yearday] = air_temp
+                            if air_temp > temp_stations_min_max[station_id]['t_max'][yearday]:
+                                temp_stations_min_max[station_id]['t_max'][yearday] = air_temp
+
+        # ------------------------
+        # Delete weather stations with missing daily data inputs
+        # ------------------------
+        
+        stations_to_delete = []
+        for station_id in temp_stations_min_max.keys():
+
+            nans, x = nan_helper(temp_stations_min_max[station_id]['t_min'])
+            nr_of_nans_t_min = list(nans).count(True)
+
+            nans, x = nan_helper(temp_stations_min_max[station_id]['t_max'])
+            nr_of_nans_t_max = list(nans).count(True)
+
+            if nr_of_nans_t_min > 0 or nr_of_nans_t_max > 0:
+                print("Station '{}' contains {} {} .nan values and is deleted".format(station_id, nr_of_nans_t_min, nr_of_nans_t_max))
+                stations_to_delete.append(station_id)
+        
+        print("Number of stations to delete: {}".format(len(stations_to_delete)))
+        for i in stations_to_delete:
+            del temp_stations_min_max[i]
 
         # --------------------
         # Write out files
@@ -222,7 +242,4 @@ run(
     path_files="//linux-filestore.ouce.ox.ac.uk/mistral/nismod/data/energy_demand/H-Met_office_weather_data/_meteo_data_2015",
     path_out_files="//linux-filestore.ouce.ox.ac.uk/mistral/nismod/data/energy_demand/H-Met_office_weather_data/_complete_meteo_data_all_yrs_cleaned_min_max",
     path_weather_stations="//linux-filestore.ouce.ox.ac.uk/mistral/nismod/data/energy_demand/H-Met_office_weather_data/cleaned_weather_stations.csv",
-    crit_missing_values=40,
-    crit_nr_of_zeros=500,
-    nr_daily_zeros=20,
     crit_min_max=True)

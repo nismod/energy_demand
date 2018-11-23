@@ -929,6 +929,9 @@ def load_temp_data(
         Weather stations
     temp_data : dict
         Temperaturesv
+    crit_temp_min_max : dict
+        True: Hourly temperature data are provided
+        False: min and max temperature are provided
     
     t_yrs_stations : dict
         Temperatures {sim_yr: {stations:  {t_min: np.array(365), t_max: np.array(365)}}}
@@ -937,9 +940,6 @@ def load_temp_data(
     weather_stations_with_data = defaultdict(dict)
 
     if crit_temp_min_max:
-    
-        # Get weather scenario and simulation yrs
-        t_yrs_stations = defaultdict(dict)
 
         for sim_yr in sim_yrs:
 

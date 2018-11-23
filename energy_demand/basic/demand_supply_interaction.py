@@ -66,9 +66,9 @@ def constrained_results(
     # Substract constrained fuel from nonconstrained (total) fuel
     non_heating_ed = results_unconstrained - sum(results_constrained.values())
 
+    logging.info("----TESTING ---")
     logging.info(results_unconstrained[results_unconstrained < 0])
     assert not testing_functions.test_if_minus_value_in_array(results_unconstrained)
-
 
     for tech in results_constrained:
         print("zzzzz {} {} {}".format(

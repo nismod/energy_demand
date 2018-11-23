@@ -206,9 +206,6 @@ class Enduse(object):
                 self.fuel_y)
             self.fuel_y = _fuel_new_y
 
-            # TODO TEST IF MINUS FALUE
-            #assert not testing_functions.test_if_minus_value_in_array(self.fuel_y)
-    
             # ----------------------------------
             # Hourly Disaggregation
             # ----------------------------------
@@ -238,8 +235,7 @@ class Enduse(object):
                     #print("FUEL TRAIN Y" + str(np.sum(fuel_yh)))
                 
                     # TODO TEST IF MINUS FALUE
-                    #assert not testing_functions.test_if_minus_value_in_array(self.fuel_yh)
-
+                    assert not testing_functions.test_if_minus_value_in_array(self.fuel_yh)
             else:
                 #If technologies are defined for an enduse
 
@@ -345,9 +341,9 @@ class Enduse(object):
                         self.fuel_yh = None
                         
                         # TODO TEST IF MINUS FALUE
-                        #for i in self.techs_fuel_yh:
+                        for i in self.techs_fuel_yh:
                             ###print("=== df === {}  {}".format(i, testing_functions.test_if_minus_value_in_array(self.techs_fuel_yh[i])))
-                        #    assert not testing_functions.test_if_minus_value_in_array(self.techs_fuel_yh[i])
+                            assert not testing_functions.test_if_minus_value_in_array(self.techs_fuel_yh[i])
 
                     else:
                         self.fuel_yh = demand_management(
@@ -359,7 +355,7 @@ class Enduse(object):
                             make_all_flat=make_all_flat)
 
                         # TODO TEST IF MINUS FALUE
-                        #assert not testing_functions.test_if_minus_value_in_array(self.fuel_yh)
+                        assert not testing_functions.test_if_minus_value_in_array(self.fuel_yh)
 
 def demand_management(
         enduse,

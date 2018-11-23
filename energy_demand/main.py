@@ -9,6 +9,7 @@
 #TODO NON HEATING
 #TODO LOCAL NARRATIVES FOLDER LOADING
 TODO REMOVE test_if_minus_value_in_array
+#TODO REMOVE weather_yr_scenario
 
 # TEST NON CONSTRAINED MODE
 # Pre initialisation
@@ -224,20 +225,6 @@ if __name__ == "__main__":
     # Containing full information
     # -----------------------------------------------------------------------------        
     default_streategy_vars = strategy_vars_def.load_param_assump(default_values=True)
-    '''
-        {
-        'spatial_explicit_diffusion': data['assumptions'].spatial_explicit_diffusion,
-        'speed_con_max': data['assumptions'].speed_con_max,
-        'gshp_fraction': data['assumptions'].gshp_fraction,
-        'rs_t_heating_by': data['assumptions'].t_bases.rs_t_heating_by,
-        'ss_t_heating_by': data['assumptions'].t_bases.ss_t_heating_by,
-        'ss_t_cooling_by': data['assumptions'].t_bases.ss_t_cooling_by,
-        'is_t_heating_by': data['assumptions'].t_bases.is_t_heating_by,
-        'smart_meter_p_by': data['assumptions'].smart_meter_assump['smart_meter_p_by'],
-        'cooled_ss_floorarea_by': data['assumptions'].cooled_ss_floorarea_by,
-        'p_cold_rolling_steel_by': data['assumptions'].p_cold_rolling_steel_by
-        }
-    )'''
 
     # -----------------------------------------------------------------------------
     # Load standard smif parameters and generate standard single timestep narrative for year 2050
@@ -312,7 +299,6 @@ if __name__ == "__main__":
         weather_yrs_scenario=[base_yr, weather_yr_scenario],
         crit_temp_min_max=config['CRITERIA']['crit_temp_min_max'],
         save_fig=path_new_scenario)
-
 
     # Get only selection
     weather_stations_selection = {}

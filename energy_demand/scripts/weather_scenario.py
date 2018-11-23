@@ -252,7 +252,6 @@ station_coordinates, stations_t_max = write_wether_data(list_max, list_max)
 station_coordinates, stations_t_min = write_wether_data(list_max, list_min)
 
 # Write out coordinates of weather data to csv
-print("---")
 print(len(stations_t_max))
 print(len(stations_t_min))
 '''
