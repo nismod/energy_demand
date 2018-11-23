@@ -224,13 +224,13 @@ if __name__ == "__main__":
     # Load standard strategy variable values from .py file
     # Containing full information
     # -----------------------------------------------------------------------------        
-    default_streategy_vars = strategy_vars_def.load_param_assump(default_values=True)
+    default_streategy_vars = strategy_vars_def.load_param_assump(
+        default_values=True)
 
     # -----------------------------------------------------------------------------
     # Load standard smif parameters and generate standard single timestep narrative for year 2050
     # -----------------------------------------------------------------------------
     strategy_vars = strategy_vars_def.load_smif_parameters(
-        narrative_values={},
         default_streategy_vars=default_streategy_vars,
         end_yr=2050,
         base_yr=base_yr,
@@ -239,13 +239,16 @@ if __name__ == "__main__":
     # -----------------------------------------
     # User defines stragey variable from csv files
     # -----------------------------------------
-    _user_defined_vars = data_loader.load_user_defined_vars(
+    ##path_user_defined_narratives = os.path.join(local_data_path, '00_user_defined_variables')
+    path_user_defined_narratives = data['local_paths']['path_strategy_vars']
+
+    user_defined_vars = data_loader.load_user_defined_vars(
         default_strategy_var=default_streategy_vars,
-        path_csv=data['local_paths']['path_strategy_vars'],
+        path_csv= path_user_defined_narratives,
         simulation_base_yr=data['assumptions'].base_yr,
         simulation_end_yr=data['assumptions'].simulation_end_yr)
 
-    strategy_vars = data_loader.replace_variable(_user_defined_vars, strategy_vars)
+    strategy_vars = data_loader.replace_variable(user_defined_vars, strategy_vars)
 
     # Replace strategy variables not defined in csv files)
     strategy_vars_out = strategy_vars_def.autocomplete_strategy_vars(
@@ -455,7 +458,10 @@ if __name__ == "__main__":
 
         # Set current year
         setattr(data['assumptions'], 'curr_yr', sim_yr)
-
+        
+        # TODO ALSO ADD IN RUN.py
+        weather_yr_scenario = 2015 #sim_yr
+    
         # --------------------------------------
         # Update result_paths and create folders
         # --------------------------------------
@@ -508,30 +514,21 @@ if __name__ == "__main__":
         # -------------------------------------
         # # Generate YAML file with keynames for `sector_model`
         # -------------------------------------
-        #if config['CRITERIA']['writeYAML_keynames']:
         if config['CRITERIA']['mode_constrained']:
-
             supply_results = demand_supply_interaction.constrained_results(
                 sim_obj.results_constrained,
                 sim_obj.results_unconstrained,
                 data['assumptions'].submodels_names,
                 data['assumptions'].technologies)
-
-            #write_data.write_yaml_output_keynames(
-            #    data['local_paths']['yaml_parameters_keynames_constrained'], supply_results.keys())
         else:
             supply_results = demand_supply_interaction.unconstrained_results(
                 sim_obj.results_unconstrained,
                 data['assumptions'].submodels_names)
 
-            #write_data.write_yaml_output_keynames(
-            #    data['local_paths']['yaml_parameters_keynames_unconstrained'], supply_results.keys())
-
         # --------------------------
         # Write out all calculations
         # --------------------------
         if config['CRITERIA']['write_txt_additional_results']:
-
             if config['CRITERIA']['crit_plot_enduse_lp']:
 
                 # Maybe move to result folder in a later step

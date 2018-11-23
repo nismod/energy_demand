@@ -1,12 +1,28 @@
 """Functions related to heating or cooling degree days
 """
 import numpy as np
+
+from energy_demand.basic import testing_functions
 from energy_demand.geography import weather_station_location as weather_station
-from energy_demand.technologies import diffusion_technologies
 from energy_demand.profiles import load_profile
 
 def calc_cdd_min_max(t_min, t_max, t_base):
-    """
+    """Calculate daily cdd with minimum and maximum
+    daily temperatures
+
+    Arguments
+    ---------
+    t_min : array, shape(365)
+        Daily minimum temperatures
+    t_max : array, shape(365)
+        Daily maximum temperatures
+    t_base : float
+        Base temperature
+
+    Returns
+    -------
+    cdd_365 : array
+        Daily heating degree days
     """
     cdd_365 = np.zeros((365))
     for day in range(365):
@@ -27,10 +43,27 @@ def calc_cdd_min_max(t_min, t_max, t_base):
 
         cdd_365[day] = cdd
 
+    assert not testing_functions.test_if_minus_value_in_array(cdd_365)
+
     return cdd_365
 
 def calc_hdd_min_max(t_min, t_max, t_base):
-    """Calculate daily hdd
+    """Calculate daily hdd with minimum and maximum
+    daily temperatures
+
+    Arguments
+    ---------
+    t_min : array, shape(365)
+        Daily minimum temperatures
+    t_max : array, shape(365)
+        Daily maximum temperatures
+    t_base : float
+        Base temperature
+
+    Returns
+    -------
+    hdd_365 : array
+        Daily heating degree days
     """
     hdd_365 = np.zeros((365))
     for day in range(365):
@@ -51,10 +84,12 @@ def calc_hdd_min_max(t_min, t_max, t_base):
 
         hdd_365[day] = hdd
 
+    assert not testing_functions.test_if_minus_value_in_array(hdd_365)
     return hdd_365
 
-def calc_met_equation_hdd(case, t_max, t_min, t_base):
-    """
+def calc_met_equation_hdd(case, t_min, t_max, t_base):
+    """Calculate hdd according to Meteorological
+    Office equations as outlined in Day (2006): Degree-days: theory and application
     """
     if case == 1:
         hdd = t_base - 0.5 * (t_max + t_min)
@@ -64,10 +99,29 @@ def calc_met_equation_hdd(case, t_max, t_min, t_base):
         hdd = 0.25 * (t_base - t_min)
     else:
         hdd = 0
+
     return hdd
 
-def calc_met_equation_cdd(case, t_max, t_min, t_base):
-    """
+def calc_met_equation_cdd(case, t_min, t_max, t_base):
+    """Calculate cdd according to Meteorological
+    Office equations as outlined in Day (2006): Degree-days: theory and application
+
+    Arguments
+    ---------
+    case : int
+        Case number
+    t_min : float
+        Minimum daily temperature
+    t_max : float
+        Maximum dail temperature
+    t_base : float
+        Base temperature
+
+    Return
+    -------
+    case_nr : int
+        Case number
+
     """
     if case == 1:
         cdd = 0.5 * (t_max + t_min) - t_base
@@ -77,36 +131,67 @@ def calc_met_equation_cdd(case, t_max, t_min, t_base):
         cdd = 0.25 * (t_max - t_base)
     else:
         cdd = 0
+
     return cdd
 
 def get_meterological_equation_case_hdd(t_min, t_max, t_base):
-    """Get Case number to calculate hdd with Meteorological Office
+    """Calculate case number to calculate hdd with Meteorological Office
     equations
+
+    Arguments
+    ---------
+    t_min : float
+        Minimum daily temperature
+    t_max : float
+        Maximum dail temperature
+    t_base : float
+        Base temperature
+
+    Return
+    -------
+    case_nr : int
+        Case number
+
     """
     if t_max <= t_base:
         return 1
+    elif t_min >= t_base:
+        return 4
     elif (t_min < t_base) and ((t_max - t_base) < (t_base - t_min)):
         return 2
     elif (t_max > t_base) and ((t_max - t_base) > (t_base - t_min)):
         return 3
-    elif t_min >= t_base:
-        return 4
+
     else:
         raise Exception(
             "Error in calculating methorological office equation case {}  {} {} ".format(t_max, t_min, t_base))
 
 def get_meterological_equation_case_cdd(t_min, t_max, t_base):
-    """Get Case number to calculate cdd with Meteorological Office
-    equations
+    """Calculatease number to calculate cdd with Meteorological
+    Office equations as outlined in Day (2006): Degree-days: theory and application
+
+    Arguments
+    ---------
+    t_min : float
+        Minimum daily temperature
+    t_max : float
+        Maximum dail temperature
+    t_base : float
+        Base temperature
+
+    Return
+    -------
+    case_nr : int
+        Case number
     """
-    if t_max >= t_base:
+    if t_min >= t_base:
         return 1
+    elif t_max <= t_base:
+        return 4
     elif (t_max > t_base) and ((t_max - t_base) > (t_base - t_min)):
         return 2
     elif (t_min < t_base) and ((t_max - t_base) < (t_base - t_min)):
         return 3
-    elif t_max <= t_base:
-        return 4
     else:
         raise Exception("Error in calculating methorological office equation case")
 
@@ -125,6 +210,8 @@ def calc_hdd(
         Base temperature
     temp_yh : array
         Array containing daily temperatures for each day (shape nr_of_days, 24)
+    nr_day_to_av : int
+        Number of previous days to average current day
     crit_temp_min_max : bool
         Criteria whether hourly or daily temperature input
 
@@ -170,14 +257,26 @@ def calc_hdd(
     return hdd_d
 
 def effective_temps_min_max(temp_365, nr_day_to_av):
+    """Calculate effective temperatures for minium and maximum
+    temperatures
+
+    Arguments
+    ---------
+    temp_365 : np.array
+        Daily min or max temperatures
+    nr_day_to_av : int
+        Number of previous days to average current day
+
+    Returns
+    -------
+    effective_temp_365 : np.array
+        Effective daily temperatures
     """
-    #TODO NEW NEW
-    """
-    effective_temp_yh = np.zeros((365), dtype="float")
+    effective_temp_365 = np.zeros((365), dtype="float")
 
     # Copy all border days
     for day in range(nr_day_to_av):
-        effective_temp_yh[day] = temp_365[day]
+        effective_temp_365[day] = temp_365[day]
 
     # Iterate days in a year
     for day in range(365)[nr_day_to_av:]: #Skip first dates in January
@@ -187,11 +286,11 @@ def effective_temps_min_max(temp_365, nr_day_to_av):
 
         # Add effective temperature of previous day(s)
         for i in range(nr_day_to_av):
-            tot_temp = tot_temp + effective_temp_yh[day - (i+1)] #not +=
+            tot_temp = tot_temp + effective_temp_365[day - (i+1)] #not +=
 
-        effective_temp_yh[day] = tot_temp / (nr_day_to_av + 1)
+        effective_temp_365[day] = tot_temp / (nr_day_to_av + 1)
 
-    return effective_temp_yh
+    return effective_temp_365
 
 def effective_temps(temp_yh, nr_day_to_av):
     """Calculate effective temperatures

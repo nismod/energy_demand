@@ -119,8 +119,7 @@ def constrained_results(
             key_name = "{}_{}_{}".format(submodel, fueltype_str, tech_simplified)
 
             supply_results[key_name] = fuel_tech[submodel_nr][:, fueltype_int, :]
-
-            print("ADDING CONTRAINSED {}  {} ".format(tech, str(np.sum(fuel_tech[submodel_nr][:, fueltype_int, :]))))
+            #print("ADDING CONTRAINSED {}  {} ".format(tech, str(np.sum(fuel_tech[submodel_nr][:, fueltype_int, :]))))
 
     # ---------------------------------
     # Add non_heating for all fueltypes

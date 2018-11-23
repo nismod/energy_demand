@@ -47,6 +47,7 @@ class WeatherRegion(object):
             technologies,
             enduses,
             temp_by,
+            temp_cy,
             tech_lp,
             sectors,
             crit_temp_min_max
@@ -58,11 +59,6 @@ class WeatherRegion(object):
         self.latitude = latitude
 
         fueltypes = lookup_tables.basic_lookups()['fueltypes']
-
-        # -----------------------------------
-        # Calculate current year temperatures
-        # -----------------------------------
-        temp_cy = temp_by
 
         # Base temperatures of current year
         rs_t_base_heating_cy = assumptions.non_regional_vars['rs_t_base_heating'][assumptions.curr_yr]
@@ -159,7 +155,7 @@ class WeatherRegion(object):
         # ========
         # -- Apply enduse sepcific shapes for enduses with not technologies with own defined shapes
         for enduse in enduses['residential']:
-            dummy_sector = None
+
             # Enduses where technology specific load profiles are defined for yh
             if enduse in ['rs_space_heating']:
                 pass

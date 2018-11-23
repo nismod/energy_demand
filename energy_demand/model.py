@@ -56,7 +56,8 @@ class EnergyDemandModel(object):
                 assumptions=assumptions,
                 technologies=assumptions.technologies,
                 enduses=data['enduses'],
-                temp_by=data['temp_data'][weather_yr][weather_region],
+                temp_by=data['temp_data'][weather_by][weather_region],
+                temp_cy=data['temp_data'][weather_yr][weather_region],
                 tech_lp=data['tech_lp'],
                 sectors=data['sectors'],
                 crit_temp_min_max=criterias['crit_temp_min_max'])
@@ -72,6 +73,7 @@ class EnergyDemandModel(object):
                 technologies=assumptions.technologies,
                 enduses=data['enduses'],
                 temp_by=data['temp_data'][weather_by][weather_region],
+                temp_cy=data['temp_data'][weather_yr][weather_region],
                 tech_lp=data['tech_lp'],
                 sectors=data['sectors'],
                 crit_temp_min_max=criterias['crit_temp_min_max'])

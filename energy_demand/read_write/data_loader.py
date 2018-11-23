@@ -12,6 +12,7 @@ import geopandas as gpd
 from shapely.geometry import Point
 import matplotlib.pyplot as plt
 
+from energy_demand.basic import testing_functions
 from energy_demand.basic import lookup_tables
 from energy_demand.read_write import write_data
 from energy_demand.read_write import read_data, read_weather_data
@@ -836,6 +837,11 @@ def load_data_profiles(
     # Load enduse load profiles
     tech_lp['rs_shapes_dh'], tech_lp['rs_shapes_yd'] = rs_collect_shapes_from_txts(
         local_paths['rs_load_profile_txt'], model_yeardays)
+
+    '''for i in tech_lp['rs_shapes_dh']:
+        assert np.sum(tech_lp['rs_shapes_dh'][1]) == 1
+    for i in tech_lp['rs_shapes_yd']:
+        assert np.sum(tech_lp['rs_shapes_yd'][1]) == 1'''
 
     tech_lp['ss_shapes_dh'], tech_lp['ss_shapes_yd'] = ss_collect_shapes_from_txts(
         local_paths['ss_load_profile_txt'], model_yeardays)
