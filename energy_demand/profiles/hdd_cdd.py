@@ -153,6 +153,11 @@ def get_meterological_equation_case_hdd(t_min, t_max, t_base):
         Case number
 
     """
+    # Adding own constrained
+    if (t_max - t_base) == (t_base - t_min):
+        t_base += 0.0001
+
+
     if t_max <= t_base:
         return 1
     elif t_min >= t_base:
@@ -184,6 +189,10 @@ def get_meterological_equation_case_cdd(t_min, t_max, t_base):
     case_nr : int
         Case number
     """
+    # Added own additional constrained because funciton failes if (t_max - t_base) == (t_base - t_min)
+    if (t_max - t_base) == (t_base - t_min):
+        t_base += 0.0001
+
     if t_min >= t_base:
         return 1
     elif t_max <= t_base:
@@ -193,7 +202,8 @@ def get_meterological_equation_case_cdd(t_min, t_max, t_base):
     elif (t_min < t_base) and ((t_max - t_base) < (t_base - t_min)):
         return 3
     else:
-        raise Exception("Error in calculating methorological office equation case")
+
+        raise Exception("Error in calculating methorological office equation case {} {} {}".format(t_min, t_max, t_base))
 
 def calc_hdd(
         t_base,

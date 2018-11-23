@@ -5,14 +5,13 @@ from collections import defaultdict
 
 from energy_demand.read_write import narrative_related
 
-#LOAD AND GENERATE STANDARD NARRATIVE
 def load_smif_parameters(
         narrative_values={},
         default_streategy_vars={},
         end_yr=2050,
         base_yr=2015,
         mode='smif'):
-    """
+    """#LOAD AND GENERATE STANDARD NARRATIVE
     """
     strategy_vars = defaultdict(dict)
     # ------------------------------------------------------------
@@ -422,7 +421,11 @@ def load_param_assump(
 
     return dict(strategy_vars_out)
 
-def autocomplete_strategy_vars(strategy_vars, narrative_crit=False):
+def autocomplete_strategy_vars(
+        strategy_vars,
+        strategy_vars_to_ignore=[],
+        narrative_crit=False
+    ):
     """Autocomplete all narratives or strategy variables with
     and 'enduse' or 'sector' in case they are not defined.
 
@@ -439,7 +442,6 @@ def autocomplete_strategy_vars(strategy_vars, narrative_crit=False):
         out_dict = defaultdict(dict)
 
         for var_name, var_entries in strategy_vars.items():
-
             crit_single_dim = narrative_related.crit_dim_var(var_entries)
 
             if crit_single_dim:

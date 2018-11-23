@@ -243,6 +243,7 @@ if __name__ == "__main__":
     path_user_defined_narratives = data['local_paths']['path_strategy_vars']
 
     user_defined_vars = data_loader.load_user_defined_vars(
+        data=data,
         default_strategy_var=default_streategy_vars,
         path_csv= path_user_defined_narratives,
         simulation_base_yr=data['assumptions'].base_yr,
@@ -252,7 +253,9 @@ if __name__ == "__main__":
 
     # Replace strategy variables not defined in csv files)
     strategy_vars_out = strategy_vars_def.autocomplete_strategy_vars(
-        strategy_vars, narrative_crit=True)
+        strategy_vars,
+        narrative_crit=True)
+
     data['assumptions'].update('strategy_vars', strategy_vars_out)
 
     # -----------------------------------------------------------------------------
@@ -296,6 +299,7 @@ if __name__ == "__main__":
     # Make selection of weather stations and data
     # ---------------------------------------------
     # Load all temperature and weather station data
+    print("A crit_temp_min_max" + str(config['CRITERIA']['crit_temp_min_max']))
     data['weather_stations'], data['temp_data'] = data_loader.load_temp_data(
         data['local_paths'],
         sim_yrs=sim_yrs,
@@ -381,14 +385,14 @@ if __name__ == "__main__":
     # ------------------------------------------------
     # Calculate switches
     # ------------------------------------------------
-    service_switches = read_data.service_switch(data['local_paths']['path_service_switch'], data['assumptions'].technologies)
-    fuel_switches = read_data.read_fuel_switches(data['local_paths']['path_fuel_switches'], data['enduses'], data['assumptions'].fueltypes, data['assumptions'].technologies)
-    capacity_switches = read_data.read_capacity_switch(data['local_paths']['path_capacity_installation'])
+    service_switches = read_data.service_switch(os.path.join(data['local_paths']['path_strategy_vars'], "switches_service.csv"), data['assumptions'].technologies)
+    fuel_switches = read_data.read_fuel_switches(os.path.join(data['local_paths']['path_strategy_vars'], "switches_fuel.csv"), data['enduses'], data['assumptions'].fueltypes, data['assumptions'].technologies)
+    capacity_switches = read_data.read_capacity_switch(os.path.join(data['local_paths']['path_strategy_vars'], "switches_capacity.csv"))
 
     crit_switch_happening = testing_functions.switch_testing(
-        fuel_switches=fuel_switches,
-        service_switches=service_switches,
-        capacity_switches=capacity_switches)
+        fuel_switches=strategy_vars['fuel_switches'],
+        service_switches=strategy_vars['service_switches'],
+        capacity_switches=strategy_vars['capacity_switches'])
     data['assumptions'].update('crit_switch_happening', crit_switch_happening)
 
     print("... starting calculating switches")
@@ -399,9 +403,9 @@ if __name__ == "__main__":
         f_reg_norm,
         f_reg_norm_abs,
         crit_all_the_same,
-        service_switches,
-        fuel_switches,
-        capacity_switches)
+        strategy_vars['fuel_switches'],
+        strategy_vars['service_switches'],
+        strategy_vars['capacity_switches'])
     for region in data['regions']:
         regional_vars[region]['annual_tech_diff_params'] = annual_tech_diff_params[region]
 
@@ -460,7 +464,7 @@ if __name__ == "__main__":
         setattr(data['assumptions'], 'curr_yr', sim_yr)
         
         # TODO ALSO ADD IN RUN.py
-        weather_yr_scenario = 2015 #sim_yr
+        weather_yr_scenario = 2015 #sim_yr #TODO REPLACE WITH SIM YEAR IF FULL WEATHER IS PROVIDED
     
         # --------------------------------------
         # Update result_paths and create folders

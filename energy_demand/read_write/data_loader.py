@@ -39,7 +39,7 @@ def load_smif_narrative_data(
 
         # Get narrative data # raw file content (i.e. from wrapper)
         narrative_data = loaded_narrative_data[narrative_variable]
-        
+
         # -----------------------------------
         # Crate narratives from file content
         # -----------------------------------
@@ -220,6 +220,7 @@ def replace_variable(_user_defined_vars, strategy_vars):
     return strategy_vars
 
 def load_user_defined_vars(
+        data,
         default_strategy_var,
         path_csv,
         simulation_base_yr,
@@ -254,6 +255,7 @@ def load_user_defined_vars(
 
     for file_name in all_csv_in_folder:
         logging.info("... loading user defined variable '%s'", file_name[:-4])
+
         if file_name in files_to_ignores:
             pass
         else:
@@ -515,20 +517,12 @@ def get_local_paths(path):
         All local paths used in model
     """
     paths = {
-        'local_path_datafolder':
-            path,
+        'local_path_datafolder': path,
 
         # Path to strategy vars
         'path_strategy_vars': os.path.join(
             path, '00_user_defined_variables'),
 
-        # User defined switchs
-        'path_fuel_switches': os.path.join(
-            path, '00_user_defined_variables', 'switches_fuel.csv'),
-        'path_service_switch': os.path.join(
-            path, '00_user_defined_variables', 'switches_service.csv'),
-        'path_capacity_installation': os.path.join(
-            path, '00_user_defined_variables', 'switches_capacity.csv'),
         'path_population_data_for_disaggregation_LAD': os.path.join(
             path, '_raw_data', 'J-population_disagg_by', 'uk_pop_principal_2015_2050.csv'), #ONS principal projection
         'path_population_data_for_disaggregation_MSOA': os.path.join(
@@ -838,11 +832,6 @@ def load_data_profiles(
     tech_lp['rs_shapes_dh'], tech_lp['rs_shapes_yd'] = rs_collect_shapes_from_txts(
         local_paths['rs_load_profile_txt'], model_yeardays)
 
-    '''for i in tech_lp['rs_shapes_dh']:
-        assert np.sum(tech_lp['rs_shapes_dh'][1]) == 1
-    for i in tech_lp['rs_shapes_yd']:
-        assert np.sum(tech_lp['rs_shapes_yd'][1]) == 1'''
-
     tech_lp['ss_shapes_dh'], tech_lp['ss_shapes_yd'] = ss_collect_shapes_from_txts(
         local_paths['ss_load_profile_txt'], model_yeardays)
 
@@ -954,7 +943,7 @@ def load_temp_data(
             abbrev_real = 'm00d' #TODO GET FROM SWTICHING TOGETHER FILE
             #path_weather_data = "X:/nismod/data/energy_demand/J-MARIUS_data/_weather_data_cleaned"
             path_weather_data = "X:/nismod/data/energy_demand/H-Met_office_weather_data/_complete_meteo_data_all_yrs_cleaned_min_max"
-            # NEW TEMP DATA
+            path_weather_data = os.path.join(local_paths['local_path_datafolder'], '_raw_data', 'A-temperature_data', 't_min_t_max')
 
             #path_2015_weather_data =  "C:/Users/cenv0553/ED/data/_raw_data/A-temperature_data/t_min_t_max/weather_temps_2015.csv"
             #t_min_max = pd.read_csv(path_2015_weather_data)

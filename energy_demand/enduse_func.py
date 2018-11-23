@@ -323,9 +323,9 @@ class Enduse(object):
                         fueltypes,
                         mode_constrained)
 
-                    for i in fuel_yh:
-                        print("===zulu {} {} ".format(i, testing_functions.test_if_minus_value_in_array(fuel_yh[i]))) 
-                        assert not testing_functions.test_if_minus_value_in_array(fuel_yh[i])
+                    #for i in fuel_yh:
+                    #    print("===zulu {} {} ".format(i, testing_functions.test_if_minus_value_in_array(fuel_yh[i]))) 
+                    #    assert not testing_functions.test_if_minus_value_in_array(fuel_yh[i])
                     # --------------------------------------
                     # Demand Management
                     # --------------------------------------
@@ -344,11 +344,11 @@ class Enduse(object):
                         self.fuel_yh = None
                         
                         # TODO TEST IF MINUS FALUE
-                        for i in self.techs_fuel_yh:
+                        '''for i in self.techs_fuel_yh:
                             print("=== df === {}  {}".format(i, testing_functions.test_if_minus_value_in_array(self.techs_fuel_yh[i])))
                             print(self.techs_fuel_yh[i][self.techs_fuel_yh[i] < 0])
                             print(np.sum(self.techs_fuel_yh[i]))
-                            assert not testing_functions.test_if_minus_value_in_array(self.techs_fuel_yh[i])
+                            assert not testing_functions.test_if_minus_value_in_array(self.techs_fuel_yh[i])'''
 
                     else:
                         self.fuel_yh = demand_management(
@@ -767,14 +767,14 @@ def calc_fuel_tech_yh(
             load_profile = load_profiles.get_lp(
                 enduse, sector, tech, 'shape_yh')
             
-            print(testing_functions.test_if_minus_value_in_array(load_profile))
-            print("=s======= {}  {} ".format(tech, fuel_tech_y[tech]))
-            assert np.sum(fuel_tech_y[tech]) >= 0
+            #print(testing_functions.test_if_minus_value_in_array(load_profile))
+            #print("=s======= {}  {} ".format(tech, fuel_tech_y[tech]))
+            #assert np.sum(fuel_tech_y[tech]) >= 0
             
             #assert not testing_functions.test_if_minus_value_in_array(load_profile)
             fuels_yh[tech] = fuel_tech_y[tech] * load_profile
-            print("t " + str(testing_functions.test_if_minus_value_in_array(fuels_yh[tech])))
-            assert not testing_functions.test_if_minus_value_in_array(fuels_yh[tech])
+            #print("t " + str(testing_functions.test_if_minus_value_in_array(fuels_yh[tech])))
+            #assert not testing_functions.test_if_minus_value_in_array(fuels_yh[tech])
 
             # ----------
             # Testing if negative value
