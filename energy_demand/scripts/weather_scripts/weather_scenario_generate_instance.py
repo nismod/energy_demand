@@ -11,7 +11,6 @@ def create_annual_weather_file(
     """Create annual weather file
 
     write csv file
-    
     """
     # Read files
     path_stations = os.path.join(path, "{}_stations.csv".format(year))

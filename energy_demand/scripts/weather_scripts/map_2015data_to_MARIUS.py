@@ -36,6 +36,7 @@ def get_closest_station_met_office(
 
 def map_2015_uk_to_MARIUS_grid(
         path_2015_uk_data,
+        path_2015_uk_data_remaped,
         path_example_grid_min_datafile_MARIUS
     ):
 
@@ -118,19 +119,22 @@ def map_2015_uk_to_MARIUS_grid(
     # Write out weather stations and data
     # ----------------------------------------------------------
     df = pd.DataFrame(stations_marius, columns=['station_id', 'latitude', 'longitude'])
-    df.to_csv(os.path.join(path_2015_uk_data, "stations_2015_remapped.csv"), index=False)
 
-    np.save(os.path.join(path_2015_uk_data, "t_min_remapped.npy"), mapped_marius_station_data_t_min)
-    np.save(os.path.join(path_2015_uk_data, "t_max_remapped.npy"), mapped_marius_station_data_t_max)
+    df.to_csv(os.path.join(path_2015_uk_data_remaped, "stations_2015.csv"), index=False)
+    np.save(os.path.join(path_2015_uk_data_remaped, "t_min.npy"), mapped_marius_station_data_t_min)
+    np.save(os.path.join(path_2015_uk_data_remaped, "t_max.npy"), mapped_marius_station_data_t_max)
 
+# =========================
+# Write 2015 weather station in MARIUS grid
+# =========================
 path_2015_uk_data = "X:/nismod/data/energy_demand/H-Met_office_weather_data/_complete_meteo_data_all_yrs_cleaned_min_max"
+path_2015_uk_data_remaped = "X:/nismod/data/energy_demand/H-Met_office_weather_data/_complete_meteo_data_all_yrs_cleaned_min_max/2015_remapped"
 path_example_grid_min_datafile_MARIUS = "X:/nismod/data/energy_demand/J-MARIUS_data/2020/m00d/daily/WAH_m00d_tasmin_daily_g2_2020.nc"
-
 
 map_2015_uk_to_MARIUS_grid(
     path_2015_uk_data=path_2015_uk_data,
+    path_2015_uk_data_remaped=path_2015_uk_data_remaped,
     path_example_grid_min_datafile_MARIUS=path_example_grid_min_datafile_MARIUS)
 
 
 
-# Write 2015 weather station in MARIUS grid

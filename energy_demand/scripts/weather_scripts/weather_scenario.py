@@ -22,12 +22,14 @@ from energy_demand.basic import basic_functions
 from energy_demand.read_write import write_data
 
 def create_realisation(
+        base_yr_remapped_weather_path,
         realisation_nrs,
         realisation_path,
         realisation_out_path,
         path_stiching_table
     ):
     """
+    Before running, generate 2015 remapped data
     """
     # Create result path
     basic_functions.create_folder(realisation_out_path)
@@ -53,9 +55,14 @@ def create_realisation(
             stiching_name = df_path_stiching_table[realisation][year]
 
             # If year 2015 - 2019, take base year weather
+            if year in range(2015, 2020):
+                path_weather_data = base_yr_remapped_weather_path
+            elif year == 2050:
+                year = 2049
+                path_weather_data = os.path.join(realisation_path, str(year), stiching_name)
+            else:
+                path_weather_data = os.path.join(realisation_path, str(year), stiching_name)
 
-            path_weather_data = os.path.join(realisation_path, str(year), stiching_name)
-    
             # Read t_min, t_max, stations)
             t_min = np.load(os.path.join(path_weather_data, "t_min.npy"))
             t_max = np.load(os.path.join(path_weather_data, "t_max.npy"))
@@ -68,13 +75,14 @@ def create_realisation(
                     realisation_out.append(
                         [year, station_id, stiching_name, yearday, t_min_station[yearday], t_max_station[yearday]])
 
-        # Write_to_csv
+        # Write data to csv
         df = pd.DataFrame(realisation_out, columns=columns)
         path_out_csv = os.path.join(realisation_out_path, "weather_data_{}".format(realisation))
         df.to_csv(path_out_csv, index=False)
 
-
-    pass
+        # Write stations to csv
+        #df = pd.DataFrame(station_coordinates, columns=['station_id', 'latitude', 'longitude'])
+        stations.to_csv(os.path.join(realisation_out_path, "stations_{}.csv".format(realisation)), index=False)
 
 def get_temp_data_from_nc(path_nc_file, attribute_to_keep):
     """Open c file, convert it into dataframe,
@@ -243,27 +251,34 @@ def weather_dat_prepare(data_path, result_path, years_to_clean=range(2020, 2049)
 
     print("... finished cleaning weather data")
 
-'''# ------------------------
-# Create realisation
-# ------------------------
-path = "X:/nismod/data/energy_demand/J-MARIUS_data"
-result_path = "X:/nismod/data/energy_demand/J-MARIUS_data"
-realisation_path = "X:/nismod/data/energy_demand/J-MARIUS_data/_weather_data_cleaned"
-realisation_out_path = "X:/nismod/data/energy_demand/J-MARIUS_data/_weather_realisation"
-path_stiching_table = "X:/nismod/data/energy_demand/J-MARIUS_data/stitching_table/stitching_table_nf.dat"
+clean_original_files = False
+stich_weather_scenario = True
 
-create_realisation(
-    realisation_nrs=10,
-    realisation_path=realisation_path,
-    realisation_out_path=realisation_out_path,
-    path_stiching_table=path_stiching_table)'''
-'''
-# ------------------------
-# Clean scenario data
-# ------------------------
-path = "X:/nismod/data/energy_demand/J-MARIUS_data"
-result_path = "X:/nismod/data/energy_demand/J-MARIUS_data"
+if clean_original_files:
+    # ------------------------
+    # Clean scenario data
+    # ------------------------
+    path = "X:/nismod/data/energy_demand/J-MARIUS_data"
+    result_path = "X:/nismod/data/energy_demand/J-MARIUS_data"
 
-years_to_clean = [2046, 2047]
+    years_to_clean = [2037]
 
-weather_dat_prepare(path, result_path, years_to_clean)'''
+    weather_dat_prepare(path, result_path, years_to_clean)
+
+if stich_weather_scenario:
+    # ------------------------
+    # Create realisation
+    # ------------------------
+    base_yr_remapped_weather_path = "X:/nismod/data/energy_demand/J-MARIUS_data/_weather_data_cleaned/2015_remapped"
+    path = "X:/nismod/data/energy_demand/J-MARIUS_data"
+    result_path = "X:/nismod/data/energy_demand/J-MARIUS_data"
+    realisation_path = "X:/nismod/data/energy_demand/J-MARIUS_data/_weather_data_cleaned"
+    realisation_out_path = "X:/nismod/data/energy_demand/J-MARIUS_data/_weather_realisation"
+    path_stiching_table = "X:/nismod/data/energy_demand/J-MARIUS_data/stitching_table/stitching_table_nf.dat"
+
+    create_realisation(
+        base_yr_remapped_weather_path=base_yr_remapped_weather_path,
+        realisation_nrs=100,
+        realisation_path=realisation_path,
+        realisation_out_path=realisation_out_path,
+        path_stiching_table=path_stiching_table)
