@@ -43,7 +43,7 @@ def collect_multi_year_weather(path, path_out, year):
         year=2015,
         weather_scenario_name=weather_scenario_name)
         
-    columns = ['timestep', 'station_id', 'weather_inst', 'yearday', 't_min', 't_max',]
+    columns = ['timestep', 'station_id', 'stiching_name', 'yearday', 't_min', 't_max',]
     df = pd.DataFrame(out_csv_array, columns=columns)
     df.to_csv(path_out_csv, index=False)
 

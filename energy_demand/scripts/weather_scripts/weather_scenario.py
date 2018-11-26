@@ -21,8 +21,60 @@ import pandas as pd
 from energy_demand.basic import basic_functions
 from energy_demand.read_write import write_data
 
-path = "X:/nismod/data/energy_demand/J-MARIUS_data"
-result_path = "X:/nismod/data/energy_demand/J-MARIUS_data"
+def create_realisation(
+        realisation_nrs,
+        realisation_path,
+        realisation_out_path,
+        path_stiching_table
+    ):
+    """
+    """
+    # Create result path
+    basic_functions.create_folder(realisation_out_path)
+
+    # Read in stiching table
+    df_path_stiching_table = pd.read_table(path_stiching_table, sep=" ")
+    
+    # Set year as index
+    df_path_stiching_table = df_path_stiching_table.set_index('year')
+
+    # Realisations
+    realisations = list(df_path_stiching_table.columns)
+
+    columns = ['timestep', 'station_id', 'stiching_name', 'yearday', 't_min', 't_max',]
+
+    for i in range(realisation_nrs):
+
+        realisation = realisations[i]
+
+        realisation_out = []
+        
+        for year in range(2020, 2050):
+            stiching_name = df_path_stiching_table[realisation][year]
+
+            # If year 2015 - 2019, take base year weather
+
+            path_weather_data = os.path.join(realisation_path, str(year), stiching_name)
+    
+            # Read t_min, t_max, stations)
+            t_min = np.load(os.path.join(path_weather_data, "t_min.npy"))
+            t_max = np.load(os.path.join(path_weather_data, "t_max.npy"))
+            stations = pd.read_csv(os.path.join(path_weather_data, "stations.csv"))
+
+            for station_cnt, station_id in enumerate(stations):
+                t_min_station = t_min[station_cnt]
+                t_max_station = t_max[station_cnt]
+                for yearday in range(365):
+                    realisation_out.append(
+                        [year, station_id, stiching_name, yearday, t_min_station[yearday], t_max_station[yearday]])
+
+        # Write_to_csv
+        df = pd.DataFrame(realisation_out, columns=columns)
+        path_out_csv = os.path.join(realisation_out_path, "weather_data_{}".format(realisation))
+        df.to_csv(path_out_csv, index=False)
+
+
+    pass
 
 def get_temp_data_from_nc(path_nc_file, attribute_to_keep):
     """Open c file, convert it into dataframe,
@@ -64,20 +116,23 @@ def extend_360_day_to_365(df, attribute):
     days_to_duplicate = [60, 120, 180, 240, 300]
     out_list = []
 
-    # Copy every sithieth day over the year and duplicate it. Do this five times --> get from 360 to 365 days
+    # Copy every 60th day over the year and duplicate it. Do this five times --> get from 360 to 365 days
     day_cnt, day_cnt_365 = 0, 0
-
-    for index, row in df.iterrows():
+    for i in df.index:
         day_cnt += 1
+
+        latitude = df.get_value(i,'lat')
+        longitude = df.get_value(i,'lon')
+        value = df.get_value(i, attribute)
 
         # Copy extra day
         if day_cnt in days_to_duplicate:
-            out_list.append([row['lat'], row['lon'], day_cnt_365, row[attribute]])
+            out_list.append([latitude, longitude, day_cnt_365, value])
             day_cnt_365 += 1
 
         # Copy day
         day_cnt_365 += 1
-        out_list.append([row['lat'], row['lon'], day_cnt_365, row[attribute]])
+        out_list.append([latitude, longitude, day_cnt_365, value])
 
         # Reset counter if next weather station
         if day_cnt == 360:
@@ -86,7 +141,7 @@ def extend_360_day_to_365(df, attribute):
 
     return out_list
 
-def write_wether_data(data_list):
+def write_weather_data(data_list):
     """Write weather data to array
     data_list : list
         [[lat, long, yearday365, value]]
@@ -115,10 +170,9 @@ def write_wether_data(data_list):
             station_lat = row[0]
 
             station_id = "station_id_{}".format(station_id_cnt)
-            '''station_coordinates[station_id] = {
-                'longitude':station_lat,
-                'latitude': station_lon}'''
-            station_coordinates.append([station_id, station_lat, station_lon]) #ID, latitude, longitude
+
+            #ID, latitude, longitude
+            station_coordinates.append([station_id, station_lat, station_lon])
 
             # Reset
             station_data = np.zeros((365))
@@ -128,50 +182,16 @@ def write_wether_data(data_list):
 
     return station_coordinates, stations_data
 
-
-
-
-def calc_HDD_from_min_max(t_min, t_max, base_temp):
-    """Calculate hdd for every day and weather station
-
-    The Meteorological Office equations
-
-
-    """
-    hdd_array = np.zeros((365))
-
-    # Calculate hdd
-    for yearday in range(365):
-        case_met_equation = get_meterological_equation_case(t_min, t_max, base_temp)
-
-    return hdd_array
-
-
-
-
-# Load stiching table to create weather scenario
-def weather_dat_prepare(data_path, result_path):
+def weather_dat_prepare(data_path, result_path, years_to_clean=range(2020, 2049)):
     """
     """
-    # All folders
-    '''
-    all_files = os.listdir(path)
-    folder_names = []
-    for i in all_files:
-        try:
-            folder_names.append(int(i)) #get years
-        except:
-            pass
-    '''
-    folder_names = range(2020, 2049)
-    folder_names = [2020, 2025, 2030, 2035, 2040, 2045, 2049]
-    print("folder_name " + str(folder_names))
+    print("folder_name " + str(years_to_clean))
 
     # Create reulst folders
     result_folder = os.path.join(result_path, "_weather_data_cleaned")
     basic_functions.create_folder(result_folder)
 
-    for folder_name in folder_names:
+    for folder_name in years_to_clean:
 
         year = folder_name
 
@@ -210,58 +230,40 @@ def weather_dat_prepare(data_path, result_path):
 
             # Write out single weather stations as numpy array
             print("     ..write out", flush=True)
-            station_coordinates, stations_t_min = write_wether_data(list_min)
-            station_coordinates, stations_t_max = write_wether_data(list_max)
+            station_coordinates, stations_t_min = write_weather_data(list_min)
+            station_coordinates, stations_t_max = write_weather_data(list_max)
 
             # Write to csv
             np.save(os.path.join(path_realization, "t_min.npy"), stations_t_min)
             np.save(os.path.join(path_realization, "t_max.npy"), stations_t_max)
 
             #write_data.write_yaml(station_coordinates, os.path.join(path_realization, "stations.yml"))
-            columns = ['station_id', 'latitude', 'longitude']
-
-            df = pd.DataFrame(station_coordinates, columns=columns)
+            df = pd.DataFrame(station_coordinates, columns=['station_id', 'latitude', 'longitude'])
             df.to_csv(os.path.join(path_realization, "stations.csv"), index=False)
 
     print("... finished cleaning weather data")
 
-weather_dat_prepare(path, result_path)
+'''# ------------------------
+# Create realisation
+# ------------------------
+path = "X:/nismod/data/energy_demand/J-MARIUS_data"
+result_path = "X:/nismod/data/energy_demand/J-MARIUS_data"
+realisation_path = "X:/nismod/data/energy_demand/J-MARIUS_data/_weather_data_cleaned"
+realisation_out_path = "X:/nismod/data/energy_demand/J-MARIUS_data/_weather_realisation"
+path_stiching_table = "X:/nismod/data/energy_demand/J-MARIUS_data/stitching_table/stitching_table_nf.dat"
 
-
+create_realisation(
+    realisation_nrs=10,
+    realisation_path=realisation_path,
+    realisation_out_path=realisation_out_path,
+    path_stiching_table=path_stiching_table)'''
 '''
-path_tasmax = "C:/_WEATHERDATA/nf-2020/2020/m00m/daily/WAH_m00m_tasmax_daily_g2_2020.nc"
-path_tasmin = "C:/_WEATHERDATA/nf-2020/2020/m00m/daily/WAH_m00m_tasmin_daily_g2_2020.nc"
+# ------------------------
+# Clean scenario data
+# ------------------------
+path = "X:/nismod/data/energy_demand/J-MARIUS_data"
+result_path = "X:/nismod/data/energy_demand/J-MARIUS_data"
 
-out_path = "C:/_scrap/test.csv"
-out_path_station_names = "C:/_scrap/station_position.csv"
+years_to_clean = [2046, 2047]
 
-# Load data
-df_max = get_temp_data_from_nc(path_tasmax, 'tasmax')
-df_min = get_temp_data_from_nc(path_tasmin, 'tasmin')
-
-# Convert Kelvin to Celsius (# Kelvin to Celsius)
-df_max['tasmax'] = convert_to_celcius(df_max, 'tasmax')
-df_min['tasmin'] = convert_to_celcius(df_min, 'tasmin')
-
-# Convert 360 day to 365 days
-list_max = extend_360_day_to_365(df_max, 'tasmax')
-list_min = extend_360_day_to_365(df_min, 'tasmin')
-
-# Write out single weather stations as numpy array
-station_coordinates, stations_t_max = write_wether_data(list_max, list_max)
-station_coordinates, stations_t_min = write_wether_data(list_max, list_min)
-
-# Write out coordinates of weather data to csv
-print(len(stations_t_max))
-print(len(stations_t_min))
-'''
-
-
-# Convert weather station data to HDD days
-'''for station_nr in enumerate(station_coordinates):
-
-    t_min = stations_t_min[station_nr]
-    t_max = stations_t_max[station_nr]
-
-    calc_hdd_min_max(t_min, t_max)'''
-
+weather_dat_prepare(path, result_path, years_to_clean)'''
