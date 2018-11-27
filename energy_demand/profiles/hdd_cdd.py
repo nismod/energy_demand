@@ -436,7 +436,7 @@ def get_hdd_country(
         temp_data,
         reg_coord,
         weather_stations,
-        crit_temp_min_max
+        crit_temp_min_max=False
     ):
     """Calculate total number of heating degree days in a region for the base year
 
@@ -475,7 +475,7 @@ def get_cdd_country(
         temp_data,
         reg_coord,
         weather_stations,
-        crit_temp_min_max
+        crit_temp_min_max=False
     ):
     """Calculate total number of cooling degree days in a
     region for the base year
@@ -520,7 +520,7 @@ def calc_reg_hdd(
         temperatures,
         t_base_heating,
         model_yeardays,
-        crit_temp_min_max
+        crit_temp_min_max=False
     ):
     """Calculate hdd for every day and daily
     yd shape of heating demand

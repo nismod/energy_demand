@@ -30,7 +30,6 @@ def test_load_non_param_assump():
         lookup_sector_enduses=lookup_sector_enduses,
         base_yr=2015,
         curr_yr=None,
-        simulated_yrs=None,
         paths=paths,
         enduses=enduses,
         sectors=sectors)

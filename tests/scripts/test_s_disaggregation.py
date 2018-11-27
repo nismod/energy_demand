@@ -211,7 +211,8 @@ def test_is_disaggregate():
         sectors=sectors,
         employment_statistics=employment_statistics,
         pop_for_disagg=pop_for_disag,
-        census_disagg=False)
+        census_disagg=False,
+        )
 
     assert result['regA']['is_space_heating']['mining'] == 50.0
 

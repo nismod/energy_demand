@@ -309,7 +309,7 @@ def ss_disaggregate(
         crit_limited_disagg_pop_hdd,
         crit_limited_disagg_pop,
         crit_full_disagg,
-        crit_temp_min_max
+        crit_temp_min_max=False
     ):
     """Disaggregate fuel for service submodel (per enduse and sector)
 
@@ -553,7 +553,7 @@ def is_disaggregate(
         employment_statistics,
         pop_for_disagg,
         census_disagg,
-        crit_temp_min_max
+        crit_temp_min_max=False
     ):
     """Disaggregate industry related fuel for sector and enduses with
     employment statistics
@@ -759,7 +759,7 @@ def rs_disaggregate(
         crit_limited_disagg_pop_hdd,
         crit_limited_disagg_pop,
         crit_full_disagg,
-        crit_temp_min_max,
+        crit_temp_min_max=False,
         dummy_sector=None
     ):
     """Disaggregate residential fuel demand
