@@ -12,6 +12,7 @@ Links
 http://data.ceda.ac.uk//badc//weather_at_home/data/marius_time_series/CEDA_MaRIUS_Climate_Data_Description.pdf
 http://data.ceda.ac.uk/badc/weather_at_home/data/marius_time_series/near_future/data/
 """
+import logging
 import os
 import pytemperature
 import xarray as xr
@@ -36,51 +37,75 @@ def create_realisation(
 
     # Read in stiching table
     df_path_stiching_table = pd.read_table(path_stiching_table, sep=" ")
-    
+
     # Set year as index
     df_path_stiching_table = df_path_stiching_table.set_index('year')
 
     # Realisations
     realisations = list(df_path_stiching_table.columns)
 
-    columns = ['timestep', 'station_id', 'stiching_name', 'yearday', 't_min', 't_max',]
+    columns = ['timestep', 'station_id', 'stiching_name', 'yearday', 't_min', 't_max']
 
     for i in range(realisation_nrs):
-
         realisation = realisations[i]
 
+        print("... creating weather data for realisation " + str(realisation), flush=True)
         realisation_out = []
-        
-        for year in range(2020, 2050):
-            stiching_name = df_path_stiching_table[realisation][year]
+
+        for year in range(2015, 2050):
+            print("   ... year: " + str(year), flush=True)
 
             # If year 2015 - 2019, take base year weather
             if year in range(2015, 2020):
+                stiching_name = 'all_2015_remapped'
                 path_weather_data = base_yr_remapped_weather_path
+                path_t_min = os.path.join(path_weather_data, "t_min_remapped.npy")
+                path_t_max = os.path.join(path_weather_data, "t_max_remapped.npy")
+                path_stations = os.path.join(path_weather_data, "stations_2015_remapped.csv")
             elif year == 2050:
                 year = 2049
+                stiching_name = df_path_stiching_table[realisation][year]
                 path_weather_data = os.path.join(realisation_path, str(year), stiching_name)
+                path_t_min = os.path.join(path_weather_data, "t_min.npy")
+                path_t_max = os.path.join(path_weather_data, "t_max.npy")
+                path_stations = os.path.join(path_weather_data, "stations.csv")
             else:
+                stiching_name = df_path_stiching_table[realisation][year]
                 path_weather_data = os.path.join(realisation_path, str(year), stiching_name)
+                path_t_min = os.path.join(path_weather_data, "t_min.npy")
+                path_t_max = os.path.join(path_weather_data, "t_max.npy")
+                path_stations = os.path.join(path_weather_data, "stations.csv")
 
             # Read t_min, t_max, stations)
-            t_min = np.load(os.path.join(path_weather_data, "t_min.npy"))
-            t_max = np.load(os.path.join(path_weather_data, "t_max.npy"))
-            stations = pd.read_csv(os.path.join(path_weather_data, "stations.csv"))
-
-            for station_cnt, station_id in enumerate(stations):
+            t_min = np.load(path_t_min)
+            t_max = np.load(path_t_max)
+            stations = pd.read_csv(path_stations)
+            nr_stations_arry = len(list(stations.values))
+            for station_cnt in range(nr_stations_arry):
                 t_min_station = t_min[station_cnt]
                 t_max_station = t_max[station_cnt]
+                station_id = 'station_id_{}'.format(station_cnt)
                 for yearday in range(365):
                     realisation_out.append(
                         [year, station_id, stiching_name, yearday, t_min_station[yearday], t_max_station[yearday]])
 
         # Write data to csv
-        df = pd.DataFrame(realisation_out, columns=columns)
-        path_out_csv = os.path.join(realisation_out_path, "weather_data_{}".format(realisation))
-        df.to_csv(path_out_csv, index=False)
+        print("... writing data", flush=True)
+        write_to_csv = True
+        write_to_np = False
+
+        if write_to_csv:
+            df = pd.DataFrame(realisation_out, columns=columns)
+            path_out_csv = os.path.join(realisation_out_path, "weather_data_{}.csv".format(realisation))
+            df.to_csv(path_out_csv, index=False)
+
+        if write_to_np:
+            path_out_carray = os.path.join(realisation_out_path, "weather_data_{}.npy".format(realisation))
+            out_array = np.array(realisation_out)
+            np.save(path_out_carray, out_array)
 
         # Write stations to csv
+        print("... writing stations to csv", flush=True)
         #df = pd.DataFrame(station_coordinates, columns=['station_id', 'latitude', 'longitude'])
         stations.to_csv(os.path.join(realisation_out_path, "stations_{}.csv".format(realisation)), index=False)
 
@@ -261,9 +286,9 @@ if clean_original_files:
     path = "X:/nismod/data/energy_demand/J-MARIUS_data"
     result_path = "X:/nismod/data/energy_demand/J-MARIUS_data"
 
-    years_to_clean = [2037]
+    #years_to_clean = [2037]
 
-    weather_dat_prepare(path, result_path, years_to_clean)
+    weather_dat_prepare(path, result_path)#, years_to_clean)
 
 if stich_weather_scenario:
     # ------------------------
@@ -274,6 +299,7 @@ if stich_weather_scenario:
     result_path = "X:/nismod/data/energy_demand/J-MARIUS_data"
     realisation_path = "X:/nismod/data/energy_demand/J-MARIUS_data/_weather_data_cleaned"
     realisation_out_path = "X:/nismod/data/energy_demand/J-MARIUS_data/_weather_realisation"
+    #realisation_out_path = "C:/_scrap"
     path_stiching_table = "X:/nismod/data/energy_demand/J-MARIUS_data/stitching_table/stitching_table_nf.dat"
 
     create_realisation(
