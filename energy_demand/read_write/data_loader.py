@@ -902,6 +902,40 @@ def get_shape_every_day(tech_lp, model_yeardays_daytype):
 
     return load_profile_y_dh
 
+def  load_weather_stations(path_stations):
+    """Read Weather stations from file
+    """
+    out_stations = {}
+    stations = pd.read_csv(path_stations)
+
+    for i in stations.index:
+        station_id = stations.get_value(i,'station_id')
+        latitude = stations.get_value(i,'latitude')
+        longitude = stations.get_value(i,'longitude')
+
+        out_stations[station_id] = {
+            'latitude' : float(latitude),
+            'longitude': float(longitude)}
+
+    return out_stations
+
+def  load_weather_stations(path_stations):
+    """Read Weather stations from file
+    """
+    out_stations = {}
+    stations = pd.read_csv(path_stations)
+
+    for i in stations.index:
+        station_id = stations.get_value(i,'station_id')
+        latitude = stations.get_value(i,'latitude')
+        longitude = stations.get_value(i,'longitude')
+
+        out_stations[station_id] = {
+            'latitude' : float(latitude),
+            'longitude': float(longitude)}
+
+    return out_stations
+
 def load_temp_data(
         local_paths,
         sim_yrs,
@@ -934,33 +968,25 @@ def load_temp_data(
 
     t_yrs_stations : dict
         Temperatures {sim_yr: {stations:  {t_min: np.array(365), t_max: np.array(365)}}}
+
+    Info
+    ----
+    PAarquest file http://pandas.pydata.org/pandas-docs/stable/io.html#io-parquet
     """
     print("... loading temperatures", flush=True)
 
     load_np = False
-    load_csv = True
+    load_parquet = True
+    load_csv = False
 
     temp_data_short = defaultdict(dict)
     weather_stations_with_data = defaultdict(dict)
 
     if crit_temp_min_max:
-
+        
         path_stations = os.path.join(path_weather_data, "stations_{}.csv".format(weather_realisation))
-
-        # ------------------
-        # Load stations
-        # ------------------
-        stations = pd.read_csv(path_stations)
-
-        for i in stations.index:
-            station_id = stations.get_value(i,'station_id')
-            latitude = stations.get_value(i,'latitude')
-            longitude = stations.get_value(i,'longitude')
-
-            weather_stations_with_data[station_id] = {
-                'latitude' : float(latitude),
-                'longitude': float(longitude)}
-
+        weather_stations_with_data = load_weather_stations(path_stations)
+        
         # ------------------
         # Read temperatures
         # ------------------
@@ -974,12 +1000,12 @@ def load_temp_data(
                 full_data,
                 columns=['timestep', 'station_id', 'stiching_name', 'yearday', 't_min', 't_max'])
 
-        if load_csv:
-            #path_temp_data = os.path.join(path_weather_data, "weather_data_{}.csv".format(weather_realisation))
-            #df_full_data = pd.read_csv(path_temp_data)
-
+        if load_parquet:
             path_temp_data = os.path.join(path_weather_data, "weather_data_{}.parquet".format(weather_realisation))
             df_full_data = pd.read_parquet(path_temp_data, engine='pyarrow')
+        if load_csv:
+            path_temp_data = os.path.join(path_weather_data, "weather_data_{}.csv".format(weather_realisation))
+            df_full_data = pd.read_csv(path_temp_data)
 
         for sim_yr in sim_yrs:
 
@@ -987,7 +1013,6 @@ def load_temp_data(
                 sim_yr = sim_yrs[0]
             else:
                 pass
-
             print("    ... sim_yr" + str(sim_yr), flush=True)
 
             # Select all station values
@@ -998,6 +1023,9 @@ def load_temp_data(
 
                 df_timestep_station = df_timestep.loc[df_timestep['station_id'] == station_id]
 
+                # Remove extrated rows to speed up process
+                df_timestep = df_timestep.drop(list(df_timestep_station.index))      
+      
                 t_min = list(df_timestep_station['t_min'].values)
                 t_max = list(df_timestep_station['t_max'].values)
 

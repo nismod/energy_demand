@@ -61,11 +61,13 @@ def create_realisation(
 
             # If year 2015 - 2019, take base year weather
             if year in range(2015, 2020):
+                print("... for year '{}' data from the year 2015 are used".format(year))
                 path_weather_data = base_yr_remapped_weather_path
                 path_t_min = os.path.join(path_weather_data, "t_min_remapped.npy")
                 path_t_max = os.path.join(path_weather_data, "t_max_remapped.npy")
                 path_stations = os.path.join(path_weather_data, "stations_2015_remapped.csv")
             elif year == 2050:
+                print("... for year '{}' data from the year 2049 are used".format(year))
                 year = 2049
                 stiching_name = df_path_stiching_table[realisation][year]
                 path_weather_data = os.path.join(realisation_path, str(year), stiching_name)
@@ -96,12 +98,14 @@ def create_realisation(
         print("... writing data", flush=True)
         write_to_csv = True
         write_to_np = False
+        write_to_parquet = False
 
         if write_to_csv:
             df = pd.DataFrame(realisation_out, columns=columns)
-            ##path_out_csv = os.path.join(realisation_out_path, "weather_data_{}.csv".format(realisation))
-            ##df.to_csv(path_out_csv, index=False)
-            
+            path_out_csv = os.path.join(realisation_out_path, "weather_data_{}.csv".format(realisation))
+            df.to_csv(path_out_csv, index=False)
+
+        if write_to_parquet: 
             path_out_parquet = os.path.join(realisation_out_path, "weather_data_{}.parquet".format(realisation))
             df.to_parquet(path_out_parquet, engine='pyarrow')
 
@@ -112,7 +116,6 @@ def create_realisation(
 
         # Write stations to csv
         print("... writing stations to csv", flush=True)
-        #df = pd.DataFrame(station_coordinates, columns=['station_id', 'latitude', 'longitude'])
         stations.to_csv(os.path.join(realisation_out_path, "stations_{}.csv".format(realisation)), index=False)
 
 def get_temp_data_from_nc(path_nc_file, attribute_to_keep):
