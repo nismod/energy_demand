@@ -906,6 +906,9 @@ def load_temp_data(
         local_paths,
         sim_yrs,
         weather_yrs_scenario,
+        weather_realisation,
+        path_weather_data,
+        same_base_year_weather=False,
         crit_temp_min_max=False
     ):
     """Read in cleaned temperature and weather station data
@@ -916,6 +919,8 @@ def load_temp_data(
         Local local_paths
     weather_yr_scenario : list
         Years to use temperatures
+    same_base_year_weather : bool
+        Criteria whether the base year weather is used for full simulation
 
     Returns
     -------
@@ -930,46 +935,67 @@ def load_temp_data(
     t_yrs_stations : dict
         Temperatures {sim_yr: {stations:  {t_min: np.array(365), t_max: np.array(365)}}}
     """
+    print("... loading temperatures", flush=True)
+
+    load_np = False
+    load_csv = True
+
     temp_data_short = defaultdict(dict)
     weather_stations_with_data = defaultdict(dict)
 
     if crit_temp_min_max:
 
-        '''path_weather_data = "X:/nismod/data/energy_demand/J-MARIUS_data/_weather_realisation"
-        abbrev_real = 'NF1'
+        path_stations = os.path.join(path_weather_data, "stations_{}.csv".format(weather_realisation))
 
-        path_stations = os.path.join(path_weather_data, "stations_{}.csv".format(abbrev_real))
-
+        # ------------------
         # Load stations
+        # ------------------
         stations = pd.read_csv(path_stations)
 
-        # -------------
+        for i in stations.index:
+            station_id = stations.get_value(i,'station_id')
+            latitude = stations.get_value(i,'latitude')
+            longitude = stations.get_value(i,'longitude')
+
+            weather_stations_with_data[station_id] = {
+                'latitude' : float(latitude),
+                'longitude': float(longitude)}
+
+        # ------------------
         # Read temperatures
-        # -------------
-        print("... reading in temperatures")
-
-        # Load temp
-        load_np = False
-        load_csv = True
-
+        # ------------------
+        print("...read")
         if load_np:
-            path_temp_data = os.path.join(path_weather_data, "weather_data_{}.npy".format(abbrev_real))
+            path_temp_data = os.path.join(path_weather_data, "weather_data_{}.npy".format(weather_realisation))
             full_data = np.load(path_temp_data)
+
             # Convert npy to dataframe
-            df_full_data = pd.DataFrame(full_data, columns=['timestep', 'station_id', 'stiching_name', 'yearday', 't_min', 't_max'])
+            df_full_data = pd.DataFrame(
+                full_data,
+                columns=['timestep', 'station_id', 'stiching_name', 'yearday', 't_min', 't_max'])
 
         if load_csv:
-            path_temp_data = os.path.join(path_weather_data, "weather_data_{}.csv".format(abbrev_real))
-            df_full_data = pd.read_csv(path_temp_data)
+            #path_temp_data = os.path.join(path_weather_data, "weather_data_{}.csv".format(weather_realisation))
+            #df_full_data = pd.read_csv(path_temp_data)
+
+            path_temp_data = os.path.join(path_weather_data, "weather_data_{}.parquet".format(weather_realisation))
+            df_full_data = pd.read_parquet(path_temp_data, engine='pyarrow')
 
         for sim_yr in sim_yrs:
-            print("... sim_yr" + str(sim_yr))
+
+            if same_base_year_weather:
+                sim_yr = sim_yrs[0]
+            else:
+                pass
+
+            print("    ... sim_yr" + str(sim_yr), flush=True)
+
             # Select all station values
             df_timestep = df_full_data.loc[df_full_data['timestep'] == sim_yr]
 
-            #for station_nr, station_id in enumerate(stations):
-            for _, row in stations.iterrows():
-                station_id = row['station_id']
+            for i in stations.index:
+                station_id = stations.get_value(i,'station_id')
+
                 df_timestep_station = df_timestep.loc[df_timestep['station_id'] == station_id]
 
                 t_min = list(df_timestep_station['t_min'].values)
@@ -979,36 +1005,10 @@ def load_temp_data(
                     't_min': np.array(t_min),
                     't_max': np.array(t_max)}
 
-        '''
-        old = True
-        if old:
-            for sim_yr in sim_yrs:
-
-                # Load dummy all the same year
-                path_weather_data = os.path.join(
-                    local_paths['local_path_datafolder'], '_raw_data', 'A-temperature_data', 't_min_t_max')
-
-                path_stations = os.path.join(local_paths['local_path_datafolder'], '_raw_data', 'A-temperature_data', 't_min_t_max')
-                stations_t_min = np.load(os.path.join(path_weather_data, "2015_t_min.npy"))
-                stations_t_max = np.load(os.path.join(path_weather_data, "2015_t_max.npy"))
-
-                stations = pd.read_csv(os.path.join(path_stations, '2015_stations.csv'))
-                stations = stations.set_index(('station_id'))
-                stations = stations.to_dict('index')
-
-                # TODO REMOVE MAKE THE SAME FOR EVERY YEAR
-                weather_stations_with_data[sim_yr] = stations
-
-                for station_nr, station_id in enumerate(stations):
-                    temp_data_short[sim_yr][station_id] = {
-                        't_min': stations_t_min[station_nr],
-                        't_max': stations_t_max[station_nr]}
-                
         return dict(weather_stations_with_data), dict(temp_data_short)
-
     else:
         weather_stations = read_weather_stations_raw(
-            local_paths['folder_path_weater_stations']) 
+            local_paths['folder_path_weater_stations'])
 
         for weather_yr_scenario in weather_yrs_scenario:
             temp_data = read_weather_data.read_weather_data_script_data(
@@ -1028,7 +1028,7 @@ def load_temp_data(
 
             for station_id in temp_data_short[weather_yr_scenario].keys():
                 try:
-                    weather_stations_with_data[weather_yr_scenario][station_id] = weather_stations[station_id]
+                    weather_stations_with_data[station_id] = weather_stations[station_id]
                 except:
                     del temp_data_short[weather_yr_scenario][station_id]
 

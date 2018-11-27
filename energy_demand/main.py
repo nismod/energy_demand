@@ -291,9 +291,14 @@ if __name__ == "__main__":
     # Make selection of weather stations and data
     # Load all temperature and weather station data
     # ---------------------------------------------
+    weather_realisation = 'NF1'
+    path_weather_data = "X:/nismod/data/energy_demand/J-MARIUS_data/_weather_realisation"
+
     data['weather_stations'], data['temp_data'] = data_loader.load_temp_data(
         data['local_paths'],
         sim_yrs=sim_yrs,
+        weather_realisation=weather_realisation,
+        path_weather_data=path_weather_data,
         weather_yrs_scenario=[base_yr, weather_yr_scenario],
         crit_temp_min_max=config['CRITERIA']['crit_temp_min_max'])
 
@@ -302,7 +307,7 @@ if __name__ == "__main__":
     temp_data_selection = defaultdict(dict)
     if weather_station_count_nr != []:
         for year in [base_yr, weather_yr_scenario]:
-            weather_stations_selection[year], wheather_station_id = weather_region.get_weather_station_selection(
+            weather_stations_selection, wheather_station_id = weather_region.get_weather_station_selection(
                 data['weather_stations'],
                 counter=weather_station_count_nr,
                 weather_yr=weather_yr_scenario)
@@ -312,7 +317,7 @@ if __name__ == "__main__":
                 simulation_name = str(weather_yr_scenario) + "__" + str(wheather_station_id)
     else:
         for year in [base_yr, weather_yr_scenario]:
-            weather_stations_selection[year] = data['weather_stations'][year]
+            weather_stations_selection = data['weather_stations']
             temp_data_selection[year] = data['temp_data'][year]
             if year == weather_yr_scenario:
                 simulation_name = str(weather_yr_scenario) + "__" + "all_stations"
@@ -324,7 +329,7 @@ if __name__ == "__main__":
     # Plot map with weather station
     '''if config['CRITERIA']['cluster_calc'] != True:
         data_loader.create_weather_station_map(
-            data['weather_stations'][weather_yr_scenario],
+            data['weather_stations'],
             os.path.join(data['path_new_scenario'], 'weatherst_distr_weathyr_{}.pdf'.format(weather_yr_scenario)),
             path_shapefile=data['local_paths']['lad_shapefile'])'''
 

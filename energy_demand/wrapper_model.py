@@ -91,7 +91,7 @@ def load_data_before_simulation(
                 data['simulation_name'] = str(weather_yr_scenario) + "__" + str(station_id)
     else:
         for year in [data['assumptions'].base_yr,  weather_yr_scenario]:
-            weather_stations_selection[year] = data['weather_stations'][year]
+            weather_stations_selection[year] = data['weather_stations']
             temp_data_selection[year] = data['temp_data'][year]
 
             if year == weather_yr_scenario:
@@ -471,7 +471,7 @@ def plots(
     # Plot map with weather station
     if config['CRITERIA']['cluster_calc'] != True:
         data_loader.create_weather_station_map(
-            data['weather_stations'][config['CONFIG']['weather_yr_scenario']],
+            data['weather_stations'],
             os.path.join(data['result_path'], 'weatherst_distr_weathyr_{}.pdf'.format(
                 config['CONFIG']['weather_yr_scenario'])),
             path_shapefile=data['local_paths']['lad_shapefile'])

@@ -47,7 +47,7 @@ def disaggr_demand(data, crit_temp_min_max, spatial_calibration=False):
         data['scenario_data'],
         data['assumptions'],
         data['reg_coord'],
-        data['weather_stations'][base_yr],  # Base year data used to disaggregate demand
+        data['weather_stations'],  # Base year data used to disaggregate demand
         data['temp_data'][base_yr],         # Base year data used to disaggregate demand
         data['sectors'],
         data['enduses'],

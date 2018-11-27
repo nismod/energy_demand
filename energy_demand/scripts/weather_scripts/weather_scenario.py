@@ -11,6 +11,10 @@ Links
 ------
 http://data.ceda.ac.uk//badc//weather_at_home/data/marius_time_series/CEDA_MaRIUS_Climate_Data_Description.pdf
 http://data.ceda.ac.uk/badc/weather_at_home/data/marius_time_series/near_future/data/
+
+
+https://medium.com/@rtjeannier/pandas-101-cont-9d061cb73bfc
+
 """
 import logging
 import os
@@ -44,7 +48,7 @@ def create_realisation(
     # Realisations
     realisations = list(df_path_stiching_table.columns)
 
-    columns = ['timestep', 'station_id', 'stiching_name', 'yearday', 't_min', 't_max']
+    columns = ['timestep', 'station_id', 'yearday', 't_min', 't_max']
 
     for i in range(realisation_nrs):
         realisation = realisations[i]
@@ -57,7 +61,6 @@ def create_realisation(
 
             # If year 2015 - 2019, take base year weather
             if year in range(2015, 2020):
-                stiching_name = 'all_2015_remapped'
                 path_weather_data = base_yr_remapped_weather_path
                 path_t_min = os.path.join(path_weather_data, "t_min_remapped.npy")
                 path_t_max = os.path.join(path_weather_data, "t_max_remapped.npy")
@@ -87,7 +90,7 @@ def create_realisation(
                 station_id = 'station_id_{}'.format(station_cnt)
                 for yearday in range(365):
                     realisation_out.append(
-                        [year, station_id, stiching_name, yearday, t_min_station[yearday], t_max_station[yearday]])
+                        [year, station_id, yearday, t_min_station[yearday], t_max_station[yearday]])
 
         # Write data to csv
         print("... writing data", flush=True)
@@ -96,13 +99,16 @@ def create_realisation(
 
         if write_to_csv:
             df = pd.DataFrame(realisation_out, columns=columns)
-            path_out_csv = os.path.join(realisation_out_path, "weather_data_{}.csv".format(realisation))
-            df.to_csv(path_out_csv, index=False)
+            ##path_out_csv = os.path.join(realisation_out_path, "weather_data_{}.csv".format(realisation))
+            ##df.to_csv(path_out_csv, index=False)
+            
+            path_out_parquet = os.path.join(realisation_out_path, "weather_data_{}.parquet".format(realisation))
+            df.to_parquet(path_out_parquet, engine='pyarrow')
 
         if write_to_np:
-            path_out_carray = os.path.join(realisation_out_path, "weather_data_{}.npy".format(realisation))
+            path_out_array = os.path.join(realisation_out_path, "weather_data_{}.npy".format(realisation))
             out_array = np.array(realisation_out)
-            np.save(path_out_carray, out_array)
+            np.save(path_out_array, out_array)
 
         # Write stations to csv
         print("... writing stations to csv", flush=True)
@@ -154,8 +160,8 @@ def extend_360_day_to_365(df, attribute):
     for i in df.index:
         day_cnt += 1
 
-        latitude = df.get_value(i,'lat')
-        longitude = df.get_value(i,'lon')
+        latitude = df.get_value(i, 'lat')
+        longitude = df.get_value(i, 'lon')
         value = df.get_value(i, attribute)
 
         # Copy extra day

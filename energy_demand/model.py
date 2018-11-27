@@ -48,11 +48,11 @@ class EnergyDemandModel(object):
         # ----------------------------
         print("... generating cy weather regions", flush=True)
         weather_regions_weather_cy = {}
-        for weather_region in weather_stations[weather_yr]:
+        for weather_region in weather_stations:
             weather_regions_weather_cy[weather_region] = WeatherRegion(
                 name=weather_region,
-                latitude=weather_stations[weather_yr][weather_region]['latitude'],
-                longitude=weather_stations[weather_yr][weather_region]['longitude'],
+                latitude=weather_stations[weather_region]['latitude'],
+                longitude=weather_stations[weather_region]['longitude'],
                 assumptions=assumptions,
                 technologies=assumptions.technologies,
                 enduses=data['enduses'],
@@ -64,11 +64,11 @@ class EnergyDemandModel(object):
 
         print("... generating by weather regions", flush=True)
         weather_regions_weather_by = {}
-        for weather_region in weather_stations[weather_by]:
+        for weather_region in weather_stations:
             weather_regions_weather_by[weather_region] = WeatherRegion(
                 name=weather_region,
-                latitude=weather_stations[weather_by][weather_region]['latitude'],
-                longitude=weather_stations[weather_by][weather_region]['longitude'],
+                latitude=weather_stations[weather_region]['latitude'],
+                longitude=weather_stations[weather_region]['longitude'],
                 assumptions=assumptions,
                 technologies=assumptions.technologies,
                 enduses=data['enduses'],
