@@ -67,7 +67,6 @@ def load_data_before_simulation(
         reg_nrs=len(data['regions']))
 
     # Load all temperature and weather station data 
-    # TODO LOAD FROM WRAPPER
     '''data['weather_stations'], data['temp_data'] = data_loader.load_temp_data(
         data['local_paths'],
         sim_yrs=sim_yrs,
@@ -81,7 +80,7 @@ def load_data_before_simulation(
     temp_data_selection = {}
     if data['weather_station_count_nr'] != []:
         for year in [data['assumptions'].base_yr, weather_yr_scenario]:
-            weather_stations_selection[year], station_id = weather_region.get_weather_station_selection(
+            weather_stations_selection, station_id = weather_region.get_weather_station_selection(
                 data['weather_stations'],
                 counter=data['weather_station_count_nr'],
                 weather_yr = weather_yr_scenario)
@@ -91,7 +90,7 @@ def load_data_before_simulation(
                 data['simulation_name'] = str(weather_yr_scenario) + "__" + str(station_id)
     else:
         for year in [data['assumptions'].base_yr,  weather_yr_scenario]:
-            weather_stations_selection[year] = data['weather_stations']
+            weather_stations_selection = data['weather_stations']
             temp_data_selection[year] = data['temp_data'][year]
 
             if year == weather_yr_scenario:
