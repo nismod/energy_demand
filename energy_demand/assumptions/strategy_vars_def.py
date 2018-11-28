@@ -423,7 +423,6 @@ def load_param_assump(
 
 def autocomplete_strategy_vars(
         strategy_vars,
-        strategy_vars_to_ignore=[],
         narrative_crit=False
     ):
     """Autocomplete all narratives or strategy variables with

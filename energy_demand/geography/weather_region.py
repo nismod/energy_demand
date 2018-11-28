@@ -37,6 +37,7 @@ class WeatherRegion(object):
     ----
     - For each region, a technology stock is defined
     - regional specific fuel shapes are assigned to technologies
+    #TODO CLEAN
     """
     def __init__(
             self,
@@ -240,13 +241,6 @@ class WeatherRegion(object):
             tech_stock=rs_tech_stock,
             rs_hdd_cy=self.rs_hdd_cy,
             model_yeardays=assumptions.model_yeardays)
-
-        # Flat lp
-        '''flat_rs_fuel_shape_hp_yh, rs_hp_shape_yd = get_fuel_shape_heating_hp_yh(
-            tech_lp_y_dh=flat_shape_y_dh,
-            tech_stock=rs_tech_stock,
-            rs_hdd_cy=self.rs_hdd_cy,
-            model_yeardays=assumptions.model_yeardays)'''
 
         load_profiles.add_lp(
             unique_identifier=uuid.uuid4(),

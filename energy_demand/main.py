@@ -12,11 +12,19 @@ TODO REMOVE test_if_minus_value_in_array
 #TODO REMOVE weather_yr_scenario
 TODO: CHANGE 'latitude' : float(row['Latitude']),
 
+NARRATIVE CORRETION
+
+create_narratives()
+
+
+
+
 # TEST NON CONSTRAINED MODE
-# Pre initialisation
-#   Note
-    ----
-    Always execute from root folder. (e.g. energy_demand/energy_demand/main.py
+
+
+Note
+----
+Always execute from root folder. (e.g. energy_demand/energy_demand/main.py
 """
 import os
 import sys
@@ -231,13 +239,12 @@ if __name__ == "__main__":
     # -----------------------------------------
     # User defines stragey variable from csv files
     # -----------------------------------------
-    ##path_user_defined_narratives = os.path.join(local_data_path, '00_user_defined_variables')
     path_user_defined_narratives = data['local_paths']['path_strategy_vars']
 
     user_defined_vars = data_loader.load_user_defined_vars(
         data=data,
         default_strategy_var=default_streategy_vars,
-        path_csv= path_user_defined_narratives,
+        path_csv=path_user_defined_narratives,
         simulation_base_yr=data['assumptions'].base_yr,
         simulation_end_yr=data['assumptions'].simulation_end_yr)
 

@@ -439,7 +439,6 @@ def simulate_region(
     # ----------------------------
     # Create Base year and current weather Regions
     # ----------------------------
-    #print("    ... generating weather regions", flush=True)
     weather_regions_weather_cy = WeatherRegion(
         name=weather_region_id,
         latitude=weather_stations[weather_region_id]['latitude'],
