@@ -47,8 +47,8 @@ def disaggr_demand(data, crit_temp_min_max, spatial_calibration=False):
         data['scenario_data'],
         data['assumptions'],
         data['reg_coord'],
-        data['weather_stations'],  # Base year data used to disaggregate demand
-        data['temp_data'][base_yr],         # Base year data used to disaggregate demand
+        data['weather_stations'], # Base year data used to disaggregate demand
+        data['temp_data'][base_yr], # Base year data used to disaggregate demand
         data['sectors'],
         data['enduses'],
         data['service_building_count'],
@@ -61,8 +61,8 @@ def disaggr_demand(data, crit_temp_min_max, spatial_calibration=False):
 
         Note: All other fueltypes are not skaled
         '''
-        calibrate_residential = False       # Calibrate residential demands
-        calibrate_non_residential = True    # Calibrate non residential demands
+        calibrate_residential = False # Calibrate residential demands
+        calibrate_non_residential = True # Calibrate non residential demands
 
         # Non-residential electricity regional demands of base year for electrictiy and gas
         fueltype_elec = tech_related.get_fueltype_int('electricity')

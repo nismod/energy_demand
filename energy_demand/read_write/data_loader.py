@@ -902,7 +902,7 @@ def get_shape_every_day(tech_lp, model_yeardays_daytype):
 
     return load_profile_y_dh
 
-def  load_weather_stations(path_stations):
+def  load_weather_stations_df(path_stations):
     """Read Weather stations from file
     """
     out_stations = {}
@@ -919,7 +919,7 @@ def  load_weather_stations(path_stations):
 
     return out_stations
 
-def load_weather_stations(path_stations):
+def load_weather_stations_csv(path_stations):
     """Read Weather stations from file
     """
     out_stations = {}
@@ -976,8 +976,8 @@ def load_temp_data(
     print("... loading temperatures", flush=True)
 
     load_np = False
-    load_parquet = False
-    load_csv = True
+    load_parquet = True
+    load_csv = False
 
     temp_data_short = defaultdict(dict)
     weather_stations_with_data = defaultdict(dict)
@@ -990,12 +990,11 @@ def load_temp_data(
         path_stations = os.path.join(
             path_weather_data, "stations_{}.csv".format(weather_realisation))
 
-        #weather_stations_with_data = load_weather_stations(path_stations)
-        weather_stations_with_data = pd.read_csv(path_stations)
+        weather_stations_with_data = load_weather_stations_csv(path_stations)
+
         # ------------------
         # Read temperatures
         # ------------------
-        print("...read")
         if load_np:
             path_temp_data = os.path.join(path_weather_data, "weather_data_{}.npy".format(weather_realisation))
             full_data = np.load(path_temp_data)
@@ -1023,14 +1022,13 @@ def load_temp_data(
             # Select all station values
             df_timestep = df_full_data.loc[df_full_data['timestep'] == sim_yr]
 
-            for i in weather_stations_with_data.index:
-                station_id = weather_stations_with_data.get_value(i,'station_id')
+            for station_id in weather_stations_with_data:
 
                 df_timestep_station = df_timestep.loc[df_timestep['station_id'] == station_id]
 
                 # Remove extrated rows to speed up process
-                df_timestep = df_timestep.drop(list(df_timestep_station.index))      
-      
+                df_timestep = df_timestep.drop(list(df_timestep_station.index))
+
                 t_min = list(df_timestep_station['t_min'].values)
                 t_max = list(df_timestep_station['t_max'].values)
 

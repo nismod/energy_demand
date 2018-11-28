@@ -13,6 +13,7 @@ from energy_demand.profiles import load_factors
 from energy_demand.profiles import generic_shapes
 from energy_demand.basic import demand_supply_interaction
 from energy_demand.basic import testing_functions
+from energy_demand.geography import weather_station_location
 
 class EnergyDemandModel(object):
     """ Main function of energy demand model. All submodels
@@ -43,7 +44,7 @@ class EnergyDemandModel(object):
         """
         self.curr_yr = assumptions.curr_yr
 
-        # ----------------------------
+        '''# ----------------------------
         # Create Weather Regions
         # ----------------------------
         print("... generating cy weather regions", flush=True)
@@ -76,7 +77,7 @@ class EnergyDemandModel(object):
                 temp_cy=data['temp_data'][weather_yr][weather_region],
                 tech_lp=data['tech_lp'],
                 sectors=data['sectors'],
-                crit_temp_min_max=criterias['crit_temp_min_max'])
+                crit_temp_min_max=criterias['crit_temp_min_max'])'''
 
         # ------------------------
         # Create Dwelling Stock
@@ -119,8 +120,11 @@ class EnergyDemandModel(object):
                 data,
                 criterias,
                 assumptions,
-                weather_regions_weather_cy,
-                weather_regions_weather_by)
+                weather_stations,
+                weather_yr,
+                weather_by) #,
+                #weather_regions_weather_cy,
+                #weather_regions_weather_by)
 
             # ---------------------------------------------
             # Aggregate results specifically over regions
@@ -403,8 +407,10 @@ def simulate_region(
         data,
         criterias,
         assumptions,
-        weather_regions_weather_cy,
-        weather_regions_weather_by
+        weather_stations,
+        weather_yr,
+        weather_by
+
     ):
     """Run submodels for a single region
 
@@ -414,10 +420,6 @@ def simulate_region(
         Region name
     data : dict
         Data container
-    weather_regions_weather_cy : obj
-        Weather regions pf current weather year
-    weather_regions_weather_by : obj
-        Weather regions of weather base year
 
     Returns
     -------
@@ -428,10 +430,49 @@ def simulate_region(
 
     submodel_names = assumptions.submodels_names
 
+    # Get closest weather region object
+    weather_region_id = weather_station_location.get_closest_station(
+        latitude_reg=data['reg_coord'][region]['latitude'],
+        longitude_reg=data['reg_coord'][region]['longitude'],
+        weather_stations=weather_stations)
+
+    # ----------------------------
+    # Create Base year and current weather Regions
+    # ----------------------------
+    #print("    ... generating weather regions", flush=True)
+    weather_regions_weather_cy = WeatherRegion(
+        name=weather_region_id,
+        latitude=weather_stations[weather_region_id]['latitude'],
+        longitude=weather_stations[weather_region_id]['longitude'],
+        assumptions=assumptions,
+        technologies=assumptions.technologies,
+        enduses=data['enduses'],
+        temp_by=data['temp_data'][weather_by][weather_region_id],
+        temp_cy=data['temp_data'][weather_yr][weather_region_id],
+        tech_lp=data['tech_lp'],
+        sectors=data['sectors'],
+        crit_temp_min_max=criterias['crit_temp_min_max'])
+
+    weather_regions_weather_by = WeatherRegion(
+        name=weather_region_id,
+        latitude=weather_stations[weather_region_id]['latitude'],
+        longitude=weather_stations[weather_region_id]['longitude'],
+        assumptions=assumptions,
+        technologies=assumptions.technologies,
+        enduses=data['enduses'],
+        temp_by=data['temp_data'][weather_by][weather_region_id],
+        temp_cy=data['temp_data'][weather_yr][weather_region_id],
+        tech_lp=data['tech_lp'],
+        sectors=data['sectors'],
+        crit_temp_min_max=criterias['crit_temp_min_max'])
+
     # Get region specific disaggregated fuel
     region_fuel_disagg = get_disaggregated_fuel_of_reg(
         submodel_names, data['fuel_disagg'], region)
 
+    # ----------------------------
+    # Create Region
+    # ----------------------------
     region_obj = Region(
         name=region,
         longitude=data['reg_coord'][region]['longitude'],
@@ -440,16 +481,8 @@ def simulate_region(
         weather_reg_cy=weather_regions_weather_cy,
         weather_reg_by=weather_regions_weather_by)
 
-    # Closest weather region object
-    weather_region_obj = weather_regions_weather_cy[region_obj.closest_weather_reg]
-
-    # Iterate overall submodels
     for submodel_name in submodel_names:
-
-        # Iterate overall sectors in submodel
         for sector in data['sectors'][submodel_name]:
-
-            # Iterate overall enduses and sectors in submodel
             for enduse in data['enduses'][submodel_name]:
 
                 # ------------------------------------------------------
@@ -473,16 +506,16 @@ def simulate_region(
                     region=region_obj.name,
                     scenario_data=data['scenario_data'],
                     assumptions=assumptions,
-                    load_profiles=weather_region_obj.load_profiles,
+                    load_profiles=weather_regions_weather_cy.load_profiles,
                     f_weather_correction=region_obj.f_weather_correction[submodel_name],
                     base_yr=assumptions.base_yr,
                     curr_yr=assumptions.curr_yr,
                     enduse=enduse,
                     sector=sector,
                     fuel=region_obj.fuels[submodel_name][enduse][sector],
-                    tech_stock=weather_region_obj.tech_stock[submodel_name],
-                    heating_factor_y=weather_region_obj.f_heat[submodel_name],
-                    cooling_factor_y=weather_region_obj.f_colling[submodel_name],
+                    tech_stock=weather_regions_weather_cy.tech_stock[submodel_name],
+                    heating_factor_y=weather_regions_weather_cy.f_heat[submodel_name],
+                    cooling_factor_y=weather_regions_weather_cy.f_colling[submodel_name],
                     fuel_tech_p_by=assumptions.fuel_tech_p_by[enduse][sector],
                     criterias=criterias,
                     strategy_vars=assumptions.regional_vars[region_obj.name],

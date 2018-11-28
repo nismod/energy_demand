@@ -104,9 +104,9 @@ def create_realisation(
 
         # Write data to csv
         print("... writing data", flush=True)
-        write_to_csv = True
+        write_to_csv = False
         write_to_np = False
-        write_to_parquet = False
+        write_to_parquet = True
 
         if write_to_csv:
             df = pd.DataFrame(realisation_out, columns=columns)
@@ -115,6 +115,7 @@ def create_realisation(
 
         if write_to_parquet: 
             path_out_parquet = os.path.join(realisation_out_path, "weather_data_{}.parquet".format(realisation))
+            df = pd.DataFrame(realisation_out, columns=columns)
             df.to_parquet(path_out_parquet, engine='pyarrow')
 
         if write_to_np:
