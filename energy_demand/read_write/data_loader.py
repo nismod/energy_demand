@@ -990,8 +990,8 @@ def load_temp_data(
         path_stations = os.path.join(
             path_weather_data, "stations_{}.csv".format(weather_realisation))
 
-        weather_stations_with_data = load_weather_stations(path_stations)
-
+        #weather_stations_with_data = load_weather_stations(path_stations)
+        weather_stations_with_data = pd.read_csv(path_stations)
         # ------------------
         # Read temperatures
         # ------------------
@@ -1023,8 +1023,8 @@ def load_temp_data(
             # Select all station values
             df_timestep = df_full_data.loc[df_full_data['timestep'] == sim_yr]
 
-            for i in stations.index:
-                station_id = stations.get_value(i,'station_id')
+            for i in weather_stations_with_data.index:
+                station_id = weather_stations_with_data.get_value(i,'station_id')
 
                 df_timestep_station = df_timestep.loc[df_timestep['station_id'] == station_id]
 
@@ -1188,8 +1188,8 @@ def rs_collect_shapes_from_txts(txt_path, model_yeardays):
             os.path.join(txt_path, str(enduse) + str("__") + str('shape_non_peak_yd') + str('.txt')))
 
         # Select only modelled days (nr_of_days, 24)
-        shape_non_peak_y_dh_selection = shape_non_peak_y_dh[[model_yeardays]]
-        shape_non_peak_yd_selection = shape_non_peak_yd[[model_yeardays]]
+        shape_non_peak_y_dh_selection = shape_non_peak_y_dh[model_yeardays]
+        shape_non_peak_yd_selection = shape_non_peak_yd[model_yeardays]
 
         rs_shapes_dh[enduse] = {
             'shape_peak_dh': shape_peak_dh,
@@ -1250,8 +1250,8 @@ def ss_collect_shapes_from_txts(txt_path, model_yeardays):
             # -----------------------------------------------------------
             # Select only modelled days (nr_of_days, 24)
             # -----------------------------------------------------------
-            shape_non_peak_y_dh_selection = shape_non_peak_y_dh[[model_yeardays]]
-            shape_non_peak_yd_selection = shape_non_peak_yd[[model_yeardays]]
+            shape_non_peak_y_dh_selection = shape_non_peak_y_dh[model_yeardays]
+            shape_non_peak_yd_selection = shape_non_peak_yd[model_yeardays]
 
             ss_shapes_dh[enduse][sector] = {
                 'shape_peak_dh': shape_peak_dh,

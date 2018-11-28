@@ -341,6 +341,6 @@ def calc_yh(shape_yd, shape_y_dh, model_yeardays):
     shape_yh : array
         Shape for every hour in a year (total sum == 1)
     """
-    shape_yh = shape_yd[:, np.newaxis] * shape_y_dh[[model_yeardays]]
+    shape_yh = shape_yd[:, np.newaxis] * shape_y_dh[model_yeardays]
 
     return shape_yh

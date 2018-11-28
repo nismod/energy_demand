@@ -563,7 +563,7 @@ def calc_reg_hdd(
     shape_hdd_d = load_profile.abs_to_rel(hdd_d)
 
     # Select only modelled yeardays
-    shape_hdd_d_selection = shape_hdd_d[[model_yeardays]]
+    shape_hdd_d_selection = shape_hdd_d[model_yeardays]
 
     return hdd_d, shape_hdd_d_selection
 
@@ -608,8 +608,8 @@ def calc_reg_cdd(
         shape_cdd_d = load_profile.abs_to_rel(cdd_d)
 
         # Select only modelled yeardays
-        shape_cdd_d_selection = shape_cdd_d[[model_yeardays]]
-        cdd_d_selection = cdd_d[[model_yeardays]]
+        shape_cdd_d_selection = shape_cdd_d[model_yeardays]
+        cdd_d_selection = cdd_d[model_yeardays]
 
         # If no calc_provide flat curve
         if np.sum(cdd_d_selection) == 0:
@@ -626,8 +626,8 @@ def calc_reg_cdd(
         shape_cdd_d = load_profile.abs_to_rel(cdd_d)
 
         # Select only modelled yeardays
-        shape_cdd_d_selection = shape_cdd_d[[model_yeardays]]
-        cdd_d_selection = cdd_d[[model_yeardays]]
+        shape_cdd_d_selection = shape_cdd_d[model_yeardays]
+        cdd_d_selection = cdd_d[model_yeardays]
 
         # If no calc_provide flat curve
         if np.sum(cdd_d_selection) == 0:

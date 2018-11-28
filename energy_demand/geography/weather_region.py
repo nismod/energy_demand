@@ -565,7 +565,7 @@ def get_fuel_shape_heating_hp_yh(tech_lp_y_dh, tech_stock, rs_hdd_cy, model_year
     shape_y_dh[np.isnan(shape_y_dh)] = 0
 
     # Select only modelled days
-    return shape_yh[[model_yeardays]], hp_yd
+    return shape_yh[model_yeardays], hp_yd
 
 def get_shape_cooling_yh(tech_shape, cooling_shape):
     """Convert daily shape to hourly
