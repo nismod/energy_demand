@@ -36,6 +36,9 @@ def create_realisation(
     """
     Before running, generate 2015 remapped data
     """
+    sim_yr_start = 2015
+    sim_yr_end = 2050
+
     # Create result path
     basic_functions.create_folder(realisation_out_path)
 
@@ -55,19 +58,20 @@ def create_realisation(
 
         print("... creating weather data for realisation " + str(realisation), flush=True)
         realisation_out = []
+        stations_out = pd.DataFrame()
 
-        for year in range(2015, 2050):
-            print("   ... year: " + str(year), flush=True)
+        for sim_yr in range(sim_yr_start, sim_yr_end):
+            print("   ... year: " + str(sim_yr), flush=True)
 
             # If year 2015 - 2019, take base year weather
-            if year in range(2015, 2020):
-                print("... for year '{}' data from the year 2015 are used".format(year))
+            if sim_yr in range(2015, 2020):
+                print("... for year '{}' data from the year 2015 are used".format(sim_yr))
                 path_weather_data = base_yr_remapped_weather_path
                 path_t_min = os.path.join(path_weather_data, "t_min_remapped.npy")
                 path_t_max = os.path.join(path_weather_data, "t_max_remapped.npy")
                 path_stations = os.path.join(path_weather_data, "stations_2015_remapped.csv")
-            elif year == 2050:
-                print("... for year '{}' data from the year 2049 are used".format(year))
+            elif sim_yr == 2050:
+                print("... for year '{}' data from the year 2049 are used".format(sim_yr))
                 year = 2049
                 stiching_name = df_path_stiching_table[realisation][year]
                 path_weather_data = os.path.join(realisation_path, str(year), stiching_name)
@@ -75,6 +79,7 @@ def create_realisation(
                 path_t_max = os.path.join(path_weather_data, "t_max.npy")
                 path_stations = os.path.join(path_weather_data, "stations.csv")
             else:
+                year = sim_yr
                 stiching_name = df_path_stiching_table[realisation][year]
                 path_weather_data = os.path.join(realisation_path, str(year), stiching_name)
                 path_t_min = os.path.join(path_weather_data, "t_min.npy")
@@ -85,6 +90,9 @@ def create_realisation(
             t_min = np.load(path_t_min)
             t_max = np.load(path_t_max)
             stations = pd.read_csv(path_stations)
+            stations['timestep'] = sim_yr
+            stations_out = stations_out.append(stations)
+
             nr_stations_arry = len(list(stations.values))
             for station_cnt in range(nr_stations_arry):
                 t_min_station = t_min[station_cnt]
@@ -92,7 +100,7 @@ def create_realisation(
                 station_id = 'station_id_{}'.format(station_cnt)
                 for yearday in range(365):
                     realisation_out.append(
-                        [year, station_id, yearday, t_min_station[yearday], t_max_station[yearday]])
+                        [sim_yr, station_id, yearday, t_min_station[yearday], t_max_station[yearday]])
 
         # Write data to csv
         print("... writing data", flush=True)
@@ -116,7 +124,7 @@ def create_realisation(
 
         # Write stations to csv
         print("... writing stations to csv", flush=True)
-        stations.to_csv(os.path.join(realisation_out_path, "stations_{}.csv".format(realisation)), index=False)
+        stations_out.to_csv(os.path.join(realisation_out_path, "stations_{}.csv".format(realisation)), index=False)
 
 def get_temp_data_from_nc(path_nc_file, attribute_to_keep):
     """Open c file, convert it into dataframe,
@@ -308,7 +316,6 @@ if stich_weather_scenario:
     result_path = "X:/nismod/data/energy_demand/J-MARIUS_data"
     realisation_path = "X:/nismod/data/energy_demand/J-MARIUS_data/_weather_data_cleaned"
     realisation_out_path = "X:/nismod/data/energy_demand/J-MARIUS_data/_weather_realisation"
-    #realisation_out_path = "C:/_scrap"
     path_stiching_table = "X:/nismod/data/energy_demand/J-MARIUS_data/stitching_table/stitching_table_nf.dat"
 
     create_realisation(

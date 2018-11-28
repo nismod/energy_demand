@@ -919,7 +919,7 @@ def  load_weather_stations(path_stations):
 
     return out_stations
 
-def  load_weather_stations(path_stations):
+def load_weather_stations(path_stations):
     """Read Weather stations from file
     """
     out_stations = {}
@@ -983,10 +983,15 @@ def load_temp_data(
     weather_stations_with_data = defaultdict(dict)
 
     if crit_temp_min_max:
-        
-        path_stations = os.path.join(path_weather_data, "stations_{}.csv".format(weather_realisation))
+
+        # ------------------
+        # Read stations
+        # ------------------
+        path_stations = os.path.join(
+            path_weather_data, "stations_{}.csv".format(weather_realisation))
+
         weather_stations_with_data = load_weather_stations(path_stations)
-        
+
         # ------------------
         # Read temperatures
         # ------------------
