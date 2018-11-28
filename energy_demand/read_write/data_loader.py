@@ -976,8 +976,8 @@ def load_temp_data(
     print("... loading temperatures", flush=True)
 
     load_np = False
-    load_parquet = True
-    load_csv = False
+    load_parquet = False
+    load_csv = True
 
     temp_data_short = defaultdict(dict)
     weather_stations_with_data = defaultdict(dict)
