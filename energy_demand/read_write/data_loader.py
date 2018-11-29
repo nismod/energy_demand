@@ -20,7 +20,7 @@ from energy_demand.plotting import fig_lp
 from energy_demand.basic import basic_functions
 from energy_demand.read_write import narrative_related
 
-def load_smif_narrative_data(
+'''def load_smif_narrative_data(
         default_strategy_var,
         narrative_variables,
         loaded_narrative_data,
@@ -51,7 +51,7 @@ def load_smif_narrative_data(
         strategy_vars_as_narratives[narrative_variable] = parameter_narratives
 
     return strategy_vars_as_narratives
-
+'''
 def print_closest_and_region(stations_as_dict, region_to_plot, closest_region):
     """Function used to test if the closest weather region is assigned
     """
@@ -276,17 +276,6 @@ def load_user_defined_vars(
                 simulation_base_yr=simulation_base_yr,
                 default_streategy_var=default_strategy_var[var_name],
                 var_name=var_name)
-
-            # -----------------------------------
-            # Crate narratives from file content NEW REMOVED
-            # -----------------------------------
-            '''parameter_narratives = narrative_related.create_narratives_NEW(
-                raw_file_content,
-                simulation_base_yr,
-                simulation_end_yr,
-                default_strategy_var[var_name])
-
-            strategy_vars_as_narratives[var_name] = parameter_narratives'''
 
     return strategy_vars_as_narratives
 

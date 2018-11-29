@@ -14,10 +14,6 @@ TODO: CHANGE 'latitude' : float(row['Latitude']),
 
 NARRATIVE CORRETION
 
-create_narratives()
-
-
-
 
 # TEST NON CONSTRAINED MODE
 

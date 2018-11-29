@@ -51,6 +51,9 @@ def load_smif_parameters(
                 if mode == 'local':
                     scenario_value = sub_var_entries['scenario_value']
 
+                # -----------------------------------
+                # Crate single-step default narratives (up to end_year)
+                # -----------------------------------
                 strategy_vars[var_name][sub_var_name] = narrative_related.default_narrative(
                     end_yr=end_yr,
                     value_by=sub_var_entries['default_value'],
@@ -58,16 +61,6 @@ def load_smif_parameters(
                     diffusion_choice=sub_var_entries['diffusion_type'],
                     base_yr=base_yr,
                     regional_specific=sub_var_entries['regional_specific'])
-
-                ## MAKE thius here instead of multidimensional??
-                '''# -----------------------------------
-                # Crate narratives from file content
-                # -----------------------------------
-                parameter_narratives = narrative_related.create_narratives(
-                    narrative_data,
-                    simulation_base_yr,
-                    simulation_end_yr,
-                    default_strategy_var[narrative_variable])'''
 
     return strategy_vars
 
@@ -144,22 +137,16 @@ def load_param_assump(
     # ------------------
     strategy_vars['spatial_explicit_diffusion'] = {
         "name": "spatial_explicit_diffusion",
-        "absolute_range": (0, 1),
         "description": "Criteria to define spatial or non spatial diffusion",
-        "suggested_range": (0, 1),
         "default_value": default_values['spatial_explicit_diffusion'],
-        "units": 'years',
         "sector": True,
         'regional_specific': False,
         'diffusion_type': 'linear'}
 
     strategy_vars['speed_con_max'] = {
         "name": "speed_con_max",
-        "absolute_range": (0, 99),
         "description": "Maximum speed of penetration (for spatial explicit diffusion)",
-        "suggested_range": (0, 99),
         "default_value": default_values['speed_con_max'],
-        "units": None,
         "sector": True,
         'regional_specific': False,
         'diffusion_type': 'linear'}
@@ -170,11 +157,8 @@ def load_param_assump(
     # ----------------------
     strategy_vars['gshp_fraction_ey'] = {
         "name": "gshp_fraction_ey",
-        "absolute_range": (0, 1),
         "description": "Relative GSHP (%) to GSHP+ASHP",
-        "suggested_range": "",
         "default_value": default_values['gshp_fraction'],
-        "units": 'decimal',
         "sector": True,
         'regional_specific': False,
         'diffusion_type': 'linear'}
@@ -191,11 +175,9 @@ def load_param_assump(
     for demand_name, scenario_value in default_enduses.items():
         strategy_vars['dm_improvement'][demand_name] = {
             "name": demand_name,
-            "absolute_range": (0, 1),
+
             "description": "reduction in load factor for enduse {}".format(demand_name),
-            "suggested_range": (0, 1),
             "default_value": scenario_value,
-            "units": 'decimal',
             "sector": True,
             "enduse": [demand_name],
             'regional_specific': True,
@@ -207,11 +189,8 @@ def load_param_assump(
     # ============================================================
     strategy_vars['rs_t_base_heating'] = {
         "name": "rs_t_base_heating",
-        "absolute_range": (0, 20),
         "description": "Base temperature assumption residential heating",
-        "suggested_range": (13, 17),
         "default_value": default_values['rs_t_heating_by'],
-        "units": '°C',
         "sector": True,
         'regional_specific': False,
         'diffusion_type': 'linear'}
@@ -219,11 +198,8 @@ def load_param_assump(
     # Future base year temperature
     strategy_vars['ss_t_base_heating'] = {
         "name": "ss_t_base_heating",
-        "absolute_range": (0, 20),
         "description": "Base temperature assumption service sector heating",
-        "suggested_range": (13, 17),
         "default_value": default_values['ss_t_heating_by'],
-        "units": '°C',
         "sector": True,
         'regional_specific': False,
         'diffusion_type': 'linear'}
@@ -232,11 +208,8 @@ def load_param_assump(
     # Future base year temperature
     strategy_vars['ss_t_base_cooling'] = {
         "name": "ss_t_base_cooling",
-        "absolute_range": (0, 25),
         "description": "Base temperature assumption service sector cooling",
-        "suggested_range": (13, 17),
         "default_value": default_values['ss_t_cooling_by'],
-        "units": '°C',
         "sector": True,
         'regional_specific': False,
         'diffusion_type': 'linear'}
@@ -244,11 +217,8 @@ def load_param_assump(
     # Future base year temperature
     strategy_vars['is_t_base_heating'] = {
         "name": "is_t_base_heating",
-        "absolute_range": (0, 20),
         "description": "Base temperature assumption service sector heating",
-        "suggested_range": (13, 17),
         "default_value": default_values['is_t_heating_by'],
-        "units": '°C',
         "sector": True,
         'regional_specific': False,
         'diffusion_type': 'linear'}
@@ -258,11 +228,8 @@ def load_param_assump(
     # ============================================================
     strategy_vars['smart_meter_p'] = {
         "name": "smart_meter_p",
-        "absolute_range": (0, 1),
         "description": "Improvement of smart meter penetration",
-        "suggested_range": (0, 1.0),
         "default_value": default_values['smart_meter_p_by'],
-        "units": 'decimal',
         "sector": True,
         'regional_specific': True,
         'diffusion_type': 'linear'}
@@ -277,11 +244,9 @@ def load_param_assump(
     for sub_param_name, sub_param_value in cooled_floorarea.items():
         strategy_vars['cooled_floorarea'][sub_param_name] = {
             "name": sub_param_name,
-            "absolute_range": (0, 1),
+
             "description": "Change in cooling of floor area (service sector)",
-            "suggested_range": (-1, 1),
             "default_value": sub_param_value,
-            "units": 'decimal',
             "sector": True,
             'regional_specific': True,
             'diffusion_type': 'linear'}
@@ -291,11 +256,8 @@ def load_param_assump(
     # ============================================================
     strategy_vars['p_cold_rolling_steel'] = {
         "name": "p_cold_rolling_steel",
-        "absolute_range": (0, 1),
         "description": "Sectoral share of cold rolling in steel manufacturing)",
-        "suggested_range": (0, 1),
         "default_value": default_values['p_cold_rolling_steel_by'],
-        "units": 'decimal',
         "sector": True,
         'regional_specific': True,
         'diffusion_type': 'linear'}
@@ -313,11 +275,9 @@ def load_param_assump(
     for sub_param_name, sub_param_value in heat_recovered.items():
         strategy_vars['heat_recovered'][sub_param_name] = {
             "name": sub_param_name,
-            "absolute_range": (0, 1),
+
             "description": "Reduction in heat because of heat recovery and recycling",
-            "suggested_range": (0, 1),
             "default_value": sub_param_value,
-            "units": 'decimal',
             "sector": True,
             "enduse": [sub_param_name],
             'regional_specific': True,
@@ -334,11 +294,9 @@ def load_param_assump(
     for sub_param_name, sub_param_value in air_leakage.items():
         strategy_vars['air_leakage'][sub_param_name] = {
             "name": sub_param_name,
-            "absolute_range": (0, 1),
+
             "description": "Reduction in heat because of air leakage improvement (residential sector)",
-            "suggested_range": (0, 1),
             "default_value": sub_param_value,
-            "units": 'decimal',
             "sector": True,
             "enduse": [sub_param_name],
             'regional_specific': True,
@@ -360,11 +318,8 @@ def load_param_assump(
     for enduse, param_value in default_enduses.items():
         strategy_vars['generic_enduse_change'][enduse] = {
             "name": enduse,
-            "absolute_range": (-1, 1),
             "description": "Enduse specific change {}".format(enduse),
-            "suggested_range": (0, 1),
             "default_value": param_value,
-            "units": 'decimal',
             "sector": True,
             "enduse": [enduse],
             "sector": [],
@@ -378,11 +333,8 @@ def load_param_assump(
     # --Assumption how much of technological efficiency is reached
     strategy_vars["f_eff_achieved"] = {
         "name": "f_eff_achieved",
-        "absolute_range": (0, 1),
         "description": "Fraction achieved of efficiency improvements",
-        "suggested_range": (0, 1),
         "default_value": 0, # Default is no efficiency improvement
-        "units": 'decimal',
         "sector": True,
         'regional_specific': False,
         'diffusion_type': 'linear'}
@@ -392,11 +344,8 @@ def load_param_assump(
     # ---------------------------------------
     strategy_vars["assump_diff_floorarea_pp"] = {
         "name": "assump_diff_floorarea_pp",
-        "absolute_range": (-1, 1),
         "description": "Change in floor area per person (%, 1=100%)",
-        "suggested_range": (0, 1),
         "default_value": 0,
-        "units": 'decimal',
         "sector": True,
         'regional_specific': False,
         'diffusion_type': 'linear'}
@@ -407,11 +356,8 @@ def load_param_assump(
     for enduse, param_value in default_enduses.items():
         strategy_vars["generic_fuel_switch"][enduse] = {
             "name": "generic_fuel_switch",
-            "absolute_range": (-1, 1),
             "description": "Generic fuel switches to switch fuel in any enduse and sector",
-            "suggested_range": (0, 1),
             "default_value": param_value,
-            "units": 'decimal',
             "enduse": enduse,
             "sector": True,
             'regional_specific': True,

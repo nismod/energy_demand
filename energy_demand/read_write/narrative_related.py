@@ -162,7 +162,7 @@ def default_narrative(
         'regional_specific': regional_specific}]
 
     return default_narrative
-
+'''
 def create_narratives(
         raw_file_content,
         simulation_base_yr,
@@ -354,7 +354,7 @@ def create_narratives(
     else:
         pass
     return autocomplet_param_narr
-
+'''
 def autocomplete(parameter_narratives, simulation_base_yr, sub_param_crit):
     """
     """
@@ -484,7 +484,7 @@ def transpose_input(
                             narrative[interpolation_params] = float(row[var_name])
 
                     # Add narrative
-                    try:     
+                    try:
                         parameter_narratives[enduse][narrative['sector']].append(narrative)
                     except KeyError:
                         parameter_narratives[enduse][narrative['sector']] = [narrative]
@@ -503,9 +503,8 @@ def transpose_input(
                 sectors.add(sector)
             except:
                 pass
-
             try:
-                end_yr = int(df.at[i,'end_yr'])
+                end_yr = int(df.at[i, 'end_yr'])
                 end_yrs.add(end_yr)
             except:
                 pass
@@ -529,7 +528,7 @@ def transpose_input(
                         int_diffusion_choice = int(row[var_name])
                         narrative['diffusion_choice'] = lookups['diffusion_type'][int_diffusion_choice]
                     else:
-                        narrative[interpolation_params] = row[var_name]
+                        narrative[interpolation_params] = float(row[var_name])
 
                 # Add narrative
                 sub_param_name = 'dummy_single_param'

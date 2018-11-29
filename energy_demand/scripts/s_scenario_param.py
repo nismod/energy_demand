@@ -293,10 +293,6 @@ def generate_general_parameter(
     # narrative timestep (maximum assumed to stay constant from this time onwards)
     latest_narrative_timestep = 0
     for narrative in narratives:
-        print("aaa" + str(narrative['end_yr'] ))
-        print(latest_narrative_timestep)
-        print(type(latest_narrative_timestep))
-        print(type(narrative['end_yr']))
         if narrative['end_yr'] > latest_narrative_timestep:
             latest_narrative_timestep = narrative['end_yr']
 
