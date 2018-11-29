@@ -505,7 +505,7 @@ def transpose_input(
                 pass
 
             try:
-                end_yr = df.at[i,'end_yr']
+                end_yr = int(df.at[i,'end_yr'])
                 end_yrs.add(end_yr)
             except:
                 pass
