@@ -5,7 +5,7 @@ from collections import defaultdict
 
 from energy_demand.read_write import narrative_related
 
-def load_user_defined_parameters(
+def load_default_params(
         default_streategy_vars,
         end_yr=2050,
         base_yr=2015):
