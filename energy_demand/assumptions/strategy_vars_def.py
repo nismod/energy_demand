@@ -210,7 +210,7 @@ def load_param_assump(
         "absolute_range": (0, 20),
         "description": "Base temperature assumption residential heating",
         "suggested_range": (13, 17),
-        "default_value": default_values['rs_t_heating_by'] ,
+        "default_value": default_values['rs_t_heating_by'],
         "units": '°C',
         "sector": True,
         'regional_specific': False,

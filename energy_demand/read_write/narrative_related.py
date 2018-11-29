@@ -526,7 +526,7 @@ def transpose_input(
 
                     if interpolation_params == 'diffusion_choice':
                         lookups = lookup_tables.basic_lookups()
-                        int_diffusion_choice = row[var_name]
+                        int_diffusion_choice = int(row[var_name])
                         narrative['diffusion_choice'] = lookups['diffusion_type'][int_diffusion_choice]
                     else:
                         narrative[interpolation_params] = row[var_name]
