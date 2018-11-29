@@ -427,6 +427,8 @@ def transpose_input(
 
     parameter_narratives = defaultdict(dict)
 
+    lookups = lookup_tables.basic_lookups()
+
     # End uses
     columns = list(df.columns)
 
@@ -465,30 +467,39 @@ def transpose_input(
             if list(sectors) == []:
 
                 for end_yr in end_yrs:
-                    narrative = {}
-                    narrative['sector'] = 'dummy_sector'
-                    narrative['end_yr'] = end_yr
-                    narrative['sig_midpoint'] = 0
-                    narrative['sig_steepness'] = 1
-                    narrative['regional_specific'] = default_streategy_var[enduse]['regional_specific']
-                    narrative['default_by'] = default_streategy_var[enduse]['default_value']
 
-                    for _index, row in df_enduse.iterrows():
-
-                        interpolation_params = row['interpolation_params']
-
-                        if interpolation_params == 'diffusion_choice':
-                            lookups = lookup_tables.basic_lookups()
-                            int_diffusion_choice = float(row[var_name])
-                            narrative['diffusion_choice'] = lookups['diffusion_type'][int_diffusion_choice]
-                        else:
-                            narrative[interpolation_params] = float(row[var_name])
-
-                    # Add narrative
                     try:
-                        parameter_narratives[enduse][narrative['sector']].append(narrative)
-                    except KeyError:
-                        parameter_narratives[enduse][narrative['sector']] = [narrative]
+                        _ = default_streategy_var[enduse]
+                        defined_in_model = True
+                    except:
+                        print("... not defined in model")
+                        defined_in_model = False
+                    
+                    if defined_in_model:
+                        narrative = {}
+                        narrative['sector'] = 'dummy_sector'
+                        narrative['end_yr'] = end_yr
+                        narrative['sig_midpoint'] = 0
+                        narrative['sig_steepness'] = 1
+                        narrative['regional_specific'] = default_streategy_var[enduse]['regional_specific']
+                        narrative['default_by'] = default_streategy_var[enduse]['default_value']
+
+                        for _index, row in df_enduse.iterrows():
+
+                            interpolation_params = row['interpolation_params']
+
+                            if interpolation_params == 'diffusion_choice':
+                                
+                                int_diffusion_choice = float(row[var_name])
+                                narrative['diffusion_choice'] = lookups['diffusion_type'][int_diffusion_choice]
+                            else:
+                                narrative[interpolation_params] = float(row[var_name])
+
+                        # Add narrative
+                        try:
+                            parameter_narratives[enduse][narrative['sector']].append(narrative)
+                        except KeyError:
+                            parameter_narratives[enduse][narrative['sector']] = [narrative]
             else:
                 #TOD IMPELEMENT NON SECTOR SP
                 print("...TODO IMPLEMENT MULTIDIMENSIONAL CRIT SECTOR PARAM")

@@ -226,7 +226,7 @@ if __name__ == "__main__":
     # -----------------------------------------------------------------------------
     # Load standard smif parameters and generate standard single timestep narrative for year 2050
     # -----------------------------------------------------------------------------
-    strategy_vars = strategy_vars_def.load_user_defined_parameters(
+    strategy_vars = strategy_vars_def.load_default_params(
         default_streategy_vars=default_streategy_vars,
         end_yr=2050,
         base_yr=base_yr)
@@ -234,11 +234,9 @@ if __name__ == "__main__":
     # -----------------------------------------
     # User defines stragey variable from csv files
     # -----------------------------------------
-    path_user_defined_narratives = data['local_paths']['path_strategy_vars']
-
-    user_defined_vars = data_loader.load_user_defined_vars(
+    user_defined_vars = data_loader.load_local_user_defined_vars(
         default_strategy_var=default_streategy_vars,
-        path_csv=path_user_defined_narratives,
+        path_csv=data['local_paths']['path_strategy_vars'],
         simulation_base_yr=data['assumptions'].base_yr,
         simulation_end_yr=data['assumptions'].simulation_end_yr)
 

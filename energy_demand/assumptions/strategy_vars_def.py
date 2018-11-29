@@ -22,9 +22,6 @@ def load_user_defined_parameters(
 
             scenario_value = var_entries['default_value']
 
-            scenario_value = var_entries['scenario_value']
-            logging.info("IMPORTANT WARNING: Parameter is loaded locally: `%s`", var_name)
-
             # Create default narrative with only one timestep from simulation base year to simulation end year
             strategy_vars[var_name] = narrative_related.default_narrative(
                 end_yr=end_yr,

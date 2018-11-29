@@ -688,7 +688,7 @@ def read_fuel_switches(
     fuel_switches = []
 
     if os.path.isfile(path_to_csv):
-        # Read switches
+
         raw_csv_file = pd.read_csv(path_to_csv)
 
         for index, row in raw_csv_file.iterrows():
