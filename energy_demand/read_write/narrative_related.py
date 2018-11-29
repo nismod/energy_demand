@@ -471,6 +471,7 @@ def transpose_input(
                     narrative['sig_midpoint'] = 0
                     narrative['sig_steepness'] = 1
                     narrative['regional_specific'] = default_streategy_var[enduse]['regional_specific']
+                    narrative['default_by'] = default_streategy_var[enduse]['default_value']
 
                     for _index, row in df_enduse.iterrows():
 
@@ -518,7 +519,8 @@ def transpose_input(
                 narrative['sig_midpoint'] = 0
                 narrative['sig_steepness'] = 1
                 narrative['regional_specific'] = default_streategy_var['regional_specific']
-
+                narrative['default_by'] = default_streategy_var['default_value']
+        
                 for _index, row in df.iterrows():
 
                     interpolation_params = row['interpolation_params']
@@ -540,7 +542,8 @@ def transpose_input(
             print("...TODO IMPLEMENT SINGLE CRIT SECTOR PARAM")
             pass #IMPELEMENT
 
-    parameter_narratives = autocomplete(parameter_narratives, simulation_base_yr, sub_param_crit)
+    parameter_narratives = autocomplete(
+        parameter_narratives, simulation_base_yr, sub_param_crit)
     
     print("... finished loading parameter narratives")
     return parameter_narratives

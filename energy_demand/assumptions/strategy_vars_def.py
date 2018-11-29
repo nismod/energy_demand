@@ -5,12 +5,10 @@ from collections import defaultdict
 
 from energy_demand.read_write import narrative_related
 
-def load_smif_parameters(
-        narrative_values={},
-        default_streategy_vars={},
+def load_user_defined_parameters(
+        default_streategy_vars,
         end_yr=2050,
-        base_yr=2015,
-        mode='smif'):
+        base_yr=2015):
     """#LOAD AND GENERATE STANDARD NARRATIVE
     """
     strategy_vars = defaultdict(dict)
@@ -21,15 +19,11 @@ def load_smif_parameters(
         crit_single_dim = narrative_related.crit_dim_var(var_entries)
 
         if crit_single_dim:
-            try:
-                scenario_value = narrative_values[var_name]
-            except:
-                logging.info("IMPORTANT WARNING: Parameter can't be loaded from smif: `%s`", var_name)
-                scenario_value = var_entries['default_value']
 
-            if mode == 'local':
-                scenario_value = var_entries['scenario_value']
-                logging.info("IMPORTANT WARNING: Parameter is loaded locally: `%s`", var_name)
+            scenario_value = var_entries['default_value']
+
+            scenario_value = var_entries['scenario_value']
+            logging.info("IMPORTANT WARNING: Parameter is loaded locally: `%s`", var_name)
 
             # Create default narrative with only one timestep from simulation base year to simulation end year
             strategy_vars[var_name] = narrative_related.default_narrative(
@@ -43,13 +37,8 @@ def load_smif_parameters(
         else:
             # Standard narrative for multidimensional narrative
             for sub_var_name, sub_var_entries in var_entries.items():
-                try:
-                    scenario_value = narrative_values[var_name]
-                except:
-                    logging.warning("IMPORTANT WARNING: The paramter `%s` could not be loaded from smif ", var_name)
-                    scenario_value = sub_var_entries['scenario_value']
-                if mode == 'local':
-                    scenario_value = sub_var_entries['scenario_value']
+
+                scenario_value = sub_var_entries['scenario_value']
 
                 # -----------------------------------
                 # Crate single-step default narratives (up to end_year)
