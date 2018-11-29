@@ -28,7 +28,7 @@ from energy_demand.read_write import write_data
 
 def create_realisation(
         base_yr_remapped_weather_path,
-        realisation_nrs,
+        realisation_list,
         realisation_path,
         realisation_out_path,
         path_stiching_table
@@ -53,7 +53,7 @@ def create_realisation(
 
     columns = ['timestep', 'station_id', 'yearday', 't_min', 't_max']
 
-    for i in range(realisation_nrs):
+    for i in realisation_list:
         realisation = realisations[i]
 
         print("... creating weather data for realisation " + str(realisation), flush=True)
@@ -319,9 +319,11 @@ if stich_weather_scenario:
     realisation_out_path = "X:/nismod/data/energy_demand/J-MARIUS_data/_weather_realisation"
     path_stiching_table = "X:/nismod/data/energy_demand/J-MARIUS_data/stitching_table/stitching_table_nf.dat"
 
+    realisation_list = range(100)
+    realisation_list = range(19, 100)
     create_realisation(
         base_yr_remapped_weather_path=base_yr_remapped_weather_path,
-        realisation_nrs=100,
+        realisation_list=realisation_list,
         realisation_path=realisation_path,
         realisation_out_path=realisation_out_path,
         path_stiching_table=path_stiching_table)

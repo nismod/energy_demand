@@ -1,7 +1,10 @@
 """Functions handling the narratives
 """
+import pandas as pd
 import math
 from collections import defaultdict
+
+from energy_demand.basic import lookup_tables
 
 def get_all_sectors_of_narratives(narratives):
     """Get all defined sectors of all narratives
@@ -246,7 +249,10 @@ def create_narratives(
         except KeyError:
             pass
         try:
-            narrative['diffusion_choice'] = str(row['diffusion_choice'])
+            lookups = lookup_tables.basic_lookups()
+            int_diffusion_choice = int(row['diffusion_choice'])
+            str_diffusion_choice = lookups['diffusion_type'][int_diffusion_choice]
+            narrative['diffusion_choice'] = str_diffusion_choice
         except KeyError:
             narrative['diffusion_choice'] = 'linear'
         try:
@@ -348,3 +354,194 @@ def create_narratives(
     else:
         pass
     return autocomplet_param_narr
+
+def autocomplete(parameter_narratives, simulation_base_yr, sub_param_crit):
+    """
+    """
+    autocomplet_param_narr = defaultdict(dict)
+
+    for sub_param_name, narratives_sector in parameter_narratives.items():
+        for sector, narratives in narratives_sector.items():
+            autocomplet_param_narr[sub_param_name][sector] = []
+
+            switches_to_create_narrative = get_sector_narrative(sector, narratives)
+
+            # Get all years of switches_to_create_narrative
+            all_yrs = []
+            for narrative in switches_to_create_narrative:
+                all_yrs.append(narrative['end_yr'])
+
+            all_yrs.sort()
+
+            for year_cnt, year in enumerate(all_yrs):
+                for narrative in switches_to_create_narrative:
+                    if narrative['end_yr'] == year:
+                        yr_narrative = narrative
+                        break
+
+                # Add missing entries to narrative
+                if year_cnt == 0:
+                    # Update
+                    yr_narrative['base_yr'] = simulation_base_yr
+                    yr_narrative['value_by'] = narrative['default_by']
+
+                    # previous value
+                    previous_yr = narrative['end_yr']
+                    previous_value = narrative['value_ey']
+                else:
+                    # Update
+                    yr_narrative['base_yr'] = previous_yr
+                    yr_narrative['value_by'] = previous_value
+
+                    # previous value
+                    previous_yr = narrative['end_yr']
+                    previous_value = narrative['value_ey']
+
+                autocomplet_param_narr[sub_param_name][sector].append(yr_narrative)
+
+    # Remove all dummy sector
+    autocomplet_param_narr_new = defaultdict(dict)
+
+    for param_name, sector_data in autocomplet_param_narr.items():
+        for sector, data in sector_data.items():
+            if sector == 'dummy_sector':
+                autocomplet_param_narr_new[param_name] = data
+            else:
+                autocomplet_param_narr_new[param_name][sector] = data
+
+    autocomplet_param_narr = dict(autocomplet_param_narr_new)
+
+    # If only single dimension parameter, remove dummy mutliparameter name
+    if not sub_param_crit:
+        autocomplet_param_narr = autocomplet_param_narr['dummy_single_param']
+
+    return autocomplet_param_narr
+
+def transpose_input(
+        df,
+        simulation_end_yr,
+        simulation_base_yr,
+        default_streategy_var,
+        var_name
+    ):
+
+    parameter_narratives = defaultdict(dict)
+
+    # End uses
+    columns = list(df.columns)
+
+    if 'enduses' in columns:
+        sub_param_crit = True
+    else:
+        sub_param_crit = False
+
+    if sub_param_crit:
+
+        # All defined end uses
+        enduses = set(df['enduses'].values)
+
+        for enduse in enduses:
+
+            # All rows of enduse
+            df_enduse = df.loc[df['enduses'] == enduse]
+
+            # Get all sectors and years
+            sectors = set()
+            end_yrs = set()
+
+            for i in df_enduse.index:
+                try:
+                    sector = df_enduse.at[i, 'sector']
+                    sectors.add(sector)
+                except:
+                    pass
+
+                try:
+                    end_yr = df_enduse.at[i,'end_yr']
+                    end_yrs.add(end_yr)
+                except:
+                    pass
+
+            if list(sectors) == []:
+
+                for end_yr in end_yrs:
+                    narrative = {}
+                    narrative['sector'] = 'dummy_sector'
+                    narrative['end_yr'] = end_yr
+                    narrative['sig_midpoint'] = 0
+                    narrative['sig_steepness'] = 1
+                    narrative['regional_specific'] = default_streategy_var[enduse]['regional_specific']
+
+                    for _index, row in df_enduse.iterrows():
+
+                        interpolation_params = row['interpolation_params']
+
+                        if interpolation_params == 'diffusion_choice':
+                            lookups = lookup_tables.basic_lookups()
+                            int_diffusion_choice = float(row[var_name])
+                            narrative['diffusion_choice'] = lookups['diffusion_type'][int_diffusion_choice]
+                        else:
+                            narrative[interpolation_params] = float(row[var_name])
+
+                    # Add narrative
+                    try:     
+                        parameter_narratives[enduse][narrative['sector']].append(narrative)
+                    except KeyError:
+                        parameter_narratives[enduse][narrative['sector']] = [narrative]
+            else:
+                #TOD IMPELEMENT NON SECTOR SP
+                print("...TODO IMPLEMENT MULTIDIMENSIONAL CRIT SECTOR PARAM")
+                pass
+    else:
+
+        sectors = set()
+        end_yrs = set()
+
+        for i in df.index:
+            try:
+                sector = df.at[i, 'sector']
+                sectors.add(sector)
+            except:
+                pass
+
+            try:
+                end_yr = df.at[i,'end_yr']
+                end_yrs.add(end_yr)
+            except:
+                pass
+
+        if list(sectors) == []:
+
+            for end_yr in end_yrs:
+                narrative = {}
+                narrative['sector'] = 'dummy_sector'
+                narrative['end_yr'] = end_yr
+                narrative['sig_midpoint'] = 0
+                narrative['sig_steepness'] = 1
+                narrative['regional_specific'] = default_streategy_var['regional_specific']
+
+                for _index, row in df.iterrows():
+
+                    interpolation_params = row['interpolation_params']
+
+                    if interpolation_params == 'diffusion_choice':
+                        lookups = lookup_tables.basic_lookups()
+                        int_diffusion_choice = row[var_name]
+                        narrative['diffusion_choice'] = lookups['diffusion_type'][int_diffusion_choice]
+                    else:
+                        narrative[interpolation_params] = row[var_name]
+
+                # Add narrative
+                sub_param_name = 'dummy_single_param'
+                try:
+                    parameter_narratives[sub_param_name][narrative['sector']].append(narrative)
+                except (KeyError, AttributeError):
+                    parameter_narratives[sub_param_name][narrative['sector']] = [narrative]
+        else:
+            print("...TODO IMPLEMENT SINGLE CRIT SECTOR PARAM")
+            pass #IMPELEMENT
+
+    parameter_narratives = autocomplete(parameter_narratives, simulation_base_yr, sub_param_crit)
+    
+    print("... finished loading parameter narratives")
+    return parameter_narratives

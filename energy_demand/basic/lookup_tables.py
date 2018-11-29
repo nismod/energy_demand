@@ -190,9 +190,14 @@ def basic_lookups():
     lookups = {}
 
     lookups['submodels_names'] = [
-            'residential',
-            'service',
-            'industry']
+        'residential',
+        'service',
+        'industry']
+
+    lookups['diffusion_type'] = {
+        0: 'linear',
+        1: 'sigmoid'
+    }
 
     lookups['fueltypes'] = {
         'solid_fuel': 0,

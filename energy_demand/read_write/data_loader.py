@@ -12,7 +12,6 @@ import geopandas as gpd
 from shapely.geometry import Point
 import matplotlib.pyplot as plt
 
-from energy_demand.basic import testing_functions
 from energy_demand.basic import lookup_tables
 from energy_demand.read_write import write_data
 from energy_demand.read_write import read_data, read_weather_data
@@ -270,16 +269,24 @@ def load_user_defined_vars(
             path_to_file = os.path.join(path_csv, file_name)
             raw_file_content = pd.read_csv(path_to_file)
 
+            # Alternative loading
+            strategy_vars_as_narratives[var_name] = narrative_related.transpose_input(
+                raw_file_content,
+                simulation_end_yr=simulation_end_yr,
+                simulation_base_yr=simulation_base_yr,
+                default_streategy_var=default_strategy_var[var_name],
+                var_name=var_name)
+
             # -----------------------------------
-            # Crate narratives from file content
+            # Crate narratives from file content NEW REMOVED
             # -----------------------------------
-            parameter_narratives = narrative_related.create_narratives(
+            '''parameter_narratives = narrative_related.create_narratives_NEW(
                 raw_file_content,
                 simulation_base_yr,
                 simulation_end_yr,
                 default_strategy_var[var_name])
 
-            strategy_vars_as_narratives[var_name] = parameter_narratives
+            strategy_vars_as_narratives[var_name] = parameter_narratives'''
 
     return strategy_vars_as_narratives
 
@@ -909,9 +916,9 @@ def  load_weather_stations_df(path_stations):
     stations = pd.read_csv(path_stations)
 
     for i in stations.index:
-        station_id = stations.get_value(i,'station_id')
-        latitude = stations.get_value(i,'latitude')
-        longitude = stations.get_value(i,'longitude')
+        station_id = stations.at[i,'station_id']
+        latitude = stations.at[i,'latitude']
+        longitude = stations.at[i,'longitude']
 
         out_stations[station_id] = {
             'latitude' : float(latitude),
@@ -926,9 +933,9 @@ def load_weather_stations_csv(path_stations):
     stations = pd.read_csv(path_stations)
 
     for i in stations.index:
-        station_id = stations.get_value(i,'station_id')
-        latitude = stations.get_value(i,'latitude')
-        longitude = stations.get_value(i,'longitude')
+        station_id = stations.at[i,'station_id']
+        latitude = stations.at[i,'latitude']
+        longitude = stations.at[i,'longitude']
 
         out_stations[station_id] = {
             'latitude' : float(latitude),
