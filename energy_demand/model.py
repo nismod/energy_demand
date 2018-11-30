@@ -44,41 +44,6 @@ class EnergyDemandModel(object):
         """
         self.curr_yr = assumptions.curr_yr
 
-        '''# ----------------------------
-        # Create Weather Regions
-        # ----------------------------
-        print("... generating cy weather regions", flush=True)
-        weather_regions_weather_cy = {}
-        for weather_region in weather_stations:
-            weather_regions_weather_cy[weather_region] = WeatherRegion(
-                name=weather_region,
-                latitude=weather_stations[weather_region]['latitude'],
-                longitude=weather_stations[weather_region]['longitude'],
-                assumptions=assumptions,
-                technologies=assumptions.technologies,
-                enduses=data['enduses'],
-                temp_by=data['temp_data'][weather_by][weather_region],
-                temp_cy=data['temp_data'][weather_yr][weather_region],
-                tech_lp=data['tech_lp'],
-                sectors=data['sectors'],
-                crit_temp_min_max=criterias['crit_temp_min_max'])
-
-        print("... generating by weather regions", flush=True)
-        weather_regions_weather_by = {}
-        for weather_region in weather_stations:
-            weather_regions_weather_by[weather_region] = WeatherRegion(
-                name=weather_region,
-                latitude=weather_stations[weather_region]['latitude'],
-                longitude=weather_stations[weather_region]['longitude'],
-                assumptions=assumptions,
-                technologies=assumptions.technologies,
-                enduses=data['enduses'],
-                temp_by=data['temp_data'][weather_by][weather_region],
-                temp_cy=data['temp_data'][weather_yr][weather_region],
-                tech_lp=data['tech_lp'],
-                sectors=data['sectors'],
-                crit_temp_min_max=criterias['crit_temp_min_max'])'''
-
         # ------------------------
         # Create Dwelling Stock
         # ------------------------
@@ -122,9 +87,7 @@ class EnergyDemandModel(object):
                 assumptions,
                 weather_stations,
                 weather_yr,
-                weather_by) #,
-                #weather_regions_weather_cy,
-                #weather_regions_weather_by)
+                weather_by)
 
             # ---------------------------------------------
             # Aggregate results specifically over regions

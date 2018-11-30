@@ -189,8 +189,7 @@ def replace_variable(_user_defined_vars, strategy_vars):
 def load_local_user_defined_vars(
         default_strategy_var,
         path_csv,
-        simulation_base_yr,
-        simulation_end_yr
+        simulation_base_yr
     ):
     """Load all strategy variables from file
 
@@ -231,15 +230,13 @@ def load_local_user_defined_vars(
             try:
                 _ = default_strategy_var[var_name]
             except KeyError:
-                raise Exception("The user defined variable '%s' is not defined in model", var_name)
+                logging.info("The user defined variable '%s' is not defined in model", var_name)
 
-                path_to_file = os.path.join(path_csv, file_name)
-                raw_file_content = pd.read_csv(path_to_file)
+                raw_file_content = pd.read_csv(os.path.join(path_csv, file_name))
 
                 # Alternative loading
-                strategy_vars_as_narratives[var_name] = narrative_related.transpose_input(
+                strategy_vars_as_narratives[var_name] = narrative_related.read_user_defined_param(
                     raw_file_content,
-                    simulation_end_yr=simulation_end_yr,
                     simulation_base_yr=simulation_base_yr,
                     default_streategy_var=default_strategy_var[var_name],
                     var_name=var_name)

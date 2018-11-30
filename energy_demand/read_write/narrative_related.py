@@ -417,14 +417,14 @@ def autocomplete(parameter_narratives, simulation_base_yr, sub_param_crit):
 
     return autocomplet_param_narr
 
-def transpose_input(
+def read_user_defined_param(
         df,
-        simulation_end_yr,
         simulation_base_yr,
         default_streategy_var,
         var_name
     ):
-
+    """Read in user defined narrative parameters
+    """
     parameter_narratives = defaultdict(dict)
 
     lookups = lookup_tables.basic_lookups()
@@ -438,10 +438,7 @@ def transpose_input(
         sub_param_crit = False
 
     if sub_param_crit:
-
-        # All defined end uses
         enduses = set(df['enduses'].values)
-
         for enduse in enduses:
 
             # All rows of enduse
@@ -459,7 +456,7 @@ def transpose_input(
                     pass
 
                 try:
-                    end_yr = int(df_enduse.at[i,'end_yr'])
+                    end_yr = int(df_enduse.at[i, 'end_yr'])
                     end_yrs.add(end_yr)
                 except:
                     pass
@@ -472,9 +469,9 @@ def transpose_input(
                         _ = default_streategy_var[enduse]
                         defined_in_model = True
                     except:
-                        print("... not defined in model")
+                        #print("... not defined in model")
                         defined_in_model = False
-                    
+
                     if defined_in_model:
                         narrative = {}
                         narrative['sector'] = 'dummy_sector'
@@ -489,7 +486,6 @@ def transpose_input(
                             interpolation_params = row['interpolation_params']
 
                             if interpolation_params == 'diffusion_choice':
-                                
                                 int_diffusion_choice = float(row[var_name])
                                 narrative['diffusion_choice'] = lookups['diffusion_type'][int_diffusion_choice]
                             else:

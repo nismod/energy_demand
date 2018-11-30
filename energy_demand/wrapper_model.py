@@ -29,7 +29,8 @@ def load_data_before_simulation(
     # -----------
     base_yr = config['CONFIG']['base_yr']
     weather_yr_scenario = config['CONFIG']['weather_yr_scenario']
-    name_scenario = data['name_scenario_run']
+    #name_scenario = data['name_scenario_run']
+    path_new_scenario = data['path_new_scenario']
 
     data['weather_station_count_nr'] = [] # Default value is '[]' to use all stations
     data['data_path'] = os.path.normpath(config['PATHS']['path_local_data'])
@@ -115,7 +116,7 @@ def load_data_before_simulation(
     # Weather year specific initialisations
     # -------------------------------------------
     path_folder_weather_yr = os.path.join(
-        os.path.join(data['result_path'], name_scenario, data['simulation_name']))
+        os.path.join(path_new_scenario, data['simulation_name']))
 
     data['result_paths'] = data_loader.get_result_paths(path_folder_weather_yr)
 

@@ -237,8 +237,7 @@ if __name__ == "__main__":
     user_defined_vars = data_loader.load_local_user_defined_vars(
         default_strategy_var=default_streategy_vars,
         path_csv=data['local_paths']['path_strategy_vars'],
-        simulation_base_yr=data['assumptions'].base_yr,
-        simulation_end_yr=data['assumptions'].simulation_end_yr)
+        simulation_base_yr=data['assumptions'].base_yr)
 
     strategy_vars = data_loader.replace_variable(user_defined_vars, strategy_vars)
 
@@ -456,10 +455,13 @@ if __name__ == "__main__":
 
         # Set current year
         setattr(data['assumptions'], 'curr_yr', sim_yr)
-        
-        # TODO ALSO ADD IN RUN.py
-        weather_yr_scenario = 2015 #sim_yr #TODO REPLACE WITH SIM YEAR IF FULL WEATHER IS PROVIDED
-    
+
+        constant_weather = False
+        if constant_weather:
+            weather_yr_scenario = config['CONFIG']['weather_yr_scenario']
+        else:
+            weather_yr_scenario = sim_yr
+
         # --------------------------------------
         # Update result_paths and create folders
         # --------------------------------------
