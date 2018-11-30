@@ -226,7 +226,6 @@ def load_local_user_defined_vars(
             var_name = file_name[:-4] #remove ".csv"
             print(" ")
             print("... loading user defined variable '%s'", var_name)
-
             try:
                 raw_file_content = pd.read_csv(os.path.join(path_csv, file_name))
 

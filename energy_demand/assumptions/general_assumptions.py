@@ -326,7 +326,7 @@ class Assumptions(object):
         #
         #   Parameters related to smart metering
         #
-        #   rs_t_heating_by : int
+        #   rs_t_heating : int
         #       Residential submodel base temp of heating of base year
         #   rs_t_cooling_by : int
         #       Residential submodel base temp of cooling of base year
@@ -335,16 +335,16 @@ class Assumptions(object):
         #   Note
         #   ----
         #   Because demand for cooling cannot directly be linked to
-        #   calculated cdd, the paramters 'ss_t_cooling_by' is used
+        #   calculated cdd, the paramters 'ss_t_base_cooling' is used
         #   as a calibration factor. By artifiallcy lowering this
         #   parameter, the energy demand assignement over the days
         #   in a year is improved.
         # ------------------------------------------------------------
         t_bases = {
-            'rs_t_heating_by': 15.5,
-            'ss_t_heating_by': 15.5,
-            'ss_t_cooling_by': 5,
-            'is_t_heating_by': 15.5}
+            'rs_t_heating': 15.5,
+            'ss_t_heating': 15.5,
+            'ss_t_cooling': 5,
+            'is_t_heating': 15.5}
 
         self.t_bases = DummyClass(t_bases)
 

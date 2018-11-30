@@ -27,7 +27,7 @@ def test_rs_disaggregate():
             'yr_until_changed': 2020},
         'strategy_vars': {'rs_t_base_heating': {'scenario_value': 15}}}
     assumptions = general_assumptions.DummyClass(assumptions)
-    assumptions.__setattr__('t_bases', general_assumptions.DummyClass({'rs_t_heating_by': 15}))
+    assumptions.__setattr__('t_bases', general_assumptions.DummyClass({'rs_t_heating': 15}))
 
     reg_coord = {
         'regA': {'longitude': 0,'latitude': 0},
@@ -112,7 +112,7 @@ def test_ss_disaggregate():
 
     assumptions = general_assumptions.DummyClass(assumptions)
     assumptions.__setattr__('t_bases', general_assumptions.DummyClass(
-        {'ss_t_heating_by': 15, 'ss_t_cooling_by': 20}))
+        {'ss_t_heating': 15, 'ss_t_cooling': 20}))
 
     reg_coord = {
         'regA': {'longitude': 0, 'latitude': 0},
@@ -180,12 +180,12 @@ def test_is_disaggregate():
             'sig_steepness': 1,
             'yr_until_changed': 2020},
         'strategy_vars': {
-            'is_t_heating_by': {'scenario_value': 0},
+            'is_t_heating': {'scenario_value': 0},
             'is_t_base_heating': {'scenario_value': 15},
             'is_t_base_cooling_future_yr': {'scenario_value': 15}}}
 
     assumptions = general_assumptions.DummyClass(assumptions)
-    assumptions.__setattr__('t_bases', general_assumptions.DummyClass({'is_t_heating_by': 15, 'is_t_cooling_by': 15}))
+    assumptions.__setattr__('t_bases', general_assumptions.DummyClass({'is_t_heating': 15, 'is_t_cooling': 15}))
 
     regions = ['regA', 'regB']
     enduses = ['is_space_heating']

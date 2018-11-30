@@ -411,6 +411,7 @@ def autocomplete(parameter_narratives, simulation_base_yr, sub_param_crit):
 
     autocomplet_param_narr = dict(autocomplet_param_narr_new)
 
+    print("TRRa")
     print(autocomplet_param_narr)
     # If only single dimension parameter, remove dummy mutliparameter name
     if not sub_param_crit:
@@ -521,6 +522,8 @@ def read_user_defined_param(
                 end_yrs.add(end_yr)
             except:
                 pass
+        print("df")
+        print(df)
         print("... info here  {}  {}".format(sectors, end_yrs))
         if list(sectors) == []:
 

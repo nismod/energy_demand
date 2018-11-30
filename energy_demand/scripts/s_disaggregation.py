@@ -325,7 +325,7 @@ def ss_disaggregate(
     # Calculate heating degree days for regions
     # ---------------------------------------
     ss_hdd_individ_region = hdd_cdd.get_hdd_country(
-        t_base_heating=assumptions.t_bases.ss_t_heating_by,
+        t_base_heating=assumptions.t_bases.ss_t_heating,
         regions=regions,
         temp_data=temp_data,
         reg_coord=reg_coord,
@@ -333,7 +333,7 @@ def ss_disaggregate(
         crit_temp_min_max=crit_temp_min_max)
 
     ss_cdd_individ_region = hdd_cdd.get_cdd_country(
-        t_base_cooling=assumptions.t_bases.ss_t_cooling_by,
+        t_base_cooling=assumptions.t_bases.ss_t_cooling,
         regions=regions,
         temp_data=temp_data,
         reg_coord=reg_coord,
@@ -581,7 +581,7 @@ def is_disaggregate(
         reg, enduse, sector
     """
     is_hdd_individ_region = hdd_cdd.get_hdd_country(
-        t_base_heating=assumptions.t_bases.is_t_heating_by,
+        t_base_heating=assumptions.t_bases.is_t_heating,
         regions=regions,
         temp_data=temp_data,
         reg_coord=reg_coord,
@@ -788,7 +788,7 @@ def rs_disaggregate(
     # Calculate heating degree days for regions
     # ---------------------------------------
     rs_hdd_individ_region = hdd_cdd.get_hdd_country(
-        t_base_heating=assumptions.t_bases.rs_t_heating_by,
+        t_base_heating=assumptions.t_bases.rs_t_heating,
         regions=regions,
         temp_data=temp_data,
         reg_coord=reg_coord,

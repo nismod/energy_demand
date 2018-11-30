@@ -69,16 +69,16 @@ def load_param_assump(
 
     if hard_coded_default_val:
         default_values = {
-            'ss_t_cooling_by': 5,
-            'is_t_heating_by': 15.5,
+            'ss_t_cooling': 5,
+            'is_t_heating': 15.5,
             'gshp_fraction': 0.1,
             'p_cold_rolling_steel_by': 0.2,
-            'rs_t_heating_by': 15.5,
+            'rs_t_heating': 15.5,
             'smart_meter_p_by': 0.05,
             'cooled_ss_floorarea_by': 0.35,
             'speed_con_max': 1,
             'spatial_explicit_diffusion': 0,
-            'ss_t_heating_by': 15.5}
+            'ss_t_heating': 15.5}
 
     default_enduses = {
 
@@ -176,7 +176,7 @@ def load_param_assump(
     strategy_vars['rs_t_base_heating'] = {
         "name": "rs_t_base_heating",
         "description": "Base temperature assumption residential heating",
-        "default_value": default_values['rs_t_heating_by'],
+        "default_value": default_values['rs_t_heating'],
         "sector": True,
         'regional_specific': False,
         'diffusion_type': 'linear'}
@@ -185,7 +185,7 @@ def load_param_assump(
     strategy_vars['ss_t_base_heating'] = {
         "name": "ss_t_base_heating",
         "description": "Base temperature assumption service sector heating",
-        "default_value": default_values['ss_t_heating_by'],
+        "default_value": default_values['ss_t_heating'],
         "sector": True,
         'regional_specific': False,
         'diffusion_type': 'linear'}
@@ -195,7 +195,7 @@ def load_param_assump(
     strategy_vars['ss_t_base_cooling'] = {
         "name": "ss_t_base_cooling",
         "description": "Base temperature assumption service sector cooling",
-        "default_value": default_values['ss_t_cooling_by'],
+        "default_value": default_values['ss_t_cooling'],
         "sector": True,
         'regional_specific': False,
         'diffusion_type': 'linear'}
@@ -204,7 +204,7 @@ def load_param_assump(
     strategy_vars['is_t_base_heating'] = {
         "name": "is_t_base_heating",
         "description": "Base temperature assumption service sector heating",
-        "default_value": default_values['is_t_heating_by'],
+        "default_value": default_values['is_t_heating'],
         "sector": True,
         'regional_specific': False,
         'diffusion_type': 'linear'}
