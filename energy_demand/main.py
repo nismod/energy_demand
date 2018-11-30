@@ -297,14 +297,14 @@ if __name__ == "__main__":
         sim_yrs=sim_yrs,
         weather_realisation=weather_realisation,
         path_weather_data=path_weather_data,
-        weather_yrs_scenario=[base_yr, weather_yr_scenario],
+        same_base_year_weather=False,
         crit_temp_min_max=config['CRITERIA']['crit_temp_min_max'])
 
-    # Get only selection
+    # Get only selection of weather station data
     weather_stations_selection = {}
     temp_data_selection = defaultdict(dict)
     if weather_station_count_nr != []:
-        for year in [base_yr, weather_yr_scenario]:
+        for year in sim_yrs:
             weather_stations_selection, wheather_station_id = weather_region.get_weather_station_selection(
                 data['weather_stations'],
                 counter=weather_station_count_nr,
@@ -314,7 +314,7 @@ if __name__ == "__main__":
             if year == weather_yr_scenario:
                 simulation_name = str(weather_yr_scenario) + "__" + str(wheather_station_id)
     else:
-        for year in [base_yr, weather_yr_scenario]:
+        for year in sim_yrs:
             weather_stations_selection = data['weather_stations']
             temp_data_selection[year] = data['temp_data'][year]
             if year == weather_yr_scenario:
@@ -324,6 +324,7 @@ if __name__ == "__main__":
     data['weather_stations'] = weather_stations_selection
     data['temp_data'] = dict(temp_data_selection)
 
+    #print(station_id_253)
     # Plot map with weather station
     '''if config['CRITERIA']['cluster_calc'] != True:
         data_loader.create_weather_station_map(
@@ -382,6 +383,7 @@ if __name__ == "__main__":
     fuel_switches = read_data.read_fuel_switches(os.path.join(data['local_paths']['path_strategy_vars'], "switches_fuel.csv"), data['enduses'], data['assumptions'].fueltypes, data['assumptions'].technologies)
     capacity_switches = read_data.read_capacity_switch(os.path.join(data['local_paths']['path_strategy_vars'], "switches_capacity.csv"))
 
+    # Load Generic fuel switches
     crit_switch_happening = testing_functions.switch_testing(
         fuel_switches=strategy_vars['fuel_switches'],
         service_switches=strategy_vars['service_switches'],

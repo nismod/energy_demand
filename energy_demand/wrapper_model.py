@@ -29,7 +29,6 @@ def load_data_before_simulation(
     # -----------
     base_yr = config['CONFIG']['base_yr']
     weather_yr_scenario = config['CONFIG']['weather_yr_scenario']
-    #name_scenario = data['name_scenario_run']
     path_new_scenario = data['path_new_scenario']
 
     data['weather_station_count_nr'] = [] # Default value is '[]' to use all stations
@@ -73,17 +72,17 @@ def load_data_before_simulation(
     weather_stations_selection = {}
     temp_data_selection = {}
     if data['weather_station_count_nr'] != []:
-        for year in [data['assumptions'].base_yr, weather_yr_scenario]:
+        for year in sim_yrs:
             weather_stations_selection, station_id = weather_region.get_weather_station_selection(
                 data['weather_stations'],
                 counter=data['weather_station_count_nr'],
-                weather_yr = weather_yr_scenario)
+                weather_yr=weather_yr_scenario)
             temp_data_selection[year] = data['temp_data'][year][station_id]
 
             if year == weather_yr_scenario:
                 data['simulation_name'] = str(weather_yr_scenario) + "__" + str(station_id)
     else:
-        for year in [data['assumptions'].base_yr,  weather_yr_scenario]:
+        for year in sim_yrs:
             weather_stations_selection = data['weather_stations']
             temp_data_selection[year] = data['temp_data'][year]
 

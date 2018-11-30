@@ -644,6 +644,45 @@ def service_switch(path_to_csv, technologies, base_yr=2015):
 
     return service_switches
 
+'''def read_generic_fuel_switch(
+        path_to_csv,
+        enduses,
+        fueltypes,
+        technologies,
+        base_yr=2015
+    ):
+    """This function reads in from CSV file defined fuel
+    switch assumptions
+
+    Arguments
+    ----------
+    path_to_csv : str
+        Path to csv file
+    enduses : dict
+        Endues per submodel
+    fueltypes : dict
+        Look-ups
+    technologies : dict
+        Technologies
+
+    Returns
+    -------
+    dict_with_switches : dict
+        All assumptions about fuel switches provided as input
+    """
+    fuel_switches = []
+
+    if os.path.isfile(path_to_csv):
+
+        raw_csv_file = pd.read_csv(path_to_csv)
+
+        fuel_switches = []
+
+        raw_csv_file = raw_csv_file.set_index('enduses')
+        raw_csv_file = raw_csv_file.to_dict('index')
+
+    return fuel_switches'''
+
 def read_fuel_switches(
         path_to_csv,
         enduses,

@@ -37,7 +37,12 @@ def create_realisation(
     Before running, generate 2015 remapped data
     """
     sim_yr_start = 2015
-    sim_yr_end = 2050
+    sim_yr_end = 2050 + 1
+
+    print("... writing data", flush=True)
+    write_to_csv = True
+    write_to_np = False
+    write_to_parquet = False
 
     # Create result path
     basic_functions.create_folder(realisation_out_path)
@@ -103,11 +108,6 @@ def create_realisation(
                         [sim_yr, station_id, yearday, t_min_station[yearday], t_max_station[yearday]])
 
         # Write data to csv
-        print("... writing data", flush=True)
-        write_to_csv = False
-        write_to_np = False
-        write_to_parquet = True
-
         if write_to_csv:
             df = pd.DataFrame(realisation_out, columns=columns)
             path_out_csv = os.path.join(realisation_out_path, "weather_data_{}.csv".format(realisation))
@@ -320,7 +320,8 @@ if stich_weather_scenario:
     path_stiching_table = "X:/nismod/data/energy_demand/J-MARIUS_data/stitching_table/stitching_table_nf.dat"
 
     realisation_list = range(100)
-    realisation_list = range(19, 100)
+    #realisation_list = range(19, 100)
+
     create_realisation(
         base_yr_remapped_weather_path=base_yr_remapped_weather_path,
         realisation_list=realisation_list,

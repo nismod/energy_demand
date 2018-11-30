@@ -886,9 +886,9 @@ def load_weather_stations_csv(path_stations):
     stations = pd.read_csv(path_stations)
 
     for i in stations.index:
-        station_id = stations.at[i,'station_id']
-        latitude = stations.at[i,'latitude']
-        longitude = stations.at[i,'longitude']
+        station_id = stations.at[i, 'station_id']
+        latitude = stations.at[i, 'latitude']
+        longitude = stations.at[i, 'longitude']
 
         out_stations[station_id] = {
             'latitude' : float(latitude),
@@ -899,7 +899,6 @@ def load_weather_stations_csv(path_stations):
 def load_temp_data(
         local_paths,
         sim_yrs,
-        weather_yrs_scenario,
         weather_realisation,
         path_weather_data,
         same_base_year_weather=False,
@@ -947,8 +946,7 @@ def load_temp_data(
         # ------------------
         # Read stations
         # ------------------
-        path_stations = os.path.join(
-            path_weather_data, "stations_{}.csv".format(weather_realisation))
+        path_stations = os.path.join(path_weather_data, "stations_{}.csv".format(weather_realisation))
 
         weather_stations_with_data = load_weather_stations_csv(path_stations)
 
@@ -1001,7 +999,7 @@ def load_temp_data(
         weather_stations = read_weather_stations_raw(
             local_paths['folder_path_weater_stations'])
 
-        for weather_yr_scenario in weather_yrs_scenario:
+        for weather_yr_scenario in sim_yrs:
             temp_data = read_weather_data.read_weather_data_script_data(
                 local_paths['weather_data'], weather_yr_scenario)
 

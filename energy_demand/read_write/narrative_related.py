@@ -460,7 +460,6 @@ def read_user_defined_param(
                     end_yrs.add(end_yr)
                 except:
                     pass
-
             if list(sectors) == []:
 
                 for end_yr in end_yrs:
@@ -483,7 +482,11 @@ def read_user_defined_param(
 
                         for _index, row in df_enduse.iterrows():
 
-                            interpolation_params = row['interpolation_params']
+                            try:
+                                interpolation_params = row['interpolation_params']
+                            except:
+                                # Generic fuel switch
+                                interpolation_params = row['param_generic_fuel_switch']
 
                             if interpolation_params == 'diffusion_choice':
                                 int_diffusion_choice = float(row[var_name])
@@ -501,7 +504,6 @@ def read_user_defined_param(
                 print("...TODO IMPLEMENT MULTIDIMENSIONAL CRIT SECTOR PARAM")
                 pass
     else:
-
         sectors = set()
         end_yrs = set()
 
@@ -527,7 +529,7 @@ def read_user_defined_param(
                 narrative['sig_steepness'] = 1
                 narrative['regional_specific'] = default_streategy_var['regional_specific']
                 narrative['default_by'] = default_streategy_var['default_value']
-        
+
                 for _index, row in df.iterrows():
 
                     interpolation_params = row['interpolation_params']
@@ -549,8 +551,14 @@ def read_user_defined_param(
             print("...TODO IMPLEMENT SINGLE CRIT SECTOR PARAM")
             pass #IMPELEMENT
 
+
+
+    print(parameter_narratives)
+    print("====================")
     parameter_narratives = autocomplete(
-        parameter_narratives, simulation_base_yr, sub_param_crit)
+        parameter_narratives,
+        simulation_base_yr,
+        sub_param_crit)
     
     print("... finished loading parameter narratives")
     return parameter_narratives
