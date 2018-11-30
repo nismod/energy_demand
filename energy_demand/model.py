@@ -286,16 +286,6 @@ def aggregate_across_all_regs(
         fueltypes_nr,
         reg_nrs)
 
-    # TESGIN TODO
-    '''logging.info("____________zulu__________________")
-    logging.info(aggr_results['results_unconstrained'].shape)
-    logging.info(sum(aggr_results['results_constrained'].values()).shape)
-    from energy_demand.basic import testing_functions
-    _ = aggr_results['results_unconstrained'] - sum(aggr_results['results_constrained'].values())
-    logging.info(_[_ < 0])
-    assert not testing_functions.test_if_minus_value_in_array(_)'''
-
-
     # ----------------------------------------------------
     # Generate dict for supply model
     # ----------------------------------------------------
@@ -410,7 +400,6 @@ def simulate_region(
         weather_stations,
         weather_yr,
         weather_by
-
     ):
     """Run submodels for a single region
 
@@ -665,7 +654,7 @@ def aggr_complete_result(
     full_result_aggr : dict
         Full result aggregation dict
     """
-    for submodel_nr, sector_model in enumerate(sector_models):
+    for _, sector_model in enumerate(sector_models):
         for model_object in sector_model:
 
             fuels = get_fuels_yh(model_object, 'techs_fuel_yh')
