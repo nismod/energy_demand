@@ -411,6 +411,7 @@ def autocomplete(parameter_narratives, simulation_base_yr, sub_param_crit):
 
     autocomplet_param_narr = dict(autocomplet_param_narr_new)
 
+    print(autocomplet_param_narr)
     # If only single dimension parameter, remove dummy mutliparameter name
     if not sub_param_crit:
         autocomplet_param_narr = autocomplet_param_narr['dummy_single_param']
@@ -436,6 +437,7 @@ def read_user_defined_param(
         sub_param_crit = True
     else:
         sub_param_crit = False
+    print("... info sub_param_crit: " + str(sub_param_crit))
 
     if sub_param_crit:
         enduses = set(df['enduses'].values)
@@ -504,6 +506,7 @@ def read_user_defined_param(
                 print("...TODO IMPLEMENT MULTIDIMENSIONAL CRIT SECTOR PARAM")
                 pass
     else:
+
         sectors = set()
         end_yrs = set()
 
@@ -518,7 +521,7 @@ def read_user_defined_param(
                 end_yrs.add(end_yr)
             except:
                 pass
-
+        print("... info here  {}  {}".format(sectors, end_yrs))
         if list(sectors) == []:
 
             for end_yr in end_yrs:
@@ -551,14 +554,10 @@ def read_user_defined_param(
             print("...TODO IMPLEMENT SINGLE CRIT SECTOR PARAM")
             pass #IMPELEMENT
 
-
-
-    print(parameter_narratives)
-    print("====================")
     parameter_narratives = autocomplete(
         parameter_narratives,
         simulation_base_yr,
         sub_param_crit)
-    
+
     print("... finished loading parameter narratives")
     return parameter_narratives

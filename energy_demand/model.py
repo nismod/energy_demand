@@ -869,13 +869,6 @@ def aggregate_results_constrained(
     aggr_results : dict
         Contains all aggregated results
     """
-    '''logging.info("START unconstrained: {} constrained: {}".format(
-        np.sum(aggr_results['ed_submodel_enduse_fueltype_regs_yh']),
-        np.sum(sum(aggr_results['results_constrained'].values()))))
-    print("--------")
-    print(lookup_enduses)
-    print("----asdf----")
-    print(assumptions.lookup_sector_enduses)'''
     aggr_results['ed_submodel_enduse_fueltype_regs_yh'] = aggr_complete_result(
         aggr_results['ed_submodel_enduse_fueltype_regs_yh'],
         lookup_enduses,
@@ -883,11 +876,6 @@ def aggregate_results_constrained(
         all_submodels,
         technologies)
 
-    '''_only_heating_full = aggr_results['ed_submodel_enduse_fueltype_regs_yh'][17][0] + aggr_results['ed_submodel_enduse_fueltype_regs_yh'][5][0]  + aggr_results['ed_submodel_enduse_fueltype_regs_yh'][22][0] 
-    print("only space heating full " + str(np.sum(_only_heating_full.shape)))
-    print(_only_heating_full.shape)
-    print(_only_heating_full[reg_array_nr][:10])'''
-    
     if mode_constrained:
 
         # -----------------------------------------------------------------
@@ -917,60 +905,6 @@ def aggregate_results_constrained(
                         else:
                             aggr_results['results_constrained'][heating_tech] = np.zeros((len(all_submodels), reg_nrs, fueltypes_nr, 8760), dtype="float")
                             aggr_results['results_constrained'][heating_tech][submodel_nr][reg_array_nr][fueltype_tech_int] += tech_fuel.reshape(8760)
-    
-    # Only space heating submodel region
-    #only_space_heating_full = sum(aggr_results['results_constrained'].values())
-    #print("only space heating" + str(only_space_heating_full.shape))
-    #all_submodel_fuels = only_space_heating_full[0][reg_array_nr][0] + only_space_heating_full[1][reg_array_nr][0] + only_space_heating_full[2][reg_array_nr][0]
-    #print(all_submodel_fuels[:10])
-
-    #TODO TESTING--------
-    '''__results_unconstrained = aggregate_result_unconstrained(
-        assumptions.nr_of_submodels,
-        assumptions.lookup_sector_enduses,
-        aggr_results['ed_submodel_enduse_fueltype_regs_yh'],
-        fueltypes_nr,
-        reg_nrs)'''
-    
-    '''print("=========================== REGIONAL MINUS SUBSTRACTION")
-    print(mode_constrained)
-    print(aggr_results['ed_submodel_enduse_fueltype_regs_yh'].shape)
-    print(__results_unconstrained.shape)
-    print(sum(aggr_results['results_constrained'].values()).shape)
-    print("..")
-    print(np.sum(aggr_results['ed_submodel_enduse_fueltype_regs_yh']))
-    print(np.sum(__results_unconstrained))
-    print(np.sum(sum(aggr_results['results_constrained'].values())))
-    print("_____________________")'''
-
-
-    '''#import pprint
-    for submodel_nr, submodel_data in enumerate(__results_unconstrained):
-        for fueltype_nr, fueltype_data in enumerate(submodel_data[reg_array_nr]):
-            print("....." + str(fueltype_data.shape))
-            #print(sum(aggr_results['results_constrained'].values()))
-            _ssum = fueltype_data - sum(aggr_results['results_constrained'].values())[submodel_nr][reg_array_nr][fueltype_nr]
-
-            #print(pprint.pprint(_))
-            print("egg {} {}".format(
-                np.sum(__results_unconstrained[0][reg_array_nr][0]), np.sum(sum(aggr_results['results_constrained'].values())[0][reg_array_nr][0])))
-            
-            logging.info(
-                "model: {} region: {} fueltype: {}  sum: {} shape: {} sum_indiv: {} sum2_individ: {}".format(
-                    submodel_nr,
-                    reg_array_nr,
-                    fueltype_nr,
-                    np.sum(_ssum),
-                    _ssum.shape,
-                    np.sum(fueltype_data),
-                    np.sum(sum(aggr_results['results_constrained'].values())[submodel_nr][reg_array_nr][fueltype_nr])))
-            
-            assert not testing_functions.test_if_minus_value_in_array(_ssum)
-    '''
-    '''diff_ = __results_unconstrained - sum(aggr_results['results_constrained'].values())
-    logging.info(diff_[diff_ < 0])
-    logging.info("TOTAL SUM " + str(np.sum(diff_[diff_ < 0])))
-    assert not testing_functions.test_if_minus_value_in_array(diff_)'''
 
     return aggr_results
 

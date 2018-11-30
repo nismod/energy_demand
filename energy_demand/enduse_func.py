@@ -233,9 +233,8 @@ class Enduse(object):
                         mode_constrained=False,
                         make_all_flat=make_all_flat)
                     #print("FUEL TRAIN Y" + str(np.sum(fuel_yh)))
-                
-                    # TODO TEST IF MINUS FALUE
-                    assert not testing_functions.test_if_minus_value_in_array(self.fuel_yh)
+
+                    #assert not testing_functions.test_if_minus_value_in_array(self.fuel_yh)
             else:
                 #If technologies are defined for an enduse
 
@@ -323,9 +322,6 @@ class Enduse(object):
                         fueltypes,
                         mode_constrained)
 
-                    #for i in fuel_yh:
-                    #    print("===zulu {} {} ".format(i, testing_functions.test_if_minus_value_in_array(fuel_yh[i]))) 
-                    #    assert not testing_functions.test_if_minus_value_in_array(fuel_yh[i])
                     # --------------------------------------
                     # Demand Management
                     # --------------------------------------
@@ -342,14 +338,6 @@ class Enduse(object):
                                 make_all_flat=make_all_flat)
 
                         self.fuel_yh = None
-                        
-                        # TODO TEST IF MINUS FALUE
-                        '''for i in self.techs_fuel_yh:
-                            print("=== df === {}  {}".format(i, testing_functions.test_if_minus_value_in_array(self.techs_fuel_yh[i])))
-                            print(self.techs_fuel_yh[i][self.techs_fuel_yh[i] < 0])
-                            print(np.sum(self.techs_fuel_yh[i]))
-                            assert not testing_functions.test_if_minus_value_in_array(self.techs_fuel_yh[i])'''
-
                     else:
                         self.fuel_yh = demand_management(
                             enduse,
@@ -359,8 +347,7 @@ class Enduse(object):
                             mode_constrained=False,
                             make_all_flat=make_all_flat)
 
-                        # TODO TEST IF MINUS FALUE
-                        assert not testing_functions.test_if_minus_value_in_array(self.fuel_yh)
+                         #assert not testing_functions.test_if_minus_value_in_array(self.fuel_yh)
 
 def demand_management(
         enduse,
@@ -766,21 +753,8 @@ def calc_fuel_tech_yh(
 
             load_profile = load_profiles.get_lp(
                 enduse, sector, tech, 'shape_yh')
-            
-            #print(testing_functions.test_if_minus_value_in_array(load_profile))
-            #print("=s======= {}  {} ".format(tech, fuel_tech_y[tech]))
-            #assert np.sum(fuel_tech_y[tech]) >= 0
-            
-            #assert not testing_functions.test_if_minus_value_in_array(load_profile)
-            fuels_yh[tech] = fuel_tech_y[tech] * load_profile
-            #print("t " + str(testing_functions.test_if_minus_value_in_array(fuels_yh[tech])))
-            #assert not testing_functions.test_if_minus_value_in_array(fuels_yh[tech])
 
-            # ----------
-            # Testing if negative value
-            # ----------
-            #if testing_functions.test_if_minus_value_in_array(fuels_yh):
-            #   raise Exception("Error: Negative entry")
+            fuels_yh[tech] = fuel_tech_y[tech] * load_profile
 
     else:
         # --
@@ -794,20 +768,10 @@ def calc_fuel_tech_yh(
             load_profile = load_profiles.get_lp(
                 enduse, sector, tech, 'shape_yh')
 
-            #print("==========d=== {} {}".format(tech, fuel_tech_y[tech]))
-            #assert np.sum(fuel_tech_y[tech]) > 0
-            #assert not testing_functions.test_if_minus_value_in_array(load_profile)
-
             # If no fuel for this tech and not defined in enduse
             fuel_tech_yh = fuel_tech_y[tech] * load_profile
 
             fuels_yh[fueltypes['heat']] += fuel_tech_yh
-
-        # ----------
-        # Testing if negative value
-        # ----------
-        #if testing_functions.test_if_minus_value_in_array(fuels_yh):
-        #    raise Exception("Error: Negative entry")
 
     return fuels_yh
 

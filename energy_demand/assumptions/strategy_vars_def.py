@@ -141,8 +141,8 @@ def load_param_assump(
     # Heat pump technology mix
     # Source: Hannon 2015: Raising the temperature of the UK heat pump market: Learning lessons from Finland
     # ----------------------
-    strategy_vars['gshp_fraction_ey'] = {
-        "name": "gshp_fraction_ey",
+    strategy_vars['gshp_fraction'] = {
+        "name": "gshp_fraction",
         "description": "Relative GSHP (%) to GSHP+ASHP",
         "default_value": default_values['gshp_fraction'],
         "sector": True,

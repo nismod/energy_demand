@@ -1,23 +1,6 @@
 """Allows to run HIRE locally outside the SMIF framework
-# After smif upgrade:
-#   make that automatically the parameters can be generated to be copied into smif format
-#TODO Test if technology type can be left empty in technology spreadsheet, Try to remove tech_type
-#TODO ADD HEAT SOLD
-#TODO BASE YEAR IN PARAMETERS??
-#TODO GENERATE WEATHER VARIABLES
-#TODO SETUP RENEWAL
-#TODO NON HEATING
-#TODO LOCAL NARRATIVES FOLDER LOADING
-TODO REMOVE test_if_minus_value_in_array
-#TODO REMOVE weather_yr_scenario
-TODO: CHANGE 'latitude' : float(row['Latitude']),
 
-NARRATIVE CORRETION
-
-
-# TEST NON CONSTRAINED MODE
-
-
+test_if_minus_value_in_array
 Note
 ----
 Always execute from root folder. (e.g. energy_demand/energy_demand/main.py
@@ -259,7 +242,7 @@ if __name__ == "__main__":
     technologies = general_assumptions.update_technology_assumption(
         data['assumptions'].technologies,
         data['assumptions'].strategy_vars['f_eff_achieved'],
-        data['assumptions'].strategy_vars['gshp_fraction_ey'])
+        data['assumptions'].strategy_vars['gshp_fraction'])
     data['assumptions'].technologies.update(technologies)
 
     if config['CRITERIA']['virtual_building_stock_criteria']:
@@ -483,7 +466,7 @@ if __name__ == "__main__":
         technologies = general_assumptions.update_technology_assumption(
             data['assumptions'].technologies,
             narrative_f_eff_achieved=data['assumptions'].non_regional_vars['f_eff_achieved'][sim_yr],
-            narrative_gshp_fraction_ey=data['assumptions'].non_regional_vars['gshp_fraction_ey'][sim_yr],
+            narrative_gshp_fraction=data['assumptions'].non_regional_vars['gshp_fraction'][sim_yr],
             crit_narrative_input=False)
         data['assumptions'].technologies.update(technologies)
 

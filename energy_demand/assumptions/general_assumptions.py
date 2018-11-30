@@ -490,7 +490,7 @@ class Assumptions(object):
 def update_technology_assumption(
         technologies,
         narrative_f_eff_achieved,
-        narrative_gshp_fraction_ey,
+        narrative_gshp_fraction,
         crit_narrative_input=True
     ):
     """Updates technology related properties based on
@@ -505,7 +505,7 @@ def update_technology_assumption(
         Technologies
     f_eff_achieved : float
         Factor achieved
-    gshp_fraction_ey : float
+    gshp_fraction : float
         Mix of GSHP and GSHP
     crit_narrative_input : bool
         Criteria wheter inputs are single values or a narrative
@@ -517,10 +517,10 @@ def update_technology_assumption(
     if crit_narrative_input:
         # Read from narrative the value
         f_eff_achieved = narrative_related.read_from_narrative(narrative_f_eff_achieved) 
-        gshp_fraction_ey = narrative_related.read_from_narrative(narrative_gshp_fraction_ey)
+        gshp_fraction = narrative_related.read_from_narrative(narrative_gshp_fraction)
     else:
         f_eff_achieved = narrative_f_eff_achieved
-        gshp_fraction_ey = narrative_gshp_fraction_ey
+        gshp_fraction = narrative_gshp_fraction
 
     # Assign same achieved efficiency factor for all technologies
     technologies = helpers.set_same_eff_all_tech(
@@ -529,7 +529,7 @@ def update_technology_assumption(
 
     # Calculate average eff of hp depending on fraction of GSHP to ASHP
     installed_heat_pump_ey = tech_related.generate_ashp_gshp_split(
-        gshp_fraction_ey)
+        gshp_fraction)
 
     technologies = tech_related.calc_av_heat_pump_eff_ey(
         technologies, installed_heat_pump_ey)

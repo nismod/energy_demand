@@ -219,27 +219,33 @@ def load_local_user_defined_vars(
     strategy_vars_as_narratives = {}
 
     for file_name in all_csv_in_folder:
-        print("... loading user defined variable '%s'", file_name[:-4])
-
         if file_name in files_to_ignores:
             pass
         else:
             # Strategy variable name
             var_name = file_name[:-4] #remove ".csv"
+            print(" ")
+            print("... loading user defined variable '%s'", var_name)
 
             try:
-                _ = default_strategy_var[var_name]
-            except KeyError:
-                logging.info("The user defined variable '%s' is not defined in model", var_name)
-
                 raw_file_content = pd.read_csv(os.path.join(path_csv, file_name))
+
+                default_streategy_var = default_strategy_var[var_name]
+                print("  ")
+                print("-- " + str(var_name))
+                for i in default_strategy_var.keys():
+                    print(i)
 
                 # Alternative loading
                 strategy_vars_as_narratives[var_name] = narrative_related.read_user_defined_param(
                     raw_file_content,
                     simulation_base_yr=simulation_base_yr,
-                    default_streategy_var=default_strategy_var[var_name],
+                    default_streategy_var=default_streategy_var,
                     var_name=var_name)
+
+            except KeyError:
+                logging.info("The user defined variable '%s' is not defined in model", var_name)
+                raise Exception("QUIT " + str(var_name))
 
     return strategy_vars_as_narratives
 
