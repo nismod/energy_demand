@@ -1,6 +1,8 @@
 """Allows to run HIRE locally outside the SMIF framework
 
 test_if_minus_value_in_array
+
+TODO: REMOVE KAMEL
 Note
 ----
 Always execute from root folder. (e.g. energy_demand/energy_demand/main.py
@@ -220,11 +222,12 @@ if __name__ == "__main__":
     user_defined_vars = data_loader.load_local_user_defined_vars(
         default_strategy_var=default_streategy_vars,
         path_csv=data['local_paths']['path_strategy_vars'],
-        simulation_base_yr=data['assumptions'].base_yr)
+        simulation_base_yr=data['assumptions'].base_yr,
+        simulation_end_yr=user_defined_simulation_end_yr)
 
     strategy_vars = data_loader.replace_variable(user_defined_vars, strategy_vars)
 
-    # Replace strategy variables not defined in csv files)
+    # Replace strategy variables not defined in csv files
     strategy_vars_out = strategy_vars_def.autocomplete_strategy_vars(
         strategy_vars,
         narrative_crit=True)
@@ -360,7 +363,7 @@ if __name__ == "__main__":
         sim_yrs)
 
     # ------------------------------------------------
-    # Calculate switches
+    # Calculate switches (not generic)
     # ------------------------------------------------
     service_switches = read_data.service_switch(os.path.join(data['local_paths']['path_strategy_vars'], "switches_service.csv"), data['assumptions'].technologies)
     fuel_switches = read_data.read_fuel_switches(os.path.join(data['local_paths']['path_strategy_vars'], "switches_fuel.csv"), data['enduses'], data['assumptions'].fueltypes, data['assumptions'].technologies)

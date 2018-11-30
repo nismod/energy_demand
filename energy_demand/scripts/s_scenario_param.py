@@ -146,7 +146,6 @@ def generate_annual_param_vals(
     non_reg_param = {}
 
     for var_name, strategy_vars_values in strategy_vars.items():
-        logging.info("Calculating annual values for parameter: " + str(var_name))
 
         for region in regions:
             reg_param[region][var_name] = {}
@@ -154,6 +153,8 @@ def generate_annual_param_vals(
 
         single_dim_var = narrative_related.crit_dim_var(
             strategy_vars_values)
+
+        print("Calculating annual values for parameter: {} {}".format(var_name, single_dim_var))
 
         if single_dim_var:
 
@@ -189,7 +190,6 @@ def generate_annual_param_vals(
         else:
             for sub_var_name, sector_sub_var_values in strategy_vars_values.items():
 
-                # Initalisation
                 for region in regions:
                     reg_param[region][var_name][sub_var_name] = {}
                 non_reg_param[var_name][sub_var_name] = {}

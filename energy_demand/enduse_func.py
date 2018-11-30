@@ -390,6 +390,7 @@ def demand_management(
     fuel_yh : array
         Fuel of yh
     """
+
     # Get assumed load shift
     if dm_improvement[enduse][curr_yr] == 0:
         pass # no load management

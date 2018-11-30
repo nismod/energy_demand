@@ -167,8 +167,7 @@ def replace_variable(_user_defined_vars, strategy_vars):
     """
     for new_var, new_var_vals in _user_defined_vars.items():
 
-        crit_single_dim = narrative_related.crit_dim_var(
-            new_var_vals)
+        crit_single_dim = narrative_related.crit_dim_var(new_var_vals)
 
         if crit_single_dim:
             strategy_vars[new_var] = new_var_vals
@@ -189,7 +188,8 @@ def replace_variable(_user_defined_vars, strategy_vars):
 def load_local_user_defined_vars(
         default_strategy_var,
         path_csv,
-        simulation_base_yr
+        simulation_base_yr,
+        simulation_end_yr
     ):
     """Load all strategy variables from file
 
@@ -224,27 +224,22 @@ def load_local_user_defined_vars(
         else:
             # Strategy variable name
             var_name = file_name[:-4] #remove ".csv"
-            print(" ")
-            print("... loading user defined variable '%s'", var_name)
+
             try:
                 raw_file_content = pd.read_csv(os.path.join(path_csv, file_name))
 
                 default_streategy_var = default_strategy_var[var_name]
-                print("  ")
-                print("-- " + str(var_name))
-                for i in default_strategy_var.keys():
-                    print(i)
 
                 # Alternative loading
                 strategy_vars_as_narratives[var_name] = narrative_related.read_user_defined_param(
                     raw_file_content,
                     simulation_base_yr=simulation_base_yr,
+                    simulation_end_yr=simulation_end_yr,
                     default_streategy_var=default_streategy_var,
                     var_name=var_name)
 
             except KeyError:
-                logging.info("The user defined variable '%s' is not defined in model", var_name)
-                raise Exception("QUIT " + str(var_name))
+                raise Exception("The user defined variable '{}' is not defined in model", var_name)
 
     return strategy_vars_as_narratives
 
@@ -980,7 +975,7 @@ def load_temp_data(
                 sim_yr = sim_yrs[0]
             else:
                 pass
-            print("    ... sim_yr" + str(sim_yr), flush=True)
+            print("    ... year: {}".format(sim_yr), flush=True)
 
             # Select all station values
             df_timestep = df_full_data.loc[df_full_data['timestep'] == sim_yr]
@@ -1001,6 +996,7 @@ def load_temp_data(
 
         return dict(weather_stations_with_data), dict(temp_data_short)
     else:
+        #TODO REMOVE WHOLE THINGS
         weather_stations = read_weather_stations_raw(
             local_paths['folder_path_weater_stations'])
 

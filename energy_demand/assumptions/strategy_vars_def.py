@@ -1,6 +1,5 @@
 """Strategy variable assumptions provided as parameters to smif
 """
-import logging
 from collections import defaultdict
 
 from energy_demand.read_write import narrative_related
@@ -47,6 +46,8 @@ def load_default_params(
                     diffusion_choice=sub_var_entries['diffusion_type'],
                     base_yr=base_yr,
                     regional_specific=sub_var_entries['regional_specific'])
+    
+    #strategy_vars = dict(strategy_vars)
 
     return strategy_vars
 
@@ -380,6 +381,7 @@ def autocomplete_strategy_vars(
 
                 # If no 'enduse' defined, add empty list of affected enduses
                 out_dict[var_name]['scenario_value'] = var_entries['default_value']
+
                 if 'enduse' not in var_entries:
                     out_dict[var_name]['enduse'] = []
                 if 'sector' not in var_entries:
@@ -400,15 +402,15 @@ def autocomplete_strategy_vars(
         out_dict = {}
 
         for var_name, var_entries in strategy_vars.items():
-            out_dict[var_name] = defaultdict(dict)
+            out_dict[var_name] = {} #defaultdict(dict)
 
             crit_single_dim = narrative_related.crit_dim_var(var_entries)
 
             if crit_single_dim:
                 updated_narratives = []
-                for narrative in var_entries:
 
-                    # If no 'enduse' defined, add empty list of affected enduses
+                for narrative in var_entries:
+                    #If no 'enduse' defined, add empty list of affected enduses
                     if 'enduse' not in narrative:
                         narrative['enduse'] = []
                     if 'sector' not in narrative:
@@ -416,14 +418,14 @@ def autocomplete_strategy_vars(
                     updated_narratives.append(narrative)
 
                 out_dict[var_name] = updated_narratives
-
             else:
-                logging.info("   ...user defined variable: %s", var_name)
-
+                #print("   ...user defined variable: %s", var_name)
                 for sub_var_name, sector_sub_var_entries in var_entries.items():
 
                     if type(sector_sub_var_entries) is dict: # If sectors are defined
                         for sector, sub_var_entries in sector_sub_var_entries.items():
+                            out_dict[var_name][sub_var_name] = {}
+
                             updated_narratives = []
                             for narrative in sub_var_entries:
 
