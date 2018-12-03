@@ -18,11 +18,20 @@ def run(
         timesteps
     ):
 
+    # Narrative parameters
     narratives = {
-            't_base_heating': [narrative],
-            'generic_enduse_change': [narrative],
-            }
-    
+        'air_leakage': [narrative],
+        'assump_diff_floorarea_pp': [narrative],
+        'cooled_floorarea': [narrative],
+        'dm_improvement': [narrative],
+        'f_eff_achieved': [narrative],
+        'generic_enduse_change': [narrative],
+        'heat_recovered': [narrative],
+        't_base_heating': [narrative],
+        'p_cold_rolling_steel': [narrative],
+        'smart_meter_p': [narrative],
+        'generic_fuel_switch': [narrative]
+        }
 
     scenario_name = 'energy_demand_constrained__{}__{}__{}'.format(weather_name, population_scenario, gva_scenario)
 
@@ -47,21 +56,26 @@ def run(
     path_out_file = os.path.join(path, "{}.yml".format(scenario_name))
     write_data.write_yaml(yaml_dict_out, path_out_file)
 
-
 path = "C:/_scrap"
-narrative = "central_narrative"
-gva_scenario = 'gva_baseline'
-population_scenario = 'pop_low'
-timesteps = [2015, 2050]
-sos_model = "energy_demand_constrained"
 
 for i in range(1, 101, 1):
 
+    # Narrative
+    narrative = "central_narrative"
+
+    # Scenario data
+    gva_scenario = 'gva_baseline'
+    population_scenario = 'pop_low'
+    timesteps = [2015, 2050]
+    sos_model = "energy_demand_constrained"
+    weather_realisation = "NF{}".format(i)
+
+    # Create .yml file
     run(
         path,
         sos_model,
         narrative,
-        "NF{}".format(1),
+        weather_realisation,
         gva_scenario,
         population_scenario,
         timesteps)
