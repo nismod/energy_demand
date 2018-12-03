@@ -221,7 +221,10 @@ def autocomplete(parameter_narratives, simulation_base_yr, sub_param_crit):
 
     # If only single dimension parameter, remove dummy mutliparameter name
     if not sub_param_crit:
-        autocomplet_param_narr = autocomplet_param_narr['dummy_single_param']
+        try:
+            autocomplet_param_narr = autocomplet_param_narr['dummy_single_param']
+        except:
+            pass
 
     return autocomplet_param_narr
 
@@ -273,7 +276,7 @@ def read_user_defined_param(
             enduses = set(df['enduses'].values)
             for enduse in enduses:
                 parameter_narratives[enduse] = {}
-    
+
                 # All rows of enduse
                 df_enduse = df.loc[df['enduses'] == enduse]
 

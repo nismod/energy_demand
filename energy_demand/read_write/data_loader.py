@@ -181,8 +181,7 @@ def replace_variable(_user_defined_vars, strategy_vars):
                 else:
                     strategy_vars[new_var][sub_var_name] = sector_sub_var
 
-            strategy_vars[new_var] = dict(strategy_vars[new_var])
-
+            strategy_vars[new_var] = strategy_vars[new_var]
     return strategy_vars
 
 def load_local_user_defined_vars(
@@ -225,7 +224,7 @@ def load_local_user_defined_vars(
             # Strategy variable name
             var_name = file_name[:-4] #remove ".csv"
 
-            try:
+            try: 
                 raw_file_content = pd.read_csv(os.path.join(path_csv, file_name))
 
                 default_streategy_var = default_strategy_var[var_name]

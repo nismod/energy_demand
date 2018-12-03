@@ -972,7 +972,7 @@ def spatial_maps(
                         merge_data,
                         unique_merge_id)
 
-                    '''bins_increments = 25 #10 KAMEL
+                    '''bins_increments = 25
                     bins = get_reasonable_bin_values(
                         data_to_plot=list(data_to_plot.values()),
                         increments=bins_increments)'''

@@ -1,8 +1,5 @@
 """Allows to run HIRE locally outside the SMIF framework
 
-test_if_minus_value_in_array
-
-TODO: REMOVE KAMEL
 Note
 ----
 Always execute from root folder. (e.g. energy_demand/energy_demand/main.py
@@ -370,10 +367,11 @@ if __name__ == "__main__":
     capacity_switches = read_data.read_capacity_switch(os.path.join(data['local_paths']['path_strategy_vars'], "switches_capacity.csv"))
 
     # Load Generic fuel switches
+
     crit_switch_happening = testing_functions.switch_testing(
-        fuel_switches=strategy_vars['fuel_switches'],
-        service_switches=strategy_vars['service_switches'],
-        capacity_switches=strategy_vars['capacity_switches'])
+        fuel_switches=fuel_switches,
+        service_switches=service_switches,
+        capacity_switches=capacity_switches)
     data['assumptions'].update('crit_switch_happening', crit_switch_happening)
 
     print("... starting calculating switches")
@@ -384,9 +382,9 @@ if __name__ == "__main__":
         f_reg_norm,
         f_reg_norm_abs,
         crit_all_the_same,
-        strategy_vars['fuel_switches'],
-        strategy_vars['service_switches'],
-        strategy_vars['capacity_switches'])
+        fuel_switches,
+        service_switches,
+        capacity_switches)
     for region in data['regions']:
         regional_vars[region]['annual_tech_diff_params'] = annual_tech_diff_params[region]
 

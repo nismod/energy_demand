@@ -47,7 +47,7 @@ def load_default_params(
                     base_yr=base_yr,
                     regional_specific=sub_var_entries['regional_specific'])
     
-    #strategy_vars = dict(strategy_vars)
+    strategy_vars = dict(strategy_vars)
 
     return strategy_vars
 
@@ -402,7 +402,7 @@ def autocomplete_strategy_vars(
         out_dict = {}
 
         for var_name, var_entries in strategy_vars.items():
-            out_dict[var_name] = {} #defaultdict(dict)
+            out_dict[var_name] = {}
 
             crit_single_dim = narrative_related.crit_dim_var(var_entries)
 
