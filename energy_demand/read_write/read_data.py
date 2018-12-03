@@ -578,73 +578,7 @@ def read_load_shapes_tech(path_to_csv):
 
     return load_shapes_dh
 
-def service_switch(path_to_csv, technologies, base_yr=2015):
-    """This function reads in service assumptions from csv file,
-    tests whether the maximum defined switch is larger than
-    possible for a technology.
-
-    Arguments
-    ----------
-    path_to_csv : str
-        Path to csv file
-    technologies : list
-        All technologies
-
-    Returns
-    -------
-    enduse_tech_ey_p : dict
-        Technologies per enduse for endyear in p
-    service_switches : dict
-        Service switches
-
-    Notes
-    -----
-    The base year service shares are generated from technology stock definition
-
-    Info
-    -----
-    The following attributes need to be defined for a service switch.
-
-        Attribute                   Description
-        ==========                  =========================
-        enduse                      [str]   Enduse affected by switch
-        tech                        [str]   Technology
-        switch_yr                   [int]   Year until switch is fully realised
-        service_share_ey            [str]   Service share of 'tech' in 'switch_yr'
-        sector                      [str]   Optional sector specific info where switch applies
-    """
-    service_switches = []
-
-    if os.path.isfile(path_to_csv):
-
-        # Read switches
-        raw_csv_file = pd.read_csv(path_to_csv)
-
-        for _index, row in raw_csv_file.iterrows():
-
-            service_switches.append(
-                ServiceSwitch(
-                    enduse=str(row['enduse']),
-                    technology_install=str(row['tech']),
-                    service_share_ey=float(row['service_share_ey']),
-                    switch_yr=float(row['switch_yr']),
-                    sector=row['sector']))
-
-        # Test if more service is provided as input than possible to maximum switch
-        for entry in service_switches:
-            if entry.service_share_ey > technologies[entry.technology_install].tech_max_share:
-                raise Exception(
-                    "Input error: more service provided for tech '{}' in enduse '{}' than max possible".format(
-                        entry.enduse, entry.technology_install))
-
-            if entry.switch_yr <= base_yr:
-                raise Exception("Input error service switch: switch_yr must be in the future")
-    else:
-        pass
-
-    return service_switches
-
-def service_switch_NEW(df_service_switches):
+def service_switch(df_service_switches):
     """This function reads in service assumptions from csv file,
     tests whether the maximum defined switch is larger than
     possible for a technology.

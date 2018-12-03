@@ -79,6 +79,11 @@ def energy_demand_model(
 if __name__ == "__main__":
     """
     """
+
+    # ------------------------------------------
+    # Local run model configuration
+    # ------------------------------------------
+    
     # Paths
     local_data_path = os.path.abspath('data')
     path_main = os.path.abspath(
@@ -93,7 +98,7 @@ if __name__ == "__main__":
     config.read(path_config)
     config = basic_functions.convert_config_to_correct_type(config)
 
-    # --- Model running configurations
+    # Data
     data = {}
     base_yr = config['CONFIG']['base_yr']
     user_defined_weather_by = config['CONFIG']['user_defined_weather_by']
@@ -123,31 +128,31 @@ if __name__ == "__main__":
     # --- Region definition configuration
     name_region_set = os.path.join(local_data_path, 'region_definitions', "lad_2016_uk_simplified.shp")
 
-    local_scenario = 'pop-a_econ-c_fuel-c' #'dummy_scenario'
+    local_scenario = 'pop-a_econ-c_fuel-c'
     weather_realisation = 'NF1'
 
     name_population_dataset = os.path.join(local_data_path, 'scenarios', 'MISTRAL_pop_gva', 'data', '{}/population__lad.csv'.format(local_scenario))
     name_gva_dataset = os.path.join(local_data_path, 'scenarios', 'MISTRAL_pop_gva', 'data', '{}/gva_per_head__lad_sector.csv'.format(local_scenario))
     name_gva_dataset_per_head = os.path.join(local_data_path, 'scenarios', 'MISTRAL_pop_gva', 'data', '{}/gva_per_head__lad.csv'.format(local_scenario))
 
-    
     path_weather_data = "X:/nismod/data/energy_demand/J-MARIUS_data/_weather_realisation"
 
     simulation_name = str(weather_realisation) + "__" + "all_stations"
-
-    # --------------------
-    # Paths
-    # --------------------
+    
     name_scenario_run = "{}_result_local_{}".format(scenario_name, str(time.ctime()).replace(":", "_").replace(" ", "_"))
 
+    # ------------------------------------------
+
+    # --------------------
+    # Load all other paths
+    # --------------------
     data['paths'] = data_loader.load_paths(path_main)
     data['local_paths'] = data_loader.get_local_paths(local_data_path)
 
-    path_new_scenario = os.path.abspath(os.path.join(os.path.dirname(local_data_path), "results", name_scenario_run))
-    data['path_new_scenario'] = path_new_scenario
-    data['result_paths'] = data_loader.get_result_paths(path_new_scenario)
+    data['path_new_scenario'] = os.path.abspath(os.path.join(os.path.dirname(local_data_path), "results", name_scenario_run))
+    data['result_paths'] = data_loader.get_result_paths(data['path_new_scenario'])
 
-    basic_functions.create_folder(path_new_scenario)
+    basic_functions.create_folder(data['path_new_scenario'])
 
     # ----------------------------------------------------------------------
     # Load data
@@ -211,9 +216,9 @@ if __name__ == "__main__":
         default_values=True)
 
     # -----------------------------------------------------------------------------
-    # Load standard smif parameters and generate standard single timestep narrative for year 2050
+    # Load standard smif parameters and generate standard single timestep narrative for simulation end year
     # -----------------------------------------------------------------------------
-    strategy_vars = strategy_vars_def.load_default_params(
+    strategy_vars = strategy_vars_def.generate_default_parameter_narratives(
         default_streategy_vars=default_streategy_vars,
         end_yr=2050,
         base_yr=base_yr)
@@ -340,16 +345,13 @@ if __name__ == "__main__":
     # ------------------------------------------------
     # Calculate switches (not generic)
     # ------------------------------------------------
-    #service_switches = read_data.service_switch(os.path.join(data['local_paths']['path_strategy_vars'], "switches_service.csv"), data['assumptions'].technologies)
-    print("A " + str(os.path.join(data['local_paths']['path_strategy_vars'], "switches_service.csv")))
     service_switches_raw = pd.read_csv(os.path.join(data['local_paths']['path_strategy_vars'], "switches_service.csv"))
-    service_switches = read_data.service_switch_NEW(service_switches_raw)
+    service_switches = read_data.service_switch(service_switches_raw)
 
     fuel_switches = read_data.read_fuel_switches(os.path.join(data['local_paths']['path_strategy_vars'], "switches_fuel.csv"), data['enduses'], data['assumptions'].fueltypes, data['assumptions'].technologies)
     capacity_switches = read_data.read_capacity_switch(os.path.join(data['local_paths']['path_strategy_vars'], "switches_capacity.csv"))
 
     # Load Generic fuel switches
-
     crit_switch_happening = testing_functions.switch_testing(
         fuel_switches=fuel_switches,
         service_switches=service_switches,

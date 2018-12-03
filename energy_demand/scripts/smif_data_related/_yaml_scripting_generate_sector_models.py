@@ -7,21 +7,7 @@ import yaml
 import numpy as np
 from ruamel.yaml import YAML
 
-def write_yaml(data, file_path):
-    """Write plain data to a file as yaml
-
-    Parameters
-    ----------
-    data
-        Data to write (should be lists, dicts and simple values)
-    file_path : str
-        The path of the configuration file to write
-    """
-    with open(file_path, 'w') as file_handle:
-        yaml = YAML(typ='unsafe')
-        yaml.default_flow_style = False
-        yaml.allow_unicode = True
-        return yaml.dump(data, file_handle)
+from energy_demand.read_write import write_data
 
 def generate_yaml(
         narrative,
@@ -114,7 +100,7 @@ def generate_yaml(
         }
 
     path_yaml = os.path.join(out_folder, "energy_demand_constrained__{}.yml".format(weather_real))
-    write_yaml(yaml_dict, path_yaml)
+    write_data.write_yaml(yaml_dict, path_yaml)
 
 params = [
     'air_leakage',

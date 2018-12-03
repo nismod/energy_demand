@@ -4,11 +4,24 @@ from collections import defaultdict
 
 from energy_demand.read_write import narrative_related
 
-def load_default_params(
+def generate_default_parameter_narratives(
         default_streategy_vars,
         end_yr=2050,
         base_yr=2015):
-    """#LOAD AND GENERATE STANDARD NARRATIVE
+    """Load default parameters and create default timesteps
+
+    Arguments
+    ---------
+    default_streategy_vars : dict
+        Default parameter values
+    end_yr : int
+        Simulation end year
+    base_yr : int
+        Base year
+
+    Returns
+    -------
+
     """
     strategy_vars = defaultdict(dict)
     # ------------------------------------------------------------
@@ -46,7 +59,7 @@ def load_default_params(
                     diffusion_choice=sub_var_entries['diffusion_type'],
                     base_yr=base_yr,
                     regional_specific=sub_var_entries['regional_specific'])
-    
+
     strategy_vars = dict(strategy_vars)
 
     return strategy_vars
