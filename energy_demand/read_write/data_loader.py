@@ -224,7 +224,7 @@ def load_local_user_defined_vars(
             # Strategy variable name
             var_name = file_name[:-4] #remove ".csv"
 
-            try: 
+            try:
                 raw_file_content = pd.read_csv(os.path.join(path_csv, file_name))
 
                 default_streategy_var = default_strategy_var[var_name]

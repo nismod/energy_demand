@@ -644,6 +644,63 @@ def service_switch(path_to_csv, technologies, base_yr=2015):
 
     return service_switches
 
+def service_switch_NEW(df_service_switches):
+    """This function reads in service assumptions from csv file,
+    tests whether the maximum defined switch is larger than
+    possible for a technology.
+
+    Arguments
+    ----------
+    path_to_csv : str
+        Path to csv file
+    technologies : list
+        All technologies
+
+    Returns
+    -------
+    enduse_tech_ey_p : dict
+        Technologies per enduse for endyear in p
+    service_switches : dict
+        Service switches
+
+    Notes
+    -----
+    The base year service shares are generated from technology stock definition
+
+    Info
+    -----
+    The following attributes need to be defined for a service switch.
+
+        Attribute                   Description
+        ==========                  =========================
+        enduse                      [str]   Enduse affected by switch
+        tech                        [str]   Technology
+        switch_yr                   [int]   Year until switch is fully realised
+        service_share_ey            [str]   Service share of 'tech' in 'switch_yr'
+        sector                      [str]   Optional sector specific info where switch applies
+    """
+    service_switches = []
+
+    for i in df_service_switches.index:
+        enduse = df_service_switches.at[i, 'enduses_service_switch']
+        tech = df_service_switches.at[i, 'tech']
+        service_share_ey = df_service_switches.at[i, 'switches_service']
+        switch_yr = df_service_switches.at[i, 'end_yr']
+        sector = df_service_switches.at[i, 'sector']
+
+        if float(service_share_ey) == 999.0:
+            pass
+        else:
+            service_switches.append(
+                ServiceSwitch(
+                    enduse=str(enduse),
+                    technology_install=str(tech),
+                    service_share_ey=float(service_share_ey),
+                    switch_yr=float(switch_yr),
+                    sector=sector))
+
+    return service_switches
+
 '''def read_generic_fuel_switch(
         path_to_csv,
         enduses,
