@@ -688,7 +688,7 @@ def service_switch_NEW(df_service_switches):
         switch_yr = df_service_switches.at[i, 'end_yr']
         sector = df_service_switches.at[i, 'sector']
 
-        if float(service_share_ey) == 999.0:
+        if float(service_share_ey) == 999.0: #default parameter
             pass
         else:
             service_switches.append(

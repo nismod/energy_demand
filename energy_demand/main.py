@@ -10,6 +10,7 @@ import time
 import logging
 import configparser
 from collections import defaultdict
+import pandas as pd
 
 from energy_demand.basic import basic_functions, date_prop, demand_supply_interaction, testing_functions, lookup_tables
 from energy_demand import model
@@ -123,12 +124,16 @@ if __name__ == "__main__":
     name_region_set = os.path.join(local_data_path, 'region_definitions', "lad_2016_uk_simplified.shp")
 
     local_scenario = 'pop-a_econ-c_fuel-c' #'dummy_scenario'
+    weather_realisation = 'NF1'
 
-    name_population_dataset = os.path.join(local_data_path, 'scenarios', 'MISTRAL_pop_gva', 'data', '{}/population__lad.csv'.format(local_scenario)) # Constant scenario
-
-    # GVA datasets
+    name_population_dataset = os.path.join(local_data_path, 'scenarios', 'MISTRAL_pop_gva', 'data', '{}/population__lad.csv'.format(local_scenario))
     name_gva_dataset = os.path.join(local_data_path, 'scenarios', 'MISTRAL_pop_gva', 'data', '{}/gva_per_head__lad_sector.csv'.format(local_scenario))
     name_gva_dataset_per_head = os.path.join(local_data_path, 'scenarios', 'MISTRAL_pop_gva', 'data', '{}/gva_per_head__lad.csv'.format(local_scenario))
+
+    
+    path_weather_data = "X:/nismod/data/energy_demand/J-MARIUS_data/_weather_realisation"
+
+    simulation_name = str(weather_realisation) + "__" + "all_stations"
 
     # --------------------
     # Paths
@@ -272,9 +277,6 @@ if __name__ == "__main__":
     # Make selection of weather stations and data
     # Load all temperature and weather station data
     # ---------------------------------------------
-    weather_realisation = 'NF1'
-    path_weather_data = "X:/nismod/data/energy_demand/J-MARIUS_data/_weather_realisation"
-
     data['weather_stations'], data['temp_data'] = data_loader.load_temp_data(
         data['local_paths'],
         sim_yrs=sim_yrs,
@@ -282,30 +284,6 @@ if __name__ == "__main__":
         path_weather_data=path_weather_data,
         same_base_year_weather=False,
         crit_temp_min_max=config['CRITERIA']['crit_temp_min_max'])
-
-    # Get only selection of weather station data
-    weather_stations_selection = {}
-    temp_data_selection = defaultdict(dict)
-    if weather_station_count_nr != []:
-        for year in sim_yrs:
-            weather_stations_selection, wheather_station_id = weather_region.get_weather_station_selection(
-                data['weather_stations'],
-                counter=weather_station_count_nr,
-                weather_yr=weather_yr_scenario)
-            temp_data_selection[year][wheather_station_id] = data['temp_data'][year][wheather_station_id]
-
-            if year == weather_yr_scenario:
-                simulation_name = str(weather_yr_scenario) + "__" + str(wheather_station_id)
-    else:
-        for year in sim_yrs:
-            weather_stations_selection = data['weather_stations']
-            temp_data_selection[year] = data['temp_data'][year]
-            if year == weather_yr_scenario:
-                simulation_name = str(weather_yr_scenario) + "__" + "all_stations"
-
-    # Replace weather station with selection
-    data['weather_stations'] = weather_stations_selection
-    data['temp_data'] = dict(temp_data_selection)
 
     #print(station_id_253)
     # Plot map with weather station
@@ -362,7 +340,11 @@ if __name__ == "__main__":
     # ------------------------------------------------
     # Calculate switches (not generic)
     # ------------------------------------------------
-    service_switches = read_data.service_switch(os.path.join(data['local_paths']['path_strategy_vars'], "switches_service.csv"), data['assumptions'].technologies)
+    #service_switches = read_data.service_switch(os.path.join(data['local_paths']['path_strategy_vars'], "switches_service.csv"), data['assumptions'].technologies)
+    print("A " + str(os.path.join(data['local_paths']['path_strategy_vars'], "switches_service.csv")))
+    service_switches_raw = pd.read_csv(os.path.join(data['local_paths']['path_strategy_vars'], "switches_service.csv"))
+    service_switches = read_data.service_switch_NEW(service_switches_raw)
+
     fuel_switches = read_data.read_fuel_switches(os.path.join(data['local_paths']['path_strategy_vars'], "switches_fuel.csv"), data['enduses'], data['assumptions'].fueltypes, data['assumptions'].technologies)
     capacity_switches = read_data.read_capacity_switch(os.path.join(data['local_paths']['path_strategy_vars'], "switches_capacity.csv"))
 
