@@ -20,6 +20,8 @@ class WeatherRegion(object):
     ----------
     name : str
         Unique identifyer of weather region
+    latitude, longitude : float
+        Coordinates
     assumptions : dict
         Assumptions
     technologies : list
@@ -37,7 +39,6 @@ class WeatherRegion(object):
     ----
     - For each region, a technology stock is defined
     - regional specific fuel shapes are assigned to technologies
-    #TODO CLEAN
     """
     def __init__(
             self,
@@ -458,7 +459,7 @@ class WeatherRegion(object):
             enduses=['is_space_heating'],
             sectors=sectors['industry'],
             shape_yd=is_fuel_shape_heating_yd_weighted,
-            shape_y_dh=flat_shape_y_dh, # tech_lp['ss_all_tech_shapes_dh']['ss_space_heating']['shape_non_peak_y_dh]
+            shape_y_dh=flat_shape_y_dh,
             model_yeardays=assumptions.model_yeardays)
 
         # Apply correction factor for weekend_effect to flat load profile for industry

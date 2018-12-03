@@ -253,7 +253,11 @@ class ServiceSwitch(object):
         """
         setattr(self, name, value)
 
-def read_in_results(path_result, seasons, model_yeardays_daytype):
+def read_in_results(
+        path_result,
+        seasons,
+        model_yeardays_daytype
+    ):
     """Read and post calculate results from txt files
     and store into container
 
