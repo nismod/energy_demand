@@ -483,31 +483,31 @@ def get_local_paths(path):
             path, '00_user_defined_variables'),
 
         'path_population_data_for_disaggregation_LAD': os.path.join(
-            path, '_raw_data', 'J-population_disagg_by', 'uk_pop_principal_2015_2050.csv'), #ONS principal projection
+            path, 'energy_demand', '_raw_data', 'J-population_disagg_by', 'uk_pop_principal_2015_2050.csv'), #ONS principal projection
         'path_population_data_for_disaggregation_MSOA': os.path.join(
-            path, '_raw_data', 'J-population_disagg_by', 'uk_pop_principal_2015_2050_MSOA_lad.csv'), #ONS principal projection
+            path, 'energy_demand', '_raw_data', 'J-population_disagg_by', 'uk_pop_principal_2015_2050_MSOA_lad.csv'), #ONS principal projection
         'folder_raw_carbon_trust': os.path.join(
-            path, '_raw_data', "G_Carbon_Trust_advanced_metering_trial"),
+            path, 'energy_demand', '_raw_data', "G_Carbon_Trust_advanced_metering_trial"),
         'folder_path_weater_stations': os.path.join(
-            path, '_raw_data', 'A-temperature_data', 'cleaned_weather_stations.csv'),
+            path, 'energy_demand', '_raw_data', 'A-temperature_data', 'cleaned_weather_stations.csv'),
         'path_floor_area_virtual_stock_by': os.path.join(
-            path, '_raw_data', 'K-floor_area', 'floor_area_LAD_latest.csv'),
+            path, 'energy_demand', '_raw_data', 'K-floor_area', 'floor_area_LAD_latest.csv'),
         'path_assumptions_db': os.path.join(
-            path, '_processed_data', 'assumptions_from_db'),
+            path, 'energy_demand', '_processed_data', 'assumptions_from_db'),
         'data_processed': os.path.join(
-            path, '_processed_data'),
+            path, 'energy_demand', '_processed_data'),
         'lad_shapefile': os.path.join(
-            path, '_raw_data', 'C_LAD_geography', 'same_as_pop_scenario', 'lad_2016_uk_simplified.shp'),
+            path, 'energy_demand', '_raw_data', 'C_LAD_geography', 'same_as_pop_scenario', 'lad_2016_uk_simplified.shp'),
         'path_post_installation_data': os.path.join(
-            path, '_processed_data'),
+            path, 'energy_demand', '_processed_data'),
         'weather_data': os.path.join(
-            path, '_raw_data', 'A-temperature_data', 'cleaned_weather_stations_data'),
+            path, 'energy_demand', '_raw_data', 'A-temperature_data', 'cleaned_weather_stations_data'),
         'load_profiles': os.path.join(
-            path, '_processed_data', 'load_profiles'),
+            path, 'energy_demand', '_processed_data', 'load_profiles'),
         'rs_load_profile_txt': os.path.join(
-            path, '_processed_data', 'load_profiles', 'rs_submodel'),
+            path, 'energy_demand', '_processed_data', 'load_profiles', 'rs_submodel'),
         'ss_load_profile_txt': os.path.join(
-            path, '_processed_data', 'load_profiles', 'ss_submodel'),
+            path, 'energy_demand', '_processed_data', 'load_profiles', 'ss_submodel'),
         'yaml_parameters': os.path.join(
             path, '..', 'config', 'yaml_parameters.yml'),
         'yaml_parameters_constrained': os.path.join(

@@ -40,7 +40,7 @@ def dummy_sectoral_load_profiles(local_paths, path_main):
         Main path
     """
     create_folders_to_file(
-        os.path.join(local_paths['ss_load_profile_txt'], "dumm"), "energy_demand", "_processed_data")
+        os.path.join(local_paths['ss_load_profile_txt'], "dumm"), "_processed_data")
 
     paths = data_loader.load_paths(path_main)
 
