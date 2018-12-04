@@ -40,7 +40,7 @@ def dummy_sectoral_load_profiles(local_paths, path_main):
         Main path
     """
     create_folders_to_file(
-        os.path.join(local_paths['ss_load_profile_txt'], "dumm"), "_processed_data")
+        os.path.join(local_paths['ss_load_profile_txt'], "dumm"), "energy_demand", "_processed_data")
 
     paths = data_loader.load_paths(path_main)
 
@@ -98,8 +98,8 @@ def post_install_setup_minimum(args):
     local_paths = data_loader.get_local_paths(path_local_data)
 
     # Create folders to input data
-    raw_folder = os.path.join(path_local_data, '_raw_data')
-    processed_folder = os.path.join(path_local_data, '_processed_data')
+    raw_folder = os.path.join(path_local_data, 'energy_demand', '_raw_data')
+    processed_folder = os.path.join(path_local_data, 'energy_demand', '_processed_data')
 
     basic_functions.create_folder(raw_folder)
     basic_functions.create_folder(processed_folder)
