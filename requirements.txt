@@ -13,4 +13,4 @@ pysal
 palettable
 imageio
 pympler #memory debugger
-ruamel
+ruamel.yaml
