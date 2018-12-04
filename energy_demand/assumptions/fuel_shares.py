@@ -342,7 +342,7 @@ def assign_by_fuel_tech_p(
         'hydrogen_furnace': 1.0}
     fuel_tech_p_by['is_high_temp_process']['basic_metals'][fueltypes['oil']] = {
         'oil_furnace': 1.0}
-    
+
     #-- non_metallic_mineral_products
     fuel_tech_p_by['is_high_temp_process']['non_metallic_mineral_products'][fueltypes['solid_fuel']] = {
         'dry_kiln_coal': 0.9,

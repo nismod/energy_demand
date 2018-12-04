@@ -41,7 +41,6 @@ class Assumptions(object):
             curr_yr=None,
             sim_yrs=None,
             paths=None,
-            local_paths=None,
             enduses=None,
             sectors=None,
             reg_nrs=None
@@ -311,15 +310,15 @@ class Assumptions(object):
             'ss_other_electricity': 0.03,
 
             # Industry submodule
-            'is_high_temp_process': 0.03,
-            'is_low_temp_process': 0.03,
-            'is_drying_separation': 0.03,
-            'is_motors': 0.03,
-            'is_compressed_air': 0.03,
-            'is_lighting': 0.03,
-            'is_space_heating': 0.03,
-            'is_other': 0.03,
-            'is_refrigeration': 0.03}
+            'is_high_temp_process': 0,
+            'is_low_temp_process': 0,
+            'is_drying_separation': 0,
+            'is_motors': 0,
+            'is_compressed_air': 0,
+            'is_lighting': 0,
+            'is_space_heating': 0,
+            'is_other': 0,
+            'is_refrigeration': 0}
 
         # ============================================================
         # Base temperature assumptions
@@ -327,7 +326,7 @@ class Assumptions(object):
         #
         #   Parameters related to smart metering
         #
-        #   rs_t_heating_by : int
+        #   rs_t_heating : int
         #       Residential submodel base temp of heating of base year
         #   rs_t_cooling_by : int
         #       Residential submodel base temp of cooling of base year
@@ -336,16 +335,16 @@ class Assumptions(object):
         #   Note
         #   ----
         #   Because demand for cooling cannot directly be linked to
-        #   calculated cdd, the paramters 'ss_t_cooling_by' is used
+        #   calculated cdd, the paramters 'ss_t_base_cooling' is used
         #   as a calibration factor. By artifiallcy lowering this
         #   parameter, the energy demand assignement over the days
         #   in a year is improved.
         # ------------------------------------------------------------
         t_bases = {
-            'rs_t_heating_by': 15.5,
-            'ss_t_heating_by': 15.5,
-            'ss_t_cooling_by': 5,
-            'is_t_heating_by': 15.5}
+            'rs_t_heating': 15.5,
+            'ss_t_heating': 15.5,
+            'ss_t_cooling': 5,
+            'is_t_heating': 15.5}
 
         self.t_bases = DummyClass(t_bases)
 
@@ -403,8 +402,7 @@ class Assumptions(object):
         self.gshp_fraction = 0.1
 
         # Load defined technologies
-        self.technologies, self.tech_list = read_data.read_technologies(
-            paths['path_technologies'])
+        self.technologies, self.tech_list = read_data.read_technologies(paths['path_technologies'])
 
         self.installed_heat_pump_by = tech_related.generate_ashp_gshp_split(
             self.gshp_fraction)
@@ -437,23 +435,6 @@ class Assumptions(object):
             self.specified_tech_enduse_by,
             self.enduse_space_heating)
         self.specified_tech_enduse_by = _specified_tech_enduse_by
-
-        # ============================================================
-        # Read in switches
-        # ============================================================
-        self.fuel_switches = read_data.read_fuel_switches(
-            local_paths['path_fuel_switches'], enduses, self.fueltypes, self.technologies)
-
-        self.service_switches = read_data.service_switch(
-            local_paths['path_service_switch'], self.technologies)
-
-        self.capacity_switches = read_data.read_capacity_switch(
-            local_paths['path_capacity_installation'])
-
-        self.crit_switch_happening = testing_functions.switch_testing(
-            fuel_switches=self.fuel_switches,
-            service_switches=self.service_switches,
-            capacity_switches=self.capacity_switches)
 
         # ========================================
         # General other info
@@ -509,7 +490,7 @@ class Assumptions(object):
 def update_technology_assumption(
         technologies,
         narrative_f_eff_achieved,
-        narrative_gshp_fraction_ey,
+        narrative_gshp_fraction,
         crit_narrative_input=True
     ):
     """Updates technology related properties based on
@@ -524,7 +505,7 @@ def update_technology_assumption(
         Technologies
     f_eff_achieved : float
         Factor achieved
-    gshp_fraction_ey : float
+    gshp_fraction : float
         Mix of GSHP and GSHP
     crit_narrative_input : bool
         Criteria wheter inputs are single values or a narrative
@@ -536,10 +517,10 @@ def update_technology_assumption(
     if crit_narrative_input:
         # Read from narrative the value
         f_eff_achieved = narrative_related.read_from_narrative(narrative_f_eff_achieved) 
-        gshp_fraction_ey = narrative_related.read_from_narrative(narrative_gshp_fraction_ey)
+        gshp_fraction = narrative_related.read_from_narrative(narrative_gshp_fraction)
     else:
         f_eff_achieved = narrative_f_eff_achieved
-        gshp_fraction_ey = narrative_gshp_fraction_ey
+        gshp_fraction = narrative_gshp_fraction
 
     # Assign same achieved efficiency factor for all technologies
     technologies = helpers.set_same_eff_all_tech(
@@ -548,7 +529,7 @@ def update_technology_assumption(
 
     # Calculate average eff of hp depending on fraction of GSHP to ASHP
     installed_heat_pump_ey = tech_related.generate_ashp_gshp_split(
-        gshp_fraction_ey)
+        gshp_fraction)
 
     technologies = tech_related.calc_av_heat_pump_eff_ey(
         technologies, installed_heat_pump_ey)

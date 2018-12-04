@@ -138,7 +138,10 @@ def switch_calculations(
         f_reg,
         f_reg_norm,
         f_reg_norm_abs,
-        crit_all_the_same
+        crit_all_the_same,
+        service_switches,
+        fuel_switches,
+        capacity_switches
     ):
     """This function creates sigmoid diffusion values based
     on defined switches
@@ -170,14 +173,14 @@ def switch_calculations(
                 data['enduses'][submodel],
                 data['assumptions'].fuel_tech_p_by,
                 data['fuels'][submodel],
-                data['assumptions'].technologies, #data['technologies'],
+                data['assumptions'].technologies,
                 sector)
 
     # Get all defined narrative timesteps of all switch types
     narrative_timesteps = {}
-    narrative_timesteps.update(get_all_narrative_timesteps(data['assumptions'].service_switches))
-    narrative_timesteps.update(get_all_narrative_timesteps(data['assumptions'].fuel_switches))
-    narrative_timesteps.update(get_all_narrative_timesteps(data['assumptions'].capacity_switches))
+    narrative_timesteps.update(get_all_narrative_timesteps(service_switches))
+    narrative_timesteps.update(get_all_narrative_timesteps(fuel_switches))
+    narrative_timesteps.update(get_all_narrative_timesteps(capacity_switches))
     # ========================================================================================
     # Capacity switches
     #
@@ -188,13 +191,13 @@ def switch_calculations(
     f_diffusion = f_reg_norm_abs # Select diffusion value
 
     reg_capacity_switches = global_to_reg_capacity_switch(
-        data['regions'], data['assumptions'].capacity_switches, f_diffusion=f_diffusion)
+        data['regions'], capacity_switches, f_diffusion=f_diffusion)
 
     service_switches_incl_cap = fuel_service_switch.capacity_switch(
         narrative_timesteps,
         data['regions'],
         reg_capacity_switches,
-        data['assumptions'].technologies, #data['technologies'],
+        data['assumptions'].technologies,
         data['fuels']['aggr_sector_fuels'],
         data['assumptions'].fuel_tech_p_by,
         data['assumptions'].base_yr)
@@ -214,7 +217,7 @@ def switch_calculations(
     f_diffusion = f_reg_norm
 
     share_s_tech_ey_p = fuel_service_switch.autocomplete_switches(
-        data['assumptions'].service_switches,
+        service_switches,
         data['assumptions'].specified_tech_enduse_by,
         s_tech_by_p,
         data['enduses'],
@@ -244,7 +247,7 @@ def switch_calculations(
                     data['assumptions'].technologies,
                     enduse=enduse,
                     sector=sector,
-                    fuel_switches=data['assumptions'].fuel_switches,
+                    fuel_switches=fuel_switches,
                     s_tech_by_p=s_tech_by_p[sector][enduse],
                     s_fueltype_by_p=s_fueltype_by_p[sector][enduse],
                     share_s_tech_ey_p=share_s_tech_ey_p,

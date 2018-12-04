@@ -103,18 +103,6 @@ def spatial_diffusion_values(
 
             diffusion_values[region] = lower_concept_val + higher_concept_val
 
-            '''logging.info(
-                "Reg: %s diffusion_value: %s real_value: %s",
-                region,
-                lower_concept_val + higher_concept_val,
-                real_value)'''
-        '''min_val = max(diffusion_values.values())
-        for i in diffusion_values:
-            if diffusion_values[i] == min_val:
-                min_reg = i
-        import logging
-        logging.info("print  {}  {}  ".format(min_reg, min_val))
-        '''
     return diffusion_values
 
 def calc_diffusion_f(regions, f_reg, spatial_diff_values, fuels):

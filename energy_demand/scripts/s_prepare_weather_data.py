@@ -17,8 +17,6 @@ def read_weather_station_temp(path_files, years_to_load=[]):
 
     Returns
     -------
-
-
     """
     container = {}
 
@@ -49,7 +47,7 @@ def read_weather_station_temp(path_files, years_to_load=[]):
     print(len(station_with_data_every_year))
     print("Stations with every year")
     print(station_with_data_every_year)
-    raise Exception
+    #raise Exception
     # -------
     stations_in_all_y = defaultdict(dict)
     all_stations = defaultdict(dict)
@@ -82,5 +80,5 @@ def read_weather_station_temp(path_files, years_to_load=[]):
 
 read_weather_station_temp(
     path_files = "//linux-filestore.ouce.ox.ac.uk/mistral/nismod/data/energy_demand/H-Met_office_weather_data/_year_selection_cleaned_2015_14_13",
-    years_to_load=[2013, 2014,2015]
+    years_to_load=[2013,2014,2015]
 )

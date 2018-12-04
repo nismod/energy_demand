@@ -1,15 +1,8 @@
 """Allows to run HIRE locally outside the SMIF framework
-# After smif upgrade:
-#   make that automatically the parameters can be generated to be copied into smif format
-#TODO Test if technology type can be left empty in technology spreadsheet, Try to remove tech_type
-#TODO ADD HEAT SOLD
-# TEST NON CONSTRAINED MODE
-#with open ("C:/Users/cenv0553/ed/dump_WILL.yaml", "w") as file:
-#    yaml.dump(strategy_vars, file) 
 
-#   Note
-    ----
-    Always execute from root folder. (e.g. energy_demand/energy_demand/main.py
+Note
+----
+Always execute from root folder. (e.g. energy_demand/energy_demand/main.py
 """
 import os
 import sys
@@ -17,24 +10,15 @@ import time
 import logging
 import configparser
 from collections import defaultdict
+import pandas as pd
 
-from energy_demand.basic import basic_functions
-from energy_demand.basic import date_prop
+from energy_demand.basic import basic_functions, date_prop, demand_supply_interaction, testing_functions, lookup_tables
 from energy_demand import model
-from energy_demand.basic import testing_functions
-from energy_demand.basic import lookup_tables
-from energy_demand.assumptions import general_assumptions
-from energy_demand.assumptions import strategy_vars_def
-from energy_demand.read_write import data_loader
-from energy_demand.read_write import write_data
-from energy_demand.read_write import read_data
-from energy_demand.scripts import s_disaggregation
+from energy_demand.assumptions import strategy_vars_def, general_assumptions
+from energy_demand.read_write import read_data, write_data, data_loader
 from energy_demand.validation import lad_validation
-from energy_demand.basic import demand_supply_interaction
-from energy_demand.scripts import s_scenario_param
-from energy_demand.scripts import init_scripts
+from energy_demand.scripts import s_scenario_param, init_scripts, s_disaggregation
 from energy_demand.plotting import fig_enduse_yh
-from energy_demand.geography import weather_region
 
 def energy_demand_model(
         regions,
@@ -94,6 +78,11 @@ def energy_demand_model(
 if __name__ == "__main__":
     """
     """
+
+    # ------------------------------------------
+    # Local run model configuration
+    # ------------------------------------------
+    
     # Paths
     local_data_path = os.path.abspath('data')
     path_main = os.path.abspath(
@@ -101,13 +90,14 @@ if __name__ == "__main__":
             os.path.dirname(__file__), '..', "energy_demand/config_data"))
     path_config = os.path.abspath(os.path.join(
             os.path.dirname(__file__), '..', 'local_run_config_file.ini'))
-    print("A " + str(path_config))
+    print("Configuration path: " + str(path_config))
+
     # Get configuration
     config = configparser.ConfigParser()
     config.read(path_config)
     config = basic_functions.convert_config_to_correct_type(config)
 
-    # --- Model running configurations
+    # Data
     data = {}
     base_yr = config['CONFIG']['base_yr']
     user_defined_weather_by = config['CONFIG']['user_defined_weather_by']
@@ -137,28 +127,31 @@ if __name__ == "__main__":
     # --- Region definition configuration
     name_region_set = os.path.join(local_data_path, 'region_definitions', "lad_2016_uk_simplified.shp")
 
-    local_scenario = 'pop-a_econ-c_fuel-c' #'dummy_scenario'
+    local_scenario = 'pop-a_econ-c_fuel-c'
+    weather_realisation = 'NF1'
 
-    name_population_dataset = os.path.join(local_data_path, 'scenarios', 'MISTRAL_pop_gva', 'data', '{}/population__lad.csv'.format(local_scenario)) # Constant scenario
-
-    # GVA datasets
+    name_population_dataset = os.path.join(local_data_path, 'scenarios', 'MISTRAL_pop_gva', 'data', '{}/population__lad.csv'.format(local_scenario))
     name_gva_dataset = os.path.join(local_data_path, 'scenarios', 'MISTRAL_pop_gva', 'data', '{}/gva_per_head__lad_sector.csv'.format(local_scenario))
     name_gva_dataset_per_head = os.path.join(local_data_path, 'scenarios', 'MISTRAL_pop_gva', 'data', '{}/gva_per_head__lad.csv'.format(local_scenario))
 
-    # --------------------
-    # Paths
-    # --------------------
+    path_weather_data = "X:/nismod/data/energy_demand/J-MARIUS_data/_weather_realisation"
+
+    simulation_name = str(weather_realisation) + "__" + "all_stations"
+    
     name_scenario_run = "{}_result_local_{}".format(scenario_name, str(time.ctime()).replace(":", "_").replace(" ", "_"))
 
+    # ------------------------------------------
+
+    # --------------------
+    # Load all other paths
+    # --------------------
     data['paths'] = data_loader.load_paths(path_main)
     data['local_paths'] = data_loader.get_local_paths(local_data_path)
 
-    path_new_scenario = os.path.abspath(os.path.join(os.path.dirname(local_data_path), "results", name_scenario_run))
-    data['path_new_scenario'] = path_new_scenario
-    data['result_paths'] = data_loader.get_result_paths(path_new_scenario)
+    data['path_new_scenario'] = os.path.abspath(os.path.join(os.path.dirname(local_data_path), "results", name_scenario_run))
+    data['result_paths'] = data_loader.get_result_paths(data['path_new_scenario'])
 
-    basic_functions.create_folder(path_new_scenario)
-    #logger_setup.set_up_logger(os.path.join(path_new_scenario, "plotting.log"))
+    basic_functions.create_folder(data['path_new_scenario'])
 
     # ----------------------------------------------------------------------
     # Load data
@@ -200,7 +193,6 @@ if __name__ == "__main__":
         curr_yr=2015,
         sim_yrs=sim_yrs,
         paths=data['paths'],
-        local_paths=data['local_paths'],
         enduses=data['enduses'],
         sectors=data['sectors'],
         reg_nrs=len(data['regions']))
@@ -218,35 +210,34 @@ if __name__ == "__main__":
     # -----------------------------------------------------------------------------
     # Load standard strategy variable values from .py file
     # Containing full information
-    # -----------------------------------------------------------------------------
+    # -----------------------------------------------------------------------------        
     default_streategy_vars = strategy_vars_def.load_param_assump(
-        data['paths'],
-        data['local_paths'],
-        data['assumptions'],
-        writeYAML=config['CRITERIA']['writeYAML'])
+        default_values=True)
 
     # -----------------------------------------------------------------------------
-    # Load standard smif parameters and generate standard single timestep narrative for year 2050
+    # Load standard smif parameters and generate standard single timestep narrative for simulation end year
     # -----------------------------------------------------------------------------
-    strategy_vars = strategy_vars_def.load_smif_parameters(
-        assumptions=data['assumptions'],
+    strategy_vars = strategy_vars_def.generate_default_parameter_narratives(
         default_streategy_vars=default_streategy_vars,
-        mode='local')
+        end_yr=2050,
+        base_yr=base_yr)
 
     # -----------------------------------------
     # User defines stragey variable from csv files
     # -----------------------------------------
-    _user_defined_vars = data_loader.load_user_defined_vars(
+    user_defined_vars = data_loader.load_local_user_defined_vars(
         default_strategy_var=default_streategy_vars,
         path_csv=data['local_paths']['path_strategy_vars'],
         simulation_base_yr=data['assumptions'].base_yr,
-        simulation_end_yr=data['assumptions'].simulation_end_yr)
+        simulation_end_yr=user_defined_simulation_end_yr)
 
-    strategy_vars = data_loader.replace_variable(_user_defined_vars, strategy_vars)
+    strategy_vars = data_loader.replace_variable(user_defined_vars, strategy_vars)
 
-    # Replace strategy variables not defined in csv files)
+    # Replace strategy variables not defined in csv files
     strategy_vars_out = strategy_vars_def.autocomplete_strategy_vars(
-        strategy_vars, narrative_crit=True)
+        strategy_vars,
+        narrative_crit=True)
+
     data['assumptions'].update('strategy_vars', strategy_vars_out)
 
     # -----------------------------------------------------------------------------
@@ -260,7 +251,7 @@ if __name__ == "__main__":
     technologies = general_assumptions.update_technology_assumption(
         data['assumptions'].technologies,
         data['assumptions'].strategy_vars['f_eff_achieved'],
-        data['assumptions'].strategy_vars['gshp_fraction_ey'])
+        data['assumptions'].strategy_vars['gshp_fraction'])
     data['assumptions'].technologies.update(technologies)
 
     if config['CRITERIA']['virtual_building_stock_criteria']:
@@ -288,45 +279,23 @@ if __name__ == "__main__":
 
     # ---------------------------------------------
     # Make selection of weather stations and data
-    # ---------------------------------------------
     # Load all temperature and weather station data
+    # ---------------------------------------------
     data['weather_stations'], data['temp_data'] = data_loader.load_temp_data(
         data['local_paths'],
         sim_yrs=sim_yrs,
-        weather_yrs_scenario=[base_yr, weather_yr_scenario],
-        crit_temp_min_max=config['CRITERIA']['crit_temp_min_max'],
-        save_fig=path_new_scenario)
+        weather_realisation=weather_realisation,
+        path_weather_data=path_weather_data,
+        same_base_year_weather=False,
+        crit_temp_min_max=config['CRITERIA']['crit_temp_min_max'])
 
-    # Get only selection
-    weather_stations_selection = {}
-    temp_data_selection = defaultdict(dict)
-    if weather_station_count_nr != []:
-        for year in [base_yr, weather_yr_scenario]:
-            weather_stations_selection[year], wheather_station_id = weather_region.get_weather_station_selection(
-                data['weather_stations'],
-                counter=weather_station_count_nr,
-                weather_yr=weather_yr_scenario)
-            temp_data_selection[year][wheather_station_id] = data['temp_data'][year][wheather_station_id]
-
-            if year == weather_yr_scenario:
-                simulation_name = str(weather_yr_scenario) + "__" + str(wheather_station_id)
-    else:
-        for year in [base_yr, weather_yr_scenario]:
-            weather_stations_selection[year] = data['weather_stations'][year]
-            temp_data_selection[year] = data['temp_data'][year]
-            if year == weather_yr_scenario:
-                simulation_name = str(weather_yr_scenario) + "__" + "all_stations"
-
-    # Replace weather station with selection
-    data['weather_stations'] = weather_stations_selection
-    data['temp_data'] = dict(temp_data_selection)
-
+    #print(station_id_253)
     # Plot map with weather station
-    if config['CRITERIA']['cluster_calc'] != True:
+    '''if config['CRITERIA']['cluster_calc'] != True:
         data_loader.create_weather_station_map(
-            data['weather_stations'][weather_yr_scenario],
+            data['weather_stations'],
             os.path.join(data['path_new_scenario'], 'weatherst_distr_weathyr_{}.pdf'.format(weather_yr_scenario)),
-            path_shapefile=data['local_paths']['lad_shapefile'])
+            path_shapefile=data['local_paths']['lad_shapefile'])'''
 
     # ------------------------------------------------------------
     # Disaggregate national energy demand to regional demands
@@ -373,8 +342,21 @@ if __name__ == "__main__":
         sim_yrs)
 
     # ------------------------------------------------
-    # Calculate switches
+    # Calculate switches (not generic)
     # ------------------------------------------------
+    service_switches_raw = pd.read_csv(os.path.join(data['local_paths']['path_strategy_vars'], "switches_service.csv"))
+    service_switches = read_data.service_switch(service_switches_raw)
+
+    fuel_switches = read_data.read_fuel_switches(os.path.join(data['local_paths']['path_strategy_vars'], "switches_fuel.csv"), data['enduses'], data['assumptions'].fueltypes, data['assumptions'].technologies)
+    capacity_switches = read_data.read_capacity_switch(os.path.join(data['local_paths']['path_strategy_vars'], "switches_capacity.csv"))
+
+    # Load Generic fuel switches
+    crit_switch_happening = testing_functions.switch_testing(
+        fuel_switches=fuel_switches,
+        service_switches=service_switches,
+        capacity_switches=capacity_switches)
+    data['assumptions'].update('crit_switch_happening', crit_switch_happening)
+
     print("... starting calculating switches")
     annual_tech_diff_params = init_scripts.switch_calculations(
         sim_yrs,
@@ -382,12 +364,16 @@ if __name__ == "__main__":
         f_reg,
         f_reg_norm,
         f_reg_norm_abs,
-        crit_all_the_same)
+        crit_all_the_same,
+        fuel_switches,
+        service_switches,
+        capacity_switches)
     for region in data['regions']:
         regional_vars[region]['annual_tech_diff_params'] = annual_tech_diff_params[region]
 
     data['assumptions'].update('regional_vars', regional_vars)
     data['assumptions'].update('non_regional_vars', non_regional_vars)
+
     # ------------------------------------------------
     # Spatial Validation
     # ------------------------------------------------
@@ -439,6 +425,12 @@ if __name__ == "__main__":
         # Set current year
         setattr(data['assumptions'], 'curr_yr', sim_yr)
 
+        constant_weather = False
+        if constant_weather:
+            weather_yr_scenario = config['CONFIG']['weather_yr_scenario']
+        else:
+            weather_yr_scenario = sim_yr
+
         # --------------------------------------
         # Update result_paths and create folders
         # --------------------------------------
@@ -458,7 +450,7 @@ if __name__ == "__main__":
         technologies = general_assumptions.update_technology_assumption(
             data['assumptions'].technologies,
             narrative_f_eff_achieved=data['assumptions'].non_regional_vars['f_eff_achieved'][sim_yr],
-            narrative_gshp_fraction_ey=data['assumptions'].non_regional_vars['gshp_fraction_ey'][sim_yr],
+            narrative_gshp_fraction=data['assumptions'].non_regional_vars['gshp_fraction'][sim_yr],
             crit_narrative_input=False)
         data['assumptions'].technologies.update(technologies)
 
@@ -491,30 +483,21 @@ if __name__ == "__main__":
         # -------------------------------------
         # # Generate YAML file with keynames for `sector_model`
         # -------------------------------------
-        if config['CRITERIA']['writeYAML_keynames']:
-            if config['CRITERIA']['mode_constrained']:
-
-                supply_results = demand_supply_interaction.constrained_results(
-                    sim_obj.results_constrained,
-                    sim_obj.results_unconstrained,
-                    data['assumptions'].submodels_names,
-                    data['assumptions'].technologies)
-
-                write_data.write_yaml_output_keynames(
-                    data['local_paths']['yaml_parameters_keynames_constrained'], supply_results.keys())
-            else:
-                supply_results = demand_supply_interaction.unconstrained_results(
-                    sim_obj.results_unconstrained,
-                    data['assumptions'].submodels_names)
-
-                write_data.write_yaml_output_keynames(
-                    data['local_paths']['yaml_parameters_keynames_unconstrained'], supply_results.keys())
+        if config['CRITERIA']['mode_constrained']:
+            supply_results = demand_supply_interaction.constrained_results(
+                sim_obj.results_constrained,
+                sim_obj.results_unconstrained,
+                data['assumptions'].submodels_names,
+                data['assumptions'].technologies)
+        else:
+            supply_results = demand_supply_interaction.unconstrained_results(
+                sim_obj.results_unconstrained,
+                data['assumptions'].submodels_names)
 
         # --------------------------
         # Write out all calculations
         # --------------------------
         if config['CRITERIA']['write_txt_additional_results']:
-
             if config['CRITERIA']['crit_plot_enduse_lp']:
 
                 # Maybe move to result folder in a later step

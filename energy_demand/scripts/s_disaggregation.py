@@ -47,8 +47,8 @@ def disaggr_demand(data, crit_temp_min_max, spatial_calibration=False):
         data['scenario_data'],
         data['assumptions'],
         data['reg_coord'],
-        data['weather_stations'][base_yr],  # Base year data used to disaggregate demand
-        data['temp_data'][base_yr],         # Base year data used to disaggregate demand
+        data['weather_stations'], # Base year data used to disaggregate demand
+        data['temp_data'][base_yr], # Base year data used to disaggregate demand
         data['sectors'],
         data['enduses'],
         data['service_building_count'],
@@ -61,8 +61,8 @@ def disaggr_demand(data, crit_temp_min_max, spatial_calibration=False):
 
         Note: All other fueltypes are not skaled
         '''
-        calibrate_residential = False       # Calibrate residential demands
-        calibrate_non_residential = True    # Calibrate non residential demands
+        calibrate_residential = False # Calibrate residential demands
+        calibrate_non_residential = True # Calibrate non residential demands
 
         # Non-residential electricity regional demands of base year for electrictiy and gas
         fueltype_elec = tech_related.get_fueltype_int('electricity')
@@ -309,7 +309,7 @@ def ss_disaggregate(
         crit_limited_disagg_pop_hdd,
         crit_limited_disagg_pop,
         crit_full_disagg,
-        crit_temp_min_max
+        crit_temp_min_max=False
     ):
     """Disaggregate fuel for service submodel (per enduse and sector)
 
@@ -325,7 +325,7 @@ def ss_disaggregate(
     # Calculate heating degree days for regions
     # ---------------------------------------
     ss_hdd_individ_region = hdd_cdd.get_hdd_country(
-        t_base_heating=assumptions.t_bases.ss_t_heating_by,
+        t_base_heating=assumptions.t_bases.ss_t_heating,
         regions=regions,
         temp_data=temp_data,
         reg_coord=reg_coord,
@@ -333,11 +333,12 @@ def ss_disaggregate(
         crit_temp_min_max=crit_temp_min_max)
 
     ss_cdd_individ_region = hdd_cdd.get_cdd_country(
-        t_base_cooling=assumptions.t_bases.ss_t_cooling_by,
+        t_base_cooling=assumptions.t_bases.ss_t_cooling,
         regions=regions,
         temp_data=temp_data,
         reg_coord=reg_coord,
-        weather_stations=weather_stations)
+        weather_stations=weather_stations,
+        crit_temp_min_max=crit_temp_min_max)
 
     # ---------------------------------------------
     # Get all regions with floor area data
@@ -552,7 +553,7 @@ def is_disaggregate(
         employment_statistics,
         pop_for_disagg,
         census_disagg,
-        crit_temp_min_max
+        crit_temp_min_max=False
     ):
     """Disaggregate industry related fuel for sector and enduses with
     employment statistics
@@ -580,7 +581,7 @@ def is_disaggregate(
         reg, enduse, sector
     """
     is_hdd_individ_region = hdd_cdd.get_hdd_country(
-        t_base_heating=assumptions.t_bases.is_t_heating_by,
+        t_base_heating=assumptions.t_bases.is_t_heating,
         regions=regions,
         temp_data=temp_data,
         reg_coord=reg_coord,
@@ -758,7 +759,7 @@ def rs_disaggregate(
         crit_limited_disagg_pop_hdd,
         crit_limited_disagg_pop,
         crit_full_disagg,
-        crit_temp_min_max,
+        crit_temp_min_max=False,
         dummy_sector=None
     ):
     """Disaggregate residential fuel demand
@@ -787,7 +788,7 @@ def rs_disaggregate(
     # Calculate heating degree days for regions
     # ---------------------------------------
     rs_hdd_individ_region = hdd_cdd.get_hdd_country(
-        t_base_heating=assumptions.t_bases.rs_t_heating_by,
+        t_base_heating=assumptions.t_bases.rs_t_heating,
         regions=regions,
         temp_data=temp_data,
         reg_coord=reg_coord,

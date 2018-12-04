@@ -20,6 +20,8 @@ class WeatherRegion(object):
     ----------
     name : str
         Unique identifyer of weather region
+    latitude, longitude : float
+        Coordinates
     assumptions : dict
         Assumptions
     technologies : list
@@ -47,6 +49,7 @@ class WeatherRegion(object):
             technologies,
             enduses,
             temp_by,
+            temp_cy,
             tech_lp,
             sectors,
             crit_temp_min_max
@@ -58,11 +61,6 @@ class WeatherRegion(object):
         self.latitude = latitude
 
         fueltypes = lookup_tables.basic_lookups()['fueltypes']
-
-        # -----------------------------------
-        # Calculate current year temperatures
-        # -----------------------------------
-        temp_cy = temp_by
 
         # Base temperatures of current year
         rs_t_base_heating_cy = assumptions.non_regional_vars['rs_t_base_heating'][assumptions.curr_yr]
@@ -81,7 +79,7 @@ class WeatherRegion(object):
             fueltypes,
             temp_by,
             temp_cy,
-            assumptions.t_bases.rs_t_heating_by,
+            assumptions.t_bases.rs_t_heating,
             enduses['residential'],
             rs_t_base_heating_cy,
             assumptions.specified_tech_enduse_by)
@@ -94,7 +92,7 @@ class WeatherRegion(object):
             fueltypes,
             temp_by,
             temp_cy,
-            assumptions.t_bases.ss_t_heating_by,
+            assumptions.t_bases.ss_t_heating,
             enduses['service'],
             ss_t_base_heating_cy,
             assumptions.specified_tech_enduse_by)
@@ -107,7 +105,7 @@ class WeatherRegion(object):
             fueltypes,
             temp_by,
             temp_cy,
-            assumptions.t_bases.is_t_heating_by,
+            assumptions.t_bases.is_t_heating,
             enduses['industry'],
             ss_t_base_heating_cy,
             assumptions.specified_tech_enduse_by)
@@ -130,7 +128,7 @@ class WeatherRegion(object):
 
         # --------Calculate HDD/CDD of used weather year
         self.rs_hdd_by, _ = hdd_cdd.calc_reg_hdd(
-            temp_by, assumptions.t_bases.rs_t_heating_by, assumptions.model_yeardays, crit_temp_min_max)
+            temp_by, assumptions.t_bases.rs_t_heating, assumptions.model_yeardays, crit_temp_min_max)
         self.rs_hdd_cy, rs_fuel_shape_heating_yd = hdd_cdd.calc_reg_hdd(
             temp_cy, rs_t_base_heating_cy, assumptions.model_yeardays, crit_temp_min_max)
 
@@ -159,7 +157,7 @@ class WeatherRegion(object):
         # ========
         # -- Apply enduse sepcific shapes for enduses with not technologies with own defined shapes
         for enduse in enduses['residential']:
-            dummy_sector = None
+
             # Enduses where technology specific load profiles are defined for yh
             if enduse in ['rs_space_heating']:
                 pass
@@ -245,13 +243,6 @@ class WeatherRegion(object):
             rs_hdd_cy=self.rs_hdd_cy,
             model_yeardays=assumptions.model_yeardays)
 
-        # Flat lp
-        flat_rs_fuel_shape_hp_yh, rs_hp_shape_yd = get_fuel_shape_heating_hp_yh(
-            tech_lp_y_dh=flat_shape_y_dh,
-            tech_stock=rs_tech_stock,
-            rs_hdd_cy=self.rs_hdd_cy,
-            model_yeardays=assumptions.model_yeardays)
-
         load_profiles.add_lp(
             unique_identifier=uuid.uuid4(),
             technologies=assumptions.tech_list['heating_non_const'],
@@ -278,13 +269,13 @@ class WeatherRegion(object):
         # --------HDD/CDD
         # current weather_yr
         self.ss_hdd_by, _ = hdd_cdd.calc_reg_hdd(
-            temp_by, assumptions.t_bases.ss_t_heating_by, assumptions.model_yeardays, crit_temp_min_max)
+            temp_by, assumptions.t_bases.ss_t_heating, assumptions.model_yeardays, crit_temp_min_max)
 
         ss_hdd_cy, ss_fuel_shape_heating_yd = hdd_cdd.calc_reg_hdd(
             temp_cy, ss_t_base_heating_cy, assumptions.model_yeardays, crit_temp_min_max)
 
         self.ss_cdd_by, _ = hdd_cdd.calc_reg_cdd(
-            temp_by, assumptions.t_bases.ss_t_cooling_by, assumptions.model_yeardays, crit_temp_min_max)
+            temp_by, assumptions.t_bases.ss_t_cooling, assumptions.model_yeardays, crit_temp_min_max)
 
         ss_cdd_cy, ss_lp_cooling_yd = hdd_cdd.calc_reg_cdd(
             temp_cy, ss_t_base_cooling_cy, assumptions.model_yeardays, crit_temp_min_max)
@@ -414,10 +405,10 @@ class WeatherRegion(object):
         # --------HDD/CDD
         # Current weather_yr
         self.is_hdd_by, _ = hdd_cdd.calc_reg_hdd(
-            temp_by, assumptions.t_bases.is_t_heating_by, assumptions.model_yeardays, crit_temp_min_max)
+            temp_by, assumptions.t_bases.is_t_heating, assumptions.model_yeardays, crit_temp_min_max)
 
         #is_cdd_by, _ = hdd_cdd.calc_reg_cdd(
-        #    temp_by, assumptions.t_bases.is_t_cooling_by, assumptions.model_yeardays)
+        #    temp_by, assumptions.t_bases.is_t_cooling, assumptions.model_yeardays)
 
         # Take same base temperature as for service sector
         is_hdd_cy, is_fuel_shape_heating_yd = hdd_cdd.calc_reg_hdd(
@@ -468,7 +459,7 @@ class WeatherRegion(object):
             enduses=['is_space_heating'],
             sectors=sectors['industry'],
             shape_yd=is_fuel_shape_heating_yd_weighted,
-            shape_y_dh=flat_shape_y_dh, # tech_lp['ss_all_tech_shapes_dh']['ss_space_heating']['shape_non_peak_y_dh]
+            shape_y_dh=flat_shape_y_dh,
             model_yeardays=assumptions.model_yeardays)
 
         # Apply correction factor for weekend_effect to flat load profile for industry
@@ -569,7 +560,7 @@ def get_fuel_shape_heating_hp_yh(tech_lp_y_dh, tech_stock, rs_hdd_cy, model_year
     shape_y_dh[np.isnan(shape_y_dh)] = 0
 
     # Select only modelled days
-    return shape_yh[[model_yeardays]], hp_yd
+    return shape_yh[model_yeardays], hp_yd
 
 def get_shape_cooling_yh(tech_shape, cooling_shape):
     """Convert daily shape to hourly

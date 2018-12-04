@@ -216,7 +216,6 @@ class Enduse(object):
                 if flat_profile_crit:
                     pass
                 else:
-     
                     fuel_yh = assign_lp_no_techs(
                         enduse,
                         sector,
@@ -225,7 +224,6 @@ class Enduse(object):
                         make_all_flat=make_all_flat)
 
                     #print("FUEL TRAIN X " + str(np.sum(fuel_yh)))
-
                     # Demand management for non-technology enduse
                     self.fuel_yh = demand_management(
                         enduse,
@@ -235,6 +233,8 @@ class Enduse(object):
                         mode_constrained=False,
                         make_all_flat=make_all_flat)
                     #print("FUEL TRAIN Y" + str(np.sum(fuel_yh)))
+
+                    #assert not testing_functions.test_if_minus_value_in_array(self.fuel_yh)
             else:
                 #If technologies are defined for an enduse
 
@@ -347,6 +347,8 @@ class Enduse(object):
                             mode_constrained=False,
                             make_all_flat=make_all_flat)
 
+                         #assert not testing_functions.test_if_minus_value_in_array(self.fuel_yh)
+
 def demand_management(
         enduse,
         curr_yr,
@@ -388,6 +390,7 @@ def demand_management(
     fuel_yh : array
         Fuel of yh
     """
+
     # Get assumed load shift
     if dm_improvement[enduse][curr_yr] == 0:
         pass # no load management
@@ -752,13 +755,8 @@ def calc_fuel_tech_yh(
             load_profile = load_profiles.get_lp(
                 enduse, sector, tech, 'shape_yh')
 
-            #if enduse == 'rs_space_heating' and tech == 'heat_pumps_electricity':
-            #    print("=============")
-            #    print(load_profile[0])
-            #    print(load_profile[2])
-            #    print(fuel_tech_y[tech])
-            #    raise Exception
             fuels_yh[tech] = fuel_tech_y[tech] * load_profile
+
     else:
         # --
         # Unconstrained mode, i.e. not technolog specific.
@@ -775,12 +773,6 @@ def calc_fuel_tech_yh(
             fuel_tech_yh = fuel_tech_y[tech] * load_profile
 
             fuels_yh[fueltypes['heat']] += fuel_tech_yh
-
-        # ----------
-        # Testing if negative value
-        # ----------
-        if testing_functions.test_if_minus_value_in_array(fuels_yh):
-            raise Exception("Error: Negative entry")
 
     return fuels_yh
 
@@ -1124,7 +1116,7 @@ def apply_scenario_drivers(
 
                     except KeyError:
                         # No sector specific GVA data defined
-                        logging.debug("No gva data found for sector {} ".format(sector))
+                        logging.debug("No gva data found for sector {} {} ".format(sector, curr_yr))
                         by_driver_data = gva_per_head[base_yr][region]
                         cy_driver_data = gva_per_head[curr_yr][region]
 
@@ -1482,17 +1474,14 @@ def apply_service_switch(
     # ----------------------------------------
     if crit_switch_service:
         switched_s_tech_y_cy = {}
-    
+
         # Service of all technologies
         service_all_techs = sum(s_tech_y_cy.values())
 
         for tech in all_technologies:
-
             # Get service share per tech of cy of sigmoid parameter calculations
             p_s_tech_cy = annual_tech_diff_params[enduse][sector][tech][curr_yr]
-            ##print("----------------FFF  {}  {}  {}".format(p_s_tech_cy, tech, enduse))
             switched_s_tech_y_cy[tech] = service_all_techs * p_s_tech_cy
-            #assert switched_s_tech_y_cy[tech] >= 0
         return switched_s_tech_y_cy
     else:
         return s_tech_y_cy

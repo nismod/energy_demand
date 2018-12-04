@@ -7,7 +7,6 @@ import pandas as pd
 
 from energy_demand.basic import date_prop
 from energy_demand.basic import testing_functions
-from energy_demand.plotting import validation_enduses
 from energy_demand.basic import lookup_tables
 
 def constrained_results(
@@ -62,10 +61,12 @@ def constrained_results(
     fueltypes = lookup_tables.basic_lookups()['fueltypes']
 
     #--------------------------------
-    # Gett all non heating related enduse
+    # Get all non heating related enduse
     # --------------------------------
     # Substract constrained fuel from nonconstrained (total) fuel
     non_heating_ed = results_unconstrained - sum(results_constrained.values())
+
+    assert not testing_functions.test_if_minus_value_in_array(results_unconstrained)
 
     # ----------------------------------------
     # Add all constrained results (technology specific results)
@@ -95,8 +96,7 @@ def constrained_results(
             if fueltype_str == 'heat':
                 pass #Do not add non_heating demand for fueltype heat
             else:
-                key_name = "{}_{}_{}".format(
-                    submodel, fueltype_str, "non_heating")
+                key_name = "{}_{}_{}".format(submodel, fueltype_str, "non_heating")
 
                 # Add fuel for all regions for specific fueltype
                 supply_results[key_name] = non_heating_ed[submodel_nr][:, fueltype_int, :]
@@ -106,6 +106,7 @@ def constrained_results(
     # --------------------------------------------
     for key_name, values in supply_results.items():
         if testing_functions.test_if_minus_value_in_array(values):
+            logging.info("info: {}  {}".format(values, np.sum(values)))
             raise Exception("Error d: Negative entry in results " + str(key_name))
 
     logging.info("... Prepared results for energy supply model in constrained mode")
@@ -154,6 +155,8 @@ def unconstrained_results(
 
             # Add fueltype specific demand for all regions
             supply_results[key_name] = results_unconstrained[submodel_nr][:, fueltype_int, :]
+
+            assert not testing_functions.test_if_minus_value_in_array(supply_results[key_name])
 
     logging.info("... Prepared results for energy supply model in unconstrained mode")
     return supply_results

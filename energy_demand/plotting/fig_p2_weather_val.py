@@ -125,8 +125,6 @@ def run(
     
         df_stats = df_stats.append(line_df)
 
-    #print(df_stats['diff_av_max'])
-    #print("---------")
     print(df_stats['diff_av_max'].max())
     print(df_stats['mean_peak_h'].max())
     print(df_stats['std_dev_peak_h_norm_pop'].max())

@@ -167,8 +167,7 @@ def replace_variable(_user_defined_vars, strategy_vars):
     """
     for new_var, new_var_vals in _user_defined_vars.items():
 
-        crit_single_dim = narrative_related.crit_dim_var(
-            new_var_vals)
+        crit_single_dim = narrative_related.crit_dim_var(new_var_vals)
 
         if crit_single_dim:
             strategy_vars[new_var] = new_var_vals
@@ -182,11 +181,10 @@ def replace_variable(_user_defined_vars, strategy_vars):
                 else:
                     strategy_vars[new_var][sub_var_name] = sector_sub_var
 
-            strategy_vars[new_var] = dict(strategy_vars[new_var])
-
+            strategy_vars[new_var] = strategy_vars[new_var]
     return strategy_vars
 
-def load_user_defined_vars(
+def load_local_user_defined_vars(
         default_strategy_var,
         path_csv,
         simulation_base_yr,
@@ -220,7 +218,6 @@ def load_user_defined_vars(
     strategy_vars_as_narratives = {}
 
     for file_name in all_csv_in_folder:
-        logging.info("... loading user defined variable '%s'", file_name[:-4])
         if file_name in files_to_ignores:
             pass
         else:
@@ -228,23 +225,20 @@ def load_user_defined_vars(
             var_name = file_name[:-4] #remove ".csv"
 
             try:
-                _ = default_strategy_var[var_name]
+                raw_file_content = pd.read_csv(os.path.join(path_csv, file_name))
+
+                default_streategy_var = default_strategy_var[var_name]
+
+                # Alternative loading
+                strategy_vars_as_narratives[var_name] = narrative_related.read_user_defined_param(
+                    raw_file_content,
+                    simulation_base_yr=simulation_base_yr,
+                    simulation_end_yr=simulation_end_yr,
+                    default_streategy_var=default_streategy_var,
+                    var_name=var_name)
+
             except KeyError:
-                raise Exception("The user defined variable '%s' is not defined in model", var_name)
-
-            path_to_file = os.path.join(path_csv, file_name)
-            raw_file_content = pd.read_csv(path_to_file)
-
-            # -----------------------------------
-            # Crate narratives from file content
-            # -----------------------------------
-            parameter_narratives = narrative_related.create_narratives(
-                raw_file_content,
-                simulation_base_yr,
-                simulation_end_yr,
-                default_strategy_var[var_name])
-
-            strategy_vars_as_narratives[var_name] = parameter_narratives
+                raise Exception("The user defined variable '{}' is not defined in model", var_name)
 
     return strategy_vars_as_narratives
 
@@ -482,20 +476,12 @@ def get_local_paths(path):
         All local paths used in model
     """
     paths = {
-        'local_path_datafolder':
-            path,
+        'local_path_datafolder': path,
 
         # Path to strategy vars
         'path_strategy_vars': os.path.join(
             path, '00_user_defined_variables'),
 
-        # User defined switchs
-        'path_fuel_switches': os.path.join(
-            path, '00_user_defined_variables', 'switches_fuel.csv'),
-        'path_service_switch': os.path.join(
-            path, '00_user_defined_variables', 'switches_service.csv'),
-        'path_capacity_installation': os.path.join(
-            path, '00_user_defined_variables', 'switches_capacity.csv'),
         'path_population_data_for_disaggregation_LAD': os.path.join(
             path, '_raw_data', 'J-population_disagg_by', 'uk_pop_principal_2015_2050.csv'), #ONS principal projection
         'path_population_data_for_disaggregation_MSOA': os.path.join(
@@ -875,12 +861,47 @@ def get_shape_every_day(tech_lp, model_yeardays_daytype):
 
     return load_profile_y_dh
 
+def  load_weather_stations_df(path_stations):
+    """Read Weather stations from file
+    """
+    out_stations = {}
+    stations = pd.read_csv(path_stations)
+
+    for i in stations.index:
+        station_id = stations.at[i,'station_id']
+        latitude = stations.at[i,'latitude']
+        longitude = stations.at[i,'longitude']
+
+        out_stations[station_id] = {
+            'latitude' : float(latitude),
+            'longitude': float(longitude)}
+
+    return out_stations
+
+def load_weather_stations_csv(path_stations):
+    """Read Weather stations from file
+    """
+    out_stations = {}
+    stations = pd.read_csv(path_stations)
+
+    for i in stations.index:
+        station_id = stations.at[i, 'station_id']
+        latitude = stations.at[i, 'latitude']
+        longitude = stations.at[i, 'longitude']
+
+        out_stations[station_id] = {
+            'latitude' : float(latitude),
+            'longitude': float(longitude)}
+
+    return out_stations
+
 def load_temp_data(
         local_paths,
         sim_yrs,
-        weather_yrs_scenario,
-        crit_temp_min_max=False,
-        save_fig=False
+        weather_realisation,
+        path_weather_data,
+        same_base_year_weather=False,
+        crit_temp_min_max=False
     ):
     """Read in cleaned temperature and weather station data
 
@@ -890,6 +911,8 @@ def load_temp_data(
         Local local_paths
     weather_yr_scenario : list
         Years to use temperatures
+    same_base_year_weather : bool
+        Criteria whether the base year weather is used for full simulation
 
     Returns
     -------
@@ -897,50 +920,86 @@ def load_temp_data(
         Weather stations
     temp_data : dict
         Temperaturesv
-    
+    crit_temp_min_max : dict
+        True: Hourly temperature data are provided
+        False: min and max temperature are provided
+
     t_yrs_stations : dict
         Temperatures {sim_yr: {stations:  {t_min: np.array(365), t_max: np.array(365)}}}
+
+    Info
+    ----
+    PAarquest file http://pandas.pydata.org/pandas-docs/stable/io.html#io-parquet
     """
+    print("... loading temperatures", flush=True)
+
+    load_np = False
+    load_parquet = True
+    load_csv = False
+
     temp_data_short = defaultdict(dict)
     weather_stations_with_data = defaultdict(dict)
 
     if crit_temp_min_max:
-    
-        # Get weather scenario and simulation yrs
-        t_yrs_stations = defaultdict(dict)
+
+        # ------------------
+        # Read stations
+        # ------------------
+        path_stations = os.path.join(path_weather_data, "stations_{}.csv".format(weather_realisation))
+
+        weather_stations_with_data = load_weather_stations_csv(path_stations)
+
+        # ------------------
+        # Read temperatures
+        # ------------------
+        if load_np:
+            path_temp_data = os.path.join(path_weather_data, "weather_data_{}.npy".format(weather_realisation))
+            full_data = np.load(path_temp_data)
+
+            # Convert npy to dataframe
+            df_full_data = pd.DataFrame(
+                full_data,
+                columns=['timestep', 'station_id', 'stiching_name', 'yearday', 't_min', 't_max'])
+
+        if load_parquet:
+            path_temp_data = os.path.join(path_weather_data, "weather_data_{}.parquet".format(weather_realisation))
+            df_full_data = pd.read_parquet(path_temp_data, engine='pyarrow')
+        if load_csv:
+            path_temp_data = os.path.join(path_weather_data, "weather_data_{}.csv".format(weather_realisation))
+            df_full_data = pd.read_csv(path_temp_data)
 
         for sim_yr in sim_yrs:
 
-            # Load temperatures and stations
-            dummy_year = 2020 #TODO REMOVE TODO TODO # MAKE GET DATA
-            abbrev_real = 'm00d' #TODO GET FROM SWTICHING TOGETHER FILE
-            path_weather_data = "X:/nismod/data/energy_demand/J-MARIUS_data/_weather_data_cleaned"
+            if same_base_year_weather:
+                sim_yr = sim_yrs[0]
+            else:
+                pass
+            print("    ... year: {}".format(sim_yr), flush=True)
 
-            path_t_min = os.path.join(path_weather_data, str(dummy_year), abbrev_real, "t_min.npy")
-            path_t_max = os.path.join(path_weather_data, str(dummy_year), abbrev_real, "t_max.npy")
-            path_stations = os.path.join(path_weather_data, str(dummy_year), abbrev_real, "stations.yml")
+            # Select all station values
+            df_timestep = df_full_data.loc[df_full_data['timestep'] == sim_yr]
 
-            stations_t_min = np.load(path_t_min)
-            stations_t_max = np.load(path_t_max)
-            #stations = read_data.read_yaml(path_stations)
-            stations = pd.read_csv(path_stations)
+            for station_id in weather_stations_with_data:
 
-            weather_stations_with_data[dummy_year] = stations
+                df_timestep_station = df_timestep.loc[df_timestep['station_id'] == station_id]
 
-            # Convert weather station data to HDD days
-            for station_nr, station_id in enumerate(stations):
+                # Remove extrated rows to speed up process
+                df_timestep = df_timestep.drop(list(df_timestep_station.index))
+
+                t_min = list(df_timestep_station['t_min'].values)
+                t_max = list(df_timestep_station['t_max'].values)
 
                 temp_data_short[sim_yr][station_id] = {
-                    't_min': stations_t_min[station_nr],
-                    't_max': stations_t_max[station_nr]}
+                    't_min': np.array(t_min),
+                    't_max': np.array(t_max)}
 
         return dict(weather_stations_with_data), dict(temp_data_short)
-
     else:
+        # Reading in hourly temperature data
         weather_stations = read_weather_stations_raw(
-            local_paths['folder_path_weater_stations']) 
+            local_paths['folder_path_weater_stations'])
 
-        for weather_yr_scenario in weather_yrs_scenario:
+        for weather_yr_scenario in sim_yrs:
             temp_data = read_weather_data.read_weather_data_script_data(
                 local_paths['weather_data'], weather_yr_scenario)
 
@@ -958,7 +1017,7 @@ def load_temp_data(
 
             for station_id in temp_data_short[weather_yr_scenario].keys():
                 try:
-                    weather_stations_with_data[weather_yr_scenario][station_id] = weather_stations[station_id]
+                    weather_stations_with_data[station_id] = weather_stations[station_id]
                 except:
                     del temp_data_short[weather_yr_scenario][station_id]
 
@@ -1085,8 +1144,8 @@ def rs_collect_shapes_from_txts(txt_path, model_yeardays):
             os.path.join(txt_path, str(enduse) + str("__") + str('shape_non_peak_yd') + str('.txt')))
 
         # Select only modelled days (nr_of_days, 24)
-        shape_non_peak_y_dh_selection = shape_non_peak_y_dh[[model_yeardays]]
-        shape_non_peak_yd_selection = shape_non_peak_yd[[model_yeardays]]
+        shape_non_peak_y_dh_selection = shape_non_peak_y_dh[model_yeardays]
+        shape_non_peak_yd_selection = shape_non_peak_yd[model_yeardays]
 
         rs_shapes_dh[enduse] = {
             'shape_peak_dh': shape_peak_dh,
@@ -1147,8 +1206,8 @@ def ss_collect_shapes_from_txts(txt_path, model_yeardays):
             # -----------------------------------------------------------
             # Select only modelled days (nr_of_days, 24)
             # -----------------------------------------------------------
-            shape_non_peak_y_dh_selection = shape_non_peak_y_dh[[model_yeardays]]
-            shape_non_peak_yd_selection = shape_non_peak_yd[[model_yeardays]]
+            shape_non_peak_y_dh_selection = shape_non_peak_y_dh[model_yeardays]
+            shape_non_peak_yd_selection = shape_non_peak_yd[model_yeardays]
 
             ss_shapes_dh[enduse][sector] = {
                 'shape_peak_dh': shape_peak_dh,

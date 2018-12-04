@@ -253,7 +253,11 @@ class ServiceSwitch(object):
         """
         setattr(self, name, value)
 
-def read_in_results(path_result, seasons, model_yeardays_daytype):
+def read_in_results(
+        path_result,
+        seasons,
+        model_yeardays_daytype
+    ):
     """Read and post calculate results from txt files
     and store into container
 
@@ -578,7 +582,7 @@ def read_load_shapes_tech(path_to_csv):
 
     return load_shapes_dh
 
-def service_switch(path_to_csv, technologies, base_yr=2015):
+def service_switch(df_service_switches):
     """This function reads in service assumptions from csv file,
     tests whether the maximum defined switch is larger than
     possible for a technology.
@@ -615,34 +619,64 @@ def service_switch(path_to_csv, technologies, base_yr=2015):
     """
     service_switches = []
 
-    if os.path.isfile(path_to_csv):
+    for i in df_service_switches.index:
+        enduse = df_service_switches.at[i, 'enduses_service_switch']
+        tech = df_service_switches.at[i, 'tech']
+        service_share_ey = df_service_switches.at[i, 'switches_service']
+        switch_yr = df_service_switches.at[i, 'end_yr']
+        sector = df_service_switches.at[i, 'sector']
 
-        # Read switches
-        raw_csv_file = pd.read_csv(path_to_csv)
-
-        for _index, row in raw_csv_file.iterrows():
-
+        if float(service_share_ey) == 999.0: #default parameter
+            pass
+        else:
             service_switches.append(
                 ServiceSwitch(
-                    enduse=str(row['enduse']),
-                    technology_install=str(row['tech']),
-                    service_share_ey=float(row['service_share_ey']),
-                    switch_yr=float(row['switch_yr']),
-                    sector=row['sector']))
-
-        # Test if more service is provided as input than possible to maximum switch
-        for entry in service_switches:
-            if entry.service_share_ey > technologies[entry.technology_install].tech_max_share:
-                raise Exception(
-                    "Input error: more service provided for tech '{}' in enduse '{}' than max possible".format(
-                        entry.enduse, entry.technology_install))
-
-            if entry.switch_yr <= base_yr:
-                raise Exception("Input error service switch: switch_yr must be in the future")
-    else:
-        pass
+                    enduse=str(enduse),
+                    technology_install=str(tech),
+                    service_share_ey=float(service_share_ey),
+                    switch_yr=float(switch_yr),
+                    sector=sector))
 
     return service_switches
+
+'''def read_generic_fuel_switch(
+        path_to_csv,
+        enduses,
+        fueltypes,
+        technologies,
+        base_yr=2015
+    ):
+    """This function reads in from CSV file defined fuel
+    switch assumptions
+
+    Arguments
+    ----------
+    path_to_csv : str
+        Path to csv file
+    enduses : dict
+        Endues per submodel
+    fueltypes : dict
+        Look-ups
+    technologies : dict
+        Technologies
+
+    Returns
+    -------
+    dict_with_switches : dict
+        All assumptions about fuel switches provided as input
+    """
+    fuel_switches = []
+
+    if os.path.isfile(path_to_csv):
+
+        raw_csv_file = pd.read_csv(path_to_csv)
+
+        fuel_switches = []
+
+        raw_csv_file = raw_csv_file.set_index('enduses')
+        raw_csv_file = raw_csv_file.to_dict('index')
+
+    return fuel_switches'''
 
 def read_fuel_switches(
         path_to_csv,
@@ -688,7 +722,7 @@ def read_fuel_switches(
     fuel_switches = []
 
     if os.path.isfile(path_to_csv):
-        # Read switches
+
         raw_csv_file = pd.read_csv(path_to_csv)
 
         for index, row in raw_csv_file.iterrows():

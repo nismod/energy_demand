@@ -125,7 +125,6 @@ def post_install_setup_minimum(args):
         weather_by=config['CONFIG']['user_defined_weather_by'],
         simulation_end_yr=config['CONFIG']['user_defined_simulation_end_yr'],
         paths=data['paths'],
-        local_paths=local_paths,
         enduses=data['enduses'],
         sectors=data['sectors'])
 

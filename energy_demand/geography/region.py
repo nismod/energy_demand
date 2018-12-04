@@ -11,6 +11,8 @@ class Region(object):
     ---------
     name : str
         Name of region
+    weather_region_id : str
+        ID of closest weather station
     longitude : float
         Longitude coordinate
     latitude : float
@@ -46,18 +48,6 @@ class Region(object):
         self.latitude = latitude
         self.fuels = region_fuel_disagg
 
-        # Get closest weather station
-        self.closest_weather_reg = weather_station_location.get_closest_station(
-            latitude_reg=latitude,
-            longitude_reg=longitude,
-            weather_stations=weather_reg_cy)
-
-        # Get closest weather station of weather base year
-        closest_weather_by_id = weather_station_location.get_closest_station(
-            latitude_reg=latitude,
-            longitude_reg=longitude,
-            weather_stations=weather_reg_by)
-
         # =================
         # Calculate Weather Correction factor in relation to base year
         #
@@ -72,21 +62,21 @@ class Region(object):
         # Climate correction factor (hdd)
 
         # Residential
-        factor = np.sum(weather_reg_cy[self.closest_weather_reg].rs_hdd_by) / np.sum(weather_reg_by[closest_weather_by_id].rs_hdd_by)
+        factor = np.sum(weather_reg_cy.rs_hdd_by) / np.sum(weather_reg_by.rs_hdd_by)
         if np.isnan(factor):
             f_climate_hdd_rs = 1
         else:
             f_climate_hdd_rs = factor
 
         # Service
-        factor = np.sum(weather_reg_cy[self.closest_weather_reg].ss_hdd_by) / np.sum(weather_reg_by[closest_weather_by_id].ss_hdd_by)
+        factor = np.sum(weather_reg_cy.ss_hdd_by) / np.sum(weather_reg_by.ss_hdd_by)
         if np.isnan(factor):
             f_climate_hdd_ss = 1
         else:
             f_climate_hdd_ss = factor
 
         # Industry
-        factor = np.sum(weather_reg_cy[self.closest_weather_reg].is_hdd_by) / np.sum(weather_reg_by[closest_weather_by_id].is_hdd_by)
+        factor = np.sum(weather_reg_cy.is_hdd_by) / np.sum(weather_reg_by.is_hdd_by)
 
         if np.isnan(factor):
             f_climate_hdd_is = 1
@@ -94,8 +84,8 @@ class Region(object):
             f_climate_hdd_is = factor
 
         # Climate correction factor (cdd)
-        factor = np.sum(weather_reg_cy[self.closest_weather_reg].ss_cdd_by) / np.sum(weather_reg_by[closest_weather_by_id].ss_cdd_by)
-        #f_climate_cdd_is = np.sum(weather_reg_cy[self.closest_weather_reg].is_cdd_by) / np.sum(weather_reg_by[closest_weather_by_id].is_cdd_by)
+        factor = np.sum(weather_reg_cy.ss_cdd_by) / np.sum(weather_reg_by.ss_cdd_by)
+        #f_climate_cdd_is = np.sum(weather_reg_cy.is_cdd_by) / np.sum(weather_reg_by.is_cdd_by)
         if np.isnan(factor):
             f_climate_cdd_ss = 1
         else:

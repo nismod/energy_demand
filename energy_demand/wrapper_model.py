@@ -8,7 +8,6 @@ from energy_demand.read_write import data_loader
 from energy_demand.basic import basic_functions
 from energy_demand.scripts import init_scripts
 from energy_demand.read_write import write_data
-from energy_demand.assumptions import strategy_vars_def
 from energy_demand.assumptions import general_assumptions
 from energy_demand.validation import lad_validation
 from energy_demand.scripts import s_disaggregation
@@ -17,23 +16,19 @@ from energy_demand.read_write import read_data
 from energy_demand.technologies import tech_related
 from energy_demand.scripts import s_scenario_param
 from energy_demand.geography import weather_region
+from energy_demand.basic import testing_functions
 
 def load_data_before_simulation(
         data,
         sim_yrs,
         config,
-        curr_yr,
-        pop_array_by_new,
-        gva_array_by_new,
-        gva_data
+        curr_yr
     ):
     # ---------
     # Configuration
     # -----------
     base_yr = config['CONFIG']['base_yr']
     weather_yr_scenario = config['CONFIG']['weather_yr_scenario']
-    name_scenario = data['name_scenario_run']
-
     path_new_scenario = data['path_new_scenario']
 
     data['weather_station_count_nr'] = [] # Default value is '[]' to use all stations
@@ -48,13 +43,6 @@ def load_data_before_simulation(
     # Downloaded (FTP) data
     data['local_paths'] = data_loader.get_local_paths(
         data['data_path'])
-
-    # TODO REMOVE
-    user_defined_config_path = os.path.join(
-        config['PATHS']['path_local_data'],
-        '00_user_defined_variables_SCENARIO',
-        '03_paperI_scenarios',
-        name_scenario)
 
     # ------------------------------------------------
     # Load Inputs
@@ -74,18 +62,9 @@ def load_data_before_simulation(
         curr_yr=curr_yr,
         sim_yrs=sim_yrs,
         paths=data['paths'],
-        local_paths=data['local_paths'],
         enduses=data['enduses'],
         sectors=data['sectors'],
         reg_nrs=len(data['regions']))
-
-    # Load all temperature and weather station data TODO LOAD FROM WRAPPER
-    data['weather_stations'], data['temp_data'] = data_loader.load_temp_data(
-        data['local_paths'],
-        sim_yrs=sim_yrs,
-        weather_yrs_scenario=[base_yr, weather_yr_scenario],
-        crit_temp_min_max=config['CRITERIA']['crit_temp_min_max'],
-        save_fig=path_new_scenario) 
 
     # --------------------------------------------
     # Make selection of weather stations and data
@@ -93,18 +72,18 @@ def load_data_before_simulation(
     weather_stations_selection = {}
     temp_data_selection = {}
     if data['weather_station_count_nr'] != []:
-        for year in [data['assumptions'].base_yr, weather_yr_scenario]:
-            weather_stations_selection[year], station_id = weather_region.get_weather_station_selection(
+        for year in sim_yrs:
+            weather_stations_selection, station_id = weather_region.get_weather_station_selection(
                 data['weather_stations'],
                 counter=data['weather_station_count_nr'],
-                weather_yr = weather_yr_scenario)
+                weather_yr=weather_yr_scenario)
             temp_data_selection[year] = data['temp_data'][year][station_id]
 
             if year == weather_yr_scenario:
                 data['simulation_name'] = str(weather_yr_scenario) + "__" + str(station_id)
     else:
-        for year in [data['assumptions'].base_yr,  weather_yr_scenario]:
-            weather_stations_selection[year] = data['weather_stations'][year]
+        for year in sim_yrs:
+            weather_stations_selection = data['weather_stations']
             temp_data_selection[year] = data['temp_data'][year]
 
             if year == weather_yr_scenario:
@@ -130,13 +109,13 @@ def load_data_before_simulation(
 
     # Create .ini file with simulation parameter
     write_data.write_simulation_inifile(
-        path_new_scenario, data, region_selection)
+        data['path_new_scenario'], data, region_selection)
 
     # -------------------------------------------
     # Weather year specific initialisations
     # -------------------------------------------
     path_folder_weather_yr = os.path.join(
-        os.path.join(data['result_path'], name_scenario, data['simulation_name']))
+        os.path.join(path_new_scenario, data['simulation_name']))
 
     data['result_paths'] = data_loader.get_result_paths(path_folder_weather_yr)
 
@@ -157,13 +136,6 @@ def load_data_before_simulation(
         data['local_paths'],
         data['assumptions'].model_yeardays,
         data['assumptions'].model_yeardays_daytype)
-
-    # ------------------------------------------------
-    # SCENARIO DATA
-    # ------------------------------------------------
-    data['scenario_data']['population'][data['assumptions'].base_yr] = pop_array_by_new
-    data['scenario_data']['gva_per_head'][data['assumptions'].base_yr] = gva_array_by_new
-    data['scenario_data']['gva_industry'][data['assumptions'].base_yr] = gva_data
 
     # Obtain population data for disaggregation
     if config['CRITERIA']['MSOA_crit']:
@@ -194,59 +166,16 @@ def load_data_before_simulation(
         #ss_floorarea = defaultdict(dict)
         pass
 
-    # Load all standard variables of parameters
-    default_streategy_vars = strategy_vars_def.load_param_assump(
-        assumptions=data['assumptions'])
-
-    # -----------------------------------------------------------------------------
-    # Load standard smif parameters and generate standard single timestep narrative
-    # for the year 2050 for all parameters
-    # -----------------------------------------------------------------------------
-    strategy_vars = strategy_vars_def.load_smif_parameters(
-        assumptions=data['assumptions'],
-        default_streategy_vars=default_streategy_vars,
-        mode='local') #TODO
-
-    # <<<<<<<<<<<<<<<<<<<<<<<<<<<
-    #'''
-    # -----------------------------------------
-    # Read user defined stragey variable from csv files
-    # TODO with smif update: Needs to be read in by SMIF and passed on directly to here
-    # -----------------------------------------
-    _user_defined_vars = data_loader.load_user_defined_vars(
-        default_strategy_var=default_streategy_vars,
-        path_csv=user_defined_config_path,
-        simulation_base_yr=data['assumptions'].base_yr,
-        simulation_end_yr=data['assumptions'].simulation_end_yr)
-
-    logging.info("All user_defined parameters %s", _user_defined_vars.keys())
-
-    # --------------------------------------------------------
-    # Replace standard narratives with user defined narratives from .csv files
-    # --------------------------------------------------------
-    strategy_vars = data_loader.replace_variable(
-        _user_defined_vars, strategy_vars)
-    #'''
-    # <<<<<<<<<<<<<<<<<<<<<<<<<<<
-    strategy_vars_out = strategy_vars_def.autocomplete_strategy_vars(
-        strategy_vars, narrative_crit=True)
-
-    data['assumptions'].update('strategy_vars', strategy_vars_out)
-
-    # Update technologies after strategy definition
-    technologies = general_assumptions.update_technology_assumption(
-        data['assumptions'].technologies,
-        data['assumptions'].strategy_vars['f_eff_achieved'],
-        data['assumptions'].strategy_vars['gshp_fraction_ey'])
-    data['assumptions'].technologies.update(technologies)
-
     return data
 
 def before_simulation(
         data,
         config,
         sim_yrs,
-        pop_density
+        pop_density,
+        service_switches,
+        fuel_switches,
+        capacity_switches
     ):
     """
     """
@@ -299,18 +228,28 @@ def before_simulation(
     # ------------------------------------------------
     # Switches calculations
     # ------------------------------------------------
+    # Update assumptions
+    crit_switch_happening = testing_functions.switch_testing(
+        fuel_switches=fuel_switches,
+        service_switches=service_switches,
+        capacity_switches=capacity_switches)
+    setattr(data['assumptions'],'crit_switch_happening', crit_switch_happening)
+
     annual_tech_diff_params = init_scripts.switch_calculations(
         sim_yrs,
         data,
         f_reg,
         f_reg_norm,
         f_reg_norm_abs,
-        crit_all_the_same)
+        crit_all_the_same,
+        service_switches,
+        fuel_switches,
+        capacity_switches)
 
     for region in data['regions']:
         regional_vars[region]['annual_tech_diff_params'] = annual_tech_diff_params[region]
 
-    return regional_vars, non_regional_vars, fuel_disagg
+    return regional_vars, non_regional_vars, fuel_disagg, crit_switch_happening
 
 def write_user_defined_results(
         criterias,
@@ -460,7 +399,7 @@ def plots(
     # Plot map with weather station
     if config['CRITERIA']['cluster_calc'] != True:
         data_loader.create_weather_station_map(
-            data['weather_stations'][config['CONFIG']['weather_yr_scenario']],
+            data['weather_stations'],
             os.path.join(data['result_path'], 'weatherst_distr_weathyr_{}.pdf'.format(
                 config['CONFIG']['weather_yr_scenario'])),
             path_shapefile=data['local_paths']['lad_shapefile'])
