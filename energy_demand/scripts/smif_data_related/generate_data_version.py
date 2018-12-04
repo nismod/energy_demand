@@ -53,26 +53,28 @@ def package_data(
 
     # Zip minimum files
     _raw_folders_data_minimal = [
+        '_old_data',
         'coefficients',
+        'dimensions',
         'initial_conditions',
-        'interval_definitions',
-        '00_user_defined_variables',
-        'interventions',
-        'planning',
+        'initial_inputs',
+        'energy_demand_minimal',
+        'narratives',
+        'parameters',
+        'scenarios',
         'strategies']
 
     # Zip maximum files
     _raw_folders_data_full = [
-        '_raw_data',
+        '_old_data',
         'coefficients',
+        'dimensions',
         'initial_conditions',
-        'interval_definitions',
-        '00_user_defined_variables',
-        '00_user_defined_variables_SCENARIO',
         'interventions',
+        'initial_inputs',
+        'energy_demand',
         'narratives',
-        'planning',
-        'region_definitions',
+        'parameters',
         'scenarios',
         'strategies']
 
@@ -95,10 +97,8 @@ def package_data(
     # Add folder _raw_data_minimal' and rename it
     # -------------------------------------------
     folders_to_add = (
-        ('_raw_data_minimal', '_raw_data'),
-        ('scenarios_minimal', 'scenarios'),
-        ('region_definitions_minimal', 'region_definitions'),
-        ('narratives_minimal', 'narratives'))
+        ('energy_demand_minimal', 'energy_demand'),
+        ('scenarios_minimal', 'scenarios'))
 
     zip_handler_minimum = zipfile.ZipFile(os.path.join(data_folder_path, zip_name_minimum), "a")
 
