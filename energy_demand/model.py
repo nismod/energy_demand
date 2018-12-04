@@ -235,8 +235,7 @@ def aggregate_across_all_regs(
     aggr_results['reg_load_factor_y'], aggr_results['reg_load_factor_yd'] = aggregate_load_factors(
         aggr_results['ed_fueltype_regs_yh'],
         fueltypes_nr,
-        reg_nrs,
-        assumptions.seasons)
+        reg_nrs)
 
     # ----------------------------------------------------
     # Unconstrained results
@@ -268,19 +267,10 @@ def aggregate_across_all_regs(
 def aggregate_load_factors(
         ed_fueltype_regs_yh,
         fueltypes_nr,
-        reg_nrs,
-        seasons
+        reg_nrs
     ):
-    """Calculate load factors
-    #TODO IMPROVE SPEED
+    """Calculate load factors and aggregate
     """
-    # Initialise
-    #reg_seasons_lf = {
-    #    'summer' : np.zeros((fueltypes_nr, reg_nrs), dtype="float"),
-    #    'spring': np.zeros((fueltypes_nr, reg_nrs), dtype="float"),
-    #    'winter': np.zeros((fueltypes_nr, reg_nrs), dtype="float"),
-    #    'autumn': np.zeros((fueltypes_nr, reg_nrs), dtype="float")}
-
     reg_load_factor_y = np.zeros((fueltypes_nr, reg_nrs), dtype="float")
     reg_load_factor_yd = np.zeros((fueltypes_nr, reg_nrs, 365), dtype="float")
 
@@ -295,16 +285,7 @@ def aggregate_load_factors(
             reg_load_factor_yd[fueltype_nr][reg_array_nr] = load_factors.calc_lf_d_8760(
                 ed_fueltype_regs_yh[fueltype_nr][reg_array_nr])
 
-            #load_factor_seasons = load_factors.calc_lf_season_8760(
-            #    seasons,
-            #    ed_fueltype_regs_yh[fueltype_nr][reg_array_nr])
-
-            #print(load_factor_seasons)
-            #print(reg_seasons_lf)
-            #for season, lf_season in load_factor_seasons.items():
-            #    reg_seasons_lf[season][fueltype_nr][reg_array_nr] = lf_season
     return reg_load_factor_y, reg_load_factor_yd
-    #return reg_seasons_lf, reg_load_factor_y, reg_load_factor_yd
 
 def get_all_submodels(submodels, submodel_name):
     """Collect all submodel objects for a

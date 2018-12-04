@@ -49,7 +49,7 @@ def generate_yaml(
         
         'model_dependencies': [],
         
-        'sector_models': ['energy_demand_constrained'], #TODO
+        'sector_models': ['energy_demand_constrained'],
 
         #Scenario dependendies
         'scenario_dependencies': [

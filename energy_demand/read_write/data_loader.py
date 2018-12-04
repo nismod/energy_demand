@@ -995,7 +995,7 @@ def load_temp_data(
 
         return dict(weather_stations_with_data), dict(temp_data_short)
     else:
-        #TODO REMOVE WHOLE THINGS
+        # Reading in hourly temperature data
         weather_stations = read_weather_stations_raw(
             local_paths['folder_path_weater_stations'])
 

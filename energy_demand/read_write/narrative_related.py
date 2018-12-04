@@ -335,8 +335,7 @@ def read_user_defined_param(
                             except KeyError:
                                 parameter_narratives[enduse][narrative['sector']] = [narrative]
                 else:
-                    #TOD IMPELEMENT NON SECTOR SP
-                    print("...TODO IMPLEMENT MULTIDIMENSIONAL CRIT SECTOR PARAM")
+                    # If setctor specific, this needs to be implemented
                     pass
         else:
             sectors = set()
@@ -383,8 +382,8 @@ def read_user_defined_param(
                     except (KeyError, AttributeError):
                         parameter_narratives['dummy_single_param'][narrative['sector']] = [narrative]
             else:
-                print("...TODO IMPLEMENT SINGLE CRIT SECTOR PARAM")
-                pass #IMPELEMENT
+                # Needs to be implemented in case sector specific
+                pass
 
         parameter_narratives = autocomplete(
             parameter_narratives,
