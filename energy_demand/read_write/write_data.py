@@ -284,6 +284,34 @@ def write_lf(
 
     np.save(path_file_fueltype, model_results)
 
+def write_only_peak_and_total_regional(
+        sim_yr,
+        name_new_folder,
+        path_result,
+        model_results,
+        file_name
+    ):
+    """Write only peak demand and total regional demand for a region
+    """
+    path_result_sub_folder = os.path.join(
+        path_result, name_new_folder)
+
+    basic_functions.create_folder(
+        path_result_sub_folder)
+
+    path_file = os.path.join(
+        path_result_sub_folder,
+        "{}__{}__{}".format(file_name, sim_yr, ".npy"))
+
+    #ed_fueltype_regs_yh
+    print("SHAPE " + str(model_results.shape))
+    ed_fueltype_regs_y = np.sum(model_results, axis=2) # Sum across 8760 hours
+
+    pd.DataFrame(ed_fueltype_regs_y, columns)
+    np.save(path_file, model_results)
+
+    return
+
 def write_supply_results(
         sim_yr,
         name_new_folder,

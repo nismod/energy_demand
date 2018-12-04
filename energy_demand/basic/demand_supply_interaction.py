@@ -74,7 +74,7 @@ def constrained_results(
     # ----------------------------------------
     for submodel_nr, submodel in enumerate(submodels_names):
         for tech, fuel_tech in results_constrained.items():
-
+            
             # ----
             # Technological simplifications because of different technology definition
             # and because not all technologies are used in supply model
@@ -84,7 +84,7 @@ def constrained_results(
             fueltype_int = technologies[tech].fueltype_int
 
             key_name = "{}_{}_{}".format(submodel, fueltype_str, tech_simplified)
-
+            print("HEating keys: " + str(key_name))
             supply_results[key_name] = fuel_tech[submodel_nr][:, fueltype_int, :]
 
     # ---------------------------------

@@ -105,36 +105,34 @@ if __name__ == "__main__":
 
     # Simulated yrs
     sim_yrs = [base_yr, user_defined_simulation_end_yr]
+    weather_yr_scenario = 2015   # Default weather year
 
     if len(sys.argv) > 1: #user defined arguments are provide
 
         scenario_name = str(sys.argv[1])
-        weather_yr_scenario = int(sys.argv[2])        # Weather year
-        try:
-            weather_station_count_nr = int(sys.argv[3])       # Weather station cnt
-        except:
-            weather_station_count_nr = []
+        weather_realisation = int(sys.argv[2])        # Weather year 
     else:
         scenario_name = "_run_"
-        weather_yr_scenario = 2015                      # Default weather year
+        weather_realisation = 'NF1'
+        
         weather_station_count_nr = []                   # Default weather year
 
     print("Information")
     print("-------------------------------------")
     print("weather_yr_scenario:        " + str(weather_yr_scenario))
-    print("weather_station_count_nr:    " + str(weather_station_count_nr))
+    print("weather_realisation:        " + str(weather_realisation))
+
+    path_weather_data = "X:/nismod/data/energy_demand/J-MARIUS_data/_weather_realisation"
+    path_weather_data = "L:/_weather_realisation"
 
     # --- Region definition configuration
     name_region_set = os.path.join(local_data_path, 'energy_demand', 'region_definitions', "lad_2016_uk_simplified.shp")
 
     local_scenario = 'pop-a_econ-c_fuel-c'
-    weather_realisation = 'NF1'
 
     name_population_dataset = os.path.join(local_data_path, 'scenarios', 'MISTRAL_pop_gva', 'data', '{}/population__lad.csv'.format(local_scenario))
     name_gva_dataset = os.path.join(local_data_path, 'scenarios', 'MISTRAL_pop_gva', 'data', '{}/gva_per_head__lad_sector.csv'.format(local_scenario))
     name_gva_dataset_per_head = os.path.join(local_data_path, 'scenarios', 'MISTRAL_pop_gva', 'data', '{}/gva_per_head__lad.csv'.format(local_scenario))
-
-    path_weather_data = "X:/nismod/data/energy_demand/J-MARIUS_data/_weather_realisation"
 
     simulation_name = str(weather_realisation) + "__" + "all_stations"
     
@@ -147,9 +145,7 @@ if __name__ == "__main__":
     # --------------------
     data['paths'] = data_loader.load_paths(path_main)
     data['local_paths'] = data_loader.get_local_paths(local_data_path)
-    #print("data['local_paths']")
-    #print(data['local_paths']['data_processed'])
-    #raise Exception("T")
+
     data['path_new_scenario'] = os.path.abspath(os.path.join(os.path.dirname(local_data_path), "results", name_scenario_run))
     data['result_paths'] = data_loader.get_result_paths(data['path_new_scenario'])
 
@@ -166,7 +162,7 @@ if __name__ == "__main__":
 
     reg_centroids = read_data.get_region_centroids(name_region_set)
     data['reg_coord'] = basic_functions.get_long_lat_decimal_degrees(reg_centroids)
-    print("AA " + str(name_population_dataset))
+
     data['scenario_data']['population'] = data_loader.read_scenario_data(name_population_dataset)
 
     # Read GVA sector specific data
@@ -538,6 +534,14 @@ if __name__ == "__main__":
                     path_runs,
                     sim_obj.ed_fueltype_regs_yh,
                     "result_tot_submodels_fueltypes")
+                
+                # Simplified output
+                '''write_data.write_only_peak_and_total_regional(
+                    sim_yr,
+                    "peak_and_total_regional",
+                    path_runs,
+                    sim_obj.ed_fueltype_regs_yh,
+                    'peak_and_total_regional')'''
             else:
                 write_data.write_residential_tot_demands(
                     sim_yr,

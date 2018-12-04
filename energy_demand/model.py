@@ -966,47 +966,47 @@ def aggregate_from_full_results(
     """
     for enduse_array_yr, reg_fueltype_8760h in enumerate(full_sim_data):
 
-            # Test if reshaping and annual or hourly
-            if time_resolution == 'annual':
-                demand = np.sum(reg_fueltype_8760h, axis=2) # Sum all hours
-            elif time_resolution == '8760_h':
-                demand = reg_fueltype_8760h
-            elif time_resolution == '365_24':
-                demand = reg_fueltype_8760h.reshape(
-                    reg_fueltype_8760h.shape[0],
-                    reg_fueltype_8760h.shape[1],
-                    365, 24)
-            else:
-                raise Exception("Provide either 'annual' or 'hourly' or '365_24'")
+        # Test if reshaping and annual or hourly
+        if time_resolution == 'annual':
+            demand = np.sum(reg_fueltype_8760h, axis=2) # Sum all hours
+        elif time_resolution == '8760_h':
+            demand = reg_fueltype_8760h
+        elif time_resolution == '365_24':
+            demand = reg_fueltype_8760h.reshape(
+                reg_fueltype_8760h.shape[0],
+                reg_fueltype_8760h.shape[1],
+                365, 24)
+        else:
+            raise Exception("Provide either 'annual' or 'hourly' or '365_24'")
 
-            # Aggregate according to criteria
-            if per_sector:
-                if per_region:
-                    if per_enduse:
-                        pass
-                    else:
-                        pass
+        # Aggregate according to criteria
+        if per_sector:
+            if per_region:
+                if per_enduse:
+                    pass
                 else:
-                    if per_enduse:
-                        pass
-                    else:
-                        pass
+                    pass
             else:
-                if per_region:
-                    if per_enduse:
-                        aggregated_container[enduse_array_yr] += demand
-                    else:
-                        aggregated_container += demand
+                if per_enduse:
+                    pass
                 else:
-                    # Sum across all regions
-                    demand = np.sum(demand, axis=1)
-                    
-                    # Get enduse str
-                    enduse_str = get_enduse_from_array_nr(enduse_array_yr, lookup_enduse)
+                    pass
+        else:
+            if per_region:
+                if per_enduse:
+                    aggregated_container[enduse_array_yr] += demand
+                else:
+                    aggregated_container += demand
+            else:
+                # Sum across all regions
+                demand = np.sum(demand, axis=1)
+                
+                # Get enduse str
+                enduse_str = get_enduse_from_array_nr(enduse_array_yr, lookup_enduse)
 
-                    if per_enduse:
-                        aggregated_container[enduse_str] += demand
-                    else:
-                        aggregated_container += demand
+                if per_enduse:
+                    aggregated_container[enduse_str] += demand
+                else:
+                    aggregated_container += demand
 
     return aggregated_container
