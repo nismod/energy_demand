@@ -125,7 +125,7 @@ if __name__ == "__main__":
     print("weather_station_count_nr:    " + str(weather_station_count_nr))
 
     # --- Region definition configuration
-    name_region_set = os.path.join(local_data_path, 'region_definitions', "lad_2016_uk_simplified.shp")
+    name_region_set = os.path.join(local_data_path, 'energy_demand', 'region_definitions', "lad_2016_uk_simplified.shp")
 
     local_scenario = 'pop-a_econ-c_fuel-c'
     weather_realisation = 'NF1'
@@ -147,7 +147,9 @@ if __name__ == "__main__":
     # --------------------
     data['paths'] = data_loader.load_paths(path_main)
     data['local_paths'] = data_loader.get_local_paths(local_data_path)
-
+    #print("data['local_paths']")
+    #print(data['local_paths']['data_processed'])
+    #raise Exception("T")
     data['path_new_scenario'] = os.path.abspath(os.path.join(os.path.dirname(local_data_path), "results", name_scenario_run))
     data['result_paths'] = data_loader.get_result_paths(data['path_new_scenario'])
 
@@ -164,6 +166,7 @@ if __name__ == "__main__":
 
     reg_centroids = read_data.get_region_centroids(name_region_set)
     data['reg_coord'] = basic_functions.get_long_lat_decimal_degrees(reg_centroids)
+    print("AA " + str(name_population_dataset))
     data['scenario_data']['population'] = data_loader.read_scenario_data(name_population_dataset)
 
     # Read GVA sector specific data

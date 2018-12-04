@@ -180,7 +180,6 @@ def run(
         # ------------------------
         # Delete weather stations with missing daily data inputs
         # ------------------------
-        
         stations_to_delete = []
         for station_id in temp_stations_min_max.keys():
 

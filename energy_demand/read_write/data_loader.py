@@ -478,9 +478,9 @@ def get_local_paths(path):
     paths = {
         'local_path_datafolder': path,
 
-        # Path to strategy vars
+        # Path to user defined strategy vars
         'path_strategy_vars': os.path.join(
-            path, '00_user_defined_variables'),
+            path, 'energy_demand', '00_user_defined_variables'),
 
         'path_population_data_for_disaggregation_LAD': os.path.join(
             path, 'energy_demand', '_raw_data', 'J-population_disagg_by', 'uk_pop_principal_2015_2050.csv'), #ONS principal projection
@@ -1288,7 +1288,7 @@ def read_scenario_data(path_to_csv):
         for row in rows:
 
             region = str(row[read_data.get_position(headings, 'region')])
-            year = int(float(row[read_data.get_position(headings, 'year')]))
+            year = int(float(row[read_data.get_position(headings, 'timestep')]))
             value = float(row[read_data.get_position(headings, 'value')])
 
             try:
@@ -1331,7 +1331,7 @@ def read_scenario_data_gva(path_to_csv, all_dummy_data=False):
                             out_dict[year_dummy][region][sector_dummy] = dummy_sector_value
 
             else:
-                if row[read_data.get_position(headings, 'year')] == '': #No data provided
+                if row[read_data.get_position(headings, 'timestep')] == '': #No data provided
                     region = str(row[read_data.get_position(headings, 'region')])
                     for year_dummy in range(2015, 2051):
                         for sector_dummy in range(1, 47):
@@ -1339,7 +1339,7 @@ def read_scenario_data_gva(path_to_csv, all_dummy_data=False):
                             out_dict[year_dummy][region][sector_dummy] = dummy_sector_value
                 else:
                     region = str(row[read_data.get_position(headings, 'region')])
-                    year = int(float(row[read_data.get_position(headings, 'year')]))
+                    year = int(float(row[read_data.get_position(headings, 'timestep')]))
                     value = float(row[read_data.get_position(headings, 'value')])
                     economic_sector__gor = float(row[read_data.get_position(headings, 'economic_sector__gor')])
                 try:
