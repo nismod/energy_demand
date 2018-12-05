@@ -8,7 +8,7 @@ import yaml
 import numpy as np
 from ruamel.yaml import YAML
 
-from energy_demand.basic import lookup_tables, date_prop, basic_functions
+from energy_demand.basic import lookup_tables, date_prop, basic_functions, conversions
 from energy_demand import enduse_func
 
 def write_yaml(data, file_path):
@@ -299,9 +299,14 @@ def write_only_peak_and_total_regional(
     basic_functions.create_folder(
         path_result_sub_folder)
 
-    path_file_annual_sum, = os.path.join(
+    print("aaaa" + str(file_name_annual_sum))
+    print("aaaa" + str(sim_yr))
+    file_name = "{}__{}__{}".format(file_name_annual_sum, sim_yr, ".npy")
+    print("aaaa" + str(file_name))
+    path_file_annual_sum = os.path.join(
         path_result_sub_folder,
-        "{}__{}__{}".format(file_name_annual_sum, sim_yr, ".npy"))
+        file_name
+        )
 
     path_file_peak_day = os.path.join(
         path_result_sub_folder,

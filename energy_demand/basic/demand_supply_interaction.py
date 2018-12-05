@@ -84,7 +84,6 @@ def constrained_results(
             fueltype_int = technologies[tech].fueltype_int
 
             key_name = "{}_{}_{}".format(submodel, fueltype_str, tech_simplified)
-            print("HEating keys: " + str(key_name))
             supply_results[key_name] = fuel_tech[submodel_nr][:, fueltype_int, :]
 
     # ---------------------------------

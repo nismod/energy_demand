@@ -109,14 +109,13 @@ if __name__ == "__main__":
     weather_yr_scenario = 2015   # Default weather year
 
     if len(sys.argv) > 1: #user defined arguments are provide
-
         scenario_name = str(sys.argv[1])
-        weather_realisation = int(sys.argv[2])        # Weather year 
+        weather_realisation = str(sys.argv[2]) # Weather realisation 
     else:
         scenario_name = "_run_"
         weather_realisation = 'NF1'
         
-        weather_station_count_nr = []                   # Default weather year
+        weather_station_count_nr = [] # Default weather year
 
     print("Information")
     print("-------------------------------------")
@@ -527,6 +526,7 @@ if __name__ == "__main__":
                 sim_obj.ed_fueltype_regs_yh,
                 'tot_fueltype_reg',
                 'fueltype_reg_peak_day')
+
             raise Exception("PRINT SIMFILIED")
             print("... Start writing results to file: " + str(path_runs))
             plot_only_selection = False
