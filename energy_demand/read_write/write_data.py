@@ -299,10 +299,8 @@ def write_only_peak_and_total_regional(
     basic_functions.create_folder(
         path_result_sub_folder)
 
-    print("aaaa" + str(file_name_annual_sum))
-    print("aaaa" + str(sim_yr))
     file_name = "{}__{}__{}".format(file_name_annual_sum, sim_yr, ".npy")
-    print("aaaa" + str(file_name))
+
     path_file_annual_sum = os.path.join(
         path_result_sub_folder,
         file_name
@@ -315,7 +313,6 @@ def write_only_peak_and_total_regional(
     # ------------------------------------
     # Sum annual fuel across all fueltypes
     # ------------------------------------
-    print("SHAPE " + str(model_results.shape))
     # Sum across 8760 hours
     ed_fueltype_regs_y = np.sum(model_results, axis=2)
     np.save(path_file_annual_sum, ed_fueltype_regs_y)
@@ -326,14 +323,12 @@ def write_only_peak_and_total_regional(
     # Get peak day electricity
     lookups = lookup_tables.basic_lookups()
     fueltype_int = lookups['fueltypes']['electricity']
-    print("AA " + str(ed_fueltype_regs_y[fueltype_int].shape))
-    print(ed_fueltype_regs_y.shape)
-    peak_day_electricity = enduse_func.get_peak_day_single_fueltype(ed_fueltype_regs_y[fueltype_int])
-    selected_hours = date_prop.convert_yearday_to_8760h_selection(peak_day_electricity)
 
-    selected_demand = ed_fueltype_regs_y[:, :, selected_hours]
-    print("A=========")
-    print(selected_demand.shape)
+    national_hourly_demand = np.sum(model_results[fueltype_int], axis=0)
+    peak_day_electricity, _ = enduse_func.get_peak_day_single_fueltype(national_hourly_demand)
+    selected_hours = date_prop.convert_yearday_to_8760h_selection(peak_day_electricity)
+    selected_demand = model_results[:, :, selected_hours]
+
     np.save(path_file_peak_day, selected_demand)
 
 def write_supply_results(

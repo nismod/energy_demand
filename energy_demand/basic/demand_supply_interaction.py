@@ -108,10 +108,6 @@ def constrained_results(
             logging.info("info: {}  {}".format(values, np.sum(values)))
             raise Exception("Error d: Negative entry in results " + str(key_name))
 
-    for i in supply_results:
-        logging.warning("KEYNAME : " + str(i))
-    
-    #raise Exception("WHAT ABOUT NON HEATINTg????????")
     logging.info("... Prepared results for energy supply model in constrained mode")
     return supply_results
 
