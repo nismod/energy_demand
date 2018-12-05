@@ -1,5 +1,7 @@
 """Allows to run HIRE locally outside the SMIF framework
 
+write_national_results_amman
+
 Note
 ----
 Always execute from root folder. (e.g. energy_demand/energy_demand/main.py
@@ -78,11 +80,10 @@ def energy_demand_model(
 if __name__ == "__main__":
     """
     """
-
     # ------------------------------------------
     # Local run model configuration
     # ------------------------------------------
-    
+
     # Paths
     local_data_path = os.path.abspath('data')
     path_main = os.path.abspath(
@@ -123,7 +124,7 @@ if __name__ == "__main__":
     print("weather_realisation:        " + str(weather_realisation))
 
     path_weather_data = "X:/nismod/data/energy_demand/J-MARIUS_data/_weather_realisation"
-    path_weather_data = "L:/_weather_realisation"
+    #path_weather_data = "L:/_weather_realisation"
 
     # --- Region definition configuration
     name_region_set = os.path.join(local_data_path, 'energy_demand', 'region_definitions', "lad_2016_uk_simplified.shp")
@@ -137,7 +138,6 @@ if __name__ == "__main__":
     simulation_name = str(weather_realisation) + "__" + "all_stations"
     
     name_scenario_run = "{}_result_local_{}".format(scenario_name, str(time.ctime()).replace(":", "_").replace(" ", "_"))
-
     # ------------------------------------------
 
     # --------------------
@@ -518,7 +518,16 @@ if __name__ == "__main__":
             # Write annual results to txt files
             # -------------------------------------------
             path_runs = data['result_paths']['data_results_model_runs']
-
+            
+            # Simplified output
+            write_data.write_only_peak_and_total_regional(
+                sim_yr,
+                "peak_and_total_regional",
+                path_runs,
+                sim_obj.ed_fueltype_regs_yh,
+                'tot_fueltype_reg',
+                'fueltype_reg_peak_day')
+            raise Exception("PRINT SIMFILIED")
             print("... Start writing results to file: " + str(path_runs))
             plot_only_selection = False
             if plot_only_selection:
@@ -534,14 +543,6 @@ if __name__ == "__main__":
                     path_runs,
                     sim_obj.ed_fueltype_regs_yh,
                     "result_tot_submodels_fueltypes")
-                
-                # Simplified output
-                '''write_data.write_only_peak_and_total_regional(
-                    sim_yr,
-                    "peak_and_total_regional",
-                    path_runs,
-                    sim_obj.ed_fueltype_regs_yh,
-                    'peak_and_total_regional')'''
             else:
                 write_data.write_residential_tot_demands(
                     sim_yr,

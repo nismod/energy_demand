@@ -16,7 +16,7 @@ def my_function(simulation_number):
     # --------------------------
     # Weather realisation
     # --------------------------
-    all_weather_reations = ["NF{}".format(i) for i in range(100)]
+    all_weather_reations = ["NF{}".format(i) for i in range(1, 101, 1)]
     weather_realisation = all_weather_reations[simulation_number]
 
 

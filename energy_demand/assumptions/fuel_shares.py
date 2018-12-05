@@ -155,7 +155,6 @@ def assign_by_fuel_tech_p(
     fuel_tech_p_by['rs_space_heating'][fueltypes['gas']] = {
         'boiler_condensing_gas': 0.60,
         'boiler_gas': 0.37,
-        'stirling_micro_CHP_gas': 0.0,
         'district_heating_CHP_gas': 0.03}
 
     fuel_tech_p_by['rs_space_heating'][fueltypes['electricity']] = {
@@ -179,7 +178,6 @@ def assign_by_fuel_tech_p(
     fuel_tech_p_by['rs_water_heating'][fueltypes['gas']] = {
         'boiler_condensing_gas': 0.60,
         'boiler_gas': 0.37,
-        'stirling_micro_CHP_gas': 0.0,
         'district_heating_CHP_gas': 0.03}
 
     fuel_tech_p_by['rs_water_heating'][fueltypes['electricity']] = {
@@ -246,7 +244,6 @@ def assign_by_fuel_tech_p(
     fuel_tech_p_by['ss_water_heating'][fueltypes['gas']] = {
         'boiler_condensing_gas': 0.60,
         'boiler_gas': 0.37,
-        'stirling_micro_CHP_gas': 0.0,
         'district_heating_CHP_gas': 0.03}
 
     fuel_tech_p_by['ss_water_heating'][fueltypes['electricity']] = {

@@ -8,9 +8,8 @@ import yaml
 import numpy as np
 from ruamel.yaml import YAML
 
-from energy_demand.basic import lookup_tables
-from energy_demand.basic import basic_functions
-from energy_demand.basic import conversions
+from energy_demand.basic import lookup_tables, date_prop, basic_functions
+from energy_demand import enduse_func
 
 def write_yaml(data, file_path):
     """Write plain data to a file as yaml
@@ -289,7 +288,8 @@ def write_only_peak_and_total_regional(
         name_new_folder,
         path_result,
         model_results,
-        file_name
+        file_name_annual_sum,
+        file_name_peak_day
     ):
     """Write only peak demand and total regional demand for a region
     """
@@ -299,18 +299,35 @@ def write_only_peak_and_total_regional(
     basic_functions.create_folder(
         path_result_sub_folder)
 
-    path_file = os.path.join(
+    path_file_annual_sum, = os.path.join(
         path_result_sub_folder,
-        "{}__{}__{}".format(file_name, sim_yr, ".npy"))
+        "{}__{}__{}".format(file_name_annual_sum, sim_yr, ".npy"))
 
-    #ed_fueltype_regs_yh
+    path_file_peak_day = os.path.join(
+        path_result_sub_folder,
+        "{}__{}__{}".format(file_name_peak_day, sim_yr, ".npy"))
+
+    # ------------------------------------
+    # Sum annual fuel across all fueltypes
+    # ------------------------------------
     print("SHAPE " + str(model_results.shape))
-    ed_fueltype_regs_y = np.sum(model_results, axis=2) # Sum across 8760 hours
+    # Sum across 8760 hours
+    ed_fueltype_regs_y = np.sum(model_results, axis=2)
+    np.save(path_file_annual_sum, ed_fueltype_regs_y)
 
-    pd.DataFrame(ed_fueltype_regs_y, columns)
-    np.save(path_file, model_results)
+    # ------------------------------------
+    # Write out peak electricity day demands
+    # ------------------------------------
+    # Get peak day electricity
+    lookups = lookup_tables.basic_lookups()
+    fueltype_int = lookups['fueltypes']['electricity']
+    peak_day_electricity = enduse_func.get_peak_day_single_fueltype(ed_fueltype_regs_y[fueltype_int])
+    selected_hours = date_prop.convert_yearday_to_8760h_selection(peak_day_electricity)
 
-    return
+    selected_demand = ed_fueltype_regs_y[:, :, selected_hours]
+    print("A=========")
+    print(selected_demand.shape)
+    np.save(path_file_peak_day, selected_demand)
 
 def write_supply_results(
         sim_yr,
