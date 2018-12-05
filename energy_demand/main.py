@@ -90,7 +90,8 @@ if __name__ == "__main__":
         os.path.join(
             os.path.dirname(__file__), '..', "energy_demand/config_data"))
     path_config = os.path.abspath(os.path.join(
-            os.path.dirname(__file__), '..', 'local_run_config_file.ini'))
+            #os.path.dirname(__file__), '..', 'local_run_config_file.ini'))
+            os.path.dirname(__file__), '..', 'local_run_config_file_cluster.ini'))
     print("Configuration path: " + str(path_config))
 
     # Get configuration
@@ -123,7 +124,8 @@ if __name__ == "__main__":
     print("weather_realisation:        " + str(weather_realisation))
 
     path_weather_data = "X:/nismod/data/energy_demand/J-MARIUS_data/_weather_realisation"
-    #path_weather_data = "L:/_weather_realisation"
+    #path_weather_data = "L:/_weather_realisation" 
+    path_weather_data = "/soge-home/staff/cenv0553/_weather_realisation"
 
     # --- Region definition configuration
     name_region_set = os.path.join(local_data_path, 'energy_demand', 'region_definitions', "lad_2016_uk_simplified.shp")

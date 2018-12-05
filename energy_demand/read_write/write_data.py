@@ -326,6 +326,8 @@ def write_only_peak_and_total_regional(
     # Get peak day electricity
     lookups = lookup_tables.basic_lookups()
     fueltype_int = lookups['fueltypes']['electricity']
+    print("AA " + str(ed_fueltype_regs_y[fueltype_int].shape))
+    print(ed_fueltype_regs_y.shape)
     peak_day_electricity = enduse_func.get_peak_day_single_fueltype(ed_fueltype_regs_y[fueltype_int])
     selected_hours = date_prop.convert_yearday_to_8760h_selection(peak_day_electricity)
 
