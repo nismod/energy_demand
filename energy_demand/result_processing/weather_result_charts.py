@@ -86,7 +86,7 @@ def main(
         # Simulation information is read in from .ini file for results
         data['enduses'], data['assumptions'], data['regions'] = data_loader.load_ini_param(
             os.path.join(path_result_folder))
-        
+
         pop_data = read_data.read_scenaric_population_data(
             os.path.join(path_result_folder, 'model_run_pop'))
 
@@ -127,30 +127,30 @@ def main(
     # Plotting spatial results
     # ------------------------------
     print("... plot spatial map of total annual demand")
+    field_to_plot = 'std_dev'
     fig_3_weather_map.total_annual_demand(
         total_regional_demand,
         path_shapefile_input,
         data['regions'],
-        data['lookups']['fueltypes_nr'],
-        data['lookups']['fueltypes'],
         pop_data=pop_data,
         simulation_yr_to_plot=simulation_yr_to_plot,
         result_path=result_path,
-        fig_name="tot_demand_{}.pdf".format(fueltype_str),
-        field_to_plot='mean')
+        fig_name="tot_demand_{}_{}.pdf".format(field_to_plot, fueltype_str),
+        field_to_plot=field_to_plot,
+        unit='GW')
 
     print("... plot spatial map of peak hour demand")
+    field_to_plot = 'std_dev'
     fig_3_weather_map.total_annual_demand(
         peak_hour_demand,
         path_shapefile_input,
         data['regions'],
-        data['lookups']['fueltypes_nr'],
-        data['lookups']['fueltypes'],
         pop_data=pop_data,
         simulation_yr_to_plot=simulation_yr_to_plot,
         result_path=result_path,
-        fig_name="peak_h_demand_{}.pdf".format(fueltype_str),
-        field_to_plot='std_dev')
+        fig_name="peak_h_demand_{}_{}.pdf".format(field_to_plot, fueltype_str),
+        field_to_plot=field_to_plot,
+        unit='GW')
 
 
     print("===================================")

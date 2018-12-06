@@ -17,22 +17,25 @@ from energy_demand.plotting import fig_p2_weather_val, result_mapping
 from energy_demand.basic import basic_functions
 from energy_demand.technologies import tech_related
 from energy_demand.read_write import write_data
+from energy_demand.basic import conversions
 
 def total_annual_demand(
         df_data_input,
         path_shapefile_input,
         regions,
-        fueltypes_nr,
-        fueltypes,
         pop_data,
         simulation_yr_to_plot,
         result_path,
         fig_name,
-        field_to_plot
+        field_to_plot,
+        unit='GW'
     ):
     """
     """
-    conversion_factor = 1000000 #  1000000 #GW to KW
+    if unit == 'GW':
+        conversion_factor = 1
+    if unit == 'kWh':
+        conversion_factor = conversions.gwh_to_kwh(gwh=1) #GW to KW
 
     df_data_input = df_data_input * conversion_factor
 
@@ -148,13 +151,19 @@ def total_annual_demand(
         min_value,
         max_value)
 
-    plt.legend(
+    legend = plt.legend(
         handles=legend_handles,
-        title="tittel_elgend",
+        title="Unit: {} field: {}".format(unit, field_to_plot),
         prop={'size': 8},
         loc='upper center',
         bbox_to_anchor=(0.5, -0.05),
         frameon=False)
+
+    # Remove coordinates from figure
+    ax.set_yticklabels([])
+    ax.set_xticklabels([])
+
+    legend.get_title().set_fontsize(8)
 
     # PLot bins on plot
     '''plt.text(
@@ -164,7 +173,7 @@ def total_annual_demand(
         fontsize=8)'''
 
     plt.tight_layout()
-    plt.show()
+    #plt.show()
 
     plt.savefig(os.path.join(result_path, fig_name))
     plt.close()
