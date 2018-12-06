@@ -83,8 +83,6 @@ if __name__ == "__main__":
     # ------------------------------------------
     # Local run model configuration
     # ------------------------------------------
-
-    # Paths
     local_data_path = os.path.abspath('data')
     path_main = os.path.abspath(
         os.path.join(
@@ -127,6 +125,8 @@ if __name__ == "__main__":
     #path_weather_data = "L:/_weather_realisation" 
     #path_weather_data = "/soge-home/staff/cenv0553/_weather_realisation"
 
+    path_strategy_vars = os.path.join(local_data_path, 'energy_demand', '00_user_defined_variables')
+
     # --- Region definition configuration
     name_region_set = os.path.join(local_data_path, 'energy_demand', 'region_definitions', "lad_2016_uk_simplified.shp")
 
@@ -136,7 +136,8 @@ if __name__ == "__main__":
     name_gva_dataset = os.path.join(local_data_path, 'scenarios', 'MISTRAL_pop_gva', 'data', '{}/gva_per_head__lad_sector.csv'.format(local_scenario))
     name_gva_dataset_per_head = os.path.join(local_data_path, 'scenarios', 'MISTRAL_pop_gva', 'data', '{}/gva_per_head__lad.csv'.format(local_scenario))
 
-    simulation_name = str(weather_realisation) + "__" + "all_stations"
+    #simulation_name = str(weather_realisation) + "__" + "all_stations"
+    simulation_name = "simulation_results"
     
     name_scenario_run = "{}_result_local_{}".format(scenario_name, str(time.ctime()).replace(":", "_").replace(" ", "_"))
     # ------------------------------------------
@@ -146,6 +147,9 @@ if __name__ == "__main__":
     # --------------------
     data['paths'] = data_loader.load_paths(path_main)
     data['local_paths'] = data_loader.get_local_paths(local_data_path)
+
+    # Manually overwrriting startegy variable path
+    data['local_paths']['path_strategy_vars'] = path_strategy_vars
 
     data['path_new_scenario'] = os.path.abspath(os.path.join(os.path.dirname(local_data_path), "results", name_scenario_run))
     data['result_paths'] = data_loader.get_result_paths(data['path_new_scenario'])
@@ -519,20 +523,24 @@ if __name__ == "__main__":
             # Write annual results to txt files
             # -------------------------------------------
             path_runs = data['result_paths']['data_results_model_runs']
-            
-            # Simplified output
-            write_data.write_only_peak_and_total_regional(
-                sim_yr,
-                "peak_and_total_regional",
-                path_runs,
-                sim_obj.ed_fueltype_regs_yh,
-                'tot_fueltype_reg',
-                'fueltype_reg_peak_day')
 
-            raise Exception("PRINT SIMFILIED")
             print("... Start writing results to file: " + str(path_runs))
-            plot_only_selection = False
+            plot_only_selection = True
             if plot_only_selection:
+                write_data.write_only_peak_total_regional(
+                    sim_yr,
+                    "only_total",
+                    path_runs,
+                    sim_obj.ed_fueltype_regs_yh,
+                    'tot_fueltype_reg')
+
+                write_data.write_only_peak(
+                    sim_yr,
+                    "only_peak",
+                    path_runs,
+                    sim_obj.ed_fueltype_regs_yh,
+                    'fueltype_reg_peak_day')
+
                 # PLot only residential total regional annual demand and
                 write_data.write_residential_tot_demands(
                     sim_yr,

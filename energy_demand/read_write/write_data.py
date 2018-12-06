@@ -283,12 +283,37 @@ def write_lf(
 
     np.save(path_file_fueltype, model_results)
 
-def write_only_peak_and_total_regional(
+def write_only_peak_total_regional(
         sim_yr,
         name_new_folder,
         path_result,
         model_results,
-        file_name_annual_sum,
+        file_name_annual_sum
+        ):
+    """Write only total regional demand for a region
+    """
+    path_result_sub_folder = os.path.join(
+        path_result, name_new_folder)
+
+    basic_functions.create_folder(
+        path_result_sub_folder)
+
+    path_file_annual_sum = os.path.join(
+        path_result_sub_folder,
+        "{}__{}__{}".format(file_name_annual_sum, sim_yr, ".npy"))
+
+    # ------------------------------------
+    # Sum annual fuel across all fueltypes
+    # ------------------------------------
+    # Sum across 8760 hours
+    ed_fueltype_regs_y = np.sum(model_results, axis=2)
+    np.save(path_file_annual_sum, ed_fueltype_regs_y)
+
+def write_only_peak(
+        sim_yr,
+        name_new_folder,
+        path_result,
+        model_results,
         file_name_peak_day
     ):
     """Write only peak demand and total regional demand for a region
@@ -299,23 +324,9 @@ def write_only_peak_and_total_regional(
     basic_functions.create_folder(
         path_result_sub_folder)
 
-    file_name = "{}__{}__{}".format(file_name_annual_sum, sim_yr, ".npy")
-
-    path_file_annual_sum = os.path.join(
-        path_result_sub_folder,
-        file_name
-        )
-
     path_file_peak_day = os.path.join(
         path_result_sub_folder,
         "{}__{}__{}".format(file_name_peak_day, sim_yr, ".npy"))
-
-    # ------------------------------------
-    # Sum annual fuel across all fueltypes
-    # ------------------------------------
-    # Sum across 8760 hours
-    ed_fueltype_regs_y = np.sum(model_results, axis=2)
-    np.save(path_file_annual_sum, ed_fueltype_regs_y)
 
     # ------------------------------------
     # Write out peak electricity day demands
