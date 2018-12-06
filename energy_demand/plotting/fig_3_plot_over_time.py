@@ -30,24 +30,25 @@ def scenario_over_time(
         result_path
     ):
 
+    # dataframe with national peak (columns= simulation year, row: Realisation) 
+
     # Calculate quantiles
     quantile_95 = 0.95
     quantile_05 = 0.05
 
-    color_list = ['red', 'green', 'orange', '#37AB65', '#C0E4FF', '#3DF735', '#AD6D70', '#EC2504', '#8C0B90', '#27B502', '#7C60A8', '#CF95D7', '#F6CC1D']
+    color_list = [
+        'red', 'green', 'orange', '#37AB65',
+        '#C0E4FF', '#3DF735', '#AD6D70', '#EC2504',
+        '#8C0B90', '#27B502', '#7C60A8', '#CF95D7', '#F6CC1D']
+
 
 
     # Calculate average across all weather scenarios
     mean_ed_reg_tot_y = ed_reg_tot_y.mean(axis=0)
-    
 
     # Standard deviation over all realisations
     df_q_05 = ed_reg_tot_y.quantile(quantile_05)
     df_q_95 = ed_reg_tot_y.quantile(quantile_95)
-    
-
-    # Create dataframe with national peak (columns= simulation year, row: Realisation)
-    #df = pd.DataFrame(columns=sim_yrs)
 
     # --------------------
     # Try to smooth lines
@@ -57,20 +58,43 @@ def scenario_over_time(
         _, df_q_05_smoothed = basic_plot_functions.smooth_data(sim_yrs, df_q_05, num=40000)
         _, df_q_95_smoothed = basic_plot_functions.smooth_data(sim_yrs, df_q_95, num=40000)
 
-        mean_ed_reg_tot_y = pd.DataFrame(mean_ed_reg_tot_y_smoothed, sim_yrs_smoothed)
-        sim_yrs = pd.DataFrame(sim_yrs_smoothed, sim_yrs_smoothed)
-        df_q_05 = pd.DataFrame(sim_yrs_smoothed, df_q_05_smoothed)
-        df_q_95 = pd.DataFrame(sim_yrs_smoothed, df_q_95_smoothed)
+        mean_ed_reg_tot_y = pd.Series(mean_ed_reg_tot_y_smoothed, sim_yrs_smoothed)
+        sim_yrs = pd.Series(sim_yrs_smoothed, sim_yrs_smoothed)
+        #sim_yrs = list(sim_yrs_smoothed)
+        df_q_05 = pd.Series(df_q_05_smoothed, sim_yrs_smoothed)
+        df_q_95 = pd.Series(df_q_95_smoothed, sim_yrs_smoothed)
     except:
         pass
 
 
+    fig = plt.figure(figsize=basic_plot_functions.cm2inch(9, 8)) #width, height
+    ax = fig.add_subplot(1, 1, 1)
+
+    #print(mean_ed_reg_tot_y.columns)
+    plt.plot(mean_ed_reg_tot_y)
+
     # Plottin qunatilse and average scenario
     df_q_05.plot.line(color="r", linestyle='--', linewidth=0.5, label="0.05")
     df_q_95.plot.line(color="r", linestyle='--', linewidth=0.5, label="0.05")
-    
-    mean_ed_reg_tot_y.plot()
-    
+    plt.fill_between(
+        sim_yrs,
+        list(df_q_95),  #y1
+        list(df_q_05),  #y2
+        alpha=0.15,
+        facecolor="r",
+        label="uncertainty band")
+
+    #plt.ylim(0, y_lim_val)
+    plt.xlim(2015, 2050)
+
+    # --------
+    # Labeling
+    # --------
+    plt.ylabel("peak")
+    plt.xlabel("year")
+    plt.title("tttt")
+
+    plt.tight_layout()
     plt.show()
 
 

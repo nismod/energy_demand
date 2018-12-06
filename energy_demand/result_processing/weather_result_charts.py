@@ -141,7 +141,7 @@ def main(
         sim_yrs=data['assumptions']['sim_yrs'],
         fig_name="scenarios_peak_over_time_{}.pdf".format(fueltype_str),
         result_path=result_path)
-
+    raise Exception("ff")
     # ------------------------------
     # Plotting spatial results
     # ------------------------------
