@@ -8,11 +8,25 @@ import numpy as np
 
 from energy_demand.basic import basic_functions
 
+def convert_yearday_to_8760h_selection(yearday):
+    """Select from 8760 hours the 24 hours of yearday
+
+    Arguments
+    ---------
+    yearday : int
+        Range between 0 and 364
+    """
+    hour_start = yearday * 24
+    hour_end = (yearday + 1) * 24
+
+    hours = range(hour_start, hour_end, 1)
+    return hours
+
 def convert_h_to_day_year_and_h(hour):
     """Convert a 8760 hour in a year
     to the yearday and hour of that day
 
-    Input
+    Arguments
     -----
     hour : int
         Hour of 8760 hours in a year

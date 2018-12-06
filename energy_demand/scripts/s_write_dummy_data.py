@@ -83,6 +83,7 @@ def post_install_setup_minimum(args):
     path_config_file = os.path.abspath(
         os.path.join(
             os.path.dirname(__file__), '..', '..', '..', 'config', 'wrapperconfig.ini'))
+            #os.path.dirname(__file__), '..', '..', '..', 'models', 'energy_demand', 'wrapperconfig.ini'))
 
     # Get config in dict and get correct type
     config = configparser.ConfigParser()

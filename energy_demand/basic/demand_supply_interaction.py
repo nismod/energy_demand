@@ -84,7 +84,6 @@ def constrained_results(
             fueltype_int = technologies[tech].fueltype_int
 
             key_name = "{}_{}_{}".format(submodel, fueltype_str, tech_simplified)
-
             supply_results[key_name] = fuel_tech[submodel_nr][:, fueltype_int, :]
 
     # ---------------------------------
@@ -97,7 +96,7 @@ def constrained_results(
                 pass #Do not add non_heating demand for fueltype heat
             else:
                 key_name = "{}_{}_{}".format(submodel, fueltype_str, "non_heating")
-
+                logging.info("key_name d: " + str(key_name))
                 # Add fuel for all regions for specific fueltype
                 supply_results[key_name] = non_heating_ed[submodel_nr][:, fueltype_int, :]
 

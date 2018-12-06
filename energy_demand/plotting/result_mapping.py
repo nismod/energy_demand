@@ -874,10 +874,10 @@ def spatial_maps(
     # ======================================
     if plot_crit_dict['plot_abs_peak_h']:
         for year in results_container['ed_fueltype_regs_yh'].keys():
-            #for fueltype in range(fueltypes_nr):
+            
             for fueltype_str in fueltype_str_to_create_maps:
 
-                #fueltype_str = tech_related.get_fueltype_str(fueltypes, fueltype)
+                
                 fueltype = tech_related.get_fueltype_int(fueltype_str)
     
                 # Calculate peak h across all regions
@@ -931,10 +931,10 @@ def spatial_maps(
             if year == base_yr:
                 pass
             else:
-                #for fueltype in range(fueltypes_nr):
+                
                 for fueltype_str in fueltype_str_to_create_maps:
 
-                    #fueltype_str = tech_related.get_fueltype_str(fueltypes, fueltype)
+                    
                     fueltype = tech_related.get_fueltype_int(fueltype_str)
 
                     # If total sum is zero, skip
@@ -1004,9 +1004,9 @@ def spatial_maps(
     # ======================================
     if plot_crit_dict['plot_load_factors']:
         for year in results_container['reg_load_factor_y'].keys():
-            #for fueltype in range(fueltypes_nr):
+            
             for fueltype_str in fueltype_str_to_create_maps:
-                #fueltype_str = tech_related.get_fueltype_str(fueltypes, fueltype)
+                
                 fueltype = tech_related.get_fueltype_int(fueltype_str)
 
                 field_name = 'lf_{}_{}'.format(year, fueltype_str)
@@ -1058,10 +1058,10 @@ def spatial_maps(
         final_yr = sim_yrs[-1]
         base_yr = sim_yrs[0]
 
-        #for fueltype in range(fueltypes_nr):
+        
         for fueltype_str in fueltype_str_to_create_maps:
             fueltype = tech_related.get_fueltype_int(fueltype_str)
-            #fueltype_str = tech_related.get_fueltype_str(fueltypes, fueltype)
+            
 
             field_name = 'lf_diff_{}-{}_{}'.format(base_yr, final_yr, fueltype_str)
 
@@ -1153,10 +1153,9 @@ def spatial_maps(
     # Total fuel (y) all enduses
     # ======================================
     for year in results_container['ed_fueltype_regs_yh'].keys():
-        #for fueltype in range(fueltypes_nr):
+        
         for fueltype_str in fueltype_str_to_create_maps:
             fueltype = tech_related.get_fueltype_int(fueltype_str)
-            #fueltype_str = tech_related.get_fueltype_str(fueltypes, fueltype)
 
             if plot_crit_dict['plot_total_demand_fueltype']:
 
