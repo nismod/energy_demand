@@ -11,39 +11,18 @@ def convert_config_to_correct_type(config):
     """
     out_dict = defaultdict(dict)
 
-    # Paths
-    out_dict['PATHS']['path_local_data'] = config.get('PATHS', 'path_local_data')
-    out_dict['PATHS']['path_processed_data'] = config.get('PATHS', 'path_processed_data')
-    out_dict['PATHS']['path_result_data'] = config.get('PATHS', 'path_result_data')
+    for path in config['PATHS']:
+        out_dict['PATHS'][path] = config.get('PATHS', path)
 
-    # Config
-    out_dict['CONFIG']['base_yr'] = config.getint('CONFIG', 'base_yr')
-    out_dict['CONFIG']['weather_yr_scenario'] = config.getint('CONFIG', 'weather_yr_scenario')
-    out_dict['CONFIG']['user_defined_simulation_end_yr'] = config.getint('CONFIG', 'user_defined_simulation_end_yr')
-    out_dict['CONFIG']['user_defined_weather_by'] = config.getint('CONFIG', 'user_defined_weather_by')
+    for config_section in config['CONFIG']:
+        out_dict['CONFIG'][config_section] = config.getint('CONFIG', config_section)
 
-    # Criteria
-    out_dict['CRITERIA']['mode_constrained'] = config.getboolean('CRITERIA', 'mode_constrained')
-    out_dict['CRITERIA']['virtual_building_stock_criteria'] = config.getboolean('CRITERIA', 'virtual_building_stock_criteria')
-    out_dict['CRITERIA']['validation_criteria'] = config.getboolean('CRITERIA', 'validation_criteria')
-    out_dict['CRITERIA']['write_txt_additional_results'] = config.getboolean('CRITERIA', 'write_txt_additional_results')
-    out_dict['CRITERIA']['write_out_national'] = config.getboolean('CRITERIA', 'write_out_national')
-    out_dict['CRITERIA']['reg_selection'] = config.getboolean('CRITERIA', 'reg_selection')
-    out_dict['CRITERIA']['MSOA_crit'] = config.getboolean('CRITERIA', 'MSOA_crit')
-    out_dict['CRITERIA']['reg_selection_csv_name'] = config.get('CRITERIA', 'reg_selection_csv_name')
-    out_dict['CRITERIA']['spatial_calibration'] = config.getboolean('CRITERIA', 'spatial_calibration')
-    out_dict['CRITERIA']['cluster_calc'] = config.getboolean('CRITERIA', 'cluster_calc')
+    for criteria in config['CRITERIA']:
+        if criteria == 'reg_selection_csv_name':
+            out_dict['CRITERIA'][criteria] = config.get('CRITERIA', criteria)
+        else:
+            out_dict['CRITERIA'][criteria] = config.getboolean('CRITERIA', criteria)
 
-    out_dict['CRITERIA']['mode_constrained'] = config.getboolean('CRITERIA', 'mode_constrained')
-    out_dict['CRITERIA']['virtual_building_stock_criteria'] = config.getboolean('CRITERIA', 'virtual_building_stock_criteria')
-    out_dict['CRITERIA']['spatial_calibration'] = config.getboolean('CRITERIA', 'spatial_calibration')
-    out_dict['CRITERIA']['write_txt_additional_results'] = config.getboolean('CRITERIA', 'write_txt_additional_results')
-    out_dict['CRITERIA']['validation_criteria'] = config.getboolean('CRITERIA', 'validation_criteria')
-    out_dict['CRITERIA']['plot_crit'] = config.getboolean('CRITERIA', 'plot_crit')
-    out_dict['CRITERIA']['crit_plot_enduse_lp'] = config.getboolean('CRITERIA', 'crit_plot_enduse_lp')
-    out_dict['CRITERIA']['writeYAML_keynames'] = config.getboolean('CRITERIA', 'writeYAML_keynames')
-    out_dict['CRITERIA']['writeYAML'] = config.getboolean('CRITERIA', 'writeYAML')
-    out_dict['CRITERIA']['crit_temp_min_max'] = config.getboolean('CRITERIA', 'crit_temp_min_max')
 
     return dict(out_dict)
 
