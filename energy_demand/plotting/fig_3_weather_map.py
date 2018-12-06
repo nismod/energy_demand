@@ -28,6 +28,7 @@ def total_annual_demand(
         simulation_yr_to_plot,
         result_path,
         fig_name,
+        field_to_plot
     ):
     """
     """
@@ -65,10 +66,12 @@ def total_annual_demand(
     print("TOT PERSON: " + str(tot_demand))
     print('AVERAGE KW per Person " '+ str(tot_demand / tot_person))
 
+    print(df_data_input)
     regional_statistics_columns = [
         'name',
         'mean',
-        'mean_norm_pop'] #,
+        'mean_norm_pop',
+        'std_dev']#
         #'diff_av_max',
         #'mean_pp',
         #'diff_av_max_pp',
@@ -82,7 +85,9 @@ def total_annual_demand(
         line_entry = [[
             str(region_name),
             mean[region_name],
-            mean_norm_pop[region_name], #diff_av_max,
+            mean_norm_pop[region_name],
+            std_dev[region_name]
+            #diff_av_max,
             #mean_peak_h_pp,
             #diff_av_max_pp,
             #std_dev_average_every_h,
@@ -113,11 +118,6 @@ def total_annual_demand(
     # Assign bin colors according to defined cmap and whether
     # plot with min_max values or only min/max values
     #bin_values = [0, 0.0025, 0.005, 0.0075, 0.01]
-
-    # Field to plot
-    field_to_plot = 'mean'
-    field_to_plot = 'mean_norm_pop'
-
     nr_of_intervals = 6
 
     bin_values = result_mapping.get_reasonable_bin_values_II(
@@ -166,5 +166,5 @@ def total_annual_demand(
     plt.tight_layout()
     plt.show()
 
-    plt.savefig(fig_name)
+    plt.savefig(os.path.join(result_path, fig_name))
     plt.close()

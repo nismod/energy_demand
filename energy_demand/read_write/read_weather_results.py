@@ -29,7 +29,7 @@ def read_in_weather_results(
     """
     logging.info("... Reading in results")
 
-    lookups = lookup_tables.basic_lookups()
+
 
     results_container = {}
 
@@ -49,6 +49,11 @@ def read_in_weather_results(
         os.path.join('simulation_results', path_result), 'only_peak')
 
     print(results_container['ed_reg_peakday'][2015].shape)
+    results_container['ed_reg_peakday_peak_hour'] = {}
+    for year in results_container['ed_reg_peakday']:
+
+        # Get peak demand
+        results_container['ed_reg_peakday_peak_hour'][year] = results_container['ed_reg_peakday'][year].max(axis=2)
 
     logging.info("... Reading in results finished")
     return results_container

@@ -292,7 +292,10 @@ if __name__ == "__main__":
         weather_realisation=weather_realisation,
         path_weather_data=path_weather_data,
         same_base_year_weather=False,
-        crit_temp_min_max=config['CRITERIA']['crit_temp_min_max'])
+        crit_temp_min_max=config['CRITERIA']['crit_temp_min_max'],
+        load_np=False,
+        load_parquet=False,
+        load_csv=True)
 
     #print(station_id_253)
     # Plot map with weather station

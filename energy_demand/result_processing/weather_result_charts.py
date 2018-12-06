@@ -43,7 +43,8 @@ def main(
     # ---------------------------------------------------------
     to_ignores = [
         'model_run_pop',
-        'PDF_validation']
+        'PDF_validation',
+        '_results_weather_plots']
 
     endings_to_ignore = [
         '.pdf',
@@ -53,7 +54,8 @@ def main(
     # ---------------
     # Create result folder
     # -------------------
-    basic_functions.del_previous_setup(os.path.join(path_data_ed, '_results_weather_plots'))
+    result_path = os.path.join(path_data_ed, '_results_weather_plots')
+    basic_functions.del_previous_setup(result_path)
 
     all_result_folders = os.listdir(path_data_ed)
     paths_folders_result = []
@@ -63,7 +65,7 @@ def main(
             paths_folders_result.append(
                 os.path.join(path_data_ed, result_folder))
 
-    basic_functions.create_folder(os.path.join(path_data_ed, '_results_weather_plots'))
+    basic_functions.create_folder(result_path)
 
     fueltype_str_to_create_maps = [
         'electricity']
@@ -74,6 +76,7 @@ def main(
     # Collect regional simulation data for every realisation
     ####################################################################
     total_regional_demand = pd.DataFrame()
+    peak_hour_demand = pd.DataFrame()
 
     for path_result_folder in paths_folders_result:
         print("path_result_folder: " + str(path_result_folder))
@@ -100,22 +103,30 @@ def main(
 
         # --------------------------------------------
         # Reading in results from different model runs
-        # --------------------------------------------
+
         results_container = read_weather_results.read_in_weather_results(
             data['result_paths']['data_results_model_runs'],
             data['assumptions']['seasons'],
             data['assumptions']['model_yeardays_daytype'])
 
-        # Collect results of realisation (dataframe with row: realisation, column=region)
+        # Total demand (dataframe with row: realisation, column=region)
         realisation_data = pd.DataFrame(
             [results_container['ed_reg_tot_y'][simulation_yr_to_plot][fueltype_int]],
             columns=data['regions'])
 
         total_regional_demand = total_regional_demand.append(realisation_data)
 
+        # Peak day demand (dataframe with row: realisation, column=region)
+        realisation_data = pd.DataFrame(
+            [results_container['ed_reg_peakday_peak_hour'][simulation_yr_to_plot][fueltype_int]],
+            columns=data['regions'])
+
+        peak_hour_demand = peak_hour_demand.append(realisation_data)
+
     # ------------------------------
     # Plotting spatial results
     # ------------------------------
+    print("... plot spatial map of total annual demand")
     fig_3_weather_map.total_annual_demand(
         total_regional_demand,
         path_shapefile_input,
@@ -124,8 +135,23 @@ def main(
         data['lookups']['fueltypes'],
         pop_data=pop_data,
         simulation_yr_to_plot=simulation_yr_to_plot,
-        result_path=path_result_folder,
-        fig_name="tot_demand_{}.pdf".format(fueltype_str))
+        result_path=result_path,
+        fig_name="tot_demand_{}.pdf".format(fueltype_str),
+        field_to_plot='mean')
+
+    print("... plot spatial map of peak hour demand")
+    fig_3_weather_map.total_annual_demand(
+        peak_hour_demand,
+        path_shapefile_input,
+        data['regions'],
+        data['lookups']['fueltypes_nr'],
+        data['lookups']['fueltypes'],
+        pop_data=pop_data,
+        simulation_yr_to_plot=simulation_yr_to_plot,
+        result_path=result_path,
+        fig_name="peak_h_demand_{}.pdf".format(fueltype_str),
+        field_to_plot='std_dev')
+
 
     print("===================================")
     print("... finished reading and plotting results")
