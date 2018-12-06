@@ -31,14 +31,15 @@ def total_annual_demand(
     ):
     """
     """
+    conversion_factor = 1000000 #  1000000 #GW to KW
+
+    df_data_input = df_data_input * conversion_factor
+
     # Load uk shapefile
     uk_shapefile = gpd.read_file(path_shapefile_input)
 
     # Population of simulation year
     pop_sim_yr = pop_data[simulation_yr_to_plot]
-
-    # Attribute merge unique Key
-    #unique_merge_id = 'name' #'geo_code'
 
     regions = list(df_data_input.columns)
     nr_of_regions = df_data_input.shape[1]
@@ -46,21 +47,23 @@ def total_annual_demand(
 
     # Mean over all realisations
     mean = df_data_input.mean(axis=0)
-    mean = mean * 1000000 #GW to KW
 
     # Mean normalized with population
     mean_norm_pop = df_data_input.mean(axis=0) / pop_sim_yr
 
     # Standard deviation over all realisations
-    std_dev = df_data_input.std(axis=0) 
+    std_dev = df_data_input.std(axis=0)
 
     max_entry = df_data_input.max(axis=0) #maximum entry for every hour
     min_entry = df_data_input.min(axis=0) #maximum entry for every hour
-    
-    # Convert GW to KW
-    #diff_av_max = diff_av_max * 1000000 #GW to KW
-    #mean_peak_h = mean_peak_h * 1000000 #GW to KW
 
+    print("---- Calculate average per person")
+    tot_person = sum(pop_sim_yr)
+    print(df_data_input.iloc[0])
+    tot_demand = sum(df_data_input.iloc[0])
+    print("TOT PERSON: " + str(tot_person))
+    print("TOT PERSON: " + str(tot_demand))
+    print('AVERAGE KW per Person " '+ str(tot_demand / tot_person))
 
     regional_statistics_columns = [
         'name',
@@ -154,11 +157,11 @@ def total_annual_demand(
         frameon=False)
 
     # PLot bins on plot
-    plt.text(
+    '''plt.text(
         0,
         -20,
-        bin_values[:-1], #leave away maximum value
-        fontsize=8)
+        bin_values[:-1],
+        fontsize=8)'''
 
     plt.tight_layout()
     plt.show()

@@ -90,6 +90,7 @@ if __name__ == "__main__":
     path_config = os.path.abspath(os.path.join(
             os.path.dirname(__file__), '..', 'local_run_config_file.ini'))
             #os.path.dirname(__file__), '..', 'local_run_config_file_cluster.ini'))
+
     print("Configuration path: " + str(path_config))
 
     # Get configuration
@@ -113,8 +114,6 @@ if __name__ == "__main__":
     else:
         scenario_name = "_run_"
         weather_realisation = 'NF1'
-        
-        weather_station_count_nr = [] # Default weather year
 
     print("Information")
     print("-------------------------------------")
@@ -122,7 +121,6 @@ if __name__ == "__main__":
     print("weather_realisation:        " + str(weather_realisation))
 
     path_weather_data = "X:/nismod/data/energy_demand/J-MARIUS_data/_weather_realisation"
-    #path_weather_data = "L:/_weather_realisation" 
     #path_weather_data = "/soge-home/staff/cenv0553/_weather_realisation"
 
     path_strategy_vars = os.path.join(local_data_path, 'energy_demand', '00_user_defined_variables')
