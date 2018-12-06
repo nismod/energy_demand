@@ -2,7 +2,6 @@
 """
 import os
 import logging
-from pkg_resources import Requirement, resource_filename
 
 from energy_demand.read_write import data_loader
 from energy_demand.basic import basic_functions
@@ -35,10 +34,7 @@ def load_data_before_simulation(
     data['data_path'] = os.path.normpath(config['PATHS']['path_local_data'])
     data['processed_path'] = os.path.normpath(config['PATHS']['path_processed_data'])
     data['result_path'] = os.path.normpath(config['PATHS']['path_result_data'])
-    data['paths'] = data_loader.load_paths(
-        resource_filename(
-            Requirement.parse("energy_demand"),
-            os.path.join("energy_demand", "config_data")))
+    data['paths'] = data_loader.load_paths(config['PATHS']['path_config_data'])
 
     # Downloaded (FTP) data
     data['local_paths'] = data_loader.get_local_paths(
