@@ -84,6 +84,9 @@ def main(
         data['enduses'], data['assumptions'], data['regions'] = data_loader.load_ini_param(
             os.path.join(path_result_folder))
         
+        pop_data = read_data.read_scenaric_population_data(
+            os.path.join(path_result_folder, 'model_run_pop'))
+
         # Update path
         path_result_folder = os.path.join(path_result_folder, 'simulation_results')
         data['local_paths'] = data_loader.get_local_paths(path_result_folder)
@@ -94,9 +97,6 @@ def main(
         data['assumptions'] = {}
         data['assumptions']['seasons'] = date_prop.get_season(year_to_model=2015)
         data['assumptions']['model_yeardays_daytype'], data['assumptions']['yeardays_month'], data['assumptions']['yeardays_month_days'] = date_prop.get_yeardays_daytype(year_to_model=2015)
-
-        pop_data = read_data.read_scenaric_population_data(
-            os.path.join(path_data_ed, 'model_run_pop'))
 
         # --------------------------------------------
         # Reading in results from different model runs
@@ -122,7 +122,7 @@ def main(
         data['regions'],
         data['lookups']['fueltypes_nr'],
         data['lookups']['fueltypes'],
-        pop_data,
+        pop_data=pop_data,
         simulation_yr_to_plot=simulation_yr_to_plot,
         result_path=path_result_folder,
         fig_name="tot_demand_{}.pdf".format(fueltype_str))

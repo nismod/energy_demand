@@ -46,6 +46,10 @@ def total_annual_demand(
 
     # Mean over all realisations
     mean = df_data_input.mean(axis=0)
+    mean = mean * 1000000 #GW to KW
+
+    # Mean normalized with population
+    mean_norm_pop = df_data_input.mean(axis=0) / pop_sim_yr
 
     # Standard deviation over all realisations
     std_dev = df_data_input.std(axis=0) 
@@ -56,21 +60,12 @@ def total_annual_demand(
     # Convert GW to KW
     #diff_av_max = diff_av_max * 1000000 #GW to KW
     #mean_peak_h = mean_peak_h * 1000000 #GW to KW
-    '''# Weight with population
-        for region_nr, n in enumerate(regions):
-            if region_name == n:
-                nr_of_reg = region_nr
-                break
-            
-        # Divide standard deviation of peak hour by population
-        # which gives measure of weather variability in peak hour
-        std_dev_peak_h_norm_pop = std_dev_peak_h / pop
 
-    '''
 
     regional_statistics_columns = [
         'name',
-        'mean'] #,
+        'mean',
+        'mean_norm_pop'] #,
         #'diff_av_max',
         #'mean_pp',
         #'diff_av_max_pp',
@@ -84,7 +79,7 @@ def total_annual_demand(
         line_entry = [[
             str(region_name),
             mean[region_name],
-            #diff_av_max,
+            mean_norm_pop[region_name], #diff_av_max,
             #mean_peak_h_pp,
             #diff_av_max_pp,
             #std_dev_average_every_h,
@@ -94,7 +89,7 @@ def total_annual_demand(
         line_df = pd.DataFrame(
             line_entry,
             columns=regional_statistics_columns)
-    
+
         df_stats = df_stats.append(line_df)
 
     # ---------------
@@ -110,22 +105,18 @@ def total_annual_demand(
     # Assign projection
     crs = {'init': 'epsg:27700'} #27700: OSGB_1936_British_National_Grid
     uk_gdf = gpd.GeoDataFrame(shp_gdp_merged, crs=crs)
-
     ax = uk_gdf.plot()
 
     # Assign bin colors according to defined cmap and whether
     # plot with min_max values or only min/max values
     #bin_values = [0, 0.0025, 0.005, 0.0075, 0.01]
-    #bin_values = [0, 0.02, 0.04, 0.06, 0.08, 0.1] #list(np.arange(0.0, 1.0, 0.1))
 
     # Field to plot
-    field_to_plot = "diff_av_max_pp" # Difference between average and peak per person in KWh
-    #field_to_plot = "diff_av_max"    # Difference between average and peak
     field_to_plot = 'mean'
+    field_to_plot = 'mean_norm_pop'
 
     nr_of_intervals = 6
-    print("A")
-    print(uk_gdf[field_to_plot])
+
     bin_values = result_mapping.get_reasonable_bin_values_II(
         data_to_plot=list(uk_gdf[field_to_plot]),
         nr_of_intervals=nr_of_intervals)
