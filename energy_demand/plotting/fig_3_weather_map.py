@@ -172,6 +172,11 @@ def total_annual_demand(
         bin_values[:-1],
         fontsize=8)'''
 
+    # --------
+    # Labeling
+    # --------
+    #plt.title("tttt")
+
     plt.tight_layout()
     #plt.show()
 
