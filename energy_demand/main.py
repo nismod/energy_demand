@@ -120,16 +120,19 @@ if __name__ == "__main__":
     print("weather_yr_scenario:        " + str(weather_yr_scenario))
     print("weather_realisation:        " + str(weather_realisation))
 
+    # Local path configurations
     path_weather_data = "X:/nismod/data/energy_demand/J-MARIUS_data/_weather_realisation"
     #path_weather_data = "/soge-home/staff/cenv0553/_weather_realisation"
 
-    path_strategy_vars = os.path.join(local_data_path, 'energy_demand', '00_user_defined_variables')
+    local_scenario = 'pop-baseline16_econ-c16_fuel-c16' #pop-f_econ-c_fuel-c  #pop-b_econ-c_fuel-c
+    name_config_path = 'high_electrification'
+    name_config_path = 'low_electrification'
+
+    path_strategy_vars = os.path.join(local_data_path, 'energy_demand', '00_user_defined_variables', 'default')
+    #path_strategy_vars = os.path.join(local_data_path, 'energy_demand', '00_user_defined_variables', 'name_config_path')
 
     # --- Region definition configuration
     name_region_set = os.path.join(local_data_path, 'energy_demand', 'region_definitions', "lad_2016_uk_simplified.shp")
-
-    local_scenario = 'pop-a_econ-c_fuel-c'
-
     name_population_dataset = os.path.join(local_data_path, 'scenarios', 'MISTRAL_pop_gva', 'data', '{}/population__lad.csv'.format(local_scenario))
     name_gva_dataset = os.path.join(local_data_path, 'scenarios', 'MISTRAL_pop_gva', 'data', '{}/gva_per_head__lad_sector.csv'.format(local_scenario))
     name_gva_dataset_per_head = os.path.join(local_data_path, 'scenarios', 'MISTRAL_pop_gva', 'data', '{}/gva_per_head__lad.csv'.format(local_scenario))
