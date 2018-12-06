@@ -547,7 +547,7 @@ if __name__ == "__main__":
                     'fueltype_reg_peak_day')
 
                 # PLot only residential total regional annual demand and
-                write_data.write_residential_tot_demands(
+                '''write_data.write_residential_tot_demands(
                     sim_yr,
                     path_runs,
                     sim_obj.ed_residential_tot_reg_y,
@@ -557,7 +557,7 @@ if __name__ == "__main__":
                     "ed_fueltype_regs_yh",
                     path_runs,
                     sim_obj.ed_fueltype_regs_yh,
-                    "result_tot_submodels_fueltypes")
+                    "result_tot_submodels_fueltypes")'''
             else:
                 write_data.write_residential_tot_demands(
                     sim_yr,

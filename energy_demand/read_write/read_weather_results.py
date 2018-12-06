@@ -9,6 +9,7 @@ from energy_demand.plotting import plotting_results, result_mapping
 from energy_demand.basic import basic_functions
 from energy_demand.basic import lookup_tables
 from energy_demand.read_write import read_data
+from energy_demand.technologies import tech_related
 
 def read_in_weather_results(
         path_result,
@@ -29,6 +30,7 @@ def read_in_weather_results(
     """
     logging.info("... Reading in results")
 
+    fueltype_int = tech_related.get_fueltype_int('electricity')
 
 
     results_container = {}
@@ -50,10 +52,19 @@ def read_in_weather_results(
 
     print(results_container['ed_reg_peakday'][2015].shape)
     results_container['ed_reg_peakday_peak_hour'] = {}
+    results_container['national_peak'] = {}
     for year in results_container['ed_reg_peakday']:
 
-        # Get peak demand
+        # Get peak demand of each region
         results_container['ed_reg_peakday_peak_hour'][year] = results_container['ed_reg_peakday'][year].max(axis=2)
+
+        # Get national peak
+        national_demand_per_hour = results_container['ed_reg_peakday'][year].sum(axis=1) #Aggregate houraly across all regions
+
+        # Get maximum hour for electricity demand
+        max_hour = national_demand_per_hour[fueltype_int].argmax()
+
+        results_container['national_peak'][year] = national_demand_per_hour[:, max_hour]
 
     logging.info("... Reading in results finished")
     return results_container

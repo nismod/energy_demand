@@ -12,6 +12,7 @@ from energy_demand.basic import lookup_tables
 from energy_demand.read_write import read_weather_results
 from energy_demand.plotting import fig_3_weather_map
 from energy_demand.technologies import tech_related
+from energy_demand.plotting import fig_3_plot_over_time
 
 def main(
         path_data_ed,
@@ -51,7 +52,7 @@ def main(
         '.txt',
         '.ini']
 
-    # ---------------
+    # -------------------
     # Create result folder
     # -------------------
     result_path = os.path.join(path_data_ed, '_results_weather_plots')
@@ -67,8 +68,8 @@ def main(
 
     basic_functions.create_folder(result_path)
 
-    fueltype_str_to_create_maps = [
-        'electricity']
+    fueltype_str_to_create_maps = ['electricity']
+
     fueltype_str ='electricity'
     fueltype_int = tech_related.get_fueltype_int(fueltype_str)
 
@@ -77,6 +78,7 @@ def main(
     ####################################################################
     total_regional_demand = pd.DataFrame()
     peak_hour_demand = pd.DataFrame()
+    national_peak = pd.DataFrame()
 
     for path_result_folder in paths_folders_result:
         print("path_result_folder: " + str(path_result_folder))
@@ -97,31 +99,48 @@ def main(
         data['lookups'] = lookup_tables.basic_lookups()
 
         # Other information is read in
-        data['assumptions'] = {}
         data['assumptions']['seasons'] = date_prop.get_season(year_to_model=2015)
         data['assumptions']['model_yeardays_daytype'], data['assumptions']['yeardays_month'], data['assumptions']['yeardays_month_days'] = date_prop.get_yeardays_daytype(year_to_model=2015)
 
         # --------------------------------------------
         # Reading in results from different model runs
-
+        # --------------------------------------------
         results_container = read_weather_results.read_in_weather_results(
             data['result_paths']['data_results_model_runs'],
             data['assumptions']['seasons'],
             data['assumptions']['model_yeardays_daytype'])
 
-        # Total demand (dataframe with row: realisation, column=region)
+        # --Total demand (dataframe with row: realisation, column=region)
         realisation_data = pd.DataFrame(
             [results_container['ed_reg_tot_y'][simulation_yr_to_plot][fueltype_int]],
             columns=data['regions'])
 
         total_regional_demand = total_regional_demand.append(realisation_data)
 
-        # Peak day demand (dataframe with row: realisation, column=region)
+        # --Peak day demand (dataframe with row: realisation, column=region)
         realisation_data = pd.DataFrame(
             [results_container['ed_reg_peakday_peak_hour'][simulation_yr_to_plot][fueltype_int]],
             columns=data['regions'])
 
         peak_hour_demand = peak_hour_demand.append(realisation_data)
+
+        # --National peak
+        simulation_yrs_result = [results_container['national_peak'][year][fueltype_int] for year in results_container['national_peak'].keys()]
+
+        realisation_data = pd.DataFrame(
+            [simulation_yrs_result],
+            columns=data['assumptions']['sim_yrs'])
+        national_peak = national_peak.append(realisation_data)
+
+    # ------------------------------
+    # Plot national peak change over time for each scenario
+    # including weather variability
+    # ------------------------------
+    fig_3_plot_over_time.scenario_over_time(
+        ed_reg_tot_y=national_peak,
+        sim_yrs=data['assumptions']['sim_yrs'],
+        fig_name="scenarios_peak_over_time_{}.pdf".format(fueltype_str),
+        result_path=result_path)
 
     # ------------------------------
     # Plotting spatial results
