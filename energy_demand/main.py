@@ -1,7 +1,7 @@
 """Allows to run HIRE locally outside the SMIF framework
 
 write_national_results_amman
-
+move data config folder into data
 Note
 ----
 Always execute from root folder. (e.g. energy_demand/energy_demand/main.py
