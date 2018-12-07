@@ -1,7 +1,7 @@
 """Allows to run HIRE locally outside the SMIF framework
 
 write_national_results_amman
-
+move data config folder into data
 Note
 ----
 Always execute from root folder. (e.g. energy_demand/energy_demand/main.py
@@ -105,7 +105,8 @@ if __name__ == "__main__":
     user_defined_simulation_end_yr = config['CONFIG']['user_defined_simulation_end_yr']
 
     # Simulated yrs
-    sim_yrs = [base_yr, user_defined_simulation_end_yr]
+    #sim_yrs = [base_yr, user_defined_simulation_end_yr]
+    sim_yrs = [2015, 2025, 2035, 2045, 2050]
     weather_yr_scenario = 2015   # Default weather year
 
     if len(sys.argv) > 1: #user defined arguments are provide
@@ -292,7 +293,10 @@ if __name__ == "__main__":
         weather_realisation=weather_realisation,
         path_weather_data=path_weather_data,
         same_base_year_weather=False,
-        crit_temp_min_max=config['CRITERIA']['crit_temp_min_max'])
+        crit_temp_min_max=config['CRITERIA']['crit_temp_min_max'],
+        load_np=False,
+        load_parquet=False,
+        load_csv=True)
 
     #print(station_id_253)
     # Plot map with weather station
@@ -543,7 +547,7 @@ if __name__ == "__main__":
                     'fueltype_reg_peak_day')
 
                 # PLot only residential total regional annual demand and
-                write_data.write_residential_tot_demands(
+                '''write_data.write_residential_tot_demands(
                     sim_yr,
                     path_runs,
                     sim_obj.ed_residential_tot_reg_y,
@@ -553,7 +557,7 @@ if __name__ == "__main__":
                     "ed_fueltype_regs_yh",
                     path_runs,
                     sim_obj.ed_fueltype_regs_yh,
-                    "result_tot_submodels_fueltypes")
+                    "result_tot_submodels_fueltypes")'''
             else:
                 write_data.write_residential_tot_demands(
                     sim_yr,

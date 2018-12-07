@@ -80,6 +80,23 @@ def kwh_to_gwh(kwh):
 
     return gwh
 
+def gwh_to_kwh(gwh):
+    """"Conversion of MW to GWh
+
+    Arguments
+    ---------
+    kwh : float
+        Kilowatthours
+
+    Return
+    ------
+    gwh : float
+        Gigawatthours
+    """
+    kwh = gwh *  1000000
+
+    return kwh
+
 def mw_to_gwh(megawatt, number_of_hours):
     """"Conversion of MW to GWh
 

@@ -17,21 +17,25 @@ from energy_demand.plotting import fig_p2_weather_val, result_mapping
 from energy_demand.basic import basic_functions
 from energy_demand.technologies import tech_related
 from energy_demand.read_write import write_data
+from energy_demand.basic import conversions
 
 def total_annual_demand(
         df_data_input,
         path_shapefile_input,
         regions,
-        fueltypes_nr,
-        fueltypes,
         pop_data,
         simulation_yr_to_plot,
         result_path,
         fig_name,
+        field_to_plot,
+        unit='GW'
     ):
     """
     """
-    conversion_factor = 1000000 #  1000000 #GW to KW
+    if unit == 'GW':
+        conversion_factor = 1
+    if unit == 'kWh':
+        conversion_factor = conversions.gwh_to_kwh(gwh=1) #GW to KW
 
     df_data_input = df_data_input * conversion_factor
 
@@ -65,10 +69,12 @@ def total_annual_demand(
     print("TOT PERSON: " + str(tot_demand))
     print('AVERAGE KW per Person " '+ str(tot_demand / tot_person))
 
+    print(df_data_input)
     regional_statistics_columns = [
         'name',
         'mean',
-        'mean_norm_pop'] #,
+        'mean_norm_pop',
+        'std_dev']#
         #'diff_av_max',
         #'mean_pp',
         #'diff_av_max_pp',
@@ -82,7 +88,9 @@ def total_annual_demand(
         line_entry = [[
             str(region_name),
             mean[region_name],
-            mean_norm_pop[region_name], #diff_av_max,
+            mean_norm_pop[region_name],
+            std_dev[region_name]
+            #diff_av_max,
             #mean_peak_h_pp,
             #diff_av_max_pp,
             #std_dev_average_every_h,
@@ -113,11 +121,6 @@ def total_annual_demand(
     # Assign bin colors according to defined cmap and whether
     # plot with min_max values or only min/max values
     #bin_values = [0, 0.0025, 0.005, 0.0075, 0.01]
-
-    # Field to plot
-    field_to_plot = 'mean'
-    field_to_plot = 'mean_norm_pop'
-
     nr_of_intervals = 6
 
     bin_values = result_mapping.get_reasonable_bin_values_II(
@@ -148,13 +151,19 @@ def total_annual_demand(
         min_value,
         max_value)
 
-    plt.legend(
+    legend = plt.legend(
         handles=legend_handles,
-        title="tittel_elgend",
+        title="Unit: {} field: {}".format(unit, field_to_plot),
         prop={'size': 8},
         loc='upper center',
         bbox_to_anchor=(0.5, -0.05),
         frameon=False)
+
+    # Remove coordinates from figure
+    ax.set_yticklabels([])
+    ax.set_xticklabels([])
+
+    legend.get_title().set_fontsize(8)
 
     # PLot bins on plot
     '''plt.text(
@@ -163,8 +172,13 @@ def total_annual_demand(
         bin_values[:-1],
         fontsize=8)'''
 
-    plt.tight_layout()
-    plt.show()
+    # --------
+    # Labeling
+    # --------
+    #plt.title("tttt")
 
-    plt.savefig(fig_name)
+    plt.tight_layout()
+    #plt.show()
+
+    plt.savefig(os.path.join(result_path, fig_name))
     plt.close()

@@ -901,7 +901,10 @@ def load_temp_data(
         weather_realisation,
         path_weather_data,
         same_base_year_weather=False,
-        crit_temp_min_max=False
+        crit_temp_min_max=False,
+        load_np=False,
+        load_parquet=False,
+        load_csv=True
     ):
     """Read in cleaned temperature and weather station data
 
@@ -932,10 +935,6 @@ def load_temp_data(
     PAarquest file http://pandas.pydata.org/pandas-docs/stable/io.html#io-parquet
     """
     print("... loading temperatures", flush=True)
-
-    load_np = False
-    load_parquet = True
-    load_csv = False
 
     temp_data_short = defaultdict(dict)
     weather_stations_with_data = defaultdict(dict)
