@@ -238,9 +238,9 @@ def before_simulation(
         f_reg_norm,
         f_reg_norm_abs,
         crit_all_the_same,
-        service_switches,
-        fuel_switches,
-        capacity_switches)
+        service_switches=service_switches,
+        fuel_switches=fuel_switches,
+        capacity_switches=capacity_switches)
 
     for region in data['regions']:
         regional_vars[region]['annual_tech_diff_params'] = annual_tech_diff_params[region]

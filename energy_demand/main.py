@@ -103,8 +103,8 @@ if __name__ == "__main__":
     user_defined_simulation_end_yr = config['CONFIG']['user_defined_simulation_end_yr']
 
     # Simulated yrs
-    #sim_yrs = [base_yr, user_defined_simulation_end_yr]
-    sim_yrs = [2015, 2025, 2035, 2045, 2050]
+    sim_yrs = [base_yr, user_defined_simulation_end_yr]
+    #sim_yrs = [2015, 2025, 2035, 2045, 2050]
     weather_yr_scenario = 2015   # Default weather year
 
     if len(sys.argv) > 1: #user defined arguments are provide
@@ -125,10 +125,10 @@ if __name__ == "__main__":
 
     local_scenario = 'pop-baseline16_econ-c16_fuel-c16' #pop-f_econ-c_fuel-c  #pop-b_econ-c_fuel-c
     name_config_path = 'high_electrification'
-    name_config_path = 'low_electrification'
+    name_config_path = 'h_l'
 
-    path_strategy_vars = os.path.join(local_data_path, 'energy_demand', '00_user_defined_variables', 'default')
-    #path_strategy_vars = os.path.join(local_data_path, 'energy_demand', '00_user_defined_variables', 'name_config_path')
+    path_strategy_vars = os.path.join(local_data_path, 'energy_demand', '00_user_defined_variables', 'high_electrification')
+    path_strategy_vars = os.path.join(local_data_path, 'energy_demand', '00_user_defined_variables', name_config_path)
 
     # --- Region definition configuration
     name_region_set = os.path.join(local_data_path, 'energy_demand', 'region_definitions', "lad_2016_uk_simplified.shp")
@@ -136,7 +136,6 @@ if __name__ == "__main__":
     name_gva_dataset = os.path.join(local_data_path, 'scenarios', 'MISTRAL_pop_gva', 'data', '{}/gva_per_head__lad_sector.csv'.format(local_scenario))
     name_gva_dataset_per_head = os.path.join(local_data_path, 'scenarios', 'MISTRAL_pop_gva', 'data', '{}/gva_per_head__lad.csv'.format(local_scenario))
 
-    #simulation_name = str(weather_realisation) + "__" + "all_stations"
     simulation_name = "simulation_results"
     
     name_scenario_run = "{}_result_local_{}".format(scenario_name, str(time.ctime()).replace(":", "_").replace(" ", "_"))
@@ -160,7 +159,6 @@ if __name__ == "__main__":
     # Load data
     # ----------------------------------------------------------------------
     data['scenario_data'] = defaultdict(dict)
-    print(data['paths'])
     data['enduses'], data['sectors'], data['fuels'], lookup_enduses, lookup_sector_enduses = data_loader.load_fuels(data['paths'])
 
     data['regions'] = read_data.get_region_names(name_region_set)
@@ -353,7 +351,10 @@ if __name__ == "__main__":
     # ------------------------------------------------
     service_switches_raw = pd.read_csv(os.path.join(data['local_paths']['path_strategy_vars'], "switches_service.csv"))
     service_switches = read_data.service_switch(service_switches_raw)
-
+    print(".---------")
+    for i in service_switches:
+        print(i.__dict__)
+    #raise Exception("FF")
     fuel_switches = read_data.read_fuel_switches(os.path.join(data['local_paths']['path_strategy_vars'], "switches_fuel.csv"), data['enduses'], data['assumptions'].fueltypes, data['assumptions'].technologies)
     capacity_switches = read_data.read_capacity_switch(os.path.join(data['local_paths']['path_strategy_vars'], "switches_capacity.csv"))
 
@@ -372,9 +373,10 @@ if __name__ == "__main__":
         f_reg_norm,
         f_reg_norm_abs,
         crit_all_the_same,
-        fuel_switches,
-        service_switches,
-        capacity_switches)
+        service_switches=service_switches,
+        fuel_switches=fuel_switches,
+        capacity_switches=capacity_switches)
+    
     for region in data['regions']:
         regional_vars[region]['annual_tech_diff_params'] = annual_tech_diff_params[region]
 

@@ -1584,12 +1584,14 @@ def generic_fuel_switch(
         if fuel_switch[curr_yr] != 0:
 
             # Get fueltype to switch (old)
-            fueltype_replace_str = fuel_switch['param_info']['fueltype_replace']
-            fueltype_replace_int = tech_related.get_fueltype_int(fueltype_replace_str)
+            #fueltype_replace_str = fuel_switch['param_info']['fueltype_replace']
+            #fueltype_replace_int = tech_related.get_fueltype_int(fueltype_replace_str)
+            fueltype_replace_int = int(fuel_switch['param_info']['fueltype_replace'])
 
             # Get fueltype to switch to (new)
-            fueltype_new_str = fuel_switch['param_info']['fueltype_new']
-            fueltype_new_int = tech_related.get_fueltype_int(fueltype_new_str)
+            #fueltype_new_str = fuel_switch['param_info']['fueltype_new']
+            #fueltype_new_int = tech_related.get_fueltype_int(fueltype_new_str)
+            fueltype_new_int = int(fuel_switch['param_info']['fueltype_new'])
 
             # Value of current year
             fuel_share_switched_cy = fuel_switch[curr_yr]

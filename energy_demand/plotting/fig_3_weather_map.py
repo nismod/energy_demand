@@ -1,17 +1,12 @@
 
 import os
-import logging
-import copy
-import math
 import numpy as np
 import geopandas as gpd
 import pandas as pd
-import palettable
 import matplotlib.pyplot as plt
 import matplotlib.patches as mpatches
 from matplotlib.patches import Circle
 from matplotlib.colors import LinearSegmentedColormap
-from collections import defaultdict
 
 from energy_demand.plotting import fig_p2_weather_val, result_mapping
 from energy_demand.basic import basic_functions
@@ -34,8 +29,12 @@ def total_annual_demand(
     """
     if unit == 'GW':
         conversion_factor = 1
-    if unit == 'kWh':
+    elif unit == 'kW':
         conversion_factor = conversions.gwh_to_kwh(gwh=1) #GW to KW
+    elif unit == 'percentage':
+        conversion_factor = 1
+    else:
+        raise Exception("Not defined unit")
 
     df_data_input = df_data_input * conversion_factor
 
@@ -137,12 +136,7 @@ def total_annual_demand(
     # plot with face color attribute
     uk_gdf.plot(ax=ax, facecolor=uk_gdf['bin_color'], edgecolor='black', linewidth=0.5)
 
-    #shp_gdp_merged.plot(column='diff_av_max', scheme='QUANTILES', k=5, cmap='OrRd', linewidth=0.1)
-    #ax = uk_gdf.plot(column='diff_av_max', scheme='QUANTILES', k=5, cmap='OrRd', linewidth=0.1)
-    #uk_gdf[uk_gdf['name'] == 'E06000024'].plot(ax=ax, facecolor='green', edgecolor='black')
-    #uk_gdf[uk_gdf['diff_av_max'] < 0.01].plot(ax=ax, facecolor='blue', edgecolor='black')
 
-    # Get legend patches TODO IMPROVE
     # TODO IMRPVE: MAKE CORRECT ONE FOR NEW PROCESSING
     legend_handles = result_mapping.get_legend_handles(
         bin_values[1:-1],
@@ -175,7 +169,7 @@ def total_annual_demand(
     # --------
     # Labeling
     # --------
-    #plt.title("tttt")
+    plt.title("Peak demand over time")
 
     plt.tight_layout()
     #plt.show()

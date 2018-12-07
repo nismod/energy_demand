@@ -86,7 +86,8 @@ def main(
         total_regional_demand = pd.DataFrame()
         peak_hour_demand = pd.DataFrame()
         national_peak = pd.DataFrame()
-
+        regional_share_national_peak = pd.DataFrame()
+    
         for path_result_folder in paths_folders_result:
             print("path_result_folder: " + str(path_result_folder))
 
@@ -115,7 +116,8 @@ def main(
             results_container = read_weather_results.read_in_weather_results(
                 data['result_paths']['data_results_model_runs'],
                 data['assumptions']['seasons'],
-                data['assumptions']['model_yeardays_daytype'])
+                data['assumptions']['model_yeardays_daytype'],
+                fueltype_str='electricity')
 
             # --Total demand (dataframe with row: realisation, column=region)
             realisation_data = pd.DataFrame(
@@ -139,13 +141,20 @@ def main(
                 columns=data['assumptions']['sim_yrs'])
             national_peak = national_peak.append(realisation_data)
 
+            # --Regional percentage of national peak demand
+            realisation_data = pd.DataFrame(
+                [results_container['regional_share_national_peak'][simulation_yr_to_plot]],
+                columns=data['regions'])
+
+            regional_share_national_peak = regional_share_national_peak.append(realisation_data)
 
         # Add to scenario container
         scenario_result_container.append({
             'scenario_name': scenario_name,
             'total_regional_demand': total_regional_demand,
             'peak_hour_demand': peak_hour_demand,
-            'national_peak': national_peak
+            'national_peak': national_peak,
+            'regional_share_national_peak': regional_share_national_peak
         })
 
     plotting_dict_info = {}
@@ -160,7 +169,6 @@ def main(
         fig_name="scenarios_peak_over_time_{}.pdf".format(fueltype_str),
         result_path=result_path)
 
-
     # ------------------------------
     # Plotting spatial results
     # ------------------------------
@@ -168,6 +176,7 @@ def main(
         scenario_name = i['scenario_name']
         total_regional_demand = i['total_regional_demand']
         peak_hour_demand = i['peak_hour_demand']
+        regional_share_national_peak = i['regional_share_national_peak']
 
         print("... plot spatial map of total annual demand")
         field_to_plot = 'std_dev'
@@ -191,10 +200,34 @@ def main(
             pop_data=pop_data,
             simulation_yr_to_plot=simulation_yr_to_plot,
             result_path=result_path,
-            fig_name="{}peak_h_demand_{}_{}.pdf".format(scenario_name, field_to_plot, fueltype_str),
+            fig_name="{}_peak_h_demand_{}_{}.pdf".format(scenario_name, field_to_plot, fueltype_str),
             field_to_plot=field_to_plot,
             unit='GW')
 
+        print("... plot spatial map of percentage of regional peak hour demand")
+        field_to_plot = 'mean'
+        fig_3_weather_map.total_annual_demand(
+            regional_share_national_peak,
+            path_shapefile_input,
+            data['regions'],
+            pop_data=pop_data,
+            simulation_yr_to_plot=simulation_yr_to_plot,
+            result_path=result_path,
+            fig_name="{}_regional_share_national_peak_{}_{}.pdf".format(scenario_name, field_to_plot, fueltype_str),
+            field_to_plot=field_to_plot,
+            unit='percentage')
+
+        field_to_plot = 'std_dev'
+        fig_3_weather_map.total_annual_demand(
+            regional_share_national_peak,
+            path_shapefile_input,
+            data['regions'],
+            pop_data=pop_data,
+            simulation_yr_to_plot=simulation_yr_to_plot,
+            result_path=result_path,
+            fig_name="{}_regional_share_national_peak_{}_{}.pdf".format(scenario_name, field_to_plot, fueltype_str),
+            field_to_plot=field_to_plot,
+            unit='percentage')
 
     print("===================================")
     print("... finished reading and plotting results")
