@@ -23,7 +23,6 @@ def convert_config_to_correct_type(config):
         else:
             out_dict['CRITERIA'][criteria] = config.getboolean('CRITERIA', criteria)
 
-
     return dict(out_dict)
 
 def dict_depth(dictionary):

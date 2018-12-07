@@ -120,6 +120,8 @@ if __name__ == "__main__":
     print("-------------------------------------")
     print("weather_yr_scenario:        " + str(weather_yr_scenario))
     print("weather_realisation:        " + str(weather_realisation))
+    print("local_data_path:            " + str(local_data_path))
+    print("path_main:                  " + str(path_main))
 
     # Local path configurations
     path_weather_data = "X:/nismod/data/energy_demand/J-MARIUS_data/_weather_realisation"
@@ -162,7 +164,7 @@ if __name__ == "__main__":
     # Load data
     # ----------------------------------------------------------------------
     data['scenario_data'] = defaultdict(dict)
-
+    print(data['paths'])
     data['enduses'], data['sectors'], data['fuels'], lookup_enduses, lookup_sector_enduses = data_loader.load_fuels(data['paths'])
 
     data['regions'] = read_data.get_region_names(name_region_set)
