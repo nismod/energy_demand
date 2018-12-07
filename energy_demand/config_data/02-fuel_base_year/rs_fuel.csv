@@ -1,0 +1,8 @@
+fuel_id,rs_lighting,rs_cold,rs_wet,rs_consumer_electronics,rs_home_computing,rs_cooking,rs_space_heating,rs_water_heating
+solid_fuel,0,0,0,0,0,0,502,82
+gas,0,0,0,0,0,446,21426,3716
+electricity,1155,1007,1268,1784,533,423,2175,421
+oil,0,0,0,0,0,0,2299,224
+biomass,0,0,0,0,0,0,1515,518
+hydrogen,0,0,0,0,0,0,0,0
+heat,0,0,0,0,0,0,0,0

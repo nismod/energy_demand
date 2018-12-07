@@ -84,9 +84,7 @@ if __name__ == "__main__":
     # Local run model configuration
     # ------------------------------------------
     local_data_path = os.path.abspath('data')
-    path_main = os.path.abspath(
-        os.path.join(
-            os.path.dirname(__file__), '..', "energy_demand/config_data"))
+
     path_config = os.path.abspath(os.path.join(
             os.path.dirname(__file__), '..', 'local_run_config_file.ini'))
             #os.path.dirname(__file__), '..', 'local_run_config_file_cluster.ini'))
@@ -120,8 +118,6 @@ if __name__ == "__main__":
     print("-------------------------------------")
     print("weather_yr_scenario:        " + str(weather_yr_scenario))
     print("weather_realisation:        " + str(weather_realisation))
-    print("local_data_path:            " + str(local_data_path))
-    print("path_main:                  " + str(path_main))
 
     # Local path configurations
     path_weather_data = "X:/nismod/data/energy_demand/J-MARIUS_data/_weather_realisation"
@@ -149,7 +145,7 @@ if __name__ == "__main__":
     # --------------------
     # Load all other paths
     # --------------------
-    data['paths'] = data_loader.load_paths(path_main)
+    data['paths'] = data_loader.load_paths(config['PATHS']['path_energy_demand_config'])
     data['local_paths'] = data_loader.get_local_paths(local_data_path)
 
     # Manually overwrriting startegy variable path
@@ -279,7 +275,7 @@ if __name__ == "__main__":
     print("Number of Regions                        " + str(data['assumptions'].reg_nrs))
 
     # Obtain population data for disaggregation
-    if config['CRITERIA']['MSOA_crit']:
+    if config['CRITERIA']['msoa_crit']:
         name_population_dataset = data['local_paths']['path_population_data_for_disaggregation_MSOA']
     else:
         name_population_dataset = data['local_paths']['path_population_data_for_disaggregation_LAD']

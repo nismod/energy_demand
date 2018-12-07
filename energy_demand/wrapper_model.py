@@ -134,7 +134,7 @@ def load_data_before_simulation(
         data['assumptions'].model_yeardays_daytype)
 
     # Obtain population data for disaggregation
-    if config['CRITERIA']['MSOA_crit']:
+    if config['CRITERIA']['msoa_crit']:
         name_population_dataset = data['local_paths']['path_population_data_for_disaggregation_MSOA']
     else:
         name_population_dataset = data['local_paths']['path_population_data_for_disaggregation_LAD']
@@ -330,7 +330,7 @@ def load_gva_sector(
         data_handle,
         regions,
         sectors_to_load,
-        MSOA_crit,
+        msoa_crit,
         simulate=False
     ):
     """Load sector specific GVA
@@ -345,13 +345,13 @@ def load_gva_sector(
         Regions
     sectors_to_load : list
         Sectors which are loaded
-    MSOA_crit : bool
+    msoa_crit : bool
         Criteria wheter modelled on MSOA level or LAD level
     simulate : bool
         Criteria wheter run in simulate() or not
     """
     sector_data = {}
-    if MSOA_crit:
+    if msoa_crit:
         logging.info("Don't load sector GVA {}")
     else:
         for gva_sector_nr in sectors_to_load:
