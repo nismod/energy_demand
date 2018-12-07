@@ -123,7 +123,10 @@ if __name__ == "__main__":
     path_weather_data = "X:/nismod/data/energy_demand/J-MARIUS_data/_weather_realisation"
     #path_weather_data = "/soge-home/staff/cenv0553/_weather_realisation"
 
-    local_scenario = 'pop-baseline16_econ-c16_fuel-c16' #pop-f_econ-c_fuel-c  #pop-b_econ-c_fuel-c
+    #local_scenario = 'pop-baseline16_econ-c16_fuel-c16' #pop-f_econ-c_fuel-c  #pop-b_econ-c_fuel-c
+    local_scenario = 'pop-f_econ-c_fuel-c'
+    #local_scenario = 'pop-b_econ-c_fuel-c'
+
     name_config_path = 'high_electrification'
     name_config_path = 'h_l'
 
@@ -351,10 +354,7 @@ if __name__ == "__main__":
     # ------------------------------------------------
     service_switches_raw = pd.read_csv(os.path.join(data['local_paths']['path_strategy_vars'], "switches_service.csv"))
     service_switches = read_data.service_switch(service_switches_raw)
-    print(".---------")
-    for i in service_switches:
-        print(i.__dict__)
-    #raise Exception("FF")
+
     fuel_switches = read_data.read_fuel_switches(os.path.join(data['local_paths']['path_strategy_vars'], "switches_fuel.csv"), data['enduses'], data['assumptions'].fueltypes, data['assumptions'].technologies)
     capacity_switches = read_data.read_capacity_switch(os.path.join(data['local_paths']['path_strategy_vars'], "switches_capacity.csv"))
 

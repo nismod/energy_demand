@@ -136,7 +136,6 @@ def total_annual_demand(
     # plot with face color attribute
     uk_gdf.plot(ax=ax, facecolor=uk_gdf['bin_color'], edgecolor='black', linewidth=0.5)
 
-
     # TODO IMRPVE: MAKE CORRECT ONE FOR NEW PROCESSING
     legend_handles = result_mapping.get_legend_handles(
         bin_values[1:-1],
