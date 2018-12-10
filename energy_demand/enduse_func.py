@@ -1582,14 +1582,11 @@ def generic_fuel_switch(
             pass
 
     if switch_defined is True:
-        print(enduse)
-        print("fuel_switch " + str(fuel_switch))
-
         for fueltype_replace_int in fuel_switch.keys():
             if fuel_switch[fueltype_replace_int][curr_yr] != 0:
                 # Get fueltype to switch (old)
                 #fueltype_replace_int = int(fuel_switch['param_info']['fueltype_replace'])
-                fueltype_replace_int = fueltype_replace_int
+                fueltype_replace_int = int(fueltype_replace_int)
 
                 # Get fueltype to switch to (new)
                 fueltype_new_int = int(fuel_switch[fueltype_replace_int]['param_info']['fueltype_new'])

@@ -246,9 +246,7 @@ def generate_annual_param_vals(
                 # Single dimensional
                 else:
                     param_info = {}
-
                     if var_name == 'generic_fuel_switch':
-   
                         for narrative in sector_sub_var_values:
 
                             # Calculate annual parameter value
@@ -271,7 +269,6 @@ def generate_annual_param_vals(
                             if narrative['regional_specific']:
                                 for region in regions:
                                     reg_param[region][var_name][sub_var_name][param_info['fueltype_replace']] = dict(regional_strategy_vary[region])
-                                    #reg_param[region][var_name][sub_var_name][param_info['fueltype_replace']] = dict(reg_param[region][var_name][sub_var_name][param_info['fueltype_replace']])
                                     reg_param[region][var_name][sub_var_name][param_info['fueltype_replace']]['param_info'] = param_info
                             else:
                                 non_reg_param[var_name][sub_var_name][param_info['fueltype_replace']] = regional_strategy_vary
@@ -290,7 +287,6 @@ def generate_annual_param_vals(
                         if reg_specific_crit:
                             for region in regions:
                                 reg_param[region][var_name][sub_var_name] = dict(regional_strategy_vary[region])
-                                #reg_param[region][var_name][sub_var_name] = dict(reg_param[region][var_name][sub_var_name])
                         else:
                             non_reg_param[var_name][sub_var_name] = regional_strategy_vary
 
