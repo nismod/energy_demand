@@ -351,6 +351,8 @@ if __name__ == "__main__":
         data['assumptions'].strategy_vars,
         sim_yrs)
 
+    print("dddddddd")
+    print(regional_vars['E0000000'])
     # ------------------------------------------------
     # Calculate switches (not generic)
     # ------------------------------------------------

@@ -48,10 +48,10 @@ def get_sector_narrative_and_single_from_multi(sector_to_match, switches):
     else:
         switches_out = []
 
-
         # Test if multiple switches e.g. per fueltype
         fueltypes_switched = set([])
         for switch in switches:
+            print("switch" + str(switch))
             fueltypes_switched.add(switch['fueltype_new'])
 
         if len(fueltypes_switched) > 1:
@@ -142,7 +142,9 @@ def default_narrative(
         sig_midpoint=0,
         sig_steepness=1,
         base_yr=2015,
-        regional_specific=True
+        regional_specific=True,
+        fueltype_replace=0,
+        fueltype_new=0,
     ):
     """Create a default single narrative with a single timestep
 
@@ -180,7 +182,10 @@ def default_narrative(
         'diffusion_choice': diffusion_choice,
         'sig_midpoint': sig_midpoint,
         'sig_steepness': sig_steepness,
-        'regional_specific': regional_specific}]
+        'regional_specific': regional_specific,
+        'fueltype_replace': 0,
+        'fueltype_new': 0
+        }]
 
 def autocomplete(parameter_narratives, simulation_base_yr, sub_param_crit):
     """
@@ -289,7 +294,6 @@ def read_user_defined_param(
         single_step_narrative['regional_specific'] = default_streategy_var['regional_specific']
         single_step_narrative['diffusion_choice'] = 'linear'
         single_param_narratives = [single_step_narrative]
-
         return single_param_narratives
     else:
         # Read multidmensional param
@@ -327,6 +331,9 @@ def read_user_defined_param(
                             #print("... not defined in model")
                             defined_in_model = False
 
+                        # All entries of this year df_enduse and this fueltype
+                        df_enduse_sim_yr = df_enduse.loc[df_enduse['end_yr'] == end_yr]
+
                         if defined_in_model:
                             narrative = {}
                             narrative['sector'] = 'dummy_sector'
@@ -337,11 +344,11 @@ def read_user_defined_param(
                             narrative['default_by'] = default_streategy_var[enduse]['default_value']
 
                             # Check if more than one entry 
-                            for _index, row in df_enduse.iterrows():
+                            for _index, row in df_enduse_sim_yr.iterrows():
 
                                 try:
                                     interpolation_params = row['interpolation_params']
-                                except:
+                                except KeyError:
                                     # Generic fuel switch
                                     interpolation_params = row['param_generic_fuel_switch']
 
@@ -430,7 +437,10 @@ def read_user_defined_param(
                 # Needs to be implemented in case sector specific
                 pass
 
+        # ------------
         # Autocomplete
+        # ------------
+        print("... autocomplete")
         parameter_narratives = autocomplete(
             parameter_narratives,
             simulation_base_yr,

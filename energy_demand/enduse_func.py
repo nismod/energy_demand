@@ -233,8 +233,6 @@ class Enduse(object):
                         mode_constrained=False,
                         make_all_flat=make_all_flat)
                     #print("FUEL TRAIN Y" + str(np.sum(fuel_yh)))
-
-                    #assert not testing_functions.test_if_minus_value_in_array(self.fuel_yh)
             else:
                 #If technologies are defined for an enduse
 
@@ -346,8 +344,6 @@ class Enduse(object):
                             fuel_yh,
                             mode_constrained=False,
                             make_all_flat=make_all_flat)
-
-                         #assert not testing_functions.test_if_minus_value_in_array(self.fuel_yh)
 
 def demand_management(
         enduse,
@@ -1580,16 +1576,20 @@ def generic_fuel_switch(
                     pass # Switch is not defined for this sector
         except KeyError:
             pass
-
+    print("fuel_switch" + str(fuel_switch))
     if switch_defined is True:
-        for fueltype_replace_int in fuel_switch.keys():
-            if fuel_switch[fueltype_replace_int][curr_yr] != 0:
+        for fueltype_new_int in fuel_switch.keys():
+            print("AA " + str(fueltype_new_int))
+            print(curr_yr)
+            if fuel_switch[fueltype_new_int][curr_yr] != 0:
                 # Get fueltype to switch (old)
                 #fueltype_replace_int = int(fuel_switch['param_info']['fueltype_replace'])
-                fueltype_replace_int = int(fueltype_replace_int)
+                #fueltype_replace_int = int(fueltype_replace_int)
 
                 # Get fueltype to switch to (new)
-                fueltype_new_int = int(fuel_switch[fueltype_replace_int]['param_info']['fueltype_new'])
+                fueltype_new_int = int(fuel_switch[fueltype_new_int]['param_info']['fueltype_new'])
+
+                fueltype_replace_int = int(fuel_switch[fueltype_new_int]['param_info']['fueltype_replace'])
 
                 # Value of current year
                 fuel_share_switched_cy = fuel_switch[fueltype_replace_int][curr_yr]
@@ -1600,9 +1600,8 @@ def generic_fuel_switch(
 
                 # Add fuel
                 fuel_y[fueltype_new_int] += fuel_minus
-        else:
-            # no fuel switch defined
-            pass
+            else:
+                pass # no fuel switch defined
 
     return fuel_y
 
