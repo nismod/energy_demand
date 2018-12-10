@@ -561,79 +561,51 @@ def get_result_paths(path):
 
     return paths
 
-def load_paths(path):
+def load_paths(config_file_path):
     """Load all paths of the installed config data
 
     Arguments
     ----------
-    path : str
+    config_file_path : str
         Main path
 
     Return
     ------
-    out_dict : dict
-        Data container containing dics
+    dict
+        Dictionary containing the paths to each datafile
     """
-    paths = {
-        'path_main': path,
-
+    paths = [
+        'path_main',
         # Path to all technologies
-        'path_technologies': os.path.join(
-            path, '05-technologies', 'technology_definition.csv'),
-
+        'path_technologies',
         # Paths to fuel raw data
-        'rs_fuel_raw': os.path.join(
-            path, '02-fuel_base_year', 'rs_fuel.csv'),
-        'ss_fuel_raw': os.path.join(
-            path, '02-fuel_base_year', 'ss_fuel.csv'),
-        'is_fuel_raw': os.path.join(
-            path, '02-fuel_base_year', 'is_fuel.csv'),
-
+        'rs_fuel_raw',
+        'ss_fuel_raw',
+        'is_fuel_raw',
         # Load profiles
-        'lp_rs': os.path.join(
-            path, '03-load_profiles', 'rs_submodel', 'HES_lp.csv'),
-
+        'lp_rs',
         # Technologies load shapes
-        'path_hourly_gas_shape_resid': os.path.join(
-            path, '03-load_profiles', 'rs_submodel', 'lp_gas_boiler_dh_SANSOM.csv'),
-        'lp_elec_hp_dh': os.path.join(
-            path, '03-load_profiles', 'rs_submodel', 'lp_elec_hp_dh_LOVE.csv'),
-        'lp_all_microCHP_dh': os.path.join(
-            path, '03-load_profiles', 'rs_submodel', 'lp_all_microCHP_dh_SANSOM.csv'),
-        'path_shape_rs_cooling': os.path.join(
-            path, '03-load_profiles', 'rs_submodel', 'shape_residential_cooling.csv'),
-        'path_shape_ss_cooling': os.path.join(
-            path, '03-load_profiles', 'ss_submodel', 'shape_service_cooling.csv'),
-        'lp_elec_storage_heating': os.path.join(
-            path, '03-load_profiles', 'rs_submodel', 'lp_elec_storage_heating_HESReport.csv'),
-        'lp_elec_secondary_heating': os.path.join(
-            path, '03-load_profiles', 'rs_submodel', 'lp_elec_secondary_heating_HES.csv'),
-
+        'path_hourly_gas_shape_resid',
+        'lp_elec_hp_dh',
+        'lp_all_microCHP_dh',
+        'path_shape_rs_cooling',
+        'path_shape_ss_cooling',
+        'lp_elec_storage_heating',
+        'lp_elec_secondary_heating',
         # Census data
-        'path_employment_statistics': os.path.join(
-            path, '04-census_data', 'LAD_census_data.csv'),
-
+        'path_employment_statistics',
         # Validation datasets
-        'val_subnational_elec': os.path.join(
-            path, '01-validation_datasets', '02_subnational_elec', 'data_2015_elec.csv'),
-        'val_subnational_elec_residential': os.path.join(
-            path, '01-validation_datasets', '02_subnational_elec', 'data_2015_elec_domestic.csv'),
-        'val_subnational_elec_non_residential': os.path.join(
-            path, '01-validation_datasets', '02_subnational_elec', 'data_2015_elec_non_domestic.csv'),
-        'val_subnational_elec_msoa_residential': os.path.join(
-            path, '01-validation_datasets', '02_subnational_elec', 'MSOA_domestic_electricity_2015_cleaned.csv'),
-        'val_subnational_elec_msoa_non_residential': os.path.join(
-            path, '01-validation_datasets', '02_subnational_elec', 'MSOA_non_dom_electricity_2015_cleaned.csv'),
-        'val_subnational_gas': os.path.join(
-            path, '01-validation_datasets', '03_subnational_gas', 'data_2015_gas.csv'),
-        'val_subnational_gas_residential': os.path.join(
-            path, '01-validation_datasets', '03_subnational_gas', 'data_2015_gas_domestic.csv'),
-        'val_subnational_gas_non_residential': os.path.join(
-            path, '01-validation_datasets', '03_subnational_gas', 'data_2015_gas_non_domestic.csv'),
-        'val_nat_elec_data': os.path.join(
-            path, '01-validation_datasets', '01_national_elec_2015', 'elec_demand_2015.csv')}
+        'val_subnational_elec',
+        'val_subnational_elec_residential',
+        'val_subnational_elec_non_residential',
+        'val_subnational_elec_msoa_residential',
+        'val_subnational_elec_msoa_non_residential',
+        'val_subnational_gas',
+        'val_subnational_gas_residential',
+        'val_subnational_gas_non_residential',
+        'val_nat_elec_data']
 
-    return paths
+    return _read_config_file_section('CONFIG_DATA', config_file_path, paths)
 
 def load_tech_profiles(
         tech_lp,

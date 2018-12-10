@@ -113,7 +113,9 @@ def post_install_setup_minimum(args):
 
     # Load data
     data = {}
-    data['paths'] = data_loader.load_paths(config['PATHS']['path_energy_demand_config'])
+
+    data['paths'] = data_loader.load_paths(path_config_file)
+
     data['lookups'] = lookup_tables.basic_lookups()
 
     data['enduses'], data['sectors'], data['fuels'], lookup_enduses, lookup_sector_enduses = data_loader.load_fuels(data['paths'])
@@ -136,7 +138,6 @@ def post_install_setup_minimum(args):
     # Dummy service sector load profiles
     # --------
     dummy_sectoral_load_profiles(
-        local_paths,
-        config['PATHS']['path_energy_demand_config'])
+        local_paths, path_config_file)
 
     print("Successfully finished post installation setup with open source data")
