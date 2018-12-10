@@ -74,12 +74,18 @@ def post_install_setup_minimum(args):
     path_energy_demand : str
         Path to energy demand python files
     """
-    path_local_data = args.local_data
+    path_config_file = args.local_data
+    config = configparser.ConfigParser()
+    success = config.read(path_config_file)
+    if not success:
+        msg = "Unable to read configuration file at path {}"
+        raise RuntimeError(msg.format(path_config_file))
 
-    path_config_file = os.path.abspath(
-        os.path.join(
-            os.path.dirname(__file__), '..', '..', '..', 'config', 'wrapperconfig.ini'))
-            #os.path.dirname(__file__), '..', '..', '..', 'models', 'energy_demand', 'wrapperconfig.ini'))
+    # Save config in dict and get correct type
+    config = basic_functions.convert_config_to_correct_type(config)
+
+    path_energy_demand = config['PATHS']['path_config_data']
+    path_local_data = config['PATHS']['path_local_data']
 
     # Get config in dict and get correct type
     config = configparser.ConfigParser()
@@ -92,10 +98,11 @@ def post_install_setup_minimum(args):
     print("... running initialisation scripts with only publicly available data")
 
     # Load paths
-    local_paths = data_loader.get_local_paths(config['PATHS']['path_local_data'])
+    local_paths = data_loader.get_local_paths(args.local_data)
 
     # Create folders to input data
-    raw_folder = os.path.join(path_local_data, 'energy_demand', '_raw_data')
+    raw_folder = os.path.join(path_local_data, '_raw_data')
+    processed_folder = os.path.join(path_local_data, '_processed_data')
 
     basic_functions.create_folder(raw_folder)
     basic_functions.create_folder(config['PATHS']['path_processed_data'])
@@ -108,8 +115,8 @@ def post_install_setup_minimum(args):
     data = {}
     data['paths'] = data_loader.load_paths(config['PATHS']['path_energy_demand_config'])
     data['lookups'] = lookup_tables.basic_lookups()
-    data['enduses'], data['sectors'], data['fuels'], lookup_enduses, lookup_sector_enduses = data_loader.load_fuels(
-        data['paths'])
+
+    data['enduses'], data['sectors'], data['fuels'], lookup_enduses, lookup_sector_enduses = data_loader.load_fuels(data['paths'])
 
     # Assumptions
     data['assumptions'] = general_assumptions.Assumptions(

@@ -20,6 +20,7 @@ from energy_demand.plotting import fig_lp
 from energy_demand.basic import basic_functions
 from energy_demand.read_write import narrative_related
 
+
 def print_closest_and_region(stations_as_dict, region_to_plot, closest_region):
     """Function used to test if the closest weather region is assigned
     """
@@ -51,12 +52,11 @@ def print_closest_and_region(stations_as_dict, region_to_plot, closest_region):
 
     plt.legend()
 
-def create_weather_station_map(
-        stations_as_dict,
-        fig_path,
-        path_shapefile=False
-    ):
-    """Plot the spatial disribution of the weather stations
+
+def create_weather_station_map(stations_as_dict,
+                               fig_path,
+                               path_shapefile=False):
+    """Plot the spatial distribution of the weather stations
 
     https://geopandas.readthedocs.io/en/latest/gallery/create_geopandas_from_pandas.html
 
@@ -112,6 +112,7 @@ def create_weather_station_map(
             station_infos.append(station_info)
 
         write_data.write_list_to_txt(fig_path, station_infos)
+
 
 def read_weather_stations_raw(path_to_csv):
     """Read in weather stations from csv file
@@ -454,64 +455,57 @@ def floor_area_virtual_dw(
 
     return dict(rs_floorarea), dict(ss_floorarea_sector_by), service_building_count, rs_regions_without_floorarea, list(ss_regions_without_floorarea)
 
-def get_local_paths(path):
+
+def get_local_paths(config_file_path):
     """Create all local paths
+    
+    Local paths with data used for model config, raw data and process data
 
     Arguments
     --------
-    path : str
-        Path of local folder with data used for model
+    config_file_path : str
+        config_file_path to the wrapperconfig.ini configuration file
 
     Return
     -------
-    paths : dict
+    data_paths : dict
         All local paths used in model
     """
-    paths = {
-        'local_path_datafolder': path,
 
-        # Path to user defined strategy vars
-        'path_strategy_vars': os.path.join(
-            path, 'energy_demand', '00_user_defined_variables'),
+    data_paths = {}
 
-        'path_population_data_for_disaggregation_LAD': os.path.join(
-            path, 'energy_demand', '_raw_data', 'J-population_disagg_by', 'uk_pop_principal_2015_2050.csv'), #ONS principal projection
-        'path_population_data_for_disaggregation_MSOA': os.path.join(
-            path, 'energy_demand', '_raw_data', 'J-population_disagg_by', 'uk_pop_principal_2015_2050_MSOA_lad.csv'), #ONS principal projection
-        'folder_raw_carbon_trust': os.path.join(
-            path, 'energy_demand', '_raw_data', "G_Carbon_Trust_advanced_metering_trial"),
-        'folder_path_weater_stations': os.path.join(
-            path, 'energy_demand', '_raw_data', 'A-temperature_data', 'cleaned_weather_stations.csv'),
-        'path_floor_area_virtual_stock_by': os.path.join(
-            path, 'energy_demand', '_raw_data', 'K-floor_area', 'floor_area_LAD_latest.csv'),
-        'path_assumptions_db': os.path.join(
-            path, 'energy_demand', '_processed_data', 'assumptions_from_db'),
-        'data_processed': os.path.join(
-            path, 'energy_demand', '_processed_data'),
-        'lad_shapefile': os.path.join(
-            path, 'energy_demand', '_raw_data', 'C_LAD_geography', 'same_as_pop_scenario', 'lad_2016_uk_simplified.shp'),
-        'path_post_installation_data': os.path.join(
-            path, 'energy_demand', '_processed_data'),
-        'weather_data': os.path.join(
-            path, 'energy_demand', '_raw_data', 'A-temperature_data', 'cleaned_weather_stations_data'),
-        'load_profiles': os.path.join(
-            path, 'energy_demand', '_processed_data', 'load_profiles'),
-        'rs_load_profile_txt': os.path.join(
-            path, 'energy_demand', '_processed_data', 'load_profiles', 'rs_submodel'),
-        'ss_load_profile_txt': os.path.join(
-            path, 'energy_demand', '_processed_data', 'load_profiles', 'ss_submodel'),
-        'yaml_parameters': os.path.join(
-            path, '..', 'config', 'yaml_parameters.yml'),
-        'yaml_parameters_constrained': os.path.join(
-            path, '..', 'config', 'yaml_parameters_constrained.yml'),
-        'yaml_parameters_keynames_constrained': os.path.join(
-            path, '..', 'config', 'yaml_parameters_keynames_constrained.yml'),
-        'yaml_parameters_keynames_unconstrained': os.path.join(
-            path, '..', 'config', 'yaml_parameters_keynames_unconstrained.yml'),
-        'yaml_parameters_scenario': os.path.join(
-            path, '..', 'config', 'yaml_parameters_scenario.yml')}
+    paths = [
+        'local_path_datafolder',
+        'path_strategy_vars',
+        'path_population_data_for_disaggregation_LAD',
+        'path_population_data_for_disaggregation_MSOA',
+        'folder_raw_carbon_trust',
+        'folder_path_weater_stations',
+        'path_floor_area_virtual_stock_by',
+        'path_assumptions_db',
+        'data_processed',
+        'lad_shapefile',
+        'path_post_installation_data',
+        'weather_data',
+        'load_profiles',
+        'rs_load_profile_txt',
+        'ss_load_profile_txt',
+        'yaml_parameters',
+        'yaml_parameters_constrained',
+        'yaml_parameters_keynames_constrained',
+        'yaml_parameters_keynames_unconstrained',
+        'yaml_parameters_scenario']
 
-    return paths
+    config = configparser.ConfigParser()
+    config.read(config_file_path)
+
+    for path in paths:
+        try:
+            data_paths[path] = config.get('DATA_PATHS', path)
+        except configparser.NoOptionError:
+            msg = "Option '{}' doesn't exist in section 'DATA_PATHS' in {}"
+            raise ValueError(msg.format(path, config_file_path))
+    return data_paths
 
 def get_result_paths(path):
     """Load all result paths

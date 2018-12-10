@@ -14,6 +14,9 @@ def convert_config_to_correct_type(config):
     for path in config['PATHS']:
         out_dict['PATHS'][path] = config.get('PATHS', path)
 
+    for path in config['DATA_PATHS']:
+        out_dict['DATA_PATHS'][path] = config.get('DATA_PATHS', path)
+
     for config_section in config['CONFIG']:
         out_dict['CONFIG'][config_section] = config.getint('CONFIG', config_section)
 
