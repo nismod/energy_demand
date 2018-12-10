@@ -1569,35 +1569,40 @@ def generic_fuel_switch(
 
         # Test is not a switch for the whole enduse (across every sector) is defined
         try:
-            key_of_switch = list(fuel_switch[enduse].keys())
+            keys_of_switch = list(fuel_switch[enduse].keys())
 
-            # Test wheter switches for sectors are provided
-            if 'param_info' in key_of_switch: #one switch
-                fuel_switch = fuel_switch[enduse]
-                switch_defined = True
-            else:
-                pass # Switch is not defined for this sector
+            for key_of_switch in keys_of_switch:
+                # Test wheter switches for sectors are provided
+                if 'param_info' in fuel_switch[enduse][key_of_switch]: #one switch
+                    fuel_switch = fuel_switch[enduse]
+                    switch_defined = True
+                else:
+                    pass # Switch is not defined for this sector
         except KeyError:
             pass
 
     if switch_defined is True:
-        if fuel_switch[curr_yr] != 0:
+        print(enduse)
+        print("fuel_switch " + str(fuel_switch))
 
-            # Get fueltype to switch (old)
-            fueltype_replace_int = int(fuel_switch['param_info']['fueltype_replace'])
+        for fueltype_replace_int in fuel_switch.keys():
+            if fuel_switch[fueltype_replace_int][curr_yr] != 0:
+                # Get fueltype to switch (old)
+                #fueltype_replace_int = int(fuel_switch['param_info']['fueltype_replace'])
+                fueltype_replace_int = fueltype_replace_int
 
-            # Get fueltype to switch to (new)
-            fueltype_new_int = int(fuel_switch['param_info']['fueltype_new'])
+                # Get fueltype to switch to (new)
+                fueltype_new_int = int(fuel_switch[fueltype_replace_int]['param_info']['fueltype_new'])
 
-            # Value of current year
-            fuel_share_switched_cy = fuel_switch[curr_yr]
+                # Value of current year
+                fuel_share_switched_cy = fuel_switch[fueltype_replace_int][curr_yr]
 
-            # Substract fuel
-            fuel_minus = fuel_y[fueltype_replace_int] * (1 - fuel_share_switched_cy)
-            fuel_y[fueltype_replace_int] -= fuel_minus
+                # Substract fuel
+                fuel_minus = fuel_y[fueltype_replace_int] * (1 - fuel_share_switched_cy)
+                fuel_y[fueltype_replace_int] -= fuel_minus
 
-            # Add fuel
-            fuel_y[fueltype_new_int] += fuel_minus
+                # Add fuel
+                fuel_y[fueltype_new_int] += fuel_minus
         else:
             # no fuel switch defined
             pass

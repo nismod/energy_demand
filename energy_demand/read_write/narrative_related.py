@@ -26,7 +26,7 @@ def get_all_sectors_of_narratives(narratives):
 
     return all_sectors
 
-def get_sector_narrative(sector_to_match, switches):
+def get_sector_narrative_and_single_from_multi(sector_to_match, switches):
     """Get all switches of a sector if the switches are
     defined specifically for a sector. If the switches are
     not specifically for a sector, return all switches
@@ -48,14 +48,35 @@ def get_sector_narrative(sector_to_match, switches):
     else:
         switches_out = []
 
-        for switch in switches:
 
-            if switch['sector'] == sector_to_match:
-                switches_out.append(switch)
-            elif not switch['sector']: # Not defined specifically for sectors and append all
-                switches_out.append(switch)
-            else:
-                pass
+        # Test if multiple switches e.g. per fueltype
+        fueltypes_switched = set([])
+        for switch in switches:
+            fueltypes_switched.add(switch['fueltype_new'])
+
+        if len(fueltypes_switched) > 1:
+
+            for fueltype in fueltypes_switched:
+                switches_out_single = []
+                for switch in switches:
+                    if switch['sector'] == sector_to_match and switch['fueltype_new'] == fueltype:
+                        switches_out_single.append(switch)
+                    elif not switch['sector'] and switch['fueltype_new'] == fueltype: # Not defined specifically for sectors and append all
+                        switches_out_single.append(switch)
+                    else:
+                        pass
+                switches_out.append(switches_out_single)
+        else:
+            switches_out_single = []
+            for switch in switches:
+                if switch['sector'] == sector_to_match:
+                    switches_out_single.append(switch)
+                elif not switch['sector']: # Not defined specifically for sectors and append all
+                    switches_out_single.append(switch)
+                else:
+                    pass
+
+            switches_out = [switches_out_single]
 
         return switches_out
 
@@ -151,7 +172,7 @@ def default_narrative(
     container : list
         List with narrative
     """
-    default_narrative = [{
+    return [{
         'base_yr': base_yr,
         'end_yr': end_yr,
         'value_by': value_by,
@@ -160,8 +181,6 @@ def default_narrative(
         'sig_midpoint': sig_midpoint,
         'sig_steepness': sig_steepness,
         'regional_specific': regional_specific}]
-
-    return default_narrative
 
 def autocomplete(parameter_narratives, simulation_base_yr, sub_param_crit):
     """
@@ -172,40 +191,42 @@ def autocomplete(parameter_narratives, simulation_base_yr, sub_param_crit):
         for sector, narratives in narratives_sector.items():
             autocomplet_param_narr[sub_param_name][sector] = []
 
-            switches_to_create_narrative = get_sector_narrative(sector, narratives)
+            switches_to_create_narrative = get_sector_narrative_and_single_from_multi(
+                sector, narratives)
 
-            # Get all years of switches_to_create_narrative
-            all_yrs = []
-            for narrative in switches_to_create_narrative:
-                all_yrs.append(narrative['end_yr'])
+            for switch_to_create_narrative in switches_to_create_narrative:
+                # Get all years of switches_to_create_narrative
+                all_yrs = []
+                for narrative in switch_to_create_narrative:
+                    all_yrs.append(narrative['end_yr'])
 
-            all_yrs.sort()
+                all_yrs.sort()
 
-            for year_cnt, year in enumerate(all_yrs):
-                for narrative in switches_to_create_narrative:
-                    if narrative['end_yr'] == year:
-                        yr_narrative = narrative
-                        break
+                for year_cnt, year in enumerate(all_yrs):
+                    for narrative in switch_to_create_narrative:
+                        if narrative['end_yr'] == year:
+                            yr_narrative = narrative
+                            break
 
-                # Add missing entries to narrative
-                if year_cnt == 0:
-                    # Update
-                    yr_narrative['base_yr'] = simulation_base_yr
-                    yr_narrative['value_by'] = narrative['default_by']
+                    # Add missing entries to narrative
+                    if year_cnt == 0:
+                        # Update
+                        yr_narrative['base_yr'] = simulation_base_yr
+                        yr_narrative['value_by'] = narrative['default_by']
 
-                    # previous value
-                    previous_yr = narrative['end_yr']
-                    previous_value = narrative['value_ey']
-                else:
-                    # Update
-                    yr_narrative['base_yr'] = previous_yr
-                    yr_narrative['value_by'] = previous_value
+                        # previous value
+                        previous_yr = narrative['end_yr']
+                        previous_value = narrative['value_ey']
+                    else:
+                        # Update
+                        yr_narrative['base_yr'] = previous_yr
+                        yr_narrative['value_by'] = previous_value
 
-                    # previous value
-                    previous_yr = narrative['end_yr']
-                    previous_value = narrative['value_ey']
+                        # previous value
+                        previous_yr = narrative['end_yr']
+                        previous_value = narrative['value_ey']
 
-                autocomplet_param_narr[sub_param_name][sector].append(yr_narrative)
+                    autocomplet_param_narr[sub_param_name][sector].append(yr_narrative)
 
     # Remove all dummy sector
     autocomplet_param_narr_new = defaultdict(dict)
@@ -316,14 +337,6 @@ def read_user_defined_param(
                             narrative['default_by'] = default_streategy_var[enduse]['default_value']
 
                             # Check if more than one entry 
-                            '''try:
-                                count_nr_of_occurences = df_enduse.groupby('interpolation_params').count()
-                            except:
-                                pass
-                            try:
-                                count_nr_of_occurences = df_enduse.groupby('param_generic_fuel_switch').count()
-                            except:
-                                pass'''
                             for _index, row in df_enduse.iterrows():
 
                                 try:
@@ -332,7 +345,7 @@ def read_user_defined_param(
                                     # Generic fuel switch
                                     interpolation_params = row['param_generic_fuel_switch']
 
-                                '''# NNNNNNNNNNNNNNNNN
+                                # If more than one switch per enduse
                                 if interpolation_params in narrative:
 
                                     # Add narrative and start new one
@@ -355,12 +368,11 @@ def read_user_defined_param(
                                     else:
                                         narrative[interpolation_params] = float(row[var_name])
                                 else:
-                                    # NNNNNNNNNNNNNNNNN'''
-                                if interpolation_params == 'diffusion_choice':
-                                    int_diffusion_choice = float(row[var_name])
-                                    narrative['diffusion_choice'] = lookups['diffusion_type'][int_diffusion_choice]
-                                else:
-                                    narrative[interpolation_params] = float(row[var_name])
+                                    if interpolation_params == 'diffusion_choice':
+                                        int_diffusion_choice = float(row[var_name])
+                                        narrative['diffusion_choice'] = lookups['diffusion_type'][int_diffusion_choice]
+                                    else:
+                                        narrative[interpolation_params] = float(row[var_name])
 
                             # Add narrative
                             try:
@@ -418,6 +430,7 @@ def read_user_defined_param(
                 # Needs to be implemented in case sector specific
                 pass
 
+        # Autocomplete
         parameter_narratives = autocomplete(
             parameter_narratives,
             simulation_base_yr,

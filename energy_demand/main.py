@@ -129,7 +129,7 @@ if __name__ == "__main__":
 
     name_config_path = 'high_electrification'
     name_config_path = 'h_l'
-    #name_config_path = 'l_l'
+    name_config_path = 'l_h'
 
     path_strategy_vars = os.path.join(local_data_path, 'energy_demand', '00_user_defined_variables', 'high_electrification')
     path_strategy_vars = os.path.join(local_data_path, 'energy_demand', '00_user_defined_variables', name_config_path)
@@ -378,7 +378,7 @@ if __name__ == "__main__":
         service_switches=service_switches,
         fuel_switches=fuel_switches,
         capacity_switches=capacity_switches)
-    
+
     for region in data['regions']:
         regional_vars[region]['annual_tech_diff_params'] = annual_tech_diff_params[region]
 
