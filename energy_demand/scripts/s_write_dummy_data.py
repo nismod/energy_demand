@@ -74,10 +74,6 @@ def post_install_setup_minimum(args):
     path_energy_demand : str
         Path to energy demand python files
     """
-    path_energy_demand = resource_filename(
-        Requirement.parse("energy_demand"),
-        os.path.join("energy_demand", "config_data"))
-
     path_local_data = args.local_data
 
     path_config_file = os.path.abspath(
@@ -96,33 +92,30 @@ def post_install_setup_minimum(args):
     print("... running initialisation scripts with only publicly available data")
 
     # Load paths
-    local_paths = data_loader.get_local_paths(path_local_data)
+    local_paths = data_loader.get_local_paths(config['PATHS']['path_local_data'])
 
     # Create folders to input data
     raw_folder = os.path.join(path_local_data, 'energy_demand', '_raw_data')
-    processed_folder = os.path.join(path_local_data, 'energy_demand', '_processed_data')
 
     basic_functions.create_folder(raw_folder)
-    basic_functions.create_folder(processed_folder)
+    basic_functions.create_folder(config['PATHS']['path_processed_data'])
     basic_functions.create_folder(local_paths['path_post_installation_data'])
     basic_functions.create_folder(local_paths['load_profiles'])
     basic_functions.create_folder(local_paths['rs_load_profile_txt'])
     basic_functions.create_folder(local_paths['ss_load_profile_txt'])
 
     # Load data
-    base_yr = 2015
     data = {}
-
-    data['paths'] = data_loader.load_paths(path_energy_demand)
-
+    data['paths'] = data_loader.load_paths(config['PATHS']['path_energy_demand_config'])
     data['lookups'] = lookup_tables.basic_lookups()
-    data['enduses'], data['sectors'], data['fuels'], lookup_enduses, lookup_sector_enduses = data_loader.load_fuels(data['paths'])
+    data['enduses'], data['sectors'], data['fuels'], lookup_enduses, lookup_sector_enduses = data_loader.load_fuels(
+        data['paths'])
 
     # Assumptions
     data['assumptions'] = general_assumptions.Assumptions(
         lookup_enduses=lookup_enduses,
         lookup_sector_enduses=lookup_sector_enduses,
-        base_yr=base_yr,
+        base_yr=2015,
         weather_by=config['CONFIG']['user_defined_weather_by'],
         simulation_end_yr=config['CONFIG']['user_defined_simulation_end_yr'],
         paths=data['paths'],
@@ -132,14 +125,11 @@ def post_install_setup_minimum(args):
     # Read in residential submodel shapes
     run(data['paths'], local_paths, base_yr)
 
-    # ==========================================
-    # Create not publica available files
-    # ==========================================
-
     # --------
     # Dummy service sector load profiles
     # --------
     dummy_sectoral_load_profiles(
-        local_paths, path_energy_demand)
+        local_paths,
+        config['PATHS']['path_energy_demand_config'])
 
     print("Successfully finished post installation setup with open source data")
