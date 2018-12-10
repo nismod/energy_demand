@@ -315,6 +315,15 @@ def read_user_defined_param(
                             narrative['regional_specific'] = default_streategy_var[enduse]['regional_specific']
                             narrative['default_by'] = default_streategy_var[enduse]['default_value']
 
+                            # Check if more than one entry 
+                            '''try:
+                                count_nr_of_occurences = df_enduse.groupby('interpolation_params').count()
+                            except:
+                                pass
+                            try:
+                                count_nr_of_occurences = df_enduse.groupby('param_generic_fuel_switch').count()
+                            except:
+                                pass'''
                             for _index, row in df_enduse.iterrows():
 
                                 try:
@@ -323,6 +332,30 @@ def read_user_defined_param(
                                     # Generic fuel switch
                                     interpolation_params = row['param_generic_fuel_switch']
 
+                                '''# NNNNNNNNNNNNNNNNN
+                                if interpolation_params in narrative:
+
+                                    # Add narrative and start new one
+                                    try:
+                                        parameter_narratives[enduse][narrative['sector']].append(narrative)
+                                    except KeyError:
+                                        parameter_narratives[enduse][narrative['sector']] = [narrative]
+
+                                    narrative = {}
+                                    narrative['sector'] = 'dummy_sector'
+                                    narrative['end_yr'] = end_yr
+                                    narrative['sig_midpoint'] = 0
+                                    narrative['sig_steepness'] = 1
+                                    narrative['regional_specific'] = default_streategy_var[enduse]['regional_specific']
+                                    narrative['default_by'] = default_streategy_var[enduse]['default_value']
+
+                                    if interpolation_params == 'diffusion_choice':
+                                        int_diffusion_choice = float(row[var_name])
+                                        narrative['diffusion_choice'] = lookups['diffusion_type'][int_diffusion_choice]
+                                    else:
+                                        narrative[interpolation_params] = float(row[var_name])
+                                else:
+                                    # NNNNNNNNNNNNNNNNN'''
                                 if interpolation_params == 'diffusion_choice':
                                     int_diffusion_choice = float(row[var_name])
                                     narrative['diffusion_choice'] = lookups['diffusion_type'][int_diffusion_choice]

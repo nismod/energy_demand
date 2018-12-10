@@ -60,6 +60,7 @@ def main(
 
     all_scenarios = os.listdir(scenarios_path)
     scenario_result_container = []
+    basic_functions.create_folder(result_path)
 
     for scenario_nr, scenario_name in enumerate(all_scenarios):
 
@@ -73,7 +74,7 @@ def main(
                 paths_folders_result.append(
                     os.path.join(scenario_path, result_folder))
 
-        basic_functions.create_folder(result_path)
+        
 
         fueltype_str_to_create_maps = ['electricity']
 

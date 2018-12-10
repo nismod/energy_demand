@@ -103,8 +103,8 @@ if __name__ == "__main__":
     user_defined_simulation_end_yr = config['CONFIG']['user_defined_simulation_end_yr']
 
     # Simulated yrs
-    #sim_yrs = [base_yr, user_defined_simulation_end_yr]
-    sim_yrs = [2015, 2025, 2035, 2045, 2050]
+    sim_yrs = [base_yr, user_defined_simulation_end_yr]
+    #sim_yrs = [2015, 2020, 2025, 2030, 2035, 2040, 2045, 2050]
     weather_yr_scenario = 2015   # Default weather year
 
     if len(sys.argv) > 1: #user defined arguments are provide
@@ -129,6 +129,7 @@ if __name__ == "__main__":
 
     name_config_path = 'high_electrification'
     name_config_path = 'h_l'
+    #name_config_path = 'l_l'
 
     path_strategy_vars = os.path.join(local_data_path, 'energy_demand', '00_user_defined_variables', 'high_electrification')
     path_strategy_vars = os.path.join(local_data_path, 'energy_demand', '00_user_defined_variables', name_config_path)
