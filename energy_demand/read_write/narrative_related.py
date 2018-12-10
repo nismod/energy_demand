@@ -49,10 +49,12 @@ def get_sector_narrative_and_single_from_multi(sector_to_match, switches):
         switches_out = []
 
         # Test if multiple switches e.g. per fueltype
-        fueltypes_switched = set([])
-        for switch in switches:
-            print("switch" + str(switch))
-            fueltypes_switched.add(switch['fueltype_new'])
+        try:
+            fueltypes_switched = set([])
+            for switch in switches:
+                fueltypes_switched.add(switch['fueltype_new'])
+        except:
+            fueltypes_switched = []
 
         if len(fueltypes_switched) > 1:
 
@@ -93,7 +95,7 @@ def crit_dim_var(var):
     single_dimension : bool
         True: Single dimension, False: Multidimensional parameter
     """
-    if type(var) is list:# or 'dummy_sector':
+    if type(var) is list:
         single_dimension = True
     else:
         try:
@@ -193,6 +195,7 @@ def autocomplete(parameter_narratives, simulation_base_yr, sub_param_crit):
     autocomplet_param_narr = defaultdict(dict)
 
     for sub_param_name, narratives_sector in parameter_narratives.items():
+        print("... " + str(sub_param_name))
         for sector, narratives in narratives_sector.items():
             autocomplet_param_narr[sub_param_name][sector] = []
 

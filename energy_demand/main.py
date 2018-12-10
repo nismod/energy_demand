@@ -129,7 +129,8 @@ if __name__ == "__main__":
 
     name_config_path = 'high_electrification'
     name_config_path = 'h_l'
-    name_config_path = 'l_h'
+    name_config_path = 'l_h' #TODO
+    #name_config_path = 'l_c'
 
     path_strategy_vars = os.path.join(local_data_path, 'energy_demand', '00_user_defined_variables', 'high_electrification')
     path_strategy_vars = os.path.join(local_data_path, 'energy_demand', '00_user_defined_variables', name_config_path)
@@ -351,13 +352,14 @@ if __name__ == "__main__":
         data['assumptions'].strategy_vars,
         sim_yrs)
 
-    print("dddddddd")
-    print(regional_vars['E0000000'])
     # ------------------------------------------------
     # Calculate switches (not generic)
     # ------------------------------------------------
-    service_switches_raw = pd.read_csv(os.path.join(data['local_paths']['path_strategy_vars'], "switches_service.csv"))
-    service_switches = read_data.service_switch(service_switches_raw)
+    try:
+        service_switches_raw = pd.read_csv(os.path.join(data['local_paths']['path_strategy_vars'], "switches_service.csv"))
+        service_switches = read_data.service_switch(service_switches_raw)
+    except:
+        service_switches = []
 
     fuel_switches = read_data.read_fuel_switches(os.path.join(data['local_paths']['path_strategy_vars'], "switches_fuel.csv"), data['enduses'], data['assumptions'].fueltypes, data['assumptions'].technologies)
     capacity_switches = read_data.read_capacity_switch(os.path.join(data['local_paths']['path_strategy_vars'], "switches_capacity.csv"))

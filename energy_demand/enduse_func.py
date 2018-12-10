@@ -1576,15 +1576,11 @@ def generic_fuel_switch(
                     pass # Switch is not defined for this sector
         except KeyError:
             pass
-    print("fuel_switch" + str(fuel_switch))
+
     if switch_defined is True:
         for fueltype_new_int in fuel_switch.keys():
-            print("AA " + str(fueltype_new_int))
-            print(curr_yr)
+
             if fuel_switch[fueltype_new_int][curr_yr] != 0:
-                # Get fueltype to switch (old)
-                #fueltype_replace_int = int(fuel_switch['param_info']['fueltype_replace'])
-                #fueltype_replace_int = int(fueltype_replace_int)
 
                 # Get fueltype to switch to (new)
                 fueltype_new_int = int(fuel_switch[fueltype_new_int]['param_info']['fueltype_new'])
@@ -1592,7 +1588,7 @@ def generic_fuel_switch(
                 fueltype_replace_int = int(fuel_switch[fueltype_new_int]['param_info']['fueltype_replace'])
 
                 # Value of current year
-                fuel_share_switched_cy = fuel_switch[fueltype_replace_int][curr_yr]
+                fuel_share_switched_cy = fuel_switch[fueltype_new_int][curr_yr]
 
                 # Substract fuel
                 fuel_minus = fuel_y[fueltype_replace_int] * (1 - fuel_share_switched_cy)
