@@ -456,9 +456,58 @@ def floor_area_virtual_dw(
     return dict(rs_floorarea), dict(ss_floorarea_sector_by), service_building_count, rs_regions_without_floorarea, list(ss_regions_without_floorarea)
 
 
+def read_config_file(config_file_path):
+    """Reads all sections of a configuration file
+
+    Arguments
+    ---------
+    config_file_path : str
+        Absolute path to the configuration file
+
+    Returns
+    -------
+    dict
+        A nested dictionary containing all the paths
+
+    """
+    config = configparser.ConfigParser()
+    config.read(config_file_path)
+
+    return convert_config_to_correct_type(config)
+
+
+def convert_config_to_correct_type(config):
+    """Convert config types into correct types
+    """
+    out_dict = defaultdict(dict)
+
+    for path in config['PATHS']:
+        out_dict['PATHS'][path] = config.get('PATHS', path)
+
+    for path in config['DATA_PATHS']:
+        out_dict['DATA_PATHS'][path] = config.get('DATA_PATHS', path)
+
+    for path in config['CONFIG_DATA']:
+        out_dict['CONFIG_DATA'][path] = config.get('CONFIG_DATA', path)
+
+    for path in config['RESULT_DATA']:
+        out_dict['RESULT_DATA'][path] = config.get('RESULT_DATA', path)
+
+    for config_section in config['CONFIG']:
+        out_dict['CONFIG'][config_section] = config.getint('CONFIG', config_section)
+
+    for criteria in config['CRITERIA']:
+        if criteria == 'reg_selection_csv_name':
+            out_dict['CRITERIA'][criteria] = config.get('CRITERIA', criteria)
+        else:
+            out_dict['CRITERIA'][criteria] = config.getboolean('CRITERIA', criteria)
+
+    return dict(out_dict)
+
+
 def get_local_paths(config_file_path):
     """Create all local paths
-    
+
     Local paths with data used for model config, raw data and process data
 
     Arguments
@@ -472,33 +521,33 @@ def get_local_paths(config_file_path):
         All local paths used in model
     """
     paths = [
-        'local_path_datafolder',
-        'path_strategy_vars',
-        'path_population_data_for_disaggregation_LAD',
-        'path_population_data_for_disaggregation_MSOA',
-        'folder_raw_carbon_trust',
-        'folder_path_weater_stations',
-        'path_floor_area_virtual_stock_by',
-        'path_assumptions_db',
-        'data_processed',
-        'lad_shapefile',
-        'path_post_installation_data',
-        'weather_data',
-        'load_profiles',
-        'rs_load_profile_txt',
-        'ss_load_profile_txt',
-        'yaml_parameters',
-        'yaml_parameters_constrained',
-        'yaml_parameters_keynames_constrained',
-        'yaml_parameters_keynames_unconstrained',
-        'yaml_parameters_scenario']
+        ('local_path_datafolder', 'str')
+        ('path_strategy_vars', 'str')
+        ('path_population_data_for_disaggregation_LAD', 'str')
+        ('path_population_data_for_disaggregation_MSOA', 'str')
+        ('folder_raw_carbon_trust', 'str')
+        ('folder_path_weater_stations', 'str')
+        ('path_floor_area_virtual_stock_by', 'str')
+        ('path_assumptions_db', 'str')
+        ('data_processed', 'str')
+        ('lad_shapefile', 'str')
+        ('path_post_installation_data', 'str')
+        ('weather_data', 'str')
+        ('load_profiles', 'str')
+        ('rs_load_profile_txt', 'str')
+        ('ss_load_profile_txt', 'str')
+        ('yaml_parameters', 'str')
+        ('yaml_parameters_constrained', 'str')
+        ('yaml_parameters_keynames_constrained', 'str')
+        ('yaml_parameters_keynames_unconstrained', 'str')
+        ('yaml_parameters_scenario', 'str')]
 
     return _read_config_file_section('DATA_PATHS', config_file_path, paths)
 
 
 def _read_config_file_section(section, config_file_path, items):
     """
-    
+
     Arguments
     ---------
     section : str
@@ -520,46 +569,48 @@ def _read_config_file_section(section, config_file_path, items):
     data_paths = {}
     config = configparser.ConfigParser()
     config.read(config_file_path)
-    for item in items:
+    for item, item_type in items:
         try:
-            data_paths[item] = config.get(section, item)
+            if item_type == 'str':
+                data_paths[item] = config.get(section, item)
+            elif item_type == 'bool':
+                data_paths[item] = config.getboolean(section, item)
+            elif item_type == 'int':
+                data_paths[item] = config.getint(section, item)
+
         except configparser.NoOptionError:
-            msg = "Option '{}' doesn't exist in section {} in {}"
+            msg = "Option '{}' doesn't exist in section '{}' in '{}'"
             raise ValueError(msg.format(item, section, config_file_path))
+        except configparser.NoSectionError:
+            msg = "Section '{}' doesn't exist in '{}'"
+            raise ValueError(msg.format(section, config_file_path))
     return data_paths
 
-def get_result_paths(path):
+
+def get_result_paths(config_file_path):
     """Load all result paths
 
     Arguments
     --------
-    path : str
-        Path to result folder
+    config_file_path : str
+        config_file_path to the wrapperconfig.ini configuration file
 
     Return
     -------
     paths : dict
         All result paths used in model
     """
-    paths = {
-        'data_results':
-            path,
-        'data_results_model_run_pop': os.path.join(
-            path, 'model_run_pop'),
-        'data_results_model_runs': os.path.join(
-            path, 'model_run_results_txt'),
-        'data_results_PDF': os.path.join(
-            path, 'PDF_results'),
-        'data_results_validation': os.path.join(
-            path, 'PDF_validation'),
-        'model_run_pop': os.path.join(
-            path, 'model_run_pop'),
-        'data_results_shapefiles': os.path.join(
-            path, 'spatial_results'),
-        'individual_enduse_lp': os.path.join(
-            path, 'individual_enduse_lp')}
+    paths = [
+        ('data_results_model_run_pop', 'str'),
+        ('data_results_model_runs', 'str'),
+        ('data_results_PDF', 'str'),
+        ('data_results_validation', 'str'),
+        ('model_run_pop', 'str'),
+        ('data_results_shapefiles', 'str'),
+        ('individual_enduse_lp', 'str')]
 
-    return paths
+    return _read_config_file_section('RESULT_DATA', config_file_path, paths)
+
 
 def load_paths(config_file_path):
     """Load all paths of the installed config data
@@ -575,37 +626,38 @@ def load_paths(config_file_path):
         Dictionary containing the paths to each datafile
     """
     paths = [
-        'path_main',
+        ('path_main', 'int'),
         # Path to all technologies
-        'path_technologies',
+        ('path_technologies', 'int'),
         # Paths to fuel raw data
-        'rs_fuel_raw',
-        'ss_fuel_raw',
-        'is_fuel_raw',
+        ('rs_fuel_raw', 'int'),
+        ('ss_fuel_raw', 'int'),
+        ('is_fuel_raw', 'int'),
         # Load profiles
-        'lp_rs',
+        ('lp_rs', 'int'),
         # Technologies load shapes
-        'path_hourly_gas_shape_resid',
-        'lp_elec_hp_dh',
-        'lp_all_microCHP_dh',
-        'path_shape_rs_cooling',
-        'path_shape_ss_cooling',
-        'lp_elec_storage_heating',
-        'lp_elec_secondary_heating',
+        ('path_hourly_gas_shape_resid', 'int'),
+        ('lp_elec_hp_dh', 'int'),
+        ('lp_all_microCHP_dh', 'int'),
+        ('path_shape_rs_cooling', 'int'),
+        ('path_shape_ss_cooling', 'int'),
+        ('lp_elec_storage_heating', 'int'),
+        ('lp_elec_secondary_heating', 'int'),
         # Census data
-        'path_employment_statistics',
+        ('path_employment_statistics', 'int'),
         # Validation datasets
-        'val_subnational_elec',
-        'val_subnational_elec_residential',
-        'val_subnational_elec_non_residential',
-        'val_subnational_elec_msoa_residential',
-        'val_subnational_elec_msoa_non_residential',
-        'val_subnational_gas',
-        'val_subnational_gas_residential',
-        'val_subnational_gas_non_residential',
-        'val_nat_elec_data']
+        ('val_subnational_elec', 'int'),
+        ('val_subnational_elec_residential', 'int'),
+        ('val_subnational_elec_non_residential', 'int'),
+        ('val_subnational_elec_msoa_residential', 'int'),
+        ('val_subnational_elec_msoa_non_residential', 'int'),
+        ('val_subnational_gas', 'int'),
+        ('val_subnational_gas_residential', 'int'),
+        ('val_subnational_gas_non_residential', 'int'),
+        ('val_nat_elec_data', 'int')]
 
     return _read_config_file_section('CONFIG_DATA', config_file_path, paths)
+
 
 def load_tech_profiles(
         tech_lp,
