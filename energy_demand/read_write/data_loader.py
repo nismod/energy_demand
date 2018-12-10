@@ -471,9 +471,6 @@ def get_local_paths(config_file_path):
     data_paths : dict
         All local paths used in model
     """
-
-    data_paths = {}
-
     paths = [
         'local_path_datafolder',
         'path_strategy_vars',
@@ -496,15 +493,39 @@ def get_local_paths(config_file_path):
         'yaml_parameters_keynames_unconstrained',
         'yaml_parameters_scenario']
 
+    return _read_config_file_section('DATA_PATHS', config_file_path, paths)
+
+
+def _read_config_file_section(section, config_file_path, items):
+    """
+    
+    Arguments
+    ---------
+    section : str
+        Name of the section to read
+    config_file_path : str
+        Absolute path to the config file
+    items : list of str
+        A list of names of the config items to read
+
+    Returns
+    -------
+    dict
+        Keys are the item names
+
+    Raises
+    ------
+    ValueError if the configuration item does not exist in the file
+    """
+    data_paths = {}
     config = configparser.ConfigParser()
     config.read(config_file_path)
-
-    for path in paths:
+    for item in items:
         try:
-            data_paths[path] = config.get('DATA_PATHS', path)
+            data_paths[item] = config.get(section, item)
         except configparser.NoOptionError:
-            msg = "Option '{}' doesn't exist in section 'DATA_PATHS' in {}"
-            raise ValueError(msg.format(path, config_file_path))
+            msg = "Option '{}' doesn't exist in section {} in {}"
+            raise ValueError(msg.format(item, section, config_file_path))
     return data_paths
 
 def get_result_paths(path):
