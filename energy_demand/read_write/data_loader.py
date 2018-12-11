@@ -587,6 +587,32 @@ def _read_config_file_section(section, config_file_path, items):
     return data_paths
 
 
+def get_weather_result_paths(weather_path):
+    """Joins results subfolders to ``weather_path`` and returns a dict
+
+    Arguments
+    ---------
+    weather_path : str
+        Path to the weather results simulations
+
+    Returns
+    -------
+    dict
+    """
+    paths = {
+        'data_results':
+            weather_path,
+        'data_results_PDF': os.path.join(
+            weather_path, 'PDF_results'),
+        'data_results_validation': os.path.join(
+            weather_path, 'PDF_validation'),
+        'data_results_model_runs': os.path.join(
+            weather_path, 'model_run_results_txt'),
+        }
+
+    return paths
+
+
 def get_result_paths(config_file_path):
     """Load all result paths
 
@@ -1185,6 +1211,7 @@ def rs_collect_shapes_from_txts(txt_path, model_yeardays):
             'shape_non_peak_yd': shape_non_peak_yd_selection}
 
     return rs_shapes_dh, rs_shapes_yd
+
 
 def ss_collect_shapes_from_txts(txt_path, model_yeardays):
     """Collect service shapes from txt files for every setor and enduse

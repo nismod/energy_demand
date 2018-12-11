@@ -28,9 +28,9 @@ def load_data_before_simulation(
     # -----------
     base_yr = config['CONFIG']['base_yr']
     weather_yr_scenario = config['CONFIG']['weather_yr_scenario']
-    path_new_scenario = data['path_new_scenario']
+    path_new_scenario = config['PATHS']['path_new_scenario']
 
-    data['weather_station_count_nr'] = [] # Default value is '[]' to use all stations
+    data['weather_station_count_nr'] = []  # Default value is '[]' to use all stations
     data['data_path'] = os.path.normpath(config['PATHS']['path_local_data'])
     data['processed_path'] = os.path.normpath(config['PATHS']['path_processed_data'])
     data['result_path'] = os.path.normpath(config['PATHS']['path_result_data'])
@@ -104,7 +104,7 @@ def load_data_before_simulation(
 
     # Create .ini file with simulation parameter
     write_data.write_simulation_inifile(
-        data['path_new_scenario'], data, region_selection)
+        path_new_scenario, data, region_selection)
 
     # -------------------------------------------
     # Weather year specific initialisations
@@ -112,14 +112,14 @@ def load_data_before_simulation(
     path_folder_weather_yr = os.path.join(
         os.path.join(path_new_scenario, data['simulation_name']))
 
-    data['result_paths'] = data_loader.get_result_paths(path_folder_weather_yr)
+    data['weather_result_paths'] = data_loader.get_weather_result_paths(path_folder_weather_yr)
 
     folders_to_create = [
         path_folder_weather_yr,
-        data['result_paths']['data_results'],
-        data['result_paths']['data_results_PDF'],
-        data['result_paths']['data_results_validation'],
-        data['result_paths']['data_results_model_runs']]
+        data['weather_result_paths']['data_results'],
+        data['weather_result_paths']['data_results_PDF'],
+        data['weather_result_paths']['data_results_validation'],
+        data['weather_result_paths']['data_results_model_runs']]
     for folder in folders_to_create:
         basic_functions.create_folder(folder)
 
