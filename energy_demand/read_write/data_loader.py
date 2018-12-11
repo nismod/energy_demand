@@ -508,7 +508,8 @@ def convert_config_to_correct_type(config):
 def get_local_paths(config_file_path):
     """Create all local paths
 
-    Local paths with data used for model config, raw data and process data
+    Local paths with data used for model config, raw data and process data from
+    the `DATA_PATHS` section of the config file
 
     Arguments
     --------
@@ -521,32 +522,32 @@ def get_local_paths(config_file_path):
         All local paths used in model
     """
     paths = [
-        ('local_path_datafolder', 'str')
-        ('path_strategy_vars', 'str')
-        ('path_population_data_for_disaggregation_LAD', 'str')
-        ('path_population_data_for_disaggregation_MSOA', 'str')
-        ('folder_raw_carbon_trust', 'str')
-        ('folder_path_weater_stations', 'str')
-        ('path_floor_area_virtual_stock_by', 'str')
-        ('path_assumptions_db', 'str')
-        ('data_processed', 'str')
-        ('lad_shapefile', 'str')
-        ('path_post_installation_data', 'str')
-        ('weather_data', 'str')
-        ('load_profiles', 'str')
-        ('rs_load_profile_txt', 'str')
-        ('ss_load_profile_txt', 'str')
-        ('yaml_parameters', 'str')
-        ('yaml_parameters_constrained', 'str')
-        ('yaml_parameters_keynames_constrained', 'str')
-        ('yaml_parameters_keynames_unconstrained', 'str')
+        ('local_path_datafolder', 'str'),
+        ('path_strategy_vars', 'str'),
+        ('path_population_data_for_disaggregation_LAD', 'str'),
+        ('path_population_data_for_disaggregation_MSOA', 'str'),
+        ('folder_raw_carbon_trust', 'str'),
+        ('folder_path_weater_stations', 'str'),
+        ('path_floor_area_virtual_stock_by', 'str'),
+        ('path_assumptions_db', 'str'),
+        ('data_processed', 'str'),
+        ('lad_shapefile', 'str'),
+        ('path_post_installation_data', 'str'),
+        ('weather_data', 'str'),
+        ('load_profiles', 'str'),
+        ('rs_load_profile_txt', 'str'),
+        ('ss_load_profile_txt', 'str'),
+        ('yaml_parameters', 'str'),
+        ('yaml_parameters_constrained', 'str'),
+        ('yaml_parameters_keynames_constrained', 'str'),
+        ('yaml_parameters_keynames_unconstrained', 'str'),
         ('yaml_parameters_scenario', 'str')]
 
     return _read_config_file_section('DATA_PATHS', config_file_path, paths)
 
 
 def _read_config_file_section(section, config_file_path, items):
-    """
+    """Read a configuration file section
 
     Arguments
     ---------
@@ -614,7 +615,7 @@ def get_weather_result_paths(weather_path):
 
 
 def get_result_paths(config_file_path):
-    """Load all result paths
+    """Load all result paths from the `RESULT_DATA` section of the config file
 
     Arguments
     --------
@@ -639,7 +640,7 @@ def get_result_paths(config_file_path):
 
 
 def load_paths(config_file_path):
-    """Load all paths of the installed config data
+    """Load all paths from the `CONFIG_DATA` of the config file
 
     Arguments
     ----------
