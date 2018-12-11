@@ -653,35 +653,35 @@ def load_paths(config_file_path):
         Dictionary containing the paths to each datafile
     """
     paths = [
-        ('path_main', 'int'),
+        ('path_main', 'str'),
         # Path to all technologies
-        ('path_technologies', 'int'),
+        ('path_technologies', 'str'),
         # Paths to fuel raw data
-        ('rs_fuel_raw', 'int'),
-        ('ss_fuel_raw', 'int'),
-        ('is_fuel_raw', 'int'),
+        ('rs_fuel_raw', 'str'),
+        ('ss_fuel_raw', 'str'),
+        ('is_fuel_raw', 'str'),
         # Load profiles
-        ('lp_rs', 'int'),
+        ('lp_rs', 'str'),
         # Technologies load shapes
-        ('path_hourly_gas_shape_resid', 'int'),
-        ('lp_elec_hp_dh', 'int'),
-        ('lp_all_microCHP_dh', 'int'),
-        ('path_shape_rs_cooling', 'int'),
-        ('path_shape_ss_cooling', 'int'),
-        ('lp_elec_storage_heating', 'int'),
-        ('lp_elec_secondary_heating', 'int'),
+        ('path_hourly_gas_shape_resid', 'str'),
+        ('lp_elec_hp_dh', 'str'),
+        ('lp_all_microCHP_dh', 'str'),
+        ('path_shape_rs_cooling', 'str'),
+        ('path_shape_ss_cooling', 'str'),
+        ('lp_elec_storage_heating', 'str'),
+        ('lp_elec_secondary_heating', 'str'),
         # Census data
-        ('path_employment_statistics', 'int'),
+        ('path_employment_statistics', 'str'),
         # Validation datasets
-        ('val_subnational_elec', 'int'),
-        ('val_subnational_elec_residential', 'int'),
-        ('val_subnational_elec_non_residential', 'int'),
-        ('val_subnational_elec_msoa_residential', 'int'),
-        ('val_subnational_elec_msoa_non_residential', 'int'),
-        ('val_subnational_gas', 'int'),
-        ('val_subnational_gas_residential', 'int'),
-        ('val_subnational_gas_non_residential', 'int'),
-        ('val_nat_elec_data', 'int')]
+        ('val_subnational_elec', 'str'),
+        ('val_subnational_elec_residential', 'str'),
+        ('val_subnational_elec_non_residential', 'str'),
+        ('val_subnational_elec_msoa_residential', 'str'),
+        ('val_subnational_elec_msoa_non_residential', 'str'),
+        ('val_subnational_gas', 'str'),
+        ('val_subnational_gas_residential', 'str'),
+        ('val_subnational_gas_non_residential', 'str'),
+        ('val_nat_elec_data', 'str')]
 
     return _read_config_file_section('CONFIG_DATA', config_file_path, paths)
 
