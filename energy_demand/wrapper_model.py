@@ -134,9 +134,9 @@ def load_data_before_simulation(
 
     # Obtain population data for disaggregation
     if config['CRITERIA']['msoa_crit']:
-        name_population_dataset = config['CONFIG_DATA']['path_population_data_for_disaggregation_msoa']
+        name_population_dataset = config['DATA_PATHS']['path_population_data_for_disaggregation_msoa']
     else:
-        name_population_dataset = config['CONFIG_DATA']['path_population_data_for_disaggregation_lad']
+        name_population_dataset = config['DATA_PATHS']['path_population_data_for_disaggregation_lad']
     data['pop_for_disag'] = data_loader.read_scenario_data(name_population_dataset)
 
     # ------------------------------------------------

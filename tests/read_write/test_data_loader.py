@@ -68,7 +68,7 @@ yaml_parameters_scenario = /vagrant/data/energy_demand/config/yaml_parameters_sc
 
     config_file.write(content)
 
-    return config_file
+    return str(config_file)
 
 
 def test_get_local_paths(config_file):

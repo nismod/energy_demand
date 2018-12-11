@@ -8,19 +8,21 @@ from energy_demand.assumptions import strategy_vars_def
 from energy_demand.read_write import data_loader
 from pkg_resources import resource_filename
 from pkg_resources import Requirement
+from pytest import mark
 
-'''def test_assign_by_fuel_tech_p():
+@mark.skip(reason="")
+def test_assign_by_fuel_tech_p(config_file):
     """
     """
-    path_main = resource_filename(
-        Requirement.parse("energy_demand"), os.path.join("energy_demand", "config_data"))
+    config = data_loader.read_config_file(config_file)
+    
 
     # Load data
     data = {}
-    data['paths'] = data_loader.load_paths(path_main)
+    data['paths'] = config['CONFIG_DATA']
     data['lookups'] = lookup_tables.basic_lookups()
     data['enduses'], data['sectors'], data['fuels'], _, _ = data_loader.load_fuels(
-        data['lookups']['submodels_names'], data['paths'], data['lookups']['fueltypes_nr'])
+        data['paths'])
 
     data['local_paths'] = data_loader.get_local_paths(path_main)
 
@@ -45,4 +47,3 @@ from pkg_resources import Requirement
         data['sectors'],
         data['lookups']['fueltypes'],
         data['lookups']['fueltypes_nr'])
-'''
