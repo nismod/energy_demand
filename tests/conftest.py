@@ -17,11 +17,11 @@ def config_file(tmpdir):
     config_file = tmpdir.mkdir("config").join("wrapperconfig.ini")
     contents = """
 [PATHS]
-path_local_data = /vagrant/data/energy_demand
-path_processed_data = /vagrant/data/energy_demand/_processed_data
-path_result_data = /vagrant/data/energy_demand/results
-path_config_data = /vagrant/data/energy_demand/config_data
-path_new_scenario = /vagrant/data/energy_demand/results/tmp_model_run_results
+path_local_data = tests
+path_processed_data = tests/_processed_data
+path_result_data = tests/results
+path_config_data = tests/config_data
+path_new_scenario = tests/results/tmp_model_run_results
 
 [CONFIG]
 base_yr = 2015
@@ -47,28 +47,28 @@ writeYAML = False
 crit_temp_min_max = False
 
 [DATA_PATHS]
-local_path_datafolder = /vagrant/data/energy_demand/energy_demand_minimal
-path_strategy_vars = /vagrant/data/energy_demand/energy_demand_minimal/00_user_defined_variables
+local_path_datafolder = tests/energy_demand_minimal
+path_strategy_vars = tests/energy_demand_minimal/00_user_defined_variables
 #ONS principal projection
-path_population_data_for_disaggregation_LAD =  /vagrant/data/energy_demand/energy_demand_minimal/_raw_data/J-population_disagg_by/uk_pop_principal_2015_2050.csv  
+path_population_data_for_disaggregation_LAD =  tests/energy_demand_minimal/_raw_data/J-population_disagg_by/uk_pop_principal_2015_2050.csv  
 #ONS principal projection
-folder_raw_carbon_trust = /vagrant/data/energy_demand/energy_demand_minimal/_raw_data/G_Carbon_Trust_advanced_metering_trial/
-path_population_data_for_disaggregation_MSOA = /vagrant/data/energy_demand/energy_demand_minimal/_raw_data/J-population_disagg_by/uk_pop_principal_2015_2050_MSOA_lad.csv
-folder_path_weater_stations = /vagrant/data/energy_demand/energy_demand_minimal/_raw_data/A-temperature_data/cleaned_weather_stations.csv
-path_floor_area_virtual_stock_by = /vagrant/data/energy_demand/energy_demand_minimal/_raw_data/K-floor_area/floor_area_LAD_latest.csv
-path_assumptions_db = /vagrant/data/energy_demand/_processed_data/assumptions_from_db
-data_processed = /vagrant/data/energy_demand/_processed_data
-lad_shapefile = /vagrant/data/energy_demand/energy_demand_minimal/_raw_data/C_LAD_geography/same_as_pop_scenario/lad_2016_uk_simplified.shp
-path_post_installation_data = /vagrant/data/energy_demand/_processed_data
+folder_raw_carbon_trust = tests/energy_demand_minimal/_raw_data/G_Carbon_Trust_advanced_metering_trial/
+path_population_data_for_disaggregation_MSOA = tests/energy_demand_minimal/_raw_data/J-population_disagg_by/uk_pop_principal_2015_2050_MSOA_lad.csv
+folder_path_weater_stations = tests/energy_demand_minimal/_raw_data/A-temperature_data/cleaned_weather_stations.csv
+path_floor_area_virtual_stock_by = tests/energy_demand_minimal/_raw_data/K-floor_area/floor_area_LAD_latest.csv
+path_assumptions_db = tests/_processed_data/assumptions_from_db
+data_processed = tests/_processed_data
+lad_shapefile = tests/energy_demand_minimal/_raw_data/C_LAD_geography/same_as_pop_scenario/lad_2016_uk_simplified.shp
+path_post_installation_data = tests/_processed_data
 weather_data = /raw_data/A-temperature_data/cleaned_weather_stations_data
-load_profiles = /vagrant/data/energy_demand/_processed_data/load_profiles
-rs_load_profile_txt = /vagrant/data/energy_demand/_processed_data/load_profiles/rs_submodel
-ss_load_profile_txt = /vagrant/data/energy_demand/_processed_data/load_profiles/ss_submodel
-yaml_parameters = /vagrant/data/energy_demand/config/yaml_parameters.yml
-yaml_parameters_constrained = /vagrant/data/energy_demand/config/yaml_parameters_constrained.yml
-yaml_parameters_keynames_constrained = /vagrant/data/energy_demand/config/yaml_parameters_keynames_constrained.yml
-yaml_parameters_keynames_unconstrained = /vagrant/data/energy_demand/config/yaml_parameters_keynames_unconstrained.yml
-yaml_parameters_scenario = /vagrant/data/energy_demand/config/yaml_parameters_scenario.yml
+load_profiles = tests/_processed_data/load_profiles
+rs_load_profile_txt = tests/_processed_data/load_profiles/rs_submodel
+ss_load_profile_txt = tests/_processed_data/load_profiles/ss_submodel
+yaml_parameters = tests/config/yaml_parameters.yml
+yaml_parameters_constrained = tests/config/yaml_parameters_constrained.yml
+yaml_parameters_keynames_constrained = tests/config/yaml_parameters_keynames_constrained.yml
+yaml_parameters_keynames_unconstrained = tests/config/yaml_parameters_keynames_unconstrained.yml
+yaml_parameters_scenario = tests/config/yaml_parameters_scenario.yml
 
 [CONFIG_DATA]
 path_main = tests/config_data
@@ -102,14 +102,14 @@ val_subnational_gas_non_residential = tests/config_data/01-validation_datasets/0
 val_nat_elec_data = tests/config_data/01-validation_datasets/01_national_elec_2015/elec_demand_2015.csv
 
 [RESULT_DATA]
-data_results = /vagrant/data/energy_demand/results/
-data_results_model_run_pop = /vagrant/data/energy_demand/results/model_run_pop
-data_results_model_runs = /vagrant/data/energy_demand/results/model_run_results_txt
-data_results_PDF = /vagrant/data/energy_demand/results/PDF_results
-data_results_validation = /vagrant/data/energy_demand/results/PDF_validation
-model_run_pop = /vagrant/data/energy_demand/results/model_run_pop
-data_results_shapefiles = /vagrant/data/energy_demand/results/spatial_results
-individual_enduse_lp = /vagrant/data/energy_demand/results/individual_enduse_lp
+data_results = tests/results/
+data_results_model_run_pop = tests/results/model_run_pop
+data_results_model_runs = tests/results/model_run_results_txt
+data_results_PDF = tests/results/PDF_results
+data_results_validation = tests/results/PDF_validation
+model_run_pop = tests/results/model_run_pop
+data_results_shapefiles = tests/results/spatial_results
+individual_enduse_lp = tests/results/individual_enduse_lp
 """
     config_file.write(contents)
     return str(config_file)
