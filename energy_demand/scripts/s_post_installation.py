@@ -31,11 +31,8 @@ def post_install_setup(args):
 
     path_config_file = args.local_data
 
-    config = configparser.ConfigParser()
-    config.read(path_config_file)
-    config = basic_functions.convert_config_to_correct_type(config)
+    config = data_loader.read_config_file(path_config_file)
     local_data_path = config['PATHS']['path_local_data']
-    path_results = config['PATHS']['path_result_data']
 
     path_results = resource_filename(Requirement.parse("energy_demand"), "results")
     local_data_path = args.local_data
@@ -44,9 +41,9 @@ def post_install_setup(args):
     base_yr = config['CONFIG']['base_yr']
 
     data = {}
-    data['paths'] = data_loader.load_paths(path_config_file)
-    data['local_paths'] = data_loader.get_local_paths(path_config_file)
-    data['result_paths'] = data_loader.get_result_paths(path_results)
+    data['paths'] = config['CONFIG_DATA']
+    data['local_paths'] = config['DATA_PATHS']
+    data['result_paths'] = config['RESULT_DATA']
     data['lookups'] = lookup_tables.basic_lookups()
     data['enduses'], data['sectors'], data['fuels'], lookup_enduses, \
         lookup_sector_enduses = data_loader.load_fuels(data['paths'])

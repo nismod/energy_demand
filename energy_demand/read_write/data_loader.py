@@ -698,12 +698,11 @@ def load_tech_profiles(
     tech_lp : dict
         Load profiles
     paths : dict
-        Paths
+        Path to open config data
     local_paths : dict
-        Local paths
+        Local data paths (private data downloaded from ftp)
     plot_tech_lp : bool
-        Criteria wheter individual tech lp are
-        saved as figure to separte folder
+        Criteria whether individual tech lp are saved as figure to separate folder
 
     Returns
     ------
@@ -718,7 +717,7 @@ def load_tech_profiles(
 
     # CHP load profile from Robert Sansom
     tech_lp['rs_lp_heating_CHP_dh'] = read_data.read_load_shapes_tech(
-        paths['lp_all_microCHP_dh'])
+        paths['lp_all_microchp_dh'])
 
     # Heat pump load profile from Love et al. (2017)
     tech_lp['rs_lp_heating_hp_dh'] = read_data.read_load_shapes_tech(

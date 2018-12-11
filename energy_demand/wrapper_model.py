@@ -43,7 +43,7 @@ def load_data_before_simulation(
     # Load Inputs
     # ------------------------------------------------
     data['enduses'], data['sectors'], data['fuels'], lookup_enduses, \
-        lookup_sector_enduses = data_loader.load_fuels(data['paths'])
+        lookup_sector_enduses = data_loader.load_fuels(config['CONFIG_DATA'])
 
     # ------------------------------------------------
     # Load Assumptions
@@ -56,7 +56,7 @@ def load_data_before_simulation(
         simulation_end_yr=config['CONFIG']['user_defined_simulation_end_yr'],
         curr_yr=curr_yr,
         sim_yrs=sim_yrs,
-        paths=data['paths'],
+        paths=config['CONFIG_DATA'],
         enduses=data['enduses'],
         sectors=data['sectors'],
         reg_nrs=len(data['regions']))
@@ -94,7 +94,7 @@ def load_data_before_simulation(
     if config['CRITERIA']['reg_selection']:
         
         region_selection = read_data.get_region_selection(
-            os.path.join(data['local_paths']['local_path_datafolder'],
+            os.path.join(config['DATA_PATHS']['local_path_datafolder'],
             "region_definitions",
             config['CRITERIA']['reg_selection_csv_name']))
         #region_selection = ['E02003237', 'E02003238']
@@ -127,16 +127,16 @@ def load_data_before_simulation(
     # Load load profiles of technologies
     # ------------------------------------------------
     data['tech_lp'] = data_loader.load_data_profiles(
-        data['paths'],
-        data['local_paths'],
+        config['CONFIG_DATA'],
+        config['DATA_PATHS'],
         data['assumptions'].model_yeardays,
         data['assumptions'].model_yeardays_daytype)
 
     # Obtain population data for disaggregation
     if config['CRITERIA']['msoa_crit']:
-        name_population_dataset = data['local_paths']['path_population_data_for_disaggregation_MSOA']
+        name_population_dataset = config['CONFIG_DATA']['path_population_data_for_disaggregation_msoa']
     else:
-        name_population_dataset = data['local_paths']['path_population_data_for_disaggregation_LAD']
+        name_population_dataset = config['CONFIG_DATA']['path_population_data_for_disaggregation_lad']
     data['pop_for_disag'] = data_loader.read_scenario_data(name_population_dataset)
 
     # ------------------------------------------------
@@ -146,7 +146,7 @@ def load_data_before_simulation(
         data['scenario_data']['floor_area']['rs_floorarea'], data['scenario_data']['floor_area']['ss_floorarea'], data['service_building_count'], rs_regions_without_floorarea, ss_regions_without_floorarea = data_loader.floor_area_virtual_dw(
             data['regions'],
             data['sectors'],
-            data['local_paths'],
+            config['CONFIG_DATA'],
             data['scenario_data']['population'][data['assumptions'].base_yr],
             base_yr=data['assumptions'].base_yr)
 
@@ -397,4 +397,4 @@ def plots(
             data['weather_stations'],
             os.path.join(data['result_path'], 'weatherst_distr_weathyr_{}.pdf'.format(
                 config['CONFIG']['weather_yr_scenario'])),
-            path_shapefile=data['local_paths']['lad_shapefile'])
+            path_shapefile=config['DATA_PATHS']['lad_shapefile'])
