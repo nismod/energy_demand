@@ -104,7 +104,8 @@ if __name__ == "__main__":
 
     # Simulated yrs
     #sim_yrs = [base_yr, 2030, user_defined_simulation_end_yr]
-    sim_yrs = [2015, 2020, 2025, 2030, 2035, 2040, 2045, 2050]
+    #sim_yrs = [2015, 2020, 2025, 2030, 2035, 2040, 2045, 2050]
+    sim_yrs = [2015, 2020, 2050]
     weather_yr_scenario = 2015   # Default weather year
 
     if len(sys.argv) > 1: #user defined arguments are provide

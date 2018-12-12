@@ -444,7 +444,7 @@ def calc_lf_improvement(
     Arguments
     ---------
     lf_improvement_ey : dict
-        Load factor improvement until end year
+        Load factor improvement until end year provided as decimal (1 == 100%)
     loadfactor_yd_cy : float
         Yd Load factor of current year
 
@@ -456,7 +456,7 @@ def calc_lf_improvement(
         True: Peak is shifted, False: Peak isn't shifed
     """
     # Add load factor improvement to current year load factor
-    lf_improved_cy = loadfactor_yd_cy + param_lf_improved_cy
+    lf_improved_cy = loadfactor_yd_cy + param_lf_improved_cy * 100
 
     # Where load factor larger than zero, set to 1
     lf_improved_cy[lf_improved_cy > 100] = 100
