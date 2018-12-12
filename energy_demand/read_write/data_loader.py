@@ -87,7 +87,7 @@ def create_weather_station_map(stations_as_dict,
             uk_gdf = gpd.GeoDataFrame(uk_shapefile, crs=crs)
 
             # Transform
-            uk_gdf = uk_gdf.to_crs({'init' :'epsg:4326'})
+            uk_gdf = uk_gdf.to_crs({'init': 'epsg:4326'})
 
             # Plot
             ax = uk_gdf.plot(color='white', edgecolor='black')
@@ -1339,9 +1339,12 @@ def read_scenario_data(path_to_csv):
     """
     data = {}
 
+    if not os.path.exists(path_to_csv):
+        raise FileNotFoundError("Cannot find file {}".format(path_to_csv))
+
     with open(path_to_csv, 'r') as csvfile:
         rows = csv.reader(csvfile, delimiter=',')
-        headings = next(rows) # Skip first row
+        headings = next(rows)  # Skip first row
         for row in rows:
 
             region = str(row[read_data.get_position(headings, 'region')])

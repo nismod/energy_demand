@@ -26,7 +26,7 @@ def calc_distance_two_points(lat_from, long_from, lat_to, long_to):
     distance_in_km = haversine(
         (lat_from, long_from),
         (lat_to, long_to),
-        miles=False)
+        unit='km')
 
     return distance_in_km
 

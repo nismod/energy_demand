@@ -75,22 +75,10 @@ def post_install_setup_minimum(args):
         Path to energy demand python files
     """
     path_config_file = args.local_data
-    config = configparser.ConfigParser()
-    success = config.read(path_config_file)
-    if not success:
-        msg = "Unable to read configuration file at path {}"
-        raise RuntimeError(msg.format(path_config_file))
-
-    # Save config in dict and get correct type
-    config = basic_functions.convert_config_to_correct_type(config)
+    config = data_loader.read_config_file(path_config_file)
 
     path_energy_demand = config['PATHS']['path_config_data']
     path_local_data = config['PATHS']['path_local_data']
-
-    # Get config in dict and get correct type
-    config = configparser.ConfigParser()
-    config.read(path_config_file)
-    config = basic_functions.convert_config_to_correct_type(config)
 
     # ==========================================
     # Post installation setup witout access to non publicy available data
