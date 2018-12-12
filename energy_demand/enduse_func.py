@@ -123,8 +123,8 @@ class Enduse(object):
             self.fuel_yh = 0
             self.enduse_techs = []
         else:
-            print("------INFO  {} {} {}  {}".format(self.enduse, sector, region, curr_yr))
-            print("FUEL TRAIN A0: " + str(np.sum(self.fuel_y)))
+            #print("------INFO  {} {} {}  {}".format(self.enduse, sector, region, curr_yr))
+            #print("FUEL TRAIN A0: " + str(np.sum(self.fuel_y)))
 
             if curr_yr > 2015:
                 print("tt")
@@ -143,7 +143,7 @@ class Enduse(object):
                 assumptions.ss_enduse_space_cooling,
                 f_weather_correction)
             self.fuel_y = _fuel_new_y
-            print("FUEL TRAIN B0: " + str(np.sum(self.fuel_y)))
+            #print("FUEL TRAIN B0: " + str(np.sum(self.fuel_y)))
 
             _fuel_new_y = apply_smart_metering(
                 enduse,
@@ -152,7 +152,7 @@ class Enduse(object):
                 strategy_vars,
                 curr_yr)
             self.fuel_y = _fuel_new_y
-            print("FUEL TRAIN C0: " + str(np.sum(self.fuel_y)))
+            #print("FUEL TRAIN C0: " + str(np.sum(self.fuel_y)))
 
             _fuel_new_y = generic_demand_change(
                 enduse,
@@ -161,7 +161,7 @@ class Enduse(object):
                 strategy_vars['generic_enduse_change'],
                 curr_yr)
             self.fuel_y = _fuel_new_y
-            print("FUEL TRAIN D0: " + str(np.sum(self.fuel_y)))
+            #print("FUEL TRAIN D0: " + str(np.sum(self.fuel_y)))
 
             _fuel_new_y = apply_scenario_drivers(
                 enduse=enduse,
@@ -176,7 +176,7 @@ class Enduse(object):
                 base_yr=base_yr,
                 curr_yr=curr_yr)
             self.fuel_y = _fuel_new_y
-            print("FUEL TRAIN E0: " + str(np.sum(self.fuel_y)))
+            #print("FUEL TRAIN E0: " + str(np.sum(self.fuel_y)))
 
             # Apply cooling scenario variable
             _fuel_new_y = apply_cooling(
@@ -186,7 +186,7 @@ class Enduse(object):
                 assumptions.cooled_ss_floorarea_by,
                 curr_yr)
             self.fuel_y = _fuel_new_y
-            print("FUEL TRAIN E1: " + str(np.sum(self.fuel_y)))
+            #print("FUEL TRAIN E1: " + str(np.sum(self.fuel_y)))
 
             # Industry related change
             _fuel_new_y = industry_enduse_changes(
@@ -197,7 +197,7 @@ class Enduse(object):
                 self.fuel_y,
                 assumptions)
             self.fuel_y = _fuel_new_y
-            print("FUEL TRAIN E2: " + str(np.sum(self.fuel_y)))
+            #print("FUEL TRAIN E2: " + str(np.sum(self.fuel_y)))
 
             # Generic fuel switch of an enduse and sector
             _fuel_new_y = generic_fuel_switch(
@@ -207,7 +207,7 @@ class Enduse(object):
                 strategy_vars['generic_fuel_switch'],
                 self.fuel_y)
             self.fuel_y = _fuel_new_y
-            print("FUEL TRAIN E3: " + str(np.sum(self.fuel_y)))
+            #print("FUEL TRAIN E3: " + str(np.sum(self.fuel_y)))
             # ----------------------------------
             # Hourly Disaggregation
             # ----------------------------------
@@ -225,7 +225,7 @@ class Enduse(object):
                         self.fuel_y,
                         make_all_flat=make_all_flat)
 
-                    print("FUEL TRAIN X " + str(np.sum(fuel_yh)))
+                    #print("FUEL TRAIN X " + str(np.sum(fuel_yh)))
                     # Demand management for non-technology enduse
                     self.fuel_yh = demand_management(
                         enduse,
@@ -234,7 +234,7 @@ class Enduse(object):
                         fuel_yh,
                         mode_constrained=False,
                         make_all_flat=make_all_flat)
-                    print("FUEL TRAIN Y" + str(np.sum(fuel_yh)))
+                    #print("FUEL TRAIN Y" + str(np.sum(fuel_yh)))
             else:
                 #If technologies are defined for an enduse
 

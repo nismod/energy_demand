@@ -7,7 +7,6 @@ from energy_demand.basic import lookup_tables
 from energy_demand.assumptions import general_assumptions
 from energy_demand.read_write import data_loader
 from pkg_resources import resource_filename
-from pkg_resources import Requirement
 
 '''def test_load_non_param_assump():
     """

@@ -20,8 +20,11 @@ University of Oxford <http://www.eci.ox.ac.uk>`_ within the
 EPSRC sponsored MISTRAL programme, as part of the `Infrastructure Transition
 Research Consortium <http://www.itrc.org.uk/>`_.
 
-More information on the model can be found in Eggimann, Hall and Eyre (2018). Please use 
-this reference for citing HIRE.
+More information on the model can be found in:
+
+    Eggimann, Hall and Eyre (2018): A high-resolution spatio-temporal energy demand
+    simulation to explore the potential of heating demand side management
+    with large-scale heat pump diffusion. Applied Energy. LINK
 
 1. Download input data
 =============================================
