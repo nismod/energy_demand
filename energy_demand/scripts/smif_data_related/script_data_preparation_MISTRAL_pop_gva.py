@@ -219,75 +219,79 @@ def run(
             if (filename_split[0] == "gva_per_head" and filename_split[1] == 'lad_sector.csv') or (
                 filename_split[0] == "population" and filename_split[1] == 'lad.csv') or (
                     filename_split[0] == "gva_per_head" and filename_split[1] == 'lad.csv'):
+                
+                try:
+                    file_path = os.path.join(path_to_folder, folder_name, file_name)
+                    gp_file = pd.read_csv(file_path)
 
-                file_path = os.path.join(path_to_folder, folder_name, file_name)
-                gp_file = pd.read_csv(file_path)
+                    gp_file['year'] = gp_file['year'].astype(int)
 
-                gp_file['year'] = gp_file['year'].astype(int)
+                    # Drop all rows with alls NaN entries
+                    gp_file = gp_file[np.isfinite(gp_file['value'])]
 
-                # Drop all rows with alls NaN entries
-                gp_file = gp_file[np.isfinite(gp_file['value'])]
+                    # Select all entries with matching years
+                    gp_file = gp_file.loc[gp_file['year'].isin(range(base_yr, end_yr + 1))]
 
-                # Select all entries with matching years
-                gp_file = gp_file.loc[gp_file['year'].isin(range(base_yr, end_yr + 1))]
+                    # Rename columns
+                    gp_file = gp_file.rename(index=str, columns={"year": "timestep"})
+                    ##gp_file = gp_file.rename(index=str, columns={"region": geography_name})
 
-                # Rename columns
-                gp_file = gp_file.rename(index=str, columns={"year": "timestep"})
-                ##gp_file = gp_file.rename(index=str, columns={"region": geography_name})
+                    gp_file.to_csv(file_path, index=False)
+        
+                    # ---  
+                    # MSOA pop calculation
+                    # ----
+                    if MSOA_calculations:
+                        if (filename_split[0] == "population" and filename_split[1] == 'lad.csv'):
+                            
+                            # Calculate relative pop percentage of ONS scenarios
+                            msoa_principalDF = pd.read_csv(path_MSOA_baseline)
+                            msoa_principalDF_selection_2015 = msoa_principalDF.loc[msoa_principalDF['year'] == 2015]
+                            
+                            # LADs and calculate factor per MSOA
+                            factor_msoas = {}
+                            for lad, msoas in LAD_MSOA_lu.items():
+                                tot_pop_lad = 0
+                                for msoa in msoas:
+                                    tot_pop_lad += float(msoa_principalDF_selection_2015.loc[msoa_principalDF_selection_2015['region'] == msoa]['value'])
+                                for msoa in msoas:
+                                    pop_msoa = float(msoa_principalDF_selection_2015.loc[msoa_principalDF_selection_2015['region'] == msoa]['value'])
+                                    factor_msoas[msoa] = pop_msoa / tot_pop_lad #calculate fator
 
-                gp_file.to_csv(file_path, index=False)
-    
-                # ---  
-                # MSOA pop calculation
-                # ----
-                if MSOA_calculations:
-                    if (filename_split[0] == "population" and filename_split[1] == 'lad.csv'):
-                        
-                        # Calculate relative pop percentage of ONS scenarios
-                        msoa_principalDF = pd.read_csv(path_MSOA_baseline)
-                        msoa_principalDF_selection_2015 = msoa_principalDF.loc[msoa_principalDF['year'] == 2015]
-                        
-                        # LADs and calculate factor per MSOA
-                        factor_msoas = {}
-                        for lad, msoas in LAD_MSOA_lu.items():
-                            tot_pop_lad = 0
-                            for msoa in msoas:
-                                tot_pop_lad += float(msoa_principalDF_selection_2015.loc[msoa_principalDF_selection_2015['region'] == msoa]['value'])
-                            for msoa in msoas:
-                                pop_msoa = float(msoa_principalDF_selection_2015.loc[msoa_principalDF_selection_2015['region'] == msoa]['value'])
-                                factor_msoas[msoa] = pop_msoa / tot_pop_lad #calculate fator
+                            list_with_all_vals = []
+                            gp_file = pd.read_csv(file_path)
 
-                        list_with_all_vals = []
-                        gp_file = pd.read_csv(file_path)
-
-                        for index, row_lad in gp_file.iterrows():
-                            lad = row_lad['region']
-                            try:
-                                corresponding_msoas = LAD_MSOA_lu[lad]
-                            except KeyError:
-                                corresponding_msoas = [lad] # No match for northern ireland
-
-                            # Calculate population according to ONS 2015
-                            pop_LAD = row_lad['value']
-
-                            for msoa_name in corresponding_msoas:
+                            for index, row_lad in gp_file.iterrows():
+                                lad = row_lad['region']
                                 try:
-                                    pop_ONS_scale_factor = factor_msoas[msoa_name]
-                                except:
-                                    pop_ONS_scale_factor = 1 # If not mapped
-                                
-                                pop_MSOA_ONS_scaled = pop_LAD * pop_ONS_scale_factor
+                                    corresponding_msoas = LAD_MSOA_lu[lad]
+                                except KeyError:
+                                    corresponding_msoas = [lad] # No match for northern ireland
 
-                                new_row = {
-                                    'region': msoa_name,
-                                    "timestep": row_lad['year'],
-                                    "value": pop_MSOA_ONS_scaled}
+                                # Calculate population according to ONS 2015
+                                pop_LAD = row_lad['value']
 
-                                list_with_all_vals.append(new_row)
+                                for msoa_name in corresponding_msoas:
+                                    try:
+                                        pop_ONS_scale_factor = factor_msoas[msoa_name]
+                                    except:
+                                        pop_ONS_scale_factor = 1 # If not mapped
+                                    
+                                    pop_MSOA_ONS_scaled = pop_LAD * pop_ONS_scale_factor
 
-                        msoaDF = pd.DataFrame(list_with_all_vals, columns=gp_file.columns)
-                        file_path_MSOA_out = os.path.join(path_to_folder, folder_name, "{}_{}.csv".format(file_name[:-4], "MSOA"))
-                        msoaDF.to_csv(file_path_MSOA_out, index=False)
+                                    new_row = {
+                                        'region': msoa_name,
+                                        "timestep": row_lad['year'],
+                                        "value": pop_MSOA_ONS_scaled}
+
+                                    list_with_all_vals.append(new_row)
+
+                            msoaDF = pd.DataFrame(list_with_all_vals, columns=gp_file.columns)
+                            file_path_MSOA_out = os.path.join(path_to_folder, folder_name, "{}_{}.csv".format(file_name[:-4], "MSOA"))
+                            msoaDF.to_csv(file_path_MSOA_out, index=False)
+                except:
+                    #ERROR
+                    pass
             else:
                 pass
 
@@ -296,33 +300,36 @@ def run(
             # ----------------------------------------------------------
             if (filename_split[0] == "gva_per_head" and filename_split[1] == 'lad_sector.csv'):
                 
-                file_path = os.path.join(path_to_folder, folder_name, file_name)
-                df = pd.read_csv(file_path)
-
-                df = df.rename(
-                    index=str,
-                    columns={
-                        "year": "timestep",
-                        "economic_sector__gor": "sector"})
-
-                # Drop columns
                 try:
-                    df = df.drop('interval', 1)
+                    file_path = os.path.join(path_to_folder, folder_name, file_name)
+                    df = pd.read_csv(file_path)
+
+                    df = df.rename(
+                        index=str,
+                        columns={
+                            "year": "timestep",
+                            "economic_sector__gor": "sector"})
+
+                    # Drop columns
+                    try:
+                        df = df.drop('interval', 1)
+                    except:
+                        pass
+
+                    # Select all entries with matching sectors
+                    df = df.loc[df['sector'].isin(sectors_to_generate)]
+
+                    # Select all entries with matching years
+                    df = df.loc[df['timestep'].isin(range(base_yr, end_yr + 1))]
+
+                    # Reorder columns
+                    df = df[columns]
+
+                    # Write to csv
+                    file_path_sectors = os.path.join(path_to_folder, folder_name, "gva_per_head__lad_sectors.csv")
+                    df.to_csv(file_path_sectors, index=False)
                 except:
-                    pass
-
-                # Select all entries with matching sectors
-                df = df.loc[df['sector'].isin(sectors_to_generate)]
-
-                # Select all entries with matching years
-                df = df.loc[df['timestep'].isin(range(base_yr, end_yr + 1))]
-
-                # Reorder columns
-                df = df[columns]
-
-                # Write to csv
-                file_path_sectors = os.path.join(path_to_folder, folder_name, "gva_per_head__lad_sectors.csv")
-                df.to_csv(file_path_sectors, index=False)
+                    pass #Error
 
             # -----------------------------------------
             # MSOA GVA calculations
@@ -330,35 +337,38 @@ def run(
             if MSOA_calculations:
                 if (filename_split[0] == "gva_per_head" and filename_split[1] == 'lad.csv'):
                     
-                    list_with_all_vals = []
+                    try:
+                        list_with_all_vals = []
 
-                    file_path = os.path.join(path_to_folder, folder_name, file_name)
-                    lads = list(gp_file.loc[gp_file['year'] == 2015]['region'])
+                        file_path = os.path.join(path_to_folder, folder_name, file_name)
+                        lads = list(gp_file.loc[gp_file['year'] == 2015]['region'])
 
-                    for lad in lads:
-                        try:
-                            corresponding_msoas = LAD_MSOA_lu[lad]
-                        except KeyError:
-                            # No match for northern ireland
-                            corresponding_msoas = [lad]
+                        for lad in lads:
+                            try:
+                                corresponding_msoas = LAD_MSOA_lu[lad]
+                            except KeyError:
+                                # No match for northern ireland
+                                corresponding_msoas = [lad]
 
-                        rows_msoa = gp_file.loc[gp_file['region'] == lad]
+                            rows_msoa = gp_file.loc[gp_file['region'] == lad]
 
-                        for index, row_msoa in rows_msoa.iterrows():
-                            for msoa_name in corresponding_msoas:
-                                new_row = {
-                                    "region": msoa_name,
-                                    "timestep": row_msoa['year'],
-                                    "value": row_msoa['value']}
-                                list_with_all_vals.append(new_row)
+                            for index, row_msoa in rows_msoa.iterrows():
+                                for msoa_name in corresponding_msoas:
+                                    new_row = {
+                                        "region": msoa_name,
+                                        "timestep": row_msoa['year'],
+                                        "value": row_msoa['value']}
+                                    list_with_all_vals.append(new_row)
 
-                    # Convert list to dataframe
-                    msoaDF = pd.DataFrame(list_with_all_vals, columns=gp_file.columns)
+                        # Convert list to dataframe
+                        msoaDF = pd.DataFrame(list_with_all_vals, columns=gp_file.columns)
 
-                    msoaDF = msoaDF.rename(index=str, columns={"region": geography_name})
+                        msoaDF = msoaDF.rename(index=str, columns={"region": geography_name})
 
-                    file_path_MSOA_out = os.path.join(path_to_folder, folder_name, "{}_{}.csv".format(file_name[:-4], "MSOA"))
-                    msoaDF.to_csv(file_path_MSOA_out, index=False)
+                        file_path_MSOA_out = os.path.join(path_to_folder, folder_name, "{}_{}.csv".format(file_name[:-4], "MSOA"))
+                        msoaDF.to_csv(file_path_MSOA_out, index=False)
+                    except:
+                        pass
 
     print("----------")
     print("Finished preparing NISMOD GVA and population files")

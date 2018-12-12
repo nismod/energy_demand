@@ -51,8 +51,6 @@ def spatial_diffusion_values(
         # ----------------
         # plot real values to check for outliers
         # ----------------
-        #from energy_demand.plotting import basic_plot_functions
-        #basic_plot_functions.plot_xy(list(real_values.values()))
 
         # Select number of outliers to remove lower and higher extremes
         nr_of_outliers = int(100 / len(regions) * p_outlier)
@@ -69,9 +67,6 @@ def spatial_diffusion_values(
                 real_values[reg] = treshold_upper_real_value
             if val < treshold_lower_real_value:
                 real_values[reg] = treshold_lower_real_value
-
-        # Plot after removing outliers
-        #basic_plot_functions.plot_xy(list(real_values.values()))
 
         # ---------------------------------
         # Congruence calculations

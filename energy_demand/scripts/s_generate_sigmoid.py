@@ -130,16 +130,6 @@ def calc_sigmoid_parameters(
                     else:
                         successfull = True
 
-                        '''logging.info(
-                            ".... fitting successfull %s %s %s", fit_measure_p_ey, fit_measure_p_by, fit_parameter)
-                        basic_plot_functions.plotout_sigmoid_tech_diff(
-                            l_value,
-                            "FINISHED FITTING",
-                            xdata,
-                            ydata,
-                            fit_parameter,
-                            plot_crit=True,
-                            close_window_crit=True)'''
         except (RuntimeError, IndexError):
             cnt += 1
 
@@ -545,7 +535,7 @@ def tech_sigmoid_parameters(
             point_x_ey = yr_until_switched
             point_y_ey = s_tech_switched_p[tech]
 
-            # If future share is zero, entry small value #TODO: INSERT AGIAN
+            # If future share is zero, entry small value
             if point_y_ey == 0:
                 point_y_ey = fit_assump_init
             elif point_y_ey == 1.0:
@@ -556,20 +546,6 @@ def tech_sigmoid_parameters(
             # Data of the two points
             xdata = np.array([point_x_by, point_x_ey])
             ydata = np.array([point_y_by, point_y_ey])
-            #print("FFF {}  {} {}".format(tech, xdata, ydata))
-            '''logging.info(
-                "... create sigmoid diffusion %s - %s - %s - %s - l_val: %s - %s - %s lval: %s",
-                tech,
-                xdata,
-                ydata,
-                fit_assump_init,
-                l_values[tech],
-                point_y_by,
-                point_y_ey,
-                linear_approx_crit)'''
-
-            # Test wheter maximum diffusion is larger than simulated end year share
-            ## assert ydata[1] <= l_values[tech] + linear_approx_crit
 
             # If no change in by to ey but not zero (linear change)
             if (round(point_y_by, rounding_accuracy) == round(point_y_ey, rounding_accuracy)) and (
@@ -580,14 +556,14 @@ def tech_sigmoid_parameters(
                 sig_params[tech]['midpoint'] = 'linear'
                 sig_params[tech]['steepness'] = 'linear'
                 sig_params[tech]['l_parameter'] = 'linear'
-                
+
                 # Calculate linear slope and linear y-intercept (with two data points)
                 sig_params[tech]['linear_slope'] = calc_m(xdata[0], xdata[1], ydata[0], ydata[1])
                 sig_params[tech]['linear_y_intercept'] = calc_c(sig_params[tech]['linear_slope'], xdata[0], ydata[0])
 
-                _a = (sig_params[tech]['linear_slope'] * 2050 + sig_params[tech]['linear_y_intercept'])
-                if _a < 0:
-                    assert _a < 0.0001
+                #_a = (sig_params[tech]['linear_slope'] * 2050 + sig_params[tech]['linear_y_intercept'])
+                #if _a < 0:
+                #    assert _a < 0.0001
             else:
                 # Test if no increase or decrease or if no future potential share
                 if (point_y_by == fit_assump_init and point_y_ey == fit_assump_init) or (
@@ -608,9 +584,9 @@ def tech_sigmoid_parameters(
                         sig_params[tech]['linear_slope'] = calc_m(xdata[0], xdata[1], ydata[0], ydata[1])
                         sig_params[tech]['linear_y_intercept'] = calc_c(sig_params[tech]['linear_slope'], xdata[0], ydata[0])
 
-                        _a = (sig_params[tech]['linear_slope'] * 2050 + sig_params[tech]['linear_y_intercept'])
-                        if _a < 0:
-                            assert _a < 0.0001
+                        #_a = (sig_params[tech]['linear_slope'] * 2050 + sig_params[tech]['linear_y_intercept'])
+                        #if _a < 0:
+                        #    assert _a < 0.0001
                     try:
                         # Parameter fitting
                         ##print("----start fitting" ) #, flush=True)
@@ -625,16 +601,6 @@ def tech_sigmoid_parameters(
                         sig_params[tech]['midpoint'] = fit_parameter[0]
                         sig_params[tech]['steepness'] = fit_parameter[1]
                         sig_params[tech]['l_parameter'] = l_values[tech] # maximum p
-
-                        '''if plot_sigmoid_diffusion:
-                            basic_plot_functions.plotout_sigmoid_tech_diff(
-                                l_values[tech],
-                                tech,
-                                xdata,
-                                ydata,
-                                fit_parameter,
-                                plot_crit=True,
-                                close_window_crit=True)'''
                     except:
                         """If sigmoid fitting failed, implement linear diffusion
 
@@ -652,8 +618,8 @@ def tech_sigmoid_parameters(
                         sig_params[tech]['linear_slope'] = calc_m(xdata[0], xdata[1], ydata[0], ydata[1])
                         sig_params[tech]['linear_y_intercept'] = calc_c(sig_params[tech]['linear_slope'], xdata[0], ydata[0])
 
-                        _a = (sig_params[tech]['linear_slope'] * 2050 + sig_params[tech]['linear_y_intercept'])
-                        if _a < 0:
-                            assert _a < 0.0001
+                        #_a = (sig_params[tech]['linear_slope'] * 2050 + sig_params[tech]['linear_y_intercept'])
+                        #if _a < 0:
+                        #    assert _a < 0.0001
      
     return dict(sig_params)

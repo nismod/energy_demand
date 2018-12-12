@@ -2,11 +2,9 @@
 """
 import os
 import pandas as pd
-import numpy as np
 
 from energy_demand.read_write import data_loader, read_data
 from energy_demand.basic import date_prop
-from energy_demand.plotting import plotting_results, result_mapping
 from energy_demand.basic import basic_functions
 from energy_demand.basic import lookup_tables
 from energy_demand.read_write import read_weather_results
@@ -63,7 +61,9 @@ def main(
     basic_functions.create_folder(result_path)
 
     for scenario_nr, scenario_name in enumerate(all_scenarios):
-
+        print(" ")
+        print("Scenario: {}".format(scenario_name))
+        print(" ")
         scenario_path = os.path.join(scenarios_path, scenario_name)
         all_result_folders = os.listdir(scenario_path)
         
@@ -73,8 +73,6 @@ def main(
             if result_folder not in to_ignores and result_folder[-4:] not in endings_to_ignore:
                 paths_folders_result.append(
                     os.path.join(scenario_path, result_folder))
-
-        
 
         fueltype_str_to_create_maps = ['electricity']
 
@@ -88,12 +86,12 @@ def main(
         peak_hour_demand = pd.DataFrame()
         national_peak = pd.DataFrame()
         regional_share_national_peak = pd.DataFrame()
-    
+
         for path_result_folder in paths_folders_result:
             print("path_result_folder: " + str(path_result_folder))
 
             data = {}
-        
+
             # Simulation information is read in from .ini file for results
             data['enduses'], data['assumptions'], data['regions'] = data_loader.load_ini_param(
                 os.path.join(path_result_folder))
@@ -158,7 +156,6 @@ def main(
             'regional_share_national_peak': regional_share_national_peak
         })
 
-    plotting_dict_info = {}
 
     # ------------------------------
     # Plot national peak change over time for each scenario

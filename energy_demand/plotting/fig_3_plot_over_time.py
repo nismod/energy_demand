@@ -30,24 +30,45 @@ def scenario_over_time(
         result_path
     ):
 
-    color_list = [
-        'red', 'green', 'orange', '#37AB65',
-        '#C0E4FF', '#3DF735', '#AD6D70', '#EC2504',
-        '#8C0B90', '#27B502', '#7C60A8', '#CF95D7', '#F6CC1D']
+    colors = {
 
-    fig = plt.figure(figsize=basic_plot_functions.cm2inch(9, 8)) #width, height
+        # High elec
+        'h_l': '#004529',
+        'h_c': '#238443',
+        'h_h': '#78c679',
+
+        # Low elec
+        'l_l': '#800026',
+        'l_c': '#e31a1c',
+        'l_h': '#fd8d3c',
+
+        'other1': '#C0E4FF',
+        'other2': '#3DF735',
+        'other3': '#AD6D70',
+        'other4': '#EC2504',
+        'other5': '#8C0B90',
+    }
+
+    fig = plt.figure(
+        figsize=basic_plot_functions.cm2inch(9, 8)) #width, height
     ax = fig.add_subplot(1, 1, 1)
 
     for cnt, i in enumerate(scenario_result_container):
         scenario_name = i['scenario_name']
         ed_reg_tot_y = i['national_peak']
+
         # dataframe with national peak (columns= simulation year, row: Realisation) 
 
         # Calculate quantiles
         quantile_95 = 0.95
         quantile_05 = 0.05
 
-        color = color_list[cnt]
+        try:
+            color = colors[scenario_name]
+        except KeyError:
+            color = list(colors.values())[cnt]
+
+        print("SCENARIO NAME {}  {}".format(scenario_name, color))
 
         # Calculate average across all weather scenarios
         mean_ed_reg_tot_y = ed_reg_tot_y.mean(axis=0)
@@ -60,7 +81,7 @@ def scenario_over_time(
         # Try to smooth lines
         # --------------------
         sim_yrs_smoothed = sim_yrs
-        '''try:
+        try:
             sim_yrs_smoothed, mean_ed_reg_tot_y_smoothed = basic_plot_functions.smooth_data(sim_yrs, mean_ed_reg_tot_y, num=40000)
             _, df_q_05_smoothed = basic_plot_functions.smooth_data(sim_yrs, df_q_05, num=40000)
             _, df_q_95_smoothed = basic_plot_functions.smooth_data(sim_yrs, df_q_95, num=40000)
@@ -73,20 +94,24 @@ def scenario_over_time(
         except:
             sim_yrs_smoothed = sim_yrs
             pass
-        '''
 
-        plt.plot(mean_ed_reg_tot_y, label=scenario_name, color=color)
+        plt.plot(
+            mean_ed_reg_tot_y,
+            label="{} (mean)".format(scenario_name),
+            color=color)
 
         # Plottin qunatilse and average scenario
-        df_q_05.plot.line(color=color, linestyle='--', linewidth=0.5, label="0.05")
-        df_q_95.plot.line(color=color, linestyle='--', linewidth=0.5, label="0.05")
+        df_q_05.plot.line(color=color, linestyle='--', linewidth=0.1, label="0.05")
+        df_q_95.plot.line(color=color, linestyle='--', linewidth=0.1, label="0.05")
+
         plt.fill_between(
             sim_yrs_smoothed,
             list(df_q_95),  #y1
             list(df_q_05),  #y2
-            alpha=0.15,
+            alpha=0.25,
             facecolor=color,
-            label="uncertainty band")
+            label="weather uncertainty"
+            )
 
     #plt.ylim(0, y_lim_val)
     plt.xlim(2015, 2050)
@@ -95,19 +120,21 @@ def scenario_over_time(
     # Legend
     # --------
     legend = plt.legend(
-        title="tt",
-        prop={'size': 4},
+        #title="tt",
+        ncol=2,
+        prop={'size': 8},
         loc='upper center',
-        bbox_to_anchor=(0.5, -0.05),
+        bbox_to_anchor=(0.5, -0.1),
         frameon=False)
     legend.get_title().set_fontsize(8)
+
     # --------
     # Labeling
     # --------
-    plt.ylabel("peak")
-    plt.xlabel("year")
-    plt.title("tttt")
+    plt.ylabel("national peak demand in GW")
+    #plt.xlabel("year")
+    #plt.title("Title")
 
     plt.tight_layout()
-    #plt.show()
+    plt.show()
     plt.savefig(os.path.join(result_path, fig_name))

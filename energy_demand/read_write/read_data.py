@@ -298,8 +298,7 @@ def read_in_results(
         pass
 
     # Calculate total demand per fueltype for every hour
-    try: #TODO IMPROVE: READ IN NR OF FUELTYPES DIRECTLY
-        #Initialise
+    try:
         tot_fueltype_yh = {}
         for year in results_container['ed_fueltype_regs_yh']:
             nr_of_fueltypes = results_container['ed_fueltype_regs_yh'][year].shape[0]
@@ -409,8 +408,7 @@ def read_in_results(
         pass
 
     # Calculate total demand per fueltype for every hour
-    try: #TODO IMPROVE: READ IN NR OF FUELTYPES DIRECTLY
-        #Initialise
+    try:
         tot_fueltype_yh = {}
         for year in results_container['ed_fueltype_regs_yh']:
             nr_of_fueltypes = results_container['ed_fueltype_regs_yh'][year].shape[0]
