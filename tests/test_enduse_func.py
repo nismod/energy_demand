@@ -204,16 +204,16 @@ def test_calc_lf_improvement():
 
     #all factors must be smaller than one
     loadfactor_yd_cy = np.zeros((2, 2)) #to fueltypes, two days
-    loadfactor_yd_cy[0][0] = 0.2
-    loadfactor_yd_cy[0][1] = 0.4
-    loadfactor_yd_cy[1][0] = 0.1
-    loadfactor_yd_cy[1][1] = 0.3
+    loadfactor_yd_cy[0][0] = 2
+    loadfactor_yd_cy[0][1] = 4
+    loadfactor_yd_cy[1][0] = 1
+    loadfactor_yd_cy[1][1] = 3
 
     result = enduse_func.calc_lf_improvement(
         param_lf_improved_cy=param_lf_improved_cy,
         loadfactor_yd_cy=loadfactor_yd_cy)
 
-    expected = loadfactor_yd_cy + 0.25
+    expected = loadfactor_yd_cy + 25
 
     assert result[0][0] == expected[0][0]
     assert result[0][1] == expected[0][1]

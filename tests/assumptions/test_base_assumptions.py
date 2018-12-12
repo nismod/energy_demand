@@ -9,7 +9,7 @@ from energy_demand.read_write import data_loader
 from pkg_resources import resource_filename
 from pkg_resources import Requirement
 
-def test_load_non_param_assump():
+'''def test_load_non_param_assump():
     """
     """
     path_main = resource_filename(
@@ -38,7 +38,7 @@ def test_load_param_assump():
     """
     """
     path_main = resource_filename(
-        Requirement.parse("energy_demand"), os.path.join("energy_demand", "config_data"))
+        Requirement.parse("energy_demand"), os.path.join("..", "data", "energy_demand", "config_data"))
 
     # Load data
     data = {}
@@ -52,3 +52,4 @@ def test_load_param_assump():
     # Dummy test
     assert sim_param_expected['base_yr'] == 2015
     return
+test_load_param_assump()'''
