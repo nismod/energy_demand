@@ -96,6 +96,10 @@ if __name__ == "__main__":
     config.read(path_config)
     config = basic_functions.convert_config_to_correct_type(config)
 
+    #config_file_path = os.path.join(path_main, 'wrapperconfig.ini') 
+    #config = data_loader.read_config_file(config_file_path)
+        
+
     # Data
     data = {}
     base_yr = config['CONFIG']['base_yr']

@@ -101,8 +101,8 @@ def scenario_over_time(
             color=color)
 
         # Plottin qunatilse and average scenario
-        df_q_05.plot.line(color=color, linestyle='--', linewidth=0.1, label="0.05")
-        df_q_95.plot.line(color=color, linestyle='--', linewidth=0.1, label="0.05")
+        df_q_05.plot.line(color=color, linestyle='--', linewidth=0.1, label='_nolegend_') #, label="0.05")
+        df_q_95.plot.line(color=color, linestyle='--', linewidth=0.1, label='_nolegend_') #, label="0.05")
 
         plt.fill_between(
             sim_yrs_smoothed,
@@ -110,23 +110,46 @@ def scenario_over_time(
             list(df_q_05),  #y2
             alpha=0.25,
             facecolor=color,
-            label="weather uncertainty"
+            #label="weather uncertainty"
             )
 
     #plt.ylim(0, y_lim_val)
     plt.xlim(2015, 2050)
+    
+    # --------
+    # Different style
+    # --------
+    ax = plt.gca()
+    ax.grid(which='major', color='black', axis='y', linestyle='--')
+    
+    ax.spines['right'].set_visible(False)
+    ax.spines['left'].set_visible(False)
+    ax.spines['top'].set_visible(False)
+
+    # Turn off tick labels
+    #ax.set_yticklabels([])
+    ax.set_yticks([])
 
     # --------
     # Legend
     # --------
-    legend = plt.legend(
+    '''legend = plt.legend(
         #title="tt",
         ncol=2,
         prop={'size': 8},
         loc='upper center',
         bbox_to_anchor=(0.5, -0.1),
         frameon=False)
-    legend.get_title().set_fontsize(8)
+    legend.get_title().set_fontsize(8)'''
+
+    # Put a legend to the right of the current axis
+    ax.legend(
+        ncol=1,
+        prop={'size': 8},
+        loc='center left',
+        bbox_to_anchor=(1, 0.5),
+        frameon=False)
+    #legend.get_title().set_fontsize(8)
 
     # --------
     # Labeling

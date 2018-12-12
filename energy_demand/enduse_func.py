@@ -115,7 +115,7 @@ class Enduse(object):
         self.fuel_y = fuel
         self.flat_profile_crit = flat_profile_crit
         self.techs_fuel_yh = None
-
+   
         #If enduse has no fuel return empty shapes
         if np.sum(fuel) == 0:
             self.flat_profile_crit = True
