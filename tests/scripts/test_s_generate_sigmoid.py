@@ -62,19 +62,6 @@ def test_calc_sigmoid_parameters():
         xdata,
         ydata)
 
-    '''
-    #from energy_demand.plotting import basic_plot_functions
-    basic_plot_functions.plotout_sigmoid_tech_diff(
-        l_value,
-        "testtech",
-        "test_enduse",
-        xdata,
-        ydata,
-        fit_parameter,
-        True,
-        False # Close windows
-        )
-    '''
     y_calculated = diffusion_technologies.sigmoid_function(xdata[1], l_value, *fit_parameter)
 
     assert round(y_calculated, 3) == round(ydata[1], 3)

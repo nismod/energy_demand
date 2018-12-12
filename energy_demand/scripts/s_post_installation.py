@@ -30,25 +30,22 @@ def post_install_setup(args):
     """
     print("... start running initialisation scripts", flush=True)
 
-    path_main = resource_filename(
-        Requirement.parse("energy_demand"),
-        os.path.join("energy_demand", "config_data"))
-
     path_config_file = os.path.abspath(
         os.path.join(
             os.path.dirname(__file__), '..', '..', '..', 'config', 'wrapperconfig.ini'))
-
-    path_results = resource_filename(Requirement.parse("energy_demand"), "results")
-    local_data_path = args.local_data
 
     config = configparser.ConfigParser()
     config.read(path_config_file)
     config = basic_functions.convert_config_to_correct_type(config)
 
+    path_results = resource_filename(Requirement.parse("energy_demand"), "results")
+    local_data_path = args.local_data
+
+    path_config = config['PATHS']['path_energy_demand_config']
     base_yr = config['CONFIG']['base_yr']
 
     data = {}
-    data['paths'] = data_loader.load_paths(path_main)
+    data['paths'] = data_loader.load_paths(path_config)
     data['local_paths'] = data_loader.get_local_paths(local_data_path)
     data['result_paths'] = data_loader.get_result_paths(path_results)
     data['lookups'] = lookup_tables.basic_lookups()
@@ -95,6 +92,7 @@ def post_install_setup(args):
     print("Generate additional data", flush=True)
 
     # Extract NISMOD population data
+    print("A " + str(local_data_path))
     path_to_zip_file = os.path.join(local_data_path, "population-economic-smif-csv-from-nismod-db.zip")
     path_extraction = os.path.join(local_data_path, 'scenarios', "MISTRAL_pop_gva")
     zip_ref = zipfile.ZipFile(path_to_zip_file, 'r')
@@ -104,27 +102,12 @@ def post_install_setup(args):
     # Complete gva and pop data for every sector
     data_pop = os.path.join(local_data_path, "scenarios", "MISTRAL_pop_gva", "data")
     path_geography = os.path.join(local_data_path, "scenarios", "uk_pop_principal_2015_2050_MSOA_england.csv")
-    geography_name = "region" # "lad_uk_2016"
 
     script_data_preparation_MISTRAL_pop_gva.run(
         path_to_folder=data_pop,
         path_MSOA_baseline=path_geography,
         MSOA_calculations=False,
-        geography_name=geography_name)
+        geography_name="region") # "lad_uk_2016"
 
     print("... successfully finished setup")
     return
-
-'''
-local_data_path = "C:/Users/cenv0553/ed/data"
-# Complete gva and pop data for every sector
-data_pop = os.path.join(local_data_path, "scenarios", "MISTRAL_pop_gva_TEST", "data")
-path_geography = os.path.join(local_data_path, "scenarios", "uk_pop_principal_2015_2050_MSOA_england.csv")
-geography_name = "region" # "lad_uk_2016"
-
-script_data_preparation_MISTRAL_pop_gva.run(
-    path_to_folder=data_pop,
-    path_MSOA_baseline=path_geography,
-    MSOA_calculations=False)
-
-print("... successfully finished setup")'''

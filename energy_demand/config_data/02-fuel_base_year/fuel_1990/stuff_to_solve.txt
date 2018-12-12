@@ -1,2 +1,0 @@
-1 gas unit in rs_lighting in residential
-solid fuel in rs_cooking

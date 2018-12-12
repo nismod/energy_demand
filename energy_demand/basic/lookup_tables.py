@@ -196,8 +196,7 @@ def basic_lookups():
 
     lookups['diffusion_type'] = {
         0: 'linear',
-        1: 'sigmoid'
-    }
+        1: 'sigmoid'}
 
     lookups['fueltypes'] = {
         'solid_fuel': 0,

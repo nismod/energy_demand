@@ -103,8 +103,9 @@ if __name__ == "__main__":
     user_defined_simulation_end_yr = config['CONFIG']['user_defined_simulation_end_yr']
 
     # Simulated yrs
-    sim_yrs = [base_yr, user_defined_simulation_end_yr]
-    #sim_yrs = [2015, 2025, 2035, 2045, 2050]
+    #sim_yrs = [base_yr, 2030, user_defined_simulation_end_yr]
+    #sim_yrs = [2015, 2020, 2025, 2030, 2035, 2040, 2045, 2050]
+    sim_yrs = [2015, 2020, 2050]
     weather_yr_scenario = 2015   # Default weather year
 
     if len(sys.argv) > 1: #user defined arguments are provide
@@ -123,9 +124,16 @@ if __name__ == "__main__":
     path_weather_data = "X:/nismod/data/energy_demand/J-MARIUS_data/_weather_realisation"
     #path_weather_data = "/soge-home/staff/cenv0553/_weather_realisation"
 
-    local_scenario = 'pop-baseline16_econ-c16_fuel-c16' #pop-f_econ-c_fuel-c  #pop-b_econ-c_fuel-c
-    name_config_path = 'high_electrification'
-    name_config_path = 'h_l'
+    #local_scenario = 'pop-baseline16_econ-c16_fuel-c16' #pop-f_econ-c_fuel-c  #pop-b_econ-c_fuel-c
+    
+    local_scenario = 'pop-f_econ-c_fuel-c' #low
+    #local_scenario = 'pop-baseline16_econ-c16_fuel-c16' #middle
+    #local_scenario = 'pop-b_econ-c_fuel-c' #high
+
+    #name_config_path = 'h_h'
+    name_config_path = 'l_h' #TODO
+    #name_config_path = 'l_c'
+    #name_config_path = 'no_change'
 
     path_strategy_vars = os.path.join(local_data_path, 'energy_demand', '00_user_defined_variables', 'high_electrification')
     path_strategy_vars = os.path.join(local_data_path, 'energy_demand', '00_user_defined_variables', name_config_path)
@@ -159,7 +167,8 @@ if __name__ == "__main__":
     # Load data
     # ----------------------------------------------------------------------
     data['scenario_data'] = defaultdict(dict)
-    data['enduses'], data['sectors'], data['fuels'], lookup_enduses, lookup_sector_enduses = data_loader.load_fuels(data['paths'])
+    data['enduses'], data['sectors'], data['fuels'], lookup_enduses, lookup_sector_enduses = data_loader.load_fuels(
+        data['paths'])
 
     data['regions'] = read_data.get_region_names(name_region_set)
 
@@ -349,12 +358,12 @@ if __name__ == "__main__":
     # ------------------------------------------------
     # Calculate switches (not generic)
     # ------------------------------------------------
-    service_switches_raw = pd.read_csv(os.path.join(data['local_paths']['path_strategy_vars'], "switches_service.csv"))
-    service_switches = read_data.service_switch(service_switches_raw)
-    print(".---------")
-    for i in service_switches:
-        print(i.__dict__)
-    #raise Exception("FF")
+    try:
+        service_switches_raw = pd.read_csv(os.path.join(data['local_paths']['path_strategy_vars'], "switches_service.csv"))
+        service_switches = read_data.service_switch(service_switches_raw)
+    except:
+        service_switches = []
+
     fuel_switches = read_data.read_fuel_switches(os.path.join(data['local_paths']['path_strategy_vars'], "switches_fuel.csv"), data['enduses'], data['assumptions'].fueltypes, data['assumptions'].technologies)
     capacity_switches = read_data.read_capacity_switch(os.path.join(data['local_paths']['path_strategy_vars'], "switches_capacity.csv"))
 
@@ -376,7 +385,7 @@ if __name__ == "__main__":
         service_switches=service_switches,
         fuel_switches=fuel_switches,
         capacity_switches=capacity_switches)
-    
+
     for region in data['regions']:
         regional_vars[region]['annual_tech_diff_params'] = annual_tech_diff_params[region]
 

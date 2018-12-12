@@ -218,27 +218,19 @@ def load_local_user_defined_vars(
     strategy_vars_as_narratives = {}
 
     for file_name in all_csv_in_folder:
-        if file_name in files_to_ignores:
-            pass
-        else:
-            # Strategy variable name
+        print("... filename: " + str(file_name))
+        if file_name not in files_to_ignores:
+
             var_name = file_name[:-4] #remove ".csv"
 
-            try:
-                raw_file_content = pd.read_csv(os.path.join(path_csv, file_name))
+            raw_file_content = pd.read_csv(os.path.join(path_csv, file_name))
 
-                default_streategy_var = default_strategy_var[var_name]
-
-                # Alternative loading
-                strategy_vars_as_narratives[var_name] = narrative_related.read_user_defined_param(
-                    raw_file_content,
-                    simulation_base_yr=simulation_base_yr,
-                    simulation_end_yr=simulation_end_yr,
-                    default_streategy_var=default_streategy_var,
-                    var_name=var_name)
-
-            except KeyError:
-                raise Exception("The user defined variable '{}' is not defined in model", var_name)
+            strategy_vars_as_narratives[var_name] = narrative_related.read_user_defined_param(
+                raw_file_content,
+                simulation_base_yr=simulation_base_yr,
+                simulation_end_yr=simulation_end_yr,
+                default_streategy_var=default_strategy_var[var_name],
+                var_name=var_name)
 
     return strategy_vars_as_narratives
 

@@ -160,14 +160,10 @@ def generate_annual_param_vals(
 
             # Additional dictionary passed along with every variable containing additional information
             param_info = {}
-
             try:
                 param_info['fueltype_replace'] = strategy_vars_values[0]['fueltype_replace']
-            except KeyError:
-                pass
-            try:
                 param_info['fueltype_new'] = strategy_vars_values[0]['fueltype_new']
-            except KeyError:
+            except:
                 pass
 
             # Calculate annual parameter value
@@ -197,66 +193,102 @@ def generate_annual_param_vals(
                 if type(sector_sub_var_values) is dict:
                     for sector, sub_var_values in sector_sub_var_values.items():
 
-                        param_info = {}
-                        try:
-                            param_info['fueltype_replace'] = sub_var_values[0]['fueltype_replace']
-                        except KeyError:
-                            pass
-                        try:
-                            param_info['fueltype_new'] = sub_var_values[0]['fueltype_new']
-                        except KeyError:
-                            pass
+                        if var_name == 'generic_fuel_switch':
 
-                        # Calculate annual parameter value
-                        regional_strategy_vary = generate_general_parameter(
-                            regions=regions,
-                            narratives=sub_var_values,
-                            sim_yrs=sim_yrs)
+                            all_new_fueltypes = []
+                            for narrative in sub_var_values:
+                                all_new_fueltypes.append(narrative['fueltype_new'])
 
-                        # Test if regional specific or not based on first narrative
-                        for narrative in sub_var_values[:1]:
-                            reg_specific_crit = narrative['regional_specific']
+                            for new_fueltype in all_new_fueltypes:
 
-                        if reg_specific_crit:
-                            for region in regions:
-                                reg_param[region][var_name][sub_var_name][sector] = regional_strategy_vary[region]
-                                reg_param[region][var_name][sub_var_name][sector] = dict(reg_param[region][var_name][sub_var_name][sector])
-                                reg_param[region][var_name][sub_var_name][sector]['param_info'] = param_info
+                                # Get all narratives of this fueltype
+                                narratives = []
+                                for narrative in sub_var_values:
+                                    if narrative['fueltype_new'] == new_fueltype:
+                                        narratives.append(narrative)
+
+                                param_info = {}
+                                param_info['fueltype_new'] = int(new_fueltype)
+                                param_info['fueltype_replace'] = narrative['fueltype_replace']
+
+                                # Calculate annual parameter value
+                                regional_strategy_vary = generate_general_parameter(
+                                    regions=regions,
+                                    narratives=narratives,
+                                    sim_yrs=sim_yrs)
+
+                                if narrative['regional_specific']:
+                                    for region in regions:
+                                        reg_param[region][var_name][sub_var_name][sector][param_info['fueltype_new']] = dict(regional_strategy_vary[region])
+                                        reg_param[region][var_name][sub_var_name][sector][param_info['fueltype_new']]['param_info'] = param_info
+                                else:
+                                    non_reg_param[var_name][sub_var_name][sector][param_info['fueltype_new']] = regional_strategy_vary
+                                    non_reg_param[var_name][sub_var_name][sector][param_info['fueltype_new']]['param_info'] = param_info
                         else:
-                            non_reg_param[var_name][sub_var_name][sector] = regional_strategy_vary
-                            non_reg_param[var_name][sub_var_name][sector]['param_info'] = param_info
+                            # Calculate annual parameter value
+                            regional_strategy_vary = generate_general_parameter(
+                                regions=regions,
+                                narratives=sub_var_values,
+                                sim_yrs=sim_yrs)
+
+                            # Test if regional specific or not based on first narrative
+                            for narrative in sub_var_values[:1]:
+                                reg_specific_crit = narrative['regional_specific']
+
+                            if reg_specific_crit:
+                                for region in regions:
+                                    reg_param[region][var_name][sub_var_name][sector] = dict(regional_strategy_vary[region])
+                            else:
+                                non_reg_param[var_name][sub_var_name][sector] = regional_strategy_vary
 
                 # Single dimensional
                 else:
                     param_info = {}
+                    if var_name == 'generic_fuel_switch':
 
-                    try:
-                        param_info['fueltype_replace'] = sector_sub_var_values[0]['fueltype_replace']
-                    except KeyError:
-                        pass
-                    try:
-                        param_info['fueltype_new'] = sector_sub_var_values[0]['fueltype_new']
-                    except KeyError:
-                        pass
+                        all_new_fueltypes = []
+                        for narrative in sector_sub_var_values:
+                            all_new_fueltypes.append(narrative['fueltype_new'])
 
-                    # Calculate annual parameter value
-                    regional_strategy_vary = generate_general_parameter(
-                        regions=regions,
-                        narratives=sector_sub_var_values,
-                        sim_yrs=sim_yrs)
+                        for new_fueltype in all_new_fueltypes:
+                            narratives = []
+                            for narrative in sector_sub_var_values:
+                                if narrative['fueltype_new'] == new_fueltype:
+                                    narratives.append(narrative)
 
-                    # Test if regional specific or not based on first narrative
-                    for narrative in sector_sub_var_values[:1]:
-                        reg_specific_crit = narrative['regional_specific']
+                            # Calculate annual parameter value
+                            regional_strategy_vary = generate_general_parameter(
+                                regions=regions,
+                                narratives=narratives,
+                                sim_yrs=sim_yrs)
 
-                    if reg_specific_crit:
-                        for region in regions:
-                            reg_param[region][var_name][sub_var_name] = regional_strategy_vary[region]
-                            reg_param[region][var_name][sub_var_name] = dict(reg_param[region][var_name][sub_var_name])
-                            reg_param[region][var_name][sub_var_name]['param_info'] = param_info
+                            param_info = {}
+                            param_info['fueltype_replace'] = narrative['fueltype_replace']
+                            param_info['fueltype_new'] = new_fueltype
+
+                            if narrative['regional_specific']:
+                                for region in regions:
+                                    reg_param[region][var_name][sub_var_name][param_info['fueltype_new']] = dict(regional_strategy_vary[region])
+                                    reg_param[region][var_name][sub_var_name][param_info['fueltype_new']]['param_info'] = param_info
+                            else:
+                                non_reg_param[var_name][sub_var_name][param_info['fueltype_new']] = regional_strategy_vary
+                                non_reg_param[var_name][sub_var_name][param_info['fueltype_new']]['param_info'][param_info['fueltype_replace']] = param_info
                     else:
-                        non_reg_param[var_name][sub_var_name] = regional_strategy_vary
-                        non_reg_param[var_name][sub_var_name]['param_info'] = param_info
+                        # Calculate annual parameter value
+                        regional_strategy_vary = generate_general_parameter(
+                            regions=regions,
+                            narratives=sector_sub_var_values,
+                            sim_yrs=sim_yrs)
+
+                        # Test if regional specific or not based on first narrative
+                        for narrative in sector_sub_var_values[:1]:
+                            reg_specific_crit = narrative['regional_specific']
+
+                        if reg_specific_crit:
+                            for region in regions:
+                                reg_param[region][var_name][sub_var_name] = dict(regional_strategy_vary[region])
+                        else:
+                            non_reg_param[var_name][sub_var_name] = regional_strategy_vary
 
     return dict(reg_param), dict(non_reg_param)
 

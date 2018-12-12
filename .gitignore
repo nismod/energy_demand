@@ -45,7 +45,7 @@ cover/*
 MANIFEST
 
 # Model configuration
-*.ini
+#*.ini
 
 # Files and folders to ignore
 model_output/*.csv
@@ -53,7 +53,7 @@ model_output/*.pdf
 data/data_scripts/*.csv
 data/data_scripts/*.txt
 energy_demand/data/*
-wrapperconfig.ini
+#wrapperconfig.ini
 _raw_data
 _processed_data
 config_data/*

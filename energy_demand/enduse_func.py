@@ -123,9 +123,11 @@ class Enduse(object):
             self.fuel_yh = 0
             self.enduse_techs = []
         else:
-            #print("------INFO  {} {} {}  {}".format(self.enduse, sector, region, curr_yr))
-            #print("FUEL TRAIN A0: " + str(np.sum(self.fuel_y)))
+            print("------INFO  {} {} {}  {}".format(self.enduse, sector, region, curr_yr))
+            print("FUEL TRAIN A0: " + str(np.sum(self.fuel_y)))
 
+            if curr_yr > 2015:
+                print("tt")
             # Get technologies of enduse
             self.enduse_techs = get_enduse_techs(fuel_tech_p_by)
 
@@ -141,7 +143,7 @@ class Enduse(object):
                 assumptions.ss_enduse_space_cooling,
                 f_weather_correction)
             self.fuel_y = _fuel_new_y
-            #print("FUEL TRAIN B0: " + str(np.sum(self.fuel_y)))
+            print("FUEL TRAIN B0: " + str(np.sum(self.fuel_y)))
 
             _fuel_new_y = apply_smart_metering(
                 enduse,
@@ -150,7 +152,7 @@ class Enduse(object):
                 strategy_vars,
                 curr_yr)
             self.fuel_y = _fuel_new_y
-            #print("FUEL TRAIN C0: " + str(np.sum(self.fuel_y)))
+            print("FUEL TRAIN C0: " + str(np.sum(self.fuel_y)))
 
             _fuel_new_y = generic_demand_change(
                 enduse,
@@ -159,7 +161,7 @@ class Enduse(object):
                 strategy_vars['generic_enduse_change'],
                 curr_yr)
             self.fuel_y = _fuel_new_y
-            #print("FUEL TRAIN D0: " + str(np.sum(self.fuel_y)))
+            print("FUEL TRAIN D0: " + str(np.sum(self.fuel_y)))
 
             _fuel_new_y = apply_scenario_drivers(
                 enduse=enduse,
@@ -174,7 +176,7 @@ class Enduse(object):
                 base_yr=base_yr,
                 curr_yr=curr_yr)
             self.fuel_y = _fuel_new_y
-            #print("FUEL TRAIN E0: " + str(np.sum(self.fuel_y)))
+            print("FUEL TRAIN E0: " + str(np.sum(self.fuel_y)))
 
             # Apply cooling scenario variable
             _fuel_new_y = apply_cooling(
@@ -184,7 +186,7 @@ class Enduse(object):
                 assumptions.cooled_ss_floorarea_by,
                 curr_yr)
             self.fuel_y = _fuel_new_y
-            #print("FUEL TRAIN E1: " + str(np.sum(self.fuel_y)))
+            print("FUEL TRAIN E1: " + str(np.sum(self.fuel_y)))
 
             # Industry related change
             _fuel_new_y = industry_enduse_changes(
@@ -195,7 +197,7 @@ class Enduse(object):
                 self.fuel_y,
                 assumptions)
             self.fuel_y = _fuel_new_y
-            #print("FUEL TRAIN E2: " + str(np.sum(self.fuel_y)))
+            print("FUEL TRAIN E2: " + str(np.sum(self.fuel_y)))
 
             # Generic fuel switch of an enduse and sector
             _fuel_new_y = generic_fuel_switch(
@@ -205,7 +207,7 @@ class Enduse(object):
                 strategy_vars['generic_fuel_switch'],
                 self.fuel_y)
             self.fuel_y = _fuel_new_y
-
+            print("FUEL TRAIN E3: " + str(np.sum(self.fuel_y)))
             # ----------------------------------
             # Hourly Disaggregation
             # ----------------------------------
@@ -223,7 +225,7 @@ class Enduse(object):
                         self.fuel_y,
                         make_all_flat=make_all_flat)
 
-                    #print("FUEL TRAIN X " + str(np.sum(fuel_yh)))
+                    print("FUEL TRAIN X " + str(np.sum(fuel_yh)))
                     # Demand management for non-technology enduse
                     self.fuel_yh = demand_management(
                         enduse,
@@ -232,9 +234,7 @@ class Enduse(object):
                         fuel_yh,
                         mode_constrained=False,
                         make_all_flat=make_all_flat)
-                    #print("FUEL TRAIN Y" + str(np.sum(fuel_yh)))
-
-                    #assert not testing_functions.test_if_minus_value_in_array(self.fuel_yh)
+                    print("FUEL TRAIN Y" + str(np.sum(fuel_yh)))
             else:
                 #If technologies are defined for an enduse
 
@@ -347,8 +347,6 @@ class Enduse(object):
                             mode_constrained=False,
                             make_all_flat=make_all_flat)
 
-                         #assert not testing_functions.test_if_minus_value_in_array(self.fuel_yh)
-
 def demand_management(
         enduse,
         curr_yr,
@@ -411,7 +409,7 @@ def demand_management(
         # Calculate current year load factors
         lf_improved_cy = calc_lf_improvement(
             param_lf_improved_cy,
-            loadfactor_yd_cy,)
+            loadfactor_yd_cy)
 
         fuel_yh = lf.peak_shaving_max_min(
             lf_improved_cy,
@@ -439,14 +437,14 @@ def demand_management(
 
 def calc_lf_improvement(
         param_lf_improved_cy,
-        loadfactor_yd_cy,
+        loadfactor_yd_cy
     ):
     """Calculate load factor improvement
 
     Arguments
     ---------
     lf_improvement_ey : dict
-        Load factor improvement until end year
+        Load factor improvement until end year provided as decimal (1 == 100%)
     loadfactor_yd_cy : float
         Yd Load factor of current year
 
@@ -458,10 +456,10 @@ def calc_lf_improvement(
         True: Peak is shifted, False: Peak isn't shifed
     """
     # Add load factor improvement to current year load factor
-    lf_improved_cy = loadfactor_yd_cy + param_lf_improved_cy
+    lf_improved_cy = loadfactor_yd_cy + param_lf_improved_cy * 100
 
     # Where load factor larger than zero, set to 1
-    lf_improved_cy[lf_improved_cy > 1] = 1
+    lf_improved_cy[lf_improved_cy > 100] = 100
 
     return lf_improved_cy
 
@@ -1569,42 +1567,39 @@ def generic_fuel_switch(
 
         # Test is not a switch for the whole enduse (across every sector) is defined
         try:
-            key_of_switch = list(fuel_switch[enduse].keys())
+            keys_of_switch = list(fuel_switch[enduse].keys())
 
-            # Test wheter switches for sectors are provided
-            if 'param_info' in key_of_switch: #one switch
-                fuel_switch = fuel_switch[enduse]
-                switch_defined = True
-            else:
-                pass # Switch is not defined for this sector
+            for key_of_switch in keys_of_switch:
+                # Test wheter switches for sectors are provided
+                if 'param_info' in fuel_switch[enduse][key_of_switch]: #one switch
+                    fuel_switch = fuel_switch[enduse]
+                    switch_defined = True
+                else:
+                    pass # Switch is not defined for this sector
         except KeyError:
             pass
 
     if switch_defined is True:
-        if fuel_switch[curr_yr] != 0:
+        for fueltype_new_int in fuel_switch.keys():
 
-            # Get fueltype to switch (old)
-            #fueltype_replace_str = fuel_switch['param_info']['fueltype_replace']
-            #fueltype_replace_int = tech_related.get_fueltype_int(fueltype_replace_str)
-            fueltype_replace_int = int(fuel_switch['param_info']['fueltype_replace'])
+            if fuel_switch[fueltype_new_int][curr_yr] != 0:
 
-            # Get fueltype to switch to (new)
-            #fueltype_new_str = fuel_switch['param_info']['fueltype_new']
-            #fueltype_new_int = tech_related.get_fueltype_int(fueltype_new_str)
-            fueltype_new_int = int(fuel_switch['param_info']['fueltype_new'])
+                # Get fueltype to switch to (new)
+                fueltype_new_int = int(fuel_switch[fueltype_new_int]['param_info']['fueltype_new'])
 
-            # Value of current year
-            fuel_share_switched_cy = fuel_switch[curr_yr]
+                fueltype_replace_int = int(fuel_switch[fueltype_new_int]['param_info']['fueltype_replace'])
 
-            # Substract fuel
-            fuel_minus = fuel_y[fueltype_replace_int] * (1 - fuel_share_switched_cy)
-            fuel_y[fueltype_replace_int] -= fuel_minus
+                # Value of current year
+                fuel_share_switched_cy = fuel_switch[fueltype_new_int][curr_yr]
 
-            # Add fuel
-            fuel_y[fueltype_new_int] += fuel_minus
-        else:
-            # no fuel switch defined
-            pass
+                # Substract fuel
+                fuel_minus = fuel_y[fueltype_replace_int] * (1 - fuel_share_switched_cy)
+                fuel_y[fueltype_replace_int] -= fuel_minus
+
+                # Add fuel
+                fuel_y[fueltype_new_int] += fuel_minus
+            else:
+                pass # no fuel switch defined
 
     return fuel_y
 

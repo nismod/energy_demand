@@ -315,10 +315,13 @@ def autocomplete_switches(
         Criteria wheter regionally specific or not
     regions : list
         Regions
-    f_diffusion : TODO
-    techs_affected_spatial_f : 
-    service_switches_from_capacity : list, default=[]
-        Service switches stemming from capacity switches
+    f_diffusion : 
+        Diffusion factors
+    techs_affected_spatial_f : list
+        Technologies affected by spatial diffusion
+    service_switches_from_capacity : list
+        Transformed capacity swithces into service switches 
+
     Returns
     -------
     reg_share_s_tech_ey_p : dict
