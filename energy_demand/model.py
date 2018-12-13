@@ -1,6 +1,29 @@
 """The function `EnergyDemandModel` executes all the submodels of the energy demand model
+
+Notes
+-----
+some observations from @willu47
+
+- suggest moving bulk of EnergyDemandModel class contents out of __init__ method
+  and into class methods, and then calling each method in turn
+- suggest explictly creating class properties to access results, rather than
+  the ``setattr`` magic
+- potential for parallelisation of the for-loop around regions for generation 
+  by dwelling stocks
+- suggest splitting ``aggregate_across_all_regions`` into separate methods as each
+  of these requires creating a very large array which is then held in memory,
+  along with all of the disaggregated results. Ideally, only those aggregatation
+  which are required could be run, then written to disk and then removed from
+  memory before moving onto the next
+- Lots of potential for a map-reduce approach to this, which could be streamlined
+  by using vectorised numpy methods consistently throughout the codebase rather
+  than for-loops over indexes of the arrays - this will result in memory and
+  performance improvements
+- Otherwise, the many of the methods are nicely packaged and will be easily
+  testable and refactored going forward, so some profiling would help direct
+  attention to where further work is most appropriate
 """
-import logging
+import loggin
 from collections import defaultdict
 import numpy as np
 
