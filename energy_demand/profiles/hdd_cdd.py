@@ -272,7 +272,7 @@ def effective_temps_min_max(temp_365, nr_day_to_av):
 
     Arguments
     ---------
-    temp_365 : np.array
+    temp_365 : np.ndarray
         Daily min or max temperatures
     nr_day_to_av : int
         Number of previous days to average current day
@@ -289,14 +289,14 @@ def effective_temps_min_max(temp_365, nr_day_to_av):
         effective_temp_365[day] = temp_365[day]
 
     # Iterate days in a year
-    for day in range(365)[nr_day_to_av:]: #Skip first dates in January
+    for day in range(365)[nr_day_to_av:]: # Skip first dates in January
 
         # Add todays temperature and previous effective temps
         tot_temp = temp_365[day]
 
         # Add effective temperature of previous day(s)
         for i in range(nr_day_to_av):
-            tot_temp = tot_temp + effective_temp_365[day - (i+1)] #not +=
+            tot_temp = tot_temp + effective_temp_365[day - (i+1)]  # not +=
 
         effective_temp_365[day] = tot_temp / (nr_day_to_av + 1)
 
@@ -335,9 +335,16 @@ def effective_temps(temp_yh, nr_day_to_av):
     """
     effective_temp_yh = np.zeros((365, 24), dtype="float")
 
+    if not hasattr(temp_yh, 'shape'):
+        msg = "Expected a numpy array, instead received a {}. Maybe set option " \
+              "`crit_temp_min_max = True` in config file."
+
+        raise TypeError(msg.format(type(temp_yh)))
+
     # Copy all border days
     for day in range(nr_day_to_av):
         effective_temp_yh[day] = temp_yh[day]
+
 
     # Iterate days in a year
     for day in range(365)[nr_day_to_av:]: #Skip first dates in January
@@ -347,7 +354,7 @@ def effective_temps(temp_yh, nr_day_to_av):
 
         # Add effective temperature of previous day(s)
         for i in range(nr_day_to_av):
-            tot_temp = tot_temp + effective_temp_yh[day - (i+1)] #not +=
+            tot_temp = tot_temp + effective_temp_yh[day - (i + 1)]  # not +=
 
         effective_temp_yh[day] = tot_temp / (nr_day_to_av + 1)
 

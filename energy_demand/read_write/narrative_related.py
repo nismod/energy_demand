@@ -330,7 +330,7 @@ def read_user_defined_param(
                         try:
                             _ = default_streategy_var[enduse]
                             defined_in_model = True
-                        except:
+                        except KeyError:
                             #print("... not defined in model")
                             defined_in_model = False
 
