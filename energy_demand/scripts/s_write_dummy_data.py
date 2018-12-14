@@ -67,17 +67,10 @@ def post_install_setup_minimum(args):
     """If not all data are available, this scripts allows to
     create dummy datas (temperature and service sector load profiles)
 
-    Arguments
-    ---------
-    path_local_data : str
-        Path to `energy_demand_data` folder
-    path_energy_demand : str
-        Path to energy demand python files
     """
     path_config_file = args.local_data
     config = data_loader.read_config_file(path_config_file)
 
-    path_energy_demand = config['PATHS']['path_config_data']
     path_local_data = config['PATHS']['path_local_data']
 
     # ==========================================
@@ -90,7 +83,6 @@ def post_install_setup_minimum(args):
 
     # Create folders to input data
     raw_folder = os.path.join(path_local_data, '_raw_data')
-    processed_folder = os.path.join(path_local_data, '_processed_data')
 
     basic_functions.create_folder(raw_folder)
     basic_functions.create_folder(config['PATHS']['path_processed_data'])
@@ -120,7 +112,7 @@ def post_install_setup_minimum(args):
         sectors=data['sectors'])
 
     # Read in residential submodel shapes
-    run(data['paths'], local_paths, base_yr)
+    run(data['paths'], local_paths, config['CONFIG']['base_yr'])
 
     # --------
     # Dummy service sector load profiles

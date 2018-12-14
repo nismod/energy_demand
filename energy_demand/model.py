@@ -23,7 +23,7 @@ some observations from @willu47
   testable and refactored going forward, so some profiling would help direct
   attention to where further work is most appropriate
 """
-import loggin
+import logging
 from collections import defaultdict
 import numpy as np
 
