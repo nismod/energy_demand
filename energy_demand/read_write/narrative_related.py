@@ -82,6 +82,7 @@ def get_sector_narrative_and_single_from_multi(sector_to_match, switches):
 
         return switches_out
 
+
 def crit_dim_var(var):
     """Check if nested dict or not
 
@@ -98,19 +99,17 @@ def crit_dim_var(var):
     if type(var) is list:
         single_dimension = True
     else:
-        try:
-            for entry in var:
-                # If list is in ndested dict, then multidimensional
-                if type(var[entry]) is list:
-                    single_dimension = False
-                    break
-                else:
-                    # IF no keys, then fail and thus single dimensional
-                    var[entry].keys()
 
-            single_dimension = False
-        except AttributeError:
-            single_dimension = True
+        single_dimension = True
+        for key, value in var.items():
+            # If list is in ndested dict, then multidimensional
+            if type(value) is not list:
+                if hasattr(value, 'keys') and not value:
+                    # Empty dictionary counts as single dimensional
+                    single_dimension = True
+                elif hasattr(value, 'keys') and value:
+                    # Populated dict counts as multidimensional
+                    single_dimension = False
 
     return single_dimension
 
