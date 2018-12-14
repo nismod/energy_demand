@@ -109,7 +109,7 @@ def crit_dim_var(var):
                         else:
                             pass
     else:
-       for key, value in var.items():
+        for key, value in var.items():
             if type(value) is not list:
                 if hasattr(value, 'keys'):
                     if len(value.keys()) != 0:
