@@ -83,13 +83,13 @@ def main(
         # Collect regional simulation data for every realisation
         ####################################################################
         total_regional_demand_electricity = pd.DataFrame()
-        total_regional_demand_gas = pd.DataFrame()
-        total_regional_demand_hydrogen = pd.DataFrame()
     
         peak_hour_demand = pd.DataFrame()
         national_peak = pd.DataFrame()
         regional_share_national_peak = pd.DataFrame()
         national_electricity = pd.DataFrame()
+        national_gas = pd.DataFrame()
+        national_hydrogen = pd.DataFrame()
 
         for path_result_folder in paths_folders_result:
             print("path_result_folder: " + str(path_result_folder))
@@ -128,17 +128,7 @@ def main(
                 columns=data['regions'])
             total_regional_demand_electricity = total_regional_demand_electricity.append(realisation_data)
 
-            '''realisation_data = pd.DataFrame(
-                [results_container['ed_reg_tot_y'][simulation_yr_to_plot][tech_related.get_fueltype_int('gas')]],
-                columns=data['regions'])
-            total_regional_demand_gas = total_regional_demand_gas.append(realisation_data)
-
-            realisation_data = pd.DataFrame(
-                [results_container['ed_reg_tot_y'][simulation_yr_to_plot][tech_related.get_fueltype_int('hydrogen')]],
-                columns=data['regions'])
-            total_regional_demand_hydrogen = total_regional_demand_hydrogen.append(realisation_data)'''
-            # National per fueltype
-            #national_all_fueltypes
+            # National per fueltype electricity
             fueltype_elec_int = tech_related.get_fueltype_int('electricity')
             simulation_yrs_result = [results_container['national_all_fueltypes'][year][fueltype_elec_int] for year in results_container['national_all_fueltypes'].keys()]
 
@@ -146,6 +136,24 @@ def main(
                 [simulation_yrs_result],
                 columns=data['assumptions']['sim_yrs'])
             national_electricity = national_electricity.append(realisation_data)
+
+            # National per fueltype gas
+            fueltype_elec_int = tech_related.get_fueltype_int('gas')
+            simulation_yrs_result = [results_container['national_all_fueltypes'][year][fueltype_elec_int] for year in results_container['national_all_fueltypes'].keys()]
+
+            realisation_data = pd.DataFrame(
+                [simulation_yrs_result],
+                columns=data['assumptions']['sim_yrs'])
+            national_gas = national_gas.append(realisation_data)
+
+            # National per fueltype hydrogen
+            fueltype_elec_int = tech_related.get_fueltype_int('hydrogen')
+            simulation_yrs_result = [results_container['national_all_fueltypes'][year][fueltype_elec_int] for year in results_container['national_all_fueltypes'].keys()]
+
+            realisation_data = pd.DataFrame(
+                [simulation_yrs_result],
+                columns=data['assumptions']['sim_yrs'])
+            national_hydrogen = national_hydrogen.append(realisation_data)
 
             # --Peak day demand (dataframe with row: realisation, column=region)
             realisation_data = pd.DataFrame(
@@ -177,21 +185,23 @@ def main(
             'regional_share_national_peak': regional_share_national_peak,
 
             'total_regional_demand_electricity': total_regional_demand_electricity,
-            #'total_regional_demand_gas': total_regional_demand_gas,
-            #'total_regional_demand_hydrogen': total_regional_demand_hydrogen
             'national_electricity': national_electricity,
+            'national_gas': national_gas,
+            'national_hydrogen': national_hydrogen,
         })
 
     # ------------------------------
     # Plot national sum over time per fueltype and scenario
     # ------------------------------
+    print("... plotting national sum of fueltype over time")
     fig_3_plot_over_time.fueltypes_over_time(
         scenario_result_container=scenario_result_container,
         sim_yrs=data['assumptions']['sim_yrs'],
         fig_name="fueltypes_over_time_{}.pdf".format(fueltype_str),
-        fueltype_str='electricity',
-        result_path=result_path)
-
+        fueltypes=['electricity', 'gas', 'hydrogen'],
+        result_path=result_path,
+        unit='TWh')
+    #raise Exception("TT")
     # ------------------------------
     # Plot national peak change over time for each scenario
     # including weather variability
@@ -201,7 +211,7 @@ def main(
         sim_yrs=data['assumptions']['sim_yrs'],
         fig_name="scenarios_peak_over_time_{}.pdf".format(fueltype_str),
         result_path=result_path)
-
+    raise Exception("TT3")
 
 
 
@@ -295,7 +305,8 @@ plot_crit_dict = {
     "plot_lad_cross_graphs": True}
 
 main(
-    scenarios_path="C:/_NNEW",
+    #scenarios_path="C:/_NNEW",
+    scenarios_path="C:/__FF",
     path_shapefile_input=path_shapefile_input,
     plot_crit_dict=plot_crit_dict,
     base_yr=2015)
