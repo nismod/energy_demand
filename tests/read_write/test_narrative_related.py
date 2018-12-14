@@ -3,6 +3,21 @@ from collections import OrderedDict
 
 def test_crit_dim_var():
 
+    cit_in_list = [
+        {'sig_midpoint': 0, 'value_by': 5, 'diffusion_choice': 'linear', 'fueltype_replace': 0, 'regional_specific': False, 'base_yr': 2015, 'value_ey': 5, 'sig_steepness': 1, 'end_yr': 2050, 'fueltype_new': 0}]
+
+    actual = crit_dim_var(cit_in_list)
+    expected = False
+    print("AC ULT " + str(actual))
+    assert actual == expected
+
+    nested_dict_in_list = [{'key': {'nested_dict': 'a value'}}]
+
+    actual = crit_dim_var(nested_dict_in_list)
+    expected = True
+    print("AC ULT " + str(actual))
+    assert actual == expected
+
     nested_dict = {'key': {'nested_dict': 'a value'}}
 
     actual = crit_dim_var(nested_dict)

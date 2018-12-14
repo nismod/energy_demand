@@ -151,8 +151,7 @@ def read_weather_stations_raw(path_to_csv):
     return weather_stations
 
 def replace_variable(_user_defined_vars, strategy_vars):
-    """Replace default strategy variables with user
-    defined variables
+    """Replace default strategy variables with user defined variables
 
     Arguments
     ----------
