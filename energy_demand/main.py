@@ -134,10 +134,11 @@ if __name__ == "__main__":
     #local_scenario = 'pop-baseline16_econ-c16_fuel-c16' #middle
     #local_scenario = 'pop-b_econ-c_fuel-c' #high
 
-    #name_config_path = 'h_h'
+    #name_config_path = 'h_c'
     name_config_path = 'l_h' #TODO
     #name_config_path = 'l_c'
-    name_config_path = 'no_change'
+    name_config_path = 'l_l'
+    #name_config_path = 'no_change'
 
     path_strategy_vars = os.path.join(local_data_path, 'energy_demand', '00_user_defined_variables', 'high_electrification')
     path_strategy_vars = os.path.join(local_data_path, 'energy_demand', '00_user_defined_variables', name_config_path)

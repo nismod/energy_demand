@@ -67,13 +67,17 @@ def create_realisation(
 
         for sim_yr in range(sim_yr_start, sim_yr_end):
             print("   ... year: " + str(sim_yr), flush=True)
+            list_wss = extend_360_day_to_365(wss, 'wss')
+            list_rlds = extend_360_day_to_365(rlds, 'rlds')
+            list_rsds = extend_360_day_to_365(rsds, 'rsds')
 
             # If year 2015 - 2019, take base year weather
             if sim_yr in range(2015, 2020):
                 print("... for year '{}' data from the year 2015 are used".format(sim_yr))
                 path_weather_data = base_yr_remapped_weather_path
-                path_t_min = os.path.join(path_weather_data, "t_min_remapped.npy")
-                path_t_max = os.path.join(path_weather_data, "t_max_remapped.npy")
+                path_wss = os.path.join(path_weather_data, "wss.npy")
+                path_rlds = os.path.join(path_weather_data, "rlds.npy")
+                path_rsds = os.path.join(path_weather_data, "rsds.npy")
                 path_stations = os.path.join(path_weather_data, "stations_2015_remapped.csv")
             elif sim_yr == 2050:
                 print("... for year '{}' data from the year 2049 are used".format(sim_yr))
@@ -97,6 +101,9 @@ def create_realisation(
             stations = pd.read_csv(path_stations)
             stations['timestep'] = sim_yr
             stations_out = stations_out.append(stations)
+
+
+            #GET COORDINATES OF STATION
 
             nr_stations_arry = len(list(stations.values))
             for station_cnt in range(nr_stations_arry):
@@ -303,10 +310,13 @@ if clean_original_files:
     # ------------------------
     path = "X:/nismod/data/energy_demand/J-MARIUS_data"
     result_path = "X:/nismod/data/energy_demand/J-MARIUS_data"
+    
+    years_to_clean = range(2020, 2026, 1)
+    years_to_clean = range(2026, 2031, 1)
+    years_to_clean = range(2031, 2041, 1)
+    years_to_clean = range(2041, 2051, 1)
 
-    #years_to_clean = [2020]
-
-    weather_dat_prepare(path, result_path)#, years_to_clean)
+    weather_dat_prepare(path, result_path, years_to_clean)
 
 if stich_weather_scenario:
     # ------------------------

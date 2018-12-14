@@ -56,14 +56,14 @@ def smooth_data(
         New number of interpolation points
     spider : bool
         Criteria whether spider plot or not
-
-    
+    interpol_kind : str
+        Kind of interpolation, i.e. quadratic or cubic
 
     Note:
     ------
     - needs at least 4 entries in lists
     - https://docs.scipy.org/doc/scipy/reference/tutorial/interpolate.html
-
+    - The smoothing prevents negative values by setting them to zero
     """
 
     if spider:
@@ -80,7 +80,7 @@ def smooth_data(
         f2 = interp1d(
             x_values,
             y_list,
-            kind='quadratic') #quadratic cubic
+            kind=interpol_kind) 
 
         x_smooth = np.linspace(
             min_x_val,
@@ -104,6 +104,9 @@ def smooth_data(
 
     # smooth
     y_smooth = f2(x_smooth)
+
+    # Prevent smoothing to go into negative values
+
 
     return x_smooth, y_smooth
 

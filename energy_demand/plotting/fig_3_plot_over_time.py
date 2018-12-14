@@ -240,18 +240,22 @@ def fueltypes_over_time(
             # --------------------
             # Try to smooth lines
             # --------------------
-            sim_yrs_smoothed = sim_yrs
-            try:
-                sim_yrs_smoothed, mean_national_sum_smoothed = basic_plot_functions.smooth_data(sim_yrs, mean_national_sum, num=40000)
-                _, df_q_05_smoothed = basic_plot_functions.smooth_data(sim_yrs, df_q_05, num=40000)
-                _, df_q_95_smoothed = basic_plot_functions.smooth_data(sim_yrs, df_q_95, num=40000)
-
-                mean_national_sum = pd.Series(mean_national_sum_smoothed, sim_yrs_smoothed)
-                df_q_05 = pd.Series(df_q_05_smoothed, sim_yrs_smoothed)
-                df_q_95 = pd.Series(df_q_95_smoothed, sim_yrs_smoothed)
-            except:
+            crit_smooth_line = True
+            if crit_smooth_line:
                 sim_yrs_smoothed = sim_yrs
-                pass
+                try:
+                    sim_yrs_smoothed, mean_national_sum_smoothed = basic_plot_functions.smooth_data(sim_yrs, mean_national_sum, num=40000)
+                    _, df_q_05_smoothed = basic_plot_functions.smooth_data(sim_yrs, df_q_05, num=40000)
+                    _, df_q_95_smoothed = basic_plot_functions.smooth_data(sim_yrs, df_q_95, num=40000)
+
+                    mean_national_sum = pd.Series(mean_national_sum_smoothed, sim_yrs_smoothed)
+                    df_q_05 = pd.Series(df_q_05_smoothed, sim_yrs_smoothed)
+                    df_q_95 = pd.Series(df_q_95_smoothed, sim_yrs_smoothed)
+                except:
+                    sim_yrs_smoothed = sim_yrs
+                    pass
+            else:
+                sim_yrs_smoothed = sim_yrs
 
             plt.plot(
                 mean_national_sum,

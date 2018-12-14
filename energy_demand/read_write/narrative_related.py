@@ -195,7 +195,7 @@ def autocomplete(parameter_narratives, simulation_base_yr, sub_param_crit):
     autocomplet_param_narr = defaultdict(dict)
 
     for sub_param_name, narratives_sector in parameter_narratives.items():
-        print("... " + str(sub_param_name))
+        print("   ... " + str(sub_param_name))
         for sector, narratives in narratives_sector.items():
             autocomplet_param_narr[sub_param_name][sector] = []
 
