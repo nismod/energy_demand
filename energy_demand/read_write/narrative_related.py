@@ -104,7 +104,7 @@ def crit_dim_var(var):
 
                 if type(value) is not list:
                     if hasattr(value, 'keys'):
-                        if len(value.keys()) != 0:
+                        if len(value.keys()) != 0 and key not in ['regional_vals_by', 'regional_vals_cy']:
                             single_dimension = False
                         else:
                             pass
@@ -112,7 +112,7 @@ def crit_dim_var(var):
        for key, value in var.items():
             if type(value) is not list:
                 if hasattr(value, 'keys'):
-                    if len(value.keys()) != 0:
+                    if len(value.keys()) != 0 and key not in ['regional_vals_by', 'regional_vals_cy']:
                         single_dimension = False
             else:
                 if value == []:
