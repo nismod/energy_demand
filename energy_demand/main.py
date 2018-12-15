@@ -80,10 +80,11 @@ def energy_demand_model(
 if __name__ == "__main__":
     """
     """
+    #TODO UPDATE WITH WILLS CHANGES
     # ------------------------------------------
     # Local run model configuration
     # ------------------------------------------
-    local_data_path = os.path.abspath('data')
+    local_data_path = sys.argv[1] 
 
     path_config = os.path.abspath(os.path.join(
             os.path.dirname(__file__), '..', 'local_run_config_file.ini'))
@@ -98,7 +99,6 @@ if __name__ == "__main__":
 
     #config_file_path = os.path.join(path_main, 'wrapperconfig.ini') 
     #config = data_loader.read_config_file(config_file_path)
-        
 
     # Data
     data = {}
@@ -109,12 +109,12 @@ if __name__ == "__main__":
     # Simulated yrs
     #sim_yrs = [base_yr, 2030, user_defined_simulation_end_yr]
     #sim_yrs = [2015, 2020, 2025, 2030, 2035, 2040, 2045, 2050]
-    sim_yrs = [2015, 2020, 2050]
+    sim_yrs = [2015, 2050]
     weather_yr_scenario = 2015   # Default weather year
 
-    if len(sys.argv) > 1: #user defined arguments are provide
-        scenario_name = str(sys.argv[1])
-        weather_realisation = str(sys.argv[2]) # Weather realisation 
+    if len(sys.argv) > 3: #user defined arguments are provide
+        scenario_name = str(sys.argv[2])
+        weather_realisation = str(sys.argv[3]) # Weather realisation 
     else:
         scenario_name = "_run_"
         weather_realisation = 'NF1'
@@ -134,11 +134,11 @@ if __name__ == "__main__":
     #local_scenario = 'pop-baseline16_econ-c16_fuel-c16' #middle
     #local_scenario = 'pop-b_econ-c_fuel-c' #high
 
-    #name_config_path = 'h_c'
-    name_config_path = 'l_h' #TODO
-    #name_config_path = 'l_c'
-    name_config_path = 'l_l'
-    #name_config_path = 'no_change'
+    name_config_path = 'h_c'
+    #name_config_path = 'l_h' #ok
+    #name_config_path = 'l_c' #ok
+    #name_config_path = 'h_l' #Ok
+
 
     path_strategy_vars = os.path.join(local_data_path, 'energy_demand', '00_user_defined_variables', 'high_electrification')
     path_strategy_vars = os.path.join(local_data_path, 'energy_demand', '00_user_defined_variables', name_config_path)

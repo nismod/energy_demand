@@ -65,7 +65,6 @@ def smooth_data(
     - https://docs.scipy.org/doc/scipy/reference/tutorial/interpolate.html
     - The smoothing prevents negative values by setting them to zero
     """
-
     if spider:
 
         min_x_val = min(x_list)
@@ -106,7 +105,8 @@ def smooth_data(
     y_smooth = f2(x_smooth)
 
     # Prevent smoothing to go into negative values
-
+    # and replace negative values with zero
+    y_smooth[y_smooth < 0] = 0
 
     return x_smooth, y_smooth
 

@@ -155,7 +155,7 @@ def generate_annual_param_vals(
             strategy_vars_values)
 
         print("Calculating annual values for parameter: {} {}".format(var_name, single_dim_var))
-
+        print("FF " + str(strategy_vars_values))
         if single_dim_var:
 
             # Additional dictionary passed along with every variable containing additional information

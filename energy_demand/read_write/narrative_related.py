@@ -95,22 +95,30 @@ def crit_dim_var(var):
     single_dimension : bool
         True: Single dimension, False: Multidimensional parameter
     """
-    if type(var) is list:
-        single_dimension = True
-    else:
-        try:
-            for entry in var:
-                # If list is in ndested dict, then multidimensional
-                if type(var[entry]) is list:
-                    single_dimension = False
-                    break
-                else:
-                    # IF no keys, then fail and thus single dimensional
-                    var[entry].keys()
+    single_dimension = True
 
-            single_dimension = False
-        except AttributeError:
-            single_dimension = True
+    # Test if list nor not
+    if type(var) is list:
+        for list_entry in var:
+            for key, value in list_entry.items():
+
+                if type(value) is not list:
+                    if hasattr(value, 'keys') and key not in ['regional_vals_by', 'regional_vals_ey']:
+                        if len(value.keys()) != 0:
+                            single_dimension = False
+                        else:
+                            pass
+    else:
+       for key, value in var.items():
+            if type(value) is not list:
+                if hasattr(value, 'keys') and key not in ['regional_vals_by', 'regional_vals_ey']:
+                    if len(value.keys()) != 0:
+                        single_dimension = False
+            else:
+                if value == []:
+                    pass
+                else:
+                    single_dimension = False
 
     return single_dimension
 

@@ -23,6 +23,8 @@ from energy_demand.technologies import tech_related
 from energy_demand.read_write import write_data
 from energy_demand.basic import conversions
 
+from energy_demand.plotting import plotting_styles
+
 colors = {
 
     # High elec
@@ -185,18 +187,20 @@ def fueltypes_over_time(
 
     colors = {
         # Low elec
-        'electricity':  '#800026',
-        'gas':          '#e31a1c',
-        'hydrogen':     '#fd8d3c',
+        'electricity':  '#001871',
+        'gas':          '#ffb743',
+        'hydrogen':     '#138d90',
     }
 
+    line_styles_default = plotting_styles.linestyles()
+    print(line_styles_default)
     linestyles = {
 
         # Low elec
-        'scen_A': '--',
-        'scen_B': '-',
-        'scen_C': '-.',
-        'scen_D': '.'
+        'h_h': line_styles_default[0],
+        'h_l': line_styles_default[6],
+        'l_l': line_styles_default[9],
+        'l_h': line_styles_default[10],
 
     }
 
