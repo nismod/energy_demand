@@ -33,7 +33,7 @@ def get_all_narrative_timesteps(switches_list):
         switches_list)
 
     for enduse in enduses:
-        narrative_timesteps[enduse] = set([])
+        narrative_timesteps[enduse] = set()
 
         for switch in switches_list:
             if switch.enduse == enduse:
@@ -239,9 +239,13 @@ def switch_calculations(
     for submodel in data['assumptions'].submodels_names:
         for enduse in data['enduses'][submodel]:
             for sector in data['sectors'][submodel]:
+                
+
+                #NEW Add base year to timesteps
+                #timsteps_plus_by = [2015] + narrative_timesteps[enduse]
 
                 diffusion_param_tech[enduse][sector] = sig_param_calc_incl_fuel_switch(
-                    narrative_timesteps,
+                    narrative_timesteps, #timsteps_plus_by, 
                     data['assumptions'].base_yr,
                     data['assumptions'].crit_switch_happening,
                     data['assumptions'].technologies,
@@ -261,7 +265,26 @@ def switch_calculations(
     annual_tech_diff_params = s_scenario_param.calc_annual_switch_params(
         sim_yrs,
         data['regions'],
-        dict(diffusion_param_tech))
+        dict(diffusion_param_tech),
+        base_yr=data['assumptions'].base_yr, #NEW
+        s_tech_by_p=s_tech_by_p) #NEW
+
+    # Test whether the calculated service shares sum up to 1
+    for region in annual_tech_diff_params:
+        for enduse in annual_tech_diff_params[region]:
+            for sector in annual_tech_diff_params[region][enduse]:
+                print("TTTTTTTT {} {} {}  ".format(region, enduse, sector))
+                print(annual_tech_diff_params[region][enduse][sector])
+
+                for year in sim_yrs:
+                    if annual_tech_diff_params[region][enduse][sector] != []:
+                        _sum = 0
+                        for tech in annual_tech_diff_params[region][enduse][sector]:
+                            print("TECH " + str(tech))
+                            print("TECH " + str(annual_tech_diff_params[region][enduse][sector][tech]))
+                            _sum += annual_tech_diff_params[region][enduse][sector][tech][year]
+                        print(_sum)
+                        assert round(_sum, 2) == 1
 
     return annual_tech_diff_params
 
@@ -741,7 +764,7 @@ def sig_param_calc_incl_fuel_switch(
                 # -----------------------------------------------
                 #logging.debug("---------- switches %s %s %s", enduse, crit_switch_service, crit_fuel_switch)
                 if crit_all_the_same:
-                    logging.info("... calc parameters of `{}` for year `{}`  {}".format(enduse, switch_yr, sector))
+                    print("... calc parameters of `{}` for year `{}`  {}".format(enduse, switch_yr, sector))
                     # Calculate for one region
                     sig_param_tech_all_regs_value = s_generate_sigmoid.tech_sigmoid_parameters(
                         switch_yr,

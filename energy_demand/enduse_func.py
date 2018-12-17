@@ -126,8 +126,8 @@ class Enduse(object):
             #print("------INFO  {} {} {}  {}".format(self.enduse, sector, region, curr_yr))
             #print("FUEL TRAIN A0: " + str(np.sum(self.fuel_y)))
 
-            if curr_yr > 2015:
-                print("tt")
+            #if curr_yr > 2015 and enduse == 'rs_space_heating':
+            #    print("tt")
             # Get technologies of enduse
             self.enduse_techs = get_enduse_techs(fuel_tech_p_by)
 
@@ -247,7 +247,7 @@ class Enduse(object):
                 # ------------------------------------
                 # Calculate regional energy service
                 # ------------------------------------
-                print("A " + str(np.sum(self.fuel_y)))
+                #print("A " + str(np.sum(self.fuel_y)))
                 s_tot_y_cy, s_tech_y_by = fuel_to_service(
                     enduse,
                     sector,
@@ -256,7 +256,8 @@ class Enduse(object):
                     tech_stock,
                     fueltypes,
                     mode_constrained)
-                print(np.sum(s_tot_y_cy))
+                #print(np.sum(s_tot_y_cy))
+                #print(np.sum(list(s_tech_y_by.values()))) #NEW
                 # ------------------------------------
                 # Reduction of service because of heat recovery
                 # ------------------------------------
@@ -266,7 +267,8 @@ class Enduse(object):
                     s_tot_y_cy,
                     s_tech_y_by,
                     curr_yr)
-                print(np.sum(s_tot_y_cy))
+                #print(np.sum(s_tot_y_cy))
+                #print(np.sum(list(s_tech_y_cy.values()))) #NEW
                 # ------------------------------------
                 # Reduction of service because of improvement in air leakeage
                 # ------------------------------------
@@ -276,7 +278,8 @@ class Enduse(object):
                     s_tot_y_cy,
                     s_tech_y_cy,
                     curr_yr)
-                print(np.sum(s_tot_y_cy))
+                #print(np.sum(s_tot_y_cy))
+                #print(np.sum(list(s_tech_y_cy.values()))) #NEW
                 # --------------------------------
                 # Switches
                 # --------------------------------
@@ -287,14 +290,15 @@ class Enduse(object):
                     curr_yr=curr_yr,
                     base_yr=base_yr,
                     sector=sector,
-                    annual_tech_diff_params=strategy_vars['annual_tech_diff_params'],
+                    annual_tech_diff_params=strategy_vars['annual_tech_diff_params'][enduse][sector],
                     crit_switch_happening=assumptions.crit_switch_happening)
-                print(np.sum(s_tot_y_cy))
+                #print(np.sum(s_tot_y_cy))
+                #print(np.sum(list(s_tech_y_cy.values()))) #NEW
                 # -------------------------------------------
                 # Convert annual service to fuel per fueltype
                 # -------------------------------------------
-                print("--")
-                print(np.sum(self.fuel_y))
+                #print("--")
+                #print(np.sum(self.fuel_y))
                 self.fuel_y, fuel_tech_y = service_to_fuel(
                     enduse,
                     sector,
@@ -303,7 +307,7 @@ class Enduse(object):
                     fueltypes_nr,
                     fueltypes,
                     mode_constrained)
-                print("B" + str(np.sum(self.fuel_y)))
+                #print("B" + str(np.sum(self.fuel_y)))
                 # Delete all technologies with no fuel assigned
                 for tech, fuel_tech in fuel_tech_y.items():
                     if np.sum(fuel_tech) == 0:
@@ -834,10 +838,9 @@ def service_to_fuel(
             fuel_tech_y[tech] = fuel_tech
 
             fuel_y[fueltype_int] += fuel_tech
-            #logging.debug("S --> F: tech: {} eff: {} fuel: {} fuel {}".format(tech, tech_eff, fuel_y[fueltype_int], fuel_tech))
+            #print("S --> F: tech: {} eff: {} fuel: {} service {}".format(tech, tech_eff, fuel_y[fueltype_int], service))
     else:
         for tech, fuel_tech in service_tech.items():
-
             fuel_y[fueltypes['heat']] += fuel_tech
             fuel_tech_y[tech] = fuel_tech
 
@@ -907,10 +910,10 @@ def fuel_to_service(
             techs_with_fuel = tech_list
 
         for tech, fuel_share in techs_with_fuel.items():
-
+            
+            #Constrained version
             if mode_constrained:
-                """Constrained version
-                """
+                
                 tech_eff = tech_stock.get_tech_attr(enduse, sector, tech, 'eff_by')
 
                 # Get fuel share and convert fuel to service per technology
@@ -921,12 +924,10 @@ def fuel_to_service(
                 # Sum total yearly service
                 s_tot_y += s_tech #(y)
 
-                ##logging.debug("F --> S: tech: {} eff: {} fuel: {} service {}".format(tech, tech_eff, fuel_y[fueltype_int], s_tech))
+                #print("F --> S: tech: {} eff: {} fuel: {} service {}".format(tech, tech_eff, fuel_y[fueltype_int], s_tech))
             else:
-                """Unconstrained version
-                efficiencies are not considered, because not technology
-                specific service calculation
-                """
+                #Unconstrained version (efficiencies are not considered, because not technology specific service calculation)
+
                 # Calculate fuel share
                 fuel_tech = fuel_y[fueltype_int] * fuel_share
 
@@ -1470,18 +1471,24 @@ def apply_service_switch(
         base_yr,
         curr_yr)
 
+    # TESTING
+    #_sum = 0
+    #for tech in annual_tech_diff_params:
+    #    _sum += annual_tech_diff_params[tech][curr_yr]
+    #
+    #print("TOTAL SUM " + str(_sum))
     # ---------------------------------------
     # Calculate switch
     # ----------------------------------------
     if crit_switch_service:
-        switched_s_tech_y_cy = {}
 
         # Service of all technologies
         service_all_techs = sum(s_tech_y_cy.values())
-
+    
+        switched_s_tech_y_cy = {}
         for tech in all_technologies:
             # Get service share per tech of cy of sigmoid parameter calculations
-            p_s_tech_cy = annual_tech_diff_params[enduse][sector][tech][curr_yr]
+            p_s_tech_cy = annual_tech_diff_params[tech][curr_yr]
             switched_s_tech_y_cy[tech] = service_all_techs * p_s_tech_cy
         return switched_s_tech_y_cy
     else:

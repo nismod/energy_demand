@@ -61,7 +61,9 @@ def get_correct_narrative_timestep(
 def calc_annual_switch_params(
         sim_yrs,
         regions,
-        diffusion_param_tech
+        diffusion_param_tech,
+        base_yr,
+        s_tech_by_p,
     ):
     """Calculate annual diffusion parameters
     for technologies based on sigmoid diffusion parameters
@@ -93,20 +95,22 @@ def calc_annual_switch_params(
 
                     for sim_yr in sim_yrs:
 
-                        narrative_timesteps = list(sector_region_tech_vals[sector].keys())
-                        correct_narrative_timestep = get_correct_narrative_timestep(
-                            sim_yr=sim_yr, narrative_timesteps=narrative_timesteps)
+                        #NEW If base year, take base year percentage
+                        if sim_yr == base_yr:
+                            for tech, base_yr_p in s_tech_by_p[sector][enduse].items():
+                                annual_tech_diff_params[region][enduse][sector][tech][sim_yr] = base_yr_p
+                        else:
+                            narrative_timesteps = list(sector_region_tech_vals[sector].keys())
+                            correct_narrative_timestep = get_correct_narrative_timestep(
+                                sim_yr=sim_yr, narrative_timesteps=narrative_timesteps)
 
-                        # Calculate parameter for year with diffusion parameter
-                        for tech in reg_vals[correct_narrative_timestep][region].keys():
+                            # Calculate parameter for year with diffusion parameter
+                            for tech, param in reg_vals[correct_narrative_timestep][region].items():
 
-                            param = reg_vals[correct_narrative_timestep][region][tech]
-                            p_s_tech = enduse_func.get_service_diffusion(
-                                param, sim_yr)
+                                p_s_tech = enduse_func.get_service_diffusion(
+                                    param, sim_yr)
 
-                            assert p_s_tech >= 0 #Check if minus
-
-                            annual_tech_diff_params[region][enduse][sector][tech][sim_yr] = p_s_tech
+                                annual_tech_diff_params[region][enduse][sector][tech][sim_yr] = p_s_tech
                 else:
                     annual_tech_diff_params[region][enduse][sector] = []
 
@@ -155,7 +159,6 @@ def generate_annual_param_vals(
             strategy_vars_values)
 
         print("Calculating annual values for parameter: {} {}".format(var_name, single_dim_var))
-        print("FF " + str(strategy_vars_values))
         if single_dim_var:
 
             # Additional dictionary passed along with every variable containing additional information
@@ -345,7 +348,6 @@ def generate_general_parameter(
             if curr_yr in narrative_yrs:
                 if not narrative['regional_specific']:
                     if narrative['diffusion_choice'] == 'linear':
-
                         change_cy = diffusion_technologies.linear_diff(
                             narrative['base_yr'],
                             curr_yr,
@@ -381,8 +383,8 @@ def generate_general_parameter(
                                 narrative['base_yr'],
                                 curr_yr,
                                 narrative['end_yr'],
-                                narrative['sig_midpoint'],  # Same sigmoid for all regions
-                                narrative['sig_steepness']) # Same sigmoid for all regions
+                                narrative['sig_midpoint'],
+                                narrative['sig_steepness'])
                             change_cy = narrative['regional_vals_by'][region] + (diff_value * sig_diff_factor)
 
                         container[region][sim_yr] = change_cy

@@ -198,7 +198,8 @@ def main(
         fig_name="fueltypes_over_time_{}.pdf".format(fueltype_str),
         fueltypes=['electricity', 'gas', 'hydrogen'],
         result_path=result_path,
-        unit='TWh')
+        unit='TWh',
+        plot_points=True)
     #raise Exception("TT")
     # ------------------------------
     # Plot national peak change over time for each scenario
@@ -208,6 +209,7 @@ def main(
         scenario_result_container=scenario_result_container,
         sim_yrs=data['assumptions']['sim_yrs'],
         fig_name="scenarios_peak_over_time_{}.pdf".format(fueltype_str),
+        plot_points=True,
         result_path=result_path)
     raise Exception("TT3")
 

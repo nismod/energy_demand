@@ -47,7 +47,8 @@ def scenario_over_time(
         scenario_result_container,
         sim_yrs,
         fig_name,
-        result_path
+        result_path,
+        plot_points
     ):
     """Plot peak over time
     """
@@ -79,6 +80,18 @@ def scenario_over_time(
         # Standard deviation over all realisations
         df_q_05 = national_peak.quantile(quantile_05)
         df_q_95 = national_peak.quantile(quantile_95)
+
+        # ------------------------
+        # Plot calculated data points
+        # ------------------------
+        if plot_points:
+
+            plt.scatter(
+                sim_yrs,
+                mean_national_peak,
+                c=color,
+                s=10,
+                clip_on=False) #do not clip points on axis
 
         # --------------------
         # Try to smooth lines
@@ -177,6 +190,7 @@ def fueltypes_over_time(
         fig_name,
         fueltypes,
         result_path,
+        plot_points=False,
         unit='TWh'
     ):
     """Plot fueltypes over time
@@ -237,6 +251,18 @@ def fueltypes_over_time(
             # Standard deviation over all realisations
             df_q_05 = national_sum.quantile(quantile_05)
             df_q_95 = national_sum.quantile(quantile_95)
+
+            # ------------------------
+            # Plot calculated data points
+            # ------------------------
+            if plot_points:
+
+                plt.scatter(
+                    sim_yrs,
+                    mean_national_sum,
+                    c=color,
+                    s=10,
+                    clip_on=False) #do not clip points on axis
 
             # --------------------
             # Try to smooth lines
@@ -325,7 +351,7 @@ def fueltypes_over_time(
     legend = plt.legend(
         #title="tt",
         ncol=2,
-        prop={'size': 3},
+        prop={'size': 6},
         loc='upper center',
         bbox_to_anchor=(0.5, -0.1),
         frameon=False)
