@@ -59,7 +59,7 @@ def disaggr_demand(data, crit_temp_min_max, spatial_calibration=False):
         can be calibrated for gas and electricity based on actual
         measured demand data
 
-        Note: All other fueltypes are not skaled
+        Note: All other fueltypes are not scaled
         '''
         calibrate_residential = False # Calibrate residential demands
         calibrate_non_residential = True # Calibrate non residential demands

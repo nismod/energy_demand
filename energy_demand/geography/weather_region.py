@@ -676,7 +676,7 @@ def get_weather_station_selection(
         station_id = all_stations_of_weather_yr[counter]
 
         all_weather_stations_out = {station_id: all_weather_stations[weather_yr][station_id]}
-    except:
+    except KeyError:
         # Not enough stations to select position in list
         station_id = False
         all_weather_stations_out = []

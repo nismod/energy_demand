@@ -15,7 +15,6 @@ from energy_demand.plotting import fig_3_plot_over_time
 def main(
         scenarios_path,
         path_shapefile_input,
-        plot_crit_dict,
         base_yr,
         simulation_yr_to_plot=2050
     ):
@@ -82,10 +81,13 @@ def main(
         ####################################################################
         # Collect regional simulation data for every realisation
         ####################################################################
-        total_regional_demand = pd.DataFrame()
+        total_regional_demand_electricity = pd.DataFrame()
         peak_hour_demand = pd.DataFrame()
         national_peak = pd.DataFrame()
         regional_share_national_peak = pd.DataFrame()
+        national_electricity = pd.DataFrame()
+        national_gas = pd.DataFrame()
+        national_hydrogen = pd.DataFrame()
 
         for path_result_folder in paths_folders_result:
             print("path_result_folder: " + str(path_result_folder))
@@ -122,8 +124,34 @@ def main(
             realisation_data = pd.DataFrame(
                 [results_container['ed_reg_tot_y'][simulation_yr_to_plot][fueltype_int]],
                 columns=data['regions'])
+            total_regional_demand_electricity = total_regional_demand_electricity.append(realisation_data)
 
-            total_regional_demand = total_regional_demand.append(realisation_data)
+            # National per fueltype electricity
+            fueltype_elec_int = tech_related.get_fueltype_int('electricity')
+            simulation_yrs_result = [results_container['national_all_fueltypes'][year][fueltype_elec_int] for year in results_container['national_all_fueltypes'].keys()]
+
+            realisation_data = pd.DataFrame(
+                [simulation_yrs_result],
+                columns=data['assumptions']['sim_yrs'])
+            national_electricity = national_electricity.append(realisation_data)
+
+            # National per fueltype gas
+            fueltype_elec_int = tech_related.get_fueltype_int('gas')
+            simulation_yrs_result = [results_container['national_all_fueltypes'][year][fueltype_elec_int] for year in results_container['national_all_fueltypes'].keys()]
+
+            realisation_data = pd.DataFrame(
+                [simulation_yrs_result],
+                columns=data['assumptions']['sim_yrs'])
+            national_gas = national_gas.append(realisation_data)
+
+            # National per fueltype hydrogen
+            fueltype_elec_int = tech_related.get_fueltype_int('hydrogen')
+            simulation_yrs_result = [results_container['national_all_fueltypes'][year][fueltype_elec_int] for year in results_container['national_all_fueltypes'].keys()]
+
+            realisation_data = pd.DataFrame(
+                [simulation_yrs_result],
+                columns=data['assumptions']['sim_yrs'])
+            national_hydrogen = national_hydrogen.append(realisation_data)
 
             # --Peak day demand (dataframe with row: realisation, column=region)
             realisation_data = pd.DataFrame(
@@ -150,13 +178,29 @@ def main(
         # Add to scenario container
         scenario_result_container.append({
             'scenario_name': scenario_name,
-            'total_regional_demand': total_regional_demand,
             'peak_hour_demand': peak_hour_demand,
             'national_peak': national_peak,
-            'regional_share_national_peak': regional_share_national_peak
+            'regional_share_national_peak': regional_share_national_peak,
+
+            'total_regional_demand_electricity': total_regional_demand_electricity,
+            'national_electricity': national_electricity,
+            'national_gas': national_gas,
+            'national_hydrogen': national_hydrogen,
         })
 
-
+    # ------------------------------
+    # Plot national sum over time per fueltype and scenario
+    # ------------------------------
+    print("... plotting national sum of fueltype over time")
+    fig_3_plot_over_time.fueltypes_over_time(
+        scenario_result_container=scenario_result_container,
+        sim_yrs=data['assumptions']['sim_yrs'],
+        fig_name="fueltypes_over_time_{}.pdf".format(fueltype_str),
+        fueltypes=['electricity', 'gas', 'hydrogen'],
+        result_path=result_path,
+        unit='TWh',
+        plot_points=True)
+    #raise Exception("TT")
     # ------------------------------
     # Plot national peak change over time for each scenario
     # including weather variability
@@ -165,21 +209,25 @@ def main(
         scenario_result_container=scenario_result_container,
         sim_yrs=data['assumptions']['sim_yrs'],
         fig_name="scenarios_peak_over_time_{}.pdf".format(fueltype_str),
+        plot_points=True,
         result_path=result_path)
+    raise Exception("TT3")
+
+
 
     # ------------------------------
-    # Plotting spatial results
+    # Plotting spatial results for electricity
     # ------------------------------
     for i in scenario_result_container:
         scenario_name = i['scenario_name']
-        total_regional_demand = i['total_regional_demand']
+        total_regional_demand_electricity = i['total_regional_demand_electricity']
         peak_hour_demand = i['peak_hour_demand']
         regional_share_national_peak = i['regional_share_national_peak']
 
         print("... plot spatial map of total annual demand")
         field_to_plot = 'std_dev'
         fig_3_weather_map.total_annual_demand(
-            total_regional_demand,
+            total_regional_demand_electricity,
             path_shapefile_input,
             data['regions'],
             pop_data=pop_data,
@@ -234,30 +282,7 @@ def main(
 
 path_shapefile_input="C:/Users/cenv0553/ED/data/energy_demand/region_definitions/lad_2016_uk_simplified.shp"
 
-plot_crit_dict = {
-    "spatial_results": True,              # Spatial geopanda maps
-
-    "plot_differences_p": True,           # Spatial maps of percentage difference per fueltype over time
-    "plot_total_demand_fueltype": True, #False,  # Spatial maps of total demand per fueltype over time
-    "plot_population": True,             # Spatial maps of population
-    "plot_load_factors": True,           # Spatial maps of load factor
-    "plot_load_factors_p": True,         # Spatial maps of load factor change
-    "plot_abs_peak_h": True,             # Spatial maps of peak h demand
-    "plot_diff_peak_h": True,             # Spatial maps of peak h difference (%)
-    "plot_stacked_enduses": True,
-    "plot_y_all_enduses": True,
-    "plot_fuels_enduses_y": True,
-    "plot_lf": True,
-    "plot_week_h": True,
-    "plot_h_peak_fueltypes": True,
-    "plot_averaged_season_fueltype": True, # Compare for every season and daytype the daily loads
-    "plot_radar": True,
-    "plot_radar_seasonal": True,                      # Plot radar spider charts
-    "plot_line_for_every_region_of_peak_demand": True,
-    "plot_lad_cross_graphs": True}
-
 main(
-    scenarios_path="C:/_NNEW",
+    scenarios_path="C:/__single",
     path_shapefile_input=path_shapefile_input,
-    plot_crit_dict=plot_crit_dict,
     base_yr=2015)
