@@ -51,10 +51,6 @@ def generate_default_parameter_narratives(
                     scenario_value = sub_var_entries['scenario_value']
                 except TypeError:
                     raise TypeError("{}: Var_entries dict: {}".format(var_name, var_entries))
-                else:
-                    if var_name == 'ss_t_base_heating':
-                        print("{}: Var_entries dict: {}".format(var_name, var_entries))
-                        raise RuntimeError("Fake error to break code")
                 # -----------------------------------
                 # Crate single-step default narratives (up to end_year)
                 # -----------------------------------
