@@ -52,6 +52,8 @@ def read_in_weather_results(
     results_container['national_peak'] = {}
     results_container['regional_share_national_peak'] = {}
 
+    results_container['national_all_fueltypes'] = {}
+
     for year in results_container['ed_reg_peakday']:
 
         # Get peak demand of each region
@@ -70,6 +72,10 @@ def read_in_weather_results(
         regional_peak = results_container['ed_reg_peakday'][year][fueltype_int][:, max_hour]
         results_container['regional_share_national_peak'][year] = (100 / national_peak) * regional_peak #1 = 1 %
 
+        # Sum all regions for each fueltypes
+        print(results_container['ed_reg_tot_y'][year].shape)
+        results_container['national_all_fueltypes'][year] = np.sum(results_container['ed_reg_tot_y'][year], axis=1)
+        print(results_container['national_all_fueltypes'][year].shape)
 
     logging.info("... Reading in results finished")
     return results_container

@@ -751,10 +751,10 @@ def generate_dw_existing(
         dwtype_floorarea = floorarea_p[dwtype_name] * floorarea_by
 
         # Distribute according to age
-        for dwtype_age in dwtype_age_distr_by.keys():
+        for dwtype_age, distribution in dwtype_age_distr_by.items():
 
             # Floor area of dwelling_class_age (distribute proportionally floor area)
-            dwtype_age_class_floorarea = dwtype_floorarea * dwtype_age_distr_by[dwtype_age]
+            dwtype_age_class_floorarea = dwtype_floorarea * distribution
 
             # Floor area per person is divided by base area value to calc pop
             if floorarea_pp != 0:
