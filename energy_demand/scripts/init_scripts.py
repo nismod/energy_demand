@@ -273,17 +273,17 @@ def switch_calculations(
     for region in annual_tech_diff_params:
         for enduse in annual_tech_diff_params[region]:
             for sector in annual_tech_diff_params[region][enduse]:
-                print("TTTTTTTT {} {} {}  ".format(region, enduse, sector))
-                print(annual_tech_diff_params[region][enduse][sector])
+                #print("TTTTTTTT {} {} {}  ".format(region, enduse, sector))
+                #print(annual_tech_diff_params[region][enduse][sector])
 
                 for year in sim_yrs:
                     if annual_tech_diff_params[region][enduse][sector] != []:
                         _sum = 0
                         for tech in annual_tech_diff_params[region][enduse][sector]:
-                            print("TECH " + str(tech))
-                            print("TECH " + str(annual_tech_diff_params[region][enduse][sector][tech]))
+                            #print("TECH " + str(tech))
+                            #print("TECH " + str(annual_tech_diff_params[region][enduse][sector][tech]))
                             _sum += annual_tech_diff_params[region][enduse][sector][tech][year]
-                        print(_sum)
+                        #print(_sum)
                         assert round(_sum, 2) == 1
 
     return annual_tech_diff_params
