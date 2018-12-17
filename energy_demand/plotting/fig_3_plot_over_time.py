@@ -193,15 +193,12 @@ def fueltypes_over_time(
     }
 
     line_styles_default = plotting_styles.linestyles()
-    print(line_styles_default)
-    linestyles = {
 
-        # Low elec
+    linestyles = {
         'h_h': line_styles_default[0],
         'h_l': line_styles_default[6],
-        'l_l': line_styles_default[9],
-        'l_h': line_styles_default[10],
-
+        'l_l': line_styles_default[8],
+        'l_h': line_styles_default[9],
     }
 
     for cnt_scenario, i in enumerate(scenario_result_container):
@@ -281,17 +278,35 @@ def fueltypes_over_time(
                 )
 
     plt.xlim(2015, 2050)
-    
-    # --------
-    # Different style
-    # --------
-    ax = plt.gca()
-    ax.grid(which='major', color='black', axis='y', linestyle='--')
+    plt.ylim(0)
 
+    ax = plt.gca()
+
+    # Major ticks every 20, minor ticks every 5
+    major_ticks = [200, 400, 600] #np.arange(0, 600, 200)
+    minor_ticks = [100, 200, 300, 400, 500, 600] #np.arange(0, 600, 100)
+
+    ax.set_yticks(major_ticks)
+    ax.set_yticks(minor_ticks, minor=True)
+
+    # And a corresponding grid
+    ax.grid(
+        which='both',
+        color='black',
+        linewidth=0.5,
+        axis='y',
+        linestyle=line_styles_default[3]) #[6])
+
+    # Or if you want different settings for the grids:
+    ax.grid(which='minor', axis='y', alpha=0.4)
+    ax.grid(which='major', axis='y', alpha=0.8)
+
+    # Achsen
     ax.spines['right'].set_visible(False)
     ax.spines['left'].set_visible(False)
     ax.spines['top'].set_visible(False)
 
+    # Ticks
     plt.tick_params(
         axis='y',          # changes apply to the x-axis
         which='both',      # both major and minor ticks are affected
@@ -310,7 +325,7 @@ def fueltypes_over_time(
     legend = plt.legend(
         #title="tt",
         ncol=2,
-        prop={'size': 8},
+        prop={'size': 3},
         loc='upper center',
         bbox_to_anchor=(0.5, -0.1),
         frameon=False)

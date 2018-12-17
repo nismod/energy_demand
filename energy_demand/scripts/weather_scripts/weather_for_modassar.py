@@ -56,71 +56,74 @@ def create_realisation(
     # Realisations
     realisations = list(df_path_stiching_table.columns)
 
-    columns = ['timestep', 'station_id', 'yearday', 'wss', 'rlds', 'rsds']
+    columns = ['timestep', 'longitude', 'latitude', 'yearday', 'wss', 'rlds', 'rsds']
 
     for i in realisation_list:
         realisation = realisations[i]
 
         print("... creating weather data for realisation " + str(realisation), flush=True)
         realisation_out = []
-        stations_out = pd.DataFrame()
 
         for sim_yr in range(sim_yr_start, sim_yr_end):
-            print("   ... year: " + str(sim_yr), flush=True)
-            list_wss = extend_360_day_to_365(wss, 'wss')
-            list_rlds = extend_360_day_to_365(rlds, 'rlds')
-            list_rsds = extend_360_day_to_365(rsds, 'rsds')
 
+            print("   ... year: " + str(sim_yr), flush=True)
             # If year 2015 - 2019, take base year weather
             if sim_yr in range(2015, 2020):
-                print("... for year '{}' data from the year 2015 are used".format(sim_yr))
-                path_weather_data = base_yr_remapped_weather_path
+                #print("... for year '{}' data from the year 2015 are used".format(sim_yr))
+                year = 2020 #Select year 2020
+                stiching_name = df_path_stiching_table[realisation][year]
+                path_weather_data = os.path.join(realisation_path, str(year), stiching_name)
                 path_wss = os.path.join(path_weather_data, "wss.npy")
                 path_rlds = os.path.join(path_weather_data, "rlds.npy")
                 path_rsds = os.path.join(path_weather_data, "rsds.npy")
-                path_stations = os.path.join(path_weather_data, "stations_2015_remapped.csv")
+                path_stations = os.path.join(path_weather_data, "stations.csv")
+
             elif sim_yr == 2050:
-                print("... for year '{}' data from the year 2049 are used".format(sim_yr))
+                #print("... for year '{}' data from the year 2049 are used".format(sim_yr))
                 year = 2049
                 stiching_name = df_path_stiching_table[realisation][year]
                 path_weather_data = os.path.join(realisation_path, str(year), stiching_name)
-                path_t_min = os.path.join(path_weather_data, "t_min.npy")
-                path_t_max = os.path.join(path_weather_data, "t_max.npy")
+                path_wss = os.path.join(path_weather_data, "wss.npy")
+                path_rlds = os.path.join(path_weather_data, "rlds.npy")
+                path_rsds = os.path.join(path_weather_data, "rsds.npy")
                 path_stations = os.path.join(path_weather_data, "stations.csv")
             else:
+                #print("normal")
                 year = sim_yr
                 stiching_name = df_path_stiching_table[realisation][year]
                 path_weather_data = os.path.join(realisation_path, str(year), stiching_name)
-                path_t_min = os.path.join(path_weather_data, "t_min.npy")
-                path_t_max = os.path.join(path_weather_data, "t_max.npy")
+                path_wss = os.path.join(path_weather_data, "wss.npy")
+                path_rlds = os.path.join(path_weather_data, "rlds.npy")
+                path_rsds = os.path.join(path_weather_data, "rsds.npy")
                 path_stations = os.path.join(path_weather_data, "stations.csv")
 
             # Read t_min, t_max, stations)
-            t_min = np.load(path_t_min)
-            t_max = np.load(path_t_max)
+            wss = np.load(path_wss)
+            rlds = np.load(path_rlds)
+            rsds = np.load(path_rsds)
             stations = pd.read_csv(path_stations)
             stations['timestep'] = sim_yr
-            stations_out = stations_out.append(stations)
 
+            nr_stations_array = len(list(stations.values))
 
-            #GET COORDINATES OF STATION
-
-            nr_stations_arry = len(list(stations.values))
-            for station_cnt in range(nr_stations_arry):
-                t_min_station = t_min[station_cnt]
-                t_max_station = t_max[station_cnt]
-                station_id = 'station_id_{}'.format(station_cnt)
+            for station_cnt in range(nr_stations_array):
+                wss_station = wss[station_cnt]
+                rlds_station = rlds[station_cnt]
+                rsds_station = rsds[station_cnt]
+                station_long = stations.loc[station_cnt]['longitude']
+                station_lat = stations.loc[station_cnt]['latitude']
                 for yearday in range(365):
                     realisation_out.append(
-                        [sim_yr, station_id, yearday, t_min_station[yearday], t_max_station[yearday]])
+                        [sim_yr, station_long, station_lat, yearday, wss_station[yearday], rlds_station[yearday], rsds_station[yearday]])
 
+        print("...writing out")
         # Write data to csv
         if write_to_csv:
             df = pd.DataFrame(realisation_out, columns=columns)
             path_out_csv = os.path.join(realisation_out_path, "weather_data_{}.csv".format(realisation))
             df.to_csv(path_out_csv, index=False)
 
-        if write_to_parquet: 
+        '''if write_to_parquet: 
             path_out_parquet = os.path.join(realisation_out_path, "weather_data_{}.parquet".format(realisation))
             df = pd.DataFrame(realisation_out, columns=columns)
             df.to_parquet(path_out_parquet, engine='pyarrow')
@@ -128,11 +131,11 @@ def create_realisation(
         if write_to_np:
             path_out_array = os.path.join(realisation_out_path, "weather_data_{}.npy".format(realisation))
             out_array = np.array(realisation_out)
-            np.save(path_out_array, out_array)
+            np.save(path_out_array, out_array)'''
 
         # Write stations to csv
         print("... writing stations to csv", flush=True)
-        stations_out.to_csv(os.path.join(realisation_out_path, "stations_{}.csv".format(realisation)), index=False)
+        #stations_out.to_csv(os.path.join(realisation_out_path, "stations_{}.csv".format(realisation)), index=False)
 
 def get_temp_data_from_nc(path_nc_file, attribute_to_keep):
     """Open c file, convert it into dataframe,
@@ -301,8 +304,8 @@ def weather_dat_prepare(data_path, result_path, years_to_clean=range(2020, 2049)
 
     print("... finished cleaning weather data")
 
-clean_original_files = True
-stich_weather_scenario = False
+clean_original_files = False
+stich_weather_scenario = True
 
 if clean_original_files:
     # ------------------------
@@ -311,9 +314,9 @@ if clean_original_files:
     path = "X:/nismod/data/energy_demand/J-MARIUS_data"
     result_path = "X:/nismod/data/energy_demand/J-MARIUS_data"
     
-    years_to_clean = range(2020, 2026, 1)
-    years_to_clean = range(2026, 2031, 1)
-    years_to_clean = range(2031, 2041, 1)
+    #years_to_clean = range(2020, 2026, 1)
+    #years_to_clean = range(2026, 2031, 1)
+    #years_to_clean = range(2031, 2041, 1)
     years_to_clean = range(2041, 2051, 1)
 
     weather_dat_prepare(path, result_path, years_to_clean)
@@ -322,11 +325,11 @@ if stich_weather_scenario:
     # ------------------------
     # Create realisation
     # ------------------------
-    base_yr_remapped_weather_path = "X:/nismod/data/energy_demand/J-MARIUS_data/_weather_data_cleaned/2015_remapped"
+    base_yr_remapped_weather_path = "X:/nismod/data/energy_demand/J-MARIUS_data/_weather_data_cleaned_modassar/2020"
     path = "X:/nismod/data/energy_demand/J-MARIUS_data"
     result_path = "X:/nismod/data/energy_demand/J-MARIUS_data"
     realisation_path = "X:/nismod/data/energy_demand/J-MARIUS_data/_weather_data_cleaned_modassar"
-    realisation_out_path = "X:/nismod/data/energy_demand/J-MARIUS_data/_weather_realisation"
+    realisation_out_path = "X:/nismod/data/energy_demand/J-MARIUS_data/_weather_realisation_modassar"
     path_stiching_table = "X:/nismod/data/energy_demand/J-MARIUS_data/stitching_table/stitching_table_nf.dat"
 
     realisation_list = range(100)

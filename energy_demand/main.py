@@ -109,7 +109,7 @@ if __name__ == "__main__":
     # Simulated yrs
     #sim_yrs = [base_yr, 2030, user_defined_simulation_end_yr]
     #sim_yrs = [2015, 2020, 2025, 2030, 2035, 2040, 2045, 2050]
-    sim_yrs = [2015, 2050]
+    sim_yrs = [2015, 2020, 2050]
     weather_yr_scenario = 2015   # Default weather year
 
     if len(sys.argv) > 3: #user defined arguments are provide
@@ -130,11 +130,12 @@ if __name__ == "__main__":
 
     #local_scenario = 'pop-baseline16_econ-c16_fuel-c16' #pop-f_econ-c_fuel-c  #pop-b_econ-c_fuel-c
     
-    local_scenario = 'pop-f_econ-c_fuel-c' #low
+    #local_scenario = 'pop-f_econ-c_fuel-c' #low
     #local_scenario = 'pop-baseline16_econ-c16_fuel-c16' #middle
-    #local_scenario = 'pop-b_econ-c_fuel-c' #high
+    local_scenario = 'pop-b_econ-c_fuel-c' #high
 
-    name_config_path = 'h_c'
+    #name_config_path = 'h_c'
+    name_config_path = 'h_h'
     #name_config_path = 'l_h' #ok
     #name_config_path = 'l_c' #ok
     #name_config_path = 'h_l' #Ok

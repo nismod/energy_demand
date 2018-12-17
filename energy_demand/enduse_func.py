@@ -247,6 +247,7 @@ class Enduse(object):
                 # ------------------------------------
                 # Calculate regional energy service
                 # ------------------------------------
+                print("A " + str(np.sum(self.fuel_y)))
                 s_tot_y_cy, s_tech_y_by = fuel_to_service(
                     enduse,
                     sector,
@@ -255,7 +256,7 @@ class Enduse(object):
                     tech_stock,
                     fueltypes,
                     mode_constrained)
-
+                print(np.sum(s_tot_y_cy))
                 # ------------------------------------
                 # Reduction of service because of heat recovery
                 # ------------------------------------
@@ -265,7 +266,7 @@ class Enduse(object):
                     s_tot_y_cy,
                     s_tech_y_by,
                     curr_yr)
-
+                print(np.sum(s_tot_y_cy))
                 # ------------------------------------
                 # Reduction of service because of improvement in air leakeage
                 # ------------------------------------
@@ -275,7 +276,7 @@ class Enduse(object):
                     s_tot_y_cy,
                     s_tech_y_cy,
                     curr_yr)
-
+                print(np.sum(s_tot_y_cy))
                 # --------------------------------
                 # Switches
                 # --------------------------------
@@ -288,10 +289,12 @@ class Enduse(object):
                     sector=sector,
                     annual_tech_diff_params=strategy_vars['annual_tech_diff_params'],
                     crit_switch_happening=assumptions.crit_switch_happening)
-
+                print(np.sum(s_tot_y_cy))
                 # -------------------------------------------
                 # Convert annual service to fuel per fueltype
                 # -------------------------------------------
+                print("--")
+                print(np.sum(self.fuel_y))
                 self.fuel_y, fuel_tech_y = service_to_fuel(
                     enduse,
                     sector,
@@ -300,7 +303,7 @@ class Enduse(object):
                     fueltypes_nr,
                     fueltypes,
                     mode_constrained)
-
+                print("B" + str(np.sum(self.fuel_y)))
                 # Delete all technologies with no fuel assigned
                 for tech, fuel_tech in fuel_tech_y.items():
                     if np.sum(fuel_tech) == 0:

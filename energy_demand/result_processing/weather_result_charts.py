@@ -15,7 +15,6 @@ from energy_demand.plotting import fig_3_plot_over_time
 def main(
         scenarios_path,
         path_shapefile_input,
-        plot_crit_dict,
         base_yr,
         simulation_yr_to_plot=2050
     ):
@@ -83,7 +82,6 @@ def main(
         # Collect regional simulation data for every realisation
         ####################################################################
         total_regional_demand_electricity = pd.DataFrame()
-    
         peak_hour_demand = pd.DataFrame()
         national_peak = pd.DataFrame()
         regional_share_national_peak = pd.DataFrame()
@@ -282,31 +280,7 @@ def main(
 
 path_shapefile_input="C:/Users/cenv0553/ED/data/energy_demand/region_definitions/lad_2016_uk_simplified.shp"
 
-plot_crit_dict = {
-    "spatial_results": True,              # Spatial geopanda maps
-
-    "plot_differences_p": True,           # Spatial maps of percentage difference per fueltype over time
-    "plot_total_demand_fueltype": True, #False,  # Spatial maps of total demand per fueltype over time
-    "plot_population": True,             # Spatial maps of population
-    "plot_load_factors": True,           # Spatial maps of load factor
-    "plot_load_factors_p": True,         # Spatial maps of load factor change
-    "plot_abs_peak_h": True,             # Spatial maps of peak h demand
-    "plot_diff_peak_h": True,             # Spatial maps of peak h difference (%)
-    "plot_stacked_enduses": True,
-    "plot_y_all_enduses": True,
-    "plot_fuels_enduses_y": True,
-    "plot_lf": True,
-    "plot_week_h": True,
-    "plot_h_peak_fueltypes": True,
-    "plot_averaged_season_fueltype": True, # Compare for every season and daytype the daily loads
-    "plot_radar": True,
-    "plot_radar_seasonal": True,                      # Plot radar spider charts
-    "plot_line_for_every_region_of_peak_demand": True,
-    "plot_lad_cross_graphs": True}
-
 main(
-    #scenarios_path="C:/_NNEW",
-    scenarios_path="C:/__FF",
+    scenarios_path="C:/__single",
     path_shapefile_input=path_shapefile_input,
-    plot_crit_dict=plot_crit_dict,
     base_yr=2015)
