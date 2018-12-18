@@ -1,6 +1,5 @@
 """Generate scenario paramters for every year
 """
-import logging
 from collections import defaultdict
 
 from energy_demand.technologies import diffusion_technologies
@@ -41,8 +40,9 @@ def get_correct_narrative_timestep(
     # Get corresponding narrative timestep
     if len(narrative_timesteps) == 1:
         timestep = narrative_timesteps[0]
-    else:
 
+        return timestep
+    else:
         # Test if current year is larger than any narrative_timestep
         # and use last defined timestep if this is true. Otherwise
         # get correct timestep from narrative_timesteps
@@ -53,10 +53,8 @@ def get_correct_narrative_timestep(
 
                 if sim_yr <= year_narrative:
                     timestep = year_narrative
-                else:
-                    pass
 
-    return timestep
+                    return timestep
 
 def calc_annual_switch_params(
         sim_yrs,
@@ -106,10 +104,7 @@ def calc_annual_switch_params(
 
                             # Calculate parameter for year with diffusion parameter
                             for tech, param in reg_vals[correct_narrative_timestep][region].items():
-
-                                p_s_tech = enduse_func.get_service_diffusion(
-                                    param, sim_yr)
-
+                                p_s_tech = enduse_func.get_service_diffusion(param, sim_yr)
                                 annual_tech_diff_params[region][enduse][sector][tech][sim_yr] = p_s_tech
                 else:
                     annual_tech_diff_params[region][enduse][sector] = []
@@ -166,7 +161,7 @@ def generate_annual_param_vals(
             try:
                 param_info['fueltype_replace'] = strategy_vars_values[0]['fueltype_replace']
                 param_info['fueltype_new'] = strategy_vars_values[0]['fueltype_new']
-            except:
+            except KeyError:
                 pass
 
             # Calculate annual parameter value

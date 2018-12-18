@@ -9,7 +9,6 @@ from energy_demand.profiles import load_factors as lf
 from energy_demand.technologies import diffusion_technologies
 from energy_demand.technologies import fuel_service_switch
 from energy_demand.technologies import tech_related
-from energy_demand.basic import testing_functions
 from energy_demand.basic import basic_functions
 from energy_demand.basic import lookup_tables
 
@@ -126,8 +125,8 @@ class Enduse(object):
             #print("------INFO  {} {} {}  {}".format(self.enduse, sector, region, curr_yr))
             #print("FUEL TRAIN A0: " + str(np.sum(self.fuel_y)))
 
-            #if curr_yr > 2015 and enduse == 'rs_space_heating':
-            #    print("tt")
+            if curr_yr > 2015 and enduse == 'rs_lighting':
+                print("tt")
             # Get technologies of enduse
             self.enduse_techs = get_enduse_techs(fuel_tech_p_by)
 
@@ -910,7 +909,7 @@ def fuel_to_service(
             techs_with_fuel = tech_list
 
         for tech, fuel_share in techs_with_fuel.items():
-            
+
             #Constrained version
             if mode_constrained:
                 

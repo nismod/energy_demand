@@ -350,7 +350,7 @@ def autocomplete_switches(
         sectors_of_enduse = get_sectors_of_enduse(
             enduse, enduses, sectors)
 
-        # Iterate sectors of enduse
+
         for sector in sectors_of_enduse:
 
             switches_enduse = init_scripts.get_sector__enduse_switches(
@@ -387,7 +387,7 @@ def autocomplete_switches(
                     # Calculate relative by proportion of not assigned technologies
                     switches_new = create_switches_from_s_shares(
                         enduse=enduse,
-                        s_tech_by_p=s_tech_by_p,
+                        s_tech_by_p=s_tech_by_p, #??TOTOD TODO TODO
                         switch_technologies=switch_technologies,
                         specified_tech_enduse_by=specified_tech_enduse_by,
                         enduse_switches=enduse_switches,

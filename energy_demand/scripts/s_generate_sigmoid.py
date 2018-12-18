@@ -8,7 +8,7 @@ from collections import defaultdict
 import numpy as np
 from scipy.optimize import curve_fit
 from energy_demand.technologies import diffusion_technologies
-#from energy_demand.plotting import basic_plot_functions
+from energy_demand.plotting import plotting_program
 
 def calc_sigmoid_parameters(
         l_value,
@@ -103,7 +103,6 @@ def calc_sigmoid_parameters(
                     if cnt >= len(start_param_list):
                         raise Exception("Error: Sigmoid curve fitting failed")
                 else:
-
                     # Check how good the fit is
                     y_calculated_ey = diffusion_technologies.sigmoid_function(
                         x_value=xdata[1],
@@ -123,13 +122,19 @@ def calc_sigmoid_parameters(
                     if (fit_measure_p_ey < (100.0 - error_range) or fit_measure_p_ey > (100.0 + error_range)) or (
                         fit_measure_p_by < (100.0 - error_range) or fit_measure_p_by > (100.0 + error_range)):
                         
-                        #logging.debug("... Fitting measure %s %s (percent) is not good enough",
-                        #    fit_measure_p_by, fit_measure_p_ey)
+                        #logging.debug("... Fitting measure %s %s (percent) is not good enough", fit_measure_p_by, fit_measure_p_ey)
                         successfull = False
                         cnt += 1
                     else:
                         successfull = True
-
+                        plotting_program.plotout_sigmoid_tech_diff(
+                            l_value,
+                            "FINISHED FITTING",
+                            xdata,
+                            ydata,
+                            fit_parameter,
+                            plot_crit=True,
+                            close_window_crit=True)
         except (RuntimeError, IndexError):
             cnt += 1
 
@@ -360,7 +365,7 @@ def calc_service_fuel_switched(
         s_rel_fraction_p = tech_fraction / service_tot_remaining
         s_tech_switched_p[tech] = s_rel_fraction_p * unaffected_service_to_distr_p
 
-        assert s_tech_switched_p[tech] >= 0 #NEW
+        assert s_tech_switched_p[tech] >= 0
 
     return dict(s_tech_switched_p)
 
@@ -439,7 +444,7 @@ def tech_sigmoid_parameters(
         l_values,
         s_tech_by_p,
         s_tech_switched_p,
-        fit_assump_init=0.001, #TODO FOUND ERROR
+        fit_assump_init=0.001,
         plot_sigmoid_diffusion=False
     ):
     """Calculate sigmoid diffusion parameters based on energy service
@@ -516,10 +521,8 @@ def tech_sigmoid_parameters(
     else:
         for tech in installed_techs:
 
-            # --------
             # Test whether technology has the market entry before or after base year,
             # If afterwards, set very small number in market entry year
-            # --------
             if technologies[tech].market_entry > switch_yr_start:
                 point_x_by = technologies[tech].market_entry
                 point_y_by = fit_assump_init
@@ -530,6 +533,8 @@ def tech_sigmoid_parameters(
                 # If the base year is the market entry year use a very small number
                 if point_y_by == 0:
                     point_y_by = fit_assump_init
+                #elif point_y_by == 1.0:
+                #    point_y_by = 1 - fit_assump_init
 
             # Future energy service demand
             point_x_ey = yr_until_switched
@@ -560,14 +565,9 @@ def tech_sigmoid_parameters(
                 # Calculate linear slope and linear y-intercept (with two data points)
                 sig_params[tech]['linear_slope'] = calc_m(xdata[0], xdata[1], ydata[0], ydata[1])
                 sig_params[tech]['linear_y_intercept'] = calc_c(sig_params[tech]['linear_slope'], xdata[0], ydata[0])
-
-                #_a = (sig_params[tech]['linear_slope'] * 2050 + sig_params[tech]['linear_y_intercept'])
-                #if _a < 0:
-                #    assert _a < 0.0001
             else:
                 # Test if no increase or decrease or if no future potential share
-                if (point_y_by == fit_assump_init and point_y_ey == fit_assump_init) or (
-                        l_values[tech] == 0):
+                if (point_y_by == fit_assump_init and point_y_ey == fit_assump_init) or (l_values[tech] == 0):
                     sig_params[tech]['midpoint'] = None
                     sig_params[tech]['steepness'] = None
                     sig_params[tech]['l_parameter'] = None
@@ -575,7 +575,6 @@ def tech_sigmoid_parameters(
 
                     # If difference is smaller than a certain share, approximate with linear
                     if abs(ydata[1] - ydata[0]) < linear_approx_crit:
-                        #logging.info("Linear approximation...")
                         sig_params[tech]['midpoint'] = 'linear'
                         sig_params[tech]['steepness'] = 'linear'
                         sig_params[tech]['l_parameter'] = 'linear'
@@ -584,12 +583,8 @@ def tech_sigmoid_parameters(
                         sig_params[tech]['linear_slope'] = calc_m(xdata[0], xdata[1], ydata[0], ydata[1])
                         sig_params[tech]['linear_y_intercept'] = calc_c(sig_params[tech]['linear_slope'], xdata[0], ydata[0])
 
-                        #_a = (sig_params[tech]['linear_slope'] * 2050 + sig_params[tech]['linear_y_intercept'])
-                        #if _a < 0:
-                        #    assert _a < 0.0001
                     try:
                         # Parameter fitting
-                        ##print("----start fitting" ) #, flush=True)
                         fit_parameter = calc_sigmoid_parameters(
                             l_values[tech],
                             xdata,
@@ -600,7 +595,7 @@ def tech_sigmoid_parameters(
 
                         sig_params[tech]['midpoint'] = fit_parameter[0]
                         sig_params[tech]['steepness'] = fit_parameter[1]
-                        sig_params[tech]['l_parameter'] = l_values[tech] # maximum p
+                        sig_params[tech]['l_parameter'] = l_values[tech]
                     except:
                         """If sigmoid fitting failed, implement linear diffusion
 
@@ -618,8 +613,4 @@ def tech_sigmoid_parameters(
                         sig_params[tech]['linear_slope'] = calc_m(xdata[0], xdata[1], ydata[0], ydata[1])
                         sig_params[tech]['linear_y_intercept'] = calc_c(sig_params[tech]['linear_slope'], xdata[0], ydata[0])
 
-                        #_a = (sig_params[tech]['linear_slope'] * 2050 + sig_params[tech]['linear_y_intercept'])
-                        #if _a < 0:
-                        #    assert _a < 0.0001
-     
     return dict(sig_params)

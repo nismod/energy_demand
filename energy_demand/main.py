@@ -110,7 +110,7 @@ if __name__ == "__main__":
     #sim_yrs = [base_yr, 2030, user_defined_simulation_end_yr]
     #sim_yrs = [2015, 2020, 2025, 2030, 2035, 2040, 2045, 2050]
     #sim_yrs = [2015, 2020, 2050]
-    sim_yrs = [2015, 2050]
+    sim_yrs = [2015, 2030] #, 2050]
     weather_yr_scenario = 2015   # Default weather year
 
     if len(sys.argv) > 3: #user defined arguments are provide
@@ -307,8 +307,8 @@ if __name__ == "__main__":
         same_base_year_weather=False,
         crit_temp_min_max=config['CRITERIA']['crit_temp_min_max'],
         load_np=False,
-        load_parquet=False,
-        load_csv=True)
+        load_parquet=True,
+        load_csv=False)
 
     #print(station_id_253)
     # Plot map with weather station
