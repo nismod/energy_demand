@@ -267,27 +267,36 @@ def switch_calculations(
 
     # ------------------------------------------------------
     # Test whether the calculated service shares sum up to 1
+    # and if not, then distribute not assigned demand according to
+    # base year distribution
+    # Can happen because multiple sigmoid for different technologies
     # ------------------------------------------------------
     for region in annual_tech_diff_params:
         for enduse in annual_tech_diff_params[region]:
             for sector in annual_tech_diff_params[region][enduse]:
-                #print("TTTTTTTT {} {} {}  ".format(region, enduse, sector))
-                #print(annual_tech_diff_params[region][enduse][sector])
 
                 for year in sim_yrs:
                     if annual_tech_diff_params[region][enduse][sector] != []:
-                        _test_sum = 0
+                        assigned_service_p = 0
                         for tech in annual_tech_diff_params[region][enduse][sector]:
-                            #print("TECH " + str(tech))
-                            #print("TECH " + str(annual_tech_diff_params[region][enduse][sector][tech]))
-                            _test_sum += annual_tech_diff_params[region][enduse][sector][tech][year]
-                        
-                        #print("ff {}  {}".format(year, _test_sum))
-                        assert round(_test_sum, 2) == 1
-                        if round(_test_sum, 2) != 1:
-                            print("EEEEEEEROR  {}  {}  {}".format(enduse, year, _test_sum))
+                            assigned_service_p += annual_tech_diff_params[region][enduse][sector][tech][year]
 
-    raise Exception("FF")
+                        # Distribute if not sum up to one according to base year distribution
+                        if round(assigned_service_p, 2) != 1:
+                            total_not_assined = 1 - assigned_service_p
+
+                            for tech in annual_tech_diff_params[region][enduse][sector]:
+                                # Fraction in base year
+                                p_by = annual_tech_diff_params[region][enduse][sector][tech][data['assumptions'].base_yr]
+                                tech_to_add_not_assigned = total_not_assined * p_by
+                                annual_tech_diff_params[region][enduse][sector][tech][year] += tech_to_add_not_assigned
+
+                        assigned_service_p = 0
+                        for tech in annual_tech_diff_params[region][enduse][sector]:
+                            assigned_service_p += annual_tech_diff_params[region][enduse][sector][tech][year]
+
+                        assert round(assigned_service_p, 2) == 1
+
     return annual_tech_diff_params
 
 def spatial_explicit_modelling_strategy_vars(
@@ -525,11 +534,8 @@ def sum_across_all_submodels_regs(
     fuel_aggregated_regs = {}
 
     for region in regions:
-
         tot_reg = np.zeros((fueltypes_nr), dtype="float")
-
         for submodel_fuel_disagg in submodels:
-
             for fuel_sector_enduse in submodel_fuel_disagg[region].values():
 
                 # Test if fuel for sector

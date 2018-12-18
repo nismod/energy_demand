@@ -1470,12 +1470,6 @@ def apply_service_switch(
         base_yr,
         curr_yr)
 
-    # TESTING
-    #_sum = 0
-    #for tech in annual_tech_diff_params:
-    #    _sum += annual_tech_diff_params[tech][curr_yr]
-    #
-    #print("TOTAL SUM " + str(_sum))
     # ---------------------------------------
     # Calculate switch
     # ----------------------------------------

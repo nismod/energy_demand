@@ -169,11 +169,6 @@ def create_switches_from_s_shares(
         service_switches_out = enduse_switches
     else:
         for tech, share_by in tech_not_assigned_by_p.items():
-
-            #if tot_share_not_assigned == 0:
-            #    tech_not_assigned_by_p[tech] = 0
-            #else:
-            #    tech_not_assigned_by_p[tech] = share_by / tot_share_not_assigned
             tech_not_assigned_by_p[tech] = share_by / tot_share_not_assigned
 
         # Get all defined technologies in base year

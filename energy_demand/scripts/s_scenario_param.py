@@ -238,7 +238,6 @@ def generate_annual_param_vals(
                                     reg_param[region][var_name][sub_var_name][sector] = dict(regional_strategy_vary[region])
                             else:
                                 non_reg_param[var_name][sub_var_name][sector] = regional_strategy_vary
-
                 # Single dimensional
                 else:
                     param_info = {}
@@ -328,10 +327,7 @@ def generate_general_parameter(
 
     for sim_yr in sim_yrs:
 
-        # -----------------------------------------------
-        # Set curry_yr to largest year defined narrative if
-        # sim_yr is larger
-        # -----------------------------------------------
+        # Set curry_yr to largest year defined narrative if sim_yr is larger
         if sim_yr > latest_narrative_timestep:
             curr_yr = latest_narrative_timestep
         else:

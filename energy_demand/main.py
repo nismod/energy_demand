@@ -110,7 +110,7 @@ if __name__ == "__main__":
     #sim_yrs = [base_yr, 2030, user_defined_simulation_end_yr]
     #sim_yrs = [2015, 2020, 2025, 2030, 2035, 2040, 2045, 2050]
     #sim_yrs = [2015, 2020, 2050]
-    sim_yrs = [2015, 2030] #, 2050]
+    sim_yrs = [2015, 2020] #, 2050]
     weather_yr_scenario = 2015   # Default weather year
 
     if len(sys.argv) > 3: #user defined arguments are provide
@@ -126,7 +126,8 @@ if __name__ == "__main__":
     print("weather_realisation:        " + str(weather_realisation))
 
     # Local path configurations
-    path_weather_data = "X:/nismod/data/energy_demand/J-MARIUS_data/_weather_realisation"
+    #path_weather_data = "X:/nismod/data/energy_demand/J-MARIUS_data/_weather_realisation"
+    path_weather_data = "C:/Users/cenv0553/ED/data/scenarios"
     #path_weather_data = "/soge-home/staff/cenv0553/_weather_realisation"
 
     #local_scenario = 'pop-baseline16_econ-c16_fuel-c16' #pop-f_econ-c_fuel-c  #pop-b_econ-c_fuel-c
@@ -307,8 +308,8 @@ if __name__ == "__main__":
         same_base_year_weather=False,
         crit_temp_min_max=config['CRITERIA']['crit_temp_min_max'],
         load_np=False,
-        load_parquet=True,
-        load_csv=False)
+        load_parquet=False,
+        load_csv=True)
 
     #print(station_id_253)
     # Plot map with weather station

@@ -7,8 +7,59 @@ fraction at the model end year
 from collections import defaultdict
 import numpy as np
 from scipy.optimize import curve_fit
+import pylab
+import matplotlib.pyplot as plt
+import matplotlib
+matplotlib.use('Agg') # Used to make it work in linux
+
 from energy_demand.technologies import diffusion_technologies
-from energy_demand.plotting import plotting_program
+
+
+def plotout_sigmoid_tech_diff(
+        L_value,
+        technology,
+        xdata,
+        ydata,
+        fit_parameter,
+        plot_crit=False,
+        close_window_crit=True
+    ):
+    """Plot sigmoid diffusion
+    """
+    def close_event():
+        """Timer to close window automatically
+        """
+        plt.close()
+
+    x = np.linspace(1990, 2110, 300)
+    y = diffusion_technologies.sigmoid_function(x, L_value, *fit_parameter)
+
+    fig = plt.figure()
+
+    #creating a timer object and setting an interval
+    timer = fig.canvas.new_timer(interval=555)
+    timer.add_callback(close_event)
+
+    fig.set_size_inches(12, 8)
+    pylab.plot(xdata, ydata, 'o', label='base year and future market share')
+    pylab.plot(x, y, label='fit')
+
+    pylab.ylim(0, 1.05)
+    pylab.legend(loc='best')
+
+    pylab.xlabel('Time')
+    pylab.ylabel('Market share of technology on energy service')
+    pylab.title("Sigmoid diffusion of technology {}".format(technology))
+
+    if plot_crit:
+        if close_window_crit:
+            pylab.show()
+        else:
+            timer.start()
+            pylab.show()
+            pass
+    else:
+        pass
 
 def calc_sigmoid_parameters(
         l_value,
@@ -127,14 +178,14 @@ def calc_sigmoid_parameters(
                         cnt += 1
                     else:
                         successfull = True
-                        plotting_program.plotout_sigmoid_tech_diff(
+                        '''plotout_sigmoid_tech_diff(
                             l_value,
                             "FINISHED FITTING",
                             xdata,
                             ydata,
                             fit_parameter,
                             plot_crit=True,
-                            close_window_crit=True)
+                            close_window_crit=True)'''
         except (RuntimeError, IndexError):
             cnt += 1
 
@@ -556,7 +607,7 @@ def tech_sigmoid_parameters(
             if (round(point_y_by, rounding_accuracy) == round(point_y_ey, rounding_accuracy)) and (
                     point_y_ey != fit_assump_init) and (
                         point_y_by != fit_assump_init):
-
+            #if 1 == 1:
                 # Linear diffusion (because by and ey share are identical)
                 sig_params[tech]['midpoint'] = 'linear'
                 sig_params[tech]['steepness'] = 'linear'
