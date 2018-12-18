@@ -109,8 +109,8 @@ if __name__ == "__main__":
     # Simulated yrs
     #sim_yrs = [base_yr, 2030, user_defined_simulation_end_yr]
     #sim_yrs = [2015, 2020, 2025, 2030, 2035, 2040, 2045, 2050]
-    #sim_yrs = [2015, 2020, 2050]
-    sim_yrs = [2015, 2020] #, 2050]
+    sim_yrs = [2015, 2020, 2050]
+    #sim_yrs = [2015, 2020] #, 2050]
     weather_yr_scenario = 2015   # Default weather year
 
     if len(sys.argv) > 3: #user defined arguments are provide
@@ -129,18 +129,19 @@ if __name__ == "__main__":
     path_weather_data = "C:/Users/cenv0553/ED/data/scenarios"
     #path_weather_data = "/soge-home/staff/cenv0553/_weather_realisation"
 
-    #local_scenario = 'pop-baseline16_econ-c16_fuel-c16' #pop-f_econ-c_fuel-c  #pop-b_econ-c_fuel-c
-    
-    #local_scenario = 'pop-f_econ-c_fuel-c' #low
-    #local_scenario = 'pop-baseline16_econ-c16_fuel-c16' #middle
-    local_scenario = 'pop-b_econ-c_fuel-c' #high
-
     #name_config_path = 'h_c'
     name_config_path = 'h_h'
     #name_config_path = 'l_h' #ok
     #name_config_path = 'l_c' #ok
     #name_config_path = 'h_l' #Ok
 
+    #local_scenario = 'pop-baseline16_econ-c16_fuel-c16' #pop-f_econ-c_fuel-c  #pop-b_econ-c_fuel-c
+    if name_config_path == 'h_h' or name_config_path == 'l_h':
+        local_scenario = 'pop-b_econ-c_fuel-c' #high
+    elif name_config_path == 'h_c' or name_config_path == 'l_c':
+        local_scenario = 'pop-baseline16_econ-c16_fuel-c16' #middle
+    elif name_config_path == 'h_l' or name_config_path == 'l_l':
+        local_scenario = 'pop-f_econ-c_fuel-c' #low
 
     path_strategy_vars = os.path.join(local_data_path, 'energy_demand', '00_user_defined_variables', 'high_electrification')
     path_strategy_vars = os.path.join(local_data_path, 'energy_demand', '00_user_defined_variables', name_config_path)
