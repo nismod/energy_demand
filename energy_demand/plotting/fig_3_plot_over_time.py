@@ -4,6 +4,8 @@
 import os
 import pandas as pd
 import matplotlib.pyplot as plt
+import copy
+import pylab
 
 from energy_demand.plotting import basic_plot_functions
 from energy_demand.basic import conversions
@@ -47,7 +49,7 @@ def scenario_over_time(
     """Plot peak over time
     """
     fig = plt.figure(
-        figsize=basic_plot_functions.cm2inch(9, 8)) #width, height
+        figsize=basic_plot_functions.cm2inch(10, 10)) #width, height
 
     ax = fig.add_subplot(1, 1, 1)
 
@@ -71,23 +73,11 @@ def scenario_over_time(
 
         # Calculate average across all weather scenarios
         mean_national_peak = national_peak.mean(axis=0)
+        mean_national_peak_sim_yrs = copy.copy(mean_national_peak)
 
         # Standard deviation over all realisations
         df_q_05 = national_peak.quantile(quantile_05)
         df_q_95 = national_peak.quantile(quantile_95)
-
-        # ------------------------
-        # Plot calculated data points
-        # ------------------------
-        if plot_points:
-
-            plt.scatter(
-                sim_yrs,
-                mean_national_peak,
-                c=color,
-                marker=marker,
-                s=15,
-                clip_on=False) #do not clip points on axis
 
         # --------------------
         # Try to smooth lines
@@ -105,10 +95,29 @@ def scenario_over_time(
             except:
                 sim_yrs_smoothed = sim_yrs
 
+        # -----------------------
+        # Plot lines
+        # ------------------------
         plt.plot(
             mean_national_peak,
             label="{} (mean)".format(scenario_name),
             color=color)
+
+        # ------------------------
+        # Plot markers
+        # ------------------------
+        if plot_points:
+
+            plt.scatter(
+                sim_yrs,
+                mean_national_peak_sim_yrs,
+                c=color,
+                marker=marker,
+                edgecolor='black',
+                linewidth=0.5,
+                s=15,
+                clip_on=False) #do not clip points on axis
+
 
         # Plottin qunatilse and average scenario
         df_q_05.plot.line(color=color, linestyle='--', linewidth=0.1, label='_nolegend_') #, label="0.05")
@@ -153,20 +162,16 @@ def scenario_over_time(
     legend = plt.legend(
         #title="tt",
         ncol=2,
-        prop={'size': 8},
+        prop={'size': 10},
         loc='upper center',
         bbox_to_anchor=(0.5, -0.1),
         frameon=False)
     legend.get_title().set_fontsize(8)
 
-    # Put a legend to the right of the current axis
-    '''ax.legend(
-        ncol=1,
-        prop={'size': 8},
-        loc='center left',
-        bbox_to_anchor=(1, 0.5),
-        frameon=False)
-    #legend.get_title().set_fontsize(8)'''
+    basic_plot_functions.export_legend(
+        legend,
+        os.path.join(result_path, "legend_{}.pdf".format(fig_name)))
+    legend.remove()
 
     # --------
     # Labeling
@@ -176,7 +181,7 @@ def scenario_over_time(
     #plt.title("Title")
 
     plt.tight_layout()
-    plt.show()
+    #plt.show()
     plt.savefig(os.path.join(result_path, fig_name))
     plt.close()
 
@@ -193,7 +198,7 @@ def fueltypes_over_time(
     """Plot fueltypes over time
     """
     fig = plt.figure(
-        figsize=basic_plot_functions.cm2inch(9, 8)) #width, height
+        figsize=basic_plot_functions.cm2inch(10, 10)) #width, height
     ax = fig.add_subplot(1, 1, 1)
 
     colors = {
@@ -247,6 +252,7 @@ def fueltypes_over_time(
 
             # Calculate average across all weather scenarios
             mean_national_sum = national_sum.mean(axis=0)
+            mean_national_sum_sim_yrs = copy.copy(mean_national_sum)
 
             if fueltype_str == 'hydrogen':
                 print("..")
@@ -255,42 +261,48 @@ def fueltypes_over_time(
             df_q_05 = national_sum.quantile(quantile_05)
             df_q_95 = national_sum.quantile(quantile_95)
 
-            # ------------------------
-            # Plot calculated data points
-            # ------------------------
-            if plot_points:
-
-                plt.scatter(
-                    sim_yrs,
-                    mean_national_sum,
-                    marker=marker,
-                    c=color,
-                    s=15,
-                    clip_on=False) #do not clip points on axis
-
             # --------------------
             # Try to smooth lines
             # --------------------
             sim_yrs_smoothed = sim_yrs
             if crit_smooth_line:
                 try:
-                    sim_yrs_smoothed, mean_national_sum_smoothed = basic_plot_functions.smooth_data(sim_yrs, mean_national_sum, num=40000)
-                    _, df_q_05_smoothed = basic_plot_functions.smooth_data(sim_yrs, df_q_05, num=40000)
-                    _, df_q_95_smoothed = basic_plot_functions.smooth_data(sim_yrs, df_q_95, num=40000)
+                    sim_yrs_smoothed, mean_national_sum_smoothed = basic_plot_functions.smooth_data(sim_yrs, mean_national_sum, num=500)
+                    _, df_q_05_smoothed = basic_plot_functions.smooth_data(sim_yrs, df_q_05, num=500)
+                    _, df_q_95_smoothed = basic_plot_functions.smooth_data(sim_yrs, df_q_95, num=500)
 
                     mean_national_sum = pd.Series(mean_national_sum_smoothed, sim_yrs_smoothed)
                     df_q_05 = pd.Series(df_q_05_smoothed, sim_yrs_smoothed)
                     df_q_95 = pd.Series(df_q_95_smoothed, sim_yrs_smoothed)
                 except:
-                    print("did not owrk")
+                    print("did not owrk {} {}".format(fueltype_str, scenario_name))
                     pass
-
+            
+            # ------------------------
+            # Plot lines
+            # ------------------------
             plt.plot(
                 mean_national_sum,
                 label="{} {}".format(fueltype_str, scenario_name),
                 linestyle=linestyle,
                 color=color,
+                zorder=1,
                 clip_on=True)
+
+            # ------------------------
+            # Plot markers
+            # ------------------------
+            if plot_points:
+                plt.scatter(
+                    sim_yrs,
+                    mean_national_sum_sim_yrs,
+                    marker=marker,
+                    edgecolor='black',
+                    linewidth=0.5,
+                    c=color,
+                    zorder=2,
+                    s=15,
+                    clip_on=False) #do not clip points on axis
 
             # Plottin qunatilse and average scenario
             df_q_05.plot.line(color=color, linestyle='--', linewidth=0.1, label='_nolegend_') #, label="0.05")
@@ -358,15 +370,11 @@ def fueltypes_over_time(
         bbox_to_anchor=(0.5, -0.1),
         frameon=False)
     legend.get_title().set_fontsize(8)
-
-    # Put a legend to the right of the current axis
-    '''ax.legend(
-        ncol=1,
-        prop={'size': 8},
-        loc='center left',
-        bbox_to_anchor=(1, 0.5),
-        frameon=False)
-    #legend.get_title().set_fontsize(8)'''
+    
+    basic_plot_functions.export_legend(
+        legend,
+        os.path.join(result_path, "legend_{}.pdf".format(fig_name)))
+    legend.remove()
 
     # --------
     # Labeling
@@ -376,6 +384,6 @@ def fueltypes_over_time(
     #plt.title("Title")
 
     plt.tight_layout()
-    plt.show()
+    #plt.show()
     plt.savefig(os.path.join(result_path, fig_name))
     plt.close()

@@ -10,6 +10,14 @@ from scipy.interpolate import spline
 from energy_demand.technologies import diffusion_technologies
 #matplotlib.use('Agg') # Used to make it work in linux
 
+def export_legend(legend, filename="legend.png"):
+    """Export legend as seperate file
+    """
+    fig  = legend.figure
+    fig.canvas.draw()
+    bbox = legend.get_window_extent().transformed(fig.dpi_scale_trans.inverted())
+    fig.savefig(filename, dpi="figure", bbox_inches=bbox)
+
 def cm2inch(*tupl):
     """Convert input cm to inches (width, hight)
     """
@@ -86,9 +94,6 @@ def smooth_data(
             max_x_val,
             num=num,
             endpoint=True)
-
-        #y_smooth = f2(x_smooth)
-
     else:
         # Smooth x data
         x_smooth = np.linspace(
@@ -104,26 +109,15 @@ def smooth_data(
     # smooth
     y_smooth = f2(x_smooth)
 
-    # Prevent smoothing to go into negative values
-    # and replace negative values with zero
-    #y_smooth[y_smooth < 0] = 0
+    # Prevent smoothing to go into negative values and replace negative values with zero
 
-    # Get position of first 0
+    # Get position of last negative entry
     try:
-        cnt = 0
-        for i in y_smooth:
-            print(i)
-            if i == 0:
-                tt = cnt
-            cnt += 1
-        print(sum(y_smooth))
-        print(tt)
-        pos_zero = int(np.argwhere(y_smooth == 0)[-1])
+        pos_zero = int(np.argwhere(y_smooth < 0)[-1])
         y_smooth[:pos_zero] = 0
-        print("Position " + str(pos_zero))
-        print(sum(y_smooth))
     except IndexError:
         pass
+
     return x_smooth, y_smooth
 
 def smooth_line(
