@@ -667,16 +667,15 @@ def sig_param_calc_incl_fuel_switch(
                 sig_param_tech[switch_yr] = {}
 
                 # -------------------------
-                # Get starting year of narrative story
+                # Get starting year of narrative
                 # -------------------------
-                # NEW TODO TODO 
                 if switch_yr_cnt == 0: 
                     switch_yr_start = base_yr
-                    s_tech_last_narrative_step = s_tech_by_p #NEW
+                    s_tech_last_narrative_step = s_tech_by_p
 
                 else: # If more than one switch_yr, then take previous year
                     switch_yr_start = switch_yrs[switch_yr_cnt - 1]
-                    s_tech_last_narrative_step = s_tech_switched_p[any_region][switch_yr_start] #NEW
+                    s_tech_last_narrative_step = s_tech_switched_p[any_region][switch_yr_start]
 
                 # ------------------------------------------
                 # Service switch
@@ -692,7 +691,7 @@ def sig_param_calc_incl_fuel_switch(
                     # Calculate sigmoid diffusion parameters
                     l_values_sig = s_generate_sigmoid.get_l_values(
                         technologies=technologies,
-                        technologies_to_consider=s_tech_last_narrative_step.keys(), #s_tech_by_p.keys(),
+                        technologies_to_consider=s_tech_last_narrative_step.keys(),
                         regions=regions)
                 elif crit_fuel_switch:
                     s_tech_switched_p = defaultdict(dict)
@@ -717,7 +716,7 @@ def sig_param_calc_incl_fuel_switch(
                             enduse_fuel_switches,
                             technologies,
                             s_fueltype_by_p,
-                            s_tech_last_narrative_step, #s_tech_by_p,
+                            s_tech_last_narrative_step,
                             fuel_tech_p_by,
                             'actual_switch')
 
@@ -726,9 +725,9 @@ def sig_param_calc_incl_fuel_switch(
                             s_tech_switched_p_values_all_regs,
                             enduse_fuel_switches,
                             technologies,
-                            s_tech_last_narrative_step.keys(), #s_tech_by_p.keys(),
+                            s_tech_last_narrative_step.keys(),
                             s_fueltype_by_p,
-                            s_tech_last_narrative_step, #s_tech_by_p,
+                            s_tech_last_narrative_step,
                             fuel_tech_p_by)
 
                         for region in regions:
@@ -745,7 +744,7 @@ def sig_param_calc_incl_fuel_switch(
                                 enduse_fuel_switches,
                                 technologies,
                                 s_fueltype_by_p,
-                                s_tech_last_narrative_step, #s_tech_by_p,
+                                s_tech_last_narrative_step,
                                 fuel_tech_p_by,
                                 'actual_switch')
 
@@ -754,9 +753,9 @@ def sig_param_calc_incl_fuel_switch(
                                 s_tech_switched_p[region][switch_yr],
                                 enduse_fuel_switches,
                                 technologies,
-                                s_tech_last_narrative_step.keys(), #s_tech_by_p.keys(),
+                                s_tech_last_narrative_step.keys(),
                                 s_fueltype_by_p,
-                                s_tech_last_narrative_step, #s_tech_by_p,
+                                s_tech_last_narrative_step,
                                 fuel_tech_p_by)
 
                         s_tech_switched_p = dict(s_tech_switched_p)
@@ -773,7 +772,7 @@ def sig_param_calc_incl_fuel_switch(
                         switch_yr_start,
                         technologies,
                         l_values_sig[any_region],
-                        s_tech_last_narrative_step, #s_tech_by_p,
+                        s_tech_last_narrative_step,
                         s_tech_switched_p[any_region][switch_yr])
 
                     for region in regions:

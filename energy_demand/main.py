@@ -126,7 +126,6 @@ if __name__ == "__main__":
     print("weather_realisation:        " + str(weather_realisation))
 
     # Local path configurations
-    #path_weather_data = "X:/nismod/data/energy_demand/J-MARIUS_data/_weather_realisation"
     path_weather_data = "C:/Users/cenv0553/ED/data/scenarios"
     #path_weather_data = "/soge-home/staff/cenv0553/_weather_realisation"
 
@@ -311,7 +310,6 @@ if __name__ == "__main__":
         load_parquet=False,
         load_csv=True)
 
-    #print(station_id_253)
     # Plot map with weather station
     '''if config['CRITERIA']['cluster_calc'] != True:
         data_loader.create_weather_station_map(
