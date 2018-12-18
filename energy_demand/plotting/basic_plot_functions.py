@@ -2,8 +2,7 @@
 """
 import math
 import numpy as np
-import matplotlib.pyplot as plt
-import pylab
+
 from scipy.interpolate import interp1d
 from scipy.interpolate import spline
 
@@ -13,7 +12,7 @@ from energy_demand.technologies import diffusion_technologies
 def export_legend(legend, filename="legend.png"):
     """Export legend as seperate file
     """
-    fig  = legend.figure
+    fig = legend.figure
     fig.canvas.draw()
     bbox = legend.get_window_extent().transformed(fig.dpi_scale_trans.inverted())
     fig.savefig(filename, dpi="figure", bbox_inches=bbox)
