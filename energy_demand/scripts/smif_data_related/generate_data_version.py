@@ -53,32 +53,34 @@ def package_data(
 
     # Zip minimum files
     _raw_folders_data_minimal = [
-        '_old_data',
-        'coefficients',
-        'dimensions',
-        'initial_conditions',
-        'initial_inputs',
-        'interventions',
+        #'_old_data',
+        #'coefficients',
+        #'dimensions',
+        #'initial_conditions',
+        #'initial_inputs',
+        #'interventions',
         'energy_demand_minimal',
-        'narratives',
-        'parameters',
-        'scenarios',
-        'strategies']
+        #'narratives',
+        #'parameters',
+        #'scenarios',
+        #'strategies'
+        ]
 
     # Zip maximum files
     _raw_folders_data_full = [
-        '_old_data',
-        'coefficients',
-        'dimensions',
-        'initial_conditions',
-        'interventions',
-        'initial_inputs',
-        'interventions',
+        #'_old_data',
+        #'coefficients',
+        #'dimensions',
+        #'initial_conditions',
+        #'interventions',
+        #'initial_inputs',
+        #'interventions',
         'energy_demand',
-        'narratives',
-        'parameters',
-        'scenarios',
-        'strategies']
+        #'narratives',
+        #'parameters',
+        #'scenarios',
+        #'strategies'
+        ]
 
     paths_minimal = []
     for folder in _raw_folders_data_minimal:

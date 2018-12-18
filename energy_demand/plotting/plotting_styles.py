@@ -39,13 +39,9 @@ def marker_list():
 
     markers = [
         "o",	# circle
-        "o",	# circle
-        "o",	# circle
-        "o",	# circle
         "*",	# star
         "+",	# plus
         ".",	# point
-        "o",	# circle
         ",",	# pixel
         "P",	# plus (filled)
         "x",	# x

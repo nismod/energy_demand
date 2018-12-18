@@ -2,27 +2,11 @@
 """
 """
 import os
-import logging
-import copy
-import math
-import numpy as np
-import geopandas as gpd
 import pandas as pd
-import palettable
 import matplotlib.pyplot as plt
-import matplotlib.patches as mpatches
-from matplotlib.patches import Circle
-from matplotlib.colors import LinearSegmentedColormap
-from collections import defaultdict
 
-from energy_demand.basic import conversions
 from energy_demand.plotting import basic_plot_functions
-from energy_demand.plotting import fig_p2_weather_val, result_mapping
-from energy_demand.basic import basic_functions
-from energy_demand.technologies import tech_related
-from energy_demand.read_write import write_data
 from energy_demand.basic import conversions
-
 from energy_demand.plotting import plotting_styles
 
 colors = {
@@ -42,13 +26,23 @@ colors = {
     'other3': '#AD6D70',
     'other4': '#EC2504',
     'other5': '#8C0B90'}
-    
+
+marker_list = plotting_styles.marker_list()
+
+marker_styles = {
+    'h_h': marker_list[0],
+    'h_l': marker_list[1],
+    'l_l': marker_list[2],
+    'l_h': marker_list[6],
+}
+
 def scenario_over_time(
         scenario_result_container,
         sim_yrs,
         fig_name,
         result_path,
-        plot_points
+        plot_points,
+        crit_smooth_line=True
     ):
     """Plot peak over time
     """
@@ -69,6 +63,7 @@ def scenario_over_time(
 
         try:
             color = colors[scenario_name]
+            marker = marker_styles[scenario_name]
         except KeyError:
             color = list(colors.values())[cnt]
 
@@ -90,24 +85,25 @@ def scenario_over_time(
                 sim_yrs,
                 mean_national_peak,
                 c=color,
-                s=10,
+                marker=marker,
+                s=15,
                 clip_on=False) #do not clip points on axis
 
         # --------------------
         # Try to smooth lines
         # --------------------
         sim_yrs_smoothed = sim_yrs
-        try:
-            sim_yrs_smoothed, mean_national_peak_smoothed = basic_plot_functions.smooth_data(sim_yrs, mean_national_peak, num=40000)
-            _, df_q_05_smoothed = basic_plot_functions.smooth_data(sim_yrs, df_q_05, num=40000)
-            _, df_q_95_smoothed = basic_plot_functions.smooth_data(sim_yrs, df_q_95, num=40000)
+        if crit_smooth_line:
+            try:
+                sim_yrs_smoothed, mean_national_peak_smoothed = basic_plot_functions.smooth_data(sim_yrs, mean_national_peak, num=40000)
+                _, df_q_05_smoothed = basic_plot_functions.smooth_data(sim_yrs, df_q_05, num=40000)
+                _, df_q_95_smoothed = basic_plot_functions.smooth_data(sim_yrs, df_q_95, num=40000)
 
-            mean_national_peak = pd.Series(mean_national_peak_smoothed, sim_yrs_smoothed)
-            df_q_05 = pd.Series(df_q_05_smoothed, sim_yrs_smoothed)
-            df_q_95 = pd.Series(df_q_95_smoothed, sim_yrs_smoothed)
-        except:
-            sim_yrs_smoothed = sim_yrs
-            pass
+                mean_national_peak = pd.Series(mean_national_peak_smoothed, sim_yrs_smoothed)
+                df_q_05 = pd.Series(df_q_05_smoothed, sim_yrs_smoothed)
+                df_q_95 = pd.Series(df_q_95_smoothed, sim_yrs_smoothed)
+            except:
+                sim_yrs_smoothed = sim_yrs
 
         plt.plot(
             mean_national_peak,
@@ -191,7 +187,8 @@ def fueltypes_over_time(
         fueltypes,
         result_path,
         plot_points=False,
-        unit='TWh'
+        unit='TWh',
+        crit_smooth_line=True
     ):
     """Plot fueltypes over time
     """
@@ -221,6 +218,8 @@ def fueltypes_over_time(
         for cnt_linestyle, fueltype_str in enumerate(fueltypes):
             national_sum = i['national_{}'.format(fueltype_str)]
 
+
+
             if unit == 'TWh':
                 unit_factor = conversions.gwh_to_twh(1)
             elif unit == 'GWh':
@@ -241,13 +240,17 @@ def fueltypes_over_time(
                 raise Exception("Wrong color")
 
             try:
-                linestyle = linestyles[fueltype_str]
+                linestyle = linestyles[scenario_name]
+                marker = marker_styles[scenario_name]
             except KeyError:
                 linestyle = list(linestyles.values())[cnt_scenario]
 
             # Calculate average across all weather scenarios
             mean_national_sum = national_sum.mean(axis=0)
 
+            if fueltype_str == 'hydrogen':
+                print("..")
+                print(mean_national_sum.values)
             # Standard deviation over all realisations
             df_q_05 = national_sum.quantile(quantile_05)
             df_q_95 = national_sum.quantile(quantile_95)
@@ -260,16 +263,16 @@ def fueltypes_over_time(
                 plt.scatter(
                     sim_yrs,
                     mean_national_sum,
+                    marker=marker,
                     c=color,
-                    s=10,
+                    s=15,
                     clip_on=False) #do not clip points on axis
 
             # --------------------
             # Try to smooth lines
             # --------------------
-            crit_smooth_line = True
+            sim_yrs_smoothed = sim_yrs
             if crit_smooth_line:
-                sim_yrs_smoothed = sim_yrs
                 try:
                     sim_yrs_smoothed, mean_national_sum_smoothed = basic_plot_functions.smooth_data(sim_yrs, mean_national_sum, num=40000)
                     _, df_q_05_smoothed = basic_plot_functions.smooth_data(sim_yrs, df_q_05, num=40000)
@@ -279,16 +282,15 @@ def fueltypes_over_time(
                     df_q_05 = pd.Series(df_q_05_smoothed, sim_yrs_smoothed)
                     df_q_95 = pd.Series(df_q_95_smoothed, sim_yrs_smoothed)
                 except:
-                    sim_yrs_smoothed = sim_yrs
+                    print("did not owrk")
                     pass
-            else:
-                sim_yrs_smoothed = sim_yrs
 
             plt.plot(
                 mean_national_sum,
                 label="{} {}".format(fueltype_str, scenario_name),
                 linestyle=linestyle,
-                color=color)
+                color=color,
+                clip_on=True)
 
             # Plottin qunatilse and average scenario
             df_q_05.plot.line(color=color, linestyle='--', linewidth=0.1, label='_nolegend_') #, label="0.05")

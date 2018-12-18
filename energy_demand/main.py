@@ -130,12 +130,12 @@ if __name__ == "__main__":
     #path_weather_data = "/soge-home/staff/cenv0553/_weather_realisation"
 
     #name_config_path = 'h_c'
+    #name_config_path = 'l_c'
     name_config_path = 'h_h'
-    #name_config_path = 'l_h' #ok
-    #name_config_path = 'l_c' #ok
-    #name_config_path = 'h_l' #Ok
+    #name_config_path = 'h_l'
+    #name_config_path = 'l_h'
+    #name_config_path = 'l_l'
 
-    #local_scenario = 'pop-baseline16_econ-c16_fuel-c16' #pop-f_econ-c_fuel-c  #pop-b_econ-c_fuel-c
     if name_config_path == 'h_h' or name_config_path == 'l_h':
         local_scenario = 'pop-b_econ-c_fuel-c' #high
     elif name_config_path == 'h_c' or name_config_path == 'l_c':
@@ -143,7 +143,6 @@ if __name__ == "__main__":
     elif name_config_path == 'h_l' or name_config_path == 'l_l':
         local_scenario = 'pop-f_econ-c_fuel-c' #low
 
-    path_strategy_vars = os.path.join(local_data_path, 'energy_demand', '00_user_defined_variables', 'high_electrification')
     path_strategy_vars = os.path.join(local_data_path, 'energy_demand', '00_user_defined_variables', name_config_path)
 
     # --- Region definition configuration
@@ -152,8 +151,6 @@ if __name__ == "__main__":
     name_gva_dataset = os.path.join(local_data_path, 'scenarios', 'MISTRAL_pop_gva', 'data', '{}/gva_per_head__lad_sector.csv'.format(local_scenario))
     name_gva_dataset_per_head = os.path.join(local_data_path, 'scenarios', 'MISTRAL_pop_gva', 'data', '{}/gva_per_head__lad.csv'.format(local_scenario))
 
-    simulation_name = "simulation_results"
-    
     name_scenario_run = "{}_result_local_{}".format(scenario_name, str(time.ctime()).replace(":", "_").replace(" ", "_"))
     # ------------------------------------------
 
@@ -459,7 +456,7 @@ if __name__ == "__main__":
         # --------------------------------------
         # Update result_paths and create folders
         # --------------------------------------
-        path_folder_weather_yr = os.path.join(data['path_new_scenario'], str(simulation_name))
+        path_folder_weather_yr = os.path.join(data['path_new_scenario'], str("simulation_results"))
 
         data['result_paths'] = data_loader.get_result_paths(path_folder_weather_yr)
 

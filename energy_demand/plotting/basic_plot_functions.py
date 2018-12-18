@@ -106,8 +106,24 @@ def smooth_data(
 
     # Prevent smoothing to go into negative values
     # and replace negative values with zero
-    y_smooth[y_smooth < 0] = 0
+    #y_smooth[y_smooth < 0] = 0
 
+    # Get position of first 0
+    try:
+        cnt = 0
+        for i in y_smooth:
+            print(i)
+            if i == 0:
+                tt = cnt
+            cnt += 1
+        print(sum(y_smooth))
+        print(tt)
+        pos_zero = int(np.argwhere(y_smooth == 0)[-1])
+        y_smooth[:pos_zero] = 0
+        print("Position " + str(pos_zero))
+        print(sum(y_smooth))
+    except IndexError:
+        pass
     return x_smooth, y_smooth
 
 def smooth_line(
