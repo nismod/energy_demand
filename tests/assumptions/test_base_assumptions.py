@@ -3,7 +3,7 @@
 from energy_demand.basic import lookup_tables
 from energy_demand.assumptions import general_assumptions
 from energy_demand.read_write import data_loader
-
+'''
 def test_load_non_param_assump():
     """
     """
@@ -43,3 +43,4 @@ def test_load_param_assump():
 
     # Dummy test
     assert sim_param_expected['base_yr'] == 2015
+'''

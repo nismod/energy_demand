@@ -28,7 +28,7 @@ More information on the model can be found in:
     `https://doi.org/10.1016/j.apenergy.2018.12.052 <https://doi.org/10.1016/j.apenergy.2018.12.052>`_.
 
 1. Download input data
-=============================================
+---
 Most data for running HIRE are freely available online. However,
 for certain input data it is necessary to request access (for more information
 on all necessary input datasets see `here <https://ed.readthedocs.io/en/latest/documentation.html#data-sets>`_)
@@ -40,7 +40,7 @@ For data inquires, plese contact sven.eggimann@ouce.ox.ac.uk or `the consortium 
 Also check whether data area available `here <https://www.nismod.ac.uk>`_).
 
 2. Initialising and running the model (local)
-=============================================
+---
 The recommended installation method is to use `conda <http://conda.pydata.org/miniconda.html>`_,
 which handles packages and virtual environments. First, create a conda environment
 
@@ -105,7 +105,7 @@ In order to run HIRE, first the model needs to be set up (Section 1.1 or Section
     ``energy_data_folder``.
 
 3. Running HIRE with smif
-================================================
+---
 
 1. Set up the model as outlined in 1.1 'Model Set-Up'
 
@@ -124,7 +124,7 @@ In order to run HIRE, first the model needs to be set up (Section 1.1 or Section
     ``smif -v run modelrun_id`` or ``smif -vv run modelrun_id``
 
 4. Generating plots based from simulation results
-================================================
+---
 Every time a model gets run, the specific model simulation results
 are stored in the result folder named after the timestamp of the model execution.
 
@@ -144,15 +144,3 @@ folder needs to be used. Proceed as follows:
    Note:
    In the 'process_result_multi_scen' function all plots
    which should be generated can be configured
-
-
-5. Explanation of other scripts
-=============================================
-
-- *scripts/smif_data_related/generate_data_version.py*: With the file an automatic packaging 
-  of all necessary data to back up a new data version.
-
-- *scripts/smif_data_related/script_data_preparation_MISTRAL_pop_gva.py*: This file generates 
-  setor specific GVA data and popluation data (it is executed in the ``energy_demand setup`` command)
-
-- *scripts/s_clean_original_weather_data.py*: This script cleand original weather input data
