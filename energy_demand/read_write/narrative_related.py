@@ -1,10 +1,9 @@
 """Functions handling the narratives
 """
-import pandas as pd
-import math
 from collections import defaultdict
 
 from energy_demand.basic import lookup_tables
+
 
 def get_all_sectors_of_narratives(narratives):
     """Get all defined sectors of all narratives
@@ -25,6 +24,7 @@ def get_all_sectors_of_narratives(narratives):
     all_sectors = list(all_sectors)
 
     return all_sectors
+
 
 def get_sector_narrative_and_single_from_multi(sector_to_match, switches):
     """Get all switches of a sector if the switches are
@@ -97,21 +97,23 @@ def crit_dim_var(var):
     """
     single_dimension = True
 
+    exclude = ['regional_vals_by', 'regional_vals_ey']
+
     # Test if list nor not
     if type(var) is list:
         for list_entry in var:
             for key, value in list_entry.items():
 
                 if type(value) is not list:
-                    if hasattr(value, 'keys') and key not in ['regional_vals_by', 'regional_vals_ey']:
+                    if hasattr(value, 'keys') and key not in exclude:
                         if len(value.keys()) != 0:
                             single_dimension = False
                         else:
                             pass
     else:
-       for key, value in var.items():
+        for key, value in var.items():
             if type(value) is not list:
-                if hasattr(value, 'keys') and key not in ['regional_vals_by', 'regional_vals_ey']:
+                if hasattr(value, 'keys') and key not in exclude:
                     if len(value.keys()) != 0:
                         single_dimension = False
             else:
@@ -338,7 +340,7 @@ def read_user_defined_param(
                         try:
                             _ = default_streategy_var[enduse]
                             defined_in_model = True
-                        except:
+                        except KeyError:
                             #print("... not defined in model")
                             defined_in_model = False
 

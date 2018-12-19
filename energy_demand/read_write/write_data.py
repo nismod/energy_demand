@@ -11,6 +11,7 @@ from ruamel.yaml import YAML
 from energy_demand.basic import lookup_tables, date_prop, basic_functions, conversions
 from energy_demand import enduse_func
 
+
 def write_yaml(data, file_path):
     """Write plain data to a file as yaml
 
@@ -21,7 +22,7 @@ def write_yaml(data, file_path):
     file_path : str
         The path of the configuration file to write
     """
-    with open(file_path, 'w') as file_handle:
+    with open(file_path, 'w+') as file_handle:
         yaml = YAML(typ='unsafe')
         yaml.default_flow_style = False
         yaml.allow_unicode = True

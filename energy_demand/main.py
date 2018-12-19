@@ -93,9 +93,7 @@ if __name__ == "__main__":
     print("Configuration path: " + str(path_config))
 
     # Get configuration
-    config = configparser.ConfigParser()
-    config.read(path_config)
-    config = basic_functions.convert_config_to_correct_type(config)
+    config = data_loader.read_config_file(path_config)
 
     #config_file_path = os.path.join(path_main, 'wrapperconfig.ini') 
     #config = data_loader.read_config_file(config_file_path)
@@ -155,14 +153,14 @@ if __name__ == "__main__":
     # --------------------
     # Load all other paths
     # --------------------
-    data['paths'] = data_loader.load_paths(config['PATHS']['path_energy_demand_config'])
-    data['local_paths'] = data_loader.get_local_paths(local_data_path)
+    data['paths'] = config['CONFIG_DATA']
+    data['local_paths'] = config['DATA_PATHS']
 
     # Manually overwrriting startegy variable path
     data['local_paths']['path_strategy_vars'] = path_strategy_vars
 
-    data['path_new_scenario'] = os.path.abspath(os.path.join(os.path.dirname(local_data_path), "results", name_scenario_run))
-    data['result_paths'] = data_loader.get_result_paths(data['path_new_scenario'])
+    data['path_new_scenario'] = config['PATHS']['path_new_scenario']
+    data['result_paths'] = config['RESULT_DATA']
 
     basic_functions.create_folder(data['path_new_scenario'])
 
@@ -456,7 +454,7 @@ if __name__ == "__main__":
         # --------------------------------------
         path_folder_weather_yr = os.path.join(data['path_new_scenario'], str("simulation_results"))
 
-        data['result_paths'] = data_loader.get_result_paths(path_folder_weather_yr)
+        data['result_paths'] = data_loader.get_weather_result_paths(path_folder_weather_yr)
 
         folders_to_create = [
             path_folder_weather_yr,

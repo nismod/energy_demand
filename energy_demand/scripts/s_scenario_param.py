@@ -182,6 +182,12 @@ def generate_annual_param_vals(
                 non_reg_param[var_name] = regional_strategy_vary
                 non_reg_param[var_name]['param_info'] = param_info
         else:
+            if not hasattr(strategy_vars_values, 'items'):
+                msg = "Error in {}. Object is not a dict, but a {}: {}"
+                raise TypeError(msg.format(var_name,
+                                           type(strategy_vars_values),
+                                           strategy_vars_values))
+
             for sub_var_name, sector_sub_var_values in strategy_vars_values.items():
 
                 for region in regions:

@@ -1,26 +1,21 @@
 """Testing
 """
-import os
-from pkg_resources import resource_filename
-from pkg_resources import Requirement
 from energy_demand.basic import lookup_tables
 from energy_demand.assumptions import general_assumptions
 from energy_demand.read_write import data_loader
-from pkg_resources import resource_filename
 
-'''def test_load_non_param_assump():
+
+def test_load_non_param_assump(config_file):
     """
     """
-    path_main = resource_filename(
-        Requirement.parse("energy_demand"), os.path.join("energy_demand", "config_data"))
+    config = data_loader.read_config_file(config_file)
 
     # Load data
     data = {}
-    paths = data_loader.load_paths(path_main)
+    paths = config['CONFIG_DATA']
     lu = lookup_tables.basic_lookups()
 
-    data['local_paths'] = data_loader.get_local_paths(path_main)
-
+    data['local_paths'] = config['DATA_PATHS']
 
     enduses, sectors, _, lookup_enduses, lookup_sector_enduses = data_loader.load_fuels(paths)
 
@@ -33,22 +28,18 @@ from pkg_resources import resource_filename
         enduses=enduses,
         sectors=sectors)
 
-def test_load_param_assump():
+
+def test_load_param_assump(config_file):
     """
     """
-    path_main = resource_filename(
-        Requirement.parse("energy_demand"), os.path.join("..", "data", "energy_demand", "config_data"))
+    config = data_loader.read_config_file(config_file)
 
     # Load data
-    data = {}
-    data['paths'] = data_loader.load_paths(path_main)
-    data['lookups'] = lookup_tables.basic_lookups()
-    data['enduses'], data['sectors'], data['fuels'], _, _ = data_loader.load_fuels(data['paths'])
+    config_data = config['CONFIG_DATA']
+    data_loader.load_fuels(config_data)
 
     sim_param_expected = {}
     sim_param_expected['base_yr'] = 2015
 
     # Dummy test
     assert sim_param_expected['base_yr'] == 2015
-    return
-test_load_param_assump()'''

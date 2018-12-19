@@ -2,7 +2,7 @@
 numpy
 pyyaml
 matplotlib
-haversine
+haversine>=2
 scipy
 isoweek
 pyinstrument

@@ -6,24 +6,6 @@ from collections import defaultdict
 import numpy as np
 from pyproj import Proj, transform
 
-def convert_config_to_correct_type(config):
-    """Convert config types into correct types
-    """
-    out_dict = defaultdict(dict)
-
-    for path in config['PATHS']:
-        out_dict['PATHS'][path] = config.get('PATHS', path)
-
-    for config_section in config['CONFIG']:
-        out_dict['CONFIG'][config_section] = config.getint('CONFIG', config_section)
-
-    for criteria in config['CRITERIA']:
-        if criteria == 'reg_selection_csv_name':
-            out_dict['CRITERIA'][criteria] = config.get('CRITERIA', criteria)
-        else:
-            out_dict['CRITERIA'][criteria] = config.getboolean('CRITERIA', criteria)
-
-    return dict(out_dict)
 
 def dict_depth(dictionary):
     """Get depth of nested dict

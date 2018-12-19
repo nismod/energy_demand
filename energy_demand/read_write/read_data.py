@@ -1416,9 +1416,7 @@ def get_position(headings, name):
     position : int
         Position in list
     """
-    for position, value in enumerate(headings):
-        if str(value) == str(name):
-            return position
+    return headings.index(name)
 
 def read_np_array_from_txt(path_file_to_read):
     """Read np array from textfile

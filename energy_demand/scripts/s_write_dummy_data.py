@@ -67,24 +67,11 @@ def post_install_setup_minimum(args):
     """If not all data are available, this scripts allows to
     create dummy datas (temperature and service sector load profiles)
 
-    Arguments
-    ---------
-    path_local_data : str
-        Path to `energy_demand_data` folder
-    path_energy_demand : str
-        Path to energy demand python files
     """
-    path_local_data = args.local_data
+    path_config_file = args.local_data
+    config = data_loader.read_config_file(path_config_file)
 
-    path_config_file = os.path.abspath(
-        os.path.join(
-            os.path.dirname(__file__), '..', '..', '..', 'config', 'wrapperconfig.ini'))
-            #os.path.dirname(__file__), '..', '..', '..', 'models', 'energy_demand', 'wrapperconfig.ini'))
-
-    # Get config in dict and get correct type
-    config = configparser.ConfigParser()
-    config.read(path_config_file)
-    config = basic_functions.convert_config_to_correct_type(config)
+    path_local_data = config['PATHS']['path_local_data']
 
     # ==========================================
     # Post installation setup witout access to non publicy available data
@@ -92,10 +79,10 @@ def post_install_setup_minimum(args):
     print("... running initialisation scripts with only publicly available data")
 
     # Load paths
-    local_paths = data_loader.get_local_paths(config['PATHS']['path_local_data'])
+    local_paths = data_loader.get_local_paths(args.local_data)
 
     # Create folders to input data
-    raw_folder = os.path.join(path_local_data, 'energy_demand', '_raw_data')
+    raw_folder = os.path.join(path_local_data, '_raw_data')
 
     basic_functions.create_folder(raw_folder)
     basic_functions.create_folder(config['PATHS']['path_processed_data'])
@@ -106,10 +93,12 @@ def post_install_setup_minimum(args):
 
     # Load data
     data = {}
-    data['paths'] = data_loader.load_paths(config['PATHS']['path_energy_demand_config'])
+
+    data['paths'] = data_loader.load_paths(path_config_file)
+
     data['lookups'] = lookup_tables.basic_lookups()
-    data['enduses'], data['sectors'], data['fuels'], lookup_enduses, lookup_sector_enduses = data_loader.load_fuels(
-        data['paths'])
+
+    data['enduses'], data['sectors'], data['fuels'], lookup_enduses, lookup_sector_enduses = data_loader.load_fuels(data['paths'])
 
     # Assumptions
     data['assumptions'] = general_assumptions.Assumptions(
@@ -123,13 +112,12 @@ def post_install_setup_minimum(args):
         sectors=data['sectors'])
 
     # Read in residential submodel shapes
-    run(data['paths'], local_paths, base_yr)
+    run(data['paths'], local_paths, config['CONFIG']['base_yr'])
 
     # --------
     # Dummy service sector load profiles
     # --------
     dummy_sectoral_load_profiles(
-        local_paths,
-        config['PATHS']['path_energy_demand_config'])
+        local_paths, path_config_file)
 
     print("Successfully finished post installation setup with open source data")

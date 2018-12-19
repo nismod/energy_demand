@@ -20,6 +20,7 @@ from energy_demand.plotting import fig_lp
 from energy_demand.basic import basic_functions
 from energy_demand.read_write import narrative_related
 
+
 def print_closest_and_region(stations_as_dict, region_to_plot, closest_region):
     """Function used to test if the closest weather region is assigned
     """
@@ -51,12 +52,11 @@ def print_closest_and_region(stations_as_dict, region_to_plot, closest_region):
 
     plt.legend()
 
-def create_weather_station_map(
-        stations_as_dict,
-        fig_path,
-        path_shapefile=False
-    ):
-    """Plot the spatial disribution of the weather stations
+
+def create_weather_station_map(stations_as_dict,
+                               fig_path,
+                               path_shapefile=False):
+    """Plot the spatial distribution of the weather stations
 
     https://geopandas.readthedocs.io/en/latest/gallery/create_geopandas_from_pandas.html
 
@@ -87,7 +87,7 @@ def create_weather_station_map(
             uk_gdf = gpd.GeoDataFrame(uk_shapefile, crs=crs)
 
             # Transform
-            uk_gdf = uk_gdf.to_crs({'init' :'epsg:4326'})
+            uk_gdf = uk_gdf.to_crs({'init': 'epsg:4326'})
 
             # Plot
             ax = uk_gdf.plot(color='white', edgecolor='black')
@@ -112,6 +112,7 @@ def create_weather_station_map(
             station_infos.append(station_info)
 
         write_data.write_list_to_txt(fig_path, station_infos)
+
 
 def read_weather_stations_raw(path_to_csv):
     """Read in weather stations from csv file
@@ -150,8 +151,7 @@ def read_weather_stations_raw(path_to_csv):
     return weather_stations
 
 def replace_variable(_user_defined_vars, strategy_vars):
-    """Replace default strategy variables with user
-    defined variables
+    """Replace default strategy variables with user defined variables
 
     Arguments
     ----------
@@ -454,171 +454,236 @@ def floor_area_virtual_dw(
 
     return dict(rs_floorarea), dict(ss_floorarea_sector_by), service_building_count, rs_regions_without_floorarea, list(ss_regions_without_floorarea)
 
-def get_local_paths(path):
+
+def read_config_file(config_file_path):
+    """Reads all sections of a configuration file
+
+    Arguments
+    ---------
+    config_file_path : str
+        Absolute path to the configuration file
+
+    Returns
+    -------
+    dict
+        A nested dictionary containing all the paths
+
+    """
+    config = configparser.ConfigParser()
+    config.read(config_file_path)
+
+    return convert_config_to_correct_type(config)
+
+
+def convert_config_to_correct_type(config):
+    """Convert config types into correct types
+    """
+    out_dict = defaultdict(dict)
+
+    for path in config['PATHS']:
+        out_dict['PATHS'][path] = config.get('PATHS', path)
+
+    for path in config['DATA_PATHS']:
+        out_dict['DATA_PATHS'][path] = config.get('DATA_PATHS', path)
+
+    for path in config['CONFIG_DATA']:
+        out_dict['CONFIG_DATA'][path] = config.get('CONFIG_DATA', path)
+
+    for path in config['RESULT_DATA']:
+        out_dict['RESULT_DATA'][path] = config.get('RESULT_DATA', path)
+
+    for config_section in config['CONFIG']:
+        out_dict['CONFIG'][config_section] = config.getint('CONFIG', config_section)
+
+    for criteria in config['CRITERIA']:
+        if criteria == 'reg_selection_csv_name':
+            out_dict['CRITERIA'][criteria] = config.get('CRITERIA', criteria)
+        else:
+            out_dict['CRITERIA'][criteria] = config.getboolean('CRITERIA', criteria)
+
+    return dict(out_dict)
+
+
+def get_local_paths(config_file_path):
     """Create all local paths
+
+    Local paths with data used for model config, raw data and process data from
+    the `DATA_PATHS` section of the config file
 
     Arguments
     --------
-    path : str
-        Path of local folder with data used for model
+    config_file_path : str
+        config_file_path to the wrapperconfig.ini configuration file
 
     Return
     -------
-    paths : dict
+    data_paths : dict
         All local paths used in model
     """
+    paths = [
+        ('local_path_datafolder', 'str'),
+        ('path_strategy_vars', 'str'),
+        ('path_population_data_for_disaggregation_LAD', 'str'),
+        ('path_population_data_for_disaggregation_MSOA', 'str'),
+        ('folder_raw_carbon_trust', 'str'),
+        ('folder_path_weater_stations', 'str'),
+        ('path_floor_area_virtual_stock_by', 'str'),
+        ('path_assumptions_db', 'str'),
+        ('data_processed', 'str'),
+        ('lad_shapefile', 'str'),
+        ('path_post_installation_data', 'str'),
+        ('weather_data', 'str'),
+        ('load_profiles', 'str'),
+        ('rs_load_profile_txt', 'str'),
+        ('ss_load_profile_txt', 'str'),
+        ('yaml_parameters', 'str'),
+        ('yaml_parameters_constrained', 'str'),
+        ('yaml_parameters_keynames_constrained', 'str'),
+        ('yaml_parameters_keynames_unconstrained', 'str'),
+        ('yaml_parameters_scenario', 'str')]
+
+    return _read_config_file_section('DATA_PATHS', config_file_path, paths)
+
+
+def _read_config_file_section(section, config_file_path, items):
+    """Read a configuration file section
+
+    Arguments
+    ---------
+    section : str
+        Name of the section to read
+    config_file_path : str
+        Absolute path to the config file
+    items : list of str
+        A list of names of the config items to read
+
+    Returns
+    -------
+    dict
+        Keys are the item names
+
+    Raises
+    ------
+    ValueError if the configuration item does not exist in the file
+    """
+    data_paths = {}
+    config = configparser.ConfigParser()
+    config.read(config_file_path)
+    for item, item_type in items:
+        try:
+            if item_type == 'str':
+                data_paths[item] = config.get(section, item)
+            elif item_type == 'bool':
+                data_paths[item] = config.getboolean(section, item)
+            elif item_type == 'int':
+                data_paths[item] = config.getint(section, item)
+
+        except configparser.NoOptionError:
+            msg = "Option '{}' doesn't exist in section '{}' in '{}'"
+            raise ValueError(msg.format(item, section, config_file_path))
+        except configparser.NoSectionError:
+            msg = "Section '{}' doesn't exist in '{}'"
+            raise ValueError(msg.format(section, config_file_path))
+    return data_paths
+
+
+def get_weather_result_paths(weather_path):
+    """Joins results subfolders to ``weather_path`` and returns a dict
+
+    Arguments
+    ---------
+    weather_path : str
+        Path to the weather results simulations
+
+    Returns
+    -------
+    dict
+    """
     paths = {
-        'local_path_datafolder': path,
-
-        # Path to user defined strategy vars
-        'path_strategy_vars': os.path.join(
-            path, 'energy_demand', '00_user_defined_variables'),
-
-        'path_population_data_for_disaggregation_LAD': os.path.join(
-            path, 'energy_demand', '_raw_data', 'J-population_disagg_by', 'uk_pop_principal_2015_2050.csv'), #ONS principal projection
-        'path_population_data_for_disaggregation_MSOA': os.path.join(
-            path, 'energy_demand', '_raw_data', 'J-population_disagg_by', 'uk_pop_principal_2015_2050_MSOA_lad.csv'), #ONS principal projection
-        'folder_raw_carbon_trust': os.path.join(
-            path, 'energy_demand', '_raw_data', "G_Carbon_Trust_advanced_metering_trial"),
-        'folder_path_weater_stations': os.path.join(
-            path, 'energy_demand', '_raw_data', 'A-temperature_data', 'cleaned_weather_stations.csv'),
-        'path_floor_area_virtual_stock_by': os.path.join(
-            path, 'energy_demand', '_raw_data', 'K-floor_area', 'floor_area_LAD_latest.csv'),
-        'path_assumptions_db': os.path.join(
-            path, 'energy_demand', '_processed_data', 'assumptions_from_db'),
-        'data_processed': os.path.join(
-            path, 'energy_demand', '_processed_data'),
-        'lad_shapefile': os.path.join(
-            path, 'energy_demand', '_raw_data', 'C_LAD_geography', 'same_as_pop_scenario', 'lad_2016_uk_simplified.shp'),
-        'path_post_installation_data': os.path.join(
-            path, 'energy_demand', '_processed_data'),
-        'weather_data': os.path.join(
-            path, 'energy_demand', '_raw_data', 'A-temperature_data', 'cleaned_weather_stations_data'),
-        'load_profiles': os.path.join(
-            path, 'energy_demand', '_processed_data', 'load_profiles'),
-        'rs_load_profile_txt': os.path.join(
-            path, 'energy_demand', '_processed_data', 'load_profiles', 'rs_submodel'),
-        'ss_load_profile_txt': os.path.join(
-            path, 'energy_demand', '_processed_data', 'load_profiles', 'ss_submodel'),
-        'yaml_parameters': os.path.join(
-            path, '..', 'config', 'yaml_parameters.yml'),
-        'yaml_parameters_constrained': os.path.join(
-            path, '..', 'config', 'yaml_parameters_constrained.yml'),
-        'yaml_parameters_keynames_constrained': os.path.join(
-            path, '..', 'config', 'yaml_parameters_keynames_constrained.yml'),
-        'yaml_parameters_keynames_unconstrained': os.path.join(
-            path, '..', 'config', 'yaml_parameters_keynames_unconstrained.yml'),
-        'yaml_parameters_scenario': os.path.join(
-            path, '..', 'config', 'yaml_parameters_scenario.yml')}
+        'data_results':
+            weather_path,
+        'data_results_PDF': os.path.join(
+            weather_path, 'PDF_results'),
+        'data_results_validation': os.path.join(
+            weather_path, 'PDF_validation'),
+        'data_results_model_runs': os.path.join(
+            weather_path, 'model_run_results_txt'),
+        }
 
     return paths
 
-def get_result_paths(path):
-    """Load all result paths
+
+def get_result_paths(config_file_path):
+    """Load all result paths from the `RESULT_DATA` section of the config file
 
     Arguments
     --------
-    path : str
-        Path to result folder
+    config_file_path : str
+        config_file_path to the wrapperconfig.ini configuration file
 
     Return
     -------
     paths : dict
         All result paths used in model
     """
-    paths = {
-        'data_results':
-            path,
-        'data_results_model_run_pop': os.path.join(
-            path, 'model_run_pop'),
-        'data_results_model_runs': os.path.join(
-            path, 'model_run_results_txt'),
-        'data_results_PDF': os.path.join(
-            path, 'PDF_results'),
-        'data_results_validation': os.path.join(
-            path, 'PDF_validation'),
-        'model_run_pop': os.path.join(
-            path, 'model_run_pop'),
-        'data_results_shapefiles': os.path.join(
-            path, 'spatial_results'),
-        'individual_enduse_lp': os.path.join(
-            path, 'individual_enduse_lp')}
+    paths = [
+        ('data_results_model_run_pop', 'str'),
+        ('data_results_model_runs', 'str'),
+        ('data_results_PDF', 'str'),
+        ('data_results_validation', 'str'),
+        ('model_run_pop', 'str'),
+        ('data_results_shapefiles', 'str'),
+        ('individual_enduse_lp', 'str')]
 
-    return paths
+    return _read_config_file_section('RESULT_DATA', config_file_path, paths)
 
-def load_paths(path):
-    """Load all paths of the installed config data
+
+def load_paths(config_file_path):
+    """Load all paths from the `CONFIG_DATA` of the config file
 
     Arguments
     ----------
-    path : str
+    config_file_path : str
         Main path
 
     Return
     ------
-    out_dict : dict
-        Data container containing dics
+    dict
+        Dictionary containing the paths to each datafile
     """
-    paths = {
-        'path_main': path,
-
+    paths = [
+        ('path_main', 'str'),
         # Path to all technologies
-        'path_technologies': os.path.join(
-            path, '05-technologies', 'technology_definition.csv'),
-
+        ('path_technologies', 'str'),
         # Paths to fuel raw data
-        'rs_fuel_raw': os.path.join(
-            path, '02-fuel_base_year', 'rs_fuel.csv'),
-        'ss_fuel_raw': os.path.join(
-            path, '02-fuel_base_year', 'ss_fuel.csv'),
-        'is_fuel_raw': os.path.join(
-            path, '02-fuel_base_year', 'is_fuel.csv'),
-
+        ('rs_fuel_raw', 'str'),
+        ('ss_fuel_raw', 'str'),
+        ('is_fuel_raw', 'str'),
         # Load profiles
-        'lp_rs': os.path.join(
-            path, '03-load_profiles', 'rs_submodel', 'HES_lp.csv'),
-
+        ('lp_rs', 'str'),
         # Technologies load shapes
-        'path_hourly_gas_shape_resid': os.path.join(
-            path, '03-load_profiles', 'rs_submodel', 'lp_gas_boiler_dh_SANSOM.csv'),
-        'lp_elec_hp_dh': os.path.join(
-            path, '03-load_profiles', 'rs_submodel', 'lp_elec_hp_dh_LOVE.csv'),
-        'lp_all_microCHP_dh': os.path.join(
-            path, '03-load_profiles', 'rs_submodel', 'lp_all_microCHP_dh_SANSOM.csv'),
-        'path_shape_rs_cooling': os.path.join(
-            path, '03-load_profiles', 'rs_submodel', 'shape_residential_cooling.csv'),
-        'path_shape_ss_cooling': os.path.join(
-            path, '03-load_profiles', 'ss_submodel', 'shape_service_cooling.csv'),
-        'lp_elec_storage_heating': os.path.join(
-            path, '03-load_profiles', 'rs_submodel', 'lp_elec_storage_heating_HESReport.csv'),
-        'lp_elec_secondary_heating': os.path.join(
-            path, '03-load_profiles', 'rs_submodel', 'lp_elec_secondary_heating_HES.csv'),
-
+        ('path_hourly_gas_shape_resid', 'str'),
+        ('lp_elec_hp_dh', 'str'),
+        ('lp_all_microCHP_dh', 'str'),
+        ('path_shape_rs_cooling', 'str'),
+        ('path_shape_ss_cooling', 'str'),
+        ('lp_elec_storage_heating', 'str'),
+        ('lp_elec_secondary_heating', 'str'),
         # Census data
-        'path_employment_statistics': os.path.join(
-            path, '04-census_data', 'LAD_census_data.csv'),
-
+        ('path_employment_statistics', 'str'),
         # Validation datasets
-        'val_subnational_elec': os.path.join(
-            path, '01-validation_datasets', '02_subnational_elec', 'data_2015_elec.csv'),
-        'val_subnational_elec_residential': os.path.join(
-            path, '01-validation_datasets', '02_subnational_elec', 'data_2015_elec_domestic.csv'),
-        'val_subnational_elec_non_residential': os.path.join(
-            path, '01-validation_datasets', '02_subnational_elec', 'data_2015_elec_non_domestic.csv'),
-        'val_subnational_elec_msoa_residential': os.path.join(
-            path, '01-validation_datasets', '02_subnational_elec', 'MSOA_domestic_electricity_2015_cleaned.csv'),
-        'val_subnational_elec_msoa_non_residential': os.path.join(
-            path, '01-validation_datasets', '02_subnational_elec', 'MSOA_non_dom_electricity_2015_cleaned.csv'),
-        'val_subnational_gas': os.path.join(
-            path, '01-validation_datasets', '03_subnational_gas', 'data_2015_gas.csv'),
-        'val_subnational_gas_residential': os.path.join(
-            path, '01-validation_datasets', '03_subnational_gas', 'data_2015_gas_domestic.csv'),
-        'val_subnational_gas_non_residential': os.path.join(
-            path, '01-validation_datasets', '03_subnational_gas', 'data_2015_gas_non_domestic.csv'),
-        'val_nat_elec_data': os.path.join(
-            path, '01-validation_datasets', '01_national_elec_2015', 'elec_demand_2015.csv')}
+        ('val_subnational_elec', 'str'),
+        ('val_subnational_elec_residential', 'str'),
+        ('val_subnational_elec_non_residential', 'str'),
+        ('val_subnational_elec_msoa_residential', 'str'),
+        ('val_subnational_elec_msoa_non_residential', 'str'),
+        ('val_subnational_gas', 'str'),
+        ('val_subnational_gas_residential', 'str'),
+        ('val_subnational_gas_non_residential', 'str'),
+        ('val_nat_elec_data', 'str')]
 
-    return paths
+    return _read_config_file_section('CONFIG_DATA', config_file_path, paths)
+
 
 def load_tech_profiles(
         tech_lp,
@@ -633,12 +698,11 @@ def load_tech_profiles(
     tech_lp : dict
         Load profiles
     paths : dict
-        Paths
+        Path to open config data
     local_paths : dict
-        Local paths
+        Local data paths (private data downloaded from ftp)
     plot_tech_lp : bool
-        Criteria wheter individual tech lp are
-        saved as figure to separte folder
+        Criteria whether individual tech lp are saved as figure to separate folder
 
     Returns
     ------
@@ -653,7 +717,7 @@ def load_tech_profiles(
 
     # CHP load profile from Robert Sansom
     tech_lp['rs_lp_heating_CHP_dh'] = read_data.read_load_shapes_tech(
-        paths['lp_all_microCHP_dh'])
+        paths['lp_all_microchp_dh'])
 
     # Heat pump load profile from Love et al. (2017)
     tech_lp['rs_lp_heating_hp_dh'] = read_data.read_load_shapes_tech(
@@ -1147,6 +1211,7 @@ def rs_collect_shapes_from_txts(txt_path, model_yeardays):
 
     return rs_shapes_dh, rs_shapes_yd
 
+
 def ss_collect_shapes_from_txts(txt_path, model_yeardays):
     """Collect service shapes from txt files for every setor and enduse
 
@@ -1273,9 +1338,12 @@ def read_scenario_data(path_to_csv):
     """
     data = {}
 
+    if not os.path.exists(path_to_csv):
+        raise FileNotFoundError("Cannot find file {}".format(path_to_csv))
+
     with open(path_to_csv, 'r') as csvfile:
         rows = csv.reader(csvfile, delimiter=',')
-        headings = next(rows) # Skip first row
+        headings = next(rows)  # Skip first row
         for row in rows:
 
             region = str(row[read_data.get_position(headings, 'region')])

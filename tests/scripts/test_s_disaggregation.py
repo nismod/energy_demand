@@ -30,11 +30,11 @@ def test_rs_disaggregate():
     assumptions.__setattr__('t_bases', general_assumptions.DummyClass({'rs_t_heating': 15}))
 
     reg_coord = {
-        'regA': {'longitude': 0,'latitude': 0},
-        'regB': {'longitude': 0,'latitude': 0}}
+        'regA': {'longitude': 0, 'latitude': 0},
+        'regB': {'longitude': 0, 'latitude': 0}}
 
     weather_stations = {
-        'stationID_1': {'longitude': 1,'latitude': 1}}
+        'stationID_1': {'longitude': 1, 'latitude': 1}}
 
     temp_data = {'stationID_1': np.ones((365, 24)) + 10}
     enduses = ['rs_space_heating']

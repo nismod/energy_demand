@@ -28,23 +28,22 @@ def load_data_before_simulation(
     # -----------
     base_yr = config['CONFIG']['base_yr']
     weather_yr_scenario = config['CONFIG']['weather_yr_scenario']
-    path_new_scenario = data['path_new_scenario']
+    path_new_scenario = config['PATHS']['path_new_scenario']
 
-    data['weather_station_count_nr'] = [] # Default value is '[]' to use all stations
+    data['weather_station_count_nr'] = []  # Default value is '[]' to use all stations
     data['data_path'] = os.path.normpath(config['PATHS']['path_local_data'])
     data['processed_path'] = os.path.normpath(config['PATHS']['path_processed_data'])
     data['result_path'] = os.path.normpath(config['PATHS']['path_result_data'])
-    data['paths'] = data_loader.load_paths(config['PATHS']['path_config_data'])
+    data['paths'] = config['CONFIG_DATA']
 
     # Downloaded (FTP) data
-    data['local_paths'] = data_loader.get_local_paths(
-        data['data_path'])
+    data['local_paths'] = config['DATA_PATHS']
 
     # ------------------------------------------------
     # Load Inputs
     # ------------------------------------------------
-    data['enduses'], data['sectors'], data['fuels'], lookup_enduses, lookup_sector_enduses = data_loader.load_fuels(
-        data['paths'])
+    data['enduses'], data['sectors'], data['fuels'], lookup_enduses, \
+        lookup_sector_enduses = data_loader.load_fuels(config['CONFIG_DATA'])
 
     # ------------------------------------------------
     # Load Assumptions
@@ -57,7 +56,7 @@ def load_data_before_simulation(
         simulation_end_yr=config['CONFIG']['user_defined_simulation_end_yr'],
         curr_yr=curr_yr,
         sim_yrs=sim_yrs,
-        paths=data['paths'],
+        paths=config['CONFIG_DATA'],
         enduses=data['enduses'],
         sectors=data['sectors'],
         reg_nrs=len(data['regions']))
@@ -95,7 +94,7 @@ def load_data_before_simulation(
     if config['CRITERIA']['reg_selection']:
         
         region_selection = read_data.get_region_selection(
-            os.path.join(data['local_paths']['local_path_datafolder'],
+            os.path.join(config['DATA_PATHS']['local_path_datafolder'],
             "region_definitions",
             config['CRITERIA']['reg_selection_csv_name']))
         #region_selection = ['E02003237', 'E02003238']
@@ -105,7 +104,7 @@ def load_data_before_simulation(
 
     # Create .ini file with simulation parameter
     write_data.write_simulation_inifile(
-        data['path_new_scenario'], data, region_selection)
+        path_new_scenario, data, region_selection)
 
     # -------------------------------------------
     # Weather year specific initialisations
@@ -113,14 +112,14 @@ def load_data_before_simulation(
     path_folder_weather_yr = os.path.join(
         os.path.join(path_new_scenario, data['simulation_name']))
 
-    data['result_paths'] = data_loader.get_result_paths(path_folder_weather_yr)
+    data['weather_result_paths'] = data_loader.get_weather_result_paths(path_folder_weather_yr)
 
     folders_to_create = [
         path_folder_weather_yr,
-        data['result_paths']['data_results'],
-        data['result_paths']['data_results_PDF'],
-        data['result_paths']['data_results_validation'],
-        data['result_paths']['data_results_model_runs']]
+        data['weather_result_paths']['data_results'],
+        data['weather_result_paths']['data_results_PDF'],
+        data['weather_result_paths']['data_results_validation'],
+        data['weather_result_paths']['data_results_model_runs']]
     for folder in folders_to_create:
         basic_functions.create_folder(folder)
 
@@ -128,16 +127,16 @@ def load_data_before_simulation(
     # Load load profiles of technologies
     # ------------------------------------------------
     data['tech_lp'] = data_loader.load_data_profiles(
-        data['paths'],
-        data['local_paths'],
+        config['CONFIG_DATA'],
+        config['DATA_PATHS'],
         data['assumptions'].model_yeardays,
         data['assumptions'].model_yeardays_daytype)
 
     # Obtain population data for disaggregation
     if config['CRITERIA']['msoa_crit']:
-        name_population_dataset = data['local_paths']['path_population_data_for_disaggregation_MSOA']
+        name_population_dataset = config['DATA_PATHS']['path_population_data_for_disaggregation_msoa']
     else:
-        name_population_dataset = data['local_paths']['path_population_data_for_disaggregation_LAD']
+        name_population_dataset = config['DATA_PATHS']['path_population_data_for_disaggregation_lad']
     data['pop_for_disag'] = data_loader.read_scenario_data(name_population_dataset)
 
     # ------------------------------------------------
@@ -147,7 +146,7 @@ def load_data_before_simulation(
         data['scenario_data']['floor_area']['rs_floorarea'], data['scenario_data']['floor_area']['ss_floorarea'], data['service_building_count'], rs_regions_without_floorarea, ss_regions_without_floorarea = data_loader.floor_area_virtual_dw(
             data['regions'],
             data['sectors'],
-            data['local_paths'],
+            config['DATA_PATHS'],
             data['scenario_data']['population'][data['assumptions'].base_yr],
             base_yr=data['assumptions'].base_yr)
 
@@ -398,4 +397,4 @@ def plots(
             data['weather_stations'],
             os.path.join(data['result_path'], 'weatherst_distr_weathyr_{}.pdf'.format(
                 config['CONFIG']['weather_yr_scenario'])),
-            path_shapefile=data['local_paths']['lad_shapefile'])
+            path_shapefile=config['DATA_PATHS']['lad_shapefile'])

@@ -8,12 +8,13 @@ import numpy as np
 from energy_demand.basic import lookup_tables
 from energy_demand.basic import basic_functions
 
+
 def run(
         path_to_folder,
         path_MSOA_baseline,
         MSOA_calculations=False,
         geography_name='region'
-    ):
+        ):
     """
     path_to_folder : str
         Path to data folder
