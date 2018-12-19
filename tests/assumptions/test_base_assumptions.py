@@ -4,10 +4,10 @@ from energy_demand.basic import lookup_tables
 from energy_demand.assumptions import general_assumptions
 from energy_demand.read_write import data_loader
 
-
-def test_load_non_param_assump(config_file):
+def test_load_non_param_assump():
     """
     """
+    config_file = "C:/Users/cenv0553/ED/energy_demand/local_run_config_file.ini"
     config = data_loader.read_config_file(config_file)
 
     # Load data
@@ -28,10 +28,10 @@ def test_load_non_param_assump(config_file):
         enduses=enduses,
         sectors=sectors)
 
-
-def test_load_param_assump(config_file):
+def test_load_param_assump():
     """
     """
+    config_file = "C:/Users/cenv0553/ED/energy_demand/local_run_config_file.ini"
     config = data_loader.read_config_file(config_file)
 
     # Load data

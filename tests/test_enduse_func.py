@@ -125,12 +125,8 @@ def test_apply_service_switch():
     all_technologies = ['boilerA', 'boilerB']
 
     annual_tech_diff_params = {
-        'test_enduse': {
-            'test_sector': {
-                'boilerA': {2050: share_boilerA_cy},
-                'boilerB': {2050: share_boilerB_cy}
-            }
-        }}
+        'boilerA': {curr_yr: share_boilerA_cy},
+        'boilerB': {curr_yr: share_boilerB_cy}}
 
     crit_switch_happening = {'test_enduse': ['test_sector']}
 
@@ -155,14 +151,10 @@ def test_apply_service_switch():
 
     share_boilerA_cy = 0.99
     share_boilerB_cy = 0.01
-
+    
     annual_tech_diff_params = {
-        'test_enduse': {
-            'test_sector': {
-                'boilerA': {2050: share_boilerA_cy},
-                'boilerB': {2050: share_boilerB_cy}
-            }
-        }}
+        'boilerA': {curr_yr: share_boilerA_cy},
+        'boilerB': {curr_yr: share_boilerB_cy}}
 
     result = enduse_func.apply_service_switch(
         enduse='test_enduse',

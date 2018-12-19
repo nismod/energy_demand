@@ -2,7 +2,6 @@
 """
 import os
 import shutil
-from collections import defaultdict
 import numpy as np
 from pyproj import Proj, transform
 
@@ -32,7 +31,6 @@ def get_result_paths(scenario_run_results):
     }
 
     return path_dict
-
 
 def get_weather_result_paths(weather_path):
     """Joins results subfolders to ``weather_path`` and returns a dict
@@ -183,7 +181,6 @@ def get_long_lat_decimal_degrees(reg_centroids):
 
     return reg_coord
 
-
 def rmse(predictions, actual_values):
     """Root-mean-square deviation or
     Root-mean-square-erro (RMSE) calculations
@@ -210,9 +207,7 @@ def rmse(predictions, actual_values):
 
         rms = sqrt(mean_squared_error(y_actual, y_predicted))
     """
-    rmse = np.sqrt(((predictions - actual_values) ** 2).mean())
-
-    return rmse
+    return np.sqrt(((predictions - actual_values) ** 2).mean())
 
 def array_to_dict(result_array, regions):
     """Convert an array with regions to dict
@@ -279,7 +274,6 @@ def del_previous_results(path_folder, path_subfolder_keep):
         Path of subfolder which must not be deleted
     """
     if os.path.exists(path_folder):
-
         all_files_and_folders = os.listdir(path_folder)
 
         # Iterate folders in data folders
