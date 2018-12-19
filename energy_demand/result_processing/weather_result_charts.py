@@ -191,7 +191,6 @@ def main(
     # ------------------------------
     # Plot national sum over time per fueltype and scenario
     # ------------------------------
-    crit_smooth_line = True
     print("... plotting national sum of fueltype over time")
     fig_3_plot_over_time.fueltypes_over_time(
         scenario_result_container=scenario_result_container,
@@ -201,9 +200,9 @@ def main(
         result_path=result_path,
         unit='TWh',
         plot_points=True,
-        crit_smooth_line=crit_smooth_line)
+        crit_smooth_line=True,
+        seperate_legend=False)
 
-    #raise Exception("TT")
     # ------------------------------
     # Plot national peak change over time for each scenario
     # including weather variability
@@ -214,11 +213,8 @@ def main(
         fig_name="scenarios_peak_over_time_{}.pdf".format(fueltype_str),
         plot_points=True,
         result_path=result_path,
-        crit_smooth_line=crit_smooth_line)
-    
-    raise Exception("TT3")
-
-
+        crit_smooth_line=True,
+        seperate_legend=False)
 
     # ------------------------------
     # Plotting spatial results for electricity
@@ -238,7 +234,7 @@ def main(
             pop_data=pop_data,
             simulation_yr_to_plot=simulation_yr_to_plot,
             result_path=result_path,
-            fig_name="{}_tot_demand_{}_{}.pdf".format(scenario_name, field_to_plot, fueltype_str),
+            fig_name="{}__tot_demand__{}_{}_{}.pdf".format(scenario_name, field_to_plot, fueltype_str, simulation_yr_to_plot),
             field_to_plot=field_to_plot,
             unit='GW')
 
@@ -251,7 +247,7 @@ def main(
             pop_data=pop_data,
             simulation_yr_to_plot=simulation_yr_to_plot,
             result_path=result_path,
-            fig_name="{}_peak_h_demand_{}_{}.pdf".format(scenario_name, field_to_plot, fueltype_str),
+            fig_name="{}__peak_h_demand_{}_{}_{}.pdf".format(scenario_name, field_to_plot, fueltype_str, simulation_yr_to_plot),
             field_to_plot=field_to_plot,
             unit='GW')
 
@@ -264,7 +260,7 @@ def main(
             pop_data=pop_data,
             simulation_yr_to_plot=simulation_yr_to_plot,
             result_path=result_path,
-            fig_name="{}_regional_share_national_peak_{}_{}.pdf".format(scenario_name, field_to_plot, fueltype_str),
+            fig_name="{}__regional_share_national_peak_{}_{}_{}.pdf".format(scenario_name, field_to_plot, fueltype_str, simulation_yr_to_plot),
             field_to_plot=field_to_plot,
             unit='percentage')
 
@@ -276,7 +272,7 @@ def main(
             pop_data=pop_data,
             simulation_yr_to_plot=simulation_yr_to_plot,
             result_path=result_path,
-            fig_name="{}_regional_share_national_peak_{}_{}.pdf".format(scenario_name, field_to_plot, fueltype_str),
+            fig_name="{}__regional_share_national_peak_{}_{}_{}.pdf".format(scenario_name, field_to_plot, fueltype_str, simulation_yr_to_plot),
             field_to_plot=field_to_plot,
             unit='percentage')
 
@@ -288,6 +284,6 @@ def main(
 path_shapefile_input="C:/Users/cenv0553/ED/data/energy_demand/region_definitions/lad_2016_uk_simplified.shp"
 
 main(
-    scenarios_path="C:/_F",
+    scenarios_path="C:/_FF",
     path_shapefile_input=path_shapefile_input,
     base_yr=2015)

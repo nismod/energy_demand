@@ -114,7 +114,7 @@ class Enduse(object):
         self.fuel_y = fuel
         self.flat_profile_crit = flat_profile_crit
         self.techs_fuel_yh = None
-   
+
         #If enduse has no fuel return empty shapes
         if np.sum(fuel) == 0:
             self.flat_profile_crit = True
@@ -125,8 +125,8 @@ class Enduse(object):
             #print("------INFO  {} {} {}  {}".format(self.enduse, sector, region, curr_yr))
             #print("FUEL TRAIN A0: " + str(np.sum(self.fuel_y)))
 
-            if curr_yr > 2015 and enduse == 'rs_lighting':
-                print("tt")
+            #if curr_yr > 2015 and enduse == 'rs_lighting':
+            #    print("tt")
             # Get technologies of enduse
             self.enduse_techs = get_enduse_techs(fuel_tech_p_by)
 
@@ -226,7 +226,7 @@ class Enduse(object):
 
                     #print("FUEL TRAIN X " + str(np.sum(fuel_yh)))
                     # Demand management for non-technology enduse
-                    self.fuel_yh = demand_management(
+                    self.fuel_yh = load_shifting(
                         enduse,
                         curr_yr,
                         strategy_vars['dm_improvement'],
@@ -335,7 +335,7 @@ class Enduse(object):
                         self.techs_fuel_yh = {}
 
                         for tech in fuel_yh:
-                            self.techs_fuel_yh[tech] = demand_management(
+                            self.techs_fuel_yh[tech] = load_shifting(
                                 enduse,
                                 curr_yr,
                                 strategy_vars['dm_improvement'],
@@ -345,7 +345,7 @@ class Enduse(object):
 
                         self.fuel_yh = None
                     else:
-                        self.fuel_yh = demand_management(
+                        self.fuel_yh = load_shifting(
                             enduse,
                             curr_yr,
                             strategy_vars['dm_improvement'],
@@ -353,7 +353,7 @@ class Enduse(object):
                             mode_constrained=False,
                             make_all_flat=make_all_flat)
 
-def demand_management(
+def load_shifting(
         enduse,
         curr_yr,
         dm_improvement,

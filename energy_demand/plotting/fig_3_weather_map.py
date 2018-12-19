@@ -108,9 +108,7 @@ def total_annual_demand(
     # http://nbviewer.jupyter.org/gist/jorisvandenbossche/57d392c085901eb4981054402b37b6b1
     # ---------------
     # Merge stats to geopanda
-    shp_gdp_merged = uk_shapefile.merge(
-        df_stats,
-        on='name')
+    shp_gdp_merged = uk_shapefile.merge(df_stats, on='name')
 
     # Assign projection
     crs = {'init': 'epsg:27700'} #27700: OSGB_1936_British_National_Grid
@@ -126,7 +124,8 @@ def total_annual_demand(
         data_to_plot=list(uk_gdf[field_to_plot]),
         nr_of_intervals=nr_of_intervals)
 
-    print("BINS " + str(bin_values))
+    #print(list(uk_gdf[field_to_plot]))
+    print("field_to_plot: {} BINS: {}".format(field_to_plot, bin_values))
 
     uk_gdf, cmap_rgb_colors, color_zero, min_value, max_value = fig_p2_weather_val.user_defined_bin_classification(
         uk_gdf,

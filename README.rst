@@ -22,9 +22,10 @@ Research Consortium <http://www.itrc.org.uk/>`_.
 
 More information on the model can be found in:
 
-    Eggimann, Hall and Eyre (2018): A high-resolution spatio-temporal energy demand
-    simulation to explore the potential of heating demand side management
-    with large-scale heat pump diffusion. Applied Energy. LINK
+    Eggimann, S., Hall, W.J., Eyre, N. (2019): A high-resolution spatio-temporal
+    energy demand simulation of large-scale heat pump diffusion to explore the
+    potential of heating demand side management. Applied Energy ,236, 997–1010.
+    `https://doi.org/10.1016/j.apenergy.2018.12.052 <https://doi.org/10.1016/j.apenergy.2018.12.052>`_.
 
 1. Download input data
 =============================================

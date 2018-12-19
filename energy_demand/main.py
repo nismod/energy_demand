@@ -106,24 +106,22 @@ if __name__ == "__main__":
     user_defined_weather_by = config['CONFIG']['user_defined_weather_by']
     user_defined_simulation_end_yr = config['CONFIG']['user_defined_simulation_end_yr']
 
-    # Simulated yrs
-    #sim_yrs = [base_yr, 2030, user_defined_simulation_end_yr]
-    #sim_yrs = [2015, 2020, 2025, 2030, 2035, 2040, 2045, 2050]
-    sim_yrs = [2015, 2020, 2050]
-    #sim_yrs = [2015, 2020] #, 2050]
-    weather_yr_scenario = 2015   # Default weather year
-
+    sim_yrs = [2015, 2020, 2025, 2030, 2035, 2040, 2045, 2050]
+    #sim_yrs = [2015, 2020, 2050] #, 2050]
+    sim_yrs = [2015, 2020]
     if len(sys.argv) > 3: #user defined arguments are provide
         scenario_name = str(sys.argv[2])
         weather_realisation = str(sys.argv[3]) # Weather realisation 
     else:
-        scenario_name = "_run_"
+        scenario_name = "_dm_0_"
         weather_realisation = 'NF1'
 
+    print("-------------------------------------")
     print("Information")
     print("-------------------------------------")
-    print("weather_yr_scenario:        " + str(weather_yr_scenario))
     print("weather_realisation:        " + str(weather_realisation))
+    print("Simulated yrs               " + str(sim_yrs))
+    print("local_data_path             " + str(local_data_path))
 
     # Local path configurations
     path_weather_data = "C:/Users/cenv0553/ED/data/scenarios"
@@ -131,16 +129,16 @@ if __name__ == "__main__":
 
     #name_config_path = 'h_c'
     #name_config_path = 'l_c'
-    name_config_path = 'h_h'
-    #name_config_path = 'h_l'
-    #name_config_path = 'l_h'
-    #name_config_path = 'l_l'
+    name_config_path = 'h_max'
+    #name_config_path = 'h_min'
+    #name_config_path = 'l_max'
+    name_config_path = 'l_min'
 
-    if name_config_path == 'h_h' or name_config_path == 'l_h':
+    if name_config_path == 'h_max' or name_config_path == 'l_max':
         local_scenario = 'pop-b_econ-c_fuel-c' #high
     elif name_config_path == 'h_c' or name_config_path == 'l_c':
         local_scenario = 'pop-baseline16_econ-c16_fuel-c16' #middle
-    elif name_config_path == 'h_l' or name_config_path == 'l_l':
+    elif name_config_path == 'h_min' or name_config_path == 'l_min':
         local_scenario = 'pop-f_econ-c_fuel-c' #low
 
     path_strategy_vars = os.path.join(local_data_path, 'energy_demand', '00_user_defined_variables', name_config_path)
@@ -312,7 +310,7 @@ if __name__ == "__main__":
     '''if config['CRITERIA']['cluster_calc'] != True:
         data_loader.create_weather_station_map(
             data['weather_stations'],
-            os.path.join(data['path_new_scenario'], 'weatherst_distr_weathyr_{}.pdf'.format(weather_yr_scenario)),
+            os.path.join(data['path_new_scenario'], 'weatherst_distr_weathyr.pdf'),
             path_shapefile=data['local_paths']['lad_shapefile'])'''
 
     # ------------------------------------------------------------

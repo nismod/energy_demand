@@ -10,18 +10,19 @@ import pylab
 from energy_demand.plotting import basic_plot_functions
 from energy_demand.basic import conversions
 from energy_demand.plotting import plotting_styles
+from energy_demand.read_write import write_data
 
 colors = {
 
     # High elec
-    'h_l': '#004529',
+    'h_min': '#004529',
     'h_c': '#238443',
-    'h_h': '#78c679',
+    'h_max': '#78c679',
 
     # Low elec
-    'l_l': '#800026',
+    'l_min': '#800026',
     'l_c': '#e31a1c',
-    'l_h': '#fd8d3c',
+    'l_max': '#fd8d3c',
 
     'other1': '#C044FF',
     'other2': '#3DF735',
@@ -32,10 +33,10 @@ colors = {
 marker_list = plotting_styles.marker_list()
 
 marker_styles = {
-    'h_h': marker_list[0],
-    'h_l': marker_list[1],
-    'l_l': marker_list[2],
-    'l_h': marker_list[6],
+    'h_max': marker_list[0],
+    'h_min': marker_list[1],
+    'l_min': marker_list[2],
+    'l_max': marker_list[6],
 }
 
 def scenario_over_time(
@@ -44,16 +45,19 @@ def scenario_over_time(
         fig_name,
         result_path,
         plot_points,
-        crit_smooth_line=True
+        crit_smooth_line=True,
+        seperate_legend=False
     ):
     """Plot peak over time
     """
+    statistics_to_print = []
+
     fig = plt.figure(
         figsize=basic_plot_functions.cm2inch(10, 10)) #width, height
 
     ax = fig.add_subplot(1, 1, 1)
 
-    for cnt, i in enumerate(scenario_result_container):
+    for cnt_scenario, i in enumerate(scenario_result_container):
         scenario_name = i['scenario_name']
         national_peak = i['national_peak']
 
@@ -67,7 +71,12 @@ def scenario_over_time(
             color = colors[scenario_name]
             marker = marker_styles[scenario_name]
         except KeyError:
-            color = list(colors.values())[cnt]
+            color = list(colors.values())[cnt_scenario]
+
+        try:
+            marker = marker_styles[scenario_name]
+        except KeyError:
+            marker = list(marker_styles.values())[cnt_scenario]
 
         print("SCENARIO NAME {}  {}".format(scenario_name, color))
 
@@ -75,9 +84,14 @@ def scenario_over_time(
         mean_national_peak = national_peak.mean(axis=0)
         mean_national_peak_sim_yrs = copy.copy(mean_national_peak)
 
+        statistics_to_print.append("scenario: {} values over years: {}".format(scenario_name, mean_national_peak_sim_yrs))
+
         # Standard deviation over all realisations
         df_q_05 = national_peak.quantile(quantile_05)
         df_q_95 = national_peak.quantile(quantile_95)
+
+        statistics_to_print.append("scenario: {} df_q_05: {}".format(scenario_name, df_q_05))
+        statistics_to_print.append("scenario: {} df_q_95: {}".format(scenario_name, df_q_95))
 
         # --------------------
         # Try to smooth lines
@@ -129,11 +143,11 @@ def scenario_over_time(
             list(df_q_05),  #y2
             alpha=0.25,
             facecolor=color,
-            #label="weather uncertainty"
             )
 
     plt.xlim(2015, 2050)
-    
+    plt.ylim(0)
+
     # --------
     # Different style
     # --------
@@ -168,22 +182,28 @@ def scenario_over_time(
         frameon=False)
     legend.get_title().set_fontsize(8)
 
-    basic_plot_functions.export_legend(
-        legend,
-        os.path.join(result_path, "legend_{}.pdf".format(fig_name)))
-    legend.remove()
+    if seperate_legend:
+        basic_plot_functions.export_legend(
+            legend,
+            os.path.join(result_path, "{}__legend.pdf".format(fig_name)))
+        legend.remove()
 
     # --------
     # Labeling
     # --------
-    plt.ylabel("national peak demand in GW")
+    plt.ylabel("national peak demand (GW)")
     #plt.xlabel("year")
     #plt.title("Title")
 
     plt.tight_layout()
-    #plt.show()
+
     plt.savefig(os.path.join(result_path, fig_name))
     plt.close()
+
+    # Write info to txt
+    write_data.write_list_to_txt(
+        os.path.join(result_path, fig_name).replace(".pdf", ".txt"),
+        statistics_to_print)
 
 def fueltypes_over_time(
         scenario_result_container,
@@ -193,28 +213,31 @@ def fueltypes_over_time(
         result_path,
         plot_points=False,
         unit='TWh',
-        crit_smooth_line=True
+        crit_smooth_line=True,
+        seperate_legend=False
     ):
     """Plot fueltypes over time
     """
+    statistics_to_print = []
+
     fig = plt.figure(
         figsize=basic_plot_functions.cm2inch(10, 10)) #width, height
     ax = fig.add_subplot(1, 1, 1)
 
     colors = {
         # Low elec
-        'electricity':  '#001871',
-        'gas':          '#ffb743',
-        'hydrogen':     '#138d90',
+        'electricity':  '#3e3838',
+        'gas':          '#ae7c7c',
+        'hydrogen':     '#6cbbb3',
     }
 
     line_styles_default = plotting_styles.linestyles()
 
     linestyles = {
-        'h_h': line_styles_default[0],
-        'h_l': line_styles_default[6],
-        'l_l': line_styles_default[8],
-        'l_h': line_styles_default[9],
+        'h_max': line_styles_default[0],
+        'h_min': line_styles_default[6],
+        'l_min': line_styles_default[8],
+        'l_max': line_styles_default[9],
     }
 
     for cnt_scenario, i in enumerate(scenario_result_container):
@@ -222,8 +245,6 @@ def fueltypes_over_time(
 
         for cnt_linestyle, fueltype_str in enumerate(fueltypes):
             national_sum = i['national_{}'.format(fueltype_str)]
-
-
 
             if unit == 'TWh':
                 unit_factor = conversions.gwh_to_twh(1)
@@ -246,21 +267,25 @@ def fueltypes_over_time(
 
             try:
                 linestyle = linestyles[scenario_name]
-                marker = marker_styles[scenario_name]
             except KeyError:
                 linestyle = list(linestyles.values())[cnt_scenario]
+            try:
+                marker = marker_styles[scenario_name]
+            except KeyError:
+                marker = list(marker_styles.values())[cnt_scenario]
 
             # Calculate average across all weather scenarios
             mean_national_sum = national_sum.mean(axis=0)
             mean_national_sum_sim_yrs = copy.copy(mean_national_sum)
 
-            if fueltype_str == 'hydrogen':
-                print("..")
-                print(mean_national_sum.values)
+            statistics_to_print.append("{} fueltype_str: {} mean_national_sum_sim_yrs: {}".format(scenario_name, fueltype_str, mean_national_sum_sim_yrs))
+
             # Standard deviation over all realisations
             df_q_05 = national_sum.quantile(quantile_05)
             df_q_95 = national_sum.quantile(quantile_95)
 
+            statistics_to_print.append("{} fueltype_str: {} df_q_05: {}".format(scenario_name, fueltype_str, df_q_05))
+            statistics_to_print.append("{} fueltype_str: {} df_q_95: {}".format(scenario_name, fueltype_str, df_q_95))
             # --------------------
             # Try to smooth lines
             # --------------------
@@ -314,7 +339,6 @@ def fueltypes_over_time(
                 list(df_q_05),  #y2
                 alpha=0.25,
                 facecolor=color,
-                #label="weather uncertainty"
                 )
 
     plt.xlim(2015, 2050)
@@ -370,11 +394,12 @@ def fueltypes_over_time(
         bbox_to_anchor=(0.5, -0.1),
         frameon=False)
     legend.get_title().set_fontsize(8)
-    
-    basic_plot_functions.export_legend(
-        legend,
-        os.path.join(result_path, "legend_{}.pdf".format(fig_name)))
-    legend.remove()
+
+    if seperate_legend:
+        basic_plot_functions.export_legend(
+            legend,
+            os.path.join(result_path, "{}__legend.pdf".format(fig_name)))
+        legend.remove()
 
     # --------
     # Labeling
@@ -387,3 +412,7 @@ def fueltypes_over_time(
     #plt.show()
     plt.savefig(os.path.join(result_path, fig_name))
     plt.close()
+
+    write_data.write_list_to_txt(
+        os.path.join(result_path, fig_name).replace(".pdf", ".txt"),
+        statistics_to_print)
