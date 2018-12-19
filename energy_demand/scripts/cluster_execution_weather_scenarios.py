@@ -19,7 +19,7 @@ def my_function(simulation_number):
     all_weather_reations = ["NF{}".format(i) for i in range(1, 101, 1)]
     weather_realisation = all_weather_reations[simulation_number]
 
-    data_path = "/soge-home/staff/cenv0553/data"
+    path_to_ini_file = "/soge-home/staff/cenv0553/energy_demand/wrapperconfi_CLUSTER.ini"
 
     # Make run name_specifiv
     run_name = "{}_{}".format(run_name, simulation_number)
@@ -32,7 +32,7 @@ def my_function(simulation_number):
         pass
     else:
         bash_command = "python energy_demand/energy_demand/main.py {} {} {}".format(
-            data_path,
+            path_to_ini_file,
             run_name,
             weather_realisation)
 

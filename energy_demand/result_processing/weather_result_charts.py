@@ -100,11 +100,11 @@ def main(
 
             pop_data = read_data.read_scenaric_population_data(
                 os.path.join(path_result_folder, 'model_run_pop'))
+  
 
-            # Update path
             path_result_folder = os.path.join(path_result_folder, 'simulation_results')
-            data['local_paths'] = data_loader.get_local_paths(path_result_folder)
-            data['result_paths'] = data_loader.get_result_paths(os.path.join(path_result_folder))
+            path_result_folder_model_runs = os.path.join(path_result_folder, 'model_run_results_txt')
+
             data['lookups'] = lookup_tables.basic_lookups()
 
             # Other information is read in
@@ -115,7 +115,7 @@ def main(
             # Reading in results from different model runs
             # --------------------------------------------
             results_container = read_weather_results.read_in_weather_results(
-                data['result_paths']['data_results_model_runs'],
+                path_result_folder_model_runs,
                 data['assumptions']['seasons'],
                 data['assumptions']['model_yeardays_daytype'],
                 fueltype_str='electricity')

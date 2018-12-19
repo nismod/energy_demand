@@ -78,35 +78,28 @@ def energy_demand_model(
     return modelrun
 
 if __name__ == "__main__":
+    """Pass the path to the .ini file as argument
+
+    Example:
+    pthon energy_demand/energy_demand/main.py C:/Users/cenv0553/ed/energy_demand/local_run_config_file.ini
+
+    TOOD IS path_config_data necessary?
     """
-    """
-    #TODO UPDATE WITH WILLS CHANGES
-    # ------------------------------------------
-    # Local run model configuration
-    # ------------------------------------------
-    local_data_path = sys.argv[1] 
-
-    path_config = os.path.abspath(os.path.join(
-            os.path.dirname(__file__), '..', 'local_run_config_file.ini'))
-            #os.path.dirname(__file__), '..', 'local_run_config_file_cluster.ini'))
-
-    print("Configuration path: " + str(path_config))
-
-    # Get configuration
+    
+    # Update cluster file: #os.path.dirname(__file__), '..', 'local_run_config_file_cluster.ini'))
+    if os.path.isfile(sys.argv[1]):
+        path_config  = sys.argv[1]
+    else:
+        raise Exception("The defined .ini file does not exist_ {}".format(sys.argv[1]))
     config = data_loader.read_config_file(path_config)
 
-    #config_file_path = os.path.join(path_main, 'wrapperconfig.ini') 
-    #config = data_loader.read_config_file(config_file_path)
 
-    # Data
     data = {}
-    base_yr = config['CONFIG']['base_yr']
-    user_defined_weather_by = config['CONFIG']['user_defined_weather_by']
-    user_defined_simulation_end_yr = config['CONFIG']['user_defined_simulation_end_yr']
 
     sim_yrs = [2015, 2020, 2025, 2030, 2035, 2040, 2045, 2050]
     #sim_yrs = [2015, 2020, 2050] #, 2050]
     sim_yrs = [2015, 2020]
+
     if len(sys.argv) > 3: #user defined arguments are provide
         scenario_name = str(sys.argv[2])
         weather_realisation = str(sys.argv[3]) # Weather realisation 
@@ -117,9 +110,9 @@ if __name__ == "__main__":
     print("-------------------------------------")
     print("Information")
     print("-------------------------------------")
-    print("weather_realisation:        " + str(weather_realisation))
+    print("local_data_path             " + str(sys.argv[1]))
+    print("Configuration path:         " + str(path_config))
     print("Simulated yrs               " + str(sim_yrs))
-    print("local_data_path             " + str(local_data_path))
 
     # Local path configurations
     path_weather_data = "C:/Users/cenv0553/ED/data/scenarios"
@@ -139,59 +132,46 @@ if __name__ == "__main__":
     elif name_config_path == 'h_min' or name_config_path == 'l_min':
         local_scenario = 'pop-f_econ-c_fuel-c' #low
 
-    path_strategy_vars = os.path.join(local_data_path, 'energy_demand', '00_user_defined_variables', name_config_path)
+    # --- Paths
+    path_strategy_vars = os.path.join(config['DATA_PATHS']['path_strategy_vars'], name_config_path)
+    name_region_set = os.path.join(config['PATHS']['path_local_data'], 'region_definitions', "lad_2016_uk_simplified.shp")
+    name_population_dataset = os.path.join(os.path.join(config['PATHS']['path_local_data'], ".."), 'scenarios', 'MISTRAL_pop_gva', 'data', '{}/population__lad.csv'.format(local_scenario))
+    name_gva_dataset = os.path.join(os.path.join(config['PATHS']['path_local_data'], ".."),'scenarios', 'MISTRAL_pop_gva', 'data', '{}/gva_per_head__lad_sector.csv'.format(local_scenario))
+    name_gva_dataset_per_head = os.path.join(os.path.join(config['PATHS']['path_local_data'], ".."), 'scenarios', 'MISTRAL_pop_gva', 'data', '{}/gva_per_head__lad.csv'.format(local_scenario))
 
-    # --- Region definition configuration
-    name_region_set = os.path.join(local_data_path, 'energy_demand', 'region_definitions', "lad_2016_uk_simplified.shp")
-    name_population_dataset = os.path.join(local_data_path, 'scenarios', 'MISTRAL_pop_gva', 'data', '{}/population__lad.csv'.format(local_scenario))
-    name_gva_dataset = os.path.join(local_data_path, 'scenarios', 'MISTRAL_pop_gva', 'data', '{}/gva_per_head__lad_sector.csv'.format(local_scenario))
-    name_gva_dataset_per_head = os.path.join(local_data_path, 'scenarios', 'MISTRAL_pop_gva', 'data', '{}/gva_per_head__lad.csv'.format(local_scenario))
-
+    # --------------------
+    # Create scenario path
+    # --------------------
     name_scenario_run = "{}_result_local_{}".format(scenario_name, str(time.ctime()).replace(":", "_").replace(" ", "_"))
-    # ------------------------------------------
+    path_new_scenario = os.path.join(config['PATHS']['path_result_data'], name_scenario_run)
+
+    # -----------------------------------------------------------------------
+    # Create new folders
+    # -----------------------------------------------------------------------
+    basic_functions.del_previous_setup(path_new_scenario)
+    basic_functions.create_folder(path_new_scenario)
 
     # --------------------
     # Load all other paths
     # --------------------
     data['paths'] = config['CONFIG_DATA']
     data['local_paths'] = config['DATA_PATHS']
+    data['result_paths'] = basic_functions.get_result_paths(path_new_scenario)
 
-    # Manually overwrriting startegy variable path
-    data['local_paths']['path_strategy_vars'] = path_strategy_vars
-
-    data['path_new_scenario'] = config['PATHS']['path_new_scenario']
-    data['result_paths'] = config['RESULT_DATA']
-
-    basic_functions.create_folder(data['path_new_scenario'])
+    for folder, folder_path in data['result_paths'].items():
+        basic_functions.create_folder(folder_path)
 
     # ----------------------------------------------------------------------
     # Load data
     # ----------------------------------------------------------------------
     data['scenario_data'] = defaultdict(dict)
-    data['enduses'], data['sectors'], data['fuels'], lookup_enduses, lookup_sector_enduses = data_loader.load_fuels(
-        data['paths'])
-
+    data['enduses'], data['sectors'], data['fuels'], lookup_enduses, lookup_sector_enduses = data_loader.load_fuels(data['paths'])
     data['regions'] = read_data.get_region_names(name_region_set)
-
-    reg_centroids = read_data.get_region_centroids(name_region_set)
-    data['reg_coord'] = basic_functions.get_long_lat_decimal_degrees(reg_centroids)
+    data['reg_coord'] = basic_functions.get_long_lat_decimal_degrees(read_data.get_region_centroids(name_region_set))
 
     data['scenario_data']['population'] = data_loader.read_scenario_data(name_population_dataset)
-
-    # Read GVA sector specific data
     data['scenario_data']['gva_industry'] = data_loader.read_scenario_data_gva(name_gva_dataset, all_dummy_data=False)
     data['scenario_data']['gva_per_head'] = data_loader.read_scenario_data(name_gva_dataset_per_head)
-
-    # -----------------------------------------------------------------------
-    # Create new folders
-    # -----------------------------------------------------------------------
-    basic_functions.del_previous_setup(data['result_paths']['data_results'])
-
-    folders_to_create = [
-        data['result_paths']['data_results_model_run_pop'],
-        data['result_paths']['data_results_validation']]
-    for folder in folders_to_create:
-        basic_functions.create_folder(folder)
 
     # -----------------------------
     # Assumptions
@@ -199,9 +179,9 @@ if __name__ == "__main__":
     data['assumptions'] = general_assumptions.Assumptions(
         lookup_enduses=lookup_enduses,
         lookup_sector_enduses=lookup_sector_enduses,
-        base_yr=base_yr,
-        weather_by=user_defined_weather_by,
-        simulation_end_yr=user_defined_simulation_end_yr,
+        base_yr=config['CONFIG']['base_yr'],
+        weather_by=config['CONFIG']['user_defined_weather_by'],
+        simulation_end_yr=config['CONFIG']['user_defined_simulation_end_yr'],
         curr_yr=2015,
         sim_yrs=sim_yrs,
         paths=data['paths'],
@@ -232,16 +212,16 @@ if __name__ == "__main__":
     strategy_vars = strategy_vars_def.generate_default_parameter_narratives(
         default_streategy_vars=default_streategy_vars,
         end_yr=2050,
-        base_yr=base_yr)
+        base_yr=config['CONFIG']['base_yr'])
 
     # -----------------------------------------
     # User defines stragey variable from csv files
     # -----------------------------------------
     user_defined_vars = data_loader.load_local_user_defined_vars(
         default_strategy_var=default_streategy_vars,
-        path_csv=data['local_paths']['path_strategy_vars'],
+        path_csv=path_strategy_vars,
         simulation_base_yr=data['assumptions'].base_yr,
-        simulation_end_yr=user_defined_simulation_end_yr)
+        simulation_end_yr=config['CONFIG']['user_defined_simulation_end_yr'])
 
     strategy_vars = data_loader.replace_variable(user_defined_vars, strategy_vars)
 
@@ -286,7 +266,7 @@ if __name__ == "__main__":
     if config['CRITERIA']['msoa_crit']:
         name_population_dataset = data['local_paths']['path_population_data_for_disaggregation_MSOA']
     else:
-        name_population_dataset = data['local_paths']['path_population_data_for_disaggregation_LAD']
+        name_population_dataset = data['local_paths']['path_population_data_for_disaggregation_lad']
     data['pop_for_disag'] =  data_loader.read_scenario_data(name_population_dataset)
 
     # ---------------------------------------------
@@ -308,7 +288,7 @@ if __name__ == "__main__":
     '''if config['CRITERIA']['cluster_calc'] != True:
         data_loader.create_weather_station_map(
             data['weather_stations'],
-            os.path.join(data['path_new_scenario'], 'weatherst_distr_weathyr.pdf'),
+            os.path.join(path_new_scenario, 'weatherst_distr_weathyr.pdf'),
             path_shapefile=data['local_paths']['lad_shapefile'])'''
 
     # ------------------------------------------------------------
@@ -359,13 +339,13 @@ if __name__ == "__main__":
     # Calculate switches (not generic)
     # ------------------------------------------------
     try:
-        service_switches_raw = pd.read_csv(os.path.join(data['local_paths']['path_strategy_vars'], "switches_service.csv"))
+        service_switches_raw = pd.read_csv(os.path.join(path_strategy_vars, "switches_service.csv"))
         service_switches = read_data.service_switch(service_switches_raw)
     except:
         service_switches = []
 
-    fuel_switches = read_data.read_fuel_switches(os.path.join(data['local_paths']['path_strategy_vars'], "switches_fuel.csv"), data['enduses'], data['assumptions'].fueltypes, data['assumptions'].technologies)
-    capacity_switches = read_data.read_capacity_switch(os.path.join(data['local_paths']['path_strategy_vars'], "switches_capacity.csv"))
+    fuel_switches = read_data.read_fuel_switches(os.path.join(path_strategy_vars, "switches_fuel.csv"), data['enduses'], data['assumptions'].fueltypes, data['assumptions'].technologies)
+    capacity_switches = read_data.read_capacity_switch(os.path.join(path_strategy_vars, "switches_capacity.csv"))
 
     # Load Generic fuel switches
     crit_switch_happening = testing_functions.switch_testing(
@@ -395,10 +375,12 @@ if __name__ == "__main__":
     # ------------------------------------------------
     # Spatial Validation
     # ------------------------------------------------
+    print("AA " + str(data['result_paths']['data_results_validation']))
+
     if config['CRITERIA']['validation_criteria'] == True and config['CRITERIA']['cluster_calc'] != True:
         lad_validation.spatial_validation_lad_level(
             data['fuel_disagg'],
-            data['result_paths'],
+            data['result_paths']['data_results_validation'],
             data['paths'],
             data['regions'],
             data['reg_coord'],
@@ -423,7 +405,7 @@ if __name__ == "__main__":
     # Create .ini file with simulation information
     # -------------------------------------------
     write_data.write_simulation_inifile(
-        data['result_paths']['data_results'],
+        path_new_scenario,
         data,
         region_selection)
 
@@ -431,20 +413,18 @@ if __name__ == "__main__":
     for sim_yr in data['assumptions'].sim_yrs:
         write_data.write_scenaric_population_data(
             sim_yr,
-            os.path.join(data['path_new_scenario'], 'model_run_pop'),
+            os.path.join(path_new_scenario, 'model_run_pop'),
             list(data['scenario_data']['population'][sim_yr].values()))
 
     # -----------------------
     # Main model run function
     # -----------------------
     for sim_yr in data['assumptions'].sim_yrs:
+
         print("Local simulation for year:  " + str(sim_yr))
-
-        # Set current year
-        setattr(data['assumptions'], 'curr_yr', sim_yr)
-
-        constant_weather = False
-        if constant_weather:
+        setattr(data['assumptions'], 'curr_yr', sim_yr) # Set current year
+        print("CURRYR: " + str(data['assumptions'].curr_yr))
+        if config['CRITERIA']['constant_weather']:
             weather_yr_scenario = config['CONFIG']['weather_yr_scenario']
         else:
             weather_yr_scenario = sim_yr
@@ -452,18 +432,13 @@ if __name__ == "__main__":
         # --------------------------------------
         # Update result_paths and create folders
         # --------------------------------------
-        path_folder_weather_yr = os.path.join(data['path_new_scenario'], str("simulation_results"))
+        path_folder_weather_yr = os.path.join(path_new_scenario, str("simulation_results"))
 
-        data['result_paths'] = data_loader.get_weather_result_paths(path_folder_weather_yr)
+        data['weather_yr_result_paths'] = basic_functions.get_weather_result_paths(
+            path_folder_weather_yr)
 
-        folders_to_create = [
-            path_folder_weather_yr,
-            data['result_paths']['data_results'],
-            data['result_paths']['data_results_PDF'],
-            data['result_paths']['data_results_validation'],
-            data['result_paths']['data_results_model_runs']]
-        for folder in folders_to_create:
-            basic_functions.create_folder(folder)
+        for folder, path_folder in data['weather_yr_result_paths'].items():
+            basic_functions.create_folder(path_folder)
 
         technologies = general_assumptions.update_technology_assumption(
             data['assumptions'].technologies,
@@ -491,7 +466,7 @@ if __name__ == "__main__":
             lad_validation.spatio_temporal_val(
                 sim_obj.ed_fueltype_national_yh,
                 sim_obj.ed_fueltype_regs_yh,
-                data['result_paths'],
+                data['weather_yr_result_paths'],
                 data['paths'],
                 region_selection,
                 data['assumptions'].seasons,
@@ -519,7 +494,7 @@ if __name__ == "__main__":
             if config['CRITERIA']['crit_plot_enduse_lp']:
 
                 # Maybe move to result folder in a later step
-                path_folder_lp = os.path.join(data['result_paths']['data_results'], 'individual_enduse_lp')
+                path_folder_lp = os.path.join(data['weather_yr_result_paths']['data_results'], 'individual_enduse_lp')
                 basic_functions.delete_folder(path_folder_lp)
                 basic_functions.create_folder(path_folder_lp)
                 winter_week, _, _, _ = date_prop.get_seasonal_weeks()
@@ -536,7 +511,7 @@ if __name__ == "__main__":
             # -------------------------------------------
             # Write annual results to txt files
             # -------------------------------------------
-            path_runs = data['result_paths']['data_results_model_runs']
+            path_runs = data['weather_yr_result_paths']['data_results_model_runs']
 
             print("... Start writing results to file: " + str(path_runs))
             plot_only_selection = True

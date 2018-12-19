@@ -122,7 +122,7 @@ def temporal_validation(
 
 def spatial_validation_lad_level(
         disaggregated_fuel,
-        result_paths,
+        data_results_validation,
         paths,
         regions,
         reg_coord,
@@ -141,20 +141,13 @@ def spatial_validation_lad_level(
     # -------------------------------------------
     # Spatial validation
     # -------------------------------------------
-    subnational_elec = data_loader.read_lad_demands(
-        paths['val_subnational_elec'])
-    subnational_elec_residential = data_loader.read_lad_demands(
-        paths['val_subnational_elec_residential'])
-    subnational_elec_non_residential = data_loader.read_lad_demands(
-        paths['val_subnational_elec_non_residential'])
-    subnational_gas = data_loader.read_lad_demands(
-        paths['val_subnational_gas'])
-    subnational_gas_residential = data_loader.read_lad_demands(
-        paths['val_subnational_gas_residential'])
-    subnational_gas_non_residential = data_loader.read_lad_demands(
-        paths['val_subnational_gas_non_residential'])
-    logging.info("compare total II {}  {}".format(
-        sum(subnational_gas.values()), sum(subnational_gas_residential.values())))
+    subnational_elec = data_loader.read_lad_demands(paths['val_subnational_elec'])
+    subnational_elec_residential = data_loader.read_lad_demands(paths['val_subnational_elec_residential'])
+    subnational_elec_non_residential = data_loader.read_lad_demands(paths['val_subnational_elec_non_residential'])
+    subnational_gas = data_loader.read_lad_demands(paths['val_subnational_gas'])
+    subnational_gas_residential = data_loader.read_lad_demands(paths['val_subnational_gas_residential'])
+    subnational_gas_non_residential = data_loader.read_lad_demands(paths['val_subnational_gas_non_residential'])
+    logging.info("compare total II {}  {}".format(sum(subnational_gas.values()), sum(subnational_gas_residential.values())))
 
     # Create fueltype secific dict
     for region in regions:
@@ -194,12 +187,13 @@ def spatial_validation_lad_level(
         (fuel_elec_residential_regs_yh, subnational_elec_residential),          # domestic
         (fuel_elec_non_residential_regs_yh, subnational_elec_non_residential)]  # nondomestics
 
+    print("AA " + str(os.path.join(data_results_validation, 'validation_multiple_elec.pdf')))
     spatial_validation_multiple(
         reg_coord=reg_coord,
         input_data=data_inputlist,
         regions=regions,
         fueltype_str='elec',
-        fig_name=os.path.join(result_paths['data_results_validation'], 'validation_multiple_elec.pdf'),
+        fig_name=os.path.join(data_results_validation, 'validation_multiple_elec.pdf'),
         label_points=False,
         plotshow=plot_crit)
 
@@ -212,7 +206,7 @@ def spatial_validation_lad_level(
         input_data=data_inputlist,
         regions=regions,
         fueltype_str='gas',
-        fig_name=os.path.join(result_paths['data_results_validation'], 'validation_multiple_gas.pdf'),
+        fig_name=os.path.join(data_results_validation, 'validation_multiple_gas.pdf'),
         label_points=False,
         plotshow=plot_crit)
 
@@ -222,7 +216,7 @@ def spatial_validation_lad_level(
         subnational_elec,
         regions,
         'elec',
-        os.path.join(result_paths['data_results_validation'], 'validation_spatial_elec.pdf'),
+        os.path.join(data_results_validation, 'validation_spatial_elec.pdf'),
         label_points=True,
         plotshow=plot_crit)
 
@@ -232,7 +226,7 @@ def spatial_validation_lad_level(
         subnational_elec_residential,
         regions,
         'elec',
-        os.path.join(result_paths['data_results_validation'], 'validation_spatial_residential_elec.pdf'),
+        os.path.join(data_results_validation, 'validation_spatial_residential_elec.pdf'),
         label_points=True,
         plotshow=plot_crit)
 
@@ -242,7 +236,7 @@ def spatial_validation_lad_level(
         subnational_elec_non_residential,
         regions,
         'elec',
-        os.path.join(result_paths['data_results_validation'], 'validation_spatial_non_residential_elec.pdf'),
+        os.path.join(data_results_validation, 'validation_spatial_non_residential_elec.pdf'),
         label_points=True,
         plotshow=plot_crit)
 
@@ -252,7 +246,7 @@ def spatial_validation_lad_level(
         subnational_gas,
         regions,
         'gas',
-        os.path.join(result_paths['data_results_validation'], 'validation_spatial_gas.pdf'),
+        os.path.join(data_results_validation, 'validation_spatial_gas.pdf'),
         label_points=True,
         plotshow=plot_crit)
 
@@ -262,7 +256,7 @@ def spatial_validation_lad_level(
         subnational_gas_residential,
         regions,
         'gas',
-        os.path.join(result_paths['data_results_validation'], 'validation_spatial_residential_gas.pdf'),
+        os.path.join(data_results_validation, 'validation_spatial_residential_gas.pdf'),
         label_points=True,
         plotshow=plot_crit)
 
@@ -272,7 +266,7 @@ def spatial_validation_lad_level(
         subnational_gas_non_residential,
         regions,
         'gas',
-        os.path.join(result_paths['data_results_validation'], 'validation_spatial_non_residential_gas.pdf'),
+        os.path.join(data_results_validation, 'validation_spatial_non_residential_gas.pdf'),
         label_points=True,
         plotshow=plot_crit)
 

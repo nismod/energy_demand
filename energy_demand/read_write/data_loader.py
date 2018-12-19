@@ -222,9 +222,9 @@ def load_local_user_defined_vars(
         if file_name not in files_to_ignores:
 
             var_name = file_name[:-4] #remove ".csv"
-
+            print("path_csv " + str(os.path.join(path_csv, file_name)))
             raw_file_content = pd.read_csv(os.path.join(path_csv, file_name))
-
+            
             strategy_vars_as_narratives[var_name] = narrative_related.read_user_defined_param(
                 raw_file_content,
                 simulation_base_yr=simulation_base_yr,
@@ -257,12 +257,12 @@ def load_ini_param(path):
     config.read(os.path.join(path, 'model_run_sim_param.ini'))
 
     regions = ast.literal_eval(config['REGIONS']['regions'])
-
+    
     assumptions = {}
     assumptions['reg_nrs'] = int(config['SIM_PARAM']['reg_nrs'])
     assumptions['base_yr'] = int(config['SIM_PARAM']['base_yr'])
     assumptions['sim_yrs'] = ast.literal_eval(config['SIM_PARAM']['sim_yrs'])
-
+    
     # -----------------
     # Other information
     # -----------------
@@ -454,7 +454,6 @@ def floor_area_virtual_dw(
 
     return dict(rs_floorarea), dict(ss_floorarea_sector_by), service_building_count, rs_regions_without_floorarea, list(ss_regions_without_floorarea)
 
-
 def read_config_file(config_file_path):
     """Reads all sections of a configuration file
 
@@ -474,7 +473,6 @@ def read_config_file(config_file_path):
 
     return convert_config_to_correct_type(config)
 
-
 def convert_config_to_correct_type(config):
     """Convert config types into correct types
     """
@@ -488,9 +486,6 @@ def convert_config_to_correct_type(config):
 
     for path in config['CONFIG_DATA']:
         out_dict['CONFIG_DATA'][path] = config.get('CONFIG_DATA', path)
-
-    for path in config['RESULT_DATA']:
-        out_dict['RESULT_DATA'][path] = config.get('RESULT_DATA', path)
 
     for config_section in config['CONFIG']:
         out_dict['CONFIG'][config_section] = config.getint('CONFIG', config_section)
@@ -570,6 +565,7 @@ def _read_config_file_section(section, config_file_path, items):
     config = configparser.ConfigParser()
     config.read(config_file_path)
     for item, item_type in items:
+
         try:
             if item_type == 'str':
                 data_paths[item] = config.get(section, item)
@@ -584,34 +580,8 @@ def _read_config_file_section(section, config_file_path, items):
         except configparser.NoSectionError:
             msg = "Section '{}' doesn't exist in '{}'"
             raise ValueError(msg.format(section, config_file_path))
+
     return data_paths
-
-
-def get_weather_result_paths(weather_path):
-    """Joins results subfolders to ``weather_path`` and returns a dict
-
-    Arguments
-    ---------
-    weather_path : str
-        Path to the weather results simulations
-
-    Returns
-    -------
-    dict
-    """
-    paths = {
-        'data_results':
-            weather_path,
-        'data_results_PDF': os.path.join(
-            weather_path, 'PDF_results'),
-        'data_results_validation': os.path.join(
-            weather_path, 'PDF_validation'),
-        'data_results_model_runs': os.path.join(
-            weather_path, 'model_run_results_txt'),
-        }
-
-    return paths
-
 
 def get_result_paths(config_file_path):
     """Load all result paths from the `RESULT_DATA` section of the config file
@@ -636,7 +606,6 @@ def get_result_paths(config_file_path):
         ('individual_enduse_lp', 'str')]
 
     return _read_config_file_section('RESULT_DATA', config_file_path, paths)
-
 
 def load_paths(config_file_path):
     """Load all paths from the `CONFIG_DATA` of the config file
