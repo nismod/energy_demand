@@ -267,7 +267,7 @@ def main(
                 field_to_plot=field_to_plot,
                 unit='percentage',
                 seperate_legend=False,
-                bins=[0.5, 1.0])
+                bins=[0.000001, 0.25, 0.5, 0.75, 1, 1.25, 1.5])
 
             field_to_plot = 'std_dev'
             fig_3_weather_map.total_annual_demand(

@@ -92,12 +92,10 @@ if __name__ == "__main__":
         raise Exception("The defined .ini file does not exist_ {}".format(sys.argv[1]))
     config = data_loader.read_config_file(path_config)
 
-
     data = {}
-
     sim_yrs = [2015, 2020, 2025, 2030, 2035, 2040, 2045, 2050]
     #sim_yrs = [2015, 2020, 2050] #, 2050]
-    sim_yrs = [2015, 2030, 2050]
+    sim_yrs = [2015, 2050]
 
     if len(sys.argv) > 3: #user defined arguments are provide
         scenario_name = str(sys.argv[2])
@@ -115,7 +113,7 @@ if __name__ == "__main__":
 
     #name_config_path = 'h_c'
     #name_config_path = 'l_c'
-    name_config_path = 'h_max'
+    #name_config_path = 'h_max'
     #name_config_path = 'h_min'
     #name_config_path = 'l_max'
     name_config_path = 'l_min'
