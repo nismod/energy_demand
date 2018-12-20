@@ -13,7 +13,6 @@ from energy_demand.plotting import plotting_styles
 from energy_demand.read_write import write_data
 
 colors = {
-
     # High elec
     'h_min': '#004529',
     'h_c': '#238443',
@@ -60,9 +59,7 @@ def scenario_over_time(
     for cnt_scenario, i in enumerate(scenario_result_container):
         scenario_name = i['scenario_name']
         national_peak = i['national_peak']
-
         # dataframe with national peak (columns= simulation year, row: Realisation) 
-
         # Calculate quantiles
         quantile_95 = 0.95
         quantile_05 = 0.05
@@ -121,7 +118,6 @@ def scenario_over_time(
         # Plot markers
         # ------------------------
         if plot_points:
-
             plt.scatter(
                 sim_yrs,
                 mean_national_peak_sim_yrs,
@@ -131,7 +127,6 @@ def scenario_over_time(
                 linewidth=0.5,
                 s=15,
                 clip_on=False) #do not clip points on axis
-
 
         # Plottin qunatilse and average scenario
         df_q_05.plot.line(color=color, linestyle='--', linewidth=0.1, label='_nolegend_') #, label="0.05")
@@ -153,7 +148,7 @@ def scenario_over_time(
     # --------
     ax = plt.gca()
     ax.grid(which='major', color='black', axis='y', linestyle='--')
-    
+
     ax.spines['right'].set_visible(False)
     ax.spines['left'].set_visible(False)
     ax.spines['top'].set_visible(False)
@@ -185,7 +180,7 @@ def scenario_over_time(
     if seperate_legend:
         basic_plot_functions.export_legend(
             legend,
-            os.path.join(result_path, "{}__legend.pdf".format(fig_name)))
+            os.path.join(result_path, "{}__{}__legend.pdf".format(fig_name)))
         legend.remove()
 
     # --------

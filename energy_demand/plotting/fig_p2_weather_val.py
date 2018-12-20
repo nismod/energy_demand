@@ -291,7 +291,7 @@ def user_defined_bin_classification(
     Include 0 in min_max_plot == False
     Python colors:
     https://matplotlib.org/1.4.1/examples/color/colormaps_reference.html
-    https://ocefpaf.github.io/python4oceanographers/blog/2015/08/24/choropleth/ 
+    https://ocefpaf.github.io/python4oceanographers/blog/2015/08/24/choropleth/
 
     https://matplotlib.org/examples/color/colormaps_reference.html
 
@@ -333,7 +333,12 @@ def user_defined_bin_classification(
                 cmap, cmap_rgb_colors = norm_cmap(bin_values[1:], cmap=cmap_sequential)
 
         # e.g. [0, 3, 6] --> generates (0, 3], and (3, 6] bin
-        input_df['bin_color'] = pd.cut(input_df[field_name], bin_values, right=True, labels=cmap_rgb_colors)
+        input_df['bin_color'] = pd.cut(
+            input_df[field_name],
+            bin_values,
+            include_lowest=True,
+            right=True,
+            labels=cmap_rgb_colors)
 
         color_zero = 'grey' # default
     else:
@@ -380,9 +385,19 @@ def user_defined_bin_classification(
         plus_dataframe = input_df[field_name][input_df[field_name] > 0].to_frame()
 
         # e.g. [0, 3, 6] --> generates (0, 3], and (3, 6] bin
-        minus_dataframe['bin_color'] = pd.cut(minus_dataframe[field_name], minus_bins, right=False, labels=minus_bin_colors)
+        minus_dataframe['bin_color'] = pd.cut(
+            minus_dataframe[field_name],
+            minus_bins,
+            include_lowest=True,
+            right=True,
+            labels=minus_bin_colors)
         zero_dataframe['bin_color'] = [color_zero for _ in range(len(zero_dataframe))] #create list with zero color
-        plus_dataframe['bin_color'] = pd.cut(plus_dataframe[field_name], positive_bins, right=True, labels=positive_bin_colors)
+        plus_dataframe['bin_color'] = pd.cut(
+            plus_dataframe[field_name],
+            positive_bins,
+            include_lowest=True,
+            right=True,
+            labels=positive_bin_colors)
         
         # Add bins
         input_df = minus_dataframe.append(zero_dataframe)

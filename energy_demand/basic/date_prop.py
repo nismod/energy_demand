@@ -39,9 +39,7 @@ def convert_h_to_day_year_and_h(hour):
         Python hour of day (0 == 1 hour)
     """
     day = basic_functions.round_down(int(hour / 24), 1)
-
     total_hours = day * 24
-
     day_h = hour - total_hours
 
     return day, day_h

@@ -222,7 +222,7 @@ def load_local_user_defined_vars(
         if file_name not in files_to_ignores:
 
             var_name = file_name[:-4] #remove ".csv"
-            print("path_csv " + str(os.path.join(path_csv, file_name)))
+
             raw_file_content = pd.read_csv(os.path.join(path_csv, file_name))
             
             strategy_vars_as_narratives[var_name] = narrative_related.read_user_defined_param(

@@ -13,6 +13,7 @@ from energy_demand.basic import basic_functions
 from energy_demand.technologies import tech_related
 from energy_demand.read_write import write_data
 from energy_demand.basic import conversions
+from energy_demand.plotting import basic_plot_functions
 
 def total_annual_demand(
         df_data_input,
@@ -23,7 +24,9 @@ def total_annual_demand(
         result_path,
         fig_name,
         field_to_plot,
-        unit='GW'
+        unit='GW',
+        seperate_legend=True,
+        bins=False
     ):
     """
     """
@@ -62,13 +65,13 @@ def total_annual_demand(
 
     print("---- Calculate average per person")
     tot_person = sum(pop_sim_yr)
-    print(df_data_input.iloc[0])
+    #print(df_data_input.iloc[0])
     tot_demand = sum(df_data_input.iloc[0])
     print("TOT PERSON: " + str(tot_person))
     print("TOT PERSON: " + str(tot_demand))
     print('AVERAGE KW per Person " '+ str(tot_demand / tot_person))
 
-    print(df_data_input)
+    #print(df_data_input)
     regional_statistics_columns = [
         'name',
         'mean',
@@ -120,12 +123,13 @@ def total_annual_demand(
     #bin_values = [0, 0.0025, 0.005, 0.0075, 0.01]
     nr_of_intervals = 6
 
-    bin_values = result_mapping.get_reasonable_bin_values_II(
-        data_to_plot=list(uk_gdf[field_to_plot]),
-        nr_of_intervals=nr_of_intervals)
-
-    #print(list(uk_gdf[field_to_plot]))
-    print("field_to_plot: {} BINS: {}".format(field_to_plot, bin_values))
+    if bins:
+        bin_values = bins
+    else:
+        bin_values = result_mapping.get_reasonable_bin_values_II(
+            data_to_plot=list(uk_gdf[field_to_plot]),
+            nr_of_intervals=nr_of_intervals)
+    #print("field_to_plot: {} BINS: {}".format(field_to_plot, bin_values))
 
     uk_gdf, cmap_rgb_colors, color_zero, min_value, max_value = fig_p2_weather_val.user_defined_bin_classification(
         uk_gdf,
@@ -151,6 +155,12 @@ def total_annual_demand(
         bbox_to_anchor=(0.5, -0.05),
         frameon=False)
 
+    if seperate_legend:
+        basic_plot_functions.export_legend(
+            legend,
+            os.path.join(result_path, "{}__legend.pdf".format(fig_name)))
+        legend.remove()
+
     # Remove coordinates from figure
     ax.set_yticklabels([])
     ax.set_xticklabels([])
@@ -167,10 +177,8 @@ def total_annual_demand(
     # --------
     # Labeling
     # --------
-    plt.title("Peak demand over time")
-
+    #plt.title("Peak demand over time")
     plt.tight_layout()
     #plt.show()
-
     plt.savefig(os.path.join(result_path, fig_name))
     plt.close()

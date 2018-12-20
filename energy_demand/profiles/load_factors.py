@@ -11,7 +11,7 @@ def peak_shaving_max_min(
     ):
     """Shift demand with help of load factor. All demand above
     the maximum load is shifted proportionally to all hours
-    having below average demand (see Section XY).
+    having below average demand.
 
     Arguments
     ----------
@@ -102,6 +102,7 @@ def peak_shaving_max_min(
     # Set all fuel hours whih are above max to max (substract diff)
     shifted_fuel_yh = shifted_fuel_yh - diff_to_max_demand_d
 
+    #assert np.sum(shifted_fuel_yh) == np.sum(fuel_yh)
     return shifted_fuel_yh
 
 def calc_lf_y(fuel_yh):
@@ -142,7 +143,7 @@ def calc_lf_y(fuel_yh):
 
     load_factor_y[np.isnan(load_factor_y)] = 0
 
-    return load_factor_y * 100
+    return load_factor_y
 
 def calc_lf_y_8760(fuel_yh_8760):
     """Calculate the yearly load factor for every fueltype
@@ -179,7 +180,7 @@ def calc_lf_y_8760(fuel_yh_8760):
         load_factor_y = 0
     #load_factor_y[np.isnan(load_factor_y)] = 0
 
-    return load_factor_y * 100
+    return load_factor_y #* 100
 
 def calc_lf_season(seasons, fuel_region_yh, average_fuel_yd):
     """Calculate load factors per fueltype per region.
@@ -223,7 +224,7 @@ def calc_lf_season(seasons, fuel_region_yh, average_fuel_yd):
         with np.errstate(divide='ignore', invalid='ignore'):
 
             #convert to percentage
-            season_lf = (average_fuel_yd_full_year / max_load_h_season) * 100
+            season_lf = (average_fuel_yd_full_year / max_load_h_season) #* 100
 
         # Replace
         season_lf[np.isinf(season_lf)] = 0
@@ -264,7 +265,7 @@ def calc_lf_d(fuel_yh, average_fuel_yd, mode_constrained):
     with np.errstate(divide='ignore', invalid='ignore'):
 
         #convert to percentage
-        daily_lf = (average_fuel_yd / max_load_yd) * 100
+        daily_lf = (average_fuel_yd / max_load_yd) #* 100
 
     # Replace by zero
     daily_lf[np.isinf(daily_lf)] = 0
@@ -303,7 +304,7 @@ def calc_lf_d_8760(fuel_yh):
     with np.errstate(divide='ignore', invalid='ignore'):
 
         #convert to percentage
-        daily_lf = (average_fuel_yd / max_load_yd) * 100
+        daily_lf = (average_fuel_yd / max_load_yd) #* 100
 
     # Replace by zero
     daily_lf[np.isinf(daily_lf)] = 0
@@ -348,7 +349,7 @@ def calc_lf_season_8760(seasons, fuel_region_yh):
 
         # Unable local RuntimeWarning: divide by zero encountered
         with np.errstate(divide='ignore', invalid='ignore'):
-            season_lf = (average_fuel_yd / max_load_h_season) * 100 #convert to percentage
+            season_lf = (average_fuel_yd / max_load_h_season) #* 100 #convert to percentage
 
         # Replace
         season_lf[np.isinf(season_lf)] = 0

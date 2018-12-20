@@ -10,7 +10,6 @@ import os
 import sys
 import time
 import logging
-import configparser
 from collections import defaultdict
 import pandas as pd
 
@@ -98,7 +97,7 @@ if __name__ == "__main__":
 
     sim_yrs = [2015, 2020, 2025, 2030, 2035, 2040, 2045, 2050]
     #sim_yrs = [2015, 2020, 2050] #, 2050]
-    sim_yrs = [2015, 2020]
+    sim_yrs = [2015, 2030, 2050]
 
     if len(sys.argv) > 3: #user defined arguments are provide
         scenario_name = str(sys.argv[2])
@@ -114,16 +113,18 @@ if __name__ == "__main__":
     print("Configuration path:         " + str(path_config))
     print("Simulated yrs               " + str(sim_yrs))
 
-    # Local path configurations
-    path_weather_data = "C:/Users/cenv0553/ED/data/scenarios"
-    #path_weather_data = "/soge-home/staff/cenv0553/_weather_realisation"
-
     #name_config_path = 'h_c'
     #name_config_path = 'l_c'
     name_config_path = 'h_max'
     #name_config_path = 'h_min'
     #name_config_path = 'l_max'
     name_config_path = 'l_min'
+
+    # Local path configurations
+    if config['CRITERIA']['cluster_calc']:
+        path_weather_data = "/soge-home/staff/cenv0553/_weather_realisation"
+    else:
+        path_weather_data = "C:/Users/cenv0553/ED/data/scenarios"
 
     if name_config_path == 'h_max' or name_config_path == 'l_max':
         local_scenario = 'pop-b_econ-c_fuel-c' #high

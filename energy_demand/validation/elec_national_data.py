@@ -164,11 +164,11 @@ def compare_results(
     # ----------
     # Plot residuals
     # ----------
-    try:
-        plot_residual_histogram(
-            y_diff_p, path_result, "residuals_{}".format(name_fig))
-    except:
-        pass
+    #try:
+    #    plot_residual_histogram(
+    #        y_diff_p, path_result, "residuals_{}".format(name_fig))
+    #except:
+    #    pass
 
     # ----------
     # Plot figure
