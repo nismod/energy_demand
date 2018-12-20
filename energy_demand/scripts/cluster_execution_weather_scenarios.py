@@ -6,6 +6,7 @@ def my_function(simulation_number):
     print('simulation_number ' + str(simulation_number))
 
     run_name = '_low'
+
     all_weather_stations = False
 
     same_weather_yr = True

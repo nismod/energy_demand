@@ -421,47 +421,11 @@ def load_shifting(
             param_lf_improved_cy,
             loadfactor_yd_cy)
 
-        _PEAK_h_before = get_peak_day(fuel_yh)
-        print("dddddddddd" + str(param_lf_improved_cy))
-        print(fuel_yh.shape)
-        print("----")  
-        
-        _peak_day_before, _ = date_prop.convert_h_to_day_year_and_h(_PEAK_h_before)
-        _before_max = np.max(fuel_yh[_peak_day_before])
-        _day_before = fuel_yh[_peak_day_before]
-
         fuel_yh = lf.peak_shaving_max_min(
             lf_improved_cy,
             average_fuel_yd,
             fuel_yh,
             mode_constrained)
-
-        _PEAK_h_after = get_peak_day(fuel_yh)
-        _peak_day_after, _ = date_prop.convert_h_to_day_year_and_h(_PEAK_h_after)
-        _after_max = np.max(fuel_yh[_peak_day_after])
-        
-        print("A " + str(_before_max))
-        print("A " + str(_after_max))
-
-        print("-------")
-        print(_day_before)
-        print(fuel_yh[_peak_day_before])
-        print("----")
-        print(lf_improved_cy[_peak_day_before])
-        #print(param_lf_improved_cy[_peak_day_before])
-
-        print("ZZZ")
-        print(np.max(fuel_yh[_peak_day_before]))
-        print("----")
-        print((100 / _PEAK_h_before) * np.max(fuel_yh[_peak_day_before]))
-        print((100/_before_max) * _after_max)
-
-        import matplotlib.pyplot as plt
-        plt.plot(_day_before, label="before")
-        plt.plot(fuel_yh[_peak_day_before], label="after")
-        plt.legend()
-        plt.show()
-        print("----")
 
     # -------------------------------------------------
     # Convert all load profiles into flat load profiles
