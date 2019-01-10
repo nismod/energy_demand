@@ -7,11 +7,6 @@ def my_function(simulation_number):
 
     run_name = '_low'
 
-    all_weather_stations = False
-
-    same_weather_yr = True
-    defined_weather_yr = 2015
-
     run_smif = False 
 
     # --------------------------

@@ -36,7 +36,7 @@ def test_peak_shaving_max_min():
         fuel_yh,
         mode_constrained=False)
 
-    '''import matplotlib.pyplot as plt
+    import matplotlib.pyplot as plt
     print(fuel_yh.shape)
     print(fuel_yh[0][0])
     print("--")
@@ -45,7 +45,7 @@ def test_peak_shaving_max_min():
     plt.plot(result[0][0], label="after")
     plt.legend()
     plt.show()
-    print("----")'''
+    print("----")
 
     # ---------
     # expected
@@ -63,6 +63,8 @@ def test_peak_shaving_max_min():
             fuel_yh_expected[fueltype][0][hour] = 0.5 + (area_to_shift / 12)
 
     np.testing.assert_equal(result, fuel_yh_expected)
+
+test_peak_shaving_max_min()
 
 def test_calc_lf_d():
     """Test

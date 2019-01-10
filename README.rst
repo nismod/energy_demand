@@ -24,11 +24,12 @@ More information on the model can be found in:
 
     Eggimann, S., Hall, W.J., Eyre, N. (2019): A high-resolution spatio-temporal
     energy demand simulation of large-scale heat pump diffusion to explore the
-    potential of heating demand side management. Applied Energy ,236, 997–1010.
+    potential of heating demand side management. Applied Energy, 236, 997–1010.
     `https://doi.org/10.1016/j.apenergy.2018.12.052 <https://doi.org/10.1016/j.apenergy.2018.12.052>`_.
 
+
 1. Download input data
----
+-------------------------------------
 Most data for running HIRE are freely available online. However,
 for certain input data it is necessary to request access (for more information
 on all necessary input datasets see `here <https://ed.readthedocs.io/en/latest/documentation.html#data-sets>`_)
@@ -40,7 +41,7 @@ For data inquires, plese contact sven.eggimann@ouce.ox.ac.uk or `the consortium 
 Also check whether data area available `here <https://www.nismod.ac.uk>`_).
 
 2. Initialising and running the model (local)
----
+-------------------------------------
 The recommended installation method is to use `conda <http://conda.pydata.org/miniconda.html>`_,
 which handles packages and virtual environments. First, create a conda environment
 

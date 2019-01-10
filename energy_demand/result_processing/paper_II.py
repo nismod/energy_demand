@@ -26,7 +26,6 @@ def paper_II_plots(
     # Chose which plots should be generated
     plot_crit_dict = {
 
-
         # Scenario plots
         'scenario_plots': False, #True,
 

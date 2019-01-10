@@ -398,7 +398,6 @@ def load_shifting(
     fuel_yh : array
         Fuel of yh
     """
-
     # Get assumed load shift
     if dm_improvement[enduse][curr_yr] == 0:
         pass # no load management
@@ -421,11 +420,31 @@ def load_shifting(
             param_lf_improved_cy,
             loadfactor_yd_cy)
 
+        #import copy
+        #_a = copy.copy(fuel_yh)
+
         fuel_yh = lf.peak_shaving_max_min(
             lf_improved_cy,
             average_fuel_yd,
             fuel_yh,
             mode_constrained)
+
+
+        '''import matplotlib.pyplot as plt
+        print(fuel_yh.shape)
+        
+        plt.plot(fuel_yh[10], label="after")
+        plt.plot(_a[10], label="before")
+        plt.legend()
+        plt.show()
+        print("----")
+        
+        # Get maximum hour for electricity demand
+        _sum_dayily = np.sum(fuel_yh, axis=0)
+        _peak_day = np.argmax(_sum_dayily)
+        __max_after = fuel_yh.argmax(fuel_yh[_peak_day])
+        __max_before = fuel_yh.argmax(_a[_peak_day])
+        print("befire; {} after: {}".format(__max_before, __max_after))'''
 
     # -------------------------------------------------
     # Convert all load profiles into flat load profiles
@@ -466,10 +485,11 @@ def calc_lf_improvement(
         True: Peak is shifted, False: Peak isn't shifed
     """
     # Add load factor improvement to current year load factor
-    lf_improved_cy = loadfactor_yd_cy + param_lf_improved_cy * 100
+    lf_improved_cy = loadfactor_yd_cy + param_lf_improved_cy #* 100
 
     # Where load factor larger than zero, set to 1
-    lf_improved_cy[lf_improved_cy > 100] = 100
+    #lf_improved_cy[lf_improved_cy > 1] = 100
+    lf_improved_cy[lf_improved_cy > 1] = 1
 
     return lf_improved_cy
 
