@@ -51,14 +51,14 @@ def scenario_over_time(
     """
     statistics_to_print = []
 
-    fig = plt.figure(
-        figsize=basic_plot_functions.cm2inch(10, 10)) #width, height
+    fig = plt.figure(figsize=basic_plot_functions.cm2inch(10, 10)) #width, height
 
     ax = fig.add_subplot(1, 1, 1)
 
     for cnt_scenario, i in enumerate(scenario_result_container):
         scenario_name = i['scenario_name']
         national_peak = i['national_peak']
+
         # dataframe with national peak (columns= simulation year, row: Realisation) 
         # Calculate quantiles
         quantile_95 = 0.95

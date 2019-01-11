@@ -39,7 +39,6 @@ def read_in_weather_results(
         path_result, 'only_total')
 
     #print(results_container['ed_reg_tot_y'][2015].shape)
-
     results_container['ed_reg_peakday'] = read_data.read_results_yh(
         os.path.join('simulation_results', path_result), 'only_peak')
 

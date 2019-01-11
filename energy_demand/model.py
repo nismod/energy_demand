@@ -175,19 +175,6 @@ def aggregate_across_all_regs(
     # -----------------------------
     # Aggregate residential demand [fueltype, region]
     # -----------------------------
-    '''array_init = np.zeros((fueltypes_nr, reg_nrs)) #Annual
-    for submodel in aggr_results['ed_submodel_enduse_fueltype_regs_yh']:
-
-        if submodel == 0:
-            for enduse in aggr_results['ed_submodel_enduse_fueltype_regs_yh'][submodel]:
-
-                enduse_array_nr = lookup_enduses[enduse]
-                
-                # Sum across all hours in a year
-                array_init += np.sum(aggr_results['ed_submodel_enduse_fueltype_regs_yh'][submodel][enduse], axis=2)
-        else:
-            pass
-    '''
     fueltypes = lookup_tables.basic_lookups()['fueltypes']
     submodel_nr = 0
     array_init = np.zeros((fueltypes_nr, reg_nrs))

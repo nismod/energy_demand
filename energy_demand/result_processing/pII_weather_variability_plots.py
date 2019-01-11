@@ -34,6 +34,7 @@ def main(
         Year to generate comparison plots
     """
     print("Start creating plots")
+
     # -------------------
     # Create result folder
     # -------------------
@@ -205,8 +206,7 @@ def main(
             seperate_legend=False)
 
         # ------------------------------
-        # Plot national peak change over time for each scenario
-        # including weather variability
+        # Plot national peak change over time for each scenario including weather variability
         # ------------------------------
         fig_3_plot_over_time.scenario_over_time(
             scenario_result_container=scenario_result_container,
@@ -290,6 +290,7 @@ def main(
 path_shapefile_input="C:/Users/cenv0553/ED/data/energy_demand/region_definitions/lad_2016_uk_simplified.shp"
 
 main(
+    #scenarios_path="C:/_FFF_local", #_local",
     scenarios_path="C:/_FFF",
     path_shapefile_input=path_shapefile_input,
     base_yr=2015,

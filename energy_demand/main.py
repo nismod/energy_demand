@@ -97,13 +97,13 @@ if __name__ == "__main__":
     data = {}
     sim_yrs = [2015, 2020, 2025, 2030, 2035, 2040, 2045, 2050]
     #sim_yrs = [2015, 2020, 2050] #, 2050]
-    sim_yrs = [2015, 2050]
+    sim_yrs = [2015, 2030, 2050]
 
     if len(sys.argv) > 3: #user defined arguments are provide
         scenario_name = str(sys.argv[2])
         weather_realisation = str(sys.argv[3]) # Weather realisation 
     else:
-        scenario_name = "_dm_0_"
+        scenario_name = "_dm_0P_"
         weather_realisation = 'NF1'
 
     print("-------------------------------------")

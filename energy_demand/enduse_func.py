@@ -4,6 +4,7 @@ depending on scenaric assumptions"""
 import logging
 import math
 import numpy as np
+import matplotlib.pyplot as plt
 
 from energy_demand.basic import date_prop
 from energy_demand.profiles import load_factors as lf
@@ -235,6 +236,20 @@ class Enduse(object):
                         mode_constrained=False,
                         make_all_flat=make_all_flat)
                     #print("FUEL TRAIN Y" + str(np.sum(fuel_yh)))
+
+                    '''print("-----otside-------------")
+                    if curr_yr > 2015 and enduse == 'rs_space_heating':
+                        plt.plot(self.fuel_yh.reshape(8760), label="after")
+                        plt.plot(fuel_yh.reshape(8760), label="before")
+                        plt.legend()
+                        plt.show()
+                        print("----")'''
+                    
+                    #if curr_yr > 2015:
+                    #    _a = np.max(fuel_yh)
+                    #    _b = np.max(self.fuel_yh)
+                    #    print("AFTER SHIFTING : {} {}".format(_a, _b))
+
             else:
                 #If technologies are defined for an enduse
 
@@ -400,18 +415,9 @@ def load_shifting(
     """
     # Get assumed load shift
     if dm_improvement[enduse][curr_yr] == 0:
-        
-        if curr_yr >= 2015:
-            print(fuel_yh.shape)
-            _sum_dayily = np.sum(fuel_yh, axis=0)
-            _peak_day = np.argmax(_sum_dayily)
-            print("aa " + str(_peak_day))
-            print(fuel_yh[int(_peak_day)])
-            __max_after = fuel_yh.argmax(fuel_yh[int(_peak_day)])
-            print("peak zero {}".format(__max_after))
-
         pass # no load management
     else:
+        
         # Calculate average for every day
         if mode_constrained:
             average_fuel_yd = np.average(fuel_yh, axis=1)
@@ -424,14 +430,16 @@ def load_shifting(
 
         # Load factor improvement parameter in current year
         param_lf_improved_cy = dm_improvement[enduse][curr_yr]
+        #param_lf_improved_cy = 0.1
+        print("Loading shifting .. {}  {}  {}".format(enduse, curr_yr, param_lf_improved_cy))
 
         # Calculate current year load factors
         lf_improved_cy = calc_lf_improvement(
             param_lf_improved_cy,
             loadfactor_yd_cy)
 
-        import copy
-        _a = copy.copy(fuel_yh)
+        #import copy
+        #_a = copy.copy(fuel_yh)
 
         fuel_yh = lf.peak_shaving_max_min(
             lf_improved_cy,
@@ -439,24 +447,37 @@ def load_shifting(
             fuel_yh,
             mode_constrained)
 
+    '''
+        if enduse == "rs_space_heating":
+            print("ENDUSE " + str(enduse))
+            print(curr_yr)
+            print(fuel_yh.shape)
+            _sum_dayily = np.sum(fuel_yh, axis=1)
+            print(_sum_dayily.shape)
+            _peak_day = np.argmax(_sum_dayily)
+            print(_peak_day)
+            print(lf_improved_cy[_peak_day])
+            #plt.plot(fuel_yh[_peak_day], label="after")
+            #plt.plot(_a[_peak_day], label="before")
+            plt.plot(fuel_yh.reshape(8760), label="after")
+            plt.plot(_a.reshape(8760), label="before")
+            plt.legend()
+            plt.show()
+            print("----")
 
-        #'''
-        import matplotlib.pyplot as plt
-        print(fuel_yh.shape)
-        
-        plt.plot(fuel_yh[10], label="after")
-        plt.plot(_a[10], label="before")
-        plt.legend()
-        plt.show()
-        print("----")
-        
-        # Get maximum hour for electricity demand
-        _sum_dayily = np.sum(fuel_yh, axis=0)
-        _peak_day = np.argmax(_sum_dayily)
-        __max_after = fuel_yh.argmax(fuel_yh[_peak_day])
-        __max_before = fuel_yh.argmax(_a[_peak_day])
-        print("befire; {} after: {}".format(__max_before, __max_after))
-        #'''
+
+            print(param_lf_improved_cy)
+            print(loadfactor_yd_cy[_peak_day])
+            print(lf_improved_cy[_peak_day])
+            
+            # Get maximum hour for electricity demand
+            __max_after = np.max(fuel_yh[_peak_day])
+            __max_before = np.max(_a[_peak_day])
+            print("before; {} after: {}".format(__max_before, __max_after))
+            _new_lf = lf.calc_lf_y_8760(fuel_yh[_peak_day])
+            _old_lf = lf.calc_lf_y_8760(_a[_peak_day])
+            print("before; {} after: {}".format(_old_lf, _new_lf))
+    '''
 
     # -------------------------------------------------
     # Convert all load profiles into flat load profiles
@@ -497,10 +518,9 @@ def calc_lf_improvement(
         True: Peak is shifted, False: Peak isn't shifed
     """
     # Add load factor improvement to current year load factor
-    lf_improved_cy = loadfactor_yd_cy + param_lf_improved_cy #* 100
+    lf_improved_cy = loadfactor_yd_cy + param_lf_improved_cy
 
     # Where load factor larger than zero, set to 1
-    #lf_improved_cy[lf_improved_cy > 1] = 100
     lf_improved_cy[lf_improved_cy > 1] = 1
 
     return lf_improved_cy

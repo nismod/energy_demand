@@ -118,7 +118,7 @@ def calc_lf_y(fuel_yh):
     Returns
     -------
     load_factor_y : array
-        Yearly load factors as percentage (100% = 100)
+        Yearly load factors as percentage (100% = 1)
 
     Note
     -----
@@ -158,7 +158,7 @@ def calc_lf_y_8760(fuel_yh_8760):
     Returns
     -------
     load_factor_y : array
-        Yearly load factors as percentage (100% = 100)
+        Yearly load factors as percentage (100% = 1)
 
     Note
     -----
@@ -167,7 +167,7 @@ def calc_lf_y_8760(fuel_yh_8760):
     https://circuitglobe.com/load-factor.html
     """
     # Get total sum per fueltype
-    tot_load_y = np.sum(fuel_yh_8760) #, axis=2)
+    tot_load_y = np.sum(fuel_yh_8760)
 
     # Calculate maximum hour in every day of a year
     max_load_h = np.max(fuel_yh_8760)
@@ -178,9 +178,8 @@ def calc_lf_y_8760(fuel_yh_8760):
 
     if np.isnan(load_factor_y):
         load_factor_y = 0
-    #load_factor_y[np.isnan(load_factor_y)] = 0
 
-    return load_factor_y #* 100
+    return load_factor_y
 
 def calc_lf_season(seasons, fuel_region_yh, average_fuel_yd):
     """Calculate load factors per fueltype per region.
@@ -223,8 +222,8 @@ def calc_lf_season(seasons, fuel_region_yh, average_fuel_yd):
         # Unable local RuntimeWarning: divide by zero encountered
         with np.errstate(divide='ignore', invalid='ignore'):
 
-            #convert to percentage
-            season_lf = (average_fuel_yd_full_year / max_load_h_season) #* 100
+            #convert to decimal
+            season_lf = (average_fuel_yd_full_year / max_load_h_season)
 
         # Replace
         season_lf[np.isinf(season_lf)] = 0
@@ -264,8 +263,8 @@ def calc_lf_d(fuel_yh, average_fuel_yd, mode_constrained):
     # Unable local RuntimeWarning: divide by zero encountered
     with np.errstate(divide='ignore', invalid='ignore'):
 
-        #convert to percentage
-        daily_lf = (average_fuel_yd / max_load_yd) #* 100
+        #convert to decimal
+        daily_lf = (average_fuel_yd / max_load_yd)
 
     # Replace by zero
     daily_lf[np.isinf(daily_lf)] = 0
@@ -296,15 +295,15 @@ def calc_lf_d_8760(fuel_yh):
     """
     # Get maximum hours in every day
     fuel_yh = fuel_yh.reshape(365, 24)
-    
+
     max_load_yd = np.max(fuel_yh, axis=1)
     average_fuel_yd = np.average(fuel_yh, axis=1)
 
     # Unable local RuntimeWarning: divide by zero encountered
     with np.errstate(divide='ignore', invalid='ignore'):
 
-        #convert to percentage
-        daily_lf = (average_fuel_yd / max_load_yd) #* 100
+        #convert to decimal
+        daily_lf = (average_fuel_yd / max_load_yd)
 
     # Replace by zero
     daily_lf[np.isinf(daily_lf)] = 0
@@ -349,7 +348,7 @@ def calc_lf_season_8760(seasons, fuel_region_yh):
 
         # Unable local RuntimeWarning: divide by zero encountered
         with np.errstate(divide='ignore', invalid='ignore'):
-            season_lf = (average_fuel_yd / max_load_h_season) #* 100 #convert to percentage
+            season_lf = (average_fuel_yd / max_load_h_season)
 
         # Replace
         season_lf[np.isinf(season_lf)] = 0
