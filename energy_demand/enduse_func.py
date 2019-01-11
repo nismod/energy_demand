@@ -431,7 +431,7 @@ def load_shifting(
         # Load factor improvement parameter in current year
         param_lf_improved_cy = dm_improvement[enduse][curr_yr]
         #param_lf_improved_cy = 0.1
-        print("Loading shifting .. {}  {}  {}".format(enduse, curr_yr, param_lf_improved_cy))
+        #print("Loading shifting .. {}  {}  {}".format(enduse, curr_yr, param_lf_improved_cy))
 
         # Calculate current year load factors
         lf_improved_cy = calc_lf_improvement(

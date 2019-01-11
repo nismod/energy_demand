@@ -103,7 +103,7 @@ if __name__ == "__main__":
         scenario_name = str(sys.argv[2])
         weather_realisation = str(sys.argv[3]) # Weather realisation 
     else:
-        scenario_name = "_dm_0P_"
+        scenario_name = "_dm_10P_"
         weather_realisation = 'NF1'
 
     print("-------------------------------------")
@@ -119,7 +119,7 @@ if __name__ == "__main__":
     #name_config_path = 'h_min'
     name_config_path = 'h_min_zero'
     #name_config_path = 'h_min_5dm'
-    #name_config_path = 'h_min_10dm'
+    name_config_path = 'h_min_10dm'
     #name_config_path = 'l_max'
     #name_config_path = 'l_min'
 
