@@ -400,6 +400,16 @@ def load_shifting(
     """
     # Get assumed load shift
     if dm_improvement[enduse][curr_yr] == 0:
+        
+        if curr_yr >= 2015:
+            print(fuel_yh.shape)
+            _sum_dayily = np.sum(fuel_yh, axis=0)
+            _peak_day = np.argmax(_sum_dayily)
+            print("aa " + str(_peak_day))
+            print(fuel_yh[int(_peak_day)])
+            __max_after = fuel_yh.argmax(fuel_yh[int(_peak_day)])
+            print("peak zero {}".format(__max_after))
+
         pass # no load management
     else:
         # Calculate average for every day
@@ -420,8 +430,8 @@ def load_shifting(
             param_lf_improved_cy,
             loadfactor_yd_cy)
 
-        #import copy
-        #_a = copy.copy(fuel_yh)
+        import copy
+        _a = copy.copy(fuel_yh)
 
         fuel_yh = lf.peak_shaving_max_min(
             lf_improved_cy,
@@ -430,7 +440,8 @@ def load_shifting(
             mode_constrained)
 
 
-        '''import matplotlib.pyplot as plt
+        #'''
+        import matplotlib.pyplot as plt
         print(fuel_yh.shape)
         
         plt.plot(fuel_yh[10], label="after")
@@ -444,7 +455,8 @@ def load_shifting(
         _peak_day = np.argmax(_sum_dayily)
         __max_after = fuel_yh.argmax(fuel_yh[_peak_day])
         __max_before = fuel_yh.argmax(_a[_peak_day])
-        print("befire; {} after: {}".format(__max_before, __max_after))'''
+        print("befire; {} after: {}".format(__max_before, __max_after))
+        #'''
 
     # -------------------------------------------------
     # Convert all load profiles into flat load profiles

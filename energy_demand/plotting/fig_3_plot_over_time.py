@@ -14,9 +14,9 @@ from energy_demand.read_write import write_data
 
 colors = {
     # High elec
-    'h_min': '#004529',
-    'h_c': '#238443',
-    'h_max': '#78c679',
+    #'h_min': '#004529',
+    #'h_c': '#238443',
+    #'h_max': '#78c679',
 
     # Low elec
     'l_min': '#800026',

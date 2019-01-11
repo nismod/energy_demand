@@ -4,7 +4,9 @@ write_national_results_amman
 move data config folder into data
 Note
 ----
-Always execute from root folder. (e.g. energy_demand/energy_demand/main.py
+Always execute from root folder. e.g.: 
+
+    energy_demand/energy_demand/main.py 
 """
 import os
 import sys
@@ -115,8 +117,11 @@ if __name__ == "__main__":
     #name_config_path = 'l_c'
     #name_config_path = 'h_max'
     #name_config_path = 'h_min'
+    name_config_path = 'h_min_zero'
+    #name_config_path = 'h_min_5dm'
+    #name_config_path = 'h_min_10dm'
     #name_config_path = 'l_max'
-    name_config_path = 'l_min'
+    #name_config_path = 'l_min'
 
     # Local path configurations
     if config['CRITERIA']['cluster_calc']:
@@ -128,7 +133,7 @@ if __name__ == "__main__":
         local_scenario = 'pop-b_econ-c_fuel-c' #high
     elif name_config_path == 'h_c' or name_config_path == 'l_c':
         local_scenario = 'pop-baseline16_econ-c16_fuel-c16' #middle
-    elif name_config_path == 'h_min' or name_config_path == 'l_min':
+    elif name_config_path == 'h_min' or name_config_path == 'l_min' or name_config_path in ['h_min_zero', 'h_min_5dm', 'h_min_10dm']:
         local_scenario = 'pop-f_econ-c_fuel-c' #low
 
     # --- Paths
