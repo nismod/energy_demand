@@ -104,7 +104,7 @@ if __name__ == "__main__":
         scenario_name = str(sys.argv[2])
         weather_realisation = str(sys.argv[3]) # Weather realisation 
     else:
-        scenario_name = "_ttt_"
+        scenario_name = "_dm10_"
         weather_realisation = 'NF1'
 
     print("-------------------------------------")
