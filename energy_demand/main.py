@@ -98,12 +98,13 @@ if __name__ == "__main__":
     sim_yrs = [2015, 2020, 2025, 2030, 2035, 2040, 2045, 2050]
     #sim_yrs = [2015, 2020, 2050] #, 2050]
     #sim_yrs = [2015, 2030, 2050]
+    sim_yrs = [2015, 2050]
 
     if len(sys.argv) > 3: #user defined arguments are provide
         scenario_name = str(sys.argv[2])
         weather_realisation = str(sys.argv[3]) # Weather realisation 
     else:
-        scenario_name = "_dm_10P_"
+        scenario_name = "_ttt_"
         weather_realisation = 'NF1'
 
     print("-------------------------------------")
@@ -116,6 +117,8 @@ if __name__ == "__main__":
     #name_config_path = 'h_c'
     #name_config_path = 'l_c'
     name_config_path = 'h_max'
+    name_config_path = 'h_max_10'
+    #name_config_path = 'h_max_0'
     #name_config_path = 'h_min'
     #name_config_path = 'h_min_zero'
     #name_config_path = 'h_min_5dm'
@@ -129,7 +132,7 @@ if __name__ == "__main__":
     else:
         path_weather_data = "C:/Users/cenv0553/ED/data/scenarios"
 
-    if name_config_path == 'h_max' or name_config_path == 'l_max':
+    if name_config_path == 'h_max' or name_config_path == 'l_max' or name_config_path in ['h_max_0', 'h_max_10']:
         local_scenario = 'pop-b_econ-c_fuel-c' #high
     elif name_config_path == 'h_c' or name_config_path == 'l_c':
         local_scenario = 'pop-baseline16_econ-c16_fuel-c16' #middle
@@ -170,6 +173,7 @@ if __name__ == "__main__":
     # ----------------------------------------------------------------------
     data['scenario_data'] = defaultdict(dict)
     data['enduses'], data['sectors'], data['fuels'], lookup_enduses, lookup_sector_enduses = data_loader.load_fuels(data['paths'])
+
     data['regions'] = read_data.get_region_names(name_region_set)
     data['reg_coord'] = basic_functions.get_long_lat_decimal_degrees(read_data.get_region_centroids(name_region_set))
 
@@ -338,6 +342,11 @@ if __name__ == "__main__":
         data['regions'],
         data['assumptions'].strategy_vars,
         sim_yrs)
+
+    #print("AAAAAAA")
+    #reg_name = data['regions'][0]
+    #print(regional_vars[reg_name]['dm_improvement']['rs_space_heating'])
+    #raise Exception("TEST")
 
     # ------------------------------------------------
     # Calculate switches (not generic)

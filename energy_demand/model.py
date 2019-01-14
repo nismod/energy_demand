@@ -615,6 +615,7 @@ def aggr_complete_result(
             enduse_array_nr = lookup_enduses[model_object.enduse]
 
             if isinstance(fuels, dict):
+                print("... FFFFFFFFFFFFFFFF aggregating technology specific fuels")
                 for tech, fuel_tech in fuels.items():
                     tech_fueltype = technologies[tech].fueltype_int
                     full_result_aggr[enduse_array_nr][tech_fueltype][reg_array_nr] += fuel_tech.reshape(8760)
@@ -867,6 +868,24 @@ def aggregate_results_constrained(
         all_submodels,
         technologies)
 
+    #'''
+    if assumptions.curr_yr > 2015:
+        fueltype_nr = 2 #electricity
+        sum_all_enduses = np.sum(aggr_results['ed_submodel_enduse_fueltype_regs_yh'], axis=0) #full_result_aggr[enduse_array_nr][fueltype_nr][reg_array_nr] += fuels_8760
+
+        # print peak electrictiy demand of region
+        _mak_demand = np.max(sum_all_enduses[fueltype_nr][reg_array_nr])
+        print("info.... reg_array_nr: {}  {}".format(reg_array_nr, assumptions.curr_yr))
+        print("MAX ELEC DEMAND " + str(_mak_demand))
+
+        print("_-- rs_space_heating " +  str(aggr_results['ed_submodel_enduse_fueltype_regs_yh'].shape))
+        sum_rs_space_heating = aggr_results['ed_submodel_enduse_fueltype_regs_yh'][6]
+        print(sum_rs_space_heating.shape)
+        _mak_demand = np.max(sum_rs_space_heating[fueltype_nr][reg_array_nr])
+        print("MAX ELEC DEMAND RS SPACE" + str(_mak_demand))
+        raise Exception("BLBLBAL")
+    #'''
+
     if mode_constrained:
 
         # -----------------------------------------------------------------
@@ -878,7 +897,7 @@ def aggregate_results_constrained(
                 # Aggregate only over heating technologies
                 if enduse_object.enduse in enduse_space_heating:
 
-                    submodel_techs_fueltypes_yh = get_fuels_yh(
+                    techs_fueltypes_yh = get_fuels_yh(
                         enduse_object, 'techs_fuel_yh')
 
                     # All used heating technologies
@@ -887,7 +906,7 @@ def aggregate_results_constrained(
                     # Iterate technologies and get fuel per technology
                     for heating_tech in heating_techs:
 
-                        tech_fuel = submodel_techs_fueltypes_yh[heating_tech]       # Fuel of technology
+                        tech_fuel = techs_fueltypes_yh[heating_tech] # Fuel of technology
                         fueltype_tech_int = technologies[heating_tech].fueltype_int # Fueltype of technology
 
                         # Aggregate Submodel (sector) specific enduse for fueltype

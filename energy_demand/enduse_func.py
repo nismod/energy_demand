@@ -124,11 +124,9 @@ class Enduse(object):
             self.fuel_yh = 0
             self.enduse_techs = []
         else:
-            #print("------INFO  {} {} {}  {}".format(self.enduse, sector, region, curr_yr))
+            print("------INFO  {} {} {}  {}".format(self.enduse, sector, region, curr_yr))
             #print("FUEL TRAIN A0: " + str(np.sum(self.fuel_y)))
 
-            #if curr_yr > 2015 and enduse == 'rs_lighting':
-            #    print("tt")
             # Get technologies of enduse
             self.enduse_techs = get_enduse_techs(fuel_tech_p_by)
 
@@ -237,14 +235,6 @@ class Enduse(object):
                         make_all_flat=make_all_flat)
                     #print("FUEL TRAIN Y" + str(np.sum(fuel_yh)))
 
-                    '''print("-----otside-------------")
-                    if curr_yr > 2015 and enduse == 'rs_space_heating':
-                        plt.plot(self.fuel_yh.reshape(8760), label="after")
-                        plt.plot(fuel_yh.reshape(8760), label="before")
-                        plt.legend()
-                        plt.show()
-                        print("----")'''
-                    
                     #if curr_yr > 2015:
                     #    _a = np.max(fuel_yh)
                     #    _b = np.max(self.fuel_yh)
@@ -351,6 +341,7 @@ class Enduse(object):
                         self.techs_fuel_yh = {}
 
                         for tech in fuel_yh:
+
                             self.techs_fuel_yh[tech] = load_shifting(
                                 enduse,
                                 curr_yr,
@@ -359,10 +350,33 @@ class Enduse(object):
                                 mode_constrained=True,
                                 make_all_flat=make_all_flat)
 
+                            '''print("-----otside-------------{}  {}".format(curr_yr, enduse))
+                            if curr_yr > 2015 and enduse == 'rs_space_heating':
+                                print("SSSSS:  {} {}".format(tech,curr_yr))
+                                print(strategy_vars['dm_improvement'][enduse][curr_yr])
+                                print("before {}".format(np.sum(fuel_yh[tech])))
+                                print("after {}".format(np.sum(self.techs_fuel_yh[tech])))
+                                plt.plot(fuel_yh[tech].reshape(8760), label="before")
+                                plt.plot(self.techs_fuel_yh[tech].reshape(8760), label="after")
+
+                                print(fuel_yh[tech].shape)
+                                _sum_dayily = np.sum(fuel_yh[tech], axis=1)
+                                _peak_day = np.argmax(_sum_dayily)
+                                __max_before = np.max(fuel_yh[tech][_peak_day])
+                                __max_after = np.max(self.techs_fuel_yh[tech][_peak_day])
+
+                                print(" info: {}  {}  {}".format(enduse, curr_yr, region))
+                                
+                                print("MANU LFINISH {}  {}".format(__max_before, __max_after))
+                                plt.legend()
+                                plt.show()'''
+
                         self.fuel_yh = None
+
+                        '''if curr_yr > 2015 and enduse == 'rs_space_heating':
+                            raise Exception("BELUGA")'''
+
                     else:
-                        #TODO TEST SHIFTING??
-                        print("SHAPE " + str(self.fuel_yh))
                         self.fuel_yh = load_shifting(
                             enduse,
                             curr_yr,
@@ -370,7 +384,6 @@ class Enduse(object):
                             fuel_yh,
                             mode_constrained=False,
                             make_all_flat=make_all_flat)
-                        print("SHAPE " + str(self.fuel_yh))
 
 def load_shifting(
         enduse,
@@ -415,9 +428,10 @@ def load_shifting(
     """
     # Get assumed load shift
     if dm_improvement[enduse][curr_yr] == 0:
+        print("..pass")
         pass # no load management
     else:
-        
+
         # Calculate average for every day
         if mode_constrained:
             average_fuel_yd = np.average(fuel_yh, axis=1)
@@ -430,7 +444,7 @@ def load_shifting(
 
         # Load factor improvement parameter in current year
         param_lf_improved_cy = dm_improvement[enduse][curr_yr]
-        #param_lf_improved_cy = 0.1
+
         #print("Loading shifting .. {}  {}  {}".format(enduse, curr_yr, param_lf_improved_cy))
 
         # Calculate current year load factors
@@ -438,8 +452,8 @@ def load_shifting(
             param_lf_improved_cy,
             loadfactor_yd_cy)
 
-        #import copy
-        #_a = copy.copy(fuel_yh)
+        import copy
+        _a = copy.copy(fuel_yh)
 
         fuel_yh = lf.peak_shaving_max_min(
             lf_improved_cy,
@@ -447,7 +461,7 @@ def load_shifting(
             fuel_yh,
             mode_constrained)
 
-    '''
+    #'''
         if enduse == "rs_space_heating":
             print("ENDUSE " + str(enduse))
             print(curr_yr)
@@ -474,10 +488,12 @@ def load_shifting(
             __max_after = np.max(fuel_yh[_peak_day])
             __max_before = np.max(_a[_peak_day])
             print("before; {} after: {}".format(__max_before, __max_after))
+            print("peak reduction: " + str((100/__max_before) *__max_after))
             _new_lf = lf.calc_lf_y_8760(fuel_yh[_peak_day])
             _old_lf = lf.calc_lf_y_8760(_a[_peak_day])
-            print("before; {} after: {}".format(_old_lf, _new_lf))
-    '''
+            print("lf before; {} after: {}".format(_old_lf, _new_lf))
+            print(make_all_flat)
+    #'''
 
     # -------------------------------------------------
     # Convert all load profiles into flat load profiles
