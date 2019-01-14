@@ -116,7 +116,7 @@ class EnergyDemandModel(object):
             # Aggregate results specifically over regions
             # ---------------------------------------------
             aggr_results = aggregate_results_constrained(
-                assumptions, #REMOVE ASSUMPTIONS
+                assumptions,
                 assumptions.reg_nrs,
                 assumptions.lookup_enduses,
                 aggr_results,
