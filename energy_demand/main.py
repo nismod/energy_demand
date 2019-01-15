@@ -104,7 +104,7 @@ if __name__ == "__main__":
         scenario_name = str(sys.argv[2])
         weather_realisation = str(sys.argv[3]) # Weather realisation 
     else:
-        scenario_name = "_dm_10_"
+        scenario_name = "_dm_5_"
         weather_realisation = 'NF1'
 
     print("-------------------------------------")
@@ -114,17 +114,8 @@ if __name__ == "__main__":
     print("Configuration path:         " + str(path_config))
     print("Simulated yrs               " + str(sim_yrs))
 
-    #name_config_path = 'h_c'
-    #name_config_path = 'l_c'
     name_config_path = 'h_max'
-    name_config_path = 'h_max_10'
-    name_config_path = 'h_max_10_only'
-    #name_config_path = 'h_max_0_only'
-    #name_config_path = 'h_max_0'
     #name_config_path = 'h_min'
-    #name_config_path = 'h_min_zero'
-    #name_config_path = 'h_min_5dm'
-    #name_config_path = 'h_min_10dm'
     #name_config_path = 'l_max'
     #name_config_path = 'l_min'
 

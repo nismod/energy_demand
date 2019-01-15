@@ -125,7 +125,7 @@ class Enduse(object):
             self.fuel_yh = 0
             self.enduse_techs = []
         else:
-            print("------INFO  {} {} {}  {}".format(self.enduse, sector, region, curr_yr))
+            #print("------INFO  {} {} {}  {}".format(self.enduse, sector, region, curr_yr))
             #print("FUEL TRAIN A0: " + str(np.sum(self.fuel_y)))
 
             # Get technologies of enduse
@@ -340,7 +340,7 @@ class Enduse(object):
                     if mode_constrained:
                         self.techs_fuel_yh = {}
                         self.fuel_yh = None
-                        print("SHITING " + str(strategy_vars['dm_improvement'][enduse][curr_yr]))
+
                         # If no demand management improvenent, no peak shifting
                         if strategy_vars['dm_improvement'][enduse][curr_yr] == 0:
                             self.techs_fuel_yh = fuel_yh
@@ -425,7 +425,8 @@ def load_shifting_multiple_tech(
             for tech in technologies_fueltype:
 
                 #fuel_tech_8760 = fuel_yh[tech].reshape(8760)
-                fuel_tech_8760 = copy.copy(fuel_yh[tech].reshape(8760)) #TODO Probably does not need to be copied but just assigned
+                #TODO Probably does not need to be copied but just assigned
+                fuel_tech_8760 = copy.copy(fuel_yh[tech].reshape(8760)) 
                 sum_all_techs_8760 = sum_all_techs.reshape(8760)
                 #print("-------------FUEL {}  {}".format(np.sum(fuel_tech_8760), tech))
                 #print("shape_added: " + str(shape_added[:24]))
@@ -474,11 +475,11 @@ def load_shifting_multiple_tech(
                 fuel_tech_8760 -= (p_abs_tech_shifted * tot_removed_demand) * shape_removed
 
                 #print("KROKODIL")
-                _max_before = np.max(fuel_yh[tech].reshape(8760))
-                _max_after = np.max(fuel_tech_8760)
+                #_max_before = np.max(fuel_yh[tech].reshape(8760))
+                #_max_after = np.max(fuel_tech_8760)
                 #print(_max_before)
                 #print(_max_after)
-                print("PERCENT NEW " + str(((1/_max_before) * _max_after)))
+                #print("PERCENT NEW " + str(((1/_max_before) * _max_after)))
                 #print(np.sum(fuel_tech_8760))
                 #print(np.sum(fuel_yh[tech]))
                 #plt.plot(fuel_yh[tech].reshape(8760), linewidth=4, label="before taase {}".format(tech))
@@ -586,7 +587,7 @@ def load_shifting(
             print(param_lf_improved_cy)
             print(loadfactor_yd_cy[_peak_day])
             print(lf_improved_cy[_peak_day])
-            
+
             # Get maximum hour for electricity demand
             __max_after = np.max(fuel_yh[_peak_day])
             __max_before = np.max(_a[_peak_day])
