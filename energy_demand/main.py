@@ -104,7 +104,7 @@ if __name__ == "__main__":
         scenario_name = str(sys.argv[2])
         weather_realisation = str(sys.argv[3]) # Weather realisation 
     else:
-        scenario_name = "_dm_0_"
+        scenario_name = "_dm_10_"
         weather_realisation = 'NF1'
 
     print("-------------------------------------")
@@ -118,7 +118,9 @@ if __name__ == "__main__":
     #name_config_path = 'l_c'
     name_config_path = 'h_max'
     name_config_path = 'h_max_10'
-    name_config_path = 'h_max_0'
+    name_config_path = 'h_max_10_only'
+    #name_config_path = 'h_max_0_only'
+    #name_config_path = 'h_max_0'
     #name_config_path = 'h_min'
     #name_config_path = 'h_min_zero'
     #name_config_path = 'h_min_5dm'
@@ -132,10 +134,10 @@ if __name__ == "__main__":
     else:
         path_weather_data = "C:/Users/cenv0553/ED/data/scenarios"
 
-    if name_config_path == 'h_max' or name_config_path == 'l_max' or name_config_path in ['h_max_0', 'h_max_10']:
+    if name_config_path == 'h_max' or name_config_path == 'l_max' or name_config_path in ['h_max_0', 'h_max_10', 'h_max_0_only', 'h_max_10_only']:
         local_scenario = 'pop-b_econ-c_fuel-c' #high
-    elif name_config_path == 'h_c' or name_config_path == 'l_c':
-        local_scenario = 'pop-baseline16_econ-c16_fuel-c16' #middle
+    #elif name_config_path == 'h_c' or name_config_path == 'l_c':
+    #     local_scenario = 'pop-baseline16_econ-c16_fuel-c16' #middle
     elif name_config_path == 'h_min' or name_config_path == 'l_min' or name_config_path in ['h_min_zero', 'h_min_5dm', 'h_min_10dm']:
         local_scenario = 'pop-f_econ-c_fuel-c' #low
 
@@ -173,7 +175,9 @@ if __name__ == "__main__":
     # ----------------------------------------------------------------------
     data['scenario_data'] = defaultdict(dict)
     data['enduses'], data['sectors'], data['fuels'], lookup_enduses, lookup_sector_enduses = data_loader.load_fuels(data['paths'])
-
+    #print("a")
+    #print(lookup_enduses)
+    #raise Exception
     data['regions'] = read_data.get_region_names(name_region_set)
     data['reg_coord'] = basic_functions.get_long_lat_decimal_degrees(read_data.get_region_centroids(name_region_set))
 

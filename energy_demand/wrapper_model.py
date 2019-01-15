@@ -313,8 +313,7 @@ def write_user_defined_results(
     # Temporal Validation
     # ------------------------------------------------
     if (criterias['validation_criteria'] == True) and (
-        curr_yr == data['assumptions'].base_yr) and (
-           ['cluster_calc'] != True):
+        curr_yr == data['assumptions'].base_yr) and (['cluster_calc'] != True):
         lad_validation.spatio_temporal_val(
             sim_obj.ed_fueltype_national_yh,
             sim_obj.ed_fueltype_regs_yh,

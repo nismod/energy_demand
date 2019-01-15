@@ -26,6 +26,7 @@ some observations from @willu47
 import logging
 from collections import defaultdict
 import numpy as np
+import matplotlib.pyplot as plt
 
 from energy_demand.basic import lookup_tables
 import energy_demand.enduse_func as endusefunctions
@@ -874,6 +875,11 @@ def aggregate_results_constrained(
 
         # print peak electrictiy demand of region
         _mak_demand = np.max(sum_all_enduses[fueltype_nr][reg_array_nr])
+
+        _sum_dayily = np.sum(sum_all_enduses[fueltype_nr][reg_array_nr].reshape(365, 24), axis=1)
+        print(_sum_dayily.shape)
+        _peak_day = np.argmax(_sum_dayily)
+
         print("info.... reg_array_nr: {}  {}".format(reg_array_nr, assumptions.curr_yr))
         print("MAX ELEC DEMAND " + str(_mak_demand))
 
@@ -883,6 +889,44 @@ def aggregate_results_constrained(
         print(np.sum(sum_rs_space_heating[fueltype_nr][reg_array_nr]))
         _mak_demand = np.max(sum_rs_space_heating[fueltype_nr][reg_array_nr])
         print("MAX ELEC DEMAND RS SPACE: " + str(_mak_demand))
+        print("MAX ELEC DEMAND consumer electronics: " + str(np.max(aggr_results['ed_submodel_enduse_fueltype_regs_yh'][3][fueltype_nr][reg_array_nr])))
+
+        enduses_lu = {
+            'rs_lighting': 0, 'rs_cold': 1, 'rs_wet': 2, 'rs_consumer_electronics': 3,
+            'rs_home_computing': 4, 'rs_cooking': 5, 'rs_space_heating': 6, 'rs_water_heating': 7,
+            'ss_catering': 8, 'ss_small_power': 9, 'ss_cooled_storage': 10, 'ss_other_electricity': 11,
+            'ss_other_gas': 12, 'ss_ICT_equipment': 13, 'ss_space_heating': 14, 'ss_water_heating': 15,
+            'ss_cooling_humidification': 16, 'ss_lighting': 17, 'ss_fans': 18, 'is_other': 19, 'is_motors': 20,
+            'is_lighting': 21, 'is_drying_separation': 22, 'is_high_temp_process': 23, 'is_refrigeration': 24,
+            'is_low_temp_process': 25, 'is_compressed_air': 26, 'is_space_heating': 27}
+
+        #for enduse, enduse_nr in enduses_lu.items():
+        #    plt.plot(aggr_results['ed_submodel_enduse_fueltype_regs_yh'][enduse_nr][fueltype_nr][reg_array_nr], label="{} ({})".format(
+        #        enduse, enduse_nr))
+
+
+        #plt.plot(sum_all_enduses[fueltype_nr][reg_array_nr], linewidth=1, label="all")
+        all_end = aggr_results['ed_submodel_enduse_fueltype_regs_yh'][:, fueltype_nr, reg_array_nr]
+        print("shape all enduse" + str(all_end.shape))
+        print(sum_rs_space_heating[fueltype_nr][reg_array_nr].shape)
+        #for enduse_nr in range(28):
+        #    plt.plot(all_end[enduse_nr], label="enduse_nr {}".format(enduse_nr))
+        #plt.plot(sum_all_enduses[fueltype_nr][reg_array_nr], label="Combined all end uses")
+        #plt.plot(aggr_results['ed_submodel_enduse_fueltype_regs_yh'][13][fueltype_nr][reg_array_nr], linewidth=4, label="tt")
+        #plt.plot(aggr_results['ed_submodel_enduse_fueltype_regs_yh'][3][fueltype_nr][reg_array_nr], linewidth=4, label="CONSUM")
+        #plt.plot(aggr_results['ed_submodel_enduse_fueltype_regs_yh'][23][fueltype_nr][reg_array_nr], linewidth=4, label="hoch temp")
+        #plt.plot(sum_rs_space_heating[fueltype_nr][reg_array_nr], linewidth=0.1, label="HEATING")
+        plt.plot(sum_all_enduses[fueltype_nr][reg_array_nr].reshape(365, 24)[_peak_day], linewidth=1, label="all_peak_day")
+
+        _z = np.zeros((24))
+        for enduse, enduse_nr in enduses_lu.items():
+            enduse_fuel = all_end[enduse_nr].reshape(365,24)
+            #_z += enduse_fuel[_peak_day]
+            #print("Z: {}  {}".format(enduse_nr, _z[10:20]))
+            plt.plot(enduse_fuel[_peak_day], label="{} - ({})".format(enduse, enduse_nr))
+        plt.legend()
+        plt.show()
+
         raise Exception("BLBLBAL")
     '''
 
@@ -1029,7 +1073,7 @@ def aggregate_from_full_results(
             else:
                 # Sum across all regions
                 demand = np.sum(demand, axis=1)
-                
+
                 # Get enduse str
                 enduse_str = get_enduse_from_array_nr(enduse_array_yr, lookup_enduse)
 

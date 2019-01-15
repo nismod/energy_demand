@@ -5,6 +5,7 @@ import logging
 import math
 import numpy as np
 import matplotlib.pyplot as plt
+import copy
 
 from energy_demand.basic import date_prop
 from energy_demand.profiles import load_factors as lf
@@ -339,11 +340,9 @@ class Enduse(object):
                     if mode_constrained:
                         self.techs_fuel_yh = {}
                         self.fuel_yh = None
-
+                        print("SHITING " + str(strategy_vars['dm_improvement'][enduse][curr_yr]))
                         # If no demand management improvenent, no peak shifting
                         if strategy_vars['dm_improvement'][enduse][curr_yr] == 0:
-                            #for tech in fuel_yh:
-                            #    self.techs_fuel_yh[tech] = fuel_yh[tech]
                             self.techs_fuel_yh = fuel_yh
                         else:
                             self.techs_fuel_yh = load_shifting_multiple_tech(
@@ -398,6 +397,10 @@ def load_shifting_multiple_tech(
                 mode_constrained=True,
                 param_lf_improved_cy=param_lf_improved_cy,
                 make_all_flat=False)
+            #plt.plot(sum_all_techs.reshape(8760), label="test taase")
+            #plt.plot(sum_all_techs_shifted.reshape(8760), label="test after")
+            #plt.legend()
+            #plt.show()
 
             # Shift demand of peak (removed demand)
             removed_demand = sum_all_techs - sum_all_techs_shifted
@@ -417,63 +420,90 @@ def load_shifting_multiple_tech(
             shape_added = (1 / tot_added_demand) * added_demand
             shape_added[np.isnan(shape_added)] = 0
 
-
             assert round(np.sum(tot_removed_demand), 6) == round(tot_added_demand, 6)
 
             for tech in technologies_fueltype:
-                fuel_tech_8760 = fuel_yh[tech].reshape(8760)
+
+                #fuel_tech_8760 = fuel_yh[tech].reshape(8760)
+                fuel_tech_8760 = copy.copy(fuel_yh[tech].reshape(8760)) #TODO Probably does not need to be copied but just assigned
                 sum_all_techs_8760 = sum_all_techs.reshape(8760)
-                print("FUEL {}  {}".format(np.sum(fuel_tech_8760), tech))
-                print("sum_all_techs_8760 {}  {}".format(np.sum(sum_all_techs_8760), tech))
+                #print("-------------FUEL {}  {}".format(np.sum(fuel_tech_8760), tech))
+                #print("shape_added: " + str(shape_added[:24]))
+                #print("ff " + str(np.sum(shape_added)))
+                #print("param_lf_improved_cy: " + str(param_lf_improved_cy))
+                #print("sum_all_techs_8760 {}  {}".format(np.sum(sum_all_techs_8760), tech))
                 # Calculate share of technology specific demand to overall enduse demand per hour before shift
                 h_contribution_before = (1 / sum_all_techs_8760) * fuel_tech_8760
                 h_contribution_before[np.isnan(h_contribution_before)] = 0
-                print("0 A " + str(np.sum(fuel_yh[tech])))
-                print(np.sum(fuel_yh[tech]))
-                print("A " + str(h_contribution_before))
+                #print("0 A " + str(np.sum(fuel_yh[tech])))
+                #print(np.sum(fuel_yh[tech]))
+                #print("A " + str(h_contribution_before))
                 # Get absolute demand in peak hours
                 tech_peak_shifted_demand = 0
                 for peak_hour_pos in peak_hour_positions:
                     tech_peak_shifted_demand += h_contribution_before[peak_hour_pos] * removed_demand[peak_hour_pos]
 
-                print("BA " + str(len(peak_hour_positions)))
-                print("C " + str(tech_peak_shifted_demand))
-                print(np.sum(fuel_yh[tech]))
-                print("D " + str(tot_removed_demand))
+                #print("peak_hour_positions:         " + str(len(peak_hour_positions)))
+                #print("tech_peak_shifted_demand:    " + str(tech_peak_shifted_demand))
+                #print("tot_removed_demand:          " + str(tot_removed_demand))
                 # Percentage of total shifted demand of technology
-                p_abs_tech_shifted = (1 / tot_removed_demand) * tech_peak_shifted_demand
-                #p_abs_tech_shifted[
+                p_abs_tech_shifted = (1.0 / tot_removed_demand) * tech_peak_shifted_demand
+
                 if np.isnan(p_abs_tech_shifted):
                     p_abs_tech_shifted = 0
-                print("E " + str(p_abs_tech_shifted))
-                print(np.sum(fuel_yh[tech]))
-                print(np.sum(fuel_tech_8760))
-                print("fff")
-                print(tot_removed_demand)
-                print(p_abs_tech_shifted)
-
+                #print("p_abs_tech_shifted: " + str(p_abs_tech_shifted))
+                #print(np.sum(fuel_yh[tech]))
+                #print(np.sum(fuel_tech_8760))
+                #print("--------")
+                #print(tot_removed_demand)
+                #print(p_abs_tech_shifted)
+                #print(p_abs_tech_shifted * tot_removed_demand)
+                #print(p_abs_tech_shifted * tot_removed_demand * shape_added)
+                #_a = p_abs_tech_shifted * tot_removed_demand * shape_added
+                #print("TEST davor" + str(np.sum(_a)))
+                #print(np.sum(fuel_tech_8760))
                 # Add shifted demand to total demand
                 fuel_tech_8760 += (p_abs_tech_shifted * tot_removed_demand) * shape_added
                 #plt.plot(fuel_tech_8760, label="intermediar")
-                print("ZZZ")
-                print(np.sum(fuel_yh[tech]))
-                print(np.sum(fuel_tech_8760))
+                #print("ZZZ")
+                #_a = shape_removed * tot_removed_demand
+                #print(shape_removed[:24])
+                #print(_a[:24])
+                ##print(np.sum(fuel_tech_8760))
                 # Substract peak from total demand
                 fuel_tech_8760 -= (p_abs_tech_shifted * tot_removed_demand) * shape_removed
 
-                print("KROKODIL")
-                print(np.sum(fuel_tech_8760))
-                print(np.sum(fuel_yh[tech]))
-                #plt.plot(fuel_yh[tech].reshape(8760), label="before {}".format(tech))
+                #print("KROKODIL")
+                _max_before = np.max(fuel_yh[tech].reshape(8760))
+                _max_after = np.max(fuel_tech_8760)
+                #print(_max_before)
+                #print(_max_after)
+                print("PERCENT NEW " + str(((1/_max_before) * _max_after)))
+                #print(np.sum(fuel_tech_8760))
+                #print(np.sum(fuel_yh[tech]))
+                #plt.plot(fuel_yh[tech].reshape(8760), linewidth=4, label="before taase {}".format(tech))
                 #plt.plot(fuel_tech_8760, label="after")
                 #plt.legend()
                 #plt.show()
-                print(np.sum(fuel_tech_8760))
-                print(np.sum(fuel_yh[tech]))
-                assert np.sum(fuel_tech_8760) == np.sum(fuel_yh[tech])
+                ##print(np.sum(fuel_tech_8760))
+                #print(np.sum(fuel_yh[tech]))
+                assert round(np.sum(fuel_tech_8760), 6) == round(np.sum(fuel_yh[tech]), 6)
 
                 fuel_tech_shifted[tech] = fuel_tech_8760.reshape(365, 24)
+        
+            '''if enduse == 'rs_space_heating':
+                
+                plt.plot(sum_all_techs.reshape(8760), label="COMBINED BEFORE SHFITING")
 
+                # Sum across al technologies
+                sum_all_techs = np.zeros((365, 24))
+                for tech in technologies_fueltype:
+                    sum_all_techs += fuel_tech_shifted[tech]
+
+                plt.plot(sum_all_techs.reshape(8760), label="COMBINED AFTER SHFITING")
+                #plt.plot(sum_all_techs_shifted.reshape(8760), label="test after")
+                plt.legend()
+                plt.show()'''
     return fuel_tech_shifted
 
 def load_shifting(

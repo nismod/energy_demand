@@ -99,7 +99,7 @@ def main(
             national_hydrogen = pd.DataFrame()
 
             for path_result_folder in paths_folders_result:
-                
+                print("... " + str(path_result_folder))
                 try:
                     data = {}
 
