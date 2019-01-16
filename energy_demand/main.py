@@ -102,10 +102,15 @@ if __name__ == "__main__":
 
     if len(sys.argv) > 3: #user defined arguments are provide
         scenario_name = str(sys.argv[2])
-        weather_realisation = str(sys.argv[3]) # Weather realisation 
+        weather_realisation = str(sys.argv[3]) # Weather realisation
+        name_config_path = str(sys.argv[4])
     else:
         scenario_name = "_dm_5_"
         weather_realisation = 'NF1'
+        #name_config_path = 'h_max'
+        #name_config_path = 'h_min'
+        #name_config_path = 'l_max'
+        #name_config_path = 'l_min'
 
     print("-------------------------------------")
     print("Information")
@@ -114,10 +119,7 @@ if __name__ == "__main__":
     print("Configuration path:         " + str(path_config))
     print("Simulated yrs               " + str(sim_yrs))
 
-    name_config_path = 'h_max'
-    #name_config_path = 'h_min'
-    #name_config_path = 'l_max'
-    #name_config_path = 'l_min'
+
 
     # Local path configurations
     if config['CRITERIA']['cluster_calc']:

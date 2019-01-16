@@ -6,6 +6,7 @@ import pandas as pd
 import matplotlib.pyplot as plt
 import copy
 import pylab
+import numpy as np
 
 from energy_demand.plotting import basic_plot_functions
 from energy_demand.basic import conversions
@@ -128,17 +129,31 @@ def scenario_over_time(
                 s=15,
                 clip_on=False) #do not clip points on axis
 
+        # ------------------
+        # Start with uncertainty one model step later (=> 2020)
+        # ------------------
+        start_yr_uncertainty = 2020
+        
+        #Get position in array of start year uncertainty
+        pos_unc_yr = len(np.where(sim_yrs_smoothed < start_yr_uncertainty)[0])
+
+        # Shorten lines
+        df_q_05 = df_q_05.loc[start_yr_uncertainty:] #select based on index which is year
+        df_q_95 = df_q_95.loc[start_yr_uncertainty:]
+        sim_yrs_smoothed = sim_yrs_smoothed[pos_unc_yr:]
+
+        # --------------------------------------
         # Plottin qunatilse and average scenario
-        df_q_05.plot.line(color=color, linestyle='--', linewidth=0.1, label='_nolegend_') #, label="0.05")
-        df_q_95.plot.line(color=color, linestyle='--', linewidth=0.1, label='_nolegend_') #, label="0.05")
+        # --------------------------------------
+        df_q_05.plot.line(color=color, linestyle='--', linewidth=0.1, label='_nolegend_')
+        df_q_95.plot.line(color=color, linestyle='--', linewidth=0.1, label='_nolegend_')
 
         plt.fill_between(
             sim_yrs_smoothed,
             list(df_q_95),  #y1
             list(df_q_05),  #y2
             alpha=0.25,
-            facecolor=color,
-            )
+            facecolor=color)
 
     plt.xlim(2015, 2050)
     plt.ylim(0)
@@ -281,6 +296,7 @@ def fueltypes_over_time(
 
             statistics_to_print.append("{} fueltype_str: {} df_q_05: {}".format(scenario_name, fueltype_str, df_q_05))
             statistics_to_print.append("{} fueltype_str: {} df_q_95: {}".format(scenario_name, fueltype_str, df_q_95))
+
             # --------------------
             # Try to smooth lines
             # --------------------
@@ -324,17 +340,31 @@ def fueltypes_over_time(
                     s=15,
                     clip_on=False) #do not clip points on axis
 
-            # Plottin qunatilse and average scenario
+            # ------------------
+            # Start with uncertainty one model step later (=> 2020)
+            # ------------------
+            start_yr_uncertainty = 2020
+            
+            #Get position in array of start year uncertainty
+            pos_unc_yr = len(np.where(sim_yrs_smoothed < start_yr_uncertainty)[0])
+
+            # Shorten lines
+            df_q_05 = df_q_05.loc[start_yr_uncertainty:]
+            df_q_95 = df_q_95.loc[start_yr_uncertainty:]
+
+
+            sim_yrs_smoothed = sim_yrs_smoothed[pos_unc_yr:]
+
             df_q_05.plot.line(color=color, linestyle='--', linewidth=0.1, label='_nolegend_') #, label="0.05")
             df_q_95.plot.line(color=color, linestyle='--', linewidth=0.1, label='_nolegend_') #, label="0.05")
 
+            # Plotting qunatilse and average scenario
             plt.fill_between(
                 sim_yrs_smoothed,
                 list(df_q_95),  #y1
                 list(df_q_05),  #y2
                 alpha=0.25,
-                facecolor=color,
-                )
+                facecolor=color)
 
     plt.xlim(2015, 2050)
     plt.ylim(0)

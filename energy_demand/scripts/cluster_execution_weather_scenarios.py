@@ -6,6 +6,7 @@ def my_function(simulation_number):
     print('simulation_number ' + str(simulation_number))
 
     run_name = 'h_max'
+    name_config_path = run_name
 
     run_smif = False 
 
@@ -27,10 +28,11 @@ def my_function(simulation_number):
         #os.system(bash_command)
         pass
     else:
-        bash_command = "python energy_demand/energy_demand/main.py {} {} {}".format(
+        bash_command = "python energy_demand/energy_demand/main.py {} {} {} {}".format(
             path_to_ini_file,
             run_name,
-            weather_realisation)
+            weather_realisation,
+            name_config_path)
 
         os.system(bash_command)
     return 
