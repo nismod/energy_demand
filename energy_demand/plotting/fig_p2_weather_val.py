@@ -326,7 +326,7 @@ def user_defined_bin_classification(
                 # add "higher as bin"
                 bin_values.append(max_real_value)
             elif bin_values[-1] > max_real_value:
-                raise Exception("The maximum user defined bin value is larger than maximum value")
+                raise Exception("The maximum user defined bin value is larger than maximum min: min: {} max: {}".format(bin_values[-1], max_real_value))
             if not cmap_sequential:
                 cmap, cmap_rgb_colors = norm_cmap(bin_values[1:], cmap='Purples')
             else:
@@ -344,7 +344,7 @@ def user_defined_bin_classification(
     else:
 
         if max_real_value < bin_values[-1]:
-            raise Exception("The maximum user defined bin value is larger than maximum value")
+            raise Exception("The maximum user defined bin value is larger than maximum value {} {}".format(bin_values[-1], max_real_value))
         elif min_real_value > bin_values[0]:
             raise Exception("The minimum user defined bin smaller is larger than minimum existing value")
         else:

@@ -63,19 +63,20 @@ def total_annual_demand(
     max_entry = df_data_input.max(axis=0) #maximum entry for every hour
     min_entry = df_data_input.min(axis=0) #maximum entry for every hour
 
-    print("---- Calculate average per person")
+    #print("---- Calculate average per person")
     tot_person = sum(pop_sim_yr)
     #print(df_data_input.iloc[0])
     tot_demand = sum(df_data_input.iloc[0])
-    print("TOT PERSON: " + str(tot_person))
-    print("TOT PERSON: " + str(tot_demand))
-    print('AVERAGE KW per Person " '+ str(tot_demand / tot_person))
+    ##print("TOT PERSON: " + str(tot_person))
+    #print("TOT PERSON: " + str(tot_demand))
+    #print('AVERAGE KW per Person " '+ str(tot_demand / tot_person))
 
     #print(df_data_input)
     regional_statistics_columns = [
         'name',
         'mean',
         'mean_norm_pop',
+        #'mean_norm_pop_std_dev',
         'std_dev']#
         #'diff_av_max',
         #'mean_pp',
@@ -91,6 +92,7 @@ def total_annual_demand(
             str(region_name),
             mean[region_name],
             mean_norm_pop[region_name],
+            #mean_norm_pop_std_dev[region_name],
             std_dev[region_name]
             #diff_av_max,
             #mean_peak_h_pp,
@@ -129,15 +131,15 @@ def total_annual_demand(
         bin_values = result_mapping.get_reasonable_bin_values_II(
             data_to_plot=list(uk_gdf[field_to_plot]),
             nr_of_intervals=nr_of_intervals)
-    #print("field_to_plot: {} BINS: {}".format(field_to_plot, bin_values))
+    print("field_to_plot: {} BINS: {}".format(field_to_plot, bin_values))
 
     uk_gdf, cmap_rgb_colors, color_zero, min_value, max_value = fig_p2_weather_val.user_defined_bin_classification(
         uk_gdf,
-        field_to_plot, 
+        field_to_plot,
         bin_values=bin_values)
 
     # plot with face color attribute
-    uk_gdf.plot(ax=ax, facecolor=uk_gdf['bin_color'], edgecolor='black', linewidth=0.5)
+    uk_gdf.plot(ax=ax, facecolor=uk_gdf['bin_color'], edgecolor='black', linewidth=0.1)
 
     # TODO IMRPVE: MAKE CORRECT ONE FOR NEW PROCESSING
     legend_handles = result_mapping.get_legend_handles(

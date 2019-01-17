@@ -2,6 +2,7 @@
 """
 """
 import os
+import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
 import copy
@@ -15,9 +16,9 @@ from energy_demand.read_write import write_data
 
 colors = {
     # High elec
-    #'h_min': '#004529',
-    #'h_c': '#238443',
-    #'h_max': '#78c679',
+    'h_min': '#004529',
+    'h_c': '#238443',
+    'h_max': '#78c679',
 
     # Low elec
     'l_min': '#800026',
@@ -65,6 +66,7 @@ def scenario_over_time(
         quantile_95 = 0.95
         quantile_05 = 0.05
 
+        #color = '#800026'
         try:
             color = colors[scenario_name]
             marker = marker_styles[scenario_name]
@@ -76,7 +78,7 @@ def scenario_over_time(
         except KeyError:
             marker = list(marker_styles.values())[cnt_scenario]
 
-        print("SCENARIO NAME {}  {}".format(scenario_name, color))
+        #print("SCENARIO NAME {}  {}".format(scenario_name, color))
 
         # Calculate average across all weather scenarios
         mean_national_peak = national_peak.mean(axis=0)
@@ -113,6 +115,7 @@ def scenario_over_time(
         plt.plot(
             mean_national_peak,
             label="{} (mean)".format(scenario_name),
+            zorder=1,
             color=color)
 
         # ------------------------
@@ -126,6 +129,7 @@ def scenario_over_time(
                 marker=marker,
                 edgecolor='black',
                 linewidth=0.5,
+                zorder=2,
                 s=15,
                 clip_on=False) #do not clip points on axis
 
@@ -134,8 +138,14 @@ def scenario_over_time(
         # ------------------
         start_yr_uncertainty = 2020
         
-        #Get position in array of start year uncertainty
-        pos_unc_yr = len(np.where(sim_yrs_smoothed < start_yr_uncertainty)[0])
+        if crit_smooth_line:
+            #Get position in array of start year uncertainty
+            pos_unc_yr = len(np.where(sim_yrs_smoothed < start_yr_uncertainty)[0])
+        else:
+            pos_unc_yr = 0
+            for cnt, year in enumerate(sim_yrs_smoothed):
+                if year == start_yr_uncertainty:
+                    pos_unc_yr = cnt
 
         # Shorten lines
         df_q_05 = df_q_05.loc[start_yr_uncertainty:] #select based on index which is year
@@ -195,7 +205,7 @@ def scenario_over_time(
     if seperate_legend:
         basic_plot_functions.export_legend(
             legend,
-            os.path.join(result_path, "{}__{}__legend.pdf".format(fig_name)))
+            os.path.join(result_path, "{}__legend.pdf".format(fig_name[:-4])))
         legend.remove()
 
     # --------
@@ -214,6 +224,58 @@ def scenario_over_time(
     write_data.write_list_to_txt(
         os.path.join(result_path, fig_name).replace(".pdf", ".txt"),
         statistics_to_print)
+
+def plot_std_dev_vs_contribution(
+        scenario_result_container,
+        sim_yrs,
+        fig_name,
+        fueltypes,
+        result_path,
+        plot_points=False,
+        unit='TWh',
+        crit_smooth_line=True,
+        seperate_legend=False):
+    
+    colors = {
+        2020: 'black',
+        2050: 'forestgreen'
+    }
+    for year, i in scenario_result_container.items():
+        
+        if year in [2020, 2050]:
+            scenario_name = i['scenario_name']
+            color = colors[year]
+            regional_share_national_peak = i['regional_share_national_peak']
+            
+            regions = list(regional_share_national_peak.columns)
+
+            nr_of_regions = regional_share_national_peak.shape[1]
+            nr_of_realisations = regional_share_national_peak.shape[0]
+            #SIM YEAR??
+            # Mean over all realisations
+            mean = regional_share_national_peak.mean(axis=0)
+
+            # Standard deviation over all realisations
+            std_dev = regional_share_national_peak.std(axis=0)
+
+            # Convert standard deviation given as % of peak into GW
+            print(i['peak_hour_demand'].shape)
+            print(type(std_dev))
+            print(type(i['peak_hour_demand']))
+            print(np.sum(i['peak_hour_demand']))
+            #std_dev_gw = np.sum(i['peak_hour_demand']) * std_dev
+
+            plt.scatter(
+                list(mean),
+                list(std_dev_gw), #list(std_dev),
+                color=color,
+                label="{} {}".format(year, scenario_name))
+    
+    plt.legend()
+    plt.show()
+    
+
+    return
 
 def fueltypes_over_time(
         scenario_result_container,
@@ -344,19 +406,23 @@ def fueltypes_over_time(
             # Start with uncertainty one model step later (=> 2020)
             # ------------------
             start_yr_uncertainty = 2020
-            
-            #Get position in array of start year uncertainty
-            pos_unc_yr = len(np.where(sim_yrs_smoothed < start_yr_uncertainty)[0])
+
+            if crit_smooth_line:
+                #Get position in array of start year uncertainty
+                pos_unc_yr = len(np.where(sim_yrs_smoothed < start_yr_uncertainty)[0])
+            else:
+                pos_unc_yr = 0
+                for cnt, year in enumerate(sim_yrs_smoothed):
+                    if year == start_yr_uncertainty:
+                        pos_unc_yr = cnt
 
             # Shorten lines
             df_q_05 = df_q_05.loc[start_yr_uncertainty:]
             df_q_95 = df_q_95.loc[start_yr_uncertainty:]
-
-
             sim_yrs_smoothed = sim_yrs_smoothed[pos_unc_yr:]
 
-            df_q_05.plot.line(color=color, linestyle='--', linewidth=0.1, label='_nolegend_') #, label="0.05")
-            df_q_95.plot.line(color=color, linestyle='--', linewidth=0.1, label='_nolegend_') #, label="0.05")
+            df_q_05.plot.line(color=color, linestyle='--', linewidth=0.1, label='_nolegend_')
+            df_q_95.plot.line(color=color, linestyle='--', linewidth=0.1, label='_nolegend_')
 
             # Plotting qunatilse and average scenario
             plt.fill_between(
@@ -423,7 +489,7 @@ def fueltypes_over_time(
     if seperate_legend:
         basic_plot_functions.export_legend(
             legend,
-            os.path.join(result_path, "{}__legend.pdf".format(fig_name)))
+            os.path.join(result_path, "{}__legend.pdf".format(fig_name[:-4])))
         legend.remove()
 
     # --------
