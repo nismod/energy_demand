@@ -15,6 +15,72 @@ from energy_demand.read_write import write_data
 from energy_demand.basic import conversions
 from energy_demand.plotting import basic_plot_functions
 
+def plot_4_cross_map(
+        reclassified,
+        result_path,
+        path_shapefile_input,
+        bin_values=[1,2,3,4],
+        seperate_legend=False
+    ):
+    """Plot classifed 4 cross map
+    """
+    # Load uk shapefile
+    uk_shapefile = gpd.read_file(path_shapefile_input)
+
+    # Merge stats to geopanda
+    shp_gdp_merged = uk_shapefile.merge(reclassified, on='name')
+
+    # Assign projection
+    crs = {'init': 'epsg:27700'} #27700: OSGB_1936_British_National_Grid
+    uk_gdf = gpd.GeoDataFrame(shp_gdp_merged, crs=crs)
+    ax = uk_gdf.plot()
+
+    uk_gdf['facecolor'] = 'white'
+    cmap_rgb_colors = {
+        1: 'red',
+        2: 'green',
+        3: 'blue',
+        4: 'yellow'}
+
+    for region in uk_gdf.index:
+        reclassified_value = uk_gdf.loc[region]['reclassified']
+        uk_gdf.loc[region, 'facecolor'] = cmap_rgb_colors[reclassified_value]
+
+    # plot with face color attribute
+    uk_gdf.plot(ax=ax, facecolor=uk_gdf['facecolor'], edgecolor='black', linewidth=0.1)
+
+    legend_handles = [
+        mpatches.Patch(color=cmap_rgb_colors[0], label=str("0")),
+        mpatches.Patch(color=cmap_rgb_colors[1], label=str("1")),
+        mpatches.Patch(color=cmap_rgb_colors[2], label=str("2")),
+        mpatches.Patch(color=cmap_rgb_colors[3], label=str("3"))]
+
+    legend = plt.legend(
+        handles=legend_handles,
+        title="test",
+        prop={'size': 8},
+        loc='upper center',
+        bbox_to_anchor=(0.5, -0.05),
+        frameon=False)
+
+    if seperate_legend:
+        basic_plot_functions.export_legend(
+            legend,
+            os.path.join(result_path, "{}__legend.pdf".format(result_path)))
+        legend.remove()
+
+    # Remove coordinates from figure
+    ax.set_yticklabels([])
+    ax.set_xticklabels([])
+    legend.get_title().set_fontsize(8)
+
+    # --------
+    # Labeling
+    # --------
+    plt.tight_layout()
+    plt.savefig(os.path.join(result_path))
+    plt.close()
+
 def total_annual_demand(
         df_data_input,
         path_shapefile_input,

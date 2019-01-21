@@ -9,6 +9,7 @@ import copy
 import pylab
 import numpy as np
 
+from energy_demand.plotting import fig_3_weather_map
 from energy_demand.plotting import basic_plot_functions
 from energy_demand.basic import conversions
 from energy_demand.plotting import plotting_styles
@@ -39,6 +40,8 @@ marker_styles = {
     'l_min': marker_list[2],
     'l_max': marker_list[6],
 }
+
+
 
 def scenario_over_time(
         scenario_result_container,
@@ -232,6 +235,7 @@ def plot_std_dev_vs_contribution(
         fueltypes,
         result_path,
         plot_points=False,
+        path_shapefile_input=False,
         unit='TWh',
         crit_smooth_line=True,
         seperate_legend=False):
@@ -240,9 +244,6 @@ def plot_std_dev_vs_contribution(
         2020: 'dimgrey',
         2050: 'forestgreen'
     }
-
-    #fig, ax = plt.subplots(2, 2)
-    fig = plt.figure(figsize=basic_plot_functions.cm2inch(20, 20)) #width, height
 
     #plot_numbers = {
     #    'h_max': {'row': 0, 'col': 0},
@@ -265,7 +266,7 @@ def plot_std_dev_vs_contribution(
     # -----------
     # Plot 4x4 chart with differences
     # ------------
-
+    fig = plt.figure(figsize=basic_plot_functions.cm2inch(20, 20)) #width, height
     for scenario in scenarios:
         plot_nr = plot_numbers[scenario]
         plt.subplot(2, 2, plot_nr)
@@ -279,8 +280,10 @@ def plot_std_dev_vs_contribution(
         diff_2020_2050_reg_share = ((100 / mean_2020) * mean_2050) - 100
         diff_2020_2050_reg_share_std = ((100 / std_2020) * std_2050) - 100
         
-        plt.ylabel("diff in st_dev [%]")
-        plt.xlabel("diff in mean [%]")
+        if scenario not in ['h_min', 'l_min']:
+            plt.ylabel("Δ standard deviation [%]", fontsize=10)
+        if scenario not in ['h_max', 'h_min']:
+            plt.xlabel("Δ mean of total peak [%]", fontsize=10)
 
         color = 'navy'
         plt.scatter(
@@ -292,8 +295,8 @@ def plot_std_dev_vs_contribution(
             linewidth=0.5,
             s=3)#,
             #label="{}".format(scenario))
-        plt.title("{}".format(scenario), size=8)
-        plt.legend()
+        plt.title("{}".format(scenario), size=10)
+        #plt.legend()
         
         #ax.set_axisbelow(True)
         #ax.set_xticks([0], minor=True)
@@ -303,10 +306,40 @@ def plot_std_dev_vs_contribution(
         plt.axhline(y=0, linewidth=0.7, color='grey', linestyle='--')   # horizontal line
         plt.axvline(x=0, linewidth=0.7, color='grey', linestyle='--')    # vertical line
         #plt.axhline(x=0, linewidth=0.7, color='grey', linestyle='--')
-    
-    plt.show()
 
-    # -----------
+        # -----------------
+        # Plot spatial map
+        # -----------------
+        regions = diff_2020_2050_reg_share.index
+        relclassified_values = pd.DataFrame()
+        relclassified_values['reclassified'] = 0
+        relclassified_values['name'] = regions
+        relclassified_values = relclassified_values.set_index(('name'))
+        relclassified_values['name'] = regions
+
+        for region in regions.values:
+            diff_mean = diff_2020_2050_reg_share.loc[region]
+            diff_std = diff_2020_2050_reg_share_std.loc[region]
+
+            if diff_mean < 0 and diff_std < 0:
+                relclassified_values.loc[region, 'reclassified'] = 3
+            elif diff_mean > 0 and diff_std < 0:
+                relclassified_values.loc[region, 'reclassified'] = 2
+            elif diff_mean < 0 and diff_std > 0:
+                relclassified_values.loc[region, 'reclassified'] = 4
+            elif diff_mean > 0 and diff_std > 0:
+                relclassified_values.loc[region, 'reclassified'] = 1
+            else:
+                raise Exception("Classificaiton error: {}  {} {}".format(region, diff_mean, diff_std))
+
+        fig_3_weather_map.plot_4_cross_map(
+            reclassified=relclassified_values,
+            result_path=os.path.join(result_path, "spatial_final_{}.pdf".format(scenario)),
+            path_shapefile_input=path_shapefile_input)
+
+    plt.savefig(os.path.join(result_path, "cross_chart_relative.pdf"))
+
+    '''# -----------
     # Plot 4x4 chart with arrows
     # ------------
     scenario_arrow_cords = {
@@ -365,11 +398,12 @@ def plot_std_dev_vs_contribution(
                 fc='k',
                 ec='k')
         
-    plt.show()
+    plt.show()'''
 
     # -----------
     # Plot 4x4 chart with absolutes
     # ------------
+    fig = plt.figure(figsize=basic_plot_functions.cm2inch(20, 20)) #width, height
     for year, scenario_results in scenario_result_container.items():
         for scenario_name, scenario_results in scenario_results.items():
 
@@ -403,24 +437,26 @@ def plot_std_dev_vs_contribution(
                 # Absolute values
                 std_dev_gw = abs_gw.std(axis=0)
                 mean_gw = abs_gw.mean(axis=0)
-                
                 plt.ylim(0, np.max(std_dev_gw))
-                plt.ylabel("standard deviation [GW]")
-                plt.xlabel("mean percentage of total peak [%]")
+                plt.ylim(0, 0.06)
+
+                if scenario_name not in ['h_min', 'l_min']:
+                    plt.ylabel("standard deviation [GW]", fontsize=10)
+                if scenario_name not in ['h_max', 'h_min']:
+                    plt.xlabel("mean of total peak [GW]", fontsize=10)
+
+                plt.title(scenario_name, size=10)
                 plt.scatter(
                     list(mean_gw), #list(mean),
                     list(std_dev_gw), #list(std_dev),
                     color=color,
-                    s=size,
-                    label="{} {}".format(year, scenario_name))
-                
-                plt.legend()
+                    s=size) #,
+                    #label="{} {}".format(year, scenario_name))
 
-    plt.show()
-
-
-
-    return
+                #plt.legend()
+    
+    plt.savefig(os.path.join(result_path, "cross_chart_absolute.pdf"))
+    #plt.show()
 
 def fueltypes_over_time(
         scenario_result_container,

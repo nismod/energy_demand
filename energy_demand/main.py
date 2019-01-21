@@ -340,11 +340,6 @@ if __name__ == "__main__":
         data['assumptions'].strategy_vars,
         sim_yrs)
 
-    #print("AAAAAAA")
-    #reg_name = data['regions'][0]
-    #print(regional_vars[reg_name]['dm_improvement']['rs_space_heating'])
-    #raise Exception("TEST")
-
     # ------------------------------------------------
     # Calculate switches (not generic)
     # ------------------------------------------------

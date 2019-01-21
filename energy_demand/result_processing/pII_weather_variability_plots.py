@@ -221,7 +221,6 @@ def main(
             # ---------------------------------------------------------------
             # TEST PLOT X-axis: Contribution to peak y-axis: Std: deviation
             # ---------------------------------------------------------------
-            print("AAAAAAA {} {} {}".format(scenario_name, simulation_yr_to_plot, list(result_entry['regional_share_national_peak']['E06000001'])[0]))
             x_chart_yrs_storage[simulation_yr_to_plot][scenario_name] = result_entry
 
         #'''
@@ -389,6 +388,7 @@ def main(
         fig_name="_scenarios_4_chart_absolute.pdf",
         fueltypes=['electricity'],
         result_path=result_path,
+        path_shapefile_input=path_shapefile_input,
         unit='TWh',
         plot_points=True)
 
@@ -401,7 +401,7 @@ path_shapefile_input="C:/Users/cenv0553/ED/data/energy_demand/region_definitions
 
 main(
     #scenarios_path="C:/_FFF_local", #_local",
-    scenarios_path="C:/_FFF_LOC",
+    scenarios_path="C:/_FFF_LOC_SMAL",
     #scenarios_path="C:/_FFF",
     path_shapefile_input=path_shapefile_input,
     base_yr=2015,
