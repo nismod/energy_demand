@@ -2,6 +2,7 @@
 """
 import os
 import pandas as pd
+import numpy as np
 
 from energy_demand.read_write import data_loader, read_data
 from energy_demand.basic import date_prop
@@ -49,6 +50,7 @@ def main(
         print("...simulation_yr_to_plot: " + str(simulation_yr_to_plot))
         print("=================")
         data = {}
+        x_chart_yrs_storage[simulation_yr_to_plot] = {}
 
         # ---------------------------------------------------------
         # Iterate folders and read out all weather years and stations
@@ -103,7 +105,6 @@ def main(
             national_hydrogen = pd.DataFrame()
 
             for path_result_folder in paths_folders_result:
-                #print("... " + str(path_result_folder))
                 try:
                     data = {}
 
@@ -203,7 +204,7 @@ def main(
                     pass 
 
             # Add to scenario container
-            scenario_result_container.append({
+            result_entry = {
                 'scenario_name': scenario_name,
                 'peak_hour_demand': peak_hour_demand,
                 'peak_hour_demand_per_person': peak_hour_demand_per_person,
@@ -213,16 +214,17 @@ def main(
                 'total_regional_demand_electricity': total_regional_demand_electricity,
                 'national_electricity': national_electricity,
                 'national_gas': national_gas,
-                'national_hydrogen': national_hydrogen,
-            })
+                'national_hydrogen': national_hydrogen}
+            
+            scenario_result_container.append(result_entry)
 
-        
             # ---------------------------------------------------------------
             # TEST PLOT X-axis: Contribution to peak y-axis: Std: deviation
             # ---------------------------------------------------------------
-            x_chart_yrs_storage[simulation_yr_to_plot] = scenario_result_container[0]
+            print("AAAAAAA {} {} {}".format(scenario_name, simulation_yr_to_plot, list(result_entry['regional_share_national_peak']['E06000001'])[0]))
+            x_chart_yrs_storage[simulation_yr_to_plot][scenario_name] = result_entry
 
-        '''
+        #'''
         # ------------------------------
         # Plot national sum over time per fueltype and scenario
         # ------------------------------
@@ -259,7 +261,7 @@ def main(
     #    print("=================")
     #    print("...simulation_yr_to_plot: " + str(simulation_yr_to_plot))
     #    print("=================")
-
+        '''
         # ------------------------------
         # Plotting spatial results for electricity
         # ------------------------------
@@ -377,14 +379,14 @@ def main(
                 unit='percentage',
                 seperate_legend=seperate_legend)
 
-    #'''
+        '''
     ## ------------------------------
     ## Plotting x-chart
     ## ------------------------------
     fig_3_plot_over_time.plot_std_dev_vs_contribution(
         scenario_result_container=x_chart_yrs_storage,
         sim_yrs=data['assumptions']['sim_yrs'],
-        fig_name="AA_XMAP.pdf",
+        fig_name="_scenarios_4_chart_absolute.pdf",
         fueltypes=['electricity'],
         result_path=result_path,
         unit='TWh',

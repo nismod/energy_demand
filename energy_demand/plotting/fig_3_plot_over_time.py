@@ -237,43 +237,188 @@ def plot_std_dev_vs_contribution(
         seperate_legend=False):
     
     colors = {
-        2020: 'black',
+        2020: 'dimgrey',
         2050: 'forestgreen'
     }
-    for year, i in scenario_result_container.items():
+
+    #fig, ax = plt.subplots(2, 2)
+    fig = plt.figure(figsize=basic_plot_functions.cm2inch(20, 20)) #width, height
+
+    #plot_numbers = {
+    #    'h_max': {'row': 0, 'col': 0},
+    #    'h_min': {'row': 0, 'col': 1},
+    #    'l_max': {'row': 1, 'col': 0},
+    #    'l_min': {'row': 1, 'col': 1}}
+    plot_numbers = {
+        'h_max': 1,
+        'h_min': 2,
+        'l_max': 3,
+        'l_min': 4}
+    
+    sizes = {
+        2020: 2,
+        2050: 5
+    }
+
+    scenarios = ['l_max', 'l_min', 'h_max', 'h_min']
+    
+    # -----------
+    # Plot 4x4 chart with differences
+    # ------------
+
+    for scenario in scenarios:
+        plot_nr = plot_numbers[scenario]
+        plt.subplot(2, 2, plot_nr)
+
+        mean_2020 = scenario_result_container[2020][scenario]['regional_share_national_peak'].mean(axis=0)
+        mean_2050 = scenario_result_container[2050][scenario]['regional_share_national_peak'].mean(axis=0)
         
-        if year in [2020, 2050]:
-            scenario_name = i['scenario_name']
-            color = colors[year]
-            regional_share_national_peak = i['regional_share_national_peak']
-            
-            regions = list(regional_share_national_peak.columns)
+        std_2020 = scenario_result_container[2020][scenario]['regional_share_national_peak'].std(axis=0)
+        std_2050 = scenario_result_container[2050][scenario]['regional_share_national_peak'].std(axis=0)
+        
+        diff_2020_2050_reg_share = ((100 / mean_2020) * mean_2050) - 100
+        diff_2020_2050_reg_share_std = ((100 / std_2020) * std_2050) - 100
+        
+        plt.ylabel("diff in st_dev [%]")
+        plt.xlabel("diff in mean [%]")
 
-            nr_of_regions = regional_share_national_peak.shape[1]
-            nr_of_realisations = regional_share_national_peak.shape[0]
-            #SIM YEAR??
-            # Mean over all realisations
-            mean = regional_share_national_peak.mean(axis=0)
-
-            # Standard deviation over all realisations
-            std_dev = regional_share_national_peak.std(axis=0)
-
-            # Convert standard deviation given as % of peak into GW
-            print(i['peak_hour_demand'].shape)
-            print(type(std_dev))
-            print(type(i['peak_hour_demand']))
-            print(np.sum(i['peak_hour_demand']))
-            #std_dev_gw = np.sum(i['peak_hour_demand']) * std_dev
-
-            plt.scatter(
-                list(mean),
-                list(std_dev_gw), #list(std_dev),
-                color=color,
-                label="{} {}".format(year, scenario_name))
+        color = 'navy'
+        plt.scatter(
+            diff_2020_2050_reg_share,
+            diff_2020_2050_reg_share_std,
+            alpha=0.6,
+            color=color,
+            edgecolor=color,
+            linewidth=0.5,
+            s=3)#,
+            #label="{}".format(scenario))
+        plt.title("{}".format(scenario), size=8)
+        plt.legend()
+        
+        #ax.set_axisbelow(True)
+        #ax.set_xticks([0], minor=True)
+        #ax.set_yticks([0], minor=True)
+        #ax.yaxis.grid(True, which='minor', linewidth=0.7, color='grey', linestyle='--')
+        #ax.xaxis.grid(True, which='minor', linewidth=0.7, color='grey', linestyle='--')
+        plt.axhline(y=0, linewidth=0.7, color='grey', linestyle='--')   # horizontal line
+        plt.axvline(x=0, linewidth=0.7, color='grey', linestyle='--')    # vertical line
+        #plt.axhline(x=0, linewidth=0.7, color='grey', linestyle='--')
     
-    plt.legend()
     plt.show()
+
+    # -----------
+    # Plot 4x4 chart with arrows
+    # ------------
+    scenario_arrow_cords = {
+        'h_max': [],
+        'h_min': [],
+        'l_max': [],
+        'l_min': []}
+
+    for scenario_name in scenarios:
+
+        national_peak_per_run_2020 = scenario_result_container[2020][scenario_name]['peak_hour_demand'].sum(axis=1).to_frame()
+        national_peak_per_run_2050 = scenario_result_container[2050][scenario_name]['peak_hour_demand'].sum(axis=1).to_frame()
+        regional_share_national_peak_2020 = scenario_result_container[2020][scenario_name]['regional_share_national_peak']
+        regional_share_national_peak_2050 = scenario_result_container[2050][scenario_name]['regional_share_national_peak']
+        
+        abs_gw_2020 = pd.DataFrame()
+        abs_gw_2050 = pd.DataFrame()
     
+        for reg_column in regional_share_national_peak_2020.columns.values:
+            column_national_peak = national_peak_per_run_2020.columns[0]
+            abs_gw_2020[reg_column] = (regional_share_national_peak_2020[reg_column] / 100) * national_peak_per_run_2020[column_national_peak]
+
+        for reg_column in regional_share_national_peak_2050.columns.values:
+            column_national_peak = national_peak_per_run_2050.columns[0]
+            abs_gw_2050[reg_column] = (regional_share_national_peak_2050[reg_column] / 100) * national_peak_per_run_2050[column_national_peak]
+
+        std_dev_gw_2020 = abs_gw_2020.std(axis=0)
+        std_dev_gw_2050 = abs_gw_2050.std(axis=0)
+        mean_gw_2020 = abs_gw_2020.mean(axis=0)
+        mean_gw_2050 = abs_gw_2050.mean(axis=0)
+
+        # DIFF
+        for i in range(len(std_dev_gw_2020)):
+            x_2020 = mean_gw_2020.values[i]
+            y_2020 = std_dev_gw_2020.values[i]
+            x_2050 = mean_gw_2050.values[i]
+            y_2050 = std_dev_gw_2050.values[i]
+            scenario_arrow_cords[scenario_name].append([x_2020, y_2020, x_2050, y_2050])
+
+    for scenario_name in scenarios:
+        plot_nr = plot_numbers[scenario_name]
+        plt.subplot(2, 2, plot_nr)
+        ax = fig.subplot(2, 2, plot_nr)
+
+        ax = plt.axes()
+        for i in range(len(scenario_arrow_cords[scenario_name])):
+            print("AA {} {}".format(scenario_name, i))
+
+            ax.arrow(
+                scenario_arrow_cords[scenario_name][i][0],
+                scenario_arrow_cords[scenario_name][i][1],
+                scenario_arrow_cords[scenario_name][i][2],
+                scenario_arrow_cords[scenario_name][i][3], 
+                head_width=0.05,
+                head_length=0.01,
+                fc='k',
+                ec='k')
+        
+    plt.show()
+
+    # -----------
+    # Plot 4x4 chart with absolutes
+    # ------------
+    for year, scenario_results in scenario_result_container.items():
+        for scenario_name, scenario_results in scenario_results.items():
+
+            plot_nr = plot_numbers[scenario_name]
+            plt.subplot(2, 2, plot_nr)
+
+            if year in [2020, 2050]:
+                color = colors[year]
+                size = sizes[year]
+
+                #regions = list(regional_share_national_peak.columns)
+                #nr_of_regions = regional_share_national_peak.shape[1]
+                #nr_of_realisations = regional_share_national_peak.shape[0]
+
+                # Mean over all realisations
+                mean = scenario_results['regional_share_national_peak'].mean(axis=0) / 100
+
+                # Standard deviation over all realisations
+                std_dev = scenario_results['regional_share_national_peak'].std(axis=0) / 100
+
+                # Convert standard deviation given as % of peak into GW (multiply national peak per region share across the columns)
+                abs_gw = pd.DataFrame()
+                national_peak_per_run = scenario_results['peak_hour_demand'].sum(axis=1).to_frame()
+
+                for reg_column in scenario_results['regional_share_national_peak'].columns.values:
+
+                    #reg share * national peak
+                    column_national_peak = national_peak_per_run.columns[0]
+                    abs_gw[reg_column] = (scenario_results['regional_share_national_peak'][reg_column] / 100) * national_peak_per_run[column_national_peak]
+
+                # Absolute values
+                std_dev_gw = abs_gw.std(axis=0)
+                mean_gw = abs_gw.mean(axis=0)
+                
+                plt.ylim(0, np.max(std_dev_gw))
+                plt.ylabel("standard deviation [GW]")
+                plt.xlabel("mean percentage of total peak [%]")
+                plt.scatter(
+                    list(mean_gw), #list(mean),
+                    list(std_dev_gw), #list(std_dev),
+                    color=color,
+                    s=size,
+                    label="{} {}".format(year, scenario_name))
+                
+                plt.legend()
+
+    plt.show()
+
+
 
     return
 
