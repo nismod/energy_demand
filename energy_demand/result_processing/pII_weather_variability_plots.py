@@ -238,7 +238,7 @@ def main(
             result_path=result_path,
             unit='TWh',
             plot_points=True,
-            crit_smooth_line=crit_smooth_line,
+            crit_smooth_line=False,
             seperate_legend=seperate_legend)
 
         # ------------------------------
@@ -401,7 +401,7 @@ path_shapefile_input="C:/Users/cenv0553/ED/data/energy_demand/region_definitions
 
 main(
     #scenarios_path="C:/_FFF_local", #_local",
-    scenarios_path="C:/_FFF_LOC_SMAL",
+    scenarios_path="C:/_FFF_LOC", #_SMAL",
     #scenarios_path="C:/_FFF",
     path_shapefile_input=path_shapefile_input,
     base_yr=2015,

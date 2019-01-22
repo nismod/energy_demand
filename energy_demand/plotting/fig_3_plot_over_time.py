@@ -69,7 +69,6 @@ def scenario_over_time(
         quantile_95 = 0.95
         quantile_05 = 0.05
 
-        #color = '#800026'
         try:
             color = colors[scenario_name]
             marker = marker_styles[scenario_name]
@@ -95,6 +94,10 @@ def scenario_over_time(
 
         statistics_to_print.append("scenario: {} df_q_05: {}".format(scenario_name, df_q_05))
         statistics_to_print.append("scenario: {} df_q_95: {}".format(scenario_name, df_q_95))
+        statistics_to_print.append("--------min-------------- {}".format(scenario_name))
+        statistics_to_print.append("{}".format(np.min(national_peak)))
+        statistics_to_print.append("--------max-------------- {}".format(scenario_name))
+        statistics_to_print.append("{}".format(np.max(national_peak)))
 
         # --------------------
         # Try to smooth lines
@@ -261,10 +264,16 @@ def plot_std_dev_vs_contribution(
         2050: 5
     }
 
+    colors_quadrates = {
+        1: 'red',
+        2: 'tomato',
+        3: 'seagreen',
+        4: 'orange'}
+
     scenarios = ['l_max', 'l_min', 'h_max', 'h_min']
-    
+
     # -----------
-    # Plot 4x4 chart with differences
+    # Plot 4x4 chart with relative differences
     # ------------
     fig = plt.figure(figsize=basic_plot_functions.cm2inch(20, 20)) #width, height
     for scenario in scenarios:
@@ -285,27 +294,34 @@ def plot_std_dev_vs_contribution(
         if scenario not in ['h_max', 'h_min']:
             plt.xlabel("Δ mean of total peak [%]", fontsize=10)
 
-        color = 'navy'
-        plt.scatter(
-            diff_2020_2050_reg_share,
-            diff_2020_2050_reg_share_std,
-            alpha=0.6,
-            color=color,
-            edgecolor=color,
-            linewidth=0.5,
-            s=3)#,
-            #label="{}".format(scenario))
+        regions = diff_2020_2050_reg_share.index
+        for region in regions.values:
+            diff_mean = diff_2020_2050_reg_share.loc[region]
+            diff_std = diff_2020_2050_reg_share_std.loc[region]
+
+            if diff_mean < 0 and diff_std < 0:
+                color_pos = 3
+            elif diff_mean > 0 and diff_std < 0:
+                color_pos = 2
+            elif diff_mean < 0 and diff_std > 0:
+                color_pos = 4
+            elif diff_mean > 0 and diff_std > 0:
+                color_pos = 1
+
+            color = colors_quadrates[color_pos]
+            plt.scatter(
+                diff_mean,
+                diff_std,
+                #alpha=0.6,
+                color=color,
+                edgecolor=color,
+                linewidth=0.5,
+                s=3)
+        plt.xlim(-30, 60)
+        plt.ylim(-50, 300)
         plt.title("{}".format(scenario), size=10)
-        #plt.legend()
-        
-        #ax.set_axisbelow(True)
-        #ax.set_xticks([0], minor=True)
-        #ax.set_yticks([0], minor=True)
-        #ax.yaxis.grid(True, which='minor', linewidth=0.7, color='grey', linestyle='--')
-        #ax.xaxis.grid(True, which='minor', linewidth=0.7, color='grey', linestyle='--')
         plt.axhline(y=0, linewidth=0.7, color='grey', linestyle='--')   # horizontal line
         plt.axvline(x=0, linewidth=0.7, color='grey', linestyle='--')    # vertical line
-        #plt.axhline(x=0, linewidth=0.7, color='grey', linestyle='--')
 
         # -----------------
         # Plot spatial map
@@ -333,75 +349,15 @@ def plot_std_dev_vs_contribution(
                 raise Exception("Classificaiton error: {}  {} {}".format(region, diff_mean, diff_std))
 
         fig_3_weather_map.plot_4_cross_map(
+            colors_quadrates=colors_quadrates,
             reclassified=relclassified_values,
             result_path=os.path.join(result_path, "spatial_final_{}.pdf".format(scenario)),
             path_shapefile_input=path_shapefile_input)
 
     plt.savefig(os.path.join(result_path, "cross_chart_relative.pdf"))
 
-    '''# -----------
-    # Plot 4x4 chart with arrows
-    # ------------
-    scenario_arrow_cords = {
-        'h_max': [],
-        'h_min': [],
-        'l_max': [],
-        'l_min': []}
-
-    for scenario_name in scenarios:
-
-        national_peak_per_run_2020 = scenario_result_container[2020][scenario_name]['peak_hour_demand'].sum(axis=1).to_frame()
-        national_peak_per_run_2050 = scenario_result_container[2050][scenario_name]['peak_hour_demand'].sum(axis=1).to_frame()
-        regional_share_national_peak_2020 = scenario_result_container[2020][scenario_name]['regional_share_national_peak']
-        regional_share_national_peak_2050 = scenario_result_container[2050][scenario_name]['regional_share_national_peak']
-        
-        abs_gw_2020 = pd.DataFrame()
-        abs_gw_2050 = pd.DataFrame()
-    
-        for reg_column in regional_share_national_peak_2020.columns.values:
-            column_national_peak = national_peak_per_run_2020.columns[0]
-            abs_gw_2020[reg_column] = (regional_share_national_peak_2020[reg_column] / 100) * national_peak_per_run_2020[column_national_peak]
-
-        for reg_column in regional_share_national_peak_2050.columns.values:
-            column_national_peak = national_peak_per_run_2050.columns[0]
-            abs_gw_2050[reg_column] = (regional_share_national_peak_2050[reg_column] / 100) * national_peak_per_run_2050[column_national_peak]
-
-        std_dev_gw_2020 = abs_gw_2020.std(axis=0)
-        std_dev_gw_2050 = abs_gw_2050.std(axis=0)
-        mean_gw_2020 = abs_gw_2020.mean(axis=0)
-        mean_gw_2050 = abs_gw_2050.mean(axis=0)
-
-        # DIFF
-        for i in range(len(std_dev_gw_2020)):
-            x_2020 = mean_gw_2020.values[i]
-            y_2020 = std_dev_gw_2020.values[i]
-            x_2050 = mean_gw_2050.values[i]
-            y_2050 = std_dev_gw_2050.values[i]
-            scenario_arrow_cords[scenario_name].append([x_2020, y_2020, x_2050, y_2050])
-
-    for scenario_name in scenarios:
-        plot_nr = plot_numbers[scenario_name]
-        plt.subplot(2, 2, plot_nr)
-        ax = fig.subplot(2, 2, plot_nr)
-
-        ax = plt.axes()
-        for i in range(len(scenario_arrow_cords[scenario_name])):
-            print("AA {} {}".format(scenario_name, i))
-
-            ax.arrow(
-                scenario_arrow_cords[scenario_name][i][0],
-                scenario_arrow_cords[scenario_name][i][1],
-                scenario_arrow_cords[scenario_name][i][2],
-                scenario_arrow_cords[scenario_name][i][3], 
-                head_width=0.05,
-                head_length=0.01,
-                fc='k',
-                ec='k')
-        
-    plt.show()'''
-
     # -----------
-    # Plot 4x4 chart with absolutes
+    # Plot 4x4 chart with absolute
     # ------------
     fig = plt.figure(figsize=basic_plot_functions.cm2inch(20, 20)) #width, height
     for year, scenario_results in scenario_result_container.items():
@@ -411,9 +367,6 @@ def plot_std_dev_vs_contribution(
             plt.subplot(2, 2, plot_nr)
 
             if year in [2020, 2050]:
-                color = colors[year]
-                size = sizes[year]
-
                 #regions = list(regional_share_national_peak.columns)
                 #nr_of_regions = regional_share_national_peak.shape[1]
                 #nr_of_realisations = regional_share_national_peak.shape[0]
@@ -439,6 +392,7 @@ def plot_std_dev_vs_contribution(
                 mean_gw = abs_gw.mean(axis=0)
                 plt.ylim(0, np.max(std_dev_gw))
                 plt.ylim(0, 0.06)
+                plt.xlim(0, 1.5)
 
                 if scenario_name not in ['h_min', 'l_min']:
                     plt.ylabel("standard deviation [GW]", fontsize=10)
@@ -449,14 +403,11 @@ def plot_std_dev_vs_contribution(
                 plt.scatter(
                     list(mean_gw), #list(mean),
                     list(std_dev_gw), #list(std_dev),
-                    color=color,
-                    s=size) #,
+                    color=colors[year],
+                    s=sizes[year]) #,
                     #label="{} {}".format(year, scenario_name))
 
-                #plt.legend()
-    
     plt.savefig(os.path.join(result_path, "cross_chart_absolute.pdf"))
-    #plt.show()
 
 def fueltypes_over_time(
         scenario_result_container,

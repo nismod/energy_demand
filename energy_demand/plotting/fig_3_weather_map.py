@@ -16,6 +16,7 @@ from energy_demand.basic import conversions
 from energy_demand.plotting import basic_plot_functions
 
 def plot_4_cross_map(
+        colors_quadrates,
         reclassified,
         result_path,
         path_shapefile_input,
@@ -36,11 +37,7 @@ def plot_4_cross_map(
     ax = uk_gdf.plot()
 
     uk_gdf['facecolor'] = 'white'
-    cmap_rgb_colors = {
-        1: 'red',
-        2: 'green',
-        3: 'blue',
-        4: 'yellow'}
+    cmap_rgb_colors = colors_quadrates
 
     for region in uk_gdf.index:
         reclassified_value = uk_gdf.loc[region]['reclassified']
@@ -50,10 +47,10 @@ def plot_4_cross_map(
     uk_gdf.plot(ax=ax, facecolor=uk_gdf['facecolor'], edgecolor='black', linewidth=0.1)
 
     legend_handles = [
-        mpatches.Patch(color=cmap_rgb_colors[0], label=str("0")),
-        mpatches.Patch(color=cmap_rgb_colors[1], label=str("1")),
-        mpatches.Patch(color=cmap_rgb_colors[2], label=str("2")),
-        mpatches.Patch(color=cmap_rgb_colors[3], label=str("3"))]
+        mpatches.Patch(color=cmap_rgb_colors[1], label=str("0")),
+        mpatches.Patch(color=cmap_rgb_colors[2], label=str("1")),
+        mpatches.Patch(color=cmap_rgb_colors[3], label=str("2")),
+        mpatches.Patch(color=cmap_rgb_colors[4], label=str("3"))]
 
     legend = plt.legend(
         handles=legend_handles,
