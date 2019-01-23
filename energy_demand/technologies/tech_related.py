@@ -449,3 +449,14 @@ def generate_ashp_gshp_split(gshp_fraction):
     }
 
     return installed_heat_pump_by
+
+def get_technologies_per_fueltype(enduse_techs, technologies, fueltype):
+    """Get technologies for fueltype
+    """
+    technologies_fueltype = []
+    for tech in enduse_techs:
+        tech_fueltype = technologies[tech].fueltype_str
+        if tech_fueltype == fueltype:
+            technologies_fueltype.append(tech)
+
+    return technologies_fueltype

@@ -2,11 +2,14 @@
 """
 """
 import os
+import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
 import copy
 import pylab
+import numpy as np
 
+from energy_demand.plotting import fig_3_weather_map
 from energy_demand.plotting import basic_plot_functions
 from energy_demand.basic import conversions
 from energy_demand.plotting import plotting_styles
@@ -14,9 +17,9 @@ from energy_demand.read_write import write_data
 
 colors = {
     # High elec
-    #'h_min': '#004529',
-    #'h_c': '#238443',
-    #'h_max': '#78c679',
+    'h_min': '#004529',
+    'h_c': '#238443',
+    'h_max': '#78c679',
 
     # Low elec
     'l_min': '#800026',
@@ -37,6 +40,8 @@ marker_styles = {
     'l_min': marker_list[2],
     'l_max': marker_list[6],
 }
+
+
 
 def scenario_over_time(
         scenario_result_container,
@@ -75,7 +80,7 @@ def scenario_over_time(
         except KeyError:
             marker = list(marker_styles.values())[cnt_scenario]
 
-        print("SCENARIO NAME {}  {}".format(scenario_name, color))
+        #print("SCENARIO NAME {}  {}".format(scenario_name, color))
 
         # Calculate average across all weather scenarios
         mean_national_peak = national_peak.mean(axis=0)
@@ -89,6 +94,10 @@ def scenario_over_time(
 
         statistics_to_print.append("scenario: {} df_q_05: {}".format(scenario_name, df_q_05))
         statistics_to_print.append("scenario: {} df_q_95: {}".format(scenario_name, df_q_95))
+        statistics_to_print.append("--------min-------------- {}".format(scenario_name))
+        statistics_to_print.append("{}".format(np.min(national_peak)))
+        statistics_to_print.append("--------max-------------- {}".format(scenario_name))
+        statistics_to_print.append("{}".format(np.max(national_peak)))
 
         # --------------------
         # Try to smooth lines
@@ -112,6 +121,7 @@ def scenario_over_time(
         plt.plot(
             mean_national_peak,
             label="{} (mean)".format(scenario_name),
+            zorder=1,
             color=color)
 
         # ------------------------
@@ -125,20 +135,41 @@ def scenario_over_time(
                 marker=marker,
                 edgecolor='black',
                 linewidth=0.5,
+                zorder=2,
                 s=15,
                 clip_on=False) #do not clip points on axis
 
+        # ------------------
+        # Start with uncertainty one model step later (=> 2020)
+        # ------------------
+        start_yr_uncertainty = 2020
+        
+        if crit_smooth_line:
+            #Get position in array of start year uncertainty
+            pos_unc_yr = len(np.where(sim_yrs_smoothed < start_yr_uncertainty)[0])
+        else:
+            pos_unc_yr = 0
+            for cnt, year in enumerate(sim_yrs_smoothed):
+                if year == start_yr_uncertainty:
+                    pos_unc_yr = cnt
+
+        # Shorten lines
+        df_q_05 = df_q_05.loc[start_yr_uncertainty:] #select based on index which is year
+        df_q_95 = df_q_95.loc[start_yr_uncertainty:]
+        sim_yrs_smoothed = sim_yrs_smoothed[pos_unc_yr:]
+
+        # --------------------------------------
         # Plottin qunatilse and average scenario
-        df_q_05.plot.line(color=color, linestyle='--', linewidth=0.1, label='_nolegend_') #, label="0.05")
-        df_q_95.plot.line(color=color, linestyle='--', linewidth=0.1, label='_nolegend_') #, label="0.05")
+        # --------------------------------------
+        df_q_05.plot.line(color=color, linestyle='--', linewidth=0.1, label='_nolegend_')
+        df_q_95.plot.line(color=color, linestyle='--', linewidth=0.1, label='_nolegend_')
 
         plt.fill_between(
             sim_yrs_smoothed,
             list(df_q_95),  #y1
             list(df_q_05),  #y2
             alpha=0.25,
-            facecolor=color,
-            )
+            facecolor=color)
 
     plt.xlim(2015, 2050)
     plt.ylim(0)
@@ -180,7 +211,7 @@ def scenario_over_time(
     if seperate_legend:
         basic_plot_functions.export_legend(
             legend,
-            os.path.join(result_path, "{}__{}__legend.pdf".format(fig_name)))
+            os.path.join(result_path, "{}__legend.pdf".format(fig_name[:-4])))
         legend.remove()
 
     # --------
@@ -199,6 +230,184 @@ def scenario_over_time(
     write_data.write_list_to_txt(
         os.path.join(result_path, fig_name).replace(".pdf", ".txt"),
         statistics_to_print)
+
+def plot_std_dev_vs_contribution(
+        scenario_result_container,
+        sim_yrs,
+        fig_name,
+        fueltypes,
+        result_path,
+        plot_points=False,
+        path_shapefile_input=False,
+        unit='TWh',
+        crit_smooth_line=True,
+        seperate_legend=False):
+    
+    colors = {
+        2020: 'dimgrey',
+        2050: 'forestgreen'
+    }
+
+    #plot_numbers = {
+    #    'h_max': {'row': 0, 'col': 0},
+    #    'h_min': {'row': 0, 'col': 1},
+    #    'l_max': {'row': 1, 'col': 0},
+    #    'l_min': {'row': 1, 'col': 1}}
+    plot_numbers = {
+        'h_max': 1,
+        'h_min': 2,
+        'l_max': 3,
+        'l_min': 4}
+    
+    sizes = {
+        2020: 2,
+        2050: 5
+    }
+
+    colors_quadrates = {
+        1: 'red',
+        2: 'tomato',
+        3: 'seagreen',
+        4: 'orange'}
+
+    scenarios = ['l_max', 'l_min', 'h_max', 'h_min']
+
+    # -----------
+    # Plot 4x4 chart with relative differences
+    # ------------
+    fig = plt.figure(figsize=basic_plot_functions.cm2inch(20, 20)) #width, height
+    for scenario in scenarios:
+        plot_nr = plot_numbers[scenario]
+        plt.subplot(2, 2, plot_nr)
+
+        mean_2020 = scenario_result_container[2020][scenario]['regional_share_national_peak'].mean(axis=0)
+        mean_2050 = scenario_result_container[2050][scenario]['regional_share_national_peak'].mean(axis=0)
+        
+        std_2020 = scenario_result_container[2020][scenario]['regional_share_national_peak'].std(axis=0)
+        std_2050 = scenario_result_container[2050][scenario]['regional_share_national_peak'].std(axis=0)
+        
+        diff_2020_2050_reg_share = ((100 / mean_2020) * mean_2050) - 100
+        diff_2020_2050_reg_share_std = ((100 / std_2020) * std_2050) - 100
+        
+        if scenario not in ['h_min', 'l_min']:
+            plt.ylabel("Δ standard deviation [%]", fontsize=10)
+        if scenario not in ['h_max', 'h_min']:
+            plt.xlabel("Δ mean of total peak [%]", fontsize=10)
+
+        regions = diff_2020_2050_reg_share.index
+        for region in regions.values:
+            diff_mean = diff_2020_2050_reg_share.loc[region]
+            diff_std = diff_2020_2050_reg_share_std.loc[region]
+
+            if diff_mean < 0 and diff_std < 0:
+                color_pos = 3
+            elif diff_mean > 0 and diff_std < 0:
+                color_pos = 2
+            elif diff_mean < 0 and diff_std > 0:
+                color_pos = 4
+            elif diff_mean > 0 and diff_std > 0:
+                color_pos = 1
+
+            color = colors_quadrates[color_pos]
+            plt.scatter(
+                diff_mean,
+                diff_std,
+                #alpha=0.6,
+                color=color,
+                edgecolor=color,
+                linewidth=0.5,
+                s=3)
+        plt.xlim(-30, 60)
+        plt.ylim(-50, 300)
+        plt.title("{}".format(scenario), size=10)
+        plt.axhline(y=0, linewidth=0.7, color='grey', linestyle='--')   # horizontal line
+        plt.axvline(x=0, linewidth=0.7, color='grey', linestyle='--')    # vertical line
+
+        # -----------------
+        # Plot spatial map
+        # -----------------
+        regions = diff_2020_2050_reg_share.index
+        relclassified_values = pd.DataFrame()
+        relclassified_values['reclassified'] = 0
+        relclassified_values['name'] = regions
+        relclassified_values = relclassified_values.set_index(('name'))
+        relclassified_values['name'] = regions
+
+        for region in regions.values:
+            diff_mean = diff_2020_2050_reg_share.loc[region]
+            diff_std = diff_2020_2050_reg_share_std.loc[region]
+
+            if diff_mean < 0 and diff_std < 0:
+                relclassified_values.loc[region, 'reclassified'] = 3
+            elif diff_mean > 0 and diff_std < 0:
+                relclassified_values.loc[region, 'reclassified'] = 2
+            elif diff_mean < 0 and diff_std > 0:
+                relclassified_values.loc[region, 'reclassified'] = 4
+            elif diff_mean > 0 and diff_std > 0:
+                relclassified_values.loc[region, 'reclassified'] = 1
+            else:
+                raise Exception("Classificaiton error: {}  {} {}".format(region, diff_mean, diff_std))
+
+        fig_3_weather_map.plot_4_cross_map(
+            colors_quadrates=colors_quadrates,
+            reclassified=relclassified_values,
+            result_path=os.path.join(result_path, "spatial_final_{}.pdf".format(scenario)),
+            path_shapefile_input=path_shapefile_input)
+
+    plt.savefig(os.path.join(result_path, "cross_chart_relative.pdf"))
+
+    # -----------
+    # Plot 4x4 chart with absolute
+    # ------------
+    fig = plt.figure(figsize=basic_plot_functions.cm2inch(20, 20)) #width, height
+    for year, scenario_results in scenario_result_container.items():
+        for scenario_name, scenario_results in scenario_results.items():
+
+            plot_nr = plot_numbers[scenario_name]
+            plt.subplot(2, 2, plot_nr)
+
+            if year in [2020, 2050]:
+                #regions = list(regional_share_national_peak.columns)
+                #nr_of_regions = regional_share_national_peak.shape[1]
+                #nr_of_realisations = regional_share_national_peak.shape[0]
+
+                # Mean over all realisations
+                mean = scenario_results['regional_share_national_peak'].mean(axis=0) / 100
+
+                # Standard deviation over all realisations
+                std_dev = scenario_results['regional_share_national_peak'].std(axis=0) / 100
+
+                # Convert standard deviation given as % of peak into GW (multiply national peak per region share across the columns)
+                abs_gw = pd.DataFrame()
+                national_peak_per_run = scenario_results['peak_hour_demand'].sum(axis=1).to_frame()
+
+                for reg_column in scenario_results['regional_share_national_peak'].columns.values:
+
+                    #reg share * national peak
+                    column_national_peak = national_peak_per_run.columns[0]
+                    abs_gw[reg_column] = (scenario_results['regional_share_national_peak'][reg_column] / 100) * national_peak_per_run[column_national_peak]
+
+                # Absolute values
+                std_dev_gw = abs_gw.std(axis=0)
+                mean_gw = abs_gw.mean(axis=0)
+                plt.ylim(0, np.max(std_dev_gw))
+                plt.ylim(0, 0.06)
+                plt.xlim(0, 1.5)
+
+                if scenario_name not in ['h_min', 'l_min']:
+                    plt.ylabel("standard deviation [GW]", fontsize=10)
+                if scenario_name not in ['h_max', 'h_min']:
+                    plt.xlabel("mean of total peak [GW]", fontsize=10)
+
+                plt.title(scenario_name, size=10)
+                plt.scatter(
+                    list(mean_gw), #list(mean),
+                    list(std_dev_gw), #list(std_dev),
+                    color=colors[year],
+                    s=sizes[year]) #,
+                    #label="{} {}".format(year, scenario_name))
+
+    plt.savefig(os.path.join(result_path, "cross_chart_absolute.pdf"))
 
 def fueltypes_over_time(
         scenario_result_container,
@@ -281,6 +490,7 @@ def fueltypes_over_time(
 
             statistics_to_print.append("{} fueltype_str: {} df_q_05: {}".format(scenario_name, fueltype_str, df_q_05))
             statistics_to_print.append("{} fueltype_str: {} df_q_95: {}".format(scenario_name, fueltype_str, df_q_95))
+
             # --------------------
             # Try to smooth lines
             # --------------------
@@ -324,17 +534,35 @@ def fueltypes_over_time(
                     s=15,
                     clip_on=False) #do not clip points on axis
 
-            # Plottin qunatilse and average scenario
-            df_q_05.plot.line(color=color, linestyle='--', linewidth=0.1, label='_nolegend_') #, label="0.05")
-            df_q_95.plot.line(color=color, linestyle='--', linewidth=0.1, label='_nolegend_') #, label="0.05")
+            # ------------------
+            # Start with uncertainty one model step later (=> 2020)
+            # ------------------
+            start_yr_uncertainty = 2020
 
+            if crit_smooth_line:
+                #Get position in array of start year uncertainty
+                pos_unc_yr = len(np.where(sim_yrs_smoothed < start_yr_uncertainty)[0])
+            else:
+                pos_unc_yr = 0
+                for cnt, year in enumerate(sim_yrs_smoothed):
+                    if year == start_yr_uncertainty:
+                        pos_unc_yr = cnt
+
+            # Shorten lines
+            df_q_05 = df_q_05.loc[start_yr_uncertainty:]
+            df_q_95 = df_q_95.loc[start_yr_uncertainty:]
+            sim_yrs_smoothed = sim_yrs_smoothed[pos_unc_yr:]
+
+            df_q_05.plot.line(color=color, linestyle='--', linewidth=0.1, label='_nolegend_')
+            df_q_95.plot.line(color=color, linestyle='--', linewidth=0.1, label='_nolegend_')
+
+            # Plotting qunatilse and average scenario
             plt.fill_between(
                 sim_yrs_smoothed,
                 list(df_q_95),  #y1
                 list(df_q_05),  #y2
                 alpha=0.25,
-                facecolor=color,
-                )
+                facecolor=color)
 
     plt.xlim(2015, 2050)
     plt.ylim(0)
@@ -393,7 +621,7 @@ def fueltypes_over_time(
     if seperate_legend:
         basic_plot_functions.export_legend(
             legend,
-            os.path.join(result_path, "{}__legend.pdf".format(fig_name)))
+            os.path.join(result_path, "{}__legend.pdf".format(fig_name[:-4])))
         legend.remove()
 
     # --------

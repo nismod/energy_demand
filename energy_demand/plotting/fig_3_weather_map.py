@@ -15,6 +15,69 @@ from energy_demand.read_write import write_data
 from energy_demand.basic import conversions
 from energy_demand.plotting import basic_plot_functions
 
+def plot_4_cross_map(
+        colors_quadrates,
+        reclassified,
+        result_path,
+        path_shapefile_input,
+        bin_values=[1,2,3,4],
+        seperate_legend=False
+    ):
+    """Plot classifed 4 cross map
+    """
+    # Load uk shapefile
+    uk_shapefile = gpd.read_file(path_shapefile_input)
+
+    # Merge stats to geopanda
+    shp_gdp_merged = uk_shapefile.merge(reclassified, on='name')
+
+    # Assign projection
+    crs = {'init': 'epsg:27700'} #27700: OSGB_1936_British_National_Grid
+    uk_gdf = gpd.GeoDataFrame(shp_gdp_merged, crs=crs)
+    ax = uk_gdf.plot()
+
+    uk_gdf['facecolor'] = 'white'
+    cmap_rgb_colors = colors_quadrates
+
+    for region in uk_gdf.index:
+        reclassified_value = uk_gdf.loc[region]['reclassified']
+        uk_gdf.loc[region, 'facecolor'] = cmap_rgb_colors[reclassified_value]
+
+    # plot with face color attribute
+    uk_gdf.plot(ax=ax, facecolor=uk_gdf['facecolor'], edgecolor='black', linewidth=0.1)
+
+    legend_handles = [
+        mpatches.Patch(color=cmap_rgb_colors[1], label=str("0")),
+        mpatches.Patch(color=cmap_rgb_colors[2], label=str("1")),
+        mpatches.Patch(color=cmap_rgb_colors[3], label=str("2")),
+        mpatches.Patch(color=cmap_rgb_colors[4], label=str("3"))]
+
+    legend = plt.legend(
+        handles=legend_handles,
+        title="test",
+        prop={'size': 8},
+        loc='upper center',
+        bbox_to_anchor=(0.5, -0.05),
+        frameon=False)
+
+    if seperate_legend:
+        basic_plot_functions.export_legend(
+            legend,
+            os.path.join(result_path, "{}__legend.pdf".format(result_path)))
+        legend.remove()
+
+    # Remove coordinates from figure
+    ax.set_yticklabels([])
+    ax.set_xticklabels([])
+    legend.get_title().set_fontsize(8)
+
+    # --------
+    # Labeling
+    # --------
+    plt.tight_layout()
+    plt.savefig(os.path.join(result_path))
+    plt.close()
+
 def total_annual_demand(
         df_data_input,
         path_shapefile_input,
@@ -63,19 +126,20 @@ def total_annual_demand(
     max_entry = df_data_input.max(axis=0) #maximum entry for every hour
     min_entry = df_data_input.min(axis=0) #maximum entry for every hour
 
-    print("---- Calculate average per person")
+    #print("---- Calculate average per person")
     tot_person = sum(pop_sim_yr)
     #print(df_data_input.iloc[0])
     tot_demand = sum(df_data_input.iloc[0])
-    print("TOT PERSON: " + str(tot_person))
-    print("TOT PERSON: " + str(tot_demand))
-    print('AVERAGE KW per Person " '+ str(tot_demand / tot_person))
+    ##print("TOT PERSON: " + str(tot_person))
+    #print("TOT PERSON: " + str(tot_demand))
+    #print('AVERAGE KW per Person " '+ str(tot_demand / tot_person))
 
     #print(df_data_input)
     regional_statistics_columns = [
         'name',
         'mean',
         'mean_norm_pop',
+        #'mean_norm_pop_std_dev',
         'std_dev']#
         #'diff_av_max',
         #'mean_pp',
@@ -91,6 +155,7 @@ def total_annual_demand(
             str(region_name),
             mean[region_name],
             mean_norm_pop[region_name],
+            #mean_norm_pop_std_dev[region_name],
             std_dev[region_name]
             #diff_av_max,
             #mean_peak_h_pp,
@@ -129,15 +194,15 @@ def total_annual_demand(
         bin_values = result_mapping.get_reasonable_bin_values_II(
             data_to_plot=list(uk_gdf[field_to_plot]),
             nr_of_intervals=nr_of_intervals)
-    #print("field_to_plot: {} BINS: {}".format(field_to_plot, bin_values))
+    print("field_to_plot: {} BINS: {}".format(field_to_plot, bin_values))
 
     uk_gdf, cmap_rgb_colors, color_zero, min_value, max_value = fig_p2_weather_val.user_defined_bin_classification(
         uk_gdf,
-        field_to_plot, 
+        field_to_plot,
         bin_values=bin_values)
 
     # plot with face color attribute
-    uk_gdf.plot(ax=ax, facecolor=uk_gdf['bin_color'], edgecolor='black', linewidth=0.5)
+    uk_gdf.plot(ax=ax, facecolor=uk_gdf['bin_color'], edgecolor='black', linewidth=0.1)
 
     # TODO IMRPVE: MAKE CORRECT ONE FOR NEW PROCESSING
     legend_handles = result_mapping.get_legend_handles(

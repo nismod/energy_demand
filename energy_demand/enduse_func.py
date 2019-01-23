@@ -5,6 +5,7 @@ import logging
 import math
 import numpy as np
 import matplotlib.pyplot as plt
+import copy
 
 from energy_demand.basic import date_prop
 from energy_demand.profiles import load_factors as lf
@@ -127,8 +128,6 @@ class Enduse(object):
             #print("------INFO  {} {} {}  {}".format(self.enduse, sector, region, curr_yr))
             #print("FUEL TRAIN A0: " + str(np.sum(self.fuel_y)))
 
-            #if curr_yr > 2015 and enduse == 'rs_lighting':
-            #    print("tt")
             # Get technologies of enduse
             self.enduse_techs = get_enduse_techs(fuel_tech_p_by)
 
@@ -230,21 +229,12 @@ class Enduse(object):
                     # Demand management for non-technology enduse
                     self.fuel_yh = load_shifting(
                         enduse,
-                        curr_yr,
-                        strategy_vars['dm_improvement'],
                         fuel_yh,
                         mode_constrained=False,
+                        param_lf_improved_cy=strategy_vars['dm_improvement'][enduse][curr_yr],
                         make_all_flat=make_all_flat)
                     #print("FUEL TRAIN Y" + str(np.sum(fuel_yh)))
 
-                    '''print("-----otside-------------")
-                    if curr_yr > 2015 and enduse == 'rs_space_heating':
-                        plt.plot(self.fuel_yh.reshape(8760), label="after")
-                        plt.plot(fuel_yh.reshape(8760), label="before")
-                        plt.legend()
-                        plt.show()
-                        print("----")'''
-                    
                     #if curr_yr > 2015:
                     #    _a = np.max(fuel_yh)
                     #    _b = np.max(self.fuel_yh)
@@ -345,39 +335,183 @@ class Enduse(object):
                         mode_constrained)
 
                     # --------------------------------------
-                    # Demand Management
+                    # Peak shifting
                     # --------------------------------------
                     if mode_constrained:
                         self.techs_fuel_yh = {}
-
-                        for tech in fuel_yh:
-                            self.techs_fuel_yh[tech] = load_shifting(
-                                enduse,
-                                curr_yr,
-                                strategy_vars['dm_improvement'],
-                                fuel_yh[tech],
-                                mode_constrained=True,
-                                make_all_flat=make_all_flat)
-
                         self.fuel_yh = None
+
+                        # If no demand management improvenent, no peak shifting
+                        if strategy_vars['dm_improvement'][enduse][curr_yr] == 0:
+                            self.techs_fuel_yh = fuel_yh
+                        else:
+                            self.techs_fuel_yh = load_shifting_multiple_tech(
+                                enduse,
+                                fueltypes,
+                                self.enduse_techs,
+                                assumptions.technologies,
+                                fuel_yh,
+                                param_lf_improved_cy=strategy_vars['dm_improvement'][enduse][curr_yr])
                     else:
-                        #TODO TEST SHIFTING??
-                        print("SHAPE " + str(self.fuel_yh))
                         self.fuel_yh = load_shifting(
                             enduse,
-                            curr_yr,
-                            strategy_vars['dm_improvement'],
                             fuel_yh,
                             mode_constrained=False,
+                            param_lf_improved_cy=strategy_vars['dm_improvement'][enduse][curr_yr],
                             make_all_flat=make_all_flat)
-                        print("SHAPE " + str(self.fuel_yh))
+
+def load_shifting_multiple_tech(
+        enduse,
+        fueltypes,
+        enduse_techs,
+        technologies,
+        fuel_yh,
+        param_lf_improved_cy
+    ):
+    """Shift demand in case of multiple technologiesself.
+
+    Check how much of each technology is shifted in peak hours.
+    Calculate the absolute and relative demand of shifited demand
+    for every technology. Then substract and assign the new demands
+    per technology.
+    """
+    fuel_tech_shifted = {}
+
+    for fueltype in fueltypes:
+
+        # Get technologies of fueltype
+        technologies_fueltype = tech_related.get_technologies_per_fueltype(
+            enduse_techs, technologies, fueltype)
+
+        if technologies_fueltype != []:
+
+            # Sum across al technologies
+            sum_all_techs = np.zeros((365, 24))
+            for tech in technologies_fueltype:
+                sum_all_techs += fuel_yh[tech]
+
+            # Shift demand for enduse (summed demand of technologies)
+            sum_all_techs_shifted = load_shifting(
+                enduse,
+                sum_all_techs,
+                mode_constrained=True,
+                param_lf_improved_cy=param_lf_improved_cy,
+                make_all_flat=False)
+            #plt.plot(sum_all_techs.reshape(8760), label="test taase")
+            #plt.plot(sum_all_techs_shifted.reshape(8760), label="test after")
+            #plt.legend()
+            #plt.show()
+
+            # Shift demand of peak (removed demand)
+            removed_demand = sum_all_techs - sum_all_techs_shifted
+            removed_demand = removed_demand.reshape(8760)
+            removed_demand[removed_demand < 0] = 0
+            tot_removed_demand = sum(removed_demand)
+            shape_removed = (1 / tot_removed_demand) * removed_demand
+            shape_removed[np.isnan(shape_removed)] = 0
+            peak_hour_positions = list(np.where(removed_demand > 0)[0])
+
+            # Demand in off-peak (demand added)
+            added_demand = sum_all_techs - sum_all_techs_shifted
+            added_demand = added_demand.reshape(8760)
+            added_demand[added_demand > 0] = 0
+            added_demand = abs(added_demand)
+            tot_added_demand = sum(added_demand)
+            shape_added = (1 / tot_added_demand) * added_demand
+            shape_added[np.isnan(shape_added)] = 0
+
+            assert round(np.sum(tot_removed_demand), 6) == round(tot_added_demand, 6)
+
+            for tech in technologies_fueltype:
+
+                #fuel_tech_8760 = fuel_yh[tech].reshape(8760)
+                #TODO Probably does not need to be copied but just assigned
+                fuel_tech_8760 = copy.copy(fuel_yh[tech].reshape(8760)) 
+                sum_all_techs_8760 = sum_all_techs.reshape(8760)
+                #print("-------------FUEL {}  {}".format(np.sum(fuel_tech_8760), tech))
+                #print("shape_added: " + str(shape_added[:24]))
+                #print("ff " + str(np.sum(shape_added)))
+                #print("param_lf_improved_cy: " + str(param_lf_improved_cy))
+                #print("sum_all_techs_8760 {}  {}".format(np.sum(sum_all_techs_8760), tech))
+                # Calculate share of technology specific demand to overall enduse demand per hour before shift
+                h_contribution_before = (1 / sum_all_techs_8760) * fuel_tech_8760
+                h_contribution_before[np.isnan(h_contribution_before)] = 0
+                #print("0 A " + str(np.sum(fuel_yh[tech])))
+                #print(np.sum(fuel_yh[tech]))
+                #print("A " + str(h_contribution_before))
+                # Get absolute demand in peak hours
+                tech_peak_shifted_demand = 0
+                for peak_hour_pos in peak_hour_positions:
+                    tech_peak_shifted_demand += h_contribution_before[peak_hour_pos] * removed_demand[peak_hour_pos]
+
+                #print("peak_hour_positions:         " + str(len(peak_hour_positions)))
+                #print("tech_peak_shifted_demand:    " + str(tech_peak_shifted_demand))
+                #print("tot_removed_demand:          " + str(tot_removed_demand))
+                # Percentage of total shifted demand of technology
+                p_abs_tech_shifted = (1.0 / tot_removed_demand) * tech_peak_shifted_demand
+
+                if np.isnan(p_abs_tech_shifted):
+                    p_abs_tech_shifted = 0
+                #print("p_abs_tech_shifted: " + str(p_abs_tech_shifted))
+                #print(np.sum(fuel_yh[tech]))
+                #print(np.sum(fuel_tech_8760))
+                #print("--------")
+                #print(tot_removed_demand)
+                #print(p_abs_tech_shifted)
+                #print(p_abs_tech_shifted * tot_removed_demand)
+                #print(p_abs_tech_shifted * tot_removed_demand * shape_added)
+                #_a = p_abs_tech_shifted * tot_removed_demand * shape_added
+                #print("TEST davor" + str(np.sum(_a)))
+                #print(np.sum(fuel_tech_8760))
+                # Add shifted demand to total demand
+                fuel_tech_8760 += (p_abs_tech_shifted * tot_removed_demand) * shape_added
+                #plt.plot(fuel_tech_8760, label="intermediar")
+                #print("ZZZ")
+                #_a = shape_removed * tot_removed_demand
+                #print(shape_removed[:24])
+                #print(_a[:24])
+                ##print(np.sum(fuel_tech_8760))
+                # Substract peak from total demand
+                fuel_tech_8760 -= (p_abs_tech_shifted * tot_removed_demand) * shape_removed
+
+                #print("KROKODIL")
+                #_max_before = np.max(fuel_yh[tech].reshape(8760))
+                #_max_after = np.max(fuel_tech_8760)
+                #print(_max_before)
+                #print(_max_after)
+                #print("PERCENT NEW " + str(((1/_max_before) * _max_after)))
+                #print(np.sum(fuel_tech_8760))
+                #print(np.sum(fuel_yh[tech]))
+                #plt.plot(fuel_yh[tech].reshape(8760), linewidth=4, label="before taase {}".format(tech))
+                #plt.plot(fuel_tech_8760, label="after")
+                #plt.legend()
+                #plt.show()
+                ##print(np.sum(fuel_tech_8760))
+                #print(np.sum(fuel_yh[tech]))
+                assert round(np.sum(fuel_tech_8760), 6) == round(np.sum(fuel_yh[tech]), 6)
+
+                fuel_tech_shifted[tech] = fuel_tech_8760.reshape(365, 24)
+        
+            '''if enduse == 'rs_space_heating':
+                
+                plt.plot(sum_all_techs.reshape(8760), label="COMBINED BEFORE SHFITING")
+
+                # Sum across al technologies
+                sum_all_techs = np.zeros((365, 24))
+                for tech in technologies_fueltype:
+                    sum_all_techs += fuel_tech_shifted[tech]
+
+                plt.plot(sum_all_techs.reshape(8760), label="COMBINED AFTER SHFITING")
+                #plt.plot(sum_all_techs_shifted.reshape(8760), label="test after")
+                plt.legend()
+                plt.show()'''
+    return fuel_tech_shifted
 
 def load_shifting(
         enduse,
-        curr_yr,
-        dm_improvement,
         fuel_yh,
         mode_constrained,
+        param_lf_improved_cy,
         make_all_flat=False
     ):
     """This function shifts peak per of this enduse
@@ -386,25 +520,14 @@ def load_shifting(
 
     Arguments
     ----------
-    enduse : str
-        Enduse
-    curr_yr : int
-        Current year
-    dm_improvement : dict
-        Assumptions of strategy variables
+
     fuel_yh : array
         Fuel per hours
-    enduse_techs : list
-        Enduse specfic technologies
-    sector : str
-        Sector
-    tech_stock : obj
-        Technology stock
-    load_profiles : obj
-        Load profiles
     mode_constrained : bool
-        Running mode
-        If mode_constrained, always only one technology imported
+        Running mode, If mode_constrained, always only one technology imported
+    param_lf_improved_cy : dict
+        Assumptions of strategy variables (dm_improvement)
+        Load factor improvement parameter in current year
     make_all_flat : bool
         If true, all shapes are flat
 
@@ -413,11 +536,10 @@ def load_shifting(
     fuel_yh : array
         Fuel of yh
     """
-    # Get assumed load shift
-    if dm_improvement[enduse][curr_yr] == 0:
+    if param_lf_improved_cy == 0:
         pass # no load management
     else:
-        
+
         # Calculate average for every day
         if mode_constrained:
             average_fuel_yd = np.average(fuel_yh, axis=1)
@@ -428,9 +550,6 @@ def load_shifting(
         loadfactor_yd_cy = lf.calc_lf_d(
             fuel_yh, average_fuel_yd, mode_constrained)
 
-        # Load factor improvement parameter in current year
-        param_lf_improved_cy = dm_improvement[enduse][curr_yr]
-        #param_lf_improved_cy = 0.1
         #print("Loading shifting .. {}  {}  {}".format(enduse, curr_yr, param_lf_improved_cy))
 
         # Calculate current year load factors
@@ -447,10 +566,9 @@ def load_shifting(
             fuel_yh,
             mode_constrained)
 
-    '''
+        '''
         if enduse == "rs_space_heating":
             print("ENDUSE " + str(enduse))
-            print(curr_yr)
             print(fuel_yh.shape)
             _sum_dayily = np.sum(fuel_yh, axis=1)
             print(_sum_dayily.shape)
@@ -469,14 +587,16 @@ def load_shifting(
             print(param_lf_improved_cy)
             print(loadfactor_yd_cy[_peak_day])
             print(lf_improved_cy[_peak_day])
-            
+
             # Get maximum hour for electricity demand
             __max_after = np.max(fuel_yh[_peak_day])
             __max_before = np.max(_a[_peak_day])
             print("before; {} after: {}".format(__max_before, __max_after))
+            print("peak reduction: " + str((100/__max_before) *__max_after))
             _new_lf = lf.calc_lf_y_8760(fuel_yh[_peak_day])
             _old_lf = lf.calc_lf_y_8760(_a[_peak_day])
-            print("before; {} after: {}".format(_old_lf, _new_lf))
+            print("lf before; {} after: {}".format(_old_lf, _new_lf))
+            print(make_all_flat)
     '''
 
     # -------------------------------------------------

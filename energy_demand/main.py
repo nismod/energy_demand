@@ -97,14 +97,20 @@ if __name__ == "__main__":
     data = {}
     sim_yrs = [2015, 2020, 2025, 2030, 2035, 2040, 2045, 2050]
     #sim_yrs = [2015, 2020, 2050] #, 2050]
-    sim_yrs = [2015, 2030, 2050]
+    #sim_yrs = [2015, 2030, 2050]
+    sim_yrs = [2015, 2050]
 
     if len(sys.argv) > 3: #user defined arguments are provide
         scenario_name = str(sys.argv[2])
-        weather_realisation = str(sys.argv[3]) # Weather realisation 
+        weather_realisation = str(sys.argv[3]) # Weather realisation
+        name_config_path = str(sys.argv[4])
     else:
-        scenario_name = "_dm_10P_"
+        scenario_name = "_dm_5_"
         weather_realisation = 'NF1'
+        #name_config_path = 'h_max'
+        #name_config_path = 'h_min'
+        #name_config_path = 'l_max'
+        #name_config_path = 'l_min'
 
     print("-------------------------------------")
     print("Information")
@@ -113,15 +119,7 @@ if __name__ == "__main__":
     print("Configuration path:         " + str(path_config))
     print("Simulated yrs               " + str(sim_yrs))
 
-    #name_config_path = 'h_c'
-    #name_config_path = 'l_c'
-    #name_config_path = 'h_max'
-    #name_config_path = 'h_min'
-    name_config_path = 'h_min_zero'
-    #name_config_path = 'h_min_5dm'
-    name_config_path = 'h_min_10dm'
-    #name_config_path = 'l_max'
-    #name_config_path = 'l_min'
+
 
     # Local path configurations
     if config['CRITERIA']['cluster_calc']:
@@ -129,10 +127,10 @@ if __name__ == "__main__":
     else:
         path_weather_data = "C:/Users/cenv0553/ED/data/scenarios"
 
-    if name_config_path == 'h_max' or name_config_path == 'l_max':
+    if name_config_path == 'h_max' or name_config_path == 'l_max' or name_config_path in ['h_max_0', 'h_max_10', 'h_max_0_only', 'h_max_10_only']:
         local_scenario = 'pop-b_econ-c_fuel-c' #high
-    elif name_config_path == 'h_c' or name_config_path == 'l_c':
-        local_scenario = 'pop-baseline16_econ-c16_fuel-c16' #middle
+    #elif name_config_path == 'h_c' or name_config_path == 'l_c':
+    #     local_scenario = 'pop-baseline16_econ-c16_fuel-c16' #middle
     elif name_config_path == 'h_min' or name_config_path == 'l_min' or name_config_path in ['h_min_zero', 'h_min_5dm', 'h_min_10dm']:
         local_scenario = 'pop-f_econ-c_fuel-c' #low
 
@@ -170,6 +168,9 @@ if __name__ == "__main__":
     # ----------------------------------------------------------------------
     data['scenario_data'] = defaultdict(dict)
     data['enduses'], data['sectors'], data['fuels'], lookup_enduses, lookup_sector_enduses = data_loader.load_fuels(data['paths'])
+    #print("a")
+    #print(lookup_enduses)
+    #raise Exception
     data['regions'] = read_data.get_region_names(name_region_set)
     data['reg_coord'] = basic_functions.get_long_lat_decimal_degrees(read_data.get_region_centroids(name_region_set))
 
