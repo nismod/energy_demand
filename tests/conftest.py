@@ -107,7 +107,6 @@ data_results_model_run_pop = tests/results/model_run_pop
 data_results_model_runs = tests/results/model_run_results_txt
 data_results_PDF = tests/results/PDF_results
 data_results_validation = tests/results/PDF_validation
-model_run_pop = tests/results/model_run_pop
 data_results_shapefiles = tests/results/spatial_results
 individual_enduse_lp = tests/results/individual_enduse_lp
 """

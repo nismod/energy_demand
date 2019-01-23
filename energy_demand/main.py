@@ -439,7 +439,7 @@ if __name__ == "__main__":
         # --------------------------------------
         path_folder_weather_yr = os.path.join(path_new_scenario, str("simulation_results"))
 
-        data['weather_yr_result_paths'] = basic_functions.get_weather_result_paths(
+        data['weather_yr_result_paths'] = basic_functions.get_result_paths(
             path_folder_weather_yr)
 
         for folder, path_folder in data['weather_yr_result_paths'].items():
@@ -516,7 +516,7 @@ if __name__ == "__main__":
             # -------------------------------------------
             # Write annual results to txt files
             # -------------------------------------------
-            path_runs = data['weather_yr_result_paths']['data_results_model_runs']
+            path_runs = data['weather_yr_result_paths']['data_results_model_run_results_txt']
 
             print("... Start writing results to file: " + str(path_runs))
             plot_only_selection = True
