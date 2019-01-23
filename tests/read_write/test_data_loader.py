@@ -2,7 +2,7 @@
 """
 from pytest import fixture
 from unittest.mock import Mock
-from energy_demand.read_write.data_loader import get_local_paths
+from energy_demand.basic_functions import get_local_paths
 
 
 @fixture(scope='function')

@@ -112,7 +112,7 @@ def load_data_before_simulation(
     path_folder_weather_yr = os.path.join(
         os.path.join(path_new_scenario, data['simulation_name']))
 
-    data['weather_result_paths'] = data_loader.get_weather_result_paths(path_folder_weather_yr)
+    data['weather_result_paths'] = basic_functions.get_weather_result_paths(path_folder_weather_yr)
 
     folders_to_create = [
         path_folder_weather_yr,
@@ -248,7 +248,7 @@ def before_simulation(
 
 def write_user_defined_results(
         criterias,
-        result_paths,
+        result_path,
         sim_obj,
         data,
         curr_yr,
@@ -263,25 +263,27 @@ def write_user_defined_results(
         # Write full results (Note: Results in very large data written to file)
         ##write_data.write_full_results(
         ##    data_handle.current_timestep,
-        ##    data['result_paths']['data_results_model_runs'],
+        ##    os.path.join(result_path, 'model_run_results_txt'),
         ##    sim_obj.ed_submodel_enduse_fueltype_regs_yh, #TODO CHANGED FORMAT
         ##    "out_enduse_specific")
         write_data.write_supply_results(
             curr_yr,
             "ed_fueltype_regs_yh",
-            result_paths['data_results_model_runs'],
+            os.path.join(result_path, 'model_run_pop'),
             sim_obj.ed_fueltype_regs_yh,
             "result_tot_submodels_fueltypes")
         write_data.write_enduse_specific(
             curr_yr,
-            result_paths['data_results_model_runs'],
+            os.path.join(result_path, 'model_run_results_txt'),
             sim_obj.tot_fuel_y_enduse_specific_yh,
             "out_enduse_specific")
         write_data.write_lf(
-            result_paths['data_results_model_runs'], "result_reg_load_factor_y",
+            os.path.join(result_path, 'model_run_results_txt'),
+            "result_reg_load_factor_y",
             [curr_yr], sim_obj.reg_load_factor_y, 'reg_load_factor_y')
         write_data.write_lf(
-            result_paths['data_results_model_runs'], "result_reg_load_factor_yd",
+            os.path.join(result_path, 'model_run_results_txt'),
+            "result_reg_load_factor_yd",
             [curr_yr], sim_obj.reg_load_factor_yd, 'reg_load_factor_yd')
 
     # ----------------------------------------------------------------------------------------
