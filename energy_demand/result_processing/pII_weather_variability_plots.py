@@ -396,13 +396,9 @@ def main(
     print("... finished reading and plotting results")
     print("===================================")
 
-
-path_shapefile_input="C:/Users/cenv0553/ED/data/energy_demand/region_definitions/lad_2016_uk_simplified.shp"
-
+# Code to run charts generation for weather paper
 main(
-    #scenarios_path="C:/_FFF_local", #_local",
-    scenarios_path="C:/_FFF_LOC", #_SMAL",
-    #scenarios_path="C:/_FFF",
-    path_shapefile_input=path_shapefile_input,
+    scenarios_path="C:/_WEATHER_p3",
+    path_shapefile_input="C:/Users/cenv0553/ED/data/energy_demand/region_definitions/lad_2016_uk_simplified.shp",
     base_yr=2015,
     simulation_yrs_to_plot=[2015, 2020, 2050])
