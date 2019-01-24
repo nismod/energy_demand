@@ -280,8 +280,6 @@ def read_user_defined_param(
     single_param_narratives = {}
 
     lookups = lookup_tables.basic_lookups()
-
-    # End uses
     columns = list(df.columns)
 
     if 'enduses' in columns:

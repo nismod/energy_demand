@@ -83,10 +83,8 @@ if __name__ == "__main__":
 
     Example:
     pthon energy_demand/energy_demand/main.py C:/Users/cenv0553/ed/energy_demand/local_run_config_file.ini
-
-    TOOD IS path_config_data necessary?
     """
-    
+
     # Update cluster file: #os.path.dirname(__file__), '..', 'local_run_config_file_cluster.ini'))
     if os.path.isfile(sys.argv[1]):
         path_config  = sys.argv[1]
@@ -101,13 +99,20 @@ if __name__ == "__main__":
     sim_yrs = [2015, 2050]
 
     if len(sys.argv) > 3: #user defined arguments are provide
-        scenario_name = str(sys.argv[2])
-        weather_realisation = str(sys.argv[3]) # Weather realisation
-        name_config_path = str(sys.argv[4])
+        print("Arguments taken from comand line")
+        scenario_name = str(sys.argv[2])        # Scenario name
+        weather_realisation = str(sys.argv[3])  # Weather realisation
+        name_config_path = str(sys.argv[4])     # Config path
     else:
-        scenario_name = "_dm_5_"
+        print("Default Arguments used")
+        scenario_name = str(sys.argv[2])
         weather_realisation = 'NF1'
-        #name_config_path = 'h_max'
+        name_config_path = str(sys.argv[2])
+
+        # Temporary
+        if name_config_path == 'test_run':
+            name_config_path = 'h_max'
+    
         #name_config_path = 'h_min'
         #name_config_path = 'l_max'
         #name_config_path = 'l_min'
@@ -118,7 +123,7 @@ if __name__ == "__main__":
     print("local_data_path             " + str(sys.argv[1]))
     print("Configuration path:         " + str(path_config))
     print("Simulated yrs               " + str(sim_yrs))
-
+    print("name_config_path:           " + str(name_config_path))
 
 
     # Local path configurations
@@ -129,8 +134,6 @@ if __name__ == "__main__":
 
     if name_config_path == 'h_max' or name_config_path == 'l_max' or name_config_path in ['h_max_0', 'h_max_10', 'h_max_0_only', 'h_max_10_only']:
         local_scenario = 'pop-b_econ-c_fuel-c' #high
-    #elif name_config_path == 'h_c' or name_config_path == 'l_c':
-    #     local_scenario = 'pop-baseline16_econ-c16_fuel-c16' #middle
     elif name_config_path == 'h_min' or name_config_path == 'l_min' or name_config_path in ['h_min_zero', 'h_min_5dm', 'h_min_10dm']:
         local_scenario = 'pop-f_econ-c_fuel-c' #low
 
@@ -348,6 +351,11 @@ if __name__ == "__main__":
         service_switches = read_data.service_switch(service_switches_raw)
     except:
         service_switches = []
+
+    #print("ddddddddddd")
+    #print(service_switches_raw)
+    #print(service_switches)
+    #raise Exception("TTT")
 
     fuel_switches = read_data.read_fuel_switches(os.path.join(path_strategy_vars, "switches_fuel.csv"), data['enduses'], data['assumptions'].fueltypes, data['assumptions'].technologies)
     capacity_switches = read_data.read_capacity_switch(os.path.join(path_strategy_vars, "switches_capacity.csv"))

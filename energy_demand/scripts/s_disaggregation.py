@@ -119,7 +119,6 @@ def disaggr_demand(data, crit_temp_min_max, spatial_calibration=False):
                         disagg['industry'][region][enduse][sector][fueltype_gas] *= f_spatial_calibration_gas
 
         if calibrate_residential:
-
             valid_resid_elec = data_loader.read_lad_demands(
                 data['paths']['val_subnational_elec_residential'])
             valid_resid_gas = data_loader.read_lad_demands(
