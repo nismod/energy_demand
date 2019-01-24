@@ -382,7 +382,6 @@ def spatio_temporal_val(
     fuel_elec_regs_yh = map_LAD_2011_2015(fuel_elec_regs_yh)
     fuel_gas_regs_yh = map_LAD_2011_2015(fuel_gas_regs_yh)
 
-    print("A " + str(result_paths['validation']))
     spatial_validation(
         fuel_elec_regs_yh,
         subnational_elec,
@@ -397,7 +396,7 @@ def spatio_temporal_val(
         subnational_gas,
         regions,
         'gas',
-        fig_name=os.path.join(result_paths['data_results_validation'],'validation_spatial_gas_post_calcualtion.pdf'),
+        fig_name=os.path.join(result_paths['data_results_validation'], 'validation_spatial_gas_post_calcualtion.pdf'),
         label_points=False,
         plotshow=plot_crit)
 

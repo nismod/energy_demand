@@ -23,11 +23,7 @@ def get_result_paths(folder_path):
         'data_results_model_run_pop': os.path.join(folder_path, 'model_run_pop'),
         'data_results_validation': os.path.join(folder_path, 'PDF_validation'),
         'data_results_model_run_results_txt': os.path.join(folder_path, 'model_run_results_txt'),
-        'data_results_PDF': os.path.join(folder_path, 'PDF_results'),
-        #'data_results_PDF': os.path.join(folder_path, 'PDF_results'),
-        #'data_results_shapefiles': os.path.join(folder_path, 'spatial_results'),
-        #'individual_enduse_lp': os.path.join(folder_path, 'individual_enduse_lp'),
-    }
+        'data_results_PDF': os.path.join(folder_path, 'PDF_results')}
 
     return path_dict
 
