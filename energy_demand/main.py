@@ -131,9 +131,9 @@ if __name__ == "__main__":
     # --- Paths
     path_strategy_vars = os.path.join(config['DATA_PATHS']['path_strategy_vars'], name_config_path)
     name_region_set = os.path.join(config['PATHS']['path_local_data'], 'region_definitions', "lad_2016_uk_simplified.shp")
-    name_population_dataset = os.path.join(os.path.join(config['PATHS']['path_local_data'], ".."), 'scenarios', 'MISTRAL_pop_gva', 'data', '{}/population__lad.csv'.format(local_scenario))
-    name_gva_dataset = os.path.join(os.path.join(config['PATHS']['path_local_data'], ".."),'scenarios', 'MISTRAL_pop_gva', 'data', '{}/gva_per_head__lad_sector.csv'.format(local_scenario))
-    name_gva_dataset_per_head = os.path.join(os.path.join(config['PATHS']['path_local_data'], ".."), 'scenarios', 'MISTRAL_pop_gva', 'data', '{}/gva_per_head__lad.csv'.format(local_scenario))
+    name_population_dataset = os.path.join(config['PATHS']['path_local_data'], 'scenarios', 'MISTRAL_pop_gva', 'data', '{}/population__lad.csv'.format(local_scenario))
+    name_gva_dataset = os.path.join(config['PATHS']['path_local_data'], 'scenarios', 'MISTRAL_pop_gva', 'data', '{}/gva_per_head__lad_sector.csv'.format(local_scenario))
+    name_gva_dataset_per_head = os.path.join(config['PATHS']['path_local_data'],'scenarios', 'MISTRAL_pop_gva', 'data', '{}/gva_per_head__lad.csv'.format(local_scenario))
 
     # --------------------
     # Create scenario path
