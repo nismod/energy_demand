@@ -5,7 +5,7 @@ import shutil
 import numpy as np
 from pyproj import Proj, transform
 
-def get_result_paths(folder_path):
+def get_result_paths(folder_path, container=1):
     """Joins results subfolders to ``folder_path`` and returns a dict
 
     Arguments

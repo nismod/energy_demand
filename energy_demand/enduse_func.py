@@ -90,7 +90,6 @@ class Enduse(object):
             scenario_data,
             assumptions,
             load_profiles,
-            f_weather_correction,
             base_yr,
             curr_yr,
             enduse,
@@ -140,8 +139,7 @@ class Enduse(object):
                 cooling_factor_y,
                 heating_factor_y,
                 assumptions.enduse_space_heating,
-                assumptions.ss_enduse_space_cooling,
-                f_weather_correction)
+                assumptions.ss_enduse_space_cooling)
             self.fuel_y = _fuel_new_y
             #print("FUEL TRAIN B0: " + str(np.sum(self.fuel_y)))
 
@@ -1363,8 +1361,7 @@ def apply_weather_correction(
         cooling_factor_y,
         heating_factor_y,
         enduse_space_heating,
-        enduse_space_cooling,
-        f_weather_correction
+        enduse_space_cooling
     ):
     """Change fuel demand for heat and cooling service
     depending on changes in HDD and CDD within a region
@@ -1385,10 +1382,6 @@ def apply_weather_correction(
         Enduses defined as space heating
     enduse_space_cooling : list
         Enduses defined as space cooling
-    f_weather_correction : dict
-        Correction factors to calculate hdd and cdd
-        related extra demands in case a different
-        weather station is used
 
     Return
     ------
@@ -1402,16 +1395,8 @@ def apply_weather_correction(
         directly with HDD or CDD.
     """
     if enduse in enduse_space_heating:
-
-        # Apply correction factor for different weather year
-        # which has different wheather stations and associated temperatures
-        fuel_y = fuel_y * f_weather_correction['hdd']
-
-        # Apply correction factor for change in climate over simulation period
         fuel_y = fuel_y * heating_factor_y
-
     elif enduse in enduse_space_cooling:
-        fuel_y = fuel_y * f_weather_correction['cdd']
         fuel_y = fuel_y * cooling_factor_y
 
     return fuel_y

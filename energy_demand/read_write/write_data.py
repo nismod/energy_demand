@@ -343,6 +343,27 @@ def write_only_peak(
 
     np.save(path_file_peak_day, selected_demand)
 
+def write_fueltype_reg_8760(
+        sim_yr,
+        name_new_folder,
+        path_result,
+        model_results,
+        file_name_peak_day
+    ):
+    """Write only peak demand and total regional demand for a region
+    """
+    path_result_sub_folder = os.path.join(
+        path_result, name_new_folder)
+
+    basic_functions.create_folder(
+        path_result_sub_folder)
+
+    path = os.path.join(
+        path_result_sub_folder,
+        "{}__{}__{}".format(file_name_peak_day, sim_yr, ".npy"))
+
+    np.save(path, model_results)
+
 def write_supply_results(
         sim_yr,
         name_new_folder,

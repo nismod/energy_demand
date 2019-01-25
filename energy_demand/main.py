@@ -96,7 +96,7 @@ if __name__ == "__main__":
     sim_yrs = [2015, 2020, 2025, 2030, 2035, 2040, 2045, 2050]
     #sim_yrs = [2015, 2020, 2050] #, 2050]
     #sim_yrs = [2015, 2030, 2050]
-    sim_yrs = [2015, 2050]
+    sim_yrs = [2015, 2041]
 
     if len(sys.argv) > 3: #user defined arguments are provide
         print("Arguments taken from comand line")
@@ -122,6 +122,7 @@ if __name__ == "__main__":
         path_weather_data = "/soge-home/staff/cenv0553/_weather_realisation"
     else:
         path_weather_data = "C:/Users/cenv0553/ED/data/scenarios"
+        #path_weather_data = "/soge-home/staff/cenv0553/_weather_realisation"
 
     if name_config_path == 'h_max' or name_config_path == 'l_max' or name_config_path in ['test_run', 'h_max_0', 'h_max_10', 'h_max_0_only', 'h_max_10_only']:
         local_scenario = 'pop-b_econ-c_fuel-c' #high
@@ -152,10 +153,14 @@ if __name__ == "__main__":
     # --------------------
     data['paths'] = config['CONFIG_DATA']
     data['local_paths'] = config['DATA_PATHS']
-    data['result_paths'] = basic_functions.get_result_paths(path_new_scenario)
+    data['result_paths'] = basic_functions.get_result_paths(path_new_scenario, container=1)
 
-    for folder, folder_path in data['result_paths'].items():
-        basic_functions.create_folder(folder_path)
+    folders_to_create = [
+        data['result_paths']['data_results'],
+        data['result_paths']['data_results_model_run_pop'],
+        data['result_paths']['data_results_validation']]
+    for folder in folders_to_create:
+        basic_functions.create_folder(folder)
 
     # ----------------------------------------------------------------------
     # Load data
@@ -438,8 +443,13 @@ if __name__ == "__main__":
         data['weather_yr_result_paths'] = basic_functions.get_result_paths(
             path_folder_weather_yr)
 
-        for folder, path_folder in data['weather_yr_result_paths'].items():
-            basic_functions.create_folder(path_folder)
+        folders_to_create = [
+            data['weather_yr_result_paths']['data_results'],
+            data['weather_yr_result_paths']['data_results_validation'],
+            data['weather_yr_result_paths']['data_results_model_run_results_txt']]
+
+        for folder in folders_to_create:
+            basic_functions.create_folder(folder)
 
         technologies = general_assumptions.update_technology_assumption(
             data['assumptions'].technologies,
@@ -512,62 +522,71 @@ if __name__ == "__main__":
             # -------------------------------------------
             # Write annual results to txt files
             # -------------------------------------------
-            path_runs = data['weather_yr_result_paths']['data_results_model_run_results_txt']
-
-            print("... Start writing results to file: " + str(path_runs))
+            print("... Start writing results to file: " + str(data['weather_yr_result_paths']['data_results_model_run_results_txt']))
             plot_only_selection = True
             if plot_only_selection:
+
+                # Write only total region
                 write_data.write_only_peak_total_regional(
                     sim_yr,
                     "only_total",
-                    path_runs,
+                    data['weather_yr_result_paths']['data_results_model_run_results_txt'],
                     sim_obj.ed_fueltype_regs_yh,
                     'tot_fueltype_reg')
 
+                # Write only peak day
                 write_data.write_only_peak(
                     sim_yr,
                     "only_peak",
-                    path_runs,
+                    data['weather_yr_result_paths']['data_results_model_run_results_txt'],
+                    sim_obj.ed_fueltype_regs_yh,
+                    'fueltype_reg_peak_day')
+
+                # Write every hour in year for all regions and fueltypes (fueltype, reg, 8760)
+                write_data.write_fueltype_reg_8760(
+                    sim_yr,
+                    "only_fueltype_reg_8760",
+                    data['weather_yr_result_paths']['data_results_model_run_results_txt'],
                     sim_obj.ed_fueltype_regs_yh,
                     'fueltype_reg_peak_day')
 
                 # PLot only residential total regional annual demand and
                 '''write_data.write_residential_tot_demands(
                     sim_yr,
-                    path_runs,
+                    data['weather_yr_result_paths']['data_results_model_run_results_txt'],
                     sim_obj.ed_residential_tot_reg_y,
                     "ed_residential_tot_reg_y")
                 write_data.write_supply_results(
                     sim_yr,
                     "ed_fueltype_regs_yh",
-                    path_runs,
+                    data['weather_yr_result_paths']['data_results_model_run_results_txt'],
                     sim_obj.ed_fueltype_regs_yh,
                     "result_tot_submodels_fueltypes")'''
             else:
                 write_data.write_residential_tot_demands(
                     sim_yr,
-                    path_runs,
+                    data['weather_yr_result_paths']['data_results_model_run_results_txt'],
                     sim_obj.ed_residential_tot_reg_y,
                     "ed_residential_tot_reg_y")
                 write_data.write_supply_results(
                     sim_yr,
                     "ed_fueltype_regs_yh",
-                    path_runs,
+                    data['weather_yr_result_paths']['data_results_model_run_results_txt'],
                     sim_obj.ed_fueltype_regs_yh,
                     "result_tot_submodels_fueltypes")
                 write_data.write_enduse_specific(
                     sim_yr,
-                    path_runs,
+                    data['weather_yr_result_paths']['data_results_model_run_results_txt'],
                     sim_obj.tot_fuel_y_enduse_specific_yh,
                     "out_enduse_specific")
                 write_data.write_lf(
-                    path_runs,
+                    data['weather_yr_result_paths']['data_results_model_run_results_txt'],
                     "result_reg_load_factor_y",
                     [sim_yr],
                     sim_obj.reg_load_factor_y,
                     'reg_load_factor_y')
                 write_data.write_lf(
-                    path_runs,
+                    data['weather_yr_result_paths']['data_results_model_run_results_txt'],
                     "result_reg_load_factor_yd",
                     [sim_yr],
                     sim_obj.reg_load_factor_yd,

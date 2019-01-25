@@ -983,7 +983,6 @@ def load_temp_data(
             df_full_data = pd.DataFrame(
                 full_data,
                 columns=['timestep', 'station_id', 'stiching_name', 'yearday', 't_min', 't_max'])
-
         if load_parquet:
             path_temp_data = os.path.join(path_weather_data, "weather_data_{}.parquet".format(weather_realisation))
             df_full_data = pd.read_parquet(path_temp_data, engine='pyarrow')

@@ -383,20 +383,7 @@ def simulate_region(
     # ----------------------------
     # Create Base year and current weather Regions
     # ----------------------------
-    weather_regions_weather_cy = WeatherRegion(
-        name=weather_region_id,
-        latitude=weather_stations[weather_region_id]['latitude'],
-        longitude=weather_stations[weather_region_id]['longitude'],
-        assumptions=assumptions,
-        technologies=assumptions.technologies,
-        enduses=data['enduses'],
-        temp_by=data['temp_data'][weather_by][weather_region_id],
-        temp_cy=data['temp_data'][weather_yr][weather_region_id],
-        tech_lp=data['tech_lp'],
-        sectors=data['sectors'],
-        crit_temp_min_max=criterias['crit_temp_min_max'])
-
-    weather_regions_weather_by = WeatherRegion(
+    weather_region_cy = WeatherRegion(
         name=weather_region_id,
         latitude=weather_stations[weather_region_id]['latitude'],
         longitude=weather_stations[weather_region_id]['longitude'],
@@ -420,9 +407,12 @@ def simulate_region(
         name=region,
         longitude=data['reg_coord'][region]['longitude'],
         latitude=data['reg_coord'][region]['latitude'],
-        region_fuel_disagg=region_fuel_disagg,
-        weather_reg_cy=weather_regions_weather_cy,
-        weather_reg_by=weather_regions_weather_by)
+        region_fuel_disagg=region_fuel_disagg)
+
+    '''if assumptions.curr_yr != 2015:
+        import pprint
+        pprint.pprint(weather_region_cy.f_heat)
+        raise Exception'''
 
     for submodel_name in submodel_names:
         for sector in data['sectors'][submodel_name]:
@@ -449,16 +439,15 @@ def simulate_region(
                     region=region_obj.name,
                     scenario_data=data['scenario_data'],
                     assumptions=assumptions,
-                    load_profiles=weather_regions_weather_cy.load_profiles,
-                    f_weather_correction=region_obj.f_weather_correction[submodel_name],
+                    load_profiles=weather_region_cy.load_profiles,
                     base_yr=assumptions.base_yr,
                     curr_yr=assumptions.curr_yr,
                     enduse=enduse,
                     sector=sector,
                     fuel=region_obj.fuels[submodel_name][enduse][sector],
-                    tech_stock=weather_regions_weather_cy.tech_stock[submodel_name],
-                    heating_factor_y=weather_regions_weather_cy.f_heat[submodel_name],
-                    cooling_factor_y=weather_regions_weather_cy.f_colling[submodel_name],
+                    tech_stock=weather_region_cy.tech_stock[submodel_name],
+                    heating_factor_y=weather_region_cy.f_heat[submodel_name],
+                    cooling_factor_y=weather_region_cy.f_colling[submodel_name],
                     fuel_tech_p_by=assumptions.fuel_tech_p_by[enduse][sector],
                     criterias=criterias,
                     strategy_vars=assumptions.regional_vars[region_obj.name],
