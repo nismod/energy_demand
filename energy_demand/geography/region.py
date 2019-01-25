@@ -96,6 +96,9 @@ class Region(object):
             'service': {'hdd': f_climate_hdd_ss, 'cdd': f_climate_cdd_ss},
             'industry': {'hdd': f_climate_hdd_is, 'cdd': None}}
 
+        import pprint
+        pprint.pprint(self.f_weather_correction)
+        raise Exception
         # Visual testing purposes
         #from energy_demand.read_write import data_loader
         #data_loader.print_closest_and_region(

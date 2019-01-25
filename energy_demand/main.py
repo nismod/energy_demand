@@ -109,14 +109,6 @@ if __name__ == "__main__":
         weather_realisation = 'NF1'
         name_config_path = str(sys.argv[2])
 
-        # Temporary
-        if name_config_path == 'test_run':
-            name_config_path = 'h_max'
-    
-        #name_config_path = 'h_min'
-        #name_config_path = 'l_max'
-        #name_config_path = 'l_min'
-
     print("-------------------------------------")
     print("Information")
     print("-------------------------------------")
@@ -125,14 +117,13 @@ if __name__ == "__main__":
     print("Simulated yrs               " + str(sim_yrs))
     print("name_config_path:           " + str(name_config_path))
 
-
     # Local path configurations
     if config['CRITERIA']['cluster_calc']:
         path_weather_data = "/soge-home/staff/cenv0553/_weather_realisation"
     else:
         path_weather_data = "C:/Users/cenv0553/ED/data/scenarios"
 
-    if name_config_path == 'h_max' or name_config_path == 'l_max' or name_config_path in ['h_max_0', 'h_max_10', 'h_max_0_only', 'h_max_10_only']:
+    if name_config_path == 'h_max' or name_config_path == 'l_max' or name_config_path in ['test_run', 'h_max_0', 'h_max_10', 'h_max_0_only', 'h_max_10_only']:
         local_scenario = 'pop-b_econ-c_fuel-c' #high
     elif name_config_path == 'h_min' or name_config_path == 'l_min' or name_config_path in ['h_min_zero', 'h_min_5dm', 'h_min_10dm']:
         local_scenario = 'pop-f_econ-c_fuel-c' #low
@@ -171,9 +162,6 @@ if __name__ == "__main__":
     # ----------------------------------------------------------------------
     data['scenario_data'] = defaultdict(dict)
     data['enduses'], data['sectors'], data['fuels'], lookup_enduses, lookup_sector_enduses = data_loader.load_fuels(data['paths'])
-    #print("a")
-    #print(lookup_enduses)
-    #raise Exception
     data['regions'] = read_data.get_region_names(name_region_set)
     data['reg_coord'] = basic_functions.get_long_lat_decimal_degrees(read_data.get_region_centroids(name_region_set))
 
@@ -353,8 +341,8 @@ if __name__ == "__main__":
         service_switches = []
 
     #print("ddddddddddd")
-    #print(service_switches_raw)
-    #print(service_switches)
+    print(service_switches_raw)
+    print(service_switches)
     #raise Exception("TTT")
 
     fuel_switches = read_data.read_fuel_switches(os.path.join(path_strategy_vars, "switches_fuel.csv"), data['enduses'], data['assumptions'].fueltypes, data['assumptions'].technologies)
@@ -436,7 +424,7 @@ if __name__ == "__main__":
 
         print("Local simulation for year:  " + str(sim_yr))
         setattr(data['assumptions'], 'curr_yr', sim_yr) # Set current year
-        print("CURRYR: " + str(data['assumptions'].curr_yr))
+
         if config['CRITERIA']['constant_weather']:
             weather_yr_scenario = config['CONFIG']['weather_yr_scenario']
         else:

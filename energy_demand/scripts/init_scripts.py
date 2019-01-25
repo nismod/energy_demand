@@ -181,6 +181,7 @@ def switch_calculations(
     narrative_timesteps.update(get_all_narrative_timesteps(service_switches))
     narrative_timesteps.update(get_all_narrative_timesteps(fuel_switches))
     narrative_timesteps.update(get_all_narrative_timesteps(capacity_switches))
+ 
     # ========================================================================================
     # Capacity switches
     #
