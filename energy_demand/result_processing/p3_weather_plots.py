@@ -105,7 +105,7 @@ def main(
             national_hydrogen = pd.DataFrame()
 
             for path_result_folder in paths_folders_result:
-                try:
+                    #try:
                     data = {}
 
                     # Simulation information is read in from .ini file for results
@@ -198,10 +198,10 @@ def main(
 
                     regional_share_national_peak_pp = regional_share_national_peak_pp.append(realisation_data)
 
-                except:
+                    '''except:
                     #raise Exception("The run '{}' is corrupted".format(path_result_folder))
                     print("The run '{}' is corrupted".format(path_result_folder))
-                    pass 
+                    pass '''
 
             # Add to scenario container
             result_entry = {
@@ -398,7 +398,8 @@ def main(
 
 # Code to run charts generation for weather paper
 main(
-    scenarios_path="C:/_WEATHER_p3",
-    path_shapefile_input="C:/Users/cenv0553/ED/data/energy_demand/region_definitions/lad_2016_uk_simplified.shp",
+    #scenarios_path="C:/_WEATHER_p3",
+    scenarios_path="C:/_WEATHER_p3_NEWRUN",
+    path_shapefile_input="C:/Users/cenv0553/ED/data/region_definitions/lad_2016_uk_simplified.shp",
     base_yr=2015,
     simulation_yrs_to_plot=[2015, 2020, 2050])
