@@ -548,7 +548,7 @@ if __name__ == "__main__":
                     "only_fueltype_reg_8760",
                     data['weather_yr_result_paths']['data_results_model_run_results_txt'],
                     sim_obj.ed_fueltype_regs_yh,
-                    'fueltype_reg_peak_day')
+                    'fueltype_reg_8760')
 
                 # PLot only residential total regional annual demand and
                 '''write_data.write_residential_tot_demands(
