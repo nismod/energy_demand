@@ -387,7 +387,7 @@ def spatio_temporal_val(
         subnational_elec,
         regions,
         'elec',
-        os.path.join(result_paths['data_results_validation'], 'validation_spatial_elec_post_calcualtion.pdf'),
+        fig_name=os.path.join(result_paths['data_results_validation'], 'validation_spatial_elec_post_calcualtion.pdf'),
         label_points=False,
         plotshow=plot_crit)
 
@@ -396,7 +396,7 @@ def spatio_temporal_val(
         subnational_gas,
         regions,
         'gas',
-        os.path.join(result_paths['data_results_validation'], 'validation_spatial_gas_post_calcualtion.pdf'),
+        fig_name=os.path.join(result_paths['data_results_validation'], 'validation_spatial_gas_post_calcualtion.pdf'),
         label_points=False,
         plotshow=plot_crit)
 

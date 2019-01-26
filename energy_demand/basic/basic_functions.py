@@ -5,13 +5,12 @@ import shutil
 import numpy as np
 from pyproj import Proj, transform
 
-def get_result_paths(scenario_run_results):
-    """Create a dict with sub_folder path for user defined
-    results generation
+def get_result_paths(folder_path, container=1):
+    """Joins results subfolders to ``folder_path`` and returns a dict
 
     Arguments
     ---------
-    scenario_run_results : str
+    folder_path : str
         Path of scenario run results
 
     Returns
@@ -20,38 +19,13 @@ def get_result_paths(scenario_run_results):
         Dict with all sub_folder paths
     """
     path_dict = {
-        'data_results': scenario_run_results,
-        'data_results_model_run_pop': os.path.join(scenario_run_results, 'model_run_pop'),
-        'data_results_validation': os.path.join(scenario_run_results, 'PDF_validation'),
-        'model_run_pop': os.path.join(scenario_run_results, 'model_run_pop'),
-        #'data_results_model_runs': os.path.join(scenario_run_results, 'model_run_results_txt'),
-        #'data_results_PDF': os.path.join(scenario_run_results, 'PDF_results'),
-        #'data_results_shapefiles': os.path.join(scenario_run_results, 'spatial_results'),
-        #'individual_enduse_lp': os.path.join(scenario_run_results, 'individual_enduse_lp'),
-    }
+        'data_results': folder_path,
+        'data_results_model_run_pop': os.path.join(folder_path, 'model_run_pop'),
+        'data_results_validation': os.path.join(folder_path, 'PDF_validation'),
+        'data_results_model_run_results_txt': os.path.join(folder_path, 'model_run_results_txt'),
+        'data_results_PDF': os.path.join(folder_path, 'PDF_results')}
 
     return path_dict
-
-def get_weather_result_paths(weather_path):
-    """Joins results subfolders to ``weather_path`` and returns a dict
-
-    Arguments
-    ---------
-    weather_path : str
-        Path to the weather results simulations
-
-    Returns
-    -------
-    dict
-    """
-    paths = {
-        'data_results':weather_path,
-        'data_results_PDF': os.path.join(weather_path, 'PDF_results'),
-        'data_results_validation': os.path.join(weather_path, 'PDF_validation'),
-        'data_results_model_runs': os.path.join(weather_path, 'model_run_results_txt'),
-        }
-
-    return paths
 
 def dict_depth(dictionary):
     """Get depth of nested dict

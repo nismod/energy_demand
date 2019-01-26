@@ -601,7 +601,6 @@ def get_result_paths(config_file_path):
         ('data_results_model_runs', 'str'),
         ('data_results_PDF', 'str'),
         ('data_results_validation', 'str'),
-        ('model_run_pop', 'str'),
         ('data_results_shapefiles', 'str'),
         ('individual_enduse_lp', 'str')]
 
@@ -984,7 +983,6 @@ def load_temp_data(
             df_full_data = pd.DataFrame(
                 full_data,
                 columns=['timestep', 'station_id', 'stiching_name', 'yearday', 't_min', 't_max'])
-
         if load_parquet:
             path_temp_data = os.path.join(path_weather_data, "weather_data_{}.parquet".format(weather_realisation))
             df_full_data = pd.read_parquet(path_temp_data, engine='pyarrow')

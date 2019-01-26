@@ -181,6 +181,7 @@ def switch_calculations(
     narrative_timesteps.update(get_all_narrative_timesteps(service_switches))
     narrative_timesteps.update(get_all_narrative_timesteps(fuel_switches))
     narrative_timesteps.update(get_all_narrative_timesteps(capacity_switches))
+ 
     # ========================================================================================
     # Capacity switches
     #
@@ -239,7 +240,7 @@ def switch_calculations(
     for submodel_name in data['assumptions'].submodels_names:
         for enduse in data['enduses'][submodel_name]:
             for sector in data['sectors'][submodel_name]:
-
+                print("... calculating fuel switches {}  {}  {}".format(submodel_name, enduse, sector))
                 diffusion_param_tech[enduse][sector] = sig_param_calc_incl_fuel_switch(
                     narrative_timesteps,
                     data['assumptions'].base_yr,
@@ -665,14 +666,13 @@ def sig_param_calc_incl_fuel_switch(
             # Iterate over years defined in narrative
             for switch_yr_cnt, switch_yr in enumerate(switch_yrs):
                 sig_param_tech[switch_yr] = {}
-
+                print("ZZ {}  {}".format(switch_yr_cnt, switch_yrs))
                 # -------------------------
                 # Get starting year of narrative
                 # -------------------------
                 if switch_yr_cnt == 0: 
                     switch_yr_start = base_yr
                     s_tech_last_narrative_step = s_tech_by_p
-
                 else: # If more than one switch_yr, then take previous year
                     switch_yr_start = switch_yrs[switch_yr_cnt - 1]
                     s_tech_last_narrative_step = s_tech_switched_p[any_region][switch_yr_start]
@@ -684,7 +684,7 @@ def sig_param_calc_incl_fuel_switch(
                 # switches and the diffusion parameters
                 # ------------------------------------------
                 if crit_switch_service:
-
+                    print(".... service switch")
                     # Calculate only from service switch
                     s_tech_switched_p = share_s_tech_ey_p
 
@@ -703,6 +703,7 @@ def sig_param_calc_incl_fuel_switch(
                 # Fuel switch
                 # ------------------------------------------
                 if crit_fuel_switch:
+                    print(".... fuel switch")
                     """Calculate future service share after fuel switches
                     and calculte sigmoid diffusion paramters."""
                     # Get fuel switches of enduse and switch_yr
@@ -764,9 +765,10 @@ def sig_param_calc_incl_fuel_switch(
                 # Calculates parameters for sigmoid diffusion of
                 # technologies which are switched to/installed.
                 # -----------------------------------------------
-                #logging.debug("---------- switches %s %s %s", enduse, crit_switch_service, crit_fuel_switch)
+                print("---------- switches %s %s %s", enduse, crit_switch_service, crit_fuel_switch)
                 if crit_all_the_same:
                     print("... calc parameters of `{}` for year `{}`  {}".format(enduse, switch_yr, sector))
+                    print(s_tech_switched_p)
                     sig_param_tech_all_regs_value = s_generate_sigmoid.tech_sigmoid_parameters(
                         switch_yr,
                         switch_yr_start,

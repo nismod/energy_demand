@@ -101,7 +101,7 @@ def main(
         # Reading in results from different model runs
         # --------------------------------------------
         results_container = read_data.read_in_results(
-            data['result_paths']['data_results_model_runs'],
+            data['result_paths']['data_results_model_run_results_txt'],
             data['assumptions']['seasons'],
             data['assumptions']['model_yeardays_daytype'])
 

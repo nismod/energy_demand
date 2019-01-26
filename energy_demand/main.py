@@ -83,10 +83,8 @@ if __name__ == "__main__":
 
     Example:
     pthon energy_demand/energy_demand/main.py C:/Users/cenv0553/ed/energy_demand/local_run_config_file.ini
-
-    TOOD IS path_config_data necessary?
     """
-    
+
     # Update cluster file: #os.path.dirname(__file__), '..', 'local_run_config_file_cluster.ini'))
     if os.path.isfile(sys.argv[1]):
         path_config  = sys.argv[1]
@@ -98,19 +96,18 @@ if __name__ == "__main__":
     sim_yrs = [2015, 2020, 2025, 2030, 2035, 2040, 2045, 2050]
     #sim_yrs = [2015, 2020, 2050] #, 2050]
     #sim_yrs = [2015, 2030, 2050]
-    sim_yrs = [2015, 2050]
+    #sim_yrs = [2015, 2041]
 
     if len(sys.argv) > 3: #user defined arguments are provide
-        scenario_name = str(sys.argv[2])
-        weather_realisation = str(sys.argv[3]) # Weather realisation
-        name_config_path = str(sys.argv[4])
+        print("Arguments taken from comand line")
+        scenario_name = str(sys.argv[2])        # Scenario name
+        weather_realisation = str(sys.argv[3])  # Weather realisation
+        name_config_path = str(sys.argv[4])     # Config path
     else:
-        scenario_name = "_dm_5_"
+        print("Default Arguments used")
+        scenario_name = str(sys.argv[2])
         weather_realisation = 'NF1'
-        #name_config_path = 'h_max'
-        #name_config_path = 'h_min'
-        #name_config_path = 'l_max'
-        #name_config_path = 'l_min'
+        name_config_path = str(sys.argv[2])
 
     print("-------------------------------------")
     print("Information")
@@ -118,28 +115,26 @@ if __name__ == "__main__":
     print("local_data_path             " + str(sys.argv[1]))
     print("Configuration path:         " + str(path_config))
     print("Simulated yrs               " + str(sim_yrs))
-
-
+    print("name_config_path:           " + str(name_config_path))
 
     # Local path configurations
     if config['CRITERIA']['cluster_calc']:
         path_weather_data = "/soge-home/staff/cenv0553/_weather_realisation"
     else:
         path_weather_data = "C:/Users/cenv0553/ED/data/scenarios"
+        #path_weather_data = "/soge-home/staff/cenv0553/_weather_realisation"
 
-    if name_config_path == 'h_max' or name_config_path == 'l_max' or name_config_path in ['h_max_0', 'h_max_10', 'h_max_0_only', 'h_max_10_only']:
+    if name_config_path == 'h_max' or name_config_path == 'l_max' or name_config_path in ['test_run', 'h_max_0', 'h_max_10', 'h_max_0_only', 'h_max_10_only']:
         local_scenario = 'pop-b_econ-c_fuel-c' #high
-    #elif name_config_path == 'h_c' or name_config_path == 'l_c':
-    #     local_scenario = 'pop-baseline16_econ-c16_fuel-c16' #middle
     elif name_config_path == 'h_min' or name_config_path == 'l_min' or name_config_path in ['h_min_zero', 'h_min_5dm', 'h_min_10dm']:
         local_scenario = 'pop-f_econ-c_fuel-c' #low
 
     # --- Paths
     path_strategy_vars = os.path.join(config['DATA_PATHS']['path_strategy_vars'], name_config_path)
     name_region_set = os.path.join(config['PATHS']['path_local_data'], 'region_definitions', "lad_2016_uk_simplified.shp")
-    name_population_dataset = os.path.join(os.path.join(config['PATHS']['path_local_data'], ".."), 'scenarios', 'MISTRAL_pop_gva', 'data', '{}/population__lad.csv'.format(local_scenario))
-    name_gva_dataset = os.path.join(os.path.join(config['PATHS']['path_local_data'], ".."),'scenarios', 'MISTRAL_pop_gva', 'data', '{}/gva_per_head__lad_sector.csv'.format(local_scenario))
-    name_gva_dataset_per_head = os.path.join(os.path.join(config['PATHS']['path_local_data'], ".."), 'scenarios', 'MISTRAL_pop_gva', 'data', '{}/gva_per_head__lad.csv'.format(local_scenario))
+    name_population_dataset = os.path.join(config['PATHS']['path_local_data'], 'scenarios', 'MISTRAL_pop_gva', 'data', '{}/population__lad.csv'.format(local_scenario))
+    name_gva_dataset = os.path.join(config['PATHS']['path_local_data'], 'scenarios', 'MISTRAL_pop_gva', 'data', '{}/gva_per_head__lad_sector.csv'.format(local_scenario))
+    name_gva_dataset_per_head = os.path.join(config['PATHS']['path_local_data'],'scenarios', 'MISTRAL_pop_gva', 'data', '{}/gva_per_head__lad.csv'.format(local_scenario))
 
     # --------------------
     # Create scenario path
@@ -158,19 +153,20 @@ if __name__ == "__main__":
     # --------------------
     data['paths'] = config['CONFIG_DATA']
     data['local_paths'] = config['DATA_PATHS']
-    data['result_paths'] = basic_functions.get_result_paths(path_new_scenario)
+    data['result_paths'] = basic_functions.get_result_paths(path_new_scenario, container=1)
 
-    for folder, folder_path in data['result_paths'].items():
-        basic_functions.create_folder(folder_path)
+    folders_to_create = [
+        data['result_paths']['data_results'],
+        data['result_paths']['data_results_model_run_pop'],
+        data['result_paths']['data_results_validation']]
+    for folder in folders_to_create:
+        basic_functions.create_folder(folder)
 
     # ----------------------------------------------------------------------
     # Load data
     # ----------------------------------------------------------------------
     data['scenario_data'] = defaultdict(dict)
     data['enduses'], data['sectors'], data['fuels'], lookup_enduses, lookup_sector_enduses = data_loader.load_fuels(data['paths'])
-    #print("a")
-    #print(lookup_enduses)
-    #raise Exception
     data['regions'] = read_data.get_region_names(name_region_set)
     data['reg_coord'] = basic_functions.get_long_lat_decimal_degrees(read_data.get_region_centroids(name_region_set))
 
@@ -349,6 +345,11 @@ if __name__ == "__main__":
     except:
         service_switches = []
 
+    #print("ddddddddddd")
+    print(service_switches_raw)
+    print(service_switches)
+    #raise Exception("TTT")
+
     fuel_switches = read_data.read_fuel_switches(os.path.join(path_strategy_vars, "switches_fuel.csv"), data['enduses'], data['assumptions'].fueltypes, data['assumptions'].technologies)
     capacity_switches = read_data.read_capacity_switch(os.path.join(path_strategy_vars, "switches_capacity.csv"))
 
@@ -428,7 +429,7 @@ if __name__ == "__main__":
 
         print("Local simulation for year:  " + str(sim_yr))
         setattr(data['assumptions'], 'curr_yr', sim_yr) # Set current year
-        print("CURRYR: " + str(data['assumptions'].curr_yr))
+
         if config['CRITERIA']['constant_weather']:
             weather_yr_scenario = config['CONFIG']['weather_yr_scenario']
         else:
@@ -439,11 +440,16 @@ if __name__ == "__main__":
         # --------------------------------------
         path_folder_weather_yr = os.path.join(path_new_scenario, str("simulation_results"))
 
-        data['weather_yr_result_paths'] = basic_functions.get_weather_result_paths(
+        data['weather_yr_result_paths'] = basic_functions.get_result_paths(
             path_folder_weather_yr)
 
-        for folder, path_folder in data['weather_yr_result_paths'].items():
-            basic_functions.create_folder(path_folder)
+        folders_to_create = [
+            data['weather_yr_result_paths']['data_results'],
+            data['weather_yr_result_paths']['data_results_validation'],
+            data['weather_yr_result_paths']['data_results_model_run_results_txt']]
+
+        for folder in folders_to_create:
+            basic_functions.create_folder(folder)
 
         technologies = general_assumptions.update_technology_assumption(
             data['assumptions'].technologies,
@@ -516,62 +522,71 @@ if __name__ == "__main__":
             # -------------------------------------------
             # Write annual results to txt files
             # -------------------------------------------
-            path_runs = data['weather_yr_result_paths']['data_results_model_runs']
-
-            print("... Start writing results to file: " + str(path_runs))
+            print("... Start writing results to file: " + str(data['weather_yr_result_paths']['data_results_model_run_results_txt']))
             plot_only_selection = True
             if plot_only_selection:
+
+                # Write only total region
                 write_data.write_only_peak_total_regional(
                     sim_yr,
                     "only_total",
-                    path_runs,
+                    data['weather_yr_result_paths']['data_results_model_run_results_txt'],
                     sim_obj.ed_fueltype_regs_yh,
                     'tot_fueltype_reg')
 
+                # Write only peak day
                 write_data.write_only_peak(
                     sim_yr,
                     "only_peak",
-                    path_runs,
+                    data['weather_yr_result_paths']['data_results_model_run_results_txt'],
                     sim_obj.ed_fueltype_regs_yh,
                     'fueltype_reg_peak_day')
+
+                # Write every hour in year for all regions and fueltypes (fueltype, reg, 8760)
+                write_data.write_fueltype_reg_8760(
+                    sim_yr,
+                    "only_fueltype_reg_8760",
+                    data['weather_yr_result_paths']['data_results_model_run_results_txt'],
+                    sim_obj.ed_fueltype_regs_yh,
+                    'fueltype_reg_8760')
 
                 # PLot only residential total regional annual demand and
                 '''write_data.write_residential_tot_demands(
                     sim_yr,
-                    path_runs,
+                    data['weather_yr_result_paths']['data_results_model_run_results_txt'],
                     sim_obj.ed_residential_tot_reg_y,
                     "ed_residential_tot_reg_y")
                 write_data.write_supply_results(
                     sim_yr,
                     "ed_fueltype_regs_yh",
-                    path_runs,
+                    data['weather_yr_result_paths']['data_results_model_run_results_txt'],
                     sim_obj.ed_fueltype_regs_yh,
                     "result_tot_submodels_fueltypes")'''
             else:
                 write_data.write_residential_tot_demands(
                     sim_yr,
-                    path_runs,
+                    data['weather_yr_result_paths']['data_results_model_run_results_txt'],
                     sim_obj.ed_residential_tot_reg_y,
                     "ed_residential_tot_reg_y")
                 write_data.write_supply_results(
                     sim_yr,
                     "ed_fueltype_regs_yh",
-                    path_runs,
+                    data['weather_yr_result_paths']['data_results_model_run_results_txt'],
                     sim_obj.ed_fueltype_regs_yh,
                     "result_tot_submodels_fueltypes")
                 write_data.write_enduse_specific(
                     sim_yr,
-                    path_runs,
+                    data['weather_yr_result_paths']['data_results_model_run_results_txt'],
                     sim_obj.tot_fuel_y_enduse_specific_yh,
                     "out_enduse_specific")
                 write_data.write_lf(
-                    path_runs,
+                    data['weather_yr_result_paths']['data_results_model_run_results_txt'],
                     "result_reg_load_factor_y",
                     [sim_yr],
                     sim_obj.reg_load_factor_y,
                     'reg_load_factor_y')
                 write_data.write_lf(
-                    path_runs,
+                    data['weather_yr_result_paths']['data_results_model_run_results_txt'],
                     "result_reg_load_factor_yd",
                     [sim_yr],
                     sim_obj.reg_load_factor_yd,
