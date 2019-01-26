@@ -96,7 +96,7 @@ if __name__ == "__main__":
     sim_yrs = [2015, 2020, 2025, 2030, 2035, 2040, 2045, 2050]
     #sim_yrs = [2015, 2020, 2050] #, 2050]
     #sim_yrs = [2015, 2030, 2050]
-    sim_yrs = [2015, 2041]
+    #sim_yrs = [2015, 2041]
 
     if len(sys.argv) > 3: #user defined arguments are provide
         print("Arguments taken from comand line")

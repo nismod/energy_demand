@@ -55,15 +55,14 @@ all_scenarios = os.listdir(path_results)
 
 for scenario in all_scenarios:
     all_realizations = os.listdir(os.path.join(path_results, scenario))
-    print("... start with scenario {}".format(scenario), flush=True)
+    print("...scenario {}".format(scenario), flush=True)
 
     for simulation_yr in simulation_yrs:
-        print("         ...writing simulation_yr {}".format(simulation_yr), flush=True)
-
+        
+        print("     ...simulation_yr {}".format(simulation_yr), flush=True)
         # ----------------------------------
-        # Container to load all realizations
+        # Container to load all realizations initially for speed up
         # ----------------------------------
-        print("... loading all intializations of scenario")
         container_all_initialisations = []
         for initialization in all_realizations:
             path_sim_yr = os.path.join(
@@ -75,10 +74,10 @@ for scenario in all_scenarios:
                 "only_fueltype_reg_8760",
                 "fueltype_reg_8760__{}.npy".format(simulation_yr))
             full_result = np.load(path_sim_yr)
-            container_all_initialisations.append(full_result) 
+            container_all_initialisations.append(full_result)
 
         for fueltype_str in fueltypes:
-            print("    ... writing fueltype {}".format(fueltype_str), flush=True)
+            print("         ...fueltype {}".format(fueltype_str), flush=True)
             fueltype_int = tech_related.get_fueltype_int(fueltype_str)
 
             # --------
@@ -95,7 +94,7 @@ for scenario in all_scenarios:
             df_result_region_empty = pd.DataFrame(columns=hours)
 
             for region_nr, reg_name in enumerate(regions):
-                print("         ...calculating region {}".format(reg_name), flush=True)
+                #print("         ...calculating region {}".format(reg_name), flush=True)
 
                 #df_result_region = pd.DataFrame(columns=hours)
                 df_result_region = copy.copy(df_result_region_empty)
