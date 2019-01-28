@@ -4,7 +4,6 @@ import os
 import logging
 import configparser
 import csv
-import yaml
 import numpy as np
 from ruamel.yaml import YAML
 
@@ -28,12 +27,6 @@ def write_yaml(data, file_path):
         yaml.allow_unicode = True
         return yaml.dump(data, file_handle)
 
-class ExplicitDumper(yaml.Dumper):
-    """
-    A dumper that will never emit aliases.
-    """
-    def ignore_aliases(self, data):
-        return True
 
 def logg_info(modelrun, fuels_in, data):
     """Logg information
@@ -133,9 +126,7 @@ def dump(data, file_path):
     data
         Data to write (should be lists, dicts and simple values)
     """
-    yaml.add_representer(tuple, tuple_representer)
-    with open(file_path, 'w') as file_handle:
-        return yaml.dump(data, file_handle, Dumper=ExplicitDumper, default_flow_style=False)
+    write_yaml(data, file_path)
 
 def write_yaml_output_keynames(path_yaml, key_names):
     """Generate YAML file where the outputs

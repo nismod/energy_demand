@@ -1,11 +1,6 @@
 """Generate model runs
 """
 import os
-import configparser
-import csv
-import yaml
-import numpy as np
-from ruamel.yaml import YAML
 
 from energy_demand.read_write import write_data
 
@@ -41,14 +36,14 @@ def generate_yaml(
 
         #Narratives
         'narratives': narratives,
-    
+
         # Scenarios
         'scenarios': ['population', 'gva_per_head','temperature'],
 
         'description': 'Model run description is...',
-        
+
         'model_dependencies': [],
-        
+
         'sector_models': ['energy_demand_constrained'],
 
         #Scenario dependendies
@@ -95,7 +90,7 @@ def generate_yaml(
                 'source_output': 't_max',
                 'sink_input': 't_max'
             }],
-        
+
 
         }
 
