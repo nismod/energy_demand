@@ -8,7 +8,7 @@ some observations from @willu47
   and into class methods, and then calling each method in turn
 - suggest explictly creating class properties to access results, rather than
   the ``setattr`` magic
-- potential for parallelisation of the for-loop around regions for generation 
+- potential for parallelisation of the for-loop around regions for generation
   by dwelling stocks
 - suggest splitting ``aggregate_across_all_regions`` into separate methods as each
   of these requires creating a very large array which is then held in memory,
@@ -300,30 +300,6 @@ def aggregate_load_factors(
 
     return reg_load_factor_y, reg_load_factor_yd
 
-def get_all_submodels(submodels, submodel_name):
-    """Collect all submodel objects for a
-    specific submodel name
-
-    Arguments
-    ---------
-    submodels : list
-        All calculated model objects
-    submodel_name : str
-        Name of submodels to collect
-
-    Returns
-    -------
-    specific_submodels : list
-        Contains all submodels
-    """
-    specific_submodels = []
-
-    for submodel in submodels:
-        if submodel.submodel_name == submodel_name:
-            specific_submodels.append(submodel)
-
-    return specific_submodels
-
 def get_disaggregated_fuel_of_reg(submodel_names, fuel_disagg, region):
     """Get disaggregated region for every submodel
     for a specific region
@@ -372,8 +348,6 @@ def simulate_region(
     all_submodels : list
         List with submodel objects depending on submodels
     """
-    submodel_objs = []
-
     submodel_names = assumptions.submodels_names
 
     # Get closest weather region object
@@ -436,7 +410,7 @@ def simulate_region(
                 # ---------------
                 # Create submodel for region and enduse
                 # ---------------
-                submodel_obj = endusefunctions.Enduse(
+                yield endusefunctions.Enduse(
                     submodel_name=submodel_name,
                     region=region_obj.name,
                     scenario_data=data['scenario_data'],
@@ -459,18 +433,6 @@ def simulate_region(
                     reg_scen_drivers=assumptions.scenario_drivers,
                     flat_profile_crit=flat_profile_crit)
 
-                submodel_objs.append(submodel_obj)
-
-    # Collect all submodels with respect to submodel names and store in list
-    # e.g. [[all_residential-submodels], [all_service_submodels]...]
-    all_submodels = []
-    submodels = lookup_tables.basic_lookups()['submodels_names']
-    for submodel in submodels:
-        submodels = get_all_submodels(submodel_objs, submodel)
-        all_submodels.append(submodels)
-
-    return all_submodels
-
 def fuel_aggr(
         sector_models,
         sum_crit,
@@ -484,7 +446,7 @@ def fuel_aggr(
 
     Arguments
     ----------
-    sector_models : list
+    sector_models : list[Enduse]
         Sector models
     sum_crit : str
         Criteria
@@ -509,23 +471,22 @@ def fuel_aggr(
     """
     input_array = np.zeros(shape_aggregation_array, dtype="float")
 
-    for sector_model in sector_models:
-        for enduse_object in sector_model:
+    for enduse_object in sector_models:
 
+        fuels = get_fuels_yh(
+            enduse_object,
+            attribute_technologies)
+
+        if isinstance(fuels, dict):
+            for tech, fuel_tech in fuels.items():
+                tech_fueltype = technologies[tech].fueltype_int
+                input_array[tech_fueltype] += fuel_tech
+        else:
+            # Fuel per technology
             fuels = get_fuels_yh(
                 enduse_object,
-                attribute_technologies)
-
-            if isinstance(fuels, dict):
-                for tech, fuel_tech in fuels.items():
-                    tech_fueltype = technologies[tech].fueltype_int
-                    input_array[tech_fueltype] += fuel_tech
-            else:
-                # Fuel per technology
-                fuels = get_fuels_yh(
-                    enduse_object,
-                    attribute_non_technology)
-                input_array += fuels
+                attribute_non_technology)
+            input_array += fuels
 
     if sum_crit == 'no_sum':
         return input_array
@@ -567,7 +528,7 @@ def get_fuels_yh(enduse_object, attribute_to_get):
         elif attribute_to_get == 'shape_non_peak_yd':
             fuels = fuels_reg_y * flat_shape_yd
         elif attribute_to_get == 'fuel_yh' or attribute_to_get == 'techs_fuel_yh':
-            f_hour = 0.00011415525114155251 #1 / 8760
+            f_hour = 1 / 8760
             flat_shape = np.full((enduse_object.fuel_y.shape[0], 365, 24), f_hour, dtype="float")
             fuels = fuels_reg_y[:, np.newaxis, np.newaxis] * flat_shape
     else: #If not flat shape, use yh load profile of enduse
@@ -600,24 +561,22 @@ def aggr_complete_result(
     full_result_aggr : dict
         Full result aggregation dict
     """
-    for _, sector_model in enumerate(sector_models):
-        for model_object in sector_model:
+    for model_object in sector_models:
+        fuels = get_fuels_yh(model_object, 'techs_fuel_yh')
+        enduse_array_nr = lookup_enduses[model_object.enduse]
 
-            fuels = get_fuels_yh(model_object, 'techs_fuel_yh')
-            enduse_array_nr = lookup_enduses[model_object.enduse]
+        if isinstance(fuels, dict):
+            for tech, fuel_tech in fuels.items():
+                tech_fueltype = technologies[tech].fueltype_int
+                full_result_aggr[enduse_array_nr][tech_fueltype][reg_array_nr] += fuel_tech.reshape(8760)
+        else:
+            fueltype_yh_365_24 = get_fuels_yh(model_object, 'fuel_yh')
 
-            if isinstance(fuels, dict):
-                for tech, fuel_tech in fuels.items():
-                    tech_fueltype = technologies[tech].fueltype_int
-                    full_result_aggr[enduse_array_nr][tech_fueltype][reg_array_nr] += fuel_tech.reshape(8760)
-            else:
-                fueltype_yh_365_24 = get_fuels_yh(model_object, 'fuel_yh')
+            # Iterate over fueltype and add to region
+            fueltype_yh_8760 = fueltype_yh_365_24.reshape(fueltype_yh_365_24.shape[0], 8760)
 
-                # Iterate over fueltype and add to region
-                fueltype_yh_8760 = fueltype_yh_365_24.reshape(fueltype_yh_365_24.shape[0], 8760)
-
-                for fueltype_nr, fuels_8760 in enumerate(fueltype_yh_8760):
-                    full_result_aggr[enduse_array_nr][fueltype_nr][reg_array_nr] += fuels_8760
+            for fueltype_nr, fuels_8760 in enumerate(fueltype_yh_8760):
+                full_result_aggr[enduse_array_nr][fueltype_nr][reg_array_nr] += fuels_8760
 
     return full_result_aggr
 
@@ -829,7 +788,7 @@ def aggregate_results_constrained(
         (key of this will be made self.attributes)
     reg_array_nr : int
         Region array number
-    all_submodels : list
+    all_submodels : list[Enduse]
         Submodel objects
     mode_constrained : bool
         Mode of how to run the model
@@ -859,97 +818,40 @@ def aggregate_results_constrained(
         all_submodels,
         technologies)
 
-    '''
-    if assumptions.curr_yr > 2015:
-        fueltype_nr = 2 #electricity
-        sum_all_enduses = np.sum(aggr_results['ed_submodel_enduse_fueltype_regs_yh'], axis=0) #full_result_aggr[enduse_array_nr][fueltype_nr][reg_array_nr] += fuels_8760
-
-        # print peak electrictiy demand of region
-        _mak_demand = np.max(sum_all_enduses[fueltype_nr][reg_array_nr])
-
-        _sum_dayily = np.sum(sum_all_enduses[fueltype_nr][reg_array_nr].reshape(365, 24), axis=1)
-        print(_sum_dayily.shape)
-        _peak_day = np.argmax(_sum_dayily)
-
-        print("info.... reg_array_nr: {}  {}".format(reg_array_nr, assumptions.curr_yr))
-        print("MAX ELEC DEMAND " + str(_mak_demand))
-
-        print("_-- rs_space_heating " +  str(aggr_results['ed_submodel_enduse_fueltype_regs_yh'].shape))
-        sum_rs_space_heating = aggr_results['ed_submodel_enduse_fueltype_regs_yh'][6]
-        print(sum_rs_space_heating.shape)
-        print(np.sum(sum_rs_space_heating[fueltype_nr][reg_array_nr]))
-        _mak_demand = np.max(sum_rs_space_heating[fueltype_nr][reg_array_nr])
-        print("MAX ELEC DEMAND RS SPACE: " + str(_mak_demand))
-        print("MAX ELEC DEMAND consumer electronics: " + str(np.max(aggr_results['ed_submodel_enduse_fueltype_regs_yh'][3][fueltype_nr][reg_array_nr])))
-
-        enduses_lu = {
-            'rs_lighting': 0, 'rs_cold': 1, 'rs_wet': 2, 'rs_consumer_electronics': 3,
-            'rs_home_computing': 4, 'rs_cooking': 5, 'rs_space_heating': 6, 'rs_water_heating': 7,
-            'ss_catering': 8, 'ss_small_power': 9, 'ss_cooled_storage': 10, 'ss_other_electricity': 11,
-            'ss_other_gas': 12, 'ss_ICT_equipment': 13, 'ss_space_heating': 14, 'ss_water_heating': 15,
-            'ss_cooling_humidification': 16, 'ss_lighting': 17, 'ss_fans': 18, 'is_other': 19, 'is_motors': 20,
-            'is_lighting': 21, 'is_drying_separation': 22, 'is_high_temp_process': 23, 'is_refrigeration': 24,
-            'is_low_temp_process': 25, 'is_compressed_air': 26, 'is_space_heating': 27}
-
-        #for enduse, enduse_nr in enduses_lu.items():
-        #    plt.plot(aggr_results['ed_submodel_enduse_fueltype_regs_yh'][enduse_nr][fueltype_nr][reg_array_nr], label="{} ({})".format(
-        #        enduse, enduse_nr))
-
-
-        #plt.plot(sum_all_enduses[fueltype_nr][reg_array_nr], linewidth=1, label="all")
-        all_end = aggr_results['ed_submodel_enduse_fueltype_regs_yh'][:, fueltype_nr, reg_array_nr]
-        print("shape all enduse" + str(all_end.shape))
-        print(sum_rs_space_heating[fueltype_nr][reg_array_nr].shape)
-        #for enduse_nr in range(28):
-        #    plt.plot(all_end[enduse_nr], label="enduse_nr {}".format(enduse_nr))
-        #plt.plot(sum_all_enduses[fueltype_nr][reg_array_nr], label="Combined all end uses")
-        #plt.plot(aggr_results['ed_submodel_enduse_fueltype_regs_yh'][13][fueltype_nr][reg_array_nr], linewidth=4, label="tt")
-        #plt.plot(aggr_results['ed_submodel_enduse_fueltype_regs_yh'][3][fueltype_nr][reg_array_nr], linewidth=4, label="CONSUM")
-        #plt.plot(aggr_results['ed_submodel_enduse_fueltype_regs_yh'][23][fueltype_nr][reg_array_nr], linewidth=4, label="hoch temp")
-        #plt.plot(sum_rs_space_heating[fueltype_nr][reg_array_nr], linewidth=0.1, label="HEATING")
-        plt.plot(sum_all_enduses[fueltype_nr][reg_array_nr].reshape(365, 24)[_peak_day], linewidth=1, label="all_peak_day")
-
-        _z = np.zeros((24))
-        for enduse, enduse_nr in enduses_lu.items():
-            enduse_fuel = all_end[enduse_nr].reshape(365,24)
-            #_z += enduse_fuel[_peak_day]
-            #print("Z: {}  {}".format(enduse_nr, _z[10:20]))
-            plt.plot(enduse_fuel[_peak_day], label="{} - ({})".format(enduse, enduse_nr))
-        plt.legend()
-        plt.show()
-
-        raise Exception("BLBLBAL")
-    '''
-
     if mode_constrained:
+        submodel_to_idx = {
+            name: idx
+            for idx, name in enumerate(lookup_tables.basic_lookups()['submodels_names'])
+        }
 
         # -----------------------------------------------------------------
         # Aggregate fuel of constrained technologies for heating
         # -----------------------------------------------------------------
-        for submodel_nr, submodel in enumerate(all_submodels):
-            for enduse_object in submodel:
+        for enduse_object in all_submodels:
+            submodel_nr = submodel_to_idx[enduse_object.submodel_name]
 
-                # Aggregate only over heating technologies
-                if enduse_object.enduse in enduse_space_heating:
+            # Aggregate only over heating technologies
+            if enduse_object.enduse in enduse_space_heating:
 
-                    techs_fueltypes_yh = get_fuels_yh(
-                        enduse_object, 'techs_fuel_yh')
+                techs_fueltypes_yh = get_fuels_yh(enduse_object, 'techs_fuel_yh')
 
-                    # All used heating technologies
-                    heating_techs = enduse_object.enduse_techs
+                # All used heating technologies
+                heating_techs = enduse_object.enduse_techs
 
-                    # Iterate technologies and get fuel per technology
-                    for heating_tech in heating_techs:
+                # Iterate technologies and get fuel per technology
+                for heating_tech in heating_techs:
 
-                        tech_fuel = techs_fueltypes_yh[heating_tech] # Fuel of technology
-                        fueltype_tech_int = technologies[heating_tech].fueltype_int # Fueltype of technology
+                    tech_fuel = techs_fueltypes_yh[heating_tech] # Fuel of technology
+                    fueltype_tech_int = technologies[heating_tech].fueltype_int # Fueltype of technology
 
-                        # Aggregate Submodel (sector) specific enduse for fueltype
-                        if heating_tech in aggr_results['results_constrained'].keys():
-                            aggr_results['results_constrained'][heating_tech][submodel_nr][reg_array_nr][fueltype_tech_int] += tech_fuel.reshape(8760)
-                        else:
-                            aggr_results['results_constrained'][heating_tech] = np.zeros((len(all_submodels), reg_nrs, fueltypes_nr, 8760), dtype="float")
-                            aggr_results['results_constrained'][heating_tech][submodel_nr][reg_array_nr][fueltype_tech_int] += tech_fuel.reshape(8760)
+                    # Aggregate Submodel (sector) specific enduse for fueltype
+                    if heating_tech in aggr_results['results_constrained'].keys():
+                        aggr_results['results_constrained'][heating_tech][submodel_nr][reg_array_nr][fueltype_tech_int] += tech_fuel.reshape(8760)
+                    else:
+                        # TODO query this - are we overwriting otherwise
+                        if heating_tech not in aggr_results['results_constrained']:
+                            aggr_results['results_constrained'][heating_tech] = np.zeros((len(submodel_to_idx), reg_nrs, fueltypes_nr, 8760), dtype="float")
+                        aggr_results['results_constrained'][heating_tech][submodel_nr][reg_array_nr][fueltype_tech_int] += tech_fuel.reshape(8760)
 
     return aggr_results
 
