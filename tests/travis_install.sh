@@ -26,7 +26,7 @@ if [[ "$DISTRIB" == "conda" ]]; then
     conda config --add channels conda-forge
 
     # Configure the conda environment using consistent .environment.yml
-    conda env create -f .environment.yml -n testenv -c conda-forge
+    conda env create -f .environment.yml -n testenv
     source activate testenv
 
     if [[ "$PYTHON_VERSION" == "3.5" ]]; then
