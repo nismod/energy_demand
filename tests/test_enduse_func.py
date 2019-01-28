@@ -19,7 +19,6 @@ def test_enduse():
         curr_yr='test',
         enduse='test',
         sector='test',
-        f_weather_correction={},
         fuel=np.zeros((7, 0)),
         tech_stock='test',
         heating_factor_y='test',
@@ -151,7 +150,7 @@ def test_apply_service_switch():
 
     share_boilerA_cy = 0.99
     share_boilerB_cy = 0.01
-    
+
     annual_tech_diff_params = {
         'boilerA': {curr_yr: share_boilerA_cy},
         'boilerB': {curr_yr: share_boilerB_cy}}
@@ -270,7 +269,7 @@ def test_fuel_to_service():
     technologies['techA'].eff_by = 0.5
     technologies['techA'].eff_ey = 0.5
     technologies['techA'].year_eff_ey = 2020
-    
+
     fueltypes = {'electricity': 0, 'gas': 1} #, 'heat': 1}
 
     tech_stock = technological_stock.TechStock(
@@ -402,8 +401,7 @@ def test_apply_weather_correction():
         cooling_factor_y=1.5,
         heating_factor_y=1.5,
         enduse_space_heating=['heating'],
-        enduse_space_cooling=['cooling'],
-        f_weather_correction={'hdd': 1, 'cdd': 1})
+        enduse_space_cooling=['cooling'])
 
     assert result == 300
     result = enduse_func.apply_weather_correction(
@@ -412,8 +410,7 @@ def test_apply_weather_correction():
         cooling_factor_y=1.5,
         heating_factor_y=1.5,
         enduse_space_heating=['heating'],
-        enduse_space_cooling=['cooling'],
-        f_weather_correction={'hdd': 1, 'cdd': 1})
+        enduse_space_cooling=['cooling'])
 
     assert result == 300
 
