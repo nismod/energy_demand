@@ -26,6 +26,11 @@ if [[ "$DISTRIB" == "conda" ]]; then
     # Configure the conda environment using consistent .environment.yml
     conda env create -f .environment.yml -n testenv
     source activate testenv
+
+    if [[ "$PYTHON_VERSION" == "3.5" ]]; then
+        # Pin libgcc as possible root cause of fiona/shapely shared library import errors
+        conda install --yes libgcc-ng==7.2.0
+    fi
 fi
 
 if [[ "$COVERAGE" == "true" ]]; then
