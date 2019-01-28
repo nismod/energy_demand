@@ -21,10 +21,12 @@ if [[ "$DISTRIB" == "conda" ]]; then
         -O miniconda.sh
     chmod +x miniconda.sh && ./miniconda.sh -b -p $HOME/miniconda
     export PATH=$HOME/miniconda/bin:$PATH
-    conda update --yes conda
+
+    conda update --yes conda -c conda-forge
+    conda config --add channels conda-forge
 
     # Configure the conda environment using consistent .environment.yml
-    conda env create -f .environment.yml -n testenv
+    conda env create -f .environment.yml -n testenv -c conda-forge
     source activate testenv
 
     if [[ "$PYTHON_VERSION" == "3.5" ]]; then
