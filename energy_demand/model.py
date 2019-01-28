@@ -26,7 +26,14 @@ some observations from @willu47
 import logging
 from collections import defaultdict
 import numpy as np
-import matplotlib.pyplot as plt
+
+try:
+    from tqdm import tqdm
+except ImportError:
+    def tqdm(iterator, *_, **__):
+        """Alternative to tqdm, with no progress bar - ignore any arguments after the first
+        """
+        return iterator
 
 from energy_demand.basic import lookup_tables
 import energy_demand.enduse_func as endusefunctions
@@ -97,12 +104,7 @@ class EnergyDemandModel(object):
         # Simulate regions
         # -------------------------------------------
         print("... generating by dwelling stocks", flush=True)
-        for reg_array_nr, region in enumerate(regions):
-
-            logging.info("... Simulate: region %s, simulation year: %s, percent: (%s)",
-                region, assumptions.curr_yr, round((100/assumptions.reg_nrs)*reg_array_nr, 2))
-            print("... Simulate: region %s, simulation year: %s, percent: (%s)",
-                region, assumptions.curr_yr, round((100/assumptions.reg_nrs)*reg_array_nr, 2), flush=True)
+        for reg_array_nr, region in enumerate(tqdm(regions)):
 
             all_submodels = simulate_region(
                 region,
