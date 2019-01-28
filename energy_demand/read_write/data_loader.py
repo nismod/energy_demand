@@ -224,7 +224,7 @@ def load_local_user_defined_vars(
             var_name = file_name[:-4] #remove ".csv"
 
             raw_file_content = pd.read_csv(os.path.join(path_csv, file_name))
-            
+
             strategy_vars_as_narratives[var_name] = narrative_related.read_user_defined_param(
                 raw_file_content,
                 simulation_base_yr=simulation_base_yr,
@@ -257,12 +257,12 @@ def load_ini_param(path):
     config.read(os.path.join(path, 'model_run_sim_param.ini'))
 
     regions = ast.literal_eval(config['REGIONS']['regions'])
-    
+
     assumptions = {}
     assumptions['reg_nrs'] = int(config['SIM_PARAM']['reg_nrs'])
     assumptions['base_yr'] = int(config['SIM_PARAM']['base_yr'])
     assumptions['sim_yrs'] = ast.literal_eval(config['SIM_PARAM']['sim_yrs'])
-    
+
     # -----------------
     # Other information
     # -----------------
@@ -478,14 +478,10 @@ def convert_config_to_correct_type(config):
     """
     out_dict = defaultdict(dict)
 
-    for path in config['PATHS']:
-        out_dict['PATHS'][path] = config.get('PATHS', path)
-
-    for path in config['DATA_PATHS']:
-        out_dict['DATA_PATHS'][path] = config.get('DATA_PATHS', path)
-
-    for path in config['CONFIG_DATA']:
-        out_dict['CONFIG_DATA'][path] = config.get('CONFIG_DATA', path)
+    string_sections = ['PATHS', 'DATA_PATHS', 'CONFIG_DATA', 'RESULT_DATA']
+    for section in string_sections:
+        for path in config[section]:
+            out_dict[section][path] = config.get(section, path)
 
     for config_section in config['CONFIG']:
         out_dict['CONFIG'][config_section] = config.getint('CONFIG', config_section)
