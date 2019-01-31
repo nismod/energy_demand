@@ -13,16 +13,13 @@ dependencies:
 - matplotlib
 - numpy
 - palettable
-- pyinstrument
 - pyproj
-- pysal
-- pyshp
 - pytest  # test
 - pytest-cov  # test
-- pyyaml
 - recommonmark  # docs
 - scipy
 - sphinx  # docs
 - sphinx_rtd_theme  # docs
 - pip:
   - isoweek
+  - ruamel.yaml==0.15.50

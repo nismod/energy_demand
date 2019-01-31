@@ -1,9 +1,3 @@
-
-import os
-import configparser
-import csv
-import yaml
-import numpy as np
 from ruamel.yaml import YAML
 
 from energy_demand.read_write import write_data
@@ -17,7 +11,7 @@ path = "C:/_scrap/temp-data.yml"
 variant_list = []
 
 for i in range(1, 101, 1):
-    
+
     name = "NF{}".format(i)
 
     entry = {
@@ -43,7 +37,7 @@ path = "C:/_scrap/weateher-station.yml"
 variant_list = []
 
 for i in range(1, 101, 1):
-    
+
     name = "NF{}".format(i)
 
     entry = {

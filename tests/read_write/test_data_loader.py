@@ -2,7 +2,7 @@
 """
 from pytest import fixture
 from unittest.mock import Mock
-from energy_demand.basic_functions import get_local_paths
+from energy_demand.read_write.data_loader import get_local_paths
 
 
 @fixture(scope='function')
@@ -44,7 +44,7 @@ crit_temp_min_max = False
 local_path_datafolder = /vagrant/data/energy_demand
 path_strategy_vars =  /vagrant/data/energy_demand/energy_demand_minimal/00_user_defined_variables
 #ONS principal projection
-path_population_data_for_disaggregation_LAD =  /vagrant/data/energy_demand/energy_demand_minimal/_raw_data/J-population_disagg_by/uk_pop_principal_2015_2050.csv  
+path_population_data_for_disaggregation_LAD =  /vagrant/data/energy_demand/energy_demand_minimal/_raw_data/J-population_disagg_by/uk_pop_principal_2015_2050.csv
 #ONS principal projection
 folder_raw_carbon_trust = /vagrant/data/energy_demand/energy_demand_minimal/_raw_data/G_Carbon_Trust_advanced_metering_trial/
 path_population_data_for_disaggregation_MSOA = /vagrant/data/energy_demand/energy_demand_minimal/_raw_data/J-population_disagg_by/uk_pop_principal_2015_2050_MSOA_lad.csv
