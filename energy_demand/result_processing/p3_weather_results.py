@@ -35,7 +35,7 @@ path_results = "C:\_WEATHER_p3_NEWRUN"          # Folder of calculated model run
 scenarios = ['l_min', 'l_max', 'h_min', 'h_max']
 fueltypes = ['electricity', 'gas', 'hydrogen']
 folder_types = ['mean', 'quantile_05', 'quantile_95']
-simulation_yrs = [2015, 2050]
+simulation_yrs = range(2015, 2051, 5)
 
 # -----------------------
 # Create folder structure
