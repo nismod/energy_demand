@@ -431,7 +431,7 @@ def read_results_yh(path_to_folder, name_of_folder):
         try:
             path_file_to_read = os.path.join(path_to_folder, file_path)
             file_path_split = file_path.split("__")
-            year = int(file_path_split[1])
+            year = int(file_path_split[1][:-4])
 
             results[year] = np.load(path_file_to_read)
 

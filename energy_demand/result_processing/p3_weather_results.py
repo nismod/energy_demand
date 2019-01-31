@@ -27,14 +27,15 @@ from energy_demand.technologies import tech_related
 from energy_demand.basic import basic_functions
 
 # Folder paths
-path_out = "C:/__TEST"
+path_out = "C:/__TEST"                          # Folder to store results
 path_results = "C:/Users/cenv0553/ED/results"
+path_results = "C:\_WEATHER_p3_NEWRUN"          # Folder of calculated model runs
 
 # Scenario definitions
 scenarios = ['l_min', 'l_max', 'h_min', 'h_max']
 fueltypes = ['electricity', 'gas', 'hydrogen']
 folder_types = ['mean', 'quantile_05', 'quantile_95']
-simulation_yrs = [2015, 2041]
+simulation_yrs = range(2015, 2051, 5)
 
 # -----------------------
 # Create folder structure
