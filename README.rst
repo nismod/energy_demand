@@ -71,7 +71,7 @@ In order to run HIRE, first the model needs to be set up (Section 1.1 or Section
 
 4.  Install HIRE from within the console with the command
 
-    ``energy_demand setup -d path/to/energy_data_folder``
+    ``energy_demand setup -d path/to/energy_data_folder -f path/to/config.ini``
 
     The ``path/to/energy_data_folder`` is the path to the location with
     the necessary data to run the model.
@@ -95,9 +95,9 @@ In order to run HIRE, first the model needs to be set up (Section 1.1 or Section
 
 4.  Install HIRE from within the console with the command
 
-    ``energy_demand minimal_setup -d path/to/energy_data_folder``
+    ``energy_demand minimal_setup -f path/to/config.ini``
 
-    Example: energy_demand minimal_setup -d  C:/Users/fred1234/data_energy_demand
+    Example: energy_demand minimal_setup -f  C:/Users/fred1234/data_energy_demand
 
     The ``path/to/energy_data_folder`` is the path to the location with
     the necessary minimum dummy data to run the model.
@@ -106,7 +106,7 @@ In order to run HIRE, first the model needs to be set up (Section 1.1 or Section
     ``energy_data_folder``.
 
 3. Running HIRE with smif
----
+---------------------------------------------
 
 1. Set up the model as outlined in 1.1 'Model Set-Up'
 

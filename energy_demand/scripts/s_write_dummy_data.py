@@ -68,9 +68,9 @@ def post_install_setup_minimum(args):
     create dummy datas (temperature and service sector load profiles)
 
     """
-    path_config_file = args.local_data
-    config = data_loader.read_config_file(path_config_file)
+    path_config_file = args.config_file
 
+    config = data_loader.read_config_file(path_config_file)
     path_local_data = config['PATHS']['path_local_data']
 
     # ==========================================
@@ -78,8 +78,7 @@ def post_install_setup_minimum(args):
     # ==========================================
     print("... running initialisation scripts with only publicly available data")
 
-    # Load paths
-    local_paths = data_loader.get_local_paths(args.local_data)
+    local_paths = data_loader.get_local_paths(path_config_file)
 
     # Create folders to input data
     raw_folder = os.path.join(path_local_data, '_raw_data')

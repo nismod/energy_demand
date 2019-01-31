@@ -106,6 +106,11 @@ class EnergyDemandModel(object):
         print("... generating by dwelling stocks", flush=True)
         for reg_array_nr, region in enumerate(tqdm(regions)):
 
+            #logging.info("... Simulate: region %s, simulation year: %s, percent: (%s)",
+            #    region, assumptions.curr_yr, round((100/assumptions.reg_nrs)*reg_array_nr, 2))
+            print("... Simulate: region %s, simulation year: %s, percent: (%s)",
+                region, assumptions.curr_yr, round((100/assumptions.reg_nrs)*reg_array_nr, 2), flush=True)
+
             all_submodels = simulate_region(
                 region,
                 data,

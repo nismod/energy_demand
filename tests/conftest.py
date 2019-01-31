@@ -100,15 +100,6 @@ val_subnational_gas = tests/config_data/01-validation_datasets/03_subnational_ga
 val_subnational_gas_residential = tests/config_data/01-validation_datasets/03_subnational_gas/data_2015_gas_domestic.csv
 val_subnational_gas_non_residential = tests/config_data/01-validation_datasets/03_subnational_gas/data_2015_gas_non_domestic.csv
 val_nat_elec_data = tests/config_data/01-validation_datasets/01_national_elec_2015/elec_demand_2015.csv
-
-[RESULT_DATA]
-data_results = tests/results/
-data_results_model_run_pop = tests/results/model_run_pop
-data_results_model_runs = tests/results/model_run_results_txt
-data_results_PDF = tests/results/PDF_results
-data_results_validation = tests/results/PDF_validation
-data_results_shapefiles = tests/results/spatial_results
-individual_enduse_lp = tests/results/individual_enduse_lp
 """
     config_file.write(contents)
     return str(config_file)

@@ -187,7 +187,6 @@ def spatial_validation_lad_level(
         (fuel_elec_residential_regs_yh, subnational_elec_residential),          # domestic
         (fuel_elec_non_residential_regs_yh, subnational_elec_non_residential)]  # nondomestics
 
-    print("AA " + str(os.path.join(data_results_validation, 'validation_multiple_elec.pdf')))
     spatial_validation_multiple(
         reg_coord=reg_coord,
         input_data=data_inputlist,

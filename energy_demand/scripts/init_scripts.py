@@ -768,7 +768,6 @@ def sig_param_calc_incl_fuel_switch(
                 print("---------- switches %s %s %s", enduse, crit_switch_service, crit_fuel_switch)
                 if crit_all_the_same:
                     print("... calc parameters of `{}` for year `{}`  {}".format(enduse, switch_yr, sector))
-                    print(s_tech_switched_p)
                     sig_param_tech_all_regs_value = s_generate_sigmoid.tech_sigmoid_parameters(
                         switch_yr,
                         switch_yr_start,

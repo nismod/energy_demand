@@ -478,7 +478,7 @@ def convert_config_to_correct_type(config):
     """
     out_dict = defaultdict(dict)
 
-    string_sections = ['PATHS', 'DATA_PATHS', 'CONFIG_DATA', 'RESULT_DATA']
+    string_sections = ['PATHS', 'DATA_PATHS', 'CONFIG_DATA']
     for section in string_sections:
         for path in config[section]:
             out_dict[section][path] = config.get(section, path)
@@ -493,7 +493,6 @@ def convert_config_to_correct_type(config):
             out_dict['CRITERIA'][criteria] = config.getboolean('CRITERIA', criteria)
 
     return dict(out_dict)
-
 
 def get_local_paths(config_file_path):
     """Create all local paths
@@ -579,7 +578,7 @@ def _read_config_file_section(section, config_file_path, items):
 
     return data_paths
 
-def get_result_paths(config_file_path):
+'''def get_result_paths(config_file_path):
     """Load all result paths from the `RESULT_DATA` section of the config file
 
     Arguments
@@ -600,7 +599,7 @@ def get_result_paths(config_file_path):
         ('data_results_shapefiles', 'str'),
         ('individual_enduse_lp', 'str')]
 
-    return _read_config_file_section('RESULT_DATA', config_file_path, paths)
+    return _read_config_file_section('RESULT_DATA', config_file_path, paths)'''
 
 def load_paths(config_file_path):
     """Load all paths from the `CONFIG_DATA` of the config file

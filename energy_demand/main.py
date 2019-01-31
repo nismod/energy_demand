@@ -1,12 +1,12 @@
-"""Allows to run HIRE locally outside the SMIF framework
+"""Run HIRE locally outside the SMIF framework
 
-write_national_results_amman
-move data config folder into data
 Note
 ----
-Always execute from root folder. e.g.: 
+Always execute from root folder and pass the path to the .ini file as argument:
 
-    energy_demand/energy_demand/main.py 
+    Example:
+    python energy_demand/energy_demand/main.py C:/Users/cenv0553/ed/energy_demand/local_run_config_file.ini test_run
+
 """
 import os
 import sys
@@ -79,10 +79,7 @@ def energy_demand_model(
     return modelrun
 
 if __name__ == "__main__":
-    """Pass the path to the .ini file as argument
-
-    Example:
-    pthon energy_demand/energy_demand/main.py C:/Users/cenv0553/ed/energy_demand/local_run_config_file.ini
+    """
     """
 
     # Update cluster file: #os.path.dirname(__file__), '..', 'local_run_config_file_cluster.ini'))
@@ -153,7 +150,7 @@ if __name__ == "__main__":
     # --------------------
     data['paths'] = config['CONFIG_DATA']
     data['local_paths'] = config['DATA_PATHS']
-    data['result_paths'] = basic_functions.get_result_paths(path_new_scenario, container=1)
+    data['result_paths'] = basic_functions.get_result_paths(path_new_scenario)
 
     folders_to_create = [
         data['result_paths']['data_results'],
@@ -381,8 +378,6 @@ if __name__ == "__main__":
     # ------------------------------------------------
     # Spatial Validation
     # ------------------------------------------------
-    print("AA " + str(data['result_paths']['data_results_validation']))
-
     if config['CRITERIA']['validation_criteria'] == True and config['CRITERIA']['cluster_calc'] != True:
         lad_validation.spatial_validation_lad_level(
             data['fuel_disagg'],

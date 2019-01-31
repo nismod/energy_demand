@@ -49,56 +49,68 @@ def package_data(
 
     # Names
     zip_name_full = os.path.join(data_folder_path, "{}_{}".format(version_name, "full.zip"))
-    zip_name_minimum = os.path.join(data_folder_path, "{}_{}".format(version_name, "minimum.zip"))
+    '''zip_name_minimum = os.path.join(data_folder_path, "{}_{}".format(version_name, "minimum.zip"))
 
     # Zip minimum files
     _raw_folders_data_minimal = [
         #'_old_data',
+        #'_raw_data',
+        #'00_user_defined_variables',
+        #'00_user_defined_variables_P3',
         #'coefficients',
+        #'config_data',
         #'dimensions',
         #'initial_conditions',
         #'initial_inputs',
+        #'interval_definitions',
         #'interventions',
         'energy_demand_minimal',
         #'narratives',
         #'parameters',
+        #'region_definitions',
         #'scenarios',
         #'strategies'
         ]
+    '''
 
     # Zip maximum files
     _raw_folders_data_full = [
-        #'_old_data',
-        #'coefficients',
-        #'dimensions',
-        #'initial_conditions',
-        #'interventions',
-        #'initial_inputs',
-        #'interventions',
-        'energy_demand',
-        #'narratives',
-        #'parameters',
-        #'scenarios',
-        #'strategies'
+        '_old_data',
+        '_raw_data',
+        '00_user_defined_variables',
+        '00_user_defined_variables_P3',
+        'coefficients',
+        'config_data',
+        'dimensions',
+        'initial_conditions',
+        'initial_inputs',
+        'interval_definitions',
+        'interventions',
+        'energy_demand_minimal',
+        'narratives',
+        'parameters',
+        'region_definitions',
+        'scenarios',
+        'strategies'
         ]
 
-    paths_minimal = []
-    for folder in _raw_folders_data_minimal:
-        path_folder = os.path.join(data_folder_path, folder)
-        paths_minimal.append(path_folder)
+    #paths_minimal = []
+    #for folder in _raw_folders_data_minimal:
+    #    path_folder = os.path.join(data_folder_path, folder)
+    #    paths_minimal.append(path_folder)
 
     paths_full = []
     for folder in _raw_folders_data_full:
         path_folder = os.path.join(data_folder_path, folder)
         paths_full.append(path_folder)
 
-    # Zip minimal
+    '''# Zip minimal
     zipit(
         dir_list=paths_minimal,
         zip_name=zip_name_minimum)
 
     # -------------------------------------------
-    # Add folder _raw_data_minimal' and rename it
+    # Add folders and rename it
     # -------------------------------------------
     folders_to_add = (
         ('energy_demand_minimal', 'energy_demand'),
@@ -125,8 +137,9 @@ def package_data(
                     filename=os.path.join(root, file),
                     arcname=new_path)
 
+
     # Close zip
-    zip_handler_minimum.close()
+    zip_handler_minimum.close()'''
 
     # Zip full
     zipit(
@@ -136,13 +149,13 @@ def package_data(
     # ------------
     # Append individual files
     # ------------
-    zip_handler_minimum = zipfile.ZipFile(os.path.join(data_folder_path, zip_name_minimum), "a")
+    #zip_handler_minimum = zipfile.ZipFile(os.path.join(data_folder_path, zip_name_minimum), "a")
     zip_handler_full = zipfile.ZipFile(os.path.join(data_folder_path, zip_name_full), "a")
 
     # Add units file
     full_file_path = os.path.join(data_folder_path, 'units.txt')
     zip_handler_full.write(full_file_path, arcname='units.txt')
-    zip_handler_minimum.write(full_file_path, arcname='units.txt')
+    #zip_handler_minimum.write(full_file_path, arcname='units.txt')
 
     # Add other files to full data
     files_to_add_full = [
@@ -153,7 +166,7 @@ def package_data(
         zip_handler_full.write(full_file_path, arcname=file_to_add)
 
     zip_handler_full.close()
-    zip_handler_minimum.close()
+    #zip_handler_minimum.close()
 
     print("Finished packaging data for Version {}".format(version_name))
 
@@ -165,5 +178,5 @@ if __name__ == '__main__':
     python ../generate_data_version.py v_6_1 C:/path_to_data
     """
     # Map command line arguments to function arguments.
-    package_data(*sys.argv[1:])
-    #package_data('v_0700', 'C:/Users/cenv0553/ED/data')
+    #package_data(*sys.argv[1:])
+    package_data('vTEST', 'C:/Users/cenv0553/ED/data')

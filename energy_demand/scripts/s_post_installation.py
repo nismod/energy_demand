@@ -29,21 +29,18 @@ def post_install_setup(args):
     """
     print("... start running initialisation scripts", flush=True)
 
-    path_config_file = args.local_data
-
-    config = data_loader.read_config_file(path_config_file)
-    local_data_path = config['PATHS']['path_local_data']
-
-    path_results = resource_filename(Requirement.parse("energy_demand"), "results")
+    path_config_file = args.config_file
     local_data_path = args.local_data
 
-    path_config = config['PATHS']['path_energy_demand_config']
+    config = data_loader.read_config_file(path_config_file)
+
+    local_data_path = config['PATHS']['path_local_data']
     base_yr = config['CONFIG']['base_yr']
 
     data = {}
     data['paths'] = config['CONFIG_DATA']
     data['local_paths'] = config['DATA_PATHS']
-    data['result_paths'] = config['RESULT_DATA']
+    data['result_paths'] = basic_functions.get_result_paths(config['PATHS']['path_result_data'])
     data['lookups'] = lookup_tables.basic_lookups()
     data['enduses'], data['sectors'], data['fuels'], lookup_enduses, \
         lookup_sector_enduses = data_loader.load_fuels(data['paths'])
@@ -88,8 +85,7 @@ def post_install_setup(args):
     print("Generate additional data", flush=True)
 
     # Extract NISMOD population data
-    path_to_zip_file = os.path.join(local_data_path,
-                                    "population-economic-smif-csv-from-nismod-db.zip")
+    path_to_zip_file = os.path.join(local_data_path,"population-economic-smif-csv-from-nismod-db.zip")
     path_extraction = os.path.join(local_data_path, 'scenarios', "MISTRAL_pop_gva")
     zip_ref = zipfile.ZipFile(path_to_zip_file, 'r')
     zip_ref.extractall(path_extraction)
@@ -97,8 +93,7 @@ def post_install_setup(args):
 
     # Complete gva and pop data for every sector
     data_pop = os.path.join(local_data_path, "scenarios", "MISTRAL_pop_gva", "data")
-    path_geography = os.path.join(local_data_path, "scenarios",
-                                  "uk_pop_principal_2015_2050_MSOA_england.csv")
+    path_geography = os.path.join(local_data_path, "scenarios", "uk_pop_principal_2015_2050_MSOA_england.csv")
     geography_name = "region"  # "lad_uk_2016"
 
     script_data_preparation_MISTRAL_pop_gva.run(

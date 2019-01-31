@@ -71,7 +71,7 @@ def main(
         data = {}
         data['local_paths'] = data_loader.get_local_paths(
             path_result_folder)
-        data['result_paths'] = data_loader.get_result_paths(
+        data['result_paths'] = basic_functions.get_result_paths(
             os.path.join(path_result_folder))
         data['lookups'] = lookup_tables.basic_lookups()
 

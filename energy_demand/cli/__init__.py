@@ -44,6 +44,12 @@ def parse_arguments():
         default='./data',
         help='Path to the local data folder')
 
+    parser_init.add_argument(
+        '-f',
+        '--config_file',
+        default='./data',
+        help='Path to the local config file')
+
     parser_init.set_defaults(func=post_install_setup)
 
     # Initialisation of energy demand model (processing raw files)
@@ -52,10 +58,10 @@ def parse_arguments():
         help='Executes the minimum dummy raw reading functions')
 
     parser_init2.add_argument(
-        '-d',
-        '--local_data',
+        '-f',
+        '--config_file',
         default='./data',
-        help='Path to the local data folder')
+        help='Path to the local config file')
 
     parser_init2.set_defaults(func=post_install_setup_minimum)
 
