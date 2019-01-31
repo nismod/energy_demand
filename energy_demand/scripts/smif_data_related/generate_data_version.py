@@ -49,7 +49,7 @@ def package_data(
 
     # Names
     zip_name_full = os.path.join(data_folder_path, "{}_{}".format(version_name, "full.zip"))
-    '''zip_name_minimum = os.path.join(data_folder_path, "{}_{}".format(version_name, "minimum.zip"))
+    zip_name_minimum = os.path.join(data_folder_path, "{}_{}".format(version_name, "minimum.zip"))
 
     # Zip minimum files
     _raw_folders_data_minimal = [
@@ -71,7 +71,7 @@ def package_data(
         #'scenarios',
         #'strategies'
         ]
-    '''
+    
 
     # Zip maximum files
     _raw_folders_data_full = [
@@ -94,17 +94,17 @@ def package_data(
         'strategies'
         ]
 
-    #paths_minimal = []
-    #for folder in _raw_folders_data_minimal:
-    #    path_folder = os.path.join(data_folder_path, folder)
-    #    paths_minimal.append(path_folder)
+    paths_minimal = []
+    for folder in _raw_folders_data_minimal:
+        path_folder = os.path.join(data_folder_path, folder)
+        paths_minimal.append(path_folder)
 
     paths_full = []
     for folder in _raw_folders_data_full:
         path_folder = os.path.join(data_folder_path, folder)
         paths_full.append(path_folder)
 
-    '''# Zip minimal
+    # Zip minimal
     zipit(
         dir_list=paths_minimal,
         zip_name=zip_name_minimum)
@@ -129,17 +129,15 @@ def package_data(
 
                 # Get rid of local paths
                 root_renamed_without_local_path = root_renamed.split(data_folder_path)[1]
-
+                root_renamed_without_local_path = root_renamed_without_local_path.split('energy_demand')[1]
                 new_path = os.path.join(root_renamed_without_local_path, file)
-                print("new_path" + str(new_path))
 
                 zip_handler_minimum.write(
                     filename=os.path.join(root, file),
                     arcname=new_path)
 
-
     # Close zip
-    zip_handler_minimum.close()'''
+    zip_handler_minimum.close()
 
     # Zip full
     zipit(
