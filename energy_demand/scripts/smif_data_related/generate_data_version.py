@@ -137,7 +137,7 @@ def package_data(
                     arcname=new_path)
 
     # Close zip
-    zip_handler_minimum.close()
+    #zip_handler_minimum.close()
 
     # Zip full
     zipit(
@@ -153,7 +153,7 @@ def package_data(
     # Add units file
     full_file_path = os.path.join(data_folder_path, 'units.txt')
     zip_handler_full.write(full_file_path, arcname='units.txt')
-    #zip_handler_minimum.write(full_file_path, arcname='units.txt')
+    zip_handler_minimum.write(full_file_path, arcname='units.txt')
 
     # Add other files to full data
     files_to_add_full = [
@@ -164,7 +164,7 @@ def package_data(
         zip_handler_full.write(full_file_path, arcname=file_to_add)
 
     zip_handler_full.close()
-    #zip_handler_minimum.close()
+    zip_handler_minimum.close()
 
     print("Finished packaging data for Version {}".format(version_name))
 
@@ -177,4 +177,4 @@ if __name__ == '__main__':
     """
     # Map command line arguments to function arguments.
     #package_data(*sys.argv[1:])
-    package_data('vTEST', 'C:/Users/cenv0553/ED/data')
+    package_data('v_082', 'C:/Users/cenv0553/ED/data')
