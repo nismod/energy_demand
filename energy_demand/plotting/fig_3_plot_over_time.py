@@ -36,8 +36,8 @@ colors_quadrates = {
     0: '#f7f7f7', #Threshold change limit
     1: '#e66101', #'red',
     2: '#fdb863', #'tomato',
-    3: '#b2abd2', #'seagreen',
-    4: '#5e3c99'} #'orange'}
+    3: '#5e3c99', #'seagreen',
+    4: '#b2abd2'} #'orange'}
 
 marker_list = plotting_styles.marker_list()
 
@@ -71,7 +71,7 @@ def clasify_color(diff_mean, diff_std, threshold):
         raise Exception("Something strange happend: {} {}".format(diff_mean, diff_std))'''
 
     return color_pos 
-    
+
 def scenario_over_time(
         scenario_result_container,
         sim_yrs,
@@ -354,17 +354,15 @@ def plot_std_dev_vs_contribution(
         for region in regions.values:
             diff_mean = diff_2020_2050_reg_share.loc[region]
             diff_std = diff_2020_2050_reg_share_std.loc[region]
-
-            color_pos = clasify_color(diff_mean, diff_std, threshold=threshold)
-
-            relclassified_values.loc[region, 'reclassified'] = color_pos
+            relclassified_values.loc[region, 'reclassified'] = clasify_color(diff_mean, diff_std, threshold=threshold)
 
         fig_3_weather_map.plot_4_cross_map(
             cmap_rgb_colors=colors_quadrates,
             reclassified=relclassified_values,
             result_path=os.path.join(result_path, "spatial_final_{}.pdf".format(scenario)),
             threshold=threshold,
-            path_shapefile_input=path_shapefile_input)
+            path_shapefile_input=path_shapefile_input,
+            seperate_legend=True)
 
     plt.savefig(os.path.join(result_path, "cross_chart_relative.pdf"))
 

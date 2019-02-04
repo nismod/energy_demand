@@ -7,6 +7,10 @@ import matplotlib.pyplot as plt
 import matplotlib.patches as mpatches
 from matplotlib.patches import Circle
 from matplotlib.colors import LinearSegmentedColormap
+import argparse
+import cartopy.crs as ccrs
+import cartopy.io.shapereader as shpreader
+from collections import defaultdict
 
 from energy_demand.plotting import fig_p2_weather_val, result_mapping
 from energy_demand.basic import basic_functions
@@ -16,6 +20,78 @@ from energy_demand.basic import conversions
 from energy_demand.plotting import basic_plot_functions
 
 def plot_4_cross_map(
+        cmap_rgb_colors,
+        reclassified,
+        result_path,
+        path_shapefile_input,
+        threshold=None,
+        seperate_legend=False
+    ):
+    """Plot classifed 4 cross map
+    """
+    # --------------
+    # Use Cartopy to plot geometreis with reclassified faceolor
+    # --------------
+    plt.figure(figsize=basic_plot_functions.cm2inch(10, 10)) #, dpi=150)
+    proj = ccrs.OSGB() #'epsg:27700'
+    ax = plt.axes(projection=proj)
+    ax.outline_patch.set_visible(False)
+
+    # set up a dict to hold geometries keyed by our key
+    geoms_by_key = defaultdict(list)
+
+    # for each records, pick out our key's value from the record
+    # and store the geometry in the relevant list under geoms_by_key
+    for record in shpreader.Reader(path_shapefile_input).records():
+        region_name = record.attributes['name']
+        geoms_by_key[region_name].append(record.geometry)
+        #key = record.attributes['reclassified']
+        #geoms_by_key[key].append(record.geometry)
+
+    # now we have all the geometries in lists for each value of our key
+    # add them to the axis, using the relevant color as facecolor
+    for key, geoms in geoms_by_key.items():
+        region_reclassified_value = reclassified.loc[key]['reclassified']
+        facecolor = cmap_rgb_colors[region_reclassified_value]
+        ax.add_geometries(geoms, crs=proj, edgecolor='black', facecolor=facecolor, linewidth=0.1)
+
+    # --------------
+    # Create Legend
+    # --------------
+    legend_handles = [
+        mpatches.Patch(color=cmap_rgb_colors[0], label=str("+- threshold {}".format(threshold))),
+        mpatches.Patch(color=cmap_rgb_colors[1], label=str("0")),
+        mpatches.Patch(color=cmap_rgb_colors[2], label=str("1")),
+        mpatches.Patch(color=cmap_rgb_colors[3], label=str("2")),
+        mpatches.Patch(color=cmap_rgb_colors[4], label=str("3"))]
+
+    legend = plt.legend(
+        handles=legend_handles,
+        title="test",
+        prop={'size': 8},
+        loc='upper center',
+        bbox_to_anchor=(0.5, -0.05),
+        frameon=False)
+
+    if seperate_legend:
+        basic_plot_functions.export_legend(
+            legend,
+            os.path.join(result_path, "{}__legend.pdf".format(result_path)))
+        legend.remove()
+
+    # Remove coordinates from figure
+    ax.set_yticklabels([])
+    ax.set_xticklabels([])
+    legend.get_title().set_fontsize(8)
+
+    # --------
+    # Labeling
+    # --------
+    plt.tight_layout()
+    plt.savefig(os.path.join(result_path))
+    plt.close()
+
+def plot_4_cross_map_OLD(
         cmap_rgb_colors,
         reclassified,
         result_path,
@@ -43,19 +119,18 @@ def plot_4_cross_map(
         uk_gdf.loc[region, 'facecolor'] = cmap_rgb_colors[reclassified_value]
 
     # plot with face color attribute
-    #uk_gdf.plot(ax=ax, facecolor=uk_gdf['facecolor'], edgecolor='black', linewidth=0.1)
-
+    uk_gdf.plot(ax=ax, facecolor=uk_gdf['facecolor'], edgecolor='black', linewidth=0.1)
 
     legend_handles = [
-        mpatches.Patch(color=cmap_rgb_colors[0], label=str("+- threshold {}".format(threshold))),
-        mpatches.Patch(color=cmap_rgb_colors[1], label=str("0")),
-        mpatches.Patch(color=cmap_rgb_colors[2], label=str("1")),
-        mpatches.Patch(color=cmap_rgb_colors[3], label=str("2")),
-        mpatches.Patch(color=cmap_rgb_colors[4], label=str("3"))]
+        mpatches.Patch(color=cmap_rgb_colors[0], label=str("+- thr {}".format(threshold))),
+        mpatches.Patch(color=cmap_rgb_colors[1], label=str("a")),
+        mpatches.Patch(color=cmap_rgb_colors[2], label=str("b")),
+        mpatches.Patch(color=cmap_rgb_colors[3], label=str("c")),
+        mpatches.Patch(color=cmap_rgb_colors[4], label=str("d"))]
 
     legend = plt.legend(
         handles=legend_handles,
-        title="test",
+        #title="test",
         prop={'size': 8},
         loc='upper center',
         bbox_to_anchor=(0.5, -0.05),
