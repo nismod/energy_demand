@@ -33,16 +33,10 @@ def read_in_weather_results(
 
     results_container = {}
 
-    # -----------------
-    # Read in demands
-    # -----------------
-    start = time.time()
-
     # Read in total regional demands per fueltype
     results_container['ed_reg_tot_y'] = read_data.read_results_yh(
         path_result, 'only_total')
-    end = time.time()
-    print("TIMER A" + str(end - start))
+
     #print(results_container['ed_reg_tot_y'][2015].shape)
     results_container['ed_reg_peakday'] = read_data.read_results_yh(
         os.path.join('simulation_results', path_result), 'only_peak')
@@ -96,7 +90,6 @@ def read_in_weather_results(
         #    results_container['ed_reg_peakday'][year][:,:, max_hour] / reg_pop_yr)
 
         #(cpp = (regional peak / national peak) / people [%]
-    end = time.time()
-    print("TIMER B" + str(end - start))
+
     logging.info("... Reading in results finished")
     return results_container

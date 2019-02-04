@@ -17,20 +17,27 @@ from energy_demand.read_write import write_data
 
 colors = {
     # High elec
-    'h_min': '#004529',
+    'h_min': '#2c7bb6', ##004529',
     'h_c': '#238443',
-    'h_max': '#78c679',
+    'h_max': '#d7191c', #'#78c679',
 
     # Low elec
-    'l_min': '#800026',
+    'l_min': '#abd9e9', ##800026',
     'l_c': '#e31a1c',
-    'l_max': '#fd8d3c',
+    'l_max': '#fdae61', ##fd8d3c',
 
     'other1': '#C044FF',
     'other2': '#3DF735',
     'other3': '#AD6D70',
     'other4': '#EC2504',
     'other5': '#8C0B90'}
+
+colors_quadrates = {
+    0: '#f7f7f7', #Threshold change limit
+    1: '#e66101', #'red',
+    2: '#fdb863', #'tomato',
+    3: '#b2abd2', #'seagreen',
+    4: '#5e3c99'} #'orange'}
 
 marker_list = plotting_styles.marker_list()
 
@@ -41,8 +48,30 @@ marker_styles = {
     'l_max': marker_list[6],
 }
 
+def clasify_color(diff_mean, diff_std, threshold):
+    if diff_mean < -1 * threshold and diff_std < -1 * threshold:
+        color_pos = 3
+    elif diff_mean > threshold and diff_std < -1 * threshold:
+        color_pos = 2
+    elif diff_mean < -1 * threshold and diff_std > threshold:
+        color_pos = 4
+    elif diff_mean > threshold and diff_std > threshold:
+        color_pos = 1
+    else:
+        color_pos = 0
 
+    '''if diff_mean < 0 and diff_std < 0:
+        color_pos = 3
+    elif diff_mean > 0 and diff_std < 0:
+        color_pos = 2
+    elif diff_mean < 0 and diff_std > 0:
+        color_pos = 4
+    elif diff_mean > 0 and diff_std > 0:
+        color_pos = 1
+        raise Exception("Something strange happend: {} {}".format(diff_mean, diff_std))'''
 
+    return color_pos 
+    
 def scenario_over_time(
         scenario_result_container,
         sim_yrs,
@@ -258,19 +287,14 @@ def plot_std_dev_vs_contribution(
         'h_min': 2,
         'l_max': 3,
         'l_min': 4}
-    
+
     sizes = {
         2020: 2,
-        2050: 5
-    }
-
-    colors_quadrates = {
-        1: 'red',
-        2: 'tomato',
-        3: 'seagreen',
-        4: 'orange'}
+        2050: 5}
 
     scenarios = ['l_max', 'l_min', 'h_max', 'h_min']
+
+    threshold = 5 # percent
 
     # -----------
     # Plot 4x4 chart with relative differences
@@ -299,14 +323,7 @@ def plot_std_dev_vs_contribution(
             diff_mean = diff_2020_2050_reg_share.loc[region]
             diff_std = diff_2020_2050_reg_share_std.loc[region]
 
-            if diff_mean < 0 and diff_std < 0:
-                color_pos = 3
-            elif diff_mean > 0 and diff_std < 0:
-                color_pos = 2
-            elif diff_mean < 0 and diff_std > 0:
-                color_pos = 4
-            elif diff_mean > 0 and diff_std > 0:
-                color_pos = 1
+            color_pos = clasify_color(diff_mean, diff_std, threshold=threshold)
 
             color = colors_quadrates[color_pos]
             plt.scatter(
@@ -317,6 +334,7 @@ def plot_std_dev_vs_contribution(
                 edgecolor=color,
                 linewidth=0.5,
                 s=3)
+
         plt.xlim(-30, 60)
         plt.ylim(-50, 300)
         plt.title("{}".format(scenario), size=10)
@@ -337,21 +355,15 @@ def plot_std_dev_vs_contribution(
             diff_mean = diff_2020_2050_reg_share.loc[region]
             diff_std = diff_2020_2050_reg_share_std.loc[region]
 
-            if diff_mean < 0 and diff_std < 0:
-                relclassified_values.loc[region, 'reclassified'] = 3
-            elif diff_mean > 0 and diff_std < 0:
-                relclassified_values.loc[region, 'reclassified'] = 2
-            elif diff_mean < 0 and diff_std > 0:
-                relclassified_values.loc[region, 'reclassified'] = 4
-            elif diff_mean > 0 and diff_std > 0:
-                relclassified_values.loc[region, 'reclassified'] = 1
-            else:
-                raise Exception("Classificaiton error: {}  {} {}".format(region, diff_mean, diff_std))
+            color_pos = clasify_color(diff_mean, diff_std, threshold=threshold)
+
+            relclassified_values.loc[region, 'reclassified'] = color_pos
 
         fig_3_weather_map.plot_4_cross_map(
-            colors_quadrates=colors_quadrates,
+            cmap_rgb_colors=colors_quadrates,
             reclassified=relclassified_values,
             result_path=os.path.join(result_path, "spatial_final_{}.pdf".format(scenario)),
+            threshold=threshold,
             path_shapefile_input=path_shapefile_input)
 
     plt.savefig(os.path.join(result_path, "cross_chart_relative.pdf"))

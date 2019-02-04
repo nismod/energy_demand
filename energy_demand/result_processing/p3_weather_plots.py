@@ -3,7 +3,6 @@
 import os
 import pandas as pd
 import numpy as np
-import time
 
 from energy_demand.read_write import data_loader, read_data
 from energy_demand.basic import date_prop
@@ -13,7 +12,7 @@ from energy_demand.read_write import read_weather_results
 from energy_demand.plotting import fig_3_weather_map
 from energy_demand.technologies import tech_related
 from energy_demand.plotting import fig_3_plot_over_time
-print("sstart")
+
 def main(
         scenarios_path,
         path_shapefile_input,
@@ -105,7 +104,7 @@ def main(
             national_gas = pd.DataFrame()
             national_hydrogen = pd.DataFrame()
 
-            for path_result_folder in paths_folders_result[:1]:
+            for path_result_folder in paths_folders_result[:3]: #TODO REMOVE
                 print("... path_result_folder: {}".format(path_result_folder), flush=True)
                 try:
                     data = {}
@@ -400,8 +399,8 @@ def main(
 # Code to run charts generation for weather paper
 main(
     #scenarios_path="C:/_WEATHER_p3",
-    #scenarios_path="//linux-filestore.ouce.ox.ac.uk/mistral/nismod/data/energy_demand/_p3_results_weather_second_ROUDN", #"C:/_WEATHER_p3_NEWRUN",
-    scenarios_path="//linux-filestore.ouce.ox.ac.uk/mistral/nismod/data/energy_demand/_p3_results_TEST",
+    scenarios_path="//linux-filestore.ouce.ox.ac.uk/mistral/nismod/data/energy_demand/_p3_results_weather_second_ROUDN", #"C:/_WEATHER_p3_NEWRUN",
+    #scenarios_path="//linux-filestore.ouce.ox.ac.uk/mistral/nismod/data/energy_demand/_p3_results_TEST",
     path_shapefile_input="C:/Users/cenv0553/ED/data/region_definitions/lad_2016_uk_simplified.shp",
     base_yr=2015,
     simulation_yrs_to_plot=[2015, 2020, 2025, 2030, 2035, 2040, 2045, 2050])
