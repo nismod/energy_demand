@@ -3,6 +3,7 @@
 import os
 import pandas as pd
 import numpy as np
+import time
 
 from energy_demand.read_write import data_loader, read_data
 from energy_demand.basic import date_prop
@@ -12,7 +13,7 @@ from energy_demand.read_write import read_weather_results
 from energy_demand.plotting import fig_3_weather_map
 from energy_demand.technologies import tech_related
 from energy_demand.plotting import fig_3_plot_over_time
-
+print("sstart")
 def main(
         scenarios_path,
         path_shapefile_input,
@@ -74,7 +75,7 @@ def main(
         scenario_result_container = []
         for scenario_nr, scenario_name in enumerate(all_scenarios):
             print(" ")
-            print("Scenario: {}".format(scenario_name))
+            print("Scenario: {}".format(scenario_name), flush=True)
             print(" ")
             scenario_path = os.path.join(scenarios_path, scenario_name)
             all_result_folders = os.listdir(scenario_path)
@@ -104,104 +105,104 @@ def main(
             national_gas = pd.DataFrame()
             national_hydrogen = pd.DataFrame()
 
-            for path_result_folder in paths_folders_result:
-                    try:
-                        data = {}
+            for path_result_folder in paths_folders_result[:1]:
+                print("... path_result_folder: {}".format(path_result_folder), flush=True)
+                try:
+                    data = {}
 
-                        # Simulation information is read in from .ini file for results
-                        data['enduses'], data['assumptions'], data['regions'] = data_loader.load_ini_param(os.path.join(path_result_folder))
-                        pop_data = read_data.read_scenaric_population_data(os.path.join(path_result_folder, 'model_run_pop'))
-                        path_result_folder = os.path.join(path_result_folder, 'simulation_results')
-                        path_result_folder_model_runs = os.path.join(path_result_folder, 'model_run_results_txt')
-                        data['lookups'] = lookup_tables.basic_lookups()
+                    # Simulation information is read in from .ini file for results
+                    data['enduses'], data['assumptions'], data['regions'] = data_loader.load_ini_param(os.path.join(path_result_folder))
+                    pop_data = read_data.read_scenaric_population_data(os.path.join(path_result_folder, 'model_run_pop'))
+                    path_result_folder = os.path.join(path_result_folder, 'simulation_results')
+                    path_result_folder_model_runs = os.path.join(path_result_folder, 'model_run_results_txt')
+                    data['lookups'] = lookup_tables.basic_lookups()
 
-                        # Other information is read in
-                        data['assumptions']['seasons'] = date_prop.get_season(year_to_model=2015)
-                        data['assumptions']['model_yeardays_daytype'], data['assumptions']['yeardays_month'], data['assumptions']['yeardays_month_days'] = date_prop.get_yeardays_daytype(year_to_model=2015)
+                    # Other information is read in
+                    data['assumptions']['seasons'] = date_prop.get_season(year_to_model=2015)
+                    data['assumptions']['model_yeardays_daytype'], data['assumptions']['yeardays_month'], data['assumptions']['yeardays_month_days'] = date_prop.get_yeardays_daytype(year_to_model=2015)
 
-                        # --------------------------------------------
-                        # Reading in results from different model runs
-                        # --------------------------------------------
-                        results_container = read_weather_results.read_in_weather_results(
-                            path_result_folder_model_runs,
-                            data['assumptions']['seasons'],
-                            data['assumptions']['model_yeardays_daytype'],
-                            pop_data,
-                            fueltype_str='electricity')
+                    # --------------------------------------------
+                    # Reading in results from different model runs
+                    # --------------------------------------------
+                    results_container = read_weather_results.read_in_weather_results(
+                        path_result_folder_model_runs,
+                        data['assumptions']['seasons'],
+                        data['assumptions']['model_yeardays_daytype'],
+                        pop_data,
+                        fueltype_str='electricity')
 
-                        # --Total demand (dataframe with row: realisation, column=region)
-                        realisation_data = pd.DataFrame(
-                            [results_container['ed_reg_tot_y'][simulation_yr_to_plot][fueltype_int]],
-                            columns=data['regions'])
-                        total_regional_demand_electricity = total_regional_demand_electricity.append(realisation_data)
+                    # --Total demand (dataframe with row: realisation, column=region)
+                    realisation_data = pd.DataFrame(
+                        [results_container['ed_reg_tot_y'][simulation_yr_to_plot][fueltype_int]],
+                        columns=data['regions'])
+                    total_regional_demand_electricity = total_regional_demand_electricity.append(realisation_data)
 
-                        # National per fueltype electricity
-                        fueltype_elec_int = tech_related.get_fueltype_int('electricity')
-                        simulation_yrs_result = [results_container['national_all_fueltypes'][year][fueltype_elec_int] for year in results_container['national_all_fueltypes'].keys()]
+                    # National per fueltype electricity
+                    fueltype_elec_int = tech_related.get_fueltype_int('electricity')
+                    simulation_yrs_result = [results_container['national_all_fueltypes'][year][fueltype_elec_int] for year in simulation_yrs_to_plot]
 
-                        realisation_data = pd.DataFrame(
-                            [simulation_yrs_result],
-                            columns=data['assumptions']['sim_yrs'])
-                        national_electricity = national_electricity.append(realisation_data)
+                    realisation_data = pd.DataFrame(
+                        [simulation_yrs_result],
+                        columns=data['assumptions']['sim_yrs'])
+                    national_electricity = national_electricity.append(realisation_data)
 
-                        # National per fueltype gas
-                        fueltype_elec_int = tech_related.get_fueltype_int('gas')
-                        simulation_yrs_result = [results_container['national_all_fueltypes'][year][fueltype_elec_int] for year in results_container['national_all_fueltypes'].keys()]
+                    # National per fueltype gas
+                    fueltype_elec_int = tech_related.get_fueltype_int('gas')
+                    simulation_yrs_result = [results_container['national_all_fueltypes'][year][fueltype_elec_int] for year in simulation_yrs_to_plot]
 
-                        realisation_data = pd.DataFrame(
-                            [simulation_yrs_result],
-                            columns=data['assumptions']['sim_yrs'])
-                        national_gas = national_gas.append(realisation_data)
+                    realisation_data = pd.DataFrame(
+                        [simulation_yrs_result],
+                        columns=data['assumptions']['sim_yrs'])
+                    national_gas = national_gas.append(realisation_data)
 
-                        # National per fueltype hydrogen
-                        fueltype_elec_int = tech_related.get_fueltype_int('hydrogen')
-                        simulation_yrs_result = [results_container['national_all_fueltypes'][year][fueltype_elec_int] for year in results_container['national_all_fueltypes'].keys()]
+                    # National per fueltype hydrogen
+                    fueltype_elec_int = tech_related.get_fueltype_int('hydrogen')
+                    simulation_yrs_result = [results_container['national_all_fueltypes'][year][fueltype_elec_int] for year in simulation_yrs_to_plot]
 
-                        realisation_data = pd.DataFrame(
-                            [simulation_yrs_result],
-                            columns=data['assumptions']['sim_yrs'])
-                        national_hydrogen = national_hydrogen.append(realisation_data)
+                    realisation_data = pd.DataFrame(
+                        [simulation_yrs_result],
+                        columns=data['assumptions']['sim_yrs'])
+                    national_hydrogen = national_hydrogen.append(realisation_data)
 
-                        # --Peak hour demand per region (dataframe with row: realisation, column=region)
-                        realisation_data = pd.DataFrame(
-                            [results_container['ed_reg_peakday_peak_hour'][simulation_yr_to_plot][fueltype_int]],
-                            columns=data['regions'])
+                    # --Peak hour demand per region (dataframe with row: realisation, column=region)
+                    realisation_data = pd.DataFrame(
+                        [results_container['ed_reg_peakday_peak_hour'][simulation_yr_to_plot][fueltype_int]],
+                        columns=data['regions'])
 
-                        peak_hour_demand = peak_hour_demand.append(realisation_data)
+                    peak_hour_demand = peak_hour_demand.append(realisation_data)
 
-                        # --Peak hour demand / pop per region (dataframe with row: realisation, column=region)
-                        realisation_data = pd.DataFrame(
-                            [results_container['ed_reg_peakday_peak_hour_per_pop'][simulation_yr_to_plot][fueltype_int]],
-                            columns=data['regions'])
+                    # --Peak hour demand / pop per region (dataframe with row: realisation, column=region)
+                    realisation_data = pd.DataFrame(
+                        [results_container['ed_reg_peakday_peak_hour_per_pop'][simulation_yr_to_plot][fueltype_int]],
+                        columns=data['regions'])
 
-                        peak_hour_demand_per_person = peak_hour_demand_per_person.append(realisation_data)
+                    peak_hour_demand_per_person = peak_hour_demand_per_person.append(realisation_data)
 
-                        # --National peak
-                        simulation_yrs_result = [results_container['national_peak'][year][fueltype_int] for year in results_container['national_peak'].keys()]
+                    # --National peak
+                    simulation_yrs_result = [results_container['national_peak'][year][fueltype_int] for year in simulation_yrs_to_plot]
 
-                        realisation_data = pd.DataFrame(
-                            [simulation_yrs_result],
-                            columns=data['assumptions']['sim_yrs'])
-                        national_peak = national_peak.append(realisation_data)
+                    realisation_data = pd.DataFrame(
+                        [simulation_yrs_result],
+                        columns=data['assumptions']['sim_yrs'])
+                    national_peak = national_peak.append(realisation_data)
 
-                        # --Regional percentage of national peak demand
-                        realisation_data = pd.DataFrame(
-                            [results_container['regional_share_national_peak'][simulation_yr_to_plot]],
-                            columns=data['regions'])
+                    # --Regional percentage of national peak demand
+                    realisation_data = pd.DataFrame(
+                        [results_container['regional_share_national_peak'][simulation_yr_to_plot]],
+                        columns=data['regions'])
+                    regional_share_national_peak = regional_share_national_peak.append(realisation_data)
+                
+                    # --Regional percentage of national peak demand per person
+                    realisation_data = pd.DataFrame(
+                        [results_container['regional_share_national_peak_pp'][simulation_yr_to_plot]],
+                        columns=data['regions'])
 
-                        regional_share_national_peak = regional_share_national_peak.append(realisation_data)
-                    
-                        # --Regional percentage of national peak demand per person
-                        realisation_data = pd.DataFrame(
-                            [results_container['regional_share_national_peak_pp'][simulation_yr_to_plot]],
-                            columns=data['regions'])
+                    regional_share_national_peak_pp = regional_share_national_peak_pp.append(realisation_data)
 
-                        regional_share_national_peak_pp = regional_share_national_peak_pp.append(realisation_data)
-
-                    except:
-                        #raise Exception("The run '{}' is corrupted".format(path_result_folder))
-                        print("The run '{}' is corrupted".format(path_result_folder))
-                        pass 
+                except:
+                    #raise Exception("The run '{}' is corrupted".format(path_result_folder))
+                    print("The run '{}' is corrupted".format(path_result_folder), flush=True)
+                    pass 
 
             # Add to scenario container
             result_entry = {
@@ -399,7 +400,8 @@ def main(
 # Code to run charts generation for weather paper
 main(
     #scenarios_path="C:/_WEATHER_p3",
-    scenarios_path="C:/_WEATHER_p3_NEWRUN",
+    #scenarios_path="//linux-filestore.ouce.ox.ac.uk/mistral/nismod/data/energy_demand/_p3_results_weather_second_ROUDN", #"C:/_WEATHER_p3_NEWRUN",
+    scenarios_path="//linux-filestore.ouce.ox.ac.uk/mistral/nismod/data/energy_demand/_p3_results_TEST",
     path_shapefile_input="C:/Users/cenv0553/ED/data/region_definitions/lad_2016_uk_simplified.shp",
     base_yr=2015,
     simulation_yrs_to_plot=[2015, 2020, 2025, 2030, 2035, 2040, 2045, 2050])

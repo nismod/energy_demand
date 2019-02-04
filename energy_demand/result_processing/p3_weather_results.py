@@ -29,7 +29,8 @@ from energy_demand.basic import basic_functions
 # Folder paths
 path_out = "C:/__TEST"                          # Folder to store results
 path_results = "C:/Users/cenv0553/ED/results"
-path_results = "C:\_WEATHER_p3_NEWRUN"          # Folder of calculated model runs
+path_results = "C:\_WEATHER_p3"          # Folder of calculated model runs
+path_results = "//linux-filestore.ouce.ox.ac.uk/mistral/nismod/data/energy_demand/_p3_results_weather_second_ROUDN"
 
 # Scenario definitions
 scenarios = ['l_min', 'l_max', 'h_min', 'h_max']
@@ -59,13 +60,14 @@ for scenario in all_scenarios:
     print("...scenario {}".format(scenario), flush=True)
 
     for simulation_yr in simulation_yrs:
-        
+
         print("     ...simulation_yr {}".format(simulation_yr), flush=True)
         # ----------------------------------
         # Container to load all realizations initially for speed up
         # ----------------------------------
         container_all_initialisations = []
-        for initialization in all_realizations:
+        for initialization in all_realizations: #[:3]:
+
             path_sim_yr = os.path.join(
                 path_results,
                 scenario,
@@ -74,6 +76,8 @@ for scenario in all_scenarios:
                 "model_run_results_txt",
                 "only_fueltype_reg_8760",
                 "fueltype_reg_8760__{}.npy".format(simulation_yr))
+            print("       ... loading scenario: {}".format(initialization), flush=True)
+
             full_result = np.load(path_sim_yr)
             container_all_initialisations.append(full_result)
 
