@@ -466,6 +466,71 @@ def write_residential_tot_demands(
 
     np.save(path_file, tot_fuel_y_enduse_specific_yh)
 
+def write_space_and_water_heating(
+        sim_yr,
+        path_result,
+        tot_fuel_y_enduse_specific_yh,
+        filename
+    ):
+    """Write out enduse specific results for every hour and store to
+    `.npy` file
+
+    Arguments
+    -----------
+    sim_yr : int
+        Simulation year
+    path_result : str
+        Path
+    tot_fuel_y_enduse_specific_yh : dict
+        Modelling results
+    filename : str
+        File name
+    """
+    statistics_to_print = []
+    statistics_to_print.append("{}\t \t \t \t{}".format(
+        "Enduse", "total_annual_GWh"))
+
+    # Create folder for model simulation year
+    basic_functions.create_folder(path_result)
+
+    basic_functions.create_folder(
+        path_result, "enduse_specific_results")
+
+    for enduse, fuel in tot_fuel_y_enduse_specific_yh.items():
+        logging.info("   ... Enduse specific writing to file: %s  Total demand: %s ", enduse, np.sum(fuel))
+        
+        if enduse in [
+            'rs_space_heating',
+            'ss_space_heating',
+            'is_space_heating',
+            'rs_water_heating',
+            'ss_water_heating']:
+
+            path_file = os.path.join(
+                os.path.join(path_result, "enduse_specific_results"),
+                "{}__{}__{}{}".format(
+                    filename,
+                    enduse,
+                    sim_yr,
+                    ".npy"))
+
+            np.save(path_file, fuel)
+
+            statistics_to_print.append("{}\t\t\t\t{}".format(
+                enduse, np.sum(fuel)))
+
+    # Create statistic files with sum of all end uses
+    path_file = os.path.join(
+        os.path.join(path_result, "enduse_specific_results"),
+        "{}__{}__{}".format(
+            "statistics_end_uses",
+            sim_yr,
+            ".txt"))
+
+    write_list_to_txt(
+        path_file,
+        statistics_to_print)
+
 def write_enduse_specific(
         sim_yr,
         path_result,

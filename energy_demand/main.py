@@ -90,7 +90,7 @@ if __name__ == "__main__":
 
     data = {}
     sim_yrs = [2015, 2020, 2025, 2030, 2035, 2040, 2045, 2050]
-    #sim_yrs = [2015, 2030, 2050]
+    sim_yrs = [2015, 2030, 2050]
 
 
     if len(sys.argv) > 3: #user defined arguments are provide
@@ -160,6 +160,7 @@ if __name__ == "__main__":
     # ----------------------------------------------------------------------
     # Load data
     # ----------------------------------------------------------------------
+    print("a " + str(name_region_set))
     data['scenario_data'] = defaultdict(dict)
     data['enduses'], data['sectors'], data['fuels'], lookup_enduses, lookup_sector_enduses = data_loader.load_fuels(data['paths'])
     data['regions'] = read_data.get_region_names(name_region_set)
@@ -339,11 +340,6 @@ if __name__ == "__main__":
         service_switches = read_data.service_switch(service_switches_raw)
     except:
         service_switches = []
-
-    #print("ddddddddddd")
-    print(service_switches_raw)
-    print(service_switches)
-    #raise Exception("TTT")
 
     fuel_switches = read_data.read_fuel_switches(os.path.join(path_strategy_vars, "switches_fuel.csv"), data['enduses'], data['assumptions'].fueltypes, data['assumptions'].technologies)
     capacity_switches = read_data.read_capacity_switch(os.path.join(path_strategy_vars, "switches_capacity.csv"))
@@ -542,6 +538,13 @@ if __name__ == "__main__":
                     data['weather_yr_result_paths']['data_results_model_run_results_txt'],
                     sim_obj.ed_fueltype_regs_yh,
                     'fueltype_reg_8760')
+
+                # Write only peak day for space and water heating
+                write_data.write_space_and_water_heating(
+                    sim_yr,
+                    data['weather_yr_result_paths']['data_results_model_run_results_txt'],
+                    sim_obj.tot_fuel_y_enduse_specific_yh,
+                    "out_enduse_specific")
 
                 # PLot only residential total regional annual demand and
                 '''write_data.write_residential_tot_demands(
