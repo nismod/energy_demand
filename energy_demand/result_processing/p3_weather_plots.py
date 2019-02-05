@@ -104,8 +104,8 @@ def main(
             national_gas = pd.DataFrame()
             national_hydrogen = pd.DataFrame()
 
-            for path_result_folder in paths_folders_result[:3]: #TODO REMOVE
-                print("... path_result_folder: {}".format(path_result_folder), flush=True)
+            for path_result_folder in paths_folders_result: #[:3]: #TODO REMOVE
+                #print("... path_result_folder: {}".format(path_result_folder), flush=True)
                 try:
                     data = {}
 

@@ -45,8 +45,6 @@ def plot_4_cross_map(
     for record in shpreader.Reader(path_shapefile_input).records():
         region_name = record.attributes['name']
         geoms_by_key[region_name].append(record.geometry)
-        #key = record.attributes['reclassified']
-        #geoms_by_key[key].append(record.geometry)
 
     # now we have all the geometries in lists for each value of our key
     # add them to the axis, using the relevant color as facecolor
@@ -60,14 +58,14 @@ def plot_4_cross_map(
     # --------------
     legend_handles = [
         mpatches.Patch(color=cmap_rgb_colors[0], label=str("+- threshold {}".format(threshold))),
-        mpatches.Patch(color=cmap_rgb_colors[1], label=str("0")),
-        mpatches.Patch(color=cmap_rgb_colors[2], label=str("1")),
-        mpatches.Patch(color=cmap_rgb_colors[3], label=str("2")),
-        mpatches.Patch(color=cmap_rgb_colors[4], label=str("3"))]
+        mpatches.Patch(color=cmap_rgb_colors[1], label=str("a")),
+        mpatches.Patch(color=cmap_rgb_colors[2], label=str("b")),
+        mpatches.Patch(color=cmap_rgb_colors[3], label=str("c")),
+        mpatches.Patch(color=cmap_rgb_colors[4], label=str("d"))]
 
     legend = plt.legend(
         handles=legend_handles,
-        title="test",
+        #title="test",
         prop={'size': 8},
         loc='upper center',
         bbox_to_anchor=(0.5, -0.05),

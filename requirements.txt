@@ -1,5 +1,6 @@
 # Add your requirements here like:
 numpy
+cartopy
 pyyaml
 matplotlib
 haversine>=2
@@ -12,5 +13,4 @@ geopandas
 pysal
 palettable
 imageio
-pympler #memory debugger
 ruamel.yaml

@@ -81,7 +81,6 @@ def energy_demand_model(
 if __name__ == "__main__":
     """
     """
-
     # Update cluster file: #os.path.dirname(__file__), '..', 'local_run_config_file_cluster.ini'))
     if os.path.isfile(sys.argv[1]):
         path_config  = sys.argv[1]
@@ -91,10 +90,8 @@ if __name__ == "__main__":
 
     data = {}
     sim_yrs = [2015, 2020, 2025, 2030, 2035, 2040, 2045, 2050]
-    sim_yrs = [2015, 2025, 2035, 2045, 2050]
-    #sim_yrs = [2015, 2020, 2050] #, 2050]
     #sim_yrs = [2015, 2030, 2050]
-    #sim_yrs = [2015, 2041]
+
 
     if len(sys.argv) > 3: #user defined arguments are provide
         print("Arguments taken from comand line")
