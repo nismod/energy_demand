@@ -27,9 +27,7 @@ from energy_demand.technologies import tech_related
 from energy_demand.basic import basic_functions
 
 # Folder paths
-path_out = "C:/__TEST"                          # Folder to store results
-path_results = "C:/Users/cenv0553/ED/results"
-path_results = "C:\_WEATHER_p3"          # Folder of calculated model runs
+path_out = "C:/__DATA_RESULTS_FINAL"                          # Folder to store results
 path_results = "//linux-filestore.ouce.ox.ac.uk/mistral/nismod/data/energy_demand/_p3_results_weather_second_ROUDN"
 
 # Scenario definitions

@@ -512,7 +512,7 @@ if __name__ == "__main__":
             # Write annual results to txt files
             # -------------------------------------------
             print("... Start writing results to file: " + str(data['weather_yr_result_paths']['data_results_model_run_results_txt']))
-            plot_only_selection = True
+            plot_only_selection = True 
             if plot_only_selection:
 
                 # Write only total region

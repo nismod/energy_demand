@@ -496,6 +496,11 @@ def write_space_and_water_heating(
     basic_functions.create_folder(
         path_result, "enduse_specific_results")
 
+    for _, fuel in tot_fuel_y_enduse_specific_yh.items():
+        shape = fuel.shape
+        fuel_aggregated = np.zeros(shape)
+        break
+
     for enduse, fuel in tot_fuel_y_enduse_specific_yh.items():
         logging.info("   ... Enduse specific writing to file: %s  Total demand: %s ", enduse, np.sum(fuel))
         
@@ -506,18 +511,27 @@ def write_space_and_water_heating(
             'rs_water_heating',
             'ss_water_heating']:
 
-            path_file = os.path.join(
-                os.path.join(path_result, "enduse_specific_results"),
-                "{}__{}__{}{}".format(
-                    filename,
-                    enduse,
-                    sim_yr,
-                    ".npy"))
+            fuel_aggregated += fuel
+    
+    path_file = os.path.join(
+        os.path.join(path_result, "enduse_specific_results"),
+        "{}__{}__{}{}".format(
+            filename,
+            "all_heating",
+            sim_yr,
+            ".npy"))
 
-            np.save(path_file, fuel)
+    # Find peak day of electricity across all heating end uses
+    lookups = lookup_tables.basic_lookups()
+    fueltype_int = lookups['fueltypes']['electricity']
 
-            statistics_to_print.append("{}\t\t\t\t{}".format(
-                enduse, np.sum(fuel)))
+    peak_day_electricity, _ = enduse_func.get_peak_day_single_fueltype(fuel_aggregated[fueltype_int])
+    selected_hours = date_prop.convert_yearday_to_8760h_selection(peak_day_electricity)
+    selected_demand = fuel_aggregated[:, selected_hours]
+    np.save(path_file, selected_demand)
+
+    statistics_to_print.append("{}\t\t\t\t{}".format(
+        "all_heating", np.sum(fuel_aggregated)))
 
     # Create statistic files with sum of all end uses
     path_file = os.path.join(
