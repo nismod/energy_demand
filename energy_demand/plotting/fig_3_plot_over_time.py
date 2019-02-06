@@ -74,6 +74,7 @@ def clasify_color(diff_mean, diff_std, threshold):
 
 def scenario_over_time(
         scenario_result_container,
+        field_name,
         sim_yrs,
         fig_name,
         result_path,
@@ -91,7 +92,7 @@ def scenario_over_time(
 
     for cnt_scenario, i in enumerate(scenario_result_container):
         scenario_name = i['scenario_name']
-        national_peak = i['national_peak']
+        national_peak = i[field_name]
 
         # dataframe with national peak (columns= simulation year, row: Realisation) 
         # Calculate quantiles
@@ -229,7 +230,6 @@ def scenario_over_time(
     # Legend
     # --------
     legend = plt.legend(
-        #title="tt",
         ncol=2,
         prop={'size': 10},
         loc='upper center',
@@ -247,11 +247,7 @@ def scenario_over_time(
     # Labeling
     # --------
     plt.ylabel("national peak demand (GW)")
-    #plt.xlabel("year")
-    #plt.title("Title")
-
     plt.tight_layout()
-
     plt.savefig(os.path.join(result_path, fig_name))
     plt.close()
 

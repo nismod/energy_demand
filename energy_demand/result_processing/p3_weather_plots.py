@@ -103,11 +103,51 @@ def main(
             national_electricity = pd.DataFrame()
             national_gas = pd.DataFrame()
             national_hydrogen = pd.DataFrame()
+            national_heating_peak = pd.DataFrame()
+
+            fueltype_elec_int = tech_related.get_fueltype_int('electricity')
 
             for path_result_folder in paths_folders_result: #[:3]: #TODO REMOVE
                 #print("... path_result_folder: {}".format(path_result_folder), flush=True)
+                data = {}
+                ed_national_heating_peak = {}
                 try:
-                    data = {}
+                    
+                    # ---
+                    # Loading in heating peak data
+                    # ---
+                    
+                    # Simulation information is read in from .ini file for results
+                    data['enduses'], data['assumptions'], data['regions'] = data_loader.load_ini_param(os.path.join(path_result_folder))
+                    pop_data = read_data.read_scenaric_population_data(os.path.join(path_result_folder, 'model_run_pop'))
+                    path_result_folder = os.path.join(path_result_folder, 'simulation_results')
+                    path_result_folder_model_runs = os.path.join(path_result_folder, 'model_run_results_txt')
+                    data['lookups'] = lookup_tables.basic_lookups()
+
+                    # Read in heating deamnds
+                    path_heating_demands = os.path.join(path_result_folder_model_runs, 'enduse_specific_results')
+                    all_files = os.listdir(path_heating_demands)
+                    for file_name in all_files:
+                        
+                        ending  = file_name[-4:]
+                        if ending == ".npy":
+                            year = int(file_name.split("__")[2][:-4])
+                            file_path = os.path.join(path_heating_demands, file_name)
+                            heating_demand = np.load(file_path)
+                            maximum_hour_of_peak_day = heating_demand[fueltype_int].argmax() #get maxim hour of peak day
+                            ed_national_heating_peak[year] = heating_demand[fueltype_int][maximum_hour_of_peak_day]
+
+                    simulation_yrs_result = [ed_national_heating_peak[year] for year in simulation_yrs_to_plot]
+                    realisation_data = pd.DataFrame(
+                        [simulation_yrs_result],
+                        columns=data['assumptions']['sim_yrs'])
+                    national_heating_peak = national_heating_peak.append(realisation_data)
+
+                except:
+                    print("... no heating peak data")
+
+                try:
+                    
 
                     # Simulation information is read in from .ini file for results
                     data['enduses'], data['assumptions'], data['regions'] = data_loader.load_ini_param(os.path.join(path_result_folder))
@@ -137,7 +177,6 @@ def main(
                     total_regional_demand_electricity = total_regional_demand_electricity.append(realisation_data)
 
                     # National per fueltype electricity
-                    fueltype_elec_int = tech_related.get_fueltype_int('electricity')
                     simulation_yrs_result = [results_container['national_all_fueltypes'][year][fueltype_elec_int] for year in simulation_yrs_to_plot]
 
                     realisation_data = pd.DataFrame(
@@ -205,6 +244,7 @@ def main(
 
             # Add to scenario container
             result_entry = {
+                'national_heating_peak': national_heating_peak,
                 'scenario_name': scenario_name,
                 'peak_hour_demand': peak_hour_demand,
                 'peak_hour_demand_per_person': peak_hour_demand_per_person,
@@ -227,32 +267,53 @@ def main(
         # ------------------------------
         # Plot national sum over time per fueltype and scenario
         # ------------------------------
-        crit_smooth_line = True
-        seperate_legend = True
-        print("... plotting national sum of fueltype over time ")
-        fig_3_plot_over_time.fueltypes_over_time(
-            scenario_result_container=scenario_result_container,
-            sim_yrs=data['assumptions']['sim_yrs'],
-            fig_name="fueltypes_over_time__{}__{}.pdf".format(simulation_yr_to_plot, fueltype_str),
-            fueltypes=['electricity', 'gas', 'hydrogen'],
-            result_path=result_path,
-            unit='TWh',
-            plot_points=True,
-            crit_smooth_line=False,
-            seperate_legend=seperate_legend)
+        try:
+            crit_smooth_line = True
+            seperate_legend = True
+            print("... plotting national sum of fueltype over time ")
+            fig_3_plot_over_time.fueltypes_over_time(
+                scenario_result_container=scenario_result_container,
+                sim_yrs=data['assumptions']['sim_yrs'],
+                fig_name="fueltypes_over_time__{}__{}.pdf".format(simulation_yr_to_plot, fueltype_str),
+                fueltypes=['electricity', 'gas', 'hydrogen'],
+                result_path=result_path,
+                unit='TWh',
+                plot_points=True,
+                crit_smooth_line=False,
+                seperate_legend=seperate_legend)
+        except:
+            pass
 
         # ------------------------------
         # Plot national peak change over time for each scenario including weather variability
         # ------------------------------
-        fig_3_plot_over_time.scenario_over_time(
-            scenario_result_container=scenario_result_container,
-            sim_yrs=data['assumptions']['sim_yrs'],
-            fig_name="scenarios_peak_over_time__{}__{}.pdf".format(simulation_yr_to_plot, fueltype_str),
-            plot_points=True,
-            result_path=result_path,
-            crit_smooth_line=crit_smooth_line,
-            seperate_legend=seperate_legend)
-
+        try:
+            fig_3_plot_over_time.scenario_over_time(
+                scenario_result_container=scenario_result_container,
+                field_name='national_peak',
+                sim_yrs=data['assumptions']['sim_yrs'],
+                fig_name="scenarios_peak_over_time__{}__{}.pdf".format(simulation_yr_to_plot, fueltype_str),
+                plot_points=True,
+                result_path=result_path,
+                crit_smooth_line=crit_smooth_line,
+                seperate_legend=seperate_legend)
+        except:
+            pass
+        # ------------------------------
+        # Plot heating peak change over time for each scenario including weather variability
+        # ------------------------------
+        try:
+            fig_3_plot_over_time.scenario_over_time(
+                scenario_result_container=scenario_result_container,
+                field_name='national_heating_peak',
+                sim_yrs=data['assumptions']['sim_yrs'],
+                fig_name="scenarios_heating_peak_over_time__{}__{}.pdf".format(simulation_yr_to_plot, fueltype_str),
+                plot_points=True,
+                result_path=result_path,
+                crit_smooth_line=crit_smooth_line,
+                seperate_legend=seperate_legend)
+        except:
+            pass
     ## ------------------------------
     ## Plotting spatial maps
     ## ------------------------------
@@ -399,7 +460,8 @@ def main(
 # Code to run charts generation for weather paper
 main(
     #scenarios_path="C:/_WEATHER_p3",
-    scenarios_path="//linux-filestore.ouce.ox.ac.uk/mistral/nismod/data/energy_demand/_p3_results_weather_second_ROUDN", #"C:/_WEATHER_p3_NEWRUN",
+    scenarios_path="C:/_TESTTEST",
+    #scenarios_path="//linux-filestore.ouce.ox.ac.uk/mistral/nismod/data/energy_demand/_p3_results_weather_second_ROUDN", #"C:/_WEATHER_p3_NEWRUN",
     #scenarios_path="//linux-filestore.ouce.ox.ac.uk/mistral/nismod/data/energy_demand/_p3_results_TEST",
     path_shapefile_input="C:/Users/cenv0553/ED/data/region_definitions/lad_2016_uk_simplified.shp",
     base_yr=2015,

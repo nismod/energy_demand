@@ -39,19 +39,22 @@ simulation_yrs = range(2015, 2051, 5)
 # -----------------------
 # Create folder structure
 # -----------------------
-basic_functions.create_folder(path_out)
+'''basic_functions.create_folder(path_out)
 for scenario in scenarios:
     basic_functions.create_folder(os.path.join(path_out, scenario))
     for fueltype in fueltypes:
         basic_functions.create_folder(os.path.join(path_out, scenario, fueltype))
         for folder_type in folder_types:
             basic_functions.create_folder(os.path.join(path_out, scenario, fueltype, folder_type))
-print("Created folder")
+print("Created folder")'''
 
 # ----------------------
 # Write to file
 # ---------------------
 all_scenarios = os.listdir(path_results)
+#all_scenarios = ['h_max', 'h_min', 'l_max', 'l_min'] #done h_max: all years, h_min:
+all_scenarios = ['h_min']
+simulation_yrs = [2025, 2030, 2035, 2040, 2045, 2050]
 
 for scenario in all_scenarios:
     all_realizations = os.listdir(os.path.join(path_results, scenario))
