@@ -94,7 +94,7 @@ if __name__ == "__main__":
 
     data = {}
     sim_yrs = [2015, 2020, 2025, 2030, 2035, 2040, 2045, 2050]
-    sim_yrs = [2015, 2050]
+    #sim_yrs = [2015, 2050]
 
 
     if len(sys.argv) > 3: #user defined arguments are provide
@@ -553,19 +553,6 @@ if __name__ == "__main__":
                 selected_hours = date_prop.convert_yearday_to_8760h_selection(peak_day_electricity)
                 print("PEAK electricity: " + str(np.max(national_hourly_demand[selected_hours])))
                 raise Exception("PEAK EXCEPTION")
-
-                # PLot only residential total regional annual demand and
-                '''write_data.write_residential_tot_demands(
-                    sim_yr,
-                    data['weather_yr_result_paths']['data_results_model_run_results_txt'],
-                    sim_obj.ed_residential_tot_reg_y,
-                    "ed_residential_tot_reg_y")
-                write_data.write_supply_results(
-                    sim_yr,
-                    "ed_fueltype_regs_yh",
-                    data['weather_yr_result_paths']['data_results_model_run_results_txt'],
-                    sim_obj.ed_fueltype_regs_yh,
-                    "result_tot_submodels_fueltypes")'''
             else:
                 write_data.write_residential_tot_demands(
                     sim_yr,
