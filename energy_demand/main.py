@@ -551,8 +551,6 @@ if __name__ == "__main__":
                 national_hourly_demand = np.sum(sim_obj.ed_fueltype_regs_yh[fueltype_int], axis=0)
                 peak_day_electricity, _ = enduse_func.get_peak_day_single_fueltype(national_hourly_demand)
                 selected_hours = date_prop.convert_yearday_to_8760h_selection(peak_day_electricity)
-                print("PEAK electricity: " + str(np.max(national_hourly_demand[selected_hours])))
-                raise Exception("PEAK EXCEPTION")
             else:
                 write_data.write_residential_tot_demands(
                     sim_yr,
