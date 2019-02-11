@@ -25,9 +25,11 @@ import copy
 from energy_demand.read_write import data_loader
 from energy_demand.technologies import tech_related
 from energy_demand.basic import basic_functions
+from energy_demand.basic import lookup_tables, date_prop, basic_functions, conversions
+from energy_demand import enduse_func
 
 # Folder paths
-path_out = "C:/__DATA_RESULTS_FINAL"                          # Folder to store results
+path_out = "C:/__DATA_RESULTS_FINAL_SCRAP"                          # Folder to store results
 path_results = "//linux-filestore.ouce.ox.ac.uk/mistral/nismod/data/energy_demand/_p3_results_weather_second_ROUDN"
 
 # Scenario definitions
@@ -53,8 +55,8 @@ print("Created folder")'''
 # ---------------------
 all_scenarios = os.listdir(path_results)
 #all_scenarios = ['h_max', 'h_min', 'l_max', 'l_min'] #done h_max: all years, h_min:
-all_scenarios = ['h_min']
-simulation_yrs = [2025, 2030, 2035, 2040, 2045, 2050]
+all_scenarios = ['h_max']
+simulation_yrs = [2015, 2020, 2025, 2030, 2035, 2040, 2045, 2050]
 
 for scenario in all_scenarios:
     all_realizations = os.listdir(os.path.join(path_results, scenario))
@@ -67,7 +69,7 @@ for scenario in all_scenarios:
         # Container to load all realizations initially for speed up
         # ----------------------------------
         container_all_initialisations = []
-        for initialization in all_realizations: #[:3]:
+        for initialization in all_realizations[:2]:
 
             path_sim_yr = os.path.join(
                 path_results,
@@ -81,6 +83,13 @@ for scenario in all_scenarios:
 
             full_result = np.load(path_sim_yr)
             container_all_initialisations.append(full_result)
+
+            # Check peak
+            fueltype_int = tech_related.get_fueltype_int('electricity')
+            national_hourly_demand = np.sum(full_result[fueltype_int], axis=0)
+            peak_day_electricity, _ = enduse_func.get_peak_day_single_fueltype(national_hourly_demand)
+            selected_hours = date_prop.convert_yearday_to_8760h_selection(peak_day_electricity)
+            print("PEAK electricity: " + str(np.max(national_hourly_demand[selected_hours])))
 
         for fueltype_str in fueltypes:
             print("         ...fueltype {}".format(fueltype_str), flush=True)

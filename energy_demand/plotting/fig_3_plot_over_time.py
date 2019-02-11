@@ -22,7 +22,7 @@ colors = {
     'h_max': '#d7191c', #'#78c679',
 
     # Low elec
-    'l_min': '#abd9e9', ##800026',
+    'l_min': 'dodgerblue', #abd9e9', ##800026',
     'l_c': '#e31a1c',
     'l_max': '#fdae61', ##fd8d3c',
 
@@ -96,8 +96,8 @@ def scenario_over_time(
 
         # dataframe with national peak (columns= simulation year, row: Realisation) 
         # Calculate quantiles
-        quantile_95 = 0.95 #0.68
-        quantile_05 = 0.05 #0.32
+        quantile_95 = 0.68 #0.95 #0.68
+        quantile_05 = 0.32 #0.05 #0.32
 
         try:
             color = colors[scenario_name]

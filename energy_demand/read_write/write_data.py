@@ -503,14 +503,8 @@ def write_space_and_water_heating(
 
     for enduse, fuel in tot_fuel_y_enduse_specific_yh.items():
         logging.info("   ... Enduse specific writing to file: %s  Total demand: %s ", enduse, np.sum(fuel))
-        
-        if enduse in [
-            'rs_space_heating',
-            'ss_space_heating',
-            'is_space_heating',
-            'rs_water_heating',
-            'ss_water_heating']:
 
+        if enduse in ['rs_space_heating', 'ss_space_heating', 'is_space_heating', 'rs_water_heating', 'ss_water_heating']:
             fuel_aggregated += fuel
     
     path_file = os.path.join(
