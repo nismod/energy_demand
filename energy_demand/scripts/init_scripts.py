@@ -666,7 +666,7 @@ def sig_param_calc_incl_fuel_switch(
             # Iterate over years defined in narrative
             for switch_yr_cnt, switch_yr in enumerate(switch_yrs):
                 sig_param_tech[switch_yr] = {}
-                print("ZZ {}  {}".format(switch_yr_cnt, switch_yrs))
+
                 # -------------------------
                 # Get starting year of narrative
                 # -------------------------
