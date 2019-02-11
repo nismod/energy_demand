@@ -14,6 +14,7 @@ import time
 import logging
 from collections import defaultdict
 import pandas as pd
+import numpy as np
 
 from energy_demand.basic import basic_functions, date_prop, demand_supply_interaction, testing_functions, lookup_tables
 from energy_demand import model
@@ -22,6 +23,9 @@ from energy_demand.read_write import read_data, write_data, data_loader
 from energy_demand.validation import lad_validation
 from energy_demand.scripts import s_scenario_param, init_scripts, s_disaggregation
 from energy_demand.plotting import fig_enduse_yh
+from energy_demand.basic import lookup_tables, date_prop, basic_functions, conversions
+from energy_demand import enduse_func
+from energy_demand.technologies import tech_related
 
 def energy_demand_model(
         regions,
@@ -90,7 +94,7 @@ if __name__ == "__main__":
 
     data = {}
     sim_yrs = [2015, 2020, 2025, 2030, 2035, 2040, 2045, 2050]
-    sim_yrs = [2015, 2030, 2050]
+    sim_yrs = [2015, 2050]
 
 
     if len(sys.argv) > 3: #user defined arguments are provide
@@ -280,13 +284,6 @@ if __name__ == "__main__":
         load_np=False,
         load_parquet=False,
         load_csv=True)
-
-    # Plot map with weather station
-    '''if config['CRITERIA']['cluster_calc'] != True:
-        data_loader.create_weather_station_map(
-            data['weather_stations'],
-            os.path.join(path_new_scenario, 'weatherst_distr_weathyr.pdf'),
-            path_shapefile=data['local_paths']['lad_shapefile'])'''
 
     # ------------------------------------------------------------
     # Disaggregate national energy demand to regional demands
@@ -545,6 +542,14 @@ if __name__ == "__main__":
                     data['weather_yr_result_paths']['data_results_model_run_results_txt'],
                     sim_obj.tot_fuel_y_enduse_specific_yh,
                     "out_enduse_specific")
+                
+                # Check peak
+                fueltype_int = tech_related.get_fueltype_int('electricity')
+                national_hourly_demand = np.sum(sim_obj.ed_fueltype_regs_yh[fueltype_int], axis=0)
+                peak_day_electricity, _ = enduse_func.get_peak_day_single_fueltype(national_hourly_demand)
+                selected_hours = date_prop.convert_yearday_to_8760h_selection(peak_day_electricity)
+                print("PEAK electricity: " + str(np.max(national_hourly_demand[selected_hours])))
+                raise Exception
 
                 # PLot only residential total regional annual demand and
                 '''write_data.write_residential_tot_demands(
