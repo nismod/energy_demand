@@ -15,7 +15,6 @@ from energy_demand.plotting import fig_3_plot_over_time
 
 def main(
         scenarios_path,
-        plot_heat_peak_demand,
         path_shapefile_input,
         base_yr,
         simulation_yrs_to_plot
@@ -112,44 +111,43 @@ def main(
                 #print("... path_result_folder: {}".format(path_result_folder), flush=True)
                 data = {}
                 ed_national_heating_peak = {}
-                if plot_heat_peak_demand:
-                    try:
+                #if plot_heat_peak_demand:
+                try:
+                    
+                    # ================================
+                    # Loading in only heating peak demands (seperate calculations)
+                    # ================================
+                    
+                    # Simulation information is read in from .ini file for results
+                    data['enduses'], data['assumptions'], data['regions'] = data_loader.load_ini_param(os.path.join(path_result_folder))
+                    pop_data = read_data.read_scenaric_population_data(os.path.join(path_result_folder, 'model_run_pop'))
+                    path_result_folder_heating = os.path.join(path_result_folder, 'simulation_results')
+                    path_result_folder_model_runs = os.path.join(path_result_folder_heating, 'model_run_results_txt')
+                    data['lookups'] = lookup_tables.basic_lookups()
+
+                    # Read in heating deamnds
+                    path_heating_demands = os.path.join(path_result_folder_model_runs, 'enduse_specific_results')
+                    all_files = os.listdir(path_heating_demands)
+                    for file_name in all_files:
                         
-                        # ================================
-                        # Loading in only heating peak demands (seperate calculations)
-                        # ================================
-                        
-                        # Simulation information is read in from .ini file for results
-                        data['enduses'], data['assumptions'], data['regions'] = data_loader.load_ini_param(os.path.join(path_result_folder))
-                        pop_data = read_data.read_scenaric_population_data(os.path.join(path_result_folder, 'model_run_pop'))
-                        path_result_folder_heating = os.path.join(path_result_folder, 'simulation_results')
-                        path_result_folder_model_runs = os.path.join(path_result_folder_heating, 'model_run_results_txt')
-                        data['lookups'] = lookup_tables.basic_lookups()
+                        ending  = file_name[-4:]
+                        if ending == ".npy":
+                            year = int(file_name.split("__")[2][:-4])
+                            file_path = os.path.join(path_heating_demands, file_name)
+                            heating_demand = np.load(file_path)
+                            maximum_hour_of_peak_day = heating_demand[fueltype_int].argmax() #get maxim hour of peak day
+                            ed_national_heating_peak[year] = heating_demand[fueltype_int][maximum_hour_of_peak_day]
 
-                        # Read in heating deamnds
-                        path_heating_demands = os.path.join(path_result_folder_model_runs, 'enduse_specific_results')
-                        all_files = os.listdir(path_heating_demands)
-                        for file_name in all_files:
-                            
-                            ending  = file_name[-4:]
-                            if ending == ".npy":
-                                year = int(file_name.split("__")[2][:-4])
-                                file_path = os.path.join(path_heating_demands, file_name)
-                                heating_demand = np.load(file_path)
-                                maximum_hour_of_peak_day = heating_demand[fueltype_int].argmax() #get maxim hour of peak day
-                                ed_national_heating_peak[year] = heating_demand[fueltype_int][maximum_hour_of_peak_day]
+                    simulation_yrs_result = [ed_national_heating_peak[year] for year in simulation_yrs_to_plot]
+                    realisation_data = pd.DataFrame(
+                        [simulation_yrs_result],
+                        columns=data['assumptions']['sim_yrs'])
+                    national_heating_peak = national_heating_peak.append(realisation_data)
 
-                        simulation_yrs_result = [ed_national_heating_peak[year] for year in simulation_yrs_to_plot]
-                        realisation_data = pd.DataFrame(
-                            [simulation_yrs_result],
-                            columns=data['assumptions']['sim_yrs'])
-                        national_heating_peak = national_heating_peak.append(realisation_data)
-
-                    except:
-                        print("... no heating peak data available " + str(path_result_folder))
+                except:
+                    raise Exception("... no heating peak data available " + str(path_result_folder))
 
                 try:
-
                     # Simulation information is read in from .ini file for results
                     data['enduses'], data['assumptions'], data['regions'] = data_loader.load_ini_param(os.path.join(path_result_folder))
                     pop_data = read_data.read_scenaric_population_data(os.path.join(path_result_folder, 'model_run_pop'))
@@ -239,10 +237,7 @@ def main(
                     regional_share_national_peak_pp = regional_share_national_peak_pp.append(realisation_data)
 
                 except:
-                    #raise Exception("The run '{}' is corrupted".format(path_result_folder))
-                    if not plot_heat_peak_demand:
-                        print("The run '{}' is corrupted".format(path_result_folder), flush=True)
-                    pass 
+                    raise Exception("The run '{}' is corrupted".format(path_result_folder), flush=True) 
 
             # Add to scenario container
             result_entry = {
@@ -270,7 +265,7 @@ def main(
         # Plot national sum over time per fueltype and scenario
         # ------------------------------
         try:
-            crit_smooth_line = True
+            crit_smooth_line = False
             seperate_legend = True
             print("... plotting national sum of fueltype over time ")
             fig_3_plot_over_time.fueltypes_over_time(
@@ -461,12 +456,9 @@ def main(
 
 # Code to run charts generation for weather paper
 main(
-    #scenarios_path="C:/_WEATHER_p3",
-    #scenarios_path="C:/_TESTTEST",
-    plot_heat_peak_demand=True,
     #scenarios_path="//linux-filestore.ouce.ox.ac.uk/mistral/nismod/data/energy_demand/_p3_results_weather_second_ROUDN", #"C:/_WEATHER_p3_NEWRUN",
-    scenarios_path="//linux-filestore.ouce.ox.ac.uk/mistral/nismod/data/energy_demand/_p3_only_peak_heating", #"C:/_WEATHER_p3_NEWRUN",
-    #scenarios_path="//linux-filestore.ouce.ox.ac.uk/mistral/nismod/data/energy_demand/_p3_results_TEST",
+    #scenarios_path="//linux-filestore.ouce.ox.ac.uk/mistral/nismod/data/energy_demand/_p3_only_peak_heating", #"C:/_WEATHER_p3_NEWRUN",
+    scenarios_path="//linux-filestore.ouce.ox.ac.uk/mistral/nismod/data/energy_demand/_p3_weather_final",
     path_shapefile_input="C:/Users/cenv0553/ED/data/region_definitions/lad_2016_uk_simplified.shp",
     base_yr=2015,
     simulation_yrs_to_plot=[2015, 2020, 2025, 2030, 2035, 2040, 2045, 2050])

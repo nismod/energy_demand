@@ -17,12 +17,12 @@ from energy_demand.read_write import write_data
 
 colors = {
     # High elec
-    'h_min': '#2c7bb6', ##004529',
+    'h_min': 'darkgreen', ##2c7bb6', ##004529',
     'h_c': '#238443',
     'h_max': '#d7191c', #'#78c679',
 
     # Low elec
-    'l_min': 'dodgerblue', #abd9e9', ##800026',
+    'l_min': 'steelblue', #abd9e9', ##800026',
     'l_c': '#e31a1c',
     'l_max': '#fdae61', ##fd8d3c',
 
@@ -135,7 +135,8 @@ def scenario_over_time(
         sim_yrs_smoothed = sim_yrs
         if crit_smooth_line:
             try:
-                sim_yrs_smoothed, mean_national_peak_smoothed = basic_plot_functions.smooth_data(sim_yrs, mean_national_peak, num=40000)
+                sim_yrs_smoothed, mean_national_peak_smoothed = basic_plot_functions.smooth_data(
+                    sim_yrs, mean_national_peak, num=40000)
                 _, df_q_05_smoothed = basic_plot_functions.smooth_data(sim_yrs, df_q_05, num=40000)
                 _, df_q_95_smoothed = basic_plot_functions.smooth_data(sim_yrs, df_q_95, num=40000)
 
@@ -183,8 +184,8 @@ def scenario_over_time(
                 if year == start_yr_uncertainty:
                     pos_unc_yr = cnt
 
-        # Shorten lines
-        df_q_05 = df_q_05.loc[start_yr_uncertainty:] #select based on index which is year
+        # select based on index which is year
+        df_q_05 = df_q_05.loc[start_yr_uncertainty:]
         df_q_95 = df_q_95.loc[start_yr_uncertainty:]
         sim_yrs_smoothed = sim_yrs_smoothed[pos_unc_yr:]
 
@@ -200,10 +201,11 @@ def scenario_over_time(
             list(df_q_05),  #y2
             alpha=0.25,
             facecolor=color)
-
+    
     plt.xlim(2015, 2050)
     plt.ylim(0)
-
+    if scenario_name == 'l_min':
+        plt.show()
     # --------
     # Different style
     # --------
