@@ -104,6 +104,7 @@ class EnergyDemandModel(object):
         # Simulate regions
         # -------------------------------------------
         print("... generating by dwelling stocks", flush=True)
+        #_all_closest_weather_stations = []
         for reg_array_nr, region in enumerate(tqdm(regions)):
 
             #logging.info("... Simulate: region %s, simulation year: %s, percent: (%s)",
@@ -119,7 +120,8 @@ class EnergyDemandModel(object):
                 weather_stations,
                 weather_yr,
                 weather_by)
-
+            #_all_closest_weather_stations.append(all_submodels)#weather_region_id
+    
             # ---------------------------------------------
             # Aggregate results specifically over regions
             # ---------------------------------------------
@@ -134,6 +136,9 @@ class EnergyDemandModel(object):
                 assumptions.fueltypes_nr,
                 assumptions.enduse_space_heating,
                 assumptions.technologies)
+        
+        #print("_all_closest_weather_stations")
+        #print(_all_closest_weather_stations)
 
         # ---------------------------------------------------
         # Aggregate results for all regions
@@ -390,11 +395,6 @@ def simulate_region(
         latitude=data['reg_coord'][region]['latitude'],
         region_fuel_disagg=region_fuel_disagg)
 
-    '''if assumptions.curr_yr != 2015:
-        import pprint
-        pprint.pprint(weather_region_cy.f_heat)
-        raise Exception'''
-
     for submodel_name in submodel_names:
         for sector in data['sectors'][submodel_name]:
             for enduse in data['enduses'][submodel_name]:
@@ -437,6 +437,7 @@ def simulate_region(
                     dw_stock=dw_stock,
                     reg_scen_drivers=assumptions.scenario_drivers,
                     flat_profile_crit=flat_profile_crit)
+    #return weather_region_id
 
 def fuel_aggr(
         sector_models,

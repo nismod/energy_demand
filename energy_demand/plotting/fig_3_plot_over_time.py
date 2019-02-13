@@ -96,8 +96,8 @@ def scenario_over_time(
 
         # dataframe with national peak (columns= simulation year, row: Realisation) 
         # Calculate quantiles
-        quantile_95 = 0.68 #0.95 #0.68
-        quantile_05 = 0.32 #0.05 #0.32
+        #quantile_95 = 0.68 #0.95 #0.68
+        #quantile_05 = 0.32 #0.05 #0.32
 
         try:
             color = colors[scenario_name]
@@ -122,9 +122,9 @@ def scenario_over_time(
         # Standard deviation over all realisations
         #df_q_05 = national_peak.quantile(quantile_05)
         #df_q_95 = national_peak.quantile(quantile_95)
-        std_2020 = national_peak.std(axis=0)
-        two_std_line_pos = mean_national_peak + (2 * std_2020)
-        two_std_line_neg = mean_national_peak - (2 * std_2020)
+        std_dev = national_peak.std(axis=0)
+        two_std_line_pos = mean_national_peak + (2 * std_dev)
+        two_std_line_neg = mean_national_peak - (2 * std_dev)
 
         # MAximum and minium values
         max_values = np.max(national_peak)
@@ -491,10 +491,6 @@ def fueltypes_over_time(
 
             national_sum = national_sum * unit_factor
 
-            # Calculate quantiles
-            quantile_95 = 0.95
-            quantile_05 = 0.05
-
             try:
                 color = colors[fueltype_str]
             except KeyError:
@@ -517,8 +513,9 @@ def fueltypes_over_time(
             statistics_to_print.append("{} fueltype_str: {} mean_national_sum_sim_yrs: {}".format(scenario_name, fueltype_str, mean_national_sum_sim_yrs))
 
             # Standard deviation over all realisations
-            df_q_05 = national_sum.quantile(quantile_05)
-            df_q_95 = national_sum.quantile(quantile_95)
+            std = np.std(national_sum)
+            pos_two_sigma = mean_national_sum + (2 * std)
+            neg_two_sigma = mean_national_sum + (2 * std)
 
             statistics_to_print.append("{} fueltype_str: {} df_q_05: {}".format(scenario_name, fueltype_str, df_q_05))
             statistics_to_print.append("{} fueltype_str: {} df_q_95: {}".format(scenario_name, fueltype_str, df_q_95))
@@ -530,12 +527,12 @@ def fueltypes_over_time(
             if crit_smooth_line:
                 try:
                     sim_yrs_smoothed, mean_national_sum_smoothed = basic_plot_functions.smooth_data(sim_yrs, mean_national_sum, num=500)
-                    _, df_q_05_smoothed = basic_plot_functions.smooth_data(sim_yrs, df_q_05, num=500)
-                    _, df_q_95_smoothed = basic_plot_functions.smooth_data(sim_yrs, df_q_95, num=500)
-
-                    mean_national_sum = pd.Series(mean_national_sum_smoothed, sim_yrs_smoothed)
-                    df_q_05 = pd.Series(df_q_05_smoothed, sim_yrs_smoothed)
-                    df_q_95 = pd.Series(df_q_95_smoothed, sim_yrs_smoothed)
+                    _, pos_two_sigma_smoothed = basic_plot_functions.smooth_data(sim_yrs, pos_two_sigma, num=500)
+                    _, neg_two_sigma_smoothed = basic_plot_functions.smooth_data(sim_yrs, neg_two_sigma, num=500)
+                    mean_national_sum = pd.Series(mean_national_sum_smoothed, sim_yrs_smoothed)                 
+                    
+                    pos_two_sigma = pd.Series(pos_two_sigma_smoothed, sim_yrs_smoothed)
+                    neg_two_sigma = pd.Series(neg_two_sigma_smoothed, sim_yrs_smoothed)
                 except:
                     print("did not owrk {} {}".format(fueltype_str, scenario_name))
                     pass
@@ -581,18 +578,18 @@ def fueltypes_over_time(
                         pos_unc_yr = cnt
 
             # Shorten lines
-            df_q_05 = df_q_05.loc[start_yr_uncertainty:]
-            df_q_95 = df_q_95.loc[start_yr_uncertainty:]
+            pos_two_sigma = pos_two_sigma.loc[start_yr_uncertainty:]
+            neg_two_sigma = neg_two_sigma.loc[start_yr_uncertainty:]
             sim_yrs_smoothed = sim_yrs_smoothed[pos_unc_yr:]
 
-            df_q_05.plot.line(color=color, linestyle='--', linewidth=0.1, label='_nolegend_')
-            df_q_95.plot.line(color=color, linestyle='--', linewidth=0.1, label='_nolegend_')
+            pos_two_sigma.plot.line(color=color, linestyle='--', linewidth=0.1, label='_nolegend_')
+            neg_two_sigma.plot.line(color=color, linestyle='--', linewidth=0.1, label='_nolegend_')
 
             # Plotting qunatilse and average scenario
             plt.fill_between(
                 sim_yrs_smoothed,
-                list(df_q_95),  #y1
-                list(df_q_05),  #y2
+                list(pos_two_sigma),  #y1
+                list(neg_two_sigma),  #y2
                 alpha=0.25,
                 facecolor=color)
 

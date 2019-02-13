@@ -37,6 +37,13 @@ def main(
     print("Start creating plots")
 
     # -------------------
+    # Create temperatuere figur plot
+    # -------------------
+    from energy_demand.plotting import fig3_weather_at_home_plot
+    path_weather_data = "//linux-filestore.ouce.ox.ac.uk/mistral/nismod/data/energy_demand/J-MARIUS_data/_weather_realisation"
+    fig3_weather_at_home_plot.plotting_weather_data(path_weather_data)
+
+    # -------------------
     # Create result folder
     # -------------------
     result_path = os.path.join(scenarios_path, '_results_weather_plots')
@@ -107,11 +114,11 @@ def main(
 
             fueltype_elec_int = tech_related.get_fueltype_int('electricity')
 
-            for path_result_folder in paths_folders_result: #[:3]: #TODO REMOVE
+            for path_result_folder in paths_folders_result: #[:20]: #TODO REMOVE
                 #print("... path_result_folder: {}".format(path_result_folder), flush=True)
                 data = {}
                 ed_national_heating_peak = {}
-                #if plot_heat_peak_demand:
+
                 try:
                     
                     # ================================
@@ -260,7 +267,6 @@ def main(
             # ---------------------------------------------------------------
             x_chart_yrs_storage[simulation_yr_to_plot][scenario_name] = result_entry
 
-        #'''
         # ------------------------------
         # Plot national sum over time per fueltype and scenario
         # ------------------------------
@@ -311,132 +317,7 @@ def main(
                 seperate_legend=seperate_legend)
         except:
             pass
-    ## ------------------------------
-    ## Plotting spatial maps
-    ## ------------------------------
-    #for simulation_yr_to_plot in simulation_yrs_to_plot:
-    #    print("=================")
-    #    print("...simulation_yr_to_plot: " + str(simulation_yr_to_plot))
-    #    print("=================")
-        '''
-        # ------------------------------
-        # Plotting spatial results for electricity
-        # ------------------------------
-        seperate_legend = False
-        for i in scenario_result_container:
-            scenario_name = i['scenario_name']
 
-            print("... plot spatial map of total annual demand")
-            field_to_plot = 'std_dev'
-            fig_3_weather_map.total_annual_demand(
-                i['total_regional_demand_electricity'],
-                path_shapefile_input,
-                data['regions'],
-                pop_data=pop_data,
-                simulation_yr_to_plot=simulation_yr_to_plot,
-                result_path=result_path,
-                fig_name="{}__tot_demand__{}__{}__{}.pdf".format(scenario_name, field_to_plot, fueltype_str, simulation_yr_to_plot),
-                field_to_plot=field_to_plot,
-                unit='GW',
-                seperate_legend=seperate_legend)
-
-            print("... plot spatial map of peak hour demand")
-            field_to_plot = 'std_dev'
-            fig_3_weather_map.total_annual_demand(
-                i['peak_hour_demand'],
-                path_shapefile_input,
-                data['regions'],
-                pop_data=pop_data,
-                simulation_yr_to_plot=simulation_yr_to_plot,
-                result_path=result_path,
-                fig_name="{}__peak_h_demand__{}__{}__{}.pdf".format(scenario_name, field_to_plot, fueltype_str, simulation_yr_to_plot),
-                field_to_plot=field_to_plot,
-                unit='GW',
-                seperate_legend=seperate_legend)
-
-            print("... plot spatial map of peak hour per pop (reg peak / pop)")
-            field_to_plot = 'mean'
-            fig_3_weather_map.total_annual_demand(
-                i['peak_hour_demand_per_person'],
-                path_shapefile_input,
-                data['regions'],
-                pop_data=pop_data,
-                simulation_yr_to_plot=simulation_yr_to_plot,
-                result_path=result_path,
-                fig_name="{}__peak_h_demand_per_person__{}__{}__{}.pdf".format(scenario_name, field_to_plot, fueltype_str, simulation_yr_to_plot),
-                field_to_plot=field_to_plot,
-                unit='GW',
-                seperate_legend=seperate_legend)
-
-            # ---------------------------------------
-            print(" ")
-            print("... plot spatial map of percentage of regional peak hour demand")
-            print(" ")
-            # ---------------------------------------
-            print("    ... print mean   max val: " + str(np.max(i['regional_share_national_peak'].values)))
-            field_to_plot = 'mean'
-            fig_3_weather_map.total_annual_demand(
-                i['regional_share_national_peak'],
-                path_shapefile_input,
-                data['regions'],
-                pop_data=pop_data,
-                simulation_yr_to_plot=simulation_yr_to_plot,
-                result_path=result_path,
-                fig_name="{}__regional_share_national_peak__{}__{}__{}.pdf".format(scenario_name, field_to_plot, fueltype_str, simulation_yr_to_plot),
-                field_to_plot=field_to_plot,
-                unit='percentage',
-                seperate_legend=seperate_legend,
-                bins=[0.000001, 0.25, 0.5, 0.75, 1, 1.25]) #, 1.5])
-            
-            print("    ... print std_dev")
-            field_to_plot = 'std_dev'
-            fig_3_weather_map.total_annual_demand(
-                i['regional_share_national_peak'],
-                path_shapefile_input,
-                data['regions'],
-                pop_data=pop_data,
-                simulation_yr_to_plot=simulation_yr_to_plot,
-                result_path=result_path,
-                fig_name="{}__regional_share_national_peak__{}__{}__{}.pdf".format(scenario_name, field_to_plot, fueltype_str, simulation_yr_to_plot),
-                field_to_plot=field_to_plot,
-                unit='percentage',
-                seperate_legend=seperate_legend)
-
-            # ---------------------------------------
-            print(" ")
-            print("... plot spatial map of percentage of regional peak hour demand per person (reg peak percentage) / pop [%]")
-            print(" ")
-            # ---------------------------------------
-            print("    ... print mean")
-            field_to_plot = 'mean'
-            fig_3_weather_map.total_annual_demand(
-                i['regional_share_national_peak_pp'],
-                path_shapefile_input,
-                data['regions'],
-                pop_data=pop_data,
-                simulation_yr_to_plot=simulation_yr_to_plot,
-                result_path=result_path,
-                fig_name="{}__regional_share_national_peak_pp___{}__{}__{}.pdf".format(scenario_name, field_to_plot, fueltype_str, simulation_yr_to_plot),
-                field_to_plot=field_to_plot,
-                unit='percentage',
-                seperate_legend=seperate_legend,
-                bins=[i/1000000 for i in [0.000001, 0.25, 0.5, 0.75, 1, 1.25, 1.5]])
-
-            print("    ... print std_dev")
-            field_to_plot = 'std_dev'
-            fig_3_weather_map.total_annual_demand(
-                i['regional_share_national_peak_pp'],
-                path_shapefile_input,
-                data['regions'],
-                pop_data=pop_data,
-                simulation_yr_to_plot=simulation_yr_to_plot,
-                result_path=result_path,
-                fig_name="{}__regional_share_national_peak_pp__{}__{}__{}.pdf".format(scenario_name, field_to_plot, fueltype_str, simulation_yr_to_plot),
-                field_to_plot=field_to_plot,
-                unit='percentage',
-                seperate_legend=seperate_legend)
-
-        '''
     ## ------------------------------
     ## Plotting x-chart
     ## ------------------------------
@@ -456,8 +337,6 @@ def main(
 
 # Code to run charts generation for weather paper
 main(
-    #scenarios_path="//linux-filestore.ouce.ox.ac.uk/mistral/nismod/data/energy_demand/_p3_results_weather_second_ROUDN", #"C:/_WEATHER_p3_NEWRUN",
-    #scenarios_path="//linux-filestore.ouce.ox.ac.uk/mistral/nismod/data/energy_demand/_p3_only_peak_heating", #"C:/_WEATHER_p3_NEWRUN",
     scenarios_path="//linux-filestore.ouce.ox.ac.uk/mistral/nismod/data/energy_demand/_p3_weather_final",
     path_shapefile_input="C:/Users/cenv0553/ED/data/region_definitions/lad_2016_uk_simplified.shp",
     base_yr=2015,

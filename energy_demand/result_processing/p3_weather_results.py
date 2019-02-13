@@ -24,8 +24,7 @@ import copy
 
 from energy_demand.read_write import data_loader
 from energy_demand.technologies import tech_related
-from energy_demand.basic import basic_functions
-from energy_demand.basic import lookup_tables, date_prop, basic_functions, conversions
+from energy_demand.basic import date_prop, basic_functions
 from energy_demand import enduse_func
 
 # Folder paths
@@ -41,14 +40,14 @@ simulation_yrs = range(2015, 2051, 5)
 # -----------------------
 # Create folder structure
 # -----------------------
-'''basic_functions.create_folder(path_out)
+basic_functions.create_folder(path_out)
 for scenario in scenarios:
     basic_functions.create_folder(os.path.join(path_out, scenario))
     for fueltype in fueltypes:
         basic_functions.create_folder(os.path.join(path_out, scenario, fueltype))
         for folder_type in folder_types:
             basic_functions.create_folder(os.path.join(path_out, scenario, fueltype, folder_type))
-print("Created folder")'''
+print("Created folder structure")
 
 # ----------------------
 # Write to file

@@ -20,39 +20,6 @@ from energy_demand.plotting import fig_lp
 from energy_demand.basic import basic_functions
 from energy_demand.read_write import narrative_related
 
-
-def print_closest_and_region(stations_as_dict, region_to_plot, closest_region):
-    """Function used to test if the closest weather region is assigned
-    """
-
-    world = gpd.read_file(gpd.datasets.get_path('naturalearth_lowres'))
-    ax = world[world.name == "United Kingdom"].plot(
-        color='white', edgecolor='black')
-
-    # Plot all weather stations
-    df = pd.DataFrame.from_dict(stations_as_dict, orient='index')
-    df['Coordinates'] = list(zip(df.longitude, df.latitude))
-    df['Coordinates'] = df['Coordinates'].apply(Point)
-    gdf = gpd.GeoDataFrame(df, geometry='Coordinates')
-    gdf.plot(ax=ax, color='blue')
-
-    # Plot region coordinate
-    df2 = pd.DataFrame.from_dict(region_to_plot, orient='index')
-    df2['Coordinates'] = list(zip(df2.longitude, df2.latitude))
-    df2['Coordinates'] = df2['Coordinates'].apply(Point)
-    gdf_region = gpd.GeoDataFrame(df2, geometry='Coordinates')
-    gdf_region.plot(ax=ax, color='red')
-
-    # PLot closest weather station
-    df3 = pd.DataFrame.from_dict(closest_region, orient='index')
-    df3['Coordinates'] = list(zip(df3.longitude, df3.latitude))
-    df3['Coordinates'] = df3['Coordinates'].apply(Point)
-    gdf_closest = gpd.GeoDataFrame(df3, geometry='Coordinates')
-    gdf_closest.plot(ax=ax, color='green')
-
-    plt.legend()
-
-
 def create_weather_station_map(stations_as_dict,
                                fig_path,
                                path_shapefile=False):
