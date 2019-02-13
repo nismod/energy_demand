@@ -35,7 +35,7 @@ path_results = "//linux-filestore.ouce.ox.ac.uk/mistral/nismod/data/energy_deman
 # Scenario definitions
 scenarios = ['l_min', 'l_max', 'h_min', 'h_max']
 fueltypes = ['electricity', 'gas', 'hydrogen']
-folder_types = ['mean', 'quantile_05', 'quantile_95']
+folder_types = ['mean', 'pos_two_sigma', 'neg_two_sigma']
 simulation_yrs = range(2015, 2051, 5)
 
 # -----------------------
@@ -103,8 +103,8 @@ for scenario in all_scenarios:
             hours = range(8760)
 
             df_result_final_mean = pd.DataFrame(index=hours, columns=regions)
-            df_result_final_05 = pd.DataFrame(index=hours, columns=regions)
-            df_result_final_95 = pd.DataFrame(index=hours, columns=regions)
+            df_result_pos_two_sigma = pd.DataFrame(index=hours, columns=regions)
+            df_result_neg_two_sigma = pd.DataFrame(index=hours, columns=regions)
 
             df_result_region_empty = pd.DataFrame(columns=hours)
 
@@ -139,24 +139,33 @@ for scenario in all_scenarios:
 
                 # Calculate statistics
                 reg_mean = df_result_region.mean() # Calculate mean of region
-                reg_05 = df_result_region.quantile(q=0.05) # Calculate 0.05 quantiles of region
-                reg_95 = df_result_region.quantile(q=0.95) # Calculate 0.95 quantiles of region
+                std_dev = df_result_region.mean() # Calculate mean of region
+                #reg_05 = df_result_region.quantile(q=0.05) # Calculate 0.05 quantiles of region
+                #reg_95 = df_result_region.quantile(q=0.95) # Calculate 0.95 quantiles of region
+                
+                pos_two_sigma = reg_mean + (2 * std_dev)
+                neg_two_sigma = reg_mean - (2 * std_dev)
 
                 # Store in final dataframe
                 df_result_final_mean[reg_name] = reg_mean
-                df_result_final_05[reg_name] = reg_05
-                df_result_final_95[reg_name] = reg_95
+                df_result_pos_two_sigma[reg_name] = pos_two_sigma
+                df_result_neg_two_sigma[reg_name] = neg_two_sigma
+
+                #df_result_final_05[reg_name] = reg_05
+                #df_result_final_95[reg_name] = reg_95
         
             # -------------
             # Write results
             # -------------
             out_path_file_mean = os.path.join(path_out, scenario, fueltype_str, 'mean', "{}.csv".format(simulation_yr))
-            out_path_file_05 = os.path.join(path_out, scenario, fueltype_str, 'quantile_05', "{}.csv".format(simulation_yr))
-            out_path_file_95 = os.path.join(path_out, scenario, fueltype_str, 'quantile_95', "{}.csv".format(simulation_yr))
+            out_path_file_05 = os.path.join(path_out, scenario, fueltype_str, 'pos_two_sigma', "{}.csv".format(simulation_yr))
+            out_path_file_95 = os.path.join(path_out, scenario, fueltype_str, 'neg_two_sigma', "{}.csv".format(simulation_yr))
 
             df_result_final_mean.to_csv(out_path_file_mean)
-            df_result_final_05.to_csv(out_path_file_05)
-            df_result_final_95.to_csv(out_path_file_95)
+            df_result_pos_two_sigma.to_csv(out_path_file_05)
+            df_result_neg_two_sigma.to_csv(out_path_file_95)
+            #df_result_final_05.to_csv(out_path_file_05)
+            #df_result_final_95.to_csv(out_path_file_95)
 
 print("--------")
 print("Finished writing out simulation results")
