@@ -1,8 +1,9 @@
 import os
 import numpy as np
+import matplotlib.pyplot as plt
 
 from energy_demand.read_write import read_data, write_data, data_loader
-import matplotlib.pyplot as plt
+from energy_demand.plotting import basic_plot_functions
 
 print("START")
 def plotting_weather_data(path):
@@ -16,8 +17,8 @@ def plotting_weather_data(path):
     - annual maximum t_max
     - annual minimum t_min
     """
-    sim_yrs = [2020]# range(2015, 2051, 5)
-    weather_reationzations = ["NF{}".format(i) for i in range(1, 101,1)]
+    sim_yrs = [2020, 2030]# range(2015, 2051, 5)
+    weather_reationzations = ["NF1", "NF2"] #["NF{}".format(i) for i in range(1, 101,1)]
 
     container_weather_stations = {}
     container_temp_data = {}
@@ -46,55 +47,96 @@ def plotting_weather_data(path):
         for year in sim_yrs:
             temp_data_used[year] = {}
             all_station_data = temp_data[year].keys()
-
             for station in all_station_data:
                 if station in used_stations:
                     temp_data_used[year][station] = temp_data[year][station]
-
-
-                    # Calculate hdd
 
         container_weather_stations[weather_realisation] = weather_stations
         container_temp_data[weather_realisation] = temp_data_used
 
     # Create plot with daily min
+    print("... creating min max plot")
     t_min_average_every_day = []
     t_max_average_every_day = []
+    t_min_min_every_day = []
+    t_max_max_every_day = []
+    std_dev_t_min = []
+    std_dev_t_max = []
+    std_dev_t_min_min = []
+    std_dev_t_max_max = []
 
     for year in sim_yrs:
 
         for realization in container_weather_stations.keys():
-            t_min_stations = []
-            t_max_stations = []
-            stations_data = container_weather_stations[realization][year]
+            t_min_average_stations = []
+            t_max_average_stations = []
+            t_min_min_stations = []
+            t_max_max_stations = []
+            stations_data = container_temp_data[realization][year]
             for station in stations_data.keys():
                 t_min_annual_average = np.average(stations_data[station]['t_min'])
                 t_max_annual_average = np.average(stations_data[station]['t_max'])
-                t_min_stations.append(t_min_annual_average) #average cross all stations
-                t_max_stations.append(t_max_annual_average) #average cross all stations
+                t_min_min_stations = np.min(stations_data[station]['t_min'])
+                t_max_max_stations = np.max(stations_data[station]['t_max'])
+                t_min_average_stations.append(t_min_annual_average) #average cross all stations
+                t_max_average_stations.append(t_max_annual_average) #average cross all stations
 
-        av_t_min = np.average(t_min_stations) #average across all realizations
-        av_t_max = np.average(t_max_stations) #average across all realizations
+        av_t_min = np.average(t_min_average_stations) #average across all realizations
+        av_t_max = np.average(t_max_average_stations) #average across all realizations
+        min_t_min = np.average(t_min_min_stations) #average across all realizations
+        max_t_max = np.average(t_max_max_stations) #average across all realizations
 
-        std_t_min = np.std(t_min_stations)
-        std_t_max = np.std(t_max_stations)
+        std_t_min = np.std(t_min_average_stations)
+        std_t_max = np.std(t_max_average_stations)
+        std_t_min_min = np.std(t_min_min_stations)
+        std_t_max_max = np.std(t_max_max_stations)
 
         t_min_average_every_day.append(av_t_min)
         t_max_average_every_day.append(av_t_max)
+        t_min_min_every_day.append(min_t_min)
+        t_max_max_every_day.append(max_t_max)
+        
+        std_dev_t_min.append(std_t_min)
+        std_dev_t_max.append(std_t_max)
+        std_dev_t_min_min.append(std_t_min_min)
+        std_dev_t_max_max.append(std_t_max_max)
 
     # Plot variability
-    plt.fill_between(
-        sim_yrs,
-        list(std_t_min),
-        list(std_t_max),
-        alpha=0.25,
-        facecolor=color)
+    fig = plt.figure() #figsize=basic_plot_functions.cm2inch(9, 8)) #width, height
 
     # plot
     plt.plot(sim_yrs, t_min_average_every_day, label="t_min")
     plt.plot(sim_yrs, t_max_average_every_day, label="t_max")
-    plt.legend()
-    plt.show()
+    plt.plot(sim_yrs, t_min_min_every_day, label="t_min_min")
+    plt.plot(sim_yrs, t_max_max_every_day, label="t_max_max")
+
+    # Variations
+    plt.fill_between(
+        sim_yrs,
+        t_min_average_every_day - (2 * std_dev_t_min),
+        t_min_average_every_day + (2 * std_dev_t_min),
+        alpha=0.25)
+
+    plt.fill_between(
+        sim_yrs,
+        t_max_average_every_day - (2 * std_dev_t_max),
+        t_max_average_every_day + (2 * std_dev_t_max),
+        alpha=0.25)
+
+    plt.fill_between(
+        sim_yrs,
+        t_min_min_every_day - (2 * std_dev_t_min_min),
+        t_min_min_every_day + (2 * std_dev_t_min_min),
+        alpha=0.25)
+
+    plt.fill_between(
+        sim_yrs,
+        t_max_max_every_day - (2 * std_dev_t_max_max),
+        t_max_max_every_day + (2 * std_dev_t_max_max),
+        alpha=0.25)
+
+
+    fig.savefig('C:/_scrap/test.pdf')
 
 
 if __name__ == "__main__":

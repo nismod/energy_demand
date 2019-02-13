@@ -205,6 +205,8 @@ def scenario_over_time(
         two_std_line_pos = two_std_line_pos.loc[start_yr_uncertainty:]
         two_std_line_neg = two_std_line_neg.loc[start_yr_uncertainty:]
         sim_yrs_smoothed = sim_yrs_smoothed[pos_unc_yr:]
+        min_values = min_values.loc[start_yr_uncertainty:]
+        max_values = max_values.loc[start_yr_uncertainty:]
 
         # --------------------------------------
         # Plottin qunatilse and average scenario

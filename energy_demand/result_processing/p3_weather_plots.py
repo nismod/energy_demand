@@ -39,9 +39,11 @@ def main(
     # -------------------
     # Create temperatuere figur plot
     # -------------------
-    from energy_demand.plotting import fig3_weather_at_home_plot
-    path_weather_data = "//linux-filestore.ouce.ox.ac.uk/mistral/nismod/data/energy_demand/J-MARIUS_data/_weather_realisation"
-    fig3_weather_at_home_plot.plotting_weather_data(path_weather_data)
+    plot_weather_chart = False
+    if plot_weather_chart:
+        from energy_demand.plotting import fig3_weather_at_home_plot
+        path_weather_data = "//linux-filestore.ouce.ox.ac.uk/mistral/nismod/data/energy_demand/J-MARIUS_data/_weather_realisation"
+        fig3_weather_at_home_plot.plotting_weather_data(path_weather_data)
 
     # -------------------
     # Create result folder
