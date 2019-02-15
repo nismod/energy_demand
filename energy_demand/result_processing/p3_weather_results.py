@@ -32,7 +32,8 @@ path_out = "C:/__DATA_RESULTS_FINAL"                          # Folder to store 
 path_results = "//linux-filestore.ouce.ox.ac.uk/mistral/nismod/data/energy_demand/_p3_weather_final"
 
 # Scenario definitions
-scenarios = ['l_min']#, 'l_max', 'h_min', 'h_max']
+all_scenarios = ['h_max']#, 'h_min', 'l_max', 'l_min']
+all_scenarios = ['h_max']
 fueltypes = ['electricity', 'gas', 'hydrogen']
 folder_types = ['mean', 'pos_two_sigma', 'neg_two_sigma']
 simulation_yrs = range(2015, 2051, 5)
@@ -41,7 +42,7 @@ simulation_yrs = range(2015, 2051, 5)
 # Create folder structure
 # -----------------------
 basic_functions.create_folder(path_out)
-for scenario in scenarios:
+for scenario in all_scenarios:
     basic_functions.create_folder(os.path.join(path_out, scenario))
     for fueltype in fueltypes:
         basic_functions.create_folder(os.path.join(path_out, scenario, fueltype))
@@ -52,11 +53,6 @@ print("Created folder structure")
 # ----------------------
 # Write to file
 # ---------------------
-all_scenarios = os.listdir(path_results)
-#all_scenarios = ['h_max', 'h_min', 'l_max', 'l_min'] #done h_max: all years, h_min:
-all_scenarios = ['h_max']
-simulation_yrs = [2015, 2020, 2025, 2030, 2035, 2040, 2045, 2050]
-
 for scenario in all_scenarios:
     all_realizations = os.listdir(os.path.join(path_results, scenario))
     print("...scenario {}".format(scenario), flush=True)
@@ -68,7 +64,7 @@ for scenario in all_scenarios:
         # Container to load all realizations initially for speed up
         # ----------------------------------
         container_all_initialisations = []
-        for initialization in all_realizations[:2]:
+        for initialization in all_realizations:
 
             path_sim_yr = os.path.join(
                 path_results,
@@ -141,9 +137,11 @@ for scenario in all_scenarios:
                 std_dev = df_result_region.mean() # Calculate mean of region
                 #reg_05 = df_result_region.quantile(q=0.05) # Calculate 0.05 quantiles of region
                 #reg_95 = df_result_region.quantile(q=0.95) # Calculate 0.95 quantiles of region
-                
-                pos_two_sigma = reg_mean + (2 * std_dev)
-                neg_two_sigma = reg_mean - (2 * std_dev)
+
+                # Number of sigma
+                nr_of_sigma = 2
+                pos_two_sigma = reg_mean + (nr_of_sigma * std_dev)
+                neg_two_sigma = reg_mean - (nr_of_sigma * std_dev)
 
                 # Store in final dataframe
                 df_result_final_mean[reg_name] = reg_mean

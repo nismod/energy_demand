@@ -116,7 +116,7 @@ def main(
 
             fueltype_elec_int = tech_related.get_fueltype_int('electricity')
 
-            for path_result_folder in paths_folders_result: #[:20]: #TODO REMOVE
+            for path_result_folder in paths_folders_result[:2]:
                 print("... path_result_folder: {}".format(path_result_folder), flush=True)
                 data = {}
                 ed_national_heating_peak = {}
@@ -273,7 +273,7 @@ def main(
         # Plot national sum over time per fueltype and scenario
         # ------------------------------
         try:
-            crit_smooth_line = False
+            crit_smooth_line = True
             seperate_legend = True
             print("... plotting national sum of fueltype over time ")
             fig_3_plot_over_time.fueltypes_over_time(
@@ -284,10 +284,10 @@ def main(
                 result_path=result_path,
                 unit='TWh',
                 plot_points=True,
-                crit_smooth_line=False,
+                crit_smooth_line=crit_smooth_line,
                 seperate_legend=seperate_legend)
         except:
-            pass
+            raise Exception("FAILS national sum")
 
         # ------------------------------
         # Plot national peak change over time for each scenario including weather variability
@@ -303,7 +303,9 @@ def main(
                 crit_smooth_line=crit_smooth_line,
                 seperate_legend=seperate_legend)
         except:
+            raise Exception("FAILED")
             pass
+
         # ------------------------------
         # Plot heating peak change over time for each scenario including weather variability
         # ------------------------------
@@ -318,6 +320,7 @@ def main(
                 crit_smooth_line=crit_smooth_line,
                 seperate_legend=seperate_legend)
         except:
+            raise Exception("FAILED")
             pass
 
     ## ------------------------------
