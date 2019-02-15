@@ -98,7 +98,7 @@ def main(
             fueltype_str_to_create_maps = ['electricity']
 
             fueltype_str ='electricity'
-            fueltype_int = tech_related.get_fueltype_int(fueltype_str)
+            fueltype_elec_int = tech_related.get_fueltype_int('electricity')
 
             ####################################################################
             # Collect regional simulation data for every realisation
@@ -114,15 +114,13 @@ def main(
             national_hydrogen = pd.DataFrame()
             national_heating_peak = pd.DataFrame()
 
-            fueltype_elec_int = tech_related.get_fueltype_int('electricity')
-
             for path_result_folder in paths_folders_result:
                 print("... path_result_folder: {}".format(path_result_folder), flush=True)
                 data = {}
                 ed_national_heating_peak = {}
 
                 try:
-                    
+
                     # ================================
                     # Loading in only heating peak demands (seperate calculations)
                     # ================================
@@ -144,8 +142,8 @@ def main(
                             year = int(file_name.split("__")[2][:-4])
                             file_path = os.path.join(path_heating_demands, file_name)
                             heating_demand = np.load(file_path)
-                            maximum_hour_of_peak_day = heating_demand[fueltype_int].argmax() #get maxim hour of peak day
-                            ed_national_heating_peak[year] = heating_demand[fueltype_int][maximum_hour_of_peak_day]
+                            maximum_hour_of_peak_day = heating_demand[fueltype_elec_int].argmax() #get maxim hour of peak day
+                            ed_national_heating_peak[year] = heating_demand[fueltype_elec_int][maximum_hour_of_peak_day]
 
                     simulation_yrs_result = [ed_national_heating_peak[year] for year in simulation_yrs_to_plot]
                     realisation_data = pd.DataFrame(
@@ -180,7 +178,7 @@ def main(
 
                     # --Total demand (dataframe with row: realisation, column=region)
                     realisation_data = pd.DataFrame(
-                        [results_container['ed_reg_tot_y'][simulation_yr_to_plot][fueltype_int]],
+                        [results_container['ed_reg_tot_y'][simulation_yr_to_plot][fueltype_elec_int]],
                         columns=data['regions'])
                     total_regional_demand_electricity = total_regional_demand_electricity.append(realisation_data)
 
@@ -193,8 +191,8 @@ def main(
                     national_electricity = national_electricity.append(realisation_data)
 
                     # National per fueltype gas
-                    fueltype_elec_int = tech_related.get_fueltype_int('gas')
-                    simulation_yrs_result = [results_container['national_all_fueltypes'][year][fueltype_elec_int] for year in simulation_yrs_to_plot]
+                    fueltype_gas_int = tech_related.get_fueltype_int('gas')
+                    simulation_yrs_result = [results_container['national_all_fueltypes'][year][fueltype_gas_int] for year in simulation_yrs_to_plot]
 
                     realisation_data = pd.DataFrame(
                         [simulation_yrs_result],
@@ -202,8 +200,8 @@ def main(
                     national_gas = national_gas.append(realisation_data)
 
                     # National per fueltype hydrogen
-                    fueltype_elec_int = tech_related.get_fueltype_int('hydrogen')
-                    simulation_yrs_result = [results_container['national_all_fueltypes'][year][fueltype_elec_int] for year in simulation_yrs_to_plot]
+                    fueltype_hydrogen_int = tech_related.get_fueltype_int('hydrogen')
+                    simulation_yrs_result = [results_container['national_all_fueltypes'][year][fueltype_hydrogen_int] for year in simulation_yrs_to_plot]
 
                     realisation_data = pd.DataFrame(
                         [simulation_yrs_result],
@@ -212,20 +210,20 @@ def main(
 
                     # --Peak hour demand per region (dataframe with row: realisation, column=region)
                     realisation_data = pd.DataFrame(
-                        [results_container['ed_reg_peakday_peak_hour'][simulation_yr_to_plot][fueltype_int]],
+                        [results_container['ed_reg_peakday_peak_hour'][simulation_yr_to_plot][fueltype_elec_int]],
                         columns=data['regions'])
 
                     peak_hour_demand = peak_hour_demand.append(realisation_data)
 
                     # --Peak hour demand / pop per region (dataframe with row: realisation, column=region)
                     realisation_data = pd.DataFrame(
-                        [results_container['ed_reg_peakday_peak_hour_per_pop'][simulation_yr_to_plot][fueltype_int]],
+                        [results_container['ed_reg_peakday_peak_hour_per_pop'][simulation_yr_to_plot][fueltype_elec_int]],
                         columns=data['regions'])
 
                     peak_hour_demand_per_person = peak_hour_demand_per_person.append(realisation_data)
 
                     # --National peak
-                    simulation_yrs_result = [results_container['national_peak'][year][fueltype_int] for year in simulation_yrs_to_plot]
+                    simulation_yrs_result = [results_container['national_peak'][year][fueltype_elec_int] for year in simulation_yrs_to_plot]
 
                     realisation_data = pd.DataFrame(
                         [simulation_yrs_result],

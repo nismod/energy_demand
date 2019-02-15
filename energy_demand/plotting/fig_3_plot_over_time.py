@@ -209,10 +209,8 @@ def scenario_over_time(
         two_std_line_neg = two_std_line_neg.loc[start_yr_uncertainty:]
         sim_yrs_smoothed = sim_yrs_smoothed[pos_unc_yr:]
 
-        min_values = min_values[pos_unc_yr:]
-        max_values = max_values[pos_unc_yr:]
-        #min_values = min_values.loc[start_yr_uncertainty:]
-        #max_values = max_values.loc[start_yr_uncertainty:]
+        min_values = min_values[pos_unc_yr:] #min_values.loc[start_yr_uncertainty:]
+        max_values = max_values[pos_unc_yr:] #max_values.loc[start_yr_uncertainty:]
 
         # --------------------------------------
         # Plottin qunatilse and average scenario
@@ -230,8 +228,6 @@ def scenario_over_time(
 
         plt.fill_between(
             sim_yrs_smoothed,
-            #list(df_q_95),  #y1
-            #list(df_q_05),  #y2
             list(two_std_line_pos),
             list(two_std_line_neg),
             alpha=0.25,
@@ -523,11 +519,13 @@ def fueltypes_over_time(
 
             # Standard deviation over all realisations
             std = np.std(national_sum)
-            pos_two_sigma = mean_national_sum + (2 * std)
-            neg_two_sigma = mean_national_sum - (2 * std)
 
-            statistics_to_print.append("{} fueltype_str: {} pos_two_sigma: {}".format(scenario_name, fueltype_str, pos_two_sigma))
-            statistics_to_print.append("{} fueltype_str: {} neg_two_sigma: {}".format(scenario_name, fueltype_str, neg_two_sigma))
+            nr_of_sigma = 1
+            pos_sigma = mean_national_sum + (nr_of_sigma * std)
+            neg_sigma = mean_national_sum - (nr_of_sigma * std)
+
+            statistics_to_print.append("{} fueltype_str: {} pos_sigma: {}".format(scenario_name, fueltype_str, pos_sigma))
+            statistics_to_print.append("{} fueltype_str: {} neg_sigma: {}".format(scenario_name, fueltype_str, neg_sigma))
 
             # --------------------
             # Try to smooth lines
@@ -536,15 +534,15 @@ def fueltypes_over_time(
             if crit_smooth_line:
                 try:
                     sim_yrs_smoothed, mean_national_sum_smoothed = basic_plot_functions.smooth_data(sim_yrs, mean_national_sum, num=500)
-                    _, pos_two_sigma_smoothed = basic_plot_functions.smooth_data(sim_yrs, pos_two_sigma, num=500)
-                    _, neg_two_sigma_smoothed = basic_plot_functions.smooth_data(sim_yrs, neg_two_sigma, num=500)
+                    _, pos_sigma_smoothed = basic_plot_functions.smooth_data(sim_yrs, pos_sigma, num=500)
+                    _, neg_sigma_smoothed = basic_plot_functions.smooth_data(sim_yrs, neg_sigma, num=500)
                     mean_national_sum = pd.Series(mean_national_sum_smoothed, sim_yrs_smoothed)                 
                     
-                    pos_two_sigma = pd.Series(pos_two_sigma_smoothed, sim_yrs_smoothed).values
-                    neg_two_sigma = pd.Series(neg_two_sigma_smoothed, sim_yrs_smoothed).values
+                    pos_sigma = pd.Series(pos_sigma_smoothed, sim_yrs_smoothed).values
+                    neg_sigma = pd.Series(neg_sigma_smoothed, sim_yrs_smoothed).values
                 except:
-                    pos_two_sigma = pos_two_sigma.values
-                    neg_two_sigma = neg_two_sigma.values
+                    pos_sigma = pos_sigma.values
+                    neg_sigma = neg_sigma.values
             
             # ------------------------
             # Plot lines
@@ -587,21 +585,21 @@ def fueltypes_over_time(
                         pos_unc_yr = cnt
 
             # Shorten lines
-            #pos_two_sigma = pos_two_sigma.loc[start_yr_uncertainty:]
-            #neg_two_sigma = neg_two_sigma.loc[start_yr_uncertainty:]
-            pos_two_sigma = pos_two_sigma[pos_unc_yr:]
-            neg_two_sigma = neg_two_sigma[pos_unc_yr:]
+            #pos_sigma = pos_sigma.loc[start_yr_uncertainty:]
+            #neg_sigma = neg_sigma.loc[start_yr_uncertainty:]
+            pos_sigma = pos_sigma[pos_unc_yr:]
+            neg_sigma = neg_sigma[pos_unc_yr:]
 
             sim_yrs_smoothed = sim_yrs_smoothed[pos_unc_yr:]
 
-            plt.plot(sim_yrs_smoothed, pos_two_sigma, color=color, linestyle='--', linewidth=0.1, label='_nolegend_')
-            plt.plot(sim_yrs_smoothed, neg_two_sigma, color=color, linestyle='--', linewidth=0.1, label='_nolegend_')
+            plt.plot(sim_yrs_smoothed, pos_sigma, color=color, linestyle='--', linewidth=0.1, label='_nolegend_')
+            plt.plot(sim_yrs_smoothed, neg_sigma, color=color, linestyle='--', linewidth=0.1, label='_nolegend_')
 
             # Plotting qunatilse and average scenario
             plt.fill_between(
                 sim_yrs_smoothed,
-                list(pos_two_sigma),  #y1
-                list(neg_two_sigma),  #y2
+                list(pos_sigma),  #y1
+                list(neg_sigma),  #y2
                 alpha=0.25,
                 facecolor=color)
 
