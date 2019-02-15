@@ -159,8 +159,8 @@ def scenario_over_time(
                 two_std_line_pos = pd.Series(two_std_line_pos_smoothed, sim_yrs_smoothed)
                 two_std_line_neg = pd.Series(two_std_line_neg_smoothed, sim_yrs_smoothed)
 
-                max_values = pd.Series(two_std_line_pos_smoothed, max_values_smoothed).values
-                min_values = pd.Series(two_std_line_neg_smoothed, min_values_smoothed).values
+                max_values = pd.Series(max_values_smoothed, sim_yrs_smoothed).values
+                min_values = pd.Series(min_values_smoothed, sim_yrs_smoothed).values
             except:
                 sim_yrs_smoothed = sim_yrs
 
@@ -192,7 +192,7 @@ def scenario_over_time(
         # Start with uncertainty one model step later (=> 2020)
         # ------------------
         start_yr_uncertainty = 2020
-        
+
         if crit_smooth_line:
             #Get position in array of start year uncertainty
             pos_unc_yr = len(np.where(sim_yrs_smoothed < start_yr_uncertainty)[0])
@@ -219,9 +219,11 @@ def scenario_over_time(
         # --------------------------------------
         #df_q_05.plot.line(color=color, linestyle='--', linewidth=0.1, label='_nolegend_')
         #df_q_95.plot.line(color=color, linestyle='--', linewidth=0.1, label='_nolegend_')
+
+        # Plot standard deviation
         #two_std_line_pos.plot.line(color=color, linestyle='--', linewidth=0.1, label='_nolegend_')
         #two_std_line_neg.plot.line(color=color, linestyle='--', linewidth=0.1, label='_nolegend_')
-        
+
         # plot min and maximum values
         plt.plot(sim_yrs_smoothed, min_values, color=color, linestyle='--', linewidth=0.1, label='_nolegend_')
         plt.plot(sim_yrs_smoothed, max_values, color=color, linestyle='--', linewidth=0.1, label='_nolegend_')

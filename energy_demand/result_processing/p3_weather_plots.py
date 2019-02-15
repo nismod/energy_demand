@@ -116,7 +116,7 @@ def main(
 
             fueltype_elec_int = tech_related.get_fueltype_int('electricity')
 
-            for path_result_folder in paths_folders_result[:2]:
+            for path_result_folder in paths_folders_result:
                 print("... path_result_folder: {}".format(path_result_folder), flush=True)
                 data = {}
                 ed_national_heating_peak = {}
