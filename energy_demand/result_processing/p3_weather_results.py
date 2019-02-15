@@ -28,11 +28,11 @@ from energy_demand.basic import date_prop, basic_functions
 from energy_demand import enduse_func
 
 # Folder paths
-path_out = "C:/__DATA_RESULTS_FINAL_SCRAP"                          # Folder to store results
-path_results = "//linux-filestore.ouce.ox.ac.uk/mistral/nismod/data/energy_demand/_p3_results_weather_second_ROUDN"
+path_out = "C:/__DATA_RESULTS_FINAL"                          # Folder to store results
+path_results = "//linux-filestore.ouce.ox.ac.uk/mistral/nismod/data/energy_demand/_p3_weather_final"
 
 # Scenario definitions
-scenarios = ['l_min', 'l_max', 'h_min', 'h_max']
+scenarios = ['l_min']#, 'l_max', 'h_min', 'h_max']
 fueltypes = ['electricity', 'gas', 'hydrogen']
 folder_types = ['mean', 'pos_two_sigma', 'neg_two_sigma']
 simulation_yrs = range(2015, 2051, 5)

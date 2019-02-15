@@ -79,7 +79,7 @@ def main(
         for scenario in all_scenarios_incl_ignored:
             if scenario not in to_ignores:
                 all_scenarios.append(scenario)
-        
+
         scenario_result_container = []
         for scenario_nr, scenario_name in enumerate(all_scenarios):
             print(" ")
@@ -117,7 +117,7 @@ def main(
             fueltype_elec_int = tech_related.get_fueltype_int('electricity')
 
             for path_result_folder in paths_folders_result: #[:20]: #TODO REMOVE
-                #print("... path_result_folder: {}".format(path_result_folder), flush=True)
+                print("... path_result_folder: {}".format(path_result_folder), flush=True)
                 data = {}
                 ed_national_heating_peak = {}
 
