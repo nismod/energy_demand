@@ -24,40 +24,35 @@ import copy
 
 from energy_demand.read_write import data_loader
 from energy_demand.technologies import tech_related
-from energy_demand.basic import basic_functions
-from energy_demand.basic import lookup_tables, date_prop, basic_functions, conversions
+from energy_demand.basic import date_prop, basic_functions
 from energy_demand import enduse_func
 
 # Folder paths
-path_out = "C:/__DATA_RESULTS_FINAL_SCRAP"                          # Folder to store results
-path_results = "//linux-filestore.ouce.ox.ac.uk/mistral/nismod/data/energy_demand/_p3_results_weather_second_ROUDN"
+path_out = "C:/__DATA_RESULTS_FINAL"                          # Folder to store results
+path_results = "//linux-filestore.ouce.ox.ac.uk/mistral/nismod/data/energy_demand/_p3_weather_final"
 
 # Scenario definitions
-scenarios = ['l_min', 'l_max', 'h_min', 'h_max']
+all_scenarios = ['h_max']#, 'h_min', 'l_max', 'l_min']
+all_scenarios = ['l_min']
 fueltypes = ['electricity', 'gas', 'hydrogen']
-folder_types = ['mean', 'quantile_05', 'quantile_95']
+folder_types = ['mean', 'pos_two_sigma', 'neg_two_sigma']
 simulation_yrs = range(2015, 2051, 5)
 
 # -----------------------
 # Create folder structure
 # -----------------------
-'''basic_functions.create_folder(path_out)
-for scenario in scenarios:
+basic_functions.create_folder(path_out)
+for scenario in all_scenarios:
     basic_functions.create_folder(os.path.join(path_out, scenario))
     for fueltype in fueltypes:
         basic_functions.create_folder(os.path.join(path_out, scenario, fueltype))
         for folder_type in folder_types:
             basic_functions.create_folder(os.path.join(path_out, scenario, fueltype, folder_type))
-print("Created folder")'''
+print("Created folder structure")
 
 # ----------------------
 # Write to file
 # ---------------------
-all_scenarios = os.listdir(path_results)
-#all_scenarios = ['h_max', 'h_min', 'l_max', 'l_min'] #done h_max: all years, h_min:
-all_scenarios = ['h_max']
-simulation_yrs = [2015, 2020, 2025, 2030, 2035, 2040, 2045, 2050]
-
 for scenario in all_scenarios:
     all_realizations = os.listdir(os.path.join(path_results, scenario))
     print("...scenario {}".format(scenario), flush=True)
@@ -69,7 +64,7 @@ for scenario in all_scenarios:
         # Container to load all realizations initially for speed up
         # ----------------------------------
         container_all_initialisations = []
-        for initialization in all_realizations[:2]:
+        for initialization in all_realizations:
 
             path_sim_yr = os.path.join(
                 path_results,
@@ -103,8 +98,8 @@ for scenario in all_scenarios:
             hours = range(8760)
 
             df_result_final_mean = pd.DataFrame(index=hours, columns=regions)
-            df_result_final_05 = pd.DataFrame(index=hours, columns=regions)
-            df_result_final_95 = pd.DataFrame(index=hours, columns=regions)
+            df_result_pos_two_sigma = pd.DataFrame(index=hours, columns=regions)
+            df_result_neg_two_sigma = pd.DataFrame(index=hours, columns=regions)
 
             df_result_region_empty = pd.DataFrame(columns=hours)
 
@@ -139,24 +134,35 @@ for scenario in all_scenarios:
 
                 # Calculate statistics
                 reg_mean = df_result_region.mean() # Calculate mean of region
-                reg_05 = df_result_region.quantile(q=0.05) # Calculate 0.05 quantiles of region
-                reg_95 = df_result_region.quantile(q=0.95) # Calculate 0.95 quantiles of region
+                std_dev = df_result_region.mean() # Calculate mean of region
+                #reg_05 = df_result_region.quantile(q=0.05) # Calculate 0.05 quantiles of region
+                #reg_95 = df_result_region.quantile(q=0.95) # Calculate 0.95 quantiles of region
+
+                # Number of sigma
+                nr_of_sigma = 2
+                pos_two_sigma = reg_mean + (nr_of_sigma * std_dev)
+                neg_two_sigma = reg_mean - (nr_of_sigma * std_dev)
 
                 # Store in final dataframe
                 df_result_final_mean[reg_name] = reg_mean
-                df_result_final_05[reg_name] = reg_05
-                df_result_final_95[reg_name] = reg_95
+                df_result_pos_two_sigma[reg_name] = pos_two_sigma
+                df_result_neg_two_sigma[reg_name] = neg_two_sigma
+
+                #df_result_final_05[reg_name] = reg_05
+                #df_result_final_95[reg_name] = reg_95
         
             # -------------
             # Write results
             # -------------
             out_path_file_mean = os.path.join(path_out, scenario, fueltype_str, 'mean', "{}.csv".format(simulation_yr))
-            out_path_file_05 = os.path.join(path_out, scenario, fueltype_str, 'quantile_05', "{}.csv".format(simulation_yr))
-            out_path_file_95 = os.path.join(path_out, scenario, fueltype_str, 'quantile_95', "{}.csv".format(simulation_yr))
+            out_path_file_05 = os.path.join(path_out, scenario, fueltype_str, 'pos_two_sigma', "{}.csv".format(simulation_yr))
+            out_path_file_95 = os.path.join(path_out, scenario, fueltype_str, 'neg_two_sigma', "{}.csv".format(simulation_yr))
 
             df_result_final_mean.to_csv(out_path_file_mean)
-            df_result_final_05.to_csv(out_path_file_05)
-            df_result_final_95.to_csv(out_path_file_95)
+            df_result_pos_two_sigma.to_csv(out_path_file_05)
+            df_result_neg_two_sigma.to_csv(out_path_file_95)
+            #df_result_final_05.to_csv(out_path_file_05)
+            #df_result_final_95.to_csv(out_path_file_95)
 
 print("--------")
 print("Finished writing out simulation results")

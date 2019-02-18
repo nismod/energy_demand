@@ -15,7 +15,6 @@ from energy_demand.plotting import fig_3_plot_over_time
 
 def main(
         scenarios_path,
-        plot_heat_peak_demand,
         path_shapefile_input,
         base_yr,
         simulation_yrs_to_plot
@@ -36,6 +35,15 @@ def main(
         Year to generate comparison plots
     """
     print("Start creating plots")
+
+    # -------------------
+    # Create temperatuere figur plot
+    # -------------------
+    plot_weather_chart = False
+    if plot_weather_chart:
+        from energy_demand.plotting import fig3_weather_at_home_plot
+        path_weather_data = "//linux-filestore.ouce.ox.ac.uk/mistral/nismod/data/energy_demand/J-MARIUS_data/_weather_realisation"
+        fig3_weather_at_home_plot.plotting_weather_data(path_weather_data)
 
     # -------------------
     # Create result folder
@@ -71,7 +79,7 @@ def main(
         for scenario in all_scenarios_incl_ignored:
             if scenario not in to_ignores:
                 all_scenarios.append(scenario)
-        
+
         scenario_result_container = []
         for scenario_nr, scenario_name in enumerate(all_scenarios):
             print(" ")
@@ -90,7 +98,7 @@ def main(
             fueltype_str_to_create_maps = ['electricity']
 
             fueltype_str ='electricity'
-            fueltype_int = tech_related.get_fueltype_int(fueltype_str)
+            fueltype_elec_int = tech_related.get_fueltype_int('electricity')
 
             ####################################################################
             # Collect regional simulation data for every realisation
@@ -106,50 +114,47 @@ def main(
             national_hydrogen = pd.DataFrame()
             national_heating_peak = pd.DataFrame()
 
-            fueltype_elec_int = tech_related.get_fueltype_int('electricity')
-
-            for path_result_folder in paths_folders_result: #[:3]: #TODO REMOVE
-                #print("... path_result_folder: {}".format(path_result_folder), flush=True)
+            for path_result_folder in paths_folders_result:
+                print("... path_result_folder: {}".format(path_result_folder), flush=True)
                 data = {}
                 ed_national_heating_peak = {}
-                if plot_heat_peak_demand:
-                    try:
-                        
-                        # ================================
-                        # Loading in only heating peak demands (seperate calculations)
-                        # ================================
-                        
-                        # Simulation information is read in from .ini file for results
-                        data['enduses'], data['assumptions'], data['regions'] = data_loader.load_ini_param(os.path.join(path_result_folder))
-                        pop_data = read_data.read_scenaric_population_data(os.path.join(path_result_folder, 'model_run_pop'))
-                        path_result_folder_heating = os.path.join(path_result_folder, 'simulation_results')
-                        path_result_folder_model_runs = os.path.join(path_result_folder_heating, 'model_run_results_txt')
-                        data['lookups'] = lookup_tables.basic_lookups()
-
-                        # Read in heating deamnds
-                        path_heating_demands = os.path.join(path_result_folder_model_runs, 'enduse_specific_results')
-                        all_files = os.listdir(path_heating_demands)
-                        for file_name in all_files:
-                            
-                            ending  = file_name[-4:]
-                            if ending == ".npy":
-                                year = int(file_name.split("__")[2][:-4])
-                                file_path = os.path.join(path_heating_demands, file_name)
-                                heating_demand = np.load(file_path)
-                                maximum_hour_of_peak_day = heating_demand[fueltype_int].argmax() #get maxim hour of peak day
-                                ed_national_heating_peak[year] = heating_demand[fueltype_int][maximum_hour_of_peak_day]
-
-                        simulation_yrs_result = [ed_national_heating_peak[year] for year in simulation_yrs_to_plot]
-                        realisation_data = pd.DataFrame(
-                            [simulation_yrs_result],
-                            columns=data['assumptions']['sim_yrs'])
-                        national_heating_peak = national_heating_peak.append(realisation_data)
-
-                    except:
-                        print("... no heating peak data available " + str(path_result_folder))
 
                 try:
 
+                    # ================================
+                    # Loading in only heating peak demands (seperate calculations)
+                    # ================================
+                    
+                    # Simulation information is read in from .ini file for results
+                    data['enduses'], data['assumptions'], data['regions'] = data_loader.load_ini_param(os.path.join(path_result_folder))
+                    pop_data = read_data.read_scenaric_population_data(os.path.join(path_result_folder, 'model_run_pop'))
+                    path_result_folder_heating = os.path.join(path_result_folder, 'simulation_results')
+                    path_result_folder_model_runs = os.path.join(path_result_folder_heating, 'model_run_results_txt')
+                    data['lookups'] = lookup_tables.basic_lookups()
+
+                    # Read in heating deamnds
+                    path_heating_demands = os.path.join(path_result_folder_model_runs, 'enduse_specific_results')
+                    all_files = os.listdir(path_heating_demands)
+                    for file_name in all_files:
+                        
+                        ending  = file_name[-4:]
+                        if ending == ".npy":
+                            year = int(file_name.split("__")[2][:-4])
+                            file_path = os.path.join(path_heating_demands, file_name)
+                            heating_demand = np.load(file_path)
+                            maximum_hour_of_peak_day = heating_demand[fueltype_elec_int].argmax() #get maxim hour of peak day
+                            ed_national_heating_peak[year] = heating_demand[fueltype_elec_int][maximum_hour_of_peak_day]
+
+                    simulation_yrs_result = [ed_national_heating_peak[year] for year in simulation_yrs_to_plot]
+                    realisation_data = pd.DataFrame(
+                        [simulation_yrs_result],
+                        columns=data['assumptions']['sim_yrs'])
+                    national_heating_peak = national_heating_peak.append(realisation_data)
+
+                except:
+                    raise Exception("... no heating peak data available " + str(path_result_folder))
+
+                try:
                     # Simulation information is read in from .ini file for results
                     data['enduses'], data['assumptions'], data['regions'] = data_loader.load_ini_param(os.path.join(path_result_folder))
                     pop_data = read_data.read_scenaric_population_data(os.path.join(path_result_folder, 'model_run_pop'))
@@ -173,7 +178,7 @@ def main(
 
                     # --Total demand (dataframe with row: realisation, column=region)
                     realisation_data = pd.DataFrame(
-                        [results_container['ed_reg_tot_y'][simulation_yr_to_plot][fueltype_int]],
+                        [results_container['ed_reg_tot_y'][simulation_yr_to_plot][fueltype_elec_int]],
                         columns=data['regions'])
                     total_regional_demand_electricity = total_regional_demand_electricity.append(realisation_data)
 
@@ -186,8 +191,8 @@ def main(
                     national_electricity = national_electricity.append(realisation_data)
 
                     # National per fueltype gas
-                    fueltype_elec_int = tech_related.get_fueltype_int('gas')
-                    simulation_yrs_result = [results_container['national_all_fueltypes'][year][fueltype_elec_int] for year in simulation_yrs_to_plot]
+                    fueltype_gas_int = tech_related.get_fueltype_int('gas')
+                    simulation_yrs_result = [results_container['national_all_fueltypes'][year][fueltype_gas_int] for year in simulation_yrs_to_plot]
 
                     realisation_data = pd.DataFrame(
                         [simulation_yrs_result],
@@ -195,8 +200,8 @@ def main(
                     national_gas = national_gas.append(realisation_data)
 
                     # National per fueltype hydrogen
-                    fueltype_elec_int = tech_related.get_fueltype_int('hydrogen')
-                    simulation_yrs_result = [results_container['national_all_fueltypes'][year][fueltype_elec_int] for year in simulation_yrs_to_plot]
+                    fueltype_hydrogen_int = tech_related.get_fueltype_int('hydrogen')
+                    simulation_yrs_result = [results_container['national_all_fueltypes'][year][fueltype_hydrogen_int] for year in simulation_yrs_to_plot]
 
                     realisation_data = pd.DataFrame(
                         [simulation_yrs_result],
@@ -205,20 +210,20 @@ def main(
 
                     # --Peak hour demand per region (dataframe with row: realisation, column=region)
                     realisation_data = pd.DataFrame(
-                        [results_container['ed_reg_peakday_peak_hour'][simulation_yr_to_plot][fueltype_int]],
+                        [results_container['ed_reg_peakday_peak_hour'][simulation_yr_to_plot][fueltype_elec_int]],
                         columns=data['regions'])
 
                     peak_hour_demand = peak_hour_demand.append(realisation_data)
 
                     # --Peak hour demand / pop per region (dataframe with row: realisation, column=region)
                     realisation_data = pd.DataFrame(
-                        [results_container['ed_reg_peakday_peak_hour_per_pop'][simulation_yr_to_plot][fueltype_int]],
+                        [results_container['ed_reg_peakday_peak_hour_per_pop'][simulation_yr_to_plot][fueltype_elec_int]],
                         columns=data['regions'])
 
                     peak_hour_demand_per_person = peak_hour_demand_per_person.append(realisation_data)
 
                     # --National peak
-                    simulation_yrs_result = [results_container['national_peak'][year][fueltype_int] for year in simulation_yrs_to_plot]
+                    simulation_yrs_result = [results_container['national_peak'][year][fueltype_elec_int] for year in simulation_yrs_to_plot]
 
                     realisation_data = pd.DataFrame(
                         [simulation_yrs_result],
@@ -239,10 +244,7 @@ def main(
                     regional_share_national_peak_pp = regional_share_national_peak_pp.append(realisation_data)
 
                 except:
-                    #raise Exception("The run '{}' is corrupted".format(path_result_folder))
-                    if not plot_heat_peak_demand:
-                        print("The run '{}' is corrupted".format(path_result_folder), flush=True)
-                    pass 
+                    raise Exception("The run '{}' is corrupted".format(path_result_folder), flush=True) 
 
             # Add to scenario container
             result_entry = {
@@ -265,12 +267,11 @@ def main(
             # ---------------------------------------------------------------
             x_chart_yrs_storage[simulation_yr_to_plot][scenario_name] = result_entry
 
-        #'''
         # ------------------------------
         # Plot national sum over time per fueltype and scenario
         # ------------------------------
         try:
-            crit_smooth_line = True
+            crit_smooth_line = False
             seperate_legend = True
             print("... plotting national sum of fueltype over time ")
             fig_3_plot_over_time.fueltypes_over_time(
@@ -281,10 +282,10 @@ def main(
                 result_path=result_path,
                 unit='TWh',
                 plot_points=True,
-                crit_smooth_line=False,
+                crit_smooth_line=crit_smooth_line,
                 seperate_legend=seperate_legend)
         except:
-            pass
+            raise Exception("FAILS national sum")
 
         # ------------------------------
         # Plot national peak change over time for each scenario including weather variability
@@ -300,7 +301,9 @@ def main(
                 crit_smooth_line=crit_smooth_line,
                 seperate_legend=seperate_legend)
         except:
+            raise Exception("FAILED")
             pass
+
         # ------------------------------
         # Plot heating peak change over time for each scenario including weather variability
         # ------------------------------
@@ -315,133 +318,9 @@ def main(
                 crit_smooth_line=crit_smooth_line,
                 seperate_legend=seperate_legend)
         except:
+            raise Exception("FAILED")
             pass
-    ## ------------------------------
-    ## Plotting spatial maps
-    ## ------------------------------
-    #for simulation_yr_to_plot in simulation_yrs_to_plot:
-    #    print("=================")
-    #    print("...simulation_yr_to_plot: " + str(simulation_yr_to_plot))
-    #    print("=================")
-        '''
-        # ------------------------------
-        # Plotting spatial results for electricity
-        # ------------------------------
-        seperate_legend = False
-        for i in scenario_result_container:
-            scenario_name = i['scenario_name']
 
-            print("... plot spatial map of total annual demand")
-            field_to_plot = 'std_dev'
-            fig_3_weather_map.total_annual_demand(
-                i['total_regional_demand_electricity'],
-                path_shapefile_input,
-                data['regions'],
-                pop_data=pop_data,
-                simulation_yr_to_plot=simulation_yr_to_plot,
-                result_path=result_path,
-                fig_name="{}__tot_demand__{}__{}__{}.pdf".format(scenario_name, field_to_plot, fueltype_str, simulation_yr_to_plot),
-                field_to_plot=field_to_plot,
-                unit='GW',
-                seperate_legend=seperate_legend)
-
-            print("... plot spatial map of peak hour demand")
-            field_to_plot = 'std_dev'
-            fig_3_weather_map.total_annual_demand(
-                i['peak_hour_demand'],
-                path_shapefile_input,
-                data['regions'],
-                pop_data=pop_data,
-                simulation_yr_to_plot=simulation_yr_to_plot,
-                result_path=result_path,
-                fig_name="{}__peak_h_demand__{}__{}__{}.pdf".format(scenario_name, field_to_plot, fueltype_str, simulation_yr_to_plot),
-                field_to_plot=field_to_plot,
-                unit='GW',
-                seperate_legend=seperate_legend)
-
-            print("... plot spatial map of peak hour per pop (reg peak / pop)")
-            field_to_plot = 'mean'
-            fig_3_weather_map.total_annual_demand(
-                i['peak_hour_demand_per_person'],
-                path_shapefile_input,
-                data['regions'],
-                pop_data=pop_data,
-                simulation_yr_to_plot=simulation_yr_to_plot,
-                result_path=result_path,
-                fig_name="{}__peak_h_demand_per_person__{}__{}__{}.pdf".format(scenario_name, field_to_plot, fueltype_str, simulation_yr_to_plot),
-                field_to_plot=field_to_plot,
-                unit='GW',
-                seperate_legend=seperate_legend)
-
-            # ---------------------------------------
-            print(" ")
-            print("... plot spatial map of percentage of regional peak hour demand")
-            print(" ")
-            # ---------------------------------------
-            print("    ... print mean   max val: " + str(np.max(i['regional_share_national_peak'].values)))
-            field_to_plot = 'mean'
-            fig_3_weather_map.total_annual_demand(
-                i['regional_share_national_peak'],
-                path_shapefile_input,
-                data['regions'],
-                pop_data=pop_data,
-                simulation_yr_to_plot=simulation_yr_to_plot,
-                result_path=result_path,
-                fig_name="{}__regional_share_national_peak__{}__{}__{}.pdf".format(scenario_name, field_to_plot, fueltype_str, simulation_yr_to_plot),
-                field_to_plot=field_to_plot,
-                unit='percentage',
-                seperate_legend=seperate_legend,
-                bins=[0.000001, 0.25, 0.5, 0.75, 1, 1.25]) #, 1.5])
-            
-            print("    ... print std_dev")
-            field_to_plot = 'std_dev'
-            fig_3_weather_map.total_annual_demand(
-                i['regional_share_national_peak'],
-                path_shapefile_input,
-                data['regions'],
-                pop_data=pop_data,
-                simulation_yr_to_plot=simulation_yr_to_plot,
-                result_path=result_path,
-                fig_name="{}__regional_share_national_peak__{}__{}__{}.pdf".format(scenario_name, field_to_plot, fueltype_str, simulation_yr_to_plot),
-                field_to_plot=field_to_plot,
-                unit='percentage',
-                seperate_legend=seperate_legend)
-
-            # ---------------------------------------
-            print(" ")
-            print("... plot spatial map of percentage of regional peak hour demand per person (reg peak percentage) / pop [%]")
-            print(" ")
-            # ---------------------------------------
-            print("    ... print mean")
-            field_to_plot = 'mean'
-            fig_3_weather_map.total_annual_demand(
-                i['regional_share_national_peak_pp'],
-                path_shapefile_input,
-                data['regions'],
-                pop_data=pop_data,
-                simulation_yr_to_plot=simulation_yr_to_plot,
-                result_path=result_path,
-                fig_name="{}__regional_share_national_peak_pp___{}__{}__{}.pdf".format(scenario_name, field_to_plot, fueltype_str, simulation_yr_to_plot),
-                field_to_plot=field_to_plot,
-                unit='percentage',
-                seperate_legend=seperate_legend,
-                bins=[i/1000000 for i in [0.000001, 0.25, 0.5, 0.75, 1, 1.25, 1.5]])
-
-            print("    ... print std_dev")
-            field_to_plot = 'std_dev'
-            fig_3_weather_map.total_annual_demand(
-                i['regional_share_national_peak_pp'],
-                path_shapefile_input,
-                data['regions'],
-                pop_data=pop_data,
-                simulation_yr_to_plot=simulation_yr_to_plot,
-                result_path=result_path,
-                fig_name="{}__regional_share_national_peak_pp__{}__{}__{}.pdf".format(scenario_name, field_to_plot, fueltype_str, simulation_yr_to_plot),
-                field_to_plot=field_to_plot,
-                unit='percentage',
-                seperate_legend=seperate_legend)
-
-        '''
     ## ------------------------------
     ## Plotting x-chart
     ## ------------------------------
@@ -461,12 +340,7 @@ def main(
 
 # Code to run charts generation for weather paper
 main(
-    #scenarios_path="C:/_WEATHER_p3",
-    #scenarios_path="C:/_TESTTEST",
-    plot_heat_peak_demand=True,
-    #scenarios_path="//linux-filestore.ouce.ox.ac.uk/mistral/nismod/data/energy_demand/_p3_results_weather_second_ROUDN", #"C:/_WEATHER_p3_NEWRUN",
-    scenarios_path="//linux-filestore.ouce.ox.ac.uk/mistral/nismod/data/energy_demand/_p3_only_peak_heating", #"C:/_WEATHER_p3_NEWRUN",
-    #scenarios_path="//linux-filestore.ouce.ox.ac.uk/mistral/nismod/data/energy_demand/_p3_results_TEST",
+    scenarios_path="//linux-filestore.ouce.ox.ac.uk/mistral/nismod/data/energy_demand/_p3_weather_final",
     path_shapefile_input="C:/Users/cenv0553/ED/data/region_definitions/lad_2016_uk_simplified.shp",
     base_yr=2015,
     simulation_yrs_to_plot=[2015, 2020, 2025, 2030, 2035, 2040, 2045, 2050])

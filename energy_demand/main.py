@@ -6,7 +6,7 @@ Always execute from root folder and pass the path to the .ini file as argument:
 
     Example:
     python energy_demand/energy_demand/main.py C:/Users/cenv0553/ed/energy_demand/local_run_config_file.ini test_run
-    python energy_demand/energy_demand/main.py C:/Users/cenv0553/ed/energy_demand/local_run_config_file.ini h_max 0 h_max
+    python energy_demand/energy_demand/main.py C:/Users/cenv0553/ed/energy_demand/local_run_config_file.ini h_max NF1 h_max
 """
 import os
 import sys
@@ -122,8 +122,8 @@ if __name__ == "__main__":
         path_weather_data = "/soge-home/staff/cenv0553/_weather_realisation"
     else:
         path_weather_data = "C:/Users/cenv0553/ED/data/scenarios"
-        path_weather_data = "//linux-filestore.ouce.ox.ac.uk/mistral/nismod/data/energy_demand/J-MARIUS_data/_weather_realisation"
-        path_weather_data = 'L:\_weather_realisation'
+        #path_weather_data = "//linux-filestore.ouce.ox.ac.uk/mistral/nismod/data/energy_demand/J-MARIUS_data/_weather_realisation"
+        #path_ = 'L:\_weather_realisation'
         #path_weather_data = "/soge-home/staff/cenv0553/_weather_realisation"
 
     if name_config_path == 'h_max' or name_config_path == 'l_max' or name_config_path in ['test_run', 'h_max_0', 'h_max_10', 'h_max_0_only', 'h_max_10_only']:
@@ -551,21 +551,6 @@ if __name__ == "__main__":
                 national_hourly_demand = np.sum(sim_obj.ed_fueltype_regs_yh[fueltype_int], axis=0)
                 peak_day_electricity, _ = enduse_func.get_peak_day_single_fueltype(national_hourly_demand)
                 selected_hours = date_prop.convert_yearday_to_8760h_selection(peak_day_electricity)
-                print("PEAK electricity: " + str(np.max(national_hourly_demand[selected_hours])))
-                raise Exception("PEAK EXCEPTION")
-
-                # PLot only residential total regional annual demand and
-                '''write_data.write_residential_tot_demands(
-                    sim_yr,
-                    data['weather_yr_result_paths']['data_results_model_run_results_txt'],
-                    sim_obj.ed_residential_tot_reg_y,
-                    "ed_residential_tot_reg_y")
-                write_data.write_supply_results(
-                    sim_yr,
-                    "ed_fueltype_regs_yh",
-                    data['weather_yr_result_paths']['data_results_model_run_results_txt'],
-                    sim_obj.ed_fueltype_regs_yh,
-                    "result_tot_submodels_fueltypes")'''
             else:
                 write_data.write_residential_tot_demands(
                     sim_yr,

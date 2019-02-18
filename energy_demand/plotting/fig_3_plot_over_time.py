@@ -17,14 +17,14 @@ from energy_demand.read_write import write_data
 
 colors = {
     # High elec
-    'h_min': '#2c7bb6', ##004529',
+    'h_min': 'darkgreen', ##2c7bb6', ##004529',
     'h_c': '#238443',
     'h_max': '#d7191c', #'#78c679',
 
     # Low elec
-    'l_min': 'dodgerblue', #abd9e9', ##800026',
+    'l_min': 'steelblue', #abd9e9', ##800026',
     'l_c': '#e31a1c',
-    'l_max': '#fdae61', ##fd8d3c',
+    'l_max': 'darkorchid', #fdae61', ##fd8d3c',
 
     'other1': '#C044FF',
     'other2': '#3DF735',
@@ -96,8 +96,8 @@ def scenario_over_time(
 
         # dataframe with national peak (columns= simulation year, row: Realisation) 
         # Calculate quantiles
-        quantile_95 = 0.68 #0.95 #0.68
-        quantile_05 = 0.32 #0.05 #0.32
+        #quantile_95 = 0.68 #0.95 #0.68
+        #quantile_05 = 0.32 #0.05 #0.32
 
         try:
             color = colors[scenario_name]
@@ -114,18 +114,29 @@ def scenario_over_time(
 
         # Calculate average across all weather scenarios
         mean_national_peak = national_peak.mean(axis=0)
+
         mean_national_peak_sim_yrs = copy.copy(mean_national_peak)
 
         statistics_to_print.append("scenario: {} values over years: {}".format(scenario_name, mean_national_peak_sim_yrs))
 
         # Standard deviation over all realisations
-        df_q_05 = national_peak.quantile(quantile_05)
-        df_q_95 = national_peak.quantile(quantile_95)
+        #df_q_05 = national_peak.quantile(quantile_05)
+        #df_q_95 = national_peak.quantile(quantile_95)
 
-        statistics_to_print.append("scenario: {} df_q_05: {}".format(scenario_name, df_q_05))
-        statistics_to_print.append("scenario: {} df_q_95: {}".format(scenario_name, df_q_95))
+        # Number of sigma
+        nr_of_sigma = 1
+        std_dev = national_peak.std(axis=0)
+        two_std_line_pos = mean_national_peak + (nr_of_sigma * std_dev)
+        two_std_line_neg = mean_national_peak - (nr_of_sigma * std_dev)
+
+        # Maximum and minium values
+        max_values = np.max(national_peak)
+        min_values = np.min(national_peak)
+
+        statistics_to_print.append("scenario: {} two_sigma_pos: {}".format(scenario_name, two_std_line_pos))
+        statistics_to_print.append("scenario: {} two_sigma_neg: {}".format(scenario_name, two_std_line_neg))
         statistics_to_print.append("--------min-------------- {}".format(scenario_name))
-        statistics_to_print.append("{}".format(np.min(national_peak)))
+        statistics_to_print.append("{}".format(np.min(national_peak))) #Get minimum value for every simulation year of all realizations
         statistics_to_print.append("--------max-------------- {}".format(scenario_name))
         statistics_to_print.append("{}".format(np.max(national_peak)))
 
@@ -136,12 +147,20 @@ def scenario_over_time(
         if crit_smooth_line:
             try:
                 sim_yrs_smoothed, mean_national_peak_smoothed = basic_plot_functions.smooth_data(sim_yrs, mean_national_peak, num=40000)
-                _, df_q_05_smoothed = basic_plot_functions.smooth_data(sim_yrs, df_q_05, num=40000)
-                _, df_q_95_smoothed = basic_plot_functions.smooth_data(sim_yrs, df_q_95, num=40000)
-
+                #_, df_q_05_smoothed = basic_plot_functions.smooth_data(sim_yrs, df_q_05, num=40000)
+                #_, df_q_95_smoothed = basic_plot_functions.smooth_data(sim_yrs, df_q_95, num=40000)
+                _, two_std_line_pos_smoothed = basic_plot_functions.smooth_data(sim_yrs, two_std_line_pos, num=40000)
+                _, two_std_line_neg_smoothed = basic_plot_functions.smooth_data(sim_yrs, two_std_line_neg, num=40000)
+                _, max_values_smoothed = basic_plot_functions.smooth_data(sim_yrs, max_values, num=40000)
+                _, min_values_smoothed = basic_plot_functions.smooth_data(sim_yrs, min_values, num=40000)
                 mean_national_peak = pd.Series(mean_national_peak_smoothed, sim_yrs_smoothed)
-                df_q_05 = pd.Series(df_q_05_smoothed, sim_yrs_smoothed)
-                df_q_95 = pd.Series(df_q_95_smoothed, sim_yrs_smoothed)
+                #df_q_05 = pd.Series(df_q_05_smoothed, sim_yrs_smoothed)
+                #df_q_95 = pd.Series(df_q_95_smoothed, sim_yrs_smoothed)
+                two_std_line_pos = pd.Series(two_std_line_pos_smoothed, sim_yrs_smoothed)
+                two_std_line_neg = pd.Series(two_std_line_neg_smoothed, sim_yrs_smoothed)
+
+                max_values = pd.Series(max_values_smoothed, sim_yrs_smoothed).values
+                min_values = pd.Series(min_values_smoothed, sim_yrs_smoothed).values
             except:
                 sim_yrs_smoothed = sim_yrs
 
@@ -173,7 +192,7 @@ def scenario_over_time(
         # Start with uncertainty one model step later (=> 2020)
         # ------------------
         start_yr_uncertainty = 2020
-        
+
         if crit_smooth_line:
             #Get position in array of start year uncertainty
             pos_unc_yr = len(np.where(sim_yrs_smoothed < start_yr_uncertainty)[0])
@@ -183,21 +202,34 @@ def scenario_over_time(
                 if year == start_yr_uncertainty:
                     pos_unc_yr = cnt
 
-        # Shorten lines
-        df_q_05 = df_q_05.loc[start_yr_uncertainty:] #select based on index which is year
-        df_q_95 = df_q_95.loc[start_yr_uncertainty:]
+        # select based on index which is year
+        #df_q_05 = df_q_05.loc[start_yr_uncertainty:]
+        #df_q_95 = df_q_95.loc[start_yr_uncertainty:]
+        two_std_line_pos = two_std_line_pos.loc[start_yr_uncertainty:]
+        two_std_line_neg = two_std_line_neg.loc[start_yr_uncertainty:]
         sim_yrs_smoothed = sim_yrs_smoothed[pos_unc_yr:]
+
+        min_values = min_values[pos_unc_yr:] #min_values.loc[start_yr_uncertainty:]
+        max_values = max_values[pos_unc_yr:] #max_values.loc[start_yr_uncertainty:]
 
         # --------------------------------------
         # Plottin qunatilse and average scenario
         # --------------------------------------
-        df_q_05.plot.line(color=color, linestyle='--', linewidth=0.1, label='_nolegend_')
-        df_q_95.plot.line(color=color, linestyle='--', linewidth=0.1, label='_nolegend_')
+        #df_q_05.plot.line(color=color, linestyle='--', linewidth=0.1, label='_nolegend_')
+        #df_q_95.plot.line(color=color, linestyle='--', linewidth=0.1, label='_nolegend_')
+
+        # Plot standard deviation
+        #two_std_line_pos.plot.line(color=color, linestyle='--', linewidth=0.1, label='_nolegend_')
+        #two_std_line_neg.plot.line(color=color, linestyle='--', linewidth=0.1, label='_nolegend_')
+
+        # plot min and maximum values
+        plt.plot(sim_yrs_smoothed, min_values, color=color, linestyle='--', linewidth=0.1, label='_nolegend_')
+        plt.plot(sim_yrs_smoothed, max_values, color=color, linestyle='--', linewidth=0.1, label='_nolegend_')
 
         plt.fill_between(
             sim_yrs_smoothed,
-            list(df_q_95),  #y1
-            list(df_q_05),  #y2
+            list(two_std_line_pos),
+            list(two_std_line_neg),
             alpha=0.25,
             facecolor=color)
 
@@ -465,14 +497,9 @@ def fueltypes_over_time(
 
             national_sum = national_sum * unit_factor
 
-            # Calculate quantiles
-            quantile_95 = 0.95
-            quantile_05 = 0.05
-
             try:
                 color = colors[fueltype_str]
             except KeyError:
-                #color = list(colors.values())[cnt_linestyle]
                 raise Exception("Wrong color")
 
             try:
@@ -491,11 +518,14 @@ def fueltypes_over_time(
             statistics_to_print.append("{} fueltype_str: {} mean_national_sum_sim_yrs: {}".format(scenario_name, fueltype_str, mean_national_sum_sim_yrs))
 
             # Standard deviation over all realisations
-            df_q_05 = national_sum.quantile(quantile_05)
-            df_q_95 = national_sum.quantile(quantile_95)
+            std = np.std(national_sum)
 
-            statistics_to_print.append("{} fueltype_str: {} df_q_05: {}".format(scenario_name, fueltype_str, df_q_05))
-            statistics_to_print.append("{} fueltype_str: {} df_q_95: {}".format(scenario_name, fueltype_str, df_q_95))
+            nr_of_sigma = 1
+            pos_sigma = mean_national_sum + (nr_of_sigma * std)
+            neg_sigma = mean_national_sum - (nr_of_sigma * std)
+
+            statistics_to_print.append("{} fueltype_str: {} pos_sigma: {}".format(scenario_name, fueltype_str, pos_sigma))
+            statistics_to_print.append("{} fueltype_str: {} neg_sigma: {}".format(scenario_name, fueltype_str, neg_sigma))
 
             # --------------------
             # Try to smooth lines
@@ -504,15 +534,15 @@ def fueltypes_over_time(
             if crit_smooth_line:
                 try:
                     sim_yrs_smoothed, mean_national_sum_smoothed = basic_plot_functions.smooth_data(sim_yrs, mean_national_sum, num=500)
-                    _, df_q_05_smoothed = basic_plot_functions.smooth_data(sim_yrs, df_q_05, num=500)
-                    _, df_q_95_smoothed = basic_plot_functions.smooth_data(sim_yrs, df_q_95, num=500)
-
-                    mean_national_sum = pd.Series(mean_national_sum_smoothed, sim_yrs_smoothed)
-                    df_q_05 = pd.Series(df_q_05_smoothed, sim_yrs_smoothed)
-                    df_q_95 = pd.Series(df_q_95_smoothed, sim_yrs_smoothed)
+                    _, pos_sigma_smoothed = basic_plot_functions.smooth_data(sim_yrs, pos_sigma, num=500)
+                    _, neg_sigma_smoothed = basic_plot_functions.smooth_data(sim_yrs, neg_sigma, num=500)
+                    mean_national_sum = pd.Series(mean_national_sum_smoothed, sim_yrs_smoothed)                 
+                    
+                    pos_sigma = pd.Series(pos_sigma_smoothed, sim_yrs_smoothed).values
+                    neg_sigma = pd.Series(neg_sigma_smoothed, sim_yrs_smoothed).values
                 except:
-                    print("did not owrk {} {}".format(fueltype_str, scenario_name))
-                    pass
+                    pos_sigma = pos_sigma.values
+                    neg_sigma = neg_sigma.values
             
             # ------------------------
             # Plot lines
@@ -555,18 +585,21 @@ def fueltypes_over_time(
                         pos_unc_yr = cnt
 
             # Shorten lines
-            df_q_05 = df_q_05.loc[start_yr_uncertainty:]
-            df_q_95 = df_q_95.loc[start_yr_uncertainty:]
+            #pos_sigma = pos_sigma.loc[start_yr_uncertainty:]
+            #neg_sigma = neg_sigma.loc[start_yr_uncertainty:]
+            pos_sigma = pos_sigma[pos_unc_yr:]
+            neg_sigma = neg_sigma[pos_unc_yr:]
+
             sim_yrs_smoothed = sim_yrs_smoothed[pos_unc_yr:]
 
-            df_q_05.plot.line(color=color, linestyle='--', linewidth=0.1, label='_nolegend_')
-            df_q_95.plot.line(color=color, linestyle='--', linewidth=0.1, label='_nolegend_')
+            plt.plot(sim_yrs_smoothed, pos_sigma, color=color, linestyle='--', linewidth=0.1, label='_nolegend_')
+            plt.plot(sim_yrs_smoothed, neg_sigma, color=color, linestyle='--', linewidth=0.1, label='_nolegend_')
 
             # Plotting qunatilse and average scenario
             plt.fill_between(
                 sim_yrs_smoothed,
-                list(df_q_95),  #y1
-                list(df_q_05),  #y2
+                list(pos_sigma),  #y1
+                list(neg_sigma),  #y2
                 alpha=0.25,
                 facecolor=color)
 
@@ -616,7 +649,6 @@ def fueltypes_over_time(
     # Legend
     # --------
     legend = plt.legend(
-        #title="tt",
         ncol=2,
         prop={'size': 6},
         loc='upper center',
