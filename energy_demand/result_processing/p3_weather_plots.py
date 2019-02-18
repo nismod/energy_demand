@@ -271,7 +271,7 @@ def main(
         # Plot national sum over time per fueltype and scenario
         # ------------------------------
         try:
-            crit_smooth_line = True
+            crit_smooth_line = False
             seperate_legend = True
             print("... plotting national sum of fueltype over time ")
             fig_3_plot_over_time.fueltypes_over_time(
