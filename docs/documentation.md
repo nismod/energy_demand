@@ -556,6 +556,8 @@ To calculate regional daily hourly load heating profiles, hourly temperature dat
 - The station ID can be retreived [here](http://badc.nerc.ac.uk/cgi-bin/midas_stations/search_by_name.cgi.py?name=&minyear=&maxyear=)
 - Metadatda of raw data can be found [here](http://artefacts.ceda.ac.uk/badc_datadocs/ukmo-midas/WH_Table.html)
 
+Alternatively, daily minimum and maximum temperature data can be downloaded from the [ weather@home dataset](https://catalogue.ceda.ac.uk/uuid/0cea8d7aca57427fae92241348ae9b03).
+
 ### 4.5 Census data
 Employment statistics from the census (Office for National Statistics 2011)
 are used to disaggregate industry related energy demands for different end uses and sectors.

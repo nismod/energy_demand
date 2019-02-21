@@ -33,7 +33,6 @@ path_results = "//linux-filestore.ouce.ox.ac.uk/mistral/nismod/data/energy_deman
 
 # Scenario definitions
 all_scenarios = ['h_max']#, 'h_min', 'l_max', 'l_min']
-all_scenarios = ['l_min']
 fueltypes = ['electricity', 'gas', 'hydrogen']
 folder_types = ['mean', 'pos_two_sigma', 'neg_two_sigma']
 simulation_yrs = range(2015, 2051, 5)
