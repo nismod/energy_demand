@@ -617,6 +617,7 @@ def service_switch(df_service_switches):
         sector                      [str]   Optional sector specific info where switch applies
     """
     service_switches = []
+    default_parameter = 999.0   #default parameter
 
     for i in df_service_switches.index:
         enduse = df_service_switches.at[i, 'enduses_service_switch']
@@ -625,7 +626,10 @@ def service_switch(df_service_switches):
         switch_yr = df_service_switches.at[i, 'end_yr']
         sector = df_service_switches.at[i, 'sector']
 
-        if float(service_share_ey) == 999.0: #default parameter
+        if sector == 'None':
+            sector = None
+
+        if float(service_share_ey) == default_parameter:
             pass
         else:
             service_switches.append(

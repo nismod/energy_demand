@@ -93,7 +93,8 @@ if __name__ == "__main__":
     config = data_loader.read_config_file(path_config)
 
     data = {}
-    sim_yrs = [2015, 2020, 2025, 2030, 2035, 2040, 2045, 2050]
+    #sim_yrs = [2015, 2020, 2025, 2030, 2035, 2040, 2045, 2050]
+    sim_yrs = [2015, 2030, 2050]
 
     if len(sys.argv) > 3: #user defined arguments are provide
         print("Arguments taken from comand line")

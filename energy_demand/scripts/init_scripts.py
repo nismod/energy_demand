@@ -241,6 +241,8 @@ def switch_calculations(
         for enduse in data['enduses'][submodel_name]:
             for sector in data['sectors'][submodel_name]:
                 print("... calculating fuel switches {}  {}  {}".format(submodel_name, enduse, sector))
+                print("======d======= " + str(data['assumptions'].fuel_tech_p_by[enduse][sector]))
+                print("Z " + str(s_fueltype_by_p))
                 diffusion_param_tech[enduse][sector] = sig_param_calc_incl_fuel_switch(
                     narrative_timesteps,
                     data['assumptions'].base_yr,
@@ -275,11 +277,12 @@ def switch_calculations(
     for region in annual_tech_diff_params:
         for enduse in annual_tech_diff_params[region]:
             for sector in annual_tech_diff_params[region][enduse]:
-
+                #print("TTI: {} {}  {}".format(enduse, sector, annual_tech_diff_params[region][enduse][sector]))
                 for year in sim_yrs:
                     if annual_tech_diff_params[region][enduse][sector] != []:
                         assigned_service_p = 0
                         for tech in annual_tech_diff_params[region][enduse][sector]:
+                            #print("TECH {}  {} {}".format(tech, enduse, sector))
                             assigned_service_p += annual_tech_diff_params[region][enduse][sector][tech][year]
 
                         # Distribute if not sum up to one according to base year distribution
@@ -298,6 +301,7 @@ def switch_calculations(
 
                         assert round(assigned_service_p, 2) == 1
 
+    print("Finished calculateding switch_calculations")
     return annual_tech_diff_params
 
 def spatial_explicit_modelling_strategy_vars(
@@ -685,6 +689,7 @@ def sig_param_calc_incl_fuel_switch(
                 # ------------------------------------------
                 if crit_switch_service:
                     print(".... service switch")
+                    print("KK " + str(share_s_tech_ey_p))
                     # Calculate only from service switch
                     s_tech_switched_p = share_s_tech_ey_p
 
@@ -768,6 +773,9 @@ def sig_param_calc_incl_fuel_switch(
                 print("---------- switches %s %s %s", enduse, crit_switch_service, crit_fuel_switch)
                 if crit_all_the_same:
                     print("... calc parameters of `{}` for year `{}`  {}".format(enduse, switch_yr, sector))
+                    print("FF {} ".format(s_tech_switched_p[any_region][switch_yr]))
+                    print("---")
+                    print(fuel_tech_p_by)
                     sig_param_tech_all_regs_value = s_generate_sigmoid.tech_sigmoid_parameters(
                         switch_yr,
                         switch_yr_start,

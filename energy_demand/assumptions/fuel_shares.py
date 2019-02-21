@@ -301,7 +301,8 @@ def assign_by_fuel_tech_p(
 
     fuel_tech_p_by['is_space_heating'][fueltypes['electricity']] = {
         'secondary_heater_electricity': 0.95,
-        'heat_pumps_electricity': 0.05}
+        'heat_pumps_electricity': 0.05,
+        'storage_heater_electricity': 0}
 
     fuel_tech_p_by['is_space_heating'][fueltypes['oil']] = {
         'boiler_condensing_oil': 0.6,
