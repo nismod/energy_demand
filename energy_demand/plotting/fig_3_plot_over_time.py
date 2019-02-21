@@ -223,8 +223,8 @@ def scenario_over_time(
         #two_std_line_neg.plot.line(color=color, linestyle='--', linewidth=0.1, label='_nolegend_')
 
         # plot min and maximum values
-        plt.plot(sim_yrs_smoothed, min_values, color=color, linestyle='--', linewidth=0.1, label='_nolegend_')
-        plt.plot(sim_yrs_smoothed, max_values, color=color, linestyle='--', linewidth=0.1, label='_nolegend_')
+        plt.plot(sim_yrs_smoothed, min_values, color=color, linestyle='--', linewidth=0.3, label='_nolegend_')
+        plt.plot(sim_yrs_smoothed, max_values, color=color, linestyle='--', linewidth=0.3, label='_nolegend_')
 
         plt.fill_between(
             sim_yrs_smoothed,

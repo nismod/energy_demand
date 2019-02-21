@@ -4,7 +4,7 @@ Note
 ----
 Always execute from root folder and pass the path to the .ini file as argument:
 
-    Example:
+    Examples
     python energy_demand/energy_demand/main.py C:/Users/cenv0553/ed/energy_demand/local_run_config_file.ini test_run
     python energy_demand/energy_demand/main.py C:/Users/cenv0553/ed/energy_demand/local_run_config_file.ini h_max NF1 h_max
 """
@@ -94,8 +94,6 @@ if __name__ == "__main__":
 
     data = {}
     sim_yrs = [2015, 2020, 2025, 2030, 2035, 2040, 2045, 2050]
-    sim_yrs = [2015, 2050]
-
 
     if len(sys.argv) > 3: #user defined arguments are provide
         print("Arguments taken from comand line")
@@ -122,14 +120,11 @@ if __name__ == "__main__":
         path_weather_data = "/soge-home/staff/cenv0553/_weather_realisation"
     else:
         path_weather_data = "C:/Users/cenv0553/ED/data/scenarios"
-        #path_weather_data = "//linux-filestore.ouce.ox.ac.uk/mistral/nismod/data/energy_demand/J-MARIUS_data/_weather_realisation"
-        #path_ = 'L:\_weather_realisation'
-        #path_weather_data = "/soge-home/staff/cenv0553/_weather_realisation"
 
     if name_config_path == 'h_max' or name_config_path == 'l_max' or name_config_path in ['test_run', 'h_max_0', 'h_max_10', 'h_max_0_only', 'h_max_10_only']:
-        local_scenario = 'pop-b_econ-c_fuel-c' #high
+        local_scenario = 'pop-b_econ-c_fuel-c'
     elif name_config_path == 'h_min' or name_config_path == 'l_min' or name_config_path in ['h_min_zero', 'h_min_5dm', 'h_min_10dm']:
-        local_scenario = 'pop-f_econ-c_fuel-c' #low
+        local_scenario = 'pop-f_econ-c_fuel-c'
 
     # --- Paths
     path_strategy_vars = os.path.join(config['DATA_PATHS']['path_strategy_vars'], name_config_path)
