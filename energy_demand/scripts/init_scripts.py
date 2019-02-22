@@ -241,8 +241,8 @@ def switch_calculations(
         for enduse in data['enduses'][submodel_name]:
             for sector in data['sectors'][submodel_name]:
                 print("... calculating fuel switches {}  {}  {}".format(submodel_name, enduse, sector))
-                #print("======d======= " + str(data['assumptions'].fuel_tech_p_by[enduse][sector]))
-                print("Z " + str(s_fueltype_by_p[sector][enduse]))
+                print("======d======= " + str(data['assumptions'].fuel_tech_p_by[enduse][sector]))
+                #print("Z " + str(s_fueltype_by_p[sector][enduse]))
                 diffusion_param_tech[enduse][sector] = sig_param_calc_incl_fuel_switch(
                     narrative_timesteps,
                     data['assumptions'].base_yr,
@@ -637,10 +637,11 @@ def sig_param_calc_incl_fuel_switch(
     """
     sig_param_tech = {}
     if sum(s_tech_by_p.values()) == 0: # no fuel is defined for enduse
-        #logging.info("no fuel is defined for enduse `{}` and sector `{}`".format(enduse, sector))
+        logging.info("no fuel is defined for enduse `{}` and sector `{}`".format(enduse, sector))
         pass
     else:
         if share_s_tech_ey_p == {}:
+            print("ERGOTGO")
             pass
         else:
             if sector not in list(share_s_tech_ey_p.keys()) or enduse not in list(share_s_tech_ey_p[sector].keys()):
@@ -689,7 +690,7 @@ def sig_param_calc_incl_fuel_switch(
                 # ------------------------------------------
                 if crit_switch_service:
                     print(".... service switch")
-                    if enduse == 'is_space_heating' and 'E06000001' not in share_s_tech_ey_p.keys():
+                    if enduse == 'is_space_heating': # and 'E06000001' not in share_s_tech_ey_p.keys():
                         print(".ttt "+ str(share_s_tech_ey_p))
                     #print("KK " + str(share_s_tech_ey_p))
                     # Calculate only from service switch
@@ -776,7 +777,7 @@ def sig_param_calc_incl_fuel_switch(
                 if crit_all_the_same:
                     print("... calc parameters of `{}` for year `{}`  {}".format(enduse, switch_yr, sector))
                     print("FF {} {} ".format(switch_yr, s_tech_switched_p[any_region][switch_yr]))
-                    print("---")
+                    print("-weda--")
                     print(fuel_tech_p_by)
                     sig_param_tech_all_regs_value = s_generate_sigmoid.tech_sigmoid_parameters(
                         switch_yr,
