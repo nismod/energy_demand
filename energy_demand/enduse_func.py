@@ -1688,7 +1688,6 @@ def generic_fuel_switch(
 
     if switch_defined is True:
         for fueltype_new_int in fuel_switch.keys():
-
             if fuel_switch[fueltype_new_int][curr_yr] != 0:
 
                 # Get fueltype to switch to (new)

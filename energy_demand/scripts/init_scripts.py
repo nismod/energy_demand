@@ -181,7 +181,7 @@ def switch_calculations(
     narrative_timesteps.update(get_all_narrative_timesteps(service_switches))
     narrative_timesteps.update(get_all_narrative_timesteps(fuel_switches))
     narrative_timesteps.update(get_all_narrative_timesteps(capacity_switches))
- 
+
     # ========================================================================================
     # Capacity switches
     #
@@ -229,14 +229,6 @@ def switch_calculations(
         techs_affected_spatial_f=data['assumptions'].techs_affected_spatial_f,
         service_switches_from_capacity=service_switches_incl_cap)
 
-    '''print(share_s_tech_ey_p.keys())
-    try:
-        print("aa "  + str(share_s_tech_ey_p['E06000001'][2050]))
-    except:
-        print("FFAIL")
-        print("aa "  + str(share_s_tech_ey_p['electrical_equipment']['E06000001'][2050]))
-        pass
-    raise Exception("TT")'''
     # ========================================================================================
     # Fuel switches
     #
@@ -249,7 +241,7 @@ def switch_calculations(
         for enduse in data['enduses'][submodel_name]:
             for sector in data['sectors'][submodel_name]:
                 print("... calculating fuel switches {}  {}  {}".format(submodel_name, enduse, sector))
-                print("======d======= " + str(data['assumptions'].fuel_tech_p_by[enduse][sector]))
+                #print("======d======= " + str(data['assumptions'].fuel_tech_p_by[enduse][sector]))
                 print("Z " + str(s_fueltype_by_p[sector][enduse]))
                 diffusion_param_tech[enduse][sector] = sig_param_calc_incl_fuel_switch(
                     narrative_timesteps,
@@ -697,7 +689,9 @@ def sig_param_calc_incl_fuel_switch(
                 # ------------------------------------------
                 if crit_switch_service:
                     print(".... service switch")
-                    print("KK " + str(share_s_tech_ey_p))
+                    if enduse == 'is_space_heating' and 'E06000001' not in share_s_tech_ey_p.keys():
+                        print(".ttt "+ str(share_s_tech_ey_p))
+                    #print("KK " + str(share_s_tech_ey_p))
                     # Calculate only from service switch
                     s_tech_switched_p = share_s_tech_ey_p
 

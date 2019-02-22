@@ -208,11 +208,16 @@ def get_s_fueltype_tech(
         # Convert service per enduse
         for fueltype in s_fueltype_by_p[enduse][sector]:
             with np.errstate(divide='ignore'):
-                s_fueltype_by_p[enduse][sector][fueltype] = s_fueltype_by_p[enduse][sector][fueltype] / total_s
+                if total_s == 0:
+                    s_fueltype_by_p[enduse][sector][fueltype] = 0
+                else:
+                    s_fueltype_by_p[enduse][sector][fueltype] = s_fueltype_by_p[enduse][sector][fueltype] / total_s
+                
+                #TODO KAMEL OLD ORIGINAL s_fueltype_by_p[enduse][sector][fueltype] = s_fueltype_by_p[enduse][sector][fueltype] / total_s
 
     #warnings.filterwarnings('ignore') # Ignore warnings
     # Test if the energy service for all technologies is 100%
-    # Test if within fueltype always 100 energy service 
+    # Test if within fueltype always 100 energy service
     for enduse, s_p_techs in s_tech_by_p.items():
         sum_enduse = sum(s_p_techs.values())
         if round(sum_enduse, 2) != 0: # if total is zero, no demand provided
