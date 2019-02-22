@@ -166,6 +166,18 @@ def create_switches_from_s_shares(
 
     # If no fuel is assigned to enduse, do not change switches
     if tot_share_not_assigned == 0:
+
+        # Add zero share for all technologies not assigned if sums up to 100%
+        zero_share = 0
+        for tech in tech_not_assigned_by_p:
+            switch_new = read_data.ServiceSwitch(
+                enduse=enduse,
+                sector=sector,
+                technology_install=tech,
+                service_share_ey=zero_share,
+                switch_yr=switch_yr)
+            enduse_switches.append(switch_new)
+
         service_switches_out = enduse_switches
     else:
         for tech, share_by in tech_not_assigned_by_p.items():
@@ -367,7 +379,6 @@ def autocomplete_switches(
 
                 # Execut function for every narrative year
                 for switch_yr in switch_yrs:
-
                     enduse_switches = []
                     s_tot_defined = 0
                     switch_technologies = []
