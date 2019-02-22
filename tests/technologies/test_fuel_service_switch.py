@@ -124,7 +124,7 @@ def test_create_switches_from_s_shares():
         enduse='heating',
         s_tech_by_p= {None:{'heating': {'techA': 0.2, 'techB': 0.8}}},
         switch_technologies=['techA'],
-        specified_tech_enduse_by={'heating': {None:  ['techA', 'techB']}},
+        tech_enduse_by=['techA', 'techB'],
         enduse_switches=enduse_switches,
         s_tot_defined=0.6,
         sector=None,

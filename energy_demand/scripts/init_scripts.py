@@ -229,6 +229,14 @@ def switch_calculations(
         techs_affected_spatial_f=data['assumptions'].techs_affected_spatial_f,
         service_switches_from_capacity=service_switches_incl_cap)
 
+    '''print(share_s_tech_ey_p.keys())
+    try:
+        print("aa "  + str(share_s_tech_ey_p['E06000001'][2050]))
+    except:
+        print("FFAIL")
+        print("aa "  + str(share_s_tech_ey_p['electrical_equipment']['E06000001'][2050]))
+        pass
+    raise Exception("TT")'''
     # ========================================================================================
     # Fuel switches
     #
@@ -242,7 +250,7 @@ def switch_calculations(
             for sector in data['sectors'][submodel_name]:
                 print("... calculating fuel switches {}  {}  {}".format(submodel_name, enduse, sector))
                 print("======d======= " + str(data['assumptions'].fuel_tech_p_by[enduse][sector]))
-                print("Z " + str(s_fueltype_by_p))
+                print("Z " + str(s_fueltype_by_p[sector][enduse]))
                 diffusion_param_tech[enduse][sector] = sig_param_calc_incl_fuel_switch(
                     narrative_timesteps,
                     data['assumptions'].base_yr,
@@ -773,7 +781,7 @@ def sig_param_calc_incl_fuel_switch(
                 print("---------- switches %s %s %s", enduse, crit_switch_service, crit_fuel_switch)
                 if crit_all_the_same:
                     print("... calc parameters of `{}` for year `{}`  {}".format(enduse, switch_yr, sector))
-                    print("FF {} ".format(s_tech_switched_p[any_region][switch_yr]))
+                    print("FF {} {} ".format(switch_yr, s_tech_switched_p[any_region][switch_yr]))
                     print("---")
                     print(fuel_tech_p_by)
                     sig_param_tech_all_regs_value = s_generate_sigmoid.tech_sigmoid_parameters(

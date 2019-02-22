@@ -116,7 +116,7 @@ def create_switches_from_s_shares(
         enduse,
         s_tech_by_p,
         switch_technologies,
-        specified_tech_enduse_by,
+        tech_enduse_by,
         enduse_switches,
         s_tot_defined,
         sector,
@@ -136,8 +136,8 @@ def create_switches_from_s_shares(
         Service share per technology in base year
     switch_technologies : list
         Technologies involved in switch
-    specified_tech_enduse_by : list
-        Technologies per enduse
+    tech_enduse_by : list
+        Technologies of enduse and sector
     enduse_switches : list
         Switches
     s_tot_defined : float
@@ -157,7 +157,7 @@ def create_switches_from_s_shares(
     # Calculate relative by proportion of not assigned technologies in base year
     tech_not_assigned_by_p = {}
 
-    for tech in specified_tech_enduse_by[enduse][sector]:
+    for tech in tech_enduse_by:
         if tech not in switch_technologies:
             tech_not_assigned_by_p[tech] = s_tech_by_p[sector][enduse][tech]
 
@@ -172,7 +172,7 @@ def create_switches_from_s_shares(
             tech_not_assigned_by_p[tech] = share_by / tot_share_not_assigned
 
         # Get all defined technologies in base year
-        for tech in specified_tech_enduse_by[enduse][sector]:
+        for tech in tech_enduse_by:
             if tech not in switch_technologies:
                 if s_tot_defined == 1.0:
                     # All technologies are fully defined
@@ -310,12 +310,12 @@ def autocomplete_switches(
         Criteria wheter regionally specific or not
     regions : list
         Regions
-    f_diffusion : 
+    f_diffusion :
         Diffusion factors
     techs_affected_spatial_f : list
         Technologies affected by spatial diffusion
     service_switches_from_capacity : list
-        Transformed capacity swithces into service switches 
+        Transformed capacity swithces into service switches
 
     Returns
     -------
@@ -383,7 +383,7 @@ def autocomplete_switches(
                         enduse=enduse,
                         s_tech_by_p=s_tech_by_p,
                         switch_technologies=switch_technologies,
-                        specified_tech_enduse_by=specified_tech_enduse_by,
+                        tech_enduse_by=specified_tech_enduse_by[enduse][sector],
                         enduse_switches=enduse_switches,
                         s_tot_defined=s_tot_defined,
                         sector=sector,
