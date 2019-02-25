@@ -202,6 +202,7 @@ class Enduse(object):
                 enduse,
                 sector,
                 curr_yr,
+                base_yr,
                 strategy_vars['generic_fuel_switch'],
                 self.fuel_y)
             self.fuel_y = _fuel_new_y
@@ -1641,6 +1642,7 @@ def generic_fuel_switch(
         enduse,
         sector,
         curr_yr,
+        base_yr,
         fuel_switch,
         fuel_y
     ):
@@ -1665,6 +1667,9 @@ def generic_fuel_switch(
     fuel_y : array
         Annual fuel demand per fueltype
     """
+    if base_yr == curr_yr:
+        return fuel_y
+
     try:
         # Test if switch is defined for sector
         fuel_switch = fuel_switch[enduse][sector]
@@ -1688,6 +1693,7 @@ def generic_fuel_switch(
 
     if switch_defined is True:
         for fueltype_new_int in fuel_switch.keys():
+
             if fuel_switch[fueltype_new_int][curr_yr] != 0:
 
                 # Get fueltype to switch to (new)
