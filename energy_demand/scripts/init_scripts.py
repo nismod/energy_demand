@@ -241,8 +241,7 @@ def switch_calculations(
         for enduse in data['enduses'][submodel_name]:
             for sector in data['sectors'][submodel_name]:
                 print("... calculating fuel switches {}  {}  {}".format(submodel_name, enduse, sector))
-                print("======d======= " + str(data['assumptions'].fuel_tech_p_by[enduse][sector]))
-                #print("Z " + str(s_fueltype_by_p[sector][enduse]))
+
                 diffusion_param_tech[enduse][sector] = sig_param_calc_incl_fuel_switch(
                     narrative_timesteps,
                     data['assumptions'].base_yr,
@@ -277,7 +276,7 @@ def switch_calculations(
     for region in annual_tech_diff_params:
         for enduse in annual_tech_diff_params[region]:
             for sector in annual_tech_diff_params[region][enduse]:
-                #print("TTI: {} {}  {}".format(enduse, sector, annual_tech_diff_params[region][enduse][sector]))
+
                 for year in sim_yrs:
                     if annual_tech_diff_params[region][enduse][sector] != []:
                         assigned_service_p = 0
@@ -770,7 +769,7 @@ def sig_param_calc_incl_fuel_switch(
                 # Calculates parameters for sigmoid diffusion of
                 # technologies which are switched to/installed.
                 # -----------------------------------------------
-                print("---------- switches %s %s %s", enduse, crit_switch_service, crit_fuel_switch)
+                #print("---------- switches %s %s %s", enduse, crit_switch_service, crit_fuel_switch)
                 if crit_all_the_same:
                     print("... calc parameters of `{}` for year `{}`  {}".format(enduse, switch_yr, sector))
                     sig_param_tech_all_regs_value = s_generate_sigmoid.tech_sigmoid_parameters(

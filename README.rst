@@ -30,15 +30,14 @@ More information on the model can be found in:
 
 1. Download input data
 -------------------------------------
-Most data for running HIRE are freely available online. However,
-for certain input data it is necessary to request access (for more information
-on all necessary input datasets see `here <https://ed.readthedocs.io/en/latest/documentation.html#data-sets>`_)
+Most data for running HIRE are freely available online. For some input data it is necessary to request access.
+For more information on all necessary input datasets see `here <https://ed.readthedocs.io/en/latest/documentation.html#data-sets>`_)
 
-All necessary input data to run HIRE can be downloaded (`here <http://dx.doi.org/10.17632/wc8pxynv7b.1>`_), where
-for the restricted datasets a dummy input dataset is available.
+All necessary input data to run HIRE can be downloaded (`here <TODO_DATA_LINK>`_), where
+for the restricted datasets a dummy input dataset is used instead.
 
 For data inquires, plese contact sven.eggimann@ouce.ox.ac.uk or `the consortium <https://www.itrc.org.uk/contact-us/>`_).
-Also check whether data area available `here <https://www.nismod.ac.uk>`_).
+Also check whether data area available `here <https://www.nismod.ac.uk>`_.
 
 2. Initialising and running the model (local)
 -------------------------------------

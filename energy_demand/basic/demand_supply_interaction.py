@@ -74,7 +74,6 @@ def constrained_results(
     # ----------------------------------------
     for submodel_nr, submodel in enumerate(submodels_names):
         for tech, fuel_tech in results_constrained.items():
-
             # ----
             # Technological simplifications because of different technology definition
             # and because not all technologies are used in supply model
@@ -96,7 +95,7 @@ def constrained_results(
                 pass #Do not add non_heating demand for fueltype heat
             else:
                 key_name = "{}_{}_{}".format(submodel, fueltype_str, "non_heating")
-                logging.info("key_name d: " + str(key_name))
+
                 # Add fuel for all regions for specific fueltype
                 supply_results[key_name] = non_heating_ed[submodel_nr][:, fueltype_int, :]
 
@@ -105,7 +104,7 @@ def constrained_results(
     # --------------------------------------------
     for key_name, values in supply_results.items():
         if testing_functions.test_if_minus_value_in_array(values):
-            logging.info("info: {}  {}".format(values, np.sum(values)))
+            logging.info("info tt: {}  {}".format(values, np.sum(values)))
             raise Exception("Error d: Negative entry in results " + str(key_name))
 
     logging.info("... Prepared results for energy supply model in constrained mode")

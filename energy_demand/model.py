@@ -126,7 +126,6 @@ class EnergyDemandModel(object):
             # Aggregate results specifically over regions
             # ---------------------------------------------
             aggr_results = aggregate_results_constrained(
-                assumptions,
                 assumptions.reg_nrs,
                 assumptions.lookup_enduses,
                 aggr_results,
@@ -136,9 +135,6 @@ class EnergyDemandModel(object):
                 assumptions.fueltypes_nr,
                 assumptions.enduse_space_heating,
                 assumptions.technologies)
-        
-        #print("_all_closest_weather_stations")
-        #print(_all_closest_weather_stations)
 
         # ---------------------------------------------------
         # Aggregate results for all regions
@@ -774,7 +770,6 @@ def aggregate_result_unconstrained(
     return constrained_array
 
 def aggregate_results_constrained(
-        assumptions,
         reg_nrs,
         lookup_enduses,
         aggr_results,
@@ -817,6 +812,9 @@ def aggregate_results_constrained(
     aggr_results : dict
         Contains all aggregated results
     """
+    #Convert generator into list #TODO TOM
+    all_submodels = list(all_submodels)
+
     aggr_results['ed_submodel_enduse_fueltype_regs_yh'] = aggr_complete_result(
         aggr_results['ed_submodel_enduse_fueltype_regs_yh'],
         lookup_enduses,
@@ -846,7 +844,6 @@ def aggregate_results_constrained(
 
                 # Iterate technologies and get fuel per technology
                 for heating_tech in heating_techs:
-
                     tech_fuel = techs_fueltypes_yh[heating_tech] # Fuel of technology
                     fueltype_tech_int = technologies[heating_tech].fueltype_int # Fueltype of technology
 
@@ -855,8 +852,9 @@ def aggregate_results_constrained(
                         aggr_results['results_constrained'][heating_tech][submodel_nr][reg_array_nr][fueltype_tech_int] += tech_fuel.reshape(8760)
                     else:
                         # TODO query this - are we overwriting otherwise
-                        if heating_tech not in aggr_results['results_constrained']:
-                            aggr_results['results_constrained'][heating_tech] = np.zeros((len(submodel_to_idx), reg_nrs, fueltypes_nr, 8760), dtype="float")
+                        #if heating_tech not in aggr_results['results_constrained']:
+                        #    aggr_results['results_constrained'][heating_tech] = np.zeros((len(submodel_to_idx), reg_nrs, fueltypes_nr, 8760), dtype="float")
+                        aggr_results['results_constrained'][heating_tech] = np.zeros((len(submodel_to_idx), reg_nrs, fueltypes_nr, 8760), dtype="float")
                         aggr_results['results_constrained'][heating_tech][submodel_nr][reg_array_nr][fueltype_tech_int] += tech_fuel.reshape(8760)
 
     return aggr_results
