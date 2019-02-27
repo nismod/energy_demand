@@ -125,7 +125,6 @@ class Enduse(object):
             self.enduse_techs = []
         else:
             #print("------INFO  {} {} {}  {}".format(self.enduse, sector, region, curr_yr))
-            #print("FUEL TRAIN A0: " + str(np.sum(self.fuel_y)))
 
             # Get technologies of enduse
             self.enduse_techs = get_enduse_techs(fuel_tech_p_by)
@@ -141,7 +140,6 @@ class Enduse(object):
                 assumptions.enduse_space_heating,
                 assumptions.ss_enduse_space_cooling)
             self.fuel_y = _fuel_new_y
-            #print("FUEL TRAIN B0: " + str(np.sum(self.fuel_y)))
 
             _fuel_new_y = apply_smart_metering(
                 enduse,
@@ -150,7 +148,6 @@ class Enduse(object):
                 strategy_vars,
                 curr_yr)
             self.fuel_y = _fuel_new_y
-            #print("FUEL TRAIN C0: " + str(np.sum(self.fuel_y)))
 
             _fuel_new_y = generic_demand_change(
                 enduse,
@@ -159,7 +156,6 @@ class Enduse(object):
                 strategy_vars['generic_enduse_change'],
                 curr_yr)
             self.fuel_y = _fuel_new_y
-            #print("FUEL TRAIN D0: " + str(np.sum(self.fuel_y)))
 
             _fuel_new_y = apply_scenario_drivers(
                 enduse=enduse,
@@ -174,7 +170,6 @@ class Enduse(object):
                 base_yr=base_yr,
                 curr_yr=curr_yr)
             self.fuel_y = _fuel_new_y
-            #print("FUEL TRAIN E0: " + str(np.sum(self.fuel_y)))
 
             # Apply cooling scenario variable
             _fuel_new_y = apply_cooling(
@@ -184,7 +179,6 @@ class Enduse(object):
                 assumptions.cooled_ss_floorarea_by,
                 curr_yr)
             self.fuel_y = _fuel_new_y
-            #print("FUEL TRAIN E1: " + str(np.sum(self.fuel_y)))
 
             # Industry related change
             _fuel_new_y = industry_enduse_changes(
@@ -195,7 +189,6 @@ class Enduse(object):
                 self.fuel_y,
                 assumptions)
             self.fuel_y = _fuel_new_y
-            #print("FUEL TRAIN E2: " + str(np.sum(self.fuel_y)))
 
             # Generic fuel switch of an enduse and sector
             _fuel_new_y = generic_fuel_switch(
@@ -206,7 +199,7 @@ class Enduse(object):
                 strategy_vars['generic_fuel_switch'],
                 self.fuel_y)
             self.fuel_y = _fuel_new_y
-            #print("FUEL TRAIN E3: " + str(np.sum(self.fuel_y)))
+
             # ----------------------------------
             # Hourly Disaggregation
             # ----------------------------------
@@ -224,7 +217,6 @@ class Enduse(object):
                         self.fuel_y,
                         make_all_flat=make_all_flat)
 
-                    #print("FUEL TRAIN X " + str(np.sum(fuel_yh)))
                     # Demand management for non-technology enduse
                     self.fuel_yh = load_shifting(
                         enduse,
@@ -232,13 +224,6 @@ class Enduse(object):
                         mode_constrained=False,
                         param_lf_improved_cy=strategy_vars['dm_improvement'][enduse][curr_yr],
                         make_all_flat=make_all_flat)
-                    #print("FUEL TRAIN Y" + str(np.sum(fuel_yh)))
-
-                    #if curr_yr > 2015:
-                    #    _a = np.max(fuel_yh)
-                    #    _b = np.max(self.fuel_yh)
-                    #    print("AFTER SHIFTING : {} {}".format(_a, _b))
-
             else:
                 #If technologies are defined for an enduse
 
@@ -260,8 +245,7 @@ class Enduse(object):
                     tech_stock,
                     fueltypes,
                     mode_constrained)
-                #print(np.sum(s_tot_y_cy))
-                #print(np.sum(list(s_tech_y_by.values()))) #NEW
+
                 # ------------------------------------
                 # Reduction of service because of heat recovery
                 # ------------------------------------
@@ -271,8 +255,7 @@ class Enduse(object):
                     s_tot_y_cy,
                     s_tech_y_by,
                     curr_yr)
-                #print(np.sum(s_tot_y_cy))
-                #print(np.sum(list(s_tech_y_cy.values()))) #NEW
+
                 # ------------------------------------
                 # Reduction of service because of improvement in air leakeage
                 # ------------------------------------
@@ -282,8 +265,7 @@ class Enduse(object):
                     s_tot_y_cy,
                     s_tech_y_cy,
                     curr_yr)
-                #print(np.sum(s_tot_y_cy))
-                #print(np.sum(list(s_tech_y_cy.values()))) #NEW
+
                 # --------------------------------
                 # Switches
                 # --------------------------------
@@ -296,13 +278,10 @@ class Enduse(object):
                     sector=sector,
                     annual_tech_diff_params=strategy_vars['annual_tech_diff_params'][enduse][sector],
                     crit_switch_happening=assumptions.crit_switch_happening)
-                #print(np.sum(s_tot_y_cy))
-                #print(np.sum(list(s_tech_y_cy.values()))) #NEW
+
                 # -------------------------------------------
                 # Convert annual service to fuel per fueltype
                 # -------------------------------------------
-                #print("--")
-                #print(np.sum(self.fuel_y))
                 self.fuel_y, fuel_tech_y = service_to_fuel(
                     enduse,
                     sector,
@@ -311,7 +290,7 @@ class Enduse(object):
                     fueltypes_nr,
                     fueltypes,
                     mode_constrained)
-                #print("B" + str(np.sum(self.fuel_y)))
+
                 # Delete all technologies with no fuel assigned
                 for tech, fuel_tech in fuel_tech_y.items():
                     if np.sum(fuel_tech) == 0:
@@ -878,7 +857,6 @@ def calc_fuel_tech_yh(
                 enduse, sector, tech, 'shape_yh')
 
             fuels_yh[tech] = fuel_tech_y[tech] * load_profile
-
     else:
         # --
         # Unconstrained mode, i.e. not technolog specific.

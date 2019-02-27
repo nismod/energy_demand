@@ -148,16 +148,6 @@ def plotting_weather_data(path):
         color=colors['t_max_max'],
         alpha=0.25)
     
-    print("AAAAAAAA")
-    print(list(std_dev_t_max_max))
-    print(list(np.array(t_max_max_every_day)))
-    print(list(np.array(t_max_max_every_day) - (2 * np.array(std_dev_t_max_max))))
-    print("--")
-    print(list(std_dev_t_min_min))
-    print(list(np.array(t_min_min_every_day)))
-    print(list(np.array(t_min_min_every_day) - (2 * np.array(std_dev_t_min_min))))
-    
-    
     # Legend
     legend = plt.legend(
         ncol=2,

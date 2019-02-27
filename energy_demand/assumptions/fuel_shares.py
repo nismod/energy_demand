@@ -158,6 +158,7 @@ def assign_by_fuel_tech_p(
         'district_heating_CHP_gas': 0.03}
 
     fuel_tech_p_by['rs_space_heating'][fueltypes['electricity']] = {
+        'district_heating_electricity' : 0,
         'storage_heater_electricity': 0.62,
         'secondary_heater_electricity':0.33,
         'heat_pumps_electricity': 0.05}
@@ -222,6 +223,7 @@ def assign_by_fuel_tech_p(
         'boiler_gas': 0.38}
 
     fuel_tech_p_by['ss_space_heating'][fueltypes['electricity']] = {
+        'district_heating_electricity' : 0,
         'secondary_heater_electricity': 0.95,
         'heat_pumps_electricity': 0.05}
 
@@ -300,6 +302,7 @@ def assign_by_fuel_tech_p(
         'boiler_gas': 0.38}
 
     fuel_tech_p_by['is_space_heating'][fueltypes['electricity']] = {
+        'district_heating_electricity' : 0,
         'secondary_heater_electricity': 0.95,
         'heat_pumps_electricity': 0.05,
         'storage_heater_electricity': 0}
