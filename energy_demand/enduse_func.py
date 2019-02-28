@@ -7,7 +7,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 import copy
 
-from energy_demand.basic import date_prop
+from energy_demand.basic import date_prop, testing_functions
 from energy_demand.profiles import load_factors as lf
 from energy_demand.technologies import diffusion_technologies
 from energy_demand.technologies import fuel_service_switch
@@ -337,6 +337,10 @@ class Enduse(object):
                             mode_constrained=False,
                             param_lf_improved_cy=strategy_vars['dm_improvement'][enduse][curr_yr],
                             make_all_flat=make_all_flat)
+                        
+                        if testing_functions.test_if_minus_value_in_array(self.fuel_yh):
+                            print("MINUS VALUE {}  {} {}".format(enduse, sector, np.sum(self.fuel_yh)))
+                            raise Exception
 
 def load_shifting_multiple_tech(
         enduse,

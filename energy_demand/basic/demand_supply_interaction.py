@@ -85,6 +85,10 @@ def constrained_results(
             key_name = "{}_{}_{}".format(submodel, fueltype_str, tech_simplified)
             supply_results[key_name] = fuel_tech[submodel_nr][:, fueltype_int, :]
 
+    for key_name, values in supply_results.items():
+        if testing_functions.test_if_minus_value_in_array(values):
+            raise Exception("TTT {} {}".format(key_name, np.sum(values)))
+
     # ---------------------------------
     # Add non_heating for all fueltypes
     # ---------------------------------
@@ -105,9 +109,8 @@ def constrained_results(
     for key_name, values in supply_results.items():
         if testing_functions.test_if_minus_value_in_array(values):
             logging.info("info tt: {}  {}".format(values, np.sum(values)))
-            raise Exception("Error d: Negative entry in results " + str(key_name))
+            raise Exception("Error d: Negative entry in results {} {}".format(key_name, np.sum(values)))
 
-    logging.info("... Prepared results for energy supply model in constrained mode")
     return supply_results
 
 def unconstrained_results(
