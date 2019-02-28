@@ -292,9 +292,9 @@ class Enduse(object):
                     mode_constrained)
 
                 # Delete all technologies with no fuel assigned
-                for tech, fuel_tech in fuel_tech_y.items():
+                '''for tech, fuel_tech in fuel_tech_y.items():
                     if np.sum(fuel_tech) == 0:
-                        self.enduse_techs.remove(tech)
+                        self.enduse_techs.remove(tech)'''
 
                 # ------------------------------------------
                 # Assign load profiles

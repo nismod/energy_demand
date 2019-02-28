@@ -31,7 +31,6 @@ def generate_default_parameter_narratives(
         crit_single_dim = narrative_related.crit_dim_var(var_entries)
 
         if crit_single_dim:
-
             scenario_value = var_entries['default_value']
 
             # Create default narrative with only one timestep from simulation base year to simulation end year
