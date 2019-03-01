@@ -11,6 +11,7 @@ def test_if_minus_value_in_array(arraytotest):
     only_neg_elements = arraytotest[arraytotest < 0]
 
     if len(only_neg_elements) > 0:
+        print("NEgative elements: " + str(only_neg_elements))
         return True
     else:
         return False

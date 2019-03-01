@@ -317,7 +317,6 @@ class Enduse(object):
                     # Peak shifting
                     # --------------------------------------
                     if mode_constrained:
-                        self.techs_fuel_yh = {}
                         self.fuel_yh = None
 
                         # If no demand management improvenent, no peak shifting

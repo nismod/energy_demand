@@ -548,11 +548,11 @@ if __name__ == "__main__":
                 peak_day_electricity, _ = enduse_func.get_peak_day_single_fueltype(national_hourly_demand)
                 selected_hours = date_prop.convert_yearday_to_8760h_selection(peak_day_electricity)
             else:
-                write_data.write_residential_tot_demands(
-                    sim_yr,
-                    data['weather_yr_result_paths']['data_results_model_run_results_txt'],
-                    sim_obj.ed_residential_tot_reg_y,
-                    "ed_residential_tot_reg_y")
+                #write_data.write_residential_tot_demands(
+                #    sim_yr,
+                #    data['weather_yr_result_paths']['data_results_model_run_results_txt'],
+                #    sim_obj.ed_residential_tot_reg_y,
+                #    "ed_residential_tot_reg_y")
                 write_data.write_supply_results(
                     sim_yr,
                     "ed_fueltype_regs_yh",
