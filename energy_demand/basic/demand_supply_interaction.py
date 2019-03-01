@@ -5,9 +5,7 @@ import logging
 import numpy as np
 import pandas as pd
 
-from energy_demand.basic import date_prop
-from energy_demand.basic import testing_functions
-from energy_demand.basic import lookup_tables
+from energy_demand.basic import date_prop, testing_functions, lookup_tables, basic_functions 
 
 def constrained_results(
         results_constrained,
@@ -64,11 +62,12 @@ def constrained_results(
     # Get all non heating related enduse
     # --------------------------------
     # Substract constrained fuel from nonconstrained (total) fuel
-    non_heating_ed = results_unconstrained - sum(results_constrained.values())
+    non_heating_ed_unrounded = results_unconstrained - sum(results_constrained.values())
+
+    # Remove all rounding errors
+    non_heating_ed = basic_functions.remove_neg_rounding_errors(non_heating_ed_unrounded)
 
     assert not testing_functions.test_if_minus_value_in_array(results_unconstrained)
-    print("ZWAS1 ")
-    assert not testing_functions.test_if_minus_value_in_array(non_heating_ed)
 
     # ----------------------------------------
     # Add all constrained results (technology specific results)

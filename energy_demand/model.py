@@ -23,7 +23,7 @@ some observations from @willu47
   testable and refactored going forward, so some profiling would help direct
   attention to where further work is most appropriate
 """
-import logging
+import copy
 from collections import defaultdict
 import numpy as np
 
@@ -126,6 +126,7 @@ class EnergyDemandModel(object):
             # Aggregate results specifically over regions
             # ---------------------------------------------
             aggr_results = aggregate_results_constrained(
+                assumptions,
                 assumptions.reg_nrs,
                 assumptions.lookup_enduses,
                 aggr_results,
@@ -181,10 +182,11 @@ def aggregate_across_all_regs(
     technologies : dict
         Technologies per enduse
     """
+    fueltypes = lookup_tables.basic_lookups()['fueltypes']
     '''# -----------------------------
     # Aggregate residential demand [fueltype, region]
     # -----------------------------
-    fueltypes = lookup_tables.basic_lookups()['fueltypes']
+    
     submodel_nr = 0
     array_init = np.zeros((fueltypes_nr, reg_nrs))
 
@@ -538,50 +540,6 @@ def get_fuels_yh(enduse_object, attribute_to_get):
 
     return fuels
 
-'''def aggr_complete_result(
-        full_result_aggr,
-        lookup_enduses,
-        reg_array_nr,
-        all_submodels,
-        technologies
-    ):
-    """Aggregate full results (except technology specific)
-
-    Arguments
-    ---------
-    full_result_aggr : dict
-        Dict to aggregat with form: submodel, enduse, region, fueltype, 8760 hours
-    reg_array_nr : int
-        Region number
-    all_submodels : list
-        Sector models objects in list
-    technologies : dict
-        Technologies
-
-    Return
-    ------
-    full_result_aggr : dict
-        Full result aggregation dict
-    """
-    for model_object in all_submodels:
-        fuels = get_fuels_yh(model_object, 'techs_fuel_yh')
-        enduse_array_nr = lookup_enduses[model_object.enduse]
-
-        if isinstance(fuels, dict):
-            for tech, fuel_tech in fuels.items():
-                tech_fueltype = technologies[tech].fueltype_int
-                full_result_aggr[enduse_array_nr][tech_fueltype][reg_array_nr] += fuel_tech.reshape(8760)
-        else:
-            fueltype_yh_365_24 = get_fuels_yh(model_object, 'fuel_yh')
-
-            # Iterate over fueltype and add to region
-            fueltype_yh_8760 = fueltype_yh_365_24.reshape(fueltype_yh_365_24.shape[0], 8760)
-
-            for fueltype_nr, fuels_8760 in enumerate(fueltype_yh_8760):
-                full_result_aggr[enduse_array_nr][fueltype_nr][reg_array_nr] += fuels_8760
-
-    return full_result_aggr'''
-
 def averaged_season_hourly(
         fueltype_region_yh,
         fueltypes,
@@ -755,8 +713,7 @@ def aggregate_result_unconstrained(
     constrained_array : array
         assumptions.nr_of_submodels, reg_nrs, fueltypes_nr, 8760
     """
-    constrained_array = np.zeros((
-        nr_of_submodels, reg_nrs, fueltypes_nr, 8760), dtype="float")
+    constrained_array = np.zeros((nr_of_submodels, reg_nrs, fueltypes_nr, 8760), dtype="float")
 
     for submodel_nr, enduse_array_nrs in lookup_sector_enduses.items():
         for enduse_array_nr in enduse_array_nrs:
@@ -767,6 +724,7 @@ def aggregate_result_unconstrained(
     return constrained_array
 
 def aggregate_results_constrained(
+        assumptions,
         reg_nrs,
         lookup_enduses,
         aggr_results,
@@ -823,60 +781,98 @@ def aggregate_results_constrained(
             techs_fueltypes_yh = get_fuels_yh(enduse_object, 'techs_fuel_yh')
             enduse_array_nr = lookup_enduses[enduse_object.enduse]
             submodel_nr = submodel_to_idx[enduse_object.submodel_name]
-
-            print("TECHNOLOGES {}  {} ".format(techs_fueltypes_yh.keys(), enduse_object.enduse_techs))
+            
+            '''#----------
+            #SCRAP TESTING KAMEL
+            #----------
+            print("TECHNOLOGES {}  {} {}  {}".format(
+                len(techs_fueltypes_yh.keys()),
+                len(enduse_object.enduse_techs),
+                techs_fueltypes_yh.keys(), enduse_object.enduse_techs))
             _a = len(enduse_object.enduse_techs)
             _b = len(techs_fueltypes_yh.keys())
             if _b != _a:
                 print(_a)
                 print(_b)
-                raise Exception("NOT SAME TECHS")
+                raise Exception("NOT SAME TECHS")'''
+
         # -----------------------------------------------------------------
         # Aggregate fuel of constrained technologies for heating
         # -----------------------------------------------------------------
         if mode_constrained:
             if enduse_object.enduse in enduse_space_heating:
+                #_tot_sum_constrained = 0
 
-                # All used heating technologies
-                heating_techs = enduse_object.enduse_techs
-
-                # Iterate technologies and get fuel per technology
-                for heating_tech in heating_techs:
-                    tech_fuel = techs_fueltypes_yh[heating_tech] # Fuel of technology
-                    fueltype_tech_int = technologies[heating_tech].fueltype_int # Fueltype of technology
+                # Iterate all used heating technologies
+                for heating_tech in enduse_object.enduse_techs: 
+                    tech_fuel = techs_fueltypes_yh[heating_tech]
+                    fueltype_tech_int = technologies[heating_tech].fueltype_int
 
                     # Aggregate Submodel (sector) specific enduse for fueltype
                     if heating_tech in aggr_results['results_constrained'].keys():
                         aggr_results['results_constrained'][heating_tech][submodel_nr][reg_array_nr][fueltype_tech_int] += tech_fuel.reshape(8760)
+                        #_tot_sum_constrained += tech_fuel.reshape(8760)
                     else:
                         if heating_tech not in aggr_results['results_constrained']:
                             aggr_results['results_constrained'][heating_tech] = np.zeros((len(submodel_to_idx), reg_nrs, fueltypes_nr, 8760), dtype="float")
                         aggr_results['results_constrained'][heating_tech][submodel_nr][reg_array_nr][fueltype_tech_int] += tech_fuel.reshape(8760)
+                        #_tot_sum_constrained += tech_fuel.reshape(8760)
 
         # -----------------------------------------------------------------
         # Aggregate fuel of all technologies
         # -----------------------------------------------------------------
+        #_tot_sum_unconstrained = 0
+
         if isinstance(techs_fueltypes_yh, dict):
             for tech, fuel_tech in techs_fueltypes_yh.items():
                 tech_fueltype = technologies[tech].fueltype_int
                 aggr_results['ed_enduse_fueltype_regs_yh'][enduse_array_nr][tech_fueltype][reg_array_nr] += fuel_tech.reshape(8760)
+                #_tot_sum_unconstrained += fuel_tech.reshape(8760)
         else:
             fueltype_yh_365_24 = get_fuels_yh(enduse_object, 'fuel_yh')
-            fueltype_yh_8760 = fueltype_yh_365_24.reshape(fueltype_yh_365_24.shape[0], 8760)
+            fueltype_yh_8760 = fueltype_yh_365_24.reshape(fueltypes_nr, 8760)
 
             for fueltype_nr, fuels_8760 in enumerate(fueltype_yh_8760):
                 aggr_results['ed_enduse_fueltype_regs_yh'][enduse_array_nr][fueltype_nr][reg_array_nr] += fuels_8760
+                #_tot_sum_unconstrained += fuels_8760
 
-        # TESTING
-        import copy
+
+        # ---------
+        # TESTING KAMEL
+        # ---------
+        '''
+        if enduse_object.enduse in enduse_space_heating:
+
+            if np.sum(_tot_sum_constrained) != np.sum(_tot_sum_unconstrained):
+                print("Enduse {}   TOTAL SUM CONSTRAINED: {}  TOT SUM UNCOSNTRAINED: {}".format(
+                    enduse_object.enduse, np.sum(_tot_sum_constrained), np.sum(_tot_sum_unconstrained)))
+                _diff = _tot_sum_unconstrained - _tot_sum_constrained
+                print("ZUZ: {}".format(testing_functions.test_if_minus_value_in_array(_diff)))
+                raise Exception("ERROR NOT SAME SUM")
+        '''
+        _results_unconstrained = aggregate_result_unconstrained(
+            assumptions.nr_of_submodels,
+            assumptions.lookup_sector_enduses,
+            aggr_results['ed_enduse_fueltype_regs_yh'],
+            fueltypes_nr,
+            reg_nrs)
+
+        if testing_functions.test_if_minus_value_in_array(_results_unconstrained):
+            raise Exception("DIFF NEW t")
+        '''
         _a = copy.deepcopy(aggr_results['ed_enduse_fueltype_regs_yh'])
         for tech in aggr_results['results_constrained']:
             fueltype_tech_int = technologies[tech].fueltype_int # Fueltype of technology
-            for submodel_nr in aggr_results['results_constrained'][tech]:
-                _a[enduse_array_nr][fueltype_tech_int] -= aggr_results['results_constrained'][tech][submodel_nr]
+            
+            for submodel_nr in range(aggr_results['results_constrained'][tech].shape[0]):
+                # reg, 8760    reg, fueltype, 8760
+                for reg in range(reg_nrs):
+                    _a[enduse_array_nr][fueltype_tech_int][reg] -= aggr_results['results_constrained'][tech][submodel_nr][reg][fueltype_tech_int]
+
+                print("NUMM {}".format(str(testing_functions.test_if_minus_value_in_array(_a))))
 
         if testing_functions.test_if_minus_value_in_array(_a):
-            raise Exception("DIFF NEW ")
+            raise Exception("DIFF NEW ")'''
 
     return aggr_results
 

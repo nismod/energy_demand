@@ -272,7 +272,7 @@ def write_user_defined_results(
         ##write_data.write_full_results(
         ##    data_handle.current_timestep,
         ##    os.path.join(result_path, 'model_run_results_txt'),
-        ##    sim_obj.ed_enduse_fueltype_regs_yh, #TODO CHANGED FORMAT
+        ##    sim_obj.ed_enduse_fueltype_regs_yh,
         ##    "out_enduse_specific")
         write_data.write_supply_results(
             curr_yr,

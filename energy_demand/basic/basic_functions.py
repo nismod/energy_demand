@@ -5,6 +5,30 @@ import shutil
 import numpy as np
 from pyproj import Proj, transform
 
+def remove_neg_rounding_errors(input_array, rounding_crit=0.000000001):
+    """Remove negative values which are smaller than the rounding_crit
+    and replace with zero values.
+
+    This function is necessary as some rounding errors occur
+    due to the fitting function.
+    """
+    only_neg_elements = input_array[input_array < 0]
+
+    if len(only_neg_elements) > 0:
+
+        # Raise Error if negative value is bigger than -0.1
+        minimum_value = np.min(only_neg_elements)
+        raise Exception("NEgative value is too big to round: {}".format(minimum_value))
+
+        neg_positions = np.where(((input_array < -1 * rounding_crit)), 0, 1)
+
+        # Multiply zero values with original array
+        output_array = neg_positions * input_array
+    else:
+        output_array = input_array
+
+    return output_array
+
 def get_result_paths(folder_path):
     """Joins results subfolders to ``folder_path`` and returns a dict
 
