@@ -756,10 +756,7 @@ def aggregate_result_unconstrained(
         assumptions.nr_of_submodels, reg_nrs, fueltypes_nr, 8760
     """
     constrained_array = np.zeros((
-        nr_of_submodels,
-        reg_nrs,
-        fueltypes_nr,
-        8760), dtype="float")
+        nr_of_submodels, reg_nrs, fueltypes_nr, 8760), dtype="float")
 
     for submodel_nr, enduse_array_nrs in lookup_sector_enduses.items():
         for enduse_array_nr in enduse_array_nrs:
@@ -843,8 +840,9 @@ def aggregate_results_constrained(
                     if heating_tech in aggr_results['results_constrained'].keys():
                         aggr_results['results_constrained'][heating_tech][submodel_nr][reg_array_nr][fueltype_tech_int] += tech_fuel.reshape(8760)
                     else:
-                        aggr_results['results_constrained'][heating_tech] = np.zeros((len(submodel_to_idx), reg_nrs, fueltypes_nr, 8760), dtype="float")
-                        aggr_results['results_constrained'][heating_tech][submodel_nr][reg_array_nr][fueltype_tech_int] = tech_fuel.reshape(8760)
+                        if heating_tech not in aggr_results['results_constrained']:
+                            aggr_results['results_constrained'][heating_tech] = np.zeros((len(submodel_to_idx), reg_nrs, fueltypes_nr, 8760), dtype="float")
+                        aggr_results['results_constrained'][heating_tech][submodel_nr][reg_array_nr][fueltype_tech_int] += tech_fuel.reshape(8760)
 
         # -----------------------------------------------------------------
         # Aggregate fuel of all technologies

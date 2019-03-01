@@ -67,6 +67,8 @@ def constrained_results(
     non_heating_ed = results_unconstrained - sum(results_constrained.values())
 
     assert not testing_functions.test_if_minus_value_in_array(results_unconstrained)
+    print("ZWAS1 ")
+    assert not testing_functions.test_if_minus_value_in_array(non_heating_ed)
 
     # ----------------------------------------
     # Add all constrained results (technology specific results)

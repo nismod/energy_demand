@@ -3,11 +3,11 @@ where the change in enduse specific energy demand is simulated
 depending on scenaric assumptions"""
 import logging
 import math
+import copy
 import numpy as np
 import matplotlib.pyplot as plt
-import copy
 
-from energy_demand.basic import date_prop, testing_functions
+from energy_demand.basic import testing_functions
 from energy_demand.profiles import load_factors as lf
 from energy_demand.technologies import diffusion_technologies
 from energy_demand.technologies import fuel_service_switch
@@ -292,6 +292,7 @@ class Enduse(object):
                     mode_constrained)
 
                 # Delete all technologies with no fuel assigned
+                # This would speed up the calculations and use less memory
                 '''for tech, fuel_tech in fuel_tech_y.items():
                     if np.sum(fuel_tech) == 0:
                         self.enduse_techs.remove(tech)'''
@@ -339,8 +340,7 @@ class Enduse(object):
                             make_all_flat=make_all_flat)
                         
                         if testing_functions.test_if_minus_value_in_array(self.fuel_yh):
-                            print("MINUS VALUE {}  {} {}".format(enduse, sector, np.sum(self.fuel_yh)))
-                            raise Exception
+                            raise Exception("Minus fuel value detected: {}  {} {}".format(enduse, sector, np.sum(self.fuel_yh)))
 
 def load_shifting_multiple_tech(
         enduse,
@@ -482,47 +482,11 @@ def load_shifting(
             param_lf_improved_cy,
             loadfactor_yd_cy)
 
-        #import copy
-        #_a = copy.copy(fuel_yh)
-
         fuel_yh = lf.peak_shaving_max_min(
             lf_improved_cy,
             average_fuel_yd,
             fuel_yh,
             mode_constrained)
-
-        '''
-        if enduse == "rs_space_heating":
-            print("ENDUSE " + str(enduse))
-            print(fuel_yh.shape)
-            _sum_dayily = np.sum(fuel_yh, axis=1)
-            print(_sum_dayily.shape)
-            _peak_day = np.argmax(_sum_dayily)
-            print(_peak_day)
-            print(lf_improved_cy[_peak_day])
-            #plt.plot(fuel_yh[_peak_day], label="after")
-            #plt.plot(_a[_peak_day], label="before")
-            plt.plot(fuel_yh.reshape(8760), label="after")
-            plt.plot(_a.reshape(8760), label="before")
-            plt.legend()
-            plt.show()
-            print("----")
-
-
-            print(param_lf_improved_cy)
-            print(loadfactor_yd_cy[_peak_day])
-            print(lf_improved_cy[_peak_day])
-
-            # Get maximum hour for electricity demand
-            __max_after = np.max(fuel_yh[_peak_day])
-            __max_before = np.max(_a[_peak_day])
-            print("before; {} after: {}".format(__max_before, __max_after))
-            print("peak reduction: " + str((100/__max_before) *__max_after))
-            _new_lf = lf.calc_lf_y_8760(fuel_yh[_peak_day])
-            _old_lf = lf.calc_lf_y_8760(_a[_peak_day])
-            print("lf before; {} after: {}".format(_old_lf, _new_lf))
-            print(make_all_flat)
-    '''
 
     # -------------------------------------------------
     # Convert all load profiles into flat load profiles
@@ -1012,28 +976,17 @@ def fuel_to_service(
 
             #Constrained version
             if mode_constrained:
-                
                 tech_eff = tech_stock.get_tech_attr(enduse, sector, tech, 'eff_by')
 
                 # Get fuel share and convert fuel to service per technology
                 s_tech = fuel_y[fueltype_int] * fuel_share * tech_eff
-
                 s_tech_y[tech] = s_tech
-
-                # Sum total yearly service
-                s_tot_y += s_tech #(y)
-
-                #print("F --> S: tech: {} eff: {} fuel: {} service {}".format(tech, tech_eff, fuel_y[fueltype_int], s_tech))
+                s_tot_y += s_tech # Sum total yearly service
             else:
                 #Unconstrained version (efficiencies are not considered, because not technology specific service calculation)
-
-                # Calculate fuel share
-                fuel_tech = fuel_y[fueltype_int] * fuel_share
-
+                fuel_tech = fuel_y[fueltype_int] * fuel_share # Calculate fuel share
                 s_tech_y[tech] = fuel_tech
-
-                # Sum total yearly service
-                s_tot_y += fuel_tech
+                s_tot_y += fuel_tech # Sum total yearly service
 
     return s_tot_y, s_tech_y
 
@@ -1193,8 +1146,7 @@ def apply_scenario_drivers(
         Changed yearly fuel per fueltype
     """
     if not dw_stock: # No dwelling stock is available
-        """Calculate non-dwelling related scenario drivers
-        """
+        #Calculate non-dwelling related scenario drivers
         scenario_drivers = reg_scen_drivers[enduse]
 
         by_driver, cy_driver = 1, 1
@@ -1243,13 +1195,10 @@ def apply_scenario_drivers(
         except ZeroDivisionError:
             factor_driver = 1
 
-        #logging.info("  eda  {}   {}  {} {}".format(
-        #    scenario_drivers, factor_driver, by_driver_data, cy_driver_data))
-
         fuel_y = fuel_y * factor_driver
     else:
-        """Scenario driver calculation based on dwelling stock
-        """
+        #Scenario driver calculation based on dwelling stock
+
         # Test if enduse has a dwelling related scenario driver
         if hasattr(dw_stock[base_yr], enduse) and curr_yr != base_yr:
 
@@ -1564,7 +1513,7 @@ def apply_service_switch(
 
         # Service of all technologies
         service_all_techs = sum(s_tech_y_cy.values())
-    
+
         switched_s_tech_y_cy = {}
         for tech in all_technologies:
             # Get service share per tech of cy of sigmoid parameter calculations
