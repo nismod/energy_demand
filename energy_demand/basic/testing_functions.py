@@ -15,7 +15,7 @@ def test_if_minus_value_in_array(arraytotest, tolerance_min_max=0.00000000001):
         Input to test for negative values
     tolerance_min_max : float
         Minimum and maximum tolerance criteria
-    
+
     Returns
     -------
     bool : Whether empty number in array or not

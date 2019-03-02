@@ -65,7 +65,7 @@ def constrained_results(
     non_heating_ed_unrounded = results_unconstrained - sum(results_constrained.values())
 
     # Remove all rounding errors
-    non_heating_ed = basic_functions.remove_neg_rounding_errors(non_heating_ed_unrounded)
+    ##non_heating_ed = basic_functions.remove_neg_rounding_errors(non_heating_ed_unrounded)
 
     assert not testing_functions.test_if_minus_value_in_array(results_unconstrained)
 
