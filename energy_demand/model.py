@@ -125,7 +125,7 @@ class EnergyDemandModel(object):
             # ---------------------------------------------
             # Aggregate results specifically over regions
             # ---------------------------------------------
-            aggr_results = aggregate_results_constrained(
+            aggr_results = aggregate_single_region(
                 assumptions,
                 assumptions.reg_nrs,
                 assumptions.lookup_enduses,
@@ -723,7 +723,7 @@ def aggregate_result_unconstrained(
 
     return constrained_array
 
-def aggregate_results_constrained(
+def aggregate_single_region(
         assumptions,
         reg_nrs,
         lookup_enduses,
@@ -777,12 +777,13 @@ def aggregate_results_constrained(
     # Iterate all simulation results
     for enduse_object in all_submodels:
 
+        '''
         if isinstance(get_fuels_yh(enduse_object, 'techs_fuel_yh'), dict):
             techs_fueltypes_yh = get_fuels_yh(enduse_object, 'techs_fuel_yh')
             enduse_array_nr = lookup_enduses[enduse_object.enduse]
             submodel_nr = submodel_to_idx[enduse_object.submodel_name]
-            
-            '''#----------
+
+            #----------
             #SCRAP TESTING KAMEL
             #----------
             print("TECHNOLOGES {}  {} {}  {}".format(
@@ -799,7 +800,7 @@ def aggregate_results_constrained(
         # -----------------------------------------------------------------
         # Aggregate fuel of constrained technologies for heating
         # -----------------------------------------------------------------
-        if mode_constrained:
+        '''if mode_constrained:
             if enduse_object.enduse in enduse_space_heating:
                 #_tot_sum_constrained = 0
 
@@ -817,15 +818,37 @@ def aggregate_results_constrained(
                             aggr_results['results_constrained'][heating_tech] = np.zeros((len(submodel_to_idx), reg_nrs, fueltypes_nr, 8760), dtype="float")
                         aggr_results['results_constrained'][heating_tech][submodel_nr][reg_array_nr][fueltype_tech_int] += tech_fuel.reshape(8760)
                         #_tot_sum_constrained += tech_fuel.reshape(8760)
-
+        '''
         # -----------------------------------------------------------------
         # Aggregate fuel of all technologies
         # -----------------------------------------------------------------
         #_tot_sum_unconstrained = 0
+        techs_fueltypes_yh = get_fuels_yh(enduse_object, 'techs_fuel_yh')
 
         if isinstance(techs_fueltypes_yh, dict):
+
+            enduse_array_nr = lookup_enduses[enduse_object.enduse]
+            submodel_nr = submodel_to_idx[enduse_object.submodel_name]
+
             for tech, fuel_tech in techs_fueltypes_yh.items():
                 tech_fueltype = technologies[tech].fueltype_int
+
+                # -----------------------------------------------------------------
+                # Aggregate fuel of constrained technologies for heating
+                # -----------------------------------------------------------------
+                if mode_constrained:
+                    if enduse_object.enduse in enduse_space_heating:
+
+                        # Aggregate Submodel (sector) specific enduse for fueltype
+                        if tech in aggr_results['results_constrained'].keys():
+                            aggr_results['results_constrained'][tech][submodel_nr][reg_array_nr][tech_fueltype] += fuel_tech.reshape(8760)
+                            #_tot_sum_constrained += tech_fuel.reshape(8760)
+                        else:
+                            if tech not in aggr_results['results_constrained']:
+                                aggr_results['results_constrained'][tech] = np.zeros((len(submodel_to_idx), reg_nrs, fueltypes_nr, 8760), dtype="float")
+                            aggr_results['results_constrained'][tech][submodel_nr][reg_array_nr][tech_fueltype] += fuel_tech.reshape(8760)
+
+                # SUm non heating techs
                 aggr_results['ed_enduse_fueltype_regs_yh'][enduse_array_nr][tech_fueltype][reg_array_nr] += fuel_tech.reshape(8760)
                 #_tot_sum_unconstrained += fuel_tech.reshape(8760)
         else:

@@ -58,17 +58,6 @@ def constrained_results(
     supply_results = {}
     fueltypes = lookup_tables.basic_lookups()['fueltypes']
 
-    #--------------------------------
-    # Get all non heating related enduse
-    # --------------------------------
-    # Substract constrained fuel from nonconstrained (total) fuel
-    non_heating_ed_unrounded = results_unconstrained - sum(results_constrained.values())
-
-    # Remove all rounding errors
-    ##non_heating_ed = basic_functions.remove_neg_rounding_errors(non_heating_ed_unrounded)
-
-    assert not testing_functions.test_if_minus_value_in_array(results_unconstrained)
-
     # ----------------------------------------
     # Add all constrained results (technology specific results)
     # Aggregate according to submodel, fueltype, technology, region, timestep
@@ -89,6 +78,18 @@ def constrained_results(
     for key_name, values in supply_results.items():
         if testing_functions.test_if_minus_value_in_array(values):
             raise Exception("TTT {} {}".format(key_name, np.sum(values)))
+
+    #--------------------------------
+    # Get all non heating related enduse
+    # --------------------------------
+    # Substract constrained fuel from nonconstrained (total) fuel
+    print("AAA {} {}".format(results_unconstrained.shape()), results_constrained.shape())
+    non_heating_ed = results_unconstrained - sum(results_constrained.values())
+
+    # Remove all rounding errors
+    ##non_heating_ed = basic_functions.remove_neg_rounding_errors(non_heating_ed_unrounded)
+
+    assert not testing_functions.test_if_minus_value_in_array(results_unconstrained)
 
     # ---------------------------------
     # Add non_heating for all fueltypes
