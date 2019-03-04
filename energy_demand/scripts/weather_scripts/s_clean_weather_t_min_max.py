@@ -116,7 +116,7 @@ def run(
 
     # Annual temperature file
     for file_name in all_annual_raw_files:
-        print("... reading in file: " + str(file_name), flush=True)
+        logging.info("... reading in file: " + str(file_name), flush=True)
 
         path_to_csv = os.path.join(path_files, file_name)
         temp_stations = {}

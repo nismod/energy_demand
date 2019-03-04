@@ -75,21 +75,17 @@ def constrained_results(
             key_name = "{}_{}_{}".format(submodel, fueltype_str, tech_simplified)
             supply_results[key_name] = fuel_tech[submodel_nr][:, fueltype_int, :]
 
-    for key_name, values in supply_results.items():
-        if testing_functions.test_if_minus_value_in_array(values):
-            raise Exception("TTT {} {}".format(key_name, np.sum(values)))
+    #for key_name, values in supply_results.items():
+    #    if testing_functions.test_if_minus_value_in_array(values):
+    #        raise Exception("TTT {} {}".format(key_name, np.sum(values)))
 
     #--------------------------------
     # Get all non heating related enduse
     # --------------------------------
     # Substract constrained fuel from nonconstrained (total) fuel
-    print("AAA {} {}".format(results_unconstrained.shape()), results_constrained.shape())
     non_heating_ed = results_unconstrained - sum(results_constrained.values())
 
-    # Remove all rounding errors
-    ##non_heating_ed = basic_functions.remove_neg_rounding_errors(non_heating_ed_unrounded)
-
-    assert not testing_functions.test_if_minus_value_in_array(results_unconstrained)
+    #assert not testing_functions.test_if_minus_value_in_array(results_unconstrained)
 
     # ---------------------------------
     # Add non_heating for all fueltypes

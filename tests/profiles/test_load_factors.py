@@ -36,17 +36,6 @@ def test_peak_shaving_max_min():
         fuel_yh,
         mode_constrained=False)
 
-    '''import matplotlib.pyplot as plt
-    print(fuel_yh.shape)
-    print(fuel_yh[0][0])
-    print("--")
-    print(result[0][0])
-    plt.plot(fuel_yh[0][0], label="before")
-    plt.plot(result[0][0], label="after")
-    plt.legend()
-    plt.show()
-    print("----")'''
-
     # ---------
     # expected
     # ---------

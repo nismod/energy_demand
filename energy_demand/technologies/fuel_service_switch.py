@@ -352,7 +352,7 @@ def autocomplete_switches(
 
     # Iterate enduses
     for enduse in switch_enduses:
-        print("... calculating service switches: {} crit_all_the_same: {}".format(enduse, crit_all_the_same))
+        logging.debug("... calculating service switches: {} crit_all_the_same: {}".format(enduse, crit_all_the_same))
 
         sectors_of_enduse = get_sectors_of_enduse(
             enduse, enduses, sectors)

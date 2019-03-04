@@ -5,7 +5,6 @@ import logging
 import math
 import copy
 import numpy as np
-import matplotlib.pyplot as plt
 
 from energy_demand.basic import testing_functions
 from energy_demand.profiles import load_factors as lf
@@ -125,7 +124,7 @@ class Enduse(object):
             self.enduse_techs = []
         else:
             #print("------INFO  {} {} {}  {}".format(self.enduse, sector, region, curr_yr))
-
+            #print("strarr")
             # Get technologies of enduse
             self.enduse_techs = get_enduse_techs(fuel_tech_p_by)
 
@@ -199,7 +198,7 @@ class Enduse(object):
                 strategy_vars['generic_fuel_switch'],
                 self.fuel_y)
             self.fuel_y = _fuel_new_y
-
+            #print("eeeemd")
             # ----------------------------------
             # Hourly Disaggregation
             # ----------------------------------
@@ -226,7 +225,7 @@ class Enduse(object):
                         make_all_flat=make_all_flat)
             else:
                 #If technologies are defined for an enduse
-
+                #print("A")
                 # Get enduse specific configurations
                 mode_constrained = get_enduse_configuration(
                     criterias['mode_constrained'],
@@ -296,13 +295,14 @@ class Enduse(object):
                 '''for tech, fuel_tech in fuel_tech_y.items():
                     if np.sum(fuel_tech) == 0:
                         self.enduse_techs.remove(tech)'''
-
+                
                 # ------------------------------------------
                 # Assign load profiles
                 # ------------------------------------------
                 if self.flat_profile_crit:
                     pass
                 else:
+                    #print("B")
                     fuel_yh = calc_fuel_tech_yh(
                         enduse,
                         sector,
@@ -312,7 +312,7 @@ class Enduse(object):
                         fueltypes_nr,
                         fueltypes,
                         mode_constrained)
-
+                    #print("C")
                     # --------------------------------------
                     # Peak shifting
                     # --------------------------------------
@@ -322,6 +322,7 @@ class Enduse(object):
                         # If no demand management improvenent, no peak shifting
                         if strategy_vars['dm_improvement'][enduse][curr_yr] == 0:
                             self.techs_fuel_yh = fuel_yh
+                            #print("D1")
                         else:
                             self.techs_fuel_yh = load_shifting_multiple_tech(
                                 enduse,
@@ -330,6 +331,7 @@ class Enduse(object):
                                 assumptions.technologies,
                                 fuel_yh,
                                 param_lf_improved_cy=strategy_vars['dm_improvement'][enduse][curr_yr])
+                            #print("D2")
                     else:
                         self.fuel_yh = load_shifting(
                             enduse,
@@ -337,7 +339,7 @@ class Enduse(object):
                             mode_constrained=False,
                             param_lf_improved_cy=strategy_vars['dm_improvement'][enduse][curr_yr],
                             make_all_flat=make_all_flat)
-
+                        #print("D3")
                         if testing_functions.test_if_minus_value_in_array(self.fuel_yh):
                             raise Exception("Minus fuel value detected: {}  {} {}".format(enduse, sector, np.sum(self.fuel_yh)))
 
@@ -473,8 +475,6 @@ def load_shifting(
         # Calculate load factors (only inter_day load shifting as for now)
         loadfactor_yd_cy = lf.calc_lf_d(
             fuel_yh, average_fuel_yd, mode_constrained)
-
-        #print("Loading shifting .. {}  {}  {}".format(enduse, curr_yr, param_lf_improved_cy))
 
         # Calculate current year load factors
         lf_improved_cy = calc_lf_improvement(
@@ -900,7 +900,6 @@ def service_to_fuel(
             fuel_tech_y[tech] = fuel_tech
 
             fuel_y[fueltype_int] += fuel_tech
-            #print("S --> F: tech: {} eff: {} fuel: {} service {}".format(tech, tech_eff, fuel_y[fueltype_int], service))
     else:
         for tech, fuel_tech in service_tech.items():
             fuel_y[fueltypes['heat']] += fuel_tech

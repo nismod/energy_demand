@@ -26,7 +26,6 @@ def test_if_minus_value_in_array(arraytotest, tolerance_min_max=0.00000000001):
     if len(only_neg_elements) > 0:
         for element in only_neg_elements:
             if (element > tolerance_min_max) or (element < tolerance_min_max):
-                #print("Negative elements  : " + str(only_neg_elements))
                 print("Sum of all negative:     " + str(np.sum(only_neg_elements)))
                 print("Average negative value:  " + str(np.sum(only_neg_elements) / len(only_neg_elements)))
                 print("Smalles value:           " + str(np.min(only_neg_elements)))

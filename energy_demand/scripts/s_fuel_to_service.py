@@ -212,7 +212,6 @@ def get_s_fueltype_tech(
                     s_fueltype_by_p[enduse][sector][fueltype] = 0
                 else:
                     s_fueltype_by_p[enduse][sector][fueltype] = s_fueltype_by_p[enduse][sector][fueltype] / total_s
-                #TODO KAMEL OLD ORIGINAL s_fueltype_by_p[enduse][sector][fueltype] = s_fueltype_by_p[enduse][sector][fueltype] / total_s
 
     # Test if the energy service for all technologies is 100%
     # Test if within fueltype always 100 energy service

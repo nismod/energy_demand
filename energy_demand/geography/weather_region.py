@@ -644,12 +644,8 @@ def insert_peak_dh_shape(
         Array where on peak day the peak shape is inserted
     """
     shape_y_dh_inserted = np.copy(shape_y_dh)
-    #print(np.sum(shape_y_dh_inserted))
 
     shape_y_dh_inserted[peak_day] = shape_peak_dh
-
-    #print(np.sum(shape_y_dh_inserted))
-    #assert np.sum(shape_y_dh_inserted) == 365.0
 
     return shape_y_dh_inserted
 
@@ -680,6 +676,6 @@ def get_weather_station_selection(
         # Not enough stations to select position in list
         station_id = False
         all_weather_stations_out = []
-        print("... no weather station found")
+        logging.debug("... no weather station found")
 
     return all_weather_stations_out, station_id

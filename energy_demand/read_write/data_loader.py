@@ -920,7 +920,7 @@ def load_temp_data(
     ----
     PAarquest file http://pandas.pydata.org/pandas-docs/stable/io.html#io-parquet
     """
-    print("... loading temperatures", flush=True)
+    logging.debug("... loading temperatures", flush=True)
 
     temp_data_short = defaultdict(dict)
     weather_stations_with_data = defaultdict(dict)
