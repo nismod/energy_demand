@@ -23,7 +23,6 @@ from energy_demand.read_write import read_data, write_data, data_loader
 from energy_demand.validation import lad_validation
 from energy_demand.scripts import s_scenario_param, init_scripts, s_disaggregation
 from energy_demand.plotting import fig_enduse_yh
-from energy_demand.basic import lookup_tables, date_prop, basic_functions, conversions
 from energy_demand import enduse_func
 from energy_demand.technologies import tech_related
 

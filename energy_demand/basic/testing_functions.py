@@ -5,7 +5,7 @@ import numpy as np
 from energy_demand.basic import basic_functions
 from energy_demand.basic import lookup_tables
 
-def test_if_minus_value_in_array(arraytotest, tolerance_min_max=0.00000000001):
+def test_if_minus_value_in_array(arraytotest):#, tolerance_min_max=0.00000000001):
     """Test if array has negative value according to a tolerance
     criteria
 
@@ -25,7 +25,9 @@ def test_if_minus_value_in_array(arraytotest, tolerance_min_max=0.00000000001):
 
     if len(only_neg_elements) > 0:
         for element in only_neg_elements:
-            if (element > tolerance_min_max) or (element < tolerance_min_max):
+            #if (element > tolerance_min_max) or (element < tolerance_min_max):
+            if element < 0:
+                print("---")
                 print("Sum of all negative:     " + str(np.sum(only_neg_elements)))
                 print("Average negative value:  " + str(np.sum(only_neg_elements) / len(only_neg_elements)))
                 print("Smalles value:           " + str(np.min(only_neg_elements)))

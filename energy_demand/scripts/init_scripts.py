@@ -240,7 +240,7 @@ def switch_calculations(
     for submodel_name in data['assumptions'].submodels_names:
         for enduse in data['enduses'][submodel_name]:
             for sector in data['sectors'][submodel_name]:
-                print("... calculating fuel switches {}  {}  {}".format(submodel_name, enduse, sector))
+                logging.debug("... calculating fuel switches {}  {}  {}".format(submodel_name, enduse, sector))
 
                 diffusion_param_tech[enduse][sector] = sig_param_calc_incl_fuel_switch(
                     narrative_timesteps,
@@ -300,7 +300,7 @@ def switch_calculations(
 
                         assert round(assigned_service_p, 2) == 1
 
-    print("Finished calculateding switch_calculations")
+    logging.info("Finished calculateding switch_calculations")
     return annual_tech_diff_params
 
 def spatial_explicit_modelling_strategy_vars(
@@ -334,7 +334,7 @@ def spatial_explicit_modelling_strategy_vars(
 
     # Iterate strategy variables and calculate regional variable
     for var_name, strategy_var in strategy_vars.items():
-        logging.info("...Spatially explicit diffusion modelling %s", var_name)
+        logging.debug("...Spatially explicit diffusion modelling %s", var_name)
 
         single_dim_var = narrative_related.crit_dim_var(strategy_var)
 
@@ -636,8 +636,7 @@ def sig_param_calc_incl_fuel_switch(
     """
     sig_param_tech = {}
     if sum(s_tech_by_p.values()) == 0: # no fuel is defined for enduse
-        logging.info("no fuel is defined for enduse `{}` and sector `{}`".format(enduse, sector))
-        pass
+        logging.debug("no fuel is defined for enduse `{}` and sector `{}`".format(enduse, sector))
     else:
         if share_s_tech_ey_p == {}:
             pass
@@ -687,7 +686,7 @@ def sig_param_calc_incl_fuel_switch(
                 # switches and the diffusion parameters
                 # ------------------------------------------
                 if crit_switch_service:
-                    print(".... service switch")
+                    logging.debug(".... service switch")
 
                     # Calculate only from service switch
                     s_tech_switched_p = share_s_tech_ey_p
@@ -707,7 +706,7 @@ def sig_param_calc_incl_fuel_switch(
                 # Fuel switch
                 # ------------------------------------------
                 if crit_fuel_switch:
-                    print(".... fuel switch")
+                    logging.info(".... fuel switch")
                     """Calculate future service share after fuel switches
                     and calculte sigmoid diffusion paramters."""
                     # Get fuel switches of enduse and switch_yr
@@ -741,7 +740,7 @@ def sig_param_calc_incl_fuel_switch(
 
                         s_tech_switched_p = dict(s_tech_switched_p)
                     else:
-                        logging.info("... calculating fuel switches (regional specific): {}".format(enduse))
+                        logging.debug("... calculating fuel switches (regional specific): {}".format(enduse))
                         for region in regions:
 
                             # Calculate service demand after fuel switches for each technology
@@ -769,9 +768,8 @@ def sig_param_calc_incl_fuel_switch(
                 # Calculates parameters for sigmoid diffusion of
                 # technologies which are switched to/installed.
                 # -----------------------------------------------
-                #print("---------- switches %s %s %s", enduse, crit_switch_service, crit_fuel_switch)
                 if crit_all_the_same:
-                    print("... calc parameters of `{}` for year `{}`  {}".format(enduse, switch_yr, sector))
+                    logging.debug("... calc parameters of `{}` for year `{}`  {}".format(enduse, switch_yr, sector))
                     sig_param_tech_all_regs_value = s_generate_sigmoid.tech_sigmoid_parameters(
                         switch_yr,
                         switch_yr_start,
@@ -783,7 +781,7 @@ def sig_param_calc_incl_fuel_switch(
                     for region in regions:
                         sig_param_tech[switch_yr][region] = sig_param_tech_all_regs_value
                 else:
-                    logging.info("... calc region specific parameters of `{}` for year `{}` sector: {}".format(enduse, switch_yr, sector))
+                    logging.debug("... calc region specific parameters of `{}` for year `{}` sector: {}".format(enduse, switch_yr, sector))
                     for region in regions:
                         sig_param_tech[switch_yr][region] = s_generate_sigmoid.tech_sigmoid_parameters(
                             switch_yr,

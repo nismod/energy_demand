@@ -123,8 +123,7 @@ class Enduse(object):
             self.fuel_yh = 0
             self.enduse_techs = []
         else:
-            #print("------INFO  {} {} {}  {}".format(self.enduse, sector, region, curr_yr))
-            #print("strarr")
+            #logging.debug("------INFO  {} {} {}  {}".format(self.enduse, sector, region, curr_yr))
             # Get technologies of enduse
             self.enduse_techs = get_enduse_techs(fuel_tech_p_by)
 
@@ -198,7 +197,7 @@ class Enduse(object):
                 strategy_vars['generic_fuel_switch'],
                 self.fuel_y)
             self.fuel_y = _fuel_new_y
-            #print("eeeemd")
+
             # ----------------------------------
             # Hourly Disaggregation
             # ----------------------------------
@@ -225,8 +224,6 @@ class Enduse(object):
                         make_all_flat=make_all_flat)
             else:
                 #If technologies are defined for an enduse
-                #print("A")
-                # Get enduse specific configurations
                 mode_constrained = get_enduse_configuration(
                     criterias['mode_constrained'],
                     enduse,
@@ -235,7 +232,6 @@ class Enduse(object):
                 # ------------------------------------
                 # Calculate regional energy service
                 # ------------------------------------
-                #print("A " + str(np.sum(self.fuel_y)))
                 s_tot_y_cy, s_tech_y_by = fuel_to_service(
                     enduse,
                     sector,
@@ -302,7 +298,6 @@ class Enduse(object):
                 if self.flat_profile_crit:
                     pass
                 else:
-                    #print("B")
                     fuel_yh = calc_fuel_tech_yh(
                         enduse,
                         sector,
@@ -312,7 +307,7 @@ class Enduse(object):
                         fueltypes_nr,
                         fueltypes,
                         mode_constrained)
-                    #print("C")
+
                     # --------------------------------------
                     # Peak shifting
                     # --------------------------------------
@@ -322,7 +317,6 @@ class Enduse(object):
                         # If no demand management improvenent, no peak shifting
                         if strategy_vars['dm_improvement'][enduse][curr_yr] == 0:
                             self.techs_fuel_yh = fuel_yh
-                            #print("D1")
                         else:
                             self.techs_fuel_yh = load_shifting_multiple_tech(
                                 enduse,
@@ -331,7 +325,6 @@ class Enduse(object):
                                 assumptions.technologies,
                                 fuel_yh,
                                 param_lf_improved_cy=strategy_vars['dm_improvement'][enduse][curr_yr])
-                            #print("D2")
                     else:
                         self.fuel_yh = load_shifting(
                             enduse,
@@ -339,7 +332,7 @@ class Enduse(object):
                             mode_constrained=False,
                             param_lf_improved_cy=strategy_vars['dm_improvement'][enduse][curr_yr],
                             make_all_flat=make_all_flat)
-                        #print("D3")
+
                         if testing_functions.test_if_minus_value_in_array(self.fuel_yh):
                             raise Exception("Minus fuel value detected: {}  {} {}".format(enduse, sector, np.sum(self.fuel_yh)))
 

@@ -1,5 +1,6 @@
 """Functions handling the narratives
 """
+import logging
 from collections import defaultdict
 
 from energy_demand.basic import lookup_tables
@@ -195,8 +196,8 @@ def default_narrative(
         'sig_midpoint': sig_midpoint,
         'sig_steepness': sig_steepness,
         'regional_specific': regional_specific,
-        'fueltype_replace': 0,
-        'fueltype_new': 0
+        'fueltype_replace': fueltype_replace,
+        'fueltype_new': fueltype_new
         }]
 
 def autocomplete(parameter_narratives, simulation_base_yr, sub_param_crit):
@@ -205,7 +206,7 @@ def autocomplete(parameter_narratives, simulation_base_yr, sub_param_crit):
     autocomplet_param_narr = defaultdict(dict)
 
     for sub_param_name, narratives_sector in parameter_narratives.items():
-        print("   ... " + str(sub_param_name))
+        logging.debug("   ... " + str(sub_param_name))
         for sector, narratives in narratives_sector.items():
             autocomplet_param_narr[sub_param_name][sector] = []
 
@@ -339,7 +340,6 @@ def read_user_defined_param(
                             _ = default_streategy_var[enduse]
                             defined_in_model = True
                         except KeyError:
-                            #print("... not defined in model")
                             defined_in_model = False
 
                         # All entries of this year df_enduse and this fueltype
@@ -451,7 +451,7 @@ def read_user_defined_param(
         # ------------
         # Autocomplete
         # ------------
-        print("... autocomplete")
+        logging.debug("... autocomplete")
         parameter_narratives = autocomplete(
             parameter_narratives,
             simulation_base_yr,

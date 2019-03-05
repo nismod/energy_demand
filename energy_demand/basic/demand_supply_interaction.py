@@ -5,7 +5,7 @@ import logging
 import numpy as np
 import pandas as pd
 
-from energy_demand.basic import date_prop, testing_functions, lookup_tables, basic_functions 
+from energy_demand.basic import date_prop, testing_functions, lookup_tables
 
 def constrained_results(
         results_constrained,
@@ -85,7 +85,7 @@ def constrained_results(
     # Substract constrained fuel from nonconstrained (total) fuel
     non_heating_ed = results_unconstrained - sum(results_constrained.values())
 
-    #assert not testing_functions.test_if_minus_value_in_array(results_unconstrained)
+    assert not testing_functions.test_if_minus_value_in_array(non_heating_ed)
 
     # ---------------------------------
     # Add non_heating for all fueltypes

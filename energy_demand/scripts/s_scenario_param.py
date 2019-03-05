@@ -1,5 +1,6 @@
 """Generate scenario paramters for every year
 """
+import logging
 from collections import defaultdict
 
 from energy_demand.technologies import diffusion_technologies
@@ -153,7 +154,7 @@ def generate_annual_param_vals(
         single_dim_var = narrative_related.crit_dim_var(
             strategy_vars_values)
 
-        print("Calculating annual values for parameter: {} {}".format(var_name, single_dim_var))
+        logging.debug("Calculating annual values for parameter: {} {}".format(var_name, single_dim_var))
         if single_dim_var:
 
             # Additional dictionary passed along with every variable containing additional information
