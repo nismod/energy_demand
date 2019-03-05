@@ -144,7 +144,7 @@ def testing_tech_defined(technologies, all_tech_enduse):
                             tech))
 
 def test_function_fuel_sum(
-    data,
+        data,
         fuel_disagg,
         mode_constrained,
         space_heating_enduses

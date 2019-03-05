@@ -220,6 +220,9 @@ class Enduse(object):
                         mode_constrained=False,
                         param_lf_improved_cy=strategy_vars['dm_improvement'][enduse][curr_yr],
                         make_all_flat=make_all_flat)
+
+                    assert not testing_functions.test_if_minus_value_in_array(self.fuel_yh) #KAMEL
+
             else: #If technologies are defined for an enduse
                 mode_constrained = get_enduse_configuration(
                     criterias['mode_constrained'],
@@ -288,11 +291,11 @@ class Enduse(object):
                 '''for tech, fuel_tech in fuel_tech_y.items():
                     if np.sum(fuel_tech) == 0:
                         self.enduse_techs.remove(tech)'''
+                
+                for i in fuel_tech_y.values():
+                    assert not testing_functions.test_if_minus_value_in_array(i)
+                assert not testing_functions.test_if_minus_value_in_array(self.fuel_y)
 
-                #for key, i in fuel_tech_y.items():
-                    #print("      t: {}".format(key))
-                #    assert not testing_functions.test_if_minus_value_in_array(i)
-                #assert not testing_functions.test_if_minus_value_in_array(self.fuel_y)
                 # ------------------------------------------
                 # Assign load profiles
                 # ------------------------------------------
@@ -327,10 +330,9 @@ class Enduse(object):
                                 fuel_yh,
                                 param_lf_improved_cy=strategy_vars['dm_improvement'][enduse][curr_yr])
                             
-                            #assert not testing_functions.test_if_minus_value_in_array(self.fuel_y)
-                            #for key, i in self.techs_fuel_yh.items():
-                                #print("      t: {}".format(key))
-                            #    assert not testing_functions.test_if_minus_value_in_array(i)
+                            assert not testing_functions.test_if_minus_value_in_array(self.fuel_y)
+                            for key, i in self.techs_fuel_yh.items():
+                                assert not testing_functions.test_if_minus_value_in_array(i)
                     else:
                         self.fuel_yh = load_shifting(
                             enduse,
@@ -339,8 +341,8 @@ class Enduse(object):
                             param_lf_improved_cy=strategy_vars['dm_improvement'][enduse][curr_yr],
                             make_all_flat=make_all_flat)
 
-                        #if testing_functions.test_if_minus_value_in_array(self.fuel_yh):
-                        #    raise Exception("Minus fuel value detected: {}  {} {}".format(enduse, sector, np.sum(self.fuel_yh)))
+                        if testing_functions.test_if_minus_value_in_array(self.fuel_yh):
+                            raise Exception("Minus fuel value detected: {}  {} {}".format(enduse, sector, np.sum(self.fuel_yh)))
 
 def load_shifting_multiple_tech(
         enduse,

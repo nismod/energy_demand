@@ -97,7 +97,8 @@ class EnergyDemandModel(object):
         aggr_results = initialise_result_container(
             assumptions.fueltypes_nr,
             assumptions.reg_nrs,
-            assumptions.lookup_enduses)
+            assumptions.lookup_enduses,
+            assumptions.nr_of_submodels)
 
         # -------------------------------------------
         # Simulate regions
@@ -258,8 +259,11 @@ def aggregate_across_all_regs(
         aggr_results['supply_results'] = demand_supply_interaction.constrained_results(
             aggr_results['results_constrained'],
             aggr_results['results_unconstrained'],
+            aggr_results['results_unconstrained_no_heating'],
             assumptions.submodels_names,
-            technologies)
+            technologies,
+            reg_nrs,
+            assumptions.fueltypes_nr)
     else:
         aggr_results['supply_results'] = demand_supply_interaction.unconstrained_results(
             aggr_results['results_unconstrained'],
@@ -769,10 +773,10 @@ def aggregate_single_region(
             for tech, fuel_tech in techs_fueltypes_yh.items():
                 tech_fueltype = technologies[tech].fueltype_int
                 reshaped_fuel = fuel_tech.reshape(8760)
+
                 # -------------------------------------------            
                 # Add all technologies to main aggreator (heating & non heating)
                 # -------------------------------------------
-                
                 aggr_results['ed_enduse_fueltype_regs_yh'][enduse_array_nr][tech_fueltype][reg_array_nr] += reshaped_fuel
 
                 # -----------------------------------------------------------------
@@ -789,23 +793,29 @@ def aggregate_single_region(
                             if tech not in aggr_results['results_constrained']:
                                 aggr_results['results_constrained'][tech] = np.zeros((len(submodel_to_idx), reg_nrs, fueltypes_nr, 8760), dtype="float")
                             aggr_results['results_constrained'][tech][submodel_nr][reg_array_nr][tech_fueltype] += reshaped_fuel
+
+                    else:
+                        aggr_results['results_unconstrained_no_heating'][submodel_nr][reg_array_nr][tech_fueltype] += reshaped_fuel
+                else:
+                    aggr_results['results_unconstrained_no_heating'][submodel_nr][reg_array_nr][tech_fueltype] += reshaped_fuel
+
         else:
             # Only add heating technologies to constrained results
             fueltype_yh_365_24 = get_fuels_yh(enduse_object, 'fuel_yh')
             fueltype_yh_8760 = fueltype_yh_365_24.reshape(fueltypes_nr, 8760)
 
-            if enduse_object.enduse in enduse_space_heating:
-                if np.sum(fueltype_yh_8760) != 0:
-                    raise Exception("WHAT IST THIS??  {}  {}".format(enduse_object.enduse, fueltype_yh_8760.shape))
             for fueltype_nr, fuels_8760 in enumerate(fueltype_yh_8760):
                 aggr_results['ed_enduse_fueltype_regs_yh'][enduse_array_nr][fueltype_nr][reg_array_nr] += fuels_8760
+                
+                aggr_results['results_unconstrained_no_heating'][submodel_nr][reg_array_nr][fueltype_nr] += fuels_8760
 
     return aggr_results
 
 def initialise_result_container(
         fueltypes_nr,
         reg_nrs,
-        lookup_enduses
+        lookup_enduses,
+        nr_of_submodels
     ):
     """Create container with empty dict or arrays
     as values in a dict. This is used to aggregate the
@@ -829,6 +839,8 @@ def initialise_result_container(
     """
     container = {}
     container['results_constrained'] = {}
+    container['results_unconstrained_no_heating'] = np.zeros((
+        nr_of_submodels, reg_nrs, fueltypes_nr, 8760), dtype="float")
     container['ed_enduse_fueltype_regs_yh'] = np.zeros((
         len(lookup_enduses), fueltypes_nr, reg_nrs, 8760), dtype="float")
 
@@ -873,7 +885,7 @@ def aggregate_from_full_results(
         Enduse lookup
     aggregated_container : dict
         Container to aggregate
-    full_sim_data : dict
+    full_sim_data : array
          Modelling results per submodel, enduse, region, fueltype, 8760h
     time_resolution : str
         Either 'annual', 'hourly', '360_24_h', '8760_h'
