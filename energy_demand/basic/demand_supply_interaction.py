@@ -9,7 +9,7 @@ from energy_demand.basic import date_prop, testing_functions, lookup_tables
 
 def constrained_results(
         results_constrained,
-        results_unconstrained,
+        #results_unconstrained,
         results_unconstrained_no_heating,
         submodels_names,
         technologies,
@@ -65,7 +65,7 @@ def constrained_results(
     # Add all constrained results (technology specific results)
     # Aggregate according to submodel, fueltype, technology, region, timestep
     # ----------------------------------------
-    summed_heating_demand = np.zeros((len(submodels_names), reg_nrs, fueltype_nrs, 8760))
+    #summed_heating_demand = np.zeros((len(submodels_names), reg_nrs, fueltype_nrs, 8760))
     for submodel_nr, submodel in enumerate(submodels_names):
         for tech, fuel_tech in results_constrained.items():
             # ----
@@ -76,21 +76,8 @@ def constrained_results(
             fueltype_int = technologies[tech_simplified].fueltype_int
             key_name = "{}_{}_{}".format(submodel, fueltype_str, tech_simplified)
 
-            # KAMEL
-            #_fuel = np.zeros((len(submodels_names), reg_nrs, fueltype_nrs, 8760))
-            #for region in range(reg_nrs):
-            #    _fuel[submodel_nr][region][fueltype_int] += fuel_tech[submodel_nr][region][fueltype_int]
-
-            #print("ffff " + str(np.sum(_fuel)))
-            #print("fff2 " + str(np.sum(fuel_tech[submodel_nr][:, fueltype_int, :])))
-            #print(_fuel.shape)
-            #print(fuel_tech[submodel_nr][:, fueltype_int, :].shape)
-            #print("--*--")
             # Out results
             supply_results[key_name] = fuel_tech[submodel_nr][:, fueltype_int, :]
-
-            summed_heating_demand[submodel_nr][:, fueltype_int, :] += fuel_tech[submodel_nr][:, fueltype_int, :]
-            #summed_heating_demand[submodel_nr][:, fueltype_int, :] += _fuel
 
     #for key_name, values in supply_results.items():
     #    if testing_functions.test_if_minus_value_in_array(values):
@@ -100,26 +87,24 @@ def constrained_results(
     # --------------------------------
     #assert not testing_functions.test_if_minus_value_in_array(results_unconstrained)
     #assert not testing_functions.test_if_minus_value_in_array(summed_heating_demand)
-    print(fuel_tech[submodel_nr][:, fueltype_int, :].shape)
-    print("ddddd")
-    print(np.sum(summed_heating_demand))
-    print(np.sum(results_unconstrained))
-    print(np.sum(results_unconstrained_no_heating))
-    print(results_unconstrained.shape)
-    print(summed_heating_demand.shape)
-    print(results_unconstrained_no_heating.shape)
-    print("DDdf --")
-    assert not testing_functions.test_if_minus_value_in_array(results_unconstrained_no_heating)
+    #print(fuel_tech[submodel_nr][:, fueltype_int, :].shape)
+    #print("ddddd")
+    #print(np.sum(summed_heating_demand))
+    #print(np.sum(results_unconstrained))
+    #print(np.sum(results_unconstrained_no_heating))
+    #print(results_unconstrained.shape)
+    #print(summed_heating_demand.shape)
+    #print(results_unconstrained_no_heating.shape)
+    #print("DDdf --")
+    #assert not testing_functions.test_if_minus_value_in_array(results_unconstrained_no_heating)
     # Substract constrained fuel from nonconstrained (total) fuel
-    non_heating_ed_OLD = results_unconstrained - summed_heating_demand #sum(results_constrained.values())
-    non_heating_ed = results_unconstrained_no_heating
-    print("affff")
-    print(np.sum(non_heating_ed_OLD))
-    print(np.sum(non_heating_ed))
-    print(non_heating_ed_OLD.shape)
-    print(non_heating_ed.shape)
-    print("--")
-    assert not testing_functions.test_if_minus_value_in_array(non_heating_ed)
+    #non_heating_ed_OLD = results_unconstrained - summed_heating_demand #sum(results_constrained.values())
+
+    #print(np.sum(non_heating_ed_OLD))
+    #print(np.sum(non_heating_ed))
+    #print(non_heating_ed_OLD.shape)
+    #print(non_heating_ed.shape)
+    assert not testing_functions.test_if_minus_value_in_array(results_unconstrained_no_heating)
 
     # ---------------------------------
     # Add non_heating for all fueltypes
@@ -133,7 +118,7 @@ def constrained_results(
                 key_name = "{}_{}_{}".format(submodel, fueltype_str, "non_heating")
 
                 # Add fuel for all regions for specific fueltype
-                supply_results[key_name] = non_heating_ed[submodel_nr][:, fueltype_int, :]
+                supply_results[key_name] = results_unconstrained_no_heating[submodel_nr][:, fueltype_int, :]
 
     # --------------------------------------------
     # Check whether any entry is smaller than zero

@@ -245,12 +245,12 @@ def aggregate_across_all_regs(
     # Unconstrained results
     # np.array of all fueltypes (submodel, region, fueltype, hours)
     # ----------------------------------------------------
-    aggr_results['results_unconstrained'] = aggregate_result_unconstrained(
+    '''aggr_results['results_unconstrained'] = aggregate_result_unconstrained(
         assumptions.nr_of_submodels,
         assumptions.lookup_sector_enduses,
         aggr_results['ed_enduse_fueltype_regs_yh'],
         fueltypes_nr,
-        reg_nrs)
+        reg_nrs)'''
 
     # ----------------------------------------------------
     # Generate dict for supply model
@@ -258,7 +258,7 @@ def aggregate_across_all_regs(
     if criterias['mode_constrained']:
         aggr_results['supply_results'] = demand_supply_interaction.constrained_results(
             aggr_results['results_constrained'],
-            aggr_results['results_unconstrained'],
+            #aggr_results['results_unconstrained'],
             aggr_results['results_unconstrained_no_heating'],
             assumptions.submodels_names,
             technologies,
@@ -759,8 +759,7 @@ def aggregate_single_region(
         for idx, name in enumerate(lookup_tables.basic_lookups()['submodels_names'])
     }
 
-    # Iterate all simulation results
-    for enduse_object in all_submodels:
+    for enduse_object in all_submodels: # Iterate all simulation results
         # -----------------------------------------------------------------
         # Aggregate fuel of all technologies
         # -----------------------------------------------------------------
