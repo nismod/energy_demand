@@ -79,7 +79,7 @@ def energy_demand_model(
     # Log model results
     write_data.logg_info(modelrun, fuels_in, data)
 
-    return modelrun 
+    return modelrun
 
 if __name__ == "__main__":
     """

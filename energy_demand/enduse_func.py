@@ -116,15 +116,13 @@ class Enduse(object):
         self.flat_profile_crit = flat_profile_crit
         self.techs_fuel_yh = None
 
-        #If enduse has no fuel return empty shapes
-        if np.sum(fuel) == 0:
+        if np.sum(fuel) == 0: #If enduse has no fuel return empty shapes
             self.flat_profile_crit = True
             self.fuel_y = fuel
             self.fuel_yh = 0
             self.enduse_techs = []
         else:
             #logging.debug("------INFO  {} {} {}  {}".format(self.enduse, sector, region, curr_yr))
-            # Get technologies of enduse
             self.enduse_techs = get_enduse_techs(fuel_tech_p_by)
 
             # -----------------------------
@@ -222,8 +220,7 @@ class Enduse(object):
                         mode_constrained=False,
                         param_lf_improved_cy=strategy_vars['dm_improvement'][enduse][curr_yr],
                         make_all_flat=make_all_flat)
-            else:
-                #If technologies are defined for an enduse
+            else: #If technologies are defined for an enduse
                 mode_constrained = get_enduse_configuration(
                     criterias['mode_constrained'],
                     enduse,
@@ -291,7 +288,11 @@ class Enduse(object):
                 '''for tech, fuel_tech in fuel_tech_y.items():
                     if np.sum(fuel_tech) == 0:
                         self.enduse_techs.remove(tech)'''
-                
+
+                #for key, i in fuel_tech_y.items():
+                    #print("      t: {}".format(key))
+                #    assert not testing_functions.test_if_minus_value_in_array(i)
+                #assert not testing_functions.test_if_minus_value_in_array(self.fuel_y)
                 # ------------------------------------------
                 # Assign load profiles
                 # ------------------------------------------
@@ -325,6 +326,11 @@ class Enduse(object):
                                 assumptions.technologies,
                                 fuel_yh,
                                 param_lf_improved_cy=strategy_vars['dm_improvement'][enduse][curr_yr])
+                            
+                            #assert not testing_functions.test_if_minus_value_in_array(self.fuel_y)
+                            #for key, i in self.techs_fuel_yh.items():
+                                #print("      t: {}".format(key))
+                            #    assert not testing_functions.test_if_minus_value_in_array(i)
                     else:
                         self.fuel_yh = load_shifting(
                             enduse,
@@ -333,8 +339,8 @@ class Enduse(object):
                             param_lf_improved_cy=strategy_vars['dm_improvement'][enduse][curr_yr],
                             make_all_flat=make_all_flat)
 
-                        if testing_functions.test_if_minus_value_in_array(self.fuel_yh):
-                            raise Exception("Minus fuel value detected: {}  {} {}".format(enduse, sector, np.sum(self.fuel_yh)))
+                        #if testing_functions.test_if_minus_value_in_array(self.fuel_yh):
+                        #    raise Exception("Minus fuel value detected: {}  {} {}".format(enduse, sector, np.sum(self.fuel_yh)))
 
 def load_shifting_multiple_tech(
         enduse,
@@ -880,18 +886,14 @@ def service_to_fuel(
 
     if mode_constrained:
         for tech, service in service_tech.items():
-
             tech_eff = tech_stock.get_tech_attr(
                 enduse, sector, tech, 'eff_cy')
             fueltype_int = tech_stock.get_tech_attr(
                 enduse, sector, tech, 'fueltype_int')
 
-            # Convert to fuel
-            fuel_tech = service / tech_eff
+            fuel_tech = service / tech_eff # Convert to fuel
 
-            # Add fuel
-            fuel_tech_y[tech] = fuel_tech
-
+            fuel_tech_y[tech] = fuel_tech # Add fuel
             fuel_y[fueltype_int] += fuel_tech
     else:
         for tech, fuel_tech in service_tech.items():

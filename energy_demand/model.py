@@ -761,47 +761,42 @@ def aggregate_single_region(
         # Aggregate fuel of all technologies
         # -----------------------------------------------------------------
         techs_fueltypes_yh = get_fuels_yh(enduse_object, 'techs_fuel_yh')
+        enduse_array_nr = lookup_enduses[enduse_object.enduse]
+        submodel_nr = submodel_to_idx[enduse_object.submodel_name]
 
         if isinstance(techs_fueltypes_yh, dict):
-            enduse_array_nr = lookup_enduses[enduse_object.enduse]
-            submodel_nr = submodel_to_idx[enduse_object.submodel_name]
 
             for tech, fuel_tech in techs_fueltypes_yh.items():
                 tech_fueltype = technologies[tech].fueltype_int
-                
+                reshaped_fuel = fuel_tech.reshape(8760)
                 # -------------------------------------------            
                 # Add all technologies to main aggreator (heating & non heating)
                 # -------------------------------------------
-                aggr_results['ed_enduse_fueltype_regs_yh'][enduse_array_nr][tech_fueltype][reg_array_nr] += fuel_tech.reshape(8760)
+                
+                aggr_results['ed_enduse_fueltype_regs_yh'][enduse_array_nr][tech_fueltype][reg_array_nr] += reshaped_fuel
 
                 # -----------------------------------------------------------------
                 # Aggregate fuel of constrained technologies for heating
+                # Only add heating technologies to constrained results
                 # -----------------------------------------------------------------
                 if mode_constrained:
-
-                    # Only add heating technologies to constrained results
                     if enduse_object.enduse in enduse_space_heating:
 
                         # Aggregate Submodel (sector) specific enduse for fueltype
                         if tech in aggr_results['results_constrained'].keys():
-                            aggr_results['results_constrained'][tech][submodel_nr][reg_array_nr][tech_fueltype] += fuel_tech.reshape(8760)
+                            aggr_results['results_constrained'][tech][submodel_nr][reg_array_nr][tech_fueltype] += reshaped_fuel
                         else:
                             if tech not in aggr_results['results_constrained']:
                                 aggr_results['results_constrained'][tech] = np.zeros((len(submodel_to_idx), reg_nrs, fueltypes_nr, 8760), dtype="float")
-                            aggr_results['results_constrained'][tech][submodel_nr][reg_array_nr][tech_fueltype] += fuel_tech.reshape(8760)
-
-                    #else: # Add all other non-heating technologies to main aggreator
-                    #    aggr_results['ed_enduse_fueltype_regs_yh'][enduse_array_nr][tech_fueltype][reg_array_nr] += fuel_tech.reshape(8760)
-                
-                #non_heating_ed = results_unconstrained - sum(results_constrained.values())
-                #assert not testing_functions.test_if_minus_value_in_array(non_heating_ed)
-                #print("AAA {} {}".format(
-                #    np.sum(aggr_results['ed_enduse_fueltype_regs_yh']),
-                #    np.sum(aggr_results['results_constrained'])))
+                            aggr_results['results_constrained'][tech][submodel_nr][reg_array_nr][tech_fueltype] += reshaped_fuel
         else:
+            # Only add heating technologies to constrained results
             fueltype_yh_365_24 = get_fuels_yh(enduse_object, 'fuel_yh')
             fueltype_yh_8760 = fueltype_yh_365_24.reshape(fueltypes_nr, 8760)
 
+            if enduse_object.enduse in enduse_space_heating:
+                if np.sum(fueltype_yh_8760) != 0:
+                    raise Exception("WHAT IST THIS??  {}  {}".format(enduse_object.enduse, fueltype_yh_8760.shape))
             for fueltype_nr, fuels_8760 in enumerate(fueltype_yh_8760):
                 aggr_results['ed_enduse_fueltype_regs_yh'][enduse_array_nr][fueltype_nr][reg_array_nr] += fuels_8760
 
