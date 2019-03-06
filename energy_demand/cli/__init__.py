@@ -39,12 +39,6 @@ def parse_arguments():
         help='Executes the raw reading functions')
 
     parser_init.add_argument(
-        '-d',
-        '--local_data',
-        default='./data',
-        help='Path to the local data folder')
-
-    parser_init.add_argument(
         '-f',
         '--config_file',
         default='./data',
