@@ -71,7 +71,7 @@ def post_install_setup(args):
         basic_functions.create_folder(folder)
 
     print("... Read in residential submodel load profiles", flush=True)
-    s_rs_raw_shapes.run(
+    '''s_rs_raw_shapes.run(
         data['paths'],
         data['local_paths'],
         base_yr)
@@ -83,7 +83,7 @@ def post_install_setup(args):
         data['lookups'])
 
     # Input data preparation
-    print("Generate additional data", flush=True)
+    print("Generate additional data", flush=True)'''
 
     # Extract NISMOD population data
     path_to_zip_file = os.path.join(local_data_path,"population-economic-smif-csv-from-nismod-db.zip")
@@ -98,9 +98,8 @@ def post_install_setup(args):
     geography_name = "lad_uk_2016"
 
     # All MISTRAL scenarios to prepare with correct config
-    scenarios_to_generate = [
-        'pop-baseline16_econ-c16_fuel-c16'
-    ]
+    scenarios_to_generate = ['pop-baseline16_econ-c16_fuel-c16']
+    #scenarios_to_generate = []
 
     script_data_preparation_MISTRAL_pop_gva.run(
         path_to_folder=data_pop,

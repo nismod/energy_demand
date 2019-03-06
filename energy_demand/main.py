@@ -7,6 +7,7 @@ Always execute from root folder and pass the path to the .ini file as argument:
     Examples
     python energy_demand/energy_demand/main.py C:/Users/cenv0553/ed/energy_demand/local_run_config_file.ini test_run
     python energy_demand/energy_demand/main.py C:/Users/cenv0553/ed/energy_demand/local_run_config_file.ini h_max NF1 h_max
+
 """
 import os
 import sys
@@ -167,10 +168,10 @@ if __name__ == "__main__":
     data['enduses'], data['sectors'], data['fuels'], lookup_enduses, lookup_sector_enduses = data_loader.load_fuels(data['paths'])
     data['regions'] = read_data.get_region_names(name_region_set)
     data['reg_coord'] = basic_functions.get_long_lat_decimal_degrees(read_data.get_region_centroids(name_region_set))
-
-    data['scenario_data']['population'] = data_loader.read_scenario_data(name_population_dataset)
-    data['scenario_data']['gva_industry'] = data_loader.read_scenario_data_gva(name_gva_dataset, all_dummy_data=False)
-    data['scenario_data']['gva_per_head'] = data_loader.read_scenario_data(name_gva_dataset_per_head)
+    print("AA " + str(name_gva_dataset))
+    data['scenario_data']['population'] = data_loader.read_scenario_data(name_population_dataset, region_name='lad_uk_2016', value_name='population')
+    data['scenario_data']['gva_industry'] = data_loader.read_scenario_data_gva(name_gva_dataset, region_name='lad_uk_2016', value_name='gva_per_head', all_dummy_data=False)
+    data['scenario_data']['gva_per_head'] = data_loader.read_scenario_data(name_gva_dataset_per_head, region_name='lad_uk_2016', value_name='gva_per_head')
 
     # -----------------------------
     # Assumptions

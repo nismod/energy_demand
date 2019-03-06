@@ -1262,7 +1262,7 @@ def ss_read_shapes_enduse_techs(ss_shapes_dh, ss_shapes_yd):
 
     return ss_all_tech_shapes_dh, ss_all_tech_shapes_yd
 
-def read_scenario_data(path_to_csv):
+def read_scenario_data(path_to_csv, value_name='value', region_name='region'):
     """
     """
     data = {}
@@ -1275,9 +1275,9 @@ def read_scenario_data(path_to_csv):
         headings = next(rows)  # Skip first row
         for row in rows:
 
-            region = str(row[read_data.get_position(headings, 'region')])
+            region = str(row[read_data.get_position(headings, region_name)])
             year = int(float(row[read_data.get_position(headings, 'timestep')]))
-            value = float(row[read_data.get_position(headings, 'value')])
+            value = float(row[read_data.get_position(headings, value_name)])
 
             try:
                 data[year][region] = value
@@ -1287,7 +1287,7 @@ def read_scenario_data(path_to_csv):
 
     return data
 
-def read_scenario_data_gva(path_to_csv, all_dummy_data=False):
+def read_scenario_data_gva(path_to_csv, region_name='region', value_name='value', all_dummy_data=False):
     """Function to read in GVA locally
 
     IF no value, provide with dummy value "1"
@@ -1306,9 +1306,8 @@ def read_scenario_data_gva(path_to_csv, all_dummy_data=False):
             # All dummy data
             # --------------
             if all_dummy_data:
-                region = str(row[read_data.get_position(headings, 'region')])
+                region = str(row[read_data.get_position(headings, region_name)])
                 for year_dummy in range(2015, 2051):
-
                     for sector_dummy in range(1, 47):
                         dummy_sector_value = 1
 
@@ -1320,15 +1319,15 @@ def read_scenario_data_gva(path_to_csv, all_dummy_data=False):
 
             else:
                 if row[read_data.get_position(headings, 'timestep')] == '': #No data provided
-                    region = str(row[read_data.get_position(headings, 'region')])
+                    region = str(row[read_data.get_position(headings, region_name)])
                     for year_dummy in range(2015, 2051):
                         for sector_dummy in range(1, 47):
                             dummy_sector_value = 1
                             out_dict[year_dummy][region][sector_dummy] = dummy_sector_value
                 else:
-                    region = str(row[read_data.get_position(headings, 'region')])
+                    region = str(row[read_data.get_position(headings, region_name)])
                     year = int(float(row[read_data.get_position(headings, 'timestep')]))
-                    value = float(row[read_data.get_position(headings, 'value')])
+                    value = float(row[read_data.get_position(headings, value_name)])
                     economic_sector__gor = float(row[read_data.get_position(headings, 'economic_sector__gor')])
                 try:
                     out_dict[year][region][economic_sector__gor] = value

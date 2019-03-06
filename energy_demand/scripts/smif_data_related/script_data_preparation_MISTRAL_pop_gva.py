@@ -211,9 +211,8 @@ def run(
         break
 
     for folder_name in all_csv_folders:
-        
         all_files = os.listdir(os.path.join(path_to_folder, folder_name))
-        if folder_name in scenarios_to_generate:
+        if (scenarios_to_generate == []) or (folder_name in scenarios_to_generate):
             print("folder name: " + str(folder_name), flush=True)
             for file_name in all_files:
                 filename_split = file_name.split("__")
