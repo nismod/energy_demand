@@ -77,7 +77,7 @@ class EnergyDemandModel(object):
         # ------------------------
         # Create Dwelling Stock
         # ------------------------
-        logging.debug("... generating dwelling stocks", flush=True)
+        logging.debug("... generating dwelling stocks")
         lookups = lookup_tables.basic_lookups()
 
         if criterias['virtual_building_stock_criteria']:
