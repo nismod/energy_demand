@@ -70,7 +70,7 @@ In order to run HIRE, first the model needs to be set up (Section 1.1 or Section
 
 4.  Install HIRE from within the console with the command
 
-    ``energy_demand setup -d path/to/energy_data_folder -f path/to/config.ini``
+    ``energy_demand setup -f path/to/config.ini``
 
     The ``path/to/energy_data_folder`` is the path to the location with
     the necessary data to run the model.

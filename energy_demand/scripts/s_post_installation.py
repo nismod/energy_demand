@@ -94,13 +94,19 @@ def post_install_setup(args):
     # Complete gva and pop data for every sector
     data_pop = os.path.join(local_data_path, "scenarios", "MISTRAL_pop_gva", "data")
     path_geography = os.path.join(local_data_path, "scenarios", "uk_pop_principal_2015_2050_MSOA_england.csv")
-    geography_name = "region"  # "lad_uk_2016"
+    geography_name = "lad_uk_2016"
+
+    # All MISTRAL scenarios to prepare with correct config
+    scenarios_to_generate = [
+        'pop-baseline16_econ-c16_fuel-c16'
+    ]
 
     script_data_preparation_MISTRAL_pop_gva.run(
         path_to_folder=data_pop,
         path_MSOA_baseline=path_geography,
         MSOA_calculations=False,
-        geography_name="region") # "lad_uk_2016"
+        geography_name=geography_name,
+        scenarios_to_generate=scenarios_to_generate)
 
     print("... successfully finished setup")
     return
