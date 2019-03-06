@@ -30,11 +30,9 @@ def post_install_setup(args):
     print("... start running initialisation scripts", flush=True)
 
     path_config_file = args.config_file
-    local_data_path = args.local_data
 
     config = data_loader.read_config_file(path_config_file)
 
-    local_data_path = config['PATHS']['path_local_data']
     base_yr = config['CONFIG']['base_yr']
 
     data = {}
