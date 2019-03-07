@@ -73,7 +73,6 @@ class EnergyDemandModel(object):
         """Constructor
         """
         self.curr_yr = assumptions.curr_yr
-
         # ------------------------
         # Create Dwelling Stock
         # ------------------------
@@ -242,28 +241,14 @@ def aggregate_across_all_regs(
         reg_nrs)
 
     # ----------------------------------------------------
-    # Unconstrained results
-    # np.array of all fueltypes (submodel, region, fueltype, hours)
-    # ----------------------------------------------------
-    '''aggr_results['results_unconstrained'] = aggregate_result_unconstrained(
-        assumptions.nr_of_submodels,
-        assumptions.lookup_sector_enduses,
-        aggr_results['ed_enduse_fueltype_regs_yh'],
-        fueltypes_nr,
-        reg_nrs)'''
-
-    # ----------------------------------------------------
     # Generate dict for supply model
     # ----------------------------------------------------
     if criterias['mode_constrained']:
         aggr_results['supply_results'] = demand_supply_interaction.constrained_results(
             aggr_results['results_constrained'],
-            #aggr_results['results_unconstrained'],
             aggr_results['results_unconstrained_no_heating'],
             assumptions.submodels_names,
-            technologies,
-            reg_nrs,
-            assumptions.fueltypes_nr)
+            technologies)
     else:
         aggr_results['supply_results'] = demand_supply_interaction.unconstrained_results(
             aggr_results['results_unconstrained'],
@@ -671,44 +656,6 @@ def create_dwelling_stock(regions, curr_yr, data):
     #data['ss_dw_stock'][region][curr_yr] = dw_stock.createNEWCASTLE_dwelling_stock(self.curr_yr)
     return data
 
-def aggregate_result_unconstrained(
-        nr_of_submodels,
-        lookup_sector_enduses,
-        ed_enduse_fueltype_regs_yh,
-        fueltypes_nr,
-        reg_nrs
-    ):
-    """Aggregated unconstrained results. Summarise energy demand
-    of unconstrained mode (heat is provided)
-
-    Arguments
-    ---------
-    nr_of_submodels : int
-        Number of submodels
-    submodels_enduses : dict
-        Submodels and enduses
-    ed_enduse_fueltype_regs_yh : array
-        Fuel array
-    fueltypes_nr : int
-        Number of fueltypes
-    reg_nrs : int
-        Number of regions
-
-    Returns
-    --------
-    constrained_array : array
-        assumptions.nr_of_submodels, reg_nrs, fueltypes_nr, 8760
-    """
-    constrained_array = np.zeros((nr_of_submodels, reg_nrs, fueltypes_nr, 8760), dtype="float")
-
-    for submodel_nr, enduse_array_nrs in lookup_sector_enduses.items():
-        for enduse_array_nr in enduse_array_nrs:
-            for fueltype_nr in range(fueltypes_nr):
-                for region_nr in range(reg_nrs):
-                    constrained_array[submodel_nr][region_nr][fueltype_nr] += ed_enduse_fueltype_regs_yh[enduse_array_nr][fueltype_nr][region_nr]
-
-    return constrained_array
-
 def aggregate_single_region(
         reg_nrs,
         lookup_enduses,
@@ -792,7 +739,6 @@ def aggregate_single_region(
                             if tech not in aggr_results['results_constrained']:
                                 aggr_results['results_constrained'][tech] = np.zeros((len(submodel_to_idx), reg_nrs, fueltypes_nr, 8760), dtype="float")
                             aggr_results['results_constrained'][tech][submodel_nr][reg_array_nr][tech_fueltype] += reshaped_fuel
-
                     else:
                         aggr_results['results_unconstrained_no_heating'][submodel_nr][reg_array_nr][tech_fueltype] += reshaped_fuel
                 else:
@@ -805,7 +751,7 @@ def aggregate_single_region(
 
             for fueltype_nr, fuels_8760 in enumerate(fueltype_yh_8760):
                 aggr_results['ed_enduse_fueltype_regs_yh'][enduse_array_nr][fueltype_nr][reg_array_nr] += fuels_8760
-                
+
                 aggr_results['results_unconstrained_no_heating'][submodel_nr][reg_array_nr][fueltype_nr] += fuels_8760
 
     return aggr_results

@@ -217,8 +217,8 @@ def write_weather_data(data_list):
             stations_data[station_id_cnt] = station_data
 
             # Weather station metadata
-            station_lon = row[1]
             station_lat = row[0]
+            station_lon = row[1]
 
             station_id = "station_id_{}".format(station_id_cnt)
 
@@ -259,11 +259,11 @@ def weather_dat_prepare(data_path, result_path, years_to_clean=range(2020, 2049)
             # Create folder
             path_realization = os.path.join(path_year, realization_name)
             basic_functions.create_folder(path_realization)
-            
+
             # Data to extract
             path_tasmin = os.path.join(path_realizations, realization_name, 'daily', 'WAH_{}_tasmin_daily_g2_{}.nc'.format(realization_name, year))
             path_tasmax = os.path.join(path_realizations, realization_name, 'daily', 'WAH_{}_tasmax_daily_g2_{}.nc'.format(realization_name, year))
-            
+
             # Load data
             print("     ..load data", flush=True)
             df_min = get_temp_data_from_nc(path_tasmin, 'tasmin')
@@ -295,7 +295,7 @@ def weather_dat_prepare(data_path, result_path, years_to_clean=range(2020, 2049)
     print("... finished cleaning weather data")
 
 clean_original_files = False
-stich_weather_scenario = True
+stich_weather_scenario = False
 
 if clean_original_files:
     # ------------------------

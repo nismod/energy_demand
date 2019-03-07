@@ -137,10 +137,11 @@ def load_data_before_simulation(
         name_population_dataset = config['DATA_PATHS']['path_population_data_for_disaggregation_msoa']
     else:
         name_population_dataset = config['DATA_PATHS']['path_population_data_for_disaggregation_lad']
+
     data['pop_for_disag'] = data_loader.read_scenario_data(
         name_population_dataset,
-        region_name='lad_uk_2016', 
-        value_name='population')
+        region_name='region',
+        value_name='value')
 
     # ------------------------------------------------
     # Load building related data

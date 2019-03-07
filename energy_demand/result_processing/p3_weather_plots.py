@@ -235,7 +235,7 @@ def main(
                         [results_container['regional_share_national_peak'][simulation_yr_to_plot]],
                         columns=data['regions'])
                     regional_share_national_peak = regional_share_national_peak.append(realisation_data)
-                
+
                     # --Regional percentage of national peak demand per person
                     realisation_data = pd.DataFrame(
                         [results_container['regional_share_national_peak_pp'][simulation_yr_to_plot]],

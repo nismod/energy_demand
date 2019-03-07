@@ -7,7 +7,6 @@ Always execute from root folder and pass the path to the .ini file as argument:
     Examples
     python energy_demand/energy_demand/main.py C:/Users/cenv0553/ed/energy_demand/local_run_config_file.ini test_run
     python energy_demand/energy_demand/main.py C:/Users/cenv0553/ed/energy_demand/local_run_config_file.ini h_max NF1 h_max
-
 """
 import os
 import sys
@@ -15,7 +14,6 @@ import time
 import logging
 from collections import defaultdict
 import pandas as pd
-import numpy as np
 
 from energy_demand.basic import basic_functions, date_prop, demand_supply_interaction, testing_functions, lookup_tables
 from energy_demand import model
@@ -24,8 +22,6 @@ from energy_demand.read_write import read_data, write_data, data_loader
 from energy_demand.validation import lad_validation
 from energy_demand.scripts import s_scenario_param, init_scripts, s_disaggregation
 from energy_demand.plotting import fig_enduse_yh
-from energy_demand import enduse_func
-from energy_demand.technologies import tech_related
 
 def energy_demand_model(
         regions,
@@ -475,7 +471,7 @@ if __name__ == "__main__":
         if config['CRITERIA']['mode_constrained']:
             supply_results = demand_supply_interaction.constrained_results(
                 sim_obj.results_constrained,
-                sim_obj.results_unconstrained,
+                sim_obj.results_unconstrained_no_heating,
                 data['assumptions'].submodels_names,
                 data['assumptions'].technologies)
         else:
@@ -541,18 +537,7 @@ if __name__ == "__main__":
                     data['weather_yr_result_paths']['data_results_model_run_results_txt'],
                     sim_obj.tot_fuel_y_enduse_specific_yh,
                     "out_enduse_specific")
-                
-                # Check peak
-                fueltype_int = tech_related.get_fueltype_int('electricity')
-                national_hourly_demand = np.sum(sim_obj.ed_fueltype_regs_yh[fueltype_int], axis=0)
-                peak_day_electricity, _ = enduse_func.get_peak_day_single_fueltype(national_hourly_demand)
-                selected_hours = date_prop.convert_yearday_to_8760h_selection(peak_day_electricity)
             else:
-                #write_data.write_residential_tot_demands(
-                #    sim_yr,
-                #    data['weather_yr_result_paths']['data_results_model_run_results_txt'],
-                #    sim_obj.ed_residential_tot_reg_y,
-                #    "ed_residential_tot_reg_y")
                 write_data.write_supply_results(
                     sim_yr,
                     "ed_fueltype_regs_yh",
