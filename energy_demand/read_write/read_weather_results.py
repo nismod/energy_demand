@@ -51,6 +51,7 @@ def read_in_weather_results(
     results_container['pp_peak_abs'] = {}
     results_container['regional_peak'] = {}
     results_container['national_all_fueltypes'] = {}
+    results_container['mean_peak_day_demand'] = {}
 
     for year in results_container['ed_reg_peakday']:
 
@@ -82,7 +83,10 @@ def read_in_weather_results(
         #print(results_container['ed_reg_tot_y'][year].shape)
         results_container['national_all_fueltypes'][year] = np.sum(results_container['ed_reg_tot_y'][year], axis=1)
         #print(results_container['national_all_fueltypes'][year].shape)
-    
+        
+        results_container['mean_peak_day_demand'][year] = np.mean(national_demand_per_hour, axis=1)
+        #np.mean(results_container['ed_reg_peakday'][year][fueltype_int], axis=1)
+
         # Calculate contribution per person towards national peak (reg_peak / people) [abs]
         #print(results_container['ed_reg_peakday'][year].shape)
         #print(reg_pop_yr.shape)

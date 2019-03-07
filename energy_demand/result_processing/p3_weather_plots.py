@@ -113,7 +113,8 @@ def main(
             national_gas = pd.DataFrame()
             national_hydrogen = pd.DataFrame()
             national_heating_peak = pd.DataFrame()
-
+            daily_mean_peak_day = pd.DataFrame()
+    
             for path_result_folder in paths_folders_result:
                 print("... path_result_folder: {}".format(path_result_folder), flush=True)
                 data = {}
@@ -243,8 +244,14 @@ def main(
 
                     regional_share_national_peak_pp = regional_share_national_peak_pp.append(realisation_data)
 
+                    # Mean demand of peak day
+                    simulation_yrs_result = [results_container['mean_peak_day_demand'][year][fueltype_elec_int] for year in simulation_yrs_to_plot]
+                    realisation_data = pd.DataFrame(
+                        [simulation_yrs_result],
+                        columns=data['assumptions']['sim_yrs'])
+                    daily_mean_peak_day = daily_mean_peak_day.append(realisation_data)
                 except:
-                    raise Exception("The run '{}' is corrupted".format(path_result_folder), flush=True) 
+                    raise Exception("The run '{}' is corrupted".format(path_result_folder))
 
             # Add to scenario container
             result_entry = {
@@ -258,7 +265,8 @@ def main(
                 'total_regional_demand_electricity': total_regional_demand_electricity,
                 'national_electricity': national_electricity,
                 'national_gas': national_gas,
-                'national_hydrogen': national_hydrogen}
+                'national_hydrogen': national_hydrogen,
+                'daily_mean_peak_day': daily_mean_peak_day}
 
             scenario_result_container.append(result_entry)
 
@@ -313,6 +321,23 @@ def main(
                 field_name='national_heating_peak',
                 sim_yrs=data['assumptions']['sim_yrs'],
                 fig_name="scenarios_heating_peak_over_time__{}__{}.pdf".format(simulation_yr_to_plot, fueltype_str),
+                plot_points=True,
+                result_path=result_path,
+                crit_smooth_line=crit_smooth_line,
+                seperate_legend=seperate_legend)
+        except:
+            raise Exception("FAILED")
+            pass
+
+        # ------------------------------
+        # plot PEAK DAY mean
+        # ------------------------------
+        try:
+            fig_3_plot_over_time.scenario_over_time(
+                scenario_result_container=scenario_result_container,
+                field_name='daily_mean_peak_day',
+                sim_yrs=data['assumptions']['sim_yrs'],
+                fig_name="mean_demand_of_peak_day{}__{}.pdf".format(simulation_yr_to_plot, fueltype_str),
                 plot_points=True,
                 result_path=result_path,
                 crit_smooth_line=crit_smooth_line,
