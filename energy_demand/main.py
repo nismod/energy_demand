@@ -89,8 +89,8 @@ if __name__ == "__main__":
     config = data_loader.read_config_file(path_config)
 
     data = {}
-    #sim_yrs = [2015, 2020, 2025, 2030, 2035, 2040, 2045, 2050]
-    sim_yrs = [2015, 2030, 2050]
+    sim_yrs = [2015, 2020, 2025, 2030, 2035, 2040, 2045, 2050]
+    #sim_yrs = [2015, 2030, 2050]
 
     if len(sys.argv) > 3: #user defined arguments are provide
         print("Arguments taken from comand line")
@@ -163,6 +163,7 @@ if __name__ == "__main__":
     data['enduses'], data['sectors'], data['fuels'], lookup_enduses, lookup_sector_enduses = data_loader.load_fuels(data['paths'])
     data['regions'] = read_data.get_region_names(name_region_set)
     data['reg_coord'] = basic_functions.get_long_lat_decimal_degrees(read_data.get_region_centroids(name_region_set))
+    print("name_population_dataset " + str(name_population_dataset))
     data['scenario_data']['population'] = data_loader.read_scenario_data(name_population_dataset, region_name='lad_uk_2016', value_name='population')
     data['scenario_data']['gva_industry'] = data_loader.read_scenario_data_gva(name_gva_dataset, region_name='lad_uk_2016', value_name='gva_per_head', all_dummy_data=False)
     data['scenario_data']['gva_per_head'] = data_loader.read_scenario_data(name_gva_dataset_per_head, region_name='lad_uk_2016', value_name='gva_per_head')
