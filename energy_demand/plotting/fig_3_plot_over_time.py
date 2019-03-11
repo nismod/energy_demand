@@ -130,16 +130,18 @@ def scenario_over_time(
         two_std_line_neg = mean_national_peak - (nr_of_sigma * std_dev)
 
         # Maximum and minium values
-        max_values = np.max(national_peak)
-        min_values = np.min(national_peak)
+        max_values = national_peak.max()
+        min_values = national_peak.min()
+        median_values = national_peak.median()
 
         statistics_to_print.append("scenario: {} two_sigma_pos: {}".format(scenario_name, two_std_line_pos))
         statistics_to_print.append("scenario: {} two_sigma_neg: {}".format(scenario_name, two_std_line_neg))
         statistics_to_print.append("--------min-------------- {}".format(scenario_name))
-        statistics_to_print.append("{}".format(np.min(national_peak))) #Get minimum value for every simulation year of all realizations
+        statistics_to_print.append("{}".format(min_values)) #Get minimum value for every simulation year of all realizations
         statistics_to_print.append("--------max-------------- {}".format(scenario_name))
-        statistics_to_print.append("{}".format(np.max(national_peak)))
-
+        statistics_to_print.append("{}".format(max_values))
+        statistics_to_print.append("--------median_-------------- {}".format(scenario_name))
+        statistics_to_print.append("{}".format(median_values))
         # --------------------
         # Try to smooth lines
         # --------------------

@@ -114,7 +114,7 @@ def main(
             national_hydrogen = pd.DataFrame()
             national_heating_peak = pd.DataFrame()
             daily_mean_peak_day = pd.DataFrame()
-    
+
             for path_result_folder in paths_folders_result:
                 print("... path_result_folder: {}".format(path_result_folder), flush=True)
                 data = {}
@@ -278,9 +278,10 @@ def main(
         # ------------------------------
         # Plot national sum over time per fueltype and scenario
         # ------------------------------
+        crit_smooth_line = True
+        seperate_legend = True
+
         try:
-            crit_smooth_line = True
-            seperate_legend = True
             print("... plotting national sum of fueltype over time ")
             fig_3_plot_over_time.fueltypes_over_time(
                 scenario_result_container=scenario_result_container,

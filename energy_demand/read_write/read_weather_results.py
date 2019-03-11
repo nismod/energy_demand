@@ -79,20 +79,15 @@ def read_in_weather_results(
         results_container['regional_share_national_peak'][year] = (100 / national_peak) * regional_peak #1 = 1 %
         results_container['regional_share_national_peak_pp'][year] = ((100 / national_peak) * regional_peak) /  reg_pop_yr #1 = 1 %
 
-        # Sum all regions for each fueltypes
-        #print(results_container['ed_reg_tot_y'][year].shape)
+        # Calculate mean of peak day demand of peak day
         results_container['national_all_fueltypes'][year] = np.sum(results_container['ed_reg_tot_y'][year], axis=1)
-        #print(results_container['national_all_fueltypes'][year].shape)
-        
         results_container['mean_peak_day_demand'][year] = np.mean(national_demand_per_hour, axis=1)
-        #np.mean(results_container['ed_reg_peakday'][year][fueltype_int], axis=1)
 
         # Calculate contribution per person towards national peak (reg_peak / people) [abs]
         #print(results_container['ed_reg_peakday'][year].shape)
         #print(reg_pop_yr.shape)
         # results_container['pp_peak_abs'][year] = (
         #    results_container['ed_reg_peakday'][year][:,:, max_hour] / reg_pop_yr)
-
         #(cpp = (regional peak / national peak) / people [%]
 
     logging.info("... Reading in results finished")
