@@ -44,16 +44,14 @@ if [[ "$DISTRIB" == "conda" ]]; then
     conda create -n testenv \
         python=$PYTHON_VERSION \
         fiona \
-        haversine \
         imageio \
         matplotlib \
         numpy \
-        palettable \
         pytest   \
         pytest-cov  \
         scipy
-    # skip geopandas, pyproj from conda install (add fiona) in order to work on defaults
-    # channel for python 3.5
+    # skip geopandas, pyproj, palettable and haversine from conda install (add fiona) in order
+    # to work on defaults channel for python 3.5
 
     source activate testenv
 
