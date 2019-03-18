@@ -1262,7 +1262,11 @@ def ss_read_shapes_enduse_techs(ss_shapes_dh, ss_shapes_yd):
 
     return ss_all_tech_shapes_dh, ss_all_tech_shapes_yd
 
-def read_scenario_data(path_to_csv, value_name='value', region_name='region'):
+def read_scenario_data(
+        path_to_csv,
+        value_name='value',
+        region_name='region'
+    ):
     """Function to read in scenario data
     """
     data = {}

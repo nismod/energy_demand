@@ -33,7 +33,7 @@ def zipit(dir_list, zip_name):
 
 def package_data(
         version_name,
-        data_folder_path#="C:/Users/cenv0553/ed/data"
+        data_folder_path
     ):
     """
     verions_name : str
@@ -151,9 +151,9 @@ def package_data(
     zip_handler_full = zipfile.ZipFile(os.path.join(data_folder_path, zip_name_full), "a")
 
     # Add units file
-    full_file_path = os.path.join(data_folder_path, 'units.txt')
-    zip_handler_full.write(full_file_path, arcname='units.txt')
-    zip_handler_minimum.write(full_file_path, arcname='units.txt')
+    #full_file_path = os.path.join(data_folder_path, 'units.txt')
+    #zip_handler_full.write(full_file_path, arcname='units.txt')
+    #zip_handler_minimum.write(full_file_path, arcname='units.txt')
 
     # Add other files to full data
     files_to_add_full = [
@@ -177,4 +177,4 @@ if __name__ == '__main__':
     """
     # Map command line arguments to function arguments.
     #package_data(*sys.argv[1:])
-    package_data('v0.8.9', 'C:/Users/cenv0553/ED/data')
+    package_data('v0.9.2', 'C:/Users/cenv0553/nismod2/data/energy_demand')
