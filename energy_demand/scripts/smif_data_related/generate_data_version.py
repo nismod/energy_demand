@@ -177,4 +177,4 @@ if __name__ == '__main__':
     """
     # Map command line arguments to function arguments.
     #package_data(*sys.argv[1:])
-    package_data('v0.9.2', 'C:/Users/cenv0553/nismod2/data/energy_demand')
+    package_data('v0.9.3', 'C:/Users/cenv0553/nismod2/data/energy_demand')

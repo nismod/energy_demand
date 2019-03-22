@@ -16,7 +16,6 @@ http://data.ceda.ac.uk/badc/weather_at_home/data/marius_time_series/near_future/
 https://medium.com/@rtjeannier/pandas-101-cont-9d061cb73bfc
 
 """
-import logging
 import os
 import pytemperature
 import xarray as xr
