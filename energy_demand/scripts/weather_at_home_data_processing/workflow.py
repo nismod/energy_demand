@@ -30,22 +30,22 @@ from energy_demand.scripts.weather_at_home_data_processing import map_weather_da
 path_extracted_files = "X:/nismod/data/energy_demand/J-MARIUS_data" # Path to folder with extracted files
 path_stiching_table = "X:/nismod/data/energy_demand/J-MARIUS_data/stitching_table/stitching_table_nf.dat" # Path to stiching table
 path_results = "X:/nismod/data/energy_supply/weather_files" # Path to store results
-path_input_coordinates = "PATH TP FILE " # Path to file with coordinates to map onto
+path_input_coordinates = os.path.abspath("X:/nismod/data/energy_supply/regions.csv") # Path to file with coordinates to map onto
 
-extract_data = True
-stich_together = True
-spatial_conversion = True
+extract_data = False
+stich_together = False
+append_closest_weather_data = True
 
 if extract_data:
     # =================================
     # Extract shortwave and wind data, extends 360 to 365 days, writes coordinates
-    # Note can take a daily to run
+    # Note: As this script takes a long time to run, use multiple instance to run selected years
     # =================================
     extract_weather_data.weather_dat_prepare(
         path_extracted_files,
         path_results,
-        years=range(2048, 2050))
-    raise Exception("... finished extracting data")
+        years=[2020])
+    print("... finished extracting data")
 
 if stich_together:
     # =================================
@@ -53,15 +53,15 @@ if stich_together:
     # =================================
     create_realisation.generate_weather_at_home_realisation(
         path_results=path_results,
-        path_stiching_table=path_stiching_table,
-        years=[2020])
+        path_stiching_table=path_stiching_table)
     print("... finished creating realisations")
 
-if spatial_conversion:
+if append_closest_weather_data:
     # =================================
     # Assign spatial conversion and write out in form as necessary by supply team
     # =================================
     map_weather_data.spatially_map_data(
         path_results=path_results,
-        path_weather_at_home_stations=os.path.join(path_results, "stations.csv"),
+        path_weather_at_home_stations=os.path.join(path_results, "_cleaned_csv"),
         path_input_coordinates=path_input_coordinates)
+    print("... append closest weather information")

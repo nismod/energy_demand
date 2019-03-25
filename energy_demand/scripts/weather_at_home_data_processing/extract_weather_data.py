@@ -27,7 +27,7 @@ def create_folder(path_folder, name_subfolder=None):
 def weather_dat_prepare(
         path_extracted_files,
         path_results,
-        years=range(2020, 2049)
+        years=range(2020, 2050)
     ):
     """
     """
@@ -36,49 +36,66 @@ def weather_dat_prepare(
 
     for year in years:
         path_year = os.path.join(folder_results, str(year))
-        create_folder(path_year)
-
         path_realizations = os.path.join(path_extracted_files, str(year))
         realization_names = os.listdir(path_realizations)
 
         for realization_name in realization_names:
-            print("... processing {}  {}".format(str(year), str(realization_name)), flush=True)
-
             path_realization = os.path.join(path_year, realization_name)
-            create_folder(path_realization)
 
-            # ------------------------
-            # Original data to extract
-            # ------------------------
+            if os.path.exists(path_realization):
+                pass #already extracted
+            else:
+                print("... processing {}  {}".format(str(year), str(realization_name)), flush=True)
+                create_folder(path_realization)
 
-            # Daily mean wind speed at 10 m above ground
-            path_wind = os.path.join(path_realizations, realization_name, 'daily', 'WAH_{}_wss_daily_g2_{}.nc'.format(realization_name, year))
+                # ------------------------
+                # Original data to extract
+                # ------------------------
 
-            #Daily mean incoming shortwave radiation at the surface
-            path_rsds = os.path.join(path_realizations, realization_name, 'daily', 'WAH_{}_rsds_daily_g2_{}.nc'.format(realization_name, year))
-            
-            # Load data
-            print("     ..load data", flush=True)
-            wss = get_temp_data_from_nc(path_wind, 'wss')
-            rsds = get_temp_data_from_nc(path_rsds, 'rsds')
+                # Daily mean wind speed at 10 m above ground
+                path_wind = os.path.join(path_realizations, realization_name, 'daily', 'WAH_{}_wss_daily_g2_{}.nc'.format(realization_name, year))
 
-            # Convert 360 day to 365 days
-            print("     ..extend day", flush=True)
-            list_wss = extend_360_day_to_365(wss, 'wss')
-            list_rsds = extend_360_day_to_365(rsds, 'rsds')
+                #Daily mean incoming shortwave radiation at the surface
+                path_rsds = os.path.join(path_realizations, realization_name, 'daily', 'WAH_{}_rsds_daily_g2_{}.nc'.format(realization_name, year))
 
-            # Write out single weather stations as numpy array
-            print("     ..write out", flush=True)
-            station_coordinates, stations_wss = write_weather_data(list_wss)
-            _, stations_rsds = write_weather_data(list_rsds)
+                # Load data
+                print("     ..load data", flush=True)
+                wss = get_temp_data_from_nc(path_wind, 'wss')
+                rsds = get_temp_data_from_nc(path_rsds, 'rsds')
 
-            # Write to csv
-            np.save(os.path.join(path_realization, "wss.npy"), stations_wss)
-            np.save(os.path.join(path_realization, "rsds.npy"), stations_rsds)
+                # Write out weather stations
+                station_coordinates_wss = write_weather_stations(wss)
+                station_coordinates_rsrds = write_weather_stations(rsds)
 
-    # Write weather coordinates
-    df = pd.DataFrame(station_coordinates, columns=['station_id', 'latitude', 'longitude'])
-    df.to_csv(os.path.join(folder_results, "stations.csv"), index=False)
+                # Write weather coordinates
+                path_station_coordinates_wss = os.path.join(folder_results, "stations_wss.csv")
+                if os.path.exists(path_station_coordinates_wss):
+                    pass
+                else:
+                    df = pd.DataFrame(station_coordinates_wss, columns=['station_id', 'latitude', 'longitude'])
+                    df.to_csv(os.path.join(folder_results, "stations_wss.csv"), index=False)
+
+                path_station_coordinates_rsrds = os.path.join(folder_results, "stations_rsds.csv")
+                if os.path.exists(path_station_coordinates_rsrds):
+                    pass
+                else:
+                    df = pd.DataFrame(station_coordinates_rsrds, columns=['station_id', 'latitude', 'longitude'])
+                    df.to_csv(path_station_coordinates_rsrds, index=False)
+                
+                # Convert 360 day to 365 days
+                print("     ..extend day", flush=True)
+                list_wss = extend_360_day_to_365(wss, 'wss')
+                list_rsds = extend_360_day_to_365(rsds, 'rsds')
+
+                # Write out single weather stations as numpy array
+                print("     ..write out", flush=True)
+                data_wss = write_weather_data(list_wss)
+                data_rsds = write_weather_data(list_rsds)
+
+                # Write to csv
+                np.save(os.path.join(path_realization, "wss.npy"), data_wss)
+                np.save(os.path.join(path_realization, "rsds.npy"), data_rsds)
+
     print("... finished cleaning weather data")
 
 
@@ -152,8 +169,6 @@ def write_weather_data(data_list):
     data_list : list
         [[lat, long, yearday365, value]]
     """
-    station_coordinates = []
-
     assert not len(data_list) % 365 #Check if dividable by 365
     nr_stations = int(len(data_list) / 365)
 
@@ -171,6 +186,30 @@ def write_weather_data(data_list):
             # 365 day data for weather station
             stations_data[station_id_cnt] = station_data
 
+            # Reset
+            station_data = np.zeros((365))
+            station_id_cnt += 1
+            cnt = -1
+        cnt += 1
+
+    return stations_data
+
+def write_weather_stations(data_list):
+    """Write weather data to array
+    data_list : list
+        [[lat, long, yearday365, value]]
+    """
+    station_coordinates = []
+
+    assert not len(data_list.values) % 360 #Check if dividable by 365
+    nr_stations = int(len(data_list.values) / 360)
+
+    station_id_cnt = 0
+    cnt = 0
+
+    for row in data_list.values:
+        if cnt == 359:
+
             # Weather station metadata
             station_lon = row[1]
             station_lat = row[0]
@@ -181,9 +220,8 @@ def write_weather_data(data_list):
             station_coordinates.append([station_id, station_lat, station_lon])
 
             # Reset
-            station_data = np.zeros((365))
             station_id_cnt += 1
             cnt = -1
         cnt += 1
 
-    return station_coordinates, stations_data
+    return station_coordinates

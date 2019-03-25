@@ -40,44 +40,43 @@ def generate_weather_at_home_realisation(
     # Realisations
     realisations = list(df_path_stiching_table.columns)
 
-    columns = ['timestep', 'longitude', 'latitude', 'yearday', 'wss', 'rlds', 'rsds']
+    attributes = ['wss', 'rsds']
 
-    for scenario_nr in range(100):
-        realisation = realisations[scenario_nr]
+    for attribute in attributes:
 
-        print("... creating weather data for realisation " + str(realisation), flush=True)
-        realisation_out = []
+        columns = ['timestep', 'longitude', 'latitude', 'yearday', attribute]
 
-        for sim_yr in simulation_yrs:
-            print("   ... year: " + str(sim_yr), flush=True)
+        for scenario_nr in range(100):
+            realisation = realisations[scenario_nr]
 
-            year = remap_year(sim_yr)
+            print("... creating weather data for realisation " + str(realisation), flush=True)
+            realisation_out = []
 
-            stiching_name = df_path_stiching_table[realisation][year]
-            path_weather_data = os.path.join(result_path_realizations, str(year), stiching_name)
-            path_wss = os.path.join(path_weather_data, "wss.npy")
-            path_rsds = os.path.join(path_weather_data, "rsds.npy")
-            path_stations = os.path.join(path_weather_data, "stations.csv")
+            for sim_yr in years:
+                #print("   ... year: " + str(sim_yr), flush=True)
+                year = remap_year(sim_yr)
+                stiching_name = df_path_stiching_table[realisation][year]
+                path_weather_data = os.path.join(path_results, '_cleaned_csv', str(year), stiching_name)
+                
+                path_attribute = os.path.join(path_weather_data, "{}.npy".format(attribute))
+                path_attribute_stations = os.path.join(path_results, '_cleaned_csv', "stations_{}.csv".format(attribute))
 
-            wss = np.load(path_wss)
-            rsds = np.load(path_rsds)
+                attribute_data = np.load(path_attribute)
 
-            stations = pd.read_csv(path_stations)
-            stations['timestep'] = sim_yr
+                stations = pd.read_csv(path_attribute_stations)
+                stations['timestep'] = sim_yr
+                nr_stations_array = len(list(stations.values))
 
-            nr_stations_array = len(list(stations.values))
+                for station_cnt in range(nr_stations_array):
+                    attribute_station = attribute_data[station_cnt]
+                    station_long = stations.loc[station_cnt]['longitude']
+                    station_lat = stations.loc[station_cnt]['latitude']
+                    for yearday in range(365):
+                        realisation_out.append(
+                            [sim_yr, station_long, station_lat, yearday, attribute_station[yearday]])
 
-            for station_cnt in range(nr_stations_array):
-                wss_station = wss[station_cnt]
-                rsds_station = rsds[station_cnt]
-                station_long = stations.loc[station_cnt]['longitude']
-                station_lat = stations.loc[station_cnt]['latitude']
-                for yearday in range(365):
-                    realisation_out.append(
-                        [sim_yr, station_long, station_lat, yearday, wss_station[yearday], rsds_station[yearday]])
-
-        print("...writing out")
-        # Write data to csv
-        df = pd.DataFrame(realisation_out, columns=columns)
-        path_out_csv = os.path.join(result_path_realizations, "weather_data_{}.csv".format(realisation))
-        df.to_csv(path_out_csv, index=False)
+            # Write data to csv
+            print("...writing out", fluhs=True)
+            df = pd.DataFrame(realisation_out, columns=columns)
+            path_out_csv = os.path.join(result_path_realizations, "weather_data_{}__{}.csv".format(realisation, attribute))
+            df.to_csv(path_out_csv, index=False)

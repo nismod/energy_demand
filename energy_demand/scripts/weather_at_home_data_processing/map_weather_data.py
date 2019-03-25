@@ -3,11 +3,10 @@ Get a the closest weather@home grid cell data for an input list of coordinates
 """
 import os
 import pandas as pd
-import numpy as np
-import haversine
+from haversine import haversine
 
+from energy_demand.basic import basic_functions
 from energy_demand.scripts.weather_scripts import weather_scenario
-from energy_demand.geography import weather_station_location
 
 def spatially_map_data(
         path_results,
@@ -15,93 +14,87 @@ def spatially_map_data(
         path_input_coordinates
     ):
 
-    # Read in weather@home grid cells
-    stations_grid_cells = pd.read_csv(path_weather_at_home_stations)
+    scenario_names = ["NF{}".format(i) for i in range(1, 101)]
 
-    # Read in input stations and coordinages to map 
+    # Path to scenarios
+    path_to_scenario_data = os.path.join(path_results, '_realizations')
+    result_out_path = os.path.join(path_results, '_spatially_mapped_realizations')
+    basic_functions.create_folder(result_out_path)
+
+    # Read in input stations and coordinages to map
     stations_to_map_to = pd.read_csv(path_input_coordinates)
-
-    # Get all weather@home stations to get data
-    mapped_stations = []
-
-    # Iterate marius grid stations
-    for station in enumerate(stations_to_map_to):
-
-        # Marius weather station
-        station_lat = row[1]
-        station_lon = row[2]
-
-        # Get closest Met Office weather station
-        closest_uk_2015_met_office_station = get_closest_station_met_office(
-            latitude_reg=station_lat,
-            longitude_reg=station_lon,
-            weather_stations=stations_grid_cells)
-        
-        # Add station
-        mapped_stations[station_array_nr] = uk_met_office_stations_t_min[closest_uk_2015_met_office_station]
-
-
-
-    # Filter data
-
-    # Write out data
-    # scenario_nr, year, day, parameter, value
-
-    # Read wind and solar data
-    uk_met_office_stations_t_min_array = np.load(os.path.join(path_2015_uk_data, "2015_t_min.npy"))
     
-    # Convert data into dict with uk met office station ID
-    nr_of_uk_met_office_stations = uk_met_office_stations_t_min_array.shape[0]
-    
-    stations = pd.read_csv(os.path.join(path_2015_uk_data, "2015_stations.csv"))
-    df_stations = stations.set_index(('station_id'))
-    stations_2015_met_office = df_stations.to_dict('index')
+    # Append new columns
+    stations_to_map_to['value'] = 0
+    stations_to_map_to['parameter'] = 0
+    stations_to_map_to['scenario'] = 0
+    stations_to_map_to['year'] = 0
 
-    uk_met_office_stations_t_min = {}
-    uk_met_office_stations_t_max = {}
-    for station_array_nr in range(nr_of_uk_met_office_stations):
-        station_id = stations.get_value(station_array_nr,'station_id')
-        uk_met_office_stations_t_min[station_id] = uk_met_office_stations_t_min_array[station_array_nr]
-
-    # ------------------------------------------------------------
     # Read in MARIUS grid weather stations
-    # ------------------------------------------------------------
-    data_list = weather_scenario.get_temp_data_from_nc(path_example_grid_min_datafile_MARIUS, 'tasmin')
+    attributes = ['wss', 'rsds']
+    weather_stations_per_attribute = {}
+    for attribute in attributes:
+        path_station = os.path.join(path_weather_at_home_stations, "stations_{}.csv".format(attribute))
+        stations_grid_cells = pd.read_csv(path_station)
+        stations_grid_cells = stations_grid_cells.set_index('station_id')
 
-    # Coordinates and station id
-    stations_marius = []
-    print("NUMBE OF ROWS " + str(len(data_list)))
-    cnt = 0
-    station_id_cnt = 0
-    for i  in data_list.index:
-        if cnt == 359: #Originally only 360 days
-            # Weather station metadata
-            station_lon = data_list.get_value(i,'lon')
-            station_lat = data_list.get_value(i,'lat')
-            station_id = "station_id_{}".format(station_id_cnt)
-            stations_marius.append([station_id, station_lat, station_lon]) #ID, latitude, longitude
-
-            # Reset
-            station_id_cnt += 1
-            cnt = -1
-        cnt += 1
-    print("... finished read in marius weather stations")
-
-    nr_of_marius_stations = len(stations_marius)
-
+        # Convert into dict
+        stations_grid_cells_dict = {}
+        for index in stations_grid_cells.index:
+            stations_grid_cells_dict[index] = {
+                'longitude': stations_grid_cells.loc[index, 'longitude'],
+                'latitude': stations_grid_cells.loc[index, 'latitude']
+            }
+        
+        weather_stations_per_attribute[attribute] = stations_grid_cells_dict
     
+    # Iterate geography and assign closest weather station data
+    for index in stations_to_map_to.index:
+        
+        # Marius weather station
+        station_lat = stations_to_map_to.loc[index, 'Latitude']
+        station_lon = stations_to_map_to.loc[index, 'Longitude']
+
+        data_types = [
+                ('wind', 'wss') ,
+                ('insulation', 'rsds')]
+
+        closest_weather_ids = {}
+        for name_attribute, attribute in data_types:
+
+            # Get closest Met Office weather station
+            closest_marius_station = get_closest_weather_station(
+                latitude_reg=station_lat,
+                longitude_reg=station_lon,
+                weather_stations=stations_grid_cells_dict)
+            
+            closest_weather_ids[name_attribute] = closest_marius_station
+
+        # Weather and solar data for all scenarios
+        for scenario_nr in range(100):
+            scenario_name = scenario_names[scenario_nr]
+
+            for name_attribute, attribute in data_types.items():
+                
+                path_data = os.path.join(path_to_scenario_data, "weather_data_{}__{}.csv".format(scenario_name, attribute))
+                data = pd.read_csv(path_data)
+
+                closest_weather_station_id = closest_weather_ids[name_attribute]
+                closest_data = data[closest_weather_station_id]
+
+                for index in path_to_scenario_data.index:
+
+                    #region_id, Latitude, Longitude, region_name, scenario, parameter, value
+                    stations_to_map_to.loc[index, 'scenario'] = scenario_nr
+                    stations_to_map_to.loc[index, 'parameter'] = attribute
+                    stations_to_map_to.loc[index, 'value'] = closest_data
 
     # ----------------------------------------------------------
     # Write out data
     # ----------------------------------------------------------
-
-    # Weather stations
-    df = pd.DataFrame(stations_marius, columns=['station_id', 'latitude', 'longitude'])
-    df.to_csv(os.path.join(path_2015_uk_data_remaped, "stations_2015.csv"), index=False)
-
-    # Data
-    np.save(os.path.join(path_2015_uk_data_remaped, "t_min.npy"), mapped_marius_station_data_t_min)
-    np.save(os.path.join(path_2015_uk_data_remaped, "t_max.npy"), mapped_marius_station_data_t_max)
+    df = pd.DataFrame(stations_to_map_to, columns=['station_id', 'latitude', 'longitude'])
+    result_file = os.path.join(result_out_path,  "remapped_and_append_weather_data.csv")
+    stations_to_map_to.to_csv(result_file, index=False)
 
 
 def calc_distance_two_points(lat_from, long_from, lat_to, long_to):
@@ -132,7 +125,7 @@ def calc_distance_two_points(lat_from, long_from, lat_to, long_to):
 
     return distance_in_km
 
-def get_closest_station_met_office(
+def get_closest_weather_station(
         latitude_reg,
         longitude_reg,
         weather_stations
@@ -142,7 +135,6 @@ def get_closest_station_met_office(
     closest_dist = 99999999999
 
     for station_id in weather_stations:
-
         lat_to = weather_stations[station_id]["latitude"]
         long_to = weather_stations[station_id]["longitude"]
 
