@@ -30,6 +30,7 @@ def generate_weather_at_home_realisation(
     """
     # Create result path
     result_path_realizations = os.path.join(path_results, "_realizations")
+    result_path_realizations = "C:/AAA"
     basic_functions.create_folder(result_path_realizations)
 
     # Read in stiching table
@@ -45,9 +46,9 @@ def generate_weather_at_home_realisation(
 
     for scenario_nr in scenarios:
         realisation = realisations[scenario_nr]
-        
+
         for attribute in attributes:
-            columns = ['timestep', 'longitude', 'latitude', 'yearday', attribute]
+            columns = ['timestep', 'station_id', 'longitude', 'latitude', 'yearday', attribute]
 
             print("... creating weather data for realisation " + str(realisation), flush=True)
             realisation_out = []
@@ -69,11 +70,12 @@ def generate_weather_at_home_realisation(
 
                 for station_cnt in range(nr_stations_array):
                     attribute_station = attribute_data[station_cnt]
+                    station_id = stations.loc[station_cnt]['station_id']
                     station_long = stations.loc[station_cnt]['longitude']
                     station_lat = stations.loc[station_cnt]['latitude']
                     for yearday in range(365):
                         realisation_out.append(
-                            [sim_yr, station_long, station_lat, yearday, attribute_station[yearday]])
+                            [sim_yr, station_id, station_long, station_lat, yearday, attribute_station[yearday]])
 
             # Write data to csv
             print("...writing out", flush=True)

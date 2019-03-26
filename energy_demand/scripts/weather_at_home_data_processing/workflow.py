@@ -30,7 +30,7 @@ from energy_demand.scripts.weather_at_home_data_processing import map_weather_da
 path_extracted_files = "X:/nismod/data/energy_demand/J-MARIUS_data" # Path to folder with extracted files
 path_stiching_table = "X:/nismod/data/energy_demand/J-MARIUS_data/stitching_table/stitching_table_nf.dat" # Path to stiching table
 path_results = "X:/nismod/data/energy_supply/weather_files" # Path to store results
-path_input_coordinates = os.path.abspath("X:/nismod/data/energy_supply/regions_input.csv") # Path to file with coordinates to map onto
+path_input_coordinates = os.path.abspath("X:/nismod/data/energy_supply/regions_input.csv") # Path to file with coordinates to map on to
 
 extract_data = False
 stich_together = True
@@ -43,7 +43,7 @@ if extract_data:
     # =================================
     extract_weather_data.weather_dat_prepare(
         path_extracted_files,
-        path_results)#,
+        path_results)
         #years=[2020])
     print("... finished extracting data")
 
@@ -54,7 +54,7 @@ if stich_together:
     create_realisation.generate_weather_at_home_realisation(
         path_results=path_results,
         path_stiching_table=path_stiching_table,
-        scenarios=[50, 51]) #range(60, 71))
+        scenarios=range(61, 101))
     print("... finished creating realisations")
 
 if append_closest_weather_data:
@@ -65,5 +65,5 @@ if append_closest_weather_data:
         path_results=path_results,
         path_weather_at_home_stations=os.path.join(path_results, "_cleaned_csv"),
         path_input_coordinates=path_input_coordinates,
-        scenarios=range(100))
+        scenarios=[0]) #range(100))
     print("... append closest weather information")
