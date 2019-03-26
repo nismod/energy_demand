@@ -207,12 +207,12 @@ def write_weather_stations(data_list):
     station_id_cnt = 0
     cnt = 0
 
-    for row in data_list.values:
+    for index in data_list.index:
         if cnt == 359:
 
             # Weather station metadata
-            station_lon = row[1]
-            station_lat = row[0]
+            station_lon = data_list.loc[index, 'lon']
+            station_lat = data_list.loc[index, 'lat']
 
             station_id = "station_id_{}".format(station_id_cnt)
 

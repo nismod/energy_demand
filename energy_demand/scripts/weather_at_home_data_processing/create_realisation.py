@@ -22,6 +22,7 @@ def remap_year(year):
 def generate_weather_at_home_realisation(
         path_results,
         path_stiching_table,
+        scenarios=range(100),
         years=range(2015, 2051)
     ):
     """
@@ -40,14 +41,13 @@ def generate_weather_at_home_realisation(
     # Realisations
     realisations = list(df_path_stiching_table.columns)
 
-    attributes = ['wss', 'rsds']
+    attributes = ['rsds', 'wss']
 
-    for attribute in attributes:
-
-        columns = ['timestep', 'longitude', 'latitude', 'yearday', attribute]
-
-        for scenario_nr in range(100):
-            realisation = realisations[scenario_nr]
+    for scenario_nr in scenarios:
+        realisation = realisations[scenario_nr]
+        
+        for attribute in attributes:
+            columns = ['timestep', 'longitude', 'latitude', 'yearday', attribute]
 
             print("... creating weather data for realisation " + str(realisation), flush=True)
             realisation_out = []
@@ -76,7 +76,7 @@ def generate_weather_at_home_realisation(
                             [sim_yr, station_long, station_lat, yearday, attribute_station[yearday]])
 
             # Write data to csv
-            print("...writing out", fluhs=True)
+            print("...writing out", flush=True)
             df = pd.DataFrame(realisation_out, columns=columns)
             path_out_csv = os.path.join(result_path_realizations, "weather_data_{}__{}.csv".format(realisation, attribute))
             df.to_csv(path_out_csv, index=False)

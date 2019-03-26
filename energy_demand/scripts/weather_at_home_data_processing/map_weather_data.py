@@ -6,14 +6,13 @@ import pandas as pd
 from haversine import haversine
 
 from energy_demand.basic import basic_functions
-from energy_demand.scripts.weather_scripts import weather_scenario
 
 def spatially_map_data(
         path_results,
         path_weather_at_home_stations,
-        path_input_coordinates
+        path_input_coordinates,
+        scenarios
     ):
-
     scenario_names = ["NF{}".format(i) for i in range(1, 101)]
 
     # Path to scenarios
@@ -23,7 +22,7 @@ def spatially_map_data(
 
     # Read in input stations and coordinages to map
     stations_to_map_to = pd.read_csv(path_input_coordinates)
-    
+
     # Append new columns
     stations_to_map_to['value'] = 0
     stations_to_map_to['parameter'] = 0
@@ -31,6 +30,7 @@ def spatially_map_data(
     stations_to_map_to['year'] = 0
 
     # Read in MARIUS grid weather stations
+    print("... read in weather stations per attribute", flush=True)
     attributes = ['wss', 'rsds']
     weather_stations_per_attribute = {}
     for attribute in attributes:
@@ -45,49 +45,50 @@ def spatially_map_data(
                 'longitude': stations_grid_cells.loc[index, 'longitude'],
                 'latitude': stations_grid_cells.loc[index, 'latitude']
             }
-        
+
         weather_stations_per_attribute[attribute] = stations_grid_cells_dict
-    
+
     # Iterate geography and assign closest weather station data
+    closest_weather_ids = {}
     for index in stations_to_map_to.index:
-        
+
+        closest_weather_ids[index] = {}
+
         # Marius weather station
         station_lat = stations_to_map_to.loc[index, 'Latitude']
         station_lon = stations_to_map_to.loc[index, 'Longitude']
 
-        data_types = [
-                ('wind', 'wss') ,
-                ('insulation', 'rsds')]
+        data_types = [('wind', 'wss'), ('insulation', 'rsds')]
 
-        closest_weather_ids = {}
         for name_attribute, attribute in data_types:
 
             # Get closest Met Office weather station
             closest_marius_station = get_closest_weather_station(
                 latitude_reg=station_lat,
                 longitude_reg=station_lon,
-                weather_stations=stations_grid_cells_dict)
-            
-            closest_weather_ids[name_attribute] = closest_marius_station
+                weather_stations=weather_stations_per_attribute[attribute])
 
-        # Weather and solar data for all scenarios
-        for scenario_nr in range(100):
-            scenario_name = scenario_names[scenario_nr]
+            closest_weather_ids[index][name_attribute] = closest_marius_station
 
-            for name_attribute, attribute in data_types.items():
-                
-                path_data = os.path.join(path_to_scenario_data, "weather_data_{}__{}.csv".format(scenario_name, attribute))
-                data = pd.read_csv(path_data)
+    # Weather and solar data for all scenarios
+    for scenario_nr in scenarios: #range(100):
+        scenario_name = scenario_names[scenario_nr]
+        print("... {} ".format(scenario_name), flush=True)
 
-                closest_weather_station_id = closest_weather_ids[name_attribute]
-                closest_data = data[closest_weather_station_id]
+        for name_attribute, attribute in data_types:
+            print("    ... {} ".format(name_attribute), flush=True)
+            path_data = os.path.join(path_to_scenario_data, "weather_data_{}__{}.csv".format(scenario_name, attribute))
+            data = pd.read_csv(path_data)
 
-                for index in path_to_scenario_data.index:
+            for index in stations_to_map_to.index:
+                print("        ... {} ".format(index), flush=True)
+                closest_weather_station_id = closest_weather_ids[index][name_attribute]
+                closest_data = data.loc[closest_weather_station_id]
 
-                    #region_id, Latitude, Longitude, region_name, scenario, parameter, value
-                    stations_to_map_to.loc[index, 'scenario'] = scenario_nr
-                    stations_to_map_to.loc[index, 'parameter'] = attribute
-                    stations_to_map_to.loc[index, 'value'] = closest_data
+                #region_id, Latitude, Longitude, region_name, scenario, parameter, value
+                stations_to_map_to.loc[index, 'scenario'] = scenario_nr
+                stations_to_map_to.loc[index, 'parameter'] = attribute
+                stations_to_map_to.loc[index, 'value'] = closest_data
 
     # ----------------------------------------------------------
     # Write out data
