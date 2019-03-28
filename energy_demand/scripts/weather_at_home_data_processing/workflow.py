@@ -33,8 +33,8 @@ path_results = "X:/nismod/data/energy_supply/weather_files" # Path to store resu
 path_input_coordinates = os.path.abspath("X:/nismod/data/energy_supply/regions_input.csv") # Path to file with coordinates to map on to
 
 extract_data = False
-stich_together = False
-append_closest_weather_data = True
+stich_together = True
+append_closest_weather_data = False
 
 if extract_data:
     # =================================
@@ -43,7 +43,8 @@ if extract_data:
     # =================================
     extract_weather_data.weather_dat_prepare(
         path_extracted_files,
-        path_results)
+        path_results,
+        years=range(2046, 2051))
     print("... finished extracting data")
 
 if stich_together:
@@ -53,7 +54,8 @@ if stich_together:
     create_realisation.generate_weather_at_home_realisation(
         path_results=path_results,
         path_stiching_table=path_stiching_table,
-        scenarios=range(80, 101))
+        scenarios=range(0, 21))
+        #scenarios=range(28, 62))
     print("... finished creating realisations")
 
 if append_closest_weather_data:

@@ -30,7 +30,7 @@ def generate_weather_at_home_realisation(
     """
     # Create result path
     result_path_realizations = os.path.join(path_results, "_realizations")
-    result_path_realizations = "C:/AAA"
+    #result_path_realizations = "C:/AAA"
     basic_functions.create_folder(result_path_realizations)
 
     # Read in stiching table
@@ -42,11 +42,11 @@ def generate_weather_at_home_realisation(
     # Realisations
     realisations = list(df_path_stiching_table.columns)
 
-    attributes = ['rsds', 'wss']
-
     for scenario_nr in scenarios:
         realisation = realisations[scenario_nr]
 
+        attributes = ['t_min', 't_max'] #['rsds', 'wss']
+        #attributes = ['rsds', 'wss']
         for attribute in attributes:
             columns = ['timestep', 'station_id', 'longitude', 'latitude', 'yearday', attribute]
 
@@ -56,9 +56,9 @@ def generate_weather_at_home_realisation(
             for sim_yr in years:
                 #print("   ... year: " + str(sim_yr), flush=True)
                 year = remap_year(sim_yr)
+
                 stiching_name = df_path_stiching_table[realisation][year]
                 path_weather_data = os.path.join(path_results, '_cleaned_csv', str(year), stiching_name)
-                
                 path_attribute = os.path.join(path_weather_data, "{}.npy".format(attribute))
                 path_attribute_stations = os.path.join(path_results, '_cleaned_csv', "stations_{}.csv".format(attribute))
 

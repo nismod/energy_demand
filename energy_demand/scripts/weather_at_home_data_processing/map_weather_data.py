@@ -45,7 +45,6 @@ def spatially_map_data(
     # Iterate geography and assign closest weather station data
     closest_weather_ids = {}
     for index in stations_to_map_to.index:
-
         closest_weather_ids[index] = {}
 
         # Marius weather station
@@ -77,16 +76,20 @@ def spatially_map_data(
             data = data.set_index("station_id")
 
             for year in range(2015, 2051):
+
+                print("        ... {}".format(year), flush=True)
                 data_yr = data.loc[data['timestep'] == year]
 
                 for index in stations_to_map_to.index:
-                    #print("        ... {} {}".format(index, closest_weather_station_id), flush=True)
                     closest_weather_station_id = closest_weather_ids[index][name_attribute]
+                    closest_weather_station_id = "station_id_0"
                     closest_data = data_yr.loc[closest_weather_station_id]
 
-                    for yearday in range(1, 366):
-                        value = closest_data.loc[closest_data['yearday'] == yearday][attribute]
+                    for yearday in range(0, 365):
+                        values_row = closest_data.loc[closest_data['yearday'] == yearday]
+                        value = values_row[attribute].values[0]
 
+                        #print("        ... value: {} attribute: {} {} {}".format(value, attribute, index, closest_weather_station_id), flush=True)
                         list_entry = (
                             stations_to_map_to.loc[index, 'region_id'],
                             stations_to_map_to.loc[index, 'Latitude'],
@@ -96,7 +99,7 @@ def spatially_map_data(
                             name_attribute,
                             value,
                             year,
-                            yearday)
+                            yearday + 1)
 
                         stations_to_map_to_list.append(list_entry)
 
@@ -114,7 +117,7 @@ def spatially_map_data(
                 'day'
                 ])
 
-        result_file = os.path.join(result_out_path, "remapped_and_append_weather_data__{}.csv".format(scenario_nr))
+        result_file = os.path.join(result_out_path, "remapped_wind_and_solar__{}.csv".format(scenario_nr))
         stations_to_map_to_out.to_csv(result_file, index=False)
 
 

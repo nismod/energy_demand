@@ -676,6 +676,5 @@ def get_weather_station_selection(
         # Not enough stations to select position in list
         station_id = False
         all_weather_stations_out = []
-        logging.debug("... no weather station found")
 
     return all_weather_stations_out, station_id
