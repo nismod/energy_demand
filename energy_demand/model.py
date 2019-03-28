@@ -43,7 +43,6 @@ from energy_demand.dwelling_stock import dw_stock
 from energy_demand.profiles import load_factors
 from energy_demand.profiles import generic_shapes
 from energy_demand.basic import demand_supply_interaction
-from energy_demand.geography import weather_station_location
 
 class EnergyDemandModel(object):
     """ Main function of energy demand model. All submodels
@@ -66,7 +65,6 @@ class EnergyDemandModel(object):
             data,
             criterias,
             assumptions,
-            weather_stations,
             weather_yr,
             weather_by
         ):
@@ -102,7 +100,6 @@ class EnergyDemandModel(object):
         # -------------------------------------------
         # Simulate regions
         # -------------------------------------------
-        #_all_closest_weather_stations = []
         for reg_array_nr, region in enumerate(tqdm(regions)):
 
             print("... Simulate: region %s, simulation year: %s, percent: (%s)",
@@ -114,10 +111,8 @@ class EnergyDemandModel(object):
                 data,
                 criterias,
                 assumptions,
-                weather_stations,
                 weather_yr,
                 weather_by)
-            #_all_closest_weather_stations.append(all_submodels)#weather_region_id
     
             # ---------------------------------------------
             # Aggregate results specifically over regions
@@ -309,7 +304,6 @@ def simulate_region(
         data,
         criterias,
         assumptions,
-        weather_stations,
         weather_yr,
         weather_by
     ):
@@ -329,24 +323,16 @@ def simulate_region(
     """
     submodel_names = assumptions.submodels_names
 
-    # Get closest weather region object
-    weather_region_id = weather_station_location.get_closest_station(
-        latitude_reg=data['reg_coord'][region]['latitude'],
-        longitude_reg=data['reg_coord'][region]['longitude'],
-        weather_stations=weather_stations)
-
     # ----------------------------
     # Create Base year and current weather Regions
     # ----------------------------
     weather_region_cy = WeatherRegion(
-        name=weather_region_id,
-        latitude=weather_stations[weather_region_id]['latitude'],
-        longitude=weather_stations[weather_region_id]['longitude'],
+        name=region,
         assumptions=assumptions,
         technologies=assumptions.technologies,
         enduses=data['enduses'],
-        temp_by=data['temp_data'][weather_by][weather_region_id],
-        temp_cy=data['temp_data'][weather_yr][weather_region_id],
+        temp_by=data['temp_data'][weather_by][region],
+        temp_cy=data['temp_data'][weather_yr][region],
         tech_lp=data['tech_lp'],
         sectors=data['sectors'],
         crit_temp_min_max=criterias['crit_temp_min_max'])
@@ -406,7 +392,6 @@ def simulate_region(
                     dw_stock=dw_stock,
                     reg_scen_drivers=assumptions.scenario_drivers,
                     flat_profile_crit=flat_profile_crit)
-    #return weather_region_id
 
 def fuel_aggr(
         sector_models,

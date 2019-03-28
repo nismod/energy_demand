@@ -8,7 +8,14 @@ Script to extract weather data from weather@home for supply model
 
 3. Configure path below
 
-4. Run this script to get only the relevant data for all weather@home scenarios from 2020 - 2049:
+4. If you want to map 2015 base year data, add the remapped files in a folder:
+    base_yr_remapped_weather_path
+        /t_max_remapped.npy
+        /t_min_remapped.npy
+        /stations_2015_remapped.csv
+    They can be generated with the script map_2015data_to_MARIUS.py
+
+5. Run this script to get only the relevant data for all weather@home scenarios from 2020 - 2049:
 
     Daily mean wind speed
     Daily mean solar information
@@ -30,7 +37,13 @@ from energy_demand.scripts.weather_at_home_data_processing import map_weather_da
 path_extracted_files = "X:/nismod/data/energy_demand/J-MARIUS_data" # Path to folder with extracted files
 path_stiching_table = "X:/nismod/data/energy_demand/J-MARIUS_data/stitching_table/stitching_table_nf.dat" # Path to stiching table
 path_results = "X:/nismod/data/energy_supply/weather_files" # Path to store results
-path_input_coordinates = os.path.abspath("X:/nismod/data/energy_supply/regions_input.csv") # Path to file with coordinates to map on to
+base_yr_remapped_weather_path = "X:/nismod/data/energy_demand/J-MARIUS_data/_weather_data_cleaned/2015_remapped"
+
+result_folder ='_spatially_mapped_supply_data'
+path_input_coordinates = os.path.abspath("X:/nismod/data/energy_supply/regions_input_supply_model.csv") # Path to file with coordinates to map on to
+result_folder ='_spatially_mapped_demand_data'
+#path_input_coordinates = os.path.abspath("X:/nismod/data/energy_supply/regions_energy_demand_model.csv") # Path to file with coordinates to map on to
+
 
 extract_data = False
 stich_together = True
@@ -54,7 +67,8 @@ if stich_together:
     create_realisation.generate_weather_at_home_realisation(
         path_results=path_results,
         path_stiching_table=path_stiching_table,
-        scenarios=range(0, 21))
+        base_yr_remapped_weather_path=base_yr_remapped_weather_path,
+        scenarios=range(21, 27))
         #scenarios=range(28, 62))
     print("... finished creating realisations")
 
@@ -64,7 +78,9 @@ if append_closest_weather_data:
     # =================================
     map_weather_data.spatially_map_data(
         path_results=path_results,
+        result_folder=result_folder,
         path_weather_at_home_stations=os.path.join(path_results, "_cleaned_csv"),
         path_input_coordinates=path_input_coordinates,
-        scenarios=range(0, 100))
+        attributes=['wss','rsds'], #['t_min', 't_max', 'wss','rsds'],
+        scenarios=range(10))
     print("... append closest weather information")

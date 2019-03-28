@@ -9,23 +9,25 @@ from energy_demand.basic import basic_functions
 
 def spatially_map_data(
         path_results,
+        result_folder,
         path_weather_at_home_stations,
         path_input_coordinates,
+        attributes,
         scenarios
     ):
     scenario_names = ["NF{}".format(i) for i in range(1, 101)]
 
     # Path to scenarios
     path_to_scenario_data = os.path.join(path_results, '_realizations')
-    result_out_path = os.path.join(path_results, '_spatially_mapped_realizations')
+    result_out_path = os.path.join(path_results, result_folder)
     basic_functions.create_folder(result_out_path)
-
+    #result_out_path = "C:/AAA"
     # Read in input stations and coordinages to map
     stations_to_map_to = pd.read_csv(path_input_coordinates)
 
     # Read in MARIUS grid weather stations
     print("... read in weather stations per attribute", flush=True)
-    attributes = ['wss', 'rsds']
+
     weather_stations_per_attribute = {}
     for attribute in attributes:
         path_station = os.path.join(path_weather_at_home_stations, "stations_{}.csv".format(attribute))
@@ -43,83 +45,83 @@ def spatially_map_data(
         weather_stations_per_attribute[attribute] = stations_grid_cells_dict
 
     # Iterate geography and assign closest weather station data
+    print("... Find closest stations")
     closest_weather_ids = {}
     for index in stations_to_map_to.index:
         closest_weather_ids[index] = {}
+        station_lat = stations_to_map_to.loc[index, 'latitude']
+        station_lon = stations_to_map_to.loc[index, 'longitude']
 
-        # Marius weather station
-        station_lat = stations_to_map_to.loc[index, 'Latitude']
-        station_lon = stations_to_map_to.loc[index, 'Longitude']
+        for attribute in attributes:
 
-        data_types = [('wind', 'wss'), ('insulation', 'rsds')]
-
-        for name_attribute, attribute in data_types:
-
-            # Get closest Met Office weather station
+            # Get closest weather station
             closest_marius_station = get_closest_weather_station(
                 latitude_reg=station_lat,
                 longitude_reg=station_lon,
                 weather_stations=weather_stations_per_attribute[attribute])
 
-            closest_weather_ids[index][name_attribute] = closest_marius_station
+            closest_weather_ids[index][attribute] = closest_marius_station
 
-    # Weather and solar data for all scenarios
-    stations_to_map_to_list = []
+    # ----------------------------------------
+    # Temperature data
+    # ----------------------------------------
     for scenario_nr in scenarios:
         scenario_name = scenario_names[scenario_nr]
-        print("... {} ".format(scenario_name), flush=True)
-
-        for name_attribute, attribute in data_types:
-            print("    ... attribute_name: {} ".format(name_attribute), flush=True)
+        for attribute in attributes:
+            print("... create {} {}".format(scenario_name, attribute))
+            stations_to_map_to_list = []
             path_data = os.path.join(path_to_scenario_data, "weather_data_{}__{}.csv".format(scenario_name, attribute))
             data = pd.read_csv(path_data)
             data = data.set_index("station_id")
 
-            for year in range(2015, 2051):
+            columns = list(data.columns)
+            for cnt, column_entry in enumerate(columns):
+                if column_entry == 'yearday':
+                    position_yearday = cnt
+                if column_entry == attribute:
+                    position_attribute = cnt
 
+            for year in range(2015, 2051):
                 print("        ... {}".format(year), flush=True)
                 data_yr = data.loc[data['timestep'] == year]
 
                 for index in stations_to_map_to.index:
-                    closest_weather_station_id = closest_weather_ids[index][name_attribute]
-                    closest_weather_station_id = "station_id_0"
+                    region_name = stations_to_map_to.loc[index, 'region_name']
+                    closest_weather_station_id = closest_weather_ids[index][attribute]
                     closest_data = data_yr.loc[closest_weather_station_id]
+                    closest_data_list = list(closest_data.values)
 
-                    for yearday in range(0, 365):
+                    for row in closest_data_list:
+                        stations_to_map_to_list.append([
+                            region_name,
+                            #attribute,
+                            row[position_attribute],
+                            year,
+                            int(row[position_yearday])])
+
+                    '''for yearday in range(0, 365):
                         values_row = closest_data.loc[closest_data['yearday'] == yearday]
                         value = values_row[attribute].values[0]
-
+                        
                         #print("        ... value: {} attribute: {} {} {}".format(value, attribute, index, closest_weather_station_id), flush=True)
                         list_entry = (
-                            stations_to_map_to.loc[index, 'region_id'],
-                            stations_to_map_to.loc[index, 'Latitude'],
-                            stations_to_map_to.loc[index, 'Longitude'],
-                            stations_to_map_to.loc[index, 'region_name'],
+                            index,
                             scenario_nr,
-                            name_attribute,
+                            attribute,
                             value,
                             year,
-                            yearday + 1)
+                            yearday)
+                        stations_to_map_to_list.append(list_entry)'''
 
-                        stations_to_map_to_list.append(list_entry)
+            # ----------------------------------------------------------
+            # Write out data
+            # ----------------------------------------------------------
+            stations_to_map_to_out = pd.DataFrame(
+                stations_to_map_to_list,
+                columns=['region', 'value', 'timestep', 'day'])
 
-        # ----------------------------------------------------------
-        # Write out data
-        # ----------------------------------------------------------
-        stations_to_map_to_out = pd.DataFrame(
-            stations_to_map_to_list,
-            columns=[
-                'region_id', 'latitude', 'longitude', 'region_name',
-                'scenario',
-                'prameter',
-                'value',
-                'year',
-                'day'
-                ])
-
-        result_file = os.path.join(result_out_path, "remapped_wind_and_solar__{}.csv".format(scenario_nr))
-        stations_to_map_to_out.to_csv(result_file, index=False)
-
+            result_file = os.path.join(result_out_path, "{}__{}.csv".format(attribute, scenario_name))
+            stations_to_map_to_out.to_csv(result_file, index=False)
 
 def calc_distance_two_points(lat_from, long_from, lat_to, long_to):
     """Calculate distance between two points

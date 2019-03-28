@@ -29,14 +29,7 @@ def test_rs_disaggregate():
     assumptions = general_assumptions.DummyClass(assumptions)
     assumptions.__setattr__('t_bases', general_assumptions.DummyClass({'rs_t_heating': 15}))
 
-    reg_coord = {
-        'regA': {'longitude': 0, 'latitude': 0},
-        'regB': {'longitude': 0, 'latitude': 0}}
-
-    weather_stations = {
-        'stationID_1': {'longitude': 1, 'latitude': 1}}
-
-    temp_data = {'stationID_1': np.ones((365, 24)) + 10}
+    temp_data = {'regA': np.ones((365, 24)) + 10, 'regB': np.ones((365, 24)) + 10}
     enduses = ['rs_space_heating']
 
     pop_for_disag = {
@@ -53,8 +46,6 @@ def test_rs_disaggregate():
         scenario_data=scenario_data,
         pop_for_disagg=pop_for_disag,
         assumptions=assumptions,
-        reg_coord=reg_coord,
-        weather_stations=weather_stations,
         temp_data=temp_data,
         enduses=enduses,
         crit_limited_disagg_pop_hdd=True,
@@ -70,8 +61,6 @@ def test_rs_disaggregate():
         scenario_data=scenario_data,
         pop_for_disagg=pop_for_disag,
         assumptions=assumptions,
-        reg_coord=reg_coord,
-        weather_stations=weather_stations,
         temp_data=temp_data,
         enduses=enduses,
         crit_limited_disagg_pop_hdd=False,
@@ -118,10 +107,7 @@ def test_ss_disaggregate():
         'regA': {'longitude': 0, 'latitude': 0},
         'regB': {'longitude': 0, 'latitude': 0}}
 
-    weather_stations = {
-        'stationID_1': {'longitude': 1,'latitude': 1}}
-
-    temp_data = {'stationID_1': np.ones((365, 24)) + 10}
+    temp_data = {'regA': np.ones((365, 24)) + 10, 'regB': np.ones((365, 24)) + 10}
 
     enduses = ['ss_space_heating']
     sectors = ['offices']
@@ -146,9 +132,7 @@ def test_ss_disaggregate():
         scenario_data=scenario_data,
         pop_for_disagg=pop_for_disag,
         regions=regions,
-        reg_coord=reg_coord,
         temp_data=temp_data,
-        weather_stations=weather_stations,
         enduses=enduses,
         sectors=sectors,
         crit_limited_disagg_pop_hdd=False,
@@ -159,13 +143,10 @@ def test_ss_disaggregate():
 
 def test_is_disaggregate():
     """TESTING"""
-    temp_data = {'stationID_1': np.ones((365, 24)) + 10}
+    temp_data = {'regA': np.ones((365, 24)) + 10, 'regB': np.ones((365, 24)) + 10}
     reg_coord = {
         'regA': {'longitude': 0, 'latitude': 0},
         'regB': {'longitude': 0, 'latitude': 0}}
-
-    weather_stations = {
-        'stationID_1': {'longitude': 1,'latitude': 1}}
 
     national_fuel = 100
     raw_fuel_sectors_enduses = {'is_space_heating': {
@@ -203,16 +184,13 @@ def test_is_disaggregate():
     result = s_disaggregation.is_disaggregate(
         assumptions=assumptions,
         temp_data=temp_data,
-        reg_coord=reg_coord,
-        weather_stations=weather_stations,
         is_national_fuel=raw_fuel_sectors_enduses,
         regions=regions,
         enduses=enduses,
         sectors=sectors,
         employment_statistics=employment_statistics,
         pop_for_disagg=pop_for_disag,
-        census_disagg=False,
-        )
+        census_disagg=False)
 
     assert result['regA']['is_space_heating']['mining'] == 50.0
 
@@ -220,8 +198,6 @@ def test_is_disaggregate():
     result = s_disaggregation.is_disaggregate(
         assumptions=assumptions,
         temp_data=temp_data,
-        reg_coord=reg_coord,
-        weather_stations=weather_stations,
         is_national_fuel=raw_fuel_sectors_enduses,
         regions=regions,
         enduses=enduses,

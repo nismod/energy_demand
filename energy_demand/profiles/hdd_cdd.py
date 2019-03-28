@@ -441,8 +441,6 @@ def get_hdd_country(
         t_base_heating,
         regions,
         temp_data,
-        reg_coord,
-        weather_stations,
         crit_temp_min_max=False
     ):
     """Calculate total number of heating degree days in a region for the base year
@@ -457,18 +455,9 @@ def get_hdd_country(
     hdd_regions = {}
 
     for region in regions:
-
-        # Get closest weather station and temperatures
-        closest_station_id = weather_station.get_closest_station(
-            reg_coord[region]['latitude'],
-            reg_coord[region]['longitude'],
-            weather_stations)
-
-        temperatures = temp_data[closest_station_id]
-
         hdd_reg = calc_hdd(
             t_base_heating,
-            temperatures,
+            temp_data[region],
             nr_day_to_av=1,
             crit_temp_min_max=crit_temp_min_max)
 
@@ -480,8 +469,6 @@ def get_cdd_country(
         t_base_cooling,
         regions,
         temp_data,
-        reg_coord,
-        weather_stations,
         crit_temp_min_max=False
     ):
     """Calculate total number of cooling degree days in a
@@ -503,19 +490,9 @@ def get_cdd_country(
     cdd_regions = {}
 
     for region in regions:
-
-        # Get closest weather station and temperatures
-        closest_station_id = weather_station.get_closest_station(
-            reg_coord[region]['latitude'],
-            reg_coord[region]['longitude'],
-            weather_stations)
-
-        # Temp data
-        temperatures = temp_data[closest_station_id]
-
         cdd_reg = calc_cdd(
             t_base_cooling,
-            temperatures,
+            temp_data[region],
             nr_day_to_av=1,
             crit_temp_min_max=crit_temp_min_max)
 

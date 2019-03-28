@@ -78,40 +78,24 @@ def test_get_hdd_country():
     """testing
     """
 
-    base_yr = 2015
-    curr_yr = 2020
-
-    weather_stations = {
-        "weater_station_A": {
-            'latitude': 55.8695,
-            'longitude': -4.4}}
-
     regions = ['reg_A', 'reg_B']
 
     temp_data = {
-        "weater_station_A": np.zeros((365, 24)) + 12}
+        "reg_A": np.zeros((365, 24)) + 12,
+        "reg_B": np.zeros((365, 24)) + 12,
+        }
 
     base_temp_diff_params = {}
     base_temp_diff_params['sig_midpoint'] = 0
     base_temp_diff_params['sig_steepness'] = 1
     base_temp_diff_params['yr_until_changed'] = 2020
 
-    reg_coord = {
-        "reg_A": {
-            'latitude': 59.02999742,
-            'longitude': -3.4},
-        "reg_B": {
-            'latitude': 57.02999742,
-            'longitude': -4.4}}
-
     t_base_heating_base_yr = 15.5
 
     result = hdd_cdd.get_hdd_country(
         t_base_heating_base_yr,
         regions,
-        temp_data,
-        reg_coord,
-        weather_stations)
+        temp_data)
 
     expected = {
         "reg_A": (15.5 - 12.0) * 8760 / 24,
@@ -123,37 +107,23 @@ def test_get_hdd_country():
 def test_get_cdd_country():
     """testing
     """
-    weather_stations = {
-        "weater_station_A": {
-            'latitude': 55.8695,
-            'longitude': -4.4}}
-
     regions = ['reg_A', 'reg_B']
 
     temp_data = {
-        "weater_station_A": np.zeros((365, 24)) + 20}
+        "reg_A": np.zeros((365, 24)) + 20,
+        "reg_B": np.zeros((365, 24)) + 20}
 
     base_temp_diff_params = {}
     base_temp_diff_params['sig_midpoint'] = 0
     base_temp_diff_params['sig_steepness'] = 1
     base_temp_diff_params['yr_until_changed'] = 2020
 
-    reg_coord = {
-        "reg_A": {
-            'latitude': 59.02999742,
-            'longitude': -3.4},
-        "reg_B": {
-            'latitude': 57.02999742,
-            'longitude': -4.4}}
-
     t_base_heating_base_yr = 15.5
 
     result = hdd_cdd.get_cdd_country(
         t_base_heating_base_yr,
         regions,
-        temp_data,
-        reg_coord,
-        weather_stations)
+        temp_data)
 
     expected = {
         "reg_A": (20 - 15.5) * 8760 / 24,

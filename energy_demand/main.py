@@ -28,7 +28,6 @@ def energy_demand_model(
         data,
         criterias,
         assumptions,
-        weather_stations,
         weather_yr,
         weather_by
     ):
@@ -65,7 +64,6 @@ def energy_demand_model(
         data=data,
         criterias=criterias,
         assumptions=assumptions,
-        weather_stations=weather_stations,
         weather_yr=weather_yr,
         weather_by=weather_by)
 
@@ -165,15 +163,6 @@ if __name__ == "__main__":
     data['regions'] = read_data.get_region_names(name_region_set)
     data['reg_coord'] = basic_functions.get_long_lat_decimal_degrees(read_data.get_region_centroids(name_region_set))
     data['scenario_data']['population'] = data_loader.read_scenario_data(name_population_dataset, region_name='lad_uk_2016', value_name='population')
-    
-    # Write out coordinates
-    statistics_to_print = []
-    for i, j in data['reg_coord'].items():
-        statistics_to_print.append("{},{},{}".format(i,j['latitude'], j['longitude']))
-    # Write info to txt
-    write_data.write_list_to_txt(
-        os.path.join("C:/AAA/_test.txt"),
-        statistics_to_print)
 
     data['scenario_data']['gva_industry'] = data_loader.read_scenario_data_gva(name_gva_dataset, region_name='lad_uk_2016', value_name='gva_per_head', all_dummy_data=False)
     data['scenario_data']['gva_per_head'] = data_loader.read_scenario_data(name_gva_dataset_per_head, region_name='lad_uk_2016', value_name='gva_per_head')
@@ -278,16 +267,12 @@ if __name__ == "__main__":
     # Make selection of weather stations and data
     # Load all temperature and weather station data
     # ---------------------------------------------
-    data['weather_stations'], data['temp_data'] = data_loader.load_temp_data(
-        data['local_paths'],
+    data['temp_data'] = data_loader.load_temp_data(
         sim_yrs=sim_yrs,
+        regions=data['regions'],
         weather_realisation=weather_realisation,
         path_weather_data=path_weather_data,
-        same_base_year_weather=False,
-        crit_temp_min_max=config['CRITERIA']['crit_temp_min_max'],
-        load_np=False,
-        load_parquet=False,
-        load_csv=True)
+        same_base_year_weather=False)
 
     # ------------------------------------------------------------
     # Disaggregate national energy demand to regional demands
@@ -456,7 +441,6 @@ if __name__ == "__main__":
             data,
             config['CRITERIA'],
             data['assumptions'],
-            data['weather_stations'],
             weather_yr=weather_yr_scenario,
             weather_by=data['assumptions'].weather_by)
 
