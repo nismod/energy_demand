@@ -32,7 +32,7 @@ def generate_weather_at_home_realisation(
     result_path_realizations = os.path.join(path_results, "_realizations")
 
     basic_functions.create_folder(result_path_realizations)
-
+    result_path_realizations = "C:/AAA"
     # Read in stiching table
     df_path_stiching_table = pd.read_table(path_stiching_table, sep=" ")
 

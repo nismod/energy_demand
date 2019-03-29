@@ -41,13 +41,14 @@ base_yr_remapped_weather_path = "X:/nismod/data/energy_demand/J-MARIUS_data/_wea
 
 result_folder ='_spatially_mapped_supply_data'
 path_input_coordinates = os.path.abspath("X:/nismod/data/energy_supply/regions_input_supply_model.csv") # Path to file with coordinates to map on to
+#
 result_folder ='_spatially_mapped_demand_data'
-#path_input_coordinates = os.path.abspath("X:/nismod/data/energy_supply/regions_energy_demand_model.csv") # Path to file with coordinates to map on to
+path_input_coordinates = os.path.abspath("X:/nismod/data/energy_supply/regions_energy_demand_model.csv") # Path to file with coordinates to map on to
 
 
 extract_data = False
-stich_together = True
-append_closest_weather_data = False
+stich_together = False
+append_closest_weather_data = True
 
 if extract_data:
     # =================================
@@ -57,7 +58,7 @@ if extract_data:
     extract_weather_data.weather_dat_prepare(
         path_extracted_files,
         path_results,
-        years=range(2046, 2051))
+        years=[2035])
     print("... finished extracting data")
 
 if stich_together:
@@ -68,7 +69,7 @@ if stich_together:
         path_results=path_results,
         path_stiching_table=path_stiching_table,
         base_yr_remapped_weather_path=base_yr_remapped_weather_path,
-        scenarios=range(21, 27))
+        scenarios=[27])#range(47, 61))
         #scenarios=range(28, 62))
     print("... finished creating realisations")
 
@@ -81,6 +82,6 @@ if append_closest_weather_data:
         result_folder=result_folder,
         path_weather_at_home_stations=os.path.join(path_results, "_cleaned_csv"),
         path_input_coordinates=path_input_coordinates,
-        attributes=['wss','rsds'], #['t_min', 't_max', 'wss','rsds'],
+        attributes=['t_min', 't_max', 'wss','rsds'], #['wss','rsds'], #
         scenarios=range(10))
     print("... append closest weather information")
