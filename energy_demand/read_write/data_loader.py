@@ -882,15 +882,11 @@ def load_weather_stations_csv(path_stations):
     return out_stations
 
 def load_temp_data(
-        local_paths,
         sim_yrs,
+        regions,
         weather_realisation,
         path_weather_data,
         same_base_year_weather=False,
-        crit_temp_min_max=False,
-        load_np=False,
-        load_parquet=False,
-        load_csv=True
     ):
     """Read in cleaned temperature and weather station data
 
@@ -905,111 +901,48 @@ def load_temp_data(
 
     Returns
     -------
-    weather_stations : dict
-        Weather stations
     temp_data : dict
-        Temperaturesv
-    crit_temp_min_max : dict
-        True: Hourly temperature data are provided
-        False: min and max temperature are provided
-
-    t_yrs_stations : dict
-        Temperatures {sim_yr: {stations:  {t_min: np.array(365), t_max: np.array(365)}}}
+        [year][region]['tmin and tmax']
 
     Info
     ----
-    PAarquest file http://pandas.pydata.org/pandas-docs/stable/io.html#io-parquet
+    Parquet file http://pandas.pydata.org/pandas-docs/stable/io.html#io-parquet
     """
     logging.debug("... loading temperatures", flush=True)
 
     temp_data_short = defaultdict(dict)
-    weather_stations_with_data = defaultdict(dict)
 
-    if crit_temp_min_max:
+    # ------------------
+    # Read temperatures
+    # ------------------
+    path_t_min = os.path.join(path_weather_data, "t_min__{}.csv".format(weather_realisation))
+    path_t_max = os.path.join(path_weather_data, "t_max__{}.csv".format(weather_realisation))
+    df_t_min = pd.read_csv(path_t_min)
+    df_t_max = pd.read_csv(path_t_max)
 
-        # ------------------
-        # Read stations
-        # ------------------
-        path_stations = os.path.join(path_weather_data, "stations_{}.csv".format(weather_realisation))
+    for sim_yr in sim_yrs:
+        print("    ... load temperature for year: {}".format(sim_yr), flush=True)
+        if same_base_year_weather:
+            weather_data_yr = sim_yrs[0]
+        else:
+            weather_data_yr = sim_yr
 
-        weather_stations_with_data = load_weather_stations_csv(path_stations)
+        # Select all station values
+        df_timestep_t_min = df_t_min.loc[df_t_min['timestep'] == weather_data_yr]
+        df_timestep_t_max = df_t_max.loc[df_t_max['timestep'] == weather_data_yr]
 
-        # ------------------
-        # Read temperatures
-        # ------------------
-        if load_np:
-            path_temp_data = os.path.join(path_weather_data, "weather_data_{}.npy".format(weather_realisation))
-            full_data = np.load(path_temp_data)
+        for region in regions:
+            df_timestep_station_t_min = df_timestep_t_min.loc[df_timestep_t_min['region'] == region]
+            df_timestep_station_t_max = df_timestep_t_max.loc[df_timestep_t_max['region'] == region]
 
-            # Convert npy to dataframe
-            df_full_data = pd.DataFrame(
-                full_data,
-                columns=['timestep', 'station_id', 'stiching_name', 'yearday', 't_min', 't_max'])
-        if load_parquet:
-            path_temp_data = os.path.join(path_weather_data, "weather_data_{}.parquet".format(weather_realisation))
-            df_full_data = pd.read_parquet(path_temp_data, engine='pyarrow')
-        if load_csv:
-            path_temp_data = os.path.join(path_weather_data, "weather_data_{}.csv".format(weather_realisation))
-            df_full_data = pd.read_csv(path_temp_data)
+            t_min = list(df_timestep_station_t_min['value'].values)
+            t_max = list(df_timestep_station_t_max['value'].values)
 
-        for sim_yr in sim_yrs:
+            temp_data_short[sim_yr][region] = {
+                't_min': np.array(t_min),
+                't_max': np.array(t_max)}
 
-            if same_base_year_weather:
-                sim_yr = sim_yrs[0]
-            else:
-                pass
-            print("    ... year: {}".format(sim_yr), flush=True)
-
-            # Select all station values
-            df_timestep = df_full_data.loc[df_full_data['timestep'] == sim_yr]
-
-            for station_id in weather_stations_with_data:
-
-                df_timestep_station = df_timestep.loc[df_timestep['station_id'] == station_id]
-
-                # Remove extrated rows to speed up process
-                df_timestep = df_timestep.drop(list(df_timestep_station.index))
-
-                t_min = list(df_timestep_station['t_min'].values)
-                t_max = list(df_timestep_station['t_max'].values)
-
-                temp_data_short[sim_yr][station_id] = {
-                    't_min': np.array(t_min),
-                    't_max': np.array(t_max)}
-
-        return dict(weather_stations_with_data), dict(temp_data_short)
-    else:
-        # Reading in hourly temperature data
-        weather_stations = read_weather_stations_raw(
-            local_paths['folder_path_weater_stations'])
-
-        for weather_yr_scenario in sim_yrs:
-            temp_data = read_weather_data.read_weather_data_script_data(
-                local_paths['weather_data'], weather_yr_scenario)
-
-            for station in weather_stations:
-                try:
-                    _ = temp_data[station]
-
-                    # Remove all non-uk stations
-                    if weather_stations[station]['longitude'] > 2 or weather_stations[station]['longitude'] < -8.5:
-                        pass
-                    else:
-                        temp_data_short[weather_yr_scenario][station] = temp_data[station]
-                except:
-                    logging.debug("no data for weather station " + str(station))
-
-            for station_id in temp_data_short[weather_yr_scenario].keys():
-                try:
-                    weather_stations_with_data[station_id] = weather_stations[station_id]
-                except:
-                    del temp_data_short[weather_yr_scenario][station_id]
-
-            logging.info(
-                "Info: Number of weather stations: {} weather_yr_scenario: Number of temp data: {}, weather_yr_scenario: {}".format(
-                    len(weather_stations_with_data), len(temp_data_short[weather_yr_scenario]), weather_yr_scenario))
-
-        return dict(weather_stations_with_data), dict(temp_data_short)
+    return dict(temp_data_short)
 
 def load_fuels(paths):
     """Load in ECUK fuel data, enduses and sectors

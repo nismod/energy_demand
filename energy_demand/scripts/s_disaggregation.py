@@ -47,7 +47,6 @@ def disaggr_demand(data, crit_temp_min_max, spatial_calibration=False):
         data['scenario_data'],
         data['assumptions'],
         data['reg_coord'],
-        data['weather_stations'], # Base year data used to disaggregate demand
         data['temp_data'][base_yr], # Base year data used to disaggregate demand
         data['sectors'],
         data['enduses'],
@@ -194,7 +193,6 @@ def disaggregate_base_demand(
         scenario_data,
         assumptions,
         reg_coord,
-        weather_stations,
         temp_data,
         sectors,
         enduses,
@@ -220,8 +218,6 @@ def disaggregate_base_demand(
         Assumptions
     reg_coord : dict
         Region coordinates
-    weather_stations : dict
-        Weather stations
     temp_data : dict
         Temperature data
     sectors : dict
@@ -249,8 +245,6 @@ def disaggregate_base_demand(
         scenario_data,
         pop_for_disagg,
         assumptions,
-        reg_coord,
-        weather_stations,
         temp_data,
         enduses['residential'],
         crit_limited_disagg_pop_hdd,
@@ -266,9 +260,7 @@ def disaggregate_base_demand(
         scenario_data,
         pop_for_disagg,
         regions,
-        reg_coord,
         temp_data,
-        weather_stations,
         enduses['service'],
         sectors['service'],
         crit_limited_disagg_pop_hdd,
@@ -280,8 +272,6 @@ def disaggregate_base_demand(
     is_fuel_disagg = is_disaggregate(
         assumptions,
         temp_data,
-        reg_coord,
-        weather_stations,
         fuels['industry'],
         regions,
         enduses['industry'],
@@ -300,9 +290,7 @@ def ss_disaggregate(
         scenario_data,
         pop_for_disagg,
         regions,
-        reg_coord,
         temp_data,
-        weather_stations,
         enduses,
         sectors,
         crit_limited_disagg_pop_hdd,
@@ -327,16 +315,12 @@ def ss_disaggregate(
         t_base_heating=assumptions.t_bases.ss_t_heating,
         regions=regions,
         temp_data=temp_data,
-        reg_coord=reg_coord,
-        weather_stations=weather_stations,
         crit_temp_min_max=crit_temp_min_max)
 
     ss_cdd_individ_region = hdd_cdd.get_cdd_country(
         t_base_cooling=assumptions.t_bases.ss_t_cooling,
         regions=regions,
         temp_data=temp_data,
-        reg_coord=reg_coord,
-        weather_stations=weather_stations,
         crit_temp_min_max=crit_temp_min_max)
 
     # ---------------------------------------------
@@ -543,8 +527,6 @@ def ss_disaggr(
 def is_disaggregate(
         assumptions,
         temp_data,
-        reg_coord,
-        weather_stations,
         is_national_fuel,
         regions,
         enduses,
@@ -583,8 +565,6 @@ def is_disaggregate(
         t_base_heating=assumptions.t_bases.is_t_heating,
         regions=regions,
         temp_data=temp_data,
-        reg_coord=reg_coord,
-        weather_stations=weather_stations,
         crit_temp_min_max=crit_temp_min_max)
 
     is_fuel_disagg = {}
@@ -751,8 +731,6 @@ def rs_disaggregate(
         scenario_data,
         pop_for_disagg,
         assumptions,
-        reg_coord,
-        weather_stations,
         temp_data,
         enduses,
         crit_limited_disagg_pop_hdd,
@@ -790,8 +768,6 @@ def rs_disaggregate(
         t_base_heating=assumptions.t_bases.rs_t_heating,
         regions=regions,
         temp_data=temp_data,
-        reg_coord=reg_coord,
-        weather_stations=weather_stations,
         crit_temp_min_max=crit_temp_min_max)
 
     # ---------------------------------------

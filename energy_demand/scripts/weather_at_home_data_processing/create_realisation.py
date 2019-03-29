@@ -4,7 +4,6 @@ import os
 import pandas as pd
 import numpy as np
 
-from energy_demand.read_write import write_data
 from energy_demand.basic import basic_functions
 
 def remap_year(year):
@@ -22,6 +21,7 @@ def remap_year(year):
 def generate_weather_at_home_realisation(
         path_results,
         path_stiching_table,
+        base_yr_remapped_weather_path,
         scenarios=range(100),
         years=range(2015, 2051)
     ):
@@ -30,9 +30,9 @@ def generate_weather_at_home_realisation(
     """
     # Create result path
     result_path_realizations = os.path.join(path_results, "_realizations")
-    #result_path_realizations = "C:/AAA"
-    basic_functions.create_folder(result_path_realizations)
 
+    basic_functions.create_folder(result_path_realizations)
+    result_path_realizations = "C:/AAA"
     # Read in stiching table
     df_path_stiching_table = pd.read_table(path_stiching_table, sep=" ")
 
@@ -45,8 +45,7 @@ def generate_weather_at_home_realisation(
     for scenario_nr in scenarios:
         realisation = realisations[scenario_nr]
 
-        attributes = ['t_min', 't_max'] #['rsds', 'wss']
-        #attributes = ['rsds', 'wss']
+        attributes = ['t_min', 't_max']#, 'rsds', 'wss']
         for attribute in attributes:
             columns = ['timestep', 'station_id', 'longitude', 'latitude', 'yearday', attribute]
 
@@ -56,11 +55,16 @@ def generate_weather_at_home_realisation(
             for sim_yr in years:
                 #print("   ... year: " + str(sim_yr), flush=True)
                 year = remap_year(sim_yr)
-
                 stiching_name = df_path_stiching_table[realisation][year]
-                path_weather_data = os.path.join(path_results, '_cleaned_csv', str(year), stiching_name)
-                path_attribute = os.path.join(path_weather_data, "{}.npy".format(attribute))
-                path_attribute_stations = os.path.join(path_results, '_cleaned_csv', "stations_{}.csv".format(attribute))
+
+                # Because for temperature 2015 prepared data are used
+                if (attribute in ['t_min', 't_max']) and (sim_yr == 2015):
+                    path_attribute = os.path.join(base_yr_remapped_weather_path, "{}_remapped.npy".format(attribute))
+                    path_attribute_stations = os.path.join(base_yr_remapped_weather_path, "stations_2015_remapped.csv")
+                else:
+                    path_weather_data = os.path.join(path_results, '_cleaned_csv', str(year), stiching_name)
+                    path_attribute = os.path.join(path_weather_data, "{}.npy".format(attribute))
+                    path_attribute_stations = os.path.join(path_results, '_cleaned_csv', "stations_{}.csv".format(attribute))
 
                 attribute_data = np.load(path_attribute)
 

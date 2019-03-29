@@ -30,7 +30,6 @@ def load_data_before_simulation(
     weather_yr_scenario = config['CONFIG']['weather_yr_scenario']
     path_new_scenario = config['PATHS']['path_new_scenario']
 
-    data['weather_station_count_nr'] = []  # Default value is '[]' to use all stations
     data['data_path'] = os.path.normpath(config['PATHS']['path_local_data'])
     data['processed_path'] = os.path.normpath(config['PATHS']['path_processed_data'])
     data['result_path'] = os.path.normpath(config['PATHS']['path_result_data'])
@@ -61,33 +60,6 @@ def load_data_before_simulation(
         sectors=data['sectors'],
         reg_nrs=len(data['regions']))
 
-    # --------------------------------------------
-    # Make selection of weather stations and data
-    # --------------------------------------------
-    weather_stations_selection = {}
-    temp_data_selection = {}
-    if data['weather_station_count_nr'] != []:
-        for year in sim_yrs:
-            weather_stations_selection, station_id = weather_region.get_weather_station_selection(
-                data['weather_stations'],
-                counter=data['weather_station_count_nr'],
-                weather_yr=weather_yr_scenario)
-            temp_data_selection[year] = data['temp_data'][year][station_id]
-
-            if year == weather_yr_scenario:
-                data['simulation_name'] = str(weather_yr_scenario) + "__" + str(station_id)
-    else:
-        for year in sim_yrs:
-            weather_stations_selection = data['weather_stations']
-            temp_data_selection[year] = data['temp_data'][year]
-
-            if year == weather_yr_scenario:
-                data['simulation_name'] = str(weather_yr_scenario) + "__" + "all_stations"
-
-    # Replace weather station with selection
-    data['weather_stations'] = weather_stations_selection
-    data['temp_data'] = temp_data_selection
-
     # ------------------------------------------
     # Make selection of regions to model
     # ------------------------------------------
@@ -110,7 +82,7 @@ def load_data_before_simulation(
     # Weather year specific initialisations
     # -------------------------------------------
     path_folder_weather_yr = os.path.join(
-        os.path.join(path_new_scenario, data['simulation_name']))
+        os.path.join(path_new_scenario, str(weather_yr_scenario) + "__" + "all_stations"))
 
     data['weather_result_paths'] = basic_functions.get_result_paths(path_folder_weather_yr)
 

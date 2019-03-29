@@ -20,8 +20,6 @@ class WeatherRegion(object):
     ----------
     name : str
         Unique identifyer of weather region
-    latitude, longitude : float
-        Coordinates
     assumptions : dict
         Assumptions
     technologies : list
@@ -43,8 +41,6 @@ class WeatherRegion(object):
     def __init__(
             self,
             name,
-            latitude,
-            longitude,
             assumptions,
             technologies,
             enduses,
@@ -57,8 +53,6 @@ class WeatherRegion(object):
         """Constructor of weather region
         """
         self.name = name
-        self.longitude = longitude
-        self.latitude = latitude
 
         fueltypes = lookup_tables.basic_lookups()['fueltypes']
 
