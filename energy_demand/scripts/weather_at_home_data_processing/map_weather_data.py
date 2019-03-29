@@ -21,7 +21,7 @@ def spatially_map_data(
     path_to_scenario_data = os.path.join(path_results, '_realizations')
     result_out_path = os.path.join(path_results, result_folder)
     basic_functions.create_folder(result_out_path)
-    result_out_path = "C:/AAA/ed"
+    result_out_path = "C:/AAA/energy_demand"
 
     # Read in input stations and coordinages to map
     stations_to_map_to = pd.read_csv(path_input_coordinates)
@@ -119,7 +119,7 @@ def spatially_map_data(
             # ----------------------------------------------------------
             stations_to_map_to_out = pd.DataFrame(
                 stations_to_map_to_list,
-                columns=['region', 'value', 'timestep', 'day'])
+                columns=['region', attribute, 'timestep', 'yearday'])
 
             result_file = os.path.join(result_out_path, "{}__{}.csv".format(attribute, scenario_name))
             stations_to_map_to_out.to_csv(result_file, index=False)

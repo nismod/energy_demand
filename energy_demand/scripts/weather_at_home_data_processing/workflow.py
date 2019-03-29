@@ -39,8 +39,10 @@ path_stiching_table = "X:/nismod/data/energy_demand/J-MARIUS_data/stitching_tabl
 path_results = "X:/nismod/data/energy_supply/weather_files" # Path to store results
 base_yr_remapped_weather_path = "X:/nismod/data/energy_demand/J-MARIUS_data/_weather_data_cleaned/2015_remapped"
 
+#
 result_folder ='_spatially_mapped_supply_data'
 path_input_coordinates = os.path.abspath("X:/nismod/data/energy_supply/regions_input_supply_model.csv") # Path to file with coordinates to map on to
+
 #
 result_folder ='_spatially_mapped_demand_data'
 path_input_coordinates = os.path.abspath("X:/nismod/data/energy_supply/regions_energy_demand_model.csv") # Path to file with coordinates to map on to
@@ -82,6 +84,6 @@ if append_closest_weather_data:
         result_folder=result_folder,
         path_weather_at_home_stations=os.path.join(path_results, "_cleaned_csv"),
         path_input_coordinates=path_input_coordinates,
-        attributes=['t_min', 't_max', 'wss','rsds'], #['wss','rsds'], #
+        attributes=['t_min', 't_max'],# 'wss','rsds'], #['wss','rsds'], #
         scenarios=range(10))
     print("... append closest weather information")
