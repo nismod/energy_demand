@@ -4,7 +4,23 @@ import os
 import pandas as pd
 import numpy as np
 
-from energy_demand.basic import basic_functions
+def create_folder(path_folder, name_subfolder=None):
+    """Creates folder or subfolder
+
+    Arguments
+    ----------
+    path : str
+        Path to folder
+    folder_name : str, default=None
+        Name of subfolder to create
+    """
+    if not name_subfolder:
+        if not os.path.exists(path_folder):
+            os.makedirs(path_folder)
+    else:
+        path_result_subolder = os.path.join(path_folder, name_subfolder)
+        if not os.path.exists(path_result_subolder):
+            os.makedirs(path_result_subolder)
 
 def remap_year(year):
     """Remap year"""
@@ -23,6 +39,7 @@ def generate_weather_at_home_realisation(
         path_stiching_table,
         base_yr_remapped_weather_path,
         scenarios=range(100),
+        attributes=['t_min', 't_max', 'rsds', 'wss'],
         years=range(2015, 2051)
     ):
     """
@@ -31,7 +48,7 @@ def generate_weather_at_home_realisation(
     # Create result path
     result_path_realizations = os.path.join(path_results, "_realizations")
 
-    basic_functions.create_folder(result_path_realizations)
+    create_folder(result_path_realizations)
     result_path_realizations = "C:/AAA"
     # Read in stiching table
     df_path_stiching_table = pd.read_table(path_stiching_table, sep=" ")
@@ -44,8 +61,6 @@ def generate_weather_at_home_realisation(
 
     for scenario_nr in scenarios:
         realisation = realisations[scenario_nr]
-
-        attributes = ['t_min', 't_max']#, 'rsds', 'wss']
         for attribute in attributes:
             columns = ['timestep', 'station_id', 'longitude', 'latitude', 'yearday', attribute]
 

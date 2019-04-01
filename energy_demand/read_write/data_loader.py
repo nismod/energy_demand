@@ -886,6 +886,7 @@ def load_temp_data(
         regions,
         weather_realisation,
         path_weather_data,
+        region_name_attribute,
         same_base_year_weather=False,
     ):
     """Read in cleaned temperature and weather station data
@@ -932,11 +933,11 @@ def load_temp_data(
         df_timestep_t_max = df_t_max.loc[df_t_max['timestep'] == weather_data_yr]
 
         for region in regions:
-            df_timestep_station_t_min = df_timestep_t_min.loc[df_timestep_t_min['region'] == region]
-            df_timestep_station_t_max = df_timestep_t_max.loc[df_timestep_t_max['region'] == region]
+            df_timestep_station_t_min = df_timestep_t_min.loc[df_timestep_t_min[region_name_attribute] == region]
+            df_timestep_station_t_max = df_timestep_t_max.loc[df_timestep_t_max[region_name_attribute] == region]
 
-            t_min = list(df_timestep_station_t_min['value'].values)
-            t_max = list(df_timestep_station_t_max['value'].values)
+            t_min = list(df_timestep_station_t_min['t_min'].values)
+            t_max = list(df_timestep_station_t_max['t_max'].values)
 
             temp_data_short[sim_yr][region] = {
                 't_min': np.array(t_min),

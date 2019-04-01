@@ -158,14 +158,15 @@ if __name__ == "__main__":
     # ----------------------------------------------------------------------
     # Load data
     # ----------------------------------------------------------------------
+    region_name_attribute ='lad_uk_2016'
     data['scenario_data'] = defaultdict(dict)
     data['enduses'], data['sectors'], data['fuels'], lookup_enduses, lookup_sector_enduses = data_loader.load_fuels(data['paths'])
     data['regions'] = read_data.get_region_names(name_region_set)
     data['reg_coord'] = basic_functions.get_long_lat_decimal_degrees(read_data.get_region_centroids(name_region_set))
-    data['scenario_data']['population'] = data_loader.read_scenario_data(name_population_dataset, region_name='lad_uk_2016', value_name='population')
+    data['scenario_data']['population'] = data_loader.read_scenario_data(name_population_dataset, region_name=region_name_attribute, value_name='population')
 
-    data['scenario_data']['gva_industry'] = data_loader.read_scenario_data_gva(name_gva_dataset, region_name='lad_uk_2016', value_name='gva_per_head', all_dummy_data=False)
-    data['scenario_data']['gva_per_head'] = data_loader.read_scenario_data(name_gva_dataset_per_head, region_name='lad_uk_2016', value_name='gva_per_head')
+    data['scenario_data']['gva_industry'] = data_loader.read_scenario_data_gva(name_gva_dataset, region_name=region_name_attribute, value_name='gva_per_head', all_dummy_data=False)
+    data['scenario_data']['gva_per_head'] = data_loader.read_scenario_data(name_gva_dataset_per_head, region_name=region_name_attribute, value_name='gva_per_head')
 
     # -----------------------------
     # Assumptions
@@ -272,6 +273,7 @@ if __name__ == "__main__":
         regions=data['regions'],
         weather_realisation=weather_realisation,
         path_weather_data=path_weather_data,
+        region_name_attribute=region_name_attribute,
         same_base_year_weather=False)
 
     # ------------------------------------------------------------
@@ -401,7 +403,6 @@ if __name__ == "__main__":
     # Main model run function
     # -----------------------
     for sim_yr in data['assumptions'].sim_yrs:
-
         print("Local simulation for year:  " + str(sim_yr))
         setattr(data['assumptions'], 'curr_yr', sim_yr) # Set current year
 
@@ -459,7 +460,7 @@ if __name__ == "__main__":
                 config['CRITERIA']['plot_crit'])
 
         # -------------------------------------
-        # # Generate YAML file with keynames for `sector_model`
+        # Generate ouputs
         # -------------------------------------
         if config['CRITERIA']['mode_constrained']:
             supply_results = demand_supply_interaction.constrained_results(
@@ -556,6 +557,9 @@ if __name__ == "__main__":
                     'reg_load_factor_yd')
 
             print("... Finished writing results to file")
+
+    for key_name in sim_obj.supply_results.keys():
+        print("KEYNAME " + str(key_name))
 
     print("-------------------------")
     print("... Finished running HIRE")

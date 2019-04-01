@@ -5,11 +5,27 @@ import os
 import pandas as pd
 from haversine import haversine
 
-from energy_demand.basic import basic_functions
+def create_folder(path_folder, name_subfolder=None):
+    """Creates folder or subfolder
+
+    Arguments
+    ----------
+    path : str
+        Path to folder
+    folder_name : str, default=None
+        Name of subfolder to create
+    """
+    if not name_subfolder:
+        if not os.path.exists(path_folder):
+            os.makedirs(path_folder)
+    else:
+        path_result_subolder = os.path.join(path_folder, name_subfolder)
+        if not os.path.exists(path_result_subolder):
+            os.makedirs(path_result_subolder)
 
 def spatially_map_data(
         path_results,
-        result_folder,
+        result_out_path,
         path_weather_at_home_stations,
         path_input_coordinates,
         attributes,
@@ -19,9 +35,7 @@ def spatially_map_data(
 
     # Path to scenarios
     path_to_scenario_data = os.path.join(path_results, '_realizations')
-    result_out_path = os.path.join(path_results, result_folder)
-    basic_functions.create_folder(result_out_path)
-    result_out_path = "C:/AAA/energy_demand"
+    create_folder(result_out_path)
 
     # Read in input stations and coordinages to map
     stations_to_map_to = pd.read_csv(path_input_coordinates)
@@ -40,8 +54,7 @@ def spatially_map_data(
         for index in stations_grid_cells.index:
             stations_grid_cells_dict[index] = {
                 'longitude': stations_grid_cells.loc[index, 'longitude'],
-                'latitude': stations_grid_cells.loc[index, 'latitude']
-            }
+                'latitude': stations_grid_cells.loc[index, 'latitude']}
 
         weather_stations_per_attribute[attribute] = stations_grid_cells_dict
 
@@ -64,7 +77,7 @@ def spatially_map_data(
             closest_weather_ids[index][attribute] = closest_marius_station
 
     # ----------------------------------------
-    # Temperature data
+    # Get data
     # ----------------------------------------
     for scenario_nr in scenarios:
         scenario_name = scenario_names[scenario_nr]
@@ -87,7 +100,7 @@ def spatially_map_data(
                 data_yr = data.loc[data['timestep'] == year]
 
                 for index in stations_to_map_to.index:
-                    region_name = stations_to_map_to.loc[index, 'region_name']
+                    region_name = stations_to_map_to.loc[index, 'region_id']
                     closest_weather_station_id = closest_weather_ids[index][attribute]
                     closest_data = data_yr.loc[closest_weather_station_id]
                     closest_data_list = list(closest_data.values)
@@ -99,20 +112,6 @@ def spatially_map_data(
                             row[position_attribute],
                             year,
                             int(row[position_yearday])])
-
-                    '''for yearday in range(0, 365):
-                        values_row = closest_data.loc[closest_data['yearday'] == yearday]
-                        value = values_row[attribute].values[0]
-                        
-                        #print("        ... value: {} attribute: {} {} {}".format(value, attribute, index, closest_weather_station_id), flush=True)
-                        list_entry = (
-                            index,
-                            scenario_nr,
-                            attribute,
-                            value,
-                            year,
-                            yearday)
-                        stations_to_map_to_list.append(list_entry)'''
 
             # ----------------------------------------------------------
             # Write out data
