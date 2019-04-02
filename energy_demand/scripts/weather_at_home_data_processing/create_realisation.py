@@ -49,7 +49,7 @@ def generate_weather_at_home_realisation(
     result_path_realizations = os.path.join(path_results, "_realizations")
 
     create_folder(result_path_realizations)
-    result_path_realizations = "C:/AAA"
+
     # Read in stiching table
     df_path_stiching_table = pd.read_table(path_stiching_table, sep=" ")
 
@@ -68,7 +68,6 @@ def generate_weather_at_home_realisation(
             realisation_out = []
 
             for sim_yr in years:
-                #print("   ... year: " + str(sim_yr), flush=True)
                 year = remap_year(sim_yr)
                 stiching_name = df_path_stiching_table[realisation][year]
 

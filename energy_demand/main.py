@@ -470,7 +470,7 @@ if __name__ == "__main__":
                 data['assumptions'].technologies)
         else:
             supply_results = demand_supply_interaction.unconstrained_results(
-                sim_obj.results_unconstrained,
+                sim_obj.results_unconstrained_no_heating,
                 data['assumptions'].submodels_names)
 
         # --------------------------

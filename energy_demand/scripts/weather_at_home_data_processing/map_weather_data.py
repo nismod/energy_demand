@@ -36,7 +36,7 @@ def spatially_map_data(
     # Path to scenarios
     path_to_scenario_data = os.path.join(path_results, '_realizations')
     create_folder(result_out_path)
-
+    result_out_path = "C:/AAA"
     # Read in input stations and coordinages to map
     stations_to_map_to = pd.read_csv(path_input_coordinates)
 

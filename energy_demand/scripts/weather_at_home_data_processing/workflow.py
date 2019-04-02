@@ -44,8 +44,8 @@ result_folder = "C:/AAA/energy_supply"
 path_input_coordinates = os.path.abspath("X:/nismod/data/energy_supply/regions_input_supply_model.csv") # Path to file with coordinates to map on to
 
 # Energy demand data
-#result_folder ='_spatially_mapped_demand_data'
-#path_input_coordinates = os.path.abspath("X:/nismod/data/energy_supply/regions_energy_demand_model.csv") # Path to file with coordinates to map on to
+result_folder ='_spatially_mapped_demand_data'
+path_input_coordinates = os.path.abspath("X:/nismod/data/energy_supply/regions_energy_demand_model.csv") # Path to file with coordinates to map on to
 
 extract_data = False
 stich_together = False
@@ -83,6 +83,6 @@ if append_closest_weather_data:
         result_out_path=result_folder,
         path_weather_at_home_stations=os.path.join(path_results, "_cleaned_csv"),
         path_input_coordinates=path_input_coordinates,
-        attributes=['t_min', 't_max', 'wss','rsds'],
+        attributes=['t_min', 't_max', 'rsds', 'wss'],
         scenarios=range(0, 100))
     print("... append closest weather information")

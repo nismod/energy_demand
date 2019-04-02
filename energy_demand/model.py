@@ -101,9 +101,8 @@ class EnergyDemandModel(object):
         # Simulate regions
         # -------------------------------------------
         for reg_array_nr, region in enumerate(tqdm(regions)):
-
-            print("... Simulate: region %s, simulation year: %s, percent: (%s)",
-                region, assumptions.curr_yr, round((100/assumptions.reg_nrs)*reg_array_nr, 2), flush=True)
+            #print("... Simulate: region %s, simulation year: %s, percent: (%s)",
+            #    region, assumptions.curr_yr, round((100/assumptions.reg_nrs)*reg_array_nr, 2), flush=True)
             #logging.info("... Simulate: region %s, simulation year: %s, percent: (%s)",
             #    region, assumptions.curr_yr, round((100/assumptions.reg_nrs)*reg_array_nr, 2))
             all_submodels = simulate_region(
@@ -238,6 +237,7 @@ def aggregate_across_all_regs(
     # ----------------------------------------------------
     # Generate dict for supply model
     # ----------------------------------------------------
+    print("Mode: " + str(criterias['mode_constrained']))
     if criterias['mode_constrained']:
         aggr_results['supply_results'] = demand_supply_interaction.constrained_results(
             aggr_results['results_constrained'],
@@ -246,7 +246,7 @@ def aggregate_across_all_regs(
             technologies)
     else:
         aggr_results['supply_results'] = demand_supply_interaction.unconstrained_results(
-            aggr_results['results_unconstrained'],
+            aggr_results['results_unconstrained_no_heating'],
             assumptions.submodels_names)
 
     return aggr_results

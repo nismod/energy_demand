@@ -230,7 +230,6 @@ def write_national_results(
         fueltype_str,
         fuelype_nr,
         year,
-        write_regions=False,
         submodels_names=['residential', 'service', 'industry']
     ):
     """Write national results of all fueltypes
