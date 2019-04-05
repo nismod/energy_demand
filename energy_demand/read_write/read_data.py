@@ -616,11 +616,13 @@ def service_switch(df_service_switches):
         service_share_ey            [str]   Service share of 'tech' in 'switch_yr'
         sector                      [str]   Optional sector specific info where switch applies
     """
+    test_enduses = set([])
     service_switches = []
-    default_parameter = 999.0   #default parameter
+    default_parameter = 999.0 #default parameter
 
     for i in df_service_switches.index:
         enduse = df_service_switches.at[i, 'enduses_service_switch']
+        test_enduses.add(enduse)
         tech = df_service_switches.at[i, 'tech']
         service_share_ey = df_service_switches.at[i, 'switches_service']
         switch_yr = df_service_switches.at[i, 'end_yr']
@@ -639,6 +641,26 @@ def service_switch(df_service_switches):
                     service_share_ey=float(service_share_ey),
                     switch_yr=float(switch_yr),
                     sector=sector))
+    
+    # --------------------------------------------
+    # Test if not 100% per enduse is defined
+    # --------------------------------------------
+    for enduse in test_enduses:
+
+        switch_yrs = {}
+        for switch in service_switches:
+            if switch.enduse == enduse:
+                year = switch.switch_yr
+                value = switch.service_share_ey
+                #print("... {}  {}  {}".format(year, value, enduse))
+                if year in switch_yrs.keys():
+                    switch_yrs[year] += value
+                else:
+                    switch_yrs[year] = value
+
+        for year, value in switch_yrs.items():
+            if value != 1.0:
+                raise Exception("WRONG SERVICE SWITHC INPUT AS NOT SUMS TO 1.0 (100%) {} {}  {}".format(value, year, enduse))
 
     return service_switches
 

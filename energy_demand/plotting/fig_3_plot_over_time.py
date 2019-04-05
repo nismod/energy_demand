@@ -60,16 +60,6 @@ def clasify_color(diff_mean, diff_std, threshold):
     else:
         color_pos = 0
 
-    '''if diff_mean < 0 and diff_std < 0:
-        color_pos = 3
-    elif diff_mean > 0 and diff_std < 0:
-        color_pos = 2
-    elif diff_mean < 0 and diff_std > 0:
-        color_pos = 4
-    elif diff_mean > 0 and diff_std > 0:
-        color_pos = 1
-        raise Exception("Something strange happend: {} {}".format(diff_mean, diff_std))'''
-
     return color_pos 
 
 def scenario_over_time(

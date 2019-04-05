@@ -1320,10 +1320,6 @@ def colors_plus_minus_map(
 
     elif min(bins) < 0:
         #logging.info("negative bins" + str(bins))
-        #print("negative bins" + str(bins))
-        #if len(bins) > 10:
-        #    raise Exception("Too many bins defined: Change interval criteria")
-        #if len(bins) == 10 or len(bins) == 9: # add extra color to reach 10 colors
         if 1== 1:
             if color_order:
                 color_list_pos = getattr(palettable.colorbrewer.sequential, 'Reds_9').hex_colors
@@ -1335,13 +1331,6 @@ def colors_plus_minus_map(
                 color_list_pos.append('#330808')
                 color_list_pos = getattr(palettable.colorbrewer.sequential, 'Greens_9').hex_colors # 'Greens_9'
                 color_list_pos.append('#0e2814')
-        #elif len(bins) == 9:
-        #    if color_order:
-        #        color_list_pos = getattr(palettable.colorbrewer.sequential, 'Reds_9').hex_colors
-        #        color_list_neg = getattr(palettable.colorbrewer.sequential, 'Greens_9').hex_colors
-        #    else:
-        #        color_list_neg = getattr(palettable.colorbrewer.sequential, 'Reds_9').hex_colors   # 'Reds_9'
-        #        color_list_pos = getattr(palettable.colorbrewer.sequential, 'Greens_9').hex_colors # 'Greens_9'
         elif len(bins) == 8:
             if color_order:
                 color_list_pos = getattr(palettable.colorbrewer.sequential, 'Reds_9').hex_colors

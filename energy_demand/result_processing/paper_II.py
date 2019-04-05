@@ -93,7 +93,7 @@ def paper_II_plots(
             folder_path_weater_stations,
             path_shapefile=path_shapefile_input,
             fig_path=fig_path)
-        
+
         print("... plotted weather station distribution map")
 
     ####################################################################

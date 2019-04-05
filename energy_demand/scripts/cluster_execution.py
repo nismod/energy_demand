@@ -13,8 +13,7 @@ def my_function(simulation_number):
 
     same_weather_yr = True
     defined_weather_yr = 2015
-
-    run_smif = False 
+    run_smif = False
 
     # --------------------------
     # Get all weather yrs with data (maybe read existing years from data folder)

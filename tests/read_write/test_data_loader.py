@@ -48,7 +48,6 @@ path_population_data_for_disaggregation_LAD =  /vagrant/data/energy_demand/energ
 #ONS principal projection
 folder_raw_carbon_trust = /vagrant/data/energy_demand/energy_demand_minimal/_raw_data/G_Carbon_Trust_advanced_metering_trial/
 path_population_data_for_disaggregation_MSOA = /vagrant/data/energy_demand/energy_demand_minimal/_raw_data/J-population_disagg_by/uk_pop_principal_2015_2050_MSOA_lad.csv
-folder_path_weater_stations = /vagrant/data/energy_demand/energy_demand_minimal/_raw_data/A-temperature_data/cleaned_weather_stations.csv
 path_floor_area_virtual_stock_by = /vagrant/data/energy_demand/energy_demand_minimal/_raw_data/K-floor_area/floor_area_LAD_latest.csv
 path_assumptions_db = /vagrant/data/energy_demand/_processed_data/assumptions_from_db
 data_processed = /vagrant/data/energy_demand/_processed_data

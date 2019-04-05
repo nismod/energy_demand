@@ -483,7 +483,6 @@ def get_local_paths(config_file_path):
         ('path_population_data_for_disaggregation_LAD', 'str'),
         ('path_population_data_for_disaggregation_MSOA', 'str'),
         ('folder_raw_carbon_trust', 'str'),
-        ('folder_path_weater_stations', 'str'),
         ('path_floor_area_virtual_stock_by', 'str'),
         ('path_assumptions_db', 'str'),
         ('data_processed', 'str'),

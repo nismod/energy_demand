@@ -54,7 +54,6 @@ path_population_data_for_disaggregation_LAD =  tests/energy_demand_minimal/_raw_
 #ONS principal projection
 folder_raw_carbon_trust = tests/energy_demand_minimal/_raw_data/G_Carbon_Trust_advanced_metering_trial/
 path_population_data_for_disaggregation_MSOA = tests/energy_demand_minimal/_raw_data/J-population_disagg_by/uk_pop_principal_2015_2050_MSOA_lad.csv
-folder_path_weater_stations = tests/energy_demand_minimal/_raw_data/A-temperature_data/cleaned_weather_stations.csv
 path_floor_area_virtual_stock_by = tests/energy_demand_minimal/_raw_data/K-floor_area/floor_area_LAD_latest.csv
 path_assumptions_db = tests/_processed_data/assumptions_from_db
 data_processed = tests/_processed_data

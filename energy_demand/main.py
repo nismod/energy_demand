@@ -114,7 +114,7 @@ if __name__ == "__main__":
     if config['CRITERIA']['cluster_calc']:
         path_weather_data = "/soge-home/staff/cenv0553/_weather_realisation"
     else:
-        path_weather_data = "C:/Users/cenv0553/ED/data/scenarios"
+        path_weather_data = "C:/Users/cenv0553/ED/data/scenarios/climate"
         path_weather_data = "C:/Users/cenv0553/nismod2/data/energy_demand/scenarios"
 
     if name_config_path == 'h_max' or name_config_path == 'l_max' or name_config_path in ['test_run', 'h_max_0', 'h_max_10', 'h_max_0_only', 'h_max_10_only']:

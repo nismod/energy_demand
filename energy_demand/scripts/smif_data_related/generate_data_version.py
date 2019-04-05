@@ -156,8 +156,7 @@ def package_data(
     #zip_handler_minimum.write(full_file_path, arcname='units.txt')
 
     # Add other files to full data
-    files_to_add_full = [
-        'population-economic-smif-csv-from-nismod-db.zip']
+    files_to_add_full = [] #'population-economic-smif-csv-from-nismod-db.zip']
 
     for file_to_add in files_to_add_full:
         full_file_path = os.path.join(data_folder_path, file_to_add)
@@ -177,4 +176,4 @@ if __name__ == '__main__':
     """
     # Map command line arguments to function arguments.
     #package_data(*sys.argv[1:])
-    package_data('v0.9.4', 'C:/Users/cenv0553/nismod2/data/energy_demand')
+    package_data('v0.9.6', 'C:/Users/cenv0553/nismod2/data/energy_demand')
