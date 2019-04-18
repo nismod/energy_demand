@@ -83,11 +83,10 @@ def main(
         scenario_result_container = []
         for scenario_nr, scenario_name in enumerate(all_scenarios):
             print(" ")
-            print("Scenario: {}".format(scenario_name), flush=True)
+            print("Scenario: {}".format(scenario_name))
             print(" ")
             scenario_path = os.path.join(scenarios_path, scenario_name)
             all_result_folders = os.listdir(scenario_path)
-            
             paths_folders_result = []
 
             for result_folder in all_result_folders:
@@ -116,12 +115,11 @@ def main(
             daily_mean_peak_day = pd.DataFrame()
 
             for path_result_folder in paths_folders_result:
-                print("... path_result_folder: {}".format(path_result_folder), flush=True)
+                print("... path_result_folder: {}".format(path_result_folder))
                 data = {}
                 ed_national_heating_peak = {}
 
                 try:
-
                     # ================================
                     # Loading in only heating peak demands (seperate calculations)
                     # ================================
@@ -278,7 +276,7 @@ def main(
         # ------------------------------
         # Plot national sum over time per fueltype and scenario
         # ------------------------------
-        crit_smooth_line = True
+        crit_smooth_line = False
         seperate_legend = True
 
         try:
@@ -366,7 +364,8 @@ def main(
 
 # Code to run charts generation for weather paper
 main(
-    scenarios_path="//linux-filestore.ouce.ox.ac.uk/mistral/nismod/data/energy_demand/_p3_weather_final",
+    scenarios_path="//linux-filestore.ouce.ox.ac.uk/mistral/nismod/data/energy_demand/_p3_calculation_results/_p3_weather_final",
+    scenarios_path=os.path.abspath("//linux-filestore.ouce.ox.ac.uk/mistral/nismod/data/energy_demand/_p3_calculation_results/_p3_weather_final",
     path_shapefile_input="C:/Users/cenv0553/ED/data/region_definitions/lad_2016_uk_simplified.shp",
     base_yr=2015,
     simulation_yrs_to_plot=[2015, 2020, 2025, 2030, 2035, 2040, 2045, 2050])

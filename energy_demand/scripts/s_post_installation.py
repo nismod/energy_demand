@@ -80,4 +80,3 @@ def post_install_setup(args):
         data['lookups'])
 
     print("... successfully finished setup")
-    return
