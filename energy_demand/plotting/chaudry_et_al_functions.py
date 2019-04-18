@@ -5,6 +5,14 @@ import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
 
+def export_legend(legend, filename="legend.png"):
+    """Export legend as seperate file
+    """
+    fig = legend.figure
+    fig.canvas.draw()
+    bbox = legend.get_window_extent().transformed(fig.dpi_scale_trans.inverted())
+    fig.savefig(filename, dpi="figure", bbox_inches=bbox)
+
 def create_folder(path_folder, name_subfolder=None):
     """Creates folder or subfolder
 
@@ -108,6 +116,9 @@ def fig_3(path_out, data_container, scenarios, weather_scearnio, fueltype, years
             'output_eh_electricboiler_b_timestep',
             'output_eh_heatpump_b_timestep',
             'output_eh_pv_power_timestep',
+            #'output_elec_load_shed_eh_timestep',
+            #'output_tran_wind_power_timestep'
+
             ]}
 
     fig_dict = {}
@@ -136,6 +147,7 @@ def fig_3(path_out, data_container, scenarios, weather_scearnio, fueltype, years
                     year_simulation = int(file_name_split[-1][:4])
 
                     if (year == year_simulation) and (file_name_split_without_timpestep in files_to_plot):
+                        print("columns: " + str(file_data.columns))
                         value_column = list(file_data.columns)[1]
                         print("File_name: {} Value column: {}".format(file_name_split_without_timpestep, value_column))
                         df_to_plot[str(value_column)] = file_data[value_column]
@@ -155,33 +167,63 @@ def fig_3(path_out, data_container, scenarios, weather_scearnio, fueltype, years
         # Plot graph
         # ----------
         for scenario in scenarios:
-            df_right = fig_dict[year]['CENTRAL'][scenario]
-            df_left = fig_dict[year]['CENTRAL'][scenario] * -1 #Muptplied
+
+            left = 'CENTRAL'
+            right = 'DECENTRAL'
+
+            df_right = fig_dict[year][right][scenario]
+            df_left = fig_dict[year][left][scenario] * -1 #Muptplied
             #df_to_plot.plot.area()
             #df_to_plot.plot.bar(stacked=True)#, orientation='vertical')
             
-            # Add vertical line
+            # Plot
             fig, ax = plt.subplots(ncols=1, sharey=True)
-            ax.axvline(linewidth=1, color='black')
-            
-            df_right.plot(kind='barh', legend=True, ax=ax, width=1.0, stacked=True)
-            df_left.plot(kind='barh', legend=True, ax=ax, width=1.0, stacked=True)
 
-            #plt.show()
+
+            df_right.plot(kind='barh', ax=ax, width=1.0, stacked=True)
+            df_left.plot(kind='barh', ax=ax, width=1.0, legend=False, stacked=True)
+
+            # Add vertical line
+            ax.axvline(linewidth=1, color='black') 
+
+            # limits
+            plt.autoscale(enable=True, axis='x', tight=True)
+            plt.autoscale(enable=True, axis='y', tight=True)
 
             #ax = plt.gca()
             #ax.invert_xaxis()
 
             #plt.gca().invert_yaxis()
-            #df = pd.DataFrame(data, columns=columns)
+            #df = pd.DataFrame(df_right) #TODO: WHY NO GREEN AREA?
             #df.plot.area()
+            # Labels
+            plt.xlabel("Unit")
+            plt.ylabel("time")
+            plt.title(left, fontdict=None, loc='left')
+            plt.title(right, fontdict=None, loc='right')
+            # Legend
+            legend = plt.legend(
+                ncol=2,
+                prop={'size': 10},
+                loc='upper center',
+                bbox_to_anchor=(0.5, -0.1),
+                frameon=False)
+            
+            # Save pdf
+            fig_name = "{}_{}.pdf".format(scenario, year)
+            path_out_file = os.path.join(path_out_folder, fig_name)
+
+            seperate_legend = True
+            if seperate_legend:
+                export_legend(
+                    legend,
+                    os.path.join("{}__legend.pdf".format(path_out_file[:-4])))
+                legend.remove()
+
             #plt.show()
 
-            # Save pdf
-            fig_name = "{}_{}".format(scenario, year)
-            path_out_file = os.path.join(path_out_folder, "{}.pdf".format(fig_name))
             plt.savefig(path_out_file)
-            raise Exception("FF")
+
     return
 
 

@@ -3,8 +3,6 @@ import numpy as np
 import matplotlib.pyplot as plt
  
 # Dataset
-ax = plt.subplot(111)
-
 dataright = np.random.rand(10, 4)
 dataleft = dataright * -1
 df_right = pd.DataFrame(dataright, columns=['a', 'b', 'c', 'd'])

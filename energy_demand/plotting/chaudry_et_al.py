@@ -25,7 +25,7 @@ from energy_demand.plotting import chaudry_et_al_functions #Reset imports
 # Configure paths
 # -----------------------------------
 path_out = "C:/_test"   # Path to store results
-path_in = "C:/Users/cenv0553/nismod2/results/PLOTTINGFOLDER"            # Path with results
+path_in = "C:/Users/cenv0553/nismod2/results/PLOTTINGFOLDER" # Path with model runs
 
 # Configure simulation names
 simulation_name = 'energy_sd_constrained'   # Name of model
