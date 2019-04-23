@@ -61,7 +61,7 @@ print("loaded data")
 # Create figures
 # ------------------------
 # Figure with vertical hourly values per scenario
-chaudry_et_al_functions.fig_3(
+chaudry_et_al_functions.fig_3_hourly_comparison(
     path_out,
     data_container,
     scenarios=scenarios,
