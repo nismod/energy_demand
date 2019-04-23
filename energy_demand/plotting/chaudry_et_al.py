@@ -30,10 +30,10 @@ path_in = "C:/Users/cenv0553/nismod2/results/PLOTTINGFOLDER" # Path with model r
 # Configure simulation names
 simulation_name = 'energy_sd_constrained'   # Name of model
 
-scenarios = ['EW'] #'MV', 
+scenarios = ['EW', 'MV',] 
 weather_scenario = 'NF1'
 fueltype = 'electricity'
-
+unit = 'GW'
 
 # ------------------------
 # Create empty result folders and delte preivous results
@@ -53,20 +53,22 @@ for fig_name in paths_figs:
 data_container = chaudry_et_al_functions.load_data(
     path_in,
     simulation_name=simulation_name,
-    scenarios=scenarios)
+    scenarios=scenarios,
+    unit=unit)
 
-print("loaded data")
+print("... finished loading data")
 
 # ------------------------
 # Create figures
 # ------------------------
-# Figure with vertical hourly values per scenario
+# Dasboard figures
 chaudry_et_al_functions.fig_3_hourly_comparison(
     path_out,
     data_container,
     scenarios=scenarios,
     weather_scearnio=weather_scenario,
-    fueltype=fueltype)
+    unit=unit,
+    fueltypes=['heat'])#electricity', 'heat'])
 
 #chaudry_et_al_functions.fig_4(data_container, fueltype=fueltype)
 #chaudry_et_al_functions.fig_5(data_container, fueltype=fueltype)
