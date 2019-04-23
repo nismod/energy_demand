@@ -3,12 +3,13 @@
 
 Info
 -----
-A folder (path_in) with the following structure needs to be generated:
+A folder (path_in) with the following structure needs to be generated and the SMIF simulation restuls stored, for 
+example in the path (C:/path_results/EW/Central/NF1/SMIF_RESULTS)
 
 ... path_in
         EW
             central
-                WeatherScenario
+                WeatherScenario (i.e. NF1))
                 ...
             decentral
                 WeatherScenario
