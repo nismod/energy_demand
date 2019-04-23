@@ -3,6 +3,7 @@
 import os
 import pandas as pd
 import numpy as np
+from collections import OrderedDict
 import matplotlib.pyplot as plt
 
 def export_legend(legend, filename="legend.png"):
@@ -116,6 +117,7 @@ def fig_3(path_out, data_container, scenarios, weather_scearnio, fueltype, years
             'output_eh_electricboiler_b_timestep',
             'output_eh_heatpump_b_timestep',
             'output_eh_pv_power_timestep',
+            'output_eh_tran_e_timestep'
             #'output_elec_load_shed_eh_timestep',
             #'output_tran_wind_power_timestep'
 
@@ -133,7 +135,6 @@ def fig_3(path_out, data_container, scenarios, weather_scearnio, fueltype, years
                 fig_dict[year][mode][scenario] = {}
 
                 data_files = data_container[scenario][mode][weather_scearnio]['energy_supply_constrained']
-
                 files_to_plot = file_names_to_plot[fueltype]
 
                 # Get all correct data to plot
@@ -142,7 +143,6 @@ def fig_3(path_out, data_container, scenarios, weather_scearnio, fueltype, years
                 for file_name, file_data in data_files.items():
                     
                     file_name_split_without_timpestep = file_name[:-9] #remove ending
-
                     file_name_split = file_name.split("_")
                     year_simulation = int(file_name_split[-1][:4])
 
@@ -172,44 +172,64 @@ def fig_3(path_out, data_container, scenarios, weather_scearnio, fueltype, years
             right = 'DECENTRAL'
 
             df_right = fig_dict[year][right][scenario]
-            df_left = fig_dict[year][left][scenario] * -1 #Muptplied
+            df_left = fig_dict[year][left][scenario] * -1 # Convert to minus values
             #df_to_plot.plot.area()
             #df_to_plot.plot.bar(stacked=True)#, orientation='vertical')
-            
-            # Plot
-            fig, ax = plt.subplots(ncols=1, sharey=True)
 
+            fig, ax = plt.subplots(ncols=1, sharey=True)
 
             df_right.plot(kind='barh', ax=ax, width=1.0, stacked=True)
             df_left.plot(kind='barh', ax=ax, width=1.0, legend=False, stacked=True)
 
             # Add vertical line
-            ax.axvline(linewidth=1, color='black') 
+            ax.axvline(linewidth=1, color='black')
 
-            # limits
+            # Limits
             plt.autoscale(enable=True, axis='x', tight=True)
             plt.autoscale(enable=True, axis='y', tight=True)
 
             #ax = plt.gca()
             #ax.invert_xaxis()
-
             #plt.gca().invert_yaxis()
             #df = pd.DataFrame(df_right) #TODO: WHY NO GREEN AREA?
             #df.plot.area()
+
             # Labels
             plt.xlabel("Unit")
             plt.ylabel("time")
             plt.title(left, fontdict=None, loc='left')
             plt.title(right, fontdict=None, loc='right')
+
+            # Customize axis
+            nr_of_bins = 4
+            bin_value = int(np.max(df_right.values) / 4)
+            right_ticks = np.array([bin_value * i for i in range(nr_of_bins + 1)])
+            left_ticks = right_ticks * -1
+            left_ticks = left_ticks[::-1]
+            right_labels = [str(bin_value * i) for i in range(nr_of_bins + 1)]
+            left_labels = right_labels[::-1]
+            
+            ticks = list(left_ticks) + list(right_ticks)
+            labels = list(left_labels) + list(right_labels)
+
+            plt.xticks(
+                ticks=ticks,
+                labels=labels)
+
             # Legend
+            handles, labels = plt.gca().get_legend_handles_labels()
+
+            by_label = OrderedDict(zip(labels, handles)) # remove duplicates
             legend = plt.legend(
+                by_label.values(),
+                by_label.keys(),
                 ncol=2,
                 prop={'size': 10},
                 loc='upper center',
                 bbox_to_anchor=(0.5, -0.1),
                 frameon=False)
-            
-            # Save pdf
+
+            # Save pdf of figure and legend
             fig_name = "{}_{}.pdf".format(scenario, year)
             path_out_file = os.path.join(path_out_folder, fig_name)
 
@@ -221,7 +241,6 @@ def fig_3(path_out, data_container, scenarios, weather_scearnio, fueltype, years
                 legend.remove()
 
             #plt.show()
-
             plt.savefig(path_out_file)
 
     return
