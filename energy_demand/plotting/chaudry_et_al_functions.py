@@ -127,9 +127,10 @@ def load_data(in_path, scenarios, simulation_name, unit):
 def fig_3_hourly_comparison(
         path_out,
         data_container,
+        filenames,
         scenarios,
         weather_scearnio,
-        fueltypes,
+        types_to_plot,
         unit,
         years=[2015, 2030, 2050],
         seperate_legend=True
@@ -137,42 +138,14 @@ def fig_3_hourly_comparison(
     """Create x-y chart of a time-span (x-axis: demand, y-axis: time)
     """
 
-    for fueltype in fueltypes:
+    for fueltype in types_to_plot:
         print(".... fueltype: {}".format(fueltype))
-        file_names_to_plot = {
-            'electricity': {
-                'output_eh_gas_fired_other_timestep': 'gray',
-                'output_eh_chp_gas_timestep': 'peru',
-                'output_eh_chp_biomass_timestep': 'green',
-                'output_eh_chp_waste_timestep': 'violet',
-                'output_eh_fuel_cell_timestep': 'slateblue',
-                'output_eh_wind_power_timestep': 'firebrick',
-                'output_eh_pv_power_timestep': 'orange',
-                'output_eh_tran_e_timestep': 'darkcyan'},
-            'heat':{
-                'output_eh_gasboiler_b_timestep': 'darkcyan',
-                'output_eh_heatpump_b_timestep': 'plum',
-                'output_eh_gasboiler_dh_timestep': 'orange',
-                'output_eh_gaschp_dh_timestep': 'y',
-                'output_eh_heatpump_dh_timestep': 'indianred',
-                'output_eh_biomassboiler_b_timestep': 'red',
-                'output_eh_biomassboiler_dh_timestep': 'gold',
-                'output_eh_biomasschp_dh_timestep': 'darkgreen',
-                'output_eh_wastechp_dh_timestep': 'darkmagenta',
-                'output_eh_electricboiler_b_timestep': 'aqua',
-                'output_eh_electricboiler_dh_timestep': 'greenyellow',
-                'output_eh_hydrogenboiler_b_timestep': 'yellow',
-                'output_eh_hydrogen_fuelcell_dh_timestep': 'olivedrab',
-                'output_eh_hydrogen_heatpump_b_timestep': 'gold',
-
-            }
-        }
 
         annote_crit = False #Add labels
 
         # Select hours to plots
-        seasonal_week_day = 2 
-        hours_selected = range(24 * (seasonal_week_day) + 1, 24 * (seasonal_week_day + 1) + 1) #TODO
+        seasonal_week_day = 2
+        hours_selected = range(24 * (seasonal_week_day) + 1, 24 * (seasonal_week_day + 1) + 1)
 
         modes = ['DECENTRAL', 'CENTRAL']
         left = 'CENTRAL'
@@ -189,42 +162,60 @@ def fig_3_hourly_comparison(
 
         fig_dict = {}
         fig_dict_piecharts = {}
+        fig_dict_fuelypes = {}
+
         path_out_folder = os.path.join(path_out, 'fig3')
 
         for year in years:
             fig_dict[year] = {}
             fig_dict_piecharts[year] = {}
+            fig_dict_fuelypes[year] = {}
 
             for mode in modes:
                 fig_dict[year][mode] = {}
                 fig_dict_piecharts[year][mode] = {}
+                fig_dict_fuelypes[year][mode] = {}
 
                 for scenario in scenarios:
                     fig_dict[year][mode][scenario] = {}
+                    fig_dict_fuelypes[year][mode][scenario] = pd.DataFrame(
+                        [[0,0,0,0]], columns=['electricity', 'gas', 'heat', 'hydrogen'])
+        
                     colors = []
                     data_files = data_container[scenario][mode][weather_scearnio]['energy_supply_constrained']
-                    files_to_plot = file_names_to_plot[fueltype].keys()
+                    files_to_plot = filenames[fueltype].keys()
 
                     # Get all correct data to plot
                     df_to_plot = pd.DataFrame()
-            
+
                     for file_name, file_data in data_files.items():
-                        
-                        file_name_split_without_timpestep = file_name[:-9] #remove ending
+                        file_name_split_no_timpestep = file_name[:-9] #remove ending
+                        name_column = file_name_split_no_timpestep[7:-9] #remove output_ and ending
                         file_name_split = file_name.split("_")
                         year_simulation = int(file_name_split[-1][:4])
 
                         if year == year_simulation:
-                            if file_name_split_without_timpestep in files_to_plot:
-                                value_column = list(file_data.columns)[1]
-                                #print("columns: " + str(file_data.columns))
-                                #print("File_name: {} Value column: {}".format(file_name_split_without_timpestep, value_column))
-                                df_to_plot[str(value_column)] = file_data[value_column]
-
-                                #random_color = np.random.rand(3,1)
-                                color = file_names_to_plot[fueltype][file_name_split_without_timpestep]
+                            data_column = file_data[name_column]
+                            if file_name_split_no_timpestep in files_to_plot:
+                                df_to_plot[str(name_column)] = data_column
+                                color = filenames[fueltype][file_name_split_no_timpestep]
                                 colors.append(color)
-                    
+                            
+                            # Get fueltype specific files
+                            sum_file = data_column.sum()
+
+                            if (file_name_split_no_timpestep in filenames['elec_hubs'].keys()) or (
+                                file_name_split_no_timpestep in filenames['elec_transmission'].keys()):
+                                fig_dict_fuelypes[year][mode][scenario]['electricity'] += sum_file
+                            elif (file_name_split_no_timpestep in filenames['gas_hubs'].keys()) or (
+                                file_name_split_no_timpestep in filenames['gas_transmission'].keys()):
+                                fig_dict_fuelypes[year][mode][scenario]['gas'] += sum_file
+                            elif file_name_split_no_timpestep in filenames['heat_hubs'].keys():
+                                fig_dict_fuelypes[year][mode][scenario]['heat'] += sum_file
+                            elif file_name_split_no_timpestep in filenames['hydrogen_hubs'].keys():
+                                fig_dict_fuelypes[year][mode][scenario]['hydrogen'] += sum_file
+
+
                     # Aggregate across every energy hub region and group by "seasonal week"
                     #df_to_plot_national = df_to_plot.groupby(df_to_plot['seasonal_week']).sum()
 
@@ -234,9 +225,90 @@ def fig_3_hourly_comparison(
                     # Aggregate annual demand for pie-charts
                     fig_dict_piecharts[year][mode][scenario] = df_to_plot.sum()
 
-            # ----------
+            # ----------------------
+            # Fueltype chart showing the split between fueltypes
+            # ----------------------
+            for scenario in scenarios:
+                table_out = []
+                for mode in [right, left]:
+
+                    fig, ax = plt.subplots(figsize=cm2inch(4.5, 3), ncols=1, sharey=True)
+
+                    data_fueltypes = fig_dict_fuelypes[year][mode][scenario]
+
+                    # Conver to percentages
+                    data_fueltypes_p = data_fueltypes / data_fueltypes.sum().sum()
+                    data_fueltypes_p = data_fueltypes_p.round(2)
+
+                    headers = data_fueltypes_p.columns
+                    
+                    table_out.append(data_fueltypes_p.values)
+
+                    data_fueltypes_p.plot(
+                        kind='barh',
+                        ax=ax,
+                        width=1.0,
+                        stacked=True,
+                        colors=['red', 'blue','grey','green'])
+
+                    # ------------
+                    handles, labels = plt.gca().get_legend_handles_labels()
+
+                    by_label = OrderedDict(zip(labels, handles)) # remove duplicates
+                    legend = plt.legend(
+                        by_label.values(),
+                        by_label.keys(),
+                        ncol=2,
+                        prop={'size': 10},
+                        loc='upper center',
+                        bbox_to_anchor=(0.5, -0.1),
+                        frameon=False)
+
+                    ##plt.xticks(
+                    #    ticks=list(data_fueltypes_p.values),
+                    #    labels=list(data_fueltypes_p.columns),
+                    #    fontsize=fontsize_small)
+
+                    # Remove ticks
+                    plt.tick_params(axis='x', which='both', left=False) #remove ticks
+                    plt.tick_params(axis='y', which='both', left=False) #remove ticks
+
+                    # Save pdf of figure and legend
+                    # ------------
+                    fig_name = "{}_{}_{}__fueltypes_p.pdf".format(scenario, year, fueltype)
+                    path_out_file = os.path.join(path_out_folder, fig_name)
+
+                    if seperate_legend:
+                        export_legend(
+                            legend,
+                            os.path.join("{}__legend.pdf".format(path_out_file[:-4])))
+                        legend.remove()
+
+                    # Limits
+                    # ------------
+                    plt.autoscale(enable=True, axis='x', tight=True)
+                    plt.autoscale(enable=True, axis='y', tight=True)
+                    #plt.tight()
+
+                    # Remove frame
+                    # ------------
+                    ax.spines['top'].set_visible(False)
+                    ax.spines['right'].set_visible(False)
+                    ax.spines['bottom'].set_visible(False)
+                    ax.spines['left'].set_visible(False)
+
+                    plt.show()
+                    plt.savefig(path_out_file)
+
+                    # Write out results to txt
+                    table_tabulate = tabulate(
+                        table_out, headers=headers,
+                        numalign="right")
+                    write_to_txt(path_out_file[:-4] + ".txt", table_tabulate)
+
+            # ----------------------
             # PLot pie-charts
-            # ----------
+            # ----------------------
             for scenario in scenarios:
                 table_out = []
                 for mode in [right, left]:
