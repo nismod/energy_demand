@@ -1,11 +1,13 @@
 """Functions to generate figures
 """
 import os
+import math
 import pandas as pd
 import numpy as np
 from collections import OrderedDict
 import matplotlib.pyplot as plt
 from matplotlib import rcParams
+from tabulate import tabulate
 
 # Set default font
 rcParams['font.family'] = 'sans-serif'
@@ -19,6 +21,21 @@ def cm2inch(*tupl):
         return tuple(i/inch for i in tupl[0])
     else:
         return tuple(i/inch for i in tupl)
+
+def write_list_to_txt(path_result, list_out):
+    """Write scenario population for a year to txt file
+    """
+    file = open(path_result, "w")
+    for entry in list_out:
+        file.write(entry + "\n")
+    file.close()
+
+def write_to_txt(path_result, entry):
+    """Write scenario population for a year to txt file
+    """
+    file = open(path_result, "w")
+    file.write(entry + "\n")
+    file.close()
 
 def export_legend(legend, filename="legend.png"):
     """Export legend as seperate file
@@ -151,6 +168,8 @@ def fig_3_hourly_comparison(
             }
         }
 
+        annote_crit = False #Add labels
+
         # Select hours to plots
         seasonal_week_day = 2 
         hours_selected = range(24 * (seasonal_week_day) + 1, 24 * (seasonal_week_day + 1) + 1) #TODO
@@ -215,35 +234,110 @@ def fig_3_hourly_comparison(
                     # Aggregate annual demand for pie-charts
                     fig_dict_piecharts[year][mode][scenario] = df_to_plot.sum()
 
-            print("--ploting --") #MOVE DOWN ELEMENTS
-
             # ----------
             # PLot pie-charts
             # ----------
-            fig_dict_piecharts
             for scenario in scenarios:
+                table_out = []
                 for mode in [right, left]:
+
                     data_pie_chart = fig_dict_piecharts[year][mode][scenario]
 
                     #  Calculate radius 15 mio corresponds to radius 1 (100%)
-                    abs_size = 15 #100%
+                    radius_terawatt = 34 # 100% (radius 1) corresponds to 15 Terawatt
                     initial_radius = 1
+
                     total_sum = data_pie_chart.sum() / 1000
-                    print("p_size: " + str(total_sum))
-                    p_size = (initial_radius / abs_size) * total_sum
+                    area_change_p = total_sum / radius_terawatt
+
+                    # Convert that radius reflects the change in area (and not size)
+                    new_radius = math.sqrt(area_change_p) * initial_radius
+
+                    # write results to txt
+                    total_sum = data_pie_chart.sum()
+                    for index in data_pie_chart.index:
+                        absolute = data_pie_chart.loc[index]
+                        relative = (absolute / total_sum)
+                        table_out.append([mode, index, absolute, relative])
 
                     # Explode distance
-                    explode_factor = p_size * 0.1
+                    explode_factor = new_radius * 0.1
                     explode_distance = [explode_factor for i in range(len(data_pie_chart.index))]
 
-                    # Plot
-                    fig, ax = plt.subplots(figsize=cm2inch(4.5, 5))
-                    
+                    # ---------------------
                     # Plotting pie chart
-                    plt.pie(
-                        data_pie_chart.values,
-                        explode=explode_distance,
-                        radius=p_size)
+                    # ---------------------
+                    fig, ax = plt.subplots(figsize=cm2inch(4.5, 5))
+
+                    if not annote_crit:
+                        plt.pie(
+                            data_pie_chart.values,
+                            explode=explode_distance,
+                            radius=new_radius,
+                            wedgeprops=dict(width=new_radius * 0.4))
+                    else:
+                        # ---------------------
+                        # Plot annotations of pie chart
+                        # ---------------------
+                        min_label_crit = 1 #[%] Minimum label criterium 
+                        # Round
+                        labels_p = data_pie_chart.values / total_sum
+                        labels = labels_p.round(3) * 100 #to percent
+
+                        wedges, texts = plt.pie(
+                            data_pie_chart.values,
+                            explode=explode_distance,
+                            radius=new_radius,
+                            wedgeprops=dict(width=0.4),
+                            textprops=dict(color="b"))
+
+                        for i, p in enumerate(wedges):
+                            ang = (p.theta2 - p.theta1)/2. + p.theta1
+                            y = np.sin(np.deg2rad(ang))
+                            x = np.cos(np.deg2rad(ang))
+                            horizontalalignment = {-1: "right", 1: "left"}[int(np.sign(x))]
+ 
+                            if labels[i] > min_label_crit: #larger than 1 percent
+                                ax.annotate(
+                                    labels[i],
+                                    xy=(x, y),
+                                    xytext=((new_radius + explode_distance[i] + 0.2)*np.sign(x), 1.4*y),
+                                    horizontalalignment=horizontalalignment,
+                                    color='grey',
+                                    size=8,
+                                    weight="bold")
+
+                        '''value_crit = 5.0 # [%] Only labes larger than crit are plotted
+
+                        wedges, texts = plt.pie(
+                            data_pie_chart.values,
+                            explode=explode_distance,
+                            radius=new_radius,
+                            wedgeprops=dict(width=0.5),
+                            startangle=-40)
+
+                        bbox_props = dict(boxstyle="square, pad=0.1", fc="w", ec="k", lw=0)
+                        kw = dict(xycoords='data', textcoords='data', arrowprops=dict(arrowstyle="-"),
+                                bbox=bbox_props, zorder=0, va="center")
+
+                        # Round
+                        labels_p = data_pie_chart.values / total_sum
+                        labels = labels_p.round(3)
+    
+                        for i, p in enumerate(wedges):
+                            ang = (p.theta2 - p.theta1)/2. + p.theta1
+                            y = np.sin(np.deg2rad(ang))
+                            x = np.cos(np.deg2rad(ang))
+                            horizontalalignment = {-1: "right", 1: "left"}[int(np.sign(x))]
+                            connectionstyle = "angle,angleA=0,angleB={}".format(ang)
+                            kw["arrowprops"].update({"connectionstyle": connectionstyle})
+
+                            value = labels[i] * 100 #to percent
+
+                            if value > value_crit: #larger than 1 percent
+                                ax.annotate(value, xy=(x, y), xytext=((new_radius + 0.4)*np.sign(x), 1.4*y),
+                                            horizontalalignment=horizontalalignment, **kw)
+                        '''
 
                     # Labels
                     plt.xlabel('')
@@ -270,6 +364,12 @@ def fig_3_hourly_comparison(
                             os.path.join("{}__legend.pdf".format(path_out_file[:-4])))
                         legend.remove()
 
+                    # Limits
+                    # ------------
+                    #plt.autoscale(enable=True, axis='x', tight=True)
+                    #plt.autoscale(enable=True, axis='y', tight=True)
+                    #plt.tight_layout()
+
                     # Remove frame
                     # ------------
                     ax.spines['top'].set_visible(False)
@@ -277,19 +377,47 @@ def fig_3_hourly_comparison(
                     ax.spines['bottom'].set_visible(False)
                     ax.spines['left'].set_visible(False)
 
+                    #plt.show()
                     plt.savefig(path_out_file)
+
+                    # Write out results to txt
+                    table_tabulate = tabulate(
+                        table_out, headers=['mode', 'type', 'absolute', 'relative'],
+                        numalign="right")
+                    write_to_txt(path_out_file[:-4] + ".txt", table_tabulate)
 
             # ----------
             # Plot x-y graph
             # ----------
             for scenario in scenarios:
+                table_out = []
 
                 # Data and plot
                 # ------------
                 df_right = fig_dict[year][right][scenario]
-                df_left = fig_dict[year][left][scenario] * -1 # Convert to minus values
+                df_left = fig_dict[year][left][scenario]
+
+                headers = list(df_right.columns)
+                headers.insert(0, "hour")
+                headers.insert(0, "type")
+                for index_hour in df_right.index:
+                    row = list(df_right.loc[index_hour])
+                    row.insert(0, index_hour)
+                    row.insert(0, 'right')
+                    table_out.append(row)
+
+                for index_hour in df_left.index:
+                    row = list(df_left.loc[index_hour])
+                    row.insert(0, index_hour)
+                    row.insert(0, 'left')
+                    table_out.append(row)
+
+                # Switch axis
+                df_left = df_left * -1 # Convert to minus values
                 #df_to_plot.plot.area()
                 #df_to_plot.plot.bar(stacked=True)#, orientation='vertical')
+
+                table_out.append([])
 
                 fig, ax = plt.subplots(figsize=cm2inch(9, 5), ncols=1, sharey=True)
 
@@ -307,11 +435,11 @@ def fig_3_hourly_comparison(
 
                 # Customize x-axis
                 nr_of_bins = 4
-                bin_value = int(np.max(df_right.values) / 4)
-                right_ticks = np.array([bin_value * i for i in range(nr_of_bins + 1)])
+                bin_value = int(np.max(df_right.values) / nr_of_bins)
+                right_ticks = np.array([bin_value * i for i in range(nr_of_bins + 2)])
                 left_ticks = right_ticks * -1
                 left_ticks = left_ticks[::-1]
-                right_labels = [str(bin_value * i) for i in range(nr_of_bins + 1)]
+                right_labels = [str(bin_value * i) for i in range(nr_of_bins + 2)]
                 left_labels = right_labels[::-1]
                 ticks = list(left_ticks) + list(right_ticks)
                 labels = list(left_labels) + list(right_labels)
@@ -328,9 +456,6 @@ def fig_3_hourly_comparison(
 
                 ticks = np.array([(bin_width * i) - 0.5 for i in range(nr_of_bins + 1)])
                 labels = np.array([str(min_bin_value + bin_width * i) for i in range(nr_of_bins + 1)])
-
-                #ticks = np.array([(bin_value * i) - 0.5 for i in range(nr_of_bins + 1)])
-                #labels = np.array([str(bin_value * i) for i in range(nr_of_bins + 1)])
 
                 plt.yticks(
                     ticks=ticks,
@@ -357,8 +482,6 @@ def fig_3_hourly_comparison(
                 ax.spines['right'].set_visible(False)
                 ax.spines['bottom'].set_visible(False)
                 ax.spines['left'].set_visible(False)
-
-
 
                 # Limits
                 # ------------
@@ -388,6 +511,14 @@ def fig_3_hourly_comparison(
 
                 #plt.show()
                 plt.savefig(path_out_file)
+                
+                # Write out results to txt
+                table_tabulate = tabulate(
+                    table_out,
+                    headers=headers,
+                    numalign="right")
+                write_to_txt(path_out_file[:-4] + ".txt", table_tabulate)
+
 
 
 def fig_4(data_container):

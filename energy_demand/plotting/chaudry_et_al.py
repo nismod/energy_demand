@@ -69,7 +69,7 @@ chaudry_et_al_functions.fig_3_hourly_comparison(
     scenarios=scenarios,
     weather_scearnio=weather_scenario,
     unit=unit,
-    fueltypes=['heat'])#electricity', 'heat'])
+    fueltypes=['electricity', 'heat'])
 
 #chaudry_et_al_functions.fig_4(data_container, fueltype=fueltype)
 #chaudry_et_al_functions.fig_5(data_container, fueltype=fueltype)
