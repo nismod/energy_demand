@@ -7,7 +7,8 @@ from energy_demand.read_write import narrative_related
 def generate_default_parameter_narratives(
         default_streategy_vars,
         end_yr=2050,
-        base_yr=2015):
+        base_yr=2015
+    ):
     """Load default parameters and create default timesteps
 
     Arguments
@@ -21,26 +22,25 @@ def generate_default_parameter_narratives(
 
     Returns
     -------
-
+    strategy_vars : dict
+        Strategy variables
     """
     strategy_vars = defaultdict(dict)
-    # ------------------------------------------------------------
+
     # Create default narrative for every simulation parameter
-    # ------------------------------------------------------------
     for var_name, var_entries in default_streategy_vars.items():
         crit_single_dim = narrative_related.crit_dim_var(var_entries)
 
         if crit_single_dim:
-            scenario_value = var_entries['default_value']
 
             # Create default narrative with only one timestep from simulation base year to simulation end year
             strategy_vars[var_name] = narrative_related.default_narrative(
                 end_yr=end_yr,
-                value_by=var_entries['default_value'],                # Base year value,
-                value_ey=scenario_value,
-                diffusion_choice=var_entries['diffusion_type'],       # Sigmoid or linear,
+                value_by=var_entries['default_value'],
+                value_ey=var_entries['default_value'],
+                diffusion_choice=var_entries['diffusion_type'],
                 base_yr=base_yr,
-                regional_specific=var_entries['regional_specific'])   # Criteria whether the same for all regions or not
+                regional_specific=var_entries['regional_specific']) # Criteria whether the same for all regions or not
 
         else:
             # Standard narrative for multidimensional narrative
@@ -50,9 +50,8 @@ def generate_default_parameter_narratives(
                     scenario_value = sub_var_entries['scenario_value']
                 except TypeError:
                     raise TypeError("{}: Var_entries dict: {}".format(var_name, var_entries))
-                # -----------------------------------
+
                 # Crate single-step default narratives (up to end_year)
-                # -----------------------------------
                 strategy_vars[var_name][sub_var_name] = narrative_related.default_narrative(
                     end_yr=end_yr,
                     value_by=sub_var_entries['default_value'],
@@ -61,9 +60,7 @@ def generate_default_parameter_narratives(
                     base_yr=base_yr,
                     regional_specific=sub_var_entries['regional_specific'])
 
-    strategy_vars = dict(strategy_vars)
-
-    return strategy_vars
+    return dict(strategy_vars)
 
 def load_param_assump(
         default_values=None,

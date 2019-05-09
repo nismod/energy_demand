@@ -1164,7 +1164,7 @@ def apply_scenario_drivers(
 
                     except KeyError:
                         # No sector specific GVA data defined
-                        logging.debug("No gva data found for sector {} {} ".format(sector, curr_yr))
+                        #logging.debug("No gva data found for sector {} {} ".format(sector, curr_yr))
                         by_driver_data = gva_per_head[base_yr][region]
                         cy_driver_data = gva_per_head[curr_yr][region]
 
@@ -1173,7 +1173,6 @@ def apply_scenario_drivers(
             elif scenario_driver == 'population':
                 by_driver_data = population[base_yr][region]
                 cy_driver_data = population[curr_yr][region]
-
                 #logging.info("pop  {}   {}".format(population[base_yr][region], population[curr_yr][region]))
 
             # Multiply drivers

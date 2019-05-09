@@ -354,7 +354,7 @@ def read_user_defined_param(
                             narrative['regional_specific'] = default_streategy_var[enduse]['regional_specific']
                             narrative['default_by'] = default_streategy_var[enduse]['default_value']
 
-                            # Check if more than one entry 
+                            # Check if more than one entry
                             for _index, row in df_enduse_sim_yr.iterrows():
 
                                 try:
@@ -445,13 +445,9 @@ def read_user_defined_param(
                     except (KeyError, AttributeError):
                         parameter_narratives['dummy_single_param'][narrative['sector']] = [narrative]
             else:
-                # Needs to be implemented in case sector specific
-                pass
+                pass # Needs to be implemented in case sector specific
 
-        # ------------
         # Autocomplete
-        # ------------
-        logging.debug("... autocomplete")
         parameter_narratives = autocomplete(
             parameter_narratives,
             simulation_base_yr,
