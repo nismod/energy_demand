@@ -12,6 +12,7 @@ for i in a:
     print(i)'''
 
 path = 'C:/Users/cenv0553/nismod2'
+out_path = "//ouce-file1.ouce.ox.ac.uk/Users/staff/cenv0553/Desktop/arc_results"
 '''
 results = Results({'interface': 'local_csv', 'dir': path})
 df = results.read(['energy_sd_optimised'], ['energy_demand_constrained'], ['service_gas']).drop(columns='decision')
@@ -88,7 +89,7 @@ filenames = [
     'service_solid_fuel_non_heating'
 ]
 
-filenames = [
+filenames_electricity = [
     'industry_electricity_boiler_electricity',
     'industry_electricity_district_heating_electricity',
     'industry_electricity_heat_pumps_electricity',
@@ -103,26 +104,27 @@ filenames = [
     'service_electricity_non_heating',
 ]
 
-filenames = [
-    'industry_electricity_boiler_electricity',
-    'industry_electricity_district_heating_electricity']
+
 # ['model_run', 'timestep', 'decision', 'lad_uk_2016', 'hourly', filenames...]
+filenames = filenames_electricity #filenames_electricity
+
+filenames = ['industry_electricity_boiler_electricity','industry_electricity_district_heating_electricity']
+
 
 model_runs = ['electricworld', 'multivector']
 timesteps = [2015, 2020, 2030, 2050]
-select_arc_regions = True
+select_arc_regions = False
 
+print("... reading in data ", flush=True)
 df = results.read(
     model_run_names=model_runs,
     model_names=['energy_demand_constrained'],
     output_names=filenames,
     timesteps=timesteps)
 
+print("... finished reading in data ", flush=True)
 
-print(df.columns.tolist())
-
-# Selet model run
-#df.loc[df['model_run'] == model_runs[0]]
+df = df.drop(columns=['decision'])
 
 # Select regions
 if select_arc_regions:
@@ -134,12 +136,6 @@ if select_arc_regions:
 
     df = df.loc[df['lad_uk_2016'].isin(arc_regions)]
 
-# Drop columns
-print(" ")
-print("-----------ungrouped-------------")
-print(df.sample(n=3))
-df = df.drop(columns=['decision'])
-
 df_grouped = df.groupby(
     by=['model_run', 'lad_uk_2016', 'timestep', 'hourly'],
     as_index=False).sum()
@@ -149,27 +145,66 @@ print(type(df_grouped))
 print(df.columns.tolist())
 print(df.sample(n=3).values)
 
-df_empty = pd.DataFrame(columns=model_runs, index=timesteps)
+df_annual_sum = pd.DataFrame(columns=model_runs, index=timesteps)
+df_peak = pd.DataFrame(columns=model_runs, index=timesteps)
+regional_dict = {}
+
+regions = list(set(df_grouped['lad_uk_2016'].values.tolist()))
 
 for model_run in model_runs:
+    print("... {}".format(model_run), flush=True)
+
+    df_regions = pd.DataFrame(columns=regions, index=timesteps)
+
     for timestep in timesteps:
-        print("aaaaaa")
-        print(df_grouped.columns.tolist())
+        print("... {}".format(timestep), flush=True)
+
+        # Select data
         annual_all_reg_all_hourly = df_grouped[(
             df_grouped['model_run'] == model_run) & (
                 df_grouped['timestep'] == timestep)]
 
-        print("ddd " + str(annual_all_reg_all_hourly.shape))
-        annual_all_reg_all_hourly = annual_all_reg_all_hourly.drop(columns=['model_run', 'timestep', 'lad_uk_2016', 'hourly'])
-        annual_all_reg_all_hourly = annual_all_reg_all_hourly.sum().sum()
-        print("annual_all_reg_all_hourly")
-        print(annual_all_reg_all_hourly)
-        df_empty[model_run][timestep] = annual_all_reg_all_hourly
+        annual_all_reg_all_hourly = annual_all_reg_all_hourly.drop(columns=['model_run', 'timestep'])
 
-print("===========")
-print(df_empty)
-df_empty.plot()
-plt.show()
+        annual_tot_sum = annual_all_reg_all_hourly.groupby(by='lad_uk_2016', as_index=False).sum()
+        annual_hourly = annual_all_reg_all_hourly.groupby(by='hourly', as_index=False).sum()
+        #annual_regions = annual_all_reg_all_hourly.groupby(by='lad_uk_2016', as_index=False).sum()
+
+        annual_tot_sum = annual_tot_sum.drop(columns=['lad_uk_2016', 'hourly'])
+        annual_hourly = annual_hourly.drop(columns=['hourly'])
+        #annual_regions = annual_regions.drop(columns=['hourly'])
+
+        # National total
+        annual_tot_sum = annual_tot_sum.sum(axis=1).sum().sum()
+        df_annual_sum[model_run][timestep] = annual_tot_sum / 1000 #GW to TW
+
+        # Peak total
+        df_peak[model_run][timestep] = annual_hourly.sum(axis=1).max()
+
+        # Regional
+        #annual_regions = annual_regions.set_index('lad_uk_2016')
+        #annual_regions = annual_regions.T
+        #df_year = pd.DataFrame(annual_regions.tolist(), columns=regions)
+        #df_regions.append(df_year)
+
+    #regional_dict[model_run] = df_regions
+
+# save figures
+df_annual_sum.plot()
+plt.savefig(os.path.join(out_path, "total_annual_sum.pdf"))
+plt.close()
+
+df_peak.plot()
+plt.savefig(os.path.join(out_path, "peak_demand.pdf"))
+plt.close()
+
+#for key, df_values in df_regions.items():
+#    df_values.plot()
+
+#plt.savefig(os.path.join(out_path, "regions.pdf"))
+#plt.close()
+
+print("... finished plotting")
 raise Exception("tt")
 
 for model_run in model_runs:
