@@ -108,10 +108,11 @@ filenames_electricity = [
 # ['model_run', 'timestep', 'decision', 'lad_uk_2016', 'hourly', filenames...]
 filenames = filenames_electricity #filenames_electricity
 
-filenames = ['industry_electricity_boiler_electricity','industry_electricity_district_heating_electricity']
+#filenames = ['industry_electricity_boiler_electricity','industry_electricity_district_heating_electricity']
 
 
 model_runs = ['electricworld', 'multivector']
+model_runs = ['energy_demand_constrained']
 timesteps = [2015, 2020, 2030, 2050]
 select_arc_regions = False
 
