@@ -54,7 +54,7 @@ class Dwelling(object):
         self.curr_yr = curr_yr
         self.enduses = enduses
         self.longitude = coordinates['longitude']
-        self.latitude = coordinates['longitude']
+        self.latitude = coordinates['latitude']
         self.dwtype = dwtype
         self.age = age
         self.population = population
@@ -517,7 +517,7 @@ def rs_dw_stock(
 
         # Get floor area per person for every simulation year
         data_floorarea_pp = get_floorare_pp(
-            floorarea_by,
+            tot_floorarea_cy,
             scenario_data['population'][base_yr][region],
             base_yr,
             sim_yrs,

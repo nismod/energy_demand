@@ -77,7 +77,6 @@ class EnergyDemandModel(object):
         logging.debug("... generating dwelling stocks")
         lookups = lookup_tables.basic_lookups()
 
-        #if criterias['virtual_building_stock_criteria']:
         rs_dw_stock, ss_dw_stock = create_virtual_dwelling_stocks(
             regions, assumptions.curr_yr, data, criterias)
 
@@ -85,10 +84,6 @@ class EnergyDemandModel(object):
             lookups['submodels_names'][0]: rs_dw_stock,
             lookups['submodels_names'][1]: ss_dw_stock,
             lookups['submodels_names'][2]: None}
-        #else:
-            # Create dwelling stock from imported data from newcastle
-        #    data = create_dwelling_stock(
-        #        regions, assumptions.curr_yr, data)
 
         # Initialise result container to aggregate results
         aggr_results = initialise_result_container(
